@@ -5,9 +5,9 @@ export interface CropDefinition {
   name: string;
   icon: string;
   description: string;
-  foodType: "grain" | "fiber"; // fiber = not food (future crafting material)
+  foodType: "grain" | "fiber";
   isFood: boolean;
-  baseYield: number; // per hour at level 1, scales with level
+  baseSeasonYield: number; // total yield per harvest, scales with level
 }
 
 export const CROPS: CropDefinition[] = [
@@ -15,28 +15,28 @@ export const CROPS: CropDefinition[] = [
     id: "wheat",
     name: "Wheat",
     icon: "🌾",
-    description: "A hardy staple grain. Reliable yield across seasons.",
+    description: "A hardy staple grain. High yield at harvest.",
     foodType: "grain",
     isFood: true,
-    baseYield: 10,
+    baseSeasonYield: 120,
   },
   {
     id: "barley",
     name: "Barley",
     icon: "🌿",
-    description: "Versatile grain used for bread and ale. Slightly lower yield than wheat.",
+    description: "Versatile grain for bread and ale. Moderate yield.",
     foodType: "grain",
     isFood: true,
-    baseYield: 7,
+    baseSeasonYield: 80,
   },
   {
     id: "flax",
     name: "Flax",
     icon: "🪻",
-    description: "Produces fiber for linen cloth. Does not provide food, but valuable for trade and crafting.",
+    description: "Produces fiber for linen cloth. No food, but valuable for trade.",
     foodType: "fiber",
     isFood: false,
-    baseYield: 5,
+    baseSeasonYield: 60,
   },
 ];
 
@@ -46,11 +46,10 @@ export function getCrop(id: CropId): CropDefinition {
 
 // Field building costs and timing
 export const FIELD_BASE_COST = { wood: 40, stone: 10 };
-export const FIELD_COST_MULTIPLIER = 1.4; // per level
+export const FIELD_COST_MULTIPLIER = 1.4;
 export const FIELD_BASE_BUILD_TIME = 45; // seconds
 export const FIELD_BUILD_TIME_MULTIPLIER = 1.5;
 
-// Max fields you can have (can increase later with upgrades)
 export const MAX_FIELDS = 8;
 export const FIELD_MAX_LEVEL = 10;
 
@@ -66,6 +65,7 @@ export function getFieldBuildTime(level: number): number {
   return Math.floor(FIELD_BASE_BUILD_TIME * Math.pow(FIELD_BUILD_TIME_MULTIPLIER, level));
 }
 
-export function getFieldYield(crop: CropDefinition, level: number): number {
-  return Math.floor(crop.baseYield * level * 1.1);
+// Total harvest yield for a field at a given level
+export function getSeasonYield(crop: CropDefinition, level: number): number {
+  return Math.floor(crop.baseSeasonYield * level * 1.1);
 }

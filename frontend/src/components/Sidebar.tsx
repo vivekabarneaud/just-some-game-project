@@ -1,5 +1,6 @@
 import { A, useLocation } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
+import { SEASON_META, HOURS_PER_SEASON } from "~/data/seasons";
 
 interface NavItem {
   path: string;
@@ -82,7 +83,28 @@ export default function Sidebar() {
       </nav>
 
       <div class="sidebar-controls">
-        <div class="nav-section-title">Game Speed</div>
+        <div class="nav-section-title">Season</div>
+        <div class="season-display">
+          <span class="season-icon">{SEASON_META[state.season].icon}</span>
+          <span class="season-name" style={{ color: SEASON_META[state.season].color }}>
+            {SEASON_META[state.season].name}
+          </span>
+          <span class="season-year">Year {state.year}</span>
+        </div>
+        <div class="season-progress-bar">
+          <div
+            class="season-progress-fill"
+            style={{
+              width: `${Math.min(100, (state.seasonElapsed / HOURS_PER_SEASON) * 100)}%`,
+              background: SEASON_META[state.season].color,
+            }}
+          />
+        </div>
+        <button class="skip-season-btn" onClick={() => actions.skipSeason()}>
+          Skip to next season →
+        </button>
+
+        <div class="nav-section-title" style={{ "margin-top": "12px" }}>Game Speed</div>
         <div class="speed-buttons">
           {SPEEDS.map((s) => (
             <button

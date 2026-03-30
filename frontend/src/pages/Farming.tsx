@@ -1,6 +1,7 @@
 import { For, Show, createSignal } from "solid-js";
 import { useGame, type PlayerField } from "~/engine/gameState";
-import { CROPS, type CropId, getCrop, getFieldCost, getFieldBuildTime, getFieldYield, MAX_FIELDS, FIELD_MAX_LEVEL } from "~/data/crops";
+import { CROPS, type CropId, getCrop, getFieldCost, getFieldBuildTime, getSeasonYield, MAX_FIELDS, FIELD_MAX_LEVEL } from "~/data/crops";
+import { SEASON_META } from "~/data/seasons";
 import Countdown from "~/components/Countdown";
 
 function formatTime(seconds: number): string {
@@ -11,16 +12,25 @@ function formatTime(seconds: number): string {
   return `${h}h ${m}m`;
 }
 
+function fieldSeasonStatus(season: string, level: number): { label: string; color: string } {
+  if (level === 0) return { label: "Under construction", color: "var(--accent-blue)" };
+  switch (season) {
+    case "spring": return { label: "Planted — growing", color: "var(--accent-green)" };
+    case "summer": return { label: "Growing", color: "var(--accent-green)" };
+    case "autumn": return { label: "Harvesting!", color: "#d4831a" };
+    case "winter": return { label: "Dormant", color: "var(--text-muted)" };
+    default: return { label: "", color: "" };
+  }
+}
+
 function FieldCard(props: { field: PlayerField }) {
   const { actions, state } = useGame();
   const crop = () => getCrop(props.field.crop);
-  const yieldRate = () =>
-    props.field.level > 0 && !props.field.upgrading
-      ? getFieldYield(crop(), props.field.level)
-      : 0;
-  const nextYield = () =>
+  const harvestYield = () =>
+    props.field.level > 0 ? getSeasonYield(crop(), props.field.level) : 0;
+  const nextHarvestYield = () =>
     props.field.level < FIELD_MAX_LEVEL
-      ? getFieldYield(crop(), props.field.level + 1)
+      ? getSeasonYield(crop(), props.field.level + 1)
       : null;
   const upgradeCost = () =>
     props.field.level < FIELD_MAX_LEVEL ? getFieldCost(props.field.level) : null;
@@ -30,16 +40,17 @@ function FieldCard(props: { field: PlayerField }) {
     if (!cost) return false;
     return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone;
   };
+  const seasonStatus = () => fieldSeasonStatus(state.season, props.field.level);
 
   return (
-    <div class="field-card" classList={{ upgrading: props.field.upgrading }}>
+    <div class="field-card" classList={{ upgrading: props.field.upgrading, harvesting: state.season === "autumn" && props.field.level > 0 }}>
       <div class="field-card-header">
         <span class="field-card-icon">{crop().icon}</span>
         <div>
           <div class="field-card-title">{crop().name} Field</div>
           <div class="field-card-level">
             {props.field.level === 0
-              ? "Under construction"
+              ? "Building..."
               : `Level ${props.field.level} / ${FIELD_MAX_LEVEL}`}
           </div>
         </div>
@@ -47,17 +58,16 @@ function FieldCard(props: { field: PlayerField }) {
 
       <Show when={props.field.upgrading && props.field.upgradeRemaining}>
         <div class="field-card-status upgrading-status">
-          {props.field.level === 0 ? "Planting" : "Upgrading"} — <Countdown remainingSeconds={props.field.upgradeRemaining!} />
+          {props.field.level === 0 ? "Preparing field" : "Upgrading"} — <Countdown remainingSeconds={props.field.upgradeRemaining!} />
         </div>
       </Show>
 
       <Show when={!props.field.upgrading && props.field.level > 0}>
-        <div class="field-card-production">
-          {crop().isFood ? (
-            <span class="rate-positive">+{yieldRate()}/h food</span>
-          ) : (
-            <span style={{ color: "var(--accent-purple)" }}>+{yieldRate()}/h fiber</span>
-          )}
+        <div class="field-card-status" style={{ color: seasonStatus().color }}>
+          {seasonStatus().label}
+        </div>
+        <div class="field-card-harvest">
+          Expected harvest: <strong>{harvestYield()}</strong> {crop().isFood ? "food" : "fiber"}
         </div>
       </Show>
 
@@ -68,9 +78,9 @@ function FieldCard(props: { field: PlayerField }) {
               🪵 {upgradeCost()!.wood} 🪨 {upgradeCost()!.stone}
             </span>
             <span class="field-upgrade-time">{formatTime(getFieldBuildTime(props.field.level))}</span>
-            <Show when={nextYield()}>
+            <Show when={nextHarvestYield()}>
               <span class="field-upgrade-yield">
-                → {crop().isFood ? "+" : ""}{nextYield()}/h
+                Harvest: {harvestYield()} → {nextHarvestYield()}
               </span>
             </Show>
           </div>
@@ -110,17 +120,18 @@ export default function Farming() {
     return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone;
   };
 
-  const totalFoodFromFields = () => {
+  const totalExpectedHarvest = () => {
     let total = 0;
     for (const field of state.fields) {
-      if (field.level === 0 || field.upgrading) continue;
+      if (field.level === 0) continue;
       const crop = getCrop(field.crop);
-      if (crop.isFood) total += getFieldYield(crop, field.level);
+      if (crop.isFood) total += getSeasonYield(crop, field.level);
     }
     return total;
   };
 
   const buildCost = () => getFieldCost(0);
+  const seasonMeta = () => SEASON_META[state.season];
 
   const handleBuildField = (cropId: CropId) => {
     actions.buildField(cropId);
@@ -137,14 +148,32 @@ export default function Farming() {
           <span class="farming-stat-value">{state.fields.length} / {MAX_FIELDS}</span>
         </div>
         <div class="farming-stat">
-          <span class="farming-stat-label">Total Food Production</span>
-          <span class="farming-stat-value rate-positive">+{totalFoodFromFields()}/h</span>
+          <span class="farming-stat-label">Season</span>
+          <span class="farming-stat-value" style={{ color: seasonMeta().color }}>
+            {seasonMeta().icon} {seasonMeta().name}
+          </span>
+        </div>
+        <div class="farming-stat">
+          <span class="farming-stat-label">Expected Harvest</span>
+          <span class="farming-stat-value">{totalExpectedHarvest()} food</span>
         </div>
         <div class="farming-stat">
           <span class="farming-stat-label">New Field Cost</span>
           <span class="farming-stat-value">🪵 {buildCost().wood} 🪨 {buildCost().stone}</span>
         </div>
       </div>
+
+      <Show when={state.season === "autumn" && actions.isHarvesting()}>
+        <div class="harvest-banner">
+          🍂 Harvest in progress! Your fields are yielding grain.
+        </div>
+      </Show>
+
+      <Show when={state.season === "winter"}>
+        <div class="winter-banner">
+          ❄️ Winter — fields are dormant. Survive on stored food, hunting, and foraging.
+        </div>
+      </Show>
 
       <Show when={state.fields.length > 0}>
         <div class="fields-grid">
@@ -187,9 +216,7 @@ export default function Farming() {
                     <span class="crop-option-name">{crop.name}</span>
                     <span class="crop-option-desc">{crop.description}</span>
                     <span class="crop-option-yield">
-                      {crop.isFood
-                        ? `+${getFieldYield(crop, 1)}/h food`
-                        : `+${getFieldYield(crop, 1)}/h fiber`}
+                      Harvest: {getSeasonYield(crop, 1)} {crop.isFood ? "food" : "fiber"}/season
                     </span>
                   </button>
                 )}

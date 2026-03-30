@@ -2,6 +2,7 @@ import { For, Show } from "solid-js";
 import { A } from "@solidjs/router";
 import { BUILDINGS, getSettlementName, SETTLEMENT_TIERS } from "~/data/buildings";
 import { RESOURCES } from "~/data/resources";
+import { SEASON_META } from "~/data/seasons";
 import { useGame } from "~/engine/gameState";
 import Countdown from "~/components/Countdown";
 
@@ -171,8 +172,10 @@ export default function Overview() {
             </span>
           </div>
           <div class="stat-row">
-            <span class="stat-label">Game Speed</span>
-            <span class="stat-value">{state.gameSpeed}x</span>
+            <span class="stat-label">Season</span>
+            <span class="stat-value" style={{ color: SEASON_META[state.season].color }}>
+              {SEASON_META[state.season].icon} {SEASON_META[state.season].name}, Year {state.year}
+            </span>
           </div>
         </div>
       </div>
