@@ -1,0 +1,24 @@
+{
+  "name": "medieval-realm",
+  "version": "0.1.0",
+  "description": "Medieval fantasy 4X browser game",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "solid-js": "^1.9.5",
+    "@solidjs/router": "^0.15.3",
+    "@tanstack/solid-query": "^5.68.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "vite": "^6.2.0",
+    "vite-plugin-solid": "^2.11.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
+  }
+}
