@@ -1,4 +1,4 @@
-import { For } from "solid-js";
+import { For, Show } from "solid-js";
 import { RESOURCES } from "~/data/resources";
 import { useGame } from "~/engine/gameState";
 
@@ -7,6 +7,7 @@ export default function ResourceBar() {
   const rates = () => actions.getProductionRates();
   const foodCons = () => actions.getFoodConsumption();
   const caps = () => actions.getStorageCaps();
+  const foodBreakdown = () => actions.getFoodBreakdown();
 
   const getAmount = (id: string) => {
     return Math.floor(state.resources[id as keyof typeof state.resources] as number);
@@ -32,7 +33,7 @@ export default function ResourceBar() {
         {(res) => {
           const rate = () => getRate(res.id);
           return (
-            <div class="resource-item">
+            <div class="resource-item" classList={{ "has-dropdown": res.id === "food" }}>
               <span class="resource-icon">{res.icon}</span>
               <span
                 class="resource-amount"
@@ -52,6 +53,26 @@ export default function ResourceBar() {
                 {rate() >= 0 ? "+" : ""}
                 {Math.round(rate())}/h
               </span>
+
+              <Show when={res.id === "food" && foodBreakdown().length > 0}>
+                <div class="resource-dropdown">
+                  <div class="dropdown-title">Food Sources</div>
+                  <For each={foodBreakdown()}>
+                    {(source) => (
+                      <div class="dropdown-row">
+                        <span>
+                          {source.icon} {source.label}
+                        </span>
+                        <span class="rate-positive">+{source.rate}/h</span>
+                      </div>
+                    )}
+                  </For>
+                  <div class="dropdown-row dropdown-total">
+                    <span>👤 Consumption</span>
+                    <span class="rate-negative">-{Math.round(foodCons())}/h</span>
+                  </div>
+                </div>
+              </Show>
             </div>
           );
         }}

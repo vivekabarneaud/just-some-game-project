@@ -525,6 +525,55 @@ body {
   margin-left: auto;
 }
 
+/* Resource dropdown (food breakdown) */
+.resource-item.has-dropdown {
+  position: relative;
+  cursor: default;
+}
+
+.resource-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 8px;
+  min-width: 200px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-highlight);
+  border-radius: 6px;
+  padding: 10px;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.resource-item.has-dropdown:hover .resource-dropdown {
+  display: block;
+}
+
+.dropdown-title {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dropdown-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  padding: 3px 0;
+  color: var(--text-secondary);
+}
+
+.dropdown-total {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border-color);
+}
+
 /* Sidebar controls */
 .sidebar-controls {
   padding: 12px 20px 16px;
@@ -577,6 +626,274 @@ body {
 .reset-btn:hover {
   border-color: var(--accent-red);
   color: var(--accent-red);
+}
+
+/* Farming page */
+.farming-summary {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.farming-stat {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.farming-stat-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+}
+
+.farming-stat-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.farming-empty {
+  background: var(--bg-panel);
+  border: 1px dashed var(--border-color);
+  border-radius: 8px;
+  padding: 40px;
+  text-align: center;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.fields-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.field-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 14px;
+  position: relative;
+}
+
+.field-card.upgrading {
+  border-color: var(--accent-blue);
+}
+
+.field-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.field-card-icon {
+  font-size: 1.8rem;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+}
+
+.field-card-title {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.field-card-level {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.field-card-status {
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+}
+
+.upgrading-status {
+  color: var(--accent-blue);
+}
+
+.field-card-production {
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.field-card-upgrade {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-color);
+}
+
+.field-upgrade-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.field-upgrade-yield {
+  color: var(--accent-green);
+}
+
+.field-upgrade-btn {
+  padding: 6px 14px;
+  background: linear-gradient(135deg, #3a4a1e, #5a7a2e);
+  color: var(--accent-green);
+  border: 1px solid var(--accent-green);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.field-upgrade-btn:hover {
+  background: linear-gradient(135deg, #4a5a2e, #6a8a3e);
+}
+
+.field-upgrade-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.field-remove-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 3px;
+  transition: all 0.15s;
+}
+
+.field-remove-btn:hover {
+  color: var(--accent-red);
+  background: rgba(231, 76, 60, 0.1);
+}
+
+.build-field-btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #2a3a1e, #3a5a2e);
+  color: var(--accent-green);
+  border: 1px dashed var(--accent-green);
+  border-radius: 8px;
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.build-field-btn:hover {
+  background: linear-gradient(135deg, #3a4a2e, #4a6a3e);
+}
+
+.build-field-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-style: dashed;
+}
+
+.crop-picker {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-highlight);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.crop-picker-title {
+  font-family: var(--font-heading);
+  color: var(--accent-gold);
+  margin-bottom: 12px;
+}
+
+.crop-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.crop-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.crop-option:hover {
+  border-color: var(--accent-green);
+  background: var(--bg-hover);
+}
+
+.crop-option:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.crop-option-icon {
+  font-size: 2rem;
+}
+
+.crop-option-name {
+  font-family: var(--font-heading);
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.crop-option-desc {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}
+
+.crop-option-yield {
+  font-size: 0.8rem;
+  color: var(--accent-green);
+  font-weight: 600;
+}
+
+.crop-picker-cancel {
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 6px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.crop-picker-cancel:hover {
+  border-color: var(--text-muted);
+  color: var(--text-primary);
 }
 
 /* Timer */

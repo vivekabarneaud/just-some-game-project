@@ -8,6 +8,7 @@ import { createStore, produce } from "solid-js/store";
 import {
   BUILDINGS,
   type BuildingCost,
+  type FoodType,
   type PlayerBuilding,
   type SettlementTier,
   BASE_POPULATION,
@@ -25,6 +26,15 @@ import {
   getSettlementName,
   isBuildingUnlocked,
 } from "~/data/buildings";
+import {
+  type CropId,
+  getCrop,
+  getFieldCost,
+  getFieldBuildTime,
+  getFieldYield,
+  MAX_FIELDS,
+  FIELD_MAX_LEVEL,
+} from "~/data/crops";
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -42,33 +52,63 @@ export interface StorageCaps {
   food: number;
 }
 
+export interface PlayerField {
+  id: string;
+  crop: CropId;
+  level: number;
+  upgrading: boolean;
+  upgradeRemaining?: number;
+}
+
 export interface GameState {
   resources: ResourceState;
   buildings: PlayerBuilding[];
+  fields: PlayerField[];
   population: number;
   lastTick: number;
   gameSpeed: number;
   villageName: string;
 }
 
+export interface FoodSource {
+  type: FoodType;
+  label: string;
+  icon: string;
+  rate: number;
+  building: string;
+}
+
 export interface GameActions {
+  // Buildings
   upgradeBuilding: (buildingId: string) => boolean;
+  canAfford: (cost: BuildingCost) => boolean;
+  getBuildingEffect: (buildingId: string, nextLevel: number) => string | null;
+  // Fields
+  buildField: (crop: CropId) => boolean;
+  upgradeField: (fieldId: string) => boolean;
+  removeField: (fieldId: string) => void;
+  // Game
   setGameSpeed: (speed: number) => void;
   resetGame: () => void;
+  // Derived
   getProductionRates: () => ResourceState;
   getMaxPopulation: () => number;
   getFoodConsumption: () => number;
+  getFoodBreakdown: () => FoodSource[];
   getStorageCaps: () => StorageCaps;
   getSettlementTier: () => SettlementTier;
   getTownHallLevel: () => number;
-  canAfford: (cost: BuildingCost) => boolean;
-  getBuildingEffect: (buildingId: string, nextLevel: number) => string | null;
 }
 
 // ─── Constants ───────────────────────────────────────────────────
 
 const STORAGE_KEY = "medieval-realm-save";
 const TICK_INTERVAL_MS = 1000;
+let fieldIdCounter = 1;
+
+function nextFieldId(): string {
+  return `field_${fieldIdCounter++}`;
+}
 
 function createInitialState(): GameState {
   return {
@@ -78,6 +118,7 @@ function createInitialState(): GameState {
       level: b.id === "town_hall" ? 1 : b.id === "houses" ? 1 : 0,
       upgrading: false,
     })),
+    fields: [],
     population: BASE_POPULATION + HOUSES_POP_PER_LEVEL,
     lastTick: Date.now(),
     gameSpeed: 1,
@@ -105,12 +146,17 @@ function loadGame(): GameState | null {
         saved.buildings.push({ buildingId: def.id, level: 0, upgrading: false });
       }
     }
+    // Remove old farm building if present
+    saved.buildings = saved.buildings.filter((b) => b.buildingId !== "farm");
     if ("mana" in saved.resources) {
       delete (saved.resources as Record<string, unknown>)["mana"];
     }
     if (saved.population === undefined) {
       const houses = saved.buildings.find((b) => b.buildingId === "houses");
       saved.population = BASE_POPULATION + (houses?.level ?? 0) * HOUSES_POP_PER_LEVEL;
+    }
+    if (!saved.fields) {
+      saved.fields = [];
     }
     for (const pb of saved.buildings) {
       if (pb.upgrading && (pb as any).upgradeFinishTime) {
@@ -119,6 +165,13 @@ function loadGame(): GameState | null {
         delete (pb as any).upgradeFinishTime;
       }
     }
+    // Restore field ID counter
+    let maxId = 0;
+    for (const f of saved.fields) {
+      const num = parseInt(f.id.replace("field_", ""), 10);
+      if (num > maxId) maxId = num;
+    }
+    fieldIdCounter = maxId + 1;
     return saved;
   } catch {
     return null;
@@ -127,9 +180,11 @@ function loadGame(): GameState | null {
 
 // ─── Derived calculations ────────────────────────────────────────
 
-function calcProductionRates(buildings: PlayerBuilding[], population: number): ResourceState {
+function calcProductionRates(buildings: PlayerBuilding[], fields: PlayerField[], population: number): ResourceState {
   const rates: ResourceState = { gold: 0, wood: 0, stone: 0, food: 0 };
+  // Citizen tax income
   rates.gold += Math.floor(population) * GOLD_TAX_PER_CITIZEN_PER_HOUR;
+  // Building production
   for (const pb of buildings) {
     if (pb.level === 0) continue;
     const def = BUILDINGS.find((b) => b.id === pb.buildingId);
@@ -142,7 +197,61 @@ function calcProductionRates(buildings: PlayerBuilding[], population: number): R
       }
     }
   }
+  // Field production
+  for (const field of fields) {
+    if (field.level === 0 || field.upgrading) continue;
+    const crop = getCrop(field.crop);
+    if (crop.isFood) {
+      rates.food += getFieldYield(crop, field.level);
+    }
+    // Non-food crops (flax etc) will produce other resources later
+  }
   return rates;
+}
+
+const FOOD_TYPE_META: Record<string, { label: string; icon: string }> = {
+  grain: { label: "Grain", icon: "🌾" },
+  meat: { label: "Meat", icon: "🥩" },
+  berries: { label: "Berries", icon: "🫐" },
+};
+
+function calcFoodBreakdown(buildings: PlayerBuilding[], fields: PlayerField[]): FoodSource[] {
+  const sources: FoodSource[] = [];
+  // From fields
+  for (const field of fields) {
+    if (field.level === 0 || field.upgrading) continue;
+    const crop = getCrop(field.crop);
+    if (!crop.isFood) continue;
+    const rate = getFieldYield(crop, field.level);
+    sources.push({
+      type: "grain",
+      label: crop.name,
+      icon: crop.icon,
+      rate,
+      building: `${crop.name} Field (Lv${field.level})`,
+    });
+  }
+  // From buildings (hunting, foraging)
+  for (const pb of buildings) {
+    if (pb.level === 0) continue;
+    const def = BUILDINGS.find((b) => b.id === pb.buildingId);
+    if (!def) continue;
+    const levelDef = def.levels[pb.level - 1];
+    if (levelDef?.production?.resource === "food" && levelDef.production.foodType) {
+      const ft = levelDef.production.foodType;
+      const meta = FOOD_TYPE_META[ft];
+      if (meta) {
+        sources.push({
+          type: ft,
+          label: meta.label,
+          icon: meta.icon,
+          rate: levelDef.production.rate,
+          building: def.name,
+        });
+      }
+    }
+  }
+  return sources;
 }
 
 function calcMaxPopulation(buildings: PlayerBuilding[]): number {
@@ -171,7 +280,6 @@ function getTownHallLevel(buildings: PlayerBuilding[]): number {
   return buildings.find((b) => b.buildingId === "town_hall")?.level ?? 0;
 }
 
-// Shows what the next upgrade does for infrastructure buildings
 function calcBuildingEffect(buildingId: string, nextLevel: number): string | null {
   const currentLevel = nextLevel - 1;
   switch (buildingId) {
@@ -226,7 +334,7 @@ export function GameProvider(props: ParentProps) {
 
     setState(
       produce((s) => {
-        const rates = calcProductionRates(s.buildings, s.population);
+        const rates = calcProductionRates(s.buildings, s.fields, s.population);
         const foodCons = calcFoodConsumption(s.population);
         const caps = calcStorageCaps(s.buildings);
         const maxPop = calcMaxPopulation(s.buildings);
@@ -245,6 +353,18 @@ export function GameProvider(props: ParentProps) {
               pb.level += 1;
               pb.upgrading = false;
               pb.upgradeRemaining = undefined;
+            }
+          }
+        }
+
+        // Tick down field upgrades
+        for (const field of s.fields) {
+          if (field.upgrading && field.upgradeRemaining !== undefined) {
+            field.upgradeRemaining -= elapsedSeconds;
+            if (field.upgradeRemaining <= 0) {
+              field.level += 1;
+              field.upgrading = false;
+              field.upgradeRemaining = undefined;
             }
           }
         }
@@ -270,13 +390,11 @@ export function GameProvider(props: ParentProps) {
     applyTicks(offlineMs);
   }
 
-  // Live tick loop
   const tickInterval = setInterval(() => {
     const elapsedMs = TICK_INTERVAL_MS * state.gameSpeed;
     applyTicks(elapsedMs);
   }, TICK_INTERVAL_MS);
 
-  // Autosave every 5s
   const saveInterval = setInterval(() => {
     saveGame(JSON.parse(JSON.stringify(state)));
   }, 5000);
@@ -291,26 +409,19 @@ export function GameProvider(props: ParentProps) {
     upgradeBuilding(buildingId: string): boolean {
       const pb = state.buildings.find((b) => b.buildingId === buildingId);
       if (!pb || pb.upgrading) return false;
-
       const def = BUILDINGS.find((b) => b.id === buildingId);
       if (!def) return false;
-
       if (!isBuildingUnlocked(def, getTownHallLevel(state.buildings))) return false;
       if (pb.level >= def.maxLevel) return false;
-
       const levelDef = def.levels[pb.level];
       if (!levelDef) return false;
-
       const cost = levelDef.cost;
-      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) {
-        return false;
-      }
+      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
 
       setState(
         produce((s) => {
           s.resources.wood -= cost.wood;
           s.resources.stone -= cost.stone;
-
           const b = s.buildings.find((b) => b.buildingId === buildingId)!;
           b.upgrading = true;
           b.upgradeRemaining = levelDef.buildTime;
@@ -319,18 +430,70 @@ export function GameProvider(props: ParentProps) {
       return true;
     },
 
+    buildField(crop: CropId): boolean {
+      if (state.fields.length >= MAX_FIELDS) return false;
+      const cost = getFieldCost(0);
+      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
+
+      const id = nextFieldId();
+      const buildTime = getFieldBuildTime(0);
+      setState(
+        produce((s) => {
+          s.resources.wood -= cost.wood;
+          s.resources.stone -= cost.stone;
+          s.fields.push({
+            id,
+            crop,
+            level: 0,
+            upgrading: true,
+            upgradeRemaining: buildTime,
+          });
+        }),
+      );
+      return true;
+    },
+
+    upgradeField(fieldId: string): boolean {
+      const field = state.fields.find((f) => f.id === fieldId);
+      if (!field || field.upgrading || field.level >= FIELD_MAX_LEVEL) return false;
+      const cost = getFieldCost(field.level);
+      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
+
+      const buildTime = getFieldBuildTime(field.level);
+      setState(
+        produce((s) => {
+          s.resources.wood -= cost.wood;
+          s.resources.stone -= cost.stone;
+          const f = s.fields.find((f) => f.id === fieldId)!;
+          f.upgrading = true;
+          f.upgradeRemaining = buildTime;
+        }),
+      );
+      return true;
+    },
+
+    removeField(fieldId: string) {
+      setState(
+        produce((s) => {
+          const idx = s.fields.findIndex((f) => f.id === fieldId);
+          if (idx !== -1) s.fields.splice(idx, 1);
+        }),
+      );
+    },
+
     setGameSpeed(speed: number) {
       setState("gameSpeed", speed);
     },
 
     resetGame() {
+      fieldIdCounter = 1;
       const fresh = createInitialState();
       setState(fresh);
       saveGame(fresh);
     },
 
     getProductionRates() {
-      return calcProductionRates(state.buildings, state.population);
+      return calcProductionRates(state.buildings, state.fields, state.population);
     },
 
     getMaxPopulation() {
@@ -339,6 +502,10 @@ export function GameProvider(props: ParentProps) {
 
     getFoodConsumption() {
       return calcFoodConsumption(state.population);
+    },
+
+    getFoodBreakdown() {
+      return calcFoodBreakdown(state.buildings, state.fields);
     },
 
     getStorageCaps() {

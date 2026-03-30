@@ -3,11 +3,13 @@ export interface BuildingCost {
   stone: number;
 }
 
+export type FoodType = "grain" | "meat" | "berries" | "fiber";
+
 export interface BuildingLevel {
   level: number;
   cost: BuildingCost;
   buildTime: number; // seconds
-  production?: { resource: string; rate: number };
+  production?: { resource: string; rate: number; foodType?: FoodType };
   description: string;
 }
 
@@ -67,7 +69,7 @@ export function getUnlockRequirement(building: BuildingDefinition): string {
 function generateLevels(
   base: { wood: number; stone: number },
   buildTimeBase: number,
-  production?: { resource: string; baseRate: number },
+  production?: { resource: string; baseRate: number; foodType?: FoodType },
   maxLevel: number = 20,
 ): BuildingLevel[] {
   return Array.from({ length: maxLevel }, (_, i) => {
@@ -81,7 +83,11 @@ function generateLevels(
       },
       buildTime: Math.floor(buildTimeBase * multiplier),
       production: production
-        ? { resource: production.resource, rate: Math.floor(production.baseRate * lvl * 1.1) }
+        ? {
+            resource: production.resource,
+            rate: Math.floor(production.baseRate * lvl * 1.1),
+            foodType: production.foodType,
+          }
         : undefined,
       description: `Level ${lvl}`,
     };
@@ -139,17 +145,6 @@ export const BUILDINGS: BuildingDefinition[] = [
 
   // Camp tier — production basics
   {
-    id: "farm",
-    name: "Farm & Fields",
-    category: "production",
-    description:
-      "Fertile fields where peasants grow wheat and raise livestock. The backbone of your settlement's food supply.",
-    icon: "🌾",
-    maxLevel: 20,
-    levels: generateLevels({ wood: 80, stone: 20 }, 60, { resource: "food", baseRate: 30 }),
-    requiredTier: "camp",
-  },
-  {
     id: "lumber_mill",
     name: "Lumber Mill",
     category: "production",
@@ -179,7 +174,19 @@ export const BUILDINGS: BuildingDefinition[] = [
       "Skilled hunters venture into the wilds, bringing back game and pelts. Supplements your food supply.",
     icon: "🏹",
     maxLevel: 15,
-    levels: generateLevels({ wood: 90, stone: 10 }, 60, { resource: "food", baseRate: 18 }, 15),
+    levels: generateLevels({ wood: 90, stone: 10 }, 60, { resource: "food", baseRate: 10, foodType: "meat" }, 15),
+    requiredTier: "camp",
+  },
+
+  {
+    id: "forager_hut",
+    name: "Forager's Hut",
+    category: "production",
+    description:
+      "Gatherers scour the forest edges for wild berries, mushrooms, and herbs. A quick and cheap source of food.",
+    icon: "🫐",
+    maxLevel: 10,
+    levels: generateLevels({ wood: 30, stone: 5 }, 30, { resource: "food", baseRate: 6, foodType: "berries" }, 10),
     requiredTier: "camp",
   },
 
@@ -275,7 +282,7 @@ export const HOUSES_POP_PER_LEVEL = 8;
 export const BASE_POPULATION = 5;
 
 // Food consumed per citizen per hour
-export const FOOD_PER_CITIZEN_PER_HOUR = 2;
+export const FOOD_PER_CITIZEN_PER_HOUR = 3;
 
 // Material storage (wood & stone) — Warehouse
 export const BASE_MATERIAL_STORAGE = 500;
@@ -290,7 +297,7 @@ export const BASE_GOLD_STORAGE = 200;
 export const GOLD_STORAGE_PER_TH_LEVEL = 300;
 
 // Villager growth: 1 new villager per this many game-hours, when conditions are met
-export const VILLAGER_GROWTH_INTERVAL_HOURS = 0.5; // 1 villager every 30 min
+export const VILLAGER_GROWTH_INTERVAL_HOURS = 0.083; // ~1 villager every 5 min
 
 // Gold tax income per citizen per hour
 export const GOLD_TAX_PER_CITIZEN_PER_HOUR = 1;
