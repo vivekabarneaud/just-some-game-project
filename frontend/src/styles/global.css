@@ -712,6 +712,13 @@ body {
   color: var(--text-primary);
 }
 
+.farming-section-title {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
 .farming-empty {
   background: var(--bg-panel);
   border: 1px dashed var(--border-color);

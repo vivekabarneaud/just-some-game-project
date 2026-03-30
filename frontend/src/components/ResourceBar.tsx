@@ -6,6 +6,7 @@ export default function ResourceBar() {
   const { state, actions } = useGame();
   const rates = () => actions.getProductionRates();
   const foodCons = () => actions.getFoodConsumption();
+  const animalCons = () => actions.getAnimalFoodConsumption();
   const caps = () => actions.getStorageCaps();
   const foodBreakdown = () => actions.getFoodBreakdown();
 
@@ -21,7 +22,7 @@ export default function ResourceBar() {
   const getRate = (id: string) => {
     const r = rates();
     const base = r[id as keyof typeof r] as number;
-    if (id === "food") return base - foodCons();
+    if (id === "food") return base - foodCons() - animalCons();
     return base;
   };
 
@@ -54,23 +55,32 @@ export default function ResourceBar() {
                 {Math.round(rate())}/h
               </span>
 
-              <Show when={res.id === "food" && foodBreakdown().length > 0}>
+              <Show when={res.id === "food"}>
                 <div class="resource-dropdown">
                   <div class="dropdown-title">Food Sources</div>
-                  <For each={foodBreakdown()}>
-                    {(source) => (
-                      <div class="dropdown-row">
-                        <span>
-                          {source.icon} {source.label}
-                        </span>
-                        <span class="rate-positive">+{source.rate}/h</span>
-                      </div>
-                    )}
-                  </For>
+                  <Show when={foodBreakdown().length > 0}>
+                    <For each={foodBreakdown()}>
+                      {(source) => (
+                        <div class="dropdown-row">
+                          <span>{source.icon} {source.label}</span>
+                          <span class="rate-positive">+{source.rate}/h</span>
+                        </div>
+                      )}
+                    </For>
+                  </Show>
+                  <Show when={foodBreakdown().length === 0}>
+                    <div class="dropdown-row" style={{ color: "var(--text-muted)" }}>No food production</div>
+                  </Show>
                   <div class="dropdown-row dropdown-total">
-                    <span>👤 Consumption</span>
+                    <span>👤 Citizens</span>
                     <span class="rate-negative">-{Math.round(foodCons())}/h</span>
                   </div>
+                  <Show when={animalCons() > 0}>
+                    <div class="dropdown-row">
+                      <span>🐄 Animal feed</span>
+                      <span class="rate-negative">-{Math.round(animalCons())}/h</span>
+                    </div>
+                  </Show>
                 </div>
               </Show>
             </div>

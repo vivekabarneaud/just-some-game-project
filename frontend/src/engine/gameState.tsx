@@ -36,8 +36,26 @@ import {
   FIELD_MAX_LEVEL,
 } from "~/data/crops";
 import {
+  type VeggieId,
+  getVeggie,
+  getGardenCost,
+  getGardenBuildTime,
+  getGardenRate,
+  isGardenActive,
+  MAX_GARDENS,
+  GARDEN_MAX_LEVEL,
+} from "~/data/gardens";
+import {
+  type AnimalId,
+  getAnimal,
+  getPenCost,
+  getPenBuildTime,
+  getPenProduction,
+  MAX_PENS,
+  PEN_MAX_LEVEL,
+} from "~/data/livestock";
+import {
   type Season,
-  SEASON_ORDER,
   HOURS_PER_SEASON,
   HARVEST_DURATION_HOURS,
   nextSeason,
@@ -67,13 +85,31 @@ export interface PlayerField {
   upgradeRemaining?: number;
 }
 
+export interface PlayerGarden {
+  id: string;
+  veggie: VeggieId;
+  level: number;
+  upgrading: boolean;
+  upgradeRemaining?: number;
+}
+
+export interface PlayerPen {
+  id: string;
+  animal: AnimalId;
+  level: number;
+  upgrading: boolean;
+  upgradeRemaining?: number;
+}
+
 export interface GameState {
   resources: ResourceState;
   buildings: PlayerBuilding[];
   fields: PlayerField[];
+  gardens: PlayerGarden[];
+  pens: PlayerPen[];
   population: number;
   season: Season;
-  seasonElapsed: number; // game-hours elapsed in current season
+  seasonElapsed: number;
   year: number;
   lastTick: number;
   gameSpeed: number;
@@ -81,7 +117,7 @@ export interface GameState {
 }
 
 export interface FoodSource {
-  type: FoodType;
+  type: FoodType | string;
   label: string;
   icon: string;
   rate: number;
@@ -89,22 +125,25 @@ export interface FoodSource {
 }
 
 export interface GameActions {
-  // Buildings
   upgradeBuilding: (buildingId: string) => boolean;
   canAfford: (cost: BuildingCost) => boolean;
   getBuildingEffect: (buildingId: string, nextLevel: number) => string | null;
-  // Fields
   buildField: (crop: CropId) => boolean;
   upgradeField: (fieldId: string) => boolean;
   removeField: (fieldId: string) => void;
-  // Game
+  buildGarden: (veggie: VeggieId) => boolean;
+  upgradeGarden: (gardenId: string) => boolean;
+  removeGarden: (gardenId: string) => void;
+  buildPen: (animal: AnimalId) => boolean;
+  upgradePen: (penId: string) => boolean;
+  removePen: (penId: string) => void;
   setGameSpeed: (speed: number) => void;
   resetGame: () => void;
   skipSeason: () => void;
-  // Derived
   getProductionRates: () => ResourceState;
   getMaxPopulation: () => number;
   getFoodConsumption: () => number;
+  getAnimalFoodConsumption: () => number;
   getFoodBreakdown: () => FoodSource[];
   getStorageCaps: () => StorageCaps;
   getSettlementTier: () => SettlementTier;
@@ -116,10 +155,10 @@ export interface GameActions {
 
 const STORAGE_KEY = "medieval-realm-save";
 const TICK_INTERVAL_MS = 1000;
-let fieldIdCounter = 1;
+let idCounter = 1;
 
-function nextFieldId(): string {
-  return `field_${fieldIdCounter++}`;
+function nextId(prefix: string): string {
+  return `${prefix}_${idCounter++}`;
 }
 
 function createInitialState(): GameState {
@@ -131,6 +170,8 @@ function createInitialState(): GameState {
       upgrading: false,
     })),
     fields: [],
+    gardens: [],
+    pens: [],
     population: BASE_POPULATION + HOUSES_POP_PER_LEVEL,
     season: "spring",
     seasonElapsed: 0,
@@ -146,9 +187,7 @@ function createInitialState(): GameState {
 function saveGame(state: GameState) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch {
-    // silently ignore
-  }
+  } catch { /* ignore */ }
 }
 
 function loadGame(): GameState | null {
@@ -162,28 +201,29 @@ function loadGame(): GameState | null {
       }
     }
     saved.buildings = saved.buildings.filter((b) => b.buildingId !== "farm");
-    if ("mana" in saved.resources) {
-      delete (saved.resources as Record<string, unknown>)["mana"];
-    }
+    if ("mana" in saved.resources) delete (saved.resources as any)["mana"];
     if (saved.population === undefined) {
       const houses = saved.buildings.find((b) => b.buildingId === "houses");
       saved.population = BASE_POPULATION + (houses?.level ?? 0) * HOUSES_POP_PER_LEVEL;
     }
     if (!saved.fields) saved.fields = [];
+    if (!saved.gardens) saved.gardens = [];
+    if (!saved.pens) saved.pens = [];
     if (!saved.season) { saved.season = "spring"; saved.seasonElapsed = 0; saved.year = 1; }
     for (const pb of saved.buildings) {
       if (pb.upgrading && (pb as any).upgradeFinishTime) {
-        const remaining = Math.max(0, ((pb as any).upgradeFinishTime - Date.now()) / 1000);
-        pb.upgradeRemaining = remaining;
+        pb.upgradeRemaining = Math.max(0, ((pb as any).upgradeFinishTime - Date.now()) / 1000);
         delete (pb as any).upgradeFinishTime;
       }
     }
+    // Restore ID counter
     let maxId = 0;
-    for (const f of saved.fields) {
-      const num = parseInt(f.id.replace("field_", ""), 10);
+    const allIds = [...saved.fields, ...saved.gardens, ...saved.pens];
+    for (const item of allIds) {
+      const num = parseInt(item.id.replace(/^[a-z]+_/, ""), 10);
       if (num > maxId) maxId = num;
     }
-    fieldIdCounter = maxId + 1;
+    idCounter = maxId + 1;
     return saved;
   } catch {
     return null;
@@ -193,21 +233,18 @@ function loadGame(): GameState | null {
 // ─── Season helpers ──────────────────────────────────────────────
 
 function isHarvestTime(season: Season, seasonElapsed: number): boolean {
-  // Harvest happens during the first HARVEST_DURATION_HOURS of autumn
   return season === "autumn" && seasonElapsed < HARVEST_DURATION_HOURS;
 }
 
 // ─── Derived calculations ────────────────────────────────────────
 
-function calcProductionRates(
-  buildings: PlayerBuilding[],
-  fields: PlayerField[],
-  population: number,
-  season: Season,
-  seasonElapsed: number,
-): ResourceState {
+function calcProductionRates(state: GameState): ResourceState {
+  const { buildings, fields, gardens, pens, population, season, seasonElapsed } = state;
   const rates: ResourceState = { gold: 0, wood: 0, stone: 0, food: 0 };
+
+  // Citizen tax
   rates.gold += Math.floor(population) * GOLD_TAX_PER_CITIZEN_PER_HOUR;
+
   // Building production (year-round)
   for (const pb of buildings) {
     if (pb.level === 0) continue;
@@ -216,57 +253,95 @@ function calcProductionRates(
     const levelDef = def.levels[pb.level - 1];
     if (levelDef?.production) {
       const res = levelDef.production.resource as keyof ResourceState;
-      if (res in rates) {
-        rates[res] += levelDef.production.rate;
-      }
+      if (res in rates) rates[res] += levelDef.production.rate;
     }
   }
-  // Field production — only during harvest (autumn, first few hours)
+
+  // Fields — harvest burst in autumn
   if (isHarvestTime(season, seasonElapsed)) {
     for (const field of fields) {
       if (field.level === 0) continue;
       const crop = getCrop(field.crop);
       if (crop.isFood) {
-        const totalYield = getSeasonYield(crop, field.level);
-        // Spread the harvest over HARVEST_DURATION_HOURS
-        rates.food += totalYield / HARVEST_DURATION_HOURS;
+        rates.food += getSeasonYield(crop, field.level) / HARVEST_DURATION_HOURS;
       }
     }
   }
+
+  // Gardens — produce during active seasons
+  for (const garden of gardens) {
+    if (garden.level === 0) continue;
+    const veggie = getVeggie(garden.veggie);
+    if (isGardenActive(veggie, season)) {
+      rates.food += getGardenRate(veggie, garden.level);
+    }
+  }
+
+  // Pens — produce year-round, but also consume food
+  for (const pen of pens) {
+    if (pen.level === 0) continue;
+    const animal = getAnimal(pen.animal);
+    const prod = getPenProduction(animal, pen.level);
+    rates.food += prod.produced;
+  }
+
   return rates;
+}
+
+function calcAnimalFoodConsumption(pens: PlayerPen[]): number {
+  let total = 0;
+  for (const pen of pens) {
+    if (pen.level === 0) continue;
+    const animal = getAnimal(pen.animal);
+    const prod = getPenProduction(animal, pen.level);
+    total += prod.consumed;
+  }
+  return total;
 }
 
 const FOOD_TYPE_META: Record<string, { label: string; icon: string }> = {
   grain: { label: "Grain", icon: "🌾" },
   meat: { label: "Meat", icon: "🥩" },
   berries: { label: "Berries", icon: "🫐" },
+  fish: { label: "Fish", icon: "🐟" },
+  eggs: { label: "Eggs", icon: "🥚" },
+  milk: { label: "Milk", icon: "🥛" },
+  veggies: { label: "Vegetables", icon: "🥬" },
 };
 
-function calcFoodBreakdown(
-  buildings: PlayerBuilding[],
-  fields: PlayerField[],
-  season: Season,
-  seasonElapsed: number,
-): FoodSource[] {
+function calcFoodBreakdown(state: GameState): FoodSource[] {
+  const { buildings, fields, gardens, pens, season, seasonElapsed } = state;
   const sources: FoodSource[] = [];
-  // From fields (only during harvest)
+
+  // Fields (harvest only)
   if (isHarvestTime(season, seasonElapsed)) {
     for (const field of fields) {
       if (field.level === 0) continue;
       const crop = getCrop(field.crop);
       if (!crop.isFood) continue;
-      const totalYield = getSeasonYield(crop, field.level);
-      const rate = totalYield / HARVEST_DURATION_HOURS;
-      sources.push({
-        type: "grain",
-        label: crop.name,
-        icon: crop.icon,
-        rate: Math.round(rate),
-        building: `${crop.name} Field (Lv${field.level})`,
-      });
+      const rate = Math.round(getSeasonYield(crop, field.level) / HARVEST_DURATION_HOURS);
+      sources.push({ type: "grain", label: crop.name, icon: crop.icon, rate, building: `${crop.name} Field Lv${field.level}` });
     }
   }
-  // From buildings (year-round: hunting, foraging)
+
+  // Gardens
+  for (const garden of gardens) {
+    if (garden.level === 0) continue;
+    const veggie = getVeggie(garden.veggie);
+    if (!isGardenActive(veggie, season)) continue;
+    const rate = getGardenRate(veggie, garden.level);
+    sources.push({ type: "veggies", label: veggie.name, icon: veggie.icon, rate, building: `${veggie.name} Garden Lv${garden.level}` });
+  }
+
+  // Pens
+  for (const pen of pens) {
+    if (pen.level === 0) continue;
+    const animal = getAnimal(pen.animal);
+    const prod = getPenProduction(animal, pen.level);
+    sources.push({ type: animal.foodLabel.toLowerCase(), label: animal.foodLabel, icon: animal.icon, rate: prod.produced, building: `${animal.name} Pen Lv${pen.level}` });
+  }
+
+  // Buildings (hunting, foraging, fishing)
   for (const pb of buildings) {
     if (pb.level === 0) continue;
     const def = BUILDINGS.find((b) => b.id === pb.buildingId);
@@ -276,16 +351,11 @@ function calcFoodBreakdown(
       const ft = levelDef.production.foodType;
       const meta = FOOD_TYPE_META[ft];
       if (meta) {
-        sources.push({
-          type: ft,
-          label: meta.label,
-          icon: meta.icon,
-          rate: levelDef.production.rate,
-          building: def.name,
-        });
+        sources.push({ type: ft, label: meta.label, icon: meta.icon, rate: levelDef.production.rate, building: def.name });
       }
     }
   }
+
   return sources;
 }
 
@@ -366,9 +436,7 @@ export function GameProvider(props: ParentProps) {
     const next = nextSeason(s.season);
     s.season = next;
     s.seasonElapsed = 0;
-    if (next === "spring") {
-      s.year += 1;
-    }
+    if (next === "spring") s.year += 1;
   }
 
   function applyTicks(elapsedMs: number) {
@@ -378,56 +446,45 @@ export function GameProvider(props: ParentProps) {
 
     setState(
       produce((s) => {
-        // Advance season clock
+        // Advance season
         s.seasonElapsed += elapsedHours;
         while (s.seasonElapsed >= HOURS_PER_SEASON) {
           s.seasonElapsed -= HOURS_PER_SEASON;
           advanceSeason(s);
         }
 
-        const rates = calcProductionRates(s.buildings, s.fields, s.population, s.season, s.seasonElapsed);
-        const foodCons = calcFoodConsumption(s.population);
+        const rates = calcProductionRates(s);
+        const citizenFood = calcFoodConsumption(s.population);
+        const animalFood = calcAnimalFoodConsumption(s.pens);
         const caps = calcStorageCaps(s.buildings);
         const maxPop = calcMaxPopulation(s.buildings);
-        const netFoodRate = rates.food - foodCons;
+        const netFoodRate = rates.food - citizenFood - animalFood;
 
         s.resources.gold = Math.min(caps.gold, Math.max(0, s.resources.gold + rates.gold * elapsedHours));
         s.resources.wood = Math.min(caps.wood, Math.max(0, s.resources.wood + rates.wood * elapsedHours));
         s.resources.stone = Math.min(caps.stone, Math.max(0, s.resources.stone + rates.stone * elapsedHours));
         s.resources.food = Math.min(caps.food, Math.max(0, s.resources.food + netFoodRate * elapsedHours));
 
-        // Tick down building upgrades
-        for (const pb of s.buildings) {
-          if (pb.upgrading && pb.upgradeRemaining !== undefined) {
-            pb.upgradeRemaining -= elapsedSeconds;
-            if (pb.upgradeRemaining <= 0) {
-              pb.level += 1;
-              pb.upgrading = false;
-              pb.upgradeRemaining = undefined;
-            }
-          }
-        }
-
-        // Tick down field upgrades
-        for (const field of s.fields) {
-          if (field.upgrading && field.upgradeRemaining !== undefined) {
-            field.upgradeRemaining -= elapsedSeconds;
-            if (field.upgradeRemaining <= 0) {
-              field.level += 1;
-              field.upgrading = false;
-              field.upgradeRemaining = undefined;
+        // Tick upgrades — buildings, fields, gardens, pens
+        for (const list of [s.buildings, s.fields, s.gardens, s.pens]) {
+          for (const item of list) {
+            if (item.upgrading && item.upgradeRemaining !== undefined) {
+              item.upgradeRemaining -= elapsedSeconds;
+              if (item.upgradeRemaining <= 0) {
+                item.level += 1;
+                item.upgrading = false;
+                item.upgradeRemaining = undefined;
+              }
             }
           }
         }
 
         // Villager growth / decline
         if (netFoodRate > 0 && s.population < maxPop) {
-          const growthRate = 1 / VILLAGER_GROWTH_INTERVAL_HOURS;
-          const growth = growthRate * elapsedHours;
+          const growth = (1 / VILLAGER_GROWTH_INTERVAL_HOURS) * elapsedHours;
           s.population = Math.min(maxPop, s.population + growth);
         } else if (s.resources.food <= 0 && s.population > BASE_POPULATION) {
-          const loss = 1 * elapsedHours;
-          s.population = Math.max(BASE_POPULATION, s.population - loss);
+          s.population = Math.max(BASE_POPULATION, s.population - elapsedHours);
         }
 
         s.lastTick = Date.now();
@@ -435,20 +492,11 @@ export function GameProvider(props: ParentProps) {
     );
   }
 
-  // Apply offline catch-up
   const offlineMs = Date.now() - state.lastTick;
-  if (offlineMs > 2000) {
-    applyTicks(offlineMs);
-  }
+  if (offlineMs > 2000) applyTicks(offlineMs);
 
-  const tickInterval = setInterval(() => {
-    const elapsedMs = TICK_INTERVAL_MS * state.gameSpeed;
-    applyTicks(elapsedMs);
-  }, TICK_INTERVAL_MS);
-
-  const saveInterval = setInterval(() => {
-    saveGame(JSON.parse(JSON.stringify(state)));
-  }, 5000);
+  const tickInterval = setInterval(() => applyTicks(TICK_INTERVAL_MS * state.gameSpeed), TICK_INTERVAL_MS);
+  const saveInterval = setInterval(() => saveGame(JSON.parse(JSON.stringify(state))), 5000);
 
   onCleanup(() => {
     clearInterval(tickInterval);
@@ -457,133 +505,155 @@ export function GameProvider(props: ParentProps) {
   });
 
   const actions: GameActions = {
-    upgradeBuilding(buildingId: string): boolean {
+    upgradeBuilding(buildingId) {
       const pb = state.buildings.find((b) => b.buildingId === buildingId);
       if (!pb || pb.upgrading) return false;
       const def = BUILDINGS.find((b) => b.id === buildingId);
-      if (!def) return false;
-      if (!isBuildingUnlocked(def, getTownHallLevel(state.buildings))) return false;
+      if (!def || !isBuildingUnlocked(def, getTownHallLevel(state.buildings))) return false;
       if (pb.level >= def.maxLevel) return false;
       const levelDef = def.levels[pb.level];
       if (!levelDef) return false;
-      const cost = levelDef.cost;
-      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
-
-      setState(
-        produce((s) => {
-          s.resources.wood -= cost.wood;
-          s.resources.stone -= cost.stone;
-          const b = s.buildings.find((b) => b.buildingId === buildingId)!;
-          b.upgrading = true;
-          b.upgradeRemaining = levelDef.buildTime;
-        }),
-      );
+      const { wood, stone } = levelDef.cost;
+      if (state.resources.wood < wood || state.resources.stone < stone) return false;
+      setState(produce((s) => {
+        s.resources.wood -= wood;
+        s.resources.stone -= stone;
+        const b = s.buildings.find((b) => b.buildingId === buildingId)!;
+        b.upgrading = true;
+        b.upgradeRemaining = levelDef.buildTime;
+      }));
       return true;
     },
 
-    buildField(crop: CropId): boolean {
+    buildField(crop) {
       if (state.fields.length >= MAX_FIELDS) return false;
       const cost = getFieldCost(0);
       if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
-
-      const id = nextFieldId();
-      const buildTime = getFieldBuildTime(0);
-      setState(
-        produce((s) => {
-          s.resources.wood -= cost.wood;
-          s.resources.stone -= cost.stone;
-          s.fields.push({ id, crop, level: 0, upgrading: true, upgradeRemaining: buildTime });
-        }),
-      );
+      const id = nextId("field");
+      setState(produce((s) => {
+        s.resources.wood -= cost.wood;
+        s.resources.stone -= cost.stone;
+        s.fields.push({ id, crop, level: 0, upgrading: true, upgradeRemaining: getFieldBuildTime(0) });
+      }));
       return true;
     },
 
-    upgradeField(fieldId: string): boolean {
+    upgradeField(fieldId) {
       const field = state.fields.find((f) => f.id === fieldId);
       if (!field || field.upgrading || field.level >= FIELD_MAX_LEVEL) return false;
       const cost = getFieldCost(field.level);
       if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
-
-      const buildTime = getFieldBuildTime(field.level);
-      setState(
-        produce((s) => {
-          s.resources.wood -= cost.wood;
-          s.resources.stone -= cost.stone;
-          const f = s.fields.find((f) => f.id === fieldId)!;
-          f.upgrading = true;
-          f.upgradeRemaining = buildTime;
-        }),
-      );
+      setState(produce((s) => {
+        s.resources.wood -= cost.wood;
+        s.resources.stone -= cost.stone;
+        const f = s.fields.find((f) => f.id === fieldId)!;
+        f.upgrading = true;
+        f.upgradeRemaining = getFieldBuildTime(field.level);
+      }));
       return true;
     },
 
-    removeField(fieldId: string) {
-      setState(
-        produce((s) => {
-          const idx = s.fields.findIndex((f) => f.id === fieldId);
-          if (idx !== -1) s.fields.splice(idx, 1);
-        }),
-      );
+    removeField(fieldId) {
+      setState(produce((s) => {
+        const idx = s.fields.findIndex((f) => f.id === fieldId);
+        if (idx !== -1) s.fields.splice(idx, 1);
+      }));
     },
 
-    setGameSpeed(speed: number) {
-      setState("gameSpeed", speed);
+    buildGarden(veggie) {
+      if (state.gardens.length >= MAX_GARDENS) return false;
+      const cost = getGardenCost(0);
+      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
+      const id = nextId("garden");
+      setState(produce((s) => {
+        s.resources.wood -= cost.wood;
+        s.resources.stone -= cost.stone;
+        s.gardens.push({ id, veggie, level: 0, upgrading: true, upgradeRemaining: getGardenBuildTime(0) });
+      }));
+      return true;
     },
+
+    upgradeGarden(gardenId) {
+      const garden = state.gardens.find((g) => g.id === gardenId);
+      if (!garden || garden.upgrading || garden.level >= GARDEN_MAX_LEVEL) return false;
+      const cost = getGardenCost(garden.level);
+      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
+      setState(produce((s) => {
+        s.resources.wood -= cost.wood;
+        s.resources.stone -= cost.stone;
+        const g = s.gardens.find((g) => g.id === gardenId)!;
+        g.upgrading = true;
+        g.upgradeRemaining = getGardenBuildTime(garden.level);
+      }));
+      return true;
+    },
+
+    removeGarden(gardenId) {
+      setState(produce((s) => {
+        const idx = s.gardens.findIndex((g) => g.id === gardenId);
+        if (idx !== -1) s.gardens.splice(idx, 1);
+      }));
+    },
+
+    buildPen(animal) {
+      if (state.pens.length >= MAX_PENS) return false;
+      const cost = getPenCost(0);
+      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone || state.resources.gold < cost.gold) return false;
+      const id = nextId("pen");
+      setState(produce((s) => {
+        s.resources.wood -= cost.wood;
+        s.resources.stone -= cost.stone;
+        s.resources.gold -= cost.gold;
+        s.pens.push({ id, animal, level: 0, upgrading: true, upgradeRemaining: getPenBuildTime(0) });
+      }));
+      return true;
+    },
+
+    upgradePen(penId) {
+      const pen = state.pens.find((p) => p.id === penId);
+      if (!pen || pen.upgrading || pen.level >= PEN_MAX_LEVEL) return false;
+      const cost = getPenCost(pen.level);
+      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone || state.resources.gold < cost.gold) return false;
+      setState(produce((s) => {
+        s.resources.wood -= cost.wood;
+        s.resources.stone -= cost.stone;
+        s.resources.gold -= cost.gold;
+        const p = s.pens.find((p) => p.id === penId)!;
+        p.upgrading = true;
+        p.upgradeRemaining = getPenBuildTime(pen.level);
+      }));
+      return true;
+    },
+
+    removePen(penId) {
+      setState(produce((s) => {
+        const idx = s.pens.findIndex((p) => p.id === penId);
+        if (idx !== -1) s.pens.splice(idx, 1);
+      }));
+    },
+
+    setGameSpeed(speed) { setState("gameSpeed", speed); },
 
     resetGame() {
-      fieldIdCounter = 1;
+      idCounter = 1;
       const fresh = createInitialState();
       setState(fresh);
       saveGame(fresh);
     },
 
-    skipSeason() {
-      setState(
-        produce((s) => {
-          advanceSeason(s);
-        }),
-      );
-    },
+    skipSeason() { setState(produce((s) => { advanceSeason(s); })); },
 
-    getProductionRates() {
-      return calcProductionRates(state.buildings, state.fields, state.population, state.season, state.seasonElapsed);
-    },
-
-    getMaxPopulation() {
-      return calcMaxPopulation(state.buildings);
-    },
-
-    getFoodConsumption() {
-      return calcFoodConsumption(state.population);
-    },
-
-    getFoodBreakdown() {
-      return calcFoodBreakdown(state.buildings, state.fields, state.season, state.seasonElapsed);
-    },
-
-    getStorageCaps() {
-      return calcStorageCaps(state.buildings);
-    },
-
-    getSettlementTier() {
-      return getSettlementTier(getTownHallLevel(state.buildings));
-    },
-
-    getTownHallLevel() {
-      return getTownHallLevel(state.buildings);
-    },
-
-    canAfford(cost: BuildingCost) {
-      return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone;
-    },
-
-    getBuildingEffect(buildingId: string, nextLevel: number) {
-      return calcBuildingEffect(buildingId, nextLevel);
-    },
-
-    isHarvesting() {
-      return isHarvestTime(state.season, state.seasonElapsed);
-    },
+    getProductionRates() { return calcProductionRates(state); },
+    getMaxPopulation() { return calcMaxPopulation(state.buildings); },
+    getFoodConsumption() { return calcFoodConsumption(state.population); },
+    getAnimalFoodConsumption() { return calcAnimalFoodConsumption(state.pens); },
+    getFoodBreakdown() { return calcFoodBreakdown(state); },
+    getStorageCaps() { return calcStorageCaps(state.buildings); },
+    getSettlementTier() { return getSettlementTier(getTownHallLevel(state.buildings)); },
+    getTownHallLevel() { return getTownHallLevel(state.buildings); },
+    canAfford(cost) { return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone; },
+    getBuildingEffect(buildingId, nextLevel) { return calcBuildingEffect(buildingId, nextLevel); },
+    isHarvesting() { return isHarvestTime(state.season, state.seasonElapsed); },
   };
 
   return (

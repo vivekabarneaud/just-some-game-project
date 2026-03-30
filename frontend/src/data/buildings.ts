@@ -3,7 +3,7 @@ export interface BuildingCost {
   stone: number;
 }
 
-export type FoodType = "grain" | "meat" | "berries" | "fiber";
+export type FoodType = "grain" | "meat" | "berries" | "fish" | "fiber";
 
 export interface BuildingLevel {
   level: number;
@@ -187,6 +187,18 @@ export const BUILDINGS: BuildingDefinition[] = [
     icon: "🫐",
     maxLevel: 10,
     levels: generateLevels({ wood: 30, stone: 5 }, 30, { resource: "food", baseRate: 6, foodType: "berries" }, 10),
+    requiredTier: "camp",
+  },
+
+  {
+    id: "fishing_hut",
+    name: "Fishing Hut",
+    category: "production",
+    description:
+      "A small dock on the river where fishermen cast their nets. Provides a steady supply of fish year-round.",
+    icon: "🐟",
+    maxLevel: 10,
+    levels: generateLevels({ wood: 50, stone: 10 }, 50, { resource: "food", baseRate: 8, foodType: "fish" }, 10),
     requiredTier: "camp",
   },
 

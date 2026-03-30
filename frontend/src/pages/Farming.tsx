@@ -1,6 +1,8 @@
 import { For, Show, createSignal } from "solid-js";
-import { useGame, type PlayerField } from "~/engine/gameState";
+import { useGame, type PlayerField, type PlayerGarden, type PlayerPen } from "~/engine/gameState";
 import { CROPS, type CropId, getCrop, getFieldCost, getFieldBuildTime, getSeasonYield, MAX_FIELDS, FIELD_MAX_LEVEL } from "~/data/crops";
+import { VEGGIES, type VeggieId, getVeggie, getGardenCost, getGardenBuildTime, getGardenRate, isGardenActive, MAX_GARDENS, GARDEN_MAX_LEVEL } from "~/data/gardens";
+import { ANIMALS, type AnimalId, getAnimal, getPenCost, getPenBuildTime, getPenProduction, MAX_PENS, PEN_MAX_LEVEL } from "~/data/livestock";
 import { SEASON_META } from "~/data/seasons";
 import Countdown from "~/components/Countdown";
 
@@ -23,22 +25,18 @@ function fieldSeasonStatus(season: string, level: number): { label: string; colo
   }
 }
 
+// ─── Field Card ──────────────────────────────────────────────────
+
 function FieldCard(props: { field: PlayerField }) {
   const { actions, state } = useGame();
   const crop = () => getCrop(props.field.crop);
-  const harvestYield = () =>
-    props.field.level > 0 ? getSeasonYield(crop(), props.field.level) : 0;
-  const nextHarvestYield = () =>
-    props.field.level < FIELD_MAX_LEVEL
-      ? getSeasonYield(crop(), props.field.level + 1)
-      : null;
-  const upgradeCost = () =>
-    props.field.level < FIELD_MAX_LEVEL ? getFieldCost(props.field.level) : null;
+  const harvestYield = () => props.field.level > 0 ? getSeasonYield(crop(), props.field.level) : 0;
+  const nextHarvestYield = () => props.field.level < FIELD_MAX_LEVEL ? getSeasonYield(crop(), props.field.level + 1) : null;
+  const upgradeCost = () => props.field.level < FIELD_MAX_LEVEL ? getFieldCost(props.field.level) : null;
   const canUpgrade = () => {
     if (props.field.upgrading || props.field.level >= FIELD_MAX_LEVEL) return false;
     const cost = upgradeCost();
-    if (!cost) return false;
-    return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone;
+    return cost ? state.resources.wood >= cost.wood && state.resources.stone >= cost.stone : false;
   };
   const seasonStatus = () => fieldSeasonStatus(state.season, props.field.level);
 
@@ -49,75 +47,205 @@ function FieldCard(props: { field: PlayerField }) {
         <div>
           <div class="field-card-title">{crop().name} Field</div>
           <div class="field-card-level">
-            {props.field.level === 0
-              ? "Building..."
-              : `Level ${props.field.level} / ${FIELD_MAX_LEVEL}`}
+            {props.field.level === 0 ? "Building..." : `Level ${props.field.level} / ${FIELD_MAX_LEVEL}`}
           </div>
         </div>
       </div>
-
       <Show when={props.field.upgrading && props.field.upgradeRemaining}>
         <div class="field-card-status upgrading-status">
           {props.field.level === 0 ? "Preparing field" : "Upgrading"} — <Countdown remainingSeconds={props.field.upgradeRemaining!} />
         </div>
       </Show>
-
       <Show when={!props.field.upgrading && props.field.level > 0}>
-        <div class="field-card-status" style={{ color: seasonStatus().color }}>
-          {seasonStatus().label}
-        </div>
-        <div class="field-card-harvest">
-          Expected harvest: <strong>{harvestYield()}</strong> {crop().isFood ? "food" : "fiber"}
-        </div>
+        <div class="field-card-status" style={{ color: seasonStatus().color }}>{seasonStatus().label}</div>
+        <div class="field-card-harvest">Expected harvest: <strong>{harvestYield()}</strong> {crop().isFood ? "food" : "fiber"}</div>
       </Show>
-
-      <Show when={!props.field.upgrading && props.field.level < FIELD_MAX_LEVEL}>
+      <Show when={!props.field.upgrading && props.field.level > 0 && props.field.level < FIELD_MAX_LEVEL}>
         <div class="field-card-upgrade">
           <div class="field-upgrade-info">
-            <span class="field-upgrade-cost">
-              🪵 {upgradeCost()!.wood} 🪨 {upgradeCost()!.stone}
-            </span>
+            <span class="field-upgrade-cost">🪵 {upgradeCost()!.wood} 🪨 {upgradeCost()!.stone}</span>
             <span class="field-upgrade-time">{formatTime(getFieldBuildTime(props.field.level))}</span>
             <Show when={nextHarvestYield()}>
-              <span class="field-upgrade-yield">
-                Harvest: {harvestYield()} → {nextHarvestYield()}
-              </span>
+              <span class="field-upgrade-yield">Harvest: {harvestYield()} → {nextHarvestYield()}</span>
             </Show>
           </div>
-          <button
-            class="field-upgrade-btn"
-            disabled={!canUpgrade()}
-            onClick={() => actions.upgradeField(props.field.id)}
-          >
-            Upgrade
-          </button>
+          <button class="field-upgrade-btn" disabled={!canUpgrade()} onClick={() => actions.upgradeField(props.field.id)}>Upgrade</button>
         </div>
       </Show>
-
       <Show when={!props.field.upgrading}>
-        <button
-          class="field-remove-btn"
-          onClick={() => {
-            if (confirm(`Remove this ${crop().name} field?`)) {
-              actions.removeField(props.field.id);
-            }
-          }}
-        >
-          Remove
-        </button>
+        <button class="field-remove-btn" onClick={() => { if (confirm(`Remove this ${crop().name} field?`)) actions.removeField(props.field.id); }}>Remove</button>
       </Show>
     </div>
   );
 }
 
+// ─── Garden Card ─────────────────────────────────────────────────
+
+function GardenCard(props: { garden: PlayerGarden }) {
+  const { actions, state } = useGame();
+  const veggie = () => getVeggie(props.garden.veggie);
+  const rate = () => props.garden.level > 0 ? getGardenRate(veggie(), props.garden.level) : 0;
+  const active = () => props.garden.level > 0 && isGardenActive(veggie(), state.season);
+  const upgradeCost = () => props.garden.level < GARDEN_MAX_LEVEL ? getGardenCost(props.garden.level) : null;
+  const canUpgrade = () => {
+    if (props.garden.upgrading || props.garden.level >= GARDEN_MAX_LEVEL) return false;
+    const cost = upgradeCost();
+    return cost ? state.resources.wood >= cost.wood && state.resources.stone >= cost.stone : false;
+  };
+
+  return (
+    <div class="field-card" classList={{ upgrading: props.garden.upgrading }}>
+      <div class="field-card-header">
+        <span class="field-card-icon">{veggie().icon}</span>
+        <div>
+          <div class="field-card-title">{veggie().name} Garden</div>
+          <div class="field-card-level">
+            {props.garden.level === 0 ? "Building..." : `Level ${props.garden.level} / ${GARDEN_MAX_LEVEL}`}
+          </div>
+        </div>
+      </div>
+      <Show when={props.garden.upgrading && props.garden.upgradeRemaining}>
+        <div class="field-card-status upgrading-status">
+          {props.garden.level === 0 ? "Planting" : "Upgrading"} — <Countdown remainingSeconds={props.garden.upgradeRemaining!} />
+        </div>
+      </Show>
+      <Show when={!props.garden.upgrading && props.garden.level > 0}>
+        <div class="field-card-status" style={{ color: active() ? "var(--accent-green)" : "var(--text-muted)" }}>
+          {active() ? `Producing +${rate()}/h` : `Dormant (grows in ${veggie().activeSeasons.join(", ")})`}
+        </div>
+        <div class="field-card-harvest" style={{ "font-size": "0.7rem" }}>
+          Seasons: {veggie().activeSeasons.map((s) => SEASON_META[s].icon).join(" ")}
+        </div>
+      </Show>
+      <Show when={!props.garden.upgrading && props.garden.level > 0 && props.garden.level < GARDEN_MAX_LEVEL}>
+        <div class="field-card-upgrade">
+          <div class="field-upgrade-info">
+            <span class="field-upgrade-cost">🪵 {upgradeCost()!.wood} 🪨 {upgradeCost()!.stone}</span>
+            <span class="field-upgrade-time">{formatTime(getGardenBuildTime(props.garden.level))}</span>
+            <span class="field-upgrade-yield">→ +{getGardenRate(veggie(), props.garden.level + 1)}/h</span>
+          </div>
+          <button class="field-upgrade-btn" disabled={!canUpgrade()} onClick={() => actions.upgradeGarden(props.garden.id)}>Upgrade</button>
+        </div>
+      </Show>
+      <Show when={!props.garden.upgrading}>
+        <button class="field-remove-btn" onClick={() => { if (confirm(`Remove this ${veggie().name} garden?`)) actions.removeGarden(props.garden.id); }}>Remove</button>
+      </Show>
+    </div>
+  );
+}
+
+// ─── Pen Card ────────────────────────────────────────────────────
+
+function PenCard(props: { pen: PlayerPen }) {
+  const { actions, state } = useGame();
+  const animal = () => getAnimal(props.pen.animal);
+  const prod = () => props.pen.level > 0 ? getPenProduction(animal(), props.pen.level) : { produced: 0, consumed: 0 };
+  const upgradeCost = () => props.pen.level < PEN_MAX_LEVEL ? getPenCost(props.pen.level) : null;
+  const canUpgrade = () => {
+    if (props.pen.upgrading || props.pen.level >= PEN_MAX_LEVEL) return false;
+    const cost = upgradeCost();
+    return cost ? state.resources.wood >= cost.wood && state.resources.stone >= cost.stone && state.resources.gold >= cost.gold : false;
+  };
+
+  return (
+    <div class="field-card" classList={{ upgrading: props.pen.upgrading }}>
+      <div class="field-card-header">
+        <span class="field-card-icon">{animal().icon}</span>
+        <div>
+          <div class="field-card-title">{animal().name} Pen</div>
+          <div class="field-card-level">
+            {props.pen.level === 0 ? "Building..." : `Level ${props.pen.level} / ${PEN_MAX_LEVEL}`}
+          </div>
+        </div>
+      </div>
+      <Show when={props.pen.upgrading && props.pen.upgradeRemaining}>
+        <div class="field-card-status upgrading-status">
+          {props.pen.level === 0 ? "Building pen" : "Upgrading"} — <Countdown remainingSeconds={props.pen.upgradeRemaining!} />
+        </div>
+      </Show>
+      <Show when={!props.pen.upgrading && props.pen.level > 0}>
+        <div class="field-card-production">
+          <span class="rate-positive">+{prod().produced}/h {animal().foodLabel}</span>
+          <span style={{ color: "var(--text-muted)", "margin-left": "8px", "font-size": "0.8rem" }}>
+            (eats {prod().consumed}/h)
+          </span>
+        </div>
+        <div class="field-card-harvest" style={{ "font-size": "0.75rem", color: "var(--accent-green)" }}>
+          Net: +{prod().produced - prod().consumed}/h food
+        </div>
+      </Show>
+      <Show when={!props.pen.upgrading && props.pen.level > 0 && props.pen.level < PEN_MAX_LEVEL}>
+        <div class="field-card-upgrade">
+          <div class="field-upgrade-info">
+            <span class="field-upgrade-cost">🪵 {upgradeCost()!.wood} 🪨 {upgradeCost()!.stone} 🪙 {upgradeCost()!.gold}</span>
+            <span class="field-upgrade-time">{formatTime(getPenBuildTime(props.pen.level))}</span>
+          </div>
+          <button class="field-upgrade-btn" disabled={!canUpgrade()} onClick={() => actions.upgradePen(props.pen.id)}>Upgrade</button>
+        </div>
+      </Show>
+      <Show when={!props.pen.upgrading}>
+        <button class="field-remove-btn" onClick={() => { if (confirm(`Remove this ${animal().name} pen?`)) actions.removePen(props.pen.id); }}>Remove</button>
+      </Show>
+    </div>
+  );
+}
+
+// ─── Picker Component ────────────────────────────────────────────
+
+function Picker<T extends { id: string; name: string; icon: string; description: string }>(props: {
+  title: string;
+  items: T[];
+  disabled: boolean;
+  getYieldLabel: (item: T) => string;
+  onSelect: (id: string) => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div class="crop-picker">
+      <h3 class="crop-picker-title">{props.title}</h3>
+      <div class="crop-picker-grid">
+        <For each={props.items}>
+          {(item) => (
+            <button class="crop-option" disabled={props.disabled} onClick={() => props.onSelect(item.id)}>
+              <span class="crop-option-icon">{item.icon}</span>
+              <span class="crop-option-name">{item.name}</span>
+              <span class="crop-option-desc">{item.description}</span>
+              <span class="crop-option-yield">{props.getYieldLabel(item)}</span>
+            </button>
+          )}
+        </For>
+      </div>
+      <button class="crop-picker-cancel" onClick={props.onCancel}>Cancel</button>
+    </div>
+  );
+}
+
+// ─── Main Page ───────────────────────────────────────────────────
+
 export default function Farming() {
   const { state, actions } = useGame();
-  const [showCropPicker, setShowCropPicker] = createSignal(false);
+  const [showFieldPicker, setShowFieldPicker] = createSignal(false);
+  const [showGardenPicker, setShowGardenPicker] = createSignal(false);
+  const [showPenPicker, setShowPenPicker] = createSignal(false);
+
+  const seasonMeta = () => SEASON_META[state.season];
 
   const canBuildField = () => {
     if (state.fields.length >= MAX_FIELDS) return false;
     const cost = getFieldCost(0);
     return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone;
+  };
+
+  const canBuildGarden = () => {
+    if (state.gardens.length >= MAX_GARDENS) return false;
+    const cost = getGardenCost(0);
+    return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone;
+  };
+
+  const canBuildPen = () => {
+    if (state.pens.length >= MAX_PENS) return false;
+    const cost = getPenCost(0);
+    return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone && state.resources.gold >= cost.gold;
   };
 
   const totalExpectedHarvest = () => {
@@ -130,27 +258,15 @@ export default function Farming() {
     return total;
   };
 
-  const buildCost = () => getFieldCost(0);
-  const seasonMeta = () => SEASON_META[state.season];
-
-  const handleBuildField = (cropId: CropId) => {
-    actions.buildField(cropId);
-    setShowCropPicker(false);
-  };
-
   return (
     <div>
       <h1 class="page-title">Farming</h1>
 
       <div class="farming-summary">
         <div class="farming-stat">
-          <span class="farming-stat-label">Fields</span>
-          <span class="farming-stat-value">{state.fields.length} / {MAX_FIELDS}</span>
-        </div>
-        <div class="farming-stat">
           <span class="farming-stat-label">Season</span>
           <span class="farming-stat-value" style={{ color: seasonMeta().color }}>
-            {seasonMeta().icon} {seasonMeta().name}
+            {seasonMeta().icon} {seasonMeta().name}, Year {state.year}
           </span>
         </div>
         <div class="farming-stat">
@@ -158,74 +274,78 @@ export default function Farming() {
           <span class="farming-stat-value">{totalExpectedHarvest()} food</span>
         </div>
         <div class="farming-stat">
-          <span class="farming-stat-label">New Field Cost</span>
-          <span class="farming-stat-value">🪵 {buildCost().wood} 🪨 {buildCost().stone}</span>
+          <span class="farming-stat-label">Animal Feed</span>
+          <span class="farming-stat-value rate-negative">-{actions.getAnimalFoodConsumption()}/h</span>
         </div>
       </div>
 
       <Show when={state.season === "autumn" && actions.isHarvesting()}>
-        <div class="harvest-banner">
-          🍂 Harvest in progress! Your fields are yielding grain.
-        </div>
+        <div class="harvest-banner">🍂 Harvest in progress! Your fields are yielding grain.</div>
       </Show>
-
       <Show when={state.season === "winter"}>
-        <div class="winter-banner">
-          ❄️ Winter — fields are dormant. Survive on stored food, hunting, and foraging.
-        </div>
+        <div class="winter-banner">❄️ Winter — fields and gardens are dormant. Survive on stored food, hunting, fishing, and livestock.</div>
       </Show>
 
+      {/* ── Fields ── */}
+      <h2 class="farming-section-title">🌾 Fields ({state.fields.length}/{MAX_FIELDS})</h2>
       <Show when={state.fields.length > 0}>
         <div class="fields-grid">
-          <For each={state.fields}>
-            {(field) => <FieldCard field={field} />}
-          </For>
+          <For each={state.fields}>{(f) => <FieldCard field={f} />}</For>
         </div>
       </Show>
-
-      <Show when={state.fields.length === 0}>
-        <div class="farming-empty">
-          <p>No fields yet. Plant your first crop to start producing food!</p>
-        </div>
-      </Show>
-
       <Show when={state.fields.length < MAX_FIELDS}>
-        <Show
-          when={showCropPicker()}
-          fallback={
-            <button
-              class="build-field-btn"
-              disabled={!canBuildField()}
-              onClick={() => setShowCropPicker(true)}
-            >
-              + Plant New Field
-            </button>
-          }
-        >
-          <div class="crop-picker">
-            <h3 class="crop-picker-title">Choose a Crop</h3>
-            <div class="crop-picker-grid">
-              <For each={CROPS}>
-                {(crop) => (
-                  <button
-                    class="crop-option"
-                    disabled={!canBuildField()}
-                    onClick={() => handleBuildField(crop.id)}
-                  >
-                    <span class="crop-option-icon">{crop.icon}</span>
-                    <span class="crop-option-name">{crop.name}</span>
-                    <span class="crop-option-desc">{crop.description}</span>
-                    <span class="crop-option-yield">
-                      Harvest: {getSeasonYield(crop, 1)} {crop.isFood ? "food" : "fiber"}/season
-                    </span>
-                  </button>
-                )}
-              </For>
-            </div>
-            <button class="crop-picker-cancel" onClick={() => setShowCropPicker(false)}>
-              Cancel
-            </button>
-          </div>
+        <Show when={showFieldPicker()} fallback={
+          <button class="build-field-btn" disabled={!canBuildField()} onClick={() => setShowFieldPicker(true)}>
+            + Plant New Field (🪵 {getFieldCost(0).wood} 🪨 {getFieldCost(0).stone})
+          </button>
+        }>
+          <Picker title="Choose a Crop" items={CROPS} disabled={!canBuildField()}
+            getYieldLabel={(c) => `Harvest: ${getSeasonYield(c, 1)} ${c.isFood ? "food" : "fiber"}/season`}
+            onSelect={(id) => { actions.buildField(id as CropId); setShowFieldPicker(false); }}
+            onCancel={() => setShowFieldPicker(false)} />
+        </Show>
+      </Show>
+
+      {/* ── Gardens ── */}
+      <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🥬 Gardens ({state.gardens.length}/{MAX_GARDENS})</h2>
+      <Show when={state.gardens.length > 0}>
+        <div class="fields-grid">
+          <For each={state.gardens}>{(g) => <GardenCard garden={g} />}</For>
+        </div>
+      </Show>
+      <Show when={state.gardens.length < MAX_GARDENS}>
+        <Show when={showGardenPicker()} fallback={
+          <button class="build-field-btn" disabled={!canBuildGarden()} onClick={() => setShowGardenPicker(true)}>
+            + Plant New Garden (🪵 {getGardenCost(0).wood} 🪨 {getGardenCost(0).stone})
+          </button>
+        }>
+          <Picker title="Choose a Vegetable" items={VEGGIES} disabled={!canBuildGarden()}
+            getYieldLabel={(v) => `+${getGardenRate(v, 1)}/h (${v.activeSeasons.map((s) => SEASON_META[s].icon).join(" ")})`}
+            onSelect={(id) => { actions.buildGarden(id as VeggieId); setShowGardenPicker(false); }}
+            onCancel={() => setShowGardenPicker(false)} />
+        </Show>
+      </Show>
+
+      {/* ── Livestock ── */}
+      <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🐄 Livestock ({state.pens.length}/{MAX_PENS})</h2>
+      <Show when={state.pens.length > 0}>
+        <div class="fields-grid">
+          <For each={state.pens}>{(p) => <PenCard pen={p} />}</For>
+        </div>
+      </Show>
+      <Show when={state.pens.length < MAX_PENS}>
+        <Show when={showPenPicker()} fallback={
+          <button class="build-field-btn" disabled={!canBuildPen()} onClick={() => setShowPenPicker(true)}>
+            + Build New Pen (🪵 {getPenCost(0).wood} 🪨 {getPenCost(0).stone} 🪙 {getPenCost(0).gold})
+          </button>
+        }>
+          <Picker title="Choose an Animal" items={ANIMALS} disabled={!canBuildPen()}
+            getYieldLabel={(a) => {
+              const prod = getPenProduction(a, 1);
+              return `+${prod.produced}/h ${a.foodLabel} (eats ${prod.consumed}/h)`;
+            }}
+            onSelect={(id) => { actions.buildPen(id as AnimalId); setShowPenPicker(false); }}
+            onCancel={() => setShowPenPicker(false)} />
         </Show>
       </Show>
     </div>
