@@ -31,8 +31,8 @@ export default function AdventurerDetail() {
 
   return (
     <div>
-      <A href="/guild" class="back-link">
-        ← Back to Guild
+      <A href="/guild" class="back-link" onClick={() => actions.visitGuild()}>
+        ← Back to Roster
       </A>
 
       <Show when={adventurer()} fallback={<p>Adventurer not found.</p>}>
