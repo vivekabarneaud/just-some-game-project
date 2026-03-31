@@ -22,6 +22,14 @@ import {
   GOLD_STORAGE_PER_TH_LEVEL,
   VILLAGER_GROWTH_INTERVAL_HOURS,
   GOLD_TAX_PER_CITIZEN_PER_HOUR,
+  ALE_PRODUCTION_PER_BREWERY_LEVEL,
+  ALE_FOOD_COST_PER_BREWERY_LEVEL,
+  ALE_CONSUMED_PER_TAVERN_LEVEL,
+  ALE_STORAGE_BASE,
+  ALE_STORAGE_PER_BREWERY_LEVEL,
+  CHAPEL_HAPPINESS_PER_LEVEL,
+  TAVERN_HAPPINESS_PER_LEVEL,
+  TAVERN_HAPPINESS_DRY,
   getSettlementTier,
   getSettlementName,
   isBuildingUnlocked,
@@ -171,6 +179,10 @@ export interface GameState {
   missionBoard: MissionTemplate[];
   recruitRefreshIn: number; // game-hours until next candidate refresh
   missionRefreshIn: number; // game-hours until next mission board refresh
+  // Ale & Happiness
+  ale: number;
+  happiness: number; // 0-100
+  lastRaidOutcome: "none" | "victory" | "defeat";
   // Raids
   incomingRaids: IncomingRaid[];
   raidLog: RaidResult[]; // recent results (cleared on read)
@@ -231,6 +243,9 @@ export interface GameActions {
   getRosterSize: () => { current: number; max: number };
   getMissionSlotInfo: () => { used: number; max: number };
   grantResources: (amount: number) => void;
+  // Ale & Happiness
+  getAleInfo: () => { current: number; cap: number; production: number; consumption: number };
+  getHappinessModifier: () => number;
   // Raids
   getDefense: () => DefenseBreakdown;
   collectRaidLog: () => RaidResult[];
@@ -271,6 +286,9 @@ function createInitialState(): GameState {
     lastTick: Date.now(),
     gameSpeed: 1,
     villageName: "Oakenhold",
+    ale: 0,
+    happiness: 50,
+    lastRaidOutcome: "none",
     adventurers: [],
     activeMissions: [],
     completedMissions: [],
@@ -330,6 +348,10 @@ function loadGame(): GameState | null {
       saved.missionBoard = [];
       saved.missionRefreshIn = 0;
     }
+    // Ale & Happiness migration
+    if (saved.ale === undefined) saved.ale = 0;
+    if (saved.happiness === undefined) saved.happiness = 50;
+    if (!saved.lastRaidOutcome) saved.lastRaidOutcome = "none";
     // Raid migration
     if (!saved.incomingRaids) saved.incomingRaids = [];
     if (!saved.raidLog) saved.raidLog = [];
@@ -553,6 +575,25 @@ function calcBuildingEffect(buildingId: string, nextLevel: number): string | nul
       const nextBonuses = getMasonBonuses(nextLevel);
       return `Queue slots: ${curBonuses.queueSlots} → ${nextBonuses.queueSlots} · Cost/time reduction: ${Math.round(curBonuses.costReduction * 100)}% → ${Math.round(nextBonuses.costReduction * 100)}%`;
     }
+    case "chapel": {
+      const cur = Math.max(0, currentLevel) * CHAPEL_HAPPINESS_PER_LEVEL;
+      const next = nextLevel * CHAPEL_HAPPINESS_PER_LEVEL;
+      return `Happiness: +${cur} → +${next}`;
+    }
+    case "brewery": {
+      const curAle = Math.max(0, currentLevel) * ALE_PRODUCTION_PER_BREWERY_LEVEL;
+      const nextAle = nextLevel * ALE_PRODUCTION_PER_BREWERY_LEVEL;
+      const curFood = Math.max(0, currentLevel) * ALE_FOOD_COST_PER_BREWERY_LEVEL;
+      const nextFood = nextLevel * ALE_FOOD_COST_PER_BREWERY_LEVEL;
+      return `Ale: +${curAle}/h → +${nextAle}/h · Food cost: ${curFood}/h → ${nextFood}/h`;
+    }
+    case "tavern": {
+      const cur = Math.max(0, currentLevel) * TAVERN_HAPPINESS_PER_LEVEL;
+      const next = nextLevel * TAVERN_HAPPINESS_PER_LEVEL;
+      const curAle = Math.max(0, currentLevel) * ALE_CONSUMED_PER_TAVERN_LEVEL;
+      const nextAle = nextLevel * ALE_CONSUMED_PER_TAVERN_LEVEL;
+      return `Happiness: +${cur} → +${next} · Ale cost: ${curAle}/h → ${nextAle}/h`;
+    }
     case "walls": {
       const cur = Math.max(0, currentLevel) * 8;
       const next = nextLevel * 8;
@@ -626,10 +667,69 @@ export function GameProvider(props: ParentProps) {
         const maxPop = calcMaxPopulation(s.buildings);
         const netFoodRate = rates.food - citizenFood - animalFood;
 
-        s.resources.gold = Math.min(caps.gold, Math.max(0, s.resources.gold + rates.gold * elapsedHours));
-        s.resources.wood = Math.min(caps.wood, Math.max(0, s.resources.wood + rates.wood * elapsedHours));
-        s.resources.stone = Math.min(caps.stone, Math.max(0, s.resources.stone + rates.stone * elapsedHours));
-        s.resources.food = Math.min(caps.food, Math.max(0, s.resources.food + netFoodRate * elapsedHours));
+        // Happiness production modifier: 80-120% based on happiness
+        const happinessMod = 0.8 + (s.happiness / 100) * 0.4;
+
+        s.resources.gold = Math.min(caps.gold, Math.max(0, s.resources.gold + rates.gold * happinessMod * elapsedHours));
+        s.resources.wood = Math.min(caps.wood, Math.max(0, s.resources.wood + rates.wood * happinessMod * elapsedHours));
+        s.resources.stone = Math.min(caps.stone, Math.max(0, s.resources.stone + rates.stone * happinessMod * elapsedHours));
+        s.resources.food = Math.min(caps.food, Math.max(0, s.resources.food + netFoodRate * happinessMod * elapsedHours));
+
+        // ── Ale production & consumption ──
+        const breweryLvl = s.buildings.find((b) => b.buildingId === "brewery")?.level ?? 0;
+        const tavernLvl = s.buildings.find((b) => b.buildingId === "tavern")?.level ?? 0;
+        const aleStorageCap = ALE_STORAGE_BASE + breweryLvl * ALE_STORAGE_PER_BREWERY_LEVEL;
+
+        if (breweryLvl > 0) {
+          const aleProduced = ALE_PRODUCTION_PER_BREWERY_LEVEL * breweryLvl * elapsedHours;
+          const foodNeeded = ALE_FOOD_COST_PER_BREWERY_LEVEL * breweryLvl * elapsedHours;
+          // Only produce if we have enough food
+          if (s.resources.food >= foodNeeded) {
+            s.resources.food -= foodNeeded;
+            s.ale = Math.min(aleStorageCap, s.ale + aleProduced);
+          }
+        }
+
+        let aleConsumed = 0;
+        if (tavernLvl > 0) {
+          const aleNeeded = ALE_CONSUMED_PER_TAVERN_LEVEL * tavernLvl * elapsedHours;
+          aleConsumed = Math.min(s.ale, aleNeeded);
+          s.ale = Math.max(0, s.ale - aleConsumed);
+        }
+
+        // ── Happiness calculation ──
+        let happiness = 50; // baseline
+
+        // Food surplus/deficit
+        if (netFoodRate > 0) happiness += Math.min(15, netFoodRate / 5);
+        else if (netFoodRate < 0) happiness -= Math.min(30, Math.abs(netFoodRate) / 3);
+
+        // Starvation penalty
+        if (s.resources.food <= 0) happiness -= 20;
+
+        // Housing
+        if (s.population > maxPop) happiness -= 15; // overcrowded
+        else if (s.population > maxPop * 0.9) happiness -= 5; // nearly full
+
+        // Chapel
+        const chapelLvl = s.buildings.find((b) => b.buildingId === "chapel")?.level ?? 0;
+        happiness += chapelLvl * CHAPEL_HAPPINESS_PER_LEVEL;
+
+        // Tavern (depends on ale)
+        if (tavernLvl > 0) {
+          const aleRatio = aleConsumed / (ALE_CONSUMED_PER_TAVERN_LEVEL * tavernLvl * elapsedHours || 1);
+          if (aleRatio > 0.5) {
+            happiness += tavernLvl * TAVERN_HAPPINESS_PER_LEVEL;
+          } else {
+            happiness += tavernLvl * TAVERN_HAPPINESS_DRY; // dry tavern
+          }
+        }
+
+        // Raid morale
+        if (s.lastRaidOutcome === "victory") happiness += 10;
+        else if (s.lastRaidOutcome === "defeat") happiness -= 15;
+
+        s.happiness = Math.max(0, Math.min(100, Math.round(happiness)));
 
         // Tick upgrades — buildings, fields, gardens, pens
         for (const list of [s.buildings, s.fields, s.gardens, s.pens]) {
@@ -645,10 +745,14 @@ export function GameProvider(props: ParentProps) {
           }
         }
 
-        // Villager growth / decline
-        if (netFoodRate > 0 && s.population < maxPop) {
-          const growth = (1 / VILLAGER_GROWTH_INTERVAL_HOURS) * elapsedHours;
+        // Villager growth / decline (affected by happiness)
+        if (netFoodRate > 0 && s.population < maxPop && s.happiness >= 20) {
+          const growthMod = s.happiness >= 70 ? 1.5 : s.happiness >= 40 ? 1.0 : 0.5;
+          const growth = (1 / VILLAGER_GROWTH_INTERVAL_HOURS) * elapsedHours * growthMod;
           s.population = Math.min(maxPop, s.population + growth);
+        } else if (s.happiness < 20 && s.population > BASE_POPULATION) {
+          // Very unhappy citizens leave
+          s.population = Math.max(BASE_POPULATION, s.population - elapsedHours * 0.5);
         } else if (s.resources.food <= 0 && s.population > BASE_POPULATION) {
           s.population = Math.max(BASE_POPULATION, s.population - elapsedHours);
         }
@@ -846,6 +950,7 @@ export function GameProvider(props: ParentProps) {
               }
 
               s.raidLog.push(result);
+              s.lastRaidOutcome = result.victory ? "victory" : "defeat";
             }
             s.incomingRaids.splice(i, 1);
           }
@@ -1163,6 +1268,19 @@ export function GameProvider(props: ParentProps) {
     getMissionSlotInfo() {
       const guildLvl = this.getGuildLevel();
       return { used: state.activeMissions.length, max: getMissionSlots(guildLvl) };
+    },
+    getAleInfo() {
+      const breweryLvl = state.buildings.find((b) => b.buildingId === "brewery")?.level ?? 0;
+      const tavernLvl = state.buildings.find((b) => b.buildingId === "tavern")?.level ?? 0;
+      return {
+        current: Math.floor(state.ale),
+        cap: ALE_STORAGE_BASE + breweryLvl * ALE_STORAGE_PER_BREWERY_LEVEL,
+        production: breweryLvl * ALE_PRODUCTION_PER_BREWERY_LEVEL,
+        consumption: tavernLvl * ALE_CONSUMED_PER_TAVERN_LEVEL,
+      };
+    },
+    getHappinessModifier() {
+      return 0.8 + (state.happiness / 100) * 0.4;
     },
     getDefense() {
       const homeAdvs = state.adventurers.filter((a) => a.alive && !a.onMission);

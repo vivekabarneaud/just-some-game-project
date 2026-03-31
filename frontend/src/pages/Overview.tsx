@@ -198,6 +198,17 @@ export default function Overview() {
             </span>
           </div>
           <div class="stat-row">
+            <span class="stat-label">Happiness</span>
+            <span class="stat-value" style={{
+              color: state.happiness >= 70 ? "var(--accent-green)" : state.happiness >= 40 ? "var(--accent-gold)" : "var(--accent-red)",
+            }}>
+              {state.happiness >= 70 ? "😊" : state.happiness >= 40 ? "😐" : "😟"} {state.happiness}%
+              <span style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-left": "4px" }}>
+                ({Math.round(actions.getHappinessModifier() * 100)}% production)
+              </span>
+            </span>
+          </div>
+          <div class="stat-row">
             <span class="stat-label">Season</span>
             <span class="stat-value" style={{ color: SEASON_META[state.season].color }}>
               {SEASON_META[state.season].icon} {SEASON_META[state.season].name}, Year {state.year}

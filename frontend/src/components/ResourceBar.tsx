@@ -87,6 +87,29 @@ export default function ResourceBar() {
           );
         }}
       </For>
+      <div class="resource-item" title={`Production modifier: ${Math.round(actions.getHappinessModifier() * 100)}%`}>
+        <span class="resource-icon">{state.happiness >= 70 ? "😊" : state.happiness >= 40 ? "😐" : "😟"}</span>
+        <span class="resource-amount" style={{
+          color: state.happiness >= 70 ? "var(--accent-green)" : state.happiness >= 40 ? "var(--accent-gold)" : "var(--accent-red)",
+        }}>
+          {state.happiness}%
+        </span>
+      </div>
+      <Show when={actions.getAleInfo().cap > 0}>
+        <div class="resource-item">
+          <span class="resource-icon">🍺</span>
+          <span class="resource-amount">{actions.getAleInfo().current}</span>
+          <span class="resource-cap">/ {actions.getAleInfo().cap}</span>
+          <span class="resource-rate" classList={{
+            "rate-positive": actions.getAleInfo().production > actions.getAleInfo().consumption,
+            "rate-negative": actions.getAleInfo().production < actions.getAleInfo().consumption,
+            "rate-zero": actions.getAleInfo().production === actions.getAleInfo().consumption,
+          }}>
+            {actions.getAleInfo().production - actions.getAleInfo().consumption >= 0 ? "+" : ""}
+            {actions.getAleInfo().production - actions.getAleInfo().consumption}/h
+          </span>
+        </div>
+      </Show>
       <div class="resource-item" style={{ "border-left": "1px solid var(--border-default)", "padding-left": "12px" }}>
         <span class="resource-icon">💠</span>
         <span class="resource-amount" style={{ color: "#a78bfa" }}>

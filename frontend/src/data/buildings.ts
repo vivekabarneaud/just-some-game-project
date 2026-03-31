@@ -145,6 +145,20 @@ export const BUILDINGS: BuildingDefinition[] = [
     requiredTier: "camp",
   },
 
+  // Camp tier — Chapel (happiness)
+  {
+    id: "chapel",
+    name: "Chapel",
+    category: "infrastructure",
+    description:
+      "A humble place of worship where citizens find peace and solace. Improves settlement happiness.",
+    icon: "⛪",
+    maxLevel: 10,
+    levels: generateLevels({ wood: 40, stone: 60 }, 90, undefined, 10),
+    requiredTier: "camp",
+    tierLevelCaps: { camp: 2, village: 5, town: 8, city: 10 },
+  },
+
   // Camp tier — production basics
   {
     id: "lumber_mill",
@@ -202,6 +216,32 @@ export const BUILDINGS: BuildingDefinition[] = [
     maxLevel: 10,
     levels: generateLevels({ wood: 50, stone: 10 }, 50, { resource: "food", baseRate: 8, foodType: "fish" }, 10),
     requiredTier: "camp",
+  },
+
+  // Village tier — Brewery & Tavern (ale chain + happiness)
+  {
+    id: "brewery",
+    name: "Brewery",
+    category: "production",
+    description:
+      "Converts grain into ale. A vital supply for the Tavern and a happy settlement.",
+    icon: "🍺",
+    maxLevel: 10,
+    levels: generateLevels({ wood: 60, stone: 40 }, 100, undefined, 10),
+    requiredTier: "village",
+    tierLevelCaps: { village: 3, town: 7, city: 10 },
+  },
+  {
+    id: "tavern",
+    name: "Tavern",
+    category: "infrastructure",
+    description:
+      "A lively gathering place for citizens and travelers. Consumes ale and greatly boosts happiness.",
+    icon: "🍻",
+    maxLevel: 10,
+    levels: generateLevels({ wood: 80, stone: 50 }, 120, undefined, 10),
+    requiredTier: "village",
+    tierLevelCaps: { village: 3, town: 7, city: 10 },
   },
 
   // Village tier (TH 3+)
@@ -453,3 +493,15 @@ export const VILLAGER_GROWTH_INTERVAL_HOURS = 0.083; // ~1 villager every 5 min
 
 // Gold tax income per citizen per hour
 export const GOLD_TAX_PER_CITIZEN_PER_HOUR = 1;
+
+// Ale system
+export const ALE_PRODUCTION_PER_BREWERY_LEVEL = 5; // ale/hour
+export const ALE_FOOD_COST_PER_BREWERY_LEVEL = 3; // food consumed/hour to make ale
+export const ALE_CONSUMED_PER_TAVERN_LEVEL = 4; // ale consumed/hour
+export const ALE_STORAGE_BASE = 50;
+export const ALE_STORAGE_PER_BREWERY_LEVEL = 30;
+
+// Happiness
+export const CHAPEL_HAPPINESS_PER_LEVEL = 3;
+export const TAVERN_HAPPINESS_PER_LEVEL = 5; // when ale is available
+export const TAVERN_HAPPINESS_DRY = 1; // per level when no ale
