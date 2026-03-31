@@ -61,34 +61,9 @@ export default function Crafting() {
         </span>
       </div>
 
-      {/* Active crafts */}
-      <Show when={activeCrafts().length > 0}>
-        <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "8px", color: "var(--text-primary)" }}>
-          In Progress
-        </h3>
-        <div style={{ "margin-bottom": "20px" }}>
-          <For each={activeCrafts()}>
-            {(craft) => {
-              const recipe = () => CRAFTING_RECIPES.find((r) => r.id === craft.recipeId);
-              return (
-                <div class="building-card" style={{ "margin-bottom": "8px" }}>
-                  <div class="building-card-header">
-                    <div class="building-card-icon">{recipe()?.icon}</div>
-                    <div>
-                      <div class="building-card-title">{recipe()?.name}</div>
-                      <div style={{ color: "var(--accent-blue)", "font-size": "0.85rem" }}>
-                        <Countdown remainingSeconds={craft.remaining} /> remaining
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            }}
-          </For>
-        </div>
-      </Show>
-
-      {/* Available recipes */}
+      <div style={{ display: "flex", gap: "20px", "align-items": "flex-start" }}>
+      {/* Recipes (left/main) */}
+      <div style={{ flex: 1 }}>
       <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "8px", color: "var(--text-primary)" }}>
         Recipes
       </h3>
@@ -133,6 +108,40 @@ export default function Crafting() {
             </div>
           )}
         </For>
+      </div>
+      </div>
+
+      {/* Active crafts (right sidebar) */}
+      <div style={{ "min-width": "220px", "max-width": "280px" }}>
+        <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "8px", color: "var(--text-primary)" }}>
+          In Progress
+        </h3>
+        <Show when={activeCrafts().length === 0}>
+          <div style={{ color: "var(--text-muted)", "font-size": "0.85rem" }}>No active crafts</div>
+        </Show>
+        <For each={activeCrafts()}>
+          {(craft) => {
+            const recipe = () => CRAFTING_RECIPES.find((r) => r.id === craft.recipeId);
+            return (
+              <div style={{
+                padding: "8px 10px",
+                "margin-bottom": "6px",
+                background: "var(--bg-secondary)",
+                "border-radius": "6px",
+                border: "1px solid var(--border-default)",
+              }}>
+                <div style={{ display: "flex", "align-items": "center", gap: "6px" }}>
+                  <span>{recipe()?.icon}</span>
+                  <span style={{ "font-size": "0.85rem", color: "var(--text-primary)" }}>{recipe()?.name}</span>
+                </div>
+                <div style={{ color: "var(--accent-blue)", "font-size": "0.8rem", "margin-top": "4px" }}>
+                  <Countdown remainingSeconds={craft.remaining} />
+                </div>
+              </div>
+            );
+          }}
+        </For>
+      </div>
       </div>
     </div>
   );
