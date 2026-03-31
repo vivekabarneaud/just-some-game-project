@@ -269,6 +269,7 @@ export interface GameActions {
   // Ale & Happiness
   getAleInfo: () => { current: number; cap: number; production: number; consumption: number };
   getHappinessModifier: () => number;
+  getHappinessBreakdown: () => { label: string; value: number }[];
   repairBuilding: (buildingId: string) => boolean;
   // Raids
   getDefense: () => DefenseBreakdown;
@@ -705,8 +706,10 @@ export function GameProvider(props: ParentProps) {
         const maxPop = calcMaxPopulation(s.buildings);
         const netFoodRate = rates.food - citizenFood - animalFood;
 
-        // Happiness production modifier: 80-120% based on happiness
-        const happinessMod = 0.8 + (s.happiness / 100) * 0.4;
+        // Happiness production modifier: 100% baseline, drops below 50 happiness, bonus above 80
+        const happinessMod = s.happiness >= 80 ? 1 + (s.happiness - 80) / 100  // 80→100% = 1.0→1.2
+          : s.happiness >= 50 ? 1.0  // 50-79 = normal
+          : 0.6 + (s.happiness / 50) * 0.4; // 0-49 = 0.6→1.0
 
         s.resources.gold = Math.min(caps.gold, Math.max(0, s.resources.gold + rates.gold * happinessMod * elapsedHours));
         s.resources.wood = Math.min(caps.wood, Math.max(0, s.resources.wood + rates.wood * happinessMod * elapsedHours));
@@ -1400,7 +1403,46 @@ export function GameProvider(props: ParentProps) {
       };
     },
     getHappinessModifier() {
-      return 0.8 + (state.happiness / 100) * 0.4;
+      const h = state.happiness;
+      return h >= 80 ? 1 + (h - 80) / 100 : h >= 50 ? 1.0 : 0.6 + (h / 50) * 0.4;
+    },
+    getHappinessBreakdown() {
+      const factors: { label: string; value: number }[] = [];
+      factors.push({ label: "Baseline", value: 50 });
+
+      const rates = calcProductionRates(state);
+      const foodCons = calcFoodConsumption(state.population);
+      const animalFood = calcAnimalFoodConsumption(state.pens);
+      const netFood = rates.food - foodCons - animalFood;
+      if (netFood > 0) factors.push({ label: "Food surplus", value: Math.min(15, Math.round(netFood / 5)) });
+      else if (netFood < 0) factors.push({ label: "Food deficit", value: -Math.min(30, Math.round(Math.abs(netFood) / 3)) });
+      if (state.resources.food <= 0) factors.push({ label: "Starvation", value: -20 });
+
+      const maxPop = calcMaxPopulation(state.buildings);
+      if (state.population > maxPop) factors.push({ label: "Overcrowded", value: -15 });
+      else if (state.population > maxPop * 0.9) factors.push({ label: "Housing tight", value: -5 });
+
+      const chapelLvl = state.buildings.find((b) => b.buildingId === "chapel")?.level ?? 0;
+      if (chapelLvl > 0) factors.push({ label: `Chapel Lv.${chapelLvl}`, value: chapelLvl * CHAPEL_HAPPINESS_PER_LEVEL });
+
+      const tavernLvl = state.buildings.find((b) => b.buildingId === "tavern")?.level ?? 0;
+      if (tavernLvl > 0) {
+        const hasAle = state.ale > 0;
+        factors.push({ label: `Tavern Lv.${tavernLvl}${hasAle ? "" : " (dry)"}`, value: tavernLvl * (hasAle ? TAVERN_HAPPINESS_PER_LEVEL : TAVERN_HAPPINESS_DRY) });
+      }
+
+      const damagedCount = state.buildings.filter((b) => b.damaged).length;
+      if (damagedCount > 0) factors.push({ label: `${damagedCount} damaged building${damagedCount > 1 ? "s" : ""}`, value: -damagedCount * 3 });
+
+      if (state.lastRaidOutcome === "victory") factors.push({ label: "Raid victory morale", value: 10 });
+      else if (state.lastRaidOutcome === "defeat") factors.push({ label: "Raid defeat morale", value: -15 });
+
+      if (state.season === "winter") {
+        factors.push({ label: "Winter cold", value: WINTER_HAPPINESS_PENALTY });
+        if (state.resources.wood <= 0) factors.push({ label: "No wood (freezing)", value: WINTER_NO_WOOD_HAPPINESS });
+      }
+
+      return factors;
     },
     repairBuilding(buildingId) {
       const pb = state.buildings.find((b) => b.buildingId === buildingId);

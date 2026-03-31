@@ -87,13 +87,38 @@ export default function ResourceBar() {
           );
         }}
       </For>
-      <div class="resource-item" title={`Production modifier: ${Math.round(actions.getHappinessModifier() * 100)}%`}>
+      <div class="resource-item has-dropdown">
         <span class="resource-icon">{state.happiness >= 70 ? "😊" : state.happiness >= 40 ? "😐" : "😟"}</span>
         <span class="resource-amount" style={{
           color: state.happiness >= 70 ? "var(--accent-green)" : state.happiness >= 40 ? "var(--accent-gold)" : "var(--accent-red)",
         }}>
           {state.happiness}%
         </span>
+        <span class="resource-rate" style={{
+          color: actions.getHappinessModifier() >= 1 ? "var(--accent-green)" : "var(--accent-red)",
+        }}>
+          {Math.round(actions.getHappinessModifier() * 100)}% prod
+        </span>
+        <div class="resource-dropdown">
+          <div class="dropdown-title">Happiness Breakdown</div>
+          <For each={actions.getHappinessBreakdown()}>
+            {(factor) => (
+              <div class="dropdown-row">
+                <span>{factor.label}</span>
+                <span classList={{
+                  "rate-positive": factor.value > 0,
+                  "rate-negative": factor.value < 0,
+                }}>
+                  {factor.value > 0 ? "+" : ""}{factor.value}
+                </span>
+              </div>
+            )}
+          </For>
+          <div class="dropdown-row dropdown-total">
+            <span>Total</span>
+            <span>{state.happiness}</span>
+          </div>
+        </div>
       </div>
       <Show when={actions.getAleInfo().cap > 0}>
         <div class="resource-item">
