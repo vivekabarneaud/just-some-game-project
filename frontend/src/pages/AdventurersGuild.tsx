@@ -2,12 +2,14 @@ import { createSignal, For, Show } from "solid-js";
 import { A, useNavigate } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
 import {
+  ADVENTURER_CLASSES,
   getClassMeta,
   RANK_NAMES,
   RANK_COLORS,
   getRecruitCost,
   getXpForLevel,
   getMissionXp,
+  getUnspentStatPoints,
   type Adventurer,
   type AdventurerRank,
 } from "~/data/adventurers";
@@ -497,17 +499,55 @@ export default function AdventurersGuild() {
               No adventurers yet. Visit the Recruit tab to hire heroes!
             </p>
           </Show>
-          <div class="buildings-grid">
-            <For each={roster()}>
+          <For each={ADVENTURER_CLASSES.filter((cls) => roster().some((a) => a.class === cls.id))}>
+            {(cls) => {
+              const classAdvs = () => roster()
+                .filter((a) => a.class === cls.id)
+                .sort((a, b) => b.level - a.level);
+              return (
+                <>
+                  <h3 style={{
+                    "font-family": "var(--font-heading)",
+                    "margin-top": "16px",
+                    "margin-bottom": "8px",
+                    color: "var(--text-secondary)",
+                    "font-size": "0.9rem",
+                  }}>
+                    {cls.icon} {cls.name}s ({classAdvs().length})
+                  </h3>
+                  <div class="buildings-grid">
+                    <For each={classAdvs()}>
               {(adv) => {
                 const cls = getClassMeta(adv.class);
                 const weapon = () => adv.equipment.weapon ? getItem(adv.equipment.weapon) : null;
                 const armor = () => adv.equipment.armor ? getItem(adv.equipment.armor) : null;
                 const trinket = () => adv.equipment.trinket ? getItem(adv.equipment.trinket) : null;
                 const emptySlots = () => [!weapon() && "weapon", !armor() && "armor", !trinket() && "trinket"].filter(Boolean);
+                const unspent = () => getUnspentStatPoints(adv);
                 return (
                   <A href={`/guild/${adv.id}`} style={{ "text-decoration": "none" }}>
-                    <div class="building-card" classList={{ upgrading: adv.onMission }} style={{ cursor: "pointer" }}>
+                    <div class="building-card" classList={{ upgrading: adv.onMission }} style={{ cursor: "pointer", position: "relative" }}>
+                      {unspent() > 0 && (
+                        <div style={{
+                          position: "absolute",
+                          top: "8px",
+                          right: "8px",
+                          "min-width": "18px",
+                          height: "18px",
+                          "border-radius": "9px",
+                          background: "var(--accent-green)",
+                          color: "var(--bg-primary)",
+                          "font-size": "0.7rem",
+                          "font-weight": "bold",
+                          display: "flex",
+                          "align-items": "center",
+                          "justify-content": "center",
+                          padding: "0 4px",
+                          animation: "pulse 2s infinite",
+                        }}>
+                          +{unspent()}
+                        </div>
+                      )}
                       <span class="building-card-category" style={{ color: RANK_COLORS[adv.rank] }}>
                         {RANK_NAMES[adv.rank]}
                       </span>
@@ -539,7 +579,11 @@ export default function AdventurersGuild() {
                 );
               }}
             </For>
-          </div>
+                  </div>
+                </>
+              );
+            }}
+          </For>
         </Show>
 
         {/* ── Recruit tab ── */}
