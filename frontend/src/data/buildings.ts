@@ -313,6 +313,20 @@ export const BUILDINGS: BuildingDefinition[] = [
     tierLevelCaps: { village: 2, town: 4, city: 5 },
   },
 
+  // Town tier — Walls (passive defense)
+  {
+    id: "walls",
+    name: "Walls",
+    category: "military",
+    description:
+      "Stone fortifications around your settlement. Provides passive defense against raids and attacks.",
+    icon: "🧱",
+    maxLevel: 15,
+    levels: generateLevels({ wood: 40, stone: 120 }, 150, undefined, 15),
+    requiredTier: "camp",
+    tierLevelCaps: { camp: 2, village: 5, town: 10, city: 15 },
+  },
+
   // City tier (TH 7+)
   {
     id: "alchemy_lab",

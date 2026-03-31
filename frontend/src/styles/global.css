@@ -992,3 +992,9 @@ body {
 .countdown {
   font-variant-numeric: tabular-nums;
 }
+
+/* Pulse animation for threat alerts */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}

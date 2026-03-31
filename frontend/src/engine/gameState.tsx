@@ -98,6 +98,17 @@ import {
   applyXp,
   RANK_NAMES,
 } from "~/data/adventurers";
+import {
+  type IncomingRaid,
+  type RaidResult,
+  getRaid,
+  calcDefense,
+  calcWarningTime,
+  resolveRaid,
+  spawnRaid,
+  getRaidInterval,
+  type DefenseBreakdown,
+} from "~/data/raids";
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -160,6 +171,10 @@ export interface GameState {
   missionBoard: MissionTemplate[];
   recruitRefreshIn: number; // game-hours until next candidate refresh
   missionRefreshIn: number; // game-hours until next mission board refresh
+  // Raids
+  incomingRaids: IncomingRaid[];
+  raidLog: RaidResult[]; // recent results (cleared on read)
+  nextRaidIn: number; // game-hours until next raid spawns
   // Astral Shards (premium currency)
   astralShards: number;
   lastDailyLogin: number; // real-world timestamp of last daily reward claim
@@ -216,6 +231,9 @@ export interface GameActions {
   getRosterSize: () => { current: number; max: number };
   getMissionSlotInfo: () => { used: number; max: number };
   grantResources: (amount: number) => void;
+  // Raids
+  getDefense: () => DefenseBreakdown;
+  collectRaidLog: () => RaidResult[];
   // Astral Shards
   claimDailyLogin: () => boolean;
   canClaimDailyLogin: () => boolean;
@@ -258,6 +276,9 @@ function createInitialState(): GameState {
     missionBoard: [],
     recruitRefreshIn: 0,
     missionRefreshIn: 0,
+    incomingRaids: [],
+    raidLog: [],
+    nextRaidIn: 48, // first raid after 2 game-days
     astralShards: 0,
     lastDailyLogin: 0,
     missionRerollToday: false,
@@ -307,6 +328,10 @@ function loadGame(): GameState | null {
       saved.missionBoard = [];
       saved.missionRefreshIn = 0;
     }
+    // Raid migration
+    if (!saved.incomingRaids) saved.incomingRaids = [];
+    if (!saved.raidLog) saved.raidLog = [];
+    if (saved.nextRaidIn === undefined) saved.nextRaidIn = 48;
     // Astral Shards migration
     if (saved.astralShards === undefined) saved.astralShards = 0;
     if (saved.lastDailyLogin === undefined) saved.lastDailyLogin = 0;
@@ -525,6 +550,23 @@ function calcBuildingEffect(buildingId: string, nextLevel: number): string | nul
       const curBonuses = getMasonBonuses(Math.max(0, currentLevel));
       const nextBonuses = getMasonBonuses(nextLevel);
       return `Queue slots: ${curBonuses.queueSlots} → ${nextBonuses.queueSlots} · Cost/time reduction: ${Math.round(curBonuses.costReduction * 100)}% → ${Math.round(nextBonuses.costReduction * 100)}%`;
+    }
+    case "walls": {
+      const cur = Math.max(0, currentLevel) * 8;
+      const next = nextLevel * 8;
+      return `Defense: +${cur} → +${next}`;
+    }
+    case "barracks": {
+      const cur = Math.max(0, currentLevel) * 12;
+      const next = nextLevel * 12;
+      return `Defense: +${cur} → +${next}`;
+    }
+    case "watchtower": {
+      const curDef = Math.max(0, currentLevel) * 5;
+      const nextDef = nextLevel * 5;
+      const curWarn = Math.max(0, currentLevel) * 2;
+      const nextWarn = nextLevel * 2;
+      return `Defense: +${curDef} → +${nextDef} · Early warning: +${curWarn}h → +${nextWarn}h`;
     }
     case "adventurers_guild": {
       const curSlots = getMissionSlots(Math.max(0, currentLevel));
@@ -759,6 +801,61 @@ export function GameProvider(props: ParentProps) {
 
         // Remove dead adventurers from roster
         s.adventurers = s.adventurers.filter((a) => a.alive);
+
+        // ── Raid system tick ──
+        const tier = getSettlementTier(getTownHallLevel(s.buildings));
+
+        // Countdown incoming raids
+        for (let i = s.incomingRaids.length - 1; i >= 0; i--) {
+          const ir = s.incomingRaids[i];
+          ir.remaining -= elapsedSeconds;
+          if (ir.remaining <= 0) {
+            // Raid arrives — resolve it
+            const template = getRaid(ir.raidId);
+            if (template) {
+              const homeAdvs = s.adventurers.filter((a) => a.alive && !a.onMission);
+              const defense = calcDefense(s.buildings, homeAdvs, s.population);
+              const result = resolveRaid({
+                raid: template,
+                raidStrength: ir.strength,
+                defense,
+                resources: s.resources,
+                population: s.population,
+                homeAdventurers: homeAdvs,
+              });
+
+              // Apply losses
+              if (!result.victory) {
+                s.resources.gold = Math.max(0, s.resources.gold - result.resourcesLost.gold);
+                s.resources.wood = Math.max(0, s.resources.wood - result.resourcesLost.wood);
+                s.resources.stone = Math.max(0, s.resources.stone - result.resourcesLost.stone);
+                s.resources.food = Math.max(0, s.resources.food - result.resourcesLost.food);
+                s.population = Math.max(BASE_POPULATION, s.population - result.citizensLost);
+              }
+
+              s.raidLog.push(result);
+            }
+            s.incomingRaids.splice(i, 1);
+          }
+        }
+
+        // Spawn new raids
+        s.nextRaidIn -= elapsedHours;
+        if (s.nextRaidIn <= 0) {
+          const interval = getRaidInterval(tier);
+          s.nextRaidIn = interval;
+          const spawn = spawnRaid(tier, s.year);
+          if (spawn) {
+            const wtLevel = s.buildings.find((b) => b.buildingId === "watchtower")?.level ?? 0;
+            const warningHours = calcWarningTime(spawn.raid.baseWarning, wtLevel);
+            s.incomingRaids.push({
+              raidId: spawn.raid.id,
+              remaining: warningHours * 3600, // convert to seconds
+              strength: spawn.strength,
+              warned: true,
+            });
+          }
+        }
 
         // Reset daily rerolls at midnight (real-world time)
         const now = Date.now();
@@ -1054,6 +1151,17 @@ export function GameProvider(props: ParentProps) {
     getMissionSlotInfo() {
       const guildLvl = this.getGuildLevel();
       return { used: state.activeMissions.length, max: getMissionSlots(guildLvl) };
+    },
+    getDefense() {
+      const homeAdvs = state.adventurers.filter((a) => a.alive && !a.onMission);
+      return calcDefense(state.buildings, homeAdvs, state.population);
+    },
+    collectRaidLog() {
+      const log = [...state.raidLog];
+      if (log.length > 0) {
+        setState(produce((s) => { s.raidLog = []; }));
+      }
+      return log;
     },
     canClaimDailyLogin() {
       if (state.lastDailyLogin === 0) return true;
