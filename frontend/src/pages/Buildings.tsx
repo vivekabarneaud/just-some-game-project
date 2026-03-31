@@ -118,14 +118,24 @@ export default function Buildings() {
                   return unlocked() ? (
                     <A href={`/buildings/${building.id}`} style={{ "text-decoration": "none" }}>
                       <div class="building-card" classList={{ upgrading: isUpgrading() }} style={{ opacity: pb()?.damaged ? 0.7 : 1, position: "relative" }}>
-                        {/* Upgrade indicator */}
-                        <Show when={!isUpgrading() && level() > 0}>
+                        {/* Upgrade indicator with tooltip */}
+                        <Show when={!isUpgrading()}>
                           <div
-                            title={canUpgradeNow() ? `Upgrade to Lv.${level() + 1} — ${upgradeCostTip()}` : upgradeReason()}
+                            class="upgrade-indicator"
                             style={{
                               position: "absolute",
                               top: "8px",
                               right: "8px",
+                            }}
+                            onClick={(e) => {
+                              if (canUpgradeNow()) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                actions.upgradeBuilding(building.id);
+                              }
+                            }}
+                          >
+                            <div style={{
                               width: "22px",
                               height: "22px",
                               "border-radius": "4px",
@@ -136,17 +146,40 @@ export default function Buildings() {
                               background: canUpgradeNow() ? "rgba(46, 204, 113, 0.2)" : "rgba(106, 100, 88, 0.15)",
                               border: `1px solid ${canUpgradeNow() ? "var(--accent-green)" : "var(--text-muted)"}`,
                               color: canUpgradeNow() ? "var(--accent-green)" : "var(--text-muted)",
-                              cursor: "pointer",
-                            }}
-                            onClick={(e) => {
-                              if (canUpgradeNow()) {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                actions.upgradeBuilding(building.id);
-                              }
-                            }}
-                          >
-                            ↑
+                              cursor: canUpgradeNow() ? "pointer" : "default",
+                            }}>
+                              {level() === 0 ? "+" : "↑"}
+                            </div>
+                            <div class="upgrade-tooltip" style={{
+                              position: "absolute",
+                              right: 0,
+                              top: "28px",
+                              "min-width": "160px",
+                              padding: "6px 10px",
+                              background: "var(--bg-panel)",
+                              border: `1px solid ${canUpgradeNow() ? "var(--accent-green)" : "var(--border-default)"}`,
+                              "border-radius": "6px",
+                              "font-size": "0.75rem",
+                              color: "var(--text-secondary)",
+                              "z-index": 10,
+                              display: "none",
+                              "box-shadow": "0 4px 12px rgba(0,0,0,0.3)",
+                              "white-space": "nowrap",
+                            }}>
+                              <Show when={canUpgradeNow()}>
+                                <div style={{ color: "var(--accent-green)", "font-weight": "bold", "margin-bottom": "2px" }}>
+                                  {level() === 0 ? "Build" : `Upgrade to Lv.${level() + 1}`}
+                                </div>
+                                <div>{upgradeCostTip()}</div>
+                                <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "2px" }}>Click to upgrade</div>
+                              </Show>
+                              <Show when={!canUpgradeNow()}>
+                                <div style={{ color: "var(--accent-gold)" }}>{upgradeReason()}</div>
+                                <Show when={nextLevelDef()}>
+                                  <div style={{ "margin-top": "2px" }}>{upgradeCostTip()}</div>
+                                </Show>
+                              </Show>
+                            </div>
                           </div>
                         </Show>
                         <div class="building-card-header">

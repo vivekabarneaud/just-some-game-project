@@ -50,7 +50,7 @@ function XpBar(props: { xp: number; level: number }) {
 
 function DeathRisk(props: { chance: number }) {
   const color = () => props.chance <= 5 ? "var(--accent-green)" : props.chance <= 15 ? "var(--accent-gold)" : "var(--accent-red)";
-  return <span style={{ color: color(), "font-size": "0.75rem" }}>({props.chance}% death risk)</span>;
+  return <span style={{ color: color(), "font-size": "0.75rem" }}>({props.chance}% death risk on failure)</span>;
 }
 
 export default function AdventurersGuild() {
@@ -258,7 +258,10 @@ export default function AdventurersGuild() {
               <For each={state.activeMissions}>
                 {(am) => {
                   const template = () => getMission(am.missionId) ??
-                    { name: am.missionId, icon: "📜" } as any;
+                    { name: am.missionId, icon: "📜", rewards: [] } as any;
+                  const teamAdvs = () => am.adventurerIds
+                    .map((id) => state.adventurers.find((a) => a.id === id))
+                    .filter(Boolean);
                   return (
                     <div class="building-card" style={{ "margin-bottom": "8px" }}>
                       <div class="building-card-header">
@@ -266,10 +269,28 @@ export default function AdventurersGuild() {
                         <div>
                           <div class="building-card-title">{template().name}</div>
                           <div style={{ color: "var(--accent-blue)", "font-size": "0.85rem" }}>
-                            <Countdown remainingSeconds={am.remaining} /> remaining · {am.successChance}% success
+                            <Countdown remainingSeconds={am.remaining} /> remaining
                           </div>
                         </div>
                       </div>
+                      <div style={{ "font-size": "0.8rem", "margin-top": "4px", display: "flex", gap: "6px", "flex-wrap": "wrap", "align-items": "center" }}>
+                        <span style={{ color: "var(--text-muted)" }}>Team:</span>
+                        {teamAdvs().map((a) => {
+                          const cls = getClassMeta(a!.class);
+                          return <span title={`${a!.name} (${cls.name} Lv.${a!.level})`}>{cls.icon}</span>;
+                        })}
+                        <span style={{
+                          "margin-left": "auto",
+                          color: am.successChance >= 70 ? "var(--accent-green)" : am.successChance >= 40 ? "var(--accent-gold)" : "var(--accent-red)",
+                        }}>
+                          {am.successChance}% success
+                        </span>
+                      </div>
+                      <Show when={template().rewards?.length > 0}>
+                        <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-top": "2px" }}>
+                          Rewards: {template().rewards.map((r: any) => `${r.amount} ${r.resource}`).join(", ")}
+                        </div>
+                      </Show>
                     </div>
                   );
                 }}

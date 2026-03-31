@@ -993,6 +993,11 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/* Upgrade indicator tooltip */
+.upgrade-indicator:hover .upgrade-tooltip {
+  display: block !important;
+}
+
 /* Pulse animation for threat alerts */
 @keyframes pulse {
   0%, 100% { opacity: 1; }
