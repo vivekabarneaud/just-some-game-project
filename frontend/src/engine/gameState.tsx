@@ -195,6 +195,58 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     produces: { resource: "clothing", amount: 2 },
     craftTime: 900, // 15 min
   },
+
+  // ── Blacksmith recipes ────────────────────────────────────────
+  {
+    id: "iron_tools",
+    name: "Iron Tools",
+    icon: "🔧",
+    building: "blacksmith",
+    minLevel: 1,
+    costs: [{ resource: "iron", amount: 10 }, { resource: "wood", amount: 5 }],
+    produces: { resource: "tools", amount: 1 },
+    craftTime: 600, // 10 min
+  },
+  {
+    id: "iron_sword",
+    name: "Iron Sword",
+    icon: "⚔️",
+    building: "blacksmith",
+    minLevel: 1,
+    costs: [{ resource: "iron", amount: 15 }, { resource: "wood", amount: 5 }],
+    produces: { resource: "weapons", amount: 1 },
+    craftTime: 900, // 15 min
+  },
+  {
+    id: "iron_shield",
+    name: "Iron Shield",
+    icon: "🛡️",
+    building: "blacksmith",
+    minLevel: 2,
+    costs: [{ resource: "iron", amount: 20 }, { resource: "wood", amount: 8 }],
+    produces: { resource: "armor", amount: 1 },
+    craftTime: 1200, // 20 min
+  },
+  {
+    id: "iron_armor",
+    name: "Iron Armor",
+    icon: "🦺",
+    building: "blacksmith",
+    minLevel: 3,
+    costs: [{ resource: "iron", amount: 30 }, { resource: "fiber", amount: 5 }, { resource: "gold", amount: 15 }],
+    produces: { resource: "armor", amount: 2 },
+    craftTime: 1800, // 30 min
+  },
+  {
+    id: "steel_sword",
+    name: "Steel Sword",
+    icon: "🗡️",
+    building: "blacksmith",
+    minLevel: 5,
+    costs: [{ resource: "iron", amount: 40 }, { resource: "gold", amount: 25 }],
+    produces: { resource: "weapons", amount: 2 },
+    craftTime: 2400, // 40 min
+  },
 ];
 
 export interface ResourceState {
@@ -261,6 +313,9 @@ export interface GameState {
   fiber: number;
   clothing: number;
   iron: number;
+  tools: number;
+  weapons: number;
+  armor: number;
   craftingQueue: ActiveCraft[];
   // Event log
   eventLog: GameEvent[];
@@ -382,6 +437,9 @@ function createInitialState(): GameState {
     fiber: 0,
     clothing: 0,
     iron: 0,
+    tools: 0,
+    weapons: 0,
+    armor: 0,
     craftingQueue: [],
     eventLog: [],
     ale: 0,
@@ -456,6 +514,9 @@ function loadGame(): GameState | null {
     if (saved.fiber === undefined) saved.fiber = 0;
     if (saved.clothing === undefined) saved.clothing = 0;
     if (saved.iron === undefined) saved.iron = 0;
+    if (saved.tools === undefined) saved.tools = 0;
+    if (saved.weapons === undefined) saved.weapons = 0;
+    if (saved.armor === undefined) saved.armor = 0;
     if (!saved.craftingQueue) saved.craftingQueue = [];
     // Event log migration
     if (!saved.eventLog) saved.eventLog = [];
@@ -693,6 +754,9 @@ function calcBuildingEffect(buildingId: string, nextLevel: number): string | nul
       const nextBonuses = getMasonBonuses(nextLevel);
       return `Queue slots: ${curBonuses.queueSlots} → ${nextBonuses.queueSlots} · Cost/time reduction: ${Math.round(curBonuses.costReduction * 100)}% → ${Math.round(nextBonuses.costReduction * 100)}%`;
     }
+    case "blacksmith": {
+      return `Crafting slots: ${Math.max(0, currentLevel)} → ${nextLevel} (1 per level)`;
+    }
     case "iron_mine": {
       const cur = Math.max(0, currentLevel) * 8;
       const next = nextLevel * 8;
@@ -843,9 +907,13 @@ export function GameProvider(props: ParentProps) {
             const recipe = CRAFTING_RECIPES.find((r) => r.id === craft.recipeId);
             if (recipe) {
               const res = recipe.produces.resource;
-              if (res === "clothing") s.clothing += recipe.produces.amount;
-              else if (res === "wool") s.wool += recipe.produces.amount;
-              else if (res === "fiber") s.fiber += recipe.produces.amount;
+              const amt = recipe.produces.amount;
+              if (res === "clothing") s.clothing += amt;
+              else if (res === "tools") s.tools += amt;
+              else if (res === "weapons") s.weapons += amt;
+              else if (res === "armor") s.armor += amt;
+              else if (res === "wool") s.wool += amt;
+              else if (res === "fiber") s.fiber += amt;
               pushEvent(s, "building_completed", recipe.icon, `Crafted ${recipe.name} (x${recipe.produces.amount})`);
             }
             s.craftingQueue.splice(i, 1);
@@ -1598,13 +1666,19 @@ export function GameProvider(props: ParentProps) {
         const res = cost.resource;
         if (res === "wool" && state.wool < cost.amount) return false;
         if (res === "fiber" && state.fiber < cost.amount) return false;
+        if (res === "iron" && state.iron < cost.amount) return false;
         if (res === "gold" && state.resources.gold < cost.amount) return false;
+        if (res === "wood" && state.resources.wood < cost.amount) return false;
+        if (res === "stone" && state.resources.stone < cost.amount) return false;
       }
       setState(produce((s) => {
         for (const cost of recipe.costs) {
           if (cost.resource === "wool") s.wool -= cost.amount;
           else if (cost.resource === "fiber") s.fiber -= cost.amount;
+          else if (cost.resource === "iron") s.iron -= cost.amount;
           else if (cost.resource === "gold") s.resources.gold -= cost.amount;
+          else if (cost.resource === "wood") s.resources.wood -= cost.amount;
+          else if (cost.resource === "stone") s.resources.stone -= cost.amount;
         }
         s.craftingQueue.push({ recipeId, remaining: recipe.craftTime });
       }));
