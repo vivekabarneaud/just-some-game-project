@@ -4,7 +4,6 @@ import { BUILDINGS, getSettlementName, SETTLEMENT_TIERS } from "~/data/buildings
 import { RESOURCES } from "~/data/resources";
 import { SEASON_META } from "~/data/seasons";
 import { getRaid, calcRaidSuccessChance, getDefenseTips } from "~/data/raids";
-import { getMission } from "~/data/missions";
 import { useGame } from "~/engine/gameState";
 import Countdown from "~/components/Countdown";
 
@@ -18,20 +17,11 @@ export default function Overview() {
   const thLevel = () => actions.getTownHallLevel();
   const defense = () => actions.getDefense();
 
-  const [raidResults, setRaidResults] = createSignal<ReturnType<typeof actions.collectRaidLog>>([]);
-  const [missionResults, setMissionResults] = createSignal<ReturnType<typeof actions.collectCompletedMissions>>([]);
-
-  const collectAll = () => {
-    const raidLog = actions.collectRaidLog();
-    if (raidLog.length > 0) setRaidResults((prev) => [...raidLog, ...prev].slice(0, 10));
-    const missionLog = actions.collectCompletedMissions();
-    if (missionLog.length > 0) setMissionResults((prev) => [...missionLog, ...prev].slice(0, 10));
-  };
-
-  onMount(collectAll);
-  // Check periodically for new results
-  const checkInterval = setInterval(collectAll, 3000);
-  import("solid-js").then(({ onCleanup }) => onCleanup(() => clearInterval(checkInterval)));
+  // Collect stale raid/mission logs on mount (clear them from state)
+  onMount(() => {
+    actions.collectRaidLog();
+    actions.collectCompletedMissions();
+  });
 
   const upgradingBuildings = () =>
     state.buildings.filter((b) => b.upgrading && b.upgradeRemaining);
@@ -317,6 +307,19 @@ export default function Overview() {
                       </div>
                     </div>
 
+                    {/* Expected consequences */}
+                    <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-top": "6px" }}>
+                      <Show when={successPct() < 100}>
+                        <span>If defeated: </span>
+                        {raid()?.stealsResources && <span style={{ color: "var(--accent-red)" }}>~{Math.round((raid()!.resourceStealPercent) * 100)}% resources stolen </span>}
+                        {raid()?.killsCitizens && <span style={{ color: "var(--accent-red)" }}>· up to {raid()!.maxCitizenLoss} citizen deaths </span>}
+                        <span>· 1-3 buildings damaged</span>
+                      </Show>
+                      <Show when={successPct() >= 100}>
+                        <span style={{ color: "var(--accent-green)" }}>Expected loot: {raid()!.victoryLoot.map((l) => `+${l.amount} ${l.resource}`).join(", ")}</span>
+                      </Show>
+                    </div>
+
                     {/* Tags */}
                     <Show when={raid()?.tags}>
                       <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "6px" }}>
@@ -379,89 +382,36 @@ export default function Overview() {
           </Show>
         </div>
 
-        {/* Report Log — missions and raids */}
-        <Show when={raidResults().length > 0 || missionResults().length > 0}>
+        {/* Event Log */}
+        <Show when={state.eventLog.length > 0}>
           <div class="overview-panel">
-            <h2>Report Log</h2>
-            {/* Raid results */}
-            <For each={raidResults()}>
-              {(result) => {
-                const raid = () => getRaid(result.raidId);
-                return (
-                  <div style={{
-                    padding: "8px 10px",
-                    "margin-bottom": "6px",
-                    "border-radius": "6px",
-                    background: result.victory ? "rgba(46, 204, 113, 0.1)" : "rgba(231, 76, 60, 0.1)",
-                    border: `1px solid ${result.victory ? "var(--accent-green)" : "var(--accent-red)"}`,
-                    "font-size": "0.85rem",
-                  }}>
-                    <div style={{ color: result.victory ? "var(--accent-green)" : "var(--accent-red)" }}>
-                      {result.victory ? "Raid repelled" : "Raid defeat"}: {raid()?.icon} {raid()?.name ?? result.raidId}
+            <h2>Event Log</h2>
+            <div style={{ "max-height": "300px", overflow: "auto" }}>
+              <For each={state.eventLog.slice(0, 20)}>
+                {(event) => {
+                  const color = () => {
+                    if (event.type.includes("died") || event.type.includes("defeat") || event.type.includes("failed") || event.type.includes("left") || event.type.includes("damaged") || event.type.includes("freezing")) return "var(--accent-red)";
+                    if (event.type.includes("victory") || event.type.includes("success") || event.type.includes("born") || event.type.includes("completed") || event.type.includes("repaired")) return "var(--accent-green)";
+                    if (event.type.includes("levelup") || event.type.includes("rankup")) return "var(--accent-blue)";
+                    if (event.type.includes("incoming")) return "var(--accent-gold)";
+                    return "var(--text-secondary)";
+                  };
+                  return (
+                    <div style={{
+                      padding: "4px 0",
+                      "border-bottom": "1px solid var(--border-default)",
+                      "font-size": "0.8rem",
+                      display: "flex",
+                      gap: "6px",
+                      "align-items": "flex-start",
+                    }}>
+                      <span>{event.icon}</span>
+                      <span style={{ color: color() }}>{event.message}</span>
                     </div>
-                    <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-top": "3px" }}>
-                      Defense {result.defenseScore} vs strength {result.raidStrength}
-                      {result.victory && result.loot.length > 0 && (
-                        <span style={{ color: "var(--accent-green)" }}>
-                          {" "}· Loot: {result.loot.map((l) => `+${l.amount} ${l.resource}`).join(", ")}
-                        </span>
-                      )}
-                      {!result.victory && (
-                        <span>
-                          {(result.resourcesLost.gold + result.resourcesLost.wood + result.resourcesLost.stone + result.resourcesLost.food) > 0 && (
-                            <span style={{ color: "var(--accent-red)" }}>
-                              {" "}· Stolen: {result.resourcesLost.gold > 0 && `${result.resourcesLost.gold}g `}
-                              {result.resourcesLost.wood > 0 && `${result.resourcesLost.wood}w `}
-                              {result.resourcesLost.stone > 0 && `${result.resourcesLost.stone}s `}
-                              {result.resourcesLost.food > 0 && `${result.resourcesLost.food}f`}
-                            </span>
-                          )}
-                          {result.citizensLost > 0 && (
-                            <span style={{ color: "var(--accent-red)" }}>
-                              {" "}· {result.citizensLost} citizen{result.citizensLost > 1 ? "s" : ""} lost
-                            </span>
-                          )}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                );
-              }}
-            </For>
-            {/* Mission results */}
-            <For each={missionResults()}>
-              {(result) => {
-                const template = () => getMission(result.missionId);
-                return (
-                  <div style={{
-                    padding: "8px 10px",
-                    "margin-bottom": "6px",
-                    "border-radius": "6px",
-                    background: result.success ? "rgba(52, 152, 219, 0.1)" : "rgba(231, 76, 60, 0.08)",
-                    border: `1px solid ${result.success ? "var(--accent-blue)" : "rgba(231, 76, 60, 0.3)"}`,
-                    "font-size": "0.85rem",
-                  }}>
-                    <div style={{ color: result.success ? "var(--accent-blue)" : "var(--accent-red)" }}>
-                      {result.success ? "Mission success" : "Mission failed"}: {template()?.icon} {template()?.name ?? result.missionId}
-                    </div>
-                    <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-top": "3px" }}>
-                      {result.rewards.length > 0 && (
-                        <span style={{ color: "var(--accent-green)" }}>
-                          +{result.rewards.map((r) => `${r.amount} ${r.resource}`).join(", ")}
-                        </span>
-                      )}
-                      {result.xpGained > 0 && <span> · +{result.xpGained} XP</span>}
-                      {result.levelUps.length > 0 && (
-                        <span style={{ color: "var(--accent-blue)" }}> · Level up: {result.levelUps.join(", ")}</span>
-                      )}
-                      {result.casualties.length > 0 && (
-                        <span style={{ color: "var(--accent-red)" }}> · {result.casualties.length} fallen</span>
-                      )}
-                    </div>
-                  </div>
-                );
-              }}
-            </For>
+                  );
+                }}
+              </For>
+            </div>
           </div>
         </Show>
       </div>

@@ -7,6 +7,7 @@ import {
   RANK_COLORS,
   getRecruitCost,
   getXpForLevel,
+  getMissionXp,
   type Adventurer,
   type AdventurerRank,
 } from "~/data/adventurers";
@@ -343,6 +344,9 @@ export default function AdventurersGuild() {
                     </div>
                     <div style={{ "margin-top": "8px", "font-size": "0.8rem", color: "var(--accent-green)" }}>
                       Rewards: {mission.rewards.map((r) => `${r.amount} ${r.resource}`).join(", ")}
+                    </div>
+                    <div style={{ "font-size": "0.75rem", color: "var(--accent-blue)", "margin-top": "2px" }}>
+                      +{getMissionXp(mission.difficulty, true)} XP on success · +{getMissionXp(mission.difficulty, false)} XP on failure
                     </div>
                   </div>
                 );

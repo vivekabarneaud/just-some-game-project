@@ -125,6 +125,22 @@ import {
 
 // ─── Types ───────────────────────────────────────────────────────
 
+// ─── Event Log ──────────────────────────────────────────────────
+
+export type GameEventType =
+  | "citizen_born" | "citizen_died" | "citizen_left"
+  | "building_completed" | "building_damaged" | "building_repaired"
+  | "mission_success" | "mission_failed" | "adventurer_died" | "adventurer_levelup" | "adventurer_rankup"
+  | "raid_victory" | "raid_defeat" | "raid_incoming"
+  | "winter_freezing";
+
+export interface GameEvent {
+  type: GameEventType;
+  message: string;
+  icon: string;
+  timestamp: number; // game tick when it happened
+}
+
 export interface ResourceState {
   gold: number;
   wood: number;
@@ -184,6 +200,8 @@ export interface GameState {
   missionBoard: MissionTemplate[];
   recruitRefreshIn: number; // game-hours until next candidate refresh
   missionRefreshIn: number; // game-hours until next mission board refresh
+  // Event log
+  eventLog: GameEvent[];
   // Ale & Happiness
   ale: number;
   happiness: number; // 0-100
@@ -293,6 +311,7 @@ function createInitialState(): GameState {
     lastTick: Date.now(),
     gameSpeed: 1,
     villageName: "Oakenhold",
+    eventLog: [],
     ale: 0,
     happiness: 50,
     lastRaidOutcome: "none",
@@ -359,6 +378,8 @@ function loadGame(): GameState | null {
     for (const pb of saved.buildings) {
       if ((pb as any).damaged === undefined) (pb as any).damaged = false;
     }
+    // Event log migration
+    if (!saved.eventLog) saved.eventLog = [];
     // Ale & Happiness migration
     if (saved.ale === undefined) saved.ale = 0;
     if (saved.happiness === undefined) saved.happiness = 50;
@@ -401,6 +422,12 @@ function loadGame(): GameState | null {
 }
 
 // ─── Season helpers ──────────────────────────────────────────────
+
+const MAX_EVENT_LOG = 50;
+function pushEvent(s: GameState, type: GameEventType, icon: string, message: string) {
+  s.eventLog.unshift({ type, icon, message, timestamp: Date.now() });
+  if (s.eventLog.length > MAX_EVENT_LOG) s.eventLog.length = MAX_EVENT_LOG;
+}
 
 function isHarvestTime(season: Season, seasonElapsed: number): boolean {
   return season === "autumn" && seasonElapsed < HARVEST_DURATION_HOURS;
@@ -717,7 +744,12 @@ export function GameProvider(props: ParentProps) {
           } else {
             s.resources.wood = 0;
             // Freezing — citizens die
+            const frozenBefore = Math.floor(s.population);
             s.population = Math.max(BASE_POPULATION, s.population - WINTER_NO_WOOD_DEATH_RATE * elapsedHours);
+            const frozenLost = frozenBefore - Math.floor(s.population);
+            if (frozenLost > 0) {
+              pushEvent(s, "winter_freezing", "🥶", `${frozenLost} citizen${frozenLost > 1 ? "s" : ""} froze to death`);
+            }
           }
         }
 
@@ -774,21 +806,37 @@ export function GameProvider(props: ParentProps) {
                 item.level += 1;
                 item.upgrading = false;
                 item.upgradeRemaining = undefined;
+                // Log building completion
+                if ("buildingId" in item) {
+                  const def = BUILDINGS.find((b) => b.id === (item as any).buildingId);
+                  if (def) pushEvent(s, "building_completed", def.icon, `${def.name} upgraded to level ${item.level}`);
+                }
               }
             }
           }
         }
 
         // Villager growth / decline (affected by happiness)
+        const popBefore = Math.floor(s.population);
         if (netFoodRate > 0 && s.population < maxPop && s.happiness >= 20) {
           const growthMod = s.happiness >= 70 ? 1.5 : s.happiness >= 40 ? 1.0 : 0.5;
           const growth = (1 / VILLAGER_GROWTH_INTERVAL_HOURS) * elapsedHours * growthMod;
           s.population = Math.min(maxPop, s.population + growth);
         } else if (s.happiness < 20 && s.population > BASE_POPULATION) {
-          // Very unhappy citizens leave
           s.population = Math.max(BASE_POPULATION, s.population - elapsedHours * 0.5);
         } else if (s.resources.food <= 0 && s.population > BASE_POPULATION) {
           s.population = Math.max(BASE_POPULATION, s.population - elapsedHours);
+        }
+        const popAfter = Math.floor(s.population);
+        if (popAfter > popBefore) {
+          pushEvent(s, "citizen_born", "👶", `${popAfter - popBefore} new citizen${popAfter - popBefore > 1 ? "s" : ""} arrived`);
+        } else if (popAfter < popBefore) {
+          const lost = popBefore - popAfter;
+          if (s.resources.food <= 0) {
+            pushEvent(s, "citizen_died", "💀", `${lost} citizen${lost > 1 ? "s" : ""} starved`);
+          } else if (s.happiness < 20) {
+            pushEvent(s, "citizen_left", "🚶", `${lost} citizen${lost > 1 ? "s" : ""} left (unhappy)`);
+          }
         }
 
         // ── Adventurer's Guild tick ──
@@ -900,6 +948,25 @@ export function GameProvider(props: ParentProps) {
                 }
               }
 
+              // Log events
+              const missionName = template?.name ?? am.missionId;
+              if (success) {
+                const rewardStr = rewards.map((r) => `+${r.amount} ${r.resource}`).join(", ");
+                pushEvent(s, "mission_success", "✅", `Mission "${missionName}" succeeded! ${rewardStr}`);
+              } else {
+                pushEvent(s, "mission_failed", "❌", `Mission "${missionName}" failed`);
+              }
+              for (const name of levelUps) {
+                pushEvent(s, "adventurer_levelup", "⬆️", `${name} leveled up!`);
+              }
+              for (const ru of rankUps) {
+                pushEvent(s, "adventurer_rankup", "🌟", `${ru.name} promoted to ${ru.newRank}!`);
+              }
+              for (const id of casualties) {
+                const deadAdv = team.find((a) => a.id === id);
+                if (deadAdv) pushEvent(s, "adventurer_died", "⚰️", `${deadAdv.name} fell on mission "${missionName}"`);
+              }
+
               // Record result
               s.completedMissions.push({
                 missionId: am.missionId,
@@ -964,13 +1031,20 @@ export function GameProvider(props: ParentProps) {
                 homeAdventurers: homeAdvs,
               });
 
-              // Damage buildings on defeat
-              if (!result.victory) {
+              // Log and damage buildings on defeat
+              const raidName = template?.name ?? ir.raidId;
+              if (result.victory) {
+                const lootStr = result.loot.map((l) => `+${l.amount} ${l.resource}`).join(", ");
+                pushEvent(s, "raid_victory", "🛡️", `Repelled ${raidName}! Loot: ${lootStr}`);
+              } else {
+                pushEvent(s, "raid_defeat", "💔", `Defeated by ${raidName}! Lost resources and citizens.`);
                 const damageable = s.buildings.filter((b) => b.level > 0 && !b.damaged && b.buildingId !== "town_hall");
                 const damageCount = Math.min(damageable.length, 1 + Math.floor(Math.random() * 3));
                 for (let d = 0; d < damageCount; d++) {
                   const idx = Math.floor(Math.random() * damageable.length);
                   damageable[idx].damaged = true;
+                  const def = BUILDINGS.find((b) => b.id === (damageable[idx] as any).buildingId);
+                  if (def) pushEvent(s, "building_damaged", "🔧", `${def.name} was damaged in the raid`);
                   damageable.splice(idx, 1);
                 }
               }
@@ -1016,6 +1090,7 @@ export function GameProvider(props: ParentProps) {
               strength: spawn.strength,
               warned: true,
             });
+            pushEvent(s, "raid_incoming", "⚠️", `${spawn.raid.name} approaching! (strength ${spawn.strength})`);
           }
         }
 
@@ -1339,6 +1414,7 @@ export function GameProvider(props: ParentProps) {
         s.resources.stone -= cost.stone;
         const b = s.buildings.find((b) => b.buildingId === buildingId)!;
         b.damaged = false;
+        pushEvent(s, "building_repaired", "🔨", `${def.name} repaired`);
       }));
       return true;
     },
