@@ -34,6 +34,7 @@ export default function Inventory() {
         <span>⚒️ Iron: {Math.floor(state.iron)}</span>
         <span>👕 Clothing: {Math.floor(state.clothing)}</span>
         <span>🧪 Potions: {state.potions}</span>
+        <span>💎 Gems: {state.gems}</span>
       </div>
 
       {/* Equipment items */}

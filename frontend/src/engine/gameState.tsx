@@ -376,6 +376,8 @@ export interface GameState {
   weapons: number;
   armor: number;
   potions: number;
+  gems: number;
+  ironMinedTotal: number; // tracks total iron for gem proc
   inventory: InventoryItem[];
   craftingQueue: ActiveCraft[];
   // Event log
@@ -505,6 +507,8 @@ function createInitialState(): GameState {
     weapons: 0,
     armor: 0,
     potions: 0,
+    gems: 0,
+    ironMinedTotal: 0,
     inventory: [],
     craftingQueue: [],
     eventLog: [],
@@ -584,6 +588,8 @@ function loadGame(): GameState | null {
     if (saved.weapons === undefined) saved.weapons = 0;
     if (saved.armor === undefined) saved.armor = 0;
     if (saved.potions === undefined) saved.potions = 0;
+    if (saved.gems === undefined) saved.gems = 0;
+    if (saved.ironMinedTotal === undefined) saved.ironMinedTotal = 0;
     if (!saved.inventory) saved.inventory = [];
     // Equipment migration for adventurers
     for (const adv of saved.adventurers) {
@@ -967,12 +973,29 @@ export function GameProvider(props: ParentProps) {
           }
         }
 
-        // ── Iron production ──
+        // ── Iron production + gem/shard procs ──
         const ironMineLvl = s.buildings.find((b) => b.buildingId === "iron_mine")?.level ?? 0;
         const ironMineDamaged = s.buildings.find((b) => b.buildingId === "iron_mine")?.damaged ?? false;
         if (ironMineLvl > 0 && !ironMineDamaged) {
-          const ironRate = 8 * ironMineLvl; // 8 iron/h per level
-          s.iron = Math.min(300, s.iron + ironRate * elapsedHours);
+          const ironRate = 8 * ironMineLvl;
+          const ironMined = ironRate * elapsedHours;
+          s.iron = Math.min(300, s.iron + ironMined);
+
+          // Track total iron for gem/shard procs (~1 per 200 iron)
+          const prevTotal = s.ironMinedTotal;
+          s.ironMinedTotal += ironMined;
+          const procsBefore = Math.floor(prevTotal / 200);
+          const procsAfter = Math.floor(s.ironMinedTotal / 200);
+          const newProcs = procsAfter - procsBefore;
+          for (let p = 0; p < newProcs; p++) {
+            if (Math.random() < 0.5) {
+              s.gems += 1;
+              pushEvent(s, "building_completed", "💎", "Your miners unearthed a rare gem!");
+            } else {
+              s.astralShards += 1;
+              pushEvent(s, "building_completed", "💠", "Your miners found an astral shard in the depths!");
+            }
+          }
         }
 
         // ── Crafting queue tick ──
