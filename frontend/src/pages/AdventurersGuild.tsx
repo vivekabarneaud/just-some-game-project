@@ -125,6 +125,36 @@ export default function AdventurersGuild() {
     }
   };
 
+  /** Assign team members to mission slots optimally — class matches first, then "any" slots */
+  const assignTeamToSlots = () => {
+    const mission = selectedMission();
+    if (!mission) return [];
+    const team = currentTeam();
+    const result: (Adventurer | null)[] = mission.slots.map(() => null);
+    const unassigned = [...team];
+
+    // First pass: fill specific class slots with matching adventurers
+    for (let i = 0; i < mission.slots.length; i++) {
+      const slot = mission.slots[i];
+      if (slot.class === "any") continue;
+      const idx = unassigned.findIndex((a) => a.class === slot.class);
+      if (idx !== -1) {
+        result[i] = unassigned[idx];
+        unassigned.splice(idx, 1);
+      }
+    }
+
+    // Second pass: fill remaining slots (any + unmatched specific) with leftover adventurers
+    for (let i = 0; i < mission.slots.length; i++) {
+      if (result[i] !== null) continue;
+      if (unassigned.length > 0) {
+        result[i] = unassigned.shift()!;
+      }
+    }
+
+    return result;
+  };
+
   const slotIcon = (slot: MissionSlot) => {
     if (slot.class === "any") return "👤";
     return getClassMeta(slot.class).icon;
@@ -398,10 +428,7 @@ export default function AdventurersGuild() {
                 {/* Slot requirements */}
                 <div style={{ display: "flex", gap: "6px", "margin-bottom": "10px", "flex-wrap": "wrap" }}>
                   {mission().slots.map((slot, i) => {
-                    const assigned = () => {
-                      const advId = selectedTeam()[i];
-                      return advId ? state.adventurers.find((a) => a.id === advId) : null;
-                    };
+                    const assigned = () => assignTeamToSlots()[i];
                     const isMatched = () => {
                       const adv = assigned();
                       if (!adv) return false;
