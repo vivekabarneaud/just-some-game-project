@@ -604,28 +604,21 @@ export default function AdventurersGuild() {
                 return (
                   <A href={`/guild/${adv.id}`} style={{ "text-decoration": "none" }}>
                     <div class="building-card" classList={{ upgrading: adv.onMission }} style={{ cursor: "pointer", position: "relative" }}>
-                      {unspent() > 0 && (
-                        <div style={{
-                          position: "absolute",
-                          top: "8px",
-                          right: "8px",
-                          "min-width": "18px",
-                          height: "18px",
-                          "border-radius": "9px",
-                          background: "var(--accent-green)",
-                          color: "var(--bg-primary)",
-                          "font-size": "0.7rem",
-                          "font-weight": "bold",
-                          display: "flex",
-                          "align-items": "center",
-                          "justify-content": "center",
-                          padding: "0 4px",
-                          animation: "pulse 2s infinite",
-                        }}>
-                          +{unspent()}
-                        </div>
-                      )}
                       <span class="building-card-category" style={{ color: RANK_COLORS[adv.rank] }}>
+                        {unspent() > 0 && (
+                          <span style={{
+                            "margin-right": "6px",
+                            padding: "1px 5px",
+                            "border-radius": "8px",
+                            background: "var(--accent-green)",
+                            color: "var(--bg-primary)",
+                            "font-size": "0.6rem",
+                            "font-weight": "bold",
+                            animation: "pulse 2s infinite",
+                          }}>
+                            +{unspent()} pts
+                          </span>
+                        )}
                         {RANK_NAMES[adv.rank]}
                       </span>
                       <div class="building-card-header">
