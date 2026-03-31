@@ -84,11 +84,15 @@ export default function Sidebar() {
             <div class="nav-section-title">{section.title}</div>
             {section.items.map((item) => {
               const hasEmptyFields = () => state.fields.some((f) => !f.crop && !f.fallow && f.level > 0 && !f.upgrading);
+              const guildLevel = () => state.buildings.find((b) => b.buildingId === "adventurers_guild")?.level ?? 0;
+              const hasNewMissions = () => guildLevel() > 0 && state.missionBoard.length > 0;
+              const hasNewRecruits = () => guildLevel() > 0 && state.recruitCandidates.length > 0;
               const shouldBlink = () =>
-                item.path === "/farming" && (
+                (item.path === "/farming" && (
                   (state.season === "spring" && hasEmptyFields()) ||
                   (state.season === "autumn" && state.seasonElapsed < 6)
-                );
+                )) ||
+                (item.path === "/guild" && (hasNewMissions() || hasNewRecruits()));
               return (
                 <A
                   href={item.path}
@@ -99,8 +103,13 @@ export default function Sidebar() {
                   <span class="nav-icon">{item.icon}</span>
                   {item.label}
                   {shouldBlink() && (
-                    <span style={{ "margin-left": "auto", "font-size": "0.7rem", color: state.season === "spring" ? "#7CFC00" : "#d4831a" }}>
-                      {state.season === "spring" ? "plant!" : "harvest!"}
+                    <span style={{ "margin-left": "auto", "font-size": "0.7rem", color:
+                      item.path === "/guild" ? "var(--accent-blue)" :
+                      state.season === "spring" ? "#7CFC00" : "#d4831a"
+                    }}>
+                      {item.path === "/guild"
+                        ? (hasNewMissions() && hasNewRecruits() ? "new!" : hasNewMissions() ? "missions!" : "recruits!")
+                        : state.season === "spring" ? "plant!" : "harvest!"}
                     </span>
                   )}
                 </A>
