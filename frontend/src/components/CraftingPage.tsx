@@ -1,6 +1,7 @@
 import { For, Show } from "solid-js";
 import { A } from "@solidjs/router";
 import { useGame, CRAFTING_RECIPES } from "~/engine/gameState";
+import { getItemByRecipe } from "~/data/items";
 import Countdown from "~/components/Countdown";
 
 interface CraftingPageProps {
@@ -133,6 +134,20 @@ export default function CraftingPage(props: CraftingPageProps) {
                         </div>
                       </div>
                     </div>
+                    {(() => {
+                      const item = getItemByRecipe(recipe.id);
+                      return item ? (
+                        <div style={{ "margin-top": "4px", padding: "4px 8px", background: "var(--bg-primary)", "border-radius": "4px", "font-size": "0.75rem" }}>
+                          <span style={{ color: "var(--accent-green)" }}>{item.description}</span>
+                          {item.classes.length > 0 && (
+                            <span style={{ color: "var(--text-muted)", "margin-left": "6px" }}>
+                              ({item.classes.join(", ")})
+                            </span>
+                          )}
+                          {item.consumable && <span style={{ color: "var(--accent-gold)", "margin-left": "4px" }}>consumable</span>}
+                        </div>
+                      ) : null;
+                    })()}
                     <div style={{ "margin-top": "6px", "font-size": "0.8rem", color: "var(--text-secondary)" }}>
                       Cost: {recipe.costs.map((c) => `${c.amount} ${c.resource}`).join(", ")}
                     </div>
@@ -176,6 +191,19 @@ export default function CraftingPage(props: CraftingPageProps) {
                           </div>
                         </div>
                       </div>
+                      {(() => {
+                        const item = getItemByRecipe(recipe.id);
+                        return item ? (
+                          <div style={{ "margin-top": "4px", padding: "4px 8px", background: "var(--bg-primary)", "border-radius": "4px", "font-size": "0.75rem" }}>
+                            <span style={{ color: "var(--accent-green)" }}>{item.description}</span>
+                            {item.classes.length > 0 && (
+                              <span style={{ color: "var(--text-muted)", "margin-left": "6px" }}>
+                                ({item.classes.join(", ")})
+                              </span>
+                            )}
+                          </div>
+                        ) : null;
+                      })()}
                       <div style={{ "margin-top": "6px", "font-size": "0.8rem", color: "var(--text-secondary)" }}>
                         Cost: {recipe.costs.map((c) => `${c.amount} ${c.resource}`).join(", ")}
                       </div>
