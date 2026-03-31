@@ -417,6 +417,8 @@ export interface PlayerField {
   id: string;
   crop: CropId | null; // null = empty/unplanted field
   harvested: boolean; // true after this field's harvest is collected this year
+  harvestsBeforeFallow: number; // 2 = fresh, 1 = one more harvest, 0 = fallow this year
+  fallow: boolean; // true = resting this year, can't plant
   level: number;
   upgrading: boolean;
   upgradeRemaining?: number;
@@ -680,7 +682,11 @@ function loadGame(): GameState | null {
     if (saved.wool === undefined) saved.wool = 0;
     if (saved.fiber === undefined) saved.fiber = 0;
     if (!saved.yearHarvest) saved.yearHarvest = {};
-    for (const f of saved.fields) { if ((f as any).harvested === undefined) (f as any).harvested = false; }
+    for (const f of saved.fields) {
+      if ((f as any).harvested === undefined) (f as any).harvested = false;
+      if ((f as any).harvestsBeforeFallow === undefined) (f as any).harvestsBeforeFallow = 2;
+      if ((f as any).fallow === undefined) (f as any).fallow = false;
+    }
     if (saved.clothing === undefined) saved.clothing = 0;
     if (saved.iron === undefined) saved.iron = 0;
     if (saved.tools === undefined) saved.tools = 0;
@@ -1032,12 +1038,24 @@ export function GameProvider(props: ParentProps) {
           s.yearHarvest[crop.name] = (s.yearHarvest[crop.name] ?? 0) + amount;
           field.harvested = true;
           field.crop = null;
+          // Decrement harvests before fallow
+          field.harvestsBeforeFallow -= 1;
+          if (field.harvestsBeforeFallow <= 0) {
+            field.fallow = true;
+          }
         }
       }
     }
-    // Reset harvested flags in spring
+    // Reset fallow and harvested flags in spring
     if (next === "spring") {
-      for (const field of s.fields) field.harvested = false;
+      for (const field of s.fields) {
+        field.harvested = false;
+        if (field.fallow) {
+          // Fallow year is over — field is refreshed
+          field.fallow = false;
+          field.harvestsBeforeFallow = 2;
+        }
+      }
     }
     if (prev === "summer") {
       pushEvent(s, "building_completed", "🍂", "Autumn is here — harvest season begins!");
@@ -1665,7 +1683,7 @@ export function GameProvider(props: ParentProps) {
       setState(produce((s) => {
         s.resources.wood -= cost.wood;
         s.resources.stone -= cost.stone;
-        s.fields.push({ id, crop: null, level: 0, upgrading: true, upgradeRemaining: getFieldBuildTime(0), harvested: false });
+        s.fields.push({ id, crop: null, level: 0, upgrading: true, upgradeRemaining: getFieldBuildTime(0), harvested: false, harvestsBeforeFallow: 2, fallow: false });
       }));
       return true;
     },
@@ -1675,6 +1693,7 @@ export function GameProvider(props: ParentProps) {
       const field = state.fields.find((f) => f.id === fieldId);
       if (!field || field.upgrading || field.level === 0) return false;
       if (field.crop !== null) return false; // already planted
+      if (field.fallow) return false; // resting this year
       setState(produce((s) => {
         const f = s.fields.find((f) => f.id === fieldId)!;
         f.crop = crop;
@@ -1686,7 +1705,7 @@ export function GameProvider(props: ParentProps) {
     upgradeField(fieldId) {
       const field = state.fields.find((f) => f.id === fieldId);
       if (!field || field.upgrading || field.level >= FIELD_MAX_LEVEL) return false;
-      // Can only upgrade empty (unplanted) fields
+      // Can only upgrade empty or fallow fields (not planted ones)
       if (field.crop !== null) return false;
       const cost = getFieldCost(field.level);
       if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;

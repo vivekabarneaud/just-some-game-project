@@ -33,17 +33,19 @@ function FieldCard(props: { field: PlayerField }) {
   const { actions, state } = useGame();
   const [showPlantPicker, setShowPlantPicker] = createSignal(false);
   const crop = () => props.field.crop ? getCrop(props.field.crop) : null;
-  const isEmpty = () => !props.field.crop && props.field.level > 0 && !props.field.upgrading;
+  const isEmpty = () => !props.field.crop && !props.field.fallow && props.field.level > 0 && !props.field.upgrading;
+  const isFallow = () => props.field.fallow && props.field.level > 0 && !props.field.upgrading;
   const harvestYield = () => (props.field.level > 0 && crop()) ? getSeasonYield(crop()!, props.field.level) : 0;
   const upgradeCost = () => props.field.level < FIELD_MAX_LEVEL ? getFieldCost(props.field.level) : null;
   const canUpgrade = () => {
-    if (props.field.crop !== null) return false; // can only upgrade empty fields
+    if (props.field.crop !== null) return false; // can only upgrade empty/fallow fields
     if (props.field.upgrading || props.field.level >= FIELD_MAX_LEVEL) return false;
     const cost = upgradeCost();
     return cost ? state.resources.wood >= cost.wood && state.resources.stone >= cost.stone : false;
   };
   const isCurrentlyHarvesting = () => actions.isHarvesting();
   const seasonStatus = () => {
+    if (isFallow()) return { label: "🌿 Fallow — resting this year", color: "#9b59b6" };
     if (isEmpty()) {
       if (state.season === "spring") return { label: "🌱 Ready to plant!", color: "var(--accent-green)" };
       return { label: "Empty — waiting for spring", color: "var(--text-muted)" };
@@ -74,6 +76,11 @@ function FieldCard(props: { field: PlayerField }) {
         <div class="field-card-status" style={{ color: seasonStatus().color }}>{seasonStatus().label}</div>
         <Show when={crop()}>
           <div class="field-card-harvest">Expected harvest: <strong>{harvestYield()}</strong> {crop()!.isFood ? "food" : "fiber"}</div>
+          <div style={{ "font-size": "0.7rem", color: props.field.harvestsBeforeFallow <= 1 ? "var(--accent-gold)" : "var(--text-muted)", "margin-top": "2px" }}>
+            {props.field.harvestsBeforeFallow > 1
+              ? `${props.field.harvestsBeforeFallow - 1} more harvest${props.field.harvestsBeforeFallow > 2 ? "s" : ""} before fallow`
+              : "Last harvest before fallow"}
+          </div>
         </Show>
       </Show>
 
@@ -106,8 +113,8 @@ function FieldCard(props: { field: PlayerField }) {
         </Show>
       </Show>
 
-      {/* Upgrade — empty fields only */}
-      <Show when={isEmpty() && !props.field.upgrading && props.field.level < FIELD_MAX_LEVEL}>
+      {/* Upgrade — empty (non-fallow) fields only */}
+      <Show when={(isEmpty() || isFallow()) && !props.field.upgrading && props.field.level < FIELD_MAX_LEVEL}>
         <div class="field-card-upgrade">
           <div class="field-upgrade-info">
             <span class="field-upgrade-cost">🪵 {upgradeCost()!.wood} 🪨 {upgradeCost()!.stone}</span>
