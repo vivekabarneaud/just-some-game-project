@@ -391,9 +391,47 @@ export default function AdventurersGuild() {
                 "border-radius": "8px",
                 border: "1px solid var(--border-highlight)",
               }}>
-                <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "12px", color: "var(--text-primary)" }}>
+                <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "8px", color: "var(--text-primary)" }}>
                   Assemble Team for: {mission().name}
                 </h3>
+
+                {/* Slot requirements */}
+                <div style={{ display: "flex", gap: "6px", "margin-bottom": "10px", "flex-wrap": "wrap" }}>
+                  {mission().slots.map((slot, i) => {
+                    const assigned = () => {
+                      const advId = selectedTeam()[i];
+                      return advId ? state.adventurers.find((a) => a.id === advId) : null;
+                    };
+                    const isMatched = () => {
+                      const adv = assigned();
+                      if (!adv) return false;
+                      return slot.class === "any" || adv.class === slot.class;
+                    };
+                    return (
+                      <div style={{
+                        padding: "4px 10px",
+                        "border-radius": "6px",
+                        border: `1px solid ${assigned() ? (isMatched() ? "var(--accent-green)" : "var(--accent-gold)") : "var(--border-default)"}`,
+                        background: assigned() ? (isMatched() ? "rgba(46, 204, 113, 0.1)" : "rgba(245, 197, 66, 0.1)") : "var(--bg-primary)",
+                        "font-size": "0.8rem",
+                        display: "flex",
+                        "align-items": "center",
+                        gap: "4px",
+                      }}>
+                        <span>{slot.class === "any" ? "👤" : getClassMeta(slot.class).icon}</span>
+                        <span style={{ color: assigned() ? "var(--text-primary)" : "var(--text-muted)" }}>
+                          {assigned()
+                            ? assigned()!.name.split(" ")[0]
+                            : slot.class === "any" ? "Any" : getClassMeta(slot.class).name}
+                        </span>
+                        {assigned() && !isMatched() && (
+                          <span style={{ "font-size": "0.65rem", color: "var(--accent-gold)" }}>mismatch</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
                 <div style={{ "margin-bottom": "8px", "font-size": "0.85rem", color: "var(--text-secondary)" }}>
                   Slots: {selectedTeam().length}/{mission().slots.length} ·
                   Success: <span style={{
