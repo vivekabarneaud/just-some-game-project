@@ -286,6 +286,11 @@ function loadGame(): GameState | null {
     if (!saved.missionBoard) saved.missionBoard = [];
     if (saved.recruitRefreshIn === undefined) saved.recruitRefreshIn = 0;
     if (saved.missionRefreshIn === undefined) saved.missionRefreshIn = 0;
+    // Force mission board refresh if missions lack tags (old save format)
+    if (saved.missionBoard?.length > 0 && !(saved.missionBoard[0] as any).tags) {
+      saved.missionBoard = [];
+      saved.missionRefreshIn = 0;
+    }
     // Migrate adventurers missing xp/level fields
     for (const adv of saved.adventurers) {
       if ((adv as any).level === undefined) { (adv as any).level = 1; (adv as any).xp = 0; }
