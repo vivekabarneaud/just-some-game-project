@@ -10,6 +10,7 @@ const Buildings = lazy(() => import("./pages/Buildings"));
 const BuildingDetail = lazy(() => import("./pages/BuildingDetail"));
 const Farming = lazy(() => import("./pages/Farming"));
 const AdventurersGuild = lazy(() => import("./pages/AdventurersGuild"));
+const Inventory = lazy(() => import("./pages/Inventory"));
 const AdventurerDetail = lazy(() => import("./pages/AdventurerDetail"));
 const Tailoring = lazy(() => import("./pages/Tailoring"));
 const Blacksmith = lazy(() => import("./pages/Blacksmith"));
@@ -28,6 +29,7 @@ render(
         <Route path="/farming" component={Farming} />
         <Route path="/guild" component={AdventurersGuild} />
         <Route path="/guild/:id" component={AdventurerDetail} />
+        <Route path="/inventory" component={Inventory} />
         <Route path="/tailoring" component={Tailoring} />
         <Route path="/blacksmith" component={Blacksmith} />
         <Route path="/alchemy" component={Alchemy} />
