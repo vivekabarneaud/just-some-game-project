@@ -87,6 +87,30 @@ export default function ResourceBar() {
           );
         }}
       </For>
+      <div class="resource-item" style={{ "border-left": "1px solid var(--border-default)", "padding-left": "12px" }}>
+        <span class="resource-icon">💠</span>
+        <span class="resource-amount" style={{ color: "#a78bfa" }}>
+          {state.astralShards}
+        </span>
+        <Show when={actions.canClaimDailyLogin()}>
+          <button
+            onClick={() => actions.claimDailyLogin()}
+            style={{
+              "margin-left": "6px",
+              padding: "2px 8px",
+              background: "rgba(167, 139, 250, 0.2)",
+              border: "1px solid #a78bfa",
+              color: "#a78bfa",
+              "border-radius": "4px",
+              cursor: "pointer",
+              "font-size": "0.7rem",
+              "white-space": "nowrap",
+            }}
+          >
+            +10 daily
+          </button>
+        </Show>
+      </div>
       <div class="resource-item pop-display">
         <span class="resource-icon">👤</span>
         <span class="resource-amount">

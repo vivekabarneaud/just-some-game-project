@@ -1,5 +1,5 @@
 import { createSignal, For, Show } from "solid-js";
-import { A } from "@solidjs/router";
+import { A, useNavigate } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
 import {
   getClassMeta,
@@ -272,9 +272,26 @@ export default function AdventurersGuild() {
             </div>
           </Show>
 
-          <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "8px", color: "var(--text-primary)" }}>
-            Mission Board
-          </h3>
+          <div style={{ display: "flex", "align-items": "center", gap: "12px", "margin-bottom": "8px" }}>
+            <h3 style={{ "font-family": "var(--font-heading)", color: "var(--text-primary)", margin: 0 }}>
+              Mission Board
+            </h3>
+            <button
+              onClick={() => actions.rerollMissions()}
+              disabled={state.missionRerollToday || state.astralShards < 10}
+              style={{
+                padding: "3px 10px",
+                background: state.missionRerollToday ? "var(--bg-secondary)" : "rgba(167, 139, 250, 0.2)",
+                border: `1px solid ${state.missionRerollToday ? "var(--border-default)" : "#a78bfa"}`,
+                color: state.missionRerollToday ? "var(--text-muted)" : "#a78bfa",
+                "border-radius": "4px",
+                cursor: state.missionRerollToday ? "default" : "pointer",
+                "font-size": "0.75rem",
+              }}
+            >
+              {state.missionRerollToday ? "Rerolled today" : "Reroll (10 💠)"}
+            </button>
+          </div>
           <Show when={state.missionBoard.length === 0}>
             <p style={{ color: "var(--text-muted)", "font-size": "0.85rem" }}>
               No missions available. The board refreshes daily.
@@ -453,55 +470,26 @@ export default function AdventurersGuild() {
               {(adv) => {
                 const cls = getClassMeta(adv.class);
                 return (
-                  <div class="building-card" classList={{ upgrading: adv.onMission }}>
-                    <span class="building-card-category" style={{ color: RANK_COLORS[adv.rank] }}>
-                      {RANK_NAMES[adv.rank]}
-                    </span>
-                    <div class="building-card-header">
-                      <div class="building-card-icon">{cls.icon}</div>
-                      <div>
-                        <div class="building-card-title">{adv.name}</div>
-                        <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
-                          {cls.name} · Lv.{adv.level}
+                  <A href={`/guild/${adv.id}`} style={{ "text-decoration": "none" }}>
+                    <div class="building-card" classList={{ upgrading: adv.onMission }} style={{ cursor: "pointer" }}>
+                      <span class="building-card-category" style={{ color: RANK_COLORS[adv.rank] }}>
+                        {RANK_NAMES[adv.rank]}
+                      </span>
+                      <div class="building-card-header">
+                        <div class="building-card-icon">{cls.icon}</div>
+                        <div>
+                          <div class="building-card-title">{adv.name}</div>
+                          <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
+                            {cls.name} · Lv.{adv.level}
+                          </div>
                         </div>
                       </div>
+                      <XpBar xp={adv.xp} level={adv.level} />
+                      {adv.onMission && (
+                        <div class="building-card-upgrading">On mission</div>
+                      )}
                     </div>
-                    <XpBar xp={adv.xp} level={adv.level} />
-                    <div style={{
-                      "margin-top": "6px",
-                      padding: "4px 8px",
-                      background: "var(--bg-primary)",
-                      "border-radius": "4px",
-                      "font-size": "0.75rem",
-                      color: "var(--text-muted)",
-                    }}>
-                      {cls.passive.name}: {cls.passive.description}
-                    </div>
-                    {adv.onMission && (
-                      <div class="building-card-upgrading">On mission</div>
-                    )}
-                    {!adv.onMission && (
-                      <button
-                        onClick={() => {
-                          if (confirm(`Dismiss ${adv.name}? This cannot be undone.`)) {
-                            actions.dismissAdventurer(adv.id);
-                          }
-                        }}
-                        style={{
-                          "margin-top": "8px",
-                          background: "rgba(231, 76, 60, 0.1)",
-                          border: "1px solid var(--accent-red)",
-                          color: "var(--accent-red)",
-                          padding: "4px 10px",
-                          "border-radius": "4px",
-                          cursor: "pointer",
-                          "font-size": "0.8rem",
-                        }}
-                      >
-                        Dismiss
-                      </button>
-                    )}
-                  </div>
+                  </A>
                 );
               }}
             </For>
@@ -510,9 +498,26 @@ export default function AdventurersGuild() {
 
         {/* ── Recruit tab ── */}
         <Show when={tab() === "recruit"}>
-          <div style={{ "margin-bottom": "12px", "font-size": "0.85rem", color: "var(--text-secondary)" }}>
-            Roster: {rosterSize().current}/{rosterSize().max} ·
-            New candidates in {Math.ceil(state.recruitRefreshIn)}h
+          <div style={{ display: "flex", "align-items": "center", gap: "12px", "margin-bottom": "12px", "font-size": "0.85rem", color: "var(--text-secondary)" }}>
+            <span>
+              Roster: {rosterSize().current}/{rosterSize().max} ·
+              New candidates in {Math.ceil(state.recruitRefreshIn)}h
+            </span>
+            <button
+              onClick={() => actions.rerollRecruits()}
+              disabled={state.recruitRerollToday || state.astralShards < 10}
+              style={{
+                padding: "3px 10px",
+                background: state.recruitRerollToday ? "var(--bg-secondary)" : "rgba(167, 139, 250, 0.2)",
+                border: `1px solid ${state.recruitRerollToday ? "var(--border-default)" : "#a78bfa"}`,
+                color: state.recruitRerollToday ? "var(--text-muted)" : "#a78bfa",
+                "border-radius": "4px",
+                cursor: state.recruitRerollToday ? "default" : "pointer",
+                "font-size": "0.75rem",
+              }}
+            >
+              {state.recruitRerollToday ? "Rerolled today" : "Reroll (10 💠)"}
+            </button>
           </div>
           <Show when={state.recruitCandidates.length === 0}>
             <p style={{ color: "var(--text-muted)", "font-size": "0.85rem" }}>

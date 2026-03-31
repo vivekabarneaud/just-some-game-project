@@ -160,6 +160,12 @@ export interface GameState {
   missionBoard: MissionTemplate[];
   recruitRefreshIn: number; // game-hours until next candidate refresh
   missionRefreshIn: number; // game-hours until next mission board refresh
+  // Astral Shards (premium currency)
+  astralShards: number;
+  lastDailyLogin: number; // real-world timestamp of last daily reward claim
+  missionRerollToday: boolean;
+  recruitRerollToday: boolean;
+  lastRerollReset: number; // real-world timestamp of last reroll reset (daily)
 }
 
 export interface FoodSource {
@@ -210,6 +216,11 @@ export interface GameActions {
   getRosterSize: () => { current: number; max: number };
   getMissionSlotInfo: () => { used: number; max: number };
   grantResources: (amount: number) => void;
+  // Astral Shards
+  claimDailyLogin: () => boolean;
+  canClaimDailyLogin: () => boolean;
+  rerollMissions: () => boolean;
+  rerollRecruits: () => boolean;
 }
 
 // ─── Constants ───────────────────────────────────────────────────
@@ -245,8 +256,13 @@ function createInitialState(): GameState {
     completedMissions: [],
     recruitCandidates: [],
     missionBoard: [],
-    recruitRefreshIn: 0, // refresh immediately when guild is built
+    recruitRefreshIn: 0,
     missionRefreshIn: 0,
+    astralShards: 0,
+    lastDailyLogin: 0,
+    missionRerollToday: false,
+    recruitRerollToday: false,
+    lastRerollReset: Date.now(),
   };
 }
 
@@ -291,6 +307,12 @@ function loadGame(): GameState | null {
       saved.missionBoard = [];
       saved.missionRefreshIn = 0;
     }
+    // Astral Shards migration
+    if (saved.astralShards === undefined) saved.astralShards = 0;
+    if (saved.lastDailyLogin === undefined) saved.lastDailyLogin = 0;
+    if (saved.missionRerollToday === undefined) saved.missionRerollToday = false;
+    if (saved.recruitRerollToday === undefined) saved.recruitRerollToday = false;
+    if (saved.lastRerollReset === undefined) saved.lastRerollReset = Date.now();
     // Migrate adventurers missing xp/level fields
     for (const adv of saved.adventurers) {
       if ((adv as any).level === undefined) { (adv as any).level = 1; (adv as any).xp = 0; }
@@ -686,9 +708,13 @@ export function GameProvider(props: ParentProps) {
               if (rewards.length > 0) {
                 const resCaps = calcStorageCaps(s.buildings);
                 for (const reward of rewards) {
-                  const key = reward.resource as keyof ResourceState;
-                  const cap = resCaps[key];
-                  s.resources[key] = Math.min(cap, s.resources[key] + reward.amount);
+                  if (reward.resource === "astralShards") {
+                    s.astralShards += reward.amount;
+                  } else {
+                    const key = reward.resource as keyof ResourceState;
+                    const cap = resCaps[key];
+                    s.resources[key] = Math.min(cap, s.resources[key] + reward.amount);
+                  }
                 }
               }
 
@@ -734,7 +760,17 @@ export function GameProvider(props: ParentProps) {
         // Remove dead adventurers from roster
         s.adventurers = s.adventurers.filter((a) => a.alive);
 
-        s.lastTick = Date.now();
+        // Reset daily rerolls at midnight (real-world time)
+        const now = Date.now();
+        const lastResetDay = new Date(s.lastRerollReset).toDateString();
+        const todayStr = new Date(now).toDateString();
+        if (lastResetDay !== todayStr) {
+          s.missionRerollToday = false;
+          s.recruitRerollToday = false;
+          s.lastRerollReset = now;
+        }
+
+        s.lastTick = now;
       }),
     );
   }
@@ -1018,6 +1054,49 @@ export function GameProvider(props: ParentProps) {
     getMissionSlotInfo() {
       const guildLvl = this.getGuildLevel();
       return { used: state.activeMissions.length, max: getMissionSlots(guildLvl) };
+    },
+    canClaimDailyLogin() {
+      if (state.lastDailyLogin === 0) return true;
+      const lastDay = new Date(state.lastDailyLogin).toDateString();
+      const today = new Date().toDateString();
+      return lastDay !== today;
+    },
+    claimDailyLogin() {
+      if (!this.canClaimDailyLogin()) return false;
+      setState(produce((s) => {
+        s.astralShards += 10;
+        s.lastDailyLogin = Date.now();
+      }));
+      return true;
+    },
+    rerollMissions() {
+      if (state.missionRerollToday || state.astralShards < 10) return false;
+      const guildLvl = this.getGuildLevel();
+      if (guildLvl === 0) return false;
+      setState(produce((s) => {
+        s.astralShards -= 10;
+        s.missionRerollToday = true;
+        const boardSize = getMissionBoardSize(guildLvl);
+        s.missionBoard = generateMissionBoard(guildLvl, boardSize, Date.now());
+      }));
+      return true;
+    },
+    rerollRecruits() {
+      if (state.recruitRerollToday || state.astralShards < 10) return false;
+      const guildLvl = this.getGuildLevel();
+      if (guildLvl === 0) return false;
+      setState(produce((s) => {
+        s.astralShards -= 10;
+        s.recruitRerollToday = true;
+        const count = getCandidateCount(guildLvl);
+        const maxRank = getMaxRecruitRank(guildLvl);
+        resetAdventurerSeed(Date.now());
+        s.recruitCandidates = [];
+        for (let i = 0; i < count; i++) {
+          s.recruitCandidates.push(generateCandidate(nextId("adv"), maxRank));
+        }
+      }));
+      return true;
     },
     grantResources(amount) {
       setState(produce((s) => {

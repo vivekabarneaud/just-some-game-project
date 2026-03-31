@@ -2,7 +2,7 @@ import type { AdventurerClass, Adventurer } from "./adventurers";
 
 // ─── Mission types ──────────────────────────────────────────────
 
-export type RewardType = "gold" | "wood" | "stone" | "food";
+export type RewardType = "gold" | "wood" | "stone" | "food" | "astralShards";
 
 export interface MissionReward {
   resource: RewardType;
@@ -179,7 +179,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     icon: "🐉",
     slots: [{ class: "warrior" }, { class: "wizard" }, { class: "priest" }],
     duration: 3600, // 1 hour
-    rewards: [{ resource: "gold", amount: 300 }, { resource: "stone", amount: 100 }],
+    rewards: [{ resource: "gold", amount: 300 }, { resource: "stone", amount: 100 }, { resource: "astralShards", amount: 2 }],
     deployCost: 50,
     difficulty: 4,
     minGuildLevel: 3,
@@ -233,7 +233,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     icon: "🏛️",
     slots: [{ class: "wizard" }, { class: "warrior" }, { class: "assassin" }, { class: "priest" }],
     duration: 5400, // 1.5 hours
-    rewards: [{ resource: "gold", amount: 500 }, { resource: "stone", amount: 200 }, { resource: "wood", amount: 200 }],
+    rewards: [{ resource: "gold", amount: 500 }, { resource: "stone", amount: 200 }, { resource: "wood", amount: 200 }, { resource: "astralShards", amount: 5 }],
     deployCost: 80,
     difficulty: 5,
     minGuildLevel: 4,
@@ -341,7 +341,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     icon: "🎭",
     slots: [{ class: "assassin" }, { class: "wizard" }, { class: "priest" }],
     duration: 3600,
-    rewards: [{ resource: "gold", amount: 350 }, { resource: "wood", amount: 150 }],
+    rewards: [{ resource: "gold", amount: 350 }, { resource: "wood", amount: 150 }, { resource: "astralShards", amount: 3 }],
     deployCost: 60,
     difficulty: 4,
     minGuildLevel: 4,
@@ -410,7 +410,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     icon: "💎",
     slots: [{ class: "wizard" }, { class: "assassin" }, { class: "warrior" }, { class: "priest" }],
     duration: 4800,
-    rewards: [{ resource: "gold", amount: 400 }, { resource: "stone", amount: 300 }],
+    rewards: [{ resource: "gold", amount: 400 }, { resource: "stone", amount: 300 }, { resource: "astralShards", amount: 4 }],
     deployCost: 70,
     difficulty: 5,
     minGuildLevel: 4,
@@ -505,7 +505,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     icon: "🌀",
     slots: [{ class: "wizard" }, { class: "wizard" }, { class: "priest" }],
     duration: 3600,
-    rewards: [{ resource: "gold", amount: 280 }, { resource: "stone", amount: 180 }],
+    rewards: [{ resource: "gold", amount: 280 }, { resource: "stone", amount: 180 }, { resource: "astralShards", amount: 3 }],
     deployCost: 55,
     difficulty: 4,
     minGuildLevel: 4,
