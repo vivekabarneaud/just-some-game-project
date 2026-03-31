@@ -84,15 +84,12 @@ export default function Sidebar() {
             <div class="nav-section-title">{section.title}</div>
             {section.items.map((item) => {
               const hasEmptyFields = () => state.fields.some((f) => !f.crop && !f.fallow && f.level > 0 && !f.upgrading);
-              const guildLevel = () => state.buildings.find((b) => b.buildingId === "adventurers_guild")?.level ?? 0;
-              const hasNewMissions = () => guildLevel() > 0 && state.missionBoard.length > 0;
-              const hasNewRecruits = () => guildLevel() > 0 && state.recruitCandidates.length > 0;
               const shouldBlink = () =>
                 (item.path === "/farming" && (
                   (state.season === "spring" && hasEmptyFields()) ||
                   (state.season === "autumn" && state.seasonElapsed < 6)
                 )) ||
-                (item.path === "/guild" && (hasNewMissions() || hasNewRecruits()));
+                (item.path === "/guild" && actions.hasNewGuildContent());
               return (
                 <A
                   href={item.path}
@@ -107,8 +104,7 @@ export default function Sidebar() {
                       item.path === "/guild" ? "var(--accent-blue)" :
                       state.season === "spring" ? "#7CFC00" : "#d4831a"
                     }}>
-                      {item.path === "/guild"
-                        ? (hasNewMissions() && hasNewRecruits() ? "new!" : hasNewMissions() ? "missions!" : "recruits!")
+                      {item.path === "/guild" ? "new!"
                         : state.season === "spring" ? "plant!" : "harvest!"}
                     </span>
                   )}

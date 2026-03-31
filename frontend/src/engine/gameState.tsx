@@ -493,6 +493,9 @@ export interface GameState {
   missionRerollToday: boolean;
   recruitRerollToday: boolean;
   lastRerollReset: number; // real-world timestamp of last reroll reset (daily)
+  lastGuildVisit: number; // timestamp of last guild page visit
+  lastMissionRefresh: number; // timestamp when missions last refreshed
+  lastRecruitRefresh: number; // timestamp when recruits last refreshed
 }
 
 export interface FoodSource {
@@ -564,6 +567,8 @@ export interface GameActions {
   // Astral Shards
   claimDailyLogin: () => boolean;
   canClaimDailyLogin: () => boolean;
+  visitGuild: () => void;
+  hasNewGuildContent: () => boolean;
   rerollMissions: () => boolean;
   rerollRecruits: () => boolean;
 }
@@ -627,6 +632,9 @@ function createInitialState(): GameState {
     hoursSinceLastRaid: 0, // increases over time, raids become more likely
     astralShards: 0,
     lastDailyLogin: 0,
+    lastGuildVisit: 0,
+    lastMissionRefresh: 0,
+    lastRecruitRefresh: 0,
     missionRerollToday: false,
     recruitRerollToday: false,
     lastRerollReset: Date.now(),
@@ -720,6 +728,9 @@ function loadGame(): GameState | null {
     // Astral Shards migration
     if (saved.astralShards === undefined) saved.astralShards = 0;
     if (saved.lastDailyLogin === undefined) saved.lastDailyLogin = 0;
+    if (saved.lastGuildVisit === undefined) saved.lastGuildVisit = 0;
+    if (saved.lastMissionRefresh === undefined) saved.lastMissionRefresh = 0;
+    if (saved.lastRecruitRefresh === undefined) saved.lastRecruitRefresh = 0;
     if (saved.missionRerollToday === undefined) saved.missionRerollToday = false;
     if (saved.recruitRerollToday === undefined) saved.recruitRerollToday = false;
     if (saved.lastRerollReset === undefined) saved.lastRerollReset = Date.now();
@@ -1511,6 +1522,7 @@ export function GameProvider(props: ParentProps) {
             for (let i = 0; i < count; i++) {
               s.recruitCandidates.push(generateCandidate(nextId("adv"), maxRank));
             }
+            s.lastRecruitRefresh = Date.now();
           }
 
           // Refresh mission board
@@ -1519,6 +1531,7 @@ export function GameProvider(props: ParentProps) {
             s.missionRefreshIn = MISSION_REFRESH_HOURS;
             const boardSize = getMissionBoardSize(guildLvl);
             s.missionBoard = generateMissionBoard(guildLvl, boardSize, Date.now() + s.year * 777);
+            s.lastMissionRefresh = Date.now();
           }
         }
 
@@ -2206,6 +2219,13 @@ export function GameProvider(props: ParentProps) {
         });
       }));
       return true;
+    },
+    visitGuild() {
+      setState("lastGuildVisit", Date.now());
+    },
+    hasNewGuildContent() {
+      return (state.lastMissionRefresh > state.lastGuildVisit && state.missionBoard.length > 0) ||
+             (state.lastRecruitRefresh > state.lastGuildVisit && state.recruitCandidates.length > 0);
     },
     canClaimDailyLogin() {
       if (state.lastDailyLogin === 0) return true;

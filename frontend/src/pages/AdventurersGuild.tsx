@@ -57,6 +57,7 @@ function DeathRisk(props: { chance: number }) {
 
 export default function AdventurersGuild() {
   const { state, actions } = useGame();
+  actions.visitGuild();
   const [tab, setTab] = createSignal<Tab>("missions");
   const [selectedMission, setSelectedMission] = createSignal<MissionTemplate | null>(null);
   const [selectedTeam, setSelectedTeam] = createSignal<string[]>([]);
