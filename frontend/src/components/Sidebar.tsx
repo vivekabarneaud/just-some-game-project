@@ -138,6 +138,9 @@ export default function Sidebar() {
         <button class="skip-season-btn" onClick={() => actions.grantResources(10)}>
           +10 all resources
         </button>
+        <button class="skip-season-btn" onClick={() => actions.triggerRaid()}>
+          Trigger raid (1min)
+        </button>
         <button class="reset-btn" onClick={() => {
           if (confirm("Start a new game? All progress will be lost.")) {
             actions.resetGame();

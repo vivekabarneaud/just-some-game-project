@@ -213,7 +213,7 @@ export default function Overview() {
 
           <Show when={state.incomingRaids.length > 0} fallback={
             <div style={{ color: "var(--text-muted)", "font-size": "0.85rem" }}>
-              No threats detected. Next scout report in ~{Math.ceil(state.nextRaidIn)}h.
+              No threats detected. Calm for {Math.floor(state.hoursSinceLastRaid)}h.
             </div>
           }>
             <For each={state.incomingRaids}>

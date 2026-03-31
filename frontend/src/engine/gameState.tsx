@@ -106,7 +106,7 @@ import {
   calcWarningTime,
   resolveRaid,
   spawnRaid,
-  getRaidInterval,
+  getRaidChance,
   type DefenseBreakdown,
 } from "~/data/raids";
 
@@ -174,7 +174,7 @@ export interface GameState {
   // Raids
   incomingRaids: IncomingRaid[];
   raidLog: RaidResult[]; // recent results (cleared on read)
-  nextRaidIn: number; // game-hours until next raid spawns
+  hoursSinceLastRaid: number; // game-hours until next raid spawns
   // Astral Shards (premium currency)
   astralShards: number;
   lastDailyLogin: number; // real-world timestamp of last daily reward claim
@@ -234,6 +234,7 @@ export interface GameActions {
   // Raids
   getDefense: () => DefenseBreakdown;
   collectRaidLog: () => RaidResult[];
+  triggerRaid: () => boolean;
   // Astral Shards
   claimDailyLogin: () => boolean;
   canClaimDailyLogin: () => boolean;
@@ -278,7 +279,7 @@ function createInitialState(): GameState {
     missionRefreshIn: 0,
     incomingRaids: [],
     raidLog: [],
-    nextRaidIn: 48, // first raid after 2 game-days
+    hoursSinceLastRaid: 0, // increases over time, raids become more likely
     astralShards: 0,
     lastDailyLogin: 0,
     missionRerollToday: false,
@@ -331,7 +332,7 @@ function loadGame(): GameState | null {
     // Raid migration
     if (!saved.incomingRaids) saved.incomingRaids = [];
     if (!saved.raidLog) saved.raidLog = [];
-    if (saved.nextRaidIn === undefined) saved.nextRaidIn = 48;
+    if (saved.hoursSinceLastRaid === undefined) saved.hoursSinceLastRaid = 48;
     // Astral Shards migration
     if (saved.astralShards === undefined) saved.astralShards = 0;
     if (saved.lastDailyLogin === undefined) saved.lastDailyLogin = 0;
@@ -839,18 +840,18 @@ export function GameProvider(props: ParentProps) {
           }
         }
 
-        // Spawn new raids
-        s.nextRaidIn -= elapsedHours;
-        if (s.nextRaidIn <= 0) {
-          const interval = getRaidInterval(tier);
-          s.nextRaidIn = interval;
+        // Spawn new raids (probability-based, checked each tick)
+        s.hoursSinceLastRaid += elapsedHours;
+        const raidChance = getRaidChance(tier, s.hoursSinceLastRaid);
+        if (raidChance > 0 && Math.random() < raidChance * elapsedHours) {
+          s.hoursSinceLastRaid = 0; // reset timer
           const spawn = spawnRaid(tier, s.year);
           if (spawn) {
             const wtLevel = s.buildings.find((b) => b.buildingId === "watchtower")?.level ?? 0;
             const warningHours = calcWarningTime(spawn.raid.baseWarning, wtLevel);
             s.incomingRaids.push({
               raidId: spawn.raid.id,
-              remaining: warningHours * 3600, // convert to seconds
+              remaining: warningHours * 3600,
               strength: spawn.strength,
               warned: true,
             });
@@ -1162,6 +1163,20 @@ export function GameProvider(props: ParentProps) {
         setState(produce((s) => { s.raidLog = []; }));
       }
       return log;
+    },
+    triggerRaid() {
+      const tier = getSettlementTier(getTownHallLevel(state.buildings));
+      const spawn = spawnRaid(tier, state.year);
+      if (!spawn) return false;
+      setState(produce((s) => {
+        s.incomingRaids.push({
+          raidId: spawn.raid.id,
+          remaining: 60, // 1 minute warning for testing
+          strength: spawn.strength,
+          warned: true,
+        });
+      }));
+      return true;
     },
     canClaimDailyLogin() {
       if (state.lastDailyLogin === 0) return true;

@@ -368,16 +368,31 @@ export function spawnRaid(tier: SettlementTier, year: number): { raid: RaidTempl
 }
 
 /**
- * How often raids spawn (game-hours between raids).
- * More frequent at higher tiers.
+ * Chance per game-hour that a raid spawns.
+ * Increases the longer it's been since the last raid (hoursSinceLast).
+ * Returns 0-1.
  */
-export function getRaidInterval(tier: SettlementTier): number {
-  switch (tier) {
-    case "camp": return 72; // every 3 game-days
-    case "village": return 48; // every 2 game-days
-    case "town": return 36;
-    case "city": return 24; // every game-day
-  }
+export function getRaidChance(tier: SettlementTier, hoursSinceLast: number): number {
+  // Minimum hours before any chance (grace period)
+  const grace: Record<SettlementTier, number> = {
+    camp: 48,
+    village: 36,
+    town: 24,
+    city: 16,
+  };
+  if (hoursSinceLast < grace[tier]) return 0;
+
+  // After grace, chance ramps up. By 2x the grace period, it's very likely.
+  const elapsed = hoursSinceLast - grace[tier];
+  const rampHours: Record<SettlementTier, number> = {
+    camp: 48,    // ramps over 48h after grace
+    village: 36,
+    town: 24,
+    city: 16,
+  };
+  // Chance per hour: starts near 0, reaches ~8% per hour at full ramp
+  const ramp = Math.min(1, elapsed / rampHours[tier]);
+  return ramp * 0.08;
 }
 
 export function getRaid(raidId: string): RaidTemplate | undefined {
