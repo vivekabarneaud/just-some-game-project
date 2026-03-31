@@ -123,7 +123,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     name: "Deep Forest Expedition",
     description: "Venture deep into the old forest where ancient trees yield valuable timber.",
     icon: "🌲",
-    slots: [{ class: "scout" }, { class: "any" }],
+    slots: [{ class: "assassin" }, { class: "any" }],
     duration: 1500, // 25 min
     rewards: [{ resource: "wood", amount: 200 }],
     deployCost: 15,
@@ -135,7 +135,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     name: "Abandoned Mine",
     description: "Explore a collapsed mine shaft. Rich deposits remain if you can clear the rubble.",
     icon: "⛏️",
-    slots: [{ class: "warrior" }, { class: "scout" }],
+    slots: [{ class: "warrior" }, { class: "assassin" }],
     duration: 1800, // 30 min
     rewards: [{ resource: "stone", amount: 180 }, { resource: "gold", amount: 30 }],
     deployCost: 20,
@@ -147,7 +147,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     name: "River Crossing Patrol",
     description: "Patrol the river fords and fish along the way.",
     icon: "🌊",
-    slots: [{ class: "ranger" }, { class: "any" }],
+    slots: [{ class: "archer" }, { class: "any" }],
     duration: 1200,
     rewards: [{ resource: "food", amount: 150 }, { resource: "gold", amount: 20 }],
     deployCost: 10,
@@ -161,7 +161,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     name: "Dragon's Cave",
     description: "Rumors speak of a young drake hoarding gold in the eastern caves. High risk, high reward.",
     icon: "🐉",
-    slots: [{ class: "warrior" }, { class: "mage" }, { class: "healer" }],
+    slots: [{ class: "warrior" }, { class: "wizard" }, { class: "priest" }],
     duration: 3600, // 1 hour
     rewards: [{ resource: "gold", amount: 300 }, { resource: "stone", amount: 100 }],
     deployCost: 50,
@@ -173,7 +173,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     name: "Haunted Ruins",
     description: "Ancient ruins infested with restless spirits. A mage is essential to deal with them.",
     icon: "👻",
-    slots: [{ class: "mage" }, { class: "healer" }],
+    slots: [{ class: "wizard" }, { class: "priest" }],
     duration: 2400, // 40 min
     rewards: [{ resource: "gold", amount: 150 }, { resource: "stone", amount: 120 }],
     deployCost: 35,
@@ -185,7 +185,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     name: "King's Bounty Hunt",
     description: "The King has posted a bounty on a dangerous beast terrorizing the countryside.",
     icon: "👑",
-    slots: [{ class: "warrior" }, { class: "ranger" }, { class: "healer" }],
+    slots: [{ class: "warrior" }, { class: "archer" }, { class: "priest" }],
     duration: 2700, // 45 min
     rewards: [{ resource: "gold", amount: 200 }, { resource: "food", amount: 100 }],
     deployCost: 40,
@@ -197,7 +197,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     name: "Royal Lumber Contract",
     description: "The crown needs a large shipment of quality timber. Fulfill the order for a generous payment.",
     icon: "📜",
-    slots: [{ class: "scout" }, { class: "ranger" }, { class: "any" }],
+    slots: [{ class: "assassin" }, { class: "archer" }, { class: "any" }],
     duration: 2400,
     rewards: [{ resource: "wood", amount: 400 }, { resource: "gold", amount: 80 }],
     deployCost: 30,
@@ -211,7 +211,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     name: "Ancient Vault",
     description: "A sealed vault from a forgotten age. Untold riches await those brave enough to break the seal.",
     icon: "🏛️",
-    slots: [{ class: "mage" }, { class: "warrior" }, { class: "scout" }, { class: "healer" }],
+    slots: [{ class: "wizard" }, { class: "warrior" }, { class: "assassin" }, { class: "priest" }],
     duration: 5400, // 1.5 hours
     rewards: [{ resource: "gold", amount: 500 }, { resource: "stone", amount: 200 }, { resource: "wood", amount: 200 }],
     deployCost: 80,
@@ -223,7 +223,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     name: "Enchanted Grove",
     description: "A grove shimmering with magical energy. Harvest rare resources but beware the guardians.",
     icon: "✨",
-    slots: [{ class: "mage" }, { class: "ranger" }, { class: "healer" }],
+    slots: [{ class: "wizard" }, { class: "archer" }, { class: "priest" }],
     duration: 3600,
     rewards: [{ resource: "food", amount: 300 }, { resource: "wood", amount: 300 }, { resource: "gold", amount: 100 }],
     deployCost: 60,
@@ -297,11 +297,11 @@ export function calcDeathChance(
   let chance = mission.difficulty * 5;
 
   // Healers reduce death chance significantly
-  const healerCount = team.filter((a) => a.class === "healer" && a.id !== adventurer.id).length;
+  const healerCount = team.filter((a) => a.class === "priest" && a.id !== adventurer.id).length;
   chance *= Math.pow(0.4, healerCount); // each healer reduces by 60%
 
   // Healers themselves are less likely to die (they stay in the back)
-  if (adventurer.class === "healer") chance *= 0.5;
+  if (adventurer.class === "priest") chance *= 0.5;
 
   // Higher rank = better survival
   chance *= Math.max(0.2, 1 - (adventurer.rank - 1) * 0.15);

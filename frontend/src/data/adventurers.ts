@@ -1,6 +1,6 @@
 // ─── Adventurer classes ─────────────────────────────────────────
 
-export type AdventurerClass = "warrior" | "mage" | "healer" | "scout" | "ranger";
+export type AdventurerClass = "warrior" | "wizard" | "priest" | "archer" | "assassin";
 
 export const ADVENTURER_CLASSES: {
   id: AdventurerClass;
@@ -9,10 +9,10 @@ export const ADVENTURER_CLASSES: {
   description: string;
 }[] = [
   { id: "warrior", name: "Warrior", icon: "⚔️", description: "Frontline fighter. Increases success on combat missions." },
-  { id: "mage", name: "Mage", icon: "🔮", description: "Arcane caster. Essential for magical and exploration missions." },
-  { id: "healer", name: "Healer", icon: "💚", description: "Keeps the party alive. Greatly reduces death chance on failure." },
-  { id: "scout", name: "Scout", icon: "🗺️", description: "Fast and stealthy. Reduces mission duration and boosts gathering." },
-  { id: "ranger", name: "Ranger", icon: "🏹", description: "Versatile survivalist. Good all-rounder for any mission." },
+  { id: "wizard", name: "Wizard", icon: "🔮", description: "Arcane caster. Essential for magical and exploration missions." },
+  { id: "priest", name: "Priest", icon: "✝️", description: "Keeps the party alive. Greatly reduces death chance on failure." },
+  { id: "archer", name: "Archer", icon: "🏹", description: "Keen-eyed marksman. Good at scouting and ranged combat." },
+  { id: "assassin", name: "Assassin", icon: "🗡️", description: "Fast and stealthy. Excels at infiltration and high-risk missions." },
 ];
 
 export function getClassMeta(cls: AdventurerClass) {

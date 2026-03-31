@@ -117,6 +117,10 @@ export default function Sidebar() {
             </button>
           ))}
         </div>
+        <div class="nav-section-title" style={{ "margin-top": "12px" }}>Dev Tools</div>
+        <button class="skip-season-btn" onClick={() => actions.grantResources(10)}>
+          +10 all resources
+        </button>
         <button class="reset-btn" onClick={() => {
           if (confirm("Start a new game? All progress will be lost.")) {
             actions.resetGame();

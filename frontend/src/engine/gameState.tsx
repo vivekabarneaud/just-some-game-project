@@ -199,6 +199,7 @@ export interface GameActions {
   getAvailableAdventurers: () => Adventurer[];
   getRosterSize: () => { current: number; max: number };
   getMissionSlotInfo: () => { used: number; max: number };
+  grantResources: (amount: number) => void;
 }
 
 // ─── Constants ───────────────────────────────────────────────────
@@ -925,6 +926,15 @@ export function GameProvider(props: ParentProps) {
     getMissionSlotInfo() {
       const guildLvl = this.getGuildLevel();
       return { used: state.activeMissions.length, max: getMissionSlots(guildLvl) };
+    },
+    grantResources(amount) {
+      setState(produce((s) => {
+        const caps = calcStorageCaps(s.buildings);
+        s.resources.gold = Math.min(caps.gold, s.resources.gold + amount);
+        s.resources.wood = Math.min(caps.wood, s.resources.wood + amount);
+        s.resources.stone = Math.min(caps.stone, s.resources.stone + amount);
+        s.resources.food = Math.min(caps.food, s.resources.food + amount);
+      }));
     },
     cancelBuild(buildingId) {
       const pb = state.buildings.find((b) => b.buildingId === buildingId);
