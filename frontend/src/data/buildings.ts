@@ -18,7 +18,7 @@ export type SettlementTier = "camp" | "village" | "town" | "city";
 export interface BuildingDefinition {
   id: string;
   name: string;
-  category: "production" | "military" | "magic" | "infrastructure";
+  category: "settlement" | "gathering" | "crafting" | "guild" | "defense" | "magic" | "trade";
   description: string;
   icon: string;
   maxLevel: number;
@@ -115,7 +115,7 @@ export const BUILDINGS: BuildingDefinition[] = [
   {
     id: "town_hall",
     name: "Town Hall",
-    category: "infrastructure",
+    category: "settlement",
     description:
       "The heart of your settlement. Upgrading the Town Hall unlocks new buildings and evolves your settlement.",
     icon: "🏛️",
@@ -126,7 +126,7 @@ export const BUILDINGS: BuildingDefinition[] = [
   {
     id: "houses",
     name: "Houses",
-    category: "infrastructure",
+    category: "settlement",
     description:
       "Simple dwellings for your citizens. Each level provides housing for more people, allowing your settlement to grow.",
     icon: "🏠",
@@ -137,7 +137,7 @@ export const BUILDINGS: BuildingDefinition[] = [
   {
     id: "warehouse",
     name: "Warehouse",
-    category: "infrastructure",
+    category: "settlement",
     description:
       "A sturdy storehouse for wood and stone. Without enough storage, excess materials are lost.",
     icon: "🏚️",
@@ -148,7 +148,7 @@ export const BUILDINGS: BuildingDefinition[] = [
   {
     id: "pantry",
     name: "Pantry",
-    category: "infrastructure",
+    category: "settlement",
     description:
       "A cool cellar and salting room to preserve food. Without a pantry, surplus food spoils quickly.",
     icon: "🥫",
@@ -161,7 +161,7 @@ export const BUILDINGS: BuildingDefinition[] = [
   {
     id: "chapel",
     name: "Chapel",
-    category: "infrastructure",
+    category: "settlement",
     description:
       "A humble place of worship where citizens find peace and solace. Improves settlement happiness.",
     icon: "⛪",
@@ -175,7 +175,7 @@ export const BUILDINGS: BuildingDefinition[] = [
   {
     id: "lumber_mill",
     name: "Lumber Mill",
-    category: "production",
+    category: "gathering",
     description:
       "Woodcutters fell trees from the surrounding forest and process them into usable timber.",
     icon: "🪓",
@@ -186,7 +186,7 @@ export const BUILDINGS: BuildingDefinition[] = [
   {
     id: "quarry",
     name: "Stone Quarry",
-    category: "production",
+    category: "gathering",
     description:
       "Miners extract stone from the nearby hills. Essential for constructing advanced buildings.",
     icon: "⛏️",
@@ -197,7 +197,7 @@ export const BUILDINGS: BuildingDefinition[] = [
   {
     id: "hunting_camp",
     name: "Hunting Camp",
-    category: "production",
+    category: "gathering",
     description:
       "Skilled hunters venture into the wilds, bringing back game and pelts. Supplements your food supply.",
     icon: "🏹",
@@ -209,7 +209,7 @@ export const BUILDINGS: BuildingDefinition[] = [
   {
     id: "forager_hut",
     name: "Forager's Hut",
-    category: "production",
+    category: "gathering",
     description:
       "Gatherers scour the forest edges for wild berries, mushrooms, and herbs. A quick and cheap source of food.",
     icon: "🫐",
@@ -221,7 +221,7 @@ export const BUILDINGS: BuildingDefinition[] = [
   {
     id: "fishing_hut",
     name: "Fishing Hut",
-    category: "production",
+    category: "gathering",
     description:
       "A small dock on the river where fishermen cast their nets. Provides a steady supply of fish year-round.",
     icon: "🐟",
@@ -234,7 +234,7 @@ export const BUILDINGS: BuildingDefinition[] = [
   {
     id: "brewery",
     name: "Brewery",
-    category: "production",
+    category: "crafting",
     description:
       "Converts grain into ale. A vital supply for the Tavern and a happy settlement.",
     icon: "🍺",
@@ -246,7 +246,7 @@ export const BUILDINGS: BuildingDefinition[] = [
   {
     id: "tavern",
     name: "Tavern",
-    category: "infrastructure",
+    category: "settlement",
     description:
       "A lively gathering place for citizens and travelers. Consumes ale and greatly boosts happiness.",
     icon: "🍻",
@@ -260,7 +260,7 @@ export const BUILDINGS: BuildingDefinition[] = [
   {
     id: "tailoring_shop",
     name: "Tailoring Shop",
-    category: "production",
+    category: "crafting",
     description:
       "Skilled tailors craft clothing from wool and fiber. Citizens need clothes to stay warm, especially in winter.",
     icon: "🧵",
@@ -274,7 +274,7 @@ export const BUILDINGS: BuildingDefinition[] = [
   {
     id: "gold_mine",
     name: "Gold Mine",
-    category: "production",
+    category: "gathering",
     description: "Deep shafts delve into the earth seeking precious gold veins to fund your realm.",
     icon: "💰",
     maxLevel: 20,
@@ -282,9 +282,20 @@ export const BUILDINGS: BuildingDefinition[] = [
     requiredTier: "village",
   },
   {
+    id: "iron_mine",
+    name: "Iron Mine",
+    category: "gathering",
+    description: "Miners extract iron ore from deep veins. Essential for the Blacksmith to forge tools, weapons, and armor.",
+    icon: "⚒️",
+    maxLevel: 15,
+    levels: generateLevels({ wood: 80, stone: 100 }, 120, undefined, 15),
+    requiredTier: "village",
+    tierLevelCaps: { village: 4, town: 10, city: 15 },
+  },
+  {
     id: "blacksmith",
     name: "Blacksmith",
-    category: "infrastructure",
+    category: "crafting",
     description:
       "The ring of hammer on anvil echoes through the village. The blacksmith forges tools and weapons for your people.",
     icon: "🔨",
@@ -295,7 +306,7 @@ export const BUILDINGS: BuildingDefinition[] = [
   {
     id: "marketplace",
     name: "Marketplace",
-    category: "infrastructure",
+    category: "trade",
     description:
       "A bustling bazaar where merchants gather. Enables trading resources with other players.",
     icon: "🏪",
@@ -308,7 +319,7 @@ export const BUILDINGS: BuildingDefinition[] = [
   {
     id: "barracks",
     name: "Barracks",
-    category: "military",
+    category: "defense",
     description:
       "Training grounds for your soldiers. Higher levels unlock more powerful unit types.",
     icon: "⚔️",
@@ -319,7 +330,7 @@ export const BUILDINGS: BuildingDefinition[] = [
   {
     id: "watchtower",
     name: "Watchtower",
-    category: "military",
+    category: "defense",
     description:
       "Sentinels keep watch from this tall tower, warning of approaching threats and improving your defenses.",
     icon: "🏰",
@@ -343,7 +354,7 @@ export const BUILDINGS: BuildingDefinition[] = [
   {
     id: "adventurers_guild",
     name: "Adventurer's Guild",
-    category: "infrastructure",
+    category: "guild",
     description:
       "A bustling hall where brave souls gather seeking fortune. Recruit adventurers and send them on missions to bring back resources and treasure.",
     icon: "🏰",
@@ -363,7 +374,7 @@ export const BUILDINGS: BuildingDefinition[] = [
   {
     id: "masons_guild",
     name: "Mason's Guild",
-    category: "infrastructure",
+    category: "guild",
     description:
       "Master builders coordinate construction across the settlement. Each level unlocks an extra build queue slot and reduces building costs and times.",
     icon: "🧱",
@@ -383,7 +394,7 @@ export const BUILDINGS: BuildingDefinition[] = [
   {
     id: "walls",
     name: "Walls",
-    category: "military",
+    category: "defense",
     description:
       "Stone fortifications around your settlement. Provides passive defense against raids and attacks.",
     icon: "🧱",

@@ -260,6 +260,7 @@ export interface GameState {
   wool: number;
   fiber: number;
   clothing: number;
+  iron: number;
   craftingQueue: ActiveCraft[];
   // Event log
   eventLog: GameEvent[];
@@ -380,6 +381,7 @@ function createInitialState(): GameState {
     wool: 0,
     fiber: 0,
     clothing: 0,
+    iron: 0,
     craftingQueue: [],
     eventLog: [],
     ale: 0,
@@ -453,6 +455,7 @@ function loadGame(): GameState | null {
     if (saved.wool === undefined) saved.wool = 0;
     if (saved.fiber === undefined) saved.fiber = 0;
     if (saved.clothing === undefined) saved.clothing = 0;
+    if (saved.iron === undefined) saved.iron = 0;
     if (!saved.craftingQueue) saved.craftingQueue = [];
     // Event log migration
     if (!saved.eventLog) saved.eventLog = [];
@@ -690,6 +693,11 @@ function calcBuildingEffect(buildingId: string, nextLevel: number): string | nul
       const nextBonuses = getMasonBonuses(nextLevel);
       return `Queue slots: ${curBonuses.queueSlots} → ${nextBonuses.queueSlots} · Cost/time reduction: ${Math.round(curBonuses.costReduction * 100)}% → ${Math.round(nextBonuses.costReduction * 100)}%`;
     }
+    case "iron_mine": {
+      const cur = Math.max(0, currentLevel) * 8;
+      const next = nextLevel * 8;
+      return `Iron: +${cur}/h → +${next}/h`;
+    }
     case "tailoring_shop": {
       return `Crafting slots: ${Math.max(0, currentLevel)} → ${nextLevel} (1 per level)`;
     }
@@ -817,6 +825,14 @@ export function GameProvider(props: ParentProps) {
               s.fiber = Math.min(200, s.fiber + fiberRate * elapsedHours);
             }
           }
+        }
+
+        // ── Iron production ──
+        const ironMineLvl = s.buildings.find((b) => b.buildingId === "iron_mine")?.level ?? 0;
+        const ironMineDamaged = s.buildings.find((b) => b.buildingId === "iron_mine")?.damaged ?? false;
+        if (ironMineLvl > 0 && !ironMineDamaged) {
+          const ironRate = 8 * ironMineLvl; // 8 iron/h per level
+          s.iron = Math.min(300, s.iron + ironRate * elapsedHours);
         }
 
         // ── Crafting queue tick ──
