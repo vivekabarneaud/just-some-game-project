@@ -121,19 +121,32 @@ export default function ResourceBar() {
         </div>
       </div>
       <Show when={state.wool > 0 || state.fiber > 0 || state.clothing > 0}>
-        <div class="resource-item">
-          <span class="resource-icon">🧵</span>
-          <span class="resource-amount">{Math.floor(state.wool)}w</span>
-          <span style={{ margin: "0 2px", color: "var(--text-muted)" }}>·</span>
-          <span class="resource-amount">{Math.floor(state.fiber)}f</span>
-        </div>
-        <div class="resource-item">
+        <div class="resource-item has-dropdown">
           <span class="resource-icon">👕</span>
           <span class="resource-amount" style={{
             color: actions.getClothingInfo().current >= actions.getClothingInfo().needed ? "var(--accent-green)" : "var(--accent-red)",
           }}>
             {actions.getClothingInfo().current}/{actions.getClothingInfo().needed}
           </span>
+          <div class="resource-dropdown">
+            <div class="dropdown-title">Materials & Clothing</div>
+            <div class="dropdown-row">
+              <span>🐑 Wool</span>
+              <span>{Math.floor(state.wool)}</span>
+            </div>
+            <div class="dropdown-row">
+              <span>🪻 Fiber</span>
+              <span>{Math.floor(state.fiber)}</span>
+            </div>
+            <div class="dropdown-row dropdown-total">
+              <span>👕 Clothing</span>
+              <span style={{
+                color: actions.getClothingInfo().current >= actions.getClothingInfo().needed ? "var(--accent-green)" : "var(--accent-red)",
+              }}>
+                {actions.getClothingInfo().current} / {actions.getClothingInfo().needed} needed
+              </span>
+            </div>
+          </div>
         </div>
       </Show>
       <Show when={actions.getAleInfo().cap > 0}>
