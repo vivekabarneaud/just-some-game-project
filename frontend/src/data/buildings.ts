@@ -24,6 +24,8 @@ export interface BuildingDefinition {
   maxLevel: number;
   levels: BuildingLevel[];
   requiredTier: SettlementTier;
+  /** Per-tier level caps — if set, the building can't exceed this level until the player reaches a higher tier */
+  tierLevelCaps?: Partial<Record<SettlementTier, number>>;
 }
 
 export interface PlayerBuilding {
@@ -271,6 +273,26 @@ export const BUILDINGS: BuildingDefinition[] = [
     requiredTier: "town",
   },
 
+  // Village tier — Mason's Guild (queue + build bonuses)
+  {
+    id: "masons_guild",
+    name: "Mason's Guild",
+    category: "infrastructure",
+    description:
+      "Master builders coordinate construction across the settlement. Each level unlocks an extra build queue slot and reduces building costs and times.",
+    icon: "🧱",
+    maxLevel: 5,
+    levels: [
+      { level: 1, cost: { wood: 150, stone: 200 }, buildTime: 300, description: "Queue +1, costs & time −5%" },
+      { level: 2, cost: { wood: 225, stone: 300 }, buildTime: 450, description: "Queue +1, costs & time −10%" },
+      { level: 3, cost: { wood: 340, stone: 450 }, buildTime: 675, description: "Queue +1, costs & time −15%" },
+      { level: 4, cost: { wood: 510, stone: 675 }, buildTime: 1012, description: "Queue +1, costs & time −20%" },
+      { level: 5, cost: { wood: 765, stone: 1012 }, buildTime: 1518, description: "Queue +1, costs & time −25%" },
+    ],
+    requiredTier: "village",
+    tierLevelCaps: { village: 2, town: 4, city: 5 },
+  },
+
   // City tier (TH 7+)
   {
     id: "alchemy_lab",
@@ -284,6 +306,90 @@ export const BUILDINGS: BuildingDefinition[] = [
     requiredTier: "city",
   },
 ];
+
+// ─── Default tier level caps ────────────────────────────────────
+// Applied to any building that doesn't specify its own tierLevelCaps.
+// Town Hall is exempt (no cap) since it IS the tier driver.
+
+export const DEFAULT_TIER_LEVEL_CAPS: Record<SettlementTier, number> = {
+  camp: 3,
+  village: 6,
+  town: 9,
+  city: 999, // effectively uncapped
+};
+
+/** Returns the effective max level a building can reach at the player's current tier */
+export function getEffectiveMaxLevel(building: BuildingDefinition, currentTier: SettlementTier): number {
+  // Town Hall is never capped by tier — it drives tier progression
+  if (building.id === "town_hall") return building.maxLevel;
+
+  const tierOrder: SettlementTier[] = ["camp", "village", "town", "city"];
+  const currentIdx = tierOrder.indexOf(currentTier);
+  const caps = building.tierLevelCaps;
+
+  if (caps) {
+    // Find the highest cap at or below the player's current tier
+    let cap = 0;
+    for (let i = currentIdx; i >= 0; i--) {
+      const tierCap = caps[tierOrder[i]];
+      if (tierCap !== undefined) { cap = tierCap; break; }
+    }
+    return Math.min(cap || 0, building.maxLevel);
+  }
+
+  // Use default caps
+  return Math.min(DEFAULT_TIER_LEVEL_CAPS[currentTier], building.maxLevel);
+}
+
+/** Returns the next tier needed to unlock more levels, or null if already at max */
+export function getNextTierForLevels(building: BuildingDefinition, currentTier: SettlementTier): { tier: SettlementTier; name: string; maxLevel: number } | null {
+  if (building.id === "town_hall") return null;
+  const tierOrder: SettlementTier[] = ["camp", "village", "town", "city"];
+  const currentIdx = tierOrder.indexOf(currentTier);
+  const currentCap = getEffectiveMaxLevel(building, currentTier);
+  if (currentCap >= building.maxLevel) return null;
+
+  for (let i = currentIdx + 1; i < tierOrder.length; i++) {
+    const nextCap = getEffectiveMaxLevel(building, tierOrder[i]);
+    if (nextCap > currentCap) {
+      return { tier: tierOrder[i], name: getSettlementName(tierOrder[i]), maxLevel: nextCap };
+    }
+  }
+  return null;
+}
+
+// ─── Mason's Guild helpers ──────────────────────────────────────
+
+export interface MasonBonuses {
+  queueSlots: number;      // total simultaneous builds allowed
+  costReduction: number;    // 0.0 – 0.25
+  timeReduction: number;    // 0.0 – 0.25
+}
+
+const MASON_BONUS_PER_LEVEL = 0.05; // 5% per level
+
+export function getMasonBonuses(masonLevel: number): MasonBonuses {
+  return {
+    queueSlots: 1 + masonLevel,  // base 1 + 1 per level
+    costReduction: masonLevel * MASON_BONUS_PER_LEVEL,
+    timeReduction: masonLevel * MASON_BONUS_PER_LEVEL,
+  };
+}
+
+/** Apply Mason's Guild cost reduction */
+export function applyMasonCostReduction(cost: BuildingCost, masonLevel: number): BuildingCost {
+  const { costReduction } = getMasonBonuses(masonLevel);
+  return {
+    wood: Math.floor(cost.wood * (1 - costReduction)),
+    stone: Math.floor(cost.stone * (1 - costReduction)),
+  };
+}
+
+/** Apply Mason's Guild time reduction */
+export function applyMasonTimeReduction(buildTime: number, masonLevel: number): number {
+  const { timeReduction } = getMasonBonuses(masonLevel);
+  return Math.floor(buildTime * (1 - timeReduction));
+}
 
 // ─── Game constants ──────────────────────────────────────────────
 

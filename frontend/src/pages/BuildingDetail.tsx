@@ -4,6 +4,9 @@ import {
   BUILDINGS,
   isBuildingUnlocked,
   getUnlockRequirement,
+  getNextTierForLevels,
+  applyMasonCostReduction,
+  applyMasonTimeReduction,
 } from "~/data/buildings";
 import { RESOURCES } from "~/data/resources";
 import { useGame } from "~/engine/gameState";
@@ -37,36 +40,69 @@ export default function BuildingDetail() {
     return b.levels[pb.level - 1];
   };
 
+  const effectiveMax = () => actions.getEffectiveMaxLevel(params.id);
+
   const nextLevel = () => {
     const pb = playerBuilding();
     const b = building();
     if (!b) return null;
     const lvl = pb?.level ?? 0;
-    if (lvl >= b.maxLevel) return null;
+    if (lvl >= effectiveMax()) return null;
     return b.levels[lvl];
   };
 
-  const canAffordRes = (resourceId: string) => {
+  const masonLevel = () => actions.getMasonLevel();
+  const effectiveMasonLvl = () => params.id === "masons_guild" ? 0 : masonLevel();
+
+  const adjustedCost = () => {
     const next = nextLevel();
-    if (!next) return true;
-    const cost = next.cost[resourceId as keyof typeof next.cost];
-    if (cost === undefined) return true;
+    if (!next) return null;
+    return applyMasonCostReduction(next.cost, effectiveMasonLvl());
+  };
+
+  const adjustedTime = () => {
+    const next = nextLevel();
+    if (!next) return null;
+    return applyMasonTimeReduction(next.buildTime, effectiveMasonLvl());
+  };
+
+  const canAffordRes = (resourceId: string) => {
+    const cost = adjustedCost();
+    if (!cost) return true;
+    const amount = cost[resourceId as keyof typeof cost];
+    if (amount === undefined) return true;
     const have = state.resources[resourceId as keyof typeof state.resources] as number;
-    return have >= cost;
+    return have >= amount;
+  };
+
+  const queueFull = () => {
+    const bonuses = actions.getMasonBonuses();
+    return actions.getActiveQueueCount() >= bonuses.queueSlots;
   };
 
   const canUpgrade = () => {
     if (!unlocked()) return false;
-    const next = nextLevel();
-    if (!next) return false;
+    const cost = adjustedCost();
+    if (!cost) return false;
     const pb = playerBuilding();
     if (pb?.upgrading) return false;
-    if (state.buildings.some((b) => b.upgrading)) return false;
-    return actions.canAfford(next.cost);
+    if (queueFull()) return false;
+    return actions.canAfford(cost);
   };
 
   const handleUpgrade = () => {
     actions.upgradeBuilding(params.id);
+  };
+
+  const handleCancel = () => {
+    actions.cancelBuild(params.id);
+  };
+
+  const tierCapInfo = () => {
+    const b = building();
+    if (!b) return null;
+    const tier = actions.getSettlementTier();
+    return getNextTierForLevels(b, tier);
   };
 
   return (
@@ -87,7 +123,7 @@ export default function BuildingDetail() {
                     ? getUnlockRequirement(b())
                     : (playerBuilding()?.level ?? 0) === 0
                       ? "Not yet built"
-                      : `Level ${playerBuilding()!.level} / ${b().maxLevel}`}
+                      : `Level ${playerBuilding()!.level} / ${effectiveMax()}${effectiveMax() < b().maxLevel ? ` (max ${b().maxLevel})` : ""}`}
                 </div>
               </div>
             </div>
@@ -131,26 +167,24 @@ export default function BuildingDetail() {
               </Show>
 
               <Show when={nextLevel()?.production && currentLevel()?.production}>
-                {() => (
-                  <div
-                    style={{
-                      "margin-bottom": "20px",
-                      padding: "10px",
-                      background: "var(--bg-secondary)",
-                      "border-radius": "6px",
-                    }}
-                  >
-                    <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
-                      After Upgrade
-                    </div>
-                    <div style={{ "font-size": "1.1rem", color: "var(--accent-green)" }}>
-                      +{nextLevel()!.production!.rate}/h {nextLevel()!.production!.resource}{" "}
-                      <span style={{ "font-size": "0.8rem", color: "var(--text-secondary)" }}>
-                        (+{nextLevel()!.production!.rate - currentLevel()!.production!.rate}/h)
-                      </span>
-                    </div>
+                <div
+                  style={{
+                    "margin-bottom": "20px",
+                    padding: "10px",
+                    background: "var(--bg-secondary)",
+                    "border-radius": "6px",
+                  }}
+                >
+                  <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
+                    After Upgrade
                   </div>
-                )}
+                  <div style={{ "font-size": "1.1rem", color: "var(--accent-green)" }}>
+                    +{nextLevel()!.production!.rate}/h {nextLevel()!.production!.resource}{" "}
+                    <span style={{ "font-size": "0.8rem", color: "var(--text-secondary)" }}>
+                      (+{nextLevel()!.production!.rate - currentLevel()!.production!.rate}/h)
+                    </span>
+                  </div>
+                </div>
               </Show>
 
               <Show when={playerBuilding()?.upgrading && playerBuilding()?.upgradeRemaining}>
@@ -162,14 +196,33 @@ export default function BuildingDetail() {
                     border: "1px solid var(--accent-blue)",
                     "border-radius": "6px",
                     color: "var(--accent-blue)",
+                    display: "flex",
+                    "justify-content": "space-between",
+                    "align-items": "center",
                   }}
                 >
-                  Upgrading to Level {(playerBuilding()?.level ?? 0) + 1} —{" "}
-                  <Countdown remainingSeconds={playerBuilding()!.upgradeRemaining!} /> remaining
+                  <span>
+                    Upgrading to Level {(playerBuilding()?.level ?? 0) + 1} —{" "}
+                    <Countdown remainingSeconds={playerBuilding()!.upgradeRemaining!} /> remaining
+                  </span>
+                  <button
+                    onClick={handleCancel}
+                    style={{
+                      background: "rgba(231, 76, 60, 0.2)",
+                      border: "1px solid var(--accent-red)",
+                      color: "var(--accent-red)",
+                      padding: "4px 10px",
+                      "border-radius": "4px",
+                      cursor: "pointer",
+                      "font-size": "0.8rem",
+                    }}
+                  >
+                    Cancel
+                  </button>
                 </div>
               </Show>
 
-              <Show when={state.buildings.some((b) => b.upgrading) && !playerBuilding()?.upgrading}>
+              <Show when={queueFull() && !playerBuilding()?.upgrading}>
                 <div
                   style={{
                     "margin-bottom": "20px",
@@ -181,7 +234,10 @@ export default function BuildingDetail() {
                     "font-size": "0.85rem",
                   }}
                 >
-                  Build queue full — another building is under construction
+                  Build queue full ({actions.getActiveQueueCount()}/{actions.getMasonBonuses().queueSlots})
+                  {masonLevel() === 0
+                    ? " — Build a Mason's Guild to unlock more slots"
+                    : " — Upgrade Mason's Guild for more slots"}
                 </div>
               </Show>
 
@@ -202,7 +258,7 @@ export default function BuildingDetail() {
 
                     <div class="cost-grid cost-grid-2">
                       {COST_RESOURCES.map((res) => {
-                        const cost = next().cost[res.id as keyof typeof next.cost];
+                        const resId = res.id as "wood" | "stone";
                         return (
                           <div class="cost-item">
                             <div class="cost-item-icon">{res.icon}</div>
@@ -213,7 +269,12 @@ export default function BuildingDetail() {
                                 "too-expensive": !canAffordRes(res.id),
                               }}
                             >
-                              {cost.toLocaleString()}
+                              {adjustedCost()![resId] < nextLevel()!.cost[resId] && (
+                                <span style={{ "text-decoration": "line-through", opacity: 0.5, "margin-right": "4px", "font-size": "0.8em" }}>
+                                  {nextLevel()!.cost[resId].toLocaleString()}
+                                </span>
+                              )}
+                              {adjustedCost()![resId].toLocaleString()}
                             </div>
                             <div class="cost-item-label">{res.name}</div>
                           </div>
@@ -221,15 +282,13 @@ export default function BuildingDetail() {
                       })}
                     </div>
 
-                    <Show when={next().production && !currentLevel()?.production}>
-                      {() => (
-                        <div class="stat-row">
-                          <span class="stat-label">Production</span>
-                          <span class="stat-value" style={{ color: "var(--accent-green)" }}>
-                            +{next().production!.rate}/h {next().production!.resource}
-                          </span>
-                        </div>
-                      )}
+                    <Show when={nextLevel()?.production && !currentLevel()?.production}>
+                      <div class="stat-row">
+                        <span class="stat-label">Production</span>
+                        <span class="stat-value" style={{ color: "var(--accent-green)" }}>
+                          +{nextLevel()!.production!.rate}/h {nextLevel()!.production!.resource}
+                        </span>
+                      </div>
                     </Show>
 
                     <Show when={actions.getBuildingEffect(params.id, (playerBuilding()?.level ?? 0) + 1)}>
@@ -240,7 +299,15 @@ export default function BuildingDetail() {
                       )}
                     </Show>
 
-                    <div class="build-time">Build time: {formatTime(next().buildTime)}</div>
+                    <div class="build-time">
+                      Build time:{" "}
+                      {adjustedTime()! < next().buildTime && (
+                        <span style={{ "text-decoration": "line-through", opacity: 0.5, "margin-right": "4px" }}>
+                          {formatTime(next().buildTime)}
+                        </span>
+                      )}
+                      {formatTime(adjustedTime()!)}
+                    </div>
 
                     <div style={{ "margin-top": "20px" }}>
                       <button class="upgrade-btn" disabled={!canUpgrade()} onClick={handleUpgrade}>
@@ -253,7 +320,7 @@ export default function BuildingDetail() {
                 )}
               </Show>
 
-              <Show when={(playerBuilding()?.level ?? 0) >= b().maxLevel}>
+              <Show when={(playerBuilding()?.level ?? 0) >= effectiveMax() && !nextLevel()}>
                 <div
                   style={{
                     padding: "12px",
@@ -265,7 +332,9 @@ export default function BuildingDetail() {
                     "font-family": "var(--font-heading)",
                   }}
                 >
-                  Maximum Level Reached
+                  {(playerBuilding()?.level ?? 0) >= b().maxLevel
+                    ? "Maximum Level Reached"
+                    : `Level cap reached — Upgrade to ${tierCapInfo()?.name} to unlock up to Level ${tierCapInfo()?.maxLevel}`}
                 </div>
               </Show>
             </Show>

@@ -25,6 +25,11 @@ import {
   getSettlementTier,
   getSettlementName,
   isBuildingUnlocked,
+  getEffectiveMaxLevel,
+  getMasonBonuses,
+  applyMasonCostReduction,
+  applyMasonTimeReduction,
+  type MasonBonuses,
 } from "~/data/buildings";
 import {
   type CropId,
@@ -149,6 +154,11 @@ export interface GameActions {
   getSettlementTier: () => SettlementTier;
   getTownHallLevel: () => number;
   isHarvesting: () => boolean;
+  getMasonBonuses: () => MasonBonuses;
+  getMasonLevel: () => number;
+  getActiveQueueCount: () => number;
+  getEffectiveMaxLevel: (buildingId: string) => number;
+  cancelBuild: (buildingId: string) => boolean;
 }
 
 // ─── Constants ───────────────────────────────────────────────────
@@ -411,6 +421,11 @@ function calcBuildingEffect(buildingId: string, nextLevel: number): string | nul
       const tierChange = curTier !== nextTier ? ` — Evolves to ${getSettlementName(nextTier)}!` : "";
       return `Treasury: ${curGold.toLocaleString()} → ${nextGold.toLocaleString()}${tierChange}`;
     }
+    case "masons_guild": {
+      const curBonuses = getMasonBonuses(Math.max(0, currentLevel));
+      const nextBonuses = getMasonBonuses(nextLevel);
+      return `Queue slots: ${curBonuses.queueSlots} → ${nextBonuses.queueSlots} · Cost/time reduction: ${Math.round(curBonuses.costReduction * 100)}% → ${Math.round(nextBonuses.costReduction * 100)}%`;
+    }
     default:
       return null;
   }
@@ -510,17 +525,33 @@ export function GameProvider(props: ParentProps) {
       if (!pb || pb.upgrading) return false;
       const def = BUILDINGS.find((b) => b.id === buildingId);
       if (!def || !isBuildingUnlocked(def, getTownHallLevel(state.buildings))) return false;
-      if (pb.level >= def.maxLevel) return false;
+
+      // Check tier-gated level cap
+      const tier = getSettlementTier(getTownHallLevel(state.buildings));
+      const effectiveMax = getEffectiveMaxLevel(def, tier);
+      if (pb.level >= effectiveMax) return false;
+
       const levelDef = def.levels[pb.level];
       if (!levelDef) return false;
-      const { wood, stone } = levelDef.cost;
-      if (state.resources.wood < wood || state.resources.stone < stone) return false;
+
+      // Check queue slots
+      const masonLvl = state.buildings.find((b) => b.buildingId === "masons_guild")?.level ?? 0;
+      const bonuses = getMasonBonuses(masonLvl);
+      const activeBuilds = state.buildings.filter((b) => b.upgrading).length;
+      if (activeBuilds >= bonuses.queueSlots) return false;
+
+      // Apply Mason's Guild cost/time reduction (not on the guild itself)
+      const effectiveMasonLvl = buildingId === "masons_guild" ? 0 : masonLvl;
+      const adjustedCost = applyMasonCostReduction(levelDef.cost, effectiveMasonLvl);
+      const adjustedTime = applyMasonTimeReduction(levelDef.buildTime, effectiveMasonLvl);
+
+      if (state.resources.wood < adjustedCost.wood || state.resources.stone < adjustedCost.stone) return false;
       setState(produce((s) => {
-        s.resources.wood -= wood;
-        s.resources.stone -= stone;
+        s.resources.wood -= adjustedCost.wood;
+        s.resources.stone -= adjustedCost.stone;
         const b = s.buildings.find((b) => b.buildingId === buildingId)!;
         b.upgrading = true;
-        b.upgradeRemaining = levelDef.buildTime;
+        b.upgradeRemaining = adjustedTime;
       }));
       return true;
     },
@@ -654,6 +685,41 @@ export function GameProvider(props: ParentProps) {
     canAfford(cost) { return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone; },
     getBuildingEffect(buildingId, nextLevel) { return calcBuildingEffect(buildingId, nextLevel); },
     isHarvesting() { return isHarvestTime(state.season, state.seasonElapsed); },
+    getMasonLevel() {
+      return state.buildings.find((b) => b.buildingId === "masons_guild")?.level ?? 0;
+    },
+    getMasonBonuses() {
+      return getMasonBonuses(this.getMasonLevel());
+    },
+    getActiveQueueCount() {
+      return state.buildings.filter((b) => b.upgrading).length;
+    },
+    getEffectiveMaxLevel(buildingId) {
+      const def = BUILDINGS.find((b) => b.id === buildingId);
+      if (!def) return 0;
+      const tier = getSettlementTier(getTownHallLevel(state.buildings));
+      return getEffectiveMaxLevel(def, tier);
+    },
+    cancelBuild(buildingId) {
+      const pb = state.buildings.find((b) => b.buildingId === buildingId);
+      if (!pb || !pb.upgrading) return false;
+      const def = BUILDINGS.find((b) => b.id === buildingId);
+      if (!def) return false;
+      const levelDef = def.levels[pb.level];
+      if (!levelDef) return false;
+      // Refund adjusted cost
+      const masonLvl = buildingId === "masons_guild" ? 0 :
+        (state.buildings.find((b) => b.buildingId === "masons_guild")?.level ?? 0);
+      const adjustedCost = applyMasonCostReduction(levelDef.cost, masonLvl);
+      setState(produce((s) => {
+        const b = s.buildings.find((b) => b.buildingId === buildingId)!;
+        b.upgrading = false;
+        b.upgradeRemaining = undefined;
+        s.resources.wood += adjustedCost.wood;
+        s.resources.stone += adjustedCost.stone;
+      }));
+      return true;
+    },
   };
 
   return (

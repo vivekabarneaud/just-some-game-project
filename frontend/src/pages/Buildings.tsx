@@ -1,4 +1,4 @@
-import { For } from "solid-js";
+import { For, Show } from "solid-js";
 import { A } from "@solidjs/router";
 import { BUILDINGS, isBuildingUnlocked, getUnlockRequirement } from "~/data/buildings";
 import { useGame } from "~/engine/gameState";
@@ -14,6 +14,25 @@ export default function Buildings() {
   return (
     <div>
       <h1 class="page-title">Buildings</h1>
+      <div style={{
+        "margin-bottom": "16px",
+        padding: "8px 12px",
+        background: "var(--bg-secondary)",
+        "border-radius": "6px",
+        "font-size": "0.85rem",
+        color: "var(--text-secondary)",
+        display: "flex",
+        "justify-content": "space-between",
+      }}>
+        <span>
+          Build Queue: {actions.getActiveQueueCount()} / {actions.getMasonBonuses().queueSlots}
+        </span>
+        <Show when={actions.getMasonLevel() > 0}>
+          <span style={{ color: "var(--accent-green)" }}>
+            🧱 Mason's Guild Lv.{actions.getMasonLevel()} · −{Math.round(actions.getMasonBonuses().costReduction * 100)}% cost & time
+          </span>
+        </Show>
+      </div>
       <div class="buildings-grid">
         <For each={BUILDINGS}>
           {(building) => {
@@ -22,6 +41,7 @@ export default function Buildings() {
             const isUpgrading = () => pb()?.upgrading ?? false;
             const currentLevel = () => (level() > 0 ? building.levels[level() - 1] : null);
             const unlocked = () => isBuildingUnlocked(building, thLevel());
+            const effMax = () => actions.getEffectiveMaxLevel(building.id);
 
             return unlocked() ? (
               <A href={`/buildings/${building.id}`} style={{ "text-decoration": "none" }}>
@@ -37,7 +57,7 @@ export default function Buildings() {
                       >
                         {level() === 0
                           ? "Not built"
-                          : `Level ${level()} / ${building.maxLevel}`}
+                          : `Level ${level()} / ${effMax()}`}
                       </div>
                     </div>
                   </div>

@@ -88,6 +88,12 @@ export default function Overview() {
 
         <div class="overview-panel">
           <h2>Building Activity</h2>
+          <div class="stat-row" style={{ "margin-bottom": "8px" }}>
+            <span class="stat-label">Queue</span>
+            <span class="stat-value">
+              {actions.getActiveQueueCount()} / {actions.getMasonBonuses().queueSlots}
+            </span>
+          </div>
           <Show
             when={upgradingBuildings().length > 0}
             fallback={
