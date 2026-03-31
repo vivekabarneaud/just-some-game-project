@@ -199,7 +199,7 @@ export default function AdventurerDetail() {
                   {EQUIPMENT_SLOTS.map((slot) => {
                     const equippedId = () => adv().equipment[slot.id as ItemSlot];
                     const equippedItem = () => equippedId() ? getItem(equippedId()!) : null;
-                    const availableItems = () => getItemsForSlot(slot.id as ItemSlot)
+                    const availableItems = () => getItemsForSlot(slot.id as ItemSlot, adv().class)
                       .filter((item) => actions.getInventoryCount(item.id) > 0);
 
                     return (

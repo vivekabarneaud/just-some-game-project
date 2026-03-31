@@ -1974,6 +1974,8 @@ export function GameProvider(props: ParentProps) {
       if (!adv || adv.onMission) return false;
       const itemDef = getItem(itemId);
       if (!itemDef) return false;
+      // Class restriction check
+      if (itemDef.classes.length > 0 && !itemDef.classes.includes(adv.class)) return false;
       const inv = state.inventory.find((i) => i.itemId === itemId);
       if (!inv || inv.quantity <= 0) return false;
       setState(produce((s) => {
