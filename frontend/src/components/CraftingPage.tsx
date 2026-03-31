@@ -152,6 +152,17 @@ export default function CraftingPage(props: CraftingPageProps) {
                 No recipes unlocked yet. Upgrade the {props.buildingName} for more.
               </div>
             </Show>
+            <div style={{
+              "margin-top": "16px",
+              padding: "8px 12px",
+              "border-radius": "6px",
+              background: "rgba(167, 139, 250, 0.08)",
+              border: "1px solid rgba(167, 139, 250, 0.2)",
+              color: "#a78bfa",
+              "font-size": "0.8rem",
+            }}>
+              Some rare recipes can be discovered during adventurer missions.
+            </div>
           </div>
 
           {/* Queue */}
