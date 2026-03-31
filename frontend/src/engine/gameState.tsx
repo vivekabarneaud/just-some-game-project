@@ -826,8 +826,18 @@ export function GameProvider(props: ParentProps) {
                 homeAdventurers: homeAdvs,
               });
 
-              // Apply losses
-              if (!result.victory) {
+              // Apply losses or grant loot
+              if (result.victory) {
+                const resCaps = calcStorageCaps(s.buildings);
+                for (const loot of result.loot) {
+                  if (loot.resource === "astralShards") {
+                    s.astralShards += loot.amount;
+                  } else {
+                    const key = loot.resource as keyof ResourceState;
+                    s.resources[key] = Math.min(resCaps[key], s.resources[key] + loot.amount);
+                  }
+                }
+              } else {
                 s.resources.gold = Math.max(0, s.resources.gold - result.resourcesLost.gold);
                 s.resources.wood = Math.max(0, s.resources.wood - result.resourcesLost.wood);
                 s.resources.stone = Math.max(0, s.resources.stone - result.resourcesLost.stone);

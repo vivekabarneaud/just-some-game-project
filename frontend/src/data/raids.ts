@@ -24,6 +24,8 @@ export interface RaidTemplate {
   minTier: SettlementTier;
   /** Warning time in game-hours (before Watchtower bonus) */
   baseWarning: number;
+  /** Loot dropped on victory */
+  victoryLoot: { resource: string; amount: number }[];
 }
 
 export interface IncomingRaid {
@@ -40,7 +42,8 @@ export interface RaidResult {
   raidStrength: number;
   resourcesLost: { gold: number; wood: number; stone: number; food: number };
   citizensLost: number;
-  defendersInjured: string[]; // adventurer names that got hurt
+  defendersInjured: string[];
+  loot: { resource: string; amount: number }[];
 }
 
 // ─── Raid pool ──────────────────────────────────────────────────
@@ -60,6 +63,7 @@ export const RAID_POOL: RaidTemplate[] = [
     maxCitizenLoss: 0,
     minTier: "camp",
     baseWarning: 4,
+    victoryLoot: [{ resource: "gold", amount: 15 }],
   },
   {
     id: "wolf_pack",
@@ -74,6 +78,7 @@ export const RAID_POOL: RaidTemplate[] = [
     maxCitizenLoss: 2,
     minTier: "camp",
     baseWarning: 3,
+    victoryLoot: [{ resource: "food", amount: 40 }],
   },
   {
     id: "petty_thieves",
@@ -88,6 +93,7 @@ export const RAID_POOL: RaidTemplate[] = [
     maxCitizenLoss: 0,
     minTier: "camp",
     baseWarning: 2,
+    victoryLoot: [{ resource: "gold", amount: 10 }],
   },
 
   // ── Village-tier raids ────────────────────────────────────────
@@ -104,6 +110,7 @@ export const RAID_POOL: RaidTemplate[] = [
     maxCitizenLoss: 3,
     minTier: "village",
     baseWarning: 6,
+    victoryLoot: [{ resource: "gold", amount: 50 }, { resource: "wood", amount: 30 }],
   },
   {
     id: "goblin_scouts",
@@ -118,6 +125,7 @@ export const RAID_POOL: RaidTemplate[] = [
     maxCitizenLoss: 2,
     minTier: "village",
     baseWarning: 5,
+    victoryLoot: [{ resource: "gold", amount: 30 }, { resource: "stone", amount: 20 }],
   },
   {
     id: "wild_boars",
@@ -132,6 +140,7 @@ export const RAID_POOL: RaidTemplate[] = [
     maxCitizenLoss: 4,
     minTier: "village",
     baseWarning: 2,
+    victoryLoot: [{ resource: "food", amount: 80 }],
   },
 
   // ── Town-tier raids ───────────────────────────────────────────
@@ -148,6 +157,7 @@ export const RAID_POOL: RaidTemplate[] = [
     maxCitizenLoss: 8,
     minTier: "town",
     baseWarning: 8,
+    victoryLoot: [{ resource: "stone", amount: 60 }, { resource: "gold", amount: 40 }],
   },
   {
     id: "mercenary_company",
@@ -162,6 +172,7 @@ export const RAID_POOL: RaidTemplate[] = [
     maxCitizenLoss: 5,
     minTier: "town",
     baseWarning: 10,
+    victoryLoot: [{ resource: "gold", amount: 120 }, { resource: "wood", amount: 50 }],
   },
   {
     id: "troll_attack",
@@ -176,6 +187,7 @@ export const RAID_POOL: RaidTemplate[] = [
     maxCitizenLoss: 6,
     minTier: "town",
     baseWarning: 6,
+    victoryLoot: [{ resource: "food", amount: 100 }, { resource: "stone", amount: 40 }],
   },
 
   // ── City-tier raids ───────────────────────────────────────────
@@ -192,6 +204,7 @@ export const RAID_POOL: RaidTemplate[] = [
     maxCitizenLoss: 12,
     minTier: "city",
     baseWarning: 12,
+    victoryLoot: [{ resource: "gold", amount: 200 }, { resource: "wood", amount: 100 }, { resource: "stone", amount: 100 }],
   },
   {
     id: "necromancer",
@@ -206,6 +219,7 @@ export const RAID_POOL: RaidTemplate[] = [
     maxCitizenLoss: 15,
     minTier: "city",
     baseWarning: 14,
+    victoryLoot: [{ resource: "gold", amount: 250 }, { resource: "astralShards", amount: 5 }],
   },
   {
     id: "dragon_attack",
@@ -220,6 +234,7 @@ export const RAID_POOL: RaidTemplate[] = [
     maxCitizenLoss: 20,
     minTier: "city",
     baseWarning: 8,
+    victoryLoot: [{ resource: "gold", amount: 300 }, { resource: "food", amount: 150 }, { resource: "astralShards", amount: 8 }],
   },
 ];
 
@@ -299,10 +314,13 @@ export function resolveRaid(input: RaidResolutionInput): RaidResult {
     resourcesLost: { gold: 0, wood: 0, stone: 0, food: 0 },
     citizensLost: 0,
     defendersInjured: [],
+    loot: [],
   };
 
   if (victory) {
-    // Won! Minor adventurer injury chance (10%)
+    // Won! Collect loot
+    result.loot = [...raid.victoryLoot];
+    // Minor adventurer injury chance (10%)
     for (const adv of homeAdventurers) {
       if (Math.random() < 0.10) {
         result.defendersInjured.push(adv.name);

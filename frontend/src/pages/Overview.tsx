@@ -4,6 +4,7 @@ import { BUILDINGS, getSettlementName, SETTLEMENT_TIERS } from "~/data/buildings
 import { RESOURCES } from "~/data/resources";
 import { SEASON_META } from "~/data/seasons";
 import { getRaid, calcRaidSuccessChance, getDefenseTips } from "~/data/raids";
+import { getMission } from "~/data/missions";
 import { useGame } from "~/engine/gameState";
 import Countdown from "~/components/Countdown";
 
@@ -18,11 +19,19 @@ export default function Overview() {
   const defense = () => actions.getDefense();
 
   const [raidResults, setRaidResults] = createSignal<ReturnType<typeof actions.collectRaidLog>>([]);
+  const [missionResults, setMissionResults] = createSignal<ReturnType<typeof actions.collectCompletedMissions>>([]);
 
-  onMount(() => {
-    const log = actions.collectRaidLog();
-    if (log.length > 0) setRaidResults(log);
-  });
+  const collectAll = () => {
+    const raidLog = actions.collectRaidLog();
+    if (raidLog.length > 0) setRaidResults((prev) => [...raidLog, ...prev].slice(0, 10));
+    const missionLog = actions.collectCompletedMissions();
+    if (missionLog.length > 0) setMissionResults((prev) => [...missionLog, ...prev].slice(0, 10));
+  };
+
+  onMount(collectAll);
+  // Check periodically for new results
+  const checkInterval = setInterval(collectAll, 3000);
+  import("solid-js").then(({ onCleanup }) => onCleanup(() => clearInterval(checkInterval)));
 
   const upgradingBuildings = () =>
     state.buildings.filter((b) => b.upgrading && b.upgradeRemaining);
@@ -46,6 +55,8 @@ export default function Overview() {
     if (idx < SETTLEMENT_TIERS.length - 1) return SETTLEMENT_TIERS[idx + 1];
     return null;
   };
+
+  const hasThreats = () => state.incomingRaids.length > 0;
 
   return (
     <div>
@@ -194,8 +205,8 @@ export default function Overview() {
           </div>
         </div>
 
-        {/* Threats & Defense */}
-        <div class="overview-panel">
+        {/* Threats & Defense — moves to top when raids incoming */}
+        <div class="overview-panel" style={{ order: hasThreats() ? -1 : 0 }}>
           <h2>Threats & Defense</h2>
           <div class="stat-row">
             <span class="stat-label">Defense Score</span>
@@ -329,10 +340,11 @@ export default function Overview() {
           </Show>
         </div>
 
-        {/* Raid Results */}
-        <Show when={raidResults().length > 0}>
+        {/* Report Log — missions and raids */}
+        <Show when={raidResults().length > 0 || missionResults().length > 0}>
           <div class="overview-panel">
-            <h2>Recent Raid Results</h2>
+            <h2>Report Log</h2>
+            {/* Raid results */}
             <For each={raidResults()}>
               {(result) => {
                 const raid = () => getRaid(result.raidId);
@@ -346,28 +358,67 @@ export default function Overview() {
                     "font-size": "0.85rem",
                   }}>
                     <div style={{ color: result.victory ? "var(--accent-green)" : "var(--accent-red)" }}>
-                      {result.victory ? "Victory" : "Defeated"}: {raid()?.icon} {raid()?.name ?? result.raidId}
-                      <span style={{ color: "var(--text-muted)", "margin-left": "8px" }}>
-                        (def {result.defenseScore} vs str {result.raidStrength})
-                      </span>
+                      {result.victory ? "Raid repelled" : "Raid defeat"}: {raid()?.icon} {raid()?.name ?? result.raidId}
                     </div>
-                    <Show when={!result.victory}>
-                      <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-top": "4px" }}>
-                        {(result.resourcesLost.gold + result.resourcesLost.wood + result.resourcesLost.stone + result.resourcesLost.food) > 0 && (
-                          <span>
-                            Lost: {result.resourcesLost.gold > 0 && `${result.resourcesLost.gold}g `}
-                            {result.resourcesLost.wood > 0 && `${result.resourcesLost.wood}w `}
-                            {result.resourcesLost.stone > 0 && `${result.resourcesLost.stone}s `}
-                            {result.resourcesLost.food > 0 && `${result.resourcesLost.food}f `}
-                          </span>
-                        )}
-                        {result.citizensLost > 0 && (
-                          <span style={{ color: "var(--accent-red)" }}>
-                            · {result.citizensLost} citizen{result.citizensLost > 1 ? "s" : ""} lost
-                          </span>
-                        )}
-                      </div>
-                    </Show>
+                    <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-top": "3px" }}>
+                      Defense {result.defenseScore} vs strength {result.raidStrength}
+                      {result.victory && result.loot.length > 0 && (
+                        <span style={{ color: "var(--accent-green)" }}>
+                          {" "}· Loot: {result.loot.map((l) => `+${l.amount} ${l.resource}`).join(", ")}
+                        </span>
+                      )}
+                      {!result.victory && (
+                        <span>
+                          {(result.resourcesLost.gold + result.resourcesLost.wood + result.resourcesLost.stone + result.resourcesLost.food) > 0 && (
+                            <span style={{ color: "var(--accent-red)" }}>
+                              {" "}· Stolen: {result.resourcesLost.gold > 0 && `${result.resourcesLost.gold}g `}
+                              {result.resourcesLost.wood > 0 && `${result.resourcesLost.wood}w `}
+                              {result.resourcesLost.stone > 0 && `${result.resourcesLost.stone}s `}
+                              {result.resourcesLost.food > 0 && `${result.resourcesLost.food}f`}
+                            </span>
+                          )}
+                          {result.citizensLost > 0 && (
+                            <span style={{ color: "var(--accent-red)" }}>
+                              {" "}· {result.citizensLost} citizen{result.citizensLost > 1 ? "s" : ""} lost
+                            </span>
+                          )}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              }}
+            </For>
+            {/* Mission results */}
+            <For each={missionResults()}>
+              {(result) => {
+                const template = () => getMission(result.missionId);
+                return (
+                  <div style={{
+                    padding: "8px 10px",
+                    "margin-bottom": "6px",
+                    "border-radius": "6px",
+                    background: result.success ? "rgba(52, 152, 219, 0.1)" : "rgba(231, 76, 60, 0.08)",
+                    border: `1px solid ${result.success ? "var(--accent-blue)" : "rgba(231, 76, 60, 0.3)"}`,
+                    "font-size": "0.85rem",
+                  }}>
+                    <div style={{ color: result.success ? "var(--accent-blue)" : "var(--accent-red)" }}>
+                      {result.success ? "Mission success" : "Mission failed"}: {template()?.icon} {template()?.name ?? result.missionId}
+                    </div>
+                    <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-top": "3px" }}>
+                      {result.rewards.length > 0 && (
+                        <span style={{ color: "var(--accent-green)" }}>
+                          +{result.rewards.map((r) => `${r.amount} ${r.resource}`).join(", ")}
+                        </span>
+                      )}
+                      {result.xpGained > 0 && <span> · +{result.xpGained} XP</span>}
+                      {result.levelUps.length > 0 && (
+                        <span style={{ color: "var(--accent-blue)" }}> · Level up: {result.levelUps.join(", ")}</span>
+                      )}
+                      {result.casualties.length > 0 && (
+                        <span style={{ color: "var(--accent-red)" }}> · {result.casualties.length} fallen</span>
+                      )}
+                    </div>
                   </div>
                 );
               }}
