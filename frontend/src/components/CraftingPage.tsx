@@ -30,6 +30,10 @@ export default function CraftingPage(props: CraftingPageProps) {
     return r.building === props.buildingId && buildingLevel() >= r.minLevel;
   });
 
+  const lockedRecipes = () => CRAFTING_RECIPES.filter((r) => {
+    return r.building === props.buildingId && buildingLevel() < r.minLevel;
+  });
+
   const activeCrafts = () => state.craftingQueue.filter((c) => {
     const r = CRAFTING_RECIPES.find((cr) => cr.id === c.recipeId);
     return r?.building === props.buildingId;
@@ -154,6 +158,45 @@ export default function CraftingPage(props: CraftingPageProps) {
                 No recipes unlocked yet. Upgrade the {props.buildingName} for more.
               </div>
             </Show>
+
+            <Show when={lockedRecipes().length > 0}>
+              <h3 style={{ "font-family": "var(--font-heading)", "margin-top": "20px", "margin-bottom": "8px", color: "var(--text-muted)" }}>
+                Locked Recipes
+              </h3>
+              <div class="buildings-grid">
+                <For each={lockedRecipes()}>
+                  {(recipe) => (
+                    <div class="building-card" style={{ opacity: 0.5 }}>
+                      <div class="building-card-header">
+                        <div class="building-card-icon">{recipe.icon}</div>
+                        <div>
+                          <div class="building-card-title">{recipe.name}</div>
+                          <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
+                            +{recipe.produces.amount}x {recipe.produces.resource}
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ "margin-top": "6px", "font-size": "0.8rem", color: "var(--text-secondary)" }}>
+                        Cost: {recipe.costs.map((c) => `${c.amount} ${c.resource}`).join(", ")}
+                      </div>
+                      <div style={{
+                        "margin-top": "6px",
+                        padding: "4px 8px",
+                        "border-radius": "4px",
+                        background: "rgba(245, 197, 66, 0.1)",
+                        border: "1px solid var(--accent-gold)",
+                        "font-size": "0.75rem",
+                        color: "var(--accent-gold)",
+                      }}>
+                        Requires {props.buildingName} Lv.{recipe.minLevel}
+                        {buildingLevel() > 0 && ` (currently Lv.${buildingLevel()})`}
+                      </div>
+                    </div>
+                  )}
+                </For>
+              </div>
+            </Show>
+
             <div style={{
               "margin-top": "16px",
               padding: "8px 12px",
