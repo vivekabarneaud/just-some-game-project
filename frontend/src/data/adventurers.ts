@@ -143,7 +143,8 @@ export function calcStats(adv: Adventurer, equipmentStats?: Partial<AdventurerSt
 /** Get unspent stat points */
 export function getUnspentStatPoints(adv: Adventurer): number {
   const totalEarned = (adv.level - 1) * STAT_POINTS_PER_LEVEL;
-  const totalSpent = Object.values(adv.bonusStats).reduce((sum, v) => sum + (v ?? 0), 0);
+  const b = adv.bonusStats;
+  const totalSpent = (b.str ?? 0) + (b.int ?? 0) + (b.dex ?? 0) + (b.vit ?? 0) + (b.wis ?? 0);
   return totalEarned - totalSpent;
 }
 
