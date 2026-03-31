@@ -790,6 +790,31 @@ export function GameProvider(props: ParentProps) {
           }
         }
 
+        // Food diversity
+        const foodSources = new Set<string>();
+        for (const pb of s.buildings) {
+          if (pb.level === 0 || pb.damaged) continue;
+          const def = BUILDINGS.find((b) => b.id === pb.buildingId);
+          if (def) {
+            const lvlDef = def.levels[pb.level - 1];
+            if (lvlDef?.production?.foodType) foodSources.add(lvlDef.production.foodType);
+          }
+        }
+        for (const garden of s.gardens) {
+          if (garden.level > 0) foodSources.add("veggies");
+        }
+        for (const pen of s.pens) {
+          if (pen.level > 0) {
+            const animal = getAnimal(pen.animal);
+            foodSources.add(animal.foodLabel.toLowerCase());
+          }
+        }
+        const foodTypes = foodSources.size;
+        if (foodTypes <= 1) happiness -= 5;
+        else if (foodTypes === 3) happiness += 3;
+        else if (foodTypes === 4) happiness += 6;
+        else if (foodTypes >= 5) happiness += 10;
+
         // Damaged buildings
         const damagedCount = s.buildings.filter((b) => b.damaged).length;
         if (damagedCount > 0) happiness -= damagedCount * 3;
@@ -1430,6 +1455,26 @@ export function GameProvider(props: ParentProps) {
         const hasAle = state.ale > 0;
         factors.push({ label: `Tavern Lv.${tavernLvl}${hasAle ? "" : " (dry)"}`, value: tavernLvl * (hasAle ? TAVERN_HAPPINESS_PER_LEVEL : TAVERN_HAPPINESS_DRY) });
       }
+
+      // Food diversity
+      const foodSources = new Set<string>();
+      for (const pb of state.buildings) {
+        if (pb.level === 0 || pb.damaged) continue;
+        const def = BUILDINGS.find((b) => b.id === pb.buildingId);
+        if (def) {
+          const lvlDef = def.levels[pb.level - 1];
+          if (lvlDef?.production?.foodType) foodSources.add(lvlDef.production.foodType);
+        }
+      }
+      for (const garden of state.gardens) { if (garden.level > 0) foodSources.add("veggies"); }
+      for (const pen of state.pens) {
+        if (pen.level > 0) { const animal = getAnimal(pen.animal); foodSources.add(animal.foodLabel.toLowerCase()); }
+      }
+      const ft = foodSources.size;
+      if (ft <= 1) factors.push({ label: `Monotonous diet (${ft} type)`, value: -5 });
+      else if (ft === 3) factors.push({ label: `Good diet (${ft} types)`, value: 3 });
+      else if (ft === 4) factors.push({ label: `Varied diet (${ft} types)`, value: 6 });
+      else if (ft >= 5) factors.push({ label: `Diverse feast (${ft} types)`, value: 10 });
 
       const damagedCount = state.buildings.filter((b) => b.damaged).length;
       if (damagedCount > 0) factors.push({ label: `${damagedCount} damaged building${damagedCount > 1 ? "s" : ""}`, value: -damagedCount * 3 });
