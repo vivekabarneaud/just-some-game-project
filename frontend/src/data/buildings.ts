@@ -538,8 +538,8 @@ export const WINTER_NO_WOOD_HAPPINESS = -25; // extra penalty if wood runs out
 export const WINTER_NO_WOOD_DEATH_RATE = 0.3; // citizens lost per hour if freezing
 
 // Clothing
-export const CLOTHING_PER_CITIZENS = 3; // 1 clothing per 3 citizens
-export const CLOTHING_DEGRADE_PER_DAY = 0.5; // clothing lost per game-day (24h)
+export const CLOTHING_PER_CITIZENS = 2; // 1 clothing per 2 citizens
+export const CLOTHING_DEGRADE_PER_DAY = 1; // clothing lost per game-day (24h)
 export const CLOTHING_WINTER_WOOD_REDUCTION = 0.3; // 30% less wood needed per clothed citizen
 export const CLOTHING_HAPPINESS_BONUS = 5; // happiness when fully clothed
 export const CLOTHING_HAPPINESS_PENALTY = -5; // happiness when not enough clothes

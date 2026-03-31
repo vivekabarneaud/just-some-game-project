@@ -1534,6 +1534,7 @@ export function GameProvider(props: ParentProps) {
 
     buildField(crop) {
       if (state.fields.length >= MAX_FIELDS) return false;
+      if (state.season !== "spring") return false;
       const cost = getFieldCost(0);
       if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
       const id = nextId("field");
@@ -1548,8 +1549,8 @@ export function GameProvider(props: ParentProps) {
     upgradeField(fieldId) {
       const field = state.fields.find((f) => f.id === fieldId);
       if (!field || field.upgrading || field.level >= FIELD_MAX_LEVEL) return false;
-      // Can't upgrade fields during harvest
-      if (isHarvestTime(state.season, state.seasonElapsed)) return false;
+      // Can only upgrade fields in spring
+      if (state.season !== "spring") return false;
       const cost = getFieldCost(field.level);
       if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
       setState(produce((s) => {
