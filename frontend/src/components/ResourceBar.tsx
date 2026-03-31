@@ -162,14 +162,20 @@ export default function ResourceBar() {
           <span class="resource-icon">🍺</span>
           <span class="resource-amount">{actions.getAleInfo().current}</span>
           <span class="resource-cap">/ {actions.getAleInfo().cap}</span>
-          <span class="resource-rate" classList={{
-            "rate-positive": actions.getAleInfo().production > actions.getAleInfo().consumption,
-            "rate-negative": actions.getAleInfo().production < actions.getAleInfo().consumption,
-            "rate-zero": actions.getAleInfo().production === actions.getAleInfo().consumption,
-          }}>
-            {actions.getAleInfo().production - actions.getAleInfo().consumption >= 0 ? "+" : ""}
-            {actions.getAleInfo().production - actions.getAleInfo().consumption}/h
-          </span>
+          {(() => {
+            const ale = actions.getAleInfo();
+            // Don't show consumption if there's no ale and no production
+            const effectiveConsumption = (ale.current <= 0 && ale.production <= 0) ? 0 : ale.consumption;
+            const net = ale.production - effectiveConsumption;
+            return net !== 0 ? (
+              <span class="resource-rate" classList={{
+                "rate-positive": net > 0,
+                "rate-negative": net < 0,
+              }}>
+                {net >= 0 ? "+" : ""}{net}/h
+              </span>
+            ) : null;
+          })()}
         </div>
       </Show>
       <div class="resource-item" style={{ "border-left": "1px solid var(--border-default)", "padding-left": "12px" }}>
