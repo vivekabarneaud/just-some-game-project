@@ -81,16 +81,28 @@ export default function Sidebar() {
         {navSections.map((section) => (
           <>
             <div class="nav-section-title">{section.title}</div>
-            {section.items.map((item) => (
-              <A
-                href={item.path}
-                class="nav-link"
-                classList={{ active: isActive(item.path) }}
-              >
-                <span class="nav-icon">{item.icon}</span>
-                {item.label}
-              </A>
-            ))}
+            {section.items.map((item) => {
+              const shouldBlink = () =>
+                item.path === "/farming" && (
+                  state.season === "spring" || (state.season === "autumn" && state.seasonElapsed < 6)
+                );
+              return (
+                <A
+                  href={item.path}
+                  class="nav-link"
+                  classList={{ active: isActive(item.path) }}
+                  style={{ animation: shouldBlink() ? "pulse 2s infinite" : undefined }}
+                >
+                  <span class="nav-icon">{item.icon}</span>
+                  {item.label}
+                  {shouldBlink() && (
+                    <span style={{ "margin-left": "auto", "font-size": "0.7rem", color: state.season === "spring" ? "#7CFC00" : "#d4831a" }}>
+                      {state.season === "spring" ? "plant!" : "harvest!"}
+                    </span>
+                  )}
+                </A>
+              );
+            })}
           </>
         ))}
       </nav>

@@ -31,25 +31,35 @@ function fieldSeasonStatus(season: string, level: number, isHarvesting: boolean)
 
 function FieldCard(props: { field: PlayerField }) {
   const { actions, state } = useGame();
-  const crop = () => getCrop(props.field.crop);
-  const harvestYield = () => props.field.level > 0 ? getSeasonYield(crop(), props.field.level) : 0;
-  const nextHarvestYield = () => props.field.level < FIELD_MAX_LEVEL ? getSeasonYield(crop(), props.field.level + 1) : null;
+  const [showPlantPicker, setShowPlantPicker] = createSignal(false);
+  const crop = () => props.field.crop ? getCrop(props.field.crop) : null;
+  const isEmpty = () => !props.field.crop && props.field.level > 0 && !props.field.upgrading;
+  const harvestYield = () => (props.field.level > 0 && crop()) ? getSeasonYield(crop()!, props.field.level) : 0;
   const upgradeCost = () => props.field.level < FIELD_MAX_LEVEL ? getFieldCost(props.field.level) : null;
   const canUpgrade = () => {
-    if (state.season !== "spring") return false;
+    if (props.field.crop !== null) return false; // can only upgrade empty fields
     if (props.field.upgrading || props.field.level >= FIELD_MAX_LEVEL) return false;
     const cost = upgradeCost();
     return cost ? state.resources.wood >= cost.wood && state.resources.stone >= cost.stone : false;
   };
   const isCurrentlyHarvesting = () => actions.isHarvesting();
-  const seasonStatus = () => fieldSeasonStatus(state.season, props.field.level, isCurrentlyHarvesting());
+  const seasonStatus = () => {
+    if (isEmpty()) {
+      if (state.season === "spring") return { label: "🌱 Ready to plant!", color: "var(--accent-green)" };
+      return { label: "Empty — waiting for spring", color: "var(--text-muted)" };
+    }
+    return fieldSeasonStatus(state.season, props.field.level, isCurrentlyHarvesting());
+  };
 
   return (
-    <div class="field-card" classList={{ upgrading: props.field.upgrading, harvesting: state.season === "autumn" && props.field.level > 0 }}>
+    <div class="field-card" classList={{
+      upgrading: props.field.upgrading,
+      harvesting: state.season === "autumn" && props.field.level > 0 && !!crop(),
+    }}>
       <div class="field-card-header">
-        <span class="field-card-icon">{crop().icon}</span>
+        <span class="field-card-icon">{crop()?.icon ?? "🟫"}</span>
         <div>
-          <div class="field-card-title">{crop().name} Field</div>
+          <div class="field-card-title">{crop() ? `${crop()!.name} Field` : "Empty Field"}</div>
           <div class="field-card-level">
             {props.field.level === 0 ? "Building..." : `Level ${props.field.level} / ${FIELD_MAX_LEVEL}`}
           </div>
@@ -62,22 +72,52 @@ function FieldCard(props: { field: PlayerField }) {
       </Show>
       <Show when={!props.field.upgrading && props.field.level > 0}>
         <div class="field-card-status" style={{ color: seasonStatus().color }}>{seasonStatus().label}</div>
-        <div class="field-card-harvest">Expected harvest: <strong>{harvestYield()}</strong> {crop().isFood ? "food" : "fiber"}</div>
+        <Show when={crop()}>
+          <div class="field-card-harvest">Expected harvest: <strong>{harvestYield()}</strong> {crop()!.isFood ? "food" : "fiber"}</div>
+        </Show>
       </Show>
-      <Show when={state.season === "spring" && !props.field.upgrading && props.field.level > 0 && props.field.level < FIELD_MAX_LEVEL}>
+
+      {/* Plant picker — spring only, empty fields */}
+      <Show when={isEmpty() && state.season === "spring"}>
+        <Show when={showPlantPicker()} fallback={
+          <button class="field-upgrade-btn" style={{ "margin-top": "6px", width: "100%" }} onClick={() => setShowPlantPicker(true)}>
+            Plant a crop
+          </button>
+        }>
+          <div style={{ "margin-top": "6px", display: "flex", gap: "4px", "flex-wrap": "wrap" }}>
+            <For each={CROPS}>
+              {(c) => (
+                <button
+                  class="field-upgrade-btn"
+                  style={{ "font-size": "0.75rem", padding: "4px 8px" }}
+                  onClick={() => { actions.plantField(props.field.id, c.id); setShowPlantPicker(false); }}
+                >
+                  {c.icon} {c.name}
+                </button>
+              )}
+            </For>
+            <button
+              style={{ "font-size": "0.75rem", padding: "4px 8px", background: "none", border: "1px solid var(--border-default)", color: "var(--text-muted)", "border-radius": "4px", cursor: "pointer" }}
+              onClick={() => setShowPlantPicker(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        </Show>
+      </Show>
+
+      {/* Upgrade — empty fields only */}
+      <Show when={isEmpty() && !props.field.upgrading && props.field.level < FIELD_MAX_LEVEL}>
         <div class="field-card-upgrade">
           <div class="field-upgrade-info">
             <span class="field-upgrade-cost">🪵 {upgradeCost()!.wood} 🪨 {upgradeCost()!.stone}</span>
             <span class="field-upgrade-time">{formatTime(getFieldBuildTime(props.field.level))}</span>
-            <Show when={nextHarvestYield()}>
-              <span class="field-upgrade-yield">Harvest: {harvestYield()} → {nextHarvestYield()}</span>
-            </Show>
           </div>
           <button class="field-upgrade-btn" disabled={!canUpgrade()} onClick={() => actions.upgradeField(props.field.id)}>Upgrade</button>
         </div>
       </Show>
       <Show when={!props.field.upgrading}>
-        <button class="field-remove-btn" onClick={() => { if (confirm(`Remove this ${crop().name} field?`)) actions.removeField(props.field.id); }}>Remove</button>
+        <button class="field-remove-btn" onClick={() => { if (confirm("Remove this field?")) actions.removeField(props.field.id); }}>Remove</button>
       </Show>
     </div>
   );
@@ -232,14 +272,13 @@ function Picker<T extends { id: string; name: string; icon: string; description:
 
 export default function Farming() {
   const { state, actions } = useGame();
-  const [showFieldPicker, setShowFieldPicker] = createSignal(false);
+  // showFieldPicker removed — fields are built empty, crops chosen per-field in spring
   const [showGardenPicker, setShowGardenPicker] = createSignal(false);
   const [showPenPicker, setShowPenPicker] = createSignal(false);
 
   const seasonMeta = () => SEASON_META[state.season];
 
   const canBuildField = () => {
-    if (state.season !== "spring") return false;
     if (state.fields.length >= MAX_FIELDS) return false;
     const cost = getFieldCost(0);
     return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone;
@@ -260,7 +299,7 @@ export default function Farming() {
   const totalExpectedHarvest = () => {
     let total = 0;
     for (const field of state.fields) {
-      if (field.level === 0) continue;
+      if (field.level === 0 || !field.crop) continue;
       const crop = getCrop(field.crop);
       if (crop.isFood) total += getSeasonYield(crop, field.level);
     }
@@ -302,33 +341,28 @@ export default function Farming() {
           <For each={state.fields}>{(f) => <FieldCard field={f} />}</For>
         </div>
       </Show>
-      <Show when={state.season !== "spring" && state.fields.length > 0}>
+      <Show when={state.fields.length > 0}>
         <div style={{
           padding: "8px 12px",
           "margin-bottom": "10px",
           "border-radius": "6px",
-          background: state.season === "winter" ? "rgba(135, 206, 235, 0.1)" : "rgba(212, 131, 26, 0.1)",
-          border: `1px solid ${state.season === "winter" ? "#87CEEB" : "#d4831a"}`,
+          background: state.season === "spring" ? "rgba(124, 252, 0, 0.1)" :
+            state.season === "winter" ? "rgba(135, 206, 235, 0.1)" : "rgba(212, 131, 26, 0.1)",
+          border: `1px solid ${state.season === "spring" ? "#7CFC00" : state.season === "winter" ? "#87CEEB" : "#d4831a"}`,
           "font-size": "0.8rem",
-          color: state.season === "winter" ? "#87CEEB" : "#d4831a",
+          color: state.season === "spring" ? "#7CFC00" : state.season === "winter" ? "#87CEEB" : "#d4831a",
         }}>
-          {state.season === "autumn" && actions.isHarvesting() && "Fields are being harvested. New fields and upgrades available in spring."}
-          {state.season === "autumn" && !actions.isHarvesting() && "Harvest complete. Fields are resting until spring."}
-          {state.season === "summer" && "Fields are growing. Planting and upgrades available in spring."}
-          {state.season === "winter" && "Fields are dormant. Planting and upgrades available in spring."}
+          {state.season === "spring" && "🌱 Spring — planting season! Choose what to grow on your empty fields."}
+          {state.season === "autumn" && actions.isHarvesting() && "🌾 Fields are being harvested!"}
+          {state.season === "autumn" && !actions.isHarvesting() && "✅ Harvest complete. Fields are resting."}
+          {state.season === "summer" && "☀️ Crops are growing. Patience..."}
+          {state.season === "winter" && "❄️ Fields are dormant until spring."}
         </div>
       </Show>
-      <Show when={state.season === "spring" && state.fields.length < MAX_FIELDS}>
-        <Show when={showFieldPicker()} fallback={
-          <button class="build-field-btn" disabled={!canBuildField()} onClick={() => setShowFieldPicker(true)}>
-            + Plant New Field (🪵 {getFieldCost(0).wood} 🪨 {getFieldCost(0).stone})
-          </button>
-        }>
-          <Picker title="Choose a Crop" items={CROPS} disabled={!canBuildField()}
-            getYieldLabel={(c) => `Harvest: ${getSeasonYield(c, 1)} ${c.isFood ? "food" : "fiber"}/season`}
-            onSelect={(id) => { actions.buildField(id as CropId); setShowFieldPicker(false); }}
-            onCancel={() => setShowFieldPicker(false)} />
-        </Show>
+      <Show when={state.fields.length < MAX_FIELDS}>
+        <button class="build-field-btn" disabled={!canBuildField()} onClick={() => actions.buildField()}>
+          + Build New Field (🪵 {getFieldCost(0).wood} 🪨 {getFieldCost(0).stone})
+        </button>
       </Show>
 
       {/* ── Gardens ── */}

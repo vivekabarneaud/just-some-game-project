@@ -324,7 +324,7 @@ export interface StorageCaps {
 
 export interface PlayerField {
   id: string;
-  crop: CropId;
+  crop: CropId | null; // null = empty/unplanted field
   level: number;
   upgrading: boolean;
   upgradeRemaining?: number;
@@ -411,7 +411,8 @@ export interface GameActions {
   upgradeBuilding: (buildingId: string) => boolean;
   canAfford: (cost: BuildingCost) => boolean;
   getBuildingEffect: (buildingId: string, nextLevel: number) => string | null;
-  buildField: (crop: CropId) => boolean;
+  buildField: () => boolean;
+  plantField: (fieldId: string, crop: CropId) => boolean;
   upgradeField: (fieldId: string) => boolean;
   removeField: (fieldId: string) => void;
   buildGarden: (veggie: VeggieId) => boolean;
@@ -679,7 +680,7 @@ function calcProductionRates(state: GameState): ResourceState {
   // Fields — harvest burst in autumn
   if (isHarvestTime(season, seasonElapsed)) {
     for (const field of fields) {
-      if (field.level === 0) continue;
+      if (field.level === 0 || !field.crop) continue;
       const crop = getCrop(field.crop);
       if (crop.isFood) {
         rates.food += getSeasonYield(crop, field.level) / HARVEST_DURATION_HOURS;
@@ -735,7 +736,7 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
   // Fields (harvest only)
   if (isHarvestTime(season, seasonElapsed)) {
     for (const field of fields) {
-      if (field.level === 0) continue;
+      if (field.level === 0 || !field.crop) continue;
       const crop = getCrop(field.crop);
       if (!crop.isFood) continue;
       const rate = Math.round(getSeasonYield(crop, field.level) / HARVEST_DURATION_HOURS);
@@ -912,10 +913,23 @@ export function GameProvider(props: ParentProps) {
   const [state, setState] = createStore<GameState>(initial);
 
   function advanceSeason(s: GameState) {
+    const prev = s.season;
     const next = nextSeason(s.season);
     s.season = next;
     s.seasonElapsed = 0;
-    if (next === "spring") s.year += 1;
+    if (next === "spring") {
+      s.year += 1;
+      pushEvent(s, "building_completed", "🌱", "Spring has arrived — time to plant your fields!");
+    }
+    // Clear crops when entering winter (harvest is over)
+    if (next === "winter") {
+      for (const field of s.fields) {
+        if (field.crop) field.crop = null;
+      }
+    }
+    if (prev === "summer") {
+      pushEvent(s, "building_completed", "🍂", "Autumn is here — harvest season begins!");
+    }
   }
 
   function applyTicks(elapsedMs: number) {
@@ -949,22 +963,22 @@ export function GameProvider(props: ParentProps) {
         s.resources.stone = Math.min(caps.stone, Math.max(0, s.resources.stone + rates.stone * happinessMod * elapsedHours));
         s.resources.food = Math.min(caps.food, Math.max(0, s.resources.food + netFoodRate * happinessMod * elapsedHours));
 
-        // ── Wool from sheep pens ──
+        // ── Wool from sheep pens (seasonal) ──
+        const woolSeasonMod = s.season === "spring" || s.season === "summer" ? 1.0
+          : s.season === "autumn" ? 0.5 : 0; // no wool in winter
         for (const pen of s.pens) {
           if (pen.level === 0) continue;
           const animal = getAnimal(pen.animal);
           const prod = getPenProduction(animal, pen.level);
-          if (prod.secondary) {
-            if (prod.secondary.resource === "wool") {
-              s.wool = Math.min(200, s.wool + prod.secondary.amount * elapsedHours);
-            }
+          if (prod.secondary && prod.secondary.resource === "wool" && woolSeasonMod > 0) {
+            s.wool = Math.min(200, s.wool + prod.secondary.amount * woolSeasonMod * elapsedHours);
           }
         }
 
         // ── Fiber from flax harvest ──
         if (isHarvestTime(s.season, s.seasonElapsed)) {
           for (const field of s.fields) {
-            if (field.level === 0) continue;
+            if (field.level === 0 || !field.crop) continue;
             const crop = getCrop(field.crop);
             if (!crop.isFood && crop.foodType === "fiber") {
               const fiberRate = getSeasonYield(crop, field.level) / HARVEST_DURATION_HOURS;
@@ -1532,16 +1546,27 @@ export function GameProvider(props: ParentProps) {
       return true;
     },
 
-    buildField(crop) {
+    buildField() {
       if (state.fields.length >= MAX_FIELDS) return false;
-      if (state.season !== "spring") return false;
       const cost = getFieldCost(0);
       if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
       const id = nextId("field");
       setState(produce((s) => {
         s.resources.wood -= cost.wood;
         s.resources.stone -= cost.stone;
-        s.fields.push({ id, crop, level: 0, upgrading: true, upgradeRemaining: getFieldBuildTime(0) });
+        s.fields.push({ id, crop: null, level: 0, upgrading: true, upgradeRemaining: getFieldBuildTime(0) });
+      }));
+      return true;
+    },
+
+    plantField(fieldId, crop) {
+      if (state.season !== "spring") return false;
+      const field = state.fields.find((f) => f.id === fieldId);
+      if (!field || field.upgrading || field.level === 0) return false;
+      if (field.crop !== null) return false; // already planted
+      setState(produce((s) => {
+        const f = s.fields.find((f) => f.id === fieldId)!;
+        f.crop = crop;
       }));
       return true;
     },
@@ -1549,8 +1574,8 @@ export function GameProvider(props: ParentProps) {
     upgradeField(fieldId) {
       const field = state.fields.find((f) => f.id === fieldId);
       if (!field || field.upgrading || field.level >= FIELD_MAX_LEVEL) return false;
-      // Can only upgrade fields in spring
-      if (state.season !== "spring") return false;
+      // Can only upgrade empty (unplanted) fields
+      if (field.crop !== null) return false;
       const cost = getFieldCost(field.level);
       if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
       setState(produce((s) => {
