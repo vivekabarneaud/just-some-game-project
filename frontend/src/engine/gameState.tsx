@@ -267,6 +267,7 @@ export interface GameState {
   ale: number;
   happiness: number; // 0-100
   lastRaidOutcome: "none" | "victory" | "defeat";
+  lastRaidTime: number; // game-hours elapsed since last raid outcome
   // Raids
   incomingRaids: IncomingRaid[];
   raidLog: RaidResult[]; // recent results (cleared on read)
@@ -384,6 +385,7 @@ function createInitialState(): GameState {
     ale: 0,
     happiness: 50,
     lastRaidOutcome: "none",
+    lastRaidTime: 0,
     adventurers: [],
     activeMissions: [],
     completedMissions: [],
@@ -458,6 +460,7 @@ function loadGame(): GameState | null {
     if (saved.ale === undefined) saved.ale = 0;
     if (saved.happiness === undefined) saved.happiness = 50;
     if (!saved.lastRaidOutcome) saved.lastRaidOutcome = "none";
+    if (saved.lastRaidTime === undefined) saved.lastRaidTime = 0;
     // Raid migration
     if (!saved.incomingRaids) saved.incomingRaids = [];
     if (!saved.raidLog) saved.raidLog = [];
@@ -949,9 +952,14 @@ export function GameProvider(props: ParentProps) {
         const damagedCount = s.buildings.filter((b) => b.damaged).length;
         if (damagedCount > 0) happiness -= damagedCount * 3;
 
-        // Raid morale
-        if (s.lastRaidOutcome === "victory") happiness += 10;
-        else if (s.lastRaidOutcome === "defeat") happiness -= 15;
+        // Raid morale (decays over 48 game-hours)
+        s.lastRaidTime += elapsedHours;
+        if (s.lastRaidOutcome !== "none") {
+          const decay = Math.max(0, 1 - s.lastRaidTime / 48);
+          if (s.lastRaidOutcome === "victory") happiness += Math.round(10 * decay);
+          else if (s.lastRaidOutcome === "defeat") happiness -= Math.round(15 * decay);
+          if (decay <= 0) s.lastRaidOutcome = "none";
+        }
 
         s.happiness = Math.max(0, Math.min(100, Math.round(happiness)));
 
@@ -1228,6 +1236,7 @@ export function GameProvider(props: ParentProps) {
 
               s.raidLog.push(result);
               s.lastRaidOutcome = result.victory ? "victory" : "defeat";
+              s.lastRaidTime = 0;
             }
             s.incomingRaids.splice(i, 1);
           }
@@ -1656,8 +1665,13 @@ export function GameProvider(props: ParentProps) {
       const damagedCount = state.buildings.filter((b) => b.damaged).length;
       if (damagedCount > 0) factors.push({ label: `${damagedCount} damaged building${damagedCount > 1 ? "s" : ""}`, value: -damagedCount * 3 });
 
-      if (state.lastRaidOutcome === "victory") factors.push({ label: "Raid victory morale", value: 10 });
-      else if (state.lastRaidOutcome === "defeat") factors.push({ label: "Raid defeat morale", value: -15 });
+      if (state.lastRaidOutcome !== "none") {
+        const decay = Math.max(0, 1 - state.lastRaidTime / 48);
+        if (decay > 0) {
+          const val = state.lastRaidOutcome === "victory" ? Math.round(10 * decay) : -Math.round(15 * decay);
+          if (val !== 0) factors.push({ label: `Raid ${state.lastRaidOutcome} morale (fading)`, value: val });
+        }
+      }
 
       if (state.season === "winter") {
         factors.push({ label: "Winter cold", value: WINTER_HAPPINESS_PENALTY });
