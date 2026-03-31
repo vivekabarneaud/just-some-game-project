@@ -30,6 +30,11 @@ import {
   CHAPEL_HAPPINESS_PER_LEVEL,
   TAVERN_HAPPINESS_PER_LEVEL,
   TAVERN_HAPPINESS_DRY,
+  CLOTHING_PER_CITIZENS,
+  CLOTHING_DEGRADE_PER_DAY,
+  CLOTHING_WINTER_WOOD_REDUCTION,
+  CLOTHING_HAPPINESS_BONUS,
+  CLOTHING_HAPPINESS_PENALTY,
   WINTER_WOOD_PER_CITIZEN_PER_HOUR,
   WINTER_HAPPINESS_PENALTY,
   WINTER_NO_WOOD_HAPPINESS,
@@ -141,6 +146,57 @@ export interface GameEvent {
   timestamp: number; // game tick when it happened
 }
 
+// ─── Crafting ───────────────────────────────────────────────────
+
+export interface CraftingRecipe {
+  id: string;
+  name: string;
+  icon: string;
+  building: string; // building ID required
+  minLevel: number; // minimum building level
+  costs: { resource: string; amount: number }[];
+  produces: { resource: string; amount: number };
+  craftTime: number; // game-seconds
+}
+
+export interface ActiveCraft {
+  recipeId: string;
+  remaining: number; // game-seconds
+}
+
+export const CRAFTING_RECIPES: CraftingRecipe[] = [
+  {
+    id: "wool_clothing",
+    name: "Wool Clothing",
+    icon: "🧥",
+    building: "tailoring_shop",
+    minLevel: 1,
+    costs: [{ resource: "wool", amount: 8 }],
+    produces: { resource: "clothing", amount: 1 },
+    craftTime: 600, // 10 min
+  },
+  {
+    id: "linen_clothing",
+    name: "Linen Clothing",
+    icon: "👘",
+    building: "tailoring_shop",
+    minLevel: 1,
+    costs: [{ resource: "fiber", amount: 10 }],
+    produces: { resource: "clothing", amount: 1 },
+    craftTime: 720, // 12 min
+  },
+  {
+    id: "fine_clothing",
+    name: "Fine Clothing",
+    icon: "👔",
+    building: "tailoring_shop",
+    minLevel: 3,
+    costs: [{ resource: "wool", amount: 5 }, { resource: "fiber", amount: 5 }, { resource: "gold", amount: 10 }],
+    produces: { resource: "clothing", amount: 2 },
+    craftTime: 900, // 15 min
+  },
+];
+
 export interface ResourceState {
   gold: number;
   wood: number;
@@ -200,6 +256,11 @@ export interface GameState {
   missionBoard: MissionTemplate[];
   recruitRefreshIn: number; // game-hours until next candidate refresh
   missionRefreshIn: number; // game-hours until next mission board refresh
+  // Materials & Crafting
+  wool: number;
+  fiber: number;
+  clothing: number;
+  craftingQueue: ActiveCraft[];
   // Event log
   eventLog: GameEvent[];
   // Ale & Happiness
@@ -268,6 +329,9 @@ export interface GameActions {
   grantResources: (amount: number) => void;
   // Ale & Happiness
   getAleInfo: () => { current: number; cap: number; production: number; consumption: number };
+  startCraft: (recipeId: string) => boolean;
+  getAvailableRecipes: () => CraftingRecipe[];
+  getClothingInfo: () => { current: number; needed: number };
   getHappinessModifier: () => number;
   getHappinessBreakdown: () => { label: string; value: number }[];
   repairBuilding: (buildingId: string) => boolean;
@@ -312,6 +376,10 @@ function createInitialState(): GameState {
     lastTick: Date.now(),
     gameSpeed: 1,
     villageName: "Oakenhold",
+    wool: 0,
+    fiber: 0,
+    clothing: 0,
+    craftingQueue: [],
     eventLog: [],
     ale: 0,
     happiness: 50,
@@ -379,6 +447,11 @@ function loadGame(): GameState | null {
     for (const pb of saved.buildings) {
       if ((pb as any).damaged === undefined) (pb as any).damaged = false;
     }
+    // Materials migration
+    if (saved.wool === undefined) saved.wool = 0;
+    if (saved.fiber === undefined) saved.fiber = 0;
+    if (saved.clothing === undefined) saved.clothing = 0;
+    if (!saved.craftingQueue) saved.craftingQueue = [];
     // Event log migration
     if (!saved.eventLog) saved.eventLog = [];
     // Ale & Happiness migration
@@ -614,6 +687,9 @@ function calcBuildingEffect(buildingId: string, nextLevel: number): string | nul
       const nextBonuses = getMasonBonuses(nextLevel);
       return `Queue slots: ${curBonuses.queueSlots} → ${nextBonuses.queueSlots} · Cost/time reduction: ${Math.round(curBonuses.costReduction * 100)}% → ${Math.round(nextBonuses.costReduction * 100)}%`;
     }
+    case "tailoring_shop": {
+      return `Crafting slots: ${Math.max(0, currentLevel)} → ${nextLevel} (1 per level)`;
+    }
     case "chapel": {
       const cur = Math.max(0, currentLevel) * CHAPEL_HAPPINESS_PER_LEVEL;
       const next = nextLevel * CHAPEL_HAPPINESS_PER_LEVEL;
@@ -716,6 +792,50 @@ export function GameProvider(props: ParentProps) {
         s.resources.stone = Math.min(caps.stone, Math.max(0, s.resources.stone + rates.stone * happinessMod * elapsedHours));
         s.resources.food = Math.min(caps.food, Math.max(0, s.resources.food + netFoodRate * happinessMod * elapsedHours));
 
+        // ── Wool from sheep pens ──
+        for (const pen of s.pens) {
+          if (pen.level === 0) continue;
+          const animal = getAnimal(pen.animal);
+          const prod = getPenProduction(animal, pen.level);
+          if (prod.secondary) {
+            if (prod.secondary.resource === "wool") {
+              s.wool = Math.min(200, s.wool + prod.secondary.amount * elapsedHours);
+            }
+          }
+        }
+
+        // ── Fiber from flax harvest ──
+        if (isHarvestTime(s.season, s.seasonElapsed)) {
+          for (const field of s.fields) {
+            if (field.level === 0) continue;
+            const crop = getCrop(field.crop);
+            if (!crop.isFood && crop.foodType === "fiber") {
+              const fiberRate = getSeasonYield(crop, field.level) / HARVEST_DURATION_HOURS;
+              s.fiber = Math.min(200, s.fiber + fiberRate * elapsedHours);
+            }
+          }
+        }
+
+        // ── Crafting queue tick ──
+        for (let i = s.craftingQueue.length - 1; i >= 0; i--) {
+          const craft = s.craftingQueue[i];
+          craft.remaining -= elapsedSeconds;
+          if (craft.remaining <= 0) {
+            const recipe = CRAFTING_RECIPES.find((r) => r.id === craft.recipeId);
+            if (recipe) {
+              const res = recipe.produces.resource;
+              if (res === "clothing") s.clothing += recipe.produces.amount;
+              else if (res === "wool") s.wool += recipe.produces.amount;
+              else if (res === "fiber") s.fiber += recipe.produces.amount;
+              pushEvent(s, "building_completed", recipe.icon, `Crafted ${recipe.name} (x${recipe.produces.amount})`);
+            }
+            s.craftingQueue.splice(i, 1);
+          }
+        }
+
+        // ── Clothing degradation ──
+        s.clothing = Math.max(0, s.clothing - (CLOTHING_DEGRADE_PER_DAY / 24) * elapsedHours);
+
         // ── Ale production & consumption ──
         const breweryLvl = s.buildings.find((b) => b.buildingId === "brewery")?.level ?? 0;
         const tavernLvl = s.buildings.find((b) => b.buildingId === "tavern")?.level ?? 0;
@@ -738,10 +858,13 @@ export function GameProvider(props: ParentProps) {
           s.ale = Math.max(0, s.ale - aleConsumed);
         }
 
-        // ── Winter cold ──
+        // ── Winter cold (clothing reduces wood needed) ──
         const isWinter = s.season === "winter";
         if (isWinter) {
-          const woodNeeded = WINTER_WOOD_PER_CITIZEN_PER_HOUR * s.population * elapsedHours;
+          const clothingNeeded = Math.ceil(s.population / CLOTHING_PER_CITIZENS);
+          const clothingRatio = Math.min(1, s.clothing / Math.max(1, clothingNeeded));
+          const woodReduction = clothingRatio * CLOTHING_WINTER_WOOD_REDUCTION;
+          const woodNeeded = WINTER_WOOD_PER_CITIZEN_PER_HOUR * (1 - woodReduction) * s.population * elapsedHours;
           if (s.resources.wood >= woodNeeded) {
             s.resources.wood -= woodNeeded;
           } else {
@@ -788,6 +911,13 @@ export function GameProvider(props: ParentProps) {
           } else {
             happiness += tavernLvl * TAVERN_HAPPINESS_DRY; // dry tavern
           }
+        }
+
+        // Clothing
+        const clothingNeededHappy = Math.ceil(s.population / CLOTHING_PER_CITIZENS);
+        if (clothingNeededHappy > 0) {
+          if (s.clothing >= clothingNeededHappy) happiness += CLOTHING_HAPPINESS_BONUS;
+          else if (s.clothing < clothingNeededHappy * 0.5) happiness += CLOTHING_HAPPINESS_PENALTY;
         }
 
         // Food diversity
@@ -1427,6 +1557,46 @@ export function GameProvider(props: ParentProps) {
         consumption: tavernLvl * ALE_CONSUMED_PER_TAVERN_LEVEL,
       };
     },
+    startCraft(recipeId) {
+      const recipe = CRAFTING_RECIPES.find((r) => r.id === recipeId);
+      if (!recipe) return false;
+      const building = state.buildings.find((b) => b.buildingId === recipe.building);
+      if (!building || building.level < recipe.minLevel || building.damaged) return false;
+      // Check max crafting slots (1 per building level)
+      const activeCrafts = state.craftingQueue.filter((c) => {
+        const r = CRAFTING_RECIPES.find((cr) => cr.id === c.recipeId);
+        return r?.building === recipe.building;
+      }).length;
+      if (activeCrafts >= building.level) return false;
+      // Check costs
+      for (const cost of recipe.costs) {
+        const res = cost.resource;
+        if (res === "wool" && state.wool < cost.amount) return false;
+        if (res === "fiber" && state.fiber < cost.amount) return false;
+        if (res === "gold" && state.resources.gold < cost.amount) return false;
+      }
+      setState(produce((s) => {
+        for (const cost of recipe.costs) {
+          if (cost.resource === "wool") s.wool -= cost.amount;
+          else if (cost.resource === "fiber") s.fiber -= cost.amount;
+          else if (cost.resource === "gold") s.resources.gold -= cost.amount;
+        }
+        s.craftingQueue.push({ recipeId, remaining: recipe.craftTime });
+      }));
+      return true;
+    },
+    getAvailableRecipes() {
+      return CRAFTING_RECIPES.filter((r) => {
+        const building = state.buildings.find((b) => b.buildingId === r.building);
+        return building && building.level >= r.minLevel;
+      });
+    },
+    getClothingInfo() {
+      return {
+        current: Math.floor(state.clothing),
+        needed: Math.ceil(state.population / CLOTHING_PER_CITIZENS),
+      };
+    },
     getHappinessModifier() {
       const h = state.happiness;
       return h >= 80 ? 1 + (h - 80) / 100 : h >= 50 ? 1.0 : 0.6 + (h / 50) * 0.4;
@@ -1454,6 +1624,13 @@ export function GameProvider(props: ParentProps) {
       if (tavernLvl > 0) {
         const hasAle = state.ale > 0;
         factors.push({ label: `Tavern Lv.${tavernLvl}${hasAle ? "" : " (dry)"}`, value: tavernLvl * (hasAle ? TAVERN_HAPPINESS_PER_LEVEL : TAVERN_HAPPINESS_DRY) });
+      }
+
+      // Clothing
+      const clothNeeded = Math.ceil(state.population / CLOTHING_PER_CITIZENS);
+      if (clothNeeded > 0) {
+        if (state.clothing >= clothNeeded) factors.push({ label: `Well-clothed (${Math.floor(state.clothing)}/${clothNeeded})`, value: CLOTHING_HAPPINESS_BONUS });
+        else if (state.clothing < clothNeeded * 0.5) factors.push({ label: `Poorly clothed (${Math.floor(state.clothing)}/${clothNeeded})`, value: CLOTHING_HAPPINESS_PENALTY });
       }
 
       // Food diversity

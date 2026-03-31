@@ -11,6 +11,7 @@ const BuildingDetail = lazy(() => import("./pages/BuildingDetail"));
 const Farming = lazy(() => import("./pages/Farming"));
 const AdventurersGuild = lazy(() => import("./pages/AdventurersGuild"));
 const AdventurerDetail = lazy(() => import("./pages/AdventurerDetail"));
+const Crafting = lazy(() => import("./pages/Crafting"));
 const ComingSoon = lazy(() => import("./pages/ComingSoon"));
 
 render(
@@ -23,6 +24,7 @@ render(
         <Route path="/farming" component={Farming} />
         <Route path="/guild" component={AdventurersGuild} />
         <Route path="/guild/:id" component={AdventurerDetail} />
+        <Route path="/crafting" component={Crafting} />
         <Route path="*" component={ComingSoon} />
       </Router>
     </GameProvider>

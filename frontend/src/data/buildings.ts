@@ -256,6 +256,20 @@ export const BUILDINGS: BuildingDefinition[] = [
     tierLevelCaps: { village: 3, town: 7, city: 10 },
   },
 
+  // Village tier — Tailoring Shop (clothing crafting)
+  {
+    id: "tailoring_shop",
+    name: "Tailoring Shop",
+    category: "production",
+    description:
+      "Skilled tailors craft clothing from wool and fiber. Citizens need clothes to stay warm, especially in winter.",
+    icon: "🧵",
+    maxLevel: 10,
+    levels: generateLevels({ wood: 50, stone: 30 }, 90, undefined, 10),
+    requiredTier: "village",
+    tierLevelCaps: { village: 3, town: 7, city: 10 },
+  },
+
   // Village tier (TH 3+)
   {
     id: "gold_mine",
@@ -511,6 +525,13 @@ export const WINTER_WOOD_PER_CITIZEN_PER_HOUR = 0.5; // wood consumed for heatin
 export const WINTER_HAPPINESS_PENALTY = -10; // base happiness penalty in winter
 export const WINTER_NO_WOOD_HAPPINESS = -25; // extra penalty if wood runs out
 export const WINTER_NO_WOOD_DEATH_RATE = 0.3; // citizens lost per hour if freezing
+
+// Clothing
+export const CLOTHING_PER_CITIZENS = 5; // 1 clothing per 5 citizens
+export const CLOTHING_DEGRADE_PER_DAY = 0.5; // clothing lost per game-day (24h)
+export const CLOTHING_WINTER_WOOD_REDUCTION = 0.3; // 30% less wood needed per clothed citizen
+export const CLOTHING_HAPPINESS_BONUS = 5; // happiness when fully clothed
+export const CLOTHING_HAPPINESS_PENALTY = -5; // happiness when not enough clothes
 
 // Ale system
 export const ALE_PRODUCTION_PER_BREWERY_LEVEL = 5; // ale/hour

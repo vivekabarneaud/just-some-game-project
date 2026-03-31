@@ -1,4 +1,4 @@
-export type AnimalId = "chickens" | "pigs" | "goats";
+export type AnimalId = "chickens" | "pigs" | "goats" | "sheep";
 
 export interface AnimalDefinition {
   id: AnimalId;
@@ -8,6 +8,9 @@ export interface AnimalDefinition {
   foodConsumedPerHour: number; // grain/food consumed
   foodProducedPerHour: number; // food output
   foodLabel: string; // "Eggs", "Meat", "Milk"
+  /** Secondary resource produced (e.g. wool) */
+  secondaryResource?: string;
+  secondaryPerHour?: number;
 }
 
 export const ANIMALS: AnimalDefinition[] = [
@@ -37,6 +40,17 @@ export const ANIMALS: AnimalDefinition[] = [
     foodConsumedPerHour: 3,
     foodProducedPerHour: 6,
     foodLabel: "Meat",
+  },
+  {
+    id: "sheep",
+    name: "Sheep",
+    icon: "🐑",
+    description: "Produce wool for clothing and some meat. Essential for surviving winter.",
+    foodConsumedPerHour: 2,
+    foodProducedPerHour: 2,
+    foodLabel: "Meat",
+    secondaryResource: "wool",
+    secondaryPerHour: 3,
   },
 ];
 
@@ -68,9 +82,16 @@ export function getPenBuildTime(level: number): number {
 }
 
 // Production scales with level
-export function getPenProduction(animal: AnimalDefinition, level: number): { produced: number; consumed: number } {
-  return {
+export function getPenProduction(animal: AnimalDefinition, level: number): { produced: number; consumed: number; secondary?: { resource: string; amount: number } } {
+  const result: { produced: number; consumed: number; secondary?: { resource: string; amount: number } } = {
     produced: Math.floor(animal.foodProducedPerHour * level * 1.1),
     consumed: Math.floor(animal.foodConsumedPerHour * level * 1.05),
   };
+  if (animal.secondaryResource && animal.secondaryPerHour) {
+    result.secondary = {
+      resource: animal.secondaryResource,
+      amount: Math.floor(animal.secondaryPerHour * level * 1.1),
+    };
+  }
+  return result;
 }
