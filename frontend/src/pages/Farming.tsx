@@ -166,12 +166,16 @@ function PenCard(props: { pen: PlayerPen }) {
       <Show when={!props.pen.upgrading && props.pen.level > 0}>
         <div class="field-card-production">
           <span class="rate-positive">+{prod().produced}/h {animal().foodLabel}</span>
+          {prod().secondary && (
+            <span class="rate-positive" style={{ "margin-left": "6px" }}>+{prod().secondary!.amount}/h {prod().secondary!.resource}</span>
+          )}
           <span style={{ color: "var(--text-muted)", "margin-left": "8px", "font-size": "0.8rem" }}>
             (eats {prod().consumed}/h)
           </span>
         </div>
         <div class="field-card-harvest" style={{ "font-size": "0.75rem", color: "var(--accent-green)" }}>
           Net: +{prod().produced - prod().consumed}/h food
+          {prod().secondary && ` · +${prod().secondary!.amount}/h ${prod().secondary!.resource}`}
         </div>
       </Show>
       <Show when={!props.pen.upgrading && props.pen.level > 0 && props.pen.level < PEN_MAX_LEVEL}>
@@ -342,7 +346,10 @@ export default function Farming() {
           <Picker title="Choose an Animal" items={ANIMALS} disabled={!canBuildPen()}
             getYieldLabel={(a) => {
               const prod = getPenProduction(a, 1);
-              return `+${prod.produced}/h ${a.foodLabel} (eats ${prod.consumed}/h)`;
+              let label = `+${prod.produced}/h ${a.foodLabel}`;
+              if (prod.secondary) label += ` · +${prod.secondary.amount}/h ${prod.secondary.resource}`;
+              label += ` (eats ${prod.consumed}/h)`;
+              return label;
             }}
             onSelect={(id) => { actions.buildPen(id as AnimalId); setShowPenPicker(false); }}
             onCancel={() => setShowPenPicker(false)} />
