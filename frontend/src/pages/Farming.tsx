@@ -317,10 +317,28 @@ export default function Farming() {
             {seasonMeta().icon} {seasonMeta().name}, Year {state.year}
           </span>
         </div>
-        <div class="farming-stat">
-          <span class="farming-stat-label">Expected Harvest</span>
-          <span class="farming-stat-value">{totalExpectedHarvest()} food</span>
-        </div>
+        <Show when={state.season === "spring" || state.season === "summer"}>
+          <div class="farming-stat">
+            <span class="farming-stat-label">Expected Harvest</span>
+            <span class="farming-stat-value">{totalExpectedHarvest()} food</span>
+          </div>
+        </Show>
+        <Show when={state.season === "autumn" && actions.isHarvesting()}>
+          <div class="farming-stat">
+            <span class="farming-stat-label">Harvesting</span>
+            <span class="farming-stat-value" style={{ color: "#d4831a" }}>{totalExpectedHarvest()} food incoming</span>
+          </div>
+        </Show>
+        <Show when={(state.season === "autumn" && !actions.isHarvesting()) || state.season === "winter"}>
+          <div class="farming-stat">
+            <span class="farming-stat-label">Harvested this year</span>
+            <span class="farming-stat-value" style={{ color: "var(--accent-green)" }}>
+              {Object.keys(state.yearHarvest).length > 0
+                ? Object.entries(state.yearHarvest).map(([name, amt]) => `${amt} ${name}`).join(", ")
+                : "Nothing"}
+            </span>
+          </div>
+        </Show>
         <div class="farming-stat">
           <span class="farming-stat-label">Animal Feed</span>
           <span class="farming-stat-value rate-negative">-{actions.getAnimalFoodConsumption()}/h</span>

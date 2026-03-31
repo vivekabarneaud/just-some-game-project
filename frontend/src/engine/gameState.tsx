@@ -325,6 +325,7 @@ export interface StorageCaps {
 export interface PlayerField {
   id: string;
   crop: CropId | null; // null = empty/unplanted field
+  harvested: boolean; // true after this field's harvest is collected this year
   level: number;
   upgrading: boolean;
   upgradeRemaining?: number;
@@ -367,6 +368,8 @@ export interface GameState {
   missionBoard: MissionTemplate[];
   recruitRefreshIn: number; // game-hours until next candidate refresh
   missionRefreshIn: number; // game-hours until next mission board refresh
+  // Harvest tracking
+  yearHarvest: Record<string, number>; // { "wheat": 120, "flax": 60 }
   // Materials & Crafting
   wool: number;
   fiber: number;
@@ -500,6 +503,7 @@ function createInitialState(): GameState {
     lastTick: Date.now(),
     gameSpeed: 1,
     villageName: "Oakenhold",
+    yearHarvest: {},
     wool: 0,
     fiber: 0,
     clothing: 0,
@@ -583,6 +587,8 @@ function loadGame(): GameState | null {
     // Materials migration
     if (saved.wool === undefined) saved.wool = 0;
     if (saved.fiber === undefined) saved.fiber = 0;
+    if (!saved.yearHarvest) saved.yearHarvest = {};
+    for (const f of saved.fields) { if ((f as any).harvested === undefined) (f as any).harvested = false; }
     if (saved.clothing === undefined) saved.clothing = 0;
     if (saved.iron === undefined) saved.iron = 0;
     if (saved.tools === undefined) saved.tools = 0;
@@ -921,11 +927,22 @@ export function GameProvider(props: ParentProps) {
       s.year += 1;
       pushEvent(s, "building_completed", "🌱", "Spring has arrived — time to plant your fields!");
     }
-    // Clear crops when entering winter (harvest is over)
+    // Record harvest totals and clear crops when entering winter
     if (next === "winter") {
+      s.yearHarvest = {};
       for (const field of s.fields) {
-        if (field.crop) field.crop = null;
+        if (field.crop && field.level > 0) {
+          const crop = getCrop(field.crop);
+          const amount = getSeasonYield(crop, field.level);
+          s.yearHarvest[crop.name] = (s.yearHarvest[crop.name] ?? 0) + amount;
+          field.harvested = true;
+          field.crop = null;
+        }
       }
+    }
+    // Reset harvested flags in spring
+    if (next === "spring") {
+      for (const field of s.fields) field.harvested = false;
     }
     if (prev === "summer") {
       pushEvent(s, "building_completed", "🍂", "Autumn is here — harvest season begins!");
@@ -1554,7 +1571,7 @@ export function GameProvider(props: ParentProps) {
       setState(produce((s) => {
         s.resources.wood -= cost.wood;
         s.resources.stone -= cost.stone;
-        s.fields.push({ id, crop: null, level: 0, upgrading: true, upgradeRemaining: getFieldBuildTime(0) });
+        s.fields.push({ id, crop: null, level: 0, upgrading: true, upgradeRemaining: getFieldBuildTime(0), harvested: false });
       }));
       return true;
     },
@@ -1567,6 +1584,7 @@ export function GameProvider(props: ParentProps) {
       setState(produce((s) => {
         const f = s.fields.find((f) => f.id === fieldId)!;
         f.crop = crop;
+        f.harvested = false;
       }));
       return true;
     },
