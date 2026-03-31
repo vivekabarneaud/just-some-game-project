@@ -295,9 +295,9 @@ export default function AdventurersGuild() {
                     style={{ cursor: "pointer" }}
                   >
                     <span class="building-card-category">
-                      {"★".repeat(mission.difficulty)}
+                      {"★".repeat(mission.difficulty)} · {mission.tags.join(", ")}
                     </span>
-                    <div class="building-card-header">
+                    <div class="building-card-header" style={{ "margin-top": "6px" }}>
                       <div class="building-card-icon">{mission.icon}</div>
                       <div>
                         <div class="building-card-title">{mission.name}</div>
@@ -307,10 +307,7 @@ export default function AdventurersGuild() {
                       </div>
                     </div>
                     <div class="building-card-desc">{mission.description}</div>
-                    <div style={{ "margin-top": "4px", "font-size": "0.75rem", color: "var(--text-muted)" }}>
-                      {mission.tags.join(", ")}
-                    </div>
-                    <div style={{ display: "flex", gap: "6px", "margin-top": "6px", "flex-wrap": "wrap" }}>
+                    <div style={{ display: "flex", gap: "6px", "margin-top": "8px", "flex-wrap": "wrap" }}>
                       <For each={mission.slots}>
                         {(slot) => (
                           <span style={{
