@@ -981,20 +981,16 @@ export function GameProvider(props: ParentProps) {
           const ironMined = ironRate * elapsedHours;
           s.iron = Math.min(300, s.iron + ironMined);
 
-          // Track total iron for gem/shard procs (~1 per 200 iron)
-          const prevTotal = s.ironMinedTotal;
-          s.ironMinedTotal += ironMined;
-          const procsBefore = Math.floor(prevTotal / 200);
-          const procsAfter = Math.floor(s.ironMinedTotal / 200);
-          const newProcs = procsAfter - procsBefore;
-          for (let p = 0; p < newProcs; p++) {
-            if (Math.random() < 0.5) {
-              s.gems += 1;
-              pushEvent(s, "building_completed", "💎", "Your miners unearthed a rare gem!");
-            } else {
-              s.astralShards += 1;
-              pushEvent(s, "building_completed", "💠", "Your miners found an astral shard in the depths!");
-            }
+          // 0.5% chance per iron unit for gem, 0.5% for shard
+          const gemChance = ironMined * 0.005;
+          const shardChance = ironMined * 0.005;
+          if (Math.random() < gemChance) {
+            s.gems += 1;
+            pushEvent(s, "building_completed", "💎", "Your miners unearthed a rare gem!");
+          }
+          if (Math.random() < shardChance) {
+            s.astralShards += 1;
+            pushEvent(s, "building_completed", "💠", "Your miners found an astral shard in the depths!");
           }
         }
 
