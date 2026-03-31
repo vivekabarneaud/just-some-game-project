@@ -1,58 +1,19 @@
 import { A, useParams } from "@solidjs/router";
 import { For, Show } from "solid-js";
 import { useGame } from "~/engine/gameState";
-import { getItem, getItemsForSlot, ITEMS, type ItemSlot } from "~/data/items";
 import {
   getClassMeta,
   RANK_NAMES,
   RANK_COLORS,
   getXpForLevel,
+  calcStats,
+  getUnspentStatPoints,
+  STAT_META,
   type AdventurerRank,
   type AdventurerClass,
+  type AdventurerStats,
 } from "~/data/adventurers";
-
-// ─── Stats derived from class + level ───────────────────────────
-
-interface Stats {
-  str: number;
-  int: number;
-  dex: number;
-  vit: number;
-}
-
-const CLASS_BASE_STATS: Record<AdventurerClass, Stats> = {
-  warrior: { str: 12, int: 4, dex: 6, vit: 10 },
-  wizard: { str: 4, int: 14, dex: 5, vit: 5 },
-  priest: { str: 5, int: 10, dex: 4, vit: 9 },
-  archer: { str: 6, int: 5, dex: 14, vit: 6 },
-  assassin: { str: 8, int: 6, dex: 12, vit: 5 },
-};
-
-const CLASS_STAT_GROWTH: Record<AdventurerClass, Stats> = {
-  warrior: { str: 3, int: 0.5, dex: 1, vit: 2.5 },
-  wizard: { str: 0.5, int: 3.5, dex: 0.5, vit: 1 },
-  priest: { str: 0.5, int: 2.5, dex: 0.5, vit: 2 },
-  archer: { str: 1, int: 1, dex: 3, vit: 1.5 },
-  assassin: { str: 2, int: 1, dex: 3, vit: 1 },
-};
-
-function calcStats(cls: AdventurerClass, level: number): Stats {
-  const base = CLASS_BASE_STATS[cls];
-  const growth = CLASS_STAT_GROWTH[cls];
-  return {
-    str: Math.floor(base.str + growth.str * (level - 1)),
-    int: Math.floor(base.int + growth.int * (level - 1)),
-    dex: Math.floor(base.dex + growth.dex * (level - 1)),
-    vit: Math.floor(base.vit + growth.vit * (level - 1)),
-  };
-}
-
-const STAT_META: { key: keyof Stats; name: string; icon: string; color: string }[] = [
-  { key: "str", name: "Strength", icon: "💪", color: "#e74c3c" },
-  { key: "int", name: "Intelligence", icon: "🧠", color: "#3498db" },
-  { key: "dex", name: "Dexterity", icon: "🏃", color: "#2ecc71" },
-  { key: "vit", name: "Vitality", icon: "❤️", color: "#e67e22" },
-];
+import { getItem, getItemsForSlot, getEquipmentStats, ITEMS, type ItemSlot } from "~/data/items";
 
 // ─── Equipment slot types ───────────────────────────────────────
 
@@ -77,7 +38,9 @@ export default function AdventurerDetail() {
       <Show when={adventurer()} fallback={<p>Adventurer not found.</p>}>
         {(adv) => {
           const cls = () => getClassMeta(adv().class);
-          const stats = () => calcStats(adv().class, adv().level);
+          const equipStats = () => getEquipmentStats(adv().equipment);
+          const stats = () => calcStats(adv(), equipStats());
+          const unspentPoints = () => getUnspentStatPoints(adv());
           const xpNeeded = () => getXpForLevel(adv().level);
           const xpPct = () => Math.min(100, (adv().xp / xpNeeded()) * 100);
 
@@ -164,17 +127,55 @@ export default function AdventurerDetail() {
                 {/* Stats */}
                 <div class="overview-panel">
                   <h2>Stats</h2>
+                  <Show when={unspentPoints() > 0}>
+                    <div style={{
+                      padding: "6px 10px",
+                      "margin-bottom": "10px",
+                      "border-radius": "6px",
+                      background: "rgba(46, 204, 113, 0.1)",
+                      border: "1px solid var(--accent-green)",
+                      "font-size": "0.85rem",
+                      color: "var(--accent-green)",
+                    }}>
+                      {unspentPoints()} stat point{unspentPoints() > 1 ? "s" : ""} to allocate!
+                    </div>
+                  </Show>
                   {STAT_META.map((stat) => {
                     const val = () => stats()[stat.key];
-                    const maxStat = 50;
+                    const maxStat = 60;
                     const pct = () => Math.min(100, (val() / maxStat) * 100);
+                    const bonus = () => adv().bonusStats[stat.key] ?? 0;
                     return (
                       <div style={{ "margin-bottom": "10px" }}>
-                        <div style={{ display: "flex", "justify-content": "space-between", "font-size": "0.85rem", "margin-bottom": "3px" }}>
-                          <span style={{ color: "var(--text-secondary)" }}>
+                        <div style={{ display: "flex", "justify-content": "space-between", "align-items": "center", "font-size": "0.85rem", "margin-bottom": "3px" }}>
+                          <span style={{ color: "var(--text-secondary)" }} title={stat.description}>
                             {stat.icon} {stat.name}
                           </span>
-                          <span style={{ color: stat.color, "font-weight": "bold" }}>{val()}</span>
+                          <div style={{ display: "flex", "align-items": "center", gap: "6px" }}>
+                            <span style={{ color: stat.color, "font-weight": "bold" }}>
+                              {val()}
+                              {bonus() > 0 && <span style={{ "font-size": "0.7rem", color: "var(--accent-green)" }}> (+{bonus()})</span>}
+                            </span>
+                            <Show when={unspentPoints() > 0 && !adv().onMission}>
+                              <button
+                                onClick={() => actions.allocateStat(params.id, stat.key)}
+                                style={{
+                                  width: "20px",
+                                  height: "20px",
+                                  padding: 0,
+                                  background: "rgba(46, 204, 113, 0.2)",
+                                  border: "1px solid var(--accent-green)",
+                                  color: "var(--accent-green)",
+                                  "border-radius": "4px",
+                                  cursor: "pointer",
+                                  "font-size": "0.75rem",
+                                  "line-height": "1",
+                                }}
+                              >
+                                +
+                              </button>
+                            </Show>
+                          </div>
                         </div>
                         <div style={{ height: "6px", background: "var(--bg-primary)", "border-radius": "3px" }}>
                           <div style={{
@@ -185,12 +186,12 @@ export default function AdventurerDetail() {
                             transition: "width 0.3s",
                           }} />
                         </div>
+                        <div style={{ "font-size": "0.65rem", color: "var(--text-muted)", "margin-top": "1px" }}>
+                          {stat.description}
+                        </div>
                       </div>
                     );
                   })}
-                  <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-top": "8px" }}>
-                    Stats increase with each level. Future updates will allow stat customization via talents.
-                  </div>
                 </div>
 
                 {/* Equipment */}

@@ -121,8 +121,15 @@ import {
   type ItemSlot,
   getItem,
   getItemByRecipe,
+  getEquipmentStats,
   ITEMS,
 } from "~/data/items";
+import {
+  calcStats as calcAdvStats,
+  getUnspentStatPoints,
+  type AdventurerStats,
+  STAT_KEYS,
+} from "~/data/adventurers";
 import {
   type IncomingRaid,
   type RaidResult,
@@ -540,6 +547,7 @@ export interface GameActions {
   startCraft: (recipeId: string) => boolean;
   getAvailableRecipes: () => CraftingRecipe[];
   getClothingInfo: () => { current: number; needed: number };
+  allocateStat: (adventurerId: string, stat: keyof AdventurerStats) => boolean;
   equipItem: (adventurerId: string, itemId: string) => boolean;
   unequipItem: (adventurerId: string, slot: ItemSlot) => boolean;
   getInventoryCount: (itemId: string) => number;
@@ -682,12 +690,14 @@ function loadGame(): GameState | null {
     if (saved.gems === undefined) saved.gems = 0;
     if (saved.ironMinedTotal === undefined) saved.ironMinedTotal = 0;
     if (!saved.inventory) saved.inventory = [];
-    // Equipment migration for adventurers
+    // Equipment & stats migration for adventurers
     for (const adv of saved.adventurers) {
       if (!(adv as any).equipment) (adv as any).equipment = { weapon: null, armor: null, trinket: null };
+      if (!(adv as any).bonusStats) (adv as any).bonusStats = {};
     }
     for (const adv of saved.recruitCandidates) {
       if (!(adv as any).equipment) (adv as any).equipment = { weapon: null, armor: null, trinket: null };
+      if (!(adv as any).bonusStats) (adv as any).bonusStats = {};
     }
     if (!saved.craftingQueue) saved.craftingQueue = [];
     // Event log migration
@@ -1331,12 +1341,7 @@ export function GameProvider(props: ParentProps) {
                 // Check for deaths
                 const deadIds: string[] = [];
                 for (const adv of team) {
-                  let deathChance = calcDeathChance(template, team, adv);
-                  // Equipment reduces death chance
-                  for (const slot of ["weapon", "armor", "trinket"] as const) {
-                    const itemId = adv.equipment[slot];
-                    if (itemId) { const def = getItem(itemId); if (def) deathChance = Math.max(0, deathChance - def.deathReduction); }
-                  }
+                  const deathChance = calcDeathChance(template, team, adv);
                   if (Math.random() * 100 < deathChance) {
                     deadIds.push(adv.id);
                   }
@@ -1393,12 +1398,16 @@ export function GameProvider(props: ParentProps) {
                 }
               }
 
-              // Grant XP to all surviving adventurers
-              const xpGain = template ? getMissionXp(template.difficulty, success) : 0;
+              // Grant XP to all surviving adventurers (WIS boosts XP)
+              const baseXp = template ? getMissionXp(template.difficulty, success) : 0;
               for (const adv of team) {
                 if (!casualties.includes(adv.id)) {
                   const advInState = s.adventurers.find((a) => a.id === adv.id);
                   if (advInState) {
+                    const equipStats = getEquipmentStats(advInState.equipment);
+                    const stats = calcAdvStats(advInState, equipStats);
+                    const wisBonus = 1 + stats.wis * 0.02; // +2% XP per WIS point
+                    const xpGain = Math.floor(baseXp * wisBonus);
                     const result = applyXp(advInState, xpGain);
                     if (result.leveled) levelUps.push(advInState.name);
                     if (result.rankUp) {
@@ -1463,7 +1472,7 @@ export function GameProvider(props: ParentProps) {
                 rewards,
                 casualties,
                 revived,
-                xpGained: xpGain,
+                xpGained: baseXp,
                 levelUps,
                 rankUps,
               });
@@ -1855,23 +1864,21 @@ export function GameProvider(props: ParentProps) {
       // Check deploy cost
       if (state.resources.gold < template.deployCost) return false;
 
-      let successChance = calcSuccessChance(template, team);
+      const successChance = calcSuccessChance(template, team);
       let effectiveDuration = calcEffectiveDuration(template, team);
 
-      // Apply equipment bonuses
+      // Apply equipment duration/loot mods
       for (const adv of team) {
         for (const slot of ["weapon", "armor", "trinket"] as const) {
           const itemId = adv.equipment[slot];
           if (itemId) {
             const itemDef = getItem(itemId);
             if (itemDef) {
-              successChance += itemDef.successBonus;
               effectiveDuration = Math.floor(effectiveDuration * itemDef.durationMod);
             }
           }
         }
       }
-      successChance = Math.min(100, successChance);
 
       setState(produce((s) => {
         s.resources.gold -= template.deployCost;
@@ -1968,6 +1975,17 @@ export function GameProvider(props: ParentProps) {
         current: Math.floor(state.clothing),
         needed: Math.ceil(state.population / CLOTHING_PER_CITIZENS),
       };
+    },
+    allocateStat(adventurerId, stat) {
+      const adv = state.adventurers.find((a) => a.id === adventurerId);
+      if (!adv) return false;
+      if (getUnspentStatPoints(adv) <= 0) return false;
+      if (!STAT_KEYS.includes(stat)) return false;
+      setState(produce((s) => {
+        const a = s.adventurers.find((a) => a.id === adventurerId)!;
+        a.bonusStats[stat] = (a.bonusStats[stat] ?? 0) + 1;
+      }));
+      return true;
     },
     equipItem(adventurerId, itemId) {
       const adv = state.adventurers.find((a) => a.id === adventurerId);

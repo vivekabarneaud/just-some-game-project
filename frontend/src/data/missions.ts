@@ -1,4 +1,6 @@
-import type { AdventurerClass, Adventurer } from "./adventurers";
+import type { AdventurerClass, Adventurer, AdventurerStats } from "./adventurers";
+import { calcStats } from "./adventurers";
+import { getEquipmentStats } from "./items";
 
 // ─── Mission types ──────────────────────────────────────────────
 
@@ -533,8 +535,28 @@ export const PRIEST_REVIVE_CHANCE = 0.15;
 // ─── Success calculation ────────────────────────────────────────
 
 /**
+ * Get the relevant stat for a mission based on its tags.
+ * Returns which stat keys contribute to success.
+ */
+function getMissionStatWeights(tags: MissionTag[]): Partial<Record<keyof AdventurerStats, number>> {
+  const weights: Partial<Record<keyof AdventurerStats, number>> = {};
+  if (tags.some((t) => t === "combat" || t === "escort")) weights.str = (weights.str ?? 0) + 1;
+  if (tags.some((t) => t === "magical" || t === "exploration")) weights.int = (weights.int ?? 0) + 1;
+  if (tags.some((t) => t === "stealth" || t === "outdoor" || t === "spying" || t === "assassination")) weights.dex = (weights.dex ?? 0) + 1;
+  if (tags.some((t) => t === "survival" || t === "dungeon")) {
+    weights.str = (weights.str ?? 0) + 0.5;
+    weights.vit = (weights.vit ?? 0) + 0.5;
+  }
+  // If no specific tags, use a balanced mix
+  if (Object.keys(weights).length === 0) {
+    weights.str = 0.5; weights.int = 0.5; weights.dex = 0.5;
+  }
+  return weights;
+}
+
+/**
  * Calculate success chance for a team assigned to a mission.
- * Includes class passive bonuses.
+ * Uses adventurer stats, slot matching, and class passives.
  */
 export function calcSuccessChance(
   mission: MissionTemplate,
@@ -545,35 +567,38 @@ export function calcSuccessChance(
   const totalSlots = mission.slots.length;
   let matchScore = 0;
 
-  // For each slot, check if we have a matching adventurer
   const assigned = [...team];
   for (const slot of mission.slots) {
     if (slot.class === "any") {
-      if (assigned.length > 0) {
-        matchScore += 1;
-        assigned.shift();
-      }
+      if (assigned.length > 0) { matchScore += 1; assigned.shift(); }
     } else {
       const idx = assigned.findIndex((a) => a.class === slot.class);
-      if (idx !== -1) {
-        matchScore += 1;
-        assigned.splice(idx, 1);
-      } else if (assigned.length > 0) {
-        matchScore += 0.5;
-        assigned.shift();
-      }
+      if (idx !== -1) { matchScore += 1; assigned.splice(idx, 1); }
+      else if (assigned.length > 0) { matchScore += 0.5; assigned.shift(); }
     }
   }
 
-  // Base success from slot matching (0-60%)
-  const slotPercent = (matchScore / totalSlots) * 60;
+  // Slot matching (0-40%)
+  const slotPercent = (matchScore / totalSlots) * 40;
 
-  // Level bonus: average team level vs difficulty (0-25%)
-  const avgLevel = team.reduce((sum, a) => sum + a.level, 0) / team.length;
-  const levelRatio = avgLevel / (mission.difficulty * 4);
-  const levelPercent = Math.min(25, levelRatio * 15);
+  // Stat-based success (0-45%)
+  const statWeights = getMissionStatWeights(mission.tags);
+  let totalWeightedStat = 0;
+  let totalWeight = 0;
+  for (const adv of team) {
+    const equipStats = getEquipmentStats(adv.equipment);
+    const stats = calcStats(adv, equipStats);
+    for (const [stat, weight] of Object.entries(statWeights)) {
+      totalWeightedStat += (stats[stat as keyof AdventurerStats] ?? 0) * (weight ?? 0);
+      totalWeight += weight ?? 0;
+    }
+  }
+  const avgStat = totalWeight > 0 ? totalWeightedStat / totalWeight : 0;
+  // Scale: 20 stat points = roughly max contribution per difficulty level
+  const statRatio = avgStat / (mission.difficulty * 20);
+  const statPercent = Math.min(45, statRatio * 30);
 
-  // Class passive bonuses
+  // Class passive bonuses (0-15%)
   let classBonus = 0;
   for (const adv of team) {
     if (adv.class === "warrior") {
@@ -584,18 +609,12 @@ export function calcSuccessChance(
       classBonus += ARCHER_SUCCESS_BONUS;
       if (mission.tags.some((t) => t === "outdoor" || t === "exploration")) classBonus += ARCHER_TAG_BONUS;
     }
-    if (adv.class === "wizard") {
-      if (mission.tags.includes("magical")) classBonus += WIZARD_TAG_BONUS;
-    }
-    if (adv.class === "assassin") {
-      if (mission.tags.some((t) => t === "spying" || t === "assassination" || t === "stealth")) classBonus += 8;
-    }
-    if (adv.class === "priest") {
-      if (mission.tags.includes("survival")) classBonus += 5;
-    }
+    if (adv.class === "wizard" && mission.tags.includes("magical")) classBonus += WIZARD_TAG_BONUS;
+    if (adv.class === "assassin" && mission.tags.some((t) => t === "spying" || t === "assassination" || t === "stealth")) classBonus += 8;
+    if (adv.class === "priest" && mission.tags.includes("survival")) classBonus += 5;
   }
 
-  return Math.min(100, Math.round(slotPercent + levelPercent + classBonus));
+  return Math.min(100, Math.round(slotPercent + statPercent + classBonus));
 }
 
 /**
@@ -643,15 +662,17 @@ export function calcDeathChance(
   // Base death chance: 5% per difficulty level
   let chance = mission.difficulty * 5;
 
+  // VIT reduces death chance: each point of VIT above 10 reduces by 1%
+  const equipStats = getEquipmentStats(adventurer.equipment);
+  const stats = calcStats(adventurer, equipStats);
+  chance -= Math.max(0, (stats.vit - 10) * 0.8);
+
   // Priest passive: each priest reduces death chance by 60%
   const priestCount = team.filter((a) => a.class === "priest" && a.id !== adventurer.id).length;
   chance *= Math.pow(0.4, priestCount);
 
   // Priests stay in the back — lower personal risk
   if (adventurer.class === "priest") chance *= 0.5;
-
-  // Higher level = better survival
-  chance *= Math.max(0.2, 1 - (adventurer.level - 1) * 0.03);
 
   return Math.min(50, Math.max(1, Math.round(chance)));
 }

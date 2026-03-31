@@ -78,11 +78,73 @@ export interface Adventurer {
   xp: number;
   alive: boolean;
   onMission: boolean; // true while deployed
+  bonusStats: Partial<AdventurerStats>; // player-allocated stat points
   equipment: {
-    weapon: string | null;  // item ID
+    weapon: string | null;
     armor: string | null;
     trinket: string | null;
   };
+}
+
+// ─── Stats ──────────────────────────────────────────────────────
+
+export interface AdventurerStats {
+  str: number;
+  int: number;
+  dex: number;
+  vit: number;
+  wis: number;
+}
+
+export const STAT_KEYS: (keyof AdventurerStats)[] = ["str", "int", "dex", "vit", "wis"];
+
+export const STAT_META: { key: keyof AdventurerStats; name: string; icon: string; color: string; description: string }[] = [
+  { key: "str", name: "Strength", icon: "💪", color: "#e74c3c", description: "Combat & escort mission success" },
+  { key: "int", name: "Intelligence", icon: "🧠", color: "#3498db", description: "Magical & exploration mission success" },
+  { key: "dex", name: "Dexterity", icon: "🏃", color: "#2ecc71", description: "Stealth & outdoor mission success" },
+  { key: "vit", name: "Vitality", icon: "❤️", color: "#e67e22", description: "Reduces death chance" },
+  { key: "wis", name: "Wisdom", icon: "📖", color: "#9b59b6", description: "Bonus XP from missions" },
+];
+
+export const CLASS_BASE_STATS: Record<AdventurerClass, AdventurerStats> = {
+  warrior: { str: 12, int: 4, dex: 6, vit: 10, wis: 3 },
+  wizard:  { str: 4, int: 14, dex: 5, vit: 5, wis: 8 },
+  priest:  { str: 5, int: 10, dex: 4, vit: 9, wis: 10 },
+  archer:  { str: 6, int: 5, dex: 14, vit: 6, wis: 4 },
+  assassin:{ str: 8, int: 6, dex: 12, vit: 5, wis: 3 },
+};
+
+export const CLASS_STAT_GROWTH: Record<AdventurerClass, AdventurerStats> = {
+  warrior: { str: 3, int: 0.5, dex: 1, vit: 2.5, wis: 0.5 },
+  wizard:  { str: 0.5, int: 3.5, dex: 0.5, vit: 1, wis: 1.5 },
+  priest:  { str: 0.5, int: 2.5, dex: 0.5, vit: 2, wis: 2 },
+  archer:  { str: 1, int: 1, dex: 3, vit: 1.5, wis: 0.5 },
+  assassin:{ str: 2, int: 1, dex: 3, vit: 1, wis: 0.5 },
+};
+
+/** Stat points gained per level that player can allocate */
+export const STAT_POINTS_PER_LEVEL = 2;
+
+/** Calculate total stats for an adventurer (base + growth + bonus + equipment) */
+export function calcStats(adv: Adventurer, equipmentStats?: Partial<AdventurerStats>): AdventurerStats {
+  const base = CLASS_BASE_STATS[adv.class];
+  const growth = CLASS_STAT_GROWTH[adv.class];
+  const bonus = adv.bonusStats;
+  const equip = equipmentStats ?? {};
+  return {
+    str: Math.floor(base.str + growth.str * (adv.level - 1)) + (bonus.str ?? 0) + (equip.str ?? 0),
+    int: Math.floor(base.int + growth.int * (adv.level - 1)) + (bonus.int ?? 0) + (equip.int ?? 0),
+    dex: Math.floor(base.dex + growth.dex * (adv.level - 1)) + (bonus.dex ?? 0) + (equip.dex ?? 0),
+    vit: Math.floor(base.vit + growth.vit * (adv.level - 1)) + (bonus.vit ?? 0) + (equip.vit ?? 0),
+    wis: Math.floor(base.wis + growth.wis * (adv.level - 1)) + (bonus.wis ?? 0) + (equip.wis ?? 0),
+  };
+}
+
+/** Get unspent stat points */
+export function getUnspentStatPoints(adv: Adventurer): number {
+  const totalEarned = (adv.level - 1) * STAT_POINTS_PER_LEVEL;
+  const totalSpent = Object.values(adv.bonusStats).reduce((sum, v) => sum + (v ?? 0), 0);
+  return totalEarned - totalSpent;
 }
 
 // ─── XP & Leveling ─────────────────────────────────────────────
@@ -213,6 +275,7 @@ export function generateCandidate(id: string, maxRank: AdventurerRank = 2): Adve
     xp: 0,
     alive: true,
     onMission: false,
+    bonusStats: {},
     equipment: { weapon: null, armor: null, trinket: null },
   };
 }
