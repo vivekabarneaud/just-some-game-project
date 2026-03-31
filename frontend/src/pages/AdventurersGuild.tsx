@@ -337,12 +337,13 @@ export default function AdventurersGuild() {
                     }}
                     style={{ cursor: "pointer" }}
                   >
-                    <span class="building-card-category" style={{
-                      color: [, "#aaa", "#7CFC00", "#3498db", "#9b59b6", "#f5c542"][mission.difficulty],
-                    }}>
-                      {["", "Novice", "Apprentice", "Journeyman", "Veteran", "Elite"][mission.difficulty]} · {mission.tags.join(", ")}
+                    <span class="building-card-category">
+                      <span style={{ color: [, "#aaa", "#7CFC00", "#3498db", "#9b59b6", "#f5c542"][mission.difficulty] }}>
+                        {["", "Novice", "Apprentice", "Journeyman", "Veteran", "Elite"][mission.difficulty]}
+                      </span>
+                      {" · "}{mission.tags.join(", ")}
                     </span>
-                    <div class="building-card-header" style={{ "margin-top": "10px" }}>
+                    <div class="building-card-header" style={{ "margin-top": "14px" }}>
                       <div class="building-card-icon">{mission.icon}</div>
                       <div>
                         <div class="building-card-title">{mission.name}</div>
