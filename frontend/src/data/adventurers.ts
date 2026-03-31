@@ -78,6 +78,11 @@ export interface Adventurer {
   xp: number;
   alive: boolean;
   onMission: boolean; // true while deployed
+  equipment: {
+    weapon: string | null;  // item ID
+    armor: string | null;
+    trinket: string | null;
+  };
 }
 
 // ─── XP & Leveling ─────────────────────────────────────────────
@@ -208,6 +213,7 @@ export function generateCandidate(id: string, maxRank: AdventurerRank = 2): Adve
     xp: 0,
     alive: true,
     onMission: false,
+    equipment: { weapon: null, armor: null, trinket: null },
   };
 }
 

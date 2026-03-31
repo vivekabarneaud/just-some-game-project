@@ -117,6 +117,13 @@ import {
   RANK_NAMES,
 } from "~/data/adventurers";
 import {
+  type InventoryItem,
+  type ItemSlot,
+  getItem,
+  getItemByRecipe,
+  ITEMS,
+} from "~/data/items";
+import {
   type IncomingRaid,
   type RaidResult,
   getRaid,
@@ -369,6 +376,7 @@ export interface GameState {
   weapons: number;
   armor: number;
   potions: number;
+  inventory: InventoryItem[];
   craftingQueue: ActiveCraft[];
   // Event log
   eventLog: GameEvent[];
@@ -442,6 +450,9 @@ export interface GameActions {
   startCraft: (recipeId: string) => boolean;
   getAvailableRecipes: () => CraftingRecipe[];
   getClothingInfo: () => { current: number; needed: number };
+  equipItem: (adventurerId: string, itemId: string) => boolean;
+  unequipItem: (adventurerId: string, slot: ItemSlot) => boolean;
+  getInventoryCount: (itemId: string) => number;
   getHappinessModifier: () => number;
   getHappinessBreakdown: () => { label: string; value: number }[];
   repairBuilding: (buildingId: string) => boolean;
@@ -494,6 +505,7 @@ function createInitialState(): GameState {
     weapons: 0,
     armor: 0,
     potions: 0,
+    inventory: [],
     craftingQueue: [],
     eventLog: [],
     ale: 0,
@@ -572,6 +584,14 @@ function loadGame(): GameState | null {
     if (saved.weapons === undefined) saved.weapons = 0;
     if (saved.armor === undefined) saved.armor = 0;
     if (saved.potions === undefined) saved.potions = 0;
+    if (!saved.inventory) saved.inventory = [];
+    // Equipment migration for adventurers
+    for (const adv of saved.adventurers) {
+      if (!(adv as any).equipment) (adv as any).equipment = { weapon: null, armor: null, trinket: null };
+    }
+    for (const adv of saved.recruitCandidates) {
+      if (!(adv as any).equipment) (adv as any).equipment = { weapon: null, armor: null, trinket: null };
+    }
     if (!saved.craftingQueue) saved.craftingQueue = [];
     // Event log migration
     if (!saved.eventLog) saved.eventLog = [];
@@ -964,6 +984,7 @@ export function GameProvider(props: ParentProps) {
             if (recipe) {
               const res = recipe.produces.resource;
               const amt = recipe.produces.amount;
+              // Add to stockpile counters
               if (res === "clothing") s.clothing += amt;
               else if (res === "tools") s.tools += amt;
               else if (res === "weapons") s.weapons += amt;
@@ -972,6 +993,13 @@ export function GameProvider(props: ParentProps) {
               else if (res === "gold") s.resources.gold += amt;
               else if (res === "wool") s.wool += amt;
               else if (res === "fiber") s.fiber += amt;
+              // Also add equippable item to inventory
+              const itemDef = getItemByRecipe(recipe.id);
+              if (itemDef) {
+                const existing = s.inventory.find((i) => i.itemId === itemDef.id);
+                if (existing) existing.quantity += amt;
+                else s.inventory.push({ itemId: itemDef.id, quantity: amt });
+              }
               pushEvent(s, "building_completed", recipe.icon, `Crafted ${recipe.name} (x${recipe.produces.amount})`);
             }
             s.craftingQueue.splice(i, 1);
@@ -1168,7 +1196,12 @@ export function GameProvider(props: ParentProps) {
                 // Check for deaths
                 const deadIds: string[] = [];
                 for (const adv of team) {
-                  const deathChance = calcDeathChance(template, team, adv);
+                  let deathChance = calcDeathChance(template, team, adv);
+                  // Equipment reduces death chance
+                  for (const slot of ["weapon", "armor", "trinket"] as const) {
+                    const itemId = adv.equipment[slot];
+                    if (itemId) { const def = getItem(itemId); if (def) deathChance = Math.max(0, deathChance - def.deathReduction); }
+                  }
                   if (Math.random() * 100 < deathChance) {
                     deadIds.push(adv.id);
                   }
@@ -1205,7 +1238,11 @@ export function GameProvider(props: ParentProps) {
                 for (const id of deadIds) {
                   casualties.push(id);
                   const advInState = s.adventurers.find((a) => a.id === id);
-                  if (advInState) advInState.alive = false;
+                  if (advInState) {
+                    advInState.alive = false;
+                    // Equipment lost on death
+                    advInState.equipment = { weapon: null, armor: null, trinket: null };
+                  }
                 }
               }
 
@@ -1236,10 +1273,19 @@ export function GameProvider(props: ParentProps) {
                 }
               }
 
-              // Free surviving adventurers
+              // Free surviving adventurers and consume trinket potions
               for (const id of am.adventurerIds) {
                 const adv = s.adventurers.find((a) => a.id === id);
-                if (adv) adv.onMission = false;
+                if (adv) {
+                  adv.onMission = false;
+                  // Consume consumable trinkets
+                  if (adv.equipment.trinket) {
+                    const trinketDef = getItem(adv.equipment.trinket);
+                    if (trinketDef?.consumable) {
+                      adv.equipment.trinket = null;
+                    }
+                  }
+                }
               }
 
               // Grant resource rewards
@@ -1659,8 +1705,23 @@ export function GameProvider(props: ParentProps) {
       // Check deploy cost
       if (state.resources.gold < template.deployCost) return false;
 
-      const successChance = calcSuccessChance(template, team);
-      const effectiveDuration = calcEffectiveDuration(template, team);
+      let successChance = calcSuccessChance(template, team);
+      let effectiveDuration = calcEffectiveDuration(template, team);
+
+      // Apply equipment bonuses
+      for (const adv of team) {
+        for (const slot of ["weapon", "armor", "trinket"] as const) {
+          const itemId = adv.equipment[slot];
+          if (itemId) {
+            const itemDef = getItem(itemId);
+            if (itemDef) {
+              successChance += itemDef.successBonus;
+              effectiveDuration = Math.floor(effectiveDuration * itemDef.durationMod);
+            }
+          }
+        }
+      }
+      successChance = Math.min(100, successChance);
 
       setState(produce((s) => {
         s.resources.gold -= template.deployCost;
@@ -1757,6 +1818,46 @@ export function GameProvider(props: ParentProps) {
         current: Math.floor(state.clothing),
         needed: Math.ceil(state.population / CLOTHING_PER_CITIZENS),
       };
+    },
+    equipItem(adventurerId, itemId) {
+      const adv = state.adventurers.find((a) => a.id === adventurerId);
+      if (!adv || adv.onMission) return false;
+      const itemDef = getItem(itemId);
+      if (!itemDef) return false;
+      const inv = state.inventory.find((i) => i.itemId === itemId);
+      if (!inv || inv.quantity <= 0) return false;
+      setState(produce((s) => {
+        const a = s.adventurers.find((a) => a.id === adventurerId)!;
+        // Unequip current item in that slot first (return to inventory)
+        const currentItemId = a.equipment[itemDef.slot];
+        if (currentItemId) {
+          const curInv = s.inventory.find((i) => i.itemId === currentItemId);
+          if (curInv) curInv.quantity += 1;
+          else s.inventory.push({ itemId: currentItemId, quantity: 1 });
+        }
+        // Equip new item
+        a.equipment[itemDef.slot] = itemId;
+        const newInv = s.inventory.find((i) => i.itemId === itemId)!;
+        newInv.quantity -= 1;
+      }));
+      return true;
+    },
+    unequipItem(adventurerId, slot) {
+      const adv = state.adventurers.find((a) => a.id === adventurerId);
+      if (!adv || adv.onMission) return false;
+      const currentItemId = adv.equipment[slot];
+      if (!currentItemId) return false;
+      setState(produce((s) => {
+        const a = s.adventurers.find((a) => a.id === adventurerId)!;
+        a.equipment[slot] = null;
+        const inv = s.inventory.find((i) => i.itemId === currentItemId);
+        if (inv) inv.quantity += 1;
+        else s.inventory.push({ itemId: currentItemId, quantity: 1 });
+      }));
+      return true;
+    },
+    getInventoryCount(itemId) {
+      return state.inventory.find((i) => i.itemId === itemId)?.quantity ?? 0;
     },
     getHappinessModifier() {
       const h = state.happiness;

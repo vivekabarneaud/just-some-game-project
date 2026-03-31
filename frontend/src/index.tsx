@@ -14,6 +14,8 @@ const AdventurerDetail = lazy(() => import("./pages/AdventurerDetail"));
 const Tailoring = lazy(() => import("./pages/Tailoring"));
 const Blacksmith = lazy(() => import("./pages/Blacksmith"));
 const Alchemy = lazy(() => import("./pages/Alchemy"));
+const Enchanting = lazy(() => import("./pages/Enchanting"));
+const Jewelcrafting = lazy(() => import("./pages/Jewelcrafting"));
 const ComingSoon = lazy(() => import("./pages/ComingSoon"));
 
 render(
@@ -29,6 +31,8 @@ render(
         <Route path="/tailoring" component={Tailoring} />
         <Route path="/blacksmith" component={Blacksmith} />
         <Route path="/alchemy" component={Alchemy} />
+        <Route path="/enchanting" component={Enchanting} />
+        <Route path="/jewelcrafting" component={Jewelcrafting} />
         <Route path="*" component={ComingSoon} />
       </Router>
     </GameProvider>

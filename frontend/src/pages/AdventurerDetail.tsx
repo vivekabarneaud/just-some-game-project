@@ -1,6 +1,7 @@
 import { A, useParams } from "@solidjs/router";
-import { Show } from "solid-js";
+import { For, Show } from "solid-js";
 import { useGame } from "~/engine/gameState";
+import { getItem, getItemsForSlot, ITEMS, type ItemSlot } from "~/data/items";
 import {
   getClassMeta,
   RANK_NAMES,
@@ -63,7 +64,7 @@ const EQUIPMENT_SLOTS = [
 
 export default function AdventurerDetail() {
   const params = useParams<{ id: string }>();
-  const { state } = useGame();
+  const { state, actions } = useGame();
 
   const adventurer = () => state.adventurers.find((a) => a.id === params.id);
 
@@ -195,36 +196,82 @@ export default function AdventurerDetail() {
                 {/* Equipment */}
                 <div class="overview-panel">
                   <h2>Equipment</h2>
-                  {EQUIPMENT_SLOTS.map((slot) => (
-                    <div style={{
-                      display: "flex",
-                      "align-items": "center",
-                      gap: "10px",
-                      padding: "10px",
-                      "margin-bottom": "8px",
-                      background: "var(--bg-primary)",
-                      "border-radius": "6px",
-                      border: "1px dashed var(--border-default)",
-                      opacity: 0.5,
-                    }}>
-                      <span style={{ "font-size": "1.4rem" }}>{slot.icon}</span>
-                      <div>
-                        <div style={{ "font-size": "0.85rem", color: "var(--text-muted)" }}>{slot.name}</div>
-                        <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "font-style": "italic" }}>Empty slot</div>
+                  {EQUIPMENT_SLOTS.map((slot) => {
+                    const equippedId = () => adv().equipment[slot.id as ItemSlot];
+                    const equippedItem = () => equippedId() ? getItem(equippedId()!) : null;
+                    const availableItems = () => getItemsForSlot(slot.id as ItemSlot)
+                      .filter((item) => actions.getInventoryCount(item.id) > 0);
+
+                    return (
+                      <div style={{
+                        padding: "10px",
+                        "margin-bottom": "8px",
+                        background: "var(--bg-primary)",
+                        "border-radius": "6px",
+                        border: `1px ${equippedItem() ? "solid var(--accent-blue)" : "dashed var(--border-default)"}`,
+                      }}>
+                        <div style={{ display: "flex", "align-items": "center", "justify-content": "space-between" }}>
+                          <div style={{ display: "flex", "align-items": "center", gap: "8px" }}>
+                            <span style={{ "font-size": "1.2rem" }}>{equippedItem()?.icon ?? slot.icon}</span>
+                            <div>
+                              <div style={{ "font-size": "0.85rem", color: equippedItem() ? "var(--text-primary)" : "var(--text-muted)" }}>
+                                {equippedItem()?.name ?? `${slot.name} — empty`}
+                              </div>
+                              <Show when={equippedItem()}>
+                                <div style={{ "font-size": "0.75rem", color: "var(--accent-green)" }}>
+                                  {equippedItem()!.description}
+                                  {equippedItem()!.consumable && <span style={{ color: "var(--accent-gold)" }}> (consumable)</span>}
+                                </div>
+                              </Show>
+                            </div>
+                          </div>
+                          <Show when={equippedItem() && !adv().onMission}>
+                            <button
+                              onClick={() => actions.unequipItem(params.id, slot.id as ItemSlot)}
+                              style={{
+                                padding: "3px 8px",
+                                background: "rgba(231, 76, 60, 0.1)",
+                                border: "1px solid var(--accent-red)",
+                                color: "var(--accent-red)",
+                                "border-radius": "4px",
+                                cursor: "pointer",
+                                "font-size": "0.75rem",
+                              }}
+                            >
+                              Unequip
+                            </button>
+                          </Show>
+                        </div>
+                        <Show when={!adv().onMission && availableItems().length > 0}>
+                          <div style={{ display: "flex", gap: "4px", "flex-wrap": "wrap", "margin-top": "8px" }}>
+                            <For each={availableItems()}>
+                              {(item) => (
+                                <button
+                                  onClick={() => actions.equipItem(params.id, item.id)}
+                                  style={{
+                                    padding: "4px 8px",
+                                    background: "rgba(52, 152, 219, 0.1)",
+                                    border: "1px solid var(--accent-blue)",
+                                    color: "var(--accent-blue)",
+                                    "border-radius": "4px",
+                                    cursor: "pointer",
+                                    "font-size": "0.75rem",
+                                  }}
+                                >
+                                  {item.icon} {item.name} ({actions.getInventoryCount(item.id)})
+                                </button>
+                              )}
+                            </For>
+                          </div>
+                        </Show>
                       </div>
+                    );
+                  })}
+                  <Show when={adv().onMission}>
+                    <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-top": "4px" }}>
+                      Cannot change equipment while on a mission.
                     </div>
-                  ))}
-                  <div style={{
-                    padding: "10px",
-                    "text-align": "center",
-                    "border-radius": "6px",
-                    background: "rgba(167, 139, 250, 0.08)",
-                    border: "1px solid rgba(167, 139, 250, 0.2)",
-                    color: "#a78bfa",
-                    "font-size": "0.8rem",
-                  }}>
-                    Equipment crafting coming soon — Blacksmith required
-                  </div>
+                  </Show>
                 </div>
 
                 {/* Talent Tree */}
