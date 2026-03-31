@@ -28,128 +28,128 @@ export const ITEMS: ItemDefinition[] = [
   // ── Swords (Blacksmith) — warrior, assassin ───────────────────
   {
     id: "iron_sword", name: "Iron Sword", icon: "⚔️", slot: "weapon",
-    description: "+5 STR",
+    description: "+1 STR",
     classes: ["warrior", "assassin"],
-    stats: { str: 5 }, durationMod: 1, lootMod: 1,
+    stats: { str: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "iron_sword", consumable: false,
   },
   {
     id: "steel_sword", name: "Steel Sword", icon: "🗡️", slot: "weapon",
-    description: "+10 STR, +3 DEX",
+    description: "+3 STR, +1 DEX",
     classes: ["warrior", "assassin"],
-    stats: { str: 10, dex: 3 }, durationMod: 1, lootMod: 1.05,
+    stats: { str: 3, dex: 1 }, durationMod: 1, lootMod: 1.05,
     recipeId: "steel_sword", consumable: false,
   },
 
   // ── Staves (Woodworker) — wizard, priest ──────────────────────
   {
     id: "wooden_staff", name: "Wooden Staff", icon: "🪄", slot: "weapon",
-    description: "+4 INT, +2 WIS",
+    description: "+1 INT",
     classes: ["wizard", "priest"],
-    stats: { int: 4, wis: 2 }, durationMod: 1, lootMod: 1,
+    stats: { int: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "wooden_staff", consumable: false,
   },
   {
     id: "enchanted_staff", name: "Enchanted Staff", icon: "✨", slot: "weapon",
-    description: "+12 INT, +5 WIS, -15% duration",
+    description: "+4 INT, +2 WIS, -15% duration",
     classes: ["wizard", "priest"],
-    stats: { int: 12, wis: 5 }, durationMod: 0.85, lootMod: 1,
+    stats: { int: 4, wis: 2 }, durationMod: 0.85, lootMod: 1,
     recipeId: "enchanted_staff", consumable: false,
   },
 
   // ── Bows (Woodworker) — archer ────────────────────────────────
   {
     id: "hunting_bow", name: "Hunting Bow", icon: "🏹", slot: "weapon",
-    description: "+6 DEX",
+    description: "+1 DEX",
     classes: ["archer"],
-    stats: { dex: 6 }, durationMod: 1, lootMod: 1,
+    stats: { dex: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "hunting_bow", consumable: false,
   },
   {
     id: "longbow", name: "Longbow", icon: "🎯", slot: "weapon",
-    description: "+10 DEX, +3 STR",
+    description: "+3 DEX, +1 STR",
     classes: ["archer"],
-    stats: { dex: 10, str: 3 }, durationMod: 1, lootMod: 1.05,
+    stats: { dex: 3, str: 1 }, durationMod: 1, lootMod: 1.05,
     recipeId: "longbow", consumable: false,
   },
 
   // ── Heavy armor (Blacksmith) — warrior ────────────────────────
   {
     id: "iron_shield", name: "Iron Shield", icon: "🛡️", slot: "armor",
-    description: "+8 VIT",
+    description: "+2 VIT",
     classes: ["warrior"],
-    stats: { vit: 8 }, durationMod: 1, lootMod: 1,
+    stats: { vit: 2 }, durationMod: 1, lootMod: 1,
     recipeId: "iron_shield", consumable: false,
   },
   {
     id: "iron_armor", name: "Iron Armor", icon: "🦺", slot: "armor",
-    description: "+12 VIT, +3 STR",
+    description: "+3 VIT, +1 STR",
     classes: ["warrior"],
-    stats: { vit: 12, str: 3 }, durationMod: 1, lootMod: 1,
+    stats: { vit: 3, str: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "iron_armor", consumable: false,
   },
   {
     id: "chainmail", name: "Chainmail Armor", icon: "⛓️", slot: "armor",
-    description: "+15 VIT, +5 STR",
+    description: "+4 VIT, +1 STR",
     classes: ["warrior", "archer", "assassin"],
-    stats: { vit: 15, str: 5 }, durationMod: 1, lootMod: 1,
+    stats: { vit: 4, str: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "chainmail", consumable: false,
   },
 
   // ── Light armor (Woodworker) ──────────────────────────────────
   {
     id: "wooden_shield", name: "Wooden Shield", icon: "🪵", slot: "armor",
-    description: "+6 VIT",
+    description: "+1 VIT",
     classes: ["warrior", "archer", "assassin"],
-    stats: { vit: 6 }, durationMod: 1, lootMod: 1,
+    stats: { vit: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "wooden_shield", consumable: false,
   },
 
   // ── Robes (Tailoring) — wizard, priest ────────────────────────
   {
     id: "priest_robes", name: "Priest Robes", icon: "🥋", slot: "armor",
-    description: "+10 VIT, +5 WIS",
+    description: "+2 VIT, +1 WIS",
     classes: ["priest"],
-    stats: { vit: 10, wis: 5 }, durationMod: 1, lootMod: 1,
+    stats: { vit: 2, wis: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "priest_robes", consumable: false,
   },
   {
     id: "wizard_robes", name: "Wizard Robes", icon: "🧙", slot: "armor",
-    description: "+8 VIT, +6 INT, -10% duration",
+    description: "+2 VIT, +2 INT, -10% duration",
     classes: ["wizard"],
-    stats: { vit: 8, int: 6 }, durationMod: 0.9, lootMod: 1,
+    stats: { vit: 2, int: 2 }, durationMod: 0.9, lootMod: 1,
     recipeId: "wizard_robes", consumable: false,
   },
 
   // ── Trinkets — all classes ────────────────────────────────────
   {
     id: "iron_tools_equip", name: "Iron Tools", icon: "🔧", slot: "trinket",
-    description: "+3 DEX, -10% duration, +5% loot",
+    description: "+1 DEX, -10% duration, +5% loot",
     classes: [],
-    stats: { dex: 3 }, durationMod: 0.9, lootMod: 1.05,
+    stats: { dex: 1 }, durationMod: 0.9, lootMod: 1.05,
     recipeId: "iron_tools", consumable: false,
   },
 
   // ── Potions (Alchemy) — all classes, consumable ───────────────
   {
     id: "healing_potion_equip", name: "Healing Potion", icon: "❤️", slot: "trinket",
-    description: "+15 VIT (consumed)",
+    description: "+4 VIT (consumed)",
     classes: [],
-    stats: { vit: 15 }, durationMod: 1, lootMod: 1,
+    stats: { vit: 4 }, durationMod: 1, lootMod: 1,
     recipeId: "healing_potion", consumable: true,
   },
   {
     id: "strength_elixir_equip", name: "Strength Elixir", icon: "💪", slot: "trinket",
-    description: "+8 STR, +4 DEX (consumed)",
+    description: "+2 STR, +1 DEX (consumed)",
     classes: [],
-    stats: { str: 8, dex: 4 }, durationMod: 1, lootMod: 1,
+    stats: { str: 2, dex: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "strength_elixir", consumable: true,
   },
   {
     id: "antidote_equip", name: "Antidote", icon: "🧪", slot: "trinket",
-    description: "+10 VIT (consumed)",
+    description: "+3 VIT (consumed)",
     classes: [],
-    stats: { vit: 10 }, durationMod: 1, lootMod: 1,
+    stats: { vit: 3 }, durationMod: 1, lootMod: 1,
     recipeId: "antidote", consumable: true,
   },
 ];

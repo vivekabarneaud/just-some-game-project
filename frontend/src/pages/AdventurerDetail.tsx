@@ -142,7 +142,7 @@ export default function AdventurerDetail() {
                   </Show>
                   {STAT_META.map((stat) => {
                     const val = () => stats()[stat.key];
-                    const maxStat = 60;
+                    const maxStat = 30;
                     const pct = () => Math.min(100, (val() / maxStat) * 100);
                     const bonus = () => adv().bonusStats[stat.key] ?? 0;
                     return (

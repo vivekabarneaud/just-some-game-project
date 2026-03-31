@@ -107,23 +107,23 @@ export const STAT_META: { key: keyof AdventurerStats; name: string; icon: string
 ];
 
 export const CLASS_BASE_STATS: Record<AdventurerClass, AdventurerStats> = {
-  warrior: { str: 12, int: 4, dex: 6, vit: 10, wis: 3 },
-  wizard:  { str: 4, int: 14, dex: 5, vit: 5, wis: 8 },
-  priest:  { str: 5, int: 10, dex: 4, vit: 9, wis: 10 },
-  archer:  { str: 6, int: 5, dex: 14, vit: 6, wis: 4 },
-  assassin:{ str: 8, int: 6, dex: 12, vit: 5, wis: 3 },
+  warrior: { str: 6, int: 2, dex: 3, vit: 5, wis: 1 },
+  wizard:  { str: 2, int: 7, dex: 2, vit: 3, wis: 4 },
+  priest:  { str: 2, int: 5, dex: 2, vit: 5, wis: 5 },
+  archer:  { str: 3, int: 2, dex: 7, vit: 3, wis: 2 },
+  assassin:{ str: 4, int: 3, dex: 6, vit: 3, wis: 1 },
 };
 
 export const CLASS_STAT_GROWTH: Record<AdventurerClass, AdventurerStats> = {
-  warrior: { str: 3, int: 0.5, dex: 1, vit: 2.5, wis: 0.5 },
-  wizard:  { str: 0.5, int: 3.5, dex: 0.5, vit: 1, wis: 1.5 },
-  priest:  { str: 0.5, int: 2.5, dex: 0.5, vit: 2, wis: 2 },
-  archer:  { str: 1, int: 1, dex: 3, vit: 1.5, wis: 0.5 },
-  assassin:{ str: 2, int: 1, dex: 3, vit: 1, wis: 0.5 },
+  warrior: { str: 1.5, int: 0.2, dex: 0.5, vit: 1.2, wis: 0.2 },
+  wizard:  { str: 0.2, int: 1.8, dex: 0.2, vit: 0.5, wis: 0.8 },
+  priest:  { str: 0.2, int: 1.2, dex: 0.2, vit: 1, wis: 1 },
+  archer:  { str: 0.5, int: 0.5, dex: 1.5, vit: 0.7, wis: 0.2 },
+  assassin:{ str: 1, int: 0.5, dex: 1.5, vit: 0.5, wis: 0.2 },
 };
 
 /** Stat points gained per level that player can allocate */
-export const STAT_POINTS_PER_LEVEL = 2;
+export const STAT_POINTS_PER_LEVEL = 1;
 
 /** Calculate total stats for an adventurer (base + growth + bonus + equipment) */
 export function calcStats(adv: Adventurer, equipmentStats?: Partial<AdventurerStats>): AdventurerStats {
