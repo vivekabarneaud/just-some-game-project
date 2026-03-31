@@ -81,13 +81,23 @@ import {
 import {
   type ActiveMission,
   type CompletedMission,
+  type MissionReward,
   type MissionTemplate,
   getMission,
   generateMissionBoard,
   getMissionBoardSize,
   calcSuccessChance,
   calcDeathChance,
+  calcEffectiveDuration,
+  calcAssassinBonusRewards,
+  calcAssassinFailRewards,
+  PRIEST_REVIVE_CHANCE,
 } from "~/data/missions";
+import {
+  getMissionXp,
+  applyXp,
+  RANK_NAMES,
+} from "~/data/adventurers";
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -276,6 +286,13 @@ function loadGame(): GameState | null {
     if (!saved.missionBoard) saved.missionBoard = [];
     if (saved.recruitRefreshIn === undefined) saved.recruitRefreshIn = 0;
     if (saved.missionRefreshIn === undefined) saved.missionRefreshIn = 0;
+    // Migrate adventurers missing xp/level fields
+    for (const adv of saved.adventurers) {
+      if ((adv as any).level === undefined) { (adv as any).level = 1; (adv as any).xp = 0; }
+    }
+    for (const adv of saved.recruitCandidates) {
+      if ((adv as any).level === undefined) { (adv as any).level = 1; (adv as any).xp = 0; }
+    }
     for (const pb of saved.buildings) {
       if (pb.upgrading && (pb as any).upgradeFinishTime) {
         pb.upgradeRemaining = Math.max(0, ((pb as any).upgradeFinishTime - Date.now()) / 1000);
@@ -578,15 +595,78 @@ export function GameProvider(props: ParentProps) {
               const team = am.adventurerIds.map((id) => s.adventurers.find((a) => a.id === id)).filter(Boolean) as Adventurer[];
               const success = Math.random() * 100 < am.successChance;
               const casualties: string[] = [];
+              const revived: string[] = [];
+              const levelUps: string[] = [];
+              const rankUps: { name: string; newRank: string }[] = [];
 
               if (!success && template) {
                 // Check for deaths
+                const deadIds: string[] = [];
                 for (const adv of team) {
                   const deathChance = calcDeathChance(template, team, adv);
                   if (Math.random() * 100 < deathChance) {
-                    casualties.push(adv.id);
-                    const advInState = s.adventurers.find((a) => a.id === adv.id);
-                    if (advInState) advInState.alive = false;
+                    deadIds.push(adv.id);
+                  }
+                }
+
+                // Warrior passive: Shield Wall — protect one ally from death
+                const warriors = team.filter((a) => a.class === "warrior" && !deadIds.includes(a.id));
+                for (const warrior of warriors) {
+                  const protectable = deadIds.filter((id) => id !== warrior.id);
+                  if (protectable.length > 0) {
+                    // Warrior takes the hit instead (50% chance warrior survives)
+                    const savedId = protectable[0];
+                    deadIds.splice(deadIds.indexOf(savedId), 1);
+                    if (Math.random() > 0.5) {
+                      deadIds.push(warrior.id);
+                    }
+                    break; // only one save per mission
+                  }
+                }
+
+                // Priest passive: Divine Grace — chance to revive fallen allies
+                const priests = team.filter((a) => a.class === "priest" && !deadIds.includes(a.id));
+                for (const deadId of [...deadIds]) {
+                  for (const _priest of priests) {
+                    if (Math.random() < PRIEST_REVIVE_CHANCE) {
+                      deadIds.splice(deadIds.indexOf(deadId), 1);
+                      revived.push(deadId);
+                      break; // one revive attempt per fallen
+                    }
+                  }
+                }
+
+                // Apply deaths
+                for (const id of deadIds) {
+                  casualties.push(id);
+                  const advInState = s.adventurers.find((a) => a.id === id);
+                  if (advInState) advInState.alive = false;
+                }
+              }
+
+              // Calculate rewards with class passives
+              let rewards: MissionReward[] = [];
+              if (template) {
+                if (success) {
+                  rewards = calcAssassinBonusRewards(template, team);
+                } else {
+                  // Assassin partial loot on failure
+                  const survivors = team.filter((a) => !casualties.includes(a.id));
+                  rewards = calcAssassinFailRewards(template, team, survivors);
+                }
+              }
+
+              // Grant XP to all surviving adventurers
+              const xpGain = template ? getMissionXp(template.difficulty, success) : 0;
+              for (const adv of team) {
+                if (!casualties.includes(adv.id)) {
+                  const advInState = s.adventurers.find((a) => a.id === adv.id);
+                  if (advInState) {
+                    const result = applyXp(advInState, xpGain);
+                    if (result.leveled) levelUps.push(advInState.name);
+                    if (result.rankUp) {
+                      rankUps.push({ name: advInState.name, newRank: RANK_NAMES[advInState.rank] });
+                    }
                   }
                 }
               }
@@ -597,23 +677,27 @@ export function GameProvider(props: ParentProps) {
                 if (adv) adv.onMission = false;
               }
 
-              // Record result
-              s.completedMissions.push({
-                missionId: am.missionId,
-                success,
-                rewards: success && template ? template.rewards : [],
-                casualties,
-              });
-
-              // Grant rewards
-              if (success && template) {
+              // Grant resource rewards
+              if (rewards.length > 0) {
                 const resCaps = calcStorageCaps(s.buildings);
-                for (const reward of template.rewards) {
+                for (const reward of rewards) {
                   const key = reward.resource as keyof ResourceState;
                   const cap = resCaps[key];
                   s.resources[key] = Math.min(cap, s.resources[key] + reward.amount);
                 }
               }
+
+              // Record result
+              s.completedMissions.push({
+                missionId: am.missionId,
+                success,
+                rewards,
+                casualties,
+                revived,
+                xpGained: xpGain,
+                levelUps,
+                rankUps,
+              });
 
               // Remove from active
               s.activeMissions.splice(i, 1);
@@ -892,6 +976,7 @@ export function GameProvider(props: ParentProps) {
       if (state.resources.gold < template.deployCost) return false;
 
       const successChance = calcSuccessChance(template, team);
+      const effectiveDuration = calcEffectiveDuration(template, team);
 
       setState(produce((s) => {
         s.resources.gold -= template.deployCost;
@@ -903,7 +988,7 @@ export function GameProvider(props: ParentProps) {
         s.activeMissions.push({
           missionId: template.id,
           adventurerIds: [...adventurerIds],
-          remaining: template.duration,
+          remaining: effectiveDuration,
           successChance,
         });
       }));

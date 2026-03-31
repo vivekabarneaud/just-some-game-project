@@ -1,4 +1,4 @@
-import type { AdventurerClass, AdventurerRank, Adventurer } from "./adventurers";
+import type { AdventurerClass, Adventurer } from "./adventurers";
 
 // ─── Mission types ──────────────────────────────────────────────
 
@@ -13,6 +13,8 @@ export interface MissionSlot {
   class: AdventurerClass | "any"; // "any" means any class fills it
 }
 
+export type MissionTag = "combat" | "exploration" | "magical" | "outdoor" | "stealth";
+
 export interface MissionTemplate {
   id: string;
   name: string;
@@ -24,6 +26,7 @@ export interface MissionTemplate {
   deployCost: number; // gold to send the team
   difficulty: 1 | 2 | 3 | 4 | 5;
   minGuildLevel: number;
+  tags: MissionTag[];
 }
 
 export interface ActiveMission {
@@ -36,8 +39,12 @@ export interface ActiveMission {
 export interface CompletedMission {
   missionId: string;
   success: boolean;
-  rewards: MissionReward[]; // actual rewards earned (empty on fail)
+  rewards: MissionReward[]; // actual rewards earned (empty on fail for non-assassin teams)
   casualties: string[]; // adventurer IDs who died
+  revived: string[]; // adventurer IDs revived by priests
+  xpGained: number;
+  levelUps: string[]; // adventurer names that leveled up
+  rankUps: { name: string; newRank: string }[]; // adventurers that ranked up
 }
 
 // ─── Mission pool ───────────────────────────────────────────────
@@ -55,6 +62,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     deployCost: 5,
     difficulty: 1,
     minGuildLevel: 1,
+    tags: ["outdoor"],
   },
   {
     id: "quarry_expedition",
@@ -67,6 +75,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     deployCost: 5,
     difficulty: 1,
     minGuildLevel: 1,
+    tags: ["outdoor", "exploration"],
   },
   {
     id: "foraging_run",
@@ -79,6 +88,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     deployCost: 5,
     difficulty: 1,
     minGuildLevel: 1,
+    tags: ["outdoor"],
   },
   {
     id: "merchant_escort",
@@ -91,6 +101,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     deployCost: 5,
     difficulty: 1,
     minGuildLevel: 1,
+    tags: ["outdoor", "combat"],
   },
   {
     id: "herb_gathering",
@@ -103,6 +114,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     deployCost: 5,
     difficulty: 1,
     minGuildLevel: 1,
+    tags: ["outdoor", "exploration"],
   },
 
   // ── Tier 2: Moderate (guild Lv2, class preferences) ───────────
@@ -117,6 +129,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     deployCost: 15,
     difficulty: 2,
     minGuildLevel: 2,
+    tags: ["combat", "outdoor"],
   },
   {
     id: "deep_forest",
@@ -129,6 +142,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     deployCost: 15,
     difficulty: 2,
     minGuildLevel: 2,
+    tags: ["outdoor", "exploration"],
   },
   {
     id: "abandoned_mine",
@@ -141,6 +155,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     deployCost: 20,
     difficulty: 2,
     minGuildLevel: 2,
+    tags: ["exploration", "stealth"],
   },
   {
     id: "river_crossing",
@@ -153,6 +168,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     deployCost: 10,
     difficulty: 2,
     minGuildLevel: 2,
+    tags: ["outdoor"],
   },
 
   // ── Tier 3: Hard (guild Lv3, specific comps) ──────────────────
@@ -167,6 +183,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     deployCost: 50,
     difficulty: 4,
     minGuildLevel: 3,
+    tags: ["combat", "exploration"],
   },
   {
     id: "haunted_ruins",
@@ -179,6 +196,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     deployCost: 35,
     difficulty: 3,
     minGuildLevel: 3,
+    tags: ["magical", "exploration"],
   },
   {
     id: "kings_bounty",
@@ -191,6 +209,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     deployCost: 40,
     difficulty: 3,
     minGuildLevel: 3,
+    tags: ["combat", "outdoor"],
   },
   {
     id: "lumber_contract",
@@ -203,6 +222,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     deployCost: 30,
     difficulty: 3,
     minGuildLevel: 3,
+    tags: ["outdoor"],
   },
 
   // ── Tier 4: Very Hard (guild Lv4+) ────────────────────────────
@@ -217,6 +237,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     deployCost: 80,
     difficulty: 5,
     minGuildLevel: 4,
+    tags: ["exploration", "magical", "stealth"],
   },
   {
     id: "enchanted_grove",
@@ -229,17 +250,32 @@ export const MISSION_POOL: MissionTemplate[] = [
     deployCost: 60,
     difficulty: 4,
     minGuildLevel: 4,
+    tags: ["magical", "outdoor"],
   },
 ];
+
+// ─── Class passive helpers ──────────────────────────────────────
+
+/** Warrior: flat +10% success */
+const WARRIOR_SUCCESS_BONUS = 10;
+/** Archer: +8% success, +5% extra on outdoor/exploration */
+const ARCHER_SUCCESS_BONUS = 8;
+const ARCHER_TAG_BONUS = 5;
+/** Wizard: +0% flat, but +10% on magical missions */
+const WIZARD_TAG_BONUS = 10;
+/** Wizard: reduces mission duration by 15% per wizard */
+export const WIZARD_DURATION_REDUCTION = 0.15;
+/** Assassin: +20% bonus rewards on success, 30% partial loot on failure */
+export const ASSASSIN_LOOT_BONUS = 0.20;
+export const ASSASSIN_FAIL_LOOT = 0.30;
+/** Priest: 15% chance to revive a fallen ally */
+export const PRIEST_REVIVE_CHANCE = 0.15;
 
 // ─── Success calculation ────────────────────────────────────────
 
 /**
  * Calculate success chance for a team assigned to a mission.
- * - Each filled slot adds to base success
- * - Matching the required class gives a bonus
- * - Average adventurer rank vs mission difficulty matters
- * - Returns 0-100
+ * Includes class passive bonuses.
  */
 export function calcSuccessChance(
   mission: MissionTemplate,
@@ -254,39 +290,84 @@ export function calcSuccessChance(
   const assigned = [...team];
   for (const slot of mission.slots) {
     if (slot.class === "any") {
-      // Any adventurer fills it fully
       if (assigned.length > 0) {
         matchScore += 1;
-        assigned.shift(); // consume one
+        assigned.shift();
       }
     } else {
       const idx = assigned.findIndex((a) => a.class === slot.class);
       if (idx !== -1) {
-        matchScore += 1; // perfect match
+        matchScore += 1;
         assigned.splice(idx, 1);
       } else if (assigned.length > 0) {
-        matchScore += 0.5; // wrong class fills the slot at half efficiency
+        matchScore += 0.5;
         assigned.shift();
       }
     }
   }
 
-  // Base success from slot matching (0-70%)
-  const slotPercent = (matchScore / totalSlots) * 70;
+  // Base success from slot matching (0-60%)
+  const slotPercent = (matchScore / totalSlots) * 60;
 
-  // Rank bonus: average team rank vs difficulty (0-30%)
-  const avgRank = team.reduce((sum, a) => sum + a.rank, 0) / team.length;
-  const rankRatio = avgRank / mission.difficulty;
-  const rankPercent = Math.min(30, rankRatio * 15);
+  // Level bonus: average team level vs difficulty (0-25%)
+  const avgLevel = team.reduce((sum, a) => sum + a.level, 0) / team.length;
+  const levelRatio = avgLevel / (mission.difficulty * 4);
+  const levelPercent = Math.min(25, levelRatio * 15);
 
-  return Math.min(100, Math.round(slotPercent + rankPercent));
+  // Class passive bonuses
+  let classBonus = 0;
+  for (const adv of team) {
+    if (adv.class === "warrior") classBonus += WARRIOR_SUCCESS_BONUS;
+    if (adv.class === "archer") {
+      classBonus += ARCHER_SUCCESS_BONUS;
+      if (mission.tags.some((t) => t === "outdoor" || t === "exploration")) {
+        classBonus += ARCHER_TAG_BONUS;
+      }
+    }
+    if (adv.class === "wizard" && mission.tags.includes("magical")) {
+      classBonus += WIZARD_TAG_BONUS;
+    }
+  }
+
+  return Math.min(100, Math.round(slotPercent + levelPercent + classBonus));
+}
+
+/**
+ * Calculate effective mission duration after wizard speed bonus.
+ */
+export function calcEffectiveDuration(mission: MissionTemplate, team: Adventurer[]): number {
+  const wizardCount = team.filter((a) => a.class === "wizard").length;
+  const reduction = Math.min(0.45, wizardCount * WIZARD_DURATION_REDUCTION); // cap at 45%
+  return Math.floor(mission.duration * (1 - reduction));
+}
+
+/**
+ * Calculate assassin bonus loot on success.
+ * Returns multiplied rewards.
+ */
+export function calcAssassinBonusRewards(mission: MissionTemplate, team: Adventurer[]): MissionReward[] {
+  const assassinCount = team.filter((a) => a.class === "assassin").length;
+  if (assassinCount === 0) return mission.rewards;
+  const bonus = 1 + ASSASSIN_LOOT_BONUS * assassinCount;
+  return mission.rewards.map((r) => ({ ...r, amount: Math.floor(r.amount * bonus) }));
+}
+
+/**
+ * Calculate assassin partial loot on failure.
+ * Returns reduced rewards (only if an assassin survives).
+ */
+export function calcAssassinFailRewards(mission: MissionTemplate, team: Adventurer[], survivors: Adventurer[]): MissionReward[] {
+  const assassinSurvived = survivors.some((a) => a.class === "assassin");
+  if (!assassinSurvived) return [];
+  return mission.rewards.map((r) => ({ ...r, amount: Math.floor(r.amount * ASSASSIN_FAIL_LOOT) }));
 }
 
 // ─── Death chance ───────────────────────────────────────────────
 
 /**
  * On mission failure, each adventurer has a chance to die.
- * Base death chance depends on difficulty. Healers in the team reduce it.
+ * Priest passive reduces death chance for the whole party.
+ * Warrior passive: can protect one ally (handled at resolution time).
  */
 export function calcDeathChance(
   mission: MissionTemplate,
@@ -296,17 +377,17 @@ export function calcDeathChance(
   // Base death chance: 5% per difficulty level
   let chance = mission.difficulty * 5;
 
-  // Healers reduce death chance significantly
-  const healerCount = team.filter((a) => a.class === "priest" && a.id !== adventurer.id).length;
-  chance *= Math.pow(0.4, healerCount); // each healer reduces by 60%
+  // Priest passive: each priest reduces death chance by 60%
+  const priestCount = team.filter((a) => a.class === "priest" && a.id !== adventurer.id).length;
+  chance *= Math.pow(0.4, priestCount);
 
-  // Healers themselves are less likely to die (they stay in the back)
+  // Priests stay in the back — lower personal risk
   if (adventurer.class === "priest") chance *= 0.5;
 
-  // Higher rank = better survival
-  chance *= Math.max(0.2, 1 - (adventurer.rank - 1) * 0.15);
+  // Higher level = better survival
+  chance *= Math.max(0.2, 1 - (adventurer.level - 1) * 0.03);
 
-  return Math.min(50, Math.max(1, Math.round(chance))); // 1-50% range
+  return Math.min(50, Math.max(1, Math.round(chance)));
 }
 
 // ─── Mission board generation ───────────────────────────────────

@@ -2,17 +2,45 @@
 
 export type AdventurerClass = "warrior" | "wizard" | "priest" | "archer" | "assassin";
 
-export const ADVENTURER_CLASSES: {
+export interface ClassPassive {
+  name: string;
+  description: string;
+}
+
+export interface ClassMeta {
   id: AdventurerClass;
   name: string;
   icon: string;
   description: string;
-}[] = [
-  { id: "warrior", name: "Warrior", icon: "⚔️", description: "Frontline fighter. Increases success on combat missions." },
-  { id: "wizard", name: "Wizard", icon: "🔮", description: "Arcane caster. Essential for magical and exploration missions." },
-  { id: "priest", name: "Priest", icon: "✝️", description: "Keeps the party alive. Greatly reduces death chance on failure." },
-  { id: "archer", name: "Archer", icon: "🏹", description: "Keen-eyed marksman. Good at scouting and ranged combat." },
-  { id: "assassin", name: "Assassin", icon: "🗡️", description: "Fast and stealthy. Excels at infiltration and high-risk missions." },
+  passive: ClassPassive;
+}
+
+export const ADVENTURER_CLASSES: ClassMeta[] = [
+  {
+    id: "warrior", name: "Warrior", icon: "⚔️",
+    description: "Frontline fighter. Increases success on combat missions.",
+    passive: { name: "Shield Wall", description: "+10% mission success. Can protect an ally from death." },
+  },
+  {
+    id: "wizard", name: "Wizard", icon: "🔮",
+    description: "Arcane caster. Essential for magical and exploration missions.",
+    passive: { name: "Arcane Haste", description: "Reduces mission duration by 15%. Bonus success on magical missions." },
+  },
+  {
+    id: "priest", name: "Priest", icon: "✝️",
+    description: "Keeps the party alive. Greatly reduces death chance on failure.",
+    passive: { name: "Divine Grace", description: "Reduces party death risk by 60%. 15% chance to revive a fallen ally." },
+  },
+  {
+    id: "archer", name: "Archer", icon: "🏹",
+    description: "Keen-eyed marksman. Good at scouting and ranged combat.",
+    passive: { name: "Eagle Eye", description: "+8% mission success. Bonus on outdoor/exploration missions." },
+  },
+  {
+    id: "assassin", name: "Assassin", icon: "🗡️",
+    description: "Fast and stealthy. Excels at infiltration and high-risk missions.",
+    passive: { name: "Cunning", description: "+20% bonus loot on success. Recovers partial loot even on failure." },
+  },
 ];
 
 export function getClassMeta(cls: AdventurerClass) {
@@ -46,8 +74,64 @@ export interface Adventurer {
   name: string;
   class: AdventurerClass;
   rank: AdventurerRank;
+  level: number;
+  xp: number;
   alive: boolean;
   onMission: boolean; // true while deployed
+}
+
+// ─── XP & Leveling ─────────────────────────────────────────────
+
+/** XP needed to reach next level (exponential curve) */
+export function getXpForLevel(level: number): number {
+  return Math.floor(50 * Math.pow(1.4, level - 1));
+}
+
+/** Total XP accumulated across all levels */
+export function getTotalXpForLevel(level: number): number {
+  let total = 0;
+  for (let i = 1; i < level; i++) total += getXpForLevel(i);
+  return total;
+}
+
+/** XP gained from a mission */
+export function getMissionXp(difficulty: number, success: boolean): number {
+  const base = difficulty * 15;
+  return success ? base : Math.floor(base * 0.4);
+}
+
+/** Rank thresholds — auto rank-up at these levels */
+export const RANK_LEVEL_THRESHOLDS: Record<AdventurerRank, number> = {
+  1: 1,   // Novice: level 1+
+  2: 4,   // Apprentice: level 4+
+  3: 8,   // Journeyman: level 8+
+  4: 13,  // Veteran: level 13+
+  5: 20,  // Elite: level 20+
+};
+
+/** Get the rank for a given level */
+export function getRankForLevel(level: number): AdventurerRank {
+  if (level >= 20) return 5;
+  if (level >= 13) return 4;
+  if (level >= 8) return 3;
+  if (level >= 4) return 2;
+  return 1;
+}
+
+/** Apply XP to an adventurer — returns { leveled, newRank } for notifications */
+export function applyXp(adv: Adventurer, xpGain: number): { leveled: boolean; rankUp: boolean; oldRank: AdventurerRank } {
+  const oldRank = adv.rank;
+  adv.xp += xpGain;
+  let leveled = false;
+
+  while (adv.xp >= getXpForLevel(adv.level)) {
+    adv.xp -= getXpForLevel(adv.level);
+    adv.level += 1;
+    leveled = true;
+  }
+
+  adv.rank = getRankForLevel(adv.level);
+  return { leveled, rankUp: adv.rank !== oldRank, oldRank };
 }
 
 // ─── Name generation ────────────────────────────────────────────
@@ -107,11 +191,15 @@ export function generateCandidate(id: string, maxRank: AdventurerRank = 2): Adve
   else if (maxRank >= 3 && roll > 0.75) rank = 3;
   else if (maxRank >= 2 && roll > 0.50) rank = 2;
 
+  // Set starting level to the rank threshold so recruited adventurers match their rank
+  const level = RANK_LEVEL_THRESHOLDS[rank];
   return {
     id,
     name: generateName(),
     class: randomFrom(ADVENTURER_CLASSES).id,
     rank,
+    level,
+    xp: 0,
     alive: true,
     onMission: false,
   };

@@ -2,11 +2,11 @@ import { createSignal, For, Show } from "solid-js";
 import { A } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
 import {
-  ADVENTURER_CLASSES,
   getClassMeta,
   RANK_NAMES,
   RANK_COLORS,
   getRecruitCost,
+  getXpForLevel,
   type Adventurer,
   type AdventurerRank,
 } from "~/data/adventurers";
@@ -14,6 +14,8 @@ import {
   type MissionTemplate,
   type MissionSlot,
   calcSuccessChance,
+  calcDeathChance,
+  calcEffectiveDuration,
   getMission,
 } from "~/data/missions";
 import Countdown from "~/components/Countdown";
@@ -26,6 +28,27 @@ function formatDuration(seconds: number): string {
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
   return m > 0 ? `${h}h ${m}m` : `${h}h`;
+}
+
+function XpBar(props: { xp: number; level: number }) {
+  const needed = () => getXpForLevel(props.level);
+  const pct = () => Math.min(100, (props.xp / needed()) * 100);
+  return (
+    <div style={{ "margin-top": "6px" }}>
+      <div style={{ display: "flex", "justify-content": "space-between", "font-size": "0.7rem", color: "var(--text-muted)" }}>
+        <span>Lv.{props.level}</span>
+        <span>{props.xp}/{needed()} XP</span>
+      </div>
+      <div style={{ height: "4px", background: "var(--bg-primary)", "border-radius": "2px", "margin-top": "2px" }}>
+        <div style={{ height: "100%", width: `${pct()}%`, background: "var(--accent-blue)", "border-radius": "2px", transition: "width 0.3s" }} />
+      </div>
+    </div>
+  );
+}
+
+function DeathRisk(props: { chance: number }) {
+  const color = () => props.chance <= 5 ? "var(--accent-green)" : props.chance <= 15 ? "var(--accent-gold)" : "var(--accent-red)";
+  return <span style={{ color: color(), "font-size": "0.75rem" }}>({props.chance}% death risk)</span>;
 }
 
 export default function AdventurersGuild() {
@@ -41,13 +64,11 @@ export default function AdventurersGuild() {
   const slotInfo = () => actions.getMissionSlotInfo();
   const rosterSize = () => actions.getRosterSize();
 
-  // Collect completed missions when opening the page
   const checkResults = () => {
     const completed = actions.collectCompletedMissions();
     if (completed.length > 0) setResults((prev) => [...completed, ...prev].slice(0, 10));
   };
 
-  // Check on tab switch
   const switchTab = (t: Tab) => {
     checkResults();
     setTab(t);
@@ -65,11 +86,25 @@ export default function AdventurersGuild() {
     });
   };
 
+  const currentTeam = (): Adventurer[] =>
+    selectedTeam().map((id) => state.adventurers.find((a) => a.id === id)).filter(Boolean) as Adventurer[];
+
   const teamSuccessChance = () => {
     const mission = selectedMission();
     if (!mission) return 0;
-    const team = selectedTeam().map((id) => state.adventurers.find((a) => a.id === id)).filter(Boolean) as Adventurer[];
-    return calcSuccessChance(mission, team);
+    return calcSuccessChance(mission, currentTeam());
+  };
+
+  const teamEffectiveDuration = () => {
+    const mission = selectedMission();
+    if (!mission) return 0;
+    return calcEffectiveDuration(mission, currentTeam());
+  };
+
+  const getAdvDeathRisk = (adv: Adventurer) => {
+    const mission = selectedMission();
+    if (!mission) return 0;
+    return calcDeathChance(mission, currentTeam(), adv);
   };
 
   const handleDeploy = () => {
@@ -117,7 +152,6 @@ export default function AdventurersGuild() {
       </Show>
 
       <Show when={guildLevel() > 0}>
-        {/* Status bar */}
         <div style={{
           display: "flex",
           gap: "16px",
@@ -133,7 +167,6 @@ export default function AdventurersGuild() {
           <span>Mission refresh: {Math.ceil(state.missionRefreshIn)}h</span>
         </div>
 
-        {/* Tabs */}
         <div style={{ display: "flex", gap: "4px", "margin-bottom": "16px" }}>
           {(["missions", "roster", "recruit"] as Tab[]).map((t) => (
             <button
@@ -162,29 +195,47 @@ export default function AdventurersGuild() {
                     border: `1px solid ${result.success ? "var(--accent-green)" : "var(--accent-red)"}`,
                     color: result.success ? "var(--accent-green)" : "var(--accent-red)",
                     "font-size": "0.85rem",
-                    display: "flex",
-                    "justify-content": "space-between",
-                    "align-items": "center",
                   }}>
-                    <span>
-                      {result.success ? "Success" : "Failed"}: {template().name}
-                      {result.success && result.rewards.length > 0 && (
-                        <span style={{ color: "var(--text-secondary)", "margin-left": "8px" }}>
-                          +{result.rewards.map((r) => `${r.amount} ${r.resource}`).join(", ")}
+                    <div style={{ display: "flex", "justify-content": "space-between", "align-items": "center" }}>
+                      <span>
+                        {result.success ? "Success" : "Failed"}: {template().name}
+                        {result.rewards.length > 0 && (
+                          <span style={{ color: "var(--text-secondary)", "margin-left": "8px" }}>
+                            +{result.rewards.map((r) => `${r.amount} ${r.resource}`).join(", ")}
+                          </span>
+                        )}
+                      </span>
+                      <button
+                        onClick={() => setResults((prev) => prev.filter((_, idx) => idx !== i()))}
+                        style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer" }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                    {/* XP, level ups, rank ups, casualties, revives */}
+                    <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-top": "2px" }}>
+                      {result.xpGained > 0 && <span>+{result.xpGained} XP · </span>}
+                      {result.levelUps.length > 0 && (
+                        <span style={{ color: "var(--accent-blue)" }}>
+                          Level up: {result.levelUps.join(", ")} ·{" "}
+                        </span>
+                      )}
+                      {result.rankUps.length > 0 && (
+                        <span style={{ color: "var(--accent-gold)" }}>
+                          Rank up: {result.rankUps.map((r) => `${r.name} → ${r.newRank}`).join(", ")} ·{" "}
                         </span>
                       )}
                       {result.casualties.length > 0 && (
-                        <span style={{ color: "var(--accent-red)", "margin-left": "8px" }}>
-                          ({result.casualties.length} casualt{result.casualties.length === 1 ? "y" : "ies"})
+                        <span style={{ color: "var(--accent-red)" }}>
+                          Fallen: {result.casualties.length} ·{" "}
                         </span>
                       )}
-                    </span>
-                    <button
-                      onClick={() => setResults((prev) => prev.filter((_, idx) => idx !== i()))}
-                      style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer" }}
-                    >
-                      ×
-                    </button>
+                      {result.revived.length > 0 && (
+                        <span style={{ color: "#9b59b6" }}>
+                          Revived by priest: {result.revived.length}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 );
               }}
@@ -194,7 +245,6 @@ export default function AdventurersGuild() {
 
         {/* ── Missions tab ── */}
         <Show when={tab() === "missions"}>
-          {/* Active missions */}
           <Show when={state.activeMissions.length > 0}>
             <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "8px", color: "var(--text-primary)" }}>
               Active Missions
@@ -203,7 +253,7 @@ export default function AdventurersGuild() {
               <For each={state.activeMissions}>
                 {(am) => {
                   const template = () => getMission(am.missionId) ??
-                    { name: am.missionId, icon: "📜", slots: [], rewards: [], difficulty: 1 } as any;
+                    { name: am.missionId, icon: "📜" } as any;
                   return (
                     <div class="building-card" style={{ "margin-bottom": "8px" }}>
                       <div class="building-card-header">
@@ -222,7 +272,6 @@ export default function AdventurersGuild() {
             </div>
           </Show>
 
-          {/* Mission board */}
           <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "8px", color: "var(--text-primary)" }}>
             Mission Board
           </h3>
@@ -240,17 +289,14 @@ export default function AdventurersGuild() {
                     class="building-card"
                     classList={{ upgrading: isSelected() }}
                     onClick={() => {
-                      if (isSelected()) {
-                        setSelectedMission(null);
-                        setSelectedTeam([]);
-                      } else {
-                        setSelectedMission(mission);
-                        setSelectedTeam([]);
-                      }
+                      if (isSelected()) { setSelectedMission(null); setSelectedTeam([]); }
+                      else { setSelectedMission(mission); setSelectedTeam([]); }
                     }}
                     style={{ cursor: "pointer" }}
                   >
-                    <span class="building-card-category">Difficulty {"★".repeat(mission.difficulty)}</span>
+                    <span class="building-card-category">
+                      {"★".repeat(mission.difficulty)} · {mission.tags.join(", ")}
+                    </span>
                     <div class="building-card-header">
                       <div class="building-card-icon">{mission.icon}</div>
                       <div>
@@ -299,11 +345,17 @@ export default function AdventurersGuild() {
                 </h3>
                 <div style={{ "margin-bottom": "8px", "font-size": "0.85rem", color: "var(--text-secondary)" }}>
                   Slots: {selectedTeam().length}/{mission().slots.length} ·
-                  Success chance: <span style={{
+                  Success: <span style={{
                     color: teamSuccessChance() >= 70 ? "var(--accent-green)" :
                       teamSuccessChance() >= 40 ? "var(--accent-gold)" : "var(--accent-red)",
                   }}>{teamSuccessChance()}%</span> ·
-                  Deploy cost: {mission().deployCost}g
+                  Duration: {formatDuration(teamEffectiveDuration())}
+                  {teamEffectiveDuration() < mission().duration && (
+                    <span style={{ color: "var(--accent-blue)", "margin-left": "4px" }}>
+                      (Wizard -{ Math.round((1 - teamEffectiveDuration() / mission().duration) * 100)}%)
+                    </span>
+                  )} ·
+                  Cost: {mission().deployCost}g
                 </div>
 
                 <Show when={available().length === 0}>
@@ -328,17 +380,49 @@ export default function AdventurersGuild() {
                             cursor: "pointer",
                             color: "var(--text-primary)",
                             "font-size": "0.85rem",
+                            "text-align": "left",
                           }}
                         >
-                          {cls.icon} {adv.name}
-                          <span style={{ color: RANK_COLORS[adv.rank], "margin-left": "6px", "font-size": "0.75rem" }}>
-                            {RANK_NAMES[adv.rank]}
-                          </span>
+                          <div>
+                            {cls.icon} {adv.name}
+                            <span style={{ color: RANK_COLORS[adv.rank], "margin-left": "6px", "font-size": "0.75rem" }}>
+                              {RANK_NAMES[adv.rank]} Lv.{adv.level}
+                            </span>
+                          </div>
+                          {isInTeam() && selectedTeam().length > 0 && (
+                            <div style={{ "margin-top": "2px" }}>
+                              <DeathRisk chance={getAdvDeathRisk(adv)} />
+                            </div>
+                          )}
                         </button>
                       );
                     }}
                   </For>
                 </div>
+
+                {/* Team class passive summary */}
+                <Show when={selectedTeam().length > 0}>
+                  <div style={{
+                    padding: "8px 10px",
+                    "margin-bottom": "12px",
+                    background: "var(--bg-primary)",
+                    "border-radius": "6px",
+                    "font-size": "0.8rem",
+                    color: "var(--text-muted)",
+                  }}>
+                    <strong style={{ color: "var(--text-secondary)" }}>Team passives:</strong>
+                    <For each={currentTeam()}>
+                      {(adv) => {
+                        const cls = getClassMeta(adv.class);
+                        return (
+                          <div style={{ "margin-top": "2px" }}>
+                            {cls.icon} <strong>{cls.passive.name}</strong>: {cls.passive.description}
+                          </div>
+                        );
+                      }}
+                    </For>
+                  </div>
+                </Show>
 
                 <button
                   class="upgrade-btn"
@@ -378,11 +462,21 @@ export default function AdventurersGuild() {
                       <div>
                         <div class="building-card-title">{adv.name}</div>
                         <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
-                          {cls.name}
+                          {cls.name} · Lv.{adv.level}
                         </div>
                       </div>
                     </div>
-                    <div class="building-card-desc">{cls.description}</div>
+                    <XpBar xp={adv.xp} level={adv.level} />
+                    <div style={{
+                      "margin-top": "6px",
+                      padding: "4px 8px",
+                      background: "var(--bg-primary)",
+                      "border-radius": "4px",
+                      "font-size": "0.75rem",
+                      color: "var(--text-muted)",
+                    }}>
+                      {cls.passive.name}: {cls.passive.description}
+                    </div>
                     {adv.onMission && (
                       <div class="building-card-upgrading">On mission</div>
                     )}
@@ -442,11 +536,17 @@ export default function AdventurersGuild() {
                       <div>
                         <div class="building-card-title">{candidate.name}</div>
                         <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
-                          {cls.name}
+                          {cls.name} · Lv.{candidate.level}
                         </div>
                       </div>
                     </div>
-                    <div class="building-card-desc">{cls.description}</div>
+                    <div style={{
+                      "margin-top": "4px",
+                      "font-size": "0.75rem",
+                      color: "var(--text-muted)",
+                    }}>
+                      {cls.passive.name}: {cls.passive.description}
+                    </div>
                     <div style={{ "margin-top": "8px" }}>
                       <button
                         class="upgrade-btn"
