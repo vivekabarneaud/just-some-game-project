@@ -81,7 +81,10 @@ export default function AdventurersGuild() {
     if (!mission) return;
     setSelectedTeam((prev) => {
       if (prev.includes(advId)) return prev.filter((id) => id !== advId);
-      if (prev.length >= mission.slots.length) return prev;
+      if (prev.length >= mission.slots.length) {
+        // Team full — replace the last selected member
+        return [...prev.slice(0, -1), advId];
+      }
       return [...prev, advId];
     });
   };
