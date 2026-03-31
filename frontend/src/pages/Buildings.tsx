@@ -1,6 +1,6 @@
 import { For, Show } from "solid-js";
 import { A } from "@solidjs/router";
-import { BUILDINGS, isBuildingUnlocked, getUnlockRequirement, type BuildingDefinition } from "~/data/buildings";
+import { BUILDINGS, isBuildingUnlocked, getUnlockRequirement, getNextTierForLevels, applyMasonCostReduction, applyMasonTimeReduction, type BuildingDefinition } from "~/data/buildings";
 import { useGame } from "~/engine/gameState";
 import Countdown from "~/components/Countdown";
 
@@ -74,9 +74,81 @@ export default function Buildings() {
                   const unlocked = () => isBuildingUnlocked(building, thLevel());
                   const effMax = () => actions.getEffectiveMaxLevel(building.id);
 
+                  const nextLevelDef = () => {
+                    const lvl = level();
+                    if (lvl >= effMax()) return null;
+                    return building.levels[lvl];
+                  };
+                  const masonLvl = () => actions.getMasonLevel();
+                  const effMason = () => building.id === "masons_guild" ? 0 : masonLvl();
+                  const canUpgradeNow = () => {
+                    if (isUpgrading() || pb()?.damaged) return false;
+                    const next = nextLevelDef();
+                    if (!next) return false;
+                    const cost = applyMasonCostReduction(next.cost, effMason());
+                    if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
+                    if (actions.getActiveQueueCount() >= actions.getMasonBonuses().queueSlots) return false;
+                    return true;
+                  };
+                  const upgradeReason = () => {
+                    if (isUpgrading()) return "Upgrading...";
+                    if (pb()?.damaged) return "Damaged — repair first";
+                    if (level() >= effMax()) {
+                      const tierInfo = getNextTierForLevels(building, actions.getSettlementTier());
+                      return tierInfo ? `Max for tier — need ${tierInfo.name}` : "Max level reached";
+                    }
+                    const next = nextLevelDef();
+                    if (!next) return "Max level";
+                    const cost = applyMasonCostReduction(next.cost, effMason());
+                    if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) {
+                      return `Need ${cost.wood}w ${cost.stone}s`;
+                    }
+                    if (actions.getActiveQueueCount() >= actions.getMasonBonuses().queueSlots) return "Queue full";
+                    return "";
+                  };
+                  const upgradeCostTip = () => {
+                    const next = nextLevelDef();
+                    if (!next) return "";
+                    const cost = applyMasonCostReduction(next.cost, effMason());
+                    const time = applyMasonTimeReduction(next.buildTime, effMason());
+                    const m = Math.floor(time / 60);
+                    return `${cost.wood}w ${cost.stone}s · ${m}m`;
+                  };
+
                   return unlocked() ? (
                     <A href={`/buildings/${building.id}`} style={{ "text-decoration": "none" }}>
-                      <div class="building-card" classList={{ upgrading: isUpgrading() }} style={{ opacity: pb()?.damaged ? 0.7 : 1 }}>
+                      <div class="building-card" classList={{ upgrading: isUpgrading() }} style={{ opacity: pb()?.damaged ? 0.7 : 1, position: "relative" }}>
+                        {/* Upgrade indicator */}
+                        <Show when={!isUpgrading() && level() > 0}>
+                          <div
+                            title={canUpgradeNow() ? `Upgrade to Lv.${level() + 1} — ${upgradeCostTip()}` : upgradeReason()}
+                            style={{
+                              position: "absolute",
+                              top: "8px",
+                              right: "8px",
+                              width: "22px",
+                              height: "22px",
+                              "border-radius": "4px",
+                              display: "flex",
+                              "align-items": "center",
+                              "justify-content": "center",
+                              "font-size": "0.75rem",
+                              background: canUpgradeNow() ? "rgba(46, 204, 113, 0.2)" : "rgba(106, 100, 88, 0.15)",
+                              border: `1px solid ${canUpgradeNow() ? "var(--accent-green)" : "var(--text-muted)"}`,
+                              color: canUpgradeNow() ? "var(--accent-green)" : "var(--text-muted)",
+                              cursor: "pointer",
+                            }}
+                            onClick={(e) => {
+                              if (canUpgradeNow()) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                actions.upgradeBuilding(building.id);
+                              }
+                            }}
+                          >
+                            ↑
+                          </div>
+                        </Show>
                         <div class="building-card-header">
                           <div class="building-card-icon">{building.icon}</div>
                           <div>

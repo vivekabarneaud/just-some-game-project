@@ -11,6 +11,7 @@ import {
   type Adventurer,
   type AdventurerRank,
 } from "~/data/adventurers";
+import { getItem } from "~/data/items";
 import {
   type MissionTemplate,
   type MissionSlot,
@@ -476,6 +477,10 @@ export default function AdventurersGuild() {
             <For each={roster()}>
               {(adv) => {
                 const cls = getClassMeta(adv.class);
+                const weapon = () => adv.equipment.weapon ? getItem(adv.equipment.weapon) : null;
+                const armor = () => adv.equipment.armor ? getItem(adv.equipment.armor) : null;
+                const trinket = () => adv.equipment.trinket ? getItem(adv.equipment.trinket) : null;
+                const emptySlots = () => [!weapon() && "weapon", !armor() && "armor", !trinket() && "trinket"].filter(Boolean);
                 return (
                   <A href={`/guild/${adv.id}`} style={{ "text-decoration": "none" }}>
                     <div class="building-card" classList={{ upgrading: adv.onMission }} style={{ cursor: "pointer" }}>
@@ -492,6 +497,16 @@ export default function AdventurersGuild() {
                         </div>
                       </div>
                       <XpBar xp={adv.xp} level={adv.level} />
+                      <div style={{ "margin-top": "4px", "font-size": "0.75rem", display: "flex", gap: "6px", "flex-wrap": "wrap" }}>
+                        {weapon() && <span title={weapon()!.name}>{weapon()!.icon}</span>}
+                        {armor() && <span title={armor()!.name}>{armor()!.icon}</span>}
+                        {trinket() && <span title={trinket()!.name}>{trinket()!.icon}</span>}
+                        {emptySlots().length > 0 && (
+                          <span style={{ color: "var(--accent-gold)", "font-size": "0.7rem" }}>
+                            {emptySlots().length} empty slot{emptySlots().length > 1 ? "s" : ""}
+                          </span>
+                        )}
+                      </div>
                       {adv.onMission && (
                         <div class="building-card-upgrading">On mission</div>
                       )}
