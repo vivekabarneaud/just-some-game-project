@@ -83,9 +83,11 @@ export default function Sidebar() {
           <>
             <div class="nav-section-title">{section.title}</div>
             {section.items.map((item) => {
+              const hasEmptyFields = () => state.fields.some((f) => !f.crop && f.level > 0 && !f.upgrading);
               const shouldBlink = () =>
                 item.path === "/farming" && (
-                  state.season === "spring" || (state.season === "autumn" && state.seasonElapsed < 6)
+                  (state.season === "spring" && hasEmptyFields()) ||
+                  (state.season === "autumn" && state.seasonElapsed < 6)
                 );
               return (
                 <A
