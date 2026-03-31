@@ -398,3 +398,76 @@ export function getRaidChance(tier: SettlementTier, hoursSinceLast: number): num
 export function getRaid(raidId: string): RaidTemplate | undefined {
   return RAID_POOL.find((r) => r.id === raidId);
 }
+
+// ─── Success chance ─────────────────────────────────────────────
+
+/**
+ * Calculate defense success chance as a percentage.
+ * 100% when defense >= strength. Drops off below that.
+ */
+export function calcRaidSuccessChance(defenseTotal: number, raidStrength: number): number {
+  if (raidStrength <= 0) return 100;
+  const ratio = defenseTotal / raidStrength;
+  if (ratio >= 1) return 100;
+  // Smooth curve: 50% at half strength, drops sharply below
+  return Math.max(0, Math.min(99, Math.round(ratio * ratio * 100)));
+}
+
+// ─── Defense tips ───────────────────────────────────────────────
+
+export interface DefenseTip {
+  icon: string;
+  text: string;
+  actionLink?: string; // optional link to a page
+}
+
+export function getDefenseTips(
+  defense: DefenseBreakdown,
+  raidStrength: number,
+  buildings: PlayerBuilding[],
+  adventurersOnMission: number,
+): DefenseTip[] {
+  const tips: DefenseTip[] = [];
+  const gap = raidStrength - defense.total;
+
+  if (gap <= 0) {
+    tips.push({ icon: "✅", text: "Your defenses are strong enough. Hold the line!" });
+    return tips;
+  }
+
+  // Adventurers on mission
+  if (adventurersOnMission > 0) {
+    tips.push({
+      icon: "🏰",
+      text: `${adventurersOnMission} adventurer${adventurersOnMission > 1 ? "s" : ""} on missions — recall them for extra defense!`,
+    });
+  }
+
+  // Walls
+  const wallsLvl = buildings.find((b) => b.buildingId === "walls")?.level ?? 0;
+  if (wallsLvl === 0) {
+    tips.push({ icon: "🧱", text: "Build Walls for +8 defense per level.", actionLink: "/buildings/walls" });
+  } else if (gap > 8) {
+    tips.push({ icon: "🧱", text: `Upgrade Walls (Lv.${wallsLvl}) for more defense.`, actionLink: "/buildings/walls" });
+  }
+
+  // Barracks
+  const barracksLvl = buildings.find((b) => b.buildingId === "barracks")?.level ?? 0;
+  if (barracksLvl === 0) {
+    tips.push({ icon: "⚔️", text: "Build Barracks for +12 defense per level.", actionLink: "/buildings/barracks" });
+  } else if (gap > 12) {
+    tips.push({ icon: "⚔️", text: `Upgrade Barracks (Lv.${barracksLvl}) for +12 defense.`, actionLink: "/buildings/barracks" });
+  }
+
+  // Watchtower
+  const wtLvl = buildings.find((b) => b.buildingId === "watchtower")?.level ?? 0;
+  if (wtLvl === 0) {
+    tips.push({ icon: "🏰", text: "Build a Watchtower for defense and earlier raid warnings.", actionLink: "/buildings/watchtower" });
+  }
+
+  if (tips.length === 0) {
+    tips.push({ icon: "⚠️", text: "Brace for impact — do what you can to strengthen defenses!" });
+  }
+
+  return tips;
+}

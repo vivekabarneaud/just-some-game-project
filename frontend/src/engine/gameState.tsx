@@ -235,6 +235,7 @@ export interface GameActions {
   getDefense: () => DefenseBreakdown;
   collectRaidLog: () => RaidResult[];
   triggerRaid: () => boolean;
+  recallAdventurers: () => { recalled: number; instant: boolean };
   // Astral Shards
   claimDailyLogin: () => boolean;
   canClaimDailyLogin: () => boolean;
@@ -1163,6 +1164,50 @@ export function GameProvider(props: ParentProps) {
         setState(produce((s) => { s.raidLog = []; }));
       }
       return log;
+    },
+    recallAdventurers() {
+      const missions = state.activeMissions;
+      if (missions.length === 0) return { recalled: 0, instant: false };
+
+      let hasWizard = false;
+      let recalledCount = 0;
+
+      setState(produce((s) => {
+        for (const mission of s.activeMissions) {
+          // Check if any party has a wizard (for partial loot save)
+          const team = mission.adventurerIds.map((id) => s.adventurers.find((a) => a.id === id)).filter(Boolean);
+          if (team.some((a) => a!.class === "wizard")) hasWizard = true;
+
+          // Free all adventurers
+          for (const id of mission.adventurerIds) {
+            const adv = s.adventurers.find((a) => a.id === id);
+            if (adv) {
+              adv.onMission = false;
+              recalledCount++;
+            }
+          }
+
+          // Wizard saves 30% of mission loot on recall
+          if (hasWizard) {
+            const template = getMission(mission.missionId);
+            if (template) {
+              const caps = calcStorageCaps(s.buildings);
+              for (const reward of template.rewards) {
+                if (reward.resource === "astralShards") {
+                  s.astralShards += Math.floor(reward.amount * 0.3);
+                } else {
+                  const key = reward.resource as keyof ResourceState;
+                  s.resources[key] = Math.min(caps[key], s.resources[key] + Math.floor(reward.amount * 0.3));
+                }
+              }
+            }
+          }
+        }
+        // Cancel all missions
+        s.activeMissions = [];
+      }));
+
+      return { recalled: recalledCount, instant: hasWizard };
     },
     triggerRaid() {
       const tier = getSettlementTier(getTownHallLevel(state.buildings));

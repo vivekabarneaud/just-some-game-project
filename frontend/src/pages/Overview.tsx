@@ -3,7 +3,7 @@ import { A } from "@solidjs/router";
 import { BUILDINGS, getSettlementName, SETTLEMENT_TIERS } from "~/data/buildings";
 import { RESOURCES } from "~/data/resources";
 import { SEASON_META } from "~/data/seasons";
-import { getRaid } from "~/data/raids";
+import { getRaid, calcRaidSuccessChance, getDefenseTips } from "~/data/raids";
 import { useGame } from "~/engine/gameState";
 import Countdown from "~/components/Countdown";
 
@@ -219,39 +219,108 @@ export default function Overview() {
             <For each={state.incomingRaids}>
               {(ir) => {
                 const raid = () => getRaid(ir.raidId);
-                const isWinnable = () => defense().total >= ir.strength;
+                const successPct = () => calcRaidSuccessChance(defense().total, ir.strength);
+                const successColor = () =>
+                  successPct() >= 80 ? "var(--accent-green)" :
+                  successPct() >= 50 ? "var(--accent-gold)" : "var(--accent-red)";
+                const onMissionCount = () => state.adventurers.filter((a) => a.onMission).length;
+                const tips = () => getDefenseTips(defense(), ir.strength, state.buildings, onMissionCount());
                 return (
                   <div style={{
-                    padding: "8px 10px",
-                    "margin-bottom": "6px",
+                    padding: "10px 12px",
+                    "margin-bottom": "8px",
                     "border-radius": "6px",
                     background: "rgba(231, 76, 60, 0.1)",
                     border: "1px solid var(--accent-red)",
                   }}>
                     <div style={{ display: "flex", "justify-content": "space-between", "align-items": "center" }}>
-                      <span style={{ color: "var(--accent-red)", "font-size": "0.9rem" }}>
+                      <span style={{ color: "var(--accent-red)", "font-size": "0.9rem", "font-weight": "bold" }}>
                         {raid()?.icon} {raid()?.name ?? ir.raidId}
                       </span>
-                      <span style={{ color: "var(--accent-red)", "font-size": "0.85rem" }}>
+                      <span style={{ color: "var(--accent-red)", "font-size": "0.9rem" }}>
                         <Countdown remainingSeconds={ir.remaining} />
                       </span>
                     </div>
                     <div style={{ "font-size": "0.8rem", color: "var(--text-secondary)", "margin-top": "4px" }}>
                       {raid()?.description}
                     </div>
-                    <div style={{ "font-size": "0.8rem", "margin-top": "4px" }}>
-                      <span style={{ color: "var(--text-muted)" }}>
-                        Strength: {ir.strength} vs your defense: {defense().total}
-                      </span>
-                      {" — "}
-                      <span style={{ color: isWinnable() ? "var(--accent-green)" : "var(--accent-red)" }}>
-                        {isWinnable() ? "Defendable" : "Overwhelmed!"}
-                      </span>
-                    </div>
-                    <Show when={raid()?.tags}>
-                      <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "2px" }}>
-                        {raid()!.tags.join(", ")}
+
+                    {/* Success chance */}
+                    <div style={{ "margin-top": "8px", display: "flex", "align-items": "center", gap: "10px" }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: "flex", "justify-content": "space-between", "font-size": "0.8rem", "margin-bottom": "3px" }}>
+                          <span style={{ color: "var(--text-muted)" }}>
+                            Defense {defense().total} vs Strength {ir.strength}
+                          </span>
+                          <span style={{ color: successColor(), "font-weight": "bold" }}>
+                            {successPct()}% success
+                          </span>
+                        </div>
+                        <div style={{ height: "6px", background: "var(--bg-primary)", "border-radius": "3px" }}>
+                          <div style={{
+                            height: "100%",
+                            width: `${successPct()}%`,
+                            background: successColor(),
+                            "border-radius": "3px",
+                          }} />
+                        </div>
                       </div>
+                    </div>
+
+                    {/* Tags */}
+                    <Show when={raid()?.tags}>
+                      <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "6px" }}>
+                        {raid()!.tags.join(", ")}
+                        {raid()!.stealsResources && " · steals resources"}
+                        {raid()!.killsCitizens && " · kills citizens"}
+                      </div>
+                    </Show>
+
+                    {/* Tips */}
+                    <div style={{ "margin-top": "8px" }}>
+                      <For each={tips()}>
+                        {(tip) => (
+                          <div style={{ "font-size": "0.8rem", color: "var(--text-secondary)", "margin-bottom": "3px" }}>
+                            {tip.icon}{" "}
+                            {tip.actionLink ? (
+                              <A href={tip.actionLink} style={{ color: "var(--accent-gold)" }}>{tip.text}</A>
+                            ) : (
+                              tip.text
+                            )}
+                          </div>
+                        )}
+                      </For>
+                    </div>
+
+                    {/* Recall button */}
+                    <Show when={onMissionCount() > 0}>
+                      <button
+                        onClick={() => {
+                          const hasWiz = state.activeMissions.some((m) =>
+                            m.adventurerIds.some((id) => state.adventurers.find((a) => a.id === id)?.class === "wizard")
+                          );
+                          const msg = hasWiz
+                            ? `Recall ${onMissionCount()} adventurer(s)? Missions cancelled, but your wizard will teleport 30% of the loot home.`
+                            : `Recall ${onMissionCount()} adventurer(s)? All active missions will be cancelled and rewards forfeited.`;
+                          if (confirm(msg)) {
+                            const result = actions.recallAdventurers();
+                            // Could show a toast here
+                          }
+                        }}
+                        style={{
+                          "margin-top": "8px",
+                          padding: "6px 14px",
+                          background: "rgba(231, 76, 60, 0.2)",
+                          border: "1px solid var(--accent-red)",
+                          color: "var(--accent-red)",
+                          "border-radius": "4px",
+                          cursor: "pointer",
+                          "font-size": "0.85rem",
+                          width: "100%",
+                        }}
+                      >
+                        Recall All Adventurers ({onMissionCount()} on missions)
+                      </button>
                     </Show>
                   </div>
                 );
