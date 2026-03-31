@@ -602,8 +602,17 @@ export default function AdventurersGuild() {
                 const emptySlots = () => [!weapon() && "weapon", !armor() && "armor", !trinket() && "trinket"].filter(Boolean);
                 const unspent = () => getUnspentStatPoints(adv);
                 return (
-                  <A href={`/guild/${adv.id}`} style={{ "text-decoration": "none" }}>
-                    <div class="building-card" classList={{ upgrading: adv.onMission }} style={{ cursor: "pointer", position: "relative" }}>
+                  <A href={`/guild/${adv.id}`} style={{ "text-decoration": "none", display: "flex" }}>
+                    <div class="building-card" style={{
+                      cursor: "pointer",
+                      position: "relative",
+                      display: "flex",
+                      "flex-direction": "column",
+                      width: "100%",
+                      opacity: adv.onMission ? 0.7 : 1,
+                      background: adv.onMission ? "var(--bg-secondary)" : "var(--bg-card)",
+                      "border-color": adv.onMission ? "var(--accent-blue)" : undefined,
+                    }}>
                       <span class="building-card-category" style={{ color: RANK_COLORS[adv.rank] }}>
                         {RANK_NAMES[adv.rank]}
                       </span>
@@ -617,6 +626,7 @@ export default function AdventurersGuild() {
                         </div>
                       </div>
                       <XpBar xp={adv.xp} level={adv.level} />
+                      <div style={{ flex: 1 }} />
                       <div style={{ "margin-top": "4px", "font-size": "0.75rem", display: "flex", gap: "6px", "flex-wrap": "wrap" }}>
                         {weapon() && <span title={weapon()!.name}>{weapon()!.icon}</span>}
                         {armor() && <span title={armor()!.name}>{armor()!.icon}</span>}
@@ -642,7 +652,18 @@ export default function AdventurersGuild() {
                         </div>
                       )}
                       {adv.onMission && (
-                        <div class="building-card-upgrading">On mission</div>
+                        <div style={{
+                          "margin-top": "6px",
+                          padding: "3px 8px",
+                          "border-radius": "4px",
+                          background: "rgba(52, 152, 219, 0.15)",
+                          border: "1px solid var(--accent-blue)",
+                          color: "var(--accent-blue)",
+                          "font-size": "0.75rem",
+                          "text-align": "center",
+                        }}>
+                          On mission
+                        </div>
                       )}
                     </div>
                   </A>
