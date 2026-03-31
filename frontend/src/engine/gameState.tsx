@@ -996,6 +996,8 @@ export function GameProvider(props: ParentProps) {
           remaining: effectiveDuration,
           successChance,
         });
+        // Remove from mission board so it can't be repeated
+        s.missionBoard = s.missionBoard.filter((m) => m.id !== template.id);
       }));
       return true;
     },

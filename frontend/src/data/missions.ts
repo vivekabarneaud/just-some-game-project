@@ -13,7 +13,7 @@ export interface MissionSlot {
   class: AdventurerClass | "any"; // "any" means any class fills it
 }
 
-export type MissionTag = "combat" | "exploration" | "magical" | "outdoor" | "stealth";
+export type MissionTag = "combat" | "exploration" | "magical" | "outdoor" | "stealth" | "escort" | "spying" | "assassination" | "dungeon" | "survival";
 
 export interface MissionTemplate {
   id: string;
@@ -252,6 +252,265 @@ export const MISSION_POOL: MissionTemplate[] = [
     minGuildLevel: 4,
     tags: ["magical", "outdoor"],
   },
+
+  // ── Escort missions ───────────────────────────────────────────
+  {
+    id: "caravan_guard",
+    name: "Caravan Guard Duty",
+    description: "A merchant caravan needs protection along the bandit-infested trade route.",
+    icon: "🐴",
+    slots: [{ class: "warrior" }, { class: "any" }],
+    duration: 900, // 15 min
+    rewards: [{ resource: "gold", amount: 50 }, { resource: "food", amount: 30 }],
+    deployCost: 10,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["escort", "combat"],
+  },
+  {
+    id: "noble_escort",
+    name: "Noble's Escort",
+    description: "A minor lord requires safe passage to the capital. Discretion and strength are both needed.",
+    icon: "👑",
+    slots: [{ class: "warrior" }, { class: "assassin" }, { class: "any" }],
+    duration: 2400,
+    rewards: [{ resource: "gold", amount: 180 }],
+    deployCost: 30,
+    difficulty: 3,
+    minGuildLevel: 3,
+    tags: ["escort", "combat", "stealth"],
+  },
+  {
+    id: "refugee_convoy",
+    name: "Refugee Convoy",
+    description: "Lead a group of displaced villagers to safety through dangerous territory. A priest brings hope.",
+    icon: "🚶",
+    slots: [{ class: "warrior" }, { class: "priest" }, { class: "any" }],
+    duration: 1800,
+    rewards: [{ resource: "food", amount: 120 }, { resource: "gold", amount: 60 }],
+    deployCost: 15,
+    difficulty: 2,
+    minGuildLevel: 2,
+    tags: ["escort", "survival"],
+  },
+
+  // ── Spying missions ───────────────────────────────────────────
+  {
+    id: "tavern_intel",
+    name: "Tavern Intelligence",
+    description: "Gather rumors and secrets from the local tavern. A sharp ear and a loose tongue go a long way.",
+    icon: "🍺",
+    slots: [{ class: "any" }],
+    duration: 480, // 8 min
+    rewards: [{ resource: "gold", amount: 25 }],
+    deployCost: 5,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["spying"],
+  },
+  {
+    id: "rival_settlement",
+    name: "Scout Rival Settlement",
+    description: "Infiltrate a nearby settlement and map their defenses. Don't get caught.",
+    icon: "🕵️",
+    slots: [{ class: "assassin" }, { class: "any" }],
+    duration: 1500,
+    rewards: [{ resource: "gold", amount: 100 }, { resource: "wood", amount: 80 }],
+    deployCost: 20,
+    difficulty: 2,
+    minGuildLevel: 2,
+    tags: ["spying", "stealth"],
+  },
+  {
+    id: "intercept_courier",
+    name: "Intercept the Courier",
+    description: "An enemy courier carries valuable intelligence. Intercept them before they reach the border.",
+    icon: "📨",
+    slots: [{ class: "assassin" }, { class: "archer" }],
+    duration: 1200,
+    rewards: [{ resource: "gold", amount: 120 }, { resource: "stone", amount: 60 }],
+    deployCost: 25,
+    difficulty: 2,
+    minGuildLevel: 2,
+    tags: ["spying", "stealth", "combat"],
+  },
+  {
+    id: "double_agent",
+    name: "Plant a Double Agent",
+    description: "Infiltrate an enemy faction and feed false information. Extremely dangerous if discovered.",
+    icon: "🎭",
+    slots: [{ class: "assassin" }, { class: "wizard" }, { class: "priest" }],
+    duration: 3600,
+    rewards: [{ resource: "gold", amount: 350 }, { resource: "wood", amount: 150 }],
+    deployCost: 60,
+    difficulty: 4,
+    minGuildLevel: 4,
+    tags: ["spying", "stealth"],
+  },
+
+  // ── Assassination missions ────────────────────────────────────
+  {
+    id: "bandit_leader",
+    name: "Eliminate the Bandit Leader",
+    description: "The bandit raids will stop if their leader is dealt with. Quietly.",
+    icon: "💀",
+    slots: [{ class: "assassin" }, { class: "warrior" }],
+    duration: 1800,
+    rewards: [{ resource: "gold", amount: 140 }, { resource: "stone", amount: 80 }],
+    deployCost: 25,
+    difficulty: 3,
+    minGuildLevel: 3,
+    tags: ["assassination", "stealth", "combat"],
+  },
+  {
+    id: "corrupt_official",
+    name: "The Corrupt Tax Collector",
+    description: "A tax collector has been skimming gold from the crown. Make sure he stops. Permanently.",
+    icon: "🗡️",
+    slots: [{ class: "assassin" }],
+    duration: 1200,
+    rewards: [{ resource: "gold", amount: 200 }],
+    deployCost: 20,
+    difficulty: 2,
+    minGuildLevel: 2,
+    tags: ["assassination", "stealth"],
+  },
+
+  // ── Dungeon missions ──────────────────────────────────────────
+  {
+    id: "goblin_warren",
+    name: "Goblin Warren",
+    description: "A network of tunnels infested with goblins. Clear them out and claim whatever they've hoarded.",
+    icon: "🕳️",
+    slots: [{ class: "warrior" }, { class: "archer" }, { class: "any" }],
+    duration: 2100,
+    rewards: [{ resource: "gold", amount: 100 }, { resource: "stone", amount: 100 }, { resource: "wood", amount: 60 }],
+    deployCost: 25,
+    difficulty: 2,
+    minGuildLevel: 2,
+    tags: ["dungeon", "combat"],
+  },
+  {
+    id: "flooded_crypt",
+    name: "The Flooded Crypt",
+    description: "An ancient crypt partially submerged in groundwater. Undead stir in the deep chambers.",
+    icon: "🪦",
+    slots: [{ class: "wizard" }, { class: "priest" }, { class: "warrior" }],
+    duration: 3000,
+    rewards: [{ resource: "gold", amount: 200 }, { resource: "stone", amount: 150 }],
+    deployCost: 40,
+    difficulty: 3,
+    minGuildLevel: 3,
+    tags: ["dungeon", "combat", "magical"],
+  },
+  {
+    id: "crystal_caverns",
+    name: "Crystal Caverns",
+    description: "Deep beneath the mountains lie caverns of shimmering crystal. Beautiful — and well-guarded.",
+    icon: "💎",
+    slots: [{ class: "wizard" }, { class: "assassin" }, { class: "warrior" }, { class: "priest" }],
+    duration: 4800,
+    rewards: [{ resource: "gold", amount: 400 }, { resource: "stone", amount: 300 }],
+    deployCost: 70,
+    difficulty: 5,
+    minGuildLevel: 4,
+    tags: ["dungeon", "exploration", "combat"],
+  },
+
+  // ── Survival missions ─────────────────────────────────────────
+  {
+    id: "wilderness_trek",
+    name: "Wilderness Trek",
+    description: "Survive a week in the untamed wilds. Return with whatever you can forage and hunt.",
+    icon: "🏕️",
+    slots: [{ class: "archer" }, { class: "any" }],
+    duration: 1500,
+    rewards: [{ resource: "food", amount: 200 }, { resource: "wood", amount: 80 }],
+    deployCost: 10,
+    difficulty: 2,
+    minGuildLevel: 1,
+    tags: ["survival", "outdoor"],
+  },
+  {
+    id: "winter_expedition",
+    name: "Winter Expedition",
+    description: "Brave the frozen passes to reach a hidden valley rich with resources. Many have tried; few return.",
+    icon: "🏔️",
+    slots: [{ class: "warrior" }, { class: "priest" }, { class: "archer" }],
+    duration: 3600,
+    rewards: [{ resource: "wood", amount: 250 }, { resource: "stone", amount: 200 }, { resource: "food", amount: 150 }],
+    deployCost: 45,
+    difficulty: 4,
+    minGuildLevel: 3,
+    tags: ["survival", "outdoor", "exploration"],
+  },
+  {
+    id: "monster_hunt",
+    name: "Monster Hunt",
+    description: "A fearsome creature has been spotted near the settlement. Track it down before it strikes.",
+    icon: "🐺",
+    slots: [{ class: "warrior" }, { class: "archer" }],
+    duration: 1800,
+    rewards: [{ resource: "food", amount: 180 }, { resource: "gold", amount: 50 }],
+    deployCost: 20,
+    difficulty: 2,
+    minGuildLevel: 2,
+    tags: ["combat", "outdoor", "survival"],
+  },
+
+  // ── Mixed/special missions ────────────────────────────────────
+  {
+    id: "lost_library",
+    name: "The Lost Library",
+    description: "Legends tell of a library buried beneath the old ruins, filled with forgotten knowledge and enchanted tomes.",
+    icon: "📚",
+    slots: [{ class: "wizard" }, { class: "assassin" }],
+    duration: 2400,
+    rewards: [{ resource: "gold", amount: 160 }, { resource: "wood", amount: 100 }],
+    deployCost: 30,
+    difficulty: 3,
+    minGuildLevel: 3,
+    tags: ["exploration", "magical", "dungeon"],
+  },
+  {
+    id: "smuggler_deal",
+    name: "Smuggler's Deal",
+    description: "Meet a shady contact at the docks. They have rare goods — if the price is right and no one follows.",
+    icon: "🌙",
+    slots: [{ class: "assassin" }, { class: "any" }],
+    duration: 900,
+    rewards: [{ resource: "gold", amount: 70 }, { resource: "stone", amount: 50 }, { resource: "wood", amount: 50 }],
+    deployCost: 15,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["stealth", "spying"],
+  },
+  {
+    id: "sacred_shrine",
+    name: "Pilgrimage to the Sacred Shrine",
+    description: "A holy site deep in the wilderness. The journey is perilous but the blessings are bountiful.",
+    icon: "⛪",
+    slots: [{ class: "priest" }, { class: "warrior" }, { class: "any" }],
+    duration: 2100,
+    rewards: [{ resource: "gold", amount: 120 }, { resource: "food", amount: 120 }],
+    deployCost: 25,
+    difficulty: 2,
+    minGuildLevel: 2,
+    tags: ["exploration", "survival", "outdoor"],
+  },
+  {
+    id: "arcane_rift",
+    name: "Seal the Arcane Rift",
+    description: "A tear in reality has opened, spewing magical energy. Only a skilled wizard can close it safely.",
+    icon: "🌀",
+    slots: [{ class: "wizard" }, { class: "wizard" }, { class: "priest" }],
+    duration: 3600,
+    rewards: [{ resource: "gold", amount: 280 }, { resource: "stone", amount: 180 }],
+    deployCost: 55,
+    difficulty: 4,
+    minGuildLevel: 4,
+    tags: ["magical", "combat", "survival"],
+  },
 ];
 
 // ─── Class passive helpers ──────────────────────────────────────
@@ -317,15 +576,22 @@ export function calcSuccessChance(
   // Class passive bonuses
   let classBonus = 0;
   for (const adv of team) {
-    if (adv.class === "warrior") classBonus += WARRIOR_SUCCESS_BONUS;
+    if (adv.class === "warrior") {
+      classBonus += WARRIOR_SUCCESS_BONUS;
+      if (mission.tags.some((t) => t === "escort" || t === "combat")) classBonus += 5;
+    }
     if (adv.class === "archer") {
       classBonus += ARCHER_SUCCESS_BONUS;
-      if (mission.tags.some((t) => t === "outdoor" || t === "exploration")) {
-        classBonus += ARCHER_TAG_BONUS;
-      }
+      if (mission.tags.some((t) => t === "outdoor" || t === "exploration")) classBonus += ARCHER_TAG_BONUS;
     }
-    if (adv.class === "wizard" && mission.tags.includes("magical")) {
-      classBonus += WIZARD_TAG_BONUS;
+    if (adv.class === "wizard") {
+      if (mission.tags.includes("magical")) classBonus += WIZARD_TAG_BONUS;
+    }
+    if (adv.class === "assassin") {
+      if (mission.tags.some((t) => t === "spying" || t === "assassination" || t === "stealth")) classBonus += 8;
+    }
+    if (adv.class === "priest") {
+      if (mission.tags.includes("survival")) classBonus += 5;
     }
   }
 

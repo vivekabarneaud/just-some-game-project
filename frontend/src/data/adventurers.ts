@@ -19,7 +19,7 @@ export const ADVENTURER_CLASSES: ClassMeta[] = [
   {
     id: "warrior", name: "Warrior", icon: "⚔️",
     description: "Frontline fighter. Increases success on combat missions.",
-    passive: { name: "Shield Wall", description: "+10% mission success. Can protect an ally from death." },
+    passive: { name: "Shield Wall", description: "+10% success (+15% on escort/combat). Can protect an ally from death." },
   },
   {
     id: "wizard", name: "Wizard", icon: "🔮",
@@ -29,17 +29,17 @@ export const ADVENTURER_CLASSES: ClassMeta[] = [
   {
     id: "priest", name: "Priest", icon: "✝️",
     description: "Keeps the party alive. Greatly reduces death chance on failure.",
-    passive: { name: "Divine Grace", description: "Reduces party death risk by 60%. 15% chance to revive a fallen ally." },
+    passive: { name: "Divine Grace", description: "-60% party death risk. 15% revive chance. +5% success on survival missions." },
   },
   {
     id: "archer", name: "Archer", icon: "🏹",
     description: "Keen-eyed marksman. Good at scouting and ranged combat.",
-    passive: { name: "Eagle Eye", description: "+8% mission success. Bonus on outdoor/exploration missions." },
+    passive: { name: "Eagle Eye", description: "+8% success (+13% on outdoor/exploration). Bonus on outdoor/exploration missions." },
   },
   {
     id: "assassin", name: "Assassin", icon: "🗡️",
     description: "Fast and stealthy. Excels at infiltration and high-risk missions.",
-    passive: { name: "Cunning", description: "+20% bonus loot on success. Recovers partial loot even on failure." },
+    passive: { name: "Cunning", description: "+20% bonus loot on success. Partial loot on failure. +8% success on spying/assassination." },
   },
 ];
 
