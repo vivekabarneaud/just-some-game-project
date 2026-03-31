@@ -85,19 +85,22 @@ export default function Sidebar() {
       </nav>
 
       <Show when={state.incomingRaids.length > 0}>
-        <div style={{
-          margin: "0 12px 8px",
-          padding: "8px 10px",
-          background: "rgba(231, 76, 60, 0.15)",
-          border: "1px solid var(--accent-red)",
-          "border-radius": "6px",
-          "font-size": "0.8rem",
-          color: "var(--accent-red)",
-          "text-align": "center",
-          animation: "pulse 2s infinite",
-        }}>
-          Incoming threat{state.incomingRaids.length > 1 ? "s" : ""}! ({state.incomingRaids.length})
-        </div>
+        <A href="/" style={{ "text-decoration": "none" }}>
+          <div style={{
+            margin: "0 12px 8px",
+            padding: "8px 10px",
+            background: "rgba(231, 76, 60, 0.15)",
+            border: "1px solid var(--accent-red)",
+            "border-radius": "6px",
+            "font-size": "0.8rem",
+            color: "var(--accent-red)",
+            "text-align": "center",
+            animation: "pulse 2s infinite",
+            cursor: "pointer",
+          }}>
+            Incoming threat{state.incomingRaids.length > 1 ? "s" : ""}! — View Overview
+          </div>
+        </A>
       </Show>
 
       <div class="sidebar-controls">
