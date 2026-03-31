@@ -605,20 +605,6 @@ export default function AdventurersGuild() {
                   <A href={`/guild/${adv.id}`} style={{ "text-decoration": "none" }}>
                     <div class="building-card" classList={{ upgrading: adv.onMission }} style={{ cursor: "pointer", position: "relative" }}>
                       <span class="building-card-category" style={{ color: RANK_COLORS[adv.rank] }}>
-                        {unspent() > 0 && (
-                          <span style={{
-                            "margin-right": "6px",
-                            padding: "1px 5px",
-                            "border-radius": "8px",
-                            background: "var(--accent-green)",
-                            color: "var(--bg-primary)",
-                            "font-size": "0.6rem",
-                            "font-weight": "bold",
-                            animation: "pulse 2s infinite",
-                          }}>
-                            +{unspent()} pts
-                          </span>
-                        )}
                         {RANK_NAMES[adv.rank]}
                       </span>
                       <div class="building-card-header">
@@ -641,6 +627,20 @@ export default function AdventurersGuild() {
                           </span>
                         )}
                       </div>
+                      {unspent() > 0 && (
+                        <div style={{
+                          "margin-top": "6px",
+                          padding: "3px 8px",
+                          "border-radius": "4px",
+                          background: "rgba(46, 204, 113, 0.15)",
+                          border: "1px solid var(--accent-green)",
+                          color: "var(--accent-green)",
+                          "font-size": "0.75rem",
+                          animation: "pulse 2s infinite",
+                        }}>
+                          {unspent()} stat point{unspent() > 1 ? "s" : ""} available!
+                        </div>
+                      )}
                       {adv.onMission && (
                         <div class="building-card-upgrading">On mission</div>
                       )}
