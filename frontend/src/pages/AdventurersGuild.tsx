@@ -1,5 +1,5 @@
 import { createSignal, For, Show } from "solid-js";
-import { A, useNavigate } from "@solidjs/router";
+import { A, useNavigate, useSearchParams } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
 import {
   ADVENTURER_CLASSES,
@@ -58,7 +58,9 @@ function DeathRisk(props: { chance: number }) {
 export default function AdventurersGuild() {
   const { state, actions } = useGame();
   actions.visitGuild();
-  const [tab, setTab] = createSignal<Tab>("missions");
+  const [searchParams] = useSearchParams();
+  const initialTab = (searchParams.tab === "roster" || searchParams.tab === "recruit") ? searchParams.tab as Tab : "missions";
+  const [tab, setTab] = createSignal<Tab>(initialTab);
   const [selectedMission, setSelectedMission] = createSignal<MissionTemplate | null>(null);
   const [selectedTeam, setSelectedTeam] = createSignal<string[]>([]);
   const [results, setResults] = createSignal<ReturnType<typeof actions.collectCompletedMissions>>([]);

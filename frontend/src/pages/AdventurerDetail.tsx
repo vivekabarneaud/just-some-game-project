@@ -31,7 +31,7 @@ export default function AdventurerDetail() {
 
   return (
     <div>
-      <A href="/guild" class="back-link" onClick={() => actions.visitGuild()}>
+      <A href="/guild?tab=roster" class="back-link" onClick={() => actions.visitGuild()}>
         ← Back to Roster
       </A>
 
