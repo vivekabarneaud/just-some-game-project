@@ -562,8 +562,12 @@ export default function AdventurersGuild() {
                         Recruit ({cost}g)
                       </button>
                       <Show when={rosterFull()}>
-                        <span style={{ color: "var(--accent-red)", "font-size": "0.8rem", "margin-left": "8px" }}>
-                          Roster full
+                        <span style={{ "font-size": "0.8rem", "margin-left": "8px" }}>
+                          <span style={{ color: "var(--accent-red)" }}>Roster full</span>
+                          {" — "}
+                          <A href="/buildings/adventurers_guild" style={{ color: "var(--accent-gold)", "font-size": "0.8rem" }}>
+                            Upgrade guild for more slots
+                          </A>
                         </span>
                       </Show>
                     </div>
