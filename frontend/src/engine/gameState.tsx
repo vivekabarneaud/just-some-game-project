@@ -65,6 +65,29 @@ import {
   HARVEST_DURATION_HOURS,
   nextSeason,
 } from "~/data/seasons";
+import {
+  type Adventurer,
+  type AdventurerRank,
+  generateCandidate,
+  getRecruitCost,
+  getMaxRecruitRank,
+  getCandidateCount,
+  getMaxRoster,
+  getMissionSlots,
+  RECRUIT_REFRESH_HOURS,
+  MISSION_REFRESH_HOURS,
+  resetAdventurerSeed,
+} from "~/data/adventurers";
+import {
+  type ActiveMission,
+  type CompletedMission,
+  type MissionTemplate,
+  getMission,
+  generateMissionBoard,
+  getMissionBoardSize,
+  calcSuccessChance,
+  calcDeathChance,
+} from "~/data/missions";
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -119,6 +142,14 @@ export interface GameState {
   lastTick: number;
   gameSpeed: number;
   villageName: string;
+  // Adventurer's Guild
+  adventurers: Adventurer[];
+  activeMissions: ActiveMission[];
+  completedMissions: CompletedMission[]; // recent results (cleared on read)
+  recruitCandidates: Adventurer[];
+  missionBoard: MissionTemplate[];
+  recruitRefreshIn: number; // game-hours until next candidate refresh
+  missionRefreshIn: number; // game-hours until next mission board refresh
 }
 
 export interface FoodSource {
@@ -159,6 +190,15 @@ export interface GameActions {
   getActiveQueueCount: () => number;
   getEffectiveMaxLevel: (buildingId: string) => number;
   cancelBuild: (buildingId: string) => boolean;
+  // Adventurer's Guild
+  getGuildLevel: () => number;
+  recruitAdventurer: (candidateId: string) => boolean;
+  dismissAdventurer: (adventurerId: string) => boolean;
+  deployMission: (missionId: string, adventurerIds: string[]) => boolean;
+  collectCompletedMissions: () => CompletedMission[];
+  getAvailableAdventurers: () => Adventurer[];
+  getRosterSize: () => { current: number; max: number };
+  getMissionSlotInfo: () => { used: number; max: number };
 }
 
 // ─── Constants ───────────────────────────────────────────────────
@@ -189,6 +229,13 @@ function createInitialState(): GameState {
     lastTick: Date.now(),
     gameSpeed: 1,
     villageName: "Oakenhold",
+    adventurers: [],
+    activeMissions: [],
+    completedMissions: [],
+    recruitCandidates: [],
+    missionBoard: [],
+    recruitRefreshIn: 0, // refresh immediately when guild is built
+    missionRefreshIn: 0,
   };
 }
 
@@ -220,6 +267,14 @@ function loadGame(): GameState | null {
     if (!saved.gardens) saved.gardens = [];
     if (!saved.pens) saved.pens = [];
     if (!saved.season) { saved.season = "spring"; saved.seasonElapsed = 0; saved.year = 1; }
+    // Adventurer's Guild migration
+    if (!saved.adventurers) saved.adventurers = [];
+    if (!saved.activeMissions) saved.activeMissions = [];
+    if (!saved.completedMissions) saved.completedMissions = [];
+    if (!saved.recruitCandidates) saved.recruitCandidates = [];
+    if (!saved.missionBoard) saved.missionBoard = [];
+    if (saved.recruitRefreshIn === undefined) saved.recruitRefreshIn = 0;
+    if (saved.missionRefreshIn === undefined) saved.missionRefreshIn = 0;
     for (const pb of saved.buildings) {
       if (pb.upgrading && (pb as any).upgradeFinishTime) {
         pb.upgradeRemaining = Math.max(0, ((pb as any).upgradeFinishTime - Date.now()) / 1000);
@@ -228,7 +283,7 @@ function loadGame(): GameState | null {
     }
     // Restore ID counter
     let maxId = 0;
-    const allIds = [...saved.fields, ...saved.gardens, ...saved.pens];
+    const allIds: { id: string }[] = [...saved.fields, ...saved.gardens, ...saved.pens, ...saved.adventurers, ...saved.recruitCandidates];
     for (const item of allIds) {
       const num = parseInt(item.id.replace(/^[a-z]+_/, ""), 10);
       if (num > maxId) maxId = num;
@@ -426,6 +481,13 @@ function calcBuildingEffect(buildingId: string, nextLevel: number): string | nul
       const nextBonuses = getMasonBonuses(nextLevel);
       return `Queue slots: ${curBonuses.queueSlots} → ${nextBonuses.queueSlots} · Cost/time reduction: ${Math.round(curBonuses.costReduction * 100)}% → ${Math.round(nextBonuses.costReduction * 100)}%`;
     }
+    case "adventurers_guild": {
+      const curSlots = getMissionSlots(Math.max(0, currentLevel));
+      const nextSlots = getMissionSlots(nextLevel);
+      const curRoster = getMaxRoster(Math.max(0, currentLevel));
+      const nextRoster = getMaxRoster(nextLevel);
+      return `Mission slots: ${curSlots} → ${nextSlots} · Max roster: ${curRoster} → ${nextRoster}`;
+    }
     default:
       return null;
   }
@@ -501,6 +563,86 @@ export function GameProvider(props: ParentProps) {
         } else if (s.resources.food <= 0 && s.population > BASE_POPULATION) {
           s.population = Math.max(BASE_POPULATION, s.population - elapsedHours);
         }
+
+        // ── Adventurer's Guild tick ──
+        const guildLvl = s.buildings.find((b) => b.buildingId === "adventurers_guild")?.level ?? 0;
+        if (guildLvl > 0) {
+          // Tick active missions
+          for (let i = s.activeMissions.length - 1; i >= 0; i--) {
+            const am = s.activeMissions[i];
+            am.remaining -= elapsedSeconds;
+            if (am.remaining <= 0) {
+              // Mission complete — resolve
+              const template = getMission(am.missionId);
+              const team = am.adventurerIds.map((id) => s.adventurers.find((a) => a.id === id)).filter(Boolean) as Adventurer[];
+              const success = Math.random() * 100 < am.successChance;
+              const casualties: string[] = [];
+
+              if (!success && template) {
+                // Check for deaths
+                for (const adv of team) {
+                  const deathChance = calcDeathChance(template, team, adv);
+                  if (Math.random() * 100 < deathChance) {
+                    casualties.push(adv.id);
+                    const advInState = s.adventurers.find((a) => a.id === adv.id);
+                    if (advInState) advInState.alive = false;
+                  }
+                }
+              }
+
+              // Free surviving adventurers
+              for (const id of am.adventurerIds) {
+                const adv = s.adventurers.find((a) => a.id === id);
+                if (adv) adv.onMission = false;
+              }
+
+              // Record result
+              s.completedMissions.push({
+                missionId: am.missionId,
+                success,
+                rewards: success && template ? template.rewards : [],
+                casualties,
+              });
+
+              // Grant rewards
+              if (success && template) {
+                const resCaps = calcStorageCaps(s.buildings);
+                for (const reward of template.rewards) {
+                  const key = reward.resource as keyof ResourceState;
+                  const cap = resCaps[key];
+                  s.resources[key] = Math.min(cap, s.resources[key] + reward.amount);
+                }
+              }
+
+              // Remove from active
+              s.activeMissions.splice(i, 1);
+            }
+          }
+
+          // Refresh recruit candidates
+          s.recruitRefreshIn -= elapsedHours;
+          if (s.recruitRefreshIn <= 0) {
+            s.recruitRefreshIn = RECRUIT_REFRESH_HOURS;
+            const count = getCandidateCount(guildLvl);
+            const maxRank = getMaxRecruitRank(guildLvl);
+            resetAdventurerSeed(Date.now() + s.year * 1000 + s.seasonElapsed);
+            s.recruitCandidates = [];
+            for (let i = 0; i < count; i++) {
+              s.recruitCandidates.push(generateCandidate(nextId("adv"), maxRank));
+            }
+          }
+
+          // Refresh mission board
+          s.missionRefreshIn -= elapsedHours;
+          if (s.missionRefreshIn <= 0) {
+            s.missionRefreshIn = MISSION_REFRESH_HOURS;
+            const boardSize = getMissionBoardSize(guildLvl);
+            s.missionBoard = generateMissionBoard(guildLvl, boardSize, Date.now() + s.year * 777);
+          }
+        }
+
+        // Remove dead adventurers from roster
+        s.adventurers = s.adventurers.filter((a) => a.alive);
 
         s.lastTick = Date.now();
       }),
@@ -699,6 +841,90 @@ export function GameProvider(props: ParentProps) {
       if (!def) return 0;
       const tier = getSettlementTier(getTownHallLevel(state.buildings));
       return getEffectiveMaxLevel(def, tier);
+    },
+    getGuildLevel() {
+      return state.buildings.find((b) => b.buildingId === "adventurers_guild")?.level ?? 0;
+    },
+    recruitAdventurer(candidateId) {
+      const guildLvl = this.getGuildLevel();
+      if (guildLvl === 0) return false;
+      const candidate = state.recruitCandidates.find((c) => c.id === candidateId);
+      if (!candidate) return false;
+      const maxRoster = getMaxRoster(guildLvl);
+      if (state.adventurers.length >= maxRoster) return false;
+      const cost = getRecruitCost(candidate.rank);
+      if (state.resources.gold < cost) return false;
+      setState(produce((s) => {
+        s.resources.gold -= cost;
+        s.adventurers.push({ ...candidate, alive: true, onMission: false });
+        s.recruitCandidates = s.recruitCandidates.filter((c) => c.id !== candidateId);
+      }));
+      return true;
+    },
+    dismissAdventurer(adventurerId) {
+      const adv = state.adventurers.find((a) => a.id === adventurerId);
+      if (!adv || adv.onMission) return false;
+      setState(produce((s) => {
+        s.adventurers = s.adventurers.filter((a) => a.id !== adventurerId);
+      }));
+      return true;
+    },
+    deployMission(missionId, adventurerIds) {
+      const guildLvl = this.getGuildLevel();
+      if (guildLvl === 0) return false;
+      const maxSlots = getMissionSlots(guildLvl);
+      if (state.activeMissions.length >= maxSlots) return false;
+
+      const template = getMission(missionId);
+      if (!template || template.minGuildLevel > guildLvl) return false;
+      if (adventurerIds.length === 0 || adventurerIds.length > template.slots.length) return false;
+
+      // Check adventurers are available
+      const team: Adventurer[] = [];
+      for (const id of adventurerIds) {
+        const adv = state.adventurers.find((a) => a.id === id && a.alive && !a.onMission);
+        if (!adv) return false;
+        team.push(adv);
+      }
+
+      // Check deploy cost
+      if (state.resources.gold < template.deployCost) return false;
+
+      const successChance = calcSuccessChance(template, team);
+
+      setState(produce((s) => {
+        s.resources.gold -= template.deployCost;
+        // Mark adventurers as on mission
+        for (const id of adventurerIds) {
+          const adv = s.adventurers.find((a) => a.id === id);
+          if (adv) adv.onMission = true;
+        }
+        s.activeMissions.push({
+          missionId: template.id,
+          adventurerIds: [...adventurerIds],
+          remaining: template.duration,
+          successChance,
+        });
+      }));
+      return true;
+    },
+    collectCompletedMissions() {
+      const completed = [...state.completedMissions];
+      if (completed.length > 0) {
+        setState(produce((s) => { s.completedMissions = []; }));
+      }
+      return completed;
+    },
+    getAvailableAdventurers() {
+      return state.adventurers.filter((a) => a.alive && !a.onMission);
+    },
+    getRosterSize() {
+      const guildLvl = this.getGuildLevel();
+      return { current: state.adventurers.length, max: getMaxRoster(guildLvl) };
+    },
+    getMissionSlotInfo() {
+      const guildLvl = this.getGuildLevel();
+      return { used: state.activeMissions.length, max: getMissionSlots(guildLvl) };
     },
     cancelBuild(buildingId) {
       const pb = state.buildings.find((b) => b.buildingId === buildingId);

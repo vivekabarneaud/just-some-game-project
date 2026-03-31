@@ -273,6 +273,26 @@ export const BUILDINGS: BuildingDefinition[] = [
     requiredTier: "town",
   },
 
+  // Camp tier — Adventurer's Guild (missions)
+  {
+    id: "adventurers_guild",
+    name: "Adventurer's Guild",
+    category: "infrastructure",
+    description:
+      "A bustling hall where brave souls gather seeking fortune. Recruit adventurers and send them on missions to bring back resources and treasure.",
+    icon: "🏰",
+    maxLevel: 5,
+    levels: [
+      { level: 1, cost: { wood: 80, stone: 60 }, buildTime: 180, description: "2 mission slots, recruit Novices" },
+      { level: 2, cost: { wood: 150, stone: 120 }, buildTime: 360, description: "3 mission slots, recruit up to Apprentice" },
+      { level: 3, cost: { wood: 280, stone: 220 }, buildTime: 600, description: "4 mission slots, recruit up to Journeyman" },
+      { level: 4, cost: { wood: 500, stone: 400 }, buildTime: 900, description: "5 mission slots, recruit up to Veteran" },
+      { level: 5, cost: { wood: 900, stone: 700 }, buildTime: 1350, description: "6 mission slots, recruit up to Elite" },
+    ],
+    requiredTier: "camp",
+    tierLevelCaps: { camp: 2, village: 3, town: 4, city: 5 },
+  },
+
   // Village tier — Mason's Guild (queue + build bonuses)
   {
     id: "masons_guild",
