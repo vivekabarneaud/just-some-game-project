@@ -472,6 +472,17 @@ export default function AdventurersGuild() {
                         );
                       }}
                     </For>
+                    {(() => {
+                      const names = currentTeam().map((a) => a.name.split(" ").slice(1).join(" "));
+                      const counts = new Map<string, number>();
+                      for (const n of names) counts.set(n, (counts.get(n) ?? 0) + 1);
+                      const families = [...counts.entries()].filter(([, c]) => c > 1);
+                      return families.length > 0 ? (
+                        <div style={{ "margin-top": "4px", color: "#e91e63" }}>
+                          💕 <strong>Family bond</strong>: The {families.map(([name]) => name).join(", ")} family fights together! (+{families.reduce((s, [, c]) => s + (c - 1) * 5, 0)}% success)
+                        </div>
+                      ) : null;
+                    })()}
                   </div>
                 </Show>
 

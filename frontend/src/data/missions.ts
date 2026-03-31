@@ -652,6 +652,15 @@ export function calcSuccessChance(
   const statRatio = avgStat / (mission.difficulty * 8);
   const statPercent = Math.min(45, statRatio * 30);
 
+  // Family bond bonus: shared last names get +5% per pair
+  let familyBonus = 0;
+  const lastNames = team.map((a) => a.name.split(" ").slice(1).join(" "));
+  const seen = new Set<string>();
+  for (const ln of lastNames) {
+    if (seen.has(ln)) familyBonus += 5;
+    seen.add(ln);
+  }
+
   // Class passive bonuses (0-15%)
   let classBonus = 0;
   for (const adv of team) {
@@ -668,7 +677,7 @@ export function calcSuccessChance(
     if (adv.class === "priest" && mission.tags.includes("survival")) classBonus += 5;
   }
 
-  return Math.min(100, Math.round(slotPercent + statPercent + classBonus));
+  return Math.min(100, Math.round(slotPercent + statPercent + classBonus + familyBonus));
 }
 
 /**
