@@ -112,7 +112,25 @@ export default function Buildings() {
                     const cost = applyMasonCostReduction(next.cost, effMason());
                     const time = applyMasonTimeReduction(next.buildTime, effMason());
                     const m = Math.floor(time / 60);
-                    return `${cost.wood}w ${cost.stone}s · ${m}m`;
+                    const s = time % 60;
+                    return `🪵 ${cost.wood}  🪨 ${cost.stone}  ⏱️ ${m > 0 ? `${m}m` : ""}${s > 0 ? `${s}s` : ""}`;
+                  };
+                  const upgradeReasonFull = () => {
+                    if (isUpgrading()) return "Upgrading...";
+                    if (pb()?.damaged) return "🔧 Damaged — repair first";
+                    if (level() >= effMax()) {
+                      const tierInfo = getNextTierForLevels(building, actions.getSettlementTier());
+                      return tierInfo ? `🔒 Max for tier — need ${tierInfo.name}` : "🏆 Max level reached";
+                    }
+                    const next = nextLevelDef();
+                    if (!next) return "🏆 Max level";
+                    const cost = applyMasonCostReduction(next.cost, effMason());
+                    const parts = [];
+                    if (state.resources.wood < cost.wood) parts.push(`🪵 ${cost.wood - Math.floor(state.resources.wood)} more wood`);
+                    if (state.resources.stone < cost.stone) parts.push(`🪨 ${cost.stone - Math.floor(state.resources.stone)} more stone`);
+                    if (parts.length > 0) return `Need ${parts.join(", ")}`;
+                    if (actions.getActiveQueueCount() >= actions.getMasonBonuses().queueSlots) return "🏗️ Build queue full";
+                    return "";
                   };
 
                   return unlocked() ? (
@@ -174,7 +192,7 @@ export default function Buildings() {
                                 <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "2px" }}>Click to upgrade</div>
                               </Show>
                               <Show when={!canUpgradeNow()}>
-                                <div style={{ color: "var(--accent-gold)" }}>{upgradeReason()}</div>
+                                <div style={{ color: "var(--accent-gold)" }}>{upgradeReasonFull()}</div>
                                 <Show when={nextLevelDef()}>
                                   <div style={{ "margin-top": "2px" }}>{upgradeCostTip()}</div>
                                 </Show>
