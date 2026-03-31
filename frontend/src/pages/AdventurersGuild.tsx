@@ -203,8 +203,7 @@ export default function AdventurersGuild() {
           <span>Guild Lv.{guildLevel()}</span>
           <span>Missions: {slotInfo().used}/{slotInfo().max}</span>
           <span>Roster: {rosterSize().current}/{rosterSize().max}</span>
-          <span>Recruit refresh: {Math.ceil(state.recruitRefreshIn)}h</span>
-          <span>Mission refresh: {Math.ceil(state.missionRefreshIn)}h</span>
+          <span>Refresh in: {Math.ceil(state.recruitRefreshIn)}h</span>
         </div>
 
         <div style={{ display: "flex", gap: "4px", "margin-bottom": "16px" }}>

@@ -1511,10 +1511,11 @@ export function GameProvider(props: ParentProps) {
             }
           }
 
-          // Refresh recruit candidates
+          // Refresh recruits and missions together
           s.recruitRefreshIn -= elapsedHours;
           if (s.recruitRefreshIn <= 0) {
             s.recruitRefreshIn = RECRUIT_REFRESH_HOURS;
+            // Recruits
             const count = getCandidateCount(guildLvl);
             const maxRank = getMaxRecruitRank(guildLvl, s.adventurers);
             resetAdventurerSeed(Date.now() + s.year * 1000 + s.seasonElapsed);
@@ -1523,15 +1524,11 @@ export function GameProvider(props: ParentProps) {
               s.recruitCandidates.push(generateCandidate(nextId("adv"), maxRank));
             }
             s.lastRecruitRefresh = Date.now();
-          }
-
-          // Refresh mission board
-          s.missionRefreshIn -= elapsedHours;
-          if (s.missionRefreshIn <= 0) {
-            s.missionRefreshIn = MISSION_REFRESH_HOURS;
+            // Missions
             const boardSize = getMissionBoardSize(guildLvl);
             s.missionBoard = generateMissionBoard(guildLvl, boardSize, Date.now() + s.year * 777);
             s.lastMissionRefresh = Date.now();
+            s.missionRefreshIn = s.recruitRefreshIn;
           }
         }
 
