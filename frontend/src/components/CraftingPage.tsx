@@ -49,6 +49,8 @@ export default function CraftingPage(props: CraftingPageProps) {
       if (cost.resource === "gold" && state.resources.gold < cost.amount) return false;
       if (cost.resource === "wood" && state.resources.wood < cost.amount) return false;
       if (cost.resource === "stone" && state.resources.stone < cost.amount) return false;
+      if (cost.resource === "food" && state.resources.food < cost.amount) return false;
+      if (cost.resource === "astralShards" && state.astralShards < cost.amount) return false;
     }
     return true;
   };

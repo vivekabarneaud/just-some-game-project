@@ -177,8 +177,14 @@ export function generateName(): string {
 
 /** Gold cost to recruit an adventurer based on their rank */
 export function getRecruitCost(rank: AdventurerRank): number {
-  const BASE = 20;
-  return Math.floor(BASE * Math.pow(2, rank - 1)); // 20, 40, 80, 160, 320
+  const COSTS: Record<AdventurerRank, number> = {
+    1: 25,
+    2: 75,
+    3: 200,
+    4: 500,
+    5: 1200,
+  };
+  return COSTS[rank];
 }
 
 /** Generate a random adventurer candidate */
@@ -191,8 +197,8 @@ export function generateCandidate(id: string, maxRank: AdventurerRank = 2): Adve
   else if (maxRank >= 3 && roll > 0.75) rank = 3;
   else if (maxRank >= 2 && roll > 0.50) rank = 2;
 
-  // Set starting level to the rank threshold so recruited adventurers match their rank
-  const level = RANK_LEVEL_THRESHOLDS[rank];
+  // Recruits start just below rank threshold — they're fresh at that rank
+  const level = Math.max(1, RANK_LEVEL_THRESHOLDS[rank] - 1);
   return {
     id,
     name: generateName(),
@@ -205,13 +211,25 @@ export function generateCandidate(id: string, maxRank: AdventurerRank = 2): Adve
   };
 }
 
-/** Max adventurer rank available based on guild level */
-export function getMaxRecruitRank(guildLevel: number): AdventurerRank {
-  if (guildLevel >= 5) return 5;
-  if (guildLevel >= 4) return 4;
-  if (guildLevel >= 3) return 3;
-  if (guildLevel >= 2) return 2;
-  return 1;
+/** Max adventurer rank available — based on guild level AND average top-3 adventurer levels */
+export function getMaxRecruitRank(guildLevel: number, adventurers?: Adventurer[]): AdventurerRank {
+  // Guild level sets the hard cap
+  const guildCap: AdventurerRank = guildLevel >= 5 ? 5 : guildLevel >= 4 ? 4 : guildLevel >= 3 ? 3 : guildLevel >= 2 ? 2 : 1;
+
+  if (!adventurers || adventurers.length === 0) return Math.min(guildCap, 1) as AdventurerRank;
+
+  // Average level of top 3 adventurers determines soft cap
+  const sorted = [...adventurers].filter((a) => a.alive).sort((a, b) => b.level - a.level);
+  const top3 = sorted.slice(0, 3);
+  const avgLevel = top3.reduce((sum, a) => sum + a.level, 0) / top3.length;
+
+  let levelCap: AdventurerRank = 1;
+  if (avgLevel >= 16) levelCap = 5;
+  else if (avgLevel >= 10) levelCap = 4;
+  else if (avgLevel >= 6) levelCap = 3;
+  else if (avgLevel >= 3) levelCap = 2;
+
+  return Math.min(guildCap, levelCap) as AdventurerRank;
 }
 
 /** Number of recruitment candidates shown per refresh */
