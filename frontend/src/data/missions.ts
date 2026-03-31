@@ -648,8 +648,8 @@ export function calcSuccessChance(
     }
   }
   const avgStat = totalWeight > 0 ? totalWeightedStat / totalWeight : 0;
-  // Scale: 20 stat points = roughly max contribution per difficulty level
-  const statRatio = avgStat / (mission.difficulty * 20);
+  // Scale: 8 stat points = roughly max contribution per difficulty level
+  const statRatio = avgStat / (mission.difficulty * 8);
   const statPercent = Math.min(45, statRatio * 30);
 
   // Class passive bonuses (0-15%)

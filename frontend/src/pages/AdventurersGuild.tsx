@@ -338,7 +338,7 @@ export default function AdventurersGuild() {
                     style={{ cursor: "pointer" }}
                   >
                     <span class="building-card-category">
-                      {"★".repeat(mission.difficulty)} · {mission.tags.join(", ")}
+                      Difficulty {"★".repeat(mission.difficulty)}{"☆".repeat(5 - mission.difficulty)} · {mission.tags.join(", ")}
                     </span>
                     <div class="building-card-header" style={{ "margin-top": "8px" }}>
                       <div class="building-card-icon">{mission.icon}</div>
