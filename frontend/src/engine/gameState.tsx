@@ -203,6 +203,80 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     craftTime: 900, // 15 min
   },
 
+  // ── Tailoring — Robes ──────────────────────────────────────────
+  {
+    id: "priest_robes",
+    name: "Priest Robes",
+    icon: "🥋",
+    building: "tailoring_shop",
+    minLevel: 2,
+    costs: [{ resource: "fiber", amount: 12 }, { resource: "wool", amount: 6 }, { resource: "gold", amount: 15 }],
+    produces: { resource: "armor", amount: 1 },
+    craftTime: 1200, // 20 min
+  },
+  {
+    id: "wizard_robes",
+    name: "Wizard Robes",
+    icon: "🧙",
+    building: "tailoring_shop",
+    minLevel: 3,
+    costs: [{ resource: "fiber", amount: 15 }, { resource: "wool", amount: 8 }, { resource: "gold", amount: 20 }],
+    produces: { resource: "armor", amount: 1 },
+    craftTime: 1500, // 25 min
+  },
+
+  // ── Woodworker recipes ────────────────────────────────────────
+  {
+    id: "wooden_staff",
+    name: "Wooden Staff",
+    icon: "🪄",
+    building: "woodworker",
+    minLevel: 1,
+    costs: [{ resource: "wood", amount: 15 }],
+    produces: { resource: "weapons", amount: 1 },
+    craftTime: 480, // 8 min
+  },
+  {
+    id: "hunting_bow",
+    name: "Hunting Bow",
+    icon: "🏹",
+    building: "woodworker",
+    minLevel: 1,
+    costs: [{ resource: "wood", amount: 12 }, { resource: "fiber", amount: 5 }],
+    produces: { resource: "weapons", amount: 1 },
+    craftTime: 600, // 10 min
+  },
+  {
+    id: "wooden_shield",
+    name: "Wooden Shield",
+    icon: "🪵",
+    building: "woodworker",
+    minLevel: 2,
+    costs: [{ resource: "wood", amount: 20 }, { resource: "iron", amount: 3 }],
+    produces: { resource: "armor", amount: 1 },
+    craftTime: 720, // 12 min
+  },
+  {
+    id: "longbow",
+    name: "Longbow",
+    icon: "🎯",
+    building: "woodworker",
+    minLevel: 4,
+    costs: [{ resource: "wood", amount: 25 }, { resource: "fiber", amount: 10 }, { resource: "iron", amount: 5 }],
+    produces: { resource: "weapons", amount: 1 },
+    craftTime: 1200, // 20 min
+  },
+  {
+    id: "enchanted_staff",
+    name: "Enchanted Staff",
+    icon: "✨",
+    building: "woodworker",
+    minLevel: 6,
+    costs: [{ resource: "wood", amount: 20 }, { resource: "gold", amount: 30 }, { resource: "astralShards", amount: 2 }],
+    produces: { resource: "weapons", amount: 1 },
+    craftTime: 1800, // 30 min
+  },
+
   // ── Blacksmith recipes ────────────────────────────────────────
   {
     id: "iron_tools",
@@ -243,6 +317,16 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     costs: [{ resource: "iron", amount: 30 }, { resource: "fiber", amount: 5 }, { resource: "gold", amount: 15 }],
     produces: { resource: "armor", amount: 2 },
     craftTime: 1800, // 30 min
+  },
+  {
+    id: "chainmail",
+    name: "Chainmail Armor",
+    icon: "⛓️",
+    building: "blacksmith",
+    minLevel: 4,
+    costs: [{ resource: "iron", amount: 35 }, { resource: "fiber", amount: 8 }, { resource: "gold", amount: 20 }],
+    produces: { resource: "armor", amount: 1 },
+    craftTime: 2100, // 35 min
   },
   {
     id: "steel_sword",
@@ -842,6 +926,7 @@ function calcBuildingEffect(buildingId: string, nextLevel: number): string | nul
       const nextBonuses = getMasonBonuses(nextLevel);
       return `Queue slots: ${curBonuses.queueSlots} → ${nextBonuses.queueSlots} · Cost/time reduction: ${Math.round(curBonuses.costReduction * 100)}% → ${Math.round(nextBonuses.costReduction * 100)}%`;
     }
+    case "woodworker":
     case "blacksmith":
     case "alchemy_lab": {
       return `Crafting slots: ${Math.max(0, currentLevel)} → ${nextLevel} (1 per level)`;

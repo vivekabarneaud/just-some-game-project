@@ -157,6 +157,20 @@ export const BUILDINGS: BuildingDefinition[] = [
     requiredTier: "camp",
   },
 
+  // Camp tier — Woodworker (wood-based equipment)
+  {
+    id: "woodworker",
+    name: "Woodworker",
+    category: "crafting",
+    description:
+      "A skilled carpenter crafts staves, bows, and wooden equipment. Essential gear for wizards and archers.",
+    icon: "🪚",
+    maxLevel: 10,
+    levels: generateLevels({ wood: 60, stone: 20 }, 70, undefined, 10),
+    requiredTier: "camp",
+    tierLevelCaps: { camp: 3, village: 6, town: 8, city: 10 },
+  },
+
   // Camp tier — Chapel (happiness)
   {
     id: "chapel",
