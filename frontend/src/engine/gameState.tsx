@@ -30,6 +30,11 @@ import {
   CHAPEL_HAPPINESS_PER_LEVEL,
   TAVERN_HAPPINESS_PER_LEVEL,
   TAVERN_HAPPINESS_DRY,
+  WINTER_WOOD_PER_CITIZEN_PER_HOUR,
+  WINTER_HAPPINESS_PENALTY,
+  WINTER_NO_WOOD_HAPPINESS,
+  WINTER_NO_WOOD_DEATH_RATE,
+  getRepairCost,
   getSettlementTier,
   getSettlementName,
   isBuildingUnlocked,
@@ -246,6 +251,7 @@ export interface GameActions {
   // Ale & Happiness
   getAleInfo: () => { current: number; cap: number; production: number; consumption: number };
   getHappinessModifier: () => number;
+  repairBuilding: (buildingId: string) => boolean;
   // Raids
   getDefense: () => DefenseBreakdown;
   collectRaidLog: () => RaidResult[];
@@ -275,6 +281,7 @@ function createInitialState(): GameState {
       buildingId: b.id,
       level: b.id === "town_hall" ? 1 : b.id === "houses" ? 1 : 0,
       upgrading: false,
+      damaged: false,
     })),
     fields: [],
     gardens: [],
@@ -322,7 +329,7 @@ function loadGame(): GameState | null {
     const saved = JSON.parse(raw) as GameState;
     for (const def of BUILDINGS) {
       if (!saved.buildings.find((b) => b.buildingId === def.id)) {
-        saved.buildings.push({ buildingId: def.id, level: 0, upgrading: false });
+        saved.buildings.push({ buildingId: def.id, level: 0, upgrading: false, damaged: false });
       }
     }
     saved.buildings = saved.buildings.filter((b) => b.buildingId !== "farm");
@@ -347,6 +354,10 @@ function loadGame(): GameState | null {
     if (saved.missionBoard?.length > 0 && !(saved.missionBoard[0] as any).tags) {
       saved.missionBoard = [];
       saved.missionRefreshIn = 0;
+    }
+    // Building damage migration
+    for (const pb of saved.buildings) {
+      if ((pb as any).damaged === undefined) (pb as any).damaged = false;
     }
     // Ale & Happiness migration
     if (saved.ale === undefined) saved.ale = 0;
@@ -404,9 +415,9 @@ function calcProductionRates(state: GameState): ResourceState {
   // Citizen tax
   rates.gold += Math.floor(population) * GOLD_TAX_PER_CITIZEN_PER_HOUR;
 
-  // Building production (year-round)
+  // Building production (year-round) — damaged buildings don't produce
   for (const pb of buildings) {
-    if (pb.level === 0) continue;
+    if (pb.level === 0 || pb.damaged) continue;
     const def = BUILDINGS.find((b) => b.id === pb.buildingId);
     if (!def) continue;
     const levelDef = def.levels[pb.level - 1];
@@ -697,6 +708,19 @@ export function GameProvider(props: ParentProps) {
           s.ale = Math.max(0, s.ale - aleConsumed);
         }
 
+        // ── Winter cold ──
+        const isWinter = s.season === "winter";
+        if (isWinter) {
+          const woodNeeded = WINTER_WOOD_PER_CITIZEN_PER_HOUR * s.population * elapsedHours;
+          if (s.resources.wood >= woodNeeded) {
+            s.resources.wood -= woodNeeded;
+          } else {
+            s.resources.wood = 0;
+            // Freezing — citizens die
+            s.population = Math.max(BASE_POPULATION, s.population - WINTER_NO_WOOD_DEATH_RATE * elapsedHours);
+          }
+        }
+
         // ── Happiness calculation ──
         let happiness = 50; // baseline
 
@@ -706,6 +730,12 @@ export function GameProvider(props: ParentProps) {
 
         // Starvation penalty
         if (s.resources.food <= 0) happiness -= 20;
+
+        // Winter cold
+        if (isWinter) {
+          happiness += WINTER_HAPPINESS_PENALTY;
+          if (s.resources.wood <= 0) happiness += WINTER_NO_WOOD_HAPPINESS;
+        }
 
         // Housing
         if (s.population > maxPop) happiness -= 15; // overcrowded
@@ -724,6 +754,10 @@ export function GameProvider(props: ParentProps) {
             happiness += tavernLvl * TAVERN_HAPPINESS_DRY; // dry tavern
           }
         }
+
+        // Damaged buildings
+        const damagedCount = s.buildings.filter((b) => b.damaged).length;
+        if (damagedCount > 0) happiness -= damagedCount * 3;
 
         // Raid morale
         if (s.lastRaidOutcome === "victory") happiness += 10;
@@ -929,6 +963,17 @@ export function GameProvider(props: ParentProps) {
                 population: s.population,
                 homeAdventurers: homeAdvs,
               });
+
+              // Damage buildings on defeat
+              if (!result.victory) {
+                const damageable = s.buildings.filter((b) => b.level > 0 && !b.damaged && b.buildingId !== "town_hall");
+                const damageCount = Math.min(damageable.length, 1 + Math.floor(Math.random() * 3));
+                for (let d = 0; d < damageCount; d++) {
+                  const idx = Math.floor(Math.random() * damageable.length);
+                  damageable[idx].damaged = true;
+                  damageable.splice(idx, 1);
+                }
+              }
 
               // Apply losses or grant loot
               if (result.victory) {
@@ -1281,6 +1326,21 @@ export function GameProvider(props: ParentProps) {
     },
     getHappinessModifier() {
       return 0.8 + (state.happiness / 100) * 0.4;
+    },
+    repairBuilding(buildingId) {
+      const pb = state.buildings.find((b) => b.buildingId === buildingId);
+      if (!pb || !pb.damaged) return false;
+      const def = BUILDINGS.find((b) => b.id === buildingId);
+      if (!def) return false;
+      const cost = getRepairCost(def, pb.level);
+      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
+      setState(produce((s) => {
+        s.resources.wood -= cost.wood;
+        s.resources.stone -= cost.stone;
+        const b = s.buildings.find((b) => b.buildingId === buildingId)!;
+        b.damaged = false;
+      }));
+      return true;
     },
     getDefense() {
       const homeAdvs = state.adventurers.filter((a) => a.alive && !a.onMission);

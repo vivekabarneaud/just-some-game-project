@@ -45,7 +45,7 @@ export default function Buildings() {
 
             return unlocked() ? (
               <A href={`/buildings/${building.id}`} style={{ "text-decoration": "none" }}>
-                <div class="building-card" classList={{ upgrading: isUpgrading() }}>
+                <div class="building-card" classList={{ upgrading: isUpgrading() }} style={{ opacity: pb()?.damaged ? 0.7 : 1 }}>
                   <span class="building-card-category">{building.category}</span>
                   <div class="building-card-header">
                     <div class="building-card-icon">{building.icon}</div>
@@ -66,6 +66,11 @@ export default function Buildings() {
                     <div class="building-card-production">
                       Producing: +{currentLevel()!.production!.rate}/h{" "}
                       {currentLevel()!.production!.resource}
+                    </div>
+                  )}
+                  {pb()?.damaged && (
+                    <div class="building-card-upgrading" style={{ color: "var(--accent-red)" }}>
+                      Damaged — not producing
                     </div>
                   )}
                   {isUpgrading() && pb()?.upgradeRemaining && (

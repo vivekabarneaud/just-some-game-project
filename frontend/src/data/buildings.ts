@@ -33,6 +33,18 @@ export interface PlayerBuilding {
   level: number;
   upgrading: boolean;
   upgradeRemaining?: number; // seconds remaining (game-time)
+  damaged: boolean;
+}
+
+/** Repair cost: 30% of current level's build cost */
+export function getRepairCost(building: BuildingDefinition, level: number): BuildingCost {
+  if (level <= 0) return { wood: 0, stone: 0 };
+  const levelDef = building.levels[level - 1];
+  if (!levelDef) return { wood: 0, stone: 0 };
+  return {
+    wood: Math.floor(levelDef.cost.wood * 0.3),
+    stone: Math.floor(levelDef.cost.stone * 0.3),
+  };
 }
 
 // ─── Settlement tiers ────────────────────────────────────────────
@@ -493,6 +505,12 @@ export const VILLAGER_GROWTH_INTERVAL_HOURS = 0.083; // ~1 villager every 5 min
 
 // Gold tax income per citizen per hour
 export const GOLD_TAX_PER_CITIZEN_PER_HOUR = 1;
+
+// Winter cold
+export const WINTER_WOOD_PER_CITIZEN_PER_HOUR = 0.5; // wood consumed for heating
+export const WINTER_HAPPINESS_PENALTY = -10; // base happiness penalty in winter
+export const WINTER_NO_WOOD_HAPPINESS = -25; // extra penalty if wood runs out
+export const WINTER_NO_WOOD_DEATH_RATE = 0.3; // citizens lost per hour if freezing
 
 // Ale system
 export const ALE_PRODUCTION_PER_BREWERY_LEVEL = 5; // ale/hour

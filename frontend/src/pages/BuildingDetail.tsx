@@ -7,6 +7,7 @@ import {
   getNextTierForLevels,
   applyMasonCostReduction,
   applyMasonTimeReduction,
+  getRepairCost,
 } from "~/data/buildings";
 import { RESOURCES } from "~/data/resources";
 import { useGame } from "~/engine/gameState";
@@ -218,6 +219,31 @@ export default function BuildingDetail() {
                     }}
                   >
                     Cancel
+                  </button>
+                </div>
+              </Show>
+
+              <Show when={playerBuilding()?.damaged}>
+                <div style={{
+                  "margin-bottom": "20px",
+                  padding: "12px",
+                  background: "rgba(231, 76, 60, 0.1)",
+                  border: "1px solid var(--accent-red)",
+                  "border-radius": "6px",
+                }}>
+                  <div style={{ color: "var(--accent-red)", "margin-bottom": "8px" }}>
+                    This building is damaged and not producing! Repair it to restore function.
+                  </div>
+                  <button
+                    class="upgrade-btn"
+                    disabled={
+                      state.resources.wood < getRepairCost(building()!, playerBuilding()!.level).wood ||
+                      state.resources.stone < getRepairCost(building()!, playerBuilding()!.level).stone
+                    }
+                    onClick={() => actions.repairBuilding(params.id)}
+                    style={{ "font-size": "0.85rem", padding: "6px 14px" }}
+                  >
+                    Repair ({getRepairCost(building()!, playerBuilding()!.level).wood} wood, {getRepairCost(building()!, playerBuilding()!.level).stone} stone)
                   </button>
                 </div>
               </Show>

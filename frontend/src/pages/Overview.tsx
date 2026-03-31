@@ -197,6 +197,34 @@ export default function Overview() {
               {netRate("food") >= 0 ? "Surplus" : "Deficit"} ({Math.round(netRate("food"))}/h)
             </span>
           </div>
+          <Show when={state.season === "winter"}>
+            <div style={{
+              padding: "6px 10px",
+              "margin-bottom": "8px",
+              "border-radius": "6px",
+              background: "rgba(135, 206, 235, 0.1)",
+              border: "1px solid #87CEEB",
+              "font-size": "0.8rem",
+              color: "#87CEEB",
+            }}>
+              ❄️ Winter cold: consuming wood for heating ({Math.round(state.population * 0.5)}/h).
+              {state.resources.wood <= 0 && <span style={{ color: "var(--accent-red)" }}> No wood — citizens are freezing!</span>}
+            </div>
+          </Show>
+          <Show when={state.buildings.some((b) => b.damaged)}>
+            <div style={{
+              padding: "6px 10px",
+              "margin-bottom": "8px",
+              "border-radius": "6px",
+              background: "rgba(231, 76, 60, 0.1)",
+              border: "1px solid var(--accent-red)",
+              "font-size": "0.8rem",
+              color: "var(--accent-red)",
+            }}>
+              🔧 {state.buildings.filter((b) => b.damaged).length} building{state.buildings.filter((b) => b.damaged).length > 1 ? "s" : ""} damaged!{" "}
+              <A href="/buildings" style={{ color: "var(--accent-gold)" }}>Repair them →</A>
+            </div>
+          </Show>
           <div class="stat-row">
             <span class="stat-label">Happiness</span>
             <span class="stat-value" style={{
