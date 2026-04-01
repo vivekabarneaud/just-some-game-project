@@ -88,14 +88,16 @@ function generateLevels(
 ): BuildingLevel[] {
   return Array.from({ length: maxLevel }, (_, i) => {
     const lvl = i + 1;
-    const multiplier = Math.pow(1.35, lvl - 1);
+    const costMultiplier = Math.pow(1.35, lvl - 1);
+    // Build time starts very short and ramps up — first levels feel instant
+    const timeMultiplier = Math.pow(1.6, lvl - 1);
     return {
       level: lvl,
       cost: {
-        wood: Math.floor(base.wood * multiplier),
-        stone: Math.floor(base.stone * multiplier),
+        wood: Math.floor(base.wood * costMultiplier),
+        stone: Math.floor(base.stone * costMultiplier),
       },
-      buildTime: Math.floor(buildTimeBase * 0.7 * multiplier),
+      buildTime: Math.floor(buildTimeBase * timeMultiplier),
       production: production
         ? {
             resource: production.resource,
@@ -120,7 +122,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "The heart of your settlement. Upgrading the Town Hall unlocks new buildings and evolves your settlement.",
     icon: "🏛️",
     maxLevel: 25,
-    levels: generateLevels({ wood: 200, stone: 200 }, 360, undefined, 25),
+    levels: generateLevels({ wood: 200, stone: 200 }, 120, undefined, 25),
     requiredTier: "camp",
   },
   {
@@ -131,7 +133,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "Simple dwellings for your citizens. Each level provides housing for more people, allowing your settlement to grow.",
     icon: "🏠",
     maxLevel: 20,
-    levels: generateLevels({ wood: 60, stone: 40 }, 45),
+    levels: generateLevels({ wood: 60, stone: 40 }, 20),
     requiredTier: "camp",
   },
   {
@@ -142,7 +144,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "A sturdy storehouse for wood and stone. Without enough storage, excess materials are lost.",
     icon: "🏚️",
     maxLevel: 20,
-    levels: generateLevels({ wood: 80, stone: 60 }, 60),
+    levels: generateLevels({ wood: 80, stone: 60 }, 25),
     requiredTier: "camp",
   },
   {
@@ -153,7 +155,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "A cool cellar and salting room to preserve food. Without a pantry, surplus food spoils quickly.",
     icon: "🥫",
     maxLevel: 20,
-    levels: generateLevels({ wood: 50, stone: 30 }, 50),
+    levels: generateLevels({ wood: 50, stone: 30 }, 20),
     requiredTier: "camp",
   },
 
@@ -166,7 +168,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "A skilled carpenter crafts staves, bows, and wooden equipment. Essential gear for wizards and archers.",
     icon: "🪚",
     maxLevel: 10,
-    levels: generateLevels({ wood: 60, stone: 20 }, 70, undefined, 10),
+    levels: generateLevels({ wood: 60, stone: 20 }, 30, undefined, 10),
     requiredTier: "camp",
     tierLevelCaps: { camp: 3, village: 6, town: 8, city: 10 },
   },
@@ -180,7 +182,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "A humble place of worship where citizens find peace and solace. Improves settlement happiness.",
     icon: "⛪",
     maxLevel: 10,
-    levels: generateLevels({ wood: 40, stone: 60 }, 90, undefined, 10),
+    levels: generateLevels({ wood: 40, stone: 60 }, 35, undefined, 10),
     requiredTier: "camp",
     tierLevelCaps: { camp: 2, village: 5, town: 8, city: 10 },
   },
@@ -194,7 +196,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "Woodcutters fell trees from the surrounding forest and process them into usable timber.",
     icon: "🪓",
     maxLevel: 20,
-    levels: generateLevels({ wood: 30, stone: 40 }, 75, { resource: "wood", baseRate: 35 }),
+    levels: generateLevels({ wood: 30, stone: 40 }, 30, { resource: "wood", baseRate: 45 }),
     requiredTier: "camp",
   },
   {
@@ -205,7 +207,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "Miners extract stone from the nearby hills. Essential for constructing advanced buildings.",
     icon: "⛏️",
     maxLevel: 20,
-    levels: generateLevels({ wood: 60, stone: 10 }, 90, { resource: "stone", baseRate: 30 }),
+    levels: generateLevels({ wood: 60, stone: 10 }, 35, { resource: "stone", baseRate: 40 }),
     requiredTier: "camp",
   },
   {
@@ -216,7 +218,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "Skilled hunters venture into the wilds, bringing back game and pelts. Supplements your food supply.",
     icon: "🏹",
     maxLevel: 15,
-    levels: generateLevels({ wood: 90, stone: 10 }, 60, { resource: "food", baseRate: 14, foodType: "meat" }, 15),
+    levels: generateLevels({ wood: 90, stone: 10 }, 25, { resource: "food", baseRate: 14, foodType: "meat" }, 15),
     requiredTier: "camp",
   },
 
@@ -228,7 +230,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "Gatherers scour the forest edges for wild berries, mushrooms, and herbs. A quick and cheap source of food.",
     icon: "🫐",
     maxLevel: 10,
-    levels: generateLevels({ wood: 30, stone: 5 }, 30, { resource: "food", baseRate: 8, foodType: "berries" }, 10),
+    levels: generateLevels({ wood: 30, stone: 5 }, 15, { resource: "food", baseRate: 8, foodType: "berries" }, 10),
     requiredTier: "camp",
   },
 
@@ -240,7 +242,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "A small dock on the river where fishermen cast their nets. Provides a steady supply of fish year-round.",
     icon: "🐟",
     maxLevel: 10,
-    levels: generateLevels({ wood: 50, stone: 10 }, 50, { resource: "food", baseRate: 12, foodType: "fish" }, 10),
+    levels: generateLevels({ wood: 50, stone: 10 }, 20, { resource: "food", baseRate: 12, foodType: "fish" }, 10),
     requiredTier: "camp",
   },
 
@@ -253,7 +255,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "Converts grain into ale. A vital supply for the Tavern and a happy settlement.",
     icon: "🍺",
     maxLevel: 10,
-    levels: generateLevels({ wood: 60, stone: 40 }, 100, undefined, 10),
+    levels: generateLevels({ wood: 60, stone: 40 }, 40, undefined, 10),
     requiredTier: "village",
     tierLevelCaps: { village: 3, town: 7, city: 10 },
   },
@@ -265,7 +267,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "A lively gathering place for citizens and travelers. Consumes ale and greatly boosts happiness.",
     icon: "🍻",
     maxLevel: 10,
-    levels: generateLevels({ wood: 80, stone: 50 }, 120, undefined, 10),
+    levels: generateLevels({ wood: 80, stone: 50 }, 45, undefined, 10),
     requiredTier: "village",
     tierLevelCaps: { village: 3, town: 7, city: 10 },
   },
@@ -279,7 +281,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "Skilled tailors craft clothing from wool and fiber. Citizens need clothes to stay warm, especially in winter.",
     icon: "🧵",
     maxLevel: 10,
-    levels: generateLevels({ wood: 50, stone: 30 }, 90, undefined, 10),
+    levels: generateLevels({ wood: 50, stone: 30 }, 35, undefined, 10),
     requiredTier: "village",
     tierLevelCaps: { village: 3, town: 7, city: 10 },
   },
@@ -292,7 +294,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     description: "Deep shafts delve into the earth seeking precious gold veins to fund your realm.",
     icon: "💰",
     maxLevel: 20,
-    levels: generateLevels({ wood: 100, stone: 80 }, 120, { resource: "gold", baseRate: 15 }),
+    levels: generateLevels({ wood: 100, stone: 80 }, 45, { resource: "gold", baseRate: 15 }),
     requiredTier: "village",
   },
   {
@@ -302,7 +304,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     description: "Miners extract iron ore from deep veins. Essential for the Blacksmith to forge tools, weapons, and armor.",
     icon: "⚒️",
     maxLevel: 15,
-    levels: generateLevels({ wood: 80, stone: 100 }, 120, undefined, 15),
+    levels: generateLevels({ wood: 80, stone: 100 }, 45, undefined, 15),
     requiredTier: "village",
     tierLevelCaps: { village: 4, town: 10, city: 15 },
   },
@@ -314,7 +316,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "The ring of hammer on anvil echoes through the village. The blacksmith forges tools and weapons for your people.",
     icon: "🔨",
     maxLevel: 15,
-    levels: generateLevels({ wood: 80, stone: 60 }, 150, undefined, 15),
+    levels: generateLevels({ wood: 80, stone: 60 }, 50, undefined, 15),
     requiredTier: "village",
   },
   {
@@ -325,7 +327,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "A bustling bazaar where merchants gather. Enables trading resources with other players.",
     icon: "🏪",
     maxLevel: 15,
-    levels: generateLevels({ wood: 120, stone: 60 }, 180, undefined, 15),
+    levels: generateLevels({ wood: 120, stone: 60 }, 60, undefined, 15),
     requiredTier: "village",
   },
 
@@ -338,7 +340,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "Training grounds for your soldiers. Higher levels unlock more powerful unit types.",
     icon: "⚔️",
     maxLevel: 20,
-    levels: generateLevels({ wood: 100, stone: 80 }, 180),
+    levels: generateLevels({ wood: 100, stone: 80 }, 60),
     requiredTier: "town",
   },
   {
@@ -349,7 +351,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "Sentinels keep watch from this tall tower, warning of approaching threats and improving your defenses.",
     icon: "🏰",
     maxLevel: 15,
-    levels: generateLevels({ wood: 60, stone: 120 }, 200, undefined, 15),
+    levels: generateLevels({ wood: 60, stone: 120 }, 65, undefined, 15),
     requiredTier: "town",
   },
   {
@@ -360,7 +362,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "A spire of arcane energy where wizards study the mystic arts. Unlocks magical research.",
     icon: "🗼",
     maxLevel: 20,
-    levels: generateLevels({ wood: 60, stone: 100 }, 240),
+    levels: generateLevels({ wood: 60, stone: 100 }, 75),
     requiredTier: "town",
   },
 
@@ -413,7 +415,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "Stone fortifications around your settlement. Provides passive defense against raids and attacks.",
     icon: "🧱",
     maxLevel: 15,
-    levels: generateLevels({ wood: 40, stone: 120 }, 150, undefined, 15),
+    levels: generateLevels({ wood: 40, stone: 120 }, 50, undefined, 15),
     requiredTier: "camp",
     tierLevelCaps: { camp: 2, village: 5, town: 10, city: 15 },
   },
@@ -427,7 +429,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "Bubbling cauldrons and strange vapors fill this laboratory where alchemists brew potions and transmute materials.",
     icon: "🧪",
     maxLevel: 15,
-    levels: generateLevels({ wood: 40, stone: 80 }, 300, undefined, 15),
+    levels: generateLevels({ wood: 40, stone: 80 }, 90, undefined, 15),
     requiredTier: "city",
   },
 ];
