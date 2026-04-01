@@ -1,7 +1,7 @@
 import { Show, createSignal } from "solid-js";
 import { A, useLocation } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
-import { SEASON_META, HOURS_PER_SEASON } from "~/data/seasons";
+import { SEASON_META, HOURS_PER_SEASON, IS_DEV, getGlobalSeason } from "~/data/seasons";
 import { logout } from "~/api/auth";
 
 interface NavItem {
@@ -176,52 +176,64 @@ export default function Sidebar() {
 
       <div class="sidebar-controls">
         <div class="nav-section-title">Season</div>
-        <div class="season-display">
-          <span class="season-icon">{SEASON_META[state.season].icon}</span>
-          <span class="season-name" style={{ color: SEASON_META[state.season].color }}>
-            {SEASON_META[state.season].name}
-          </span>
-          <span class="season-year">Year {state.year}</span>
-        </div>
-        <div class="season-progress-bar">
-          <div
-            class="season-progress-fill"
-            style={{
-              width: `${Math.min(100, (state.seasonElapsed / HOURS_PER_SEASON) * 100)}%`,
-              background: SEASON_META[state.season].color,
-            }}
-          />
-        </div>
-        <button class="skip-season-btn" onClick={() => actions.skipSeason()}>
-          Skip to next season →
-        </button>
+        {(() => {
+          const seasonInfo = () => IS_DEV
+            ? { season: state.season, progress: state.seasonElapsed / HOURS_PER_SEASON, year: state.year }
+            : getGlobalSeason();
+          return (
+            <>
+              <div class="season-display">
+                <span class="season-icon">{SEASON_META[seasonInfo().season].icon}</span>
+                <span class="season-name" style={{ color: SEASON_META[seasonInfo().season].color }}>
+                  {SEASON_META[seasonInfo().season].name}
+                </span>
+                <span class="season-year">Year {seasonInfo().year}</span>
+              </div>
+              <div class="season-progress-bar">
+                <div
+                  class="season-progress-fill"
+                  style={{
+                    width: `${Math.min(100, seasonInfo().progress * 100)}%`,
+                    background: SEASON_META[seasonInfo().season].color,
+                  }}
+                />
+              </div>
+            </>
+          );
+        })()}
 
-        <div class="nav-section-title" style={{ "margin-top": "12px" }}>Game Speed</div>
-        <div class="speed-buttons">
-          {SPEEDS.map((s) => (
-            <button
-              class="speed-btn"
-              classList={{ active: state.gameSpeed === s }}
-              onClick={() => actions.setGameSpeed(s)}
-            >
-              {s}x
-            </button>
-          ))}
-        </div>
-        <div class="nav-section-title" style={{ "margin-top": "12px" }}>Dev Tools</div>
-        <button class="skip-season-btn" onClick={() => actions.grantResources(10)}>
-          +10 all resources
-        </button>
-        <button class="skip-season-btn" onClick={() => actions.triggerRaid()}>
-          Trigger raid (1min)
-        </button>
-        <button class="reset-btn" onClick={() => {
-          if (confirm("Start a new game? All progress will be lost.")) {
-            actions.resetGame();
-          }
-        }}>
-          New Game
-        </button>
+        <Show when={IS_DEV}>
+          <button class="skip-season-btn" onClick={() => actions.skipSeason()}>
+            Skip to next season →
+          </button>
+
+          <div class="nav-section-title" style={{ "margin-top": "12px" }}>Game Speed</div>
+          <div class="speed-buttons">
+            {SPEEDS.map((s) => (
+              <button
+                class="speed-btn"
+                classList={{ active: state.gameSpeed === s }}
+                onClick={() => actions.setGameSpeed(s)}
+              >
+                {s}x
+              </button>
+            ))}
+          </div>
+          <div class="nav-section-title" style={{ "margin-top": "12px" }}>Dev Tools</div>
+          <button class="skip-season-btn" onClick={() => actions.grantResources(10)}>
+            +10 all resources
+          </button>
+          <button class="skip-season-btn" onClick={() => actions.triggerRaid()}>
+            Trigger raid (1min)
+          </button>
+          <button class="reset-btn" onClick={() => {
+            if (confirm("Start a new game? All progress will be lost.")) {
+              actions.resetGame();
+            }
+          }}>
+            New Game
+          </button>
+        </Show>
       </div>
 
       <div class="sidebar-account">

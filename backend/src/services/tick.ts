@@ -74,19 +74,32 @@ export function applyServerTick(state: GameState, elapsedMs: number): GameState 
     r.remaining -= elapsedGameSeconds;
   }
 
-  // ─── Season advancement ─────────────────────────────────────
-  s.seasonElapsed += elapsedHours;
-  // HOURS_PER_SEASON = 24 (from the frontend constants)
+  // ─── Season advancement (global calendar) ────────────────────
+  // Seasons are derived from real-world time — same for all players.
+  // Spring starts April 1, 2026. Each season = 4 real days.
+  const CALENDAR_EPOCH = Date.UTC(2026, 3, 1); // April 1, 2026
+  const SEASON_DURATION_MS = 4 * 24 * 60 * 60 * 1000; // 4 days
   const HOURS_PER_SEASON = 24;
-  while (s.seasonElapsed >= HOURS_PER_SEASON) {
-    s.seasonElapsed -= HOURS_PER_SEASON;
-    const order: GameState["season"][] = ["spring", "summer", "autumn", "winter"];
-    const idx = order.indexOf(s.season);
-    s.season = order[(idx + 1) % 4];
-    if (s.season === "spring") {
-      s.year += 1;
+  const order: GameState["season"][] = ["spring", "summer", "autumn", "winter"];
+
+  const elapsed = Date.now() - CALENDAR_EPOCH;
+  const totalSeasons = Math.floor(elapsed / SEASON_DURATION_MS);
+  const globalSeason = order[((totalSeasons % 4) + 4) % 4];
+  const globalYear = Math.floor(totalSeasons / 4) + 1;
+  const globalProgress = (elapsed % SEASON_DURATION_MS) / SEASON_DURATION_MS;
+
+  if (globalSeason !== s.season) {
+    // Advance through seasons until we match
+    while (s.season !== globalSeason) {
+      const idx = order.indexOf(s.season);
+      s.season = order[(idx + 1) % 4];
+      if (s.season === "spring") {
+        s.year += 1;
+      }
     }
   }
+  s.seasonElapsed = globalProgress * HOURS_PER_SEASON;
+  s.year = globalYear;
 
   // ─── Resource production (simplified) ───────────────────────
   // We compute a basic rate from building levels.
@@ -94,15 +107,16 @@ export function applyServerTick(state: GameState, elapsedMs: number): GameState 
   const getBuildingLevel = (id: string) =>
     s.buildings.find((b) => b.buildingId === id)?.level ?? 0;
 
-  const lumbermillLvl = getBuildingLevel("lumbermill");
+  const lumbermillLvl = getBuildingLevel("lumber_mill");
   const quarryLvl = getBuildingLevel("quarry");
-  const farmLvl = getBuildingLevel("farm");
-  const townHallLvl = getBuildingLevel("town_hall");
+  const huntingCampLvl = getBuildingLevel("hunting_camp");
+  const foragerLvl = getBuildingLevel("forager_hut");
+  const fishingLvl = getBuildingLevel("fishing_hut");
 
-  // Base rates per hour (from building definitions — simplified)
+  // Base rates per hour (simplified approximation of frontend logic)
   const woodPerHour = lumbermillLvl * 10;
   const stonePerHour = quarryLvl * 8;
-  const foodPerHour = farmLvl * 12;
+  const foodPerHour = (huntingCampLvl * 8) + (foragerLvl * 6) + (fishingLvl * 7);
   const goldPerHour = Math.floor(s.population) * 0.2; // tax
   const foodConsumed = Math.floor(s.population) * 2;
 

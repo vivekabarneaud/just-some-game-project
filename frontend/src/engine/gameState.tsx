@@ -85,6 +85,8 @@ import {
   HOURS_PER_SEASON,
   HARVEST_DURATION_HOURS,
   nextSeason,
+  IS_DEV,
+  getGlobalSeason,
 } from "~/data/seasons";
 import {
   type Adventurer,
@@ -1138,10 +1140,24 @@ export function GameProvider(props: ParentProps) {
     setState(
       produce((s) => {
         // Advance season
-        s.seasonElapsed += elapsedHours;
-        while (s.seasonElapsed >= HOURS_PER_SEASON) {
-          s.seasonElapsed -= HOURS_PER_SEASON;
-          advanceSeason(s);
+        if (IS_DEV) {
+          // Dev mode: season driven by game ticks (affected by speed)
+          s.seasonElapsed += elapsedHours;
+          while (s.seasonElapsed >= HOURS_PER_SEASON) {
+            s.seasonElapsed -= HOURS_PER_SEASON;
+            advanceSeason(s);
+          }
+        } else {
+          // Production: season derived from real-world time (global for all players)
+          const global = getGlobalSeason();
+          if (global.season !== s.season) {
+            // Season changed — trigger season-change logic
+            while (s.season !== global.season) {
+              advanceSeason(s);
+            }
+          }
+          s.seasonElapsed = global.progress * HOURS_PER_SEASON;
+          s.year = global.year;
         }
 
         const rates = calcProductionRates(s);
@@ -1696,7 +1712,9 @@ export function GameProvider(props: ParentProps) {
   const offlineMs = Date.now() - state.lastTick;
   if (offlineMs > 2000) applyTicks(offlineMs);
 
-  const tickInterval = setInterval(() => applyTicks(TICK_INTERVAL_MS * state.gameSpeed), TICK_INTERVAL_MS);
+  // In production, speed is always 1. In dev, player can adjust.
+  const getSpeed = () => IS_DEV ? state.gameSpeed : 1;
+  const tickInterval = setInterval(() => applyTicks(TICK_INTERVAL_MS * getSpeed()), TICK_INTERVAL_MS);
   const localSaveInterval = setInterval(() => saveGameLocal(JSON.parse(JSON.stringify(state))), 5000);
   const apiSaveInterval = setInterval(() => {
     if (_settlementId) {
