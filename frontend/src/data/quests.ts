@@ -21,6 +21,7 @@ const bldg = (state: GameState, id: string) =>
   state.buildings.find((b) => b.buildingId === id);
 
 export const QUEST_CHAIN: QuestDefinition[] = [
+  // 1 — Lumber Mill
   {
     id: "first_things_first",
     title: "First Things First",
@@ -32,6 +33,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     rewards: [{ resource: "wood", amount: 100, label: "Wood" }],
     targetBuildingId: "lumber_mill",
   },
+  // 2 — Stone Quarry
   {
     id: "foundation_of_stone",
     title: "Foundation of Stone",
@@ -43,6 +45,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     rewards: [{ resource: "stone", amount: 100, label: "Stone" }],
     targetBuildingId: "quarry",
   },
+  // 3 — Forager's Hut
   {
     id: "the_foragers_path",
     title: "The Forager's Path",
@@ -54,17 +57,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     rewards: [{ resource: "food", amount: 100, label: "Food" }],
     targetBuildingId: "forager_hut",
   },
-  {
-    id: "a_roof_over_their_heads",
-    title: "A Roof Over Their Heads",
-    narrative:
-      "Your people huddle around the campfire, dreaming of walls and warmth. Give them homes, and they will give you loyalty.",
-    objective: "Build Houses",
-    icon: "🏠",
-    condition: (s) => (bldg(s, "houses")?.level ?? 0) >= 1,
-    rewards: [{ resource: "food", amount: 50, label: "Food" }],
-    targetBuildingId: "houses",
-  },
+  // 4 — Hunting Camp
   {
     id: "the_hunt_begins",
     title: "The Hunt Begins",
@@ -76,17 +69,43 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     rewards: [{ resource: "food", amount: 150, label: "Food" }],
     targetBuildingId: "hunting_camp",
   },
+  // 5 — Upgrade Lumber Mill to lvl 2
   {
-    id: "ambition_rises",
-    title: "Ambition Rises",
+    id: "sharper_axes",
+    title: "Sharper Axes",
     narrative:
-      "Your camp grows restless with potential. Upgrade the Town Hall and watch your settlement transform into something greater.",
-    objective: "Upgrade Town Hall to level 2",
-    icon: "🏛️",
-    condition: (s) => (bldg(s, "town_hall")?.level ?? 0) >= 2,
-    rewards: [{ resource: "gold", amount: 200, label: "Gold" }],
-    targetBuildingId: "town_hall",
+      "Your woodcutters have learned the grain of every tree in the forest. With better tools and technique, the timber will flow twice as fast.",
+    objective: "Upgrade Lumber Mill to level 2",
+    icon: "🪓",
+    condition: (s) => (bldg(s, "lumber_mill")?.level ?? 0) >= 2,
+    rewards: [{ resource: "wood", amount: 150, label: "Wood" }],
+    targetBuildingId: "lumber_mill",
   },
+  // 6 — Upgrade Stone Quarry to lvl 2
+  {
+    id: "deeper_veins",
+    title: "Deeper Veins",
+    narrative:
+      "The surface stone is running thin, but your miners swear they can hear richer deposits echoing below. Time to dig deeper.",
+    objective: "Upgrade Stone Quarry to level 2",
+    icon: "⛏️",
+    condition: (s) => (bldg(s, "quarry")?.level ?? 0) >= 2,
+    rewards: [{ resource: "stone", amount: 150, label: "Stone" }],
+    targetBuildingId: "quarry",
+  },
+  // 7 — Houses
+  {
+    id: "a_roof_over_their_heads",
+    title: "A Roof Over Their Heads",
+    narrative:
+      "Your people huddle around the campfire, dreaming of walls and warmth. Give them homes, and they will give you loyalty.",
+    objective: "Build Houses",
+    icon: "🏠",
+    condition: (s) => (bldg(s, "houses")?.level ?? 0) >= 1,
+    rewards: [{ resource: "food", amount: 50, label: "Food" }],
+    targetBuildingId: "houses",
+  },
+  // 8 — Fishing Hut
   {
     id: "from_the_deep",
     title: "From the Deep",
@@ -98,6 +117,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     rewards: [{ resource: "food", amount: 100, label: "Food" }],
     targetBuildingId: "fishing_hut",
   },
+  // 9 — Pantry
   {
     id: "stockpile_for_winter",
     title: "Stockpile for Winter",
@@ -109,6 +129,41 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     rewards: [{ resource: "food", amount: 100, label: "Food" }],
     targetBuildingId: "pantry",
   },
+  // 10 — Town Hall lvl 2
+  {
+    id: "ambition_rises",
+    title: "Ambition Rises",
+    narrative:
+      "Your camp grows restless with potential. Upgrade the Town Hall and watch your settlement transform into something greater.",
+    objective: "Upgrade Town Hall to level 2",
+    icon: "🏛️",
+    condition: (s) => (bldg(s, "town_hall")?.level ?? 0) >= 2,
+    rewards: [{ resource: "gold", amount: 300, label: "Gold" }],
+    targetBuildingId: "town_hall",
+  },
+  // 11 — Build a Wheat Field
+  {
+    id: "seeds_of_prosperity",
+    title: "Seeds of Prosperity",
+    narrative:
+      "The soil here is dark and rich — perfect for planting. A well-tended wheat field will feed your people through the harshest winters.",
+    objective: "Build a Wheat Field",
+    icon: "🌾",
+    condition: (s) => s.fields.length >= 1,
+    rewards: [{ resource: "food", amount: 200, label: "Food" }],
+  },
+  // 12 — Build a Sheep Pen
+  {
+    id: "woolly_friends",
+    title: "Woolly Friends",
+    narrative:
+      "A shepherd arrives at your gate with a small flock, looking for pasture. Wool for clothing, milk for the table — these creatures earn their keep.",
+    objective: "Build a Sheep Pen",
+    icon: "🐑",
+    condition: (s) => s.pens.length >= 1,
+    rewards: [{ resource: "food", amount: 100, label: "Food" }],
+  },
+  // 13 — Town Hall lvl 3
   {
     id: "the_road_to_greatness",
     title: "The Road to Greatness",
@@ -119,10 +174,11 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "town_hall")?.level ?? 0) >= 3,
     targetBuildingId: "town_hall",
     rewards: [
-      { resource: "gold", amount: 200, label: "Gold" },
+      { resource: "gold", amount: 300, label: "Gold" },
       { resource: "astralShards", amount: 5, label: "Astral Shards" },
     ],
   },
+  // 14 — Adventurer's Guild
   {
     id: "heroes_wanted",
     title: "Heroes Wanted",
@@ -137,6 +193,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
       { resource: "astralShards", amount: 5, label: "Astral Shards" },
     ],
   },
+  // 15 — Recruit
   {
     id: "a_brave_soul",
     title: "A Brave Soul",
@@ -147,6 +204,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => s.adventurers.length >= 1,
     rewards: [{ resource: "gold", amount: 200, label: "Gold" }],
   },
+  // 16 — Send mission
   {
     id: "into_the_unknown",
     title: "Into the Unknown",

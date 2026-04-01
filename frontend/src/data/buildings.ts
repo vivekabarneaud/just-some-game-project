@@ -122,7 +122,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "The heart of your settlement. Upgrading the Town Hall unlocks new buildings and evolves your settlement.",
     icon: "🏛️",
     maxLevel: 25,
-    levels: generateLevels({ wood: 200, stone: 200 }, 120, undefined, 25),
+    levels: generateLevels({ wood: 120, stone: 120 }, 90, undefined, 25),
     requiredTier: "camp",
   },
   {
