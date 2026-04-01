@@ -362,11 +362,6 @@ export default function Farming() {
       {/* ── Fields ── */}
       <h2 class="farming-section-title">🌾 Fields ({state.fields.length}/{MAX_FIELDS})</h2>
       <Show when={state.fields.length > 0}>
-        <div class="fields-grid">
-          <For each={state.fields}>{(f) => <FieldCard field={f} />}</For>
-        </div>
-      </Show>
-      <Show when={state.fields.length > 0}>
         <div style={{
           padding: "8px 12px",
           "margin-bottom": "10px",
@@ -384,57 +379,62 @@ export default function Farming() {
           {state.season === "winter" && "❄️ Fields are dormant until spring."}
         </div>
       </Show>
-      <Show when={state.fields.length < MAX_FIELDS}>
-        <button class="build-field-btn" disabled={!canBuildField()} onClick={() => actions.buildField()}>
-          + Build New Field (🪵 {getFieldCost(0).wood} 🪨 {getFieldCost(0).stone})
-        </button>
-      </Show>
+      <div class="fields-grid">
+        <For each={state.fields}>{(f) => <FieldCard field={f} />}</For>
+        <Show when={state.fields.length < MAX_FIELDS}>
+          <button class="add-card-btn" disabled={!canBuildField()} onClick={() => actions.buildField()}>
+            <span class="add-card-icon">+</span>
+            <span class="add-card-label">New Field</span>
+            <span class="add-card-cost">🪵 {getFieldCost(0).wood} 🪨 {getFieldCost(0).stone}</span>
+          </button>
+        </Show>
+      </div>
 
       {/* ── Gardens ── */}
       <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🥬 Gardens ({state.gardens.length}/{MAX_GARDENS})</h2>
-      <Show when={state.gardens.length > 0}>
-        <div class="fields-grid">
-          <For each={state.gardens}>{(g) => <GardenCard garden={g} />}</For>
-        </div>
-      </Show>
-      <Show when={state.gardens.length < MAX_GARDENS}>
-        <Show when={showGardenPicker()} fallback={
-          <button class="build-field-btn" disabled={!canBuildGarden()} onClick={() => setShowGardenPicker(true)}>
-            + Plant New Garden (🪵 {getGardenCost(0).wood} 🪨 {getGardenCost(0).stone})
-          </button>
-        }>
-          <Picker title="Choose a Vegetable" items={VEGGIES} disabled={!canBuildGarden()}
-            getYieldLabel={(v) => `+${getGardenRate(v, 1)}/h (${v.activeSeasons.map((s) => SEASON_META[s].icon).join(" ")})`}
-            onSelect={(id) => { actions.buildGarden(id as VeggieId); setShowGardenPicker(false); }}
-            onCancel={() => setShowGardenPicker(false)} />
+      <div class="fields-grid">
+        <For each={state.gardens}>{(g) => <GardenCard garden={g} />}</For>
+        <Show when={state.gardens.length < MAX_GARDENS}>
+          <Show when={showGardenPicker()} fallback={
+            <button class="add-card-btn" disabled={!canBuildGarden()} onClick={() => setShowGardenPicker(true)}>
+              <span class="add-card-icon">+</span>
+              <span class="add-card-label">New Garden</span>
+              <span class="add-card-cost">🪵 {getGardenCost(0).wood} 🪨 {getGardenCost(0).stone}</span>
+            </button>
+          }>
+            <Picker title="Choose a Vegetable" items={VEGGIES} disabled={!canBuildGarden()}
+              getYieldLabel={(v) => `+${getGardenRate(v, 1)}/h (${v.activeSeasons.map((s) => SEASON_META[s].icon).join(" ")})`}
+              onSelect={(id) => { actions.buildGarden(id as VeggieId); setShowGardenPicker(false); }}
+              onCancel={() => setShowGardenPicker(false)} />
+          </Show>
         </Show>
-      </Show>
+      </div>
 
       {/* ── Livestock ── */}
       <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🐄 Livestock ({state.pens.length}/{MAX_PENS})</h2>
-      <Show when={state.pens.length > 0}>
-        <div class="fields-grid">
-          <For each={state.pens}>{(p) => <PenCard pen={p} />}</For>
-        </div>
-      </Show>
-      <Show when={state.pens.length < MAX_PENS}>
-        <Show when={showPenPicker()} fallback={
-          <button class="build-field-btn" disabled={!canBuildPen()} onClick={() => setShowPenPicker(true)}>
-            + Build New Pen (🪵 {getPenCost(0).wood} 🪨 {getPenCost(0).stone} 🪙 {getPenCost(0).gold})
-          </button>
-        }>
-          <Picker title="Choose an Animal" items={ANIMALS} disabled={!canBuildPen()}
-            getYieldLabel={(a) => {
-              const prod = getPenProduction(a, 1);
-              let label = `+${prod.produced}/h ${a.foodLabel}`;
-              if (prod.secondary) label += ` · +${prod.secondary.amount}/h ${prod.secondary.resource}`;
-              label += ` (eats ${prod.consumed}/h)`;
-              return label;
-            }}
-            onSelect={(id) => { actions.buildPen(id as AnimalId); setShowPenPicker(false); }}
-            onCancel={() => setShowPenPicker(false)} />
+      <div class="fields-grid">
+        <For each={state.pens}>{(p) => <PenCard pen={p} />}</For>
+        <Show when={state.pens.length < MAX_PENS}>
+          <Show when={showPenPicker()} fallback={
+            <button class="add-card-btn" disabled={!canBuildPen()} onClick={() => setShowPenPicker(true)}>
+              <span class="add-card-icon">+</span>
+              <span class="add-card-label">New Pen</span>
+              <span class="add-card-cost">🪵 {getPenCost(0).wood} 🪨 {getPenCost(0).stone} 🪙 {getPenCost(0).gold}</span>
+            </button>
+          }>
+            <Picker title="Choose an Animal" items={ANIMALS} disabled={!canBuildPen()}
+              getYieldLabel={(a) => {
+                const prod = getPenProduction(a, 1);
+                let label = `+${prod.produced}/h ${a.foodLabel}`;
+                if (prod.secondary) label += ` · +${prod.secondary.amount}/h ${prod.secondary.resource}`;
+                label += ` (eats ${prod.consumed}/h)`;
+                return label;
+              }}
+              onSelect={(id) => { actions.buildPen(id as AnimalId); setShowPenPicker(false); }}
+              onCancel={() => setShowPenPicker(false)} />
+          </Show>
         </Show>
-      </Show>
+      </div>
     </div>
   );
 }

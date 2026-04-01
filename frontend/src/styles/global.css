@@ -1181,6 +1181,52 @@ body {
   border-style: dashed;
 }
 
+.add-card-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px;
+  background: transparent;
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  min-height: 120px;
+}
+
+.add-card-btn:hover:not(:disabled) {
+  border-color: var(--accent-green);
+  background: rgba(76, 175, 80, 0.05);
+}
+
+.add-card-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.add-card-icon {
+  font-size: 2rem;
+  color: var(--text-muted);
+  line-height: 1;
+}
+
+.add-card-btn:hover:not(:disabled) .add-card-icon {
+  color: var(--accent-green);
+}
+
+.add-card-label {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.add-card-cost {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
 .crop-picker {
   background: var(--bg-panel);
   border: 1px solid var(--border-highlight);

@@ -164,7 +164,7 @@ export default function Overview() {
               );
             }}
           </For>
-          <div class="stat-row" style={{ "margin-top": "8px", "border-top": "1px solid var(--border-highlight)" }}>
+          <div class="stat-row" style={{ "margin-top": "-1px", "border-top": "1px solid var(--border-highlight)", "padding-top": "8px" }}>
             <span class="stat-label">Material Storage</span>
             <span class="stat-value">{caps().wood.toLocaleString()}</span>
           </div>
