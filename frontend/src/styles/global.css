@@ -1240,6 +1240,10 @@ body {
   margin-bottom: 12px;
 }
 
+.fields-grid > .crop-picker {
+  grid-column: 1 / -1;
+}
+
 .crop-picker-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
