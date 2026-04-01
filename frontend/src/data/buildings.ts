@@ -527,7 +527,7 @@ export const HOUSES_POP_PER_LEVEL = 8;
 export const BASE_POPULATION = 5;
 
 // Food consumed per citizen per hour
-export const FOOD_PER_CITIZEN_PER_HOUR = 3;
+export const FOOD_PER_CITIZEN_PER_HOUR = 5;
 
 // Material storage (wood & stone) — Warehouse
 export const BASE_MATERIAL_STORAGE = 500;

@@ -18,10 +18,9 @@ export default function Overview() {
   const thLevel = () => actions.getTownHallLevel();
   const defense = () => actions.getDefense();
 
-  // Collect stale raid/mission logs on mount (clear them from state)
+  // Collect stale raid logs on mount (clear them from state)
   onMount(() => {
     actions.collectRaidLog();
-    actions.collectCompletedMissions();
   });
 
   const upgradingBuildings = () =>

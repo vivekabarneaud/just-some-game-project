@@ -590,6 +590,7 @@ export interface GameActions {
   rerollMissions: () => boolean;
   rerollRecruits: () => boolean;
   claimQuestReward: (questId: string) => boolean;
+  claimMissionReward: (index: number) => void;
 }
 
 // ─── Constants ───────────────────────────────────────────────────
@@ -1569,19 +1570,7 @@ export function GameProvider(props: ParentProps) {
                 }
               }
 
-              // Grant resource rewards
-              if (rewards.length > 0) {
-                const resCaps = calcStorageCaps(s.buildings);
-                for (const reward of rewards) {
-                  if (reward.resource === "astralShards") {
-                    s.astralShards += reward.amount;
-                  } else {
-                    const key = reward.resource as keyof ResourceState;
-                    const cap = resCaps[key];
-                    s.resources[key] = Math.min(cap, s.resources[key] + reward.amount);
-                  }
-                }
-              }
+              // Rewards are NOT auto-granted — player claims them via the Guild page
 
               // Log events
               const missionName = template?.name ?? am.missionId;
@@ -2441,6 +2430,22 @@ export function GameProvider(props: ParentProps) {
         }
       }));
       return true;
+    },
+    claimMissionReward(index) {
+      const mission = state.completedMissions[index];
+      if (!mission) return;
+      setState(produce((s) => {
+        const caps = calcStorageCaps(s.buildings);
+        for (const reward of mission.rewards) {
+          if (reward.resource === "astralShards") {
+            s.astralShards += reward.amount;
+          } else {
+            const key = reward.resource as keyof typeof s.resources;
+            s.resources[key] = Math.min(caps[key], s.resources[key] + reward.amount);
+          }
+        }
+        s.completedMissions.splice(index, 1);
+      }));
     },
   };
 

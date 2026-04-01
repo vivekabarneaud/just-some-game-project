@@ -63,21 +63,13 @@ export default function AdventurersGuild() {
   const [tab, setTab] = createSignal<Tab>(initialTab);
   const [selectedMission, setSelectedMission] = createSignal<MissionTemplate | null>(null);
   const [selectedTeam, setSelectedTeam] = createSignal<string[]>([]);
-  const [results, setResults] = createSignal<ReturnType<typeof actions.collectCompletedMissions>>([]);
-
   const guildLevel = () => actions.getGuildLevel();
   const available = () => actions.getAvailableAdventurers();
   const roster = () => state.adventurers;
   const slotInfo = () => actions.getMissionSlotInfo();
   const rosterSize = () => actions.getRosterSize();
 
-  const checkResults = () => {
-    const completed = actions.collectCompletedMissions();
-    if (completed.length > 0) setResults((prev) => [...completed, ...prev].slice(0, 10));
-  };
-
   const switchTab = (t: Tab) => {
-    checkResults();
     setTab(t);
     setSelectedMission(null);
     setSelectedTeam([]);
@@ -220,9 +212,9 @@ export default function AdventurersGuild() {
         </div>
 
         {/* Results banner */}
-        <Show when={results().length > 0}>
+        <Show when={state.completedMissions.length > 0}>
           <div style={{ "margin-bottom": "16px" }}>
-            <For each={results()}>
+            <For each={state.completedMissions}>
               {(result, i) => {
                 const template = () => getMission(result.missionId) ?? { name: result.missionId, icon: "📜" };
                 return (
@@ -245,10 +237,20 @@ export default function AdventurersGuild() {
                         )}
                       </span>
                       <button
-                        onClick={() => setResults((prev) => prev.filter((_, idx) => idx !== i()))}
-                        style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer" }}
+                        onClick={() => actions.claimMissionReward(i())}
+                        style={{
+                          padding: "4px 12px",
+                          background: result.rewards.length > 0 ? "var(--accent-gold)" : "transparent",
+                          color: result.rewards.length > 0 ? "#1a1a1a" : "var(--text-muted)",
+                          border: result.rewards.length > 0 ? "none" : "1px solid var(--border-color)",
+                          "border-radius": "4px",
+                          cursor: "pointer",
+                          "font-size": "0.8rem",
+                          "font-weight": "600",
+                          "white-space": "nowrap",
+                        }}
                       >
-                        ×
+                        {result.rewards.length > 0 ? "Claim" : "Dismiss"}
                       </button>
                     </div>
                     {/* XP, level ups, rank ups, casualties, revives */}

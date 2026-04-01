@@ -152,7 +152,8 @@ export function getUnspentStatPoints(adv: Adventurer): number {
 
 /** XP needed to reach next level (exponential curve) */
 export function getXpForLevel(level: number): number {
-  return Math.floor(50 * Math.pow(1.4, level - 1));
+  // First levels are fast (15 for lvl 2), ramps up steeply
+  return Math.floor(15 * Math.pow(1.5, level - 1));
 }
 
 /** Total XP accumulated across all levels */
