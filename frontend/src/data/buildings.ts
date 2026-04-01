@@ -196,7 +196,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "Woodcutters fell trees from the surrounding forest and process them into usable timber.",
     icon: "🪓",
     maxLevel: 20,
-    levels: generateLevels({ wood: 30, stone: 40 }, 15, { resource: "wood", baseRate: 45 }),
+    levels: generateLevels({ wood: 30, stone: 40 }, 15, { resource: "wood", baseRate: 55 }),
     requiredTier: "camp",
   },
   {
@@ -324,11 +324,12 @@ export const BUILDINGS: BuildingDefinition[] = [
     name: "Marketplace",
     category: "trade",
     description:
-      "A bustling bazaar where merchants gather. Enables trading resources with other players.",
+      "A bustling bazaar where travelling merchants gather. Trade your surplus resources for what you need.",
     icon: "🏪",
-    maxLevel: 15,
-    levels: generateLevels({ wood: 120, stone: 60 }, 30, undefined, 15),
-    requiredTier: "village",
+    maxLevel: 10,
+    levels: generateLevels({ wood: 60, stone: 40 }, 25, undefined, 10),
+    requiredTier: "camp",
+    tierLevelCaps: { camp: 2, village: 5, town: 8, city: 10 },
   },
 
   // Town tier (TH 5+)

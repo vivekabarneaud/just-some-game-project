@@ -591,6 +591,7 @@ export interface GameActions {
   rerollRecruits: () => boolean;
   claimQuestReward: (questId: string) => boolean;
   claimMissionReward: (index: number) => void;
+  trade: (give: keyof ResourceState, giveAmount: number, receive: keyof ResourceState, receiveAmount: number) => boolean;
 }
 
 // ─── Constants ───────────────────────────────────────────────────
@@ -2480,6 +2481,17 @@ export function GameProvider(props: ParentProps) {
         }
         s.completedMissions.splice(index, 1);
       }));
+    },
+    trade(give, giveAmount, receive, receiveAmount) {
+      if (state.resources[give] < giveAmount) return false;
+      const marketLevel = state.buildings.find((b) => b.buildingId === "marketplace")?.level ?? 0;
+      if (marketLevel === 0) return false;
+      setState(produce((s) => {
+        const caps = calcStorageCaps(s.buildings);
+        s.resources[give] -= giveAmount;
+        s.resources[receive] = Math.min(caps[receive], s.resources[receive] + receiveAmount);
+      }));
+      return true;
     },
   };
 
