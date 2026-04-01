@@ -1,4 +1,4 @@
-import { createSignal, For, Show } from "solid-js";
+import { createSignal, createMemo, For, Index, Show } from "solid-js";
 import { A, useNavigate, useSearchParams } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
 import {
@@ -64,7 +64,10 @@ export default function AdventurersGuild() {
   const [selectedMission, setSelectedMission] = createSignal<MissionTemplate | null>(null);
   const [selectedTeam, setSelectedTeam] = createSignal<string[]>([]);
   const guildLevel = () => actions.getGuildLevel();
-  const available = () => actions.getAvailableAdventurers();
+  const availableIds = createMemo(() =>
+    state.adventurers.filter((a) => a.alive && !a.onMission).map((a) => a.id)
+  );
+  const available = () => availableIds().map((id) => state.adventurers.find((a) => a.id === id)!);
   const roster = () => state.adventurers;
   const slotInfo = () => actions.getMissionSlotInfo();
   const rosterSize = () => actions.getRosterSize();
@@ -485,13 +488,13 @@ export default function AdventurersGuild() {
                 </Show>
 
                 <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap", "margin-bottom": "12px" }}>
-                  <For each={available()}>
+                  <Index each={available()}>
                     {(adv) => {
-                      const isInTeam = () => selectedTeam().includes(adv.id);
-                      const cls = getClassMeta(adv.class);
+                      const isInTeam = () => selectedTeam().includes(adv().id);
+                      const cls = () => getClassMeta(adv().class);
                       return (
                         <button
-                          onClick={() => toggleTeamMember(adv.id)}
+                          onClick={() => toggleTeamMember(adv().id)}
                           style={{
                             padding: "8px 12px",
                             background: isInTeam() ? "rgba(52, 152, 219, 0.2)" : "var(--bg-primary)",
@@ -504,20 +507,20 @@ export default function AdventurersGuild() {
                           }}
                         >
                           <div>
-                            {cls.icon} {adv.name}
-                            <span style={{ color: RANK_COLORS[adv.rank], "margin-left": "6px", "font-size": "0.75rem" }}>
-                              {RANK_NAMES[adv.rank]} Lv.{adv.level}
+                            {cls().icon} {adv().name}
+                            <span style={{ color: RANK_COLORS[adv().rank], "margin-left": "6px", "font-size": "0.75rem" }}>
+                              {RANK_NAMES[adv().rank]} Lv.{adv().level}
                             </span>
                           </div>
                           {isInTeam() && selectedTeam().length > 0 && (
                             <div style={{ "margin-top": "2px" }}>
-                              <DeathRisk chance={getAdvDeathRisk(adv)} />
+                              <DeathRisk chance={getAdvDeathRisk(adv())} />
                             </div>
                           )}
                         </button>
                       );
                     }}
-                  </For>
+                  </Index>
                 </div>
 
                 {/* Team class passive summary */}
