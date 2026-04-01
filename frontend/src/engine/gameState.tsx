@@ -1640,24 +1640,26 @@ export function GameProvider(props: ParentProps) {
             }
           }
 
-          // Refresh recruits and missions together
-          s.recruitRefreshIn -= elapsedHours;
-          if (s.recruitRefreshIn <= 0) {
-            s.recruitRefreshIn = RECRUIT_REFRESH_HOURS;
+          // Refresh recruits and missions daily at 3 AM UTC
+          const now = Date.now();
+          const today3am = new Date();
+          today3am.setUTCHours(3, 0, 0, 0);
+          if (today3am.getTime() > now) today3am.setUTCDate(today3am.getUTCDate() - 1);
+          const lastRefresh = Math.max(s.lastMissionRefresh, s.lastRecruitRefresh);
+          if (lastRefresh < today3am.getTime()) {
             // Recruits
             const count = getCandidateCount(guildLvl);
             const maxRank = getMaxRecruitRank(guildLvl, s.adventurers);
-            resetAdventurerSeed(Date.now() + s.year * 1000 + s.seasonElapsed);
+            resetAdventurerSeed(now + s.year * 1000);
             s.recruitCandidates = [];
             for (let i = 0; i < count; i++) {
               s.recruitCandidates.push(generateCandidate(nextId("adv"), maxRank));
             }
-            s.lastRecruitRefresh = Date.now();
+            s.lastRecruitRefresh = now;
             // Missions
             const boardSize = getMissionBoardSize(guildLvl);
-            s.missionBoard = generateMissionBoard(guildLvl, boardSize, Date.now() + s.year * 777);
-            s.lastMissionRefresh = Date.now();
-            s.missionRefreshIn = s.recruitRefreshIn;
+            s.missionBoard = generateMissionBoard(guildLvl, boardSize, now + s.year * 777);
+            s.lastMissionRefresh = now;
           }
         }
 
