@@ -640,7 +640,7 @@ export default function AdventurersGuild() {
                         {trinket() && <span title={trinket()!.name}>{trinket()!.icon}</span>}
                         {emptySlots().length > 0 && (
                           <span style={{ color: "var(--accent-gold)", "font-size": "0.7rem" }}>
-                            {emptySlots().length} empty slot{emptySlots().length > 1 ? "s" : ""}
+                            {emptySlots().length} empty gear slot{emptySlots().length > 1 ? "s" : ""}
                           </span>
                         )}
                       </div>

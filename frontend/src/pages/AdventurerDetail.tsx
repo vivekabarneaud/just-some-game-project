@@ -273,6 +273,11 @@ export default function AdventurerDetail() {
                       Cannot change equipment while on a mission.
                     </div>
                   </Show>
+                  <Show when={!adv().onMission && !adv().equipment.weapon && !adv().equipment.armor && !adv().equipment.trinket}>
+                    <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-top": "4px", "font-style": "italic" }}>
+                      Craft gear at the Woodworker, Blacksmith, or Tailoring Shop to equip your adventurers.
+                    </div>
+                  </Show>
                 </div>
 
                 {/* Talent Tree */}
