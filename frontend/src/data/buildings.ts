@@ -218,7 +218,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "Skilled hunters venture into the wilds, bringing back game and pelts. Supplements your food supply.",
     icon: "🏹",
     maxLevel: 15,
-    levels: generateLevels({ wood: 90, stone: 10 }, 12, { resource: "food", baseRate: 14, foodType: "meat" }, 15),
+    levels: generateLevels({ wood: 40, stone: 10 }, 12, { resource: "food", baseRate: 14, foodType: "meat" }, 15),
     requiredTier: "camp",
   },
 
@@ -242,7 +242,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "A small dock on the river where fishermen cast their nets. Provides a steady supply of fish year-round.",
     icon: "🐟",
     maxLevel: 10,
-    levels: generateLevels({ wood: 50, stone: 10 }, 10, { resource: "food", baseRate: 12, foodType: "fish" }, 10),
+    levels: generateLevels({ wood: 35, stone: 10 }, 10, { resource: "food", baseRate: 12, foodType: "fish" }, 10),
     requiredTier: "camp",
   },
 
