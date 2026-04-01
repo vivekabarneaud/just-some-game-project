@@ -104,13 +104,16 @@ export default function Overview() {
               </Show>
               <Show when={!isQuestComplete()}>
                 {(() => {
-                  const page = quest().targetPage ?? (quest().targetBuildingId ? "/buildings" : null);
+                  const bid = quest().targetBuildingId;
+                  const page = quest().targetPage ?? (bid ? "/buildings" : null);
+                  const href = bid ? `/buildings#building-${bid}` : page;
                   const labels: Record<string, string> = {
                     "/buildings": "Go to Buildings",
                     "/farming": "Go to Farming",
                     "/guild": "Go to Adventurer's Guild",
                   };
-                  return page ? <A href={page} class="quest-link">{labels[page] ?? "Go"} →</A> : null;
+                  const label = bid ? `Go to Buildings` : (labels[page ?? ""] ?? "Go");
+                  return href ? <A href={href} class="quest-link">{label} →</A> : null;
                 })()}
               </Show>
             </div>
