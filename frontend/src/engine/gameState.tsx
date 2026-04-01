@@ -602,6 +602,24 @@ function nextId(prefix: string): string {
   return `${prefix}_${idCounter++}`;
 }
 
+const NAME_PREFIXES = [
+  "Oak", "Iron", "Storm", "Shadow", "Golden", "Silver", "Raven", "Wolf",
+  "Frost", "Ember", "Thorn", "Stone", "Moss", "Cedar", "Amber", "Copper",
+  "Willow", "Elder", "Ashen", "Bright", "Dark", "Red", "White", "Black",
+  "Moon", "Sun", "Star", "Dawn", "Dusk", "Mist", "River", "Lake",
+];
+const NAME_SUFFIXES = [
+  "hold", "haven", "dale", "ford", "stead", "watch", "keep", "fall",
+  "wood", "field", "bridge", "vale", "crest", "hollow", "glen", "moor",
+  "shire", "brook", "marsh", "ridge", "peak", "gate", "wall", "helm",
+];
+
+function generateSettlementName(): string {
+  const prefix = NAME_PREFIXES[Math.floor(Math.random() * NAME_PREFIXES.length)];
+  const suffix = NAME_SUFFIXES[Math.floor(Math.random() * NAME_SUFFIXES.length)];
+  return prefix + suffix;
+}
+
 function createInitialState(): GameState {
   return {
     resources: { gold: 150, wood: 300, stone: 200, food: 300 },
@@ -620,7 +638,7 @@ function createInitialState(): GameState {
     year: 1,
     lastTick: Date.now(),
     gameSpeed: 1,
-    villageName: "Oakenhold",
+    villageName: generateSettlementName(),
     yearHarvest: {},
     wool: 0,
     fiber: 0,

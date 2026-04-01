@@ -1,9 +1,10 @@
-import { Show, createSignal } from "solid-js";
+import { Show, createSignal, onMount } from "solid-js";
 import { A, useLocation } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
 import { SEASON_META, HOURS_PER_SEASON, IS_DEV, getGlobalSeason } from "~/data/seasons";
-import { logout } from "~/api/auth";
+import { logout, getUsername } from "~/api/auth";
 import { QUEST_CHAIN } from "~/data/quests";
+import { fetchLeaderboard } from "~/api/leaderboard";
 
 interface NavItem {
   path: string;
@@ -69,6 +70,18 @@ const SPEEDS = [1, 2, 5, 10, 50];
 export default function Sidebar() {
   const location = useLocation();
   const { state, actions } = useGame();
+  const [myRank, setMyRank] = createSignal<number | null>(null);
+
+  onMount(async () => {
+    try {
+      const entries = await fetchLeaderboard();
+      const username = getUsername();
+      if (username) {
+        const idx = entries.findIndex((e) => e.playerName === username);
+        if (idx >= 0) setMyRank(idx + 1);
+      }
+    } catch { /* silent */ }
+  });
 
   const isActive = (path: string) => {
     if (path === "/") return location.pathname === "/";
@@ -147,6 +160,11 @@ export default function Sidebar() {
                 >
                   <span class="nav-icon">{item.icon}</span>
                   {item.label}
+                  {item.path === "/leaderboard" && myRank() && (
+                    <span style={{ "margin-left": "auto", "font-size": "0.7rem", color: "var(--accent-gold)" }}>
+                      #{myRank()}
+                    </span>
+                  )}
                   {shouldBlink() && (
                     <span style={{ "margin-left": "auto", "font-size": "0.7rem", color:
                       item.path === "/" ? "var(--accent-gold)" :

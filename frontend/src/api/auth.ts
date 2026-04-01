@@ -7,6 +7,7 @@ export async function register(data: RegisterRequest): Promise<AuthResponse> {
     body: JSON.stringify(data),
   });
   setToken(res.token);
+  localStorage.setItem("medieval-realm-username", res.player.username);
   return res;
 }
 
@@ -16,15 +17,21 @@ export async function login(data: LoginRequest): Promise<AuthResponse> {
     body: JSON.stringify(data),
   });
   setToken(res.token);
+  localStorage.setItem("medieval-realm-username", res.player.username);
   return res;
 }
 
 export function logout() {
   setToken(null);
   localStorage.removeItem("medieval-realm-save");
+  localStorage.removeItem("medieval-realm-username");
   window.location.href = "/login";
 }
 
 export function isLoggedIn(): boolean {
   return !!localStorage.getItem("medieval-realm-token");
+}
+
+export function getUsername(): string | null {
+  return localStorage.getItem("medieval-realm-username");
 }
