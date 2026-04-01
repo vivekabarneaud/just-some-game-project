@@ -1116,6 +1116,34 @@ export function GameProvider(props: ParentProps) {
         for (const adv of serverState.adventurers ?? []) {
           applyXp(adv, 0);
         }
+        // Restore ID counter from server state and fix any duplicate IDs
+        let maxId = 0;
+        const allIds = [
+          ...(serverState.fields ?? []),
+          ...(serverState.gardens ?? []),
+          ...(serverState.pens ?? []),
+          ...(serverState.adventurers ?? []),
+          ...(serverState.recruitCandidates ?? []),
+        ];
+        for (const item of allIds) {
+          const num = parseInt(item.id.replace(/^[a-z]+_/, ""), 10);
+          if (num > maxId) maxId = num;
+        }
+        idCounter = maxId + 1;
+        // Fix duplicate adventurer IDs (from previous bug)
+        const seenIds = new Set<string>();
+        for (const adv of serverState.adventurers ?? []) {
+          if (seenIds.has(adv.id)) {
+            adv.id = `adv_${idCounter++}`;
+          }
+          seenIds.add(adv.id);
+        }
+        for (const adv of serverState.recruitCandidates ?? []) {
+          if (seenIds.has(adv.id)) {
+            adv.id = `adv_${idCounter++}`;
+          }
+          seenIds.add(adv.id);
+        }
         setState(reconcile(serverState));
       } else {
         // New settlement — start with a fresh initial state, not localStorage
