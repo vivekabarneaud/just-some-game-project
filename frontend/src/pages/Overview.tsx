@@ -103,20 +103,16 @@ export default function Overview() {
                   Claim Reward
                 </button>
               </Show>
-              <Show when={!isQuestComplete() && quest().targetBuildingId}>
-                <A href="/buildings" class="quest-link">Go to Buildings →</A>
-              </Show>
-              <Show when={!isQuestComplete() && quest().id === "seeds_of_prosperity"}>
-                <A href="/farming" class="quest-link">Go to Farming →</A>
-              </Show>
-              <Show when={!isQuestComplete() && quest().id === "woolly_friends"}>
-                <A href="/farming" class="quest-link">Go to Farming →</A>
-              </Show>
-              <Show when={!isQuestComplete() && quest().id === "a_brave_soul"}>
-                <A href="/guild" class="quest-link">Go to Adventurer's Guild →</A>
-              </Show>
-              <Show when={!isQuestComplete() && quest().id === "into_the_unknown"}>
-                <A href="/guild" class="quest-link">Go to Adventurer's Guild →</A>
+              <Show when={!isQuestComplete()}>
+                {(() => {
+                  const page = quest().targetPage ?? (quest().targetBuildingId ? "/buildings" : null);
+                  const labels: Record<string, string> = {
+                    "/buildings": "Go to Buildings",
+                    "/farming": "Go to Farming",
+                    "/guild": "Go to Adventurer's Guild",
+                  };
+                  return page ? <A href={page} class="quest-link">{labels[page] ?? "Go"} →</A> : null;
+                })()}
               </Show>
             </div>
           </div>

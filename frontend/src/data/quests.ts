@@ -14,7 +14,8 @@ export interface QuestDefinition {
   icon: string;
   condition: (state: GameState) => boolean;
   rewards: QuestReward[];
-  targetBuildingId?: string; // building to highlight on the Buildings page
+  targetBuildingId?: string;
+  targetPage?: string; // route path for the "Go to X" link
 }
 
 const bldg = (state: GameState, id: string) =>
@@ -129,7 +130,70 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     rewards: [{ resource: "food", amount: 100, label: "Food" }],
     targetBuildingId: "pantry",
   },
-  // 10 — Town Hall lvl 2
+  // 10 — Adventurer's Guild (the big early unlock!)
+  {
+    id: "heroes_wanted",
+    title: "Heroes Wanted",
+    narrative:
+      "A weathered sign appears at your gate: 'Adventurers Sought — Fame, Fortune, and Certain Peril.' Even a humble camp needs brave souls to scout the wilds.",
+    objective: "Build the Adventurer's Guild",
+    icon: "🏰",
+    condition: (s) => (bldg(s, "adventurers_guild")?.level ?? 0) >= 1,
+    targetBuildingId: "adventurers_guild",
+    rewards: [
+      { resource: "gold", amount: 200, label: "Gold" },
+      { resource: "astralShards", amount: 5, label: "Astral Shards" },
+    ],
+  },
+  // 11 — Recruit
+  {
+    id: "a_brave_soul",
+    title: "A Brave Soul",
+    narrative:
+      "The Guild's doors creak open. Rough-looking warriors, secretive mages, and sharp-eyed archers crowd the hall. Choose your first champion wisely.",
+    objective: "Recruit an adventurer",
+    icon: "⚔️",
+    condition: (s) => s.adventurers.length >= 1,
+    rewards: [{ resource: "gold", amount: 200, label: "Gold" }],
+    targetPage: "/guild",
+  },
+  // 12 — Send mission
+  {
+    id: "into_the_unknown",
+    title: "Into the Unknown",
+    narrative:
+      "The mission board is nailed to the wall, ink still wet. Your adventurer adjusts their pack and glances back one last time. Send them forth!",
+    objective: "Send your first mission",
+    icon: "🗺️",
+    condition: (s) => s.firstMissionSent === true,
+    rewards: [{ resource: "astralShards", amount: 10, label: "Astral Shards" }],
+    targetPage: "/guild",
+  },
+  // 13 — Field or Garden
+  {
+    id: "seeds_of_prosperity",
+    title: "Seeds of Prosperity",
+    narrative:
+      "The soil here is dark and rich — perfect for planting. Build a field and sow your first crop. If it's not the right season for grain, try planting a garden instead!",
+    objective: "Build a Field or a Garden",
+    icon: "🌾",
+    condition: (s) => s.fields.length >= 1 || s.gardens.length >= 1,
+    rewards: [{ resource: "food", amount: 200, label: "Food" }],
+    targetPage: "/farming",
+  },
+  // 14 — Sheep Pen
+  {
+    id: "woolly_friends",
+    title: "Woolly Friends",
+    narrative:
+      "A shepherd arrives at your gate with a small flock, looking for pasture. Wool for clothing, milk for the table — these creatures earn their keep.",
+    objective: "Build a Sheep Pen",
+    icon: "🐑",
+    condition: (s) => s.pens.length >= 1,
+    rewards: [{ resource: "food", amount: 100, label: "Food" }],
+    targetPage: "/farming",
+  },
+  // 15 — Town Hall lvl 2
   {
     id: "ambition_rises",
     title: "Ambition Rises",
@@ -141,34 +205,12 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     rewards: [{ resource: "gold", amount: 300, label: "Gold" }],
     targetBuildingId: "town_hall",
   },
-  // 11 — Build a Wheat Field
-  {
-    id: "seeds_of_prosperity",
-    title: "Seeds of Prosperity",
-    narrative:
-      "The soil here is dark and rich — perfect for planting. Build a field and sow your first crop. If it's not the right season for grain, try planting a garden instead!",
-    objective: "Build a Field or a Garden",
-    icon: "🌾",
-    condition: (s) => s.fields.length >= 1 || s.gardens.length >= 1,
-    rewards: [{ resource: "food", amount: 200, label: "Food" }],
-  },
-  // 12 — Build a Sheep Pen
-  {
-    id: "woolly_friends",
-    title: "Woolly Friends",
-    narrative:
-      "A shepherd arrives at your gate with a small flock, looking for pasture. Wool for clothing, milk for the table — these creatures earn their keep.",
-    objective: "Build a Sheep Pen",
-    icon: "🐑",
-    condition: (s) => s.pens.length >= 1,
-    rewards: [{ resource: "food", amount: 100, label: "Food" }],
-  },
-  // 13 — Town Hall lvl 3
+  // 16 — Town Hall lvl 3
   {
     id: "the_road_to_greatness",
     title: "The Road to Greatness",
     narrative:
-      "Word of your settlement is spreading. Upgrade the Town Hall once more and the Adventurer's Guild will take notice...",
+      "Word of your settlement is spreading far and wide. Upgrade the Town Hall once more and unlock the full potential of your realm.",
     objective: "Upgrade Town Hall to level 3",
     icon: "⭐",
     condition: (s) => (bldg(s, "town_hall")?.level ?? 0) >= 3,
@@ -177,42 +219,5 @@ export const QUEST_CHAIN: QuestDefinition[] = [
       { resource: "gold", amount: 300, label: "Gold" },
       { resource: "astralShards", amount: 5, label: "Astral Shards" },
     ],
-  },
-  // 14 — Adventurer's Guild
-  {
-    id: "heroes_wanted",
-    title: "Heroes Wanted",
-    narrative:
-      "A weathered sign appears at your gate: 'Adventurers Sought — Fame, Fortune, and Certain Peril.' Build the Guild and see who answers the call.",
-    objective: "Build the Adventurer's Guild",
-    icon: "🏰",
-    condition: (s) => (bldg(s, "adventurers_guild")?.level ?? 0) >= 1,
-    targetBuildingId: "adventurers_guild",
-    rewards: [
-      { resource: "gold", amount: 300, label: "Gold" },
-      { resource: "astralShards", amount: 5, label: "Astral Shards" },
-    ],
-  },
-  // 15 — Recruit
-  {
-    id: "a_brave_soul",
-    title: "A Brave Soul",
-    narrative:
-      "The Guild's doors creak open. Rough-looking warriors, secretive mages, and sharp-eyed archers crowd the hall. Choose your first champion wisely.",
-    objective: "Recruit an adventurer",
-    icon: "⚔️",
-    condition: (s) => s.adventurers.length >= 1,
-    rewards: [{ resource: "gold", amount: 200, label: "Gold" }],
-  },
-  // 16 — Send mission
-  {
-    id: "into_the_unknown",
-    title: "Into the Unknown",
-    narrative:
-      "The mission board is nailed to the wall, ink still wet. Your adventurer adjusts their pack and glances back one last time. Send them forth!",
-    objective: "Send your first mission",
-    icon: "🗺️",
-    condition: (s) => s.firstMissionSent === true,
-    rewards: [{ resource: "astralShards", amount: 10, label: "Astral Shards" }],
   },
 ];

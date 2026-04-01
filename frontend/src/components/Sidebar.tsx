@@ -79,6 +79,10 @@ export default function Sidebar() {
       if (username) {
         const idx = entries.findIndex((e) => e.playerName === username);
         if (idx >= 0) setMyRank(idx + 1);
+      } else {
+        // Fallback: match by settlement name
+        const idx = entries.findIndex((e) => e.settlementName === state.villageName);
+        if (idx >= 0) setMyRank(idx + 1);
       }
     } catch { /* silent */ }
   });
