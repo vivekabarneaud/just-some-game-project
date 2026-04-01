@@ -1154,6 +1154,9 @@ export function GameProvider(props: ParentProps) {
           seenIds.add(adv.id);
         }
         setState(reconcile(serverState));
+        // Catch up for time spent offline
+        const offlineMs = Date.now() - serverState.lastTick;
+        if (offlineMs > 2000) applyTicks(offlineMs);
       } else {
         // New settlement — start with a fresh initial state, not localStorage
         const fresh = createInitialState();
@@ -1776,8 +1779,12 @@ export function GameProvider(props: ParentProps) {
     );
   }
 
-  const offlineMs = Date.now() - state.lastTick;
-  if (offlineMs > 2000) applyTicks(offlineMs);
+  // Offline catch-up: in dev mode, run immediately.
+  // In production, this runs after server state loads (see onMount above).
+  if (IS_DEV) {
+    const offlineMs = Date.now() - state.lastTick;
+    if (offlineMs > 2000) applyTicks(offlineMs);
+  }
 
   // In production, speed is always 1. In dev, player can adjust.
   const getSpeed = () => IS_DEV ? state.gameSpeed : 1;
