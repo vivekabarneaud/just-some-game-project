@@ -1156,7 +1156,11 @@ export function GameProvider(props: ParentProps) {
         setState(reconcile(serverState));
         // Catch up for time spent offline
         const offlineMs = Date.now() - serverState.lastTick;
-        if (offlineMs > 2000) applyTicks(offlineMs);
+        console.log("[catch-up] lastTick:", new Date(serverState.lastTick).toISOString(), "offlineMs:", offlineMs, "hours:", (offlineMs / 3_600_000).toFixed(2), "wood before:", serverState.resources.wood);
+        if (offlineMs > 2000) {
+          applyTicks(offlineMs);
+          console.log("[catch-up] wood after:", state.resources.wood);
+        }
       } else {
         // New settlement — start with a fresh initial state, not localStorage
         const fresh = createInitialState();
