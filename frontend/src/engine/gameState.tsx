@@ -1080,8 +1080,10 @@ export function GameProvider(props: ParentProps) {
       if (serverState && serverState.resources) {
         setState(reconcile(serverState));
       } else {
-        // First time — server has empty state, use local state and push it
-        saveSettlementApi(settlement.id, state).catch(() => {});
+        // New settlement — start with a fresh initial state, not localStorage
+        const fresh = createInitialState();
+        setState(reconcile(fresh));
+        saveSettlementApi(settlement.id, fresh).catch(() => {});
       }
     } catch (err) {
       console.warn("Failed to load from server, using local state:", err);

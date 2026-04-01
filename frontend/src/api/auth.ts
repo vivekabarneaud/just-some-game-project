@@ -21,6 +21,7 @@ export async function login(data: LoginRequest): Promise<AuthResponse> {
 
 export function logout() {
   setToken(null);
+  localStorage.removeItem("medieval-realm-save");
   window.location.href = "/login";
 }
 
