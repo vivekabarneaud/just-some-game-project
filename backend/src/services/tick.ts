@@ -114,9 +114,9 @@ export function applyServerTick(state: GameState, elapsedMs: number): GameState 
   const fishingLvl = getBuildingLevel("fishing_hut");
 
   // Base rates per hour (simplified approximation of frontend logic)
-  const woodPerHour = lumbermillLvl * 10;
-  const stonePerHour = quarryLvl * 8;
-  const foodPerHour = (huntingCampLvl * 8) + (foragerLvl * 6) + (fishingLvl * 7);
+  const woodPerHour = lumbermillLvl * 14;
+  const stonePerHour = quarryLvl * 12;
+  const foodPerHour = (huntingCampLvl * 10) + (foragerLvl * 8) + (fishingLvl * 9);
   const goldPerHour = Math.floor(s.population) * 0.2; // tax
   const foodConsumed = Math.floor(s.population) * 2;
 

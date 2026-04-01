@@ -88,14 +88,14 @@ function generateLevels(
 ): BuildingLevel[] {
   return Array.from({ length: maxLevel }, (_, i) => {
     const lvl = i + 1;
-    const multiplier = Math.pow(1.5, lvl - 1);
+    const multiplier = Math.pow(1.35, lvl - 1);
     return {
       level: lvl,
       cost: {
         wood: Math.floor(base.wood * multiplier),
         stone: Math.floor(base.stone * multiplier),
       },
-      buildTime: Math.floor(buildTimeBase * multiplier),
+      buildTime: Math.floor(buildTimeBase * 0.7 * multiplier),
       production: production
         ? {
             resource: production.resource,
@@ -194,7 +194,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "Woodcutters fell trees from the surrounding forest and process them into usable timber.",
     icon: "🪓",
     maxLevel: 20,
-    levels: generateLevels({ wood: 30, stone: 40 }, 75, { resource: "wood", baseRate: 25 }),
+    levels: generateLevels({ wood: 30, stone: 40 }, 75, { resource: "wood", baseRate: 35 }),
     requiredTier: "camp",
   },
   {
@@ -205,7 +205,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "Miners extract stone from the nearby hills. Essential for constructing advanced buildings.",
     icon: "⛏️",
     maxLevel: 20,
-    levels: generateLevels({ wood: 60, stone: 10 }, 90, { resource: "stone", baseRate: 20 }),
+    levels: generateLevels({ wood: 60, stone: 10 }, 90, { resource: "stone", baseRate: 30 }),
     requiredTier: "camp",
   },
   {
@@ -216,7 +216,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "Skilled hunters venture into the wilds, bringing back game and pelts. Supplements your food supply.",
     icon: "🏹",
     maxLevel: 15,
-    levels: generateLevels({ wood: 90, stone: 10 }, 60, { resource: "food", baseRate: 10, foodType: "meat" }, 15),
+    levels: generateLevels({ wood: 90, stone: 10 }, 60, { resource: "food", baseRate: 14, foodType: "meat" }, 15),
     requiredTier: "camp",
   },
 
@@ -228,7 +228,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "Gatherers scour the forest edges for wild berries, mushrooms, and herbs. A quick and cheap source of food.",
     icon: "🫐",
     maxLevel: 10,
-    levels: generateLevels({ wood: 30, stone: 5 }, 30, { resource: "food", baseRate: 6, foodType: "berries" }, 10),
+    levels: generateLevels({ wood: 30, stone: 5 }, 30, { resource: "food", baseRate: 8, foodType: "berries" }, 10),
     requiredTier: "camp",
   },
 
@@ -240,7 +240,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "A small dock on the river where fishermen cast their nets. Provides a steady supply of fish year-round.",
     icon: "🐟",
     maxLevel: 10,
-    levels: generateLevels({ wood: 50, stone: 10 }, 50, { resource: "food", baseRate: 8, foodType: "fish" }, 10),
+    levels: generateLevels({ wood: 50, stone: 10 }, 50, { resource: "food", baseRate: 12, foodType: "fish" }, 10),
     requiredTier: "camp",
   },
 

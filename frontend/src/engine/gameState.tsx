@@ -599,17 +599,17 @@ function nextId(prefix: string): string {
 
 function createInitialState(): GameState {
   return {
-    resources: { gold: 100, wood: 250, stone: 150, food: 200 },
+    resources: { gold: 150, wood: 300, stone: 200, food: 300 },
     buildings: BUILDINGS.map((b) => ({
       buildingId: b.id,
-      level: b.id === "town_hall" ? 1 : b.id === "houses" ? 1 : 0,
+      level: b.id === "town_hall" ? 1 : 0,
       upgrading: false,
       damaged: false,
     })),
     fields: [],
     gardens: [],
     pens: [],
-    population: BASE_POPULATION + HOUSES_POP_PER_LEVEL,
+    population: BASE_POPULATION,
     season: "spring",
     seasonElapsed: 0,
     year: 1,
