@@ -205,7 +205,58 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     rewards: [{ resource: "gold", amount: 300, label: "Gold" }],
     targetBuildingId: "town_hall",
   },
-  // 16 — Town Hall lvl 3
+  // 16 — Build a Marketplace
+  {
+    id: "merchants_welcome",
+    title: "Merchants Welcome",
+    narrative:
+      "Travellers pass through your settlement more often now. A marketplace would give them reason to stop — and give you access to goods you can't produce yourself.",
+    objective: "Build a Marketplace",
+    icon: "🏪",
+    condition: (s) => (bldg(s, "marketplace")?.level ?? 0) >= 1,
+    rewards: [
+      { resource: "gold", amount: 150, label: "Gold" },
+      { resource: "wood", amount: 100, label: "Wood" },
+    ],
+    targetBuildingId: "marketplace",
+  },
+  // 17 — Build a Woodworker
+  {
+    id: "tools_of_the_trade",
+    title: "Tools of the Trade",
+    narrative:
+      "A travelling carpenter offers to stay if you build him a workshop. With the right wood, he can craft staves for your wizards, bows for your archers, and shields for your warriors.",
+    objective: "Build a Woodworker",
+    icon: "🪚",
+    condition: (s) => (bldg(s, "woodworker")?.level ?? 0) >= 1,
+    rewards: [{ resource: "wood", amount: 200, label: "Wood" }],
+    targetBuildingId: "woodworker",
+  },
+  // 18 — Craft a weapon
+  {
+    id: "arm_the_brave",
+    title: "Arm the Brave",
+    narrative:
+      "Your adventurers eye the new workshop with interest. A proper weapon could mean the difference between victory and a shallow grave. Craft something worthy of a hero.",
+    objective: "Craft a weapon at the Woodworker",
+    icon: "🪄",
+    condition: (s) => s.weapons >= 1 || s.inventory.some((i) => i.quantity > 0),
+    rewards: [{ resource: "gold", amount: 100, label: "Gold" }],
+    targetPage: "/woodworker",
+  },
+  // 19 — Build a Chapel
+  {
+    id: "faith_and_solace",
+    title: "Faith and Solace",
+    narrative:
+      "Your people work hard, but their spirits grow weary. A humble chapel would lift their hearts — and a happier village is a more productive one.",
+    objective: "Build a Chapel",
+    icon: "⛪",
+    condition: (s) => (bldg(s, "chapel")?.level ?? 0) >= 1,
+    rewards: [{ resource: "gold", amount: 150, label: "Gold" }],
+    targetBuildingId: "chapel",
+  },
+  // 20 — Town Hall lvl 3
   {
     id: "the_road_to_greatness",
     title: "The Road to Greatness",
