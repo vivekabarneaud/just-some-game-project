@@ -1,10 +1,13 @@
 import {
   createContext,
+  createSignal,
+  onMount,
+  Show,
   useContext,
   onCleanup,
   type ParentProps,
 } from "solid-js";
-import { createStore, produce } from "solid-js/store";
+import { createStore, produce, reconcile } from "solid-js/store";
 import {
   BUILDINGS,
   type BuildingCost,
@@ -141,6 +144,14 @@ import {
   getRaidChance,
   type DefenseBreakdown,
 } from "~/data/raids";
+
+import {
+  listSettlements,
+  loadSettlement as loadSettlementApi,
+  saveSettlement as saveSettlementApi,
+  createSettlement as createSettlementApi,
+} from "~/api/settlement";
+import { isLoggedIn } from "~/api/auth";
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -643,10 +654,19 @@ function createInitialState(): GameState {
 
 // ─── Persistence ─────────────────────────────────────────────────
 
-function saveGame(state: GameState) {
+function saveGameLocal(state: GameState) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch { /* ignore */ }
+}
+
+let _settlementId: string | null = null;
+
+function saveGame(state: GameState) {
+  saveGameLocal(state);
+  if (_settlementId) {
+    saveSettlementApi(_settlementId, state).catch(() => { /* silent fail, will retry */ });
+  }
 }
 
 function loadGame(): GameState | null {
@@ -1027,8 +1047,44 @@ export function useGame() {
 // ─── Provider ────────────────────────────────────────────────────
 
 export function GameProvider(props: ParentProps) {
+  const [loaded, setLoaded] = createSignal(false);
   const initial = loadGame() ?? createInitialState();
   const [state, setState] = createStore<GameState>(initial);
+
+  // Load state from server on mount
+  onMount(async () => {
+    if (!isLoggedIn()) {
+      setLoaded(true);
+      return;
+    }
+    try {
+      const list = await listSettlements();
+      let settlement;
+      if (list.settlements.length > 0) {
+        // Load first settlement
+        const res = await loadSettlementApi(list.settlements[0].id);
+        settlement = res.settlement;
+      } else {
+        // Create first settlement
+        const res = await createSettlementApi();
+        settlement = res.settlement;
+      }
+
+      _settlementId = settlement.id;
+
+      // If server has game state (not empty), use it as source of truth
+      const serverState = settlement.gameState as GameState;
+      if (serverState && serverState.resources) {
+        setState(reconcile(serverState));
+      } else {
+        // First time — server has empty state, use local state and push it
+        saveSettlementApi(settlement.id, state).catch(() => {});
+      }
+    } catch (err) {
+      console.warn("Failed to load from server, using local state:", err);
+    }
+    setLoaded(true);
+  });
 
   function advanceSeason(s: GameState) {
     const prev = s.season;
@@ -1640,11 +1696,17 @@ export function GameProvider(props: ParentProps) {
   if (offlineMs > 2000) applyTicks(offlineMs);
 
   const tickInterval = setInterval(() => applyTicks(TICK_INTERVAL_MS * state.gameSpeed), TICK_INTERVAL_MS);
-  const saveInterval = setInterval(() => saveGame(JSON.parse(JSON.stringify(state))), 5000);
+  const localSaveInterval = setInterval(() => saveGameLocal(JSON.parse(JSON.stringify(state))), 5000);
+  const apiSaveInterval = setInterval(() => {
+    if (_settlementId) {
+      saveSettlementApi(_settlementId, JSON.parse(JSON.stringify(state))).catch(() => {});
+    }
+  }, 30000);
 
   onCleanup(() => {
     clearInterval(tickInterval);
-    clearInterval(saveInterval);
+    clearInterval(localSaveInterval);
+    clearInterval(apiSaveInterval);
     saveGame(JSON.parse(JSON.stringify(state)));
   });
 
@@ -1813,7 +1875,7 @@ export function GameProvider(props: ParentProps) {
     resetGame() {
       idCounter = 1;
       const fresh = createInitialState();
-      setState(fresh);
+      setState(reconcile(fresh));
       saveGame(fresh);
     },
 
@@ -2299,8 +2361,18 @@ export function GameProvider(props: ParentProps) {
   };
 
   return (
-    <GameContext.Provider value={{ state, actions }}>
-      {props.children}
-    </GameContext.Provider>
+    <Show when={loaded()} fallback={
+      <div style={{
+        display: "flex", "align-items": "center", "justify-content": "center",
+        height: "100vh", color: "var(--text-secondary)", "font-family": "var(--font-heading)",
+        "font-size": "1.4rem", background: "var(--bg-primary)",
+      }}>
+        Loading your settlement...
+      </div>
+    }>
+      <GameContext.Provider value={{ state, actions }}>
+        {props.children}
+      </GameContext.Provider>
+    </Show>
   );
 }

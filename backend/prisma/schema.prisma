@@ -1,0 +1,47 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Player {
+  id           String       @id @default(cuid())
+  username     String       @unique
+  email        String       @unique
+  passwordHash String
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  settlements  Settlement[]
+}
+
+model World {
+  id             String       @id @default(cuid())
+  name           String       @unique
+  width          Int          @default(1000)
+  height         Int          @default(1000)
+  maxSettlements Int          @default(50)
+  createdAt      DateTime     @default(now())
+  settlements    Settlement[]
+}
+
+model Settlement {
+  id         String   @id @default(cuid())
+  playerId   String
+  worldId    String
+  name       String
+  x          Int
+  y          Int
+  gameState  Json
+  lastTickAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  player Player @relation(fields: [playerId], references: [id])
+  world  World  @relation(fields: [worldId], references: [id])
+
+  @@index([playerId])
+  @@index([worldId])
+}

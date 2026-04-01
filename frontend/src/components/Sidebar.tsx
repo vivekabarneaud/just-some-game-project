@@ -2,6 +2,7 @@ import { Show } from "solid-js";
 import { A, useLocation } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
 import { SEASON_META, HOURS_PER_SEASON } from "~/data/seasons";
+import { logout } from "~/api/auth";
 
 interface NavItem {
   path: string;
@@ -181,6 +182,17 @@ export default function Sidebar() {
           }
         }}>
           New Game
+        </button>
+      </div>
+
+      <div class="sidebar-account">
+        <button
+          class="account-btn"
+          onClick={() => {
+            if (confirm("Log out of your account?")) logout();
+          }}
+        >
+          <span style={{ "margin-right": "6px" }}>🚪</span> Log out
         </button>
       </div>
     </aside>

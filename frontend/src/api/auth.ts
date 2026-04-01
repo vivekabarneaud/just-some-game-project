@@ -1,0 +1,29 @@
+import type { AuthResponse, RegisterRequest, LoginRequest } from "@medieval-realm/shared";
+import { apiFetch, setToken } from "./client";
+
+export async function register(data: RegisterRequest): Promise<AuthResponse> {
+  const res = await apiFetch<AuthResponse>("/auth/register", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+  setToken(res.token);
+  return res;
+}
+
+export async function login(data: LoginRequest): Promise<AuthResponse> {
+  const res = await apiFetch<AuthResponse>("/auth/login", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+  setToken(res.token);
+  return res;
+}
+
+export function logout() {
+  setToken(null);
+  window.location.href = "/login";
+}
+
+export function isLoggedIn(): boolean {
+  return !!localStorage.getItem("medieval-realm-token");
+}

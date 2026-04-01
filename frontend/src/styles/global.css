@@ -682,6 +682,28 @@ body {
   color: var(--accent-red);
 }
 
+.sidebar-account {
+  padding: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
+.account-btn {
+  width: 100%;
+  padding: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.account-btn:hover {
+  border-color: var(--text-secondary);
+  color: var(--text-secondary);
+}
+
 /* Farming page */
 .farming-summary {
   display: flex;

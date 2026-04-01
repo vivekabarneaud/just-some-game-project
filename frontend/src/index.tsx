@@ -1,8 +1,9 @@
-import { lazy } from "solid-js";
+import { lazy, type ParentProps } from "solid-js";
 import { render } from "solid-js/web";
-import { Router, Route } from "@solidjs/router";
+import { Router, Route, Navigate } from "@solidjs/router";
 import App from "./App";
 import { GameProvider } from "./engine/gameState";
+import { isLoggedIn } from "./api/auth";
 import "./styles/global.css";
 
 const Overview = lazy(() => import("./pages/Overview"));
@@ -19,11 +20,20 @@ const Alchemy = lazy(() => import("./pages/Alchemy"));
 const Enchanting = lazy(() => import("./pages/Enchanting"));
 const Jewelcrafting = lazy(() => import("./pages/Jewelcrafting"));
 const ComingSoon = lazy(() => import("./pages/ComingSoon"));
+const Login = lazy(() => import("./pages/Login"));
+
+function AuthGuard(props: ParentProps) {
+  if (!isLoggedIn()) {
+    return <Navigate href="/login" />;
+  }
+  return <GameProvider>{props.children}</GameProvider>;
+}
 
 render(
   () => (
-    <GameProvider>
-      <Router root={App}>
+    <Router>
+      <Route path="/login" component={Login} />
+      <Route path="/" component={(p) => <AuthGuard><App {...p} /></AuthGuard>}>
         <Route path="/" component={Overview} />
         <Route path="/buildings" component={Buildings} />
         <Route path="/buildings/:id" component={BuildingDetail} />
@@ -38,8 +48,8 @@ render(
         <Route path="/enchanting" component={Enchanting} />
         <Route path="/jewelcrafting" component={Jewelcrafting} />
         <Route path="*" component={ComingSoon} />
-      </Router>
-    </GameProvider>
+      </Route>
+    </Router>
   ),
   document.getElementById("root")!,
 );
