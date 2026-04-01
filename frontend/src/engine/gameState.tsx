@@ -1112,6 +1112,10 @@ export function GameProvider(props: ParentProps) {
         // Migrate missing fields for old saves
         if (!serverState.questRewardsClaimed) serverState.questRewardsClaimed = [];
         if (serverState.firstMissionSent === undefined) serverState.firstMissionSent = false;
+        // Re-apply leveling in case XP curve changed
+        for (const adv of serverState.adventurers ?? []) {
+          applyXp(adv, 0);
+        }
         setState(reconcile(serverState));
       } else {
         // New settlement — start with a fresh initial state, not localStorage
