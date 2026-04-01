@@ -58,6 +58,7 @@ const navSections: { title: string; items: NavItem[] }[] = [
     title: "World",
     items: [
       { path: "/map", icon: "🗺️", label: "World Map" },
+      { path: "/leaderboard", icon: "🏆", label: "Leaderboard" },
       { path: "/events", icon: "📣", label: "Events" },
     ],
   },

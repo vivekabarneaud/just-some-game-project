@@ -4,6 +4,7 @@ import { logger } from "hono/logger";
 import auth from "./routes/auth.js";
 import settlement from "./routes/settlement.js";
 import world from "./routes/world.js";
+import leaderboard from "./routes/leaderboard.js";
 
 const app = new Hono();
 
@@ -24,5 +25,6 @@ app.get("/api/health", (c) => c.json({ ok: true }));
 app.route("/api/auth", auth);
 app.route("/api", settlement);
 app.route("/api", world);
+app.route("/api", leaderboard);
 
 export default app;

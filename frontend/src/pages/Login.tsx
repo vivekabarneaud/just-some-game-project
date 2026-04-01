@@ -87,12 +87,14 @@ export default function Login() {
               <input
                 type="text"
                 value={username()}
-                onInput={(e) => setUsername(e.currentTarget.value)}
+                onInput={(e) => setUsername(e.currentTarget.value.replace(/[^a-zA-Z0-9_ ]/g, ""))}
                 required
                 minLength={3}
                 maxLength={20}
+                pattern="[a-zA-Z0-9_ ]+"
+                title="Letters, numbers, spaces, and underscores only"
                 style={inputStyle}
-                placeholder="Your name in the realm"
+                placeholder="Letters, numbers, spaces only"
               />
             </div>
           )}

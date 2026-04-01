@@ -14,6 +14,9 @@ auth.post("/register", async (c) => {
   if (!username || username.length < 3 || username.length > 20) {
     return c.json({ error: "Username must be 3-20 characters" }, 400);
   }
+  if (!/^[a-zA-Z0-9_ ]+$/.test(username)) {
+    return c.json({ error: "Username can only contain letters, numbers, spaces, and underscores" }, 400);
+  }
   if (!email || !email.includes("@")) {
     return c.json({ error: "Invalid email" }, 400);
   }
