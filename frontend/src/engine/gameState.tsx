@@ -30,7 +30,7 @@ import {
   ALE_CONSUMED_PER_TAVERN_LEVEL,
   ALE_STORAGE_BASE,
   ALE_STORAGE_PER_BREWERY_LEVEL,
-  CHAPEL_HAPPINESS_PER_LEVEL,
+  SHRINE_HAPPINESS_PER_LEVEL,
   TAVERN_HAPPINESS_PER_LEVEL,
   TAVERN_HAPPINESS_DRY,
   CLOTHING_PER_CITIZENS,
@@ -732,6 +732,10 @@ function loadGame(): GameState | null {
       saved.missionBoard = [];
       saved.missionRefreshIn = 0;
     }
+    // Chapel → Shrine rename
+    for (const pb of saved.buildings) {
+      if (pb.buildingId === "chapel") pb.buildingId = "shrine";
+    }
     // Building damage migration
     for (const pb of saved.buildings) {
       if ((pb as any).damaged === undefined) (pb as any).damaged = false;
@@ -1019,9 +1023,9 @@ function calcBuildingEffect(buildingId: string, nextLevel: number): string | nul
     case "tailoring_shop": {
       return `Crafting slots: ${Math.max(0, currentLevel)} → ${nextLevel} (1 per level)`;
     }
-    case "chapel": {
-      const cur = Math.max(0, currentLevel) * CHAPEL_HAPPINESS_PER_LEVEL;
-      const next = nextLevel * CHAPEL_HAPPINESS_PER_LEVEL;
+    case "shrine": {
+      const cur = Math.max(0, currentLevel) * SHRINE_HAPPINESS_PER_LEVEL;
+      const next = nextLevel * SHRINE_HAPPINESS_PER_LEVEL;
       return `Happiness: +${cur} → +${next}`;
     }
     case "brewery": {
@@ -1131,6 +1135,10 @@ export function GameProvider(props: ParentProps) {
           if (num > maxId) maxId = num;
         }
         idCounter = maxId + 1;
+        // Rename chapel → shrine for old saves
+        for (const b of serverState.buildings ?? []) {
+          if (b.buildingId === "chapel") b.buildingId = "shrine";
+        }
         // Fix duplicate adventurer IDs (from previous bug)
         const seenIds = new Set<string>();
         for (const adv of serverState.adventurers ?? []) {
@@ -1389,8 +1397,8 @@ export function GameProvider(props: ParentProps) {
         else if (s.population > maxPop * 0.9) happiness -= 5; // nearly full
 
         // Chapel
-        const chapelLvl = s.buildings.find((b) => b.buildingId === "chapel")?.level ?? 0;
-        happiness += chapelLvl * CHAPEL_HAPPINESS_PER_LEVEL;
+        const shrineLvl = s.buildings.find((b) => b.buildingId === "shrine")?.level ?? 0;
+        happiness += shrineLvl * SHRINE_HAPPINESS_PER_LEVEL;
 
         // Tavern (depends on ale)
         if (tavernLvl > 0) {
@@ -2227,8 +2235,8 @@ export function GameProvider(props: ParentProps) {
       if (state.population > maxPop) factors.push({ label: "Overcrowded", value: -15 });
       else if (state.population > maxPop * 0.9) factors.push({ label: "Housing tight", value: -5 });
 
-      const chapelLvl = state.buildings.find((b) => b.buildingId === "chapel")?.level ?? 0;
-      if (chapelLvl > 0) factors.push({ label: `Chapel Lv.${chapelLvl}`, value: chapelLvl * CHAPEL_HAPPINESS_PER_LEVEL });
+      const shrineLvl = state.buildings.find((b) => b.buildingId === "shrine")?.level ?? 0;
+      if (shrineLvl > 0) factors.push({ label: `Shrine Lv.${shrineLvl}`, value: shrineLvl * SHRINE_HAPPINESS_PER_LEVEL });
 
       const tavernLvl = state.buildings.find((b) => b.buildingId === "tavern")?.level ?? 0;
       if (tavernLvl > 0) {

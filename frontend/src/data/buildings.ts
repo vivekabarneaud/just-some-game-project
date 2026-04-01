@@ -173,14 +173,14 @@ export const BUILDINGS: BuildingDefinition[] = [
     tierLevelCaps: { camp: 3, village: 6, town: 8, city: 10 },
   },
 
-  // Camp tier — Chapel (happiness)
+  // Camp tier — Shrine (happiness + deity blessings)
   {
-    id: "chapel",
-    name: "Chapel",
+    id: "shrine",
+    name: "Shrine",
     category: "settlement",
     description:
-      "A humble place of worship where citizens find peace and solace. Improves settlement happiness.",
-    icon: "⛪",
+      "A sacred place where the old gods are honored. Each day a different deity visits — make an offering to receive their blessing. Also improves settlement happiness.",
+    icon: "🔮",
     maxLevel: 10,
     levels: generateLevels({ wood: 40, stone: 60 }, 18, undefined, 10),
     requiredTier: "camp",
@@ -569,6 +569,6 @@ export const ALE_STORAGE_BASE = 50;
 export const ALE_STORAGE_PER_BREWERY_LEVEL = 30;
 
 // Happiness
-export const CHAPEL_HAPPINESS_PER_LEVEL = 3;
+export const SHRINE_HAPPINESS_PER_LEVEL = 3;
 export const TAVERN_HAPPINESS_PER_LEVEL = 5; // when ale is available
 export const TAVERN_HAPPINESS_DRY = 1; // per level when no ale

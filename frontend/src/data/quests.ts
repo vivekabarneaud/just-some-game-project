@@ -249,12 +249,12 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "faith_and_solace",
     title: "Faith and Solace",
     narrative:
-      "Your people work hard, but their spirits grow weary. A humble chapel would lift their hearts — and a happier village is a more productive one.",
-    objective: "Build a Chapel",
-    icon: "⛪",
-    condition: (s) => (bldg(s, "chapel")?.level ?? 0) >= 1,
+      "Your people work hard, but their spirits grow weary. The old gods watch over these lands — build a shrine to honor them, and your people will find peace.",
+    objective: "Build a Shrine",
+    icon: "🔮",
+    condition: (s) => (bldg(s, "shrine")?.level ?? 0) >= 1,
     rewards: [{ resource: "gold", amount: 150, label: "Gold" }],
-    targetBuildingId: "chapel",
+    targetBuildingId: "shrine",
   },
   // 20 — Town Hall lvl 3
   {
