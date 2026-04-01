@@ -321,5 +321,5 @@ export function getMissionSlots(guildLevel: number): number {
 
 // ─── Recruitment refresh interval (game-hours) ──────────────────
 
-export const RECRUIT_REFRESH_HOURS = 24; // 1 game-day
-export const MISSION_REFRESH_HOURS = 24; // 1 game-day
+export const RECRUIT_REFRESH_HOURS = 6; // ~1 real day with 4-day seasons
+export const MISSION_REFRESH_HOURS = 6; // ~1 real day with 4-day seasons

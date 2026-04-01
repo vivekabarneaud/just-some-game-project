@@ -760,7 +760,7 @@ export function generateMissionBoard(guildLevel: number, count: number = 4, seed
 
 /** Number of missions shown on board per refresh */
 export function getMissionBoardSize(guildLevel: number): number {
-  return Math.min(3 + guildLevel, 8); // 4 at Lv1, up to 8
+  return Math.min(4 + guildLevel, 10); // 5 at Lv1, up to 10
 }
 
 /** Get a mission template by ID */
