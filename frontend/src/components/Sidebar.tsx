@@ -1,4 +1,4 @@
-import { Show } from "solid-js";
+import { Show, createSignal } from "solid-js";
 import { A, useLocation } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
 import { SEASON_META, HOURS_PER_SEASON } from "~/data/seasons";
@@ -77,7 +77,46 @@ export default function Sidebar() {
     <aside class="sidebar">
       <div class="sidebar-header">
         <h1>Medieval Realm</h1>
-        <div class="village-name">Village of {state.villageName}</div>
+        {(() => {
+          const [editing, setEditing] = createSignal(false);
+          const [draft, setDraft] = createSignal("");
+
+          const startEditing = () => {
+            setDraft(state.villageName);
+            setEditing(true);
+          };
+
+          const save = () => {
+            if (draft().trim()) actions.renameVillage(draft());
+            setEditing(false);
+          };
+
+          return (
+            <Show when={editing()} fallback={
+              <div
+                class="village-name"
+                onClick={startEditing}
+                title="Click to rename"
+                style={{ cursor: "pointer" }}
+              >
+                Village of {state.villageName} <span style={{ "font-size": "0.65rem", opacity: 0.5 }}>✏</span>
+              </div>
+            }>
+              <input
+                class="village-name-input"
+                value={draft()}
+                onInput={(e) => setDraft(e.currentTarget.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") save();
+                  if (e.key === "Escape") setEditing(false);
+                }}
+                onBlur={save}
+                maxLength={30}
+                ref={(el) => setTimeout(() => el.select(), 0)}
+              />
+            </Show>
+          );
+        })()}
       </div>
       <nav class="sidebar-nav">
         {navSections.map((section) => (

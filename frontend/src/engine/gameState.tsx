@@ -532,6 +532,7 @@ export interface GameActions {
   upgradePen: (penId: string) => boolean;
   removePen: (penId: string) => void;
   setGameSpeed: (speed: number) => void;
+  renameVillage: (name: string) => void;
   resetGame: () => void;
   skipSeason: () => void;
   getProductionRates: () => ResourceState;
@@ -1871,6 +1872,12 @@ export function GameProvider(props: ParentProps) {
     },
 
     setGameSpeed(speed) { setState("gameSpeed", speed); },
+    renameVillage(name) {
+      const trimmed = name.trim();
+      if (trimmed.length > 0 && trimmed.length <= 30) {
+        setState("villageName", trimmed);
+      }
+    },
 
     resetGame() {
       idCounter = 1;
