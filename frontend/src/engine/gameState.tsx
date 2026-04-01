@@ -1789,6 +1789,15 @@ export function GameProvider(props: ParentProps) {
   // In production, speed is always 1. In dev, player can adjust.
   const getSpeed = () => IS_DEV ? state.gameSpeed : 1;
   const tickInterval = setInterval(() => applyTicks(TICK_INTERVAL_MS * getSpeed()), TICK_INTERVAL_MS);
+
+  // Catch up when tab becomes visible again (browsers throttle background tabs)
+  const handleVisibility = () => {
+    if (!document.hidden) {
+      const offlineMs = Date.now() - state.lastTick;
+      if (offlineMs > 2000) applyTicks(offlineMs);
+    }
+  };
+  document.addEventListener("visibilitychange", handleVisibility);
   const localSaveInterval = IS_DEV
     ? setInterval(() => saveGameLocal(JSON.parse(JSON.stringify(state))), 5000)
     : null;
@@ -1802,6 +1811,7 @@ export function GameProvider(props: ParentProps) {
     clearInterval(tickInterval);
     if (localSaveInterval) clearInterval(localSaveInterval);
     clearInterval(apiSaveInterval);
+    document.removeEventListener("visibilitychange", handleVisibility);
     saveGame(JSON.parse(JSON.stringify(state)));
   });
 
