@@ -265,4 +265,7 @@ export interface GameState {
   lastGuildVisit: number;
   lastMissionRefresh: number;
   lastRecruitRefresh: number;
+  // Quest system
+  questRewardsClaimed: string[];
+  firstMissionSent: boolean;
 }

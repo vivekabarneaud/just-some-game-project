@@ -3,6 +3,7 @@ import { A, useLocation } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
 import { SEASON_META, HOURS_PER_SEASON, IS_DEV, getGlobalSeason } from "~/data/seasons";
 import { logout } from "~/api/auth";
+import { QUEST_CHAIN } from "~/data/quests";
 
 interface NavItem {
   path: string;
@@ -124,7 +125,12 @@ export default function Sidebar() {
             <div class="nav-section-title">{section.title}</div>
             {section.items.map((item) => {
               const hasEmptyFields = () => state.fields.some((f) => !f.crop && !f.fallow && f.level > 0 && !f.upgrading);
+              const hasClaimableQuest = () => {
+                const idx = QUEST_CHAIN.findIndex((q) => !state.questRewardsClaimed.includes(q.id));
+                return idx >= 0 && QUEST_CHAIN[idx].condition(state);
+              };
               const shouldBlink = () =>
+                (item.path === "/" && hasClaimableQuest()) ||
                 (item.path === "/farming" && (
                   (state.season === "spring" && hasEmptyFields()) ||
                   (state.season === "autumn" && state.seasonElapsed < 6)
@@ -141,10 +147,12 @@ export default function Sidebar() {
                   {item.label}
                   {shouldBlink() && (
                     <span style={{ "margin-left": "auto", "font-size": "0.7rem", color:
+                      item.path === "/" ? "var(--accent-gold)" :
                       item.path === "/guild" ? "var(--accent-blue)" :
                       state.season === "spring" ? "#7CFC00" : "#d4831a"
                     }}>
-                      {item.path === "/guild" ? "new!"
+                      {item.path === "/" ? "quest!"
+                        : item.path === "/guild" ? "new!"
                         : state.season === "spring" ? "plant!" : "harvest!"}
                     </span>
                   )}

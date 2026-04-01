@@ -147,6 +147,7 @@ import {
   type DefenseBreakdown,
 } from "~/data/raids";
 
+import { QUEST_CHAIN } from "~/data/quests";
 import {
   listSettlements,
   loadSettlement as loadSettlementApi,
@@ -509,6 +510,9 @@ export interface GameState {
   lastGuildVisit: number; // timestamp of last guild page visit
   lastMissionRefresh: number; // timestamp when missions last refreshed
   lastRecruitRefresh: number; // timestamp when recruits last refreshed
+  // Quest system
+  questRewardsClaimed: string[];
+  firstMissionSent: boolean;
 }
 
 export interface FoodSource {
@@ -585,6 +589,7 @@ export interface GameActions {
   hasNewGuildContent: () => boolean;
   rerollMissions: () => boolean;
   rerollRecruits: () => boolean;
+  claimQuestReward: (questId: string) => boolean;
 }
 
 // ─── Constants ───────────────────────────────────────────────────
@@ -652,6 +657,8 @@ function createInitialState(): GameState {
     missionRerollToday: false,
     recruitRerollToday: false,
     lastRerollReset: Date.now(),
+    questRewardsClaimed: [],
+    firstMissionSent: false,
   };
 }
 
@@ -757,6 +764,9 @@ function loadGame(): GameState | null {
     if (saved.missionRerollToday === undefined) saved.missionRerollToday = false;
     if (saved.recruitRerollToday === undefined) saved.recruitRerollToday = false;
     if (saved.lastRerollReset === undefined) saved.lastRerollReset = Date.now();
+    // Quest system migration
+    if (!saved.questRewardsClaimed) saved.questRewardsClaimed = [];
+    if (saved.firstMissionSent === undefined) saved.firstMissionSent = false;
     // Migrate adventurers missing xp/level fields
     for (const adv of saved.adventurers) {
       if ((adv as any).level === undefined) { (adv as any).level = 1; (adv as any).xp = 0; }
@@ -2017,6 +2027,7 @@ export function GameProvider(props: ParentProps) {
         });
         // Remove from mission board so it can't be repeated
         s.missionBoard = s.missionBoard.filter((m) => m.id !== template.id);
+        s.firstMissionSent = true;
       }));
       return true;
     },
@@ -2386,6 +2397,27 @@ export function GameProvider(props: ParentProps) {
         b.upgradeRemaining = undefined;
         s.resources.wood += adjustedCost.wood;
         s.resources.stone += adjustedCost.stone;
+      }));
+      return true;
+    },
+    claimQuestReward(questId) {
+      const questIdx = QUEST_CHAIN.findIndex((q) => q.id === questId);
+      if (questIdx < 0) return false;
+      const quest = QUEST_CHAIN[questIdx];
+      if (state.questRewardsClaimed.includes(questId)) return false;
+      if (questIdx > 0 && !state.questRewardsClaimed.includes(QUEST_CHAIN[questIdx - 1].id)) return false;
+      if (!quest.condition(state)) return false;
+      setState(produce((s) => {
+        s.questRewardsClaimed.push(questId);
+        const caps = calcStorageCaps(s.buildings);
+        for (const reward of quest.rewards) {
+          if (reward.resource === "astralShards") {
+            s.astralShards += reward.amount;
+          } else {
+            const key = reward.resource as keyof typeof s.resources;
+            s.resources[key] = Math.min(caps[key], s.resources[key] + reward.amount);
+          }
+        }
       }));
       return true;
     },

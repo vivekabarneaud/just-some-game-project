@@ -4,6 +4,7 @@ import { BUILDINGS, getSettlementName, SETTLEMENT_TIERS } from "~/data/buildings
 import { RESOURCES } from "~/data/resources";
 import { SEASON_META } from "~/data/seasons";
 import { getRaid, calcRaidSuccessChance, getDefenseTips } from "~/data/raids";
+import { QUEST_CHAIN } from "~/data/quests";
 import { useGame } from "~/engine/gameState";
 import Countdown from "~/components/Countdown";
 
@@ -48,11 +49,77 @@ export default function Overview() {
 
   const hasThreats = () => state.incomingRaids.length > 0;
 
+  // Quest system
+  const currentQuest = () => {
+    const idx = QUEST_CHAIN.findIndex((q) => !state.questRewardsClaimed.includes(q.id));
+    return idx >= 0 ? QUEST_CHAIN[idx] : null;
+  };
+  const isQuestComplete = () => {
+    const quest = currentQuest();
+    return quest ? quest.condition(state) : false;
+  };
+  const questProgress = () => state.questRewardsClaimed.length;
+  const allQuestsComplete = () => questProgress() >= QUEST_CHAIN.length;
+  const [dismissedCongrats, setDismissedCongrats] = createSignal(false);
+
   return (
     <div>
       <h1 class="page-title">
         {getSettlementName(tier())} of {state.villageName}
       </h1>
+
+      {/* Quest Panel */}
+      <Show when={!allQuestsComplete() && currentQuest()}>
+        {(quest) => (
+          <div class="quest-panel">
+            <div class="quest-header">
+              <span class="quest-icon">{quest().icon}</span>
+              <div>
+                <h2>Quest: {quest().title}</h2>
+                <p class="quest-narrative">"{quest().narrative}"</p>
+              </div>
+              <span class="quest-progress">{questProgress() + 1} / {QUEST_CHAIN.length}</span>
+            </div>
+            <div class="quest-body">
+              <div class="quest-objective">
+                <span class="quest-objective-label">Objective: </span>
+                {quest().objective}
+                <Show when={isQuestComplete()}>
+                  <span class="quest-check"> — Complete!</span>
+                </Show>
+              </div>
+              <div class="quest-rewards">
+                <span class="quest-reward-label">Reward: </span>
+                {quest().rewards.map((r) => (
+                  <span class="quest-reward-item">+{r.amount} {r.label}</span>
+                ))}
+              </div>
+            </div>
+            <Show when={isQuestComplete()}>
+              <button class="quest-claim-btn" onClick={() => actions.claimQuestReward(quest().id)}>
+                Claim Reward
+              </button>
+            </Show>
+          </div>
+        )}
+      </Show>
+
+      <Show when={allQuestsComplete() && !dismissedCongrats()}>
+        <div class="quest-panel">
+          <div class="quest-complete-banner">
+            <h2>All Quests Complete!</h2>
+            <p>You have proven yourself a worthy ruler. Your settlement thrives under your leadership. The realm awaits your next move.</p>
+            <button
+              class="quest-claim-btn"
+              style={{ "margin-top": "10px" }}
+              onClick={() => setDismissedCongrats(true)}
+            >
+              Onward!
+            </button>
+          </div>
+        </div>
+      </Show>
+
       <div class="overview-grid">
         <div class="overview-panel">
           <h2>Production Overview</h2>
