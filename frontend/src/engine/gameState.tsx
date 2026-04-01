@@ -1051,7 +1051,9 @@ export function useGame() {
 
 export function GameProvider(props: ParentProps) {
   const [loaded, setLoaded] = createSignal(false);
-  const initial = loadGame() ?? createInitialState();
+  // In production, always start with a blank state — the server load will overwrite it.
+  // In dev, load from localStorage for offline play.
+  const initial = IS_DEV ? (loadGame() ?? createInitialState()) : createInitialState();
   const [state, setState] = createStore<GameState>(initial);
 
   // Load state from server on mount
@@ -1717,7 +1719,9 @@ export function GameProvider(props: ParentProps) {
   // In production, speed is always 1. In dev, player can adjust.
   const getSpeed = () => IS_DEV ? state.gameSpeed : 1;
   const tickInterval = setInterval(() => applyTicks(TICK_INTERVAL_MS * getSpeed()), TICK_INTERVAL_MS);
-  const localSaveInterval = setInterval(() => saveGameLocal(JSON.parse(JSON.stringify(state))), 5000);
+  const localSaveInterval = IS_DEV
+    ? setInterval(() => saveGameLocal(JSON.parse(JSON.stringify(state))), 5000)
+    : null;
   const apiSaveInterval = setInterval(() => {
     if (_settlementId) {
       saveSettlementApi(_settlementId, JSON.parse(JSON.stringify(state))).catch(() => {});
@@ -1726,7 +1730,7 @@ export function GameProvider(props: ParentProps) {
 
   onCleanup(() => {
     clearInterval(tickInterval);
-    clearInterval(localSaveInterval);
+    if (localSaveInterval) clearInterval(localSaveInterval);
     clearInterval(apiSaveInterval);
     saveGame(JSON.parse(JSON.stringify(state)));
   });
