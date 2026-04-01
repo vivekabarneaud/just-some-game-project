@@ -154,9 +154,6 @@ export default function Buildings() {
                         classList={{ upgrading: isUpgrading(), "quest-target": isQuestTarget() }}
                         style={{ opacity: pb()?.damaged ? 0.7 : 1, position: "relative" }}
                       >
-                        <Show when={isQuestTarget()}>
-                          <div class="quest-badge">Quest</div>
-                        </Show>
                         {/* Upgrade indicator with tooltip */}
                         <Show when={!isUpgrading()}>
                           <div

@@ -146,10 +146,10 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "seeds_of_prosperity",
     title: "Seeds of Prosperity",
     narrative:
-      "The soil here is dark and rich — perfect for planting. A well-tended wheat field will feed your people through the harshest winters.",
-    objective: "Build a Wheat Field",
+      "The soil here is dark and rich — perfect for planting. Build a field and sow your first crop. If it's not the right season for grain, try planting a garden instead!",
+    objective: "Build a Field or a Garden",
     icon: "🌾",
-    condition: (s) => s.fields.length >= 1,
+    condition: (s) => s.fields.length >= 1 || s.gardens.length >= 1,
     rewards: [{ resource: "food", amount: 200, label: "Food" }],
   },
   // 12 — Build a Sheep Pen

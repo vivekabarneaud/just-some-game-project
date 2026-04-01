@@ -97,11 +97,28 @@ export default function Overview() {
                 ))}
               </div>
             </div>
-            <Show when={isQuestComplete()}>
-              <button class="quest-claim-btn" onClick={() => actions.claimQuestReward(quest().id)}>
-                Claim Reward
-              </button>
-            </Show>
+            <div class="quest-actions">
+              <Show when={isQuestComplete()}>
+                <button class="quest-claim-btn" onClick={() => actions.claimQuestReward(quest().id)}>
+                  Claim Reward
+                </button>
+              </Show>
+              <Show when={!isQuestComplete() && quest().targetBuildingId}>
+                <A href="/buildings" class="quest-link">Go to Buildings →</A>
+              </Show>
+              <Show when={!isQuestComplete() && quest().id === "seeds_of_prosperity"}>
+                <A href="/farming" class="quest-link">Go to Farming →</A>
+              </Show>
+              <Show when={!isQuestComplete() && quest().id === "woolly_friends"}>
+                <A href="/farming" class="quest-link">Go to Farming →</A>
+              </Show>
+              <Show when={!isQuestComplete() && quest().id === "a_brave_soul"}>
+                <A href="/guild" class="quest-link">Go to Adventurer's Guild →</A>
+              </Show>
+              <Show when={!isQuestComplete() && quest().id === "into_the_unknown"}>
+                <A href="/guild" class="quest-link">Go to Adventurer's Guild →</A>
+              </Show>
+            </div>
           </div>
         )}
       </Show>
