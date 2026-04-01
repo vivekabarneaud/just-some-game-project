@@ -643,7 +643,7 @@ function createInitialState(): GameState {
     missionRefreshIn: 0,
     incomingRaids: [],
     raidLog: [],
-    hoursSinceLastRaid: 0, // increases over time, raids become more likely
+    hoursSinceLastRaid: 48, // start with 48h of calm
     astralShards: 0,
     lastDailyLogin: 0,
     lastGuildVisit: 0,

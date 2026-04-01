@@ -143,7 +143,7 @@ export default function Login() {
             }}
           >
             {loading()
-              ? "Loading..."
+              ? "Waking up the server... (can take up to 30s)"
               : isRegister()
               ? "Create Account"
               : "Enter the Realm"}
