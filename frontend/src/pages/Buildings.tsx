@@ -139,7 +139,13 @@ export default function Buildings() {
                     return "";
                   };
 
-                  const isQuestTarget = () => questTarget() === building.id;
+                  const isQuestTarget = () => {
+                    const qt = questTarget();
+                    if (qt !== building.id) return false;
+                    const c = state.questRewardsClaimed ?? [];
+                    const idx = QUEST_CHAIN.findIndex((q) => !c.includes(q.id));
+                    return idx >= 0 && !QUEST_CHAIN[idx].condition(state);
+                  };
 
                   return unlocked() ? (
                     <A href={`/buildings/${building.id}`} style={{ "text-decoration": "none" }}>
