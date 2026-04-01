@@ -148,13 +148,14 @@ export default function Sidebar() {
                 const idx = QUEST_CHAIN.findIndex((q) => !c.includes(q.id));
                 return idx >= 0 && QUEST_CHAIN[idx].condition(state);
               };
+              const hasCompletedMissions = () => (state.completedMissions?.length ?? 0) > 0;
               const shouldBlink = () =>
                 (item.path === "/" && hasClaimableQuest()) ||
                 (item.path === "/farming" && (
                   (state.season === "spring" && hasEmptyFields()) ||
                   (state.season === "autumn" && state.seasonElapsed < 6)
                 )) ||
-                (item.path === "/guild" && actions.hasNewGuildContent());
+                (item.path === "/guild" && (actions.hasNewGuildContent() || hasCompletedMissions()));
               return (
                 <A
                   href={item.path}
@@ -176,7 +177,7 @@ export default function Sidebar() {
                       state.season === "spring" ? "#7CFC00" : "#d4831a"
                     }}>
                       {item.path === "/" ? "quest!"
-                        : item.path === "/guild" ? "new!"
+                        : item.path === "/guild" ? (hasCompletedMissions() ? "loot!" : "new!")
                         : state.season === "spring" ? "plant!" : "harvest!"}
                     </span>
                   )}
