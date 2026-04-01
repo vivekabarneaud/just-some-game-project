@@ -1,6 +1,7 @@
 import { For, Show } from "solid-js";
 import { A } from "@solidjs/router";
 import { BUILDINGS, isBuildingUnlocked, getUnlockRequirement, getNextTierForLevels, applyMasonCostReduction, applyMasonTimeReduction, type BuildingDefinition } from "~/data/buildings";
+import { QUEST_CHAIN } from "~/data/quests";
 import { useGame } from "~/engine/gameState";
 import Countdown from "~/components/Countdown";
 
@@ -17,6 +18,11 @@ const SECTIONS: { key: BuildingDefinition["category"]; label: string; icon: stri
 export default function Buildings() {
   const { state, actions } = useGame();
   const thLevel = () => actions.getTownHallLevel();
+  const questTarget = () => {
+    const c = state.questRewardsClaimed ?? [];
+    const idx = QUEST_CHAIN.findIndex((q) => !c.includes(q.id));
+    return idx >= 0 ? QUEST_CHAIN[idx].targetBuildingId : null;
+  };
 
   const getPlayerBuilding = (buildingId: string) =>
     state.buildings.find((b) => b.buildingId === buildingId);
@@ -133,9 +139,18 @@ export default function Buildings() {
                     return "";
                   };
 
+                  const isQuestTarget = () => questTarget() === building.id;
+
                   return unlocked() ? (
                     <A href={`/buildings/${building.id}`} style={{ "text-decoration": "none" }}>
-                      <div class="building-card" classList={{ upgrading: isUpgrading() }} style={{ opacity: pb()?.damaged ? 0.7 : 1, position: "relative" }}>
+                      <div
+                        class="building-card"
+                        classList={{ upgrading: isUpgrading(), "quest-target": isQuestTarget() }}
+                        style={{ opacity: pb()?.damaged ? 0.7 : 1, position: "relative" }}
+                      >
+                        <Show when={isQuestTarget()}>
+                          <div class="quest-badge">Quest</div>
+                        </Show>
                         {/* Upgrade indicator with tooltip */}
                         <Show when={!isUpgrading()}>
                           <div

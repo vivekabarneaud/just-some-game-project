@@ -14,6 +14,7 @@ export interface QuestDefinition {
   icon: string;
   condition: (state: GameState) => boolean;
   rewards: QuestReward[];
+  targetBuildingId?: string; // building to highlight on the Buildings page
 }
 
 const bldg = (state: GameState, id: string) =>
@@ -29,6 +30,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     icon: "🪓",
     condition: (s) => (bldg(s, "lumber_mill")?.level ?? 0) >= 1,
     rewards: [{ resource: "wood", amount: 100, label: "Wood" }],
+    targetBuildingId: "lumber_mill",
   },
   {
     id: "foundation_of_stone",
@@ -39,6 +41,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     icon: "⛏️",
     condition: (s) => (bldg(s, "quarry")?.level ?? 0) >= 1,
     rewards: [{ resource: "stone", amount: 100, label: "Stone" }],
+    targetBuildingId: "quarry",
   },
   {
     id: "the_foragers_path",
@@ -49,6 +52,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     icon: "🫐",
     condition: (s) => (bldg(s, "forager_hut")?.level ?? 0) >= 1,
     rewards: [{ resource: "food", amount: 100, label: "Food" }],
+    targetBuildingId: "forager_hut",
   },
   {
     id: "a_roof_over_their_heads",
@@ -59,6 +63,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     icon: "🏠",
     condition: (s) => (bldg(s, "houses")?.level ?? 0) >= 1,
     rewards: [{ resource: "food", amount: 50, label: "Food" }],
+    targetBuildingId: "houses",
   },
   {
     id: "the_hunt_begins",
@@ -69,6 +74,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     icon: "🏹",
     condition: (s) => (bldg(s, "hunting_camp")?.level ?? 0) >= 1,
     rewards: [{ resource: "food", amount: 150, label: "Food" }],
+    targetBuildingId: "hunting_camp",
   },
   {
     id: "ambition_rises",
@@ -79,6 +85,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     icon: "🏛️",
     condition: (s) => (bldg(s, "town_hall")?.level ?? 0) >= 2,
     rewards: [{ resource: "gold", amount: 200, label: "Gold" }],
+    targetBuildingId: "town_hall",
   },
   {
     id: "from_the_deep",
@@ -89,6 +96,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     icon: "🐟",
     condition: (s) => (bldg(s, "fishing_hut")?.level ?? 0) >= 1,
     rewards: [{ resource: "food", amount: 100, label: "Food" }],
+    targetBuildingId: "fishing_hut",
   },
   {
     id: "stockpile_for_winter",
@@ -99,6 +107,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     icon: "🥫",
     condition: (s) => (bldg(s, "pantry")?.level ?? 0) >= 1,
     rewards: [{ resource: "food", amount: 100, label: "Food" }],
+    targetBuildingId: "pantry",
   },
   {
     id: "the_road_to_greatness",
@@ -108,6 +117,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Upgrade Town Hall to level 3",
     icon: "⭐",
     condition: (s) => (bldg(s, "town_hall")?.level ?? 0) >= 3,
+    targetBuildingId: "town_hall",
     rewards: [
       { resource: "gold", amount: 200, label: "Gold" },
       { resource: "astralShards", amount: 5, label: "Astral Shards" },
@@ -121,6 +131,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Build the Adventurer's Guild",
     icon: "🏰",
     condition: (s) => (bldg(s, "adventurers_guild")?.level ?? 0) >= 1,
+    targetBuildingId: "adventurers_guild",
     rewards: [
       { resource: "gold", amount: 300, label: "Gold" },
       { resource: "astralShards", amount: 5, label: "Astral Shards" },
