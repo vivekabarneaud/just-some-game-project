@@ -488,13 +488,14 @@ export default function AdventurersGuild() {
                 </Show>
 
                 <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap", "margin-bottom": "12px" }}>
-                  <Index each={available()}>
-                    {(adv) => {
-                      const isInTeam = () => selectedTeam().includes(adv().id);
+                  <For each={availableIds()}>
+                    {(advId) => {
+                      const adv = () => state.adventurers.find((a) => a.id === advId)!;
+                      const isInTeam = () => selectedTeam().includes(advId);
                       const cls = () => getClassMeta(adv().class);
                       return (
                         <button
-                          onClick={() => toggleTeamMember(adv().id)}
+                          onClick={() => toggleTeamMember(advId)}
                           style={{
                             padding: "8px 12px",
                             background: isInTeam() ? "rgba(52, 152, 219, 0.2)" : "var(--bg-primary)",
@@ -520,7 +521,7 @@ export default function AdventurersGuild() {
                         </button>
                       );
                     }}
-                  </Index>
+                  </For>
                 </div>
 
                 {/* Team class passive summary */}
