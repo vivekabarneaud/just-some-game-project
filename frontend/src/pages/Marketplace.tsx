@@ -18,38 +18,51 @@ const RESOURCE_INFO: Record<ResourceKey, { icon: string; name: string }> = {
 };
 
 const BASE_TRADES: { give: ResourceKey; receive: ResourceKey; giveBase: number; receiveBase: number }[] = [
-  // Wood trades (most demanded)
-  { give: "stone", receive: "wood", giveBase: 20, receiveBase: 10 },
-  { give: "food", receive: "wood", giveBase: 25, receiveBase: 10 },
-  { give: "gold", receive: "wood", giveBase: 15, receiveBase: 10 },
+  // Wood trades (most demanded — expensive)
+  { give: "stone", receive: "wood", giveBase: 30, receiveBase: 10 },
+  { give: "food", receive: "wood", giveBase: 40, receiveBase: 10 },
+  { give: "gold", receive: "wood", giveBase: 25, receiveBase: 10 },
   // Stone trades
-  { give: "wood", receive: "stone", giveBase: 20, receiveBase: 10 },
-  { give: "food", receive: "stone", giveBase: 25, receiveBase: 10 },
-  { give: "gold", receive: "stone", giveBase: 15, receiveBase: 10 },
+  { give: "wood", receive: "stone", giveBase: 30, receiveBase: 10 },
+  { give: "food", receive: "stone", giveBase: 35, receiveBase: 10 },
+  { give: "gold", receive: "stone", giveBase: 20, receiveBase: 10 },
   // Food trades
-  { give: "wood", receive: "food", giveBase: 15, receiveBase: 10 },
-  { give: "stone", receive: "food", giveBase: 15, receiveBase: 10 },
-  { give: "gold", receive: "food", giveBase: 10, receiveBase: 10 },
+  { give: "wood", receive: "food", giveBase: 25, receiveBase: 10 },
+  { give: "stone", receive: "food", giveBase: 25, receiveBase: 10 },
+  { give: "gold", receive: "food", giveBase: 15, receiveBase: 10 },
   // Gold trades
-  { give: "wood", receive: "gold", giveBase: 20, receiveBase: 5 },
-  { give: "stone", receive: "gold", giveBase: 20, receiveBase: 5 },
-  { give: "food", receive: "gold", giveBase: 25, receiveBase: 5 },
+  { give: "wood", receive: "gold", giveBase: 30, receiveBase: 5 },
+  { give: "stone", receive: "gold", giveBase: 30, receiveBase: 5 },
+  { give: "food", receive: "gold", giveBase: 40, receiveBase: 5 },
 ];
 
 function getDiscount(marketLevel: number): number {
-  // Lvl 1: 0% discount, Lvl 10: 30% discount on give cost
-  return Math.min(0.03 * (marketLevel - 1), 0.27);
+  // Lvl 1: 0% discount, Lvl 10: 20% discount on give cost
+  return Math.min(0.022 * (marketLevel - 1), 0.2);
+}
+
+// Cooldown in seconds: 5 min at lvl 1, decreasing with level
+function getCooldown(marketLevel: number): number {
+  return Math.max(60, 300 - (marketLevel - 1) * 30);
 }
 
 export default function Marketplace() {
   const { state, actions } = useGame();
   const [filter, setFilter] = createSignal<ResourceKey | "all">("all");
+  const [cooldownEnd, setCooldownEnd] = createSignal(0);
+  const [now, setNow] = createSignal(Date.now());
+
+  // Update "now" every second for cooldown display
+  setInterval(() => setNow(Date.now()), 1000);
 
   const marketLevel = () =>
     state.buildings.find((b) => b.buildingId === "marketplace")?.level ?? 0;
 
   const isBuilt = () => marketLevel() > 0;
   const discount = () => getDiscount(marketLevel());
+  const cooldownSec = () => getCooldown(marketLevel());
+  const isOnCooldown = () => now() < cooldownEnd();
+  const cooldownRemaining = () => Math.max(0, Math.ceil((cooldownEnd() - now()) / 1000));
 
   const trades = (): TradeOffer[] =>
     BASE_TRADES
@@ -63,12 +76,20 @@ export default function Marketplace() {
 
   const canAffordTrade = (trade: TradeOffer, multiplier: number) => {
     const cost = trade.giveAmount * multiplier;
-    return state.resources[trade.give] >= cost;
+    return state.resources[trade.give] >= cost && !isOnCooldown();
   };
 
   const executeTrade = (trade: TradeOffer, multiplier: number) => {
     if (!canAffordTrade(trade, multiplier)) return;
-    actions.trade(trade.give, trade.giveAmount * multiplier, trade.receive, trade.receiveAmount * multiplier);
+    if (actions.trade(trade.give, trade.giveAmount * multiplier, trade.receive, trade.receiveAmount * multiplier)) {
+      setCooldownEnd(Date.now() + cooldownSec() * 1000);
+    }
+  };
+
+  const formatCooldown = (sec: number) => {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return m > 0 ? `${m}m ${s}s` : `${s}s`;
   };
 
   return (
@@ -101,12 +122,30 @@ export default function Marketplace() {
           "justify-content": "space-between",
         }}>
           <span>Marketplace Level {marketLevel()}</span>
-          <Show when={discount() > 0}>
-            <span style={{ color: "var(--accent-green)" }}>
-              Merchant discount: {Math.round(discount() * 100)}%
-            </span>
-          </Show>
+          <div style={{ display: "flex", gap: "16px" }}>
+            <Show when={discount() > 0}>
+              <span style={{ color: "var(--accent-green)" }}>
+                Discount: {Math.round(discount() * 100)}%
+              </span>
+            </Show>
+            <span>Cooldown: {formatCooldown(cooldownSec())}</span>
+          </div>
         </div>
+
+        <Show when={isOnCooldown()}>
+          <div style={{
+            padding: "10px 14px",
+            "margin-bottom": "16px",
+            "border-radius": "6px",
+            background: "rgba(245, 197, 66, 0.1)",
+            border: "1px solid rgba(245, 197, 66, 0.3)",
+            color: "var(--accent-gold)",
+            "font-size": "0.85rem",
+            "text-align": "center",
+          }}>
+            The merchants are preparing your goods... Next trade in {formatCooldown(cooldownRemaining())}
+          </div>
+        </Show>
 
         <div style={{ "margin-bottom": "16px", display: "flex", gap: "6px" }}>
           <button
