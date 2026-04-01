@@ -1090,6 +1090,9 @@ export function GameProvider(props: ParentProps) {
       // If server has game state (not empty), use it as source of truth
       const serverState = settlement.gameState as GameState;
       if (serverState && serverState.resources) {
+        // Migrate missing fields for old saves
+        if (!serverState.questRewardsClaimed) serverState.questRewardsClaimed = [];
+        if (serverState.firstMissionSent === undefined) serverState.firstMissionSent = false;
         setState(reconcile(serverState));
       } else {
         // New settlement — start with a fresh initial state, not localStorage

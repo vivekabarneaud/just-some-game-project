@@ -126,7 +126,8 @@ export default function Sidebar() {
             {section.items.map((item) => {
               const hasEmptyFields = () => state.fields.some((f) => !f.crop && !f.fallow && f.level > 0 && !f.upgrading);
               const hasClaimableQuest = () => {
-                const idx = QUEST_CHAIN.findIndex((q) => !state.questRewardsClaimed.includes(q.id));
+                const c = state.questRewardsClaimed ?? [];
+                const idx = QUEST_CHAIN.findIndex((q) => !c.includes(q.id));
                 return idx >= 0 && QUEST_CHAIN[idx].condition(state);
               };
               const shouldBlink = () =>

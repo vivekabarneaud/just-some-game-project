@@ -50,15 +50,17 @@ export default function Overview() {
   const hasThreats = () => state.incomingRaids.length > 0;
 
   // Quest system
+  const claimed = () => state.questRewardsClaimed ?? [];
   const currentQuest = () => {
-    const idx = QUEST_CHAIN.findIndex((q) => !state.questRewardsClaimed.includes(q.id));
+    const c = claimed();
+    const idx = QUEST_CHAIN.findIndex((q) => !c.includes(q.id));
     return idx >= 0 ? QUEST_CHAIN[idx] : null;
   };
   const isQuestComplete = () => {
     const quest = currentQuest();
     return quest ? quest.condition(state) : false;
   };
-  const questProgress = () => state.questRewardsClaimed.length;
+  const questProgress = () => claimed().length;
   const allQuestsComplete = () => questProgress() >= QUEST_CHAIN.length;
   const [dismissedCongrats, setDismissedCongrats] = createSignal(false);
 
