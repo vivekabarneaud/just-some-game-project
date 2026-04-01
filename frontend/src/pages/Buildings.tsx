@@ -1,4 +1,4 @@
-import { For, Show } from "solid-js";
+import { For, Show, onMount } from "solid-js";
 import { A } from "@solidjs/router";
 import { BUILDINGS, isBuildingUnlocked, getUnlockRequirement, getNextTierForLevels, applyMasonCostReduction, applyMasonTimeReduction, type BuildingDefinition } from "~/data/buildings";
 import { QUEST_CHAIN } from "~/data/quests";
@@ -18,6 +18,15 @@ const SECTIONS: { key: BuildingDefinition["category"]; label: string; icon: stri
 export default function Buildings() {
   const { state, actions } = useGame();
   const thLevel = () => actions.getTownHallLevel();
+
+  onMount(() => {
+    const hash = window.location.hash;
+    if (hash) {
+      setTimeout(() => {
+        document.querySelector(hash)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 100);
+    }
+  });
   const questTarget = () => {
     const c = state.questRewardsClaimed ?? [];
     const idx = QUEST_CHAIN.findIndex((q) => !c.includes(q.id));
@@ -148,7 +157,7 @@ export default function Buildings() {
                   };
 
                   return unlocked() ? (
-                    <A href={`/buildings/${building.id}`} style={{ "text-decoration": "none" }}>
+                    <A href={`/buildings/${building.id}`} id={`building-${building.id}`} style={{ "text-decoration": "none" }}>
                       <div
                         class="building-card"
                         classList={{ upgrading: isUpgrading(), "quest-target": isQuestTarget() }}

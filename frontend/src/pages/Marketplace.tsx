@@ -83,7 +83,7 @@ export default function Marketplace() {
         }}>
           <div style={{ "font-size": "3rem", "margin-bottom": "12px" }}>🏪</div>
           <p>Build a Marketplace to start trading with travelling merchants.</p>
-          <a href="/buildings" style={{ color: "var(--accent-gold)", "margin-top": "8px", display: "inline-block" }}>
+          <a href="/buildings#building-marketplace" style={{ color: "var(--accent-gold)", "margin-top": "8px", display: "inline-block" }}>
             Go to Buildings →
           </a>
         </div>
