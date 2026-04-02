@@ -1669,9 +1669,11 @@ export function GameProvider(props: ParentProps) {
               s.recruitCandidates.push(generateCandidate(nextId("adv"), maxRank));
             }
             s.lastRecruitRefresh = now;
-            // Missions
+            // Missions — cap difficulty at best adventurer's rank + 1
             const boardSize = getMissionBoardSize(guildLvl);
-            s.missionBoard = generateMissionBoard(guildLvl, boardSize, now + s.year * 777);
+            const bestRank = s.adventurers.length > 0 ? Math.max(...s.adventurers.map((a) => a.rank)) : 1;
+            const maxDiff = Math.min(5, bestRank + 1);
+            s.missionBoard = generateMissionBoard(guildLvl, boardSize, now + s.year * 777, maxDiff);
             s.lastMissionRefresh = now;
           }
         }
@@ -2445,7 +2447,9 @@ export function GameProvider(props: ParentProps) {
         s.astralShards -= 10;
         s.missionRerollToday = true;
         const boardSize = getMissionBoardSize(guildLvl);
-        s.missionBoard = generateMissionBoard(guildLvl, boardSize, Date.now());
+        const bestRank = s.adventurers.length > 0 ? Math.max(...s.adventurers.map((a) => a.rank)) : 1;
+        const maxDiff = Math.min(5, bestRank + 1);
+        s.missionBoard = generateMissionBoard(guildLvl, boardSize, Date.now(), maxDiff);
       }));
       return true;
     },

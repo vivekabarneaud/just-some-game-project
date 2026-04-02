@@ -124,7 +124,13 @@ export default function AdventurersGuild() {
   const getAdvDeathRisk = (adv: Adventurer) => {
     const mission = selectedMission();
     if (!mission) return 0;
-    return calcDeathChance(mission, currentTeam(), adv);
+    let chance = calcDeathChance(mission, currentTeam(), adv);
+    // Apply supply death reduction
+    for (const supplyId of selectedSupplies()) {
+      const effect = getSupplyEffect(supplyId);
+      if (effect) chance *= effect.deathReduction;
+    }
+    return Math.round(chance);
   };
 
   const toggleSupply = (itemId: string) => {
@@ -658,47 +664,54 @@ export default function AdventurersGuild() {
                     </Show>
 
                     {/* Mission supply slots */}
-                    <div class="mission-supplies">
-                      <div class="mission-supplies-label">
-                        🧪 Supplies ({selectedSupplies().length}/{MAX_MISSION_SUPPLIES})
-                      </div>
-                      <div class="mission-supplies-slots">
-                        {(() => {
-                          const supplies = getAvailableSupplies(state.inventory);
-                          if (supplies.length === 0) return (
-                            <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "font-style": "italic" }}>
-                              No potions available. Craft some at the Alchemy Lab.
-                            </div>
-                          );
-                          return (
-                            <For each={supplies}>
-                              {(s) => {
-                                const isSelected = () => selectedSupplies().includes(s.item.id);
-                                const effect = getSupplyEffect(s.item.id);
-                                return (
-                                  <button
-                                    class="supply-btn"
-                                    classList={{ active: isSelected() }}
-                                    disabled={!isSelected() && selectedSupplies().length >= MAX_MISSION_SUPPLIES}
-                                    onClick={() => toggleSupply(s.item.id)}
-                                  >
-                                    <span class="supply-icon">{s.item.icon}</span>
-                                    <span class="supply-info">
-                                      <span class="supply-name">{s.item.name} ({s.quantity})</span>
-                                      <span class="supply-effect">
-                                        {effect?.successBonus ? `+${effect.successBonus}% success` : ""}
-                                        {effect?.successBonus && (effect?.deathReduction ?? 1) < 1 ? " · " : ""}
-                                        {(effect?.deathReduction ?? 1) < 1 ? `-${Math.round((1 - (effect?.deathReduction ?? 1)) * 100)}% death` : ""}
-                                      </span>
-                                    </span>
-                                    {isSelected() && <span style={{ color: "var(--accent-green)" }}>✓</span>}
-                                  </button>
-                                );
-                              }}
-                            </For>
-                          );
-                        })()}
-                      </div>
+                    <div class="supply-slots-row">
+                      <span class="supply-slots-label">🧪 Supplies</span>
+                      {Array.from({ length: MAX_MISSION_SUPPLIES }).map((_, i) => {
+                        const supplyId = () => selectedSupplies()[i];
+                        const item = () => supplyId() ? getItem(supplyId()!) : null;
+                        const effect = () => supplyId() ? getSupplyEffect(supplyId()!) : null;
+                        const supplies = () => getAvailableSupplies(state.inventory);
+
+                        return (
+                          <div class="supply-slot-box" classList={{ filled: !!item() }}>
+                            <Show when={item()} fallback={
+                              <Show when={supplies().length > 0} fallback={
+                                <span class="supply-slot-empty">—</span>
+                              }>
+                                <div class="supply-slot-picker">
+                                  <For each={supplies()}>
+                                    {(s) => {
+                                      const alreadyUsed = () => selectedSupplies().includes(s.item.id);
+                                      return (
+                                        <button
+                                          class="supply-pick-btn"
+                                          disabled={alreadyUsed()}
+                                          onClick={() => toggleSupply(s.item.id)}
+                                          title={`${s.item.name} (${s.quantity})`}
+                                        >
+                                          {s.item.icon}
+                                        </button>
+                                      );
+                                    }}
+                                  </For>
+                                </div>
+                              </Show>
+                            }>
+                              <button
+                                class="supply-filled-btn"
+                                onClick={() => toggleSupply(supplyId()!)}
+                                title={`${item()!.name} — click to remove`}
+                              >
+                                <span style={{ "font-size": "1.2rem" }}>{item()!.icon}</span>
+                                <span class="supply-filled-effect">
+                                  {effect()?.successBonus ? `+${effect()!.successBonus}%` : ""}
+                                  {(effect()?.deathReduction ?? 1) < 1 ? `☠-${Math.round((1 - (effect()?.deathReduction ?? 1)) * 100)}%` : ""}
+                                </span>
+                              </button>
+                            </Show>
+                          </div>
+                        );
+                      })}
                     </div>
 
                     <button

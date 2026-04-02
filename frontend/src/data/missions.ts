@@ -683,7 +683,11 @@ export function calcSuccessChance(
     }
   }
 
-  return Math.min(100, Math.round(slotPercent + statPercent + classBonus + familyBonus));
+  // Difficulty penalty: higher difficulty missions are harder for low-level teams
+  const avgLevel = team.reduce((sum, a) => sum + a.level, 0) / team.length;
+  const difficultyPenalty = Math.max(0, (mission.difficulty * 3 - avgLevel) * 3);
+
+  return Math.min(100, Math.max(5, Math.round(slotPercent + statPercent + classBonus + familyBonus - difficultyPenalty)));
 }
 
 /**
@@ -749,8 +753,8 @@ export function calcDeathChance(
 // ─── Mission board generation ───────────────────────────────────
 
 /** Pick random missions for the board based on guild level */
-export function generateMissionBoard(guildLevel: number, count: number = 4, seed: number = Date.now()): MissionTemplate[] {
-  const available = MISSION_POOL.filter((m) => m.minGuildLevel <= guildLevel);
+export function generateMissionBoard(guildLevel: number, count: number = 4, seed: number = Date.now(), maxDifficulty: number = 5): MissionTemplate[] {
+  const available = MISSION_POOL.filter((m) => m.minGuildLevel <= guildLevel && m.difficulty <= maxDifficulty);
   if (available.length <= count) return [...available];
 
   // Seeded shuffle

@@ -1114,73 +1114,85 @@ body {
   margin-bottom: 2px;
 }
 
-/* Mission Supplies */
-.mission-supplies {
-  padding: 10px 12px;
-  background: var(--bg-primary);
-  border-radius: 6px;
-  margin-bottom: 10px;
-}
-
-.mission-supplies-label {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 8px;
-}
-
-.mission-supplies-slots {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.supply-btn {
+/* Mission Supply Slots */
+.supply-slots-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 10px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  cursor: pointer;
-  text-align: left;
-  color: var(--text-primary);
-  transition: all 0.15s;
+  margin-bottom: 10px;
 }
 
-.supply-btn:hover:not(:disabled) {
+.supply-slots-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.supply-slot-box {
+  width: 52px;
+  height: 52px;
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  flex-shrink: 0;
+  position: relative;
+}
+
+.supply-slot-box.filled {
   border-color: var(--accent-purple);
+  border-style: solid;
+  background: rgba(147, 112, 219, 0.08);
 }
 
-.supply-btn.active {
-  border-color: var(--accent-purple);
-  background: rgba(147, 112, 219, 0.1);
-}
-
-.supply-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.supply-icon {
+.supply-slot-empty {
+  color: var(--text-muted);
   font-size: 1.2rem;
 }
 
-.supply-info {
+.supply-slot-picker {
+  display: flex;
+  gap: 2px;
+}
+
+.supply-pick-btn {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  transition: transform 0.1s;
+}
+
+.supply-pick-btn:hover:not(:disabled) {
+  transform: scale(1.2);
+}
+
+.supply-pick-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.supply-filled-btn {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-primary);
+  padding: 2px;
 }
 
-.supply-name {
-  font-size: 0.85rem;
-}
-
-.supply-effect {
-  font-size: 0.75rem;
+.supply-filled-effect {
+  font-size: 0.55rem;
   color: var(--accent-green);
+  white-space: nowrap;
 }
 
 /* Marketplace */
