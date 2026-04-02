@@ -69,8 +69,12 @@ export default function AdventurersGuild() {
   const [selectedTeam, setSelectedTeam] = createSignal<string[]>([]);
   const [selectedSupplies, setSelectedSupplies] = createSignal<string[]>([]);
   const guildLevel = () => actions.getGuildLevel();
+  const CLASS_ORDER: Record<string, number> = { warrior: 0, priest: 1, wizard: 2, archer: 3, assassin: 4 };
   const availableIds = createMemo(() =>
-    state.adventurers.filter((a) => a.alive && !a.onMission).map((a) => a.id)
+    state.adventurers
+      .filter((a) => a.alive && !a.onMission)
+      .sort((a, b) => (CLASS_ORDER[a.class] ?? 9) - (CLASS_ORDER[b.class] ?? 9) || b.level - a.level)
+      .map((a) => a.id)
   );
   const available = () => availableIds().map((id) => state.adventurers.find((a) => a.id === id)!);
   const roster = () => state.adventurers;
