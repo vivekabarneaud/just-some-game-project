@@ -13,7 +13,7 @@ import {
   type AdventurerClass,
   type AdventurerStats,
 } from "~/data/adventurers";
-import { getItem, getItemsForSlot, getEquipmentStats, ITEMS, type ItemSlot } from "~/data/items";
+import { getItem, getItemsForSlot, getEquipmentStats, ITEMS, type ItemSlot, isSupplyItem } from "~/data/items";
 
 // ─── Equipment slot types ───────────────────────────────────────
 
@@ -201,7 +201,7 @@ export default function AdventurerDetail() {
                     const equippedId = () => adv().equipment[slot.id as ItemSlot];
                     const equippedItem = () => equippedId() ? getItem(equippedId()!) : null;
                     const availableItems = () => getItemsForSlot(slot.id as ItemSlot, adv().class)
-                      .filter((item) => actions.getInventoryCount(item.id) > 0);
+                      .filter((item) => actions.getInventoryCount(item.id) > 0 && !isSupplyItem(item.id));
 
                     return (
                       <div style={{
