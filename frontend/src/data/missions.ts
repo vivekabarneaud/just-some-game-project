@@ -574,7 +574,7 @@ export const MISSION_POOL: MissionTemplate[] = [
 /** Warrior: flat +10% success */
 const WARRIOR_SUCCESS_BONUS = 10;
 /** Archer: +8% success, +5% extra on outdoor/exploration */
-const ARCHER_SUCCESS_BONUS = 8;
+const ARCHER_SUCCESS_BONUS = 5;
 const ARCHER_TAG_BONUS = 5;
 /** Wizard: +0% flat, but +10% on magical missions */
 const WIZARD_TAG_BONUS = 10;
@@ -670,11 +670,17 @@ export function calcSuccessChance(
     }
     if (adv.class === "archer") {
       classBonus += ARCHER_SUCCESS_BONUS;
-      if (mission.tags.some((t) => t === "outdoor" || t === "exploration")) classBonus += ARCHER_TAG_BONUS;
+      if (mission.tags.some((t) => t === "exploration")) classBonus += ARCHER_TAG_BONUS;
     }
     if (adv.class === "wizard" && mission.tags.includes("magical")) classBonus += WIZARD_TAG_BONUS;
-    if (adv.class === "assassin" && mission.tags.some((t) => t === "spying" || t === "assassination" || t === "stealth")) classBonus += 8;
-    if (adv.class === "priest" && mission.tags.includes("survival")) classBonus += 5;
+    if (adv.class === "assassin") {
+      classBonus += 5;
+      if (mission.tags.some((t) => t === "spying" || t === "assassination" || t === "stealth")) classBonus += 8;
+    }
+    if (adv.class === "priest") {
+      classBonus += 3;
+      if (mission.tags.includes("survival")) classBonus += 5;
+    }
   }
 
   return Math.min(100, Math.round(slotPercent + statPercent + classBonus + familyBonus));

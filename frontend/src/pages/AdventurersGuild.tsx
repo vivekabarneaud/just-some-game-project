@@ -13,7 +13,7 @@ import {
   type Adventurer,
   type AdventurerRank,
 } from "~/data/adventurers";
-import { getItem, getEquipmentStats, getAvailableSupplies, getSupplyEffect, isSupplyItem, MAX_MISSION_SUPPLIES } from "~/data/items";
+import { getItem, getAvailableSupplies, getSupplyEffect, isSupplyItem, MAX_MISSION_SUPPLIES } from "~/data/items";
 import {
   type MissionTemplate,
   type MissionSlot,
@@ -23,7 +23,6 @@ import {
   getMission,
   getMissionStatWeights,
 } from "~/data/missions";
-import { calcStats as calcAdvStats } from "~/data/adventurers";
 import Countdown from "~/components/Countdown";
 
 type Tab = "missions" | "roster" | "recruit";
@@ -543,10 +542,6 @@ export default function AdventurersGuild() {
                           const adv = () => state.adventurers.find((a) => a.id === advId)!;
                           const isInTeam = () => selectedTeam().includes(advId);
                           const cls = () => getClassMeta(adv().class);
-                          const stats = () => {
-                            const equipStats = getEquipmentStats(adv().equipment);
-                            return calcAdvStats(adv(), equipStats);
-                          };
                           const matchesSlot = () => mission().slots.some((s) => s.class === "any" || s.class === adv().class);
 
                           return (
@@ -564,14 +559,6 @@ export default function AdventurersGuild() {
                                   </div>
                                 </div>
                                 {isInTeam() && <span class="team-adv-check">✓</span>}
-                              </div>
-                              <div class="team-adv-stats">
-                                {topStats().map((s) => (
-                                  <span class="team-adv-stat">
-                                    <span class="team-adv-stat-label">{STAT_LABELS[s]}</span>
-                                    <span class="team-adv-stat-value">{stats()[s as keyof typeof stats]}</span>
-                                  </span>
-                                ))}
                               </div>
                               <Show when={adv().equipment.weapon || adv().equipment.armor || adv().equipment.trinket}>
                                 <div class="team-adv-gear">
