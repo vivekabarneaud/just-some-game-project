@@ -61,10 +61,10 @@ export const RANK_NAMES: Record<AdventurerRank, string> = {
 
 export const CLASS_COLORS: Record<AdventurerClass, string> = {
   warrior: "#e74c3c",   // red
-  wizard: "#3498db",    // blue
-  priest: "#f5c542",    // gold
+  wizard: "#9b59b6",    // purple
+  priest: "#3498db",    // blue
   archer: "#2ecc71",    // green
-  assassin: "#9b59b6",  // purple
+  assassin: "#f5c542",  // gold
 };
 
 export const RANK_COLORS: Record<AdventurerRank, string> = {
