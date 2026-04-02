@@ -879,6 +879,238 @@ body {
   color: var(--text-secondary);
 }
 
+/* Mission Assembly - Two Column */
+.mission-assembly {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 16px;
+  margin-top: 20px;
+  background: var(--bg-secondary);
+  border: 2px solid var(--accent-blue);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.mission-detail-panel {
+  border-right: 1px solid var(--border-color);
+  padding-right: 16px;
+}
+
+.mission-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.mission-detail-section {
+  margin-bottom: 14px;
+}
+
+.mission-detail-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.mission-detail-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.mission-detail-stats .mission-detail-label {
+  display: inline;
+  margin-right: 6px;
+}
+
+.mission-slot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  margin-bottom: 4px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  border: 1px dashed var(--border-color);
+  background: var(--bg-primary);
+}
+
+.mission-slot.filled.matched {
+  border: 1px solid var(--accent-green);
+  background: rgba(46, 204, 113, 0.1);
+  border-style: solid;
+}
+
+.mission-slot.filled:not(.matched) {
+  border: 1px solid var(--accent-gold);
+  background: rgba(245, 197, 66, 0.1);
+  border-style: solid;
+}
+
+.mission-slot-label {
+  color: var(--text-muted);
+  min-width: 70px;
+}
+
+.mission-slot-arrow {
+  color: var(--text-muted);
+}
+
+.mission-slot-assigned {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.mission-slot.empty .mission-slot-assigned {
+  color: var(--text-muted);
+  font-weight: 400;
+  font-style: italic;
+}
+
+/* Team panel (right column) */
+.team-panel {
+  min-height: 200px;
+}
+
+.team-adv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.team-adv-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+  color: var(--text-primary);
+}
+
+.team-adv-card:hover {
+  border-color: var(--border-highlight);
+}
+
+.team-adv-card.assigned {
+  border-color: var(--accent-green);
+  background: rgba(46, 204, 113, 0.08);
+}
+
+.team-adv-card.class-match {
+  border-color: var(--accent-blue);
+  border-style: dashed;
+}
+
+.team-adv-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.team-adv-icon {
+  font-size: 1.3rem;
+}
+
+.team-adv-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.team-adv-rank {
+  font-size: 0.75rem;
+}
+
+.team-adv-check {
+  margin-left: auto;
+  color: var(--accent-green);
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.team-adv-stats {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.team-adv-stat {
+  display: flex;
+  gap: 3px;
+  font-size: 0.8rem;
+}
+
+.team-adv-stat-label {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.team-adv-stat-value {
+  color: var(--accent-gold);
+  font-weight: 600;
+}
+
+.team-adv-gear {
+  display: flex;
+  gap: 4px;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.team-adv-risk {
+  margin-top: 4px;
+}
+
+.team-summary {
+  padding: 10px 12px;
+  background: var(--bg-primary);
+  border-radius: 6px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.team-success {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.team-success-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.team-success-value {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.team-passives {
+  padding: 8px 10px;
+  background: var(--bg-primary);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.team-passives > div {
+  margin-bottom: 2px;
+}
+
 /* Marketplace */
 .trade-filter-btn {
   padding: 6px 12px;

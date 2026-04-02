@@ -592,7 +592,7 @@ export const PRIEST_REVIVE_CHANCE = 0.15;
  * Get the relevant stat for a mission based on its tags.
  * Returns which stat keys contribute to success.
  */
-function getMissionStatWeights(tags: MissionTag[]): Partial<Record<keyof AdventurerStats, number>> {
+export function getMissionStatWeights(tags: MissionTag[]): Partial<Record<keyof AdventurerStats, number>> {
   const weights: Partial<Record<keyof AdventurerStats, number>> = {};
   if (tags.some((t) => t === "combat" || t === "escort")) weights.str = (weights.str ?? 0) + 1;
   if (tags.some((t) => t === "magical" || t === "exploration")) weights.int = (weights.int ?? 0) + 1;

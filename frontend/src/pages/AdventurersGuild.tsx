@@ -13,7 +13,7 @@ import {
   type Adventurer,
   type AdventurerRank,
 } from "~/data/adventurers";
-import { getItem } from "~/data/items";
+import { getItem, getEquipmentStats } from "~/data/items";
 import {
   type MissionTemplate,
   type MissionSlot,
@@ -21,10 +21,15 @@ import {
   calcDeathChance,
   calcEffectiveDuration,
   getMission,
+  getMissionStatWeights,
 } from "~/data/missions";
+import { calcStats as calcAdvStats } from "~/data/adventurers";
 import Countdown from "~/components/Countdown";
 
 type Tab = "missions" | "roster" | "recruit";
+
+const DIFFICULTY_LABELS: Record<number, string> = { 1: "Novice", 2: "Apprentice", 3: "Journeyman", 4: "Veteran", 5: "Elite" };
+const DIFFICULTY_COLORS: Record<number, string> = { 1: "var(--accent-green)", 2: "var(--accent-blue)", 3: "var(--accent-gold)", 4: "#e67e22", 5: "var(--accent-red)" };
 
 function formatDuration(seconds: number): string {
   if (seconds < 60) return `${seconds}s`;
@@ -418,161 +423,221 @@ export default function AdventurersGuild() {
             </For>
           </div>
 
-          {/* Team selection panel */}
+          {/* Two-column team assembly panel */}
           <Show when={selectedMission()}>
-            {(mission) => (
-              <div style={{
-                "margin-top": "20px",
-                padding: "16px",
-                background: "var(--bg-secondary)",
-                "border-radius": "8px",
-                border: "1px solid var(--border-highlight)",
-              }}>
-                <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "8px", color: "var(--text-primary)" }}>
-                  Assemble Team for: {mission().name}
-                </h3>
+            {(mission) => {
+              const statWeights = () => getMissionStatWeights(mission().tags);
+              const topStats = () => {
+                const w = statWeights();
+                return Object.entries(w).sort(([, a], [, b]) => (b ?? 0) - (a ?? 0)).slice(0, 2).map(([k]) => k);
+              };
+              const STAT_LABELS: Record<string, string> = { str: "STR", int: "INT", dex: "DEX", vit: "VIT", wis: "WIS" };
 
-                {/* Slot requirements */}
-                <div style={{ display: "flex", gap: "6px", "margin-bottom": "10px", "flex-wrap": "wrap" }}>
-                  {mission().slots.map((slot, i) => {
-                    const assigned = () => assignTeamToSlots()[i];
-                    const isMatched = () => {
-                      const adv = assigned();
-                      if (!adv) return false;
-                      return slot.class === "any" || adv.class === slot.class;
-                    };
-                    return (
-                      <div style={{
-                        padding: "4px 10px",
-                        "border-radius": "6px",
-                        border: `1px solid ${assigned() ? (isMatched() ? "var(--accent-green)" : "var(--accent-gold)") : "var(--border-default)"}`,
-                        background: assigned() ? (isMatched() ? "rgba(46, 204, 113, 0.1)" : "rgba(245, 197, 66, 0.1)") : "var(--bg-primary)",
-                        "font-size": "0.8rem",
-                        display: "flex",
-                        "align-items": "center",
-                        gap: "4px",
-                      }}>
-                        <span>{slot.class === "any" ? "👤" : getClassMeta(slot.class).icon}</span>
-                        <span style={{ color: assigned() ? "var(--text-primary)" : "var(--text-muted)" }}>
-                          {assigned()
-                            ? assigned()!.name.split(" ")[0]
-                            : slot.class === "any" ? "Any" : getClassMeta(slot.class).name}
-                        </span>
-                        {assigned() && !isMatched() && (
-                          <span style={{ "font-size": "0.65rem", color: "var(--accent-gold)" }}>mismatch</span>
-                        )}
+              return (
+                <div class="mission-assembly">
+                  {/* Left: Mission details */}
+                  <div class="mission-detail-panel">
+                    <div class="mission-detail-header">
+                      <span style={{ "font-size": "2rem" }}>{mission().icon}</span>
+                      <div>
+                        <h3 style={{ "font-family": "var(--font-heading)", color: "var(--accent-gold)", margin: 0 }}>{mission().name}</h3>
+                        <div style={{ "font-size": "0.8rem", color: DIFFICULTY_COLORS[mission().difficulty] ?? "var(--text-muted)" }}>
+                          {"★".repeat(mission().difficulty)} {DIFFICULTY_LABELS[mission().difficulty] ?? ""}
+                        </div>
                       </div>
-                    );
-                  })}
-                </div>
+                    </div>
 
-                <div style={{ "margin-bottom": "8px", "font-size": "0.85rem", color: "var(--text-secondary)" }}>
-                  Slots: {selectedTeam().length}/{mission().slots.length} ·
-                  Success: <span style={{
-                    color: teamSuccessChance() >= 70 ? "var(--accent-green)" :
-                      teamSuccessChance() >= 40 ? "var(--accent-gold)" : "var(--accent-red)",
-                  }}>{teamSuccessChance()}%</span> ·
-                  Duration: {formatDuration(teamEffectiveDuration())}
-                  {teamEffectiveDuration() < mission().duration && (
-                    <span style={{ color: "var(--accent-blue)", "margin-left": "4px" }}>
-                      (Wizard -{ Math.round((1 - teamEffectiveDuration() / mission().duration) * 100)}%)
-                    </span>
-                  )} ·
-                  Cost: {mission().deployCost}g
-                </div>
+                    <p style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "font-style": "italic", "margin": "10px 0" }}>
+                      {mission().description}
+                    </p>
 
-                <Show when={available().length === 0}>
-                  <p style={{ color: "var(--text-muted)", "font-size": "0.85rem" }}>
-                    No adventurers available. Recruit some from the Recruit tab!
-                  </p>
-                </Show>
-
-                <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap", "margin-bottom": "12px" }}>
-                  <For each={availableIds()}>
-                    {(advId) => {
-                      const adv = () => state.adventurers.find((a) => a.id === advId)!;
-                      const isInTeam = () => selectedTeam().includes(advId);
-                      const cls = () => getClassMeta(adv().class);
-                      return (
-                        <button
-                          onClick={() => toggleTeamMember(advId)}
-                          style={{
-                            padding: "8px 12px",
-                            background: isInTeam() ? "rgba(52, 152, 219, 0.2)" : "var(--bg-primary)",
-                            border: `1px solid ${isInTeam() ? "var(--accent-blue)" : "var(--border-default)"}`,
-                            "border-radius": "6px",
-                            cursor: "pointer",
-                            color: "var(--text-primary)",
-                            "font-size": "0.85rem",
-                            "text-align": "left",
-                          }}
-                        >
-                          <div>
-                            {cls().icon} {adv().name}
-                            <span style={{ color: RANK_COLORS[adv().rank], "margin-left": "6px", "font-size": "0.75rem" }}>
-                              {RANK_NAMES[adv().rank]} Lv.{adv().level}
-                            </span>
-                          </div>
-                          {isInTeam() && selectedTeam().length > 0 && (
-                            <div style={{ "margin-top": "2px" }}>
-                              <DeathRisk chance={getAdvDeathRisk(adv())} />
-                            </div>
-                          )}
-                        </button>
-                      );
-                    }}
-                  </For>
-                </div>
-
-                {/* Team class passive summary */}
-                <Show when={selectedTeam().length > 0}>
-                  <div style={{
-                    padding: "8px 10px",
-                    "margin-bottom": "12px",
-                    background: "var(--bg-primary)",
-                    "border-radius": "6px",
-                    "font-size": "0.8rem",
-                    color: "var(--text-muted)",
-                  }}>
-                    <strong style={{ color: "var(--text-secondary)" }}>Team passives:</strong>
-                    <For each={currentTeam()}>
-                      {(adv) => {
-                        const cls = getClassMeta(adv.class);
+                    <div class="mission-detail-section">
+                      <div class="mission-detail-label">Team Slots</div>
+                      {mission().slots.map((slot, i) => {
+                        const assigned = () => assignTeamToSlots()[i];
+                        const isMatched = () => {
+                          const adv = assigned();
+                          return adv ? (slot.class === "any" || adv.class === slot.class) : false;
+                        };
                         return (
-                          <div style={{ "margin-top": "2px" }}>
-                            {cls.icon} <strong>{cls.passive.name}</strong>: {cls.passive.description}
+                          <div
+                            class="mission-slot"
+                            classList={{ filled: !!assigned(), matched: isMatched(), empty: !assigned() }}
+                            onClick={() => { if (assigned()) toggleTeamMember(assigned()!.id); }}
+                            style={{ cursor: assigned() ? "pointer" : "default" }}
+                          >
+                            <span>{slot.class === "any" ? "👤" : getClassMeta(slot.class).icon}</span>
+                            <span class="mission-slot-label">
+                              {slot.class === "any" ? "Any class" : getClassMeta(slot.class).name}
+                            </span>
+                            <span class="mission-slot-arrow">→</span>
+                            <span class="mission-slot-assigned">
+                              {assigned() ? assigned()!.name : "Empty"}
+                            </span>
+                            {assigned() && !isMatched() && (
+                              <span style={{ "font-size": "0.65rem", color: "var(--accent-gold)", "margin-left": "4px" }}>mismatch</span>
+                            )}
                           </div>
                         );
-                      }}
-                    </For>
-                    {(() => {
-                      const names = currentTeam().map((a) => a.name.split(" ").slice(1).join(" "));
-                      const counts = new Map<string, number>();
-                      for (const n of names) counts.set(n, (counts.get(n) ?? 0) + 1);
-                      const families = [...counts.entries()].filter(([, c]) => c > 1);
-                      return families.length > 0 ? (
-                        <div style={{ "margin-top": "4px", color: "#e91e63" }}>
-                          💕 <strong>Family bond</strong>: The {families.map(([name]) => name).join(", ")} family fights together! (+{families.reduce((s, [, c]) => s + (c - 1) * 5, 0)}% success)
-                        </div>
-                      ) : null;
-                    })()}
-                  </div>
-                </Show>
+                      })}
+                    </div>
 
-                <button
-                  class="upgrade-btn"
-                  disabled={selectedTeam().length === 0 || slotInfo().used >= slotInfo().max || state.resources.gold < mission().deployCost}
-                  onClick={handleDeploy}
-                >
-                  Deploy Team ({mission().deployCost}g)
-                </button>
-                <Show when={slotInfo().used >= slotInfo().max}>
-                  <span style={{ color: "var(--accent-gold)", "font-size": "0.85rem", "margin-left": "12px" }}>
-                    All mission slots in use
-                  </span>
-                </Show>
-              </div>
-            )}
+                    <div class="mission-detail-section">
+                      <div class="mission-detail-label">Rewards</div>
+                      <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
+                        {mission().rewards.map((r) => (
+                          <span class="quest-reward-item">+{r.amount} {r.resource}</span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div class="mission-detail-stats">
+                      <div><span class="mission-detail-label">Duration</span> {formatDuration(mission().duration)}</div>
+                      <div><span class="mission-detail-label">Deploy cost</span> {mission().deployCost}g</div>
+                      <div><span class="mission-detail-label">Key stats</span> {topStats().map((s) => STAT_LABELS[s]).join(", ")}</div>
+                    </div>
+
+                    <button
+                      style={{
+                        "margin-top": "12px", padding: "6px 14px", background: "none",
+                        border: "1px solid var(--border-color)", "border-radius": "4px",
+                        color: "var(--text-muted)", cursor: "pointer", "font-size": "0.8rem",
+                      }}
+                      onClick={() => { setSelectedMission(null); setSelectedTeam([]); }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+
+                  {/* Right: Team assembly */}
+                  <div class="team-panel">
+                    <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "10px", color: "var(--text-primary)" }}>
+                      Assemble Your Team
+                    </h3>
+
+                    <Show when={available().length === 0}>
+                      <p style={{ color: "var(--text-muted)", "font-size": "0.85rem" }}>
+                        No adventurers available. Recruit some from the Recruit tab!
+                      </p>
+                    </Show>
+
+                    <div class="team-adv-grid">
+                      <For each={availableIds()}>
+                        {(advId) => {
+                          const adv = () => state.adventurers.find((a) => a.id === advId)!;
+                          const isInTeam = () => selectedTeam().includes(advId);
+                          const cls = () => getClassMeta(adv().class);
+                          const stats = () => {
+                            const equipStats = getEquipmentStats(adv().equipment);
+                            return calcAdvStats(adv(), equipStats);
+                          };
+                          const matchesSlot = () => mission().slots.some((s) => s.class === "any" || s.class === adv().class);
+
+                          return (
+                            <button
+                              class="team-adv-card"
+                              classList={{ assigned: isInTeam(), "class-match": matchesSlot() && !isInTeam() }}
+                              onClick={() => toggleTeamMember(advId)}
+                            >
+                              <div class="team-adv-header">
+                                <span class="team-adv-icon">{cls().icon}</span>
+                                <div>
+                                  <div class="team-adv-name">{adv().name}</div>
+                                  <div class="team-adv-rank" style={{ color: RANK_COLORS[adv().rank] }}>
+                                    {RANK_NAMES[adv().rank]} Lv.{adv().level}
+                                  </div>
+                                </div>
+                                {isInTeam() && <span class="team-adv-check">✓</span>}
+                              </div>
+                              <div class="team-adv-stats">
+                                {topStats().map((s) => (
+                                  <span class="team-adv-stat">
+                                    <span class="team-adv-stat-label">{STAT_LABELS[s]}</span>
+                                    <span class="team-adv-stat-value">{stats()[s as keyof typeof stats]}</span>
+                                  </span>
+                                ))}
+                              </div>
+                              <Show when={adv().equipment.weapon || adv().equipment.armor || adv().equipment.trinket}>
+                                <div class="team-adv-gear">
+                                  {adv().equipment.weapon && <span title={getItem(adv().equipment.weapon!)?.name}>{getItem(adv().equipment.weapon!)?.icon}</span>}
+                                  {adv().equipment.armor && <span title={getItem(adv().equipment.armor!)?.name}>{getItem(adv().equipment.armor!)?.icon}</span>}
+                                  {adv().equipment.trinket && <span title={getItem(adv().equipment.trinket!)?.name}>{getItem(adv().equipment.trinket!)?.icon}</span>}
+                                </div>
+                              </Show>
+                              {isInTeam() && (
+                                <div class="team-adv-risk">
+                                  <DeathRisk chance={getAdvDeathRisk(adv())} />
+                                </div>
+                              )}
+                            </button>
+                          );
+                        }}
+                      </For>
+                    </div>
+
+                    {/* Success summary */}
+                    <div class="team-summary">
+                      <div class="team-success">
+                        <span class="team-success-label">Success</span>
+                        <span class="team-success-value" style={{
+                          color: teamSuccessChance() >= 70 ? "var(--accent-green)" :
+                            teamSuccessChance() >= 40 ? "var(--accent-gold)" : "var(--accent-red)",
+                        }}>
+                          {teamSuccessChance()}%
+                        </span>
+                      </div>
+                      <div style={{ "font-size": "0.85rem", color: "var(--text-secondary)" }}>
+                        Duration: {formatDuration(teamEffectiveDuration())}
+                        {teamEffectiveDuration() < mission().duration && (
+                          <span style={{ color: "var(--accent-blue)", "margin-left": "4px" }}>
+                            (Wizard -{Math.round((1 - teamEffectiveDuration() / mission().duration) * 100)}%)
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Team passives */}
+                    <Show when={selectedTeam().length > 0}>
+                      <div class="team-passives">
+                        <For each={currentTeam()}>
+                          {(adv) => {
+                            const cls = getClassMeta(adv.class);
+                            return (
+                              <div>{cls.icon} <strong>{cls.passive.name}</strong>: {cls.passive.description}</div>
+                            );
+                          }}
+                        </For>
+                        {(() => {
+                          const names = currentTeam().map((a) => a.name.split(" ").slice(1).join(" "));
+                          const counts = new Map<string, number>();
+                          for (const n of names) counts.set(n, (counts.get(n) ?? 0) + 1);
+                          const families = [...counts.entries()].filter(([, c]) => c > 1);
+                          return families.length > 0 ? (
+                            <div style={{ color: "#e91e63" }}>
+                              💕 <strong>Family bond</strong>: {families.map(([name]) => name).join(", ")} (+{families.reduce((s, [, c]) => s + (c - 1) * 5, 0)}%)
+                            </div>
+                          ) : null;
+                        })()}
+                      </div>
+                    </Show>
+
+                    <button
+                      class="upgrade-btn"
+                      style={{ width: "100%", "margin-top": "12px" }}
+                      disabled={selectedTeam().length === 0 || slotInfo().used >= slotInfo().max || state.resources.gold < mission().deployCost}
+                      onClick={handleDeploy}
+                    >
+                      Deploy Team ({mission().deployCost}g)
+                    </button>
+                    <Show when={slotInfo().used >= slotInfo().max}>
+                      <div style={{ color: "var(--accent-gold)", "font-size": "0.85rem", "text-align": "center", "margin-top": "6px" }}>
+                        All mission slots in use
+                      </div>
+                    </Show>
+                  </div>
+                </div>
+              );
+            }}
           </Show>
         </Show>
 
