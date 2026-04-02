@@ -59,10 +59,11 @@ export function applyServerTick(state: GameState, elapsedMs: number): GameState 
   }
 
   // ─── Crafting queue ─────────────────────────────────────────
+  // Only count down timers — don't remove completed crafts.
+  // The client handles completion (granting items, adding to inventory).
   for (const craft of s.craftingQueue) {
     craft.remaining -= elapsedGameSeconds;
   }
-  s.craftingQueue = s.craftingQueue.filter((c) => c.remaining > 0);
 
   // ─── Mission timers ─────────────────────────────────────────
   for (const m of s.activeMissions) {
