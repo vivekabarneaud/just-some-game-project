@@ -434,7 +434,7 @@ export default function AdventurersGuild() {
               const STAT_LABELS: Record<string, string> = { str: "STR", int: "INT", dex: "DEX", vit: "VIT", wis: "WIS" };
 
               return (
-                <div class="mission-assembly">
+                <div class="mission-assembly" ref={(el) => setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 50)}>
                   {/* Left: Mission details */}
                   <div class="mission-detail-panel">
                     <div class="mission-detail-header">
