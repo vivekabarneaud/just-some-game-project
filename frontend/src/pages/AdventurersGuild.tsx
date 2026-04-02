@@ -289,27 +289,13 @@ export default function AdventurersGuild() {
                     </div>
                     {/* XP, level ups, rank ups, casualties, revives */}
                     <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-top": "2px" }}>
-                      {result.xpGained > 0 && <span>+{result.xpGained} XP · </span>}
-                      {result.levelUps.length > 0 && (
-                        <span style={{ color: "var(--accent-blue)" }}>
-                          Level up: {result.levelUps.join(", ")} ·{" "}
-                        </span>
-                      )}
-                      {result.rankUps.length > 0 && (
-                        <span style={{ color: "var(--accent-gold)" }}>
-                          Rank up: {result.rankUps.map((r) => `${r.name} → ${r.newRank}`).join(", ")} ·{" "}
-                        </span>
-                      )}
-                      {result.casualties.length > 0 && (
-                        <span style={{ color: "var(--accent-red)" }}>
-                          Fallen: {result.casualties.length} ·{" "}
-                        </span>
-                      )}
-                      {result.revived.length > 0 && (
-                        <span style={{ color: "#9b59b6" }}>
-                          Revived by priest: {result.revived.length}
-                        </span>
-                      )}
+                      {[
+                        result.xpGained > 0 ? <span>+{result.xpGained} XP</span> : null,
+                        result.levelUps.length > 0 ? <span style={{ color: "var(--accent-blue)" }}>Level up: {result.levelUps.join(", ")}</span> : null,
+                        result.rankUps.length > 0 ? <span style={{ color: "var(--accent-gold)" }}>Rank up: {result.rankUps.map((r) => `${r.name} → ${r.newRank}`).join(", ")}</span> : null,
+                        result.casualties.length > 0 ? <span style={{ color: "var(--accent-red)" }}>Fallen: {result.casualties.length}</span> : null,
+                        result.revived.length > 0 ? <span style={{ color: "#9b59b6" }}>Revived: {result.revived.length}</span> : null,
+                      ].filter(Boolean).map((el, i, arr) => <>{el}{i < arr.length - 1 ? " · " : ""}</>)}
                     </div>
                   </div>
                 );

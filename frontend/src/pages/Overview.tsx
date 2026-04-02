@@ -61,7 +61,7 @@ export default function Overview() {
   };
   const questProgress = () => claimed().length;
   const allQuestsComplete = () => questProgress() >= QUEST_CHAIN.length;
-  const [dismissedCongrats, setDismissedCongrats] = createSignal(false);
+  const [dismissedCongrats, setDismissedCongrats] = createSignal(localStorage.getItem("quest-congrats-dismissed") === "true");
 
   return (
     <div>
@@ -129,7 +129,7 @@ export default function Overview() {
             <button
               class="quest-claim-btn"
               style={{ "margin-top": "10px" }}
-              onClick={() => setDismissedCongrats(true)}
+              onClick={() => { setDismissedCongrats(true); localStorage.setItem("quest-congrats-dismissed", "true"); }}
             >
               Onward!
             </button>

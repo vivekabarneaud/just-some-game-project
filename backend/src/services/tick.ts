@@ -135,6 +135,13 @@ export function applyServerTick(state: GameState, elapsedMs: number): GameState 
   s.resources.food = Math.max(0, s.resources.food);
   s.resources.gold = Math.max(0, s.resources.gold);
 
+  // Wool from sheep pens (simplified — no seasonal variation on server)
+  for (const pen of s.pens ?? []) {
+    if (pen.level > 0 && pen.animal === "sheep") {
+      s.wool = Math.min(200, (s.wool ?? 0) + pen.level * 2 * elapsedHours);
+    }
+  }
+
   // Update lastTick
   s.lastTick = Date.now();
 

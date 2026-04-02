@@ -128,15 +128,15 @@ export default function ResourceBar() {
             <div class="dropdown-title">Crafting Materials</div>
             <div class="dropdown-row">
               <span>🐑 Wool</span>
-              <span>{Math.floor(state.wool)}</span>
+              <span>{Math.floor(state.wool)}/200</span>
             </div>
             <div class="dropdown-row">
               <span>🪻 Fiber</span>
-              <span>{Math.floor(state.fiber)}</span>
+              <span>{Math.floor(state.fiber)}/200</span>
             </div>
             <div class="dropdown-row">
               <span>⚒️ Iron</span>
-              <span>{Math.floor(state.iron)}</span>
+              <span>{Math.floor(state.iron)}/200</span>
             </div>
             <Show when={state.gems > 0}>
               <div class="dropdown-row">
