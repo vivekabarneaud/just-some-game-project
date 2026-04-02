@@ -79,11 +79,20 @@ export default function Marketplace() {
     return state.resources[trade.give] >= cost && !isOnCooldown();
   };
 
-  const executeTrade = (trade: TradeOffer, multiplier: number) => {
+  const [pendingTrade, setPendingTrade] = createSignal<{ trade: TradeOffer; multiplier: number } | null>(null);
+
+  const requestTrade = (trade: TradeOffer, multiplier: number) => {
     if (!canAffordTrade(trade, multiplier)) return;
-    if (actions.trade(trade.give, trade.giveAmount * multiplier, trade.receive, trade.receiveAmount * multiplier)) {
+    setPendingTrade({ trade, multiplier });
+  };
+
+  const confirmTrade = () => {
+    const p = pendingTrade();
+    if (!p) return;
+    if (actions.trade(p.trade.give, p.trade.giveAmount * p.multiplier, p.trade.receive, p.trade.receiveAmount * p.multiplier)) {
       setCooldownEnd(Date.now() + cooldownSec() * 1000);
     }
+    setPendingTrade(null);
   };
 
   const formatCooldown = (sec: number) => {
@@ -147,6 +156,50 @@ export default function Marketplace() {
           </div>
         </Show>
 
+        {/* Trade confirmation */}
+        <Show when={pendingTrade()}>
+          {(p) => {
+            const gi = RESOURCE_INFO[p().trade.give];
+            const ri = RESOURCE_INFO[p().trade.receive];
+            const giveTotal = p().trade.giveAmount * p().multiplier;
+            const receiveTotal = p().trade.receiveAmount * p().multiplier;
+            return (
+              <div style={{
+                padding: "14px 16px",
+                "margin-bottom": "16px",
+                "border-radius": "8px",
+                background: "rgba(245, 197, 66, 0.1)",
+                border: "2px solid var(--accent-gold)",
+                "text-align": "center",
+              }}>
+                <div style={{ "font-size": "0.95rem", color: "var(--text-primary)", "margin-bottom": "10px" }}>
+                  Trade {gi.icon} <strong style={{ color: "var(--accent-red)" }}>{giveTotal} {gi.name}</strong> for {ri.icon} <strong style={{ color: "var(--accent-green)" }}>{receiveTotal} {ri.name}</strong>?
+                </div>
+                <div style={{ display: "flex", gap: "8px", "justify-content": "center" }}>
+                  <button
+                    style={{
+                      padding: "6px 20px", background: "var(--accent-gold)", color: "#1a1a1a",
+                      border: "none", "border-radius": "4px", cursor: "pointer", "font-weight": "bold",
+                    }}
+                    onClick={confirmTrade}
+                  >
+                    Confirm
+                  </button>
+                  <button
+                    style={{
+                      padding: "6px 20px", background: "none", color: "var(--text-muted)",
+                      border: "1px solid var(--border-color)", "border-radius": "4px", cursor: "pointer",
+                    }}
+                    onClick={() => setPendingTrade(null)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            );
+          }}
+        </Show>
+
         <div style={{ "margin-bottom": "16px", display: "flex", gap: "6px" }}>
           <button
             class="trade-filter-btn"
@@ -188,21 +241,21 @@ export default function Marketplace() {
                     <button
                       class="trade-btn"
                       disabled={!canAffordTrade(trade, 1)}
-                      onClick={() => executeTrade(trade, 1)}
+                      onClick={() => requestTrade(trade, 1)}
                     >
                       ×1
                     </button>
                     <button
                       class="trade-btn"
                       disabled={!canAffordTrade(trade, 5)}
-                      onClick={() => executeTrade(trade, 5)}
+                      onClick={() => requestTrade(trade, 5)}
                     >
                       ×5
                     </button>
                     <button
                       class="trade-btn"
                       disabled={!canAffordTrade(trade, 10)}
-                      onClick={() => executeTrade(trade, 10)}
+                      onClick={() => requestTrade(trade, 10)}
                     >
                       ×10
                     </button>
