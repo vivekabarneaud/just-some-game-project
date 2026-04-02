@@ -6,6 +6,7 @@ import {
   getClassMeta,
   RANK_NAMES,
   RANK_COLORS,
+  CLASS_COLORS,
   getRecruitCost,
   getXpForLevel,
   getMissionXp,
@@ -472,33 +473,48 @@ export default function AdventurersGuild() {
 
                     <div class="mission-detail-section">
                       <div class="mission-detail-label">Team Slots</div>
-                      {mission().slots.map((slot, i) => {
-                        const assigned = () => assignTeamToSlots()[i];
-                        const isMatched = () => {
-                          const adv = assigned();
-                          return adv ? (slot.class === "any" || adv.class === slot.class) : false;
-                        };
-                        return (
-                          <div
-                            class="mission-slot"
-                            classList={{ filled: !!assigned(), matched: isMatched(), empty: !assigned() }}
-                            onClick={() => { if (assigned()) toggleTeamMember(assigned()!.id); }}
-                            style={{ cursor: assigned() ? "pointer" : "default" }}
-                          >
-                            <span>{slot.class === "any" ? "👤" : getClassMeta(slot.class).icon}</span>
-                            <span class="mission-slot-label">
-                              {slot.class === "any" ? "Any class" : getClassMeta(slot.class).name}
-                            </span>
-                            <span class="mission-slot-arrow">→</span>
-                            <span class="mission-slot-assigned">
-                              {assigned() ? assigned()!.name : "Empty"}
-                            </span>
-                            {assigned() && !isMatched() && (
-                              <span style={{ "font-size": "0.65rem", color: "var(--accent-gold)", "margin-left": "4px" }}>mismatch</span>
-                            )}
-                          </div>
-                        );
-                      })}
+                      <div class="mission-slots-grid">
+                        {mission().slots.map((slot, i) => {
+                          const assigned = () => assignTeamToSlots()[i];
+                          const isMatched = () => {
+                            const adv = assigned();
+                            return adv ? (slot.class === "any" || adv.class === slot.class) : false;
+                          };
+                          const slotColor = () => {
+                            if (assigned()) return CLASS_COLORS[assigned()!.class] ?? "var(--text-muted)";
+                            if (slot.class !== "any") return CLASS_COLORS[slot.class] ?? "var(--text-muted)";
+                            return "var(--text-muted)";
+                          };
+                          return (
+                            <div
+                              class="mission-slot-box"
+                              classList={{ filled: !!assigned(), matched: isMatched() }}
+                              onClick={() => { if (assigned()) toggleTeamMember(assigned()!.id); }}
+                              style={{
+                                "border-color": slotColor(),
+                                cursor: assigned() ? "pointer" : "default",
+                              }}
+                            >
+                              <div class="mission-slot-icon" style={{ color: slotColor() }}>
+                                {assigned()
+                                  ? getClassMeta(assigned()!.class).icon
+                                  : slot.class === "any" ? "👤" : getClassMeta(slot.class).icon}
+                              </div>
+                              <div class="mission-slot-info">
+                                <div class="mission-slot-name" style={{ color: assigned() ? "var(--text-primary)" : "var(--text-muted)" }}>
+                                  {assigned() ? assigned()!.name : "Empty"}
+                                </div>
+                                <div class="mission-slot-class" style={{ color: slotColor() }}>
+                                  {slot.class === "any" ? "Any class" : getClassMeta(slot.class).name}
+                                  {assigned() && !isMatched() && (
+                                    <span style={{ color: "var(--accent-gold)", "margin-left": "4px" }}>mismatch</span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
 
                     <div class="mission-detail-section">
@@ -561,6 +577,7 @@ export default function AdventurersGuild() {
                                       class="team-adv-card"
                                       classList={{ assigned: isInTeam(), "class-match": matchesSlot() && !isInTeam() }}
                                       onClick={() => toggleTeamMember(advId)}
+                                      style={{ "border-left": `3px solid ${CLASS_COLORS[adv().class] ?? "var(--border-color)"}` }}
                                     >
                                       <div class="team-adv-header">
                                         <span class="team-adv-icon">{cls().icon}</span>

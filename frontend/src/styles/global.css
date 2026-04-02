@@ -928,48 +928,51 @@ body {
   margin-right: 6px;
 }
 
-.mission-slot {
+.mission-slots-grid {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.mission-slot-box {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  margin-bottom: 4px;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  border: 1px dashed var(--border-color);
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 2px dashed var(--border-color);
   background: var(--bg-primary);
+  min-width: 140px;
+  flex: 1;
+  transition: all 0.15s;
 }
 
-.mission-slot.filled.matched {
-  border: 1px solid var(--accent-green);
-  background: rgba(46, 204, 113, 0.1);
+.mission-slot-box.filled {
   border-style: solid;
+  background: rgba(255, 255, 255, 0.03);
 }
 
-.mission-slot.filled:not(.matched) {
-  border: 1px solid var(--accent-gold);
-  background: rgba(245, 197, 66, 0.1);
-  border-style: solid;
+.mission-slot-box.filled:hover {
+  opacity: 0.8;
 }
 
-.mission-slot-label {
-  color: var(--text-muted);
-  min-width: 70px;
+.mission-slot-icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
 }
 
-.mission-slot-arrow {
-  color: var(--text-muted);
+.mission-slot-info {
+  display: flex;
+  flex-direction: column;
 }
 
-.mission-slot-assigned {
-  color: var(--text-primary);
+.mission-slot-name {
+  font-size: 0.9rem;
   font-weight: 600;
 }
 
-.mission-slot.empty .mission-slot-assigned {
-  color: var(--text-muted);
-  font-weight: 400;
-  font-style: italic;
+.mission-slot-class {
+  font-size: 0.75rem;
 }
 
 /* Team panel (right column) */
