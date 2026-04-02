@@ -1806,13 +1806,22 @@ export function GameProvider(props: ParentProps) {
     if (_settlementId) {
       saveSettlementApi(_settlementId, JSON.parse(JSON.stringify(state))).catch(() => {});
     }
-  }, 30000);
+  }, 15000);
+
+  // Save when tab becomes hidden (user switches away)
+  const handleVisibilitySave = () => {
+    if (document.hidden && _settlementId) {
+      saveSettlementApi(_settlementId, JSON.parse(JSON.stringify(state))).catch(() => {});
+    }
+  };
+  document.addEventListener("visibilitychange", handleVisibilitySave);
 
   onCleanup(() => {
     clearInterval(tickInterval);
     if (localSaveInterval) clearInterval(localSaveInterval);
     clearInterval(apiSaveInterval);
     document.removeEventListener("visibilitychange", handleVisibility);
+    document.removeEventListener("visibilitychange", handleVisibilitySave);
     saveGame(JSON.parse(JSON.stringify(state)));
   });
 
@@ -2111,6 +2120,8 @@ export function GameProvider(props: ParentProps) {
         s.missionBoard = s.missionBoard.filter((m) => m.id !== template.id);
         s.firstMissionSent = true;
       }));
+      // Save immediately so mission isn't lost if tab closes
+      if (_settlementId) saveSettlementApi(_settlementId, JSON.parse(JSON.stringify(state))).catch(() => {});
       return true;
     },
     collectCompletedMissions() {
@@ -2177,6 +2188,8 @@ export function GameProvider(props: ParentProps) {
         }
         s.craftingQueue.push({ recipeId, remaining: recipe.craftTime });
       }));
+      // Save immediately so craft isn't lost if tab closes
+      if (_settlementId) saveSettlementApi(_settlementId, JSON.parse(JSON.stringify(state))).catch(() => {});
       return true;
     },
     getAvailableRecipes() {
