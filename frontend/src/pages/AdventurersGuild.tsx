@@ -13,7 +13,7 @@ import {
   type Adventurer,
   type AdventurerRank,
 } from "~/data/adventurers";
-import { getItem, getEquipmentStats } from "~/data/items";
+import { getItem, getEquipmentStats, getAvailableSupplies, getSupplyEffect, isSupplyItem, MAX_MISSION_SUPPLIES } from "~/data/items";
 import {
   type MissionTemplate,
   type MissionSlot,
@@ -68,6 +68,7 @@ export default function AdventurersGuild() {
   const [tab, setTab] = createSignal<Tab>(initialTab);
   const [selectedMission, setSelectedMission] = createSignal<MissionTemplate | null>(null);
   const [selectedTeam, setSelectedTeam] = createSignal<string[]>([]);
+  const [selectedSupplies, setSelectedSupplies] = createSignal<string[]>([]);
   const guildLevel = () => actions.getGuildLevel();
   const availableIds = createMemo(() =>
     state.adventurers.filter((a) => a.alive && !a.onMission).map((a) => a.id)
@@ -102,7 +103,12 @@ export default function AdventurersGuild() {
   const teamSuccessChance = () => {
     const mission = selectedMission();
     if (!mission) return 0;
-    return calcSuccessChance(mission, currentTeam());
+    let chance = calcSuccessChance(mission, currentTeam());
+    for (const supplyId of selectedSupplies()) {
+      const effect = getSupplyEffect(supplyId);
+      if (effect) chance = Math.min(100, chance + effect.successBonus);
+    }
+    return chance;
   };
 
   const teamEffectiveDuration = () => {
@@ -117,14 +123,23 @@ export default function AdventurersGuild() {
     return calcDeathChance(mission, currentTeam(), adv);
   };
 
+  const toggleSupply = (itemId: string) => {
+    setSelectedSupplies((prev) => {
+      if (prev.includes(itemId)) return prev.filter((id) => id !== itemId);
+      if (prev.length >= MAX_MISSION_SUPPLIES) return prev;
+      return [...prev, itemId];
+    });
+  };
+
   const handleDeploy = () => {
     const mission = selectedMission();
     if (!mission) return;
     const team = selectedTeam();
     if (team.length === 0) return;
-    if (actions.deployMission(mission.id, team)) {
+    if (actions.deployMission(mission.id, team, selectedSupplies())) {
       setSelectedMission(null);
       setSelectedTeam([]);
+      setSelectedSupplies([]);
     }
   };
 
@@ -376,8 +391,8 @@ export default function AdventurersGuild() {
                     class="building-card"
                     classList={{ upgrading: isSelected() }}
                     onClick={() => {
-                      if (isSelected()) { setSelectedMission(null); setSelectedTeam([]); }
-                      else { setSelectedMission(mission); setSelectedTeam([]); }
+                      if (isSelected()) { setSelectedMission(null); setSelectedTeam([]); setSelectedSupplies([]); }
+                      else { setSelectedMission(mission); setSelectedTeam([]); setSelectedSupplies([]); }
                     }}
                     style={{ cursor: "pointer" }}
                   >
@@ -503,7 +518,7 @@ export default function AdventurersGuild() {
                         border: "1px solid var(--border-color)", "border-radius": "4px",
                         color: "var(--text-muted)", cursor: "pointer", "font-size": "0.8rem",
                       }}
-                      onClick={() => { setSelectedMission(null); setSelectedTeam([]); }}
+                      onClick={() => { setSelectedMission(null); setSelectedTeam([]); setSelectedSupplies([]); }}
                     >
                       Cancel
                     </button>
@@ -620,6 +635,50 @@ export default function AdventurersGuild() {
                         })()}
                       </div>
                     </Show>
+
+                    {/* Mission supply slots */}
+                    <div class="mission-supplies">
+                      <div class="mission-supplies-label">
+                        🧪 Supplies ({selectedSupplies().length}/{MAX_MISSION_SUPPLIES})
+                      </div>
+                      <div class="mission-supplies-slots">
+                        {(() => {
+                          const supplies = getAvailableSupplies(state.inventory);
+                          if (supplies.length === 0) return (
+                            <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "font-style": "italic" }}>
+                              No potions available. Craft some at the Alchemy Lab.
+                            </div>
+                          );
+                          return (
+                            <For each={supplies}>
+                              {(s) => {
+                                const isSelected = () => selectedSupplies().includes(s.item.id);
+                                const effect = getSupplyEffect(s.item.id);
+                                return (
+                                  <button
+                                    class="supply-btn"
+                                    classList={{ active: isSelected() }}
+                                    disabled={!isSelected() && selectedSupplies().length >= MAX_MISSION_SUPPLIES}
+                                    onClick={() => toggleSupply(s.item.id)}
+                                  >
+                                    <span class="supply-icon">{s.item.icon}</span>
+                                    <span class="supply-info">
+                                      <span class="supply-name">{s.item.name} ({s.quantity})</span>
+                                      <span class="supply-effect">
+                                        {effect?.successBonus ? `+${effect.successBonus}% success` : ""}
+                                        {effect?.successBonus && (effect?.deathReduction ?? 1) < 1 ? " · " : ""}
+                                        {(effect?.deathReduction ?? 1) < 1 ? `-${Math.round((1 - (effect?.deathReduction ?? 1)) * 100)}% death` : ""}
+                                      </span>
+                                    </span>
+                                    {isSelected() && <span style={{ color: "var(--accent-green)" }}>✓</span>}
+                                  </button>
+                                );
+                              }}
+                            </For>
+                          );
+                        })()}
+                      </div>
+                    </div>
 
                     <button
                       class="upgrade-btn"

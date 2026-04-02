@@ -1111,6 +1111,75 @@ body {
   margin-bottom: 2px;
 }
 
+/* Mission Supplies */
+.mission-supplies {
+  padding: 10px 12px;
+  background: var(--bg-primary);
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.mission-supplies-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.mission-supplies-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.supply-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text-primary);
+  transition: all 0.15s;
+}
+
+.supply-btn:hover:not(:disabled) {
+  border-color: var(--accent-purple);
+}
+
+.supply-btn.active {
+  border-color: var(--accent-purple);
+  background: rgba(147, 112, 219, 0.1);
+}
+
+.supply-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.supply-icon {
+  font-size: 1.2rem;
+}
+
+.supply-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.supply-name {
+  font-size: 0.85rem;
+}
+
+.supply-effect {
+  font-size: 0.75rem;
+  color: var(--accent-green);
+}
+
 /* Marketplace */
 .trade-filter-btn {
   padding: 6px 12px;

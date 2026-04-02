@@ -187,6 +187,36 @@ export function getItemsForSlot(slot: ItemSlot, adventurerClass?: AdventurerClas
   });
 }
 
+// ─── Mission Supplies (potions used at deploy time) ─────────────
+
+export interface MissionSupplyEffect {
+  successBonus: number;   // flat % added to success chance
+  deathReduction: number; // multiplier on death chance (0.5 = halved)
+}
+
+const SUPPLY_EFFECTS: Record<string, MissionSupplyEffect> = {
+  "healing_potion_equip":   { successBonus: 0,  deathReduction: 0.5 },  // halves death chance
+  "strength_elixir_equip":  { successBonus: 10, deathReduction: 1.0 },  // +10% success
+  "antidote_equip":         { successBonus: 5,  deathReduction: 0.7 },  // +5% success, -30% death
+};
+
+export function getSupplyEffect(itemId: string): MissionSupplyEffect | undefined {
+  return SUPPLY_EFFECTS[itemId];
+}
+
+export function isSupplyItem(itemId: string): boolean {
+  return itemId in SUPPLY_EFFECTS;
+}
+
+export function getAvailableSupplies(inventory: InventoryItem[]): { item: ItemDefinition; quantity: number }[] {
+  return inventory
+    .filter((inv) => inv.quantity > 0 && isSupplyItem(inv.itemId))
+    .map((inv) => ({ item: getItem(inv.itemId)!, quantity: inv.quantity }))
+    .filter((s) => s.item);
+}
+
+export const MAX_MISSION_SUPPLIES = 2;
+
 // ─── Inventory item instance ────────────────────────────────────
 
 export interface InventoryItem {

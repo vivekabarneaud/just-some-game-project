@@ -128,6 +128,7 @@ import {
   getItemByRecipe,
   getEquipmentStats,
   ITEMS,
+  getSupplyEffect,
 } from "~/data/items";
 import {
   calcStats as calcAdvStats,
@@ -559,7 +560,7 @@ export interface GameActions {
   getGuildLevel: () => number;
   recruitAdventurer: (candidateId: string) => boolean;
   dismissAdventurer: (adventurerId: string) => boolean;
-  deployMission: (missionId: string, adventurerIds: string[]) => boolean;
+  deployMission: (missionId: string, adventurerIds: string[], supplies?: string[]) => boolean;
   collectCompletedMissions: () => CompletedMission[];
   getAvailableAdventurers: () => Adventurer[];
   getRosterSize: () => { current: number; max: number };
@@ -2045,7 +2046,7 @@ export function GameProvider(props: ParentProps) {
       }));
       return true;
     },
-    deployMission(missionId, adventurerIds) {
+    deployMission(missionId, adventurerIds, supplies = []) {
       const guildLvl = this.getGuildLevel();
       if (guildLvl === 0) return false;
       const maxSlots = getMissionSlots(guildLvl);
@@ -2066,8 +2067,14 @@ export function GameProvider(props: ParentProps) {
       // Check deploy cost
       if (state.resources.gold < template.deployCost) return false;
 
-      const successChance = calcSuccessChance(template, team);
+      let successChance = calcSuccessChance(template, team);
       let effectiveDuration = calcEffectiveDuration(template, team);
+
+      // Apply supply bonuses
+      for (const supplyId of supplies) {
+        const effect = getSupplyEffect(supplyId);
+        if (effect) successChance = Math.min(100, successChance + effect.successBonus);
+      }
 
       // Apply equipment duration/loot mods
       for (const adv of team) {
@@ -2088,6 +2095,11 @@ export function GameProvider(props: ParentProps) {
         for (const id of adventurerIds) {
           const adv = s.adventurers.find((a) => a.id === id);
           if (adv) adv.onMission = true;
+        }
+        // Consume supply potions from inventory
+        for (const supplyId of supplies) {
+          const inv = s.inventory.find((i) => i.itemId === supplyId);
+          if (inv && inv.quantity > 0) inv.quantity -= 1;
         }
         s.activeMissions.push({
           missionId: template.id,
