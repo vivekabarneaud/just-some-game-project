@@ -540,47 +540,59 @@ export default function AdventurersGuild() {
                       </p>
                     </Show>
 
-                    <div class="team-adv-grid">
-                      <For each={availableIds()}>
-                        {(advId) => {
-                          const adv = () => state.adventurers.find((a) => a.id === advId)!;
-                          const isInTeam = () => selectedTeam().includes(advId);
-                          const cls = () => getClassMeta(adv().class);
-                          const matchesSlot = () => mission().slots.some((s) => s.class === "any" || s.class === adv().class);
+                    <For each={ADVENTURER_CLASSES.filter((cls) => availableIds().some((id) => state.adventurers.find((a) => a.id === id)?.class === cls.id))}>
+                      {(classInfo) => {
+                        const classIds = () => availableIds().filter((id) => state.adventurers.find((a) => a.id === id)?.class === classInfo.id);
+                        return (
+                          <div style={{ "margin-bottom": "10px" }}>
+                            <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-bottom": "4px", "text-transform": "uppercase", "letter-spacing": "1px" }}>
+                              {classInfo.icon} {classInfo.name}s
+                            </div>
+                            <div class="team-adv-grid">
+                              <For each={classIds()}>
+                                {(advId) => {
+                                  const adv = () => state.adventurers.find((a) => a.id === advId)!;
+                                  const isInTeam = () => selectedTeam().includes(advId);
+                                  const cls = () => getClassMeta(adv().class);
+                                  const matchesSlot = () => mission().slots.some((s) => s.class === "any" || s.class === adv().class);
 
-                          return (
-                            <button
-                              class="team-adv-card"
-                              classList={{ assigned: isInTeam(), "class-match": matchesSlot() && !isInTeam() }}
-                              onClick={() => toggleTeamMember(advId)}
-                            >
-                              <div class="team-adv-header">
-                                <span class="team-adv-icon">{cls().icon}</span>
-                                <div>
-                                  <div class="team-adv-name">{adv().name}</div>
-                                  <div class="team-adv-rank" style={{ color: RANK_COLORS[adv().rank] }}>
-                                    {RANK_NAMES[adv().rank]} Lv.{adv().level}
-                                  </div>
-                                </div>
-                                {isInTeam() && <span class="team-adv-check">✓</span>}
-                              </div>
-                              <Show when={adv().equipment.weapon || adv().equipment.armor || adv().equipment.trinket}>
-                                <div class="team-adv-gear">
-                                  {adv().equipment.weapon && <span title={getItem(adv().equipment.weapon!)?.name}>{getItem(adv().equipment.weapon!)?.icon}</span>}
-                                  {adv().equipment.armor && <span title={getItem(adv().equipment.armor!)?.name}>{getItem(adv().equipment.armor!)?.icon}</span>}
-                                  {adv().equipment.trinket && <span title={getItem(adv().equipment.trinket!)?.name}>{getItem(adv().equipment.trinket!)?.icon}</span>}
-                                </div>
-                              </Show>
-                              {isInTeam() && (
-                                <div class="team-adv-risk">
-                                  <DeathRisk chance={getAdvDeathRisk(adv())} />
-                                </div>
-                              )}
-                            </button>
-                          );
-                        }}
-                      </For>
-                    </div>
+                                  return (
+                                    <button
+                                      class="team-adv-card"
+                                      classList={{ assigned: isInTeam(), "class-match": matchesSlot() && !isInTeam() }}
+                                      onClick={() => toggleTeamMember(advId)}
+                                    >
+                                      <div class="team-adv-header">
+                                        <span class="team-adv-icon">{cls().icon}</span>
+                                        <div>
+                                          <div class="team-adv-name">{adv().name}</div>
+                                          <div class="team-adv-rank" style={{ color: RANK_COLORS[adv().rank] }}>
+                                            {RANK_NAMES[adv().rank]} Lv.{adv().level}
+                                          </div>
+                                        </div>
+                                        {isInTeam() && <span class="team-adv-check">✓</span>}
+                                      </div>
+                                      <Show when={adv().equipment.weapon || adv().equipment.armor || adv().equipment.trinket}>
+                                        <div class="team-adv-gear">
+                                          {adv().equipment.weapon && <span title={getItem(adv().equipment.weapon!)?.name}>{getItem(adv().equipment.weapon!)?.icon}</span>}
+                                          {adv().equipment.armor && <span title={getItem(adv().equipment.armor!)?.name}>{getItem(adv().equipment.armor!)?.icon}</span>}
+                                          {adv().equipment.trinket && <span title={getItem(adv().equipment.trinket!)?.name}>{getItem(adv().equipment.trinket!)?.icon}</span>}
+                                        </div>
+                                      </Show>
+                                      {isInTeam() && (
+                                        <div class="team-adv-risk">
+                                          <DeathRisk chance={getAdvDeathRisk(adv())} />
+                                        </div>
+                                      )}
+                                    </button>
+                                  );
+                                }}
+                              </For>
+                            </div>
+                          </div>
+                        );
+                      }}
+                    </For>
 
                     {/* Success summary */}
                     <div class="team-summary">
