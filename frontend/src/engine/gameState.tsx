@@ -1156,11 +1156,7 @@ export function GameProvider(props: ParentProps) {
         setState(reconcile(serverState));
         // Catch up for time spent offline
         const offlineMs = Date.now() - serverState.lastTick;
-        console.log("[catch-up] lastTick:", new Date(serverState.lastTick).toISOString(), "offlineMs:", offlineMs, "hours:", (offlineMs / 3_600_000).toFixed(2), "wood before:", serverState.resources.wood);
-        if (offlineMs > 2000) {
-          applyTicks(offlineMs);
-          console.log("[catch-up] wood after:", state.resources.wood);
-        }
+        if (offlineMs > 2000) applyTicks(offlineMs);
       } else {
         // New settlement — start with a fresh initial state, not localStorage
         const fresh = createInitialState();
@@ -1596,7 +1592,7 @@ export function GameProvider(props: ParentProps) {
                     const xpGain = Math.floor(baseXp * wisBonus);
                     const result = applyXp(advInState, xpGain);
                     if (result.leveled) levelUps.push(advInState.name);
-                    if (result.rankUp) {
+                    if (result.rankUp && advInState.rank !== result.oldRank) {
                       rankUps.push({ name: advInState.name, newRank: RANK_NAMES[advInState.rank] });
                     }
                   }

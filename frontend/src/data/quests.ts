@@ -141,7 +141,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "adventurers_guild")?.level ?? 0) >= 1,
     targetBuildingId: "adventurers_guild",
     rewards: [
-      { resource: "gold", amount: 200, label: "Gold" },
+      { resource: "gold", amount: 100, label: "Gold" },
       { resource: "astralShards", amount: 5, label: "Astral Shards" },
     ],
   },
@@ -154,7 +154,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Recruit an adventurer",
     icon: "⚔️",
     condition: (s) => s.adventurers.length >= 1,
-    rewards: [{ resource: "gold", amount: 200, label: "Gold" }],
+    rewards: [{ resource: "gold", amount: 100, label: "Gold" }],
     targetPage: "/guild",
   },
   // 12 — Send mission
@@ -202,7 +202,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Upgrade Town Hall to level 2",
     icon: "🏛️",
     condition: (s) => (bldg(s, "town_hall")?.level ?? 0) >= 2,
-    rewards: [{ resource: "gold", amount: 300, label: "Gold" }],
+    rewards: [{ resource: "gold", amount: 100, label: "Gold" }],
     targetBuildingId: "town_hall",
   },
   // 16 — Build a Marketplace
@@ -215,7 +215,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     icon: "🏪",
     condition: (s) => (bldg(s, "marketplace")?.level ?? 0) >= 1,
     rewards: [
-      { resource: "gold", amount: 150, label: "Gold" },
+      { resource: "gold", amount: 75, label: "Gold" },
       { resource: "wood", amount: 100, label: "Wood" },
     ],
     targetBuildingId: "marketplace",
@@ -241,7 +241,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Craft a weapon at the Woodworker",
     icon: "🪄",
     condition: (s) => s.weapons >= 1 || s.inventory.some((i) => i.quantity > 0),
-    rewards: [{ resource: "gold", amount: 100, label: "Gold" }],
+    rewards: [{ resource: "gold", amount: 50, label: "Gold" }],
     targetPage: "/woodworker",
   },
   // 19 — Build a Chapel
@@ -253,7 +253,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Build a Shrine",
     icon: "🔮",
     condition: (s) => (bldg(s, "shrine")?.level ?? 0) >= 1,
-    rewards: [{ resource: "gold", amount: 150, label: "Gold" }],
+    rewards: [{ resource: "gold", amount: 75, label: "Gold" }],
     targetBuildingId: "shrine",
   },
   // 20 — Town Hall lvl 3
@@ -267,7 +267,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "town_hall")?.level ?? 0) >= 3,
     targetBuildingId: "town_hall",
     rewards: [
-      { resource: "gold", amount: 300, label: "Gold" },
+      { resource: "gold", amount: 150, label: "Gold" },
       { resource: "astralShards", amount: 5, label: "Astral Shards" },
     ],
   },

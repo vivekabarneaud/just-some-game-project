@@ -115,11 +115,11 @@ export const CLASS_BASE_STATS: Record<AdventurerClass, AdventurerStats> = {
 };
 
 export const CLASS_STAT_GROWTH: Record<AdventurerClass, AdventurerStats> = {
-  warrior: { str: 1.5, int: 0.2, dex: 0.5, vit: 1.2, wis: 0.2 },
-  wizard:  { str: 0.2, int: 1.8, dex: 0.2, vit: 0.5, wis: 0.8 },
-  priest:  { str: 0.2, int: 1.2, dex: 0.2, vit: 1, wis: 1 },
-  archer:  { str: 0.5, int: 0.5, dex: 1.5, vit: 0.7, wis: 0.2 },
-  assassin:{ str: 1, int: 0.5, dex: 1.5, vit: 0.5, wis: 0.2 },
+  warrior: { str: 3, int: 0.5, dex: 1, vit: 2.5, wis: 0.5 },
+  wizard:  { str: 0.5, int: 3.5, dex: 0.5, vit: 1, wis: 2 },
+  priest:  { str: 0.5, int: 2.5, dex: 0.5, vit: 2, wis: 2 },
+  archer:  { str: 1, int: 1, dex: 3, vit: 1.5, wis: 0.5 },
+  assassin:{ str: 2, int: 1, dex: 3, vit: 1, wis: 0.5 },
 };
 
 /** Stat points gained per level that player can allocate */

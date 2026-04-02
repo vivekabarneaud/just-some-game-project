@@ -648,9 +648,9 @@ export function calcSuccessChance(
     }
   }
   const avgStat = totalWeight > 0 ? totalWeightedStat / totalWeight : 0;
-  // Scale: 8 stat points = roughly max contribution per difficulty level
-  const statRatio = avgStat / (mission.difficulty * 8);
-  const statPercent = Math.min(45, statRatio * 30);
+  // Scale: higher stats = more success. Each level matters.
+  const statRatio = avgStat / (mission.difficulty * 6);
+  const statPercent = Math.min(50, statRatio * 40);
 
   // Family bond bonus: shared last names get +5% per pair
   let familyBonus = 0;
