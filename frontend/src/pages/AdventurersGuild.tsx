@@ -256,6 +256,7 @@ export default function AdventurersGuild() {
                         {result.rewards.length > 0 && (
                           <span style={{ color: "var(--text-secondary)", "margin-left": "8px" }}>
                             +{result.rewards.map((r) => `${r.amount} ${r.resource}`).join(", ")}
+                            {!result.success && <span style={{ color: "var(--accent-purple)", "margin-left": "4px" }}>(assassin salvage)</span>}
                           </span>
                         )}
                       </span>
