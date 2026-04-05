@@ -154,34 +154,8 @@ export default function WorldMap() {
             style={{ cursor: isDragging() ? "grabbing" : "grab" }}
             onClick={() => { if (!didDrag()) setSelectedSettlement(null); }}
           >
-            <defs>
-              <filter id="parchment-noise">
-                <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="3" result="noise" />
-                <feColorMatrix type="saturate" values="0" in="noise" result="grey" />
-                <feBlend in="SourceGraphic" in2="grey" mode="multiply" />
-              </filter>
-              <radialGradient id="vignette" cx="50%" cy="50%" r="60%">
-                <stop offset="0%" stop-color="transparent" />
-                <stop offset="100%" stop-color="rgba(0,0,0,0.5)" />
-              </radialGradient>
-            </defs>
-
-            {/* Parchment background */}
-            <rect x="-100" y="-100" width="1200" height="1200" fill="#2a2215" filter="url(#parchment-noise)" />
-            <rect x="-100" y="-100" width="1200" height="1200" fill="url(#vignette)" />
-
-            {/* Grid lines */}
-            <For each={Array.from({ length: 11 }, (_, i) => i * 100)}>
-              {(v) => (
-                <>
-                  <line x1={v} y1={0} x2={v} y2={1000} stroke="#3a3525" stroke-width="0.5" />
-                  <line x1={0} y1={v} x2={1000} y2={v} stroke="#3a3525" stroke-width="0.5" />
-                </>
-              )}
-            </For>
-
-            {/* World border */}
-            <rect x="0" y="0" width="1000" height="1000" fill="none" stroke="#5a4a30" stroke-width="2" />
+            {/* Map background image */}
+            <image href="/map.png" x="0" y="0" width="1000" height="1000" preserveAspectRatio="none" />
 
             {/* Settlement markers */}
             <For each={mapData()!.settlements}>
@@ -243,10 +217,6 @@ export default function WorldMap() {
               }}
             </For>
 
-            {/* World name */}
-            <text x="500" y="30" text-anchor="middle" font-size="20" fill="#5a4a30" font-family="MedievalSharp, cursive" opacity="0.6">
-              {mapData()!.world.name}
-            </text>
           </svg>
 
           {/* Hover tooltip */}
