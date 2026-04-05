@@ -117,7 +117,24 @@ export function applyServerTick(state: GameState, elapsedMs: number): GameState 
   // Base rates per hour (simplified approximation of frontend logic)
   const woodPerHour = lumbermillLvl * 22;
   const stonePerHour = quarryLvl * 16;
-  const foodPerHour = (huntingCampLvl * 12) + (foragerLvl * 8) + (fishingLvl * 10);
+  let foodPerHour = (huntingCampLvl * 12) + (foragerLvl * 8) + (fishingLvl * 10);
+
+  // Add food from gardens (approximate: base rate * level)
+  for (const garden of s.gardens ?? []) {
+    if (garden.level > 0) foodPerHour += garden.level * 4;
+  }
+  // Add food from animal pens (approximate: base rate * level, minus feed)
+  for (const pen of s.pens ?? []) {
+    if (pen.level > 0) {
+      const isChickens = pen.animal === "chickens";
+      const isPigs = pen.animal === "pigs";
+      const isGoats = pen.animal === "goats";
+      const produced = isChickens ? 3 : isPigs ? 4 : isGoats ? 6 : 2;
+      const consumed = isChickens ? 1 : isPigs ? 2 : isGoats ? 3 : 2;
+      foodPerHour += Math.floor((produced - consumed) * pen.level * 1.1);
+    }
+  }
+
   const goldPerHour = Math.floor(s.population) * 0.2; // tax
   const foodConsumed = Math.floor(s.population) * 5;
 
