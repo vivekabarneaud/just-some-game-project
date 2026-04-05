@@ -70,9 +70,13 @@ export default function WorldMap() {
   });
 
   // Pan
+  const [didDrag, setDidDrag] = createSignal(false);
+
   function onPointerDown(e: PointerEvent) {
     if (e.button !== 0) return;
+    e.preventDefault();
     setIsDragging(true);
+    setDidDrag(false);
     setDragStart({ x: e.clientX, y: e.clientY });
     (e.currentTarget as SVGSVGElement).setPointerCapture(e.pointerId);
   }
@@ -84,6 +88,7 @@ export default function WorldMap() {
     const vb = viewBox();
     const dx = (e.clientX - dragStart().x) * (vb.w / rect.width);
     const dy = (e.clientY - dragStart().y) * (vb.h / rect.height);
+    if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) setDidDrag(true);
     setViewBox({ ...vb, x: vb.x - dx, y: vb.y - dy });
     setDragStart({ x: e.clientX, y: e.clientY });
   }
@@ -147,7 +152,7 @@ export default function WorldMap() {
             onPointerUp={onPointerUp}
             onWheel={onWheel}
             style={{ cursor: isDragging() ? "grabbing" : "grab" }}
-            onClick={() => setSelectedSettlement(null)}
+            onClick={() => { if (!didDrag()) setSelectedSettlement(null); }}
           >
             <defs>
               <filter id="parchment-noise">
@@ -195,6 +200,7 @@ export default function WorldMap() {
                     }}
                     onPointerLeave={() => setHoveredSettlement(null)}
                     onClick={(e) => {
+                      if (didDrag()) return;
                       e.stopPropagation();
                       setSelectedSettlement(settlement);
                     }}

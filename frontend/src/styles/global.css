@@ -1368,6 +1368,8 @@ body {
   width: 100%;
   height: 100%;
   display: block;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .settlement-marker:hover polygon { filter: brightness(1.3); }
