@@ -182,6 +182,7 @@ export interface RaidResult {
   citizensLost: number;
   defendersInjured: string[];
   loot: { resource: string; amount: number }[];
+  buildingsDamaged?: number;
 }
 
 // ─── Crafting ───────────────────────────────────────────────────

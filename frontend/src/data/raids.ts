@@ -44,23 +44,24 @@ export interface RaidResult {
   citizensLost: number;
   defendersInjured: string[];
   loot: { resource: string; amount: number }[];
+  buildingsDamaged?: number;
 }
 
 // ─── Raid pool ──────────────────────────────────────────────────
 
 export const RAID_POOL: RaidTemplate[] = [
-  // ── Camp-tier raids (easy, bandits) ───────────────────────────
+  // ── Camp-tier raids ───────────────────────────────────────────
   {
     id: "hungry_bandits",
     name: "Hungry Bandits",
     description: "A small group of desperate bandits looking for an easy meal.",
     icon: "🗡️",
     tags: ["bandits"],
-    strength: 10,
+    strength: 25,
     stealsResources: true,
-    resourceStealPercent: 0.05,
-    killsCitizens: false,
-    maxCitizenLoss: 0,
+    resourceStealPercent: 0.15,
+    killsCitizens: true,
+    maxCitizenLoss: 2,
     minTier: "camp",
     baseWarning: 4,
     victoryLoot: [{ resource: "gold", amount: 15 }],
@@ -68,14 +69,14 @@ export const RAID_POOL: RaidTemplate[] = [
   {
     id: "wolf_pack",
     name: "Wolf Pack",
-    description: "A pack of starving wolves has been drawn by the scent of food.",
+    description: "A pack of starving wolves has been drawn by the scent of food. They are vicious.",
     icon: "🐺",
     tags: ["monsters"],
-    strength: 8,
+    strength: 20,
     stealsResources: false,
     resourceStealPercent: 0,
     killsCitizens: true,
-    maxCitizenLoss: 2,
+    maxCitizenLoss: 4,
     minTier: "camp",
     baseWarning: 3,
     victoryLoot: [{ resource: "food", amount: 40 }],
@@ -86,9 +87,9 @@ export const RAID_POOL: RaidTemplate[] = [
     description: "Sneaky pickpockets try to raid your supply carts under cover of night.",
     icon: "🌙",
     tags: ["bandits"],
-    strength: 6,
+    strength: 15,
     stealsResources: true,
-    resourceStealPercent: 0.03,
+    resourceStealPercent: 0.10,
     killsCitizens: false,
     maxCitizenLoss: 0,
     minTier: "camp",
@@ -103,11 +104,11 @@ export const RAID_POOL: RaidTemplate[] = [
     description: "An organized band of outlaws, armed and dangerous. They want your gold.",
     icon: "🏴",
     tags: ["bandits"],
-    strength: 25,
+    strength: 60,
     stealsResources: true,
-    resourceStealPercent: 0.10,
+    resourceStealPercent: 0.20,
     killsCitizens: true,
-    maxCitizenLoss: 3,
+    maxCitizenLoss: 5,
     minTier: "village",
     baseWarning: 6,
     victoryLoot: [{ resource: "gold", amount: 50 }, { resource: "wood", amount: 30 }],
@@ -118,11 +119,11 @@ export const RAID_POOL: RaidTemplate[] = [
     description: "A scouting party of goblins, testing your defenses for a larger force.",
     icon: "👺",
     tags: ["monsters"],
-    strength: 20,
+    strength: 45,
     stealsResources: true,
-    resourceStealPercent: 0.05,
+    resourceStealPercent: 0.15,
     killsCitizens: true,
-    maxCitizenLoss: 2,
+    maxCitizenLoss: 3,
     minTier: "village",
     baseWarning: 5,
     victoryLoot: [{ resource: "gold", amount: 30 }, { resource: "stone", amount: 20 }],
@@ -133,11 +134,11 @@ export const RAID_POOL: RaidTemplate[] = [
     description: "A stampede of wild boars charges through the settlement, trampling everything.",
     icon: "🐗",
     tags: ["monsters"],
-    strength: 15,
+    strength: 35,
     stealsResources: false,
     resourceStealPercent: 0,
     killsCitizens: true,
-    maxCitizenLoss: 4,
+    maxCitizenLoss: 6,
     minTier: "village",
     baseWarning: 2,
     victoryLoot: [{ resource: "food", amount: 80 }],
@@ -150,11 +151,11 @@ export const RAID_POOL: RaidTemplate[] = [
     description: "The dead rise from a nearby burial ground, marching toward your settlement.",
     icon: "💀",
     tags: ["undead", "horde"],
-    strength: 45,
+    strength: 90,
     stealsResources: false,
     resourceStealPercent: 0,
     killsCitizens: true,
-    maxCitizenLoss: 8,
+    maxCitizenLoss: 10,
     minTier: "town",
     baseWarning: 8,
     victoryLoot: [{ resource: "stone", amount: 60 }, { resource: "gold", amount: 40 }],
@@ -165,11 +166,11 @@ export const RAID_POOL: RaidTemplate[] = [
     description: "A well-equipped mercenary band demands tribute. Pay up or fight.",
     icon: "⚔️",
     tags: ["bandits", "siege"],
-    strength: 50,
+    strength: 100,
     stealsResources: true,
-    resourceStealPercent: 0.15,
+    resourceStealPercent: 0.25,
     killsCitizens: true,
-    maxCitizenLoss: 5,
+    maxCitizenLoss: 8,
     minTier: "town",
     baseWarning: 10,
     victoryLoot: [{ resource: "gold", amount: 120 }, { resource: "wood", amount: 50 }],
@@ -180,11 +181,11 @@ export const RAID_POOL: RaidTemplate[] = [
     description: "A massive troll has wandered down from the mountains, hungry and angry.",
     icon: "👹",
     tags: ["monsters"],
-    strength: 40,
+    strength: 80,
     stealsResources: true,
-    resourceStealPercent: 0.08,
+    resourceStealPercent: 0.15,
     killsCitizens: true,
-    maxCitizenLoss: 6,
+    maxCitizenLoss: 8,
     minTier: "town",
     baseWarning: 6,
     victoryLoot: [{ resource: "food", amount: 100 }, { resource: "stone", amount: 40 }],
@@ -197,11 +198,11 @@ export const RAID_POOL: RaidTemplate[] = [
     description: "A fearsome orc warband, siege engines in tow. They come to conquer.",
     icon: "🔥",
     tags: ["horde", "siege"],
-    strength: 80,
+    strength: 160,
     stealsResources: true,
-    resourceStealPercent: 0.20,
+    resourceStealPercent: 0.30,
     killsCitizens: true,
-    maxCitizenLoss: 12,
+    maxCitizenLoss: 15,
     minTier: "city",
     baseWarning: 12,
     victoryLoot: [{ resource: "gold", amount: 200 }, { resource: "wood", amount: 100 }, { resource: "stone", amount: 100 }],
@@ -212,11 +213,11 @@ export const RAID_POOL: RaidTemplate[] = [
     description: "A dark wizard raises an army of undead to siege your city walls.",
     icon: "🧙‍♂️",
     tags: ["undead", "horde", "siege"],
-    strength: 90,
+    strength: 180,
     stealsResources: true,
-    resourceStealPercent: 0.15,
+    resourceStealPercent: 0.25,
     killsCitizens: true,
-    maxCitizenLoss: 15,
+    maxCitizenLoss: 20,
     minTier: "city",
     baseWarning: 14,
     victoryLoot: [{ resource: "gold", amount: 250 }, { resource: "astralShards", amount: 5 }],
@@ -347,12 +348,16 @@ export function resolveRaid(input: RaidResolutionInput): RaidResult {
     result.citizensLost = Math.floor(maxLoss * overpower);
   }
 
-  // Defending adventurers have a 20% injury chance on loss
+  // Defending adventurers have a 30% injury chance on loss
   for (const adv of homeAdventurers) {
-    if (Math.random() < 0.20) {
+    if (Math.random() < 0.30) {
       result.defendersInjured.push(adv.name);
     }
   }
+
+  // Damage buildings (number of damaged buildings scales with overpower)
+  const maxDamaged = Math.max(1, Math.floor(overpower * 4));
+  result.buildingsDamaged = maxDamaged;
 
   return result;
 }
@@ -378,8 +383,8 @@ export function spawnRaid(tier: SettlementTier, year: number): { raid: RaidTempl
   if (available.length === 0) return null;
 
   const raid = available[Math.floor(Math.random() * available.length)];
-  // Scale strength: +10% per year
-  const yearBonus = 1 + (year - 1) * 0.10;
+  // Scale strength: +20% per year
+  const yearBonus = 1 + (year - 1) * 0.20;
   const strength = Math.floor(raid.strength * yearBonus);
 
   return { raid, strength };

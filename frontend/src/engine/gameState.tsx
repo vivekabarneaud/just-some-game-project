@@ -1711,7 +1711,7 @@ export function GameProvider(props: ParentProps) {
               } else {
                 pushEvent(s, "raid_defeat", "💔", `Defeated by ${raidName}! Lost resources and citizens.`);
                 const damageable = s.buildings.filter((b) => b.level > 0 && !b.damaged && b.buildingId !== "town_hall");
-                const damageCount = Math.min(damageable.length, 1 + Math.floor(Math.random() * 3));
+                const damageCount = Math.min(damageable.length, result.buildingsDamaged ?? 1);
                 for (let d = 0; d < damageCount; d++) {
                   const idx = Math.floor(Math.random() * damageable.length);
                   damageable[idx].damaged = true;
