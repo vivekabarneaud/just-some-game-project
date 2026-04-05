@@ -693,6 +693,10 @@ function saveGameLocal(state: GameState) {
 
 let _settlementId: string | null = null;
 
+export function getSettlementId(): string | null {
+  return _settlementId;
+}
+
 function saveGame(state: GameState) {
   saveGameLocal(state);
   if (_settlementId) {

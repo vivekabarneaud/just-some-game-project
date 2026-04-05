@@ -21,6 +21,7 @@ const Enchanting = lazy(() => import("./pages/Enchanting"));
 const Jewelcrafting = lazy(() => import("./pages/Jewelcrafting"));
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const Marketplace = lazy(() => import("./pages/Marketplace"));
+const WorldMap = lazy(() => import("./pages/WorldMap"));
 const ComingSoon = lazy(() => import("./pages/ComingSoon"));
 const Login = lazy(() => import("./pages/Login"));
 
@@ -51,6 +52,7 @@ render(
         <Route path="/jewelcrafting" component={Jewelcrafting} />
         <Route path="/leaderboard" component={Leaderboard} />
         <Route path="/marketplace" component={Marketplace} />
+        <Route path="/map" component={WorldMap} />
         <Route path="*" component={ComingSoon} />
       </Route>
     </Router>

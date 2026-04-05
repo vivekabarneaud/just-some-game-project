@@ -60,5 +60,8 @@ export interface WorldMapResponse {
     x: number;
     y: number;
     playerName: string;
+    score: number;
+    rank: number;
+    tier: string;
   }[];
 }
