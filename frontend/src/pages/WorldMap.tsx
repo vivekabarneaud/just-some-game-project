@@ -94,7 +94,10 @@ export default function WorldMap() {
   }
 
   function onPointerUp() {
+    const wasDrag = didDrag();
     setIsDragging(false);
+    // If it wasn't a drag, clicking the background deselects
+    if (!wasDrag) setSelectedSettlement(null);
   }
 
   // Zoom
@@ -152,7 +155,6 @@ export default function WorldMap() {
             onPointerUp={onPointerUp}
             onWheel={onWheel}
             style={{ cursor: isDragging() ? "grabbing" : "grab" }}
-            onClick={() => { if (!didDrag()) setSelectedSettlement(null); }}
           >
             {/* Map background image */}
             <image href="/map.png" x="0" y="0" width="1000" height="1000" preserveAspectRatio="none" />
@@ -173,7 +175,7 @@ export default function WorldMap() {
                       setHoverPos({ x: e.clientX, y: e.clientY });
                     }}
                     onPointerLeave={() => setHoveredSettlement(null)}
-                    onClick={(e) => {
+                    onPointerUp={(e) => {
                       if (didDrag()) return;
                       e.stopPropagation();
                       setSelectedSettlement(settlement);
@@ -187,27 +189,33 @@ export default function WorldMap() {
                       </circle>
                     </Show>
 
+                    {/* Invisible hit area (larger than marker for easier clicking) */}
+                    <circle r="14" fill="transparent" />
+
                     {/* Castle marker */}
                     <polygon
                       points="-6,-10 -6,-4 -8,-4 0,-14 8,-4 6,-4 6,-10 3,-10 3,-6 -3,-6 -3,-10"
-                      fill={isOwn() ? "#f5c542" : isHovered() ? "#a0b8d0" : "#7a8ba8"}
-                      stroke={isOwn() ? "#d4a017" : "#4a5a7c"}
-                      stroke-width="0.8"
+                      fill={isOwn() ? "#f5c542" : isHovered() ? "#e0e8f0" : "#c8d4e0"}
+                      stroke={isOwn() ? "#d4a017" : isHovered() ? "#ffffff" : "#8090a8"}
+                      stroke-width="1"
                     />
                     {/* Base */}
                     <rect x="-8" y="-4" width="16" height="5" rx="1"
-                      fill={isOwn() ? "#d4a017" : isHovered() ? "#8a9ab0" : "#5a6a80"}
+                      fill={isOwn() ? "#d4a017" : isHovered() ? "#c0c8d8" : "#a0b0c0"}
                     />
 
-                    {/* Name label */}
+                    {/* Name label with dark outline for readability */}
                     <Show when={showLabel()}>
                       <text
-                        y="10"
+                        y="12"
                         text-anchor="middle"
-                        font-size={isOwn() ? "7" : "5.5"}
-                        fill={isOwn() ? "#f5c542" : "#c0b898"}
+                        font-size={isOwn() ? "7" : "6"}
+                        fill={isOwn() ? "#f5c542" : "#ffffff"}
                         font-family="MedievalSharp, cursive"
-                        font-weight={isOwn() ? "bold" : "normal"}
+                        font-weight="bold"
+                        stroke="#000000"
+                        stroke-width="2"
+                        paint-order="stroke"
                       >
                         {settlement.name}
                       </text>
