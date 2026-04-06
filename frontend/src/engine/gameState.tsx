@@ -1162,6 +1162,10 @@ export function GameProvider(props: ParentProps) {
         // Catch up for time spent offline
         const offlineMs = Date.now() - serverState.lastTick;
         if (offlineMs > 2000) applyTicks(offlineMs);
+        // Resolve any missions/crafts with negative remaining (server tick counted down but didn't resolve)
+        const hasUnresolved = serverState.activeMissions?.some((m) => m.remaining <= 0)
+          || serverState.craftingQueue?.some((c) => c.remaining <= 0);
+        if (hasUnresolved) applyTicks(1000); // trigger one tick to resolve them
       } else {
         // New settlement — start with a fresh initial state, not localStorage
         const fresh = createInitialState();

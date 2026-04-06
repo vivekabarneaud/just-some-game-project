@@ -88,7 +88,8 @@ function generateLevels(
 ): BuildingLevel[] {
   return Array.from({ length: maxLevel }, (_, i) => {
     const lvl = i + 1;
-    const costMultiplier = Math.pow(1.35, lvl - 1);
+    // Costs: gentle for lvl 1-2, steeper for 3+
+    const costMultiplier = lvl <= 2 ? Math.pow(1.35, lvl - 1) : Math.pow(1.35, 1) * Math.pow(1.55, lvl - 2);
     // Build time starts very short and ramps up — first levels feel instant
     const timeMultiplier = Math.pow(1.6, lvl - 1);
     return {
