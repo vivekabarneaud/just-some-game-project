@@ -69,35 +69,40 @@ export default function WorldMap() {
     }
   });
 
-  // Pan
-  const [didDrag, setDidDrag] = createSignal(false);
+  // Pan — only start dragging after pointer moves 4+ pixels
+  const [dragOrigin, setDragOrigin] = createSignal({ x: 0, y: 0 });
+  const DRAG_THRESHOLD = 4;
 
-  function onPointerDown(e: PointerEvent) {
+  function onMouseDown(e: MouseEvent) {
     if (e.button !== 0) return;
-    e.preventDefault();
-    setIsDragging(true);
-    setDidDrag(false);
+    setIsDragging(false);
     setDragStart({ x: e.clientX, y: e.clientY });
-    (e.currentTarget as SVGSVGElement).setPointerCapture(e.pointerId);
+    setDragOrigin({ x: e.clientX, y: e.clientY });
   }
 
-  function onPointerMove(e: PointerEvent) {
+  function onMouseMove(e: MouseEvent) {
+    if (e.buttons !== 1) return; // left button held
+    const origin = dragOrigin();
+    const totalDx = Math.abs(e.clientX - origin.x);
+    const totalDy = Math.abs(e.clientY - origin.y);
+
+    if (!isDragging() && (totalDx > DRAG_THRESHOLD || totalDy > DRAG_THRESHOLD)) {
+      setIsDragging(true);
+    }
+
     if (!isDragging()) return;
+
     const svg = e.currentTarget as SVGSVGElement;
     const rect = svg.getBoundingClientRect();
     const vb = viewBox();
     const dx = (e.clientX - dragStart().x) * (vb.w / rect.width);
     const dy = (e.clientY - dragStart().y) * (vb.h / rect.height);
-    if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) setDidDrag(true);
     setViewBox({ ...vb, x: vb.x - dx, y: vb.y - dy });
     setDragStart({ x: e.clientX, y: e.clientY });
   }
 
-  function onPointerUp() {
-    const wasDrag = didDrag();
+  function onMouseUp() {
     setIsDragging(false);
-    // If it wasn't a drag, clicking the background deselects
-    if (!wasDrag) setSelectedSettlement(null);
   }
 
   // Zoom
@@ -150,9 +155,9 @@ export default function WorldMap() {
           <svg
             viewBox={`${viewBox().x} ${viewBox().y} ${viewBox().w} ${viewBox().h}`}
             preserveAspectRatio="xMidYMid meet"
-            onPointerDown={onPointerDown}
-            onPointerMove={onPointerMove}
-            onPointerUp={onPointerUp}
+            onMouseDown={onMouseDown}
+            onMouseMove={onMouseMove}
+            onMouseUp={onMouseUp}
             onWheel={onWheel}
             style={{ cursor: isDragging() ? "grabbing" : "grab" }}
           >
@@ -175,8 +180,8 @@ export default function WorldMap() {
                       setHoverPos({ x: e.clientX, y: e.clientY });
                     }}
                     onPointerLeave={() => setHoveredSettlement(null)}
-                    onPointerUp={(e) => {
-                      if (didDrag()) return;
+                    onClick={(e) => {
+                      if (isDragging()) return;
                       e.stopPropagation();
                       setSelectedSettlement(settlement);
                     }}
