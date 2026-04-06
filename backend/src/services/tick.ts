@@ -9,8 +9,9 @@ const SKIP_IF_RECENT_MS = 30_000; // skip if client saved recently
 // The client tick is more detailed — this covers what matters while offline.
 export function applyServerTick(state: GameState, elapsedMs: number): GameState {
   const s = structuredClone(state);
-  const elapsedHours = (elapsedMs / 1000 / 3600) * s.gameSpeed;
-  const elapsedGameSeconds = (elapsedMs / 1000) * s.gameSpeed;
+  // Always use speed 1 on the server — gameSpeed is a dev-only feature
+  const elapsedHours = elapsedMs / 1000 / 3600;
+  const elapsedGameSeconds = elapsedMs / 1000;
 
   if (elapsedHours <= 0) return s;
 
@@ -159,8 +160,9 @@ export function applyServerTick(state: GameState, elapsedMs: number): GameState 
     }
   }
 
-  // Update lastTick
-  s.lastTick = Date.now();
+  // Do NOT update lastTick here — only the client should update it.
+  // This ensures the client can properly catch up on things the server
+  // doesn't handle (mission resolution, crafting completion, etc.)
 
   return s;
 }
