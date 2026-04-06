@@ -27,6 +27,7 @@ export default function WorldMap() {
   const [hoveredSettlement, setHoveredSettlement] = createSignal<WorldSettlement | null>(null);
   const [hoverPos, setHoverPos] = createSignal({ x: 0, y: 0 });
   const [selectedSettlement, setSelectedSettlement] = createSignal<WorldSettlement | null>(null);
+  const [panelPos, setPanelPos] = createSignal({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = createSignal(false);
   const [dragStart, setDragStart] = createSignal({ x: 0, y: 0 });
 
@@ -183,6 +184,14 @@ export default function WorldMap() {
                     onClick={(e) => {
                       if (isDragging()) return;
                       e.stopPropagation();
+                      const container = (e.currentTarget as SVGElement).closest(".world-map-container");
+                      if (container) {
+                        const rect = container.getBoundingClientRect();
+                        setPanelPos({
+                          x: e.clientX - rect.left + 20,
+                          y: e.clientY - rect.top - 20,
+                        });
+                      }
                       setSelectedSettlement(settlement);
                     }}
                   >
@@ -271,7 +280,10 @@ export default function WorldMap() {
               const isOwn = () => s().id === getSettlementId();
               const dist = () => distanceTo(s());
               return (
-                <div class="map-action-panel">
+                <div class="map-action-panel" style={{
+                  left: `${Math.min(panelPos().x, window.innerWidth - 320)}px`,
+                  top: `${Math.max(10, Math.min(panelPos().y, window.innerHeight - 350))}px`,
+                }}>
                   <button class="map-panel-close" onClick={() => setSelectedSettlement(null)}>×</button>
                   <h3>{s().name}</h3>
                   <div class="map-panel-subtitle">

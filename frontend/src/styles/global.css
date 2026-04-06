@@ -1413,8 +1413,6 @@ body {
 /* Action panel */
 .map-action-panel {
   position: absolute;
-  top: 16px;
-  right: 16px;
   width: 260px;
   background: var(--bg-panel);
   border: 2px solid var(--accent-gold);
