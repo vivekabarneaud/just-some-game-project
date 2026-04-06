@@ -41,6 +41,16 @@ The old academic tradition, preserved in fragments of pre-Sundering texts and cr
 
 **Astral Shards** are crystallized Aether — the purest form of magical energy, sometimes found deep in mines or in places where the Aether is concentrated. They are extraordinarily valuable.
 
+The greatest living practitioner of Arcane magic is **Halldora**, a scholar-mage of extraordinary power and intellect. She was once the youngest Archmagus in the history of the Dominion's Academy of the Aether — the last functioning institution of magical learning before it was shuttered by the Church for "heretical inquiry." When the Inquisitors came to arrest her, she vanished, taking half the Academy's library with her.
+
+Halldora now operates from a hidden sanctum somewhere in the wilds of Eldoria. She is beholden to no faction — the Dominion wants her arrested, the Thornveil respects her knowledge but distrusts her methods, the Corsairs would pay a fortune for her services, and the Cult has tried and failed to recruit her. She refuses them all. Her only allegiance is to knowledge itself.
+
+What makes Halldora dangerous — and invaluable — is that she has studied all three magical traditions. She understands Primal magic's harmony with the Aether, she has dissected Hollow magic's mechanisms without being consumed by it, and she has pushed Arcane theory further than anyone since the Sundering. It is whispered that she has decoded fragments of the Eternal Court's original language — the words they used to shape the world.
+
+Halldora occasionally sends cryptic messages to Free Settlements she finds promising — an enchanted scroll appearing on a doorstep, a mysterious raven delivering a map to a hidden ruin. Those who follow her guidance often find treasures of immense value. Whether she is testing potential allies, students, or pawns in some larger game, no one can say.
+
+She is, by all accounts, the most knowledgeable person alive about the Sundering, the Aether, and what Netheron truly did to break the world. If anyone holds the key to understanding — and perhaps reversing — the spreading corruption of the Hollow Wastes, it is her.
+
 ### Primal Magic (natural, instinctive)
 Magic drawn from the living world — forests, storms, animals, the turning of seasons. Practiced by the Old Faith through druids, shamans, and priests who commune with the land. Power comes from **harmony** — listening to the natural flow of the Aether rather than trying to control it.
 
@@ -174,5 +184,9 @@ You are a Free Settler. You've claimed a patch of land in the wilds of Eldoria, 
 But the land is rich. The rivers are full of fish. The hills hide stone and iron. The forest offers timber and game. And somewhere out there, beyond the tree line, adventure waits.
 
 Build your settlement. Recruit adventurers. Send them into the unknown. Trade, craft, grow. And when the factions come knocking — and they will — decide who you want to be in this shattered world.
+
+And if you're lucky — or unlucky — you might one day find a raven on your windowsill, carrying a scroll sealed with a sigil you don't recognize. The message inside will be brief, cryptic, and possibly the most important thing you've ever read.
+
+It will be signed with a single letter: **H.**
 
 The Sundering broke Eldoria. What rises from the ashes is up to you.
