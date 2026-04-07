@@ -113,14 +113,15 @@ export default function BuildingDetail() {
       </A>
 
       <Show when={building()} fallback={<p>Building not found.</p>}>
-        {(b) => (
-          <div class="building-detail" classList={{ "has-image": !!b().image }}>
-            <Show when={b().image}>
-              <div class="building-detail-bg">
-                <img src={b().image} alt="" />
-              </div>
-            </Show>
+        {(b) => (<>
+          <Show when={b().image}>
+            <div class="building-page-bg">
+              <img src={b().image} alt="" />
+              <div class="building-page-bg-overlay" />
+            </div>
+          </Show>
 
+          <div class="building-detail">
             <div class="building-detail-content">
               <div class="building-detail-header">
                 <Show when={!b().image}>
@@ -375,7 +376,7 @@ export default function BuildingDetail() {
             </Show>
             </div>{/* end building-detail-content */}
           </div>
-        )}
+        </>)}
       </Show>
     </div>
   );
