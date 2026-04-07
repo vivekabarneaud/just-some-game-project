@@ -863,26 +863,24 @@ export default function AdventurersGuild() {
                 const canAfford = () => state.resources.gold >= cost;
                 const rosterFull = () => rosterSize().current >= rosterSize().max;
                 return (
-                  <div class="building-card">
+                  <div class="building-card adv-card">
                     <span class="building-card-category" style={{ color: RANK_COLORS[candidate.rank] }}>
                       {RANK_NAMES[candidate.rank]}
                     </span>
-                    <div class="building-card-header">
-                      <div class="building-card-icon">{cls.icon}</div>
-                      <div>
-                        <div class="building-card-title">{candidate.name}</div>
-                        <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
-                          {cls.name} · Lv.{candidate.level}
-                        </div>
+                    <div class="adv-card-portrait">
+                      <img src={getPortrait(candidate.name, candidate.class)} alt={candidate.name} loading="lazy" />
+                    </div>
+                    <div class="adv-card-content">
+                      <div class="building-card-title">{candidate.name}</div>
+                      <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-bottom": "4px" }}>
+                        {cls.name} · Lv.{candidate.level}
                       </div>
-                    </div>
-                    <div style={{
-                      "margin-top": "4px",
-                      "font-size": "0.75rem",
-                      color: "var(--text-muted)",
-                    }}>
-                      {cls.passive.name}: {cls.passive.description}
-                    </div>
+                      <div style={{
+                        "font-size": "0.75rem",
+                        color: "var(--text-muted)",
+                      }}>
+                        {cls.passive.name}: {cls.passive.description}
+                      </div>
                     <div style={{ "margin-top": "8px" }}>
                       <button
                         class="upgrade-btn"
@@ -902,6 +900,7 @@ export default function AdventurersGuild() {
                         </span>
                       </Show>
                     </div>
+                    </div>{/* end adv-card-content */}
                   </div>
                 );
               }}

@@ -338,8 +338,17 @@ body {
   display: flex;
   flex-direction: column;
   padding: 12px 14px;
+  padding-top: 20px;
   flex: 1;
   min-width: 0;
+  position: relative;
+}
+
+.adv-card .building-card-category {
+  right: 12px;
+  top: 6px;
+  left: auto;
+  z-index: 2;
 }
 
 .building-card-header {
