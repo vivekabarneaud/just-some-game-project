@@ -278,15 +278,28 @@ export default function Buildings() {
                     </A>
                   ) : (
                     <div class="building-card locked">
-                      <div class="building-card-header">
-                        <div class="building-card-icon locked-icon">{building.icon}</div>
-                        <div>
-                          <div class="building-card-title locked-title">{building.name}</div>
-                          <div class="building-card-level locked-req">
-                            {getUnlockRequirement(building)}
+                      <Show when={building.image}>
+                        <div class="building-card-image locked-image">
+                          <img src={building.image} alt={building.name} loading="lazy" />
+                          <div class="building-card-image-overlay">
+                            <div class="building-card-title locked-title">{building.name}</div>
+                            <div class="building-card-level locked-req">
+                              {getUnlockRequirement(building)}
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      </Show>
+                      <Show when={!building.image}>
+                        <div class="building-card-header">
+                          <div class="building-card-icon locked-icon">{building.icon}</div>
+                          <div>
+                            <div class="building-card-title locked-title">{building.name}</div>
+                            <div class="building-card-level locked-req">
+                              {getUnlockRequirement(building)}
+                            </div>
+                          </div>
+                        </div>
+                      </Show>
                       <div class="building-card-desc">{building.description}</div>
                     </div>
                   );

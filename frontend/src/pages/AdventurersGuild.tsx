@@ -755,11 +755,9 @@ export default function AdventurersGuild() {
                 const unspent = () => getUnspentStatPoints(adv);
                 return (
                   <A href={`/guild/${adv.id}`} style={{ "text-decoration": "none", display: "flex" }}>
-                    <div class="building-card" style={{
+                    <div class="building-card adv-card" style={{
                       cursor: "pointer",
                       position: "relative",
-                      display: "flex",
-                      "flex-direction": "column",
                       width: "100%",
                       opacity: adv.onMission ? 0.7 : 1,
                       background: adv.onMission ? "var(--bg-secondary)" : "var(--bg-card)",
@@ -768,59 +766,55 @@ export default function AdventurersGuild() {
                       <span class="building-card-category" style={{ color: RANK_COLORS[adv.rank] }}>
                         {RANK_NAMES[adv.rank]}
                       </span>
-                      <div class="building-card-image" style={{ height: "100px" }}>
-                        <img src={getPortrait(adv.name, adv.class)} alt={adv.name} loading="lazy" style={{ "object-position": "top" }} />
-                        <div class="building-card-image-overlay" />
+                      <div class="adv-card-portrait">
+                        <img src={getPortrait(adv.name, adv.class)} alt={adv.name} loading="lazy" />
                       </div>
-                      <div class="building-card-header" style={{ "margin-top": "4px" }}>
-                        <div class="building-card-icon" style={{ display: "none" }}>{cls.icon}</div>
-                        <div>
-                          <div class="building-card-title">{adv.name}</div>
-                          <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
-                            {cls.name} · Lv.{adv.level}
-                          </div>
+                      <div class="adv-card-content">
+                        <div class="building-card-title">{adv.name}</div>
+                        <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-bottom": "6px" }}>
+                          {cls.name} · Lv.{adv.level}
                         </div>
-                      </div>
-                      <XpBar xp={adv.xp} level={adv.level} />
-                      <div style={{ flex: 1 }} />
-                      <div style={{ "margin-top": "4px", "font-size": "0.75rem", display: "flex", gap: "6px", "flex-wrap": "wrap" }}>
-                        {weapon() && <span title={weapon()!.name}>{weapon()!.icon}</span>}
-                        {armor() && <span title={armor()!.name}>{armor()!.icon}</span>}
-                        {trinket() && <span title={trinket()!.name}>{trinket()!.icon}</span>}
-                        {emptySlots().length > 0 && (
-                          <span style={{ color: "var(--accent-gold)", "font-size": "0.7rem" }}>
-                            {emptySlots().length} empty gear slot{emptySlots().length > 1 ? "s" : ""}
-                          </span>
+                        <XpBar xp={adv.xp} level={adv.level} />
+                        <div style={{ flex: 1 }} />
+                        <div style={{ "margin-top": "6px", "font-size": "0.75rem", display: "flex", gap: "6px", "flex-wrap": "wrap" }}>
+                          {weapon() && <span title={weapon()!.name}>{weapon()!.icon}</span>}
+                          {armor() && <span title={armor()!.name}>{armor()!.icon}</span>}
+                          {trinket() && <span title={trinket()!.name}>{trinket()!.icon}</span>}
+                          {emptySlots().length > 0 && (
+                            <span style={{ color: "var(--accent-gold)", "font-size": "0.7rem" }}>
+                              {emptySlots().length} empty gear slot{emptySlots().length > 1 ? "s" : ""}
+                            </span>
+                          )}
+                        </div>
+                        {unspent() > 0 && (
+                          <div style={{
+                            "margin-top": "6px",
+                            padding: "3px 8px",
+                            "border-radius": "4px",
+                            background: "rgba(46, 204, 113, 0.15)",
+                            border: "1px solid var(--accent-green)",
+                            color: "var(--accent-green)",
+                            "font-size": "0.75rem",
+                            animation: "pulse 2s infinite",
+                          }}>
+                            {unspent()} stat point{unspent() > 1 ? "s" : ""} available!
+                          </div>
+                        )}
+                        {adv.onMission && (
+                          <div style={{
+                            "margin-top": "6px",
+                            padding: "3px 8px",
+                            "border-radius": "4px",
+                            background: "rgba(52, 152, 219, 0.15)",
+                            border: "1px solid var(--accent-blue)",
+                            color: "var(--accent-blue)",
+                            "font-size": "0.75rem",
+                            "text-align": "center",
+                          }}>
+                            On mission
+                          </div>
                         )}
                       </div>
-                      {unspent() > 0 && (
-                        <div style={{
-                          "margin-top": "6px",
-                          padding: "3px 8px",
-                          "border-radius": "4px",
-                          background: "rgba(46, 204, 113, 0.15)",
-                          border: "1px solid var(--accent-green)",
-                          color: "var(--accent-green)",
-                          "font-size": "0.75rem",
-                          animation: "pulse 2s infinite",
-                        }}>
-                          {unspent()} stat point{unspent() > 1 ? "s" : ""} available!
-                        </div>
-                      )}
-                      {adv.onMission && (
-                        <div style={{
-                          "margin-top": "6px",
-                          padding: "3px 8px",
-                          "border-radius": "4px",
-                          background: "rgba(52, 152, 219, 0.15)",
-                          border: "1px solid var(--accent-blue)",
-                          color: "var(--accent-blue)",
-                          "font-size": "0.75rem",
-                          "text-align": "center",
-                        }}>
-                          On mission
-                        </div>
-                      )}
                     </div>
                   </A>
                 );
