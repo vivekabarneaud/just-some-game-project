@@ -11,6 +11,7 @@ import {
   getXpForLevel,
   getMissionXp,
   getUnspentStatPoints,
+  getPortrait,
   type Adventurer,
   type AdventurerRank,
 } from "~/data/adventurers";
@@ -767,8 +768,12 @@ export default function AdventurersGuild() {
                       <span class="building-card-category" style={{ color: RANK_COLORS[adv.rank] }}>
                         {RANK_NAMES[adv.rank]}
                       </span>
-                      <div class="building-card-header">
-                        <div class="building-card-icon">{cls.icon}</div>
+                      <div class="building-card-image" style={{ height: "100px" }}>
+                        <img src={getPortrait(adv.name, adv.class)} alt={adv.name} loading="lazy" style={{ "object-position": "top" }} />
+                        <div class="building-card-image-overlay" />
+                      </div>
+                      <div class="building-card-header" style={{ "margin-top": "4px" }}>
+                        <div class="building-card-icon" style={{ display: "none" }}>{cls.icon}</div>
                         <div>
                           <div class="building-card-title">{adv.name}</div>
                           <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>

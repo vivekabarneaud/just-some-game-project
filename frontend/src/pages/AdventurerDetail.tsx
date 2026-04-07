@@ -12,6 +12,7 @@ import {
   type AdventurerRank,
   type AdventurerClass,
   type AdventurerStats,
+  getPortrait,
 } from "~/data/adventurers";
 import { getItem, getItemsForSlot, getEquipmentStats, ITEMS, type ItemSlot, isSupplyItem } from "~/data/items";
 
@@ -54,17 +55,18 @@ export default function AdventurerDetail() {
                 "margin-bottom": "20px",
               }}>
                 <div style={{
-                  "font-size": "3rem",
-                  width: "64px",
-                  height: "64px",
-                  display: "flex",
-                  "align-items": "center",
-                  "justify-content": "center",
-                  background: "var(--bg-secondary)",
+                  width: "80px",
+                  height: "80px",
                   "border-radius": "12px",
+                  overflow: "hidden",
                   border: `2px solid ${RANK_COLORS[adv().rank]}`,
+                  "flex-shrink": "0",
                 }}>
-                  {cls().icon}
+                  <img
+                    src={getPortrait(adv().name, adv().class)}
+                    alt={adv().name}
+                    style={{ width: "100%", height: "100%", "object-fit": "cover", "object-position": "top" }}
+                  />
                 </div>
                 <div>
                   <h1 class="page-title" style={{ "margin-bottom": "2px" }}>{adv().name}</h1>

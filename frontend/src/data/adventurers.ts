@@ -222,6 +222,44 @@ const FIRST_NAMES = [
   "Pavel", "Rhea", "Soren", "Talia", "Ulf", "Vanya", "Wulf", "Xara",
 ];
 
+const FEMALE_NAMES = new Set([
+  "Brenna", "Daria", "Freya", "Hilda", "Joanna", "Lyra", "Nessa", "Petra",
+  "Rowena", "Thora", "Vara", "Ysolde", "Astrid", "Cora", "Elara", "Gwen",
+  "Isla", "Kira", "Mira", "Oona", "Rhea", "Talia", "Vanya", "Xara",
+]);
+
+const CLASS_PORTRAITS: Record<AdventurerClass, { male: string[]; female: string[] }> = {
+  warrior: {
+    male: ["/images/characters/warrior_male_1.png", "/images/characters/warrior_male_2.png"],
+    female: ["/images/characters/warrior_female_1.png", "/images/characters/warrior_female_2.png"],
+  },
+  wizard: {
+    male: ["/images/characters/wizard_male_1.png", "/images/characters/wizard_male_2.png"],
+    female: ["/images/characters/wizard_female_1.png", "/images/characters/wizard_female_2.png"],
+  },
+  priest: {
+    male: ["/images/characters/priest_male_1.png", "/images/characters/priest_male_2.png"],
+    female: ["/images/characters/priest_female_1.png", "/images/characters/priest_female_2.png"],
+  },
+  archer: {
+    male: ["/images/characters/warrior_male_2.png"],
+    female: ["/images/characters/warrior_female_2.png"],
+  },
+  assassin: {
+    male: ["/images/characters/warrior_male_1.png"],
+    female: ["/images/characters/warrior_female_1.png"],
+  },
+};
+
+export function getPortrait(name: string, cls: AdventurerClass): string {
+  const firstName = name.split(" ")[0];
+  const isFemale = FEMALE_NAMES.has(firstName);
+  const portraits = isFemale ? CLASS_PORTRAITS[cls].female : CLASS_PORTRAITS[cls].male;
+  // Use name hash to pick a consistent portrait
+  const hash = firstName.split("").reduce((h, c) => h + c.charCodeAt(0), 0);
+  return portraits[hash % portraits.length];
+}
+
 const LAST_NAMES = [
   "Ashford", "Blackwood", "Coldwell", "Dawnforge", "Emberheart", "Foxglove",
   "Greystone", "Hawkwind", "Ironbark", "Juniper", "Kettleburn", "Larkstone",
