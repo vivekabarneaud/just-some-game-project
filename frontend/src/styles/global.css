@@ -287,6 +287,15 @@ body {
   background: linear-gradient(transparent 0%, rgba(0, 0, 0, 0.8) 50%, rgba(0, 0, 0, 0.95) 100%);
 }
 
+.locked-image .building-card-image-overlay .locked-title {
+  color: var(--text-secondary) !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+.locked-image .building-card-image-overlay .locked-req {
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
 .building-card-image-overlay .building-card-title {
   font-family: var(--font-heading);
   font-size: 1rem;
