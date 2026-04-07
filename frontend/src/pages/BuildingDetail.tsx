@@ -3,6 +3,7 @@ import { A, useParams } from "@solidjs/router";
 import {
   BUILDINGS,
   isBuildingUnlocked,
+  type SettlementTier,
   getUnlockRequirement,
   getNextTierForLevels,
   applyMasonCostReduction,
@@ -22,6 +23,13 @@ function formatTime(seconds: number): string {
   const m = Math.floor((seconds % 3600) / 60);
   return `${h}h ${m}m`;
 }
+
+const TIER_IMAGES: Record<string, string> = {
+  camp: "/images/buildings/settlement_camp.png",
+  village: "/images/buildings/settlement_village.png",
+  town: "/images/buildings/settlement_town.png",
+  city: "/images/buildings/settlement_city.png",
+};
 
 export default function BuildingDetail() {
   const params = useParams<{ id: string }>();
@@ -113,10 +121,14 @@ export default function BuildingDetail() {
       </A>
 
       <Show when={building()} fallback={<p>Building not found.</p>}>
-        {(b) => (<>
-          <Show when={b().image}>
+        {(b) => {
+          const effectiveImage = () => b().id === "town_hall"
+            ? TIER_IMAGES[actions.getSettlementTier()] ?? TIER_IMAGES.camp
+            : b().image;
+          return (<>
+          <Show when={effectiveImage()}>
             <div class="building-page-bg">
-              <img src={b().image} alt="" />
+              <img src={effectiveImage()!} alt="" />
               <div class="building-page-bg-overlay" />
             </div>
           </Show>
@@ -124,7 +136,7 @@ export default function BuildingDetail() {
           <div class="building-detail">
             <div class="building-detail-content">
               <div class="building-detail-header">
-                <Show when={!b().image}>
+                <Show when={!effectiveImage()}>
                   <div class="building-detail-icon">{b().icon}</div>
                 </Show>
                 <div>
@@ -376,7 +388,7 @@ export default function BuildingDetail() {
             </Show>
             </div>{/* end building-detail-content */}
           </div>
-        </>)}
+        </>)}}
       </Show>
     </div>
   );

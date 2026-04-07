@@ -15,6 +15,13 @@ const SECTIONS: { key: BuildingDefinition["category"]; label: string; icon: stri
   { key: "trade", label: "Trade", icon: "🏪" },
 ];
 
+const TIER_IMAGES: Record<string, string> = {
+  camp: "/images/buildings/settlement_camp.png",
+  village: "/images/buildings/settlement_village.png",
+  town: "/images/buildings/settlement_town.png",
+  city: "/images/buildings/settlement_city.png",
+};
+
 export default function Buildings() {
   const { state, actions } = useGame();
   const thLevel = () => actions.getTownHallLevel();
@@ -227,9 +234,9 @@ export default function Buildings() {
                             </div>
                           </div>
                         </Show>
-                        <Show when={building.image}>
+                        <Show when={building.image || building.id === "town_hall"}>
                           <div class="building-card-image">
-                            <img src={building.image} alt={building.name} loading="lazy" />
+                            <img src={building.id === "town_hall" ? (TIER_IMAGES[actions.getSettlementTier()] ?? TIER_IMAGES.camp) : building.image!} alt={building.name} loading="lazy" />
                             <div class="building-card-image-overlay">
                               <div class="building-card-title">{building.name}</div>
                               <div class="building-card-level" classList={{ "not-built": level() === 0 }}>
@@ -238,7 +245,7 @@ export default function Buildings() {
                             </div>
                           </div>
                         </Show>
-                        <Show when={!building.image}>
+                        <Show when={!building.image && building.id !== "town_hall"}>
                           <div class="building-card-header">
                             <div class="building-card-icon">{building.icon}</div>
                             <div>
