@@ -109,7 +109,7 @@ She is, by all accounts, the only living person who understands what Netheron ac
 
 **"Order through strength. Unity through faith."**
 
-The largest surviving kingdom, built by conquest a century ago. The Crown and the Church of the Radiant One are deeply intertwined — the King rules politics and military, the Archpriest rules spiritual matters.
+The largest and oldest surviving kingdom in Eldoria, founded over five centuries ago when the Ashford dynasty united the warring successor states that had formed in the centuries after the Sundering. The Dominion has had time to build deep traditions, a complex bureaucracy, an established nobility, and the weight of genuine history. The Crown and the Church of the Radiant One grew together over these centuries — not as a cynical alliance but as a shared cultural evolution. The King rules politics and military, the Archpriest rules spiritual matters.
 
 The **Church of the Radiant One** teaches that the six deities were aspects of a single god — the Radiant One — and the Sundering was divine punishment. The Church funds hospitals and schools, but also persecutes magic users through the Inquisition.
 
@@ -118,7 +118,7 @@ The **Order of the Dawn** is the elite military-religious force: Dawn Knights (h
 The Dominion views Free Settlements as unclaimed tax revenue. Some want peaceful annexation, others prefer force.
 
 **Key figures:**
-- **High King Aldren Ashford III** — 28, ambitious, a true believer in unity under the Dominion. Not evil, but convinced his way is the only way.
+- **High King Aldren Ashford** — 28, the latest in a dynasty stretching back over five centuries. Ambitious, a true believer in unity under the Dominion. Not evil, but convinced his way is the only way. Carries the weight of his lineage seriously.
 - **Grand Marshal Elara Voss** — army commander. Pragmatic, ruthless, cares about borders, not religion.
 - **Archpriest Caelen** — head of the Church. Elderly, wise, increasingly paranoid about heresy.
 - **Inquisitor Maren Ashvale** — not a zealot, not cruel. A former field medic who watched Hollow magic consume a garrison. Calm, methodical, absolutely convinced that magic — all magic — is killing the world. When she shows you maps of the Wastes' expansion overlaid with magical activity, the correlation is unsettling.
@@ -173,7 +173,19 @@ Faction alignment isn't a binary choice — your actions naturally shift reputat
 
 The Sundering's epicenter. Netheron's fragmented essence leaking uncontrolled. The ground is scarred, vegetation is blackened, the dead rise, and the boundary between life and death is thin.
 
-The Wastes are **spreading** — but not steadily. The corruption advances in unpredictable surges, sometimes pushing far outward before partially receding. Each surge reaches a little further than the last. Each retreat doesn't pull back quite as far. Ruins and abandoned watchtowers dot the land north of the current boundary — remnants of settlements caught in past surges that have long since receded. The overall trend is expansion, and the Thornveil Elders believe the surges are growing more frequent. This is the existential threat — regardless of faction politics, if the Wastes consume the continent, everyone loses.
+For thousands of years after the Sundering, the Wastes were **stable** — a fixed dead zone. Dangerous, but it didn't grow. People avoided it the way they'd avoid a volcanic crater. Common knowledge across Eldoria is that the Wastes are distant, static, and not worth worrying about.
+
+**That changed roughly 150-200 years ago.** The Wastes began to expand — slowly at first, then in unpredictable surges. Sometimes pushing far outward before partially receding. Each surge reaches a little further than the last. Each retreat doesn't pull back quite as far. Ruins and abandoned outposts dot the land north of the current boundary — remnants of the Dominion's attempt to establish a southern border when the expansion first began.
+
+**Why the Wastes started spreading is unknown.** The factions have theories:
+- **Halldora** suspects the Cult's Hollow magic rituals, practiced for roughly the same period, have been disturbing Netheron's dormant essence — like poking a sleeping body until it twitches.
+- **The Church** believes cumulative magic use across all of Eldoria reached a tipping point — too much Aether manipulation destabilized the Wastes.
+- **The Cult** claims the spreading is natural and inevitable — the Liberator's work completing itself.
+- **The Thornveil** blames deforestation — the forests were a natural Primal barrier, and centuries of logging weakened them.
+
+Most common people don't know the Wastes are growing. The Dominion downplays it to avoid panic. The Thornveil has been fighting it quietly. Settlers heading south — like the player — have been told the southern lands are safe frontier territory. They're about to learn otherwise.
+
+This is the existential threat — regardless of faction politics, if the Wastes consume the continent, everyone loses.
 
 Deep within the Wastes, Sundering Scars produce dragon eggs — concentrations of raw Aether crystallizing into life over centuries.
 

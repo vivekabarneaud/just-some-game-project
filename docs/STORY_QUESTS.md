@@ -8,22 +8,21 @@ These are permanent story missions that appear on the mission board, must be com
 
 *Theme: Survival, isolation, first hints that this land has history.*
 
-### Mission 1: The Old Road
+### Mission 1: Scouting the Surroundings
 **Unlock:** Guild lvl 1
 **Requirements:** 1 adventurer (any class)
 **Difficulty:** 1 | Duration: 15 min
-**Narrative:** *"Your scouts found a crumbling road that no map shows. It's ancient — the stones are carved with symbols nobody recognizes. The road leads deeper into the forest. Someone should follow it."*
-**Reward:** 50 gold + Lore Fragment
-**Lore:** *"The waymarker stones bear the sigil of Lunara, goddess of knowledge. Whatever kingdom built this road, it was old when your grandparents' grandparents were young."*
+**Narrative:** *"Time to find out what's around us. Send scouts to map the area — water sources, game trails, anything useful. And anything dangerous."*
+**Reward:** 50 gold, 50 wood + Lore Fragment
+**Lore:** *"Your scouts return with a rough map and one unexpected finding: about a day's march south, on a hilltop, there are ruins. Stone foundations, a collapsed well, and a tower still partially standing. Whoever was here before you, they were organized. Military, maybe. And they left."*
 
-### Mission 2: The Abandoned Watchtower
+### Mission 2: The Ruins on the Hill
 **Unlock:** Complete Mission 1
 **Requirements:** 1 warrior + 1 any
 **Difficulty:** 1 | Duration: 20 min
-**Narrative:** *"The old road ends at a ruined watchtower. Its walls still stand, but the roof caved in long ago. From its top, your scouts can see for miles — and what they see to the south is troubling."*
+**Narrative:** *"The ruins your scouts found deserve a closer look. An armed team should investigate — stone buildings don't appear in the wilderness by accident. Someone built here. Someone left."*
 **Reward:** 80 gold, 50 wood + Lore Fragment
-**Lore:** *"The watchtower logbook's last entry, centuries old: 'Day 47. The surge is not receding. The shadow reaches further each night. We cannot hold. Ferros forgive us, we are abandoning the post.' From the tower's top, your scouts see something strange: a faint dark haze on the southern horizon, as if the sky itself is stained. It's far away. For now."*
-**Note:** The Wastes advance in unpredictable surges, not a steady crawl. The watchtower garrison was caught in a surge centuries ago that pushed far north before receding. The current boundary is further south — but another surge could come at any time.
+**Lore:** *"The outpost is maybe 150 years old — Dominion-built, judging by the stonework. Your scouts find the logbook wrapped in oilskin inside the tower. The last entries tell a story over 47 days: strange sounds at night, figures standing at the tree line, a soldier who vanished from her bed leaving her boots behind, and whispers that came through the walls. The final entry: 'The shadow speaks. It knows our names. Ferros forgive us, we are abandoning the post.' From the tower's top, your scouts see something strange: a faint dark haze on the southern horizon, as if the sky itself is stained. It's far away. For now."*
 
 ### Mission 3: The Stranger's Cache
 **Unlock:** Complete Mission 2
