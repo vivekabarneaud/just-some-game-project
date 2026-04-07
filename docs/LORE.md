@@ -6,15 +6,17 @@ Thousands of years ago, the world of Eldoria was shaped by the **Eternal Court**
 
 Then came **the Sundering**.
 
-The seventh deity, **Netheron**, broke the Eternal Court. The reasons are debated to this day — some say jealousy, others say he sought to free mortals from divine dependence. Whatever the truth, the result was catastrophic. The land shattered. The great kingdom fell. The academies crumbled. The deities vanished — perhaps dead, perhaps sleeping, perhaps scattered as fragments of power lingering in sacred places.
+The seventh deity, **Netheron**, broke the Eternal Court. His argument was not without merit — he believed the gods had created a cycle of dependence, that mortals could never truly grow while relying on divine blessings for every harvest, every healing, every protection. He proposed the Severance — a complete break between mortal and divine.
 
-Nobody knows for certain what happened to the gods. What is known is that in the centuries since, mortals have been left to fend for themselves in a broken world.
+The Six opposed him. Netheron acted alone.
+
+The result was catastrophic. The land shattered. The great kingdom fell. Millions died. And the deities — all seven of them, including Netheron — were destroyed. Not killed, not banished. **Fragmented.** Their consciousness shattered into countless pieces, scattered across Eldoria, embedded in sacred places, ancient artifacts, and the living land itself.
 
 ---
 
-## The Eternal Court — The Seven Deities
+## The Deities — Fragmented, Not Gone
 
-The seven deities are ancient history. They no longer walk the land. But their legacy shapes everything — from the shrines that still hold faint power to the Sundering scars that corrupt the south.
+The seven deities are not dead, sleeping, or hiding. They are **broken**.
 
 | Deity | Domain | Legacy |
 |---|---|---|
@@ -22,168 +24,177 @@ The seven deities are ancient history. They no longer walk the land. But their l
 | **Sylvana** the Green | Nature, growth, seasons | The great forests are her creation. The Old Faith reveres her above all others. |
 | **Nereia** the Deep | Sea, rivers, fortune | The oceans and waterways. Sailors and fishermen leave offerings at coastal shrines. |
 | **Solara** the Bright | Light, warmth, hope | The sun and stars. Her shrines glow faintly at dawn. Symbol of healing and comfort. |
-| **Korrath** the Shield | War, protection, valor | Mountains passes and fortresses. Warriors invoke his name before battle. |
+| **Korrath** the Shield | War, protection, valor | Mountain passes and fortresses. Warriors invoke his name before battle. |
 | **Lunara** the Wise | Knowledge, magic, the moon | The academies of magic were built in her honor. Scholars still seek her lost libraries. |
-| **Netheron** the Liberator | Chaos, freedom, the void | The Betrayer. The Breaker. The one who shattered the Court. The Cult calls him the Liberator. Everyone else calls him the Hollow. |
+| **Netheron** the Liberator | Chaos, freedom, the void | The Betrayer. The Breaker. His fragments are concentrated in the Hollow Wastes. |
 
-Their power lingers in **shrines** — sacred places where the boundary between the mortal world and the Aether (the raw energy of creation) is thin. Travelers who leave offerings at these shrines sometimes receive blessings — enhanced harvests, protection from harm, sharper minds. Whether this is truly the gods answering, or simply the Aether responding to ritual, nobody knows.
+Pieces of divine consciousness are scattered everywhere. Shrine blessings aren't gods answering prayers — they're unconscious reflexes, like a sleeping person twitching. The Aether that flows through sacred places carries traces of the deities who shaped those places. Nobody — not the Church, not the Old Faith, not Halldora — can say with certainty whether the gods could ever be made whole again.
+
+## Netheron and the Hollow Wastes
+
+Netheron shattered himself along with the others when he initiated the Sundering. But because he was the source of the cataclysm, his fragments are concentrated in the south — the epicenter of the breaking. The **Hollow Wastes** are not a scar left by a past event. They are Netheron's raw essence, leaking out uncontrolled.
+
+The corruption IS Netheron — not his will, not his consciousness, not some scheming intelligence. His divine corpse is poisoning the continent. The Wastes spread not because anyone commands them, but because a dead god's power has nowhere to go.
+
+The Cult of the Hollow's Hierophant claims to channel Netheron's will. Whether this is true or the Hierophant is simply a powerful Hollow mage who has convinced themselves they hear a dead god is left deliberately ambiguous.
 
 ---
 
 ## Magic — The Aether
 
-All magic in Eldoria flows from **the Aether** — the residual energy left behind when the Eternal Court shaped the world. It is not divine power. It is more like the echo of creation itself, woven into the stones, the rivers, the ancient trees, and the air above the Sundering scars.
+All magic in Eldoria flows from **the Aether** — the residual energy left behind when the Eternal Court shaped the world. It is not divine power. It is the echo of creation itself, woven into the stones, the rivers, the ancient trees, and the air above the Sundering scars.
 
-Before the Sundering, magic was structured and taught in academies. After the Sundering, organized magical knowledge was largely lost. What remains is fragmented into three traditions:
+**Astral Shards** are crystallized Aether — the purest form of magical energy, sometimes found deep in mines or in places where the Aether is concentrated.
 
-### Arcane Magic (scholarly, precise)
-The old academic tradition, preserved in fragments of pre-Sundering texts and crumbling libraries. Wizards study ancient glyphs, decipher formulas, and experiment with Aether manipulation. Power comes from **understanding** — knowledge is the key.
+### The Three Traditions
 
-**Astral Shards** are crystallized Aether — the purest form of magical energy, sometimes found deep in mines or in places where the Aether is concentrated. They are extraordinarily valuable.
+**Arcane Magic** (scholarly, precise) — The old academic tradition. Power comes from understanding — formulas, incantations, geometric patterns. The greatest living practitioner is Halldora.
 
-The greatest living practitioner of Arcane magic is **Halldora**, a scholar-mage of extraordinary power and intellect. She was once the youngest Archmagus in the history of the Dominion's Academy of the Aether — the last functioning institution of magical learning before it was shuttered by the Church for "heretical inquiry." When the Inquisitors came to arrest her, she vanished, taking half the Academy's library with her.
+**Primal Magic** (natural, instinctive) — Magic drawn from the living world. Power comes from harmony — listening to the natural flow of the Aether. Practiced by the Old Faith, druids, and priests.
 
-Halldora now operates from a hidden sanctum somewhere in the wilds of Eldoria. She is beholden to no faction — the Dominion wants her arrested, the Thornveil respects her knowledge but distrusts her methods, the Corsairs would pay a fortune for her services, and the Cult has tried and failed to recruit her. She refuses them all. Her only allegiance is to knowledge itself.
+**Hollow Magic** (forbidden, corrupting) — Magic drawn from the Sundering scars, from Netheron's leaking essence. Power comes from sacrifice — something must always be given up. Addictive and corrosive.
 
-What makes Halldora dangerous — and invaluable — is that she has studied all three magical traditions. She understands Primal magic's harmony with the Aether, she has dissected Hollow magic's mechanisms without being consumed by it, and she has pushed Arcane theory further than anyone since the Sundering. It is whispered that she has decoded fragments of the Eternal Court's original language — the words they used to shape the world.
+### The Doctrine of Silence
 
-Halldora occasionally sends cryptic messages to Free Settlements she finds promising — an enchanted scroll appearing on a doorstep, a mysterious raven delivering a map to a hidden ruin. Those who follow her guidance often find treasures of immense value. Whether she is testing potential allies, students, or pawns in some larger game, no one can say.
+The Church of the Radiant One has developed a controversial but not unfounded theory: **all magic use feeds the Hollow Wastes.** Every spell cast, every shrine blessing activated, every Aether crystal consumed sends a ripple through the magical fabric. The Wastes absorb these ripples, growing incrementally stronger.
 
-She is, by all accounts, the most knowledgeable person alive about the Sundering, the Aether, and what Netheron truly did to break the world. If anyone holds the key to understanding — and perhaps reversing — the spreading corruption of the Hollow Wastes, it is her.
+Their evidence is circumstantial but unsettling:
+- The Wastes spread faster near areas with high magical activity
+- The Thornveil's ancient Primal ward network is crumbling — possibly because maintaining it requires constant magic that feeds the corruption it tries to contain
+- Halldora's Academy of the Aether was located in what is now the southern Wastes
 
-### Primal Magic (natural, instinctive)
-Magic drawn from the living world — forests, storms, animals, the turning of seasons. Practiced by the Old Faith through druids, shamans, and priests who commune with the land. Power comes from **harmony** — listening to the natural flow of the Aether rather than trying to control it.
+The Church's position: all magic is poison, even the "good" kind. The only safe path is faith, discipline, steel, and stone. The **Inquisition** exists to enforce this belief — and its members genuinely believe they are saving the world.
 
-Shrine blessings, seasonal rituals, and healing magic all draw on the Primal tradition. The Thornveil Pact considers this the only "true" magic.
-
-### Hollow Magic (forbidden, corrupting)
-Magic drawn from the Sundering scars — from destruction itself. This is Netheron's legacy. The Aether in these places is twisted, volatile, and immensely powerful. Power comes from **sacrifice** — something must always be given up: health, sanity, life.
-
-Necromancy, shadow manipulation, and blood rituals are all Hollow magic. The Cult of the Hollow practices it openly. Others use it in secret. It is addictive — each use makes the next easier and more tempting. Those who go too far are consumed, becoming the very undead horrors that plague the land.
+The terrifying question: **what if they're partially right?** Nobody can prove or disprove the theory. Halldora argues the Wastes spread regardless of magic use. But she can't prove it either.
 
 ---
 
-## The Current World — Factions and Powers
+## Dragons — Children of the Scars
 
-Two centuries have passed since the Sundering. The old unified kingdom is gone. In its place, several powers compete for influence, territory, and survival.
+Dragons are not ancient creatures from before the Sundering. They are **something entirely new**.
+
+The Sundering Scars — deep fissures where raw Aether bleeds from the earth — have been concentrating magical energy for centuries. Over time, that energy crystallized, grew, and eventually formed eggs. Dragons are pure magic given form — spontaneous creation from raw Aether.
+
+Nobody has ever seen one hatch before. Nobody knows what a dragon truly is or what it will become. Each egg is unique, shaped by the specific Aether of its Scar and the land around it. A Scar near the coast might produce a dragon attuned to water. A Scar near mountains might produce one attuned to fire.
+
+Different factions have different theories:
+- **Halldora** wants to study them — they represent something unprecedented in magical history
+- **The Thornveil** believes they could strengthen the Primal wards if bonded with nature
+- **The Cult** sees them as proof that creation and destruction are the same force
+- **The Church** considers them abominations — walking Sundering Scars that must be destroyed before they make the corruption worse
+
+The truth is unknown. The dragon's nature emerges through how it is raised.
+
+---
+
+## Halldora — The Last Witness
+
+The greatest living practitioner of Arcane magic was once the youngest Archmagus in the history of the Academy of the Aether. That was before the Sundering.
+
+Halldora is **centuries old**, her aging slowed by Arcane magic that is slowly, inevitably failing. She was alive before the Sundering — she witnessed it. She watched the world break. She has spent the centuries since studying what happened and why.
+
+She is not immortal. She is not powerful in the way she once was. Her mind is sharp as ever, but her body is frail. She cannot walk to the Hollow Wastes, let alone survive there. She can barely maintain the spells that keep her alive.
+
+She needs agents — young, strong, capable people unbeholden to any faction that would misuse her knowledge. Free Settlers. She tests settlements she finds promising, sending gifts, cryptic messages, and maps to hidden ruins. Those who prove capable earn more — guidance, knowledge, and eventually her trust.
+
+When the Church shut down the Academy (the last institution of organized magical learning), Halldora fled with half the library. The Inquisition has been looking for her ever since. She communicates through ravens and coded messages not because she's dramatic, but because she's hunted.
+
+She is, by all accounts, the only living person who understands what Netheron actually did to break the world. Whether that knowledge can save Eldoria is another question — one she cannot answer alone.
+
+---
+
+## The Factions of Eldoria
 
 ### The Ashenmark Dominion
 
 **"Order through strength. Unity through faith."**
 
-The largest and most powerful surviving kingdom, the Dominion was forged roughly a century ago when the warlord **Aldren Ashford** united several of the old noble houses by force. His descendants rule to this day from the fortified capital of Ashenmarch.
+The largest surviving kingdom, built by conquest a century ago. The Crown and the Church of the Radiant One are deeply intertwined — the King rules politics and military, the Archpriest rules spiritual matters.
 
-The Dominion believes that the chaos of the post-Sundering world can only be overcome through centralized authority and shared faith. They impose heavy taxes and mandatory conscription, but in return offer stability, infrastructure, and protection. Roads are maintained, bandits are hunted, and the undead are pushed back at the borders.
+The **Church of the Radiant One** teaches that the six deities were aspects of a single god — the Radiant One — and the Sundering was divine punishment. The Church funds hospitals and schools, but also persecutes magic users through the Inquisition.
 
-The **Church of the Radiant One** is the state religion of the Dominion. It teaches that the six benevolent deities were merely aspects of a single supreme god — the Radiant One — and that the Sundering was divine punishment for worshipping false idols. The Church funds hospitals, schools, and orphanages, but also persecutes "heretics" who cling to the Old Faith or dabble in Hollow magic.
+The **Order of the Dawn** is the elite military-religious force: Dawn Knights (heavy cavalry), Paladins (warrior-priests), and Inquisitors (magic hunters).
 
-The Church and the Crown are deeply intertwined but technically separate. The High King rules politics and the military. The Archpriest rules spiritual matters. They need each other — the King needs the Church's legitimacy, and the Church needs the King's armies. But they don't always agree, which creates internal tensions that outsiders can sometimes exploit.
-
-**The Order of the Dawn** is the Dominion's elite military-religious force:
-- **Dawn Knights** — heavy cavalry in shining armor, sworn to protect the faithful. Honorable warriors, terrifying on the charge.
-- **Paladins** — warrior-priests who channel what they believe is the Radiant One's power. They can heal, shield, and smite the undead. The elite of the elite.
-- **Inquisitors** — the Church's enforcers. They investigate Cult activity, hunt heretics, and root out Hollow magic. Feared even within the Dominion itself. Some are righteous. Others are zealots.
-
-The Dominion views the Free Settlements as unclaimed territory that rightfully belongs to them. Some in the Dominion want to annex the settlers peacefully through "protection pacts." Others, particularly Grand Marshal Voss, prefer a more direct approach.
+The Dominion views Free Settlements as unclaimed tax revenue. Some want peaceful annexation, others prefer force.
 
 **Key figures:**
-- **High King Aldren Ashford III** — young (28), ambitious, and a true believer in the Church and in unity. Not evil, but convinced that the Dominion's way is the only way to survive the growing darkness. Descended from the old Champion House of Ferros.
-- **Grand Marshal Elara Voss** — commander of the Dominion's armies. Pragmatic and ruthless. Doesn't particularly care about religion — she cares about secure borders. She's the one who sends the "tax collector" raids to Free Settlements.
-- **Archpriest Caelen** — head of the Church of the Radiant One. Elderly, wise, and genuinely compassionate, but increasingly paranoid about heresy as the Cult grows. Controls the Order of the Dawn.
-
----
+- **High King Aldren Ashford III** — 28, ambitious, a true believer in unity under the Dominion. Not evil, but convinced his way is the only way.
+- **Grand Marshal Elara Voss** — army commander. Pragmatic, ruthless, cares about borders, not religion.
+- **Archpriest Caelen** — head of the Church. Elderly, wise, increasingly paranoid about heresy.
+- **Inquisitor Maren Ashvale** — not a zealot, not cruel. A former field medic who watched Hollow magic consume a garrison. Calm, methodical, absolutely convinced that magic — all magic — is killing the world. When she shows you maps of the Wastes' expansion overlaid with magical activity, the correlation is unsettling.
 
 ### The Thornveil Pact
 
 **"The land remembers. We listen."**
 
-A coalition of forest clans and druid circles who rejected the old kingdom entirely after the Sundering. They retreated into the deep forests of northwestern Eldoria and built a society based on the Old Faith — reverence for nature, the seasons, and the memory of the six deities.
+A coalition of forest clans and druid circles in the northwest. Governed by the Circle of Elders. Masters of Primal magic — their healers are the best in Eldoria, their rangers can track anything.
 
-The Thornveil have no king. They are governed by the **Circle of Elders**, druids from each major clan who convene at sacred groves to make decisions by consensus. This makes them slow to act but deeply unified when they do.
-
-They are masters of Primal magic — their healers are the best in Eldoria, their rangers can track anything through any terrain, and their beastmasters form bonds with wolves, bears, and hawks. The great forests they protect are genuinely dangerous to outsiders — not because of traps, but because the forest itself seems to resist intruders.
-
-The Thornveil are generally neutral toward Free Settlers, but they watch closely. Cut too much forest (high lumber mill levels near their territory?) and you'll hear from them. Respect the land, and they might become valuable allies — offering herbs, rare wood, and Primal knowledge.
+They maintain an ancient network of Primal wards that slow the Wastes' spread — but maintaining these wards requires constant magic, which the Church argues makes things worse.
 
 **Key figures:**
-- **Elder Rowan** — the most influential voice on the Circle. Seventy years old, calm, patient, and deeply connected to the old ways. He remembers stories from people who survived the Sundering's immediate aftermath. Wants peace above all but will fight if the forests are threatened.
-- **Warden Kess** — leader of the Thornveil Rangers, the Pact's military arm. Young, hot-headed, and impatient with the Elders' caution. She believes the Cult of the Hollow is a direct threat to the forests and wants to strike before they grow stronger. Her rangers sometimes operate independently, which creates diplomatic incidents.
-
----
+- **Elder Rowan** — the most influential voice. Seventy, patient, deeply connected to the old ways. Wants peace.
+- **Warden Kess** — leader of the rangers. Young, hot-headed, wants to strike the Cult before they grow stronger.
 
 ### The Corsair League
 
 **"Everything has a price. Everything."**
 
-A loose federation of coastal city-states along Eldoria's western shore, governed by merchant princes, guild masters, and — in some cases — outright pirate captains. The Corsair League has no unified ideology except profit.
-
-They don't care about the Old Faith, the Radiant One, or Netheron. They care about trade routes, tariffs, and the flow of goods. They'll sell weapons to the Dominion and the Cult in the same week. They'll smuggle refugees out of Dominion territory for a fee, and report them to the Inquisition for a bigger fee.
-
-Despite their moral flexibility, the League is essential to Eldoria's economy. They control shipping lanes, maintain the only functioning international trade network, and their port cities are the most cosmopolitan places in the world — you'll find Dominion knights drinking beside Thornveil rangers beside Cult defectors, all pretending not to recognize each other.
-
-Your settlement's marketplace connects to Corsair trade networks. Better relations with the League means better trade rates, rare goods, and access to their intelligence network.
+Coastal city-states run by merchants and pirates. No ideology except profit. They'll sell weapons to everyone, smuggle anyone anywhere, and keep their word on a deal.
 
 **Key figures:**
-- **Prince-Admiral Demos Varr** — ruler of Saltmere, the League's largest port city. Elected by the merchant guilds every decade. Charming, corrupt, and incredibly shrewd. Would sell his own mother if the price was right, but he always keeps his word on a trade deal. Currently playing all factions against each other for maximum profit.
-- **Captain Mira Stormglass** — the most feared pirate captain in living memory, now semi-retired. She runs a smuggling network from a hidden island base. She has a personal grudge against the Dominion — they sank her fleet years ago — and secretly funds Free Settlements as a buffer against Dominion expansion.
-
----
+- **Prince-Admiral Demos Varr** — ruler of Saltmere. Charming, corrupt, shrewd. Plays all sides.
+- **Captain Mira Stormglass** — feared pirate, semi-retired. Secretly funds Free Settlements as a buffer against the Dominion.
 
 ### The Cult of the Hollow
 
 **"They call it chaos. We call it truth."**
 
-The followers of Netheron — though they would never use the name "Netheron," which they consider propaganda from the old Court. To them, he is **the Liberator**, the only deity brave enough to break the chains of divine tyranny.
+Followers of Netheron — whom they call the Liberator. Their core philosophy is that the gods enslaved mortals through dependence, and the Sundering was liberation.
 
-The Cult's core philosophy is that the Eternal Court enslaved mortals through dependence. By demanding worship, by making mortals rely on divine blessings for good harvests, protection, and healing, the gods created a world where mortals could never truly grow. The Sundering was the Liberator's gift — painful, catastrophic, but ultimately an act of freedom.
+The Cult recruits through doubt, not fear. They fund bandits, raise undead, and destabilize regions. Their goal is to break the existing order.
 
-This philosophy is dangerously compelling. The Cult doesn't recruit through fear — it recruits through doubt. When a farmer's prayers go unanswered and his crops fail, when a soldier watches the Archpriest live in luxury while the poor starve, when a scholar realizes that shrine blessings look suspiciously like Aether manipulation rather than divine grace — the Cult is there with an explanation that makes uncomfortable sense.
-
-Of course, not everyone in the Cult is a philosopher. Many are drawn by the power of Hollow magic — quick, intoxicating, and destructive. The Cult funds bandit raids, raises undead to terrorize settlements, and sabotages Dominion supply lines. Their goal is destabilization — break the existing order so something new can emerge.
-
-The Cult is strongest in the south, near the **Hollow Wastes** — a corrupted region at the heart of the continent where the Sundering struck hardest. The ground is scarred, the Aether is twisted, and the dead don't stay dead. This is where Netheron's power is most concentrated, and the Cult draws from it like water from a well.
+They draw power from the Hollow Wastes. They believe the corruption can be controlled and directed — and Commander Dryven's "tamed" zone suggests they might be partially right.
 
 **Key figures:**
-- **The Hierophant** — the Cult's leader. Nobody knows their real name, their face (always masked), or their origins. Their speeches are magnetic — half philosophy lecture, half dark prophecy. Even enemies admit the Hierophant makes a disturbing amount of sense. Whether they truly channel Netheron's power or are simply a gifted manipulator is the subject of endless debate.
-- **Commander Dryven** — leader of the **Pale Hand**, the Cult's military arm. A former Dawn Knight who lost faith after witnessing the Church burn an Old Faith village to "cleanse" it of heresy. His defection was a scandal that shook the Dominion. He is dangerous because he knows exactly how the Dominion's armies fight, their formations, their weaknesses, and their supply routes.
-
----
+- **The Hierophant** — masked, charismatic, magnetically persuasive. Claims to channel Netheron's will. Whether true or self-delusion is unknown.
+- **Commander Dryven** — former Dawn Knight who defected after watching the Church burn an Old Faith village. Knows exactly how the Dominion fights.
 
 ### The Free Settlements (Players)
 
 **"We answer to no king, no priest, no prophet."**
 
-Scattered across the unclaimed center of the continent, the Free Settlements are communities of people who have chosen independence over allegiance. Some are refugees from the Dominion's taxes. Some are Old Faith followers who refused conversion. Some are Corsair-funded pioneers. Some are simply people who wanted to build something of their own.
+Independent settlers in the unclaimed center. No unified government. Each settlement governs itself. The greatest strength and the greatest vulnerability.
 
-There is no king of the Free Settlements. There is no unified government. Each settlement governs itself. This is both the greatest strength and the greatest vulnerability — no one can conquer the Free Settlements as a whole, but no one will come to save an individual settlement either.
-
-As settlements grow, they begin to attract attention from the larger factions. The Dominion sees potential tax revenue. The Thornveil sees potential allies — or potential threats to the forest. The Corsairs see new markets. The Cult sees fertile ground for recruitment.
-
-Sooner or later, every Free Settler must decide: align with a faction for protection and benefits, or maintain independence and face the consequences alone. Some settlements form local alliances with each other — mutual defense pacts, trade agreements, shared intelligence. Whether this will eventually coalesce into a true nation is one of Eldoria's open questions.
+Faction alignment isn't a binary choice — your actions naturally shift reputation with each faction. You can be friendly with multiple factions or none. Tension arises when factions ask you to do things the others disapprove of.
 
 ---
 
-### The Hollow Wastes
+## The Hollow Wastes
 
-The Sundering's ground zero. A vast corrupted region in the south of the continent where the Aether itself is twisted and toxic. The ground is scarred, vegetation is blackened and stunted, and the boundary between life and death is thin. The dead rise. Shadows move independently. The very air hums with unstable energy.
+The Sundering's epicenter. Netheron's fragmented essence leaking uncontrolled. The ground is scarred, vegetation is blackened, the dead rise, and the boundary between life and death is thin.
 
-The Wastes are slowly **spreading**. Each year, the corruption creeps a little further outward. This is the existential threat that hangs over all of Eldoria — regardless of faction politics, if the Wastes consume the continent, everyone loses.
+The Wastes are slowly **spreading**. Each year, the corruption creeps outward. This is the existential threat — regardless of faction politics, if the Wastes consume the continent, everyone loses.
 
-The Cult draws power from the Wastes. The Dominion stations garrisons at the border to contain the spread. The Thornveil performs rituals to strengthen the land against corruption. Nobody has found a way to reverse it.
+Deep within the Wastes, Sundering Scars produce dragon eggs — concentrations of raw Aether crystallizing into life over centuries.
 
-Deep within the Wastes lie the ruins of the old kingdom's capital — and, some say, relics of the Eternal Court itself. Adventurers who venture in rarely return. Those who do bring back treasures beyond imagination — ancient weapons, crystallized Aether, and fragments of pre-Sundering knowledge.
+**Can the Wastes be healed?** Nobody knows for certain. Theories:
+- **Halldora:** Gathering and concentrating the six deities' fragments through a network of strengthened shrines might counterbalance Netheron's essence. Requires cooperation across all of Eldoria.
+- **The Thornveil:** Patient expansion of Primal wards over generations. No quick fix.
+- **The Dominion:** Military containment. Walls, garrisons, burn anything corrupted.
+- **The Cult:** Control and harness the corruption. Don't heal it — use it.
+- **The Church:** Stop using magic entirely. Let the Aether settle. The Wastes will eventually dissipate on their own if mortals stop stirring the pot.
 
-It is whispered that somewhere in the deepest reaches of the Wastes, a dragon sleeps — the last living creature from before the Sundering, saturated with ancient Aether. If it could be found, and tamed... but that's just a legend. Isn't it?
+The truth is probably a combination — and the dragons might play a role nobody expects, since they're made of the same energy that causes the problem.
 
 ---
 
 ## Your Story
 
-You are a Free Settler. You've claimed a patch of land in the wilds of Eldoria, hammered in your first fence post, and lit your first campfire. The forest is dark. The nights are long. You have five citizens, a dream, and not much else.
+You are a Free Settler. You've claimed a patch of land in the wilds of Eldoria, lit your first campfire, and started building. The forest is dark. The nights are long. You have five citizens, a dream, and not much else.
 
-But the land is rich. The rivers are full of fish. The hills hide stone and iron. The forest offers timber and game. And somewhere out there, beyond the tree line, adventure waits.
+But the land is rich. And somewhere out there, beyond the tree line, forces older than any kingdom are stirring.
 
-Build your settlement. Recruit adventurers. Send them into the unknown. Trade, craft, grow. And when the factions come knocking — and they will — decide who you want to be in this shattered world.
+Build your settlement. Recruit adventurers. Send them into the unknown. And when the factions come knocking — and they will — decide who you want to be.
 
 And if you're lucky — or unlucky — you might one day find a raven on your windowsill, carrying a scroll sealed with a sigil you don't recognize. The message inside will be brief, cryptic, and possibly the most important thing you've ever read.
 
