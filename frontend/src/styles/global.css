@@ -365,41 +365,53 @@ body {
 
 /* Building Detail Panel */
 .building-detail {
-  background: var(--bg-panel);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 24px;
   max-width: 600px;
-}
-
-.building-detail-banner {
   position: relative;
-  height: 220px;
-  margin: -20px -20px 20px -20px;
-  border-radius: 8px 8px 0 0;
   overflow: hidden;
+  background: var(--bg-panel);
 }
 
-.building-detail-banner img {
+.building-detail.has-image {
+  background: transparent;
+}
+
+.building-detail-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+}
+
+.building-detail-bg img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
+  opacity: 0.15;
 }
 
-.building-detail-banner-overlay {
+.building-detail-bg::after {
+  content: "";
   position: absolute;
-  bottom: 0;
+  top: 0;
   left: 0;
   right: 0;
-  padding: 16px 20px;
-  background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(26, 26, 46, 0.6) 0%,
+    rgba(26, 26, 46, 0.85) 40%,
+    rgba(26, 26, 46, 0.95) 100%
+  );
 }
 
-.building-detail-banner-overlay .building-detail-title {
-  font-family: var(--font-heading);
-  font-size: 1.4rem;
-  color: var(--accent-gold);
+.building-detail-content {
+  position: relative;
+  z-index: 1;
 }
 
 .building-detail-header {

@@ -114,25 +114,18 @@ export default function BuildingDetail() {
 
       <Show when={building()} fallback={<p>Building not found.</p>}>
         {(b) => (
-          <div class="building-detail">
+          <div class="building-detail" classList={{ "has-image": !!b().image }}>
             <Show when={b().image}>
-              <div class="building-detail-banner">
-                <img src={b().image} alt={b().name} />
-                <div class="building-detail-banner-overlay">
-                  <div class="building-detail-title">{b().name}</div>
-                  <div style={{ color: "var(--text-secondary)", "font-size": "0.9rem" }}>
-                    {!unlocked()
-                      ? getUnlockRequirement(b())
-                      : (playerBuilding()?.level ?? 0) === 0
-                        ? "Not yet built"
-                        : `Level ${playerBuilding()!.level} / ${effectiveMax()}${effectiveMax() < b().maxLevel ? ` (max ${b().maxLevel})` : ""}`}
-                  </div>
-                </div>
+              <div class="building-detail-bg">
+                <img src={b().image} alt="" />
               </div>
             </Show>
-            <Show when={!b().image}>
+
+            <div class="building-detail-content">
               <div class="building-detail-header">
-                <div class="building-detail-icon">{b().icon}</div>
+                <Show when={!b().image}>
+                  <div class="building-detail-icon">{b().icon}</div>
+                </Show>
                 <div>
                   <div class="building-detail-title">{b().name}</div>
                   <div style={{ color: "var(--text-secondary)", "font-size": "0.85rem" }}>
@@ -144,9 +137,8 @@ export default function BuildingDetail() {
                   </div>
                 </div>
               </div>
-            </Show>
 
-            <p class="building-detail-desc">{b().description}</p>
+              <p class="building-detail-desc">{b().description}</p>
 
             <Show when={!unlocked()}>
               <div
@@ -381,6 +373,7 @@ export default function BuildingDetail() {
                 </div>
               </Show>
             </Show>
+            </div>{/* end building-detail-content */}
           </div>
         )}
       </Show>
