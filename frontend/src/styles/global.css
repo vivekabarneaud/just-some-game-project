@@ -325,23 +325,6 @@ body {
   display: block;
 }
 
-.adv-card > :not(.adv-card-portrait):not(.building-card-category) {
-  padding-left: 0;
-}
-
-.adv-card .building-card-header,
-.adv-card .building-card-desc,
-.adv-card .building-card-production,
-.adv-card .building-card-upgrading {
-  padding-left: 0;
-  padding-right: 12px;
-}
-
-.adv-card > .building-card-header:first-of-type {
-  padding-top: 12px;
-  padding-left: 0;
-}
-
 .adv-card-content {
   display: flex;
   flex-direction: column;
