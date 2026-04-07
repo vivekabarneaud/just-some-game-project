@@ -22,7 +22,8 @@ These are permanent story missions that appear on the mission board, must be com
 **Difficulty:** 1 | Duration: 20 min
 **Narrative:** *"The old road ends at a ruined watchtower. Its walls still stand, but the roof caved in long ago. From its top, your scouts can see for miles — and what they see to the south is troubling."*
 **Reward:** 80 gold, 50 wood + Lore Fragment
-**Lore:** *"The watchtower logbook's last entry, centuries old: 'Day 47. The shadow spreads. The Hollow grows hungry. We cannot hold. Ferros forgive us, we are abandoning the post.' From the tower's top: dark smoke rising far to the south."*
+**Lore:** *"The watchtower logbook's last entry, centuries old: 'Day 47. The surge is not receding. The shadow reaches further each night. We cannot hold. Ferros forgive us, we are abandoning the post.' From the tower's top, your scouts see something strange: a faint dark haze on the southern horizon, as if the sky itself is stained. It's far away. For now."*
+**Note:** The Wastes advance in unpredictable surges, not a steady crawl. The watchtower garrison was caught in a surge centuries ago that pushed far north before receding. The current boundary is further south — but another surge could come at any time.
 
 ### Mission 3: The Stranger's Cache
 **Unlock:** Complete Mission 2

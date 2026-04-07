@@ -173,7 +173,7 @@ Faction alignment isn't a binary choice — your actions naturally shift reputat
 
 The Sundering's epicenter. Netheron's fragmented essence leaking uncontrolled. The ground is scarred, vegetation is blackened, the dead rise, and the boundary between life and death is thin.
 
-The Wastes are slowly **spreading**. Each year, the corruption creeps outward. This is the existential threat — regardless of faction politics, if the Wastes consume the continent, everyone loses.
+The Wastes are **spreading** — but not steadily. The corruption advances in unpredictable surges, sometimes pushing far outward before partially receding. Each surge reaches a little further than the last. Each retreat doesn't pull back quite as far. Ruins and abandoned watchtowers dot the land north of the current boundary — remnants of settlements caught in past surges that have long since receded. The overall trend is expansion, and the Thornveil Elders believe the surges are growing more frequent. This is the existential threat — regardless of faction politics, if the Wastes consume the continent, everyone loses.
 
 Deep within the Wastes, Sundering Scars produce dragon eggs — concentrations of raw Aether crystallizing into life over centuries.
 
