@@ -248,6 +248,45 @@ body {
   border-color: var(--accent-blue);
 }
 
+.building-card-image {
+  position: relative;
+  margin: -16px -16px 10px -16px;
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+  height: 120px;
+}
+
+.building-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.building-card-image-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 8px 12px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+}
+
+.building-card-image-overlay .building-card-title {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  color: var(--accent-gold);
+}
+
+.building-card-image-overlay .building-card-level {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.building-card-image-overlay .building-card-level.not-built {
+  color: var(--text-muted);
+}
+
 .building-card-header {
   display: flex;
   align-items: center;
@@ -473,6 +512,38 @@ body {
 }
 
 /* Overview page */
+.settlement-banner {
+  position: relative;
+  height: 180px;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.settlement-banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.settlement-banner-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px 24px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+}
+
+.settlement-banner-title {
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  color: var(--accent-gold);
+  margin: 0;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
 .overview-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

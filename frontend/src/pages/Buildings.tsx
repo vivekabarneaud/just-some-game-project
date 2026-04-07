@@ -227,20 +227,28 @@ export default function Buildings() {
                             </div>
                           </div>
                         </Show>
-                        <div class="building-card-header">
-                          <div class="building-card-icon">{building.icon}</div>
-                          <div>
-                            <div class="building-card-title">{building.name}</div>
-                            <div
-                              class="building-card-level"
-                              classList={{ "not-built": level() === 0 }}
-                            >
-                              {level() === 0
-                                ? "Not built"
-                                : `Level ${level()} / ${effMax()}`}
+                        <Show when={building.image}>
+                          <div class="building-card-image">
+                            <img src={building.image} alt={building.name} loading="lazy" />
+                            <div class="building-card-image-overlay">
+                              <div class="building-card-title">{building.name}</div>
+                              <div class="building-card-level" classList={{ "not-built": level() === 0 }}>
+                                {level() === 0 ? "Not built" : `Level ${level()} / ${effMax()}`}
+                              </div>
                             </div>
                           </div>
-                        </div>
+                        </Show>
+                        <Show when={!building.image}>
+                          <div class="building-card-header">
+                            <div class="building-card-icon">{building.icon}</div>
+                            <div>
+                              <div class="building-card-title">{building.name}</div>
+                              <div class="building-card-level" classList={{ "not-built": level() === 0 }}>
+                                {level() === 0 ? "Not built" : `Level ${level()} / ${effMax()}`}
+                              </div>
+                            </div>
+                          </div>
+                        </Show>
                         <div class="building-card-desc">{building.description}</div>
                         {currentLevel()?.production && (
                           <div class="building-card-production">

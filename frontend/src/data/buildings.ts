@@ -21,6 +21,7 @@ export interface BuildingDefinition {
   category: "settlement" | "gathering" | "crafting" | "guild" | "defense" | "magic" | "trade";
   description: string;
   icon: string;
+  image?: string; // path to building illustration
   maxLevel: number;
   levels: BuildingLevel[];
   requiredTier: SettlementTier;
@@ -182,6 +183,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     description:
       "A sacred place where the old gods are honored. Each day a different deity visits — make an offering to receive their blessing. Also improves settlement happiness.",
     icon: "🔮",
+    image: "/images/buildings/shrine.png",
     maxLevel: 10,
     levels: generateLevels({ wood: 40, stone: 60 }, 18, undefined, 10),
     requiredTier: "camp",
@@ -196,6 +198,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     description:
       "Woodcutters fell trees from the surrounding forest and process them into usable timber.",
     icon: "🪓",
+    image: "/images/buildings/lumber_mill.png",
     maxLevel: 20,
     levels: generateLevels({ wood: 30, stone: 40 }, 15, { resource: "wood", baseRate: 55 }),
     requiredTier: "camp",
@@ -207,6 +210,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     description:
       "Miners extract stone from the nearby hills. Essential for constructing advanced buildings.",
     icon: "⛏️",
+    image: "/images/buildings/quarry.png",
     maxLevel: 20,
     levels: generateLevels({ wood: 60, stone: 10 }, 18, { resource: "stone", baseRate: 40 }),
     requiredTier: "camp",
@@ -218,6 +222,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     description:
       "Skilled hunters venture into the wilds, bringing back game and pelts. Supplements your food supply.",
     icon: "🏹",
+    image: "/images/buildings/hunting_camp.png",
     maxLevel: 15,
     levels: generateLevels({ wood: 40, stone: 10 }, 12, { resource: "food", baseRate: 14, foodType: "meat" }, 15),
     requiredTier: "camp",
@@ -230,6 +235,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     description:
       "Gatherers scour the forest edges for wild berries, mushrooms, and herbs. A quick and cheap source of food.",
     icon: "🫐",
+    image: "/images/buildings/forager_hut.png",
     maxLevel: 10,
     levels: generateLevels({ wood: 30, stone: 5 }, 8, { resource: "food", baseRate: 8, foodType: "berries" }, 10),
     requiredTier: "camp",
@@ -242,6 +248,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     description:
       "A small dock on the river where fishermen cast their nets. Provides a steady supply of fish year-round.",
     icon: "🐟",
+    image: "/images/buildings/fishing_hut.png",
     maxLevel: 10,
     levels: generateLevels({ wood: 35, stone: 10 }, 10, { resource: "food", baseRate: 12, foodType: "fish" }, 10),
     requiredTier: "camp",
@@ -376,6 +383,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     description:
       "A bustling hall where brave souls gather seeking fortune. Recruit adventurers and send them on missions to bring back resources and treasure.",
     icon: "🏰",
+    image: "/images/buildings/adventurers_guild.png",
     maxLevel: 5,
     levels: [
       { level: 1, cost: { wood: 60, stone: 40 }, buildTime: 30, description: "2 mission slots, recruit Novices" },

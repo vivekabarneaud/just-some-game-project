@@ -63,11 +63,23 @@ export default function Overview() {
   const allQuestsComplete = () => questProgress() >= QUEST_CHAIN.length;
   const [dismissedCongrats, setDismissedCongrats] = createSignal(localStorage.getItem("quest-congrats-dismissed") === "true");
 
+  const TIER_IMAGES: Record<string, string> = {
+    camp: "/images/buildings/settlement_camp.png",
+    village: "/images/buildings/settlement_village.png",
+    town: "/images/buildings/settlement_town.png",
+    city: "/images/buildings/settlement_city.png",
+  };
+
   return (
     <div>
-      <h1 class="page-title">
-        {getSettlementName(tier())} of {state.villageName}
-      </h1>
+      <div class="settlement-banner">
+        <img src={TIER_IMAGES[tier()] ?? TIER_IMAGES.camp} alt={tier()} />
+        <div class="settlement-banner-overlay">
+          <h1 class="settlement-banner-title">
+            {getSettlementName(tier())} of {state.villageName}
+          </h1>
+        </div>
+      </div>
 
       {/* Quest Panel */}
       <Show when={!allQuestsComplete() && currentQuest()}>
