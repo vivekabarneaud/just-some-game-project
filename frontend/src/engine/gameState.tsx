@@ -1799,7 +1799,12 @@ export function GameProvider(props: ParentProps) {
 
   // In production, speed is always 1. In dev, player can adjust.
   const getSpeed = () => IS_DEV ? state.gameSpeed : 1;
-  const tickInterval = setInterval(() => applyTicks(TICK_INTERVAL_MS * getSpeed()), TICK_INTERVAL_MS);
+  // Use real elapsed time since lastTick, not fixed interval — handles browser throttling
+  const tickInterval = setInterval(() => {
+    const now = Date.now();
+    const elapsed = now - state.lastTick;
+    if (elapsed > 500) applyTicks(elapsed * getSpeed());
+  }, TICK_INTERVAL_MS);
 
   // Catch up when tab becomes visible again (browsers throttle background tabs)
   const handleVisibility = () => {
