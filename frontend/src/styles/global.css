@@ -276,7 +276,7 @@ body {
   left: 0;
   right: 0;
   padding: 10px 12px;
-  background: linear-gradient(transparent 0%, rgba(0, 0, 0, 0.6) 40%, rgba(0, 0, 0, 0.9) 100%);
+  background: linear-gradient(transparent 0%, rgba(0, 0, 0, 0.7) 30%, rgba(0, 0, 0, 0.95) 100%);
 }
 
 .locked-image {
@@ -345,7 +345,7 @@ body {
 .adv-card-content {
   display: flex;
   flex-direction: column;
-  padding: 12px;
+  padding: 12px 14px;
   flex: 1;
   min-width: 0;
 }
