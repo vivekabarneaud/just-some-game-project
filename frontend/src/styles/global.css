@@ -228,6 +228,10 @@ body {
   gap: 16px;
 }
 
+.buildings-grid > a {
+  display: flex;
+}
+
 .building-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -236,6 +240,9 @@ body {
   cursor: pointer;
   transition: all 0.15s;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 
 .building-card:hover {
@@ -326,6 +333,7 @@ body {
   color: var(--text-secondary);
   line-height: 1.4;
   margin-bottom: 10px;
+  flex: 1;
 }
 
 .building-card-production {
@@ -362,6 +370,36 @@ body {
   border-radius: 8px;
   padding: 24px;
   max-width: 600px;
+}
+
+.building-detail-banner {
+  position: relative;
+  height: 220px;
+  margin: -20px -20px 20px -20px;
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+}
+
+.building-detail-banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.building-detail-banner-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px 20px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+}
+
+.building-detail-banner-overlay .building-detail-title {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  color: var(--accent-gold);
 }
 
 .building-detail-header {

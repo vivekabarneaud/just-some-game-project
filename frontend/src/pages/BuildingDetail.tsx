@@ -115,19 +115,36 @@ export default function BuildingDetail() {
       <Show when={building()} fallback={<p>Building not found.</p>}>
         {(b) => (
           <div class="building-detail">
-            <div class="building-detail-header">
-              <div class="building-detail-icon">{b().icon}</div>
-              <div>
-                <div class="building-detail-title">{b().name}</div>
-                <div style={{ color: "var(--text-secondary)", "font-size": "0.85rem" }}>
-                  {!unlocked()
-                    ? getUnlockRequirement(b())
-                    : (playerBuilding()?.level ?? 0) === 0
-                      ? "Not yet built"
-                      : `Level ${playerBuilding()!.level} / ${effectiveMax()}${effectiveMax() < b().maxLevel ? ` (max ${b().maxLevel})` : ""}`}
+            <Show when={b().image}>
+              <div class="building-detail-banner">
+                <img src={b().image} alt={b().name} />
+                <div class="building-detail-banner-overlay">
+                  <div class="building-detail-title">{b().name}</div>
+                  <div style={{ color: "var(--text-secondary)", "font-size": "0.9rem" }}>
+                    {!unlocked()
+                      ? getUnlockRequirement(b())
+                      : (playerBuilding()?.level ?? 0) === 0
+                        ? "Not yet built"
+                        : `Level ${playerBuilding()!.level} / ${effectiveMax()}${effectiveMax() < b().maxLevel ? ` (max ${b().maxLevel})` : ""}`}
+                  </div>
                 </div>
               </div>
-            </div>
+            </Show>
+            <Show when={!b().image}>
+              <div class="building-detail-header">
+                <div class="building-detail-icon">{b().icon}</div>
+                <div>
+                  <div class="building-detail-title">{b().name}</div>
+                  <div style={{ color: "var(--text-secondary)", "font-size": "0.85rem" }}>
+                    {!unlocked()
+                      ? getUnlockRequirement(b())
+                      : (playerBuilding()?.level ?? 0) === 0
+                        ? "Not yet built"
+                        : `Level ${playerBuilding()!.level} / ${effectiveMax()}${effectiveMax() < b().maxLevel ? ` (max ${b().maxLevel})` : ""}`}
+                  </div>
+                </div>
+              </div>
+            </Show>
 
             <p class="building-detail-desc">{b().description}</p>
 
