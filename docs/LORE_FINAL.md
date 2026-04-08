@@ -16,7 +16,7 @@ In the beginning, seven deities shaped the world. They called themselves the Ete
 | **Solara** the Bright | Light, warmth, hope | Lit the sun and stars. Symbol of healing, comfort, and new beginnings. |
 | **Korrath** the Shield | War, protection, valor | Guarded the mountain passes. Patron of soldiers and oaths. |
 | **Lunara** the Wise | Knowledge, magic, the moon | Founded the academies. Keeper of secrets and the mysteries of the Aether. |
-| **Netheron** the Keeper | Death, transition, the boundary | Maintained the cycle of death and rebirth. Shepherd of souls between worlds. |
+| **Netheron** the Shepherd | Death, transition, the boundary | Maintained the cycle of death and rebirth. Shepherd of souls between worlds. |
 
 Six of them were worshipped, celebrated, adorned with golden temples and joyful festivals. People prayed to Ferros for strong tools. They thanked Sylvana for the harvest. They begged Korrath for victory. They sought Lunara for wisdom.
 
