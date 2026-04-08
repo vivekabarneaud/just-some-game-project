@@ -25,6 +25,7 @@ import {
   getMission,
   getMissionStatWeights,
   formatReward,
+  getCurrentStoryMission,
 } from "~/data/missions";
 import Countdown from "~/components/Countdown";
 
@@ -72,6 +73,7 @@ export default function AdventurersGuild() {
   const [selectedTeam, setSelectedTeam] = createSignal<string[]>([]);
   const [selectedSupplies, setSelectedSupplies] = createSignal<string[]>([]);
   const guildLevel = () => actions.getGuildLevel();
+  const storyMission = () => getCurrentStoryMission(guildLevel(), state.completedStoryMissions ?? []);
   const CLASS_ORDER: Record<string, number> = { warrior: 0, priest: 1, wizard: 2, archer: 3, assassin: 4 };
   const availableIds = createMemo(() =>
     state.adventurers
@@ -389,6 +391,75 @@ export default function AdventurersGuild() {
             </p>
           </Show>
           <div class="buildings-grid">
+            {/* Story mission — pinned at top */}
+            <Show when={(() => {
+              const sm = storyMission();
+              return sm && !state.activeMissions.some((am) => am.missionId === sm.id) ? sm : null;
+            })()}>
+              {(story) => {
+                const isSelected = () => selectedMission()?.id === story().id;
+                return (
+                  <div
+                    class="building-card"
+                    classList={{ upgrading: isSelected() }}
+                    onClick={() => {
+                      if (isSelected()) { setSelectedMission(null); setSelectedTeam([]); setSelectedSupplies([]); }
+                      else { setSelectedMission(story()); setSelectedTeam([]); setSelectedSupplies([]); }
+                    }}
+                    style={{
+                      cursor: "pointer",
+                      border: "1px solid var(--accent-gold)",
+                      background: "rgba(245, 197, 66, 0.05)",
+                    }}
+                  >
+                    <span class="building-card-category" style={{ color: "var(--accent-gold)" }}>
+                      Story Mission · {story().chapter}
+                    </span>
+                    <Show when={story().image}>
+                      <div style={{
+                        "margin-top": "8px",
+                        "border-radius": "6px",
+                        overflow: "hidden",
+                        "max-height": "120px",
+                      }}>
+                        <img
+                          src={story().image}
+                          alt={story().name}
+                          style={{ width: "100%", height: "120px", "object-fit": "cover", "object-position": "center 30%", display: "block" }}
+                        />
+                      </div>
+                    </Show>
+                    <div class="building-card-header" style={{ "margin-top": "8px" }}>
+                      <div class="building-card-icon">{story().icon}</div>
+                      <div>
+                        <div class="building-card-title" style={{ color: "var(--accent-gold)" }}>{story().name}</div>
+                        <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
+                          {formatDuration(story().duration)} · {story().deployCost}g deploy cost
+                        </div>
+                      </div>
+                    </div>
+                    <div class="building-card-desc" style={{ "font-style": "italic" }}>{story().description}</div>
+                    <div style={{ display: "flex", gap: "6px", "margin-top": "8px", "flex-wrap": "wrap" }}>
+                      <For each={story().slots}>
+                        {(slot) => (
+                          <span style={{
+                            padding: "2px 8px",
+                            background: "var(--bg-secondary)",
+                            "border-radius": "4px",
+                            "font-size": "0.8rem",
+                          }}>
+                            {slotIcon(slot)} {slotLabel(slot)}
+                          </span>
+                        )}
+                      </For>
+                    </div>
+                    <div style={{ "margin-top": "8px", "font-size": "0.8rem", color: "var(--accent-green)" }}>
+                      Rewards: {story().rewards.map((r) => formatReward(r)).join(", ")}
+                    </div>
+                  </div>
+                );
+              }}
+            </Show>
             <For each={state.missionBoard}>
               {(mission) => {
                 const isSelected = () => selectedMission()?.id === mission.id;

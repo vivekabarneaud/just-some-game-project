@@ -285,4 +285,6 @@ export interface GameState {
   // Quest system
   questRewardsClaimed: string[];
   firstMissionSent: boolean;
+  // Story missions
+  completedStoryMissions: string[];
 }

@@ -794,7 +794,56 @@ export function getMissionBoardSize(guildLevel: number): number {
   return Math.min(4 + guildLevel, 10); // 5 at Lv1, up to 10
 }
 
-/** Get a mission template by ID */
+/** Get a mission template by ID (searches both regular and story pools) */
 export function getMission(missionId: string): MissionTemplate | undefined {
-  return MISSION_POOL.find((m) => m.id === missionId);
+  return MISSION_POOL.find((m) => m.id === missionId)
+    ?? STORY_MISSIONS.find((m) => m.id === missionId);
+}
+
+// ─── Story missions ─────────────────────────────────────────────
+
+export interface StoryMission extends MissionTemplate {
+  storyOrder: number;
+  prerequisite?: string; // ID of previous story mission that must be completed
+  lore: string; // lore text revealed on completion
+  chapter: string;
+}
+
+export const STORY_MISSIONS: StoryMission[] = [
+  {
+    id: "story_1_scouting",
+    storyOrder: 1,
+    chapter: "Chapter 1: Ashes and Dust",
+    name: "Scouting the Surroundings",
+    description:
+      "Time to find out what's around us. Send scouts to map the area — water sources, game trails, anything useful. And anything dangerous.",
+    icon: "🗺️",
+    image: "/images/missions/story_1_scouting.png",
+    slots: [{ class: "any" }],
+    duration: 900, // 15 min
+    rewards: [
+      { resource: "gold", amount: 50 },
+      { resource: "wood", amount: 50 },
+    ],
+    deployCost: 5,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["exploration", "outdoor"],
+    lore: "Your scouts return with a rough map and one unexpected finding: about a day's march south, on a hilltop, there are ruins. Stone foundations, a collapsed well, and a tower still partially standing. Whoever was here before you, they were organized. Military, maybe. And they left.",
+  },
+];
+
+/** Get the current story mission available to the player, or null */
+export function getCurrentStoryMission(
+  guildLevel: number,
+  completedStoryMissions: string[],
+): StoryMission | null {
+  const completed = new Set(completedStoryMissions);
+  for (const m of STORY_MISSIONS) {
+    if (completed.has(m.id)) continue;
+    if (m.minGuildLevel > guildLevel) return null;
+    if (m.prerequisite && !completed.has(m.prerequisite)) return null;
+    return m;
+  }
+  return null;
 }

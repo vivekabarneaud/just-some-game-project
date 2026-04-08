@@ -116,6 +116,7 @@ import {
   calcAssassinFailRewards,
   PRIEST_REVIVE_CHANCE,
   formatReward,
+  STORY_MISSIONS,
 } from "~/data/missions";
 import {
   getMissionXp,
@@ -548,6 +549,8 @@ export interface GameState {
   // Quest system
   questRewardsClaimed: string[];
   firstMissionSent: boolean;
+  // Story missions
+  completedStoryMissions: string[];
 }
 
 export interface FoodSource {
@@ -725,6 +728,7 @@ function createInitialState(): GameState {
     lastRerollReset: Date.now(),
     questRewardsClaimed: [],
     firstMissionSent: false,
+    completedStoryMissions: [],
   };
 }
 
@@ -855,6 +859,7 @@ function loadGame(): GameState | null {
     // Quest system migration
     if (!saved.questRewardsClaimed) saved.questRewardsClaimed = [];
     if (saved.firstMissionSent === undefined) saved.firstMissionSent = false;
+    if (!saved.completedStoryMissions) saved.completedStoryMissions = [];
     // Migrate adventurers missing xp/level fields
     for (const adv of saved.adventurers) {
       if ((adv as any).level === undefined) { (adv as any).level = 1; (adv as any).xp = 0; }
@@ -1224,6 +1229,7 @@ export function GameProvider(props: ParentProps) {
         // Migrate missing fields for old saves
         if (!serverState.questRewardsClaimed) serverState.questRewardsClaimed = [];
         if (serverState.firstMissionSent === undefined) serverState.firstMissionSent = false;
+        if (!serverState.completedStoryMissions) serverState.completedStoryMissions = [];
         // Re-apply leveling in case XP curve changed
         for (const adv of serverState.adventurers ?? []) {
           applyXp(adv, 0);
@@ -1792,6 +1798,13 @@ export function GameProvider(props: ParentProps) {
               for (const id of casualties) {
                 const deadAdv = team.find((a) => a.id === id);
                 if (deadAdv) pushEvent(s, "adventurer_died", "⚰️", `${deadAdv.name} fell on mission "${missionName}"`);
+              }
+
+              // Mark story mission as completed on success
+              if (success && STORY_MISSIONS.some((sm) => sm.id === am.missionId)) {
+                if (!s.completedStoryMissions.includes(am.missionId)) {
+                  s.completedStoryMissions.push(am.missionId);
+                }
               }
 
               // Record result
