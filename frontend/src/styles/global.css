@@ -641,49 +641,28 @@ body {
 }
 
 /* Overview page */
-.overview-page {
+.settlement-banner {
   position: relative;
-  min-height: calc(100vh - var(--topbar-height) - 48px);
+  height: 180px;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 20px;
 }
 
-.overview-bg {
-  position: fixed;
-  top: 0;
-  left: var(--sidebar-width);
-  right: 0;
-  bottom: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.overview-bg img {
+.settlement-banner img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center top;
-  opacity: 0.4;
+  display: block;
 }
 
-.overview-bg-overlay {
+.settlement-banner-overlay {
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(26, 26, 46, 0.1) 0%,
-    rgba(26, 26, 46, 0.3) 15%,
-    rgba(26, 26, 46, 0.7) 35%,
-    rgba(26, 26, 46, 0.92) 55%,
-    rgba(26, 26, 46, 0.98) 100%
-  );
-}
-
-.overview-content {
-  position: relative;
-  z-index: 1;
-  padding-top: 120px;
+  padding: 20px 24px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
 }
 
 .settlement-banner-title {
@@ -701,9 +680,7 @@ body {
 }
 
 .overview-panel {
-  background: rgba(30, 42, 69, 0.85);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: var(--bg-panel);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 20px;

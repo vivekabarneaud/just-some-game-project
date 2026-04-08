@@ -170,8 +170,8 @@ export default function Buildings() {
                         classList={{ upgrading: isUpgrading(), "quest-target": isQuestTarget() }}
                         style={{ opacity: pb()?.damaged ? 0.7 : 1, position: "relative" }}
                       >
-                        {/* Upgrade indicator with tooltip (only for non-image cards) */}
-                        <Show when={!isUpgrading() && !building.image && building.id !== "town_hall"}>
+                        {/* Upgrade indicator with tooltip */}
+                        <Show when={!isUpgrading()}>
                           <div
                             class="upgrade-indicator"
                             style={{
@@ -239,28 +239,9 @@ export default function Buildings() {
                           <div class="building-card-image">
                             <img src={building.id === "town_hall" ? (TIER_IMAGES[actions.getSettlementTier()] ?? TIER_IMAGES.camp) : building.image!} alt={building.name} loading="lazy" />
                             <div class="building-card-image-overlay">
-                              <div style={{ display: "flex", "justify-content": "space-between", "align-items": "center" }}>
-                                <div>
-                                  <div class="building-card-title">{building.name}</div>
-                                  <div class="building-card-level" classList={{ "not-built": level() === 0 }}>
-                                    {level() === 0 ? "Not built" : `Level ${level()} / ${effMax()}`}
-                                  </div>
-                                </div>
-                                <Show when={!isUpgrading() && nextLevelDef()}>
-                                  <button
-                                    class="card-upgrade-btn"
-                                    classList={{ affordable: canUpgradeNow() }}
-                                    onClick={(e) => {
-                                      if (canUpgradeNow()) {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        actions.upgradeBuilding(building.id);
-                                      }
-                                    }}
-                                  >
-                                    {level() === 0 ? "Build" : "Upgrade"} · {upgradeCostTip()}
-                                  </button>
-                                </Show>
+                              <div class="building-card-title">{building.name}</div>
+                              <div class="building-card-level" classList={{ "not-built": level() === 0 }}>
+                                {level() === 0 ? "Not built" : `Level ${level()} / ${effMax()}`}
                               </div>
                             </div>
                           </div>
