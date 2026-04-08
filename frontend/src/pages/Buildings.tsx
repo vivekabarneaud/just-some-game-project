@@ -176,8 +176,9 @@ export default function Buildings() {
                             class="upgrade-indicator"
                             style={{
                               position: "absolute",
-                              top: "8px",
-                              right: "8px",
+                              ...(building.image || building.id === "town_hall"
+                                ? { bottom: "8px", right: "8px" }
+                                : { top: "8px", right: "8px" }),
                               "z-index": "5",
                             }}
                             onClick={(e) => {
