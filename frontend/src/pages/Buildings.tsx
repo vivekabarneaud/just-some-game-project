@@ -170,8 +170,8 @@ export default function Buildings() {
                         classList={{ upgrading: isUpgrading(), "quest-target": isQuestTarget() }}
                         style={{ opacity: pb()?.damaged ? 0.7 : 1, position: "relative" }}
                       >
-                        {/* Upgrade indicator with tooltip */}
-                        <Show when={!isUpgrading()}>
+                        {/* Upgrade indicator with tooltip (non-image cards only) */}
+                        <Show when={!isUpgrading() && !building.image && building.id !== "town_hall"}>
                           <div
                             class="upgrade-indicator"
                             style={{
@@ -239,11 +239,71 @@ export default function Buildings() {
                         <Show when={building.image || building.id === "town_hall"}>
                           <div class="building-card-image">
                             <img src={building.id === "town_hall" ? (TIER_IMAGES[actions.getSettlementTier()] ?? TIER_IMAGES.camp) : building.image!} alt={building.name} loading="lazy" />
-                            <div class="building-card-image-overlay">
-                              <div class="building-card-title">{building.name}</div>
-                              <div class="building-card-level" classList={{ "not-built": level() === 0 }}>
-                                {level() === 0 ? "Not built" : `Level ${level()} / ${effMax()}`}
+                            <div class="building-card-image-overlay" style={{ display: "flex", "justify-content": "space-between", "align-items": "flex-end" }}>
+                              <div>
+                                <div class="building-card-title">{building.name}</div>
+                                <div class="building-card-level" classList={{ "not-built": level() === 0 }}>
+                                  {level() === 0 ? "Not built" : `Level ${level()} / ${effMax()}`}
+                                </div>
                               </div>
+                              <Show when={!isUpgrading() && nextLevelDef()}>
+                                <div
+                                  class="upgrade-indicator"
+                                  style={{ position: "relative", top: "auto", right: "auto", "z-index": "5" }}
+                                  onClick={(e) => {
+                                    if (canUpgradeNow()) {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      actions.upgradeBuilding(building.id);
+                                    }
+                                  }}
+                                >
+                                  <div style={{
+                                    width: "22px",
+                                    height: "22px",
+                                    "border-radius": "4px",
+                                    display: "flex",
+                                    "align-items": "center",
+                                    "justify-content": "center",
+                                    "font-size": "0.75rem",
+                                    background: canUpgradeNow() ? "rgba(46, 204, 113, 0.3)" : "rgba(106, 100, 88, 0.3)",
+                                    border: `1px solid ${canUpgradeNow() ? "var(--accent-green)" : "var(--text-muted)"}`,
+                                    color: canUpgradeNow() ? "var(--accent-green)" : "var(--text-muted)",
+                                    cursor: canUpgradeNow() ? "pointer" : "default",
+                                  }}>
+                                    {level() === 0 ? "+" : "↑"}
+                                  </div>
+                                  <div class="upgrade-tooltip" style={{
+                                    position: "absolute",
+                                    right: 0,
+                                    bottom: "28px",
+                                    "min-width": "160px",
+                                    padding: "6px 10px",
+                                    background: "var(--bg-panel)",
+                                    border: `1px solid ${canUpgradeNow() ? "var(--accent-green)" : "var(--border-default)"}`,
+                                    "border-radius": "6px",
+                                    "font-size": "0.75rem",
+                                    color: "var(--text-secondary)",
+                                    "z-index": 10,
+                                    display: "none",
+                                    "box-shadow": "0 4px 12px rgba(0,0,0,0.3)",
+                                    "white-space": "nowrap",
+                                  }}>
+                                    <Show when={canUpgradeNow()}>
+                                      <div style={{ color: "var(--accent-green)", "font-weight": "bold", "margin-bottom": "2px" }}>
+                                        {level() === 0 ? "Build" : `Upgrade to Lv.${level() + 1}`}
+                                      </div>
+                                      <div>{upgradeCostTip()}</div>
+                                    </Show>
+                                    <Show when={!canUpgradeNow()}>
+                                      <div style={{ color: "var(--accent-gold)" }}>{upgradeReasonFull()}</div>
+                                      <Show when={nextLevelDef()}>
+                                        <div style={{ "margin-top": "2px" }}>{upgradeCostTip()}</div>
+                                      </Show>
+                                    </Show>
+                                  </div>
+                                </div>
+                              </Show>
                             </div>
                           </div>
                         </Show>
