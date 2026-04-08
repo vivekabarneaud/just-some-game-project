@@ -57,6 +57,44 @@ export const SETTLEMENT_TIERS: { tier: SettlementTier; name: string; minTownHall
   { tier: "city", name: "City", minTownHall: 7 },
 ];
 
+// Prerequisites for upgrading Town Hall to the level that triggers a tier change
+// Key = the TH level that triggers the new tier
+export interface TierPrerequisite {
+  buildingId: string;
+  minLevel: number;
+  label: string;
+}
+
+export const TIER_UPGRADE_PREREQUISITES: Record<number, TierPrerequisite[]> = {
+  // TH lvl 3 = village: need houses lvl 2 + woodworker lvl 1
+  3: [
+    { buildingId: "houses", minLevel: 2, label: "Houses Lv.2" },
+    { buildingId: "woodworker", minLevel: 1, label: "Woodworker" },
+  ],
+  // TH lvl 5 = town: need houses lvl 6 + tailoring shop lvl 1
+  5: [
+    { buildingId: "houses", minLevel: 6, label: "Houses Lv.6" },
+    { buildingId: "tailoring_shop", minLevel: 1, label: "Tailoring Shop" },
+  ],
+  // TH lvl 7 = city: need houses lvl 10 + blacksmith lvl 1 + alchemy lab lvl 1
+  7: [
+    { buildingId: "houses", minLevel: 10, label: "Houses Lv.10" },
+    { buildingId: "blacksmith", minLevel: 1, label: "Blacksmith" },
+    { buildingId: "alchemy_lab", minLevel: 1, label: "Alchemy Lab" },
+  ],
+};
+
+export function getTierPrerequisitesMet(targetTHLevel: number, buildings: PlayerBuilding[]): { met: boolean; missing: string[] } {
+  const prereqs = TIER_UPGRADE_PREREQUISITES[targetTHLevel];
+  if (!prereqs) return { met: true, missing: [] };
+  const missing: string[] = [];
+  for (const p of prereqs) {
+    const b = buildings.find((b) => b.buildingId === p.buildingId);
+    if (!b || b.level < p.minLevel) missing.push(p.label);
+  }
+  return { met: missing.length === 0, missing };
+}
+
 export function getSettlementTier(townHallLevel: number): SettlementTier {
   if (townHallLevel >= 7) return "city";
   if (townHallLevel >= 5) return "town";

@@ -50,6 +50,7 @@ import {
   applyMasonCostReduction,
   applyMasonTimeReduction,
   type MasonBonuses,
+  getTierPrerequisitesMet,
 } from "~/data/buildings";
 import {
   type CropId,
@@ -1902,6 +1903,12 @@ export function GameProvider(props: ParentProps) {
       const tier = getSettlementTier(getTownHallLevel(state.buildings));
       const effectiveMax = getEffectiveMaxLevel(def, tier);
       if (pb.level >= effectiveMax) return false;
+
+      // Check tier upgrade prerequisites for Town Hall
+      if (buildingId === "town_hall") {
+        const { met } = getTierPrerequisitesMet(pb.level + 1, state.buildings);
+        if (!met) return false;
+      }
 
       const levelDef = def.levels[pb.level];
       if (!levelDef) return false;
