@@ -15,7 +15,6 @@ import {
   type PlayerBuilding,
   type SettlementTier,
   BASE_POPULATION,
-  HOUSES_POP_PER_LEVEL,
   FOOD_PER_CITIZEN_PER_HOUR,
   BASE_MATERIAL_STORAGE,
   MATERIAL_STORAGE_PER_WAREHOUSE_LEVEL,
@@ -738,7 +737,7 @@ function loadGame(): GameState | null {
     if ("mana" in saved.resources) delete (saved.resources as any)["mana"];
     if (saved.population === undefined) {
       const houses = saved.buildings.find((b) => b.buildingId === "houses");
-      saved.population = BASE_POPULATION + (houses?.level ?? 0) * HOUSES_POP_PER_LEVEL;
+      saved.population = BASE_POPULATION + (HOUSING_POP[houses?.level ?? 0] ?? 0);
     }
     if (!saved.fields) saved.fields = [];
     if (!saved.gardens) saved.gardens = [];
@@ -978,9 +977,35 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
   return sources;
 }
 
+// Population per housing level — escalates with tier progression
+const HOUSING_POP: number[] = [
+  0,    // lvl 0: no houses
+  5,    // lvl 1: camp — small shelters
+  10,   // lvl 2: camp
+  18,   // lvl 3: village — proper cottages
+  28,   // lvl 4: village
+  40,   // lvl 5: village
+  55,   // lvl 6: village
+  75,   // lvl 7: town — multi-family housing
+  100,  // lvl 8: town
+  130,  // lvl 9: town
+  170,  // lvl 10: town
+  220,  // lvl 11: city — dense housing blocks
+  280,  // lvl 12: city
+  350,  // lvl 13: city
+  440,  // lvl 14: city
+  550,  // lvl 15: city
+  700,  // lvl 16: city
+  880,  // lvl 17: city
+  1100, // lvl 18: city
+  1400, // lvl 19: city
+  1800, // lvl 20: city — metropolis
+];
+
 function calcMaxPopulation(buildings: PlayerBuilding[]): number {
   const houses = buildings.find((b) => b.buildingId === "houses");
-  return BASE_POPULATION + (houses?.level ?? 0) * HOUSES_POP_PER_LEVEL;
+  const level = houses?.level ?? 0;
+  return BASE_POPULATION + (HOUSING_POP[level] ?? 0);
 }
 
 function calcFoodConsumption(population: number): number {
@@ -1018,8 +1043,8 @@ function calcBuildingEffect(buildingId: string, nextLevel: number): string | nul
       return `Food storage: ${cur.toLocaleString()} → ${next.toLocaleString()}`;
     }
     case "houses": {
-      const cur = BASE_POPULATION + Math.max(0, currentLevel) * HOUSES_POP_PER_LEVEL;
-      const next = BASE_POPULATION + nextLevel * HOUSES_POP_PER_LEVEL;
+      const cur = BASE_POPULATION + (HOUSING_POP[Math.max(0, currentLevel)] ?? 0);
+      const next = BASE_POPULATION + (HOUSING_POP[nextLevel] ?? 0);
       return `Max population: ${cur} → ${next}`;
     }
     case "town_hall": {
