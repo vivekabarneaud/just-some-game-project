@@ -1124,23 +1124,50 @@ body {
 }
 
 .mission-assembly.has-bg {
+  grid-template-columns: 1fr;
   background: transparent;
   border-color: var(--accent-gold);
+  min-height: 340px;
+  align-content: end;
 }
 
 .mission-assembly.has-bg .mission-detail-panel {
-  background: rgba(26, 26, 46, 0.75);
+  background: rgba(26, 26, 46, 0.8);
   border-radius: 8px;
-  padding: 16px;
+  padding: 14px 16px;
   border-right: none;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
 }
 
 .mission-assembly.has-bg .team-panel {
-  background: rgba(26, 26, 46, 0.75);
+  background: rgba(26, 26, 46, 0.8);
   border-radius: 8px;
-  padding: 16px;
-  backdrop-filter: blur(4px);
+  padding: 14px 16px;
+  backdrop-filter: blur(6px);
+}
+
+/* Square team slots */
+.mission-slot-square {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 2px dashed var(--border-color);
+  background: rgba(0, 0, 0, 0.3);
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.mission-slot-square.filled {
+  border-style: solid;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.mission-slot-square.filled:hover {
+  opacity: 0.8;
 }
 
 .mission-detail-panel {
