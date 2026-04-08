@@ -102,15 +102,23 @@ export interface Adventurer {
   onMission: boolean;
   bonusStats: Partial<AdventurerStats>;
   equipment: {
-    weapon: string | null;
-    armor: string | null;
+    head: string | null;
+    chest: string | null;
+    legs: string | null;
+    boots: string | null;
+    cloak: string | null;
+    mainHand: string | null;
+    offHand: string | null;
+    ring1: string | null;
+    ring2: string | null;
+    amulet: string | null;
     trinket: string | null;
   };
 }
 
 // ─── Items ──────────────────────────────────────────────────────
 
-export type ItemSlot = "weapon" | "armor" | "trinket";
+export type ItemSlot = "head" | "chest" | "legs" | "boots" | "cloak" | "mainHand" | "offHand" | "ring1" | "ring2" | "amulet" | "trinket";
 
 export interface InventoryItem {
   itemId: string;

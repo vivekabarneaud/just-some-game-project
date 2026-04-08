@@ -88,8 +88,16 @@ export interface Adventurer {
   onMission: boolean; // true while deployed
   bonusStats: Partial<AdventurerStats>; // player-allocated stat points
   equipment: {
-    weapon: string | null;
-    armor: string | null;
+    head: string | null;
+    chest: string | null;
+    legs: string | null;
+    boots: string | null;
+    cloak: string | null;
+    mainHand: string | null;
+    offHand: string | null;
+    ring1: string | null;
+    ring2: string | null;
+    amulet: string | null;
     trinket: string | null;
   };
 }
@@ -123,15 +131,15 @@ export const CLASS_BASE_STATS: Record<AdventurerClass, AdventurerStats> = {
 };
 
 export const CLASS_STAT_GROWTH: Record<AdventurerClass, AdventurerStats> = {
-  warrior: { str: 3, int: 0.5, dex: 1, vit: 2.5, wis: 0.5 },
-  wizard:  { str: 0.5, int: 3.5, dex: 0.5, vit: 1, wis: 2 },
-  priest:  { str: 0.5, int: 2.5, dex: 0.5, vit: 2, wis: 2 },
-  archer:  { str: 1, int: 1, dex: 3, vit: 1.5, wis: 0.5 },
-  assassin:{ str: 2, int: 1, dex: 3, vit: 1, wis: 0.5 },
+  warrior: { str: 6, int: 1, dex: 2, vit: 5, wis: 1 },
+  wizard:  { str: 1, int: 7, dex: 1, vit: 2, wis: 4 },
+  priest:  { str: 1, int: 5, dex: 1, vit: 4, wis: 4 },
+  archer:  { str: 2, int: 2, dex: 6, vit: 3, wis: 1 },
+  assassin:{ str: 4, int: 2, dex: 6, vit: 2, wis: 1 },
 };
 
 /** Stat points gained per level that player can allocate */
-export const STAT_POINTS_PER_LEVEL = 1;
+export const STAT_POINTS_PER_LEVEL = 0; // No manual stat allocation — gear is the main customization
 
 /** Calculate total stats for an adventurer (base + growth + bonus + equipment) */
 export function calcStats(adv: Adventurer, equipmentStats?: Partial<AdventurerStats>): AdventurerStats {
@@ -324,7 +332,7 @@ export function generateCandidate(id: string, maxRank: AdventurerRank = 2): Adve
     alive: true,
     onMission: false,
     bonusStats: {},
-    equipment: { weapon: null, armor: null, trinket: null },
+    equipment: { head: null, chest: null, legs: null, boots: null, cloak: null, mainHand: null, offHand: null, ring1: null, ring2: null, amulet: null, trinket: null },
   };
 }
 

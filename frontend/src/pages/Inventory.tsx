@@ -9,9 +9,9 @@ export default function Inventory() {
 
   // Count equipped items across all adventurers
   const equippedCount = (itemId: string) =>
-    state.adventurers.filter((a) => a.alive && (
-      a.equipment.weapon === itemId || a.equipment.armor === itemId || a.equipment.trinket === itemId
-    )).length;
+    state.adventurers.filter((a) => a.alive &&
+      Object.values(a.equipment).some((id) => id === itemId)
+    ).length;
 
   return (
     <div>

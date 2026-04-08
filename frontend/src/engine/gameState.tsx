@@ -783,15 +783,22 @@ function loadGame(): GameState | null {
     if (saved.gems === undefined) saved.gems = 0;
     if (saved.ironMinedTotal === undefined) saved.ironMinedTotal = 0;
     if (!saved.inventory) saved.inventory = [];
-    // Equipment & stats migration for adventurers
-    for (const adv of saved.adventurers) {
-      if (!(adv as any).equipment) (adv as any).equipment = { weapon: null, armor: null, trinket: null };
-      if (!(adv as any).bonusStats) (adv as any).bonusStats = {};
-    }
-    for (const adv of saved.recruitCandidates) {
-      if (!(adv as any).equipment) (adv as any).equipment = { weapon: null, armor: null, trinket: null };
-      if (!(adv as any).bonusStats) (adv as any).bonusStats = {};
-    }
+    // Equipment migration: old 3-slot → new 11-slot
+    const migrateEquipment = (adv: any) => {
+      if (!adv.equipment) {
+        adv.equipment = { head: null, chest: null, legs: null, boots: null, cloak: null, mainHand: null, offHand: null, ring1: null, ring2: null, amulet: null, trinket: null };
+      } else if (adv.equipment.weapon !== undefined || adv.equipment.armor !== undefined) {
+        // Old format — migrate
+        adv.equipment = {
+          head: null, chest: adv.equipment.armor ?? null, legs: null, boots: null,
+          cloak: null, mainHand: adv.equipment.weapon ?? null, offHand: null,
+          ring1: null, ring2: null, amulet: null, trinket: adv.equipment.trinket ?? null,
+        };
+      }
+      if (!adv.bonusStats) adv.bonusStats = {};
+    };
+    for (const adv of saved.adventurers) migrateEquipment(adv);
+    for (const adv of saved.recruitCandidates) migrateEquipment(adv);
     if (!saved.craftingQueue) saved.craftingQueue = [];
     // Event log migration
     if (!saved.eventLog) saved.eventLog = [];
@@ -1186,6 +1193,21 @@ export function GameProvider(props: ParentProps) {
           if (num > maxId) maxId = num;
         }
         idCounter = maxId + 1;
+        // Equipment migration: old 3-slot → new 11-slot
+        const migrateEq = (adv: any) => {
+          if (adv.equipment?.weapon !== undefined || adv.equipment?.armor !== undefined) {
+            adv.equipment = {
+              head: null, chest: adv.equipment.armor ?? null, legs: null, boots: null,
+              cloak: null, mainHand: adv.equipment.weapon ?? null, offHand: null,
+              ring1: null, ring2: null, amulet: null, trinket: adv.equipment.trinket ?? null,
+            };
+          } else if (!adv.equipment?.head && adv.equipment?.head !== null) {
+            adv.equipment = { head: null, chest: null, legs: null, boots: null, cloak: null, mainHand: null, offHand: null, ring1: null, ring2: null, amulet: null, trinket: null };
+          }
+        };
+        for (const adv of serverState.adventurers ?? []) migrateEq(adv);
+        for (const adv of serverState.recruitCandidates ?? []) migrateEq(adv);
+
         // Rename chapel → shrine for old saves
         for (const b of serverState.buildings ?? []) {
           if (b.buildingId === "chapel") b.buildingId = "shrine";
@@ -1624,7 +1646,7 @@ export function GameProvider(props: ParentProps) {
                   if (advInState) {
                     advInState.alive = false;
                     // Equipment lost on death
-                    advInState.equipment = { weapon: null, armor: null, trinket: null };
+                    advInState.equipment = { head: null, chest: null, legs: null, boots: null, cloak: null, mainHand: null, offHand: null, ring1: null, ring2: null, amulet: null, trinket: null };
                   }
                 }
               }
@@ -2160,7 +2182,7 @@ export function GameProvider(props: ParentProps) {
 
       // Apply equipment duration/loot mods
       for (const adv of team) {
-        for (const slot of ["weapon", "armor", "trinket"] as const) {
+        for (const slot of ["head", "chest", "legs", "boots", "cloak", "mainHand", "offHand", "ring1", "ring2", "amulet", "trinket"] as const) {
           const itemId = adv.equipment[slot];
           if (itemId) {
             const itemDef = getItem(itemId);
@@ -2308,6 +2330,25 @@ export function GameProvider(props: ParentProps) {
         }
         // Equip new item
         a.equipment[itemDef.slot] = itemId;
+        // 2H weapon clears offHand
+        if (itemDef.slot === "mainHand" && itemDef.twoHanded && a.equipment.offHand) {
+          const offId = a.equipment.offHand;
+          a.equipment.offHand = null;
+          const offInv = s.inventory.find((i) => i.itemId === offId);
+          if (offInv) offInv.quantity += 1;
+          else s.inventory.push({ itemId: offId, quantity: 1 });
+        }
+        // Equipping offHand clears 2H mainHand
+        if (itemDef.slot === "offHand" && a.equipment.mainHand) {
+          const mainItem = getItem(a.equipment.mainHand);
+          if (mainItem?.twoHanded) {
+            const mainId = a.equipment.mainHand;
+            a.equipment.mainHand = null;
+            const mainInv = s.inventory.find((i) => i.itemId === mainId);
+            if (mainInv) mainInv.quantity += 1;
+            else s.inventory.push({ itemId: mainId, quantity: 1 });
+          }
+        }
         const newInv = s.inventory.find((i) => i.itemId === itemId)!;
         newInv.quantity -= 1;
       }));

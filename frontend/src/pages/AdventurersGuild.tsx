@@ -589,13 +589,15 @@ export default function AdventurersGuild() {
                                         </div>
                                         {isInTeam() && <span class="team-adv-check">✓</span>}
                                       </div>
-                                      <Show when={adv().equipment.weapon || adv().equipment.armor || adv().equipment.trinket}>
-                                        <div class="team-adv-gear">
-                                          {adv().equipment.weapon && <span title={getItem(adv().equipment.weapon!)?.name}>{getItem(adv().equipment.weapon!)?.icon}</span>}
-                                          {adv().equipment.armor && <span title={getItem(adv().equipment.armor!)?.name}>{getItem(adv().equipment.armor!)?.icon}</span>}
-                                          {adv().equipment.trinket && <span title={getItem(adv().equipment.trinket!)?.name}>{getItem(adv().equipment.trinket!)?.icon}</span>}
-                                        </div>
-                                      </Show>
+                                      {(() => {
+                                        const eq = adv().equipment;
+                                        const equipped = [eq.mainHand, eq.offHand, eq.head, eq.chest, eq.legs, eq.boots, eq.cloak, eq.trinket].filter(Boolean);
+                                        return equipped.length > 0 ? (
+                                          <div class="team-adv-gear">
+                                            {equipped.map((id) => { const item = getItem(id!); return item ? <span title={item.name}>{item.icon}</span> : null; })}
+                                          </div>
+                                        ) : null;
+                                      })()}
                                       {isInTeam() && (
                                         <div class="team-adv-risk">
                                           <DeathRisk chance={getAdvDeathRisk(adv())} />
@@ -755,10 +757,15 @@ export default function AdventurersGuild() {
                     <For each={classAdvs()}>
               {(adv) => {
                 const cls = getClassMeta(adv.class);
-                const weapon = () => adv.equipment.weapon ? getItem(adv.equipment.weapon) : null;
-                const armor = () => adv.equipment.armor ? getItem(adv.equipment.armor) : null;
-                const trinket = () => adv.equipment.trinket ? getItem(adv.equipment.trinket) : null;
-                const emptySlots = () => [!weapon() && "weapon", !armor() && "armor", !trinket() && "trinket"].filter(Boolean);
+                const equippedItems = () => {
+                  const eq = adv.equipment;
+                  return [eq.mainHand, eq.offHand, eq.head, eq.chest, eq.legs, eq.boots, eq.cloak, eq.trinket]
+                    .filter(Boolean)
+                    .map((id) => getItem(id!))
+                    .filter(Boolean);
+                };
+                const totalSlots = 11;
+                const emptySlotCount = () => totalSlots - Object.values(adv.equipment).filter(Boolean).length;
                 const unspent = () => getUnspentStatPoints(adv);
                 return (
                   <A href={`/guild/${adv.id}`} style={{ "text-decoration": "none", display: "flex" }}>
@@ -784,29 +791,13 @@ export default function AdventurersGuild() {
                         <XpBar xp={adv.xp} level={adv.level} />
                         <div style={{ flex: 1 }} />
                         <div style={{ "margin-top": "6px", "font-size": "0.75rem", display: "flex", gap: "6px", "flex-wrap": "wrap" }}>
-                          {weapon() && <span title={weapon()!.name}>{weapon()!.icon}</span>}
-                          {armor() && <span title={armor()!.name}>{armor()!.icon}</span>}
-                          {trinket() && <span title={trinket()!.name}>{trinket()!.icon}</span>}
-                          {emptySlots().length > 0 && (
+                          {equippedItems().map((item) => <span title={item!.name}>{item!.icon}</span>)}
+                          {emptySlotCount() > 0 && (
                             <span style={{ color: "var(--accent-gold)", "font-size": "0.7rem" }}>
-                              {emptySlots().length} empty gear slot{emptySlots().length > 1 ? "s" : ""}
+                              {emptySlotCount()} empty gear slot{emptySlotCount() > 1 ? "s" : ""}
                             </span>
                           )}
                         </div>
-                        {unspent() > 0 && (
-                          <div style={{
-                            "margin-top": "6px",
-                            padding: "3px 8px",
-                            "border-radius": "4px",
-                            background: "rgba(46, 204, 113, 0.15)",
-                            border: "1px solid var(--accent-green)",
-                            color: "var(--accent-green)",
-                            "font-size": "0.75rem",
-                            animation: "pulse 2s infinite",
-                          }}>
-                            {unspent()} stat point{unspent() > 1 ? "s" : ""} available!
-                          </div>
-                        )}
                         {adv.onMission && (
                           <div style={{
                             "margin-top": "6px",

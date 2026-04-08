@@ -1,6 +1,6 @@
 // ─── Item system ────────────────────────────────────────────────
 
-export type ItemSlot = "weapon" | "armor" | "trinket";
+export type ItemSlot = "head" | "chest" | "legs" | "boots" | "cloak" | "mainHand" | "offHand" | "ring1" | "ring2" | "amulet" | "trinket";
 
 import type { AdventurerClass, AdventurerStats } from "./adventurers";
 
@@ -22,19 +22,25 @@ export interface ItemDefinition {
   recipeId: string;
   /** Consumable = destroyed after one mission (potions) */
   consumable: boolean;
+  /** Two-handed weapon — equipping clears offHand */
+  twoHanded?: boolean;
+  /** Minimum level to equip */
+  levelReq?: number;
+  /** Minimum stat to equip */
+  statReq?: { stat: keyof AdventurerStats; value: number };
 }
 
 export const ITEMS: ItemDefinition[] = [
   // ── Swords (Blacksmith) — warrior, assassin ───────────────────
   {
-    id: "iron_sword", name: "Iron Sword", icon: "⚔️", slot: "weapon",
+    id: "iron_sword", name: "Iron Sword", icon: "⚔️", slot: "mainHand",
     description: "+1 STR",
     classes: ["warrior", "assassin"],
     stats: { str: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "iron_sword", consumable: false,
   },
   {
-    id: "steel_sword", name: "Steel Sword", icon: "🗡️", slot: "weapon",
+    id: "steel_sword", name: "Steel Sword", icon: "🗡️", slot: "mainHand",
     description: "+3 STR, +1 DEX",
     classes: ["warrior", "assassin"],
     stats: { str: 3, dex: 1 }, durationMod: 1, lootMod: 1.05,
@@ -43,15 +49,15 @@ export const ITEMS: ItemDefinition[] = [
 
   // ── Staves (Woodworker) — wizard, priest ──────────────────────
   {
-    id: "wooden_staff", name: "Wooden Staff", icon: "🪄", slot: "weapon",
+    id: "wooden_staff", name: "Wooden Staff", icon: "🪄", slot: "mainHand",
     description: "+1 INT",
     classes: ["wizard", "priest"],
     stats: { int: 1 }, durationMod: 1, lootMod: 1,
-    recipeId: "wooden_staff", consumable: false,
+    recipeId: "wooden_staff", consumable: false, twoHanded: true,
   },
   {
-    id: "enchanted_staff", name: "Enchanted Staff", icon: "✨", slot: "weapon",
-    description: "+4 INT, +2 WIS, -15% duration",
+    id: "enchanted_staff", name: "Enchanted Staff", icon: "✨", slot: "mainHand",
+    description: "+4 INT, +2 WIS, -15% duration", twoHanded: true,
     classes: ["wizard", "priest"],
     stats: { int: 4, wis: 2 }, durationMod: 0.85, lootMod: 1,
     recipeId: "enchanted_staff", consumable: false,
@@ -59,44 +65,44 @@ export const ITEMS: ItemDefinition[] = [
 
   // ── Bows (Woodworker) — archer ────────────────────────────────
   {
-    id: "short_bow", name: "Short Bow", icon: "🏹", slot: "weapon",
+    id: "short_bow", name: "Short Bow", icon: "🏹", slot: "mainHand",
     description: "+1 DEX (basic)",
     classes: ["archer"],
     stats: { dex: 1 }, durationMod: 1, lootMod: 1,
-    recipeId: "short_bow", consumable: false,
+    recipeId: "short_bow", consumable: false, twoHanded: true,
   },
   {
-    id: "hunting_bow", name: "Hunting Bow", icon: "🏹", slot: "weapon",
+    id: "hunting_bow", name: "Hunting Bow", icon: "🏹", slot: "mainHand",
     description: "+1 DEX",
     classes: ["archer"],
     stats: { dex: 1 }, durationMod: 1, lootMod: 1,
-    recipeId: "hunting_bow", consumable: false,
+    recipeId: "hunting_bow", consumable: false, twoHanded: true,
   },
   {
-    id: "longbow", name: "Longbow", icon: "🎯", slot: "weapon",
+    id: "longbow", name: "Longbow", icon: "🎯", slot: "mainHand",
     description: "+3 DEX, +1 STR",
     classes: ["archer"],
     stats: { dex: 3, str: 1 }, durationMod: 1, lootMod: 1.05,
-    recipeId: "longbow", consumable: false,
+    recipeId: "longbow", consumable: false, twoHanded: true,
   },
 
   // ── Heavy armor (Blacksmith) — warrior ────────────────────────
   {
-    id: "iron_shield", name: "Iron Shield", icon: "🛡️", slot: "armor",
+    id: "iron_shield", name: "Iron Shield", icon: "🛡️", slot: "offHand",
     description: "+2 VIT",
     classes: ["warrior"],
     stats: { vit: 2 }, durationMod: 1, lootMod: 1,
     recipeId: "iron_shield", consumable: false,
   },
   {
-    id: "iron_armor", name: "Iron Armor", icon: "🦺", slot: "armor",
+    id: "iron_armor", name: "Iron Armor", icon: "🦺", slot: "chest",
     description: "+3 VIT, +1 STR",
     classes: ["warrior"],
     stats: { vit: 3, str: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "iron_armor", consumable: false,
   },
   {
-    id: "chainmail", name: "Chainmail Armor", icon: "⛓️", slot: "armor",
+    id: "chainmail", name: "Chainmail Armor", icon: "⛓️", slot: "chest",
     description: "+4 VIT, +1 STR",
     classes: ["warrior", "archer", "assassin"],
     stats: { vit: 4, str: 1 }, durationMod: 1, lootMod: 1,
@@ -105,7 +111,7 @@ export const ITEMS: ItemDefinition[] = [
 
   // ── Light armor (Woodworker) ──────────────────────────────────
   {
-    id: "wooden_shield", name: "Wooden Shield", icon: "🪵", slot: "armor",
+    id: "wooden_shield", name: "Wooden Shield", icon: "🪵", slot: "offHand",
     description: "+1 VIT",
     classes: ["warrior", "archer", "assassin"],
     stats: { vit: 1 }, durationMod: 1, lootMod: 1,
@@ -114,7 +120,7 @@ export const ITEMS: ItemDefinition[] = [
 
   // ── Woolen Robe (Tailoring, early game) ────────────────────────
   {
-    id: "woolen_robe", name: "Woolen Robe", icon: "🧶", slot: "armor",
+    id: "woolen_robe", name: "Woolen Robe", icon: "🧶", slot: "chest",
     description: "+1 VIT, +1 WIS",
     classes: ["wizard", "priest"],
     stats: { vit: 1, wis: 1 }, durationMod: 1, lootMod: 1,
@@ -123,14 +129,14 @@ export const ITEMS: ItemDefinition[] = [
 
   // ── Robes (Tailoring) — wizard, priest ────────────────────────
   {
-    id: "priest_robes", name: "Priest Robes", icon: "🥋", slot: "armor",
+    id: "priest_robes", name: "Priest Robes", icon: "🥋", slot: "chest",
     description: "+2 VIT, +1 WIS",
     classes: ["priest"],
     stats: { vit: 2, wis: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "priest_robes", consumable: false,
   },
   {
-    id: "wizard_robes", name: "Wizard Robes", icon: "🧙", slot: "armor",
+    id: "wizard_robes", name: "Wizard Robes", icon: "🧙", slot: "chest",
     description: "+2 VIT, +2 INT, -10% duration",
     classes: ["wizard"],
     stats: { vit: 2, int: 2 }, durationMod: 0.9, lootMod: 1,
@@ -178,10 +184,12 @@ export function getItemByRecipe(recipeId: string): ItemDefinition | undefined {
   return ITEMS.find((i) => i.recipeId === recipeId);
 }
 
+const ALL_GEAR_SLOTS = ["head", "chest", "legs", "boots", "cloak", "mainHand", "offHand", "ring1", "ring2", "amulet", "trinket"] as const;
+
 /** Get combined stat bonuses from all equipped items */
-export function getEquipmentStats(equipment: { weapon: string | null; armor: string | null; trinket: string | null }): Partial<AdventurerStats> {
+export function getEquipmentStats(equipment: Record<string, string | null>): Partial<AdventurerStats> {
   const stats: Partial<AdventurerStats> = {};
-  for (const slot of ["weapon", "armor", "trinket"] as const) {
+  for (const slot of ALL_GEAR_SLOTS) {
     const itemId = equipment[slot];
     if (itemId) {
       const item = getItem(itemId);
