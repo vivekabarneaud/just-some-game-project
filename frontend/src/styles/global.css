@@ -736,8 +736,13 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(180, 150, 100, 0.4), transparent);
+  bottom: 0;
+  background-image: url("/images/parchment_texture.png");
+  background-size: cover;
+  opacity: 0.08;
+  pointer-events: none;
+  border-radius: 10px;
+  mix-blend-mode: screen;
 }
 
 .quest-header {
