@@ -203,7 +203,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     minLevel: 1,
     costs: [{ resource: "wool", amount: 8 }],
     produces: { resource: "clothing", amount: 1 },
-    craftTime: 600, // 10 min
+    craftTime: 30, // 10 min
   },
   {
     id: "woolen_robe",
@@ -213,7 +213,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     minLevel: 1,
     costs: [{ resource: "wool", amount: 6 }],
     produces: { resource: "armor", amount: 1 },
-    craftTime: 480, // 8 min
+    craftTime: 30, // 8 min
   },
   {
     id: "linen_clothing",
@@ -223,7 +223,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     minLevel: 1,
     costs: [{ resource: "fiber", amount: 10 }],
     produces: { resource: "clothing", amount: 1 },
-    craftTime: 720, // 12 min
+    craftTime: 30, // 12 min
   },
   {
     id: "fine_clothing",
@@ -233,7 +233,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     minLevel: 3,
     costs: [{ resource: "wool", amount: 5 }, { resource: "fiber", amount: 5 }, { resource: "gold", amount: 10 }],
     produces: { resource: "clothing", amount: 2 },
-    craftTime: 900, // 15 min
+    craftTime: 300, // 15 min
   },
 
   // ── Tailoring — Robes ──────────────────────────────────────────
@@ -245,7 +245,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     minLevel: 2,
     costs: [{ resource: "fiber", amount: 12 }, { resource: "wool", amount: 6 }, { resource: "gold", amount: 15 }],
     produces: { resource: "armor", amount: 1 },
-    craftTime: 1200, // 20 min
+    craftTime: 120, // 20 min
   },
   {
     id: "wizard_robes",
@@ -255,7 +255,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     minLevel: 3,
     costs: [{ resource: "fiber", amount: 15 }, { resource: "wool", amount: 8 }, { resource: "gold", amount: 20 }],
     produces: { resource: "armor", amount: 1 },
-    craftTime: 1500, // 25 min
+    craftTime: 300, // 25 min
   },
 
   // ── Woodworker recipes ────────────────────────────────────────
@@ -267,7 +267,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     minLevel: 1,
     costs: [{ resource: "wood", amount: 15 }],
     produces: { resource: "weapons", amount: 1 },
-    craftTime: 480, // 8 min
+    craftTime: 30, // 8 min
   },
   {
     id: "short_bow",
@@ -277,7 +277,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     minLevel: 1,
     costs: [{ resource: "wood", amount: 10 }],
     produces: { resource: "weapons", amount: 1 },
-    craftTime: 300, // 5 min
+    craftTime: 30, // 5 min
   },
   {
     id: "hunting_bow",
@@ -287,7 +287,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     minLevel: 2,
     costs: [{ resource: "wood", amount: 12 }, { resource: "fiber", amount: 5 }],
     produces: { resource: "weapons", amount: 1 },
-    craftTime: 600, // 10 min
+    craftTime: 120, // 10 min
   },
   {
     id: "wooden_shield",
@@ -297,7 +297,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     minLevel: 2,
     costs: [{ resource: "wood", amount: 20 }, { resource: "iron", amount: 3 }],
     produces: { resource: "armor", amount: 1 },
-    craftTime: 720, // 12 min
+    craftTime: 120, // 12 min
   },
   {
     id: "longbow",
@@ -307,7 +307,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     minLevel: 4,
     costs: [{ resource: "wood", amount: 25 }, { resource: "fiber", amount: 10 }, { resource: "iron", amount: 5 }],
     produces: { resource: "weapons", amount: 1 },
-    craftTime: 1200, // 20 min
+    craftTime: 600, // 20 min
   },
   {
     id: "enchanted_staff",
@@ -317,7 +317,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     minLevel: 6,
     costs: [{ resource: "wood", amount: 20 }, { resource: "gold", amount: 30 }, { resource: "astralShards", amount: 2 }],
     produces: { resource: "weapons", amount: 1 },
-    craftTime: 1800, // 30 min
+    craftTime: 1200, // 30 min
   },
 
   // ── Blacksmith recipes ────────────────────────────────────────
@@ -329,7 +329,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     minLevel: 1,
     costs: [{ resource: "iron", amount: 10 }, { resource: "wood", amount: 5 }],
     produces: { resource: "tools", amount: 1 },
-    craftTime: 600, // 10 min
+    craftTime: 30, // 10 min
   },
   {
     id: "iron_sword",
@@ -339,7 +339,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     minLevel: 1,
     costs: [{ resource: "iron", amount: 15 }, { resource: "wood", amount: 5 }],
     produces: { resource: "weapons", amount: 1 },
-    craftTime: 900, // 15 min
+    craftTime: 30, // 15 min
   },
   {
     id: "iron_shield",
@@ -349,7 +349,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     minLevel: 2,
     costs: [{ resource: "iron", amount: 20 }, { resource: "wood", amount: 8 }],
     produces: { resource: "armor", amount: 1 },
-    craftTime: 1200, // 20 min
+    craftTime: 120, // 20 min
   },
   {
     id: "iron_armor",
@@ -359,7 +359,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     minLevel: 3,
     costs: [{ resource: "iron", amount: 30 }, { resource: "fiber", amount: 5 }, { resource: "gold", amount: 15 }],
     produces: { resource: "armor", amount: 2 },
-    craftTime: 1800, // 30 min
+    craftTime: 300, // 30 min
   },
   {
     id: "chainmail",
@@ -369,7 +369,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     minLevel: 4,
     costs: [{ resource: "iron", amount: 35 }, { resource: "fiber", amount: 8 }, { resource: "gold", amount: 20 }],
     produces: { resource: "armor", amount: 1 },
-    craftTime: 2100, // 35 min
+    craftTime: 600, // 35 min
   },
   {
     id: "steel_sword",
@@ -379,7 +379,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     minLevel: 5,
     costs: [{ resource: "iron", amount: 40 }, { resource: "gold", amount: 25 }],
     produces: { resource: "weapons", amount: 2 },
-    craftTime: 2400, // 40 min
+    craftTime: 900, // 40 min
   },
 
   // ── Alchemy Lab recipes ───────────────────────────────────────
@@ -391,7 +391,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     minLevel: 1,
     costs: [{ resource: "food", amount: 20 }, { resource: "gold", amount: 5 }],
     produces: { resource: "potions", amount: 1 },
-    craftTime: 480, // 8 min
+    craftTime: 30, // 8 min
   },
   {
     id: "strength_elixir",
@@ -401,7 +401,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     minLevel: 2,
     costs: [{ resource: "food", amount: 15 }, { resource: "iron", amount: 5 }, { resource: "gold", amount: 10 }],
     produces: { resource: "potions", amount: 1 },
-    craftTime: 720, // 12 min
+    craftTime: 120, // 12 min
   },
   {
     id: "antidote",
@@ -411,7 +411,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     minLevel: 2,
     costs: [{ resource: "food", amount: 25 }, { resource: "gold", amount: 8 }],
     produces: { resource: "potions", amount: 1 },
-    craftTime: 600, // 10 min
+    craftTime: 120, // 10 min
   },
   {
     id: "revival_elixir",
@@ -421,7 +421,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     minLevel: 4,
     costs: [{ resource: "food", amount: 50 }, { resource: "gold", amount: 40 }, { resource: "astralShards", amount: 3 }],
     produces: { resource: "potions", amount: 1 },
-    craftTime: 3600, // 1 hour
+    craftTime: 600, // 1 hour
   },
   {
     id: "transmute_gold",
@@ -431,7 +431,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     minLevel: 3,
     costs: [{ resource: "iron", amount: 20 }, { resource: "stone", amount: 30 }],
     produces: { resource: "gold", amount: 50 },
-    craftTime: 1800, // 30 min
+    craftTime: 300, // 30 min
   },
 ];
 
