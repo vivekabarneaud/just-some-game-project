@@ -268,12 +268,13 @@ export function calcDefense(
   const wallsLvl = buildings.find((b) => b.buildingId === "walls")?.level ?? 0;
 
   const homeAdventurers = adventurers.filter((a) => a.alive && !a.onMission);
-  const adventurerDef = homeAdventurers.reduce((sum, a) => sum + a.level * 2, 0);
+  // Adventurers give a small bonus — buildings are the main defense
+  const adventurerDef = homeAdventurers.reduce((sum, a) => sum + 1 + Math.floor(a.level / 3), 0);
 
-  const watchtower = watchtowerLvl * 5;
-  const barracks = barracksLvl * 12;
-  const walls = wallsLvl * 8;
-  const pop = Math.floor(population * 0.5);
+  const watchtower = watchtowerLvl * 8;
+  const barracks = barracksLvl * 15;
+  const walls = wallsLvl * 12;
+  const pop = Math.floor(population * 0.3);
 
   return {
     total: watchtower + barracks + walls + adventurerDef + pop,
