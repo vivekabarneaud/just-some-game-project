@@ -1863,11 +1863,25 @@ export function GameProvider(props: ParentProps) {
 
               // Log and damage buildings on defeat
               const raidName = template?.name ?? ir.raidId;
+              const injured = result.defendersInjured.length;
               if (result.victory) {
                 const lootStr = result.loot.map((l) => `+${l.amount} ${l.resource}`).join(", ");
-                pushEvent(s, "raid_victory", "🛡️", `Repelled ${raidName}! Loot: ${lootStr}`);
+                const parts = [`Repelled ${raidName}!`, `Loot: ${lootStr}`];
+                if (injured > 0) parts.push(`Injured: ${injured}`);
+                pushEvent(s, "raid_victory", "🛡️", parts.join(" · "));
               } else {
-                pushEvent(s, "raid_defeat", "💔", `Defeated by ${raidName}! Lost resources and citizens.`);
+                const lost = result.resourcesLost;
+                const lostParts: string[] = [];
+                if (lost.gold > 0) lostParts.push(`${lost.gold}g`);
+                if (lost.wood > 0) lostParts.push(`${lost.wood}w`);
+                if (lost.stone > 0) lostParts.push(`${lost.stone}s`);
+                if (lost.food > 0) lostParts.push(`${lost.food}f`);
+                const parts = [`Defeated by ${raidName}!`];
+                if (lostParts.length > 0) parts.push(`Lost: ${lostParts.join(", ")}`);
+                if (result.citizensLost > 0) parts.push(`Citizens lost: ${result.citizensLost}`);
+                if (injured > 0) parts.push(`Injured: ${injured}`);
+                if (result.buildingsDamaged) parts.push(`Buildings damaged: ${result.buildingsDamaged}`);
+                pushEvent(s, "raid_defeat", "💔", parts.join(" · "));
                 const damageable = s.buildings.filter((b) => b.level > 0 && !b.damaged && b.buildingId !== "town_hall");
                 const damageCount = Math.min(damageable.length, result.buildingsDamaged ?? 1);
                 for (let d = 0; d < damageCount; d++) {

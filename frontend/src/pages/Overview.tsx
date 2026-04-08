@@ -1,9 +1,9 @@
-import { createSignal, For, Show, onMount } from "solid-js";
+import { createSignal, createEffect, For, Show, onMount } from "solid-js";
 import { A } from "@solidjs/router";
 import { BUILDINGS, getSettlementName, SETTLEMENT_TIERS } from "~/data/buildings";
 import { RESOURCES } from "~/data/resources";
 import { SEASON_META } from "~/data/seasons";
-import { getRaid, calcRaidSuccessChance, getDefenseTips } from "~/data/raids";
+import { getRaid, calcRaidSuccessChance, getDefenseTips, type RaidResult } from "~/data/raids";
 import { QUEST_CHAIN } from "~/data/quests";
 import { useGame } from "~/engine/gameState";
 import Countdown from "~/components/Countdown";
@@ -18,9 +18,18 @@ export default function Overview() {
   const thLevel = () => actions.getTownHallLevel();
   const defense = () => actions.getDefense();
 
-  // Collect stale raid logs on mount (clear them from state)
+  // Collect raid logs and show as report
+  const [raidReport, setRaidReport] = createSignal<RaidResult | null>(null);
   onMount(() => {
-    actions.collectRaidLog();
+    const logs = actions.collectRaidLog();
+    if (logs.length > 0) setRaidReport(logs[logs.length - 1]);
+  });
+  // Watch for new raid results (e.g. after "Fight now!" skip)
+  createEffect(() => {
+    if (state.raidLog.length > 0) {
+      setRaidReport(state.raidLog[state.raidLog.length - 1]);
+      actions.collectRaidLog(); // clear them
+    }
   });
 
   const upgradingBuildings = () =>
@@ -80,6 +89,72 @@ export default function Overview() {
           </h1>
         </div>
       </div>
+
+      {/* Raid Report */}
+      <Show when={raidReport()}>
+        {(report) => {
+          const raidDef = getRaid(report().raidId);
+          const raidName = raidDef?.name ?? report().raidId;
+          const lost = report().resourcesLost;
+          const totalLost = lost.gold + lost.wood + lost.stone + lost.food;
+          return (
+            <div style={{
+              margin: "12px 0",
+              padding: "16px",
+              "border-radius": "8px",
+              background: report().victory ? "rgba(76, 175, 80, 0.08)" : "rgba(229, 57, 53, 0.08)",
+              border: `1px solid ${report().victory ? "rgba(76, 175, 80, 0.3)" : "rgba(229, 57, 53, 0.3)"}`,
+            }}>
+              <div style={{ display: "flex", "justify-content": "space-between", "align-items": "center", "margin-bottom": "10px" }}>
+                <h3 style={{
+                  margin: 0,
+                  "font-family": "var(--font-heading)",
+                  color: report().victory ? "var(--accent-green)" : "var(--accent-red)",
+                }}>
+                  {report().victory ? "🛡️ Victory!" : "💔 Defeat"} — {raidName}
+                </h3>
+                <button
+                  onClick={() => setRaidReport(null)}
+                  style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", "font-size": "1.1rem" }}
+                >
+                  ✕
+                </button>
+              </div>
+              <div style={{ display: "grid", "grid-template-columns": "1fr 1fr", gap: "6px 24px", "font-size": "0.85rem" }}>
+                <div style={{ color: "var(--text-secondary)" }}>
+                  Defense: <strong style={{ color: "var(--text-primary)" }}>{report().defenseScore}</strong> vs Strength: <strong style={{ color: "var(--text-primary)" }}>{report().raidStrength}</strong>
+                </div>
+                <div style={{ color: "var(--text-secondary)" }}>
+                  Casualties: <strong style={{ color: report().citizensLost > 0 ? "var(--accent-red)" : "var(--accent-green)" }}>{report().citizensLost}</strong>
+                </div>
+                <div style={{ color: "var(--text-secondary)" }}>
+                  Resources lost: <strong style={{ color: totalLost > 0 ? "var(--accent-red)" : "var(--accent-green)" }}>
+                    {totalLost === 0 ? "None" : [
+                      lost.gold > 0 && `${lost.gold} gold`,
+                      lost.wood > 0 && `${lost.wood} wood`,
+                      lost.stone > 0 && `${lost.stone} stone`,
+                      lost.food > 0 && `${lost.food} food`,
+                    ].filter(Boolean).join(", ")}
+                  </strong>
+                </div>
+                <div style={{ color: "var(--text-secondary)" }}>
+                  Defenders injured: <strong style={{ color: report().defendersInjured.length > 0 ? "var(--accent-red)" : "var(--accent-green)" }}>{report().defendersInjured.length}</strong>
+                </div>
+                <Show when={report().victory && report().loot.length > 0}>
+                  <div style={{ "grid-column": "1 / -1", color: "var(--accent-gold)", "margin-top": "4px" }}>
+                    Loot: {report().loot.map((l) => `+${l.amount} ${l.resource}`).join(", ")}
+                  </div>
+                </Show>
+                <Show when={!report().victory && (report().buildingsDamaged ?? 0) > 0}>
+                  <div style={{ "grid-column": "1 / -1", color: "var(--accent-red)", "margin-top": "4px" }}>
+                    Buildings damaged: {report().buildingsDamaged}
+                  </div>
+                </Show>
+              </div>
+            </div>
+          );
+        }}
+      </Show>
 
       {/* Quest Panel */}
       <Show when={!allQuestsComplete() && currentQuest()}>
@@ -144,12 +219,15 @@ export default function Overview() {
                 })()}
               </Show>
               <Show when={quest().id === "baptism_of_fire" && state.incomingRaids.length > 0}>
+                <span style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-left": "8px" }}>
+                  Ready? Skip the waiting —
+                </span>
                 <button
                   class="quest-claim-btn"
-                  style={{ background: "var(--accent-red)", "margin-left": "8px" }}
+                  style={{ background: "var(--accent-red)", "margin-left": "4px" }}
                   onClick={() => actions.skipRaidTimer()}
                 >
-                  They're here. Fight now.
+                  Fight now!
                 </button>
               </Show>
             </div>
