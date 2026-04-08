@@ -711,7 +711,7 @@ body {
 }
 
 .quest-image {
-  width: 130px;
+  width: 180px;
   flex-shrink: 0;
   overflow: hidden;
   border-radius: 8px 0 0 8px;
