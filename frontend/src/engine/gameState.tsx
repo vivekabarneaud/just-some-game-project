@@ -525,8 +525,8 @@ export interface GameState {
   // Astral Shards (premium currency)
   astralShards: number;
   lastDailyLogin: number; // real-world timestamp of last daily reward claim
-  missionRerollToday: boolean;
-  recruitRerollToday: boolean;
+  missionRerollToday: boolean | number;
+  recruitRerollToday: boolean | number;
   lastRerollReset: number; // real-world timestamp of last reroll reset (daily)
   lastGuildVisit: number; // timestamp of last guild page visit
   lastMissionRefresh: number; // timestamp when missions last refreshed
@@ -695,8 +695,8 @@ function createInitialState(): GameState {
     lastGuildVisit: 0,
     lastMissionRefresh: 0,
     lastRecruitRefresh: 0,
-    missionRerollToday: false,
-    recruitRerollToday: false,
+    missionRerollToday: 0,
+    recruitRerollToday: 0,
     lastRerollReset: Date.now(),
     questRewardsClaimed: [],
     firstMissionSent: false,
@@ -1806,8 +1806,8 @@ export function GameProvider(props: ParentProps) {
         const lastResetDay = new Date(s.lastRerollReset).toDateString();
         const todayStr = new Date(now).toDateString();
         if (lastResetDay !== todayStr) {
-          s.missionRerollToday = false;
-          s.recruitRerollToday = false;
+          s.missionRerollToday = 0;
+          s.recruitRerollToday = 0;
           s.lastRerollReset = now;
         }
 
@@ -2479,12 +2479,14 @@ export function GameProvider(props: ParentProps) {
       return true;
     },
     rerollMissions() {
-      if (state.missionRerollToday || state.astralShards < 10) return false;
+      const rerollCount = typeof state.missionRerollToday === "number" ? state.missionRerollToday : 0;
+      const cost = 10 * Math.pow(2, rerollCount);
+      if (state.astralShards < cost) return false;
       const guildLvl = this.getGuildLevel();
       if (guildLvl === 0) return false;
       setState(produce((s) => {
-        s.astralShards -= 10;
-        s.missionRerollToday = true;
+        s.astralShards -= cost;
+        s.missionRerollToday = rerollCount + 1;
         const boardSize = getMissionBoardSize(guildLvl);
         const bestRank = s.adventurers.length > 0 ? Math.max(...s.adventurers.map((a) => a.rank)) : 1;
         const maxDiff = Math.min(5, bestRank + 1);
@@ -2493,12 +2495,14 @@ export function GameProvider(props: ParentProps) {
       return true;
     },
     rerollRecruits() {
-      if (state.recruitRerollToday || state.astralShards < 10) return false;
+      const rerollCount = typeof state.recruitRerollToday === "number" ? state.recruitRerollToday : 0;
+      const cost = 10 * Math.pow(2, rerollCount);
+      if (state.astralShards < cost) return false;
       const guildLvl = this.getGuildLevel();
       if (guildLvl === 0) return false;
       setState(produce((s) => {
-        s.astralShards -= 10;
-        s.recruitRerollToday = true;
+        s.astralShards -= cost;
+        s.recruitRerollToday = rerollCount + 1;
         const count = getCandidateCount(guildLvl);
         const maxRank = getMaxRecruitRank(guildLvl, s.adventurers);
         resetAdventurerSeed(Date.now());

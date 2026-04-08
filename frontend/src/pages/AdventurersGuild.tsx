@@ -359,21 +359,28 @@ export default function AdventurersGuild() {
             <h3 style={{ "font-family": "var(--font-heading)", color: "var(--text-primary)", margin: 0 }}>
               Mission Board
             </h3>
+            {(() => {
+              const count = typeof state.missionRerollToday === "number" ? state.missionRerollToday : 0;
+              const cost = 10 * Math.pow(2, count);
+              const canAfford = state.astralShards >= cost;
+              return (
             <button
               onClick={() => actions.rerollMissions()}
-              disabled={state.missionRerollToday || state.astralShards < 10}
+              disabled={!canAfford}
               style={{
                 padding: "3px 10px",
-                background: state.missionRerollToday ? "var(--bg-secondary)" : "rgba(167, 139, 250, 0.2)",
-                border: `1px solid ${state.missionRerollToday ? "var(--border-default)" : "#a78bfa"}`,
-                color: state.missionRerollToday ? "var(--text-muted)" : "#a78bfa",
+                background: canAfford ? "rgba(167, 139, 250, 0.2)" : "var(--bg-secondary)",
+                border: `1px solid ${canAfford ? "#a78bfa" : "var(--border-default)"}`,
+                color: canAfford ? "#a78bfa" : "var(--text-muted)",
                 "border-radius": "4px",
-                cursor: state.missionRerollToday ? "default" : "pointer",
+                cursor: canAfford ? "pointer" : "default",
                 "font-size": "0.75rem",
               }}
             >
-              {state.missionRerollToday ? "Rerolled today" : "Reroll (10 💠)"}
+              Reroll ({cost} 💠)
             </button>
+              );
+            })()}
           </div>
           <Show when={state.missionBoard.length === 0}>
             <p style={{ color: "var(--text-muted)", "font-size": "0.85rem" }}>
@@ -834,21 +841,28 @@ export default function AdventurersGuild() {
               Roster: {rosterSize().current}/{rosterSize().max} ·
               New candidates in {Math.ceil(state.recruitRefreshIn)}h
             </span>
+            {(() => {
+              const count = typeof state.recruitRerollToday === "number" ? state.recruitRerollToday : 0;
+              const cost = 10 * Math.pow(2, count);
+              const canAfford = state.astralShards >= cost;
+              return (
             <button
               onClick={() => actions.rerollRecruits()}
-              disabled={state.recruitRerollToday || state.astralShards < 10}
+              disabled={!canAfford}
               style={{
                 padding: "3px 10px",
-                background: state.recruitRerollToday ? "var(--bg-secondary)" : "rgba(167, 139, 250, 0.2)",
-                border: `1px solid ${state.recruitRerollToday ? "var(--border-default)" : "#a78bfa"}`,
-                color: state.recruitRerollToday ? "var(--text-muted)" : "#a78bfa",
+                background: canAfford ? "rgba(167, 139, 250, 0.2)" : "var(--bg-secondary)",
+                border: `1px solid ${canAfford ? "#a78bfa" : "var(--border-default)"}`,
+                color: canAfford ? "#a78bfa" : "var(--text-muted)",
                 "border-radius": "4px",
-                cursor: state.recruitRerollToday ? "default" : "pointer",
+                cursor: canAfford ? "pointer" : "default",
                 "font-size": "0.75rem",
               }}
             >
-              {state.recruitRerollToday ? "Rerolled today" : "Reroll (10 💠)"}
+              Reroll ({cost} 💠)
             </button>
+              );
+            })()}
           </div>
           <Show when={state.recruitCandidates.length === 0}>
             <p style={{ color: "var(--text-muted)", "font-size": "0.85rem" }}>

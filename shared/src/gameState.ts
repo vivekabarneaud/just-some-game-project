@@ -260,8 +260,8 @@ export interface GameState {
   // Astral Shards
   astralShards: number;
   lastDailyLogin: number;
-  missionRerollToday: boolean;
-  recruitRerollToday: boolean;
+  missionRerollToday: boolean | number;
+  recruitRerollToday: boolean | number;
   lastRerollReset: number;
   lastGuildVisit: number;
   lastMissionRefresh: number;
