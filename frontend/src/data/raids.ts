@@ -306,7 +306,8 @@ export interface RaidResolutionInput {
 
 export function resolveRaid(input: RaidResolutionInput): RaidResult {
   const { raid, raidStrength, defense, resources, population, homeAdventurers } = input;
-  const victory = defense.total >= raidStrength;
+  const successChance = calcRaidSuccessChance(defense.total, raidStrength);
+  const victory = Math.random() * 100 < successChance;
 
   const result: RaidResult = {
     raidId: raid.id,
@@ -430,11 +431,11 @@ export function getRaid(raidId: string): RaidTemplate | undefined {
  * 100% when defense >= strength. Drops off below that.
  */
 export function calcRaidSuccessChance(defenseTotal: number, raidStrength: number): number {
-  if (raidStrength <= 0) return 100;
+  if (raidStrength <= 0) return 95;
+  // Equal defense/strength = 50%. Double = ~85%. Half = ~15%.
   const ratio = defenseTotal / raidStrength;
-  if (ratio >= 1) return 100;
-  // Smooth curve: 50% at half strength, drops sharply below
-  return Math.max(0, Math.min(99, Math.round(ratio * ratio * 100)));
+  const chance = 50 + (ratio - 1) * 35;
+  return Math.max(5, Math.min(95, Math.round(chance)));
 }
 
 // ─── Defense tips ───────────────────────────────────────────────
