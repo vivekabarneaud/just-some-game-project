@@ -409,52 +409,44 @@ export default function AdventurersGuild() {
                     style={{
                       cursor: "pointer",
                       border: "1px solid var(--accent-gold)",
-                      background: "rgba(245, 197, 66, 0.05)",
+                      padding: "0",
                     }}
                   >
-                    <span class="building-card-category" style={{ color: "var(--accent-gold)" }}>
-                      Story Mission · {story().chapter}
-                    </span>
                     <Show when={story().image}>
-                      <div style={{
-                        "margin-top": "8px",
-                        "border-radius": "6px",
-                        overflow: "hidden",
-                        "max-height": "120px",
-                      }}>
-                        <img
-                          src={story().image}
-                          alt={story().name}
-                          style={{ width: "100%", height: "120px", "object-fit": "cover", "object-position": "center 30%", display: "block" }}
-                        />
-                      </div>
-                    </Show>
-                    <div class="building-card-header" style={{ "margin-top": "8px" }}>
-                      <div class="building-card-icon">{story().icon}</div>
-                      <div>
-                        <div class="building-card-title" style={{ color: "var(--accent-gold)" }}>{story().name}</div>
-                        <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
-                          {formatDuration(story().duration)} · {story().deployCost}g deploy cost
+                      <div class="building-card-image">
+                        <img src={story().image} alt={story().name} loading="lazy" />
+                        <div class="building-card-image-overlay" style={{ display: "flex", "justify-content": "space-between", "align-items": "flex-end" }}>
+                          <div>
+                            <div style={{ "font-size": "0.7rem", color: "var(--accent-gold)", "margin-bottom": "2px", "text-transform": "uppercase", "letter-spacing": "0.5px" }}>
+                              Story Mission · {story().chapter}
+                            </div>
+                            <div class="building-card-title" style={{ color: "var(--accent-gold)" }}>{story().name}</div>
+                            <div style={{ "font-size": "0.75rem", color: "var(--text-secondary)" }}>
+                              {formatDuration(story().duration)} · {story().deployCost}g deploy
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div class="building-card-desc" style={{ "font-style": "italic" }}>{story().description}</div>
-                    <div style={{ display: "flex", gap: "6px", "margin-top": "8px", "flex-wrap": "wrap" }}>
-                      <For each={story().slots}>
-                        {(slot) => (
-                          <span style={{
-                            padding: "2px 8px",
-                            background: "var(--bg-secondary)",
-                            "border-radius": "4px",
-                            "font-size": "0.8rem",
-                          }}>
-                            {slotIcon(slot)} {slotLabel(slot)}
-                          </span>
-                        )}
-                      </For>
-                    </div>
-                    <div style={{ "margin-top": "8px", "font-size": "0.8rem", color: "var(--accent-green)" }}>
-                      Rewards: {story().rewards.map((r) => formatReward(r)).join(", ")}
+                    </Show>
+                    <div style={{ padding: "0 16px 16px" }}>
+                      <div class="building-card-desc" style={{ "font-style": "italic" }}>{story().description}</div>
+                      <div style={{ display: "flex", gap: "6px", "margin-top": "8px", "flex-wrap": "wrap" }}>
+                        <For each={story().slots}>
+                          {(slot) => (
+                            <span style={{
+                              padding: "2px 8px",
+                              background: "var(--bg-secondary)",
+                              "border-radius": "4px",
+                              "font-size": "0.8rem",
+                            }}>
+                              {slotIcon(slot)} {slotLabel(slot)}
+                            </span>
+                          )}
+                        </For>
+                      </div>
+                      <div style={{ "margin-top": "8px", "font-size": "0.8rem", color: "var(--accent-green)" }}>
+                        Rewards: {story().rewards.map((r: any) => formatReward(r)).join(", ")}
+                      </div>
                     </div>
                   </div>
                 );
@@ -526,9 +518,32 @@ export default function AdventurersGuild() {
               const STAT_LABELS: Record<string, string> = { str: "STR", int: "INT", dex: "DEX", vit: "VIT", wis: "WIS" };
 
               return (
-                <div class="mission-assembly" ref={(el) => setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 50)}>
+                <div
+                  class="mission-assembly"
+                  classList={{ "has-bg": !!mission().image }}
+                  ref={(el) => setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 50)}
+                  style={{ position: "relative", overflow: "hidden" }}
+                >
+                  {/* Immersive background image */}
+                  <Show when={mission().image}>
+                    <div style={{
+                      position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+                      "z-index": 0, "pointer-events": "none",
+                    }}>
+                      <img
+                        src={mission().image}
+                        alt=""
+                        style={{ width: "100%", height: "100%", "object-fit": "cover", "object-position": "center 30%", opacity: "0.15" }}
+                      />
+                      <div style={{
+                        position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+                        background: "linear-gradient(to bottom, rgba(26, 26, 46, 0.3) 0%, rgba(26, 26, 46, 0.7) 50%, rgba(26, 26, 46, 0.95) 100%)",
+                      }} />
+                    </div>
+                  </Show>
+
                   {/* Left: Mission details */}
-                  <div class="mission-detail-panel">
+                  <div class="mission-detail-panel" style={{ position: "relative", "z-index": 1 }}>
                     <div class="mission-detail-header">
                       <span style={{ "font-size": "2rem" }}>{mission().icon}</span>
                       <div>
@@ -542,21 +557,6 @@ export default function AdventurersGuild() {
                     <p style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "font-style": "italic", "margin": "10px 0" }}>
                       {mission().description}
                     </p>
-
-                    <Show when={mission().image}>
-                      <div style={{
-                        "margin": "10px 0",
-                        "border-radius": "8px",
-                        overflow: "hidden",
-                        border: "1px solid var(--border-color)",
-                      }}>
-                        <img
-                          src={mission().image}
-                          alt={mission().name}
-                          style={{ width: "100%", height: "160px", "object-fit": "cover", "object-position": "center 30%", display: "block" }}
-                        />
-                      </div>
-                    </Show>
 
                     <div class="mission-detail-section">
                       <div class="mission-detail-label">Team Slots</div>
@@ -632,7 +632,7 @@ export default function AdventurersGuild() {
                   </div>
 
                   {/* Right: Team assembly */}
-                  <div class="team-panel">
+                  <div class="team-panel" style={{ position: "relative", "z-index": 1 }}>
                     <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "10px", color: "var(--text-primary)" }}>
                       Assemble Your Team
                     </h3>

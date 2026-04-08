@@ -1123,6 +1123,26 @@ body {
   padding: 20px;
 }
 
+.mission-assembly.has-bg {
+  background: transparent;
+  border-color: var(--accent-gold);
+}
+
+.mission-assembly.has-bg .mission-detail-panel {
+  background: rgba(26, 26, 46, 0.75);
+  border-radius: 8px;
+  padding: 16px;
+  border-right: none;
+  backdrop-filter: blur(4px);
+}
+
+.mission-assembly.has-bg .team-panel {
+  background: rgba(26, 26, 46, 0.75);
+  border-radius: 8px;
+  padding: 16px;
+  backdrop-filter: blur(4px);
+}
+
 .mission-detail-panel {
   border-right: 1px solid var(--border-color);
   padding-right: 16px;
