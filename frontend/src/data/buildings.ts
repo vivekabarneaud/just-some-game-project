@@ -76,11 +76,10 @@ export const TIER_UPGRADE_PREREQUISITES: Record<number, TierPrerequisite[]> = {
     { buildingId: "houses", minLevel: 6, label: "Houses Lv.6" },
     { buildingId: "tailoring_shop", minLevel: 1, label: "Tailoring Shop" },
   ],
-  // TH lvl 7 = city: need houses lvl 10 + blacksmith lvl 1 + alchemy lab lvl 1
+  // TH lvl 7 = city: need houses lvl 10 + blacksmith lvl 1
   7: [
     { buildingId: "houses", minLevel: 10, label: "Houses Lv.10" },
     { buildingId: "blacksmith", minLevel: 1, label: "Blacksmith" },
-    { buildingId: "alchemy_lab", minLevel: 1, label: "Alchemy Lab" },
   ],
 };
 
