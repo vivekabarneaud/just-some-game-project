@@ -139,4 +139,7 @@ Quest 14 — "Woolly Friends" (build a sheep pen):
 Realistic digital painting, a shepherd arriving at a medieval settlement gate with a small flock of sheep, villagers greeting them warmly, a child reaching out to pet a lamb, wooden fences being built in the background,         pastoral and warm, late afternoon light, dark moody atmosphere, oil painting style, square composition, no text --ar 1:1
 Quest 18 — "Arm the Brave" (craft a weapon):              
 Realistic digital painting, close-up of a medieval carpenter's hands carving a wooden bow on a workbench, wood shavings everywhere, a finished wooden staff and a shield leaning against the wall, warm lantern light, focused    
-craftsmanship, dark moody atmosphere, oil painting style, square composition, no text --ar 1:1  
+craftsmanship, dark moody atmosphere, oil painting style, square composition, no text --ar 1:1
+
+Mission — "Herb Gathering" (adventurer foraging in meadows):
+Realistic digital painting, a lone medieval adventurer kneeling in a sunlit wildflower meadow, carefully picking chamomile and herbs into a woven basket, tall grass and wildflowers in soft focus around them, butterflies, a leather satchel on the ground, the edge of a dark forest behind, peaceful and serene, warm golden afternoon light, dark moody atmosphere, oil painting style, square composition, no text --ar 1:1

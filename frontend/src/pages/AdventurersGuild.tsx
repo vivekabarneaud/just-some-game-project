@@ -24,6 +24,7 @@ import {
   calcEffectiveDuration,
   getMission,
   getMissionStatWeights,
+  formatReward,
 } from "~/data/missions";
 import Countdown from "~/components/Countdown";
 
@@ -266,7 +267,7 @@ export default function AdventurersGuild() {
                         {result.success ? "Success" : "Failed"}: {template().name}
                         {result.rewards.length > 0 && (
                           <span style={{ color: "var(--text-secondary)", "margin-left": "8px" }}>
-                            +{result.rewards.map((r) => `${r.amount} ${r.resource}`).join(", ")}
+                            {result.rewards.map((r) => formatReward(r)).join(", ")}
                             {!result.success && <span style={{ color: "var(--accent-purple)", "margin-left": "4px" }}>(assassin salvage)</span>}
                           </span>
                         )}
@@ -345,7 +346,7 @@ export default function AdventurersGuild() {
                       </div>
                       <Show when={template().rewards?.length > 0}>
                         <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-top": "2px" }}>
-                          Rewards: {template().rewards.map((r: any) => `${r.amount} ${r.resource}`).join(", ")}
+                          Rewards: {template().rewards.map((r: any) => formatReward(r)).join(", ")}
                         </div>
                       </Show>
                     </div>
@@ -432,7 +433,7 @@ export default function AdventurersGuild() {
                       </For>
                     </div>
                     <div style={{ "margin-top": "8px", "font-size": "0.8rem", color: "var(--accent-green)" }}>
-                      Rewards: {mission.rewards.map((r) => `${r.amount} ${r.resource}`).join(", ")}
+                      Rewards: {mission.rewards.map((r) => formatReward(r)).join(", ")}
                     </div>
                     <div style={{ "font-size": "0.75rem", color: "var(--accent-blue)", "margin-top": "2px" }}>
                       +{getMissionXp(mission.difficulty, true)} XP on success · +{getMissionXp(mission.difficulty, false)} XP on failure
@@ -470,6 +471,21 @@ export default function AdventurersGuild() {
                     <p style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "font-style": "italic", "margin": "10px 0" }}>
                       {mission().description}
                     </p>
+
+                    <Show when={mission().image}>
+                      <div style={{
+                        "margin": "10px 0",
+                        "border-radius": "8px",
+                        overflow: "hidden",
+                        border: "1px solid var(--border-color)",
+                      }}>
+                        <img
+                          src={mission().image}
+                          alt={mission().name}
+                          style={{ width: "100%", height: "160px", "object-fit": "cover", "object-position": "center 30%", display: "block" }}
+                        />
+                      </div>
+                    </Show>
 
                     <div class="mission-detail-section">
                       <div class="mission-detail-label">Team Slots</div>
@@ -521,7 +537,7 @@ export default function AdventurersGuild() {
                       <div class="mission-detail-label">Rewards</div>
                       <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
                         {mission().rewards.map((r) => (
-                          <span class="quest-reward-item">+{r.amount} {r.resource}</span>
+                          <span class="quest-reward-item">{formatReward(r)}</span>
                         ))}
                       </div>
                     </div>

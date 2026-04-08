@@ -1,10 +1,12 @@
 import type { AdventurerClass, Adventurer, AdventurerStats } from "./adventurers";
 import { calcStats } from "./adventurers";
 import { getEquipmentStats } from "./items";
+import { getHerb } from "./herbs";
 
 // ─── Mission types ──────────────────────────────────────────────
 
-export type RewardType = "gold" | "wood" | "stone" | "food" | "astralShards";
+export type RewardType = "gold" | "wood" | "stone" | "food" | "astralShards"
+  | "chamomile" | "mugwort" | "nettle" | "nightbloom" | "moonpetal"; // herbs
 
 export interface MissionReward {
   resource: RewardType;
@@ -29,6 +31,7 @@ export interface MissionTemplate {
   difficulty: 1 | 2 | 3 | 4 | 5;
   minGuildLevel: number;
   tags: MissionTag[];
+  image?: string; // optional mission illustration
 }
 
 export interface ActiveMission {
@@ -47,6 +50,23 @@ export interface CompletedMission {
   xpGained: number;
   levelUps: string[]; // adventurer names that leveled up
   rankUps: { name: string; newRank: string }[]; // adventurers that ranked up
+}
+
+const RESOURCE_LABELS: Record<string, { icon: string; name: string }> = {
+  gold: { icon: "🪙", name: "Gold" },
+  wood: { icon: "🪵", name: "Wood" },
+  stone: { icon: "🪨", name: "Stone" },
+  food: { icon: "🍖", name: "Food" },
+  astralShards: { icon: "💎", name: "Astral Shards" },
+};
+
+/** Format a mission reward as "icon amount Name" */
+export function formatReward(r: MissionReward): string {
+  const herb = getHerb(r.resource);
+  if (herb) return `${herb.icon} ${r.amount} ${herb.name}`;
+  const info = RESOURCE_LABELS[r.resource];
+  if (info) return `${info.icon} ${r.amount} ${info.name}`;
+  return `+${r.amount} ${r.resource}`;
 }
 
 // ─── Mission pool ───────────────────────────────────────────────
@@ -108,15 +128,16 @@ export const MISSION_POOL: MissionTemplate[] = [
   {
     id: "herb_gathering",
     name: "Herb Gathering",
-    description: "Search the meadows for useful herbs and wild plants.",
+    description: "The meadows beyond the tree line are dotted with wildflowers and fragrant herbs. Your adventurer returns with bundles of chamomile and mugwort — and a handful of berries for the road.",
     icon: "🌿",
     slots: [{ class: "any" }],
     duration: 540, // 9 min
-    rewards: [{ resource: "food", amount: 70 }, { resource: "gold", amount: 10 }],
+    rewards: [{ resource: "food", amount: 30 }, { resource: "chamomile", amount: 3 }, { resource: "mugwort", amount: 2 }],
     deployCost: 5,
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["outdoor", "exploration"],
+    image: "/images/missions/herb_gathering.png",
   },
 
   // ── Tier 2: Moderate (guild Lv2, class preferences) ───────────

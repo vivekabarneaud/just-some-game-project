@@ -127,7 +127,8 @@ export interface InventoryItem {
 
 // ─── Missions ───────────────────────────────────────────────────
 
-export type RewardType = "gold" | "wood" | "stone" | "food" | "astralShards";
+export type RewardType = "gold" | "wood" | "stone" | "food" | "astralShards"
+  | "chamomile" | "mugwort" | "nettle" | "nightbloom" | "moonpetal"; // herbs
 
 export interface MissionReward {
   resource: RewardType;

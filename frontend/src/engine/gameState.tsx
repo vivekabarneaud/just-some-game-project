@@ -115,6 +115,7 @@ import {
   calcAssassinBonusRewards,
   calcAssassinFailRewards,
   PRIEST_REVIVE_CHANCE,
+  formatReward,
 } from "~/data/missions";
 import {
   getMissionXp,
@@ -1776,7 +1777,7 @@ export function GameProvider(props: ParentProps) {
               // Log events
               const missionName = template?.name ?? am.missionId;
               if (success) {
-                const rewardStr = rewards.map((r) => `+${r.amount} ${r.resource}`).join(", ");
+                const rewardStr = rewards.map((r) => formatReward(r)).join(", ");
                 pushEvent(s, "mission_success", "✅", `Mission "${missionName}" succeeded! ${rewardStr}`);
               } else {
                 pushEvent(s, "mission_failed", "❌", `Mission "${missionName}" failed`);
@@ -2803,11 +2804,15 @@ export function GameProvider(props: ParentProps) {
     claimMissionReward(index) {
       const mission = state.completedMissions[index];
       if (!mission) return;
+      const herbIds = new Set(HERBS.map((h) => h.id));
       setState(produce((s) => {
         const caps = calcStorageCaps(s.buildings);
         for (const reward of mission.rewards) {
           if (reward.resource === "astralShards") {
             s.astralShards += reward.amount;
+          } else if (herbIds.has(reward.resource)) {
+            if (!s.herbs) s.herbs = {};
+            s.herbs[reward.resource] = (s.herbs[reward.resource] ?? 0) + reward.amount;
           } else {
             const key = reward.resource as keyof typeof s.resources;
             s.resources[key] = Math.min(caps[key], s.resources[key] + reward.amount);
