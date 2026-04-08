@@ -1126,6 +1126,7 @@ body {
 .mission-assembly.has-bg {
   background: transparent;
   border-color: var(--accent-gold);
+  min-height: 420px;
 }
 
 .mission-assembly.has-bg .mission-detail-panel {
@@ -1134,6 +1135,7 @@ body {
   padding: 16px;
   border-right: none;
   backdrop-filter: blur(6px);
+  align-self: end;
 }
 
 .mission-assembly.has-bg .team-panel {
