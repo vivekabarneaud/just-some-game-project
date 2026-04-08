@@ -71,15 +71,15 @@ export default function Overview() {
   };
 
   return (
-    <div>
-      <div class="settlement-banner">
+    <div class="overview-page">
+      <div class="overview-bg">
         <img src={TIER_IMAGES[tier()] ?? TIER_IMAGES.camp} alt={tier()} />
-        <div class="settlement-banner-overlay">
-          <h1 class="settlement-banner-title">
-            {getSettlementName(tier())} of {state.villageName}
-          </h1>
-        </div>
+        <div class="overview-bg-overlay" />
       </div>
+      <div class="overview-content">
+        <h1 class="settlement-banner-title" style={{ "margin-bottom": "20px" }}>
+          {getSettlementName(tier())} of {state.villageName}
+        </h1>
 
       {/* Quest Panel */}
       <Show when={!allQuestsComplete() && currentQuest()}>
@@ -511,6 +511,7 @@ export default function Overview() {
           </div>
         </Show>
       </div>
+      </div>{/* end overview-content */}
     </div>
   );
 }
