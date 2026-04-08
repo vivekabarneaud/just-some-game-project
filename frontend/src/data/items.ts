@@ -22,6 +22,8 @@ export interface ItemDefinition {
   recipeId: string;
   /** Consumable = destroyed after one mission (potions) */
   consumable: boolean;
+  /** Item sprite image path */
+  image?: string;
   /** Two-handed weapon — equipping clears offHand */
   twoHanded?: boolean;
   /** Minimum level to equip */
@@ -49,7 +51,7 @@ export const ITEMS: ItemDefinition[] = [
 
   // ── Staves (Woodworker) — wizard, priest ──────────────────────
   {
-    id: "wooden_staff", name: "Wooden Staff", icon: "🪄", slot: "mainHand",
+    id: "wooden_staff", name: "Wooden Staff", icon: "🪄", slot: "mainHand", image: "/images/items/wooden_staff.png",
     description: "+1 INT",
     classes: ["wizard", "priest"],
     stats: { int: 1 }, durationMod: 1, lootMod: 1,

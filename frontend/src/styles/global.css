@@ -1669,6 +1669,16 @@ body {
   background: rgba(30, 25, 18, 0.9);
 }
 
+.gear-slot.equipped.has-sprite {
+  background: url("/images/items/frames/novice.png") center/cover no-repeat;
+  border-color: transparent;
+}
+
+.gear-slot.has-sprite::before,
+.gear-slot.has-sprite::after {
+  display: none;
+}
+
 .gear-slot.equipped::before,
 .gear-slot.equipped::after {
   border-color: rgba(180, 150, 100, 0.7);
@@ -1761,7 +1771,7 @@ body {
   background: rgba(52, 152, 219, 0.2);
 }
 
-/* Item Frame */
+/* Item Frame — Midjourney frame + item layered */
 .item-frame {
   position: relative;
   display: inline-flex;
@@ -1769,43 +1779,23 @@ body {
   justify-content: center;
   width: 56px;
   height: 56px;
-  background: #1a1a1a;
-  border: 1px solid rgba(180, 150, 100, 0.5);
-  border-radius: 3px;
+  background: url("/images/items/frames/novice.png") center/cover no-repeat;
+  border-radius: 2px;
 }
 
-/* Corner ornaments */
-.item-frame::before,
-.item-frame::after {
-  content: "";
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  border-color: rgba(180, 150, 100, 0.6);
-  border-style: solid;
-}
-
-.item-frame::before {
-  top: 3px;
-  left: 3px;
-  border-width: 1px 0 0 1px;
-}
-
-.item-frame::after {
-  bottom: 3px;
-  right: 3px;
-  border-width: 0 1px 1px 0;
-}
-
-.item-frame img {
-  width: 44px;
-  height: 44px;
+.item-frame .item-sprite {
+  width: 40px;
+  height: 40px;
   object-fit: contain;
+  position: relative;
+  z-index: 1;
 }
 
 .item-frame .item-emoji {
   font-size: 1.6rem;
   line-height: 1;
+  position: relative;
+  z-index: 1;
 }
 
 /* Tier variants */
