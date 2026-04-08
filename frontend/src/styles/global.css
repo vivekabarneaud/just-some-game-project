@@ -1147,8 +1147,8 @@ body {
 
 /* Square team slots */
 .mission-slot-square {
-  width: 72px;
-  height: 72px;
+  width: 88px;
+  height: 88px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1158,19 +1158,40 @@ body {
   background: rgba(0, 0, 0, 0.25);
   transition: all 0.15s;
   flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
 }
 
 .mission-slot-square.filled {
   border-style: solid;
   background: rgba(255, 255, 255, 0.05);
+  padding: 0;
 }
 
 .mission-slot-square.filled:hover {
   opacity: 0.8;
 }
 
+.mission-slot-square-portrait {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+  display: block;
+}
+
+.mission-slot-square-portrait-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 3px 4px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+  text-align: center;
+}
+
 .mission-slot-square-icon {
-  font-size: 1.6rem;
+  font-size: 1.8rem;
 }
 
 .mission-slot-square-name {
@@ -1178,10 +1199,6 @@ body {
   text-align: center;
   line-height: 1.1;
   margin-top: 2px;
-  max-width: 64px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .mission-detail-panel {

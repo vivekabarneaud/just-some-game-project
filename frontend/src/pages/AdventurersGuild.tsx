@@ -580,16 +580,29 @@ export default function AdventurersGuild() {
                               onClick={() => { if (assigned()) toggleTeamMember(assigned()!.id); }}
                               style={{ "border-color": slotColor(), cursor: assigned() ? "pointer" : "default" }}
                             >
-                              <div class="mission-slot-square-icon" style={{ color: slotColor() }}>
-                                {assigned()
-                                  ? getClassMeta(assigned()!.class).icon
-                                  : slot.class === "any" ? "👤" : getClassMeta(slot.class).icon}
-                              </div>
-                              <div class="mission-slot-square-name" style={{ color: assigned() ? "var(--text-primary)" : "var(--text-muted)" }}>
-                                {assigned() ? assigned()!.name : (slot.class === "any" ? "Any" : getClassMeta(slot.class).name)}
-                              </div>
-                              <Show when={assigned() && !isMatched()}>
-                                <div style={{ "font-size": "0.55rem", color: "var(--accent-gold)" }}>mismatch</div>
+                              <Show when={assigned()} fallback={
+                                <>
+                                  <div class="mission-slot-square-icon" style={{ color: slotColor() }}>
+                                    {slot.class === "any" ? "👤" : getClassMeta(slot.class).icon}
+                                  </div>
+                                  <div class="mission-slot-square-name" style={{ color: "var(--text-muted)" }}>
+                                    {slot.class === "any" ? "Any" : getClassMeta(slot.class).name}
+                                  </div>
+                                </>
+                              }>
+                                <img
+                                  class="mission-slot-square-portrait"
+                                  src={getPortrait(assigned()!.name, assigned()!.class)}
+                                  alt={assigned()!.name}
+                                />
+                                <div class="mission-slot-square-portrait-overlay">
+                                  <div class="mission-slot-square-name" style={{ color: "var(--text-primary)" }}>
+                                    {assigned()!.name.split(" ")[0]}
+                                  </div>
+                                  <Show when={!isMatched()}>
+                                    <div style={{ "font-size": "0.55rem", color: "var(--accent-gold)" }}>mismatch</div>
+                                  </Show>
+                                </div>
                               </Show>
                             </div>
                           );
