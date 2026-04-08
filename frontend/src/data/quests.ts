@@ -17,6 +17,7 @@ export interface QuestDefinition {
   targetBuildingId?: string;
   targetPage?: string; // route path for the "Go to X" link
   image?: string; // optional quest illustration
+  triggersRaid?: boolean; // spawns a weak raid when this quest becomes active
 }
 
 const bldg = (state: GameState, id: string) =>
@@ -291,44 +292,45 @@ export const QUEST_CHAIN: QuestDefinition[] = [
       { resource: "astralShards", amount: 5, label: "Astral Shards" },
     ],
   },
-  // 21 — Build Walls (after reaching village, bandits notice you)
+  // 21 — Bandits spotted (triggers a weak, slow raid)
   {
     id: "the_first_threat",
     title: "The First Threat",
     narrative:
-      "Your growth hasn't gone unnoticed. Scouts report movement in the hills to the south — armed men, watching your settlement. The Dominion would call them bandits. They call themselves survivors. Either way, walls would help.",
+      "Your adventurers return from their last mission with troubling news: they spotted a group of armed men in the hills, watching your settlement. They're poorly equipped — desperate, not organized — but they're heading this way. Your scouts estimate twelve hours before they arrive. Build walls. Now.",
     objective: "Build Walls",
     icon: "🧱",
     condition: (s) => (bldg(s, "walls")?.level ?? 0) >= 1,
     rewards: [{ resource: "stone", amount: 100, label: "Stone" }],
     targetBuildingId: "walls",
     image: "/images/buildings/walls.png",
+    triggersRaid: true, // special flag — spawns a weak raid when quest appears
   },
-  // 22 — Build a Watchtower
+  // 22 — Survive the raid
+  {
+    id: "baptism_of_fire",
+    title: "Baptism of Fire",
+    narrative:
+      "They're here. A ragged band of hungry bandits, driven south by Dominion taxes and hard winters. They're not evil — just desperate. But desperate men with swords are still dangerous. Your walls will be tested for the first time.",
+    objective: "Survive the raid",
+    icon: "⚔️",
+    condition: (s) => s.lastRaidOutcome === "victory",
+    rewards: [
+      { resource: "gold", amount: 60, label: "Gold" },
+      { resource: "astralShards", amount: 3, label: "Astral Shards" },
+    ],
+  },
+  // 23 — Build a Watchtower (lesson learned)
   {
     id: "eyes_on_the_horizon",
     title: "Eyes on the Horizon",
     narrative:
-      "Walls keep them out. A watchtower tells you they're coming. Your people sleep better knowing someone watches through the night — and the earlier you see a threat, the more time you have to prepare.",
+      "You survived — barely. But you were lucky this time. Your adventurers happened to spot them on a mission. Next time, you might not be so fortunate. A watchtower would give you proper warning — hours instead of minutes. You won't be caught off guard again.",
     objective: "Build a Watchtower",
     icon: "🏰",
     condition: (s) => (bldg(s, "watchtower")?.level ?? 0) >= 1,
     rewards: [{ resource: "wood", amount: 100, label: "Wood" }],
     targetBuildingId: "watchtower",
     image: "/images/buildings/watchtower.png",
-  },
-  // 23 — Survive a raid
-  {
-    id: "baptism_of_fire",
-    title: "Baptism of Fire",
-    narrative:
-      "The drums sound at dawn. They're coming. Everything you've built — every wall, every weapon, every adventurer you kept home instead of sending on missions — it all comes down to this moment. Hold the line.",
-    objective: "Survive a raid",
-    icon: "⚔️",
-    condition: (s) => s.raidLog.some((r) => r.victory) || s.lastRaidOutcome === "victory",
-    rewards: [
-      { resource: "gold", amount: 60, label: "Gold" },
-      { resource: "astralShards", amount: 5, label: "Astral Shards" },
-    ],
   },
 ];

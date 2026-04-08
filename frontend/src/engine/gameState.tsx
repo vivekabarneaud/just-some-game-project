@@ -2710,6 +2710,19 @@ export function GameProvider(props: ParentProps) {
             s.resources[key] = Math.min(caps[key], s.resources[key] + reward.amount);
           }
         }
+
+        // Check if the NEXT quest triggers a raid
+        const nextQuest = QUEST_CHAIN[questIdx + 1];
+        if (nextQuest?.triggersRaid && s.incomingRaids.length === 0) {
+          // Spawn a weak, slow raid — 12 hours (43200 game-seconds)
+          s.incomingRaids.push({
+            raidId: "hungry_bandits",
+            remaining: 43200,
+            strength: 10, // very weak
+            warned: true,
+          });
+          pushEvent(s, "raid_incoming", "⚠️", "Your adventurers spotted bandits heading this way! Estimated arrival: 12 hours.");
+        }
       }));
       return true;
     },
