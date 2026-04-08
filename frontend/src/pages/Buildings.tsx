@@ -319,12 +319,28 @@ export default function Buildings() {
                           </div>
                         </Show>
                         <div class="building-card-desc">{building.description}</div>
-                        {currentLevel()?.production && (
-                          <div class="building-card-production">
-                            Producing: +{currentLevel()!.production!.rate}/h{" "}
-                            {currentLevel()!.production!.resource}
-                          </div>
-                        )}
+                        {currentLevel()?.production && (() => {
+                          const FOOD_GATHERING: Record<string, Record<string, number>> = {
+                            hunting_camp: { spring: 1, summer: 1, autumn: 0.75, winter: 0.5 },
+                            fishing_hut: { spring: 1, summer: 1, autumn: 0.75, winter: 0.5 },
+                            forager_hut: { spring: 1, summer: 1, autumn: 0.75, winter: 0.25 },
+                          };
+                          const seasonMod = FOOD_GATHERING[building.id]?.[state.season];
+                          const baseRate = currentLevel()!.production!.rate;
+                          const effectiveRate = seasonMod != null ? Math.floor(baseRate * seasonMod) : baseRate;
+                          const isReduced = seasonMod != null && seasonMod < 1;
+                          return (
+                            <div class="building-card-production">
+                              Producing: +{effectiveRate}/h{" "}
+                              {currentLevel()!.production!.resource}
+                              {isReduced && (
+                                <span style={{ color: "var(--accent-gold)", "font-size": "0.7rem", "margin-left": "4px" }}>
+                                  ({Math.round(seasonMod! * 100)}% — {state.season})
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })()}
                         {building.id === "forager_hut" && level() > 0 && (
                           <div class="building-card-production">
                             +{(level() * 1.5).toFixed(1)}/h fiber (wild flax)

@@ -261,7 +261,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     name: "Hunting Camp",
     category: "gathering",
     description:
-      "Skilled hunters venture into the wilds, bringing back game and pelts. Supplements your food supply.",
+      "Skilled hunters venture into the wilds, bringing back game, pelts, and leather. Production is reduced in autumn (75%) and winter (50%) when game is scarce.",
     icon: "🏹",
     image: "/images/buildings/hunting_camp.png",
     maxLevel: 15,
@@ -274,7 +274,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     name: "Forager's Hut",
     category: "gathering",
     description:
-      "Gatherers scour the forest edges for wild berries, mushrooms, and herbs. A quick and cheap source of food.",
+      "Gatherers scour the forest edges for wild berries, mushrooms, herbs, and fiber. Production drops in autumn (75%) and sharply in winter (25%) when little grows.",
     icon: "🫐",
     image: "/images/buildings/forager_hut.png",
     maxLevel: 10,
@@ -287,7 +287,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     name: "Fishing Hut",
     category: "gathering",
     description:
-      "A small dock on the river where fishermen cast their nets. Provides a steady supply of fish year-round.",
+      "A small dock on the river where fishermen cast their nets. Production is reduced in autumn (75%) and winter (50%) when rivers run cold.",
     icon: "🐟",
     image: "/images/buildings/fishing_hut.png",
     maxLevel: 10,
