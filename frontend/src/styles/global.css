@@ -711,11 +711,12 @@ body {
 }
 
 .quest-image {
-  width: 140px;
-  min-height: 100%;
+  width: 130px;
+  height: 130px;
   flex-shrink: 0;
   overflow: hidden;
   border-radius: 8px 0 0 8px;
+  align-self: center;
 }
 
 .quest-image img {
