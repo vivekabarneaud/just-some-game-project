@@ -257,6 +257,7 @@ export interface GameState {
   foragedTotal: number;
   discoveredRecipes: string[];
   activeBlessing: { deityId: string; effect: string } | null;
+  lastTradeAt: number;
   alchemyResearchAvailable: boolean;
   inventory: InventoryItem[];
   craftingQueue: ActiveCraft[];

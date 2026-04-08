@@ -520,6 +520,8 @@ export interface GameState {
   alchemyResearchAvailable: boolean; // resets daily
   // Shrine blessing
   activeBlessing: { deityId: string; effect: string } | null;
+  // Marketplace
+  lastTradeAt: number; // timestamp of last trade
   inventory: InventoryItem[];
   craftingQueue: ActiveCraft[];
   // Event log
@@ -693,6 +695,7 @@ function createInitialState(): GameState {
     discoveredRecipes: [],
     alchemyResearchAvailable: true,
     activeBlessing: null,
+    lastTradeAt: 0,
     inventory: [],
     craftingQueue: [],
     eventLog: [],
@@ -807,6 +810,7 @@ function loadGame(): GameState | null {
     if (!saved.discoveredRecipes) saved.discoveredRecipes = [];
     if (saved.alchemyResearchAvailable === undefined) saved.alchemyResearchAvailable = true;
     if (saved.activeBlessing === undefined) saved.activeBlessing = null;
+    if (saved.lastTradeAt === undefined) saved.lastTradeAt = 0;
     if (saved.ironMinedTotal === undefined) saved.ironMinedTotal = 0;
     if (!saved.inventory) saved.inventory = [];
     // Equipment migration: old 3-slot → new 11-slot
@@ -2816,10 +2820,14 @@ export function GameProvider(props: ParentProps) {
       if (state.resources[give] < giveAmount) return false;
       const marketLevel = state.buildings.find((b) => b.buildingId === "marketplace")?.level ?? 0;
       if (marketLevel === 0) return false;
+      // Check cooldown (5 min at lvl 1, decreasing 30s per level, min 1 min)
+      const cooldownMs = Math.max(60, 300 - (marketLevel - 1) * 30) * 1000;
+      if (Date.now() - (state.lastTradeAt ?? 0) < cooldownMs) return false;
       setState(produce((s) => {
         const caps = calcStorageCaps(s.buildings);
         s.resources[give] -= giveAmount;
         s.resources[receive] = Math.min(caps[receive], s.resources[receive] + receiveAmount);
+        s.lastTradeAt = Date.now();
       }));
       return true;
     },

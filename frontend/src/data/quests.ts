@@ -297,7 +297,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "the_first_threat",
     title: "The First Threat",
     narrative:
-      "Your adventurers return from their last mission with troubling news: they spotted a group of armed men in the hills, watching your settlement. They're poorly equipped — desperate, not organized — but they're heading this way. Your scouts estimate twelve hours before they arrive. Build walls. Now.",
+      "Your adventurers return from their last mission with troubling news: they spotted a group of armed men in the hills, watching your settlement. They're poorly equipped — desperate, not organized — but they're heading this way. Your scouts estimate twelve hours before they arrive. Build walls. Now. If you're short on stone, the marketplace can help.",
     objective: "Build Walls",
     icon: "🧱",
     condition: (s) => (bldg(s, "walls")?.level ?? 0) >= 1,

@@ -49,7 +49,6 @@ function getCooldown(marketLevel: number): number {
 export default function Marketplace() {
   const { state, actions } = useGame();
   const [filter, setFilter] = createSignal<ResourceKey | "all">("all");
-  const [cooldownEnd, setCooldownEnd] = createSignal(0);
   const [now, setNow] = createSignal(Date.now());
 
   // Update "now" every second for cooldown display
@@ -61,6 +60,7 @@ export default function Marketplace() {
   const isBuilt = () => marketLevel() > 0;
   const discount = () => getDiscount(marketLevel());
   const cooldownSec = () => getCooldown(marketLevel());
+  const cooldownEnd = () => (state.lastTradeAt ?? 0) + cooldownSec() * 1000;
   const isOnCooldown = () => now() < cooldownEnd();
   const cooldownRemaining = () => Math.max(0, Math.ceil((cooldownEnd() - now()) / 1000));
 
@@ -89,9 +89,7 @@ export default function Marketplace() {
   const confirmTrade = () => {
     const p = pendingTrade();
     if (!p) return;
-    if (actions.trade(p.trade.give, p.trade.giveAmount * p.multiplier, p.trade.receive, p.trade.receiveAmount * p.multiplier)) {
-      setCooldownEnd(Date.now() + cooldownSec() * 1000);
-    }
+    actions.trade(p.trade.give, p.trade.giveAmount * p.multiplier, p.trade.receive, p.trade.receiveAmount * p.multiplier);
     setPendingTrade(null);
   };
 
