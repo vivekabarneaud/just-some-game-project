@@ -1682,18 +1682,11 @@ export function GameProvider(props: ParentProps) {
                 }
               }
 
-              // Free surviving adventurers and consume trinket potions
+              // Free surviving adventurers
               for (const id of am.adventurerIds) {
                 const adv = s.adventurers.find((a) => a.id === id);
                 if (adv) {
                   adv.onMission = false;
-                  // Consume consumable trinkets
-                  if (adv.equipment.trinket) {
-                    const trinketDef = getItem(adv.equipment.trinket);
-                    if (trinketDef?.consumable) {
-                      adv.equipment.trinket = null;
-                    }
-                  }
                 }
               }
 

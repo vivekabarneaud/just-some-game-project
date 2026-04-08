@@ -32,14 +32,21 @@ const EQUIPMENT_SLOTS = [
   { id: "trinket", name: "Trinket", icon: "🔮" },
 ];
 
-// Character doll layout positions
+// Character doll layout — body shape with weapons to the side
 const GEAR_GRID = [
   //         left        center      right
   /* row1 */ [null,       "head",     null],
-  /* row2 */ ["cloak",    "chest",    "offHand"],
-  /* row3 */ ["ring1",    "legs",     "mainHand"],
-  /* row4 */ ["ring2",    "boots",    "trinket"],
-  /* row5 */ [null,       "amulet",   null],
+  /* row2 */ ["cloak",    "amulet",   null],
+  /* row3 */ ["ring1",    "chest",    "ring2"],
+  /* row4 */ [null,       "legs",     null],
+  /* row5 */ [null,       "boots",    null],
+];
+
+// Weapons & trinket shown separately
+const SIDE_SLOTS = [
+  { id: "mainHand", name: "Main Hand", icon: "⚔️" },
+  { id: "offHand", name: "Off Hand", icon: "🛡️" },
+  { id: "trinket", name: "Trinket", icon: "🔮" },
 ];
 
 export default function AdventurerDetail() {
@@ -217,62 +224,77 @@ export default function AdventurerDetail() {
                 {/* Equipment — Character Doll */}
                 <div class="overview-panel">
                   <h2>Equipment</h2>
-                  <div class="gear-doll">
-                    {GEAR_GRID.map((row) => (
-                      <div class="gear-doll-row">
-                        {row.map((slotId) => {
-                          if (!slotId) return <div class="gear-slot-empty-space" />;
-                          const slotDef = EQUIPMENT_SLOTS.find((s) => s.id === slotId)!;
-                          const equippedId = () => adv().equipment[slotId as ItemSlot];
-                          const equippedItem = () => equippedId() ? getItem(equippedId()!) : null;
-                          const availableItems = () => getItemsForSlot(slotId as ItemSlot, adv().class)
-                            .filter((item) => actions.getInventoryCount(item.id) > 0 && !isSupplyItem(item.id));
+                  {(() => {
+                    const renderSlot = (slotId: string) => {
+                      const slotDef = EQUIPMENT_SLOTS.find((s) => s.id === slotId) ?? SIDE_SLOTS.find((s) => s.id === slotId);
+                      if (!slotDef) return null;
+                      const equippedId = () => adv().equipment[slotId as ItemSlot];
+                      const equippedItem = () => equippedId() ? getItem(equippedId()!) : null;
+                      const availableItems = () => getItemsForSlot(slotId as ItemSlot, adv().class)
+                        .filter((item) => actions.getInventoryCount(item.id) > 0 && !isSupplyItem(item.id));
 
-                          return (
-                            <div
-                              class="gear-slot"
-                              classList={{ equipped: !!equippedItem() }}
-                              title={equippedItem() ? `${equippedItem()!.name}\n${equippedItem()!.description}` : `${slotDef.name} — empty`}
-                            >
-                              <div class="gear-slot-icon">
-                                {equippedItem()?.icon ?? slotDef.icon}
+                      return (
+                        <div
+                          class="gear-slot"
+                          classList={{ equipped: !!equippedItem() }}
+                          title={equippedItem() ? `${equippedItem()!.name}\n${equippedItem()!.description}` : `${slotDef.name} — empty`}
+                        >
+                          <div class="gear-slot-icon">
+                            {equippedItem()?.icon ?? slotDef.icon}
+                          </div>
+                          <div class="gear-slot-label">
+                            {equippedItem()?.name ?? slotDef.name}
+                          </div>
+                          <Show when={equippedItem()}>
+                            <div class="gear-slot-stats">{equippedItem()!.description}</div>
+                          </Show>
+                          <Show when={!adv().onMission}>
+                            <Show when={equippedItem()}>
+                              <button
+                                class="gear-slot-action unequip"
+                                onClick={() => actions.unequipItem(params.id, slotId as ItemSlot)}
+                              >×</button>
+                            </Show>
+                            <Show when={!equippedItem() && availableItems().length > 0}>
+                              <div class="gear-slot-options">
+                                <For each={availableItems()}>
+                                  {(item) => (
+                                    <button
+                                      class="gear-slot-option"
+                                      onClick={() => actions.equipItem(params.id, item.id)}
+                                      title={`${item.name}: ${item.description}`}
+                                    >
+                                      {item.icon}
+                                    </button>
+                                  )}
+                                </For>
                               </div>
-                              <div class="gear-slot-label">
-                                {equippedItem()?.name ?? slotDef.name}
-                              </div>
-                              <Show when={equippedItem()}>
-                                <div class="gear-slot-stats">{equippedItem()!.description}</div>
-                              </Show>
-                              {/* Actions */}
-                              <Show when={!adv().onMission}>
-                                <Show when={equippedItem()}>
-                                  <button
-                                    class="gear-slot-action unequip"
-                                    onClick={() => actions.unequipItem(params.id, slotId as ItemSlot)}
-                                  >×</button>
-                                </Show>
-                                <Show when={!equippedItem() && availableItems().length > 0}>
-                                  <div class="gear-slot-options">
-                                    <For each={availableItems()}>
-                                      {(item) => (
-                                        <button
-                                          class="gear-slot-option"
-                                          onClick={() => actions.equipItem(params.id, item.id)}
-                                          title={`${item.name}: ${item.description}`}
-                                        >
-                                          {item.icon}
-                                        </button>
-                                      )}
-                                    </For>
-                                  </div>
-                                </Show>
-                              </Show>
+                            </Show>
+                          </Show>
+                        </div>
+                      );
+                    };
+
+                    return (
+                      <div class="gear-layout">
+                        {/* Body doll */}
+                        <div class="gear-doll">
+                          {GEAR_GRID.map((row) => (
+                            <div class="gear-doll-row">
+                              {row.map((slotId) =>
+                                slotId ? renderSlot(slotId) : <div class="gear-slot-empty-space" />
+                              )}
                             </div>
-                          );
-                        })}
+                          ))}
+                        </div>
+                        {/* Weapons & trinket */}
+                        <div class="gear-side">
+                          <div class="gear-side-label">Weapons</div>
+                          {SIDE_SLOTS.map((s) => renderSlot(s.id))}
+                        </div>
                       </div>
-                    ))}
-                  </div>
+                    );
+                  })()}
                   <Show when={adv().onMission}>
                     <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-top": "8px", "text-align": "center" }}>
                       Cannot change equipment while on a mission.
