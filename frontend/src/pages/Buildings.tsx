@@ -329,10 +329,14 @@ export default function Buildings() {
                           const baseRate = currentLevel()!.production!.rate;
                           const effectiveRate = seasonMod != null ? Math.floor(baseRate * seasonMod) : baseRate;
                           const isReduced = seasonMod != null && seasonMod < 1;
+                          const FORAGER_FOOD: Record<string, string> = { spring: "berries", summer: "berries", autumn: "mushrooms", winter: "nuts" };
+                          const foodLabel = building.id === "forager_hut"
+                            ? (FORAGER_FOOD[state.season] ?? "food")
+                            : currentLevel()!.production!.resource;
                           return (
                             <div class="building-card-production">
                               Producing: +{effectiveRate}/h{" "}
-                              {currentLevel()!.production!.resource}
+                              {foodLabel}
                               {isReduced && (
                                 <span style={{ color: "var(--accent-gold)", "font-size": "0.7rem", "margin-left": "4px" }}>
                                   ({Math.round(seasonMod! * 100)}% — {state.season})

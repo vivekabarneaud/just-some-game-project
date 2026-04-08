@@ -295,8 +295,8 @@ export default function Overview() {
           <Show when={state.season === "autumn" || state.season === "winter"}>
             <div style={{ "font-size": "0.75rem", color: "var(--accent-gold)", "padding": "2px 0 4px", "font-style": "italic" }}>
               {state.season === "winter"
-                ? "Winter: foraging at 25%, hunting and fishing at 50%"
-                : "Autumn: gathering reduced to 75%"}
+                ? "Winter: foragers find only nuts (25%), hunting and fishing at 50%"
+                : "Autumn: foragers gather mushrooms (75%), hunting and fishing at 75%"}
             </div>
           </Show>
           <Show when={state.season === "winter"}>
