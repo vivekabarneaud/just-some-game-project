@@ -3,6 +3,7 @@ import { A, useParams } from "@solidjs/router";
 import {
   BUILDINGS,
   isBuildingUnlocked,
+  getTierPrerequisitesMet,
   type SettlementTier,
   getUnlockRequirement,
   getNextTierForLevels,
@@ -89,6 +90,10 @@ export default function BuildingDetail() {
     return actions.getActiveQueueCount() >= bonuses.queueSlots;
   };
 
+  const tierPrereqs = () => params.id === "town_hall"
+    ? getTierPrerequisitesMet((playerBuilding()?.level ?? 0) + 1, state.buildings)
+    : { met: true, missing: [] as string[] };
+
   const canUpgrade = () => {
     if (!unlocked()) return false;
     const cost = adjustedCost();
@@ -96,6 +101,7 @@ export default function BuildingDetail() {
     const pb = playerBuilding();
     if (pb?.upgrading) return false;
     if (queueFull()) return false;
+    if (!tierPrereqs().met) return false;
     return actions.canAfford(cost);
   };
 
@@ -363,7 +369,20 @@ export default function BuildingDetail() {
                     </div>
 
                     <div style={{ "margin-top": "20px" }}>
-                      <button class="upgrade-btn" disabled={!canUpgrade()} onClick={handleUpgrade}>
+                      <Show when={!tierPrereqs().met}>
+                      <div style={{
+                        "margin-bottom": "10px",
+                        padding: "10px",
+                        background: "rgba(245, 197, 66, 0.1)",
+                        border: "1px solid var(--accent-gold)",
+                        "border-radius": "6px",
+                        color: "var(--accent-gold)",
+                        "font-size": "0.85rem",
+                      }}>
+                        🔒 Requires: {tierPrereqs().missing.join(", ")}
+                      </div>
+                    </Show>
+                    <button class="upgrade-btn" disabled={!canUpgrade()} onClick={handleUpgrade}>
                         {(playerBuilding()?.level ?? 0) === 0
                           ? `Build ${b().name}`
                           : `Upgrade to Level ${(playerBuilding()?.level ?? 0) + 1}`}

@@ -1,6 +1,6 @@
 import { For, Show, onMount } from "solid-js";
 import { A } from "@solidjs/router";
-import { BUILDINGS, isBuildingUnlocked, getUnlockRequirement, getNextTierForLevels, applyMasonCostReduction, applyMasonTimeReduction, type BuildingDefinition } from "~/data/buildings";
+import { BUILDINGS, isBuildingUnlocked, getUnlockRequirement, getNextTierForLevels, applyMasonCostReduction, applyMasonTimeReduction, getTierPrerequisitesMet, type BuildingDefinition } from "~/data/buildings";
 import { QUEST_CHAIN } from "~/data/quests";
 import { useGame } from "~/engine/gameState";
 import Countdown from "~/components/Countdown";
@@ -103,10 +103,14 @@ export default function Buildings() {
                   };
                   const masonLvl = () => actions.getMasonLevel();
                   const effMason = () => building.id === "masons_guild" ? 0 : masonLvl();
+                  const tierPrereqs = () => building.id === "town_hall"
+                    ? getTierPrerequisitesMet(level() + 1, state.buildings)
+                    : { met: true, missing: [] as string[] };
                   const canUpgradeNow = () => {
                     if (isUpgrading() || pb()?.damaged) return false;
                     const next = nextLevelDef();
                     if (!next) return false;
+                    if (!tierPrereqs().met) return false;
                     const cost = applyMasonCostReduction(next.cost, effMason());
                     if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
                     if (actions.getActiveQueueCount() >= actions.getMasonBonuses().queueSlots) return false;
@@ -146,6 +150,8 @@ export default function Buildings() {
                     }
                     const next = nextLevelDef();
                     if (!next) return "🏆 Max level";
+                    const prereqs = tierPrereqs();
+                    if (!prereqs.met) return `🔒 Requires: ${prereqs.missing.join(", ")}`;
                     const cost = applyMasonCostReduction(next.cost, effMason());
                     const parts = [];
                     if (state.resources.wood < cost.wood) parts.push(`🪵 ${cost.wood - Math.floor(state.resources.wood)} more wood`);
