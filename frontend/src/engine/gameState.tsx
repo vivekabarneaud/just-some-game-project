@@ -205,6 +205,16 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     craftTime: 600, // 10 min
   },
   {
+    id: "woolen_robe",
+    name: "Woolen Robe",
+    icon: "🧶",
+    building: "tailoring_shop",
+    minLevel: 1,
+    costs: [{ resource: "wool", amount: 6 }],
+    produces: { resource: "armor", amount: 1 },
+    craftTime: 480, // 8 min
+  },
+  {
     id: "linen_clothing",
     name: "Linen Clothing",
     icon: "👘",
@@ -259,11 +269,21 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     craftTime: 480, // 8 min
   },
   {
+    id: "short_bow",
+    name: "Short Bow",
+    icon: "🏹",
+    building: "woodworker",
+    minLevel: 1,
+    costs: [{ resource: "wood", amount: 10 }],
+    produces: { resource: "weapons", amount: 1 },
+    craftTime: 300, // 5 min
+  },
+  {
     id: "hunting_bow",
     name: "Hunting Bow",
     icon: "🏹",
     building: "woodworker",
-    minLevel: 1,
+    minLevel: 2,
     costs: [{ resource: "wood", amount: 12 }, { resource: "fiber", amount: 5 }],
     produces: { resource: "weapons", amount: 1 },
     craftTime: 600, // 10 min
@@ -1276,6 +1296,12 @@ export function GameProvider(props: ParentProps) {
           if (prod.secondary && prod.secondary.resource === "wool" && woolSeasonMod > 0) {
             s.wool = Math.min(200, s.wool + prod.secondary.amount * woolSeasonMod * elapsedHours);
           }
+        }
+
+        // ── Fiber from forager's hut (wild flax and plant fibers) ──
+        const foragerLvl = s.buildings.find((b) => b.buildingId === "forager_hut")?.level ?? 0;
+        if (foragerLvl > 0) {
+          s.fiber = Math.min(200, s.fiber + foragerLvl * 1.5 * elapsedHours);
         }
 
         // ── Fiber from flax harvest ──

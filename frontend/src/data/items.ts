@@ -59,6 +59,13 @@ export const ITEMS: ItemDefinition[] = [
 
   // ── Bows (Woodworker) — archer ────────────────────────────────
   {
+    id: "short_bow", name: "Short Bow", icon: "🏹", slot: "weapon",
+    description: "+1 DEX (basic)",
+    classes: ["archer"],
+    stats: { dex: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "short_bow", consumable: false,
+  },
+  {
     id: "hunting_bow", name: "Hunting Bow", icon: "🏹", slot: "weapon",
     description: "+1 DEX",
     classes: ["archer"],
@@ -103,6 +110,15 @@ export const ITEMS: ItemDefinition[] = [
     classes: ["warrior", "archer", "assassin"],
     stats: { vit: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "wooden_shield", consumable: false,
+  },
+
+  // ── Woolen Robe (Tailoring, early game) ────────────────────────
+  {
+    id: "woolen_robe", name: "Woolen Robe", icon: "🧶", slot: "armor",
+    description: "+1 VIT, +1 WIS",
+    classes: ["wizard", "priest"],
+    stats: { vit: 1, wis: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "woolen_robe", consumable: false,
   },
 
   // ── Robes (Tailoring) — wizard, priest ────────────────────────
