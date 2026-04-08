@@ -361,6 +361,19 @@ export default function Farming() {
 
       {/* ── Fields ── */}
       <h2 class="farming-section-title">🌾 Fields ({state.fields.length}/{MAX_FIELDS})</h2>
+      <Show when={state.fields.length === 0 && state.season !== "spring"}>
+        <div style={{
+          padding: "8px 12px",
+          "margin-bottom": "10px",
+          "border-radius": "6px",
+          background: "rgba(245, 197, 66, 0.1)",
+          border: "1px solid rgba(245, 197, 66, 0.3)",
+          "font-size": "0.8rem",
+          color: "var(--accent-gold)",
+        }}>
+          Fields can only be planted in spring. You can build one now, but it will sit empty until next spring. Consider building a <strong>garden</strong> instead — they produce food year-round (except winter).
+        </div>
+      </Show>
       <Show when={state.fields.length > 0}>
         <div style={{
           padding: "8px 12px",

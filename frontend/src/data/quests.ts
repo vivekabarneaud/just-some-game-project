@@ -187,7 +187,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "seeds_of_prosperity",
     title: "Seeds of Prosperity",
     narrative:
-      "The soil here is dark and rich — perfect for planting. Build a field and sow your first crop. If it's not the right season for grain, try planting a garden instead!",
+      "The soil here is dark and rich — perfect for planting. Fields can only be planted in spring, so if it's not the season, build a garden instead — they grow year-round except in winter.",
     objective: "Build a Field or a Garden",
     icon: "🌾",
     condition: (s) => s.fields.some((f) => f.level >= 1) || s.gardens.some((g) => g.level >= 1),
