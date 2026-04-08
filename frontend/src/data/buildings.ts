@@ -408,7 +408,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     image: "/images/buildings/watchtower.png",
     maxLevel: 15,
     levels: generateLevels({ wood: 60, stone: 120 }, 32, undefined, 15),
-    requiredTier: "town",
+    requiredTier: "village",
   },
   {
     id: "mage_tower",

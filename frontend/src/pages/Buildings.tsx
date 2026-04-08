@@ -375,7 +375,7 @@ export default function Buildings() {
                       </div>
                     </A>
                   ) : (
-                    <div class="building-card locked">
+                    <div class="building-card locked" id={`building-${building.id}`}>
                       <Show when={building.image}>
                         <div class="building-card-image locked-image">
                           <img src={building.image} alt={building.name} loading="lazy" />
