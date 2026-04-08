@@ -219,7 +219,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "town_hall")?.level ?? 0) >= 2,
     rewards: [{ resource: "gold", amount: 40, label: "Gold" }],
     targetBuildingId: "town_hall",
-    image: "/images/buildings/settlement_village.png",
+    image: "/images/buildings/settlement_camp.png",
   },
   // 16 — Build a Marketplace
   {
@@ -285,7 +285,47 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     icon: "⭐",
     condition: (s) => (bldg(s, "town_hall")?.level ?? 0) >= 3,
     targetBuildingId: "town_hall",
-    image: "/images/buildings/settlement_town.png",
+    image: "/images/buildings/settlement_village.png",
+    rewards: [
+      { resource: "gold", amount: 60, label: "Gold" },
+      { resource: "astralShards", amount: 5, label: "Astral Shards" },
+    ],
+  },
+  // 21 — Build Walls (after reaching village, bandits notice you)
+  {
+    id: "the_first_threat",
+    title: "The First Threat",
+    narrative:
+      "Your growth hasn't gone unnoticed. Scouts report movement in the hills to the south — armed men, watching your settlement. The Dominion would call them bandits. They call themselves survivors. Either way, walls would help.",
+    objective: "Build Walls",
+    icon: "🧱",
+    condition: (s) => (bldg(s, "walls")?.level ?? 0) >= 1,
+    rewards: [{ resource: "stone", amount: 100, label: "Stone" }],
+    targetBuildingId: "walls",
+    image: "/images/buildings/walls.png",
+  },
+  // 22 — Build a Watchtower
+  {
+    id: "eyes_on_the_horizon",
+    title: "Eyes on the Horizon",
+    narrative:
+      "Walls keep them out. A watchtower tells you they're coming. Your people sleep better knowing someone watches through the night — and the earlier you see a threat, the more time you have to prepare.",
+    objective: "Build a Watchtower",
+    icon: "🏰",
+    condition: (s) => (bldg(s, "watchtower")?.level ?? 0) >= 1,
+    rewards: [{ resource: "wood", amount: 100, label: "Wood" }],
+    targetBuildingId: "watchtower",
+    image: "/images/buildings/watchtower.png",
+  },
+  // 23 — Survive a raid
+  {
+    id: "baptism_of_fire",
+    title: "Baptism of Fire",
+    narrative:
+      "The drums sound at dawn. They're coming. Everything you've built — every wall, every weapon, every adventurer you kept home instead of sending on missions — it all comes down to this moment. Hold the line.",
+    objective: "Survive a raid",
+    icon: "⚔️",
+    condition: (s) => s.raidLog.some((r) => r.victory) || s.lastRaidOutcome === "victory",
     rewards: [
       { resource: "gold", amount: 60, label: "Gold" },
       { resource: "astralShards", amount: 5, label: "Astral Shards" },
