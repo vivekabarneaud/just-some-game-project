@@ -19,9 +19,27 @@ import { getItem, getItemsForSlot, getEquipmentStats, ITEMS, type ItemSlot, isSu
 // ─── Equipment slot types ───────────────────────────────────────
 
 const EQUIPMENT_SLOTS = [
-  { id: "weapon", name: "Weapon", icon: "⚔️" },
-  { id: "armor", name: "Armor", icon: "🛡️" },
-  { id: "trinket", name: "Trinket", icon: "💍" },
+  { id: "head", name: "Head", icon: "🪖" },
+  { id: "chest", name: "Chest", icon: "🦺" },
+  { id: "legs", name: "Legs", icon: "👖" },
+  { id: "boots", name: "Boots", icon: "🥾" },
+  { id: "cloak", name: "Cloak", icon: "🧣" },
+  { id: "mainHand", name: "Main Hand", icon: "⚔️" },
+  { id: "offHand", name: "Off Hand", icon: "🛡️" },
+  { id: "ring1", name: "Ring", icon: "💍" },
+  { id: "ring2", name: "Ring", icon: "💍" },
+  { id: "amulet", name: "Amulet", icon: "📿" },
+  { id: "trinket", name: "Trinket", icon: "🔮" },
+];
+
+// Character doll layout positions
+const GEAR_GRID = [
+  //         left        center      right
+  /* row1 */ [null,       "head",     null],
+  /* row2 */ ["cloak",    "chest",    "offHand"],
+  /* row3 */ ["ring1",    "legs",     "mainHand"],
+  /* row4 */ ["ring2",    "boots",    "trinket"],
+  /* row5 */ [null,       "amulet",   null],
 ];
 
 export default function AdventurerDetail() {
@@ -196,88 +214,68 @@ export default function AdventurerDetail() {
                   })}
                 </div>
 
-                {/* Equipment */}
+                {/* Equipment — Character Doll */}
                 <div class="overview-panel">
                   <h2>Equipment</h2>
-                  {EQUIPMENT_SLOTS.map((slot) => {
-                    const equippedId = () => adv().equipment[slot.id as ItemSlot];
-                    const equippedItem = () => equippedId() ? getItem(equippedId()!) : null;
-                    const availableItems = () => getItemsForSlot(slot.id as ItemSlot, adv().class)
-                      .filter((item) => actions.getInventoryCount(item.id) > 0 && !isSupplyItem(item.id));
+                  <div class="gear-doll">
+                    {GEAR_GRID.map((row) => (
+                      <div class="gear-doll-row">
+                        {row.map((slotId) => {
+                          if (!slotId) return <div class="gear-slot-empty-space" />;
+                          const slotDef = EQUIPMENT_SLOTS.find((s) => s.id === slotId)!;
+                          const equippedId = () => adv().equipment[slotId as ItemSlot];
+                          const equippedItem = () => equippedId() ? getItem(equippedId()!) : null;
+                          const availableItems = () => getItemsForSlot(slotId as ItemSlot, adv().class)
+                            .filter((item) => actions.getInventoryCount(item.id) > 0 && !isSupplyItem(item.id));
 
-                    return (
-                      <div style={{
-                        padding: "10px",
-                        "margin-bottom": "8px",
-                        background: "var(--bg-primary)",
-                        "border-radius": "6px",
-                        border: `1px ${equippedItem() ? "solid var(--accent-blue)" : "dashed var(--border-default)"}`,
-                      }}>
-                        <div style={{ display: "flex", "align-items": "center", "justify-content": "space-between" }}>
-                          <div style={{ display: "flex", "align-items": "center", gap: "8px" }}>
-                            <span style={{ "font-size": "1.2rem" }}>{equippedItem()?.icon ?? slot.icon}</span>
-                            <div>
-                              <div style={{ "font-size": "0.85rem", color: equippedItem() ? "var(--text-primary)" : "var(--text-muted)" }}>
-                                {equippedItem()?.name ?? `${slot.name} — empty`}
+                          return (
+                            <div
+                              class="gear-slot"
+                              classList={{ equipped: !!equippedItem() }}
+                              title={equippedItem() ? `${equippedItem()!.name}\n${equippedItem()!.description}` : `${slotDef.name} — empty`}
+                            >
+                              <div class="gear-slot-icon">
+                                {equippedItem()?.icon ?? slotDef.icon}
+                              </div>
+                              <div class="gear-slot-label">
+                                {equippedItem()?.name ?? slotDef.name}
                               </div>
                               <Show when={equippedItem()}>
-                                <div style={{ "font-size": "0.75rem", color: "var(--accent-green)" }}>
-                                  {equippedItem()!.description}
-                                  {equippedItem()!.consumable && <span style={{ color: "var(--accent-gold)" }}> (consumable)</span>}
-                                </div>
+                                <div class="gear-slot-stats">{equippedItem()!.description}</div>
+                              </Show>
+                              {/* Actions */}
+                              <Show when={!adv().onMission}>
+                                <Show when={equippedItem()}>
+                                  <button
+                                    class="gear-slot-action unequip"
+                                    onClick={() => actions.unequipItem(params.id, slotId as ItemSlot)}
+                                  >×</button>
+                                </Show>
+                                <Show when={!equippedItem() && availableItems().length > 0}>
+                                  <div class="gear-slot-options">
+                                    <For each={availableItems()}>
+                                      {(item) => (
+                                        <button
+                                          class="gear-slot-option"
+                                          onClick={() => actions.equipItem(params.id, item.id)}
+                                          title={`${item.name}: ${item.description}`}
+                                        >
+                                          {item.icon}
+                                        </button>
+                                      )}
+                                    </For>
+                                  </div>
+                                </Show>
                               </Show>
                             </div>
-                          </div>
-                          <Show when={equippedItem() && !adv().onMission}>
-                            <button
-                              onClick={() => actions.unequipItem(params.id, slot.id as ItemSlot)}
-                              style={{
-                                padding: "3px 8px",
-                                background: "rgba(231, 76, 60, 0.1)",
-                                border: "1px solid var(--accent-red)",
-                                color: "var(--accent-red)",
-                                "border-radius": "4px",
-                                cursor: "pointer",
-                                "font-size": "0.75rem",
-                              }}
-                            >
-                              Unequip
-                            </button>
-                          </Show>
-                        </div>
-                        <Show when={!adv().onMission && availableItems().length > 0}>
-                          <div style={{ display: "flex", gap: "4px", "flex-wrap": "wrap", "margin-top": "8px" }}>
-                            <For each={availableItems()}>
-                              {(item) => (
-                                <button
-                                  onClick={() => actions.equipItem(params.id, item.id)}
-                                  style={{
-                                    padding: "4px 8px",
-                                    background: "rgba(52, 152, 219, 0.1)",
-                                    border: "1px solid var(--accent-blue)",
-                                    color: "var(--accent-blue)",
-                                    "border-radius": "4px",
-                                    cursor: "pointer",
-                                    "font-size": "0.75rem",
-                                  }}
-                                >
-                                  {item.icon} {item.name} ({actions.getInventoryCount(item.id)})
-                                </button>
-                              )}
-                            </For>
-                          </div>
-                        </Show>
+                          );
+                        })}
                       </div>
-                    );
-                  })}
+                    ))}
+                  </div>
                   <Show when={adv().onMission}>
-                    <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-top": "4px" }}>
+                    <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-top": "8px", "text-align": "center" }}>
                       Cannot change equipment while on a mission.
-                    </div>
-                  </Show>
-                  <Show when={!adv().onMission && !adv().equipment.mainHand && !adv().equipment.chest && !adv().equipment.head}>
-                    <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-top": "4px", "font-style": "italic" }}>
-                      Craft gear at the Woodworker, Blacksmith, or Tailoring Shop to equip your adventurers.
                     </div>
                   </Show>
                 </div>
