@@ -70,7 +70,7 @@ export default function Overview() {
   };
   const questProgress = () => claimed().length;
   const allQuestsComplete = () => questProgress() >= QUEST_CHAIN.length;
-  const [dismissedCongrats, setDismissedCongrats] = createSignal(localStorage.getItem("quest-congrats-dismissed") === "true");
+  const [dismissedCongrats, setDismissedCongrats] = createSignal(false);
 
   const TIER_IMAGES: Record<string, string> = {
     camp: "/images/buildings/settlement_camp.png",
@@ -239,12 +239,12 @@ export default function Overview() {
       <Show when={allQuestsComplete() && !dismissedCongrats()}>
         <div class="quest-panel">
           <div class="quest-complete-banner">
-            <h2>All Quests Complete!</h2>
-            <p>You have proven yourself a worthy ruler. Your settlement thrives under your leadership. The realm awaits your next move.</p>
+            <h2>All Quests Complete — For Now</h2>
+            <p>You have proven yourself a worthy ruler. Your settlement thrives under your leadership. But the frontier is vast, and new challenges are on the horizon. Stay sharp — more quests will arrive soon.</p>
             <button
               class="quest-claim-btn"
               style={{ "margin-top": "10px" }}
-              onClick={() => { setDismissedCongrats(true); localStorage.setItem("quest-congrats-dismissed", "true"); }}
+              onClick={() => setDismissedCongrats(true)}
             >
               Onward!
             </button>
