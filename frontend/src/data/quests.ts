@@ -34,7 +34,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "lumber_mill")?.level ?? 0) >= 1,
     rewards: [{ resource: "wood", amount: 100, label: "Wood" }],
     targetBuildingId: "lumber_mill",
-    image: "/images/buildings/lumber_mill.png",
+    image: "/images/stories/quest_1.png",
   },
   // 2 — Stone Quarry
   {
