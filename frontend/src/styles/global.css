@@ -86,6 +86,8 @@ body {
   align-items: center;
   padding: 0 24px;
   gap: 24px;
+  position: relative;
+  z-index: 10;
 }
 
 .sidebar {
@@ -658,7 +660,8 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.25;
+  object-position: center top;
+  opacity: 0.4;
 }
 
 .overview-bg-overlay {
@@ -669,16 +672,18 @@ body {
   bottom: 0;
   background: linear-gradient(
     to bottom,
-    rgba(26, 26, 46, 0.2) 0%,
-    rgba(26, 26, 46, 0.6) 25%,
-    rgba(26, 26, 46, 0.85) 50%,
-    rgba(26, 26, 46, 0.95) 100%
+    rgba(26, 26, 46, 0.1) 0%,
+    rgba(26, 26, 46, 0.3) 15%,
+    rgba(26, 26, 46, 0.7) 35%,
+    rgba(26, 26, 46, 0.92) 55%,
+    rgba(26, 26, 46, 0.98) 100%
   );
 }
 
 .overview-content {
   position: relative;
   z-index: 1;
+  padding-top: 120px;
 }
 
 .settlement-banner-title {
