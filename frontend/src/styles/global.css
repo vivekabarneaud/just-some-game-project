@@ -1606,6 +1606,80 @@ body {
   align-items: center;
 }
 
+.gear-inventory {
+  flex: 1;
+  min-width: 0;
+}
+
+.gear-inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(52px, 52px));
+  gap: 4px;
+}
+
+.gear-inv-slot {
+  width: 52px;
+  height: 52px;
+  border: 1px solid rgba(180, 150, 100, 0.3);
+  border-radius: 3px;
+  background: #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.gear-inv-slot::before,
+.gear-inv-slot::after {
+  content: "";
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-color: rgba(180, 150, 100, 0.3);
+  border-style: solid;
+}
+
+.gear-inv-slot::before {
+  top: 2px;
+  left: 2px;
+  border-width: 1px 0 0 1px;
+}
+
+.gear-inv-slot::after {
+  bottom: 2px;
+  right: 2px;
+  border-width: 0 1px 1px 0;
+}
+
+.gear-inv-slot.can-equip:hover {
+  border-color: var(--accent-green);
+}
+
+.gear-inv-slot.can-equip:hover::before,
+.gear-inv-slot.can-equip:hover::after {
+  border-color: var(--accent-green);
+}
+
+.gear-inv-slot.wrong-class {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.gear-inv-icon {
+  font-size: 1.3rem;
+}
+
+.gear-inv-qty {
+  position: absolute;
+  bottom: 1px;
+  right: 3px;
+  font-size: 0.6rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
 .gear-side-label {
   font-size: 0.7rem;
   color: var(--text-muted);

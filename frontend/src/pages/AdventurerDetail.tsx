@@ -297,6 +297,48 @@ export default function AdventurerDetail() {
                           <div class="gear-side-label">Weapons</div>
                           {SIDE_SLOTS.map((s) => renderSlot(s.id))}
                         </div>
+
+                        {/* Inventory — available gear */}
+                        <Show when={!adv().onMission}>
+                          <div class="gear-inventory">
+                            <div class="gear-side-label">Inventory</div>
+                            <div class="gear-inventory-grid">
+                              {(() => {
+                                const items = state.inventory
+                                  .filter((inv) => inv.quantity > 0 && !isSupplyItem(inv.itemId))
+                                  .map((inv) => ({ item: getItem(inv.itemId)!, qty: inv.quantity }))
+                                  .filter((x) => x.item);
+                                if (items.length === 0) return (
+                                  <div style={{ "grid-column": "1 / -1", "font-size": "0.75rem", color: "var(--text-muted)", "font-style": "italic", padding: "8px" }}>
+                                    No gear in inventory. Craft some at your workshops.
+                                  </div>
+                                );
+                                return items.map(({ item, qty }) => {
+                                  const canEquip = () => {
+                                    if (item.classes.length > 0 && !item.classes.includes(adv().class)) return false;
+                                    return true;
+                                  };
+                                  return (
+                                    <div
+                                      class="gear-inv-slot"
+                                      classList={{ "can-equip": canEquip(), "wrong-class": !canEquip() }}
+                                      title={`${item.name}\n${item.description}${!canEquip() ? "\n(Wrong class)" : ""}`}
+                                      onClick={() => { if (canEquip()) actions.equipItem(params.id, item.id); }}
+                                    >
+                                      <Show when={item.image}>
+                                        <img src={item.image} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", "object-fit": "cover", "border-radius": "3px" }} />
+                                      </Show>
+                                      <Show when={!item.image}>
+                                        <span class="gear-inv-icon">{item.icon}</span>
+                                      </Show>
+                                      <span class="gear-inv-qty">{qty}</span>
+                                    </div>
+                                  );
+                                });
+                              })()}
+                            </div>
+                          </div>
+                        </Show>
                       </div>
                     );
                   })()}
