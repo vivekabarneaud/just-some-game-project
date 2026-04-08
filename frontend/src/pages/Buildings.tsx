@@ -325,6 +325,11 @@ export default function Buildings() {
                             {currentLevel()!.production!.resource}
                           </div>
                         )}
+                        {building.id === "forager_hut" && level() > 0 && (
+                          <div class="building-card-production">
+                            +{(level() * 1.5).toFixed(1)}/h fiber (wild flax)
+                          </div>
+                        )}
                         {pb()?.damaged && (
                           <div class="building-card-upgrading" style={{ color: "var(--accent-red)" }}>
                             Damaged — not producing

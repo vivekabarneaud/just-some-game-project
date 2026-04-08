@@ -185,6 +185,11 @@ export default function BuildingDetail() {
                     <div style={{ "font-size": "1.1rem", color: "var(--accent-green)" }}>
                       +{prod().rate}/h {prod().resource}
                     </div>
+                    <Show when={params.id === "forager_hut"}>
+                      <div style={{ "font-size": "0.9rem", color: "var(--accent-green)", "margin-top": "4px" }}>
+                        +{((playerBuilding()?.level ?? 0) * 1.5).toFixed(1)}/h fiber (wild flax)
+                      </div>
+                    </Show>
                   </div>
                 )}
               </Show>
