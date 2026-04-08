@@ -629,6 +629,7 @@ export interface GameActions {
   getHerbCount: (herbId: string) => number;
   makeOffering: (deityId: string) => boolean;
   claimMissionReward: (index: number) => void;
+  skipRaidTimer: () => void;
   trade: (give: keyof ResourceState, giveAmount: number, receive: keyof ResourceState, receiveAmount: number) => boolean;
 }
 
@@ -2819,6 +2820,14 @@ export function GameProvider(props: ParentProps) {
           }
         }
         s.completedMissions.splice(index, 1);
+      }));
+    },
+    skipRaidTimer() {
+      if (state.incomingRaids.length === 0) return;
+      setState(produce((s) => {
+        for (const raid of s.incomingRaids) {
+          raid.remaining = 0;
+        }
       }));
     },
     trade(give, giveAmount, receive, receiveAmount) {

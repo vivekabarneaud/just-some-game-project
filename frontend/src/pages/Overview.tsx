@@ -143,6 +143,15 @@ export default function Overview() {
                   return href ? <A href={href} class="quest-link">{label} →</A> : null;
                 })()}
               </Show>
+              <Show when={quest().id === "baptism_of_fire" && state.incomingRaids.length > 0}>
+                <button
+                  class="quest-claim-btn"
+                  style={{ background: "var(--accent-red)", "margin-left": "8px" }}
+                  onClick={() => actions.skipRaidTimer()}
+                >
+                  They're here. Fight now.
+                </button>
+              </Show>
             </div>
             </div>{/* end quest-panel-content */}
           </div>
