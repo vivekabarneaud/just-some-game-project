@@ -178,6 +178,7 @@ export default function Buildings() {
                               position: "absolute",
                               top: "8px",
                               right: "8px",
+                              "z-index": "5",
                             }}
                             onClick={(e) => {
                               if (canUpgradeNow()) {

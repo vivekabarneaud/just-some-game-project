@@ -1567,8 +1567,8 @@ export function GameProvider(props: ParentProps) {
 
                 // Apply deaths
                 for (const id of deadIds) {
-                  casualties.push(id);
                   const advInState = s.adventurers.find((a) => a.id === id);
+                  casualties.push(advInState?.name ?? id);
                   if (advInState) {
                     advInState.alive = false;
                     // Equipment lost on death
