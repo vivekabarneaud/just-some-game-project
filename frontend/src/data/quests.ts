@@ -60,7 +60,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "forager_hut")?.level ?? 0) >= 1,
     rewards: [{ resource: "food", amount: 100, label: "Food" }],
     targetBuildingId: "forager_hut",
-    image: "/images/buildings/forager_hut.png",
+    image: "/images/stories/quest_3.png",
   },
   // 4 — Hunting Camp
   {
@@ -73,7 +73,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "hunting_camp")?.level ?? 0) >= 1,
     rewards: [{ resource: "food", amount: 150, label: "Food" }],
     targetBuildingId: "hunting_camp",
-    image: "/images/buildings/hunting_camp.png",
+    image: "/images/stories/quest_4.png",
   },
   // 5 — Upgrade Lumber Mill to lvl 2
   {
@@ -86,7 +86,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "lumber_mill")?.level ?? 0) >= 2,
     rewards: [{ resource: "wood", amount: 150, label: "Wood" }],
     targetBuildingId: "lumber_mill",
-    image: "/images/buildings/lumber_mill.png",
+    image: "/images/stories/quest_5.png",
   },
   // 6 — Upgrade Stone Quarry to lvl 2
   {
@@ -99,7 +99,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "quarry")?.level ?? 0) >= 2,
     rewards: [{ resource: "stone", amount: 150, label: "Stone" }],
     targetBuildingId: "quarry",
-    image: "/images/buildings/quarry.png",
+    image: "/images/stories/quest_6.png",
   },
   // 7 — Houses
   {
@@ -112,7 +112,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "houses")?.level ?? 0) >= 1,
     rewards: [{ resource: "food", amount: 50, label: "Food" }],
     targetBuildingId: "houses",
-    image: "/images/buildings/houses.png",
+    image: "/images/stories/quest_7.png",
   },
   // 8 — Fishing Hut
   {
@@ -125,7 +125,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "fishing_hut")?.level ?? 0) >= 1,
     rewards: [{ resource: "food", amount: 100, label: "Food" }],
     targetBuildingId: "fishing_hut",
-    image: "/images/buildings/fishing_hut.png",
+    image: "/images/stories/quest_8.png",
   },
   // 9 — Pantry
   {
@@ -138,7 +138,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "pantry")?.level ?? 0) >= 1,
     rewards: [{ resource: "food", amount: 100, label: "Food" }],
     targetBuildingId: "pantry",
-    image: "/images/buildings/pantry.png",
+    image: "/images/stories/quest_9.png",
   },
   // 10 — Adventurer's Guild (the big early unlock!)
   {
@@ -150,7 +150,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     icon: "🏰",
     condition: (s) => (bldg(s, "adventurers_guild")?.level ?? 0) >= 1,
     targetBuildingId: "adventurers_guild",
-    image: "/images/buildings/adventurers_guild.png",
+    image: "/images/stories/quest_10.png",
     rewards: [
       { resource: "gold", amount: 100, label: "Gold" },
       { resource: "astralShards", amount: 5, label: "Astral Shards" },
@@ -167,6 +167,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => s.adventurers.length >= 1,
     rewards: [{ resource: "gold", amount: 100, label: "Gold" }],
     targetPage: "/guild",
+    image: "/images/stories/quest_11.png",
   },
   // 12 — Send mission
   {
@@ -179,6 +180,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => s.firstMissionSent === true,
     rewards: [{ resource: "astralShards", amount: 10, label: "Astral Shards" }],
     targetPage: "/guild",
+    image: "/images/stories/quest_12.png",
   },
   // 13 — Field or Garden
   {
@@ -191,6 +193,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => s.fields.length >= 1 || s.gardens.length >= 1,
     rewards: [{ resource: "food", amount: 200, label: "Food" }],
     targetPage: "/farming",
+    image: "/images/stories/quest_13.png",
   },
   // 14 — Sheep Pen
   {
@@ -203,6 +206,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => s.pens.length >= 1,
     rewards: [{ resource: "food", amount: 100, label: "Food" }],
     targetPage: "/farming",
+    image: "/images/stories/quest_14.png",
   },
   // 15 — Town Hall lvl 2
   {
