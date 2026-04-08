@@ -239,9 +239,12 @@ export default function AdventurerDetail() {
                           classList={{ equipped: !!equippedItem(), "has-sprite": !!equippedItem()?.image }}
                           title={equippedItem() ? `${equippedItem()!.name}\n${equippedItem()!.description}` : `${slotDef.name} — empty`}
                         >
-                          <div class="gear-slot-icon">
-                            <Show when={equippedItem()?.image} fallback={equippedItem()?.icon ?? slotDef.icon}>
-                              <img src={equippedItem()!.image} alt="" class="item-sprite" style={{ width: "48px", height: "48px", "object-fit": "contain" }} />
+                          <Show when={equippedItem()?.image}>
+                            <img src={equippedItem()!.image} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", "object-fit": "cover", "border-radius": "3px", "z-index": 1 }} />
+                          </Show>
+                          <div class="gear-slot-icon" style={{ "z-index": equippedItem()?.image ? 0 : 1 }}>
+                            <Show when={!equippedItem()?.image}>
+                              {equippedItem()?.icon ?? slotDef.icon}
                             </Show>
                           </div>
                           <div class="gear-slot-label">

@@ -1669,9 +1669,14 @@ body {
   background: rgba(30, 25, 18, 0.9);
 }
 
-.gear-slot.equipped.has-sprite {
-  background: url("/images/items/frames/novice.png") center/cover no-repeat;
+.gear-slot.equipped::before,
+.gear-slot.equipped::after {
+  border-color: rgba(180, 150, 100, 0.7);
+}
+
+.gear-slot.has-sprite {
   border-color: transparent;
+  background: transparent;
 }
 
 .gear-slot.has-sprite::before,
@@ -1679,9 +1684,9 @@ body {
   display: none;
 }
 
-.gear-slot.equipped::before,
-.gear-slot.equipped::after {
-  border-color: rgba(180, 150, 100, 0.7);
+.gear-slot.has-sprite .gear-slot-label,
+.gear-slot.has-sprite .gear-slot-stats {
+  display: none;
 }
 
 .gear-slot:hover {
@@ -1771,7 +1776,7 @@ body {
   background: rgba(52, 152, 219, 0.2);
 }
 
-/* Item Frame — Midjourney frame + item layered */
+/* Item Frame */
 .item-frame {
   position: relative;
   display: inline-flex;
@@ -1779,23 +1784,18 @@ body {
   justify-content: center;
   width: 56px;
   height: 56px;
-  background: url("/images/items/frames/novice.png") center/cover no-repeat;
-  border-radius: 2px;
 }
 
 .item-frame .item-sprite {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-  position: relative;
-  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 2px;
 }
 
 .item-frame .item-emoji {
   font-size: 1.6rem;
   line-height: 1;
-  position: relative;
-  z-index: 1;
 }
 
 /* Tier variants */
