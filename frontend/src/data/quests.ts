@@ -18,6 +18,8 @@ export interface QuestDefinition {
   targetPage?: string; // route path for the "Go to X" link
   image?: string; // optional quest illustration
   triggersRaid?: boolean; // spawns a weak raid when this quest becomes active
+  hint?: string; // extra hint text shown below the narrative
+  hintLink?: string; // optional link for the hint
 }
 
 const bldg = (state: GameState, id: string) =>
@@ -297,7 +299,9 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "the_first_threat",
     title: "The First Threat",
     narrative:
-      "Your adventurers return from their last mission with troubling news: they spotted a group of armed men in the hills, watching your settlement. They're poorly equipped — desperate, not organized — but they're heading this way. Your scouts estimate twelve hours before they arrive. Build walls. Now. If you're short on stone, the marketplace can help.",
+      "Your adventurers return from their last mission with troubling news: they spotted a group of armed men in the hills, watching your settlement. They're poorly equipped — desperate, not organized — but they're heading this way. Your scouts estimate twelve hours before they arrive. Build walls. Now.",
+    hint: "Short on stone? Trade for some at the Marketplace.",
+    hintLink: "/marketplace",
     objective: "Build Walls",
     icon: "🧱",
     condition: (s) => (bldg(s, "walls")?.level ?? 0) >= 1,

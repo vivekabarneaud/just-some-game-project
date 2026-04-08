@@ -98,6 +98,13 @@ export default function Overview() {
                 <div>
                   <h2>Quest: {quest().title}</h2>
                   <p class="quest-narrative">"{quest().narrative}"</p>
+                  <Show when={quest().hint}>
+                    <p style={{ "font-size": "0.8rem", "margin-top": "6px", color: "var(--accent-gold)" }}>
+                      <Show when={quest().hintLink} fallback={<strong>{quest().hint}</strong>}>
+                        <A href={quest().hintLink!} style={{ color: "var(--accent-gold)", "font-weight": "bold" }}>{quest().hint}</A>
+                      </Show>
+                    </p>
+                  </Show>
                 </div>
                 <span class="quest-progress">{questProgress() + 1} / {QUEST_CHAIN.length}</span>
               </div>
