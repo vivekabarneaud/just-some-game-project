@@ -253,6 +253,10 @@ export interface GameState {
   potions: number;
   gems: number;
   ironMinedTotal: number;
+  herbs: Record<string, number>;
+  foragedTotal: number;
+  discoveredRecipes: string[];
+  alchemyResearchAvailable: boolean;
   inventory: InventoryItem[];
   craftingQueue: ActiveCraft[];
   // Event log

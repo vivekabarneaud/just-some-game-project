@@ -1,5 +1,6 @@
 import { For, Show } from "solid-js";
 import { RESOURCES } from "~/data/resources";
+import { HERBS } from "~/data/herbs";
 import { useGame } from "~/engine/gameState";
 
 export default function ResourceBar() {
@@ -151,6 +152,27 @@ export default function ResourceBar() {
           </div>
         </div>
       </Show>
+      {/* Herbs */}
+      <Show when={state.herbs && Object.values(state.herbs).some((v) => (v as number) > 0)}>
+        <div class="resource-item has-dropdown">
+          <span class="resource-icon">🌿</span>
+          <span class="resource-amount">{Object.values(state.herbs ?? {}).reduce((sum, v) => sum + (v as number), 0)}</span>
+          <div class="resource-dropdown">
+            <div class="dropdown-title">Herbs</div>
+            <For each={HERBS}>
+              {(herb) => (
+                <Show when={(state.herbs?.[herb.id] ?? 0) > 0}>
+                  <div class="dropdown-row">
+                    <span>{herb.icon} {herb.name}</span>
+                    <span>{state.herbs?.[herb.id] ?? 0}</span>
+                  </div>
+                </Show>
+              )}
+            </For>
+          </div>
+        </div>
+      </Show>
+
       <Show when={state.clothing > 0 || actions.getClothingInfo().needed > 0}>
         <div class="resource-item">
           <span class="resource-icon">👕</span>

@@ -149,6 +149,7 @@ import {
 } from "~/data/raids";
 
 import { QUEST_CHAIN } from "~/data/quests";
+import { HERBS, getDiscoverableRecipes, RESEARCH_BASE_COST } from "~/data/herbs";
 import {
   listSettlements,
   loadSettlement as loadSettlementApi,
@@ -510,6 +511,12 @@ export interface GameState {
   potions: number;
   gems: number;
   ironMinedTotal: number; // tracks total iron for gem proc
+  // Herbs
+  herbs: Record<string, number>; // { chamomile: 5, mugwort: 3, ... }
+  foragedTotal: number; // tracks total food foraged for herb procs
+  // Alchemy research
+  discoveredRecipes: string[]; // recipe IDs discovered through research
+  alchemyResearchAvailable: boolean; // resets daily
   inventory: InventoryItem[];
   craftingQueue: ActiveCraft[];
   // Event log
@@ -612,6 +619,8 @@ export interface GameActions {
   rerollMissions: () => boolean;
   rerollRecruits: () => boolean;
   claimQuestReward: (questId: string) => boolean;
+  startAlchemyResearch: () => boolean;
+  getHerbCount: (herbId: string) => number;
   claimMissionReward: (index: number) => void;
   trade: (give: keyof ResourceState, giveAmount: number, receive: keyof ResourceState, receiveAmount: number) => boolean;
 }
@@ -675,6 +684,10 @@ function createInitialState(): GameState {
     potions: 0,
     gems: 0,
     ironMinedTotal: 0,
+    herbs: {},
+    foragedTotal: 0,
+    discoveredRecipes: [],
+    alchemyResearchAvailable: true,
     inventory: [],
     craftingQueue: [],
     eventLog: [],
@@ -784,6 +797,10 @@ function loadGame(): GameState | null {
     if (saved.armor === undefined) saved.armor = 0;
     if (saved.potions === undefined) saved.potions = 0;
     if (saved.gems === undefined) saved.gems = 0;
+    if (!saved.herbs) saved.herbs = {};
+    if (saved.foragedTotal === undefined) saved.foragedTotal = 0;
+    if (!saved.discoveredRecipes) saved.discoveredRecipes = [];
+    if (saved.alchemyResearchAvailable === undefined) saved.alchemyResearchAvailable = true;
     if (saved.ironMinedTotal === undefined) saved.ironMinedTotal = 0;
     if (!saved.inventory) saved.inventory = [];
     // Equipment migration: old 3-slot → new 11-slot
@@ -1366,6 +1383,19 @@ export function GameProvider(props: ParentProps) {
         const foragerLvl = s.buildings.find((b) => b.buildingId === "forager_hut")?.level ?? 0;
         if (foragerLvl > 0) {
           s.fiber = Math.min(200, s.fiber + foragerLvl * 1.5 * elapsedHours);
+
+          // ── Herb procs from foraging ──
+          const foodForaged = foragerLvl * 8 * elapsedHours; // approximate food gathered
+          s.foragedTotal = (s.foragedTotal ?? 0) + foodForaged;
+          for (const herb of HERBS) {
+            const herbChance = foodForaged * herb.dropRate;
+            if (Math.random() < herbChance) {
+              s.herbs[herb.id] = (s.herbs[herb.id] ?? 0) + 1;
+              if (herb.rarity === "rare" || herb.rarity === "legendary") {
+                pushEvent(s, "building_completed", herb.icon, `Your foragers found a rare ${herb.name}!`);
+              }
+            }
+          }
         }
 
         // ── Fiber from flax harvest ──
@@ -1865,6 +1895,7 @@ export function GameProvider(props: ParentProps) {
         if (lastResetDay !== todayStr) {
           s.missionRerollToday = 0;
           s.recruitRerollToday = 0;
+          s.alchemyResearchAvailable = true;
           s.lastRerollReset = now;
         }
 
@@ -2643,6 +2674,35 @@ export function GameProvider(props: ParentProps) {
           }
         }
       }));
+      return true;
+    },
+    getHerbCount(herbId) {
+      return state.herbs?.[herbId] ?? 0;
+    },
+    startAlchemyResearch() {
+      const labLvl = state.buildings.find((b) => b.buildingId === "alchemy_lab")?.level ?? 0;
+      if (labLvl === 0) return false;
+      if (!state.alchemyResearchAvailable) return false;
+      if (state.resources.gold < RESEARCH_BASE_COST) return false;
+
+      const discoverable = getDiscoverableRecipes(labLvl, state.discoveredRecipes ?? []);
+      if (discoverable.length === 0) return false;
+
+      setState(produce((s) => {
+        s.resources.gold -= RESEARCH_BASE_COST;
+        s.alchemyResearchAvailable = false;
+
+        // Roll for discovery
+        for (const recipe of discoverable) {
+          if (Math.random() < recipe.discoveryChance) {
+            s.discoveredRecipes = [...(s.discoveredRecipes ?? []), recipe.id];
+            pushEvent(s, "building_completed", recipe.icon, `Alchemy breakthrough! Discovered: ${recipe.name}`);
+            break; // only discover one per research
+          }
+        }
+      }));
+      // Save immediately
+      if (_settlementId) saveSettlementApi(_settlementId, JSON.parse(JSON.stringify(state))).catch(() => {});
       return true;
     },
     claimMissionReward(index) {
