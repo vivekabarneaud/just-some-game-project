@@ -27,7 +27,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "first_things_first",
     title: "First Things First",
     narrative:
-      "The forest stands tall and untouched. Your people will need timber if they're to sleep under anything sturdier than stars.",
+      "The Corsair League promised fertile land and freedom from Dominion taxes. They didn't mention the silence. Your five settlers stare at the tree line, wondering what they've gotten into. Well — timber first, doubts later.",
     objective: "Build a Lumber Mill",
     icon: "🪓",
     condition: (s) => (bldg(s, "lumber_mill")?.level ?? 0) >= 1,
@@ -39,7 +39,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "foundation_of_stone",
     title: "Foundation of Stone",
     narrative:
-      "Wood alone won't hold against the wind. Send your strongest to the quarry — stone is the backbone of civilization.",
+      "Your woodcutters found something odd — old foundation stones buried in the undergrowth, from a settlement that was here before yours. It didn't last. Yours will. Start with the quarry.",
     objective: "Build a Stone Quarry",
     icon: "⛏️",
     condition: (s) => (bldg(s, "quarry")?.level ?? 0) >= 1,
@@ -51,7 +51,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "the_foragers_path",
     title: "The Forager's Path",
     narrative:
-      "An army marches on its stomach, and so does a village. The woods are full of berries and wild herbs — if you know where to look.",
+      "The forest is generous — berries, mushrooms, wild herbs. One of your settlers claims the old folk used to say Sylvana's blessing made these woods grow thick. You're not sure who Sylvana is, but the berries are real enough.",
     objective: "Build a Forager's Hut",
     icon: "🫐",
     condition: (s) => (bldg(s, "forager_hut")?.level ?? 0) >= 1,
@@ -63,7 +63,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "the_hunt_begins",
     title: "The Hunt Begins",
     narrative:
-      "The deer trails are fresh and the boar are fat this season. A hunting camp will keep bellies full and spirits high.",
+      "The game here is plentiful — almost too plentiful, as if nothing has hunted these woods in a long time. The deer don't even run from your scouts. Whatever drove the last settlers away, it wasn't starvation.",
     objective: "Build a Hunting Camp",
     icon: "🏹",
     condition: (s) => (bldg(s, "hunting_camp")?.level ?? 0) >= 1,
@@ -99,7 +99,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "a_roof_over_their_heads",
     title: "A Roof Over Their Heads",
     narrative:
-      "Your people huddle around the campfire, dreaming of walls and warmth. Give them homes, and they will give you loyalty.",
+      "Your people are tough — they left the Dominion's comforts for freedom. But freedom doesn't keep the rain out. Build them proper homes, and they'll stop muttering about going back north.",
     objective: "Build Houses",
     icon: "🏠",
     condition: (s) => (bldg(s, "houses")?.level ?? 0) >= 1,
@@ -111,7 +111,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "from_the_deep",
     title: "From the Deep",
     narrative:
-      "The rivers teem with silver-scaled fish. A humble dock and some nets — that's all it takes to feed a growing village.",
+      "The river runs clear and cold from the northern mountains. The old Corsair maps call it the Nereia's Vein — named after some goddess of water. The fish don't care what you call it. They're biting.",
     objective: "Build a Fishing Hut",
     icon: "🐟",
     condition: (s) => (bldg(s, "fishing_hut")?.level ?? 0) >= 1,
@@ -135,7 +135,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "heroes_wanted",
     title: "Heroes Wanted",
     narrative:
-      "A weathered sign appears at your gate: 'Adventurers Sought — Fame, Fortune, and Certain Peril.' Even a humble camp needs brave souls to scout the wilds.",
+      "Word of your settlement is reaching the drifters and fortune-seekers who roam between the Dominion and the frontier. Some are running from something. Some are looking for something. All of them can fight. Build a guild hall and see who shows up.",
     objective: "Build the Adventurer's Guild",
     icon: "🏰",
     condition: (s) => (bldg(s, "adventurers_guild")?.level ?? 0) >= 1,
@@ -162,7 +162,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "into_the_unknown",
     title: "Into the Unknown",
     narrative:
-      "The mission board is nailed to the wall, ink still wet. Your adventurer adjusts their pack and glances back one last time. Send them forth!",
+      "The mission board is nailed to the wall, ink still wet. The southern frontier is full of ruins, rumours, and things that the Dominion's maps don't show. Time to find out what's really out here.",
     objective: "Send your first mission",
     icon: "🗺️",
     condition: (s) => s.firstMissionSent === true,
@@ -210,7 +210,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "merchants_welcome",
     title: "Merchants Welcome",
     narrative:
-      "Travellers pass through your settlement more often now. A marketplace would give them reason to stop — and give you access to goods you can't produce yourself.",
+      "A Corsair trader passed through yesterday, impressed by your growth. 'Build a proper market,' she said, 'and I'll make sure the League's caravans know about you.' The Corsairs may be pirates, but their coin spends the same as anyone's.",
     objective: "Build a Marketplace",
     icon: "🏪",
     condition: (s) => (bldg(s, "marketplace")?.level ?? 0) >= 1,
@@ -249,7 +249,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "faith_and_solace",
     title: "Faith and Solace",
     narrative:
-      "Your people work hard, but their spirits grow weary. The old gods watch over these lands — build a shrine to honor them, and your people will find peace.",
+      "Some of your settlers follow the Church of the Radiant One. Others whisper the old names — Ferros, Sylvana, Solara. A few pray to no one at all. But everyone needs a place to find peace. Build a shrine, and let each soul find comfort in their own way.",
     objective: "Build a Shrine",
     icon: "🔮",
     condition: (s) => (bldg(s, "shrine")?.level ?? 0) >= 1,
@@ -261,7 +261,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "the_road_to_greatness",
     title: "The Road to Greatness",
     narrative:
-      "Word of your settlement is spreading far and wide. Upgrade the Town Hall once more and unlock the full potential of your realm.",
+      "New arrivals are coming — refugees from the Dominion's taxes, adventurers seeking fortune, families looking for a fresh start. Your little camp is becoming something real. The Dominion will notice soon. Best be ready.",
     objective: "Upgrade Town Hall to level 3",
     icon: "⭐",
     condition: (s) => (bldg(s, "town_hall")?.level ?? 0) >= 3,
