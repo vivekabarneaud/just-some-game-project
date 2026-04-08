@@ -279,6 +279,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     description:
       "A lively gathering place for citizens and travelers. Consumes ale and greatly boosts happiness.",
     icon: "🍻",
+    image: "/images/buildings/tavern.png",
     maxLevel: 10,
     levels: generateLevels({ wood: 80, stone: 50 }, 22, undefined, 10),
     requiredTier: "village",

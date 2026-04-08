@@ -239,15 +239,15 @@ const CLASS_PORTRAITS: Record<AdventurerClass, { male: string[]; female: string[
   },
   priest: {
     male: ["/images/characters/priest_male_1.png", "/images/characters/priest_male_2.png"],
-    female: ["/images/characters/priest_female_1.png", "/images/characters/priest_female_2.png"],
+    female: ["/images/characters/priest_female_1.png", "/images/characters/priest_female_2.png", "/images/characters/priest_female_3.png"],
   },
   archer: {
-    male: ["/images/characters/warrior_male_2.png"],
-    female: ["/images/characters/warrior_female_2.png"],
+    male: ["/images/characters/archer_male_1.png", "/images/characters/archer_male_2.png"],
+    female: ["/images/characters/archer_female_1.png", "/images/characters/archer_female_2.png"],
   },
   assassin: {
-    male: ["/images/characters/warrior_male_1.png"],
-    female: ["/images/characters/warrior_female_1.png"],
+    male: ["/images/characters/assassin_male_1.png", "/images/characters/assassin_male_2.png"],
+    female: ["/images/characters/assassin_female_1.png", "/images/characters/assassin_female_2.png"],
   },
 };
 
