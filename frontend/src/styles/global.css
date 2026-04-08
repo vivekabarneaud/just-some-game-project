@@ -1130,12 +1130,12 @@ body {
 }
 
 .mission-assembly.has-bg .mission-detail-panel {
-  background: rgba(26, 26, 46, 0.8);
+  background: rgba(26, 26, 46, 0.85);
   border-radius: 8px;
   padding: 16px;
   border-right: none;
   backdrop-filter: blur(6px);
-  align-self: end;
+  align-self: start;
 }
 
 .mission-assembly.has-bg .team-panel {

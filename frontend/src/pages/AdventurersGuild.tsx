@@ -534,11 +534,11 @@ export default function AdventurersGuild() {
                       <img
                         src={mission().image}
                         alt=""
-                        style={{ width: "100%", height: "100%", "object-fit": "cover", "object-position": "center 30%", opacity: "0.35" }}
+                        style={{ width: "100%", height: "100%", "object-fit": "cover", "object-position": "center 30%", opacity: "0.5" }}
                       />
                       <div style={{
                         position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
-                        background: "linear-gradient(to bottom, rgba(26, 26, 46, 0.05) 0%, rgba(26, 26, 46, 0.3) 30%, rgba(26, 26, 46, 0.85) 70%)",
+                        background: "linear-gradient(to bottom, rgba(26, 26, 46, 0.8) 0%, rgba(26, 26, 46, 0.3) 40%, rgba(26, 26, 46, 0.05) 100%)",
                       }} />
                     </div>
                   </Show>
