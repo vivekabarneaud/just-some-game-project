@@ -150,6 +150,7 @@ import {
 
 import { QUEST_CHAIN } from "~/data/quests";
 import { HERBS, getDiscoverableRecipes, RESEARCH_BASE_COST } from "~/data/herbs";
+import { getDeity, getCurrentDeity } from "~/data/deities";
 import {
   listSettlements,
   loadSettlement as loadSettlementApi,
@@ -517,6 +518,8 @@ export interface GameState {
   // Alchemy research
   discoveredRecipes: string[]; // recipe IDs discovered through research
   alchemyResearchAvailable: boolean; // resets daily
+  // Shrine blessing
+  activeBlessing: { deityId: string; effect: string } | null;
   inventory: InventoryItem[];
   craftingQueue: ActiveCraft[];
   // Event log
@@ -621,6 +624,7 @@ export interface GameActions {
   claimQuestReward: (questId: string) => boolean;
   startAlchemyResearch: () => boolean;
   getHerbCount: (herbId: string) => number;
+  makeOffering: (deityId: string) => boolean;
   claimMissionReward: (index: number) => void;
   trade: (give: keyof ResourceState, giveAmount: number, receive: keyof ResourceState, receiveAmount: number) => boolean;
 }
@@ -688,6 +692,7 @@ function createInitialState(): GameState {
     foragedTotal: 0,
     discoveredRecipes: [],
     alchemyResearchAvailable: true,
+    activeBlessing: null,
     inventory: [],
     craftingQueue: [],
     eventLog: [],
@@ -801,6 +806,7 @@ function loadGame(): GameState | null {
     if (saved.foragedTotal === undefined) saved.foragedTotal = 0;
     if (!saved.discoveredRecipes) saved.discoveredRecipes = [];
     if (saved.alchemyResearchAvailable === undefined) saved.alchemyResearchAvailable = true;
+    if (saved.activeBlessing === undefined) saved.activeBlessing = null;
     if (saved.ironMinedTotal === undefined) saved.ironMinedTotal = 0;
     if (!saved.inventory) saved.inventory = [];
     // Equipment migration: old 3-slot → new 11-slot
@@ -1352,6 +1358,14 @@ export function GameProvider(props: ParentProps) {
           }
           s.seasonElapsed = global.progress * HOURS_PER_SEASON;
           s.year = global.year;
+
+          // Clear blessing if the deity has rotated
+          if (s.activeBlessing) {
+            const currentDeity = getCurrentDeity(s.season, global.progress);
+            if (currentDeity.id !== s.activeBlessing.deityId) {
+              s.activeBlessing = null;
+            }
+          }
         }
 
         const rates = calcProductionRates(s);
@@ -2451,6 +2465,12 @@ export function GameProvider(props: ParentProps) {
       const shrineLvl = state.buildings.find((b) => b.buildingId === "shrine")?.level ?? 0;
       if (shrineLvl > 0) factors.push({ label: `Shrine Lv.${shrineLvl}`, value: shrineLvl * SHRINE_HAPPINESS_PER_LEVEL });
 
+      // Solara's blessing
+      if (state.activeBlessing?.effect?.startsWith("happiness:")) {
+        const bonus = parseInt(state.activeBlessing.effect.split(":")[1]);
+        if (bonus) factors.push({ label: "Solara's Warmth", value: bonus });
+      }
+
       const tavernLvl = state.buildings.find((b) => b.buildingId === "tavern")?.level ?? 0;
       if (tavernLvl > 0) {
         const hasAle = state.ale > 0;
@@ -2695,6 +2715,47 @@ export function GameProvider(props: ParentProps) {
     },
     getHerbCount(herbId) {
       return state.herbs?.[herbId] ?? 0;
+    },
+    makeOffering(deityId) {
+      const deity = getDeity(deityId);
+      if (!deity) return false;
+      const shrineLvl = state.buildings.find((b) => b.buildingId === "shrine")?.level ?? 0;
+      if (shrineLvl === 0) return false;
+
+      // Check if player can afford offering
+      for (const cost of deity.offeringCost) {
+        const res = cost.resource;
+        if (res === "gold" && state.resources.gold < cost.amount) return false;
+        if (res === "food" && state.resources.food < cost.amount) return false;
+        if (res === "wood" && state.resources.wood < cost.amount) return false;
+        if (res === "stone" && state.resources.stone < cost.amount) return false;
+        if (res === "wool" && state.wool < cost.amount) return false;
+        if (res === "iron" && state.iron < cost.amount) return false;
+        if (res === "weapons" && state.weapons < cost.amount) return false;
+        if (res === "clothing" && state.clothing < cost.amount) return false;
+        if (res === "astralShards" && state.astralShards < cost.amount) return false;
+      }
+
+      setState(produce((s) => {
+        // Deduct offering costs
+        for (const cost of deity.offeringCost) {
+          const res = cost.resource;
+          if (res === "gold") s.resources.gold -= cost.amount;
+          else if (res === "food") s.resources.food -= cost.amount;
+          else if (res === "wood") s.resources.wood -= cost.amount;
+          else if (res === "stone") s.resources.stone -= cost.amount;
+          else if (res === "wool") s.wool -= cost.amount;
+          else if (res === "iron") s.iron -= cost.amount;
+          else if (res === "weapons") s.weapons -= cost.amount;
+          else if (res === "clothing") s.clothing -= cost.amount;
+          else if (res === "astralShards") s.astralShards -= cost.amount;
+        }
+        // Set blessing
+        s.activeBlessing = { deityId: deity.id, effect: deity.blessingEffect };
+        pushEvent(s, "building_completed", deity.icon, `${deity.name}'s blessing received: ${deity.blessingDescription}`);
+      }));
+      if (_settlementId) saveSettlementApi(_settlementId, JSON.parse(JSON.stringify(state))).catch(() => {});
+      return true;
     },
     startAlchemyResearch() {
       const labLvl = state.buildings.find((b) => b.buildingId === "alchemy_lab")?.level ?? 0;
