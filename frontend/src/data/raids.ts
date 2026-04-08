@@ -461,12 +461,19 @@ export function getDefenseTips(
   adventurersOnMission: number,
 ): DefenseTip[] {
   const tips: DefenseTip[] = [];
-  const gap = raidStrength - defense.total;
+  const chance = calcRaidSuccessChance(defense.total, raidStrength);
 
-  if (gap <= 0) {
-    tips.push({ icon: "✅", text: "Your defenses are strong enough. Hold the line!" });
-    return tips;
+  if (chance >= 85) {
+    tips.push({ icon: "✅", text: `Strong position (${chance}% chance). But nothing is guaranteed — fortify further.` });
+  } else if (chance >= 60) {
+    tips.push({ icon: "⚠️", text: `Decent odds (${chance}% chance) but risky. Strengthen your defenses.` });
+  } else if (chance >= 40) {
+    tips.push({ icon: "🔶", text: `Dangerous (${chance}% chance). You need more defense or this will hurt.` });
+  } else {
+    tips.push({ icon: "🔴", text: `Desperate situation (${chance}% chance). Prepare for heavy losses.` });
   }
+
+  const gap = raidStrength - defense.total;
 
   // Adventurers on mission
   if (adventurersOnMission > 0) {
@@ -479,17 +486,17 @@ export function getDefenseTips(
   // Walls
   const wallsLvl = buildings.find((b) => b.buildingId === "walls")?.level ?? 0;
   if (wallsLvl === 0) {
-    tips.push({ icon: "🧱", text: "Build Walls for +8 defense per level.", actionLink: "/buildings/walls" });
-  } else if (gap > 8) {
-    tips.push({ icon: "🧱", text: `Upgrade Walls (Lv.${wallsLvl}) for more defense.`, actionLink: "/buildings/walls" });
+    tips.push({ icon: "🧱", text: "Build Walls for +12 defense per level.", actionLink: "/buildings/walls" });
+  } else if (chance < 85) {
+    tips.push({ icon: "🧱", text: `Upgrade Walls (Lv.${wallsLvl}) for +12 defense per level.`, actionLink: "/buildings/walls" });
   }
 
   // Barracks
   const barracksLvl = buildings.find((b) => b.buildingId === "barracks")?.level ?? 0;
   if (barracksLvl === 0) {
-    tips.push({ icon: "⚔️", text: "Build Barracks for +12 defense per level.", actionLink: "/buildings/barracks" });
-  } else if (gap > 12) {
-    tips.push({ icon: "⚔️", text: `Upgrade Barracks (Lv.${barracksLvl}) for +12 defense.`, actionLink: "/buildings/barracks" });
+    tips.push({ icon: "⚔️", text: "Build Barracks for +15 defense per level.", actionLink: "/buildings/barracks" });
+  } else if (chance < 85) {
+    tips.push({ icon: "⚔️", text: `Upgrade Barracks (Lv.${barracksLvl}) for +15 defense per level.`, actionLink: "/buildings/barracks" });
   }
 
   // Watchtower
