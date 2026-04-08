@@ -57,7 +57,7 @@ export interface PlayerField {
   upgradeRemaining?: number;
 }
 
-export type VeggieId = "cabbages" | "turnips" | "peas";
+export type VeggieId = "cabbages" | "turnips" | "peas" | "squash";
 
 export interface PlayerGarden {
   id: string;

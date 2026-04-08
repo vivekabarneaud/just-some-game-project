@@ -891,7 +891,16 @@ function calcProductionRates(state: GameState): ResourceState {
   // Citizen tax
   rates.gold += Math.floor(population) * GOLD_TAX_PER_CITIZEN_PER_HOUR;
 
-  // Building production (year-round) — damaged buildings don't produce
+  // Building production — damaged buildings don't produce
+  // Food gathering buildings have seasonal modifiers
+  const FOOD_GATHERING = new Set(["hunting_camp", "forager_hut", "fishing_hut"]);
+  const foodSeasonMod: Record<string, number> = {
+    spring: 1.0, summer: 1.0, autumn: 0.75, winter: 0.5,
+  };
+  const foragerSeasonMod: Record<string, number> = {
+    spring: 1.0, summer: 1.0, autumn: 0.75, winter: 0.25,
+  };
+
   for (const pb of buildings) {
     if (pb.level === 0 || pb.damaged) continue;
     const def = BUILDINGS.find((b) => b.id === pb.buildingId);
@@ -899,7 +908,15 @@ function calcProductionRates(state: GameState): ResourceState {
     const levelDef = def.levels[pb.level - 1];
     if (levelDef?.production) {
       const res = levelDef.production.resource as keyof ResourceState;
-      if (res in rates) rates[res] += levelDef.production.rate;
+      let rate = levelDef.production.rate;
+      // Apply seasonal modifier for food gathering buildings
+      if (FOOD_GATHERING.has(pb.buildingId)) {
+        const mod = pb.buildingId === "forager_hut"
+          ? (foragerSeasonMod[season] ?? 1)
+          : (foodSeasonMod[season] ?? 1);
+        rate = Math.floor(rate * mod);
+      }
+      if (res in rates) rates[res] += rate;
     }
   }
 

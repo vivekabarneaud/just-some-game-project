@@ -1,6 +1,6 @@
 import type { Season } from "./seasons";
 
-export type VeggieId = "cabbages" | "turnips" | "peas";
+export type VeggieId = "cabbages" | "turnips" | "peas" | "squash";
 
 export interface VeggieDefinition {
   id: VeggieId;
@@ -35,6 +35,14 @@ export const VEGGIES: VeggieDefinition[] = [
     description: "Nutritious legumes that enrich the soil. Spring and summer crop.",
     activeSeasons: ["spring", "summer"],
     baseRate: 4,
+  },
+  {
+    id: "squash",
+    name: "Squash",
+    icon: "🎃",
+    description: "A hardy winter crop. Grows in autumn and keeps through the cold months when nothing else will.",
+    activeSeasons: ["autumn", "winter"],
+    baseRate: 5,
   },
 ];
 
