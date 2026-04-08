@@ -418,19 +418,19 @@ export default function AdventurersGuild() {
                         <img src={story().image} alt={story().name} loading="lazy" />
                         <div class="building-card-image-overlay" style={{ display: "flex", "justify-content": "space-between", "align-items": "flex-end" }}>
                           <div>
-                            <div style={{ "font-size": "0.7rem", color: "var(--accent-gold)", "margin-bottom": "2px", "text-transform": "uppercase", "letter-spacing": "0.5px" }}>
+                            <div style={{ "font-size": "0.6rem", color: "var(--accent-gold)", "margin-bottom": "2px", "text-transform": "uppercase", "letter-spacing": "0.5px", opacity: "0.8" }}>
                               Story Mission · {story().chapter}
                             </div>
                             <div class="building-card-title" style={{ color: "var(--accent-gold)" }}>{story().name}</div>
-                            <div style={{ "font-size": "0.75rem", color: "var(--text-secondary)" }}>
-                              {formatDuration(story().duration)} · {story().deployCost}g deploy
-                            </div>
                           </div>
                         </div>
                       </div>
                     </Show>
-                    <div style={{ padding: "0 16px 16px" }}>
+                    <div style={{ padding: "10px 16px 16px" }}>
                       <div class="building-card-desc" style={{ "font-style": "italic" }}>{story().description}</div>
+                      <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-top": "6px" }}>
+                        {formatDuration(story().duration)} · {story().deployCost}g deploy
+                      </div>
                       <div style={{ display: "flex", gap: "6px", "margin-top": "8px", "flex-wrap": "wrap" }}>
                         <For each={story().slots}>
                           {(slot) => (
@@ -518,35 +518,6 @@ export default function AdventurersGuild() {
               };
               const STAT_LABELS: Record<string, string> = { str: "STR", int: "INT", dex: "DEX", vit: "VIT", wis: "WIS" };
 
-              const slotSquare = (slot: MissionSlot, i: number) => {
-                const assigned = () => assignTeamToSlots()[i];
-                const isMatched = () => {
-                  const adv = assigned();
-                  return adv ? (slot.class === "any" || adv.class === slot.class) : false;
-                };
-                const slotColor = () => {
-                  if (assigned()) return CLASS_COLORS[assigned()!.class] ?? "var(--text-muted)";
-                  if (slot.class !== "any") return CLASS_COLORS[slot.class] ?? "var(--text-muted)";
-                  return "var(--text-muted)";
-                };
-                return (
-                  <div
-                    class="mission-slot-square"
-                    classList={{ filled: !!assigned(), matched: isMatched() }}
-                    onClick={() => { if (assigned()) toggleTeamMember(assigned()!.id); }}
-                    style={{ "border-color": slotColor(), cursor: assigned() ? "pointer" : "default" }}
-                    title={assigned() ? `${assigned()!.name} (${getClassMeta(assigned()!.class).name})${!isMatched() ? " — mismatch" : ""}` : (slot.class === "any" ? "Any class" : getClassMeta(slot.class).name)}
-                  >
-                    <div style={{ "font-size": "1.4rem", color: slotColor() }}>
-                      {assigned() ? getClassMeta(assigned()!.class).icon : slot.class === "any" ? "👤" : getClassMeta(slot.class).icon}
-                    </div>
-                    <div style={{ "font-size": "0.65rem", color: assigned() ? "var(--text-primary)" : "var(--text-muted)", "text-align": "center", "line-height": "1.1", "margin-top": "2px" }}>
-                      {assigned() ? assigned()!.name : (slot.class === "any" ? "Any" : getClassMeta(slot.class).name)}
-                    </div>
-                  </div>
-                );
-              };
-
               return (
                 <div
                   class="mission-assembly"
@@ -567,47 +538,85 @@ export default function AdventurersGuild() {
                       />
                       <div style={{
                         position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
-                        background: "linear-gradient(to bottom, rgba(26, 26, 46, 0.1) 0%, rgba(26, 26, 46, 0.4) 40%, rgba(26, 26, 46, 0.92) 75%)",
+                        background: "linear-gradient(to bottom, rgba(26, 26, 46, 0.05) 0%, rgba(26, 26, 46, 0.3) 30%, rgba(26, 26, 46, 0.85) 70%)",
                       }} />
                     </div>
                   </Show>
 
-                  {/* Mission info — compact card at bottom of image area */}
+                  {/* Left: Mission details */}
                   <div class="mission-detail-panel" style={{ position: "relative", "z-index": 1 }}>
                     <div class="mission-detail-header">
                       <span style={{ "font-size": "2rem" }}>{mission().icon}</span>
-                      <div style={{ flex: 1 }}>
+                      <div>
                         <h3 style={{ "font-family": "var(--font-heading)", color: "var(--accent-gold)", margin: 0 }}>{mission().name}</h3>
                         <div style={{ "font-size": "0.8rem", color: DIFFICULTY_COLORS[mission().difficulty] ?? "var(--text-muted)" }}>
                           {"★".repeat(mission().difficulty)} {DIFFICULTY_LABELS[mission().difficulty] ?? ""}
                         </div>
                       </div>
-                      <div style={{ display: "flex", gap: "6px" }}>
-                        {mission().slots.map((slot, i) => slotSquare(slot, i))}
-                      </div>
                     </div>
 
-                    <p style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "font-style": "italic", "margin": "8px 0" }}>
+                    <p style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "font-style": "italic", "margin": "10px 0" }}>
                       {mission().description}
                     </p>
 
-                    <div style={{ display: "flex", "flex-wrap": "wrap", gap: "12px", "align-items": "center", "font-size": "0.8rem" }}>
-                      <div style={{ color: "var(--accent-green)" }}>
-                        {mission().rewards.map((r) => formatReward(r)).join(", ")}
+                    <div class="mission-detail-section">
+                      <div class="mission-detail-label">Team Slots</div>
+                      <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
+                        {mission().slots.map((slot, i) => {
+                          const assigned = () => assignTeamToSlots()[i];
+                          const isMatched = () => {
+                            const adv = assigned();
+                            return adv ? (slot.class === "any" || adv.class === slot.class) : false;
+                          };
+                          const slotColor = () => {
+                            if (assigned()) return CLASS_COLORS[assigned()!.class] ?? "var(--text-muted)";
+                            if (slot.class !== "any") return CLASS_COLORS[slot.class] ?? "var(--text-muted)";
+                            return "var(--text-muted)";
+                          };
+                          return (
+                            <div
+                              class="mission-slot-square"
+                              classList={{ filled: !!assigned(), matched: isMatched() }}
+                              onClick={() => { if (assigned()) toggleTeamMember(assigned()!.id); }}
+                              style={{ "border-color": slotColor(), cursor: assigned() ? "pointer" : "default" }}
+                            >
+                              <div class="mission-slot-square-icon" style={{ color: slotColor() }}>
+                                {assigned()
+                                  ? getClassMeta(assigned()!.class).icon
+                                  : slot.class === "any" ? "👤" : getClassMeta(slot.class).icon}
+                              </div>
+                              <div class="mission-slot-square-name" style={{ color: assigned() ? "var(--text-primary)" : "var(--text-muted)" }}>
+                                {assigned() ? assigned()!.name : (slot.class === "any" ? "Any" : getClassMeta(slot.class).name)}
+                              </div>
+                              <Show when={assigned() && !isMatched()}>
+                                <div style={{ "font-size": "0.55rem", color: "var(--accent-gold)" }}>mismatch</div>
+                              </Show>
+                            </div>
+                          );
+                        })}
                       </div>
-                      <span style={{ color: "var(--text-muted)" }}>·</span>
-                      <span style={{ color: "var(--text-secondary)" }}>{formatDuration(mission().duration)}</span>
-                      <span style={{ color: "var(--text-muted)" }}>·</span>
-                      <span style={{ color: "var(--text-secondary)" }}>{mission().deployCost}g deploy</span>
-                      <span style={{ color: "var(--text-muted)" }}>·</span>
-                      <span style={{ color: "var(--text-secondary)" }}>Key: {topStats().map((s) => STAT_LABELS[s]).join(", ")}</span>
+                    </div>
+
+                    <div class="mission-detail-section">
+                      <div class="mission-detail-label">Rewards</div>
+                      <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
+                        {mission().rewards.map((r) => (
+                          <span class="quest-reward-item">{formatReward(r)}</span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div class="mission-detail-stats">
+                      <div><span class="mission-detail-label">Duration</span> {formatDuration(mission().duration)}</div>
+                      <div><span class="mission-detail-label">Deploy cost</span> {mission().deployCost}g</div>
+                      <div><span class="mission-detail-label">Key stats</span> {topStats().map((s) => STAT_LABELS[s]).join(", ")}</div>
                     </div>
 
                     <button
                       style={{
-                        "margin-top": "10px", padding: "4px 12px", background: "none",
+                        "margin-top": "12px", padding: "6px 14px", background: "none",
                         border: "1px solid var(--border-color)", "border-radius": "4px",
-                        color: "var(--text-muted)", cursor: "pointer", "font-size": "0.75rem",
+                        color: "var(--text-muted)", cursor: "pointer", "font-size": "0.8rem",
                       }}
                       onClick={() => { setSelectedMission(null); setSelectedTeam([]); setSelectedSupplies([]); }}
                     >
@@ -615,7 +624,7 @@ export default function AdventurersGuild() {
                     </button>
                   </div>
 
-                  {/* Team assembly */}
+                  {/* Right: Team assembly */}
                   <div class="team-panel" style={{ position: "relative", "z-index": 1 }}>
                     <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "10px", color: "var(--text-primary)" }}>
                       Assemble Your Team
