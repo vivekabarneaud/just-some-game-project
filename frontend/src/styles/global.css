@@ -1626,13 +1626,13 @@ body {
 .gear-slot {
   width: 72px;
   height: 72px;
-  border: 2px dashed var(--border-color);
-  border-radius: 8px;
+  border: 1px solid rgba(180, 150, 100, 0.3);
+  border-radius: 3px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--bg-primary);
+  background: #1a1a1a;
   position: relative;
   cursor: default;
   transition: border-color 0.15s;
@@ -1640,10 +1640,38 @@ body {
   padding: 4px;
 }
 
-.gear-slot.equipped {
+/* Corner ornaments on gear slots */
+.gear-slot::before,
+.gear-slot::after {
+  content: "";
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-color: rgba(180, 150, 100, 0.4);
   border-style: solid;
-  border-color: var(--accent-blue);
-  background: rgba(52, 152, 219, 0.08);
+  z-index: 1;
+}
+
+.gear-slot::before {
+  top: 3px;
+  left: 3px;
+  border-width: 1px 0 0 1px;
+}
+
+.gear-slot::after {
+  bottom: 3px;
+  right: 3px;
+  border-width: 0 1px 1px 0;
+}
+
+.gear-slot.equipped {
+  border-color: rgba(180, 150, 100, 0.6);
+  background: rgba(30, 25, 18, 0.9);
+}
+
+.gear-slot.equipped::before,
+.gear-slot.equipped::after {
+  border-color: rgba(180, 150, 100, 0.7);
 }
 
 .gear-slot:hover {
@@ -1731,6 +1759,91 @@ body {
 
 .gear-slot-option:hover {
   background: rgba(52, 152, 219, 0.2);
+}
+
+/* Item Frame */
+.item-frame {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  background: #1a1a1a;
+  border: 1px solid rgba(180, 150, 100, 0.5);
+  border-radius: 3px;
+}
+
+/* Corner ornaments */
+.item-frame::before,
+.item-frame::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-color: rgba(180, 150, 100, 0.6);
+  border-style: solid;
+}
+
+.item-frame::before {
+  top: 3px;
+  left: 3px;
+  border-width: 1px 0 0 1px;
+}
+
+.item-frame::after {
+  bottom: 3px;
+  right: 3px;
+  border-width: 0 1px 1px 0;
+}
+
+.item-frame img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+
+.item-frame .item-emoji {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+/* Tier variants */
+.item-frame.tier-apprentice {
+  border-color: rgba(140, 120, 80, 0.6);
+}
+
+.item-frame.tier-apprentice::before,
+.item-frame.tier-apprentice::after {
+  border-color: rgba(140, 120, 80, 0.7);
+}
+
+.item-frame.tier-journeyman {
+  border-color: rgba(160, 180, 200, 0.6);
+}
+
+.item-frame.tier-journeyman::before,
+.item-frame.tier-journeyman::after {
+  border-color: rgba(160, 180, 200, 0.7);
+}
+
+.item-frame.tier-veteran {
+  border-color: rgba(220, 180, 60, 0.7);
+}
+
+.item-frame.tier-veteran::before,
+.item-frame.tier-veteran::after {
+  border-color: rgba(220, 180, 60, 0.8);
+}
+
+.item-frame.tier-elite {
+  border-color: rgba(180, 100, 255, 0.7);
+  box-shadow: 0 0 8px rgba(180, 100, 255, 0.2);
+}
+
+.item-frame.tier-elite::before,
+.item-frame.tier-elite::after {
+  border-color: rgba(180, 100, 255, 0.8);
 }
 
 /* Chronicle */
