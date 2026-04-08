@@ -16,6 +16,7 @@ export interface QuestDefinition {
   rewards: QuestReward[];
   targetBuildingId?: string;
   targetPage?: string; // route path for the "Go to X" link
+  image?: string; // optional quest illustration
 }
 
 const bldg = (state: GameState, id: string) =>
@@ -33,6 +34,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "lumber_mill")?.level ?? 0) >= 1,
     rewards: [{ resource: "wood", amount: 100, label: "Wood" }],
     targetBuildingId: "lumber_mill",
+    image: "/images/buildings/lumber_mill.png",
   },
   // 2 — Stone Quarry
   {
@@ -45,6 +47,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "quarry")?.level ?? 0) >= 1,
     rewards: [{ resource: "stone", amount: 100, label: "Stone" }],
     targetBuildingId: "quarry",
+    image: "/images/buildings/quarry.png",
   },
   // 3 — Forager's Hut
   {
@@ -57,6 +60,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "forager_hut")?.level ?? 0) >= 1,
     rewards: [{ resource: "food", amount: 100, label: "Food" }],
     targetBuildingId: "forager_hut",
+    image: "/images/buildings/forager_hut.png",
   },
   // 4 — Hunting Camp
   {
@@ -69,6 +73,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "hunting_camp")?.level ?? 0) >= 1,
     rewards: [{ resource: "food", amount: 150, label: "Food" }],
     targetBuildingId: "hunting_camp",
+    image: "/images/buildings/hunting_camp.png",
   },
   // 5 — Upgrade Lumber Mill to lvl 2
   {
@@ -81,6 +86,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "lumber_mill")?.level ?? 0) >= 2,
     rewards: [{ resource: "wood", amount: 150, label: "Wood" }],
     targetBuildingId: "lumber_mill",
+    image: "/images/buildings/lumber_mill.png",
   },
   // 6 — Upgrade Stone Quarry to lvl 2
   {
@@ -93,6 +99,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "quarry")?.level ?? 0) >= 2,
     rewards: [{ resource: "stone", amount: 150, label: "Stone" }],
     targetBuildingId: "quarry",
+    image: "/images/buildings/quarry.png",
   },
   // 7 — Houses
   {
@@ -105,6 +112,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "houses")?.level ?? 0) >= 1,
     rewards: [{ resource: "food", amount: 50, label: "Food" }],
     targetBuildingId: "houses",
+    image: "/images/buildings/houses.png",
   },
   // 8 — Fishing Hut
   {
@@ -117,6 +125,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "fishing_hut")?.level ?? 0) >= 1,
     rewards: [{ resource: "food", amount: 100, label: "Food" }],
     targetBuildingId: "fishing_hut",
+    image: "/images/buildings/fishing_hut.png",
   },
   // 9 — Pantry
   {
@@ -129,6 +138,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "pantry")?.level ?? 0) >= 1,
     rewards: [{ resource: "food", amount: 100, label: "Food" }],
     targetBuildingId: "pantry",
+    image: "/images/buildings/pantry.png",
   },
   // 10 — Adventurer's Guild (the big early unlock!)
   {
@@ -140,6 +150,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     icon: "🏰",
     condition: (s) => (bldg(s, "adventurers_guild")?.level ?? 0) >= 1,
     targetBuildingId: "adventurers_guild",
+    image: "/images/buildings/adventurers_guild.png",
     rewards: [
       { resource: "gold", amount: 100, label: "Gold" },
       { resource: "astralShards", amount: 5, label: "Astral Shards" },
@@ -204,6 +215,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "town_hall")?.level ?? 0) >= 2,
     rewards: [{ resource: "gold", amount: 100, label: "Gold" }],
     targetBuildingId: "town_hall",
+    image: "/images/buildings/settlement_village.png",
   },
   // 16 — Build a Marketplace
   {
@@ -219,6 +231,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
       { resource: "wood", amount: 100, label: "Wood" },
     ],
     targetBuildingId: "marketplace",
+    image: "/images/buildings/marketplace.png",
   },
   // 17 — Build a Woodworker
   {
@@ -231,6 +244,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "woodworker")?.level ?? 0) >= 1,
     rewards: [{ resource: "wood", amount: 200, label: "Wood" }],
     targetBuildingId: "woodworker",
+    image: "/images/buildings/woodworker.png",
   },
   // 18 — Craft a weapon
   {
@@ -255,6 +269,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "shrine")?.level ?? 0) >= 1,
     rewards: [{ resource: "gold", amount: 75, label: "Gold" }],
     targetBuildingId: "shrine",
+    image: "/images/buildings/shrine.png",
   },
   // 20 — Town Hall lvl 3
   {
@@ -266,6 +281,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     icon: "⭐",
     condition: (s) => (bldg(s, "town_hall")?.level ?? 0) >= 3,
     targetBuildingId: "town_hall",
+    image: "/images/buildings/settlement_town.png",
     rewards: [
       { resource: "gold", amount: 150, label: "Gold" },
       { resource: "astralShards", amount: 5, label: "Astral Shards" },

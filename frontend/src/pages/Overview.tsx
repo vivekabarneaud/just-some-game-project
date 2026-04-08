@@ -84,15 +84,23 @@ export default function Overview() {
       {/* Quest Panel */}
       <Show when={!allQuestsComplete() && currentQuest()}>
         {(quest) => (
-          <div class="quest-panel">
-            <div class="quest-header">
-              <span class="quest-icon">{quest().icon}</span>
-              <div>
-                <h2>Quest: {quest().title}</h2>
-                <p class="quest-narrative">"{quest().narrative}"</p>
+          <div class="quest-panel" classList={{ "has-image": !!quest().image }}>
+            <Show when={quest().image}>
+              <div class="quest-image">
+                <img src={quest().image} alt={quest().title} />
               </div>
-              <span class="quest-progress">{questProgress() + 1} / {QUEST_CHAIN.length}</span>
-            </div>
+            </Show>
+            <div class="quest-panel-content">
+              <div class="quest-header">
+                <Show when={!quest().image}>
+                  <span class="quest-icon">{quest().icon}</span>
+                </Show>
+                <div>
+                  <h2>Quest: {quest().title}</h2>
+                  <p class="quest-narrative">"{quest().narrative}"</p>
+                </div>
+                <span class="quest-progress">{questProgress() + 1} / {QUEST_CHAIN.length}</span>
+              </div>
             <div class="quest-body">
               <div class="quest-objective">
                 <span class="quest-objective-label">Objective: </span>
@@ -129,6 +137,7 @@ export default function Overview() {
                 })()}
               </Show>
             </div>
+            </div>{/* end quest-panel-content */}
           </div>
         )}
       </Show>
