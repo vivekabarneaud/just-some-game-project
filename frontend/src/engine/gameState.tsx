@@ -501,6 +501,7 @@ export interface GameState {
   // Materials & Crafting
   wool: number;
   fiber: number;
+  leather: number;
   clothing: number;
   iron: number;
   tools: number;
@@ -665,6 +666,7 @@ function createInitialState(): GameState {
     yearHarvest: {},
     wool: 0,
     fiber: 0,
+    leather: 0,
     clothing: 0,
     iron: 0,
     tools: 0,
@@ -767,6 +769,7 @@ function loadGame(): GameState | null {
     }
     // Materials migration
     if (saved.wool === undefined) saved.wool = 0;
+    if (saved.leather === undefined) saved.leather = 0;
     if (saved.fiber === undefined) saved.fiber = 0;
     if (!saved.yearHarvest) saved.yearHarvest = {};
     for (const f of saved.fields) {
@@ -1344,6 +1347,19 @@ export function GameProvider(props: ParentProps) {
           if (prod.secondary && prod.secondary.resource === "wool" && woolSeasonMod > 0) {
             s.wool = Math.min(200, s.wool + prod.secondary.amount * woolSeasonMod * elapsedHours);
           }
+        }
+
+        // ── Leather from hunting camp and animal pens (except chickens) ──
+        const huntingCampLvl = s.buildings.find((b) => b.buildingId === "hunting_camp")?.level ?? 0;
+        if (huntingCampLvl > 0) {
+          s.leather = Math.min(200, s.leather + huntingCampLvl * 1.0 * elapsedHours);
+        }
+        for (const pen of s.pens) {
+          if (pen.level === 0) continue;
+          if (pen.animal === "chickens") continue; // chickens don't produce leather
+          // Pigs, goats, sheep produce small amounts of leather (hides)
+          const leatherRate = pen.animal === "goats" ? 1.2 : 0.8;
+          s.leather = Math.min(200, s.leather + leatherRate * pen.level * elapsedHours);
         }
 
         // ── Fiber from forager's hut (wild flax and plant fibers) ──

@@ -244,6 +244,7 @@ export interface GameState {
   // Materials & Crafting
   wool: number;
   fiber: number;
+  leather: number;
   clothing: number;
   iron: number;
   tools: number;

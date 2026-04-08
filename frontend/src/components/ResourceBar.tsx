@@ -120,10 +120,10 @@ export default function ResourceBar() {
           </div>
         </div>
       </div>
-      <Show when={state.wool > 0 || state.fiber > 0 || state.iron > 0 || state.gems > 0}>
+      <Show when={state.wool > 0 || state.fiber > 0 || state.leather > 0 || state.iron > 0 || state.gems > 0}>
         <div class="resource-item has-dropdown">
           <span class="resource-icon">🧵</span>
-          <span class="resource-amount">{Math.floor(state.wool) + Math.floor(state.fiber) + Math.floor(state.iron)}</span>
+          <span class="resource-amount">{Math.floor(state.wool) + Math.floor(state.fiber) + Math.floor(state.leather ?? 0) + Math.floor(state.iron)}</span>
           <div class="resource-dropdown">
             <div class="dropdown-title">Crafting Materials</div>
             <div class="dropdown-row">
@@ -133,6 +133,10 @@ export default function ResourceBar() {
             <div class="dropdown-row">
               <span>🪻 Fiber</span>
               <span>{Math.floor(state.fiber)}/200</span>
+            </div>
+            <div class="dropdown-row">
+              <span>🐄 Leather</span>
+              <span>{Math.floor(state.leather ?? 0)}/200</span>
             </div>
             <div class="dropdown-row">
               <span>⚒️ Iron</span>

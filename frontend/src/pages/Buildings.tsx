@@ -330,6 +330,11 @@ export default function Buildings() {
                             +{(level() * 1.5).toFixed(1)}/h fiber (wild flax)
                           </div>
                         )}
+                        {building.id === "hunting_camp" && level() > 0 && (
+                          <div class="building-card-production">
+                            +{(level() * 1.0).toFixed(1)}/h leather (hides)
+                          </div>
+                        )}
                         {pb()?.damaged && (
                           <div class="building-card-upgrading" style={{ color: "var(--accent-red)" }}>
                             Damaged — not producing
