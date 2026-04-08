@@ -655,7 +655,7 @@ function generateSettlementName(): string {
 
 function createInitialState(): GameState {
   return {
-    resources: { gold: 150, wood: 300, stone: 200, food: 300 },
+    resources: { gold: 150, wood: 300, stone: 200, food: 100 },
     buildings: BUILDINGS.map((b) => ({
       buildingId: b.id,
       level: b.id === "town_hall" ? 1 : 0,

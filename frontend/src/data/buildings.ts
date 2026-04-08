@@ -173,7 +173,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     icon: "🏠",
     image: "/images/buildings/houses.png",
     maxLevel: 20,
-    levels: generateLevels({ wood: 60, stone: 40 }, 10),
+    levels: generateLevels({ wood: 60, stone: 40 }, 6),
     requiredTier: "camp",
   },
   {
@@ -185,7 +185,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     icon: "🏚️",
     image: "/images/buildings/warehouse.png",
     maxLevel: 20,
-    levels: generateLevels({ wood: 80, stone: 60 }, 12),
+    levels: generateLevels({ wood: 80, stone: 60 }, 7),
     requiredTier: "camp",
   },
   {
@@ -197,7 +197,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     icon: "🥫",
     image: "/images/buildings/pantry.png",
     maxLevel: 20,
-    levels: generateLevels({ wood: 50, stone: 30 }, 10),
+    levels: generateLevels({ wood: 50, stone: 30 }, 6),
     requiredTier: "camp",
   },
 
@@ -241,7 +241,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     icon: "🪓",
     image: "/images/buildings/lumber_mill.png",
     maxLevel: 20,
-    levels: generateLevels({ wood: 30, stone: 40 }, 15, { resource: "wood", baseRate: 55 }),
+    levels: generateLevels({ wood: 30, stone: 40 }, 7, { resource: "wood", baseRate: 55 }),
     requiredTier: "camp",
   },
   {
@@ -253,7 +253,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     icon: "⛏️",
     image: "/images/buildings/quarry.png",
     maxLevel: 20,
-    levels: generateLevels({ wood: 60, stone: 10 }, 18, { resource: "stone", baseRate: 40 }),
+    levels: generateLevels({ wood: 60, stone: 10 }, 7, { resource: "stone", baseRate: 40 }),
     requiredTier: "camp",
   },
   {
@@ -265,7 +265,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     icon: "🏹",
     image: "/images/buildings/hunting_camp.png",
     maxLevel: 15,
-    levels: generateLevels({ wood: 40, stone: 10 }, 12, { resource: "food", baseRate: 14, foodType: "meat" }, 15),
+    levels: generateLevels({ wood: 40, stone: 10 }, 6, { resource: "food", baseRate: 14, foodType: "meat" }, 15),
     requiredTier: "camp",
   },
 
@@ -278,7 +278,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     icon: "🫐",
     image: "/images/buildings/forager_hut.png",
     maxLevel: 10,
-    levels: generateLevels({ wood: 30, stone: 5 }, 8, { resource: "food", baseRate: 8, foodType: "berries" }, 10),
+    levels: generateLevels({ wood: 30, stone: 5 }, 6, { resource: "food", baseRate: 8, foodType: "berries" }, 10),
     requiredTier: "camp",
   },
 
@@ -291,7 +291,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     icon: "🐟",
     image: "/images/buildings/fishing_hut.png",
     maxLevel: 10,
-    levels: generateLevels({ wood: 35, stone: 10 }, 10, { resource: "food", baseRate: 12, foodType: "fish" }, 10),
+    levels: generateLevels({ wood: 35, stone: 10 }, 6, { resource: "food", baseRate: 12, foodType: "fish" }, 10),
     requiredTier: "camp",
   },
 
