@@ -202,7 +202,7 @@ export const RAID_POOL: RaidTemplate[] = [
     stealsResources: true,
     resourceStealPercent: 0.30,
     killsCitizens: true,
-    maxCitizenLoss: 15,
+    maxCitizenLoss: 40,
     minTier: "city",
     baseWarning: 12,
     victoryLoot: [{ resource: "gold", amount: 200 }, { resource: "wood", amount: 100 }, { resource: "stone", amount: 100 }],
@@ -217,7 +217,7 @@ export const RAID_POOL: RaidTemplate[] = [
     stealsResources: true,
     resourceStealPercent: 0.25,
     killsCitizens: true,
-    maxCitizenLoss: 20,
+    maxCitizenLoss: 50,
     minTier: "city",
     baseWarning: 14,
     victoryLoot: [{ resource: "gold", amount: 250 }, { resource: "astralShards", amount: 5 }],
@@ -332,11 +332,15 @@ export function resolveRaid(input: RaidResolutionInput): RaidResult {
     return result;
   }
 
-  // Lost — calculate damage
-  const overpower = Math.min(1, (raidStrength - defense.total) / raidStrength);
+  // Lost — damage scales with how badly outmatched you are
+  // overpower: 0 = barely lost, 1 = completely overwhelmed
+  const overpower = Math.min(1, (raidStrength - defense.total) / Math.max(1, defense.total));
+  // severity: the raid template's brutality (higher tier raids are more devastating)
+  const severity = raid.resourceStealPercent + (raid.killsCitizens ? 0.3 : 0);
 
   if (raid.stealsResources) {
-    const stealPct = raid.resourceStealPercent * (0.5 + overpower * 0.5);
+    // Base steal scales with overpower: barely lost = ~30%, overwhelmed = ~70%+
+    const stealPct = Math.min(0.9, (0.3 + overpower * 0.5) * (1 + severity));
     result.resourcesLost = {
       gold: Math.floor(resources.gold * stealPct),
       wood: Math.floor(resources.wood * stealPct),
@@ -346,13 +350,17 @@ export function resolveRaid(input: RaidResolutionInput): RaidResult {
   }
 
   if (raid.killsCitizens) {
-    const maxLoss = Math.min(raid.maxCitizenLoss, Math.floor(population * 0.3));
-    result.citizensLost = Math.floor(maxLoss * overpower);
+    // Barely lost = ~20% casualties, overwhelmed = up to 70%
+    const casualtyPct = 0.2 + overpower * 0.5;
+    const maxFromTemplate = raid.maxCitizenLoss;
+    const maxFromPercent = Math.floor(population * casualtyPct);
+    result.citizensLost = Math.max(1, Math.min(maxFromTemplate, maxFromPercent));
   }
 
-  // Defending adventurers have a 30% injury chance on loss
+  // Defending adventurers: injury chance scales with overpower
+  const injuryChance = 0.2 + overpower * 0.4; // 20% barely lost, 60% overwhelmed
   for (const adv of homeAdventurers) {
-    if (Math.random() < 0.30) {
+    if (Math.random() < injuryChance) {
       result.defendersInjured.push(adv.name);
     }
   }
