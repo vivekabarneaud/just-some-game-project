@@ -47,7 +47,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "quarry")?.level ?? 0) >= 1,
     rewards: [{ resource: "stone", amount: 100, label: "Stone" }],
     targetBuildingId: "quarry",
-    image: "/images/buildings/quarry.png",
+    image: "/images/stories/quest_2.png",
   },
   // 3 — Forager's Hut
   {
