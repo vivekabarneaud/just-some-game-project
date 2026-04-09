@@ -1648,8 +1648,8 @@ export function GameProvider(props: ParentProps) {
         if (netFoodRate > 0) happiness += Math.min(15, netFoodRate / 5);
         else if (netFoodRate < 0) happiness -= Math.min(30, Math.abs(netFoodRate) / 3);
 
-        // Starvation penalty
-        if (s.resources.food <= 0) happiness -= 20;
+        // Starvation penalty — severe, people are dying
+        if (s.resources.food <= 0) happiness -= 75;
 
         // Winter cold
         if (isWinter) {
@@ -2634,7 +2634,7 @@ export function GameProvider(props: ParentProps) {
       const netFood = rates.food - foodCons - animalFood;
       if (netFood > 0) factors.push({ label: "Food surplus", value: Math.min(15, Math.round(netFood / 5)) });
       else if (netFood < 0) factors.push({ label: "Food deficit", value: -Math.min(30, Math.round(Math.abs(netFood) / 3)) });
-      if (state.resources.food <= 0) factors.push({ label: "Starvation", value: -20 });
+      if (state.resources.food <= 0) factors.push({ label: "Starvation", value: -75 });
 
       const maxPop = calcMaxPopulation(state.buildings);
       if (state.population > maxPop) factors.push({ label: "Overcrowded", value: -15 });
