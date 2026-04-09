@@ -158,7 +158,7 @@ function buildEnemyUnits(encounters: MissionEncounter[]): CombatUnit[] {
     if (!def) continue;
     const isMagical = def.tags.includes("magical") || def.tags.includes("undead");
     for (let i = 0; i < enc.count; i++) {
-      const hp = def.stats.vit * 6;
+      const hp = def.stats.vit * 10;
       units.push({
         id: `${def.id}_${i}`,
         name: enc.count > 1 ? `${def.name} ${i + 1}` : def.name,
