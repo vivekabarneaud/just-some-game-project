@@ -1741,16 +1741,18 @@ export function GameProvider(props: ParentProps) {
           }
         }
 
-        // Villager growth / decline (affected by happiness)
+        // Villager growth / decline
         const popBefore = Math.floor(s.population);
         if (netFoodRate > 0 && s.population < maxPop && s.happiness >= 20) {
           const growthMod = s.happiness >= 70 ? 1.5 : s.happiness >= 40 ? 1.0 : 0.5;
           const growth = (1 / VILLAGER_GROWTH_INTERVAL_HOURS) * elapsedHours * growthMod;
           s.population = Math.min(maxPop, s.population + growth);
-        } else if (s.happiness < 20 && s.population > BASE_POPULATION) {
-          s.population = Math.max(BASE_POPULATION, s.population - elapsedHours * 0.5);
-        } else if (s.resources.food <= 0 && s.population > BASE_POPULATION) {
-          s.population = Math.max(BASE_POPULATION, s.population - elapsedHours);
+        } else if (s.population > BASE_POPULATION) {
+          // Starvation and unhappiness stack — both cause population loss
+          let loss = 0;
+          if (s.resources.food <= 0) loss += 2; // 2 citizens/hour from starvation
+          if (s.happiness < 20) loss += 0.5;    // 0.5 citizens/hour fleeing
+          if (loss > 0) s.population = Math.max(BASE_POPULATION, s.population - loss * elapsedHours);
         }
         const popAfter = Math.floor(s.population);
         if (popAfter > popBefore) {
