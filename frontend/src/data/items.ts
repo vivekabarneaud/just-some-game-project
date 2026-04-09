@@ -106,7 +106,7 @@ export const ITEMS: ItemDefinition[] = [
   {
     id: "chainmail", name: "Chainmail Armor", icon: "⛓️", slot: "chest",
     description: "+4 VIT, +1 STR",
-    classes: ["warrior", "archer", "assassin"],
+    classes: ["warrior", "archer"],
     stats: { vit: 4, str: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "chainmail", consumable: false,
   },
@@ -175,6 +175,57 @@ export const ITEMS: ItemDefinition[] = [
     classes: [],
     stats: { vit: 3 }, durationMod: 1, lootMod: 1,
     recipeId: "antidote", consumable: true,
+  },
+
+  // ── Leather armor (Leatherworking) ────────────────────────────
+  {
+    id: "leather_vest", name: "Leather Vest", icon: "🦺", slot: "chest",
+    description: "+1 DEX",
+    classes: ["assassin", "archer"],
+    stats: { dex: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "leather_vest", consumable: false,
+  },
+  {
+    id: "leather_boots", name: "Leather Boots", icon: "🥾", slot: "boots",
+    description: "+1 DEX",
+    classes: [],
+    stats: { dex: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "leather_boots", consumable: false,
+  },
+  {
+    id: "leather_hood", name: "Leather Hood", icon: "🪖", slot: "head",
+    description: "+1 DEX",
+    classes: ["assassin", "archer"],
+    stats: { dex: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "leather_hood", consumable: false,
+  },
+  {
+    id: "leather_pants", name: "Leather Pants", icon: "👖", slot: "legs",
+    description: "+1 VIT",
+    classes: ["assassin", "archer", "warrior"],
+    stats: { vit: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "leather_pants", consumable: false,
+  },
+  {
+    id: "leather_cloak", name: "Leather Cloak", icon: "🧥", slot: "cloak",
+    description: "+1 DEX",
+    classes: ["assassin", "archer"],
+    stats: { dex: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "leather_cloak", consumable: false,
+  },
+  {
+    id: "rangers_garb", name: "Ranger's Garb", icon: "🏹", slot: "chest",
+    description: "+2 DEX, +1 VIT",
+    classes: ["archer"],
+    stats: { dex: 2, vit: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "rangers_garb", consumable: false,
+  },
+  {
+    id: "shadow_mantle", name: "Shadow Mantle", icon: "🗡️", slot: "cloak",
+    description: "+2 DEX, +1 STR",
+    classes: ["assassin"],
+    stats: { dex: 2, str: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "shadow_mantle", consumable: false,
   },
 ];
 

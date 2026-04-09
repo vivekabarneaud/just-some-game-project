@@ -386,6 +386,77 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     craftTime: 900, // 40 min
   },
 
+  // ── Leatherworking recipes ────────────────────────────────────
+  {
+    id: "leather_vest",
+    name: "Leather Vest",
+    icon: "🦺",
+    building: "leatherworking",
+    minLevel: 1,
+    costs: [{ resource: "leather", amount: 12 }],
+    produces: { resource: "armor", amount: 1 },
+    craftTime: 30,
+  },
+  {
+    id: "leather_boots",
+    name: "Leather Boots",
+    icon: "🥾",
+    building: "leatherworking",
+    minLevel: 1,
+    costs: [{ resource: "leather", amount: 8 }],
+    produces: { resource: "armor", amount: 1 },
+    craftTime: 30,
+  },
+  {
+    id: "leather_hood",
+    name: "Leather Hood",
+    icon: "🪖",
+    building: "leatherworking",
+    minLevel: 2,
+    costs: [{ resource: "leather", amount: 10 }, { resource: "fiber", amount: 4 }],
+    produces: { resource: "armor", amount: 1 },
+    craftTime: 60,
+  },
+  {
+    id: "leather_pants",
+    name: "Leather Pants",
+    icon: "👖",
+    building: "leatherworking",
+    minLevel: 2,
+    costs: [{ resource: "leather", amount: 14 }, { resource: "fiber", amount: 4 }],
+    produces: { resource: "armor", amount: 1 },
+    craftTime: 60,
+  },
+  {
+    id: "leather_cloak",
+    name: "Leather Cloak",
+    icon: "🧥",
+    building: "leatherworking",
+    minLevel: 3,
+    costs: [{ resource: "leather", amount: 10 }, { resource: "fiber", amount: 8 }],
+    produces: { resource: "armor", amount: 1 },
+    craftTime: 120,
+  },
+  {
+    id: "rangers_garb",
+    name: "Ranger's Garb",
+    icon: "🏹",
+    building: "leatherworking",
+    minLevel: 4,
+    costs: [{ resource: "leather", amount: 20 }, { resource: "fiber", amount: 10 }, { resource: "gold", amount: 15 }],
+    produces: { resource: "armor", amount: 1 },
+    craftTime: 300,
+  },
+  {
+    id: "shadow_mantle",
+    name: "Shadow Mantle",
+    icon: "🗡️",
+    building: "leatherworking",
+    minLevel: 5,
+    costs: [{ resource: "leather", amount: 25 }, { resource: "fiber", amount: 12 }, { resource: "gold", amount: 20 }],
+    produces: { resource: "armor", amount: 1 },
+    craftTime: 600,
+  },
 ];
 
 export interface ResourceState {
@@ -1648,11 +1719,17 @@ export function GameProvider(props: ParentProps) {
           }
         }
 
-        // Clothing
+        // Clothing — scaled penalty when underclothed, doubled in winter
         const clothingNeededHappy = Math.ceil(s.population / CLOTHING_PER_CITIZENS);
         if (clothingNeededHappy > 0) {
-          if (s.clothing >= clothingNeededHappy) happiness += CLOTHING_HAPPINESS_BONUS;
-          else if (s.clothing < clothingNeededHappy * 0.5) happiness += CLOTHING_HAPPINESS_PENALTY;
+          const clothRatio = Math.min(1, s.clothing / clothingNeededHappy);
+          if (clothRatio >= 1) {
+            happiness += CLOTHING_HAPPINESS_BONUS;
+          } else if (clothRatio < 0.5) {
+            // Scale from -5 (at 50%) to -15 (at 0%), doubled in winter
+            const penalty = -Math.round(5 + 10 * (1 - clothRatio * 2));
+            happiness += isWinter ? penalty * 2 : penalty;
+          }
         }
 
         // Food diversity
@@ -2492,6 +2569,7 @@ export function GameProvider(props: ParentProps) {
         if (res === "wool" && state.wool < cost.amount) return false;
         if (res === "fiber" && state.fiber < cost.amount) return false;
         if (res === "iron" && state.iron < cost.amount) return false;
+        if (res === "leather" && state.leather < cost.amount) return false;
         if (res === "gold" && state.resources.gold < cost.amount) return false;
         if (res === "wood" && state.resources.wood < cost.amount) return false;
         if (res === "stone" && state.resources.stone < cost.amount) return false;
@@ -2503,6 +2581,7 @@ export function GameProvider(props: ParentProps) {
           if (cost.resource === "wool") s.wool -= cost.amount;
           else if (cost.resource === "fiber") s.fiber -= cost.amount;
           else if (cost.resource === "iron") s.iron -= cost.amount;
+          else if (cost.resource === "leather") s.leather -= cost.amount;
           else if (cost.resource === "gold") s.resources.gold -= cost.amount;
           else if (cost.resource === "wood") s.resources.wood -= cost.amount;
           else if (cost.resource === "stone") s.resources.stone -= cost.amount;
@@ -2642,8 +2721,14 @@ export function GameProvider(props: ParentProps) {
       // Clothing
       const clothNeeded = Math.ceil(state.population / CLOTHING_PER_CITIZENS);
       if (clothNeeded > 0) {
-        if (state.clothing >= clothNeeded) factors.push({ label: `Well-clothed (${Math.floor(state.clothing)}/${clothNeeded})`, value: CLOTHING_HAPPINESS_BONUS });
-        else if (state.clothing < clothNeeded * 0.5) factors.push({ label: `Poorly clothed (${Math.floor(state.clothing)}/${clothNeeded})`, value: CLOTHING_HAPPINESS_PENALTY });
+        const clothRatio = Math.min(1, state.clothing / clothNeeded);
+        if (clothRatio >= 1) {
+          factors.push({ label: `Well-clothed (${Math.floor(state.clothing)}/${clothNeeded})`, value: CLOTHING_HAPPINESS_BONUS });
+        } else if (clothRatio < 0.5) {
+          const penalty = -Math.round(5 + 10 * (1 - clothRatio * 2));
+          const winterPenalty = state.season === "winter" ? penalty * 2 : penalty;
+          factors.push({ label: `Poorly clothed (${Math.floor(state.clothing)}/${clothNeeded})${state.season === "winter" ? " — freezing" : ""}`, value: winterPenalty });
+        }
       }
 
       // Food diversity

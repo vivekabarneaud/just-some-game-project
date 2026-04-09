@@ -373,6 +373,19 @@ export const BUILDINGS: BuildingDefinition[] = [
     requiredTier: "village",
   },
   {
+    id: "leatherworking",
+    name: "Leatherworking",
+    category: "crafting",
+    description:
+      "Hides and pelts are tanned, cut, and stitched into light armor. Assassins and archers swear by leather — flexible, quiet, and tougher than it looks.",
+    icon: "🪡",
+    image: "/images/buildings/leatherworking.png",
+    maxLevel: 10,
+    levels: generateLevels({ wood: 50, stone: 25 }, 15, undefined, 10),
+    requiredTier: "village",
+    tierLevelCaps: { camp: 0, village: 3, town: 7, city: 10 },
+  },
+  {
     id: "marketplace",
     name: "Marketplace",
     category: "trade",

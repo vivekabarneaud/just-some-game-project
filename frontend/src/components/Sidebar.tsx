@@ -29,6 +29,7 @@ const navSections: { title: string; items: NavItem[] }[] = [
       { path: "/tailoring", icon: "🧵", label: "Tailoring" },
       { path: "/woodworker", icon: "🪚", label: "Woodworker" },
       { path: "/blacksmith", icon: "🔨", label: "Blacksmith" },
+      { path: "/leatherworking", icon: "🪡", label: "Leatherworking" },
       { path: "/alchemy", icon: "🧪", label: "Alchemy" },
       { path: "/enchanting", icon: "✨", label: "Enchanting" },
       { path: "/jewelcrafting", icon: "💎", label: "Jewelcrafting" },

@@ -255,7 +255,7 @@ export default function Alchemy() {
                         class="upgrade-btn"
                         disabled={!canCraft(recipe.id)}
                         onClick={() => actions.startAlchemyCraft(recipe.id)}
-                        style={{ "margin-top": "8px", width: "100%" }}
+                        style={{ "margin-top": "auto", "padding-top": "8px", width: "100%" }}
                       >
                         🧪 Brew
                       </button>

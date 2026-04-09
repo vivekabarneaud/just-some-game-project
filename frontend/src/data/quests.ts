@@ -211,7 +211,19 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     targetPage: "/farming",
     image: "/images/stories/quest_14.png",
   },
-  // 15 — Town Hall lvl 2
+  // 15 — Tailoring Shop
+  {
+    id: "warm_and_proper",
+    title: "Warm and Proper",
+    narrative:
+      "Your settlers shiver in patched-together rags. With wool from your sheep, a proper tailor could clothe them — and warm clothes mean happy citizens, especially when winter comes.",
+    objective: "Build a Tailoring Shop",
+    icon: "🧵",
+    condition: (s) => (bldg(s, "tailoring_shop")?.level ?? 0) >= 1,
+    rewards: [{ resource: "gold", amount: 30, label: "Gold" }],
+    targetBuildingId: "tailoring_shop",
+  },
+  // 16 — Town Hall lvl 2
   {
     id: "ambition_rises",
     title: "Ambition Rises",

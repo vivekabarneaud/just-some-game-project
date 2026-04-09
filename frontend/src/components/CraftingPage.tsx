@@ -51,6 +51,7 @@ export default function CraftingPage(props: CraftingPageProps) {
       if (cost.resource === "wool" && state.wool < cost.amount) return false;
       if (cost.resource === "fiber" && state.fiber < cost.amount) return false;
       if (cost.resource === "iron" && state.iron < cost.amount) return false;
+      if (cost.resource === "leather" && state.leather < cost.amount) return false;
       if (cost.resource === "gold" && state.resources.gold < cost.amount) return false;
       if (cost.resource === "wood" && state.resources.wood < cost.amount) return false;
       if (cost.resource === "stone" && state.resources.stone < cost.amount) return false;
@@ -160,7 +161,7 @@ export default function CraftingPage(props: CraftingPageProps) {
                       class="upgrade-btn"
                       disabled={!canCraft(recipe.id)}
                       onClick={() => actions.startCraft(recipe.id)}
-                      style={{ "margin-top": "8px", "font-size": "0.85rem", padding: "6px 14px" }}
+                      style={{ "margin-top": "auto", "padding-top": "8px", "font-size": "0.85rem", padding: "6px 14px" }}
                     >
                       Craft
                     </button>
@@ -208,16 +209,20 @@ export default function CraftingPage(props: CraftingPageProps) {
                         Cost: {recipe.costs.map((c) => `${c.amount} ${c.resource}`).join(", ")}
                       </div>
                       <div style={{
-                        "margin-top": "6px",
-                        padding: "4px 8px",
-                        "border-radius": "4px",
-                        background: "rgba(245, 197, 66, 0.1)",
-                        border: "1px solid var(--accent-gold)",
-                        "font-size": "0.75rem",
-                        color: "var(--accent-gold)",
+                        "margin-top": "auto",
+                        "padding-top": "6px",
                       }}>
-                        Requires {props.buildingName} Lv.{recipe.minLevel}
-                        {buildingLevel() > 0 && ` (currently Lv.${buildingLevel()})`}
+                        <div style={{
+                          padding: "4px 8px",
+                          "border-radius": "4px",
+                          background: "rgba(245, 197, 66, 0.1)",
+                          border: "1px solid var(--accent-gold)",
+                          "font-size": "0.75rem",
+                          color: "var(--accent-gold)",
+                        }}>
+                          Requires {props.buildingName} Lv.{recipe.minLevel}
+                          {buildingLevel() > 0 && ` (currently Lv.${buildingLevel()})`}
+                        </div>
                       </div>
                     </div>
                   )}
