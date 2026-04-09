@@ -1675,10 +1675,12 @@ export function GameProvider(props: ParentProps) {
           }
         }
         const foodTypes = foodSources.size;
-        if (foodTypes <= 1) happiness -= 5;
-        else if (foodTypes === 3) happiness += 3;
-        else if (foodTypes === 4) happiness += 6;
-        else if (foodTypes >= 5) happiness += 10;
+        if (s.resources.food > 0) {
+          if (foodTypes <= 1) happiness -= 5;
+          else if (foodTypes === 3) happiness += 3;
+          else if (foodTypes === 4) happiness += 6;
+          else if (foodTypes >= 5) happiness += 10;
+        }
 
         // Damaged buildings
         const damagedCount = s.buildings.filter((b) => b.damaged).length;
@@ -2659,10 +2661,12 @@ export function GameProvider(props: ParentProps) {
         if (pen.level > 0) { const animal = getAnimal(pen.animal); foodSources.add(animal.foodLabel.toLowerCase()); }
       }
       const ft = foodSources.size;
-      if (ft <= 1) factors.push({ label: `Monotonous diet (${ft} type)`, value: -5 });
-      else if (ft === 3) factors.push({ label: `Good diet (${ft} types)`, value: 3 });
-      else if (ft === 4) factors.push({ label: `Varied diet (${ft} types)`, value: 6 });
-      else if (ft >= 5) factors.push({ label: `Diverse feast (${ft} types)`, value: 10 });
+      if (state.resources.food > 0) {
+        if (ft <= 1) factors.push({ label: `Monotonous diet (${ft} type)`, value: -5 });
+        else if (ft === 3) factors.push({ label: `Good diet (${ft} types)`, value: 3 });
+        else if (ft === 4) factors.push({ label: `Varied diet (${ft} types)`, value: 6 });
+        else if (ft >= 5) factors.push({ label: `Diverse feast (${ft} types)`, value: 10 });
+      }
 
       const damagedCount = state.buildings.filter((b) => b.damaged).length;
       if (damagedCount > 0) factors.push({ label: `${damagedCount} damaged building${damagedCount > 1 ? "s" : ""}`, value: -damagedCount * 3 });
