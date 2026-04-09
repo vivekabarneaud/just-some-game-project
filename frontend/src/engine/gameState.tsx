@@ -154,6 +154,7 @@ import { QUEST_CHAIN } from "~/data/quests";
 import { HERBS } from "~/data/herbs";
 import { ALCHEMY_RECIPES, getDiscoverableRecipes, getAvailableAlchemyRecipes, RESEARCH_BASE_COST } from "~/data/alchemy_recipes";
 import { getDeity, getCurrentDeity } from "~/data/deities";
+import { simulateCombat } from "~/data/combat";
 import {
   listSettlements,
   loadSettlement as loadSettlementApi,
@@ -1839,17 +1840,24 @@ export function GameProvider(props: ParentProps) {
               // Mission complete — resolve
               const template = getMission(am.missionId);
               const team = am.adventurerIds.map((id) => s.adventurers.find((a) => a.id === id)).filter(Boolean) as Adventurer[];
-              const success = Math.random() * 100 < am.successChance;
+
+              // Combat simulation for missions with encounters; probability for the rest
+              const combatResult = template ? simulateCombat(template, team) : null;
+              const success = combatResult ? combatResult.victory : Math.random() * 100 < am.successChance;
+
               const casualties: string[] = [];
               const revived: string[] = [];
               const levelUps: string[] = [];
               const rankUps: { name: string; newRank: string }[] = [];
 
               if (!success && template) {
-                // Check for deaths
+                // Check for deaths — combat performance modifies death chance
+                const deathMod = combatResult
+                  ? (0.5 + (1 - combatResult.performanceRatio) * 1.0) // barely lost: 0.5x, crushed: 1.5x
+                  : 1.0;
                 const deadIds: string[] = [];
                 for (const adv of team) {
-                  const deathChance = calcDeathChance(template, team, adv);
+                  const deathChance = calcDeathChance(template, team, adv) * deathMod;
                   if (Math.random() * 100 < deathChance) {
                     deadIds.push(adv.id);
                   }
@@ -1971,6 +1979,11 @@ export function GameProvider(props: ParentProps) {
                 xpGained: baseXp,
                 levelUps,
                 rankUps,
+                ...(combatResult ? {
+                  combatLog: combatResult.log,
+                  combatRounds: combatResult.rounds,
+                  combatVictory: combatResult.victory,
+                } : {}),
               });
 
               // Remove from active

@@ -295,13 +295,71 @@ export default function AdventurersGuild() {
                     {/* XP, level ups, rank ups, casualties, revives */}
                     <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-top": "2px" }}>
                       {[
+                        result.combatRounds ? <span>{result.combatVictory ? "Victory" : "Defeated"} in {result.combatRounds} rounds</span> : null,
                         result.xpGained > 0 ? <span>+{result.xpGained} XP</span> : null,
                         result.levelUps.length > 0 ? <span style={{ color: "var(--accent-blue)" }}>Level up: {result.levelUps.join(", ")}</span> : null,
                         result.rankUps.length > 0 ? <span style={{ color: "var(--accent-gold)" }}>Rank up: {result.rankUps.map((r) => `${r.name} → ${r.newRank}`).join(", ")}</span> : null,
                         result.casualties.length > 0 ? <span style={{ color: "var(--accent-red)" }}>Fallen: {result.casualties.join(", ")}</span> : null,
                         result.revived.length > 0 ? <span style={{ color: "#9b59b6" }}>Revived: {result.revived.length}</span> : null,
-                      ].filter(Boolean).map((el, i, arr) => <>{el}{i < arr.length - 1 ? " · " : ""}</>)}
+                      ].filter(Boolean).map((el, idx, arr) => <>{el}{idx < arr.length - 1 ? " · " : ""}</>)}
                     </div>
+                    {/* Combat log — collapsible */}
+                    <Show when={result.combatLog?.length}>
+                      {(() => {
+                        const [expanded, setExpanded] = createSignal(false);
+                        return (
+                          <div style={{ "margin-top": "4px" }}>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setExpanded(!expanded()); }}
+                              style={{
+                                background: "none", border: "none", cursor: "pointer",
+                                color: "var(--text-muted)", "font-size": "0.75rem",
+                                padding: "2px 0", "text-decoration": "underline",
+                              }}
+                            >
+                              {expanded() ? "Hide combat log" : "Show combat log"}
+                            </button>
+                            <Show when={expanded()}>
+                              <div style={{
+                                "margin-top": "4px", padding: "6px 8px",
+                                background: "rgba(0, 0, 0, 0.2)", "border-radius": "4px",
+                                "max-height": "200px", overflow: "auto",
+                                "font-size": "0.72rem", "line-height": "1.6",
+                              }}>
+                                {(() => {
+                                  let lastRound = 0;
+                                  return result.combatLog!.map((entry) => {
+                                    const showRound = entry.round !== lastRound;
+                                    lastRound = entry.round;
+                                    return (
+                                      <>
+                                        {showRound && (
+                                          <div style={{ color: "var(--text-muted)", "font-weight": "bold", "margin-top": entry.round > 1 ? "4px" : "0" }}>
+                                            Round {entry.round}
+                                          </div>
+                                        )}
+                                        <div style={{ color: entry.isEnemy ? "var(--accent-red)" : "var(--text-secondary)" }}>
+                                          {entry.attackerIcon}{" "}
+                                          <strong>{entry.attackerName}</strong>
+                                          {entry.healed
+                                            ? <> heals <strong>{entry.targetName}</strong> for <span style={{ color: "var(--accent-green)" }}>+{entry.healAmount} HP</span></>
+                                            : entry.dodged
+                                              ? <> attacks <strong>{entry.targetName}</strong> — <span style={{ color: "var(--accent-blue)" }}>dodged!</span></>
+                                              : <> hits <strong>{entry.targetName}</strong> for <span style={{ color: entry.isEnemy ? "var(--accent-red)" : "var(--accent-gold)" }}>{entry.damage} damage</span>
+                                                {entry.killed && <span style={{ color: "var(--accent-red)" }}> — killed!</span>}
+                                              </>
+                                          }
+                                        </div>
+                                      </>
+                                    );
+                                  });
+                                })()}
+                              </div>
+                            </Show>
+                          </div>
+                        );
+                      })()}
+                    </Show>
                   </div>
                 );
               }}

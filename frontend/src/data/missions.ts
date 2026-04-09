@@ -56,6 +56,9 @@ export interface CompletedMission {
   xpGained: number;
   levelUps: string[]; // adventurer names that leveled up
   rankUps: { name: string; newRank: string }[]; // adventurers that ranked up
+  combatLog?: import("./combat").CombatLogEntry[];
+  combatRounds?: number;
+  combatVictory?: boolean; // distinct from success — success is the overall mission outcome
 }
 
 const RESOURCE_LABELS: Record<string, { icon: string; name: string }> = {
