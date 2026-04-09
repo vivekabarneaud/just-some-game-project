@@ -68,9 +68,9 @@ export default function Alchemy() {
 
   return (
     <div style={{ position: "relative", "min-height": "calc(100vh - 60px)", overflow: "hidden" }}>
-      {/* Immersive background */}
+      {/* Immersive background — absolute within page content, not fixed over sidebar */}
       <div style={{
-        position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+        position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
         "z-index": 0, "pointer-events": "none",
       }}>
         <img
@@ -136,6 +136,54 @@ export default function Alchemy() {
               <A href="/buildings/alchemy_lab" style={{ color: "var(--accent-gold)" }}>Repair →</A>
             </div>
           </Show>
+
+          {/* Research panel — prominent, full-width */}
+          <div style={{
+            padding: "16px 20px", "margin-bottom": "20px",
+            background: "rgba(30, 30, 50, 0.85)",
+            "border-radius": "8px",
+            border: "1px solid rgba(138, 122, 62, 0.4)",
+            "backdrop-filter": "blur(4px)",
+            display: "flex", gap: "20px", "align-items": "center", "flex-wrap": "wrap",
+          }}>
+            <div style={{ flex: "1 1 200px" }}>
+              <div style={{ "font-family": "var(--font-heading)", "font-size": "1rem", color: "var(--text-primary)", "margin-bottom": "4px" }}>
+                📜 Daily Research
+              </div>
+              <div style={{ "font-size": "0.85rem", color: "var(--text-secondary)" }}>
+                <Show when={discoverable().length > 0} fallback={
+                  <span>All available recipes discovered!</span>
+                }>
+                  {discoverable().length} recipe{discoverable().length > 1 ? "s" : ""} left to discover.
+                  Spend <span style={{ color: "var(--accent-gold)" }}>{RESEARCH_BASE_COST}g</span> to attempt a breakthrough.
+                </Show>
+              </div>
+              <Show when={!state.alchemyResearchAvailable}>
+                <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-top": "4px" }}>
+                  Already researched today. Resets at 3 AM UTC.
+                </div>
+              </Show>
+              <Show when={researchResult()}>
+                <div style={{
+                  "margin-top": "8px", padding: "6px 10px",
+                  background: researchResult()!.startsWith("Discovered")
+                    ? "rgba(46, 204, 113, 0.15)" : "rgba(255, 200, 50, 0.1)",
+                  "border-radius": "4px", "font-size": "0.85rem",
+                  color: researchResult()!.startsWith("Discovered")
+                    ? "var(--accent-green)" : "var(--accent-gold)",
+                }}>
+                  {researchResult()}
+                </div>
+              </Show>
+            </div>
+            <button
+              class="upgrade-btn"
+              disabled={!canResearch()}
+              onClick={doResearch}
+            >
+              🔬 Research ({RESEARCH_BASE_COST}g)
+            </button>
+          </div>
 
           {/* Active brews */}
           <Show when={activeCrafts().length > 0}>
@@ -204,12 +252,12 @@ export default function Alchemy() {
                         })}
                       </div>
                       <button
-                        class="btn-primary"
+                        class="upgrade-btn"
                         disabled={!canCraft(recipe.id)}
                         onClick={() => actions.startAlchemyCraft(recipe.id)}
                         style={{ "margin-top": "8px", width: "100%" }}
                       >
-                        Brew
+                        🧪 Brew
                       </button>
                     </div>
                   )}
@@ -248,55 +296,9 @@ export default function Alchemy() {
               </Show>
             </div>
 
-            {/* Research panel */}
+            {/* Potion stock sidebar */}
             <div style={{ flex: "0 0 280px", "min-width": "250px" }}>
               <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "8px", color: "var(--text-primary)" }}>
-                Daily Research
-              </h3>
-              <div style={{
-                padding: "16px", background: "rgba(30, 30, 50, 0.85)",
-                "border-radius": "8px", border: "1px solid var(--border-default)",
-                "backdrop-filter": "blur(4px)",
-              }}>
-                <div style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "margin-bottom": "12px" }}>
-                  Spend <span style={{ color: "var(--accent-gold)" }}>{RESEARCH_BASE_COST}g</span> to attempt discovering a new recipe. One attempt per day.
-                </div>
-                <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-bottom": "12px" }}>
-                  <Show when={discoverable().length > 0} fallback={
-                    <span>All available recipes discovered!</span>
-                  }>
-                    {discoverable().length} recipe{discoverable().length > 1 ? "s" : ""} left to discover
-                  </Show>
-                </div>
-                <Show when={!state.alchemyResearchAvailable}>
-                  <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-bottom": "8px" }}>
-                    Already researched today. Resets at 3 AM UTC.
-                  </div>
-                </Show>
-                <button
-                  class="btn-primary"
-                  disabled={!canResearch()}
-                  onClick={doResearch}
-                  style={{ width: "100%" }}
-                >
-                  Research ({RESEARCH_BASE_COST}g)
-                </button>
-                <Show when={researchResult()}>
-                  <div style={{
-                    "margin-top": "10px", padding: "8px",
-                    background: researchResult()!.startsWith("Discovered")
-                      ? "rgba(46, 204, 113, 0.15)" : "rgba(255, 200, 50, 0.1)",
-                    "border-radius": "4px", "font-size": "0.85rem",
-                    color: researchResult()!.startsWith("Discovered")
-                      ? "var(--accent-green)" : "var(--accent-gold)",
-                  }}>
-                    {researchResult()}
-                  </div>
-                </Show>
-              </div>
-
-              {/* Potion inventory */}
-              <h3 style={{ "font-family": "var(--font-heading)", "margin-top": "20px", "margin-bottom": "8px", color: "var(--text-primary)" }}>
                 Potion Stock
               </h3>
               <div style={{
@@ -320,11 +322,14 @@ export default function Alchemy() {
                           return recipe ? (
                             <div style={{
                               display: "flex", "justify-content": "space-between", "align-items": "center",
-                              padding: "4px 0", "border-bottom": "1px solid var(--border-default)",
+                              padding: "6px 0", "border-bottom": "1px solid var(--border-default)",
                               "font-size": "0.85rem",
                             }}>
-                              <span>{recipe.icon} {recipe.name}</span>
-                              <span style={{ color: "var(--accent-gold)" }}>x{inv.quantity}</span>
+                              <div>
+                                <span>{recipe.icon} {recipe.name}</span>
+                                <div style={{ "font-size": "0.75rem", color: "var(--text-muted)" }}>{recipe.description}</div>
+                              </div>
+                              <span style={{ color: "var(--accent-gold)", "font-weight": "bold" }}>x{inv.quantity}</span>
                             </div>
                           ) : null;
                         }}
