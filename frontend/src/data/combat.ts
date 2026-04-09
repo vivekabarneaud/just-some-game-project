@@ -68,9 +68,12 @@ function getMagicPower(unit: CombatUnit): number {
   return unit.int;
 }
 
-/** Physical damage reduction — VIT / 2 */
+/** Physical damage reduction — from gear only (no base stat contribution) */
 function getDefense(unit: CombatUnit): number {
-  return Math.floor(unit.vit / 2);
+  // Adventurers: defense comes purely from equipment (VIT on gear adds to this via equipmentStats)
+  // Enemies: use VIT/3 as a rough approximation of natural armor
+  if (unit.isEnemy) return Math.floor(unit.vit / 3);
+  return 0; // adventurer defense comes from gear stats already baked into the unit
 }
 
 /** Magical damage reduction — WIS / 2 */
@@ -122,9 +125,8 @@ function calcDamageResult(attacker: CombatUnit, defender: CombatUnit): { damage:
   const crit = Math.random() * 100 < getCritChance(attacker);
   if (crit) rawDamage = Math.floor(rawDamage * 1.5);
 
-  // Apply defense/resist reduction — minimum 25% of raw always gets through
-  const minDamage = Math.max(1, Math.ceil(rawDamage * 0.25));
-  const damage = Math.max(minDamage, rawDamage - reduction);
+  // Apply defense/resist reduction — minimum 1 damage
+  const damage = Math.max(1, rawDamage - reduction);
 
   return { damage, rawDamage, crit };
 }
