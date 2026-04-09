@@ -50,6 +50,7 @@ export interface CombatResult {
   log: CombatLogEntry[];
   performanceRatio: number;
   survivingEnemies: number;
+  fallenAdventurerIds: string[]; // adventurers who hit 0 HP in combat
   totalEnemies: number;
 }
 
@@ -300,7 +301,7 @@ export function simulateCombat(
         log.push({
           round,
           attackerName: unit.name,
-          attackerIcon: unit.isEnemy ? unit.icon : "⚔️",
+          attackerIcon: unit.isEnemy ? unit.icon : (unit.isMagical ? "🔮" : "⚔️"),
           targetName: target.name,
           damage: 0,
           dodged: true,
@@ -321,7 +322,7 @@ export function simulateCombat(
       log.push({
         round,
         attackerName: unit.name,
-        attackerIcon: unit.isEnemy ? unit.icon : "⚔️",
+        attackerIcon: unit.isEnemy ? unit.icon : (unit.isMagical ? "🔮" : "⚔️"),
         targetName: target.name,
         damage,
         rawDamage,
@@ -360,6 +361,9 @@ export function simulateCombat(
   const enemiesKilled = totalEnemies - survivingEnemies;
   const performanceRatio = totalEnemies > 0 ? enemiesKilled / totalEnemies : 0.5;
 
+  // Track which adventurers fell in combat (hit 0 HP)
+  const fallenAdventurerIds = adventurers.filter((u) => u.hp <= 0).map((u) => u.id);
+
   return {
     victory,
     rounds: round,
@@ -367,5 +371,6 @@ export function simulateCombat(
     performanceRatio,
     survivingEnemies,
     totalEnemies,
+    fallenAdventurerIds,
   };
 }

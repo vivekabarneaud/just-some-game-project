@@ -1854,13 +1854,19 @@ export function GameProvider(props: ParentProps) {
               const rankUps: { name: string; newRank: string }[] = [];
 
               if (!success && template) {
-                // Check for deaths — combat performance modifies death chance
-                const deathMod = combatResult
-                  ? (0.5 + (1 - combatResult.performanceRatio) * 1.0) // barely lost: 0.5x, crushed: 1.5x
-                  : 1.0;
+                // Check for deaths — tied to combat results when available
+                const fallenInCombat = new Set(combatResult?.fallenAdventurerIds ?? []);
                 const deadIds: string[] = [];
                 for (const adv of team) {
-                  const deathChance = calcDeathChance(template, team, adv) * deathMod;
+                  const baseChance = calcDeathChance(template, team, adv);
+                  let deathChance: number;
+                  if (combatResult) {
+                    // Fell in combat: high death chance (base * 1.5)
+                    // Survived combat: very low death chance (base * 0.15)
+                    deathChance = fallenInCombat.has(adv.id) ? baseChance * 1.5 : baseChance * 0.15;
+                  } else {
+                    deathChance = baseChance; // non-combat missions: standard chance
+                  }
                   if (Math.random() * 100 < deathChance) {
                     deadIds.push(adv.id);
                   }
