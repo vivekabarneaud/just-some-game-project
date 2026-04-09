@@ -5,7 +5,7 @@
 
 import type { Adventurer, AdventurerClass } from "./adventurers";
 import { calcStats } from "./adventurers";
-import { getEquipmentStats } from "./items";
+import { getEquipmentStats, getEquipmentDefense } from "./items";
 import { getEnemy } from "./enemies";
 import type { MissionTemplate, MissionEncounter } from "./missions";
 
@@ -25,6 +25,7 @@ export interface CombatUnit {
   wis: number;
   class?: AdventurerClass;
   isMagical: boolean; // deals magical damage (reduced by magic resist)
+  gearDefense: number; // physical damage reduction from equipment
 }
 
 export interface CombatLogEntry {
@@ -69,12 +70,10 @@ function getMagicPower(unit: CombatUnit): number {
   return unit.int;
 }
 
-/** Physical damage reduction — from gear only (no base stat contribution) */
+/** Physical damage reduction — gear for adventurers, natural armor for enemies */
 function getDefense(unit: CombatUnit): number {
-  // Adventurers: defense comes purely from equipment (VIT on gear adds to this via equipmentStats)
-  // Enemies: use VIT/3 as a rough approximation of natural armor
-  if (unit.isEnemy) return Math.floor(unit.vit / 3);
-  return 0; // adventurer defense comes from gear stats already baked into the unit
+  if (unit.isEnemy) return Math.floor(unit.vit / 3); // natural armor
+  return unit.gearDefense;
 }
 
 /** Magical damage reduction — WIS / 2 */
@@ -152,6 +151,7 @@ function buildAdventurerUnit(adv: Adventurer): CombatUnit {
     wis: stats.wis,
     class: adv.class,
     isMagical: adv.class === "wizard" || adv.class === "priest",
+    gearDefense: getEquipmentDefense(adv.equipment),
   };
 }
 
@@ -178,6 +178,7 @@ function buildEnemyUnits(encounters: MissionEncounter[]): CombatUnit[] {
         wis: def.stats.wis ?? 0,
         class: undefined,
         isMagical,
+        gearDefense: 0,
       });
     }
   }
