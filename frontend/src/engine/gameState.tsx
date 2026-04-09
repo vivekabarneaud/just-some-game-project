@@ -1760,7 +1760,7 @@ export function GameProvider(props: ParentProps) {
         } else if (popAfter < popBefore) {
           const lost = popBefore - popAfter;
           if (s.resources.food <= 0) {
-            pushEvent(s, "citizen_died", "💀", `${lost} citizen${lost > 1 ? "s" : ""} starved`);
+            pushEvent(s, "citizen_died", "💀", `${lost} citizen${lost > 1 ? "s" : ""} starved to death`);
           } else if (s.happiness < 20) {
             pushEvent(s, "citizen_left", "🚶", `${lost} citizen${lost > 1 ? "s" : ""} left (unhappy)`);
           }
