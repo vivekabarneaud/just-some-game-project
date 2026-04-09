@@ -1,6 +1,7 @@
 // ─── Combat Simulation Engine ───────────────────────────────────
 // Round-based combat for missions with encounters.
-// Adventurers fight enemies using stats; produces a combat log.
+// Uses derived stats: attack power, magic power, defense, magic resist,
+// initiative, crit chance, dodge chance.
 
 import type { Adventurer, AdventurerClass } from "./adventurers";
 import { calcStats } from "./adventurers";
@@ -21,7 +22,9 @@ export interface CombatUnit {
   dex: number;
   int: number;
   vit: number;
+  wis: number;
   class?: AdventurerClass;
+  isMagical: boolean; // deals magical damage (reduced by magic resist)
 }
 
 export interface CombatLogEntry {
@@ -30,51 +33,99 @@ export interface CombatLogEntry {
   attackerIcon: string;
   targetName: string;
   damage: number;
+  rawDamage?: number; // before defense/resist reduction
   dodged: boolean;
+  crit: boolean;
   killed: boolean;
+  targetHp?: number;     // HP after this action
+  targetMaxHp?: number;
   healed?: boolean;
   healAmount?: number;
-  isEnemy: boolean; // true if attacker is an enemy
+  isEnemy: boolean;
 }
 
 export interface CombatResult {
   victory: boolean;
   rounds: number;
   log: CombatLogEntry[];
-  performanceRatio: number; // 0-1, how well the team did (modifies death chance)
+  performanceRatio: number;
   survivingEnemies: number;
   totalEnemies: number;
 }
 
-// ─── Helpers ────────────────────────────────────────────────────
+// ─── Derived combat stats ───────────────────────────────────────
 
-const PRIMARY_STAT: Record<AdventurerClass, "str" | "dex" | "int"> = {
-  warrior: "str",
-  archer: "dex",
-  assassin: "dex",
-  wizard: "int",
-  priest: "int",
-};
-
-function getPrimaryStat(unit: CombatUnit): number {
-  if (!unit.class) return Math.max(unit.str, unit.dex, unit.int); // enemies use highest
-  return unit[PRIMARY_STAT[unit.class]];
+/** Physical damage stat — STR for warriors, DEX for archers/assassins */
+function getAttackPower(unit: CombatUnit): number {
+  if (!unit.class) return Math.max(unit.str, unit.dex); // enemies: highest physical
+  if (unit.class === "warrior") return unit.str;
+  if (unit.class === "archer" || unit.class === "assassin") return unit.dex;
+  return unit.int; // wizards/priests fall through to magic
 }
 
-function calcDamage(attacker: CombatUnit): number {
-  const base = getPrimaryStat(attacker);
-  // 70-130% randomness
-  return Math.max(1, Math.floor(base * (0.7 + Math.random() * 0.6)));
+/** Magical damage stat — INT for wizards/priests */
+function getMagicPower(unit: CombatUnit): number {
+  return unit.int;
 }
 
-function calcDodgeChance(defender: CombatUnit): number {
-  return Math.min(30, defender.dex * 1.5); // max 30% dodge
+/** Physical damage reduction — VIT / 2 */
+function getDefense(unit: CombatUnit): number {
+  return Math.floor(unit.vit / 2);
+}
+
+/** Magical damage reduction — WIS / 2 */
+function getMagicResist(unit: CombatUnit): number {
+  return Math.floor(unit.wis / 2);
+}
+
+/** Turn order — DEX + WIS / 2. Higher goes first. */
+function getInitiative(unit: CombatUnit): number {
+  return unit.dex + Math.floor(unit.wis / 2);
+}
+
+/** Crit chance — 5% base + 0.5% per DEX. Assassins get +10% extra. */
+function getCritChance(unit: CombatUnit): number {
+  const base = 5 + unit.dex * 0.5;
+  const classBonus = unit.class === "assassin" ? 10 : 0;
+  return Math.min(50, base + classBonus); // cap 50%
+}
+
+/** Dodge chance — 1.5% per DEX, max 30% */
+function getDodgeChance(unit: CombatUnit): number {
+  return Math.min(30, unit.dex * 1.5);
+}
+
+/** Does this unit deal magical damage? */
+function dealsMagicalDamage(unit: CombatUnit): boolean {
+  if (unit.isMagical) return true;
+  if (unit.class === "wizard" || unit.class === "priest") return true;
+  return false;
 }
 
 function pickTarget(units: CombatUnit[]): CombatUnit | null {
   const alive = units.filter((u) => u.hp > 0);
   if (alive.length === 0) return null;
   return alive[Math.floor(Math.random() * alive.length)];
+}
+
+// ─── Damage calculation ─────────────────────────────────────────
+
+function calcDamageResult(attacker: CombatUnit, defender: CombatUnit): { damage: number; rawDamage: number; crit: boolean } {
+  const magical = dealsMagicalDamage(attacker);
+  const power = magical ? getMagicPower(attacker) : getAttackPower(attacker);
+  const reduction = magical ? getMagicResist(defender) : getDefense(defender);
+
+  // Base damage with 70-130% randomness
+  let rawDamage = Math.max(1, Math.floor(power * (0.7 + Math.random() * 0.6)));
+
+  // Crit check
+  const crit = Math.random() * 100 < getCritChance(attacker);
+  if (crit) rawDamage = Math.floor(rawDamage * 1.5);
+
+  // Apply defense/resist reduction
+  const damage = Math.max(1, rawDamage - reduction);
+
+  return { damage, rawDamage, crit };
 }
 
 // ─── Unit builders ──────────────────────────────────────────────
@@ -94,7 +145,9 @@ function buildAdventurerUnit(adv: Adventurer): CombatUnit {
     dex: stats.dex,
     int: stats.int,
     vit: stats.vit,
+    wis: stats.wis,
     class: adv.class,
+    isMagical: adv.class === "wizard" || adv.class === "priest",
   };
 }
 
@@ -103,6 +156,7 @@ function buildEnemyUnits(encounters: MissionEncounter[]): CombatUnit[] {
   for (const enc of encounters) {
     const def = getEnemy(enc.enemyId);
     if (!def) continue;
+    const isMagical = def.tags.includes("magical") || def.tags.includes("undead");
     for (let i = 0; i < enc.count; i++) {
       const hp = def.stats.vit * 6;
       units.push({
@@ -116,6 +170,9 @@ function buildEnemyUnits(encounters: MissionEncounter[]): CombatUnit[] {
         dex: def.stats.dex,
         int: def.stats.int,
         vit: def.stats.vit,
+        wis: def.stats.wis ?? 0,
+        class: undefined,
+        isMagical,
       });
     }
   }
@@ -148,117 +205,99 @@ export function simulateCombat(
 
     if (aliveAdvs.length === 0 || aliveEnemies.length === 0) break;
 
-    // Priest healing phase — priests heal the most wounded ally before attacking
-    for (const adv of aliveAdvs) {
-      if (adv.class === "priest" && aliveAdvs.length > 1) {
-        const wounded = aliveAdvs
-          .filter((a) => a.id !== adv.id && a.hp < a.maxHp)
-          .sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp);
-        if (wounded.length > 0) {
-          const healAmount = Math.floor(adv.int * 0.6 * (0.8 + Math.random() * 0.4));
-          if (healAmount > 0) {
-            const target = wounded[0];
-            target.hp = Math.min(target.maxHp, target.hp + healAmount);
-            log.push({
-              round,
-              attackerName: adv.name,
-              attackerIcon: "💚",
-              targetName: target.name,
-              damage: 0,
-              dodged: false,
-              killed: false,
-              healed: true,
-              healAmount,
-              isEnemy: false,
-            });
-            continue; // priest heals instead of attacking
-          }
+    // Sort all alive units by initiative (highest first)
+    const allAlive: CombatUnit[] = [...aliveAdvs, ...aliveEnemies]
+      .sort((a, b) => getInitiative(b) - getInitiative(a));
+
+    // Track which priests have healed this round
+    const priestsHealed = new Set<string>();
+
+    // Priest healing phase — priests heal before combat if there are wounded allies
+    for (const unit of allAlive) {
+      if (unit.hp <= 0 || unit.isEnemy || unit.class !== "priest") continue;
+      const currentAliveAdvs = adventurers.filter((u) => u.hp > 0);
+      if (currentAliveAdvs.length <= 1) continue;
+
+      const wounded = currentAliveAdvs
+        .filter((a) => a.id !== unit.id && a.hp < a.maxHp)
+        .sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp);
+      if (wounded.length > 0) {
+        const healAmount = Math.floor(unit.int * 0.6 * (0.8 + Math.random() * 0.4));
+        if (healAmount > 0) {
+          const target = wounded[0];
+          target.hp = Math.min(target.maxHp, target.hp + healAmount);
+          priestsHealed.add(unit.id);
+          log.push({
+            round,
+            attackerName: unit.name,
+            attackerIcon: "💚",
+            targetName: target.name,
+            damage: 0,
+            dodged: false,
+            crit: false,
+            killed: false,
+            targetHp: target.hp,
+            targetMaxHp: target.maxHp,
+            healed: true,
+            healAmount,
+            isEnemy: false,
+          });
         }
       }
     }
 
-    // Adventurers attack enemies
-    for (const adv of aliveAdvs) {
-      if (adv.class === "priest" && log.some((l) => l.round === round && l.attackerName === adv.name && l.healed)) {
-        continue; // priest already healed this round
-      }
-      const target = pickTarget(enemies);
-      if (!target) break;
+    // Combat phase — all units act in initiative order
+    for (const unit of allAlive) {
+      if (unit.hp <= 0) continue; // died earlier this round
+      if (!unit.isEnemy && unit.class === "priest" && priestsHealed.has(unit.id)) continue;
 
-      const dodge = Math.random() * 100 < calcDodgeChance(target);
-      if (dodge) {
+      const targetPool = unit.isEnemy ? adventurers : enemies;
+      const target = pickTarget(targetPool);
+      if (!target) continue;
+
+      // Dodge check
+      const dodged = Math.random() * 100 < getDodgeChance(target);
+      if (dodged) {
         log.push({
           round,
-          attackerName: adv.name,
-          attackerIcon: "⚔️",
+          attackerName: unit.name,
+          attackerIcon: unit.isEnemy ? unit.icon : "⚔️",
           targetName: target.name,
           damage: 0,
           dodged: true,
+          crit: false,
           killed: false,
-          isEnemy: false,
+          targetHp: target.hp,
+          targetMaxHp: target.maxHp,
+          isEnemy: unit.isEnemy,
         });
         continue;
       }
 
-      let damage = calcDamage(adv);
-      // Assassin crit: 20% chance for 1.5x damage
-      if (adv.class === "assassin" && Math.random() < 0.2) {
-        damage = Math.floor(damage * 1.5);
-      }
+      // Damage calculation with defense/resist
+      const { damage, rawDamage, crit } = calcDamageResult(unit, target);
       target.hp -= damage;
       const killed = target.hp <= 0;
+
       log.push({
         round,
-        attackerName: adv.name,
-        attackerIcon: "⚔️",
+        attackerName: unit.name,
+        attackerIcon: unit.isEnemy ? unit.icon : "⚔️",
         targetName: target.name,
         damage,
+        rawDamage,
         dodged: false,
+        crit,
         killed,
-        isEnemy: false,
+        targetHp: Math.max(0, target.hp),
+        targetMaxHp: target.maxHp,
+        isEnemy: unit.isEnemy,
       });
     }
 
-    // Check if enemies are all dead
-    if (enemies.filter((u) => u.hp > 0).length === 0) break;
-
-    // Enemies attack adventurers
-    for (const enemy of enemies.filter((u) => u.hp > 0)) {
-      const target = pickTarget(adventurers);
-      if (!target) break;
-
-      const dodge = Math.random() * 100 < calcDodgeChance(target);
-      if (dodge) {
-        log.push({
-          round,
-          attackerName: enemy.name,
-          attackerIcon: enemy.icon,
-          targetName: target.name,
-          damage: 0,
-          dodged: true,
-          killed: false,
-          isEnemy: true,
-        });
-        continue;
-      }
-
-      const damage = calcDamage(enemy);
-      target.hp -= damage;
-      const killed = target.hp <= 0;
-      log.push({
-        round,
-        attackerName: enemy.name,
-        attackerIcon: enemy.icon,
-        targetName: target.name,
-        damage,
-        dodged: false,
-        killed,
-        isEnemy: true,
-      });
-    }
-
-    // Check if adventurers are all down
+    // Check end conditions
     if (adventurers.filter((u) => u.hp > 0).length === 0) break;
+    if (enemies.filter((u) => u.hp > 0).length === 0) break;
   }
 
   const aliveAdvs = adventurers.filter((u) => u.hp > 0);
@@ -278,8 +317,7 @@ export function simulateCombat(
     victory = advHpRatio >= enemyHpRatio;
   }
 
-  // Performance ratio: how well the team did (affects death chance on loss)
-  // 1.0 = barely lost (most enemies dead), 0.0 = crushed
+  // Performance ratio: 1.0 = barely lost, 0.0 = crushed
   const enemiesKilled = totalEnemies - survivingEnemies;
   const performanceRatio = totalEnemies > 0 ? enemiesKilled / totalEnemies : 0.5;
 

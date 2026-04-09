@@ -1,6 +1,6 @@
 // ─── Enemy Definitions ──────────────────────────────────────────
-// Enemies appear in mission encounters. Stats will drive combat
-// simulation in Phase 2; for now they're displayed as flavor.
+// Enemies appear in mission encounters. Stats drive combat simulation.
+// Defense = VIT/2, Magic Resist = WIS/2, Initiative = DEX + WIS/2
 
 export interface EnemyDefinition {
   id: string;
@@ -14,6 +14,7 @@ export interface EnemyDefinition {
     dex: number;
     int: number;
     vit: number;
+    wis: number;
   };
   tags: string[]; // "undead", "beast", "humanoid", "magical", "demon"
   boss?: boolean;
@@ -27,7 +28,7 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "👺",
     description: "Small, sneaky, and cowardly alone — but they never come alone.",
     tier: 1,
-    stats: { str: 3, dex: 6, int: 2, vit: 4 },
+    stats: { str: 3, dex: 6, int: 2, vit: 4, wis: 1 },
     tags: ["humanoid"],
   },
   {
@@ -36,7 +37,7 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "🗡️",
     description: "A desperate man with a rusty blade. Not skilled, but dangerous when cornered.",
     tier: 1,
-    stats: { str: 5, dex: 4, int: 2, vit: 5 },
+    stats: { str: 5, dex: 4, int: 2, vit: 5, wis: 2 },
     tags: ["humanoid"],
   },
   {
@@ -45,7 +46,7 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "🐺",
     description: "Lean, hungry, and hunting in packs. They smell fear.",
     tier: 1,
-    stats: { str: 4, dex: 7, int: 1, vit: 5 },
+    stats: { str: 4, dex: 7, int: 1, vit: 5, wis: 3 },
     tags: ["beast"],
   },
   {
@@ -54,7 +55,7 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "🐀",
     description: "Bloated and disease-ridden. They infest every ruin in the frontier.",
     tier: 1,
-    stats: { str: 2, dex: 5, int: 1, vit: 3 },
+    stats: { str: 2, dex: 5, int: 1, vit: 3, wis: 1 },
     tags: ["beast"],
   },
   {
@@ -63,7 +64,7 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "💀",
     description: "Bones held together by old magic. They don't tire and they don't stop.",
     tier: 1,
-    stats: { str: 4, dex: 3, int: 1, vit: 6 },
+    stats: { str: 4, dex: 3, int: 1, vit: 6, wis: 0 },
     tags: ["undead"],
   },
 
@@ -74,7 +75,7 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "👹",
     description: "Broad-shouldered and battle-scarred. Orcs fight to kill, not to wound.",
     tier: 2,
-    stats: { str: 9, dex: 4, int: 2, vit: 8 },
+    stats: { str: 9, dex: 4, int: 2, vit: 8, wis: 2 },
     tags: ["humanoid"],
   },
   {
@@ -83,7 +84,7 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "🏹",
     description: "Dead eyes, steady aim. They never miss twice.",
     tier: 2,
-    stats: { str: 3, dex: 8, int: 2, vit: 5 },
+    stats: { str: 3, dex: 8, int: 2, vit: 5, wis: 1 },
     tags: ["undead"],
   },
   {
@@ -92,7 +93,7 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "⚔️",
     description: "A former soldier turned outlaw. Dangerous because he still fights like a soldier.",
     tier: 2,
-    stats: { str: 7, dex: 6, int: 4, vit: 7 },
+    stats: { str: 7, dex: 6, int: 4, vit: 7, wis: 4 },
     tags: ["humanoid"],
     boss: true,
   },
@@ -102,7 +103,7 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "🕷️",
     description: "Silent, venomous, and the size of a dog. Their webs can stop a knight.",
     tier: 2,
-    stats: { str: 4, dex: 9, int: 1, vit: 5 },
+    stats: { str: 4, dex: 9, int: 1, vit: 5, wis: 2 },
     tags: ["beast"],
   },
   {
@@ -111,7 +112,7 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "👻",
     description: "A restless soul bound to this place by old grief. Its wail chills the blood.",
     tier: 2,
-    stats: { str: 2, dex: 5, int: 7, vit: 6 },
+    stats: { str: 2, dex: 5, int: 7, vit: 6, wis: 6 },
     tags: ["undead", "magical"],
   },
 
@@ -122,7 +123,7 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "🔱",
     description: "Commands through strength alone. If you kill the warlord, the warband scatters.",
     tier: 3,
-    stats: { str: 13, dex: 5, int: 3, vit: 12 },
+    stats: { str: 13, dex: 5, int: 3, vit: 12, wis: 3 },
     tags: ["humanoid"],
     boss: true,
   },
@@ -132,7 +133,7 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "🧙",
     description: "A scholar of forbidden texts. The air crackles and tastes of copper near him.",
     tier: 3,
-    stats: { str: 3, dex: 4, int: 14, vit: 6 },
+    stats: { str: 3, dex: 4, int: 14, vit: 6, wis: 10 },
     tags: ["humanoid", "magical"],
     boss: true,
   },
@@ -142,7 +143,7 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "👤",
     description: "Not quite alive, not quite dead. Steel passes through it — you need silver or faith.",
     tier: 3,
-    stats: { str: 6, dex: 8, int: 10, vit: 8 },
+    stats: { str: 6, dex: 8, int: 10, vit: 8, wis: 8 },
     tags: ["undead", "magical"],
   },
   {
@@ -151,7 +152,7 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "🧌",
     description: "Massive, foul-smelling, and nearly impossible to kill. They regenerate wounds in minutes.",
     tier: 3,
-    stats: { str: 14, dex: 3, int: 1, vit: 16 },
+    stats: { str: 14, dex: 3, int: 1, vit: 16, wis: 1 },
     tags: ["beast"],
     boss: true,
   },
@@ -163,7 +164,7 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "🐉",
     description: "Only a year old and already deadly. Its breath singes stone. Imagine the mother.",
     tier: 4,
-    stats: { str: 12, dex: 8, int: 6, vit: 14 },
+    stats: { str: 12, dex: 8, int: 6, vit: 14, wis: 5 },
     tags: ["beast", "magical"],
     boss: true,
   },
@@ -173,7 +174,7 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "☠️",
     description: "A mage who traded his life for power. Not yet a true lich — but getting there.",
     tier: 4,
-    stats: { str: 4, dex: 5, int: 16, vit: 10 },
+    stats: { str: 4, dex: 5, int: 16, vit: 10, wis: 12 },
     tags: ["undead", "magical"],
     boss: true,
   },
@@ -183,7 +184,7 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "😈",
     description: "A minor fiend sent to test the mortal realm's defenses. Its masters are watching.",
     tier: 4,
-    stats: { str: 11, dex: 10, int: 8, vit: 12 },
+    stats: { str: 11, dex: 10, int: 8, vit: 12, wis: 7 },
     tags: ["demon", "magical"],
   },
 
@@ -194,7 +195,7 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "🐲",
     description: "A thousand years of hunger, rage, and fire. Kingdoms have fallen to lesser dragons.",
     tier: 5,
-    stats: { str: 20, dex: 10, int: 12, vit: 25 },
+    stats: { str: 20, dex: 10, int: 12, vit: 25, wis: 10 },
     tags: ["beast", "magical"],
     boss: true,
   },
@@ -204,7 +205,7 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "🌑",
     description: "A being of pure darkness from beyond the veil. Reality bends in its presence.",
     tier: 5,
-    stats: { str: 15, dex: 14, int: 20, vit: 18 },
+    stats: { str: 15, dex: 14, int: 20, vit: 18, wis: 15 },
     tags: ["demon", "magical"],
     boss: true,
   },
