@@ -106,10 +106,82 @@ function dealsMagicalDamage(unit: CombatUnit): boolean {
   return false;
 }
 
-function pickTarget(units: CombatUnit[]): CombatUnit | null {
-  const alive = units.filter((u) => u.hp > 0);
+// ─── Target selection AI ────────────────────────────────────────
+// WIS determines how smart the unit targets:
+//   0-3  Feral:     random target
+//   4-8  Cunning:   focus lowest HP (finish the weak)
+//   9-14 Tactical:  physical → low DEF; magical → low MR; prefer squishier targets
+//   15+  Brilliant: like tactical but prioritize healers (priests) first, then casters
+
+function pickTarget(attacker: CombatUnit, targets: CombatUnit[]): CombatUnit | null {
+  const alive = targets.filter((u) => u.hp > 0);
   if (alive.length === 0) return null;
-  return alive[Math.floor(Math.random() * alive.length)];
+  if (alive.length === 1) return alive[0];
+
+  const wis = attacker.wis;
+
+  // Feral (WIS 0-3): random
+  if (wis <= 3) {
+    return alive[Math.floor(Math.random() * alive.length)];
+  }
+
+  // Cunning (WIS 4-8): focus lowest HP (pack mentality — finish the weak)
+  if (wis <= 8) {
+    const sorted = [...alive].sort((a, b) => a.hp - b.hp);
+    // Some randomness: 70% pick lowest, 30% pick second lowest
+    if (sorted.length > 1 && Math.random() < 0.3) return sorted[1];
+    return sorted[0];
+  }
+
+  // Tactical (WIS 9-14): target who takes most damage from this attacker
+  if (wis <= 14) {
+    const magical = dealsMagicalDamage(attacker);
+    const scored = alive.map((t) => {
+      const reduction = magical ? getMagicResistReduction(t) : getDefenseReduction(t);
+      // Lower reduction = more damage = higher priority. Tiebreak on lower HP.
+      return { target: t, score: (1 - reduction) * 100 + (1 - t.hp / t.maxHp) * 10 };
+    });
+    scored.sort((a, b) => b.score - a.score);
+    // 80% optimal, 20% second best
+    if (scored.length > 1 && Math.random() < 0.2) return scored[1].target;
+    return scored[0].target;
+  }
+
+  // Brilliant (WIS 15+): prioritize healers > casters > squishiest
+  const priests = alive.filter((t) => t.class === "priest");
+  if (priests.length > 0) return priests[0]; // always kill the healer first
+
+  const casters = alive.filter((t) => t.class === "wizard");
+  if (casters.length > 0) return casters[0]; // then the wizard
+
+  // Otherwise, tactical targeting (most effective hit)
+  const magical = dealsMagicalDamage(attacker);
+  const scored = alive.map((t) => {
+    const reduction = magical ? getMagicResistReduction(t) : getDefenseReduction(t);
+    return { target: t, score: (1 - reduction) * 100 + (1 - t.hp / t.maxHp) * 10 };
+  });
+  scored.sort((a, b) => b.score - a.score);
+  return scored[0].target;
+}
+
+// Adventurers always use tactical targeting (trained fighters)
+function pickTargetForAdventurer(attacker: CombatUnit, targets: CombatUnit[]): CombatUnit | null {
+  const alive = targets.filter((u) => u.hp > 0);
+  if (alive.length === 0) return null;
+  if (alive.length === 1) return alive[0];
+
+  const magical = dealsMagicalDamage(attacker);
+
+  // Focus the target we deal most effective damage to
+  const scored = alive.map((t) => {
+    const reduction = magical ? getMagicResistReduction(t) : getDefenseReduction(t);
+    // Prioritize: low resistance, then low HP ratio (finish off wounded)
+    return { target: t, score: (1 - reduction) * 100 + (1 - t.hp / t.maxHp) * 20 };
+  });
+  scored.sort((a, b) => b.score - a.score);
+  // 85% optimal, 15% second best (not perfectly coordinated)
+  if (scored.length > 1 && Math.random() < 0.15) return scored[1].target;
+  return scored[0].target;
 }
 
 // ─── Damage calculation ─────────────────────────────────────────
@@ -294,7 +366,7 @@ export function simulateCombat(
       if (!unit.isEnemy && unit.class === "priest" && priestsHealed.has(unit.id)) continue;
 
       const targetPool = unit.isEnemy ? adventurers : enemies;
-      const target = pickTarget(targetPool);
+      const target = unit.isEnemy ? pickTarget(unit, targetPool) : pickTargetForAdventurer(unit, targetPool);
       if (!target) continue;
 
       // Dodge check
