@@ -1273,6 +1273,12 @@ export function GameProvider(props: ParentProps) {
         if (!serverState.herbs) serverState.herbs = {};
         if (serverState.foragedTotal === undefined) serverState.foragedTotal = 0;
         if (serverState.starvationPenalty === undefined) serverState.starvationPenalty = 0;
+        // Backfill any new buildings that were added since this save was created
+        for (const def of BUILDINGS) {
+          if (!serverState.buildings.find((b: any) => b.buildingId === def.id)) {
+            serverState.buildings.push({ buildingId: def.id, level: 0, upgrading: false, damaged: false });
+          }
+        }
         // Re-apply leveling in case XP curve changed
         for (const adv of serverState.adventurers ?? []) {
           applyXp(adv, 0);

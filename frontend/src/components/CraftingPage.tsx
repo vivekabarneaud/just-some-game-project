@@ -40,25 +40,28 @@ export default function CraftingPage(props: CraftingPageProps) {
     return r?.building === props.buildingId;
   });
 
-  const canCraft = (recipeId: string) => {
+  const canCraft = (recipeId: string) => !craftDisabledReason(recipeId);
+
+  const craftDisabledReason = (recipeId: string): string | null => {
     const recipe = CRAFTING_RECIPES.find((r) => r.id === recipeId);
-    if (!recipe) return false;
+    if (!recipe) return "Recipe not found";
     const b = building();
-    if (!b || b.level < recipe.minLevel || b.damaged) return false;
+    if (!b || b.level < recipe.minLevel) return `Requires ${props.buildingName} Lv.${recipe.minLevel}`;
+    if (b.damaged) return "Building is damaged";
     const slotsUsed = activeCrafts().length;
-    if (slotsUsed >= b.level) return false;
+    if (slotsUsed >= b.level) return `Queue full — upgrade ${props.buildingName} for more slots`;
     for (const cost of recipe.costs) {
-      if (cost.resource === "wool" && state.wool < cost.amount) return false;
-      if (cost.resource === "fiber" && state.fiber < cost.amount) return false;
-      if (cost.resource === "iron" && state.iron < cost.amount) return false;
-      if (cost.resource === "leather" && state.leather < cost.amount) return false;
-      if (cost.resource === "gold" && state.resources.gold < cost.amount) return false;
-      if (cost.resource === "wood" && state.resources.wood < cost.amount) return false;
-      if (cost.resource === "stone" && state.resources.stone < cost.amount) return false;
-      if (cost.resource === "food" && state.resources.food < cost.amount) return false;
-      if (cost.resource === "astralShards" && state.astralShards < cost.amount) return false;
+      if (cost.resource === "wool" && state.wool < cost.amount) return "Not enough wool";
+      if (cost.resource === "fiber" && state.fiber < cost.amount) return "Not enough fiber";
+      if (cost.resource === "iron" && state.iron < cost.amount) return "Not enough iron";
+      if (cost.resource === "leather" && state.leather < cost.amount) return "Not enough leather";
+      if (cost.resource === "gold" && state.resources.gold < cost.amount) return "Not enough gold";
+      if (cost.resource === "wood" && state.resources.wood < cost.amount) return "Not enough wood";
+      if (cost.resource === "stone" && state.resources.stone < cost.amount) return "Not enough stone";
+      if (cost.resource === "food" && state.resources.food < cost.amount) return "Not enough food";
+      if (cost.resource === "astralShards" && state.astralShards < cost.amount) return "Not enough astral shards";
     }
-    return true;
+    return null;
   };
 
   return (
@@ -161,6 +164,7 @@ export default function CraftingPage(props: CraftingPageProps) {
                       class="upgrade-btn"
                       disabled={!canCraft(recipe.id)}
                       onClick={() => actions.startCraft(recipe.id)}
+                      title={craftDisabledReason(recipe.id) ?? ""}
                       style={{ "margin-top": "auto", "padding-top": "8px", "font-size": "0.85rem", padding: "6px 14px" }}
                     >
                       Craft
