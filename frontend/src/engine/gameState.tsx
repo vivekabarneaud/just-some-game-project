@@ -1862,8 +1862,8 @@ export function GameProvider(props: ParentProps) {
                   let deathChance: number;
                   if (combatResult) {
                     // Fell in combat: high death chance (base * 1.5)
-                    // Survived combat: very low death chance (base * 0.15)
-                    deathChance = fallenInCombat.has(adv.id) ? baseChance * 1.5 : baseChance * 0.15;
+                    // Survived combat: they made it home alive — no death risk
+                    deathChance = fallenInCombat.has(adv.id) ? baseChance * 1.5 : 0;
                   } else {
                     deathChance = baseChance; // non-combat missions: standard chance
                   }
