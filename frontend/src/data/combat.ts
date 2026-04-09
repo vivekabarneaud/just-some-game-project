@@ -90,9 +90,9 @@ function getCritChance(unit: CombatUnit): number {
   return Math.min(50, base + classBonus); // cap 50%
 }
 
-/** Dodge chance — 1.5% per DEX, max 30% */
+/** Dodge chance — 1% per DEX, max 20% */
 function getDodgeChance(unit: CombatUnit): number {
-  return Math.min(30, unit.dex * 1.5);
+  return Math.min(20, unit.dex * 1.0);
 }
 
 /** Does this unit deal magical damage? */
