@@ -1,6 +1,7 @@
 import { createSignal, createMemo, For, Index, Show } from "solid-js";
 import { A, useNavigate, useSearchParams } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
+import { IS_DEV } from "~/data/seasons";
 import {
   ADVENTURER_CLASSES,
   getClassMeta,
@@ -370,9 +371,20 @@ export default function AdventurersGuild() {
         {/* ── Missions tab ── */}
         <Show when={tab() === "missions"}>
           <Show when={state.activeMissions.length > 0}>
-            <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "8px", color: "var(--text-primary)" }}>
-              Active Missions
-            </h3>
+            <div style={{ display: "flex", "align-items": "center", gap: "10px", "margin-bottom": "8px" }}>
+              <h3 style={{ "font-family": "var(--font-heading)", margin: 0, color: "var(--text-primary)" }}>
+                Active Missions
+              </h3>
+              <Show when={IS_DEV}>
+                <button
+                  class="skip-season-btn"
+                  onClick={() => actions.skipMissionTimers()}
+                  style={{ "font-size": "0.7rem", padding: "2px 8px" }}
+                >
+                  Skip all ⏩
+                </button>
+              </Show>
+            </div>
             <div style={{ "margin-bottom": "20px" }}>
               <For each={state.activeMissions}>
                 {(am) => {

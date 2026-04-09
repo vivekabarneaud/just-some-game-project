@@ -657,6 +657,7 @@ export interface GameActions {
   makeOffering: (deityId: string) => boolean;
   claimMissionReward: (index: number) => void;
   skipRaidTimer: () => void;
+  skipMissionTimers: () => void;
   trade: (give: keyof ResourceState, giveAmount: number, receive: keyof ResourceState, receiveAmount: number) => boolean;
 }
 
@@ -3132,6 +3133,14 @@ export function GameProvider(props: ParentProps) {
       setState(produce((s) => {
         for (const raid of s.incomingRaids) {
           raid.remaining = 0;
+        }
+      }));
+    },
+    skipMissionTimers() {
+      if (state.activeMissions.length === 0) return;
+      setState(produce((s) => {
+        for (const m of s.activeMissions) {
+          m.remaining = 0;
         }
       }));
     },
