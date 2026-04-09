@@ -28,6 +28,7 @@ import {
   getCurrentStoryMission,
 } from "~/data/missions";
 import Countdown from "~/components/Countdown";
+import { getEnemy } from "~/data/enemies";
 
 type Tab = "missions" | "roster" | "recruit";
 
@@ -502,6 +503,15 @@ export default function AdventurersGuild() {
                     <div style={{ "font-size": "0.75rem", color: "var(--accent-blue)", "margin-top": "2px" }}>
                       +{getMissionXp(mission.difficulty, true)} XP on success · +{getMissionXp(mission.difficulty, false)} XP on failure
                     </div>
+                    <Show when={mission.encounters?.length}>
+                      <div style={{ "margin-top": "6px", "font-size": "0.75rem", color: "var(--text-muted)" }}>
+                        Enemies:{" "}
+                        {mission.encounters!.map((enc) => {
+                          const enemy = getEnemy(enc.enemyId);
+                          return enemy ? `${enemy.icon} ${enc.count}x ${enemy.name}` : "";
+                        }).filter(Boolean).join(", ")}
+                      </div>
+                    </Show>
                   </div>
                 );
               }}
@@ -558,6 +568,38 @@ export default function AdventurersGuild() {
                     <p style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "font-style": "italic", "margin": "10px 0" }}>
                       {mission().description}
                     </p>
+
+                    <Show when={mission().encounters?.length}>
+                      <div class="mission-detail-section">
+                        <div class="mission-detail-label">Encounters</div>
+                        <div style={{ display: "flex", gap: "6px", "flex-wrap": "wrap" }}>
+                          {mission().encounters!.map((enc) => {
+                            const enemy = getEnemy(enc.enemyId);
+                            if (!enemy) return null;
+                            return (
+                              <div style={{
+                                padding: "4px 10px",
+                                background: enemy.boss ? "rgba(245, 197, 66, 0.1)" : "rgba(231, 76, 60, 0.08)",
+                                border: `1px solid ${enemy.boss ? "var(--accent-gold)" : "rgba(231, 76, 60, 0.3)"}`,
+                                "border-radius": "4px",
+                                "font-size": "0.8rem",
+                                display: "flex",
+                                "align-items": "center",
+                                gap: "4px",
+                              }}>
+                                <span>{enemy.icon}</span>
+                                <span style={{ color: enemy.boss ? "var(--accent-gold)" : "var(--text-secondary)" }}>
+                                  {enc.count}x {enemy.name}
+                                </span>
+                                <Show when={enemy.boss}>
+                                  <span style={{ "font-size": "0.65rem", color: "var(--accent-gold)", "font-weight": "bold" }}>BOSS</span>
+                                </Show>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </Show>
 
                     <div class="mission-detail-section">
                       <div class="mission-detail-label">Team Slots</div>

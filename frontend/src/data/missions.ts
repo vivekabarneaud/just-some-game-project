@@ -19,6 +19,11 @@ export interface MissionSlot {
 
 export type MissionTag = "combat" | "exploration" | "magical" | "outdoor" | "stealth" | "escort" | "spying" | "assassination" | "dungeon" | "survival";
 
+export interface MissionEncounter {
+  enemyId: string;
+  count: number;
+}
+
 export interface MissionTemplate {
   id: string;
   name: string;
@@ -32,6 +37,7 @@ export interface MissionTemplate {
   minGuildLevel: number;
   tags: MissionTag[];
   image?: string; // optional mission illustration
+  encounters?: MissionEncounter[]; // enemies faced during the mission
 }
 
 export interface ActiveMission {
@@ -79,12 +85,13 @@ export const MISSION_POOL: MissionTemplate[] = [
     description: "Send a team to collect wood from the nearby forest.",
     icon: "🪵",
     slots: [{ class: "any" }],
-    duration: 600, // 10 min
+    duration: 600,
     rewards: [{ resource: "wood", amount: 80 }],
     deployCost: 5,
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["outdoor"],
+    encounters: [{ enemyId: "wild_wolf", count: 2 }],
   },
   {
     id: "quarry_expedition",
@@ -98,6 +105,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["outdoor", "exploration"],
+    encounters: [{ enemyId: "giant_rat", count: 3 }],
   },
   {
     id: "foraging_run",
@@ -105,12 +113,13 @@ export const MISSION_POOL: MissionTemplate[] = [
     description: "Gather wild berries, roots, and game from the surrounding lands.",
     icon: "🍖",
     slots: [{ class: "any" }],
-    duration: 480, // 8 min
+    duration: 480,
     rewards: [{ resource: "food", amount: 100 }],
     deployCost: 5,
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["outdoor"],
+    encounters: [{ enemyId: "wild_wolf", count: 1 }],
   },
   {
     id: "merchant_escort",
@@ -118,12 +127,13 @@ export const MISSION_POOL: MissionTemplate[] = [
     description: "Guard a traveling merchant along the trade road for a share of their profits.",
     icon: "💰",
     slots: [{ class: "any" }],
-    duration: 720, // 12 min
+    duration: 720,
     rewards: [{ resource: "gold", amount: 40 }],
     deployCost: 5,
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["outdoor", "combat"],
+    encounters: [{ enemyId: "bandit_thug", count: 2 }],
   },
   {
     id: "herb_gathering",
@@ -131,7 +141,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     description: "The meadows beyond the tree line are dotted with wildflowers and fragrant herbs. Your adventurer returns with bundles of chamomile and mugwort — and a handful of berries for the road.",
     icon: "🌿",
     slots: [{ class: "any" }],
-    duration: 540, // 9 min
+    duration: 540,
     rewards: [{ resource: "food", amount: 30 }, { resource: "chamomile", amount: 3 }, { resource: "mugwort", amount: 2 }],
     deployCost: 5,
     difficulty: 1,
@@ -147,12 +157,13 @@ export const MISSION_POOL: MissionTemplate[] = [
     description: "A group of bandits has been raiding caravans. Clear them out and claim their stash.",
     icon: "🏴",
     slots: [{ class: "warrior" }, { class: "any" }],
-    duration: 1200, // 20 min
+    duration: 1200,
     rewards: [{ resource: "gold", amount: 80 }, { resource: "wood", amount: 50 }],
     deployCost: 15,
     difficulty: 2,
     minGuildLevel: 2,
     tags: ["combat", "outdoor"],
+    encounters: [{ enemyId: "bandit_thug", count: 3 }, { enemyId: "bandit_captain", count: 1 }],
   },
   {
     id: "deep_forest",
@@ -160,12 +171,13 @@ export const MISSION_POOL: MissionTemplate[] = [
     description: "Venture deep into the old forest where ancient trees yield valuable timber.",
     icon: "🌲",
     slots: [{ class: "assassin" }, { class: "any" }],
-    duration: 1500, // 25 min
+    duration: 1500,
     rewards: [{ resource: "wood", amount: 200 }],
     deployCost: 15,
     difficulty: 2,
     minGuildLevel: 2,
     tags: ["outdoor", "exploration"],
+    encounters: [{ enemyId: "wild_wolf", count: 3 }, { enemyId: "cave_spider", count: 1 }],
   },
   {
     id: "abandoned_mine",
@@ -173,12 +185,13 @@ export const MISSION_POOL: MissionTemplate[] = [
     description: "Explore a collapsed mine shaft. Rich deposits remain if you can clear the rubble.",
     icon: "⛏️",
     slots: [{ class: "warrior" }, { class: "assassin" }],
-    duration: 1800, // 30 min
+    duration: 1800,
     rewards: [{ resource: "stone", amount: 180 }, { resource: "gold", amount: 30 }],
     deployCost: 20,
     difficulty: 2,
     minGuildLevel: 2,
     tags: ["exploration", "stealth"],
+    encounters: [{ enemyId: "giant_rat", count: 4 }, { enemyId: "skeleton", count: 2 }],
   },
   {
     id: "river_crossing",
@@ -192,6 +205,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 2,
     tags: ["outdoor"],
+    encounters: [{ enemyId: "goblin_scout", count: 3 }],
   },
 
   // ── Tier 3: Hard (guild Lv3, specific comps) ──────────────────
@@ -201,12 +215,13 @@ export const MISSION_POOL: MissionTemplate[] = [
     description: "Rumors speak of a young drake hoarding gold in the eastern caves. High risk, high reward.",
     icon: "🐉",
     slots: [{ class: "warrior" }, { class: "wizard" }, { class: "priest" }],
-    duration: 3600, // 1 hour
+    duration: 3600,
     rewards: [{ resource: "gold", amount: 300 }, { resource: "stone", amount: 100 }, { resource: "astralShards", amount: 2 }],
     deployCost: 50,
     difficulty: 4,
     minGuildLevel: 3,
     tags: ["combat", "exploration"],
+    encounters: [{ enemyId: "goblin_scout", count: 4 }, { enemyId: "dragon_hatchling", count: 1 }],
   },
   {
     id: "haunted_ruins",
@@ -214,12 +229,13 @@ export const MISSION_POOL: MissionTemplate[] = [
     description: "Ancient ruins infested with restless spirits. A mage is essential to deal with them.",
     icon: "👻",
     slots: [{ class: "wizard" }, { class: "priest" }],
-    duration: 2400, // 40 min
+    duration: 2400,
     rewards: [{ resource: "gold", amount: 150 }, { resource: "stone", amount: 120 }],
     deployCost: 35,
     difficulty: 3,
     minGuildLevel: 3,
     tags: ["magical", "exploration"],
+    encounters: [{ enemyId: "skeleton", count: 3 }, { enemyId: "wraith", count: 1 }],
   },
   {
     id: "kings_bounty",
@@ -227,12 +243,13 @@ export const MISSION_POOL: MissionTemplate[] = [
     description: "The King has posted a bounty on a dangerous beast terrorizing the countryside.",
     icon: "👑",
     slots: [{ class: "warrior" }, { class: "archer" }, { class: "priest" }],
-    duration: 2700, // 45 min
+    duration: 2700,
     rewards: [{ resource: "gold", amount: 200 }, { resource: "food", amount: 100 }],
     deployCost: 40,
     difficulty: 3,
     minGuildLevel: 3,
     tags: ["combat", "outdoor"],
+    encounters: [{ enemyId: "troll", count: 1 }, { enemyId: "wild_wolf", count: 3 }],
   },
   {
     id: "lumber_contract",
@@ -246,6 +263,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 3,
     minGuildLevel: 3,
     tags: ["outdoor"],
+    encounters: [{ enemyId: "wild_wolf", count: 2 }, { enemyId: "orc_warrior", count: 1 }],
   },
 
   // ── Tier 4: Very Hard (guild Lv4+) ────────────────────────────
@@ -255,12 +273,13 @@ export const MISSION_POOL: MissionTemplate[] = [
     description: "A sealed vault from a forgotten age. Untold riches await those brave enough to break the seal.",
     icon: "🏛️",
     slots: [{ class: "wizard" }, { class: "warrior" }, { class: "assassin" }, { class: "priest" }],
-    duration: 5400, // 1.5 hours
+    duration: 5400,
     rewards: [{ resource: "gold", amount: 500 }, { resource: "stone", amount: 200 }, { resource: "wood", amount: 200 }, { resource: "astralShards", amount: 5 }],
     deployCost: 80,
     difficulty: 5,
     minGuildLevel: 4,
     tags: ["exploration", "magical", "stealth"],
+    encounters: [{ enemyId: "skeleton", count: 4 }, { enemyId: "lich_apprentice", count: 1 }, { enemyId: "cursed_spirit", count: 2 }],
   },
   {
     id: "enchanted_grove",
@@ -274,6 +293,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 4,
     minGuildLevel: 4,
     tags: ["magical", "outdoor"],
+    encounters: [{ enemyId: "wraith", count: 2 }, { enemyId: "dark_mage", count: 1 }],
   },
 
   // ── Early magical missions ─────────────────────────────────────
@@ -283,12 +303,13 @@ export const MISSION_POOL: MissionTemplate[] = [
     description: "A spring in the forest glows with faint magical energy. A wizard might be able to harness it.",
     icon: "💧",
     slots: [{ class: "wizard" }],
-    duration: 540, // 9 min
+    duration: 540,
     rewards: [{ resource: "food", amount: 60 }, { resource: "gold", amount: 20 }],
     deployCost: 5,
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["magical", "outdoor"],
+    encounters: [{ enemyId: "cursed_spirit", count: 1 }],
   },
   {
     id: "wandering_spirit",
@@ -302,6 +323,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["magical"],
+    encounters: [{ enemyId: "skeleton", count: 2 }],
   },
   {
     id: "herb_witch",
@@ -315,6 +337,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 2,
     tags: ["magical", "exploration"],
+    encounters: [{ enemyId: "cave_spider", count: 2 }, { enemyId: "giant_rat", count: 3 }],
   },
   {
     id: "cursed_well",
@@ -328,6 +351,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["magical", "survival"],
+    encounters: [{ enemyId: "cursed_spirit", count: 1 }],
   },
 
   // ── Escort missions ───────────────────────────────────────────
@@ -337,12 +361,13 @@ export const MISSION_POOL: MissionTemplate[] = [
     description: "A merchant caravan needs protection along the bandit-infested trade route.",
     icon: "🐴",
     slots: [{ class: "warrior" }, { class: "any" }],
-    duration: 900, // 15 min
+    duration: 900,
     rewards: [{ resource: "gold", amount: 50 }, { resource: "food", amount: 30 }],
     deployCost: 10,
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["escort", "combat"],
+    encounters: [{ enemyId: "bandit_thug", count: 3 }],
   },
   {
     id: "noble_escort",
@@ -356,6 +381,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 3,
     minGuildLevel: 3,
     tags: ["escort", "combat", "stealth"],
+    encounters: [{ enemyId: "bandit_thug", count: 2 }, { enemyId: "bandit_captain", count: 1 }, { enemyId: "orc_warrior", count: 1 }],
   },
   {
     id: "refugee_convoy",
@@ -369,6 +395,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 2,
     tags: ["escort", "survival"],
+    encounters: [{ enemyId: "wild_wolf", count: 3 }, { enemyId: "bandit_thug", count: 2 }],
   },
 
   // ── Spying missions ───────────────────────────────────────────
@@ -378,7 +405,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     description: "Gather rumors and secrets from the local tavern. A sharp ear and a loose tongue go a long way.",
     icon: "🍺",
     slots: [{ class: "any" }],
-    duration: 480, // 8 min
+    duration: 480,
     rewards: [{ resource: "gold", amount: 25 }],
     deployCost: 5,
     difficulty: 1,
@@ -397,6 +424,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 2,
     tags: ["spying", "stealth"],
+    encounters: [{ enemyId: "bandit_thug", count: 2 }],
   },
   {
     id: "intercept_courier",
@@ -410,6 +438,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 2,
     tags: ["spying", "stealth", "combat"],
+    encounters: [{ enemyId: "bandit_thug", count: 2 }, { enemyId: "orc_warrior", count: 1 }],
   },
   {
     id: "double_agent",
@@ -423,6 +452,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 4,
     minGuildLevel: 4,
     tags: ["spying", "stealth"],
+    encounters: [{ enemyId: "dark_mage", count: 1 }, { enemyId: "orc_warrior", count: 2 }],
   },
 
   // ── Assassination missions ────────────────────────────────────
@@ -438,6 +468,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 3,
     minGuildLevel: 3,
     tags: ["assassination", "stealth", "combat"],
+    encounters: [{ enemyId: "bandit_thug", count: 4 }, { enemyId: "bandit_captain", count: 1 }],
   },
   {
     id: "corrupt_official",
@@ -451,6 +482,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 2,
     tags: ["assassination", "stealth"],
+    encounters: [{ enemyId: "bandit_thug", count: 2 }],
   },
 
   // ── Dungeon missions ──────────────────────────────────────────
@@ -466,6 +498,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 2,
     tags: ["dungeon", "combat"],
+    encounters: [{ enemyId: "goblin_scout", count: 6 }, { enemyId: "orc_warrior", count: 1 }],
   },
   {
     id: "flooded_crypt",
@@ -479,6 +512,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 3,
     minGuildLevel: 3,
     tags: ["dungeon", "combat", "magical"],
+    encounters: [{ enemyId: "skeleton", count: 4 }, { enemyId: "skeleton_archer", count: 2 }, { enemyId: "wraith", count: 1 }],
   },
   {
     id: "crystal_caverns",
@@ -492,6 +526,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 5,
     minGuildLevel: 4,
     tags: ["dungeon", "exploration", "combat"],
+    encounters: [{ enemyId: "orc_warrior", count: 3 }, { enemyId: "orc_warlord", count: 1 }, { enemyId: "demon_scout", count: 1 }],
   },
 
   // ── Survival missions ─────────────────────────────────────────
@@ -507,6 +542,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 1,
     tags: ["survival", "outdoor"],
+    encounters: [{ enemyId: "wild_wolf", count: 2 }, { enemyId: "giant_rat", count: 2 }],
   },
   {
     id: "winter_expedition",
@@ -520,6 +556,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 4,
     minGuildLevel: 3,
     tags: ["survival", "outdoor", "exploration"],
+    encounters: [{ enemyId: "troll", count: 1 }, { enemyId: "orc_warrior", count: 2 }, { enemyId: "wild_wolf", count: 3 }],
   },
   {
     id: "monster_hunt",
@@ -533,6 +570,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 2,
     tags: ["combat", "outdoor", "survival"],
+    encounters: [{ enemyId: "wild_wolf", count: 4 }, { enemyId: "cave_spider", count: 2 }],
   },
 
   // ── Mixed/special missions ────────────────────────────────────
@@ -548,6 +586,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 3,
     minGuildLevel: 3,
     tags: ["exploration", "magical", "dungeon"],
+    encounters: [{ enemyId: "skeleton", count: 3 }, { enemyId: "cursed_spirit", count: 2 }],
   },
   {
     id: "smuggler_deal",
@@ -574,6 +613,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 2,
     tags: ["exploration", "survival", "outdoor"],
+    encounters: [{ enemyId: "wild_wolf", count: 2 }, { enemyId: "skeleton", count: 2 }],
   },
   {
     id: "arcane_rift",
@@ -587,6 +627,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 4,
     minGuildLevel: 4,
     tags: ["magical", "combat", "survival"],
+    encounters: [{ enemyId: "demon_scout", count: 2 }, { enemyId: "dark_mage", count: 1 }, { enemyId: "shadow_lord", count: 1 }],
   },
 ];
 
@@ -829,6 +870,7 @@ export const STORY_MISSIONS: StoryMission[] = [
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["exploration", "outdoor"],
+    encounters: [{ enemyId: "wild_wolf", count: 2 }, { enemyId: "goblin_scout", count: 1 }],
     lore: "Your scouts return with a rough map and one unexpected finding: about a day's march south, on a hilltop, there are ruins. Stone foundations, a collapsed well, and a tower still partially standing. Whoever was here before you, they were organized. Military, maybe. And they left.",
   },
 ];
