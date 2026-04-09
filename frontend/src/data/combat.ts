@@ -122,8 +122,9 @@ function calcDamageResult(attacker: CombatUnit, defender: CombatUnit): { damage:
   const crit = Math.random() * 100 < getCritChance(attacker);
   if (crit) rawDamage = Math.floor(rawDamage * 1.5);
 
-  // Apply defense/resist reduction
-  const damage = Math.max(1, rawDamage - reduction);
+  // Apply defense/resist reduction — minimum 25% of raw always gets through
+  const minDamage = Math.max(1, Math.ceil(rawDamage * 0.25));
+  const damage = Math.max(minDamage, rawDamage - reduction);
 
   return { damage, rawDamage, crit };
 }
@@ -183,6 +184,23 @@ function buildEnemyUnits(encounters: MissionEncounter[]): CombatUnit[] {
 
 const MAX_ROUNDS = 20;
 
+/** Count family bonds (shared last names) — each member with a shared name gets a stat boost */
+function calcFamilyBonuses(team: Adventurer[]): Map<string, number> {
+  const lastNames = team.map((a) => a.name.split(" ").slice(1).join(" "));
+  const nameCounts = new Map<string, number>();
+  for (const ln of lastNames) {
+    nameCounts.set(ln, (nameCounts.get(ln) ?? 0) + 1);
+  }
+  // Map adventurer ID → bonus (number of family members - 1, so a pair gets +1 each)
+  const bonuses = new Map<string, number>();
+  for (let i = 0; i < team.length; i++) {
+    const ln = lastNames[i];
+    const count = nameCounts.get(ln) ?? 1;
+    if (count > 1) bonuses.set(team[i].id, count - 1);
+  }
+  return bonuses;
+}
+
 export function simulateCombat(
   mission: MissionTemplate,
   team: Adventurer[],
@@ -190,6 +208,24 @@ export function simulateCombat(
   if (!mission.encounters?.length || team.length === 0) return null;
 
   const adventurers = team.map(buildAdventurerUnit);
+
+  // Family bond: +2 to all stats per shared family member
+  const familyBonuses = calcFamilyBonuses(team);
+  for (const unit of adventurers) {
+    const bonus = familyBonuses.get(unit.id) ?? 0;
+    if (bonus > 0) {
+      const b = bonus * 2;
+      unit.str += b;
+      unit.dex += b;
+      unit.int += b;
+      unit.vit += b;
+      unit.wis += b;
+      // Recalculate HP with boosted VIT
+      unit.maxHp = unit.vit * 8;
+      unit.hp = unit.maxHp;
+    }
+  }
+
   const enemies = buildEnemyUnits(mission.encounters);
   const totalEnemies = enemies.length;
 
