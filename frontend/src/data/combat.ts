@@ -159,7 +159,8 @@ function buildEnemyUnits(encounters: MissionEncounter[]): CombatUnit[] {
   for (const enc of encounters) {
     const def = getEnemy(enc.enemyId);
     if (!def) continue;
-    const isMagical = def.tags.includes("magical") || def.tags.includes("undead");
+    // Only "magical" or "demon" enemies deal magical damage — undead fight physically
+    const isMagical = def.tags.includes("magical") || def.tags.includes("demon");
     for (let i = 0; i < enc.count; i++) {
       const hp = def.stats.vit * 10;
       units.push({
@@ -250,14 +251,14 @@ export function simulateCombat(
     // Track which priests have healed this round
     const priestsHealed = new Set<string>();
 
-    // Priest healing phase — priests heal before combat if there are wounded allies
+    // Priest healing phase — only heal when an ally is below 50% HP, otherwise attack
     for (const unit of allAlive) {
       if (unit.hp <= 0 || unit.isEnemy || unit.class !== "priest") continue;
       const currentAliveAdvs = adventurers.filter((u) => u.hp > 0);
       if (currentAliveAdvs.length <= 1) continue;
 
       const wounded = currentAliveAdvs
-        .filter((a) => a.id !== unit.id && a.hp < a.maxHp)
+        .filter((a) => a.id !== unit.id && a.hp / a.maxHp < 0.5)
         .sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp);
       if (wounded.length > 0) {
         const healAmount = Math.floor(unit.int * 0.6 * (0.8 + Math.random() * 0.4));
