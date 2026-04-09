@@ -1349,7 +1349,7 @@ export function GameProvider(props: ParentProps) {
                 serverState.lastRaidTime = 0;
                 if (!serverState.eventLog) serverState.eventLog = [];
                 const raidName = template.name ?? ir.raidId;
-                serverState.eventLog.push({
+                serverState.eventLog.unshift({
                   type: result.victory ? "raid_victory" : "raid_defeat",
                   icon: result.victory ? "🛡️" : "💔",
                   message: result.victory
@@ -1365,11 +1365,20 @@ export function GameProvider(props: ParentProps) {
         setState(reconcile(serverState));
         // Catch up for time spent offline
         const offlineMs = Date.now() - serverState.lastTick;
-        if (offlineMs > 2000) applyTicks(offlineMs);
+        if (offlineMs > 2000) {
+          try {
+            applyTicks(offlineMs);
+          } catch (err) {
+            console.error("Offline catch-up error:", err);
+            setState("lastTick", Date.now());
+          }
+        }
         // Resolve any missions/crafts with negative remaining (server tick counted down but didn't resolve)
         const hasUnresolved = serverState.activeMissions?.some((m) => m.remaining <= 0)
           || serverState.craftingQueue?.some((c) => c.remaining <= 0);
-        if (hasUnresolved) applyTicks(1000); // trigger one tick to resolve them
+        if (hasUnresolved) {
+          try { applyTicks(1000); } catch { /* already logged above */ }
+        }
       } else {
         // New settlement — start with a fresh initial state, not localStorage
         const fresh = createInitialState();
@@ -2067,14 +2076,29 @@ export function GameProvider(props: ParentProps) {
       setState("lastTick", now);
       return;
     }
-    if (elapsed > 500) applyTicks(elapsed * getSpeed());
+    if (elapsed > 500) {
+      try {
+        applyTicks(elapsed * getSpeed());
+      } catch (err) {
+        console.error("Tick error:", err);
+        // Reset lastTick so the next tick doesn't accumulate a huge elapsed
+        setState("lastTick", Date.now());
+      }
+    }
   }, TICK_INTERVAL_MS);
 
   // Catch up when tab becomes visible again (browsers throttle background tabs)
   const handleVisibility = () => {
     if (!document.hidden) {
       const offlineMs = Date.now() - state.lastTick;
-      if (offlineMs > 2000) applyTicks(offlineMs);
+      if (offlineMs > 2000) {
+        try {
+          applyTicks(offlineMs);
+        } catch (err) {
+          console.error("Visibility catch-up error:", err);
+          setState("lastTick", Date.now());
+        }
+      }
     }
   };
   document.addEventListener("visibilitychange", handleVisibility);
