@@ -3183,7 +3183,7 @@ export function GameProvider(props: ParentProps) {
         Loading your settlement...
       </div>
     }>
-      <GameContext.Provider value={{ state, actions }}>
+      <GameContext.Provider value={(() => { if (IS_DEV) (window as any).__game = { state, actions }; return { state, actions }; })()}>
         {props.children}
       </GameContext.Provider>
     </Show>
