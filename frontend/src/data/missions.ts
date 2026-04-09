@@ -224,7 +224,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 4,
     minGuildLevel: 3,
     tags: ["combat", "exploration"],
-    encounters: [{ enemyId: "goblin_scout", count: 4 }, { enemyId: "dragon_hatchling", count: 1 }],
+    encounters: [{ enemyId: "orc_warrior", count: 3 }, { enemyId: "dragon_hatchling", count: 1 }],
   },
   {
     id: "haunted_ruins",
@@ -238,7 +238,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 3,
     minGuildLevel: 3,
     tags: ["magical", "exploration"],
-    encounters: [{ enemyId: "skeleton", count: 3 }, { enemyId: "wraith", count: 1 }],
+    encounters: [{ enemyId: "skeleton", count: 4 }, { enemyId: "skeleton_archer", count: 2 }, { enemyId: "wraith", count: 1 }],
   },
   {
     id: "kings_bounty",
@@ -252,7 +252,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 3,
     minGuildLevel: 3,
     tags: ["combat", "outdoor"],
-    encounters: [{ enemyId: "troll", count: 1 }, { enemyId: "wild_wolf", count: 3 }],
+    encounters: [{ enemyId: "troll", count: 1 }, { enemyId: "orc_warrior", count: 2 }, { enemyId: "wild_wolf", count: 4 }],
   },
   {
     id: "lumber_contract",
@@ -282,7 +282,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 5,
     minGuildLevel: 4,
     tags: ["exploration", "magical", "stealth"],
-    encounters: [{ enemyId: "skeleton", count: 4 }, { enemyId: "lich_apprentice", count: 1 }, { enemyId: "cursed_spirit", count: 2 }],
+    encounters: [{ enemyId: "skeleton", count: 6 }, { enemyId: "skeleton_archer", count: 3 }, { enemyId: "lich_apprentice", count: 1 }, { enemyId: "cursed_spirit", count: 2 }],
   },
   {
     id: "enchanted_grove",
@@ -296,7 +296,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 4,
     minGuildLevel: 4,
     tags: ["magical", "outdoor"],
-    encounters: [{ enemyId: "wraith", count: 2 }, { enemyId: "dark_mage", count: 1 }],
+    encounters: [{ enemyId: "wraith", count: 3 }, { enemyId: "cursed_spirit", count: 2 }, { enemyId: "dark_mage", count: 1 }],
   },
 
   // ── Early magical missions ─────────────────────────────────────
@@ -455,7 +455,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 4,
     minGuildLevel: 4,
     tags: ["spying", "stealth"],
-    encounters: [{ enemyId: "dark_mage", count: 1 }, { enemyId: "orc_warrior", count: 2 }],
+    encounters: [{ enemyId: "dark_mage", count: 1 }, { enemyId: "orc_warrior", count: 3 }, { enemyId: "bandit_captain", count: 1 }],
   },
 
   // ── Assassination missions ────────────────────────────────────
@@ -501,7 +501,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 2,
     tags: ["dungeon", "combat"],
-    encounters: [{ enemyId: "goblin_scout", count: 6 }, { enemyId: "orc_warrior", count: 1 }],
+    encounters: [{ enemyId: "goblin_scout", count: 6 }, { enemyId: "orc_warrior", count: 2 }],
   },
   {
     id: "flooded_crypt",
@@ -515,7 +515,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 3,
     minGuildLevel: 3,
     tags: ["dungeon", "combat", "magical"],
-    encounters: [{ enemyId: "skeleton", count: 4 }, { enemyId: "skeleton_archer", count: 2 }, { enemyId: "wraith", count: 1 }],
+    encounters: [{ enemyId: "skeleton", count: 5 }, { enemyId: "skeleton_archer", count: 3 }, { enemyId: "wraith", count: 2 }],
   },
   {
     id: "crystal_caverns",
@@ -529,7 +529,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 5,
     minGuildLevel: 4,
     tags: ["dungeon", "exploration", "combat"],
-    encounters: [{ enemyId: "orc_warrior", count: 3 }, { enemyId: "orc_warlord", count: 1 }, { enemyId: "demon_scout", count: 1 }],
+    encounters: [{ enemyId: "orc_warrior", count: 4 }, { enemyId: "orc_warlord", count: 1 }, { enemyId: "demon_scout", count: 2 }, { enemyId: "dark_mage", count: 1 }],
   },
 
   // ── Survival missions ─────────────────────────────────────────
@@ -559,7 +559,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 4,
     minGuildLevel: 3,
     tags: ["survival", "outdoor", "exploration"],
-    encounters: [{ enemyId: "troll", count: 1 }, { enemyId: "orc_warrior", count: 2 }, { enemyId: "wild_wolf", count: 3 }],
+    encounters: [{ enemyId: "troll", count: 2 }, { enemyId: "orc_warrior", count: 3 }, { enemyId: "wild_wolf", count: 4 }],
   },
   {
     id: "monster_hunt",
@@ -630,7 +630,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 4,
     minGuildLevel: 4,
     tags: ["magical", "combat", "survival"],
-    encounters: [{ enemyId: "demon_scout", count: 2 }, { enemyId: "dark_mage", count: 1 }, { enemyId: "shadow_lord", count: 1 }],
+    encounters: [{ enemyId: "demon_scout", count: 3 }, { enemyId: "dark_mage", count: 2 }, { enemyId: "shadow_lord", count: 1 }],
   },
 ];
 
