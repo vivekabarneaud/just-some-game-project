@@ -3,6 +3,7 @@ import { A } from "@solidjs/router";
 import { useGame, CRAFTING_RECIPES } from "~/engine/gameState";
 import { getItemByRecipe } from "~/data/items";
 import Countdown from "~/components/Countdown";
+import Tooltip from "~/components/Tooltip";
 
 interface CraftingPageProps {
   title: string;
@@ -160,15 +161,16 @@ export default function CraftingPage(props: CraftingPageProps) {
                         Requires {props.buildingName} Lv.{recipe.minLevel}
                       </div>
                     )}
-                    <button
-                      class="upgrade-btn"
-                      disabled={!canCraft(recipe.id)}
-                      onClick={() => actions.startCraft(recipe.id)}
-                      title={craftDisabledReason(recipe.id) ?? ""}
-                      style={{ "margin-top": "auto", "padding-top": "8px", "font-size": "0.85rem", padding: "6px 14px" }}
-                    >
-                      Craft
-                    </button>
+                    <Tooltip text={craftDisabledReason(recipe.id)} position="bottom">
+                      <button
+                        class="upgrade-btn"
+                        disabled={!canCraft(recipe.id)}
+                        onClick={() => actions.startCraft(recipe.id)}
+                        style={{ "margin-top": "auto", "padding-top": "8px", "font-size": "0.85rem", padding: "6px 14px" }}
+                      >
+                        Craft
+                      </button>
+                    </Tooltip>
                   </div>
                 )}
               </For>

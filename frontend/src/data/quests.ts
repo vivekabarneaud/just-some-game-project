@@ -228,10 +228,10 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "first_stitch",
     title: "The First Stitch",
     narrative:
-      "Your tailor examines the wool and nods approvingly. 'Good fiber. I can make something warm from this — a robe for your priests, perhaps, or a cloak for your scouts. Bring me the materials and I'll show you what these hands can do.'",
-    objective: "Craft any clothing at the Tailoring Shop",
+      "Your tailor examines the wool and nods approvingly. 'Good fiber. I can make proper clothes from this — your people are shivering in rags. Clothe them and they'll be happier, especially come winter. Robes and armor can wait — warmth first.'",
+    objective: "Craft Wool or Linen Clothing for your citizens",
     icon: "🧥",
-    condition: (s) => s.clothing >= 1 || s.inventory.some((i) => i.quantity > 0 && (i.itemId === "woolen_robe" || i.itemId === "wool_clothing" || i.itemId === "linen_clothing")),
+    condition: (s) => s.clothing >= 1,
     rewards: [
       { resource: "gold", amount: 15, label: "Gold" },
     ],
