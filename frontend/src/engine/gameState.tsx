@@ -483,6 +483,7 @@ export interface GameState {
   happiness: number; // 0-100
   lastRaidOutcome: "none" | "victory" | "defeat";
   lastRaidTime: number; // game-hours elapsed since last raid outcome
+  starvationPenalty: number; // 0-75, decays over 24h after food is restored
   // Raids
   incomingRaids: IncomingRaid[];
   raidLog: RaidResult[]; // recent results (cleared on read)
@@ -659,6 +660,7 @@ function createInitialState(): GameState {
     happiness: 50,
     lastRaidOutcome: "none",
     lastRaidTime: 0,
+    starvationPenalty: 0,
     adventurers: [],
     activeMissions: [],
     completedMissions: [],
@@ -808,6 +810,7 @@ function loadGame(): GameState | null {
     if (saved.happiness === undefined) saved.happiness = 50;
     if (!saved.lastRaidOutcome) saved.lastRaidOutcome = "none";
     if (saved.lastRaidTime === undefined) saved.lastRaidTime = 0;
+    if (saved.starvationPenalty === undefined) saved.starvationPenalty = 0;
     // Raid migration
     if (!saved.incomingRaids) saved.incomingRaids = [];
     if (!saved.raidLog) saved.raidLog = [];
@@ -1198,6 +1201,7 @@ export function GameProvider(props: ParentProps) {
         if (!serverState.completedStoryMissions) serverState.completedStoryMissions = [];
         if (!serverState.herbs) serverState.herbs = {};
         if (serverState.foragedTotal === undefined) serverState.foragedTotal = 0;
+        if (serverState.starvationPenalty === undefined) serverState.starvationPenalty = 0;
         // Re-apply leveling in case XP curve changed
         for (const adv of serverState.adventurers ?? []) {
           applyXp(adv, 0);
@@ -1611,8 +1615,14 @@ export function GameProvider(props: ParentProps) {
         if (netFoodRate > 0) happiness += Math.min(15, netFoodRate / 5);
         else if (netFoodRate < 0) happiness -= Math.min(30, Math.abs(netFoodRate) / 3);
 
-        // Starvation penalty — severe, people are dying
-        if (s.resources.food <= 0) happiness -= 75;
+        // Starvation penalty — resets to 75 when people starve, decays over 24h after food is restored
+        if (s.resources.food <= 0) {
+          s.starvationPenalty = 75; // hold at max while starving
+        } else if (s.starvationPenalty > 0) {
+          // Decay: lose 75 points over 24 hours = ~3.125 per hour
+          s.starvationPenalty = Math.max(0, s.starvationPenalty - (75 / 24) * elapsedHours);
+        }
+        if (s.starvationPenalty > 0) happiness -= Math.round(s.starvationPenalty);
 
         // Winter cold
         if (isWinter) {
@@ -2603,7 +2613,10 @@ export function GameProvider(props: ParentProps) {
       const netFood = rates.food - foodCons - animalFood;
       if (netFood > 0) factors.push({ label: "Food surplus", value: Math.min(15, Math.round(netFood / 5)) });
       else if (netFood < 0) factors.push({ label: "Food deficit", value: -Math.min(30, Math.round(Math.abs(netFood) / 3)) });
-      if (state.resources.food <= 0) factors.push({ label: "Starvation", value: -75 });
+      if (state.starvationPenalty > 0) {
+        const val = -Math.round(state.starvationPenalty);
+        factors.push({ label: state.resources.food <= 0 ? "Starvation" : "Famine recovery", value: val });
+      }
 
       const maxPop = calcMaxPopulation(state.buildings);
       if (state.population > maxPop) factors.push({ label: "Overcrowded", value: -15 });

@@ -269,6 +269,7 @@ export interface GameState {
   happiness: number;
   lastRaidOutcome: "none" | "victory" | "defeat";
   lastRaidTime: number;
+  starvationPenalty: number;
   // Raids
   incomingRaids: IncomingRaid[];
   raidLog: RaidResult[];
