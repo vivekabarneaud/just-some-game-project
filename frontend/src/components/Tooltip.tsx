@@ -1,4 +1,4 @@
-import { type JSX, type ParentProps, Show, createSignal, onCleanup } from "solid-js";
+import { type ParentProps, Show, createSignal } from "solid-js";
 
 interface TooltipProps extends ParentProps {
   text: string | null | undefined;
@@ -9,31 +9,26 @@ interface TooltipProps extends ParentProps {
 export default function Tooltip(props: TooltipProps) {
   const [visible, setVisible] = createSignal(false);
   const [coords, setCoords] = createSignal({ x: 0, y: 0 });
-  let triggerRef: HTMLDivElement | undefined;
 
-  const show = () => {
+  const show = (e: MouseEvent) => {
     if (!props.text) return;
-    if (triggerRef) {
-      const rect = triggerRef.getBoundingClientRect();
-      const pos = props.position ?? "top";
-      setCoords({
-        x: rect.left + rect.width / 2,
-        y: pos === "top" ? rect.top : rect.bottom,
-      });
-    }
+    const target = e.currentTarget as HTMLElement;
+    const rect = target.getBoundingClientRect();
+    const pos = props.position ?? "top";
+    setCoords({
+      x: rect.left + rect.width / 2,
+      y: pos === "top" ? rect.top : rect.bottom,
+    });
     setVisible(true);
   };
 
   const hide = () => setVisible(false);
 
   return (
-    <div
-      ref={triggerRef}
+    <span
       onMouseEnter={show}
       onMouseLeave={hide}
-      onFocusIn={show}
-      onFocusOut={hide}
-      style={{ display: "contents" }}
+      style={{ display: "inline-block", width: "100%" }}
     >
       {props.children}
       <Show when={visible() && props.text}>
@@ -58,6 +53,6 @@ export default function Tooltip(props: TooltipProps) {
           {props.text}
         </div>
       </Show>
-    </div>
+    </span>
   );
 }
