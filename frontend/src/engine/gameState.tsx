@@ -151,7 +151,8 @@ import {
 } from "~/data/raids";
 
 import { QUEST_CHAIN } from "~/data/quests";
-import { HERBS, getDiscoverableRecipes, RESEARCH_BASE_COST } from "~/data/herbs";
+import { HERBS } from "~/data/herbs";
+import { getDiscoverableRecipes, RESEARCH_BASE_COST } from "~/data/alchemy_recipes";
 import { getDeity, getCurrentDeity } from "~/data/deities";
 import {
   listSettlements,
@@ -385,57 +386,6 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     craftTime: 900, // 40 min
   },
 
-  // ── Alchemy Lab recipes ───────────────────────────────────────
-  {
-    id: "healing_potion",
-    name: "Healing Potion",
-    icon: "❤️",
-    building: "alchemy_lab",
-    minLevel: 1,
-    costs: [{ resource: "food", amount: 20 }, { resource: "gold", amount: 5 }],
-    produces: { resource: "potions", amount: 1 },
-    craftTime: 30, // 8 min
-  },
-  {
-    id: "strength_elixir",
-    name: "Strength Elixir",
-    icon: "💪",
-    building: "alchemy_lab",
-    minLevel: 2,
-    costs: [{ resource: "food", amount: 15 }, { resource: "iron", amount: 5 }, { resource: "gold", amount: 10 }],
-    produces: { resource: "potions", amount: 1 },
-    craftTime: 120, // 12 min
-  },
-  {
-    id: "antidote",
-    name: "Antidote",
-    icon: "🧪",
-    building: "alchemy_lab",
-    minLevel: 2,
-    costs: [{ resource: "food", amount: 25 }, { resource: "gold", amount: 8 }],
-    produces: { resource: "potions", amount: 1 },
-    craftTime: 120, // 10 min
-  },
-  {
-    id: "revival_elixir",
-    name: "Revival Elixir",
-    icon: "✨",
-    building: "alchemy_lab",
-    minLevel: 4,
-    costs: [{ resource: "food", amount: 50 }, { resource: "gold", amount: 40 }, { resource: "astralShards", amount: 3 }],
-    produces: { resource: "potions", amount: 1 },
-    craftTime: 600, // 1 hour
-  },
-  {
-    id: "transmute_gold",
-    name: "Transmute to Gold",
-    icon: "🪙",
-    building: "alchemy_lab",
-    minLevel: 3,
-    costs: [{ resource: "iron", amount: 20 }, { resource: "stone", amount: 30 }],
-    produces: { resource: "gold", amount: 50 },
-    craftTime: 300, // 30 min
-  },
 ];
 
 export interface ResourceState {
