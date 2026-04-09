@@ -2,24 +2,46 @@ import { type ParentProps, Show, createSignal } from "solid-js";
 
 interface TooltipProps extends ParentProps {
   text: string | null | undefined;
-  /** Position relative to the trigger element */
-  position?: "top" | "bottom";
+  position?: "top" | "bottom" | "left" | "right";
 }
 
 export default function Tooltip(props: TooltipProps) {
   const [visible, setVisible] = createSignal(false);
-  const [coords, setCoords] = createSignal({ x: 0, y: 0 });
+  const [style, setStyle] = createSignal<Record<string, string>>({});
+  let tooltipRef: HTMLDivElement | undefined;
 
   const show = (e: MouseEvent) => {
     if (!props.text) return;
-    const target = e.currentTarget as HTMLElement;
-    const rect = target.getBoundingClientRect();
-    const pos = props.position ?? "top";
-    setCoords({
-      x: rect.left + rect.width / 2,
-      y: pos === "top" ? rect.top : rect.bottom,
-    });
     setVisible(true);
+    // Position after the tooltip renders so we can measure it
+    requestAnimationFrame(() => {
+      const target = e.currentTarget as HTMLElement;
+      if (!target || !tooltipRef) return;
+      const hoverRect = target.getBoundingClientRect();
+      const tipRect = tooltipRef.getBoundingClientRect();
+      const pos = props.position ?? "top";
+      const s: Record<string, string> = {};
+
+      switch (pos) {
+        case "top":
+          s.top = `${hoverRect.y - tipRect.height - 8}px`;
+          s.left = `${hoverRect.x + hoverRect.width / 2 - tipRect.width / 2}px`;
+          break;
+        case "bottom":
+          s.top = `${hoverRect.y + hoverRect.height + 8}px`;
+          s.left = `${hoverRect.x + hoverRect.width / 2 - tipRect.width / 2}px`;
+          break;
+        case "left":
+          s.left = `${hoverRect.x - tipRect.width - 8}px`;
+          s.top = `${hoverRect.y + hoverRect.height / 2 - tipRect.height / 2}px`;
+          break;
+        case "right":
+          s.left = `${hoverRect.x + hoverRect.width + 8}px`;
+          s.top = `${hoverRect.y + hoverRect.height / 2 - tipRect.height / 2}px`;
+          break;
+      }
+      setStyle(s);
+    });
   };
 
   const hide = () => setVisible(false);
@@ -33,11 +55,9 @@ export default function Tooltip(props: TooltipProps) {
       {props.children}
       <Show when={visible() && props.text}>
         <div
+          ref={tooltipRef}
           style={{
             position: "fixed",
-            left: `${coords().x}px`,
-            top: props.position === "bottom" ? `${coords().y + 6}px` : `${coords().y - 6}px`,
-            transform: props.position === "bottom" ? "translateX(-50%)" : "translateX(-50%) translateY(-100%)",
             "z-index": "9999",
             "pointer-events": "none",
             padding: "5px 10px",
@@ -48,6 +68,7 @@ export default function Tooltip(props: TooltipProps) {
             color: "var(--text-secondary)",
             "white-space": "nowrap",
             "box-shadow": "0 2px 8px rgba(0, 0, 0, 0.4)",
+            ...style(),
           }}
         >
           {props.text}
