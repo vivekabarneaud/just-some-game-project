@@ -1711,11 +1711,15 @@ export function GameProvider(props: ParentProps) {
           const growth = (1 / VILLAGER_GROWTH_INTERVAL_HOURS) * elapsedHours * growthMod;
           s.population = Math.min(maxPop, s.population + growth);
         } else if (s.population > BASE_POPULATION) {
-          // Starvation and unhappiness stack — both cause population loss
-          let loss = 0;
-          if (s.resources.food <= 0) loss += 2; // 2 citizens/hour from starvation
-          if (s.happiness < 20) loss += 0.5;    // 0.5 citizens/hour fleeing
-          if (loss > 0) s.population = Math.max(BASE_POPULATION, s.population - loss * elapsedHours);
+          // Starvation and unhappiness stack — percentage-based so it scales with population
+          let ratePct = 0;
+          if (s.resources.food <= 0) ratePct += 0.10; // 10%/hour — brutal, but self-correcting as pop drops
+          if (s.happiness < 20) ratePct += 0.02;      // 2%/hour fleeing
+          if (ratePct > 0) {
+            // Exponential decay: pop * (1 - rate)^hours, clamped to base
+            const remaining = s.population * Math.pow(1 - ratePct, elapsedHours);
+            s.population = Math.max(BASE_POPULATION, remaining);
+          }
         }
         const popAfter = Math.floor(s.population);
         if (popAfter > popBefore) {
