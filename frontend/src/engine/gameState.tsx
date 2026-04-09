@@ -2617,7 +2617,7 @@ export function GameProvider(props: ParentProps) {
       else if (netFood < 0) factors.push({ label: "Food deficit", value: -Math.min(30, Math.round(Math.abs(netFood) / 3)) });
       if (state.starvationPenalty > 0) {
         const val = -Math.round(state.starvationPenalty);
-        factors.push({ label: state.resources.food <= 0 ? "Starvation" : "Famine recovery", value: val });
+        factors.push({ label: state.resources.food <= 0 ? "Starvation" : "Famine recovery (fading)", value: val });
       }
 
       const maxPop = calcMaxPopulation(state.buildings);
