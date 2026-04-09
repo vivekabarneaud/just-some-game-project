@@ -49,6 +49,12 @@ const SIDE_SLOTS = [
   { id: "trinket", name: "Trinket", icon: "🔮" },
 ];
 
+const SLOT_NAMES: Record<string, string> = {
+  head: "Head", chest: "Chest", legs: "Legs", boots: "Boots", cloak: "Cloak",
+  mainHand: "Main Hand", offHand: "Off Hand", ring1: "Ring", ring2: "Ring",
+  amulet: "Amulet", trinket: "Trinket",
+};
+
 export default function AdventurerDetail() {
   const params = useParams<{ id: string }>();
   const { state, actions } = useGame();
@@ -302,14 +308,14 @@ export default function AdventurerDetail() {
                         <Show when={!adv().onMission}>
                           <div class="gear-inventory">
                             <div class="gear-side-label">Inventory</div>
-                            <div class="gear-inventory-grid">
+                            <div class="gear-inventory-cards">
                               {(() => {
                                 const items = state.inventory
                                   .filter((inv) => inv.quantity > 0 && !isSupplyItem(inv.itemId))
                                   .map((inv) => ({ item: getItem(inv.itemId)!, qty: inv.quantity }))
                                   .filter((x) => x.item);
                                 if (items.length === 0) return (
-                                  <div style={{ "grid-column": "1 / -1", "font-size": "0.75rem", color: "var(--text-muted)", "font-style": "italic", padding: "8px" }}>
+                                  <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "font-style": "italic", padding: "8px" }}>
                                     No gear in inventory. Craft some at your workshops.
                                   </div>
                                 );
@@ -318,20 +324,40 @@ export default function AdventurerDetail() {
                                     if (item.classes.length > 0 && !item.classes.includes(adv().class)) return false;
                                     return true;
                                   };
+                                  const slotLabel = SLOT_NAMES[item.slot] ?? item.slot;
+                                  const handedness = item.twoHanded ? "2H" : (item.slot === "mainHand" || item.slot === "offHand") ? "1H" : null;
                                   return (
                                     <div
-                                      class="gear-inv-slot"
+                                      class="gear-inv-card"
                                       classList={{ "can-equip": canEquip(), "wrong-class": !canEquip() }}
-                                      title={`${item.name}\n${item.description}${!canEquip() ? "\n(Wrong class)" : ""}`}
                                       onClick={() => { if (canEquip()) actions.equipItem(params.id, item.id); }}
                                     >
-                                      <Show when={item.image}>
-                                        <img src={item.image} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", "object-fit": "cover", "border-radius": "3px" }} />
+                                      <div class="gear-inv-card-header">
+                                        <span class="gear-inv-card-icon">{item.icon}</span>
+                                        <div style={{ flex: 1, "min-width": 0 }}>
+                                          <div class="gear-inv-card-name">
+                                            {item.name}
+                                            <Show when={qty > 1}>
+                                              <span class="gear-inv-card-qty">x{qty}</span>
+                                            </Show>
+                                          </div>
+                                          <div class="gear-inv-card-slot">
+                                            {slotLabel}{handedness ? ` (${handedness})` : ""}
+                                            {item.consumable ? " · consumable" : ""}
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div class="gear-inv-card-stats">{item.description}</div>
+                                      <Show when={item.classes.length > 0}>
+                                        <div class="gear-inv-card-classes">
+                                          {item.classes.join(", ")}
+                                        </div>
                                       </Show>
-                                      <Show when={!item.image}>
-                                        <span class="gear-inv-icon">{item.icon}</span>
+                                      <Show when={!canEquip()}>
+                                        <div class="gear-inv-card-classes" style={{ color: "var(--accent-red)" }}>
+                                          Wrong class
+                                        </div>
                                       </Show>
-                                      <span class="gear-inv-qty">{qty}</span>
                                     </div>
                                   );
                                 });

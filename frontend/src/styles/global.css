@@ -1695,6 +1695,79 @@ body {
   gap: 4px;
 }
 
+.gear-inventory-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 6px;
+}
+
+.gear-inv-card {
+  padding: 8px 10px;
+  border: 1px solid rgba(180, 150, 100, 0.25);
+  border-radius: 6px;
+  background: rgba(26, 26, 26, 0.9);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.gear-inv-card.can-equip:hover {
+  border-color: var(--accent-green);
+  background: rgba(46, 204, 113, 0.06);
+}
+
+.gear-inv-card.wrong-class {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.gear-inv-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.gear-inv-card-icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  width: 28px;
+  text-align: center;
+}
+
+.gear-inv-card-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gear-inv-card-qty {
+  font-size: 0.75rem;
+  color: var(--accent-gold);
+  font-weight: 400;
+  margin-left: 4px;
+}
+
+.gear-inv-card-slot {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.gear-inv-card-stats {
+  font-size: 0.78rem;
+  color: var(--accent-green);
+  margin-top: 2px;
+}
+
+.gear-inv-card-classes {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 2px;
+}
+
 .gear-inv-slot {
   width: 52px;
   height: 52px;
