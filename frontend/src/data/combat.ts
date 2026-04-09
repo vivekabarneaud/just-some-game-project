@@ -70,15 +70,16 @@ function getMagicPower(unit: CombatUnit): number {
   return unit.int;
 }
 
-/** Physical damage reduction — gear for adventurers, natural armor for enemies */
-function getDefense(unit: CombatUnit): number {
-  if (unit.isEnemy) return Math.floor(unit.vit / 3); // natural armor
-  return unit.gearDefense;
+/** Physical damage reduction — percentage based: DEF / (DEF + 150) */
+function getDefenseReduction(unit: CombatUnit): number {
+  const def = unit.isEnemy ? unit.vit * 3 : unit.gearDefense; // enemies: natural armor scales with VIT
+  return def / (def + 150);
 }
 
-/** Magical damage reduction — WIS / 2 */
-function getMagicResist(unit: CombatUnit): number {
-  return Math.floor(unit.wis / 2);
+/** Magical damage reduction — percentage based: WIS*3 / (WIS*3 + 150) */
+function getMagicResistReduction(unit: CombatUnit): number {
+  const mr = unit.wis * 3;
+  return mr / (mr + 150);
 }
 
 /** Turn order — DEX + WIS / 2. Higher goes first. */
@@ -116,7 +117,7 @@ function pickTarget(units: CombatUnit[]): CombatUnit | null {
 function calcDamageResult(attacker: CombatUnit, defender: CombatUnit): { damage: number; rawDamage: number; crit: boolean } {
   const magical = dealsMagicalDamage(attacker);
   const power = magical ? getMagicPower(attacker) : getAttackPower(attacker);
-  const reduction = magical ? getMagicResist(defender) : getDefense(defender);
+  const reductionPct = magical ? getMagicResistReduction(defender) : getDefenseReduction(defender);
 
   // Base damage with 70-130% randomness
   let rawDamage = Math.max(1, Math.floor(power * (0.7 + Math.random() * 0.6)));
@@ -125,8 +126,8 @@ function calcDamageResult(attacker: CombatUnit, defender: CombatUnit): { damage:
   const crit = Math.random() * 100 < getCritChance(attacker);
   if (crit) rawDamage = Math.floor(rawDamage * 1.5);
 
-  // Apply defense/resist reduction — minimum 1 damage
-  const damage = Math.max(1, rawDamage - reduction);
+  // Apply percentage-based reduction — minimum 1 damage
+  const damage = Math.max(1, Math.floor(rawDamage * (1 - reductionPct)));
 
   return { damage, rawDamage, crit };
 }

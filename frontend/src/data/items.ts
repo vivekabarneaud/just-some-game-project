@@ -30,7 +30,7 @@ export interface ItemDefinition {
   levelReq?: number;
   /** Minimum stat to equip */
   statReq?: { stat: keyof AdventurerStats; value: number };
-  /** Physical damage reduction in combat */
+  /** Physical damage reduction in combat (WoW-style: DEF/(DEF+150) = % reduction) */
   defense?: number;
 }
 
@@ -90,61 +90,59 @@ export const ITEMS: ItemDefinition[] = [
     recipeId: "longbow", consumable: false, twoHanded: true,
   },
 
-  // ── Heavy armor (Blacksmith) — warrior ────────────────────────
+  // ── Plate armor (Blacksmith) — warrior ────────────────────────
   {
     id: "iron_shield", name: "Iron Shield", icon: "🛡️", slot: "offHand",
-    description: "+2 VIT, 4 DEF",
+    description: "+2 VIT, 45 DEF",
     classes: ["warrior"],
     stats: { vit: 2 }, durationMod: 1, lootMod: 1,
-    recipeId: "iron_shield", consumable: false, defense: 4,
+    recipeId: "iron_shield", consumable: false, defense: 45,
   },
   {
     id: "iron_armor", name: "Iron Armor", icon: "🦺", slot: "chest",
-    description: "+3 VIT, +1 STR, 6 DEF",
+    description: "+3 VIT, +1 STR, 65 DEF",
     classes: ["warrior"],
     stats: { vit: 3, str: 1 }, durationMod: 1, lootMod: 1,
-    recipeId: "iron_armor", consumable: false, defense: 6,
+    recipeId: "iron_armor", consumable: false, defense: 65,
   },
   {
     id: "chainmail", name: "Chainmail Armor", icon: "⛓️", slot: "chest",
-    description: "+4 VIT, +1 STR, 5 DEF",
+    description: "+4 VIT, +1 STR, 55 DEF",
     classes: ["warrior", "archer"],
     stats: { vit: 4, str: 1 }, durationMod: 1, lootMod: 1,
-    recipeId: "chainmail", consumable: false, defense: 5,
+    recipeId: "chainmail", consumable: false, defense: 55,
   },
 
   // ── Light armor (Woodworker) ──────────────────────────────────
   {
     id: "wooden_shield", name: "Wooden Shield", icon: "🪵", slot: "offHand",
-    description: "+1 VIT, 2 DEF",
+    description: "+1 VIT, 25 DEF",
     classes: ["warrior", "archer", "assassin"],
     stats: { vit: 1 }, durationMod: 1, lootMod: 1,
-    recipeId: "wooden_shield", consumable: false, defense: 2,
+    recipeId: "wooden_shield", consumable: false, defense: 25,
   },
 
-  // ── Woolen Robe (Tailoring, early game) ────────────────────────
+  // ── Cloth armor (Tailoring) — wizard, priest ──────────────────
   {
     id: "woolen_robe", name: "Woolen Robe", icon: "🧶", slot: "chest",
-    description: "+1 VIT, +1 WIS, 1 DEF",
+    description: "+1 VIT, +1 WIS, 10 DEF",
     classes: ["wizard", "priest"],
     stats: { vit: 1, wis: 1 }, durationMod: 1, lootMod: 1,
-    recipeId: "woolen_robe", consumable: false, defense: 1,
+    recipeId: "woolen_robe", consumable: false, defense: 10,
   },
-
-  // ── Robes (Tailoring) — wizard, priest ────────────────────────
   {
     id: "priest_robes", name: "Priest Robes", icon: "🥋", slot: "chest",
-    description: "+2 VIT, +1 WIS, 2 DEF",
+    description: "+2 VIT, +1 WIS, 18 DEF",
     classes: ["priest"],
     stats: { vit: 2, wis: 1 }, durationMod: 1, lootMod: 1,
-    recipeId: "priest_robes", consumable: false, defense: 2,
+    recipeId: "priest_robes", consumable: false, defense: 18,
   },
   {
     id: "wizard_robes", name: "Wizard Robes", icon: "🧙", slot: "chest",
-    description: "+2 VIT, +2 INT, -10% duration, 2 DEF",
+    description: "+2 VIT, +2 INT, -10% duration, 18 DEF",
     classes: ["wizard"],
     stats: { vit: 2, int: 2 }, durationMod: 0.9, lootMod: 1,
-    recipeId: "wizard_robes", consumable: false, defense: 2,
+    recipeId: "wizard_robes", consumable: false, defense: 18,
   },
 
   // ── Trinkets — all classes ────────────────────────────────────
@@ -182,52 +180,52 @@ export const ITEMS: ItemDefinition[] = [
   // ── Leather armor (Leatherworking) ────────────────────────────
   {
     id: "leather_vest", name: "Leather Vest", icon: "🦺", slot: "chest",
-    description: "+1 DEX, 3 DEF",
+    description: "+1 DEX, 30 DEF",
     classes: ["assassin", "archer"],
     stats: { dex: 1 }, durationMod: 1, lootMod: 1,
-    recipeId: "leather_vest", consumable: false, defense: 3,
+    recipeId: "leather_vest", consumable: false, defense: 30,
   },
   {
     id: "leather_boots", name: "Leather Boots", icon: "🥾", slot: "boots",
-    description: "+1 DEX, 1 DEF",
+    description: "+1 DEX, 15 DEF",
     classes: [],
     stats: { dex: 1 }, durationMod: 1, lootMod: 1,
-    recipeId: "leather_boots", consumable: false, defense: 1,
+    recipeId: "leather_boots", consumable: false, defense: 15,
   },
   {
     id: "leather_hood", name: "Leather Hood", icon: "🪖", slot: "head",
-    description: "+1 DEX, 1 DEF",
+    description: "+1 DEX, 15 DEF",
     classes: ["assassin", "archer"],
     stats: { dex: 1 }, durationMod: 1, lootMod: 1,
-    recipeId: "leather_hood", consumable: false, defense: 1,
+    recipeId: "leather_hood", consumable: false, defense: 15,
   },
   {
     id: "leather_pants", name: "Leather Pants", icon: "👖", slot: "legs",
-    description: "+1 VIT, 2 DEF",
+    description: "+1 VIT, 20 DEF",
     classes: ["assassin", "archer", "warrior"],
     stats: { vit: 1 }, durationMod: 1, lootMod: 1,
-    recipeId: "leather_pants", consumable: false, defense: 2,
+    recipeId: "leather_pants", consumable: false, defense: 20,
   },
   {
     id: "leather_cloak", name: "Leather Cloak", icon: "🧥", slot: "cloak",
-    description: "+1 DEX, 1 DEF",
+    description: "+1 DEX, 12 DEF",
     classes: ["assassin", "archer"],
     stats: { dex: 1 }, durationMod: 1, lootMod: 1,
-    recipeId: "leather_cloak", consumable: false, defense: 1,
+    recipeId: "leather_cloak", consumable: false, defense: 12,
   },
   {
     id: "rangers_garb", name: "Ranger's Garb", icon: "🏹", slot: "chest",
-    description: "+2 DEX, +1 VIT, 4 DEF",
+    description: "+2 DEX, +1 VIT, 40 DEF",
     classes: ["archer"],
     stats: { dex: 2, vit: 1 }, durationMod: 1, lootMod: 1,
-    recipeId: "rangers_garb", consumable: false, defense: 4,
+    recipeId: "rangers_garb", consumable: false, defense: 40,
   },
   {
     id: "shadow_mantle", name: "Shadow Mantle", icon: "🗡️", slot: "cloak",
-    description: "+2 DEX, +1 STR, 2 DEF",
+    description: "+2 DEX, +1 STR, 22 DEF",
     classes: ["assassin"],
     stats: { dex: 2, str: 1 }, durationMod: 1, lootMod: 1,
-    recipeId: "shadow_mantle", consumable: false, defense: 2,
+    recipeId: "shadow_mantle", consumable: false, defense: 22,
   },
 ];
 
@@ -241,7 +239,6 @@ export function getItemByRecipe(recipeId: string): ItemDefinition | undefined {
 
 const ALL_GEAR_SLOTS = ["head", "chest", "legs", "boots", "cloak", "mainHand", "offHand", "ring1", "ring2", "amulet", "trinket"] as const;
 
-/** Get combined stat bonuses from all equipped items */
 export function getEquipmentStats(equipment: Record<string, string | null>): Partial<AdventurerStats> {
   const stats: Partial<AdventurerStats> = {};
   for (const slot of ALL_GEAR_SLOTS) {
@@ -299,18 +296,16 @@ export function isSupplyItem(itemId: string): boolean {
   return itemId in SUPPLY_EFFECTS;
 }
 
-export function getAvailableSupplies(inventory: InventoryItem[]): { item: ItemDefinition; quantity: number }[] {
-  return inventory
-    .filter((inv) => inv.quantity > 0 && isSupplyItem(inv.itemId))
-    .map((inv) => ({ item: getItem(inv.itemId)!, quantity: inv.quantity }))
-    .filter((s) => s.item);
-}
-
-export const MAX_MISSION_SUPPLIES = 2;
-
-// ─── Inventory item instance ────────────────────────────────────
-
 export interface InventoryItem {
   itemId: string;
   quantity: number;
 }
+
+export function getAvailableSupplies(inventory: InventoryItem[]): { item: ItemDefinition; qty: number }[] {
+  return inventory
+    .filter((inv) => inv.quantity > 0 && isSupplyItem(inv.itemId))
+    .map((inv) => ({ item: getItem(inv.itemId)!, qty: inv.quantity }))
+    .filter((x) => x.item);
+}
+
+export const MAX_MISSION_SUPPLIES = 3;

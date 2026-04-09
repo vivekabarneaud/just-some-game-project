@@ -891,7 +891,7 @@ export default function AdventurersGuild() {
                                           class="supply-pick-btn"
                                           disabled={alreadyUsed()}
                                           onClick={() => toggleSupply(s.item.id)}
-                                          title={`${s.item.name} (${s.quantity})`}
+                                          title={`${s.item.name} (${s.qty})`}
                                         >
                                           {s.item.icon}
                                         </button>
