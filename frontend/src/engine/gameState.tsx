@@ -108,6 +108,7 @@ import {
   type MissionTemplate,
   getMission,
   generateMissionBoard,
+  MISSION_POOL,
   getMissionBoardSize,
   calcSuccessChance,
   calcDeathChance,
@@ -642,6 +643,7 @@ export interface GameActions {
   getDefense: () => DefenseBreakdown;
   collectRaidLog: () => RaidResult[];
   triggerRaid: () => boolean;
+  spawnTestMissions: (...missionIds: string[]) => void;
   recallAdventurers: () => { recalled: number; instant: boolean };
   // Astral Shards
   claimDailyLogin: () => boolean;
@@ -2864,6 +2866,15 @@ export function GameProvider(props: ParentProps) {
 
       scheduleSave();
       return { recalled: recalledCount, instant: hasWizard };
+    },
+    spawnTestMissions(...missionIds: string[]) {
+      const missions = missionIds.length > 0
+        ? missionIds.map((id) => MISSION_POOL.find((m) => m.id === id)).filter(Boolean) as MissionTemplate[]
+        : MISSION_POOL; // no args = all missions
+      if (missions.length === 0) return;
+      setState(produce((s) => {
+        s.missionBoard = [...missions];
+      }));
     },
     triggerRaid() {
       const tier = getSettlementTier(getTownHallLevel(state.buildings));
