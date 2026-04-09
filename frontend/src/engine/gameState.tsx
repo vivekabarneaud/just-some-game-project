@@ -753,6 +753,20 @@ function saveGame(state: GameState) {
   }
 }
 
+// Debounced save: coalesces rapid actions into one API call within 1 second
+let _debouncedSaveTimer: ReturnType<typeof setTimeout> | null = null;
+let _latestStateGetter: (() => GameState) | null = null;
+
+function scheduleSave() {
+  if (_debouncedSaveTimer) clearTimeout(_debouncedSaveTimer);
+  _debouncedSaveTimer = setTimeout(() => {
+    _debouncedSaveTimer = null;
+    if (_settlementId && _latestStateGetter) {
+      saveSettlementApi(_settlementId, JSON.parse(JSON.stringify(_latestStateGetter()))).catch(() => {});
+    }
+  }, 1000);
+}
+
 function loadGame(): GameState | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -1201,6 +1215,7 @@ export function GameProvider(props: ParentProps) {
   // In dev, load from localStorage for offline play.
   const initial = IS_DEV ? (loadGame() ?? createInitialState()) : createInitialState();
   const [state, setState] = createStore<GameState>(initial);
+  _latestStateGetter = () => state;
 
   // Load state from server on mount
   onMount(async () => {
@@ -1280,6 +1295,72 @@ export function GameProvider(props: ParentProps) {
             adv.id = `adv_${idCounter++}`;
           }
           seenIds.add(adv.id);
+        }
+        // Ensure lastTick is valid (prevents NaN in tick loop if server state lost the field)
+        if (!serverState.lastTick || typeof serverState.lastTick !== "number") {
+          serverState.lastTick = Date.now();
+        }
+        // Resolve expired raids directly (server tick counts down but never resolves)
+        // This runs BEFORE setState to guarantee resolution even if applyTicks throws later
+        if (serverState.incomingRaids?.length) {
+          for (let i = serverState.incomingRaids.length - 1; i >= 0; i--) {
+            const ir = serverState.incomingRaids[i];
+            if (ir.remaining <= 0) {
+              const template = getRaid(ir.raidId);
+              if (template) {
+                const homeAdvs = (serverState.adventurers ?? []).filter((a: any) => a.alive && !a.onMission);
+                const defense = calcDefense(serverState.buildings, homeAdvs, serverState.population);
+                const result = resolveRaid({
+                  raid: template,
+                  raidStrength: ir.strength,
+                  defense,
+                  resources: serverState.resources,
+                  population: serverState.population,
+                  homeAdventurers: homeAdvs,
+                });
+                // Apply results directly to server state
+                if (result.victory) {
+                  for (const loot of result.loot) {
+                    if (loot.resource === "astralShards") {
+                      serverState.astralShards += loot.amount;
+                    } else {
+                      const key = loot.resource as keyof typeof serverState.resources;
+                      serverState.resources[key] += loot.amount;
+                    }
+                  }
+                } else {
+                  serverState.resources.gold = Math.max(0, serverState.resources.gold - result.resourcesLost.gold);
+                  serverState.resources.wood = Math.max(0, serverState.resources.wood - result.resourcesLost.wood);
+                  serverState.resources.stone = Math.max(0, serverState.resources.stone - result.resourcesLost.stone);
+                  serverState.resources.food = Math.max(0, serverState.resources.food - result.resourcesLost.food);
+                  serverState.population = Math.max(BASE_POPULATION, serverState.population - result.citizensLost);
+                  // Damage buildings
+                  const damageable = serverState.buildings.filter((b: any) => b.level > 0 && !b.damaged && b.buildingId !== "town_hall");
+                  const damageCount = Math.min(damageable.length, result.buildingsDamaged ?? 1);
+                  for (let d = 0; d < damageCount; d++) {
+                    const idx = Math.floor(Math.random() * damageable.length);
+                    damageable[idx].damaged = true;
+                    damageable.splice(idx, 1);
+                  }
+                }
+                if (!serverState.raidLog) serverState.raidLog = [];
+                serverState.raidLog.push(result);
+                serverState.lastRaidOutcome = result.victory ? "victory" : "defeat";
+                serverState.lastRaidTime = 0;
+                if (!serverState.eventLog) serverState.eventLog = [];
+                const raidName = template.name ?? ir.raidId;
+                serverState.eventLog.push({
+                  type: result.victory ? "raid_victory" : "raid_defeat",
+                  icon: result.victory ? "🛡️" : "💔",
+                  message: result.victory
+                    ? `Repelled ${raidName}! Loot: ${result.loot.map((l: any) => `+${l.amount} ${l.resource}`).join(", ")}`
+                    : `Defeated by ${raidName}! Resources stolen, buildings damaged.`,
+                  timestamp: Date.now(),
+                });
+              }
+              serverState.incomingRaids.splice(i, 1);
+            }
+          }
         }
         setState(reconcile(serverState));
         // Catch up for time spent offline
@@ -1981,6 +2062,11 @@ export function GameProvider(props: ParentProps) {
   const tickInterval = setInterval(() => {
     const now = Date.now();
     const elapsed = now - state.lastTick;
+    if (Number.isNaN(elapsed) || elapsed < 0) {
+      // lastTick is invalid — reset it so the tick loop can resume
+      setState("lastTick", now);
+      return;
+    }
     if (elapsed > 500) applyTicks(elapsed * getSpeed());
   }, TICK_INTERVAL_MS);
 
@@ -2009,12 +2095,31 @@ export function GameProvider(props: ParentProps) {
   };
   document.addEventListener("visibilitychange", handleVisibilitySave);
 
+  // Save on page refresh/close — keepalive ensures the request survives page unload
+  const handleBeforeUnload = () => {
+    if (!_settlementId) return;
+    const apiBase = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : "/api";
+    const token = localStorage.getItem("medieval-realm-token");
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    fetch(`${apiBase}/settlement/${_settlementId}`, {
+      method: "PUT",
+      headers,
+      body: JSON.stringify({ gameState: JSON.parse(JSON.stringify(state)) }),
+      keepalive: true,
+    }).catch(() => {});
+  };
+  window.addEventListener("beforeunload", handleBeforeUnload);
+
   onCleanup(() => {
     clearInterval(tickInterval);
     if (localSaveInterval) clearInterval(localSaveInterval);
     clearInterval(apiSaveInterval);
+    if (_debouncedSaveTimer) clearTimeout(_debouncedSaveTimer);
     document.removeEventListener("visibilitychange", handleVisibility);
     document.removeEventListener("visibilitychange", handleVisibilitySave);
+    window.removeEventListener("beforeunload", handleBeforeUnload);
+    _latestStateGetter = null;
     saveGame(JSON.parse(JSON.stringify(state)));
   });
 
@@ -2058,6 +2163,7 @@ export function GameProvider(props: ParentProps) {
         b.upgrading = true;
         b.upgradeRemaining = adjustedTime;
       }));
+      scheduleSave();
       return true;
     },
 
@@ -2071,6 +2177,7 @@ export function GameProvider(props: ParentProps) {
         s.resources.stone -= cost.stone;
         s.fields.push({ id, crop: null, level: 0, upgrading: true, upgradeRemaining: getFieldBuildTime(0), harvested: false, harvestsBeforeFallow: 2, fallow: false });
       }));
+      scheduleSave();
       return true;
     },
 
@@ -2085,6 +2192,7 @@ export function GameProvider(props: ParentProps) {
         f.crop = crop;
         f.harvested = false;
       }));
+      scheduleSave();
       return true;
     },
 
@@ -2102,6 +2210,7 @@ export function GameProvider(props: ParentProps) {
         f.upgrading = true;
         f.upgradeRemaining = getFieldBuildTime(field.level);
       }));
+      scheduleSave();
       return true;
     },
 
@@ -2110,6 +2219,7 @@ export function GameProvider(props: ParentProps) {
         const idx = s.fields.findIndex((f) => f.id === fieldId);
         if (idx !== -1) s.fields.splice(idx, 1);
       }));
+      scheduleSave();
     },
 
     buildGarden(veggie) {
@@ -2122,6 +2232,7 @@ export function GameProvider(props: ParentProps) {
         s.resources.stone -= cost.stone;
         s.gardens.push({ id, veggie, level: 0, upgrading: true, upgradeRemaining: getGardenBuildTime(0) });
       }));
+      scheduleSave();
       return true;
     },
 
@@ -2137,6 +2248,7 @@ export function GameProvider(props: ParentProps) {
         g.upgrading = true;
         g.upgradeRemaining = getGardenBuildTime(garden.level);
       }));
+      scheduleSave();
       return true;
     },
 
@@ -2145,6 +2257,7 @@ export function GameProvider(props: ParentProps) {
         const idx = s.gardens.findIndex((g) => g.id === gardenId);
         if (idx !== -1) s.gardens.splice(idx, 1);
       }));
+      scheduleSave();
     },
 
     buildPen(animal) {
@@ -2158,6 +2271,7 @@ export function GameProvider(props: ParentProps) {
         s.resources.gold -= cost.gold;
         s.pens.push({ id, animal, level: 0, upgrading: true, upgradeRemaining: getPenBuildTime(0) });
       }));
+      scheduleSave();
       return true;
     },
 
@@ -2174,6 +2288,7 @@ export function GameProvider(props: ParentProps) {
         p.upgrading = true;
         p.upgradeRemaining = getPenBuildTime(pen.level);
       }));
+      scheduleSave();
       return true;
     },
 
@@ -2182,6 +2297,7 @@ export function GameProvider(props: ParentProps) {
         const idx = s.pens.findIndex((p) => p.id === penId);
         if (idx !== -1) s.pens.splice(idx, 1);
       }));
+      scheduleSave();
     },
 
     setGameSpeed(speed) { setState("gameSpeed", speed); },
@@ -2189,6 +2305,7 @@ export function GameProvider(props: ParentProps) {
       const trimmed = name.trim();
       if (trimmed.length > 0 && trimmed.length <= 30) {
         setState("villageName", trimmed);
+        scheduleSave();
       }
     },
 
@@ -2244,6 +2361,7 @@ export function GameProvider(props: ParentProps) {
         s.adventurers.push({ ...candidate, alive: true, onMission: false });
         s.recruitCandidates = s.recruitCandidates.filter((c) => c.id !== candidateId);
       }));
+      scheduleSave();
       return true;
     },
     dismissAdventurer(adventurerId) {
@@ -2252,6 +2370,7 @@ export function GameProvider(props: ParentProps) {
       setState(produce((s) => {
         s.adventurers = s.adventurers.filter((a) => a.id !== adventurerId);
       }));
+      scheduleSave();
       return true;
     },
     deployMission(missionId, adventurerIds, supplies = []) {
@@ -2319,14 +2438,14 @@ export function GameProvider(props: ParentProps) {
         s.missionBoard = s.missionBoard.filter((m) => m.id !== template.id);
         s.firstMissionSent = true;
       }));
-      // Save immediately so mission isn't lost if tab closes
-      if (_settlementId) saveSettlementApi(_settlementId, JSON.parse(JSON.stringify(state))).catch(() => {});
+      scheduleSave();
       return true;
     },
     collectCompletedMissions() {
       const completed = [...state.completedMissions];
       if (completed.length > 0) {
         setState(produce((s) => { s.completedMissions = []; }));
+        scheduleSave();
       }
       return completed;
     },
@@ -2387,8 +2506,7 @@ export function GameProvider(props: ParentProps) {
         }
         s.craftingQueue.push({ recipeId, remaining: recipe.craftTime });
       }));
-      // Save immediately so craft isn't lost if tab closes
-      if (_settlementId) saveSettlementApi(_settlementId, JSON.parse(JSON.stringify(state))).catch(() => {});
+      scheduleSave();
       return true;
     },
     getAvailableRecipes() {
@@ -2412,6 +2530,7 @@ export function GameProvider(props: ParentProps) {
         const a = s.adventurers.find((a) => a.id === adventurerId)!;
         a.bonusStats[stat] = (a.bonusStats[stat] ?? 0) + 1;
       }));
+      scheduleSave();
       return true;
     },
     equipItem(adventurerId, itemId) {
@@ -2456,6 +2575,7 @@ export function GameProvider(props: ParentProps) {
         const newInv = s.inventory.find((i) => i.itemId === itemId)!;
         newInv.quantity -= 1;
       }));
+      scheduleSave();
       return true;
     },
     unequipItem(adventurerId, slot) {
@@ -2470,6 +2590,7 @@ export function GameProvider(props: ParentProps) {
         if (inv) inv.quantity += 1;
         else s.inventory.push({ itemId: currentItemId, quantity: 1 });
       }));
+      scheduleSave();
       return true;
     },
     getInventoryCount(itemId) {
@@ -2569,6 +2690,7 @@ export function GameProvider(props: ParentProps) {
         b.damaged = false;
         pushEvent(s, "building_repaired", "🔨", `${def.name} repaired`);
       }));
+      scheduleSave();
       return true;
     },
     getDefense() {
@@ -2579,6 +2701,7 @@ export function GameProvider(props: ParentProps) {
       const log = [...state.raidLog];
       if (log.length > 0) {
         setState(produce((s) => { s.raidLog = []; }));
+        scheduleSave();
       }
       return log;
     },
@@ -2624,6 +2747,7 @@ export function GameProvider(props: ParentProps) {
         s.activeMissions = [];
       }));
 
+      scheduleSave();
       return { recalled: recalledCount, instant: hasWizard };
     },
     triggerRaid() {
@@ -2642,6 +2766,7 @@ export function GameProvider(props: ParentProps) {
     },
     visitGuild() {
       setState("lastGuildVisit", Date.now());
+      scheduleSave();
     },
     hasNewGuildContent() {
       return (state.lastMissionRefresh > state.lastGuildVisit && state.missionBoard.length > 0) ||
@@ -2659,6 +2784,7 @@ export function GameProvider(props: ParentProps) {
         s.astralShards += 10;
         s.lastDailyLogin = Date.now();
       }));
+      scheduleSave();
       return true;
     },
     rerollMissions() {
@@ -2675,6 +2801,7 @@ export function GameProvider(props: ParentProps) {
         const maxDiff = Math.min(5, bestRank + 1);
         s.missionBoard = generateMissionBoard(guildLvl, boardSize, Date.now(), maxDiff);
       }));
+      scheduleSave();
       return true;
     },
     rerollRecruits() {
@@ -2694,6 +2821,7 @@ export function GameProvider(props: ParentProps) {
           s.recruitCandidates.push(generateCandidate(nextId("adv"), maxRank));
         }
       }));
+      scheduleSave();
       return true;
     },
     grantResources(amount) {
@@ -2723,6 +2851,7 @@ export function GameProvider(props: ParentProps) {
         s.resources.wood += adjustedCost.wood;
         s.resources.stone += adjustedCost.stone;
       }));
+      scheduleSave();
       return true;
     },
     claimQuestReward(questId) {
@@ -2757,6 +2886,7 @@ export function GameProvider(props: ParentProps) {
           pushEvent(s, "raid_incoming", "⚠️", "Your adventurers spotted bandits heading this way! Estimated arrival: 12 hours.");
         }
       }));
+      scheduleSave();
       return true;
     },
     getHerbCount(herbId) {
@@ -2800,7 +2930,7 @@ export function GameProvider(props: ParentProps) {
         s.activeBlessing = { deityId: deity.id, effect: deity.blessingEffect };
         pushEvent(s, "building_completed", deity.icon, `${deity.name}'s blessing received: ${deity.blessingDescription}`);
       }));
-      if (_settlementId) saveSettlementApi(_settlementId, JSON.parse(JSON.stringify(state))).catch(() => {});
+      scheduleSave();
       return true;
     },
     startAlchemyResearch() {
@@ -2825,8 +2955,7 @@ export function GameProvider(props: ParentProps) {
           }
         }
       }));
-      // Save immediately
-      if (_settlementId) saveSettlementApi(_settlementId, JSON.parse(JSON.stringify(state))).catch(() => {});
+      scheduleSave();
       return true;
     },
     claimMissionReward(index) {
@@ -2848,6 +2977,7 @@ export function GameProvider(props: ParentProps) {
         }
         s.completedMissions.splice(index, 1);
       }));
+      scheduleSave();
     },
     skipRaidTimer() {
       if (state.incomingRaids.length === 0) return;
@@ -2870,6 +3000,7 @@ export function GameProvider(props: ParentProps) {
         s.resources[receive] = Math.min(caps[receive], s.resources[receive] + receiveAmount);
         s.lastTradeAt = Date.now();
       }));
+      scheduleSave();
       return true;
     },
   };
