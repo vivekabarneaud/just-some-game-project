@@ -1245,6 +1245,8 @@ export function GameProvider(props: ParentProps) {
         if (!serverState.questRewardsClaimed) serverState.questRewardsClaimed = [];
         if (serverState.firstMissionSent === undefined) serverState.firstMissionSent = false;
         if (!serverState.completedStoryMissions) serverState.completedStoryMissions = [];
+        if (!serverState.herbs) serverState.herbs = {};
+        if (serverState.foragedTotal === undefined) serverState.foragedTotal = 0;
         // Re-apply leveling in case XP curve changed
         for (const adv of serverState.adventurers ?? []) {
           applyXp(adv, 0);

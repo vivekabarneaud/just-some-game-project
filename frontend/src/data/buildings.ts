@@ -274,7 +274,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     name: "Forager's Hut",
     category: "gathering",
     description:
-      "Gatherers scour the forest for food and fiber. Berries in spring and summer, mushrooms in autumn (75%), and nuts in winter (25%) — they always find something.",
+      "Gatherers scour the forest for food, fiber, and medicinal herbs. Berries in spring and summer, mushrooms in autumn (75%), and nuts in winter (25%) — they always find something.",
     icon: "🫐",
     image: "/images/buildings/forager_hut.png",
     maxLevel: 10,
