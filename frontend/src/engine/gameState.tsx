@@ -152,7 +152,7 @@ import {
 
 import { QUEST_CHAIN } from "~/data/quests";
 import { HERBS } from "~/data/herbs";
-import { getDiscoverableRecipes, RESEARCH_BASE_COST } from "~/data/alchemy_recipes";
+import { ALCHEMY_RECIPES, getDiscoverableRecipes, getAvailableAlchemyRecipes, RESEARCH_BASE_COST } from "~/data/alchemy_recipes";
 import { getDeity, getCurrentDeity } from "~/data/deities";
 import {
   listSettlements,
@@ -579,6 +579,7 @@ export interface GameActions {
   rerollRecruits: () => boolean;
   claimQuestReward: (questId: string) => boolean;
   startAlchemyResearch: () => boolean;
+  startAlchemyCraft: (recipeId: string) => boolean;
   getHerbCount: (herbId: string) => number;
   makeOffering: (deityId: string) => boolean;
   claimMissionReward: (index: number) => void;
@@ -1542,6 +1543,16 @@ export function GameProvider(props: ParentProps) {
                 else s.inventory.push({ itemId: itemDef.id, quantity: amt });
               }
               pushEvent(s, "building_completed", recipe.icon, `Crafted ${recipe.name} (x${recipe.produces.amount})`);
+            } else {
+              // Check alchemy recipes (herb-based potions)
+              const alchRecipe = ALCHEMY_RECIPES.find((r) => r.id === craft.recipeId);
+              if (alchRecipe) {
+                const existing = s.inventory.find((i) => i.itemId === alchRecipe.id);
+                if (existing) existing.quantity += 1;
+                else s.inventory.push({ itemId: alchRecipe.id, quantity: 1 });
+                s.potions += 1;
+                pushEvent(s, "building_completed", alchRecipe.icon, `Brewed ${alchRecipe.name}`);
+              }
             }
             s.craftingQueue.splice(i, 1);
           }
@@ -2932,6 +2943,40 @@ export function GameProvider(props: ParentProps) {
             break; // only discover one per research
           }
         }
+      }));
+      scheduleSave();
+      return true;
+    },
+    startAlchemyCraft(recipeId: string) {
+      const labLvl = state.buildings.find((b) => b.buildingId === "alchemy_lab")?.level ?? 0;
+      if (labLvl === 0) return false;
+      const lab = state.buildings.find((b) => b.buildingId === "alchemy_lab");
+      if (lab?.damaged) return false;
+
+      const recipe = ALCHEMY_RECIPES.find((r) => r.id === recipeId);
+      if (!recipe || recipe.minLabLevel > labLvl) return false;
+
+      // Must be a starter recipe or discovered
+      if (!recipe.starterRecipe && !(state.discoveredRecipes ?? []).includes(recipeId)) return false;
+
+      // Check crafting slots (1 per lab level)
+      const activeAlchemy = state.craftingQueue.filter((c) =>
+        ALCHEMY_RECIPES.some((r) => r.id === c.recipeId)
+      ).length;
+      if (activeAlchemy >= labLvl) return false;
+
+      // Check herb costs
+      for (const cost of recipe.costs) {
+        const have = state.herbs?.[cost.resource] ?? 0;
+        if (have < cost.amount) return false;
+      }
+
+      setState(produce((s) => {
+        for (const cost of recipe.costs) {
+          if (!s.herbs) s.herbs = {};
+          s.herbs[cost.resource] = (s.herbs[cost.resource] ?? 0) - cost.amount;
+        }
+        s.craftingQueue.push({ recipeId, remaining: recipe.craftTime });
       }));
       scheduleSave();
       return true;
