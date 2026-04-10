@@ -481,20 +481,20 @@ export default function Overview() {
                     position: "relative",
                     overflow: "hidden",
                   }}>
-                    {/* Background image */}
+                    {/* Background image — left-aligned, fades to right */}
                     <Show when={raid()?.image}>
                       <div style={{
-                        position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+                        position: "absolute", top: 0, left: 0, bottom: 0, width: "45%",
                         "z-index": 0, "pointer-events": "none",
                       }}>
                         <img
                           src={raid()!.image!}
                           alt=""
-                          style={{ width: "100%", height: "100%", "object-fit": "cover", "object-position": "center 20%", opacity: "0.25" }}
+                          style={{ width: "100%", height: "100%", "object-fit": "cover", "object-position": "center 20%", opacity: "0.35" }}
                         />
                         <div style={{
                           position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
-                          background: "linear-gradient(to bottom, rgba(26, 26, 46, 0.7) 0%, rgba(26, 26, 46, 0.3) 50%, rgba(26, 26, 46, 0.8) 100%)",
+                          background: "linear-gradient(to right, transparent 30%, rgba(26, 26, 46, 1) 100%), linear-gradient(to bottom, rgba(26, 26, 46, 0.4) 0%, transparent 30%, transparent 70%, rgba(26, 26, 46, 0.5) 100%)",
                         }} />
                       </div>
                     </Show>

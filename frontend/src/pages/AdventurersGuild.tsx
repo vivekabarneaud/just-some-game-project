@@ -345,19 +345,19 @@ export default function AdventurersGuild() {
                                         <div style={{ color: entry.isPoisonTick ? "#9b59b6" : entry.isEnemy ? "var(--accent-red)" : "var(--text-secondary)" }}>
                                           {entry.attackerIcon}{" "}
                                           {entry.abilityName && <span style={{ color: "var(--accent-gold)" }}>[{entry.abilityName}] </span>}
-                                          <strong>{entry.attackerName}</strong>
-                                          {entry.isTaunt
-                                            ? <> taunts all enemies — <span style={{ color: "var(--accent-blue)" }}>they must attack {entry.attackerName} next round!</span></>
-                                            : entry.isShieldWall
-                                              ? <> absorbs the blow meant for <strong>{entry.targetName}</strong>! <span style={{ color: "var(--accent-red)" }}>{entry.damage} damage taken</span>
-                                                  {entry.killed && <span> — {entry.attackerName} falls!</span>}
-                                                </>
-                                              : entry.isPoisonTick
-                                                ? <> takes <span style={{ color: "#9b59b6" }}>{entry.damage} poison damage</span>
+                                          {entry.isPoisonTick
+                                            ? <><strong>{entry.targetName}</strong> takes <span style={{ color: "#9b59b6" }}>{entry.damage} poison damage</span>
                                                     {entry.targetHp != null && !entry.killed && <span style={{ color: "var(--text-muted)" }}> ({entry.targetHp}/{entry.targetMaxHp})</span>}
                                                     {entry.killed && <span style={{ color: "var(--accent-red)" }}> — killed!</span>}
                                                   </>
-                                                : entry.targets
+                                            : <><strong>{entry.attackerName}</strong>
+                                              {entry.isTaunt
+                                                ? <> taunts all enemies — <span style={{ color: "var(--accent-blue)" }}>they must attack {entry.attackerName} next round!</span></>
+                                                : entry.isShieldWall
+                                                  ? <> absorbs the blow meant for <strong>{entry.targetName}</strong>! <span style={{ color: "var(--accent-red)" }}>{entry.damage} damage taken</span>
+                                                      {entry.killed && <span> — {entry.attackerName} falls!</span>}
+                                                    </>
+                                                  : entry.targets
                                                   ? <> hits {entry.targets.map((t, i) => (
                                                       <span>
                                                         {i > 0 && ", "}
@@ -378,6 +378,7 @@ export default function AdventurersGuild() {
                                                         {entry.targetHp != null && !entry.killed && <span style={{ color: "var(--text-muted)" }}> ({entry.targetHp}/{entry.targetMaxHp})</span>}
                                                         {entry.killed && <span style={{ color: "var(--accent-red)" }}> — killed!</span>}
                                                       </>
+                                              }</>
                                           }
                                         </div>
                                       </>
