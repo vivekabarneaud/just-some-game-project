@@ -320,10 +320,11 @@ body {
   flex-direction: row !important;
   padding: 0 !important;
   overflow: hidden;
+  min-height: 180px;
 }
 
 .adv-card-portrait {
-  width: 80px;
+  width: 100px;
   min-height: 100%;
   flex-shrink: 0;
   overflow: hidden;
@@ -340,8 +341,9 @@ body {
 .adv-card-content {
   display: flex;
   flex-direction: column;
-  padding: 12px 14px;
-  padding-top: 20px;
+  padding: 14px 16px;
+  padding-top: 24px;
+  gap: 6px;
   flex: 1;
   min-width: 0;
   position: relative;
@@ -349,9 +351,16 @@ body {
 
 .adv-card .building-card-category {
   right: 12px;
-  top: 6px;
+  top: 8px;
   left: auto;
   z-index: 2;
+}
+
+/* Wider grid for recruit cards */
+.recruit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 16px;
 }
 
 .card-upgrade-btn {

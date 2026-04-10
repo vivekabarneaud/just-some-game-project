@@ -1094,7 +1094,7 @@ export default function AdventurersGuild() {
               No candidates available right now. New candidates appear daily.
             </p>
           </Show>
-          <div class="buildings-grid">
+          <div class="recruit-grid">
             <For each={state.recruitCandidates}>
               {(candidate) => {
                 const cls = getClassMeta(candidate.class);
@@ -1111,21 +1111,29 @@ export default function AdventurersGuild() {
                     </div>
                     <div class="adv-card-content">
                       <div class="building-card-title">{candidate.name}</div>
-                      <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-bottom": "2px" }}>
+                      <div style={{ "font-size": "0.85rem", color: "var(--text-muted)" }}>
                         {candidate.race ? `${RACE_NAMES[candidate.race]} ` : ""}{cls.name} · Lv.{candidate.level}
                       </div>
                       <Show when={candidate.origin}>
-                        <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-bottom": "4px" }}>
+                        <div style={{ "font-size": "0.75rem", color: "var(--text-muted)" }}>
                           {getOrigin(candidate.origin)?.name} — {getOrigin(candidate.origin)?.region}
                         </div>
                       </Show>
                       <Show when={candidate.backstory}>
-                        <div style={{ "font-size": "0.7rem", color: "var(--text-secondary)", "font-style": "italic", "margin-bottom": "4px" }}>
+                        <div style={{
+                          "font-size": "0.78rem",
+                          color: "var(--text-secondary)",
+                          "font-style": "italic",
+                          "line-height": "1.4",
+                          "margin-top": "4px",
+                          "padding-left": "8px",
+                          "border-left": "2px solid var(--border-color)",
+                        }}>
                           "{candidate.backstory}"
                         </div>
                       </Show>
                       <Show when={candidate.trait} fallback={
-                        <div style={{ "font-size": "0.75rem", color: "var(--text-muted)" }}>
+                        <div style={{ "font-size": "0.78rem", color: "var(--text-muted)" }}>
                           {cls.passive.name}: {cls.passive.description}
                         </div>
                       }>
@@ -1135,20 +1143,21 @@ export default function AdventurersGuild() {
                             <Show when={traitDef()}>
                               <div style={{
                                 display: "inline-block",
-                                padding: "2px 6px",
-                                "border-radius": "3px",
+                                padding: "3px 8px",
+                                "border-radius": "4px",
                                 background: "rgba(167, 139, 250, 0.1)",
                                 border: "1px solid rgba(167, 139, 250, 0.2)",
-                                "font-size": "0.7rem",
+                                "font-size": "0.75rem",
+                                "margin-top": "2px",
                               }}>
                                 <span style={{ color: "#a78bfa", "font-weight": "bold" }}>{traitDef()!.name}</span>
-                                <span style={{ color: "var(--text-muted)", "margin-left": "4px" }}>{traitDef()!.description}</span>
+                                <span style={{ color: "var(--text-muted)", "margin-left": "6px" }}>{traitDef()!.description}</span>
                               </div>
                             </Show>
                           );
                         })()}
                       </Show>
-                    <div style={{ "margin-top": "8px" }}>
+                    <div style={{ "margin-top": "auto", "padding-top": "10px" }}>
                       <button
                         class="upgrade-btn"
                         disabled={!canAfford() || rosterFull()}
