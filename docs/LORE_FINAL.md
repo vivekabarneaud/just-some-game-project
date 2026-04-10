@@ -239,7 +239,7 @@ But each offering, each prayer, each act of genuine devotion sends a ripple into
 
 ## Part VI: The People Who Shape the World
 
-### Halldora — The Woman Who Understood Too Late
+### Halldora Ravensong — The Woman Who Understood Too Late
 
 Before the Sundering, Halldora was the youngest Archmagus in the history of the Academy of the Aether — and the only scholar studying a field that everyone else considered pointless: **divine infrastructure.** While hundreds of researchers (many of them elves) studied practical Aether applications — enchantments, wards, elemental theory, healing — Halldora was mapping how the seven deities' functions mechanically sustained reality. What happens to Aether when something dies? How does the death-cycle connect to the life-cycle? What is the load-bearing structure underneath the world?
 

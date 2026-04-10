@@ -81,129 +81,165 @@ export default function AdventurerDetail() {
 
           return (
             <div>
-              {/* Header */}
-              <div style={{
-                display: "flex",
-                gap: "16px",
-                "align-items": "center",
-                "margin-bottom": "20px",
-              }}>
-                <div style={{
-                  width: "80px",
-                  height: "80px",
-                  "border-radius": "12px",
-                  overflow: "hidden",
-                  border: `2px solid ${RANK_COLORS[adv().rank]}`,
-                  "flex-shrink": "0",
-                }}>
-                  <img
-                    src={getPortrait(adv().name, adv().class)}
-                    alt={adv().name}
-                    style={{ width: "100%", height: "100%", "object-fit": "cover", "object-position": "top" }}
-                  />
-                </div>
-                <div>
-                  <h1 class="page-title" style={{ "margin-bottom": "2px" }}>{adv().name}</h1>
-                  <div style={{ "font-size": "0.9rem", color: "var(--text-secondary)" }}>
-                    {adv().race ? RACE_NAMES[adv().race] : ""} {cls().name} ·{" "}
-                    <span style={{ color: RANK_COLORS[adv().rank] }}>
-                      {RANK_NAMES[adv().rank]}
-                    </span>
-                    {" "}· Level {adv().level}
-                  </div>
-                  <Show when={adv().origin}>
-                    <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-top": "2px" }}>
-                      {getOrigin(adv().origin)?.name} — {getOrigin(adv().origin)?.region}
-                    </div>
-                  </Show>
-                  {adv().onMission && (
-                    <div style={{ "font-size": "0.85rem", color: "var(--accent-blue)", "margin-top": "4px" }}>
-                      Currently on a mission
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Lore Card */}
-              <Show when={adv().backstory}>
-                {(() => {
-                  const traitDef = () => BACKSTORY_TRAITS.find((t) => t.id === adv().trait);
-                  return (
+              {/* Hero Section — large portrait + info */}
+              {(() => {
+                const traitDef = () => BACKSTORY_TRAITS.find((t) => t.id === adv().trait);
+                return (
+                  <div style={{
+                    display: "flex",
+                    gap: "24px",
+                    "margin-bottom": "24px",
+                    background: "var(--bg-secondary)",
+                    "border-radius": "12px",
+                    overflow: "hidden",
+                    border: `1px solid ${RANK_COLORS[adv().rank]}33`,
+                  }}>
+                    {/* Large Portrait */}
                     <div style={{
-                      "margin-bottom": "20px",
-                      padding: "12px 14px",
-                      background: "var(--bg-secondary)",
-                      "border-radius": "8px",
-                      "border-left": "3px solid var(--text-muted)",
+                      width: "280px",
+                      "min-height": "340px",
+                      "flex-shrink": "0",
+                      overflow: "hidden",
+                      position: "relative",
                     }}>
-                      <div style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "font-style": "italic", "margin-bottom": "6px" }}>
-                        "{adv().backstory}"
+                      <img
+                        src={getPortrait(adv().name, adv().class)}
+                        alt={adv().name}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          "object-fit": "cover",
+                          "object-position": "top",
+                          display: "block",
+                        }}
+                      />
+                      {/* Gradient fade on right edge */}
+                      <div style={{
+                        position: "absolute",
+                        top: 0,
+                        right: 0,
+                        bottom: 0,
+                        width: "60px",
+                        background: "linear-gradient(to right, transparent, var(--bg-secondary))",
+                      }} />
+                    </div>
+
+                    {/* Info Panel */}
+                    <div style={{
+                      flex: 1,
+                      padding: "20px 20px 20px 0",
+                      display: "flex",
+                      "flex-direction": "column",
+                      gap: "10px",
+                    }}>
+                      {/* Name & Class */}
+                      <div>
+                        <h1 class="page-title" style={{ "margin-bottom": "4px", "font-size": "1.5rem" }}>{adv().name}</h1>
+                        <div style={{ "font-size": "1rem", color: "var(--text-secondary)" }}>
+                          {adv().race ? RACE_NAMES[adv().race] : ""} {cls().name} ·{" "}
+                          <span style={{ color: RANK_COLORS[adv().rank], "font-weight": "bold" }}>
+                            {RANK_NAMES[adv().rank]}
+                          </span>
+                          {" "}· Level {adv().level}
+                        </div>
+                        <Show when={adv().origin}>
+                          <div style={{ "font-size": "0.85rem", color: "var(--text-muted)", "margin-top": "2px" }}>
+                            {getOrigin(adv().origin)?.name} — {getOrigin(adv().origin)?.region}
+                          </div>
+                        </Show>
                       </div>
+
+                      {/* XP Bar (inline) */}
+                      <div>
+                        <div style={{ display: "flex", "justify-content": "space-between", "font-size": "0.8rem", "margin-bottom": "4px" }}>
+                          <span style={{ color: "var(--text-secondary)" }}>Experience</span>
+                          <span style={{ color: "var(--text-muted)" }}>{adv().xp} / {xpNeeded()} XP</span>
+                        </div>
+                        <div style={{ height: "6px", background: "var(--bg-primary)", "border-radius": "3px" }}>
+                          <div style={{
+                            height: "100%",
+                            width: `${xpPct()}%`,
+                            background: "var(--accent-blue)",
+                            "border-radius": "3px",
+                            transition: "width 0.3s",
+                          }} />
+                        </div>
+                      </div>
+
+                      {/* Backstory */}
+                      <Show when={adv().backstory}>
+                        <div style={{
+                          "font-size": "0.9rem",
+                          color: "var(--text-secondary)",
+                          "font-style": "italic",
+                          "line-height": "1.5",
+                          "padding-left": "12px",
+                          "border-left": "2px solid var(--border-color)",
+                        }}>
+                          "{adv().backstory}"
+                        </div>
+                      </Show>
+
+                      {/* Quirk */}
                       <Show when={adv().quirk}>
-                        <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-bottom": "8px" }}>
+                        <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
                           {adv().quirk}
                         </div>
                       </Show>
+
+                      {/* Trait Badge */}
                       <Show when={traitDef()}>
-                        <div style={{
-                          display: "inline-block",
-                          padding: "3px 8px",
-                          "border-radius": "4px",
-                          background: "rgba(167, 139, 250, 0.1)",
-                          border: "1px solid rgba(167, 139, 250, 0.25)",
-                          "font-size": "0.8rem",
-                        }}>
-                          <span style={{ color: "#a78bfa", "font-weight": "bold" }}>{traitDef()!.name}</span>
-                          <span style={{ color: "var(--text-secondary)", "margin-left": "6px" }}>{traitDef()!.description}</span>
-                        </div>
-                        <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "3px", "font-style": "italic" }}>
-                          "{traitDef()!.flavor}"
+                        <div>
+                          <div style={{
+                            display: "inline-block",
+                            padding: "4px 10px",
+                            "border-radius": "5px",
+                            background: "rgba(167, 139, 250, 0.1)",
+                            border: "1px solid rgba(167, 139, 250, 0.25)",
+                            "font-size": "0.85rem",
+                          }}>
+                            <span style={{ color: "#a78bfa", "font-weight": "bold" }}>{traitDef()!.name}</span>
+                            <span style={{ color: "var(--text-secondary)", "margin-left": "8px" }}>{traitDef()!.description}</span>
+                          </div>
+                          <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-top": "3px", "font-style": "italic" }}>
+                            "{traitDef()!.flavor}"
+                          </div>
                         </div>
                       </Show>
+
+                      {/* Class Passive */}
+                      <div style={{
+                        "margin-top": "auto",
+                        padding: "8px 12px",
+                        background: "var(--bg-primary)",
+                        "border-radius": "6px",
+                      }}>
+                        <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-bottom": "2px" }}>
+                          Class Passive
+                        </div>
+                        <div style={{ "font-size": "0.85rem" }}>
+                          <strong style={{ color: "var(--text-primary)" }}>{cls().passive.name}</strong>
+                          <span style={{ color: "var(--text-secondary)", "margin-left": "8px" }}>{cls().passive.description}</span>
+                        </div>
+                      </div>
+
+                      {adv().onMission && (
+                        <div style={{
+                          padding: "6px 12px",
+                          "border-radius": "6px",
+                          background: "rgba(52, 152, 219, 0.15)",
+                          border: "1px solid var(--accent-blue)",
+                          color: "var(--accent-blue)",
+                          "font-size": "0.85rem",
+                          "text-align": "center",
+                        }}>
+                          Currently on a mission
+                        </div>
+                      )}
                     </div>
-                  );
-                })()}
-              </Show>
-
-              {/* XP Bar */}
-              <div style={{
-                "margin-bottom": "20px",
-                padding: "12px",
-                background: "var(--bg-secondary)",
-                "border-radius": "8px",
-              }}>
-                <div style={{ display: "flex", "justify-content": "space-between", "font-size": "0.85rem", "margin-bottom": "6px" }}>
-                  <span style={{ color: "var(--text-secondary)" }}>Experience</span>
-                  <span style={{ color: "var(--text-muted)" }}>{adv().xp} / {xpNeeded()} XP</span>
-                </div>
-                <div style={{ height: "8px", background: "var(--bg-primary)", "border-radius": "4px" }}>
-                  <div style={{
-                    height: "100%",
-                    width: `${xpPct()}%`,
-                    background: "var(--accent-blue)",
-                    "border-radius": "4px",
-                    transition: "width 0.3s",
-                  }} />
-                </div>
-              </div>
-
-              {/* Class Passive */}
-              <div style={{
-                "margin-bottom": "20px",
-                padding: "12px",
-                background: "var(--bg-secondary)",
-                "border-radius": "8px",
-              }}>
-                <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-bottom": "4px" }}>
-                  Class Passive
-                </div>
-                <div style={{ "font-size": "0.95rem", color: "var(--text-primary)" }}>
-                  <strong>{cls().passive.name}</strong>
-                </div>
-                <div style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "margin-top": "2px" }}>
-                  {cls().passive.description}
-                </div>
-              </div>
+                  </div>
+                );
+              })()}
 
               <div class="overview-grid">
                 {/* Stats */}
