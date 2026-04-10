@@ -127,10 +127,10 @@ export default function AdventurerDetail() {
                     {/* Info Panel */}
                     <div style={{
                       flex: 1,
-                      padding: "20px 20px 20px 0",
+                      padding: "24px 24px 24px 0",
                       display: "flex",
                       "flex-direction": "column",
-                      gap: "12px",
+                      gap: "16px",
                     }}>
                       {/* Name & Class */}
                       <div>
@@ -190,9 +190,24 @@ export default function AdventurerDetail() {
                         </div>
                       </Show>
 
+                      {/* Class Passive — pinned to bottom */}
+                      <div style={{
+                        "margin-top": "auto",
+                        padding: "8px 12px",
+                        background: "var(--bg-primary)",
+                        "border-radius": "6px",
+                      }}>
+                        <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-bottom": "2px" }}>
+                          Class Passive
+                        </div>
+                        <div style={{ "font-size": "0.85rem" }}>
+                          <strong style={{ color: "var(--text-primary)" }}>{cls().passive.name}</strong>
+                          <span style={{ color: "var(--text-secondary)", "margin-left": "8px" }}>{cls().passive.description}</span>
+                        </div>
+                      </div>
+
                       {adv().onMission && (
                         <div style={{
-                          "margin-top": "auto",
                           padding: "6px 12px",
                           "border-radius": "6px",
                           background: "rgba(52, 152, 219, 0.15)",
