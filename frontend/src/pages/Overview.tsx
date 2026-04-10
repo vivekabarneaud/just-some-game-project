@@ -478,7 +478,28 @@ export default function Overview() {
                     "border-radius": "6px",
                     background: "rgba(231, 76, 60, 0.1)",
                     border: "1px solid var(--accent-red)",
+                    position: "relative",
+                    overflow: "hidden",
                   }}>
+                    {/* Background image */}
+                    <Show when={raid()?.image}>
+                      <div style={{
+                        position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+                        "z-index": 0, "pointer-events": "none",
+                      }}>
+                        <img
+                          src={raid()!.image!}
+                          alt=""
+                          style={{ width: "100%", height: "100%", "object-fit": "cover", "object-position": "center 20%", opacity: "0.25" }}
+                        />
+                        <div style={{
+                          position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+                          background: "linear-gradient(to bottom, rgba(26, 26, 46, 0.7) 0%, rgba(26, 26, 46, 0.3) 50%, rgba(26, 26, 46, 0.8) 100%)",
+                        }} />
+                      </div>
+                    </Show>
+
+                    <div style={{ position: "relative", "z-index": 1 }}>
                     <div style={{ display: "flex", "justify-content": "space-between", "align-items": "center" }}>
                       <span style={{ color: "var(--accent-red)", "font-size": "0.9rem", "font-weight": "bold" }}>
                         {raid()?.icon} {raid()?.name ?? ir.raidId}
@@ -491,26 +512,14 @@ export default function Overview() {
                       {raid()?.description}
                     </div>
 
-                    {/* Success chance */}
-                    <div style={{ "margin-top": "8px", display: "flex", "align-items": "center", gap: "10px" }}>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: "flex", "justify-content": "space-between", "font-size": "0.8rem", "margin-bottom": "3px" }}>
-                          <span style={{ color: "var(--text-muted)" }}>
-                            Defense {defense().total} vs Strength {ir.strength}
-                          </span>
-                          <span style={{ color: successColor(), "font-weight": "bold" }}>
-                            {successPct()}% success
-                          </span>
-                        </div>
-                        <div style={{ height: "6px", background: "var(--bg-primary)", "border-radius": "3px" }}>
-                          <div style={{
-                            height: "100%",
-                            width: `${successPct()}%`,
-                            background: successColor(),
-                            "border-radius": "3px",
-                          }} />
-                        </div>
-                      </div>
+                    {/* Success chance — raw text */}
+                    <div style={{ "margin-top": "8px", display: "flex", "justify-content": "space-between", "align-items": "center", "font-size": "0.8rem" }}>
+                      <span style={{ color: "var(--text-muted)" }}>
+                        Defense {defense().total} vs Strength {ir.strength}
+                      </span>
+                      <span style={{ color: successColor(), "font-weight": "bold", "font-size": "1.1rem" }}>
+                        {successPct()}%
+                      </span>
                     </div>
 
                     {/* Expected consequences */}
@@ -581,6 +590,7 @@ export default function Overview() {
                         Recall All Adventurers ({onMissionCount()} on missions)
                       </button>
                     </Show>
+                    </div>{/* end z-index content wrapper */}
                   </div>
                 );
               }}

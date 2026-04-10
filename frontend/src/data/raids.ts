@@ -26,6 +26,8 @@ export interface RaidTemplate {
   baseWarning: number;
   /** Loot dropped on victory */
   victoryLoot: { resource: string; amount: number }[];
+  /** Optional background image for the invasion panel */
+  image?: string;
 }
 
 export interface IncomingRaid {
@@ -159,6 +161,7 @@ export const RAID_POOL: RaidTemplate[] = [
     minTier: "town",
     baseWarning: 8,
     victoryLoot: [{ resource: "stone", amount: 60 }, { resource: "gold", amount: 40 }],
+    image: "/images/raids/skeleton_horde.png",
   },
   {
     id: "mercenary_company",
