@@ -302,19 +302,63 @@ export const ENEMIES: EnemyDefinition[] = [
     ],
   },
 
-  // ── Tier 4 — Elite threats ────────────────────────────────────
-  // Require level 10-15 with good gear. Full party required.
+  // ── Dragon threats (spread across tiers) ───────────────────────
+  {
+    id: "wyrmling",
+    name: "Wyrmling",
+    icon: "🦎",
+    description: "Barely hatched, small as a dog, and confused. It attacks from fear, not malice. Almost sad to fight.",
+    tier: 2,
+    stats: { str: 12, dex: 14, int: 6, vit: 14, wis: 4 },
+    tags: ["dragon", "magical"],
+    loot: [
+      { type: "resource", resource: "dragonfire_ash", chance: 0.3, min: 1, max: 2 },
+    ],
+  },
   {
     id: "dragon_hatchling",
     name: "Dragon Hatchling",
     icon: "🐉",
-    description: "Only a year old and already deadly. Its breath singes stone. Imagine the mother.",
+    description: "A few months old. Already has a breath weapon — short range, but it singes stone. Nest-bound and territorial.",
+    tier: 3,
+    stats: { str: 18, dex: 10, int: 12, vit: 22, wis: 6 },
+    tags: ["dragon", "magical"],
+    loot: [
+      { type: "resource", resource: "dragon_scale", chance: 0.25, min: 1, max: 2 },
+      { type: "resource", resource: "dragonfire_ash", chance: 0.4, min: 1, max: 3 },
+    ],
+  },
+
+  // ── Tier 4 — Elite threats ────────────────────────────────────
+  // Require level 10-15 with good gear. Full party required.
+  {
+    id: "feral_drake",
+    name: "Feral Drake",
+    icon: "🐉",
+    description: "An adolescent dragon that survived alone in the Wastes. Vicious, fast, and smart enough to ambush. It has never known kindness.",
     tier: 4,
-    stats: { str: 24, dex: 12, int: 16, vit: 30, wis: 10 },
+    stats: { str: 26, dex: 16, int: 18, vit: 32, wis: 12 },
     tags: ["dragon", "magical"],
     boss: true,
     loot: [
-      // TODO: fill — dragon scales? astral shards? rare crafting material?
+      { type: "resource", resource: "dragon_scale", chance: 0.5, min: 2, max: 4 },
+      { type: "resource", resource: "dragon_blood", chance: 0.3, min: 1, max: 2 },
+      { type: "resource", resource: "dragon_fang", chance: 0.2, min: 1, max: 1 },
+    ],
+  },
+  {
+    id: "wasteland_wyrm",
+    name: "Wasteland Wyrm",
+    icon: "🐲",
+    description: "A dragon born too close to the epicenter. Its scales are blackened, its breath is necrotic, and the land dies where it rests. Corrupted beyond saving.",
+    tier: 4,
+    stats: { str: 30, dex: 12, int: 22, vit: 36, wis: 14 },
+    tags: ["dragon", "magical", "undead"],
+    boss: true,
+    loot: [
+      { type: "resource", resource: "dragon_scale", chance: 0.6, min: 2, max: 5 },
+      { type: "resource", resource: "dragon_blood", chance: 0.4, min: 1, max: 3 },
+      { type: "resource", resource: "shadow_fragment", chance: 0.15, min: 1, max: 1 },
     ],
   },
   {
@@ -407,7 +451,10 @@ export const ENEMIES: EnemyDefinition[] = [
     tags: ["dragon", "magical"],
     boss: true,
     loot: [
-      // TODO: fill — legendary weapon? dragon heart? massive gold/shards?
+      { type: "resource", resource: "wyrm_scale", chance: 0.8, min: 3, max: 6 },
+      { type: "resource", resource: "dragon_blood", chance: 0.7, min: 2, max: 5 },
+      { type: "resource", resource: "wyrm_heart", chance: 0.15, min: 1, max: 1 },
+      { type: "resource", resource: "astralShards", chance: 0.9, min: 3, max: 8 },
     ],
   },
   {
