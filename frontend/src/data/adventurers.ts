@@ -41,7 +41,7 @@ export const ORIGINS: OriginDef[] = [
     description: "Common folk and displaced elite of the Ashenmark Dominion.",
     quote: "Every Dunhollow settler brought three things south: a plow, a prayer book, and a grudge against their landlord.",
     statMods: {},
-    firstNamesMale: ["Aldric", "Cedric", "Elwin", "Gareth", "Kael", "Osric", "Quinlan", "Dorian", "Finn", "Henrik", "Nolan", "Pavel", "Wren", "Leif", "Jareth", "Ivar"],
+    firstNamesMale: ["Aldric", "Cedric", "Elwin", "Gareth", "Kael", "Osric", "Quinlan", "Dorian", "Finn", "Henrik", "Nolan", "Pavel", "Wren", "Edmund", "Jareth", "Corin"],
     firstNamesFemale: ["Brenna", "Daria", "Hilda", "Lyra", "Petra", "Rowena", "Gwen", "Isla", "Kira", "Mira", "Oona", "Rhea", "Talia", "Cora", "Elara", "Ysolde"],
     lastNames: ["Ashford", "Blackwood", "Coldwell", "Dawnforge", "Emberheart", "Foxglove", "Greystone", "Hawkwind", "Ironbark", "Thornwood", "Underhill", "Valeheart", "Wintermere", "Brightwater", "Copperfield", "Eldergrove"],
     backstories: {
@@ -61,7 +61,7 @@ export const ORIGINS: OriginDef[] = [
     statMods: {},
     firstNamesMale: ["Bjorn", "Tormund", "Leif", "Ragnar", "Soren", "Ulf", "Erik", "Halvard", "Sigurd", "Magnus", "Wulf", "Gunnar"],
     firstNamesFemale: ["Sigrid", "Freya", "Astrid", "Ingrid", "Thora", "Helga", "Kara", "Runa", "Ylva", "Vara"],
-    lastNames: ["Stormveil", "Ironbark", "Wintermere", "Coldhammer", "Frostwind", "Ravensong", "Stonehelm", "Ashford"],
+    lastNames: ["Stormveil", "Coldhammer", "Frostwind", "Ravensong", "Stonehelm", "Iceforge", "Wolfbane", "Frostvik"],
     backstories: {
       fighter: "Former shield-bearer of the Thornveil Rangers. Left when the wards started failing and nobody would admit it.",
       scholar: "An elder's apprentice who memorized the old sagas. Came south chasing a story that hasn't ended yet.",
