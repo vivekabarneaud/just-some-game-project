@@ -1429,6 +1429,24 @@ export function GameProvider(props: ParentProps) {
             }
           }
         }
+        // Race/origin/backstory backfill for adventurers from older saves
+        const backfillOriginServer = (adv: any) => {
+          if (adv.race) return;
+          const hash = adv.name.split("").reduce((h: number, c: string) => h + c.charCodeAt(0), 0);
+          const raceRoll = (hash % 100) / 100;
+          const race: Race = raceRoll < RACE_WEIGHTS.elf ? "elf" : raceRoll < RACE_WEIGHTS.elf + RACE_WEIGHTS.dwarf ? "dwarf" : "human";
+          const origins = getOriginsForRace(race);
+          const origin = origins[hash % origins.length];
+          const backstoryKeys = Object.keys(origin.backstories) as (keyof typeof origin.backstories)[];
+          adv.race = race;
+          adv.origin = origin.id;
+          adv.backstory = origin.backstories[backstoryKeys[hash % backstoryKeys.length]];
+          adv.quirk = PERSONALITY_QUIRKS[hash % PERSONALITY_QUIRKS.length];
+          adv.trait = BACKSTORY_TRAITS[hash % BACKSTORY_TRAITS.length].id;
+        };
+        for (const adv of serverState.adventurers ?? []) backfillOriginServer(adv);
+        for (const adv of serverState.recruitCandidates ?? []) backfillOriginServer(adv);
+
         setState(reconcile(serverState));
         // Catch up for time spent offline
         const offlineMs = Date.now() - serverState.lastTick;
