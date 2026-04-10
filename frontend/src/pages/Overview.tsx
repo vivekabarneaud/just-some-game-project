@@ -473,7 +473,8 @@ export default function Overview() {
                 const tips = () => getDefenseTips(defense(), ir.strength, state.buildings, onMissionCount());
                 return (
                   <div style={{
-                    padding: "10px 12px",
+                    padding: "14px 16px",
+                    "min-height": raid()?.image ? "180px" : undefined,
                     "margin-bottom": "8px",
                     "border-radius": "6px",
                     background: "rgba(231, 76, 60, 0.1)",
@@ -481,20 +482,20 @@ export default function Overview() {
                     position: "relative",
                     overflow: "hidden",
                   }}>
-                    {/* Background image — left-aligned, fades to right */}
+                    {/* Background image — left-aligned, fades into red bg */}
                     <Show when={raid()?.image}>
                       <div style={{
-                        position: "absolute", top: 0, left: 0, bottom: 0, width: "45%",
+                        position: "absolute", top: 0, left: 0, bottom: 0, width: "55%",
                         "z-index": 0, "pointer-events": "none",
                       }}>
                         <img
                           src={raid()!.image!}
                           alt=""
-                          style={{ width: "100%", height: "100%", "object-fit": "cover", "object-position": "center 20%", opacity: "0.35" }}
+                          style={{ width: "100%", height: "100%", "object-fit": "cover", "object-position": "center 20%", opacity: "0.2" }}
                         />
                         <div style={{
                           position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
-                          background: "linear-gradient(to right, transparent 30%, rgba(26, 26, 46, 1) 100%), linear-gradient(to bottom, rgba(26, 26, 46, 0.4) 0%, transparent 30%, transparent 70%, rgba(26, 26, 46, 0.5) 100%)",
+                          background: "linear-gradient(to right, transparent 20%, rgba(231, 76, 60, 0.1) 70%, rgba(231, 76, 60, 0.1) 100%), linear-gradient(to bottom, rgba(26, 26, 46, 0.3) 0%, transparent 20%, transparent 80%, rgba(26, 26, 46, 0.3) 100%)",
                         }} />
                       </div>
                     </Show>
