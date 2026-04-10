@@ -149,9 +149,32 @@ export default function AdventurerDetail() {
                         </Show>
                       </div>
 
-                      {/* Trait Badge */}
+                      {/* Backstory & Quirk — grouped tighter */}
+                      <Show when={adv().backstory || adv().quirk}>
+                        <div style={{ display: "flex", "flex-direction": "column", gap: "4px" }}>
+                          <Show when={adv().backstory}>
+                            <div style={{
+                              "font-size": "0.9rem",
+                              color: "var(--text-secondary)",
+                              "font-style": "italic",
+                              "line-height": "1.5",
+                              "padding-left": "12px",
+                              "border-left": "2px solid var(--border-color)",
+                            }}>
+                              "{adv().backstory}"
+                            </div>
+                          </Show>
+                          <Show when={adv().quirk}>
+                            <div style={{ "font-size": "0.85rem", color: "var(--text-muted)", "padding-left": "12px" }}>
+                              {adv().quirk}
+                            </div>
+                          </Show>
+                        </div>
+                      </Show>
+
+                      {/* Trait Badge — pinned to bottom */}
                       <Show when={traitDef()}>
-                        <div>
+                        <div style={{ "margin-top": "auto" }}>
                           <div style={{
                             display: "inline-block",
                             padding: "4px 10px",
@@ -168,43 +191,6 @@ export default function AdventurerDetail() {
                           </div>
                         </div>
                       </Show>
-
-                      {/* Backstory */}
-                      <Show when={adv().backstory}>
-                        <div style={{
-                          "font-size": "0.9rem",
-                          color: "var(--text-secondary)",
-                          "font-style": "italic",
-                          "line-height": "1.5",
-                          "padding-left": "12px",
-                          "border-left": "2px solid var(--border-color)",
-                        }}>
-                          "{adv().backstory}"
-                        </div>
-                      </Show>
-
-                      {/* Quirk */}
-                      <Show when={adv().quirk}>
-                        <div style={{ "font-size": "0.85rem", color: "var(--text-muted)" }}>
-                          {adv().quirk}
-                        </div>
-                      </Show>
-
-                      {/* Class Passive — pinned to bottom */}
-                      <div style={{
-                        "margin-top": "auto",
-                        padding: "8px 12px",
-                        background: "var(--bg-primary)",
-                        "border-radius": "6px",
-                      }}>
-                        <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-bottom": "2px" }}>
-                          Class Passive
-                        </div>
-                        <div style={{ "font-size": "0.85rem" }}>
-                          <strong style={{ color: "var(--text-primary)" }}>{cls().passive.name}</strong>
-                          <span style={{ color: "var(--text-secondary)", "margin-left": "8px" }}>{cls().passive.description}</span>
-                        </div>
-                      </div>
 
                       {adv().onMission && (
                         <div style={{
