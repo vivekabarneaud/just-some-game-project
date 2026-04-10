@@ -473,8 +473,8 @@ export default function Overview() {
                 const tips = () => getDefenseTips(defense(), ir.strength, state.buildings, onMissionCount());
                 return (
                   <div style={{
-                    padding: "14px 16px",
-                    "min-height": raid()?.image ? "180px" : undefined,
+                    padding: "16px",
+                    "min-height": raid()?.image ? "220px" : undefined,
                     "margin-bottom": "8px",
                     "border-radius": "6px",
                     background: "rgba(231, 76, 60, 0.1)",
@@ -492,7 +492,7 @@ export default function Overview() {
                           src={raid()!.image!}
                           alt=""
                           style={{
-                            width: "100%", height: "100%", "object-fit": "cover", "object-position": "center 20%", opacity: "0.2",
+                            width: "100%", height: "100%", "object-fit": "cover", "object-position": "center 70%", opacity: "0.2",
                             "-webkit-mask-image": "linear-gradient(to right, black 30%, transparent 100%)",
                             "mask-image": "linear-gradient(to right, black 30%, transparent 100%)",
                           }}
@@ -500,98 +500,113 @@ export default function Overview() {
                       </div>
                     </Show>
 
-                    <div style={{ position: "relative", "z-index": 1 }}>
-                    <div style={{ display: "flex", "justify-content": "space-between", "align-items": "center" }}>
-                      <span style={{ color: "var(--accent-red)", "font-size": "0.9rem", "font-weight": "bold" }}>
-                        {raid()?.icon} {raid()?.name ?? ir.raidId}
-                      </span>
-                      <span style={{ color: "var(--accent-red)", "font-size": "0.9rem" }}>
-                        <Countdown remainingSeconds={ir.remaining} />
-                      </span>
-                    </div>
-                    <div style={{ "font-size": "0.8rem", color: "var(--text-secondary)", "margin-top": "4px" }}>
-                      {raid()?.description}
-                    </div>
+                    {/* Two-column layout */}
+                    <div style={{ position: "relative", "z-index": 1, display: "flex", gap: "16px" }}>
 
-                    {/* Success chance — raw text */}
-                    <div style={{ "margin-top": "8px", display: "flex", "justify-content": "space-between", "align-items": "center", "font-size": "0.8rem" }}>
-                      <span style={{ color: "var(--text-muted)" }}>
-                        Defense {defense().total} vs Strength {ir.strength}
-                      </span>
-                      <span style={{ color: successColor(), "font-weight": "bold", "font-size": "1.1rem" }}>
-                        {successPct()}%
-                      </span>
-                    </div>
+                      {/* Left — Attacker info */}
+                      <div style={{ flex: 1 }}>
+                        <span style={{ color: "var(--accent-red)", "font-size": "1rem", "font-weight": "bold" }}>
+                          {raid()?.icon} {raid()?.name ?? ir.raidId}
+                        </span>
+                        <div style={{ "font-size": "0.8rem", color: "var(--text-secondary)", "margin-top": "6px", "font-style": "italic" }}>
+                          {raid()?.description}
+                        </div>
 
-                    {/* Expected consequences */}
-                    <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-top": "6px" }}>
-                      <Show when={successPct() < 100}>
-                        <span>If defeated: </span>
-                        {raid()?.stealsResources && <span style={{ color: "var(--accent-red)" }}>~{Math.round((raid()!.resourceStealPercent) * 100)}% resources stolen </span>}
-                        {raid()?.killsCitizens && <span style={{ color: "var(--accent-red)" }}>· up to {raid()!.maxCitizenLoss} citizen deaths </span>}
-                        <span>· 1-3 buildings damaged</span>
-                      </Show>
-                      <Show when={successPct() >= 100}>
-                        <span style={{ color: "var(--accent-green)" }}>Expected loot: {raid()!.victoryLoot.map((l) => `+${l.amount} ${l.resource}`).join(", ")}</span>
-                      </Show>
-                    </div>
+                        <div style={{ "margin-top": "10px", "font-size": "0.85rem", color: "var(--accent-red)", "font-weight": "bold" }}>
+                          ⚔ Strength {ir.strength}
+                        </div>
 
-                    {/* Tags */}
-                    <Show when={raid()?.tags}>
-                      <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "6px" }}>
-                        {raid()!.tags.join(", ")}
-                        {raid()!.stealsResources && " · steals resources"}
-                        {raid()!.killsCitizens && " · kills citizens"}
-                      </div>
-                    </Show>
+                        {/* Consequences */}
+                        <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-top": "8px" }}>
+                          <Show when={successPct() < 100}>
+                            <div>If defeated:</div>
+                            {raid()?.stealsResources && <div style={{ color: "var(--accent-red)" }}>· ~{Math.round((raid()!.resourceStealPercent) * 100)}% resources stolen</div>}
+                            {raid()?.killsCitizens && <div style={{ color: "var(--accent-red)" }}>· up to {raid()!.maxCitizenLoss} citizen deaths</div>}
+                            <div style={{ color: "var(--accent-red)" }}>· 1-3 buildings damaged</div>
+                          </Show>
+                          <Show when={successPct() >= 100}>
+                            <div style={{ color: "var(--accent-green)" }}>Expected loot: {raid()!.victoryLoot.map((l) => `+${l.amount} ${l.resource}`).join(", ")}</div>
+                          </Show>
+                        </div>
 
-                    {/* Tips */}
-                    <div style={{ "margin-top": "8px" }}>
-                      <For each={tips()}>
-                        {(tip) => (
-                          <div style={{ "font-size": "0.8rem", color: "var(--text-secondary)", "margin-bottom": "3px" }}>
-                            {tip.icon}{" "}
-                            {tip.actionLink ? (
-                              <A href={tip.actionLink} style={{ color: "var(--accent-gold)" }}>{tip.text}</A>
-                            ) : (
-                              tip.text
-                            )}
+                        {/* Tags */}
+                        <Show when={raid()?.tags}>
+                          <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "6px" }}>
+                            {raid()!.tags.join(", ")}
+                            {raid()!.stealsResources && " · steals resources"}
+                            {raid()!.killsCitizens && " · kills citizens"}
                           </div>
-                        )}
-                      </For>
-                    </div>
+                        </Show>
+                      </div>
 
-                    {/* Recall button */}
-                    <Show when={onMissionCount() > 0}>
-                      <button
-                        onClick={() => {
-                          const hasWiz = state.activeMissions.some((m) =>
-                            m.adventurerIds.some((id) => state.adventurers.find((a) => a.id === id)?.class === "wizard")
-                          );
-                          const msg = hasWiz
-                            ? `Recall ${onMissionCount()} adventurer(s)? Missions cancelled, but your wizard will teleport 30% of the loot home.`
-                            : `Recall ${onMissionCount()} adventurer(s)? All active missions will be cancelled and rewards forfeited.`;
-                          if (confirm(msg)) {
-                            const result = actions.recallAdventurers();
-                            // Could show a toast here
-                          }
-                        }}
-                        style={{
-                          "margin-top": "8px",
-                          padding: "6px 14px",
-                          background: "rgba(231, 76, 60, 0.2)",
-                          border: "1px solid var(--accent-red)",
-                          color: "var(--accent-red)",
-                          "border-radius": "4px",
-                          cursor: "pointer",
-                          "font-size": "0.85rem",
-                          width: "100%",
-                        }}
-                      >
-                        Recall All Adventurers ({onMissionCount()} on missions)
-                      </button>
-                    </Show>
-                    </div>{/* end z-index content wrapper */}
+                      {/* Right — Player defense */}
+                      <div style={{ flex: 1, display: "flex", "flex-direction": "column", "align-items": "flex-end", "text-align": "right" }}>
+                        {/* Timer */}
+                        <div style={{ color: "var(--accent-red)", "font-size": "1.1rem", "font-weight": "bold" }}>
+                          <Countdown remainingSeconds={ir.remaining} />
+                        </div>
+
+                        {/* Defense score */}
+                        <div style={{ "margin-top": "8px", "font-size": "0.85rem", color: "var(--accent-blue)", "font-weight": "bold" }}>
+                          🛡 Defense {defense().total}
+                        </div>
+
+                        {/* Success % */}
+                        <div style={{ "margin-top": "8px" }}>
+                          <span style={{ "font-size": "0.75rem", color: "var(--text-muted)" }}>Success </span>
+                          <span style={{ color: successColor(), "font-weight": "bold", "font-size": "1.4rem" }}>
+                            {successPct()}%
+                          </span>
+                        </div>
+
+                        {/* Tips */}
+                        <div style={{ "margin-top": "auto", "padding-top": "10px" }}>
+                          <For each={tips()}>
+                            {(tip) => (
+                              <div style={{ "font-size": "0.8rem", color: "var(--text-secondary)", "margin-bottom": "3px" }}>
+                                {tip.icon}{" "}
+                                {tip.actionLink ? (
+                                  <A href={tip.actionLink} style={{ color: "var(--accent-gold)" }}>{tip.text}</A>
+                                ) : (
+                                  tip.text
+                                )}
+                              </div>
+                            )}
+                          </For>
+                        </div>
+
+                        {/* Recall button */}
+                        <Show when={onMissionCount() > 0}>
+                          <button
+                            onClick={() => {
+                              const hasWiz = state.activeMissions.some((m) =>
+                                m.adventurerIds.some((id) => state.adventurers.find((a) => a.id === id)?.class === "wizard")
+                              );
+                              const msg = hasWiz
+                                ? `Recall ${onMissionCount()} adventurer(s)? Missions cancelled, but your wizard will teleport 30% of the loot home.`
+                                : `Recall ${onMissionCount()} adventurer(s)? All active missions will be cancelled and rewards forfeited.`;
+                              if (confirm(msg)) {
+                                const result = actions.recallAdventurers();
+                              }
+                            }}
+                            style={{
+                              "margin-top": "8px",
+                              padding: "6px 14px",
+                              background: "rgba(231, 76, 60, 0.2)",
+                              border: "1px solid var(--accent-red)",
+                              color: "var(--accent-red)",
+                              "border-radius": "4px",
+                              cursor: "pointer",
+                              "font-size": "0.85rem",
+                              width: "100%",
+                            }}
+                          >
+                            Recall Adventurers ({onMissionCount()})
+                          </button>
+                        </Show>
+                      </div>
+
+                    </div>{/* end two-column layout */}
                   </div>
                 );
               }}
