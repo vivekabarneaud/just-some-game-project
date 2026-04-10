@@ -1,3 +1,280 @@
+// ─── Races & Origins ───────────────────────────────────────────
+
+export type Race = "human" | "elf" | "dwarf";
+
+export type Origin =
+  | "dunhollow" | "nordveld" | "meridian" | "zahkari" | "tianzhou" | "khorvani"   // human
+  | "silvaneth" | "hautsciels"                                                      // elf
+  | "khazdurim" | "feldgrund";                                                      // dwarf
+
+export interface OriginDef {
+  id: Origin;
+  name: string;
+  race: Race;
+  region: string;
+  description: string;
+  quote: string;
+  statMods: Partial<AdventurerStats>;
+  firstNamesMale: string[];
+  firstNamesFemale: string[];
+  lastNames: string[];
+  backstories: { fighter: string; scholar: string; refugee: string; misfit: string; merchant: string; healer: string };
+}
+
+export const RACE_WEIGHTS: Record<Race, number> = {
+  human: 0.60,
+  elf: 0.15,
+  dwarf: 0.25,
+};
+
+export const RACE_NAMES: Record<Race, string> = {
+  human: "Human",
+  elf: "Elf",
+  dwarf: "Dwarf",
+};
+
+export const ORIGINS: OriginDef[] = [
+  // ── Human Origins ────────────────────────────────────────────
+  {
+    id: "dunhollow", name: "Dunhollow", race: "human",
+    region: "The Dominion Heartlands",
+    description: "Common folk and displaced elite of the Ashenmark Dominion.",
+    quote: "Every Dunhollow settler brought three things south: a plow, a prayer book, and a grudge against their landlord.",
+    statMods: {},
+    firstNamesMale: ["Aldric", "Cedric", "Elwin", "Gareth", "Kael", "Osric", "Quinlan", "Dorian", "Finn", "Henrik", "Nolan", "Pavel", "Wren", "Leif", "Jareth", "Ivar"],
+    firstNamesFemale: ["Brenna", "Daria", "Hilda", "Lyra", "Petra", "Rowena", "Gwen", "Isla", "Kira", "Mira", "Oona", "Rhea", "Talia", "Cora", "Elara", "Ysolde"],
+    lastNames: ["Ashford", "Blackwood", "Coldwell", "Dawnforge", "Emberheart", "Foxglove", "Greystone", "Hawkwind", "Ironbark", "Thornwood", "Underhill", "Valeheart", "Wintermere", "Brightwater", "Copperfield", "Eldergrove"],
+    backstories: {
+      fighter: "A former soldier of the Dominion, discharged after questioning an order. Came south to find a war worth fighting.",
+      scholar: "Studied at the Academy annex before the Inquisition shut it down. Carries banned texts sewn into the lining of a coat.",
+      refugee: "Lost the family farm to Dominion taxes. Came south with nothing but strong hands and a long memory.",
+      misfit: "Third child of a minor noble house — no inheritance, no prospects, and no patience for court politics.",
+      merchant: "Ran a trading post on the King's Road. Left when the Church started inspecting cargo for 'heretical materials.'",
+      healer: "Village healer who was getting too many questions from the Inquisition about where the remedies came from.",
+    },
+  },
+  {
+    id: "nordveld", name: "Nordveld", race: "human",
+    region: "The Thornveil Borderlands",
+    description: "Hardy frontier folk from the cold northwest, Thornveil-adjacent.",
+    quote: "In Nordveld, you either learn to swing an axe by twelve or you don't see thirteen.",
+    statMods: {},
+    firstNamesMale: ["Bjorn", "Tormund", "Leif", "Ragnar", "Soren", "Ulf", "Erik", "Halvard", "Sigurd", "Magnus", "Wulf", "Gunnar"],
+    firstNamesFemale: ["Sigrid", "Freya", "Astrid", "Ingrid", "Thora", "Helga", "Kara", "Runa", "Ylva", "Vara"],
+    lastNames: ["Stormveil", "Ironbark", "Wintermere", "Coldhammer", "Frostwind", "Ravensong", "Stonehelm", "Ashford"],
+    backstories: {
+      fighter: "Former shield-bearer of the Thornveil Rangers. Left when the wards started failing and nobody would admit it.",
+      scholar: "An elder's apprentice who memorized the old sagas. Came south chasing a story that hasn't ended yet.",
+      refugee: "The winters are getting worse. The last one took the livestock and almost took the children. Had to leave.",
+      misfit: "Youngest of seven — no land to inherit, only a blade and a grudge against the cold.",
+      merchant: "Traded furs and amber down the river routes. The routes dried up when the forest started dying.",
+      healer: "A völva — keeper of the old remedies. The Church calls it heresy. The Nordveld call it survival.",
+    },
+  },
+  {
+    id: "meridian", name: "Meridian", race: "human",
+    region: "The Corsair League Coast",
+    description: "Traders, sailors, artisans, and pirates from the sun-drenched Corsair ports.",
+    quote: "A Meridian will stab you with a smile. A Dunhollow man will just stab you.",
+    statMods: {},
+    firstNamesMale: ["Luciano", "Baldassare", "Matteo", "Enzo", "Vittorio", "Dante", "Lorenzo", "Marco"],
+    firstNamesFemale: ["Fiora", "Serafina", "Chiara", "Bianca", "Rosalia", "Alessia", "Valentina", "Isabella"],
+    lastNames: ["Ferraro", "Castellani", "Monteverdi", "Solari", "Veronesi", "Bianchi", "Corsini", "DeLuca"],
+    backstories: {
+      fighter: "Grew up brawling on the docks of Porto Solari. Can fight, sail, and cook — in that order.",
+      scholar: "Apprenticed to a Corsair League cartographer. Maps bore her now — she wants the territory, not the drawing.",
+      refugee: "Watched pirates sink the family fleet. Traded the ledger for a sword and never looked back.",
+      misfit: "Disowned by a merchant family for refusing an arranged marriage. Found freedom tastes better than wine.",
+      merchant: "Ran a spice stall in Saltmere. Came here because a settlement with no guild structure is an open market.",
+      healer: "Nereia's devoted — a ship's surgeon who lost the ship but kept the healing hands.",
+    },
+  },
+  {
+    id: "zahkari", name: "Zah'kari", race: "human",
+    region: "The Sunward Kingdoms",
+    description: "Proud city-states east of the Dominion with deep oral histories and sophisticated governance.",
+    quote: "The Zah'kari don't write their laws — they sing them. Try burning a song.",
+    statMods: {},
+    firstNamesMale: ["Kofi", "Kwame", "Jabari", "Tendai", "Sekou", "Chike", "Emeka", "Olu"],
+    firstNamesFemale: ["Amara", "Nia", "Zuri", "Makena", "Adama", "Fatoumata", "Asha", "Kalista"],
+    lastNames: ["Sunspear", "Lionmane", "Dustwalker", "Ironroot", "Thornshield", "Goldmask", "Stormcaller", "Hearthkeeper"],
+    backstories: {
+      fighter: "Champion of the Zah'kari war games. Came north to find opponents she hasn't already beaten.",
+      scholar: "A griot — keeper of stories. Traveled here following a tale that hasn't ended yet.",
+      refugee: "The droughts pushed his family north. Stayed when they moved on — says this land needs people who know dry seasons.",
+      misfit: "Daughter of a chieftain who wanted to be a painter. Took up the sword only because the road north was dangerous.",
+      merchant: "Traded Zah'kari salt and goldwork across three continents. Says adventuring pays worse but is more honest.",
+      healer: "Herbalist from the savanna plains. Says the northern herbs are weak but 'interesting.'",
+    },
+  },
+  {
+    id: "tianzhou", name: "Tianzhou", race: "human",
+    region: "The Jade Empire",
+    description: "Scholars, strategists, and exiles from a vast continental empire across the eastern sea.",
+    quote: "The Tianzhou sent cartographers first. That means soldiers follow.",
+    statMods: {},
+    firstNamesMale: ["Wei", "Zheng", "Bowen", "Changming", "Feng", "Hao", "Tao", "Jun"],
+    firstNamesFemale: ["Lian", "Mei", "Yuehan", "Xiulan", "Ruoxi", "Jingyi", "Mingzhu", "Shuyin"],
+    lastNames: ["Ironpetal", "Jadecrest", "Mistborne", "Moonridge", "Silkblade", "Stoneriver", "Cloudpeak", "Goldengate"],
+    backstories: {
+      fighter: "Former imperial border guard. Deserted after being ordered to burn a village. Doesn't talk about it.",
+      scholar: "Cartographer mapping the western continent. The adventuring is just a side effect of going where the map is blank.",
+      refugee: "Fled a political purge in the capital. Keeps a low profile. Uses a false name.",
+      misfit: "Failed the imperial examinations three times. Decided the world beyond the sea might have better questions.",
+      merchant: "Silk trader who got swindled in a foreign port. Took up the sword to get the debt back. Stayed for the lifestyle.",
+      healer: "Physician from Tianzhou's medical academies. Came west because a plague here had symptoms she'd never read about.",
+    },
+  },
+  {
+    id: "khorvani", name: "Khor'vani", race: "human",
+    region: "The Amber Crossroads",
+    description: "Mystics, alchemists, and merchants from the desert trade crossroads.",
+    quote: "If a Khor'vani tells you something is priceless, it means they haven't named the price yet.",
+    statMods: {},
+    firstNamesMale: ["Arjun", "Ravi", "Kiran", "Vikram", "Dev", "Amir", "Sanjay", "Rohan"],
+    firstNamesFemale: ["Zahra", "Leila", "Farah", "Nadia", "Yasmin", "Priya", "Soraya", "Dalia"],
+    lastNames: ["Sandweaver", "Duskfire", "Silkwind", "Stargazer", "Goldhand", "Ashveil", "Sunforge", "Emberspice"],
+    backstories: {
+      fighter: "A caravan guard who kept walking after the caravan stopped. Says the horizon here is different.",
+      scholar: "Astronomer who read a star chart that predicted his own death in a 'cold northern ruin.' Came to prove the stars wrong.",
+      refugee: "Fled the desert wars with her family's recipe book. Turns out combat potions sell better than cooking spices.",
+      misfit: "Kicked out of the alchemist's guild for 'unsanctioned experimentation.' The explosion was mostly contained.",
+      merchant: "Spice trader who followed the trade routes north. Where there's a new settlement, there's a new market.",
+      healer: "Trained in the old alchemy — physical processes, not Aether manipulation. The Church can't touch her, and she knows it.",
+    },
+  },
+
+  // ── Elf Origins ──────────────────────────────────────────────
+  {
+    id: "silvaneth", name: "Silvaneth", race: "elf",
+    region: "The Deep Forests",
+    description: "Nature elves, archers, druids. Cities grown from living wood, Thornveil-adjacent.",
+    quote: "The Silvaneth were old when the Dominion was young. They remember a world that worked. That's why they're so sad.",
+    statMods: { dex: 1, wis: 1, str: -1 },
+    firstNamesMale: ["Thalion", "Faenor", "Galadhrim", "Thranduil", "Celeborn", "Earendil", "Aelindor", "Caelith"],
+    firstNamesFemale: ["Aelindra", "Sylvari", "Elowen", "Ithilwen", "Miriel", "Luthien", "Nimloth", "Tinuviel"],
+    lastNames: ["Starweaver", "Moonshadow", "Dawnwhisper", "Leafsong", "Silverbrook", "Nightbloom", "Sunshard", "Mistwalker"],
+    backstories: {
+      fighter: "A Thornveil ranger who's been patrolling the ward-line for sixty years. The wards are failing. She's tired.",
+      scholar: "Studies the slow death of the ancient trees. Each ring tells a story — and the recent ones are frightening.",
+      refugee: "The forest is shrinking. Not from axes — from the inside. The heartwood is going grey.",
+      misfit: "Left the canopy cities out of restlessness. Says the forest feels like a beautiful cage.",
+      merchant: "Traded Silvaneth remedies to Thornveil villages. Came south because the herbs grow stranger near the frontier.",
+      healer: "A keeper of the old groves. Sylvana's dreaming essence still responds to those who tend her trees.",
+    },
+  },
+  {
+    id: "hautsciels", name: "Hauts-Ciels", race: "elf",
+    region: "Mountain-top Ruins Above the Clouds",
+    description: "Scholar-mages, archivists, melancholy nobility living among pre-Sundering ruins.",
+    quote: "The Hauts-Ciels were built to outlast the world. They're starting to wonder if the world will outlast them.",
+    statMods: { int: 1, wis: 1, str: -1 },
+    firstNamesMale: ["Aurelien", "Lucien", "Gaston", "Armand", "Bastien", "Renaud", "Thierry", "Philippe"],
+    firstNamesFemale: ["Celeste", "Eloise", "Vivienne", "Solange", "Giselle", "Adeline", "Margaux", "Colette"],
+    lastNames: ["Feuillemorte", "Boisvert", "Clairdelune", "Fontargent", "Brumesang", "Verdelys", "Aubepine", "Lunargent"],
+    backstories: {
+      fighter: "A spire-guard who watched a library platform fall into the clouds. Came down to find answers before more are lost.",
+      scholar: "Has read every surviving scroll in the upper archives. Descended because the answers aren't up there.",
+      refugee: "The Aether holding the old structures aloft is thinning. Left before the floor gave way.",
+      misfit: "Couldn't bear another century of cataloguing what was lost. Wants to build something new instead of mourning the old.",
+      merchant: "Traded ancient Hauts-Ciels star charts to fund expeditions. Knowledge is currency when you have nothing else.",
+      healer: "Trained in pre-Sundering medical texts that no human academy has seen. The techniques still work — barely.",
+    },
+  },
+
+  // ── Dwarf Origins ────────────────────────────────────────────
+  {
+    id: "khazdurim", name: "Khazdurim", race: "dwarf",
+    region: "The Ironspine Mountains",
+    description: "Deep miners, smiths, engineers. The lowest holds have been sealed against something terrible.",
+    quote: "Ask a Khazdurim about the Deep Seals and watch how fast the conversation ends.",
+    statMods: { str: 1, vit: 1, dex: -1 },
+    firstNamesMale: ["Durin", "Thordak", "Grimjaw", "Balin", "Thorin", "Oin", "Nori", "Bombur"],
+    firstNamesFemale: ["Bruna", "Hilde", "Sigga", "Dagna", "Helka", "Magna", "Gretta", "Svala"],
+    lastNames: ["Stonefist", "Deepforge", "Ironhold", "Hammerfall", "Copperbeard", "Fireaxe", "Goldvein", "Anvilborn"],
+    backstories: {
+      fighter: "The mine collapsed. Everyone else is still down there. Fights because stopping means remembering.",
+      scholar: "A rune-carver who found inscriptions in the deep tunnels that predate the clan records. Needs answers.",
+      refugee: "Was in the lowest hold when they sealed the doors. Won't say what was on the other side.",
+      misfit: "Refused to take the smith's oath. Says there's more to life than hammering the same anvil for two hundred years.",
+      merchant: "Traded Ironspine ore to every kingdom on the continent. The deep veins are thinning. Time to diversify.",
+      healer: "A stone-singer — dwarven tradition of using resonance to mend bone and ease pain. It's not magic. Don't call it magic.",
+    },
+  },
+  {
+    id: "feldgrund", name: "Feldgrund", race: "dwarf",
+    region: "The Rolling Hills, Dominion Midlands",
+    description: "Surface-dwelling dwarves. Brewers, farmers, innkeepers, and natural settlers.",
+    quote: "A Feldgrund dwarf will outdrink you, outfarm you, and then lend you money for the privilege.",
+    statMods: { str: 1, vit: 1, dex: -1 },
+    firstNamesMale: ["Bardin", "Rogar", "Brokk", "Grundy", "Flint"],
+    firstNamesFemale: ["Willa", "Tilda", "Marta", "Hildi", "Dagny"],
+    lastNames: ["Barrelhouse", "Hearthstone", "Alewell", "Meadbrook", "Hillfoot", "Kettleblack"],
+    backstories: {
+      fighter: "Won every bar brawl in three counties. Figured real fighting couldn't be much harder. Was wrong. Stayed anyway.",
+      scholar: "Keeps meticulous brewing logs going back four generations. Says fermentation is 'applied chemistry, not magic.'",
+      refugee: "The Dominion raised taxes on hill-folk again. Easier to move than to argue with a tax collector backed by knights.",
+      misfit: "Every Feldgrund wants to settle down. This one wants to see what's over the next hill. And the next. And the next.",
+      merchant: "Feldgrund ale is famous across the midlands. Came south because new settlements mean thirsty people.",
+      healer: "Grandmother's remedies — poultices, broths, and a firm belief that most wounds heal faster with a stiff drink.",
+    },
+  },
+];
+
+export function getOrigin(id: Origin): OriginDef {
+  return ORIGINS.find((o) => o.id === id)!;
+}
+
+export function getOriginsForRace(race: Race): OriginDef[] {
+  return ORIGINS.filter((o) => o.race === race);
+}
+
+// ─── Backstory Traits ──────────────────────────────────────────
+
+export interface BackstoryTrait {
+  id: string;
+  name: string;
+  flavor: string;
+  description: string;
+  weight: number; // higher = more common
+}
+
+export const BACKSTORY_TRAITS: BackstoryTrait[] = [
+  { id: "demon_hunter", name: "Demon Hunter", flavor: "Survived the Ashland incursions", description: "+5% damage vs demon", weight: 8 },
+  { id: "grave_walker", name: "Grave Walker", flavor: "Grew up near the Barrowfields", description: "+5% damage vs undead & ghost", weight: 8 },
+  { id: "beast_tracker", name: "Beast Tracker", flavor: "Hunted dire wolves as a child", description: "+5% damage vs beast", weight: 10 },
+  { id: "dragonmarked", name: "Dragonmarked", flavor: "Bears a scar from dragonfire", description: "+5% damage vs dragon", weight: 3 },
+  { id: "spirit_sensitive", name: "Spirit Sensitive", flavor: "Can hear whispers from the other side", description: "Can hit ghosts with physical attacks", weight: 5 },
+  { id: "pious_heart", name: "Pious Heart", flavor: "Devoted to the old gods since youth", description: "+5% damage vs demon & divine", weight: 7 },
+  { id: "elemental_attuned", name: "Elemental Attuned", flavor: "Born during a great storm", description: "+5% damage vs elemental", weight: 6 },
+  { id: "iron_will", name: "Iron Will", flavor: "Tortured by bandits and didn't break", description: "+10% resist to fear/taunt", weight: 8 },
+  { id: "survivor", name: "Survivor", flavor: "Has already died once, technically", description: "-15% death chance on failure", weight: 6 },
+  { id: "veteran_campaigner", name: "Veteran Campaigner", flavor: "Served in the Border Wars", description: "+5% damage vs humanoid", weight: 10 },
+  { id: "lucky", name: "Lucky", flavor: "Found a four-leaf clover at age six. Still carries it.", description: "+3% crit chance", weight: 7 },
+  { id: "quick_learner", name: "Quick Learner", flavor: "Reads every book they find", description: "+10% XP gain", weight: 7 },
+];
+
+// ─── Personality Quirks ────────────────────────────────────────
+
+export const PERSONALITY_QUIRKS: string[] = [
+  "Talks to their sword. The sword has a name.",
+  "Refuses to enter a building without knocking first.",
+  "Keeps a tally of every creature killed.",
+  "Hums off-key before every fight. Says it 'centers the spirit.'",
+  "Sleeps with one eye open. Claims it's a learned habit, not paranoia.",
+  "Collects teeth from defeated enemies. Won't explain why.",
+  "Always the last to eat, first to volunteer for watch.",
+  "Writes poetry. Terrible poetry. Reads it aloud to the party.",
+  "Never sits with their back to the door.",
+  "Names every animal they encounter. Gets upset when others don't use the names.",
+  "Whistles the same tune constantly. Nobody knows where it's from.",
+  "Carves a small notch into their weapon after every mission.",
+  "Prays to a different god each morning. Just to cover all the bases.",
+  "Claims to have once arm-wrestled a troll. The details change every telling.",
+  "Keeps a pressed flower in a locket. Won't say who gave it to them.",
+  "Counts everything — stairs, trees, enemies. Everything.",
+];
+
 // ─── Adventurer classes ─────────────────────────────────────────
 
 export type AdventurerClass = "warrior" | "wizard" | "priest" | "archer" | "assassin";
@@ -81,6 +358,11 @@ export interface Adventurer {
   id: string;
   name: string;
   class: AdventurerClass;
+  race: Race;
+  origin: Origin;
+  backstory: string;       // origin story text
+  quirk: string;           // personality quirk text
+  trait: string;           // backstory trait id
   rank: AdventurerRank;
   level: number;
   xp: number;
@@ -141,18 +423,20 @@ export const CLASS_STAT_GROWTH: Record<AdventurerClass, AdventurerStats> = {
 /** Stat points gained per level that player can allocate */
 export const STAT_POINTS_PER_LEVEL = 0; // No manual stat allocation — gear is the main customization
 
-/** Calculate total stats for an adventurer (base + growth + bonus + equipment) */
+/** Calculate total stats for an adventurer (base + growth + origin + bonus + equipment) */
 export function calcStats(adv: Adventurer, equipmentStats?: Partial<AdventurerStats>): AdventurerStats {
   const base = CLASS_BASE_STATS[adv.class];
   const growth = CLASS_STAT_GROWTH[adv.class];
   const bonus = adv.bonusStats;
   const equip = equipmentStats ?? {};
+  const originDef = adv.origin ? getOrigin(adv.origin) : null;
+  const originMods = originDef?.statMods ?? {};
   return {
-    str: Math.floor(base.str + growth.str * (adv.level - 1)) + (bonus.str ?? 0) + (equip.str ?? 0),
-    int: Math.floor(base.int + growth.int * (adv.level - 1)) + (bonus.int ?? 0) + (equip.int ?? 0),
-    dex: Math.floor(base.dex + growth.dex * (adv.level - 1)) + (bonus.dex ?? 0) + (equip.dex ?? 0),
-    vit: Math.floor(base.vit + growth.vit * (adv.level - 1)) + (bonus.vit ?? 0) + (equip.vit ?? 0),
-    wis: Math.floor(base.wis + growth.wis * (adv.level - 1)) + (bonus.wis ?? 0) + (equip.wis ?? 0),
+    str: Math.floor(base.str + growth.str * (adv.level - 1)) + (originMods.str ?? 0) + (bonus.str ?? 0) + (equip.str ?? 0),
+    int: Math.floor(base.int + growth.int * (adv.level - 1)) + (originMods.int ?? 0) + (bonus.int ?? 0) + (equip.int ?? 0),
+    dex: Math.floor(base.dex + growth.dex * (adv.level - 1)) + (originMods.dex ?? 0) + (bonus.dex ?? 0) + (equip.dex ?? 0),
+    vit: Math.floor(base.vit + growth.vit * (adv.level - 1)) + (originMods.vit ?? 0) + (bonus.vit ?? 0) + (equip.vit ?? 0),
+    wis: Math.floor(base.wis + growth.wis * (adv.level - 1)) + (originMods.wis ?? 0) + (bonus.wis ?? 0) + (equip.wis ?? 0),
   };
 }
 
@@ -221,20 +505,10 @@ export function applyXp(adv: Adventurer, xpGain: number): { leveled: boolean; ra
 
 // ─── Name generation ────────────────────────────────────────────
 
-const FIRST_NAMES = [
-  "Aldric", "Brenna", "Cedric", "Daria", "Elwin", "Freya", "Gareth", "Hilda",
-  "Ivar", "Joanna", "Kael", "Lyra", "Magnus", "Nessa", "Osric", "Petra",
-  "Quinlan", "Rowena", "Sigurd", "Thora", "Ulric", "Vara", "Wren", "Ysolde",
-  "Zephyr", "Astrid", "Bjorn", "Cora", "Dorian", "Elara", "Finn", "Gwen",
-  "Henrik", "Isla", "Jareth", "Kira", "Leif", "Mira", "Nolan", "Oona",
-  "Pavel", "Rhea", "Soren", "Talia", "Ulf", "Vanya", "Wulf", "Xara",
-];
-
-const FEMALE_NAMES = new Set([
-  "Brenna", "Daria", "Freya", "Hilda", "Joanna", "Lyra", "Nessa", "Petra",
-  "Rowena", "Thora", "Vara", "Ysolde", "Astrid", "Cora", "Elara", "Gwen",
-  "Isla", "Kira", "Mira", "Oona", "Rhea", "Talia", "Vanya", "Xara",
-]);
+// Build FEMALE_NAMES set from all origin data
+const FEMALE_NAMES = new Set(
+  ORIGINS.flatMap((o) => o.firstNamesFemale)
+);
 
 const CLASS_PORTRAITS: Record<AdventurerClass, { male: string[]; female: string[] }> = {
   warrior: {
@@ -259,23 +533,18 @@ const CLASS_PORTRAITS: Record<AdventurerClass, { male: string[]; female: string[
   },
 };
 
+export function isFemale(name: string): boolean {
+  return FEMALE_NAMES.has(name.split(" ")[0]);
+}
+
 export function getPortrait(name: string, cls: AdventurerClass): string {
   const firstName = name.split(" ")[0];
-  const isFemale = FEMALE_NAMES.has(firstName);
-  const portraits = isFemale ? CLASS_PORTRAITS[cls].female : CLASS_PORTRAITS[cls].male;
+  const female = FEMALE_NAMES.has(firstName);
+  const portraits = female ? CLASS_PORTRAITS[cls].female : CLASS_PORTRAITS[cls].male;
   // Use name hash to pick a consistent portrait
   const hash = firstName.split("").reduce((h, c) => h + c.charCodeAt(0), 0);
   return portraits[hash % portraits.length];
 }
-
-const LAST_NAMES = [
-  "Ashford", "Blackwood", "Coldwell", "Dawnforge", "Emberheart", "Foxglove",
-  "Greystone", "Hawkwind", "Ironbark", "Juniper", "Kettleburn", "Larkstone",
-  "Moonshadow", "Nighthollow", "Oakshield", "Pinefall", "Quicksilver",
-  "Ravenscroft", "Stormveil", "Thornwood", "Underhill", "Valeheart",
-  "Wintermere", "Yarrowfield", "Brightwater", "Copperfield", "Dunmere",
-  "Eldergrove", "Flamecrest", "Goleli", "Hillcrest", "Ivywood",
-];
 
 // Simple seeded random for reproducibility within a session
 let adventurerSeed = Date.now();
@@ -292,8 +561,42 @@ function randomFrom<T>(arr: T[]): T {
   return arr[Math.floor(seededRandom() * arr.length)];
 }
 
+/** Pick a race using weighted probabilities */
+function pickRace(): Race {
+  const roll = seededRandom();
+  if (roll < RACE_WEIGHTS.elf) return "elf";
+  if (roll < RACE_WEIGHTS.elf + RACE_WEIGHTS.dwarf) return "dwarf";
+  return "human";
+}
+
+/** Pick a weighted random backstory trait */
+function pickTrait(): BackstoryTrait {
+  const totalWeight = BACKSTORY_TRAITS.reduce((sum, t) => sum + t.weight, 0);
+  let roll = seededRandom() * totalWeight;
+  for (const trait of BACKSTORY_TRAITS) {
+    roll -= trait.weight;
+    if (roll <= 0) return trait;
+  }
+  return BACKSTORY_TRAITS[BACKSTORY_TRAITS.length - 1];
+}
+
+/** Pick a backstory archetype */
+function pickBackstory(origin: OriginDef): string {
+  const keys = Object.keys(origin.backstories) as (keyof OriginDef["backstories"])[];
+  return origin.backstories[randomFrom(keys)];
+}
+
+/** Generate a name from an origin's name pool */
+function generateOriginName(origin: OriginDef): string {
+  const isMale = seededRandom() > 0.5;
+  const firstNames = isMale ? origin.firstNamesMale : origin.firstNamesFemale;
+  return `${randomFrom(firstNames)} ${randomFrom(origin.lastNames)}`;
+}
+
 export function generateName(): string {
-  return `${randomFrom(FIRST_NAMES)} ${randomFrom(LAST_NAMES)}`;
+  // Legacy fallback — uses Dunhollow pool
+  const origin = getOrigin("dunhollow");
+  return generateOriginName(origin);
 }
 
 // ─── Recruitment ────────────────────────────────────────────────
@@ -320,12 +623,26 @@ export function generateCandidate(id: string, maxRank: AdventurerRank = 2): Adve
   else if (maxRank >= 3 && roll > 0.75) rank = 3;
   else if (maxRank >= 2 && roll > 0.50) rank = 2;
 
+  // Pick race, origin, name, backstory, trait
+  const race = pickRace();
+  const origins = getOriginsForRace(race);
+  const origin = randomFrom(origins);
+  const name = generateOriginName(origin);
+  const backstory = pickBackstory(origin);
+  const quirk = randomFrom(PERSONALITY_QUIRKS);
+  const trait = pickTrait();
+
   // Recruits start just below rank threshold — they're fresh at that rank
   const level = Math.max(1, RANK_LEVEL_THRESHOLDS[rank] - 1);
   return {
     id,
-    name: generateName(),
+    name,
     class: randomFrom(ADVENTURER_CLASSES).id,
+    race,
+    origin: origin.id,
+    backstory,
+    quirk,
+    trait: trait.id,
     rank,
     level,
     xp: 0,

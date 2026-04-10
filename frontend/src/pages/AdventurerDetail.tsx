@@ -13,6 +13,9 @@ import {
   type AdventurerClass,
   type AdventurerStats,
   getPortrait,
+  getOrigin,
+  RACE_NAMES,
+  BACKSTORY_TRAITS,
 } from "~/data/adventurers";
 import { getItem, getItemsForSlot, getEquipmentStats, ITEMS, type ItemSlot, isSupplyItem } from "~/data/items";
 
@@ -102,12 +105,17 @@ export default function AdventurerDetail() {
                 <div>
                   <h1 class="page-title" style={{ "margin-bottom": "2px" }}>{adv().name}</h1>
                   <div style={{ "font-size": "0.9rem", color: "var(--text-secondary)" }}>
-                    {cls().name} ·{" "}
+                    {adv().race ? RACE_NAMES[adv().race] : ""} {cls().name} ·{" "}
                     <span style={{ color: RANK_COLORS[adv().rank] }}>
                       {RANK_NAMES[adv().rank]}
                     </span>
                     {" "}· Level {adv().level}
                   </div>
+                  <Show when={adv().origin}>
+                    <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-top": "2px" }}>
+                      {getOrigin(adv().origin)?.name} — {getOrigin(adv().origin)?.region}
+                    </div>
+                  </Show>
                   {adv().onMission && (
                     <div style={{ "font-size": "0.85rem", color: "var(--accent-blue)", "margin-top": "4px" }}>
                       Currently on a mission
@@ -115,6 +123,47 @@ export default function AdventurerDetail() {
                   )}
                 </div>
               </div>
+
+              {/* Lore Card */}
+              <Show when={adv().backstory}>
+                {(() => {
+                  const traitDef = () => BACKSTORY_TRAITS.find((t) => t.id === adv().trait);
+                  return (
+                    <div style={{
+                      "margin-bottom": "20px",
+                      padding: "12px 14px",
+                      background: "var(--bg-secondary)",
+                      "border-radius": "8px",
+                      "border-left": "3px solid var(--text-muted)",
+                    }}>
+                      <div style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "font-style": "italic", "margin-bottom": "6px" }}>
+                        "{adv().backstory}"
+                      </div>
+                      <Show when={adv().quirk}>
+                        <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-bottom": "8px" }}>
+                          {adv().quirk}
+                        </div>
+                      </Show>
+                      <Show when={traitDef()}>
+                        <div style={{
+                          display: "inline-block",
+                          padding: "3px 8px",
+                          "border-radius": "4px",
+                          background: "rgba(167, 139, 250, 0.1)",
+                          border: "1px solid rgba(167, 139, 250, 0.25)",
+                          "font-size": "0.8rem",
+                        }}>
+                          <span style={{ color: "#a78bfa", "font-weight": "bold" }}>{traitDef()!.name}</span>
+                          <span style={{ color: "var(--text-secondary)", "margin-left": "6px" }}>{traitDef()!.description}</span>
+                        </div>
+                        <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "3px", "font-style": "italic" }}>
+                          "{traitDef()!.flavor}"
+                        </div>
+                      </Show>
+                    </div>
+                  );
+                })()}
+              </Show>
 
               {/* XP Bar */}
               <div style={{

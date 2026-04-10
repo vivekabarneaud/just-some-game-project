@@ -3,6 +3,11 @@
 // Enemy HP = VIT * 10. Natural armor = VIT / 3.
 // Designed so unequipped adventurers struggle; gear makes the difference.
 
+export type EnemyTag =
+  | "humanoid" | "beast" | "undead" | "ghost" | "demon" | "divine" | "dragon"
+  | "elemental_fire" | "elemental_water" | "elemental_earth" | "elemental_wind" | "elemental_aether"
+  | "magical";
+
 export interface EnemyDefinition {
   id: string;
   name: string;
@@ -17,7 +22,7 @@ export interface EnemyDefinition {
     vit: number;
     wis: number;
   };
-  tags: string[]; // "undead", "beast", "humanoid", "magical", "demon"
+  tags: EnemyTag[];
   boss?: boolean;
 }
 
@@ -116,7 +121,7 @@ export const ENEMIES: EnemyDefinition[] = [
     description: "A restless soul bound to this place by old grief. Its wail chills the blood.",
     tier: 2,
     stats: { str: 4, dex: 8, int: 16, vit: 14, wis: 10 },
-    tags: ["undead", "magical"],
+    tags: ["ghost", "magical"],
   },
 
   // ── Tier 3 — Dangerous foes ───────────────────────────────────
@@ -148,7 +153,7 @@ export const ENEMIES: EnemyDefinition[] = [
     description: "Not quite alive, not quite dead. Steel passes through it — you need silver or faith.",
     tier: 3,
     stats: { str: 10, dex: 12, int: 20, vit: 16, wis: 14 },
-    tags: ["undead", "magical"],
+    tags: ["ghost", "magical"],
   },
   {
     id: "troll",
@@ -161,6 +166,56 @@ export const ENEMIES: EnemyDefinition[] = [
     boss: true,
   },
 
+  // ── Tier 3 — Elemental threats ──────────────────────────────
+  {
+    id: "flame_wisp",
+    name: "Flame Wisp",
+    icon: "🔥",
+    description: "A dancing mote of living fire. Small, but it sets everything it touches ablaze.",
+    tier: 3,
+    stats: { str: 14, dex: 18, int: 16, vit: 14, wis: 6 },
+    tags: ["elemental_fire", "magical"],
+  },
+  {
+    id: "stone_golem",
+    name: "Stone Golem",
+    icon: "🗿",
+    description: "A hulk of animated granite. It doesn't think, doesn't feel, and doesn't stop walking forward.",
+    tier: 3,
+    stats: { str: 28, dex: 2, int: 1, vit: 32, wis: 1 },
+    tags: ["elemental_earth"],
+    boss: true,
+  },
+  {
+    id: "storm_sprite",
+    name: "Storm Sprite",
+    icon: "⚡",
+    description: "A crackling ball of wind and lightning. Arrows pass through it. Swords find only air.",
+    tier: 3,
+    stats: { str: 6, dex: 24, int: 14, vit: 10, wis: 8 },
+    tags: ["elemental_wind", "magical"],
+  },
+  {
+    id: "tide_serpent",
+    name: "Tide Serpent",
+    icon: "🌊",
+    description: "Born from stagnant river-Aether. Its body flows like water because it is water.",
+    tier: 3,
+    stats: { str: 16, dex: 14, int: 12, vit: 20, wis: 8 },
+    tags: ["elemental_water", "magical"],
+  },
+
+  // ── Tier 3 — Ghost threats ────────────────────────────────────
+  {
+    id: "wailing_phantom",
+    name: "Wailing Phantom",
+    icon: "👻",
+    description: "The boundary is thin here. This one remembers how it died — and wants you to share the experience.",
+    tier: 3,
+    stats: { str: 8, dex: 14, int: 22, vit: 12, wis: 16 },
+    tags: ["ghost"],
+  },
+
   // ── Tier 4 — Elite threats ────────────────────────────────────
   // Require level 10-15 with good gear. Full party required.
   {
@@ -170,7 +225,7 @@ export const ENEMIES: EnemyDefinition[] = [
     description: "Only a year old and already deadly. Its breath singes stone. Imagine the mother.",
     tier: 4,
     stats: { str: 24, dex: 12, int: 16, vit: 30, wis: 10 },
-    tags: ["beast", "magical"],
+    tags: ["dragon", "magical"],
     boss: true,
   },
   {
@@ -192,6 +247,46 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 22, dex: 16, int: 14, vit: 24, wis: 12 },
     tags: ["demon", "magical"],
   },
+  {
+    id: "magma_golem",
+    name: "Magma Golem",
+    icon: "🌋",
+    description: "Stone and fire fused into a walking furnace. The ground melts where it treads.",
+    tier: 4,
+    stats: { str: 30, dex: 4, int: 8, vit: 34, wis: 4 },
+    tags: ["elemental_fire", "elemental_earth"],
+    boss: true,
+  },
+  {
+    id: "aether_wraith",
+    name: "Aether Wraith",
+    icon: "✨",
+    description: "Pure crystallized magic given form. Spells dissolve against it. Only steel and fists will do.",
+    tier: 4,
+    stats: { str: 12, dex: 20, int: 28, vit: 20, wis: 18 },
+    tags: ["elemental_aether", "magical"],
+    boss: true,
+  },
+  {
+    id: "temple_guardian",
+    name: "Temple Guardian",
+    icon: "⚜️",
+    description: "A corrupted divine sentinel, still guarding a shrine whose god sleeps. It doesn't know the war is over.",
+    tier: 4,
+    stats: { str: 26, dex: 10, int: 18, vit: 28, wis: 22 },
+    tags: ["divine", "magical"],
+    boss: true,
+  },
+  {
+    id: "banshee",
+    name: "Banshee",
+    icon: "💀",
+    description: "Her scream kills. Not metaphorically. The sound stops hearts. Spirit-touched weapons or don't bother.",
+    tier: 4,
+    stats: { str: 4, dex: 16, int: 28, vit: 18, wis: 20 },
+    tags: ["ghost", "magical"],
+    boss: true,
+  },
 
   // ── Tier 5 — Legendary ────────────────────────────────────────
   // Require level 18+ fully geared elite party. Expect casualties.
@@ -202,7 +297,7 @@ export const ENEMIES: EnemyDefinition[] = [
     description: "A thousand years of hunger, rage, and fire. Kingdoms have fallen to lesser dragons.",
     tier: 5,
     stats: { str: 40, dex: 14, int: 22, vit: 50, wis: 16 },
-    tags: ["beast", "magical"],
+    tags: ["dragon", "magical"],
     boss: true,
   },
   {
@@ -213,6 +308,26 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 5,
     stats: { str: 28, dex: 18, int: 35, vit: 38, wis: 24 },
     tags: ["demon", "magical"],
+    boss: true,
+  },
+  {
+    id: "seraph_fallen",
+    name: "Fallen Seraph",
+    icon: "👼",
+    description: "Once a fragment of divine will. Now corrupted, weeping light and fury. It still believes it's righteous.",
+    tier: 5,
+    stats: { str: 32, dex: 16, int: 30, vit: 36, wis: 28 },
+    tags: ["divine", "magical"],
+    boss: true,
+  },
+  {
+    id: "aether_colossus",
+    name: "Aether Colossus",
+    icon: "💠",
+    description: "A towering construct of pure crystallized Aether. Magic is meaningless against it. Bring hammers.",
+    tier: 5,
+    stats: { str: 20, dex: 8, int: 38, vit: 44, wis: 26 },
+    tags: ["elemental_aether"],
     boss: true,
   },
 ];

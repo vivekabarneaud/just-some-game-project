@@ -13,6 +13,9 @@ import {
   getMissionXp,
   getUnspentStatPoints,
   getPortrait,
+  getOrigin,
+  RACE_NAMES,
+  BACKSTORY_TRAITS,
   type Adventurer,
   type AdventurerRank,
 } from "~/data/adventurers";
@@ -1108,15 +1111,43 @@ export default function AdventurersGuild() {
                     </div>
                     <div class="adv-card-content">
                       <div class="building-card-title">{candidate.name}</div>
-                      <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-bottom": "4px" }}>
-                        {cls.name} · Lv.{candidate.level}
+                      <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-bottom": "2px" }}>
+                        {candidate.race ? `${RACE_NAMES[candidate.race]} ` : ""}{cls.name} · Lv.{candidate.level}
                       </div>
-                      <div style={{
-                        "font-size": "0.75rem",
-                        color: "var(--text-muted)",
-                      }}>
-                        {cls.passive.name}: {cls.passive.description}
-                      </div>
+                      <Show when={candidate.origin}>
+                        <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-bottom": "4px" }}>
+                          {getOrigin(candidate.origin)?.name} — {getOrigin(candidate.origin)?.region}
+                        </div>
+                      </Show>
+                      <Show when={candidate.backstory}>
+                        <div style={{ "font-size": "0.7rem", color: "var(--text-secondary)", "font-style": "italic", "margin-bottom": "4px" }}>
+                          "{candidate.backstory}"
+                        </div>
+                      </Show>
+                      <Show when={candidate.trait} fallback={
+                        <div style={{ "font-size": "0.75rem", color: "var(--text-muted)" }}>
+                          {cls.passive.name}: {cls.passive.description}
+                        </div>
+                      }>
+                        {(() => {
+                          const traitDef = () => BACKSTORY_TRAITS.find((t) => t.id === candidate.trait);
+                          return (
+                            <Show when={traitDef()}>
+                              <div style={{
+                                display: "inline-block",
+                                padding: "2px 6px",
+                                "border-radius": "3px",
+                                background: "rgba(167, 139, 250, 0.1)",
+                                border: "1px solid rgba(167, 139, 250, 0.2)",
+                                "font-size": "0.7rem",
+                              }}>
+                                <span style={{ color: "#a78bfa", "font-weight": "bold" }}>{traitDef()!.name}</span>
+                                <span style={{ color: "var(--text-muted)", "margin-left": "4px" }}>{traitDef()!.description}</span>
+                              </div>
+                            </Show>
+                          );
+                        })()}
+                      </Show>
                     <div style={{ "margin-top": "8px" }}>
                       <button
                         class="upgrade-btn"

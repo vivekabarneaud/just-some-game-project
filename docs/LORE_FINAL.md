@@ -52,17 +52,30 @@ The Sundering was not a spell. It was not a ritual. It was a **war among gods.**
 
 Netheron turned against the Six. The battle tore the fabric of reality. Mountains cracked. Seas boiled. The sky went dark. The great civilization that had flourished under the Court's guidance was annihilated — caught in the crossfire of forces beyond mortal comprehension.
 
-When it ended, all seven deities were destroyed. Not killed. Not banished. **Fragmented.** Their consciousness shattered into countless pieces, scattered across the world, embedded in sacred places, ancient artifacts, and the living land itself.
+When it ended, the Seven did not share the same fate.
 
-Netheron fell. Whether the Six killed him, or he chose to die, or the sheer violence of the battle destroyed them all — the truth was lost with them.
+**The Six shattered and went dormant.** The effort of destroying Netheron broke them too. Their consciousness fragmented, scattering into the land, sea, sky, and stone. They are not dead — they are *sleeping*, their essence passively sustaining their domains:
 
-The world survived. Barely. And the long silence began.
+- Sylvana's fragments are in every forest, every seed, every turning season. The seasons continue because she is still there, dreaming in the roots.
+- Ferros is in the ore veins, the mountains, the volcanic heat. Metal forms because he sleeps in the stone.
+- Nereia is in the tides, the rivers, the rain cycle.
+- Solara is in the sunlight, the warmth, the stars.
+- Korrath lingers in the instinct to protect, in the courage that rises unbidden. More abstract than the others, but present.
+- Lunara is in the Aether itself — which is why magic still functions, though less reliably and less powerfully than before.
+
+The world runs on autopilot. It is degraded — seasons are harsher, the Aether is thinner, nature less abundant — but the basic systems function because the Six are still *present*, merely unconscious.
+
+**Netheron is the one who truly died.** The Six didn't just defeat him. They killed him. Fully, completely, irreversibly — or so they believed. His consciousness was not scattered into dormancy. It was destroyed. What leaked out was his *essence* — the raw stuff of death itself, without a mind to direct it, without purpose or intelligence. A divine corpse, rotting into the earth.
+
+This is the fundamental asymmetry that shapes the world: six sleeping gods and one dead one. The Six could theoretically be awakened. Netheron cannot be woken because there is nothing left to wake.
 
 ### What the Sundering Left Behind
 
-The old kingdom was gone. The academies crumbled. The great temples fell. Millions were dead. The survivors were left in a broken world with no gods, no government, and no understanding of what had happened.
+The old kingdom was gone. The academies crumbled. The great temples fell. Millions were dead. The survivors were left in a broken world with no functioning gods, no government, and no understanding of what had happened.
 
-At the epicenter of the divine war — the place where Netheron's power was most concentrated — the land was scarred beyond recognition. The earth was blackened. Vegetation died. The air itself felt wrong. This place would come to be known as the **Hollow Wastes.**
+**The elves suffered most of all.** The firstborn race, created by the gods before any other civilization, had been truly immortal — their endless lifespan sustained by the complete Aether cycle, all seven divine functions in harmony. When Netheron died and the cycle broke, that immortality shattered. Every elf alive felt it — a sudden, horrifying awareness of their own mortality. The eldest, who had lived for millennia sustained by the Aether's flow, aged and withered within years. Centuries of life caught up to them all at once. The elves call this **Le Déclin** — the mass death that followed the Sundering, when the immortals learned what "once" means. It was a near-extinction. The elves alive today are all post-Sundering generations. They still live long — 300 to 500 years, thanks to residual Aether affinity in their biology — but they are not immortal. They are a diminished echo of what they were. And their scholars have noticed a quiet, terrifying trend in the archives: each generation lives *slightly shorter* than the last.
+
+At the epicenter of the divine war — the place where Netheron's essence was most concentrated — the land was scarred beyond recognition. The earth was blackened. Vegetation died. The air itself felt wrong. This is not a sleeping god's dream. This is a dead god's corpse, leaking. This place would come to be known as the **Hollow Wastes.**
 
 For thousands of years, the Wastes sat there — a fixed, stable dead zone. Dangerous, but it didn't grow. People avoided it the way they'd avoid a volcanic crater. Common knowledge across the world was that the Wastes were distant, static, and not worth worrying about.
 
@@ -78,7 +91,9 @@ Netheron had maintained the boundary between the world of the living and the wor
 
 But slowly, inevitably, the cracks spread.
 
-Without Netheron to recycle the Aether released by death, dead Aether began to **stagnate**. It pooled in the earth, in the water, in the air. It accumulated, thickened, and rotted. The Hollow Wastes — already scarred from the divine war — became a place where this stagnant Aether concentrated most densely. The boundary between the living and the dead grew thinnest there.
+The other six gods' functions continue passively because they are dormant, not dead — their essence still permeates the world, sustaining nature, the seas, the forge-heat, the Aether. But Netheron's function has *no one performing it*, not even on autopilot. The death-cycle is not degraded. It is *absent.*
+
+Without Netheron to recycle the Aether released by death, dead Aether began to **stagnate**. It pooled in the earth, in the water, in the air. It accumulated, thickened, and rotted. The Hollow Wastes — already scarred from the divine war, already saturated with Netheron's leaking essence — became a place where this stagnant Aether concentrated most densely. The boundary between the living and the dead grew thinnest there.
 
 Roughly 150 to 200 years ago, the damage reached a tipping point. The Wastes began to **expand.**
 
@@ -203,35 +218,95 @@ But they're imperfect. Unfinished. Nobody knows what a dragon actually is or wha
 
 The factions see them very differently:
 
-- **Halldora** wants to study them. She believes they might be capable of performing fragments of Netheron's function — imperfect death-shepherds.
+- **Halldora** wants to study them. She believes they might be capable of performing fragments of Netheron's function — imperfect death-shepherds. This could be the missing piece she has searched for across millennia.
 - **The Thornveil** senses the Aether within them and believes they could strengthen the Primal ward network.
 - **The Cult** sees them as evidence that Netheron's essence is trying to reconstitute itself — to them, the dragons are sacred.
 - **The Church** considers them abominations — concentrations of the very energy that's killing the world. They want them destroyed.
 - **Varek** fears them. If dragons can process dead Aether — if they can restore even a fragment of the boundary — his power weakens.
+- **The Hauts-Ciels elves** wonder: if the death-cycle is restored, would elven immortality return? Some hope. Some fear the answer.
 
 The truth is unknown. The dragon's nature will emerge through how it is raised.
+
+### The Dormant Gods and the Shrines
+
+The Six are not gone — they are dreaming. Their essence permeates the world, passively sustaining their domains. Occasionally, that essence *stirs.*
+
+When a mortal builds a shrine and makes an offering, the dormant god's essence resonates with the devotion — like a sleeping person mumbling in response to a voice. The blessing that follows is not a conscious act. It is a reflex. A dream-twitch. The shrines are, in effect, alarm clocks that don't quite work.
+
+But each offering, each prayer, each act of genuine devotion sends a ripple into the dormant essence. Over time, across thousands of shrines and millions of prayers, could the Six be awakened? Halldora believes yes — but she also believes that waking the Six without restoring the death-cycle first would be catastrophic. Six conscious gods and a still-broken boundary would be worse than six sleeping gods and a slowly failing one. The system needs all seven. Six out of seven is not enough.
 
 ---
 
 ## Part VI: The People Who Shape the World
 
-### Halldora — The Last Witness
+### Halldora — The Woman Who Understood Too Late
 
-Before the Sundering, Halldora was the youngest Archmagus in the history of the Academy of the Aether. She was brilliant, ambitious, and deeply attuned to the currents of power that flowed through the Eternal Court.
+Before the Sundering, Halldora was the youngest Archmagus in the history of the Academy of the Aether — and the only scholar studying a field that everyone else considered pointless: **divine infrastructure.** While hundreds of researchers (many of them elves) studied practical Aether applications — enchantments, wards, elemental theory, healing — Halldora was mapping how the seven deities' functions mechanically sustained reality. What happens to Aether when something dies? How does the death-cycle connect to the life-cycle? What is the load-bearing structure underneath the world?
 
-She saw it coming.
+It was considered a fringe, almost eccentric specialty. Like studying the foundations of a building everyone assumed was eternal.
 
-Not the specifics — no mortal could have predicted the exact form of the Sundering. But she recognized the signs: Netheron's growing isolation, the fractures forming between the deities, the dangerous instability building in the divine order. She published papers. She warned the Academy. She petitioned the Court.
+She did not predict the Sundering. Nobody did. Nobody could have.
 
-Nobody listened. A mortal warning gods about their own destruction was, to them, beneath consideration.
+### The Sundering and the Academy
 
-When it became clear that catastrophe was inevitable, Halldora made a choice. If she couldn't prevent the Sundering, she would survive it. She performed a forbidden ritual — one that broke every law of the Academy — binding her lifespan to the Aether itself. As long as the Aether flows through the world, Halldora lives. But the binding is a slow drain. She's been paying the cost for thousands of years. Her body is frail, her hands tremble, her eyes are clouded. Her mind remains razor-sharp.
+The divine war struck the world without warning. The Academy of the Aether — the greatest center of learning in the old civilization — was close to the epicenter. The devastation was immense. Many scholars died in the initial cataclysm, human and elf alike. The institution was destroyed. The great libraries burned or crumbled.
 
-She chose to outlive everyone she ever knew, because she believed she was the only one who could eventually understand what happened and find a way to fix it. That's arrogance and sacrifice in equal measure. And after thousands of years, she still hasn't found the answer.
+Halldora survived. Not through foresight or preparation — through luck, proximity to a ward-structure, the chaos of the moment. She crawled from the wreckage into a broken world. The gods were gone. The Academy was rubble. The elves were dying — Le Déclin had begun, their immortality unraveling as the Aether cycle shattered. Civilization was collapsing around her.
 
-She operates from a hidden sanctum, communicating through ravens and coded messages. She tests Free Settlements she finds promising — sending gifts, maps, and cryptic guidance. She's looking for capable, independent people who can be her hands in a world she's too old to walk.
+But Halldora's mind — the mind that had spent years mapping divine infrastructure while everyone else studied practical magic — immediately understood what others could not: **the scar wasn't stable.**
 
-She is the only living being who witnessed the Sundering. She remembers the gods. She remembers Netheron before the madness took him. She carries the guilt of an entire civilization that took death for granted.
+### What Halldora Saw
+
+In the aftermath, the Hollow Wastes appeared at the epicenter of the divine war — a blackened, dead zone where Netheron's essence had concentrated. It was horrible, but it seemed *contained.* A fixed wound. A volcanic crater to be avoided and forgotten.
+
+Everyone else accepted this. The survivors had more immediate concerns — rebuilding, governing, mourning. The scar wasn't moving. It wasn't growing. It was just *there.* Over the centuries and millennia that followed, the Wastes became background knowledge. A dangerous place on old maps. A cautionary tale. Harmless.
+
+Halldora knew better. Her understanding of divine infrastructure told her that the Aether cycle was broken — not damaged, not weakened, but fundamentally incomplete. Netheron's function was gone. Dead Aether was accumulating with no way to be recycled. The math was simple and terrifying: the stagnation would reach a critical threshold. It might take centuries. It might take millennia. But the scar *would* grow, and when it started, it would not stop.
+
+She tried to warn people. She published what remained of her research. She sought audiences with the emerging powers — the warlords who would become the Dominion, the elven survivors regrouping in the forests and mountains, the druids who would form the Thornveil.
+
+Nobody listened. The scar wasn't moving. The world had bigger problems. A scholar warning about a theoretical future catastrophe was easy to ignore — especially when the catastrophe was centuries away. "It hasn't moved in three hundred years. You're being paranoid."
+
+### The Ritual
+
+Halldora was human. She was aging. And she was the only person alive who understood what was coming — not because she was uniquely brilliant (though she was), but because she was the only person who had studied the one field that mattered now, and everyone else who had studied it was dead.
+
+She could not die before finding a solution. The knowledge would die with her. Nobody else could see what she saw.
+
+So she performed a forbidden ritual — one that broke every law of the destroyed Academy — binding her lifespan to the Aether itself. As long as the Aether flows through the world, Halldora lives. The cost is immense. The binding is a slow drain on her body. Her hands tremble. Her eyes are clouded. Her body is frail and aged beyond recognition. Her mind remains razor-sharp.
+
+The binding also gave her something no other being possesses: a direct, physical connection to the Aether's flow. She can *feel* the boundary thinning the way you would feel a draft through a cracked wall. She can sense the stagnant dead Aether pooling underground. She felt the moment, roughly 150 years ago, when the Wastes began to expand — a sensation she describes as "the world exhaling and not breathing back in."
+
+The ritual made her a criminal. The Ashenmark Dominion — and later the Church of the Radiant One through the Doctrine of Silence — considers her practice of forbidden magic a capital offense. She is **actively wanted** by the Dominion. The Inquisition has standing orders to capture her. She has been hiding for centuries — old, frail, weak, alone, conducting her research in secret sanctums, communicating through ravens and coded messages, staying one step ahead of the people she is trying to save.
+
+### What Halldora Knows — and Doesn't Know
+
+Across millennia of research, Halldora has accumulated vast understanding of the problem:
+
+- **What went wrong:** The mechanics of the Aether cycle and why Netheron's true death — not dormancy like the Six, but genuine, irreversible death — broke the boundary between worlds.
+- **What needs to happen:** The death-cycle must be restored for the world to heal.
+- **Why the Six being dormant is not enough:** Six out of seven divine functions running on autopilot cannot sustain the world indefinitely. The system needs all seven.
+- **Why nobody else sees this:** Because nobody else studied divine infrastructure. The elves have vast archives describing the world *as it was* — like having a car manual when what you need is instructions for rebuilding an engine from wreckage. The elves documented the functional world beautifully. Nobody documented how to rebuild a dead god because it had never happened.
+
+She has found *pieces* over the millennia. Fragments of understanding. Partial theories. Dead ends that narrowed the search. She knows more about the boundary between life and death than any being who has ever existed. But the final answer — **how to actually restore the death-cycle** — still eludes her.
+
+She is not hoarding a solution. She does not have one. That is her tragedy: she sacrificed her mortality, her freedom, her place in the world, and thousands of years of her life to find an answer. She hasn't found it.
+
+Now she is running out of time. The Wastes are accelerating. Her body is failing despite the binding. And the Inquisition is closing in. She needs someone she can **trust** — someone capable, independent, and brave enough to carry her research forward if she falls. Someone who can go where she cannot, access knowledge she's been denied, and perhaps find the missing piece in the dragons, in the Hauts-Ciels archives, in the Cult's forbidden rituals, or in something nobody has yet imagined.
+
+That is why she watches the Free Settlements. That is why she sends ravens.
+
+### Halldora and the Hauts-Ciels
+
+The elves and Halldora need each other, and neither side will admit it.
+
+Halldora has the theoretical framework for understanding the boundary — the only working model of divine infrastructure that exists. The Hauts-Ciels elves have millennia of practical Aether knowledge, archives, and magical resources accumulated across post-Sundering generations.
+
+But between them lies a bitter divide. The elven Archmagi of the old Academy dismissed Halldora's field of study before the Sundering. After the Sundering, as Le Déclin killed every immortal elf, the surviving generations inherited a cultural resentment: this human outlived their ancestors through forbidden magic while their people lost eternity. Some see her as a thief who stole what should have been theirs — immortality. Others simply cannot forgive that a human was right when elves were wrong.
+
+Halldora, for her part, has spent thousands of years being ignored, hunted, and dismissed. She has little patience left for elven pride.
+
+Bringing them together — overcoming millennia of mutual resentment so that Halldora's theory and the Hauts-Ciels' resources can combine — may be one of the great challenges of the late game.
 
 ### The Ashenmark Dominion
 
@@ -239,9 +314,9 @@ She is the only living being who witnessed the Sundering. She remembers the gods
 
 The largest and oldest surviving kingdom, founded over five centuries ago when the Ashford dynasty overthrew Varek and united his conquered territories under gentler — but still authoritarian — rule. The Dominion has had centuries to build deep traditions, a complex bureaucracy, established nobility, and the weight of genuine history.
 
-The **Church of the Radiant One** grew alongside the Dominion as a shared cultural evolution. It teaches that the six benevolent deities were aspects of a single supreme god — the Radiant One — and that the Sundering was divine punishment. The Church funds hospitals and schools, but enforces the Doctrine of Silence through the Inquisition.
+The **Church of the Radiant One** grew alongside the Dominion as a shared cultural evolution. It teaches that the six benevolent deities were aspects of a single supreme god — the Radiant One — and that the Sundering was divine punishment. The Church teaches that the Radiant One will return when mortals prove worthy — and they are half right. The Six *are* dormant, not dead, and could theoretically be awakened. But the Church refuses to acknowledge that Netheron is needed too. The Church funds hospitals and schools, but enforces the Doctrine of Silence through the Inquisition.
 
-The Church has a deeper problem it cannot face: accepting that Netheron — the god of death — was essential and necessary would unravel their entire monotheistic theology. They built their religion on the idea that the Radiant One is the only god that matters. Admitting they need the god of death would destroy them. So they'd rather let the world burn than admit they're wrong. This isn't cruelty — it's theological pride so deep it's become existential.
+The Church has a deeper problem it cannot face: accepting that Netheron — the god of death — was essential and necessary would unravel their entire monotheistic theology. They built their religion on the idea that the Radiant One is the only god that matters. Admitting they need the god of death — admitting that the Six *killed* Netheron and that this act is the root cause of the world's decay — would destroy them. So they'd rather let the world burn than admit they're wrong. This isn't cruelty — it's theological pride so deep it's become existential.
 
 The **Order of the Dawn** is the Dominion's elite military-religious force: Dawn Knights (heavy cavalry), Paladins (warrior-priests), and Inquisitors (enforcers of the Doctrine of Silence).
 
@@ -258,7 +333,9 @@ The **Order of the Dawn** is the Dominion's elite military-religious force: Dawn
 
 A coalition of forest clans and druid circles in the northwest. Governed by the Circle of Elders. Masters of Primal magic.
 
-They maintain an ancient network of Primal wards — but these wards aren't just energy barriers. They're **performing Netheron's function.** Through funeral rites, soul-guiding rituals, and constant communion with the Aether, the Thornveil manually does what the god of death once did automatically: recycling dead Aether, helping souls cross over, maintaining the boundary. It's exhausting. It's imperfect. And it's slowly failing as the damage outpaces their ability to manage it.
+They maintain an ancient network of Primal wards — but these wards aren't just energy barriers. They're **performing Netheron's function.** Through funeral rites, soul-guiding rituals, and constant communion with the Aether, the Thornveil manually does what the god of death once did automatically: recycling dead Aether, helping souls cross over, maintaining the boundary. Their work is aided, in part, by Sylvana's dormant essence — her Primal magic cooperates with their rituals instinctively, a sleeping god's dream responding to those who tend her forests. But on the death side, there is no dormant essence to tap into. Netheron is not sleeping. He is gone. That is why maintaining the boundary is so exhausting — they are doing it with no divine help at all.
+
+It's imperfect. And it's slowly failing as the damage outpaces their ability to manage it.
 
 The Cult would tell them: "You're doing Netheron's job badly. Let us bring him back and he'll do it properly."
 
@@ -282,7 +359,7 @@ Coastal city-states ruled by merchants and pirates. No ideology except profit. T
 
 The Cult's philosophy has evolved over millennia. In the early centuries after the Sundering, they were a fringe group who defended Netheron's reputation. As the Wastes began to spread, they became urgent. Now they are fanatics — not because they worship chaos, but because they believe they have the **only viable solution.**
 
-They are trying to **reassemble Netheron.** Through Hollow magic rituals, they attempt to gather and fuse his scattered fragments. They believe that restoring the god of death is the only way to fix the broken boundary and stop the Wastes.
+They are trying to **resurrect Netheron.** Not wake a sleeping god — the Six are sleeping, and the Church can dream of waking them. Netheron is *dead.* Resurrection is a fundamentally different and far more extreme undertaking. Through Hollow magic rituals, the Cult attempts to gather and fuse his scattered essence — the raw death-energy leaking from his divine corpse. They believe that restoring the god of death is the only way to fix the broken boundary and stop the Wastes.
 
 They might be right. But their methods are devastating. Each ritual destabilizes the Aether further, causing the Wastes to surge in the short term. Every failed attempt makes things temporarily worse. People die. Settlements are overrun. The Cult considers this an acceptable cost.
 
@@ -310,17 +387,21 @@ Faction alignment isn't a choice you make at the start — it's a consequence of
 
 The world of the Shattered Realm is built on questions that have no easy answers:
 
-**Can death be fixed?** Netheron is gone. His function is unperformed. The boundary is failing. Can mortals find a way to restore the cycle? Can the Cult actually reassemble a god? Should they?
+**Can death be fixed?** Netheron is not dormant like the Six. He is dead. Truly dead. His function is unperformed. The boundary is failing. Can a dead god be resurrected? Can the dragons serve as imperfect replacements? Can mortals find an answer that has eluded Halldora for millennia?
 
-**What are the dragons?** Born from the broken boundary, made of stagnant dead Aether, possibly capable of performing fragments of Netheron's function. They might be the answer. They might be another disaster. Nobody knows.
+**Can the Six be awakened?** The dormant gods sustain the world passively, but their functions are degrading. Could they be woken — and should they be, before the death-cycle is restored? Halldora warns that six conscious gods without a functioning boundary would be catastrophic. But the Church dreams of it.
 
-**Is the Cult right?** Their methods are horrific. Their short-term impact is devastating. But if restoring Netheron is the only real solution, then everyone else is just delaying the inevitable while the Cult does the ugly work of actually fixing the problem.
+**What are the dragons?** Born from the broken boundary, made of stagnant dead Aether, possibly capable of performing fragments of Netheron's function. They might be the answer. They might be another disaster. Nobody knows. Not even Halldora — and they might be the missing piece she has searched for across thousands of years.
 
-**Is the Church right?** Their conclusion is wrong, but their instinct — that magic use is making things worse — has a grain of truth. And their demand that people stop relying on magic forces a real question: can humanity survive without it?
+**Is the Cult right?** Their methods are horrific. Their short-term impact is devastating. But they are the only faction attempting to solve the actual problem: restoring the one god who truly died. Everyone else is managing symptoms while the Cult does the ugly work of attempting resurrection.
+
+**Is the Church right?** Their conclusion is wrong, but their instinct — that magic use is making things worse — has a grain of truth. And their teaching that the Radiant One will return is closer to reality than they know: the Six *are* dormant, not dead. But the Church's refusal to acknowledge Netheron's necessity may doom their own prophecy.
 
 **What does Varek deserve?** He was a tyrant. He was also the only leader who took the threat seriously. His dynasty was stolen by people who did it for power, not principle. Does he deserve his throne? Does he deserve rest? Can a dead man be reasoned with?
 
-**What would Netheron want?** If he could speak — if somehow his consciousness could be restored — would he take his role back? Would he forgive mortals for cursing him for millennia? Or would he look at the broken world and say: "You did this to yourselves"?
+**What would Netheron want?** If he could be restored — if somehow his consciousness could be resurrected from the raw essence leaking across the world — would he take his role back? Would he forgive mortals for cursing him for millennia? Would he forgive the Six for killing him? Or would he look at the broken world and say: "You did this to yourselves"?
+
+**Can elven immortality return?** If the Aether cycle is restored, would the firstborn regain what they lost in Le Déclin? The Hauts-Ciels scholars have noticed each generation lives slightly shorter than the last. The clock is ticking for more than just the boundary.
 
 ---
 
