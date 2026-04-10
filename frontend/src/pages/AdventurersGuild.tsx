@@ -987,10 +987,11 @@ export default function AdventurersGuild() {
                   }}>
                     {cls.icon} {cls.name}s ({classAdvs().length})
                   </h3>
-                  <div class="buildings-grid">
+                  <div class="recruit-grid">
                     <For each={classAdvs()}>
               {(adv) => {
                 const cls = getClassMeta(adv.class);
+                const traitDef = () => BACKSTORY_TRAITS.find((t) => t.id === adv.trait);
                 const equippedItems = () => {
                   const eq = adv.equipment;
                   return [eq.mainHand, eq.offHand, eq.head, eq.chest, eq.legs, eq.boots, eq.cloak, eq.trinket]
@@ -1019,12 +1020,41 @@ export default function AdventurersGuild() {
                       </div>
                       <div class="adv-card-content">
                         <div class="building-card-title">{adv.name}</div>
-                        <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-bottom": "6px" }}>
-                          {cls.name} · Lv.{adv.level}
+                        <div style={{ "font-size": "0.85rem", color: "var(--text-muted)" }}>
+                          {adv.race ? `${RACE_NAMES[adv.race]} ` : ""}{cls.name} · Lv.{adv.level}
                         </div>
+                        <Show when={adv.origin}>
+                          <div style={{ "font-size": "0.75rem", color: "var(--text-muted)" }}>
+                            {getOrigin(adv.origin)?.name} — {getOrigin(adv.origin)?.region}
+                          </div>
+                        </Show>
                         <XpBar xp={adv.xp} level={adv.level} />
-                        <div style={{ flex: 1 }} />
-                        <div style={{ "margin-top": "6px", "font-size": "0.75rem", display: "flex", gap: "6px", "flex-wrap": "wrap" }}>
+                        <Show when={adv.backstory}>
+                          <div style={{
+                            "font-size": "0.78rem",
+                            color: "var(--text-secondary)",
+                            "font-style": "italic",
+                            "line-height": "1.4",
+                            "padding-left": "8px",
+                            "border-left": "2px solid var(--border-color)",
+                          }}>
+                            "{adv.backstory}"
+                          </div>
+                        </Show>
+                        <Show when={traitDef()}>
+                          <div style={{
+                            display: "inline-block",
+                            padding: "3px 8px",
+                            "border-radius": "4px",
+                            background: "rgba(167, 139, 250, 0.1)",
+                            border: "1px solid rgba(167, 139, 250, 0.2)",
+                            "font-size": "0.75rem",
+                          }}>
+                            <span style={{ color: "#a78bfa", "font-weight": "bold" }}>{traitDef()!.name}</span>
+                            <span style={{ color: "var(--text-muted)", "margin-left": "6px" }}>{traitDef()!.description}</span>
+                          </div>
+                        </Show>
+                        <div style={{ "margin-top": "auto", "padding-top": "8px", "font-size": "0.75rem", display: "flex", gap: "6px", "flex-wrap": "wrap" }}>
                           {equippedItems().map((item) => <span title={item!.name}>{item!.icon}</span>)}
                           {emptySlotCount() > 0 && (
                             <span style={{ color: "var(--accent-gold)", "font-size": "0.7rem" }}>
