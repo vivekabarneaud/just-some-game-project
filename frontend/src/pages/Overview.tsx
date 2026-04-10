@@ -512,10 +512,6 @@ export default function Overview() {
                           {raid()?.description}
                         </div>
 
-                        <div style={{ "margin-top": "10px", "font-size": "0.85rem", color: "var(--accent-red)", "font-weight": "bold" }}>
-                          ⚔ Strength {ir.strength}
-                        </div>
-
                         {/* Consequences */}
                         <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-top": "8px" }}>
                           <Show when={successPct() < 100}>
@@ -546,9 +542,11 @@ export default function Overview() {
                           <Countdown remainingSeconds={ir.remaining} />
                         </div>
 
-                        {/* Defense score */}
-                        <div style={{ "margin-top": "8px", "font-size": "0.85rem", color: "var(--accent-blue)", "font-weight": "bold" }}>
-                          🛡 Defense {defense().total}
+                        {/* Strength vs Defense */}
+                        <div style={{ "margin-top": "8px", display: "flex", "align-items": "center", gap: "8px", "font-size": "0.85rem", "font-weight": "bold" }}>
+                          <span style={{ color: "var(--accent-red)" }}>Strength {ir.strength}</span>
+                          <span style={{ color: "var(--text-muted)" }}>⚔️</span>
+                          <span style={{ color: "var(--accent-blue)" }}>Defense {defense().total}</span>
                         </div>
 
                         {/* Success % */}
