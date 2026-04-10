@@ -1,4 +1,4 @@
-# The Shattered Realm — Definitive Lore
+# Valenheart — Definitive Lore
 
 ---
 
@@ -239,7 +239,7 @@ But each offering, each prayer, each act of genuine devotion sends a ripple into
 
 ## Part VI: The People Who Shape the World
 
-### Halldora Ravensong — The Woman Who Understood Too Late
+### Halldora Frostvik — The Woman Who Understood Too Late
 
 Before the Sundering, Halldora was the youngest Archmagus in the history of the Academy of the Aether — and the only scholar studying a field that everyone else considered pointless: **divine infrastructure.** While hundreds of researchers (many of them elves) studied practical Aether applications — enchantments, wards, elemental theory, healing — Halldora was mapping how the seven deities' functions mechanically sustained reality. What happens to Aether when something dies? How does the death-cycle connect to the life-cycle? What is the load-bearing structure underneath the world?
 
@@ -385,7 +385,7 @@ Faction alignment isn't a choice you make at the start — it's a consequence of
 
 ## Part VII: The Central Questions
 
-The world of the Shattered Realm is built on questions that have no easy answers:
+The world of Valenheart is built on questions that have no easy answers:
 
 **Can death be fixed?** Netheron is not dormant like the Six. He is dead. Truly dead. His function is unperformed. The boundary is failing. Can a dead god be resurrected? Can the dragons serve as imperfect replacements? Can mortals find an answer that has eluded Halldora for millennia?
 

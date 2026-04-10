@@ -130,7 +130,7 @@ export default function AdventurerDetail() {
                       padding: "20px 20px 20px 0",
                       display: "flex",
                       "flex-direction": "column",
-                      gap: "10px",
+                      gap: "12px",
                     }}>
                       {/* Name & Class */}
                       <div>
@@ -148,44 +148,6 @@ export default function AdventurerDetail() {
                           </div>
                         </Show>
                       </div>
-
-                      {/* XP Bar (inline) */}
-                      <div>
-                        <div style={{ display: "flex", "justify-content": "space-between", "font-size": "0.8rem", "margin-bottom": "4px" }}>
-                          <span style={{ color: "var(--text-secondary)" }}>Experience</span>
-                          <span style={{ color: "var(--text-muted)" }}>{adv().xp} / {xpNeeded()} XP</span>
-                        </div>
-                        <div style={{ height: "6px", background: "var(--bg-primary)", "border-radius": "3px" }}>
-                          <div style={{
-                            height: "100%",
-                            width: `${xpPct()}%`,
-                            background: "var(--accent-blue)",
-                            "border-radius": "3px",
-                            transition: "width 0.3s",
-                          }} />
-                        </div>
-                      </div>
-
-                      {/* Backstory */}
-                      <Show when={adv().backstory}>
-                        <div style={{
-                          "font-size": "0.9rem",
-                          color: "var(--text-secondary)",
-                          "font-style": "italic",
-                          "line-height": "1.5",
-                          "padding-left": "12px",
-                          "border-left": "2px solid var(--border-color)",
-                        }}>
-                          "{adv().backstory}"
-                        </div>
-                      </Show>
-
-                      {/* Quirk */}
-                      <Show when={adv().quirk}>
-                        <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
-                          {adv().quirk}
-                        </div>
-                      </Show>
 
                       {/* Trait Badge */}
                       <Show when={traitDef()}>
@@ -207,24 +169,30 @@ export default function AdventurerDetail() {
                         </div>
                       </Show>
 
-                      {/* Class Passive */}
-                      <div style={{
-                        "margin-top": "auto",
-                        padding: "8px 12px",
-                        background: "var(--bg-primary)",
-                        "border-radius": "6px",
-                      }}>
-                        <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-bottom": "2px" }}>
-                          Class Passive
+                      {/* Backstory */}
+                      <Show when={adv().backstory}>
+                        <div style={{
+                          "font-size": "0.9rem",
+                          color: "var(--text-secondary)",
+                          "font-style": "italic",
+                          "line-height": "1.5",
+                          "padding-left": "12px",
+                          "border-left": "2px solid var(--border-color)",
+                        }}>
+                          "{adv().backstory}"
                         </div>
-                        <div style={{ "font-size": "0.85rem" }}>
-                          <strong style={{ color: "var(--text-primary)" }}>{cls().passive.name}</strong>
-                          <span style={{ color: "var(--text-secondary)", "margin-left": "8px" }}>{cls().passive.description}</span>
+                      </Show>
+
+                      {/* Quirk */}
+                      <Show when={adv().quirk}>
+                        <div style={{ "font-size": "0.85rem", color: "var(--text-muted)" }}>
+                          {adv().quirk}
                         </div>
-                      </div>
+                      </Show>
 
                       {adv().onMission && (
                         <div style={{
+                          "margin-top": "auto",
                           padding: "6px 12px",
                           "border-radius": "6px",
                           background: "rgba(52, 152, 219, 0.15)",
@@ -245,6 +213,22 @@ export default function AdventurerDetail() {
                 {/* Stats */}
                 <div class="overview-panel">
                   <h2>Stats</h2>
+                  {/* XP Bar */}
+                  <div style={{ "margin-bottom": "12px" }}>
+                    <div style={{ display: "flex", "justify-content": "space-between", "font-size": "0.8rem", "margin-bottom": "4px" }}>
+                      <span style={{ color: "var(--text-secondary)" }}>Experience</span>
+                      <span style={{ color: "var(--text-muted)" }}>{adv().xp} / {xpNeeded()} XP</span>
+                    </div>
+                    <div style={{ height: "6px", background: "var(--bg-primary)", "border-radius": "3px" }}>
+                      <div style={{
+                        height: "100%",
+                        width: `${xpPct()}%`,
+                        background: "var(--accent-blue)",
+                        "border-radius": "3px",
+                        transition: "width 0.3s",
+                      }} />
+                    </div>
+                  </div>
                   <Show when={unspentPoints() > 0}>
                     <div style={{
                       padding: "6px 10px",
