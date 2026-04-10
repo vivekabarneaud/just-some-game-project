@@ -1979,7 +1979,8 @@ export function GameProvider(props: ParentProps) {
                     const equipStats = getEquipmentStats(advInState.equipment);
                     const stats = calcAdvStats(advInState, equipStats);
                     const wisBonus = 1 + stats.wis * 0.02; // +2% XP per WIS point
-                    const xpGain = Math.floor(baseXp * wisBonus);
+                    const traitBonus = advInState.trait === "quick_learner" ? 1.10 : 1;
+                    const xpGain = Math.floor(baseXp * wisBonus * traitBonus);
                     const result = applyXp(advInState, xpGain);
                     if (result.leveled) levelUps.push(advInState.name);
                     if (result.rankUp && advInState.rank !== result.oldRank) {

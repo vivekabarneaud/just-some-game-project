@@ -2,9 +2,10 @@
 // Round-based combat with class abilities, status effects, and smart AI.
 
 import type { Adventurer, AdventurerClass } from "./adventurers";
-import { calcStats } from "./adventurers";
+import { calcStats, BACKSTORY_TRAITS } from "./adventurers";
 import { getEquipmentStats, getEquipmentDefense } from "./items";
 import { getEnemy } from "./enemies";
+import type { EnemyTag } from "./enemies";
 import type { MissionTemplate, MissionEncounter } from "./missions";
 import { getAbilitiesForClass } from "./abilities";
 
@@ -25,6 +26,8 @@ export interface CombatUnit {
   class?: AdventurerClass;
   isMagical: boolean;
   gearDefense: number;
+  trait?: string;           // adventurer backstory trait id
+  enemyTags?: EnemyTag[];   // enemy type tags (for trait bonus matching)
   // Status effects
   cooldowns: Record<string, number>; // abilityId → rounds until available
   tauntedBy?: string; // unit ID forcing this unit to attack them
@@ -174,19 +177,59 @@ function pickTargetForAdventurer(attacker: CombatUnit, targets: CombatUnit[]): C
   return scored[0].target;
 }
 
+// ─── Trait bonus vs enemy tags ──────────────────────────────────
+
+/** Map trait IDs to the enemy tags they grant bonus damage against */
+const TRAIT_TAG_BONUSES: Record<string, { tags: string[]; bonus: number }> = {
+  demon_hunter:       { tags: ["demon"], bonus: 0.05 },
+  grave_walker:       { tags: ["undead", "ghost"], bonus: 0.05 },
+  beast_tracker:      { tags: ["beast"], bonus: 0.05 },
+  dragonmarked:       { tags: ["dragon"], bonus: 0.05 },
+  pious_heart:        { tags: ["demon", "divine"], bonus: 0.05 },
+  elemental_attuned:  { tags: ["elemental_fire", "elemental_water", "elemental_earth", "elemental_wind", "elemental_aether"], bonus: 0.05 },
+  veteran_campaigner: { tags: ["humanoid"], bonus: 0.05 },
+};
+
+/** Get trait-based damage multiplier for an attacker vs a defender's tags */
+function getTraitDamageBonus(attacker: CombatUnit, defender: CombatUnit): number {
+  if (!attacker.trait || !defender.enemyTags?.length) return 0;
+  const entry = TRAIT_TAG_BONUSES[attacker.trait];
+  if (!entry) return 0;
+  const hasMatch = defender.enemyTags.some((tag) => entry.tags.includes(tag));
+  return hasMatch ? entry.bonus : 0;
+}
+
+/** Get extra crit chance from the Lucky trait */
+function getTraitCritBonus(unit: CombatUnit): number {
+  return unit.trait === "lucky" ? 3 : 0;
+}
+
 // ─── Damage calculation ─────────────────────────────────────────
 
 function calcDamageResult(attacker: CombatUnit, defender: CombatUnit, opts?: { forceCrit?: boolean; damageMult?: number; ignorePhysicalDef?: boolean }): { damage: number; rawDamage: number; crit: boolean } {
+  // Ghost immunity: physical attacks deal 0 unless attacker has spirit_sensitive trait or deals magical damage
   const magical = dealsMagicalDamage(attacker) || opts?.ignorePhysicalDef;
+  if (!magical && defender.enemyTags?.includes("ghost") && attacker.trait !== "spirit_sensitive") {
+    return { damage: 0, rawDamage: 0, crit: false };
+  }
+  // Aether immunity: magical attacks deal 0 against aether elementals
+  if (magical && defender.enemyTags?.includes("elemental_aether")) {
+    return { damage: 0, rawDamage: 0, crit: false };
+  }
+
   const power = magical ? getMagicPower(attacker) : getAttackPower(attacker);
   const reductionPct = opts?.ignorePhysicalDef ? getMagicResistReduction(defender) : (magical ? getMagicResistReduction(defender) : getDefenseReduction(defender));
 
   let rawDamage = Math.max(1, Math.floor(power * (0.7 + Math.random() * 0.6)));
 
-  const crit = opts?.forceCrit || Math.random() * 100 < getCritChance(attacker);
+  const crit = opts?.forceCrit || Math.random() * 100 < (getCritChance(attacker) + getTraitCritBonus(attacker));
   if (crit) rawDamage = Math.floor(rawDamage * 1.5);
 
   if (opts?.damageMult) rawDamage = Math.floor(rawDamage * opts.damageMult);
+
+  // Trait bonus vs enemy type
+  const traitBonus = getTraitDamageBonus(attacker, defender);
+  if (traitBonus > 0) rawDamage = Math.floor(rawDamage * (1 + traitBonus));
 
   const damage = Math.max(1, Math.floor(rawDamage * (1 - reductionPct)));
   return { damage, rawDamage, crit };
@@ -205,6 +248,7 @@ function buildAdventurerUnit(adv: Adventurer): CombatUnit {
     class: adv.class,
     isMagical: adv.class === "wizard" || adv.class === "priest",
     gearDefense: getEquipmentDefense(adv.equipment),
+    trait: adv.trait,
     cooldowns: {}, slowed: 0, poisonTicks: [],
   };
 }
@@ -225,6 +269,7 @@ function buildEnemyUnits(encounters: MissionEncounter[]): CombatUnit[] {
         str: def.stats.str, dex: def.stats.dex, int: def.stats.int,
         vit: def.stats.vit, wis: def.stats.wis ?? 0,
         class: undefined, isMagical, gearDefense: 0,
+        enemyTags: def.tags,
         cooldowns: {}, slowed: 0, poisonTicks: [],
       });
     }
@@ -279,7 +324,11 @@ function tryWarriorAbility(unit: CombatUnit, allies: CombatUnit[], enemies: Comb
   // Taunt: when any ally is below 30% HP
   if (canUseAbility(unit, "taunt") && allies.some((a) => a.id !== unit.id && a.hp / a.maxHp < 0.3)) {
     startCooldown(unit, "taunt", 4);
-    for (const enemy of enemies) { enemy.tauntedBy = unit.id; }
+    for (const enemy of enemies) {
+      // Iron Will trait: 10% chance to resist taunt
+      if (enemy.trait === "iron_will" && Math.random() < 0.10) continue;
+      enemy.tauntedBy = unit.id;
+    }
     log.push({
       round, attackerName: unit.name, attackerIcon: "🛡️", targetName: "",
       damage: 0, dodged: false, crit: false, killed: false, isEnemy: false,
