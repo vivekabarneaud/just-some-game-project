@@ -309,3 +309,248 @@ export function getAvailableSupplies(inventory: InventoryItem[]): { item: ItemDe
 }
 
 export const MAX_MISSION_SUPPLIES = 3;
+
+// ─── Crafting Materials ────────────────────────────────────────
+// Monster drops and rare finds. Stored in inventory, used in crafting recipes.
+
+export type MaterialCategory = "hide" | "bone" | "metal" | "cloth" | "alchemy" | "enchanting" | "gem" | "dragon";
+
+export interface MaterialDefinition {
+  id: string;
+  name: string;
+  icon: string;
+  description: string;   // flavor text
+  category: MaterialCategory;
+  tier: 1 | 2 | 3 | 4 | 5;  // rarity tier, matches enemy tiers
+}
+
+export const MATERIALS: MaterialDefinition[] = [
+  // ── Hides & Leather ──────────────────────────────────────────
+  {
+    id: "wolfhide_strip", name: "Wolfhide Strip", icon: "🐺",
+    description: "Tough and pungent. The frontier tanners prefer it to cattle leather.",
+    category: "hide", tier: 1,
+  },
+  {
+    id: "chitin_plate", name: "Chitin Plate", icon: "🕷️",
+    description: "Peeled from a cave spider's back. Light as wood, hard as iron.",
+    category: "hide", tier: 2,
+  },
+  {
+    id: "trollhide", name: "Trollhide", icon: "🧌",
+    description: "Still warm hours after skinning. The regeneration lingers in the leather.",
+    category: "hide", tier: 3,
+  },
+  {
+    id: "wyrmshell_plate", name: "Wyrmshell Plate", icon: "🐉",
+    description: "A dragon scale the size of a dinner plate. Forge-resistant — you'll need dragonfire to shape it.",
+    category: "hide", tier: 3,
+  },
+  {
+    id: "wyrm_scale", name: "Wyrm Scale", icon: "🐲",
+    description: "From an ancient wyrm. Iridescent, warm to the touch, and harder than any steel the Khazdurim have forged.",
+    category: "hide", tier: 5,
+  },
+
+  // ── Bone & Sinew ─────────────────────────────────────────────
+  {
+    id: "gnawed_marrow", name: "Gnawed Marrow", icon: "🦴",
+    description: "Cracked open and half-eaten. Still useful for bone meal and alchemical grinding.",
+    category: "bone", tier: 1,
+  },
+  {
+    id: "bonewalk_shard", name: "Bonewalk Shard", icon: "💀",
+    description: "A piece of a skeleton that kept walking after death. The marrow hums faintly.",
+    category: "bone", tier: 1,
+  },
+  {
+    id: "sinew_cord", name: "Sinew Cord", icon: "🪢",
+    description: "Dried wolf tendon, twisted tight. Makes a bowstring that won't snap in the cold.",
+    category: "bone", tier: 1,
+  },
+  {
+    id: "fang", name: "Fang", icon: "🦷",
+    description: "Long, curved, and still sharp. The Zah'kari string them on necklaces for courage.",
+    category: "bone", tier: 1,
+  },
+  {
+    id: "dragon_fang", name: "Dragon Fang", icon: "🦷",
+    description: "Hot to the touch even weeks after extraction. A Blacksmith's dream — and nightmare.",
+    category: "bone", tier: 4,
+  },
+
+  // ── Metal & Salvage ──────────────────────────────────────────
+  {
+    id: "highwaymans_steel", name: "Highwayman's Steel", icon: "🔩",
+    description: "Rusty, chipped, but serviceable. Melt it down and the iron remembers its shape.",
+    category: "metal", tier: 1,
+  },
+  {
+    id: "cursed_iron", name: "Cursed Iron", icon: "⛓️",
+    description: "Taken from an undead archer's quiver. Cold to the touch, always. The Blacksmith says it holds an edge forever.",
+    category: "metal", tier: 2,
+  },
+  {
+    id: "orc_steel", name: "Orc Steel", icon: "⚔️",
+    description: "Crude but brutally effective. Heavier than Dominion steel, with an ugly green tint.",
+    category: "metal", tier: 2,
+  },
+  {
+    id: "infernal_link", name: "Infernal Link", icon: "🔗",
+    description: "A single chain link from a demon's armor. It doesn't rust, doesn't cool, and hums when holy water is near.",
+    category: "metal", tier: 4,
+  },
+
+  // ── Cloth & Thread ───────────────────────────────────────────
+  {
+    id: "torn_banner", name: "Torn Banner", icon: "🏴",
+    description: "Ripped from an orc warlord's standard. The dye is surprisingly fine — the Tailors can work with this.",
+    category: "cloth", tier: 2,
+  },
+  {
+    id: "ghostweave", name: "Ghostweave", icon: "🕸️",
+    description: "Thread spun from spectral residue. Nearly invisible, cold as moonlight, and impossibly strong.",
+    category: "cloth", tier: 3,
+  },
+  {
+    id: "windweave_fiber", name: "Windweave Fiber", icon: "💨",
+    description: "Harvested from a storm sprite's wake. Cloth made from this weighs nothing and dries instantly.",
+    category: "cloth", tier: 3,
+  },
+
+  // ── Alchemy Ingredients ──────────────────────────────────────
+  {
+    id: "spinners_bile", name: "Spinner's Bile", icon: "🧪",
+    description: "Venom from a cave spider. The frontier folk call them Spinners. Don't drink this. Obviously.",
+    category: "alchemy", tier: 2,
+  },
+  {
+    id: "barrow_ash", name: "Barrow Ash", icon: "⚱️",
+    description: "Grey dust from where the dead walked. Alchemists say it stabilizes volatile mixtures. Nobody asks why.",
+    category: "alchemy", tier: 2,
+  },
+  {
+    id: "war_paint", name: "War Paint", icon: "🎨",
+    description: "Scraped from an orc's face. The pigment is mixed with something alchemical — it numbs the skin and dulls pain.",
+    category: "alchemy", tier: 2,
+  },
+  {
+    id: "dragon_blood", name: "Dragon Blood", icon: "🩸",
+    description: "Thick, hot, and luminous. A single vial can fuel a dozen potions. Handle with gloves.",
+    category: "alchemy", tier: 4,
+  },
+  {
+    id: "dragonfire_ash", name: "Dragonfire Ash", icon: "🔥",
+    description: "What's left after dragonfire burns the air itself. Smells like a forge and a thunderstorm had a child.",
+    category: "alchemy", tier: 2,
+  },
+  {
+    id: "ashblood", name: "Ashblood", icon: "🩸",
+    description: "Demon blood. It smells like burning hair and moves on its own when left in a bowl. The Khor'vani pay well for this.",
+    category: "alchemy", tier: 4,
+  },
+  {
+    id: "hellite", name: "Hellite", icon: "💜",
+    description: "Crystallized brimstone from the demon realm. Burns cold. The Alchemists say it's 'theoretically useful and practically terrifying.'",
+    category: "alchemy", tier: 4,
+  },
+
+  // ── Enchanting Essences ──────────────────────────────────────
+  {
+    id: "veilmist", name: "Veilmist", icon: "🌫️",
+    description: "Mist from the other side of the boundary. Collected in a sealed flask, it swirls endlessly. The dead breathe this.",
+    category: "enchanting", tier: 2,
+  },
+  {
+    id: "soul_shard", name: "Soul Shard", icon: "💎",
+    description: "A splinter of crystallized life-force. It pulses faintly. The Thornveil say it's not a thing — it's a person.",
+    category: "enchanting", tier: 2,
+  },
+  {
+    id: "shimmer", name: "Shimmer", icon: "✨",
+    description: "Pure Aether dust. Weightless, warm, and faintly luminous. The base ingredient for any serious enchantment.",
+    category: "enchanting", tier: 4,
+  },
+  {
+    id: "livingflame_bead", name: "Livingflame Bead", icon: "🔴",
+    description: "The core of a flame wisp, still glowing. It never cools. Keep it away from parchment.",
+    category: "enchanting", tier: 3,
+  },
+  {
+    id: "thunderglass", name: "Thunderglass", icon: "⚡",
+    description: "Lightning crystallized into smooth, dark glass. It crackles when you hold it. Don't hold it for long.",
+    category: "enchanting", tier: 3,
+  },
+  {
+    id: "frozen_droplet", name: "Frozen Droplet", icon: "❄️",
+    description: "Water from a tide serpent, frozen solid and refusing to melt. The cold radiates outward like a tiny winter.",
+    category: "enchanting", tier: 3,
+  },
+  {
+    id: "heartstone", name: "Heartstone", icon: "🗿",
+    description: "The core of a stone golem. It hums with the memory of wanting to move. Warm despite being rock.",
+    category: "enchanting", tier: 3,
+  },
+  {
+    id: "voidthorn", name: "Voidthorn", icon: "🖤",
+    description: "A shard of crystallized darkness from beyond the boundary. It drinks light and pricks like a needle that isn't there.",
+    category: "enchanting", tier: 5,
+  },
+  {
+    id: "shadow_fragment", name: "Shadow Fragment", icon: "🌑",
+    description: "A piece of a Shadow Lord. It exists and doesn't. Looking at it too long gives you a headache shaped like a scream.",
+    category: "enchanting", tier: 5,
+  },
+
+  // ── Gems & Divine ────────────────────────────────────────────
+  {
+    id: "keening_shard", name: "Keening Shard", icon: "💠",
+    description: "Crystallized from a banshee's scream. It hums a single note, always. Jewelcrafters say it's beautiful. Everyone else says it's unsettling.",
+    category: "gem", tier: 4,
+  },
+  {
+    id: "godspark", name: "Godspark", icon: "⭐",
+    description: "A fragment of dormant divine essence. Warm, golden, and faintly aware. The Church would kill to have this. The Cult would kill to use it.",
+    category: "gem", tier: 4,
+  },
+  {
+    id: "dormant_sigil", name: "Dormant Sigil", icon: "⚜️",
+    description: "Pried from a temple guardian's chest. The runes are dark now, but they flicker when you pray.",
+    category: "gem", tier: 4,
+  },
+  {
+    id: "seraphs_grief", name: "Seraph's Grief", icon: "💧",
+    description: "Liquid light, pooled from a fallen seraph's eyes. It's warm. It's sad. And it remembers being righteous.",
+    category: "gem", tier: 5,
+  },
+  {
+    id: "aether_core", name: "Aether Core", icon: "💠",
+    description: "The heart of an Aether Colossus. Pure crystallized magic, dense as lead, bright as noon. The Hauts-Ciels would weep to hold this.",
+    category: "gem", tier: 5,
+  },
+
+  // ── Dragon-specific ──────────────────────────────────────────
+  {
+    id: "pyrewing_core", name: "Pyrewing Core", icon: "🔥",
+    description: "The furnace inside an ancient wyrm. It still burns. It will burn for centuries. Handle with something that isn't your hands.",
+    category: "dragon", tier: 5,
+  },
+  {
+    id: "wyrm_heart", name: "Wyrm Heart", icon: "❤️‍🔥",
+    description: "Massive, slow-beating, and too hot to carry bare-handed. The Tianzhou scholars say a wyrm heart can power a city. Nobody has tested this.",
+    category: "dragon", tier: 5,
+  },
+  {
+    id: "lichglass", name: "Lichglass", icon: "🔮",
+    description: "A fragment of a lich's phylactery. Looks like glass, feels like ice, and whispers equations when the moon is full.",
+    category: "enchanting", tier: 4,
+  },
+];
+
+export function getMaterial(id: string): MaterialDefinition | undefined {
+  return MATERIALS.find((m) => m.id === id);
+}
+
+export function getMaterialsByCategory(category: MaterialCategory): MaterialDefinition[] {
+  return MATERIALS.filter((m) => m.category === category);
+}

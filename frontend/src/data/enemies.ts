@@ -86,6 +86,9 @@ export const ENEMIES: EnemyDefinition[] = [
     tags: ["beast"],
     loot: [
       { type: "resource", resource: "food", chance: 0.4, min: 2, max: 6 },
+      { type: "resource", resource: "wolfhide_strip", chance: 0.3, min: 1, max: 1 },
+      { type: "resource", resource: "fang", chance: 0.2, min: 1, max: 2 },
+      { type: "resource", resource: "sinew_cord", chance: 0.15, min: 1, max: 1 },
     ],
   },
   {
@@ -98,6 +101,7 @@ export const ENEMIES: EnemyDefinition[] = [
     tags: ["beast"],
     loot: [
       { type: "resource", resource: "food", chance: 0.2, min: 1, max: 3 },
+      { type: "resource", resource: "gnawed_marrow", chance: 0.2, min: 1, max: 1 },
     ],
   },
   {
@@ -109,7 +113,8 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 9, dex: 5, int: 3, vit: 14, wis: 1 },
     tags: ["undead"],
     loot: [
-      { type: "resource", resource: "stone", chance: 0.3, min: 1, max: 5 },
+      { type: "resource", resource: "bonewalk_shard", chance: 0.3, min: 1, max: 2 },
+      { type: "resource", resource: "barrow_ash", chance: 0.15, min: 1, max: 1 },
     ],
   },
 
@@ -125,6 +130,8 @@ export const ENEMIES: EnemyDefinition[] = [
     tags: ["humanoid"],
     loot: [
       { type: "resource", resource: "gold", chance: 0.5, min: 5, max: 15 },
+      { type: "resource", resource: "orc_steel", chance: 0.2, min: 1, max: 1 },
+      { type: "resource", resource: "war_paint", chance: 0.1, min: 1, max: 1 },
     ],
   },
   {
@@ -136,7 +143,8 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 6, dex: 16, int: 3, vit: 12, wis: 2 },
     tags: ["undead"],
     loot: [
-      { type: "resource", resource: "wood", chance: 0.4, min: 3, max: 8 },
+      { type: "resource", resource: "cursed_iron", chance: 0.2, min: 1, max: 1 },
+      { type: "resource", resource: "bonewalk_shard", chance: 0.3, min: 1, max: 2 },
     ],
   },
   {
@@ -162,7 +170,8 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 10, dex: 16, int: 1, vit: 12, wis: 2 },
     tags: ["beast"],
     loot: [
-      { type: "resource", resource: "nettle", chance: 0.15, min: 1, max: 2 },
+      { type: "resource", resource: "spinners_bile", chance: 0.25, min: 1, max: 1 },
+      { type: "resource", resource: "chitin_plate", chance: 0.15, min: 1, max: 1 },
     ],
   },
   {
@@ -174,7 +183,8 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 4, dex: 8, int: 16, vit: 14, wis: 10 },
     tags: ["ghost", "magical"],
     loot: [
-      { type: "resource", resource: "astralShards", chance: 0.10, min: 1, max: 1 },
+      { type: "resource", resource: "veilmist", chance: 0.20, min: 1, max: 1 },
+      { type: "resource", resource: "soul_shard", chance: 0.08, min: 1, max: 1 },
     ],
   },
 
@@ -191,6 +201,8 @@ export const ENEMIES: EnemyDefinition[] = [
     boss: true,
     loot: [
       { type: "resource", resource: "gold", chance: 0.9, min: 30, max: 80 },
+      { type: "resource", resource: "orc_steel", chance: 0.5, min: 1, max: 3 },
+      { type: "resource", resource: "torn_banner", chance: 0.3, min: 1, max: 1 },
       { type: "item", itemId: "iron_armor", chance: 0.08 },
     ],
   },
@@ -217,8 +229,8 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 10, dex: 12, int: 20, vit: 16, wis: 14 },
     tags: ["ghost", "magical"],
     loot: [
-      { type: "resource", resource: "astralShards", chance: 0.15, min: 1, max: 1 },
-      { type: "resource", resource: "nightbloom", chance: 0.10, min: 1, max: 1 },
+      { type: "resource", resource: "ghostweave", chance: 0.2, min: 1, max: 1 },
+      { type: "resource", resource: "veilmist", chance: 0.3, min: 1, max: 2 },
     ],
   },
   {
@@ -231,8 +243,9 @@ export const ENEMIES: EnemyDefinition[] = [
     tags: ["beast"],
     boss: true,
     loot: [
-      { type: "resource", resource: "food", chance: 0.8, min: 20, max: 50 },
-      { type: "resource", resource: "stone", chance: 0.5, min: 10, max: 30 },
+      { type: "resource", resource: "trollhide", chance: 0.4, min: 1, max: 2 },
+      { type: "resource", resource: "gnawed_marrow", chance: 0.6, min: 2, max: 4 },
+      { type: "resource", resource: "gold", chance: 0.5, min: 10, max: 30 },
     ],
   },
 
@@ -246,7 +259,7 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 14, dex: 18, int: 16, vit: 14, wis: 6 },
     tags: ["elemental_fire", "magical"],
     loot: [
-      { type: "resource", resource: "astralShards", chance: 0.10, min: 1, max: 1 },
+      { type: "resource", resource: "livingflame_bead", chance: 0.25, min: 1, max: 1 },
     ],
   },
   {
@@ -259,7 +272,8 @@ export const ENEMIES: EnemyDefinition[] = [
     tags: ["elemental_earth"],
     boss: true,
     loot: [
-      { type: "resource", resource: "stone", chance: 0.9, min: 30, max: 60 },
+      { type: "resource", resource: "heartstone", chance: 0.3, min: 1, max: 1 },
+      { type: "resource", resource: "stone", chance: 0.9, min: 20, max: 50 },
     ],
   },
   {
@@ -271,7 +285,8 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 6, dex: 24, int: 14, vit: 10, wis: 8 },
     tags: ["elemental_wind", "magical"],
     loot: [
-      { type: "resource", resource: "astralShards", chance: 0.12, min: 1, max: 1 },
+      { type: "resource", resource: "thunderglass", chance: 0.2, min: 1, max: 1 },
+      { type: "resource", resource: "windweave_fiber", chance: 0.15, min: 1, max: 1 },
     ],
   },
   {
@@ -283,7 +298,7 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 16, dex: 14, int: 12, vit: 20, wis: 8 },
     tags: ["elemental_water", "magical"],
     loot: [
-      { type: "resource", resource: "food", chance: 0.4, min: 8, max: 20 },
+      { type: "resource", resource: "frozen_droplet", chance: 0.2, min: 1, max: 1 },
     ],
   },
 
@@ -297,8 +312,8 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 8, dex: 14, int: 22, vit: 12, wis: 16 },
     tags: ["ghost"],
     loot: [
-      { type: "resource", resource: "astralShards", chance: 0.15, min: 1, max: 1 },
-      { type: "resource", resource: "moonpetal", chance: 0.08, min: 1, max: 1 },
+      { type: "resource", resource: "veilmist", chance: 0.25, min: 1, max: 1 },
+      { type: "resource", resource: "ghostweave", chance: 0.10, min: 1, max: 1 },
     ],
   },
 
@@ -324,7 +339,7 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 18, dex: 10, int: 12, vit: 22, wis: 6 },
     tags: ["dragon", "magical"],
     loot: [
-      { type: "resource", resource: "dragon_scale", chance: 0.25, min: 1, max: 2 },
+      { type: "resource", resource: "wyrmshell_plate", chance: 0.25, min: 1, max: 2 },
       { type: "resource", resource: "dragonfire_ash", chance: 0.4, min: 1, max: 3 },
     ],
   },
@@ -341,7 +356,7 @@ export const ENEMIES: EnemyDefinition[] = [
     tags: ["dragon", "magical"],
     boss: true,
     loot: [
-      { type: "resource", resource: "dragon_scale", chance: 0.5, min: 2, max: 4 },
+      { type: "resource", resource: "wyrmshell_plate", chance: 0.5, min: 2, max: 4 },
       { type: "resource", resource: "dragon_blood", chance: 0.3, min: 1, max: 2 },
       { type: "resource", resource: "dragon_fang", chance: 0.2, min: 1, max: 1 },
     ],
@@ -356,7 +371,7 @@ export const ENEMIES: EnemyDefinition[] = [
     tags: ["dragon", "magical", "undead"],
     boss: true,
     loot: [
-      { type: "resource", resource: "dragon_scale", chance: 0.6, min: 2, max: 5 },
+      { type: "resource", resource: "wyrmshell_plate", chance: 0.6, min: 2, max: 5 },
       { type: "resource", resource: "dragon_blood", chance: 0.4, min: 1, max: 3 },
       { type: "resource", resource: "shadow_fragment", chance: 0.15, min: 1, max: 1 },
     ],
@@ -371,7 +386,10 @@ export const ENEMIES: EnemyDefinition[] = [
     tags: ["undead", "magical"],
     boss: true,
     loot: [
-      // TODO: fill — spell tome? astral shards? enchanted staff?
+      { type: "resource", resource: "lichglass", chance: 0.2, min: 1, max: 1 },
+      { type: "resource", resource: "shimmer", chance: 0.3, min: 1, max: 2 },
+      { type: "resource", resource: "barrow_ash", chance: 0.5, min: 2, max: 4 },
+      { type: "item", itemId: "enchanted_staff", chance: 0.06 },
     ],
   },
   {
@@ -383,7 +401,9 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 22, dex: 16, int: 14, vit: 24, wis: 12 },
     tags: ["demon", "magical"],
     loot: [
-      // TODO: fill — demonic essence? gold?
+      { type: "resource", resource: "ashblood", chance: 0.3, min: 1, max: 2 },
+      { type: "resource", resource: "hellite", chance: 0.2, min: 1, max: 1 },
+      { type: "resource", resource: "infernal_link", chance: 0.15, min: 1, max: 1 },
     ],
   },
   {
@@ -396,7 +416,9 @@ export const ENEMIES: EnemyDefinition[] = [
     tags: ["elemental_fire", "elemental_earth"],
     boss: true,
     loot: [
-      // TODO: fill — ore? gems? stone?
+      { type: "resource", resource: "heartstone", chance: 0.4, min: 1, max: 2 },
+      { type: "resource", resource: "livingflame_bead", chance: 0.3, min: 1, max: 2 },
+      { type: "resource", resource: "stone", chance: 0.8, min: 30, max: 60 },
     ],
   },
   {
@@ -409,7 +431,8 @@ export const ENEMIES: EnemyDefinition[] = [
     tags: ["elemental_aether", "magical"],
     boss: true,
     loot: [
-      // TODO: fill — astral shards? aether crystal?
+      { type: "resource", resource: "shimmer", chance: 0.5, min: 1, max: 3 },
+      { type: "resource", resource: "astralShards", chance: 0.4, min: 1, max: 2 },
     ],
   },
   {
@@ -422,7 +445,8 @@ export const ENEMIES: EnemyDefinition[] = [
     tags: ["divine", "magical"],
     boss: true,
     loot: [
-      // TODO: fill — divine relic? blessed armor?
+      { type: "resource", resource: "godspark", chance: 0.15, min: 1, max: 1 },
+      { type: "resource", resource: "dormant_sigil", chance: 0.25, min: 1, max: 1 },
     ],
   },
   {
@@ -435,7 +459,9 @@ export const ENEMIES: EnemyDefinition[] = [
     tags: ["ghost", "magical"],
     boss: true,
     loot: [
-      // TODO: fill — spirit essence? nightbloom?
+      { type: "resource", resource: "keening_shard", chance: 0.25, min: 1, max: 1 },
+      { type: "resource", resource: "ghostweave", chance: 0.4, min: 1, max: 2 },
+      { type: "resource", resource: "veilmist", chance: 0.5, min: 1, max: 3 },
     ],
   },
 
@@ -467,7 +493,10 @@ export const ENEMIES: EnemyDefinition[] = [
     tags: ["demon", "magical"],
     boss: true,
     loot: [
-      // TODO: fill — shadow blade? void essence?
+      { type: "resource", resource: "shadow_fragment", chance: 0.4, min: 1, max: 2 },
+      { type: "resource", resource: "voidthorn", chance: 0.2, min: 1, max: 1 },
+      { type: "resource", resource: "ashblood", chance: 0.6, min: 2, max: 4 },
+      { type: "resource", resource: "astralShards", chance: 0.9, min: 3, max: 6 },
     ],
   },
   {
@@ -480,7 +509,9 @@ export const ENEMIES: EnemyDefinition[] = [
     tags: ["divine", "magical"],
     boss: true,
     loot: [
-      // TODO: fill — divine fragment? holy relic?
+      { type: "resource", resource: "seraphs_grief", chance: 0.2, min: 1, max: 1 },
+      { type: "resource", resource: "godspark", chance: 0.4, min: 1, max: 2 },
+      { type: "resource", resource: "astralShards", chance: 0.9, min: 4, max: 8 },
     ],
   },
   {
@@ -493,7 +524,9 @@ export const ENEMIES: EnemyDefinition[] = [
     tags: ["elemental_aether"],
     boss: true,
     loot: [
-      // TODO: fill — massive astral shards? aether core?
+      { type: "resource", resource: "aether_core", chance: 0.2, min: 1, max: 1 },
+      { type: "resource", resource: "shimmer", chance: 0.8, min: 3, max: 6 },
+      { type: "resource", resource: "astralShards", chance: 0.9, min: 5, max: 10 },
     ],
   },
 ];
