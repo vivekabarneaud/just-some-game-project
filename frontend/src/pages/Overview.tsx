@@ -491,12 +491,12 @@ export default function Overview() {
                         <img
                           src={raid()!.image!}
                           alt=""
-                          style={{ width: "100%", height: "100%", "object-fit": "cover", "object-position": "center 20%", opacity: "0.2" }}
+                          style={{
+                            width: "100%", height: "100%", "object-fit": "cover", "object-position": "center 20%", opacity: "0.2",
+                            "-webkit-mask-image": "linear-gradient(to right, black 30%, transparent 100%)",
+                            "mask-image": "linear-gradient(to right, black 30%, transparent 100%)",
+                          }}
                         />
-                        <div style={{
-                          position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
-                          background: "linear-gradient(to right, transparent 20%, rgba(231, 76, 60, 0.1) 70%, rgba(231, 76, 60, 0.1) 100%), linear-gradient(to bottom, rgba(26, 26, 46, 0.3) 0%, transparent 20%, transparent 80%, rgba(26, 26, 46, 0.3) 100%)",
-                        }} />
                       </div>
                     </Show>
 
