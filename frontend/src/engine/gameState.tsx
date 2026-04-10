@@ -91,6 +91,7 @@ import {
 import {
   type Adventurer,
   type AdventurerRank,
+  type Race,
   generateCandidate,
   getRecruitCost,
   getMaxRecruitRank,
@@ -100,6 +101,11 @@ import {
   RECRUIT_REFRESH_HOURS,
   MISSION_REFRESH_HOURS,
   resetAdventurerSeed,
+  RACE_WEIGHTS,
+  ORIGINS,
+  getOriginsForRace,
+  BACKSTORY_TRAITS,
+  PERSONALITY_QUIRKS,
 } from "~/data/adventurers";
 import {
   type ActiveMission,
@@ -910,6 +916,29 @@ function loadGame(): GameState | null {
     for (const adv of saved.recruitCandidates) {
       if ((adv as any).level === undefined) { (adv as any).level = 1; (adv as any).xp = 0; }
     }
+    // Race/origin/backstory migration — backfill existing adventurers
+    const backfillOrigin = (adv: any) => {
+      if (adv.race) return; // already has origin data
+      // Use name hash for deterministic assignment
+      const hash = adv.name.split("").reduce((h: number, c: string) => h + c.charCodeAt(0), 0);
+      // Pick race weighted by hash
+      const raceRoll = (hash % 100) / 100;
+      const race: Race = raceRoll < RACE_WEIGHTS.elf ? "elf" : raceRoll < RACE_WEIGHTS.elf + RACE_WEIGHTS.dwarf ? "dwarf" : "human";
+      const origins = getOriginsForRace(race);
+      const origin = origins[hash % origins.length];
+      // Pick backstory, quirk, trait deterministically from hash
+      const backstoryKeys = Object.keys(origin.backstories) as (keyof typeof origin.backstories)[];
+      const backstory = origin.backstories[backstoryKeys[hash % backstoryKeys.length]];
+      const quirk = PERSONALITY_QUIRKS[hash % PERSONALITY_QUIRKS.length];
+      const trait = BACKSTORY_TRAITS[hash % BACKSTORY_TRAITS.length];
+      adv.race = race;
+      adv.origin = origin.id;
+      adv.backstory = backstory;
+      adv.quirk = quirk;
+      adv.trait = trait.id;
+    };
+    for (const adv of saved.adventurers) backfillOrigin(adv);
+    for (const adv of saved.recruitCandidates) backfillOrigin(adv);
     for (const pb of saved.buildings) {
       if (pb.upgrading && (pb as any).upgradeFinishTime) {
         pb.upgradeRemaining = Math.max(0, ((pb as any).upgradeFinishTime - Date.now()) / 1000);
