@@ -227,6 +227,114 @@ export const ITEMS: ItemDefinition[] = [
     stats: { dex: 2, str: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "shadow_mantle", consumable: false, defense: 22,
   },
+
+  // ── Material-crafted equipment ────────────────────────────────
+
+  // Blacksmith — material weapons & armor
+  {
+    id: "orc_cleaver", name: "Orc Cleaver", icon: "🪓", slot: "mainHand",
+    description: "+3 STR. Crude but brutally effective.",
+    classes: ["warrior"],
+    stats: { str: 3 }, durationMod: 1, lootMod: 1,
+    recipeId: "orc_cleaver", consumable: false,
+  },
+  {
+    id: "cursed_blade", name: "Cursed Blade", icon: "⚔️", slot: "mainHand",
+    description: "+2 STR, +2 INT. The edge never dulls. It whispers when drawn.",
+    classes: ["warrior", "assassin"],
+    stats: { str: 2, int: 2 }, durationMod: 1, lootMod: 1,
+    recipeId: "cursed_blade", consumable: false,
+  },
+  {
+    id: "dragonbone_sword", name: "Dragonbone Sword", icon: "🗡️", slot: "mainHand",
+    description: "+5 STR, +2 DEX. Forged with dragon fang — it cuts through armor like parchment.",
+    classes: ["warrior", "assassin"],
+    stats: { str: 5, dex: 2 }, durationMod: 1, lootMod: 1,
+    recipeId: "dragonbone_sword", consumable: false,
+  },
+  {
+    id: "infernal_mail", name: "Infernal Mail", icon: "⛓️", slot: "chest",
+    description: "+2 VIT, +1 STR, 65 DEF. Demon-forged links that radiate heat.",
+    classes: ["warrior"],
+    stats: { vit: 2, str: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "infernal_mail", consumable: false, defense: 65,
+  },
+  {
+    id: "fang_necklace", name: "Fang Necklace", icon: "🦷", slot: "amulet",
+    description: "+1 STR, +1 DEX. Zah'kari courage charm — wolf fangs on sinew cord.",
+    classes: [],
+    stats: { str: 1, dex: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "fang_necklace", consumable: false,
+  },
+
+  // Leatherworking — material armor
+  {
+    id: "wolfhide_armor", name: "Wolfhide Armor", icon: "🐺", slot: "chest",
+    description: "+1 VIT, +1 DEX, 25 DEF. Tough and pungent. The frontier's favorite.",
+    classes: ["archer", "assassin"],
+    stats: { vit: 1, dex: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "wolfhide_armor", consumable: false, defense: 25,
+  },
+  {
+    id: "chitin_vest", name: "Chitin Vest", icon: "🕷️", slot: "chest",
+    description: "+2 DEX, 35 DEF. Light as wood, hard as iron. Spider-silk stitching.",
+    classes: ["archer", "assassin"],
+    stats: { dex: 2 }, durationMod: 1, lootMod: 1,
+    recipeId: "chitin_vest", consumable: false, defense: 35,
+  },
+  {
+    id: "trollhide_cloak", name: "Trollhide Cloak", icon: "🧌", slot: "cloak",
+    description: "+2 VIT, +1 STR, 30 DEF. Still warm. The regeneration lingers.",
+    classes: [],
+    stats: { vit: 2, str: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "trollhide_cloak", consumable: false, defense: 30,
+  },
+  {
+    id: "wyrmscale_armor", name: "Wyrmscale Armor", icon: "🐉", slot: "chest",
+    description: "+3 VIT, +2 STR, 70 DEF. Dragon scales over leather. Forge-resistant and magnificent.",
+    classes: ["warrior", "archer"],
+    stats: { vit: 3, str: 2 }, durationMod: 1, lootMod: 1,
+    recipeId: "wyrmscale_armor", consumable: false, defense: 70,
+  },
+
+  // Tailoring — material robes & cloaks
+  {
+    id: "ghostweave_cloak", name: "Ghostweave Cloak", icon: "👻", slot: "cloak",
+    description: "+2 INT, +1 WIS, 15 DEF. Nearly invisible. Cold as moonlight.",
+    classes: ["wizard", "priest"],
+    stats: { int: 2, wis: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "ghostweave_cloak", consumable: false, defense: 15,
+  },
+  {
+    id: "windweave_robe", name: "Windweave Robe", icon: "💨", slot: "chest",
+    description: "+3 INT, +1 DEX, 20 DEF. Weighs nothing. Dries instantly. 5% faster missions.",
+    classes: ["wizard"],
+    stats: { int: 3, dex: 1 }, durationMod: 0.95, lootMod: 1,
+    recipeId: "windweave_robe", consumable: false, defense: 20,
+  },
+  {
+    id: "war_banner", name: "War Banner", icon: "🏴", slot: "trinket",
+    description: "+1 STR to entire party. Orc warlord's standard, restitched and blessed.",
+    classes: [],
+    stats: { str: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "war_banner", consumable: false,
+  },
+
+  // Woodworker — material weapons
+  {
+    id: "sinew_bow", name: "Sinew Bow", icon: "🏹", slot: "mainHand",
+    description: "+2 DEX, +1 STR. Wolf-sinew string. Never snaps in the cold.",
+    classes: ["archer"],
+    stats: { dex: 2, str: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "sinew_bow", consumable: false,
+  },
+  {
+    id: "dragonfire_staff", name: "Dragonfire Staff", icon: "🔥", slot: "mainHand",
+    description: "+5 INT, +2 WIS. The tip smolders permanently. Ink evaporates near it.",
+    classes: ["wizard"],
+    stats: { int: 5, wis: 2 }, durationMod: 0.9, lootMod: 1,
+    recipeId: "dragonfire_staff", consumable: false, twoHanded: true,
+  },
 ];
 
 export function getItem(id: string): ItemDefinition | undefined {

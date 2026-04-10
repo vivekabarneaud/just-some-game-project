@@ -466,6 +466,154 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     produces: { resource: "armor", amount: 1 },
     craftTime: 600,
   },
+
+  // ── Material-based recipes — Blacksmith ───────────────────────
+  {
+    id: "orc_cleaver",
+    name: "Orc Cleaver",
+    icon: "🪓",
+    building: "blacksmith",
+    minLevel: 3,
+    costs: [{ resource: "orc_steel", amount: 3 }, { resource: "iron", amount: 10 }, { resource: "wood", amount: 5 }],
+    produces: { resource: "weapons", amount: 1 },
+    craftTime: 300,
+  },
+  {
+    id: "cursed_blade",
+    name: "Cursed Blade",
+    icon: "⚔️",
+    building: "blacksmith",
+    minLevel: 4,
+    costs: [{ resource: "cursed_iron", amount: 4 }, { resource: "iron", amount: 15 }, { resource: "bonewalk_shard", amount: 2 }],
+    produces: { resource: "weapons", amount: 1 },
+    craftTime: 600,
+  },
+  {
+    id: "dragonbone_sword",
+    name: "Dragonbone Sword",
+    icon: "🗡️",
+    building: "blacksmith",
+    minLevel: 5,
+    costs: [{ resource: "dragon_fang", amount: 2 }, { resource: "wyrmshell_plate", amount: 3 }, { resource: "iron", amount: 20 }],
+    produces: { resource: "weapons", amount: 1 },
+    craftTime: 1200,
+  },
+  {
+    id: "infernal_mail",
+    name: "Infernal Mail",
+    icon: "⛓️",
+    building: "blacksmith",
+    minLevel: 5,
+    costs: [{ resource: "infernal_link", amount: 4 }, { resource: "iron", amount: 25 }, { resource: "ashblood", amount: 2 }],
+    produces: { resource: "armor", amount: 1 },
+    craftTime: 1200,
+  },
+  {
+    id: "fang_necklace",
+    name: "Fang Necklace",
+    icon: "🦷",
+    building: "blacksmith",
+    minLevel: 2,
+    costs: [{ resource: "fang", amount: 4 }, { resource: "sinew_cord", amount: 2 }],
+    produces: { resource: "armor", amount: 1 },
+    craftTime: 120,
+  },
+
+  // ── Material-based recipes — Leatherworking ───────────────────
+  {
+    id: "wolfhide_armor",
+    name: "Wolfhide Armor",
+    icon: "🐺",
+    building: "leatherworking",
+    minLevel: 2,
+    costs: [{ resource: "wolfhide_strip", amount: 5 }, { resource: "leather", amount: 8 }],
+    produces: { resource: "armor", amount: 1 },
+    craftTime: 120,
+  },
+  {
+    id: "chitin_vest",
+    name: "Chitin Vest",
+    icon: "🕷️",
+    building: "leatherworking",
+    minLevel: 3,
+    costs: [{ resource: "chitin_plate", amount: 4 }, { resource: "leather", amount: 6 }, { resource: "sinew_cord", amount: 2 }],
+    produces: { resource: "armor", amount: 1 },
+    craftTime: 300,
+  },
+  {
+    id: "trollhide_cloak",
+    name: "Trollhide Cloak",
+    icon: "🧌",
+    building: "leatherworking",
+    minLevel: 4,
+    costs: [{ resource: "trollhide", amount: 3 }, { resource: "leather", amount: 10 }, { resource: "fiber", amount: 5 }],
+    produces: { resource: "armor", amount: 1 },
+    craftTime: 600,
+  },
+  {
+    id: "wyrmscale_armor",
+    name: "Wyrmscale Armor",
+    icon: "🐉",
+    building: "leatherworking",
+    minLevel: 5,
+    costs: [{ resource: "wyrmshell_plate", amount: 5 }, { resource: "leather", amount: 15 }, { resource: "sinew_cord", amount: 4 }],
+    produces: { resource: "armor", amount: 1 },
+    craftTime: 1200,
+  },
+
+  // ── Material-based recipes — Tailoring ────────────────────────
+  {
+    id: "ghostweave_cloak",
+    name: "Ghostweave Cloak",
+    icon: "👻",
+    building: "tailoring_shop",
+    minLevel: 4,
+    costs: [{ resource: "ghostweave", amount: 4 }, { resource: "fiber", amount: 10 }],
+    produces: { resource: "armor", amount: 1 },
+    craftTime: 600,
+  },
+  {
+    id: "windweave_robe",
+    name: "Windweave Robe",
+    icon: "💨",
+    building: "tailoring_shop",
+    minLevel: 4,
+    costs: [{ resource: "windweave_fiber", amount: 4 }, { resource: "fiber", amount: 8 }, { resource: "wool", amount: 5 }],
+    produces: { resource: "armor", amount: 1 },
+    craftTime: 600,
+  },
+  {
+    id: "war_banner",
+    name: "War Banner",
+    icon: "🏴",
+    building: "tailoring_shop",
+    minLevel: 3,
+    costs: [{ resource: "torn_banner", amount: 3 }, { resource: "fiber", amount: 6 }, { resource: "gold", amount: 10 }],
+    produces: { resource: "armor", amount: 1 },
+    craftTime: 300,
+  },
+
+  // ── Material-based recipes — Woodworker ───────────────────────
+  {
+    id: "sinew_bow",
+    name: "Sinew Bow",
+    icon: "🏹",
+    building: "woodworker",
+    minLevel: 3,
+    costs: [{ resource: "sinew_cord", amount: 3 }, { resource: "wood", amount: 15 }, { resource: "wolfhide_strip", amount: 2 }],
+    produces: { resource: "weapons", amount: 1 },
+    craftTime: 300,
+  },
+  {
+    id: "dragonfire_staff",
+    name: "Dragonfire Staff",
+    icon: "🔥",
+    building: "woodworker",
+    minLevel: 5,
+    costs: [{ resource: "dragonfire_ash", amount: 4 }, { resource: "wood", amount: 20 }, { resource: "livingflame_bead", amount: 2 }],
+    produces: { resource: "weapons", amount: 1 },
+    craftTime: 1200,
+  },
 ];
 
 export interface ResourceState {
@@ -2664,30 +2812,41 @@ export function GameProvider(props: ParentProps) {
         return r?.building === recipe.building;
       }).length;
       if (activeCrafts >= building.level) return false;
-      // Check costs
+      // Check costs (resources + inventory materials)
+      const getResourceAmount = (res: string): number => {
+        if (res === "wool") return state.wool;
+        if (res === "fiber") return state.fiber;
+        if (res === "iron") return state.iron;
+        if (res === "leather") return state.leather;
+        if (res === "gold") return state.resources.gold;
+        if (res === "wood") return state.resources.wood;
+        if (res === "stone") return state.resources.stone;
+        if (res === "food") return state.resources.food;
+        if (res === "astralShards") return state.astralShards;
+        // Check inventory for materials
+        const inv = state.inventory.find((i) => i.itemId === res);
+        return inv?.quantity ?? 0;
+      };
       for (const cost of recipe.costs) {
-        const res = cost.resource;
-        if (res === "wool" && state.wool < cost.amount) return false;
-        if (res === "fiber" && state.fiber < cost.amount) return false;
-        if (res === "iron" && state.iron < cost.amount) return false;
-        if (res === "leather" && state.leather < cost.amount) return false;
-        if (res === "gold" && state.resources.gold < cost.amount) return false;
-        if (res === "wood" && state.resources.wood < cost.amount) return false;
-        if (res === "stone" && state.resources.stone < cost.amount) return false;
-        if (res === "food" && state.resources.food < cost.amount) return false;
-        if (res === "astralShards" && state.astralShards < cost.amount) return false;
+        if (getResourceAmount(cost.resource) < cost.amount) return false;
       }
       setState(produce((s) => {
         for (const cost of recipe.costs) {
-          if (cost.resource === "wool") s.wool -= cost.amount;
-          else if (cost.resource === "fiber") s.fiber -= cost.amount;
-          else if (cost.resource === "iron") s.iron -= cost.amount;
-          else if (cost.resource === "leather") s.leather -= cost.amount;
-          else if (cost.resource === "gold") s.resources.gold -= cost.amount;
-          else if (cost.resource === "wood") s.resources.wood -= cost.amount;
-          else if (cost.resource === "stone") s.resources.stone -= cost.amount;
-          else if (cost.resource === "food") s.resources.food -= cost.amount;
-          else if (cost.resource === "astralShards") s.astralShards -= cost.amount;
+          const res = cost.resource;
+          if (res === "wool") s.wool -= cost.amount;
+          else if (res === "fiber") s.fiber -= cost.amount;
+          else if (res === "iron") s.iron -= cost.amount;
+          else if (res === "leather") s.leather -= cost.amount;
+          else if (res === "gold") s.resources.gold -= cost.amount;
+          else if (res === "wood") s.resources.wood -= cost.amount;
+          else if (res === "stone") s.resources.stone -= cost.amount;
+          else if (res === "food") s.resources.food -= cost.amount;
+          else if (res === "astralShards") s.astralShards -= cost.amount;
+          else {
+            // Deduct from inventory (materials)
+            const inv = s.inventory.find((i) => i.itemId === res);
+            if (inv) inv.quantity -= cost.amount;
+          }
         }
         s.craftingQueue.push({ recipeId, remaining: recipe.craftTime });
       }));
