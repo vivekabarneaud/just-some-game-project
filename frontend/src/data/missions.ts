@@ -1245,14 +1245,14 @@ export const STORY_MISSIONS: StoryMission[] = [
     lore: "The ritual took hours. Your wizard channeled Aether into the stone while Kess chanted in a language older than the Dominion. The runes flickered, dimmed, and finally held — a faint blue glow that pushed back the grey.\n\nThe dead came, as she predicted. Not with malice — with confusion. Spirits that didn't understand why they were there, drawn to the weakening boundary like moths to a crack of light. Your team fought them off while the ritual completed.\n\nAfterward, Kess sat against the stone and told you what the Thornveil knows: the world is dying. Not today, not this year, but steadily. The god of death was destroyed thousands of years ago, and without him, the boundary between the living and the dead is failing.\n\n'Everyone has a theory,' she says. 'The Church says stop using magic. The Cult says resurrect the dead god. The Dominion says there's no problem. My people just patch the wards and hope someone smarter comes along.'\n\nShe looks at you. 'You're building something here. That takes a certain kind of stubborn. We could use stubborn.'",
   },
   {
-    id: "story_6_the_raven",
+    id: "story_6_the_robin",
     storyOrder: 6,
     prerequisite: "story_5_ward_stone",
     chapter: "Chapter 2: The Boundary",
-    name: "The Raven's Message",
+    name: "The Robin's Message",
     description:
-      "A raven landed on your settlement's watchtower this morning. Not a wild bird — it carried a scroll, sealed with wax that shimmered faintly. The seal bears no sigil. The handwriting inside is precise but shaky, as if written by someone very old or very tired.",
-    icon: "🐦‍⬛",
+      "A robin landed on your settlement's watchtower this morning. Just a bird — except it carried a tiny scroll, sealed with wax that shimmered faintly. The seal bears no sigil. The handwriting inside is precise but shaky, as if written by someone very old or very tired.",
+    icon: "🐦",
     slots: [{ class: "any" }, { class: "any" }, { class: "any" }],
     duration: 2400,
     rewards: [
@@ -1264,7 +1264,7 @@ export const STORY_MISSIONS: StoryMission[] = [
     minGuildLevel: 2,
     tags: ["exploration", "combat", "outdoor"],
     encounters: [{ enemyId: "orc_warrior", count: 2 }, { enemyId: "orc_warlord", count: 1 }],
-    lore: "The scroll read:\n\n'I have watched your settlement for some time. You reinforce wards. You fight what comes through. You ask questions instead of praying for answers. This is rare.\n\nI will not insult you with false hope. The boundary is failing. The wards slow the collapse but cannot stop it. The Thornveil are brave but they are bailing water from a sinking ship.\n\nI have spent a very long time studying why the ship is sinking. I know the problem. I do not yet know the solution. But I believe the answer is close — closer than it has been in millennia.\n\nI cannot come to you. I am old, and there are those who hunt me. But I am sending you something — a map to a place the Dominion has forgotten. What you find there may change what you understand about this world.\n\nFollow the raven when it flies south. It knows the way.\n\n— H.F.'\n\nKess, reading over your shoulder, goes pale. 'H.F.,' she whispers. 'Halldora Frostvik. The Thornveil elders speak of her. They say she was alive before the Dominion existed. They say she knows why the world is broken.'\n\nThe raven is still perched on the watchtower. It's watching you. Waiting.",
+    lore: "The scroll read:\n\n'I have watched your settlement for some time. You reinforce wards. You fight what comes through. You ask questions instead of praying for answers. This is rare.\n\nI will not insult you with false hope. The boundary is failing. The wards slow the collapse but cannot stop it. The Thornveil are brave but they are bailing water from a sinking ship.\n\nI have spent a very long time studying why the ship is sinking. I know the problem. I do not yet know the solution. But I believe the answer is close — closer than it has been in millennia.\n\nI cannot come to you. I am old, and there are those who hunt me. But I am sending you something — a map to a place the Dominion has forgotten. What you find there may change what you understand about this world.\n\nFollow the robin when it flies south. It knows the way.\n\n— H.F.'\n\nKess, reading over your shoulder, frowns. 'A robin? The Thornveil elders say she used ravens.' A pause. Then understanding: 'She changed. Because someone was intercepting the ravens.'\n\nShe looks at you. 'H.F. Halldora Frostvik. They say she was alive before the Dominion existed. They say she knows why the world is broken.'\n\nThe robin is still perched on the watchtower. Small, ordinary, easily overlooked. It tilts its head at you. Waiting.",
   },
 ];
 

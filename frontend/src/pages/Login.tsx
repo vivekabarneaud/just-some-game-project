@@ -53,7 +53,7 @@ export default function Login() {
           "margin-bottom": "0.5rem",
           "font-size": "1.8rem",
         }}>
-          Medieval Realm
+          Valenheart
         </h1>
         <p style={{
           "text-align": "center",

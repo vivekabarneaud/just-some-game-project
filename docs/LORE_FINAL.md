@@ -277,7 +277,7 @@ So she performed a forbidden ritual — one that broke every law of the destroye
 
 The binding also gave her something no other being possesses: a direct, physical connection to the Aether's flow. She can *feel* the boundary thinning the way you would feel a draft through a cracked wall. She can sense the stagnant dead Aether pooling underground. She felt the moment, roughly 150 years ago, when the Wastes began to expand — a sensation she describes as "the world exhaling and not breathing back in."
 
-The ritual made her a criminal. The Ashenmark Dominion — and later the Church of the Radiant One through the Doctrine of Silence — considers her practice of forbidden magic a capital offense. She is **actively wanted** by the Dominion. The Inquisition has standing orders to capture her. She has been hiding for centuries — old, frail, weak, alone, conducting her research in secret sanctums, communicating through ravens and coded messages, staying one step ahead of the people she is trying to save.
+The ritual made her a criminal. The Ashenmark Dominion — and later the Church of the Radiant One through the Doctrine of Silence — considers her practice of forbidden magic a capital offense. She is **actively wanted** by the Dominion. The Inquisition has standing orders to capture her. She has been hiding for centuries — old, frail, weak, alone, conducting her research in secret sanctums, communicating through enchanted robins and coded messages, staying one step ahead of the people she is trying to save. She chose robins deliberately — small, common, unremarkable. The Inquisition intercepts ravens, the known messenger bird. Nobody suspects a robin. Binding Aether to such a small, fragile creature requires extraordinary precision — the kind only someone with millennia of practice could manage. It is a flex disguised as humility.
 
 ### What Halldora Knows — and Doesn't Know
 
@@ -294,7 +294,7 @@ She is not hoarding a solution. She does not have one. That is her tragedy: she 
 
 Now she is running out of time. The Wastes are accelerating. Her body is failing despite the binding. And the Inquisition is closing in. She needs someone she can **trust** — someone capable, independent, and brave enough to carry her research forward if she falls. Someone who can go where she cannot, access knowledge she's been denied, and perhaps find the missing piece in the dragons, in the Hauts-Ciels archives, in the Cult's forbidden rituals, or in something nobody has yet imagined.
 
-That is why she watches the Free Settlements. That is why she sends ravens.
+That is why she watches the Free Settlements. That is why she sends her robins.
 
 ### Halldora and the Hauts-Ciels
 
@@ -415,6 +415,6 @@ You will learn.
 
 Build your settlement. Recruit adventurers. Explore the ruins of civilizations that came before you and failed. Discover why they failed. And decide — when the factions come with their arguments and their armies and their desperate solutions — what you believe.
 
-And if a raven arrives one day, carrying a message from a woman who has been alive for longer than any kingdom, who watched the gods die and has spent millennia trying to fix what mortals broke:
+And if a robin arrives one day — small, ordinary, easily overlooked — carrying a message from a woman who has been alive for longer than any kingdom, who watched the gods die and has spent millennia trying to fix what mortals broke:
 
 Listen carefully. She doesn't have much time left.

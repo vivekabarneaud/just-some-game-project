@@ -98,7 +98,7 @@ export default function Sidebar() {
   return (
     <aside class="sidebar">
       <div class="sidebar-header">
-        <h1>Medieval Realm</h1>
+        <h1>Valenheart</h1>
         {(() => {
           const [editing, setEditing] = createSignal(false);
           const [draft, setDraft] = createSignal("");

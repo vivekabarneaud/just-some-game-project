@@ -61,7 +61,7 @@ export const ORIGINS: OriginDef[] = [
     statMods: {},
     firstNamesMale: ["Bjorn", "Tormund", "Leif", "Ragnar", "Soren", "Ulf", "Erik", "Halvard", "Sigurd", "Magnus", "Wulf", "Gunnar", "Haldor", "Styrkar", "Vidar", "Torvald", "Kjartan", "Brynjar", "Oddvar", "Eirik", "Fenris", "Grimm", "Asmund", "Ragnvald"],
     firstNamesFemale: ["Sigrid", "Freya", "Astrid", "Ingrid", "Thora", "Helga", "Kara", "Runa", "Ylva", "Vara", "Solveig", "Gudrun", "Brynja", "Sif", "Eirunn", "Herja", "Torhild", "Alvhild", "Vigdis", "Svanhild", "Jorunn", "Dagmar"],
-    lastNames: ["Stormveil", "Coldhammer", "Frostwind", "Ravensong", "Stonehelm", "Iceforge", "Wolfbane", "Frostvik"],
+    lastNames: ["Stormveil", "Coldhammer", "Frostwind", "Ironhide", "Stonehelm", "Iceforge", "Wolfbane", "Frostvik"],
     backstories: {
       fighter: "Former shield-bearer of the Thornveil Rangers. Left when the wards started failing and nobody would admit it.",
       scholar: "An elder's apprentice who memorized the old sagas. Came south chasing a story that hasn't ended yet.",
