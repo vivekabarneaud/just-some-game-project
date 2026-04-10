@@ -1,145 +1,369 @@
-Now here are prompts for building icons — these should be smaller, more focused illustrations, icon-style:
+# Midjourney Prompts — The Shattered Realm
 
-Resource buildings:
-Realistic digital painting, medieval lumber mill in a forest, water wheel, stacked logs, sawdust, workers cutting timber, warm afternoon light, isolated building, dark moody background, game icon style, square composition, no
-text --ar 1:1
+Style reference: "Realistic digital painting, dark moody atmosphere, game icon style"
+Enemy portraits: --ar 1:1 (square, for cards)
+Mission scenes: --ar 16:9 (wide, for assembly panel backgrounds)
+Raid scenes: --ar 1:1 or --ar 16:9
 
-Realistic digital painting, medieval stone quarry, workers chiseling rock face, stone blocks stacked, wooden scaffolding, dusty atmosphere, picks and hammers, dark moody background, game icon style, square composition, no text
---ar 1:1
+---
 
-Realistic digital painting, medieval hunting camp in the woods, animal pelts hanging, campfire with a spit roast, bows and quivers against a tree, a hunting dog, forest clearing, dark moody background, game icon style, square
-composition, no text --ar 1:1
+## Enemy Portraits
 
-Realistic digital painting, medieval forager's hut at the forest edge, baskets of berries and herbs, drying rack with plants, a woman gathering mushrooms, wildflowers, cozy and rustic, dark moody background, game icon style,  
-square composition, no text --ar 1:1
+### Tier 1 — Common Threats
 
-Realistic digital painting, medieval fishing hut on a riverbank, wooden dock with nets drying, a small rowboat, fish in barrels, a fisherman mending nets, misty water, dark moody background, game icon style, square
-composition, no text --ar 1:1
+**Goblin Scout**
+Extreme close-up portrait of a goblin scout, small wiry green-skinned creature with oversized pointed ears, beady yellow eyes darting nervously, sharp crooked nose, a wicked grin showing jagged teeth, scarred face, wearing a ragged leather hood and patched leather shoulder armor, clutching a crude rusty dagger close to its chest, lunging forward mid-strike with mouth open in a shriek, dark cave entrance barely visible behind, low dramatic lighting from one side, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-Settlement buildings:
-Realistic digital painting, medieval town hall, stone and timber two-story building, a banner hanging from the entrance, steps leading to a wooden door, lanterns lit, officials talking outside, dark moody background, game icon
-style, square composition, no text --ar 1:1
+**Bandit Thug**
+Extreme close-up portrait of a desperate medieval bandit mid-swing, gaunt unshaven face twisted in rage, wild bloodshot eyes, broken nose, a deep scar across the cheek, wearing a torn dirty hood and mismatched leather scraps, swinging a chipped rusty shortsword at the viewer with both hands, teeth bared in a snarl, rain-slicked dark alley barely visible behind, harsh side lighting from a torch, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-Realistic digital painting, medieval thatched cottages, small row of cozy houses, smoke from chimneys, flower boxes in windows, a cat on a doorstep, warm candlelight inside, dark moody background, game icon style, square      
-composition, no text --ar 1:1
+**Wild Wolf**
+Extreme close-up portrait of a snarling wild wolf, head slightly lowered in attack stance, baring yellow fangs, saliva dripping, matted grey-brown fur, one ear torn from old fights, piercing hungry golden eyes staring directly at the viewer, visible ribs showing starvation, lunging forward mid-pounce with front paws raised, dark pine forest barely visible in the blurred background, low angle, dramatic side lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-Realistic digital painting, medieval warehouse, large wooden barn-like structure, open doors showing stacked barrels and crates, a cart being loaded, dark moody background, game icon style, square composition, no text --ar 1:1
+**Giant Rat**
+Extreme close-up portrait of a bloated giant rat the size of a dog, mangy brown-grey fur matted with filth, beady red eyes gleaming with disease, yellow incisors bared and dripping, swollen belly, patchy bald spots with visible sores, rearing up on hind legs with claws extended towards the viewer, hissing aggressively, damp stone dungeon walls glistening behind, dim green-tinted torchlight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-Realistic digital painting, medieval stone pantry cellar, underground food storage, shelves of preserved meats and cheeses, hanging sausages, barrels of grain, cool stone walls, candlelight, dark moody background, game icon   
-style, square composition, no text --ar 1:1
+**Skeleton**
+Extreme close-up portrait of an animated skeleton warrior lurching forward mid-charge, empty eye sockets glowing faintly blue with necromantic energy, jawbone hanging open in a silent scream, cracked yellowed bones, scraps of ancient rusted chainmail hanging from the ribcage, raising a corroded sword overhead with both bony hands, tattered remnants of a burial shroud trailing behind, dark burial ground with crumbling headstones in the background, eerie pale moonlight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-Guild & special buildings:
-Realistic digital painting, medieval adventurer's guild hall, sturdy stone building with a wooden sign showing crossed swords, adventurers gathering outside with gear, a notice board with mission posters, warm torchlight, dark
-moody background, game icon style, square composition, no text --ar 1:1
+### Tier 2 — Organized Threats
 
-Realistic digital painting, medieval pagan shrine in a forest clearing, ancient standing stones in a circle, offerings of flowers and candles, faint mystical glow, moss and vines, an altar stone in the center, dark moody      
-background, game icon style, square composition, no text --ar 1:1
+**Orc Warrior**
+Extreme close-up portrait of an orc warrior, massive green-skinned brute with a heavy jutting jaw and broken tusks, deep battle scars across the face and brow, small furious bloodshot eyes, flared nostrils, wearing a dented rusted iron helmet and battered plate shoulder guard, thick neck with a crude bone necklace, swinging a chipped heavy iron axe towards the viewer, roaring a battlecry with mouth wide open, splattered with dried blood, dark smoky battlefield behind, low angle looking up at the orc, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-Realistic digital painting, medieval marketplace, colorful market stalls with awnings, merchants displaying goods, a scale and coins on a table, bustling crowd, crates of exotic wares, dark moody background, game icon style,  
-square composition, no text --ar 1:1
+**Skeleton Archer**
+Extreme close-up portrait of a skeleton archer taking aim directly at the viewer, hollow eye sockets burning with cold blue pinpoints of light, a cracked skull with an ancient arrow lodged in the temple, bony fingers drawing back a blackened longbow with supernatural steadiness, wearing corroded bronze bracers and a rotting leather quiver, arrowhead pointed straight at the camera inches away, dark ruined battlement behind with other skeleton silhouettes, cold blue moonlight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-Crafting buildings:
-Realistic digital painting, medieval blacksmith forge, glowing orange furnace, anvil with a sword being hammered, sparks flying, tools on the wall, a muscular smith working, dark moody background, game icon style, square      
-composition, no text --ar 1:1
+**Bandit Captain**
+Extreme close-up portrait of a grizzled bandit captain mid-charge, weathered face of a former soldier gone rogue, cold calculating grey eyes, a thick scar running from forehead through the left eyebrow, short-cropped hair beneath a dented steel half-helm, wearing a mix of stolen military plate and worn leather, brandishing a well-maintained longsword with a soldier's grip, teeth gritted in determined fury, campfire smoke and bandit tents blurred behind, warm harsh torchlight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-Realistic digital painting, medieval alchemy laboratory, glass bottles and bubbling flasks, dried herbs hanging from ceiling, a cauldron with green steam, bookshelves with ancient tomes, mysterious candlelight, dark moody     
-background, game icon style, square composition, no text --ar 1:1
+**Cave Spider**
+Extreme close-up portrait of a monstrous cave spider the size of a large dog, eight black glistening eyes reflecting light, massive fangs dripping with translucent green venom, dark chitinous exoskeleton with coarse bristly hairs, front legs raised and splayed wide lunging at the viewer, thick strands of sticky web trailing from its spinnerets, narrow cave passage coated in webs behind, dim bioluminescent green light from fungi, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-Realistic digital painting, medieval tailoring shop, bolts of colorful fabric, a loom, a seamstress working by candlelight, thread and needles, finished clothing on display, cozy warm interior, dark moody background, game icon
-style, square composition, no text --ar 1:1
+**Cursed Spirit**
+Extreme close-up portrait of a cursed spirit emerging from darkness, translucent pale blue spectral figure of a medieval person, face contorted in eternal grief and rage, hollow glowing white eyes weeping streams of ectoplasm, mouth open in a wailing scream, tattered spectral robes billowing in an unfelt wind, reaching toward the viewer with elongated ghostly clawed fingers, cold mist swirling around it, abandoned ruined chapel behind, eerie blue-white ethereal glow, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-Realistic digital painting, medieval woodworker's workshop, carpenter's bench with a bow being carved, wood shavings on the floor, staves and shields hanging on walls, warm lantern light, dark moody background, game icon      
-style, square composition, no text --ar 1:1
+**Wyrmling**
+Extreme close-up portrait of a tiny dragon wyrmling the size of a large cat, scales somewhere between bright green and muddy brown, oversized frightened amber eyes with slit pupils, small curved horns just sprouting, wings half-unfurled and trembling, jaws open showing tiny but sharp teeth with a thin wisp of smoke escaping, claws dug into the ground in a defensive crouch hissing at the viewer, scorched grass and broken eggshell fragments around it, warm golden afternoon light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-Realistic digital painting, medieval brewery, large wooden barrels and copper kettles, hops and grain sacks, a brewer stirring a vat, steam rising, warm amber tones, dark moody background, game icon style, square composition,
-no text --ar 1:1
+### Tier 3 — Dangerous Foes
 
-Defense buildings:
-Realistic digital painting, medieval stone walls and gatehouse, thick defensive walls with battlements, a heavy wooden gate with iron reinforcement, guards on the ramparts, torches lit at night, dark moody background, game    
-icon style, square composition, no text --ar 1:1
+**Orc Warlord**
+Extreme close-up portrait of a massive orc warlord bellowing a war command, dark green skin covered in ritual scars and crude war paint, enormous tusks capped with iron, a crown of welded iron shards on his brow, thick muscular neck and shoulders, wearing heavy black iron plate armor with skulls riveted to the pauldrons, raising a massive serrated two-handed cleaver overhead mid-swing, veins bulging, an army of orc silhouettes behind carrying crude banners, fire and smoke from burning structures, red-orange battle lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-Realistic digital painting, medieval watchtower on a hill, tall stone tower with a beacon fire at top, a lookout with a spyglass, flags fluttering, overlooking a vast landscape, dark moody background, game icon style, square  
-composition, no text --ar 1:1
+**Dark Mage**
+Extreme close-up portrait of a dark mage channeling forbidden magic, gaunt pale face with sunken cheeks, glowing purple-violet eyes crackling with arcane energy, thin cruel lips curled in concentration, wearing a deep hood over a tattered black robe with silver occult stitching, one skeletal hand thrust forward unleashing a bolt of dark purple lightning at the viewer, the other clutching an ancient grimoire bound in skin, arcane symbols floating in the air around him, dark stone tower interior behind, purple and green magical light casting harsh shadows, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-Adventurer class portraits:
-Realistic digital painting, portrait of a medieval warrior, heavy plate armor, scarred face, holding a longsword, determined expression, red cloak, dark moody background, character portrait, bust shot, no text --ar 1:1
+**Wraith**
+Extreme close-up portrait of a wraith materializing from shadow, a dark hooded figure made of swirling black smoke and shadow, barely visible skeletal face beneath the hood with two burning red eyes, no legs just a trailing wisp of darkness, tattered spectral cloak billowing and dissolving at the edges, one clawed shadow-hand reaching toward the viewer passing through a rusted sword that floats through it uselessly, frozen mist crystals forming in the air around it, dark misty graveyard behind, cold silver moonlight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-Realistic digital painting, portrait of a medieval wizard, purple robes with arcane symbols, holding a glowing staff, wise weathered face, long grey beard, mystical blue eyes, dark moody background, character portrait, bust   
-shot, no text --ar 1:1
+**Troll**
+Extreme close-up portrait of a massive cave troll mid-roar, enormous mouth full of crooked yellow teeth and foul breath visible as steam, tiny angry piglike eyes, warty grey-green skin thick as bark, enormous bulbous nose, tufts of coarse hair on its head and shoulders, wearing nothing but a crude loincloth of animal pelts, raising a massive uprooted tree trunk as a club with one hand, the other hand showing regenerating flesh over a recent wound, dark swamp behind with twisted dead trees, dim green-brown murky light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-Realistic digital painting, portrait of a medieval priest, blue robes, gentle face, holding a prayer book, soft healing light around hands, a holy symbol necklace, dark moody background, character portrait, bust shot, no text
---ar 1:1
+**Flame Wisp**
+Extreme close-up portrait of a flame wisp, a swirling orb of living fire the size of a human head, dancing and pulsing with white-hot core surrounded by tongues of orange and yellow flame, tiny malevolent ember-eyes barely visible in the center of the blaze, sparks and cinders spiraling outward, the air around it shimmering with heat distortion, scorched grass and small fires spreading beneath it, dark forest at night with trees catching fire in the background, warm orange-red lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-Realistic digital painting, portrait of a medieval archer, leather armor, hooded cloak, holding a longbow, sharp green eyes, quiver of arrows on back, forest setting, dark moody background, character portrait, bust shot, no   
-text --ar 1:1
+**Stone Golem**
+Extreme close-up portrait of a stone golem mid-stride, massive humanoid figure carved from rough grey granite, faceless head with only two deep cracks glowing with dull amber energy where eyes should be, heavy angular body with chisel marks still visible on the surface, moss and lichen growing in the crevices, one enormous stone fist raised about to strike downward at the viewer, cracks running across its body with golden light seeping through, rubble and dust falling from its shoulders, quarry ruins behind, harsh dusty sunlight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-Realistic digital painting, portrait of a medieval assassin, dark leather armor, golden daggers, masked lower face, piercing golden eyes, shadows wrapping around them, dark moody background, character portrait, bust shot, no  
-text --ar 1:1
+**Storm Sprite**
+Extreme close-up portrait of a storm sprite, a crackling humanoid shape made entirely of compressed wind and blue-white lightning, no solid form just constantly shifting electric arcs outlining a small impish figure, bright electric blue eyes of pure energy, tiny lightning bolts arcing between its fingers as it reaches toward the viewer, wind whipping outward from its body, hair made of upward-streaming electricity, dark thunderstorm clouds swirling behind with constant lightning, blue-white electrical glow, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-Resource icons (smaller, simpler):
-Realistic digital painting, pile of gold coins and a small chest, medieval fantasy style, dark background, game icon, centered, no text --ar 1:1
+**Tide Serpent**
+Extreme close-up portrait of a tide serpent lunging from dark water, a serpentine creature made of flowing water and river-Aether given physical form, translucent blue-green body with visible currents swirling inside, white glowing eyes like river foam, jaw open wide showing teeth made of crystallized ice, water cascading off its body as it surges upward at the viewer, droplets and mist spraying everywhere, dark flooded mine tunnel behind with submerged lanterns glowing beneath the surface, cold blue-green aquatic lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-Realistic digital painting, stack of cut timber logs, medieval fantasy style, dark background, game icon, centered, no text --ar 1:1
+**Wailing Phantom**
+Extreme close-up portrait of a wailing phantom, a translucent grey spectral figure with a face frozen in a permanent scream of agony, hollow black eye sockets streaming with ghostly tears, mouth stretched impossibly wide in a soul-piercing wail, spectral hands clawing at its own face, tattered ethereal robes shredded and floating in all directions, visible ghostly ribcage through the translucent form, cold mist and frost forming on everything nearby, dark misty borderland between life and death behind, pale grey-white ghostly glow, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-Realistic digital painting, pile of rough-cut stone blocks, medieval fantasy style, dark background, game icon, centered, no text --ar 1:1
+**Dragon Hatchling**
+Extreme close-up portrait of a dragon hatchling the size of a large dog, bright crimson and gold scales still gleaming with youth, amber eyes with vertical slit pupils burning with territorial fury, small sharp horns curving back from its skull, jaws open wide showing rows of needle-sharp teeth with a cone of orange fire erupting toward the viewer, wings half-spread and beating aggressively, claws digging into a rocky nest, smoke and sparks swirling around its head, dark cave with glowing embers and scorched stone behind, warm fire lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-Realistic digital painting, basket of bread loaves and roasted meat, medieval fantasy style, dark background, game icon, centered, no text --ar 1:1
+### Tier 4 — Elite Threats
 
+**Feral Drake**
+Extreme close-up portrait of a feral drake in mid-attack leap, an adolescent dragon scarred from years surviving alone in the Wastes, dark scarred scales of deep crimson and black, intelligent vicious amber eyes full of cunning, torn wing membranes with old battle damage, powerful muscular neck lunging toward the viewer with jaws wide open, rows of serrated teeth dripping with saliva, one massive clawed foot reaching forward, wasteland dust and debris kicked up around it, barren grey wasteland behind with dead trees, harsh red-orange sunset lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-Buildings:                                                                                                                                                                                                                           
-Realistic digital painting, medieval military barracks, long stone and timber building with rows of bunks visible through open doors, weapons rack outside, training dummies, soldiers sharpening swords, torches lit, dark moody
-background, game icon style, square composition, no text --ar 1:1                                                                                                                                                                                                                                                                                                                                                                                                     
-Realistic digital painting, medieval iron mine entrance in a hillside, dark tunnel with wooden supports, miners with pickaxes, iron ore cart on rails, lanterns in the darkness, rock face glistening with metallic veins, dark   
-moody background, game icon style, square composition, no text --ar 1:1                                                                                                                                                              
-Realistic digital painting, medieval gold mine, deeper underground cavern, golden veins in rock walls, miners with torches, wooden scaffolding, glittering ore in barrels, warm golden light from lanterns reflecting off gold    
-deposits, dark moody background, game icon style, square composition, no text --ar 1:1                                                                                                                                               
-Realistic digital painting, medieval mason's guild workshop, stone carving workshop, a master mason chiseling a decorative column, stone blocks and tools everywhere, blueprints on a table, apprentices working, dust in the air,   arched stone interior, dark moody background, game icon style, square composition, no text --ar 1:1                                                                                                                                 
-Realistic digital painting, medieval mage tower, tall slender stone tower with a faintly glowing blue crystal at the top, arcane symbols carved into the walls, a wizard studying at a desk visible through a window, mystical    
-blue-purple atmosphere, dark moody background, game icon style, square composition, no text --ar 1:1                                                                                                                                 
-Farming:                                                                                                                                                                                                                                                                                      
-Realistic digital painting, medieval wheat field at golden hour, rows of golden wheat swaying in the wind, a farmer with a scythe, haystacks in the background, wooden fence border, warm amber light, dark moody background, game   icon style, square composition, no text --ar 1:1                                                                                                                                                                                    
-Realistic digital painting, medieval vegetable garden, raised beds with cabbages turnips and peas, a woman tending the plants, watering can, garden tools, herbs drying on a rack nearby, morning mist, cozy and productive, dark
-moody background, game icon style, square composition, no text --ar 1:1                                                                                                                                                              
-Realistic digital painting, medieval sheep pen, wooden fenced enclosure with fluffy sheep grazing, a shepherd with a crook, a small shelter for the animals, wool drying on a line, green pastoral setting, dark moody background,   game icon style, square composition, no text --ar 1:1                                                                                                                                                                               
-Realistic digital painting, medieval pig pen, sturdy wooden enclosure with pigs rooting in mud, a farmer pouring feed from a bucket, a thatched shelter, wooden trough, rustic and earthy, dark moody background, game icon style,   square composition, no text --ar 1:1                                                                                                                                                                                                
-Realistic digital painting, medieval chicken coop, small wooden henhouse with chickens pecking in a fenced yard, a basket of eggs, feathers floating, a rooster on the fence post, warm morning light, dark moody background, game   icon style, square composition, no text --ar 1:1 
+**Wasteland Wyrm**
+Extreme close-up portrait of a corrupted wasteland wyrm, a dragon whose scales have turned black and cracked with necrotic corruption, sickly green-black veins of dark energy visible beneath the scales, eyes glowing with poisonous green light, jaw open releasing a stream of black necrotic breath that kills the grass below, broken twisted horns, patches of rotting flesh visible between blackened scales, the ground beneath it dead and grey, dark wasteland with a corrupted nest and black eggs visible behind, sickly green-black lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
+**Lich Apprentice**
+Extreme close-up portrait of a lich apprentice, a gaunt undead mage still partially human, half the face skeletal bone with one burning green eye socket, the other half preserved but grey and withered, wearing ornate but decaying dark robes with arcane sigils that glow with green necromantic energy, one hand raised summoning a swirling vortex of green-black death magic, the other clutching a staff topped with a cracked soul gem, ancient books and scrolls floating around him, dark underground laboratory with bubbling vials behind, eerie green necromantic glow, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-Realistic digital painting, medieval leather armor chestpiece on a wooden mannequin, dark workshop background, RPG game icon, centered, square composition, no text --ar 1:1
+**Demon Scout**
+Extreme close-up portrait of a demon scout emerging from a rift, lean muscular humanoid with dark red skin, small curved horns, slitted yellow cat-like eyes scanning with cold intelligence, sharp angular features with a predatory grin showing pointed teeth, wearing light black leather armor with infernal rune burns, crouched low in a stalking posture with one clawed hand reaching forward testing the air, a faint shimmer of a dimensional rift behind it, dark wasteland with red sky at the horizon, warm red-orange infernal lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-Realistic digital painting, medieval iron helmet with nose guard on a wooden stand, dark background, RPG game icon, centered, square composition, no text --ar 1:1
+**Magma Golem**
+Extreme close-up portrait of a magma golem, a towering humanoid of cracked black volcanic rock with rivers of molten lava flowing through the cracks, no face just a mass of dripping magma where the head should be with two bright white-hot spots for eyes, enormous arms of solidified lava with glowing orange fissures, each step melting the stone beneath its feet into pools of magma, chunks of cooling obsidian falling from its shoulders, steam and volcanic gases rising from its body, deep underground cavern with lava flows behind, intense orange-red volcanic lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-Realistic digital painting, medieval leather boots on a stone floor, dark background, RPG game icon, centered, square composition, no text --ar 1:1
+**Aether Wraith**
+Extreme close-up portrait of an aether wraith, a humanoid figure made of pure crystallized magical energy, body composed of translucent prismatic crystal shards floating in formation, shifting rainbow light refracting through its form, two bright white eyes of concentrated arcane power, no mouth but visible pulses of energy where it would be, one arm extended with fingers splayed dissolving an incoming spell into harmless sparkles, geometric magical patterns orbiting around it, dark void-like space with floating crystal formations behind, prismatic rainbow and white magical lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-Realistic digital painting, a small group of medieval settlers standing at the edge of a vast dark forest, looking uncertain, a few wooden crates and supplies on the ground, one person pointing at the trees, another sitting on   a barrel looking exhausted, a child holding their mother's hand, late afternoon golden light breaking through clouds, the beginning of something new, hopeful but daunting, dark moody atmosphere, oil painting style, square      composition, no text --ar 1:1
+**Temple Guardian**
+Extreme close-up portrait of a corrupted temple guardian, a massive armored sentinel of ancient divine origin, ornate golden plate armor now tarnished and cracked with dark corruption seeping through, a featureless golden helm with a single slit visor glowing with conflicted golden and purple light, wielding a massive ceremonial halberd crackling with dying divine energy, one arm raised in a blocking stance as if still guarding an invisible doorway, ancient divine symbols on the armor half-corrupted half-glowing, overgrown ruined shrine pillars behind, golden light fighting against purple corruption, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-And here are prompts for the other quests that don't have building images yet:             
-Quest 4 — "The Hunt Begins" (game is too plentiful, something drove people away):                                                                                                                                                 
-Realistic digital painting, medieval hunters in a misty forest watching a large herd of deer grazing completely unafraid, the deer don't run, one hunter looks uneasy while another prepares a bow, the forest is eerily peaceful
-and abundant, something feels wrong about how tame the animals are, soft morning mist, dark moody atmosphere, oil painting style, square composition, no text --ar 1:1                                                            
-Quest 5 — "Sharper Axes" (upgrading lumber mill):
-Realistic digital painting, medieval woodcutters improving their lumber mill, one sharpening an axe on a grindstone, another reinforcing the water wheel mechanism, fresh timber stacked high, sawdust in the air, a sense of       progress and growing competence, warm afternoon light through trees, dark moody atmosphere, oil painting style, square composition, no text --ar 1:1                                                                         
-Quest 6 — "Deeper Veins" (upgrading quarry):              
-Realistic digital painting, medieval miners digging deeper into a hillside quarry, one holding a lantern illuminating fresh rock veins below, another hauling stone blocks up with a rope pulley, the excavation going deeper than   before, dust and effort, determination on their faces, dark moody atmosphere, oil painting style, square composition, no text --ar 1:1                                                                                                                                                                                                                                                                                                                                 Quest 7 — "A Roof Over Their Heads" (building houses, settlers left the Dominion):
-Realistic digital painting, medieval settlers building their first proper house together, raising a wooden frame, a woman hammering thatch on a roof, children watching excitedly, a man wiping sweat from his brow smiling, the    campfire tents visible behind them being left behind, a sense of home being born, warm golden light, dark moody atmosphere, oil painting style, square composition, no text --ar 1:1                                            
-Quest 8 — "From the Deep" (fishing, Nereia's Vein):       
-Realistic digital painting, medieval settlers building a small wooden dock on a calm river, one person casting a fishing net, another hammering posts into the riverbed, silver fish visible in the clear water, the river winding   peacefully through a forested valley, a sense of provision and tranquility, soft morning light reflecting on water, dark moody atmosphere, oil painting style, square composition, no text --ar 1:1                                                                                                                                                                                                                                                                    Quest 9 — "Stockpile for Winter" (building pantry, preparing for hard times):
-Realistic digital painting, medieval settlers carrying baskets of food into a newly built stone cellar, barrels of grain and salted meat being stored, a woman organizing shelves of preserved vegetables, the entrance showing     autumn trees outside, preparing for winter, a sense of prudence and quiet anxiety about the future, warm lantern light inside the cellar, dark moody atmosphere, oil painting style, square composition, no text --ar 1:1      
-Quest 10 — "Heroes Wanted" (building the adventurer's guild, drifters arriving):
-Realistic digital painting, a group of rough-looking travelers arriving at a small medieval settlement gate, a scarred warrior, a hooded figure with a staff, an archer checking their bow, villagers watching from doorways with   a mix of hope and caution, a hand-painted wooden sign being nailed to a post reading guild, the frontier attracting desperate and brave souls, dusk light, dark moody atmosphere, oil painting style, square composition, no text
---ar 1:1                                                   
-Quest 11 — "A Brave Soul" (recruit an adventurer):                                                                                                                                                                                
-Realistic digital painting, a lone hooded adventurer standing at the gate of a small medieval settlement, hand resting on a sword hilt, looking at a notice board with mission posters, other villagers watching from doorways
-with curiosity, dust road, warm torchlight, the moment before a decision, dark moody atmosphere, oil painting style, square composition, no text --ar 1:1                                                                         
-Quest 12 — "Into the Unknown" (send first mission):
-Realistic digital painting, a small group of medieval adventurers walking away from a settlement into a misty forest path, seen from behind, one looks back over their shoulder, the settlement's torchlight fading behind them,    dark mysterious forest ahead, sense of adventure and danger, dark moody atmosphere, oil painting style, square composition, no text --ar 1:1                                                                                    
-Quest 13 — "Seeds of Prosperity" (build a field or garden):
-Realistic digital painting, medieval settlers plowing a field at dawn, one person scattering seeds by hand, rich dark soil turned over, a wooden fence half-built, forest edge in the background, birds circling overhead, the      promise of a first harvest, warm early morning light, dark moody atmosphere, oil painting style, square composition, no text --ar 1:1                                                                                         
-Quest 14 — "Woolly Friends" (build a sheep pen):          
-Realistic digital painting, a shepherd arriving at a medieval settlement gate with a small flock of sheep, villagers greeting them warmly, a child reaching out to pet a lamb, wooden fences being built in the background,         pastoral and warm, late afternoon light, dark moody atmosphere, oil painting style, square composition, no text --ar 1:1
-Quest 18 — "Arm the Brave" (craft a weapon):              
-Realistic digital painting, close-up of a medieval carpenter's hands carving a wooden bow on a workbench, wood shavings everywhere, a finished wooden staff and a shield leaning against the wall, warm lantern light, focused    
-craftsmanship, dark moody atmosphere, oil painting style, square composition, no text --ar 1:1
+**Banshee**
+Extreme close-up portrait of a banshee mid-scream, a spectral woman of terrifying beauty, pale translucent skin stretched over a skull-like face, mouth open impossibly wide unleashing a visible soundwave that distorts the air, long wild white hair streaming upward and outward like flames, hollow white glowing eyes streaming with ghostly light, tattered flowing burial gown whipping violently in all directions, the scream visibly cracking the stone walls around her, a ruined watchtower interior behind with shattered windows, intense white-blue ghostly glow, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-Mission — "Herb Gathering" (adventurer foraging in meadows):
-Realistic digital painting, a lone medieval adventurer kneeling in a sunlit wildflower meadow, carefully picking chamomile and herbs into a woven basket, tall grass and wildflowers in soft focus around them, butterflies, a leather satchel on the ground, the edge of a dark forest behind, peaceful and serene, warm golden afternoon light, dark moody atmosphere, oil painting style, square composition, no text --ar 1:1
+### Tier 5 — Legendary
+
+**Ancient Wyrm**
+Extreme close-up portrait of an ancient wyrm, a thousand-year-old dragon of terrifying scale, only the massive head visible filling the entire frame, scales of deep burnished bronze and obsidian black, each scale the size of a shield, enormous intelligent golden eyes with ancient knowing fury, nostrils flaring with streams of white-hot fire and smoke, massive horns sweeping back like a crown, lower jaw beginning to open revealing an inferno building in the throat, scars from centuries of battle across the snout, mountains and burning landscape reflected in the enormous eye, dramatic warm fire lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Shadow Lord**
+Extreme close-up portrait of a shadow lord, a being of pure concentrated darkness given terrible form, a tall regal figure made of swirling living shadow, a crown of darkness floating above a featureless void-black face with two piercing white eyes like stars in an abyss, reality visibly warping and bending around its presence like a gravitational lens, one hand raised with tendrils of darkness reaching toward the viewer consuming the light, space itself cracking like glass around its fingers, absolute darkness behind with faint terrified faces visible in the shadow, contrast of pure black and blinding white pinpoint lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Fallen Seraph**
+Extreme close-up portrait of a fallen seraph, a corrupted angelic being of immense power, beautiful androgynous face streaked with tears of liquid light, expression of righteous fury and deep sorrow simultaneously, three pairs of wings — two still radiant white gold and two corrupted to dark purple-black, ornate golden armor cracked and bleeding divine light from the fractures, wielding a blazing sword of pure white fire in one hand, the other hand open and weeping golden light, a halo above the head cracked and flickering between gold and dark purple, ruins of a sky-temple floating in clouds behind, dramatic golden and purple divine lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Aether Colossus**
+Extreme close-up portrait of an aether colossus, only the upper body and head visible at this scale, a towering construct of pure crystallized Aether dozens of feet tall, body made of massive interlocking crystal formations of blue-white and violet, two enormous eyes of blinding white arcane energy, no mouth just a resonating crystal core in the chest pulsing with overwhelming power, one colossal crystalline fist raised about to slam down at the viewer, smaller crystal fragments orbiting its body like satellites, cracks of pure energy running across its surface, deep underground cavern too small to contain it with the ceiling crumbling, blinding blue-white arcane lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+---
+
+## Mission Scenes
+
+### Tier 1 — Basic Missions
+
+**Gather Timber**
+Wide shot of a dense medieval forest clearing, a team of adventurers felling ancient oaks with axes and saws, stacked timber logs in the foreground, wolf tracks visible in the muddy ground, shafts of golden afternoon light piercing through the canopy, mist lingering between the trees, dark moody atmosphere, realistic digital painting, oil painting style, no text --ar 16:9
+
+**Quarry Expedition**
+Wide shot of a rocky hillside quarry, medieval adventurers chiseling stone blocks from a cliff face, wooden scaffolding and ropes, a cart half-loaded with cut stone, rat holes visible in the rubble at the base, overcast grey sky, dusty atmosphere, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Foraging Run**
+Wide shot of a sunlit wildflower meadow at the forest edge, an adventurer crouching to pick herbs while another watches the treeline, woven baskets of berries and roots, wildflowers in soft focus, butterflies, the dark edge of a forest behind with a pair of glowing eyes in the shadows, warm golden afternoon light, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Merchant Escort**
+Wide shot of a dusty medieval trade road winding through hilly terrain, a merchant wagon with a nervous driver, armed escorts walking alongside with hands on weapons, suspicious figures visible on the hilltop silhouette, warm late afternoon golden light, dust kicked up by the wagon wheels, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Herb Gathering**
+Wide shot of a peaceful meadow beyond the tree line dotted with wildflowers and fragrant herbs, a lone adventurer kneeling carefully picking chamomile into a woven basket, tall grass swaying in the breeze, butterflies, a leather satchel on the ground, the edge of a dark ancient forest behind, warm golden afternoon light, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+### Tier 2 — Combat Missions
+
+**Bandit Camp**
+Wide shot of a rough bandit encampment in a forest clearing at dusk, crude tents and stolen goods piled high, a campfire with figures gathered around it, adventurers crouching at the tree line preparing to strike, tension and anticipation, weapons drawn, orange firelight against dark blue twilight, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Deep Forest**
+Wide shot of an ancient primeval forest with massive trees towering overhead, barely any light reaching the floor, thick moss and gnarled roots, an adventurer party walking single file along a narrow path, spider webs glistening between branches, glowing eyes in the undergrowth, eerie green-filtered light, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Abandoned Mine**
+Wide shot of a collapsed mine entrance reinforced with rotting timber, an adventurer holding a lantern peering into the darkness, mine cart tracks disappearing into the black, rats scurrying in the rubble, the faint glow of mineral deposits deeper inside, dusty stale atmosphere, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**River Crossing**
+Wide shot of a medieval stone river ford at dawn, shallow water flowing over mossy rocks, an adventurer party crossing carefully, distant goblin figures on the far bank scrambling into positions, morning mist rising off the water, willows along the bank, soft golden dawn light, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Wyrmling Den**
+Wide shot of a rocky hillside with scorched grass and blackened chicken coops in the foreground, small claw marks and burn marks on the rocks, an adventurer party approaching cautiously with weapons drawn, tiny wisps of smoke rising from a crevice in the hillside, warm golden light with an ominous orange glow from the den entrance, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+### Magical Missions
+
+**Enchanted Spring**
+Wide shot of a mysterious forest spring glowing with faint blue-white magical energy, water shimmering with arcane light, ancient stones covered in glowing runes surrounding the pool, a wizard adventurer kneeling by the water with hands extended sensing the magic, fireflies and motes of light drifting upward, dark ancient forest around, mystical blue-green lighting, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Wandering Spirit**
+Wide shot of a dark empty crossroads at night, a translucent blue spectral figure hovering above the center where the roads meet, adventurers approaching with a priest holding a glowing holy symbol, ancient milestones half-buried in the ground, cold fog rolling across the road, pale moonlight and ghostly blue glow, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Herb Witch**
+Wide shot of a decrepit witch's hut deep in a murky swamp, crooked stilts over dark water, hanging moss and drying herbs, glowing bottles in the windows, a hunched old woman in the doorway beckoning, adventurers standing on a narrow boardwalk approaching cautiously, fireflies and swamp gas, eerie green-tinted swamp lighting, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Cursed Well**
+Wide shot of a village stone well with dark water bubbling unnaturally, black oily substance crawling up the stones, wilted plants and dead grass in a circle around it, a priest adventurer holding a glowing holy symbol above the well, villagers watching from a distance, overcast oppressive sky, cold grey-green sickly lighting, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+### Escort Missions
+
+**Caravan Guard**
+Wide shot of a merchant caravan of three wagons moving through a narrow forest road, armed adventurer escorts walking alongside scanning the trees, heavy goods covered with tarps, horses pulling nervously, bandits barely visible crouching behind boulders ahead, tense calm-before-the-storm atmosphere, warm diffused afternoon light through clouds, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Noble Escort**
+Wide shot of an ornate but modest noble's carriage on a winding mountain road, adventurers on horseback flanking it with weapons ready, a banner fluttering from the carriage, the road ahead narrowing into a suspicious rocky pass, distant figures moving on the cliff above, dramatic cloudy sky with shafts of light, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Refugee Convoy**
+Wide shot of a long line of exhausted medieval refugees trudging along a muddy road, carrying bundles and pushing carts, children and elderly among them, adventurers guarding the flanks, a priest at the front carrying a lantern, wolf eyes glinting in the dark forest beside the road, overcast grey sky threatening rain, somber warm-cool lighting, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+### Spying & Assassination Missions
+
+**Tavern Intel**
+Wide shot of a dim medieval tavern interior, crowded with shadowy figures, a hooded adventurer sitting alone in a corner booth listening intently, candles flickering on rough wooden tables, a bard playing in the background, suspicious characters exchanging whispered conversation at the bar, smoke and warm amber candlelight, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Rival Settlement**
+Wide shot from a hilltop overlooking a rival fortified settlement at night, an assassin adventurer crouching behind a rock sketching a map, the settlement below lit by torches and patrol routes visible, wooden palisade walls and watchtowers, dark blue night sky with stars, cold moonlight with distant warm torchlight, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Intercept Courier**
+Wide shot of a dark forest road at twilight, an adventurer party setting up an ambush behind fallen logs and bushes, a lone courier on horseback visible in the distance approaching, the road narrowing into a perfect chokepoint, purple-blue twilight with the last orange of sunset on the horizon, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Bandit Leader**
+Wide shot of a bandit lord's tent in a fortified camp at night, seen from outside through a gap in the palisade, the target visible as a silhouette against firelight inside the tent, guards patrolling with torches, an assassin adventurer scaling the wooden wall in the shadows, tense stealth atmosphere, moonlight and distant firelight, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Double Agent**
+Wide shot of a grand enemy war tent interior with a long table covered in maps and battle plans, orc warriors and a dark mage arguing over strategy, a hooded adventurer sitting among them pretending to belong, tension visible in the adventurer's clenched fist under the table, war banners and crude weapons decorating the tent, warm torchlight with deep shadows, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Corrupt Official**
+Wide shot of a dark narrow medieval alley at night, a well-dressed tax collector walking alone counting coins from a heavy purse, an assassin's shadow visible on the wall behind him with a blade drawn, rain-slicked cobblestones reflecting lamplight, half-timbered buildings leaning overhead, a single streetlamp casting harsh light, cinematic noir atmosphere, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+### Dungeon Missions
+
+**Goblin Warren**
+Wide shot of a dark underground tunnel system, crude torches jammed into the walls casting flickering orange light, goblin totems and crude carvings, narrow passages branching in multiple directions, an adventurer party moving cautiously in single file, the lead adventurer holding a torch revealing dozens of small glowing eyes in the darkness ahead, claustrophobic oppressive atmosphere, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Flooded Crypt**
+Wide shot of an ancient stone crypt half-submerged in dark water, ornate pillars and carved sarcophagi partially underwater, skeletons beginning to stir and rise from the murky depths, adventurers wading through waist-deep water with weapons raised, a wizard casting a light spell illuminating undead shapes beneath the surface, cold blue-green water reflections mixed with warm torchlight, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Crystal Caverns**
+Wide shot of a vast underground cavern filled with enormous shimmering crystals of blue purple and white, natural crystal formations growing from floor to ceiling, the cavern lit from within by the crystals' own inner glow, an adventurer party standing at the entrance looking in with awe, ominous shadows moving between the crystals deeper inside, prismatic rainbow light refracting everywhere, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+### Survival Missions
+
+**Wilderness Trek**
+Wide shot of an untamed wilderness at dawn, an adventurer camp breaking down after a rough night, bedrolls around a dying campfire, dense forest stretching in all directions, morning mist, one adventurer scanning the horizon while another packs supplies, wolf tracks around the campsite, golden sunrise light filtering through mist, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Winter Expedition**
+Wide shot of a frozen mountain pass in a blizzard, adventurers trudging through deep snow single file, thick fur cloaks and hoods pulled tight, ice forming on their armor, a narrow path between towering snow-covered cliff faces, near-zero visibility ahead, one adventurer looking back at the group with concern, white-blue cold blizzard lighting, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Monster Hunt**
+Wide shot of a dark forest at twilight, massive claw marks gouged into a tree trunk, adventurers crouching examining large animal tracks in the mud, one adventurer pointing deeper into the forest where branches are snapped at height, an unsettling silence, the feeling of being watched, purple-blue twilight with the last warm light fading, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+### Ghost Missions
+
+**Restless Graveyard**
+Wide shot of an old overgrown settlement graveyard at midnight, crumbling headstones and leaning crosses, multiple translucent blue spirits rising from the graves, cold mist clinging to the ground, a party of adventurers at the iron gate with a priest holding a glowing holy symbol, dead trees with bare branches like claws, full moon partially hidden by clouds, eerie blue-white moonlight and ghostly glow, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Hollow Crossing**
+Wide shot of a misty trade route at the edge of the Wastes, thick unnatural fog rolling across the road, ghostly hands and faces barely visible reaching out of the fog, a merchant wagon stopped in the middle of the road with terrified horses, adventurers forming a defensive circle around it, cold breath visible in the unnatural chill, pale grey and blue fog lighting, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Banshee Tower**
+Wide shot of a ruined stone watchtower on a desolate hilltop at the Wastes border, the top floor glowing with eerie white light, a visible soundwave distortion emanating from the tower, dead grass and cracked earth surrounding it, an adventurer party approaching from below bracing against the psychic wind, dark stormy sky with lightning, intense white-blue ghostly glow from the tower, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+### Elemental Missions
+
+**Fire Spring**
+Wide shot of a natural forest spring that has caught fire, flames dancing on the water surface fed by glowing Aether underneath, living flame wisps swirling above the burning water, scorched trees and blackened grass surrounding the spring, an adventurer party approaching with a wizard extending hands to feel the magical energy, orange-red firelight reflecting off the water against dark forest, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Stone Quarry Golem**
+Wide shot of an old stone quarry with a massive stone golem standing in the center, towering over the quarry walls, chunks of rock falling from its body as it turns toward approaching adventurers, the quarry floor littered with crushed mining equipment, dust clouds billowing, adventurers looking up at it from the quarry entrance with weapons drawn, harsh afternoon sunlight with heavy dust in the air, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Storm Peak**
+Wide shot of a barren hilltop during a supernatural lightning storm, lightning striking the same point repeatedly, storm sprites visible as crackling humanoid shapes of electricity swarming around the peak, an adventurer party climbing the steep slope against howling wind, hair and cloaks streaming, blue-white lightning illuminating everything in strobe flashes, dark thunderstorm sky, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Flooded Mine**
+Wide shot of a flooded Khazdurim mining shaft, ornate dwarven stone columns half-submerged in dark water, the water surface rippling with unnatural movement, a tide serpent's coils visible just beneath the surface, adventurers on a narrow stone walkway above the waterline with weapons ready, abandoned mining tools and rusted ore carts, dim blue-green bioluminescent light from the water, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Aether Convergence**
+Wide shot of a clearing where pure crystallized Aether has formed into a shimmering entity, prismatic light radiating outward dissolving the surrounding vegetation into light particles, a wizard adventurer casting a spell that visibly dissolves before reaching the entity, other adventurers circling with physical weapons, the ground beneath the entity turned to smooth glass, brilliant prismatic white and rainbow lighting against dark surroundings, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Magma Depths**
+Wide shot of a vast underground Khazdurim forge chamber, ancient dwarven architecture with massive pillars and carved runes, rivers of lava flowing through channels in the floor, weakened magical seals cracking with orange light, a magma golem forming from the lava in the center, adventurers on a stone bridge above looking down, intense orange-red volcanic lighting with dark shadows, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+### Divine Missions
+
+**Abandoned Shrine**
+Wide shot of an ancient overgrown shrine to a forgotten god, crumbling stone altar with faded divine symbols, massive stone pillars wrapped in vines and roots, a temple guardian standing motionless in the center with golden light flickering from its visor, adventurers entering through a collapsed archway, sunlight streaming through holes in the roof creating dramatic light shafts, golden-green ancient lighting, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Fallen Seraph Hunt**
+Wide shot of a massive impact crater in a field, something glowing with intense golden-white light at the center, corrupted purple-black energy flickering within the golden glow, the surrounding area bleached white by divine energy, crops flattened in a radial pattern, an adventurer party approaching the crater's edge shielding their eyes, brilliant golden light fighting purple corruption, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+### Dragon Missions
+
+**Dragon Nest**
+Wide shot of a rocky cliffside with a large cave entrance, scorched earth and charred bones scattered around, two dragon hatchlings visible at the cave mouth hissing with small flames, an adventurer party climbing the cliff path below, enormous claw marks gouged into the rock face, an ominously empty sky suggesting the mother could return, warm orange light from the cave against cool blue sky, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Ancient Wyrm Lair**
+Wide shot of a vast mountain cavern filled with an enormous hoard of gold coins treasure and bones, the ancient wyrm coiled atop the treasure pile with one enormous eye open watching, the dragon's scale reflecting the golden treasure light, adventurers visible as tiny figures at the cavern entrance barely visible against the dragon's scale, smoke and heat haze filling the upper cavern, warm golden treasure light, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Feral Drake Hunt**
+Wide shot of a barren wasteland at the border, dead grey trees and cracked earth, massive claw prints and scorched ground, an adventurer party tracking the drake with weapons ready, the feral drake visible in the distance perched on a rocky outcrop watching them with intelligent predator eyes, red sunset sky reflecting off the grey wasteland, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Wasteland Wyrm Lair**
+Wide shot of a corrupted dragon nest deep in the grey zone, blackened eggs in a nest of dead vegetation and bones, sickly green-black energy seeping from the ground, the wasteland wyrm coiled protectively around the nest with necrotic breath wisping from its jaws, dead grey landscape stretching to the horizon, no living thing visible anywhere, sickly green-black corrupted lighting, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+### Lore-Flavored Missions
+
+**Corsair Smugglers**
+Wide shot of a hidden cove at night, a small ship anchored offshore with a rowboat being loaded with contraband crates, smugglers working by lantern light on the rocky beach, adventurers watching from the cliff above planning their approach, moonlight reflecting off the dark water, warm lantern glow against cold blue moonlight, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Thornveil Patrol**
+Wide shot of a dense magical forest border at twilight, faintly glowing ward-line runes carved into ancient trees, a Thornveil Ranger and adventurer party patrolling along the ward boundary, something dark and shapeless pressing against the magical barrier from the other side, the ward-line flickering weakly, purple-blue twilight with faint golden ward-light, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Khor'vani Caravan**
+Wide shot of an exotic Khor'vani spice caravan crossing a golden desert-steppe, colorful draped wagons pulled by camels, wealthy merchants in flowing robes, adventurer escorts walking alongside with eyes on the horizon, dust plumes rising, a vast open landscape with distant hills, warm golden sunset light, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Zah'kari Expedition**
+Wide shot of ancient overgrown ruins in a jungle clearing, crumbling stone walls with unfamiliar carved script, a Zah'kari griot studying the inscriptions while adventurers stand guard, vines and roots reclaiming the stonework, partial statues of forgotten figures, golden-green dappled jungle light, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+### Advanced Missions
+
+**Haunted Ruins**
+Wide shot of ancient stone ruins at night with ghostly blue mist and crumbling columns, overgrown with ivy, skeletons and spectral figures visible among the fallen stones, adventurers with a wizard casting a protective light barrier, eerie moonlight mixed with ghostly blue glow, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**King's Bounty**
+Wide shot of a grassy countryside with a massive troll visible in the distance destroying a farmstead, smoke rising from crushed buildings, a royal bounty notice nailed to a post in the foreground, adventurer party marching toward the creature with determination, dramatic cloudy sky with shafts of golden light, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Lumber Contract**
+Wide shot of a large-scale medieval logging operation in a vast forest, teams of workers felling massive trees, ox-drawn carts loaded with timber, adventurers guarding the perimeter watching the dark forest edge, organized piles of freshly cut lumber, warm afternoon work-light with forest shadows, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Lost Library**
+Wide shot of a vast underground library carved into stone, endless shelves of ancient books and scrolls stretching into darkness, dust motes floating in the light of a wizard's staff, some books glowing faintly with enchantment, a skeleton slumped at a reading desk still clutching a tome, adventurers exploring the aisles with wonder, warm amber magical lighting, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Smuggler Deal**
+Wide shot of a dark medieval dock at night, a shady figure in a heavy cloak waiting by a warehouse door, a small boat tied to the pier with covered cargo, an adventurer approaching cautiously, fog rolling off the water, a single lantern casting a pool of warm light, dark blue night with cold moonlight, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Sacred Shrine**
+Wide shot of a remote holy site on a forested hilltop, a simple stone altar with a glowing golden light rising from it, ancient prayer stones arranged in a circle, an adventurer party arriving after a long journey looking weary but awed, the surrounding forest below shrouded in mist, golden divine light from the shrine against misty blue surroundings, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Arcane Rift**
+Wide shot of a massive tear in reality hovering above a blasted clearing, the rift showing swirling purple-red chaos beyond, magical energy spewing outward warping the landscape, trees twisted into impossible shapes, demons emerging from the edges, a wizard adventurer standing before it with arms raised trying to seal it, intense purple-red rift light against dark surroundings, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Dragon Cave**
+Wide shot of a dramatic cave entrance in an eastern cliff face, golden treasure glow visible from within, scorched earth and massive claw marks at the entrance, adventurers at the base of the cliff looking up at the cave nervously, bones of previous challengers scattered near the entrance, warm golden cave-light against cool blue mountain atmosphere, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Ancient Vault**
+Wide shot of an enormous sealed stone vault door covered in magical runes and ancient locks, adventurers working to break the seals as glowing cracks appear in the door, undead guardians stirring in the shadows behind them, dust and magical energy streaming from the widening cracks, sense of ancient power and danger, golden rune-light against dark underground chamber, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Enchanted Grove**
+Wide shot of a magical forest grove shimmering with golden-green arcane energy, trees with glowing leaves and luminous flowers, pools of liquid light on the forest floor, spectral guardians visible among the trees watching intruders, an adventurer party entering the grove with a wizard sensing the magical resources, ethereal golden-green enchanted lighting, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Dominion Deserters**
+Wide shot of a military-style camp in rocky hills, organized tent rows with Dominion banners torn and repurposed, armed deserter soldiers drilling with stolen equipment, burning farmsteads visible in the valley below, adventurer party surveying the camp from a ridge, late afternoon light with smoke haze, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Tianzhou Scholar**
+Wide shot of a Tianzhou cartographer with exotic eastern garb and instruments surveying the Wastes border, detailed maps spread on a portable table, an adventurer party providing protection scanning the desolate horizon, the grey Wastes stretching endlessly behind with faint ghostly shapes, the contrast between the colorful cartographer and the dead grey landscape, warm foreground light against cold grey Wastes, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+---
+
+## Raid Scenes
+
+**Hungry Bandits**
+Extreme close-up low angle shot, a small group of desperate starving bandits charging directly at the camera, gaunt faces twisted with hunger and desperation, ragged clothing and crude weapons, the closest one lunging with a rusty knife inches from the camera, wild eyes and cracked lips, dusty road behind them, dark moody atmosphere, realistic digital painting, oil painting style, no text --ar 1:1
+
+**Wolf Pack**
+Extreme close-up low angle shot, a pack of starving wolves stampeding toward the camera in attack formation, the alpha in front with jaws wide open and saliva flying, dozens more wolves behind running at full speed, matted fur and visible ribs, kicked-up snow and dirt, dark winter forest behind, motion blur on the outermost wolves, dark moody atmosphere, realistic digital painting, oil painting style, no text --ar 1:1
+
+**Petty Thieves**
+Wide shot of a medieval supply cart at night, dark cloaked figures creeping out of shadows reaching for cargo, one thief freezing mid-grab as a lantern light catches them, moonlit cobblestone road, dark moody atmosphere, realistic digital painting, oil painting style, no text --ar 1:1
+
+**Bandit Raid**
+Extreme close-up low angle shot, an organized band of armed bandits charging at the camera, the leader in front with a stolen military sword raised overhead screaming a command, archers visible behind drawing bows, torches held high, dozens of armed figures behind, kicked-up dust, dark evening sky with fire glow, dark moody atmosphere, realistic digital painting, oil painting style, no text --ar 1:1
+
+**Goblin Scouts**
+Extreme close-up low angle shot, a scouting party of goblins rushing at the camera, small green-skinned creatures with cruel grins and oversized ears, crude spears and stolen daggers, the closest one leaping at the camera with a shriek, dozens more pouring out of the darkness behind, torchlight reflecting off their beady eyes, dark moody atmosphere, realistic digital painting, oil painting style, no text --ar 1:1
+
+**Wild Boar Stampede**
+Extreme close-up low angle shot, a stampede of massive wild boars thundering directly at the camera, the lead boar with enormous tusks and foam at the mouth, dozens more behind in a wall of muscle and fury, dirt and debris flying, trampled fences visible, ground shaking, dust cloud, dark moody atmosphere, realistic digital painting, oil painting style, no text --ar 1:1
+
+**Skeleton Horde**
+Extreme close-up low angle shot, wide-angle lens, a massive horde of undead skeletons stampeding directly into the camera, overwhelming the viewer. Closest skeletons only inches away, their skulls filling the frame, rotting scraps of skin and putrid flesh clinging to bone, empty eye sockets, jawbones unhinged mid-scream. Behind them hundreds more packed shoulder to shoulder rushing forward in violent charge. Rusted medieval weapons raised, dented chainmail, torn leather armor, splintered shields. Undead warhorses in the back rows. Kicked-up dust and dirt, motion blur on the outermost figures, dark moody battlefield atmosphere. Realistic digital painting, oil painting style, no text --ar 1:1
+
+**Mercenary Company**
+Extreme close-up low angle shot, a well-equipped mercenary company marching at the camera in disciplined formation, professional soldiers in matching dark armor, the captain in front with a drawn longsword pointing forward giving the order to charge, crossbowmen and pikemen in tight ranks behind, war banner fluttering above, dark moody atmosphere, realistic digital painting, oil painting style, no text --ar 1:1
+
+**Troll Attack**
+Extreme close-up low angle shot, a massive mountain troll charging at the camera, filling the entire frame, enormous mouth roaring with foul breath visible as steam, tiny furious eyes, carrying an uprooted tree as a club raised overhead about to swing, the ground cracking under its massive feet, boulders tumbling, dark mountain pass behind, dark moody atmosphere, realistic digital painting, oil painting style, no text --ar 1:1
+
+**Orc Warband**
+Extreme close-up low angle shot, wide-angle lens, a fearsome orc warband charging at the camera, hundreds of armored orcs screaming battlecries, the warlord in front on a massive warg mount with a serrated cleaver raised, crude siege towers and battering rams visible behind the horde, orc war banners and tribal totems, fire and smoke everywhere, dark moody atmosphere, realistic digital painting, oil painting style, no text --ar 1:1
+
+**Necromancer**
+Wide shot of a dark wizard on a hilltop raising his staff to the sky, green necromantic lightning arcing from the staff into the ground around him, hundreds of undead soldiers rising from the earth in every direction, a massive skeleton army forming rank by rank, the silhouette of a city with walls visible in the distance, sickly green-black sky, dark moody atmosphere, realistic digital painting, oil painting style, no text --ar 1:1
+
+**Dragon Attack**
+Extreme close-up low angle shot, a wild dragon diving from the sky directly at the camera, massive wings spread wide blocking out the sun, mouth open with a torrent of fire streaming down, enormous clawed feet extended to grab, the camera looking straight up at the underside of the dragon as it descends, buildings and walls visible below, intense orange fire-light against dark sky, dark moody atmosphere, realistic digital painting, oil painting style, no text --ar 1:1

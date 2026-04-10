@@ -32,9 +32,64 @@ import {
   getCurrentStoryMission,
 } from "~/data/missions";
 import Countdown from "~/components/Countdown";
-import { getEnemy } from "~/data/enemies";
+import Tooltip from "~/components/Tooltip";
+import { getEnemy, type EnemyDefinition } from "~/data/enemies";
 
 type Tab = "missions" | "roster" | "recruit";
+
+const STAT_HINTS: Record<string, string> = {
+  str: "Strong attack", vit: "Strong defense", int: "Strong magic power",
+  wis: "Strong magic defense", dex: "Fast",
+};
+
+function enemyHints(e: EnemyDefinition): string[] {
+  // Show only the enemy's top 2 stats (excluding stats that are unremarkable)
+  // This naturally scales with tier — a tier 5 with STR 40 and VIT 50
+  // only highlights those two, not everything
+  const stats = Object.entries(e.stats) as [string, number][];
+  const sorted = stats.sort(([, a], [, b]) => b - a);
+  // Only show hints for stats that are meaningfully above the enemy's own median
+  const median = sorted[Math.floor(sorted.length / 2)][1];
+  return sorted
+    .filter(([, v]) => v > median * 1.3)
+    .slice(0, 2)
+    .map(([k]) => STAT_HINTS[k])
+    .filter(Boolean);
+}
+
+const TAG_LABELS: Record<string, string> = {
+  humanoid: "Humanoid", beast: "Beast", undead: "Undead", ghost: "Ghost",
+  demon: "Demon", divine: "Divine", dragon: "Dragon", magical: "Magical",
+  elemental_fire: "Fire", elemental_water: "Water", elemental_earth: "Earth",
+  elemental_wind: "Wind", elemental_aether: "Aether",
+};
+
+function EnemyTooltipContent(props: { enemy: EnemyDefinition }) {
+  const hp = () => props.enemy.stats.vit * 10;
+  const hints = () => enemyHints(props.enemy);
+  const tags = () => props.enemy.tags.map((t) => TAG_LABELS[t]).filter(Boolean);
+  return (
+    <div style={{ "min-width": "160px" }}>
+      <div style={{ display: "flex", "justify-content": "space-between", "align-items": "center", "margin-bottom": "4px" }}>
+        <span style={{ "font-weight": "bold", color: "var(--text-primary)" }}>
+          {props.enemy.icon} {props.enemy.name}
+        </span>
+        <span style={{ "font-size": "0.65rem", color: "var(--text-muted)" }}>
+          {tags().join(", ")}
+        </span>
+      </div>
+      <div style={{ "font-size": "0.75rem", color: "var(--accent-red)", "margin-bottom": "4px" }}>
+        HP {hp()}
+      </div>
+      <div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "font-style": "italic", "margin-bottom": hints().length ? "4px" : "0" }}>
+        {props.enemy.description}
+      </div>
+      <For each={hints()}>
+        {(h) => <div style={{ "font-size": "0.72rem", color: "var(--accent-gold)" }}>· {h}</div>}
+      </For>
+    </div>
+  );
+}
 
 const DIFFICULTY_LABELS: Record<number, string> = { 1: "Novice", 2: "Apprentice", 3: "Journeyman", 4: "Veteran", 5: "Elite" };
 const DIFFICULTY_COLORS: Record<number, string> = { 1: "var(--accent-green)", 2: "var(--accent-blue)", 3: "var(--accent-gold)", 4: "#e67e22", 5: "var(--accent-red)" };
@@ -583,35 +638,54 @@ export default function AdventurersGuild() {
                       </div>
                     </div>
                     <div class="building-card-desc">{mission.description}</div>
-                    <div style={{ display: "flex", gap: "6px", "margin-top": "8px", "flex-wrap": "wrap" }}>
-                      <For each={mission.slots}>
-                        {(slot) => (
-                          <span style={{
-                            padding: "2px 8px",
-                            background: "var(--bg-secondary)",
-                            "border-radius": "4px",
-                            "font-size": "0.8rem",
-                          }}>
-                            {slotIcon(slot)} {slotLabel(slot)}
-                          </span>
-                        )}
-                      </For>
-                    </div>
+                    <Show when={mission.encounters?.length}>
+                      <div style={{ "margin-top": "8px", display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
+                        {mission.encounters!.map((enc) => {
+                          const enemy = getEnemy(enc.enemyId);
+                          if (!enemy) return null;
+                          const borderColor = enemy.boss ? "var(--accent-gold)" : "rgba(231, 76, 60, 0.3)";
+                          return (
+                            <Tooltip content={<EnemyTooltipContent enemy={enemy} />}>
+                              <div style={{
+                                width: "80px",
+                                background: enemy.boss ? "rgba(245, 197, 66, 0.08)" : "rgba(231, 76, 60, 0.06)",
+                                border: `1px solid ${borderColor}`,
+                                "border-radius": "6px",
+                                overflow: "hidden",
+                                cursor: "default",
+                              }}>
+                                {enemy.image
+                                  ? <img src={enemy.image} alt="" style={{
+                                      width: "80px", height: "80px", "object-fit": "cover",
+                                      display: "block",
+                                    }} />
+                                  : <div style={{
+                                      width: "80px", height: "80px",
+                                      display: "flex", "align-items": "center", "justify-content": "center",
+                                      background: "rgba(0, 0, 0, 0.2)", "font-size": "2.2rem",
+                                    }}>{enemy.icon}</div>
+                                }
+                                <div style={{
+                                  padding: "4px",
+                                  "text-align": "center",
+                                  "font-size": "0.65rem",
+                                  color: enemy.boss ? "var(--accent-gold)" : "var(--text-secondary)",
+                                  "line-height": "1.2",
+                                }}>
+                                  {enc.count}x {enemy.name}
+                                </div>
+                              </div>
+                            </Tooltip>
+                          );
+                        })}
+                      </div>
+                    </Show>
                     <div style={{ "margin-top": "8px", "font-size": "0.8rem", color: "var(--accent-green)" }}>
                       Rewards: {mission.rewards.map((r) => formatReward(r)).join(", ")}
                     </div>
                     <div style={{ "font-size": "0.75rem", color: "var(--accent-blue)", "margin-top": "2px" }}>
                       +{getMissionXp(mission.difficulty, true)} XP on success · +{getMissionXp(mission.difficulty, false)} XP on failure
                     </div>
-                    <Show when={mission.encounters?.length}>
-                      <div style={{ "margin-top": "6px", "font-size": "0.75rem", color: "var(--text-muted)" }}>
-                        Enemies:{" "}
-                        {mission.encounters!.map((enc) => {
-                          const enemy = getEnemy(enc.enemyId);
-                          return enemy ? `${enemy.icon} ${enc.count}x ${enemy.name}` : "";
-                        }).filter(Boolean).join(", ")}
-                      </div>
-                    </Show>
                   </div>
                 );
               }}
@@ -672,29 +746,46 @@ export default function AdventurersGuild() {
                     <Show when={mission().encounters?.length}>
                       <div class="mission-detail-section">
                         <div class="mission-detail-label">Encounters</div>
-                        <div style={{ display: "flex", gap: "6px", "flex-wrap": "wrap" }}>
+                        <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
                           {mission().encounters!.map((enc) => {
                             const enemy = getEnemy(enc.enemyId);
                             if (!enemy) return null;
+                            const borderColor = enemy.boss ? "var(--accent-gold)" : "rgba(231, 76, 60, 0.3)";
                             return (
-                              <div style={{
-                                padding: "4px 10px",
-                                background: enemy.boss ? "rgba(245, 197, 66, 0.1)" : "rgba(231, 76, 60, 0.08)",
-                                border: `1px solid ${enemy.boss ? "var(--accent-gold)" : "rgba(231, 76, 60, 0.3)"}`,
-                                "border-radius": "4px",
-                                "font-size": "0.8rem",
-                                display: "flex",
-                                "align-items": "center",
-                                gap: "4px",
-                              }}>
-                                <span>{enemy.icon}</span>
-                                <span style={{ color: enemy.boss ? "var(--accent-gold)" : "var(--text-secondary)" }}>
-                                  {enc.count}x {enemy.name}
-                                </span>
-                                <Show when={enemy.boss}>
-                                  <span style={{ "font-size": "0.65rem", color: "var(--accent-gold)", "font-weight": "bold" }}>BOSS</span>
-                                </Show>
-                              </div>
+                              <Tooltip content={<EnemyTooltipContent enemy={enemy} />}>
+                                <div style={{
+                                  width: "80px",
+                                  background: enemy.boss ? "rgba(245, 197, 66, 0.08)" : "rgba(231, 76, 60, 0.06)",
+                                  border: `1px solid ${borderColor}`,
+                                  "border-radius": "6px",
+                                  overflow: "hidden",
+                                  cursor: "default",
+                                }}>
+                                  {enemy.image
+                                    ? <img src={enemy.image} alt="" style={{
+                                        width: "80px", height: "80px", "object-fit": "cover",
+                                        display: "block",
+                                      }} />
+                                    : <div style={{
+                                        width: "80px", height: "80px",
+                                        display: "flex", "align-items": "center", "justify-content": "center",
+                                        background: "rgba(0, 0, 0, 0.2)", "font-size": "2.2rem",
+                                      }}>{enemy.icon}</div>
+                                  }
+                                  <div style={{
+                                    padding: "4px",
+                                    "text-align": "center",
+                                    "font-size": "0.65rem",
+                                    color: enemy.boss ? "var(--accent-gold)" : "var(--text-secondary)",
+                                    "line-height": "1.2",
+                                  }}>
+                                    {enc.count}x {enemy.name}
+                                    <Show when={enemy.boss}>
+                                      <div style={{ "font-size": "0.6rem", color: "var(--accent-gold)", "font-weight": "bold" }}>BOSS</div>
+                                    </Show>
+                                  </div>
+                                </div>
+                              </Tooltip>
                             );
                           })}
                         </div>
@@ -702,35 +793,22 @@ export default function AdventurersGuild() {
                     </Show>
 
                     <div class="mission-detail-section">
-                      <div class="mission-detail-label">Team Slots</div>
+                      <div class="mission-detail-label">Team ({selectedTeam().length}/{mission().slots.length})</div>
                       <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
-                        {mission().slots.map((slot, i) => {
-                          const assigned = () => assignTeamToSlots()[i];
-                          const isMatched = () => {
-                            const adv = assigned();
-                            return adv ? (slot.class === "any" || adv.class === slot.class) : false;
-                          };
-                          const slotColor = () => {
-                            if (assigned()) return CLASS_COLORS[assigned()!.class] ?? "var(--text-muted)";
-                            if (slot.class !== "any") return CLASS_COLORS[slot.class] ?? "var(--text-muted)";
-                            return "var(--text-muted)";
+                        {mission().slots.map((_slot, i) => {
+                          const assigned = () => {
+                            const id = selectedTeam()[i];
+                            return id ? state.adventurers.find((a) => a.id === id) : undefined;
                           };
                           return (
                             <div
                               class="mission-slot-square"
-                              classList={{ filled: !!assigned(), matched: isMatched() }}
+                              classList={{ filled: !!assigned() }}
                               onClick={() => { if (assigned()) toggleTeamMember(assigned()!.id); }}
-                              style={{ "border-color": slotColor(), cursor: assigned() ? "pointer" : "default" }}
+                              style={{ cursor: assigned() ? "pointer" : "default" }}
                             >
                               <Show when={assigned()} fallback={
-                                <>
-                                  <div class="mission-slot-square-icon" style={{ color: slotColor() }}>
-                                    {slot.class === "any" ? "👤" : getClassMeta(slot.class).icon}
-                                  </div>
-                                  <div class="mission-slot-square-name" style={{ color: "var(--text-muted)" }}>
-                                    {slot.class === "any" ? "Any" : getClassMeta(slot.class).name}
-                                  </div>
-                                </>
+                                <div class="mission-slot-square-icon" style={{ color: "var(--text-muted)" }}>👤</div>
                               }>
                                 <img
                                   class="mission-slot-square-portrait"
@@ -741,9 +819,6 @@ export default function AdventurersGuild() {
                                   <div class="mission-slot-square-name" style={{ color: "var(--text-primary)" }}>
                                     {assigned()!.name.split(" ")[0]}
                                   </div>
-                                  <Show when={!isMatched()}>
-                                    <div style={{ "font-size": "0.55rem", color: "var(--accent-gold)" }}>mismatch</div>
-                                  </Show>
                                 </div>
                               </Show>
                             </div>
