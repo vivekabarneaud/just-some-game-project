@@ -8,6 +8,28 @@ export type EnemyTag =
   | "elemental_fire" | "elemental_water" | "elemental_earth" | "elemental_wind" | "elemental_aether"
   | "magical";
 
+// ─── Loot Tables ────────────────────────────────────────────────
+// Each enemy can drop resources (common) or items (rare, mostly bosses).
+// `chance` is 0-1 probability per kill. `min`/`max` is amount range.
+
+export interface ResourceDrop {
+  type: "resource";
+  resource: string;    // "gold", "wood", "stone", "food", "astralShards", herb IDs, etc.
+  chance: number;      // 0-1 probability per kill
+  min: number;
+  max: number;
+}
+
+export interface ItemDrop {
+  type: "item";
+  itemId: string;      // item ID from items.ts
+  chance: number;      // 0-1 probability per kill (typically low for bosses)
+}
+
+export type LootDrop = ResourceDrop | ItemDrop;
+
+// ─── Enemy Definitions ─────────────────────────────────────────
+
 export interface EnemyDefinition {
   id: string;
   name: string;
@@ -24,6 +46,7 @@ export interface EnemyDefinition {
   };
   tags: EnemyTag[];
   boss?: boolean;
+  loot?: LootDrop[];   // drops on kill — empty/undefined means no drops
 }
 
 export const ENEMIES: EnemyDefinition[] = [
@@ -37,6 +60,9 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 1,
     stats: { str: 8, dex: 10, int: 2, vit: 10, wis: 2 },
     tags: ["humanoid"],
+    loot: [
+      { type: "resource", resource: "gold", chance: 0.4, min: 2, max: 8 },
+    ],
   },
   {
     id: "bandit_thug",
@@ -46,6 +72,9 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 1,
     stats: { str: 10, dex: 6, int: 2, vit: 12, wis: 3 },
     tags: ["humanoid"],
+    loot: [
+      { type: "resource", resource: "gold", chance: 0.5, min: 3, max: 10 },
+    ],
   },
   {
     id: "wild_wolf",
@@ -55,6 +84,9 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 1,
     stats: { str: 9, dex: 11, int: 1, vit: 10, wis: 3 },
     tags: ["beast"],
+    loot: [
+      { type: "resource", resource: "food", chance: 0.4, min: 2, max: 6 },
+    ],
   },
   {
     id: "giant_rat",
@@ -64,6 +96,9 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 1,
     stats: { str: 7, dex: 9, int: 1, vit: 8, wis: 1 },
     tags: ["beast"],
+    loot: [
+      { type: "resource", resource: "food", chance: 0.2, min: 1, max: 3 },
+    ],
   },
   {
     id: "skeleton",
@@ -73,6 +108,9 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 1,
     stats: { str: 9, dex: 5, int: 3, vit: 14, wis: 1 },
     tags: ["undead"],
+    loot: [
+      { type: "resource", resource: "stone", chance: 0.3, min: 1, max: 5 },
+    ],
   },
 
   // ── Tier 2 — Organized threats ────────────────────────────────
@@ -85,6 +123,9 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 2,
     stats: { str: 18, dex: 7, int: 2, vit: 20, wis: 3 },
     tags: ["humanoid"],
+    loot: [
+      { type: "resource", resource: "gold", chance: 0.5, min: 5, max: 15 },
+    ],
   },
   {
     id: "skeleton_archer",
@@ -94,6 +135,9 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 2,
     stats: { str: 6, dex: 16, int: 3, vit: 12, wis: 2 },
     tags: ["undead"],
+    loot: [
+      { type: "resource", resource: "wood", chance: 0.4, min: 3, max: 8 },
+    ],
   },
   {
     id: "bandit_captain",
@@ -104,6 +148,10 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 16, dex: 11, int: 5, vit: 18, wis: 5 },
     tags: ["humanoid"],
     boss: true,
+    loot: [
+      { type: "resource", resource: "gold", chance: 0.8, min: 15, max: 40 },
+      { type: "item", itemId: "iron_sword", chance: 0.10 },
+    ],
   },
   {
     id: "cave_spider",
@@ -113,6 +161,9 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 2,
     stats: { str: 10, dex: 16, int: 1, vit: 12, wis: 2 },
     tags: ["beast"],
+    loot: [
+      { type: "resource", resource: "nettle", chance: 0.15, min: 1, max: 2 },
+    ],
   },
   {
     id: "cursed_spirit",
@@ -122,6 +173,9 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 2,
     stats: { str: 4, dex: 8, int: 16, vit: 14, wis: 10 },
     tags: ["ghost", "magical"],
+    loot: [
+      { type: "resource", resource: "astralShards", chance: 0.10, min: 1, max: 1 },
+    ],
   },
 
   // ── Tier 3 — Dangerous foes ───────────────────────────────────
@@ -135,6 +189,10 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 26, dex: 8, int: 3, vit: 28, wis: 5 },
     tags: ["humanoid"],
     boss: true,
+    loot: [
+      { type: "resource", resource: "gold", chance: 0.9, min: 30, max: 80 },
+      { type: "item", itemId: "iron_armor", chance: 0.08 },
+    ],
   },
   {
     id: "dark_mage",
@@ -145,6 +203,10 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 4, dex: 7, int: 26, vit: 14, wis: 18 },
     tags: ["humanoid", "magical"],
     boss: true,
+    loot: [
+      { type: "resource", resource: "astralShards", chance: 0.25, min: 1, max: 2 },
+      { type: "item", itemId: "enchanted_staff", chance: 0.08 },
+    ],
   },
   {
     id: "wraith",
@@ -154,6 +216,10 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 3,
     stats: { str: 10, dex: 12, int: 20, vit: 16, wis: 14 },
     tags: ["ghost", "magical"],
+    loot: [
+      { type: "resource", resource: "astralShards", chance: 0.15, min: 1, max: 1 },
+      { type: "resource", resource: "nightbloom", chance: 0.10, min: 1, max: 1 },
+    ],
   },
   {
     id: "troll",
@@ -164,6 +230,10 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 28, dex: 4, int: 1, vit: 35, wis: 2 },
     tags: ["beast"],
     boss: true,
+    loot: [
+      { type: "resource", resource: "food", chance: 0.8, min: 20, max: 50 },
+      { type: "resource", resource: "stone", chance: 0.5, min: 10, max: 30 },
+    ],
   },
 
   // ── Tier 3 — Elemental threats ──────────────────────────────
@@ -175,6 +245,9 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 3,
     stats: { str: 14, dex: 18, int: 16, vit: 14, wis: 6 },
     tags: ["elemental_fire", "magical"],
+    loot: [
+      { type: "resource", resource: "astralShards", chance: 0.10, min: 1, max: 1 },
+    ],
   },
   {
     id: "stone_golem",
@@ -185,6 +258,9 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 28, dex: 2, int: 1, vit: 32, wis: 1 },
     tags: ["elemental_earth"],
     boss: true,
+    loot: [
+      { type: "resource", resource: "stone", chance: 0.9, min: 30, max: 60 },
+    ],
   },
   {
     id: "storm_sprite",
@@ -194,6 +270,9 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 3,
     stats: { str: 6, dex: 24, int: 14, vit: 10, wis: 8 },
     tags: ["elemental_wind", "magical"],
+    loot: [
+      { type: "resource", resource: "astralShards", chance: 0.12, min: 1, max: 1 },
+    ],
   },
   {
     id: "tide_serpent",
@@ -203,6 +282,9 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 3,
     stats: { str: 16, dex: 14, int: 12, vit: 20, wis: 8 },
     tags: ["elemental_water", "magical"],
+    loot: [
+      { type: "resource", resource: "food", chance: 0.4, min: 8, max: 20 },
+    ],
   },
 
   // ── Tier 3 — Ghost threats ────────────────────────────────────
@@ -214,6 +296,10 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 3,
     stats: { str: 8, dex: 14, int: 22, vit: 12, wis: 16 },
     tags: ["ghost"],
+    loot: [
+      { type: "resource", resource: "astralShards", chance: 0.15, min: 1, max: 1 },
+      { type: "resource", resource: "moonpetal", chance: 0.08, min: 1, max: 1 },
+    ],
   },
 
   // ── Tier 4 — Elite threats ────────────────────────────────────
@@ -227,6 +313,9 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 24, dex: 12, int: 16, vit: 30, wis: 10 },
     tags: ["dragon", "magical"],
     boss: true,
+    loot: [
+      // TODO: fill — dragon scales? astral shards? rare crafting material?
+    ],
   },
   {
     id: "lich_apprentice",
@@ -237,6 +326,9 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 8, dex: 8, int: 30, vit: 22, wis: 20 },
     tags: ["undead", "magical"],
     boss: true,
+    loot: [
+      // TODO: fill — spell tome? astral shards? enchanted staff?
+    ],
   },
   {
     id: "demon_scout",
@@ -246,6 +338,9 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 4,
     stats: { str: 22, dex: 16, int: 14, vit: 24, wis: 12 },
     tags: ["demon", "magical"],
+    loot: [
+      // TODO: fill — demonic essence? gold?
+    ],
   },
   {
     id: "magma_golem",
@@ -256,6 +351,9 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 30, dex: 4, int: 8, vit: 34, wis: 4 },
     tags: ["elemental_fire", "elemental_earth"],
     boss: true,
+    loot: [
+      // TODO: fill — ore? gems? stone?
+    ],
   },
   {
     id: "aether_wraith",
@@ -266,6 +364,9 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 12, dex: 20, int: 28, vit: 20, wis: 18 },
     tags: ["elemental_aether", "magical"],
     boss: true,
+    loot: [
+      // TODO: fill — astral shards? aether crystal?
+    ],
   },
   {
     id: "temple_guardian",
@@ -276,6 +377,9 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 26, dex: 10, int: 18, vit: 28, wis: 22 },
     tags: ["divine", "magical"],
     boss: true,
+    loot: [
+      // TODO: fill — divine relic? blessed armor?
+    ],
   },
   {
     id: "banshee",
@@ -286,6 +390,9 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 4, dex: 16, int: 28, vit: 18, wis: 20 },
     tags: ["ghost", "magical"],
     boss: true,
+    loot: [
+      // TODO: fill — spirit essence? nightbloom?
+    ],
   },
 
   // ── Tier 5 — Legendary ────────────────────────────────────────
@@ -299,6 +406,9 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 40, dex: 14, int: 22, vit: 50, wis: 16 },
     tags: ["dragon", "magical"],
     boss: true,
+    loot: [
+      // TODO: fill — legendary weapon? dragon heart? massive gold/shards?
+    ],
   },
   {
     id: "shadow_lord",
@@ -309,6 +419,9 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 28, dex: 18, int: 35, vit: 38, wis: 24 },
     tags: ["demon", "magical"],
     boss: true,
+    loot: [
+      // TODO: fill — shadow blade? void essence?
+    ],
   },
   {
     id: "seraph_fallen",
@@ -319,6 +432,9 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 32, dex: 16, int: 30, vit: 36, wis: 28 },
     tags: ["divine", "magical"],
     boss: true,
+    loot: [
+      // TODO: fill — divine fragment? holy relic?
+    ],
   },
   {
     id: "aether_colossus",
@@ -329,6 +445,9 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 20, dex: 8, int: 38, vit: 44, wis: 26 },
     tags: ["elemental_aether"],
     boss: true,
+    loot: [
+      // TODO: fill — massive astral shards? aether core?
+    ],
   },
 ];
 
