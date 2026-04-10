@@ -179,7 +179,8 @@ export type GameEventType =
   | "building_completed" | "building_damaged" | "building_repaired"
   | "mission_success" | "mission_failed" | "adventurer_died" | "adventurer_levelup" | "adventurer_rankup"
   | "raid_victory" | "raid_defeat" | "raid_incoming"
-  | "winter_freezing";
+  | "winter_freezing"
+  | "loot_drop";
 
 export interface GameEvent {
   type: GameEventType;
@@ -1967,6 +1968,30 @@ export function GameProvider(props: ParentProps) {
                   // Assassin partial loot on failure
                   const survivors = team.filter((a) => !casualties.includes(a.id));
                   rewards = calcAssassinFailRewards(template, team, survivors);
+                }
+              }
+
+              // Add combat loot from killed enemies
+              if (combatResult?.loot?.length) {
+                for (const drop of combatResult.loot) {
+                  if (drop.type === "resource" && drop.resource) {
+                    // Merge resource loot into mission rewards
+                    const existing = rewards.find((r) => r.resource === drop.resource);
+                    if (existing) {
+                      existing.amount += drop.amount;
+                    } else {
+                      rewards.push({ resource: drop.resource as any, amount: drop.amount });
+                    }
+                  } else if (drop.type === "item" && drop.itemId) {
+                    // Add item to inventory directly
+                    const inv = s.inventory.find((i) => i.itemId === drop.itemId);
+                    if (inv) {
+                      inv.quantity += drop.amount;
+                    } else {
+                      s.inventory.push({ itemId: drop.itemId!, quantity: drop.amount });
+                    }
+                    pushEvent(s, "loot_drop", "🎁", `${drop.fromEnemy} dropped ${drop.itemId}!`);
+                  }
                 }
               }
 

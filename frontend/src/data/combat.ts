@@ -28,6 +28,7 @@ export interface CombatUnit {
   gearDefense: number;
   trait?: string;           // adventurer backstory trait id
   enemyTags?: EnemyTag[];   // enemy type tags (for trait bonus matching)
+  enemyDefId?: string;      // enemy definition ID (for loot rolling)
   // Status effects
   cooldowns: Record<string, number>; // abilityId → rounds until available
   tauntedBy?: string; // unit ID forcing this unit to attack them
@@ -60,6 +61,14 @@ export interface CombatLogEntry {
   isShieldWall?: boolean;
 }
 
+export interface LootResult {
+  type: "resource" | "item";
+  resource?: string;     // for resource drops
+  itemId?: string;       // for item drops
+  amount: number;        // quantity (1 for items)
+  fromEnemy: string;     // enemy name that dropped it
+}
+
 export interface CombatResult {
   victory: boolean;
   rounds: number;
@@ -68,6 +77,7 @@ export interface CombatResult {
   survivingEnemies: number;
   fallenAdventurerIds: string[];
   totalEnemies: number;
+  loot: LootResult[];    // loot rolled from killed enemies
 }
 
 // ─── Derived combat stats ───────────────────────────────────────
@@ -270,6 +280,7 @@ function buildEnemyUnits(encounters: MissionEncounter[]): CombatUnit[] {
         vit: def.stats.vit, wis: def.stats.wis ?? 0,
         class: undefined, isMagical, gearDefense: 0,
         enemyTags: def.tags,
+        enemyDefId: def.id,
         cooldowns: {}, slowed: 0, poisonTicks: [],
       });
     }
@@ -689,5 +700,25 @@ export function simulateCombat(
   const performanceRatio = totalEnemies > 0 ? enemiesKilled / totalEnemies : 0.5;
   const fallenAdventurerIds = adventurers.filter((u) => u.hp <= 0).map((u) => u.id);
 
-  return { victory, rounds: round, log, performanceRatio, survivingEnemies, totalEnemies, fallenAdventurerIds };
+  // Roll loot from killed enemies
+  const loot: LootResult[] = [];
+  const killedEnemies = enemies.filter((u) => u.hp <= 0);
+  for (const unit of killedEnemies) {
+    if (!unit.enemyDefId) continue;
+    const def = getEnemy(unit.enemyDefId);
+    if (!def?.loot?.length) continue;
+    for (const drop of def.loot) {
+      if (Math.random() > drop.chance) continue;
+      if (drop.type === "resource") {
+        const amount = drop.min + Math.floor(Math.random() * (drop.max - drop.min + 1));
+        if (amount > 0) {
+          loot.push({ type: "resource", resource: drop.resource, amount, fromEnemy: unit.name });
+        }
+      } else {
+        loot.push({ type: "item", itemId: drop.itemId, amount: 1, fromEnemy: unit.name });
+      }
+    }
+  }
+
+  return { victory, rounds: round, log, performanceRatio, survivingEnemies, totalEnemies, fallenAdventurerIds, loot };
 }
