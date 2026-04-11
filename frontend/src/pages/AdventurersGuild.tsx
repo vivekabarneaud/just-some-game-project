@@ -876,10 +876,26 @@ export default function AdventurersGuild() {
                       <div class="mission-detail-label">Team ({selectedTeam().length}/{mission().slots.length})</div>
                       <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
                         {mission().slots.map((slot, i) => {
-                          const assigned = () => {
-                            const id = selectedTeam()[i];
-                            return id ? state.adventurers.find((a) => a.id === id) : undefined;
+                          // Smart slot assignment: required slots get matching classes first
+                          const slotAssignments = () => {
+                            const assignments: (Adventurer | undefined)[] = new Array(mission().slots.length).fill(undefined);
+                            const unassigned = selectedTeam().map((id) => state.adventurers.find((a) => a.id === id)).filter(Boolean) as Adventurer[];
+                            const remaining = [...unassigned];
+                            // Pass 1: fill required slots with matching classes
+                            for (let si = 0; si < mission().slots.length; si++) {
+                              const s = mission().slots[si];
+                              if (!s.required || s.class === "any") continue;
+                              const idx = remaining.findIndex((a) => a.class === s.class);
+                              if (idx !== -1) { assignments[si] = remaining[idx]; remaining.splice(idx, 1); }
+                            }
+                            // Pass 2: fill remaining slots
+                            for (let si = 0; si < mission().slots.length; si++) {
+                              if (assignments[si]) continue;
+                              if (remaining.length > 0) { assignments[si] = remaining.shift(); }
+                            }
+                            return assignments;
                           };
+                          const assigned = () => slotAssignments()[i];
                           const requiredClass = () => slot.required && slot.class !== "any" ? getClassMeta(slot.class) : null;
                           const slotBorderColor = () => {
                             if (assigned()) return CLASS_COLORS[assigned()!.class] ?? "var(--border-color)";
