@@ -30,6 +30,30 @@ export type LootDrop = ResourceDrop | ItemDrop;
 
 // ─── Enemy Definitions ─────────────────────────────────────────
 
+// ─── Enemy Abilities ────────────────────────────────────────────
+
+export interface EnemyAbility {
+  id: string;
+  name: string;
+  icon: string;
+  cooldown: number;
+  /** When to use this ability */
+  trigger: "always" | "hp_below_50" | "ally_dead" | "round_start" | "any_ally_below_30";
+  /** What the ability does */
+  effect:
+    | { type: "bleed"; pctPerRound: number; rounds: number }
+    | { type: "poison"; pctPerRound: number; rounds: number }
+    | { type: "heal_self"; pct: number }
+    | { type: "heal_ally"; pct: number }
+    | { type: "summon"; enemyId: string; count: number }
+    | { type: "aoe_damage"; pct: number; magical: boolean }
+    | { type: "mind_control"; rounds: number }
+    | { type: "buff_allies"; stat: "str" | "dex" | "int"; pct: number; rounds: number }
+    | { type: "debuff_target"; stat: "str" | "dex" | "int"; pct: number; rounds: number }
+    | { type: "revive_ally"; hpPct: number }
+    | { type: "damage_mult"; mult: number; targets: number };
+}
+
 export interface EnemyDefinition {
   id: string;
   name: string;
@@ -46,6 +70,7 @@ export interface EnemyDefinition {
   };
   tags: EnemyTag[];
   boss?: boolean;
+  abilities?: EnemyAbility[];
   loot?: LootDrop[];   // drops on kill — empty/undefined means no drops
 }
 
@@ -87,6 +112,10 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 1,
     stats: { str: 9, dex: 11, int: 1, vit: 10, wis: 3 },
     tags: ["beast"],
+    abilities: [
+      { id: "wolf_bite", name: "Rending Bite", icon: "🩸", cooldown: 3, trigger: "always",
+        effect: { type: "bleed", pctPerRound: 10, rounds: 2 } },
+    ],
     loot: [
       { type: "resource", resource: "food", chance: 0.4, min: 2, max: 6 },
       { type: "resource", resource: "wolfhide_strip", chance: 0.3, min: 1, max: 1 },
@@ -117,6 +146,10 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 1,
     stats: { str: 9, dex: 5, int: 3, vit: 14, wis: 1 },
     tags: ["undead"],
+    abilities: [
+      { id: "bone_reform", name: "Reassemble", icon: "💀", cooldown: 5, trigger: "hp_below_50",
+        effect: { type: "heal_self", pct: 25 } },
+    ],
     loot: [
       { type: "resource", resource: "bonewalk_shard", chance: 0.3, min: 1, max: 2 },
       { type: "resource", resource: "barrow_ash", chance: 0.15, min: 1, max: 1 },
@@ -134,6 +167,10 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 2,
     stats: { str: 18, dex: 7, int: 2, vit: 20, wis: 3 },
     tags: ["humanoid"],
+    abilities: [
+      { id: "orc_warcry", name: "War Cry", icon: "📯", cooldown: 4, trigger: "always",
+        effect: { type: "buff_allies", stat: "str", pct: 20, rounds: 2 } },
+    ],
     loot: [
       { type: "resource", resource: "gold", chance: 0.5, min: 5, max: 15 },
       { type: "resource", resource: "orc_steel", chance: 0.2, min: 1, max: 1 },
@@ -178,6 +215,10 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 2,
     stats: { str: 10, dex: 16, int: 1, vit: 12, wis: 2 },
     tags: ["beast"],
+    abilities: [
+      { id: "spider_venom", name: "Venomous Bite", icon: "☠️", cooldown: 3, trigger: "always",
+        effect: { type: "poison", pctPerRound: 12, rounds: 3 } },
+    ],
     loot: [
       { type: "resource", resource: "spinners_bile", chance: 0.25, min: 1, max: 1 },
       { type: "resource", resource: "chitin_plate", chance: 0.15, min: 1, max: 1 },
@@ -210,6 +251,12 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 26, dex: 8, int: 3, vit: 28, wis: 5 },
     tags: ["humanoid"],
     boss: true,
+    abilities: [
+      { id: "warlord_rally", name: "Rally the Clans", icon: "📯", cooldown: 4, trigger: "always",
+        effect: { type: "buff_allies", stat: "str", pct: 30, rounds: 2 } },
+      { id: "warlord_cleave", name: "Devastating Cleave", icon: "⚔️", cooldown: 3, trigger: "always",
+        effect: { type: "damage_mult", mult: 2.0, targets: 2 } },
+    ],
     loot: [
       { type: "resource", resource: "gold", chance: 0.9, min: 30, max: 80 },
       { type: "resource", resource: "orc_steel", chance: 0.5, min: 1, max: 3 },
@@ -227,6 +274,12 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 4, dex: 7, int: 26, vit: 14, wis: 18 },
     tags: ["humanoid", "magical"],
     boss: true,
+    abilities: [
+      { id: "mind_control", name: "Dominate Mind", icon: "🧠", cooldown: 5, trigger: "always",
+        effect: { type: "mind_control", rounds: 1 } },
+      { id: "dark_bolt", name: "Dark Bolt", icon: "⚡", cooldown: 2, trigger: "always",
+        effect: { type: "damage_mult", mult: 1.8, targets: 1 } },
+    ],
     loot: [
       { type: "resource", resource: "astralShards", chance: 0.25, min: 1, max: 2 },
       { type: "item", itemId: "enchanted_staff", chance: 0.08 },
@@ -241,6 +294,12 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 3,
     stats: { str: 10, dex: 12, int: 20, vit: 16, wis: 14 },
     tags: ["ghost", "magical"],
+    abilities: [
+      { id: "life_drain", name: "Life Drain", icon: "💀", cooldown: 3, trigger: "always",
+        effect: { type: "damage_mult", mult: 1.5, targets: 1 } },
+      { id: "wail", name: "Chilling Wail", icon: "😱", cooldown: 4, trigger: "always",
+        effect: { type: "debuff_target", stat: "str", pct: 30, rounds: 2 } },
+    ],
     loot: [
       { type: "resource", resource: "ghostweave", chance: 0.2, min: 1, max: 1 },
       { type: "resource", resource: "veilmist", chance: 0.3, min: 1, max: 2 },
@@ -256,6 +315,12 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 28, dex: 4, int: 1, vit: 35, wis: 2 },
     tags: ["beast"],
     boss: true,
+    abilities: [
+      { id: "troll_regen", name: "Regeneration", icon: "💚", cooldown: 0, trigger: "round_start",
+        effect: { type: "heal_self", pct: 15 } },
+      { id: "troll_slam", name: "Ground Slam", icon: "💥", cooldown: 4, trigger: "always",
+        effect: { type: "aoe_damage", pct: 40, magical: false } },
+    ],
     loot: [
       { type: "resource", resource: "trollhide", chance: 0.4, min: 1, max: 2 },
       { type: "resource", resource: "gnawed_marrow", chance: 0.6, min: 2, max: 4 },
@@ -359,6 +424,10 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 3,
     stats: { str: 18, dex: 10, int: 12, vit: 22, wis: 6 },
     tags: ["dragon", "magical"],
+    abilities: [
+      { id: "fire_breath_small", name: "Fire Breath", icon: "🔥", cooldown: 3, trigger: "always",
+        effect: { type: "aoe_damage", pct: 35, magical: true } },
+    ],
     loot: [
       { type: "resource", resource: "wyrmshell_plate", chance: 0.25, min: 1, max: 2 },
       { type: "resource", resource: "dragonfire_ash", chance: 0.4, min: 1, max: 3 },
@@ -377,6 +446,12 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 26, dex: 16, int: 18, vit: 32, wis: 12 },
     tags: ["dragon", "magical"],
     boss: true,
+    abilities: [
+      { id: "drake_fire", name: "Inferno Breath", icon: "🔥", cooldown: 3, trigger: "always",
+        effect: { type: "aoe_damage", pct: 50, magical: true } },
+      { id: "drake_roar", name: "Terrifying Roar", icon: "😱", cooldown: 4, trigger: "always",
+        effect: { type: "debuff_target", stat: "str", pct: 25, rounds: 2 } },
+    ],
     loot: [
       { type: "resource", resource: "wyrmshell_plate", chance: 0.5, min: 2, max: 4 },
       { type: "resource", resource: "dragon_blood", chance: 0.3, min: 1, max: 2 },
@@ -409,6 +484,14 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 8, dex: 8, int: 30, vit: 22, wis: 20 },
     tags: ["undead", "magical"],
     boss: true,
+    abilities: [
+      { id: "raise_dead", name: "Raise Dead", icon: "💀", cooldown: 5, trigger: "ally_dead",
+        effect: { type: "revive_ally", hpPct: 40 } },
+      { id: "death_bolt", name: "Death Bolt", icon: "⚡", cooldown: 2, trigger: "always",
+        effect: { type: "damage_mult", mult: 2.0, targets: 1 } },
+      { id: "summon_skeletons", name: "Summon Skeletons", icon: "💀", cooldown: 6, trigger: "always",
+        effect: { type: "summon", enemyId: "skeleton", count: 2 } },
+    ],
     loot: [
       { type: "resource", resource: "lichglass", chance: 0.2, min: 1, max: 1 },
       { type: "resource", resource: "shimmer", chance: 0.3, min: 1, max: 2 },
@@ -487,6 +570,12 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 4, dex: 16, int: 28, vit: 18, wis: 20 },
     tags: ["ghost", "magical"],
     boss: true,
+    abilities: [
+      { id: "banshee_scream", name: "Death Scream", icon: "💀", cooldown: 4, trigger: "always",
+        effect: { type: "aoe_damage", pct: 45, magical: true } },
+      { id: "banshee_wail", name: "Soul-Rending Wail", icon: "😱", cooldown: 5, trigger: "hp_below_50",
+        effect: { type: "debuff_target", stat: "int", pct: 40, rounds: 3 } },
+    ],
     loot: [
       { type: "resource", resource: "keening_shard", chance: 0.25, min: 1, max: 1 },
       { type: "resource", resource: "ghostweave", chance: 0.4, min: 1, max: 2 },
@@ -505,6 +594,14 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 40, dex: 14, int: 22, vit: 50, wis: 16 },
     tags: ["dragon", "magical"],
     boss: true,
+    abilities: [
+      { id: "wyrm_inferno", name: "Ancient Inferno", icon: "🔥", cooldown: 3, trigger: "always",
+        effect: { type: "aoe_damage", pct: 60, magical: true } },
+      { id: "wyrm_crush", name: "Tail Crush", icon: "💥", cooldown: 2, trigger: "always",
+        effect: { type: "damage_mult", mult: 2.5, targets: 2 } },
+      { id: "wyrm_roar", name: "Primordial Roar", icon: "😱", cooldown: 5, trigger: "hp_below_50",
+        effect: { type: "debuff_target", stat: "dex", pct: 40, rounds: 3 } },
+    ],
     loot: [
       { type: "resource", resource: "wyrm_scale", chance: 0.8, min: 3, max: 6 },
       { type: "resource", resource: "dragon_blood", chance: 0.7, min: 2, max: 5 },
@@ -521,6 +618,14 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 28, dex: 18, int: 35, vit: 38, wis: 24 },
     tags: ["demon", "magical"],
     boss: true,
+    abilities: [
+      { id: "void_dominate", name: "Dominate Will", icon: "🧠", cooldown: 5, trigger: "always",
+        effect: { type: "mind_control", rounds: 2 } },
+      { id: "void_blast", name: "Void Eruption", icon: "🌑", cooldown: 3, trigger: "always",
+        effect: { type: "aoe_damage", pct: 55, magical: true } },
+      { id: "reality_tear", name: "Reality Tear", icon: "💜", cooldown: 4, trigger: "hp_below_50",
+        effect: { type: "summon", enemyId: "cursed_spirit", count: 2 } },
+    ],
     loot: [
       { type: "resource", resource: "shadow_fragment", chance: 0.4, min: 1, max: 2 },
       { type: "resource", resource: "voidthorn", chance: 0.2, min: 1, max: 1 },
@@ -537,6 +642,14 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 32, dex: 16, int: 30, vit: 36, wis: 28 },
     tags: ["divine", "magical"],
     boss: true,
+    abilities: [
+      { id: "divine_wrath", name: "Divine Wrath", icon: "⚡", cooldown: 3, trigger: "always",
+        effect: { type: "aoe_damage", pct: 55, magical: true } },
+      { id: "seraph_heal", name: "Corrupted Blessing", icon: "💛", cooldown: 4, trigger: "any_ally_below_30",
+        effect: { type: "heal_ally", pct: 40 } },
+      { id: "judgment", name: "Righteous Judgment", icon: "👼", cooldown: 5, trigger: "hp_below_50",
+        effect: { type: "damage_mult", mult: 3.0, targets: 1 } },
+    ],
     loot: [
       { type: "resource", resource: "seraphs_grief", chance: 0.2, min: 1, max: 1 },
       { type: "resource", resource: "godspark", chance: 0.4, min: 1, max: 2 },
