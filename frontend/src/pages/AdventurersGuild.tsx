@@ -625,13 +625,18 @@ export default function AdventurersGuild() {
                     <Show when={mission.image}>
                       <div class="building-card-image" style={{ margin: "0", "border-radius": "0" }}>
                         <img src={mission.image} alt={mission.name} loading="lazy" />
-                        <div class="building-card-image-overlay">
-                          <span class="building-card-category" style={{ "margin-bottom": "2px" }}>
-                            <span style={{ color: [, "#aaa", "#7CFC00", "#3498db", "#9b59b6", "#f5c542"][mission.difficulty] }}>
-                              {["", "Novice", "Apprentice", "Journeyman", "Veteran", "Elite"][mission.difficulty]}
-                            </span>
-                            {" · "}{mission.tags.join(", ")}
+                        <div style={{
+                          position: "absolute", top: "6px", right: "6px",
+                          padding: "2px 8px", "border-radius": "4px",
+                          background: "rgba(0, 0, 0, 0.7)",
+                          "font-size": "0.65rem", "line-height": "1.4",
+                        }}>
+                          <span style={{ color: [, "#aaa", "#7CFC00", "#3498db", "#9b59b6", "#f5c542"][mission.difficulty] }}>
+                            {["", "Novice", "Apprentice", "Journeyman", "Veteran", "Elite"][mission.difficulty]}
                           </span>
+                          <span style={{ color: "var(--text-muted)" }}>{" · "}{mission.tags.join(", ")}</span>
+                        </div>
+                        <div class="building-card-image-overlay">
                           <div class="building-card-title">{mission.icon} {mission.name}</div>
                         </div>
                       </div>
