@@ -2768,9 +2768,9 @@ body {
   border: 1px solid var(--border-color);
 }
 .talent-node.locked {
-  background: var(--bg-primary);
-  border: 1px dashed var(--border-color);
-  opacity: 0.35;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  opacity: 0.9;
   cursor: not-allowed;
 }
 .talent-node.available {

@@ -492,7 +492,7 @@ export default function AdventurerDetail() {
                     const NODE_W = 64;
                     const NODE_H = 64;
                     const ROW_GAP = 24;
-                    const COL_GAP = 12;
+                    const COL_GAP = 24;
 
                     const nodePositions = () => {
                       const pos: Record<string, { x: number; y: number }> = {};
@@ -531,7 +531,7 @@ export default function AdventurerDetail() {
                           };
                           const [left, center, right] = labels[adv().class] ?? ["", "", ""];
                           return (
-                            <div style={{ display: "flex", "justify-content": "space-between", "margin": "0 auto 8px", width: `${totalWidth()}px`, "font-size": "0.6rem", "text-transform": "uppercase", "letter-spacing": "1px" }}>
+                            <div style={{ display: "flex", "justify-content": "space-between", "margin": "0 auto 8px", width: `${totalWidth() + 48}px`, "font-size": "0.6rem", "text-transform": "uppercase", "letter-spacing": "1px" }}>
                               <span style={{ color: "rgba(52, 152, 219, 0.5)" }}>{left}</span>
                               <span style={{ color: "var(--text-muted)", opacity: "0.4" }}>{center}</span>
                               <span style={{ color: "rgba(155, 89, 182, 0.5)" }}>{right}</span>
@@ -539,10 +539,10 @@ export default function AdventurerDetail() {
                           );
                         })()}
                       <div style={{
-                        position: "relative", height: `${totalHeight()}px`, "margin": "0 auto", width: `${totalWidth()}px`,
-                        background: "linear-gradient(to right, rgba(52, 152, 219, 0.12) 0%, transparent 35%, transparent 65%, rgba(155, 89, 182, 0.12) 100%)",
+                        position: "relative", height: `${totalHeight()}px`, "margin": "0 auto", width: `${totalWidth() + 48}px`,
+                        background: "linear-gradient(to right, rgba(52, 152, 219, 0.12) 0%, transparent 30%, transparent 70%, rgba(155, 89, 182, 0.12) 100%)",
                         "border-radius": "8px",
-                        padding: "8px 0",
+                        padding: "8px 24px",
                       }}>
                         {/* SVG connection lines */}
                         <svg style={{
