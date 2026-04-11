@@ -953,20 +953,21 @@ export default function AdventurersGuild() {
                             <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-bottom": "4px", "text-transform": "uppercase", "letter-spacing": "1px" }}>
                               {classInfo.icon} {classInfo.name}s
                             </div>
-                            <div style={{ display: "flex", "flex-direction": "column", gap: "6px" }}>
+                            <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
                               <For each={classIds()}>
                                 {(advId) => {
                                   const adv = () => state.adventurers.find((a) => a.id === advId)!;
                                   const isInTeam = () => selectedTeam().includes(advId);
                                   const classColor = () => CLASS_COLORS[adv().class] ?? "var(--border-color)";
+                                  const xpNeeded = () => getXpForLevel(adv().level);
+                                  const xpPct = () => xpNeeded() > 0 ? Math.min(100, Math.round((adv().xp / xpNeeded()) * 100)) : 0;
 
                                   return (
                                     <div
                                       onClick={() => toggleTeamMember(advId)}
                                       style={{
                                         display: "flex",
-                                        "align-items": "center",
-                                        gap: "10px",
+                                        gap: "8px",
                                         background: isInTeam() ? `${classColor()}18` : "rgba(255, 255, 255, 0.03)",
                                         border: `1px solid ${classColor()}`,
                                         "border-radius": "6px",
@@ -974,31 +975,34 @@ export default function AdventurersGuild() {
                                         cursor: "pointer",
                                         transition: "all 0.15s",
                                         opacity: isInTeam() ? "1" : "0.75",
+                                        position: "relative",
                                       }}
                                     >
+                                      <Show when={isInTeam()}>
+                                        <div style={{
+                                          position: "absolute", top: "3px", right: "3px", "z-index": 1,
+                                          background: classColor(), color: "#fff",
+                                          "font-size": "0.55rem", "font-weight": "bold",
+                                          width: "16px", height: "16px", "border-radius": "50%",
+                                          display: "flex", "align-items": "center", "justify-content": "center",
+                                        }}>✓</div>
+                                      </Show>
                                       <img
                                         src={getPortrait(adv().name, adv().class)}
                                         alt={adv().name}
-                                        style={{ width: "48px", height: "48px", "object-fit": "cover", display: "block", "flex-shrink": "0" }}
+                                        style={{ width: "56px", height: "56px", "object-fit": "cover", display: "block", "flex-shrink": "0" }}
                                       />
-                                      <div style={{ flex: "1", "min-width": "0" }}>
-                                        <div style={{ "font-size": "0.8rem", color: "var(--text-primary)", "font-weight": isInTeam() ? "bold" : "normal" }}>
+                                      <div style={{ padding: "4px 8px 4px 0", display: "flex", "flex-direction": "column", "justify-content": "center", "min-width": "0" }}>
+                                        <div style={{ "font-size": "0.75rem", color: "var(--text-primary)", "font-weight": isInTeam() ? "bold" : "normal", "white-space": "nowrap" }}>
                                           {adv().name}
                                         </div>
-                                        <div style={{ "font-size": "0.7rem", color: RANK_COLORS[adv().rank] }}>
+                                        <div style={{ "font-size": "0.65rem", color: RANK_COLORS[adv().rank] }}>
                                           {RANK_NAMES[adv().rank]} · Lv.{adv().level}
                                         </div>
+                                        <div style={{ "margin-top": "3px", height: "3px", background: "var(--bg-primary)", "border-radius": "2px", width: "100%", "min-width": "50px" }}>
+                                          <div style={{ height: "100%", width: `${xpPct()}%`, background: classColor(), "border-radius": "2px" }} />
+                                        </div>
                                       </div>
-                                      <Show when={isInTeam()}>
-                                        <div style={{
-                                          "margin-right": "10px",
-                                          background: classColor(), color: "#fff",
-                                          "font-size": "0.6rem", "font-weight": "bold",
-                                          width: "18px", height: "18px", "border-radius": "50%",
-                                          display: "flex", "align-items": "center", "justify-content": "center",
-                                          "flex-shrink": "0",
-                                        }}>✓</div>
-                                      </Show>
                                     </div>
                                   );
                                 }}
