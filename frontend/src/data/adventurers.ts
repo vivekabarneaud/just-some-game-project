@@ -506,10 +506,11 @@ export function applyXp(adv: Adventurer, xpGain: number): { leveled: boolean; ra
 
 // ─── Name generation ────────────────────────────────────────────
 
-// Build FEMALE_NAMES set from all origin data
-const FEMALE_NAMES = new Set(
-  ORIGINS.flatMap((o) => o.firstNamesFemale)
-);
+// Build FEMALE_NAMES set from all origin data + manual additions for legacy names
+const FEMALE_NAMES = new Set([
+  ...ORIGINS.flatMap((o) => o.firstNamesFemale),
+  "Xara", "Zara", "Maia", "Nyx", "Thea", "Raya", "Aria", "Luna", "Selene",
+]);
 
 // ─── Portrait system ────────────────────────────────────────────
 // Origin-aware portraits: CDN_BASE/characters/{origin}/{class}_{origin}_{gender}_{n}.png

@@ -104,6 +104,7 @@ import {
   RACE_WEIGHTS,
   ORIGINS,
   getOriginsForRace,
+  getOrigin,
   BACKSTORY_TRAITS,
   PERSONALITY_QUIRKS,
 } from "~/data/adventurers";
@@ -1104,6 +1105,24 @@ function loadGame(): GameState | null {
     // Talent migration
     for (const adv of saved.adventurers) { if (!adv.talents) adv.talents = []; }
     for (const adv of saved.recruitCandidates) { if (!adv.talents) adv.talents = []; }
+    // Name migration: regenerate names to match origin
+    const renameTo = (adv: any) => {
+      if (!adv.origin) return;
+      const origin = getOrigin(adv.origin);
+      if (!origin) return;
+      const firstName = adv.name.split(" ")[0];
+      const allNames = [...origin.firstNamesMale, ...origin.firstNamesFemale];
+      if (allNames.includes(firstName)) return; // already matches
+      // Deterministic pick based on adventurer ID
+      const idNum = parseInt(adv.id.replace(/\D/g, ""), 10) || 0;
+      const isFemale = origin.firstNamesFemale.length > 0 && (idNum % 2 === 0);
+      const pool = isFemale ? origin.firstNamesFemale : origin.firstNamesMale;
+      const newFirst = pool[idNum % pool.length];
+      const newLast = origin.lastNames[Math.floor(idNum / 3) % origin.lastNames.length];
+      adv.name = `${newFirst} ${newLast}`;
+    };
+    for (const adv of saved.adventurers) renameTo(adv);
+    for (const adv of saved.recruitCandidates) renameTo(adv);
     for (const pb of saved.buildings) {
       if (pb.upgrading && (pb as any).upgradeFinishTime) {
         pb.upgradeRemaining = Math.max(0, ((pb as any).upgradeFinishTime - Date.now()) / 1000);
