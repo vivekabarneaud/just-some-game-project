@@ -1,4 +1,4 @@
-import { A, useParams } from "@solidjs/router";
+import { A, useParams, useNavigate } from "@solidjs/router";
 import { For, Show } from "solid-js";
 import { useGame } from "~/engine/gameState";
 import {
@@ -626,6 +626,32 @@ export default function AdventurerDetail() {
                     </button>
                   </Show>
                 </div>
+
+                {/* Dismiss */}
+                <Show when={!adv().onMission}>
+                  <div style={{ "margin-top": "24px", "text-align": "right" }}>
+                    <button
+                      onClick={() => {
+                        if (confirm(`Dismiss ${adv().name}? This cannot be undone.`)) {
+                          actions.dismissAdventurer(params.id);
+                          useNavigate()("/guild?tab=roster");
+                        }
+                      }}
+                      style={{
+                        padding: "6px 14px",
+                        background: "none",
+                        border: "1px solid rgba(231, 76, 60, 0.3)",
+                        color: "var(--accent-red)",
+                        "border-radius": "4px",
+                        cursor: "pointer",
+                        "font-size": "0.8rem",
+                        opacity: "0.6",
+                      }}
+                    >
+                      Dismiss Adventurer
+                    </button>
+                  </div>
+                </Show>
               </div>
             </div>
           );
