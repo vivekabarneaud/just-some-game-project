@@ -2764,32 +2764,35 @@ body {
   transition: all 0.2s;
   position: relative;
   padding: 6px 4px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
 }
 .talent-node.locked {
   background: var(--bg-primary);
   border: 1px dashed var(--border-color);
-  opacity: 0.3;
+  opacity: 0.35;
   cursor: not-allowed;
 }
 .talent-node.available {
-  background: var(--bg-primary);
+  background: var(--bg-secondary);
   border: 2px solid var(--accent-gold);
-  box-shadow: 0 0 8px rgba(245, 197, 66, 0.25);
+  box-shadow: 0 0 10px rgba(245, 197, 66, 0.3);
   animation: talent-pulse 2s infinite;
 }
 .talent-node.available:hover {
-  background: rgba(245, 197, 66, 0.08);
-  box-shadow: 0 0 14px rgba(245, 197, 66, 0.4);
+  background: rgba(245, 197, 66, 0.1);
+  box-shadow: 0 0 16px rgba(245, 197, 66, 0.5);
 }
 .talent-node.unlocked {
-  border: 2px solid;
+  background: rgba(245, 197, 66, 0.08);
+  border: 2px solid var(--accent-gold);
 }
 .talent-node.capstone {
   border-width: 2px;
   border-style: double;
 }
 .talent-node.capstone.unlocked {
-  box-shadow: 0 0 10px rgba(245, 197, 66, 0.3);
+  box-shadow: 0 0 12px rgba(245, 197, 66, 0.4);
 }
 
 @keyframes talent-pulse {

@@ -439,7 +439,7 @@ export default function AdventurerDetail() {
                 </div>
 
                 {/* Talent Tree */}
-                <div class="overview-panel">
+                <div class="overview-panel" style={{ padding: "20px 32px" }}>
                   <div style={{ display: "flex", "justify-content": "space-between", "align-items": "center", "margin-bottom": "12px" }}>
                     <h2 style={{ margin: 0 }}>Talents</h2>
                     <div style={{ display: "flex", "align-items": "center", gap: "12px" }}>
