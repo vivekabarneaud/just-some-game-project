@@ -388,40 +388,40 @@ export default function AdventurerDetail() {
                                     return true;
                                   };
                                   const slotLabel = SLOT_NAMES[item.slot] ?? item.slot;
-                                  const handedness = item.twoHanded ? "2H" : (item.slot === "mainHand" || item.slot === "offHand") ? "1H" : null;
                                   return (
-                                    <div
-                                      class="gear-inv-card"
-                                      classList={{ "can-equip": canEquip(), "wrong-class": !canEquip() }}
-                                      onClick={() => { if (canEquip()) actions.equipItem(params.id, item.id); }}
-                                    >
-                                      <div class="gear-inv-card-header">
-                                        <span class="gear-inv-card-icon">{item.icon}</span>
-                                        <div style={{ flex: 1, "min-width": 0 }}>
-                                          <div class="gear-inv-card-name">
-                                            {item.name}
-                                            <Show when={qty > 1}>
-                                              <span class="gear-inv-card-qty">x{qty}</span>
-                                            </Show>
-                                          </div>
-                                          <div class="gear-inv-card-slot">
-                                            {slotLabel}{handedness ? ` (${handedness})` : ""}
-                                            {item.consumable ? " · consumable" : ""}
-                                          </div>
-                                        </div>
+                                    <Tooltip content={
+                                      <div>
+                                        <div style={{ "font-weight": "bold", color: "var(--text-primary)" }}>{item.icon} {item.name}</div>
+                                        <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "2px" }}>{slotLabel}</div>
+                                        <div style={{ "font-size": "0.7rem", color: "var(--accent-green)", "margin-top": "2px" }}>{item.description}</div>
+                                        <Show when={!canEquip()}>
+                                          <div style={{ "font-size": "0.65rem", color: "var(--accent-red)", "margin-top": "2px" }}>Wrong class</div>
+                                        </Show>
                                       </div>
-                                      <div class="gear-inv-card-stats">{item.description}</div>
-                                      <Show when={item.classes.length > 0}>
-                                        <div class="gear-inv-card-classes">
-                                          {item.classes.join(", ")}
-                                        </div>
-                                      </Show>
-                                      <Show when={!canEquip()}>
-                                        <div class="gear-inv-card-classes" style={{ color: "var(--accent-red)" }}>
-                                          Wrong class
-                                        </div>
-                                      </Show>
-                                    </div>
+                                    } position="bottom">
+                                      <div
+                                        onClick={() => { if (canEquip()) actions.equipItem(params.id, item.id); }}
+                                        style={{
+                                          width: "48px", height: "48px",
+                                          display: "flex", "flex-direction": "column",
+                                          "align-items": "center", "justify-content": "center",
+                                          background: canEquip() ? "rgba(255, 255, 255, 0.03)" : "rgba(0, 0, 0, 0.2)",
+                                          border: `1px solid ${canEquip() ? "rgba(180, 150, 100, 0.25)" : "rgba(180, 150, 100, 0.1)"}`,
+                                          "border-radius": "6px",
+                                          cursor: canEquip() ? "pointer" : "not-allowed",
+                                          opacity: canEquip() ? "1" : "0.45",
+                                          position: "relative",
+                                          transition: "border-color 0.15s",
+                                        }}
+                                      >
+                                        <span style={{ "font-size": "1.3rem" }}>{item.icon}</span>
+                                        <Show when={qty > 1}>
+                                          <span style={{ position: "absolute", bottom: "2px", right: "4px", "font-size": "0.5rem", color: "var(--accent-gold)" }}>
+                                            {qty}
+                                          </span>
+                                        </Show>
+                                      </div>
+                                    </Tooltip>
                                   );
                                 });
                               })()}
