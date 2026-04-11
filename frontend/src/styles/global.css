@@ -2750,3 +2750,49 @@ body {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.6; }
 }
+
+/* ─── Talent Tree ──────────────────────────────────────────── */
+
+.talent-node {
+  min-height: 56px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  padding: 6px 4px;
+}
+.talent-node.locked {
+  background: var(--bg-primary);
+  border: 1px dashed var(--border-color);
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.talent-node.available {
+  background: var(--bg-primary);
+  border: 2px solid var(--accent-gold);
+  box-shadow: 0 0 8px rgba(245, 197, 66, 0.25);
+  animation: talent-pulse 2s infinite;
+}
+.talent-node.available:hover {
+  background: rgba(245, 197, 66, 0.08);
+  box-shadow: 0 0 14px rgba(245, 197, 66, 0.4);
+}
+.talent-node.unlocked {
+  border: 2px solid;
+}
+.talent-node.capstone {
+  border-width: 2px;
+  border-style: double;
+}
+.talent-node.capstone.unlocked {
+  box-shadow: 0 0 10px rgba(245, 197, 66, 0.3);
+}
+
+@keyframes talent-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(245, 197, 66, 0.25); }
+  50% { box-shadow: 0 0 14px rgba(245, 197, 66, 0.45); }
+}

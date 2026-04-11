@@ -382,6 +382,7 @@ export interface Adventurer {
     amulet: string | null;
     trinket: string | null;
   };
+  talents: string[];  // unlocked talent IDs
 }
 
 // ─── Stats ──────────────────────────────────────────────────────
@@ -650,6 +651,7 @@ export function generateCandidate(id: string, maxRank: AdventurerRank = 2): Adve
     onMission: false,
     bonusStats: {},
     equipment: { head: null, chest: null, legs: null, boots: null, cloak: null, mainHand: null, offHand: null, ring1: null, ring2: null, amulet: null, trinket: null },
+    talents: [],
   };
 }
 

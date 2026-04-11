@@ -162,6 +162,7 @@ import { HERBS } from "~/data/herbs";
 import { ALCHEMY_RECIPES, getDiscoverableRecipes, getAvailableAlchemyRecipes, RESEARCH_BASE_COST } from "~/data/alchemy_recipes";
 import { getDeity, getCurrentDeity } from "~/data/deities";
 import { simulateCombat } from "~/data/combat";
+import { canUnlockTalent } from "~/data/talents";
 import {
   listSettlements,
   loadSettlement as loadSettlementApi,
@@ -788,6 +789,8 @@ export interface GameActions {
   getAvailableRecipes: () => CraftingRecipe[];
   getClothingInfo: () => { current: number; needed: number };
   allocateStat: (adventurerId: string, stat: keyof AdventurerStats) => boolean;
+  unlockTalent: (adventurerId: string, talentId: string) => boolean;
+  resetTalents: (adventurerId: string) => boolean;
   equipItem: (adventurerId: string, itemId: string) => boolean;
   unequipItem: (adventurerId: string, slot: ItemSlot) => boolean;
   getInventoryCount: (itemId: string) => number;
@@ -1092,6 +1095,9 @@ function loadGame(): GameState | null {
     };
     for (const adv of saved.adventurers) backfillOrigin(adv);
     for (const adv of saved.recruitCandidates) backfillOrigin(adv);
+    // Talent migration
+    for (const adv of saved.adventurers) { if (!adv.talents) adv.talents = []; }
+    for (const adv of saved.recruitCandidates) { if (!adv.talents) adv.talents = []; }
     for (const pb of saved.buildings) {
       if (pb.upgrading && (pb as any).upgradeFinishTime) {
         pb.upgradeRemaining = Math.max(0, ((pb as any).upgradeFinishTime - Date.now()) / 1000);
@@ -2877,6 +2883,29 @@ export function GameProvider(props: ParentProps) {
       setState(produce((s) => {
         const a = s.adventurers.find((a) => a.id === adventurerId)!;
         a.bonusStats[stat] = (a.bonusStats[stat] ?? 0) + 1;
+      }));
+      scheduleSave();
+      return true;
+    },
+    unlockTalent(adventurerId, talentId) {
+      const adv = state.adventurers.find((a) => a.id === adventurerId);
+      if (!adv || adv.onMission) return false;
+      if (!canUnlockTalent(adv, talentId)) return false;
+      setState(produce((s) => {
+        const a = s.adventurers.find((a) => a.id === adventurerId)!;
+        if (!a.talents) a.talents = [];
+        a.talents.push(talentId);
+      }));
+      scheduleSave();
+      return true;
+    },
+    resetTalents(adventurerId) {
+      const adv = state.adventurers.find((a) => a.id === adventurerId);
+      if (!adv || adv.onMission) return false;
+      if (!adv.talents?.length) return false;
+      setState(produce((s) => {
+        const a = s.adventurers.find((a) => a.id === adventurerId)!;
+        a.talents = [];
       }));
       scheduleSave();
       return true;
