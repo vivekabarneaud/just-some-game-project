@@ -799,34 +799,48 @@ export default function AdventurersGuild() {
                               <Tooltip content={<EnemyTooltipContent enemy={enemy} />}>
                                 <div style={{
                                   width: "80px",
+                                  height: "110px",
                                   background: enemy.boss ? "rgba(245, 197, 66, 0.08)" : "rgba(231, 76, 60, 0.06)",
                                   border: `1px solid ${borderColor}`,
                                   "border-radius": "6px",
                                   overflow: "hidden",
                                   cursor: "default",
+                                  display: "flex",
+                                  "flex-direction": "column",
+                                  position: "relative",
                                 }}>
+                                  <div style={{
+                                    position: "absolute", top: "3px", left: "3px", "z-index": 1,
+                                    background: "rgba(0, 0, 0, 0.7)", color: "var(--text-primary)",
+                                    "font-size": "0.75rem", "font-weight": "bold",
+                                    padding: "1px 5px", "border-radius": "4px",
+                                    "line-height": "1.3",
+                                  }}>
+                                    {enc.count}x
+                                  </div>
                                   {enemy.image
                                     ? <img src={enemy.image} alt="" style={{
                                         width: "80px", height: "80px", "object-fit": "cover",
-                                        display: "block",
+                                        display: "block", "flex-shrink": "0",
                                       }} />
                                     : <div style={{
-                                        width: "80px", height: "80px",
+                                        width: "80px", height: "80px", "flex-shrink": "0",
                                         display: "flex", "align-items": "center", "justify-content": "center",
                                         background: "rgba(0, 0, 0, 0.2)", "font-size": "2.2rem",
                                       }}>{enemy.icon}</div>
                                   }
                                   <div style={{
-                                    padding: "4px",
+                                    padding: "2px 4px",
                                     "text-align": "center",
-                                    "font-size": "0.65rem",
+                                    "font-size": "0.6rem",
                                     color: enemy.boss ? "var(--accent-gold)" : "var(--text-secondary)",
-                                    "line-height": "1.2",
+                                    "line-height": "1.15",
+                                    flex: "1",
+                                    display: "flex",
+                                    "align-items": "center",
+                                    "justify-content": "center",
                                   }}>
-                                    {enc.count}x {enemy.name}
-                                    <Show when={enemy.boss}>
-                                      <div style={{ "font-size": "0.6rem", color: "var(--accent-gold)", "font-weight": "bold" }}>BOSS</div>
-                                    </Show>
+                                    {enemy.name}
                                   </div>
                                 </div>
                               </Tooltip>
@@ -846,25 +860,45 @@ export default function AdventurersGuild() {
                           };
                           return (
                             <div
-                              class="mission-slot-square"
-                              classList={{ filled: !!assigned() }}
                               onClick={() => { if (assigned()) toggleTeamMember(assigned()!.id); }}
-                              style={{ cursor: assigned() ? "pointer" : "default" }}
+                              style={{
+                                width: "80px", height: "110px",
+                                background: "rgba(255, 255, 255, 0.03)",
+                                border: assigned() ? `1px solid ${CLASS_COLORS[assigned()!.class] ?? "var(--border-color)"}` : "1px dashed var(--border-color)",
+                                "border-radius": "6px",
+                                overflow: "hidden",
+                                cursor: assigned() ? "pointer" : "default",
+                                display: "flex",
+                                "flex-direction": "column",
+                                position: "relative",
+                              }}
                             >
                               <Show when={assigned()} fallback={
-                                <div class="mission-slot-square-icon" style={{ color: "var(--text-muted)" }}>👤</div>
+                                <div style={{
+                                  width: "80px", height: "80px",
+                                  display: "flex", "align-items": "center", "justify-content": "center",
+                                  "font-size": "2rem", color: "var(--text-muted)", opacity: "0.3",
+                                }}>👤</div>
                               }>
                                 <img
-                                  class="mission-slot-square-portrait"
                                   src={getPortrait(assigned()!.name, assigned()!.class)}
                                   alt={assigned()!.name}
+                                  style={{ width: "80px", height: "80px", "object-fit": "cover", display: "block", "flex-shrink": "0" }}
                                 />
-                                <div class="mission-slot-square-portrait-overlay">
-                                  <div class="mission-slot-square-name" style={{ color: "var(--text-primary)" }}>
-                                    {assigned()!.name.split(" ")[0]}
-                                  </div>
-                                </div>
                               </Show>
+                              <div style={{
+                                padding: "2px 4px",
+                                "text-align": "center",
+                                "font-size": "0.6rem",
+                                color: assigned() ? CLASS_COLORS[assigned()!.class] ?? "var(--text-secondary)" : "var(--text-muted)",
+                                "line-height": "1.15",
+                                flex: "1",
+                                display: "flex",
+                                "align-items": "center",
+                                "justify-content": "center",
+                              }}>
+                                {assigned() ? assigned()!.name.split(" ")[0] : "Empty"}
+                              </div>
                             </div>
                           );
                         })}
@@ -918,46 +952,59 @@ export default function AdventurersGuild() {
                             <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-bottom": "4px", "text-transform": "uppercase", "letter-spacing": "1px" }}>
                               {classInfo.icon} {classInfo.name}s
                             </div>
-                            <div class="team-adv-grid">
+                            <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
                               <For each={classIds()}>
                                 {(advId) => {
                                   const adv = () => state.adventurers.find((a) => a.id === advId)!;
                                   const isInTeam = () => selectedTeam().includes(advId);
-                                  const cls = () => getClassMeta(adv().class);
-                                  const matchesSlot = () => mission().slots.some((s) => s.class === "any" || s.class === adv().class);
+                                  const classColor = () => CLASS_COLORS[adv().class] ?? "var(--border-color)";
 
                                   return (
-                                    <button
-                                      class="team-adv-card"
-                                      classList={{ assigned: isInTeam(), "class-match": matchesSlot() && !isInTeam() }}
+                                    <div
                                       onClick={() => toggleTeamMember(advId)}
-                                      style={{ "border-left": `3px solid ${CLASS_COLORS[adv().class] ?? "var(--border-color)"}` }}
+                                      style={{
+                                        width: "80px", height: "110px",
+                                        background: isInTeam() ? `${classColor()}18` : "rgba(255, 255, 255, 0.03)",
+                                        border: `1px solid ${isInTeam() ? classColor() : "var(--border-color)"}`,
+                                        "border-radius": "6px",
+                                        overflow: "hidden",
+                                        cursor: "pointer",
+                                        display: "flex",
+                                        "flex-direction": "column",
+                                        position: "relative",
+                                        transition: "all 0.15s",
+                                      }}
                                     >
-                                      <div class="team-adv-header">
-                                        <span class="team-adv-icon">{cls().icon}</span>
-                                        <div>
-                                          <div class="team-adv-name">{adv().name}</div>
-                                          <div class="team-adv-rank" style={{ color: RANK_COLORS[adv().rank] }}>
-                                            {RANK_NAMES[adv().rank]} Lv.{adv().level}
-                                          </div>
-                                        </div>
-                                        {isInTeam() && <span class="team-adv-check">✓</span>}
+                                      <Show when={isInTeam()}>
+                                        <div style={{
+                                          position: "absolute", top: "3px", right: "3px", "z-index": 1,
+                                          background: classColor(), color: "#fff",
+                                          "font-size": "0.6rem", "font-weight": "bold",
+                                          width: "16px", height: "16px", "border-radius": "50%",
+                                          display: "flex", "align-items": "center", "justify-content": "center",
+                                        }}>✓</div>
+                                      </Show>
+                                      <img
+                                        src={getPortrait(adv().name, adv().class)}
+                                        alt={adv().name}
+                                        style={{ width: "80px", height: "80px", "object-fit": "cover", display: "block", "flex-shrink": "0" }}
+                                      />
+                                      <div style={{
+                                        padding: "2px 4px",
+                                        "text-align": "center",
+                                        "font-size": "0.55rem",
+                                        color: isInTeam() ? classColor() : "var(--text-secondary)",
+                                        "line-height": "1.15",
+                                        flex: "1",
+                                        display: "flex",
+                                        "flex-direction": "column",
+                                        "align-items": "center",
+                                        "justify-content": "center",
+                                      }}>
+                                        <div>{adv().name.split(" ")[0]}</div>
+                                        <div style={{ "font-size": "0.5rem", color: "var(--text-muted)" }}>Lv.{adv().level}</div>
                                       </div>
-                                      {(() => {
-                                        const eq = adv().equipment;
-                                        const equipped = [eq.mainHand, eq.offHand, eq.head, eq.chest, eq.legs, eq.boots, eq.cloak, eq.trinket].filter(Boolean);
-                                        return equipped.length > 0 ? (
-                                          <div class="team-adv-gear">
-                                            {equipped.map((id) => { const item = getItem(id!); return item ? <span title={item.name}>{item.icon}</span> : null; })}
-                                          </div>
-                                        ) : null;
-                                      })()}
-                                      {isInTeam() && (
-                                        <div class="team-adv-risk">
-                                          <DeathRisk chance={getAdvDeathRisk(adv())} />
-                                        </div>
-                                      )}
-                                    </button>
+                                    </div>
                                   );
                                 }}
                               </For>
