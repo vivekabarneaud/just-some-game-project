@@ -48,7 +48,7 @@ export default function AdventurerPickerCard(props: AdventurerPickerCardProps) {
         }}>✓</div>
       </Show>
       <img
-        src={getPortrait(adv().name, adv().class)}
+        src={getPortrait(adv().name, adv().class, adv().origin)}
         alt={adv().name}
         style={{ width: "64px", height: "64px", "object-fit": "cover", display: "block", "flex-shrink": "0" }}
       />

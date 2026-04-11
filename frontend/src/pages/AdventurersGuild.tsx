@@ -1068,7 +1068,7 @@ export default function AdventurersGuild() {
                         {RANK_NAMES[adv.rank]}
                       </span>
                       <div class="adv-card-portrait">
-                        <img src={getPortrait(adv.name, adv.class)} alt={adv.name} loading="lazy" />
+                        <img src={getPortrait(adv.name, adv.class, adv.origin)} alt={adv.name} loading="lazy" />
                       </div>
                       <div class="adv-card-content">
                         <div class="building-card-title">{adv.name}</div>
@@ -1158,6 +1158,15 @@ export default function AdventurersGuild() {
             </button>
               );
             })()}
+            <Show when={IS_DEV}>
+              <button
+                onClick={() => actions.devAddShards(1000)}
+                style={{ "font-size": "0.7rem", padding: "2px 8px", "margin-left": "8px" }}
+                class="skip-season-btn"
+              >
+                +1000 💠
+              </button>
+            </Show>
           </div>
           <Show when={state.recruitCandidates.length === 0}>
             <p style={{ color: "var(--text-muted)", "font-size": "0.85rem" }}>
@@ -1177,7 +1186,7 @@ export default function AdventurersGuild() {
                       {RANK_NAMES[candidate.rank]}
                     </span>
                     <div class="adv-card-portrait">
-                      <img src={getPortrait(candidate.name, candidate.class)} alt={candidate.name} loading="lazy" />
+                      <img src={getPortrait(candidate.name, candidate.class, candidate.origin)} alt={candidate.name} loading="lazy" />
                     </div>
                     <div class="adv-card-content">
                       <div class="building-card-title">{candidate.name}</div>

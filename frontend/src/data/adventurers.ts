@@ -511,44 +511,64 @@ const FEMALE_NAMES = new Set(
   ORIGINS.flatMap((o) => o.firstNamesFemale)
 );
 
-const CLASS_PORTRAITS: Record<AdventurerClass, { male: string[]; female: string[] }> = {
-  warrior: {
-    male: ["https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/warrior_male_1.png", "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/warrior_male_2.png"],
-    female: ["https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/warrior_female_1.png", "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/warrior_female_2.png"],
-  },
-  wizard: {
-    male: ["https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/wizard_male_1.png", "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/wizard_male_2.png"],
-    female: ["https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/wizard_female_1.png", "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/wizard_female_2.png"],
-  },
-  priest: {
-    male: ["https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/priest_male_1.png", "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/priest_male_2.png"],
-    female: ["https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/priest_female_1.png", "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/priest_female_2.png", "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/priest_female_3.png"],
-  },
-  archer: {
-    male: ["https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/archer_male_1.png", "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/archer_male_2.png"],
-    female: ["https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/archer_female_1.png", "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/archer_female_2.png"],
-  },
-  assassin: {
-    male: ["https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/assassin_male_1.png", "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/assassin_male_2.png"],
-    female: ["https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/assassin_female_1.png", "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/assassin_female_2.png"],
-  },
+// ─── Portrait system ────────────────────────────────────────────
+// Origin-aware portraits: CDN_BASE/characters/{origin}/{class}_{origin}_{gender}_{n}.png
+// Falls back to generic portraits for origins without images (e.g. feldgrund).
+
+const CDN_CHARS = "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters";
+
+// How many portrait variants exist per origin/class/gender
+const ORIGIN_PORTRAIT_COUNTS: Partial<Record<Origin, Partial<Record<string, number>>>> = {
+  dunhollow:  { warrior_male: 3, warrior_female: 2, wizard_male: 3, wizard_female: 2, priest_male: 3, priest_female: 3, archer_male: 2, archer_female: 2, assassin_male: 1 },
+  nordveld:   { warrior_male: 1, warrior_female: 2, wizard_male: 1, wizard_female: 2, priest_male: 1, priest_female: 1, archer_male: 1, archer_female: 1, assassin_male: 1, assassin_female: 1 },
+  meridian:   { warrior_male: 1, warrior_female: 1, wizard_male: 1, wizard_female: 1, priest_male: 2, priest_female: 1, archer_male: 1, archer_female: 1, assassin_male: 2, assassin_female: 2 },
+  zahkari:    { warrior_male: 1, warrior_female: 1, wizard_male: 1, wizard_female: 1, priest_male: 1, priest_female: 3, archer_male: 1, archer_female: 1, assassin_male: 1, assassin_female: 1 },
+  tianzhou:    { warrior_male: 1, warrior_female: 1, wizard_male: 1, wizard_female: 1, priest_male: 1, priest_female: 1, archer_male: 1, archer_female: 1, assassin_male: 1, assassin_female: 2 },
+  khorvani:   { warrior_male: 1, warrior_female: 1, wizard_male: 1, wizard_female: 1, priest_male: 1, priest_female: 1, archer_male: 1, archer_female: 1, assassin_male: 1, assassin_female: 1 },
+  silvaneth:  { warrior_male: 1, warrior_female: 1, wizard_male: 1, wizard_female: 1, priest_male: 1, priest_female: 1, archer_male: 1, archer_female: 1, assassin_male: 1, assassin_female: 1 },
+  hautsciels: { warrior_male: 1, warrior_female: 1, wizard_male: 1, wizard_female: 1, priest_male: 1, priest_female: 1, archer_male: 1, archer_female: 1, assassin_male: 1, assassin_female: 1 },
+  khazdurim:  { warrior_male: 1, warrior_female: 1, wizard_male: 1, wizard_female: 1, priest_male: 1, priest_female: 1, archer_male: 1, archer_female: 1, assassin_male: 1, assassin_female: 1 },
+};
+
+// Generic fallback portraits (used when origin has no images)
+const GENERIC_PORTRAITS: Record<AdventurerClass, { male: string[]; female: string[] }> = {
+  warrior: { male: [`${CDN_CHARS}/warrior_male_1.png`, `${CDN_CHARS}/warrior_male_2.png`], female: [`${CDN_CHARS}/warrior_female_1.png`, `${CDN_CHARS}/warrior_female_2.png`] },
+  wizard:  { male: [`${CDN_CHARS}/wizard_male_1.png`, `${CDN_CHARS}/wizard_male_2.png`], female: [`${CDN_CHARS}/wizard_female_1.png`, `${CDN_CHARS}/wizard_female_2.png`] },
+  priest:  { male: [`${CDN_CHARS}/priest_male_1.png`, `${CDN_CHARS}/priest_male_2.png`], female: [`${CDN_CHARS}/priest_female_1.png`, `${CDN_CHARS}/priest_female_2.png`, `${CDN_CHARS}/priest_female_3.png`] },
+  archer:  { male: [`${CDN_CHARS}/archer_male_1.png`, `${CDN_CHARS}/archer_male_2.png`], female: [`${CDN_CHARS}/archer_female_1.png`, `${CDN_CHARS}/archer_female_2.png`] },
+  assassin:{ male: [`${CDN_CHARS}/assassin_male_1.png`, `${CDN_CHARS}/assassin_male_2.png`], female: [`${CDN_CHARS}/assassin_female_1.png`, `${CDN_CHARS}/assassin_female_2.png`] },
 };
 
 export function isFemale(name: string): boolean {
   return FEMALE_NAMES.has(name.split(" ")[0]);
 }
 
-export function getPortrait(name: string, cls: AdventurerClass): string {
-  const firstName = name.split(" ")[0];
-  const female = FEMALE_NAMES.has(firstName);
-  const portraits = female ? CLASS_PORTRAITS[cls].female : CLASS_PORTRAITS[cls].male;
-  // Use name hash to pick a consistent portrait
-  const hash = firstName.split("").reduce((h, c) => h + c.charCodeAt(0), 0);
+function nameHash(name: string): number {
+  return name.split(" ")[0].split("").reduce((h, c) => h + c.charCodeAt(0), 0);
+}
+
+export function getPortrait(name: string, cls: AdventurerClass, origin?: Origin): string {
+  const female = isFemale(name);
+  const gender = female ? "female" : "male";
+  const hash = nameHash(name);
+
+  // Try origin-specific portrait
+  if (origin) {
+    const key = `${cls}_${gender}`;
+    const count = ORIGIN_PORTRAIT_COUNTS[origin]?.[key];
+    if (count && count > 0) {
+      const n = (hash % count) + 1;
+      return `${CDN_CHARS}/${origin}/${cls}_${origin}_${gender}_${n}.png`;
+    }
+  }
+
+  // Fallback to generic
+  const portraits = female ? GENERIC_PORTRAITS[cls].female : GENERIC_PORTRAITS[cls].male;
   return portraits[hash % portraits.length];
 }
 
-export function getZoomedPortrait(name: string, cls: AdventurerClass): string {
-  return getPortrait(name, cls).replace(".png", "_zoomed.png");
+export function getZoomedPortrait(name: string, cls: AdventurerClass, origin?: Origin): string {
+  return getPortrait(name, cls, origin).replace(".png", "_zoomed.png");
 }
 
 // Simple seeded random for reproducibility within a session

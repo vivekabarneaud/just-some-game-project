@@ -818,6 +818,7 @@ export interface GameActions {
   claimMissionReward: (index: number) => void;
   skipRaidTimer: () => void;
   skipMissionTimers: () => void;
+  devAddShards: (amount: number) => void;
   trade: (give: keyof ResourceState, giveAmount: number, receive: keyof ResourceState, receiveAmount: number) => boolean;
 }
 
@@ -3430,6 +3431,10 @@ export function GameProvider(props: ParentProps) {
           m.remaining = 0;
         }
       }));
+    },
+    devAddShards(amount) {
+      setState(produce((s) => { s.astralShards += amount; }));
+      scheduleSave();
     },
     trade(give, giveAmount, receive, receiveAmount) {
       if (state.resources[give] < giveAmount) return false;

@@ -106,7 +106,7 @@ export default function AdventurerDetail() {
                       position: "relative",
                     }}>
                       <img
-                        src={getPortrait(adv().name, adv().class)}
+                        src={getPortrait(adv().name, adv().class, adv().origin)}
                         alt={adv().name}
                         style={{
                           width: "100%",
