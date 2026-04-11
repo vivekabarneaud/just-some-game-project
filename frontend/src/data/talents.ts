@@ -54,15 +54,15 @@ export const WARRIOR_TALENTS: TalentNode[] = [
   // ── Row 2: First themed talent ────────────────────────────────
   { id: "w_holy_hit", name: "Blessed Strikes", icon: "✨", class: "warrior", row: 2,
     description: "30% chance attacks deal bonus holy damage (ignores physical defense)",
-    children: ["w_hot", "w_intercept"] },
+    children: ["w_hot", "w_intercept", "w_plate", "w_stun", "w_bleed", "w_armor_pen"] },
 
   { id: "w_battlecry", name: "Battle Cry", icon: "📯", class: "warrior", row: 2,
     description: "At the start of combat, all allies gain +15% damage for 2 rounds",
-    children: ["w_plate", "w_stun"] },
+    children: ["w_hot", "w_intercept", "w_plate", "w_stun", "w_bleed", "w_armor_pen"] },
 
   { id: "w_keen_edge", name: "Keen Edge", icon: "🗡️", class: "warrior", row: 2,
     description: "+15% critical strike chance",
-    children: ["w_bleed", "w_armor_pen"] },
+    children: ["w_hot", "w_intercept", "w_plate", "w_stun", "w_bleed", "w_armor_pen"] },
 
   // ── Row 3: Specialization branches ────────────────────────────
   // Paladin branches
