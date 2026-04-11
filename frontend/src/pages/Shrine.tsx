@@ -1,6 +1,6 @@
 import { Show, For } from "solid-js";
 import { useGame } from "~/engine/gameState";
-import { getCurrentDeity, getSeasonDeities, getDeity, DEITIES } from "~/data/deities";
+import { getCurrentDeity, getSeasonDeities, getDeity } from "~/data/deities";
 import { IS_DEV, getGlobalSeason, SEASON_META } from "~/data/seasons";
 
 const RESOURCE_ICONS: Record<string, string> = {

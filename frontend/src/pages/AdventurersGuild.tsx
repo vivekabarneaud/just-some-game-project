@@ -13,13 +13,12 @@ import {
   getMissionXp,
   getUnspentStatPoints,
   getPortrait,
-  getZoomedPortrait,
   getOrigin,
   RACE_NAMES,
   type Adventurer,
   type AdventurerRank,
 } from "~/data/adventurers";
-import { getItem, getAvailableSupplies, getSupplyEffect, isSupplyItem, MAX_MISSION_SUPPLIES } from "~/data/items";
+import { getItem, getAvailableSupplies, getSupplyEffect, MAX_MISSION_SUPPLIES } from "~/data/items";
 import {
   type MissionTemplate,
   type MissionSlot,
@@ -36,6 +35,8 @@ import Countdown from "~/components/Countdown";
 import Tooltip from "~/components/Tooltip";
 import EnemyCard from "~/components/EnemyCard";
 import TraitBadge from "~/components/TraitBadge";
+import AdventurerPickerCard from "~/components/AdventurerPickerCard";
+import TeamSlot from "~/components/TeamSlot";
 import { getEnemy } from "~/data/enemies";
 import { DIFFICULTY_LABELS, DIFFICULTY_COLORS } from "~/data/constants";
 
@@ -760,56 +761,12 @@ export default function AdventurersGuild() {
                             return assignments;
                           };
                           const assigned = () => slotAssignments()[i];
-                          const requiredClass = () => slot.required && slot.class !== "any" ? getClassMeta(slot.class) : null;
-                          const slotBorderColor = () => {
-                            if (assigned()) return CLASS_COLORS[assigned()!.class] ?? "var(--border-color)";
-                            if (requiredClass()) return CLASS_COLORS[slot.class as keyof typeof CLASS_COLORS] ?? "var(--border-color)";
-                            return "var(--border-color)";
-                          };
                           return (
-                            <div
+                            <TeamSlot
+                              slot={slot}
+                              adventurer={assigned()}
                               onClick={() => { if (assigned()) toggleTeamMember(assigned()!.id); }}
-                              style={{
-                                width: "80px", height: "110px",
-                                background: "rgba(255, 255, 255, 0.03)",
-                                border: assigned() ? `1px solid ${slotBorderColor()}` : `1px dashed ${slotBorderColor()}`,
-                                "border-radius": "6px",
-                                overflow: "hidden",
-                                cursor: assigned() ? "pointer" : "default",
-                                display: "flex",
-                                "flex-direction": "column",
-                                position: "relative",
-                              }}
-                            >
-                              <Show when={assigned()} fallback={
-                                <div style={{
-                                  width: "80px", height: "80px",
-                                  display: "flex", "flex-direction": "column", "align-items": "center", "justify-content": "center",
-                                  "font-size": requiredClass() ? "1.5rem" : "2rem", color: "var(--text-muted)", opacity: "0.3",
-                                }}>
-                                  {requiredClass() ? requiredClass()!.icon : "👤"}
-                                </div>
-                              }>
-                                <img
-                                  src={getZoomedPortrait(assigned()!.name, assigned()!.class)}
-                                  alt={assigned()!.name}
-                                  style={{ width: "80px", height: "80px", "object-fit": "cover", display: "block", "flex-shrink": "0" }}
-                                />
-                              </Show>
-                              <div style={{
-                                padding: "2px 4px",
-                                "text-align": "center",
-                                "font-size": "0.6rem",
-                                color: assigned() ? CLASS_COLORS[assigned()!.class] ?? "var(--text-secondary)" : requiredClass() ? slotBorderColor() : "var(--text-muted)",
-                                "line-height": "1.15",
-                                flex: "1",
-                                display: "flex",
-                                "align-items": "center",
-                                "justify-content": "center",
-                              }}>
-                                {assigned() ? assigned()!.name.split(" ")[0] : requiredClass() ? requiredClass()!.name : "Any"}
-                              </div>
-                            </div>
+                            />
                           );
                         })}
                       </div>
@@ -866,58 +823,12 @@ export default function AdventurersGuild() {
                               <For each={classIds()}>
                                 {(advId) => {
                                   const adv = () => state.adventurers.find((a) => a.id === advId)!;
-                                  const isInTeam = () => selectedTeam().includes(advId);
-                                  const classColor = () => CLASS_COLORS[adv().class] ?? "var(--border-color)";
-                                  const xpNeeded = () => getXpForLevel(adv().level);
-                                  const xpPct = () => xpNeeded() > 0 ? Math.min(100, Math.round((adv().xp / xpNeeded()) * 100)) : 0;
-
                                   return (
-                                    <div
+                                    <AdventurerPickerCard
+                                      adventurer={adv()}
+                                      selected={selectedTeam().includes(advId)}
                                       onClick={() => toggleTeamMember(advId)}
-                                      style={{
-                                        display: "flex",
-                                        gap: "8px",
-                                        width: "200px",
-                                        height: "64px",
-                                        background: isInTeam() ? `${classColor()}18` : "rgba(255, 255, 255, 0.03)",
-                                        border: `1px solid ${classColor()}`,
-                                        "border-radius": "6px",
-                                        overflow: "hidden",
-                                        cursor: "pointer",
-                                        transition: "all 0.15s",
-                                        opacity: isInTeam() ? "1" : "0.75",
-                                        position: "relative",
-                                      }}
-                                    >
-                                      <Show when={isInTeam()}>
-                                        <div style={{
-                                          position: "absolute", top: "3px", right: "3px", "z-index": 1,
-                                          background: classColor(), color: "#fff",
-                                          "font-size": "0.55rem", "font-weight": "bold",
-                                          width: "16px", height: "16px", "border-radius": "50%",
-                                          display: "flex", "align-items": "center", "justify-content": "center",
-                                        }}>✓</div>
-                                      </Show>
-                                      <img
-                                        src={getPortrait(adv().name, adv().class)}
-                                        alt={adv().name}
-                                        style={{ width: "64px", height: "64px", "object-fit": "cover", display: "block", "flex-shrink": "0" }}
-                                      />
-                                      <div style={{ padding: "6px 8px 6px 0", display: "flex", "flex-direction": "column", "justify-content": "center", flex: "1", "min-width": "0" }}>
-                                        <div style={{ "font-size": "0.75rem", color: "var(--text-primary)", "font-weight": isInTeam() ? "bold" : "normal", "white-space": "nowrap", overflow: "hidden", "text-overflow": "ellipsis" }}>
-                                          {adv().name}
-                                        </div>
-                                        <div style={{ "font-size": "0.65rem", color: RANK_COLORS[adv().rank], "margin-top": "-1px" }}>
-                                          {RANK_NAMES[adv().rank]} · Lv.{adv().level}
-                                        </div>
-                                        <div style={{ "margin-top": "auto", position: "relative" }}>
-                                          <span style={{ "font-size": "0.45rem", color: "var(--text-muted)", position: "absolute", top: "-8px", left: "0" }}>EXP</span>
-                                          <div style={{ height: "3px", background: "var(--bg-primary)", "border-radius": "2px" }}>
-                                            <div style={{ height: "100%", width: `${xpPct()}%`, background: "var(--accent-blue)", "border-radius": "2px" }} />
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
+                                    />
                                   );
                                 }}
                               </For>
