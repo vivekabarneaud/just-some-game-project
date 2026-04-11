@@ -524,7 +524,7 @@ export default function AdventurerDetail() {
                         {(() => {
                           const labels: Record<string, [string, string, string]> = {
                             warrior: ["Paladin", "Warlord", "Shadowblade"],
-                            priest: ["Templar", "Archpriest", "Inquisitor"],
+                            priest: ["Paladin", "Archpriest", "Inquisitor"],
                             wizard: ["Inquisitor", "Archmage", "Primalist"],
                             archer: ["Primalist", "Sharpshooter", "Hunter"],
                             assassin: ["Hunter", "Shadowmaster", "Shadowblade"],

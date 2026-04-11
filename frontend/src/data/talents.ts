@@ -213,11 +213,11 @@ export const PRIEST_TALENTS: TalentNode[] = [
   // Templar stats
   { id: "p_str2", name: "Warrior's Faith", icon: "💪", class: "priest", row: 4,
     description: "+5 Strength — Pray with your sword arm",
-    children: ["p_cap_templar"] },
+    children: ["p_cap_paladin"] },
 
   { id: "p_vit1", name: "Unbreakable Spirit", icon: "❤️", class: "priest", row: 4,
     description: "+5 Vitality — The faithful do not fall easily",
-    children: ["p_cap_templar"] },
+    children: ["p_cap_paladin"] },
 
   // Archpriest stats
   { id: "p_wis3", name: "Wellspring of Grace", icon: "📖", class: "priest", row: 4,
@@ -238,9 +238,9 @@ export const PRIEST_TALENTS: TalentNode[] = [
     children: ["p_cap_inquisitor"] },
 
   // ── Row 5: Capstones ──────────────────────────────────────────
-  { id: "p_cap_templar", name: "Templar's Vow", icon: "⚜️", class: "priest", row: 5,
-    description: "While you live, allies within your faith take 20% less damage. When an ally would die, sacrifice 50% of your HP to save them (once per combat).",
-    children: [], isCapstone: true, title: "Templar" },
+  { id: "p_cap_paladin", name: "Paladin's Vow", icon: "⚜️", class: "priest", row: 5,
+    description: "While you live, allies take 20% less damage. When an ally would die, sacrifice 50% of your HP to save them (once per combat).",
+    children: [], isCapstone: true, title: "Paladin" },
 
   { id: "p_cap_archpriest", name: "Miracle", icon: "✝️", class: "priest", row: 5,
     description: "Once per combat, when an ally dies, resurrect them with 50% HP. All healing you do is increased by 30%.",
