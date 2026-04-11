@@ -5,7 +5,7 @@ import type { Adventurer, AdventurerClass } from "./adventurers";
 import { calcStats, BACKSTORY_TRAITS } from "./adventurers";
 import { getEquipmentStats, getEquipmentDefense } from "./items";
 import { getEnemy } from "./enemies";
-import type { EnemyTag } from "./enemies";
+import type { EnemyTag, EnemyAbility } from "./enemies";
 import type { MissionTemplate, MissionEncounter } from "./missions";
 import { getAbilitiesForClass } from "./abilities";
 
@@ -35,6 +35,9 @@ export interface CombatUnit {
   slowed: number; // rounds remaining of halved initiative
   poisonTicks: { damage: number; rounds: number }[]; // active poison DoTs
   shieldWallUsed?: boolean; // warrior passive: once per combat
+  enemyAbilities?: EnemyAbility[]; // enemy special abilities
+  mindControlled?: number; // rounds remaining of mind control (attacks own team)
+  statDebuffs?: { stat: string; pct: number; rounds: number }[]; // temporary stat reductions
 }
 
 export interface CombatLogEntry {
@@ -289,7 +292,8 @@ function buildEnemyUnits(encounters: MissionEncounter[]): CombatUnit[] {
         class: undefined, isMagical, gearDefense: 0,
         enemyTags: def.tags,
         enemyDefId: def.id,
-        cooldowns: {}, slowed: 0, poisonTicks: [],
+        enemyAbilities: def.abilities,
+        cooldowns: {}, slowed: 0, poisonTicks: [], statDebuffs: [],
       });
     }
   }
@@ -551,6 +555,225 @@ function calcFamilyBonuses(team: Adventurer[]): Map<string, number> {
   return bonuses;
 }
 
+// ─── Enemy ability execution ────────────────────────────────────
+
+function tryEnemyAbility(
+  unit: CombatUnit,
+  allies: CombatUnit[],     // other enemies
+  targets: CombatUnit[],    // adventurers
+  round: number,
+  log: CombatLogEntry[],
+): boolean {
+  if (!unit.enemyAbilities?.length) return false;
+
+  const aliveAllies = allies.filter((u) => u.hp > 0);
+  const deadAllies = allies.filter((u) => u.hp <= 0);
+  const aliveTargets = targets.filter((u) => u.hp > 0);
+
+  for (const ability of unit.enemyAbilities) {
+    // Check cooldown
+    if ((unit.cooldowns[ability.id] ?? 0) > 0) continue;
+
+    // Check trigger condition
+    const hpPct = unit.hp / unit.maxHp;
+    switch (ability.trigger) {
+      case "always": break;
+      case "hp_below_50": if (hpPct >= 0.5) continue; break;
+      case "ally_dead": if (deadAllies.length === 0) continue; break;
+      case "any_ally_below_30": if (!aliveAllies.some((a) => a.hp / a.maxHp < 0.3)) continue; break;
+      case "round_start": break; // always triggers at round start (handled separately)
+    }
+
+    const eff = ability.effect;
+    unit.cooldowns[ability.id] = ability.cooldown;
+
+    switch (eff.type) {
+      case "bleed":
+      case "poison": {
+        const target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)];
+        if (!target) return false;
+        const dotDmg = Math.floor(getAttackPower(unit) * eff.pctPerRound / 100);
+        target.poisonTicks.push({ damage: dotDmg, rounds: eff.rounds });
+        log.push({
+          round, attackerName: unit.name, attackerIcon: ability.icon,
+          abilityName: ability.name,
+          targetName: target.name, damage: 0, dodged: false, crit: false, killed: false,
+          targetHp: target.hp, targetMaxHp: target.maxHp, isEnemy: true,
+        });
+        return true;
+      }
+
+      case "heal_self": {
+        const heal = Math.floor(unit.maxHp * eff.pct / 100);
+        unit.hp = Math.min(unit.maxHp, unit.hp + heal);
+        log.push({
+          round, attackerName: unit.name, attackerIcon: ability.icon,
+          abilityName: ability.name,
+          targetName: unit.name, damage: heal, dodged: false, crit: false, killed: false,
+          targetHp: unit.hp, targetMaxHp: unit.maxHp, isEnemy: true, healed: true, healAmount: heal,
+        });
+        return true;
+      }
+
+      case "heal_ally": {
+        const wounded = aliveAllies.filter((a) => a.hp < a.maxHp).sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp);
+        const target = wounded[0];
+        if (!target) continue;
+        const heal = Math.floor(target.maxHp * eff.pct / 100);
+        target.hp = Math.min(target.maxHp, target.hp + heal);
+        log.push({
+          round, attackerName: unit.name, attackerIcon: ability.icon,
+          abilityName: ability.name,
+          targetName: target.name, damage: heal, dodged: false, crit: false, killed: false,
+          targetHp: target.hp, targetMaxHp: target.maxHp, isEnemy: true, healed: true, healAmount: heal,
+        });
+        return true;
+      }
+
+      case "aoe_damage": {
+        const power = eff.magical ? unit.int : unit.str;
+        const baseDmg = Math.floor(power * eff.pct / 100);
+        const hits: { name: string; damage: number; killed: boolean; hp: number; maxHp: number }[] = [];
+        for (const t of aliveTargets) {
+          const def = eff.magical ? t.wis * 3 : (t.isEnemy ? t.vit * 3 : t.gearDefense);
+          const reduction = def / (def + 150);
+          const dmg = Math.max(1, Math.floor(baseDmg * (1 - reduction)));
+          t.hp -= dmg;
+          hits.push({ name: t.name, damage: dmg, killed: t.hp <= 0, hp: Math.max(0, t.hp), maxHp: t.maxHp });
+        }
+        log.push({
+          round, attackerName: unit.name, attackerIcon: ability.icon,
+          abilityName: ability.name,
+          targetName: hits[0]?.name ?? "", damage: 0, dodged: false, crit: false,
+          killed: hits.some((h) => h.killed), isEnemy: true,
+          targets: hits,
+        });
+        return true;
+      }
+
+      case "damage_mult": {
+        // Pick target(s) and deal multiplied damage
+        const tgts = aliveTargets.slice().sort(() => Math.random() - 0.5).slice(0, eff.targets);
+        const hits: { name: string; damage: number; killed: boolean; hp: number; maxHp: number }[] = [];
+        for (const t of tgts) {
+          const { damage } = calcDamageResult(unit, t, { damageMult: eff.mult });
+          t.hp -= damage;
+          hits.push({ name: t.name, damage, killed: t.hp <= 0, hp: Math.max(0, t.hp), maxHp: t.maxHp });
+        }
+        if (hits.length === 1) {
+          log.push({
+            round, attackerName: unit.name, attackerIcon: ability.icon,
+            abilityName: ability.name,
+            targetName: hits[0].name, damage: hits[0].damage, dodged: false, crit: false,
+            killed: hits[0].killed, targetHp: hits[0].hp, targetMaxHp: hits[0].maxHp, isEnemy: true,
+          });
+        } else {
+          log.push({
+            round, attackerName: unit.name, attackerIcon: ability.icon,
+            abilityName: ability.name,
+            targetName: hits[0]?.name ?? "", damage: 0, dodged: false, crit: false,
+            killed: hits.some((h) => h.killed), isEnemy: true, targets: hits,
+          });
+        }
+        return true;
+      }
+
+      case "buff_allies": {
+        for (const ally of aliveAllies) {
+          const bonus = Math.floor((ally as any)[eff.stat] * eff.pct / 100);
+          (ally as any)[eff.stat] += bonus;
+          if (!ally.statDebuffs) ally.statDebuffs = [];
+          ally.statDebuffs.push({ stat: eff.stat, pct: -bonus, rounds: eff.rounds }); // negative = buff to remove later
+        }
+        log.push({
+          round, attackerName: unit.name, attackerIcon: ability.icon,
+          abilityName: ability.name,
+          targetName: "all allies", damage: 0, dodged: false, crit: false, killed: false, isEnemy: true,
+        });
+        return true;
+      }
+
+      case "debuff_target": {
+        const target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)];
+        if (!target) continue;
+        const reduction = Math.floor((target as any)[eff.stat] * eff.pct / 100);
+        (target as any)[eff.stat] = Math.max(1, (target as any)[eff.stat] - reduction);
+        if (!target.statDebuffs) target.statDebuffs = [];
+        target.statDebuffs.push({ stat: eff.stat, pct: reduction, rounds: eff.rounds });
+        log.push({
+          round, attackerName: unit.name, attackerIcon: ability.icon,
+          abilityName: ability.name,
+          targetName: target.name, damage: 0, dodged: false, crit: false, killed: false,
+          targetHp: target.hp, targetMaxHp: target.maxHp, isEnemy: true,
+        });
+        return true;
+      }
+
+      case "mind_control": {
+        const target = aliveTargets.filter((t) => !t.mindControlled).sort(() => Math.random() - 0.5)[0];
+        if (!target) continue;
+        target.mindControlled = eff.rounds;
+        log.push({
+          round, attackerName: unit.name, attackerIcon: ability.icon,
+          abilityName: ability.name,
+          targetName: target.name, damage: 0, dodged: false, crit: false, killed: false,
+          targetHp: target.hp, targetMaxHp: target.maxHp, isEnemy: true,
+        });
+        return true;
+      }
+
+      case "revive_ally": {
+        const dead = deadAllies[0];
+        if (!dead) continue;
+        dead.hp = Math.floor(dead.maxHp * eff.hpPct / 100);
+        log.push({
+          round, attackerName: unit.name, attackerIcon: ability.icon,
+          abilityName: ability.name,
+          targetName: dead.name, damage: 0, dodged: false, crit: false, killed: false,
+          targetHp: dead.hp, targetMaxHp: dead.maxHp, isEnemy: true, healed: true, healAmount: dead.hp,
+        });
+        return true;
+      }
+
+      case "summon": {
+        const summonDef = getEnemy(eff.enemyId);
+        if (!summonDef) continue;
+        const mult = ENEMY_TIER_MULT[summonDef.tier] ?? 1;
+        for (let s = 0; s < eff.count; s++) {
+          const vit = Math.round(summonDef.stats.vit * mult);
+          const summonHp = vit * 10;
+          const summonId = `${eff.enemyId}_summon_${round}_${s}`;
+          allies.push({
+            id: summonId,
+            name: summonDef.name,
+            icon: summonDef.icon, isEnemy: true,
+            hp: summonHp, maxHp: summonHp,
+            str: Math.round(summonDef.stats.str * mult),
+            dex: Math.round(summonDef.stats.dex * mult),
+            int: Math.round(summonDef.stats.int * mult),
+            vit,
+            wis: Math.round((summonDef.stats.wis ?? 0) * mult),
+            class: undefined,
+            isMagical: summonDef.tags.includes("magical") || summonDef.tags.includes("demon"),
+            gearDefense: 0,
+            enemyTags: summonDef.tags,
+            enemyDefId: summonDef.id,
+            cooldowns: {}, slowed: 0, poisonTicks: [], statDebuffs: [],
+          });
+        }
+        log.push({
+          round, attackerName: unit.name, attackerIcon: ability.icon,
+          abilityName: ability.name,
+          targetName: `${eff.count}x ${summonDef.name}`, damage: 0, dodged: false, crit: false,
+          killed: false, isEnemy: true,
+        });
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 export function simulateCombat(
   mission: MissionTemplate,
   team: Adventurer[],
@@ -591,6 +814,19 @@ export function simulateCombat(
       tickCooldowns(unit);
       if (unit.slowed > 0) unit.slowed--;
 
+      // Tick stat debuffs/buffs
+      if (unit.statDebuffs?.length) {
+        unit.statDebuffs = unit.statDebuffs.filter((d) => {
+          d.rounds--;
+          if (d.rounds <= 0) {
+            // Restore the stat
+            (unit as any)[d.stat] = Math.max(1, (unit as any)[d.stat] + d.pct);
+            return false;
+          }
+          return true;
+        });
+      }
+
       // Poison DoT ticks
       if (unit.poisonTicks.length > 0) {
         let totalDot = 0;
@@ -627,9 +863,33 @@ export function simulateCombat(
     for (const unit of allAlive) {
       if (unit.hp <= 0) continue;
 
+      // Mind-controlled adventurers attack their own team
+      if (!unit.isEnemy && unit.mindControlled && unit.mindControlled > 0) {
+        const allyTarget = adventurers.filter((a) => a.hp > 0 && a.id !== unit.id)[0];
+        if (allyTarget) {
+          const { damage, crit } = calcDamageResult(unit, allyTarget);
+          allyTarget.hp -= damage;
+          log.push({
+            round, attackerName: unit.name, attackerIcon: "🧠",
+            abilityName: "Mind Controlled",
+            targetName: allyTarget.name, damage, dodged: false, crit,
+            killed: allyTarget.hp <= 0,
+            targetHp: Math.max(0, allyTarget.hp), targetMaxHp: allyTarget.maxHp, isEnemy: false,
+          });
+        }
+        unit.mindControlled--;
+        continue;
+      }
+
       // Adventurers: try ability first, then basic attack
       if (!unit.isEnemy) {
         const usedAbility = tryUseAbility(unit, adventurers, enemies, round, log);
+        if (usedAbility) continue;
+      }
+
+      // Enemies: try special ability first
+      if (unit.isEnemy) {
+        const usedAbility = tryEnemyAbility(unit, enemies, adventurers, round, log);
         if (usedAbility) continue;
       }
 
