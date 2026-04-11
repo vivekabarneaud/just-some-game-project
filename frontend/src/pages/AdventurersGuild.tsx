@@ -155,17 +155,23 @@ export default function AdventurersGuild() {
   const currentTeam = (): Adventurer[] =>
     selectedTeam().map((id) => state.adventurers.find((a) => a.id === id)).filter(Boolean) as Adventurer[];
 
-  const teamSuccessChance = () => {
+  // Combat simulation key: changes only when team or mission changes
+  const simKey = () => {
+    const m = selectedMission();
+    const t = selectedTeam();
+    return m ? `${m.id}:${t.join(",")}` : "";
+  };
+
+  const teamSuccessChance = createMemo(() => {
+    const _key = simKey(); // reactive dependency on team + mission
     const mission = selectedMission();
     if (!mission) return 0;
     const team = currentTeam();
     if (team.length === 0) return 0;
 
     // Combat missions: run 25 simulations for an accurate preview
-    // Use fresh source data (not saved board state) to ensure encounters are present
     const freshMission = getMission(mission.id);
     if (freshMission?.encounters?.length) {
-      // Unwrap SolidJS proxies — simulateCombat needs plain objects
       const plainTeam = team.map((a) => JSON.parse(JSON.stringify(a)));
       let wins = 0;
       const SIMS = 25;
@@ -183,7 +189,7 @@ export default function AdventurersGuild() {
       if (effect) chance = Math.min(100, chance + effect.successBonus);
     }
     return chance;
-  };
+  });
 
   const teamEffectiveDuration = () => {
     const mission = selectedMission();
