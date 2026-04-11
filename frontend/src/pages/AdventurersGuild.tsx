@@ -1093,55 +1093,106 @@ export default function AdventurersGuild() {
                       </div>
                     </Show>
 
-                    {/* Mission supply slots */}
-                    <div class="supply-slots-row">
-                      <span class="supply-slots-label">🧪 Supplies</span>
-                      {Array.from({ length: MAX_MISSION_SUPPLIES }).map((_, i) => {
-                        const supplyId = () => selectedSupplies()[i];
-                        const item = () => supplyId() ? getItem(supplyId()!) : null;
-                        const effect = () => supplyId() ? getSupplyEffect(supplyId()!) : null;
-                        const supplies = () => getAvailableSupplies(state.inventory);
+                    {/* Supplies — selected slots + inventory grid */}
+                    <div style={{ "margin-top": "12px" }}>
+                      <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-bottom": "8px" }}>
+                        🧪 Supplies ({selectedSupplies().length}/{MAX_MISSION_SUPPLIES})
+                      </div>
 
-                        return (
-                          <div class="supply-slot-box" classList={{ filled: !!item() }}>
-                            <Show when={item()} fallback={
-                              <Show when={supplies().length > 0} fallback={
-                                <span class="supply-slot-empty">—</span>
-                              }>
-                                <div class="supply-slot-picker">
-                                  <For each={supplies()}>
-                                    {(s) => {
-                                      const alreadyUsed = () => selectedSupplies().includes(s.item.id);
-                                      return (
-                                        <button
-                                          class="supply-pick-btn"
-                                          disabled={alreadyUsed()}
-                                          onClick={() => toggleSupply(s.item.id)}
-                                          title={`${s.item.name} (${s.qty})`}
-                                        >
-                                          {s.item.icon}
-                                        </button>
-                                      );
-                                    }}
-                                  </For>
+                      {/* Selected supply slots */}
+                      <Show when={selectedSupplies().length > 0}>
+                        <div style={{ display: "flex", gap: "6px", "margin-bottom": "10px", "flex-wrap": "wrap" }}>
+                          <For each={selectedSupplies()}>
+                            {(supplyId) => {
+                              const allSupplies = () => getAvailableSupplies(state.inventory);
+                              const info = () => allSupplies().find((s) => s.item.id === supplyId)?.item ?? getItem(supplyId);
+                              const effect = () => getSupplyEffect(supplyId);
+                              return (
+                                <div
+                                  onClick={() => toggleSupply(supplyId)}
+                                  style={{
+                                    display: "flex", "align-items": "center", gap: "6px",
+                                    padding: "4px 10px 4px 6px",
+                                    background: "rgba(167, 139, 250, 0.1)",
+                                    border: "1px solid rgba(167, 139, 250, 0.3)",
+                                    "border-radius": "6px",
+                                    cursor: "pointer",
+                                    "font-size": "0.75rem",
+                                  }}
+                                >
+                                  <span style={{ "font-size": "1.1rem" }}>{info()?.icon}</span>
+                                  <div>
+                                    <div style={{ color: "var(--text-primary)" }}>{info()?.name}</div>
+                                    <div style={{ "font-size": "0.65rem", color: "var(--accent-green)" }}>
+                                      {effect()?.successBonus ? `+${effect()!.successBonus}% ` : ""}
+                                      {(effect()?.deathReduction ?? 1) < 1 ? `☠-${Math.round((1 - (effect()?.deathReduction ?? 1)) * 100)}%` : ""}
+                                    </div>
+                                  </div>
+                                  <span style={{ color: "var(--text-muted)", "margin-left": "4px" }}>✕</span>
                                 </div>
-                              </Show>
-                            }>
-                              <button
-                                class="supply-filled-btn"
-                                onClick={() => toggleSupply(supplyId()!)}
-                                title={`${item()!.name} — click to remove`}
-                              >
-                                <span style={{ "font-size": "1.2rem" }}>{item()!.icon}</span>
-                                <span class="supply-filled-effect">
-                                  {effect()?.successBonus ? `+${effect()!.successBonus}%` : ""}
-                                  {(effect()?.deathReduction ?? 1) < 1 ? `☠-${Math.round((1 - (effect()?.deathReduction ?? 1)) * 100)}%` : ""}
-                                </span>
-                              </button>
-                            </Show>
-                          </div>
+                              );
+                            }}
+                          </For>
+                        </div>
+                      </Show>
+
+                      {/* Potion inventory grid */}
+                      {(() => {
+                        const supplies = () => getAvailableSupplies(state.inventory);
+                        return (
+                          <Show when={supplies().length > 0}>
+                            <div style={{
+                              display: "grid",
+                              "grid-template-columns": "repeat(auto-fill, minmax(48px, 1fr))",
+                              gap: "6px",
+                              padding: "8px",
+                              background: "var(--bg-primary)",
+                              "border-radius": "6px",
+                              border: "1px solid var(--border-color)",
+                            }}>
+                              <For each={supplies()}>
+                                {(s) => {
+                                  const alreadyUsed = () => selectedSupplies().includes(s.item.id);
+                                  const atMax = () => selectedSupplies().length >= MAX_MISSION_SUPPLIES;
+                                  return (
+                                    <Tooltip content={
+                                      <div>
+                                        <div style={{ "font-weight": "bold", color: "var(--text-primary)" }}>{s.item.icon} {s.item.name}</div>
+                                        <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "2px" }}>{s.item.description}</div>
+                                        <div style={{ "font-size": "0.7rem", color: "var(--accent-green)", "margin-top": "2px" }}>
+                                          {getSupplyEffect(s.item.id)?.successBonus ? `+${getSupplyEffect(s.item.id)!.successBonus}% success ` : ""}
+                                          {(getSupplyEffect(s.item.id)?.deathReduction ?? 1) < 1 ? `${Math.round((1 - (getSupplyEffect(s.item.id)?.deathReduction ?? 1)) * 100)}% less death risk` : ""}
+                                        </div>
+                                        <div style={{ "font-size": "0.65rem", color: "var(--text-muted)", "margin-top": "2px" }}>Qty: {s.qty}</div>
+                                      </div>
+                                    } position="bottom">
+                                      <div
+                                        onClick={() => { if (!alreadyUsed() && !atMax()) toggleSupply(s.item.id); }}
+                                        style={{
+                                          width: "48px", height: "48px",
+                                          display: "flex", "flex-direction": "column",
+                                          "align-items": "center", "justify-content": "center",
+                                          background: alreadyUsed() ? "rgba(167, 139, 250, 0.15)" : "rgba(255, 255, 255, 0.03)",
+                                          border: `1px solid ${alreadyUsed() ? "rgba(167, 139, 250, 0.4)" : "var(--border-color)"}`,
+                                          "border-radius": "6px",
+                                          cursor: alreadyUsed() || atMax() ? "default" : "pointer",
+                                          opacity: alreadyUsed() ? "0.5" : atMax() ? "0.4" : "1",
+                                          position: "relative",
+                                        }}
+                                      >
+                                        <span style={{ "font-size": "1.2rem" }}>{s.item.icon}</span>
+                                        <span style={{ position: "absolute", bottom: "2px", right: "4px", "font-size": "0.5rem", color: "var(--text-muted)" }}>
+                                          {s.qty}
+                                        </span>
+                                      </div>
+                                    </Tooltip>
+                                  );
+                                }}
+                              </For>
+                            </div>
+                          </Show>
                         );
-                      })}
+                      })()}
                     </div>
 
                     <button
