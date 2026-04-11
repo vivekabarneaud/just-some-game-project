@@ -20,6 +20,7 @@ import {
 import { getItem, getItemsForSlot, getEquipmentStats, ITEMS, type ItemSlot, isSupplyItem } from "~/data/items";
 import { getTalentsForClass, getTalentPoints, getUnspentTalentPoints, canUnlockTalent, getEarnedTitle, getTalent, type TalentNode } from "~/data/talents";
 import Tooltip from "~/components/Tooltip";
+import TraitBadge from "~/components/TraitBadge";
 
 // ─── Equipment slot types ───────────────────────────────────────
 
@@ -177,17 +178,7 @@ export default function AdventurerDetail() {
                       {/* Trait Badge — pinned to bottom */}
                       <Show when={traitDef()}>
                         <div style={{ "margin-top": "auto" }}>
-                          <div style={{
-                            display: "inline-block",
-                            padding: "4px 10px",
-                            "border-radius": "5px",
-                            background: "rgba(167, 139, 250, 0.1)",
-                            border: "1px solid rgba(167, 139, 250, 0.25)",
-                            "font-size": "0.85rem",
-                          }}>
-                            <span style={{ color: "#a78bfa", "font-weight": "bold" }}>{traitDef()!.name}</span>
-                            <span style={{ color: "var(--text-secondary)", "margin-left": "8px" }}>{traitDef()!.description}</span>
-                          </div>
+                          <TraitBadge traitId={adv().trait} />
                           <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-top": "3px", "font-style": "italic" }}>
                             "{traitDef()!.flavor}"
                           </div>
