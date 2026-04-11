@@ -157,12 +157,32 @@ export default function AdventurersGuild() {
   const toggleTeamMember = (advId: string) => {
     const mission = selectedMission();
     if (!mission) return;
+    const adv = state.adventurers.find((a) => a.id === advId);
+    if (!adv) return;
     setSelectedTeam((prev) => {
+      // Remove if already in team
       if (prev.includes(advId)) return prev.filter((id) => id !== advId);
-      if (prev.length >= mission.slots.length) {
-        // Team full — replace the last selected member
-        return [...prev.slice(0, -1), advId];
+      if (prev.length >= mission.slots.length) return prev; // team full
+      // Check: is there a compatible open slot for this class?
+      // Count how many required slots of each class still need filling
+      const slotNeeds: Record<string, number> = {};
+      for (const slot of mission.slots) {
+        if (slot.required && slot.class !== "any") {
+          slotNeeds[slot.class] = (slotNeeds[slot.class] ?? 0) + 1;
+        }
       }
+      // Subtract already-filled required slots
+      for (const id of prev) {
+        const a = state.adventurers.find((x) => x.id === id);
+        if (a && slotNeeds[a.class] > 0) slotNeeds[a.class]--;
+      }
+      // Count open non-required (free) slots
+      const filledRequired = Object.values(slotNeeds).reduce((s, n) => s + n, 0);
+      const totalOpen = mission.slots.length - prev.length;
+      const freeSlots = totalOpen - filledRequired;
+      // This adventurer can fill a required slot for their class, or a free slot
+      const canFillRequired = (slotNeeds[adv.class] ?? 0) > 0;
+      if (!canFillRequired && freeSlots <= 0) return prev; // no compatible slot
       return [...prev, advId];
     });
   };
