@@ -482,7 +482,7 @@ export const ARCHER_TALENTS: TalentNode[] = [
 
   { id: "a_cap_hunter", name: "Master Toxicologist", icon: "☠️", class: "archer", row: 5,
     description: "Poison stacks cap increased to 5. At 5 stacks, the target takes 50% of their max HP as immediate poison damage. Poisoned enemies cannot heal.",
-    children: [], isCapstone: true, title: "Hunter" },
+    children: [], isCapstone: true, title: "Venomancer" },
 ];
 
 // ─── Assassin Talent Tree ────────────────────────────────────────
@@ -591,7 +591,7 @@ export const ASSASSIN_TALENTS: TalentNode[] = [
   // ── Row 5: Capstones ──────────────────────────────────────────
   { id: "as_cap_hunter", name: "Master Toxicologist", icon: "☠️", class: "assassin", row: 5,
     description: "Poison stacks cap increased to 5. At 5 stacks, deal 50% target's max HP as instant poison damage. Poisoned targets cannot be healed.",
-    children: [], isCapstone: true, title: "Hunter" },
+    children: [], isCapstone: true, title: "Venomancer" },
 
   { id: "as_cap_shadowmaster", name: "Death's Shadow", icon: "🌑", class: "assassin", row: 5,
     description: "Vanish cooldown removed — can Vanish every 2 rounds. Attacks from Vanish deal 3x damage. +30% dodge chance permanently.",

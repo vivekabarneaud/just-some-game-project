@@ -522,8 +522,8 @@ export default function AdventurerDetail() {
                       warrior:  { labels: ["Paladin", "Warlord", "Shadowblade"],       leftColor: "#3498db", rightColor: "#f5c542" },
                       priest:   { labels: ["Paladin", "Archpriest", "Inquisitor"],     leftColor: "#e74c3c", rightColor: "#9b59b6" },
                       wizard:   { labels: ["Primalist", "Archmage", "Inquisitor"],     leftColor: "#2ecc71", rightColor: "#3498db" },
-                      archer:   { labels: ["Primalist", "Sharpshooter", "Hunter"],     leftColor: "#9b59b6", rightColor: "#f5c542" },
-                      assassin: { labels: ["Hunter", "Shadowmaster", "Shadowblade"],   leftColor: "#2ecc71", rightColor: "#e74c3c" },
+                      archer:   { labels: ["Primalist", "Sharpshooter", "Venomancer"],  leftColor: "#9b59b6", rightColor: "#f5c542" },
+                      assassin: { labels: ["Venomancer", "Shadowmaster", "Shadowblade"], leftColor: "#2ecc71", rightColor: "#e74c3c" },
                     };
                     const pInfo = pathInfo[adv().class] ?? pathInfo.warrior;
                     const [leftLabel, centerLabel, rightLabel] = pInfo.labels;
