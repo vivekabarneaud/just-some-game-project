@@ -158,9 +158,12 @@ export default function AdventurersGuild() {
     const mission = selectedMission();
     if (!mission) return 0;
     let chance = calcSuccessChance(mission, currentTeam());
-    for (const supplyId of selectedSupplies()) {
-      const effect = getSupplyEffect(supplyId);
-      if (effect) chance = Math.min(100, chance + effect.successBonus);
+    // Supply success bonuses only apply to non-combat missions (combat is resolved by simulation)
+    if (!mission.encounters?.length) {
+      for (const supplyId of selectedSupplies()) {
+        const effect = getSupplyEffect(supplyId);
+        if (effect) chance = Math.min(100, chance + effect.successBonus);
+      }
     }
     return chance;
   };

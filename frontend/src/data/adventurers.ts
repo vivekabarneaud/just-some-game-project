@@ -346,10 +346,10 @@ export const CLASS_COLORS: Record<AdventurerClass, string> = {
 
 export const RANK_COLORS: Record<AdventurerRank, string> = {
   1: "#aaa",
-  2: "#7CFC00",
-  3: "#3498db",
-  4: "#9b59b6",
-  5: "#f5c542",
+  2: "var(--accent-green)",
+  3: "var(--accent-blue)",
+  4: "var(--accent-gold)",
+  5: "var(--accent-red)",
 };
 
 // ─── Adventurer type ────────────────────────────────────────────

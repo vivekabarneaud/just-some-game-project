@@ -2342,10 +2342,12 @@ export function GameProvider(props: ParentProps) {
       let successChance = calcSuccessChance(template, team);
       let effectiveDuration = calcEffectiveDuration(template, team);
 
-      // Apply supply bonuses
-      for (const supplyId of supplies) {
-        const effect = getSupplyEffect(supplyId);
-        if (effect) successChance = Math.min(100, successChance + effect.successBonus);
+      // Apply supply bonuses (success bonus only for non-combat missions)
+      if (!template.encounters?.length) {
+        for (const supplyId of supplies) {
+          const effect = getSupplyEffect(supplyId);
+          if (effect) successChance = Math.min(100, successChance + effect.successBonus);
+        }
       }
 
       // Apply equipment duration/loot mods
