@@ -251,7 +251,124 @@ export const PRIEST_TALENTS: TalentNode[] = [
     children: [], isCapstone: true, title: "Inquisitor" },
 ];
 
-export const ALL_TALENTS: TalentNode[] = [...WARRIOR_TALENTS, ...PRIEST_TALENTS];
+// ─── Wizard Talent Tree ──────────────────────────────────────────
+//
+//  Row 0:                     [INT +5]
+//                           /    |    \
+//  Row 1:            [WIS +5] [INT +5] [WIS +5]
+//                      |        |         |
+//  Row 2:         [Elemental [Arcane   [Holy Fire]
+//                   Surge]    Blast]
+//                    / \       / \       / \
+//  Row 3:    [Frost][NatureHeal][CDR][SpellAmp][Purify][Strip]
+//               |      |        |      |        |       |
+//  Row 4:   [WIS+5] [WIS+5] [INT+5] [INT+5] [WIS+5] [INT+5]
+//                \    /        \    /          \      /
+//  Row 5:    [Primalist]     [Archmage]     [Inquisitor]
+
+export const WIZARD_TALENTS: TalentNode[] = [
+  // ── Row 0: Entry ──────────────────────────────────────────────
+  { id: "wz_int1", name: "Arcane Mind", icon: "🧠", class: "wizard", row: 0,
+    description: "+5 Intelligence",
+    children: ["wz_wis1", "wz_int2", "wz_wis2"] },
+
+  // ── Row 1: Path commitment ────────────────────────────────────
+  { id: "wz_wis1", name: "Primal Wisdom", icon: "📖", class: "wizard", row: 1,
+    description: "+5 Wisdom — The old magic runs through root and stone, not through books",
+    children: ["wz_elemental"] },
+
+  { id: "wz_int2", name: "Aether Mastery", icon: "🧠", class: "wizard", row: 1,
+    description: "+5 Intelligence — Pure arcane power, distilled and controlled",
+    children: ["wz_arcane_blast"] },
+
+  { id: "wz_wis2", name: "Sacred Knowledge", icon: "📖", class: "wizard", row: 1,
+    description: "+5 Wisdom — Where faith meets intellect, fire follows",
+    children: ["wz_holy_fire"] },
+
+  // ── Row 2: First themed talent ────────────────────────────────
+  { id: "wz_elemental", name: "Elemental Surge", icon: "🌊", class: "wizard", row: 2,
+    description: "Spells cycle through elements: frost (slows), fire (DOT), lightning (chains to 2nd target)",
+    children: ["wz_frost", "wz_nature_heal", "wz_cdr", "wz_spell_amp", "wz_purify", "wz_strip"] },
+
+  { id: "wz_arcane_blast", name: "Arcane Blast", icon: "💎", class: "wizard", row: 2,
+    description: "Basic attacks deal 50% more damage as pure Aether. Aether ignores elemental resistances",
+    children: ["wz_frost", "wz_nature_heal", "wz_cdr", "wz_spell_amp", "wz_purify", "wz_strip"] },
+
+  { id: "wz_holy_fire", name: "Holy Fire", icon: "🔥", class: "wizard", row: 2,
+    description: "Fireball becomes Holy Fire: deals holy damage, 2x damage to undead and demons",
+    children: ["wz_frost", "wz_nature_heal", "wz_cdr", "wz_spell_amp", "wz_purify", "wz_strip"] },
+
+  // ── Row 3: Specialization branches ────────────────────────────
+  // Primalist branches
+  { id: "wz_frost", name: "Permafrost", icon: "❄️", class: "wizard", row: 3,
+    description: "Frost Bolt now reduces target's Strength by 30% for 2 rounds. Frost damage slows initiative",
+    children: ["wz_wis3"] },
+
+  { id: "wz_nature_heal", name: "Nature's Mending", icon: "🌿", class: "wizard", row: 3,
+    description: "At the start of each round, the two lowest-HP allies heal for 8% max HP from living earth",
+    children: ["wz_wis4"] },
+
+  // Archmage branches
+  { id: "wz_cdr", name: "Temporal Warp", icon: "⏳", class: "wizard", row: 3,
+    description: "All spell cooldowns reduced by 1. Spells have a 20% chance to not trigger cooldown at all",
+    children: ["wz_int3"] },
+
+  { id: "wz_spell_amp", name: "Spell Amplification", icon: "✨", class: "wizard", row: 3,
+    description: "+30% spell damage. Critical spells deal double damage instead of 1.5x",
+    children: ["wz_int4"] },
+
+  // Inquisitor branches
+  { id: "wz_purify", name: "Purifying Flames", icon: "☀️", class: "wizard", row: 3,
+    description: "New ability: AOE holy fire dealing 60% INT as damage. Burns away 1 buff from each target. CD 3",
+    children: ["wz_wis5"] },
+
+  { id: "wz_strip", name: "Denounce", icon: "👁️", class: "wizard", row: 3,
+    description: "Mark an enemy: they take +30% damage from all sources and their magic resistance is halved for 3 rounds",
+    children: ["wz_int5"] },
+
+  // ── Row 4: Final stat nodes ───────────────────────────────────
+  // Primalist stats
+  { id: "wz_wis3", name: "Voice of the Storm", icon: "📖", class: "wizard", row: 4,
+    description: "+5 Wisdom — The wind speaks; you learned to answer",
+    children: ["wz_cap_primalist"] },
+
+  { id: "wz_wis4", name: "Heartwood Bond", icon: "📖", class: "wizard", row: 4,
+    description: "+5 Wisdom — The forest remembers those who tend it",
+    children: ["wz_cap_primalist"] },
+
+  // Archmage stats
+  { id: "wz_int3", name: "Infinite Focus", icon: "🧠", class: "wizard", row: 4,
+    description: "+5 Intelligence — Time bends for those who understand it",
+    children: ["wz_cap_archmage"] },
+
+  { id: "wz_int4", name: "Aether Conduit", icon: "🧠", class: "wizard", row: 4,
+    description: "+5 Intelligence — Your body is a lens; the Aether is the light",
+    children: ["wz_cap_archmage"] },
+
+  // Inquisitor stats
+  { id: "wz_wis5", name: "Righteous Fury", icon: "📖", class: "wizard", row: 4,
+    description: "+5 Wisdom — The flame that judges does not waver",
+    children: ["wz_cap_inquisitor"] },
+
+  { id: "wz_int5", name: "Truth Seeker", icon: "🧠", class: "wizard", row: 4,
+    description: "+5 Intelligence — No lie survives the light of inquiry",
+    children: ["wz_cap_inquisitor"] },
+
+  // ── Row 5: Capstones ──────────────────────────────────────────
+  { id: "wz_cap_primalist", name: "Primal Convergence", icon: "🌀", class: "wizard", row: 5,
+    description: "Command all elements at once: each spell triggers frost slow + fire DOT + lightning chain simultaneously. Nature healing doubled.",
+    children: [], isCapstone: true, title: "Primalist" },
+
+  { id: "wz_cap_archmage", name: "Arcane Supremacy", icon: "💠", class: "wizard", row: 5,
+    description: "All spell damage +50%. Once per combat, reset all cooldowns instantly. Your spells cannot be resisted.",
+    children: [], isCapstone: true, title: "Archmage" },
+
+  { id: "wz_cap_inquisitor", name: "Divine Judgment", icon: "⚡", class: "wizard", row: 5,
+    description: "Holy fire ignores all resistances. Once per combat, deal 150% INT as holy damage to all enemies and heal all allies for the same amount.",
+    children: [], isCapstone: true, title: "Inquisitor" },
+];
+
+export const ALL_TALENTS: TalentNode[] = [...WARRIOR_TALENTS, ...PRIEST_TALENTS, ...WIZARD_TALENTS];
 
 // ─── Helpers ────────────────────────────────────────────────────
 
