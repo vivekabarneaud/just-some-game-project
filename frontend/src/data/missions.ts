@@ -1050,23 +1050,30 @@ export function calcSuccessChance(
 ): number {
   if (team.length === 0) return 0;
 
-  // Stat-based success (0-60%) — core of the estimate
+  // Per-adventurer power contribution (each member adds to success)
   const statWeights = getMissionStatWeights(mission.tags);
-  let totalWeightedStat = 0;
-  let totalWeight = 0;
+  let totalPower = 0;
   for (const adv of team) {
     const equipStats = getEquipmentStats(adv.equipment);
     const stats = calcStats(adv, equipStats);
+    let advPower = 0;
+    let weightSum = 0;
     for (const [stat, weight] of Object.entries(statWeights)) {
-      totalWeightedStat += (stats[stat as keyof AdventurerStats] ?? 0) * (weight ?? 0);
-      totalWeight += weight ?? 0;
+      advPower += (stats[stat as keyof AdventurerStats] ?? 0) * (weight ?? 0);
+      weightSum += weight ?? 0;
     }
+    // Normalize per adventurer, then add to total (each member contributes)
+    if (weightSum > 0) totalPower += advPower / weightSum;
   }
-  const avgStat = totalWeight > 0 ? totalWeightedStat / totalWeight : 0;
-  const statPercent = Math.min(60, (avgStat / (mission.difficulty * 8)) * 40);
 
-  // Team size bonus (0-20%) — filling more slots helps
-  const sizePct = (team.length / mission.slots.length) * 20;
+  // Scale power against difficulty: each difficulty point requires ~10 effective stat
+  const difficultyThreshold = mission.difficulty * 10;
+  const powerRatio = totalPower / difficultyThreshold;
+  const powerPercent = Math.min(80, powerRatio * 30);
+
+  // Team fill bonus: having more members is better
+  const fillRatio = Math.min(1, team.length / mission.slots.length);
+  const fillBonus = fillRatio * 15;
 
   // Family bond bonus: shared last names get +5% per pair
   let familyBonus = 0;
@@ -1077,11 +1084,11 @@ export function calcSuccessChance(
     seen.add(ln);
   }
 
-  // Difficulty penalty: scales hard with level gap
+  // Difficulty penalty: underleveled teams struggle
   const avgLevel = team.reduce((sum, a) => sum + a.level, 0) / team.length;
   const difficultyPenalty = Math.max(0, (mission.difficulty * 4 - avgLevel) * 5);
 
-  return Math.min(100, Math.max(5, Math.round(statPercent + sizePct + familyBonus - difficultyPenalty)));
+  return Math.min(100, Math.max(5, Math.round(powerPercent + fillBonus + familyBonus - difficultyPenalty)));
 }
 
 /**

@@ -38,6 +38,7 @@ import TraitBadge from "~/components/TraitBadge";
 import AdventurerPickerCard from "~/components/AdventurerPickerCard";
 import TeamSlot from "~/components/TeamSlot";
 import { getEnemy } from "~/data/enemies";
+import { simulateCombat } from "~/data/combat";
 import { DIFFICULTY_LABELS, DIFFICULTY_COLORS } from "~/data/constants";
 
 type Tab = "missions" | "roster" | "recruit";
@@ -157,13 +158,25 @@ export default function AdventurersGuild() {
   const teamSuccessChance = () => {
     const mission = selectedMission();
     if (!mission) return 0;
-    let chance = calcSuccessChance(mission, currentTeam());
-    // Supply success bonuses only apply to non-combat missions (combat is resolved by simulation)
-    if (!mission.encounters?.length) {
-      for (const supplyId of selectedSupplies()) {
-        const effect = getSupplyEffect(supplyId);
-        if (effect) chance = Math.min(100, chance + effect.successBonus);
+    const team = currentTeam();
+    if (team.length === 0) return 0;
+
+    // Combat missions: run 25 simulations for an accurate preview
+    if (mission.encounters?.length) {
+      let wins = 0;
+      const SIMS = 25;
+      for (let i = 0; i < SIMS; i++) {
+        const result = simulateCombat(mission, team);
+        if (result?.victory) wins++;
       }
+      return Math.round((wins / SIMS) * 100);
+    }
+
+    // Non-combat missions: use formula + supply bonuses
+    let chance = calcSuccessChance(mission, team);
+    for (const supplyId of selectedSupplies()) {
+      const effect = getSupplyEffect(supplyId);
+      if (effect) chance = Math.min(100, chance + effect.successBonus);
     }
     return chance;
   };
