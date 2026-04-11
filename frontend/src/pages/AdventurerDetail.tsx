@@ -518,29 +518,28 @@ export default function AdventurerDetail() {
                     const maxNodesInRow = () => Math.max(...rs().map((r) => r.length));
                     const totalWidth = () => maxNodesInRow() * NODE_W + (maxNodesInRow() - 1) * COL_GAP;
 
+                    const pathInfo: Record<string, { labels: [string, string, string]; leftColor: string; rightColor: string }> = {
+                      warrior:  { labels: ["Paladin", "Warlord", "Shadowblade"],       leftColor: "#3498db", rightColor: "#f5c542" },
+                      priest:   { labels: ["Paladin", "Archpriest", "Inquisitor"],     leftColor: "#e74c3c", rightColor: "#9b59b6" },
+                      wizard:   { labels: ["Primalist", "Archmage", "Inquisitor"],     leftColor: "#2ecc71", rightColor: "#3498db" },
+                      archer:   { labels: ["Primalist", "Sharpshooter", "Hunter"],     leftColor: "#9b59b6", rightColor: "#f5c542" },
+                      assassin: { labels: ["Hunter", "Shadowmaster", "Shadowblade"],   leftColor: "#2ecc71", rightColor: "#e74c3c" },
+                    };
+                    const pInfo = pathInfo[adv().class] ?? pathInfo.warrior;
+                    const [leftLabel, centerLabel, rightLabel] = pInfo.labels;
+                    const lc = pInfo.leftColor;
+                    const rc = pInfo.rightColor;
+
                     return (
                       <div>
-                        {/* Path labels */}
-                        {(() => {
-                          const labels: Record<string, [string, string, string]> = {
-                            warrior: ["Paladin", "Warlord", "Shadowblade"],
-                            priest: ["Paladin", "Archpriest", "Inquisitor"],
-                            wizard: ["Inquisitor", "Archmage", "Primalist"],
-                            archer: ["Primalist", "Sharpshooter", "Hunter"],
-                            assassin: ["Hunter", "Shadowmaster", "Shadowblade"],
-                          };
-                          const [left, center, right] = labels[adv().class] ?? ["", "", ""];
-                          return (
-                            <div style={{ display: "flex", "justify-content": "space-between", "margin": "0 auto 8px", width: `${totalWidth() + 64}px`, "font-size": "0.6rem", "text-transform": "uppercase", "letter-spacing": "1px" }}>
-                              <span style={{ color: "rgba(52, 152, 219, 0.5)" }}>{left}</span>
-                              <span style={{ color: "var(--text-muted)", opacity: "0.4" }}>{center}</span>
-                              <span style={{ color: "rgba(155, 89, 182, 0.5)" }}>{right}</span>
-                            </div>
-                          );
-                        })()}
+                        <div style={{ display: "flex", "justify-content": "space-between", "margin": "0 auto 8px", width: `${totalWidth() + 64}px`, "font-size": "0.6rem", "text-transform": "uppercase", "letter-spacing": "1px" }}>
+                          <span style={{ color: lc, opacity: "0.6" }}>{leftLabel}</span>
+                          <span style={{ color: "var(--text-muted)", opacity: "0.4" }}>{centerLabel}</span>
+                          <span style={{ color: rc, opacity: "0.6" }}>{rightLabel}</span>
+                        </div>
                       <div style={{
                         position: "relative", height: `${totalHeight() + 16}px`, "margin": "0 auto", width: `${totalWidth() + 64}px`,
-                        background: "linear-gradient(to right, rgba(52, 152, 219, 0.12) 0%, transparent 30%, transparent 70%, rgba(155, 89, 182, 0.12) 100%)",
+                        background: `linear-gradient(to right, ${lc}1F 0%, transparent 30%, transparent 70%, ${rc}1F 100%)`,
                         "border-radius": "8px",
                       }}>
                         {/* SVG connection lines */}
