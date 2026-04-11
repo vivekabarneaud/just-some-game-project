@@ -134,7 +134,124 @@ export const WARRIOR_TALENTS: TalentNode[] = [
     children: [], isCapstone: true, title: "Shadowblade" },
 ];
 
-export const ALL_TALENTS: TalentNode[] = [...WARRIOR_TALENTS];
+// ─── Priest Talent Tree ─────────────────────────────────────────
+//
+//  Row 0:                    [WIS +5]
+//                          /    |    \
+//  Row 1:            [STR +5] [WIS +5] [INT +5]
+//                      |        |         |
+//  Row 2:         [Shield   [Greater  [Holy Smite]
+//                  of Faith]  Heal]
+//                    / \       / \       / \
+//  Row 3:    [Taunt] [Armor] [HoT] [GrpHeal] [HolyFire] [Expose]
+//               |      |      |       |          |          |
+//  Row 4:   [STR+5] [VIT+5] [WIS+5] [WIS+5]  [INT+5]   [INT+5]
+//                \    /        \     /           \        /
+//  Row 5:     [Templar]     [Archpriest]      [Inquisitor]
+
+export const PRIEST_TALENTS: TalentNode[] = [
+  // ── Row 0: Entry ──────────────────────────────────────────────
+  { id: "p_wis1", name: "Divine Insight", icon: "📖", class: "priest", row: 0,
+    description: "+5 Wisdom",
+    children: ["p_str1", "p_wis2", "p_int1"] },
+
+  // ── Row 1: Path commitment ────────────────────────────────────
+  { id: "p_str1", name: "Strength of Faith", icon: "💪", class: "priest", row: 1,
+    description: "+5 Strength — The body is a temple; make it a fortress",
+    children: ["p_shield"] },
+
+  { id: "p_wis2", name: "Deep Devotion", icon: "📖", class: "priest", row: 1,
+    description: "+5 Wisdom — The deeper the faith, the greater the miracle",
+    children: ["p_greater_heal"] },
+
+  { id: "p_int1", name: "Burning Truth", icon: "🧠", class: "priest", row: 1,
+    description: "+5 Intelligence — Knowledge of the divine burns away lies",
+    children: ["p_holy_smite"] },
+
+  // ── Row 2: First themed talent ────────────────────────────────
+  { id: "p_shield", name: "Shield of Faith", icon: "🛡️", class: "priest", row: 2,
+    description: "Can equip shields and one-handed swords. +15% physical defense",
+    children: ["p_taunt", "p_armor", "p_hot", "p_group_heal", "p_holy_fire", "p_expose"] },
+
+  { id: "p_greater_heal", name: "Greater Heal", icon: "💚", class: "priest", row: 2,
+    description: "Single-target heal now restores 60% of target's max HP (up from 40%)",
+    children: ["p_taunt", "p_armor", "p_hot", "p_group_heal", "p_holy_fire", "p_expose"] },
+
+  { id: "p_holy_smite", name: "Empowered Smite", icon: "⚡", class: "priest", row: 2,
+    description: "Smite deals 80% more damage and hits up to 2 targets",
+    children: ["p_taunt", "p_armor", "p_hot", "p_group_heal", "p_holy_fire", "p_expose"] },
+
+  // ── Row 3: Specialization branches ────────────────────────────
+  // Templar branches
+  { id: "p_taunt", name: "Righteous Challenge", icon: "📯", class: "priest", row: 3,
+    description: "Taunt all enemies for 1 round, forcing them to attack you. Gain +20% damage reduction while taunting",
+    children: ["p_str2"] },
+
+  { id: "p_armor", name: "Blessed Armor", icon: "🏰", class: "priest", row: 3,
+    description: "Can equip plate armor. Holy light absorbs 25% of damage taken as a shield",
+    children: ["p_vit1"] },
+
+  // Archpriest branches
+  { id: "p_hot", name: "Renewing Prayer", icon: "🌿", class: "priest", row: 3,
+    description: "At the start of each round, the lowest-HP ally heals for 12% of their max HP",
+    children: ["p_wis3"] },
+
+  { id: "p_group_heal", name: "Circle of Light", icon: "☀️", class: "priest", row: 3,
+    description: "Group Heal now heals for 50% of normal heal (up from 40%) and removes one negative effect",
+    children: ["p_wis4"] },
+
+  // Inquisitor branches
+  { id: "p_holy_fire", name: "Purifying Fire", icon: "🔥", class: "priest", row: 3,
+    description: "New ability: deal 70% holy damage to all enemies. Undead and demons take double damage. Cooldown 4",
+    children: ["p_int2"] },
+
+  { id: "p_expose", name: "Expose Sin", icon: "👁️", class: "priest", row: 3,
+    description: "Mark a target: all allies deal +25% damage to it for 2 rounds. Strips one buff from the target",
+    children: ["p_int3"] },
+
+  // ── Row 4: Final stat nodes ───────────────────────────────────
+  // Templar stats
+  { id: "p_str2", name: "Warrior's Faith", icon: "💪", class: "priest", row: 4,
+    description: "+5 Strength — Pray with your sword arm",
+    children: ["p_cap_templar"] },
+
+  { id: "p_vit1", name: "Unbreakable Spirit", icon: "❤️", class: "priest", row: 4,
+    description: "+5 Vitality — The faithful do not fall easily",
+    children: ["p_cap_templar"] },
+
+  // Archpriest stats
+  { id: "p_wis3", name: "Wellspring of Grace", icon: "📖", class: "priest", row: 4,
+    description: "+5 Wisdom — Your prayers reach further than your voice",
+    children: ["p_cap_archpriest"] },
+
+  { id: "p_wis4", name: "Shepherd's Wisdom", icon: "📖", class: "priest", row: 4,
+    description: "+5 Wisdom — You carry every name you've ever healed",
+    children: ["p_cap_archpriest"] },
+
+  // Inquisitor stats
+  { id: "p_int2", name: "Sacred Fury", icon: "🧠", class: "priest", row: 4,
+    description: "+5 Intelligence — The fire that purifies is the fire that destroys",
+    children: ["p_cap_inquisitor"] },
+
+  { id: "p_int3", name: "Piercing Judgment", icon: "🧠", class: "priest", row: 4,
+    description: "+5 Intelligence — No darkness survives scrutiny",
+    children: ["p_cap_inquisitor"] },
+
+  // ── Row 5: Capstones ──────────────────────────────────────────
+  { id: "p_cap_templar", name: "Templar's Vow", icon: "⚜️", class: "priest", row: 5,
+    description: "While you live, allies within your faith take 20% less damage. When an ally would die, sacrifice 50% of your HP to save them (once per combat).",
+    children: [], isCapstone: true, title: "Templar" },
+
+  { id: "p_cap_archpriest", name: "Miracle", icon: "✝️", class: "priest", row: 5,
+    description: "Once per combat, when an ally dies, resurrect them with 50% HP. All healing you do is increased by 30%.",
+    children: [], isCapstone: true, title: "Archpriest" },
+
+  { id: "p_cap_inquisitor", name: "Judgment Day", icon: "⚡", class: "priest", row: 5,
+    description: "Your holy damage ignores all resistances. Once per combat, call down divine judgment: deal 100% INT as holy damage to all enemies.",
+    children: [], isCapstone: true, title: "Inquisitor" },
+];
+
+export const ALL_TALENTS: TalentNode[] = [...WARRIOR_TALENTS, ...PRIEST_TALENTS];
 
 // ─── Helpers ────────────────────────────────────────────────────
 
