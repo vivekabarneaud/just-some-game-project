@@ -58,6 +58,7 @@ export const RAID_POOL: RaidTemplate[] = [
     name: "Hungry Bandits",
     description: "A small group of desperate bandits looking for an easy meal.",
     icon: "🗡️",
+    image: "/images/raids/hungry_bandits.png",
     tags: ["bandits"],
     strength: 25,
     stealsResources: true,
