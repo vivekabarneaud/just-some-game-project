@@ -267,28 +267,25 @@ function buildAdventurerUnit(adv: Adventurer): CombatUnit {
 }
 
 // Tier-based stat scaling so enemies keep up with adventurer growth
-const ENEMY_TIER_MULT: Record<number, number> = { 1: 1.0, 2: 1.4, 3: 1.8, 4: 2.2, 5: 2.6 };
-
+// Enemy stats are used as-is from the definition — balance through the data, not multipliers
 function buildEnemyUnits(encounters: MissionEncounter[]): CombatUnit[] {
   const units: CombatUnit[] = [];
   for (const enc of encounters) {
     const def = getEnemy(enc.enemyId);
     if (!def) continue;
     const isMagical = def.tags.includes("magical") || def.tags.includes("demon");
-    const mult = ENEMY_TIER_MULT[def.tier] ?? 1;
     for (let i = 0; i < enc.count; i++) {
-      const vit = Math.round(def.stats.vit * mult);
-      const hp = vit * 10;
+      const hp = def.stats.vit * 10;
       units.push({
         id: `${def.id}_${i}`,
         name: enc.count > 1 ? `${def.name} ${i + 1}` : def.name,
         icon: def.icon, isEnemy: true,
         hp, maxHp: hp,
-        str: Math.round(def.stats.str * mult),
-        dex: Math.round(def.stats.dex * mult),
-        int: Math.round(def.stats.int * mult),
-        vit,
-        wis: Math.round((def.stats.wis ?? 0) * mult),
+        str: def.stats.str,
+        dex: def.stats.dex,
+        int: def.stats.int,
+        vit: def.stats.vit,
+        wis: def.stats.wis ?? 0,
         class: undefined, isMagical, gearDefense: 0,
         enemyTags: def.tags,
         enemyDefId: def.id,
@@ -738,21 +735,19 @@ function tryEnemyAbility(
       case "summon": {
         const summonDef = getEnemy(eff.enemyId);
         if (!summonDef) continue;
-        const mult = ENEMY_TIER_MULT[summonDef.tier] ?? 1;
         for (let s = 0; s < eff.count; s++) {
-          const vit = Math.round(summonDef.stats.vit * mult);
-          const summonHp = vit * 10;
+          const summonHp = summonDef.stats.vit * 10;
           const summonId = `${eff.enemyId}_summon_${round}_${s}`;
           allies.push({
             id: summonId,
             name: summonDef.name,
             icon: summonDef.icon, isEnemy: true,
             hp: summonHp, maxHp: summonHp,
-            str: Math.round(summonDef.stats.str * mult),
-            dex: Math.round(summonDef.stats.dex * mult),
-            int: Math.round(summonDef.stats.int * mult),
-            vit,
-            wis: Math.round((summonDef.stats.wis ?? 0) * mult),
+            str: summonDef.stats.str,
+            dex: summonDef.stats.dex,
+            int: summonDef.stats.int,
+            vit: summonDef.stats.vit,
+            wis: summonDef.stats.wis ?? 0,
             class: undefined,
             isMagical: summonDef.tags.includes("magical") || summonDef.tags.includes("demon"),
             gearDefense: 0,
