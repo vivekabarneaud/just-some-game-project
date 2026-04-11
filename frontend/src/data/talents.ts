@@ -485,7 +485,124 @@ export const ARCHER_TALENTS: TalentNode[] = [
     children: [], isCapstone: true, title: "Hunter" },
 ];
 
-export const ALL_TALENTS: TalentNode[] = [...WARRIOR_TALENTS, ...PRIEST_TALENTS, ...WIZARD_TALENTS, ...ARCHER_TALENTS];
+// ─── Assassin Talent Tree ────────────────────────────────────────
+//
+//  Row 0:                     [DEX +5]
+//                           /    |    \
+//  Row 1:            [DEX +5] [DEX +5] [STR +5]
+//                      |        |         |
+//  Row 2:         [Toxic    [Ambush]   [Dirty
+//                  Blade]               Fighting]
+//                    / \       / \       / \
+//  Row 3:    [Venom][NumbTox][Stealth][Garrote][Bleed][Brawl]
+//               |      |       |       |        |       |
+//  Row 4:   [DEX+5] [DEX+5] [DEX+5] [DEX+5] [STR+5] [VIT+5]
+//                \    /        \    /          \      /
+//  Row 5:     [Hunter]     [Shadowmaster]   [Shadowblade]
+
+export const ASSASSIN_TALENTS: TalentNode[] = [
+  // ── Row 0: Entry ──────────────────────────────────────────────
+  { id: "as_dex1", name: "Quick Reflexes", icon: "🏃", class: "assassin", row: 0,
+    description: "+5 Dexterity",
+    children: ["as_dex2", "as_dex3", "as_str1"] },
+
+  // ── Row 1: Path commitment ────────────────────────────────────
+  { id: "as_dex2", name: "Poison Knowledge", icon: "🏃", class: "assassin", row: 1,
+    description: "+5 Dexterity — Every plant is medicine or murder, depending on the dose",
+    children: ["as_toxic"] },
+
+  { id: "as_dex3", name: "Shadow Step", icon: "🏃", class: "assassin", row: 1,
+    description: "+5 Dexterity — Move between heartbeats. Strike between breaths",
+    children: ["as_ambush"] },
+
+  { id: "as_str1", name: "Killer's Grip", icon: "💪", class: "assassin", row: 1,
+    description: "+5 Strength — A dagger in the right place hits harder than any sword",
+    children: ["as_dirty"] },
+
+  // ── Row 2: First themed talent ────────────────────────────────
+  { id: "as_toxic", name: "Toxic Blade", icon: "☠️", class: "assassin", row: 2,
+    description: "All attacks apply stacking poison: 12% attack power per round for 3 rounds. Stacks up to 3 times",
+    children: ["as_venom", "as_numb", "as_stealth", "as_garrote", "as_bleed", "as_brawl"] },
+
+  { id: "as_ambush", name: "Ambush", icon: "🗡️", class: "assassin", row: 2,
+    description: "First attack each combat is a guaranteed critical strike dealing 2.5x damage. +20% dodge chance",
+    children: ["as_venom", "as_numb", "as_stealth", "as_garrote", "as_bleed", "as_brawl"] },
+
+  { id: "as_dirty", name: "Dirty Fighting", icon: "💥", class: "assassin", row: 2,
+    description: "Attacks have a 20% chance to apply a bleed: 20% attack power per round for 3 rounds. +10% damage to bleeding targets",
+    children: ["as_venom", "as_numb", "as_stealth", "as_garrote", "as_bleed", "as_brawl"] },
+
+  // ── Row 3: Specialization branches ────────────────────────────
+  // Hunter branches
+  { id: "as_venom", name: "Concentrated Venom", icon: "🧪", class: "assassin", row: 3,
+    description: "Poison damage increased by 50%. At 3 stacks, target's healing received is halved",
+    children: ["as_dex4"] },
+
+  { id: "as_numb", name: "Crippling Poison", icon: "🕸️", class: "assassin", row: 3,
+    description: "Poisoned targets deal 25% less damage and have -30% initiative. At 3 stacks, target is stunned 1 round",
+    children: ["as_dex5"] },
+
+  // Shadowmaster branches
+  { id: "as_stealth", name: "Vanish", icon: "👤", class: "assassin", row: 3,
+    description: "Once per combat, become untargetable for 1 round. Next attack after Vanish is a guaranteed critical",
+    children: ["as_dex6"] },
+
+  { id: "as_garrote", name: "Garrote", icon: "🤐", class: "assassin", row: 3,
+    description: "New ability: silence a target for 2 rounds (no spells or abilities). Deals 80% damage. CD 4",
+    children: ["as_dex7"] },
+
+  // Shadowblade branches
+  { id: "as_bleed", name: "Arterial Strike", icon: "🩸", class: "assassin", row: 3,
+    description: "Backstab now applies a severe bleed: 25% attack power per round for 4 rounds. Bleed damage ignores armor",
+    children: ["as_str2"] },
+
+  { id: "as_brawl", name: "Duelist's Stance", icon: "⚔️", class: "assassin", row: 3,
+    description: "+20% physical defense, +15% damage when fighting the same target as last round. Can equip medium armor",
+    children: ["as_vit1"] },
+
+  // ── Row 4: Final stat nodes ───────────────────────────────────
+  // Hunter stats
+  { id: "as_dex4", name: "Viper's Patience", icon: "🏃", class: "assassin", row: 4,
+    description: "+5 Dexterity — Let the venom do the work",
+    children: ["as_cap_hunter"] },
+
+  { id: "as_dex5", name: "Slow Death", icon: "🏃", class: "assassin", row: 4,
+    description: "+5 Dexterity — They won't know they're dead until they stop moving",
+    children: ["as_cap_hunter"] },
+
+  // Shadowmaster stats
+  { id: "as_dex6", name: "Ghost Walk", icon: "🏃", class: "assassin", row: 4,
+    description: "+5 Dexterity — You were never here",
+    children: ["as_cap_shadowmaster"] },
+
+  { id: "as_dex7", name: "Silent Killer", icon: "🏃", class: "assassin", row: 4,
+    description: "+5 Dexterity — The last thing they hear is nothing",
+    children: ["as_cap_shadowmaster"] },
+
+  // Shadowblade stats
+  { id: "as_str2", name: "Savage Edge", icon: "💪", class: "assassin", row: 4,
+    description: "+5 Strength — Make the wound deep enough that it never closes",
+    children: ["as_cap_shadowblade"] },
+
+  { id: "as_vit1", name: "Survivor's Grit", icon: "❤️", class: "assassin", row: 4,
+    description: "+5 Vitality — You've been stabbed before. You're still here",
+    children: ["as_cap_shadowblade"] },
+
+  // ── Row 5: Capstones ──────────────────────────────────────────
+  { id: "as_cap_hunter", name: "Master Toxicologist", icon: "☠️", class: "assassin", row: 5,
+    description: "Poison stacks cap increased to 5. At 5 stacks, deal 50% target's max HP as instant poison damage. Poisoned targets cannot be healed.",
+    children: [], isCapstone: true, title: "Hunter" },
+
+  { id: "as_cap_shadowmaster", name: "Death's Shadow", icon: "🌑", class: "assassin", row: 5,
+    description: "Vanish cooldown removed — can Vanish every 2 rounds. Attacks from Vanish deal 3x damage. +30% dodge chance permanently.",
+    children: [], isCapstone: true, title: "Shadowmaster" },
+
+  { id: "as_cap_shadowblade", name: "Blade Tempest", icon: "🗡️", class: "assassin", row: 5,
+    description: "Bleeds deal double damage. Once per combat, strike every enemy simultaneously for 100% damage — each hit applies your bleeds and poisons.",
+    children: [], isCapstone: true, title: "Shadowblade" },
+];
+
+export const ALL_TALENTS: TalentNode[] = [...WARRIOR_TALENTS, ...PRIEST_TALENTS, ...WIZARD_TALENTS, ...ARCHER_TALENTS, ...ASSASSIN_TALENTS];
 
 // ─── Helpers ────────────────────────────────────────────────────
 
