@@ -637,7 +637,7 @@ export default function AdventurersGuild() {
                           <span style={{ color: "var(--text-muted)" }}>{" · "}{mission.tags.join(", ")}</span>
                         </div>
                         <div class="building-card-image-overlay">
-                          <div class="building-card-title">{mission.icon} {mission.name}</div>
+                          <div class="building-card-title">{mission.name}</div>
                         </div>
                       </div>
                     </Show>
