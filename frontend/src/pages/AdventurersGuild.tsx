@@ -582,27 +582,29 @@ export default function AdventurersGuild() {
                         </div>
                       </div>
                     </Show>
-                    <div style={{ padding: "10px 16px 16px" }}>
+                    <div style={{ padding: "10px 16px 16px", flex: "1", display: "flex", "flex-direction": "column" }}>
                       <div class="building-card-desc" style={{ "font-style": "italic" }}>{story().description}</div>
-                      <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-top": "6px" }}>
-                        {formatDuration(story().duration)} · {story().deployCost}g deploy
-                      </div>
-                      <div style={{ display: "flex", gap: "6px", "margin-top": "8px", "flex-wrap": "wrap" }}>
-                        <For each={story().slots}>
-                          {(slot) => (
-                            <span style={{
-                              padding: "2px 8px",
-                              background: "var(--bg-secondary)",
-                              "border-radius": "4px",
-                              "font-size": "0.8rem",
-                            }}>
-                              {slotIcon(slot)} {slotLabel(slot)}
-                            </span>
-                          )}
-                        </For>
-                      </div>
-                      <div style={{ "margin-top": "8px", "font-size": "0.8rem", color: "var(--accent-green)" }}>
-                        Rewards: {story().rewards.map((r: any) => formatReward(r)).join(", ")}
+                      <div style={{ "margin-top": "auto", "padding-top": "12px" }}>
+                        <div style={{ "font-size": "0.75rem", color: "var(--text-muted)" }}>
+                          {formatDuration(story().duration)} · {story().deployCost}g deploy
+                        </div>
+                        <div style={{ display: "flex", gap: "6px", "margin-top": "8px", "flex-wrap": "wrap" }}>
+                          <For each={story().slots}>
+                            {(slot) => (
+                              <span style={{
+                                padding: "2px 8px",
+                                background: "var(--bg-secondary)",
+                                "border-radius": "4px",
+                                "font-size": "0.8rem",
+                              }}>
+                                {slotIcon(slot)} {slotLabel(slot)}
+                              </span>
+                            )}
+                          </For>
+                        </div>
+                        <div style={{ "margin-top": "8px", "font-size": "0.8rem", color: "var(--accent-green)" }}>
+                          Rewards: {story().rewards.map((r: any) => formatReward(r)).join(", ")}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -641,7 +643,7 @@ export default function AdventurersGuild() {
                         </div>
                       </div>
                     </Show>
-                    <div style={{ padding: mission.image ? "8px 16px 16px" : undefined }}>
+                    <div style={{ padding: mission.image ? "8px 16px 16px" : undefined, flex: "1", display: "flex", "flex-direction": "column" }}>
                     <Show when={!mission.image}>
                       <span class="building-card-category">
                         <span style={{ color: [, "#aaa", "#7CFC00", "#3498db", "#9b59b6", "#f5c542"][mission.difficulty] }}>
@@ -661,7 +663,7 @@ export default function AdventurersGuild() {
                     </Show>
                     <div class="building-card-desc">{mission.description}</div>
                     <Show when={mission.encounters?.length}>
-                      <div style={{ "margin-top": "8px", display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
+                      <div style={{ "margin-top": "14px", display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
                         {mission.encounters!.map((enc) => {
                           const enemy = getEnemy(enc.enemyId);
                           if (!enemy) return null;
@@ -719,11 +721,13 @@ export default function AdventurersGuild() {
                         })}
                       </div>
                     </Show>
-                    <div style={{ "margin-top": "8px", "font-size": "0.8rem", color: "var(--accent-green)" }}>
-                      Rewards: {mission.rewards.map((r) => formatReward(r)).join(", ")}
-                    </div>
-                    <div style={{ "font-size": "0.75rem", color: "var(--accent-blue)", "margin-top": "2px" }}>
-                      +{getMissionXp(mission.difficulty, true)} XP on success · +{getMissionXp(mission.difficulty, false)} XP on failure
+                    <div style={{ "margin-top": "auto", "padding-top": "12px" }}>
+                      <div style={{ "font-size": "0.8rem", color: "var(--accent-green)" }}>
+                        Rewards: {mission.rewards.map((r) => formatReward(r)).join(", ")}
+                      </div>
+                      <div style={{ "font-size": "0.75rem", color: "var(--accent-blue)", "margin-top": "2px" }}>
+                        +{getMissionXp(mission.difficulty, true)} XP on success · +{getMissionXp(mission.difficulty, false)} XP on failure
+                      </div>
                     </div>
                     </div>{/* end content wrapper */}
                   </div>
