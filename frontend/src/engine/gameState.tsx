@@ -983,6 +983,10 @@ function loadGame(): GameState | null {
       saved.missionBoard = [];
       saved.missionRefreshIn = 0;
     }
+    // Rehydrate mission board from source data (picks up new fields like image)
+    if (saved.missionBoard?.length > 0) {
+      saved.missionBoard = saved.missionBoard.map((m: any) => getMission(m.id) ?? m);
+    }
     // Chapel → Shrine rename
     for (const pb of saved.buildings) {
       if (pb.buildingId === "chapel") pb.buildingId = "shrine";
