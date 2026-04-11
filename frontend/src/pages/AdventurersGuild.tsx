@@ -44,6 +44,11 @@ type Tab = "missions" | "roster" | "recruit";
 
 
 
+/** Get the image for a mission from source data (avoids stale paths in saved state) */
+function getMissionImage(missionId: string): string | undefined {
+  return getMission(missionId)?.image;
+}
+
 function formatDuration(seconds: number): string {
   if (seconds < 60) return `${seconds}s`;
   if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
@@ -603,11 +608,11 @@ export default function AdventurersGuild() {
                       if (isSelected()) { setSelectedMission(null); setSelectedTeam([]); setSelectedSupplies([]); }
                       else { setSelectedMission(mission); setSelectedTeam([]); setSelectedSupplies([]); }
                     }}
-                    style={{ cursor: "pointer", ...(mission.image ? { padding: "0", overflow: "hidden" } : {}) }}
+                    style={{ cursor: "pointer", ...(getMissionImage(mission.id) ? { padding: "0", overflow: "hidden" } : {}) }}
                   >
-                    <Show when={mission.image}>
+                    <Show when={getMissionImage(mission.id)}>
                       <div class="building-card-image" style={{ margin: "0", "border-radius": "0" }}>
-                        <img src={mission.image} alt={mission.name} loading="lazy" />
+                        <img src={getMissionImage(mission.id)} alt={mission.name} loading="lazy" />
                         <div style={{
                           position: "absolute", top: "6px", right: "6px",
                           padding: "2px 8px", "border-radius": "4px",
@@ -624,8 +629,8 @@ export default function AdventurersGuild() {
                         </div>
                       </div>
                     </Show>
-                    <div style={{ padding: mission.image ? "8px 16px 16px" : undefined, flex: "1", display: "flex", "flex-direction": "column" }}>
-                    <Show when={!mission.image}>
+                    <div style={{ padding: getMissionImage(mission.id) ? "8px 16px 16px" : undefined, flex: "1", display: "flex", "flex-direction": "column" }}>
+                    <Show when={!getMissionImage(mission.id)}>
                       <span class="building-card-category">
                         <span style={{ color: DIFFICULTY_COLORS[mission.difficulty] }}>
                           {DIFFICULTY_LABELS[mission.difficulty]}
@@ -682,18 +687,18 @@ export default function AdventurersGuild() {
               return (
                 <div
                   class="mission-assembly"
-                  classList={{ "has-bg": !!mission().image }}
+                  classList={{ "has-bg": !!getMissionImage(mission().id) }}
                   ref={(el) => setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 50)}
                   style={{ position: "relative", overflow: "hidden" }}
                 >
                   {/* Immersive background image */}
-                  <Show when={mission().image}>
+                  <Show when={getMissionImage(mission().id)}>
                     <div style={{
                       position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
                       "z-index": 0, "pointer-events": "none",
                     }}>
                       <img
-                        src={mission().image}
+                        src={getMissionImage(mission().id)}
                         alt=""
                         style={{ width: "100%", height: "100%", "object-fit": "cover", "object-position": "center 30%", opacity: "0.5" }}
                       />
