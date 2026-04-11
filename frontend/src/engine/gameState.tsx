@@ -986,9 +986,14 @@ function loadGame(): GameState | null {
       saved.missionBoard = [];
       saved.missionRefreshIn = 0;
     }
-    // Rehydrate mission board from source data (picks up new fields like image)
+    // Rehydrate mission board from source data (picks up CDN image URLs etc.)
     if (saved.missionBoard?.length > 0) {
       saved.missionBoard = saved.missionBoard.map((m: any) => getMission(m.id) ?? m);
+      // Force refresh if any mission still has old local image paths
+      if (saved.missionBoard.some((m: any) => m.image && !m.image.startsWith("http"))) {
+        saved.missionBoard = [];
+        saved.missionRefreshIn = 0;
+      }
     }
     // Chapel → Shrine rename
     for (const pb of saved.buildings) {
