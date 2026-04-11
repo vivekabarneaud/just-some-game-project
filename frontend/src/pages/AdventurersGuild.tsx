@@ -163,26 +163,27 @@ export default function AdventurersGuild() {
       // Remove if already in team
       if (prev.includes(advId)) return prev.filter((id) => id !== advId);
       if (prev.length >= mission.slots.length) return prev; // team full
-      // Check: is there a compatible open slot for this class?
-      // Count how many required slots of each class still need filling
-      const slotNeeds: Record<string, number> = {};
-      for (const slot of mission.slots) {
-        if (slot.required && slot.class !== "any") {
-          slotNeeds[slot.class] = (slotNeeds[slot.class] ?? 0) + 1;
-        }
+
+      // Simulate assigning current team + this adventurer to slots
+      // If the assignment leaves all required slots fillable, allow it
+      const candidates = [...prev, advId].map((id) => state.adventurers.find((a) => a.id === id)).filter(Boolean) as Adventurer[];
+      const assigned: (Adventurer | undefined)[] = new Array(mission.slots.length).fill(undefined);
+      const remaining = [...candidates];
+
+      // Pass 1: fill required slots with matching classes
+      for (let si = 0; si < mission.slots.length; si++) {
+        const slot = mission.slots[si];
+        if (!slot.required || slot.class === "any") continue;
+        const idx = remaining.findIndex((a) => a.class === slot.class);
+        if (idx !== -1) { assigned[si] = remaining[idx]; remaining.splice(idx, 1); }
       }
-      // Subtract already-filled required slots
-      for (const id of prev) {
-        const a = state.adventurers.find((x) => x.id === id);
-        if (a && slotNeeds[a.class] > 0) slotNeeds[a.class]--;
+      // Pass 2: fill "any" and non-required slots with remaining
+      for (let si = 0; si < mission.slots.length; si++) {
+        if (assigned[si]) continue;
+        if (remaining.length > 0) { assigned[si] = remaining.shift(); }
       }
-      // Count open non-required (free) slots
-      const filledRequired = Object.values(slotNeeds).reduce((s, n) => s + n, 0);
-      const totalOpen = mission.slots.length - prev.length;
-      const freeSlots = totalOpen - filledRequired;
-      // This adventurer can fill a required slot for their class, or a free slot
-      const canFillRequired = (slotNeeds[adv.class] ?? 0) > 0;
-      if (!canFillRequired && freeSlots <= 0) return prev; // no compatible slot
+      // Check: did everyone get placed?
+      if (remaining.length > 0) return prev; // someone couldn't fit
       return [...prev, advId];
     });
   };
