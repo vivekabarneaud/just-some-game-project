@@ -31,6 +31,7 @@ import {
   getMissionStatWeights,
   formatReward,
   getCurrentStoryMission,
+  areRequiredSlotsFilled,
 } from "~/data/missions";
 import Countdown from "~/components/Countdown";
 import Tooltip from "~/components/Tooltip";
@@ -1118,11 +1119,16 @@ export default function AdventurersGuild() {
                     <button
                       class="upgrade-btn"
                       style={{ width: "100%", "margin-top": "12px" }}
-                      disabled={selectedTeam().length === 0 || slotInfo().used >= slotInfo().max || state.resources.gold < mission().deployCost}
+                      disabled={selectedTeam().length === 0 || slotInfo().used >= slotInfo().max || state.resources.gold < mission().deployCost || !areRequiredSlotsFilled(mission(), currentTeam())}
                       onClick={handleDeploy}
                     >
                       Deploy Team ({mission().deployCost}g)
                     </button>
+                    <Show when={selectedTeam().length > 0 && !areRequiredSlotsFilled(mission(), currentTeam())}>
+                      <div style={{ color: "var(--accent-red)", "font-size": "0.8rem", "text-align": "center", "margin-top": "6px" }}>
+                        Required class slot not filled
+                      </div>
+                    </Show>
                     <Show when={slotInfo().used >= slotInfo().max}>
                       <div style={{ color: "var(--accent-gold)", "font-size": "0.85rem", "text-align": "center", "margin-top": "6px" }}>
                         All mission slots in use

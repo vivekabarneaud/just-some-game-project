@@ -15,6 +15,7 @@ export interface MissionReward {
 
 export interface MissionSlot {
   class: AdventurerClass | "any"; // "any" means any class fills it
+  required?: boolean; // if true, must be filled with the specified class to deploy
 }
 
 export type MissionTag = "combat" | "exploration" | "magical" | "outdoor" | "stealth" | "escort" | "spying" | "assassination" | "dungeon" | "survival";
@@ -241,7 +242,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     description: "Ancient ruins infested with restless spirits. A mage is essential to deal with them.",
     icon: "👻",
     image: "/images/missions/haunted_ruins.png",
-    slots: [{ class: "wizard" }, { class: "priest" }],
+    slots: [{ class: "wizard", required: true }, { class: "any" }],
     duration: 2400,
     rewards: [{ resource: "gold", amount: 150 }, { resource: "stone", amount: 120 }],
     deployCost: 35,
@@ -320,7 +321,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     description: "A spring in the forest glows with faint magical energy. A wizard might be able to harness it.",
     icon: "💧",
     image: "/images/missions/enchanted_spring.png",
-    slots: [{ class: "wizard" }],
+    slots: [{ class: "wizard", required: true }],
     duration: 540,
     rewards: [{ resource: "food", amount: 60 }, { resource: "gold", amount: 20 }],
     deployCost: 5,
@@ -349,7 +350,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     description: "An old witch in the swamp trades knowledge for favors. Bring a wizard to translate her riddles.",
     icon: "🧙‍♀️",
     image: "/images/missions/herb_witch.png",
-    slots: [{ class: "wizard" }, { class: "any" }],
+    slots: [{ class: "wizard", required: true }, { class: "any" }],
     duration: 900,
     rewards: [{ resource: "food", amount: 80 }, { resource: "gold", amount: 40 }],
     deployCost: 10,
@@ -364,7 +365,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     description: "The village well has been cursed. Only a priest's blessing or a wizard's dispel can purify it.",
     icon: "🕳️",
     image: "/images/missions/cursed_well.png",
-    slots: [{ class: "priest" }, { class: "any" }],
+    slots: [{ class: "priest", required: true }, { class: "any" }],
     duration: 720,
     rewards: [{ resource: "gold", amount: 50 }, { resource: "stone", amount: 30 }],
     deployCost: 8,
@@ -659,7 +660,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     description: "A tear in reality has opened, spewing magical energy. Only a skilled wizard can close it safely.",
     icon: "🌀",
     image: "/images/missions/arcane_rift.png",
-    slots: [{ class: "wizard" }, { class: "wizard" }, { class: "priest" }],
+    slots: [{ class: "wizard", required: true }, { class: "wizard", required: true }, { class: "any" }],
     duration: 3600,
     rewards: [{ resource: "gold", amount: 280 }, { resource: "stone", amount: 180 }, { resource: "astralShards", amount: 3 }],
     deployCost: 55,
@@ -1004,12 +1005,7 @@ export const MISSION_POOL: MissionTemplate[] = [
 // ─── Class passive helpers ──────────────────────────────────────
 
 /** Warrior: flat +10% success */
-const WARRIOR_SUCCESS_BONUS = 10;
-/** Archer: +8% success, +5% extra on outdoor/exploration */
-const ARCHER_SUCCESS_BONUS = 5;
-const ARCHER_TAG_BONUS = 5;
-/** Wizard: +0% flat, but +10% on magical missions */
-const WIZARD_TAG_BONUS = 10;
+// Class bonuses removed — success is driven by stats + combat simulation
 /** Wizard: reduces mission duration by 15% per wizard */
 export const WIZARD_DURATION_REDUCTION = 0.15;
 /** Assassin: +20% bonus rewards on success, 30% partial loot on failure */
@@ -1050,24 +1046,7 @@ export function calcSuccessChance(
 ): number {
   if (team.length === 0) return 0;
 
-  const totalSlots = mission.slots.length;
-  let matchScore = 0;
-
-  const assigned = [...team];
-  for (const slot of mission.slots) {
-    if (slot.class === "any") {
-      if (assigned.length > 0) { matchScore += 1; assigned.shift(); }
-    } else {
-      const idx = assigned.findIndex((a) => a.class === slot.class);
-      if (idx !== -1) { matchScore += 1; assigned.splice(idx, 1); }
-      else if (assigned.length > 0) { matchScore += 0.5; assigned.shift(); }
-    }
-  }
-
-  // Slot matching (0-40%)
-  const slotPercent = (matchScore / totalSlots) * 40;
-
-  // Stat-based success (0-45%)
+  // Stat-based success (0-60%) — core of the estimate
   const statWeights = getMissionStatWeights(mission.tags);
   let totalWeightedStat = 0;
   let totalWeight = 0;
@@ -1080,9 +1059,10 @@ export function calcSuccessChance(
     }
   }
   const avgStat = totalWeight > 0 ? totalWeightedStat / totalWeight : 0;
-  // Scale: higher stats = more success. Each level matters.
-  const statRatio = avgStat / (mission.difficulty * 6);
-  const statPercent = Math.min(50, statRatio * 40);
+  const statPercent = Math.min(60, (avgStat / (mission.difficulty * 8)) * 40);
+
+  // Team size bonus (0-20%) — filling more slots helps
+  const sizePct = (team.length / mission.slots.length) * 20;
 
   // Family bond bonus: shared last names get +5% per pair
   let familyBonus = 0;
@@ -1093,33 +1073,11 @@ export function calcSuccessChance(
     seen.add(ln);
   }
 
-  // Class passive bonuses (0-15%)
-  let classBonus = 0;
-  for (const adv of team) {
-    if (adv.class === "warrior") {
-      classBonus += WARRIOR_SUCCESS_BONUS;
-      if (mission.tags.some((t) => t === "escort" || t === "combat")) classBonus += 5;
-    }
-    if (adv.class === "archer") {
-      classBonus += ARCHER_SUCCESS_BONUS;
-      if (mission.tags.some((t) => t === "exploration")) classBonus += ARCHER_TAG_BONUS;
-    }
-    if (adv.class === "wizard" && mission.tags.includes("magical")) classBonus += WIZARD_TAG_BONUS;
-    if (adv.class === "assassin") {
-      classBonus += 5;
-      if (mission.tags.some((t) => t === "spying" || t === "assassination" || t === "stealth")) classBonus += 8;
-    }
-    if (adv.class === "priest") {
-      classBonus += 3;
-      if (mission.tags.includes("survival")) classBonus += 5;
-    }
-  }
-
-  // Difficulty penalty: higher difficulty missions are harder for low-level teams
+  // Difficulty penalty: scales hard with level gap
   const avgLevel = team.reduce((sum, a) => sum + a.level, 0) / team.length;
-  const difficultyPenalty = Math.max(0, (mission.difficulty * 3 - avgLevel) * 3);
+  const difficultyPenalty = Math.max(0, (mission.difficulty * 4 - avgLevel) * 5);
 
-  return Math.min(100, Math.max(5, Math.round(slotPercent + statPercent + classBonus + familyBonus - difficultyPenalty)));
+  return Math.min(100, Math.max(5, Math.round(statPercent + sizePct + familyBonus - difficultyPenalty)));
 }
 
 /**
@@ -1135,6 +1093,18 @@ export function calcEffectiveDuration(mission: MissionTemplate, team: Adventurer
  * Calculate assassin bonus loot on success.
  * Returns multiplied rewards.
  */
+/** Check if all required slots are satisfied by the team */
+export function areRequiredSlotsFilled(mission: MissionTemplate, team: Adventurer[]): boolean {
+  const available = [...team];
+  for (const slot of mission.slots) {
+    if (!slot.required || slot.class === "any") continue;
+    const idx = available.findIndex((a) => a.class === slot.class);
+    if (idx === -1) return false;
+    available.splice(idx, 1);
+  }
+  return true;
+}
+
 export function calcAssassinBonusRewards(mission: MissionTemplate, team: Adventurer[]): MissionReward[] {
   const assassinCount = team.filter((a) => a.class === "assassin").length;
   if (assassinCount === 0) return mission.rewards;

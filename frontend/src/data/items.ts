@@ -3,6 +3,7 @@
 export type ItemSlot = "head" | "chest" | "legs" | "boots" | "cloak" | "mainHand" | "offHand" | "ring1" | "ring2" | "amulet" | "trinket";
 
 import type { AdventurerClass, AdventurerStats } from "./adventurers";
+import { ALCHEMY_RECIPES } from "./alchemy_recipes";
 
 export interface ItemDefinition {
   id: string;
@@ -391,9 +392,18 @@ export interface MissionSupplyEffect {
 }
 
 const SUPPLY_EFFECTS: Record<string, MissionSupplyEffect> = {
-  "healing_potion_equip":   { successBonus: 0,  deathReduction: 0.5 },  // halves death chance
-  "strength_elixir_equip":  { successBonus: 10, deathReduction: 1.0 },  // +10% success
-  "antidote_equip":         { successBonus: 5,  deathReduction: 0.7 },  // +5% success, -30% death
+  // Old crafted potions
+  "healing_potion_equip":   { successBonus: 0,  deathReduction: 0.5 },
+  "strength_elixir_equip":  { successBonus: 10, deathReduction: 1.0 },
+  "antidote_equip":         { successBonus: 5,  deathReduction: 0.7 },
+  // Alchemy potions
+  "healing_salve":          { successBonus: 0,  deathReduction: 0.75 },
+  "vigor_tea":              { successBonus: 5,  deathReduction: 1.0 },
+  "herbal_antidote":        { successBonus: 5,  deathReduction: 0.85 },
+  "strength_draught":       { successBonus: 10, deathReduction: 1.0 },
+  "mending_potion":         { successBonus: 0,  deathReduction: 0.5 },
+  "swiftfoot_brew":         { successBonus: 3,  deathReduction: 1.0 },
+  "eagle_eye_elixir":       { successBonus: 15, deathReduction: 1.0 },
 };
 
 export function getSupplyEffect(itemId: string): MissionSupplyEffect | undefined {
@@ -409,11 +419,18 @@ export interface InventoryItem {
   quantity: number;
 }
 
-export function getAvailableSupplies(inventory: InventoryItem[]): { item: ItemDefinition; qty: number }[] {
+export function getAvailableSupplies(inventory: InventoryItem[]): { item: { id: string; name: string; icon: string; description: string }; qty: number }[] {
   return inventory
     .filter((inv) => inv.quantity > 0 && isSupplyItem(inv.itemId))
-    .map((inv) => ({ item: getItem(inv.itemId)!, qty: inv.quantity }))
-    .filter((x) => x.item);
+    .map((inv) => {
+      const item = getItem(inv.itemId);
+      if (item) return { item, qty: inv.quantity };
+      // Fall back to alchemy recipe data for herb-brewed potions
+      const alch = ALCHEMY_RECIPES.find((r) => r.id === inv.itemId);
+      if (alch) return { item: { id: alch.id, name: alch.name, icon: alch.icon, description: alch.description }, qty: inv.quantity };
+      return null;
+    })
+    .filter(Boolean) as { item: { id: string; name: string; icon: string; description: string }; qty: number }[];
 }
 
 export const MAX_MISSION_SUPPLIES = 3;
