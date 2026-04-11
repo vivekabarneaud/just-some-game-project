@@ -177,9 +177,11 @@ export default function AdventurersGuild() {
         const idx = remaining.findIndex((a) => a.class === slot.class);
         if (idx !== -1) { assigned[si] = remaining[idx]; remaining.splice(idx, 1); }
       }
-      // Pass 2: fill "any" and non-required slots with remaining
+      // Pass 2: fill non-required slots with remaining (skip unfilled required slots)
       for (let si = 0; si < mission.slots.length; si++) {
         if (assigned[si]) continue;
+        const slot = mission.slots[si];
+        if (slot.required && slot.class !== "any") continue; // reserve for correct class
         if (remaining.length > 0) { assigned[si] = remaining.shift(); }
       }
       // Check: did everyone get placed?
@@ -889,9 +891,11 @@ export default function AdventurersGuild() {
                               const idx = remaining.findIndex((a) => a.class === s.class);
                               if (idx !== -1) { assignments[si] = remaining[idx]; remaining.splice(idx, 1); }
                             }
-                            // Pass 2: fill remaining slots
+                            // Pass 2: fill non-required slots (skip unfilled required slots)
                             for (let si = 0; si < mission().slots.length; si++) {
                               if (assignments[si]) continue;
+                              const s = mission().slots[si];
+                              if (s.required && s.class !== "any") continue;
                               if (remaining.length > 0) { assignments[si] = remaining.shift(); }
                             }
                             return assignments;
