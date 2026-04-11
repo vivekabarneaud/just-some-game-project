@@ -54,7 +54,7 @@ export const ITEMS: ItemDefinition[] = [
 
   // ── Staves (Woodworker) — wizard, priest ──────────────────────
   {
-    id: "wooden_staff", name: "Wooden Staff", icon: "🪄", slot: "mainHand", image: "/images/items/wooden_staff.png",
+    id: "wooden_staff", name: "Wooden Staff", icon: "🪄", slot: "mainHand", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/wooden_staff.png",
     description: "+1 INT",
     classes: ["wizard", "priest"],
     stats: { int: 1 }, durationMod: 1, lootMod: 1,

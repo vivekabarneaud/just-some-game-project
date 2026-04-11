@@ -37,7 +37,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "lumber_mill")?.level ?? 0) >= 1,
     rewards: [{ resource: "wood", amount: 100, label: "Wood" }],
     targetBuildingId: "lumber_mill",
-    image: "/images/stories/quest_1.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_1.png",
   },
   // 2 — Stone Quarry
   {
@@ -50,7 +50,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "quarry")?.level ?? 0) >= 1,
     rewards: [{ resource: "stone", amount: 100, label: "Stone" }],
     targetBuildingId: "quarry",
-    image: "/images/stories/quest_2.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_2.png",
   },
   // 3 — Forager's Hut
   {
@@ -63,7 +63,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "forager_hut")?.level ?? 0) >= 1,
     rewards: [{ resource: "food", amount: 50, label: "Food" }],
     targetBuildingId: "forager_hut",
-    image: "/images/stories/quest_3.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_3.png",
   },
   // 4 — Hunting Camp
   {
@@ -76,7 +76,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "hunting_camp")?.level ?? 0) >= 1,
     rewards: [{ resource: "food", amount: 75, label: "Food" }],
     targetBuildingId: "hunting_camp",
-    image: "/images/stories/quest_4.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_4.png",
   },
   // 5 — Upgrade Lumber Mill to lvl 2
   {
@@ -89,7 +89,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "lumber_mill")?.level ?? 0) >= 2,
     rewards: [{ resource: "wood", amount: 150, label: "Wood" }],
     targetBuildingId: "lumber_mill",
-    image: "/images/stories/quest_5.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_5.png",
   },
   // 6 — Upgrade Stone Quarry to lvl 2
   {
@@ -102,7 +102,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "quarry")?.level ?? 0) >= 2,
     rewards: [{ resource: "stone", amount: 150, label: "Stone" }],
     targetBuildingId: "quarry",
-    image: "/images/stories/quest_6.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_6.png",
   },
   // 7 — Houses
   {
@@ -115,7 +115,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "houses")?.level ?? 0) >= 1,
     rewards: [{ resource: "food", amount: 25, label: "Food" }],
     targetBuildingId: "houses",
-    image: "/images/stories/quest_7.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_7.png",
   },
   // 8 — Fishing Hut
   {
@@ -128,7 +128,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "fishing_hut")?.level ?? 0) >= 1,
     rewards: [{ resource: "food", amount: 50, label: "Food" }],
     targetBuildingId: "fishing_hut",
-    image: "/images/stories/quest_8.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_8.png",
   },
   // 9 — Pantry
   {
@@ -141,7 +141,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "pantry")?.level ?? 0) >= 1,
     rewards: [{ resource: "food", amount: 50, label: "Food" }],
     targetBuildingId: "pantry",
-    image: "/images/stories/quest_9.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_9.png",
   },
   // 10 — Adventurer's Guild (the big early unlock!)
   {
@@ -153,7 +153,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     icon: "🏰",
     condition: (s) => (bldg(s, "adventurers_guild")?.level ?? 0) >= 1,
     targetBuildingId: "adventurers_guild",
-    image: "/images/stories/quest_10.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_10.png",
     rewards: [
       { resource: "gold", amount: 40, label: "Gold" },
       { resource: "astralShards", amount: 5, label: "Astral Shards" },
@@ -170,7 +170,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => s.adventurers.length >= 1,
     rewards: [{ resource: "gold", amount: 40, label: "Gold" }],
     targetPage: "/guild",
-    image: "/images/stories/quest_11.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_11.png",
   },
   // 12 — Send mission
   {
@@ -183,7 +183,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => s.firstMissionSent === true,
     rewards: [{ resource: "astralShards", amount: 10, label: "Astral Shards" }],
     targetPage: "/guild",
-    image: "/images/stories/quest_12.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_12.png",
   },
   // 13 — Field or Garden
   {
@@ -196,7 +196,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => s.fields.some((f) => f.level >= 1) || s.gardens.some((g) => g.level >= 1),
     rewards: [{ resource: "food", amount: 75, label: "Food" }],
     targetPage: "/farming",
-    image: "/images/stories/quest_13.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_13.png",
   },
   // 14 — Sheep Pen
   {
@@ -209,7 +209,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => s.pens.some((p) => p.level >= 1),
     rewards: [{ resource: "food", amount: 50, label: "Food" }],
     targetPage: "/farming",
-    image: "/images/stories/quest_14.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_14.png",
   },
   // 15 — Tailoring Shop
   {
@@ -248,7 +248,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "town_hall")?.level ?? 0) >= 2,
     rewards: [{ resource: "gold", amount: 40, label: "Gold" }],
     targetBuildingId: "town_hall",
-    image: "/images/buildings/settlement_camp.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/settlement_camp.png",
   },
   // 16 — Build a Marketplace
   {
@@ -264,7 +264,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
       { resource: "wood", amount: 100, label: "Wood" },
     ],
     targetBuildingId: "marketplace",
-    image: "/images/buildings/marketplace.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/marketplace.png",
   },
   // 17 — Build a Woodworker
   {
@@ -277,7 +277,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "woodworker")?.level ?? 0) >= 1,
     rewards: [{ resource: "wood", amount: 200, label: "Wood" }],
     targetBuildingId: "woodworker",
-    image: "/images/buildings/woodworker.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/woodworker.png",
   },
   // 18 — Craft a weapon
   {
@@ -302,7 +302,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "shrine")?.level ?? 0) >= 1,
     rewards: [{ resource: "gold", amount: 30, label: "Gold" }],
     targetBuildingId: "shrine",
-    image: "/images/buildings/shrine.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/shrine.png",
   },
   // 20 — Town Hall lvl 3
   {
@@ -314,7 +314,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     icon: "⭐",
     condition: (s) => (bldg(s, "town_hall")?.level ?? 0) >= 3,
     targetBuildingId: "town_hall",
-    image: "/images/buildings/settlement_village.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/settlement_village.png",
     rewards: [
       { resource: "gold", amount: 60, label: "Gold" },
       { resource: "astralShards", amount: 5, label: "Astral Shards" },
@@ -333,7 +333,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "walls")?.level ?? 0) >= 1,
     rewards: [{ resource: "stone", amount: 100, label: "Stone" }],
     targetBuildingId: "walls",
-    image: "/images/buildings/walls.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/walls.png",
     triggersRaid: true, // special flag — spawns a weak raid when quest appears
   },
   // 22 — Survive the raid
@@ -361,6 +361,6 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "watchtower")?.level ?? 0) >= 1,
     rewards: [{ resource: "wood", amount: 100, label: "Wood" }],
     targetBuildingId: "watchtower",
-    image: "/images/buildings/watchtower.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/watchtower.png",
   },
 ];

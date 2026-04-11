@@ -16,10 +16,10 @@ const SECTIONS: { key: BuildingDefinition["category"]; label: string; icon: stri
 ];
 
 const TIER_IMAGES: Record<string, string> = {
-  camp: "/images/buildings/settlement_camp.png",
-  village: "/images/buildings/settlement_village.png",
-  town: "/images/buildings/settlement_town.png",
-  city: "/images/buildings/settlement_city.png",
+  camp: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/settlement_camp.png",
+  village: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/settlement_village.png",
+  town: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/settlement_town.png",
+  city: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/settlement_city.png",
 };
 
 export default function Buildings() {

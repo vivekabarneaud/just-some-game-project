@@ -58,7 +58,7 @@ export const RAID_POOL: RaidTemplate[] = [
     name: "Hungry Bandits",
     description: "A small group of desperate bandits looking for an easy meal.",
     icon: "🗡️",
-    image: "/images/raids/hungry_bandits.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/hungry_bandits.png",
     tags: ["bandits"],
     strength: 25,
     stealsResources: true,
@@ -162,7 +162,7 @@ export const RAID_POOL: RaidTemplate[] = [
     minTier: "town",
     baseWarning: 8,
     victoryLoot: [{ resource: "stone", amount: 60 }, { resource: "gold", amount: 40 }],
-    image: "/images/raids/skeleton_horde.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/skeleton_horde.png",
   },
   {
     id: "mercenary_company",

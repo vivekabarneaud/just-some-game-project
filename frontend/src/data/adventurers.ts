@@ -513,24 +513,24 @@ const FEMALE_NAMES = new Set(
 
 const CLASS_PORTRAITS: Record<AdventurerClass, { male: string[]; female: string[] }> = {
   warrior: {
-    male: ["/images/characters/warrior_male_1.png", "/images/characters/warrior_male_2.png"],
-    female: ["/images/characters/warrior_female_1.png", "/images/characters/warrior_female_2.png"],
+    male: ["https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/warrior_male_1.png", "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/warrior_male_2.png"],
+    female: ["https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/warrior_female_1.png", "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/warrior_female_2.png"],
   },
   wizard: {
-    male: ["/images/characters/wizard_male_1.png", "/images/characters/wizard_male_2.png"],
-    female: ["/images/characters/wizard_female_1.png", "/images/characters/wizard_female_2.png"],
+    male: ["https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/wizard_male_1.png", "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/wizard_male_2.png"],
+    female: ["https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/wizard_female_1.png", "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/wizard_female_2.png"],
   },
   priest: {
-    male: ["/images/characters/priest_male_1.png", "/images/characters/priest_male_2.png"],
-    female: ["/images/characters/priest_female_1.png", "/images/characters/priest_female_2.png", "/images/characters/priest_female_3.png"],
+    male: ["https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/priest_male_1.png", "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/priest_male_2.png"],
+    female: ["https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/priest_female_1.png", "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/priest_female_2.png", "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/priest_female_3.png"],
   },
   archer: {
-    male: ["/images/characters/archer_male_1.png", "/images/characters/archer_male_2.png"],
-    female: ["/images/characters/archer_female_1.png", "/images/characters/archer_female_2.png"],
+    male: ["https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/archer_male_1.png", "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/archer_male_2.png"],
+    female: ["https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/archer_female_1.png", "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/archer_female_2.png"],
   },
   assassin: {
-    male: ["/images/characters/assassin_male_1.png", "/images/characters/assassin_male_2.png"],
-    female: ["/images/characters/assassin_female_1.png", "/images/characters/assassin_female_2.png"],
+    male: ["https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/assassin_male_1.png", "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/assassin_male_2.png"],
+    female: ["https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/assassin_female_1.png", "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/assassin_female_2.png"],
   },
 };
 

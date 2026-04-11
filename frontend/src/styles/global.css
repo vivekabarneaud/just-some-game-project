@@ -747,7 +747,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: url("/images/parchment_texture.png");
+  background-image: url("https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/parchment_texture.png");
   background-size: cover;
   opacity: 0.08;
   pointer-events: none;

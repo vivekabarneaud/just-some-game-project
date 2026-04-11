@@ -74,7 +74,7 @@ export default function Alchemy() {
         "z-index": 0, "pointer-events": "none",
       }}>
         <img
-          src="/images/buildings/alchemy_lab.png"
+          src="https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/alchemy_lab.png"
           alt=""
           style={{ width: "100%", height: "100%", "object-fit": "cover", "object-position": "center 30%", opacity: "0.25" }}
         />

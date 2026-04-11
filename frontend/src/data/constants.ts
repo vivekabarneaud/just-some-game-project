@@ -1,3 +1,12 @@
+// ─── Asset CDN ──────────────────────────────────────────────────
+// All images are served from Cloudflare R2. Set to "" for local dev fallback.
+export const CDN_BASE = "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev";
+
+/** Prefix an image path with the CDN base URL */
+export function cdnUrl(path: string): string {
+  return CDN_BASE + path;
+}
+
 // ─── Shared UI Constants ────────────────────────────────────────
 
 export const DIFFICULTY_LABELS: Record<number, string> = {
