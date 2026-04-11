@@ -968,6 +968,8 @@ export default function AdventurersGuild() {
                                       style={{
                                         display: "flex",
                                         gap: "8px",
+                                        width: "200px",
+                                        height: "64px",
                                         background: isInTeam() ? `${classColor()}18` : "rgba(255, 255, 255, 0.03)",
                                         border: `1px solid ${classColor()}`,
                                         "border-radius": "6px",
@@ -990,17 +992,20 @@ export default function AdventurersGuild() {
                                       <img
                                         src={getPortrait(adv().name, adv().class)}
                                         alt={adv().name}
-                                        style={{ width: "56px", height: "56px", "object-fit": "cover", display: "block", "flex-shrink": "0" }}
+                                        style={{ width: "64px", height: "64px", "object-fit": "cover", display: "block", "flex-shrink": "0" }}
                                       />
-                                      <div style={{ padding: "4px 8px 4px 0", display: "flex", "flex-direction": "column", "justify-content": "center", "min-width": "0" }}>
-                                        <div style={{ "font-size": "0.75rem", color: "var(--text-primary)", "font-weight": isInTeam() ? "bold" : "normal", "white-space": "nowrap" }}>
+                                      <div style={{ padding: "6px 8px 6px 0", display: "flex", "flex-direction": "column", "justify-content": "center", flex: "1", "min-width": "0" }}>
+                                        <div style={{ "font-size": "0.75rem", color: "var(--text-primary)", "font-weight": isInTeam() ? "bold" : "normal", "white-space": "nowrap", overflow: "hidden", "text-overflow": "ellipsis" }}>
                                           {adv().name}
                                         </div>
                                         <div style={{ "font-size": "0.65rem", color: RANK_COLORS[adv().rank] }}>
                                           {RANK_NAMES[adv().rank]} · Lv.{adv().level}
                                         </div>
-                                        <div style={{ "margin-top": "3px", height: "3px", background: "var(--bg-primary)", "border-radius": "2px", width: "100%", "min-width": "50px" }}>
-                                          <div style={{ height: "100%", width: `${xpPct()}%`, background: classColor(), "border-radius": "2px" }} />
+                                        <div style={{ "margin-top": "4px", position: "relative" }}>
+                                          <span style={{ "font-size": "0.45rem", color: "var(--text-muted)", position: "absolute", top: "-8px", left: "0" }}>EXP</span>
+                                          <div style={{ height: "3px", background: "var(--bg-primary)", "border-radius": "2px" }}>
+                                            <div style={{ height: "100%", width: `${xpPct()}%`, background: "var(--accent-blue)", "border-radius": "2px" }} />
+                                          </div>
                                         </div>
                                       </div>
                                     </div>

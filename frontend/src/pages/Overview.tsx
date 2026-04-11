@@ -492,7 +492,7 @@ export default function Overview() {
                           src={raid()!.image!}
                           alt=""
                           style={{
-                            width: "100%", height: "100%", "object-fit": "cover", "object-position": "center 80%", opacity: "0.2",
+                            width: "100%", height: "100%", "object-fit": "cover", "object-position": "center 30%", opacity: "0.2",
                             "-webkit-mask-image": "linear-gradient(to right, black 30%, transparent 100%)",
                             "mask-image": "linear-gradient(to right, black 30%, transparent 100%)",
                           }}
