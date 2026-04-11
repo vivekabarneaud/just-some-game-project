@@ -768,39 +768,45 @@ export default function AdventurersGuild() {
 
                     <div class="mission-detail-section">
                       <div class="mission-detail-label">Team ({selectedTeam().length}/{mission().slots.length})</div>
-                      <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
-                        {mission().slots.map((slot, i) => {
-                          // Smart slot assignment: required slots get matching classes first
-                          const slotAssignments = () => {
-                            const assignments: (Adventurer | undefined)[] = new Array(mission().slots.length).fill(undefined);
-                            const unassigned = selectedTeam().map((id) => state.adventurers.find((a) => a.id === id)).filter(Boolean) as Adventurer[];
-                            const remaining = [...unassigned];
-                            // Pass 1: fill required slots with matching classes
-                            for (let si = 0; si < mission().slots.length; si++) {
-                              const s = mission().slots[si];
-                              if (!s.required || s.class === "any") continue;
-                              const idx = remaining.findIndex((a) => a.class === s.class);
-                              if (idx !== -1) { assignments[si] = remaining[idx]; remaining.splice(idx, 1); }
-                            }
-                            // Pass 2: fill non-required slots (skip unfilled required slots)
-                            for (let si = 0; si < mission().slots.length; si++) {
-                              if (assignments[si]) continue;
-                              const s = mission().slots[si];
-                              if (s.required && s.class !== "any") continue;
-                              if (remaining.length > 0) { assignments[si] = remaining.shift(); }
-                            }
-                            return assignments;
-                          };
-                          const assigned = () => slotAssignments()[i];
-                          return (
-                            <TeamSlot
-                              slot={slot}
-                              adventurer={assigned()}
-                              onClick={() => { if (assigned()) toggleTeamMember(assigned()!.id); }}
-                            />
-                          );
-                        })}
-                      </div>
+                      {(() => {
+                        // Compute slot assignments once, reactively
+                        const slotAssignments = createMemo(() => {
+                          const assignments: (Adventurer | undefined)[] = new Array(mission().slots.length).fill(undefined);
+                          const unassigned = selectedTeam().map((id) => state.adventurers.find((a) => a.id === id)).filter(Boolean) as Adventurer[];
+                          const remaining = [...unassigned];
+                          // Pass 1: fill required slots with matching classes
+                          for (let si = 0; si < mission().slots.length; si++) {
+                            const s = mission().slots[si];
+                            if (!s.required || s.class === "any") continue;
+                            const idx = remaining.findIndex((a) => a.class === s.class);
+                            if (idx !== -1) { assignments[si] = remaining[idx]; remaining.splice(idx, 1); }
+                          }
+                          // Pass 2: fill non-required slots (skip unfilled required slots)
+                          for (let si = 0; si < mission().slots.length; si++) {
+                            if (assignments[si]) continue;
+                            const s = mission().slots[si];
+                            if (s.required && s.class !== "any") continue;
+                            if (remaining.length > 0) { assignments[si] = remaining.shift(); }
+                          }
+                          return assignments;
+                        });
+                        return (
+                          <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
+                            <For each={mission().slots}>
+                              {(slot, i) => (
+                                <TeamSlot
+                                  slot={slot}
+                                  adventurer={slotAssignments()[i()]}
+                                  onClick={() => {
+                                    const adv = slotAssignments()[i()];
+                                    if (adv) toggleTeamMember(adv.id);
+                                  }}
+                                />
+                              )}
+                            </For>
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     <div class="mission-detail-section">
