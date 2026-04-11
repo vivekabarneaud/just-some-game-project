@@ -263,21 +263,29 @@ function buildAdventurerUnit(adv: Adventurer): CombatUnit {
   };
 }
 
+// Tier-based stat scaling so enemies keep up with adventurer growth
+const ENEMY_TIER_MULT: Record<number, number> = { 1: 1.0, 2: 1.4, 3: 1.8, 4: 2.2, 5: 2.6 };
+
 function buildEnemyUnits(encounters: MissionEncounter[]): CombatUnit[] {
   const units: CombatUnit[] = [];
   for (const enc of encounters) {
     const def = getEnemy(enc.enemyId);
     if (!def) continue;
     const isMagical = def.tags.includes("magical") || def.tags.includes("demon");
+    const mult = ENEMY_TIER_MULT[def.tier] ?? 1;
     for (let i = 0; i < enc.count; i++) {
-      const hp = def.stats.vit * 10;
+      const vit = Math.round(def.stats.vit * mult);
+      const hp = vit * 10;
       units.push({
         id: `${def.id}_${i}`,
         name: enc.count > 1 ? `${def.name} ${i + 1}` : def.name,
         icon: def.icon, isEnemy: true,
         hp, maxHp: hp,
-        str: def.stats.str, dex: def.stats.dex, int: def.stats.int,
-        vit: def.stats.vit, wis: def.stats.wis ?? 0,
+        str: Math.round(def.stats.str * mult),
+        dex: Math.round(def.stats.dex * mult),
+        int: Math.round(def.stats.int * mult),
+        vit,
+        wis: Math.round((def.stats.wis ?? 0) * mult),
         class: undefined, isMagical, gearDefense: 0,
         enemyTags: def.tags,
         enemyDefId: def.id,

@@ -855,10 +855,16 @@ export default function AdventurersGuild() {
                     <div class="mission-detail-section">
                       <div class="mission-detail-label">Team ({selectedTeam().length}/{mission().slots.length})</div>
                       <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
-                        {mission().slots.map((_slot, i) => {
+                        {mission().slots.map((slot, i) => {
                           const assigned = () => {
                             const id = selectedTeam()[i];
                             return id ? state.adventurers.find((a) => a.id === id) : undefined;
+                          };
+                          const requiredClass = () => slot.required && slot.class !== "any" ? getClassMeta(slot.class) : null;
+                          const slotBorderColor = () => {
+                            if (assigned()) return CLASS_COLORS[assigned()!.class] ?? "var(--border-color)";
+                            if (requiredClass()) return CLASS_COLORS[slot.class as keyof typeof CLASS_COLORS] ?? "var(--border-color)";
+                            return "var(--border-color)";
                           };
                           return (
                             <div
@@ -866,7 +872,7 @@ export default function AdventurersGuild() {
                               style={{
                                 width: "80px", height: "110px",
                                 background: "rgba(255, 255, 255, 0.03)",
-                                border: assigned() ? `1px solid ${CLASS_COLORS[assigned()!.class] ?? "var(--border-color)"}` : "1px dashed var(--border-color)",
+                                border: assigned() ? `1px solid ${slotBorderColor()}` : `1px dashed ${slotBorderColor()}`,
                                 "border-radius": "6px",
                                 overflow: "hidden",
                                 cursor: assigned() ? "pointer" : "default",
@@ -878,9 +884,11 @@ export default function AdventurersGuild() {
                               <Show when={assigned()} fallback={
                                 <div style={{
                                   width: "80px", height: "80px",
-                                  display: "flex", "align-items": "center", "justify-content": "center",
-                                  "font-size": "2rem", color: "var(--text-muted)", opacity: "0.3",
-                                }}>👤</div>
+                                  display: "flex", "flex-direction": "column", "align-items": "center", "justify-content": "center",
+                                  "font-size": requiredClass() ? "1.5rem" : "2rem", color: "var(--text-muted)", opacity: "0.3",
+                                }}>
+                                  {requiredClass() ? requiredClass()!.icon : "👤"}
+                                </div>
                               }>
                                 <img
                                   src={getZoomedPortrait(assigned()!.name, assigned()!.class)}
@@ -892,14 +900,14 @@ export default function AdventurersGuild() {
                                 padding: "2px 4px",
                                 "text-align": "center",
                                 "font-size": "0.6rem",
-                                color: assigned() ? CLASS_COLORS[assigned()!.class] ?? "var(--text-secondary)" : "var(--text-muted)",
+                                color: assigned() ? CLASS_COLORS[assigned()!.class] ?? "var(--text-secondary)" : requiredClass() ? slotBorderColor() : "var(--text-muted)",
                                 "line-height": "1.15",
                                 flex: "1",
                                 display: "flex",
                                 "align-items": "center",
                                 "justify-content": "center",
                               }}>
-                                {assigned() ? assigned()!.name.split(" ")[0] : "Empty"}
+                                {assigned() ? assigned()!.name.split(" ")[0] : requiredClass() ? requiredClass()!.name : "Any"}
                               </div>
                             </div>
                           );
