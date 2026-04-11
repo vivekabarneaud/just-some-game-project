@@ -539,10 +539,9 @@ export default function AdventurerDetail() {
                           );
                         })()}
                       <div style={{
-                        position: "relative", height: `${totalHeight()}px`, "margin": "0 auto", width: `${totalWidth()}px`,
+                        position: "relative", height: `${totalHeight() + 16}px`, "margin": "0 auto", width: `${totalWidth() + 64}px`,
                         background: "linear-gradient(to right, rgba(52, 152, 219, 0.12) 0%, transparent 30%, transparent 70%, rgba(155, 89, 182, 0.12) 100%)",
                         "border-radius": "8px",
-                        padding: "8px 32px",
                       }}>
                         {/* SVG connection lines */}
                         <svg style={{
@@ -557,8 +556,8 @@ export default function AdventurerDetail() {
                               if (!from || !to) return null;
                               return (
                                 <line
-                                  x1={from.x + NODE_W / 2} y1={from.y + NODE_H}
-                                  x2={to.x + NODE_W / 2} y2={to.y}
+                                  x1={from.x + NODE_W / 2 + 32} y1={from.y + NODE_H + 8}
+                                  x2={to.x + NODE_W / 2 + 32} y2={to.y + 8}
                                   stroke={conn.unlocked ? "rgba(245, 197, 66, 0.6)" : "rgba(255, 255, 255, 0.1)"}
                                   stroke-width={conn.unlocked ? "2" : "1"}
                                   stroke-dasharray={conn.unlocked ? "" : "4 4"}
@@ -593,8 +592,8 @@ export default function AdventurerDetail() {
                                   }}
                                   style={{
                                     position: "absolute",
-                                    left: `${pos()?.x ?? 0}px`,
-                                    top: `${pos()?.y ?? 0}px`,
+                                    left: `${(pos()?.x ?? 0) + 32}px`,
+                                    top: `${(pos()?.y ?? 0) + 8}px`,
                                     width: `${NODE_W}px`,
                                     height: `${NODE_H}px`,
                                   }}
