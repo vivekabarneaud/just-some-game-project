@@ -13,6 +13,7 @@ import {
   getMissionXp,
   getUnspentStatPoints,
   getPortrait,
+  getZoomedPortrait,
   getOrigin,
   RACE_NAMES,
   BACKSTORY_TRAITS,
@@ -881,7 +882,7 @@ export default function AdventurersGuild() {
                                 }}>👤</div>
                               }>
                                 <img
-                                  src={getPortrait(assigned()!.name, assigned()!.class)}
+                                  src={getZoomedPortrait(assigned()!.name, assigned()!.class)}
                                   alt={assigned()!.name}
                                   style={{ width: "80px", height: "80px", "object-fit": "cover", display: "block", "flex-shrink": "0" }}
                                 />

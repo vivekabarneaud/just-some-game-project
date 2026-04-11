@@ -547,6 +547,10 @@ export function getPortrait(name: string, cls: AdventurerClass): string {
   return portraits[hash % portraits.length];
 }
 
+export function getZoomedPortrait(name: string, cls: AdventurerClass): string {
+  return getPortrait(name, cls).replace(".png", "_zoomed.png");
+}
+
 // Simple seeded random for reproducibility within a session
 let adventurerSeed = Date.now();
 function seededRandom(): number {
