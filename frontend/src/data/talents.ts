@@ -368,7 +368,124 @@ export const WIZARD_TALENTS: TalentNode[] = [
     children: [], isCapstone: true, title: "Inquisitor" },
 ];
 
-export const ALL_TALENTS: TalentNode[] = [...WARRIOR_TALENTS, ...PRIEST_TALENTS, ...WIZARD_TALENTS];
+// ─── Archer Talent Tree ──────────────────────────────────────────
+//
+//  Row 0:                     [DEX +5]
+//                           /    |    \
+//  Row 1:            [WIS +5] [DEX +5] [DEX +5]
+//                      |        |         |
+//  Row 2:         [Enchanted [Precision [Venomous
+//                  Arrows]    Shot]      Tips]
+//                    / \       / \       / \
+//  Row 3:    [Thorns][Cauterize][Crit][AoEVolley][PoisonStun][Silence]
+//               |      |        |      |          |           |
+//  Row 4:   [WIS+5] [WIS+5] [DEX+5] [DEX+5]   [DEX+5]    [DEX+5]
+//                \    /        \    /            \          /
+//  Row 5:    [Primalist]    [Sharpshooter]      [Hunter]
+
+export const ARCHER_TALENTS: TalentNode[] = [
+  // ── Row 0: Entry ──────────────────────────────────────────────
+  { id: "a_dex1", name: "Steady Hand", icon: "🏃", class: "archer", row: 0,
+    description: "+5 Dexterity",
+    children: ["a_wis1", "a_dex2", "a_dex3"] },
+
+  // ── Row 1: Path commitment ────────────────────────────────────
+  { id: "a_wis1", name: "Nature's Eye", icon: "📖", class: "archer", row: 1,
+    description: "+5 Wisdom — The forest taught you to shoot before any master did",
+    children: ["a_enchanted"] },
+
+  { id: "a_dex2", name: "Dead Eye", icon: "🏃", class: "archer", row: 1,
+    description: "+5 Dexterity — One arrow, one kill. No wasted motion",
+    children: ["a_precision"] },
+
+  { id: "a_dex3", name: "Viper's Touch", icon: "🏃", class: "archer", row: 1,
+    description: "+5 Dexterity — The arrow is just the delivery method",
+    children: ["a_venom"] },
+
+  // ── Row 2: First themed talent ────────────────────────────────
+  { id: "a_enchanted", name: "Enchanted Arrows", icon: "✨", class: "archer", row: 2,
+    description: "Arrows cycle elements: frost (slows 2 rounds), fire (DOT 3 rounds), lightning (chains to adjacent enemy)",
+    children: ["a_thorns", "a_cauterize", "a_crit", "a_volley", "a_poison_stun", "a_silence"] },
+
+  { id: "a_precision", name: "Precision Shot", icon: "🎯", class: "archer", row: 2,
+    description: "+20% critical strike chance. Critical hits deal 2x damage (up from 1.5x)",
+    children: ["a_thorns", "a_cauterize", "a_crit", "a_volley", "a_poison_stun", "a_silence"] },
+
+  { id: "a_venom", name: "Venomous Tips", icon: "☠️", class: "archer", row: 2,
+    description: "All arrows apply poison: 10% attack power per round for 3 rounds. Stacks up to 3 times",
+    children: ["a_thorns", "a_cauterize", "a_crit", "a_volley", "a_poison_stun", "a_silence"] },
+
+  // ── Row 3: Specialization branches ────────────────────────────
+  // Primalist branches
+  { id: "a_thorns", name: "Thorn Wall", icon: "🌿", class: "archer", row: 3,
+    description: "New ability: summon a wall of thorns. All enemies take 15% WIS as nature damage per round for 3 rounds. CD 4",
+    children: ["a_wis2"] },
+
+  { id: "a_cauterize", name: "Cauterizing Arrow", icon: "🔥", class: "archer", row: 3,
+    description: "Fire arrows now remove bleeds and poisons from allies they pass near. Heals the cleansed ally for 10% max HP",
+    children: ["a_wis3"] },
+
+  // Sharpshooter branches
+  { id: "a_crit", name: "Killing Blow", icon: "💀", class: "archer", row: 3,
+    description: "Critical strikes against targets below 30% HP deal triple damage. Kills grant +15% attack for next round",
+    children: ["a_dex4"] },
+
+  { id: "a_volley", name: "Arrow Storm", icon: "🏹", class: "archer", row: 3,
+    description: "Multi-Shot upgraded: hits ALL enemies for 50% damage. If 3+ enemies are hit, cooldown resets immediately",
+    children: ["a_dex5"] },
+
+  // Hunter branches
+  { id: "a_poison_stun", name: "Paralyzing Venom", icon: "🕸️", class: "archer", row: 3,
+    description: "At 3 poison stacks, the target is stunned for 1 round (skips turn). Stun clears the stacks",
+    children: ["a_dex6"] },
+
+  { id: "a_silence", name: "Numbing Toxin", icon: "🤐", class: "archer", row: 3,
+    description: "Poisoned targets deal 25% less damage. Poisoned casters have a 40% chance to fail their spells",
+    children: ["a_dex7"] },
+
+  // ── Row 4: Final stat nodes ───────────────────────────────────
+  // Primalist stats
+  { id: "a_wis2", name: "Thornveil Bond", icon: "📖", class: "archer", row: 4,
+    description: "+5 Wisdom — The forest fights through you",
+    children: ["a_cap_primalist"] },
+
+  { id: "a_wis3", name: "Living Arrow", icon: "📖", class: "archer", row: 4,
+    description: "+5 Wisdom — Your arrows grow leaves before they land",
+    children: ["a_cap_primalist"] },
+
+  // Sharpshooter stats
+  { id: "a_dex4", name: "Lethal Precision", icon: "🏃", class: "archer", row: 4,
+    description: "+5 Dexterity — You don't aim anymore. Your body just knows",
+    children: ["a_cap_sharpshooter"] },
+
+  { id: "a_dex5", name: "Storm of Steel", icon: "🏃", class: "archer", row: 4,
+    description: "+5 Dexterity — The sky darkens with arrows before they even see you",
+    children: ["a_cap_sharpshooter"] },
+
+  // Hunter stats
+  { id: "a_dex6", name: "Patient Predator", icon: "🏃", class: "archer", row: 4,
+    description: "+5 Dexterity — Wait for the poison to work. Then strike",
+    children: ["a_cap_hunter"] },
+
+  { id: "a_dex7", name: "Toxic Mastery", icon: "🏃", class: "archer", row: 4,
+    description: "+5 Dexterity — Every scratch is a death sentence on a timer",
+    children: ["a_cap_hunter"] },
+
+  // ── Row 5: Capstones ──────────────────────────────────────────
+  { id: "a_cap_primalist", name: "Warden of the Wild", icon: "🌀", class: "archer", row: 5,
+    description: "Enchanted arrows trigger all three elements at once. Thorn Wall now also heals all allies for 10% max HP per round. Nature damage increased by 40%.",
+    children: [], isCapstone: true, title: "Primalist" },
+
+  { id: "a_cap_sharpshooter", name: "Perfect Shot", icon: "🎯", class: "archer", row: 5,
+    description: "Critical strike chance +25%. Once per combat, fire a Perfect Shot: guaranteed critical that deals 5x damage to the highest-HP enemy and cannot miss.",
+    children: [], isCapstone: true, title: "Sharpshooter" },
+
+  { id: "a_cap_hunter", name: "Master Toxicologist", icon: "☠️", class: "archer", row: 5,
+    description: "Poison stacks cap increased to 5. At 5 stacks, the target takes 50% of their max HP as immediate poison damage. Poisoned enemies cannot heal.",
+    children: [], isCapstone: true, title: "Hunter" },
+];
+
+export const ALL_TALENTS: TalentNode[] = [...WARRIOR_TALENTS, ...PRIEST_TALENTS, ...WIZARD_TALENTS, ...ARCHER_TALENTS];
 
 // ─── Helpers ────────────────────────────────────────────────────
 
