@@ -105,6 +105,7 @@ import {
   ORIGINS,
   getOriginsForRace,
   getOrigin,
+  isFemale,
   BACKSTORY_TRAITS,
   PERSONALITY_QUIRKS,
 } from "~/data/adventurers";
@@ -1105,7 +1106,7 @@ function loadGame(): GameState | null {
     // Talent migration
     for (const adv of saved.adventurers) { if (!adv.talents) adv.talents = []; }
     for (const adv of saved.recruitCandidates) { if (!adv.talents) adv.talents = []; }
-    // Name migration: regenerate names to match origin
+    // Name migration: regenerate names to match origin, preserving gender
     const renameTo = (adv: any) => {
       if (!adv.origin) return;
       const origin = getOrigin(adv.origin);
@@ -1113,10 +1114,11 @@ function loadGame(): GameState | null {
       const firstName = adv.name.split(" ")[0];
       const allNames = [...origin.firstNamesMale, ...origin.firstNamesFemale];
       if (allNames.includes(firstName)) return; // already matches
-      // Deterministic pick based on adventurer ID
+      // Preserve original gender: check if old name is female
+      const wasFemaleName = isFemale(firstName);
       const idNum = parseInt(adv.id.replace(/\D/g, ""), 10) || 0;
-      const isFemale = origin.firstNamesFemale.length > 0 && (idNum % 2 === 0);
-      const pool = isFemale ? origin.firstNamesFemale : origin.firstNamesMale;
+      const pool = wasFemaleName ? origin.firstNamesFemale : origin.firstNamesMale;
+      if (pool.length === 0) return;
       const newFirst = pool[idNum % pool.length];
       const newLast = origin.lastNames[Math.floor(idNum / 3) % origin.lastNames.length];
       adv.name = `${newFirst} ${newLast}`;
