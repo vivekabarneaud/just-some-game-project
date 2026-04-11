@@ -155,41 +155,47 @@ export default function AdventurersGuild() {
   const currentTeam = (): Adventurer[] =>
     selectedTeam().map((id) => state.adventurers.find((a) => a.id === id)).filter(Boolean) as Adventurer[];
 
-  // Combat simulation key: changes only when team or mission changes
-  const simKey = () => {
-    const m = selectedMission();
-    const t = selectedTeam();
-    return m ? `${m.id}:${t.join(",")}` : "";
-  };
+  // Success chance: cached per team+mission combo, not reactive to game ticks
+  const [successCache, setSuccessCache] = createSignal<{ key: string; value: number }>({ key: "", value: 0 });
 
-  const teamSuccessChance = createMemo(() => {
-    const _key = simKey(); // reactive dependency on team + mission
+  const teamSuccessChance = () => {
     const mission = selectedMission();
-    if (!mission) return 0;
-    const team = currentTeam();
-    if (team.length === 0) return 0;
+    const teamIds = selectedTeam();
+    if (!mission || teamIds.length === 0) return 0;
 
-    // Combat missions: run 25 simulations for an accurate preview
+    const key = `${mission.id}:${teamIds.join(",")}`;
+    if (successCache().key === key) return successCache().value;
+
+    // Snapshot team data (unwrap proxies, avoid reactive dependency on store)
+    const team = teamIds.map((id) => {
+      const a = state.adventurers.find((x) => x.id === id);
+      return a ? JSON.parse(JSON.stringify(a)) : null;
+    }).filter(Boolean) as Adventurer[];
+
+    let result: number;
+
+    // Combat missions: run 25 simulations
     const freshMission = getMission(mission.id);
     if (freshMission?.encounters?.length) {
-      const plainTeam = team.map((a) => JSON.parse(JSON.stringify(a)));
       let wins = 0;
       const SIMS = 25;
       for (let i = 0; i < SIMS; i++) {
-        const result = simulateCombat(freshMission, plainTeam);
-        if (result?.victory) wins++;
+        const r = simulateCombat(freshMission, team);
+        if (r?.victory) wins++;
       }
-      return Math.round((wins / SIMS) * 100);
+      result = Math.round((wins / SIMS) * 100);
+    } else {
+      // Non-combat missions: use formula + supply bonuses
+      result = calcSuccessChance(mission, team);
+      for (const supplyId of selectedSupplies()) {
+        const effect = getSupplyEffect(supplyId);
+        if (effect) result = Math.min(100, result + effect.successBonus);
+      }
     }
 
-    // Non-combat missions: use formula + supply bonuses
-    let chance = calcSuccessChance(mission, team);
-    for (const supplyId of selectedSupplies()) {
-      const effect = getSupplyEffect(supplyId);
-      if (effect) chance = Math.min(100, chance + effect.successBonus);
-    }
-    return chance;
-  });
+    setSuccessCache({ key, value: result });
+    return result;
+  };
 
   const teamEffectiveDuration = () => {
     const mission = selectedMission();
