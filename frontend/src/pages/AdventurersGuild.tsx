@@ -154,6 +154,28 @@ export default function AdventurersGuild() {
     setSelectedTeam([]);
   };
 
+  /** Try to assign a list of adventurers to mission slots. Returns true if everyone fits. */
+  const canFitInSlots = (mission: MissionTemplate, advIds: string[]): boolean => {
+    const candidates = advIds.map((id) => state.adventurers.find((a) => a.id === id)).filter(Boolean) as Adventurer[];
+    const remaining = [...candidates];
+    const assigned: (Adventurer | undefined)[] = new Array(mission.slots.length).fill(undefined);
+    // Pass 1: fill required slots with matching classes
+    for (let si = 0; si < mission.slots.length; si++) {
+      const slot = mission.slots[si];
+      if (!slot.required || slot.class === "any") continue;
+      const idx = remaining.findIndex((a) => a.class === slot.class);
+      if (idx !== -1) { assigned[si] = remaining[idx]; remaining.splice(idx, 1); }
+    }
+    // Pass 2: fill non-required slots (skip unfilled required slots)
+    for (let si = 0; si < mission.slots.length; si++) {
+      if (assigned[si]) continue;
+      const slot = mission.slots[si];
+      if (slot.required && slot.class !== "any") continue;
+      if (remaining.length > 0) { assigned[si] = remaining.shift(); }
+    }
+    return remaining.length === 0;
+  };
+
   const toggleTeamMember = (advId: string) => {
     const mission = selectedMission();
     if (!mission) return;
@@ -162,31 +184,17 @@ export default function AdventurersGuild() {
     setSelectedTeam((prev) => {
       // Remove if already in team
       if (prev.includes(advId)) return prev.filter((id) => id !== advId);
-      if (prev.length >= mission.slots.length) return prev; // team full
-
-      // Simulate assigning current team + this adventurer to slots
-      // If the assignment leaves all required slots fillable, allow it
-      const candidates = [...prev, advId].map((id) => state.adventurers.find((a) => a.id === id)).filter(Boolean) as Adventurer[];
-      const assigned: (Adventurer | undefined)[] = new Array(mission.slots.length).fill(undefined);
-      const remaining = [...candidates];
-
-      // Pass 1: fill required slots with matching classes
-      for (let si = 0; si < mission.slots.length; si++) {
-        const slot = mission.slots[si];
-        if (!slot.required || slot.class === "any") continue;
-        const idx = remaining.findIndex((a) => a.class === slot.class);
-        if (idx !== -1) { assigned[si] = remaining[idx]; remaining.splice(idx, 1); }
+      // Try adding directly
+      if (prev.length < mission.slots.length && canFitInSlots(mission, [...prev, advId])) {
+        return [...prev, advId];
       }
-      // Pass 2: fill non-required slots with remaining (skip unfilled required slots)
-      for (let si = 0; si < mission.slots.length; si++) {
-        if (assigned[si]) continue;
-        const slot = mission.slots[si];
-        if (slot.required && slot.class !== "any") continue; // reserve for correct class
-        if (remaining.length > 0) { assigned[si] = remaining.shift(); }
+      // Try replacing an existing member (last added non-required-matching member first)
+      for (let ri = prev.length - 1; ri >= 0; ri--) {
+        const replaced = [...prev];
+        replaced[ri] = advId;
+        if (canFitInSlots(mission, replaced)) return replaced;
       }
-      // Check: did everyone get placed?
-      if (remaining.length > 0) return prev; // someone couldn't fit
-      return [...prev, advId];
+      return prev; // no way to fit
     });
   };
 
