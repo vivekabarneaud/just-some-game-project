@@ -1,5 +1,5 @@
-import { createSignal, createMemo, For, Index, Show } from "solid-js";
-import { A, useNavigate, useSearchParams } from "@solidjs/router";
+import { createSignal, createMemo, For, Show } from "solid-js";
+import { A, useSearchParams } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
 import { IS_DEV } from "~/data/seasons";
 import {
@@ -16,7 +16,6 @@ import {
   getZoomedPortrait,
   getOrigin,
   RACE_NAMES,
-  BACKSTORY_TRAITS,
   type Adventurer,
   type AdventurerRank,
 } from "~/data/adventurers";
@@ -35,66 +34,14 @@ import {
 } from "~/data/missions";
 import Countdown from "~/components/Countdown";
 import Tooltip from "~/components/Tooltip";
-import { getEnemy, type EnemyDefinition } from "~/data/enemies";
+import EnemyCard from "~/components/EnemyCard";
+import TraitBadge from "~/components/TraitBadge";
+import { getEnemy } from "~/data/enemies";
+import { DIFFICULTY_LABELS, DIFFICULTY_COLORS } from "~/data/constants";
 
 type Tab = "missions" | "roster" | "recruit";
 
-const STAT_HINTS: Record<string, string> = {
-  str: "Strong attack", vit: "Strong defense", int: "Strong magic power",
-  wis: "Strong magic defense", dex: "Fast",
-};
 
-function enemyHints(e: EnemyDefinition): string[] {
-  // Show only the enemy's top 2 stats (excluding stats that are unremarkable)
-  // This naturally scales with tier — a tier 5 with STR 40 and VIT 50
-  // only highlights those two, not everything
-  const stats = Object.entries(e.stats) as [string, number][];
-  const sorted = stats.sort(([, a], [, b]) => b - a);
-  // Only show hints for stats that are meaningfully above the enemy's own median
-  const median = sorted[Math.floor(sorted.length / 2)][1];
-  return sorted
-    .filter(([, v]) => v > median * 1.3)
-    .slice(0, 2)
-    .map(([k]) => STAT_HINTS[k])
-    .filter(Boolean);
-}
-
-const TAG_LABELS: Record<string, string> = {
-  humanoid: "Humanoid", beast: "Beast", undead: "Undead", ghost: "Ghost",
-  demon: "Demon", divine: "Divine", dragon: "Dragon", magical: "Magical",
-  elemental_fire: "Fire", elemental_water: "Water", elemental_earth: "Earth",
-  elemental_wind: "Wind", elemental_aether: "Aether",
-};
-
-function EnemyTooltipContent(props: { enemy: EnemyDefinition }) {
-  const hp = () => props.enemy.stats.vit * 10;
-  const hints = () => enemyHints(props.enemy);
-  const tags = () => props.enemy.tags.map((t) => TAG_LABELS[t]).filter(Boolean);
-  return (
-    <div style={{ "min-width": "160px" }}>
-      <div style={{ display: "flex", "justify-content": "space-between", "align-items": "center", "margin-bottom": "4px" }}>
-        <span style={{ "font-weight": "bold", color: "var(--text-primary)" }}>
-          {props.enemy.icon} {props.enemy.name}
-        </span>
-        <span style={{ "font-size": "0.65rem", color: "var(--text-muted)" }}>
-          {tags().join(", ")}
-        </span>
-      </div>
-      <div style={{ "font-size": "0.75rem", color: "var(--accent-red)", "margin-bottom": "4px" }}>
-        HP {hp()}
-      </div>
-      <div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "font-style": "italic", "margin-bottom": hints().length ? "4px" : "0" }}>
-        {props.enemy.description}
-      </div>
-      <For each={hints()}>
-        {(h) => <div style={{ "font-size": "0.72rem", color: "var(--accent-gold)" }}>· {h}</div>}
-      </For>
-    </div>
-  );
-}
-
-const DIFFICULTY_LABELS: Record<number, string> = { 1: "Novice", 2: "Apprentice", 3: "Journeyman", 4: "Veteran", 5: "Elite" };
-const DIFFICULTY_COLORS: Record<number, string> = { 1: "var(--accent-green)", 2: "var(--accent-blue)", 3: "var(--accent-gold)", 4: "#e67e22", 5: "var(--accent-red)" };
 
 function formatDuration(seconds: number): string {
   if (seconds < 60) return `${seconds}s`;
@@ -666,8 +613,8 @@ export default function AdventurersGuild() {
                           background: "rgba(0, 0, 0, 0.7)",
                           "font-size": "0.65rem", "line-height": "1.4",
                         }}>
-                          <span style={{ color: [, "#aaa", "#7CFC00", "#3498db", "#9b59b6", "#f5c542"][mission.difficulty] }}>
-                            {["", "Novice", "Apprentice", "Journeyman", "Veteran", "Elite"][mission.difficulty]}
+                          <span style={{ color: DIFFICULTY_COLORS[mission.difficulty] }}>
+                            {DIFFICULTY_LABELS[mission.difficulty]}
                           </span>
                           <span style={{ color: "var(--text-muted)" }}>{" · "}{mission.tags.join(", ")}</span>
                         </div>
@@ -679,8 +626,8 @@ export default function AdventurersGuild() {
                     <div style={{ padding: mission.image ? "8px 16px 16px" : undefined, flex: "1", display: "flex", "flex-direction": "column" }}>
                     <Show when={!mission.image}>
                       <span class="building-card-category">
-                        <span style={{ color: [, "#aaa", "#7CFC00", "#3498db", "#9b59b6", "#f5c542"][mission.difficulty] }}>
-                          {["", "Novice", "Apprentice", "Journeyman", "Veteran", "Elite"][mission.difficulty]}
+                        <span style={{ color: DIFFICULTY_COLORS[mission.difficulty] }}>
+                          {DIFFICULTY_LABELS[mission.difficulty]}
                         </span>
                         {" · "}{mission.tags.join(", ")}
                       </span>
@@ -700,56 +647,8 @@ export default function AdventurersGuild() {
                         {mission.encounters!.map((enc) => {
                           const enemy = getEnemy(enc.enemyId);
                           if (!enemy) return null;
-                          const borderColor = enemy.boss ? "var(--accent-gold)" : "rgba(231, 76, 60, 0.3)";
                           return (
-                            <Tooltip content={<EnemyTooltipContent enemy={enemy} />}>
-                              <div style={{
-                                width: "80px",
-                                height: "110px",
-                                background: enemy.boss ? "rgba(245, 197, 66, 0.08)" : "rgba(231, 76, 60, 0.06)",
-                                border: `1px solid ${borderColor}`,
-                                "border-radius": "6px",
-                                overflow: "hidden",
-                                cursor: "default",
-                                display: "flex",
-                                "flex-direction": "column",
-                                position: "relative",
-                              }}>
-                                <div style={{
-                                  position: "absolute", top: "3px", left: "3px", "z-index": 1,
-                                  background: "rgba(0, 0, 0, 0.7)", color: "var(--text-primary)",
-                                  "font-size": "0.75rem", "font-weight": "bold",
-                                  padding: "1px 5px", "border-radius": "4px",
-                                  "line-height": "1.3",
-                                }}>
-                                  {enc.count}x
-                                </div>
-                                {enemy.image
-                                  ? <img src={enemy.image} alt="" style={{
-                                      width: "80px", height: "80px", "object-fit": "cover",
-                                      display: "block", "flex-shrink": "0",
-                                    }} />
-                                  : <div style={{
-                                      width: "80px", height: "80px", "flex-shrink": "0",
-                                      display: "flex", "align-items": "center", "justify-content": "center",
-                                      background: "rgba(0, 0, 0, 0.2)", "font-size": "2.2rem",
-                                    }}>{enemy.icon}</div>
-                                }
-                                <div style={{
-                                  padding: "2px 4px",
-                                  "text-align": "center",
-                                  "font-size": "0.6rem",
-                                  color: enemy.boss ? "var(--accent-gold)" : "var(--text-secondary)",
-                                  "line-height": "1.15",
-                                  flex: "1",
-                                  display: "flex",
-                                  "align-items": "center",
-                                  "justify-content": "center",
-                                }}>
-                                  {enemy.name}
-                                </div>
-                              </div>
-                            </Tooltip>
+                            <EnemyCard enemy={enemy} count={enc.count} />
                           );
                         })}
                       </div>
@@ -827,56 +726,8 @@ export default function AdventurersGuild() {
                           {mission().encounters!.map((enc) => {
                             const enemy = getEnemy(enc.enemyId);
                             if (!enemy) return null;
-                            const borderColor = enemy.boss ? "var(--accent-gold)" : "rgba(231, 76, 60, 0.3)";
                             return (
-                              <Tooltip content={<EnemyTooltipContent enemy={enemy} />}>
-                                <div style={{
-                                  width: "80px",
-                                  height: "110px",
-                                  background: enemy.boss ? "rgba(245, 197, 66, 0.08)" : "rgba(231, 76, 60, 0.06)",
-                                  border: `1px solid ${borderColor}`,
-                                  "border-radius": "6px",
-                                  overflow: "hidden",
-                                  cursor: "default",
-                                  display: "flex",
-                                  "flex-direction": "column",
-                                  position: "relative",
-                                }}>
-                                  <div style={{
-                                    position: "absolute", top: "3px", left: "3px", "z-index": 1,
-                                    background: "rgba(0, 0, 0, 0.7)", color: "var(--text-primary)",
-                                    "font-size": "0.75rem", "font-weight": "bold",
-                                    padding: "1px 5px", "border-radius": "4px",
-                                    "line-height": "1.3",
-                                  }}>
-                                    {enc.count}x
-                                  </div>
-                                  {enemy.image
-                                    ? <img src={enemy.image} alt="" style={{
-                                        width: "80px", height: "80px", "object-fit": "cover",
-                                        display: "block", "flex-shrink": "0",
-                                      }} />
-                                    : <div style={{
-                                        width: "80px", height: "80px", "flex-shrink": "0",
-                                        display: "flex", "align-items": "center", "justify-content": "center",
-                                        background: "rgba(0, 0, 0, 0.2)", "font-size": "2.2rem",
-                                      }}>{enemy.icon}</div>
-                                  }
-                                  <div style={{
-                                    padding: "2px 4px",
-                                    "text-align": "center",
-                                    "font-size": "0.6rem",
-                                    color: enemy.boss ? "var(--accent-gold)" : "var(--text-secondary)",
-                                    "line-height": "1.15",
-                                    flex: "1",
-                                    display: "flex",
-                                    "align-items": "center",
-                                    "justify-content": "center",
-                                  }}>
-                                    {enemy.name}
-                                  </div>
-                                </div>
-                              </Tooltip>
+                              <EnemyCard enemy={enemy} count={enc.count} />
                             );
                           })}
                         </div>
@@ -1276,7 +1127,7 @@ export default function AdventurersGuild() {
                     <For each={classAdvs()}>
               {(adv) => {
                 const cls = getClassMeta(adv.class);
-                const traitDef = () => BACKSTORY_TRAITS.find((t) => t.id === adv.trait);
+
                 const equippedItems = () => {
                   const eq = adv.equipment;
                   return [eq.mainHand, eq.offHand, eq.head, eq.chest, eq.legs, eq.boots, eq.cloak, eq.trinket]
@@ -1326,19 +1177,7 @@ export default function AdventurersGuild() {
                             "{adv.backstory}"
                           </div>
                         </Show>
-                        <Show when={traitDef()}>
-                          <div style={{
-                            display: "inline-block",
-                            padding: "3px 8px",
-                            "border-radius": "4px",
-                            background: "rgba(167, 139, 250, 0.1)",
-                            border: "1px solid rgba(167, 139, 250, 0.2)",
-                            "font-size": "0.75rem",
-                          }}>
-                            <span style={{ color: "#a78bfa", "font-weight": "bold" }}>{traitDef()!.name}</span>
-                            <span style={{ color: "var(--text-muted)", "margin-left": "6px" }}>{traitDef()!.description}</span>
-                          </div>
-                        </Show>
+                        <TraitBadge traitId={adv.trait} />
                         <div style={{ "margin-top": "auto", "padding-top": "8px", "font-size": "0.75rem", display: "flex", gap: "6px", "flex-wrap": "wrap" }}>
                           {equippedItems().map((item) => <span title={item!.name}>{item!.icon}</span>)}
                           {emptySlotCount() > 0 && (
@@ -1453,23 +1292,7 @@ export default function AdventurersGuild() {
                         </div>
                       }>
                         {(() => {
-                          const traitDef = () => BACKSTORY_TRAITS.find((t) => t.id === candidate.trait);
-                          return (
-                            <Show when={traitDef()}>
-                              <div style={{
-                                display: "inline-block",
-                                padding: "3px 8px",
-                                "border-radius": "4px",
-                                background: "rgba(167, 139, 250, 0.1)",
-                                border: "1px solid rgba(167, 139, 250, 0.2)",
-                                "font-size": "0.75rem",
-                                "margin-top": "2px",
-                              }}>
-                                <span style={{ color: "#a78bfa", "font-weight": "bold" }}>{traitDef()!.name}</span>
-                                <span style={{ color: "var(--text-muted)", "margin-left": "6px" }}>{traitDef()!.description}</span>
-                              </div>
-                            </Show>
-                          );
+                          return <TraitBadge traitId={candidate.trait} />;
                         })()}
                       </Show>
                     <div style={{ "margin-top": "auto", "padding-top": "10px" }}>
