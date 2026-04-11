@@ -162,11 +162,15 @@ export default function AdventurersGuild() {
     if (team.length === 0) return 0;
 
     // Combat missions: run 25 simulations for an accurate preview
-    if (mission.encounters?.length) {
+    // Use fresh source data (not saved board state) to ensure encounters are present
+    const freshMission = getMission(mission.id);
+    if (freshMission?.encounters?.length) {
+      // Unwrap SolidJS proxies — simulateCombat needs plain objects
+      const plainTeam = team.map((a) => JSON.parse(JSON.stringify(a)));
       let wins = 0;
       const SIMS = 25;
       for (let i = 0; i < SIMS; i++) {
-        const result = simulateCombat(mission, team);
+        const result = simulateCombat(freshMission, plainTeam);
         if (result?.victory) wins++;
       }
       return Math.round((wins / SIMS) * 100);
