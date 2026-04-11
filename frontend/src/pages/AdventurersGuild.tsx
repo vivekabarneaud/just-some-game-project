@@ -620,23 +620,40 @@ export default function AdventurersGuild() {
                       if (isSelected()) { setSelectedMission(null); setSelectedTeam([]); setSelectedSupplies([]); }
                       else { setSelectedMission(mission); setSelectedTeam([]); setSelectedSupplies([]); }
                     }}
-                    style={{ cursor: "pointer" }}
+                    style={{ cursor: "pointer", ...(mission.image ? { padding: "0", overflow: "hidden" } : {}) }}
                   >
-                    <span class="building-card-category">
-                      <span style={{ color: [, "#aaa", "#7CFC00", "#3498db", "#9b59b6", "#f5c542"][mission.difficulty] }}>
-                        {["", "Novice", "Apprentice", "Journeyman", "Veteran", "Elite"][mission.difficulty]}
-                      </span>
-                      {" · "}{mission.tags.join(", ")}
-                    </span>
-                    <div class="building-card-header" style={{ "margin-top": "14px" }}>
-                      <div class="building-card-icon">{mission.icon}</div>
-                      <div>
-                        <div class="building-card-title">{mission.name}</div>
-                        <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
-                          {formatDuration(mission.duration)} · {mission.deployCost}g deploy cost
+                    <Show when={mission.image}>
+                      <div class="building-card-image" style={{ margin: "0", "border-radius": "0" }}>
+                        <img src={mission.image} alt={mission.name} loading="lazy" />
+                        <div class="building-card-image-overlay">
+                          <span class="building-card-category" style={{ "margin-bottom": "2px" }}>
+                            <span style={{ color: [, "#aaa", "#7CFC00", "#3498db", "#9b59b6", "#f5c542"][mission.difficulty] }}>
+                              {["", "Novice", "Apprentice", "Journeyman", "Veteran", "Elite"][mission.difficulty]}
+                            </span>
+                            {" · "}{mission.tags.join(", ")}
+                          </span>
+                          <div class="building-card-title">{mission.icon} {mission.name}</div>
                         </div>
                       </div>
-                    </div>
+                    </Show>
+                    <div style={{ padding: mission.image ? "8px 16px 16px" : undefined }}>
+                    <Show when={!mission.image}>
+                      <span class="building-card-category">
+                        <span style={{ color: [, "#aaa", "#7CFC00", "#3498db", "#9b59b6", "#f5c542"][mission.difficulty] }}>
+                          {["", "Novice", "Apprentice", "Journeyman", "Veteran", "Elite"][mission.difficulty]}
+                        </span>
+                        {" · "}{mission.tags.join(", ")}
+                      </span>
+                      <div class="building-card-header" style={{ "margin-top": "14px" }}>
+                        <div class="building-card-icon">{mission.icon}</div>
+                        <div>
+                          <div class="building-card-title">{mission.name}</div>
+                          <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
+                            {formatDuration(mission.duration)} · {mission.deployCost}g deploy cost
+                          </div>
+                        </div>
+                      </div>
+                    </Show>
                     <div class="building-card-desc">{mission.description}</div>
                     <Show when={mission.encounters?.length}>
                       <div style={{ "margin-top": "8px", display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
@@ -648,31 +665,48 @@ export default function AdventurersGuild() {
                             <Tooltip content={<EnemyTooltipContent enemy={enemy} />}>
                               <div style={{
                                 width: "80px",
+                                height: "110px",
                                 background: enemy.boss ? "rgba(245, 197, 66, 0.08)" : "rgba(231, 76, 60, 0.06)",
                                 border: `1px solid ${borderColor}`,
                                 "border-radius": "6px",
                                 overflow: "hidden",
                                 cursor: "default",
+                                display: "flex",
+                                "flex-direction": "column",
+                                position: "relative",
                               }}>
+                                <div style={{
+                                  position: "absolute", top: "3px", left: "3px", "z-index": 1,
+                                  background: "rgba(0, 0, 0, 0.7)", color: "var(--text-primary)",
+                                  "font-size": "0.75rem", "font-weight": "bold",
+                                  padding: "1px 5px", "border-radius": "4px",
+                                  "line-height": "1.3",
+                                }}>
+                                  {enc.count}x
+                                </div>
                                 {enemy.image
                                   ? <img src={enemy.image} alt="" style={{
                                       width: "80px", height: "80px", "object-fit": "cover",
-                                      display: "block",
+                                      display: "block", "flex-shrink": "0",
                                     }} />
                                   : <div style={{
-                                      width: "80px", height: "80px",
+                                      width: "80px", height: "80px", "flex-shrink": "0",
                                       display: "flex", "align-items": "center", "justify-content": "center",
                                       background: "rgba(0, 0, 0, 0.2)", "font-size": "2.2rem",
                                     }}>{enemy.icon}</div>
                                 }
                                 <div style={{
-                                  padding: "4px",
+                                  padding: "2px 4px",
                                   "text-align": "center",
-                                  "font-size": "0.65rem",
+                                  "font-size": "0.6rem",
                                   color: enemy.boss ? "var(--accent-gold)" : "var(--text-secondary)",
-                                  "line-height": "1.2",
+                                  "line-height": "1.15",
+                                  flex: "1",
+                                  display: "flex",
+                                  "align-items": "center",
+                                  "justify-content": "center",
                                 }}>
-                                  {enc.count}x {enemy.name}
+                                  {enemy.name}
                                 </div>
                               </div>
                             </Tooltip>
@@ -686,6 +720,7 @@ export default function AdventurersGuild() {
                     <div style={{ "font-size": "0.75rem", color: "var(--accent-blue)", "margin-top": "2px" }}>
                       +{getMissionXp(mission.difficulty, true)} XP on success · +{getMissionXp(mission.difficulty, false)} XP on failure
                     </div>
+                    </div>{/* end content wrapper */}
                   </div>
                 );
               }}
