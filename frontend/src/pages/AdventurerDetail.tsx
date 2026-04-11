@@ -17,7 +17,7 @@ import {
   RACE_NAMES,
   BACKSTORY_TRAITS,
 } from "~/data/adventurers";
-import { getItem, getItemsForSlot, getEquipmentStats, ITEMS, type ItemSlot, isSupplyItem } from "~/data/items";
+import { getItem, getItemsForSlot, getEquipmentStats, isSupplyItem, type ItemSlot } from "~/data/items";
 import { getTalentsForClass, getTalentPoints, getUnspentTalentPoints, canUnlockTalent, getEarnedTitle, getTalent, type TalentNode } from "~/data/talents";
 import Tooltip from "~/components/Tooltip";
 import TraitBadge from "~/components/TraitBadge";
