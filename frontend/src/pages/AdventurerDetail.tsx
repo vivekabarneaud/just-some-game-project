@@ -18,6 +18,8 @@ import {
   BACKSTORY_TRAITS,
 } from "~/data/adventurers";
 import { getItem, getItemsForSlot, getEquipmentStats, ITEMS, type ItemSlot, isSupplyItem } from "~/data/items";
+import { getTalentsForClass, getTalentPoints, getUnspentTalentPoints, canUnlockTalent, getEarnedTitle, getTalent, type TalentNode } from "~/data/talents";
+import Tooltip from "~/components/Tooltip";
 
 // ─── Equipment slot types ───────────────────────────────────────
 
@@ -447,41 +449,191 @@ export default function AdventurerDetail() {
 
                 {/* Talent Tree */}
                 <div class="overview-panel">
-                  <h2>Talents</h2>
-                  <div style={{
-                    display: "grid",
-                    "grid-template-columns": "repeat(3, 1fr)",
-                    gap: "8px",
-                    "margin-bottom": "12px",
-                  }}>
-                    {Array.from({ length: 9 }).map((_, i) => (
-                      <div style={{
-                        "aspect-ratio": "1",
-                        background: "var(--bg-primary)",
-                        "border-radius": "8px",
-                        border: "1px dashed var(--border-default)",
-                        display: "flex",
-                        "align-items": "center",
-                        "justify-content": "center",
-                        opacity: 0.3,
-                        "font-size": "1.2rem",
-                        color: "var(--text-muted)",
-                      }}>
-                        {i === 4 ? cls().icon : "?"}
+                  <div style={{ display: "flex", "justify-content": "space-between", "align-items": "center", "margin-bottom": "12px" }}>
+                    <h2 style={{ margin: 0 }}>Talents</h2>
+                    <div style={{ display: "flex", "align-items": "center", gap: "12px" }}>
+                      <Show when={getEarnedTitle(adv())}>
+                        <span style={{ color: "var(--accent-gold)", "font-style": "italic", "font-size": "0.85rem" }}>
+                          "{getEarnedTitle(adv())}"
+                        </span>
+                      </Show>
+                      <span style={{ "font-size": "0.85rem", color: getUnspentTalentPoints(adv()) > 0 ? "var(--accent-green)" : "var(--text-muted)" }}>
+                        {getUnspentTalentPoints(adv())} / {getTalentPoints(adv().level)} points
+                      </span>
+                    </div>
+                  </div>
+
+                  <Show when={adv().onMission}>
+                    <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-bottom": "8px", "font-style": "italic" }}>
+                      Cannot change talents while on a mission.
+                    </div>
+                  </Show>
+
+                  {(() => {
+                    const allTalents = () => getTalentsForClass(adv().class);
+                    const maxRow = () => Math.max(...allTalents().map((t) => t.row));
+                    const rows = () => {
+                      const r: TalentNode[][] = [];
+                      for (let i = 0; i <= maxRow(); i++) {
+                        r.push(allTalents().filter((t) => t.row === i));
+                      }
+                      return r;
+                    };
+
+                    const getNodeState = (id: string) => {
+                      if (adv().talents?.includes(id)) return "unlocked";
+                      if (!adv().onMission && canUnlockTalent(adv(), id)) return "available";
+                      return "locked";
+                    };
+
+                    // Build parent→child connections for SVG lines
+                    const connections = () => {
+                      const conns: { parentId: string; childId: string; unlocked: boolean }[] = [];
+                      for (const t of allTalents()) {
+                        for (const childId of t.children) {
+                          conns.push({ parentId: t.id, childId, unlocked: adv().talents?.includes(t.id) ?? false });
+                        }
+                      }
+                      return conns;
+                    };
+
+                    // Node positions: computed per row, centered
+                    const NODE_W = 64;
+                    const NODE_H = 64;
+                    const ROW_GAP = 24;
+                    const COL_GAP = 12;
+
+                    const nodePositions = () => {
+                      const pos: Record<string, { x: number; y: number }> = {};
+                      const rs = rows();
+                      const maxNodesInRow = Math.max(...rs.map((r) => r.length));
+                      const totalW = maxNodesInRow * NODE_W + (maxNodesInRow - 1) * COL_GAP;
+                      for (let ri = 0; ri < rs.length; ri++) {
+                        const row = rs[ri];
+                        const rowW = row.length * NODE_W + (row.length - 1) * COL_GAP;
+                        const offsetX = (totalW - rowW) / 2;
+                        for (let ci = 0; ci < row.length; ci++) {
+                          pos[row[ci].id] = {
+                            x: offsetX + ci * (NODE_W + COL_GAP),
+                            y: ri * (NODE_H + ROW_GAP),
+                          };
+                        }
+                      }
+                      return pos;
+                    };
+
+                    const totalHeight = () => (maxRow() + 1) * (NODE_H + ROW_GAP) - ROW_GAP;
+                    const rs = () => rows();
+                    const maxNodesInRow = () => Math.max(...rs().map((r) => r.length));
+                    const totalWidth = () => maxNodesInRow() * NODE_W + (maxNodesInRow() - 1) * COL_GAP;
+
+                    return (
+                      <div style={{ position: "relative", height: `${totalHeight()}px`, "margin": "0 auto", width: `${totalWidth()}px` }}>
+                        {/* SVG connection lines */}
+                        <svg style={{
+                          position: "absolute", top: 0, left: 0, width: "100%", height: "100%",
+                          "pointer-events": "none", "z-index": 0,
+                        }}>
+                          <For each={connections()}>
+                            {(conn) => {
+                              const pos = nodePositions();
+                              const from = pos[conn.parentId];
+                              const to = pos[conn.childId];
+                              if (!from || !to) return null;
+                              return (
+                                <line
+                                  x1={from.x + NODE_W / 2} y1={from.y + NODE_H}
+                                  x2={to.x + NODE_W / 2} y2={to.y}
+                                  stroke={conn.unlocked ? "rgba(245, 197, 66, 0.6)" : "rgba(255, 255, 255, 0.1)"}
+                                  stroke-width={conn.unlocked ? "2" : "1"}
+                                  stroke-dasharray={conn.unlocked ? "" : "4 4"}
+                                />
+                              );
+                            }}
+                          </For>
+                        </svg>
+
+                        {/* Talent nodes */}
+                        <For each={allTalents()}>
+                          {(talent) => {
+                            const st = () => getNodeState(talent.id);
+                            const pos = () => nodePositions()[talent.id];
+                            return (
+                              <Tooltip content={
+                                <div style={{ "min-width": "140px" }}>
+                                  <div style={{ "font-weight": "bold", color: "var(--text-primary)" }}>{talent.icon} {talent.name}</div>
+                                  <div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "margin-top": "4px" }}>{talent.description}</div>
+                                  <Show when={talent.isCapstone}>
+                                    <div style={{ "font-size": "0.72rem", color: "var(--accent-gold)", "margin-top": "4px" }}>Capstone — Earns title: {talent.title}</div>
+                                  </Show>
+                                </div>
+                              } position="right">
+                                <div
+                                  class="talent-node"
+                                  classList={{
+                                    locked: st() === "locked",
+                                    available: st() === "available",
+                                    unlocked: st() === "unlocked",
+                                    capstone: !!talent.isCapstone,
+                                  }}
+                                  style={{
+                                    position: "absolute",
+                                    left: `${pos()?.x ?? 0}px`,
+                                    top: `${pos()?.y ?? 0}px`,
+                                    width: `${NODE_W}px`,
+                                    height: `${NODE_H}px`,
+                                  }}
+                                  onClick={() => {
+                                    if (st() === "available") {
+                                      actions.unlockTalent(params.id, talent.id);
+                                    }
+                                  }}
+                                >
+                                  <span style={{ "font-size": "1.3rem" }}>{talent.icon}</span>
+                                  <span style={{
+                                    "font-size": "0.55rem",
+                                    color: st() === "unlocked" ? "var(--text-primary)" : st() === "available" ? "var(--accent-gold)" : "var(--text-muted)",
+                                    "text-align": "center",
+                                    "line-height": "1.1",
+                                    "margin-top": "2px",
+                                  }}>
+                                    {talent.name}
+                                  </span>
+                                  <Show when={st() === "unlocked"}>
+                                    <div style={{ position: "absolute", top: "2px", right: "4px", "font-size": "0.55rem", color: "var(--accent-green)" }}>
+                                      ✓
+                                    </div>
+                                  </Show>
+                                </div>
+                              </Tooltip>
+                            );
+                          }}
+                        </For>
                       </div>
-                    ))}
-                  </div>
-                  <div style={{
-                    padding: "10px",
-                    "text-align": "center",
-                    "border-radius": "6px",
-                    background: "rgba(167, 139, 250, 0.08)",
-                    border: "1px solid rgba(167, 139, 250, 0.2)",
-                    color: "#a78bfa",
-                    "font-size": "0.8rem",
-                  }}>
-                    Talent tree under construction — Unlock unique abilities as your adventurer grows
-                  </div>
+                    );
+                  })()}
+
+                  <Show when={adv().talents?.length > 0 && !adv().onMission}>
+                    <button
+                      onClick={() => {
+                        if (confirm("Reset all talents? Points will be refunded.")) {
+                          actions.resetTalents(params.id);
+                        }
+                      }}
+                      style={{
+                        "margin-top": "12px",
+                        padding: "4px 12px",
+                        background: "transparent",
+                        border: "1px solid var(--border-color)",
+                        color: "var(--text-muted)",
+                        "border-radius": "4px",
+                        cursor: "pointer",
+                        "font-size": "0.75rem",
+                      }}
+                    >
+                      Reset Talents
+                    </button>
+                  </Show>
                 </div>
               </div>
             </div>
