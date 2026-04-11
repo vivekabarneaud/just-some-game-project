@@ -998,10 +998,10 @@ export default function AdventurersGuild() {
                                         <div style={{ "font-size": "0.75rem", color: "var(--text-primary)", "font-weight": isInTeam() ? "bold" : "normal", "white-space": "nowrap", overflow: "hidden", "text-overflow": "ellipsis" }}>
                                           {adv().name}
                                         </div>
-                                        <div style={{ "font-size": "0.65rem", color: RANK_COLORS[adv().rank] }}>
+                                        <div style={{ "font-size": "0.65rem", color: RANK_COLORS[adv().rank], "margin-top": "-1px" }}>
                                           {RANK_NAMES[adv().rank]} · Lv.{adv().level}
                                         </div>
-                                        <div style={{ "margin-top": "4px", position: "relative" }}>
+                                        <div style={{ "margin-top": "auto", position: "relative" }}>
                                           <span style={{ "font-size": "0.45rem", color: "var(--text-muted)", position: "absolute", top: "-8px", left: "0" }}>EXP</span>
                                           <div style={{ height: "3px", background: "var(--bg-primary)", "border-radius": "2px" }}>
                                             <div style={{ height: "100%", width: `${xpPct()}%`, background: "var(--accent-blue)", "border-radius": "2px" }} />
