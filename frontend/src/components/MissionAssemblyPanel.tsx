@@ -269,14 +269,30 @@ export default function MissionAssemblyPanel(props: Props) {
           <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
             <For each={mission().slots}>
               {(slot, i) => (
-                <TeamSlot
-                  slot={slot}
-                  adventurer={slotAssignments()[i()]}
-                  onClick={() => {
-                    const adv = slotAssignments()[i()];
-                    if (adv) toggleTeam(adv.id);
-                  }}
-                />
+                <div style={{ display: "flex", "flex-direction": "column", "align-items": "center", gap: "2px" }}>
+                  <TeamSlot
+                    slot={slot}
+                    adventurer={slotAssignments()[i()]}
+                    onClick={() => {
+                      const adv = slotAssignments()[i()];
+                      if (adv) toggleTeam(adv.id);
+                    }}
+                  />
+                  <Show when={slotAssignments()[i()]}>
+                    {(() => {
+                      const adv = () => slotAssignments()[i()]!;
+                      const risk = () => calcDeathChance(freshMission(), team(), adv());
+                      return (
+                        <span style={{
+                          "font-size": "0.6rem",
+                          color: risk() >= 15 ? "var(--accent-red)" : risk() >= 5 ? "var(--accent-gold)" : "var(--text-muted)",
+                        }}>
+                          ☠ {risk()}%
+                        </span>
+                      );
+                    })()}
+                  </Show>
+                </div>
               )}
             </For>
           </div>
