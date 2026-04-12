@@ -2,7 +2,6 @@ import { createSignal, createMemo, For, Show } from "solid-js";
 import { useGame } from "~/engine/gameState";
 import {
   ADVENTURER_CLASSES,
-  getClassMeta,
   CLASS_COLORS,
   getPortrait,
   getXpForLevel,
@@ -285,10 +284,9 @@ export default function MissionAssemblyPanel(props: Props) {
                       return (
                         <span style={{
                           "font-size": "0.75rem",
-                          "font-weight": "bold",
                           color: risk() >= 15 ? "var(--accent-red)" : risk() >= 5 ? "var(--accent-gold)" : "var(--text-muted)",
                         }}>
-                          ☠ {risk()}%
+                          ☠ <span style={{ "font-weight": "bold" }}>{risk()}%</span>
                         </span>
                       );
                     })()}
@@ -379,18 +377,6 @@ export default function MissionAssemblyPanel(props: Props) {
             )}
           </div>
         </div>
-
-        {/* Team passives */}
-        <Show when={teamIds().length > 0}>
-          <div class="team-passives">
-            <For each={team()}>
-              {(adv) => {
-                const cls = getClassMeta(adv.class);
-                return <div>{cls.icon} <strong>{cls.passive.name}</strong>: {cls.passive.description}</div>;
-              }}
-            </For>
-          </div>
-        </Show>
 
         {/* Supplies */}
         {(() => {
