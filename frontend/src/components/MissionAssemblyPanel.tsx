@@ -284,7 +284,8 @@ export default function MissionAssemblyPanel(props: Props) {
                       const risk = () => calcDeathChance(freshMission(), team(), adv());
                       return (
                         <span style={{
-                          "font-size": "0.6rem",
+                          "font-size": "0.75rem",
+                          "font-weight": "bold",
                           color: risk() >= 15 ? "var(--accent-red)" : risk() >= 5 ? "var(--accent-gold)" : "var(--text-muted)",
                         }}>
                           ☠ {risk()}%
