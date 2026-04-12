@@ -410,6 +410,8 @@ export default function AdventurersGuild() {
             })()}>
               {(story) => {
                 const isSelected = () => selectedMission()?.id === story().id;
+                const freshStory = () => getMission(story().id) ?? story();
+                const storyImage = () => getMissionImage(story().id) ?? story().image;
                 return (
                   <div
                     class="building-card"
@@ -418,46 +420,53 @@ export default function AdventurersGuild() {
                       if (isSelected()) { setSelectedMission(null); setSelectedTeam([]); setSelectedSupplies([]); }
                       else { setSelectedMission(story()); setSelectedTeam([]); setSelectedSupplies([]); }
                     }}
-                    style={{
-                      cursor: "pointer",
-                      border: "1px solid var(--accent-gold)",
-                      padding: "0",
-                      overflow: "hidden",
-                    }}
+                    style={{ cursor: "pointer", border: "2px solid var(--accent-gold)", padding: "0", overflow: "hidden" }}
                   >
-                    <Show when={story().image}>
+                    <Show when={storyImage()}>
                       <div class="building-card-image" style={{ margin: "0", "border-radius": "0" }}>
-                        <img src={story().image} alt={story().name} loading="lazy" />
-                        <div class="building-card-image-overlay" style={{ display: "flex", "justify-content": "space-between", "align-items": "flex-end" }}>
-                          <div>
-                            <div style={{ "font-size": "0.6rem", color: "var(--accent-gold)", "margin-bottom": "2px", "text-transform": "uppercase", "letter-spacing": "0.5px", opacity: "0.8" }}>
-                              Story Mission · {story().chapter}
-                            </div>
-                            <div class="building-card-title" style={{ color: "var(--accent-gold)" }}>{story().name}</div>
-                          </div>
+                        <img src={storyImage()} alt={story().name} loading="lazy" />
+                        <div style={{
+                          position: "absolute", top: "6px", left: "6px",
+                          padding: "2px 8px", "border-radius": "4px",
+                          background: "rgba(0, 0, 0, 0.7)",
+                          "font-size": "0.6rem", "line-height": "1.4",
+                          color: "var(--accent-gold)", "text-transform": "uppercase", "letter-spacing": "0.5px",
+                        }}>
+                          Story Mission · {(story() as any).chapter}
+                        </div>
+                        <div style={{
+                          position: "absolute", top: "6px", right: "6px",
+                          padding: "2px 8px", "border-radius": "4px",
+                          background: "rgba(0, 0, 0, 0.7)",
+                          "font-size": "0.65rem", "line-height": "1.4",
+                        }}>
+                          <span style={{ color: DIFFICULTY_COLORS[story().difficulty] }}>
+                            {DIFFICULTY_LABELS[story().difficulty]}
+                          </span>
+                        </div>
+                        <div class="building-card-image-overlay">
+                          <div class="building-card-title" style={{ color: "var(--accent-gold)" }}>{story().name}</div>
                         </div>
                       </div>
                     </Show>
-                    <div style={{ padding: "10px 16px 16px", flex: "1", display: "flex", "flex-direction": "column" }}>
+                    <div style={{ padding: storyImage() ? "8px 16px 16px" : "10px 16px 16px", flex: "1", display: "flex", "flex-direction": "column" }}>
+                      <Show when={!storyImage()}>
+                        <div style={{ "font-size": "0.6rem", color: "var(--accent-gold)", "text-transform": "uppercase", "letter-spacing": "0.5px", "margin-bottom": "4px" }}>
+                          Story Mission · {(story() as any).chapter}
+                        </div>
+                        <div class="building-card-title" style={{ color: "var(--accent-gold)", "margin-bottom": "4px" }}>{story().icon} {story().name}</div>
+                      </Show>
                       <div class="building-card-desc" style={{ "font-style": "italic" }}>{story().description}</div>
+                      <Show when={freshStory().encounters?.length}>
+                        <div style={{ "margin-top": "14px", display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
+                          {freshStory().encounters!.map((enc) => {
+                            const enemy = getEnemy(enc.enemyId);
+                            if (!enemy) return null;
+                            return <EnemyCard enemy={enemy} count={enc.count} />;
+                          })}
+                        </div>
+                      </Show>
                       <div style={{ "margin-top": "auto", "padding-top": "12px" }}>
-                        <div style={{ "font-size": "0.75rem", color: "var(--text-muted)" }}>
-                          {formatDuration(story().duration)} · {story().deployCost}g deploy
-                        </div>
-                        <div style={{ display: "flex", gap: "6px", "margin-top": "8px", "flex-wrap": "wrap" }}>
-                          <For each={story().slots}>
-                            {(slot) => (
-                              <span style={{
-                                padding: "2px 8px",
-                                background: "var(--bg-secondary)",
-                                "border-radius": "4px",
-                                "font-size": "0.8rem",
-                              }}>
-                                {slotIcon(slot)} {slotLabel(slot)}
-                              </span>
-                            )}
-                          </For>
-                        </div>
                         <div style={{ "margin-top": "8px", "font-size": "0.8rem", color: "var(--accent-green)" }}>
                           Rewards: {story().rewards.map((r: any) => formatReward(r)).join(", ")}
                         </div>
