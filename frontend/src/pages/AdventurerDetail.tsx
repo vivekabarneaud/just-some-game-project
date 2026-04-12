@@ -223,7 +223,7 @@ export default function AdventurerDetail() {
                       }} />
                     </div>
                   </div>
-                  <div style={{ "margin-top": "12px", "margin-bottom": "12px", "border-top": "1px solid var(--border-color)" }} />
+                  <div style={{ "margin-top": "16px", "margin-bottom": "16px", "border-top": "1px solid var(--border-color)" }} />
                   <Show when={unspentPoints() > 0}>
                     <div style={{
                       padding: "6px 10px",
@@ -296,7 +296,7 @@ export default function AdventurerDetail() {
                   })()}
 
                   {/* Defensive stats from gear */}
-                  <div style={{ "margin-top": "8px", "padding-top": "8px", "border-top": "1px solid var(--border-color)", display: "flex", gap: "16px", "font-size": "0.8rem" }}>
+                  <div style={{ "margin-top": "16px", "padding-top": "16px", "border-top": "1px solid var(--border-color)", display: "flex", gap: "16px", "font-size": "0.8rem" }}>
                     <span style={{ color: "var(--text-muted)" }}>🛡️ DEF <span style={{ color: "var(--text-secondary)", "font-weight": "bold" }}>{getEquipmentDefense(adv().equipment)}</span></span>
                     <span style={{ color: "var(--text-muted)" }}>✨ MR <span style={{ color: "var(--text-secondary)", "font-weight": "bold" }}>{stats().wis * 3}</span></span>
                   </div>
