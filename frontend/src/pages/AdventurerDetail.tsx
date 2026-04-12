@@ -426,7 +426,10 @@ export default function AdventurerDetail() {
                                           transition: "border-color 0.15s",
                                         }}
                                       >
-                                        <span style={{ "font-size": "1.3rem" }}>{item.icon}</span>
+                                        {item.image
+                                          ? <img src={item.image} alt="" style={{ width: "40px", height: "40px", "object-fit": "cover", "border-radius": "4px" }} />
+                                          : <span style={{ "font-size": "1.3rem" }}>{item.icon}</span>
+                                        }
                                         <Show when={qty > 1}>
                                           <span style={{ position: "absolute", bottom: "2px", right: "4px", "font-size": "0.5rem", color: "var(--accent-gold)" }}>
                                             {qty}
