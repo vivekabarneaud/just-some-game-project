@@ -392,7 +392,7 @@ export function getItemsForSlot(slot: ItemSlot, adventurerClass?: AdventurerClas
 export type PotionCategory = "mission" | "combat";
 
 export interface MissionSupplyEffect {
-  successBonus: number;
+  successBonus: number;     // flat stat bonus to relevant stat check (not %)
   deathReduction: number;
 }
 

@@ -1022,8 +1022,7 @@ export const PRIEST_REVIVE_CHANCE = 0.15;
 // ─── Success calculation ────────────────────────────────────────
 
 /**
- * Get the relevant stat for a mission based on its tags.
- * Returns which stat keys contribute to success.
+ * Get the primary stat(s) for a mission based on its tags.
  */
 export function getMissionStatWeights(tags: MissionTag[]): Partial<Record<keyof AdventurerStats, number>> {
   const weights: Partial<Record<keyof AdventurerStats, number>> = {};
@@ -1034,26 +1033,39 @@ export function getMissionStatWeights(tags: MissionTag[]): Partial<Record<keyof 
     weights.str = (weights.str ?? 0) + 0.5;
     weights.vit = (weights.vit ?? 0) + 0.5;
   }
-  // If no specific tags, use a balanced mix
   if (Object.keys(weights).length === 0) {
     weights.str = 0.5; weights.int = 0.5; weights.dex = 0.5;
   }
   return weights;
 }
 
+/** Flavor hint telling the player which stat matters for a non-combat mission */
+export function getMissionStatHint(tags: MissionTag[]): string {
+  const hints: string[] = [];
+  if (tags.some((t) => t === "combat" || t === "escort")) hints.push("strength and endurance");
+  if (tags.some((t) => t === "magical" || t === "exploration")) hints.push("intelligence and arcane knowledge");
+  if (tags.some((t) => t === "stealth" || t === "spying" || t === "assassination")) hints.push("cunning and stealth");
+  if (tags.some((t) => t === "outdoor")) hints.push("survival instincts");
+  if (tags.some((t) => t === "survival" || t === "dungeon")) hints.push("toughness and resilience");
+  if (hints.length === 0) return "Success depends on your team's overall ability.";
+  return `This mission requires ${hints.join(" and ")}.`;
+}
+
 /**
- * Calculate success chance for a team assigned to a mission.
- * Uses adventurer stats, slot matching, and class passives.
+ * Calculate success chance for non-combat missions.
+ * Purely stat-based: team's relevant stats vs difficulty threshold.
  */
 export function calcSuccessChance(
   mission: MissionTemplate,
   team: Adventurer[],
+  statBonuses?: number, // flat bonus from potions (e.g. +10 to relevant stat)
 ): number {
   if (team.length === 0) return 0;
 
-  // Per-adventurer power contribution (each member adds to success)
   const statWeights = getMissionStatWeights(mission.tags);
-  let totalPower = 0;
+
+  // Sum the team's weighted stats
+  let teamPower = 0;
   for (const adv of team) {
     const equipStats = getEquipmentStats(adv.equipment);
     const stats = calcStats(adv, equipStats);
@@ -1063,33 +1075,22 @@ export function calcSuccessChance(
       advPower += (stats[stat as keyof AdventurerStats] ?? 0) * (weight ?? 0);
       weightSum += weight ?? 0;
     }
-    // Normalize per adventurer, then add to total (each member contributes)
-    if (weightSum > 0) totalPower += advPower / weightSum;
+    if (weightSum > 0) teamPower += advPower / weightSum;
   }
 
-  // Scale power against difficulty: each difficulty point requires ~10 effective stat
-  const difficultyThreshold = mission.difficulty * 10;
-  const powerRatio = totalPower / difficultyThreshold;
-  const powerPercent = Math.min(80, powerRatio * 30);
+  // Add potion stat bonuses
+  if (statBonuses) teamPower += statBonuses;
 
-  // Team fill bonus: having more members is better
-  const fillRatio = Math.min(1, team.length / mission.slots.length);
-  const fillBonus = fillRatio * 15;
+  // Difficulty threshold: how much stat total is needed
+  // Difficulty 1 = 15, difficulty 3 = 45, difficulty 5 = 75
+  const threshold = mission.difficulty * 15;
 
-  // Family bond bonus: shared last names get +5% per pair
-  let familyBonus = 0;
-  const lastNames = team.map((a) => a.name.split(" ").slice(1).join(" "));
-  const seen = new Set<string>();
-  for (const ln of lastNames) {
-    if (seen.has(ln)) familyBonus += 5;
-    seen.add(ln);
-  }
+  // Calculate % based on how much the team exceeds (or falls short of) the threshold
+  // At threshold = 50%, at 2x threshold = ~95%, at 0.5x = ~15%
+  const ratio = teamPower / threshold;
+  const pct = Math.round(50 + (ratio - 1) * 40);
 
-  // Difficulty penalty: underleveled teams struggle
-  const avgLevel = team.reduce((sum, a) => sum + a.level, 0) / team.length;
-  const difficultyPenalty = Math.max(0, (mission.difficulty * 4 - avgLevel) * 5);
-
-  return Math.min(100, Math.max(5, Math.round(powerPercent + fillBonus + familyBonus - difficultyPenalty)));
+  return Math.min(98, Math.max(2, pct));
 }
 
 /**

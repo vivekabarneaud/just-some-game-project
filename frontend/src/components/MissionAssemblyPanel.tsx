@@ -19,6 +19,7 @@ import {
   calcEffectiveDuration,
   getMission,
   getMissionStatWeights,
+  getMissionStatHint,
   formatReward,
   areRequiredSlotsFilled,
 } from "~/data/missions";
@@ -144,11 +145,13 @@ export default function MissionAssemblyPanel(props: Props) {
       }
       pct = Math.round((wins / 25) * 100);
     } else {
-      pct = calcSuccessChance(fm, team());
+      // Non-combat: stat-based check with potion stat bonuses
+      let statBonus = 0;
       for (const sid of supplies()) {
         const eff = getSupplyEffect(sid);
-        if (eff) pct = Math.min(100, pct + eff.successBonus);
+        if (eff) statBonus += eff.successBonus;
       }
+      pct = calcSuccessChance(fm, team(), statBonus);
     }
 
     setCachedSuccess({ key, pct });
@@ -226,6 +229,11 @@ export default function MissionAssemblyPanel(props: Props) {
         <p style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "font-style": "italic", margin: "10px 0" }}>
           {mission().description}
         </p>
+        <Show when={!freshMission().encounters?.length}>
+          <div style={{ "font-size": "0.8rem", color: "var(--accent-blue)", "font-style": "italic", "margin-bottom": "8px" }}>
+            {getMissionStatHint(mission().tags)}
+          </div>
+        </Show>
 
         <Show when={freshMission().encounters?.length}>
           <div class="mission-detail-section">
@@ -382,8 +390,9 @@ export default function MissionAssemblyPanel(props: Props) {
                       <div>
                         <div style={{ color: "var(--text-primary)" }}>{info()?.name}</div>
                         <div style={{ "font-size": "0.65rem", color: "var(--accent-green)" }}>
-                          {effect()?.successBonus ? `+${effect()!.successBonus}% ` : ""}
+                          {effect()?.successBonus ? `+${effect()!.successBonus} stat ` : ""}
                           {(effect()?.deathReduction ?? 1) < 1 ? `☠-${Math.round((1 - (effect()?.deathReduction ?? 1)) * 100)}%` : ""}
+                          {(() => { const cp = getCombatPotionEffect(supplyId); return cp ? `+${cp.value}% ${cp.type.replace("_", " ")}` : ""; })()}
                         </div>
                       </div>
                       <span style={{ color: "var(--text-muted)", "margin-left": "4px" }}>✕</span>
