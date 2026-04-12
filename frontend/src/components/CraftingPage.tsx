@@ -62,15 +62,23 @@ export default function CraftingPage(props: CraftingPageProps) {
     const slotsUsed = activeCrafts().length;
     if (slotsUsed >= b.level) return `Queue full — upgrade ${props.buildingName} for more slots`;
     for (const cost of recipe.costs) {
-      if (cost.resource === "wool" && state.wool < cost.amount) return "Not enough wool";
-      if (cost.resource === "fiber" && state.fiber < cost.amount) return "Not enough fiber";
-      if (cost.resource === "iron" && state.iron < cost.amount) return "Not enough iron";
-      if (cost.resource === "leather" && state.leather < cost.amount) return "Not enough leather";
-      if (cost.resource === "gold" && state.resources.gold < cost.amount) return "Not enough gold";
-      if (cost.resource === "wood" && state.resources.wood < cost.amount) return "Not enough wood";
-      if (cost.resource === "stone" && state.resources.stone < cost.amount) return "Not enough stone";
-      if (cost.resource === "food" && state.resources.food < cost.amount) return "Not enough food";
-      if (cost.resource === "astralShards" && state.astralShards < cost.amount) return "Not enough astral shards";
+      let have = 0;
+      const res = cost.resource;
+      if (res === "wool") have = state.wool;
+      else if (res === "fiber") have = state.fiber;
+      else if (res === "iron") have = state.iron;
+      else if (res === "leather") have = state.leather;
+      else if (res === "gold") have = state.resources.gold;
+      else if (res === "wood") have = state.resources.wood;
+      else if (res === "stone") have = state.resources.stone;
+      else if (res === "food") have = state.resources.food;
+      else if (res === "astralShards") have = state.astralShards;
+      else {
+        // Check inventory for materials (wolfhide_strip, chitin_plate, etc.)
+        const inv = state.inventory.find((i) => i.itemId === res);
+        have = inv?.quantity ?? 0;
+      }
+      if (have < cost.amount) return `Not enough ${res.replace(/_/g, " ")}`;
     }
     return null;
   };
