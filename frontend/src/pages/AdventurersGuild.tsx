@@ -9,7 +9,6 @@ import {
   RANK_COLORS,
   getRecruitCost,
   getXpForLevel,
-  getMissionXp,
   getUnspentStatPoints,
   getPortrait,
   getOrigin,
@@ -27,11 +26,9 @@ import {
 } from "~/data/missions";
 import Countdown from "~/components/Countdown";
 import Tooltip from "~/components/Tooltip";
-import EnemyCard from "~/components/EnemyCard";
+import MissionCard from "~/components/MissionCard";
 import TraitBadge from "~/components/TraitBadge";
 import MissionAssemblyPanel from "~/components/MissionAssemblyPanel";
-import { getEnemy } from "~/data/enemies";
-import { DIFFICULTY_LABELS, DIFFICULTY_COLORS } from "~/data/constants";
 
 type Tab = "missions" | "roster" | "recruit";
 
@@ -408,148 +405,29 @@ export default function AdventurersGuild() {
               const sm = storyMission();
               return sm && !state.activeMissions.some((am) => am.missionId === sm.id) ? sm : null;
             })()}>
-              {(story) => {
-                const isSelected = () => selectedMission()?.id === story().id;
-                const freshStory = () => getMission(story().id) ?? story();
-                const storyImage = () => getMissionImage(story().id) ?? story().image;
-                return (
-                  <div
-                    class="building-card"
-                    classList={{ upgrading: isSelected() }}
-                    onClick={() => {
-                      if (isSelected()) { setSelectedMission(null); setSelectedTeam([]); setSelectedSupplies([]); }
-                      else { setSelectedMission(story()); setSelectedTeam([]); setSelectedSupplies([]); }
-                    }}
-                    style={{ cursor: "pointer", border: "2px solid var(--accent-gold)", padding: "0", overflow: "hidden" }}
-                  >
-                    <Show when={storyImage()}>
-                      <div class="building-card-image" style={{ margin: "0", "border-radius": "0" }}>
-                        <img src={storyImage()} alt={story().name} loading="lazy" />
-                        <div style={{
-                          position: "absolute", top: "6px", left: "6px",
-                          padding: "2px 8px", "border-radius": "4px",
-                          background: "rgba(0, 0, 0, 0.7)",
-                          "font-size": "0.6rem", "line-height": "1.4",
-                          color: "var(--accent-gold)", "text-transform": "uppercase", "letter-spacing": "0.5px",
-                        }}>
-                          Story Mission · {(story() as any).chapter}
-                        </div>
-                        <div style={{
-                          position: "absolute", top: "6px", right: "6px",
-                          padding: "2px 8px", "border-radius": "4px",
-                          background: "rgba(0, 0, 0, 0.7)",
-                          "font-size": "0.65rem", "line-height": "1.4",
-                        }}>
-                          <span style={{ color: DIFFICULTY_COLORS[story().difficulty] }}>
-                            {DIFFICULTY_LABELS[story().difficulty]}
-                          </span>
-                        </div>
-                        <div class="building-card-image-overlay">
-                          <div class="building-card-title" style={{ color: "var(--accent-gold)" }}>{story().name}</div>
-                        </div>
-                      </div>
-                    </Show>
-                    <div style={{ padding: storyImage() ? "8px 16px 16px" : "10px 16px 16px", flex: "1", display: "flex", "flex-direction": "column" }}>
-                      <Show when={!storyImage()}>
-                        <div style={{ "font-size": "0.6rem", color: "var(--accent-gold)", "text-transform": "uppercase", "letter-spacing": "0.5px", "margin-bottom": "4px" }}>
-                          Story Mission · {(story() as any).chapter}
-                        </div>
-                        <div class="building-card-title" style={{ color: "var(--accent-gold)", "margin-bottom": "4px" }}>{story().icon} {story().name}</div>
-                      </Show>
-                      <div class="building-card-desc" style={{ "font-style": "italic" }}>{story().description}</div>
-                      <Show when={freshStory().encounters?.length}>
-                        <div style={{ "margin-top": "14px", display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
-                          {freshStory().encounters!.map((enc) => {
-                            const enemy = getEnemy(enc.enemyId);
-                            if (!enemy) return null;
-                            return <EnemyCard enemy={enemy} count={enc.count} />;
-                          })}
-                        </div>
-                      </Show>
-                      <div style={{ "margin-top": "auto", "padding-top": "12px" }}>
-                        <div style={{ "margin-top": "8px", "font-size": "0.8rem", color: "var(--accent-green)" }}>
-                          Rewards: {story().rewards.map((r: any) => formatReward(r)).join(", ")}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              }}
+              {(story) => (
+                <MissionCard
+                  mission={story()}
+                  selected={selectedMission()?.id === story().id}
+                  storyChapter={(story() as any).chapter}
+                  onClick={() => {
+                    if (selectedMission()?.id === story().id) { setSelectedMission(null); setSelectedTeam([]); setSelectedSupplies([]); }
+                    else { setSelectedMission(story()); setSelectedTeam([]); setSelectedSupplies([]); }
+                  }}
+                />
+              )}
             </Show>
             <For each={state.missionBoard}>
-              {(mission) => {
-                const isSelected = () => selectedMission()?.id === mission.id;
-                return (
-                  <div
-                    class="building-card"
-                    classList={{ upgrading: isSelected() }}
-                    onClick={() => {
-                      if (isSelected()) { setSelectedMission(null); setSelectedTeam([]); setSelectedSupplies([]); }
-                      else { setSelectedMission(mission); setSelectedTeam([]); setSelectedSupplies([]); }
-                    }}
-                    style={{ cursor: "pointer", ...(getMissionImage(mission.id) ? { padding: "0", overflow: "hidden" } : {}) }}
-                  >
-                    <Show when={getMissionImage(mission.id)}>
-                      <div class="building-card-image" style={{ margin: "0", "border-radius": "0" }}>
-                        <img src={getMissionImage(mission.id)} alt={mission.name} loading="lazy" />
-                        <div style={{
-                          position: "absolute", top: "6px", right: "6px",
-                          padding: "2px 8px", "border-radius": "4px",
-                          background: "rgba(0, 0, 0, 0.7)",
-                          "font-size": "0.65rem", "line-height": "1.4",
-                        }}>
-                          <span style={{ color: DIFFICULTY_COLORS[mission.difficulty] }}>
-                            {DIFFICULTY_LABELS[mission.difficulty]}
-                          </span>
-                          <span style={{ color: "var(--text-muted)" }}>{" · "}{mission.tags.join(", ")}</span>
-                        </div>
-                        <div class="building-card-image-overlay">
-                          <div class="building-card-title">{mission.name}</div>
-                        </div>
-                      </div>
-                    </Show>
-                    <div style={{ padding: getMissionImage(mission.id) ? "8px 16px 16px" : undefined, flex: "1", display: "flex", "flex-direction": "column" }}>
-                    <Show when={!getMissionImage(mission.id)}>
-                      <span class="building-card-category">
-                        <span style={{ color: DIFFICULTY_COLORS[mission.difficulty] }}>
-                          {DIFFICULTY_LABELS[mission.difficulty]}
-                        </span>
-                        {" · "}{mission.tags.join(", ")}
-                      </span>
-                      <div class="building-card-header" style={{ "margin-top": "14px" }}>
-                        <div class="building-card-icon">{mission.icon}</div>
-                        <div>
-                          <div class="building-card-title">{mission.name}</div>
-                          <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
-                            {formatDuration(mission.duration)} · {mission.deployCost}g deploy cost
-                          </div>
-                        </div>
-                      </div>
-                    </Show>
-                    <div class="building-card-desc">{mission.description}</div>
-                    <Show when={mission.encounters?.length}>
-                      <div style={{ "margin-top": "14px", display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
-                        {mission.encounters!.map((enc) => {
-                          const enemy = getEnemy(enc.enemyId);
-                          if (!enemy) return null;
-                          return (
-                            <EnemyCard enemy={enemy} count={enc.count} />
-                          );
-                        })}
-                      </div>
-                    </Show>
-                    <div style={{ "margin-top": "auto", "padding-top": "12px" }}>
-                      <div style={{ "font-size": "0.8rem", color: "var(--accent-green)" }}>
-                        Rewards: {mission.rewards.map((r) => formatReward(r)).join(", ")}
-                      </div>
-                      <div style={{ "font-size": "0.75rem", color: "var(--accent-blue)", "margin-top": "2px" }}>
-                        +{getMissionXp(mission.difficulty, true)} XP on success · +{getMissionXp(mission.difficulty, false)} XP on failure
-                      </div>
-                    </div>
-                    </div>{/* end content wrapper */}
-                  </div>
-                );
-              }}
+              {(mission) => (
+                <MissionCard
+                  mission={mission}
+                  selected={selectedMission()?.id === mission.id}
+                  onClick={() => {
+                    if (selectedMission()?.id === mission.id) { setSelectedMission(null); setSelectedTeam([]); setSelectedSupplies([]); }
+                    else { setSelectedMission(mission); setSelectedTeam([]); setSelectedSupplies([]); }
+                  }}
+                />
+              )}
             </For>
           </div>
 
