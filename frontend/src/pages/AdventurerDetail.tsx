@@ -223,7 +223,7 @@ export default function AdventurerDetail() {
                       }} />
                     </div>
                   </div>
-                  <div style={{ "margin-top": "16px" }} />
+                  <div style={{ "margin-top": "12px", "margin-bottom": "12px", "border-top": "1px solid var(--border-color)" }} />
                   <Show when={unspentPoints() > 0}>
                     <div style={{
                       padding: "6px 10px",
