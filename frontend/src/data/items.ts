@@ -39,6 +39,7 @@ export const ITEMS: ItemDefinition[] = [
   // ── Swords (Blacksmith) — warrior, assassin ───────────────────
   {
     id: "iron_sword", name: "Iron Sword", icon: "⚔️", slot: "mainHand",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/iron_sword.png",
     description: "+1 STR",
     classes: ["warrior", "assassin"],
     stats: { str: 1 }, durationMod: 1, lootMod: 1,
@@ -46,6 +47,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "steel_sword", name: "Steel Sword", icon: "🗡️", slot: "mainHand",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/steel_sword.png",
     description: "+3 STR, +1 DEX",
     classes: ["warrior", "assassin"],
     stats: { str: 3, dex: 1 }, durationMod: 1, lootMod: 1.05,
@@ -54,7 +56,8 @@ export const ITEMS: ItemDefinition[] = [
 
   // ── Staves (Woodworker) — wizard, priest ──────────────────────
   {
-    id: "wooden_staff", name: "Wooden Staff", icon: "🪄", slot: "mainHand", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/wooden_staff.png",
+    id: "wooden_staff", name: "Wooden Staff", icon: "🪄", slot: "mainHand",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/wooden_staff.png",
     description: "+1 INT",
     classes: ["wizard", "priest"],
     stats: { int: 1 }, durationMod: 1, lootMod: 1,
@@ -62,6 +65,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "enchanted_staff", name: "Enchanted Staff", icon: "✨", slot: "mainHand",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/enchanted_staff.png",
     description: "+4 INT, +2 WIS, -15% duration", twoHanded: true,
     classes: ["wizard", "priest"],
     stats: { int: 4, wis: 2 }, durationMod: 0.85, lootMod: 1,
@@ -71,6 +75,7 @@ export const ITEMS: ItemDefinition[] = [
   // ── Bows (Woodworker) — archer ────────────────────────────────
   {
     id: "short_bow", name: "Short Bow", icon: "🏹", slot: "mainHand",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/short_bow.png",
     description: "+1 DEX (basic)",
     classes: ["archer"],
     stats: { dex: 1 }, durationMod: 1, lootMod: 1,
@@ -78,6 +83,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "hunting_bow", name: "Hunting Bow", icon: "🏹", slot: "mainHand",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/hunting_bow.png",
     description: "+1 DEX",
     classes: ["archer"],
     stats: { dex: 1 }, durationMod: 1, lootMod: 1,
@@ -85,6 +91,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "longbow", name: "Longbow", icon: "🎯", slot: "mainHand",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/longbow.png",
     description: "+3 DEX, +1 STR",
     classes: ["archer"],
     stats: { dex: 3, str: 1 }, durationMod: 1, lootMod: 1.05,
@@ -94,6 +101,7 @@ export const ITEMS: ItemDefinition[] = [
   // ── Plate armor (Blacksmith) — warrior ────────────────────────
   {
     id: "iron_shield", name: "Iron Shield", icon: "🛡️", slot: "offHand",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/iron_shield.png",
     description: "+2 VIT, 45 DEF",
     classes: ["warrior"],
     stats: { vit: 2 }, durationMod: 1, lootMod: 1,
@@ -101,6 +109,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "iron_armor", name: "Iron Armor", icon: "🦺", slot: "chest",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/iron_armor.png",
     description: "+3 VIT, +1 STR, 65 DEF",
     classes: ["warrior"],
     stats: { vit: 3, str: 1 }, durationMod: 1, lootMod: 1,
@@ -108,6 +117,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "chainmail", name: "Chainmail Armor", icon: "⛓️", slot: "chest",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/chainmail_armor.png",
     description: "+4 VIT, +1 STR, 55 DEF",
     classes: ["warrior", "archer"],
     stats: { vit: 4, str: 1 }, durationMod: 1, lootMod: 1,
@@ -117,6 +127,7 @@ export const ITEMS: ItemDefinition[] = [
   // ── Light armor (Woodworker) ──────────────────────────────────
   {
     id: "wooden_shield", name: "Wooden Shield", icon: "🪵", slot: "offHand",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/wooden_shield.png",
     description: "+1 VIT, 25 DEF",
     classes: ["warrior", "archer", "assassin"],
     stats: { vit: 1 }, durationMod: 1, lootMod: 1,
@@ -181,6 +192,7 @@ export const ITEMS: ItemDefinition[] = [
   // ── Leather armor (Leatherworking) ────────────────────────────
   {
     id: "leather_vest", name: "Leather Vest", icon: "🦺", slot: "chest",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leather_vest.png",
     description: "+1 DEX, 30 DEF",
     classes: ["assassin", "archer"],
     stats: { dex: 1 }, durationMod: 1, lootMod: 1,
@@ -188,6 +200,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "leather_boots", name: "Leather Boots", icon: "🥾", slot: "boots",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leather_boots.png",
     description: "+1 DEX, 15 DEF",
     classes: [],
     stats: { dex: 1 }, durationMod: 1, lootMod: 1,
@@ -195,6 +208,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "leather_hood", name: "Leather Hood", icon: "🪖", slot: "head",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leather_hood.png",
     description: "+1 DEX, 15 DEF",
     classes: ["assassin", "archer"],
     stats: { dex: 1 }, durationMod: 1, lootMod: 1,
@@ -202,6 +216,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "leather_pants", name: "Leather Pants", icon: "👖", slot: "legs",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leather_pants.png",
     description: "+1 VIT, 20 DEF",
     classes: ["assassin", "archer", "warrior"],
     stats: { vit: 1 }, durationMod: 1, lootMod: 1,
@@ -209,6 +224,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "leather_cloak", name: "Leather Cloak", icon: "🧥", slot: "cloak",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leather_cloak.png",
     description: "+1 DEX, 12 DEF",
     classes: ["assassin", "archer"],
     stats: { dex: 1 }, durationMod: 1, lootMod: 1,
@@ -216,6 +232,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "rangers_garb", name: "Ranger's Garb", icon: "🏹", slot: "chest",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/rangers_garb.png",
     description: "+2 DEX, +1 VIT, 40 DEF",
     classes: ["archer"],
     stats: { dex: 2, vit: 1 }, durationMod: 1, lootMod: 1,
@@ -223,6 +240,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "shadow_mantle", name: "Shadow Mantle", icon: "🗡️", slot: "cloak",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/shadow_mantle.png",
     description: "+2 DEX, +1 STR, 22 DEF",
     classes: ["assassin"],
     stats: { dex: 2, str: 1 }, durationMod: 1, lootMod: 1,
@@ -234,6 +252,7 @@ export const ITEMS: ItemDefinition[] = [
   // Blacksmith — material weapons & armor
   {
     id: "orc_cleaver", name: "Orc Cleaver", icon: "🪓", slot: "mainHand",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/orc_cleaver.png",
     description: "+3 STR. Crude but brutally effective.",
     classes: ["warrior"],
     stats: { str: 3 }, durationMod: 1, lootMod: 1,
@@ -241,6 +260,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "cursed_blade", name: "Cursed Blade", icon: "⚔️", slot: "mainHand",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/cursed_blade.png",
     description: "+2 STR, +2 INT. The edge never dulls. It whispers when drawn.",
     classes: ["warrior", "assassin"],
     stats: { str: 2, int: 2 }, durationMod: 1, lootMod: 1,
@@ -248,6 +268,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "dragonbone_sword", name: "Dragonbone Sword", icon: "🗡️", slot: "mainHand",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/dragonbone_sword.png",
     description: "+5 STR, +2 DEX. Forged with dragon fang — it cuts through armor like parchment.",
     classes: ["warrior", "assassin"],
     stats: { str: 5, dex: 2 }, durationMod: 1, lootMod: 1,
@@ -324,6 +345,7 @@ export const ITEMS: ItemDefinition[] = [
   // Woodworker — material weapons
   {
     id: "sinew_bow", name: "Sinew Bow", icon: "🏹", slot: "mainHand",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/sinew_bow.png",
     description: "+2 DEX, +1 STR. Wolf-sinew string. Never snaps in the cold.",
     classes: ["archer"],
     stats: { dex: 2, str: 1 }, durationMod: 1, lootMod: 1,
@@ -331,6 +353,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "dragonfire_staff", name: "Dragonfire Staff", icon: "🔥", slot: "mainHand",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/dragonfire_staff.png",
     description: "+5 INT, +2 WIS. The tip smolders permanently. Ink evaporates near it.",
     classes: ["wizard"],
     stats: { int: 5, wis: 2 }, durationMod: 0.9, lootMod: 1,
