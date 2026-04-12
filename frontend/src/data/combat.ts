@@ -87,6 +87,26 @@ export interface CombatResult {
   loot: LootResult[];    // loot rolled from killed enemies
 }
 
+// ─── Seeded PRNG (mulberry32) ────────────────────────────────────
+// Used for deterministic combat simulation previews.
+// When seed is undefined, falls back to combatRandom().
+
+let _combatSeed: number | undefined;
+
+function setCombatSeed(seed: number | undefined) {
+  _combatSeed = seed;
+}
+
+function combatRandom(): number {
+  if (_combatSeed === undefined) return combatRandom();
+  // Mulberry32
+  _combatSeed |= 0;
+  _combatSeed = _combatSeed + 0x6D2B79F5 | 0;
+  let t = Math.imul(_combatSeed ^ _combatSeed >>> 15, 1 | _combatSeed);
+  t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+  return ((t ^ t >>> 14) >>> 0) / 4294967296;
+}
+
 // ─── Derived combat stats ───────────────────────────────────────
 
 function getAttackPower(unit: CombatUnit): number {
@@ -148,11 +168,11 @@ function pickTarget(attacker: CombatUnit, targets: CombatUnit[]): CombatUnit | n
   const wis = attacker.wis;
 
   if (wis <= 3) {
-    return alive[Math.floor(Math.random() * alive.length)];
+    return alive[Math.floor(combatRandom() * alive.length)];
   }
   if (wis <= 8) {
     const sorted = [...alive].sort((a, b) => a.hp - b.hp);
-    if (sorted.length > 1 && Math.random() < 0.3) return sorted[1];
+    if (sorted.length > 1 && combatRandom() < 0.3) return sorted[1];
     return sorted[0];
   }
   if (wis <= 14) {
@@ -162,7 +182,7 @@ function pickTarget(attacker: CombatUnit, targets: CombatUnit[]): CombatUnit | n
       return { target: t, score: (1 - reduction) * 100 + (1 - t.hp / t.maxHp) * 10 };
     });
     scored.sort((a, b) => b.score - a.score);
-    if (scored.length > 1 && Math.random() < 0.2) return scored[1].target;
+    if (scored.length > 1 && combatRandom() < 0.2) return scored[1].target;
     return scored[0].target;
   }
 
@@ -191,7 +211,7 @@ function pickTargetForAdventurer(attacker: CombatUnit, targets: CombatUnit[]): C
     return { target: t, score: (1 - reduction) * 100 + (1 - t.hp / t.maxHp) * 20 };
   });
   scored.sort((a, b) => b.score - a.score);
-  if (scored.length > 1 && Math.random() < 0.15) return scored[1].target;
+  if (scored.length > 1 && combatRandom() < 0.15) return scored[1].target;
   return scored[0].target;
 }
 
@@ -238,9 +258,9 @@ function calcDamageResult(attacker: CombatUnit, defender: CombatUnit, opts?: { f
   const power = magical ? getMagicPower(attacker) : getAttackPower(attacker);
   const reductionPct = opts?.ignorePhysicalDef ? getMagicResistReduction(defender) : (magical ? getMagicResistReduction(defender) : getDefenseReduction(defender));
 
-  let rawDamage = Math.max(1, Math.floor(power * (0.7 + Math.random() * 0.6)));
+  let rawDamage = Math.max(1, Math.floor(power * (0.7 + combatRandom() * 0.6)));
 
-  const crit = opts?.forceCrit || Math.random() * 100 < (getCritChance(attacker) + getTraitCritBonus(attacker));
+  const crit = opts?.forceCrit || combatRandom() * 100 < (getCritChance(attacker) + getTraitCritBonus(attacker));
   if (crit) rawDamage = Math.floor(rawDamage * 1.5);
 
   if (opts?.damageMult) rawDamage = Math.floor(rawDamage * opts.damageMult);
@@ -354,7 +374,7 @@ function tryWarriorAbility(unit: CombatUnit, allies: CombatUnit[], enemies: Comb
     startCooldown(unit, "taunt", 4);
     for (const enemy of enemies) {
       // Iron Will trait: 10% chance to resist taunt
-      if (enemy.trait === "iron_will" && Math.random() < 0.10) continue;
+      if (enemy.trait === "iron_will" && combatRandom() < 0.10) continue;
       enemy.tauntedBy = unit.id;
     }
     log.push({
@@ -430,7 +450,7 @@ function tryPriestAbility(unit: CombatUnit, allies: CombatUnit[], enemies: Comba
     const hits: { name: string; damage: number; killed: boolean; hp: number; maxHp: number }[] = [];
     for (const a of allies) {
       if (a.hp >= a.maxHp) continue;
-      const heal = Math.floor(healBase * (0.8 + Math.random() * 0.4));
+      const heal = Math.floor(healBase * (0.8 + combatRandom() * 0.4));
       a.hp = Math.min(a.maxHp, a.hp + heal);
       hits.push({ name: a.name, damage: -heal, killed: false, hp: a.hp, maxHp: a.maxHp });
     }
@@ -445,7 +465,7 @@ function tryPriestAbility(unit: CombatUnit, allies: CombatUnit[], enemies: Comba
   // Single heal if one ally below 50%
   if (woundedAllies.length === 1) {
     const target = woundedAllies[0];
-    const healAmount = Math.floor(unit.int * 0.6 * (0.8 + Math.random() * 0.4));
+    const healAmount = Math.floor(unit.int * 0.6 * (0.8 + combatRandom() * 0.4));
     target.hp = Math.min(target.maxHp, target.hp + healAmount);
     log.push({
       round, attackerName: unit.name, attackerIcon: "💚", targetName: target.name,
@@ -478,7 +498,7 @@ function tryArcherAbility(unit: CombatUnit, enemies: CombatUnit[], round: number
   if (canUseAbility(unit, "multi_shot") && enemies.length >= 2) {
     startCooldown(unit, "multi_shot", 3);
     // Hit up to 3 random enemies
-    const shuffled = [...enemies].sort(() => Math.random() - 0.5);
+    const shuffled = [...enemies].sort(() => combatRandom() - 0.5);
     const targets = shuffled.slice(0, Math.min(3, enemies.length));
     const hits: { name: string; damage: number; killed: boolean; hp: number; maxHp: number }[] = [];
     for (const t of targets) {
@@ -595,7 +615,7 @@ function tryEnemyAbility(
     switch (eff.type) {
       case "bleed":
       case "poison": {
-        const target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)];
+        const target = aliveTargets[Math.floor(combatRandom() * aliveTargets.length)];
         if (!target) return false;
         const dotDmg = Math.floor(getAttackPower(unit) * eff.pctPerRound / 100);
         target.poisonTicks.push({ damage: dotDmg, rounds: eff.rounds });
@@ -658,7 +678,7 @@ function tryEnemyAbility(
 
       case "damage_mult": {
         // Pick target(s) and deal multiplied damage
-        const tgts = aliveTargets.slice().sort(() => Math.random() - 0.5).slice(0, eff.targets);
+        const tgts = aliveTargets.slice().sort(() => combatRandom() - 0.5).slice(0, eff.targets);
         const hits: { name: string; damage: number; killed: boolean; hp: number; maxHp: number }[] = [];
         for (const t of tgts) {
           const { damage } = calcDamageResult(unit, t, { damageMult: eff.mult });
@@ -699,7 +719,7 @@ function tryEnemyAbility(
       }
 
       case "debuff_target": {
-        const target = aliveTargets[Math.floor(Math.random() * aliveTargets.length)];
+        const target = aliveTargets[Math.floor(combatRandom() * aliveTargets.length)];
         if (!target) continue;
         const reduction = Math.floor((target as any)[eff.stat] * eff.pct / 100);
         (target as any)[eff.stat] = Math.max(1, (target as any)[eff.stat] - reduction);
@@ -715,7 +735,7 @@ function tryEnemyAbility(
       }
 
       case "mind_control": {
-        const target = aliveTargets.filter((t) => !t.mindControlled).sort(() => Math.random() - 0.5)[0];
+        const target = aliveTargets.filter((t) => !t.mindControlled).sort(() => combatRandom() - 0.5)[0];
         if (!target) continue;
         target.mindControlled = eff.rounds;
         log.push({
@@ -781,8 +801,10 @@ export function simulateCombat(
   mission: MissionTemplate,
   team: Adventurer[],
   supplies?: string[],
+  seed?: number,
 ): CombatResult | null {
   if (!mission.encounters?.length || team.length === 0) return null;
+  setCombatSeed(seed);
 
   const adventurers = team.map(buildAdventurerUnit);
 
@@ -963,7 +985,7 @@ export function simulateCombat(
       const target = unit.isEnemy ? pickTarget(unit, targetPool) : pickTargetForAdventurer(unit, targetPool);
       if (!target || target.hp <= 0) continue;
 
-      const dodged = Math.random() * 100 < getDodgeChance(target);
+      const dodged = combatRandom() * 100 < getDodgeChance(target);
       if (dodged) {
         log.push({
           round, attackerName: unit.name,
@@ -983,7 +1005,7 @@ export function simulateCombat(
       if (unit.isEnemy && target.hp - damage <= 0 && !target.isEnemy) {
         // Check if a warrior can absorb
         const warriors = adventurers.filter((a) => a.hp > 0 && a.class === "warrior" && a.id !== target.id && !a.shieldWallUsed);
-        if (warriors.length > 0 && Math.random() < 0.5) {
+        if (warriors.length > 0 && combatRandom() < 0.5) {
           const protector = warriors[0];
           protector.shieldWallUsed = true;
           protector.hp -= damage;
@@ -1041,9 +1063,9 @@ export function simulateCombat(
     const def = getEnemy(unit.enemyDefId);
     if (!def?.loot?.length) continue;
     for (const drop of def.loot) {
-      if (Math.random() > drop.chance) continue;
+      if (combatRandom() > drop.chance) continue;
       if (drop.type === "resource") {
-        const amount = drop.min + Math.floor(Math.random() * (drop.max - drop.min + 1));
+        const amount = drop.min + Math.floor(combatRandom() * (drop.max - drop.min + 1));
         if (amount > 0) {
           loot.push({ type: "resource", resource: drop.resource, amount, fromEnemy: unit.name });
         }
@@ -1053,5 +1075,6 @@ export function simulateCombat(
     }
   }
 
+  setCombatSeed(undefined); // restore Math.random for non-preview combat
   return { victory, rounds: round, log, performanceRatio, survivingEnemies, totalEnemies, fallenAdventurerIds, loot };
 }

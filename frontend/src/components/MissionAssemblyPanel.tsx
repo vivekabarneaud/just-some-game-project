@@ -53,8 +53,6 @@ export default function MissionAssemblyPanel(props: Props) {
   const { state, actions } = useGame();
   const [teamIds, setTeamIds] = createSignal<string[]>([]);
   const [supplies, setSupplies] = createSignal<string[]>([]);
-  const [cachedSuccess, setCachedSuccess] = createSignal<{ key: string; pct: number }>({ key: "", pct: 0 });
-
   const mission = () => props.mission;
   const freshMission = () => getMission(mission().id) ?? mission();
   const slotInfo = () => actions.getMissionSlotInfo();
@@ -101,6 +99,8 @@ export default function MissionAssemblyPanel(props: Props) {
       }
       return prev;
     });
+    // Recompute success after team change (outside reactive context)
+    setTimeout(recomputeSuccess, 0);
   };
 
   const team = createMemo(() =>
@@ -127,40 +127,56 @@ export default function MissionAssemblyPanel(props: Props) {
     return assignments;
   });
 
-  // ─── Success chance (cached, no reactive loop) ────────────────
-  const successChance = () => {
-    const ids = teamIds();
-    if (ids.length === 0) return 0;
-    const key = `${mission().id}:${ids.join(",")}`;
-    if (cachedSuccess().key === key) return cachedSuccess().pct;
+  // ─── Success chance ────────────────────────────────────────────
+  // Computed outside of SolidJS reactivity entirely.
+  // We store the result in a signal and only update it when team/supplies change.
+  // ─── Success chance ────────────────────────────────────────────
+  // Uses seeded PRNG: same team = same result. Single simulation, instant.
+  const [successPct, setSuccessPct] = createSignal(0);
+
+  function recomputeSuccess() {
+    const ids = [...teamIds()];
+    const sups = [...supplies()];
+
+    if (ids.length === 0) { setSuccessPct(0); return; }
+
+    const snapshot: Adventurer[] = [];
+    for (const id of ids) {
+      const a = state.adventurers.find((x) => x.id === id);
+      if (a) snapshot.push(JSON.parse(JSON.stringify(a)));
+    }
+    if (snapshot.length === 0) { setSuccessPct(0); return; }
 
     const fm = freshMission();
-    let pct: number;
 
     if (fm.encounters?.length) {
-      const plainTeam = team().map((a) => JSON.parse(JSON.stringify(a)));
+      // Generate a stable seed from team composition
+      const seedStr = ids.sort().join(",") + "|" + fm.id;
+      let seed = 0;
+      for (let i = 0; i < seedStr.length; i++) seed = ((seed << 5) - seed + seedStr.charCodeAt(i)) | 0;
+
+      // Run 5 seeded simulations with different sub-seeds for a stable average
       let wins = 0;
-      for (let i = 0; i < 25; i++) {
-        if (simulateCombat(fm, plainTeam, supplies())?.victory) wins++;
+      const SIMS = 5;
+      for (let i = 0; i < SIMS; i++) {
+        if (simulateCombat(fm, snapshot, sups, seed + i)?.victory) wins++;
       }
-      pct = Math.round((wins / 25) * 100);
+      setSuccessPct(Math.round((wins / SIMS) * 100));
     } else {
-      // Non-combat: stat-based check with potion stat bonuses
       let statBonus = 0;
-      for (const sid of supplies()) {
+      for (const sid of sups) {
         const eff = getSupplyEffect(sid);
         if (eff) statBonus += eff.successBonus;
       }
-      pct = calcSuccessChance(fm, team(), statBonus);
+      setSuccessPct(calcSuccessChance(fm, snapshot, statBonus));
     }
+  }
 
-    setCachedSuccess({ key, pct });
-    return pct;
+  const successColor = () => {
+    const pct = successPct();
+    return pct >= 70 ? "var(--accent-green)" :
+           pct >= 40 ? "var(--accent-gold)" : "var(--accent-red)";
   };
-
-  const successColor = () =>
-    successChance() >= 70 ? "var(--accent-green)" :
-    successChance() >= 40 ? "var(--accent-gold)" : "var(--accent-red)";
 
   // ─── Supplies ─────────────────────────────────────────────────
   const toggleSupply = (itemId: string) => {
@@ -169,6 +185,7 @@ export default function MissionAssemblyPanel(props: Props) {
       if (prev.length >= MAX_MISSION_SUPPLIES) return prev;
       return [...prev, itemId];
     });
+    setTimeout(recomputeSuccess, 0);
   };
 
   // ─── Duration ─────────────────────────────────────────────────
@@ -333,7 +350,7 @@ export default function MissionAssemblyPanel(props: Props) {
           <div class="team-success">
             <span class="team-success-label">Success</span>
             <span class="team-success-value" style={{ color: successColor() }}>
-              {successChance()}%
+              {successPct()}%
             </span>
           </div>
           <div style={{ "font-size": "0.85rem", color: "var(--text-secondary)" }}>
