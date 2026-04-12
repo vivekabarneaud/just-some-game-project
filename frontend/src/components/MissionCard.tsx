@@ -47,18 +47,6 @@ export default function MissionCard(props: MissionCardProps) {
       <Show when={image()}>
         <div class="building-card-image" style={{ margin: "0", "border-radius": "0" }}>
           <img src={image()} alt={mission().name} loading="lazy" />
-          {/* Story badge top-left */}
-          <Show when={isStory()}>
-            <div style={{
-              position: "absolute", top: "6px", left: "6px",
-              padding: "2px 8px", "border-radius": "4px",
-              background: "rgba(0, 0, 0, 0.7)",
-              "font-size": "0.6rem", "line-height": "1.4",
-              color: "var(--accent-gold)", "text-transform": "uppercase", "letter-spacing": "0.5px",
-            }}>
-              Story · {props.storyChapter}
-            </div>
-          </Show>
           {/* Difficulty badge top-right */}
           <div style={{
             position: "absolute", top: "6px", right: "6px",
@@ -75,6 +63,11 @@ export default function MissionCard(props: MissionCardProps) {
           </div>
           {/* Title overlay */}
           <div class="building-card-image-overlay">
+            <Show when={isStory()}>
+              <div style={{ "font-size": "0.6rem", color: "var(--accent-gold)", "margin-bottom": "2px", "text-transform": "uppercase", "letter-spacing": "0.5px", opacity: "0.8" }}>
+                Story Mission · {props.storyChapter}
+              </div>
+            </Show>
             <div class="building-card-title" style={{ color: isStory() ? "var(--accent-gold)" : undefined }}>
               {mission().name}
             </div>
