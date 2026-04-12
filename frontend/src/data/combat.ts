@@ -98,7 +98,7 @@ function setCombatSeed(seed: number | undefined) {
 }
 
 function combatRandom(): number {
-  if (_combatSeed === undefined) return combatRandom();
+  if (_combatSeed === undefined) return Math.random();
   // Mulberry32
   _combatSeed |= 0;
   _combatSeed = _combatSeed + 0x6D2B79F5 | 0;
