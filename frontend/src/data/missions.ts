@@ -46,6 +46,7 @@ export interface ActiveMission {
   adventurerIds: string[];
   remaining: number; // game-seconds remaining
   successChance: number; // 0-100, locked in at deploy
+  supplies?: string[];   // potion IDs brought on the mission
 }
 
 export interface CompletedMission {

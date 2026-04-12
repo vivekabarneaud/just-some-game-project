@@ -1655,7 +1655,7 @@ export function GameProvider(props: ParentProps) {
               const team = am.adventurerIds.map((id) => s.adventurers.find((a) => a.id === id)).filter(Boolean) as Adventurer[];
 
               // Combat simulation for missions with encounters; probability for the rest
-              const combatResult = template ? simulateCombat(template, team) : null;
+              const combatResult = template ? simulateCombat(template, team, am.supplies) : null;
               const success = combatResult ? combatResult.victory : Math.random() * 100 < am.successChance;
 
               const casualties: string[] = [];
@@ -2380,6 +2380,7 @@ export function GameProvider(props: ParentProps) {
           adventurerIds: [...adventurerIds],
           remaining: effectiveDuration,
           successChance,
+          supplies: [...supplies],
         });
         // Remove from mission board so it can't be repeated
         s.missionBoard = s.missionBoard.filter((m) => m.id !== template.id);

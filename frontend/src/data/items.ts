@@ -384,34 +384,73 @@ export function getItemsForSlot(slot: ItemSlot, adventurerClass?: AdventurerClas
   });
 }
 
-// ─── Mission Supplies (potions used at deploy time) ─────────────
+// ─── Potion System ──────────────────────────────────────────────
+// Two categories:
+// - Mission potions: used at deploy for non-combat missions (success%, death reduction)
+// - Combat potions: consumed during combat (healing, damage boost, defense)
+
+export type PotionCategory = "mission" | "combat";
 
 export interface MissionSupplyEffect {
-  successBonus: number;   // flat % added to success chance
-  deathReduction: number; // multiplier on death chance (0.5 = halved)
+  successBonus: number;
+  deathReduction: number;
 }
 
-const SUPPLY_EFFECTS: Record<string, MissionSupplyEffect> = {
-  // Old crafted potions
-  "healing_potion_equip":   { successBonus: 0,  deathReduction: 0.5 },
-  "strength_elixir_equip":  { successBonus: 10, deathReduction: 1.0 },
-  "antidote_equip":         { successBonus: 5,  deathReduction: 0.7 },
-  // Alchemy potions
-  "healing_salve":          { successBonus: 0,  deathReduction: 0.75 },
-  "vigor_tea":              { successBonus: 5,  deathReduction: 1.0 },
-  "herbal_antidote":        { successBonus: 5,  deathReduction: 0.85 },
-  "strength_draught":       { successBonus: 10, deathReduction: 1.0 },
-  "mending_potion":         { successBonus: 0,  deathReduction: 0.5 },
-  "swiftfoot_brew":         { successBonus: 3,  deathReduction: 1.0 },
-  "eagle_eye_elixir":       { successBonus: 15, deathReduction: 1.0 },
+export interface CombatPotionEffect {
+  type: "heal_pct" | "damage_boost" | "defense_boost" | "cleanse" | "haste";
+  value: number;        // heal%=25 means 25% max HP, damage_boost=50 means +50%, etc.
+  duration?: number;    // rounds for buffs (undefined = instant)
+  trigger: "auto_low_hp" | "before_first_attack" | "on_use";  // when the AI drinks it
+}
+
+export interface PotionInfo {
+  category: PotionCategory;
+  mission?: MissionSupplyEffect;
+  combat?: CombatPotionEffect;
+}
+
+const POTION_REGISTRY: Record<string, PotionInfo> = {
+  // ── Mission potions (non-combat only) ─────────────────────────
+  "healing_potion_equip":   { category: "mission", mission: { successBonus: 0,  deathReduction: 0.5 } },
+  "antidote_equip":         { category: "mission", mission: { successBonus: 5,  deathReduction: 0.7 } },
+  "healing_salve":          { category: "mission", mission: { successBonus: 0,  deathReduction: 0.75 } },
+  "vigor_tea":              { category: "mission", mission: { successBonus: 5,  deathReduction: 1.0 } },
+  "herbal_antidote":        { category: "mission", mission: { successBonus: 5,  deathReduction: 0.85 } },
+  "mending_potion":         { category: "mission", mission: { successBonus: 0,  deathReduction: 0.5 } },
+  "swiftfoot_brew":         { category: "mission", mission: { successBonus: 3,  deathReduction: 1.0 } },
+  "eagle_eye_elixir":       { category: "mission", mission: { successBonus: 15, deathReduction: 1.0 } },
+
+  // ── Combat potions (used during combat, consumed) ─────────────
+  "strength_elixir_equip":  { category: "combat", combat: { type: "damage_boost", value: 50, duration: 2, trigger: "before_first_attack" } },
+  "strength_draught":       { category: "combat", combat: { type: "damage_boost", value: 25, duration: 3, trigger: "before_first_attack" } },
+  "ironhide_tonic":         { category: "combat", combat: { type: "defense_boost", value: 30, duration: 3, trigger: "auto_low_hp" } },
+  "phoenix_tears":          { category: "combat", combat: { type: "heal_pct", value: 100, trigger: "auto_low_hp" } },
+  "scholars_draught":       { category: "mission", mission: { successBonus: 0, deathReduction: 1.0 } }, // XP bonus handled separately
+  "foragers_tonic":         { category: "mission", mission: { successBonus: 0, deathReduction: 1.0 } }, // food bonus handled separately
 };
 
+export function getPotionInfo(itemId: string): PotionInfo | undefined {
+  return POTION_REGISTRY[itemId];
+}
+
 export function getSupplyEffect(itemId: string): MissionSupplyEffect | undefined {
-  return SUPPLY_EFFECTS[itemId];
+  return POTION_REGISTRY[itemId]?.mission;
+}
+
+export function getCombatPotionEffect(itemId: string): CombatPotionEffect | undefined {
+  return POTION_REGISTRY[itemId]?.combat;
 }
 
 export function isSupplyItem(itemId: string): boolean {
-  return itemId in SUPPLY_EFFECTS;
+  return itemId in POTION_REGISTRY;
+}
+
+export function isCombatPotion(itemId: string): boolean {
+  return POTION_REGISTRY[itemId]?.category === "combat";
+}
+
+export function isMissionPotion(itemId: string): boolean {
+  return POTION_REGISTRY[itemId]?.category === "mission";
 }
 
 export interface InventoryItem {
@@ -419,9 +458,9 @@ export interface InventoryItem {
   quantity: number;
 }
 
-export function getAvailableSupplies(inventory: InventoryItem[]): { item: { id: string; name: string; icon: string; description: string }; qty: number }[] {
+export function getAvailableSupplies(inventory: InventoryItem[], category?: PotionCategory): { item: { id: string; name: string; icon: string; description: string }; qty: number }[] {
   return inventory
-    .filter((inv) => inv.quantity > 0 && isSupplyItem(inv.itemId))
+    .filter((inv) => inv.quantity > 0 && isSupplyItem(inv.itemId) && (!category || POTION_REGISTRY[inv.itemId]?.category === category))
     .map((inv) => {
       const item = getItem(inv.itemId);
       if (item) return { item, qty: inv.quantity };

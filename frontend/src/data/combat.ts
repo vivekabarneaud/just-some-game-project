@@ -3,7 +3,7 @@
 
 import type { Adventurer, AdventurerClass } from "./adventurers";
 import { calcStats, BACKSTORY_TRAITS } from "./adventurers";
-import { getEquipmentStats, getEquipmentDefense } from "./items";
+import { getEquipmentStats, getEquipmentDefense, getCombatPotionEffect, type CombatPotionEffect } from "./items";
 import { getEnemy } from "./enemies";
 import type { EnemyTag, EnemyAbility } from "./enemies";
 import type { MissionTemplate, MissionEncounter } from "./missions";
@@ -36,6 +36,10 @@ export interface CombatUnit {
   poisonTicks: { damage: number; rounds: number }[]; // active poison DoTs
   shieldWallUsed?: boolean; // warrior passive: once per combat
   enemyAbilities?: EnemyAbility[]; // enemy special abilities
+  combatPotion?: CombatPotionEffect; // potion to drink during combat
+  potionUsed?: boolean;              // has the potion been consumed
+  damageBoost?: { pct: number; rounds: number }; // active damage buff from potion
+  defenseBoost?: { pct: number; rounds: number }; // active defense buff from potion
   mindControlled?: number; // rounds remaining of mind control (attacks own team)
   statDebuffs?: { stat: string; pct: number; rounds: number }[]; // temporary stat reductions
 }
@@ -97,7 +101,8 @@ function getMagicPower(unit: CombatUnit): number {
 }
 
 function getDefenseReduction(unit: CombatUnit): number {
-  const def = unit.isEnemy ? unit.vit * 3 : unit.gearDefense;
+  let def = unit.isEnemy ? unit.vit * 3 : unit.gearDefense;
+  if (unit.defenseBoost) def = Math.floor(def * (1 + unit.defenseBoost.pct / 100));
   return def / (def + 150);
 }
 
@@ -239,6 +244,9 @@ function calcDamageResult(attacker: CombatUnit, defender: CombatUnit, opts?: { f
   if (crit) rawDamage = Math.floor(rawDamage * 1.5);
 
   if (opts?.damageMult) rawDamage = Math.floor(rawDamage * opts.damageMult);
+
+  // Combat potion damage boost
+  if (attacker.damageBoost) rawDamage = Math.floor(rawDamage * (1 + attacker.damageBoost.pct / 100));
 
   // Trait bonus vs enemy type
   const traitBonus = getTraitDamageBonus(attacker, defender);
@@ -772,10 +780,19 @@ function tryEnemyAbility(
 export function simulateCombat(
   mission: MissionTemplate,
   team: Adventurer[],
+  supplies?: string[],
 ): CombatResult | null {
   if (!mission.encounters?.length || team.length === 0) return null;
 
   const adventurers = team.map(buildAdventurerUnit);
+
+  // Assign combat potions to adventurers (round-robin)
+  if (supplies?.length) {
+    const combatPotions = supplies.map((s) => getCombatPotionEffect(s)).filter(Boolean) as CombatPotionEffect[];
+    for (let i = 0; i < combatPotions.length && i < adventurers.length; i++) {
+      adventurers[i].combatPotion = combatPotions[i];
+    }
+  }
 
   // Family bond: +2 to all stats per shared family member
   const familyBonuses = calcFamilyBonuses(team);
@@ -853,6 +870,59 @@ export function simulateCombat(
     // Sort all alive units by initiative
     const allAlive = [...aliveAfterDots, ...aliveEnemiesAfterDots]
       .sort((a, b) => getInitiative(b) - getInitiative(a));
+
+    // ── Potion phase: auto-drink combat potions (doesn't cost a turn) ──
+    for (const unit of aliveAfterDots) {
+      if (unit.potionUsed || !unit.combatPotion) continue;
+      const pot = unit.combatPotion;
+      let shouldDrink = false;
+
+      if (pot.trigger === "before_first_attack" && round === 1) shouldDrink = true;
+      if (pot.trigger === "auto_low_hp" && unit.hp / unit.maxHp < 0.4) shouldDrink = true;
+
+      if (shouldDrink) {
+        unit.potionUsed = true;
+        if (pot.type === "heal_pct") {
+          const heal = Math.floor(unit.maxHp * pot.value / 100);
+          unit.hp = Math.min(unit.maxHp, unit.hp + heal);
+          log.push({
+            round, attackerName: unit.name, attackerIcon: "🧪",
+            abilityName: "Combat Potion",
+            targetName: unit.name, damage: heal, dodged: false, crit: false,
+            killed: false, targetHp: unit.hp, targetMaxHp: unit.maxHp,
+            isEnemy: false, healed: true, healAmount: heal,
+          });
+        } else if (pot.type === "damage_boost") {
+          unit.damageBoost = { pct: pot.value, rounds: pot.duration ?? 2 };
+          log.push({
+            round, attackerName: unit.name, attackerIcon: "🧪",
+            abilityName: "Damage Potion",
+            targetName: unit.name, damage: 0, dodged: false, crit: false,
+            killed: false, targetHp: unit.hp, targetMaxHp: unit.maxHp, isEnemy: false,
+          });
+        } else if (pot.type === "defense_boost") {
+          unit.defenseBoost = { pct: pot.value, rounds: pot.duration ?? 2 };
+          log.push({
+            round, attackerName: unit.name, attackerIcon: "🧪",
+            abilityName: "Defense Potion",
+            targetName: unit.name, damage: 0, dodged: false, crit: false,
+            killed: false, targetHp: unit.hp, targetMaxHp: unit.maxHp, isEnemy: false,
+          });
+        }
+      }
+    }
+
+    // Tick potion buff durations
+    for (const unit of [...aliveAfterDots, ...aliveEnemiesAfterDots]) {
+      if (unit.damageBoost) {
+        unit.damageBoost.rounds--;
+        if (unit.damageBoost.rounds <= 0) unit.damageBoost = undefined;
+      }
+      if (unit.defenseBoost) {
+        unit.defenseBoost.rounds--;
+        if (unit.defenseBoost.rounds <= 0) unit.defenseBoost = undefined;
+      }
+    }
 
     // ── Action phase ──
     for (const unit of allAlive) {

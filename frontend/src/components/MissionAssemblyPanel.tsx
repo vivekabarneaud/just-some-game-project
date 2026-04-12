@@ -11,7 +11,7 @@ import {
   type Adventurer,
   type AdventurerClass,
 } from "~/data/adventurers";
-import { getItem, getAvailableSupplies, getSupplyEffect, MAX_MISSION_SUPPLIES } from "~/data/items";
+import { getItem, getAvailableSupplies, getSupplyEffect, getCombatPotionEffect, MAX_MISSION_SUPPLIES } from "~/data/items";
 import {
   type MissionTemplate,
   calcSuccessChance,
@@ -140,7 +140,7 @@ export default function MissionAssemblyPanel(props: Props) {
       const plainTeam = team().map((a) => JSON.parse(JSON.stringify(a)));
       let wins = 0;
       for (let i = 0; i < 25; i++) {
-        if (simulateCombat(fm, plainTeam)?.victory) wins++;
+        if (simulateCombat(fm, plainTeam, supplies())?.victory) wins++;
       }
       pct = Math.round((wins / 25) * 100);
     } else {
@@ -351,16 +351,20 @@ export default function MissionAssemblyPanel(props: Props) {
         </Show>
 
         {/* Supplies */}
+        {(() => {
+          const isCombat = () => !!freshMission().encounters?.length;
+          const potionCat = () => isCombat() ? "combat" as const : "mission" as const;
+          return (
         <div style={{ "margin-top": "12px" }}>
           <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-bottom": "8px" }}>
-            🧪 Supplies ({supplies().length}/{MAX_MISSION_SUPPLIES})
+            🧪 {isCombat() ? "Combat Potions" : "Mission Supplies"} ({supplies().length}/{MAX_MISSION_SUPPLIES})
           </div>
 
           <Show when={supplies().length > 0}>
             <div style={{ display: "flex", gap: "6px", "margin-bottom": "10px", "flex-wrap": "wrap" }}>
               <For each={supplies()}>
                 {(supplyId) => {
-                  const allSupplies = () => getAvailableSupplies(state.inventory);
+                  const allSupplies = () => getAvailableSupplies(state.inventory, potionCat());
                   const info = () => allSupplies().find((s) => s.item.id === supplyId)?.item ?? getItem(supplyId);
                   const effect = () => getSupplyEffect(supplyId);
                   return (
@@ -391,7 +395,7 @@ export default function MissionAssemblyPanel(props: Props) {
           </Show>
 
           {(() => {
-            const availableSupplies = () => getAvailableSupplies(state.inventory);
+            const availableSupplies = () => getAvailableSupplies(state.inventory, potionCat());
             return (
               <Show when={availableSupplies().length > 0}>
                 <div style={{
@@ -437,6 +441,8 @@ export default function MissionAssemblyPanel(props: Props) {
             );
           })()}
         </div>
+          );
+        })()}
 
         <button
           class="upgrade-btn"
