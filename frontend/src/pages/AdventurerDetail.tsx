@@ -17,7 +17,7 @@ import {
   RACE_NAMES,
   BACKSTORY_TRAITS,
 } from "~/data/adventurers";
-import { getItem, getItemsForSlot, getEquipmentStats, isSupplyItem, type ItemSlot } from "~/data/items";
+import { getItem, getItemsForSlot, getEquipmentStats, getEquipmentDefense, isSupplyItem, type ItemSlot } from "~/data/items";
 import { getTalentsForClass, getTalentPoints, getUnspentTalentPoints, canUnlockTalent, getEarnedTitle, getTalent, type TalentNode } from "~/data/talents";
 import Tooltip from "~/components/Tooltip";
 import TraitBadge from "~/components/TraitBadge";
@@ -203,7 +203,7 @@ export default function AdventurerDetail() {
                 );
               })()}
 
-              <div class="overview-grid">
+              <div class="overview-grid" style={{ "grid-template-columns": "minmax(240px, 0.6fr) 1fr" }}>
                 {/* Stats */}
                 <div class="overview-panel">
                   <h2>Stats</h2>
@@ -243,12 +243,13 @@ export default function AdventurerDetail() {
                     const hp = s.vit * 8;
                     const attackPower = adv().class === "warrior" ? s.str : (adv().class === "archer" || adv().class === "assassin") ? s.dex : s.int;
                     const spellPower = s.int;
+                    const defense = getEquipmentDefense(adv().equipment);
                     const critChance = Math.min(50, Math.round(5 + s.dex * 0.5 + (adv().class === "assassin" ? 10 : 0)));
                     const dodgeChance = Math.min(20, s.dex);
                     const initiative = s.dex + Math.floor(s.wis / 2);
 
                     const statRows: { key: keyof typeof s; name: string; icon: string; color: string; derived: string }[] = [
-                      { key: "vit", name: "Vitality", icon: "❤️", color: "#e67e22", derived: `HP ${hp}` },
+                      { key: "vit", name: "Vitality", icon: "❤️", color: "#e67e22", derived: `HP ${hp} · DEF ${defense}` },
                       { key: "str", name: "Strength", icon: "💪", color: "#e74c3c", derived: `ATK ${adv().class === "warrior" ? attackPower : s.str}` },
                       { key: "int", name: "Intelligence", icon: "🧠", color: "#3498db", derived: `SP ${spellPower}` },
                       { key: "dex", name: "Dexterity", icon: "🏃", color: "#2ecc71", derived: `${critChance}% Crit · ${dodgeChance}% Dodge` },
