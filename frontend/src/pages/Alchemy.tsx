@@ -3,6 +3,7 @@ import { A } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
 import { HERBS } from "~/data/herbs";
 import { ALCHEMY_RECIPES, getAvailableAlchemyRecipes, getDiscoverableRecipes, RESEARCH_BASE_COST } from "~/data/alchemy_recipes";
+import { isCombatPotion } from "~/data/items";
 import Countdown from "~/components/Countdown";
 
 function formatTime(seconds: number): string {
@@ -236,6 +237,9 @@ export default function Alchemy() {
                       </div>
                       <div style={{ "margin-top": "4px", padding: "4px 8px", background: "var(--bg-primary)", "border-radius": "4px", "font-size": "0.75rem" }}>
                         <span style={{ color: "var(--accent-green)" }}>{recipe.description}</span>
+                        <div style={{ "margin-top": "3px", "font-size": "0.65rem", color: isCombatPotion(recipe.id) ? "var(--accent-red)" : "var(--accent-blue)" }}>
+                          {isCombatPotion(recipe.id) ? "⚔️ Combat only" : "📋 Non-combat missions only"}
+                        </div>
                       </div>
                       <div style={{ "margin-top": "6px", "font-size": "0.8rem", color: "var(--text-secondary)" }}>
                         Cost:{" "}
