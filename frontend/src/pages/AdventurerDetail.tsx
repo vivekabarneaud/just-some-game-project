@@ -259,7 +259,7 @@ export default function AdventurerDetail() {
                       const val = () => s[stat.key];
                       const bonus = () => adv().bonusStats[stat.key] ?? 0;
                       return (
-                        <div style={{ display: "flex", "align-items": "center", "justify-content": "space-between", "margin-bottom": "8px", "font-size": "0.85rem" }}>
+                        <div style={{ display: "flex", "align-items": "center", gap: "16px", "margin-bottom": "8px", "font-size": "0.85rem" }}>
                           {/* Left: primary stat */}
                           <div style={{ display: "flex", "align-items": "center", gap: "8px", flex: "1" }}>
                             <span style={{ width: "24px", "text-align": "center" }}>{stat.icon}</span>
