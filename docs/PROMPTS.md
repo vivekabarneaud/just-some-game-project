@@ -427,3 +427,265 @@ Wide shot of a dark wizard on a hilltop raising his staff to the sky, green necr
 
 **Dragon Attack**
 Extreme close-up low angle shot, a wild dragon diving from the sky directly at the camera, massive wings spread wide blocking out the sun, mouth open with a torrent of fire streaming down, enormous clawed feet extended to grab, the camera looking straight up at the underside of the dragon as it descends, buildings and walls visible below, intense orange fire-light against dark sky, dark moody atmosphere, realistic digital painting, oil painting style, no text --ar 1:1
+
+---
+
+## Item & Resource Icons
+
+All items: centered on dark moody background, painterly oil painting style, warm dramatic lighting from one side, subtle vignette, game icon style, square --ar 1:1, no text
+
+### Weapons
+
+**Iron Sword**
+A simple medieval iron longsword lying diagonally on dark velvet, straight double-edged blade with a few nicks and scratches, plain iron crossguard, leather-wrapped grip, no ornament — a working soldier's weapon, warm firelight reflecting off the blade, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Steel Sword**
+A well-forged steel arming sword displayed on dark fabric, polished blade catching the light, slightly curved crossguard with simple engravings, leather and wire-wrapped grip, a quality weapon — not ornate but clearly superior to iron, cool blue-steel reflections, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Orc Cleaver**
+A brutal orc war cleaver, thick heavy blade of crude dark iron with jagged edges and dried blood in the grooves, wrapped in rough leather strips at the handle, animal bone pommel, savage and effective, warm orange forge-light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Cursed Blade**
+An elegant but unsettling longsword, blade of dark metal with faint purple runes that glow along the fuller, the edge seems to drink the light, black leather grip with silver wire, a thin wisp of dark smoke rising from the blade, eerie purple-blue magical lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Dragonbone Sword**
+A magnificent sword forged from dragon bone and steel, the blade is pale ivory-white with dark veins running through it like marble, the crossguard shaped from a dragon's jaw bone with small fangs, the grip wrapped in dragon hide, radiating faint heat shimmer, warm golden-orange lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Highwayman's Steel**
+A wicked curved dagger favored by bandits, dark steel blade with a serrated back edge, wrapped leather grip stained from use, a coin-sized hole punched through the blade near the tip for intimidation, practical and menacing, dim candlelight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Wooden Staff**
+A simple wooden wizard's staff, gnarled oak with natural grain patterns, a rough crystal lashed to the top with leather cord, the crystal glows faintly with pale blue light, worn smooth where hands have gripped it for years, warm amber lamplight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Enchanted Staff**
+An elegant mage's staff of dark polished wood with silver inlay spiraling up the shaft, topped with a large faceted crystal that pulses with bright arcane blue-white energy, floating runes orbit the crystal head, the wood itself seems alive with faint golden veins, cool blue-white magical lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Dragonfire Staff**
+A staff carved from petrified dragonwood, deep red-brown with ember-like cracks of orange light running through it, topped with a caged dragonfire ash crystal that burns with a perpetual inner flame, wisps of smoke and sparks drift from the tip, intense warm orange-red lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Short Bow**
+A simple short recurve bow of pale wood, sinew string, no decoration — a hunter's first weapon, resting against a quiver of rough-fletched arrows, practical and humble, soft warm natural lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hunting Bow**
+A well-made hunting bow of yew wood with a slight recurve, smooth polished limbs with a carved grip, a taut sinew string, resting beside a leather quiver with goose-fletched arrows, the quiet confidence of a reliable tool, warm afternoon light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Longbow**
+A tall English-style longbow of dark yew, taller than a man, elegant single-arc with horn nocks at each tip, the wood grain visible and beautiful, a heavy draw weapon for a strong archer, beside a quiver of bodkin-tipped war arrows, cool grey daylight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Sinew Bow**
+A composite bow made of wolf sinew and bone, shorter and more powerful than wood bows, the limbs have a distinctive reverse curve, bone plates at the grip and tips, wrapped in wolfhide, wild and primal looking, cool moonlight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+### Armor & Shields
+
+**Iron Shield**
+A round medieval iron shield with a central boss, battered and dented from use, simple iron bands riveted over wood, a leather arm strap on the back visible at an angle, functional and heavy, warm torchlight reflecting off the metal, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Wooden Shield**
+A round wooden shield reinforced with iron rim, painted with a simple heraldic device now faded and chipped, leather grip, honest frontier craftsmanship, warm amber light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Iron Armor**
+A full set of iron plate armor displayed on a stand, breastplate with simple riveted construction, pauldrons and vambraces, functional military equipment without decoration, some dents and scratches from battles, warm forge-fire lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Chainmail Armor**
+A medieval chainmail hauberk draped over a wooden stand, thousands of interlocking iron rings catching the light, a leather belt at the waist, the weight and craftsmanship visible in how it hangs, cool steel-blue lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Leather Vest**
+A fitted leather vest of brown hide, simple but well-stitched, lace-up front, slightly worn and supple from use, a few scratch marks from close calls, practical frontier armor, warm amber lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Leather Boots**
+A pair of sturdy medieval leather boots, knee-high with buckled straps, well-worn soles, practical for long marches through mud and forest, dark brown leather polished with use, warm firelight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Leather Hood**
+A dark leather hood and face guard, the kind worn by rangers and scouts, covers the head and neck with eye slits, soft supple leather dyed dark brown, stitched reinforcement at the crown, cool forest-green tinted light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Leather Pants**
+Sturdy leather breeches reinforced at the knees and thighs, laced up the sides, dark brown with visible stitching, practical and durable for combat and travel, warm amber light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Leather Cloak**
+A dark leather traveling cloak with a deep hood, weathered and patched from years of use, a bronze clasp at the throat, the leather oiled against rain, hanging as if on a hook, dim candlelight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Ranger's Garb**
+A complete set of green-brown ranger's leather armor — fitted vest, bracers, and hood — decorated with leaf-shaped bronze studs, designed for forest movement, a quiver loop at the hip, dappled green forest-light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Shadow Mantle**
+A dark assassin's cloak of near-black leather lined with dark silk, seems to absorb light at the edges, subtle smoke-like wisps drift from the hem, silver clasps shaped like daggers, the kind of thing that makes you invisible in shadows, cool blue-shadow lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Woolen Robe**
+A simple cream-colored woolen robe with a rope belt, humble clergy garments, warm and practical, slightly frayed at the hems from travel, a small holy symbol embroidered on the chest, warm soft candlelight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Priest Robes**
+White-and-gold liturgical robes, fine linen with golden thread embroidery along the collar and cuffs, a sunburst holy symbol stitched on the chest, clean and well-maintained, radiating a faint golden warmth, warm golden divine light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Wizard Robes**
+Deep midnight-blue velvet robes with silver arcane symbols stitched along the hems and sleeves, a high collar, the fabric seems to shimmer with faint starlight, a silver belt with pouches for spell components, cool blue-purple magical lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Infernal Mail**
+Chainmail armor forged from demon-steel, the links glow with a dull red heat, dark iron with veins of molten orange visible between the rings, radiates warmth, wisps of heat-shimmer rising from the surface, intense red-orange infernal lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Wolfhide Armor**
+Armor crafted from cured wolf pelts, grey-brown fur over tough leather backing, the wolf's head preserved as a shoulder guard with glass eyes and bared teeth, crude stitching with sinew cord, primal and fierce, cool moonlight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Chitin Vest**
+A vest crafted from overlapping cave spider chitin plates, dark iridescent green-black shells stitched onto leather, surprisingly light and hard, the plates click softly, dim green bioluminescent light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Trollhide Cloak**
+A thick cloak of cured troll hide, grey-green and unnaturally tough, the leather still seems to slowly heal minor cuts, a faint musky smell implied by the texture, heavy and warm, dim green-brown swamp light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Wyrmscale Armor**
+Magnificent armor of overlapping dragon scales in deep crimson and gold, each scale the size of a palm and harder than steel, reflecting light like jewels, masterwork leather straps and gold buckles, a king's armor, warm golden-red dragon-fire lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Ghostweave Cloak**
+An ethereal cloak of woven ghost-silk, translucent pale blue-white fabric that seems to phase in and out of visibility, wisps of spectral mist cling to the hem, almost weightless, you can see through it in places, eerie blue-white ghostly lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Windweave Robe**
+A robe woven from elemental wind-fiber, the fabric billows and ripples constantly as if in a breeze that isn't there, pale silver-grey with streaks of electric blue, impossibly light, crackling with faint static, cool blue-white wind-light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+### Accessories
+
+**Fang Necklace**
+A Zah'kari courage charm — a leather cord strung with wolf fangs and small bone beads, a single large fang as the centerpiece, primitive but meaningful, resting on dark leather, warm amber firelight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**War Banner**
+A small tattered orc war banner on a broken pole, crude red paint on rough cloth depicting a snarling face, torn and bloodstained from battle, a trophy taken from a fallen warlord, dim red-orange fire-light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Iron Tools**
+A set of well-made iron tools — a small hammer, a chisel, a file, and a pair of tongs — bundled together with a leather wrap, the tools of a craftsman, warm forge-light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+### Potions
+
+**Healing Potion**
+A round glass flask filled with glowing red-pink liquid, a cork stopper sealed with wax, the liquid pulses with a faint warm heartbeat-like glow, a single drop of condensation on the glass, warm red-pink healing light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Strength Elixir**
+A tall narrow vial of thick amber-orange liquid, swirling with golden particles that catch the light, a leather-wrapped cork, the glass is warm to the touch, powerful and concentrated, warm golden-amber lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Antidote**
+A small green glass bottle filled with pale green liquid, sealed with a wax-dipped cork, dried herbs tied to the neck with string, a healer's handwriting on a tiny parchment label, soft green herbal light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Healing Salve**
+A small clay pot with a wooden lid, filled with a thick greenish paste that glows faintly, a chamomile flower pressed into the wax seal, humble but effective, warm soft herbal light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Vigor Tea**
+A ceramic cup of steaming golden-brown tea, dried chamomile and mugwort leaves scattered around it, steam rising in wisps, the liquid glows faintly with warmth, comforting and restorative, warm golden tea-light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Phoenix Tears**
+A tiny crystal vial barely an inch tall, containing three drops of liquid fire that glow brilliant orange-gold, the glass is etched with phoenix feather patterns, impossibly precious, intense warm golden-orange fire-light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+### Crafting Materials
+
+**Wolfhide Strip**
+A strip of cured wolf hide, grey-brown fur on one side and pale leather on the other, roughly cut but strong, a few coarse guard hairs visible, dim natural light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Chitin Plate**
+A single large cave spider chitin plate, dark iridescent green-black, curved like a shield fragment, surprisingly light for its hardness, dim green bioluminescent light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Trollhide**
+A folded piece of raw trollhide, thick grey-green skin with a warty texture, the cut edges seem to slowly close themselves, disturbing and valuable, dim swamp-green light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Wyrmshell Plate**
+A dragon scale the size of a dinner plate, deep crimson with gold edges, incredibly hard and slightly warm to the touch, firelight dances on its polished surface, warm golden-red lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Wyrm Scale**
+An ancient dragon scale, massive and thick, deep bronze-black with centuries of patina, hairline cracks revealing golden light beneath the surface, radiates ancient power, warm deep golden light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Gnawed Marrow**
+A cracked bone with the marrow partially exposed, gnawed by giant rats, yellowish with dark stains, unpleasant but useful for alchemy, dim sickly yellow light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Bonewalk Shard**
+A fragment of enchanted bone from a risen skeleton, pale ivory with faint blue necromantic runes etched into the surface, the runes still glow faintly, cold and unsettling, eerie blue-white light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Sinew Cord**
+A coil of dried wolf tendon twisted into strong cord, pale yellowish-white, incredibly tough and flexible, used for bowstrings and binding, dim natural light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Fang**
+A large wolf fang, yellowed with age, still sharp at the tip, the root stained with dried blood, resting on a scrap of leather, dim warm light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Dragon Fang**
+A massive dragon tooth the length of a forearm, ivory-white with a razor edge that glints, the root end is hollow and filled with crystallized dragon blood, warm orange fire-light from within, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Dragon Blood**
+A sealed crystal vial of thick dark crimson liquid that glows from within with orange light, the blood seems to move on its own inside the vial, impossibly hot, the glass is warm, intense red-orange internal glow, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Dragonfire Ash**
+A small pouch of fine silvery-grey ash that sparkles with embedded embers, a few orange sparks still drift from the surface, the ash of dragon flame itself, warm orange spark-light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Cursed Iron**
+A chunk of dark iron that seems to absorb light, cold to the touch, frost forms on its surface in warm rooms, faint purple-black runes appear and disappear across its face, cold eerie purple-blue light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Orc Steel**
+A raw ingot of crude orc-forged steel, dark grey with hammer marks and impurities visible, strong but ugly, the mark of Ghar'kal forge-work, warm orange forge-light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Ghostweave**
+A fold of impossibly thin spectral fabric, translucent pale blue, seems to phase in and out of visibility, weightless, cold mist clings to it, eerie blue-white ghostly light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Veilmist**
+A sealed glass jar containing swirling pale silver mist that moves on its own inside, the boundary between realms condensed into vapour, the jar is cold and slightly damp, cool silver-blue ethereal light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Soul Shard**
+A jagged crystal fragment that glows with trapped spectral light, pale blue-white with a face barely visible deep inside, disturbing and precious, cold blue-white soul-light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Shimmer**
+A pinch of crystallized Aether in a small glass vial, prismatic rainbow particles that shift color as the light changes, pure magical essence, brilliant prismatic rainbow light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Livingflame Bead**
+A small glass bead containing a living mote of fire that dances and flickers inside without burning the glass, perpetual warmth, bright orange-red contained firelight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Thunderglass**
+A shard of glass formed by lightning striking sand, jagged and branching like frozen lightning, pale blue-white with electric arcs still visible inside, crackling blue-white electrical light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Frozen Droplet**
+A single droplet of water frozen in mid-air by Aether, perfectly spherical, impossibly clear ice with a blue-green glow at the center, cold mist curling from its surface, cold blue-green aquatic light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Heartstone**
+A rough chunk of stone with a glowing amber crack running through the center like a heartbeat, warm to the touch, heavy, the core of an earth elemental, warm amber pulsing light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Ashblood**
+A sealed obsidian vial of thick black liquid with streaks of burning red, demon blood that smells of sulfur and smoke, the vial is uncomfortably warm, dark red infernal glow, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hellite**
+A chunk of crystallized brimstone from the Ashlands, dark red-black with veins of molten orange, radiates dry heat, smells of sulfur, dark red-orange infernal light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Voidthorn**
+A small thorn-like crystal of pure darkness, absorbs all light around it, the space near it seems to warp slightly, looking at it too long makes your eyes ache, pure black with a faint purple-void halo, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Shadow Fragment**
+A shard of solidified shadow, flat and dark like a piece of broken mirror but reflecting nothing, cold to the touch, the edges are razor sharp, faint purple-black void-light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Keening Shard**
+A translucent crystal that emits a faint high-pitched wail, pale white with ghostly blue veins, formed from a banshee's death-scream crystallized into solid form, eerie white-blue keening light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Godspark**
+A tiny mote of golden light trapped in a crystal the size of a marble, impossibly bright for its size, a fragment of dormant divine energy, warm brilliant golden divine light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Dormant Sigil**
+A flat stone tablet the size of a palm with a carved holy symbol that once glowed gold but now flickers weakly between gold and dark, a god's forgotten prayer, fading golden light fighting darkness, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Seraph's Grief**
+A single crystallized tear of divine light, teardrop shaped, glowing with intense golden-white radiance shot through with cracks of purple corruption, beautiful and heartbreaking, brilliant golden light with purple fractures, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Aether Core**
+A fist-sized sphere of pure crystallized Aether, brilliant blue-white with geometric patterns of energy pulsing inside, floating slightly above the surface it rests on, the air around it shimmers, blinding blue-white arcane light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Wyrm Heart**
+The preserved heart of an ancient dragon, dark red-brown and the size of a human head, still faintly beating with residual life force, veins of golden fire visible beneath the surface, intense warm golden-red deep glow, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Lichglass**
+A shard of glass-like material formed from a lich's phylactery, sickly green-black with trapped screaming faces visible inside, cold and deeply wrong, radiates necromantic energy, eerie green necromantic light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Spinner's Bile**
+A small sealed vial of thick greenish-yellow cave spider venom, viscous and bubbling slightly, the glass is etched from the acid, dangerous even contained, sickly yellow-green toxic light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Barrow Ash**
+A pouch of fine grey ash from a barrow burial mound, infused with Netheron's death-essence, the ash moves slightly on its own as if stirred by invisible breath, cold grey-blue deathly light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**War Paint**
+A small clay pot of crude red-black orc war paint, thick and gritty with ground minerals, a wooden stick for application stuck in the pot, the mark of the Ghar'kal, dim red-orange light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Windweave Fiber**
+A skein of impossibly fine silver thread that floats and drifts in the air, woven from captured wind Aether, almost invisible except when light catches it, pale silver-blue wind-light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Infernal Link**
+A small chain of three dark iron links fused with demon essence, each link burns with a dull red inner glow, connects the mortal realm to the Ashlands, warm dark red infernal glow, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Torn Banner**
+A scrap of torn orc war banner, rough cloth with crude red paint depicting a war symbol, ripped from a fallen standard, bloodstained and muddied, dim war-fire light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
