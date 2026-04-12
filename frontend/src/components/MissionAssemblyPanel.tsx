@@ -155,9 +155,9 @@ export default function MissionAssemblyPanel(props: Props) {
       let seed = 0;
       for (let i = 0; i < seedStr.length; i++) seed = ((seed << 5) - seed + seedStr.charCodeAt(i)) | 0;
 
-      // Run 5 seeded simulations with different sub-seeds for a stable average
+      // Run 20 seeded simulations for 5% granularity (instant with seeded PRNG)
       let wins = 0;
-      const SIMS = 5;
+      const SIMS = 20;
       for (let i = 0; i < SIMS; i++) {
         if (simulateCombat(fm, snapshot, sups, seed + i)?.victory) wins++;
       }
