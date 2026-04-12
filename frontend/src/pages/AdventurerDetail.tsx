@@ -236,58 +236,60 @@ export default function AdventurerDetail() {
                       {unspentPoints()} stat point{unspentPoints() > 1 ? "s" : ""} to allocate!
                     </div>
                   </Show>
-                  {STAT_META.map((stat) => {
-                    const val = () => stats()[stat.key];
-                    const maxStat = 30;
-                    const pct = () => Math.min(100, (val() / maxStat) * 100);
-                    const bonus = () => adv().bonusStats[stat.key] ?? 0;
-                    return (
-                      <div style={{ "margin-bottom": "10px" }}>
-                        <div style={{ display: "flex", "justify-content": "space-between", "align-items": "center", "font-size": "0.85rem", "margin-bottom": "3px" }}>
-                          <span style={{ color: "var(--text-secondary)" }} title={stat.description}>
-                            {stat.icon} {stat.name}
-                          </span>
-                          <div style={{ display: "flex", "align-items": "center", gap: "6px" }}>
-                            <span style={{ color: stat.color, "font-weight": "bold" }}>
+
+                  {/* Stats — primary on left, derived on right */}
+                  {(() => {
+                    const s = stats();
+                    const hp = s.vit * 8;
+                    const attackPower = adv().class === "warrior" ? s.str : (adv().class === "archer" || adv().class === "assassin") ? s.dex : s.int;
+                    const spellPower = s.int;
+                    const critChance = Math.min(50, Math.round(5 + s.dex * 0.5 + (adv().class === "assassin" ? 10 : 0)));
+                    const dodgeChance = Math.min(20, s.dex);
+                    const initiative = s.dex + Math.floor(s.wis / 2);
+
+                    const statRows: { key: keyof typeof s; name: string; icon: string; color: string; derived: string }[] = [
+                      { key: "vit", name: "Vitality", icon: "❤️", color: "#e67e22", derived: `HP ${hp}` },
+                      { key: "str", name: "Strength", icon: "💪", color: "#e74c3c", derived: `ATK ${adv().class === "warrior" ? attackPower : s.str}` },
+                      { key: "int", name: "Intelligence", icon: "🧠", color: "#3498db", derived: `SP ${spellPower}` },
+                      { key: "dex", name: "Dexterity", icon: "🏃", color: "#2ecc71", derived: `${critChance}% Crit · ${dodgeChance}% Dodge` },
+                      { key: "wis", name: "Wisdom", icon: "📖", color: "#9b59b6", derived: `Init ${initiative}` },
+                    ];
+
+                    return statRows.map((stat) => {
+                      const val = () => s[stat.key];
+                      const bonus = () => adv().bonusStats[stat.key] ?? 0;
+                      return (
+                        <div style={{ display: "flex", "align-items": "center", "justify-content": "space-between", "margin-bottom": "8px", "font-size": "0.85rem" }}>
+                          {/* Left: primary stat */}
+                          <div style={{ display: "flex", "align-items": "center", gap: "8px", flex: "1" }}>
+                            <span style={{ width: "24px", "text-align": "center" }}>{stat.icon}</span>
+                            <span style={{ color: "var(--text-secondary)", width: "85px" }}>{stat.name}</span>
+                            <span style={{ color: stat.color, "font-weight": "bold", "min-width": "30px" }}>
                               {val()}
-                              {bonus() > 0 && <span style={{ "font-size": "0.7rem", color: "var(--accent-green)" }}> (+{bonus()})</span>}
                             </span>
+                            {bonus() > 0 && <span style={{ "font-size": "0.7rem", color: "var(--accent-green)" }}>(+{bonus()})</span>}
                             <Show when={unspentPoints() > 0 && !adv().onMission}>
                               <button
                                 onClick={() => actions.allocateStat(params.id, stat.key)}
                                 style={{
-                                  width: "20px",
-                                  height: "20px",
-                                  padding: 0,
+                                  width: "18px", height: "18px", padding: 0,
                                   background: "rgba(46, 204, 113, 0.2)",
                                   border: "1px solid var(--accent-green)",
                                   color: "var(--accent-green)",
-                                  "border-radius": "4px",
-                                  cursor: "pointer",
-                                  "font-size": "0.75rem",
-                                  "line-height": "1",
+                                  "border-radius": "3px", cursor: "pointer",
+                                  "font-size": "0.7rem", "line-height": "1",
                                 }}
-                              >
-                                +
-                              </button>
+                              >+</button>
                             </Show>
                           </div>
+                          {/* Right: derived stats */}
+                          <span style={{ "font-size": "0.75rem", color: "var(--text-muted)", "text-align": "right", "white-space": "nowrap" }}>
+                            {stat.derived}
+                          </span>
                         </div>
-                        <div style={{ height: "6px", background: "var(--bg-primary)", "border-radius": "3px" }}>
-                          <div style={{
-                            height: "100%",
-                            width: `${pct()}%`,
-                            background: stat.color,
-                            "border-radius": "3px",
-                            transition: "width 0.3s",
-                          }} />
-                        </div>
-                        <div style={{ "font-size": "0.65rem", color: "var(--text-muted)", "margin-top": "1px" }}>
-                          {stat.description}
-                        </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    });
+                  })()}
                 </div>
 
                 {/* Equipment — Character Doll */}
