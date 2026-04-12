@@ -5,6 +5,16 @@ import { getItemByRecipe } from "~/data/items";
 import Countdown from "~/components/Countdown";
 import Tooltip from "~/components/Tooltip";
 
+/** Split item description into stats and flavor text */
+function splitDescription(desc: string): { stats: string; flavor: string | null } {
+  // Descriptions like "+3 STR, +1 DEX. Crude but effective."
+  // Split at the first ". " that follows a stat-like pattern
+  const match = desc.match(/^([^.]*(?:\+\d|DEF|duration)[^.]*)\.\s*(.+)$/);
+  if (match) return { stats: match[1], flavor: match[2] };
+  // No flavor — entire string is stats
+  return { stats: desc, flavor: null };
+}
+
 interface CraftingPageProps {
   title: string;
   buildingId: string;
@@ -141,26 +151,32 @@ export default function CraftingPage(props: CraftingPageProps) {
                     </div>
                     {(() => {
                       const item = getItemByRecipe(recipe.id);
-                      return item ? (
+                      if (!item) return null;
+                      const { stats, flavor } = splitDescription(item.description);
+                      return (
                         <div style={{ "margin-top": "4px", padding: "4px 8px", background: "var(--bg-primary)", "border-radius": "4px", "font-size": "0.75rem" }}>
-                          <span style={{ color: "var(--accent-green)" }}>{item.description}</span>
+                          <div style={{ display: "flex", "flex-direction": "column", gap: "2px" }}>
+                            {stats.split(", ").map((s) => (
+                              <span style={{ color: "var(--accent-green)" }}>{s.trim()}</span>
+                            ))}
+                          </div>
                           {item.classes.length > 0 && (
-                            <span style={{ color: "var(--text-muted)", "margin-left": "6px" }}>
-                              ({item.classes.join(", ")})
-                            </span>
+                            <div style={{ color: "var(--text-muted)", "margin-top": "3px", "font-size": "0.7rem" }}>
+                              {item.classes.join(", ")}
+                            </div>
                           )}
-                          {item.consumable && <span style={{ color: "var(--accent-gold)", "margin-left": "4px" }}>consumable</span>}
+                          {item.consumable && <div style={{ color: "var(--accent-gold)", "margin-top": "2px", "font-size": "0.7rem" }}>consumable</div>}
+                          {flavor && (
+                            <div style={{ color: "var(--text-muted)", "font-style": "italic", "margin-top": "4px", "font-size": "0.7rem" }}>
+                              {flavor}
+                            </div>
+                          )}
                         </div>
-                      ) : null;
+                      );
                     })()}
                     <div style={{ "margin-top": "6px", "font-size": "0.8rem", color: "var(--text-secondary)" }}>
                       Cost: {recipe.costs.map((c) => `${c.amount} ${c.resource}`).join(", ")}
                     </div>
-                    {recipe.minLevel > 1 && (
-                      <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-top": "2px" }}>
-                        Requires {props.buildingName} Lv.{recipe.minLevel}
-                      </div>
-                    )}
                     <Tooltip text={craftDisabledReason(recipe.id)} position="bottom">
                       <button
                         class="upgrade-btn"
@@ -200,16 +216,27 @@ export default function CraftingPage(props: CraftingPageProps) {
                       </div>
                       {(() => {
                         const item = getItemByRecipe(recipe.id);
-                        return item ? (
+                        if (!item) return null;
+                        const { stats, flavor } = splitDescription(item.description);
+                        return (
                           <div style={{ "margin-top": "4px", padding: "4px 8px", background: "var(--bg-primary)", "border-radius": "4px", "font-size": "0.75rem" }}>
-                            <span style={{ color: "var(--accent-green)" }}>{item.description}</span>
+                            <div style={{ display: "flex", "flex-direction": "column", gap: "2px" }}>
+                              {stats.split(", ").map((s) => (
+                                <span style={{ color: "var(--accent-green)" }}>{s.trim()}</span>
+                              ))}
+                            </div>
                             {item.classes.length > 0 && (
-                              <span style={{ color: "var(--text-muted)", "margin-left": "6px" }}>
-                                ({item.classes.join(", ")})
-                              </span>
+                              <div style={{ color: "var(--text-muted)", "margin-top": "3px", "font-size": "0.7rem" }}>
+                                {item.classes.join(", ")}
+                              </div>
+                            )}
+                            {flavor && (
+                              <div style={{ color: "var(--text-muted)", "font-style": "italic", "margin-top": "4px", "font-size": "0.7rem" }}>
+                                {flavor}
+                              </div>
                             )}
                           </div>
-                        ) : null;
+                        );
                       })()}
                       <div style={{ "margin-top": "6px", "font-size": "0.8rem", color: "var(--text-secondary)" }}>
                         Cost: {recipe.costs.map((c) => `${c.amount} ${c.resource}`).join(", ")}
