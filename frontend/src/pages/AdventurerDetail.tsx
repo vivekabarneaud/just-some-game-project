@@ -223,6 +223,7 @@ export default function AdventurerDetail() {
                       }} />
                     </div>
                   </div>
+                  <div style={{ "margin-top": "16px" }} />
                   <Show when={unspentPoints() > 0}>
                     <div style={{
                       padding: "6px 10px",
@@ -248,8 +249,10 @@ export default function AdventurerDetail() {
                     const dodgeChance = Math.min(20, s.dex);
                     const initiative = s.dex + Math.floor(s.wis / 2);
 
+                    const magicResist = s.wis * 3;
+
                     const statRows: { key: keyof typeof s; name: string; icon: string; color: string; derived: string }[] = [
-                      { key: "vit", name: "Vitality", icon: "❤️", color: "#e67e22", derived: `HP ${hp} · DEF ${defense}` },
+                      { key: "vit", name: "Vitality", icon: "❤️", color: "#e67e22", derived: `HP ${hp}` },
                       { key: "str", name: "Strength", icon: "💪", color: "#e74c3c", derived: `ATK ${adv().class === "warrior" ? attackPower : s.str}` },
                       { key: "int", name: "Intelligence", icon: "🧠", color: "#3498db", derived: `SP ${spellPower}` },
                       { key: "dex", name: "Dexterity", icon: "🏃", color: "#2ecc71", derived: `${critChance}% Crit · ${dodgeChance}% Dodge` },
@@ -291,6 +294,12 @@ export default function AdventurerDetail() {
                       );
                     });
                   })()}
+
+                  {/* Defensive stats from gear */}
+                  <div style={{ "margin-top": "8px", "padding-top": "8px", "border-top": "1px solid var(--border-color)", display: "flex", gap: "16px", "font-size": "0.8rem" }}>
+                    <span style={{ color: "var(--text-muted)" }}>🛡️ DEF <span style={{ color: "var(--text-secondary)", "font-weight": "bold" }}>{getEquipmentDefense(adv().equipment)}</span></span>
+                    <span style={{ color: "var(--text-muted)" }}>✨ MR <span style={{ color: "var(--text-secondary)", "font-weight": "bold" }}>{stats().wis * 3}</span></span>
+                  </div>
                 </div>
 
                 {/* Equipment — Character Doll */}
@@ -442,7 +451,7 @@ export default function AdventurerDetail() {
                 </div>
 
                 {/* Talent Tree */}
-                <div class="overview-panel" style={{ padding: "20px 32px" }}>
+                <div class="overview-panel" style={{ padding: "20px 32px", "grid-column": "1 / -1" }}>
                   <div style={{ display: "flex", "justify-content": "space-between", "align-items": "center", "margin-bottom": "12px" }}>
                     <h2 style={{ margin: 0 }}>Talents</h2>
                     <div style={{ display: "flex", "align-items": "center", gap: "12px" }}>
