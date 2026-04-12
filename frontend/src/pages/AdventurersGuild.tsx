@@ -7,7 +7,6 @@ import {
   getClassMeta,
   RANK_NAMES,
   RANK_COLORS,
-  CLASS_COLORS,
   getRecruitCost,
   getXpForLevel,
   getMissionXp,
@@ -18,27 +17,20 @@ import {
   type Adventurer,
   type AdventurerRank,
 } from "~/data/adventurers";
-import { getItem, getAvailableSupplies, getSupplyEffect, MAX_MISSION_SUPPLIES } from "~/data/items";
+import { getItem } from "~/data/items";
 import {
   type MissionTemplate,
   type MissionSlot,
-  calcSuccessChance,
-  calcDeathChance,
-  calcEffectiveDuration,
   getMission,
-  getMissionStatWeights,
   formatReward,
   getCurrentStoryMission,
-  areRequiredSlotsFilled,
 } from "~/data/missions";
 import Countdown from "~/components/Countdown";
 import Tooltip from "~/components/Tooltip";
 import EnemyCard from "~/components/EnemyCard";
 import TraitBadge from "~/components/TraitBadge";
-import AdventurerPickerCard from "~/components/AdventurerPickerCard";
-import TeamSlot from "~/components/TeamSlot";
+import MissionAssemblyPanel from "~/components/MissionAssemblyPanel";
 import { getEnemy } from "~/data/enemies";
-import { simulateCombat } from "~/data/combat";
 import { DIFFICULTY_LABELS, DIFFICULTY_COLORS } from "~/data/constants";
 
 type Tab = "missions" | "roster" | "recruit";
@@ -108,162 +100,8 @@ export default function AdventurersGuild() {
     setSelectedTeam([]);
   };
 
-  /** Try to assign a list of adventurers to mission slots. Returns true if everyone fits. */
-  const canFitInSlots = (mission: MissionTemplate, advIds: string[]): boolean => {
-    const candidates = advIds.map((id) => state.adventurers.find((a) => a.id === id)).filter(Boolean) as Adventurer[];
-    const remaining = [...candidates];
-    const assigned: (Adventurer | undefined)[] = new Array(mission.slots.length).fill(undefined);
-    // Pass 1: fill required slots with matching classes
-    for (let si = 0; si < mission.slots.length; si++) {
-      const slot = mission.slots[si];
-      if (!slot.required || slot.class === "any") continue;
-      const idx = remaining.findIndex((a) => a.class === slot.class);
-      if (idx !== -1) { assigned[si] = remaining[idx]; remaining.splice(idx, 1); }
-    }
-    // Pass 2: fill non-required slots (skip unfilled required slots)
-    for (let si = 0; si < mission.slots.length; si++) {
-      if (assigned[si]) continue;
-      const slot = mission.slots[si];
-      if (slot.required && slot.class !== "any") continue;
-      if (remaining.length > 0) { assigned[si] = remaining.shift(); }
-    }
-    return remaining.length === 0;
-  };
-
-  const toggleTeamMember = (advId: string) => {
-    const mission = selectedMission();
-    if (!mission) return;
-    const adv = state.adventurers.find((a) => a.id === advId);
-    if (!adv) return;
-    setSelectedTeam((prev) => {
-      // Remove if already in team
-      if (prev.includes(advId)) return prev.filter((id) => id !== advId);
-      // Try adding directly
-      if (prev.length < mission.slots.length && canFitInSlots(mission, [...prev, advId])) {
-        return [...prev, advId];
-      }
-      // Try replacing an existing member (last added non-required-matching member first)
-      for (let ri = prev.length - 1; ri >= 0; ri--) {
-        const replaced = [...prev];
-        replaced[ri] = advId;
-        if (canFitInSlots(mission, replaced)) return replaced;
-      }
-      return prev; // no way to fit
-    });
-  };
-
-  const currentTeam = (): Adventurer[] =>
-    selectedTeam().map((id) => state.adventurers.find((a) => a.id === id)).filter(Boolean) as Adventurer[];
-
-  // Success chance: cached per team+mission combo, not reactive to game ticks
-  const [successCache, setSuccessCache] = createSignal<{ key: string; value: number }>({ key: "", value: 0 });
-
-  const teamSuccessChance = () => {
-    const mission = selectedMission();
-    const teamIds = selectedTeam();
-    if (!mission || teamIds.length === 0) return 0;
-
-    const key = `${mission.id}:${teamIds.join(",")}`;
-    if (successCache().key === key) return successCache().value;
-
-    // Snapshot team data (unwrap proxies, avoid reactive dependency on store)
-    const team = teamIds.map((id) => {
-      const a = state.adventurers.find((x) => x.id === id);
-      return a ? JSON.parse(JSON.stringify(a)) : null;
-    }).filter(Boolean) as Adventurer[];
-
-    let result: number;
-
-    // Combat missions: run 25 simulations
-    const freshMission = getMission(mission.id);
-    if (freshMission?.encounters?.length) {
-      let wins = 0;
-      const SIMS = 25;
-      for (let i = 0; i < SIMS; i++) {
-        const r = simulateCombat(freshMission, team);
-        if (r?.victory) wins++;
-      }
-      result = Math.round((wins / SIMS) * 100);
-    } else {
-      // Non-combat missions: use formula + supply bonuses
-      result = calcSuccessChance(mission, team);
-      for (const supplyId of selectedSupplies()) {
-        const effect = getSupplyEffect(supplyId);
-        if (effect) result = Math.min(100, result + effect.successBonus);
-      }
-    }
-
-    setSuccessCache({ key, value: result });
-    return result;
-  };
-
-  const teamEffectiveDuration = () => {
-    const mission = selectedMission();
-    if (!mission) return 0;
-    return calcEffectiveDuration(mission, currentTeam());
-  };
-
-  const getAdvDeathRisk = (adv: Adventurer) => {
-    const mission = selectedMission();
-    if (!mission) return 0;
-    let chance = calcDeathChance(mission, currentTeam(), adv);
-    // Apply supply death reduction
-    for (const supplyId of selectedSupplies()) {
-      const effect = getSupplyEffect(supplyId);
-      if (effect) chance *= effect.deathReduction;
-    }
-    return Math.round(chance);
-  };
-
-  const toggleSupply = (itemId: string) => {
-    setSelectedSupplies((prev) => {
-      if (prev.includes(itemId)) return prev.filter((id) => id !== itemId);
-      if (prev.length >= MAX_MISSION_SUPPLIES) return prev;
-      return [...prev, itemId];
-    });
-  };
-
-  const handleDeploy = () => {
-    const mission = selectedMission();
-    if (!mission) return;
-    const team = selectedTeam();
-    if (team.length === 0) return;
-    if (actions.deployMission(mission.id, team, selectedSupplies())) {
-      setSelectedMission(null);
-      setSelectedTeam([]);
-      setSelectedSupplies([]);
-    }
-  };
 
   /** Assign team members to mission slots optimally — class matches first, then "any" slots */
-  const assignTeamToSlots = () => {
-    const mission = selectedMission();
-    if (!mission) return [];
-    const team = currentTeam();
-    const result: (Adventurer | null)[] = mission.slots.map(() => null);
-    const unassigned = [...team];
-
-    // First pass: fill specific class slots with matching adventurers
-    for (let i = 0; i < mission.slots.length; i++) {
-      const slot = mission.slots[i];
-      if (slot.class === "any") continue;
-      const idx = unassigned.findIndex((a) => a.class === slot.class);
-      if (idx !== -1) {
-        result[i] = unassigned[idx];
-        unassigned.splice(idx, 1);
-      }
-    }
-
-    // Second pass: fill remaining slots (any + unmatched specific) with leftover adventurers
-    for (let i = 0; i < mission.slots.length; i++) {
-      if (result[i] !== null) continue;
-      if (unassigned.length > 0) {
-        result[i] = unassigned.shift()!;
-      }
-    }
-
-    return result;
-  };
 
   const slotIcon = (slot: MissionSlot) => {
     if (slot.class === "any") return "👤";
@@ -706,351 +544,23 @@ export default function AdventurersGuild() {
             </For>
           </div>
 
-          {/* Two-column team assembly panel */}
+          {/* Mission assembly panel */}
           <Show when={selectedMission()}>
-            {(mission) => {
-              const statWeights = () => getMissionStatWeights(mission().tags);
-              const topStats = () => {
-                const w = statWeights();
-                return Object.entries(w).sort(([, a], [, b]) => (b ?? 0) - (a ?? 0)).slice(0, 2).map(([k]) => k);
-              };
-              const STAT_LABELS: Record<string, string> = { str: "STR", int: "INT", dex: "DEX", vit: "VIT", wis: "WIS" };
-
-              return (
-                <div
-                  class="mission-assembly"
-                  classList={{ "has-bg": !!getMissionImage(mission().id) }}
-                  ref={(el) => setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 50)}
-                  style={{ position: "relative", overflow: "hidden" }}
-                >
-                  {/* Immersive background image */}
-                  <Show when={getMissionImage(mission().id)}>
-                    <div style={{
-                      position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
-                      "z-index": 0, "pointer-events": "none",
-                    }}>
-                      <img
-                        src={getMissionImage(mission().id)}
-                        alt=""
-                        style={{ width: "100%", height: "100%", "object-fit": "cover", "object-position": "center 30%", opacity: "0.5" }}
-                      />
-                      <div style={{
-                        position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
-                        background: "linear-gradient(to bottom, rgba(26, 26, 46, 0.8) 0%, rgba(26, 26, 46, 0.3) 40%, rgba(26, 26, 46, 0.05) 100%)",
-                      }} />
-                    </div>
-                  </Show>
-
-                  {/* Left: Mission details */}
-                  <div class="mission-detail-panel" style={{ position: "relative", "z-index": 1 }}>
-                    <div class="mission-detail-header">
-                      <span style={{ "font-size": "2rem" }}>{mission().icon}</span>
-                      <div>
-                        <h3 style={{ "font-family": "var(--font-heading)", color: "var(--accent-gold)", margin: 0 }}>{mission().name}</h3>
-                        <div style={{ "font-size": "0.8rem", color: DIFFICULTY_COLORS[mission().difficulty] ?? "var(--text-muted)" }}>
-                          {"★".repeat(mission().difficulty)} {DIFFICULTY_LABELS[mission().difficulty] ?? ""}
-                        </div>
-                      </div>
-                    </div>
-
-                    <p style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "font-style": "italic", "margin": "10px 0" }}>
-                      {mission().description}
-                    </p>
-
-                    <Show when={mission().encounters?.length}>
-                      <div class="mission-detail-section">
-                        <div class="mission-detail-label">Encounters</div>
-                        <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
-                          {mission().encounters!.map((enc) => {
-                            const enemy = getEnemy(enc.enemyId);
-                            if (!enemy) return null;
-                            return (
-                              <EnemyCard enemy={enemy} count={enc.count} />
-                            );
-                          })}
-                        </div>
-                      </div>
-                    </Show>
-
-                    <div class="mission-detail-section">
-                      <div class="mission-detail-label">Team ({selectedTeam().length}/{mission().slots.length})</div>
-                      {(() => {
-                        // Compute slot assignments once, reactively
-                        const slotAssignments = createMemo(() => {
-                          const assignments: (Adventurer | undefined)[] = new Array(mission().slots.length).fill(undefined);
-                          const unassigned = selectedTeam().map((id) => state.adventurers.find((a) => a.id === id)).filter(Boolean) as Adventurer[];
-                          const remaining = [...unassigned];
-                          // Pass 1: fill required slots with matching classes
-                          for (let si = 0; si < mission().slots.length; si++) {
-                            const s = mission().slots[si];
-                            if (!s.required || s.class === "any") continue;
-                            const idx = remaining.findIndex((a) => a.class === s.class);
-                            if (idx !== -1) { assignments[si] = remaining[idx]; remaining.splice(idx, 1); }
-                          }
-                          // Pass 2: fill non-required slots (skip unfilled required slots)
-                          for (let si = 0; si < mission().slots.length; si++) {
-                            if (assignments[si]) continue;
-                            const s = mission().slots[si];
-                            if (s.required && s.class !== "any") continue;
-                            if (remaining.length > 0) { assignments[si] = remaining.shift(); }
-                          }
-                          return assignments;
-                        });
-                        return (
-                          <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
-                            <For each={mission().slots}>
-                              {(slot, i) => (
-                                <TeamSlot
-                                  slot={slot}
-                                  adventurer={slotAssignments()[i()]}
-                                  onClick={() => {
-                                    const adv = slotAssignments()[i()];
-                                    if (adv) toggleTeamMember(adv.id);
-                                  }}
-                                />
-                              )}
-                            </For>
-                          </div>
-                        );
-                      })()}
-                    </div>
-
-                    <div class="mission-detail-section">
-                      <div class="mission-detail-label">Rewards</div>
-                      <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
-                        {mission().rewards.map((r) => (
-                          <span class="quest-reward-item">{formatReward(r)}</span>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div class="mission-detail-stats">
-                      <div><span class="mission-detail-label">Duration</span> {formatDuration(mission().duration)}</div>
-                      <div><span class="mission-detail-label">Deploy cost</span> {mission().deployCost}g</div>
-                      <div><span class="mission-detail-label">Key stats</span> {topStats().map((s) => STAT_LABELS[s]).join(", ")}</div>
-                    </div>
-
-                    <button
-                      style={{
-                        "margin-top": "12px", padding: "6px 14px", background: "none",
-                        border: "1px solid var(--border-color)", "border-radius": "4px",
-                        color: "var(--text-muted)", cursor: "pointer", "font-size": "0.8rem",
-                      }}
-                      onClick={() => { setSelectedMission(null); setSelectedTeam([]); setSelectedSupplies([]); }}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-
-                  {/* Right: Team assembly */}
-                  <div class="team-panel" style={{ position: "relative", "z-index": 1 }}>
-                    <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "10px", color: "var(--text-primary)" }}>
-                      Assemble Your Team
-                    </h3>
-
-                    <Show when={available().length === 0}>
-                      <p style={{ color: "var(--text-muted)", "font-size": "0.85rem" }}>
-                        No adventurers available. Recruit some from the Recruit tab!
-                      </p>
-                    </Show>
-
-                    <For each={ADVENTURER_CLASSES.filter((cls) => availableIds().some((id) => state.adventurers.find((a) => a.id === id)?.class === cls.id))}>
-                      {(classInfo) => {
-                        const classIds = () => availableIds().filter((id) => state.adventurers.find((a) => a.id === id)?.class === classInfo.id);
-                        return (
-                          <div style={{ "margin-bottom": "10px" }}>
-                            <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-bottom": "4px", "text-transform": "uppercase", "letter-spacing": "1px" }}>
-                              {classInfo.icon} {classInfo.name}s
-                            </div>
-                            <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
-                              <For each={classIds()}>
-                                {(advId) => {
-                                  const adv = () => state.adventurers.find((a) => a.id === advId)!;
-                                  return (
-                                    <AdventurerPickerCard
-                                      adventurer={adv()}
-                                      selected={selectedTeam().includes(advId)}
-                                      onClick={() => toggleTeamMember(advId)}
-                                    />
-                                  );
-                                }}
-                              </For>
-                            </div>
-                          </div>
-                        );
-                      }}
-                    </For>
-
-                    {/* Success summary */}
-                    <div class="team-summary">
-                      <div class="team-success">
-                        <span class="team-success-label">Success</span>
-                        <span class="team-success-value" style={{
-                          color: teamSuccessChance() >= 70 ? "var(--accent-green)" :
-                            teamSuccessChance() >= 40 ? "var(--accent-gold)" : "var(--accent-red)",
-                        }}>
-                          {teamSuccessChance()}%
-                        </span>
-                      </div>
-                      <div style={{ "font-size": "0.85rem", color: "var(--text-secondary)" }}>
-                        Duration: {formatDuration(teamEffectiveDuration())}
-                        {teamEffectiveDuration() < mission().duration && (
-                          <span style={{ color: "var(--accent-blue)", "margin-left": "4px" }}>
-                            (Wizard -{Math.round((1 - teamEffectiveDuration() / mission().duration) * 100)}%)
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Team passives */}
-                    <Show when={selectedTeam().length > 0}>
-                      <div class="team-passives">
-                        <For each={currentTeam()}>
-                          {(adv) => {
-                            const cls = getClassMeta(adv.class);
-                            return (
-                              <div>{cls.icon} <strong>{cls.passive.name}</strong>: {cls.passive.description}</div>
-                            );
-                          }}
-                        </For>
-                        {(() => {
-                          const names = currentTeam().map((a) => a.name.split(" ").slice(1).join(" "));
-                          const counts = new Map<string, number>();
-                          for (const n of names) counts.set(n, (counts.get(n) ?? 0) + 1);
-                          const families = [...counts.entries()].filter(([, c]) => c > 1);
-                          return families.length > 0 ? (
-                            <div style={{ color: "#e91e63" }}>
-                              💕 <strong>Family bond</strong>: {families.map(([name]) => name).join(", ")} (+{families.reduce((s, [, c]) => s + (c - 1) * 5, 0)}%)
-                            </div>
-                          ) : null;
-                        })()}
-                      </div>
-                    </Show>
-
-                    {/* Supplies — selected slots + inventory grid */}
-                    <div style={{ "margin-top": "12px" }}>
-                      <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-bottom": "8px" }}>
-                        🧪 Supplies ({selectedSupplies().length}/{MAX_MISSION_SUPPLIES})
-                      </div>
-
-                      {/* Selected supply slots */}
-                      <Show when={selectedSupplies().length > 0}>
-                        <div style={{ display: "flex", gap: "6px", "margin-bottom": "10px", "flex-wrap": "wrap" }}>
-                          <For each={selectedSupplies()}>
-                            {(supplyId) => {
-                              const allSupplies = () => getAvailableSupplies(state.inventory);
-                              const info = () => allSupplies().find((s) => s.item.id === supplyId)?.item ?? getItem(supplyId);
-                              const effect = () => getSupplyEffect(supplyId);
-                              return (
-                                <div
-                                  onClick={() => toggleSupply(supplyId)}
-                                  style={{
-                                    display: "flex", "align-items": "center", gap: "6px",
-                                    padding: "4px 10px 4px 6px",
-                                    background: "rgba(167, 139, 250, 0.1)",
-                                    border: "1px solid rgba(167, 139, 250, 0.3)",
-                                    "border-radius": "6px",
-                                    cursor: "pointer",
-                                    "font-size": "0.75rem",
-                                  }}
-                                >
-                                  <span style={{ "font-size": "1.1rem" }}>{info()?.icon}</span>
-                                  <div>
-                                    <div style={{ color: "var(--text-primary)" }}>{info()?.name}</div>
-                                    <div style={{ "font-size": "0.65rem", color: "var(--accent-green)" }}>
-                                      {effect()?.successBonus ? `+${effect()!.successBonus}% ` : ""}
-                                      {(effect()?.deathReduction ?? 1) < 1 ? `☠-${Math.round((1 - (effect()?.deathReduction ?? 1)) * 100)}%` : ""}
-                                    </div>
-                                  </div>
-                                  <span style={{ color: "var(--text-muted)", "margin-left": "4px" }}>✕</span>
-                                </div>
-                              );
-                            }}
-                          </For>
-                        </div>
-                      </Show>
-
-                      {/* Potion inventory grid */}
-                      {(() => {
-                        const supplies = () => getAvailableSupplies(state.inventory);
-                        return (
-                          <Show when={supplies().length > 0}>
-                            <div style={{
-                              display: "grid",
-                              "grid-template-columns": "repeat(auto-fill, minmax(48px, 1fr))",
-                              gap: "6px",
-                              padding: "8px",
-                              background: "var(--bg-primary)",
-                              "border-radius": "6px",
-                              border: "1px solid var(--border-color)",
-                            }}>
-                              <For each={supplies()}>
-                                {(s) => {
-                                  const alreadyUsed = () => selectedSupplies().includes(s.item.id);
-                                  const atMax = () => selectedSupplies().length >= MAX_MISSION_SUPPLIES;
-                                  return (
-                                    <Tooltip content={
-                                      <div>
-                                        <div style={{ "font-weight": "bold", color: "var(--text-primary)" }}>{s.item.icon} {s.item.name}</div>
-                                        <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "2px" }}>{s.item.description}</div>
-                                        <div style={{ "font-size": "0.7rem", color: "var(--accent-green)", "margin-top": "2px" }}>
-                                          {getSupplyEffect(s.item.id)?.successBonus ? `+${getSupplyEffect(s.item.id)!.successBonus}% success ` : ""}
-                                          {(getSupplyEffect(s.item.id)?.deathReduction ?? 1) < 1 ? `${Math.round((1 - (getSupplyEffect(s.item.id)?.deathReduction ?? 1)) * 100)}% less death risk` : ""}
-                                        </div>
-                                        <div style={{ "font-size": "0.65rem", color: "var(--text-muted)", "margin-top": "2px" }}>Qty: {s.qty}</div>
-                                      </div>
-                                    } position="bottom">
-                                      <div
-                                        onClick={() => { if (!alreadyUsed() && !atMax()) toggleSupply(s.item.id); }}
-                                        style={{
-                                          width: "48px", height: "48px",
-                                          display: "flex", "flex-direction": "column",
-                                          "align-items": "center", "justify-content": "center",
-                                          background: alreadyUsed() ? "rgba(167, 139, 250, 0.15)" : "rgba(255, 255, 255, 0.03)",
-                                          border: `1px solid ${alreadyUsed() ? "rgba(167, 139, 250, 0.4)" : "var(--border-color)"}`,
-                                          "border-radius": "6px",
-                                          cursor: alreadyUsed() || atMax() ? "default" : "pointer",
-                                          opacity: alreadyUsed() ? "0.5" : atMax() ? "0.4" : "1",
-                                          position: "relative",
-                                        }}
-                                      >
-                                        <span style={{ "font-size": "1.2rem" }}>{s.item.icon}</span>
-                                        <span style={{ position: "absolute", bottom: "2px", right: "4px", "font-size": "0.5rem", color: "var(--text-muted)" }}>
-                                          {s.qty}
-                                        </span>
-                                      </div>
-                                    </Tooltip>
-                                  );
-                                }}
-                              </For>
-                            </div>
-                          </Show>
-                        );
-                      })()}
-                    </div>
-
-                    <button
-                      class="upgrade-btn"
-                      style={{ width: "100%", "margin-top": "12px" }}
-                      disabled={selectedTeam().length === 0 || slotInfo().used >= slotInfo().max || state.resources.gold < mission().deployCost || !areRequiredSlotsFilled(mission(), currentTeam())}
-                      onClick={handleDeploy}
-                    >
-                      Deploy Team ({mission().deployCost}g)
-                    </button>
-                    <Show when={selectedTeam().length > 0 && !areRequiredSlotsFilled(mission(), currentTeam())}>
-                      <div style={{ color: "var(--accent-red)", "font-size": "0.8rem", "text-align": "center", "margin-top": "6px" }}>
-                        Required class slot not filled
-                      </div>
-                    </Show>
-                    <Show when={slotInfo().used >= slotInfo().max}>
-                      <div style={{ color: "var(--accent-gold)", "font-size": "0.85rem", "text-align": "center", "margin-top": "6px" }}>
-                        All mission slots in use
-                      </div>
-                    </Show>
-                  </div>
-                </div>
-              );
-            }}
+            {(mission) => (
+              <MissionAssemblyPanel
+                mission={mission()}
+                onCancel={() => { setSelectedMission(null); setSelectedTeam([]); setSelectedSupplies([]); }}
+                onDeploy={(missionId, teamIds, supplyIds) => {
+                  if (actions.deployMission(missionId, teamIds, supplyIds)) {
+                    setSelectedMission(null);
+                    setSelectedTeam([]);
+                    setSelectedSupplies([]);
+                    return true;
+                  }
+                  return false;
+                }}
+              />
+            )}
           </Show>
         </Show>
 
