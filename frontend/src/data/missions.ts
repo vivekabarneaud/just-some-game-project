@@ -336,6 +336,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     name: "Wandering Spirit",
     description: "A restless spirit haunts the old crossroads. A priest or wizard could put it to rest.",
     icon: "👻",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/wandering_spirit.png",
     slots: [{ class: "any" }],
     duration: 600,
     rewards: [{ resource: "gold", amount: 35 }],
