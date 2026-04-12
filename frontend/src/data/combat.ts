@@ -872,7 +872,7 @@ export function simulateCombat(
         if (totalDot > 0) {
           unit.hp -= totalDot;
           log.push({
-            round, attackerName: "Poison", attackerIcon: "☠️", targetName: unit.name,
+            round, attackerName: "DOT", attackerIcon: "🩸", targetName: unit.name,
             damage: totalDot, dodged: false, crit: false, killed: unit.hp <= 0,
             targetHp: Math.max(0, unit.hp), targetMaxHp: unit.maxHp,
             isEnemy: unit.isEnemy, isPoisonTick: true,

@@ -254,7 +254,7 @@ export default function AdventurersGuild() {
                                           {entry.attackerIcon}{" "}
                                           {entry.abilityName && <span style={{ color: "var(--accent-gold)" }}>[{entry.abilityName}] </span>}
                                           {entry.isPoisonTick
-                                            ? <><strong>{entry.targetName}</strong> takes <span style={{ color: "#9b59b6" }}>{entry.damage} poison damage</span>
+                                            ? <><strong>{entry.targetName}</strong> takes <span style={{ color: "#9b59b6" }}>{entry.damage} damage</span>
                                                     {entry.targetHp != null && !entry.killed && <span style={{ color: "var(--text-muted)" }}> ({entry.targetHp}/{entry.targetMaxHp})</span>}
                                                     {entry.killed && <span style={{ color: "var(--accent-red)" }}> — killed!</span>}
                                                   </>

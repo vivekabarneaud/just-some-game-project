@@ -138,10 +138,15 @@ export default function CraftingPage(props: CraftingPageProps) {
             </h3>
             <div class="buildings-grid">
               <For each={recipes()}>
-                {(recipe) => (
+                {(recipe) => {
+                  const recipeItem = () => getItemByRecipe(recipe.id);
+                  return (
                   <div class="building-card">
                     <div class="building-card-header">
-                      <div class="building-card-icon">{recipe.icon}</div>
+                      {recipeItem()?.image
+                        ? <img src={recipeItem()!.image} alt="" style={{ width: "40px", height: "40px", "object-fit": "cover", "border-radius": "6px", "flex-shrink": "0" }} />
+                        : <div class="building-card-icon">{recipe.icon}</div>
+                      }
                       <div>
                         <div class="building-card-title">{recipe.name}</div>
                         <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
@@ -188,7 +193,8 @@ export default function CraftingPage(props: CraftingPageProps) {
                       </button>
                     </Tooltip>
                   </div>
-                )}
+                  );
+                }}
               </For>
             </div>
             <Show when={recipes().length === 0}>
@@ -203,10 +209,15 @@ export default function CraftingPage(props: CraftingPageProps) {
               </h3>
               <div class="buildings-grid">
                 <For each={lockedRecipes()}>
-                  {(recipe) => (
+                  {(recipe) => {
+                    const recipeItem = () => getItemByRecipe(recipe.id);
+                    return (
                     <div class="building-card" style={{ opacity: 0.5 }}>
                       <div class="building-card-header">
-                        <div class="building-card-icon">{recipe.icon}</div>
+                        {recipeItem()?.image
+                          ? <img src={recipeItem()!.image} alt="" style={{ width: "40px", height: "40px", "object-fit": "cover", "border-radius": "6px", "flex-shrink": "0" }} />
+                          : <div class="building-card-icon">{recipe.icon}</div>
+                        }
                         <div>
                           <div class="building-card-title">{recipe.name}</div>
                           <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
@@ -258,7 +269,8 @@ export default function CraftingPage(props: CraftingPageProps) {
                         </div>
                       </div>
                     </div>
-                  )}
+                    );
+                  }}
                 </For>
               </div>
             </Show>
