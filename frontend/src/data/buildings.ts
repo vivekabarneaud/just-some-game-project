@@ -513,7 +513,7 @@ export const BUILDINGS: BuildingDefinition[] = [
 export const DEFAULT_TIER_LEVEL_CAPS: Record<SettlementTier, number> = {
   camp: 3,
   village: 6,
-  town: 9,
+  town: 10,
   city: 999, // effectively uncapped
 };
 
