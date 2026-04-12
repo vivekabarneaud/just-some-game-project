@@ -261,7 +261,7 @@ export default function AdventurerDetail() {
                       return (
                         <div style={{ display: "flex", "align-items": "center", gap: "16px", "margin-bottom": "8px", "font-size": "0.85rem" }}>
                           {/* Left: primary stat */}
-                          <div style={{ display: "flex", "align-items": "center", gap: "8px", flex: "1" }}>
+                          <div style={{ display: "flex", "align-items": "center", gap: "8px" }}>
                             <span style={{ width: "24px", "text-align": "center" }}>{stat.icon}</span>
                             <span style={{ color: "var(--text-secondary)", width: "85px" }}>{stat.name}</span>
                             <span style={{ color: stat.color, "font-weight": "bold", "min-width": "30px" }}>
