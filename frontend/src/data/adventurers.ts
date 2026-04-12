@@ -344,11 +344,12 @@ export const CLASS_COLORS: Record<AdventurerClass, string> = {
   assassin: "#f5c542",  // gold
 };
 
+// Synced with DIFFICULTY_COLORS so rank and difficulty look consistent
 export const RANK_COLORS: Record<AdventurerRank, string> = {
-  1: "#aaa",
-  2: "var(--accent-green)",
-  3: "var(--accent-blue)",
-  4: "var(--accent-gold)",
+  1: "var(--accent-green)",
+  2: "var(--accent-blue)",
+  3: "var(--accent-gold)",
+  4: "#e67e22",
   5: "var(--accent-red)",
 };
 
