@@ -13,7 +13,8 @@ export interface CraftingRecipe {
 
 export interface ActiveCraft {
   recipeId: string;
-  remaining: number; // game-seconds
+  remaining: number; // game-seconds for current item
+  quantity?: number;  // total items to craft (counts down as each completes)
 }
 
 export const CRAFTING_RECIPES: CraftingRecipe[] = [

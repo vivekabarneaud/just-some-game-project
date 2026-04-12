@@ -1,4 +1,4 @@
-import { For, Show } from "solid-js";
+import { For, Show, createSignal } from "solid-js";
 import { A } from "@solidjs/router";
 import { useGame, CRAFTING_RECIPES } from "~/engine/gameState";
 import { getItemByRecipe } from "~/data/items";
@@ -182,16 +182,34 @@ export default function CraftingPage(props: CraftingPageProps) {
                     <div style={{ "margin-top": "6px", "font-size": "0.8rem", color: "var(--text-secondary)" }}>
                       Cost: {recipe.costs.map((c) => `${c.amount} ${c.resource}`).join(", ")}
                     </div>
-                    <Tooltip text={craftDisabledReason(recipe.id)} position="bottom">
-                      <button
-                        class="upgrade-btn"
-                        disabled={!canCraft(recipe.id)}
-                        onClick={() => actions.startCraft(recipe.id)}
-                        style={{ "margin-top": "auto", "padding-top": "8px", "font-size": "0.85rem", padding: "6px 14px" }}
-                      >
-                        Craft
-                      </button>
-                    </Tooltip>
+                    {(() => {
+                      const [qty, setQty] = createSignal(1);
+                      return (
+                        <div style={{ "margin-top": "auto", "padding-top": "8px", display: "flex", "align-items": "center", gap: "6px" }}>
+                          <div style={{ display: "flex", "align-items": "center", gap: "2px", "border-radius": "4px", border: "1px solid var(--border-color)", overflow: "hidden" }}>
+                            <button
+                              onClick={() => setQty((q) => Math.max(1, q - 1))}
+                              style={{ width: "24px", height: "28px", background: "var(--bg-primary)", border: "none", color: "var(--text-muted)", cursor: "pointer", "font-size": "0.85rem" }}
+                            >−</button>
+                            <span style={{ width: "28px", "text-align": "center", "font-size": "0.8rem", color: "var(--text-primary)" }}>{qty()}</span>
+                            <button
+                              onClick={() => setQty((q) => Math.min(99, q + 1))}
+                              style={{ width: "24px", height: "28px", background: "var(--bg-primary)", border: "none", color: "var(--text-muted)", cursor: "pointer", "font-size": "0.85rem" }}
+                            >+</button>
+                          </div>
+                          <Tooltip text={craftDisabledReason(recipe.id)} position="bottom">
+                            <button
+                              class="upgrade-btn"
+                              disabled={!canCraft(recipe.id)}
+                              onClick={() => { actions.startCraft(recipe.id, qty()); setQty(1); }}
+                              style={{ "font-size": "0.85rem", padding: "6px 14px" }}
+                            >
+                              Craft{qty() > 1 ? ` ×${qty()}` : ""}
+                            </button>
+                          </Tooltip>
+                        </div>
+                      );
+                    })()}
                   </div>
                   );
                 }}
@@ -309,10 +327,14 @@ export default function CraftingPage(props: CraftingPageProps) {
                   }}>
                     <div style={{ display: "flex", "align-items": "center", gap: "6px" }}>
                       <span>{recipe()?.icon}</span>
-                      <span style={{ "font-size": "0.85rem", color: "var(--text-primary)" }}>{recipe()?.name}</span>
+                      <span style={{ "font-size": "0.85rem", color: "var(--text-primary)" }}>
+                        {recipe()?.name}
+                        {(craft.quantity ?? 1) > 1 && <span style={{ color: "var(--accent-gold)", "margin-left": "4px" }}>×{craft.quantity}</span>}
+                      </span>
                     </div>
                     <div style={{ color: "var(--accent-blue)", "font-size": "0.8rem", "margin-top": "4px" }}>
                       <Countdown remainingSeconds={craft.remaining} />
+                      {(craft.quantity ?? 1) > 1 && <span style={{ color: "var(--text-muted)", "margin-left": "6px" }}>({craft.quantity} left)</span>}
                     </div>
                   </div>
                 );

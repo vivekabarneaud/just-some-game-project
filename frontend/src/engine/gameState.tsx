@@ -364,7 +364,7 @@ export interface GameActions {
   grantResources: (amount: number) => void;
   // Ale & Happiness
   getAleInfo: () => { current: number; cap: number; production: number; consumption: number };
-  startCraft: (recipeId: string) => boolean;
+  startCraft: (recipeId: string, quantity?: number) => boolean;
   getAvailableRecipes: () => CraftingRecipe[];
   getClothingInfo: () => { current: number; needed: number };
   allocateStat: (adventurerId: string, stat: keyof AdventurerStats) => boolean;
@@ -1437,7 +1437,15 @@ export function GameProvider(props: ParentProps) {
                 if (existing) existing.quantity += amt;
                 else s.inventory.push({ itemId: itemDef.id, quantity: amt });
               }
-              pushEvent(s, "building_completed", recipe.icon, `Crafted ${recipe.name} (x${recipe.produces.amount})`);
+              const remaining = (craft.quantity ?? 1) - 1;
+              pushEvent(s, "building_completed", recipe.icon, `Crafted ${recipe.name}${remaining > 0 ? ` (${remaining} remaining)` : ""}`);
+              // If more to craft, reset timer; otherwise remove from queue
+              if (remaining > 0) {
+                craft.remaining = recipe.craftTime;
+                craft.quantity = remaining;
+              } else {
+                s.craftingQueue.splice(i, 1);
+              }
             } else {
               // Check alchemy recipes (herb-based potions)
               const alchRecipe = ALCHEMY_RECIPES.find((r) => r.id === craft.recipeId);
@@ -1446,10 +1454,18 @@ export function GameProvider(props: ParentProps) {
                 if (existing) existing.quantity += 1;
                 else s.inventory.push({ itemId: alchRecipe.id, quantity: 1 });
                 s.potions += 1;
-                pushEvent(s, "building_completed", alchRecipe.icon, `Brewed ${alchRecipe.name}`);
+                const remaining = (craft.quantity ?? 1) - 1;
+                pushEvent(s, "building_completed", alchRecipe.icon, `Brewed ${alchRecipe.name}${remaining > 0 ? ` (${remaining} remaining)` : ""}`);
+                if (remaining > 0) {
+                  craft.remaining = alchRecipe.craftTime;
+                  craft.quantity = remaining;
+                } else {
+                  s.craftingQueue.splice(i, 1);
+                }
+              } else {
+                s.craftingQueue.splice(i, 1);
               }
             }
-            s.craftingQueue.splice(i, 1);
           }
         }
 
@@ -2420,9 +2436,9 @@ export function GameProvider(props: ParentProps) {
         consumption: tavernLvl * ALE_CONSUMED_PER_TAVERN_LEVEL,
       };
     },
-    startCraft(recipeId) {
+    startCraft(recipeId, quantity = 1) {
       const recipe = CRAFTING_RECIPES.find((r) => r.id === recipeId);
-      if (!recipe) return false;
+      if (!recipe || quantity < 1) return false;
       const building = state.buildings.find((b) => b.buildingId === recipe.building);
       if (!building || building.level < recipe.minLevel || building.damaged) return false;
       // Check max crafting slots (1 per building level)
@@ -2431,7 +2447,7 @@ export function GameProvider(props: ParentProps) {
         return r?.building === recipe.building;
       }).length;
       if (activeCrafts >= building.level) return false;
-      // Check costs (resources + inventory materials)
+      // Check costs for total quantity
       const getResourceAmount = (res: string): number => {
         if (res === "wool") return state.wool;
         if (res === "fiber") return state.fiber;
@@ -2442,32 +2458,32 @@ export function GameProvider(props: ParentProps) {
         if (res === "stone") return state.resources.stone;
         if (res === "food") return state.resources.food;
         if (res === "astralShards") return state.astralShards;
-        // Check inventory for materials
         const inv = state.inventory.find((i) => i.itemId === res);
         return inv?.quantity ?? 0;
       };
       for (const cost of recipe.costs) {
-        if (getResourceAmount(cost.resource) < cost.amount) return false;
+        if (getResourceAmount(cost.resource) < cost.amount * quantity) return false;
       }
       setState(produce((s) => {
+        // Deduct total cost upfront
         for (const cost of recipe.costs) {
+          const total = cost.amount * quantity;
           const res = cost.resource;
-          if (res === "wool") s.wool -= cost.amount;
-          else if (res === "fiber") s.fiber -= cost.amount;
-          else if (res === "iron") s.iron -= cost.amount;
-          else if (res === "leather") s.leather -= cost.amount;
-          else if (res === "gold") s.resources.gold -= cost.amount;
-          else if (res === "wood") s.resources.wood -= cost.amount;
-          else if (res === "stone") s.resources.stone -= cost.amount;
-          else if (res === "food") s.resources.food -= cost.amount;
-          else if (res === "astralShards") s.astralShards -= cost.amount;
+          if (res === "wool") s.wool -= total;
+          else if (res === "fiber") s.fiber -= total;
+          else if (res === "iron") s.iron -= total;
+          else if (res === "leather") s.leather -= total;
+          else if (res === "gold") s.resources.gold -= total;
+          else if (res === "wood") s.resources.wood -= total;
+          else if (res === "stone") s.resources.stone -= total;
+          else if (res === "food") s.resources.food -= total;
+          else if (res === "astralShards") s.astralShards -= total;
           else {
-            // Deduct from inventory (materials)
             const inv = s.inventory.find((i) => i.itemId === res);
-            if (inv) inv.quantity -= cost.amount;
+            if (inv) inv.quantity -= total;
           }
         }
-        s.craftingQueue.push({ recipeId, remaining: recipe.craftTime });
+        s.craftingQueue.push({ recipeId, remaining: recipe.craftTime, quantity });
       }));
       scheduleSave();
       return true;
