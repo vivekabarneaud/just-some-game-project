@@ -182,6 +182,9 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
             "text-align": "center",
             "pointer-events": "none",
             "z-index": 20,
+            background: "rgba(245, 235, 215, 0.55)",
+            padding: "clamp(8px, 1.5%, 14px) clamp(12px, 2%, 20px)",
+            "border-radius": "4px",
             opacity: textVisible() ? 1 : 0,
             transition: "opacity 0.3s ease",
           }}
