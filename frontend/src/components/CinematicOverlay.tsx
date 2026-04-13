@@ -30,7 +30,7 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
   };
 
   const formatText = (text: string) => {
-    return resolveText(text).replace(/\*\*(.*?)\*\*/g, '<strong style="font-style:normal;color:#8b6914">$1</strong>');
+    return resolveText(text).replace(/\*\*(.*?)\*\*/g, '<strong style="font-style:normal;color:#6b4c1e">$1</strong>');
   };
 
   const advance = () => {
@@ -41,17 +41,15 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
       return;
     }
     setAnimating(true);
-    // Flip the current page
     setFlippedPages((prev) => {
       const next = new Set(prev);
       next.add(currentSlide());
       return next;
     });
-    // After the turn animation, update the current slide
     setTimeout(() => {
       setCurrentSlide((i) => i + 1);
       setAnimating(false);
-    }, 900);
+    }, 1200);
   };
 
   return (
@@ -60,7 +58,7 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
         position: "fixed",
         inset: 0,
         "z-index": 10000,
-        background: "rgba(15, 12, 8, 0.95)",
+        background: "#0a0806",
         display: "flex",
         "align-items": "center",
         "justify-content": "center",
@@ -68,20 +66,23 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
         transition: "opacity 0.8s ease",
       }}
     >
-      {/* The Journal */}
+      {/* Full-screen journal page area */}
       <div
         style={{
           position: "relative",
-          width: "min(90vw, 900px)",
-          height: "min(80vh, 650px)",
-          perspective: "1500px",
+          width: "100vw",
+          height: "100vh",
+          perspective: "2000px",
+          overflow: "hidden",
         }}
       >
         {/* Pages — stacked, each can flip */}
         <For each={props.slides}>
           {(slide, i) => {
             const isFlipped = () => flippedPages().has(i());
-            const zIndex = () => props.slides.length - i(); // first page on top
+            // Unflipped pages: higher index = lower z (first page on top)
+            // Flipped pages: go behind everything
+            const zIndex = () => isFlipped() ? 0 : (props.slides.length - i() + 1);
 
             return (
               <div
@@ -91,62 +92,67 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
                   inset: 0,
                   "transform-origin": "left center",
                   transform: isFlipped() ? "rotateY(-180deg)" : "rotateY(0deg)",
-                  transition: "transform 0.9s ease",
-                  "z-index": isFlipped() ? 0 : zIndex(),
+                  transition: "transform 1.2s cubic-bezier(0.4, 0.0, 0.2, 1)",
+                  "z-index": zIndex(),
                   "backface-visibility": "hidden",
                   cursor: "pointer",
-                  "border-radius": "4px",
-                  overflow: "hidden",
                 }}
               >
-                {/* Parchment page */}
+                {/* Full-screen parchment page */}
                 <div
                   style={{
                     position: "absolute",
                     inset: 0,
                     "background-image": `url(${PARCHMENT})`,
                     "background-size": "cover",
-                    "box-shadow": "4px 4px 20px rgba(0,0,0,0.5), inset 0 0 60px rgba(139,109,20,0.1)",
+                    "background-position": "center",
                     display: "flex",
                     "flex-direction": "column",
                     "align-items": "center",
-                    padding: "clamp(20px, 4vh, 40px) clamp(24px, 5vw, 50px)",
-                    gap: "clamp(12px, 2vh, 24px)",
+                    "justify-content": "center",
+                    padding: "clamp(30px, 6vh, 60px) clamp(40px, 8vw, 120px)",
+                    gap: "clamp(16px, 3vh, 32px)",
                   }}
                 >
-                  {/* Framed image */}
+                  {/* Framed painting */}
                   <div
                     style={{
-                      flex: "1",
                       width: "100%",
-                      "max-height": "65%",
-                      "border-radius": "3px",
+                      "max-width": "800px",
+                      "aspect-ratio": "16 / 9",
+                      "max-height": "55vh",
+                      "border-radius": "2px",
                       overflow: "hidden",
-                      border: "3px solid rgba(100, 75, 40, 0.4)",
-                      "box-shadow": "inset 0 0 10px rgba(0,0,0,0.3), 2px 2px 8px rgba(0,0,0,0.2)",
+                      border: "4px solid rgba(80, 55, 25, 0.5)",
+                      "box-shadow": "inset 0 0 15px rgba(0,0,0,0.4), 3px 3px 12px rgba(0,0,0,0.3), 0 0 0 1px rgba(80, 55, 25, 0.3)",
                       "background-image": `url(${slide.image})`,
                       "background-size": "cover",
                       "background-position": "center",
+                      "flex-shrink": 0,
                     }}
                   />
 
-                  {/* Text below the image */}
+                  {/* Text below — journal entry */}
                   <div
                     style={{
                       width: "100%",
-                      "max-width": "680px",
+                      "max-width": "700px",
                       "text-align": "center",
+                      background: "rgba(60, 45, 25, 0.08)",
+                      padding: "clamp(12px, 2vh, 20px) clamp(16px, 3vw, 32px)",
+                      "border-radius": "4px",
                     }}
                   >
                     <p
                       style={{
-                        color: "#3d2e1c",
-                        "font-size": "clamp(0.85rem, 1.5vw, 1.05rem)",
-                        "line-height": "1.7",
+                        color: "#2a1e0e",
+                        "font-size": "clamp(0.9rem, 1.6vw, 1.1rem)",
+                        "line-height": "1.8",
                         "font-style": "italic",
                         margin: 0,
                         "white-space": "pre-line",
                         "font-family": "Georgia, 'Times New Roman', serif",
+                        "text-shadow": "0 1px 2px rgba(255,240,200,0.3)",
                       }}
                       innerHTML={formatText(slide.text)}
                     />
@@ -156,16 +162,29 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
                   <div
                     style={{
                       position: "absolute",
-                      bottom: "12px",
-                      right: "20px",
-                      color: "rgba(100, 75, 40, 0.4)",
-                      "font-size": "0.75rem",
+                      bottom: "clamp(16px, 3vh, 30px)",
+                      right: "clamp(24px, 4vw, 50px)",
+                      color: "rgba(80, 55, 25, 0.4)",
+                      "font-size": "0.8rem",
                       "font-style": "italic",
                       "font-family": "Georgia, serif",
                     }}
                   >
                     {i() + 1}
                   </div>
+
+                  {/* Fold shadow on the left edge (spine of the book) */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      bottom: 0,
+                      width: "30px",
+                      background: "linear-gradient(to right, rgba(0,0,0,0.15), transparent)",
+                      "pointer-events": "none",
+                    }}
+                  />
                 </div>
               </div>
             );
@@ -178,27 +197,28 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
         onClick={advance}
         style={{
           position: "absolute",
-          bottom: "clamp(20px, 5vh, 50px)",
-          right: "clamp(24px, 5vw, 80px)",
-          background: "rgba(139, 109, 20, 0.15)",
-          border: "1px solid rgba(139, 109, 20, 0.4)",
-          color: "rgba(220, 190, 130, 0.8)",
-          padding: "8px 20px",
+          bottom: "clamp(24px, 5vh, 50px)",
+          right: "clamp(30px, 5vw, 80px)",
+          background: "rgba(80, 55, 25, 0.25)",
+          border: "1px solid rgba(80, 55, 25, 0.5)",
+          color: "rgba(200, 170, 110, 0.9)",
+          padding: "10px 24px",
           "border-radius": "4px",
           cursor: "pointer",
-          "font-size": "0.85rem",
+          "font-size": "0.9rem",
           "font-family": "Georgia, serif",
           "font-style": "italic",
           "z-index": 10,
           transition: "all 0.2s",
+          "letter-spacing": "0.5px",
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.background = "rgba(139, 109, 20, 0.3)";
-          e.currentTarget.style.color = "rgba(245, 220, 160, 1)";
+          e.currentTarget.style.background = "rgba(80, 55, 25, 0.45)";
+          e.currentTarget.style.color = "rgba(240, 210, 140, 1)";
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.background = "rgba(139, 109, 20, 0.15)";
-          e.currentTarget.style.color = "rgba(220, 190, 130, 0.8)";
+          e.currentTarget.style.background = "rgba(80, 55, 25, 0.25)";
+          e.currentTarget.style.color = "rgba(200, 170, 110, 0.9)";
         }}
       >
         {isLast() ? "Begin your story →" : "Turn page →"}
@@ -209,19 +229,19 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
         onClick={(e) => { e.stopPropagation(); props.onComplete(); }}
         style={{
           position: "absolute",
-          top: "20px",
-          right: "24px",
+          top: "16px",
+          right: "20px",
           background: "transparent",
           border: "none",
-          color: "rgba(255,255,255,0.3)",
+          color: "rgba(255,255,255,0.25)",
           padding: "6px 12px",
           cursor: "pointer",
           "font-size": "0.75rem",
           "z-index": 10,
           transition: "color 0.2s",
         }}
-        onMouseEnter={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.7)"; }}
-        onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.3)"; }}
+        onMouseEnter={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.6)"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.25)"; }}
       >
         Skip
       </button>
@@ -230,7 +250,7 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
       <div
         style={{
           position: "absolute",
-          bottom: "clamp(20px, 5vh, 50px)",
+          bottom: "clamp(24px, 5vh, 50px)",
           left: "50%",
           transform: "translateX(-50%)",
           display: "flex",
@@ -245,7 +265,7 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
                 width: "8px",
                 height: "8px",
                 "border-radius": "50%",
-                background: i() === currentSlide() ? "rgba(139, 109, 20, 0.8)" : "rgba(255,255,255,0.2)",
+                background: i() === currentSlide() ? "rgba(200, 170, 110, 0.8)" : "rgba(255,255,255,0.15)",
                 transition: "background 0.3s",
               }}
             />
