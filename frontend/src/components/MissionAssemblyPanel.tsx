@@ -1,4 +1,4 @@
-import { createSignal, createMemo, createEffect, For, Show } from "solid-js";
+import { createSignal, createMemo, createEffect, untrack, For, Show } from "solid-js";
 import { useGame } from "~/engine/gameState";
 import {
   ADVENTURER_CLASSES,
@@ -86,6 +86,7 @@ export default function MissionAssemblyPanel(props: Props) {
   };
 
   const toggleTeam = (advId: string) => {
+    console.log("call toggleTeam with ", advId);
     setTeamIds((prev) => {
       if (prev.includes(advId)) return prev.filter((id) => id !== advId);
       if (prev.length < mission().slots.length && canFitInSlots([...prev, advId])) {
@@ -103,6 +104,8 @@ export default function MissionAssemblyPanel(props: Props) {
   const team = createMemo(() =>
     teamIds().map((id) => state.adventurers.find((a) => a.id === id)).filter(Boolean) as Adventurer[]
   );
+
+  createEffect(() => console.log("team memo", team()));
 
   // ─── Slot assignments (for display) ───────────────────────────
   const slotAssignments = createMemo(() => {
@@ -174,8 +177,8 @@ export default function MissionAssemblyPanel(props: Props) {
     // Access reactive signals to track them
     const _ids = teamIds();
     const _sups = supplies();
-    // Recompute (runs whenever teamIds or supplies change)
-    recomputeSuccess();
+    // Recompute without tracking state.adventurers (which changes every tick)
+    untrack(() => recomputeSuccess());
   });
 
   const successColor = () => {

@@ -386,9 +386,10 @@ function tryWarriorAbility(unit: CombatUnit, allies: CombatUnit[], enemies: Comb
   }
 
   // Cleave: when 2+ enemies alive
-  if (canUseAbility(unit, "cleave") && enemies.length >= 2) {
+  const aliveForCleave = enemies.filter((e) => e.hp > 0);
+  if (canUseAbility(unit, "cleave") && aliveForCleave.length >= 2) {
     startCooldown(unit, "cleave", 3);
-    const targets = enemies.slice(0, 2);
+    const targets = aliveForCleave.slice(0, 2);
     const hits: { name: string; damage: number; killed: boolean; hp: number; maxHp: number }[] = [];
     for (const t of targets) {
       const { damage, crit } = calcDamageResult(unit, t, { damageMult: 0.7 });
@@ -407,10 +408,11 @@ function tryWarriorAbility(unit: CombatUnit, allies: CombatUnit[], enemies: Comb
 
 function tryWizardAbility(unit: CombatUnit, enemies: CombatUnit[], round: number, log: CombatLogEntry[]): boolean {
   // Fireball: when 3+ enemies alive
-  if (canUseAbility(unit, "fireball") && enemies.length >= 3) {
+  const aliveForFireball = enemies.filter((e) => e.hp > 0);
+  if (canUseAbility(unit, "fireball") && aliveForFireball.length >= 3) {
     startCooldown(unit, "fireball", 3);
     const hits: { name: string; damage: number; killed: boolean; hp: number; maxHp: number }[] = [];
-    for (const t of enemies) {
+    for (const t of aliveForFireball) {
       const { damage } = calcDamageResult(unit, t, { damageMult: 0.5 });
       t.hp -= damage;
       hits.push({ name: t.name, damage, killed: t.hp <= 0, hp: Math.max(0, t.hp), maxHp: t.maxHp });
@@ -425,8 +427,10 @@ function tryWizardAbility(unit: CombatUnit, enemies: CombatUnit[], round: number
 
   // Frost Bolt: default ability when fireball on cooldown
   if (canUseAbility(unit, "frost_bolt")) {
+    const alive = enemies.filter((e) => e.hp > 0);
+    if (alive.length === 0) return false;
     startCooldown(unit, "frost_bolt", 2);
-    const target = enemies.sort((a, b) => b.hp - a.hp)[0]; // highest HP
+    const target = alive.sort((a, b) => b.hp - a.hp)[0]; // highest HP alive
     const { damage, crit } = calcDamageResult(unit, target, { damageMult: 1.3 });
     target.hp -= damage;
     target.slowed = 2;
@@ -495,11 +499,12 @@ function tryPriestAbility(unit: CombatUnit, allies: CombatUnit[], enemies: Comba
 
 function tryArcherAbility(unit: CombatUnit, enemies: CombatUnit[], round: number, log: CombatLogEntry[]): boolean {
   // Multi-shot: when 2+ enemies alive
-  if (canUseAbility(unit, "multi_shot") && enemies.length >= 2) {
+  const aliveForMulti = enemies.filter((e) => e.hp > 0);
+  if (canUseAbility(unit, "multi_shot") && aliveForMulti.length >= 2) {
     startCooldown(unit, "multi_shot", 3);
-    // Hit up to 3 random enemies
-    const shuffled = [...enemies].sort(() => combatRandom() - 0.5);
-    const targets = shuffled.slice(0, Math.min(3, enemies.length));
+    // Hit up to 3 random alive enemies
+    const shuffled = [...aliveForMulti].sort(() => combatRandom() - 0.5);
+    const targets = shuffled.slice(0, Math.min(3, aliveForMulti.length));
     const hits: { name: string; damage: number; killed: boolean; hp: number; maxHp: number }[] = [];
     for (const t of targets) {
       const { damage } = calcDamageResult(unit, t, { damageMult: 0.6 });
@@ -516,8 +521,10 @@ function tryArcherAbility(unit: CombatUnit, enemies: CombatUnit[], round: number
 
   // Aimed Shot: guaranteed crit on highest HP enemy
   if (canUseAbility(unit, "aimed_shot")) {
+    const aliveForAimed = enemies.filter((e) => e.hp > 0);
+    if (aliveForAimed.length === 0) return false;
     startCooldown(unit, "aimed_shot", 4);
-    const target = enemies.sort((a, b) => b.hp - a.hp)[0];
+    const target = aliveForAimed.sort((a, b) => b.hp - a.hp)[0];
     const { damage } = calcDamageResult(unit, target, { forceCrit: true });
     target.hp -= damage;
     log.push({
@@ -532,8 +539,8 @@ function tryArcherAbility(unit: CombatUnit, enemies: CombatUnit[], round: number
 }
 
 function tryAssassinAbility(unit: CombatUnit, enemies: CombatUnit[], round: number, log: CombatLogEntry[]): boolean {
-  // Backstab: when any enemy below 40% HP
-  const weakEnemy = enemies.find((e) => e.hp / e.maxHp < 0.4);
+  // Backstab: when any alive enemy below 40% HP
+  const weakEnemy = enemies.find((e) => e.hp > 0 && e.hp / e.maxHp < 0.4);
   if (canUseAbility(unit, "backstab") && weakEnemy) {
     startCooldown(unit, "backstab", 2);
     const { damage, crit } = calcDamageResult(unit, weakEnemy, { damageMult: 2.0 });
@@ -547,10 +554,12 @@ function tryAssassinAbility(unit: CombatUnit, enemies: CombatUnit[], round: numb
     return true;
   }
 
-  // Poison: apply DoT on highest HP enemy
+  // Poison: apply DoT on highest HP alive enemy
   if (canUseAbility(unit, "poison")) {
+    const aliveForPoison = enemies.filter((e) => e.hp > 0);
+    if (aliveForPoison.length === 0) return false;
     startCooldown(unit, "poison", 4);
-    const target = enemies.sort((a, b) => b.hp - a.hp)[0];
+    const target = aliveForPoison.sort((a, b) => b.hp - a.hp)[0];
     const dotDamage = Math.floor(getAttackPower(unit) * 0.3);
     target.poisonTicks.push({ damage: dotDamage, rounds: 3 });
     log.push({
