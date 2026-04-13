@@ -387,15 +387,15 @@ export const BUILDINGS: BuildingDefinition[] = [
   },
   {
     id: "kitchen",
-    name: "Kitchen",
+    name: "The Kitchens",
     category: "crafting",
     description:
-      "A communal kitchen where cooks prepare meals for adventurers. Meals can be given before missions for small bonuses — and if you know their favorite flavor, even better.",
+      "From a simple campfire to a proper cooking complex. Prepare meals for adventurers before missions — the right food for the right adventurer can make all the difference.",
     icon: "🍳",
     maxLevel: 8,
-    levels: generateLevels({ wood: 35, stone: 20 }, 15, undefined, 8),
-    requiredTier: "village",
-    tierLevelCaps: { camp: 0, village: 3, town: 6, city: 8 },
+    levels: generateLevels({ wood: 20, stone: 10 }, 12, undefined, 8),
+    requiredTier: "camp",
+    tierLevelCaps: { camp: 2, village: 4, town: 6, city: 8 },
   },
   {
     id: "jewelcrafter",

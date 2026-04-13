@@ -5,9 +5,9 @@ export default function Kitchen() {
   const { state } = useGame();
   return (
     <CraftingPage
-      title="Kitchen"
+      title="The Kitchens"
       buildingId="kitchen"
-      buildingName="Kitchen"
+      buildingName="The Kitchens"
       icon="🍳"
       materials={[
         { icon: "🍖", label: "Food", value: () => Math.floor(state.resources.food) },
