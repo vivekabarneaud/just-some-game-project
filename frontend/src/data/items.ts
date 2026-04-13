@@ -33,6 +33,8 @@ export interface ItemDefinition {
   statReq?: { stat: keyof AdventurerStats; value: number };
   /** Physical damage reduction in combat (WoW-style: DEF/(DEF+150) = % reduction) */
   defense?: number;
+  /** Food flavor tags for adventurer preference matching (food items only) */
+  foodFlavors?: ("sweet" | "spicy" | "hearty" | "smoky" | "fresh")[];
 }
 
 export const ITEMS: ItemDefinition[] = [
@@ -598,6 +600,98 @@ export const ITEMS: ItemDefinition[] = [
     id: "infernal_signet", name: "Infernal Signet", icon: "💍", slot: "ring1",
     description: "+3 STR, +2 VIT. Demon-forged iron and fire ruby. Burns cold. Grants strength at a cost nobody can name.",
     classes: ["warrior", "assassin"], stats: { str: 3, vit: 2 }, durationMod: 1, lootMod: 1, recipeId: "", consumable: false,
+  },
+
+  // ── Kitchen — Mission Food (consumable) ─────────────────────────
+  // Food items are consumed on mission deploy. They give small stat bonuses,
+  // boosted if the food's flavor matches the adventurer's foodPreference.
+
+  // Tier 1 — Simple (1 tag, Kitchen Lv 1-2)
+  {
+    id: "honeycake", name: "Honeycake", icon: "🍯", slot: "trinket",
+    description: "Sweet golden cake made with fresh honey. Adventurers with a sweet tooth love it.",
+    classes: [], stats: { vit: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "honeycake", consumable: true, foodFlavors: ["sweet"],
+  },
+  {
+    id: "peppered_jerky", name: "Peppered Jerky", icon: "🌶️", slot: "trinket",
+    description: "Dried meat rubbed with wild herbs and crushed peppers. Burns going down.",
+    classes: [], stats: { str: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "peppered_jerky", consumable: true, foodFlavors: ["spicy"],
+  },
+  {
+    id: "herb_salad", name: "Fresh Herb Salad", icon: "🥬", slot: "trinket",
+    description: "Wild herbs, cabbages, and berries tossed with a light dressing. Refreshing.",
+    classes: [], stats: { dex: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "herb_salad", consumable: true, foodFlavors: ["fresh"],
+  },
+  {
+    id: "smoked_fish", name: "Smoked Fish", icon: "🐟", slot: "trinket",
+    description: "River fish smoked over applewood. The campfire crowd's favorite.",
+    classes: [], stats: { wis: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "smoked_fish", consumable: true, foodFlavors: ["smoky"],
+  },
+  {
+    id: "meat_pie", name: "Meat Pie", icon: "🥧", slot: "trinket",
+    description: "A thick, filling pie stuffed with seasoned meat and gravy. Stick-to-your-ribs good.",
+    classes: [], stats: { vit: 1, str: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "meat_pie", consumable: true, foodFlavors: ["hearty"],
+  },
+  {
+    id: "cheese_bread", name: "Cheese Bread", icon: "🧀", slot: "trinket",
+    description: "Warm bread stuffed with melted goat cheese. Simple and satisfying.",
+    classes: [], stats: { vit: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "cheese_bread", consumable: true, foodFlavors: ["hearty"],
+  },
+  {
+    id: "grilled_mushrooms", name: "Grilled Mushrooms", icon: "🍄", slot: "trinket",
+    description: "Forest mushrooms charred over an open flame with herbs. Earthy and rich.",
+    classes: [], stats: { int: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "grilled_mushrooms", consumable: true, foodFlavors: ["smoky"],
+  },
+  {
+    id: "fruit_tart", name: "Fruit Tart", icon: "🍎", slot: "trinket",
+    description: "Pastry shell filled with fresh fruit and honey glaze. A rare treat on the frontier.",
+    classes: [], stats: { wis: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "fruit_tart", consumable: true, foodFlavors: ["sweet"],
+  },
+
+  // Tier 2 — Complex (2 tags, Kitchen Lv 3-4)
+  {
+    id: "hunters_stew", name: "Hunter's Stew", icon: "🍲", slot: "trinket",
+    description: "Slow-cooked meat with root vegetables and mushrooms. Smells like the campfire after a good hunt.",
+    classes: [], stats: { str: 1, vit: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "hunters_stew", consumable: true, foodFlavors: ["hearty", "smoky"],
+  },
+  {
+    id: "spiced_honeycake", name: "Spiced Honeycake", icon: "🍰", slot: "trinket",
+    description: "Honeycake with crushed herbs and pepper. Sweet heat that lingers.",
+    classes: [], stats: { wis: 1, str: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "spiced_honeycake", consumable: true, foodFlavors: ["sweet", "spicy"],
+  },
+  {
+    id: "pea_mint_bowl", name: "Pea & Mint Bowl", icon: "🫛", slot: "trinket",
+    description: "Fresh peas with mint and a kick of pepper. Light but energizing.",
+    classes: [], stats: { dex: 1, int: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "pea_mint_bowl", consumable: true, foodFlavors: ["fresh", "spicy"],
+  },
+  {
+    id: "cherry_cheese_plate", name: "Cherry Cheese Plate", icon: "🍒", slot: "trinket",
+    description: "Goat cheese with fresh fruit and wild berries. Elegant for the frontier.",
+    classes: [], stats: { wis: 1, dex: 1 }, durationMod: 1, lootMod: 1,
+    recipeId: "cherry_cheese_plate", consumable: true, foodFlavors: ["sweet", "fresh"],
+  },
+  {
+    id: "smoked_pork_roast", name: "Smoked Pork Roast", icon: "🍖", slot: "trinket",
+    description: "Thick-cut pork smoked with squash and hardwood. A meal that fights back.",
+    classes: [], stats: { str: 2 }, durationMod: 1, lootMod: 1,
+    recipeId: "smoked_pork_roast", consumable: true, foodFlavors: ["smoky", "hearty"],
+  },
+  {
+    id: "fishermans_broth", name: "Fisherman's Broth", icon: "🥣", slot: "trinket",
+    description: "Fish, cabbage, and herbs in a clear broth. Light, warm, and keeps death at bay.",
+    classes: [], stats: { vit: 2 }, durationMod: 1, lootMod: 1,
+    recipeId: "fishermans_broth", consumable: true, foodFlavors: ["fresh", "hearty"],
   },
 ];
 

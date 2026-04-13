@@ -33,6 +33,7 @@ const navSections: { title: string; items: NavItem[] }[] = [
       { path: "/alchemy", icon: "🧪", label: "Alchemy" },
       { path: "/enchanting", icon: "✨", label: "Enchanting" },
       { path: "/jewelcrafting", icon: "💎", label: "Jewelcrafting" },
+      { path: "/kitchen", icon: "🍳", label: "Kitchen" },
     ],
   },
   {
@@ -256,8 +257,8 @@ export default function Sidebar() {
             ))}
           </div>
           <div class="nav-section-title" style={{ "margin-top": "12px" }}>Dev Tools</div>
-          <button class="skip-season-btn" onClick={() => actions.grantResources(10)}>
-            +10 all resources
+          <button class="skip-season-btn" onClick={() => actions.grantResources(100)}>
+            +100 all resources
           </button>
           <button class="skip-season-btn" onClick={() => actions.triggerRaid()}>
             Trigger raid (1min)

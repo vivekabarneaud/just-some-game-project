@@ -386,6 +386,18 @@ export const BUILDINGS: BuildingDefinition[] = [
     tierLevelCaps: { camp: 0, village: 3, town: 7, city: 10 },
   },
   {
+    id: "kitchen",
+    name: "Kitchen",
+    category: "crafting",
+    description:
+      "A communal kitchen where cooks prepare meals for adventurers. Meals can be given before missions for small bonuses — and if you know their favorite flavor, even better.",
+    icon: "🍳",
+    maxLevel: 8,
+    levels: generateLevels({ wood: 35, stone: 20 }, 15, undefined, 8),
+    requiredTier: "village",
+    tierLevelCaps: { camp: 0, village: 3, town: 6, city: 8 },
+  },
+  {
     id: "jewelcrafter",
     name: "Jewelcrafter",
     category: "crafting",

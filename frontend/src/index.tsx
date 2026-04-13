@@ -20,6 +20,7 @@ const Leatherworking = lazy(() => import("./pages/Leatherworking"));
 const Alchemy = lazy(() => import("./pages/Alchemy"));
 const Enchanting = lazy(() => import("./pages/Enchanting"));
 const Jewelcrafting = lazy(() => import("./pages/Jewelcrafting"));
+const Kitchen = lazy(() => import("./pages/Kitchen"));
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const Marketplace = lazy(() => import("./pages/Marketplace"));
 const WorldMap = lazy(() => import("./pages/WorldMap"));
@@ -54,6 +55,7 @@ render(
         <Route path="/alchemy" component={Alchemy} />
         <Route path="/enchanting" component={Enchanting} />
         <Route path="/jewelcrafting" component={Jewelcrafting} />
+        <Route path="/kitchen" component={Kitchen} />
         <Route path="/leaderboard" component={Leaderboard} />
         <Route path="/marketplace" component={Marketplace} />
         <Route path="/map" component={WorldMap} />

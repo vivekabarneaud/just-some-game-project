@@ -514,4 +514,44 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
   // ── Woodworker — New Recipes ────────────────────────────────────
   { id: "arcane_focus", name: "Arcane Focus", icon: "🔮", building: "woodworker", minLevel: 4,
     costs: [{ resource: "wood", amount: 10 }, { resource: "livingflame_bead", amount: 1 }], produces: { resource: "weapons", amount: 1 }, craftTime: 300 },
+
+  // ── Kitchen — Food Recipes ──────────────────────────────────────
+  // Food uses generic "food" resource (representing whatever the settlement produces)
+  // plus specific ingredients (honey, fruit, herbs, mushrooms) for flavor.
+
+  // Special: Cheese (processed ingredient, not a mission food)
+  { id: "cheese", name: "Cheese", icon: "🧀", building: "kitchen", minLevel: 1,
+    costs: [{ resource: "food", amount: 15 }], produces: { resource: "potions", amount: 1 }, craftTime: 30 },
+
+  // Tier 1 — Simple (1 flavor tag)
+  { id: "honeycake", name: "Honeycake", icon: "🍯", building: "kitchen", minLevel: 1,
+    costs: [{ resource: "food", amount: 10 }, { resource: "honey", amount: 2 }], produces: { resource: "potions", amount: 1 }, craftTime: 30 },
+  { id: "peppered_jerky", name: "Peppered Jerky", icon: "🌶️", building: "kitchen", minLevel: 1,
+    costs: [{ resource: "food", amount: 12 }], produces: { resource: "potions", amount: 1 }, craftTime: 30 },
+  { id: "herb_salad", name: "Fresh Herb Salad", icon: "🥬", building: "kitchen", minLevel: 1,
+    costs: [{ resource: "food", amount: 8 }], produces: { resource: "potions", amount: 1 }, craftTime: 20 },
+  { id: "smoked_fish", name: "Smoked Fish", icon: "🐟", building: "kitchen", minLevel: 1,
+    costs: [{ resource: "food", amount: 10 }, { resource: "wood", amount: 2 }], produces: { resource: "potions", amount: 1 }, craftTime: 30 },
+  { id: "meat_pie", name: "Meat Pie", icon: "🥧", building: "kitchen", minLevel: 2,
+    costs: [{ resource: "food", amount: 15 }], produces: { resource: "potions", amount: 1 }, craftTime: 45 },
+  { id: "cheese_bread", name: "Cheese Bread", icon: "🧀", building: "kitchen", minLevel: 2,
+    costs: [{ resource: "food", amount: 10 }], produces: { resource: "potions", amount: 1 }, craftTime: 30 },
+  { id: "grilled_mushrooms", name: "Grilled Mushrooms", icon: "🍄", building: "kitchen", minLevel: 2,
+    costs: [{ resource: "food", amount: 8 }], produces: { resource: "potions", amount: 1 }, craftTime: 30 },
+  { id: "fruit_tart", name: "Fruit Tart", icon: "🍎", building: "kitchen", minLevel: 2,
+    costs: [{ resource: "food", amount: 8 }, { resource: "honey", amount: 1 }, { resource: "fruit", amount: 2 }], produces: { resource: "potions", amount: 1 }, craftTime: 45 },
+
+  // Tier 2 — Complex (2 flavor tags)
+  { id: "hunters_stew", name: "Hunter's Stew", icon: "🍲", building: "kitchen", minLevel: 3,
+    costs: [{ resource: "food", amount: 15 }], produces: { resource: "potions", amount: 1 }, craftTime: 60 },
+  { id: "spiced_honeycake", name: "Spiced Honeycake", icon: "🍰", building: "kitchen", minLevel: 3,
+    costs: [{ resource: "food", amount: 10 }, { resource: "honey", amount: 2 }], produces: { resource: "potions", amount: 1 }, craftTime: 60 },
+  { id: "pea_mint_bowl", name: "Pea & Mint Bowl", icon: "🫛", building: "kitchen", minLevel: 3,
+    costs: [{ resource: "food", amount: 12 }], produces: { resource: "potions", amount: 1 }, craftTime: 45 },
+  { id: "cherry_cheese_plate", name: "Cherry Cheese Plate", icon: "🍒", building: "kitchen", minLevel: 4,
+    costs: [{ resource: "food", amount: 8 }, { resource: "fruit", amount: 2 }], produces: { resource: "potions", amount: 1 }, craftTime: 60 },
+  { id: "smoked_pork_roast", name: "Smoked Pork Roast", icon: "🍖", building: "kitchen", minLevel: 4,
+    costs: [{ resource: "food", amount: 18 }, { resource: "wood", amount: 2 }], produces: { resource: "potions", amount: 1 }, craftTime: 60 },
+  { id: "fishermans_broth", name: "Fisherman's Broth", icon: "🥣", building: "kitchen", minLevel: 4,
+    costs: [{ resource: "food", amount: 15 }], produces: { resource: "potions", amount: 1 }, craftTime: 60 },
 ];
