@@ -14,9 +14,11 @@ interface CinematicOverlayProps {
 
 export default function CinematicOverlay(props: CinematicOverlayProps) {
   const [currentSlide, setCurrentSlide] = createSignal(0);
-  const [transitioning, setTransitioning] = createSignal(false);
+  const [turning, setTurning] = createSignal(false);
+  const [exiting, setExiting] = createSignal(false);
 
   const slide = () => props.slides[currentSlide()];
+  const nextSlide = () => props.slides[currentSlide() + 1];
   const isLast = () => currentSlide() >= props.slides.length - 1;
 
   const resolveText = (text: string) => {
@@ -24,41 +26,29 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
   };
 
   const advance = () => {
-    if (transitioning()) return;
+    if (turning() || exiting()) return;
     if (isLast()) {
-      setTransitioning(true);
-      setTimeout(() => props.onComplete(), 600);
+      setExiting(true);
+      setTimeout(() => props.onComplete(), 800);
       return;
     }
-    setTransitioning(true);
+    setTurning(true);
     setTimeout(() => {
       setCurrentSlide((i) => i + 1);
-      setTransitioning(false);
-    }, 400);
+      setTurning(false);
+    }, 700);
   };
 
-  return (
-    <div
-      onClick={advance}
-      style={{
-        position: "fixed",
-        inset: 0,
-        "z-index": 10000,
-        cursor: "pointer",
-        background: "#000",
-        overflow: "hidden",
-      }}
-    >
+  const renderSlideContent = (s: CinematicSlide, opacity: number) => (
+    <>
       {/* Background image */}
       <div
         style={{
           position: "absolute",
           inset: 0,
-          "background-image": `url(${slide().image})`,
+          "background-image": `url(${s.image})`,
           "background-size": "cover",
           "background-position": "center",
-          opacity: transitioning() ? 0 : 1,
-          transition: "opacity 0.4s ease",
         }}
       />
 
@@ -67,7 +57,7 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
         style={{
           position: "absolute",
           inset: 0,
-          background: (slide().position ?? "bottom") === "top"
+          background: (s.position ?? "bottom") === "top"
             ? "linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 40%, transparent 60%)"
             : "linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.4) 35%, transparent 55%)",
         }}
@@ -79,14 +69,13 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
           position: "absolute",
           left: 0,
           right: 0,
-          ...(slide().position === "top"
+          ...(s.position === "top"
             ? { top: "8%" }
-            : slide().position === "center"
+            : s.position === "center"
             ? { top: "50%", transform: "translateY(-50%)" }
             : { bottom: "8%" }),
           padding: "0 10%",
-          opacity: transitioning() ? 0 : 1,
-          transition: "opacity 0.4s ease",
+          opacity: String(opacity),
         }}
       >
         <p
@@ -101,8 +90,49 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
             "text-shadow": "0 2px 8px rgba(0,0,0,0.8)",
             "white-space": "pre-line",
           }}
-          innerHTML={resolveText(slide().text).replace(/\*\*(.*?)\*\*/g, '<strong style="font-style:normal;color:#f5c542">$1</strong>')}
+          innerHTML={resolveText(s.text).replace(/\*\*(.*?)\*\*/g, '<strong style="font-style:normal;color:#f5c542">$1</strong>')}
         />
+      </div>
+    </>
+  );
+
+  return (
+    <div
+      onClick={advance}
+      style={{
+        position: "fixed",
+        inset: 0,
+        "z-index": 10000,
+        cursor: "pointer",
+        background: "#000",
+        overflow: "hidden",
+        opacity: exiting() ? 0 : 1,
+        transition: "opacity 0.8s ease",
+      }}
+    >
+      {/* Next slide (underneath, revealed during page turn) */}
+      <Show when={turning() && nextSlide()}>
+        <div style={{ position: "absolute", inset: 0 }}>
+          {renderSlideContent(nextSlide()!, 1)}
+        </div>
+      </Show>
+
+      {/* Current slide (turns like a page) */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          "transform-origin": "left center",
+          transform: turning()
+            ? "perspective(1200px) rotateY(-90deg)"
+            : "perspective(1200px) rotateY(0deg)",
+          transition: turning() ? "transform 0.7s ease-in" : "none",
+          "z-index": 1,
+          // Page shadow during turn
+          "box-shadow": turning() ? "10px 0 40px rgba(0,0,0,0.5)" : "none",
+        }}
+      >
+        {renderSlideContent(slide(), 1)}
       </div>
 
       {/* Slide indicators */}
@@ -114,6 +144,7 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
           transform: "translateX(-50%)",
           display: "flex",
           gap: "8px",
+          "z-index": 5,
         }}
       >
         <For each={props.slides}>
@@ -162,6 +193,7 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
           right: "24px",
           color: "rgba(255,255,255,0.3)",
           "font-size": "0.7rem",
+          "z-index": 5,
         }}
       >
         Click to continue
