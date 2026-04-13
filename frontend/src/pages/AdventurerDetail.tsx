@@ -387,51 +387,6 @@ export default function AdventurerDetail() {
                     <span style={{ color: "var(--text-muted)" }}>✨ MR <span style={{ color: "var(--text-secondary)", "font-weight": "bold" }}>{stats().wis * 3}</span></span>
                   </div>
 
-                  {/* Combat Abilities */}
-                  <div style={{ "margin-top": "16px", "padding-top": "16px", "border-top": "1px solid var(--border-color)" }}>
-                    <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-bottom": "8px" }}>Combat Abilities</div>
-                    <For each={CLASS_ABILITIES[adv().class]}>
-                      {(ability) => (
-                        <Tooltip content={
-                          <div style={{ "max-width": "220px" }}>
-                            <div style={{ "font-weight": "bold", color: "var(--text-primary)" }}>{ability.icon} {ability.name}</div>
-                            <div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "margin-top": "4px" }}>{ability.description}</div>
-                            <div style={{ "font-size": "0.65rem", color: "var(--text-muted)", "margin-top": "4px" }}>
-                              Trigger: {ability.trigger} · Cooldown: {ability.cooldown === 99 ? "Once" : `${ability.cooldown} rounds`}
-                            </div>
-                          </div>
-                        } position="right">
-                          <div style={{
-                            display: "flex",
-                            "align-items": "center",
-                            gap: "8px",
-                            padding: "4px 6px",
-                            "margin-bottom": "3px",
-                            "border-radius": "4px",
-                            background: "rgba(255, 255, 255, 0.02)",
-                            cursor: "help",
-                            "font-size": "0.8rem",
-                          }}>
-                            <span>{ability.icon}</span>
-                            <span style={{ color: "var(--text-secondary)" }}>{ability.name}</span>
-                            <span style={{ "font-size": "0.65rem", color: "var(--text-muted)", "margin-left": "auto" }}>{ability.trigger}</span>
-                          </div>
-                        </Tooltip>
-                      )}
-                    </For>
-                    {/* Class passive */}
-                    <div style={{
-                      "margin-top": "6px",
-                      padding: "4px 8px",
-                      "border-radius": "4px",
-                      background: "rgba(245, 197, 66, 0.05)",
-                      border: "1px solid rgba(245, 197, 66, 0.15)",
-                      "font-size": "0.75rem",
-                      color: "var(--accent-gold)",
-                    }}>
-                      {cls().passive.name}: {cls().passive.description}
-                    </div>
-                  </div>
                 </div>
 
                 {/* Equipment — Character Doll */}
@@ -585,8 +540,11 @@ export default function AdventurerDetail() {
                   </Show>
                 </div>
 
-                {/* Talent Tree */}
+                {/* Talents & Abilities */}
                 <div class="overview-panel" style={{ padding: "20px 32px", "grid-column": "1 / -1" }}>
+                  <div style={{ display: "flex", gap: "24px" }}>
+                  {/* Left side — Talents */}
+                  <div style={{ flex: "1", "min-width": 0 }}>
                   <div style={{ display: "flex", "justify-content": "space-between", "align-items": "center", "margin-bottom": "12px" }}>
                     <h2 style={{ margin: 0 }}>Talents</h2>
                     <div style={{ display: "flex", "align-items": "center", gap: "12px" }}>
@@ -835,6 +793,63 @@ export default function AdventurerDetail() {
                       Reset Talents
                     </button>
                   </Show>
+                  </div>{/* end left side — Talents */}
+
+                  {/* Separator */}
+                  <div style={{ width: "1px", background: "var(--border-color)", "flex-shrink": 0 }} />
+
+                  {/* Right side — Combat Abilities */}
+                  <div style={{ width: "180px", "flex-shrink": 0 }}>
+                    <h2 style={{ margin: "0 0 12px 0" }}>Abilities</h2>
+                    <div style={{ display: "flex", "flex-direction": "column", gap: "8px" }}>
+                      <For each={CLASS_ABILITIES[adv().class]}>
+                        {(ability) => (
+                          <Tooltip content={
+                            <div style={{ "max-width": "220px" }}>
+                              <div style={{ "font-weight": "bold", color: "var(--text-primary)" }}>{ability.name}</div>
+                              <div style={{ "font-size": "0.72rem", color: "var(--text-secondary)", "margin-top": "4px" }}>{ability.description}</div>
+                              <div style={{ "font-size": "0.65rem", color: "var(--text-muted)", "margin-top": "6px" }}>
+                                {ability.trigger} · {ability.cooldown === 99 ? "Once per combat" : `${ability.cooldown}rd cooldown`}
+                              </div>
+                            </div>
+                          } position="left">
+                            <div style={{
+                              display: "flex",
+                              "flex-direction": "column",
+                              "align-items": "center",
+                              gap: "4px",
+                              padding: "8px",
+                              "border-radius": "6px",
+                              background: "rgba(255, 255, 255, 0.03)",
+                              border: "1px solid var(--border-color)",
+                              cursor: "help",
+                              transition: "border-color 0.15s",
+                            }}>
+                              <span style={{ "font-size": "1.5rem" }}>{ability.icon}</span>
+                              <span style={{ "font-size": "0.75rem", color: "var(--text-secondary)", "text-align": "center" }}>{ability.name}</span>
+                            </div>
+                          </Tooltip>
+                        )}
+                      </For>
+                    </div>
+
+                    {/* Class passive */}
+                    <div style={{
+                      "margin-top": "12px",
+                      padding: "8px",
+                      "border-radius": "6px",
+                      background: "rgba(245, 197, 66, 0.05)",
+                      border: "1px solid rgba(245, 197, 66, 0.15)",
+                    }}>
+                      <div style={{ "font-size": "0.75rem", color: "var(--accent-gold)", "font-weight": "bold", "margin-bottom": "4px" }}>
+                        {cls().passive.name}
+                      </div>
+                      <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "line-height": "1.4" }}>
+                        {cls().passive.description}
+                      </div>
+                    </div>
+                  </div>{/* end right side — Abilities */}
+                  </div>{/* end flex container */}
                 </div>
 
                 {/* Dismiss */}
