@@ -178,7 +178,7 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
             position: "absolute",
             left: "10%",
             right: "10%",
-            bottom: "4%",
+            top: "65%",
             "text-align": "center",
             "pointer-events": "none",
             "z-index": 20,
@@ -189,7 +189,7 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
           <p
             style={{
               color: "#2a1e0e",
-              "font-size": "clamp(0.7rem, 1.1vw, 0.88rem)",
+              "font-size": "clamp(0.8rem, 1.3vw, 1rem)",
               "line-height": "1.7",
               "font-style": "italic",
               margin: 0,
