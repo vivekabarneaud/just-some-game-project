@@ -51,9 +51,23 @@ export default function CraftingPage(props: CraftingPageProps) {
     return r?.building === props.buildingId;
   });
 
-  const canCraft = (recipeId: string) => !craftDisabledReason(recipeId);
+  const getResourceAmount = (res: string): number => {
+    if (res === "wool") return state.wool;
+    if (res === "fiber") return state.fiber;
+    if (res === "iron") return state.iron;
+    if (res === "leather") return state.leather;
+    if (res === "gold") return state.resources.gold;
+    if (res === "wood") return state.resources.wood;
+    if (res === "stone") return state.resources.stone;
+    if (res === "food") return state.resources.food;
+    if (res === "astralShards") return state.astralShards;
+    const inv = state.inventory.find((i) => i.itemId === res);
+    return inv?.quantity ?? 0;
+  };
 
-  const craftDisabledReason = (recipeId: string): string | null => {
+  const canCraft = (recipeId: string, qty: number = 1) => !craftDisabledReason(recipeId, qty);
+
+  const craftDisabledReason = (recipeId: string, qty: number = 1): string | null => {
     const recipe = CRAFTING_RECIPES.find((r) => r.id === recipeId);
     if (!recipe) return "Recipe not found";
     const b = building();
@@ -62,25 +76,22 @@ export default function CraftingPage(props: CraftingPageProps) {
     const slotsUsed = activeCrafts().length;
     if (slotsUsed >= b.level) return `Queue full — upgrade ${props.buildingName} for more slots`;
     for (const cost of recipe.costs) {
-      let have = 0;
-      const res = cost.resource;
-      if (res === "wool") have = state.wool;
-      else if (res === "fiber") have = state.fiber;
-      else if (res === "iron") have = state.iron;
-      else if (res === "leather") have = state.leather;
-      else if (res === "gold") have = state.resources.gold;
-      else if (res === "wood") have = state.resources.wood;
-      else if (res === "stone") have = state.resources.stone;
-      else if (res === "food") have = state.resources.food;
-      else if (res === "astralShards") have = state.astralShards;
-      else {
-        // Check inventory for materials (wolfhide_strip, chitin_plate, etc.)
-        const inv = state.inventory.find((i) => i.itemId === res);
-        have = inv?.quantity ?? 0;
-      }
-      if (have < cost.amount) return `Not enough ${res.replace(/_/g, " ")}`;
+      const have = getResourceAmount(cost.resource);
+      if (have < cost.amount * qty) return `Not enough ${cost.resource.replace(/_/g, " ")}`;
     }
     return null;
+  };
+
+  /** Max quantity affordable for a recipe */
+  const maxCraftable = (recipeId: string): number => {
+    const recipe = CRAFTING_RECIPES.find((r) => r.id === recipeId);
+    if (!recipe) return 0;
+    let max = 99;
+    for (const cost of recipe.costs) {
+      const have = getResourceAmount(cost.resource);
+      max = Math.min(max, Math.floor(have / cost.amount));
+    }
+    return Math.max(1, max);
   };
 
   return (
@@ -192,6 +203,7 @@ export default function CraftingPage(props: CraftingPageProps) {
                     </div>
                     {(() => {
                       const [qty, setQty] = createSignal(1);
+                      const max = () => maxCraftable(recipe.id);
                       return (
                         <div style={{ "margin-top": "auto", "padding-top": "8px", display: "flex", "align-items": "center", gap: "6px" }}>
                           <div style={{ display: "flex", "align-items": "center", gap: "2px", "border-radius": "4px", border: "1px solid var(--border-color)", overflow: "hidden" }}>
@@ -201,14 +213,27 @@ export default function CraftingPage(props: CraftingPageProps) {
                             >−</button>
                             <span style={{ width: "28px", "text-align": "center", "font-size": "0.8rem", color: "var(--text-primary)" }}>{qty()}</span>
                             <button
-                              onClick={() => setQty((q) => Math.min(99, q + 1))}
+                              onClick={() => setQty((q) => Math.min(max(), q + 1))}
                               style={{ width: "24px", height: "28px", background: "var(--bg-primary)", border: "none", color: "var(--text-muted)", cursor: "pointer", "font-size": "0.85rem" }}
                             >+</button>
                           </div>
-                          <Tooltip text={craftDisabledReason(recipe.id)} position="bottom">
+                          <button
+                            onClick={() => setQty(max())}
+                            style={{
+                              padding: "4px 8px",
+                              background: "transparent",
+                              border: "1px solid var(--border-color)",
+                              color: "var(--text-muted)",
+                              "border-radius": "4px",
+                              cursor: "pointer",
+                              "font-size": "0.7rem",
+                              "white-space": "nowrap",
+                            }}
+                          >Max</button>
+                          <Tooltip text={craftDisabledReason(recipe.id, qty())} position="bottom">
                             <button
                               class="upgrade-btn"
-                              disabled={!canCraft(recipe.id)}
+                              disabled={!canCraft(recipe.id, qty())}
                               onClick={() => { actions.startCraft(recipe.id, qty()); setQty(1); }}
                               style={{ "font-size": "0.85rem", padding: "6px 14px" }}
                             >

@@ -359,6 +359,246 @@ export const ITEMS: ItemDefinition[] = [
     stats: { int: 5, wis: 2 }, durationMod: 0.9, lootMod: 1,
     recipeId: "dragonfire_staff", consumable: false, twoHanded: true,
   },
+
+  // ── New Equipment — Content Expansion ──────────────────────────
+
+  // ── Rings (Jewelcrafter) ─────────────────────────────────────────
+  {
+    id: "copper_band", name: "Copper Band", icon: "💍", slot: "ring1",
+    description: "+1 VIT. Simple copper ring, polished smooth. Better than nothing.",
+    classes: [], stats: { vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "copper_band", consumable: false,
+  },
+  {
+    id: "bone_ring", name: "Bone Ring", icon: "💍", slot: "ring1",
+    description: "+1 STR. Carved from barrowfield bone. The dead don't need it anymore.",
+    classes: ["warrior", "assassin"], stats: { str: 1 }, durationMod: 1, lootMod: 1, recipeId: "bone_ring", consumable: false,
+  },
+  {
+    id: "woven_vine_ring", name: "Woven Vine Ring", icon: "💍", slot: "ring1",
+    description: "+1 WIS. Living vine twisted into a ring. It grows tighter on your finger — but not uncomfortably.",
+    classes: ["priest", "wizard"], stats: { wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "woven_vine_ring", consumable: false,
+  },
+  {
+    id: "ruby_signet", name: "Ruby Signet", icon: "💍", slot: "ring1",
+    description: "+2 STR, +1 VIT. A fire ruby set in iron. Warm to the touch, always.",
+    classes: ["warrior"], stats: { str: 2, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "ruby_signet", consumable: false,
+  },
+  {
+    id: "sapphire_ring", name: "Sapphire Ring", icon: "💍", slot: "ring1",
+    description: "+2 INT, +1 WIS. A frost sapphire in silver. Keeps your mind clear and your fingers cold.",
+    classes: ["wizard", "priest"], stats: { int: 2, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "sapphire_ring", consumable: false,
+  },
+  {
+    id: "topaz_band", name: "Topaz Band", icon: "💍", slot: "ring1",
+    description: "+2 DEX, +1 STR. A storm topaz in copper. Crackles faintly when you move fast.",
+    classes: ["archer", "assassin"], stats: { dex: 2, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "topaz_band", consumable: false,
+  },
+  {
+    id: "emerald_loop", name: "Emerald Loop", icon: "💍", slot: "ring1",
+    description: "+2 WIS, +1 VIT. An emerald shard in twisted silver. Smells faintly of forest rain.",
+    classes: ["priest"], stats: { wis: 2, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "emerald_loop", consumable: false,
+  },
+  {
+    id: "moonstone_seal", name: "Moonstone Seal", icon: "💍", slot: "ring1",
+    description: "+3 WIS, +2 INT, +1 VIT. Divine light trapped in stone. The priests weep when they see it.",
+    classes: ["priest", "wizard"], stats: { wis: 3, int: 2, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "moonstone_seal", consumable: false,
+  },
+  {
+    id: "void_band", name: "Void Band", icon: "💍", slot: "ring1",
+    description: "+3 DEX, +2 STR. The shadows seem darker near your hand. You move faster. You don't question why.",
+    classes: ["assassin"], stats: { dex: 3, str: 2 }, durationMod: 1, lootMod: 1, recipeId: "void_band", consumable: false,
+  },
+  {
+    id: "dragonfire_ring", name: "Dragonfire Ring", icon: "💍", slot: "ring1",
+    description: "+3 STR, +2 VIT. Dragon blood fused with ruby. It pulses like a second heartbeat.",
+    classes: ["warrior"], stats: { str: 3, vit: 2 }, durationMod: 1, lootMod: 1, recipeId: "dragonfire_ring", consumable: false,
+  },
+
+  // ── Head Armor ──────────────────────────────────────────────────
+  {
+    id: "iron_helm", name: "Iron Helm", icon: "🪖", slot: "head",
+    description: "+2 VIT, +1 STR, 35 DEF. Heavy, hot, and the reason you still have a skull.",
+    classes: ["warrior"], stats: { vit: 2, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "iron_helm", consumable: false, defense: 35,
+  },
+  {
+    id: "chainmail_coif", name: "Chainmail Coif", icon: "⛓️", slot: "head",
+    description: "+1 VIT, +1 STR, 25 DEF. Iron rings woven tight. Keeps your head attached.",
+    classes: ["warrior", "archer"], stats: { vit: 1, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "chainmail_coif", consumable: false, defense: 25,
+  },
+  {
+    id: "wizard_hat", name: "Wizard's Hat", icon: "🎩", slot: "head",
+    description: "+2 INT, 8 DEF. Tall, pointed, and embroidered with arcane sigils. Yes, it's a bit much.",
+    classes: ["wizard"], stats: { int: 2 }, durationMod: 1, lootMod: 1, recipeId: "wizard_hat", consumable: false, defense: 8,
+  },
+  {
+    id: "priest_circlet", name: "Priest's Circlet", icon: "👑", slot: "head",
+    description: "+1 WIS, +1 INT, 12 DEF. A simple gold band set with a moonstone chip. Consecrated.",
+    classes: ["priest"], stats: { wis: 1, int: 1 }, durationMod: 1, lootMod: 1, recipeId: "priest_circlet", consumable: false, defense: 12,
+  },
+  {
+    id: "shadow_cowl", name: "Shadow Cowl", icon: "🥷", slot: "head",
+    description: "+2 DEX, +1 STR, 18 DEF. Dark leather hood that covers everything but the eyes. The eyes are the point.",
+    classes: ["assassin"], stats: { dex: 2, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "shadow_cowl", consumable: false, defense: 18,
+  },
+  {
+    id: "bear_skull_helm", name: "Bear-Skull Helm", icon: "💀", slot: "head",
+    description: "+2 STR, +1 VIT, 30 DEF. A dire bear skull, hollowed and lined with fur. Terrifying to enemies. Uncomfortable for you.",
+    classes: ["warrior", "archer"], stats: { str: 2, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "bear_skull_helm", consumable: false, defense: 30,
+  },
+
+  // ── Leg Armor ───────────────────────────────────────────────────
+  {
+    id: "iron_greaves", name: "Iron Greaves", icon: "🦵", slot: "legs",
+    description: "+2 VIT, +1 STR, 40 DEF. Plate leg armor. Loud, heavy, and reassuringly solid.",
+    classes: ["warrior"], stats: { vit: 2, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "iron_greaves", consumable: false, defense: 40,
+  },
+  {
+    id: "cloth_leggings", name: "Cloth Leggings", icon: "👖", slot: "legs",
+    description: "+1 VIT, +1 WIS, 8 DEF. Reinforced linen with prayer-stitched hems. Comfortable for long rituals.",
+    classes: ["wizard", "priest"], stats: { vit: 1, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "cloth_leggings", consumable: false, defense: 8,
+  },
+  {
+    id: "ranger_trousers", name: "Ranger's Trousers", icon: "👖", slot: "legs",
+    description: "+1 DEX, +1 VIT, 22 DEF. Leather-reinforced at the knees. Built for running and crouching.",
+    classes: ["archer", "assassin"], stats: { dex: 1, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "ranger_trousers", consumable: false, defense: 22,
+  },
+  {
+    id: "wyrmscale_greaves", name: "Wyrmscale Greaves", icon: "🐉", slot: "legs",
+    description: "+3 VIT, +1 STR, 50 DEF. Dragon-scale leg plates. Worth more than most houses.",
+    classes: ["warrior"], stats: { vit: 3, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "wyrmscale_greaves", consumable: false, defense: 50,
+  },
+
+  // ── Boots ───────────────────────────────────────────────────────
+  {
+    id: "iron_sabatons", name: "Iron Sabatons", icon: "🥾", slot: "boots",
+    description: "+1 VIT, +1 STR, 30 DEF. Plated boots. Every step sounds like a hammer.",
+    classes: ["warrior"], stats: { vit: 1, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "iron_sabatons", consumable: false, defense: 30,
+  },
+  {
+    id: "soft_shoes", name: "Soft Shoes", icon: "👟", slot: "boots",
+    description: "+1 DEX, +1 WIS, 5 DEF. Cloth shoes with cork soles. Quiet, comfortable, terrible in mud.",
+    classes: ["wizard", "priest"], stats: { dex: 1, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "soft_shoes", consumable: false, defense: 5,
+  },
+  {
+    id: "scout_boots", name: "Scout's Boots", icon: "🥾", slot: "boots",
+    description: "+2 DEX, 18 DEF. Supple leather, silent on any surface. The archer's best friend.",
+    classes: ["archer", "assassin"], stats: { dex: 2 }, durationMod: 1, lootMod: 1, recipeId: "scout_boots", consumable: false, defense: 18,
+  },
+  {
+    id: "trollhide_boots", name: "Trollhide Boots", icon: "🥾", slot: "boots",
+    description: "+2 VIT, +1 DEX, 25 DEF. Tough as stone, ugly as sin. They'll outlast you.",
+    classes: [], stats: { vit: 2, dex: 1 }, durationMod: 1, lootMod: 1, recipeId: "trollhide_boots", consumable: false, defense: 25,
+  },
+
+  // ── Amulets (Jewelcrafter) ──────────────────────────────────────
+  {
+    id: "holy_pendant", name: "Holy Pendant", icon: "✝️", slot: "amulet",
+    description: "+2 WIS, +1 VIT. A moonstone set in silver, blessed by three priests. Warm against the skin.",
+    classes: ["priest"], stats: { wis: 2, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "holy_pendant", consumable: false,
+  },
+  {
+    id: "amber_charm", name: "Amber Charm", icon: "🟠", slot: "amulet",
+    description: "+2 INT, +1 WIS. Ancient amber with a perfect insect inside. The Silvaneth say it thinks.",
+    classes: ["wizard"], stats: { int: 2, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "amber_charm", consumable: false,
+  },
+  {
+    id: "predator_tooth", name: "Predator's Tooth", icon: "🦷", slot: "amulet",
+    description: "+2 DEX, +1 STR. An alpha wolf's fang on braided sinew. The pack respects the kill.",
+    classes: ["archer", "assassin"], stats: { dex: 2, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "predator_tooth", consumable: false,
+  },
+  {
+    id: "warlord_chain", name: "Warlord's Chain", icon: "⛓️", slot: "amulet",
+    description: "+2 STR, +2 VIT. Orc-steel links and a fire ruby clasp. Taken from a chief who doesn't need it anymore.",
+    classes: ["warrior"], stats: { str: 2, vit: 2 }, durationMod: 1, lootMod: 1, recipeId: "warlord_chain", consumable: false,
+  },
+  {
+    id: "ghostveil_locket", name: "Ghostveil Locket", icon: "👻", slot: "amulet",
+    description: "+2 INT, +1 DEX. A locket that holds a wisp of ghostweave. The dead don't notice you as easily.",
+    classes: [], stats: { int: 2, dex: 1 }, durationMod: 1, lootMod: 1, recipeId: "ghostveil_locket", consumable: false,
+  },
+
+  // ── Off-Hand — New ──────────────────────────────────────────────
+  {
+    id: "arcane_focus", name: "Arcane Focus", icon: "🔮", slot: "offHand",
+    description: "+2 INT, +1 WIS. A crystal orb that floats beside your hand. Show-off? Maybe. Effective? Definitely.",
+    classes: ["wizard"], stats: { int: 2, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "arcane_focus", consumable: false,
+  },
+  {
+    id: "prayer_book", name: "Prayer Book", icon: "📖", slot: "offHand",
+    description: "+2 WIS, +1 INT. Leather-bound, well-thumbed, with annotations in three languages.",
+    classes: ["priest"], stats: { wis: 2, int: 1 }, durationMod: 1, lootMod: 1, recipeId: "prayer_book", consumable: false,
+  },
+  {
+    id: "parrying_dagger", name: "Parrying Dagger", icon: "🗡️", slot: "offHand",
+    description: "+1 DEX, +1 STR, 15 DEF. A wide-bladed dagger built for catching swords, not throwing.",
+    classes: ["assassin"], stats: { dex: 1, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "parrying_dagger", consumable: false, defense: 15,
+  },
+  {
+    id: "quiver_precision", name: "Quiver of Precision", icon: "🏹", slot: "offHand",
+    description: "+2 DEX. Enchanted quiver — arrows slide out nocked and ready. Faster than thinking.",
+    classes: ["archer"], stats: { dex: 2 }, durationMod: 1, lootMod: 1, recipeId: "quiver_precision", consumable: false,
+  },
+
+  // ── Assassin Daggers (mainHand) ─────────────────────────────────
+  {
+    id: "stiletto", name: "Stiletto", icon: "🗡️", slot: "mainHand",
+    description: "+2 DEX, +1 STR. Needle-thin, whisper-quiet. Made for gaps in armor, not fair fights.",
+    classes: ["assassin"], stats: { dex: 2, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "stiletto", consumable: false,
+  },
+  {
+    id: "poisoned_blade", name: "Poisoned Blade", icon: "🗡️", slot: "mainHand",
+    description: "+3 DEX, +2 STR. The groove along the blade holds venom. The nick is worse than the cut.",
+    classes: ["assassin"], stats: { dex: 3, str: 2 }, durationMod: 1, lootMod: 1, recipeId: "poisoned_blade", consumable: false,
+  },
+  {
+    id: "shadow_dagger", name: "Shadow Dagger", icon: "🗡️", slot: "mainHand",
+    description: "+4 DEX, +3 STR. Void-touched steel that drinks the light. The wound hurts before the blade arrives.",
+    classes: ["assassin"], stats: { dex: 4, str: 3 }, durationMod: 1, lootMod: 1, recipeId: "shadow_dagger", consumable: false,
+  },
+
+  // ── Priest Weapons (mainHand) ───────────────────────────────────
+  {
+    id: "iron_mace", name: "Iron Mace", icon: "🔨", slot: "mainHand",
+    description: "+1 STR, +1 WIS. Heavy, blunt, and sanctioned by the Church. For when prayer isn't enough.",
+    classes: ["priest", "warrior"], stats: { str: 1, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "iron_mace", consumable: false,
+  },
+  {
+    id: "blessed_mace", name: "Blessed Mace", icon: "🔨", slot: "mainHand",
+    description: "+2 WIS, +2 STR, +1 VIT. Moonstone-capped and consecrated. The undead hate it. So does everything else you hit with it.",
+    classes: ["priest"], stats: { wis: 2, str: 2, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "blessed_mace", consumable: false,
+  },
+
+  // ── Boss Loot Equipment (not craftable) ─────────────────────────
+  {
+    id: "alpha_fang_amulet", name: "Alpha's Fang", icon: "🐺", slot: "amulet",
+    description: "+2 STR, +1 DEX. The pack leader's broken fang, still warm. Wearing it feels like being watched by yellow eyes.",
+    classes: [], stats: { str: 2, dex: 1 }, durationMod: 1, lootMod: 1, recipeId: "", consumable: false,
+  },
+  {
+    id: "witch_eye_trinket", name: "Witch's Eye", icon: "👁️", slot: "trinket",
+    description: "+2 INT, +1 WIS, -5% duration. It sees what you can't. Don't ask what it shows the witch.",
+    classes: ["wizard", "priest"], stats: { int: 2, wis: 1 }, durationMod: 0.95, lootMod: 1, recipeId: "", consumable: false,
+  },
+  {
+    id: "goblin_crown", name: "Goblin Crown", icon: "👑", slot: "head",
+    description: "+2 DEX, +1 STR, +10% loot. Bent copper and stolen gems. It's ugly. It's also lucky.",
+    classes: [], stats: { dex: 2, str: 1 }, durationMod: 1, lootMod: 1.10, recipeId: "", consumable: false,
+  },
+  {
+    id: "necromancer_cowl", name: "Necromancer's Cowl", icon: "🧥", slot: "head",
+    description: "+3 INT, +1 WIS. The fabric whispers when you put it on. Best not to listen.",
+    classes: ["wizard"], stats: { int: 3, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "", consumable: false, defense: 10,
+  },
+  {
+    id: "beast_heart_charm", name: "Beast Heart Charm", icon: "❤️", slot: "trinket",
+    description: "+2 VIT, +2 STR. A dire bear's heart, dried and bound in leather. Courage you can wear.",
+    classes: [], stats: { vit: 2, str: 2 }, durationMod: 1, lootMod: 1, recipeId: "", consumable: false,
+  },
+  {
+    id: "infernal_signet", name: "Infernal Signet", icon: "💍", slot: "ring1",
+    description: "+3 STR, +2 VIT. Demon-forged iron and fire ruby. Burns cold. Grants strength at a cost nobody can name.",
+    classes: ["warrior", "assassin"], stats: { str: 3, vit: 2 }, durationMod: 1, lootMod: 1, recipeId: "", consumable: false,
+  },
 ];
 
 export function getItem(id: string): ItemDefinition | undefined {
@@ -479,6 +719,8 @@ export function isMissionPotion(itemId: string): boolean {
 export interface InventoryItem {
   itemId: string;
   quantity: number;
+  /** Enchantments applied to this stack. Enchanted items unstack (qty=1) */
+  enchantments?: string[];
 }
 
 export function getAvailableSupplies(inventory: InventoryItem[], category?: PotionCategory): { item: { id: string; name: string; icon: string; description: string }; qty: number }[] {
@@ -712,7 +954,7 @@ export const MATERIALS: MaterialDefinition[] = [
   },
   {
     id: "aether_core", name: "Aether Core", icon: "💠",
-    description: "The heart of an Aether Colossus. Pure crystallized magic, dense as lead, bright as noon. The Hauts-Ciels would weep to hold this.",
+    description: "The heart of an Aether Colossus. Pure crystallized magic, dense as lead, bright as noon. The Hauts-Cieux would weep to hold this.",
     category: "gem", tier: 5,
   },
 
@@ -732,6 +974,41 @@ export const MATERIALS: MaterialDefinition[] = [
     description: "A fragment of a lich's phylactery. Looks like glass, feels like ice, and whispers equations when the moon is full.",
     category: "enchanting", tier: 4,
   },
+
+  // ── New Materials — Content Expansion ──────────────────────────
+
+  // Hides
+  { id: "thick_pelt", name: "Thick Pelt", icon: "🐻", description: "Heavy bear fur, tough enough to turn a blade. Smells worse than it looks.", category: "hide", tier: 1 },
+  { id: "bristlehide", name: "Bristlehide", icon: "🐗", description: "Coarse boar skin covered in needle-sharp bristles. Makes surprisingly good padding.", category: "hide", tier: 1 },
+
+  // Bones & Parts
+  { id: "bear_claw", name: "Bear Claw", icon: "🐾", description: "Curved, sharp, and the size of a dagger. The hunters mount them as trophies. The Jewelcrafters see raw material.", category: "bone", tier: 1 },
+  { id: "serpent_fang", name: "Serpent Fang", icon: "🐍", description: "Hollow, curved, and still glistening with venom. Handle with thick gloves.", category: "bone", tier: 1 },
+  { id: "tusk_shard", name: "Tusk Shard", icon: "🦷", description: "A broken boar tusk, dense as stone. The Khazdurim use them for practice scrimshaw.", category: "bone", tier: 1 },
+  { id: "alpha_fang", name: "Alpha Fang", icon: "🐺", description: "The largest fang from the pack leader's jaw. Warm to the touch, as if the beast's fury persists.", category: "bone", tier: 2 },
+  { id: "beast_heart", name: "Beast Heart", icon: "❤️", description: "Massive, still faintly warm. The old hunters say eating it raw gives you the bear's courage. Don't.", category: "alchemy", tier: 3 },
+
+  // Alchemy
+  { id: "snake_oil", name: "Snake Oil", icon: "🧪", description: "Rendered from marsh adder venom. The alchemists call it a universal solvent. Everyone else calls it poison.", category: "alchemy", tier: 1 },
+  { id: "glowcap_spore", name: "Glowcap Spore", icon: "🍄", description: "Luminous fungal spores that glow blue-green in the dark. Mildly hallucinogenic if inhaled. Useful for alchemy.", category: "alchemy", tier: 1 },
+  { id: "ghoul_marrow", name: "Ghoul Marrow", icon: "🦴", description: "Grey, cold, and faintly luminescent. The alchemists want it. The priests want it burned. The alchemists are more persuasive.", category: "alchemy", tier: 2 },
+  { id: "grave_dust", name: "Grave Dust", icon: "💀", description: "Fine grey powder from where the undead walk. Disturbing to collect, invaluable to enchanters.", category: "alchemy", tier: 2 },
+  { id: "witch_eye", name: "Witch's Eye", icon: "👁️", description: "A glass eye that isn't glass. It blinks when you're not looking. The witch says she has a spare.", category: "enchanting", tier: 2 },
+  { id: "hex_fetish", name: "Hex Fetish", icon: "🪬", description: "A crude totem of bone and feathers, still humming with hedge-magic. The goblins hang them from their belts like lucky charms.", category: "enchanting", tier: 2 },
+
+  // Nature
+  { id: "living_heartwood", name: "Living Heartwood", icon: "🪵", description: "Cut from the core of a corrupted treant. It's warm, it bleeds sap, and if you leave it in soil it tries to grow roots overnight.", category: "enchanting", tier: 3 },
+  { id: "amber_resin", name: "Amber Resin", icon: "🟠", description: "Golden tree-blood hardened into crystal. Ancient insects trapped inside sometimes still move.", category: "gem", tier: 3 },
+  { id: "charite", name: "Charite", icon: "🔶", description: "Crystallized fire-ash from the bones of a Burnt Skeleton. It's always warm and glows faintly in the dark.", category: "enchanting", tier: 2 },
+
+  // Elemental Gems
+  { id: "crude_ruby", name: "Crude Ruby", icon: "🔴", description: "An uncut fire-touched gemstone, cloudy and rough. A Jewelcrafter could refine it into something beautiful.", category: "gem", tier: 2 },
+  { id: "fire_ruby", name: "Fire Ruby", icon: "❤️‍🔥", description: "A deep red gem that pulses with inner heat. Cut properly, it holds fire magic like a lantern holds flame.", category: "gem", tier: 3 },
+  { id: "frost_sapphire", name: "Frost Sapphire", icon: "💎", description: "Blue as a winter sky, cold to the touch even in summer. Water beads and freezes on its surface.", category: "gem", tier: 3 },
+  { id: "storm_topaz", name: "Storm Topaz", icon: "⚡", description: "Yellow-white and crackling with static. Touch it and your hair stands on end for an hour.", category: "gem", tier: 3 },
+  { id: "void_topaz", name: "Void Topaz", icon: "🟣", description: "Black as a moonless night with faint purple veins. It absorbs light rather than reflecting it. Unsettling to hold.", category: "gem", tier: 4 },
+  { id: "emerald_shard", name: "Emerald Shard", icon: "💚", description: "A fragment of living crystal, green as new growth. Plants lean toward it. The Silvaneth say it remembers being a forest.", category: "gem", tier: 3 },
+  { id: "moonstone", name: "Moonstone", icon: "🌙", description: "White as milk with an inner shimmer like captured moonlight. The priests say it's a fragment of divine attention. The enchanters say it's useful. Both are right.", category: "gem", tier: 4 },
 ];
 
 export function getMaterial(id: string): MaterialDefinition | undefined {

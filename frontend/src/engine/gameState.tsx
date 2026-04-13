@@ -81,6 +81,25 @@ import {
   PEN_MAX_LEVEL,
 } from "~/data/livestock";
 import {
+  getHiveCost,
+  getHiveBuildTime,
+  getHoneyRate,
+  getHoneyStorageCap,
+  MAX_HIVES,
+  HIVE_MAX_LEVEL,
+} from "~/data/apiary";
+import {
+  type FruitId,
+  getFruit,
+  getOrchardCost,
+  getOrchardBuildTime,
+  getOrchardRate,
+  isOrchardActive,
+  MAX_ORCHARDS,
+  ORCHARD_MAX_LEVEL,
+  getFruitStorageCap,
+} from "~/data/orchards";
+import {
   type Season,
   HOURS_PER_SEASON,
   HARVEST_DURATION_HOURS,
@@ -146,6 +165,10 @@ import {
   getUnspentStatPoints,
   type AdventurerStats,
   STAT_KEYS,
+  getLoyaltyRank,
+  LOYALTY_RANKS,
+  FOOD_PREFERENCES,
+  type AgeCategory,
 } from "~/data/adventurers";
 import {
   type IncomingRaid,
@@ -165,6 +188,7 @@ import { ALCHEMY_RECIPES, getDiscoverableRecipes, getAvailableAlchemyRecipes, RE
 import { getDeity, getCurrentDeity } from "~/data/deities";
 import { simulateCombat } from "~/data/combat";
 import { canUnlockTalent } from "~/data/talents";
+import { getEnchantment } from "~/data/enchantments";
 import {
   listSettlements,
   loadSettlement as loadSettlementApi,
@@ -180,7 +204,7 @@ import { isLoggedIn } from "~/api/auth";
 export type GameEventType =
   | "citizen_born" | "citizen_died" | "citizen_left"
   | "building_completed" | "building_damaged" | "building_repaired"
-  | "mission_success" | "mission_failed" | "adventurer_died" | "adventurer_levelup" | "adventurer_rankup"
+  | "mission_success" | "mission_failed" | "adventurer_died" | "adventurer_levelup" | "adventurer_rankup" | "loyalty_rankup"
   | "raid_victory" | "raid_defeat" | "raid_incoming"
   | "winter_freezing"
   | "loot_drop";
@@ -237,12 +261,33 @@ export interface PlayerPen {
   upgradeRemaining?: number;
 }
 
+export interface PlayerHive {
+  id: string;
+  level: number;
+  upgrading: boolean;
+  upgradeRemaining?: number;
+}
+
+export interface PlayerOrchard {
+  id: string;
+  fruit: FruitId;
+  level: number;
+  upgrading: boolean;
+  upgradeRemaining?: number;
+  seasonsGrown: number;
+  mature: boolean;
+}
+
 export interface GameState {
   resources: ResourceState;
   buildings: PlayerBuilding[];
   fields: PlayerField[];
   gardens: PlayerGarden[];
   pens: PlayerPen[];
+  hives: PlayerHive[];
+  orchards: PlayerOrchard[];
+  honey: number;
+  fruit: number;
   population: number;
   season: Season;
   seasonElapsed: number;
@@ -334,6 +379,12 @@ export interface GameActions {
   buildPen: (animal: AnimalId) => boolean;
   upgradePen: (penId: string) => boolean;
   removePen: (penId: string) => void;
+  buildHive: () => boolean;
+  upgradeHive: (hiveId: string) => boolean;
+  removeHive: (hiveId: string) => void;
+  buildOrchard: (fruit: FruitId) => boolean;
+  upgradeOrchard: (orchardId: string) => boolean;
+  removeOrchard: (orchardId: string) => void;
   setGameSpeed: (speed: number) => void;
   renameVillage: (name: string) => void;
   resetGame: () => void;
@@ -366,6 +417,7 @@ export interface GameActions {
   getAleInfo: () => { current: number; cap: number; production: number; consumption: number };
   startCraft: (recipeId: string, quantity?: number) => boolean;
   getAvailableRecipes: () => CraftingRecipe[];
+  enchantItem: (enchantId: string, adventurerId: string | null, slot: string | null, inventoryIdx: number | null) => boolean;
   getClothingInfo: () => { current: number; needed: number };
   allocateStat: (adventurerId: string, stat: keyof AdventurerStats) => boolean;
   unlockTalent: (adventurerId: string, talentId: string) => boolean;
@@ -441,6 +493,10 @@ function createInitialState(): GameState {
     fields: [],
     gardens: [],
     pens: [],
+    hives: [],
+    orchards: [],
+    honey: 0,
+    fruit: 0,
     population: BASE_POPULATION,
     season: "spring",
     seasonElapsed: 0,
@@ -552,6 +608,10 @@ function loadGame(): GameState | null {
     if (!saved.fields) saved.fields = [];
     if (!saved.gardens) saved.gardens = [];
     if (!saved.pens) saved.pens = [];
+    if (!saved.hives) saved.hives = [];
+    if (!saved.orchards) saved.orchards = [];
+    if (saved.honey === undefined) saved.honey = 0;
+    if (saved.fruit === undefined) saved.fruit = 0;
     if (!saved.season) { saved.season = "spring"; saved.seasonElapsed = 0; saved.year = 1; }
     // Adventurer's Guild migration
     if (!saved.adventurers) saved.adventurers = [];
@@ -683,6 +743,26 @@ function loadGame(): GameState | null {
     // Talent migration
     for (const adv of saved.adventurers) { if (!adv.talents) adv.talents = []; }
     for (const adv of saved.recruitCandidates) { if (!adv.talents) adv.talents = []; }
+    // Food preference & loyalty migration
+    const backfillFoodLoyalty = (adv: any) => {
+      if (adv.foodPreference === undefined) {
+        const hash = adv.name.split("").reduce((h: number, c: string) => h + c.charCodeAt(0), 0);
+        adv.foodPreference = FOOD_PREFERENCES[hash % FOOD_PREFERENCES.length].id;
+      }
+      if (adv.loyalty === undefined) adv.loyalty = 0;
+    };
+    for (const adv of saved.adventurers) backfillFoodLoyalty(adv);
+    for (const adv of saved.recruitCandidates) backfillFoodLoyalty(adv);
+    // Age migration
+    const backfillAge = (adv: any) => {
+      if (adv.age === undefined) {
+        const hash = adv.name.split("").reduce((h: number, c: string) => h + c.charCodeAt(0), 0);
+        const ages: AgeCategory[] = ["young", "middle", "mature", "old"];
+        adv.age = ages[hash % ages.length];
+      }
+    };
+    for (const adv of saved.adventurers) backfillAge(adv);
+    for (const adv of saved.recruitCandidates) backfillAge(adv);
     // Name migration: regenerate names to match origin, preserving gender
     const renameTo = (adv: any) => {
       if (!adv.origin) return;
@@ -1280,6 +1360,31 @@ export function GameProvider(props: ParentProps) {
     if (prev === "summer") {
       pushEvent(s, "building_completed", "🍂", "Autumn is here — harvest season begins!");
     }
+
+    // Orchard maturation — increment seasonsGrown each season
+    for (const orchard of s.orchards) {
+      if (orchard.level > 0 && !orchard.upgrading && !orchard.mature) {
+        orchard.seasonsGrown = (orchard.seasonsGrown ?? 0) + 1;
+        const fruitDef = getFruit(orchard.fruit);
+        if (orchard.seasonsGrown >= fruitDef.maturationSeasons) {
+          orchard.mature = true;
+          pushEvent(s, "building_completed", fruitDef.icon, `Your ${fruitDef.name} are now bearing fruit!`);
+        }
+      }
+    }
+
+    // Passive loyalty gain — +0.5 per season for alive, idle adventurers
+    for (const adv of s.adventurers) {
+      if (adv.alive && !adv.onMission) {
+        const oldLoyalty = adv.loyalty ?? 0;
+        const oldRank = getLoyaltyRank(oldLoyalty);
+        adv.loyalty = Math.min(100, oldLoyalty + 0.5);
+        const newRank = getLoyaltyRank(adv.loyalty);
+        if (newRank.rank > oldRank.rank) {
+          pushEvent(s, "loyalty_rankup", "💛", `${adv.name} is now ${newRank.title}!`);
+        }
+      }
+    }
   }
 
   function applyTicks(elapsedMs: number) {
@@ -1388,6 +1493,27 @@ export function GameProvider(props: ParentProps) {
               const fiberRate = getSeasonYield(crop, field.level) / HARVEST_DURATION_HOURS;
               s.fiber = Math.min(200, s.fiber + fiberRate * elapsedHours);
             }
+          }
+        }
+
+        // ── Honey from apiaries (seasonal) ──
+        const honeyCap = getHoneyStorageCap(s.hives);
+        for (const hive of s.hives) {
+          if (hive.level === 0 || hive.upgrading) continue;
+          const rate = getHoneyRate(hive.level, s.season);
+          if (rate > 0) {
+            s.honey = Math.min(honeyCap, s.honey + rate * elapsedHours);
+          }
+        }
+
+        // ── Fruit from orchards (seasonal, mature only) ──
+        const fruitCap = getFruitStorageCap(s.orchards);
+        for (const orchard of s.orchards) {
+          if (orchard.level === 0 || orchard.upgrading || !orchard.mature) continue;
+          const fruitDef = getFruit(orchard.fruit);
+          if (isOrchardActive(fruitDef, s.season)) {
+            const rate = getOrchardRate(fruitDef, orchard.level);
+            s.fruit = Math.min(fruitCap, s.fruit + rate * elapsedHours);
           }
         }
 
@@ -1610,8 +1736,8 @@ export function GameProvider(props: ParentProps) {
 
         s.happiness = Math.max(0, Math.min(100, Math.round(happiness)));
 
-        // Tick upgrades — buildings, fields, gardens, pens
-        for (const list of [s.buildings, s.fields, s.gardens, s.pens]) {
+        // Tick upgrades — buildings, fields, gardens, pens, hives, orchards
+        for (const list of [s.buildings, s.fields, s.gardens, s.pens, s.hives, s.orchards]) {
           for (const item of list) {
             if (item.upgrading && item.upgradeRemaining !== undefined) {
               item.upgradeRemaining -= elapsedSeconds;
@@ -1788,6 +1914,25 @@ export function GameProvider(props: ParentProps) {
                     if (result.leveled) levelUps.push(advInState.name);
                     if (result.rankUp && advInState.rank !== result.oldRank) {
                       rankUps.push({ name: advInState.name, newRank: RANK_NAMES[advInState.rank] });
+                    }
+                  }
+                }
+              }
+
+              // Grant loyalty to surviving adventurers
+              const isDangerous = template ? template.difficulty >= 4 : false;
+              for (const adv of team) {
+                if (!casualties.includes(adv.id)) {
+                  const advInState = s.adventurers.find((a) => a.id === adv.id);
+                  if (advInState) {
+                    const oldLoyalty = advInState.loyalty ?? 0;
+                    const oldRank = getLoyaltyRank(oldLoyalty);
+                    let gain = success ? 2 : 0;
+                    if (isDangerous) gain += 1; // bonus for surviving dangerous missions
+                    advInState.loyalty = Math.min(100, oldLoyalty + gain);
+                    const newRank = getLoyaltyRank(advInState.loyalty);
+                    if (newRank.rank > oldRank.rank) {
+                      pushEvent(s, "loyalty_rankup", "💛", `${advInState.name} is now ${newRank.title}!`);
                     }
                   }
                 }
@@ -2261,6 +2406,88 @@ export function GameProvider(props: ParentProps) {
       scheduleSave();
     },
 
+    // ── Hives (Apiary) ──
+    buildHive() {
+      if (state.hives.length >= MAX_HIVES) return false;
+      const cost = getHiveCost(0);
+      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone || state.resources.gold < cost.gold) return false;
+      const id = nextId("hive");
+      setState(produce((s) => {
+        s.resources.wood -= cost.wood;
+        s.resources.stone -= cost.stone;
+        s.resources.gold -= cost.gold;
+        s.hives.push({ id, level: 0, upgrading: true, upgradeRemaining: getHiveBuildTime(0) });
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    upgradeHive(hiveId) {
+      const hive = state.hives.find((h) => h.id === hiveId);
+      if (!hive || hive.upgrading || hive.level >= HIVE_MAX_LEVEL) return false;
+      const cost = getHiveCost(hive.level);
+      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone || state.resources.gold < cost.gold) return false;
+      setState(produce((s) => {
+        s.resources.wood -= cost.wood;
+        s.resources.stone -= cost.stone;
+        s.resources.gold -= cost.gold;
+        const h = s.hives.find((h) => h.id === hiveId)!;
+        h.upgrading = true;
+        h.upgradeRemaining = getHiveBuildTime(hive.level);
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    removeHive(hiveId) {
+      setState(produce((s) => {
+        const idx = s.hives.findIndex((h) => h.id === hiveId);
+        if (idx !== -1) s.hives.splice(idx, 1);
+      }));
+      scheduleSave();
+    },
+
+    // ── Orchards ──
+    buildOrchard(fruit) {
+      if (state.orchards.length >= MAX_ORCHARDS) return false;
+      const cost = getOrchardCost(0);
+      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone || state.resources.gold < cost.gold) return false;
+      const id = nextId("orchard");
+      setState(produce((s) => {
+        s.resources.wood -= cost.wood;
+        s.resources.stone -= cost.stone;
+        s.resources.gold -= cost.gold;
+        s.orchards.push({ id, fruit, level: 0, upgrading: true, upgradeRemaining: getOrchardBuildTime(0), seasonsGrown: 0, mature: false });
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    upgradeOrchard(orchardId) {
+      const orchard = state.orchards.find((o) => o.id === orchardId);
+      if (!orchard || orchard.upgrading || orchard.level >= ORCHARD_MAX_LEVEL) return false;
+      const cost = getOrchardCost(orchard.level);
+      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone || state.resources.gold < cost.gold) return false;
+      setState(produce((s) => {
+        s.resources.wood -= cost.wood;
+        s.resources.stone -= cost.stone;
+        s.resources.gold -= cost.gold;
+        const o = s.orchards.find((o) => o.id === orchardId)!;
+        o.upgrading = true;
+        o.upgradeRemaining = getOrchardBuildTime(orchard.level);
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    removeOrchard(orchardId) {
+      setState(produce((s) => {
+        const idx = s.orchards.findIndex((o) => o.id === orchardId);
+        if (idx !== -1) s.orchards.splice(idx, 1);
+      }));
+      scheduleSave();
+    },
+
     setGameSpeed(speed) { setState("gameSpeed", speed); },
     renameVillage(name) {
       const trimmed = name.trim();
@@ -2493,6 +2720,53 @@ export function GameProvider(props: ParentProps) {
         const building = state.buildings.find((b) => b.buildingId === r.building);
         return building && building.level >= r.minLevel;
       });
+    },
+    enchantItem(enchantId, adventurerId, slot, inventoryIdx) {
+      const ench = getEnchantment(enchantId);
+      if (!ench) return false;
+      const tower = state.buildings.find((b) => b.buildingId === "mage_tower");
+      if (!tower || tower.level < ench.minTowerLevel) return false;
+
+      // Check valid slot
+      if (slot && !ench.validSlots.includes(slot as any)) return false;
+
+      // Check costs
+      for (const cost of ench.costs) {
+        const inv = state.inventory.find((i) => i.itemId === cost.resource);
+        if (!inv || inv.quantity < cost.amount) return false;
+      }
+
+      setState(produce((s) => {
+        // Deduct costs
+        for (const cost of ench.costs) {
+          const inv = s.inventory.find((i) => i.itemId === cost.resource);
+          if (inv) inv.quantity -= cost.amount;
+        }
+
+        if (adventurerId && slot) {
+          // Enchant equipped item
+          const adv = s.adventurers.find((a) => a.id === adventurerId);
+          if (!adv) return;
+          if (!adv.equipmentEnchants) adv.equipmentEnchants = {};
+          if (!adv.equipmentEnchants[slot]) adv.equipmentEnchants[slot] = [];
+          adv.equipmentEnchants[slot]!.push(enchantId);
+        } else if (inventoryIdx !== null && inventoryIdx >= 0) {
+          // Enchant inventory item — unstack if qty > 1
+          const inv = s.inventory[inventoryIdx];
+          if (!inv) return;
+          if (inv.quantity > 1) {
+            // Unstack: reduce qty by 1, create new entry with enchantment
+            inv.quantity -= 1;
+            s.inventory.push({ itemId: inv.itemId, quantity: 1, enchantments: [...(inv.enchantments ?? []), enchantId] });
+          } else {
+            // Single item: add enchantment in place
+            if (!inv.enchantments) inv.enchantments = [];
+            inv.enchantments.push(enchantId);
+          }
+        }
+      }));
+      scheduleSave();
+      return true;
     },
     getClothingInfo() {
       return {

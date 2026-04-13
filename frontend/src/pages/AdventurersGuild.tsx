@@ -15,6 +15,8 @@ import {
   RACE_NAMES,
   type Adventurer,
   type AdventurerRank,
+  findKin,
+  getFoodPref,
 } from "~/data/adventurers";
 import { getItem } from "~/data/items";
 import {
@@ -503,7 +505,7 @@ export default function AdventurersGuild() {
                         {RANK_NAMES[adv.rank]}
                       </span>
                       <div class="adv-card-portrait">
-                        <img src={getPortrait(adv.name, adv.class, adv.origin)} alt={adv.name} loading="lazy" />
+                        <img src={getPortrait(adv.name, adv.class, adv.origin, adv.age ?? "middle")} alt={adv.name} loading="lazy" />
                       </div>
                       <div class="adv-card-content">
                         <div class="building-card-title">{adv.name}</div>
@@ -621,7 +623,7 @@ export default function AdventurersGuild() {
                       {RANK_NAMES[candidate.rank]}
                     </span>
                     <div class="adv-card-portrait">
-                      <img src={getPortrait(candidate.name, candidate.class, candidate.origin)} alt={candidate.name} loading="lazy" />
+                      <img src={getPortrait(candidate.name, candidate.class, candidate.origin, candidate.age ?? "middle")} alt={candidate.name} loading="lazy" />
                     </div>
                     <div class="adv-card-content">
                       <div class="building-card-title">{candidate.name}</div>
@@ -631,6 +633,38 @@ export default function AdventurersGuild() {
                       <Show when={candidate.origin}>
                         <div style={{ "font-size": "0.75rem", color: "var(--text-muted)" }}>
                           {getOrigin(candidate.origin)?.name} — {getOrigin(candidate.origin)?.region}
+                        </div>
+                      </Show>
+                      {/* Kinship — show if candidate shares a last name with a roster member */}
+                      {(() => {
+                        const kin = findKin(candidate, state.adventurers);
+                        if (kin.length === 0) return null;
+                        return (
+                          <div style={{
+                            "font-size": "0.78rem",
+                            color: "var(--accent-gold)",
+                            "margin-top": "2px",
+                            display: "flex",
+                            "align-items": "center",
+                            gap: "4px",
+                          }}>
+                            <span>👨‍👩‍👧‍👦</span>
+                            <span>{kin.map((k) => k.label).join(", ")}</span>
+                          </div>
+                        );
+                      })()}
+                      {/* Food preference */}
+                      <Show when={getFoodPref(candidate.foodPreference)}>
+                        <div style={{
+                          "font-size": "0.75rem",
+                          color: "var(--text-muted)",
+                          "margin-top": "2px",
+                          display: "flex",
+                          "align-items": "center",
+                          gap: "4px",
+                        }}>
+                          <span>{getFoodPref(candidate.foodPreference)!.icon}</span>
+                          <span>{getFoodPref(candidate.foodPreference)!.trait}</span>
                         </div>
                       </Show>
                       <Show when={candidate.backstory}>

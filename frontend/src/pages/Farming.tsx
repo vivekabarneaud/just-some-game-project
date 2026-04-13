@@ -1,8 +1,10 @@
 import { For, Show, createSignal } from "solid-js";
-import { useGame, type PlayerField, type PlayerGarden, type PlayerPen } from "~/engine/gameState";
+import { useGame, type PlayerField, type PlayerGarden, type PlayerPen, type PlayerHive, type PlayerOrchard } from "~/engine/gameState";
 import { CROPS, type CropId, getCrop, getFieldCost, getFieldBuildTime, getSeasonYield, MAX_FIELDS, FIELD_MAX_LEVEL } from "~/data/crops";
 import { VEGGIES, type VeggieId, getVeggie, getGardenCost, getGardenBuildTime, getGardenRate, isGardenActive, MAX_GARDENS, GARDEN_MAX_LEVEL } from "~/data/gardens";
 import { ANIMALS, type AnimalId, getAnimal, getPenCost, getPenBuildTime, getPenProduction, MAX_PENS, PEN_MAX_LEVEL } from "~/data/livestock";
+import { getHiveCost, getHiveBuildTime, getHoneyRate, MAX_HIVES, HIVE_MAX_LEVEL } from "~/data/apiary";
+import { FRUITS, type FruitId, getFruit, getOrchardCost, getOrchardBuildTime, getOrchardRate, getOrchardStatus, isOrchardActive, MAX_ORCHARDS, ORCHARD_MAX_LEVEL } from "~/data/orchards";
 import { SEASON_META } from "~/data/seasons";
 import Countdown from "~/components/Countdown";
 
@@ -275,6 +277,99 @@ function Picker<T extends { id: string; name: string; icon: string; description:
   );
 }
 
+// ─── Hive Card ──────────────────────────────────────────────────
+
+function HiveCard(props: { hive: PlayerHive }) {
+  const { actions, state } = useGame();
+  const honeyRate = () => props.hive.level > 0 ? getHoneyRate(props.hive.level, state.season) : 0;
+  const upgradeCost = () => props.hive.level < HIVE_MAX_LEVEL ? getHiveCost(props.hive.level) : null;
+  const canUpgrade = () => {
+    const cost = upgradeCost();
+    if (!cost || props.hive.upgrading) return false;
+    return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone && state.resources.gold >= cost.gold;
+  };
+  const isDormant = () => props.hive.level > 0 && !props.hive.upgrading && honeyRate() === 0;
+
+  return (
+    <div class="farm-card">
+      <div class="farm-card-header">
+        <span class="farm-card-icon">🐝</span>
+        <span class="farm-card-title">Beehive Lv.{props.hive.level}</span>
+      </div>
+      <Show when={props.hive.upgrading}>
+        <div class="farm-card-status" style={{ color: "var(--accent-blue)" }}>
+          🔨 Building... <Countdown remainingSeconds={props.hive.upgradeRemaining ?? 0} />
+        </div>
+      </Show>
+      <Show when={!props.hive.upgrading && props.hive.level > 0}>
+        <div class="farm-card-status" style={{ color: isDormant() ? "var(--text-muted)" : "var(--accent-gold)" }}>
+          {isDormant() ? "❄️ Dormant (winter)" : `🍯 ${honeyRate()}/h honey`}
+        </div>
+      </Show>
+      <div class="farm-card-actions">
+        <Show when={upgradeCost() && !props.hive.upgrading}>
+          <button class="upgrade-btn" disabled={!canUpgrade()} onClick={() => actions.upgradeHive(props.hive.id)}
+            style={{ "font-size": "0.75rem", padding: "4px 8px" }}>
+            Upgrade (🪵{upgradeCost()!.wood} 🪨{upgradeCost()!.stone} 🪙{upgradeCost()!.gold})
+          </button>
+        </Show>
+        <button class="remove-btn" onClick={() => actions.removeHive(props.hive.id)}
+          style={{ "font-size": "0.7rem", padding: "2px 6px", background: "none", border: "1px solid var(--border-color)", color: "var(--text-muted)", "border-radius": "3px", cursor: "pointer" }}>
+          ×
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Orchard Card ───────────────────────────────────────────────
+
+function OrchardCard(props: { orchard: PlayerOrchard }) {
+  const { actions, state } = useGame();
+  const fruitDef = () => getFruit(props.orchard.fruit);
+  const rate = () => props.orchard.level > 0 && props.orchard.mature && isOrchardActive(fruitDef(), state.season)
+    ? getOrchardRate(fruitDef(), props.orchard.level) : 0;
+  const status = () => props.orchard.level > 0 && !props.orchard.upgrading
+    ? getOrchardStatus(fruitDef(), state.season, props.orchard.mature, props.orchard.seasonsGrown) : "";
+  const upgradeCost = () => props.orchard.level < ORCHARD_MAX_LEVEL ? getOrchardCost(props.orchard.level) : null;
+  const canUpgrade = () => {
+    const cost = upgradeCost();
+    if (!cost || props.orchard.upgrading) return false;
+    return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone && state.resources.gold >= cost.gold;
+  };
+
+  return (
+    <div class="farm-card">
+      <div class="farm-card-header">
+        <span class="farm-card-icon">{fruitDef().icon}</span>
+        <span class="farm-card-title">{fruitDef().name} Lv.{props.orchard.level}</span>
+      </div>
+      <Show when={props.orchard.upgrading}>
+        <div class="farm-card-status" style={{ color: "var(--accent-blue)" }}>
+          🔨 Planting... <Countdown remainingSeconds={props.orchard.upgradeRemaining ?? 0} />
+        </div>
+      </Show>
+      <Show when={!props.orchard.upgrading && props.orchard.level > 0}>
+        <div class="farm-card-status" style={{ color: rate() > 0 ? "var(--accent-green)" : "var(--text-muted)" }}>
+          {rate() > 0 ? `🍎 ${rate()}/h fruit` : status()}
+        </div>
+      </Show>
+      <div class="farm-card-actions">
+        <Show when={upgradeCost() && !props.orchard.upgrading}>
+          <button class="upgrade-btn" disabled={!canUpgrade()} onClick={() => actions.upgradeOrchard(props.orchard.id)}
+            style={{ "font-size": "0.75rem", padding: "4px 8px" }}>
+            Upgrade (🪵{upgradeCost()!.wood} 🪨{upgradeCost()!.stone} 🪙{upgradeCost()!.gold})
+          </button>
+        </Show>
+        <button class="remove-btn" onClick={() => actions.removeOrchard(props.orchard.id)}
+          style={{ "font-size": "0.7rem", padding: "2px 6px", background: "none", border: "1px solid var(--border-color)", color: "var(--text-muted)", "border-radius": "3px", cursor: "pointer" }}>
+          ×
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Page ───────────────────────────────────────────────────
 
 export default function Farming() {
@@ -282,6 +377,7 @@ export default function Farming() {
   // showFieldPicker removed — fields are built empty, crops chosen per-field in spring
   const [showGardenPicker, setShowGardenPicker] = createSignal(false);
   const [showPenPicker, setShowPenPicker] = createSignal(false);
+  const [showOrchardPicker, setShowOrchardPicker] = createSignal(false);
 
   const seasonMeta = () => SEASON_META[state.season];
 
@@ -295,6 +391,18 @@ export default function Farming() {
     if (state.gardens.length >= MAX_GARDENS) return false;
     const cost = getGardenCost(0);
     return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone;
+  };
+
+  const canBuildHive = () => {
+    if (state.hives.length >= MAX_HIVES) return false;
+    const cost = getHiveCost(0);
+    return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone && state.resources.gold >= cost.gold;
+  };
+
+  const canBuildOrchard = () => {
+    if (state.orchards.length >= MAX_ORCHARDS) return false;
+    const cost = getOrchardCost(0);
+    return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone && state.resources.gold >= cost.gold;
   };
 
   const canBuildPen = () => {
@@ -445,6 +553,43 @@ export default function Farming() {
               }}
               onSelect={(id) => { actions.buildPen(id as AnimalId); setShowPenPicker(false); }}
               onCancel={() => setShowPenPicker(false)} />
+          </Show>
+        </Show>
+      </div>
+
+      {/* ── Apiary ── */}
+      <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🐝 Apiary ({state.hives.length}/{MAX_HIVES}) — 🍯 {Math.floor(state.honey)} honey</h2>
+      <div class="fields-grid">
+        <For each={state.hives}>{(h) => <HiveCard hive={h} />}</For>
+        <Show when={state.hives.length < MAX_HIVES}>
+          <button class="add-card-btn" disabled={!canBuildHive()} onClick={() => actions.buildHive()}>
+            <span class="add-card-icon">+</span>
+            <span class="add-card-label">New Beehive</span>
+            <span class="add-card-cost">🪵 {getHiveCost(0).wood} 🪨 {getHiveCost(0).stone} 🪙 {getHiveCost(0).gold}</span>
+          </button>
+        </Show>
+      </div>
+
+      {/* ── Orchards ── */}
+      <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🌳 Orchards ({state.orchards.length}/{MAX_ORCHARDS}) — 🍎 {Math.floor(state.fruit)} fruit</h2>
+      <div class="fields-grid">
+        <For each={state.orchards}>{(o) => <OrchardCard orchard={o} />}</For>
+        <Show when={state.orchards.length < MAX_ORCHARDS}>
+          <Show when={showOrchardPicker()} fallback={
+            <button class="add-card-btn" disabled={!canBuildOrchard()} onClick={() => setShowOrchardPicker(true)}>
+              <span class="add-card-icon">+</span>
+              <span class="add-card-label">Plant Orchard</span>
+              <span class="add-card-cost">🪵 {getOrchardCost(0).wood} 🪨 {getOrchardCost(0).stone} 🪙 {getOrchardCost(0).gold}</span>
+            </button>
+          }>
+            <Picker title="Choose Fruit Trees" items={FRUITS} disabled={!canBuildOrchard()}
+              getYieldLabel={(f) => {
+                const rate = getOrchardRate(f, 1);
+                const seasons = f.harvestSeasons.join(", ");
+                return `+${rate}/h fruit (${seasons}) — ${f.maturationSeasons} seasons to mature`;
+              }}
+              onSelect={(id) => { actions.buildOrchard(id as FruitId); setShowOrchardPicker(false); }}
+              onCancel={() => setShowOrchardPicker(false)} />
           </Show>
         </Show>
       </div>

@@ -16,6 +16,11 @@ import {
   getOrigin,
   RACE_NAMES,
   BACKSTORY_TRAITS,
+  getFoodPref,
+  getLoyaltyRank,
+  getNextLoyaltyRank,
+  LOYALTY_RANKS,
+  AGE_LABELS,
 } from "~/data/adventurers";
 import { getItem, getItemsForSlot, getEquipmentStats, getEquipmentDefense, isSupplyItem, type ItemSlot } from "~/data/items";
 import { getTalentsForClass, getTalentPoints, getUnspentTalentPoints, canUnlockTalent, getEarnedTitle, getTalent, type TalentNode } from "~/data/talents";
@@ -81,6 +86,16 @@ export default function AdventurerDetail() {
           const unspentPoints = () => getUnspentStatPoints(adv());
           const xpNeeded = () => getXpForLevel(adv().level);
           const xpPct = () => Math.min(100, (adv().xp / xpNeeded()) * 100);
+          const loyalty = () => adv().loyalty ?? 0;
+          const loyaltyRank = () => getLoyaltyRank(loyalty());
+          const nextLoyalty = () => getNextLoyaltyRank(loyalty());
+          const loyaltyPct = () => {
+            const current = loyaltyRank().threshold;
+            const next = nextLoyalty()?.threshold ?? 100;
+            if (next === current) return 100;
+            return Math.min(100, ((loyalty() - current) / (next - current)) * 100);
+          };
+          const foodPref = () => getFoodPref(adv().foodPreference);
 
           return (
             <div>
@@ -106,7 +121,7 @@ export default function AdventurerDetail() {
                       position: "relative",
                     }}>
                       <img
-                        src={getPortrait(adv().name, adv().class, adv().origin)}
+                        src={getPortrait(adv().name, adv().class, adv().origin, adv().age ?? "middle")}
                         alt={adv().name}
                         style={{
                           width: "100%",
@@ -144,6 +159,9 @@ export default function AdventurerDetail() {
                             {RANK_NAMES[adv().rank]}
                           </span>
                           {" "}· Level {adv().level}
+                          <Show when={adv().age}>
+                            {" "}· <span style={{ color: "var(--text-muted)" }}>{AGE_LABELS[adv().age!]}</span>
+                          </Show>
                         </div>
                         <Show when={adv().origin}>
                           <div style={{ "font-size": "0.85rem", color: "var(--text-muted)", "margin-top": "2px" }}>
@@ -172,6 +190,20 @@ export default function AdventurerDetail() {
                               {adv().quirk}
                             </div>
                           </Show>
+                        </div>
+                      </Show>
+
+                      {/* Food Preference */}
+                      <Show when={foodPref()}>
+                        <div style={{
+                          display: "flex",
+                          "align-items": "center",
+                          gap: "8px",
+                          "font-size": "0.85rem",
+                          color: "var(--text-secondary)",
+                        }}>
+                          <span style={{ "font-size": "1.1rem" }}>{foodPref()!.icon}</span>
+                          <span>{foodPref()!.trait}</span>
                         </div>
                       </Show>
 
@@ -223,7 +255,32 @@ export default function AdventurerDetail() {
                       }} />
                     </div>
                   </div>
-                  <div style={{ "margin-top": "16px", "margin-bottom": "16px", "border-top": "1px solid var(--border-color)" }} />
+                  {/* Loyalty Bar */}
+                  <div style={{ "margin-top": "10px", "margin-bottom": "12px" }}>
+                    <div style={{ display: "flex", "justify-content": "space-between", "font-size": "0.8rem", "margin-bottom": "4px" }}>
+                      <span style={{ color: "var(--text-secondary)" }}>
+                        Loyalty — <span style={{ color: "#d4a017", "font-weight": "bold" }}>{loyaltyRank().title}</span>
+                      </span>
+                      <span style={{ color: "var(--text-muted)" }}>
+                        {Math.floor(loyalty())} / {nextLoyalty()?.threshold ?? 100}
+                      </span>
+                    </div>
+                    <div style={{ height: "6px", background: "var(--bg-primary)", "border-radius": "3px" }}>
+                      <div style={{
+                        height: "100%",
+                        width: `${loyaltyPct()}%`,
+                        background: "linear-gradient(90deg, #b8860b, #d4a017, #f5c542)",
+                        "border-radius": "3px",
+                        transition: "width 0.3s",
+                      }} />
+                    </div>
+                    <Show when={loyaltyRank().rank > 0}>
+                      <div style={{ "font-size": "0.7rem", color: "#d4a017", "margin-top": "3px" }}>
+                        {loyaltyRank().description}
+                      </div>
+                    </Show>
+                  </div>
+                  <div style={{ "margin-bottom": "16px", "border-top": "1px solid var(--border-color)" }} />
                   <Show when={unspentPoints() > 0}>
                     <div style={{
                       padding: "6px 10px",
@@ -478,10 +535,46 @@ export default function AdventurerDetail() {
                   {(() => {
                     const allTalents = () => getTalentsForClass(adv().class);
                     const maxRow = () => Math.max(...allTalents().map((t) => t.row));
+
+                    // Build a lookup from talent id → TalentNode
+                    const talentMap = () => {
+                      const m: Record<string, TalentNode> = {};
+                      for (const t of allTalents()) m[t.id] = t;
+                      return m;
+                    };
+
                     const rows = () => {
                       const r: TalentNode[][] = [];
+                      const map = talentMap();
+                      // Collect a position index for each node computed from row 0 downward
+                      const posIndex: Record<string, number> = {};
                       for (let i = 0; i <= maxRow(); i++) {
-                        r.push(allTalents().filter((t) => t.row === i));
+                        const rowNodes = allTalents().filter((t) => t.row === i);
+                        if (i === 0) {
+                          // Root row: just use original order
+                          rowNodes.forEach((n, ci) => { posIndex[n.id] = ci; });
+                        } else {
+                          // Sort by the position of each node's parent in the previous row.
+                          // If multiple parents exist (OR prereqs), use the leftmost.
+                          // Tie-break: order within parent's children array.
+                          rowNodes.sort((a, b) => {
+                            const parentsA = allTalents().filter((t) => t.children.includes(a.id) && t.row < i);
+                            const parentsB = allTalents().filter((t) => t.children.includes(b.id) && t.row < i);
+                            const bestA = parentsA.length > 0 ? Math.min(...parentsA.map((p) => posIndex[p.id] ?? 999)) : 999;
+                            const bestB = parentsB.length > 0 ? Math.min(...parentsB.map((p) => posIndex[p.id] ?? 999)) : 999;
+                            if (bestA !== bestB) return bestA - bestB;
+                            // Same parent group — use order in parent's children array
+                            const sharedParent = parentsA.find((p) => parentsB.some((pb) => pb.id === p.id));
+                            if (sharedParent) {
+                              const ci = sharedParent.children.indexOf(a.id);
+                              const di = sharedParent.children.indexOf(b.id);
+                              return ci - di;
+                            }
+                            return 0;
+                          });
+                          rowNodes.forEach((n, ci) => { posIndex[n.id] = ci; });
+                        }
+                        r.push(rowNodes);
                       }
                       return r;
                     };
@@ -493,10 +586,14 @@ export default function AdventurerDetail() {
                     };
 
                     // Build parent→child connections for SVG lines
+                    // Skip same-row connections (they create confusing horizontal lines)
                     const connections = () => {
+                      const map = talentMap();
                       const conns: { parentId: string; childId: string; unlocked: boolean }[] = [];
                       for (const t of allTalents()) {
                         for (const childId of t.children) {
+                          const child = map[childId];
+                          if (!child || child.row <= t.row) continue; // skip same-row and upward
                           conns.push({ parentId: t.id, childId, unlocked: adv().talents?.includes(t.id) ?? false });
                         }
                       }

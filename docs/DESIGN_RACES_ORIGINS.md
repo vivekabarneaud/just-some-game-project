@@ -61,10 +61,10 @@ Each origin is a homeland with its own culture, name pool, and connection to the
 
 ### Human Origins (7)
 
-#### Dunhollow (English/Celtic) — The Dominion Heartlands
+#### Ashwick (English/Celtic) — The Dominion Heartlands
 The common folk AND the displaced elite of the Ashenmark Dominion. Farmers, soldiers, merchants, and scholars/nobles who fled the Doctrine of Silence. Most settlers came south for cheap land or to escape the Church's grip.
 
-> *"Every Dunhollow settler brought three things south: a plow, a prayer book, and a grudge against their landlord."*
+> *"Every Ashwick settler brought three things south: a plow, a prayer book, and a grudge against their landlord."*
 
 **Names:**
 - *First (male):* Aldric, Cedric, Elwin, Gareth, Kael, Osric, Quinlan, Dorian, Finn, Henrik, Nolan, Pavel, Wren, Leif, Jareth, Ivar
@@ -84,7 +84,7 @@ Hardy frontier folk from the cold northwest, Thornveil-adjacent. Respect all sev
 #### Meridian (Italian-inspired) — The Corsair League Coast
 Traders, sailors, artisans, pirates from the sun-drenched Corsair ports. Pragmatic, charismatic, deeply loyal to family. Funded by the League as buffer settlements.
 
-> *"A Meridian will stab you with a smile. A Dunhollow man will just stab you."*
+> *"A Meridian will stab you with a smile. A Ashwick man will just stab you."*
 
 **Names:**
 - *First (male):* Luciano, Baldassare, Matteo, Enzo, Vittorio, Dante, Lorenzo, Marco
@@ -135,12 +135,12 @@ Nature elves, archers, druids. Cities grown from living wood. Closest to Primal 
 - *First (female):* Aelindra, Sylvari, Elowen, Ithilwen, Miriel, Luthien, Nimloth, Tinuviel
 - *Last:* Starweaver, Moonshadow, Dawnwhisper, Leafsong, Silverbrook, Nightbloom, Sunshard, Mistwalker
 
-#### Hauts-Ciels (French, refined) — Mountain-top Ruins Above the Clouds
+#### Hauts-Cieux (French, refined) — Mountain-top Ruins Above the Clouds
 Stats: +1 INT, +1 WIS, -1 STR
 
 Scholar-mages, archivists, melancholy nobility. Live among the ruins of the pre-Sundering civilization, lifted onto mountain plateaus by the last great act of Arcane magic. Libraries and observatories perched above the clouds. The Aether holding the structures aloft is thinning — platforms are falling.
 
-> *"The Hauts-Ciels were built to outlast the world. They're starting to wonder if the world will outlast them."*
+> *"The Hauts-Cieux were built to outlast the world. They're starting to wonder if the world will outlast them."*
 
 **Names:**
 - *First (male):* Aurelien, Lucien, Gaston, Armand, Bastien, Renaud, Thierry, Philippe
@@ -232,14 +232,14 @@ Tied to origin narratively. Drives portrait selection when portraits are availab
 
 | Origin | Appearance |
 |---|---|
-| Dunhollow | Range of tones, common midlands |
+| Ashwick | Range of tones, common midlands |
 | Nordveld | Pale, light hair, weathered by cold |
 | Meridian | Olive to tan, warm features |
 | Zah'kari | Deep brown to dark skin, often braided hair |
 | Tianzhou | Light to warm tan, straight dark hair |
 | Khor'vani | Medium brown to deep brown, ornate jewelry |
 | Silvaneth | Pale, angular, faintly luminous |
-| Hauts-Ciels | Fair, refined, aristocratic bearing |
+| Hauts-Cieux | Fair, refined, aristocratic bearing |
 | Khazdurim | Ruddy, stocky, thick brows |
 | Feldgrund | Tan, round-faced, broad-shouldered |
 

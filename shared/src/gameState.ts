@@ -77,11 +77,32 @@ export interface PlayerPen {
   upgradeRemaining?: number;
 }
 
+export interface PlayerHive {
+  id: string;
+  level: number;
+  upgrading: boolean;
+  upgradeRemaining?: number;
+}
+
+export type FruitId = "apples" | "pears" | "cherries";
+
+export interface PlayerOrchard {
+  id: string;
+  fruit: FruitId;
+  level: number;
+  upgrading: boolean;
+  upgradeRemaining?: number;
+  seasonsGrown: number;
+  mature: boolean;
+}
+
 // ─── Adventurers ────────────────────────────────────────────────
 
 export type AdventurerClass = "warrior" | "wizard" | "priest" | "archer" | "assassin";
 
 export type AdventurerRank = 1 | 2 | 3 | 4 | 5;
+
+export type FoodPreference = "sweet" | "spicy" | "hearty" | "smoky" | "fresh";
 
 export interface AdventurerStats {
   str: number;
@@ -206,7 +227,7 @@ export interface ActiveCraft {
 export type GameEventType =
   | "citizen_born" | "citizen_died" | "citizen_left"
   | "building_completed" | "building_damaged" | "building_repaired"
-  | "mission_success" | "mission_failed" | "adventurer_died" | "adventurer_levelup" | "adventurer_rankup"
+  | "mission_success" | "mission_failed" | "adventurer_died" | "adventurer_levelup" | "adventurer_rankup" | "loyalty_rankup"
   | "raid_victory" | "raid_defeat" | "raid_incoming"
   | "winter_freezing"
   | "loot_drop";
@@ -226,6 +247,10 @@ export interface GameState {
   fields: PlayerField[];
   gardens: PlayerGarden[];
   pens: PlayerPen[];
+  hives: PlayerHive[];
+  orchards: PlayerOrchard[];
+  honey: number;
+  fruit: number;
   population: number;
   season: Season;
   seasonElapsed: number;

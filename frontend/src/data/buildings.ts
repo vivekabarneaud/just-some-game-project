@@ -299,7 +299,7 @@ export const BUILDINGS: BuildingDefinition[] = [
   {
     id: "brewery",
     name: "Brewery",
-    category: "crafting",
+    category: "gathering",
     description:
       "Converts grain into ale. A vital supply for the Tavern and a happy settlement.",
     icon: "🍺",
@@ -386,6 +386,18 @@ export const BUILDINGS: BuildingDefinition[] = [
     tierLevelCaps: { camp: 0, village: 3, town: 7, city: 10 },
   },
   {
+    id: "jewelcrafter",
+    name: "Jewelcrafter",
+    category: "crafting",
+    description:
+      "A precise artisan's workshop for cutting gems and setting them into rings, amulets, and charms. Requires rare gems from deep mines and slain elementals.",
+    icon: "💎",
+    maxLevel: 8,
+    levels: generateLevels({ wood: 40, stone: 50 }, 25, undefined, 8),
+    requiredTier: "town",
+    tierLevelCaps: { camp: 0, village: 0, town: 5, city: 8 },
+  },
+  {
     id: "marketplace",
     name: "Marketplace",
     category: "trade",
@@ -426,7 +438,7 @@ export const BUILDINGS: BuildingDefinition[] = [
   {
     id: "mage_tower",
     name: "Mage Tower",
-    category: "magic",
+    category: "defense",
     description:
       "A spire of arcane energy where wizards study the mystic arts. Unlocks magical research.",
     icon: "🗼",
@@ -495,7 +507,7 @@ export const BUILDINGS: BuildingDefinition[] = [
   {
     id: "alchemy_lab",
     name: "Alchemy Lab",
-    category: "magic",
+    category: "crafting",
     description:
       "Bubbling cauldrons and strange vapors fill this laboratory where alchemists brew potions and transmute materials.",
     icon: "🧪",

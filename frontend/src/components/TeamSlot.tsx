@@ -3,6 +3,7 @@ import {
   getClassMeta,
   getZoomedPortrait,
   CLASS_COLORS,
+  getFoodPref,
   type Adventurer,
   type AdventurerClass,
 } from "~/data/adventurers";
@@ -51,11 +52,34 @@ export default function TeamSlot(props: TeamSlotProps) {
           {requiredClass() ? requiredClass()!.icon : "👤"}
         </div>
       }>
-        <img
-          src={getZoomedPortrait(assigned()!.name, assigned()!.class, assigned()!.origin)}
-          alt={assigned()!.name}
-          style={{ width: "80px", height: "80px", "object-fit": "cover", display: "block", "flex-shrink": "0" }}
-        />
+        <div style={{ position: "relative", width: "80px", height: "80px", "flex-shrink": "0" }}>
+          <img
+            src={getZoomedPortrait(assigned()!.name, assigned()!.class, assigned()!.origin, assigned()!.age ?? "middle")}
+            alt={assigned()!.name}
+            style={{ width: "80px", height: "80px", "object-fit": "cover", display: "block" }}
+          />
+          <Show when={getFoodPref(assigned()!.foodPreference)}>
+            <div
+              title={getFoodPref(assigned()!.foodPreference)!.trait}
+              style={{
+                position: "absolute",
+                bottom: "2px",
+                right: "2px",
+                width: "18px",
+                height: "18px",
+                "border-radius": "50%",
+                background: "rgba(0, 0, 0, 0.7)",
+                display: "flex",
+                "align-items": "center",
+                "justify-content": "center",
+                "font-size": "0.65rem",
+                "line-height": "1",
+              }}
+            >
+              {getFoodPref(assigned()!.foodPreference)!.icon}
+            </div>
+          </Show>
+        </div>
       </Show>
       <div style={{
         padding: "2px 4px",

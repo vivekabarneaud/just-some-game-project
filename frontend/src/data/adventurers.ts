@@ -3,7 +3,7 @@
 export type Race = "human" | "elf" | "dwarf";
 
 export type Origin =
-  | "dunhollow" | "nordveld" | "meridian" | "zahkari" | "tianzhou" | "khorvani"   // human
+  | "ashwick" | "nordveld" | "meridian" | "zahkari" | "tianzhou" | "khorvani"   // human
   | "silvaneth" | "hautsciels"                                                      // elf
   | "khazdurim" | "feldgrund";                                                      // dwarf
 
@@ -36,10 +36,11 @@ export const RACE_NAMES: Record<Race, string> = {
 export const ORIGINS: OriginDef[] = [
   // ── Human Origins ────────────────────────────────────────────
   {
-    id: "dunhollow", name: "Dunhollow", race: "human",
+    id: "ashwick", name: "Ashwick", race: "human",
     region: "The Dominion Heartlands",
-    description: "Common folk and displaced elite of the Ashenmark Dominion.",
-    quote: "Every Dunhollow settler brought three things south: a plow, a prayer book, and a grudge against their landlord.",
+    description: "Common folk and displaced gentry from the Ashenmark Dominion's heartlands.",
+    quote: "Every Ashwick settler brought three things south: a plow, a prayer book, and a grudge against their landlord.",
+    // Note: Ashwick was formerly "Dunhollow" — renamed to avoid collision with Hollow Wastes/Hollow Magic
     statMods: {},
     firstNamesMale: ["Aldric", "Cedric", "Elwin", "Gareth", "Kael", "Osric", "Quinlan", "Dorian", "Finn", "Henrik", "Nolan", "Pavel", "Wren", "Edmund", "Jareth", "Corin", "Bram", "Roderick", "Ansel", "Callum", "Duncan", "Emory", "Godric", "Hadrian", "Kendrick", "Leland"],
     firstNamesFemale: ["Brenna", "Daria", "Hilda", "Lyra", "Petra", "Rowena", "Gwen", "Isla", "Kira", "Mira", "Oona", "Rhea", "Talia", "Cora", "Elara", "Ysolde", "Maren", "Isolde", "Winifred", "Enid", "Bethan", "Lenora", "Seren", "Tamsin", "Ailis", "Cordelia"],
@@ -61,7 +62,7 @@ export const ORIGINS: OriginDef[] = [
     statMods: {},
     firstNamesMale: ["Bjorn", "Tormund", "Leif", "Ragnar", "Soren", "Ulf", "Erik", "Halvard", "Sigurd", "Magnus", "Wulf", "Gunnar", "Haldor", "Styrkar", "Vidar", "Torvald", "Kjartan", "Brynjar", "Oddvar", "Eirik", "Fenris", "Grimm", "Asmund", "Ragnvald"],
     firstNamesFemale: ["Sigrid", "Freya", "Astrid", "Ingrid", "Thora", "Helga", "Kara", "Runa", "Ylva", "Vara", "Solveig", "Gudrun", "Brynja", "Sif", "Eirunn", "Herja", "Torhild", "Alvhild", "Vigdis", "Svanhild", "Jorunn", "Dagmar"],
-    lastNames: ["Stormveil", "Coldhammer", "Frostwind", "Ironhide", "Stonehelm", "Iceforge", "Wolfbane", "Frostvik"],
+    lastNames: ["Stormvik", "Koldhammer", "Frostvik", "Bjornsen", "Ulfsson", "Steinholm", "Isfjord", "Haldorsen", "Ravnskog", "Grimmstad", "Vintermark", "Solbakken", "Nordvik", "Thorssen", "Kveldheim", "Askeland"],
     backstories: {
       fighter: "Former shield-bearer of the Thornveil Rangers. Left when the wards started failing and nobody would admit it.",
       scholar: "An elder's apprentice who memorized the old sagas. Came south chasing a story that hasn't ended yet.",
@@ -75,7 +76,7 @@ export const ORIGINS: OriginDef[] = [
     id: "meridian", name: "Meridian", race: "human",
     region: "The Corsair League Coast",
     description: "Traders, sailors, artisans, and pirates from the sun-drenched Corsair ports.",
-    quote: "A Meridian will stab you with a smile. A Dunhollow man will just stab you.",
+    quote: "A Meridian will stab you with a smile. An Ashwick man will just stab you.",
     statMods: {},
     firstNamesMale: ["Luciano", "Baldassare", "Matteo", "Enzo", "Vittorio", "Dante", "Lorenzo", "Marco", "Alessandro", "Giancarlo", "Salvatore", "Renato", "Fabrizio", "Cesare", "Emilio", "Giacomo", "Raffaele", "Silvio", "Valerio", "Adriano", "Nicolo", "Tomasso"],
     firstNamesFemale: ["Fiora", "Serafina", "Chiara", "Bianca", "Rosalia", "Alessia", "Valentina", "Isabella", "Giuliana", "Francesca", "Donatella", "Lucrezia", "Elisabetta", "Carlotta", "Ginevra", "Simonetta", "Arabella", "Teodora", "Carmela", "Lorenza", "Paola", "Viola"],
@@ -92,12 +93,12 @@ export const ORIGINS: OriginDef[] = [
   {
     id: "zahkari", name: "Zah'kari", race: "human",
     region: "The Sunward Kingdoms",
-    description: "Proud city-states east of the Dominion with deep oral histories and sophisticated governance.",
-    quote: "The Zah'kari don't write their laws — they sing them. Try burning a song.",
+    description: "Proud city-states east of the Dominion — engineers, lawmakers, and warriors with a tradition older than the Dominion itself.",
+    quote: "The Zah'kari built aqueducts while the Dominion was still arguing over mud huts. They don't let you forget it.",
     statMods: {},
     firstNamesMale: ["Kofi", "Kwame", "Jabari", "Tendai", "Sekou", "Chike", "Emeka", "Olu", "Idris", "Bakari", "Dayo", "Folami", "Kamau", "Obinna", "Tariq", "Zuberi", "Azizi", "Jelani", "Mosi", "Nkosi", "Taiwo", "Abioye"],
     firstNamesFemale: ["Amara", "Nia", "Zuri", "Makena", "Adama", "Fatoumata", "Asha", "Kalista", "Imani", "Sanaa", "Kesia", "Dalila", "Efua", "Jamila", "Lina", "Nala", "Sade", "Yaa", "Ayana", "Chiamaka", "Ife", "Mariama"],
-    lastNames: ["Sunspear", "Lionmane", "Dustwalker", "Ironroot", "Thornshield", "Goldmask", "Stormcaller", "Hearthkeeper"],
+    lastNames: ["Mensah", "Okafor", "Adeyemi", "Diallo", "Boateng", "Asante", "Traore", "Okoro", "Osei", "Kamara", "Ndiaye", "Afolabi", "Toure", "Kone", "Balogun", "Owusu"],
     backstories: {
       fighter: "Champion of the Zah'kari war games. Came north to find opponents she hasn't already beaten.",
       scholar: "A griot — keeper of stories. Traveled here following a tale that hasn't ended yet.",
@@ -115,7 +116,7 @@ export const ORIGINS: OriginDef[] = [
     statMods: {},
     firstNamesMale: ["Wei", "Zheng", "Bowen", "Changming", "Feng", "Hao", "Tao", "Jun", "Chenguang", "Daiyu", "Guowei", "Hanyu", "Jianyu", "Kuang", "Longwei", "Minghan", "Qiang", "Renshu", "Shaozu", "Tianming", "Wenzhong", "Yanlei"],
     firstNamesFemale: ["Lian", "Mei", "Yuehan", "Xiulan", "Ruoxi", "Jingyi", "Mingzhu", "Shuyin", "Baihe", "Chunhua", "Fangyin", "Huifen", "Lanying", "Nuying", "Peizhi", "Qiuyue", "Shanshan", "Tingxue", "Weiwei", "Xiangling", "Yuelin", "Zhenyi"],
-    lastNames: ["Ironpetal", "Jadecrest", "Mistborne", "Moonridge", "Silkblade", "Stoneriver", "Cloudpeak", "Goldengate"],
+    lastNames: ["Wang", "Li", "Chen", "Zhang", "Liu", "Yang", "Huang", "Zhou", "Lin", "Xu", "Sun", "Ma", "Guo", "Luo", "Peng", "Shen"],
     backstories: {
       fighter: "Former imperial border guard. Deserted after being ordered to burn a village. Doesn't talk about it.",
       scholar: "Cartographer mapping the western continent. The adventuring is just a side effect of going where the map is blank.",
@@ -128,12 +129,12 @@ export const ORIGINS: OriginDef[] = [
   {
     id: "khorvani", name: "Khor'vani", race: "human",
     region: "The Amber Crossroads",
-    description: "Mystics, alchemists, and merchants from the desert trade crossroads.",
-    quote: "If a Khor'vani tells you something is priceless, it means they haven't named the price yet.",
+    description: "Scholars, diplomats, and merchants from the desert crossroads — a culture built on trade, astronomy, and old alliances.",
+    quote: "A Khor'vani proverb: 'The road remembers every footstep.' They built theirs to last.",
     statMods: {},
     firstNamesMale: ["Arjun", "Ravi", "Kiran", "Vikram", "Dev", "Amir", "Sanjay", "Rohan", "Naveen", "Ishaan", "Habib", "Jalil", "Karim", "Rashid", "Suresh", "Haroun", "Darshan", "Faisal", "Omid", "Samir", "Anand", "Bharat"],
     firstNamesFemale: ["Zahra", "Leila", "Farah", "Nadia", "Yasmin", "Priya", "Soraya", "Dalia", "Amira", "Deepika", "Fatima", "Hasina", "Inaya", "Kamala", "Laleh", "Meera", "Nasreen", "Padma", "Rehana", "Samira", "Tara", "Zara"],
-    lastNames: ["Sandweaver", "Duskfire", "Silkwind", "Stargazer", "Goldhand", "Ashveil", "Sunforge", "Emberspice"],
+    lastNames: ["Al-Rashid", "Sharma", "Khan", "Patel", "Hassan", "Mansour", "Desai", "Nair", "Qureshi", "Gupta", "Farouk", "Khatri", "Habibi", "Joshi", "Mirza", "Siddiqui"],
     backstories: {
       fighter: "A caravan guard who kept walking after the caravan stopped. Says the horizon here is different.",
       scholar: "Astronomer who read a star chart that predicted his own death in a 'cold northern ruin.' Came to prove the stars wrong.",
@@ -148,8 +149,8 @@ export const ORIGINS: OriginDef[] = [
   {
     id: "silvaneth", name: "Silvaneth", race: "elf",
     region: "The Deep Forests",
-    description: "Nature elves, archers, druids. Cities grown from living wood, Thornveil-adjacent.",
-    quote: "The Silvaneth were old when the Dominion was young. They remember a world that worked. That's why they're so sad.",
+    description: "Forest elves who shape living wood into cities. Guardians of the deep forests, Thornveil-adjacent.",
+    quote: "The Silvaneth remember a world that worked. They intend to outlast the one that doesn't.",
     statMods: { dex: 1, wis: 1, str: -1 },
     firstNamesMale: ["Thalion", "Faenor", "Galadhrim", "Thranduil", "Celeborn", "Earendil", "Aelindor", "Caelith", "Finrod", "Glorfindel", "Haldir", "Lindir", "Orophin", "Rumil", "Saeros", "Tauriel", "Voronwe", "Amroth", "Beleg", "Cirdan", "Ecthelion", "Maedhros"],
     firstNamesFemale: ["Aelindra", "Sylvari", "Elowen", "Ithilwen", "Miriel", "Luthien", "Nimloth", "Tinuviel", "Arwen", "Celebrian", "Idril", "Nerdanel", "Galadriel", "Finduilas", "Aredhel", "Earwen", "Nellas", "Silmaris", "Vanima", "Lothiriel", "Melineth", "Brethilwen"],
@@ -164,10 +165,10 @@ export const ORIGINS: OriginDef[] = [
     },
   },
   {
-    id: "hautsciels", name: "Hauts-Ciels", race: "elf",
+    id: "hautsciels", name: "Hauts-Cieux", race: "elf",
     region: "Mountain-top Ruins Above the Clouds",
     description: "Scholar-mages, archivists, melancholy nobility living among pre-Sundering ruins.",
-    quote: "The Hauts-Ciels were built to outlast the world. They're starting to wonder if the world will outlast them.",
+    quote: "The Hauts-Cieux were built to outlast the world. They're starting to wonder if the world will outlast them.",
     statMods: { int: 1, wis: 1, str: -1 },
     firstNamesMale: ["Aurelien", "Lucien", "Gaston", "Armand", "Bastien", "Renaud", "Thierry", "Philippe", "Corentin", "Donatien", "Emilien", "Florian", "Gaspard", "Hadrien", "Isidore", "Leandre", "Marcelin", "Perceval", "Raphael", "Sylvain", "Thibault", "Valentin"],
     firstNamesFemale: ["Celeste", "Eloise", "Vivienne", "Solange", "Giselle", "Adeline", "Margaux", "Colette", "Amelie", "Blanche", "Delphine", "Eglantine", "Fleur", "Heloise", "Isaure", "Josephine", "Lisette", "Madeleine", "Ninon", "Ondine", "Rosalinde", "Severine"],
@@ -177,7 +178,7 @@ export const ORIGINS: OriginDef[] = [
       scholar: "Has read every surviving scroll in the upper archives. Descended because the answers aren't up there.",
       refugee: "The Aether holding the old structures aloft is thinning. Left before the floor gave way.",
       misfit: "Couldn't bear another century of cataloguing what was lost. Wants to build something new instead of mourning the old.",
-      merchant: "Traded ancient Hauts-Ciels star charts to fund expeditions. Knowledge is currency when you have nothing else.",
+      merchant: "Traded ancient Hauts-Cieux star charts to fund expeditions. Knowledge is currency when you have nothing else.",
       healer: "Trained in pre-Sundering medical texts that no human academy has seen. The techniques still work — barely.",
     },
   },
@@ -227,6 +228,68 @@ export function getOrigin(id: Origin): OriginDef {
 
 export function getOriginsForRace(race: Race): OriginDef[] {
   return ORIGINS.filter((o) => o.race === race);
+}
+
+// ─── Food Preferences & Loyalty ───────────────────────────────
+
+export type FoodPreference = "sweet" | "spicy" | "hearty" | "smoky" | "fresh";
+
+export type AgeCategory = "young" | "middle" | "mature" | "old";
+
+export const AGE_CATEGORIES: AgeCategory[] = ["young", "middle", "mature", "old"];
+
+export const AGE_LABELS: Record<AgeCategory, string> = {
+  young: "Young",
+  middle: "Adult",
+  mature: "Mature",
+  old: "Elder",
+};
+
+export const AGE_WEIGHTS: { age: AgeCategory; weight: number }[] = [
+  { age: "young", weight: 25 },
+  { age: "middle", weight: 35 },
+  { age: "mature", weight: 25 },
+  { age: "old", weight: 15 },
+];
+
+export const FOOD_PREFERENCES: { id: FoodPreference; label: string; icon: string; trait: string }[] = [
+  { id: "sweet", label: "Sweet", icon: "🍯", trait: "Has a sweet tooth" },
+  { id: "spicy", label: "Spicy", icon: "🌶️", trait: "Loves the burn" },
+  { id: "hearty", label: "Hearty", icon: "🍲", trait: "Big appetite" },
+  { id: "smoky", label: "Smoky", icon: "🔥", trait: "Campfire soul" },
+  { id: "fresh", label: "Fresh", icon: "🌿", trait: "Likes it light" },
+];
+
+export function getFoodPref(id: FoodPreference | undefined) {
+  return FOOD_PREFERENCES.find((f) => f.id === id);
+}
+
+export interface LoyaltyRank {
+  rank: number;
+  threshold: number;
+  title: string;
+  description: string;
+}
+
+export const LOYALTY_RANKS: LoyaltyRank[] = [
+  { rank: 0, threshold: 0, title: "Stranger", description: "No bond yet" },
+  { rank: 1, threshold: 15, title: "Familiar", description: "+1 to primary stat" },
+  { rank: 2, threshold: 35, title: "Trusted", description: "+2% crit chance" },
+  { rank: 3, threshold: 60, title: "Devoted", description: "+3% mission success" },
+  { rank: 4, threshold: 85, title: "Bonded", description: "+5% loot bonus" },
+];
+
+export function getLoyaltyRank(loyalty: number): LoyaltyRank {
+  for (let i = LOYALTY_RANKS.length - 1; i >= 0; i--) {
+    if (loyalty >= LOYALTY_RANKS[i].threshold) return LOYALTY_RANKS[i];
+  }
+  return LOYALTY_RANKS[0];
+}
+
+export function getNextLoyaltyRank(loyalty: number): LoyaltyRank | null {
+  const current = getLoyaltyRank(loyalty);
+  const next = LOYALTY_RANKS[current.rank + 1];
+  return next ?? null;
 }
 
 // ─── Backstory Traits ──────────────────────────────────────────
@@ -384,6 +447,14 @@ export interface Adventurer {
     trinket: string | null;
   };
   talents: string[];  // unlocked talent IDs
+  /** Enchantments on equipped items, keyed by slot */
+  equipmentEnchants?: Partial<Record<string, string[]>>;
+  /** Food flavor preference — matches food tags for loyalty + success bonus */
+  foodPreference?: FoodPreference;
+  /** Loyalty score 0-100, grows from missions and care */
+  loyalty?: number;
+  /** Age category — affects portrait selection and kinship labels */
+  age?: AgeCategory;
 }
 
 // ─── Stats ──────────────────────────────────────────────────────
@@ -505,6 +576,41 @@ export function applyXp(adv: Adventurer, xpGain: number): { leveled: boolean; ra
   return { leveled, rankUp: adv.rank !== oldRank, oldRank };
 }
 
+// ─── Kinship (family bond) ──────────────────────────────────────
+
+function getLastName(name: string): string {
+  return name.split(" ").slice(1).join(" ");
+}
+
+/** Find roster members who share a last name with the candidate */
+export function findKin(candidate: Adventurer, roster: Adventurer[]): { relative: Adventurer; label: string }[] {
+  const candidateLastName = getLastName(candidate.name);
+  if (!candidateLastName) return [];
+  const kin = roster.filter((a) => a.alive && getLastName(a.name) === candidateLastName);
+  if (kin.length === 0) return [];
+  const candidateFemale = isFemale(candidate.name);
+  return kin.map((relative) => {
+    // Age-based kinship: 0 gap = sibling, 1 gap = parent/child, 2+ gap = grandparent/grandchild
+    const candidateAgeIdx = AGE_CATEGORIES.indexOf(candidate.age ?? "middle");
+    const relativeAgeIdx = AGE_CATEGORIES.indexOf(relative.age ?? "middle");
+    const ageGap = relativeAgeIdx - candidateAgeIdx; // positive = relative is older
+    const firstName = relative.name.split(" ")[0];
+    let label: string;
+    if (Math.abs(ageGap) === 0) {
+      label = (candidateFemale ? "Sister" : "Brother") + ` of ${firstName}`;
+    } else if (Math.abs(ageGap) === 1) {
+      label = ageGap > 0
+        ? (candidateFemale ? "Daughter" : "Son") + ` of ${firstName}`
+        : (candidateFemale ? "Mother" : "Father") + ` of ${firstName}`;
+    } else {
+      label = ageGap > 0
+        ? (candidateFemale ? "Granddaughter" : "Grandson") + ` of ${firstName}`
+        : (candidateFemale ? "Grandmother" : "Grandfather") + ` of ${firstName}`;
+    }
+    return { relative, label };
+  });
+}
+
 // ─── Name generation ────────────────────────────────────────────
 
 // Build FEMALE_NAMES set from all origin data + manual additions for legacy names
@@ -521,7 +627,7 @@ const CDN_CHARS = "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/ch
 
 // How many portrait variants exist per origin/class/gender
 const ORIGIN_PORTRAIT_COUNTS: Partial<Record<Origin, Partial<Record<string, number>>>> = {
-  dunhollow:  { warrior_male: 3, warrior_female: 2, wizard_male: 3, wizard_female: 2, priest_male: 3, priest_female: 3, archer_male: 2, archer_female: 2, assassin_male: 1 },
+  ashwick:  { warrior_male: 3, warrior_female: 2, wizard_male: 3, wizard_female: 2, priest_male: 3, priest_female: 3, archer_male: 2, archer_female: 2, assassin_male: 1 },
   nordveld:   { warrior_male: 1, warrior_female: 2, wizard_male: 1, wizard_female: 2, priest_male: 1, priest_female: 1, archer_male: 1, archer_female: 1, assassin_male: 1, assassin_female: 1 },
   meridian:   { warrior_male: 1, warrior_female: 1, wizard_male: 1, wizard_female: 1, priest_male: 2, priest_female: 1, archer_male: 1, archer_female: 1, assassin_male: 2, assassin_female: 2 },
   zahkari:    { warrior_male: 1, warrior_female: 1, wizard_male: 1, wizard_female: 1, priest_male: 1, priest_female: 3, archer_male: 1, archer_female: 1, assassin_male: 1, assassin_female: 1 },
@@ -549,19 +655,48 @@ function nameHash(name: string): number {
   return name.split(" ")[0].split("").reduce((h, c) => h + c.charCodeAt(0), 0);
 }
 
-export function getPortrait(name: string, cls: AdventurerClass, origin?: Origin): string {
+// CDN folder names (may differ from in-game origin IDs after renames)
+const CDN_FOLDER: Partial<Record<Origin, string>> = {
+  ashwick: "dunhollow",
+};
+
+// Age-tagged portrait counts: origin → "class_gender_age" → count
+// Filename pattern: {class}_{origin}_{gender}_{age}_{n}.png
+// Run docs/PORTRAIT_RENAME.sh on CDN to rename existing files, then these counts are live.
+const ORIGIN_AGE_PORTRAIT_COUNTS: Partial<Record<Origin, Partial<Record<string, number>>>> = {
+  ashwick: { archer_female_young: 2, archer_male_middle: 1, archer_male_young: 1, assassin_male_young: 1, priest_female_middle: 1, priest_female_old: 1, priest_female_young: 1, priest_male_mature: 1, priest_male_middle: 1, priest_male_old: 1, warrior_female_middle: 1, warrior_female_young: 1, warrior_male_middle: 2, warrior_male_young: 1, wizard_female_young: 2, wizard_male_old: 2, wizard_male_young: 1 },
+  nordveld: { archer_female_middle: 1, archer_male_middle: 1, assassin_female_middle: 1, assassin_male_mature: 1, priest_female_mature: 1, priest_male_middle: 1, warrior_female_mature: 2, warrior_male_old: 1, wizard_female_middle: 1, wizard_female_old: 1, wizard_male_old: 1 },
+  meridian: { archer_female_middle: 1, archer_male_mature: 1, assassin_female_mature: 1, assassin_female_middle: 1, assassin_male_middle: 2, priest_female_mature: 1, priest_male_mature: 1, priest_male_old: 1, warrior_female_young: 1, warrior_male_middle: 1, wizard_female_old: 1, wizard_male_middle: 1 },
+  zahkari: { archer_female_young: 1, archer_male_young: 1, assassin_female_old: 1, assassin_male_young: 1, priest_female_middle: 1, priest_female_young: 1, priest_male_young: 1, warrior_female_young: 1, warrior_male_middle: 1, wizard_female_middle: 1, wizard_male_old: 1 },
+  tianzhou: { archer_female_middle: 1, archer_male_middle: 1, assassin_female_mature: 1, assassin_female_young: 1, assassin_male_middle: 1, priest_female_old: 1, priest_male_middle: 1, warrior_female_young: 1, warrior_male_young: 1, wizard_female_middle: 1, wizard_male_mature: 1 },
+  khorvani: { archer_female_young: 1, archer_male_middle: 1, assassin_female_young: 1, assassin_male_middle: 1, priest_female_middle: 1, priest_male_young: 1, warrior_female_young: 1, warrior_male_middle: 1, wizard_female_middle: 1, wizard_male_mature: 1 },
+  silvaneth: { archer_female_young: 1, archer_male_young: 1, assassin_female_young: 1, assassin_male_middle: 1, priest_female_mature: 1, priest_male_mature: 1, warrior_female_young: 1, warrior_male_young: 1, wizard_female_middle: 1, wizard_male_old: 1 },
+  hautsciels: { archer_female_middle: 1, archer_male_young: 1, assassin_female_young: 1, assassin_male_middle: 1, priest_female_young: 1, priest_male_young: 1, warrior_female_young: 1, warrior_male_young: 1, wizard_female_young: 1, wizard_male_old: 1 },
+  khazdurim: { archer_female_young: 1, archer_male_mature: 1, assassin_female_middle: 1, assassin_male_middle: 1, priest_female_old: 1, priest_male_old: 1, warrior_female_middle: 1, warrior_male_middle: 1, wizard_female_old: 1, wizard_male_mature: 1 },
+};
+
+export function getPortrait(name: string, cls: AdventurerClass, origin: Origin, age: AgeCategory): string {
   const female = isFemale(name);
   const gender = female ? "female" : "male";
   const hash = nameHash(name);
 
-  // Try origin-specific portrait
-  if (origin) {
-    const key = `${cls}_${gender}`;
-    const count = ORIGIN_PORTRAIT_COUNTS[origin]?.[key];
-    if (count && count > 0) {
-      const n = (hash % count) + 1;
-      return `${CDN_CHARS}/${origin}/${cls}_${origin}_${gender}_${n}.png`;
-    }
+  const folder = CDN_FOLDER[origin] ?? origin;
+  const cdnOrigin = CDN_FOLDER[origin] ?? origin;
+
+  // Try age-tagged portrait first (e.g., wizard_ashwick_male_old_1.png)
+  const ageKey = `${cls}_${gender}_${age}`;
+  const ageCount = ORIGIN_AGE_PORTRAIT_COUNTS[origin]?.[ageKey];
+  if (ageCount && ageCount > 0) {
+    const n = (hash % ageCount) + 1;
+    return `${CDN_CHARS}/${folder}/${cls}_${cdnOrigin}_${gender}_${age}_${n}.png`;
+  }
+
+  // Fall back to non-age portrait (legacy filenames without age tag)
+  const key = `${cls}_${gender}`;
+  const count = ORIGIN_PORTRAIT_COUNTS[origin]?.[key];
+  if (count && count > 0) {
+    const n = (hash % count) + 1;
+    return `${CDN_CHARS}/${folder}/${cls}_${cdnOrigin}_${gender}_${n}.png`;
   }
 
   // Fallback to generic
@@ -569,8 +704,8 @@ export function getPortrait(name: string, cls: AdventurerClass, origin?: Origin)
   return portraits[hash % portraits.length];
 }
 
-export function getZoomedPortrait(name: string, cls: AdventurerClass, origin?: Origin): string {
-  return getPortrait(name, cls, origin).replace(".png", "_zoomed.png");
+export function getZoomedPortrait(name: string, cls: AdventurerClass, origin: Origin, age: AgeCategory): string {
+  return getPortrait(name, cls, origin, age).replace(".png", "_zoomed.png");
 }
 
 // Simple seeded random for reproducibility within a session
@@ -586,6 +721,16 @@ export function resetAdventurerSeed(seed: number) {
 
 function randomFrom<T>(arr: T[]): T {
   return arr[Math.floor(seededRandom() * arr.length)];
+}
+
+/** Pick a weighted random age category */
+function pickAge(): AgeCategory {
+  let roll = seededRandom() * AGE_WEIGHTS.reduce((s, w) => s + w.weight, 0);
+  for (const { age, weight } of AGE_WEIGHTS) {
+    roll -= weight;
+    if (roll <= 0) return age;
+  }
+  return "middle";
 }
 
 /** Pick a race using weighted probabilities */
@@ -621,8 +766,8 @@ function generateOriginName(origin: OriginDef): string {
 }
 
 export function generateName(): string {
-  // Legacy fallback — uses Dunhollow pool
-  const origin = getOrigin("dunhollow");
+  // Legacy fallback — uses Ashwick pool
+  const origin = getOrigin("ashwick");
   return generateOriginName(origin);
 }
 
@@ -650,7 +795,7 @@ export function generateCandidate(id: string, maxRank: AdventurerRank = 2): Adve
   else if (maxRank >= 3 && roll > 0.75) rank = 3;
   else if (maxRank >= 2 && roll > 0.50) rank = 2;
 
-  // Pick race, origin, name, backstory, trait
+  // Pick race, origin, name, backstory, trait, food preference
   const race = pickRace();
   const origins = getOriginsForRace(race);
   const origin = randomFrom(origins);
@@ -658,9 +803,13 @@ export function generateCandidate(id: string, maxRank: AdventurerRank = 2): Adve
   const backstory = pickBackstory(origin);
   const quirk = randomFrom(PERSONALITY_QUIRKS);
   const trait = pickTrait();
+  const foodPreference = randomFrom(FOOD_PREFERENCES).id;
+  const age = pickAge();
 
-  // Recruits start just below rank threshold — they're fresh at that rank
+  // Recruits start just below rank threshold — higher rolls get a head start
   const level = Math.max(1, RANK_LEVEL_THRESHOLDS[rank] - 1);
+  // Rank always matches level so it's consistent with roster adventurers
+  const actualRank = getRankForLevel(level);
   return {
     id,
     name,
@@ -670,7 +819,7 @@ export function generateCandidate(id: string, maxRank: AdventurerRank = 2): Adve
     backstory,
     quirk,
     trait: trait.id,
-    rank,
+    rank: actualRank,
     level,
     xp: 0,
     alive: true,
@@ -678,6 +827,9 @@ export function generateCandidate(id: string, maxRank: AdventurerRank = 2): Adve
     bonusStats: {},
     equipment: { head: null, chest: null, legs: null, boots: null, cloak: null, mainHand: null, offHand: null, ring1: null, ring2: null, amulet: null, trinket: null },
     talents: [],
+    foodPreference,
+    loyalty: 0,
+    age,
   };
 }
 

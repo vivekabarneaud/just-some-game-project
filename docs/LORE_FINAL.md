@@ -223,7 +223,7 @@ The factions see them very differently:
 - **The Cult** sees them as evidence that Netheron's essence is trying to reconstitute itself — to them, the dragons are sacred.
 - **The Church** considers them abominations — concentrations of the very energy that's killing the world. They want them destroyed.
 - **Varek** fears them. If dragons can process dead Aether — if they can restore even a fragment of the boundary — his power weakens.
-- **The Hauts-Ciels elves** wonder: if the death-cycle is restored, would elven immortality return? Some hope. Some fear the answer.
+- **The Hauts-Cieux elves** wonder: if the death-cycle is restored, would elven immortality return? Some hope. Some fear the answer.
 
 The truth is unknown. The dragon's nature will emerge through how it is raised.
 
@@ -292,21 +292,21 @@ She has found *pieces* over the millennia. Fragments of understanding. Partial t
 
 She is not hoarding a solution. She does not have one. That is her tragedy: she sacrificed her mortality, her freedom, her place in the world, and thousands of years of her life to find an answer. She hasn't found it.
 
-Now she is running out of time. The Wastes are accelerating. Her body is failing despite the binding. And the Inquisition is closing in. She needs someone she can **trust** — someone capable, independent, and brave enough to carry her research forward if she falls. Someone who can go where she cannot, access knowledge she's been denied, and perhaps find the missing piece in the dragons, in the Hauts-Ciels archives, in the Cult's forbidden rituals, or in something nobody has yet imagined.
+Now she is running out of time. The Wastes are accelerating. Her body is failing despite the binding. And the Inquisition is closing in. She needs someone she can **trust** — someone capable, independent, and brave enough to carry her research forward if she falls. Someone who can go where she cannot, access knowledge she's been denied, and perhaps find the missing piece in the dragons, in the Hauts-Cieux archives, in the Cult's forbidden rituals, or in something nobody has yet imagined.
 
 That is why she watches the Free Settlements. That is why she sends her robins.
 
-### Halldora and the Hauts-Ciels
+### Halldora and the Hauts-Cieux
 
 The elves and Halldora need each other, and neither side will admit it.
 
-Halldora has the theoretical framework for understanding the boundary — the only working model of divine infrastructure that exists. The Hauts-Ciels elves have millennia of practical Aether knowledge, archives, and magical resources accumulated across post-Sundering generations.
+Halldora has the theoretical framework for understanding the boundary — the only working model of divine infrastructure that exists. The Hauts-Cieux elves have millennia of practical Aether knowledge, archives, and magical resources accumulated across post-Sundering generations.
 
 But between them lies a bitter divide. The elven Archmagi of the old Academy dismissed Halldora's field of study before the Sundering. After the Sundering, as Le Déclin killed every immortal elf, the surviving generations inherited a cultural resentment: this human outlived their ancestors through forbidden magic while their people lost eternity. Some see her as a thief who stole what should have been theirs — immortality. Others simply cannot forgive that a human was right when elves were wrong.
 
 Halldora, for her part, has spent thousands of years being ignored, hunted, and dismissed. She has little patience left for elven pride.
 
-Bringing them together — overcoming millennia of mutual resentment so that Halldora's theory and the Hauts-Ciels' resources can combine — may be one of the great challenges of the late game.
+Bringing them together — overcoming millennia of mutual resentment so that Halldora's theory and the Hauts-Cieux' resources can combine — may be one of the great challenges of the late game.
 
 ### The Ashenmark Dominion
 
@@ -383,7 +383,108 @@ Faction alignment isn't a choice you make at the start — it's a consequence of
 
 ---
 
-## Part VII: The Central Questions
+## Part VII: The Races and Their Homelands
+
+The world is home to three mortal races. Before the Sundering they shared the same civilization, the same academies, the same gods. Now they rebuild separately, each carrying the scars of what was lost.
+
+### Humans — The Inheritors
+
+Humans were the second race — younger than the elves, more numerous, more adaptable. The Sundering killed millions, but the survivors reorganized quickly. They lack elven longevity and dwarven resilience, but their ambition and fertility made them the dominant race in the post-Sundering world. They are versatile — no innate stat advantages, no weaknesses — shaped entirely by where they come from.
+
+| Origin | Region | Character |
+|---|---|---|
+| **Ashwick** | The Dominion Heartlands | Common folk and displaced elite of the Ashenmark Dominion |
+| **Nordveld** | The Thornveil Borderlands | Hardy frontier folk from the cold northwest |
+| **Meridian** | The Corsair League Coast | Traders, sailors, artisans, and pirates from the sun-drenched ports |
+| **Zah'kari** | The Sunward Kingdoms | Proud city-states east of the Dominion with deep oral histories |
+| **Tianzhou** | The Jade Empire | Scholars, strategists, and exiles from the vast empire across the eastern sea |
+| **Khor'vani** | The Amber Crossroads | Mystics, alchemists, and merchants from the desert trade crossroads |
+
+#### Ashwick — "Every Ashwick settler brought three things south: a plow, a prayer book, and a grudge against their landlord."
+
+Common folk of the Ashenmark Dominion — farmers, soldiers, tradesmen, minor nobility. The Dominion's heartland bred them tough and practical. They know the Church, the taxes, the feudal hierarchy. Most came south because the system stopped working for them: discharged soldiers, banned scholars, taxed-out farmers, disowned nobles. They carry Dominion culture in their bones even as they flee it.
+
+#### Nordveld — "In Nordveld, you either learn to swing an axe by twelve or you don't see thirteen."
+
+The Thornveil borderlands produce a different kind of human. The winters are brutal, the forests are haunted, and the Thornveil Rangers are the only thing between civilisation and what crawls out of the dead zones. Nordveld folk are practical, blunt, superstitious in the old ways. They honor the old gods — all seven, including Netheron — and distrust the Church. Their völvas (healers) practice old remedies the Inquisition calls heresy. The Nordveld call it survival.
+
+#### Meridian — "A Meridian will stab you with a smile. A Ashwick man will just stab you."
+
+The Corsair League's sun-baked coast breeds traders, sailors, artisans and pirates — often the same person on different days. Meridian culture is loud, colourful, and mercenary. They worship Nereia the Deep and consider the Church a Dominion problem. Their port cities are the most cosmopolitan in the world: Zah'kari spices, Tianzhou silks, Feldgrund ales, and stolen Dominion cargo share the same dockside markets.
+
+#### Zah'kari — "The Zah'kari don't write their laws — they sing them. Try burning a song."
+
+East of the Dominion, the Sunward Kingdoms thrived while the Dominion consolidated through force. The Zah'kari govern through councils of elders and champions, their laws preserved in oral tradition — sung, not written, so no conqueror can burn them. Their war games produce some of the finest fighters on the continent. Their griots (storytellers) carry histories that predate the Dominion by centuries. They came north following tales, trade routes, and drought.
+
+#### Tianzhou — "The Tianzhou sent cartographers first. That means soldiers follow."
+
+Across the eastern sea lies the Jade Empire — vast, ancient, bureaucratic. Tianzhou citizens who appear on the frontier are either explorers mapping unknown territory, political exiles hiding from purges, or merchants who followed the trade winds too far. They are educated, formal, and quietly horrified by how disorganised the western kingdoms are. Their medical academies, military strategy, and administrative systems are centuries ahead. Their motives for being here are rarely simple.
+
+#### Khor'vani — "If a Khor'vani tells you something is priceless, it means they haven't named the price yet."
+
+The Amber Crossroads — where the desert trade routes converge — produced a culture of mystics, alchemists, and merchants. Khor'vani alchemy predates the Academy of the Aether; their physical-process approach to healing and transformation doesn't use Aether, which means the Church's Doctrine of Silence doesn't apply to them (and they know it). They are shrewd, spiritual, and pragmatic. An astronomer, a spice trader, and an expelled alchemist walk into a frontier settlement — that's not a joke, that's a typical Khor'vani Tuesday.
+
+---
+
+### Elves — The Diminished
+
+The firstborn race, created by the gods before humans and dwarves. Before the Sundering, they were truly immortal — sustained by the complete Aether cycle, all seven divine functions in harmony. When Netheron died, that immortality shattered. Every living elf felt it: a sudden, horrifying awareness of their own mortality. The eldest, who had lived for millennia, aged and withered within years. Centuries of life caught up at once. The elves call this **Le Déclin** — the Fading.
+
+It was near-extinction. The elves alive today are all post-Sundering generations. They live 300 to 500 years — long by human standards, tragically brief by their own. And their scholars have noticed a quiet, terrifying trend: each generation lives *slightly shorter* than the last.
+
+Two elven cultures survived Le Déclin, shaped by how they chose to endure.
+
+| Origin | Region | Character | Stat Modifiers |
+|---|---|---|---|
+| **Silvaneth** | The Deep Forests | Nature elves, archers, druids. Cities grown from living wood | +1 DEX, +1 WIS, −1 STR |
+| **Hauts-Cieux** | Mountain-top Ruins | Scholar-mages, archivists, melancholy nobility | +1 INT, +1 WIS, −1 STR |
+
+#### Silvaneth — "The Silvaneth were old when the Dominion was young. They remember a world that worked. That's why they're so sad."
+
+The forest elves retreated into the deep Thornveil woodlands after Le Déclin, building cities woven from living trees. They are the closest to nature of any civilisation — their Primal magic responds to Sylvana's dormant essence instinctively, like a child hearing its mother's heartbeat. They patrol the ward-line alongside the Thornveil Rangers, maintaining the ancient boundary stones. Their archers are legendary. Their druids can coax growth from dead soil.
+
+But the forest is shrinking. Not from axes — from the inside. The heartwood is going grey. The ward-line pushes closer each decade. The Silvaneth are fighting a slow retreat they pretend is a stand.
+
+#### Hauts-Cieux — "The Hauts-Cieux were built to outlast the world. They're starting to wonder if the world will outlast them."
+
+High above the clouds, in the ruins of pre-Sundering sky-cities held aloft by ancient Aether, the Hauts-Cieux elves preserved what the Sundering tried to destroy: knowledge. Their archives contain the most complete records of the pre-Sundering world — magical theory, divine scholarship, star charts, histories spanning millennia. They are archivists, scholars, and mages of extraordinary refinement.
+
+They are also slowly falling. The Aether that holds their sky-platforms aloft is thinning. Pieces of the old cities have broken away and plummeted into the clouds below. The Hauts-Cieux know they cannot stay forever. Some descend to the surface carrying fragments of their archives, scholars too proud to admit they are refugees.
+
+They carry a particular resentment toward Halldora Frostvik: a human who outlived their immortal ancestors through forbidden magic, who was right when their scholars were wrong. Reconciling with her — combining her theoretical framework with their archived knowledge — may be essential to solving the world's crisis. But millennia of wounded pride stand in the way.
+
+---
+
+### Dwarves — The Enduring
+
+The third race — shorter-lived than elves, sturdier than humans. The Sundering hit them differently. Where elves lost immortality and humans lost civilisation, the dwarves lost the *deep places.* Something stirred in the lowest holds of the Ironspine Mountains when the boundary between worlds cracked. The dwarves sealed the deepest tunnels — the Deep Seals — and no one speaks of what's behind them.
+
+Dwarven culture split along a simple line: those who stayed underground and those who came up.
+
+| Origin | Region | Character | Stat Modifiers |
+|---|---|---|---|
+| **Khazdurim** | The Ironspine Mountains | Deep miners, smiths, engineers. The Deep Seals haunt them | +1 STR, +1 VIT, −1 DEX |
+| **Feldgrund** | The Rolling Hills | Surface-dwelling brewers, farmers, innkeepers | +1 STR, +1 VIT, −1 DEX |
+
+#### Khazdurim — "Ask a Khazdurim about the Deep Seals and watch how fast the conversation ends."
+
+The mountain dwarves are miners, smiths, and engineers without peer. Their forges turn out the finest steel on the continent. Their rune-carvers inscribe protections that predate the Sundering. Their deep-hold architecture is built to last millennia.
+
+But the deep holds are sealed. Something lives behind the Deep Seals — or un-lives. The boundary between worlds cracked deepest underground, where Ferros's dormant essence mingles with Netheron's leaking death-energy. The Khazdurim do not speak of it. They drink, they forge, they mine the upper veins, and they do not go below the third level. Ask about it and the warmth drains from the room.
+
+Khazdurim who appear on the frontier are often running from something. Not cowardice — dwarves don't run from danger. They run from knowledge. From what they saw behind the Seals before they closed.
+
+#### Feldgrund — "A Feldgrund dwarf will outdrink you, outfarm you, and then lend you money for the privilege."
+
+Not all dwarves live under mountains. The Feldgrund are hill-dwarves — surface dwellers who settled the rolling midlands of the Dominion centuries ago. They brew, they farm, they run the best inns for a hundred miles. They are jolly, loud, practical, and utterly uninterested in the existential dread that haunts their Khazdurim cousins.
+
+Where the Khazdurim carry the weight of the Deep Seals, the Feldgrund carry barrels. Their ales are famous. Their hospitality is legendary. Their stubbornness is genetic.
+
+They came south because new settlements mean thirsty people, and thirsty people mean profit. Don't mistake warmth for simplicity — a Feldgrund merchant can calculate compound interest while pouring you a drink, and they always round up.
+
+---
+
+## Part VIII: The Central Questions
 
 The world of Valenheart is built on questions that have no easy answers:
 
@@ -401,7 +502,7 @@ The world of Valenheart is built on questions that have no easy answers:
 
 **What would Netheron want?** If he could be restored — if somehow his consciousness could be resurrected from the raw essence leaking across the world — would he take his role back? Would he forgive mortals for cursing him for millennia? Would he forgive the Six for killing him? Or would he look at the broken world and say: "You did this to yourselves"?
 
-**Can elven immortality return?** If the Aether cycle is restored, would the firstborn regain what they lost in Le Déclin? The Hauts-Ciels scholars have noticed each generation lives slightly shorter than the last. The clock is ticking for more than just the boundary.
+**Can elven immortality return?** If the Aether cycle is restored, would the firstborn regain what they lost in Le Déclin? The Hauts-Cieux scholars have noticed each generation lives slightly shorter than the last. The clock is ticking for more than just the boundary.
 
 ---
 

@@ -7,302 +7,104 @@ Raid scenes: --ar 1:1 or --ar 16:9
 
 ---
 
+## Cinematic Slides
+
+Full-screen cinematic images. First-person POV where noted. Wide aspect ratio for full-bleed display.
+All use: realistic digital painting, dark moody atmosphere, cinematic lighting, no text, no UI --ar 16:9
+
+### Intro Cinematic
+
+**Intro Slide 1 — The Contract**
+First-person point of view from the back of a bumpy wooden wagon, looking forward down a muddy dirt road through grey-green rolling hills, a weathered hand in the foreground holding a creased folded yellowed parchment with a cracked red wax seal and faded illegible handwriting visible on the surface, the contract has been folded and unfolded many times, other wagons visible ahead in a settler caravan, overcast sky with thin light breaking through, supplies and bundled belongings stacked around the viewer, the road stretching ahead into uncertain distance, realistic digital painting, dark moody atmosphere, cinematic lighting, no text no readable words --ar 16:9
+
+**Intro Slide 2 — The Ridge**
+Wide panoramic shot from a high ridge, settler wagons stopped at the overlook, several figures silhouetted against the sky standing at the edge looking down, a vast forested valley stretching below with a silver river winding through it, golden late-afternoon light breaking through dramatic clouds onto the valley floor while the ridge remains in shadow, the forest stretching endlessly south fading into blue haze, a sense of arrival and awe and uncertainty, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
+
+**Intro Slide 3 — Arrival**
+First-person point of view stepping down from a wagon into a raw forest clearing, muddy boots hitting the ground, fresh tree stumps from recent felling in the middle distance, a pile of rough-cut logs and an axe stuck in a stump, a river visible through the trees glinting in the light, other settlers unloading supplies from wagons, canvas tarps and rope and tools, the clearing surrounded by dense ancient forest, late afternoon light filtering through the canopy, a sense of beginning and hard work ahead, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
+
+**Intro Slide 4 — Dawn**
+First-person point of view, two hands warming over a small campfire, the fire crackling with orange embers drifting upward, two or three simple canvas tents visible in the background, first light of dawn catching the treetops in warm gold while the camp is still in cool blue shadow, the forest edge glowing with sunrise, dew on the grass, absolute quiet and stillness, a single thin column of smoke rising straight up in the windless morning air, intimate and peaceful before the world wakes up, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
+
+### Story Mission 1 Cinematic — Scouting the Surroundings
+
+**Story 1 Slide 1 — The Scout's Hilltop**
+Wide shot of a lone scout crouching on a rocky hilltop at dawn, looking down at a vast wilderness of forest and rolling terrain stretching to the horizon, morning mist pooling in the valleys below, a rough hand-drawn map on parchment spread on the rock beside them weighted with stones, the scout wearing a leather cloak and carrying a short bow, the landscape below showing game trails and a distant quarry ridge, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
+
+**Story 1 Slide 2 — The Ruins**
+Wide shot of ancient stone ruins on a hilltop, partially collapsed watchtower still standing three stories tall, ivy-covered walls and crumbling military foundations visible, stone archways leading nowhere, a broken well in the center courtyard, long afternoon shadows casting through the gaps in the walls, golden light catching dust motes in the air, a sense of organized abandonment — not destruction but deliberate departure, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
+
+### Story Mission 2 Cinematic — The Hilltop Ruins
+
+**Story 2 Slide 1 — The Outpost Interior**
+Interior of a ruined Dominion stone outpost room, rotting military cots pushed against the walls, scattered equipment and corroded metal, patrol log entries carved directly into the stone wall visible in close-up with crude scratched letters, a shaft of dusty golden light pouring through a hole in the collapsed ceiling, cobwebs and debris on the floor, a sense of haste in how things were left, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
+
+**Story 2 Slide 2 — The Journal**
+Close-up of a damaged leather-bound journal lying open on a stone floor, water-stained pages with partially legible handwriting, a dark treeline visible through a crumbling stone window frame behind the journal, the light from outside is grey and flat, the handwriting trails off mid-sentence on the visible page, a dark stain on the corner that could be blood or water, intimate and unsettling, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
+
+### Story Mission 3 Cinematic — The Silent Forest
+
+**Story 3 Slide 1 — The Dead Forest**
+Wide shot walking into a dead grey forest, trees standing upright but completely lifeless with pale cracked bark and no leaves, no undergrowth, the ground covered in grey ash-like soil, thick low mist clinging to the base of the trunks, no birds no insects no life at all, a suffocating silence conveyed through the emptiness and monochrome palette, an adventurer party walking single-file ahead into the grey, their colorful clothing the only color in the frame, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
+
+**Story 3 Slide 2 — The Boundary**
+Wide panoramic shot from the edge of the dead forest looking south, a stark divide between living green forest behind the viewer and miles of dead grey wasteland stretching to the horizon ahead, a faint shimmer in the air like cold heat haze marking the boundary line, the sky above the dead zone is darker and more oppressive than the sky behind, the contrast between life and death is the entire composition, a few adventurers standing at the boundary looking out with their backs to the viewer, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
+
+### Story Mission 4 Cinematic — A Ranger's Warning
+
+**Story 4 Slide 1 — The Ranger Arrives**
+A hooded figure standing at the edge of a frontier settlement at dawn, a Thornveil Ranger in weathered green-and-brown leather armor with a longbow across her back and a faintly glowing runic blade at her hip, morning mist behind her, she is standing still and watching with calm intensity, the settlement's wooden palisade and crude buildings visible behind the viewer, she has been waiting to be noticed, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
+
+**Story 4 Slide 2 — Kess Explains**
+Interior of a simple wooden building or tent, first-person POV sitting across a table from Kess the Ranger, a rough map spread between them showing markings for ward-lines and the Wastes boundary drawn in red, a single candle flickering between them casting warm light and deep shadows, Kess leaning forward with a grim but not unkind expression, her finger pointing at a location on the map, her runic blade propped against the table edge glowing faintly blue, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
+
+**Story 4 Slide 3 — The Spirit Blade**
+Close-up of Kess's weathered hand resting on the hilt of her blade, the runes along the blade glowing faintly blue-white with spirit energy, her other hand visible pointing at a spot on the map in the background, shallow depth of field focusing on the blade and her scarred hand, the blue glow reflecting off the wooden table surface, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
+
+### Story Mission 5 Cinematic — The Cracked Ward-Stone
+
+**Story 5 Slide 1 — The Ritual**
+A moss-covered stone monolith in a moonlit forest clearing, cracked down the middle with ancient runes carved into its surface, a wizard in dark robes standing before it with hands extended channeling streams of blue-white light into the stone, Kess the Ranger kneeling beside the stone chanting with her eyes closed, the runes flickering between dark and glowing, magical energy swirling in the air like luminous mist, the surrounding forest dark and watchful, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
+
+**Story 5 Slide 2 — The Dead Come**
+Night scene in the ward-stone clearing, translucent pale spectral figures emerging from grey mist on all sides, reaching with confused ghostly hands, some with expressions of bewilderment rather than malice, adventurers in defensive formation around the glowing ward-stone with weapons drawn, blue ward-light clashing with grey ghostly mist, sparks of magical energy where spirits meet the ward's barrier, tense and eerie but not evil, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
+
+**Story 5 Slide 3 — Kess at Rest**
+Kess the Thornveil Ranger sitting with her back against the now-glowing ward-stone, exhausted, her blade across her lap, dawn light beginning to filter through the trees, the clearing is quiet and peaceful, the grey mist has retreated, she is looking directly at the viewer with a tired evaluating expression, half-smile, the ward-stone behind her pulsing with steady blue light, a sense of hard-won victory and deeper questions ahead, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
+
+### Story Mission 6 Cinematic — The Robin's Message
+
+**Story 6 Slide 1 — The Robin**
+A small ordinary robin perched on a crude wooden watchtower railing in morning light, a tiny scroll tied to its leg with silver thread, the bird looking directly at the viewer with its head tilted, the settlement visible below the watchtower with rooftops and chimney smoke, golden morning light, the bird seems to be waiting patiently, almost unnaturally still for a wild bird, a deceptively ordinary image hiding something magical, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
+
+**Story 6 Slide 2 — The Scroll**
+Close-up first-person POV of two hands holding a small unfurled scroll, the handwriting elegant but trembling with age, a candle flickering on a wooden table beside the hands casting warm amber light, the scroll's wax seal broken and lying on the table, the text partially visible but not readable at this resolution, the paper is very old and the ink has a faint luminous quality, intimate and mysterious, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
+
+**Story 6 Slide 3 — Kess Recognizes**
+First-person POV with Kess reading over the viewer's shoulder, her expression shifting from curiosity to surprise to recognition, the scroll visible in the lower foreground held by the viewer's hands, through a window behind Kess the robin is still visible perched on the watchtower railing outside, waiting, morning light from the window illuminating half of Kess's face, the other half in shadow, a moment of realization, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
+
+---
+
 ## Adventurer Portraits
 
 Half-body portrait (head to waist), not extreme close-up — leave room to crop for _zoomed versions.
 All use: realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
-### Human — Dunhollow (English, pale skin, brown/auburn hair)
+### Portrait Diversity Guideline
 
-**Dunhollow Warrior Male**
-Half-body portrait of a Dunhollow warrior, pale-skinned Englishman with short auburn hair and a square jaw, wearing dented iron plate armor with a heraldic tabard over the chest, a heavy longsword resting on his shoulder, battle scars on his arms, determined weathered expression, a muddy battlefield camp blurred behind, warm firelight from the left, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+**Target: 5 portraits per origin/class/gender combo.**
 
-**Dunhollow Warrior Female**
-Half-body portrait of a Dunhollow warrior woman in her late thirties, pale skin with old scars on her jaw and sun damage, thick red hair streaked with grey pulled into a messy war-braid, a broken nose healed crooked, wearing dented battered steel breastplate with dried mud, gripping a notched sword mid-stance as if catching her breath between fights, exhausted but unbroken expression, stone castle wall behind, cold grey daylight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+- 4 portraits match the dominant physical appearance of the origin (e.g., pale-skinned for Ashwick, dark-skinned for Zah'kari, olive-skinned for Meridian)
+- 1 portrait (Variant 5) depicts a **minority member** — someone with a different skin tone/features who is culturally FROM that origin
+- This applies in ALL directions: darker-skinned Ashwick people, lighter-skinned Zah'kari, East Asian Nordveld, etc.
+- The minority portrait still wears the origin's clothing, armor, and cultural markers — they are FROM that culture, not visitors
+- No special backstory is needed. Trade, migration, empires, and intermarriage over millennia mean every culture has diversity. It's unremarkable in-world.
+- The 4:1 ratio reflects a world with medieval-level transportation — diversity exists but isn't evenly distributed
 
-**Dunhollow Wizard Male**
-Half-body portrait of a Dunhollow wizard, thin pale Englishman with receding brown hair and a neatly trimmed beard, wearing dark scholarly robes with silver thread embroidery, holding an open leather-bound tome in one hand, the other hand glowing faintly with blue arcane light, round spectacles perched on his nose, a cluttered study with bookshelves behind, warm candlelight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Dunhollow Wizard Female**
-Half-body portrait of a Dunhollow scholar-witch in her fifties, pale weathered face with deep laugh lines and sharp green eyes behind reading spectacles, grey-streaked dark hair pinned up messily with ink-stained fingers, wearing threadbare dark blue robes patched many times over, arcane runes stitched into the sleeves, mid-gesture casting a spell with exasperated concentration, an ancient library behind with floating motes of light, cool blue-purple magical glow, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Dunhollow Priest Male**
-Half-body portrait of a Dunhollow priest, middle-aged pale man with close-cropped grey hair and kind but tired eyes, wearing simple white-and-gold vestments with a sunburst emblem, a leather prayer book tucked under one arm, the other hand raised in a gentle blessing with faint golden light at the fingertips, a modest stone chapel behind, warm golden light from stained glass, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Dunhollow Priest Female**
-Half-body portrait of a Dunhollow field-priestess in her forties, pale freckled face lined with worry and sleepless nights, auburn hair going grey at the temples tied back practically, wearing blood-stained cream robes with golden trim, a holy medallion on a chain, kneeling with hands pressing golden healing light into an unseen wound, fierce maternal determination, a field hospital with wounded soldiers blurred behind, soft warm lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Dunhollow Archer Male**
-Half-body portrait of a Dunhollow ranger, lean pale man with sandy brown hair and stubble, wearing a green-brown leather jerkin and a hooded cloak pushed back, a yew longbow in hand with a quiver of goose-fletched arrows on his back, alert watchful eyes scanning the distance, a misty English forest behind, cool green-grey morning light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Dunhollow Archer Female**
-Half-body portrait of a Dunhollow huntress in her thirties, wiry and tough with windburnt pale skin, crow's feet around sharp hazel eyes, short choppy brown hair hacked off with a knife, wearing patched leather armor held together with cord and rivets, drawing a short bow with calloused scarred hands, rain dripping off her nose, focused hunter's squint, rain-soaked woodland behind with dripping branches, cold overcast light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Dunhollow Assassin Male**
-Half-body portrait of a Dunhollow rogue, gaunt pale man with dark hair slicked back and a thin scar across the cheek, wearing dark leather armor under a charcoal grey cloak, a pair of daggers visible at his belt, one hand resting casually on a blade, a knowing smirk on his face, a dark alley with distant torchlight behind, cold shadow lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Dunhollow Assassin Female**
-Half-body portrait of a Dunhollow spy in her forties, plain-looking pale woman with a forgettable face — the kind you wouldn't notice in a crowd, mousy dark hair pinned under a servant's cap, thin lips and watchful grey eyes that miss nothing, wearing ordinary dark clothes over concealed leather, a hidden blade strapped to her forearm, pouring wine with one hand while the other rests near a vial, a candlelit tavern interior blurred behind, warm amber and shadow lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-### Human — Nordveld (Nordic, fair skin, blonde/platinum hair)
-
-**Nordveld Warrior Male**
-Half-body portrait of a Nordveld warrior, tall broad-shouldered Norse man with long platinum blonde hair in braids, thick beard with iron rings, wearing fur-trimmed chainmail and a wolf-pelt cloak, a massive two-handed axe resting across his back, fierce ice-blue eyes, snow-capped mountains behind, cold blue winter light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Nordveld Warrior Female**
-Half-body portrait of a Nordveld shieldmaiden in her forties, heavy-set powerful Nordic woman with a broad jaw and deep-set ice-blue eyes, grey-blonde hair in thick warrior braids adorned with bone beads and battle trophies, a fresh cut across her forehead still bleeding, wearing a dented steel breastplate over heavy furs, raising a round iron shield mid-block with a fierce war-cry, a frozen fjord behind, cold steel-blue light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Nordveld Wizard Male**
-Half-body portrait of a Nordveld runecarver, weathered Nordic man with long grey-streaked hair and rune tattoos on his hands and neck, wearing layered dark robes lined with white fur, holding a staff carved with glowing blue Nordic runes, ancient knowing eyes, a windswept cliff overlooking a stormy sea behind, cold blue-white magical light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Nordveld Wizard Female**
-Half-body portrait of a Nordveld völva seeress in her sixties, gaunt Nordic woman with a deeply lined face and milky-white blind eyes that see beyond, wild silver-white hair whipping in a magical wind, rune tattoos faded with age across her cheekbones and hands, wearing a heavy dark indigo cloak fastened with a bone brooch, rune-inscribed rings on gnarled fingers, one hand tracing a glowing rune in the air with practiced authority, a snowstorm behind with aurora borealis in the sky, cold mystical blue-green light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Nordveld Priest Male**
-Half-body portrait of a Nordveld godspeaker, burly Nordic man with a thick red beard and shaved head covered in ritual scars, wearing heavy white robes with bear-fur trim, a hammer-shaped holy symbol on a thick chain, one hand raised with golden light breaking through storm clouds, a wooden Norse temple behind, dramatic golden light against dark sky, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Nordveld Priest Female**
-Half-body portrait of a Nordveld healer in her fifties, sturdy Nordic woman with a round weathered face and deep smile lines, braided wheat-blonde hair going white wound around her head, wearing soft white linen robes stained from herb-work with blue embroidery, hands calloused from years of grinding poultices cupped around a glowing golden orb of healing light, tired but unshakeable warmth in her eyes, a cozy longhouse interior behind with a crackling hearth, warm firelight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Nordveld Archer Male**
-Half-body portrait of a Nordveld hunter, lean Nordic man with windburnt skin and short blonde hair under a fur-lined hood, wearing white and grey winter leather armor for snow camouflage, a recurve bone-and-sinew bow in hand, a quiver of bone-tipped arrows, sharp watchful eyes, a frozen tundra with distant pine trees behind, cold white winter light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Nordveld Archer Female**
-Half-body portrait of a Nordveld pathfinder in her thirties, rangy Nordic woman with a long face, angular cheekbones, and frostbitten red patches on her nose and ears, ash-blonde hair in a messy side braid coming undone, wearing a salt-stained wolf-skin cloak over cracked grey leather, notching an arrow with hands chapped raw from the cold, a grim determined squint against the wind, a birch forest in autumn behind with first snow falling, cool golden-grey light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Nordveld Assassin Male**
-Half-body portrait of a Nordveld shadow, gaunt Nordic man with hollow cheeks and pale blonde hair cropped short, wearing dark grey leathers bound with black cord, twin seaxes at his belt, cold emotionless ice-blue eyes, a frozen dock at night with longships moored behind, cold moonlight on ice, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Nordveld Assassin Female**
-Half-body portrait of a Nordveld whisper in her thirties, lean sharp-featured Nordic woman with close-cropped platinum hair and a long scar from ear to jaw, hollow cheeks and pale blue eyes that have seen too much, wearing close-fitting black leather cracked and mended many times, a curved blade partially concealed behind her back, a flat emotionless stare, a snow-covered rooftop at night behind, cold blue moonlight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-### Human — Meridian (Italian/Corsair, olive skin, dark hair)
-
-**Meridian Warrior Male**
-Half-body portrait of a Meridian swordsman, olive-skinned Mediterranean man with slicked-back dark hair and a well-groomed goatee, wearing polished steel half-plate over a burgundy doublet, a rapier at his hip and a buckler on his forearm, charming confident grin, a Venetian-style harbor with merchant ships behind, warm golden Mediterranean light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Meridian Warrior Female**
-Half-body portrait of a Meridian corsair captain in her forties, weathered olive-skinned woman with wild curly black hair going grey and gold earrings in torn earlobes, deep crow's feet from decades squinting at the sun, a scar across her collarbone, wearing a salt-stained leather cuirass over a loose white shirt, swinging a cutlass mid-fight with a savage grin showing a missing tooth, a ship's deck with rigging and sea behind, warm sunset light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Meridian Wizard Male**
-Half-body portrait of a Meridian scholar-mage, olive-skinned man with a neat dark beard and intelligent dark eyes, wearing rich crimson robes with gold filigree, holding a brass astrolabe that glows with arcane energy, a velvet cap on his head, a Renaissance study with star charts and alchemical apparatus behind, warm amber candlelight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Meridian Wizard Female**
-Half-body portrait of a Meridian star-reader in her fifties, olive-skinned woman with sharp hawk-like features and silver-streaked dark hair pulled back severely, reading spectacles on a chain, wearing deep purple silk robes ink-stained at the cuffs, a crystal sphere floating above her weathered hand, a look of impatient intellectual intensity, a moonlit balcony covered in star charts behind, cool silver moonlight mixed with warm magical glow, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Meridian Priest Male**
-Half-body portrait of a Meridian friar, olive-skinned man with a warm round face and tonsured dark hair, wearing simple brown robes with a rope belt, a golden sun pendant, holding a small clay oil lamp that burns with holy light, kind compassionate eyes, a Mediterranean cloister with arched columns behind, warm afternoon light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Meridian Priest Female**
-Half-body portrait of a Meridian abbess in her sixties, olive-skinned woman with a strong Roman nose and deep-set dark eyes that have seen both miracles and horrors, grey hair hidden under a white veil, deep lines of authority around her mouth, wearing white-and-gold liturgical robes, gripping a holy book with arthritic but iron-strong hands, commanding resolute expression of someone who runs a hospital and takes no nonsense, a grand cathedral interior behind, golden light from above, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Meridian Archer Male**
-Half-body portrait of a Meridian crossbowman, olive-skinned man with short dark hair and a weathered face, wearing a padded leather vest over a linen shirt, a heavy steel crossbow resting on his shoulder, a quiver of bolts at his hip, professional mercenary demeanor, a sun-baked stone fortress wall behind, harsh Mediterranean noon light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Meridian Archer Female**
-Half-body portrait of a Meridian sharpshooter in her thirties, olive-skinned woman with a hard jaw and dark hair tied back with a red bandana, sun-damaged skin and a permanent squint from years on ship decks, wearing a salt-crusted leather corselet, aiming a light crossbow with one eye closed, a pouch of bolts on her belt, cold professional focus, a harbor warehouse with stacked cargo behind, warm dusk light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Meridian Assassin Male**
-Half-body portrait of a Meridian blade-for-hire, olive-skinned man with a narrow face, trimmed black beard, and a gold tooth, wearing a dark silk shirt under a leather vest with hidden pockets, a stiletto in each sleeve barely visible, sly dangerous smile, a narrow candlelit alley in an Italian-style city behind, warm amber shadows, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Meridian Assassin Female**
-Half-body portrait of a Meridian poisoner in her fifties, olive-skinned woman with silver-streaked dark hair and a face aged into severe elegance, deep lines around a thin-lipped smile that never reaches her eyes, wearing a high-collared dark dress that conceals armored panels, a ring with a hidden needle on one finger, adjusting a wine glass with practiced casual menace, a masquerade ball visible through a doorway behind, warm candlelight and dancing shadows, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-### Human — Zah'kari (West African, dark skin, textured hair)
-
-**Zah'kari Warrior Male**
-Half-body portrait of a Zah'kari warrior, dark-skinned West African man with a shaved head and ritual scarification on his cheeks, powerful build, wearing layered leather and bronze-plate armor with geometric patterns, a broad-bladed spear in one hand and a hide shield with painted symbols in the other, fierce proud expression, a savanna with baobab trees behind, warm golden sunset, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Zah'kari Warrior Female**
-Half-body portrait of a Zah'kari warrior woman in her late thirties, dark-skinned with close-cropped grey-flecked natural hair and gold ear cuffs in stretched earlobes, powerful muscular build with ritual scars on her arms from years of combat, wearing a dented bronze-plated cuirass over dyed leather, mid-swing with a curved machete-like sword, sweat on her brow and dust in the air, fierce battle-joy in her eyes, tall grass and distant acacia trees behind, warm amber light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Zah'kari Wizard Male**
-Half-body portrait of a Zah'kari griot-mage, dark-skinned elder with a white beard and wise deep-set eyes, wearing flowing indigo robes with cowrie shell embroidery, bone and bead necklaces, holding a carved wooden staff topped with a glowing amber crystal, ancient knowledge in his gaze, a firelit circle of standing stones behind, warm orange magical glow, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Zah'kari Wizard Female**
-Half-body portrait of a Zah'kari spirit-caller in her fifties, dark-skinned woman with a lined commanding face and white-streaked natural hair in thick locs decorated with gold wire and cowrie shells, wearing a flowing orange-and-purple robe worn soft from decades of use, arms raised with swirling golden spirit-light between her weathered hands, eyes rolled back in a trance speaking with ancestors, a sacred grove with ancestor masks hanging from trees behind, warm gold and amber mystical light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Zah'kari Priest Male**
-Half-body portrait of a Zah'kari healer, dark-skinned man with a shaved head and gentle strong features, wearing white robes with red geometric borders, a pouch of healing herbs and bone charms on his belt, hands emanating warm golden healing light, calm compassionate expression, a village healing hut with hanging dried herbs behind, warm golden afternoon light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Zah'kari Priest Female**
-Half-body portrait of a Zah'kari high priestess in her sixties, dark-skinned elder woman with a deeply lined face full of dignity and authority, a tall wrapped headscarf in white and gold, ritual white paint faded and reapplied across her broad forehead many times, wearing flowing white robes with golden thread now threadbare at the hems, leaning on a sacred staff with a sunburst symbol, the unshakeable calm of someone who has buried hundreds and saved thousands, a hilltop shrine with sunrise behind, brilliant warm golden light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Zah'kari Archer Male**
-Half-body portrait of a Zah'kari hunter, dark-skinned lean man with short natural hair and sharp watchful eyes, wearing lightweight leather armor dyed in earth tones, a long recurve bow with sinew string in hand, a quiver of iron-tipped arrows, focused stalking expression, dry grassland with distant mountains behind, warm late afternoon light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Zah'kari Archer Female**
-Half-body portrait of a Zah'kari scout in her thirties, lean dark-skinned woman with sharp cheekbones and cornrow braids pulled back tight, sweat-beaded skin and dust on her arms, wearing a cracked sleeveless leather vest and wrapped arm guards stained with grass, pulling an arrow from a quiver with practiced speed, a hunting scar across her forearm, alert watchful expression scanning the horizon, a river crossing in savanna grassland behind, golden-green light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Zah'kari Assassin Male**
-Half-body portrait of a Zah'kari shadow-walker, dark-skinned man with close-cropped hair and intense dark eyes, wearing dark-dyed cotton wraps over light leather, ritual scarification on his forearms, twin curved blades at his hips, coiled dangerous stillness, a moonlit market square with shuttered stalls behind, cool blue-silver moonlight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Zah'kari Assassin Female**
-Half-body portrait of a Zah'kari night-blade in her forties, wiry dark-skinned woman with shaved sides showing old scars on her scalp, a tall crown of grey-streaked natural hair, deep-set eyes with dark circles from nocturnal life, wearing form-fitting dark leather with bone clasps cracked from use, holding a blowpipe to her lips mid-breath, absolute stillness of a predator about to strike, a moonlit rooftop overlooking a sleeping village behind, cool blue-purple night light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-### Human — Tianzhou (Chinese, East Asian features)
-
-**Tianzhou Warrior Male**
-Half-body portrait of a Tianzhou soldier, East Asian man with a topknot and clean-shaven face, wearing lacquered lamellar armor in dark red over silk, a jian straight sword at his belt, a disciplined martial bearing, calm focused expression, a training courtyard with cherry blossoms behind, soft pink-gold light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Tianzhou Warrior Female**
-Half-body portrait of a Tianzhou sword-captain in her late thirties, East Asian woman with a square jaw and a scar splitting one eyebrow, hair in a practical high bun with loose strands from combat, wearing dark steel brigandine armor scuffed and battle-worn over torn blue silk, mid-strike with a dao saber, gritted teeth and sweat on her temples, a misty mountain bridge behind, cool grey-blue morning light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Tianzhou Wizard Male**
-Half-body portrait of a Tianzhou scholar-mage, East Asian man with a long thin beard and kind eyes, wearing flowing dark blue scholar's robes with crane embroidery, a calligraphy brush that glows with ink-like magical energy in one hand, a scroll case on his back, a bamboo study with ink paintings behind, warm amber lamplight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Tianzhou Wizard Female**
-Half-body portrait of a Tianzhou talisman-master in her fifties, East Asian woman with silver-streaked hair in a strict bun and reading lines around her eyes, a no-nonsense expression of a stern teacher, wearing layered silk robes in white and silver now faded to ivory, ink-stained fingers rapidly inscribing a glowing paper talisman mid-air, dozens of finished talismans floating in disciplined formation around her, a moonlit study crammed with scrolls behind, cool silver-green magical light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Tianzhou Priest Male**
-Half-body portrait of a Tianzhou temple keeper, East Asian man with a shaved head and prayer beads around his neck, wearing saffron-orange robes, hands pressed together in meditation with golden light between his palms, peaceful serene expression, a mountain temple with incense smoke behind, warm golden spiritual light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Tianzhou Priest Female**
-Half-body portrait of a Tianzhou herbalist-healer in her sixties, small East Asian woman with a round weathered face full of laugh lines and knowing dark eyes, grey hair in a loose braid, wearing simple white robes with red trim stained with herbal tinctures, grinding medicine in a stone mortar with strong practiced hands, a ceramic tea bowl steaming with healing vapor beside her, the calm patience of someone who has treated ten thousand patients, an apothecary filled with ceramic jars behind, warm soft light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Tianzhou Archer Male**
-Half-body portrait of a Tianzhou bowman, East Asian man with sharp features and a short ponytail, wearing dark leather armor with lacquered plates, a composite recurve bow in hand, a quiver of red-fletched arrows, disciplined watchful gaze, a bamboo forest with dappled light behind, cool green-gold filtered light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Tianzhou Archer Female**
-Half-body portrait of a Tianzhou mounted archer in her thirties, East Asian woman with wind-chapped skin and dark hair escaping from a ribbon, a fresh cut on her cheek from a near-miss arrow, wearing light scale armor dented from recent combat over dark silk, drawing a horse bow at full tension with straining arms, fierce determined eyes, a windswept hill with fluttering war banners behind, dramatic cloudy sky light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Tianzhou Assassin Male**
-Half-body portrait of a Tianzhou shadow agent, East Asian man with angular features and cold calculating eyes, wearing a dark fitted tunic and wraps, a straight-bladed jian concealed along his forearm, a bamboo hat tilted to shadow his face, calm deadly composure, a rainy night market with paper lanterns behind, warm red lantern glow against dark rain, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Tianzhou Assassin Female**
-Half-body portrait of a Tianzhou shadow-operative in her forties, East Asian woman with a lined face and cold calculating eyes, grey-streaked black hair in a simple knot, wearing dark grey and black layered silk over hidden armor — the outfit of a servant nobody looks at twice, a fan in one hand concealing a blade edge, the practiced stillness of someone who has waited hours for a single moment, a lantern-lit bridge over a canal at night behind, warm golden lanterns against dark water reflections, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-### Human — Khor'vani (Middle Eastern/South Asian, brown skin)
-
-**Khor'vani Warrior Male**
-Half-body portrait of a Khor'vani guardian, brown-skinned man with a thick black beard and fierce dark eyes, wearing layered steel-and-leather scale armor with geometric inlay, a curved scimitar in hand, a round steel shield with arabesque engraving, battle-hardened expression, a desert fortress with sandstone walls behind, harsh warm desert sunlight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Khor'vani Warrior Female**
-Half-body portrait of a Khor'vani sword-dancer in her thirties, brown-skinned woman with a strong nose and laugh lines around kohled dark eyes, dark hair in a battle-worn braid with strands loose, a scar along her jaw from a blade she almost didn't dodge, wearing sand-scoured chainmail over faded crimson silk, mid-spin with twin curved daggers trailing motion blur, desert canyon with carved cliff faces behind, warm golden hour light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Khor'vani Wizard Male**
-Half-body portrait of a Khor'vani astrologer, brown-skinned man with a long grey beard and a tall wrapped turban, wearing rich dark robes embroidered with golden constellations, holding an ornate brass staff topped with a spinning orrery that glows with starlight, wise ancient eyes, a rooftop observatory with star charts behind, deep blue night sky with visible stars, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Khor'vani Wizard Female**
-Half-body portrait of a Khor'vani sand-weaver in her fifties, brown-skinned woman with a weathered face and henna-stained hands showing years of spell-craft, dark hair streaked with white under a faded jeweled veil, wearing layered silk robes in turquoise and gold threadbare at the edges, sand swirling obediently around her gnarled fingers in impossible spirals, commanding imperious dark eyes above the veil, a desert oasis with date palms behind, warm golden-orange sunset light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Khor'vani Priest Male**
-Half-body portrait of a Khor'vani sun-priest, brown-skinned man with a shaved head and a golden sun tattoo on his forehead, wearing white-and-gold layered robes, hands raised toward the sky with brilliant golden light radiating from his palms, a look of devoted reverence, a sandstone temple with golden domes behind, intense golden sunlight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Khor'vani Priest Female**
-Half-body portrait of a Khor'vani mercy-giver in her forties, brown-skinned woman with a broad kind face lined from years of grief and hope, dark hair going grey under a gold-trimmed white headscarf, wearing flowing white robes with blue geometric embroidery stained from treating the sick, swinging a brass incense censer with practiced ritual precision, the steady calm of someone who walks into plague houses without flinching, a courtyard garden with a fountain behind, soft warm light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Khor'vani Archer Male**
-Half-body portrait of a Khor'vani desert rider, brown-skinned man with a keffiyeh and lean sun-darkened face, wearing light leather and linen desert armor, a powerful composite bow in hand, a quiver of bone-tipped arrows, keen far-seeing eyes squinting against the sun, endless sand dunes behind with heat shimmer, bright harsh desert light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Khor'vani Archer Female**
-Half-body portrait of a Khor'vani hawk-archer in her thirties, brown-skinned lean woman with sun-darkened skin and squint lines, dark hair in a windblown ponytail half-undone, wearing cracked desert-colored leather armor with turquoise beads some missing, a shortbow drawn with calloused fingers, a hunting hawk launching from her shoulder guard mid-flight, sharp focused expression of someone tracking prey, rocky desert plateau behind, warm late afternoon light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Khor'vani Assassin Male**
-Half-body portrait of a Khor'vani hashashin, brown-skinned man with sharp features and a short black beard, wearing dark layered desert robes that conceal his frame, a curved khanjar dagger visible at his sash, calm measured expression that reveals nothing, a shadowed souk alley with hanging fabrics behind, warm amber and deep shadow lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Khor'vani Assassin Female**
-Half-body portrait of a Khor'vani silent blade in her forties, brown-skinned woman with crow's feet around dark eyes lined with kohl above a face-covering dark veil, grey at her temples barely visible under the wraps, wearing close-fitting dark silk over hidden armor mended many times, a thin blade held reversed along her scarred forearm with surgical precision, only her intense patient eyes visible — the eyes of someone who has outlived every target, a moonlit palace rooftop with ornate domes behind, cool blue-silver moonlight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-### Elf — Silvaneth (Forest elf, Gaelic, fair skin with green/amber tones, pointed ears)
-
-**Silvaneth Warrior Male**
-Half-body portrait of a Silvaneth forest elf warrior, fair skin with a faint green undertone, long auburn hair with woven leaves, angular pointed ears, wearing living-wood bark armor that seems to grow on his body, a slender elven longsword with vine-wrapped hilt, calm lethal readiness in amber eyes, a dense ancient forest with shafts of green light behind, dappled emerald lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Silvaneth Warrior Female**
-Half-body portrait of a Silvaneth elf shieldwarden who has guarded the forest for centuries, fair skin weathered by wind and rain with subtle woodland freckles and old claw-mark scars across her neck, silver-green hair hacked short and practical, pointed ears with notches from old wounds, wearing battered thorn-mail armor with moss growing in the cracks, raising a shield of layered bark and bronze mid-block with gritted teeth, the ferocity of someone defending home, a tree-fortress with massive roots behind, warm green-gold forest light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Silvaneth Wizard Male**
-Half-body portrait of a Silvaneth elf druid, ageless face with fair skin and deep amber eyes, long silver hair with moss and tiny flowers woven in, pointed ears, wearing robes of layered leaves and woven bark cloth, a gnarled staff of living wood with a glowing green crystal at the top, serene ancient wisdom in his expression, a sacred grove with bioluminescent mushrooms behind, ethereal green magical glow, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Silvaneth Wizard Female**
-Half-body portrait of a Silvaneth elf weaver-of-thorns, ancient beyond counting with pale green-tinged skin that has taken on bark-like texture at the temples and hands, emerald hair tangled with living moss and small ferns growing in it, hollow distant eyes that see the forest more than the mortal world, pointed ears, wearing a gown of woven spider silk disintegrating into living vines at the hems, hands extended with tendrils of green nature magic spiraling between gnarled fingers, an ancient tree hollow glowing with magical fungi behind, soft green-blue bioluminescent light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Silvaneth Priest Male**
-Half-body portrait of a Silvaneth elf tree-speaker, tall slender elf with fair skin and long white hair streaked with green, kind ageless eyes, pointed ears with small gold cuffs, wearing white robes embroidered with oak-leaf patterns, hands pressing against a massive tree trunk that pulses with golden light, reverent expression, a cathedral-like forest of enormous ancient trees behind, warm golden-green light filtering through the canopy, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Silvaneth Priest Female**
-Half-body portrait of a Silvaneth elf grief-tender, an elf who has outlived generations of mortal friends, pale skin with a weariness that no amount of elven grace can hide, copper-red hair fading to white with dried flowers woven in as memorials, sad gentle amber eyes with centuries of loss behind them, pointed ears, wearing cream robes stained with earth from recent burials, hands cupped around a sphere of warm golden healing light with flower petals swirling inside, quiet sorrow mixed with stubborn hope, a spring meadow at the forest edge behind, soft warm golden light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Silvaneth Archer Male**
-Half-body portrait of a Silvaneth elf warden, lean and graceful with fair skin and long dark green hair, sharp amber eyes, pointed ears, wearing mottled green-brown leather that blends with the forest, an elegant elven longbow of pale wood with carved vine patterns in hand, utterly still like a part of the forest itself, a dense misty woodland behind, cool grey-green dawn light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Silvaneth Archer Female**
-Half-body portrait of a Silvaneth elf sentinel, weathered elven woman with tawny skin roughened by centuries of wind and rain, wild auburn hair matted with twigs and feathers, sharp green eyes with a feral animal intensity, pointed ears pierced with bone, wearing form-fitting green leather armor scarred with claw marks and stained with old blood, pulling a recurve bow to full draw with corded arms, crouched in a high branch looking down like a hunting cat, green-gold canopy light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Silvaneth Assassin Male**
-Half-body portrait of a Silvaneth elf shadow-stalker, pale skin with green undertones and jet-black hair, cold amber eyes, pointed ears, wearing dark brown and black leather woven with shadow-darkened leaves, twin elven daggers with thorn-shaped blades, completely silent and still expression, a twilight forest with long shadows behind, cool purple-green dusk light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Silvaneth Assassin Female**
-Half-body portrait of a Silvaneth elf nightblossom, an elf who chose the dark path centuries ago and wears it on her face — gaunt hollow-cheeked features with pale moonlit skin stretched tight, dark purple-black hair lank and unwashed, glinting silver eyes with no warmth left in them, pointed ears, wearing dark woven silk fraying at the edges, a thin blade coated with herbal poison dripping from her hand, the stillness of a spider waiting, a moonlit forest clearing with night-blooming flowers behind, cool silver moonlight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-### Elf — Hauts-Ciels (Scholar elf, French, porcelain skin, elegant)
-
-**Hauts-Ciels Warrior Male**
-Half-body portrait of a Hauts-Ciels high elf knight, porcelain-pale skin and refined angular features, silver-blonde hair swept back elegantly, pointed ears, wearing ornate polished mithril plate armor with celestial engravings, a slender arming sword with a crystal pommel, noble dignified expression, a sky-ruin floating city with broken spires behind, cool blue ethereal light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Hauts-Ciels Warrior Female**
-Half-body portrait of a Hauts-Ciels high elf bladesinger, centuries-old with the weariness showing in her posture despite ageless porcelain skin, violet eyes that have watched civilizations fall, platinum hair cut short and practical — no time for elaborate styles anymore, pointed ears with old piercing holes but no jewelry, wearing tarnished mithril chainmail with links missing over stained silk, a rapier-thin elven blade held in a guard that is muscle memory not grace, the resigned determination of the last defender of a dying people, a crumbling marble balcony behind, cool silver-blue light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Hauts-Ciels Wizard Male**
-Half-body portrait of a Hauts-Ciels high elf archmage, ageless porcelain features with piercing blue eyes and long silver hair, pointed ears, wearing layered dark blue-and-silver robes with arcane geometric patterns that shift and glow, multiple spell-rings on his fingers, an ancient tome floating open before him, vast arcane knowledge in his expression, a grand elven library with crystalline shelves behind, cool blue-white arcane light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Hauts-Ciels Wizard Female**
-Half-body portrait of a Hauts-Ciels high elf aether-scholar, porcelain skin with dark circles under luminous violet eyes from centuries of obsessive research, white-gold hair unkempt and forgotten about, pointed ears, wearing midnight-blue velvet robes covered in chalk equations and burn marks from failed experiments, a prismatic crystal hovering above her palm that she studies with manic intensity, the expression of someone chasing a theory that might save or destroy everything, a chaotic star-observatory with shattered crystal instruments behind, prismatic magical light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Hauts-Ciels Priest Male**
-Half-body portrait of a Hauts-Ciels high elf luminary, refined porcelain features with gentle golden eyes and silver hair in a simple tail, pointed ears, wearing immaculate white-and-gold vestments with celestial symbols, hands folded in prayer with soft golden light emanating from his chest, benevolent serene expression, a floating cathedral with crystalline stained glass behind, warm ethereal golden light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Hauts-Ciels Priest Female**
-Half-body portrait of a Hauts-Ciels high elf oracle, an elf so old she has begun to fade — translucent-pale skin almost see-through, silver hair thinning and defying gravity as if she is partly in another realm, milky white eyes that see beyond the mortal world with an expression of infinite sadness, pointed ears, wearing diaphanous white robes fraying into light at the edges, a faltering golden halo-like glow around her head — she is the last who remembers the gods' voices, a crumbling sky-temple above the clouds behind, brilliant white-gold divine light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Hauts-Ciels Archer Male**
-Half-body portrait of a Hauts-Ciels high elf sky-archer, graceful porcelain features with ice-blue eyes and short silver hair, pointed ears, wearing lightweight white leather armor with silver filigree, an elegant crystalline bow that seems made of frozen light, a quiver of silver-fletched arrows, calm precision in his gaze, a floating sky-ruin with clouds below behind, cool blue-white sky light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Hauts-Ciels Archer Female**
-Half-body portrait of a Hauts-Ciels high elf wind-archer, lean and hard-muscled from centuries of patrol, platinum hair cropped close on one side and long on the other whipping in the wind, pale lavender eyes narrowed against the gale, pointed ears reddened from high-altitude cold, wearing pale silver leather armor cracked from UV exposure, drawing a bow of white-gold wood with wind magic straining around the string, bracing against a mountain gust, a mountain peak above the clouds behind, cool windswept blue-white light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Hauts-Ciels Assassin Male**
-Half-body portrait of a Hauts-Ciels high elf silencer, sharp porcelain features with cold silver eyes and sleek white-blonde hair pulled back, pointed ears, wearing dark grey elven leather with mithril thread stitching, a needle-thin blade concealed along his wrist, aristocratic disdain in his expression, a moonlit marble terrace behind, cold silver-blue moonlight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Hauts-Ciels Assassin Female**
-Half-body portrait of a Hauts-Ciels high elf phantom, porcelain skin with an unsettling stillness to her features — like a mask, raven-black hair hanging lank and straight, deep violet eyes that don't blink often enough, pointed ears, wearing dark midnight-blue silk over mithril mesh both immaculate despite centuries of use, twin crystal daggers that phase in and out of visibility, an expression so blank it's more frightening than any snarl, a dark elven corridor with floating candles behind, cool purple-blue ambient light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-### Dwarf — Khazdurim (Mountain dwarf, stocky, ruddy skin, great beards)
-
-**Khazdurim Warrior Male**
-Half-body portrait of a Khazdurim mountain dwarf warrior, stocky and powerfully built with ruddy skin and a magnificent braided red-gold beard with iron rings, wearing heavy dwarven plate armor with angular rune-engraved pauldrons, a massive war hammer in both hands, fierce proud expression, a vast underground forge-hall with rivers of lava behind, warm orange forge-fire light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Khazdurim Warrior Female**
-Half-body portrait of a Khazdurim mountain dwarf shieldbearer in her fifties (dwarf years), broad-shouldered and stocky with ruddy freckled skin and thick auburn braids streaked with iron-grey, a nose broken and reset twice, wearing heavy dwarven chainmail battered from a hundred tunnel-fights, slamming a tower shield of iron and stone forward with a grunt of exertion, a war pick raised in the other hand, the furious stubbornness of someone defending her hall, a dwarven gatehouse carved into mountain rock behind, cool grey stone light with warm torchlight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Khazdurim Wizard Male**
-Half-body portrait of a Khazdurim runesmith, stout dwarf with a long grey beard tucked into his belt and thick eyebrows, wearing heavy leather apron over dark robes, hands glowing with orange rune-magic as he inscribes a floating glyph in the air, a magnifying lens on a chain around his neck, intense focused concentration, a rune-forge workshop with glowing inscribed weapons behind, warm orange-gold runic light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Khazdurim Wizard Female**
-Half-body portrait of a Khazdurim stone-singer, stout elderly dwarf woman with deep brown skin lined like cracked granite and dark hair in tight braids turned silver decorated with raw gemstones, wearing dark robes dusted with rock powder and mineral stains, hands calloused from decades of rune-carving pressed together with crystalline energy forming between her palms, glowing amber eyes that have memorized every vein of ore in the mountain, a crystal-studded cavern behind, purple and amber crystal light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Khazdurim Priest Male**
-Half-body portrait of a Khazdurim ancestor-keeper, elderly stout dwarf with a massive white beard and deep-set wise eyes, wearing ceremonial bronze-and-stone vestments engraved with ancestor names, holding a stone tablet that glows with warm golden light, reverent solemn expression, an underground ancestor hall with carved statues lining the walls behind, warm golden torchlight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Khazdurim Priest Female**
-Half-body portrait of a Khazdurim hearth-mother in her sixties, broad heavy-set dwarf woman with a face like a weathered cliff, copper-red braided hair now mostly silver, kind crinkled eyes that have cried at too many funerals and laughed at twice as many feasts, wearing earth-toned robes with hammered bronze clasps polished smooth from years of wear, hands emanating warm golden healing light — those hands have delivered every baby in the hold, a cozy underground dwelling with a stone hearth behind, warm amber firelight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Khazdurim Archer Male**
-Half-body portrait of a Khazdurim tunnel-guard, stocky dwarf with ruddy skin and a practical short-cropped brown beard, wearing leather armor with metal rivets, a heavy dwarven crossbow of steel and dark wood in hand, a bandolier of iron bolts across his chest, watchful no-nonsense expression, a narrow mine tunnel with rail tracks behind, dim torchlight in darkness, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Khazdurim Archer Female**
-Half-body portrait of a Khazdurim bolt-thrower in her thirties, stocky dwarf woman with ginger hair in a singed ponytail and soot-stained goggles pushed up on her forehead revealing clean goggle-marks on her grimy face, wearing leather armor scorched from testing her own inventions with brass fittings, cranking a repeating crossbow of complex dwarven engineering with grease-blackened hands, a manic inventor's grin, a dwarven workshop with half-exploded prototypes behind, warm amber workshop light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Khazdurim Assassin Male**
-Half-body portrait of a Khazdurim shadow-delver, compact muscular dwarf with dark ruddy skin and a short black beard, wearing dark leather armor with muffled metal joints, a short broad-bladed knife and a garrote at his belt, eyes adapted to absolute darkness with a faint reflective gleam, grim determined expression, a pitch-black mine shaft with a single distant lantern behind, nearly black with hints of warm light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Khazdurim Assassin Female**
-Half-body portrait of a Khazdurim vein-stalker in her forties, compact muscular dwarf woman with dark hair cropped close under a black cowl, ruddy skin deliberately smeared with dark mineral dust hiding old pockmark scars, wearing silent-soled dark leather with padded joints worn smooth from years of silent crawling, a short pickaxe that doubles as a weapon held with the casual comfort of an extension of her hand, patient predatory stillness — she has waited days in darkness for a target, a dark underground passage with crystal veins glinting in the walls behind, minimal cool blue crystal-light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+**When writing Variant 5 prompts:** Change skin tone/hair/features but keep everything else culturally consistent (armor style, setting, weapons, accessories).
 
 ### Dwarf — Feldgrund (Hill dwarf, stocky, tan skin, practical)
 
-**Feldgrund Warrior Male**
 Half-body portrait of a Feldgrund hill dwarf man-at-arms, stocky with sun-tanned skin and a bushy brown beard braided simply, wearing practical iron-banded leather armor over a homespun tunic, a heavy iron mace in one hand and a wooden buckler in the other, stout reliable expression, a rolling green hillside with a stone farmstead behind, warm afternoon sunlight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
 **Feldgrund Warrior Female**
@@ -331,6 +133,528 @@ Half-body portrait of a Feldgrund hill dwarf poacher, compact dwarf with weather
 
 **Feldgrund Assassin Female**
 Half-body portrait of a Feldgrund hill dwarf mole in her forties, compact dumpy dwarf woman with mousy brown hair under a kerchief and the most forgettable face you've ever seen — the kind of woman you'd swear you've never met even if she's served you ale a hundred times, wearing simple peasant clothes over hidden leather, reaching into her apron where a small vial of something dangerous sits next to a ball of yarn, the only remarkable thing about her is the absolute sharpness of her small brown eyes, a busy market square behind where nobody notices her, warm daytime crowd light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+---
+
+### Adventurer Portrait Variants (NEW — to generate)
+
+These are variant prompts for origins that currently have <3 portraits per class/gender combo.
+Each variant depicts a different character with different age, posture, background, hair, and personality.
+Target: 3 unique portraits per origin/class/gender combination.
+
+## Human — Ashwick (English, pale skin, brown/auburn hair) — Variants
+
+**Ashwick Warrior Female — Variant 3**
+Half-body portrait of a heavyset older woman in her late 50s with short-cropped grey-auburn hair and a deep scar across her jaw, wearing dented plate armor with a fur-lined gorget, resting one gauntleted hand on a chipped greatsword pommel, exhausted expression after battle, standing in a torchlit stone gatehouse with rain pouring outside, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Ashwick Wizard Female — Variant 3**
+Half-body portrait of a gaunt young woman in her early 20s with wild unkempt auburn curls and ink-stained fingers, wearing a patched apprentice robe over a linen chemise, clutching a cracked leather grimoire to her chest with wide fascinated eyes, standing in a cluttered tower study surrounded by floating dust motes and candlelight reflecting off glass alembics, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Ashwick Archer Male — Variant 3**
+Half-body portrait of a lean weathered man in his late 50s with a salt-and-pepper beard and thinning brown hair tied back, wearing a faded green wool cloak over boiled leather, holding a worn elm longbow with calloused hands, squinting one eye shut as he studies distant movement from a crumbling watchtower overlooking misty moorlands at dawn, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Ashwick Archer Female — Variant 3**
+Half-body portrait of a broad-shouldered young woman in her mid-20s with a messy auburn braid and freckled cheeks, wearing a sleeveless leather jerkin revealing muscular arms, pulling an arrow from a hip quiver with a confident smirk, standing at the edge of a golden wheat field with a burning farmstead smoking in the far distance behind her, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Ashwick Assassin Male — Variant 2**
+Half-body portrait of a wiry young man barely 20 with a pale sharp-featured face and short-cropped dark brown hair, wearing a fitted black leather doublet with a high collar, nervously gripping a stiletto behind his back while leaning against a rain-slicked alley wall, amber lantern light casting long shadows across cobblestones and half-timbered buildings in a cramped medieval city lane, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Ashwick Assassin Male — Variant 3**
+Half-body portrait of a stocky middle-aged man in his mid-40s with a thick auburn beard hiding knife scars and deep-set tired eyes, wearing a stained butcher's apron over dark wool clothing concealing a bandolier of throwing knives, wiping his hands on a rag with a cold matter-of-fact expression, standing in a dim candlelit cellar with meat hooks and barrels behind him, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Ashwick Assassin Female — Variant 1**
+Half-body portrait of a tall slender woman in her early 30s with auburn hair pinned tightly beneath a dark hood, high cheekbones and a thin pale scar running through one eyebrow, wearing a fitted black leather corset over layered dark fabrics, drawing a curved dagger from a thigh sheath while peering around a stone pillar inside a moonlit cathedral nave with stained glass casting faint color, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Ashwick Assassin Female — Variant 2**
+Half-body portrait of a petite older woman in her late 50s with grey-streaked brown hair in a simple bun and kind grandmotherly features that mask cold calculating eyes, wearing a plain servant's dress with hidden blade sheaths sewn into the sleeves, holding a poisoned wine goblet delicately in one hand while standing in an opulent candlelit dining hall with velvet drapes and a crackling fireplace, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Ashwick Assassin Female — Variant 3**
+Half-body portrait of a muscular young woman in her early 20s with choppy chin-length brown hair and a broken nose that healed crooked, wearing tight-wrapped dark linen bandages over leather bracers and a sleeveless tunic, crouched on a rain-soaked rooftop gripping a garrote wire between both fists with an intense predatory focus, overlooking a foggy medieval town square lit by distant torches below, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+---
+
+## Human — Nordveld (Nordic, fair skin, blonde/platinum hair) — Variants
+
+**Nordveld Warrior Male — Variant 2**
+Half-body portrait of a massive barrel-chested older man in his late 50s with a long braided platinum beard and a missing left ear, wearing scarred iron chainmail over thick furs with a bear-tooth necklace, resting a heavy bearded axe across his shoulders while laughing with bared teeth, standing on a windswept rocky cliff above a frozen fjord under heavy grey skies, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Nordveld Warrior Male — Variant 3**
+Half-body portrait of a lean athletic young man in his early 20s with short-cropped blonde hair shaved on the sides and bright eager blue eyes, wearing new polished chainmail that still gleams over a blue wool tunic, gripping a round wooden shield with fresh paint and an unbloodied sword, standing nervously in a timber longhouse doorway with firelight and feasting warriors visible behind him, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Nordveld Warrior Female — Variant 3**
+Half-body portrait of a middle-aged woman in her early 40s with thick blonde hair in warrior braids woven with iron rings and a vertical scar splitting her lower lip, wearing battered lamellar armor dented from countless fights over a fur-collared gambeson, mid-shout rallying troops with a blood-streaked seax raised overhead, standing in churned mud on a grey battlefield with shattered shields and falling snow around her, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Nordveld Wizard Male — Variant 2**
+Half-body portrait of a frail elderly man in his late 60s with a long wispy white beard and deeply lined face marked with faded blue rune tattoos on his forehead and cheeks, wearing layered grey and white fur robes clasped with a silver brooch, holding a gnarled birchwood staff crackling with pale frost energy, standing in a snow-covered stone circle under the aurora borealis with ancient carved monoliths behind him, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Nordveld Wizard Male — Variant 3**
+Half-body portrait of a heavyset young man in his mid-20s with shaggy strawberry-blonde hair and a short patchy beard, wearing an oversized blue woolen robe with ink and reagent stains, holding a smoking runic tablet in one hand while blowing on singed fingers with a sheepish expression, standing in a cluttered wooden workshop filled with bubbling cauldrons and scattered animal bones and dried herbs, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Nordveld Wizard Female — Variant 3**
+Half-body portrait of a tall angular woman in her mid-40s with platinum blonde hair in a severe single braid and piercing ice-blue eyes with crow's feet, wearing a fitted dark blue robe trimmed with white fox fur and silver thread rune embroidery, holding her palms open as crystalline ice shards hover and rotate between her fingers, standing on a frozen lakeshore at twilight with pine forests and distant mountains fading into blue mist, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Nordveld Priest Male — Variant 2**
+Half-body portrait of a young broad-shouldered man in his mid-20s with a clean-shaven jaw and long flowing blonde hair past his shoulders, wearing pristine white ceremonial robes with silver knotwork embroidery over a mail shirt, kneeling in prayer with eyes closed and hands clasped around a silver hammer pendant, inside a grand timber stave church with candlelight flickering across carved wooden pillars depicting ancient gods, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Nordveld Priest Male — Variant 3**
+Half-body portrait of a gaunt old man in his early 60s with a close-cropped white beard and hollow cheeks and milky blind eyes, wearing a threadbare grey wool robe with a simple rope belt and carved bone holy symbols hanging from his neck, reaching out one trembling hand that emits a faint warm golden glow, standing barefoot in a dim forest grove with snow on the ground and pale shafts of light breaking through ancient pine canopy above, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Nordveld Priest Female — Variant 2**
+Half-body portrait of a stout middle-aged woman in her late 40s with thick platinum blonde hair in a braided crown and warm weathered features with deep smile lines, wearing layered white and pale blue robes with a heavy fur stole and a bronze sun medallion, grinding herbs in a stone mortar with steady practiced hands, standing in a warm candlelit infirmary with rows of straw cots and bundled healing herbs drying from the rafters, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Nordveld Priest Female — Variant 3**
+Half-body portrait of a slender young woman barely 20 with pale blonde hair shorn close to the scalp in a penitent's cut and wide earnest grey eyes, wearing a simple undyed linen shift beneath a heavy white wool cloak clasped with a pewter raven pin, pressing her palms against a wounded warrior's chest as pale light seeps between her fingers, kneeling in bloodied snow on a torchlit battlefield at night with dark pines looming behind, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Nordveld Archer Male — Variant 2**
+Half-body portrait of a rangy tall man in his mid-30s with windburned skin and a thick blonde beard braided into two forks and pale grey eyes, wearing a heavy reindeer-hide coat over layered wool with a quiver of white-fletched arrows on his back, nocking an arrow on a recurve composite bow while scanning a vast snowy tundra from atop a rocky outcrop with wolf tracks visible in the snow below, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Nordveld Archer Male — Variant 3**
+Half-body portrait of a wiry teenage boy around 18 with messy straw-blonde hair and a gap-toothed grin and a fresh bruise on his cheekbone, wearing a too-large borrowed leather vest over a rough-spun tunic with a simple shortbow slung across his back, proudly holding up a brace of rabbits by their ears, standing at the edge of a birch forest clearing in late autumn with golden leaves on the ground and wood smoke rising from a distant village, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Nordveld Archer Female — Variant 3**
+Half-body portrait of a weathered older woman in her mid-50s with silver-blonde hair in a thick loose braid over one shoulder and deep lines around sharp watchful blue eyes, wearing a patched white fur cloak over worn leather armor with a longbow of pale yew held loosely at her side, standing in quiet stillness at the edge of a frozen river at dusk with the last orange light reflecting off the ice and dark pine silhouettes behind her, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Nordveld Assassin Male — Variant 2**
+Half-body portrait of a compact muscular man in his late 30s with a shaved head and short blonde stubble and a network of thin scars across his neck and jaw, wearing dark grey leather armor fitted tight beneath a wolf-fur mantle with the hood pulled back, cleaning a serrated bone-handled knife with an oiled cloth and a distant vacant stare, sitting on a wooden bench in a dim smoky mead hall with passed-out drunks slumped at tables behind him, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Nordveld Assassin Male — Variant 3**
+Half-body portrait of a tall gaunt young man in his early 20s with pale platinum hair falling over one eye and sharp Nordic features with an unsettling faint smile, wearing a dark hooded cloak lined with black fur over supple leather armor with silver buckles, pressing himself flat against a snow-covered log wall while gripping a hand-axe, hiding in shadow outside a lamplit window of a jarl's timber hall on a dark winter night with stars overhead, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Nordveld Assassin Female — Variant 2**
+Half-body portrait of a broad-hipped powerful woman in her early 40s with ash-blonde hair in tight cornrow braids and a broken nose and hard flinty eyes, wearing dark boiled leather armor with bone clasps over black wool wrappings on her forearms, drawing a pair of short curved seaxes from crossed back sheaths with practiced calm, standing in a narrow torchlit mountain pass with jagged rocks and swirling snow obscuring the path behind her, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Nordveld Assassin Female — Variant 3**
+Half-body portrait of a lithe young woman in her early 20s with platinum blonde hair cropped ragged and short with one side shaved revealing a small tattooed rune behind her ear, wearing a form-fitting dark grey leather tunic with a deep hood pushed back and a thin chain necklace with a single fang pendant, balancing a throwing knife on her fingertip with a bored cocky expression, leaning against a wooden dock post at a frozen harbor at night with longships creaking in dark water behind her, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+---
+
+## Human — Meridian (Italian/Corsair, olive skin, dark hair) — Variants
+
+**Meridian Warrior Male — Variant 2**
+Half-body portrait of a young Meridian man in his early 20s with olive skin and a mess of curly black hair falling over one eye, lean and wiry build, wearing a battered leather cuirass over a loose linen shirt, cocky smirk on his face, resting a chipped shortsword on his shoulder, leaning against a crumbling harbor wall with Mediterranean fishing boats blurred in the background, golden hour light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Meridian Warrior Male — Variant 3**
+Half-body portrait of a grizzled Meridian veteran in his late 50s with deep olive skin weathered by decades of sun, silver-streaked hair pulled into a short ponytail, thick scar running from his left temple across a broken nose, barrel-chested and broad-shouldered, wearing heavy iron-rimmed plate over quilted gambeson, arms crossed, standing in a torchlit stone armory surrounded by racks of weapons, expression stern and unimpressed, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Meridian Warrior Female — Variant 2**
+Half-body portrait of a stocky Meridian woman in her mid-40s with sun-darkened olive skin and short-cropped black hair streaked with grey, a jagged scar across her chin, wearing dented brigandine armor with a red sash tied at the waist, mid-swing with a heavy falchion, teeth gritted in effort, standing on a rain-soaked cobblestone street with burning buildings flickering behind her, sweat and rain on her face, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Meridian Warrior Female — Variant 3**
+Half-body portrait of a tall slender Meridian woman in her early 20s with warm olive skin and long wavy dark brown hair braided away from her face, bright determined eyes, wearing polished half-plate over a crimson tunic, holding a round shield at her side and a spear upright, standing at attention on sunlit fortress battlements overlooking a dusty valley, expression proud and eager, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Meridian Wizard Male — Variant 2**
+Half-body portrait of an elderly Meridian sorcerer in his mid-60s with deeply lined olive skin and a long thin white beard, gaunt hollow cheeks, wearing layered dark indigo robes embroidered with silver astronomical charts, hunched over a cluttered desk covered in scrolls and astrolabes in a candlelit tower study, one bony hand tracing a glowing sigil in the air, expression intense and obsessive, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Meridian Wizard Male — Variant 3**
+Half-body portrait of a young Meridian mage in his late 20s with olive skin and thick black hair slicked back, clean-shaven with sharp features, athletic build unusual for a scholar, wearing an open wine-colored robe over a fitted dark tunic, one hand crackling with pale blue lightning, standing on a windswept coastal cliff with storm clouds and crashing waves behind him, expression focused and exhilarated, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Meridian Wizard Female — Variant 2**
+Half-body portrait of a middle-aged Meridian sorceress in her late 30s with warm olive skin and thick dark hair piled high in an elaborate braided updo secured with bronze pins, curvaceous build, wearing layered burgundy and gold robes with a high collar, reading from a floating leather-bound grimoire in a dim library filled with towering bookshelves, arcane light reflecting in her dark focused eyes, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Meridian Wizard Female — Variant 3**
+Half-body portrait of an old Meridian witch in her late 50s with pale olive skin and wild silver-white hair flowing loose past her shoulders, thin angular face with deep-set knowing eyes, wearing a threadbare dark green cloak clasped with a tarnished copper brooch, stirring a bubbling cauldron in a cluttered apothecary workshop hung with dried herbs and animal bones, faint smile on her weathered lips, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Meridian Priest Male — Variant 3**
+Half-body portrait of a young Meridian priest in his early 20s with smooth olive skin and short neatly trimmed black hair, round soft face with gentle brown eyes, wearing simple undyed linen vestments with a woven rope belt and a small wooden sun pendant, kneeling in prayer in a quiet monastery garden with lavender and rosemary bushes, morning mist around him, hands clasped together, expression serene and devout, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Meridian Priest Female — Variant 2**
+Half-body portrait of a heavyset Meridian priestess in her mid-50s with deep olive skin and grey-streaked black hair covered by a cream linen veil, warm maternal face with laugh lines, wearing layered white and gold ceremonial robes, holding a golden censer trailing fragrant smoke, standing inside a candlelit cathedral with stained glass casting colored light across her face, expression compassionate and weary, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Meridian Priest Female — Variant 3**
+Half-body portrait of a young athletic Meridian priestess in her mid-20s with tanned olive skin and dark hair cut bluntly at the jaw, intense dark eyes with a no-nonsense expression, wearing practical traveling vestments of cream linen over leather bracers, a holy symbol branded into her right forearm, tending to a wounded soldier in a muddy battlefield camp with tents and smoke in the background, hands glowing faintly with healing light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Meridian Archer Male — Variant 2**
+Half-body portrait of a wiry Meridian man in his late 30s with weathered olive skin and a thick black mustache, narrow calculating eyes, lean ropey muscles, wearing a worn leather jerkin over a faded green tunic, drawing a yew longbow with calloused fingers, perched on a terracotta rooftop overlooking a moonlit Mediterranean port town, quiver of white-fletched arrows at his back, expression calm and predatory, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Meridian Archer Male — Variant 3**
+Half-body portrait of a broad-shouldered Meridian man in his early 50s with deep olive skin and salt-and-pepper stubble, a missing left ear replaced by a ragged scar, wearing a heavy hooded cloak over boiled leather armor, resting a composite recurve bow across his knees while sitting on a fallen log in a dense autumnal forest, a waterskin in one hand, expression tired but vigilant, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Meridian Archer Female — Variant 2**
+Half-body portrait of a petite Meridian woman in her early 20s with light olive skin and long straight black hair tied in a low ponytail, bright mischievous eyes, wearing a fitted dark brown leather vest over a cream blouse with rolled sleeves, spinning a single arrow between her fingers, leaning against a wooden fence post in a sun-dappled vineyard with rolling Tuscan-style hills behind her, expression playful and confident, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Meridian Archer Female — Variant 3**
+Half-body portrait of a tall muscular Meridian woman in her mid-40s with dark olive skin and short-cropped grey-black hair, a vertical scar through her left eyebrow, hard jawline, wearing a chainmail-reinforced leather hauberk with a quiver of black-fletched arrows over one shoulder, nocking an arrow on a heavy war bow in a smoke-filled burning village at night, expression grim and resolute, firelight reflecting off her armor, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Meridian Assassin Male — Variant 3**
+Half-body portrait of a heavyset Meridian man in his late 40s with olive skin and a thick black beard going grey at the edges, deep-set dark eyes with heavy brows, a network of thin scars across his knuckles, wearing a dark wine-colored doublet with concealed blade sheaths visible at the collar, cleaning a stiletto with a cloth in a dimly lit tavern back room, a half-empty bottle of wine on the table, expression world-weary and dangerous, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Meridian Assassin Female — Variant 3**
+Half-body portrait of a lithe Meridian woman in her early 30s with pale olive skin and wavy auburn-black hair falling to her shoulders, sharp cheekbones and full lips painted dark red, wearing a fitted black leather corset over a deep plum silk blouse with billowing sleeves, pressing herself flat against a shadowed marble column in an opulent palazzo, a curved dagger held reverse-grip against her chest, expression cold and patient, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+---
+
+## Human — Zah'kari (West African, dark skin, textured hair) — Variants
+
+**Zah'kari Warrior Male — Variant 2**
+Half-body portrait of a massive Zah'kari man in his late 40s with deep dark skin and a shaved head bearing ritual scarification lines across his scalp, broad flat nose and a thick jaw, mountainous shoulders and arms covered in old battle scars, wearing a breastplate of hammered bronze over a hide tunic, gripping a heavy iron-banded war club in one fist, standing on a dusty red-earth savanna with baobab trees silhouetted against a setting sun, expression fierce and unyielding, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Zah'kari Warrior Male — Variant 3**
+Half-body portrait of a young Zah'kari warrior in his early 20s with rich dark brown skin and short twisted coils of black hair, lean athletic build with a fresh scar across his collarbone, bright eager eyes, wearing layered leather lamellar armor decorated with small bone charms, holding a tall oval wooden shield painted with geometric red and white patterns, walking through tall golden grass toward a distant fortified village, expression proud and nervous before his first real battle, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Zah'kari Warrior Female — Variant 2**
+Half-body portrait of a powerfully built Zah'kari woman in her mid-30s with dark umber skin and long thick locs pulled back and bound with gold wire, ritual scarification dots along both cheekbones, wearing heavy leather-and-iron scale armor with a leopard pelt draped over one shoulder, mid-shout rallying troops with a raised broad-bladed spear, standing at the front gate of a sandstone fortress under siege with arrows streaking overhead, expression commanding and fearless, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Zah'kari Warrior Female — Variant 3**
+Half-body portrait of an aging Zah'kari woman in her late 50s with deep black skin lined with age and sun, close-cropped white hair, missing her left eye with the socket covered by a stitched leather patch, wiry but strong build, wearing a battered chainmail hauberk over faded indigo cloth, resting both hands on the pommel of a greatsword planted tip-down in cracked earth, standing alone on a quiet hilltop at dawn, expression contemplative and haunted, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Zah'kari Wizard Male — Variant 2**
+Half-body portrait of a gaunt Zah'kari elder in his early 60s with ashen dark skin and a long white beard braided with tiny copper beads, sunken wise eyes ringed with white ritual paint, wearing voluminous earth-brown robes layered with strings of carved bone talismans and dried seedpods, holding a gnarled staff topped with a glowing amber crystal, standing in a sacred grove of ancient twisted trees draped in moss, fireflies floating around him, expression patient and unknowable, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Zah'kari Wizard Male — Variant 3**
+Half-body portrait of a young Zah'kari man in his mid-20s with smooth dark brown skin and a tall sculptured hi-top fade, clean-shaven with sharp intelligent features, gold hoop earrings in both ears, wearing a fitted deep teal robe with geometric gold embroidery over one shoulder, both hands conjuring swirling orange sand magic that spirals upward between his palms, standing in a sunlit open-air library with sandstone columns and hanging silk curtains, expression curious and ambitious, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Zah'kari Wizard Female — Variant 2**
+Half-body portrait of a stout Zah'kari woman in her mid-40s with rich dark skin and long thin braids wrapped in colorful thread and cowrie shells cascading past her shoulders, round warm face with white chalk symbols painted on her forehead, wearing layered robes of deep ochre and burnt orange with a wide beaded collar, grinding herbs with a stone mortar and pestle while sitting cross-legged before a crackling fire in a torch-lit underground cavern, expression meditative and focused, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Zah'kari Wizard Female — Variant 3**
+Half-body portrait of a tall willowy Zah'kari woman in her early 20s with deep ebony skin and a shaved head with intricate geometric scarification patterns across her scalp, high cheekbones and large expressive eyes, wearing a sleeveless white linen robe belted with a sash of woven gold thread, one hand raised with crackling violet energy arcing between her long fingers, standing on a wind-blown cliff edge above churning river rapids at twilight, expression awestruck by her own emerging power, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Zah'kari Priest Male — Variant 2**
+Half-body portrait of a broad heavy Zah'kari man in his early 50s with deep dark skin and a full grey beard, warm crinkled eyes, thick neck bearing layered necklaces of carved ivory and polished river stones, wearing flowing white ceremonial robes trimmed with gold thread and a tall cylindrical headdress wrapped in white linen, holding a wooden staff carved with ancestral faces, standing inside a great mudbrick temple with shafts of dusty sunlight streaming through high windows, expression gentle and authoritative, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Zah'kari Priest Male — Variant 3**
+Half-body portrait of a young slight Zah'kari man in his early 20s with smooth dark brown skin and short natural hair, wide earnest eyes and a soft uncertain jawline, wearing simple undyed cotton robes with a single string of wooden prayer beads around his neck, carefully pouring water from a clay vessel into a stone basin in a quiet rain-soaked village shrine surrounded by tropical plants, expression contemplative and humble, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Zah'kari Archer Male — Variant 2**
+Half-body portrait of a lanky Zah'kari man in his late 30s with dark mahogany skin and shoulder-length freeform locs tied loosely back, angular face with a thin vertical scar down his left cheek, lean sinewy arms, wearing a sleeveless hide vest over bare chest with geometric tattoos across his shoulders, pulling back a massive African-style recurve bow with a bone-tipped arrow, crouching in tall dry grass on a golden savanna at midday, expression focused and predatory, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Zah'kari Archer Male — Variant 3**
+Half-body portrait of a stocky Zah'kari man in his mid-50s with deep black skin weathered by years outdoors and close-cropped grey hair, thick forearms and broad hands, a bone nose ring and three gold studs in his right ear, wearing layered dark green and brown leather hunting armor with a quiver of red-fletched arrows, sitting on a thick tree branch high in the forest canopy whittling a new arrow shaft with a small knife, expression peaceful and unhurried, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Zah'kari Archer Female — Variant 2**
+Half-body portrait of a young athletic Zah'kari woman in her early 20s with smooth dark skin and an intricate crown of tight cornrow braids swept upward, bright defiant eyes and a small gold nose stud, lean muscular arms, wearing a fitted leather chest guard over a short orange-dyed tunic, firing an arrow in mid-release with perfect form, standing at the edge of a red sandstone canyon with vultures circling in a pale sky above, expression sharp and exhilarated, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Zah'kari Archer Female — Variant 3**
+Half-body portrait of a tall weathered Zah'kari woman in her late 40s with deep umber skin and long grey-streaked locs coiled into a thick bun, ritual scarification lines across her jawline, lean but strong build, wearing a faded brown leather longcoat over cloth wraps, her unstrung bow slung across her back, walking through a misty mangrove swamp at dawn carrying a brace of game birds over one shoulder, expression quiet and self-sufficient, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Zah'kari Assassin Male — Variant 2**
+Half-body portrait of a young wiry Zah'kari man in his early 20s with dark brown skin and a short bleached-blond buzz cut, sharp narrow eyes and a thin cruel mouth, a fresh knife scar across the bridge of his nose, wearing a close-fitted black leather jacket with a high collar and dark wraps around his forearms concealing hidden blades, pressing against a shadowed mud-brick wall in a crowded moonlit market alley, expression hungry and reckless, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Zah'kari Assassin Male — Variant 3**
+Half-body portrait of a large imposing Zah'kari man in his late 40s with very dark skin and a shaved head, broad flat features with heavy-lidded calculating eyes, thick neck and powerful shoulders that belie his silent profession, wearing dark indigo robes that look priestly at first glance but conceal layered weapon sheaths, arms folded with a garotte wire visible coiled around one wrist, standing in a torch-lit stone corridor of a palace, expression calm and absolutely lethal, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Zah'kari Assassin Female — Variant 2**
+Half-body portrait of a petite Zah'kari woman in her early 30s with rich dark skin and long micro braids pulled into a high wrapped ponytail, delicate features with deceptively soft doe eyes, small gold rings along both ears, wearing form-fitting charcoal grey leather armor under a loose black silk shawl, dipping a slender needle-like blade into a small vial of green poison, sitting at a wooden table in a dimly lit room with a single candle, expression serene and methodical, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Zah'kari Assassin Female — Variant 3**
+Half-body portrait of a tall rangy Zah'kari woman in her late 50s with deep weathered black skin and stark white natural hair cropped close, hollow cheeks and deep lines around a hard unsmiling mouth, ritual scarification chevrons along both forearms, wearing dark mottled leather and cloth wraps that blend into shadow, crouched on a rain-slicked rooftop at night with a curved dagger drawn, the glow of distant fires reflected in her flat unreadable eyes, expression of someone who has killed more times than she can remember, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+---
+
+## Human — Tianzhou (Chinese, East Asian features) — Variants
+
+**Tianzhou Warrior Male — Variant 2**
+Half-body portrait of a young Chinese man in his early 20s with a shaved head and a thin scar across his nose, wearing battered iron lamellar armor over a sweat-stained cotton tunic, gripping a chipped dao sword at his side, standing in pouring rain on a muddy riverbank with distant burning watchtowers, expression exhausted but defiant, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Tianzhou Warrior Male — Variant 3**
+Half-body portrait of a weathered East Asian man in his late 50s with a thick gray beard and deep crow's feet, heavyset and broad-shouldered, wearing ornate bronze-plated mountain armor with fur-lined pauldrons, resting a massive guandao polearm across his shoulders, standing on a snow-covered mountain pass at dusk, his breath visible in the cold air, calm and unyielding gaze, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Tianzhou Warrior Female — Variant 2**
+Half-body portrait of a muscular Chinese woman in her mid-30s with her black hair pulled into a tight warrior's topknot, a jagged burn scar covering her left cheek, wearing heavy Song dynasty-style plate and scale armor darkened with soot, mid-swing with a two-handed jian sword against an unseen foe, standing in a burning village courtyard with embers drifting upward, fierce snarling expression, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Tianzhou Warrior Female — Variant 3**
+Half-body portrait of a slender East Asian woman in her early 20s with long unbound black hair whipping in the wind, wearing light leather brigandine armor with jade-green lacquered plates, clutching a round shield and short dao, walking cautiously through a fog-shrouded bamboo forest at dawn, wide alert eyes scanning the tree line, nervous energy in her posture, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Tianzhou Wizard Male — Variant 2**
+Half-body portrait of a gaunt Chinese man in his mid-60s with a long wispy white beard and hollow cheeks, wearing threadbare indigo scholar's robes covered in faded ink calligraphy, holding a smoldering talisman between bony fingers that crackles with pale blue lightning, hunched over a stone desk in a cluttered mountain hermitage filled with scrolls and candle stubs, intense obsessive stare, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Tianzhou Wizard Male — Variant 3**
+Half-body portrait of a stocky East Asian man in his late 20s with a round face and thick black hair in a loose bun, wearing richly embroidered crimson and gold court robes, conjuring a swirling orb of green spirit-fire between both palms, standing in a grand pagoda library with towering shelves of jade tablets behind him, confident smirk on his lips, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Tianzhou Wizard Female — Variant 2**
+Half-body portrait of an elderly Chinese woman in her late 50s with silver-streaked hair in an elaborate coiled updo held by bone hairpins, gaunt and sharp-featured, wearing layered black and violet daoist ceremonial robes, reading from a glowing ancient scroll that illuminates her face in amber light, seated in a candlelit cave shrine with incense smoke curling around her, serene and knowing expression, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Tianzhou Wizard Female — Variant 3**
+Half-body portrait of a young East Asian woman in her early 20s with short choppy black hair and an ink-stained face, petite and wiry, wearing a disheveled student's robe of pale gray linen with a leather satchel overflowing with scrolls, casting a shower of golden sparks from a crooked wooden staff, standing on a rain-soaked stone bridge over a misty gorge, wide-eyed and laughing with reckless joy, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Tianzhou Priest Male — Variant 2**
+Half-body portrait of a tall Chinese man in his early 40s with a cleanly shaved head and a calm square jaw, broad-shouldered and upright, wearing flowing saffron and white Buddhist-inspired temple robes with a bronze prayer wheel hanging from his belt, hands pressed together in prayer as golden light radiates from his palms, standing in a tranquil moonlit courtyard with a lotus pond behind him, peaceful and grounded expression, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Tianzhou Priest Male — Variant 3**
+Half-body portrait of a frail East Asian man in his late 60s with a long thin white mustache and milky left eye, stooped and leaning on a gnarled wooden cane, wearing patched and faded temple robes of deep green with prayer beads wrapped around his wrist, pressing a glowing healing talisman against an unseen wounded person just out of frame, kneeling on a blood-spattered battlefield at twilight, sorrowful but determined expression, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Tianzhou Priest Female — Variant 2**
+Half-body portrait of a young Chinese woman in her early 20s with long straight black hair and a round gentle face, wearing pristine white temple vestments with silver crane embroidery and a jade pendant at her throat, cradling a bowl of glowing sacred water that casts rippling light across her features, standing in a misty mountain temple at sunrise with pine trees visible through open screens, expression soft and reverent, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Tianzhou Priest Female — Variant 3**
+Half-body portrait of a heavyset East Asian woman in her late 40s with gray-streaked hair in a practical low braid and laugh lines around her eyes, wearing weathered traveling priest's robes of earth-brown with a heavy iron holy symbol around her neck, grinding medicinal herbs with a stone mortar and pestle, sitting in a cluttered village apothecary hut with dried plants hanging from the rafters, warm maternal smile on her face, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Tianzhou Archer Male — Variant 2**
+Half-body portrait of a lean Chinese man in his mid-30s with a sharp angular face and a long black ponytail, a thin mustache and three parallel claw-mark scars across his neck, wearing dark forest-green leather armor with bamboo-plated shoulder guards, drawing a recurve horn bow at full tension with an arrow nocked, crouching on a misty cliffside overlooking a vast river valley at dawn, eyes narrowed with predatory focus, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Tianzhou Archer Male — Variant 3**
+Half-body portrait of a stocky East Asian man in his late 50s with a grizzled short gray beard and weathered sun-darkened skin, wearing a worn padded leather jerkin over a faded blue tunic with a quiver of black-fletched arrows on his back, sitting on a fallen log in a quiet autumn forest cleaning his composite bow with an oiled cloth, pine needles in his hair, relaxed weary expression of a veteran, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Tianzhou Archer Female — Variant 2**
+Half-body portrait of a tall athletic Chinese woman in her early 20s with her black hair in twin braids and a smudge of charcoal across her cheekbone, wearing light tan leather hunting armor with a red silk sash at her waist, mid-stride running through tall golden grass on a windy steppe, a short bow in one hand and a dead pheasant slung over her shoulder, fierce grin of exhilaration on her face, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Tianzhou Archer Female — Variant 3**
+Half-body portrait of a wiry East Asian woman in her mid-40s with short-cropped black hair streaked with silver and a missing left ear, wearing dark lacquered leather armor with a high collar, pressing her back against a crumbling stone wall in a narrow alley at night, a crossbow held vertically against her chest, eyes darting sideways with tense vigilance, blue moonlight casting hard shadows across her scarred face, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Tianzhou Assassin Male — Variant 2**
+Half-body portrait of a young Chinese man in his early 20s with a boyish face and soft features that belie his profession, hair in a neat topknot with a silk ribbon, wearing form-fitting black night-raid clothing with a short hooded cloak, delicately coating a thin needle blade with violet poison from a ceramic vial, perched on a tiled rooftop overlooking a lantern-lit canal district at night, expression cold and emotionless, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Tianzhou Assassin Male — Variant 3**
+Half-body portrait of a burly East Asian man in his mid-40s with a broad broken nose and a shaved head covered in faded tattoo patterns, thick-necked and intimidating, wearing dark gray layered peasant clothing that conceals armored plates beneath, gripping a heavy meat cleaver in one hand with blood-spattered knuckles, standing in a dim smoky kitchen of a riverside tavern, menacing half-smile revealing a gold tooth, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Tianzhou Assassin Female — Variant 3**
+Half-body portrait of a lithe Chinese woman in her mid-30s with a sharp widow's peak and long black hair flowing loose over one shoulder, a thin scar bisecting her right eyebrow, wearing elegant dark silk robes that conceal throwing knives along the inner lining, leaning casually against a painted wooden pillar in a candlelit teahouse, one hand toying with a jade ring while her eyes watch someone across the room with predatory patience, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+---
+
+## Human — Khor'vani (Middle Eastern/South Asian, brown skin) — Variants
+
+**Khor'vani Warrior Male — Variant 2**
+Half-body portrait of a towering South Asian man in his late 30s with rich brown skin, a thick black beard braided with bronze rings, and a turban of deep crimson wrapped tightly around his head, wearing heavy chainmail over a sand-colored gambeson with geometric engravings on the steel pauldrons, raising a curved tulwar sword overhead mid-battlecry, standing in a dusty fortress courtyard with siege smoke billowing behind him, veins bulging in his neck with raw fury, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khor'vani Warrior Male — Variant 3**
+Half-body portrait of a young Middle Eastern man in his early 20s with warm brown skin, a clean-shaven jaw, and short curly black hair, lean and wiry with a nervous energy, wearing light leather scale armor with a dented iron breastplate clearly too large for him, holding a scimitar awkwardly in both hands, standing at the edge of a desert canyon at golden hour with wind whipping sand across his face, wide-eyed and breathing hard as if his first battle just ended, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khor'vani Warrior Female — Variant 2**
+Half-body portrait of a powerfully built South Asian woman in her mid-40s with deep brown skin, silver streaks in her black hair worn in a thick braid over one shoulder, and a prominent hawk nose, wearing battle-worn lamellar armor with a desert-fox fur mantle, resting a massive round steel shield on the ground beside her while wrapping a bloody bandage around her forearm, standing in a torchlit desert camp at night with tents behind her, weary but unbroken gaze, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khor'vani Warrior Female — Variant 3**
+Half-body portrait of a young Middle Eastern woman in her early 20s with olive-brown skin, large dark eyes rimmed with kohl, and wild curly black hair barely contained by a leather headband, slim and agile-looking, wearing light bronze-studded leather armor with flowing indigo fabric beneath, twirling a pair of short curved daggers with practiced ease, standing on a sandstone rooftop overlooking a moonlit desert city with domed buildings below, cocky confident smirk, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khor'vani Wizard Male — Variant 2**
+Half-body portrait of an ancient Middle Eastern man in his late 60s with dark brown wrinkled skin, a massive white beard reaching his chest, and a tall spiraling turban of midnight blue, gaunt and skeletal-thin, wearing layered robes of deep purple covered in golden astronomical symbols and geometric patterns, holding aloft an astrolabe that radiates concentric rings of turquoise light, standing in a crumbling desert observatory with star charts painted on the domed ceiling above, expression of transcendent wonder, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khor'vani Wizard Male — Variant 3**
+Half-body portrait of a young South Asian man in his late 20s with warm brown skin, a neatly trimmed goatee, and shoulder-length wavy black hair, handsome and sharp-featured, wearing a richly embroidered emerald and gold kaftan with wide sleeves, conjuring a serpent of orange flame that coils between his outstretched fingers, standing in a luxurious tiled courtyard beside a bubbling fountain with mosaic walls behind him, charming self-assured smile, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khor'vani Wizard Female — Variant 2**
+Half-body portrait of a middle-aged South Asian woman in her late 40s with deep brown skin and silver-streaked black hair worn loose and windswept, heavyset with strong arms, wearing flowing desert robes of burnt orange and black with henna-patterned hands, slamming a gnarled iron-shod staff into cracked earth as a shockwave of amber energy ripples outward, standing in a barren salt flat under a bruised stormy sky, expression of righteous anger and raw power, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khor'vani Wizard Female — Variant 3**
+Half-body portrait of a young Middle Eastern woman in her early 20s with light brown skin and freckles across her nose, dark curly hair cropped short and practical, thin and bookish with ink-stained fingers, wearing a simple scholar's robe of cream linen with a leather belt hung with pouches of spell components, studying a floating constellation of tiny blue lights that orbit her open palm, sitting cross-legged on cushions in a cluttered bazaar fortune-teller's tent, expression of quiet fascinated concentration, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khor'vani Priest Male — Variant 2**
+Half-body portrait of a massive South Asian man in his late 50s with dark brown skin, a bald head, and a thick gray beard, barrel-chested and imposing, wearing heavy ceremonial robes of white and gold with a broad jeweled pectoral collar and prayer beads the size of walnuts, pressing both palms together as radiant golden light pours from his clasped hands, standing in a grand sandstone mosque archway with geometric tilework glowing behind him, booming authoritative presence, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khor'vani Priest Male — Variant 3**
+Half-body portrait of a thin young Middle Eastern man in his early 20s with light brown skin, a wispy attempt at a beard, and earnest dark eyes, wearing simple undyed cotton priest's robes with a plain hemp rope belt and worn leather sandals, kneeling in the sand beside a desert oasis at dawn to wash his hands in the clear water, a crescent-shaped holy symbol hanging from a cord around his neck, humble and devout expression of quiet prayer, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khor'vani Priest Female — Variant 2**
+Half-body portrait of an elderly South Asian woman in her early 60s with deep brown weathered skin and pure white hair beneath a draped indigo headscarf, small and hunched but with piercing bright eyes, wearing layered traveling robes of faded blue and gray patched many times over, holding a smoking censer on a bronze chain that trails fragrant white smoke, walking along a dusty desert road at sunset with a distant caravan silhouetted on the horizon, expression of ancient enduring wisdom, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khor'vani Priest Female — Variant 3**
+Half-body portrait of a tall Middle Eastern woman in her early 30s with warm brown skin, strong cheekbones, and long black hair partially covered by a gold-trimmed ivory veil, athletic build visible beneath fitted temple robes of white and turquoise with silver crescent embroidery, channeling a beam of soft white healing light from her right hand onto a wounded soldier below the frame, standing in a field hospital tent with bloodied cots behind her, expression of fierce compassion and exhaustion, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khor'vani Archer Male — Variant 2**
+Half-body portrait of a wiry Middle Eastern man in his mid-30s with brown skin, a hawkish nose, and a short black beard with a streak of white at the chin, wearing light desert scout armor of layered tan leather with a sand-colored keffiyeh wrapped around his head and neck, drawing a long recurve bow with practiced precision while squinting one eye shut, crouching atop a wind-eroded sandstone mesa overlooking an endless dune sea at midday, focused and calculating expression, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khor'vani Archer Male — Variant 3**
+Half-body portrait of a heavyset South Asian man in his late 50s with dark brown skin, a thick gray mustache, and deep-set tired eyes, wearing a faded olive-green leather jerkin over chainmail with a massive quiver of iron-tipped arrows on his back, sitting on a stone bench in a quiet oasis garden cleaning arrowheads with a whetstone, date palms and a trickling fountain behind him, weary half-smile of a man who has seen too many campaigns, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khor'vani Archer Female — Variant 2**
+Half-body portrait of a young South Asian woman in her early 20s with rich brown skin and long black hair in a single thick braid threaded with small gold beads, bright eager eyes and henna-decorated hands, wearing supple desert leather armor dyed deep red with a shortbow slung across her back, reaching into a belt quiver for an arrow while scanning the horizon from a mudbrick watchtower at dusk, warm amber light catching the determination on her face, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khor'vani Archer Female — Variant 3**
+Half-body portrait of a scarred Middle Eastern woman in her mid-40s with weathered brown skin, a missing right eye covered by a black leather patch, and short-cropped graying black hair, lean and sinewy, wearing dark brown ranger's leather with a tattered desert cloak, aiming a heavy crossbow one-handed while bracing it against a crumbling mudbrick wall in a narrow alley of a war-torn desert town, dust and debris in the air, grim unflinching expression, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khor'vani Assassin Male — Variant 2**
+Half-body portrait of a lithe Middle Eastern man in his early 20s with light brown skin, clean-shaven with sharp cheekbones and large dark eyes, wearing tight-fitting black cloth wrappings over a dark leather vest with a deep hood pulled low to shadow his face, balancing a curved jambiya dagger on one fingertip while leaning against a shadowed doorway in a moonlit bazaar alley with hanging lanterns in the distance, playful and dangerous half-smile, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khor'vani Assassin Male — Variant 3**
+Half-body portrait of a broad-shouldered South Asian man in his late 40s with dark brown skin, a heavy jaw, and a shaved head covered in intricate geometric tattoos, intimidating and thick-bodied, wearing layered dark gray desert robes that conceal a bandolier of throwing knives across his chest, coating a curved blade with a dark oily poison from a stoppered horn vial, crouching in the shadows of a sandstone sewer tunnel with water dripping around him, cold expressionless killer's stare, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khor'vani Assassin Female — Variant 2**
+Half-body portrait of a petite South Asian woman in her early 30s with warm brown skin, delicate features, and elaborately braided black hair pinned with silver needles that double as weapons, wearing a rich silk dancer's outfit of deep violet and black that conceals lightweight armor beneath, holding a thin garrote wire taut between both gloved hands, standing in a perfumed harem chamber with silk curtains and flickering oil lamps casting warm shadows, serene beautiful face betraying nothing of her intent, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khor'vani Assassin Female — Variant 3**
+Half-body portrait of a tall wiry Middle Eastern woman in her late 50s with deep brown sun-ravaged skin, hollow cheeks, and iron-gray hair hidden beneath a tightly wrapped black headscarf leaving only her eyes visible, wearing nondescript desert traveler's robes caked with road dust over concealed leather armor, pressing a bloodied curved knife flat against her own thigh as she peers around a sandstone corner in a narrow desert canyon at twilight, eyes bright and calculating with decades of lethal experience, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+---
+
+## Elf — Silvaneth (Forest elf, Gaelic, fair skin with green/amber tones, pointed ears) — Variants
+
+**Silvaneth Warrior Male — Variant 2**
+Half-body portrait of a young Silvaneth warrior with wild copper hair tangled with twigs, lean athletic build, amber eyes burning with fierce determination, fresh scars across his cheek, wearing living-wood breastplate sprouting green moss, gripping a thorn-wrapped sword mid-swing, standing in a rain-soaked ancient forest clearing with mist curling between massive oaks, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Warrior Male — Variant 3**
+Half-body portrait of a weathered ancient Silvaneth warrior with bark-like skin texture creeping up his neck and jawline, long silver-green hair in matted war braids, deep-set green eyes heavy with centuries of battle weariness, broad shoulders clad in scarred living-oak plate armor fused with amber resin, resting a massive moss-covered greatsword across his shoulder, standing before a burning treeline at dusk with embers drifting upward, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Warrior Female — Variant 2**
+Half-body portrait of a tall imposing Silvaneth shieldmaiden with close-cropped dark green hair and a jagged scar bisecting one amber eye, muscular build, bark-textured skin along her forearms, wearing battle-worn living-wood scale armor laced with dried vines, holding a cracked wooden shield defensively, standing in a moonlit sacred grove littered with fallen enemies, expression grim and resolute, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Warrior Female — Variant 3**
+Half-body portrait of a lithe youthful Silvaneth warrior woman with flowing auburn hair adorned with small white wildflowers, bright green-gold eyes wide with adrenaline, light living-bark armor over a woven moss tunic, mid-lunge with a curved wooden glaive, perched on a massive tree branch high in the canopy with shafts of golden light filtering through leaves below her, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Wizard Male — Variant 2**
+Half-body portrait of a gaunt elderly Silvaneth druid with paper-thin bark-like skin stretched over sharp cheekbones, long white hair draped like Spanish moss, hollow amber eyes glowing faintly with inner light, skeletal fingers wrapped around a gnarled living staff blooming with ghostly pale flowers, standing in a fog-choked dead forest where trees have turned to stone, expression sorrowful and distant, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Wizard Male — Variant 3**
+Half-body portrait of a young wild-eyed Silvaneth mage with short tousled emerald hair and vines growing directly from his temples, lean feral build, green-amber eyes crackling with raw natural energy, bare-chested with spiraling thorn tattoos across his torso, both hands raised as swirling leaves and green fire orbit his palms, kneeling in a bioluminescent mushroom grove deep underground, expression ecstatic and dangerous, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Wizard Female — Variant 2**
+Half-body portrait of a mature Silvaneth enchantress with waist-length silver-green hair woven with tiny glowing amber crystals, soft bark texture along her temples, calm knowing green eyes, full figure draped in layered robes of living leaves that shift between autumn gold and spring green, one hand gently cradling a sphere of swirling pollen light, seated on a throne of twisted roots in a vast hollow tree chamber, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Wizard Female — Variant 3**
+Half-body portrait of a very young Silvaneth apprentice sorceress with short choppy dark green hair and large curious amber eyes, slight boyish build, pointed ears poking through her hair, wearing an oversized moth-silk robe covered in hand-stitched leaf patterns, studying a floating cluster of luminous seeds with intense concentration, surrounded by towering ancient bookshelves made of living wood in a tree-fortress library, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Priest Male — Variant 2**
+Half-body portrait of a broad-shouldered middle-aged Silvaneth priest with deep amber eyes and a kind weathered face, thick auburn beard braided with mistletoe, bark-like patches across his brow, wearing heavy robes of woven green moss over living-wood ceremonial armor, both hands raised in benediction as golden light pours down through a forest canopy, standing in a sacred stone circle overgrown with ancient ivy, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Priest Male — Variant 3**
+Half-body portrait of an impossibly ancient Silvaneth high priest whose entire body is slowly becoming a tree, bark skin covering most of his face leaving only piercing green eyes visible, thin wisps of white-green hair like willow fronds, gnarled root-like fingers clutching a staff of pure amber, standing motionless in a moonlit clearing surrounded by kneeling saplings that were once his disciples, expression serene and transcendent, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Priest Female — Variant 2**
+Half-body portrait of a fierce young Silvaneth priestess with shaved sides and a tall crest of bright copper hair, intense amber eyes rimmed with green face paint in ritual patterns, athletic build, wearing a breastplate of woven thorns over white linen robes stained with forest soil, mid-chant with one fist pressed to her heart, standing beside a roaring bonfire in a night-dark grove with sparks rising like fireflies, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Priest Female — Variant 3**
+Half-body portrait of a serene elderly Silvaneth priestess with long flowing white hair adorned with dried autumn leaves, deeply lined face with gentle bark texture along her jaw, warm green eyes full of compassion, plump matronly build wrapped in layered amber and brown robes, kneeling beside a crystal-clear forest spring tending to a wounded fawn with glowing hands, dappled afternoon light filtering through birch trees, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Archer Male — Variant 2**
+Half-body portrait of a wiry veteran Silvaneth ranger with a heavily scarred face and one milky blind eye, short-cropped dark green hair streaked with grey, lean hard build, wearing a cloak of layered dead leaves over mottled bark-leather armor, drawing a living-wood longbow with an arrow tipped in amber resin, crouched on a massive fallen log in a dense fog-shrouded forest, expression cold and calculating, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Archer Male — Variant 3**
+Half-body portrait of a very young Silvaneth scout barely past adolescence with tousled golden-green hair and wide bright amber eyes, slender willowy build with oversized pointed ears, light moss-woven tunic and a quiver of thorn arrows on his back, perched high in a silver birch tree overlooking a vast misty valley at dawn, bow resting across his knees, expression alert and curious with a hint of nervousness, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Archer Female — Variant 2**
+Half-body portrait of a tall powerful Silvaneth huntress with long braided dark auburn hair threaded with hawk feathers, sharp green eyes narrowed in focus, strong muscular arms drawing a massive recurve bow of dark living wood, bark-like skin along her shoulders and upper arms, wearing a sleeveless vest of woven vine-mail, standing at the edge of a cliff overlooking an endless ancient forest bathed in orange twilight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Archer Female — Variant 3**
+Half-body portrait of a petite agile Silvaneth archer with wild untamed white-green hair full of small leaves and cobwebs, feral amber eyes with slit-like pupils, thin wiry build, wearing ragged camouflage wrappings of bark and moss, three arrows held between her fingers mid-release in rapid succession, crouching in the hollow of a massive tree trunk in near-total darkness with only faint bioluminescent fungi providing light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Assassin Male — Variant 2**
+Half-body portrait of a gaunt middle-aged Silvaneth assassin with hollow cheeks and deep-set amber eyes that glow faintly in shadow, long lank dark green hair partially covering his face, lean predatory build, wearing form-fitting armor of blackened bark plates over dark moss wrappings, one hand emerging from his cloak holding a curved wooden dagger dripping with luminous green poison, lurking in the shadow of a massive root system in an underground forest cavern, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Assassin Male — Variant 3**
+Half-body portrait of a youthful Silvaneth shadowdancer with an androgynous beautiful face, short silver-green hair swept back, bright mischievous amber-gold eyes, lithe dancer build, wearing sleek dark living-wood armor with vine wrappings that seem to shift and blend with surroundings, balanced on a tree-fortress railing overlooking a moonlit elven settlement far below, twirling a pair of thorn stilettos casually, expression playful yet dangerous, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Assassin Female — Variant 2**
+Half-body portrait of a hardened older Silvaneth assassin woman with deep lines around her cold green eyes, grey-streaked dark hair pulled into a severe knot, bark-like skin creeping across one side of her face, compact powerful build, wearing layered dark leaf-scale armor, methodically coating a curved bone blade with milky poison extracted from a thorned flower she holds in her other hand, seated in a hollow tree trunk hideout lit by a single fungal lantern, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Assassin Female — Variant 3**
+Half-body portrait of a young wild Silvaneth assassin with tangled copper-red hair and feral amber eyes with an almost animal intensity, lithe and scarred build with claw marks across her collarbone, wearing minimal dark vine wrappings and blackened bark bracers, hanging upside down from a branch by her legs mid-descent toward an unseen target, twin wooden daggers in hand, deep dark forest at night with only pale moonbeams cutting through the canopy, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+---
+
+## Elf — Hauts-Cieux (Scholar elf, French, porcelain skin, elegant) — Variants
+
+**Hauts-Cieux Warrior Male — Variant 2**
+Half-body portrait of a towering mature Hauts-Cieux knight with a chiseled jaw and stern platinum eyes, short-cropped silver hair with a widow's peak, porcelain skin showing faint hairline cracks like aged marble, broad-shouldered build in ornate but tarnished mithril plate armor engraved with fading celestial constellations, resting a crystal-edged greatsword point-down before him, standing on a crumbling sky-temple balcony overlooking an infinite cloudscape at dusk, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Warrior Male — Variant 3**
+Half-body portrait of a young Hauts-Cieux squire-knight with flowing white hair and large earnest pale blue eyes, smooth unblemished porcelain skin, lean youthful build still growing into his too-large inherited mithril breastplate etched with his family's faded star crest, gripping a slender crystal-tipped longsword nervously, walking through the ruins of a collapsed floating palace with cracked marble pillars and overgrown silver vines, expression determined despite visible fear, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Warrior Female — Variant 2**
+Half-body portrait of a battle-hardened Hauts-Cieux warrior woman with platinum hair shorn to her jawline and a prominent scar across her nose, sharp silver eyes full of cold authority, athletic powerful build, wearing practical battle-scarred mithril half-plate over a dark blue surcoat with a tattered celestial banner, mid-stride through a shattered crystal corridor with starlight pouring through broken walls, carrying a heavy mithril war-hammer over one shoulder, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Warrior Female — Variant 3**
+Half-body portrait of an elegant tall Hauts-Cieux champion with waist-length silver-white hair in an elaborate braided crown, luminous pale violet eyes, porcelain skin with a faint pearlescent sheen, statuesque build in immaculate ceremonial mithril armor inlaid with moonstones and celestial filigree, holding a crystalline shield that reflects starlight, standing guard on a moonlit terrace of a floating citadel with aurora-like lights rippling across the sky behind her, expression noble and melancholic, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Wizard Male — Variant 2**
+Half-body portrait of a frail ancient Hauts-Cieux archmage with deeply hollowed cheeks and translucent porcelain skin revealing faint blue veins, wispy long white hair floating as if weightless, blind milky-silver eyes that still radiate arcane knowledge, emaciated build drowning in voluminous indigo robes embroidered with slowly rotating silver star charts, one trembling hand conjuring a miniature galaxy of light between his fingers, seated in a vast decaying crystal library with shelves stretching into infinite darkness, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Wizard Male — Variant 3**
+Half-body portrait of a handsome young Hauts-Cieux sorcerer with shoulder-length platinum hair and intense pale blue eyes crackling with restrained energy, sharp aristocratic features on flawless porcelain skin, lean elegant build in a fitted dark blue coat with silver astronomical instruments hanging from his belt, both hands gripping an open tome as luminous celestial equations spiral upward from its pages, standing in a sky-temple observatory with the glass ceiling showing a vast star field, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Wizard Female — Variant 2**
+Half-body portrait of a middle-aged Hauts-Cieux enchantress with silver hair streaked with dark grey pulled into a messy scholarly bun, tired but brilliant pale violet eyes behind delicate crystal spectacles, porcelain skin with worry lines, slender build wrapped in layered robes of midnight blue and silver, surrounded by dozens of floating crystalline orbs she is orchestrating with precise finger movements, working late in a cluttered arcane workshop atop a floating tower with starlight streaming through tall windows, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Wizard Female — Variant 3**
+Half-body portrait of a very young Hauts-Cieux prodigy with short choppy white hair and oversized luminous silver eyes that seem to see through reality, delicate porcelain features with an otherworldly quality, small slight build in a simple apprentice robe of pale grey with a single star clasp, hovering cross-legged in midair with raw starlight energy swirling around her uncontrollably, in a crumbling moonlit courtyard of an abandoned floating academy with crystal fragments orbiting her, expression intense and half-trance, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Priest Male — Variant 2**
+Half-body portrait of a powerfully built Hauts-Cieux templar-priest with a square jaw and short-cropped silver hair, stern pale blue eyes radiating quiet conviction, porcelain skin with the faintest luminous glow, imposing build in heavy white and silver ceremonial vestments over mithril chain, one hand raised projecting a dome of protective starlight, standing on the steps of a grand sky-cathedral with cracked stained-glass windows depicting forgotten celestial gods, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Priest Male — Variant 3**
+Half-body portrait of an aged contemplative Hauts-Cieux monk with long thin white beard and deeply lined porcelain face showing the weight of centuries, gentle sorrowful silver eyes, stooped thin build in simple unadorned grey robes with a single moonstone pendant, hands clasped in prayer before a small altar bearing a cracked crystal idol in a bare stone cell high in a floating ruin, pale dawn light entering through a narrow window, expression peaceful despite surrounding decay, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Priest Female — Variant 2**
+Half-body portrait of a young radiant Hauts-Cieux priestess with long flowing platinum hair and bright luminous silver-violet eyes, flawless porcelain skin with a subtle inner glow, graceful build in layered white silk vestments with celestial embroidery and a tall crystal-topped staff, arms spread wide channeling beams of pure moonlight downward, standing atop a floating crystal platform above endless clouds during a meteor shower, expression ecstatic and transcendent, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Priest Female — Variant 3**
+Half-body portrait of a weathered elderly Hauts-Cieux high priestess with cropped grey-white hair and deep-set pale eyes that have witnessed civilizational decline, gaunt porcelain face bearing ritual star-shaped scars on her forehead, thin dignified build in faded once-magnificent vestments of silver and deep blue now patched and worn, holding a guttering crystal lantern in both hands as she walks through a collapsing sky-temple corridor, dust and rubble falling around her, expression resolute and mournful, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Archer Male — Variant 2**
+Half-body portrait of a lean sharp-featured Hauts-Cieux sky-sentinel with swept-back platinum hair and calculating pale blue eyes, angular porcelain face with high cheekbones, tall wiry build in sleek fitted mithril-threaded leather armor with a long star-patterned cloak billowing in high-altitude wind, drawing a slender crystalline longbow with an arrow that trails silver light, perched on the edge of a floating ruin high above a cloud sea at twilight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Archer Male — Variant 3**
+Half-body portrait of a stocky unusually muscular Hauts-Cieux ranger with short messy silver hair and a broad honest face with pale grey eyes, porcelain skin weathered by wind, solid compact build unusual for his race wearing practical dark blue leather armor with minimal celestial markings, heavy composite bow slung across his back, crouching to examine tracks on a crumbling floating bridge between two ruined sky-towers in dense fog, expression focused and methodical, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Archer Female — Variant 2**
+Half-body portrait of a poised aristocratic Hauts-Cieux markswoman with elaborately styled silver-white hair in a high formal arrangement secured with crystal pins, cool appraising violet eyes, tall slender build in elegant fitted mithril-scale armor designed for both court and combat, holding a delicate crystal shortbow at rest with a quiver of moonlight-tipped arrows, standing on a moonlit marble terrace overlooking a vast decaying floating city below, expression distant and contemplative, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Archer Female — Variant 3**
+Half-body portrait of a fierce young Hauts-Cieux scout with wind-tousled short white hair and intense bright silver eyes, lean athletic build with porcelain skin flushed from exertion, wearing light practical leather armor dyed midnight blue with a torn star-emblem tabard, mid-release of three crystal-tipped arrows in rapid fire, balanced on a narrow floating stone fragment amid the wreckage of a shattered sky-bridge with debris falling into clouds below, expression fierce and focused, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Assassin Male — Variant 2**
+Half-body portrait of a pale gaunt Hauts-Cieux shadow-agent with long straight platinum hair framing a narrow face with unsettling pale silver eyes devoid of warmth, porcelain skin almost corpse-like in pallor, tall thin build in form-fitting dark grey leather armor with subtle celestial runes that seem to absorb light, one hand drawing a thin mithril stiletto from a hidden wrist sheath, standing in a shadowed alcove of a crystal palace corridor watching an unseen target, expression blank and predatory, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Assassin Male — Variant 3**
+Half-body portrait of a compact youthful Hauts-Cieux infiltrator with cropped silver hair and sharp intelligent pale blue eyes behind an aristocratic mask of charm, handsome porcelain features with a practiced courtier smile that does not reach his eyes, medium build in elegant dark formal attire concealing lightweight mithril-thread armor, casually palming a crystal vial of poison behind his back with one hand while raising a goblet with the other, in a candlelit noble dining hall of a sky-palace, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Assassin Female — Variant 2**
+Half-body portrait of a mature Hauts-Cieux spymistress with silver hair in a tight severe braid and cold calculating violet eyes, sharp porcelain features showing elegant age lines, lean taut build in dark fitted leather armor under a sweeping midnight-blue cloak with a high collar, cleaning a thin crystal blade methodically with a dark cloth, seated on the ledge of a high floating tower with the decaying skyline of a ruined elven city stretching behind her in cold moonlight, expression satisfied and detached, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Assassin Female — Variant 3**
+Half-body portrait of a very young Hauts-Cieux blade-dancer with wild short-cropped white hair and large intense silver eyes burning with barely contained fury, slight build with corded muscle visible on her bare arms, porcelain skin marked with fresh cuts and bruises, wearing minimal dark wrappings and a single crystal ear-cuff, twin curved mithril daggers held in reverse grip mid-spin, fighting in a rain-slicked rooftop garden atop a floating ruin with broken statues and dead silver trees surrounding her, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+---
+
+## Dwarf — Khazdurim (Mountain dwarf, stocky, ruddy skin, great beards) — Variants
+
+**Khazdurim Warrior Male — Variant 2**
+Half-body portrait of a massive grizzled Khazdurim veteran with a braided iron-grey beard reaching his belt adorned with gold rings and ancestor tokens, deep-set dark brown eyes under a heavy brow scarred by decades of combat, ruddy wind-burned skin, barrel-chested stocky build in dented and repaired heavy runic plate armor blackened by forge-soot, hefting a double-headed rune-etched war axe across both shoulders, standing in a torchlit underground great hall with massive carved dwarf statues lining the walls, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Warrior Male — Variant 3**
+Half-body portrait of a young fiery Khazdurim berserker with a short wild red beard and blazing hazel eyes wide with battle fury, ruddy freckled skin flushed with adrenaline, compact heavily muscled build stripped to the waist revealing runic tattoos across his chest and arms, swinging a massive spiked iron hammer mid-strike with devastating force, fighting in a narrow mine shaft with sparks flying from clashing metal and dust clouds swirling in torchlight, expression screaming a war cry, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Warrior Female — Variant 2**
+Half-body portrait of a stout formidable Khazdurim shieldmaiden with thick auburn hair in elaborate warrior braids wrapped around a steel circlet, fierce amber eyes and a broad strong jaw, ruddy complexion with a broken nose, powerful stocky build in heavy ancestral iron plate armor engraved with clan histories, bracing behind a massive round shield emblazoned with a mountain sigil while thrusting a short broad sword forward, defending a stone bridge over a lava flow in a deep volcanic cavern, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Warrior Female — Variant 3**
+Half-body portrait of a tall-for-a-dwarf young Khazdurim warrior woman with a single thick dark braid over one shoulder and sharp green eyes, ruddy skin with a fresh cut across her brow, lean and athletic stocky build in practical chainmail over boiled leather, holding a blood-smeared hand-axe at rest after battle, walking through a dimly lit crystal cavern strewn with defeated goblin raiders, torchlight reflecting off thousands of raw amethyst crystals in the walls, expression tired but victorious, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Wizard Male — Variant 2**
+Half-body portrait of an ancient Khazdurim runemaster with an enormously long white beard intricately knotted with glowing rune-stones, rheumy but brilliant blue eyes behind thick crystal-lensed spectacles, deeply wrinkled ruddy skin, hunched stocky build buried in heavy layered robes of dark iron-grey wool with runic embroidery that pulses with faint orange light, carefully inscribing a floating rune in midair with a chisel-tipped iron staff, working in a vast underground runic archive lined with stone tablets, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Wizard Male — Variant 3**
+Half-body portrait of a middle-aged Khazdurim forge-mage with a neatly trimmed dark copper beard and intense amber eyes reflecting molten light, ruddy skin sheened with sweat, broad powerful build in a heavy leather apron over runic-stitched robes with burn marks and scorch patterns, both hands thrust forward projecting streams of liquid fire and molten metal that twist into runic shapes, standing before a massive enchanted forge in a cathedral-sized underground smithy with the glow of magma channels below, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Wizard Female — Variant 2**
+Half-body portrait of a young studious Khazdurim runecaster with curly dark brown hair pinned up with iron clasps and curious bright hazel eyes, round ruddy face with freckles, stout build in practical scholar robes of deep burgundy with pockets full of stone fragments and tools, holding a glowing rune-inscribed crystal up to examine it closely with one eye squinted, surrounded by floating stone tablets covered in ancient dwarven script in a candlelit underground study, expression absorbed and fascinated, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Wizard Female — Variant 3**
+Half-body portrait of an elderly stern Khazdurim stone-witch with long iron-grey hair in thick braids coiled atop her head like a crown, piercing dark blue eyes that brook no argument, weathered ruddy skin deeply lined with age, heavy stocky build in dark earth-toned robes layered with stone-bead necklaces and ancestor amulets, slamming a rune-carved iron staff into the ground as cracks of golden runic light spread across the stone floor, standing in a vast ancestor vault surrounded by towering carved stone sarcophagi, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Priest Male — Variant 2**
+Half-body portrait of a solemn middle-aged Khazdurim ancestor-priest with a meticulously groomed black beard forked into two points and secured with gold clasps, steady dark brown eyes filled with quiet authority, ruddy skin, solid stocky build in ceremonial stone-grey robes over mithril chain with a heavy golden ancestor medallion at his chest, both hands clasped over a sacred stone tome while intoning a blessing, standing before an enormous carved ancestor face in a torchlit underground temple with incense smoke curling upward, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Priest Male — Variant 3**
+Half-body portrait of a jovial rotund elderly Khazdurim priest with an enormous bushy white beard stained with ale and a warm twinkling in his pale blue eyes, heavily ruddy cheeks and a bulbous nose, very broad stocky build straining the seams of his worn brown priestly robes patched many times over, one hand raised dispensing golden healing light over a wounded warrior lying before him, kneeling in a dusty mine shaft lit by the glow of his own divine magic, expression kind and reassuring, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Priest Female — Variant 2**
+Half-body portrait of a young passionate Khazdurim priestess with fiery red hair in thick twin braids and fierce green eyes bright with religious fervor, ruddy freckled skin, strong stocky build in polished ceremonial iron armor under white vestments emblazoned with the mountain-and-hammer symbol, raising a glowing runic warhammer skyward as golden divine light erupts from the weapon, standing atop a stone altar platform in a cavernous underground cathedral with thousands of candles flickering below, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Priest Female — Variant 3**
+Half-body portrait of a quiet elderly Khazdurim death-priestess with long silver hair in a single heavy braid and deep sorrowful grey eyes that have witnessed centuries of burials, gaunt ruddy face for a dwarf with prominent cheekbones, thin dignified build in dark charcoal robes with subtle silver ancestor runes along the hems, gently placing a stone death-mask over an unseen figure on a bier, standing in a vast silent ancestor crypt lit by pale blue eternal flame lanterns hanging from stone chains, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Archer Male — Variant 2**
+Half-body portrait of a compact weathered Khazdurim crossbowman with a short bristly grey-brown beard and shrewd narrow dark eyes, ruddy leathery skin scarred by rock shrapnel, wiry stocky build in practical dark leather armor reinforced with iron studs and a heavy hooded cloak, aiming a massive iron-and-oak repeating crossbow from behind a stone barricade, positioned in a narrow mountain pass with snow-capped peaks and harsh grey sky visible behind him, expression patient and deadly, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Archer Male — Variant 3**
+Half-body portrait of a young cheerful Khazdurim scout with a short curly copper beard and bright mischievous hazel eyes, ruddy round face with a gap-toothed grin, compact muscular build in light leather armor with numerous pouches and a hand-cranked crossbow slung on his back, examining a crude map scratched on leather while crouching at the entrance of a crystal-studded natural cavern with a subterranean river flowing behind him, expression amused and confident, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Archer Female — Variant 2**
+Half-body portrait of a sharp-eyed veteran Khazdurim ranger woman with dark auburn hair in a practical single braid and intense amber eyes, ruddy weathered skin with crow's feet, lean stocky build in dark green and brown leather armor designed for surface patrols, shouldering a heavy dwarven-engineered compound crossbow with runic sights, standing on a mountain ridge overlooking a vast forested valley at dawn with mist filling the lowlands, expression vigilant and commanding, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Archer Female — Variant 3**
+Half-body portrait of a very young Khazdurim crossbow apprentice with short messy brown hair barely long enough to braid and wide curious dark brown eyes, ruddy plump-cheeked face still carrying youth, small even for a dwarf in an oversized leather jerkin clearly borrowed from someone larger, struggling to crank a heavy iron crossbow with determined effort, training in an underground archery range with stone target pillars and older dwarves visible in the blurred background, expression straining with fierce concentration, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Assassin Male — Variant 2**
+Half-body portrait of a lean hard-faced Khazdurim tunnel-stalker with a close-trimmed dark beard hiding a thin cruel mouth and cold calculating grey eyes, ruddy skin pallid from years underground, compact wiry build in dark stone-grey leather armor fitted with dozens of hidden blade sheaths and vials, drawing a short heavy iron dagger with one hand while the other grips a vial of cave-spider venom, emerging from absolute darkness in a narrow mine tunnel with only the faintest glint of distant torchlight reflecting off his eyes, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Assassin Male — Variant 3**
+Half-body portrait of an unassuming middle-aged Khazdurim spy with a plain brown beard and forgettable features designed to blend into any crowd, mild brown eyes that miss nothing, average stocky build in common merchant clothing concealing fine chainmail underneath, casually leaning against a stone pillar in a busy underground market hall with his hand resting on a concealed blade at his hip, dozens of unsuspecting dwarven traders blurred in the background, expression perfectly calm and ordinary, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Assassin Female — Variant 2**
+Half-body portrait of a scarred dangerous Khazdurim shadow-blade with black hair cropped brutally short and one dark eye visible above a cloth face wrap, the other eye covered by a leather patch, ruddy skin marked with chemical burns along her jaw, compact muscular build in tight-fitted dark leather armor with blackened iron bracers, hanging from a stone ceiling by iron climbing hooks mid-infiltration, suspended above a dimly lit underground vault filled with gold and ancestor relics, expression cold and focused through her one visible eye, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Assassin Female — Variant 3**
+Half-body portrait of a young slight Khazdurim poisoner with dark auburn hair in a messy bun and quick intelligent green eyes, ruddy skin with soot smudges, the smallest and most nimble build among her kin wearing a dark apron over fitted black clothing stained with alchemical residue, carefully measuring drops of a glowing blue toxin into a tiny crystal vial with steady hands, working at a cluttered hidden workbench in a cramped secret room behind a forge with tools and dried cave-herbs hanging from the low stone ceiling, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
 ---
 
@@ -689,3 +1013,581 @@ A small chain of three dark iron links fused with demon essence, each link burns
 
 **Torn Banner**
 A scrap of torn orc war banner, rough cloth with crude red paint depicting a war symbol, ripped from a fallen standard, bloodstained and muddied, dim war-fire light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+---
+
+## Elf — Silvaneth — Variants 4 & 5
+
+**Silvaneth Warrior Male — Variant 4**
+Half-body portrait of a fair-skinned forest elf male warrior with green-tinted complexion and pointed ears, wearing living-wood plate armor woven with creeping ivy, holding a bark-edged longsword over one shoulder, amber eyes glowing faintly, ancient mossy oak trees behind him, scars across his jaw from centuries of woodland warfare, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Warrior Male — Variant 5**
+Half-body portrait of a dark-skinned forest elf male warrior with deep brown skin and pointed ears, wearing living-wood plate armor woven with creeping ivy, gripping a vine-wrapped greatsword in both hands, amber eyes burning with quiet resolve, ancient mossy oak trees behind him, leaf-shaped pauldrons and bark greaves, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Warrior Female — Variant 4**
+Half-body portrait of a fair-skinned forest elf female warrior with pale green-tinted complexion and pointed ears, wearing living-wood breastplate with thorn-ridge shoulders, a shield of woven roots on her left arm, amber eyes narrowed in defiance, ferns and bioluminescent fungi in the dark forest behind her, windblown silver-green hair, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Warrior Female — Variant 5**
+Half-body portrait of a dark-skinned forest elf female warrior with rich umber skin and pointed ears, wearing living-wood breastplate with thorn-ridge shoulders, raising a bark-bladed spear, amber eyes catching dappled light, ferns and bioluminescent fungi in the dark forest behind her, vine-braided dark hair, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Wizard Male — Variant 4**
+Half-body portrait of a fair-skinned forest elf male wizard with green-tinted complexion and pointed ears, bark-textured hands channeling emerald druidic magic, wearing robes of layered leaves and living moss, a circlet of twisted twigs crowning his brow, amber eyes filled with ancient weariness, towering canopy of primeval trees behind him, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Wizard Male — Variant 5**
+Half-body portrait of a dark-skinned forest elf male wizard with deep mahogany skin and pointed ears, bark-textured fingers weaving tendrils of green light, wearing robes of layered leaves and living moss, a circlet of twisted twigs on his brow, amber eyes serene and knowing, towering canopy of primeval trees behind him, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Wizard Female — Variant 4**
+Half-body portrait of a fair-skinned forest elf female wizard with pale green-tinted complexion and pointed ears, conjuring a swirling orb of golden pollen and green flame between her palms, wearing a cloak of autumn leaves that shifts color, amber eyes wide with concentration, a sacred grove of white-barked birch trees behind her, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Wizard Female — Variant 5**
+Half-body portrait of a dark-skinned forest elf female wizard with warm dark brown skin and pointed ears, conjuring spiraling vines of amber light from an oak staff, wearing a cloak of autumn leaves over moss-draped robes, amber eyes glowing softly, a sacred grove of white-barked birch trees behind her, wildflowers tangled in her dark hair, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Priest Male — Variant 4**
+Half-body portrait of a fair-skinned forest elf male priest with green-tinted complexion and pointed ears, holding a living-wood staff topped with a luminous amber seed, wearing vestments of woven bark and moss with vine embroidery, a look of solemn reverence, standing before a massive ancient tree trunk carved with glowing runes, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Priest Male — Variant 5**
+Half-body portrait of a dark-skinned forest elf male priest with deep espresso skin and pointed ears, cradling a luminous amber seed in both hands, wearing vestments of woven bark and moss with vine embroidery, amber eyes peaceful and unwavering, standing before a massive ancient tree trunk carved with glowing runes, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Priest Female — Variant 4**
+Half-body portrait of a fair-skinned forest elf female priest with pale green-tinted complexion and pointed ears, arms raised in blessing as golden spores drift upward around her, wearing robes of white birch-bark panels and living vines, amber eyes closed in meditation, a moonlit forest clearing with standing stones behind her, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Priest Female — Variant 5**
+Half-body portrait of a dark-skinned forest elf female priest with warm umber skin and pointed ears, arms raised in blessing as golden spores drift upward around her, wearing robes of white birch-bark panels and living vines, amber eyes closed in meditation, a moonlit forest clearing with standing stones behind her, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Archer Male — Variant 4**
+Half-body portrait of a fair-skinned forest elf male archer with green-tinted complexion and pointed ears, drawing a living-wood longbow with vine-string taut, a quiver of thorn-tipped arrows on his back, wearing bark-scale armor with leaf camouflage, amber eyes locked on a distant target, dense fern undergrowth and misty trees behind him, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Archer Male — Variant 5**
+Half-body portrait of a dark-skinned forest elf male archer with rich dark brown skin and pointed ears, nocking a thorn-tipped arrow on a living-wood longbow, wearing bark-scale armor with leaf camouflage, amber eyes sharp and predatory, dense fern undergrowth and misty trees behind him, dark hair tied back with braided vine, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Archer Female — Variant 4**
+Half-body portrait of a fair-skinned forest elf female archer with pale green-tinted complexion and pointed ears, perched on a thick branch and aiming a recurve bow of shaped yew, wearing a cloak of woven leaves over light bark armor, amber eyes gleaming with feral focus, a canopy of dense green leaves and hanging moss behind her, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Archer Female — Variant 5**
+Half-body portrait of a dark-skinned forest elf female archer with deep sienna skin and pointed ears, perched on a thick branch and aiming a recurve bow of shaped yew, wearing a cloak of woven leaves over light bark armor, amber eyes gleaming with feral focus, a canopy of dense green leaves and hanging moss behind her, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Assassin Male — Variant 4**
+Half-body portrait of a fair-skinned forest elf male assassin with green-tinted complexion and pointed ears, emerging from shadow between two great oaks, gripping twin daggers of sharpened obsidian and thorn, wearing form-fitting bark armor with a cowl of dark leaves, amber eyes cold and unblinking, wisps of green mist curling around him, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Assassin Male — Variant 5**
+Half-body portrait of a dark-skinned forest elf male assassin with deep brown skin and pointed ears, crouched in shadow between two great oaks, gripping twin daggers of sharpened obsidian and thorn, wearing form-fitting bark armor with a cowl of dark leaves, amber eyes cold and unblinking, wisps of green mist curling around him, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Assassin Female — Variant 4**
+Half-body portrait of a fair-skinned forest elf female assassin with pale green-tinted complexion and pointed ears, holding a curved vine-wrapped blade close to her face, wearing tight-fitting bark-scale armor stained with forest shadow, amber eyes gleaming from beneath a hood of dark moss, a twilight forest of twisted black trunks behind her, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Silvaneth Assassin Female — Variant 5**
+Half-body portrait of a dark-skinned forest elf female assassin with warm mahogany skin and pointed ears, holding a curved vine-wrapped blade close to her face, wearing tight-fitting bark-scale armor stained with forest shadow, amber eyes gleaming from beneath a hood of dark moss, a twilight forest of twisted black trunks behind her, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+---
+
+## Elf — Hauts-Cieux — Variants 4 & 5
+
+**Hauts-Cieux Warrior Male — Variant 4**
+Half-body portrait of a porcelain-skinned high elf male warrior with pointed ears, wearing ornate mithril plate armor engraved with celestial star patterns, holding a silver-bladed bastard sword, silver eyes stern and commanding, floating marble ruins and faint aurora lights behind him, platinum hair swept back beneath a winged helm, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Warrior Male — Variant 5**
+Half-body portrait of a dark-skinned high elf male warrior with deep brown skin and pointed ears, wearing ornate mithril plate armor engraved with celestial star patterns, resting a silver-bladed bastard sword on his shoulder, violet eyes calm and authoritative, floating marble ruins and faint aurora lights behind him, close-cropped dark hair beneath a winged helm, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Warrior Female — Variant 4**
+Half-body portrait of a porcelain-skinned high elf female warrior with pointed ears, wearing sculpted mithril breastplate with crescent moon motifs, gripping a glaive with a moonstone pommel, silver eyes blazing with righteous fury, crumbling celestial bridge and distant floating towers behind her, pale silver hair flowing from beneath a circlet, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Warrior Female — Variant 5**
+Half-body portrait of a brown-skinned high elf female warrior with warm bronze complexion and pointed ears, wearing sculpted mithril breastplate with crescent moon motifs, thrusting a glaive forward with a moonstone pommel, violet eyes blazing with righteous fury, crumbling celestial bridge and distant floating towers behind her, dark braided hair beneath a silver circlet, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Wizard Male — Variant 4**
+Half-body portrait of a porcelain-skinned high elf male wizard with pointed ears, channeling swirling silver-violet arcane energy from an upraised hand, wearing layered robes of white silk and starlight-threaded brocade, silver eyes luminous with power, a vast celestial observatory with shattered crystal dome behind him, long platinum hair, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Wizard Male — Variant 5**
+Half-body portrait of a dark-skinned high elf male wizard with deep espresso skin and pointed ears, channeling swirling silver-violet arcane energy between both hands, wearing layered robes of white silk and starlight-threaded brocade, silver eyes luminous with power, a vast celestial observatory with shattered crystal dome behind him, short dark hair with silver streaks, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Wizard Female — Variant 4**
+Half-body portrait of a porcelain-skinned high elf female wizard with pointed ears, reading from a floating tome that radiates silver light, wearing elegant robes of deep violet with constellation embroidery, violet eyes reflecting arcane formulae, shelves of ancient scrolls and astral projections hovering behind her, hair pinned with mithril moon-clips, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Wizard Female — Variant 5**
+Half-body portrait of a dark-skinned high elf female wizard with rich umber skin and pointed ears, reading from a floating tome that radiates silver light, wearing elegant robes of deep violet with constellation embroidery, silver eyes reflecting arcane formulae, shelves of ancient scrolls and astral projections hovering behind her, dark curly hair pinned with mithril moon-clips, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Priest Male — Variant 4**
+Half-body portrait of a porcelain-skinned high elf male priest with pointed ears, holding a radiant mithril censer that trails silver incense smoke, wearing white ceremonial vestments with gold celestial embroidery, silver eyes gentle and compassionate, a grand floating cathedral with stained-glass windows behind him, long platinum hair over his shoulders, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Priest Male — Variant 5**
+Half-body portrait of a dark-skinned high elf male priest with deep mahogany skin and pointed ears, holding a radiant mithril censer that trails silver incense smoke, wearing white ceremonial vestments with gold celestial embroidery, violet eyes gentle and compassionate, a grand floating cathedral with stained-glass windows behind him, dark hair pulled into a dignified knot, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Priest Female — Variant 4**
+Half-body portrait of a porcelain-skinned high elf female priest with pointed ears, hands clasped in prayer as a halo of silver starlight forms above her, wearing flowing white-and-gold vestments with crescent clasps, violet eyes closed serenely, a moonlit floating sanctuary with pillars of white stone behind her, long pale hair, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Priest Female — Variant 5**
+Half-body portrait of a brown-skinned high elf female priest with warm bronze skin and pointed ears, hands clasped in prayer as a halo of silver starlight forms above her, wearing flowing white-and-gold vestments with crescent clasps, silver eyes closed serenely, a moonlit floating sanctuary with pillars of white stone behind her, dark wavy hair, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Archer Male — Variant 4**
+Half-body portrait of a porcelain-skinned high elf male archer with pointed ears, drawing a mithril-limbed longbow with an arrow that glows faintly blue, wearing light silver-scaled armor beneath a white cloak with star-pattern trim, silver eyes focused and deadly calm, a crumbling marble balcony overlooking clouds and distant spires behind him, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Archer Male — Variant 5**
+Half-body portrait of a dark-skinned high elf male archer with deep brown skin and pointed ears, drawing a mithril-limbed longbow with a faintly glowing blue arrow, wearing light silver-scaled armor beneath a white cloak with star-pattern trim, violet eyes focused and deadly calm, a crumbling marble balcony overlooking clouds and distant spires behind him, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Archer Female — Variant 4**
+Half-body portrait of a porcelain-skinned high elf female archer with pointed ears, releasing a silver arrow mid-flight with perfect form, wearing fitted mithril-weave leather with celestial engravings, violet eyes sharp as starlight, wind sweeping through her platinum hair, floating ruins and swirling nebula clouds behind her, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Archer Female — Variant 5**
+Half-body portrait of a dark-skinned high elf female archer with rich dark skin and pointed ears, releasing a silver arrow mid-flight with perfect form, wearing fitted mithril-weave leather with celestial engravings, silver eyes sharp as starlight, wind sweeping through her dark braided hair, floating ruins and swirling nebula clouds behind her, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Assassin Male — Variant 4**
+Half-body portrait of a porcelain-skinned high elf male assassin with pointed ears, wielding a slim mithril stiletto in one hand, wearing dark silver-threaded leather armor with a high collar and celestial rune buckles, silver eyes ice-cold and calculating, a shadowed celestial corridor with fractured moonlight behind him, platinum hair tied tight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Assassin Male — Variant 5**
+Half-body portrait of a dark-skinned high elf male assassin with deep umber skin and pointed ears, wielding a slim mithril stiletto in one hand, wearing dark silver-threaded leather armor with a high collar and celestial rune buckles, violet eyes ice-cold and calculating, a shadowed celestial corridor with fractured moonlight behind him, short dark hair, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Assassin Female — Variant 4**
+Half-body portrait of a porcelain-skinned high elf female assassin with pointed ears, balanced on a narrow marble ledge with twin crescent-bladed daggers, wearing form-fitting dark mithril-weave with starlight stitching, violet eyes hidden beneath a silver half-mask, a vast dark sky filled with distant floating ruins behind her, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Hauts-Cieux Assassin Female — Variant 5**
+Half-body portrait of a brown-skinned high elf female assassin with warm dark complexion and pointed ears, balanced on a narrow marble ledge with twin crescent-bladed daggers, wearing form-fitting dark mithril-weave with starlight stitching, silver eyes hidden beneath a silver half-mask, a vast dark sky filled with distant floating ruins behind her, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+---
+
+## Dwarf — Khazdurim — Variants 4 & 5
+
+**Khazdurim Warrior Male — Variant 4**
+Half-body portrait of a ruddy-skinned mountain dwarf male warrior with a massive braided red beard clasped with iron rings, wearing heavy runic plate armor over chainmail, gripping a double-headed war axe, deep-set eyes burning with dwarven pride, a cavernous forge hall with rivers of molten metal behind him, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Warrior Male — Variant 5**
+Half-body portrait of a dark-skinned mountain dwarf male warrior with deep brown skin and a magnificent braided black beard clasped with iron rings, wearing heavy runic plate armor over chainmail, raising a double-headed war axe in challenge, fierce dark eyes burning with dwarven pride, a cavernous forge hall with rivers of molten metal behind him, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Warrior Female — Variant 4**
+Half-body portrait of a ruddy-skinned mountain dwarf female warrior with pale complexion and auburn hair in thick warrior braids, wearing runic plate armor with a shield bearing a mountain crest, wielding a war hammer, steely blue eyes, scars on her cheek from tunnel battles, a vast underground hall with carved pillars behind her, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Warrior Female — Variant 5**
+Half-body portrait of a dark-skinned mountain dwarf female warrior with rich brown skin and dark hair in thick warrior braids with gold beads, wearing runic plate armor with a shield bearing a mountain crest, wielding a war hammer, fierce dark eyes, scars on her cheek from tunnel battles, a vast underground hall with carved pillars behind her, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Wizard Male — Variant 4**
+Half-body portrait of a ruddy-skinned mountain dwarf male wizard with a long grey beard woven with glowing rune-threads, wearing heavy robes reinforced with runic iron plates, holding a staff topped with a pulsing geode crystal, amber eyes flickering with earth magic, a deep crystal cavern with veins of luminous ore behind him, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Wizard Male — Variant 5**
+Half-body portrait of a dark-skinned mountain dwarf male wizard with deep espresso skin and a long silver beard woven with glowing rune-threads, wearing heavy robes reinforced with runic iron plates, conjuring molten runes from the air, dark eyes flickering with earth magic, a deep crystal cavern with veins of luminous ore behind him, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Wizard Female — Variant 4**
+Half-body portrait of a pale-skinned mountain dwarf female wizard with ruddy cheeks and copper hair streaked with silver, wearing layered stone-grey robes with iron shoulder guards etched in runes, casting a barrier of crystalline light from a gnarled iron staff, green eyes intense with focus, a runic library carved into living rock behind her, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Wizard Female — Variant 5**
+Half-body portrait of a dark-skinned mountain dwarf female wizard with warm dark brown skin and white-streaked dark hair in braided crown, wearing layered stone-grey robes with iron shoulder guards etched in runes, casting a barrier of crystalline light from a gnarled iron staff, dark eyes intense with focus, a runic library carved into living rock behind her, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Priest Male — Variant 4**
+Half-body portrait of a ruddy-skinned mountain dwarf male priest with a forked white beard and pale complexion, wearing ceremonial stone-and-iron vestments inscribed with ancestor runes, holding a glowing runestone altar piece in both hands, reverent blue eyes, a sacred underground shrine lit by eternal flame braziers behind him, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Priest Male — Variant 5**
+Half-body portrait of a dark-skinned mountain dwarf male priest with deep umber skin and a forked grey beard with silver clasps, wearing ceremonial stone-and-iron vestments inscribed with ancestor runes, holding a glowing runestone in both hands, reverent dark eyes reflecting the flame, a sacred underground shrine lit by eternal flame braziers behind him, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Priest Female — Variant 4**
+Half-body portrait of a pale-skinned mountain dwarf female priest with ruddy complexion and grey hair in ceremonial braids woven with gold wire, wearing white stone vestments over iron chainmail with hammer-of-the-deep symbols, eyes closed in chanting prayer, her hands glowing with warm amber light, a towering carved ancestor statue behind her, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Priest Female — Variant 5**
+Half-body portrait of a dark-skinned mountain dwarf female priest with rich brown skin and dark grey hair in ceremonial braids woven with gold wire, wearing white stone vestments over iron chainmail with hammer-of-the-deep symbols, eyes closed in chanting prayer, her hands glowing with warm amber light, a towering carved ancestor statue behind her, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Archer Male — Variant 4**
+Half-body portrait of a ruddy-skinned mountain dwarf male archer with a thick brown beard and weathered face, operating a heavy dwarven crossbow of iron and brass with runic sights, wearing reinforced leather over chainmail, sharp hazel eyes squinting down the bolt, a narrow underground bridge over a chasm behind him, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Archer Male — Variant 5**
+Half-body portrait of a dark-skinned mountain dwarf male archer with deep brown skin and a thick black beard with bronze rings, operating a heavy dwarven crossbow of iron and brass with runic sights, wearing reinforced leather over chainmail, sharp dark eyes squinting down the bolt, a narrow underground bridge over a chasm behind him, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Archer Female — Variant 4**
+Half-body portrait of a ruddy-skinned mountain dwarf female archer with pale freckled skin and fiery red hair tied back, loading a bolt into a compact iron crossbow, wearing studded leather armor with runic engravings, green eyes watchful and patient, a torchlit mine tunnel with glittering ore veins behind her, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Archer Female — Variant 5**
+Half-body portrait of a dark-skinned mountain dwarf female archer with warm dark complexion and dark curly hair tied back, loading a bolt into a compact iron crossbow, wearing studded leather armor with runic engravings, dark eyes watchful and patient, a torchlit mine tunnel with glittering ore veins behind her, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Assassin Male — Variant 4**
+Half-body portrait of a ruddy-skinned mountain dwarf male assassin with a short dark beard and a scar across his nose, wearing blackened iron-scale armor with a deep hood, gripping a serrated dagger and a vial of cave-spider venom, cold grey eyes, lurking in a shadowed mineshaft with faint lantern light behind him, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Assassin Male — Variant 5**
+Half-body portrait of a dark-skinned mountain dwarf male assassin with deep umber skin and a short black beard trimmed close, wearing blackened iron-scale armor with a deep hood, gripping a serrated dagger and a vial of cave-spider venom, cold dark eyes, lurking in a shadowed mineshaft with faint lantern light behind him, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Assassin Female — Variant 4**
+Half-body portrait of a pale-skinned mountain dwarf female assassin with ruddy cheeks and dark hair cropped short, wearing fitted blackened chainmail under a soot-grey cloak, holding a pair of spiked iron knuckle-daggers, ice-blue eyes gleaming from shadow, a narrow underground passage with dripping stalactites behind her, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Khazdurim Assassin Female — Variant 5**
+Half-body portrait of a dark-skinned mountain dwarf female assassin with rich dark brown skin and dark hair cropped short, wearing fitted blackened chainmail under a soot-grey cloak, holding a pair of spiked iron knuckle-daggers, dark eyes gleaming from shadow, a narrow underground passage with dripping stalactites behind her, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+---
+
+## Dwarf — Feldgrund — Variants 4 & 5
+
+**Feldgrund Warrior Male — Variant 4**
+Half-body portrait of a tan-skinned hill dwarf male warrior with a broad sandy-brown beard in simple braids, wearing practical iron-and-leather plate armor with a boar crest, gripping a sturdy warhammer, warm brown eyes weathered by sun, rolling green hills and a stone farmstead behind him, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Feldgrund Warrior Male — Variant 5**
+Half-body portrait of a dark-skinned hill dwarf male warrior with deep brown skin and a broad black beard in simple braids, wearing practical iron-and-leather plate armor with a boar crest, gripping a sturdy warhammer, steady dark eyes weathered by sun, rolling green hills and a stone farmstead behind him, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Feldgrund Warrior Female — Variant 4**
+Half-body portrait of a tan-skinned hill dwarf female warrior with sun-browned skin and thick auburn hair in a practical bun, wearing iron-banded leather armor with a round shield slung on her back, wielding a hand axe, hazel eyes fierce and determined, a wooden palisade and barley fields behind her, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Feldgrund Warrior Female — Variant 5**
+Half-body portrait of an East Asian featured hill dwarf female warrior with warm golden-tan skin and straight dark hair in a practical bun, wearing iron-banded leather armor with a round shield slung on her back, wielding a hand axe, dark steady eyes fierce and determined, a wooden palisade and barley fields behind her, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Feldgrund Wizard Male — Variant 4**
+Half-body portrait of a tan-skinned hill dwarf male wizard with a bushy grey beard and weathered face, wearing a patchwork robe of earthy browns and greens over a leather vest, holding a gnarled hawthorn staff crackling with amber sparks, warm hazel eyes twinkling with mischief, a sunlit meadow with standing stones behind him, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Feldgrund Wizard Male — Variant 5**
+Half-body portrait of a dark-skinned hill dwarf male wizard with deep mahogany skin and a bushy white beard, wearing a patchwork robe of earthy browns and greens over a leather vest, conjuring amber sparks from a gnarled hawthorn staff, warm dark eyes twinkling with mischief, a sunlit meadow with standing stones behind him, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Feldgrund Wizard Female — Variant 4**
+Half-body portrait of a tan-skinned hill dwarf female wizard with sun-weathered face and grey-streaked brown hair under a wide-brimmed hat, wearing layered linen robes with herb pouches and a copper-clasped belt, holding a clay jar overflowing with golden light, green eyes wise and amused, a cottage garden with flowering herbs behind her, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Feldgrund Wizard Female — Variant 5**
+Half-body portrait of an East Asian featured hill dwarf female wizard with warm tan skin and grey-streaked black hair under a wide-brimmed hat, wearing layered linen robes with herb pouches and a copper-clasped belt, holding a clay jar overflowing with golden light, dark eyes wise and amused, a cottage garden with flowering herbs behind her, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Feldgrund Priest Male — Variant 4**
+Half-body portrait of a tan-skinned hill dwarf male priest with a long braided brown beard adorned with clay beads, wearing homespun vestments of cream and forest green with a harvest-knot stole, blessing a handful of grain that glows with warm light, kind brown eyes, a stone chapel surrounded by wheat fields behind him, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Feldgrund Priest Male — Variant 5**
+Half-body portrait of a dark-skinned hill dwarf male priest with rich dark brown skin and a long braided black beard adorned with clay beads, wearing homespun vestments of cream and forest green with a harvest-knot stole, blessing a handful of grain that glows with warm light, gentle dark eyes, a stone chapel surrounded by wheat fields behind him, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Feldgrund Priest Female — Variant 4**
+Half-body portrait of a tan-skinned hill dwarf female priest with warm complexion and grey hair in a loose braid over her shoulder, wearing simple cream robes with embroidered wildflowers and an iron sun-disc pendant, hands cupped around a softly glowing herbal poultice, compassionate hazel eyes, a village green with a maypole behind her, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Feldgrund Priest Female — Variant 5**
+Half-body portrait of a dark-skinned hill dwarf female priest with deep umber skin and grey hair in a loose braid over her shoulder, wearing simple cream robes with embroidered wildflowers and an iron sun-disc pendant, hands cupped around a softly glowing herbal poultice, compassionate dark eyes, a village green with a maypole behind her, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Feldgrund Archer Male — Variant 4**
+Half-body portrait of a tan-skinned hill dwarf male archer with a cropped sandy beard and sun-squinted eyes, wearing a leather jerkin with iron studs and a forester's cloak, drawing a compact short bow with a broadhead arrow, sharp amber eyes scanning the horizon, a grassy hilltop overlooking autumn woodlands behind him, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Feldgrund Archer Male — Variant 5**
+Half-body portrait of an East Asian featured hill dwarf male archer with warm golden-brown skin and a cropped dark beard, wearing a leather jerkin with iron studs and a forester's cloak, drawing a compact short bow with a broadhead arrow, sharp dark eyes scanning the horizon, a grassy hilltop overlooking autumn woodlands behind him, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Feldgrund Archer Female — Variant 4**
+Half-body portrait of a tan-skinned hill dwarf female archer with freckled sun-browned skin and reddish-brown hair tied in a high ponytail, wearing a fitted leather vest over a linen shirt with arm guards, resting a crossbow on her hip, warm green eyes alert and ready, a stone wall and rolling pastoral hills behind her, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Feldgrund Archer Female — Variant 5**
+Half-body portrait of a dark-skinned hill dwarf female archer with rich dark complexion and dark hair tied in a high ponytail, wearing a fitted leather vest over a linen shirt with arm guards, resting a crossbow on her hip, keen dark eyes alert and ready, a stone wall and rolling pastoral hills behind her, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Feldgrund Assassin Male — Variant 4**
+Half-body portrait of a tan-skinned hill dwarf male assassin with a thin dark beard and a pockmarked face, wearing a mud-brown cloak over dark leather armor with hidden blade sheaths, gripping a short curved knife slick with herb poison, cold hazel eyes, a twilight country road with hedgerows and distant farmhouse lights behind him, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Feldgrund Assassin Male — Variant 5**
+Half-body portrait of a dark-skinned hill dwarf male assassin with deep brown skin and a thin black beard, wearing a mud-brown cloak over dark leather armor with hidden blade sheaths, gripping a short curved knife slick with herb poison, cold dark eyes, a twilight country road with hedgerows and distant farmhouse lights behind him, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Feldgrund Assassin Female — Variant 4**
+Half-body portrait of a tan-skinned hill dwarf female assassin with a weathered face and dark brown hair hidden under a traveler's hood, wearing nondescript leather armor designed to look like common clothing with concealed blade harnesses, sharp amber eyes watching from a shadowed market stall, baskets of produce and lantern light behind her, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Feldgrund Assassin Female — Variant 5**
+Half-body portrait of an East Asian featured hill dwarf female assassin with warm golden skin and straight dark hair hidden under a traveler's hood, wearing nondescript leather armor designed to look like common clothing with concealed blade harnesses, sharp dark eyes watching from a shadowed market stall, baskets of produce and lantern light behind her, stocky powerful build, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+---
+
+## Human Origins — Variants 4 & 5
+
+
+(120 prompts for Ashwick, Nordveld, Meridian, Zah'kari, Tianzhou, Khor'vani — to be generated from task output)
+
+---
+
+## New Enemy Portraits (Content Expansion)
+
+Enemy portraits: extreme close-up, square, menacing.
+All use: realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Forest Bear**
+Extreme close-up portrait of a massive brown bear snarling with jaws wide open, enormous yellowed fangs and pink gums exposed, thick ropes of saliva dripping, small dark furious eyes, deep scars across the muzzle, coarse matted dark brown fur caked with mud and burrs, powerful shoulders rippling with muscle, dense shadowy pine forest behind with shafts of dim grey light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Marsh Adder**
+Extreme close-up portrait of a man-length venomous marsh serpent lunging forward mouth agape, two long curved hollow fangs dripping translucent yellow-green venom, forked tongue extended, vertical slit pupils in cold golden eyes, mottled dark olive and black diamond-patterned scales glistening wet, hood slightly flared, murky swamp water and rotting reeds in the dark background, sickly greenish fog, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Rabid Boar**
+Extreme close-up portrait of a maddened wild boar charging headlong, bloodshot glowing red eyes wide with feral rage, thick white foam and bloody froth pouring from its jaws, cracked yellow tusks curved upward, coarse bristly dark fur standing on end, patches of raw inflamed skin and pulsing dark veins from corruption, mud-splattered snout, dead grey wasteland scrubland behind with a sickly reddish haze, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Fungal Crawler**
+Extreme close-up portrait of a dog-sized insectoid creature with a chitinous dark brown segmented body, multiple spiny legs, mandibles clicking open revealing pale fleshy mouthparts, clusters of luminous teal and sickly yellow fungi sprouting from cracks in its carapace, glowing spore clouds drifting from the mushroom growths, compound eyes reflecting bioluminescent light, damp cave walls glistening in the background, eerie green phosphorescent glow, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Goblin Shaman**
+Extreme close-up portrait of an ancient wizened goblin shaman with deep wrinkled olive-green skin, milky cataract-clouded left eye and one sharp yellow eye, jagged teeth bared in a wicked grin, face painted with white and red ritual hex symbols, necklace of tiny animal skulls and bone totems rattling, gnarled clawed fingers raised casting crackling sickly green magical energy, feathered headdress with crow skulls, dark firelit cave interior behind with strange painted symbols on the walls, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Ghoul**
+Extreme close-up portrait of a ghoul with sunken hollow features caught between life and death, stretched grey-purple mottled skin pulled tight over sharp cheekbones, lipless mouth exposing blackened teeth and receding gums, clouded pale eyes with pinprick pupils staring with mindless hunger, long bony fingers ending in cracked filthy claws reaching forward, stringy clumps of remaining hair, tattered burial shroud hanging from emaciated shoulders, dark crypt interior behind with faint blue-grey deathly light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Alpha Wolf**
+Extreme close-up portrait of a massive alpha wolf twice normal size snarling with jaws wide, enormous white fangs bared, deep old battle scars running across its muzzle and through one torn ear, one eye scarred shut the other burning amber with cold intelligence, thick dark grey and silver fur bristling around a powerful neck, breath visible as hot steam in cold air, dark snowy forest at night behind with distant wolf eyes glowing in pairs among the trees, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Bog Witch**
+Extreme close-up portrait of a hideous swamp hag with long matted grey-green hair tangled with moss and pond weed, bulbous warty nose, wide grinning mouth full of pointed brown teeth, one eye large and bright sickly green the other squinting, skin like wet bark textured with lichen, bony fingers with black nails clutching a gnarled staff topped with a whispering shrunken head, dark foggy swamp behind with ghostly pale wisps and gnarled mangrove roots, dim greenish witchlight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Burnt Skeleton**
+Extreme close-up portrait of an animated skeleton of blackened charred bones, skull wreathed in flickering sickly orange and amber flames pouring from empty eye sockets and between cracked teeth locked in a permanent grin, scorched and cracked ribcage visible, embers and ash drifting upward, charred remnants of old armor fused to the bones, dark smoky ruin behind with glowing coals and haze of heat distortion, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Corrupted Treant**
+Extreme close-up portrait of a massive corrupted tree creature, twisted ancient oak face with hollow knothole eyes weeping thick black acidic sap, splintered wooden mouth torn open in a groaning roar, bark cracked and rotting with pulsing dark purple-black veins of corruption spreading across its surface, grasping branch-like claws reaching forward dripping with caustic slime, small sickly mushrooms growing from its decaying wood, dark dead forest behind with blackened withered trees and toxic haze, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Necromancer Acolyte**
+Extreme close-up portrait of a young necromancer barely recognizable as human, gaunt hollow face with skin turning grey and translucent showing dark veins beneath, sunken eyes glowing with faint violet-purple necrotic energy, cracked lips muttering incantations, thin bony fingers wreathed in swirling dark purple death magic raising skeletal hands from below, tattered black scholarly robes, dark candlelit crypt behind with open forbidden tomes and scattered bones, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Ember Elemental**
+Extreme close-up portrait of a living fire elemental, a swirling column of roaring flame taking a vaguely humanoid shape, face formed of white-hot core fire with blazing orange and red eyes like furnace holes, mouth a howling vent of superheated air, tendrils of flame whipping outward, molten cracks forming shifting expressions of rage, sparks and embers spiraling upward, scorched blackened earth below, dark smoke-filled background with an orange-red hellish glow, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Frost Elemental**
+Extreme close-up portrait of a frost elemental, a towering figure of jagged translucent blue-white ice taking humanoid form, face carved from glacial ice with deep cold blue glowing eyes full of ancient hatred, mouth a cracking fissure exhaling visible freezing mist, sharp crystalline ice shards forming a crown and jutting from shoulders, frost spreading outward from its form freezing the air into visible crystals, dark frozen tundra behind with howling blizzard and deep blue twilight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Dire Bear**
+Extreme close-up portrait of an impossibly massive dire bear roaring with jaws open wide enough to swallow a man, enormous yellowed fangs like daggers, heavy scarred muzzle with dozens of old wounds and a torn lip, one eye milky blind from an old slash the other small and burning with territorial fury, coarse thick dark brown fur scarred and patchy across mountainous shoulders, claws like iron hooks visible at the edge of frame, rocky mountain pass behind with snow and dark storm clouds, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Swamp Revenant**
+Extreme close-up portrait of a drowned medieval soldier rising from black bog water, waterlogged bloated grey-green skin, hollow dark eye sockets with faint cold blue spectral light within, rusted chainmail and rotting leather armor draped with trailing bog weeds and dark mud, jaw hanging slightly open with murky water draining out, an old sword wound still visible across the throat, one gauntleted hand reaching forward trailing strands of algae and roots, dark misty swamp behind with still black water and dead pale trees, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Goblin Warchief**
+Extreme close-up portrait of a massive battle-hardened goblin warchief with deep green weathered skin covered in ritual scars and crude war tattoos, wearing a bent tarnished copper crown jammed onto a broad skull, small cunning cruel eyes burning with intelligence and malice, wide mouth pulled into a commanding snarl showing iron-capped teeth, heavy jaw, thick neck hung with trophies of human finger bones and broken sword pommels, wearing heavy patchwork armor of scavenged plate and leather, dark torch-lit war camp behind with hundreds of goblin banner silhouettes, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Arch-Necromancer**
+Extreme close-up portrait of an ancient arch-necromancer who has practiced death magic for decades, skin like cracked dry parchment stretched over a skeletal frame, eyes replaced by steady flickering candleflame burning in hollow sockets casting dancing shadows across sharp cheekbones, thin cruel smile on desiccated lips, elaborate dark robes with silver bone-motif embroidery, skeletal fingers adorned with heavy dark gemstone rings clutching an ancient staff topped with a skull whose eyes also burn, swirling dark necrotic energy and ghostly spirits in the background, dark cathedral ruin behind, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Storm Elemental**
+Extreme close-up portrait of a storm elemental, a howling vortex of dark thundercloud and shrieking wind taking a raging humanoid shape, face formed of roiling dark grey stormcloud with eyes of blinding crackling white-blue lightning, mouth a screaming gale of wind, bolts of lightning arcing across its churning form and striking outward, rain lashing horizontally, the air around it distorted and charged with static, dark violent purple-black thunderstorm sky behind, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Infernal Knight**
+Extreme close-up portrait of a towering demon in stolen medieval full plate armor, helmet visor raised revealing a terrible face of cracked obsidian-black skin with glowing molten red fissures, burning sulfurous yellow eyes with slitted pupils full of ancient malice, curved ram horns protruding through the battered helmet, heavy plate armor blackened and warped by heat with hellfire pouring through every joint and seam, dark flames licking upward from the shoulders, massive gauntleted fist gripping a jagged burning greatsword, scorched hellish battlefield behind with distant fires and ash-filled sky, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+---
+
+## New Mission Scenes (Content Expansion)
+
+Mission scenes: wide format, atmospheric, adventurers present but not the focus.
+All use: realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**The Bear's Den**
+Wide shot of a sun-dappled forest clearing beside a rutted lumber road, a dark cave mouth half-hidden by mossy boulders, scattered woodcutting axes and a toppled handcart abandoned in haste, deep claw marks scoring a nearby pine trunk, a small party of adventurers approaching cautiously with weapons drawn, warm golden afternoon light filtering through the canopy contrasting with the pitch-black maw of the den, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Rabid Boar Hunt**
+Wide shot of the muddy edge of a frontier settlement, a low timber fence smashed apart, vegetable garden rows torn up and trampled into churned earth, three wild boars with matted bristling fur rooting aggressively through the wreckage, adventurers fanning out in the middle distance with spears lowered, a thatched farmhouse in the background with shutters barred, overcast grey sky with pale morning light, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Clear the Marshes**
+Wide shot of a boggy marshland stretching to the horizon, patches of medicinal herbs growing between tussocks, several adders coiled on half-submerged logs and slithering through shallow brown water, a small herbalist camp with a lean-to shelter and drying racks visible on a muddy island, adventurers wading knee-deep through the marsh with torches held high, pale sickly green fog hanging low over the water, diffused grey daylight, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**The Shaman's Hex**
+Wide shot of a crude goblin encampment at the treeline, bone totems lashed together with sinew standing in a ring, strange hex symbols painted in blood on flat stones, a nearby wheat field turning black and withered as if diseased, a faint sickly green glow emanating from the central totem, adventurers crouched behind a stone wall surveying the camp, thin smoke rising from dying campfires, overcast sky with bruised yellow-grey clouds, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Ghoul Infestation**
+Wide shot of an old rural cemetery at night, weathered headstones and crooked iron fences, several graves torn open from below with mounds of fresh earth scattered, long claw marks gouged into stone tomb lids, pale emaciated figures hunched in the shadows between graves, adventurers entering through the cemetery gate with lanterns casting harsh orange light against the darkness, a crumbling chapel silhouette in the background, cold blue moonlight through thin clouds, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**The Pack Leader**
+Wide shot of a frontier pastureland under a full moon, a ridge silhouetted against the night sky with a massive wolf and its pack standing in a line watching below, broken livestock pen fences in the foreground with sheep huddled in panic, adventurers standing in the open field looking up at the ridgeline, silver moonlight washing the landscape in cold blue tones, long dark shadows stretching across frosted grass, breath visible in the cold air, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**The Bog Witch's Lair**
+Wide shot of a deep swamp with black still water reflecting a grey sky, a crooked wooden hut raised on thick stilts above the waterline, dozens of glowing glass bottles in green and amber hanging from the hut rafters and nearby branches, gnarled dead trees draped with moss, adventurers in a flat-bottomed boat poling through the dark water toward the hut, faint wisps of colored smoke curling from the hut chimney, heavy fog obscuring the distance, eerie bioluminescent patches on the water surface, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**The Burning Crypt**
+Wide shot of an ancient stone crypt built into a hillside, its heavy door broken open with fierce orange firelight pouring out from within, scorched and blackened earth radiating outward from the entrance, cracked tombstones nearby glowing with heat, smoke billowing into the night sky, adventurers shielding their faces from the heat as they approach the entrance, embers drifting upward like fireflies, the surrounding grass charred in a perfect circle, warm hellish orange light against cold dark blue night, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**The Corrupted Grove**
+Wide shot of what was once a sacred grove of ancient oaks, trees now twisted into unnatural contorted shapes with bark split open revealing pulsing dark veins, massive roots writhing above ground like serpents, the canopy blocking out all sky leaving oppressive darkness, faintly glowing purple corruption spreading across the forest floor, adventurers picking their way through the grasping roots with weapons raised, one tree in the middle distance appearing to turn its trunk as if watching, an overturned stone altar covered in black moss, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**The Necromancer's Tower**
+Wide shot of a crumbling stone tower rising from a barren wasteland at night, unnatural pale green light flickering in the upper windows, skeletal figures shambling across the dead grey earth surrounding the tower in organized rows, a ring of standing stones at the tower base crackling with dark energy, adventurers observing from behind a rocky outcrop in the foreground, the sky above the tower swirling with unnatural dark clouds forming a slow vortex, distant lightning illuminating the desolate landscape, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Elemental Rift**
+Wide shot of a jagged crack splitting open the earth in a rocky highland, raw Aether energy pouring upward in shimmering iridescent light, a fire elemental and an ice elemental clashing above the rift in an explosion of steam and sparks, the ground on one side scorched and molten while the other side is frozen in crystalline frost, adventurers bracing themselves against the supernatural wind at a safe distance, shattered boulders and upturned earth radiating from the rift, the sky directly above torn between fiery orange and glacial blue, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**The Mountain King**
+Wide shot of a narrow mountain pass between sheer cliff faces, an overturned merchant caravan with smashed wooden crates and scattered trade goods, deep enormous paw prints pressed into the snow, the massive silhouette of a dire bear standing upright on a ledge above filling the pass with its shadow, adventurers in the foreground drawing weapons and looking up, grey storm clouds pressing down on the peaks, cold wind whipping snow across the scene, the scale of the creature dwarfing everything below, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**The Drowned Patrol**
+Wide shot of a misty swamp at night, a half-submerged old stone road disappearing into black water, translucent ghostly figures in ancient armor marching in formation along the sunken path, their faint blue-white glow reflecting off the still water, adventurers standing at the road's edge holding a single lantern that casts warm amber light against the spectral blue, dead trees rising from the water like skeletal hands, thick rolling fog obscuring everything beyond thirty feet, an overwhelming sense of silence and loss, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**The Goblin Fortress**
+Wide shot of a hilltop goblin fortress at dusk, crude but imposing walls built from salvaged timber and stolen stone, ragged war banners snapping in the wind, goblin sentries visible on the ramparts with crude crossbows, war drums and campfire smoke rising from within, siege weapons being assembled in the courtyard, a large goblin army mustering outside the gates, adventurers scouting from a wooded ridge in the foreground studying the defenses, the fortress backlit by a blood-red sunset, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Storm Peak Ascent**
+Wide shot of a barren jagged mountain peak piercing dark thunderclouds, supernatural purple and white lightning striking the summit in continuous arcs, the rock face glowing with branching electric scars, a narrow switchback trail carved into the mountainside with adventurers climbing single-file bent against howling wind, fires burning on the foothills far below like distant orange pinpricks, rain lashing horizontally, the scale of the mountain overwhelming and primordial, dark slate grey rock against violent electric purple sky, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**The Infernal Breach**
+Wide shot of a forest path consumed by hellfire, trees on both sides burning with unnatural crimson and black flames that do not consume them, the ground cracked open with molten light seeping through the fissures, a towering armored demon figure standing in the center of the path wreathed in roaring hellfire with two burning eyes visible through a horned helm, adventurers at the far end of the burning corridor silhouetted against the inferno raising shields, ash falling like black snow, the heat distorting the air, an oppressive blood-red glow replacing all natural light, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**The Necromancer's Sanctum**
+Wide shot of a vast underground stone chamber lit by floating green flame braziers, long tables covered with arcane instruments and open grimoires, glass vessels containing dark swirling substances lining the walls, organized ranks of armored undead standing motionless in formation awaiting commands, a massive summoning circle carved into the floor pulsing with necrotic energy, adventurers descending a stone staircase into the chamber from above, the ceiling lost in shadow, cold clinical precision contrasting with the horror of the undead army, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+---
+
+## New Item & Material Icons (Content Expansion)
+
+Item icons: single item on dark background, square format.
+All use: realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+### Rings
+
+**Copper Band**
+A simple polished copper ring with a warm metallic sheen, subtle hammer marks from hand-forging, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Bone Ring**
+A ring carved from pale yellowed bone, smooth and polished with faint carved rune markings, made from barrowfield remains, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Woven Vine Ring**
+A ring twisted from living green vines, tiny leaves still sprouting from the band, fresh and alive with a faint verdant glow, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Ruby Signet**
+A heavy iron signet ring set with a glowing deep red fire ruby, the gem pulses with faint inner heat, dark iron band with simple engravings, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Sapphire Ring**
+A polished silver ring set with a brilliant frost sapphire, tiny ice crystals and condensation forming on the gem's surface, cold blue glow, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Topaz Band**
+A copper ring set with a crackling storm topaz, tiny arcs of static electricity dancing across the yellow-white gem's facets, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Emerald Loop**
+A twisted silver ring with an uncut green emerald shard set into the band, the gem looks almost alive with deep forest-green light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Moonstone Seal**
+An ornate gold ring with filigree detailing, set with a large glowing white moonstone that radiates soft lunar light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Void Band**
+A dark iron ring set with a black void topaz that seems to absorb all surrounding light, faint purple veins pulse within the gem, oppressive and unnatural, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Dragonfire Ring**
+A ring textured like dragon scales, iridescent metallic surface, set with a pulsing fire ruby that glows like a burning ember, draconic and ancient, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+### Head Armor
+
+**Iron Helm**
+A heavy medieval steel helmet with a prominent nose guard, riveted construction, battle-worn with scratches, Norman-style spangenhelm, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Chainmail Coif**
+An iron chainmail hood draped as if worn, thousands of interlocking rings, covering head and neck, functional and utilitarian, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Wizard's Hat**
+A tall pointed wizard hat in deep blue-purple fabric, embroidered with faintly glowing arcane sigils and star patterns, worn and well-traveled, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Priest's Circlet**
+A simple thin gold circlet band with a small moonstone chip set at the front, elegant and understated, faint holy glow, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Shadow Cowl**
+A dark leather hood that covers everything but the eyes, deep black with subtle stitching, menacing and stealthy, shadows cling unnaturally to the fabric, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Bear-Skull Helm**
+A hollowed-out dire bear skull used as a helmet, lined with thick brown fur, massive fangs framing where the face would be, barbaric and intimidating, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+### Leg Armor
+
+**Iron Greaves**
+Heavy steel leg plates with articulated knee guards, riveted and strapped with leather, battle-ready medieval plate armor for the legs, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Cloth Leggings**
+Reinforced linen pants in off-white, prayer-stitched hems with tiny sacred symbols sewn along the edges, simple and priestly, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Ranger's Trousers**
+Dark green and brown leather-reinforced trousers, flexible and built for running, knee patches of hardened leather, forest-worn and practical, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Wyrmscale Greaves**
+Dragon-scale leg plates with an iridescent sheen shifting between green and gold, overlapping scales form natural armor, exotic and legendary, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+### Boots
+
+**Iron Sabatons**
+Heavy plated steel boots with articulated toe guards, riveted construction, strapped over chainmail, imposing medieval foot armor, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Soft Shoes**
+Simple cloth shoes with cork soles, beige and unassuming, stitched by hand, worn by scholars and priests, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Scout's Boots**
+Supple dark leather boots reaching mid-calf, soft-soled for silent movement, well-oiled and form-fitting, a rogue's footwear, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Trollhide Boots**
+Thick ugly boots made from mottled green-gray troll leather, rough and lumpy texture, stitched with heavy sinew, the leather seems to slowly regenerate cuts, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+### Amulets
+
+**Holy Pendant**
+A moonstone set in an ornate silver pendant on a fine chain, the stone glows softly with warm white light, sacred and serene, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Amber Charm**
+A large piece of ancient amber set as a pendant, a perfectly preserved insect trapped inside, warm honey-gold glow, hung on a leather cord, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Predator's Tooth**
+A large alpha wolf fang hung on a braided sinew cord, the tooth is massive and yellowed, still sharp, primal and savage, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Warlord's Chain**
+A heavy necklace of dark orc-steel chain links, clasped with a glowing fire ruby, brutal craftsmanship, war-trophy aesthetic, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Ghostveil Locket**
+A small ornate silver locket slightly ajar, a wisp of ghostly translucent fabric spilling out, eerie pale glow emanating from within, haunted and delicate, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+### Off-Hand
+
+**Arcane Focus**
+A crystal orb floating slightly above an ornate stand, swirling magical energy glowing within, blue and purple arcane light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Prayer Book**
+A leather-bound book with gold lettering on the cover, well-thumbed pages, a holy bookmark ribbon, worn with devoted use, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Parrying Dagger**
+A wide-bladed dagger with an elaborate swept guard designed for catching and trapping sword blades, functional and elegant, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Quiver of Precision**
+A fine leather quiver filled with arrows whose tips glow faintly with enchanted light, intricate tooled leather patterns, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+### Weapons
+
+**Stiletto**
+A needle-thin assassination dagger with a long narrow blade, minimal crossguard, wrapped leather grip, designed purely for killing, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Poisoned Blade**
+A curved dagger with a green-glowing venom groove running along the blade, drops of poison collecting at the tip, sinister and deadly, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Shadow Dagger**
+A dagger forged from void-touched dark steel that seems to drink surrounding light, the blade edges blur into shadow, unnatural and menacing, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Iron Mace**
+A heavy blunt flanged mace with a leather-wrapped grip, brutal steel head with sharp flanges, simple and devastating, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Blessed Mace**
+A golden mace capped with a glowing moonstone at the head, radiating warm holy light, ornate handle with sacred engravings, weapon of a holy warrior, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+### Boss Drop Items
+
+**Alpha's Fang**
+A large wolf fang amulet on a crude leather cord, the fang is massive and yellowed, still sharp, primal trophy from an apex predator, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Witch's Eye**
+A glass-like eye set in an ornate pendant, the iris seems to shift and blink on its own, unsettling and alive, veins of red visible in the white, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Goblin Crown**
+A bent and dented copper crown crudely studded with mismatched stolen gems, lopsided and ugly, a goblin king's prized treasure, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Necromancer's Cowl**
+A dark hooded cloak that seems to writhe with faint spectral whispers, tattered edges, shadows move unnaturally within the hood, death magic radiates from the fabric, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Beast Heart Charm**
+A dried dire bear heart bound tightly in leather cords, dark and shriveled but faintly pulsing with residual life force, hung as a chest pendant, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Infernal Signet**
+A demon-forged iron ring with an embedded fire ruby that burns cold, frost forming around a glowing red gem, contradictory and unnatural, infernal runes etched into the band, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+### Elemental Gems
+
+**Crude Ruby**
+A rough uncut cloudy red gemstone, irregular shape, raw and unpolished with visible imperfections, dull red glow within, sitting on dark stone, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Fire Ruby**
+A deep red expertly cut gemstone pulsing with intense inner heat, facets catch light like living flame, warm glow radiates outward, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Frost Sapphire**
+A brilliant blue cut gemstone with frost actively crystallizing on its surface, cold mist rising from the gem, icy and magical, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Storm Topaz**
+A yellow-white cut gemstone crackling with tiny arcs of static electricity, the gem vibrates with contained storm energy, electric and volatile, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Void Topaz**
+A black gemstone with faint purple veins pulsing within, absorbs all surrounding light creating a dark halo, deeply unsettling, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Emerald Shard**
+A raw green crystal fragment that seems almost alive, inner light pulses like a heartbeat, jagged and uncut, vibrant forest green, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Moonstone**
+A smooth white milky gemstone with an inner shimmer of moonlight, opalescent surface shifts with soft silver glow, serene and celestial, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+### Building
+
+**Jewelcrafter**
+Exterior of a small medieval artisan workshop specializing in gem cutting, jeweler's tools and magnifying lenses visible through the front window, cut gems displayed in the window sill, precise and delicate craft, stone and timber construction, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+---
+
+## World Map
+
+**The Continent of Valenheart — Fantasy Map**
+A beautifully illustrated medieval fantasy continent map in the style of a hand-drawn parchment cartographic illustration, the continent shaped roughly like a tilted shield with a massive grey dead zone in the south-center (the Hollow Wastes) spreading northward with jagged irregular borders, the Ashenmark Dominion occupying the central heartlands with rolling farmland and walled cities, frozen Nordveld islands and fjords in the far north connected by sea channels, the Thornveil deep forests in the northwest dense and dark green with ancient trees, Silvaneth tree-cities hidden within, the Corsair League port cities dotting the sun-drenched western and southern coastline with harbors full of ships, the Zah'kari Sunward Kingdoms to the east with proud walled city-states on golden savanna, the Amber Crossroads (Khor'vani) at the desert trade junction in the southeast where multiple trade routes converge, the Ironspine Mountains running north-south through the east with Khazdurim holds carved into peaks, rolling green Feldgrund hills in the central-south, Hauts-Cieux floating sky-ruins visible as tiny platforms above the western mountains, the Jade Empire (Tianzhou) suggested by the edge of a vast landmass across the eastern sea, the player's Free Settlements marked in the unclaimed frontier between the Dominion and the Wastes, compass rose in the corner, sea monsters in the ocean margins, decorative cartouche with "VALENHEART" in ornate lettering, aged parchment texture with tea-stained edges and ink splatters, realistic hand-drawn cartographic illustration style, warm sepia and muted color palette, no modern text --ar 3:2
+
+**Alternative — Dark Painted Map**
+A dark atmospheric painted map of a medieval fantasy continent, seen from above as if painted on a war-room table, the Hollow Wastes glowing with faint sickly grey-green light in the south-center spreading like a stain, the living lands around it in rich jewel tones — deep green forests northwest, golden savanna east, blue-grey frozen north, warm Mediterranean coast west, arid amber desert southeast — mountains running like a spine through the eastern portion, rivers connecting inland to coast, dozens of small settlements and cities marked with tiny warm lights like campfires seen from above, trade routes shown as faint golden threads connecting cities, the boundary between living land and Wastes clearly visible as a jagged irregular front line, dramatic lighting from above as if lit by a single chandelier, oil painting style, dark rich colors on dark background, no text labels --ar 3:2
