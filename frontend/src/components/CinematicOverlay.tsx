@@ -66,14 +66,13 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
         transition: "opacity 0.8s ease",
       }}
     >
-      {/* Full-screen journal page area */}
+      {/* Centered journal */}
       <div
         style={{
           position: "relative",
-          width: "100vw",
-          height: "100vh",
+          width: "min(92vw, 920px)",
+          height: "min(85vh, 680px)",
           perspective: "2000px",
-          overflow: "hidden",
         }}
       >
         {/* Pages — stacked, each can flip */}
