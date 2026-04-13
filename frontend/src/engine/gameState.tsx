@@ -354,6 +354,7 @@ export interface GameState {
   // Quest system
   questRewardsClaimed: string[];
   firstMissionSent: boolean;
+  introSeen: boolean;
   // Story missions
   completedStoryMissions: string[];
 }
@@ -389,6 +390,7 @@ export interface GameActions {
   setGameSpeed: (speed: number) => void;
   renameVillage: (name: string) => void;
   resetGame: () => void;
+  markIntroSeen: () => void;
   skipSeason: () => void;
   getProductionRates: () => ResourceState;
   getMaxPopulation: () => number;
@@ -551,6 +553,7 @@ function createInitialState(): GameState {
     lastRerollReset: Date.now(),
     questRewardsClaimed: [],
     firstMissionSent: false,
+    introSeen: false,
     completedStoryMissions: [],
   };
 }
@@ -710,6 +713,7 @@ function loadGame(): GameState | null {
     // Quest system migration
     if (!saved.questRewardsClaimed) saved.questRewardsClaimed = [];
     if (saved.firstMissionSent === undefined) saved.firstMissionSent = false;
+    if (saved.introSeen === undefined) saved.introSeen = true; // existing saves have already "seen" the intro
     if (!saved.completedStoryMissions) saved.completedStoryMissions = [];
     // Migrate adventurers missing xp/level fields
     for (const adv of saved.adventurers) {
@@ -2518,6 +2522,11 @@ export function GameProvider(props: ParentProps) {
       const fresh = createInitialState();
       setState(reconcile(fresh));
       saveGame(fresh);
+    },
+
+    markIntroSeen() {
+      setState("introSeen", true);
+      scheduleSave();
     },
 
     skipSeason() { setState(produce((s) => { advanceSeason(s); })); },
