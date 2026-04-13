@@ -1,4 +1,4 @@
-import { createSignal, createMemo, For, Show } from "solid-js";
+import { createSignal, createMemo, createEffect, For, Show } from "solid-js";
 import { useGame } from "~/engine/gameState";
 import {
   ADVENTURER_CLASSES,
@@ -98,8 +98,6 @@ export default function MissionAssemblyPanel(props: Props) {
       }
       return prev;
     });
-    // Recompute success after team change (outside reactive context)
-    setTimeout(recomputeSuccess, 0);
   };
 
   const team = createMemo(() =>
@@ -154,9 +152,9 @@ export default function MissionAssemblyPanel(props: Props) {
       let seed = 0;
       for (let i = 0; i < seedStr.length; i++) seed = ((seed << 5) - seed + seedStr.charCodeAt(i)) | 0;
 
-      // Run 20 seeded simulations for 5% granularity (instant with seeded PRNG)
+      // Run 40 seeded simulations for 2.5% granularity (instant with seeded PRNG)
       let wins = 0;
-      const SIMS = 20;
+      const SIMS = 40;
       for (let i = 0; i < SIMS; i++) {
         if (simulateCombat(fm, snapshot, sups, seed + i)?.victory) wins++;
       }
@@ -171,6 +169,15 @@ export default function MissionAssemblyPanel(props: Props) {
     }
   }
 
+  // Reactively recompute success when team or supplies change
+  createEffect(() => {
+    // Access reactive signals to track them
+    const _ids = teamIds();
+    const _sups = supplies();
+    // Recompute (runs whenever teamIds or supplies change)
+    recomputeSuccess();
+  });
+
   const successColor = () => {
     const pct = successPct();
     return pct >= 70 ? "var(--accent-green)" :
@@ -184,7 +191,6 @@ export default function MissionAssemblyPanel(props: Props) {
       if (prev.length >= MAX_MISSION_SUPPLIES) return prev;
       return [...prev, itemId];
     });
-    setTimeout(recomputeSuccess, 0);
   };
 
   // ─── Duration ─────────────────────────────────────────────────
