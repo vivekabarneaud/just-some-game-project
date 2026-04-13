@@ -22,6 +22,7 @@ import {
   LOYALTY_RANKS,
   AGE_LABELS,
   getRosterKin,
+  CLASS_ABILITIES,
 } from "~/data/adventurers";
 import { getItem, getItemsForSlot, getEquipmentStats, getEquipmentDefense, isSupplyItem, type ItemSlot } from "~/data/items";
 import { getTalentsForClass, getTalentPoints, getUnspentTalentPoints, canUnlockTalent, getEarnedTitle, getTalent, type TalentNode } from "~/data/talents";
@@ -384,6 +385,52 @@ export default function AdventurerDetail() {
                   <div style={{ "margin-top": "16px", "padding-top": "16px", "border-top": "1px solid var(--border-color)", display: "flex", gap: "16px", "font-size": "0.8rem" }}>
                     <span style={{ color: "var(--text-muted)" }}>🛡️ DEF <span style={{ color: "var(--text-secondary)", "font-weight": "bold" }}>{getEquipmentDefense(adv().equipment)}</span></span>
                     <span style={{ color: "var(--text-muted)" }}>✨ MR <span style={{ color: "var(--text-secondary)", "font-weight": "bold" }}>{stats().wis * 3}</span></span>
+                  </div>
+
+                  {/* Combat Abilities */}
+                  <div style={{ "margin-top": "16px", "padding-top": "16px", "border-top": "1px solid var(--border-color)" }}>
+                    <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-bottom": "8px" }}>Combat Abilities</div>
+                    <For each={CLASS_ABILITIES[adv().class]}>
+                      {(ability) => (
+                        <Tooltip content={
+                          <div style={{ "max-width": "220px" }}>
+                            <div style={{ "font-weight": "bold", color: "var(--text-primary)" }}>{ability.icon} {ability.name}</div>
+                            <div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "margin-top": "4px" }}>{ability.description}</div>
+                            <div style={{ "font-size": "0.65rem", color: "var(--text-muted)", "margin-top": "4px" }}>
+                              Trigger: {ability.trigger} · Cooldown: {ability.cooldown === 99 ? "Once" : `${ability.cooldown} rounds`}
+                            </div>
+                          </div>
+                        } position="right">
+                          <div style={{
+                            display: "flex",
+                            "align-items": "center",
+                            gap: "8px",
+                            padding: "4px 6px",
+                            "margin-bottom": "3px",
+                            "border-radius": "4px",
+                            background: "rgba(255, 255, 255, 0.02)",
+                            cursor: "help",
+                            "font-size": "0.8rem",
+                          }}>
+                            <span>{ability.icon}</span>
+                            <span style={{ color: "var(--text-secondary)" }}>{ability.name}</span>
+                            <span style={{ "font-size": "0.65rem", color: "var(--text-muted)", "margin-left": "auto" }}>{ability.trigger}</span>
+                          </div>
+                        </Tooltip>
+                      )}
+                    </For>
+                    {/* Class passive */}
+                    <div style={{
+                      "margin-top": "6px",
+                      padding: "4px 8px",
+                      "border-radius": "4px",
+                      background: "rgba(245, 197, 66, 0.05)",
+                      border: "1px solid rgba(245, 197, 66, 0.15)",
+                      "font-size": "0.75rem",
+                      color: "var(--accent-gold)",
+                    }}>
+                      {cls().passive.name}: {cls().passive.description}
+                    </div>
                   </div>
                 </div>
 

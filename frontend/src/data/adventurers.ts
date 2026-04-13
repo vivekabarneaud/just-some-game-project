@@ -396,7 +396,7 @@ export const ADVENTURER_CLASSES: ClassMeta[] = [
   {
     id: "wizard", name: "Wizard", icon: "🔮",
     description: "Arcane caster. Essential for magical and exploration missions.",
-    passive: { name: "Arcane Haste", description: "Reduces mission duration by 15%. Bonus success on magical missions." },
+    passive: { name: "Arcane Haste", description: "-10% mission duration. +15 magic resistance to the party. +25% scroll effectiveness." },
   },
   {
     id: "priest", name: "Priest", icon: "✝️",
@@ -406,7 +406,7 @@ export const ADVENTURER_CLASSES: ClassMeta[] = [
   {
     id: "archer", name: "Archer", icon: "🏹",
     description: "Keen-eyed marksman. Good at scouting and ranged combat.",
-    passive: { name: "Eagle Eye", description: "+8% success (+13% on outdoor/exploration). Bonus on outdoor/exploration missions." },
+    passive: { name: "Eagle Eye", description: "+3 DEX to all party members in combat. Keen scouting keeps everyone alert." },
   },
   {
     id: "assassin", name: "Assassin", icon: "🗡️",
@@ -418,6 +418,39 @@ export const ADVENTURER_CLASSES: ClassMeta[] = [
 export function getClassMeta(cls: AdventurerClass) {
   return ADVENTURER_CLASSES.find((c) => c.id === cls)!;
 }
+
+/** Combat abilities per class — displayed on adventurer detail page */
+export interface ClassAbility {
+  name: string;
+  icon: string;
+  description: string;
+  cooldown: number;
+  trigger: string;
+}
+
+export const CLASS_ABILITIES: Record<AdventurerClass, ClassAbility[]> = {
+  warrior: [
+    { name: "Taunt", icon: "🛡️", description: "Forces all enemies to attack this warrior for a short time. Protects wounded allies.", cooldown: 4, trigger: "Ally below 30% HP" },
+    { name: "Cleave", icon: "⚔️", description: "A wide swing hitting 2 enemies at once for 70% damage each.", cooldown: 3, trigger: "2+ enemies alive" },
+    { name: "Shield Wall", icon: "🛡️", description: "Absorbs a killing blow meant for an ally. Once per combat.", cooldown: 99, trigger: "Ally would die" },
+  ],
+  wizard: [
+    { name: "Fireball", icon: "🔥", description: "Blasts all enemies with fire for 50% damage each.", cooldown: 3, trigger: "3+ enemies alive" },
+    { name: "Frost Bolt", icon: "❄️", description: "Strikes the toughest enemy for 130% damage and slows them.", cooldown: 2, trigger: "Default attack" },
+  ],
+  priest: [
+    { name: "Group Heal", icon: "💚", description: "Heals all wounded allies for 30% of their max HP.", cooldown: 3, trigger: "2+ allies below 50% HP" },
+    { name: "Smite", icon: "✨", description: "Holy strike for 140% damage against the weakest enemy.", cooldown: 2, trigger: "Default attack" },
+  ],
+  archer: [
+    { name: "Multi-Shot", icon: "🏹", description: "Fires at up to 3 enemies for 60% damage each.", cooldown: 3, trigger: "2+ enemies alive" },
+    { name: "Aimed Shot", icon: "🎯", description: "A guaranteed critical hit on the toughest enemy.", cooldown: 4, trigger: "Default attack" },
+  ],
+  assassin: [
+    { name: "Backstab", icon: "🗡️", description: "Strikes a wounded enemy for 200% damage. Finisher.", cooldown: 2, trigger: "Enemy below 40% HP" },
+    { name: "Poison", icon: "☠️", description: "Poisons the toughest enemy, dealing 30% damage over 3 rounds.", cooldown: 4, trigger: "Default attack" },
+  ],
+};
 
 // ─── Ranks ──────────────────────────────────────────────────────
 

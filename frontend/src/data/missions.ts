@@ -1252,8 +1252,8 @@ export const MISSION_POOL: MissionTemplate[] = [
 
 /** Warrior: flat +10% success */
 // Class bonuses removed — success is driven by stats + combat simulation
-/** Wizard: reduces mission duration by 15% per wizard */
-export const WIZARD_DURATION_REDUCTION = 0.15;
+/** Wizard: reduces mission duration by 10% per wizard */
+export const WIZARD_DURATION_REDUCTION = 0.10;
 /** Assassin: +20% bonus rewards on success, 30% partial loot on failure */
 export const ASSASSIN_LOOT_BONUS = 0.20;
 export const ASSASSIN_FAIL_LOOT = 0.30;

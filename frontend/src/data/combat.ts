@@ -828,6 +828,23 @@ export function simulateCombat(
     }
   }
 
+  // Archer passive: Eagle Eye — +3 DEX to entire party per archer
+  const archerCount = team.filter((a) => a.class === "archer").length;
+  if (archerCount > 0) {
+    const dexBonus = archerCount * 3;
+    for (const unit of adventurers) {
+      unit.dex += dexBonus;
+    }
+  }
+
+  // Wizard passive: Arcane Haste — +15 magic resistance to entire party per wizard
+  const wizardCount = team.filter((a) => a.class === "wizard").length;
+  if (wizardCount > 0) {
+    for (const unit of adventurers) {
+      unit.wis += wizardCount * 3; // +3 WIS per wizard (WIS drives magic resistance: WIS * 3 = MR)
+    }
+  }
+
   const enemies = buildEnemyUnits(mission.encounters);
   const totalEnemies = enemies.length;
   if (enemies.length === 0) return null;
