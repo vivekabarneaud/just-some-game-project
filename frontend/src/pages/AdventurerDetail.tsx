@@ -817,18 +817,28 @@ export default function AdventurerDetail() {
                           } position="left">
                             <div style={{
                               display: "flex",
-                              "flex-direction": "column",
                               "align-items": "center",
-                              gap: "4px",
-                              padding: "8px",
+                              gap: "10px",
+                              padding: "6px",
                               "border-radius": "6px",
                               background: "rgba(255, 255, 255, 0.03)",
                               border: "1px solid var(--border-color)",
                               cursor: "help",
                               transition: "border-color 0.15s",
+                              width: "160px",
                             }}>
-                              <span style={{ "font-size": "1.5rem" }}>{ability.icon}</span>
-                              <span style={{ "font-size": "0.75rem", color: "var(--text-secondary)", "text-align": "center" }}>{ability.name}</span>
+                              <div style={{
+                                width: "36px",
+                                height: "36px",
+                                "flex-shrink": 0,
+                                display: "flex",
+                                "align-items": "center",
+                                "justify-content": "center",
+                                "font-size": "1.3rem",
+                                "border-radius": "4px",
+                                background: "rgba(255, 255, 255, 0.05)",
+                              }}>{ability.icon}</div>
+                              <span style={{ "font-size": "0.8rem", color: "var(--text-secondary)" }}>{ability.name}</span>
                             </div>
                           </Tooltip>
                         )}
