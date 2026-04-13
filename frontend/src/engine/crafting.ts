@@ -556,4 +556,88 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     costs: [{ resource: "food", amount: 18 }, { resource: "wood", amount: 2 }], produces: { resource: "potions", amount: 1 }, craftTime: 60 },
   { id: "fishermans_broth", name: "Fisherman's Broth", icon: "🥣", building: "kitchen", minLevel: 7,
     costs: [{ resource: "food", amount: 15 }], produces: { resource: "potions", amount: 1 }, craftTime: 60 },
+
+  // ── Origin Recipes (loyalty-unlocked) ───────────────────────────
+  // Discovered when an adventurer from that origin reaches the required loyalty rank.
+  // These use the discoveredRecipes system (same as Alchemy research).
+
+  // Ashwick — hearty English comfort food
+  { id: "shepherds_pie", name: "Shepherd's Pie", icon: "🥧", building: "kitchen", minLevel: 3,
+    costs: [{ resource: "food", amount: 18 }], produces: { resource: "potions", amount: 1 }, craftTime: 45 },
+  { id: "ashwick_ale_stew", name: "Ashwick Ale Stew", icon: "🍺", building: "kitchen", minLevel: 5,
+    costs: [{ resource: "food", amount: 15 }], produces: { resource: "potions", amount: 1 }, craftTime: 60 },
+  { id: "blackberry_crumble", name: "Blackberry Crumble", icon: "🫐", building: "kitchen", minLevel: 5,
+    costs: [{ resource: "food", amount: 10 }, { resource: "honey", amount: 1 }, { resource: "fruit", amount: 1 }], produces: { resource: "potions", amount: 1 }, craftTime: 60 },
+
+  // Nordveld — smoky, preserved, harsh-winter food
+  { id: "smoked_elk_berries", name: "Smoked Elk & Cloudberries", icon: "🫐", building: "kitchen", minLevel: 3,
+    costs: [{ resource: "food", amount: 15 }, { resource: "wood", amount: 2 }], produces: { resource: "potions", amount: 1 }, craftTime: 45 },
+  { id: "nordveld_porridge", name: "Nordveld Barley Porridge", icon: "🥣", building: "kitchen", minLevel: 5,
+    costs: [{ resource: "food", amount: 10 }, { resource: "honey", amount: 1 }], produces: { resource: "potions", amount: 1 }, craftTime: 30 },
+  { id: "pickled_herring", name: "Pickled Herring", icon: "🐟", building: "kitchen", minLevel: 5,
+    costs: [{ resource: "food", amount: 12 }], produces: { resource: "potions", amount: 1 }, craftTime: 45 },
+
+  // Meridian — Mediterranean seafood and bold flavors
+  { id: "saffron_fish_stew", name: "Saffron Fish Stew", icon: "🍲", building: "kitchen", minLevel: 3,
+    costs: [{ resource: "food", amount: 15 }], produces: { resource: "potions", amount: 1 }, craftTime: 60 },
+  { id: "grilled_octopus", name: "Grilled Octopus", icon: "🐙", building: "kitchen", minLevel: 5,
+    costs: [{ resource: "food", amount: 15 }, { resource: "wood", amount: 2 }], produces: { resource: "potions", amount: 1 }, craftTime: 60 },
+  { id: "fig_honey_toast", name: "Fig & Honey Toast", icon: "🍯", building: "kitchen", minLevel: 5,
+    costs: [{ resource: "food", amount: 8 }, { resource: "honey", amount: 2 }, { resource: "fruit", amount: 1 }], produces: { resource: "potions", amount: 1 }, craftTime: 45 },
+
+  // Zah'kari — bold spiced dishes, communal portions
+  { id: "groundnut_spice_bowl", name: "Groundnut Spice Bowl", icon: "🥜", building: "kitchen", minLevel: 3,
+    costs: [{ resource: "food", amount: 14 }], produces: { resource: "potions", amount: 1 }, craftTime: 45 },
+  { id: "jollof_rice", name: "Zah'kari Jollof", icon: "🍚", building: "kitchen", minLevel: 5,
+    costs: [{ resource: "food", amount: 18 }], produces: { resource: "potions", amount: 1 }, craftTime: 60 },
+  { id: "plantain_pepper_fry", name: "Plantain Pepper Fry", icon: "🍌", building: "kitchen", minLevel: 5,
+    costs: [{ resource: "food", amount: 12 }], produces: { resource: "potions", amount: 1 }, craftTime: 45 },
+
+  // Tianzhou — delicate, precise, balanced
+  { id: "steamed_dumplings", name: "Steamed Dumplings", icon: "🥟", building: "kitchen", minLevel: 3,
+    costs: [{ resource: "food", amount: 14 }], produces: { resource: "potions", amount: 1 }, craftTime: 45 },
+  { id: "five_spice_duck", name: "Five-Spice Duck", icon: "🦆", building: "kitchen", minLevel: 5,
+    costs: [{ resource: "food", amount: 20 }], produces: { resource: "potions", amount: 1 }, craftTime: 90 },
+  { id: "jade_tea_soup", name: "Jade Tea Soup", icon: "🍵", building: "kitchen", minLevel: 5,
+    costs: [{ resource: "food", amount: 10 }], produces: { resource: "potions", amount: 1 }, craftTime: 45 },
+
+  // Khor'vani — aromatic, slow-cooked, layered spices
+  { id: "lamb_tagine", name: "Lamb Tagine", icon: "🍲", building: "kitchen", minLevel: 3,
+    costs: [{ resource: "food", amount: 16 }], produces: { resource: "potions", amount: 1 }, craftTime: 60 },
+  { id: "saffron_rice_pilaf", name: "Saffron Rice Pilaf", icon: "🍚", building: "kitchen", minLevel: 5,
+    costs: [{ resource: "food", amount: 14 }], produces: { resource: "potions", amount: 1 }, craftTime: 60 },
+  { id: "rosewater_pastries", name: "Rosewater Pastries", icon: "🌹", building: "kitchen", minLevel: 5,
+    costs: [{ resource: "food", amount: 10 }, { resource: "honey", amount: 2 }], produces: { resource: "potions", amount: 1 }, craftTime: 60 },
+
+  // Silvaneth — wild, foraged, living-forest cuisine
+  { id: "honeyed_acorn_bread", name: "Honeyed Acorn Bread", icon: "🌰", building: "kitchen", minLevel: 3,
+    costs: [{ resource: "food", amount: 10 }, { resource: "honey", amount: 2 }], produces: { resource: "potions", amount: 1 }, craftTime: 45 },
+  { id: "elderflower_broth", name: "Elderflower Broth", icon: "🌸", building: "kitchen", minLevel: 5,
+    costs: [{ resource: "food", amount: 10 }], produces: { resource: "potions", amount: 1 }, craftTime: 45 },
+  { id: "moss_wrapped_trout", name: "Moss-Wrapped Trout", icon: "🐟", building: "kitchen", minLevel: 5,
+    costs: [{ resource: "food", amount: 12 }], produces: { resource: "potions", amount: 1 }, craftTime: 60 },
+
+  // Hauts-Cieux — refined, delicate, almost too elegant for the frontier
+  { id: "starfruit_meringue", name: "Starfruit Meringue", icon: "⭐", building: "kitchen", minLevel: 3,
+    costs: [{ resource: "food", amount: 8 }, { resource: "fruit", amount: 2 }, { resource: "honey", amount: 1 }], produces: { resource: "potions", amount: 1 }, craftTime: 60 },
+  { id: "crystal_consomme", name: "Crystal Consommé", icon: "🥣", building: "kitchen", minLevel: 5,
+    costs: [{ resource: "food", amount: 12 }], produces: { resource: "potions", amount: 1 }, craftTime: 60 },
+  { id: "moonpetal_sorbet", name: "Moonpetal Sorbet", icon: "🍨", building: "kitchen", minLevel: 7,
+    costs: [{ resource: "food", amount: 8 }, { resource: "fruit", amount: 2 }, { resource: "honey", amount: 2 }], produces: { resource: "potions", amount: 1 }, craftTime: 90 },
+
+  // Khazdurim — heavy, hearty, forge-cooked
+  { id: "forge_roasted_boar", name: "Forge-Roasted Boar", icon: "🐗", building: "kitchen", minLevel: 3,
+    costs: [{ resource: "food", amount: 20 }, { resource: "wood", amount: 3 }], produces: { resource: "potions", amount: 1 }, craftTime: 60 },
+  { id: "deep_mushroom_stew", name: "Deep Mushroom Stew", icon: "🍄", building: "kitchen", minLevel: 5,
+    costs: [{ resource: "food", amount: 14 }], produces: { resource: "potions", amount: 1 }, craftTime: 60 },
+  { id: "iron_bread", name: "Iron Bread", icon: "🍞", building: "kitchen", minLevel: 5,
+    costs: [{ resource: "food", amount: 12 }, { resource: "iron", amount: 1 }], produces: { resource: "potions", amount: 1 }, craftTime: 45 },
+
+  // Feldgrund — cozy, abundant, pub food
+  { id: "harvest_ale_stew", name: "Harvest Ale Stew", icon: "🍺", building: "kitchen", minLevel: 3,
+    costs: [{ resource: "food", amount: 15 }], produces: { resource: "potions", amount: 1 }, craftTime: 45 },
+  { id: "cheese_and_onion_pie", name: "Cheese & Onion Pie", icon: "🥧", building: "kitchen", minLevel: 5,
+    costs: [{ resource: "food", amount: 14 }], produces: { resource: "potions", amount: 1 }, craftTime: 45 },
+  { id: "apple_butter_toast", name: "Apple Butter Toast", icon: "🍎", building: "kitchen", minLevel: 5,
+    costs: [{ resource: "food", amount: 8 }, { resource: "fruit", amount: 2 }, { resource: "honey", amount: 1 }], produces: { resource: "potions", amount: 1 }, craftTime: 45 },
 ];

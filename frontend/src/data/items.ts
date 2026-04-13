@@ -693,6 +693,117 @@ export const ITEMS: ItemDefinition[] = [
     classes: [], stats: { vit: 2 }, durationMod: 1, lootMod: 1,
     recipeId: "fishermans_broth", consumable: true, foodFlavors: ["fresh", "hearty"],
   },
+  // ── Origin Recipes — Loyalty Unlocked ──────────────────────────
+
+  // Ashwick
+  { id: "shepherds_pie", name: "Shepherd's Pie", icon: "🥧", slot: "trinket",
+    description: "Ashwick comfort food — meat and mashed roots under a golden crust. Tastes like home.",
+    classes: [], stats: { vit: 2 }, durationMod: 1, lootMod: 1, recipeId: "shepherds_pie", consumable: true, foodFlavors: ["hearty"] },
+  { id: "ashwick_ale_stew", name: "Ashwick Ale Stew", icon: "🍺", slot: "trinket",
+    description: "Slow-cooked in dark ale until the meat falls apart. The Hearthlands in a bowl.",
+    classes: [], stats: { str: 1, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "ashwick_ale_stew", consumable: true, foodFlavors: ["hearty", "smoky"] },
+  { id: "blackberry_crumble", name: "Blackberry Crumble", icon: "🫐", slot: "trinket",
+    description: "Wild blackberries under a buttery oat crust with honey drizzle. Grandma's recipe.",
+    classes: [], stats: { wis: 1, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "blackberry_crumble", consumable: true, foodFlavors: ["sweet"] },
+
+  // Nordveld
+  { id: "smoked_elk_berries", name: "Smoked Elk & Cloudberries", icon: "🫐", slot: "trinket",
+    description: "Elk smoked over pine coals, served with tart cloudberries. A Nordveld jarl's meal.",
+    classes: [], stats: { str: 2 }, durationMod: 1, lootMod: 1, recipeId: "smoked_elk_berries", consumable: true, foodFlavors: ["smoky", "sweet"] },
+  { id: "nordveld_porridge", name: "Nordveld Barley Porridge", icon: "🥣", slot: "trinket",
+    description: "Thick barley porridge with honey and salt. Keeps you warm through any blizzard.",
+    classes: [], stats: { vit: 2 }, durationMod: 1, lootMod: 1, recipeId: "nordveld_porridge", consumable: true, foodFlavors: ["hearty", "sweet"] },
+  { id: "pickled_herring", name: "Pickled Herring", icon: "🐟", slot: "trinket",
+    description: "Herring preserved in brine and herbs. An acquired taste. The Nordveld never acquired any other.",
+    classes: [], stats: { dex: 1, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "pickled_herring", consumable: true, foodFlavors: ["fresh"] },
+
+  // Meridian
+  { id: "saffron_fish_stew", name: "Saffron Fish Stew", icon: "🍲", slot: "trinket",
+    description: "A Corsair captain's recipe — white fish in saffron broth with lemon and peppers.",
+    classes: [], stats: { int: 1, dex: 1 }, durationMod: 1, lootMod: 1, recipeId: "saffron_fish_stew", consumable: true, foodFlavors: ["fresh", "spicy"] },
+  { id: "grilled_octopus", name: "Grilled Octopus", icon: "🐙", slot: "trinket",
+    description: "Charred over driftwood with sea salt and olive oil. The harbor smells like this on good days.",
+    classes: [], stats: { dex: 2 }, durationMod: 1, lootMod: 1, recipeId: "grilled_octopus", consumable: true, foodFlavors: ["smoky", "fresh"] },
+  { id: "fig_honey_toast", name: "Fig & Honey Toast", icon: "🍯", slot: "trinket",
+    description: "Toasted bread with ripe figs, honey, and a whisper of sea salt. Meridian mornings in a bite.",
+    classes: [], stats: { wis: 2 }, durationMod: 1, lootMod: 1, recipeId: "fig_honey_toast", consumable: true, foodFlavors: ["sweet"] },
+
+  // Zah'kari
+  { id: "groundnut_spice_bowl", name: "Groundnut Spice Bowl", icon: "🥜", slot: "trinket",
+    description: "Crushed groundnuts in a thick spiced sauce over grain. A Zah'kari council-day staple.",
+    classes: [], stats: { str: 1, int: 1 }, durationMod: 1, lootMod: 1, recipeId: "groundnut_spice_bowl", consumable: true, foodFlavors: ["spicy", "hearty"] },
+  { id: "jollof_rice", name: "Zah'kari Jollof", icon: "🍚", slot: "trinket",
+    description: "Tomato-spiced rice with smoked meat. Every Zah'kari family claims theirs is the best.",
+    classes: [], stats: { str: 1, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "jollof_rice", consumable: true, foodFlavors: ["spicy", "smoky"] },
+  { id: "plantain_pepper_fry", name: "Plantain Pepper Fry", icon: "🍌", slot: "trinket",
+    description: "Fried plantain with crushed peppers and palm oil. Sweet heat that makes you sweat.",
+    classes: [], stats: { dex: 1, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "plantain_pepper_fry", consumable: true, foodFlavors: ["sweet", "spicy"] },
+
+  // Tianzhou
+  { id: "steamed_dumplings", name: "Steamed Dumplings", icon: "🥟", slot: "trinket",
+    description: "Delicate pork dumplings in paper-thin wrappers. A Tianzhou scholar's working lunch.",
+    classes: [], stats: { int: 1, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "steamed_dumplings", consumable: true, foodFlavors: ["fresh"] },
+  { id: "five_spice_duck", name: "Five-Spice Duck", icon: "🦆", slot: "trinket",
+    description: "Slow-roasted duck glazed in five imperial spices. An entire afternoon of cooking for one perfect meal.",
+    classes: [], stats: { str: 1, int: 1, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "five_spice_duck", consumable: true, foodFlavors: ["smoky", "spicy"] },
+  { id: "jade_tea_soup", name: "Jade Tea Soup", icon: "🍵", slot: "trinket",
+    description: "A clear broth infused with green tea and ginger. Tianzhou monks drink this before meditation.",
+    classes: [], stats: { wis: 2 }, durationMod: 1, lootMod: 1, recipeId: "jade_tea_soup", consumable: true, foodFlavors: ["fresh"] },
+
+  // Khor'vani
+  { id: "lamb_tagine", name: "Lamb Tagine", icon: "🍲", slot: "trinket",
+    description: "Slow-cooked lamb with dried fruit and twelve spices in a clay pot. The Crossroads' signature dish.",
+    classes: [], stats: { str: 1, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "lamb_tagine", consumable: true, foodFlavors: ["smoky", "spicy"] },
+  { id: "saffron_rice_pilaf", name: "Saffron Rice Pilaf", icon: "🍚", slot: "trinket",
+    description: "Golden rice studded with dried fruits and toasted nuts. Every grain worth its weight.",
+    classes: [], stats: { int: 2 }, durationMod: 1, lootMod: 1, recipeId: "saffron_rice_pilaf", consumable: true, foodFlavors: ["sweet", "spicy"] },
+  { id: "rosewater_pastries", name: "Rosewater Pastries", icon: "🌹", slot: "trinket",
+    description: "Flaky pastry soaked in rosewater and honey. The Khor'vani serve these to honored guests.",
+    classes: [], stats: { wis: 1, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "rosewater_pastries", consumable: true, foodFlavors: ["sweet"] },
+
+  // Silvaneth
+  { id: "honeyed_acorn_bread", name: "Honeyed Acorn Bread", icon: "🌰", slot: "trinket",
+    description: "Dense nutty bread sweetened with wild honey. The Silvaneth bake it in hot stones.",
+    classes: [], stats: { vit: 1, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "honeyed_acorn_bread", consumable: true, foodFlavors: ["sweet", "fresh"] },
+  { id: "elderflower_broth", name: "Elderflower Broth", icon: "🌸", slot: "trinket",
+    description: "A delicate clear broth with elderflower and forest herbs. Heals what ails you.",
+    classes: [], stats: { wis: 2 }, durationMod: 1, lootMod: 1, recipeId: "elderflower_broth", consumable: true, foodFlavors: ["fresh"] },
+  { id: "moss_wrapped_trout", name: "Moss-Wrapped Trout", icon: "🐟", slot: "trinket",
+    description: "River trout wrapped in damp moss and slow-steamed over coals. Tastes of the forest itself.",
+    classes: [], stats: { dex: 1, int: 1 }, durationMod: 1, lootMod: 1, recipeId: "moss_wrapped_trout", consumable: true, foodFlavors: ["smoky", "fresh"] },
+
+  // Hauts-Cieux
+  { id: "starfruit_meringue", name: "Starfruit Meringue", icon: "⭐", slot: "trinket",
+    description: "Whipped cloud-light meringue with crystallized starfruit. It tastes like the sky looks at dawn.",
+    classes: [], stats: { int: 1, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "starfruit_meringue", consumable: true, foodFlavors: ["sweet"] },
+  { id: "crystal_consomme", name: "Crystal Consommé", icon: "🥣", slot: "trinket",
+    description: "A broth so clear you can read through it. The Hauts-Cieux consider cloudy soup a moral failing.",
+    classes: [], stats: { int: 2 }, durationMod: 1, lootMod: 1, recipeId: "crystal_consomme", consumable: true, foodFlavors: ["fresh"] },
+  { id: "moonpetal_sorbet", name: "Moonpetal Sorbet", icon: "🍨", slot: "trinket",
+    description: "Frozen sorbet made with moonpetal essence. Glows faintly silver. Tastes of starlight and regret.",
+    classes: [], stats: { wis: 2, int: 1 }, durationMod: 1, lootMod: 1, recipeId: "moonpetal_sorbet", consumable: true, foodFlavors: ["sweet", "fresh"] },
+
+  // Khazdurim
+  { id: "forge_roasted_boar", name: "Forge-Roasted Boar", icon: "🐗", slot: "trinket",
+    description: "Whole boar roasted in forge heat until the fat crackles. The Khazdurim eat this before battle.",
+    classes: [], stats: { str: 2 }, durationMod: 1, lootMod: 1, recipeId: "forge_roasted_boar", consumable: true, foodFlavors: ["smoky", "hearty"] },
+  { id: "deep_mushroom_stew", name: "Deep Mushroom Stew", icon: "🍄", slot: "trinket",
+    description: "Mushrooms from the third level, slow-cooked in dark ale. Don't ask what level means.",
+    classes: [], stats: { vit: 1, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "deep_mushroom_stew", consumable: true, foodFlavors: ["hearty", "smoky"] },
+  { id: "iron_bread", name: "Iron Bread", icon: "🍞", slot: "trinket",
+    description: "Bread so dense you could hammer nails with it. The Khazdurim consider this a feature.",
+    classes: [], stats: { vit: 2 }, durationMod: 1, lootMod: 1, recipeId: "iron_bread", consumable: true, foodFlavors: ["hearty"] },
+
+  // Feldgrund
+  { id: "harvest_ale_stew", name: "Harvest Ale Stew", icon: "🍺", slot: "trinket",
+    description: "Root vegetables and sausage in golden ale broth. The Feldgrund version of fine dining.",
+    classes: [], stats: { vit: 1, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "harvest_ale_stew", consumable: true, foodFlavors: ["hearty"] },
+  { id: "cheese_and_onion_pie", name: "Cheese & Onion Pie", icon: "🥧", slot: "trinket",
+    description: "Flaky crust packed with caramelized onions and three kinds of cheese. Pub perfection.",
+    classes: [], stats: { vit: 2 }, durationMod: 1, lootMod: 1, recipeId: "cheese_and_onion_pie", consumable: true, foodFlavors: ["hearty", "smoky"] },
+  { id: "apple_butter_toast", name: "Apple Butter Toast", icon: "🍎", slot: "trinket",
+    description: "Thick toast with spiced apple butter. A Feldgrund child's first breakfast and an elder's last comfort.",
+    classes: [], stats: { wis: 1, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "apple_butter_toast", consumable: true, foodFlavors: ["sweet", "hearty"] },
 ];
 
 export function getItem(id: string): ItemDefinition | undefined {

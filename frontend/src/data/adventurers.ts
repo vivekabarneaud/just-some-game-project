@@ -279,6 +279,20 @@ export const LOYALTY_RANKS: LoyaltyRank[] = [
   { rank: 4, threshold: 85, title: "Bonded", description: "+5% loot bonus" },
 ];
 
+/** Origin recipes unlocked at loyalty milestones. Key = origin, value = [rank → recipeId] */
+export const ORIGIN_RECIPES: Record<string, { rank: number; recipeId: string }[]> = {
+  ashwick:    [{ rank: 2, recipeId: "shepherds_pie" }, { rank: 3, recipeId: "ashwick_ale_stew" }, { rank: 4, recipeId: "blackberry_crumble" }],
+  nordveld:   [{ rank: 2, recipeId: "smoked_elk_berries" }, { rank: 3, recipeId: "nordveld_porridge" }, { rank: 4, recipeId: "pickled_herring" }],
+  meridian:   [{ rank: 2, recipeId: "saffron_fish_stew" }, { rank: 3, recipeId: "grilled_octopus" }, { rank: 4, recipeId: "fig_honey_toast" }],
+  zahkari:    [{ rank: 2, recipeId: "groundnut_spice_bowl" }, { rank: 3, recipeId: "jollof_rice" }, { rank: 4, recipeId: "plantain_pepper_fry" }],
+  tianzhou:    [{ rank: 2, recipeId: "steamed_dumplings" }, { rank: 3, recipeId: "five_spice_duck" }, { rank: 4, recipeId: "jade_tea_soup" }],
+  khorvani:   [{ rank: 2, recipeId: "lamb_tagine" }, { rank: 3, recipeId: "saffron_rice_pilaf" }, { rank: 4, recipeId: "rosewater_pastries" }],
+  silvaneth:  [{ rank: 2, recipeId: "honeyed_acorn_bread" }, { rank: 3, recipeId: "elderflower_broth" }, { rank: 4, recipeId: "moss_wrapped_trout" }],
+  hautsciels: [{ rank: 2, recipeId: "starfruit_meringue" }, { rank: 3, recipeId: "crystal_consomme" }, { rank: 4, recipeId: "moonpetal_sorbet" }],
+  khazdurim:  [{ rank: 2, recipeId: "forge_roasted_boar" }, { rank: 3, recipeId: "deep_mushroom_stew" }, { rank: 4, recipeId: "iron_bread" }],
+  feldgrund:  [{ rank: 2, recipeId: "harvest_ale_stew" }, { rank: 3, recipeId: "cheese_and_onion_pie" }, { rank: 4, recipeId: "apple_butter_toast" }],
+};
+
 export function getLoyaltyRank(loyalty: number): LoyaltyRank {
   for (let i = LOYALTY_RANKS.length - 1; i >= 0; i--) {
     if (loyalty >= LOYALTY_RANKS[i].threshold) return LOYALTY_RANKS[i];

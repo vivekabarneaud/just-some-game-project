@@ -169,6 +169,7 @@ import {
   LOYALTY_RANKS,
   FOOD_PREFERENCES,
   type AgeCategory,
+  ORIGIN_RECIPES,
 } from "~/data/adventurers";
 import {
   type IncomingRaid,
@@ -1319,6 +1320,19 @@ export function GameProvider(props: ParentProps) {
     setLoaded(true);
   });
 
+  /** Check and unlock origin recipes when an adventurer's loyalty rank increases */
+  function unlockOriginRecipes(s: GameState, adv: { name: string; origin: string }, newRank: { rank: number }) {
+    const recipes = ORIGIN_RECIPES[adv.origin];
+    if (!recipes) return;
+    for (const { rank, recipeId } of recipes) {
+      if (rank === newRank.rank && !s.discoveredRecipes.includes(recipeId)) {
+        s.discoveredRecipes.push(recipeId);
+        const recipeName = recipeId.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+        pushEvent(s, "loot_drop", "🍳", `${adv.name} shared the recipe for ${recipeName} with the kitchens!`);
+      }
+    }
+  }
+
   function advanceSeason(s: GameState) {
     const prev = s.season;
     const next = nextSeason(s.season);
@@ -1382,6 +1396,7 @@ export function GameProvider(props: ParentProps) {
         const newRank = getLoyaltyRank(adv.loyalty);
         if (newRank.rank > oldRank.rank) {
           pushEvent(s, "loyalty_rankup", "💛", `${adv.name} is now ${newRank.title}!`);
+          unlockOriginRecipes(s, adv as any, newRank);
         }
       }
     }
@@ -1933,6 +1948,7 @@ export function GameProvider(props: ParentProps) {
                     const newRank = getLoyaltyRank(advInState.loyalty);
                     if (newRank.rank > oldRank.rank) {
                       pushEvent(s, "loyalty_rankup", "💛", `${advInState.name} is now ${newRank.title}!`);
+                      unlockOriginRecipes(s, advInState as any, newRank);
                     }
                   }
                 }
