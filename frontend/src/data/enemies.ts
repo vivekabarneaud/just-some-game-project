@@ -282,6 +282,8 @@ export const ENEMIES: EnemyDefinition[] = [
     ],
     loot: [
       { type: "resource", resource: "astralShards", chance: 0.25, min: 1, max: 2 },
+      { type: "resource", resource: "nightbloom", chance: 0.15, min: 1, max: 1 },
+      { type: "resource", resource: "nettle", chance: 0.2, min: 1, max: 2 },
       { type: "item", itemId: "enchanted_staff", chance: 0.08 },
     ],
   },
@@ -496,6 +498,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "lichglass", chance: 0.2, min: 1, max: 1 },
       { type: "resource", resource: "shimmer", chance: 0.3, min: 1, max: 2 },
       { type: "resource", resource: "barrow_ash", chance: 0.5, min: 2, max: 4 },
+      { type: "resource", resource: "nightbloom", chance: 0.12, min: 1, max: 1 },
+      { type: "resource", resource: "moonpetal", chance: 0.05, min: 1, max: 1 },
       { type: "item", itemId: "enchanted_staff", chance: 0.06 },
     ],
   },
@@ -731,6 +735,7 @@ export const ENEMIES: EnemyDefinition[] = [
     loot: [
       { type: "resource", resource: "glowcap_spore", chance: 0.3, min: 1, max: 2 },
       { type: "resource", resource: "chitin_plate", chance: 0.1, min: 1, max: 1 },
+      { type: "resource", resource: "chamomile", chance: 0.15, min: 1, max: 1 },
     ],
   },
 
@@ -751,6 +756,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "hex_fetish", chance: 0.25, min: 1, max: 1 },
       { type: "resource", resource: "crude_ruby", chance: 0.1, min: 1, max: 1 },
       { type: "resource", resource: "gold", chance: 0.3, min: 3, max: 8 },
+      { type: "resource", resource: "chamomile", chance: 0.25, min: 1, max: 2 },
+      { type: "resource", resource: "mugwort", chance: 0.2, min: 1, max: 1 },
     ],
   },
   {
@@ -804,6 +811,9 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "hex_fetish", chance: 0.5, min: 1, max: 2 },
       { type: "resource", resource: "witch_eye", chance: 0.2, min: 1, max: 1 },
       { type: "resource", resource: "nightbloom", chance: 0.15, min: 1, max: 1 },
+      { type: "resource", resource: "mugwort", chance: 0.3, min: 1, max: 2 },
+      { type: "resource", resource: "nettle", chance: 0.2, min: 1, max: 1 },
+      { type: "resource", resource: "snake_oil", chance: 0.15, min: 1, max: 1 },
       { type: "item", itemId: "witch_eye_trinket", chance: 0.08 },
     ],
   },
@@ -841,6 +851,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "amber_resin", chance: 0.2, min: 1, max: 2 },
       { type: "resource", resource: "emerald_shard", chance: 0.15, min: 1, max: 1 },
       { type: "resource", resource: "wood", chance: 0.8, min: 10, max: 25 },
+      { type: "resource", resource: "chamomile", chance: 0.2, min: 1, max: 2 },
+      { type: "resource", resource: "mugwort", chance: 0.15, min: 1, max: 1 },
     ],
   },
   {
@@ -861,6 +873,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "grave_dust", chance: 0.4, min: 1, max: 3 },
       { type: "resource", resource: "lichglass", chance: 0.1, min: 1, max: 1 },
       { type: "resource", resource: "gold", chance: 0.6, min: 10, max: 30 },
+      { type: "resource", resource: "nettle", chance: 0.25, min: 1, max: 2 },
+      { type: "resource", resource: "nightbloom", chance: 0.1, min: 1, max: 1 },
     ],
   },
   {
@@ -933,6 +947,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "ghostweave", chance: 0.15, min: 1, max: 1 },
       { type: "resource", resource: "grave_dust", chance: 0.3, min: 1, max: 2 },
       { type: "resource", resource: "snake_oil", chance: 0.2, min: 1, max: 1 },
+      { type: "resource", resource: "mugwort", chance: 0.2, min: 1, max: 1 },
+      { type: "resource", resource: "nettle", chance: 0.15, min: 1, max: 1 },
     ],
   },
 
@@ -978,6 +994,9 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "soul_shard", chance: 0.5, min: 1, max: 3 },
       { type: "resource", resource: "shadow_fragment", chance: 0.15, min: 1, max: 1 },
       { type: "resource", resource: "void_topaz", chance: 0.1, min: 1, max: 1 },
+      { type: "resource", resource: "nightbloom", chance: 0.2, min: 1, max: 2 },
+      { type: "resource", resource: "moonpetal", chance: 0.08, min: 1, max: 1 },
+      { type: "resource", resource: "nettle", chance: 0.3, min: 1, max: 3 },
       { type: "item", itemId: "necromancer_cowl", chance: 0.06 },
     ],
   },
