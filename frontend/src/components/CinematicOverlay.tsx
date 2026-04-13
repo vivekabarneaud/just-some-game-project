@@ -11,19 +11,26 @@ interface CinematicOverlayProps {
   slides: CinematicSlide[];
   onComplete: () => void;
   villageName?: string;
+  parchmentImage?: string;
 }
 
+const IS_DEV = import.meta.env.DEV;
+const DEFAULT_PARCHMENT = IS_DEV
+  ? "/images/stories/parchment_texture.png"
+  : "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/parchment_texture.png";
+
 export default function CinematicOverlay(props: CinematicOverlayProps) {
-  const [currentPage, setCurrentPage] = createSignal(0);
+  const [currentSlide, setCurrentSlide] = createSignal(0);
   const [exiting, setExiting] = createSignal(false);
   const [ready, setReady] = createSignal(false);
   const [textVisible, setTextVisible] = createSignal(true);
-  const [pageSize, setPageSize] = createSignal({ w: 600, h: 800 });
+  const [pageSize, setPageSize] = createSignal({ w: 600, h: 600 });
   let flipContainerRef: HTMLDivElement | undefined;
   let pageFlip: PageFlip | undefined;
 
-  const slide = () => props.slides[currentPage()];
-  const isLast = () => currentPage() >= props.slides.length - 1;
+  const parchment = () => props.parchmentImage ?? DEFAULT_PARCHMENT;
+  const slide = () => props.slides[currentSlide()];
+  const isLast = () => currentSlide() >= props.slides.length - 1;
 
   const resolveText = (text: string) => {
     return text.replace(/\{villageName\}/g, props.villageName ?? "the settlement");
@@ -41,7 +48,25 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
       return;
     }
     setTextVisible(false);
+    // Flip two pages: the content page and the parchment-back behind it
     pageFlip?.flipNext();
+    // After the first flip reveals the parchment back, immediately flip again
+    setTimeout(() => {
+      pageFlip?.flipNext();
+    }, 300);
+  };
+
+  // Build interleaved pages: [content, parchmentBack, content, parchmentBack, ...]
+  // Last content page has no parchment after it
+  const buildPages = () => {
+    const pages: { type: "content" | "back"; slideIndex?: number }[] = [];
+    for (let i = 0; i < props.slides.length; i++) {
+      pages.push({ type: "content", slideIndex: i });
+      if (i < props.slides.length - 1) {
+        pages.push({ type: "back" });
+      }
+    }
+    return pages;
   };
 
   onMount(() => {
@@ -49,7 +74,6 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
 
     const maxW = Math.min(window.innerWidth * 0.85, 680);
     const maxH = Math.min(window.innerHeight * 0.72, 680);
-    // Square-ish page for the journal (the composited images are ~1:1)
     const size = Math.floor(Math.min(maxW, maxH));
     setPageSize({ w: size, h: size });
 
@@ -68,7 +92,7 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
       showCover: false,
       maxShadowOpacity: 0.4,
       mobileScrollSupport: false,
-      flippingTime: 1400,
+      flippingTime: 1200,
       useMouseEvents: false,
       swipeDistance: 50,
       startPage: 0,
@@ -79,8 +103,14 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
     pageFlip.loadFromHTML(Array.from(pages));
 
     pageFlip.on("flip", (e: any) => {
-      setCurrentPage(e.data as number);
-      setTimeout(() => setTextVisible(true), 200);
+      // Map internal page index back to slide index
+      // Content pages are at indices 0, 2, 4, 6... so slideIndex = floor(pageIndex / 2)
+      const pageIdx = e.data as number;
+      const slideIdx = Math.floor(pageIdx / 2);
+      if (slideIdx !== currentSlide()) {
+        setCurrentSlide(slideIdx);
+        setTimeout(() => setTextVisible(true), 200);
+      }
     });
 
     setReady(true);
@@ -106,7 +136,7 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
         transition: "opacity 0.8s ease",
       }}
     >
-      {/* PageFlip container — composited journal images */}
+      {/* PageFlip container — interleaved content + parchment-back pages */}
       <div
         ref={flipContainerRef}
         style={{
@@ -115,8 +145,8 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
           height: `${pageSize().h}px`,
         }}
       >
-        <For each={props.slides}>
-          {(slideData) => (
+        <For each={buildPages()}>
+          {(page) => (
             <div
               class="cinematic-page"
               style={{
@@ -127,7 +157,7 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
               }}
             >
               <img
-                src={slideData.image}
+                src={page.type === "content" ? props.slides[page.slideIndex!].image : parchment()}
                 alt=""
                 style={{
                   position: "absolute",
@@ -142,7 +172,7 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
         </For>
       </div>
 
-      {/* Text below — crisp HTML, fades between slides */}
+      {/* Text below — crisp HTML */}
       <div
         style={{
           width: "min(85vw, 640px)",
@@ -184,7 +214,7 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
                 width: "8px",
                 height: "8px",
                 "border-radius": "50%",
-                background: i() === currentPage() ? "rgba(200, 170, 110, 0.8)" : "rgba(255,255,255,0.15)",
+                background: i() === currentSlide() ? "rgba(200, 170, 110, 0.8)" : "rgba(255,255,255,0.15)",
                 transition: "background 0.3s",
               }} />
             )}
