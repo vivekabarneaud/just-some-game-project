@@ -48,10 +48,12 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
       return;
     }
     // Jump directly to the next content page (skipping the parchment-back page)
-    // Content pages are at indices 0, 2, 4, 6... so next content = (currentSlide + 1) * 2
-    const nextContentIdx = (currentSlide() + 1) * 2;
+    const nextSlideIdx = currentSlide() + 1;
+    const nextContentIdx = nextSlideIdx * 2;
     pageFlip?.flip(nextContentIdx);
-    requestAnimationFrame(() => setTextVisible(false));
+    // Swap text immediately — it's behind the turning page (z-index 1 vs 2),
+    // so it gets revealed naturally as the page folds away
+    setCurrentSlide(nextSlideIdx);
   };
 
   // Build interleaved pages once: [content, parchmentBack, content, parchmentBack, ...]
@@ -96,19 +98,13 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
       startPage: 0,
       drawShadow: true,
       autoSize: false,
+      startZIndex: 10,
     } as any);
 
     pageFlip.loadFromHTML(Array.from(pages));
 
-    pageFlip.on("flip", (e: any) => {
-      // Map internal page index back to slide index
-      // Content pages are at indices 0, 2, 4, 6... so slideIndex = floor(pageIndex / 2)
-      const pageIdx = e.data as number;
-      const slideIdx = Math.floor(pageIdx / 2);
-      if (slideIdx !== currentSlide()) {
-        setCurrentSlide(slideIdx);
-        setTimeout(() => setTextVisible(true), 200);
-      }
+    pageFlip.on("flip", () => {
+      // Text is already swapped and visible behind the page
     });
 
     setReady(true);
@@ -134,17 +130,15 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
         transition: "opacity 0.8s ease",
       }}
     >
-      {/* PageFlip container + text overlay */}
-      <div style={{ position: "relative" }}>
-        {/* PageFlip */}
-        <div
-          ref={flipContainerRef}
-          style={{
-            position: "relative",
-            width: `${pageSize().w}px`,
-            height: `${pageSize().h}px`,
-          }}
-        >
+      {/* PageFlip container */}
+      <div
+        ref={flipContainerRef}
+        style={{
+          position: "relative",
+          width: `${pageSize().w}px`,
+          height: `${pageSize().h}px`,
+        }}
+      >
           <For each={interleaved()}>
             {(page) => (
               <div
@@ -172,37 +166,7 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
           </For>
         </div>
 
-        {/* Text overlaid on the parchment area (bottom portion of the page) */}
-        <div
-          style={{
-            position: "absolute",
-            left: "10%",
-            right: "10%",
-            top: "65%",
-            "text-align": "center",
-            "pointer-events": "none",
-            "z-index": 20,
-            background: "rgba(245, 235, 215, 0.55)",
-            padding: "clamp(8px, 1.5%, 14px) clamp(12px, 2%, 20px)",
-            "border-radius": "4px",
-            opacity: textVisible() ? 1 : 0,
-            transition: "opacity 0.3s ease",
-          }}
-        >
-          <p
-            style={{
-              color: "#2a1e0e",
-              "font-size": "clamp(0.8rem, 1.3vw, 1rem)",
-              "line-height": "1.7",
-              "font-style": "italic",
-              margin: 0,
-              "white-space": "pre-line",
-              "font-family": "Georgia, 'Times New Roman', serif",
-            }}
-            innerHTML={formatText(slide().text)}
-          />
-        </div>
-      </div>
+        {/* Text is baked into the parchment images via Photoshop */}
 
       {/* Controls */}
       <div style={{
