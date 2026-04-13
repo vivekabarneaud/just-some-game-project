@@ -20,6 +20,7 @@ const PARCHMENT = IS_DEV
 export default function CinematicOverlay(props: CinematicOverlayProps) {
   const [currentSlide, setCurrentSlide] = createSignal(0);
   const [flippedPages, setFlippedPages] = createSignal<Set<number>>(new Set());
+  const [turningPage, setTurningPage] = createSignal<number | null>(null); // page currently mid-flip
   const [exiting, setExiting] = createSignal(false);
   const [animating, setAnimating] = createSignal(false);
 
@@ -40,13 +41,18 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
       setTimeout(() => props.onComplete(), 800);
       return;
     }
+    const pageToFlip = currentSlide();
     setAnimating(true);
+    setTurningPage(pageToFlip);
+    // Start the CSS rotation
     setFlippedPages((prev) => {
       const next = new Set(prev);
-      next.add(currentSlide());
+      next.add(pageToFlip);
       return next;
     });
+    // After animation completes, drop the z-index and advance
     setTimeout(() => {
+      setTurningPage(null);
       setCurrentSlide((i) => i + 1);
       setAnimating(false);
     }, 1200);
@@ -79,9 +85,15 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
         <For each={props.slides}>
           {(slide, i) => {
             const isFlipped = () => flippedPages().has(i());
-            // Unflipped pages: higher index = lower z (first page on top)
-            // Flipped pages: go behind everything
-            const zIndex = () => isFlipped() ? 0 : (props.slides.length - i() + 1);
+            const isTurning = () => turningPage() === i();
+            // Turning page stays on top during animation
+            // Unflipped pages: first page highest
+            // Fully flipped pages: behind everything
+            const zIndex = () => {
+              if (isTurning()) return props.slides.length + 10; // on top while turning
+              if (isFlipped()) return 0; // behind after turn completes
+              return props.slides.length - i() + 1; // normal stacking
+            };
 
             return (
               <div
