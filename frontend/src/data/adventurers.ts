@@ -329,6 +329,14 @@ export const BACKSTORY_TRAITS: BackstoryTrait[] = [
   { id: "veteran_campaigner", name: "Veteran Campaigner", flavor: "Served in the Border Wars", description: "+5% damage vs humanoid", weight: 10 },
   { id: "lucky", name: "Lucky", flavor: "Found a four-leaf clover at age six. Still carries it.", description: "+3% crit chance", weight: 7 },
   { id: "quick_learner", name: "Quick Learner", flavor: "Reads every book they find", description: "+10% XP gain", weight: 7 },
+  // Personality-driven traits
+  { id: "lone_wolf", name: "Lone Wolf", flavor: "Works best without distractions. The silence helps.", description: "+2 all stats on solo missions", weight: 5 },
+  { id: "cat_parent", name: "Cat Parent", flavor: "Has a cat waiting at home. Will come back.", description: "-15% death chance", weight: 4 },
+  { id: "dog_companion", name: "Dog Companion", flavor: "A stray followed them home. Then on patrol. Then into a dungeon. It won't leave.", description: "Loyal dog fights alongside in combat", weight: 3 },
+  { id: "foodie", name: "Foodie", flavor: "Has opinions about seasoning that could start a war.", description: "+50% food preference bonus", weight: 5 },
+  { id: "people_person", name: "People Person", flavor: "Remembers every name, every birthday, every favorite color.", description: "+1 loyalty/season to mission party", weight: 4 },
+  { id: "offering_keeper", name: "Offering Keeper", flavor: "Never starts a journey without giving something back to the land.", description: "+1 to all base stats", weight: 5 },
+  { id: "bread_savant", name: "Bread Savant", flavor: "Judges every loaf. Has standards. Once sent back a ration biscuit.", description: "+10% food item effectiveness", weight: 4 },
 ];
 
 // ─── Personality Quirks ────────────────────────────────────────
@@ -351,11 +359,7 @@ export const PERSONALITY_QUIRKS: string[] = [
   "Keeps a pressed flower in a locket. Won't say who gave it to them.",
   "Counts everything — stairs, trees, enemies. Everything.",
   "Goes 'pspspsps' at every cat. Every. Single. One. The party waits.",
-  "Has a cat waiting at home. Talks about it constantly. Refuses dangerous missions unless the pay is good enough to 'keep Mr. Whiskers fed.'",
-  "Judges every meal. Every single meal. Has opinions about salt levels that border on philosophical.",
-  "Prefers to work alone. Says the quiet helps them think. Suspiciously effective on solo missions.",
   "Brings a small journal and sketches every monster they fight. The drawings are surprisingly good.",
-  "Has memorized the name, birthday, and favorite food of every member of the settlement. All of them.",
   "Apologizes to enemies before killing them. Means it.",
   "Refuses to sleep indoors. 'The stars are better company.' Even in winter.",
   "Collects interesting rocks. Their pack weighs twice what it should.",
@@ -363,8 +367,6 @@ export const PERSONALITY_QUIRKS: string[] = [
   "Tells the same joke to every new recruit. It's not funny. It's never been funny. They think it's hilarious.",
   "Can fall asleep anywhere, in any position, in under a minute. It's unsettling.",
   "Has very strong opinions about bread. Will argue about bread for hours.",
-  "Adopted a stray dog on a mission once. The dog now follows the party. Nobody agreed to this.",
-  "Makes a small offering to the land before every mission. A coin, a crumb, a whispered thank-you.",
   "Keeps a running count of how many times they've almost died. Currently at seventeen.",
 ];
 
