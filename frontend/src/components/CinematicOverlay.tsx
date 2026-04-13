@@ -20,10 +20,12 @@ const PARCHMENT = IS_DEV
 
 export default function CinematicOverlay(props: CinematicOverlayProps) {
   const [currentPage, setCurrentPage] = createSignal(0);
+  const [textVisible, setTextVisible] = createSignal(true);
   const [exiting, setExiting] = createSignal(false);
-  let containerRef: HTMLDivElement | undefined;
+  let flipContainerRef: HTMLDivElement | undefined;
   let pageFlip: PageFlip | undefined;
 
+  const slide = () => props.slides[currentPage()];
   const isLast = () => currentPage() >= props.slides.length - 1;
 
   const resolveText = (text: string) => {
@@ -41,40 +43,45 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
       setTimeout(() => props.onComplete(), 800);
       return;
     }
+    // Fade out text, flip page, fade in new text
+    setTextVisible(false);
     pageFlip?.flipNext();
   };
 
   onMount(() => {
-    if (!containerRef) return;
+    if (!flipContainerRef) return;
 
-    // Calculate page size to fit viewport with some margin
-    const maxW = Math.min(window.innerWidth * 0.88, 880);
-    const maxH = Math.min(window.innerHeight * 0.82, 660);
-    // Maintain roughly 3:4 aspect ratio for a book page
-    const pageW = Math.min(maxW, maxH * 0.75);
-    const pageH = Math.min(maxH, pageW / 0.75);
+    // Size the flip area — landscape ratio for the framed images
+    const maxW = Math.min(window.innerWidth * 0.75, 720);
+    const maxH = Math.min(window.innerHeight * 0.5, 420);
+    const w = Math.floor(Math.min(maxW, maxH * (16 / 9)));
+    const h = Math.floor(w / (16 / 9));
 
-    pageFlip = new PageFlip(containerRef, {
-      width: Math.floor(pageW),
-      height: Math.floor(pageH),
+    pageFlip = new PageFlip(flipContainerRef, {
+      width: w,
+      height: h,
       showCover: false,
-      maxShadowOpacity: 0.4,
+      maxShadowOpacity: 0.35,
       mobileScrollSupport: false,
-      flippingTime: 1200,
-      useMouseEvents: false, // we'll control flipping programmatically
+      flippingTime: 1400,
+      useMouseEvents: false,
       swipeDistance: 50,
       startPage: 0,
       drawShadow: true,
       autoSize: false,
     });
 
-    // Collect page elements
-    const pages = containerRef.querySelectorAll(".cinematic-page");
+    const pages = flipContainerRef.querySelectorAll(".flip-page");
     pageFlip.loadFromHTML(pages as unknown as HTMLElement[]);
 
     pageFlip.on("flip", (e: any) => {
       setCurrentPage(e.data as number);
+      // Fade text back in after flip
+      setTimeout(() => setTextVisible(true), 100);
     });
+
+    // Initial text visible
+    setTextVisible(true);
   });
 
   onCleanup(() => {
@@ -89,139 +96,138 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
         "z-index": 10000,
         background: "#0a0806",
         display: "flex",
+        "flex-direction": "column",
         "align-items": "center",
         "justify-content": "center",
+        gap: "clamp(16px, 3vh, 28px)",
+        padding: "clamp(16px, 3vh, 32px)",
         opacity: exiting() ? 0 : 1,
         transition: "opacity 0.8s ease",
       }}
     >
-      {/* PageFlip container */}
-      <div ref={containerRef}>
-        <For each={props.slides}>
-          {(slide, i) => (
-            <div
-              class="cinematic-page"
-              style={{
-                "background-image": `url(${PARCHMENT})`,
-                "background-size": "cover",
-                "background-position": "center",
-                display: "flex",
-                "flex-direction": "column",
-                "align-items": "center",
-                "justify-content": "center",
-                padding: "clamp(20px, 4%, 40px) clamp(24px, 5%, 50px)",
-                gap: "clamp(12px, 2%, 24px)",
-                "box-sizing": "border-box",
-                overflow: "hidden",
-              }}
-            >
-              {/* Framed painting */}
-              <div
-                style={{
-                  width: "90%",
-                  "max-width": "720px",
-                  "aspect-ratio": "16 / 9",
-                  "max-height": "55%",
-                  "border-radius": "2px",
-                  overflow: "hidden",
-                  border: "3px solid rgba(80, 55, 25, 0.45)",
-                  "box-shadow": "inset 0 0 12px rgba(0,0,0,0.35), 2px 2px 10px rgba(0,0,0,0.25)",
-                  "background-image": `url(${slide.image})`,
-                  "background-size": "cover",
-                  "background-position": "center",
-                  "flex-shrink": 0,
-                }}
-              />
-
-              {/* Journal text */}
-              <div
-                style={{
-                  width: "90%",
-                  "max-width": "640px",
-                  "text-align": "center",
-                  background: "rgba(60, 45, 25, 0.08)",
-                  padding: "clamp(10px, 2%, 18px) clamp(14px, 3%, 28px)",
-                  "border-radius": "4px",
-                }}
-              >
-                <p
-                  style={{
-                    color: "#2a1e0e",
-                    "font-size": "clamp(0.8rem, 1.4vw, 1rem)",
-                    "line-height": "1.75",
-                    "font-style": "italic",
-                    margin: 0,
-                    "white-space": "pre-line",
-                    "font-family": "Georgia, 'Times New Roman', serif",
-                    "text-shadow": "0 1px 2px rgba(255,240,200,0.3)",
-                  }}
-                  innerHTML={formatText(slide.text)}
-                />
-              </div>
-
-              {/* Page number */}
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: "12px",
-                  right: "18px",
-                  color: "rgba(80, 55, 25, 0.35)",
-                  "font-size": "0.75rem",
-                  "font-style": "italic",
-                  "font-family": "Georgia, serif",
-                }}
-              >
-                {i() + 1}
-              </div>
-
-              {/* Spine shadow */}
-              <div
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  bottom: 0,
-                  width: "20px",
-                  background: "linear-gradient(to right, rgba(0,0,0,0.12), transparent)",
-                  "pointer-events": "none",
-                }}
-              />
-            </div>
-          )}
-        </For>
-      </div>
-
-      {/* Turn page button */}
-      <button
-        onClick={advance}
+      {/* Parchment frame around the page-flip area */}
+      <div
         style={{
-          position: "absolute",
-          bottom: "clamp(20px, 4vh, 45px)",
-          right: "clamp(28px, 5vw, 80px)",
-          background: "rgba(80, 55, 25, 0.25)",
-          border: "1px solid rgba(80, 55, 25, 0.5)",
-          color: "rgba(200, 170, 110, 0.9)",
-          padding: "10px 24px",
+          position: "relative",
+          padding: "clamp(12px, 2vw, 24px)",
+          "background-image": `url(${PARCHMENT})`,
+          "background-size": "cover",
+          "background-position": "center",
           "border-radius": "4px",
-          cursor: "pointer",
-          "font-size": "0.9rem",
-          "font-family": "Georgia, serif",
-          "font-style": "italic",
-          "z-index": 10,
-          transition: "all 0.2s",
-          "letter-spacing": "0.5px",
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.background = "rgba(80, 55, 25, 0.45)";
-          e.currentTarget.style.color = "rgba(240, 210, 140, 1)";
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.background = "rgba(80, 55, 25, 0.25)";
-          e.currentTarget.style.color = "rgba(200, 170, 110, 0.9)";
+          "box-shadow": "0 8px 32px rgba(0,0,0,0.6), inset 0 0 40px rgba(100,75,40,0.15)",
         }}
       >
-        {isLast() ? "Begin your story →" : "Turn page →"}
-      </button>
+        {/* PageFlip container — images only */}
+        <div
+          ref={flipContainerRef}
+          style={{
+            "border-radius": "2px",
+            overflow: "hidden",
+            border: "3px solid rgba(80, 55, 25, 0.4)",
+            "box-shadow": "inset 0 0 12px rgba(0,0,0,0.3)",
+          }}
+        >
+          <For each={props.slides}>
+            {(slideData) => (
+              <div
+                class="flip-page"
+                style={{
+                  "background-image": `url(${slideData.image})`,
+                  "background-size": "cover",
+                  "background-position": "center",
+                  width: "100%",
+                  height: "100%",
+                }}
+              />
+            )}
+          </For>
+        </div>
+      </div>
+
+      {/* Text area — stays as crisp HTML, fades between slides */}
+      <div
+        style={{
+          width: "min(85vw, 700px)",
+          "text-align": "center",
+          "min-height": "80px",
+          display: "flex",
+          "align-items": "center",
+          "justify-content": "center",
+          opacity: textVisible() ? 1 : 0,
+          transition: "opacity 0.3s ease",
+        }}
+      >
+        <p
+          style={{
+            color: "#c8b48a",
+            "font-size": "clamp(0.9rem, 1.5vw, 1.1rem)",
+            "line-height": "1.8",
+            "font-style": "italic",
+            margin: 0,
+            "white-space": "pre-line",
+            "font-family": "Georgia, 'Times New Roman', serif",
+            "text-shadow": "0 2px 6px rgba(0,0,0,0.7)",
+          }}
+          innerHTML={formatText(slide().text)}
+        />
+      </div>
+
+      {/* Page indicator + controls row */}
+      <div
+        style={{
+          display: "flex",
+          "align-items": "center",
+          "justify-content": "center",
+          gap: "24px",
+          width: "100%",
+          "max-width": "700px",
+        }}
+      >
+        {/* Slide indicators */}
+        <div style={{ display: "flex", gap: "8px" }}>
+          <For each={props.slides}>
+            {(_, i) => (
+              <div
+                style={{
+                  width: "8px",
+                  height: "8px",
+                  "border-radius": "50%",
+                  background: i() === currentPage() ? "rgba(200, 170, 110, 0.8)" : "rgba(255,255,255,0.15)",
+                  transition: "background 0.3s",
+                }}
+              />
+            )}
+          </For>
+        </div>
+
+        {/* Turn page button */}
+        <button
+          onClick={advance}
+          style={{
+            background: "rgba(80, 55, 25, 0.3)",
+            border: "1px solid rgba(80, 55, 25, 0.5)",
+            color: "rgba(200, 170, 110, 0.9)",
+            padding: "10px 24px",
+            "border-radius": "4px",
+            cursor: "pointer",
+            "font-size": "0.9rem",
+            "font-family": "Georgia, serif",
+            "font-style": "italic",
+            transition: "all 0.2s",
+            "letter-spacing": "0.5px",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(80, 55, 25, 0.5)";
+            e.currentTarget.style.color = "rgba(240, 210, 140, 1)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "rgba(80, 55, 25, 0.3)";
+            e.currentTarget.style.color = "rgba(200, 170, 110, 0.9)";
+          }}
+        >
+          {isLast() ? "Begin your story →" : "Turn page →"}
+        </button>
+      </div>
 
       {/* Skip button */}
       <button
@@ -244,33 +250,6 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
       >
         Skip
       </button>
-
-      {/* Slide indicators */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: "clamp(20px, 4vh, 45px)",
-          left: "50%",
-          transform: "translateX(-50%)",
-          display: "flex",
-          gap: "8px",
-          "z-index": 5,
-        }}
-      >
-        <For each={props.slides}>
-          {(_, i) => (
-            <div
-              style={{
-                width: "8px",
-                height: "8px",
-                "border-radius": "50%",
-                background: i() === currentPage() ? "rgba(200, 170, 110, 0.8)" : "rgba(255,255,255,0.15)",
-                transition: "background 0.3s",
-              }}
-            />
-          )}
-        </For>
-      </div>
     </div>
   );
 }
