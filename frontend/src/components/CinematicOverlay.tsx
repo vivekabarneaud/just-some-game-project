@@ -134,68 +134,71 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
         transition: "opacity 0.8s ease",
       }}
     >
-      {/* PageFlip container — interleaved content + parchment-back pages */}
-      <div
-        ref={flipContainerRef}
-        style={{
-          position: "relative",
-          width: `${pageSize().w}px`,
-          height: `${pageSize().h}px`,
-        }}
-      >
-        <For each={interleaved()}>
-          {(page) => (
-            <div
-              class="cinematic-page"
-              style={{
-                width: `${pageSize().w}px`,
-                height: `${pageSize().h}px`,
-                position: "relative",
-                overflow: "hidden",
-              }}
-            >
-              <img
-                src={page.type === "content" ? props.slides[page.slideIndex!].image : parchment()}
-                alt=""
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  width: "100%",
-                  height: "100%",
-                  "object-fit": "cover",
-                }}
-              />
-            </div>
-          )}
-        </For>
-      </div>
-
-      {/* Text below — crisp HTML */}
-      <div
-        style={{
-          width: "min(85vw, 640px)",
-          "text-align": "center",
-          "min-height": "70px",
-          display: "flex",
-          "align-items": "center",
-          "justify-content": "center",
-          opacity: textVisible() ? 1 : 0,
-          transition: "opacity 0.3s ease",
-        }}
-      >
-        <p
+      {/* PageFlip container + text overlay */}
+      <div style={{ position: "relative" }}>
+        {/* PageFlip */}
+        <div
+          ref={flipContainerRef}
           style={{
-            color: "#c8b48a",
-            "font-size": "clamp(0.85rem, 1.4vw, 1.05rem)",
-            "line-height": "1.8",
-            "font-style": "italic",
-            margin: 0,
-            "white-space": "pre-line",
-            "font-family": "Georgia, 'Times New Roman', serif",
-            "text-shadow": "0 2px 6px rgba(0,0,0,0.7)",
+            position: "relative",
+            width: `${pageSize().w}px`,
+            height: `${pageSize().h}px`,
           }}
-          innerHTML={formatText(slide().text)}
-        />
+        >
+          <For each={interleaved()}>
+            {(page) => (
+              <div
+                class="cinematic-page"
+                style={{
+                  width: `${pageSize().w}px`,
+                  height: `${pageSize().h}px`,
+                  position: "relative",
+                  overflow: "hidden",
+                }}
+              >
+                <img
+                  src={page.type === "content" ? props.slides[page.slideIndex!].image : parchment()}
+                  alt=""
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    "object-fit": "cover",
+                  }}
+                />
+              </div>
+            )}
+          </For>
+        </div>
+
+        {/* Text overlaid on the parchment area (bottom portion of the page) */}
+        <div
+          style={{
+            position: "absolute",
+            left: "10%",
+            right: "10%",
+            bottom: "4%",
+            "text-align": "center",
+            "pointer-events": "none",
+            "z-index": 20,
+            opacity: textVisible() ? 1 : 0,
+            transition: "opacity 0.3s ease",
+          }}
+        >
+          <p
+            style={{
+              color: "#2a1e0e",
+              "font-size": "clamp(0.7rem, 1.1vw, 0.88rem)",
+              "line-height": "1.7",
+              "font-style": "italic",
+              margin: 0,
+              "white-space": "pre-line",
+              "font-family": "Georgia, 'Times New Roman', serif",
+            }}
+            innerHTML={formatText(slide().text)}
+          />
+        </div>
       </div>
 
       {/* Controls */}
