@@ -11,7 +11,6 @@ interface CinematicOverlayProps {
   slides: CinematicSlide[];
   onComplete: () => void;
   villageName?: string;
-  parchmentImage?: string;
 }
 
 const IS_DEV = import.meta.env.DEV;
@@ -23,12 +22,11 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
   const [currentSlide, setCurrentSlide] = createSignal(0);
   const [exiting, setExiting] = createSignal(false);
   const [ready, setReady] = createSignal(false);
-  const [textVisible, setTextVisible] = createSignal(true);
   const [pageSize, setPageSize] = createSignal({ w: 600, h: 600 });
   let flipContainerRef: HTMLDivElement | undefined;
   let pageFlip: PageFlip | undefined;
 
-  const parchment = () => props.parchmentImage ?? DEFAULT_PARCHMENT;
+  const parchment = () => DEFAULT_PARCHMENT;
   const slide = () => props.slides[currentSlide()];
   const isLast = () => currentSlide() >= props.slides.length - 1;
 
