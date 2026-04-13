@@ -1,5 +1,4 @@
-import { createSignal, onMount, onCleanup, For } from "solid-js";
-import { PageFlip } from "page-flip";
+import { createSignal, For } from "solid-js";
 
 export interface CinematicSlide {
   image: string;
@@ -13,19 +12,15 @@ interface CinematicOverlayProps {
   villageName?: string;
 }
 
-const IS_DEV = import.meta.env.DEV;
-const PARCHMENT = IS_DEV
-  ? "/images/stories/parchment_texture.png"
-  : "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/parchment_texture.png";
-
 export default function CinematicOverlay(props: CinematicOverlayProps) {
-  const [currentPage, setCurrentPage] = createSignal(0);
+  const [currentSlide, setCurrentSlide] = createSignal(0);
+  const [flippedPages, setFlippedPages] = createSignal<Set<number>>(new Set());
+  const [turningPage, setTurningPage] = createSignal<number | null>(null);
   const [exiting, setExiting] = createSignal(false);
-  const [ready, setReady] = createSignal(false);
-  let flipContainerRef: HTMLDivElement | undefined;
-  let pageFlip: PageFlip | undefined;
+  const [animating, setAnimating] = createSignal(false);
 
-  const isLast = () => currentPage() >= props.slides.length - 1;
+  const slide = () => props.slides[currentSlide()];
+  const isLast = () => currentSlide() >= props.slides.length - 1;
 
   const resolveText = (text: string) => {
     return text.replace(/\{villageName\}/g, props.villageName ?? "the settlement");
@@ -36,51 +31,26 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
   };
 
   const advance = () => {
-    if (exiting() || !ready()) return;
+    if (animating() || exiting()) return;
     if (isLast()) {
       setExiting(true);
       setTimeout(() => props.onComplete(), 800);
       return;
     }
-    pageFlip?.flipNext();
-  };
-
-  onMount(() => {
-    if (!flipContainerRef) return;
-
-    const maxW = Math.min(window.innerWidth * 0.88, 880);
-    const maxH = Math.min(window.innerHeight * 0.85, 660);
-    // Book-page aspect ratio (~3:4)
-    const pageW = Math.min(maxW, maxH * 0.75);
-    const pageH = Math.min(maxH, pageW / 0.75);
-
-    pageFlip = new PageFlip(flipContainerRef, {
-      width: Math.floor(pageW),
-      height: Math.floor(pageH),
-      showCover: false,
-      maxShadowOpacity: 0.4,
-      mobileScrollSupport: false,
-      flippingTime: 1400,
-      useMouseEvents: false,
-      swipeDistance: 50,
-      startPage: 0,
-      drawShadow: true,
-      autoSize: false,
-    } as any);
-
-    const pages = flipContainerRef.querySelectorAll(".cinematic-page");
-    pageFlip.loadFromHTML(pages as unknown as HTMLElement[]);
-
-    pageFlip.on("flip", (e: any) => {
-      setCurrentPage(e.data as number);
+    const pageToFlip = currentSlide();
+    setAnimating(true);
+    setTurningPage(pageToFlip);
+    setFlippedPages((prev) => {
+      const next = new Set(prev);
+      next.add(pageToFlip);
+      return next;
     });
-
-    setReady(true);
-  });
-
-  onCleanup(() => {
-    pageFlip?.destroy();
-  });
+    setTimeout(() => {
+      setTurningPage(null);
+      setCurrentSlide((i) => i + 1);
+      setAnimating(false);
+    }, 1200);
+  };
 
   return (
     <div
@@ -98,124 +68,120 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
         transition: "opacity 0.8s ease",
       }}
     >
-      {/* PageFlip container — full journal pages */}
-      <div ref={flipContainerRef}>
+      {/* Journal page area */}
+      <div
+        style={{
+          position: "relative",
+          width: "min(88vw, 680px)",
+          height: "min(80vh, 680px)",
+          perspective: "2000px",
+        }}
+      >
         <For each={props.slides}>
-          {(slide, i) => (
-            <div
-              class="cinematic-page"
-              style={{
-                "background-image": `url(${PARCHMENT})`,
-                "background-size": "cover",
-                "background-position": "center",
-                display: "flex",
-                "flex-direction": "column",
-                "align-items": "center",
-                "justify-content": "center",
-                padding: "5% 6%",
-                gap: "3%",
-                "box-sizing": "border-box",
-                position: "relative",
-              }}
-            >
-              {/* Framed painting */}
+          {(slideData, i) => {
+            const isFlipped = () => flippedPages().has(i());
+            const isTurning = () => turningPage() === i();
+            const zIndex = () => {
+              if (isTurning()) return props.slides.length + 10;
+              if (isFlipped()) return 0;
+              return props.slides.length - i() + 1;
+            };
+
+            return (
               <div
+                onClick={advance}
                 style={{
-                  width: "88%",
-                  "aspect-ratio": "16 / 9",
-                  "max-height": "58%",
-                  "border-radius": "2px",
+                  position: "absolute",
+                  inset: 0,
+                  "transform-origin": "left center",
+                  transform: isFlipped() ? "rotateY(-180deg)" : "rotateY(0deg)",
+                  transition: "transform 1.2s cubic-bezier(0.4, 0.0, 0.2, 1)",
+                  "z-index": zIndex(),
+                  "backface-visibility": "hidden",
+                  cursor: "pointer",
+                  "border-radius": "3px",
                   overflow: "hidden",
-                  border: "3px solid rgba(80, 55, 25, 0.45)",
-                  "box-shadow": "inset 0 0 12px rgba(0,0,0,0.35), 2px 2px 10px rgba(0,0,0,0.25)",
-                  "background-image": `url(${slide.image})`,
-                  "background-size": "cover",
-                  "background-position": "center",
-                  "flex-shrink": 0,
-                }}
-              />
-
-              {/* Journal text on the parchment */}
-              <div
-                style={{
-                  width: "85%",
-                  "text-align": "center",
-                  padding: "2% 3%",
+                  "box-shadow": "4px 4px 20px rgba(0,0,0,0.5)",
                 }}
               >
-                <p
+                {/* Full composited journal page as background */}
+                <img
+                  src={slideData.image}
+                  alt=""
                   style={{
-                    color: "#2a1e0e",
-                    "font-size": "clamp(0.75rem, 1.3vw, 0.95rem)",
-                    "line-height": "1.7",
-                    "font-style": "italic",
-                    margin: 0,
-                    "white-space": "pre-line",
-                    "font-family": "Georgia, 'Times New Roman', serif",
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    "object-fit": "cover",
                   }}
-                  innerHTML={formatText(slide.text)}
                 />
-              </div>
 
-              {/* Page number */}
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: "3%",
-                  right: "5%",
-                  color: "rgba(80, 55, 25, 0.35)",
-                  "font-size": "0.7rem",
-                  "font-style": "italic",
-                  "font-family": "Georgia, serif",
-                }}
-              >
-                {i() + 1}
-              </div>
+                {/* Text overlay — positioned in the parchment area below the painting */}
+                <div
+                  style={{
+                    position: "absolute",
+                    left: "8%",
+                    right: "8%",
+                    bottom: "5%",
+                    "text-align": "center",
+                    padding: "12px",
+                  }}
+                >
+                  <p
+                    style={{
+                      color: "#2a1e0e",
+                      "font-size": "clamp(0.72rem, 1.15vw, 0.88rem)",
+                      "line-height": "1.7",
+                      "font-style": "italic",
+                      margin: 0,
+                      "white-space": "pre-line",
+                      "font-family": "Georgia, 'Times New Roman', serif",
+                    }}
+                    innerHTML={formatText(slideData.text)}
+                  />
+                </div>
 
-              {/* Spine shadow */}
-              <div
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  bottom: 0,
-                  width: "20px",
-                  background: "linear-gradient(to right, rgba(0,0,0,0.1), transparent)",
-                  "pointer-events": "none",
-                }}
-              />
-            </div>
-          )}
+                {/* Page number */}
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: "2%",
+                    right: "5%",
+                    color: "rgba(80, 55, 25, 0.35)",
+                    "font-size": "0.7rem",
+                    "font-style": "italic",
+                    "font-family": "Georgia, serif",
+                  }}
+                >
+                  {i() + 1}
+                </div>
+              </div>
+            );
+          }}
         </For>
       </div>
 
-      {/* Controls below the journal */}
-      <div
-        style={{
-          display: "flex",
-          "align-items": "center",
-          "justify-content": "center",
-          gap: "24px",
-        }}
-      >
-        {/* Slide indicators */}
+      {/* Controls */}
+      <div style={{
+        display: "flex",
+        "align-items": "center",
+        "justify-content": "center",
+        gap: "24px",
+      }}>
         <div style={{ display: "flex", gap: "8px" }}>
           <For each={props.slides}>
             {(_, i) => (
-              <div
-                style={{
-                  width: "8px",
-                  height: "8px",
-                  "border-radius": "50%",
-                  background: i() === currentPage() ? "rgba(200, 170, 110, 0.8)" : "rgba(255,255,255,0.15)",
-                  transition: "background 0.3s",
-                }}
-              />
+              <div style={{
+                width: "8px",
+                height: "8px",
+                "border-radius": "50%",
+                background: i() === currentSlide() ? "rgba(200, 170, 110, 0.8)" : "rgba(255,255,255,0.15)",
+                transition: "background 0.3s",
+              }} />
             )}
           </For>
         </div>
-
-        {/* Turn page button */}
         <button
           onClick={advance}
           style={{
@@ -244,7 +210,7 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
         </button>
       </div>
 
-      {/* Skip button */}
+      {/* Skip */}
       <button
         onClick={(e) => { e.stopPropagation(); props.onComplete(); }}
         style={{

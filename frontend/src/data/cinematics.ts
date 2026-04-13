@@ -8,7 +8,7 @@ const CDN_STORIES = IS_DEV
 
 export const INTRO_CINEMATIC: CinematicSlide[] = [
   {
-    image: `${CDN_STORIES}/intro_slide_1.png`,
+    image: IS_DEV ? "/images/stories/intro_slide_1_journal.png" : `${CDN_STORIES}/intro_slide_1_journal.png`,
     text: `The contract is already creased from folding and unfolding. "Crown Land Grant — Southern Frontier." Free land. Build a settlement. Serve the Crown.\nIt sounded better in the tavern.`,
     position: "bottom",
   },
