@@ -8,23 +8,24 @@ const CDN_STORIES = IS_DEV
 
 export const INTRO_CINEMATIC: CinematicSlide[] = [
   {
-    image: `${CDN_STORIES}/intro_slide_1_parchment.png`,
-    text: `The contract is already creased from folding and unfolding. "Crown Land Grant — Southern Frontier." Free land, a settlement to build, service to the Crown.\n\nIt sounded better in the tavern.`,
+    image: `${CDN_STORIES}/intro_slide_1_parchment_text.png`,
+    text: ``,
     position: "bottom",
   },
   {
-    image: `${CDN_STORIES}/intro_slide_2_parchment.png`,
-    text: `Three weeks on the road. Farmers who lost their fields. Soldiers who stopped asking questions. A priest who blesses everything, including the mules.\n\nNobody talks about what they left behind.`,
+    image: `${CDN_STORIES}/intro_slide_2_parchment_text.png`,
+    text: ``,
     position: "bottom",
   },
   {
+    // Slide 3 uses parchment-only image + HTML text overlay for dynamic village name
     image: `${CDN_STORIES}/intro_slide_3_parchment.png`,
     text: `This is it. The map calls it **{villageName}**. Right now it's mud, timber, and a long list of things we don't have.\n\nBut the river is clean and the soil is dark. That's a start.`,
     position: "bottom",
   },
   {
-    image: `${CDN_STORIES}/intro_slide_4_parchment.png`,
-    text: `The first night is the quietest. By tomorrow, there'll be axes ringing and arguments about where to dig the well.\n\nBut right now — just the fire and the forest. Whatever's coming, we'll build something worth defending.`,
+    image: `${CDN_STORIES}/intro_slide_4_parchment_text.png`,
+    text: ``,
     position: "bottom",
   },
 ];

@@ -130,15 +130,22 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
         transition: "opacity 0.8s ease",
       }}
     >
-      {/* PageFlip container */}
-      <div
-        ref={flipContainerRef}
-        style={{
-          position: "relative",
-          width: `${pageSize().w}px`,
-          height: `${pageSize().h}px`,
-        }}
-      >
+      {/* Page wrapper — clips text overlay to page bounds */}
+      <div style={{
+        position: "relative",
+        width: `${pageSize().w}px`,
+        height: `${pageSize().h}px`,
+        overflow: "hidden",
+        "border-radius": "3px",
+      }}>
+        {/* PageFlip container */}
+        <div
+          ref={flipContainerRef}
+          style={{
+            position: "absolute",
+            inset: 0,
+          }}
+        >
           <For each={interleaved()}>
             {(page) => (
               <div
@@ -166,7 +173,36 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
           </For>
         </div>
 
-        {/* Text is baked into the parchment images via Photoshop */}
+        {/* Text overlay — only shown for slides with dynamic text (e.g. village name) */}
+        {slide().text && (
+          <div
+            style={{
+              position: "absolute",
+              left: "10%",
+              right: "10%",
+              top: "65%",
+              "text-align": "center",
+              "pointer-events": "none",
+              "z-index": 100,
+              background: "radial-gradient(ellipse at center, rgba(245, 235, 215, 0.6) 0%, rgba(245, 235, 215, 0.35) 40%, rgba(245, 235, 215, 0) 75%)",
+              padding: "clamp(16px, 3%, 28px) clamp(40px, 8%, 80px)",
+            }}
+          >
+            <p
+              style={{
+                color: "#2a1e0e",
+                "font-size": "clamp(0.8rem, 1.3vw, 1rem)",
+                "line-height": "1.7",
+                "font-style": "italic",
+                margin: 0,
+                "white-space": "pre-line",
+                "font-family": "Georgia, 'Times New Roman', serif",
+              }}
+              innerHTML={formatText(slide().text)}
+            />
+          </div>
+        )}
+      </div>{/* end page wrapper */}
 
       {/* Controls */}
       <div style={{
