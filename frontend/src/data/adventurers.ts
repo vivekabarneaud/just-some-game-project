@@ -596,33 +596,92 @@ function getLastName(name: string): string {
   return name.split(" ").slice(1).join(" ");
 }
 
-/** Find roster members who share a last name with the candidate */
+/**
+ * Find roster members who share a last name with a given adventurer.
+ * Smart labels: spouse (once), parents (once each), then aunt/uncle for overflow.
+ */
 export function findKin(candidate: Adventurer, roster: Adventurer[]): { relative: Adventurer; label: string }[] {
   const candidateLastName = getLastName(candidate.name);
   if (!candidateLastName) return [];
-  const kin = roster.filter((a) => a.alive && getLastName(a.name) === candidateLastName);
+  const kin = roster.filter((a) => a.alive && a.id !== candidate.id && getLastName(a.name) === candidateLastName);
   if (kin.length === 0) return [];
   const candidateFemale = isFemale(candidate.name);
+  const candidateAgeIdx = AGE_CATEGORIES.indexOf(candidate.age ?? "middle");
+
+  // Track roles already filled to prevent duplicates
+  let hasSpouse = false;
+  let hasMother = false;
+  let hasFather = false;
+
+  // Check existing roster for already-filled parent/spouse roles (among family members NOT in kin list)
+  // This prevents "two mothers" if one is already recruited
+  const allFamily = roster.filter((a) => a.alive && a.id !== candidate.id && getLastName(a.name) === candidateLastName);
+  for (const member of allFamily) {
+    const memberAgeIdx = AGE_CATEGORIES.indexOf(member.age ?? "middle");
+    const gap = memberAgeIdx - candidateAgeIdx;
+    const memberFemale = isFemale(member.name);
+    if (gap === 0 && memberFemale !== candidateFemale) hasSpouse = true;
+    if (gap === 1 && memberFemale) hasMother = true;
+    if (gap === 1 && !memberFemale) hasFather = true;
+  }
+  // Reset — we'll assign as we iterate through kin
+  hasSpouse = false; hasMother = false; hasFather = false;
+
   return kin.map((relative) => {
-    // Age-based kinship: 0 gap = sibling, 1 gap = parent/child, 2+ gap = grandparent/grandchild
-    const candidateAgeIdx = AGE_CATEGORIES.indexOf(candidate.age ?? "middle");
     const relativeAgeIdx = AGE_CATEGORIES.indexOf(relative.age ?? "middle");
     const ageGap = relativeAgeIdx - candidateAgeIdx; // positive = relative is older
     const firstName = relative.name.split(" ")[0];
+    const relativeFemale = isFemale(relative.name);
     let label: string;
+
     if (Math.abs(ageGap) === 0) {
-      label = (candidateFemale ? "Sister" : "Brother") + ` of ${firstName}`;
+      // Same age — spouse (first opposite-gender) or sibling
+      if (!hasSpouse && relativeFemale !== candidateFemale) {
+        hasSpouse = true;
+        label = (relativeFemale ? "Wife" : "Husband") + ` — ${firstName}`;
+      } else {
+        label = (candidateFemale ? "Sister" : "Brother") + ` of ${firstName}`;
+      }
     } else if (Math.abs(ageGap) === 1) {
-      label = ageGap > 0
-        ? (candidateFemale ? "Daughter" : "Son") + ` of ${firstName}`
-        : (candidateFemale ? "Mother" : "Father") + ` of ${firstName}`;
+      if (ageGap > 0) {
+        // Relative is older — they are a parent figure to the candidate
+        const isMotherSlot = relativeFemale;
+        if (isMotherSlot && !hasMother) {
+          hasMother = true;
+          label = (candidateFemale ? "Daughter" : "Son") + ` of ${firstName}`;
+        } else if (!isMotherSlot && !hasFather) {
+          hasFather = true;
+          label = (candidateFemale ? "Daughter" : "Son") + ` of ${firstName}`;
+        } else {
+          // Parent slot filled — become niece/nephew
+          label = (candidateFemale ? "Niece" : "Nephew") + ` of ${firstName}`;
+        }
+      } else {
+        // Relative is younger — candidate is the parent figure
+        label = (candidateFemale ? "Mother" : "Father") + ` of ${firstName}`;
+      }
     } else {
+      // 2+ gap — grandparent/grandchild
       label = ageGap > 0
         ? (candidateFemale ? "Granddaughter" : "Grandson") + ` of ${firstName}`
         : (candidateFemale ? "Grandmother" : "Grandfather") + ` of ${firstName}`;
     }
     return { relative, label };
   });
+}
+
+/**
+ * Get family connections for an adventurer already on the roster.
+ * Returns labels from the adventurer's perspective (reverse of findKin).
+ */
+export function getRosterKin(adventurer: Adventurer, roster: Adventurer[]): { relative: Adventurer; label: string }[] {
+  const lastName = getLastName(adventurer.name);
+  if (!lastName) return [];
+  const family = roster.filter((a) => a.alive && a.id !== adventurer.id && getLastName(a.name) === lastName);
+  if (family.length === 0) return [];
+
+  // Use findKin with the adventurer as candidate to get correct perspective labels
+  return findKin(adventurer, roster);
 }
 
 // ─── Name generation ────────────────────────────────────────────

@@ -21,6 +21,7 @@ import {
   getNextLoyaltyRank,
   LOYALTY_RANKS,
   AGE_LABELS,
+  getRosterKin,
 } from "~/data/adventurers";
 import { getItem, getItemsForSlot, getEquipmentStats, getEquipmentDefense, isSupplyItem, type ItemSlot } from "~/data/items";
 import { getTalentsForClass, getTalentPoints, getUnspentTalentPoints, canUnlockTalent, getEarnedTitle, getTalent, type TalentNode } from "~/data/talents";
@@ -206,6 +207,33 @@ export default function AdventurerDetail() {
                           <span>{foodPref()!.trait}</span>
                         </div>
                       </Show>
+
+                      {/* Family Connections */}
+                      {(() => {
+                        const family = getRosterKin(adv(), state.adventurers);
+                        if (family.length === 0) return null;
+                        return (
+                          <div style={{
+                            display: "flex",
+                            "flex-wrap": "wrap",
+                            gap: "6px",
+                            "font-size": "0.8rem",
+                          }}>
+                            <span style={{ color: "var(--accent-gold)" }}>👨‍👩‍👧‍👦</span>
+                            <For each={family}>
+                              {(k) => (
+                                <A href={`/adventurer/${k.relative.id}`} style={{
+                                  color: "var(--accent-gold)",
+                                  "text-decoration": "none",
+                                  "border-bottom": "1px dotted var(--accent-gold)",
+                                }}>
+                                  {k.label}
+                                </A>
+                              )}
+                            </For>
+                          </div>
+                        );
+                      })()}
 
                       {/* Trait Badge — pinned to bottom */}
                       <Show when={traitDef()}>
