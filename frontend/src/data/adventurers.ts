@@ -350,6 +350,22 @@ export const PERSONALITY_QUIRKS: string[] = [
   "Claims to have once arm-wrestled a troll. The details change every telling.",
   "Keeps a pressed flower in a locket. Won't say who gave it to them.",
   "Counts everything — stairs, trees, enemies. Everything.",
+  "Goes 'pspspsps' at every cat. Every. Single. One. The party waits.",
+  "Has a cat waiting at home. Talks about it constantly. Refuses dangerous missions unless the pay is good enough to 'keep Mr. Whiskers fed.'",
+  "Judges every meal. Every single meal. Has opinions about salt levels that border on philosophical.",
+  "Prefers to work alone. Says the quiet helps them think. Suspiciously effective on solo missions.",
+  "Brings a small journal and sketches every monster they fight. The drawings are surprisingly good.",
+  "Has memorized the name, birthday, and favorite food of every member of the settlement. All of them.",
+  "Apologizes to enemies before killing them. Means it.",
+  "Refuses to sleep indoors. 'The stars are better company.' Even in winter.",
+  "Collects interesting rocks. Their pack weighs twice what it should.",
+  "Has never been seen eating. Claims they 'ate before they came.' Every time.",
+  "Tells the same joke to every new recruit. It's not funny. It's never been funny. They think it's hilarious.",
+  "Can fall asleep anywhere, in any position, in under a minute. It's unsettling.",
+  "Has very strong opinions about bread. Will argue about bread for hours.",
+  "Adopted a stray dog on a mission once. The dog now follows the party. Nobody agreed to this.",
+  "Makes a small offering to the land before every mission. A coin, a crumb, a whispered thank-you.",
+  "Keeps a running count of how many times they've almost died. Currently at seventeen.",
 ];
 
 // ─── Adventurer classes ─────────────────────────────────────────
