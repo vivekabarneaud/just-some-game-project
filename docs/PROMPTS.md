@@ -1772,3 +1772,28 @@ A Khor'vani evening meal spread across a low brass table on a rooftop terrace un
 
 **Khor'vani Sacred — The Star Observatory**
 A Khor'vani astronomical observatory at night, a massive open-roofed circular chamber with geometric tilework walls in deep blue and gold, a great brass orrery in the center of the room depicting celestial bodies, scholar-priests in dark robes studying star charts spread across curved stone desks, telescopes pointed through arched openings at the night sky, the Milky Way blazing overhead, candles and oil lamps casting warm light on the instruments, carved inscriptions relating to Varek's legacy running along the walls, an atmosphere of sacred knowledge and cosmic contemplation, realistic digital painting, dark moody atmosphere, rich detail, no text --ar 16:9
+
+---
+
+## Story Mission Card Images
+
+Story mission scene images used on the mission selection card. Wide format, atmospheric.
+All use: realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Story 1 — Scouting the Surroundings**
+Wide shot of a frontier wilderness at dawn, rolling hills and dense forest stretching in all directions, a single adventurer standing on a rocky overlook studying the landscape with a hand-drawn map, game trails visible in the valley below, morning mist pooling in the lowlands, distant smoke from the player's settlement behind, the vast unexplored wild ahead, golden dawn light catching the treetops, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Story 2 — The Hilltop Ruins**
+Wide shot of ancient stone ruins on a hilltop at late afternoon, crumbling watchtower partially standing, ivy-covered walls, collapsed buildings with military foundations visible, a broken well in the center courtyard, long shadows stretching through gaps in the walls, adventurers approaching cautiously from below with weapons drawn, crows circling overhead, an atmosphere of organized abandonment, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Story 3 — The Silent Forest**
+Wide shot of a dead grey forest stretching to the horizon, trees standing upright but lifeless with pale cracked bark, no birds no insects, thick low mist clinging to the grey ground, an adventurer party at the edge where living green forest meets dead grey, the stark divide between life and death cutting across the landscape, oppressive silence conveyed through emptiness, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Story 4 — A Ranger's Warning**
+Wide shot of a frontier settlement at dawn, a hooded figure standing at the tree line watching — a Thornveil Ranger in weathered green leather with a glowing runic blade at her hip, morning mist between the settlement's wooden palisade and the forest edge, the Ranger's posture calm but alert, she has been waiting to be noticed, warm settlement light contrasting with cool forest shadow, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Story 5 — The Cracked Ward-Stone**
+Wide shot of a moss-covered stone monolith in a moonlit forest clearing, the stone cracked down the middle with ancient runes some still faintly glowing blue, dead grey mist creeping in from the edges of the clearing, a wizard and a ranger approaching the stone with determination, ward-stones in a ring around the clearing each in various states of decay, the boundary between living forest and grey death visible at the clearing's edge, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+**Story 6 — The Robin's Message**
+Wide shot of a frontier settlement's watchtower in golden morning light, a small ordinary robin perched on the railing with a tiny scroll tied to its leg, the settlement below waking up with chimney smoke rising, the robin looking directly at the viewer with its head tilted, an unnaturally still bird that seems to be waiting with purpose, warm domestic scene hiding something extraordinary, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
