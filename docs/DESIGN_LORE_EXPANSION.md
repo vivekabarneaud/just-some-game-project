@@ -170,7 +170,7 @@ Varek's army isn't just generals. It's layered:
 
 ### Silvaneth — Forest Consensus
 - **Structure:** No hierarchy. Decisions are made by **communion** — a Primal magic ritual where the elder druids merge their consciousness with the forest itself and "ask" what the land needs. The forest responds through growth patterns, animal movements, and weather.
-- **Eldest Voice:** **Aelindra**, a Silvaneth druid who is 487 years old — one of the oldest living elves. She remembers the early years after Le Déclin. She is slowly becoming part of the forest; bark grows on her skin, roots twine around her feet. She may be the last elf who remembers what immortality felt like.
+- **Eldest Voice:** **Aelindra**, a Silvaneth druid who is 487 years old — one of the oldest living elves. She remembers the early years after Le Déclin. She is slowly becoming part of the forest; bark grows on her skin, roots twine around her feet. She may be the last elf who remembers what immortality felt like. On Thornveil Pact matters, she defers to Elder Rowena Blackwood — an Ashwick grandmother who leads the broader coalition. An elf who has lived five centuries deferring to a seventy-two-year-old human says everything about what the Silvaneth value: wisdom over longevity.
 - **The retreat:** The Silvaneth don't acknowledge they're losing territory. Officially, the forest is "resting." Privately, Aelindra knows they have perhaps two centuries before the grey reaches their heartwood.
 - **Relationship to Thornveil:** The Silvaneth are the Thornveil's soul. The human Rangers provide numbers; the Silvaneth provide the magic that actually maintains the wards. Without them, the boundary collapses within a generation.
 

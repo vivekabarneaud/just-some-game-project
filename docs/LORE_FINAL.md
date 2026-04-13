@@ -340,8 +340,8 @@ It's imperfect. And it's slowly failing as the damage outpaces their ability to 
 The Cult would tell them: "You're doing Netheron's job badly. Let us bring him back and he'll do it properly."
 
 **Key figures:**
-- **Elder Rowan** — seventy, the most respected voice on the Circle. Patient, deeply connected to the old ways. He honors all seven gods, including Netheron, believing that death was sacred and necessary.
-- **Warden Kess** — young leader of the Thornveil Rangers. Hot-headed, impatient with the Elders' caution. She wants to strike the Cult before they grow stronger, not realizing that the Cult's goal might align with the Thornveil's needs.
+- **Elder Rowena Blackwood** — seventy-two, an Ashwick grandmother and the most respected voice on the Circle. She came south forty years ago as a village herbalist fleeing the Inquisition — the Church called her remedies heresy, the Thornveil called them Primal magic. She rose through the Circle not through power but through four decades of being the person everyone trusts when things go wrong. She knits during council meetings, calls Kess "dear" when she's about to overrule her, and honors all seven gods including Netheron, believing that death was sacred and necessary. The Silvaneth elves — who live centuries — defer to a seventy-two-year-old human woman. That tells you everything you need to know about her.
+- **Warden Kess** — young leader of the Thornveil Rangers. Hot-headed, impatient with the Elder's caution. She wants to strike the Cult before they grow stronger, not realizing that the Cult's goal might align with the Thornveil's needs. Rowena reminds her to be patient. Kess reminds Rowena that patience is a luxury the boundary can't afford. They're both right.
 
 ### The Corsair League
 
