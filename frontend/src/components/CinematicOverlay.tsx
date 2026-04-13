@@ -47,14 +47,11 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
       setTimeout(() => props.onComplete(), 800);
       return;
     }
-    // Start the flip first, then fade out text — avoids triggering re-render before flip starts
-    pageFlip?.flipNext();
-    // Fade text after a frame so the flip is already in progress
+    // Jump directly to the next content page (skipping the parchment-back page)
+    // Content pages are at indices 0, 2, 4, 6... so next content = (currentSlide + 1) * 2
+    const nextContentIdx = (currentSlide() + 1) * 2;
+    pageFlip?.flip(nextContentIdx);
     requestAnimationFrame(() => setTextVisible(false));
-    // After the first flip reveals the parchment back, flip again to show next content
-    setTimeout(() => {
-      pageFlip?.flipNext();
-    }, 400);
   };
 
   // Build interleaved pages once: [content, parchmentBack, content, parchmentBack, ...]
