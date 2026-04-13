@@ -482,8 +482,10 @@ function tryPriestAbility(unit: CombatUnit, allies: CombatUnit[], enemies: Comba
 
   // Smite: when no ally needs healing — holy damage ignoring physical defense
   if (canUseAbility(unit, "smite")) {
+    const aliveForSmite = enemies.filter((e) => e.hp > 0);
+    if (aliveForSmite.length === 0) return false;
     startCooldown(unit, "smite", 2);
-    const target = enemies.sort((a, b) => a.hp - b.hp)[0]; // lowest HP
+    const target = aliveForSmite.sort((a, b) => a.hp - b.hp)[0]; // lowest HP alive
     const { damage, crit } = calcDamageResult(unit, target, { ignorePhysicalDef: true });
     target.hp -= damage;
     log.push({
