@@ -544,7 +544,7 @@ export default function AdventurerDetail() {
                 <div class="overview-panel" style={{ padding: "20px 32px", "grid-column": "1 / -1" }}>
                   <div style={{ display: "flex", gap: "24px" }}>
                   {/* Left side — Talents */}
-                  <div style={{ flex: "1", "min-width": 0 }}>
+                  <div style={{ flex: "1", "min-width": 0, width: "50%" }}>
                   <div style={{ display: "flex", "justify-content": "space-between", "align-items": "center", "margin-bottom": "12px" }}>
                     <h2 style={{ margin: 0 }}>Talents</h2>
                     <div style={{ display: "flex", "align-items": "center", gap: "12px" }}>
@@ -622,12 +622,14 @@ export default function AdventurerDetail() {
                     // Skip same-row connections (they create confusing horizontal lines)
                     const connections = () => {
                       const map = talentMap();
-                      const conns: { parentId: string; childId: string; unlocked: boolean }[] = [];
+                      const conns: { parentId: string; childId: string; parentUnlocked: boolean; bothUnlocked: boolean }[] = [];
                       for (const t of allTalents()) {
                         for (const childId of t.children) {
                           const child = map[childId];
                           if (!child || child.row <= t.row) continue; // skip same-row and upward
-                          conns.push({ parentId: t.id, childId, unlocked: adv().talents?.includes(t.id) ?? false });
+                          const parentUnlocked = adv().talents?.includes(t.id) ?? false;
+                          const childUnlocked = adv().talents?.includes(childId) ?? false;
+                          conns.push({ parentId: t.id, childId, parentUnlocked, bothUnlocked: parentUnlocked && childUnlocked });
                         }
                       }
                       return conns;
@@ -702,9 +704,9 @@ export default function AdventurerDetail() {
                                 <line
                                   x1={from.x + NODE_W / 2 + 32} y1={from.y + NODE_H + 8}
                                   x2={to.x + NODE_W / 2 + 32} y2={to.y + 8}
-                                  stroke={conn.unlocked ? "rgba(245, 197, 66, 0.6)" : "rgba(255, 255, 255, 0.1)"}
-                                  stroke-width={conn.unlocked ? "2" : "1"}
-                                  stroke-dasharray={conn.unlocked ? "" : "4 4"}
+                                  stroke={conn.parentUnlocked ? "rgba(245, 197, 66, 0.6)" : "rgba(255, 255, 255, 0.1)"}
+                                  stroke-width={conn.bothUnlocked ? "2" : "1"}
+                                  stroke-dasharray={conn.bothUnlocked ? "" : "4 4"}
                                 />
                               );
                             }}
@@ -799,7 +801,7 @@ export default function AdventurerDetail() {
                   <div style={{ width: "1px", background: "var(--border-color)", "flex-shrink": 0 }} />
 
                   {/* Right side — Combat Abilities */}
-                  <div style={{ width: "180px", "flex-shrink": 0 }}>
+                  <div style={{ flex: "1", width: "50%" }}>
                     <h2 style={{ margin: "0 0 12px 0" }}>Abilities</h2>
                     <div style={{ display: "flex", "flex-direction": "column", gap: "8px" }}>
                       <For each={CLASS_ABILITIES[adv().class]}>
