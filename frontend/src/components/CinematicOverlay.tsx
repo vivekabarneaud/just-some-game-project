@@ -1,4 +1,4 @@
-import { createSignal, onMount, onCleanup, For } from "solid-js";
+import { createSignal, createMemo, onMount, onCleanup, For } from "solid-js";
 import { PageFlip } from "page-flip";
 
 export interface CinematicSlide {
@@ -47,18 +47,19 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
       setTimeout(() => props.onComplete(), 800);
       return;
     }
-    setTextVisible(false);
-    // Flip two pages: the content page and the parchment-back behind it
+    // Start the flip first, then fade out text — avoids triggering re-render before flip starts
     pageFlip?.flipNext();
-    // After the first flip reveals the parchment back, immediately flip again
+    // Fade text after a frame so the flip is already in progress
+    requestAnimationFrame(() => setTextVisible(false));
+    // After the first flip reveals the parchment back, flip again to show next content
     setTimeout(() => {
       pageFlip?.flipNext();
-    }, 300);
+    }, 400);
   };
 
-  // Build interleaved pages: [content, parchmentBack, content, parchmentBack, ...]
-  // Last content page has no parchment after it
-  const buildPages = () => {
+  // Build interleaved pages once: [content, parchmentBack, content, parchmentBack, ...]
+  // Memoized so it never re-creates and disrupts StPageFlip's DOM
+  const interleaved = createMemo(() => {
     const pages: { type: "content" | "back"; slideIndex?: number }[] = [];
     for (let i = 0; i < props.slides.length; i++) {
       pages.push({ type: "content", slideIndex: i });
@@ -67,7 +68,7 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
       }
     }
     return pages;
-  };
+  });
 
   onMount(() => {
     if (!flipContainerRef) return;
@@ -145,7 +146,7 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
           height: `${pageSize().h}px`,
         }}
       >
-        <For each={buildPages()}>
+        <For each={interleaved()}>
           {(page) => (
             <div
               class="cinematic-page"
