@@ -1,6 +1,6 @@
 import { For, Show, onMount } from "solid-js";
 import { A } from "@solidjs/router";
-import { BUILDINGS, isBuildingUnlocked, getUnlockRequirement, getNextTierForLevels, applyMasonCostReduction, applyMasonTimeReduction, getTierPrerequisitesMet, type BuildingDefinition } from "~/data/buildings";
+import { BUILDINGS, isBuildingUnlocked, getUnlockRequirement, getNextTierForLevels, applyMasonCostReduction, applyMasonTimeReduction, getTierPrerequisitesMet, getRepairCost, type BuildingDefinition } from "~/data/buildings";
 import { QUEST_CHAIN } from "~/data/quests";
 import { useGame } from "~/engine/gameState";
 import Countdown from "~/components/Countdown";
@@ -362,8 +362,34 @@ export default function Buildings() {
                           </div>
                         )}
                         {pb()?.damaged && (
-                          <div class="building-card-upgrading" style={{ color: "var(--accent-red)" }}>
-                            Damaged — not producing
+                          <div style={{ display: "flex", "align-items": "center", "justify-content": "space-between", gap: "8px" }}>
+                            <div class="building-card-upgrading" style={{ color: "var(--accent-red)" }}>
+                              Damaged — not producing
+                            </div>
+                            {(() => {
+                              const cost = getRepairCost(building, level());
+                              const canRepair = () => state.resources.wood >= cost.wood && state.resources.stone >= cost.stone;
+                              return (
+                                <button
+                                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); actions.repairBuilding(building.id); }}
+                                  disabled={!canRepair()}
+                                  style={{
+                                    padding: "4px 10px",
+                                    background: canRepair() ? "var(--accent-gold)" : "rgba(255,255,255,0.1)",
+                                    color: canRepair() ? "#1a1a1a" : "var(--text-muted)",
+                                    border: "none",
+                                    "border-radius": "4px",
+                                    cursor: canRepair() ? "pointer" : "not-allowed",
+                                    "font-size": "0.72rem",
+                                    "font-weight": "600",
+                                    "white-space": "nowrap",
+                                    "flex-shrink": 0,
+                                  }}
+                                >
+                                  🔧 Repair (🪵{cost.wood} 🪨{cost.stone})
+                                </button>
+                              );
+                            })()}
                           </div>
                         )}
                         {isUpgrading() && pb()?.upgradeRemaining && (
