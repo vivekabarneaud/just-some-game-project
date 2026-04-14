@@ -15,14 +15,14 @@ export interface PremadeCharacter {
 
 export const PREMADE_CHARACTERS: PremadeCharacter[] = [
   { id: "char_000", name: "Brenna Thornwood", class: "archer", race: "human", origin: "ashwick", age: "middle", portrait: "archer_ashwick_female_1", foodPreference: "sweet" },
-  { id: "char_001", name: "Rowena Coldwell", class: "archer", race: "human", origin: "ashwick", age: "middle", portrait: "archer_ashwick_female_2", foodPreference: "spicy" },
+  { id: "char_001", name: "Ellie Coldwell", class: "archer", race: "human", origin: "ashwick", age: "middle", portrait: "archer_ashwick_female_2", foodPreference: "spicy" },
   { id: "char_002", name: "Isla Foxglove", class: "archer", race: "human", origin: "ashwick", age: "young", portrait: "archer_ashwick_female_young_1", foodPreference: "hearty" },
   { id: "char_003", name: "Aldric Blackwood", class: "archer", race: "human", origin: "ashwick", age: "mature", portrait: "archer_ashwick_male_mature_1", foodPreference: "smoky" },
   { id: "char_004", name: "Cedric Ashford", class: "archer", race: "human", origin: "ashwick", age: "middle", portrait: "archer_ashwick_male_1", foodPreference: "fresh" },
   { id: "char_005", name: "Gareth Thornwood", class: "archer", race: "human", origin: "ashwick", age: "middle", portrait: "archer_ashwick_male_2", foodPreference: "sweet" },
   { id: "char_006", name: "Maren Greystone", class: "assassin", race: "human", origin: "ashwick", age: "middle", portrait: "assassin_ashwick_female_middle_1", foodPreference: "spicy" },
   { id: "char_007", name: "Elspeth Ravencroft", class: "assassin", race: "human", origin: "ashwick", age: "old", portrait: "assassin_ashwick_female_old_1", foodPreference: "hearty" },
-  { id: "char_008", name: "Wren Emberheart", class: "assassin", race: "human", origin: "ashwick", age: "young", portrait: "assassin_ashwick_female_young_1", foodPreference: "smoky" },
+  { id: "char_008", name: "Lyra Emberheart", class: "assassin", race: "human", origin: "ashwick", age: "young", portrait: "assassin_ashwick_female_young_1", foodPreference: "smoky" },
   { id: "char_009", name: "Edmund Blackwood", class: "assassin", race: "human", origin: "ashwick", age: "middle", portrait: "assassin_ashwick_male_1", foodPreference: "fresh" },
   { id: "char_010", name: "Roderick Ashford", class: "assassin", race: "human", origin: "ashwick", age: "middle", portrait: "assassin_ashwick_male_middle_1", foodPreference: "sweet" },
   { id: "char_011", name: "Finley Coldwell", class: "assassin", race: "human", origin: "ashwick", age: "young", portrait: "assassin_ashwick_male_young_1", foodPreference: "spicy" },
