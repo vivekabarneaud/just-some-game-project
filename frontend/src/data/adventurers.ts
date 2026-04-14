@@ -781,15 +781,15 @@ function nameHash(name: string): number {
 
 // CDN folder names (may differ from in-game origin IDs after renames)
 const CDN_FOLDER: Partial<Record<Origin, string>> = {
-  ashwick: "dunhollow",
+  // ashwick was formerly dunhollow — now renamed on CDN too
 };
 
 // Age-tagged portrait counts: origin → "class_gender_age" → count
 // Filename pattern: {class}_{origin}_{gender}_{age}_{n}.png
 // Run docs/PORTRAIT_RENAME.sh on CDN to rename existing files, then these counts are live.
 const ORIGIN_AGE_PORTRAIT_COUNTS: Partial<Record<Origin, Partial<Record<string, number>>>> = {
-  ashwick: { archer_female_young: 2, archer_male_middle: 1, archer_male_young: 1, assassin_male_young: 1, priest_female_middle: 1, priest_female_old: 1, priest_female_young: 1, priest_male_mature: 1, priest_male_middle: 1, priest_male_old: 1, warrior_female_middle: 1, warrior_female_young: 1, warrior_male_middle: 2, warrior_male_young: 1, wizard_female_young: 2, wizard_male_old: 2, wizard_male_young: 1 },
-  nordveld: { archer_female_middle: 1, archer_male_middle: 1, assassin_female_middle: 1, assassin_male_mature: 1, priest_female_mature: 1, priest_male_middle: 1, warrior_female_mature: 2, warrior_male_old: 1, wizard_female_middle: 1, wizard_female_old: 1, wizard_male_old: 1 },
+  ashwick: { archer_female_young: 1, archer_male_mature: 1, assassin_female_middle: 1, assassin_female_old: 1, assassin_female_young: 1, assassin_male_middle: 1, assassin_male_young: 1, warrior_female_old: 1, wizard_female_young: 1 },
+  nordveld: { archer_female_mature: 1, archer_male_middle: 1, archer_male_young: 1, assassin_female_mature: 1, assassin_female_young: 1, assassin_male_middle: 1, assassin_male_young: 1, priest_female_mature: 1, priest_female_young: 1, priest_male_old: 2, priest_male_young: 1, warrior_female_middle: 1, warrior_male_old: 1, warrior_male_young: 1, wizard_female_mature: 1, wizard_male_old: 1, wizard_male_young: 1 },
   meridian: { archer_female_middle: 1, archer_male_mature: 1, assassin_female_mature: 1, assassin_female_middle: 1, assassin_male_middle: 2, priest_female_mature: 1, priest_male_mature: 1, priest_male_old: 1, warrior_female_young: 1, warrior_male_middle: 1, wizard_female_old: 1, wizard_male_middle: 1 },
   zahkari: { archer_female_young: 1, archer_male_young: 1, assassin_female_old: 1, assassin_male_young: 1, priest_female_middle: 1, priest_female_young: 1, priest_male_young: 1, warrior_female_young: 1, warrior_male_middle: 1, wizard_female_middle: 1, wizard_male_old: 1 },
   tianzhou: { archer_female_middle: 1, archer_male_middle: 1, assassin_female_mature: 1, assassin_female_young: 1, assassin_male_middle: 1, priest_female_old: 1, priest_male_middle: 1, warrior_female_young: 1, warrior_male_young: 1, wizard_female_middle: 1, wizard_male_mature: 1 },
@@ -797,6 +797,7 @@ const ORIGIN_AGE_PORTRAIT_COUNTS: Partial<Record<Origin, Partial<Record<string, 
   silvaneth: { archer_female_young: 1, archer_male_young: 1, assassin_female_young: 1, assassin_male_middle: 1, priest_female_mature: 1, priest_male_mature: 1, warrior_female_young: 1, warrior_male_young: 1, wizard_female_middle: 1, wizard_male_old: 1 },
   hautsciels: { archer_female_middle: 1, archer_male_young: 1, assassin_female_young: 1, assassin_male_middle: 1, priest_female_young: 1, priest_male_young: 1, warrior_female_young: 1, warrior_male_young: 1, wizard_female_young: 1, wizard_male_old: 1 },
   khazdurim: { archer_female_young: 1, archer_male_mature: 1, assassin_female_middle: 1, assassin_male_middle: 1, priest_female_old: 1, priest_male_old: 1, warrior_female_middle: 1, warrior_male_middle: 1, wizard_female_old: 1, wizard_male_mature: 1 },
+  feldgrund: { archer_female_young: 1, archer_male_mature: 1, assassin_female_mature: 1, assassin_male_mature: 1, priest_female_old: 1, priest_male_mature: 1, warrior_female_mature: 1, warrior_male_mature: 1, wizard_female_old: 1, wizard_male_old: 1 },
 };
 
 export function getPortrait(name: string, cls: AdventurerClass, origin: Origin, age: AgeCategory): string {
