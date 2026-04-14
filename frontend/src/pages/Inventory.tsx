@@ -57,7 +57,10 @@ export default function Inventory() {
                   <div class="building-card">
                     <span class="building-card-category">{it().slot}</span>
                     <div class="building-card-header" style={{ "margin-top": "4px" }}>
-                      <div class="building-card-icon">{it().icon}</div>
+                      {it().image
+                        ? <img src={it().image} alt="" style={{ width: "40px", height: "40px", "object-fit": "cover", "border-radius": "6px", "flex-shrink": "0" }} />
+                        : <div class="building-card-icon">{it().icon}</div>
+                      }
                       <div>
                         <div class="building-card-title">{it().name}</div>
                         <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
@@ -101,7 +104,10 @@ export default function Inventory() {
               <div class="building-card" style={{ opacity: owned() > 0 ? 1 : 0.5 }}>
                 <span class="building-card-category">{item.slot}</span>
                 <div class="building-card-header" style={{ "margin-top": "4px" }}>
-                  <div class="building-card-icon">{item.icon}</div>
+                  {item.image
+                    ? <img src={item.image} alt="" style={{ width: "40px", height: "40px", "object-fit": "cover", "border-radius": "6px", "flex-shrink": "0" }} />
+                    : <div class="building-card-icon">{item.icon}</div>
+                  }
                   <div>
                     <div class="building-card-title">{item.name}</div>
                     <div style={{ "font-size": "0.8rem", color: "var(--accent-green)" }}>

@@ -47,7 +47,7 @@ export function getCrop(id: CropId): CropDefinition {
 // Field building costs and timing
 export const FIELD_BASE_COST = { wood: 40, stone: 10 };
 export const FIELD_COST_MULTIPLIER = 1.4;
-export const FIELD_BASE_BUILD_TIME = 45; // seconds
+export const FIELD_BASE_BUILD_TIME = 5; // seconds
 export const FIELD_BUILD_TIME_MULTIPLIER = 1.5;
 
 export const MAX_FIELDS = 8;

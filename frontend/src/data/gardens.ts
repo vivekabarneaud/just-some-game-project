@@ -52,7 +52,7 @@ export function getVeggie(id: VeggieId): VeggieDefinition {
 
 export const GARDEN_BASE_COST = { wood: 20, stone: 5 };
 export const GARDEN_COST_MULTIPLIER = 1.3;
-export const GARDEN_BASE_BUILD_TIME = 30; // seconds
+export const GARDEN_BASE_BUILD_TIME = 5; // seconds
 export const GARDEN_BUILD_TIME_MULTIPLIER = 1.4;
 export const MAX_GARDENS = 6;
 export const GARDEN_MAX_LEVEL = 8;

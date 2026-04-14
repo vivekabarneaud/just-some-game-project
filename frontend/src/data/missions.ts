@@ -39,6 +39,7 @@ export interface MissionTemplate {
   tags: MissionTag[];
   image?: string; // optional mission illustration
   encounters?: MissionEncounter[]; // enemies faced during the mission
+  guaranteed?: boolean; // always ~98% success regardless of stats
 }
 
 export interface ActiveMission {
@@ -155,7 +156,8 @@ export const MISSION_POOL: MissionTemplate[] = [
     deployCost: 5,
     difficulty: 1,
     minGuildLevel: 1,
-    tags: ["outdoor", "exploration"],
+    tags: ["outdoor"],
+    guaranteed: true,
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/herb_gathering.png",
   },
 
@@ -1302,6 +1304,7 @@ export function calcSuccessChance(
   statBonuses?: number, // flat bonus from potions (e.g. +10 to relevant stat)
 ): number {
   if (team.length === 0) return 0;
+  if (mission.guaranteed) return 98;
 
   const statWeights = getMissionStatWeights(mission.tags);
 
@@ -1322,9 +1325,9 @@ export function calcSuccessChance(
   // Add potion stat bonuses
   if (statBonuses) teamPower += statBonuses;
 
-  // Difficulty threshold: how much stat total is needed
-  // Difficulty 1 = 15, difficulty 3 = 45, difficulty 5 = 75
-  const threshold = mission.difficulty * 15;
+  // Difficulty threshold: how much weighted stat total is needed
+  // Difficulty 1 = 8, difficulty 3 = 24, difficulty 5 = 40
+  const threshold = mission.difficulty * 8;
 
   // Calculate % based on how much the team exceeds (or falls short of) the threshold
   // At threshold = 50%, at 2x threshold = ~95%, at 0.5x = ~15%
@@ -1460,7 +1463,7 @@ export const STORY_MISSIONS: StoryMission[] = [
       "Time to find out what's around us. Send scouts to map the area — water sources, game trails, anything useful. And anything dangerous.",
     icon: "🗺️",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/story_1_scouting.png",
-    slots: [{ class: "any" }],
+    slots: [{ class: "any" }, { class: "any" }],
     duration: 900,
     rewards: [
       { resource: "gold", amount: 50 },
@@ -1470,7 +1473,7 @@ export const STORY_MISSIONS: StoryMission[] = [
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["exploration", "outdoor"],
-    encounters: [{ enemyId: "wild_wolf", count: 2 }, { enemyId: "goblin_scout", count: 1 }],
+    encounters: [{ enemyId: "wild_wolf", count: 2 }],
     lore: "Your scouts return with a rough map and one unexpected finding: about a day's march south, on a hilltop, there are ruins. Stone foundations, a collapsed well, and a tower still partially standing. Whoever was here before you, they were organized. Military, maybe. And they left.",
   },
   {

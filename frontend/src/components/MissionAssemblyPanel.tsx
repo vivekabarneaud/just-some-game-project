@@ -105,8 +105,6 @@ export default function MissionAssemblyPanel(props: Props) {
     teamIds().map((id) => state.adventurers.find((a) => a.id === id)).filter(Boolean) as Adventurer[]
   );
 
-  createEffect(() => console.log("team memo", team()));
-
   // ─── Slot assignments (for display) ───────────────────────────
   const slotAssignments = createMemo(() => {
     const slots = mission().slots;

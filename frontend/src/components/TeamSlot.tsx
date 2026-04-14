@@ -54,7 +54,7 @@ export default function TeamSlot(props: TeamSlotProps) {
       }>
         <div style={{ position: "relative", width: "80px", height: "80px", "flex-shrink": "0" }}>
           <img
-            src={getZoomedPortrait(assigned()!.name, assigned()!.class, assigned()!.origin, assigned()!.age ?? "middle")}
+            src={getZoomedPortrait(assigned()!.name, assigned()!.class, assigned()!.origin, assigned()!.age ?? "middle", assigned()!.portrait)}
             alt={assigned()!.name}
             style={{ width: "80px", height: "80px", "object-fit": "cover", display: "block" }}
           />

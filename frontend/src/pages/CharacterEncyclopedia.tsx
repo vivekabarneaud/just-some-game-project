@@ -1,10 +1,11 @@
 import { createSignal, For, Show } from "solid-js";
-import { PREMADE_CHARACTERS, type PremadeCharacter } from "~/data/premade-characters";
+import { PREMADE_CHARACTERS, CHAR_RELATIONSHIPS, type PremadeCharacter } from "~/data/premade-characters";
 import { RACE_NAMES, getClassMeta, getFoodPref, CLASS_COLORS, type AdventurerClass, BACKSTORY_TRAITS } from "~/data/adventurers";
 import { ORIGINS } from "~/data/adventurers";
 import TraitBadge from "~/components/TraitBadge";
 
 const CDN_CHARS = "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters";
+const CDN_FOLDER: Record<string, string> = {};
 
 const CLASS_ORDER: AdventurerClass[] = ["warrior", "wizard", "priest", "archer", "assassin"];
 
@@ -89,11 +90,24 @@ export default function CharacterEncyclopedia() {
                   ({chars.length})
                 </span>
               </h2>
+              <Show when={originDef()}>
+                <p style={{
+                  "font-size": "0.8rem", color: "var(--text-muted)", "font-style": "italic",
+                  "margin-bottom": "12px", "line-height": "1.5",
+                }}>
+                  {originDef()!.description}
+                  <br />
+                  <span style={{ color: "var(--text-secondary)", "font-style": "italic" }}>
+                    "{originDef()!.quote}"
+                  </span>
+                </p>
+              </Show>
               <div class="recruit-grid">
                 <For each={chars}>
                   {(char) => {
                     const cls = () => getClassMeta(char.class);
-                    const portraitUrl = `${CDN_CHARS}/${char.origin}/${char.portrait}.png`;
+                    const folder = CDN_FOLDER[char.origin] ?? char.origin;
+                    const portraitUrl = `${CDN_CHARS}/${folder}/${char.portrait}.png`;
                     const traitDef = () => char.trait ? BACKSTORY_TRAITS.find((t) => t.id === char.trait) : null;
                     return (
                       <div class="building-card adv-card">
@@ -108,6 +122,13 @@ export default function CharacterEncyclopedia() {
                           <div style={{ "font-size": "0.85rem", color: "var(--text-muted)" }}>
                             {RACE_NAMES[char.race]} · {originDef()?.name}
                           </div>
+                          <Show when={CHAR_RELATIONSHIPS[char.id]}>
+                            <div style={{
+                              "font-size": "0.73rem", color: "var(--accent-gold)", "margin-top": "2px",
+                            }}>
+                              {CHAR_RELATIONSHIPS[char.id]}
+                            </div>
+                          </Show>
                           <Show when={getFoodPref(char.foodPreference)}>
                             <div style={{
                               "font-size": "0.75rem", color: "var(--text-muted)", "margin-top": "2px",
@@ -128,6 +149,14 @@ export default function CharacterEncyclopedia() {
                               color: "var(--text-muted)", "font-style": "italic",
                             }}>
                               {cls().passive.name}: {cls().passive.description}
+                            </div>
+                          </Show>
+                          <Show when={char.backstory}>
+                            <div style={{
+                              "margin-top": "6px", "font-size": "0.75rem",
+                              color: "var(--text-secondary)", "line-height": "1.4",
+                            }}>
+                              {char.backstory}
                             </div>
                           </Show>
                         </div>

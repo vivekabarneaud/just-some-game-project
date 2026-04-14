@@ -628,14 +628,18 @@ function tryEnemyAbility(
       case "poison": {
         const target = aliveTargets[Math.floor(combatRandom() * aliveTargets.length)];
         if (!target) return false;
-        const dotDmg = Math.floor(getAttackPower(unit) * eff.pctPerRound / 100);
+        // Deal initial hit damage + apply DoT
+        const hitResult = calcDamageResult(unit, target);
+        target.hp -= hitResult.damage;
+        const dotDmg = Math.max(1, Math.floor(getAttackPower(unit) * eff.pctPerRound / 100));
         target.poisonTicks.push({ damage: dotDmg, rounds: eff.rounds });
         log.push({
           round, attackerName: unit.name, attackerIcon: ability.icon,
           abilityName: ability.name,
-          targetName: target.name, damage: 0, dodged: false, crit: false, killed: false,
-          targetHp: target.hp, targetMaxHp: target.maxHp, isEnemy: true,
+          targetName: target.name, damage: hitResult.damage, dodged: false, crit: hitResult.crit, killed: target.hp <= 0,
+          targetHp: Math.max(0, target.hp), targetMaxHp: target.maxHp, isEnemy: true,
         });
+        if (target.hp <= 0) target.hp = 0;
         return true;
       }
 

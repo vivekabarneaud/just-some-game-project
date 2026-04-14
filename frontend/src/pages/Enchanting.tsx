@@ -313,7 +313,7 @@ export default function Enchanting() {
                     <div class="enchanting-adv-card">
                       <div class="enchanting-adv-info">
                         <img
-                          src={getPortrait(adv.name, adv.class, adv.origin, adv.age ?? "middle")}
+                          src={getPortrait(adv.name, adv.class, adv.origin, adv.age ?? "middle", adv.portrait)}
                           alt={adv.name}
                           class="enchanting-adv-portrait"
                           loading="lazy"

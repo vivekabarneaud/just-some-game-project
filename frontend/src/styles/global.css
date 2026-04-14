@@ -2802,3 +2802,262 @@ body {
   0%, 100% { box-shadow: 0 0 8px rgba(245, 197, 66, 0.25); }
   50% { box-shadow: 0 0 14px rgba(245, 197, 66, 0.45); }
 }
+
+/* ─── Enchanting Page ─────────────────────────────────────── */
+
+.enchanting-layout {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+.enchanting-recipes {
+  width: 340px;
+  flex-shrink: 0;
+}
+.enchanting-targets {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Recipe list */
+.enchanting-recipe-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.enchanting-recipe {
+  padding: 10px 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.enchanting-recipe:hover {
+  border-color: var(--accent-gold);
+  background: rgba(245, 197, 66, 0.04);
+}
+.enchanting-recipe.selected {
+  border-color: var(--accent-gold);
+  background: rgba(245, 197, 66, 0.08);
+  box-shadow: 0 0 8px rgba(245, 197, 66, 0.15);
+}
+.enchanting-recipe.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.enchanting-recipe.insufficient {
+  opacity: 0.75;
+}
+.enchanting-recipe-header {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.enchanting-recipe-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.enchanting-recipe-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+.enchanting-recipe-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+.enchanting-recipe-meta {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.enchanting-recipe-slots {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.enchanting-slot-tag {
+  font-size: 0.7rem;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(167, 139, 250, 0.1);
+  color: #a78bfa;
+  border: 1px solid rgba(167, 139, 250, 0.2);
+}
+.enchanting-recipe-costs {
+  display: flex;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+.enchanting-cost {
+  color: var(--accent-green);
+}
+.enchanting-cost.missing {
+  color: var(--accent-red);
+}
+
+/* Adventurer cards */
+.enchanting-adventurer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.enchanting-adv-card {
+  padding: 10px 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+.enchanting-adv-info {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.enchanting-adv-portrait {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.enchanting-gear-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.enchanting-gear-slot {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: default;
+  transition: all 0.15s;
+}
+.enchanting-gear-slot.empty {
+  opacity: 0.35;
+}
+.enchanting-gear-slot.valid-target {
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 8px rgba(245, 197, 66, 0.35);
+  cursor: pointer;
+  animation: enchant-pulse 1.5s infinite;
+}
+.enchanting-gear-slot.valid-target:hover {
+  box-shadow: 0 0 14px rgba(245, 197, 66, 0.55);
+  background: rgba(245, 197, 66, 0.1);
+}
+.enchanting-gear-slot.eligible {
+  border-color: rgba(167, 139, 250, 0.5);
+  box-shadow: 0 0 6px rgba(167, 139, 250, 0.2);
+}
+.enchanting-gear-slot.faded {
+  opacity: 0.3;
+}
+.enchanting-gear-icon {
+  font-size: 1.1rem;
+}
+.enchanting-gear-img {
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+/* Enchant count badge */
+.enchanting-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #a78bfa;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* Inventory grid */
+.enchanting-inventory-grid {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.enchanting-inv-slot {
+  width: 50px;
+  height: 50px;
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: default;
+  transition: all 0.15s;
+}
+.enchanting-inv-slot.valid-target {
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 8px rgba(245, 197, 66, 0.35);
+  cursor: pointer;
+  animation: enchant-pulse 1.5s infinite;
+}
+.enchanting-inv-slot.valid-target:hover {
+  box-shadow: 0 0 14px rgba(245, 197, 66, 0.55);
+  background: rgba(245, 197, 66, 0.1);
+}
+.enchanting-inv-slot.eligible {
+  border-color: rgba(167, 139, 250, 0.5);
+  box-shadow: 0 0 6px rgba(167, 139, 250, 0.2);
+}
+.enchanting-inv-slot.faded {
+  opacity: 0.3;
+}
+.enchanting-inv-icon {
+  font-size: 1.3rem;
+}
+.enchanting-inv-img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+.enchanting-qty {
+  position: absolute;
+  bottom: 1px;
+  right: 3px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+}
+
+@keyframes enchant-pulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(245, 197, 66, 0.25); }
+  50% { box-shadow: 0 0 12px rgba(245, 197, 66, 0.5); }
+}
+
+/* Responsive: stack on narrow screens */
+@media (max-width: 768px) {
+  .enchanting-layout {
+    flex-direction: column;
+  }
+  .enchanting-recipes {
+    width: 100%;
+  }
+}

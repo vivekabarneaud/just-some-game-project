@@ -505,7 +505,7 @@ export default function AdventurersGuild() {
                         {RANK_NAMES[adv.rank]}
                       </span>
                       <div class="adv-card-portrait">
-                        <img src={getPortrait(adv.name, adv.class, adv.origin, adv.age ?? "middle")} alt={adv.name} loading="lazy" />
+                        <img src={getPortrait(adv.name, adv.class, adv.origin, adv.age ?? "middle", adv.portrait)} alt={adv.name} loading="lazy" />
                       </div>
                       <div class="adv-card-content">
                         <div class="building-card-title">{adv.name}</div>
@@ -623,7 +623,7 @@ export default function AdventurersGuild() {
                       {RANK_NAMES[candidate.rank]}
                     </span>
                     <div class="adv-card-portrait">
-                      <img src={getPortrait(candidate.name, candidate.class, candidate.origin, candidate.age ?? "middle")} alt={candidate.name} loading="lazy" />
+                      <img src={getPortrait(candidate.name, candidate.class, candidate.origin, candidate.age ?? "middle", candidate.portrait)} alt={candidate.name} loading="lazy" />
                     </div>
                     <div class="adv-card-content">
                       <div class="building-card-title">{candidate.name}</div>

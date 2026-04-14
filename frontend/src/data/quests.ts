@@ -1,7 +1,7 @@
 import type { GameState } from "~/engine/gameState";
 
 export interface QuestReward {
-  resource: "gold" | "wood" | "stone" | "food" | "astralShards";
+  resource: "gold" | "wood" | "stone" | "food" | "wool" | "astralShards";
   amount: number;
   label: string;
 }
@@ -168,7 +168,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Recruit an adventurer",
     icon: "⚔️",
     condition: (s) => s.adventurers.length >= 1,
-    rewards: [{ resource: "gold", amount: 40, label: "Gold" }],
+    rewards: [{ resource: "gold", amount: 40, label: "Gold" }, { resource: "wood", amount: 25, label: "Wood" }],
     targetPage: "/guild",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_11.png",
   },
@@ -181,7 +181,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Send your first mission",
     icon: "🗺️",
     condition: (s) => s.firstMissionSent === true,
-    rewards: [{ resource: "astralShards", amount: 10, label: "Astral Shards" }],
+    rewards: [{ resource: "astralShards", amount: 10, label: "Astral Shards" }, { resource: "wood", amount: 25, label: "Wood" }],
     targetPage: "/guild",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_12.png",
   },
@@ -194,7 +194,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Build a Field or a Garden",
     icon: "🌾",
     condition: (s) => s.fields.some((f) => f.level >= 1) || s.gardens.some((g) => g.level >= 1),
-    rewards: [{ resource: "food", amount: 75, label: "Food" }],
+    rewards: [{ resource: "food", amount: 75, label: "Food" }, {resource: "wood", amount: 25, label: "Wood"}],
     targetPage: "/farming",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_13.png",
   },
@@ -207,7 +207,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Build a Sheep Pen",
     icon: "🐑",
     condition: (s) => s.pens.some((p) => p.level >= 1),
-    rewards: [{ resource: "food", amount: 50, label: "Food" }],
+    rewards: [{ resource: "food", amount: 50, label: "Food" }, { resource: "wool", amount: 10, label: "Wool" }, { resource: "wood", amount: 50, label: "Wood" }],
     targetPage: "/farming",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_14.png",
   },
@@ -220,7 +220,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Build a Tailoring Shop",
     icon: "🧵",
     condition: (s) => (bldg(s, "tailoring_shop")?.level ?? 0) >= 1,
-    rewards: [{ resource: "gold", amount: 30, label: "Gold" }],
+    rewards: [{ resource: "gold", amount: 30, label: "Gold" }, { resource: "wood", amount: 25, label: "Wood" }],
     targetBuildingId: "tailoring_shop",
   },
   // 16 — Craft clothing
@@ -231,7 +231,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
       "Your tailor examines the wool and nods approvingly. 'Good fiber. I can make proper clothes from this — your people are shivering in rags. Clothe them and they'll be happier, especially come winter. Robes and armor can wait — warmth first.'",
     objective: "Craft Wool or Linen Clothing for your citizens",
     icon: "🧥",
-    condition: (s) => s.clothing >= 1,
+    condition: (s) => Math.round(s.clothing) >= 1,
     rewards: [
       { resource: "gold", amount: 15, label: "Gold" },
     ],

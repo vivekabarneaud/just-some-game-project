@@ -59,11 +59,11 @@ export function getAnimal(id: AnimalId): AnimalDefinition {
 }
 
 // Pen costs — gold to buy animals, wood/stone to build the pen
-export const PEN_GOLD_COST = 50;
+export const PEN_GOLD_COST = 45;
 export const PEN_GOLD_COST_PER_LEVEL = 30;
 export const PEN_BASE_COST = { wood: 30, stone: 15 };
 export const PEN_COST_MULTIPLIER = 1.4;
-export const PEN_BASE_BUILD_TIME = 40; // seconds
+export const PEN_BASE_BUILD_TIME = 5; // seconds
 export const PEN_BUILD_TIME_MULTIPLIER = 1.5;
 export const MAX_PENS = 6;
 export const PEN_MAX_LEVEL = 8;

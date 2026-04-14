@@ -24,9 +24,9 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     icon: "🧥",
     building: "tailoring_shop",
     minLevel: 1,
-    costs: [{ resource: "wool", amount: 8 }],
+    costs: [{ resource: "wool", amount: 5 }],
     produces: { resource: "clothing", amount: 1 },
-    craftTime: 30, // 10 min
+    craftTime: 5,
   },
   {
     id: "woolen_robe",

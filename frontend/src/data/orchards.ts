@@ -50,7 +50,7 @@ export function getFruit(id: FruitId): FruitDefinition {
 export const ORCHARD_BASE_COST = { wood: 25, stone: 10, gold: 40 };
 export const ORCHARD_COST_MULTIPLIER = 1.3;
 export const ORCHARD_GOLD_PER_LEVEL = 25;
-export const ORCHARD_BASE_BUILD_TIME = 40; // seconds
+export const ORCHARD_BASE_BUILD_TIME = 5; // seconds
 export const ORCHARD_BUILD_TIME_MULTIPLIER = 1.4;
 export const MAX_ORCHARDS = 4;
 export const ORCHARD_MAX_LEVEL = 6;

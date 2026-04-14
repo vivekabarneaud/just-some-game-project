@@ -1,10 +1,12 @@
+import { PREMADE_CHARACTERS, type PremadeCharacter } from "~/data/premade-characters";
+
 // ─── Races & Origins ───────────────────────────────────────────
 
 export type Race = "human" | "elf" | "dwarf";
 
 export type Origin =
   | "ashwick" | "nordveld" | "meridian" | "zahkari" | "tianzhou" | "khorvani"   // human
-  | "silvaneth" | "hautsciels"                                                      // elf
+  | "silvaneth" | "hautscieux"                                                      // elf
   | "khazdurim" | "feldgrund";                                                      // dwarf
 
 export interface OriginDef {
@@ -165,7 +167,7 @@ export const ORIGINS: OriginDef[] = [
     },
   },
   {
-    id: "hautsciels", name: "Hauts-Cieux", race: "elf",
+    id: "hautscieux", name: "Hauts-Cieux", race: "elf",
     region: "Mountain-top Ruins Above the Clouds",
     description: "Scholar-mages, archivists, melancholy nobility living among pre-Sundering ruins.",
     quote: "The Hauts-Cieux were built to outlast the world. They're starting to wonder if the world will outlast them.",
@@ -288,7 +290,7 @@ export const ORIGIN_RECIPES: Record<string, { rank: number; recipeId: string }[]
   tianzhou:    [{ rank: 2, recipeId: "steamed_dumplings" }, { rank: 3, recipeId: "five_spice_duck" }, { rank: 4, recipeId: "jade_tea_soup" }],
   khorvani:   [{ rank: 2, recipeId: "lamb_tagine" }, { rank: 3, recipeId: "saffron_rice_pilaf" }, { rank: 4, recipeId: "rosewater_pastries" }],
   silvaneth:  [{ rank: 2, recipeId: "honeyed_acorn_bread" }, { rank: 3, recipeId: "elderflower_broth" }, { rank: 4, recipeId: "moss_wrapped_trout" }],
-  hautsciels: [{ rank: 2, recipeId: "starfruit_meringue" }, { rank: 3, recipeId: "crystal_consomme" }, { rank: 4, recipeId: "moonpetal_sorbet" }],
+  hautscieux: [{ rank: 2, recipeId: "starfruit_meringue" }, { rank: 3, recipeId: "crystal_consomme" }, { rank: 4, recipeId: "moonpetal_sorbet" }],
   khazdurim:  [{ rank: 2, recipeId: "forge_roasted_boar" }, { rank: 3, recipeId: "deep_mushroom_stew" }, { rank: 4, recipeId: "iron_bread" }],
   feldgrund:  [{ rank: 2, recipeId: "harvest_ale_stew" }, { rank: 3, recipeId: "cheese_and_onion_pie" }, { rank: 4, recipeId: "apple_butter_toast" }],
 };
@@ -520,6 +522,8 @@ export interface Adventurer {
   loyalty?: number;
   /** Age category — affects portrait selection and kinship labels */
   age?: AgeCategory;
+  /** Override portrait filename for premade characters */
+  portrait?: string;
 }
 
 // ─── Stats ──────────────────────────────────────────────────────
@@ -543,11 +547,11 @@ export const STAT_META: { key: keyof AdventurerStats; name: string; icon: string
 ];
 
 export const CLASS_BASE_STATS: Record<AdventurerClass, AdventurerStats> = {
-  warrior: { str: 6, int: 2, dex: 3, vit: 5, wis: 1 },
-  wizard:  { str: 2, int: 7, dex: 2, vit: 3, wis: 4 },
-  priest:  { str: 2, int: 5, dex: 2, vit: 5, wis: 5 },
-  archer:  { str: 3, int: 2, dex: 7, vit: 3, wis: 2 },
-  assassin:{ str: 4, int: 3, dex: 6, vit: 3, wis: 1 },
+  warrior: { str: 9, int: 3, dex: 5, vit: 8, wis: 2 },
+  wizard:  { str: 3, int: 10, dex: 3, vit: 5, wis: 7 },
+  priest:  { str: 3, int: 7, dex: 3, vit: 7, wis: 8 },
+  archer:  { str: 5, int: 3, dex: 10, vit: 5, wis: 3 },
+  assassin:{ str: 6, int: 4, dex: 9, vit: 5, wis: 2 },
 };
 
 export const CLASS_STAT_GROWTH: Record<AdventurerClass, AdventurerStats> = {
@@ -758,7 +762,7 @@ const ORIGIN_PORTRAIT_COUNTS: Partial<Record<Origin, Partial<Record<string, numb
   tianzhou:    { warrior_male: 1, warrior_female: 1, wizard_male: 1, wizard_female: 1, priest_male: 1, priest_female: 1, archer_male: 1, archer_female: 1, assassin_male: 1, assassin_female: 2 },
   khorvani:   { warrior_male: 1, warrior_female: 1, wizard_male: 1, wizard_female: 1, priest_male: 1, priest_female: 1, archer_male: 1, archer_female: 1, assassin_male: 1, assassin_female: 1 },
   silvaneth:  { warrior_male: 1, warrior_female: 1, wizard_male: 1, wizard_female: 1, priest_male: 1, priest_female: 1, archer_male: 1, archer_female: 1, assassin_male: 1, assassin_female: 1 },
-  hautsciels: { warrior_male: 1, warrior_female: 1, wizard_male: 1, wizard_female: 1, priest_male: 1, priest_female: 1, archer_male: 1, archer_female: 1, assassin_male: 1, assassin_female: 1 },
+  hautscieux: { warrior_male: 1, warrior_female: 1, wizard_male: 1, wizard_female: 1, priest_male: 1, priest_female: 1, archer_male: 1, archer_female: 1, assassin_male: 1, assassin_female: 1 },
   khazdurim:  { warrior_male: 1, warrior_female: 1, wizard_male: 1, wizard_female: 1, priest_male: 1, priest_female: 1, archer_male: 1, archer_female: 1, assassin_male: 1, assassin_female: 1 },
 };
 
@@ -781,7 +785,7 @@ function nameHash(name: string): number {
 
 // CDN folder names (may differ from in-game origin IDs after renames)
 const CDN_FOLDER: Partial<Record<Origin, string>> = {
-  // ashwick was formerly dunhollow — now renamed on CDN too
+  // no active mappings — CDN folders match origin IDs
 };
 
 // Age-tagged portrait counts: origin → "class_gender_age" → count
@@ -795,12 +799,18 @@ const ORIGIN_AGE_PORTRAIT_COUNTS: Partial<Record<Origin, Partial<Record<string, 
   tianzhou: { archer_female_mature: 1, archer_female_young: 1, archer_male_mature: 1, archer_male_middle: 1, assassin_female_middle: 1, assassin_male_mature: 1, priest_female_mature: 1, priest_female_young: 1, priest_male_middle: 1, priest_male_old: 1, warrior_female_middle: 1, warrior_female_young: 1, warrior_male_old: 1, warrior_male_young: 1, wizard_female_old: 1, wizard_female_young: 1, wizard_male_old: 1, wizard_male_young: 1 },
   khorvani: { archer_female_mature: 1, archer_female_young: 1, archer_male_mature: 1, archer_male_middle: 1, assassin_female_mature: 1, assassin_female_young: 1, assassin_male_mature: 1, assassin_male_young: 1, priest_female_middle: 1, priest_female_old: 1, priest_male_mature: 1, priest_male_young: 1, warrior_female_mature: 1, warrior_male_middle: 1, warrior_male_young: 1, wizard_female_mature: 1, wizard_female_young: 1, wizard_male_young: 1 },
   silvaneth: { archer_female_young: 1, archer_male_young: 1, assassin_female_young: 1, assassin_male_middle: 1, priest_female_mature: 1, priest_male_mature: 1, warrior_female_young: 1, warrior_male_young: 1, wizard_female_middle: 1, wizard_male_old: 1 },
-  hautsciels: { archer_female_middle: 1, archer_male_young: 1, assassin_female_young: 1, assassin_male_middle: 1, priest_female_young: 1, priest_male_young: 1, warrior_female_young: 1, warrior_male_young: 1, wizard_female_young: 1, wizard_male_old: 1 },
+  hautscieux: { archer_female_middle: 1, archer_male_young: 1, assassin_female_young: 1, assassin_male_middle: 1, priest_female_young: 1, priest_male_young: 1, warrior_female_young: 1, warrior_male_young: 1, wizard_female_young: 1, wizard_male_old: 1 },
   khazdurim: { archer_female_young: 1, archer_male_mature: 1, assassin_female_middle: 1, assassin_male_middle: 1, priest_female_old: 1, priest_male_old: 1, warrior_female_middle: 1, warrior_male_middle: 1, wizard_female_old: 1, wizard_male_mature: 1 },
   feldgrund: { archer_female_young: 1, archer_male_mature: 1, assassin_female_mature: 1, assassin_male_mature: 1, priest_female_old: 1, priest_male_mature: 1, warrior_female_mature: 1, warrior_male_mature: 1, wizard_female_old: 1, wizard_male_old: 1 },
 };
 
-export function getPortrait(name: string, cls: AdventurerClass, origin: Origin, age: AgeCategory): string {
+export function getPortrait(name: string, cls: AdventurerClass, origin: Origin, age: AgeCategory, portraitOverride?: string): string {
+  // Premade characters have a fixed portrait
+  if (portraitOverride) {
+    const folder = CDN_FOLDER[origin] ?? origin;
+    return `${CDN_CHARS}/${folder}/${portraitOverride}.png`;
+  }
+
   const female = isFemale(name);
   const gender = female ? "female" : "male";
   const hash = nameHash(name);
@@ -829,8 +839,8 @@ export function getPortrait(name: string, cls: AdventurerClass, origin: Origin, 
   return portraits[hash % portraits.length];
 }
 
-export function getZoomedPortrait(name: string, cls: AdventurerClass, origin: Origin, age: AgeCategory): string {
-  return getPortrait(name, cls, origin, age).replace(".png", "_zoomed.png");
+export function getZoomedPortrait(name: string, cls: AdventurerClass, origin: Origin, age: AgeCategory, portraitOverride?: string): string {
+  return getPortrait(name, cls, origin, age, portraitOverride).replace(".png", "_zoomed.png");
 }
 
 // Simple seeded random for reproducibility within a session
@@ -896,6 +906,15 @@ export function generateName(): string {
   return generateOriginName(origin);
 }
 
+/** Pick a premade character not already in use */
+function pickPremadeCharacter(usedNames?: Set<string>): PremadeCharacter | null {
+  const available = usedNames
+    ? PREMADE_CHARACTERS.filter((c) => !usedNames.has(c.name))
+    : PREMADE_CHARACTERS;
+  if (available.length === 0) return null;
+  return available[Math.floor(seededRandom() * available.length)];
+}
+
 // ─── Recruitment ────────────────────────────────────────────────
 
 /** Gold cost to recruit an adventurer based on their rank */
@@ -910,9 +929,50 @@ export function getRecruitCost(rank: AdventurerRank): number {
   return COSTS[rank];
 }
 
-/** Generate a random adventurer candidate */
-export function generateCandidate(id: string, maxRank: AdventurerRank = 2): Adventurer {
-  // Higher ranks are rarer
+/** Generate a random adventurer candidate — pulls from premade pool first, falls back to random */
+export function generateCandidate(id: string, maxRank: AdventurerRank = 2, usedNames?: Set<string>): Adventurer {
+  // Try premade pool first
+  const premade = pickPremadeCharacter(usedNames);
+  if (premade) {
+    const origin = getOrigin(premade.origin);
+    const quirk = randomFrom(PERSONALITY_QUIRKS);
+    const trait = premade.trait ?? pickTrait().id;
+
+    // Rank roll same as random path
+    let rank: AdventurerRank = 1;
+    const roll = seededRandom();
+    if (maxRank >= 5 && roll > 0.97) rank = 5;
+    else if (maxRank >= 4 && roll > 0.90) rank = 4;
+    else if (maxRank >= 3 && roll > 0.75) rank = 3;
+    else if (maxRank >= 2 && roll > 0.50) rank = 2;
+    const level = Math.max(1, RANK_LEVEL_THRESHOLDS[rank] - 1);
+    const actualRank = getRankForLevel(level);
+
+    return {
+      id,
+      name: premade.name,
+      class: premade.class,
+      race: premade.race,
+      origin: premade.origin,
+      backstory: premade.backstory ?? pickBackstory(origin),
+      quirk,
+      trait,
+      rank: actualRank,
+      level,
+      xp: 0,
+      alive: true,
+      onMission: false,
+      bonusStats: {},
+      equipment: { head: null, chest: null, legs: null, boots: null, cloak: null, mainHand: null, offHand: null, ring1: null, ring2: null, amulet: null, trinket: null },
+      talents: [],
+      foodPreference: premade.foodPreference,
+      loyalty: 0,
+      age: premade.age,
+      portrait: premade.portrait,
+    };
+  }
+
+  // Fallback: random generation
   let rank: AdventurerRank = 1;
   const roll = seededRandom();
   if (maxRank >= 5 && roll > 0.97) rank = 5;

@@ -323,7 +323,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     tierLevelCaps: { village: 3, town: 7, city: 10 },
   },
 
-  // Village tier — Tailoring Shop (clothing crafting)
+  // Camp tier — Tailoring Shop (clothing crafting)
   {
     id: "tailoring_shop",
     name: "Tailoring Shop",
@@ -334,8 +334,8 @@ export const BUILDINGS: BuildingDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/tailoring_shop.png",
     maxLevel: 10,
     levels: generateLevels({ wood: 50, stone: 30 }, 18, undefined, 10),
-    requiredTier: "village",
-    tierLevelCaps: { village: 3, town: 7, city: 10 },
+    requiredTier: "camp",
+    tierLevelCaps: { camp: 2, village: 5, town: 8, city: 10 },
   },
 
   // Village tier (TH 3+)

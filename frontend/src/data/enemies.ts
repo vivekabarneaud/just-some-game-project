@@ -84,7 +84,7 @@ export const ENEMIES: EnemyDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/goblin_scout.png",
     description: "Small, sneaky, and cowardly alone — but they never come alone. The frontier breeds them like flies.",
     tier: 1,
-    stats: { str: 8, dex: 10, int: 2, vit: 10, wis: 2 },
+    stats: { str: 4, dex: 6, int: 2, vit: 6, wis: 2 },
     tags: ["humanoid"],
     loot: [
       { type: "resource", resource: "gold", chance: 0.4, min: 2, max: 8 },
@@ -110,11 +110,11 @@ export const ENEMIES: EnemyDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/wild_wolf.png",
     description: "Lean, hungry, and hunting in packs. Since Le Declin, even the wolves have grown bolder.",
     tier: 1,
-    stats: { str: 9, dex: 11, int: 1, vit: 10, wis: 3 },
+    stats: { str: 4, dex: 5, int: 1, vit: 5, wis: 1 },
     tags: ["beast"],
     abilities: [
-      { id: "wolf_bite", name: "Rending Bite", icon: "🩸", cooldown: 3, trigger: "always",
-        effect: { type: "bleed", pctPerRound: 10, rounds: 2 } },
+      { id: "wolf_bite", name: "Rending Bite", icon: "🩸", cooldown: 4, trigger: "always",
+        effect: { type: "bleed", pctPerRound: 20, rounds: 2 } },
     ],
     loot: [
       { type: "resource", resource: "food", chance: 0.4, min: 2, max: 6 },

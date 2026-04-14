@@ -2027,9 +2027,12 @@ export function GameProvider(props: ParentProps) {
             const count = getCandidateCount(guildLvl);
             const maxRank = getMaxRecruitRank(guildLvl, s.adventurers);
             resetAdventurerSeed(now + s.year * 1000);
+            const usedNames = new Set(s.adventurers.map((a) => a.name));
             s.recruitCandidates = [];
             for (let i = 0; i < count; i++) {
-              s.recruitCandidates.push(generateCandidate(nextId("adv"), maxRank));
+              const c = generateCandidate(nextId("adv"), maxRank, usedNames);
+              usedNames.add(c.name);
+              s.recruitCandidates.push(c);
             }
             s.lastRecruitRefresh = now;
             // Missions — cap difficulty at best adventurer's rank + 1
@@ -2795,7 +2798,7 @@ export function GameProvider(props: ParentProps) {
     },
     getClothingInfo() {
       return {
-        current: Math.floor(state.clothing),
+        current: Math.round(state.clothing),
         needed: Math.ceil(state.population / CLOTHING_PER_CITIZENS),
       };
     },
@@ -3137,9 +3140,12 @@ export function GameProvider(props: ParentProps) {
         const count = getCandidateCount(guildLvl);
         const maxRank = getMaxRecruitRank(guildLvl, s.adventurers);
         resetAdventurerSeed(Date.now());
+        const usedNames = new Set(s.adventurers.map((a) => a.name));
         s.recruitCandidates = [];
         for (let i = 0; i < count; i++) {
-          s.recruitCandidates.push(generateCandidate(nextId("adv"), maxRank));
+          const c = generateCandidate(nextId("adv"), maxRank, usedNames);
+          usedNames.add(c.name);
+          s.recruitCandidates.push(c);
         }
       }));
       scheduleSave();
@@ -3152,6 +3158,7 @@ export function GameProvider(props: ParentProps) {
         s.resources.wood = Math.min(caps.wood, s.resources.wood + amount);
         s.resources.stone = Math.min(caps.stone, s.resources.stone + amount);
         s.resources.food = Math.min(caps.food, s.resources.food + amount);
+        s.wool = Math.min(200, s.wool + amount);
       }));
     },
     cancelBuild(buildingId) {
@@ -3188,6 +3195,8 @@ export function GameProvider(props: ParentProps) {
         for (const reward of quest.rewards) {
           if (reward.resource === "astralShards") {
             s.astralShards += reward.amount;
+          } else if (reward.resource === "wool") {
+            s.wool = Math.min(200, s.wool + reward.amount);
           } else {
             const key = reward.resource as keyof typeof s.resources;
             s.resources[key] = Math.min(caps[key], s.resources[key] + reward.amount);
