@@ -26,6 +26,7 @@ const Marketplace = lazy(() => import("./pages/Marketplace"));
 const WorldMap = lazy(() => import("./pages/WorldMap"));
 const Chronicle = lazy(() => import("./pages/Chronicle"));
 const Shrine = lazy(() => import("./pages/Shrine"));
+const CharacterEncyclopedia = lazy(() => import("./pages/CharacterEncyclopedia"));
 const ComingSoon = lazy(() => import("./pages/ComingSoon"));
 const Login = lazy(() => import("./pages/Login"));
 
@@ -60,6 +61,7 @@ render(
         <Route path="/marketplace" component={Marketplace} />
         <Route path="/map" component={WorldMap} />
         <Route path="/chronicle" component={Chronicle} />
+        <Route path="/encyclopedia" component={CharacterEncyclopedia} />
         <Route path="/shrine" component={Shrine} />
         <Route path="*" component={ComingSoon} />
       </Route>

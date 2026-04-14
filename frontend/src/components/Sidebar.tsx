@@ -64,6 +64,7 @@ const navSections: { title: string; items: NavItem[] }[] = [
       { path: "/leaderboard", icon: "🏆", label: "Leaderboard" },
       { path: "/shrine", icon: "🔮", label: "Shrine" },
       { path: "/chronicle", icon: "📖", label: "Chronicle" },
+      { path: "/encyclopedia", icon: "📚", label: "Encyclopedia" },
       { path: "/events", icon: "📣", label: "Events" },
     ],
   },
