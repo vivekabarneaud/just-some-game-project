@@ -10,6 +10,7 @@ export interface PremadeCharacter {
   age: AgeCategory;
   portrait: string;  // filename without extension
   foodPreference: FoodPreference;
+  trait?: string;     // backstory trait ID — will be assigned later
 }
 
 export const PREMADE_CHARACTERS: PremadeCharacter[] = [

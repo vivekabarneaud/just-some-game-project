@@ -1,7 +1,8 @@
 import { createSignal, For, Show } from "solid-js";
 import { PREMADE_CHARACTERS, type PremadeCharacter } from "~/data/premade-characters";
-import { RACE_NAMES, RANK_NAMES, getClassMeta, AGE_LABELS, getFoodPref, type AdventurerClass, type Origin } from "~/data/adventurers";
+import { RACE_NAMES, getClassMeta, getFoodPref, CLASS_COLORS, type AdventurerClass, BACKSTORY_TRAITS } from "~/data/adventurers";
 import { ORIGINS } from "~/data/adventurers";
+import TraitBadge from "~/components/TraitBadge";
 
 const CDN_CHARS = "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters";
 
@@ -30,9 +31,9 @@ export default function CharacterEncyclopedia() {
 
   return (
     <div>
-      <h1 class="page-title">📖 Character Encyclopedia</h1>
+      <h1 class="page-title">📚 Character Encyclopedia</h1>
       <p style={{ color: "var(--text-muted)", "margin-bottom": "16px", "font-size": "0.85rem" }}>
-        All {PREMADE_CHARACTERS.length} known adventurers across the realm. These are the people who may answer your call.
+        All {PREMADE_CHARACTERS.length} known adventurers across the realm.
       </p>
 
       {/* Filters */}
@@ -69,7 +70,7 @@ export default function CharacterEncyclopedia() {
           </select>
         </div>
         <span style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-left": "auto" }}>
-          Showing {filtered().length} / {PREMADE_CHARACTERS.length}
+          {filtered().length} / {PREMADE_CHARACTERS.length}
         </span>
       </div>
 
@@ -88,92 +89,47 @@ export default function CharacterEncyclopedia() {
                   ({chars.length})
                 </span>
               </h2>
-              <div style={{
-                display: "grid",
-                "grid-template-columns": "repeat(auto-fill, minmax(180px, 1fr))",
-                gap: "12px",
-              }}>
+              <div class="recruit-grid">
                 <For each={chars}>
                   {(char) => {
                     const cls = () => getClassMeta(char.class);
                     const portraitUrl = `${CDN_CHARS}/${char.origin}/${char.portrait}.png`;
+                    const traitDef = () => char.trait ? BACKSTORY_TRAITS.find((t) => t.id === char.trait) : null;
                     return (
-                      <div style={{
-                        background: "var(--bg-secondary)",
-                        "border-radius": "8px",
-                        overflow: "hidden",
-                        border: "1px solid var(--border-color)",
-                        transition: "border-color 0.2s",
-                      }}>
-                        {/* Portrait */}
-                        <div style={{
-                          width: "100%",
-                          "aspect-ratio": "1",
-                          overflow: "hidden",
-                          position: "relative",
-                        }}>
-                          <img
-                            src={portraitUrl}
-                            alt={char.name}
-                            loading="lazy"
-                            style={{
-                              width: "100%",
-                              height: "100%",
-                              "object-fit": "cover",
-                              display: "block",
-                            }}
-                          />
-                          {/* Class icon badge */}
-                          <div style={{
-                            position: "absolute",
-                            bottom: "4px",
-                            right: "4px",
-                            width: "24px",
-                            height: "24px",
-                            "border-radius": "50%",
-                            background: "rgba(0,0,0,0.7)",
-                            display: "flex",
-                            "align-items": "center",
-                            "justify-content": "center",
-                            "font-size": "0.75rem",
-                          }}>
-                            {cls().icon}
+                      <div class="building-card adv-card">
+                        <span class="building-card-category" style={{ color: CLASS_COLORS[char.class] }}>
+                          {cls().icon} {cls().name}
+                        </span>
+                        <div class="adv-card-portrait">
+                          <img src={portraitUrl} alt={char.name} loading="lazy" />
+                        </div>
+                        <div class="adv-card-content">
+                          <div class="building-card-title">{char.name}</div>
+                          <div style={{ "font-size": "0.85rem", color: "var(--text-muted)" }}>
+                            {RACE_NAMES[char.race]} · {originDef()?.name}
                           </div>
-                          {/* Food preference icon */}
                           <Show when={getFoodPref(char.foodPreference)}>
                             <div style={{
-                              position: "absolute",
-                              bottom: "4px",
-                              left: "4px",
-                              width: "20px",
-                              height: "20px",
-                              "border-radius": "50%",
-                              background: "rgba(0,0,0,0.7)",
-                              display: "flex",
-                              "align-items": "center",
-                              "justify-content": "center",
-                              "font-size": "0.6rem",
+                              "font-size": "0.75rem", color: "var(--text-muted)", "margin-top": "2px",
+                              display: "flex", "align-items": "center", gap: "4px",
                             }}>
-                              {getFoodPref(char.foodPreference)!.icon}
+                              <span>{getFoodPref(char.foodPreference)!.icon}</span>
+                              <span>{getFoodPref(char.foodPreference)!.trait}</span>
                             </div>
                           </Show>
-                        </div>
-                        {/* Info */}
-                        <div style={{ padding: "8px 10px" }}>
-                          <div style={{
-                            "font-size": "0.85rem",
-                            "font-weight": "bold",
-                            color: "var(--text-primary)",
-                            "margin-bottom": "2px",
-                          }}>
-                            {char.name}
-                          </div>
-                          <div style={{
-                            "font-size": "0.72rem",
-                            color: "var(--text-muted)",
-                          }}>
-                            {RACE_NAMES[char.race]} {cls().name} · {AGE_LABELS[char.age]}
-                          </div>
+                          <Show when={traitDef()}>
+                            <div style={{ "margin-top": "4px" }}>
+                              <TraitBadge traitId={char.trait!} />
+                            </div>
+                          </Show>
+                          <Show when={!traitDef()}>
+                            <div style={{
+                              "margin-top": "4px", "font-size": "0.78rem",
+                              color: "var(--text-muted)", "font-style": "italic",
+                            }}>
+                              {cls().passive.name}: {cls().passive.description}
+                            </div>
+                          </Show>
                         </div>
                       </div>
                     );
