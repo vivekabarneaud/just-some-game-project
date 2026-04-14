@@ -97,7 +97,7 @@ export const ENEMIES: EnemyDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/bandit_thug.png",
     description: "A desperate man with a rusty blade. Probably a farmer before the Sundering took his land.",
     tier: 1,
-    stats: { str: 10, dex: 6, int: 2, vit: 12, wis: 3 },
+    stats: { str: 6, dex: 4, int: 2, vit: 7, wis: 2 },
     tags: ["humanoid"],
     loot: [
       { type: "resource", resource: "gold", chance: 0.5, min: 3, max: 10 },
@@ -130,7 +130,7 @@ export const ENEMIES: EnemyDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/giant_rat.png",
     description: "Bloated and disease-ridden. They breed in every ruin the Sundering left behind.",
     tier: 1,
-    stats: { str: 7, dex: 9, int: 1, vit: 8, wis: 1 },
+    stats: { str: 4, dex: 6, int: 1, vit: 5, wis: 1 },
     tags: ["beast"],
     loot: [
       { type: "resource", resource: "food", chance: 0.2, min: 1, max: 3 },
@@ -144,7 +144,7 @@ export const ENEMIES: EnemyDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/skeleton.png",
     description: "Bones held together by Netheron's lingering death-magic. They don't tire and they don't stop.",
     tier: 1,
-    stats: { str: 9, dex: 5, int: 3, vit: 14, wis: 1 },
+    stats: { str: 5, dex: 3, int: 2, vit: 8, wis: 1 },
     tags: ["undead"],
     abilities: [
       { id: "bone_reform", name: "Reassemble", icon: "💀", cooldown: 5, trigger: "hp_below_50",
@@ -230,8 +230,8 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "👻",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/cursed_spirit.png",
     description: "A restless soul from before the Sundering, bound to this place by old grief. Its wail chills the blood.",
-    tier: 2,
-    stats: { str: 4, dex: 8, int: 16, vit: 14, wis: 10 },
+    tier: 1,
+    stats: { str: 3, dex: 5, int: 8, vit: 8, wis: 6 },
     tags: ["ghost", "magical"],
     loot: [
       { type: "resource", resource: "veilmist", chance: 0.20, min: 1, max: 1 },
@@ -685,7 +685,7 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "🐻",
     description: "A massive brown bear, territorial and aggressive. They don't hunt people — but they'll kill you if you're between them and their cubs.",
     tier: 1,
-    stats: { str: 14, dex: 4, int: 2, vit: 16, wis: 3 },
+    stats: { str: 8, dex: 3, int: 1, vit: 9, wis: 2 },
     tags: ["beast"],
     abilities: [{ id: "maul", name: "Maul", icon: "🐾", cooldown: 2, trigger: "always", effect: { type: "damage_mult", mult: 1.5, targets: 1 } }],
     loot: [
@@ -700,7 +700,7 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "🐍",
     description: "Long as a man is tall, with venom that makes your blood burn. Settlers lose more livestock to these than to wolves.",
     tier: 1,
-    stats: { str: 6, dex: 14, int: 2, vit: 8, wis: 2 },
+    stats: { str: 4, dex: 8, int: 2, vit: 5, wis: 1 },
     tags: ["beast"],
     abilities: [{ id: "venomous_strike", name: "Venomous Strike", icon: "☠️", cooldown: 2, trigger: "always", effect: { type: "poison", pctPerRound: 8, rounds: 3 } }],
     loot: [
@@ -714,7 +714,7 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "🐗",
     description: "Red-eyed and frothing. Something in the water near the Wastes drives them mad. They charge anything that moves.",
     tier: 1,
-    stats: { str: 12, dex: 8, int: 1, vit: 14, wis: 1 },
+    stats: { str: 7, dex: 5, int: 1, vit: 8, wis: 1 },
     tags: ["beast"],
     abilities: [{ id: "charge", name: "Charge", icon: "💨", cooldown: 99, trigger: "round_start", effect: { type: "damage_mult", mult: 1.5, targets: 1 } }],
     loot: [
@@ -729,7 +729,7 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "🍄",
     description: "A dog-sized insect infested with luminous fungi. When threatened, it bursts spores that burn the lungs and blur the eyes.",
     tier: 1,
-    stats: { str: 6, dex: 8, int: 4, vit: 10, wis: 2 },
+    stats: { str: 4, dex: 5, int: 3, vit: 6, wis: 2 },
     tags: ["beast", "magical"],
     abilities: [{ id: "spore_burst", name: "Spore Burst", icon: "💨", cooldown: 3, trigger: "always", effect: { type: "aoe_damage", pct: 15, magical: true } }],
     loot: [

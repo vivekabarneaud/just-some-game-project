@@ -2943,11 +2943,11 @@ export function GameProvider(props: ParentProps) {
       if (clothNeeded > 0) {
         const clothRatio = Math.min(1, state.clothing / clothNeeded);
         if (clothRatio >= 1) {
-          factors.push({ label: `Well-clothed (${Math.floor(state.clothing)}/${clothNeeded})`, value: CLOTHING_HAPPINESS_BONUS });
+          factors.push({ label: `Well-clothed (${Math.round(state.clothing)}/${clothNeeded})`, value: CLOTHING_HAPPINESS_BONUS });
         } else if (clothRatio < 0.5) {
           const penalty = -Math.round(5 + 10 * (1 - clothRatio * 2));
           const winterPenalty = state.season === "winter" ? penalty * 2 : penalty;
-          factors.push({ label: `Poorly clothed (${Math.floor(state.clothing)}/${clothNeeded})${state.season === "winter" ? " — freezing" : ""}`, value: winterPenalty });
+          factors.push({ label: `Poorly clothed (${Math.round(state.clothing)}/${clothNeeded})${state.season === "winter" ? " — freezing" : ""}`, value: winterPenalty });
         }
       }
 

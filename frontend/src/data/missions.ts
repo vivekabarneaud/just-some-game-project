@@ -393,7 +393,7 @@ export const MISSION_POOL: MissionTemplate[] = [
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["escort", "combat"],
-    encounters: [{ enemyId: "bandit_thug", count: 3 }],
+    encounters: [{ enemyId: "bandit_thug", count: 2 }],
   },
   {
     id: "noble_escort",

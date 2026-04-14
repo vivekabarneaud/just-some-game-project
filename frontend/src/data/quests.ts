@@ -169,7 +169,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     icon: "⚔️",
     condition: (s) => s.adventurers.length >= 1,
     rewards: [{ resource: "gold", amount: 40, label: "Gold" }, { resource: "wood", amount: 25, label: "Wood" }],
-    targetPage: "/guild",
+    targetPage: "/guild?tab=recruit",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_11.png",
   },
   // 12 — Send mission
@@ -246,7 +246,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Upgrade Town Hall to level 2",
     icon: "🏛️",
     condition: (s) => (bldg(s, "town_hall")?.level ?? 0) >= 2,
-    rewards: [{ resource: "gold", amount: 40, label: "Gold" }],
+    rewards: [{ resource: "gold", amount: 40, label: "Gold" }, { resource: "wood", amount: 50, label: "Wood" }],
     targetBuildingId: "town_hall",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/settlement_camp.png",
   },
@@ -291,7 +291,19 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     rewards: [{ resource: "gold", amount: 20, label: "Gold" }],
     targetPage: "/woodworker",
   },
-  // 19 — Build a Chapel
+  // 19 — Equip an adventurer
+  {
+    id: "ready_for_battle",
+    title: "Ready for Battle",
+    narrative:
+      "A weapon in the stockpile does no good. Put it in the hands of someone who knows how to use it — visit an adventurer's detail page and equip their new gear.",
+    objective: "Equip a weapon on an adventurer",
+    icon: "⚔️",
+    condition: (s) => s.adventurers.some((a) => a.equipment && Object.values(a.equipment).some((slot) => slot !== null)),
+    rewards: [{ resource: "gold", amount: 20, label: "Gold" }],
+    targetPage: "/guild?tab=roster",
+  },
+  // 20 — Build a Chapel
   {
     id: "faith_and_solace",
     title: "Faith and Solace",

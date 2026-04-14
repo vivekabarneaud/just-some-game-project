@@ -56,6 +56,12 @@ export default function MissionAssemblyPanel(props: Props) {
   const freshMission = () => getMission(mission().id) ?? mission();
   const slotInfo = () => actions.getMissionSlotInfo();
 
+  // Clear team when mission changes
+  createEffect(() => {
+    mission().id; // track mission change
+    untrack(() => { setTeamIds([]); setSupplies([]); });
+  });
+
   // ─── Available adventurers ────────────────────────────────────
   const CLASS_ORDER: Record<string, number> = { warrior: 0, priest: 1, wizard: 2, archer: 3, assassin: 4 };
   const availableAdvs = createMemo(() =>
