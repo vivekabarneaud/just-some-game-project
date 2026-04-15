@@ -1,4 +1,4 @@
-import { Show, For } from "solid-js";
+import { Show, For, createSignal } from "solid-js";
 import Tooltip from "./Tooltip";
 import type { EnemyDefinition } from "~/data/enemies";
 
@@ -91,10 +91,14 @@ export default function EnemyCard(props: EnemyCardProps) {
           </div>
         </Show>
         {props.enemy.image
-          ? <img src={props.enemy.image} alt="" style={{
-              width: "80px", height: "80px", "object-fit": "cover",
-              display: "block", "flex-shrink": "0",
-            }} />
+          ? (() => {
+              const zoomed = props.enemy.image!.replace(".png", "_zoomed.png");
+              const [src, setSrc] = createSignal(zoomed);
+              return <img src={src()} alt="" onError={() => setSrc(props.enemy.image!)} style={{
+                width: "80px", height: "80px", "object-fit": "cover",
+                display: "block", "flex-shrink": "0",
+              }} />;
+            })()
           : <div style={{
               width: "80px", height: "80px", "flex-shrink": "0",
               display: "flex", "align-items": "center", "justify-content": "center",

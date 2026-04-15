@@ -1051,8 +1051,8 @@ export function getMaxRoster(guildLevel: number): number {
 
 /** Number of simultaneous mission slots */
 export function getMissionSlots(guildLevel: number): number {
-  // Lv1: 2 slots, Lv2: 3, Lv3: 4, Lv4: 5, Lv5: 6
-  return Math.min(guildLevel + 1, 6);
+  // Lv1: 3 slots, Lv2: 4, Lv3: 5, Lv4: 6, Lv5: 7
+  return Math.min(guildLevel + 2, 7);
 }
 
 // ─── Recruitment refresh interval (game-hours) ──────────────────

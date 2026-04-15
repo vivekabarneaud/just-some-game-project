@@ -74,7 +74,8 @@ export default function CraftingPage(props: CraftingPageProps) {
     if (!b || b.level < recipe.minLevel) return `Requires ${props.buildingName} Lv.${recipe.minLevel}`;
     if (b.damaged) return "Building is damaged";
     const slotsUsed = activeCrafts().length;
-    if (slotsUsed >= b.level) return `Queue full — upgrade ${props.buildingName} for more slots`;
+    const maxSlots = b.level + (props.buildingId === "kitchen" ? 1 : 0);
+    if (slotsUsed >= maxSlots) return `Queue full — upgrade ${props.buildingName} for more slots`;
     for (const cost of recipe.costs) {
       const have = getResourceAmount(cost.resource);
       if (have < cost.amount * qty) return `Not enough ${cost.resource.replace(/_/g, " ")}`;
@@ -128,7 +129,7 @@ export default function CraftingPage(props: CraftingPageProps) {
           "flex-wrap": "wrap",
         }}>
           <span>{props.buildingName} Lv.{buildingLevel()}</span>
-          <span>Slots: {activeCrafts().length}/{buildingLevel()}</span>
+          <span>Slots: {activeCrafts().length}/{buildingLevel() + (props.buildingId === "kitchen" ? 1 : 0)}</span>
           <For each={props.materials}>
             {(mat) => <span>{mat.icon} {mat.label}: {mat.value()}</span>}
           </For>

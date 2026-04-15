@@ -35,7 +35,7 @@ export default function Alchemy() {
     if (labDamaged()) return false;
     const recipe = ALCHEMY_RECIPES.find((r) => r.id === recipeId);
     if (!recipe || recipe.minLabLevel > labLevel()) return false;
-    if (activeCrafts().length >= labLevel()) return false;
+    if (activeCrafts().length >= labLevel() + 1) return false;
     for (const cost of recipe.costs) {
       if ((state.herbs?.[cost.resource] ?? 0) < cost.amount) return false;
     }
@@ -115,7 +115,7 @@ export default function Alchemy() {
             "align-items": "center",
           }}>
             <span>Lab Lv.{labLevel()}</span>
-            <span>Brewing: {activeCrafts().length}/{labLevel()}</span>
+            <span>Brewing: {activeCrafts().length}/{labLevel() + 1}</span>
             <span style={{ "border-left": "1px solid var(--border-default)", "padding-left": "12px" }}>Herbs:</span>
             <For each={HERBS}>
               {(herb) => (

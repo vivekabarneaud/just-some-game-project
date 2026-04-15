@@ -2686,12 +2686,13 @@ export function GameProvider(props: ParentProps) {
       if (!recipe || quantity < 1) return false;
       const building = state.buildings.find((b) => b.buildingId === recipe.building);
       if (!building || building.level < recipe.minLevel || building.damaged) return false;
-      // Check max crafting slots (1 per building level)
+      // Check max crafting slots: consumable buildings (kitchen) get +1 bonus slot
       const activeCrafts = state.craftingQueue.filter((c) => {
         const r = CRAFTING_RECIPES.find((cr) => cr.id === c.recipeId);
         return r?.building === recipe.building;
       }).length;
-      if (activeCrafts >= building.level) return false;
+      const consumableBonus = recipe.building === "kitchen" ? 1 : 0;
+      if (activeCrafts >= building.level + consumableBonus) return false;
       // Check costs for total quantity
       const getResourceAmount = (res: string): number => {
         if (res === "wool") return state.wool;
@@ -3290,11 +3291,11 @@ export function GameProvider(props: ParentProps) {
       // Must be a starter recipe or discovered
       if (!recipe.starterRecipe && !(state.discoveredRecipes ?? []).includes(recipeId)) return false;
 
-      // Check crafting slots (1 per lab level)
+      // Check crafting slots: alchemy gets +1 bonus slot for consumables
       const activeAlchemy = state.craftingQueue.filter((c) =>
         ALCHEMY_RECIPES.some((r) => r.id === c.recipeId)
       ).length;
-      if (activeAlchemy >= labLvl) return false;
+      if (activeAlchemy >= labLvl + 1) return false;
 
       // Check herb costs
       for (const cost of recipe.costs) {

@@ -1517,7 +1517,7 @@ export const STORY_MISSIONS: StoryMission[] = [
     difficulty: 2,
     minGuildLevel: 1,
     tags: ["exploration", "outdoor", "survival"],
-    encounters: [{ enemyId: "cursed_spirit", count: 2 }, { enemyId: "skeleton", count: 2 }],
+    encounters: [{ enemyId: "cursed_spirit", count: 3 }, { enemyId: "skeleton", count: 3 }],
     lore: "The forest is dying from the inside. Trees stand upright but the wood is grey, brittle, and cold to the touch. No insects. No birds. The ground feels wrong — soft, like walking on something that used to be alive.\n\nYour team pushed half a mile in before the air changed. A taste of copper. A pressure behind the eyes. And then the whispers — fragments of sentences in voices too faint to identify. One of your adventurers swears she heard her own mother, who died years ago.\n\nThey pulled back. At the treeline, looking south, they could see where the grey expands — miles of dead forest stretching toward the horizon. Whatever this is, it's not a local problem. It's a boundary. And it's closer than anyone told you it would be.",
   },
   {

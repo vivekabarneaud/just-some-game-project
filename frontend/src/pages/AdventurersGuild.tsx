@@ -147,7 +147,13 @@ export default function AdventurersGuild() {
           <span>Guild Lv.{guildLevel()}</span>
           <span>Missions: {slotInfo().used}/{slotInfo().max}</span>
           <span>Roster: {rosterSize().current}/{rosterSize().max}</span>
-          <span>Refresh in: {Math.ceil(state.recruitRefreshIn)}h</span>
+          <span>Refresh in: {(() => {
+            const now = new Date();
+            const next3am = new Date();
+            next3am.setUTCHours(3, 0, 0, 0);
+            if (next3am.getTime() <= now.getTime()) next3am.setUTCDate(next3am.getUTCDate() + 1);
+            return Math.ceil((next3am.getTime() - now.getTime()) / 3_600_000);
+          })()}h</span>
         </div>
 
         <div style={{ display: "flex", gap: "4px", "margin-bottom": "16px" }}>

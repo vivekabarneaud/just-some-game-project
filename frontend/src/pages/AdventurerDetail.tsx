@@ -619,17 +619,16 @@ export default function AdventurerDetail() {
                     };
 
                     // Build parent→child connections for SVG lines
-                    // Skip same-row connections (they create confusing horizontal lines)
                     const connections = () => {
                       const map = talentMap();
-                      const conns: { parentId: string; childId: string; parentUnlocked: boolean; bothUnlocked: boolean }[] = [];
+                      const conns: { parentId: string; childId: string; parentUnlocked: boolean; bothUnlocked: boolean; sameRow: boolean }[] = [];
                       for (const t of allTalents()) {
                         for (const childId of t.children) {
                           const child = map[childId];
-                          if (!child || child.row <= t.row) continue; // skip same-row and upward
+                          if (!child || child.row < t.row) continue; // skip upward only
                           const parentUnlocked = adv().talents?.includes(t.id) ?? false;
                           const childUnlocked = adv().talents?.includes(childId) ?? false;
-                          conns.push({ parentId: t.id, childId, parentUnlocked, bothUnlocked: parentUnlocked && childUnlocked });
+                          conns.push({ parentId: t.id, childId, parentUnlocked, bothUnlocked: parentUnlocked && childUnlocked, sameRow: child.row === t.row });
                         }
                       }
                       return conns;
@@ -700,13 +699,21 @@ export default function AdventurerDetail() {
                               const from = pos[conn.parentId];
                               const to = pos[conn.childId];
                               if (!from || !to) return null;
+                              const stroke = conn.parentUnlocked ? "rgba(245, 197, 66, 0.6)" : "rgba(255, 255, 255, 0.1)";
+                              const sw = conn.bothUnlocked ? "2" : "1";
+                              const dash = conn.bothUnlocked ? "" : "4 4";
+                              if (conn.sameRow) {
+                                // Horizontal: right side of parent → left side of child
+                                const x1 = from.x + NODE_W + 32;
+                                const x2 = to.x + 32;
+                                const y = from.y + NODE_H / 2 + 8;
+                                return <line x1={x1} y1={y} x2={x2} y2={y} stroke={stroke} stroke-width={sw} stroke-dasharray={dash} />;
+                              }
                               return (
                                 <line
                                   x1={from.x + NODE_W / 2 + 32} y1={from.y + NODE_H + 8}
                                   x2={to.x + NODE_W / 2 + 32} y2={to.y + 8}
-                                  stroke={conn.parentUnlocked ? "rgba(245, 197, 66, 0.6)" : "rgba(255, 255, 255, 0.1)"}
-                                  stroke-width={conn.bothUnlocked ? "2" : "1"}
-                                  stroke-dasharray={conn.bothUnlocked ? "" : "4 4"}
+                                  stroke={stroke} stroke-width={sw} stroke-dasharray={dash}
                                 />
                               );
                             }}
