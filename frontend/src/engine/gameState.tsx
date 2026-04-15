@@ -410,7 +410,7 @@ export interface GameActions {
   getGuildLevel: () => number;
   recruitAdventurer: (candidateId: string) => boolean;
   dismissAdventurer: (adventurerId: string) => boolean;
-  deployMission: (missionId: string, adventurerIds: string[], supplies?: string[]) => boolean;
+  deployMission: (missionId: string, adventurerIds: string[], supplies?: string[], precomputedSuccess?: number) => boolean;
   collectCompletedMissions: () => CompletedMission[];
   getAvailableAdventurers: () => Adventurer[];
   getRosterSize: () => { current: number; max: number };
@@ -2589,7 +2589,7 @@ export function GameProvider(props: ParentProps) {
       scheduleSave();
       return true;
     },
-    deployMission(missionId, adventurerIds, supplies = []) {
+    deployMission(missionId, adventurerIds, supplies = [], precomputedSuccess?: number) {
       const guildLvl = this.getGuildLevel();
       if (guildLvl === 0) return false;
       const maxSlots = getMissionSlots(guildLvl);
@@ -2610,18 +2610,8 @@ export function GameProvider(props: ParentProps) {
       // Check deploy cost
       if (state.resources.gold < template.deployCost) return false;
 
-      let successChance = calcSuccessChance(template, team);
+      const successChance = precomputedSuccess ?? calcSuccessChance(template, team);
       let effectiveDuration = calcEffectiveDuration(template, team);
-
-      // Apply supply stat bonuses (non-combat missions only)
-      if (!template.encounters?.length) {
-        let statBonus = 0;
-        for (const supplyId of supplies) {
-          const effect = getSupplyEffect(supplyId);
-          if (effect) statBonus += effect.successBonus;
-        }
-        successChance = calcSuccessChance(template, team, statBonus);
-      }
 
       // Apply equipment duration/loot mods
       for (const adv of team) {

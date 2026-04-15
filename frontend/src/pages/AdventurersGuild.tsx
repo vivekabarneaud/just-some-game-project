@@ -439,8 +439,8 @@ export default function AdventurersGuild() {
               <MissionAssemblyPanel
                 mission={mission()}
                 onCancel={() => { setSelectedMission(null); setSelectedTeam([]); setSelectedSupplies([]); }}
-                onDeploy={(missionId, teamIds, supplyIds) => {
-                  if (actions.deployMission(missionId, teamIds, supplyIds)) {
+                onDeploy={(missionId, teamIds, supplyIds, successPct) => {
+                  if (actions.deployMission(missionId, teamIds, supplyIds, successPct)) {
                     setSelectedMission(null);
                     setSelectedTeam([]);
                     setSelectedSupplies([]);

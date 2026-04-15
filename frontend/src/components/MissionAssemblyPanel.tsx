@@ -45,7 +45,7 @@ function formatDuration(seconds: number): string {
 interface Props {
   mission: MissionTemplate;
   onCancel: () => void;
-  onDeploy: (missionId: string, teamIds: string[], supplies: string[]) => boolean;
+  onDeploy: (missionId: string, teamIds: string[], supplies: string[], successPct: number) => boolean;
 }
 
 export default function MissionAssemblyPanel(props: Props) {
@@ -205,7 +205,7 @@ export default function MissionAssemblyPanel(props: Props) {
 
   // ─── Deploy ───────────────────────────────────────────────────
   const handleDeploy = () => {
-    if (props.onDeploy(mission().id, teamIds(), supplies())) {
+    if (props.onDeploy(mission().id, teamIds(), supplies(), successPct())) {
       setTeamIds([]);
       setSupplies([]);
     }

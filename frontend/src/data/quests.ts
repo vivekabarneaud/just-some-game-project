@@ -113,7 +113,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Build Houses",
     icon: "🏠",
     condition: (s) => (bldg(s, "houses")?.level ?? 0) >= 1,
-    rewards: [{ resource: "food", amount: 25, label: "Food" }],
+    rewards: [{ resource: "food", amount: 25, label: "Food" }, { resource: "stone", amount: 50, label: "Stone" }],
     targetBuildingId: "houses",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_7.png",
   },
@@ -157,6 +157,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     rewards: [
       { resource: "gold", amount: 40, label: "Gold" },
       { resource: "astralShards", amount: 5, label: "Astral Shards" },
+      { resource: "stone", amount: 25, label: "Stone" }
     ],
   },
   // 11 — Recruit
@@ -246,7 +247,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Upgrade Town Hall to level 2",
     icon: "🏛️",
     condition: (s) => (bldg(s, "town_hall")?.level ?? 0) >= 2,
-    rewards: [{ resource: "gold", amount: 40, label: "Gold" }, { resource: "wood", amount: 50, label: "Wood" }],
+    rewards: [{ resource: "gold", amount: 40, label: "Gold" }, { resource: "wood", amount: 50, label: "Wood" }, { resource: "stone", amount: 50, label: "Stone" }],
     targetBuildingId: "town_hall",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/settlement_camp.png",
   },
@@ -262,6 +263,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     rewards: [
       { resource: "gold", amount: 30, label: "Gold" },
       { resource: "wood", amount: 100, label: "Wood" },
+      { resource: "stone", amount: 50, label: "Stone" }
     ],
     targetBuildingId: "marketplace",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/marketplace.png",
@@ -312,7 +314,8 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Build a Shrine",
     icon: "🔮",
     condition: (s) => (bldg(s, "shrine")?.level ?? 0) >= 1,
-    rewards: [{ resource: "gold", amount: 30, label: "Gold" }],
+    rewards: [{ resource: "gold", amount: 30, label: "Gold" }, { resource: "stone", amount: 50, label: "Stone" }
+    ],
     targetBuildingId: "shrine",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/shrine.png",
   },
