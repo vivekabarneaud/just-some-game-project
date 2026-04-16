@@ -1,11 +1,8 @@
 import { createSignal, For, Show } from "solid-js";
 import { PREMADE_CHARACTERS, CHAR_RELATIONSHIPS, type PremadeCharacter } from "~/data/premade-characters";
-import { RACE_NAMES, getClassMeta, getFoodPref, CLASS_COLORS, type AdventurerClass, BACKSTORY_TRAITS } from "~/data/adventurers";
+import { RACE_NAMES, getClassMeta, getFoodPref, CLASS_COLORS, type AdventurerClass, BACKSTORY_TRAITS, CDN_CHARS } from "~/data/adventurers";
 import { ORIGINS } from "~/data/adventurers";
 import TraitBadge from "~/components/TraitBadge";
-
-const CDN_CHARS = "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters";
-const CDN_FOLDER: Record<string, string> = {};
 
 const CLASS_ORDER: AdventurerClass[] = ["warrior", "wizard", "priest", "archer", "assassin"];
 
@@ -106,8 +103,7 @@ export default function CharacterEncyclopedia() {
                 <For each={chars}>
                   {(char) => {
                     const cls = () => getClassMeta(char.class);
-                    const folder = CDN_FOLDER[char.origin] ?? char.origin;
-                    const portraitUrl = `${CDN_CHARS}/${folder}/${char.portrait}.png`;
+                    const portraitUrl = `${CDN_CHARS}/${char.origin}/${char.portrait}.png`;
                     const traitDef = () => char.trait ? BACKSTORY_TRAITS.find((t) => t.id === char.trait) : null;
                     return (
                       <div class="building-card adv-card">

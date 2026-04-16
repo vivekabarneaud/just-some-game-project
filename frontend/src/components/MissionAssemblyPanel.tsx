@@ -3,7 +3,6 @@ import { useGame } from "~/engine/gameState";
 import {
   ADVENTURER_CLASSES,
   CLASS_COLORS,
-  getPortrait,
   getXpForLevel,
   RANK_NAMES,
   RANK_COLORS,

@@ -1,4 +1,4 @@
-import { PREMADE_CHARACTERS, type PremadeCharacter } from "~/data/premade-characters";
+import { PREMADE_CHARACTERS, CHAR_RELATIONSHIPS, type PremadeCharacter } from "~/data/premade-characters";
 
 // ─── Races & Origins ───────────────────────────────────────────
 
@@ -487,6 +487,7 @@ export const RANK_COLORS: Record<AdventurerRank, string> = {
 
 export interface Adventurer {
   id: string;
+  premadeId?: string; // ID from PREMADE_CHARACTERS (e.g. "char_042")
   name: string;
   class: AdventurerClass;
   race: Race;
@@ -645,266 +646,39 @@ export function applyXp(adv: Adventurer, xpGain: number): { leveled: boolean; ra
   return { leveled, rankUp: adv.rank !== oldRank, oldRank };
 }
 
-// ─── Kinship (family bond) ──────────────────────────────────────
+// ─── Portrait system ────────────────────────────────────────────
 
-function getLastName(name: string): string {
-  return name.split(" ").slice(1).join(" ");
-}
+export const CDN_CHARS_PLACEHOLDER_DELETED = true; // marker for deletion below
 
-/**
- * Find roster members who share a last name with a given adventurer.
- * Smart labels: spouse (once), parents (once each), then aunt/uncle for overflow.
- */
-export function findKin(candidate: Adventurer, roster: Adventurer[]): { relative: Adventurer; label: string }[] {
-  const candidateLastName = getLastName(candidate.name);
-  if (!candidateLastName) return [];
-  const kin = roster.filter((a) => a.alive && a.id !== candidate.id && getLastName(a.name) === candidateLastName);
-  if (kin.length === 0) return [];
-  const candidateFemale = isFemale(candidate.name);
-  const candidateAgeIdx = AGE_CATEGORIES.indexOf(candidate.age ?? "middle");
-
-  // Track roles already filled to prevent duplicates
-  let hasSpouse = false;
-  let hasMother = false;
-  let hasFather = false;
-
-  // Check existing roster for already-filled parent/spouse roles (among family members NOT in kin list)
-  // This prevents "two mothers" if one is already recruited
-  const allFamily = roster.filter((a) => a.alive && a.id !== candidate.id && getLastName(a.name) === candidateLastName);
-  for (const member of allFamily) {
-    const memberAgeIdx = AGE_CATEGORIES.indexOf(member.age ?? "middle");
-    const gap = memberAgeIdx - candidateAgeIdx;
-    const memberFemale = isFemale(member.name);
-    if (gap === 0 && memberFemale !== candidateFemale) hasSpouse = true;
-    if (gap === 1 && memberFemale) hasMother = true;
-    if (gap === 1 && !memberFemale) hasFather = true;
-  }
-  // Reset — we'll assign as we iterate through kin
-  hasSpouse = false; hasMother = false; hasFather = false;
-
-  return kin.map((relative) => {
-    const relativeAgeIdx = AGE_CATEGORIES.indexOf(relative.age ?? "middle");
-    const ageGap = relativeAgeIdx - candidateAgeIdx; // positive = relative is older
-    const firstName = relative.name.split(" ")[0];
-    const relativeFemale = isFemale(relative.name);
-    let label: string;
-
-    if (Math.abs(ageGap) === 0) {
-      // Same age — spouse (first opposite-gender) or sibling
-      if (!hasSpouse && relativeFemale !== candidateFemale) {
-        hasSpouse = true;
-        label = (relativeFemale ? "Wife" : "Husband") + ` — ${firstName}`;
-      } else {
-        label = (candidateFemale ? "Sister" : "Brother") + ` of ${firstName}`;
-      }
-    } else if (Math.abs(ageGap) === 1) {
-      if (ageGap > 0) {
-        // Relative is older — they are a parent figure to the candidate
-        const isMotherSlot = relativeFemale;
-        if (isMotherSlot && !hasMother) {
-          hasMother = true;
-          label = (candidateFemale ? "Daughter" : "Son") + ` of ${firstName}`;
-        } else if (!isMotherSlot && !hasFather) {
-          hasFather = true;
-          label = (candidateFemale ? "Daughter" : "Son") + ` of ${firstName}`;
-        } else {
-          // Parent slot filled — become niece/nephew
-          label = (candidateFemale ? "Niece" : "Nephew") + ` of ${firstName}`;
-        }
-      } else {
-        // Relative is younger — candidate is the parent figure
-        label = (candidateFemale ? "Mother" : "Father") + ` of ${firstName}`;
-      }
-    } else {
-      // 2+ gap — grandparent/grandchild
-      label = ageGap > 0
-        ? (candidateFemale ? "Granddaughter" : "Grandson") + ` of ${firstName}`
-        : (candidateFemale ? "Grandmother" : "Grandfather") + ` of ${firstName}`;
-    }
-    return { relative, label };
-  });
-}
-
-/**
- * Get family connections for an adventurer already on the roster.
- * Returns labels from the adventurer's perspective (reverse of findKin).
- */
-export function getRosterKin(adventurer: Adventurer, roster: Adventurer[]): { relative: Adventurer; label: string }[] {
-  const lastName = getLastName(adventurer.name);
-  if (!lastName) return [];
-  const family = roster.filter((a) => a.alive && a.id !== adventurer.id && getLastName(a.name) === lastName);
-  if (family.length === 0) return [];
-
-  // Use findKin with the adventurer as candidate to get correct perspective labels
-  return findKin(adventurer, roster);
-}
-
-// ─── Name generation ────────────────────────────────────────────
-
-// Build FEMALE_NAMES set from all origin data + manual additions for legacy names
-const FEMALE_NAMES = new Set([
-  ...ORIGINS.flatMap((o) => o.firstNamesFemale),
-  "Xara", "Zara", "Maia", "Nyx", "Thea", "Raya", "Aria", "Luna", "Selene",
-]);
 
 // ─── Portrait system ────────────────────────────────────────────
 // Origin-aware portraits: CDN_BASE/characters/{origin}/{class}_{origin}_{gender}_{n}.png
 // Falls back to generic portraits for origins without images (e.g. feldgrund).
 
-const CDN_CHARS = "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters";
+export const CDN_CHARS = "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters";
 
-// Portrait filenames (character names) per origin/class/gender
-const ORIGIN_PORTRAITS: Partial<Record<Origin, Partial<Record<string, string[]>>>> = {
-  ashwick: { archer_female: ["brenna_thornwood", "ellie_coldwell", "isla_foxglove"], archer_male: ["aldric_blackwood", "cedric_ashford", "gareth_thornwood"], assassin_female: ["maren_greystone", "elspeth_ravencroft", "lyra_emberheart"], assassin_male: ["edmund_blackwood", "roderick_ashford", "finley_coldwell"], priest_female: ["elinor_whitmore", "anwen_greystone", "matilda_wren"], priest_male: ["oswin_holloway", "benedict_ashmore", "aldwin_stonebridge"], warrior_female: ["bronwyn_ashford", "helga_ironbark", "morgause_dunwall"], warrior_male: ["godric_thornwood", "leofric_coldwell", "halden_greystone"], wizard_female: ["gwendolen_hearthwood", "isolde_whitmore", "elara_foxglove"], wizard_male: ["merrick_ravencroft", "cuthbert_holloway", "alaric_stonebridge"] },
-  feldgrund: { archer_female: ["clover_meadbrook"], archer_male: ["barley_hearthstone"], assassin_female: ["rosemary_alewell"], assassin_male: ["pippin_barrelhouse"], priest_female: ["hazel_hillfoot"], priest_male: ["tobias_hearthstone"], warrior_female: ["primrose_copperkettle"], warrior_male: ["bramble_barrelhouse"], wizard_female: ["nettle_meadbrook"], wizard_male: ["thistledown_alewell"] },
-  hautscieux: { archer_female: ["yvaine_clairdelune"], archer_male: ["lucien_fontargent"], assassin_female: ["sylvaine_feuillemorte"], assassin_male: ["armand_lunargent"], priest_female: ["celeste_aubepine"], priest_male: ["florent_clairdelune"], warrior_female: ["elowen_rosecendre"], warrior_male: ["thibault_fontargent"], wizard_female: ["vivienne_lunargent"], wizard_male: ["dorien_brumesang"] },
-  khazdurim: { archer_female: ["dagna_deepforge"], archer_male: ["borin_stonefist"], assassin_female: ["hilda_copperbeard"], assassin_male: ["thrain_fireaxe"], priest_female: ["brunhild_hammerfall"], priest_male: ["durin_stonefist"], warrior_female: ["sigrun_stonefist"], warrior_male: ["grimm_copperbeard"], wizard_female: ["magna_hammerfall"], wizard_male: ["olvir_deepforge"] },
-  khorvani: { archer_female: ["farah_al_rashid", "zahra_khan", "priya_desai"], archer_male: ["arjun_khan", "ravi_mansour", "idris_hassan"], assassin_female: ["leila_mirza", "nadia_patel", "samira_khan"], assassin_male: ["tariq_hassan", "kiran_sharma", "darius_desai"], priest_female: ["yasmin_farouk", "anisa_al_rashid", "miriam_bakhtiar"], priest_male: ["rohan_joshi", "sanjay_sharma", "naveen_desai"], warrior_female: ["soraya_khatri", "amira_hassan"], warrior_male: ["vikram_mansour", "rashid_al_rashid", "amir_soraya"], wizard_female: ["layla_bakhtiar", "devi_joshi", "kala_desai"], wizard_male: ["omid_sharma", "hari_farouk"] },
-  meridian: { archer_female: ["serafina_castellani", "ginevra_solari", "fiora_monteverdi", "chiara_ferraro"], archer_male: ["luciano_castellani", "matteo_bianchi", "enzo_deluca"], assassin_female: ["alessia_ferraro", "valentina_solari", "caterina_monteverdi"], assassin_male: ["dante_bianchi", "niccolo_deluca", "raffaello_castellani"], priest_female: ["isabella_solari", "adriana_corsini", "lucia_ferraro"], priest_male: ["lorenzo_monteverdi", "silvio_bianchi", "marco_deluca"], warrior_female: ["vittoria_castellani", "bianca_moretto", "emilia_ferraro"], warrior_male: ["giovanni_solari", "aldric_monteverdi", "tomas_deluca"], wizard_female: ["serafina_bianchi", "donatella_corsini", "ornella_castellani"], wizard_male: ["flavio_ferraro", "prospero_solari", "sandro_moretto"] },
-  nordveld: { archer_female: ["sigrid_stormvik", "astrid_ravnskog"], archer_male: ["bjorn_steinholm", "tormund_bjornsen", "leif_frostvik"], assassin_female: ["freya_thorssen", "ragna_stormvik", "ylva_ravnskog"], assassin_male: ["fenrir_steinholm", "eirik_bjornsen", "sven_frostvik"], priest_female: ["hilda_thorssen", "solveig_stormvik", "ingrid_ravnskog"], priest_male: ["halvard_steinholm", "odin_bjornsen", "thorgrim_frostvik", "alvar_thorssen"], warrior_female: ["brynhild_stormvik", "gudrun_ravnskog", "thyra_steinholm"], warrior_male: ["ragnar_bjornsen", "hrothgar_frostvik", "vidar_thorssen"], wizard_female: ["eerika_stormvik", "saga_ravnskog", "valdis_steinholm"], wizard_male: ["ketill_bjornsen", "snorri_frostvik", "runolf_thorssen"] },
-  silvaneth: { archer_female: ["caelwen_starweaver"], archer_male: ["faelan_moonshadow"], assassin_female: ["niamh_nightbloom"], assassin_male: ["thalorin_dawnwhisper"], priest_female: ["aelindra_leafsong", "sionaeve_starweaver"], priest_male: ["brynmor_moonshadow", "loranthiel_dawnwhisper", "caelorin_leafsong"], warrior_female: ["eirenel_nightbloom", "morwenna_starweaver", "briallen_dawnwhisper"], warrior_male: ["thandril_moonshadow"], wizard_female: ["gwyneira_leafsong", "eilonwy_nightbloom"], wizard_male: ["aerendir_starweaver", "maelorin_moonshadow", "coravel_dawnwhisper"] },
-  tianzhou: { archer_female: ["daiyu_zhang", "lian_chen", "meiling_liu"], archer_male: ["wei_wang", "zheng_li", "bowen_yang"], assassin_female: ["xiulan_zhang", "yanmei_huang", "jingfei_zhou"], assassin_male: ["haoran_wang", "feng_li"], priest_female: ["lanying_chen", "mingzhu_liu", "ruolan_yang"], priest_male: ["changming_zhang", "junshan_huang", "shenwei_zhou"], warrior_female: ["huifen_wang", "baihe_li", "suyin_chen"], warrior_male: ["guowei_liu", "tielong_yang", "jianyu_zhang"], wizard_female: ["yueliang_huang", "zhenyi_zhou", "linxia_wang"], wizard_male: ["qingyun_li", "daoming_chen", "wuji_liu"] },
-  zahkari: { archer_female: ["amara_mensah", "zuri_adeyemi", "ama_boateng"], archer_male: ["kofi_okafor", "kwame_diallo", "jabari_asante"], assassin_female: ["esi_mensah", "adaeze_traore", "nkechi_okafor"], assassin_male: ["emeka_adeyemi", "tendai_diallo", "sekou_boateng"], priest_female: ["abena_asante", "yaa_mensah"], priest_male: ["kwaku_traore", "olu_okafor", "dayo_adeyemi"], warrior_female: ["akosua_diallo", "nana_boateng", "folake_asante", "adjoa_mensah"], warrior_male: ["chukwu_traore", "obasi_okafor", "kojo_adeyemi"], wizard_female: ["efua_diallo", "aminata_boateng", "nneka_asante"], wizard_male: ["gyasi_mensah", "annan_traore", "kwesi_okafor"] },
-};
-
-// Generic fallback portraits (used when origin has no images)
-const GENERIC_PORTRAITS: Record<AdventurerClass, { male: string[]; female: string[] }> = {
-  warrior: { male: [`${CDN_CHARS}/warrior_male_1.png`, `${CDN_CHARS}/warrior_male_2.png`], female: [`${CDN_CHARS}/warrior_female_1.png`, `${CDN_CHARS}/warrior_female_2.png`] },
-  wizard:  { male: [`${CDN_CHARS}/wizard_male_1.png`, `${CDN_CHARS}/wizard_male_2.png`], female: [`${CDN_CHARS}/wizard_female_1.png`, `${CDN_CHARS}/wizard_female_2.png`] },
-  priest:  { male: [`${CDN_CHARS}/priest_male_1.png`, `${CDN_CHARS}/priest_male_2.png`], female: [`${CDN_CHARS}/priest_female_1.png`, `${CDN_CHARS}/priest_female_2.png`, `${CDN_CHARS}/priest_female_3.png`] },
-  archer:  { male: [`${CDN_CHARS}/archer_male_1.png`, `${CDN_CHARS}/archer_male_2.png`], female: [`${CDN_CHARS}/archer_female_1.png`, `${CDN_CHARS}/archer_female_2.png`] },
-  assassin:{ male: [`${CDN_CHARS}/assassin_male_1.png`, `${CDN_CHARS}/assassin_male_2.png`], female: [`${CDN_CHARS}/assassin_female_1.png`, `${CDN_CHARS}/assassin_female_2.png`] },
-};
-
-export function isFemale(name: string): boolean {
-  return FEMALE_NAMES.has(name.split(" ")[0]);
+/** Simplified portrait URL — works for any adventurer with a portrait field */
+export function getPortraitUrl(adv: Pick<Adventurer, "origin" | "portrait" | "name">): string {
+  // Resolve from premade pool if portrait is missing or stale
+  const premade = PREMADE_CHARACTERS.find((c) => c.name === adv.name);
+  const portrait = premade?.portrait ?? adv.portrait;
+  if (portrait) return `${CDN_CHARS}/${adv.origin}/${portrait}.png`;
+  // Legacy fallback for old random-gen adventurers without a portrait
+  return `${CDN_CHARS}/warrior_male_1.png`;
 }
 
-function nameHash(name: string): number {
-  return name.split(" ")[0].split("").reduce((h, c) => h + c.charCodeAt(0), 0);
+/** Zoomed portrait URL variant */
+export function getZoomedPortraitUrl(adv: Pick<Adventurer, "origin" | "portrait" | "name">): string {
+  return getPortraitUrl(adv).replace(".png", "_zoomed.png");
 }
 
-// CDN folder names (may differ from in-game origin IDs after renames)
-const CDN_FOLDER: Partial<Record<Origin, string>> = {
-  // no active mappings — CDN folders match origin IDs
-};
 
-// Age-specific portrait names: origin → "class_gender_age" → [character names]
-const ORIGIN_AGE_PORTRAITS: Partial<Record<Origin, Partial<Record<string, string[]>>>> = {
-  ashwick: { archer_female_young: ["isla_foxglove"], archer_male_mature: ["aldric_blackwood"], assassin_female_middle: ["maren_greystone"], assassin_female_old: ["elspeth_ravencroft"], assassin_female_young: ["lyra_emberheart"], assassin_male_middle: ["roderick_ashford"], assassin_male_young: ["finley_coldwell"], warrior_female_old: ["morgause_dunwall"], wizard_female_young: ["elara_foxglove"] },
-  feldgrund: { archer_female_young: ["clover_meadbrook"], archer_male_mature: ["barley_hearthstone"], assassin_female_mature: ["rosemary_alewell"], assassin_male_mature: ["pippin_barrelhouse"], priest_female_old: ["hazel_hillfoot"], priest_male_mature: ["tobias_hearthstone"], warrior_female_mature: ["primrose_copperkettle"], warrior_male_mature: ["bramble_barrelhouse"], wizard_female_old: ["nettle_meadbrook"], wizard_male_old: ["thistledown_alewell"] },
-  khorvani: { archer_female_mature: ["farah_al_rashid"], archer_female_young: ["priya_desai"], archer_male_mature: ["arjun_khan"], archer_male_middle: ["idris_hassan"], assassin_female_mature: ["leila_mirza"], assassin_female_young: ["samira_khan"], assassin_male_mature: ["tariq_hassan"], assassin_male_young: ["darius_desai"], priest_female_middle: ["anisa_al_rashid"], priest_female_old: ["miriam_bakhtiar"], priest_male_mature: ["rohan_joshi"], priest_male_young: ["naveen_desai"], warrior_female_mature: ["soraya_khatri"], warrior_male_middle: ["rashid_al_rashid"], warrior_male_young: ["amir_soraya"], wizard_female_mature: ["layla_bakhtiar"], wizard_female_young: ["kala_desai"], wizard_male_young: ["hari_farouk"] },
-  meridian: { archer_female_mature: ["serafina_castellani", "ginevra_solari"], archer_female_young: ["chiara_ferraro"], archer_male_mature: ["luciano_castellani"], archer_male_middle: ["enzo_deluca"], assassin_female_middle: ["caterina_monteverdi"], assassin_male_mature: ["dante_bianchi"], priest_female_mature: ["isabella_solari"], priest_female_young: ["lucia_ferraro"], priest_male_young: ["marco_deluca"], warrior_female_mature: ["vittoria_castellani"], warrior_female_young: ["emilia_ferraro"], warrior_male_old: ["aldric_monteverdi"], warrior_male_young: ["tomas_deluca"], wizard_female_middle: ["donatella_corsini"], wizard_female_old: ["ornella_castellani"], wizard_male_old: ["prospero_solari"], wizard_male_young: ["sandro_moretto"] },
-  nordveld: { archer_female_mature: ["sigrid_stormvik"], archer_male_middle: ["tormund_bjornsen"], archer_male_young: ["leif_frostvik"], assassin_female_mature: ["freya_thorssen"], assassin_female_young: ["ylva_ravnskog"], assassin_male_middle: ["eirik_bjornsen"], assassin_male_young: ["sven_frostvik"], priest_female_mature: ["hilda_thorssen"], priest_female_young: ["ingrid_ravnskog"], priest_male_old: ["odin_bjornsen", "thorgrim_frostvik"], priest_male_young: ["alvar_thorssen"], warrior_female_middle: ["thyra_steinholm"], warrior_male_old: ["hrothgar_frostvik"], warrior_male_young: ["vidar_thorssen"], wizard_female_mature: ["eerika_stormvik"], wizard_male_old: ["snorri_frostvik"], wizard_male_young: ["runolf_thorssen"] },
-  silvaneth: { priest_female_old: ["sionaeve_starweaver"], priest_male_middle: ["loranthiel_dawnwhisper"], priest_male_old: ["caelorin_leafsong"], warrior_female_mature: ["eirenel_nightbloom"], warrior_female_young: ["briallen_dawnwhisper"], wizard_female_mature: ["gwyneira_leafsong"], wizard_male_old: ["maelorin_moonshadow"], wizard_male_young: ["coravel_dawnwhisper"] },
-  tianzhou: { archer_female_mature: ["daiyu_zhang"], archer_female_young: ["meiling_liu"], archer_male_mature: ["wei_wang"], archer_male_middle: ["bowen_yang"], assassin_female_middle: ["jingfei_zhou"], assassin_male_mature: ["haoran_wang"], priest_female_mature: ["lanying_chen"], priest_female_young: ["ruolan_yang"], priest_male_middle: ["junshan_huang"], priest_male_old: ["shenwei_zhou"], warrior_female_middle: ["baihe_li"], warrior_female_young: ["suyin_chen"], warrior_male_old: ["tielong_yang"], warrior_male_young: ["jianyu_zhang"], wizard_female_old: ["zhenyi_zhou"], wizard_female_young: ["linxia_wang"], wizard_male_old: ["daoming_chen"], wizard_male_young: ["wuji_liu"] },
-  zahkari: { archer_female_mature: ["amara_mensah"], archer_female_young: ["ama_boateng"], archer_male_mature: ["kofi_okafor"], archer_male_middle: ["jabari_asante"], assassin_female_middle: ["adaeze_traore"], assassin_female_old: ["nkechi_okafor"], assassin_male_mature: ["emeka_adeyemi"], assassin_male_young: ["sekou_boateng"], priest_male_mature: ["kwaku_traore"], priest_male_young: ["dayo_adeyemi"], warrior_female_middle: ["nana_boateng", "folake_asante"], warrior_female_old: ["adjoa_mensah"], warrior_male_mature: ["chukwu_traore"], warrior_male_young: ["kojo_adeyemi"], wizard_female_mature: ["efua_diallo"], wizard_female_young: ["nneka_asante"], wizard_male_old: ["annan_traore"], wizard_male_young: ["kwesi_okafor"] },
-  hautscieux: { archer_female_middle: ["yvaine_clairdelune"], archer_male_young: ["lucien_fontargent"], assassin_female_young: ["sylvaine_feuillemorte"], assassin_male_middle: ["armand_lunargent"], priest_female_young: ["celeste_aubepine"], priest_male_young: ["florent_clairdelune"], warrior_female_young: ["elowen_rosecendre"], warrior_male_young: ["thibault_fontargent"], wizard_female_young: ["vivienne_lunargent"], wizard_male_old: ["dorien_brumesang"] },
-  khazdurim: { archer_female_young: ["dagna_deepforge"], archer_male_mature: ["borin_stonefist"], assassin_female_middle: ["hilda_copperbeard"], assassin_male_middle: ["thrain_fireaxe"], priest_female_old: ["brunhild_hammerfall"], priest_male_old: ["durin_stonefist"], warrior_female_middle: ["sigrun_stonefist"], warrior_male_middle: ["grimm_copperbeard"], wizard_female_old: ["magna_hammerfall"], wizard_male_mature: ["olvir_deepforge"] },
-};
+// ─── Recruitment ────────────────────────────────────────────────
 
-export function getPortrait(name: string, cls: AdventurerClass, origin: Origin, age: AgeCategory, portraitOverride?: string): string {
-  // Premade characters have a fixed portrait — always resolve from the current pool
-  // so renamed portraits are picked up without needing a save migration
-  const premade = PREMADE_CHARACTERS.find((c) => c.name === name)
-    ?? PREMADE_CHARACTERS.find((c) => c.portrait === portraitOverride);
-  const portrait = premade?.portrait ?? portraitOverride;
-  if (portrait) {
-    const folder = CDN_FOLDER[origin] ?? origin;
-    return `${CDN_CHARS}/${folder}/${portrait}.png`;
-  }
-
-  const female = isFemale(name);
-  const gender = female ? "female" : "male";
-  const hash = nameHash(name);
-  const folder = CDN_FOLDER[origin] ?? origin;
-
-  // Try age-specific portrait first
-  const ageKey = `${cls}_${gender}_${age}`;
-  const ageNames = ORIGIN_AGE_PORTRAITS[origin]?.[ageKey];
-  if (ageNames && ageNames.length > 0) {
-    const pick = ageNames[hash % ageNames.length];
-    return `${CDN_CHARS}/${folder}/${pick}.png`;
-  }
-
-  // Fall back to any portrait for this class/gender
-  const key = `${cls}_${gender}`;
-  const names = ORIGIN_PORTRAITS[origin]?.[key];
-  if (names && names.length > 0) {
-    const pick = names[hash % names.length];
-    return `${CDN_CHARS}/${folder}/${pick}.png`;
-  }
-
-  // Fallback to generic
-  const portraits = female ? GENERIC_PORTRAITS[cls].female : GENERIC_PORTRAITS[cls].male;
-  return portraits[hash % portraits.length];
-}
-
-export function getZoomedPortrait(name: string, cls: AdventurerClass, origin: Origin, age: AgeCategory, portraitOverride?: string): string {
-  return getPortrait(name, cls, origin, age, portraitOverride).replace(".png", "_zoomed.png");
-}
-
-// Simple seeded random for reproducibility within a session
-let adventurerSeed = Date.now();
-function seededRandom(): number {
-  adventurerSeed = (adventurerSeed * 1664525 + 1013904223) & 0x7fffffff;
-  return adventurerSeed / 0x7fffffff;
-}
-
-export function resetAdventurerSeed(seed: number) {
-  adventurerSeed = seed;
-}
-
-function randomFrom<T>(arr: T[]): T {
-  return arr[Math.floor(seededRandom() * arr.length)];
-}
-
-/** Pick a weighted random age category */
-function pickAge(): AgeCategory {
-  let roll = seededRandom() * AGE_WEIGHTS.reduce((s, w) => s + w.weight, 0);
-  for (const { age, weight } of AGE_WEIGHTS) {
-    roll -= weight;
-    if (roll <= 0) return age;
-  }
-  return "middle";
-}
-
-/** Pick a race using weighted probabilities */
-function pickRace(): Race {
-  const roll = seededRandom();
-  if (roll < RACE_WEIGHTS.elf) return "elf";
-  if (roll < RACE_WEIGHTS.elf + RACE_WEIGHTS.dwarf) return "dwarf";
-  return "human";
-}
-
-/** Pick a weighted random backstory trait */
-function pickTrait(): BackstoryTrait {
-  const totalWeight = BACKSTORY_TRAITS.reduce((sum, t) => sum + t.weight, 0);
-  let roll = seededRandom() * totalWeight;
-  for (const trait of BACKSTORY_TRAITS) {
-    roll -= trait.weight;
-    if (roll <= 0) return trait;
-  }
-  return BACKSTORY_TRAITS[BACKSTORY_TRAITS.length - 1];
-}
-
-/** Pick a backstory archetype */
-function pickBackstory(origin: OriginDef): string {
-  const keys = Object.keys(origin.backstories) as (keyof OriginDef["backstories"])[];
-  return origin.backstories[randomFrom(keys)];
-}
-
-/** Generate a name from an origin's name pool */
-function generateOriginName(origin: OriginDef): string {
-  const isMale = seededRandom() > 0.5;
-  const firstNames = isMale ? origin.firstNamesMale : origin.firstNamesFemale;
-  return `${randomFrom(firstNames)} ${randomFrom(origin.lastNames)}`;
-}
-
-export function generateName(): string {
-  // Legacy fallback — uses Ashwick pool
-  const origin = getOrigin("ashwick");
-  return generateOriginName(origin);
+/** Get the premade relationship string for an adventurer (e.g. "Sister of Gareth and Godric") */
+export function getRelationship(premadeId?: string): string | undefined {
+  if (!premadeId) return undefined;
+  return CHAR_RELATIONSHIPS[premadeId];
 }
 
 /** Pick a premade character not already in use */
@@ -913,10 +687,19 @@ function pickPremadeCharacter(usedNames?: Set<string>): PremadeCharacter | null 
     ? PREMADE_CHARACTERS.filter((c) => !usedNames.has(c.name))
     : PREMADE_CHARACTERS;
   if (available.length === 0) return null;
-  return available[Math.floor(seededRandom() * available.length)];
+  return available[Math.floor(Math.random() * available.length)];
 }
 
-// ─── Recruitment ────────────────────────────────────────────────
+/** Pick a weighted random backstory trait */
+function pickTrait(): BackstoryTrait {
+  const totalWeight = BACKSTORY_TRAITS.reduce((sum, t) => sum + t.weight, 0);
+  let roll = Math.random() * totalWeight;
+  for (const trait of BACKSTORY_TRAITS) {
+    roll -= trait.weight;
+    if (roll <= 0) return trait;
+  }
+  return BACKSTORY_TRAITS[BACKSTORY_TRAITS.length - 1];
+}
 
 /** Gold cost to recruit an adventurer based on their rank */
 export function getRecruitCost(rank: AdventurerRank): number {
@@ -930,81 +713,30 @@ export function getRecruitCost(rank: AdventurerRank): number {
   return COSTS[rank];
 }
 
-/** Generate a random adventurer candidate — pulls from premade pool first, falls back to random */
-export function generateCandidate(id: string, maxRank: AdventurerRank = 2, usedNames?: Set<string>): Adventurer {
-  // Try premade pool first
-  const premade = pickPremadeCharacter(usedNames);
-  if (premade) {
-    const origin = getOrigin(premade.origin);
-    const quirk = randomFrom(PERSONALITY_QUIRKS);
-    const trait = premade.trait ?? pickTrait().id;
+/** Build an Adventurer from a premade character definition */
+function buildAdventurerFromPremade(id: string, premade: PremadeCharacter, maxRank: AdventurerRank): Adventurer {
+  const quirk = PERSONALITY_QUIRKS[Math.floor(Math.random() * PERSONALITY_QUIRKS.length)];
+  const trait = premade.trait ?? pickTrait().id;
 
-    // Rank roll same as random path
-    let rank: AdventurerRank = 1;
-    const roll = seededRandom();
-    if (maxRank >= 5 && roll > 0.97) rank = 5;
-    else if (maxRank >= 4 && roll > 0.90) rank = 4;
-    else if (maxRank >= 3 && roll > 0.75) rank = 3;
-    else if (maxRank >= 2 && roll > 0.50) rank = 2;
-    const level = Math.max(1, RANK_LEVEL_THRESHOLDS[rank] - 1);
-    const actualRank = getRankForLevel(level);
-
-    return {
-      id,
-      name: premade.name,
-      class: premade.class,
-      race: premade.race,
-      origin: premade.origin,
-      backstory: premade.backstory ?? pickBackstory(origin),
-      quirk,
-      trait,
-      rank: actualRank,
-      level,
-      xp: 0,
-      alive: true,
-      onMission: false,
-      bonusStats: {},
-      equipment: { head: null, chest: null, legs: null, boots: null, cloak: null, mainHand: null, offHand: null, ring1: null, ring2: null, amulet: null, trinket: null },
-      talents: [],
-      foodPreference: premade.foodPreference,
-      loyalty: 0,
-      age: premade.age,
-      portrait: premade.portrait,
-    };
-  }
-
-  // Fallback: random generation
   let rank: AdventurerRank = 1;
-  const roll = seededRandom();
+  const roll = Math.random();
   if (maxRank >= 5 && roll > 0.97) rank = 5;
   else if (maxRank >= 4 && roll > 0.90) rank = 4;
   else if (maxRank >= 3 && roll > 0.75) rank = 3;
   else if (maxRank >= 2 && roll > 0.50) rank = 2;
-
-  // Pick race, origin, name, backstory, trait, food preference
-  const race = pickRace();
-  const origins = getOriginsForRace(race);
-  const origin = randomFrom(origins);
-  const name = generateOriginName(origin);
-  const backstory = pickBackstory(origin);
-  const quirk = randomFrom(PERSONALITY_QUIRKS);
-  const trait = pickTrait();
-  const foodPreference = randomFrom(FOOD_PREFERENCES).id;
-  const age = pickAge();
-
-  // Recruits start just below rank threshold — higher rolls get a head start
   const level = Math.max(1, RANK_LEVEL_THRESHOLDS[rank] - 1);
-  // Rank always matches level so it's consistent with roster adventurers
   const actualRank = getRankForLevel(level);
+
   return {
     id,
-    name,
-    class: randomFrom(ADVENTURER_CLASSES).id,
-    race,
-    origin: origin.id,
-    backstory,
+    premadeId: premade.id,
+    name: premade.name,
+    class: premade.class,
+    race: premade.race,
+    origin: premade.origin,
+    backstory: premade.backstory ?? "",
     quirk,
-    trait: trait.id,
+    trait,
     rank: actualRank,
     level,
     xp: 0,
@@ -1013,10 +745,20 @@ export function generateCandidate(id: string, maxRank: AdventurerRank = 2, usedN
     bonusStats: {},
     equipment: { head: null, chest: null, legs: null, boots: null, cloak: null, mainHand: null, offHand: null, ring1: null, ring2: null, amulet: null, trinket: null },
     talents: [],
-    foodPreference,
+    foodPreference: premade.foodPreference,
     loyalty: 0,
-    age,
+    age: premade.age,
+    portrait: premade.portrait,
   };
+}
+
+/** Generate an adventurer candidate from the premade pool */
+export function generateCandidate(id: string, maxRank: AdventurerRank = 2, usedNames?: Set<string>): Adventurer {
+  const premade = pickPremadeCharacter(usedNames);
+  if (premade) return buildAdventurerFromPremade(id, premade, maxRank);
+  // Pool exhaustion fallback (effectively impossible with 226 chars and max roster 13)
+  const fallback = PREMADE_CHARACTERS[Math.floor(Math.random() * PREMADE_CHARACTERS.length)];
+  return buildAdventurerFromPremade(id, fallback, maxRank);
 }
 
 /** Max adventurer rank available — based on guild level AND average top-3 adventurer levels */

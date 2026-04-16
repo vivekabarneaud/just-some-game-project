@@ -1,6 +1,6 @@
 import { Show } from "solid-js";
 import {
-  getZoomedPortrait,
+  getZoomedPortraitUrl,
   getXpForLevel,
   RANK_NAMES,
   RANK_COLORS,
@@ -48,7 +48,7 @@ export default function AdventurerPickerCard(props: AdventurerPickerCardProps) {
         }}>✓</div>
       </Show>
       <img
-        src={getZoomedPortrait(adv().name, adv().class, adv().origin, adv().age ?? "middle", adv().portrait)}
+        src={getZoomedPortraitUrl(adv())}
         alt={adv().name}
         style={{ width: "64px", height: "64px", "object-fit": "cover", display: "block", "flex-shrink": "0" }}
       />

@@ -14,7 +14,7 @@ import {
   type InventoryItem,
 } from "~/data/items";
 import {
-  getPortrait,
+  getPortraitUrl,
   RANK_NAMES,
   RANK_COLORS,
   getClassMeta,
@@ -313,7 +313,7 @@ export default function Enchanting() {
                     <div class="enchanting-adv-card">
                       <div class="enchanting-adv-info">
                         <img
-                          src={getPortrait(adv.name, adv.class, adv.origin, adv.age ?? "middle", adv.portrait)}
+                          src={getPortraitUrl(adv)}
                           alt={adv.name}
                           class="enchanting-adv-portrait"
                           loading="lazy"

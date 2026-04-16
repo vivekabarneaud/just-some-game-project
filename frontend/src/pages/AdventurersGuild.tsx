@@ -10,12 +10,12 @@ import {
   getRecruitCost,
   getXpForLevel,
   getUnspentStatPoints,
-  getPortrait,
+  getPortraitUrl,
   getOrigin,
   RACE_NAMES,
   type Adventurer,
   type AdventurerRank,
-  findKin,
+  getRelationship,
   getFoodPref,
 } from "~/data/adventurers";
 import { getItem } from "~/data/items";
@@ -544,7 +544,7 @@ export default function AdventurersGuild() {
                         {RANK_NAMES[adv.rank]}
                       </span>
                       <div class="adv-card-portrait">
-                        <img src={getPortrait(adv.name, adv.class, adv.origin, adv.age ?? "middle", adv.portrait)} alt={adv.name} loading="lazy" />
+                        <img src={getPortraitUrl(adv)} alt={adv.name} loading="lazy" />
                       </div>
                       <div class="adv-card-content">
                         <div class="building-card-title">{adv.name}</div>
@@ -662,7 +662,7 @@ export default function AdventurersGuild() {
                       {RANK_NAMES[candidate.rank]}
                     </span>
                     <div class="adv-card-portrait">
-                      <img src={getPortrait(candidate.name, candidate.class, candidate.origin, candidate.age ?? "middle", candidate.portrait)} alt={candidate.name} loading="lazy" />
+                      <img src={getPortraitUrl(candidate)} alt={candidate.name} loading="lazy" />
                     </div>
                     <div class="adv-card-content">
                       <div class="building-card-title">{candidate.name}</div>
@@ -674,11 +674,9 @@ export default function AdventurersGuild() {
                           {getOrigin(candidate.origin)?.name} — {getOrigin(candidate.origin)?.region}
                         </div>
                       </Show>
-                      {/* Kinship — show if candidate shares a last name with a roster member */}
-                      {(() => {
-                        const kin = findKin(candidate, state.adventurers);
-                        if (kin.length === 0) return null;
-                        return (
+                      {/* Kinship — premade relationship from CHAR_RELATIONSHIPS */}
+                      <Show when={getRelationship(candidate.premadeId)}>
+                        {(rel) => (
                           <div style={{
                             "font-size": "0.78rem",
                             color: "var(--accent-gold)",
@@ -688,10 +686,10 @@ export default function AdventurersGuild() {
                             gap: "4px",
                           }}>
                             <span>👨‍👩‍👧‍👦</span>
-                            <span>{kin.map((k) => k.label).join(", ")}</span>
+                            <span>{rel()}</span>
                           </div>
-                        );
-                      })()}
+                        )}
+                      </Show>
                       {/* Food preference */}
                       <Show when={getFoodPref(candidate.foodPreference)}>
                         <div style={{
