@@ -5,6 +5,7 @@ import auth from "./routes/auth.js";
 import settlement from "./routes/settlement.js";
 import world from "./routes/world.js";
 import leaderboard from "./routes/leaderboard.js";
+import trade from "./routes/trade.js";
 
 const app = new Hono();
 
@@ -26,5 +27,6 @@ app.route("/api/auth", auth);
 app.route("/api", settlement);
 app.route("/api", world);
 app.route("/api", leaderboard);
+app.route("/api", trade);
 
 export default app;

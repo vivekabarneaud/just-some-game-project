@@ -1,7 +1,8 @@
 import { For, Show, createSignal } from "solid-js";
 import { A } from "@solidjs/router";
-import { useGame, CRAFTING_RECIPES } from "~/engine/gameState";
+import { useGame, CRAFTING_RECIPES, getBuildingToolsForBuilding, getBuildingTool, getRequiredTool } from "~/engine/gameState";
 import { getItemByRecipe } from "~/data/items";
+import { BUILDINGS } from "~/data/buildings";
 import Countdown from "~/components/Countdown";
 import Tooltip from "~/components/Tooltip";
 
@@ -24,6 +25,12 @@ interface CraftingPageProps {
   materials: { icon: string; label: string; value: () => number }[];
 }
 
+/** Display-friendly name for produced resource */
+function formatResource(resource: string, buildingId: string): string {
+  if (resource === "potions" && buildingId === "kitchen") return "meal";
+  return resource;
+}
+
 function formatTime(seconds: number): string {
   if (seconds < 60) return `${seconds}s`;
   if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
@@ -38,9 +45,22 @@ export default function CraftingPage(props: CraftingPageProps) {
   const building = () => state.buildings.find((b) => b.buildingId === props.buildingId);
   const buildingLevel = () => building()?.level ?? 0;
 
-  const recipes = () => CRAFTING_RECIPES.filter((r) => {
-    return r.building === props.buildingId && buildingLevel() >= r.minLevel;
-  });
+  const installedToolIds = () => state.buildingTools?.[props.buildingId] ?? [];
+  const availableTools = () => getBuildingToolsForBuilding(props.buildingId);
+  const hasToolSlots = () => availableTools().length > 0;
+
+  // Recipes where building level is met (includes both tool-available and tool-locked)
+  // Unlocked recipes first, tool-locked at the end
+  const recipes = () => {
+    const ids = installedToolIds();
+    return CRAFTING_RECIPES
+      .filter((r) => r.building === props.buildingId && buildingLevel() >= r.minLevel)
+      .sort((a, b) => {
+        const aLocked = getRequiredTool(a, ids) ? 1 : 0;
+        const bLocked = getRequiredTool(b, ids) ? 1 : 0;
+        return aLocked - bLocked;
+      });
+  };
 
   const lockedRecipes = () => CRAFTING_RECIPES.filter((r) => {
     return r.building === props.buildingId && buildingLevel() < r.minLevel;
@@ -73,6 +93,8 @@ export default function CraftingPage(props: CraftingPageProps) {
     const b = building();
     if (!b || b.level < recipe.minLevel) return `Requires ${props.buildingName} Lv.${recipe.minLevel}`;
     if (b.damaged) return "Building is damaged";
+    const missingTool = getRequiredTool(recipe, installedToolIds());
+    if (missingTool) return `Requires ${missingTool.name}`;
     const slotsUsed = activeCrafts().length;
     const maxSlots = b.level + (props.buildingId === "kitchen" ? 1 : 0);
     if (slotsUsed >= maxSlots) return `Queue full — upgrade ${props.buildingName} for more slots`;
@@ -116,23 +138,98 @@ export default function CraftingPage(props: CraftingPageProps) {
       </Show>
 
       <Show when={buildingLevel() > 0}>
-        {/* Materials header */}
-        <div style={{
-          display: "flex",
-          gap: "16px",
-          "margin-bottom": "16px",
-          padding: "10px 14px",
-          background: "var(--bg-secondary)",
-          "border-radius": "6px",
-          "font-size": "0.85rem",
-          color: "var(--text-secondary)",
-          "flex-wrap": "wrap",
-        }}>
-          <span>{props.buildingName} Lv.{buildingLevel()}</span>
-          <span>Slots: {activeCrafts().length}/{buildingLevel() + (props.buildingId === "kitchen" ? 1 : 0)}</span>
-          <For each={props.materials}>
-            {(mat) => <span>{mat.icon} {mat.label}: {mat.value()}</span>}
-          </For>
+        {/* Materials header — uses same flex layout as content to align with recipes column */}
+        <div style={{ display: "flex", gap: "20px", "margin-bottom": "16px" }}>
+          <div style={{
+            flex: 1,
+            display: "flex",
+            gap: "16px",
+            padding: "10px 14px",
+            background: "var(--bg-secondary)",
+            "border-radius": "6px",
+            "font-size": "0.85rem",
+            color: "var(--text-secondary)",
+            "flex-wrap": "wrap",
+            "align-items": "center",
+          }}>
+            <span>{props.buildingName} Lv.{buildingLevel()}</span>
+            <span>Slots: {activeCrafts().length}/{buildingLevel() + (props.buildingId === "kitchen" ? 1 : 0)}</span>
+            <For each={props.materials}>
+              {(mat) => <span>{mat.icon} {mat.label}: {mat.value()}</span>}
+            </For>
+
+            {/* Tool slots — aligned with right edge of recipes column */}
+            <Show when={hasToolSlots()}>
+              <div style={{
+                "margin-left": "auto",
+                display: "flex",
+                "align-items": "center",
+                gap: "6px",
+              }}>
+                <span style={{ "font-size": "0.75rem", color: "var(--text-muted)" }}>Tools:</span>
+                <For each={availableTools()}>
+                  {(tool) => {
+                    const isInstalled = () => installedToolIds().includes(tool.id);
+                    const inInventory = () => (state.inventory.find((i) => i.itemId === tool.id)?.quantity ?? 0) > 0;
+                    return (
+                      <Show when={isInstalled()} fallback={
+                        <Tooltip text={inInventory() ? `Click to install ${tool.name}` : `${tool.name} — craft at the ${
+                          (() => {
+                            const recipe = CRAFTING_RECIPES.find((r) => r.id === tool.recipeId);
+                            if (!recipe) return "???";
+                            return BUILDINGS.find((b) => b.id === recipe.building)?.name ?? recipe.building;
+                          })()
+                        }`} position="bottom">
+                          <button
+                            onClick={() => {
+                              if (inInventory()) {
+                                actions.installBuildingTool(tool.id, props.buildingId);
+                              }
+                            }}
+                            style={{
+                              width: "36px",
+                              height: "36px",
+                              "border-radius": "6px",
+                              border: "2px dashed var(--border-color)",
+                              background: "var(--bg-primary)",
+                              cursor: inInventory() ? "pointer" : "default",
+                              display: "flex",
+                              "align-items": "center",
+                              "justify-content": "center",
+                              "font-size": "1rem",
+                              color: inInventory() ? "var(--accent-gold)" : "var(--text-muted)",
+                              opacity: inInventory() ? 1 : 0.5,
+                              transition: "border-color 0.2s",
+                            }}
+                          >
+                            {inInventory() ? tool.icon : "+"}
+                          </button>
+                        </Tooltip>
+                      }>
+                        <Tooltip text={`${tool.name} — ${tool.description}`} position="bottom">
+                          <div style={{
+                            width: "36px",
+                            height: "36px",
+                            "border-radius": "6px",
+                            border: "2px solid var(--accent-green)",
+                            background: "rgba(46, 204, 113, 0.1)",
+                            display: "flex",
+                            "align-items": "center",
+                            "justify-content": "center",
+                            "font-size": "1.1rem",
+                          }}>
+                            {tool.icon}
+                          </div>
+                        </Tooltip>
+                      </Show>
+                    );
+                  }}
+                </For>
+              </div>
+            </Show>
+          </div>
+          {/* Invisible spacer matching queue sidebar width */}
+          <div style={{ "min-width": "220px", "max-width": "280px" }} />
         </div>
 
         <Show when={building()?.damaged}>
@@ -160,8 +257,10 @@ export default function CraftingPage(props: CraftingPageProps) {
               <For each={recipes()}>
                 {(recipe) => {
                   const recipeItem = () => getItemByRecipe(recipe.id);
+                  const missingTool = () => getRequiredTool(recipe, installedToolIds());
+                  const isToolLocked = () => !!missingTool();
                   return (
-                  <div class="building-card">
+                  <div class="building-card" style={{ opacity: isToolLocked() ? 0.5 : 1 }}>
                     <div class="building-card-header">
                       {recipeItem()?.image
                         ? <img src={recipeItem()!.image} alt="" style={{ width: "40px", height: "40px", "object-fit": "cover", "border-radius": "6px", "flex-shrink": "0" }} />
@@ -170,7 +269,7 @@ export default function CraftingPage(props: CraftingPageProps) {
                       <div>
                         <div class="building-card-title">{recipe.name}</div>
                         <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
-                          {formatTime(recipe.craftTime)} · +{recipe.produces.amount}x {recipe.produces.resource}
+                          {formatTime(recipe.craftTime)} · +{recipe.produces.amount}x {formatResource(recipe.produces.resource, props.buildingId)}
                         </div>
                       </div>
                     </div>
@@ -190,7 +289,7 @@ export default function CraftingPage(props: CraftingPageProps) {
                               {item.classes.join(", ")}
                             </div>
                           )}
-                          {item.consumable && <div style={{ color: "var(--accent-gold)", "margin-top": "2px", "font-size": "0.7rem" }}>consumable</div>}
+                          {item.consumable && !isToolLocked() && <div style={{ color: "var(--accent-gold)", "margin-top": "2px", "font-size": "0.7rem" }}>consumable</div>}
                           {flavor && (
                             <div style={{ color: "var(--text-muted)", "font-style": "italic", "margin-top": "4px", "font-size": "0.7rem" }}>
                               {flavor}
@@ -202,48 +301,67 @@ export default function CraftingPage(props: CraftingPageProps) {
                     <div style={{ "margin-top": "6px", "font-size": "0.8rem", color: "var(--text-secondary)" }}>
                       Cost: {recipe.costs.map((c) => `${c.amount} ${c.resource}`).join(", ")}
                     </div>
-                    {(() => {
-                      const [qty, setQty] = createSignal(1);
-                      const max = () => maxCraftable(recipe.id);
-                      return (
-                        <div style={{ "margin-top": "auto", "padding-top": "8px", display: "flex", "align-items": "center", gap: "6px" }}>
-                          <div style={{ display: "flex", "align-items": "center", gap: "2px", "border-radius": "4px", border: "1px solid var(--border-color)", overflow: "hidden" }}>
+                    <Show when={isToolLocked()} fallback={
+                      (() => {
+                        const [qty, setQty] = createSignal(1);
+                        const max = () => maxCraftable(recipe.id);
+                        return (
+                          <div style={{ "margin-top": "auto", "padding-top": "8px", display: "flex", "align-items": "center", gap: "6px" }}>
+                            <div style={{ display: "flex", "align-items": "center", gap: "2px", "border-radius": "4px", border: "1px solid var(--border-color)", overflow: "hidden" }}>
+                              <button
+                                onClick={() => setQty((q) => Math.max(1, q - 1))}
+                                style={{ width: "24px", height: "28px", background: "var(--bg-primary)", border: "none", color: "var(--text-muted)", cursor: "pointer", "font-size": "0.85rem" }}
+                              >−</button>
+                              <span style={{ width: "28px", "text-align": "center", "font-size": "0.8rem", color: "var(--text-primary)" }}>{qty()}</span>
+                              <button
+                                onClick={() => setQty((q) => Math.min(max(), q + 1))}
+                                style={{ width: "24px", height: "28px", background: "var(--bg-primary)", border: "none", color: "var(--text-muted)", cursor: "pointer", "font-size": "0.85rem" }}
+                              >+</button>
+                            </div>
                             <button
-                              onClick={() => setQty((q) => Math.max(1, q - 1))}
-                              style={{ width: "24px", height: "28px", background: "var(--bg-primary)", border: "none", color: "var(--text-muted)", cursor: "pointer", "font-size": "0.85rem" }}
-                            >−</button>
-                            <span style={{ width: "28px", "text-align": "center", "font-size": "0.8rem", color: "var(--text-primary)" }}>{qty()}</span>
-                            <button
-                              onClick={() => setQty((q) => Math.min(max(), q + 1))}
-                              style={{ width: "24px", height: "28px", background: "var(--bg-primary)", border: "none", color: "var(--text-muted)", cursor: "pointer", "font-size": "0.85rem" }}
-                            >+</button>
+                              onClick={() => setQty(max())}
+                              style={{
+                                padding: "4px 8px",
+                                background: "transparent",
+                                border: "1px solid var(--border-color)",
+                                color: "var(--text-muted)",
+                                "border-radius": "4px",
+                                cursor: "pointer",
+                                "font-size": "0.7rem",
+                                "white-space": "nowrap",
+                              }}
+                            >Max</button>
+                            <Tooltip text={craftDisabledReason(recipe.id, qty())} position="bottom">
+                              <button
+                                class="upgrade-btn"
+                                disabled={!canCraft(recipe.id, qty())}
+                                onClick={() => { actions.startCraft(recipe.id, qty()); setQty(1); }}
+                                style={{ "font-size": "0.85rem", padding: "6px 14px" }}
+                              >
+                                Craft{qty() > 1 ? ` ×${qty()}` : ""}
+                              </button>
+                            </Tooltip>
                           </div>
-                          <button
-                            onClick={() => setQty(max())}
-                            style={{
-                              padding: "4px 8px",
-                              background: "transparent",
-                              border: "1px solid var(--border-color)",
-                              color: "var(--text-muted)",
-                              "border-radius": "4px",
-                              cursor: "pointer",
-                              "font-size": "0.7rem",
-                              "white-space": "nowrap",
-                            }}
-                          >Max</button>
-                          <Tooltip text={craftDisabledReason(recipe.id, qty())} position="bottom">
-                            <button
-                              class="upgrade-btn"
-                              disabled={!canCraft(recipe.id, qty())}
-                              onClick={() => { actions.startCraft(recipe.id, qty()); setQty(1); }}
-                              style={{ "font-size": "0.85rem", padding: "6px 14px" }}
-                            >
-                              Craft{qty() > 1 ? ` ×${qty()}` : ""}
-                            </button>
-                          </Tooltip>
+                        );
+                      })()
+                    }>
+                      <div style={{ "margin-top": "auto", "padding-top": "6px" }}>
+                        <div style={{
+                          padding: "4px 8px",
+                          "border-radius": "4px",
+                          background: "rgba(230, 126, 34, 0.1)",
+                          border: "1px solid #e67e22",
+                          "font-size": "0.75rem",
+                          color: "#e67e22",
+                          display: "flex",
+                          "align-items": "center",
+                          gap: "4px",
+                        }}>
+                          <span>{missingTool()?.icon}</span>
+                          Requires {missingTool()?.name}
                         </div>
-                      );
-                    })()}
+                      </div>
+                    </Show>
                   </div>
                   );
                 }}
@@ -255,6 +373,7 @@ export default function CraftingPage(props: CraftingPageProps) {
               </div>
             </Show>
 
+            {/* Level-locked recipes */}
             <Show when={lockedRecipes().length > 0}>
               <h3 style={{ "font-family": "var(--font-heading)", "margin-top": "20px", "margin-bottom": "8px", color: "var(--text-muted)" }}>
                 Locked Recipes
@@ -273,7 +392,7 @@ export default function CraftingPage(props: CraftingPageProps) {
                         <div>
                           <div class="building-card-title">{recipe.name}</div>
                           <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
-                            +{recipe.produces.amount}x {recipe.produces.resource}
+                            +{recipe.produces.amount}x {formatResource(recipe.produces.resource, props.buildingId)}
                           </div>
                         </div>
                       </div>

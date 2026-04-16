@@ -515,18 +515,17 @@ export const BUILDINGS: BuildingDefinition[] = [
     tierLevelCaps: { camp: 2, village: 5, town: 10, city: 15 },
   },
 
-  // City tier (TH 7+)
   {
     id: "alchemy_lab",
     name: "Alchemy Lab",
     category: "crafting",
     description:
-      "Bubbling cauldrons and strange vapors fill this laboratory where alchemists brew potions and transmute materials.",
+      "A cauldron and some herbs are all it takes to brew a basic potion. Upgrade to unlock research and rarer recipes.",
     icon: "🧪",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/alchemy_lab.png",
     maxLevel: 15,
-    levels: generateLevels({ wood: 40, stone: 80 }, 45, undefined, 15),
-    requiredTier: "city",
+    levels: generateLevels({ wood: 15, stone: 10 }, 45, undefined, 15),
+    requiredTier: "camp",
   },
 ];
 
@@ -667,3 +666,62 @@ export const ALE_STORAGE_PER_BREWERY_LEVEL = 30;
 export const SHRINE_HAPPINESS_PER_LEVEL = 3;
 export const TAVERN_HAPPINESS_PER_LEVEL = 5; // when ale is available
 export const TAVERN_HAPPINESS_DRY = 1; // per level when no ale
+
+// ─── Tier-aware building images ─────────────────────────────────
+
+const CDN = "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings";
+
+// Map of buildingId → tier → image filename (without extension)
+const BUILDING_TIER_IMAGES: Record<string, Partial<Record<SettlementTier, string>>> = {
+  town_hall:        { camp: "town_hall_camp", village: "town_hall_village", town: "town_hall_town", city: "town_hall_city" },
+  houses:           { camp: "houses_camp", village: "houses_village", town: "houses_town", city: "houses_city" },
+  warehouse:        { camp: "warehouse_camp", village: "warehouse_village", town: "warehouse_town", city: "warehouse_city" },
+  pantry:           { camp: "pantry_camp", village: "pantry_village", town: "pantry_town", city: "pantry_city" },
+  shrine:           { camp: "shrine_camp", village: "shrine_village", town: "shrine_town", city: "shrine_city" },
+  lumber_mill:      { camp: "lumber_mill_camp", village: "lumber_mill_village", town: "lumber_mill_town", city: "lumber_mill_city" },
+  quarry:           { camp: "quarry_camp", village: "quarry_village", town: "quarry_town", city: "quarry_city" },
+  hunting_camp:     { camp: "hunting_camp_camp", village: "hunting_camp_village", town: "hunting_camp_town", city: "hunting_camp_city" },
+  forager_hut:      { camp: "forager_hut_camp", village: "forager_hut_village", town: "forager_hut_town", city: "forager_hut_city" },
+  fishing_hut:      { camp: "fishing_hut_camp", village: "fishing_hut_village", town: "fishing_hut_town", city: "fishing_hut_city" },
+  kitchen:          { camp: "kitchen_camp", village: "kitchen_village", town: "kitchen_town", city: "kitchen_city" },
+  woodworker:       { camp: "woodworker_camp", village: "woodworker_village", town: "woodworker_town", city: "woodworker_city" },
+  walls:            { camp: "walls_camp", village: "walls_village", town: "walls_town", city: "walls_city" },
+  alchemy_lab:      { camp: "alchemy_lab_camp", village: "alchemy_lab_village", town: "alchemy_lab_town", city: "alchemy_lab_city" },
+  blacksmith:       { village: "blacksmith_village", town: "blacksmith_town", city: "blacksmith_city" },
+  brewery:          { village: "brewery_village", town: "brewery_town", city: "brewery_city" },
+  tavern:           { village: "tavern_village", town: "tavern_town", city: "tavern_city" },
+  gold_mine:        { village: "gold_mine_village", town: "gold_mine_town", city: "gold_mine_city" },
+  iron_mine:        { village: "iron_mine_village", town: "iron_mine_town", city: "iron_mine_city" },
+  watchtower:       { village: "watchtower_village", town: "watchtower_town", city: "watchtower_city" },
+  adventurers_guild:{ camp: "adventurers_guild_camp", village: "adventurers_guild_village", town: "adventurers_guild_town", city: "adventurers_guild_city" },
+  tailoring_shop:   { camp: "tailoring_camp", village: "tailoring_village", town: "tailoring_town", city: "tailoring_city" },
+  leatherworking:   { village: "leatherworking_village", town: "leatherworking_town", city: "leatherworking_city" },
+  marketplace:      { camp: "marketplace_camp", village: "marketplace_village", town: "marketplace_town", city: "marketplace_city" },
+  masons_guild:     { village: "masons_guild_village", town: "masons_guild_town", city: "masons_guild_city" },
+  barracks:         { town: "barracks_town", city: "barracks_city" },
+  mage_tower:       { town: "mage_tower_town", city: "mage_tower_city" },
+  jewelcrafter:     { town: "jewelcrafter_town", city: "jewelcrafter_city" },
+};
+
+const TIER_ORDER: SettlementTier[] = ["camp", "village", "town", "city"];
+
+/** Returns the best image for a building at the current settlement tier.
+ *  Falls back to the closest lower tier, then walks up (for locked buildings preview),
+ *  then to the building's default image. */
+export function getBuildingImage(building: BuildingDefinition, currentTier: SettlementTier): string | undefined {
+  const tierMap = BUILDING_TIER_IMAGES[building.id];
+  if (tierMap) {
+    const idx = TIER_ORDER.indexOf(currentTier);
+    // Walk down from current tier
+    for (let i = idx; i >= 0; i--) {
+      const file = tierMap[TIER_ORDER[i]];
+      if (file) return `${CDN}/${file}.png`;
+    }
+    // Walk up (preview for locked/higher-tier buildings)
+    for (let i = idx + 1; i < TIER_ORDER.length; i++) {
+      const file = tierMap[TIER_ORDER[i]];
+      if (file) return `${CDN}/${file}.png`;
+    }
+  }
+  return building.image;
+}

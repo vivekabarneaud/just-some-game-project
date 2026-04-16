@@ -128,6 +128,7 @@ import {
   BACKSTORY_TRAITS,
   PERSONALITY_QUIRKS,
 } from "~/data/adventurers";
+import { PREMADE_CHARACTERS } from "~/data/premade-characters";
 import {
   type ActiveMission,
   type CompletedMission,
@@ -208,7 +209,8 @@ export type GameEventType =
   | "mission_success" | "mission_failed" | "adventurer_died" | "adventurer_levelup" | "adventurer_rankup" | "loyalty_rankup"
   | "raid_victory" | "raid_defeat" | "raid_incoming"
   | "winter_freezing"
-  | "loot_drop";
+  | "loot_drop"
+  | "trade_accepted" | "trade_delivered";
 
 export interface GameEvent {
   type: GameEventType;
@@ -217,9 +219,10 @@ export interface GameEvent {
   timestamp: number; // game tick when it happened
 }
 
-import { type CraftingRecipe, type ActiveCraft, CRAFTING_RECIPES } from "./crafting";
-export type { CraftingRecipe, ActiveCraft };
-export { CRAFTING_RECIPES };
+import { type CraftingRecipe, type ActiveCraft, CRAFTING_RECIPES, getBuildingToolByRecipe, getBuildingTool, getRequiredTool, type BuildingToolDef } from "./crafting";
+export type { CraftingRecipe, ActiveCraft, BuildingToolDef };
+export { CRAFTING_RECIPES, getBuildingTool, getBuildingToolByRecipe, getRequiredTool };
+export { getBuildingToolsForBuilding, BUILDING_TOOLS } from "./crafting";
 
 export interface ResourceState {
   gold: number;
@@ -330,6 +333,8 @@ export interface GameState {
   lastTradeAt: number; // timestamp of last trade
   inventory: InventoryItem[];
   craftingQueue: ActiveCraft[];
+  /** Building tool slots: buildingId → installed tool IDs */
+  buildingTools: Record<string, string[]>;
   // Event log
   eventLog: GameEvent[];
   // Ale & Happiness
@@ -420,6 +425,8 @@ export interface GameActions {
   getAleInfo: () => { current: number; cap: number; production: number; consumption: number };
   startCraft: (recipeId: string, quantity?: number) => boolean;
   getAvailableRecipes: () => CraftingRecipe[];
+  installBuildingTool: (toolId: string, targetBuildingId: string) => boolean;
+  getInstalledTools: (buildingId: string) => string[];
   enchantItem: (enchantId: string, adventurerId: string | null, slot: string | null, inventoryIdx: number | null) => boolean;
   getClothingInfo: () => { current: number; needed: number };
   allocateStat: (adventurerId: string, stat: keyof AdventurerStats) => boolean;
@@ -527,6 +534,7 @@ function createInitialState(): GameState {
     lastTradeAt: 0,
     inventory: [],
     craftingQueue: [],
+    buildingTools: {},
     eventLog: [],
     ale: 0,
     happiness: 50,
@@ -689,6 +697,7 @@ function loadGame(): GameState | null {
     for (const adv of saved.adventurers) migrateEquipment(adv);
     for (const adv of saved.recruitCandidates) migrateEquipment(adv);
     if (!saved.craftingQueue) saved.craftingQueue = [];
+    if (!saved.buildingTools) saved.buildingTools = {};
     // Event log migration
     if (!saved.eventLog) saved.eventLog = [];
     // Ale & Happiness migration
@@ -769,8 +778,9 @@ function loadGame(): GameState | null {
     for (const adv of saved.adventurers) backfillAge(adv);
     for (const adv of saved.recruitCandidates) backfillAge(adv);
     // Name migration: regenerate names to match origin, preserving gender
+    // Skip premade characters (they have a portrait field with intentional unique names)
     const renameTo = (adv: any) => {
-      if (!adv.origin) return;
+      if (!adv.origin || adv.portrait) return; // premade characters keep their names
       const origin = getOrigin(adv.origin);
       if (!origin) return;
       const firstName = adv.name.split(" ")[0];
@@ -787,6 +797,16 @@ function loadGame(): GameState | null {
     };
     for (const adv of saved.adventurers) renameTo(adv);
     for (const adv of saved.recruitCandidates) renameTo(adv);
+    // TEMPORARY: match premade characters by backstory to fix renamed names/portraits
+    const migratePremadeByBackstory = (adv: any) => {
+      if (!adv.backstory) return;
+      const match = PREMADE_CHARACTERS.find((c) => c.backstory === adv.backstory);
+      if (!match) return;
+      if (adv.name !== match.name) adv.name = match.name;
+      if (adv.portrait !== match.portrait) adv.portrait = match.portrait;
+    };
+    for (const adv of saved.adventurers) migratePremadeByBackstory(adv);
+    for (const adv of saved.recruitCandidates) migratePremadeByBackstory(adv);
     for (const pb of saved.buildings) {
       if (pb.upgrading && (pb as any).upgradeFinishTime) {
         pb.upgradeRemaining = Math.max(0, ((pb as any).upgradeFinishTime - Date.now()) / 1000);
@@ -1575,12 +1595,18 @@ export function GameProvider(props: ParentProps) {
               else if (res === "gold") s.resources.gold += amt;
               else if (res === "wool") s.wool += amt;
               else if (res === "fiber") s.fiber += amt;
-              // Also add equippable item to inventory
+              // Also add equippable item or building tool to inventory
               const itemDef = getItemByRecipe(recipe.id);
               if (itemDef) {
                 const existing = s.inventory.find((i) => i.itemId === itemDef.id);
                 if (existing) existing.quantity += amt;
                 else s.inventory.push({ itemId: itemDef.id, quantity: amt });
+              }
+              const toolDef = getBuildingToolByRecipe(recipe.id);
+              if (toolDef) {
+                const existing = s.inventory.find((i) => i.itemId === toolDef.id);
+                if (existing) existing.quantity += amt;
+                else s.inventory.push({ itemId: toolDef.id, quantity: amt });
               }
               const remaining = (craft.quantity ?? 1) - 1;
               pushEvent(s, "building_completed", recipe.icon, `Crafted ${recipe.name}${remaining > 0 ? ` (${remaining} remaining)` : ""}`);
@@ -2039,7 +2065,10 @@ export function GameProvider(props: ParentProps) {
             const boardSize = getMissionBoardSize(guildLvl);
             const bestRank = s.adventurers.length > 0 ? Math.max(...s.adventurers.map((a) => a.rank)) : 1;
             const maxDiff = Math.min(5, bestRank + 1);
-            s.missionBoard = generateMissionBoard(guildLvl, boardSize, now + s.year * 777, maxDiff);
+            s.missionBoard = generateMissionBoard({
+              guildLevel: guildLvl, count: boardSize, seed: now + s.year * 777, maxDifficulty: maxDiff,
+              completedStoryMissions: s.completedStoryMissions, buildings: s.buildings, pens: s.pens,
+            });
             s.lastMissionRefresh = now;
           }
         }
@@ -2686,6 +2715,9 @@ export function GameProvider(props: ParentProps) {
       if (!recipe || quantity < 1) return false;
       const building = state.buildings.find((b) => b.buildingId === recipe.building);
       if (!building || building.level < recipe.minLevel || building.damaged) return false;
+      // Check building tool requirements
+      const missingTool = getRequiredTool(recipe, state.buildingTools?.[recipe.building] ?? []);
+      if (missingTool) return false;
       // Check max crafting slots: consumable buildings (kitchen) get +1 bonus slot
       const activeCrafts = state.craftingQueue.filter((c) => {
         const r = CRAFTING_RECIPES.find((cr) => cr.id === c.recipeId);
@@ -2739,6 +2771,40 @@ export function GameProvider(props: ParentProps) {
         const building = state.buildings.find((b) => b.buildingId === r.building);
         return building && building.level >= r.minLevel;
       });
+    },
+    installBuildingTool(toolId: string, targetBuildingId: string) {
+      const toolDef = getBuildingTool(toolId);
+      if (!toolDef || toolDef.targetBuilding !== targetBuildingId) return false;
+      // Check tool is in inventory
+      const inv = state.inventory.find((i) => i.itemId === toolId);
+      if (!inv || inv.quantity < 1) return false;
+      // Check target building exists
+      const building = state.buildings.find((b) => b.buildingId === targetBuildingId);
+      if (!building || building.level < 1) return false;
+      // Check not already installed
+      const installed = state.buildingTools?.[targetBuildingId] ?? [];
+      if (installed.includes(toolId)) return false;
+      setState(produce((s) => {
+        // Remove from inventory
+        const inv = s.inventory.find((i) => i.itemId === toolId);
+        if (inv) {
+          inv.quantity -= 1;
+          if (inv.quantity <= 0) {
+            s.inventory.splice(s.inventory.indexOf(inv), 1);
+          }
+        }
+        // Install in building
+        if (!s.buildingTools) s.buildingTools = {};
+        if (!s.buildingTools[targetBuildingId]) s.buildingTools[targetBuildingId] = [];
+        s.buildingTools[targetBuildingId].push(toolId);
+        const buildingName = BUILDINGS.find((b) => b.id === targetBuildingId)?.name ?? targetBuildingId;
+        pushEvent(s, "building_completed", toolDef.icon, `Installed ${toolDef.name} at ${buildingName}`);
+      }));
+      scheduleSave();
+      return true;
+    },
+    getInstalledTools(buildingId: string) {
+      return state.buildingTools?.[buildingId] ?? [];
     },
     enchantItem(enchantId, adventurerId, slot, inventoryIdx) {
       const ench = getEnchantment(enchantId);
@@ -3114,7 +3180,10 @@ export function GameProvider(props: ParentProps) {
         const boardSize = getMissionBoardSize(guildLvl);
         const bestRank = s.adventurers.length > 0 ? Math.max(...s.adventurers.map((a) => a.rank)) : 1;
         const maxDiff = Math.min(5, bestRank + 1);
-        s.missionBoard = generateMissionBoard(guildLvl, boardSize, Date.now(), maxDiff);
+        s.missionBoard = generateMissionBoard({
+          guildLevel: guildLvl, count: boardSize, seed: Date.now(), maxDifficulty: maxDiff,
+          completedStoryMissions: s.completedStoryMissions, buildings: s.buildings, pens: s.pens,
+        });
       }));
       scheduleSave();
       return true;

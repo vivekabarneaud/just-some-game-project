@@ -753,17 +753,18 @@ const FEMALE_NAMES = new Set([
 
 const CDN_CHARS = "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters";
 
-// How many portrait variants exist per origin/class/gender
-const ORIGIN_PORTRAIT_COUNTS: Partial<Record<Origin, Partial<Record<string, number>>>> = {
-  ashwick:  { warrior_male: 3, warrior_female: 2, wizard_male: 3, wizard_female: 2, priest_male: 3, priest_female: 3, archer_male: 2, archer_female: 2, assassin_male: 1 },
-  nordveld:   { warrior_male: 1, warrior_female: 2, wizard_male: 1, wizard_female: 2, priest_male: 1, priest_female: 1, archer_male: 1, archer_female: 1, assassin_male: 1, assassin_female: 1 },
-  meridian:   { warrior_male: 1, warrior_female: 1, wizard_male: 1, wizard_female: 1, priest_male: 2, priest_female: 1, archer_male: 1, archer_female: 1, assassin_male: 2, assassin_female: 2 },
-  zahkari:    { warrior_male: 1, warrior_female: 1, wizard_male: 1, wizard_female: 1, priest_male: 1, priest_female: 3, archer_male: 1, archer_female: 1, assassin_male: 1, assassin_female: 1 },
-  tianzhou:    { warrior_male: 1, warrior_female: 1, wizard_male: 1, wizard_female: 1, priest_male: 1, priest_female: 1, archer_male: 1, archer_female: 1, assassin_male: 1, assassin_female: 2 },
-  khorvani:   { warrior_male: 1, warrior_female: 1, wizard_male: 1, wizard_female: 1, priest_male: 1, priest_female: 1, archer_male: 1, archer_female: 1, assassin_male: 1, assassin_female: 1 },
-  silvaneth:  { warrior_male: 1, warrior_female: 1, wizard_male: 1, wizard_female: 1, priest_male: 1, priest_female: 1, archer_male: 1, archer_female: 1, assassin_male: 1, assassin_female: 1 },
-  hautscieux: { warrior_male: 1, warrior_female: 1, wizard_male: 1, wizard_female: 1, priest_male: 1, priest_female: 1, archer_male: 1, archer_female: 1, assassin_male: 1, assassin_female: 1 },
-  khazdurim:  { warrior_male: 1, warrior_female: 1, wizard_male: 1, wizard_female: 1, priest_male: 1, priest_female: 1, archer_male: 1, archer_female: 1, assassin_male: 1, assassin_female: 1 },
+// Portrait filenames (character names) per origin/class/gender
+const ORIGIN_PORTRAITS: Partial<Record<Origin, Partial<Record<string, string[]>>>> = {
+  ashwick: { archer_female: ["brenna_thornwood", "ellie_coldwell", "isla_foxglove"], archer_male: ["aldric_blackwood", "cedric_ashford", "gareth_thornwood"], assassin_female: ["maren_greystone", "elspeth_ravencroft", "lyra_emberheart"], assassin_male: ["edmund_blackwood", "roderick_ashford", "finley_coldwell"], priest_female: ["elinor_whitmore", "anwen_greystone", "matilda_wren"], priest_male: ["oswin_holloway", "benedict_ashmore", "aldwin_stonebridge"], warrior_female: ["bronwyn_ashford", "helga_ironbark", "morgause_dunwall"], warrior_male: ["godric_thornwood", "leofric_coldwell", "halden_greystone"], wizard_female: ["gwendolen_hearthwood", "isolde_whitmore", "elara_foxglove"], wizard_male: ["merrick_ravencroft", "cuthbert_holloway", "alaric_stonebridge"] },
+  feldgrund: { archer_female: ["clover_meadbrook"], archer_male: ["barley_hearthstone"], assassin_female: ["rosemary_alewell"], assassin_male: ["pippin_barrelhouse"], priest_female: ["hazel_hillfoot"], priest_male: ["tobias_hearthstone"], warrior_female: ["primrose_copperkettle"], warrior_male: ["bramble_barrelhouse"], wizard_female: ["nettle_meadbrook"], wizard_male: ["thistledown_alewell"] },
+  hautscieux: { archer_female: ["yvaine_clairdelune"], archer_male: ["lucien_fontargent"], assassin_female: ["sylvaine_feuillemorte"], assassin_male: ["armand_lunargent"], priest_female: ["celeste_aubepine"], priest_male: ["florent_clairdelune"], warrior_female: ["elowen_rosecendre"], warrior_male: ["thibault_fontargent"], wizard_female: ["vivienne_lunargent"], wizard_male: ["dorien_brumesang"] },
+  khazdurim: { archer_female: ["dagna_deepforge"], archer_male: ["borin_stonefist"], assassin_female: ["hilda_copperbeard"], assassin_male: ["thrain_fireaxe"], priest_female: ["brunhild_hammerfall"], priest_male: ["durin_stonefist"], warrior_female: ["sigrun_stonefist"], warrior_male: ["grimm_copperbeard"], wizard_female: ["magna_hammerfall"], wizard_male: ["olvir_deepforge"] },
+  khorvani: { archer_female: ["farah_al_rashid", "zahra_khan", "priya_desai"], archer_male: ["arjun_khan", "ravi_mansour", "idris_hassan"], assassin_female: ["leila_mirza", "nadia_patel", "samira_khan"], assassin_male: ["tariq_hassan", "kiran_sharma", "darius_desai"], priest_female: ["yasmin_farouk", "anisa_al_rashid", "miriam_bakhtiar"], priest_male: ["rohan_joshi", "sanjay_sharma", "naveen_desai"], warrior_female: ["soraya_khatri", "amira_hassan"], warrior_male: ["vikram_mansour", "rashid_al_rashid", "amir_soraya"], wizard_female: ["layla_bakhtiar", "devi_joshi", "kala_desai"], wizard_male: ["omid_sharma", "hari_farouk"] },
+  meridian: { archer_female: ["serafina_castellani", "ginevra_solari", "fiora_monteverdi", "chiara_ferraro"], archer_male: ["luciano_castellani", "matteo_bianchi", "enzo_deluca"], assassin_female: ["alessia_ferraro", "valentina_solari", "caterina_monteverdi"], assassin_male: ["dante_bianchi", "niccolo_deluca", "raffaello_castellani"], priest_female: ["isabella_solari", "adriana_corsini", "lucia_ferraro"], priest_male: ["lorenzo_monteverdi", "silvio_bianchi", "marco_deluca"], warrior_female: ["vittoria_castellani", "bianca_moretto", "emilia_ferraro"], warrior_male: ["giovanni_solari", "aldric_monteverdi", "tomas_deluca"], wizard_female: ["serafina_bianchi", "donatella_corsini", "ornella_castellani"], wizard_male: ["flavio_ferraro", "prospero_solari", "sandro_moretto"] },
+  nordveld: { archer_female: ["sigrid_stormvik", "astrid_ravnskog"], archer_male: ["bjorn_steinholm", "tormund_bjornsen", "leif_frostvik"], assassin_female: ["freya_thorssen", "ragna_stormvik", "ylva_ravnskog"], assassin_male: ["fenrir_steinholm", "eirik_bjornsen", "sven_frostvik"], priest_female: ["hilda_thorssen", "solveig_stormvik", "ingrid_ravnskog"], priest_male: ["halvard_steinholm", "odin_bjornsen", "thorgrim_frostvik", "alvar_thorssen"], warrior_female: ["brynhild_stormvik", "gudrun_ravnskog", "thyra_steinholm"], warrior_male: ["ragnar_bjornsen", "hrothgar_frostvik", "vidar_thorssen"], wizard_female: ["eerika_stormvik", "saga_ravnskog", "valdis_steinholm"], wizard_male: ["ketill_bjornsen", "snorri_frostvik", "runolf_thorssen"] },
+  silvaneth: { archer_female: ["caelwen_starweaver"], archer_male: ["faelan_moonshadow"], assassin_female: ["niamh_nightbloom"], assassin_male: ["thalorin_dawnwhisper"], priest_female: ["aelindra_leafsong", "sionaeve_starweaver"], priest_male: ["brynmor_moonshadow", "loranthiel_dawnwhisper", "caelorin_leafsong"], warrior_female: ["eirenel_nightbloom", "morwenna_starweaver", "briallen_dawnwhisper"], warrior_male: ["thandril_moonshadow"], wizard_female: ["gwyneira_leafsong", "eilonwy_nightbloom"], wizard_male: ["aerendir_starweaver", "maelorin_moonshadow", "coravel_dawnwhisper"] },
+  tianzhou: { archer_female: ["daiyu_zhang", "lian_chen", "meiling_liu"], archer_male: ["wei_wang", "zheng_li", "bowen_yang"], assassin_female: ["xiulan_zhang", "yanmei_huang", "jingfei_zhou"], assassin_male: ["haoran_wang", "feng_li"], priest_female: ["lanying_chen", "mingzhu_liu", "ruolan_yang"], priest_male: ["changming_zhang", "junshan_huang", "shenwei_zhou"], warrior_female: ["huifen_wang", "baihe_li", "suyin_chen"], warrior_male: ["guowei_liu", "tielong_yang", "jianyu_zhang"], wizard_female: ["yueliang_huang", "zhenyi_zhou", "linxia_wang"], wizard_male: ["qingyun_li", "daoming_chen", "wuji_liu"] },
+  zahkari: { archer_female: ["amara_mensah", "zuri_adeyemi", "ama_boateng"], archer_male: ["kofi_okafor", "kwame_diallo", "jabari_asante"], assassin_female: ["esi_mensah", "adaeze_traore", "nkechi_okafor"], assassin_male: ["emeka_adeyemi", "tendai_diallo", "sekou_boateng"], priest_female: ["abena_asante", "yaa_mensah"], priest_male: ["kwaku_traore", "olu_okafor", "dayo_adeyemi"], warrior_female: ["akosua_diallo", "nana_boateng", "folake_asante", "adjoa_mensah"], warrior_male: ["chukwu_traore", "obasi_okafor", "kojo_adeyemi"], wizard_female: ["efua_diallo", "aminata_boateng", "nneka_asante"], wizard_male: ["gyasi_mensah", "annan_traore", "kwesi_okafor"] },
 };
 
 // Generic fallback portraits (used when origin has no images)
@@ -788,50 +789,50 @@ const CDN_FOLDER: Partial<Record<Origin, string>> = {
   // no active mappings — CDN folders match origin IDs
 };
 
-// Age-tagged portrait counts: origin → "class_gender_age" → count
-// Filename pattern: {class}_{origin}_{gender}_{age}_{n}.png
-// Run docs/PORTRAIT_RENAME.sh on CDN to rename existing files, then these counts are live.
-const ORIGIN_AGE_PORTRAIT_COUNTS: Partial<Record<Origin, Partial<Record<string, number>>>> = {
-  ashwick: { archer_female_young: 1, archer_male_mature: 1, assassin_female_middle: 1, assassin_female_old: 1, assassin_female_young: 1, assassin_male_middle: 1, assassin_male_young: 1, warrior_female_old: 1, wizard_female_young: 1 },
-  nordveld: { archer_female_mature: 1, archer_male_middle: 1, archer_male_young: 1, assassin_female_mature: 1, assassin_female_young: 1, assassin_male_middle: 1, assassin_male_young: 1, priest_female_mature: 1, priest_female_young: 1, priest_male_old: 2, priest_male_young: 1, warrior_female_middle: 1, warrior_male_old: 1, warrior_male_young: 1, wizard_female_mature: 1, wizard_male_old: 1, wizard_male_young: 1 },
-  meridian: { archer_female_mature: 2, archer_female_young: 1, archer_male_mature: 1, archer_male_middle: 1, assassin_female_middle: 1, assassin_male_mature: 1, priest_female_mature: 1, priest_female_young: 1, priest_male_young: 1, warrior_female_mature: 1, warrior_female_young: 1, warrior_male_old: 1, warrior_male_young: 1, wizard_female_middle: 1, wizard_female_old: 1, wizard_male_old: 1, wizard_male_young: 1 },
-  zahkari: { archer_female_mature: 1, archer_female_young: 1, archer_male_mature: 1, archer_male_middle: 1, assassin_female_middle: 1, assassin_female_old: 1, assassin_male_mature: 1, assassin_male_young: 1, priest_male_mature: 1, priest_male_young: 1, warrior_female_middle: 2, warrior_female_old: 1, warrior_male_mature: 1, warrior_male_young: 1, wizard_female_mature: 1, wizard_female_young: 1, wizard_male_old: 1, wizard_male_young: 1 },
-  tianzhou: { archer_female_mature: 1, archer_female_young: 1, archer_male_mature: 1, archer_male_middle: 1, assassin_female_middle: 1, assassin_male_mature: 1, priest_female_mature: 1, priest_female_young: 1, priest_male_middle: 1, priest_male_old: 1, warrior_female_middle: 1, warrior_female_young: 1, warrior_male_old: 1, warrior_male_young: 1, wizard_female_old: 1, wizard_female_young: 1, wizard_male_old: 1, wizard_male_young: 1 },
-  khorvani: { archer_female_mature: 1, archer_female_young: 1, archer_male_mature: 1, archer_male_middle: 1, assassin_female_mature: 1, assassin_female_young: 1, assassin_male_mature: 1, assassin_male_young: 1, priest_female_middle: 1, priest_female_old: 1, priest_male_mature: 1, priest_male_young: 1, warrior_female_mature: 1, warrior_male_middle: 1, warrior_male_young: 1, wizard_female_mature: 1, wizard_female_young: 1, wizard_male_young: 1 },
-  silvaneth: { archer_female_young: 1, archer_male_young: 1, assassin_female_young: 1, assassin_male_middle: 1, priest_female_mature: 1, priest_male_mature: 1, warrior_female_young: 1, warrior_male_young: 1, wizard_female_middle: 1, wizard_male_old: 1 },
-  hautscieux: { archer_female_middle: 1, archer_male_young: 1, assassin_female_young: 1, assassin_male_middle: 1, priest_female_young: 1, priest_male_young: 1, warrior_female_young: 1, warrior_male_young: 1, wizard_female_young: 1, wizard_male_old: 1 },
-  khazdurim: { archer_female_young: 1, archer_male_mature: 1, assassin_female_middle: 1, assassin_male_middle: 1, priest_female_old: 1, priest_male_old: 1, warrior_female_middle: 1, warrior_male_middle: 1, wizard_female_old: 1, wizard_male_mature: 1 },
-  feldgrund: { archer_female_young: 1, archer_male_mature: 1, assassin_female_mature: 1, assassin_male_mature: 1, priest_female_old: 1, priest_male_mature: 1, warrior_female_mature: 1, warrior_male_mature: 1, wizard_female_old: 1, wizard_male_old: 1 },
+// Age-specific portrait names: origin → "class_gender_age" → [character names]
+const ORIGIN_AGE_PORTRAITS: Partial<Record<Origin, Partial<Record<string, string[]>>>> = {
+  ashwick: { archer_female_young: ["isla_foxglove"], archer_male_mature: ["aldric_blackwood"], assassin_female_middle: ["maren_greystone"], assassin_female_old: ["elspeth_ravencroft"], assassin_female_young: ["lyra_emberheart"], assassin_male_middle: ["roderick_ashford"], assassin_male_young: ["finley_coldwell"], warrior_female_old: ["morgause_dunwall"], wizard_female_young: ["elara_foxglove"] },
+  feldgrund: { archer_female_young: ["clover_meadbrook"], archer_male_mature: ["barley_hearthstone"], assassin_female_mature: ["rosemary_alewell"], assassin_male_mature: ["pippin_barrelhouse"], priest_female_old: ["hazel_hillfoot"], priest_male_mature: ["tobias_hearthstone"], warrior_female_mature: ["primrose_copperkettle"], warrior_male_mature: ["bramble_barrelhouse"], wizard_female_old: ["nettle_meadbrook"], wizard_male_old: ["thistledown_alewell"] },
+  khorvani: { archer_female_mature: ["farah_al_rashid"], archer_female_young: ["priya_desai"], archer_male_mature: ["arjun_khan"], archer_male_middle: ["idris_hassan"], assassin_female_mature: ["leila_mirza"], assassin_female_young: ["samira_khan"], assassin_male_mature: ["tariq_hassan"], assassin_male_young: ["darius_desai"], priest_female_middle: ["anisa_al_rashid"], priest_female_old: ["miriam_bakhtiar"], priest_male_mature: ["rohan_joshi"], priest_male_young: ["naveen_desai"], warrior_female_mature: ["soraya_khatri"], warrior_male_middle: ["rashid_al_rashid"], warrior_male_young: ["amir_soraya"], wizard_female_mature: ["layla_bakhtiar"], wizard_female_young: ["kala_desai"], wizard_male_young: ["hari_farouk"] },
+  meridian: { archer_female_mature: ["serafina_castellani", "ginevra_solari"], archer_female_young: ["chiara_ferraro"], archer_male_mature: ["luciano_castellani"], archer_male_middle: ["enzo_deluca"], assassin_female_middle: ["caterina_monteverdi"], assassin_male_mature: ["dante_bianchi"], priest_female_mature: ["isabella_solari"], priest_female_young: ["lucia_ferraro"], priest_male_young: ["marco_deluca"], warrior_female_mature: ["vittoria_castellani"], warrior_female_young: ["emilia_ferraro"], warrior_male_old: ["aldric_monteverdi"], warrior_male_young: ["tomas_deluca"], wizard_female_middle: ["donatella_corsini"], wizard_female_old: ["ornella_castellani"], wizard_male_old: ["prospero_solari"], wizard_male_young: ["sandro_moretto"] },
+  nordveld: { archer_female_mature: ["sigrid_stormvik"], archer_male_middle: ["tormund_bjornsen"], archer_male_young: ["leif_frostvik"], assassin_female_mature: ["freya_thorssen"], assassin_female_young: ["ylva_ravnskog"], assassin_male_middle: ["eirik_bjornsen"], assassin_male_young: ["sven_frostvik"], priest_female_mature: ["hilda_thorssen"], priest_female_young: ["ingrid_ravnskog"], priest_male_old: ["odin_bjornsen", "thorgrim_frostvik"], priest_male_young: ["alvar_thorssen"], warrior_female_middle: ["thyra_steinholm"], warrior_male_old: ["hrothgar_frostvik"], warrior_male_young: ["vidar_thorssen"], wizard_female_mature: ["eerika_stormvik"], wizard_male_old: ["snorri_frostvik"], wizard_male_young: ["runolf_thorssen"] },
+  silvaneth: { priest_female_old: ["sionaeve_starweaver"], priest_male_middle: ["loranthiel_dawnwhisper"], priest_male_old: ["caelorin_leafsong"], warrior_female_mature: ["eirenel_nightbloom"], warrior_female_young: ["briallen_dawnwhisper"], wizard_female_mature: ["gwyneira_leafsong"], wizard_male_old: ["maelorin_moonshadow"], wizard_male_young: ["coravel_dawnwhisper"] },
+  tianzhou: { archer_female_mature: ["daiyu_zhang"], archer_female_young: ["meiling_liu"], archer_male_mature: ["wei_wang"], archer_male_middle: ["bowen_yang"], assassin_female_middle: ["jingfei_zhou"], assassin_male_mature: ["haoran_wang"], priest_female_mature: ["lanying_chen"], priest_female_young: ["ruolan_yang"], priest_male_middle: ["junshan_huang"], priest_male_old: ["shenwei_zhou"], warrior_female_middle: ["baihe_li"], warrior_female_young: ["suyin_chen"], warrior_male_old: ["tielong_yang"], warrior_male_young: ["jianyu_zhang"], wizard_female_old: ["zhenyi_zhou"], wizard_female_young: ["linxia_wang"], wizard_male_old: ["daoming_chen"], wizard_male_young: ["wuji_liu"] },
+  zahkari: { archer_female_mature: ["amara_mensah"], archer_female_young: ["ama_boateng"], archer_male_mature: ["kofi_okafor"], archer_male_middle: ["jabari_asante"], assassin_female_middle: ["adaeze_traore"], assassin_female_old: ["nkechi_okafor"], assassin_male_mature: ["emeka_adeyemi"], assassin_male_young: ["sekou_boateng"], priest_male_mature: ["kwaku_traore"], priest_male_young: ["dayo_adeyemi"], warrior_female_middle: ["nana_boateng", "folake_asante"], warrior_female_old: ["adjoa_mensah"], warrior_male_mature: ["chukwu_traore"], warrior_male_young: ["kojo_adeyemi"], wizard_female_mature: ["efua_diallo"], wizard_female_young: ["nneka_asante"], wizard_male_old: ["annan_traore"], wizard_male_young: ["kwesi_okafor"] },
+  hautscieux: { archer_female_middle: ["yvaine_clairdelune"], archer_male_young: ["lucien_fontargent"], assassin_female_young: ["sylvaine_feuillemorte"], assassin_male_middle: ["armand_lunargent"], priest_female_young: ["celeste_aubepine"], priest_male_young: ["florent_clairdelune"], warrior_female_young: ["elowen_rosecendre"], warrior_male_young: ["thibault_fontargent"], wizard_female_young: ["vivienne_lunargent"], wizard_male_old: ["dorien_brumesang"] },
+  khazdurim: { archer_female_young: ["dagna_deepforge"], archer_male_mature: ["borin_stonefist"], assassin_female_middle: ["hilda_copperbeard"], assassin_male_middle: ["thrain_fireaxe"], priest_female_old: ["brunhild_hammerfall"], priest_male_old: ["durin_stonefist"], warrior_female_middle: ["sigrun_stonefist"], warrior_male_middle: ["grimm_copperbeard"], wizard_female_old: ["magna_hammerfall"], wizard_male_mature: ["olvir_deepforge"] },
 };
 
 export function getPortrait(name: string, cls: AdventurerClass, origin: Origin, age: AgeCategory, portraitOverride?: string): string {
-  // Premade characters have a fixed portrait
-  if (portraitOverride) {
+  // Premade characters have a fixed portrait — always resolve from the current pool
+  // so renamed portraits are picked up without needing a save migration
+  const premade = PREMADE_CHARACTERS.find((c) => c.name === name)
+    ?? PREMADE_CHARACTERS.find((c) => c.portrait === portraitOverride);
+  const portrait = premade?.portrait ?? portraitOverride;
+  if (portrait) {
     const folder = CDN_FOLDER[origin] ?? origin;
-    return `${CDN_CHARS}/${folder}/${portraitOverride}.png`;
+    return `${CDN_CHARS}/${folder}/${portrait}.png`;
   }
 
   const female = isFemale(name);
   const gender = female ? "female" : "male";
   const hash = nameHash(name);
-
   const folder = CDN_FOLDER[origin] ?? origin;
-  const cdnOrigin = CDN_FOLDER[origin] ?? origin;
 
-  // Try age-tagged portrait first (e.g., wizard_ashwick_male_old_1.png)
+  // Try age-specific portrait first
   const ageKey = `${cls}_${gender}_${age}`;
-  const ageCount = ORIGIN_AGE_PORTRAIT_COUNTS[origin]?.[ageKey];
-  if (ageCount && ageCount > 0) {
-    const n = (hash % ageCount) + 1;
-    return `${CDN_CHARS}/${folder}/${cls}_${cdnOrigin}_${gender}_${age}_${n}.png`;
+  const ageNames = ORIGIN_AGE_PORTRAITS[origin]?.[ageKey];
+  if (ageNames && ageNames.length > 0) {
+    const pick = ageNames[hash % ageNames.length];
+    return `${CDN_CHARS}/${folder}/${pick}.png`;
   }
 
-  // Fall back to non-age portrait (legacy filenames without age tag)
+  // Fall back to any portrait for this class/gender
   const key = `${cls}_${gender}`;
-  const count = ORIGIN_PORTRAIT_COUNTS[origin]?.[key];
-  if (count && count > 0) {
-    const n = (hash % count) + 1;
-    return `${CDN_CHARS}/${folder}/${cls}_${cdnOrigin}_${gender}_${n}.png`;
+  const names = ORIGIN_PORTRAITS[origin]?.[key];
+  if (names && names.length > 0) {
+    const pick = names[hash % names.length];
+    return `${CDN_CHARS}/${folder}/${pick}.png`;
   }
 
   // Fallback to generic

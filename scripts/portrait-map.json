@@ -1,0 +1,1948 @@
+{
+  "portraitsByOrigin": {
+    "ashwick": {
+      "archer_female": [
+        "brenna_thornwood",
+        "ellie_coldwell",
+        "isla_foxglove"
+      ],
+      "archer_male": [
+        "aldric_blackwood",
+        "cedric_ashford",
+        "gareth_thornwood"
+      ],
+      "assassin_female": [
+        "maren_greystone",
+        "elspeth_ravencroft",
+        "lyra_emberheart"
+      ],
+      "assassin_male": [
+        "edmund_blackwood",
+        "roderick_ashford",
+        "finley_coldwell"
+      ],
+      "priest_female": [
+        "elinor_whitmore",
+        "anwen_greystone",
+        "matilda_wren"
+      ],
+      "priest_male": [
+        "oswin_holloway",
+        "benedict_ashmore",
+        "aldwin_stonebridge"
+      ],
+      "warrior_female": [
+        "bronwyn_ashford",
+        "helga_ironbark",
+        "morgause_dunwall"
+      ],
+      "warrior_male": [
+        "godric_thornwood",
+        "leofric_coldwell",
+        "halden_greystone"
+      ],
+      "wizard_female": [
+        "gwendolen_hearthwood",
+        "isolde_whitmore",
+        "elara_foxglove"
+      ],
+      "wizard_male": [
+        "merrick_ravencroft",
+        "cuthbert_holloway",
+        "alaric_stonebridge"
+      ]
+    },
+    "feldgrund": {
+      "archer_female": [
+        "clover_meadbrook"
+      ],
+      "archer_male": [
+        "barley_hearthstone"
+      ],
+      "assassin_female": [
+        "rosemary_alewell"
+      ],
+      "assassin_male": [
+        "pippin_barrelhouse"
+      ],
+      "priest_female": [
+        "hazel_hillfoot"
+      ],
+      "priest_male": [
+        "tobias_hearthstone"
+      ],
+      "warrior_female": [
+        "primrose_copperkettle"
+      ],
+      "warrior_male": [
+        "bramble_barrelhouse"
+      ],
+      "wizard_female": [
+        "nettle_meadbrook"
+      ],
+      "wizard_male": [
+        "thistledown_alewell"
+      ]
+    },
+    "hautscieux": {
+      "archer_female": [
+        "yvaine_clairdelune"
+      ],
+      "archer_male": [
+        "lucien_fontargent"
+      ],
+      "assassin_female": [
+        "sylvaine_feuillemorte"
+      ],
+      "assassin_male": [
+        "armand_lunargent"
+      ],
+      "priest_female": [
+        "celeste_aubepine"
+      ],
+      "priest_male": [
+        "florent_clairdelune"
+      ],
+      "warrior_female": [
+        "elowen_rosecendre"
+      ],
+      "warrior_male": [
+        "thibault_fontargent"
+      ],
+      "wizard_female": [
+        "vivienne_lunargent"
+      ],
+      "wizard_male": [
+        "dorien_brumesang"
+      ]
+    },
+    "khazdurim": {
+      "archer_female": [
+        "dagna_deepforge"
+      ],
+      "archer_male": [
+        "borin_stonefist"
+      ],
+      "assassin_female": [
+        "hilda_copperbeard"
+      ],
+      "assassin_male": [
+        "thrain_fireaxe"
+      ],
+      "priest_female": [
+        "brunhild_hammerfall"
+      ],
+      "priest_male": [
+        "durin_stonefist"
+      ],
+      "warrior_female": [
+        "sigrun_stonefist"
+      ],
+      "warrior_male": [
+        "grimm_copperbeard"
+      ],
+      "wizard_female": [
+        "magna_hammerfall"
+      ],
+      "wizard_male": [
+        "olvir_deepforge"
+      ]
+    },
+    "khorvani": {
+      "archer_female": [
+        "farah_al_rashid",
+        "zahra_khan",
+        "priya_desai"
+      ],
+      "archer_male": [
+        "arjun_khan",
+        "ravi_mansour",
+        "idris_hassan"
+      ],
+      "assassin_female": [
+        "leila_mirza",
+        "nadia_patel",
+        "samira_khan"
+      ],
+      "assassin_male": [
+        "tariq_hassan",
+        "kiran_sharma",
+        "darius_desai"
+      ],
+      "priest_female": [
+        "yasmin_farouk",
+        "anisa_al_rashid",
+        "miriam_bakhtiar"
+      ],
+      "priest_male": [
+        "rohan_joshi",
+        "sanjay_sharma",
+        "naveen_desai"
+      ],
+      "warrior_female": [
+        "soraya_khatri",
+        "amira_hassan"
+      ],
+      "warrior_male": [
+        "vikram_mansour",
+        "rashid_al_rashid",
+        "amir_soraya"
+      ],
+      "wizard_female": [
+        "layla_bakhtiar",
+        "devi_joshi",
+        "kala_desai"
+      ],
+      "wizard_male": [
+        "omid_sharma",
+        "hari_farouk"
+      ]
+    },
+    "meridian": {
+      "archer_female": [
+        "serafina_castellani",
+        "ginevra_solari",
+        "fiora_monteverdi",
+        "chiara_ferraro"
+      ],
+      "archer_male": [
+        "luciano_castellani",
+        "matteo_bianchi",
+        "enzo_deluca"
+      ],
+      "assassin_female": [
+        "alessia_ferraro",
+        "valentina_solari",
+        "caterina_monteverdi"
+      ],
+      "assassin_male": [
+        "dante_bianchi",
+        "niccolo_deluca",
+        "raffaello_castellani"
+      ],
+      "priest_female": [
+        "isabella_solari",
+        "adriana_corsini",
+        "lucia_ferraro"
+      ],
+      "priest_male": [
+        "lorenzo_monteverdi",
+        "silvio_bianchi",
+        "marco_deluca"
+      ],
+      "warrior_female": [
+        "vittoria_castellani",
+        "bianca_moretto",
+        "emilia_ferraro"
+      ],
+      "warrior_male": [
+        "giovanni_solari",
+        "aldric_monteverdi",
+        "tomas_deluca"
+      ],
+      "wizard_female": [
+        "serafina_bianchi",
+        "donatella_corsini",
+        "ornella_castellani"
+      ],
+      "wizard_male": [
+        "flavio_ferraro",
+        "prospero_solari",
+        "sandro_moretto"
+      ]
+    },
+    "nordveld": {
+      "archer_female": [
+        "sigrid_stormvik",
+        "astrid_ravnskog"
+      ],
+      "archer_male": [
+        "bjorn_steinholm",
+        "tormund_bjornsen",
+        "leif_frostvik"
+      ],
+      "assassin_female": [
+        "freya_thorssen",
+        "ragna_stormvik",
+        "ylva_ravnskog"
+      ],
+      "assassin_male": [
+        "fenrir_steinholm",
+        "eirik_bjornsen",
+        "sven_frostvik"
+      ],
+      "priest_female": [
+        "hilda_thorssen",
+        "solveig_stormvik",
+        "ingrid_ravnskog"
+      ],
+      "priest_male": [
+        "halvard_steinholm",
+        "odin_bjornsen",
+        "thorgrim_frostvik",
+        "alvar_thorssen"
+      ],
+      "warrior_female": [
+        "brynhild_stormvik",
+        "gudrun_ravnskog",
+        "thyra_steinholm"
+      ],
+      "warrior_male": [
+        "ragnar_bjornsen",
+        "hrothgar_frostvik",
+        "vidar_thorssen"
+      ],
+      "wizard_female": [
+        "eerika_stormvik",
+        "saga_ravnskog",
+        "valdis_steinholm"
+      ],
+      "wizard_male": [
+        "ketill_bjornsen",
+        "snorri_frostvik",
+        "runolf_thorssen"
+      ]
+    },
+    "silvaneth": {
+      "archer_female": [
+        "caelwen_starweaver"
+      ],
+      "archer_male": [
+        "faelan_moonshadow"
+      ],
+      "assassin_female": [
+        "niamh_nightbloom"
+      ],
+      "assassin_male": [
+        "thalorin_dawnwhisper"
+      ],
+      "priest_female": [
+        "aelindra_leafsong",
+        "sionaeve_starweaver"
+      ],
+      "priest_male": [
+        "brynmor_moonshadow",
+        "loranthiel_dawnwhisper",
+        "caelorin_leafsong"
+      ],
+      "warrior_female": [
+        "eirenel_nightbloom",
+        "morwenna_starweaver",
+        "briallen_dawnwhisper"
+      ],
+      "warrior_male": [
+        "thandril_moonshadow"
+      ],
+      "wizard_female": [
+        "gwyneira_leafsong",
+        "eilonwy_nightbloom"
+      ],
+      "wizard_male": [
+        "aerendir_starweaver",
+        "maelorin_moonshadow",
+        "coravel_dawnwhisper"
+      ]
+    },
+    "tianzhou": {
+      "archer_female": [
+        "daiyu_zhang",
+        "lian_chen",
+        "meiling_liu"
+      ],
+      "archer_male": [
+        "wei_wang",
+        "zheng_li",
+        "bowen_yang"
+      ],
+      "assassin_female": [
+        "xiulan_zhang",
+        "yanmei_huang",
+        "jingfei_zhou"
+      ],
+      "assassin_male": [
+        "haoran_wang",
+        "feng_li"
+      ],
+      "priest_female": [
+        "lanying_chen",
+        "mingzhu_liu",
+        "ruolan_yang"
+      ],
+      "priest_male": [
+        "changming_zhang",
+        "junshan_huang",
+        "shenwei_zhou"
+      ],
+      "warrior_female": [
+        "huifen_wang",
+        "baihe_li",
+        "suyin_chen"
+      ],
+      "warrior_male": [
+        "guowei_liu",
+        "tielong_yang",
+        "jianyu_zhang"
+      ],
+      "wizard_female": [
+        "yueliang_huang",
+        "zhenyi_zhou",
+        "linxia_wang"
+      ],
+      "wizard_male": [
+        "qingyun_li",
+        "daoming_chen",
+        "wuji_liu"
+      ]
+    },
+    "zahkari": {
+      "archer_female": [
+        "amara_mensah",
+        "zuri_adeyemi",
+        "ama_boateng"
+      ],
+      "archer_male": [
+        "kofi_okafor",
+        "kwame_diallo",
+        "jabari_asante"
+      ],
+      "assassin_female": [
+        "esi_mensah",
+        "adaeze_traore",
+        "nkechi_okafor"
+      ],
+      "assassin_male": [
+        "emeka_adeyemi",
+        "tendai_diallo",
+        "sekou_boateng"
+      ],
+      "priest_female": [
+        "abena_asante",
+        "yaa_mensah"
+      ],
+      "priest_male": [
+        "kwaku_traore",
+        "olu_okafor",
+        "dayo_adeyemi"
+      ],
+      "warrior_female": [
+        "akosua_diallo",
+        "nana_boateng",
+        "folake_asante",
+        "adjoa_mensah"
+      ],
+      "warrior_male": [
+        "chukwu_traore",
+        "obasi_okafor",
+        "kojo_adeyemi"
+      ],
+      "wizard_female": [
+        "efua_diallo",
+        "aminata_boateng",
+        "nneka_asante"
+      ],
+      "wizard_male": [
+        "gyasi_mensah",
+        "annan_traore",
+        "kwesi_okafor"
+      ]
+    }
+  },
+  "agePortraitsByOrigin": {
+    "ashwick": {
+      "archer_female_young": [
+        "isla_foxglove"
+      ],
+      "archer_male_mature": [
+        "aldric_blackwood"
+      ],
+      "assassin_female_middle": [
+        "maren_greystone"
+      ],
+      "assassin_female_old": [
+        "elspeth_ravencroft"
+      ],
+      "assassin_female_young": [
+        "lyra_emberheart"
+      ],
+      "assassin_male_middle": [
+        "roderick_ashford"
+      ],
+      "assassin_male_young": [
+        "finley_coldwell"
+      ],
+      "warrior_female_old": [
+        "morgause_dunwall"
+      ],
+      "wizard_female_young": [
+        "elara_foxglove"
+      ]
+    },
+    "feldgrund": {
+      "archer_female_young": [
+        "clover_meadbrook"
+      ],
+      "archer_male_mature": [
+        "barley_hearthstone"
+      ],
+      "assassin_female_mature": [
+        "rosemary_alewell"
+      ],
+      "assassin_male_mature": [
+        "pippin_barrelhouse"
+      ],
+      "priest_female_old": [
+        "hazel_hillfoot"
+      ],
+      "priest_male_mature": [
+        "tobias_hearthstone"
+      ],
+      "warrior_female_mature": [
+        "primrose_copperkettle"
+      ],
+      "warrior_male_mature": [
+        "bramble_barrelhouse"
+      ],
+      "wizard_female_old": [
+        "nettle_meadbrook"
+      ],
+      "wizard_male_old": [
+        "thistledown_alewell"
+      ]
+    },
+    "khorvani": {
+      "archer_female_mature": [
+        "farah_al_rashid"
+      ],
+      "archer_female_young": [
+        "priya_desai"
+      ],
+      "archer_male_mature": [
+        "arjun_khan"
+      ],
+      "archer_male_middle": [
+        "idris_hassan"
+      ],
+      "assassin_female_mature": [
+        "leila_mirza"
+      ],
+      "assassin_female_young": [
+        "samira_khan"
+      ],
+      "assassin_male_mature": [
+        "tariq_hassan"
+      ],
+      "assassin_male_young": [
+        "darius_desai"
+      ],
+      "priest_female_middle": [
+        "anisa_al_rashid"
+      ],
+      "priest_female_old": [
+        "miriam_bakhtiar"
+      ],
+      "priest_male_mature": [
+        "rohan_joshi"
+      ],
+      "priest_male_young": [
+        "naveen_desai"
+      ],
+      "warrior_female_mature": [
+        "soraya_khatri"
+      ],
+      "warrior_male_middle": [
+        "rashid_al_rashid"
+      ],
+      "warrior_male_young": [
+        "amir_soraya"
+      ],
+      "wizard_female_mature": [
+        "layla_bakhtiar"
+      ],
+      "wizard_female_young": [
+        "kala_desai"
+      ],
+      "wizard_male_young": [
+        "hari_farouk"
+      ]
+    },
+    "meridian": {
+      "archer_female_mature": [
+        "serafina_castellani",
+        "ginevra_solari"
+      ],
+      "archer_female_young": [
+        "chiara_ferraro"
+      ],
+      "archer_male_mature": [
+        "luciano_castellani"
+      ],
+      "archer_male_middle": [
+        "enzo_deluca"
+      ],
+      "assassin_female_middle": [
+        "caterina_monteverdi"
+      ],
+      "assassin_male_mature": [
+        "dante_bianchi"
+      ],
+      "priest_female_mature": [
+        "isabella_solari"
+      ],
+      "priest_female_young": [
+        "lucia_ferraro"
+      ],
+      "priest_male_young": [
+        "marco_deluca"
+      ],
+      "warrior_female_mature": [
+        "vittoria_castellani"
+      ],
+      "warrior_female_young": [
+        "emilia_ferraro"
+      ],
+      "warrior_male_old": [
+        "aldric_monteverdi"
+      ],
+      "warrior_male_young": [
+        "tomas_deluca"
+      ],
+      "wizard_female_middle": [
+        "donatella_corsini"
+      ],
+      "wizard_female_old": [
+        "ornella_castellani"
+      ],
+      "wizard_male_old": [
+        "prospero_solari"
+      ],
+      "wizard_male_young": [
+        "sandro_moretto"
+      ]
+    },
+    "nordveld": {
+      "archer_female_mature": [
+        "sigrid_stormvik"
+      ],
+      "archer_male_middle": [
+        "tormund_bjornsen"
+      ],
+      "archer_male_young": [
+        "leif_frostvik"
+      ],
+      "assassin_female_mature": [
+        "freya_thorssen"
+      ],
+      "assassin_female_young": [
+        "ylva_ravnskog"
+      ],
+      "assassin_male_middle": [
+        "eirik_bjornsen"
+      ],
+      "assassin_male_young": [
+        "sven_frostvik"
+      ],
+      "priest_female_mature": [
+        "hilda_thorssen"
+      ],
+      "priest_female_young": [
+        "ingrid_ravnskog"
+      ],
+      "priest_male_old": [
+        "odin_bjornsen",
+        "thorgrim_frostvik"
+      ],
+      "priest_male_young": [
+        "alvar_thorssen"
+      ],
+      "warrior_female_middle": [
+        "thyra_steinholm"
+      ],
+      "warrior_male_old": [
+        "hrothgar_frostvik"
+      ],
+      "warrior_male_young": [
+        "vidar_thorssen"
+      ],
+      "wizard_female_mature": [
+        "eerika_stormvik"
+      ],
+      "wizard_male_old": [
+        "snorri_frostvik"
+      ],
+      "wizard_male_young": [
+        "runolf_thorssen"
+      ]
+    },
+    "silvaneth": {
+      "priest_female_old": [
+        "sionaeve_starweaver"
+      ],
+      "priest_male_middle": [
+        "loranthiel_dawnwhisper"
+      ],
+      "priest_male_old": [
+        "caelorin_leafsong"
+      ],
+      "warrior_female_mature": [
+        "eirenel_nightbloom"
+      ],
+      "warrior_female_young": [
+        "briallen_dawnwhisper"
+      ],
+      "wizard_female_mature": [
+        "gwyneira_leafsong"
+      ],
+      "wizard_male_old": [
+        "maelorin_moonshadow"
+      ],
+      "wizard_male_young": [
+        "coravel_dawnwhisper"
+      ]
+    },
+    "tianzhou": {
+      "archer_female_mature": [
+        "daiyu_zhang"
+      ],
+      "archer_female_young": [
+        "meiling_liu"
+      ],
+      "archer_male_mature": [
+        "wei_wang"
+      ],
+      "archer_male_middle": [
+        "bowen_yang"
+      ],
+      "assassin_female_middle": [
+        "jingfei_zhou"
+      ],
+      "assassin_male_mature": [
+        "haoran_wang"
+      ],
+      "priest_female_mature": [
+        "lanying_chen"
+      ],
+      "priest_female_young": [
+        "ruolan_yang"
+      ],
+      "priest_male_middle": [
+        "junshan_huang"
+      ],
+      "priest_male_old": [
+        "shenwei_zhou"
+      ],
+      "warrior_female_middle": [
+        "baihe_li"
+      ],
+      "warrior_female_young": [
+        "suyin_chen"
+      ],
+      "warrior_male_old": [
+        "tielong_yang"
+      ],
+      "warrior_male_young": [
+        "jianyu_zhang"
+      ],
+      "wizard_female_old": [
+        "zhenyi_zhou"
+      ],
+      "wizard_female_young": [
+        "linxia_wang"
+      ],
+      "wizard_male_old": [
+        "daoming_chen"
+      ],
+      "wizard_male_young": [
+        "wuji_liu"
+      ]
+    },
+    "zahkari": {
+      "archer_female_mature": [
+        "amara_mensah"
+      ],
+      "archer_female_young": [
+        "ama_boateng"
+      ],
+      "archer_male_mature": [
+        "kofi_okafor"
+      ],
+      "archer_male_middle": [
+        "jabari_asante"
+      ],
+      "assassin_female_middle": [
+        "adaeze_traore"
+      ],
+      "assassin_female_old": [
+        "nkechi_okafor"
+      ],
+      "assassin_male_mature": [
+        "emeka_adeyemi"
+      ],
+      "assassin_male_young": [
+        "sekou_boateng"
+      ],
+      "priest_male_mature": [
+        "kwaku_traore"
+      ],
+      "priest_male_young": [
+        "dayo_adeyemi"
+      ],
+      "warrior_female_middle": [
+        "nana_boateng",
+        "folake_asante"
+      ],
+      "warrior_female_old": [
+        "adjoa_mensah"
+      ],
+      "warrior_male_mature": [
+        "chukwu_traore"
+      ],
+      "warrior_male_young": [
+        "kojo_adeyemi"
+      ],
+      "wizard_female_mature": [
+        "efua_diallo"
+      ],
+      "wizard_female_young": [
+        "nneka_asante"
+      ],
+      "wizard_male_old": [
+        "annan_traore"
+      ],
+      "wizard_male_young": [
+        "kwesi_okafor"
+      ]
+    }
+  },
+  "renameMap": [
+    {
+      "origin": "ashwick",
+      "old": "archer_ashwick_female_1",
+      "new": "brenna_thornwood"
+    },
+    {
+      "origin": "ashwick",
+      "old": "archer_ashwick_female_2",
+      "new": "ellie_coldwell"
+    },
+    {
+      "origin": "ashwick",
+      "old": "archer_ashwick_female_young_1",
+      "new": "isla_foxglove"
+    },
+    {
+      "origin": "ashwick",
+      "old": "archer_ashwick_male_mature_1",
+      "new": "aldric_blackwood"
+    },
+    {
+      "origin": "ashwick",
+      "old": "archer_ashwick_male_1",
+      "new": "cedric_ashford"
+    },
+    {
+      "origin": "ashwick",
+      "old": "archer_ashwick_male_2",
+      "new": "gareth_thornwood"
+    },
+    {
+      "origin": "ashwick",
+      "old": "assassin_ashwick_female_middle_1",
+      "new": "maren_greystone"
+    },
+    {
+      "origin": "ashwick",
+      "old": "assassin_ashwick_female_old_1",
+      "new": "elspeth_ravencroft"
+    },
+    {
+      "origin": "ashwick",
+      "old": "assassin_ashwick_female_young_1",
+      "new": "lyra_emberheart"
+    },
+    {
+      "origin": "ashwick",
+      "old": "assassin_ashwick_male_1",
+      "new": "edmund_blackwood"
+    },
+    {
+      "origin": "ashwick",
+      "old": "assassin_ashwick_male_middle_1",
+      "new": "roderick_ashford"
+    },
+    {
+      "origin": "ashwick",
+      "old": "assassin_ashwick_male_young_1",
+      "new": "finley_coldwell"
+    },
+    {
+      "origin": "ashwick",
+      "old": "priest_ashwick_female_1",
+      "new": "elinor_whitmore"
+    },
+    {
+      "origin": "ashwick",
+      "old": "priest_ashwick_female_2",
+      "new": "anwen_greystone"
+    },
+    {
+      "origin": "ashwick",
+      "old": "priest_ashwick_female_3",
+      "new": "matilda_wren"
+    },
+    {
+      "origin": "ashwick",
+      "old": "priest_ashwick_male_1",
+      "new": "oswin_holloway"
+    },
+    {
+      "origin": "ashwick",
+      "old": "priest_ashwick_male_2",
+      "new": "benedict_ashmore"
+    },
+    {
+      "origin": "ashwick",
+      "old": "priest_ashwick_male_3",
+      "new": "aldwin_stonebridge"
+    },
+    {
+      "origin": "ashwick",
+      "old": "warrior_ashwick_female_1",
+      "new": "bronwyn_ashford"
+    },
+    {
+      "origin": "ashwick",
+      "old": "warrior_ashwick_female_2",
+      "new": "helga_ironbark"
+    },
+    {
+      "origin": "ashwick",
+      "old": "warrior_ashwick_female_old_1",
+      "new": "morgause_dunwall"
+    },
+    {
+      "origin": "ashwick",
+      "old": "warrior_ashwick_male_1",
+      "new": "godric_thornwood"
+    },
+    {
+      "origin": "ashwick",
+      "old": "warrior_ashwick_male_2",
+      "new": "leofric_coldwell"
+    },
+    {
+      "origin": "ashwick",
+      "old": "warrior_ashwick_male_3",
+      "new": "halden_greystone"
+    },
+    {
+      "origin": "ashwick",
+      "old": "wizard_ashwick_female_1",
+      "new": "gwendolen_hearthwood"
+    },
+    {
+      "origin": "ashwick",
+      "old": "wizard_ashwick_female_2",
+      "new": "isolde_whitmore"
+    },
+    {
+      "origin": "ashwick",
+      "old": "wizard_ashwick_female_young_1",
+      "new": "elara_foxglove"
+    },
+    {
+      "origin": "ashwick",
+      "old": "wizard_ashwick_male_1",
+      "new": "merrick_ravencroft"
+    },
+    {
+      "origin": "ashwick",
+      "old": "wizard_ashwick_male_2",
+      "new": "cuthbert_holloway"
+    },
+    {
+      "origin": "ashwick",
+      "old": "wizard_ashwick_male_3",
+      "new": "alaric_stonebridge"
+    },
+    {
+      "origin": "feldgrund",
+      "old": "archer_feldgrund_female_young_1",
+      "new": "clover_meadbrook"
+    },
+    {
+      "origin": "feldgrund",
+      "old": "archer_feldgrund_male_mature_1",
+      "new": "barley_hearthstone"
+    },
+    {
+      "origin": "feldgrund",
+      "old": "assassin_feldgrund_female_mature_1",
+      "new": "rosemary_alewell"
+    },
+    {
+      "origin": "feldgrund",
+      "old": "assassin_feldgrund_male_mature_1",
+      "new": "pippin_barrelhouse"
+    },
+    {
+      "origin": "feldgrund",
+      "old": "priest_feldgrund_female_old_1",
+      "new": "hazel_hillfoot"
+    },
+    {
+      "origin": "feldgrund",
+      "old": "priest_feldgrund_male_mature_1",
+      "new": "tobias_hearthstone"
+    },
+    {
+      "origin": "feldgrund",
+      "old": "warrior_feldgrund_female_mature_1",
+      "new": "primrose_copperkettle"
+    },
+    {
+      "origin": "feldgrund",
+      "old": "warrior_feldgrund_male_mature_1",
+      "new": "bramble_barrelhouse"
+    },
+    {
+      "origin": "feldgrund",
+      "old": "wizard_feldgrund_female_old_1",
+      "new": "nettle_meadbrook"
+    },
+    {
+      "origin": "feldgrund",
+      "old": "wizard_feldgrund_male_old_1",
+      "new": "thistledown_alewell"
+    },
+    {
+      "origin": "hautscieux",
+      "old": "archer_hautscieux_female_1",
+      "new": "yvaine_clairdelune"
+    },
+    {
+      "origin": "hautscieux",
+      "old": "archer_hautscieux_male_1",
+      "new": "lucien_fontargent"
+    },
+    {
+      "origin": "hautscieux",
+      "old": "assassin_hautscieux_female_1",
+      "new": "sylvaine_feuillemorte"
+    },
+    {
+      "origin": "hautscieux",
+      "old": "assassin_hautscieux_male_1",
+      "new": "armand_lunargent"
+    },
+    {
+      "origin": "hautscieux",
+      "old": "priest_hautscieux_female_1",
+      "new": "celeste_aubepine"
+    },
+    {
+      "origin": "hautscieux",
+      "old": "priest_hautscieux_male_1",
+      "new": "florent_clairdelune"
+    },
+    {
+      "origin": "hautscieux",
+      "old": "warrior_hautscieux_female_1",
+      "new": "elowen_rosecendre"
+    },
+    {
+      "origin": "hautscieux",
+      "old": "warrior_hautscieux_male_1",
+      "new": "thibault_fontargent"
+    },
+    {
+      "origin": "hautscieux",
+      "old": "wizard_hautscieux_female_1",
+      "new": "vivienne_lunargent"
+    },
+    {
+      "origin": "hautscieux",
+      "old": "wizard_hautscieux_male_1",
+      "new": "dorien_brumesang"
+    },
+    {
+      "origin": "khazdurim",
+      "old": "archer_khazdurim_female_1",
+      "new": "dagna_deepforge"
+    },
+    {
+      "origin": "khazdurim",
+      "old": "archer_khazdurim_male_1",
+      "new": "borin_stonefist"
+    },
+    {
+      "origin": "khazdurim",
+      "old": "assassin_khazdurim_female_1",
+      "new": "hilda_copperbeard"
+    },
+    {
+      "origin": "khazdurim",
+      "old": "assassin_khazdurim_male_1",
+      "new": "thrain_fireaxe"
+    },
+    {
+      "origin": "khazdurim",
+      "old": "priest_khazdurim_female_1",
+      "new": "brunhild_hammerfall"
+    },
+    {
+      "origin": "khazdurim",
+      "old": "priest_khazdurim_male_1",
+      "new": "durin_stonefist"
+    },
+    {
+      "origin": "khazdurim",
+      "old": "warrior_khazdurim_female_1",
+      "new": "sigrun_stonefist"
+    },
+    {
+      "origin": "khazdurim",
+      "old": "warrior_khazdurim_male_1",
+      "new": "grimm_copperbeard"
+    },
+    {
+      "origin": "khazdurim",
+      "old": "wizard_khazdurim_female_1",
+      "new": "magna_hammerfall"
+    },
+    {
+      "origin": "khazdurim",
+      "old": "wizard_khazdurim_male_1",
+      "new": "olvir_deepforge"
+    },
+    {
+      "origin": "khorvani",
+      "old": "archer_khorvani_female_mature_1",
+      "new": "farah_al_rashid"
+    },
+    {
+      "origin": "khorvani",
+      "old": "archer_khorvani_female_1",
+      "new": "zahra_khan"
+    },
+    {
+      "origin": "khorvani",
+      "old": "archer_khorvani_female_young_1",
+      "new": "priya_desai"
+    },
+    {
+      "origin": "khorvani",
+      "old": "archer_khorvani_male_mature_1",
+      "new": "arjun_khan"
+    },
+    {
+      "origin": "khorvani",
+      "old": "archer_khorvani_male_1",
+      "new": "ravi_mansour"
+    },
+    {
+      "origin": "khorvani",
+      "old": "archer_khorvani_male_middle_1",
+      "new": "idris_hassan"
+    },
+    {
+      "origin": "khorvani",
+      "old": "assassin_khorvani_female_mature_1",
+      "new": "leila_mirza"
+    },
+    {
+      "origin": "khorvani",
+      "old": "assassin_khorvani_female_1",
+      "new": "nadia_patel"
+    },
+    {
+      "origin": "khorvani",
+      "old": "assassin_khorvani_female_young_1",
+      "new": "samira_khan"
+    },
+    {
+      "origin": "khorvani",
+      "old": "assassin_khorvani_male_mature_1",
+      "new": "tariq_hassan"
+    },
+    {
+      "origin": "khorvani",
+      "old": "assassin_khorvani_male_1",
+      "new": "kiran_sharma"
+    },
+    {
+      "origin": "khorvani",
+      "old": "assassin_khorvani_male_young_2",
+      "new": "darius_desai"
+    },
+    {
+      "origin": "khorvani",
+      "old": "priest_khorvani_female_1",
+      "new": "yasmin_farouk"
+    },
+    {
+      "origin": "khorvani",
+      "old": "priest_khorvani_female_middle_1",
+      "new": "anisa_al_rashid"
+    },
+    {
+      "origin": "khorvani",
+      "old": "priest_khorvani_female_old_1",
+      "new": "miriam_bakhtiar"
+    },
+    {
+      "origin": "khorvani",
+      "old": "priest_khorvani_male_mature_1",
+      "new": "rohan_joshi"
+    },
+    {
+      "origin": "khorvani",
+      "old": "priest_khorvani_male_1",
+      "new": "sanjay_sharma"
+    },
+    {
+      "origin": "khorvani",
+      "old": "priest_khorvani_male_young_1",
+      "new": "naveen_desai"
+    },
+    {
+      "origin": "khorvani",
+      "old": "warrior_khorvani_female_mature_1",
+      "new": "soraya_khatri"
+    },
+    {
+      "origin": "khorvani",
+      "old": "warrior_khorvani_female_1",
+      "new": "amira_hassan"
+    },
+    {
+      "origin": "khorvani",
+      "old": "warrior_khorvani_male_1",
+      "new": "vikram_mansour"
+    },
+    {
+      "origin": "khorvani",
+      "old": "warrior_khorvani_male_middle_1",
+      "new": "rashid_al_rashid"
+    },
+    {
+      "origin": "khorvani",
+      "old": "warrior_khorvani_male_young_1",
+      "new": "amir_soraya"
+    },
+    {
+      "origin": "khorvani",
+      "old": "wizard_khorvani_female_mature_1",
+      "new": "layla_bakhtiar"
+    },
+    {
+      "origin": "khorvani",
+      "old": "wizard_khorvani_female_1",
+      "new": "devi_joshi"
+    },
+    {
+      "origin": "khorvani",
+      "old": "wizard_khorvani_female_young_1",
+      "new": "kala_desai"
+    },
+    {
+      "origin": "khorvani",
+      "old": "wizard_khorvani_male_1",
+      "new": "omid_sharma"
+    },
+    {
+      "origin": "khorvani",
+      "old": "wizard_khorvani_male_young_1",
+      "new": "hari_farouk"
+    },
+    {
+      "origin": "meridian",
+      "old": "archer_meridian_female_mature_1",
+      "new": "serafina_castellani"
+    },
+    {
+      "origin": "meridian",
+      "old": "archer_meridian_female_mature_2",
+      "new": "ginevra_solari"
+    },
+    {
+      "origin": "meridian",
+      "old": "archer_meridian_female_1",
+      "new": "fiora_monteverdi"
+    },
+    {
+      "origin": "meridian",
+      "old": "archer_meridian_female_young_1",
+      "new": "chiara_ferraro"
+    },
+    {
+      "origin": "meridian",
+      "old": "archer_meridian_male_mature_1",
+      "new": "luciano_castellani"
+    },
+    {
+      "origin": "meridian",
+      "old": "archer_meridian_male_1",
+      "new": "matteo_bianchi"
+    },
+    {
+      "origin": "meridian",
+      "old": "archer_meridian_male_middle_1",
+      "new": "enzo_deluca"
+    },
+    {
+      "origin": "meridian",
+      "old": "assassin_meridian_female_1",
+      "new": "alessia_ferraro"
+    },
+    {
+      "origin": "meridian",
+      "old": "assassin_meridian_female_2",
+      "new": "valentina_solari"
+    },
+    {
+      "origin": "meridian",
+      "old": "assassin_meridian_female_middle_1",
+      "new": "caterina_monteverdi"
+    },
+    {
+      "origin": "meridian",
+      "old": "assassin_meridian_male_mature_1",
+      "new": "dante_bianchi"
+    },
+    {
+      "origin": "meridian",
+      "old": "assassin_meridian_male_1",
+      "new": "niccolo_deluca"
+    },
+    {
+      "origin": "meridian",
+      "old": "assassin_meridian_male_2",
+      "new": "raffaello_castellani"
+    },
+    {
+      "origin": "meridian",
+      "old": "priest_meridian_female_mature_1",
+      "new": "isabella_solari"
+    },
+    {
+      "origin": "meridian",
+      "old": "priest_meridian_female_1",
+      "new": "adriana_corsini"
+    },
+    {
+      "origin": "meridian",
+      "old": "priest_meridian_female_young_1",
+      "new": "lucia_ferraro"
+    },
+    {
+      "origin": "meridian",
+      "old": "priest_meridian_male_1",
+      "new": "lorenzo_monteverdi"
+    },
+    {
+      "origin": "meridian",
+      "old": "priest_meridian_male_2",
+      "new": "silvio_bianchi"
+    },
+    {
+      "origin": "meridian",
+      "old": "priest_meridian_male_young_1",
+      "new": "marco_deluca"
+    },
+    {
+      "origin": "meridian",
+      "old": "warrior_meridian_female_mature_1",
+      "new": "vittoria_castellani"
+    },
+    {
+      "origin": "meridian",
+      "old": "warrior_meridian_female_1",
+      "new": "bianca_moretto"
+    },
+    {
+      "origin": "meridian",
+      "old": "warrior_meridian_female_young_1",
+      "new": "emilia_ferraro"
+    },
+    {
+      "origin": "meridian",
+      "old": "warrior_meridian_male_1",
+      "new": "giovanni_solari"
+    },
+    {
+      "origin": "meridian",
+      "old": "warrior_meridian_male_old_1",
+      "new": "aldric_monteverdi"
+    },
+    {
+      "origin": "meridian",
+      "old": "warrior_meridian_male_young_1",
+      "new": "tomas_deluca"
+    },
+    {
+      "origin": "meridian",
+      "old": "wizard_meridian_female_1",
+      "new": "serafina_bianchi"
+    },
+    {
+      "origin": "meridian",
+      "old": "wizard_meridian_female_middle_1",
+      "new": "donatella_corsini"
+    },
+    {
+      "origin": "meridian",
+      "old": "wizard_meridian_female_old_1",
+      "new": "ornella_castellani"
+    },
+    {
+      "origin": "meridian",
+      "old": "wizard_meridian_male_1",
+      "new": "flavio_ferraro"
+    },
+    {
+      "origin": "meridian",
+      "old": "wizard_meridian_male_old_1",
+      "new": "prospero_solari"
+    },
+    {
+      "origin": "meridian",
+      "old": "wizard_meridian_male_young_1",
+      "new": "sandro_moretto"
+    },
+    {
+      "origin": "nordveld",
+      "old": "archer_nordveld_female_mature_1",
+      "new": "sigrid_stormvik"
+    },
+    {
+      "origin": "nordveld",
+      "old": "archer_nordveld_female_1",
+      "new": "astrid_ravnskog"
+    },
+    {
+      "origin": "nordveld",
+      "old": "archer_nordveld_male_1",
+      "new": "bjorn_steinholm"
+    },
+    {
+      "origin": "nordveld",
+      "old": "archer_nordveld_male_middle_1",
+      "new": "tormund_bjornsen"
+    },
+    {
+      "origin": "nordveld",
+      "old": "archer_nordveld_male_young_1",
+      "new": "leif_frostvik"
+    },
+    {
+      "origin": "nordveld",
+      "old": "assassin_nordveld_female_mature_1",
+      "new": "freya_thorssen"
+    },
+    {
+      "origin": "nordveld",
+      "old": "assassin_nordveld_female_1",
+      "new": "ragna_stormvik"
+    },
+    {
+      "origin": "nordveld",
+      "old": "assassin_nordveld_female_young_1",
+      "new": "ylva_ravnskog"
+    },
+    {
+      "origin": "nordveld",
+      "old": "assassin_nordveld_male_1",
+      "new": "fenrir_steinholm"
+    },
+    {
+      "origin": "nordveld",
+      "old": "assassin_nordveld_male_middle_1",
+      "new": "eirik_bjornsen"
+    },
+    {
+      "origin": "nordveld",
+      "old": "assassin_nordveld_male_young_1",
+      "new": "sven_frostvik"
+    },
+    {
+      "origin": "nordveld",
+      "old": "priest_nordveld_female_mature_1",
+      "new": "hilda_thorssen"
+    },
+    {
+      "origin": "nordveld",
+      "old": "priest_nordveld_female_1",
+      "new": "solveig_stormvik"
+    },
+    {
+      "origin": "nordveld",
+      "old": "priest_nordveld_female_young_1",
+      "new": "ingrid_ravnskog"
+    },
+    {
+      "origin": "nordveld",
+      "old": "priest_nordveld_male_1",
+      "new": "halvard_steinholm"
+    },
+    {
+      "origin": "nordveld",
+      "old": "priest_nordveld_male_old_1",
+      "new": "odin_bjornsen"
+    },
+    {
+      "origin": "nordveld",
+      "old": "priest_nordveld_male_old_2",
+      "new": "thorgrim_frostvik"
+    },
+    {
+      "origin": "nordveld",
+      "old": "priest_nordveld_male_young_1",
+      "new": "alvar_thorssen"
+    },
+    {
+      "origin": "nordveld",
+      "old": "warrior_nordveld_female_1",
+      "new": "brynhild_stormvik"
+    },
+    {
+      "origin": "nordveld",
+      "old": "warrior_nordveld_female_2",
+      "new": "gudrun_ravnskog"
+    },
+    {
+      "origin": "nordveld",
+      "old": "warrior_nordveld_female_middle_1",
+      "new": "thyra_steinholm"
+    },
+    {
+      "origin": "nordveld",
+      "old": "warrior_nordveld_male_1",
+      "new": "ragnar_bjornsen"
+    },
+    {
+      "origin": "nordveld",
+      "old": "warrior_nordveld_male_old_1",
+      "new": "hrothgar_frostvik"
+    },
+    {
+      "origin": "nordveld",
+      "old": "warrior_nordveld_male_young_1",
+      "new": "vidar_thorssen"
+    },
+    {
+      "origin": "nordveld",
+      "old": "wizard_nordveld_female_mature_1",
+      "new": "eerika_stormvik"
+    },
+    {
+      "origin": "nordveld",
+      "old": "wizard_nordveld_female_1",
+      "new": "saga_ravnskog"
+    },
+    {
+      "origin": "nordveld",
+      "old": "wizard_nordveld_female_2",
+      "new": "valdis_steinholm"
+    },
+    {
+      "origin": "nordveld",
+      "old": "wizard_nordveld_male_1",
+      "new": "ketill_bjornsen"
+    },
+    {
+      "origin": "nordveld",
+      "old": "wizard_nordveld_male_old_1",
+      "new": "snorri_frostvik"
+    },
+    {
+      "origin": "nordveld",
+      "old": "wizard_nordveld_male_young_1",
+      "new": "runolf_thorssen"
+    },
+    {
+      "origin": "silvaneth",
+      "old": "archer_silvaneth_female_1",
+      "new": "caelwen_starweaver"
+    },
+    {
+      "origin": "silvaneth",
+      "old": "archer_silvaneth_male_1",
+      "new": "faelan_moonshadow"
+    },
+    {
+      "origin": "silvaneth",
+      "old": "assassin_silvaneth_female_1",
+      "new": "niamh_nightbloom"
+    },
+    {
+      "origin": "silvaneth",
+      "old": "assassin_silvaneth_male_1",
+      "new": "thalorin_dawnwhisper"
+    },
+    {
+      "origin": "silvaneth",
+      "old": "priest_silvaneth_female_1",
+      "new": "aelindra_leafsong"
+    },
+    {
+      "origin": "silvaneth",
+      "old": "priest_silvaneth_female_old_1",
+      "new": "sionaeve_starweaver"
+    },
+    {
+      "origin": "silvaneth",
+      "old": "priest_silvaneth_male_1",
+      "new": "brynmor_moonshadow"
+    },
+    {
+      "origin": "silvaneth",
+      "old": "priest_silvaneth_male_middle_1",
+      "new": "loranthiel_dawnwhisper"
+    },
+    {
+      "origin": "silvaneth",
+      "old": "priest_silvaneth_male_old_1",
+      "new": "caelorin_leafsong"
+    },
+    {
+      "origin": "silvaneth",
+      "old": "warrior_silvaneth_female_mature_1",
+      "new": "eirenel_nightbloom"
+    },
+    {
+      "origin": "silvaneth",
+      "old": "warrior_silvaneth_female_1",
+      "new": "morwenna_starweaver"
+    },
+    {
+      "origin": "silvaneth",
+      "old": "warrior_silvaneth_female_young_1",
+      "new": "briallen_dawnwhisper"
+    },
+    {
+      "origin": "silvaneth",
+      "old": "warrior_silvaneth_male_1",
+      "new": "thandril_moonshadow"
+    },
+    {
+      "origin": "silvaneth",
+      "old": "wizard_silvaneth_female_mature_1",
+      "new": "gwyneira_leafsong"
+    },
+    {
+      "origin": "silvaneth",
+      "old": "wizard_silvaneth_female_1",
+      "new": "eilonwy_nightbloom"
+    },
+    {
+      "origin": "silvaneth",
+      "old": "wizard_silvaneth_male_1",
+      "new": "aerendir_starweaver"
+    },
+    {
+      "origin": "silvaneth",
+      "old": "wizard_silvaneth_male_old_1",
+      "new": "maelorin_moonshadow"
+    },
+    {
+      "origin": "silvaneth",
+      "old": "wizard_silvaneth_male_young_1",
+      "new": "coravel_dawnwhisper"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "archer_tianzhou_female_mature_1",
+      "new": "daiyu_zhang"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "archer_tianzhou_female_1",
+      "new": "lian_chen"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "archer_tianzhou_female_young_1",
+      "new": "meiling_liu"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "archer_tianzhou_male_mature_1",
+      "new": "wei_wang"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "archer_tianzhou_male_1",
+      "new": "zheng_li"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "archer_tianzhou_male_middle_1",
+      "new": "bowen_yang"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "assassin_tianzhou_female_1",
+      "new": "xiulan_zhang"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "assassin_tianzhou_female_2",
+      "new": "yanmei_huang"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "assassin_tianzhou_female_middle_1",
+      "new": "jingfei_zhou"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "assassin_tianzhou_male_mature_1",
+      "new": "haoran_wang"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "assassin_tianzhou_male_1",
+      "new": "feng_li"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "priest_tianzhou_female_mature_1",
+      "new": "lanying_chen"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "priest_tianzhou_female_1",
+      "new": "mingzhu_liu"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "priest_tianzhou_female_young_1",
+      "new": "ruolan_yang"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "priest_tianzhou_male_1",
+      "new": "changming_zhang"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "priest_tianzhou_male_middle_1",
+      "new": "junshan_huang"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "priest_tianzhou_male_old_1",
+      "new": "shenwei_zhou"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "warrior_tianzhou_female_1",
+      "new": "huifen_wang"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "warrior_tianzhou_female_middle_1",
+      "new": "baihe_li"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "warrior_tianzhou_female_young_1",
+      "new": "suyin_chen"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "warrior_tianzhou_male_1",
+      "new": "guowei_liu"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "warrior_tianzhou_male_old_1",
+      "new": "tielong_yang"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "warrior_tianzhou_male_young_1",
+      "new": "jianyu_zhang"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "wizard_tianzhou_female_1",
+      "new": "yueliang_huang"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "wizard_tianzhou_female_old_1",
+      "new": "zhenyi_zhou"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "wizard_tianzhou_female_young_1",
+      "new": "linxia_wang"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "wizard_tianzhou_male_1",
+      "new": "qingyun_li"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "wizard_tianzhou_male_old_1",
+      "new": "daoming_chen"
+    },
+    {
+      "origin": "tianzhou",
+      "old": "wizard_tianzhou_male_young_1",
+      "new": "wuji_liu"
+    },
+    {
+      "origin": "zahkari",
+      "old": "archer_zahkari_female_mature_1",
+      "new": "amara_mensah"
+    },
+    {
+      "origin": "zahkari",
+      "old": "archer_zahkari_female_1",
+      "new": "zuri_adeyemi"
+    },
+    {
+      "origin": "zahkari",
+      "old": "archer_zahkari_female_young_1",
+      "new": "ama_boateng"
+    },
+    {
+      "origin": "zahkari",
+      "old": "archer_zahkari_male_mature_1",
+      "new": "kofi_okafor"
+    },
+    {
+      "origin": "zahkari",
+      "old": "archer_zahkari_male_1",
+      "new": "kwame_diallo"
+    },
+    {
+      "origin": "zahkari",
+      "old": "archer_zahkari_male_middle_1",
+      "new": "jabari_asante"
+    },
+    {
+      "origin": "zahkari",
+      "old": "assassin_zahkari_female_1",
+      "new": "esi_mensah"
+    },
+    {
+      "origin": "zahkari",
+      "old": "assassin_zahkari_female_middle_1",
+      "new": "adaeze_traore"
+    },
+    {
+      "origin": "zahkari",
+      "old": "assassin_zahkari_female_old_1",
+      "new": "nkechi_okafor"
+    },
+    {
+      "origin": "zahkari",
+      "old": "assassin_zahkari_male_mature_1",
+      "new": "emeka_adeyemi"
+    },
+    {
+      "origin": "zahkari",
+      "old": "assassin_zahkari_male_1",
+      "new": "tendai_diallo"
+    },
+    {
+      "origin": "zahkari",
+      "old": "assassin_zahkari_male_young_1",
+      "new": "sekou_boateng"
+    },
+    {
+      "origin": "zahkari",
+      "old": "priest_zahkari_female_1",
+      "new": "abena_asante"
+    },
+    {
+      "origin": "zahkari",
+      "old": "priest_zahkari_female_3",
+      "new": "yaa_mensah"
+    },
+    {
+      "origin": "zahkari",
+      "old": "priest_zahkari_male_mature_1",
+      "new": "kwaku_traore"
+    },
+    {
+      "origin": "zahkari",
+      "old": "priest_zahkari_male_1",
+      "new": "olu_okafor"
+    },
+    {
+      "origin": "zahkari",
+      "old": "priest_zahkari_male_young_1",
+      "new": "dayo_adeyemi"
+    },
+    {
+      "origin": "zahkari",
+      "old": "warrior_zahkari_female_1",
+      "new": "akosua_diallo"
+    },
+    {
+      "origin": "zahkari",
+      "old": "warrior_zahkari_female_middle_1",
+      "new": "nana_boateng"
+    },
+    {
+      "origin": "zahkari",
+      "old": "warrior_zahkari_female_middle_2",
+      "new": "folake_asante"
+    },
+    {
+      "origin": "zahkari",
+      "old": "warrior_zahkari_female_old_1",
+      "new": "adjoa_mensah"
+    },
+    {
+      "origin": "zahkari",
+      "old": "warrior_zahkari_male_mature_1",
+      "new": "chukwu_traore"
+    },
+    {
+      "origin": "zahkari",
+      "old": "warrior_zahkari_male_1",
+      "new": "obasi_okafor"
+    },
+    {
+      "origin": "zahkari",
+      "old": "warrior_zahkari_male_young_1",
+      "new": "kojo_adeyemi"
+    },
+    {
+      "origin": "zahkari",
+      "old": "wizard_zahkari_female_mature_1",
+      "new": "efua_diallo"
+    },
+    {
+      "origin": "zahkari",
+      "old": "wizard_zahkari_female_1",
+      "new": "aminata_boateng"
+    },
+    {
+      "origin": "zahkari",
+      "old": "wizard_zahkari_female_young_1",
+      "new": "nneka_asante"
+    },
+    {
+      "origin": "zahkari",
+      "old": "wizard_zahkari_male_1",
+      "new": "gyasi_mensah"
+    },
+    {
+      "origin": "zahkari",
+      "old": "wizard_zahkari_male_old_1",
+      "new": "annan_traore"
+    },
+    {
+      "origin": "zahkari",
+      "old": "wizard_zahkari_male_young_1",
+      "new": "kwesi_okafor"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 import { For, Show, onMount } from "solid-js";
 import { A } from "@solidjs/router";
-import { BUILDINGS, isBuildingUnlocked, getUnlockRequirement, getNextTierForLevels, applyMasonCostReduction, applyMasonTimeReduction, getTierPrerequisitesMet, getRepairCost, type BuildingDefinition } from "~/data/buildings";
+import { BUILDINGS, isBuildingUnlocked, getUnlockRequirement, getNextTierForLevels, applyMasonCostReduction, applyMasonTimeReduction, getTierPrerequisitesMet, getRepairCost, getBuildingImage, type BuildingDefinition } from "~/data/buildings";
 import { QUEST_CHAIN } from "~/data/quests";
 import { useGame } from "~/engine/gameState";
 import Countdown from "~/components/Countdown";
@@ -15,12 +15,6 @@ const SECTIONS: { key: BuildingDefinition["category"]; label: string; icon: stri
   { key: "trade", label: "Trade", icon: "🏪" },
 ];
 
-const TIER_IMAGES: Record<string, string> = {
-  camp: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/settlement_camp.png",
-  village: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/settlement_village.png",
-  town: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/settlement_town.png",
-  city: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/settlement_city.png",
-};
 
 export default function Buildings() {
   const { state, actions } = useGame();
@@ -177,12 +171,12 @@ export default function Buildings() {
                         style={{ opacity: pb()?.damaged ? 0.7 : 1, position: "relative" }}
                       >
                         {/* Upgrade indicator with tooltip (non-image cards only) */}
-                        <Show when={!isUpgrading() && !building.image && building.id !== "town_hall"}>
+                        <Show when={!isUpgrading() && !getBuildingImage(building, actions.getSettlementTier())}>
                           <div
                             class="upgrade-indicator"
                             style={{
                               position: "absolute",
-                              ...(building.image || building.id === "town_hall"
+                              ...(getBuildingImage(building, actions.getSettlementTier())
                                 ? { bottom: "8px", right: "8px" }
                                 : { top: "8px", right: "8px" }),
                               "z-index": "5",
@@ -242,9 +236,9 @@ export default function Buildings() {
                             </div>
                           </div>
                         </Show>
-                        <Show when={building.image || building.id === "town_hall"}>
+                        <Show when={getBuildingImage(building, actions.getSettlementTier())}>
                           <div class="building-card-image">
-                            <img src={building.id === "town_hall" ? (TIER_IMAGES[actions.getSettlementTier()] ?? TIER_IMAGES.camp) : building.image!} alt={building.name} loading="lazy" />
+                            <img src={getBuildingImage(building, actions.getSettlementTier())!} alt={building.name} loading="lazy" />
                             <div class="building-card-image-overlay" style={{ display: "flex", "justify-content": "space-between", "align-items": "flex-end" }}>
                               <div>
                                 <div class="building-card-title">{building.name}</div>
@@ -313,7 +307,7 @@ export default function Buildings() {
                             </div>
                           </div>
                         </Show>
-                        <Show when={!building.image && building.id !== "town_hall"}>
+                        <Show when={!getBuildingImage(building, actions.getSettlementTier())}>
                           <div class="building-card-header">
                             <div class="building-card-icon">{building.icon}</div>
                             <div>
@@ -402,9 +396,9 @@ export default function Buildings() {
                     </A>
                   ) : (
                     <div class="building-card locked" id={`building-${building.id}`}>
-                      <Show when={building.image}>
+                      <Show when={getBuildingImage(building, actions.getSettlementTier())}>
                         <div class="building-card-image locked-image">
-                          <img src={building.image} alt={building.name} loading="lazy" />
+                          <img src={getBuildingImage(building, actions.getSettlementTier())!} alt={building.name} loading="lazy" />
                           <div class="building-card-image-overlay">
                             <div class="building-card-title locked-title">{building.name}</div>
                             <div class="building-card-level locked-req">
@@ -413,7 +407,7 @@ export default function Buildings() {
                           </div>
                         </div>
                       </Show>
-                      <Show when={!building.image}>
+                      <Show when={!getBuildingImage(building, actions.getSettlementTier())}>
                         <div class="building-card-header">
                           <div class="building-card-icon locked-icon">{building.icon}</div>
                           <div>

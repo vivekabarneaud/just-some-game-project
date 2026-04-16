@@ -230,7 +230,8 @@ export type GameEventType =
   | "mission_success" | "mission_failed" | "adventurer_died" | "adventurer_levelup" | "adventurer_rankup" | "loyalty_rankup"
   | "raid_victory" | "raid_defeat" | "raid_incoming"
   | "winter_freezing"
-  | "loot_drop";
+  | "loot_drop"
+  | "trade_accepted" | "trade_delivered";
 
 export interface GameEvent {
   type: GameEventType;
@@ -288,6 +289,8 @@ export interface GameState {
   alchemyResearchAvailable: boolean;
   inventory: InventoryItem[];
   craftingQueue: ActiveCraft[];
+  /** Building tool slots: buildingId → installed tool IDs */
+  buildingTools: Record<string, string[]>;
   // Event log
   eventLog: GameEvent[];
   // Ale & Happiness

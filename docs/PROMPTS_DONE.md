@@ -563,3 +563,158 @@ Wide shot of a military-style camp in rocky hills, organized tent rows with Domi
 
 **Tianzhou Scholar**
 Wide shot of a Tianzhou cartographer with exotic eastern garb and instruments surveying the Wastes border, detailed maps spread on a portable table, an adventurer party providing protection scanning the desolate horizon, the grey Wastes stretching endlessly behind with faint ghostly shapes, the contrast between the colorful cartographer and the dead grey landscape, warm foreground light against cold grey Wastes, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
+
+---
+
+## Intro Cinematic (Generated)
+
+Full-screen cinematic images. First-person POV where noted. Wide aspect ratio for full-bleed display.
+All use: realistic digital painting, dark moody atmosphere, cinematic lighting, no text, no UI --ar 16:9
+
+Files: stories/intro_slide_1.png through intro_slide_4.png
+
+---
+
+## Raid Scenes (Generated)
+
+All 12 raid images generated and uploaded.
+Files: raids/hungry_bandits.png, wolf_pack.png, petty_thieves.png, bandit_raid.png, goblin_scouts.png, wild_boars.png, skeleton_horde.png, mercenary_company.png, troll_attack.png, orc_warband.png, necromancer.png, dragon_attack.png
+
+---
+
+## Lore-Flavored Mission Scenes (Generated)
+
+Files: missions/corsair_smugglers.png, thornveil_patrol.png, khorvani_caravan.png, zahkari_expedition.png
+
+---
+
+## Story Mission Card Images (Generated)
+
+Story mission scene images used on the mission selection card. Wide format, atmospheric.
+Files: missions/story_1_scouting.png, hilltop_ruins.png, silent_forest.png, rangers_warning.png, cracked_wardstone.png, robins_message.png
+
+---
+
+## Building Images — Single (Generated, to be replaced by tier variants)
+
+Files: buildings/adventurers_guild.png, alchemy_lab.png, blacksmith.png, brewery.png, fishing_hut.png, forager_hut.png, houses.png, hunting_camp.png, kitchen.png, lumber_mill.png, marketplace.png, pantry.png, quarry.png, settlement_camp.png, settlement_city.png, settlement_town.png, settlement_village.png, shrine.png, tailoring_shop.png, tavern.png, walls.png, warehouse.png, watchtower.png, woodworker.png
+
+## New Enemy Portraits (Content Expansion)
+
+Enemy portraits: extreme close-up, square, menacing.
+All use: realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Forest Bear**
+Extreme close-up portrait of a massive brown bear snarling with jaws wide open, enormous yellowed fangs and pink gums exposed, thick ropes of saliva dripping, small dark furious eyes, deep scars across the muzzle, coarse matted dark brown fur caked with mud and burrs, powerful shoulders rippling with muscle, dense shadowy pine forest behind with shafts of dim grey light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Marsh Adder**
+Extreme close-up portrait of a man-length venomous marsh serpent lunging forward mouth agape, two long curved hollow fangs dripping translucent yellow-green venom, forked tongue extended, vertical slit pupils in cold golden eyes, mottled dark olive and black diamond-patterned scales glistening wet, hood slightly flared, murky swamp water and rotting reeds in the dark background, sickly greenish fog, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Rabid Boar**
+Extreme close-up portrait of a maddened wild boar charging headlong, bloodshot glowing red eyes wide with feral rage, thick white foam and bloody froth pouring from its jaws, cracked yellow tusks curved upward, coarse bristly dark fur standing on end, patches of raw inflamed skin and pulsing dark veins from corruption, mud-splattered snout, dead grey wasteland scrubland behind with a sickly reddish haze, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Fungal Crawler**
+Extreme close-up portrait of a dog-sized insectoid creature with a chitinous dark brown segmented body, multiple spiny legs, mandibles clicking open revealing pale fleshy mouthparts, clusters of luminous teal and sickly yellow fungi sprouting from cracks in its carapace, glowing spore clouds drifting from the mushroom growths, compound eyes reflecting bioluminescent light, damp cave walls glistening in the background, eerie green phosphorescent glow, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Goblin Shaman**
+Extreme close-up portrait of an ancient wizened goblin shaman with deep wrinkled olive-green skin, milky cataract-clouded left eye and one sharp yellow eye, jagged teeth bared in a wicked grin, face painted with white and red ritual hex symbols, necklace of tiny animal skulls and bone totems rattling, gnarled clawed fingers raised casting crackling sickly green magical energy, feathered headdress with crow skulls, dark firelit cave interior behind with strange painted symbols on the walls, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Ghoul**
+Extreme close-up portrait of a ghoul with sunken hollow features caught between life and death, stretched grey-purple mottled skin pulled tight over sharp cheekbones, lipless mouth exposing blackened teeth and receding gums, clouded pale eyes with pinprick pupils staring with mindless hunger, long bony fingers ending in cracked filthy claws reaching forward, stringy clumps of remaining hair, tattered burial shroud hanging from emaciated shoulders, dark crypt interior behind with faint blue-grey deathly light, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Alpha Wolf**
+Extreme close-up portrait of a massive alpha wolf twice normal size snarling with jaws wide, enormous white fangs bared, deep old battle scars running across its muzzle and through one torn ear, one eye scarred shut the other burning amber with cold intelligence, thick dark grey and silver fur bristling around a powerful neck, breath visible as hot steam in cold air, dark snowy forest at night behind with distant wolf eyes glowing in pairs among the trees, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Bog Witch**
+Extreme close-up portrait of a hideous swamp hag with long matted grey-green hair tangled with moss and pond weed, bulbous warty nose, wide grinning mouth full of pointed brown teeth, one eye large and bright sickly green the other squinting, skin like wet bark textured with lichen, bony fingers with black nails clutching a gnarled staff topped with a whispering shrunken head, dark foggy swamp behind with ghostly pale wisps and gnarled mangrove roots, dim greenish witchlight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Burnt Skeleton**
+Extreme close-up portrait of an animated skeleton of blackened charred bones, skull wreathed in flickering sickly orange and amber flames pouring from empty eye sockets and between cracked teeth locked in a permanent grin, scorched and cracked ribcage visible, embers and ash drifting upward, charred remnants of old armor fused to the bones, dark smoky ruin behind with glowing coals and haze of heat distortion, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Corrupted Treant**
+Extreme close-up portrait of a massive corrupted tree creature, twisted ancient oak face with hollow knothole eyes weeping thick black acidic sap, splintered wooden mouth torn open in a groaning roar, bark cracked and rotting with pulsing dark purple-black veins of corruption spreading across its surface, grasping branch-like claws reaching forward dripping with caustic slime, small sickly mushrooms growing from its decaying wood, dark dead forest behind with blackened withered trees and toxic haze, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Necromancer Acolyte**
+Extreme close-up portrait of a young necromancer barely recognizable as human, gaunt hollow face with skin turning grey and translucent showing dark veins beneath, sunken eyes glowing with faint violet-purple necrotic energy, cracked lips muttering incantations, thin bony fingers wreathed in swirling dark purple death magic raising skeletal hands from below, tattered black scholarly robes, dark candlelit crypt behind with open forbidden tomes and scattered bones, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Ember Elemental**
+Extreme close-up portrait of a living fire elemental, a swirling column of roaring flame taking a vaguely humanoid shape, face formed of white-hot core fire with blazing orange and red eyes like furnace holes, mouth a howling vent of superheated air, tendrils of flame whipping outward, molten cracks forming shifting expressions of rage, sparks and embers spiraling upward, scorched blackened earth below, dark smoke-filled background with an orange-red hellish glow, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Frost Elemental**
+Extreme close-up portrait of a frost elemental, a towering figure of jagged translucent blue-white ice taking humanoid form, face carved from glacial ice with deep cold blue glowing eyes full of ancient hatred, mouth a cracking fissure exhaling visible freezing mist, sharp crystalline ice shards forming a crown and jutting from shoulders, frost spreading outward from its form freezing the air into visible crystals, dark frozen tundra behind with howling blizzard and deep blue twilight, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Dire Bear**
+Extreme close-up portrait of an impossibly massive dire bear roaring with jaws open wide enough to swallow a man, enormous yellowed fangs like daggers, heavy scarred muzzle with dozens of old wounds and a torn lip, one eye milky blind from an old slash the other small and burning with territorial fury, coarse thick dark brown fur scarred and patchy across mountainous shoulders, claws like iron hooks visible at the edge of frame, rocky mountain pass behind with snow and dark storm clouds, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Swamp Revenant**
+Extreme close-up portrait of a drowned medieval soldier rising from black bog water, waterlogged bloated grey-green skin, hollow dark eye sockets with faint cold blue spectral light within, rusted chainmail and rotting leather armor draped with trailing bog weeds and dark mud, jaw hanging slightly open with murky water draining out, an old sword wound still visible across the throat, one gauntleted hand reaching forward trailing strands of algae and roots, dark misty swamp behind with still black water and dead pale trees, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Goblin Warchief**
+Extreme close-up portrait of a massive battle-hardened goblin warchief with deep green weathered skin covered in ritual scars and crude war tattoos, wearing a bent tarnished copper crown jammed onto a broad skull, small cunning cruel eyes burning with intelligence and malice, wide mouth pulled into a commanding snarl showing iron-capped teeth, heavy jaw, thick neck hung with trophies of human finger bones and broken sword pommels, wearing heavy patchwork armor of scavenged plate and leather, dark torch-lit war camp behind with hundreds of goblin banner silhouettes, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Arch-Necromancer**
+Extreme close-up portrait of an ancient arch-necromancer who has practiced death magic for decades, skin like cracked dry parchment stretched over a skeletal frame, eyes replaced by steady flickering candleflame burning in hollow sockets casting dancing shadows across sharp cheekbones, thin cruel smile on desiccated lips, elaborate dark robes with silver bone-motif embroidery, skeletal fingers adorned with heavy dark gemstone rings clutching an ancient staff topped with a skull whose eyes also burn, swirling dark necrotic energy and ghostly spirits in the background, dark cathedral ruin behind, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Storm Elemental**
+Extreme close-up portrait of a storm elemental, a howling vortex of dark thundercloud and shrieking wind taking a raging humanoid shape, face formed of roiling dark grey stormcloud with eyes of blinding crackling white-blue lightning, mouth a screaming gale of wind, bolts of lightning arcing across its churning form and striking outward, rain lashing horizontally, the air around it distorted and charged with static, dark violent purple-black thunderstorm sky behind, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+**Infernal Knight**
+Extreme close-up portrait of a towering demon in stolen medieval full plate armor, helmet visor raised revealing a terrible face of cracked obsidian-black skin with glowing molten red fissures, burning sulfurous yellow eyes with slitted pupils full of ancient malice, curved ram horns protruding through the battered helmet, heavy plate armor blackened and warped by heat with hellfire pouring through every joint and seam, dark flames licking upward from the shoulders, massive gauntleted fist gripping a jagged burning greatsword, scorched hellish battlefield behind with distant fires and ash-filled sky, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+
+---
+
+## New Mission Scenes (Generated)
+
+Files: missions/bears_den.png, clear_marshes.png, shamans_hex.png, ghoul_infestation.png, bog_witch_lair.png, burning_crypt.png, corrupted_grove.png, necromancers_tower.png, elemental_rift.png, mountain_king.png, drowned_patrol.png, goblin_fortress.png, storm_peak_ascent.png, infernal_breach.png, necromancers_sanctum.png
+
+---
+
+## Rabid Boar Hunt & Pack Leader (Generated)
+
+Files: missions/rabid_boar_hunt.png, pack_leader.png
+
+## Building Tier Variants — Partial (Generated)
+
+Files: buildings/town_hall_camp.png, town_hall_village.png, town_hall_town.png, town_hall_city.png, houses_camp.png, houses_village.png, houses_town.png, houses_city.png, woodworker_village.png
+
+## Story Cinematic Slides — Missions 2 & 3 (Generated)
+
+Files: stories/story_2_slide_1.png, story_2_slide_2.png, story_3_slide_1.png, story_3_slide_2.png
+
+## Item Icons — Batch 1 (Generated)
+
+Files: items/copper_band.png, bone_ring.png, woven_vine_ring.png, ruby_signet.png, sapphire_ring.png, emerald_band.png, moonstone_ring.png, dragonscale_ring.png, void_ring.png, infernal_signet.png, storm_ring.png, moonstone_circlet.png, steel_helm.png, chainmail_coif.png, assassin_hood.png, wizard_hat.png, beast_skull_helm.png, steel_greaves.png, ranger_trousers.png, priest_vestments_legs.png, dragonscale_greaves.png, steel_boots.png, stalker_boots.png, pilgrim_sandals.png, troll_stompers.png, moonstone_pendant.png, fang_necklace.png, amber_amulet.png, warlord_chain.png, spirit_locket.png, witch_eye_pendant.png, alpha_fang_amulet.png, crystal_orb.png, tome_of_power.png, enchanted_quiver.png, venom_blade.png, stiletto.png, parrying_dagger.png, void_dagger.png, war_mace.png, holy_mace.png, shadow_cloak.png, beast_heart_charm.png, goblin_crown.png, crude_ruby.png, fire_ruby.png, frost_sapphire.png, storm_topaz.png, void_topaz.png, emerald_shard.png, moonstone_gem.png
+
+---
+
+## Building Tier Variants — Full Set (Generated)
+
+All buildings across all tiers. Files in buildings/:
+- Town Hall: town_hall_camp, town_hall_village, town_hall_town, town_hall_city
+- Houses: houses_camp, houses_village, houses_town, houses_city
+- Warehouse: warehouse_camp, warehouse_village, warehouse_town, warehouse_city
+- Pantry: pantry_camp, pantry_village, pantry_town, pantry_city
+- Shrine: shrine_camp, shrine_village, shrine_town, shrine_city
+- Lumber Mill: lumber_mill_camp, lumber_mill_village, lumber_mill_town, lumber_mill_city
+- Quarry: quarry_camp, quarry_village, quarry_town, quarry_city
+- Hunting Camp: hunting_camp_camp, hunting_camp_village, hunting_camp_town, hunting_camp_city
+- Forager's Hut: forager_hut_camp, forager_hut_village, forager_hut_town, forager_hut_city
+- Fishing Hut: fishing_hut_camp, fishing_hut_village, fishing_hut_town, fishing_hut_city
+- Gold Mine: gold_mine_village, gold_mine_town, gold_mine_city
+- Iron Mine: iron_mine_village, iron_mine_town, iron_mine_city
+- Kitchen: kitchen_camp, kitchen_village, kitchen_town, kitchen_city
+- Tailoring: tailoring_camp, tailoring_town, tailoring_city
+- Woodworker: woodworker_camp, woodworker_village, woodworker_town, woodworker_city
+- Blacksmith: blacksmith_village, blacksmith_town, blacksmith_city
+- Leatherworking: leatherworking_village, leatherworking_city
+- Jewelcrafter: jewelcrafter_town, jewelcrafter_city
+- Alchemy Lab: alchemy_lab_camp, alchemy_lab_village, alchemy_lab_town, alchemy_lab_city
+- Walls: walls_camp, walls_village, walls_town, walls_city
+- Watchtower: watchtower_village, watchtower_town, watchtower_city
+- Barracks: barracks_town, barracks_city
+- Mage Tower: mage_tower_town, mage_tower_city
+- Marketplace: marketplace_camp, marketplace_village, marketplace_city
+- Brewery: brewery_village, brewery_town, brewery_city
+- Tavern: tavern_village, tavern_town, tavern_city
+- Adventurer's Guild: adventurers_guild_camp, adventurers_guild_village, adventurers_guild_town

@@ -2,7 +2,7 @@ import type { AdventurerStats, Adventurer } from "../adventurers";
 import { calcStats } from "../adventurers";
 import { getEquipmentStats } from "../items";
 import { getHerb } from "../herbs";
-import type { MissionReward, MissionTemplate, MissionTag } from "./types";
+import type { MissionReward, MissionTemplate, MissionTag, MissionRequirements } from "./types";
 import { NOVICE_MISSIONS } from "./noviceMissions";
 import { APPRENTICE_MISSIONS } from "./apprenticeMissions";
 import { JOURNEYMAN_MISSIONS } from "./journeymanMissions";
@@ -203,9 +203,45 @@ export function calcDeathChance(
 
 // ─── Mission board generation ──────────────────────────────────
 
-/** Pick random missions for the board based on guild level */
-export function generateMissionBoard(guildLevel: number, count: number = 4, seed: number = Date.now(), maxDifficulty: number = 5): MissionTemplate[] {
-  const available = ALL_MISSIONS.filter((m) => m.minGuildLevel <= guildLevel && m.difficulty <= maxDifficulty);
+export interface MissionBoardContext {
+  guildLevel: number;
+  count?: number;
+  seed?: number;
+  maxDifficulty?: number;
+  completedStoryMissions?: string[];
+  buildings?: { buildingId: string; level: number }[];
+  pens?: { animal: string; level: number }[];
+}
+
+/** Check whether a mission's requirements are met */
+function meetsRequirements(
+  req: MissionRequirements | undefined,
+  ctx: MissionBoardContext,
+): boolean {
+  if (!req) return true;
+  if (req.story) {
+    const completed = new Set(ctx.completedStoryMissions ?? []);
+    if (!completed.has(req.story)) return false;
+  }
+  if (req.building) {
+    const built = ctx.buildings?.some((b) => b.buildingId === req.building && b.level > 0);
+    if (!built) return false;
+  }
+  if (req.pen) {
+    const hasPen = ctx.pens?.some((p) => p.animal === req.pen && p.level > 0);
+    if (!hasPen) return false;
+  }
+  return true;
+}
+
+/** Pick random missions for the board based on guild level and requirements */
+export function generateMissionBoard(ctx: MissionBoardContext): MissionTemplate[] {
+  const { guildLevel, count = 4, seed = Date.now(), maxDifficulty = 5 } = ctx;
+  const available = ALL_MISSIONS.filter((m) =>
+    m.minGuildLevel <= guildLevel &&
+    m.difficulty <= maxDifficulty &&
+    meetsRequirements(m.requires, ctx),
+  );
   if (available.length <= count) return [...available];
 
   // Seeded shuffle

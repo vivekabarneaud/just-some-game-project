@@ -475,7 +475,7 @@ export default function AdventurerDetail() {
                                 const items = state.inventory
                                   .filter((inv) => inv.quantity > 0 && !isSupplyItem(inv.itemId))
                                   .map((inv) => ({ item: getItem(inv.itemId)!, qty: inv.quantity }))
-                                  .filter((x) => x.item);
+                                  .filter((x) => x.item && !x.item.foodFlavors);
                                 if (items.length === 0) return (
                                   <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "font-style": "italic", padding: "8px" }}>
                                     No gear in inventory. Craft some at your workshops.
@@ -846,6 +846,33 @@ export default function AdventurerDetail() {
                                 background: "rgba(255, 255, 255, 0.05)",
                               }}>{ability.icon}</div>
                               <span style={{ "font-size": "0.8rem", color: "var(--text-secondary)" }}>{ability.name}</span>
+                            </div>
+                          </Tooltip>
+                        )}
+                      </For>
+                      {/* Unlocked talent abilities (non-stat talents) */}
+                      <For each={(adv().talents ?? [])
+                        .map((id) => getTalent(id))
+                        .filter((t): t is TalentNode => !!t && !t.description.startsWith("+"))}>
+                        {(talent) => (
+                          <Tooltip content={
+                            <div style={{ "max-width": "220px" }}>
+                              <div style={{ "font-weight": "bold", color: "var(--accent-gold)" }}>{talent.name}</div>
+                              <div style={{ "font-size": "0.72rem", color: "var(--text-secondary)", "margin-top": "4px" }}>{talent.description}</div>
+                              <div style={{ "font-size": "0.65rem", color: "var(--text-muted)", "margin-top": "6px" }}>Talent</div>
+                            </div>
+                          } position="left">
+                            <div style={{
+                              display: "flex", "align-items": "center", gap: "10px", padding: "6px",
+                              "border-radius": "6px", background: "rgba(245, 197, 66, 0.05)",
+                              border: "1px solid rgba(245, 197, 66, 0.2)", cursor: "help", width: "160px",
+                            }}>
+                              <div style={{
+                                width: "36px", height: "36px", "flex-shrink": 0,
+                                display: "flex", "align-items": "center", "justify-content": "center",
+                                "font-size": "1.3rem", "border-radius": "4px", background: "rgba(245, 197, 66, 0.1)",
+                              }}>{talent.icon}</div>
+                              <span style={{ "font-size": "0.8rem", color: "var(--accent-gold)" }}>{talent.name}</span>
                             </div>
                           </Tooltip>
                         )}

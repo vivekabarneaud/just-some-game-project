@@ -25,7 +25,11 @@ import {
   getMission,
   formatReward,
   getCurrentStoryMission,
+  STORY_MISSIONS,
 } from "~/data/missions";
+import type { CinematicSlide } from "~/components/CinematicOverlay";
+import CinematicOverlay from "~/components/CinematicOverlay";
+import { STORY_CINEMATICS } from "~/data/cinematics";
 import Countdown from "~/components/Countdown";
 import Tooltip from "~/components/Tooltip";
 import MissionCard from "~/components/MissionCard";
@@ -79,6 +83,18 @@ export default function AdventurersGuild() {
   const [selectedMission, setSelectedMission] = createSignal<MissionTemplate | null>(null);
   const [selectedTeam, setSelectedTeam] = createSignal<string[]>([]);
   const [selectedSupplies, setSelectedSupplies] = createSignal<string[]>([]);
+  const [storyCinematic, setStoryCinematic] = createSignal<CinematicSlide[] | null>(null);
+
+  /** Claim a mission reward; if it's a story mission with a cinematic, show it */
+  const handleClaim = (index: number) => {
+    const result = state.completedMissions[index];
+    if (!result) return;
+    const cinematic = STORY_CINEMATICS[result.missionId];
+    actions.claimMissionReward(index);
+    if (cinematic) {
+      setStoryCinematic(cinematic);
+    }
+  };
   const guildLevel = () => actions.getGuildLevel();
   const storyMission = () => getCurrentStoryMission(guildLevel(), state.completedStoryMissions ?? []);
   const CLASS_ORDER: Record<string, number> = { warrior: 0, priest: 1, wizard: 2, archer: 3, assassin: 4 };
@@ -113,6 +129,18 @@ export default function AdventurersGuild() {
   };
 
   return (
+    <>
+      {/* Story mission cinematic overlay */}
+      <Show when={storyCinematic()}>
+        {(slides) => (
+          <CinematicOverlay
+            slides={slides()}
+            villageName={state.villageName}
+            onComplete={() => setStoryCinematic(null)}
+          />
+        )}
+      </Show>
+
     <div>
       <A href="/buildings" class="back-link">
         ← Back to Buildings
@@ -196,7 +224,7 @@ export default function AdventurersGuild() {
                         )}
                       </span>
                       <button
-                        onClick={() => actions.claimMissionReward(i())}
+                        onClick={() => handleClaim(i())}
                         style={{
                           padding: "4px 12px",
                           background: result.rewards.length > 0 ? "var(--accent-gold)" : "transparent",
@@ -209,7 +237,9 @@ export default function AdventurersGuild() {
                           "white-space": "nowrap",
                         }}
                       >
-                        {result.rewards.length > 0 ? "Claim" : "Dismiss"}
+                        {result.rewards.length > 0
+                          ? (STORY_CINEMATICS[result.missionId] ? "Claim & Continue Story" : "Claim")
+                          : "Dismiss"}
                       </button>
                     </div>
                     {/* XP, level ups, rank ups, casualties, revives */}
@@ -426,16 +456,19 @@ export default function AdventurersGuild() {
               )}
             </Show>
             <For each={state.missionBoard}>
-              {(mission) => (
-                <MissionCard
-                  mission={mission}
-                  selected={selectedMission()?.id === mission.id}
-                  onClick={() => {
-                    if (selectedMission()?.id === mission.id) { setSelectedMission(null); setSelectedTeam([]); setSelectedSupplies([]); }
-                    else { setSelectedMission(mission); setSelectedTeam([]); setSelectedSupplies([]); }
-                  }}
-                />
-              )}
+              {(saved) => {
+                const mission = getMission(saved.id) ?? saved;
+                return (
+                  <MissionCard
+                    mission={mission}
+                    selected={selectedMission()?.id === mission.id}
+                    onClick={() => {
+                      if (selectedMission()?.id === mission.id) { setSelectedMission(null); setSelectedTeam([]); setSelectedSupplies([]); }
+                      else { setSelectedMission(mission); setSelectedTeam([]); setSelectedSupplies([]); }
+                    }}
+                  />
+                );
+              }}
             </For>
           </div>
 
@@ -723,5 +756,6 @@ export default function AdventurersGuild() {
         </Show>
       </Show>
     </div>
+    </>
   );
 }

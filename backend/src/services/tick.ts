@@ -1,5 +1,6 @@
-import type { GameState } from "@medieval-realm/shared";
+import type { GameState, TradeResourceKey } from "@medieval-realm/shared";
 import { prisma } from "../lib/prisma.js";
+import { addResource } from "../lib/resources.js";
 
 const TICK_INTERVAL_MS = 60_000; // 60 seconds
 const SKIP_IF_RECENT_MS = 30_000; // skip if client saved recently
@@ -167,7 +168,51 @@ export function applyServerTick(state: GameState, elapsedMs: number): GameState 
   return s;
 }
 
+async function deliverArrivedCaravans() {
+  const now = new Date();
+  const arrived = await prisma.tradeOffer.findMany({
+    where: { status: "accepted", caravanArrivesAt: { lte: now } },
+    include: { sellerSett: true, buyerSett: true },
+  });
+
+  for (const t of arrived) {
+    if (!t.buyerSettId || !t.buyerSett) continue;
+    try {
+      const buyerState = structuredClone(t.buyerSett.gameState as unknown as GameState);
+      addResource(buyerState, t.giveResource as TradeResourceKey, t.giveAmount);
+      if (!buyerState.eventLog) buyerState.eventLog = [];
+      buyerState.eventLog.unshift({
+        type: "trade_delivered", icon: "📦",
+        message: `Trade caravan arrived! +${t.giveAmount} ${t.giveResource}.`,
+        timestamp: Date.now(),
+      });
+      if (buyerState.eventLog.length > 50) buyerState.eventLog.length = 50;
+
+      const sellerState = structuredClone(t.sellerSett.gameState as unknown as GameState);
+      addResource(sellerState, t.receiveResource as TradeResourceKey, t.receiveAmount);
+      if (!sellerState.eventLog) sellerState.eventLog = [];
+      sellerState.eventLog.unshift({
+        type: "trade_delivered", icon: "📦",
+        message: `Trade completed! +${t.receiveAmount} ${t.receiveResource} received.`,
+        timestamp: Date.now(),
+      });
+      if (sellerState.eventLog.length > 50) sellerState.eventLog.length = 50;
+
+      await prisma.$transaction([
+        prisma.settlement.update({ where: { id: t.buyerSettId }, data: { gameState: buyerState as any } }),
+        prisma.settlement.update({ where: { id: t.sellerSettId }, data: { gameState: sellerState as any } }),
+        prisma.tradeOffer.update({ where: { id: t.id }, data: { status: "completed" } }),
+      ]);
+    } catch (err) {
+      console.error(`Trade delivery failed for ${t.id}:`, err);
+    }
+  }
+}
+
 export async function tickAllSettlements() {
+  // Deliver arrived caravans first (before settlement ticks)
+  await deliverArrivedCaravans();
+
   const now = new Date();
   const settlements = await prisma.settlement.findMany({
     select: { id: true, gameState: true, lastTickAt: true, updatedAt: true },

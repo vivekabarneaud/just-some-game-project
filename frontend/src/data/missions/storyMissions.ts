@@ -9,7 +9,7 @@ export const STORY_MISSIONS: StoryMission[] = [
     description:
       "Time to find out what's around us. Send scouts to map the area — water sources, game trails, anything useful. And anything dangerous.",
     icon: "🗺️",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/story_1_scouting.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/scouting_the_surroundings.png",
     slots: [{ class: "any" }, { class: "any" }],
     duration: 900,
     rewards: [

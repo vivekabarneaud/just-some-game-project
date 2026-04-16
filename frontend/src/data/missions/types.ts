@@ -37,6 +37,13 @@ export interface MissionTemplate {
   image?: string; // optional mission illustration
   encounters?: MissionEncounter[]; // enemies faced during the mission
   guaranteed?: boolean; // always ~98% success regardless of stats
+  requires?: MissionRequirements; // conditions for this mission to appear on the board
+}
+
+export interface MissionRequirements {
+  story?: string;       // story mission ID that must be completed
+  building?: string;    // building ID that must be built (level > 0)
+  pen?: import("../livestock").AnimalId; // pen animal type that must exist (level > 0)
 }
 
 export interface ActiveMission {

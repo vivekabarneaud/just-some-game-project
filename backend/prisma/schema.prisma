@@ -15,6 +15,8 @@ model Player {
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
   settlements  Settlement[]
+  tradeOffersSold   TradeOffer[] @relation("TradeOffersSold")
+  tradeOffersBought TradeOffer[] @relation("TradeOffersBought")
 }
 
 model World {
@@ -41,7 +43,36 @@ model Settlement {
 
   player Player @relation(fields: [playerId], references: [id])
   world  World  @relation(fields: [worldId], references: [id])
+  tradeOffersFrom TradeOffer[] @relation("TradeOffersFromSettlement")
+  tradeOffersTo   TradeOffer[] @relation("TradeOffersToSettlement")
 
   @@index([playerId])
   @@index([worldId])
+}
+
+model TradeOffer {
+  id               String    @id @default(cuid())
+  sellerId         String
+  sellerSettId     String
+  buyerId          String?
+  buyerSettId      String?
+  status           String    @default("open") // open | accepted | completed | cancelled
+  giveResource     String
+  giveAmount       Int
+  receiveResource  String
+  receiveAmount    Int
+  distance         Float?
+  caravanArrivesAt DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  seller     Player      @relation("TradeOffersSold", fields: [sellerId], references: [id])
+  sellerSett Settlement  @relation("TradeOffersFromSettlement", fields: [sellerSettId], references: [id])
+  buyer      Player?     @relation("TradeOffersBought", fields: [buyerId], references: [id])
+  buyerSett  Settlement? @relation("TradeOffersToSettlement", fields: [buyerSettId], references: [id])
+
+  @@index([status])
+  @@index([sellerId])
+  @@index([buyerId])
+  @@index([status, caravanArrivesAt])
 }

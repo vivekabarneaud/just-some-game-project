@@ -1,6 +1,7 @@
 import { For, Show } from "solid-js";
-import { useGame } from "~/engine/gameState";
+import { useGame, BUILDING_TOOLS, getBuildingTool } from "~/engine/gameState";
 import { ITEMS, getItem } from "~/data/items";
+import { BUILDINGS } from "~/data/buildings";
 
 export default function Inventory() {
   const { state } = useGame();
@@ -36,6 +37,71 @@ export default function Inventory() {
         <span>🧪 Potions: {state.potions}</span>
         <span>💎 Gems: {state.gems}</span>
       </div>
+
+      {/* Building Tools in inventory */}
+      {(() => {
+        const toolsInInventory = () => state.inventory
+          .filter((inv) => inv.quantity > 0 && getBuildingTool(inv.itemId))
+          .map((inv) => ({ inv, tool: getBuildingTool(inv.itemId)! }));
+        const installedTools = () => {
+          const result: { buildingId: string; tool: NonNullable<ReturnType<typeof getBuildingTool>> }[] = [];
+          const tools = state.buildingTools ?? {};
+          for (const buildingId of Object.keys(tools)) {
+            for (const toolId of tools[buildingId]) {
+              const tool = getBuildingTool(toolId);
+              if (tool) result.push({ buildingId, tool });
+            }
+          }
+          return result;
+        };
+        return (
+          <Show when={toolsInInventory().length > 0 || installedTools().length > 0}>
+            <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "10px", color: "var(--text-primary)" }}>
+              Building Tools
+            </h3>
+            <div class="buildings-grid" style={{ "margin-bottom": "20px" }}>
+              <For each={toolsInInventory()}>
+                {({ inv, tool }) => (
+                  <div class="building-card">
+                    <span class="building-card-category">tool</span>
+                    <div class="building-card-header" style={{ "margin-top": "4px" }}>
+                      <div class="building-card-icon">{tool.icon}</div>
+                      <div>
+                        <div class="building-card-title">{tool.name}</div>
+                        <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
+                          For: {BUILDINGS.find((b) => b.id === tool.targetBuilding)?.name ?? tool.targetBuilding}
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ "font-size": "0.8rem", color: "var(--text-secondary)", "margin-top": "4px" }}>
+                      {tool.description}
+                    </div>
+                    <div style={{ "margin-top": "6px", "font-size": "0.85rem", color: "var(--text-secondary)" }}>
+                      In stock: <strong>{inv.quantity}</strong>
+                    </div>
+                  </div>
+                )}
+              </For>
+              <For each={installedTools()}>
+                {({ buildingId, tool }) => (
+                  <div class="building-card" style={{ opacity: 0.7 }}>
+                    <span class="building-card-category">installed</span>
+                    <div class="building-card-header" style={{ "margin-top": "4px" }}>
+                      <div class="building-card-icon">{tool.icon}</div>
+                      <div>
+                        <div class="building-card-title">{tool.name}</div>
+                        <div style={{ "font-size": "0.8rem", color: "var(--accent-green)" }}>
+                          Installed at {BUILDINGS.find((b) => b.id === buildingId)?.name ?? buildingId}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </For>
+            </div>
+          </Show>
+        );
+      })()}
 
       {/* Equipment items */}
       <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "10px", color: "var(--text-primary)" }}>

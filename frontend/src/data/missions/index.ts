@@ -9,6 +9,7 @@ export type {
   ActiveMission,
   CompletedMission,
   StoryMission,
+  MissionRequirements,
 } from "./types";
 
 // ─── Mission pools ─────────────────────────────────────────────
@@ -52,4 +53,5 @@ export {
   calcDeathChance,
   generateMissionBoard,
   getMissionBoardSize,
+  type MissionBoardContext,
 } from "./helpers";

@@ -203,7 +203,10 @@ export default function Alchemy() {
                         display: "flex", gap: "8px", "align-items": "center",
                         "font-size": "0.85rem", "backdrop-filter": "blur(4px)",
                       }}>
-                        <span style={{ "font-size": "1.2rem" }}>{recipe()?.icon}</span>
+                        {recipe()?.image
+                          ? <img src={recipe()!.image} alt="" style={{ width: "28px", height: "28px", "object-fit": "cover", "border-radius": "4px" }} />
+                          : <span style={{ "font-size": "1.2rem" }}>{recipe()?.icon}</span>
+                        }
                         <span style={{ color: "var(--text-primary)" }}>{recipe()?.name}</span>
                         <span style={{ color: "var(--accent-gold)" }}>
                           <Countdown remainingSeconds={craft.remaining} />
@@ -227,7 +230,10 @@ export default function Alchemy() {
                   {(recipe) => (
                     <div class="building-card">
                       <div class="building-card-header">
-                        <div class="building-card-icon">{recipe.icon}</div>
+                        {recipe.image
+                          ? <img src={recipe.image} alt="" style={{ width: "40px", height: "40px", "object-fit": "cover", "border-radius": "6px", "flex-shrink": "0" }} />
+                          : <div class="building-card-icon">{recipe.icon}</div>
+                        }
                         <div>
                           <div class="building-card-title">{recipe.name}</div>
                           <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>

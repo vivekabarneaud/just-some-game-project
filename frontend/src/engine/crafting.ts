@@ -9,6 +9,65 @@ export interface CraftingRecipe {
   costs: { resource: string; amount: number }[];
   produces: { resource: string; amount: number };
   craftTime: number; // game-seconds
+  /** Explicit per-recipe tool requirement (overrides level-based gating) */
+  requiredTool?: string;
+}
+
+// ─── Building Tools ─────────────────────────────────────────────
+// Tools crafted at one building and installed into another to unlock recipes or provide buffs.
+
+export interface BuildingToolDef {
+  id: string;
+  name: string;
+  icon: string;
+  image?: string;
+  description: string;
+  /** Which building this tool can be installed in */
+  targetBuilding: string;
+  /** The crafting recipe that produces this tool */
+  recipeId: string;
+  /** Recipes with minLevel >= this value require this tool to be installed */
+  unlocksMinLevel: number;
+}
+
+export const BUILDING_TOOLS: BuildingToolDef[] = [
+  {
+    id: "cutting_board",
+    name: "Cutting Board",
+    icon: "🔪",
+    description: "A sturdy wooden cutting board. Enables proper food preparation at the Kitchen.",
+    targetBuilding: "kitchen",
+    recipeId: "cutting_board",
+    unlocksMinLevel: 3,
+  },
+];
+
+export function getBuildingTool(id: string): BuildingToolDef | undefined {
+  return BUILDING_TOOLS.find((t) => t.id === id);
+}
+
+export function getBuildingToolByRecipe(recipeId: string): BuildingToolDef | undefined {
+  return BUILDING_TOOLS.find((t) => t.recipeId === recipeId);
+}
+
+export function getBuildingToolsForBuilding(buildingId: string): BuildingToolDef[] {
+  return BUILDING_TOOLS.filter((t) => t.targetBuilding === buildingId);
+}
+
+/** Returns the tool that blocks a recipe, or null if no tool is needed / tool is installed */
+export function getRequiredTool(recipe: CraftingRecipe, installedToolIds: string[]): BuildingToolDef | null {
+  // Check explicit per-recipe requirement first
+  if (recipe.requiredTool && !installedToolIds.includes(recipe.requiredTool)) {
+    return getBuildingTool(recipe.requiredTool) ?? null;
+  }
+  // Then check level-based gating from tool definitions
+  const tools = getBuildingToolsForBuilding(recipe.building);
+  for (const tool of tools) {
+    if (recipe.minLevel >= tool.unlocksMinLevel && !installedToolIds.includes(tool.id)) {
+      return tool;
+    }
+  }
+  return null;
 }
 
 export interface ActiveCraft {
@@ -81,6 +140,18 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     craftTime: 300, // 25 min
   },
 
+  // ── Woodworker — Building Tools ────────────────────────────────
+  {
+    id: "cutting_board",
+    name: "Cutting Board",
+    icon: "🔪",
+    building: "woodworker",
+    minLevel: 1,
+    costs: [{ resource: "wood", amount: 8 }],
+    produces: { resource: "tools", amount: 1 },
+    craftTime: 20,
+  },
+
   // ── Woodworker recipes ────────────────────────────────────────
   {
     id: "wooden_staff",
@@ -145,14 +216,14 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
 
   // ── Blacksmith recipes ────────────────────────────────────────
   {
-    id: "iron_tools",
-    name: "Iron Tools",
-    icon: "🔧",
+    id: "iron_dagger",
+    name: "Iron Dagger",
+    icon: "🗡️",
     building: "blacksmith",
     minLevel: 1,
-    costs: [{ resource: "iron", amount: 10 }, { resource: "wood", amount: 5 }],
-    produces: { resource: "tools", amount: 1 },
-    craftTime: 30, // 10 min
+    costs: [{ resource: "iron", amount: 8 }, { resource: "wood", amount: 3 }],
+    produces: { resource: "weapons", amount: 1 },
+    craftTime: 20,
   },
   {
     id: "iron_sword",
@@ -521,9 +592,11 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
 
   // Campfire recipes (Lv 1-2) — basic grilling and smoking, available from Camp tier
   { id: "peppered_jerky", name: "Peppered Jerky", icon: "🌶️", building: "kitchen", minLevel: 1,
-    costs: [{ resource: "food", amount: 12 }], produces: { resource: "potions", amount: 1 }, craftTime: 30 },
+    costs: [{ resource: "food", amount: 12 }], produces: { resource: "potions", amount: 1 }, craftTime: 30,
+    requiredTool: "cutting_board" },
   { id: "herb_salad", name: "Fresh Herb Salad", icon: "🥬", building: "kitchen", minLevel: 1,
-    costs: [{ resource: "food", amount: 8 }], produces: { resource: "potions", amount: 1 }, craftTime: 20 },
+    costs: [{ resource: "food", amount: 8 }], produces: { resource: "potions", amount: 1 }, craftTime: 20,
+    requiredTool: "cutting_board" },
   { id: "smoked_fish", name: "Smoked Fish", icon: "🐟", building: "kitchen", minLevel: 1,
     costs: [{ resource: "food", amount: 10 }, { resource: "wood", amount: 2 }], produces: { resource: "potions", amount: 1 }, craftTime: 30 },
   { id: "grilled_mushrooms", name: "Grilled Mushrooms", icon: "🍄", building: "kitchen", minLevel: 1,

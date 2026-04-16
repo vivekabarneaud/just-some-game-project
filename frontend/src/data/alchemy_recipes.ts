@@ -6,6 +6,7 @@ export interface AlchemyRecipeDefinition {
   id: string;
   name: string;
   icon: string;
+  image?: string;
   description: string;
   tier: "novice" | "apprentice" | "journeyman" | "veteran";
   minLabLevel: number;
@@ -35,6 +36,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
   },
   {
     id: "vigor_tea",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/vigor_tea.png",
     name: "Vigor Tea",
     icon: "🍵",
     description: "+5 to relevant stat check",
@@ -63,6 +65,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
   // ── Novice (discoverable) ─────────────────────────────────────
   {
     id: "herbal_antidote",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/herbal_antidote.png",
     name: "Herbal Antidote",
     icon: "🧪",
     description: "+5 to stat check, -15% death risk",
@@ -77,6 +80,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
   // ── Apprentice (Lab lvl 3-4) ──────────────────────────────────
   {
     id: "strength_draught",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/strength_draught.png",
     name: "Strength Draught",
     icon: "💪",
     description: "+25% damage for 3 rounds in combat",
@@ -89,6 +93,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
   },
   {
     id: "mending_potion",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/mending_potion.png",
     name: "Mending Potion",
     icon: "❤️‍🩹",
     description: "-50% death chance for entire party",
@@ -113,6 +118,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
   },
   {
     id: "eagle_eye_elixir",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/eagle_eye_elixir.png",
     name: "Eagle Eye Elixir",
     icon: "🦅",
     description: "+15 to DEX-based stat checks",
@@ -127,6 +133,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
   // ── Journeyman (Lab lvl 5-6) ──────────────────────────────────
   {
     id: "ironhide_tonic",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/ironhide_tonic.png",
     name: "Ironhide Tonic",
     icon: "🛡️",
     description: "+20 defense for next raid",
@@ -165,6 +172,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
   },
   {
     id: "elixir_of_insight",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/elixir_of_insight.png",
     name: "Elixir of Insight",
     icon: "👁️",
     description: "Guaranteed rare loot drop on next mission",
@@ -177,6 +185,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
   },
   {
     id: "netherons_draught",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/netherons_draught.png",
     name: "Netheron's Draught",
     icon: "☠️",
     description: "2x mission rewards but 2x death chance",
