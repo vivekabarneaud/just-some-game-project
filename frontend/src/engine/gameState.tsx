@@ -119,12 +119,10 @@ import {
   getMissionSlots,
   RECRUIT_REFRESH_HOURS,
   MISSION_REFRESH_HOURS,
-  resetAdventurerSeed,
   RACE_WEIGHTS,
   ORIGINS,
   getOriginsForRace,
   getOrigin,
-  isFemale,
   BACKSTORY_TRAITS,
   PERSONALITY_QUIRKS,
 } from "~/data/adventurers";
@@ -777,27 +775,7 @@ function loadGame(): GameState | null {
     };
     for (const adv of saved.adventurers) backfillAge(adv);
     for (const adv of saved.recruitCandidates) backfillAge(adv);
-    // Name migration: regenerate names to match origin, preserving gender
-    // Skip premade characters (they have a portrait field with intentional unique names)
-    const renameTo = (adv: any) => {
-      if (!adv.origin || adv.portrait) return; // premade characters keep their names
-      const origin = getOrigin(adv.origin);
-      if (!origin) return;
-      const firstName = adv.name.split(" ")[0];
-      const allNames = [...origin.firstNamesMale, ...origin.firstNamesFemale];
-      if (allNames.includes(firstName)) return; // already matches
-      // Preserve original gender: check if old name is female
-      const wasFemaleName = isFemale(firstName);
-      const idNum = parseInt(adv.id.replace(/\D/g, ""), 10) || 0;
-      const pool = wasFemaleName ? origin.firstNamesFemale : origin.firstNamesMale;
-      if (pool.length === 0) return;
-      const newFirst = pool[idNum % pool.length];
-      const newLast = origin.lastNames[Math.floor(idNum / 3) % origin.lastNames.length];
-      adv.name = `${newFirst} ${newLast}`;
-    };
-    for (const adv of saved.adventurers) renameTo(adv);
-    for (const adv of saved.recruitCandidates) renameTo(adv);
-    // TEMPORARY: match premade characters by backstory to fix renamed names/portraits
+    // Match premade characters by backstory to fix renamed names/portraits
     const migratePremadeByBackstory = (adv: any) => {
       if (!adv.backstory) return;
       const match = PREMADE_CHARACTERS.find((c) => c.backstory === adv.backstory);
@@ -2052,8 +2030,7 @@ export function GameProvider(props: ParentProps) {
             // Recruits
             const count = getCandidateCount(guildLvl);
             const maxRank = getMaxRecruitRank(guildLvl, s.adventurers);
-            resetAdventurerSeed(now + s.year * 1000);
-            const usedNames = new Set(s.adventurers.map((a) => a.name));
+            const usedNames = new Set(s.adventurers.filter((a) => a.alive).map((a) => a.name));
             s.recruitCandidates = [];
             for (let i = 0; i < count; i++) {
               const c = generateCandidate(nextId("adv"), maxRank, usedNames);
@@ -3199,8 +3176,7 @@ export function GameProvider(props: ParentProps) {
         s.recruitRerollToday = rerollCount + 1;
         const count = getCandidateCount(guildLvl);
         const maxRank = getMaxRecruitRank(guildLvl, s.adventurers);
-        resetAdventurerSeed(Date.now());
-        const usedNames = new Set(s.adventurers.map((a) => a.name));
+        const usedNames = new Set(s.adventurers.filter((a) => a.alive).map((a) => a.name));
         s.recruitCandidates = [];
         for (let i = 0; i < count; i++) {
           const c = generateCandidate(nextId("adv"), maxRank, usedNames);

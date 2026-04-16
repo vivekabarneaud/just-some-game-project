@@ -12,7 +12,7 @@ import {
   type AdventurerRank,
   type AdventurerClass,
   type AdventurerStats,
-  getPortrait,
+  getPortraitUrl,
   getOrigin,
   RACE_NAMES,
   BACKSTORY_TRAITS,
@@ -21,7 +21,7 @@ import {
   getNextLoyaltyRank,
   LOYALTY_RANKS,
   AGE_LABELS,
-  getRosterKin,
+  getRelationship,
   CLASS_ABILITIES,
 } from "~/data/adventurers";
 import { getItem, getItemsForSlot, getEquipmentStats, getEquipmentDefense, isSupplyItem, type ItemSlot } from "~/data/items";
@@ -123,7 +123,7 @@ export default function AdventurerDetail() {
                       position: "relative",
                     }}>
                       <img
-                        src={getPortrait(adv().name, adv().class, adv().origin, adv().age ?? "middle", adv().portrait)}
+                        src={getPortraitUrl(adv())}
                         alt={adv().name}
                         style={{
                           width: "100%",
@@ -211,8 +211,8 @@ export default function AdventurerDetail() {
 
                       {/* Family Connections */}
                       {(() => {
-                        const family = getRosterKin(adv(), state.adventurers);
-                        if (family.length === 0) return null;
+                        const rel = getRelationship(adv().premadeId);
+                        if (!rel) return null;
                         return (
                           <div style={{
                             display: "flex",
@@ -221,17 +221,7 @@ export default function AdventurerDetail() {
                             "font-size": "0.8rem",
                           }}>
                             <span style={{ color: "var(--accent-gold)" }}>👨‍👩‍👧‍👦</span>
-                            <For each={family}>
-                              {(k) => (
-                                <A href={`/adventurer/${k.relative.id}`} style={{
-                                  color: "var(--accent-gold)",
-                                  "text-decoration": "none",
-                                  "border-bottom": "1px dotted var(--accent-gold)",
-                                }}>
-                                  {k.label}
-                                </A>
-                              )}
-                            </For>
+                            <span style={{ color: "var(--accent-gold)" }}>{rel}</span>
                           </div>
                         );
                       })()}
