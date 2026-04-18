@@ -716,7 +716,7 @@ export default function AdventurerDetail() {
                             const st = () => getNodeState(talent.id);
                             const pos = () => nodePositions()[talent.id];
                             return (
-                              <Tooltip content={
+                              <Tooltip content={() => (
                                 <div style={{ "min-width": "140px" }}>
                                   <div style={{ "font-weight": "bold", color: "var(--text-primary)" }}>{talent.icon} {talent.name}</div>
                                   <div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "margin-top": "4px" }}>{talent.description}</div>
@@ -724,7 +724,7 @@ export default function AdventurerDetail() {
                                     <div style={{ "font-size": "0.72rem", color: "var(--accent-gold)", "margin-top": "4px" }}>Capstone — Earns title: {talent.title}</div>
                                   </Show>
                                 </div>
-                              } position="right">
+                              )} position="right">
                                 <div
                                   class="talent-node"
                                   classList={{

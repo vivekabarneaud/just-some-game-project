@@ -3,7 +3,10 @@ import { Portal } from "solid-js/web";
 
 interface TooltipProps extends ParentProps {
   text?: string | null | undefined;
-  content?: JSX.Element;
+  /** JSX element OR a thunk that returns one. Thunk form is preferred when the
+   *  content depends on reactive signals — it defers evaluation to render time
+   *  so the inner JSX doesn't create orphaned computations inside event handlers. */
+  content?: JSX.Element | (() => JSX.Element);
   position?: "top" | "bottom" | "left" | "right";
   maxWidth?: number;
 }
@@ -12,7 +15,10 @@ export default function Tooltip(props: TooltipProps) {
   const [visible, setVisible] = createSignal(false);
   const [anchor, setAnchor] = createSignal<DOMRect | null>(null);
 
-  const hasContent = () => !!(props.text || props.content);
+  // Avoid triggering the JSX getter on `props.content` — accessing an inline
+  // JSX prop forces eager evaluation of its reactive inserts. We only care
+  // whether content was provided at all, not its value.
+  const hasContent = () => !!(props.text || (props.content != null));
 
   const show = (e: MouseEvent) => {
     if (!hasContent()) return;
@@ -82,7 +88,9 @@ export default function Tooltip(props: TooltipProps) {
               ...tooltipStyle(),
             }}
           >
-            {props.content ?? props.text}
+            {typeof props.content === "function"
+              ? (props.content as () => JSX.Element)()
+              : (props.content ?? props.text)}
           </div>
         </Portal>
       </Show>

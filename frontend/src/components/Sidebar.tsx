@@ -8,6 +8,7 @@ import { fetchLeaderboard } from "~/api/leaderboard";
 import { fetchFriends } from "~/api/friends";
 import { fetchCoops } from "~/api/coop";
 import { wsClient } from "~/api/ws";
+import { FIELD_MAX_LEVEL } from "~/data/crops";
 
 interface NavItem {
   path: string;
@@ -187,7 +188,9 @@ export default function Sidebar() {
           <>
             <div class="nav-section-title">{section.title}</div>
             {section.items.map((item) => {
-              const hasEmptyFields = () => state.fields.some((f) => !f.crop && !f.fallow && f.level > 0 && !f.upgrading);
+              const hasEmptyFields = () => state.fields.some((f) => !f.crop && f.level > 0 && !f.upgrading);
+              // Winter nudge: farming is dormant, use the downtime to level up fields.
+              const hasUpgradableFields = () => state.fields.some((f) => f.level > 0 && f.level < FIELD_MAX_LEVEL && !f.upgrading);
               const hasClaimableQuest = () => {
                 const c = state.questRewardsClaimed ?? [];
                 const idx = QUEST_CHAIN.findIndex((q) => !c.includes(q.id));
@@ -198,7 +201,8 @@ export default function Sidebar() {
                 (item.path === "/" && hasClaimableQuest()) ||
                 (item.path === "/farming" && (
                   (state.season === "spring" && hasEmptyFields()) ||
-                  (state.season === "autumn" && state.seasonElapsed < 6)
+                  (state.season === "autumn" && state.seasonElapsed < 6) ||
+                  (state.season === "winter" && hasUpgradableFields())
                 )) ||
                 (item.path === "/guild" && (actions.hasNewGuildContent() || hasCompletedMissions() || incomingCoopInvites() > 0)) ||
                 (item.path === "/friends" && incomingFriendRequests() > 0);
@@ -221,12 +225,16 @@ export default function Sidebar() {
                       item.path === "/" ? "var(--accent-gold)" :
                       item.path === "/guild" ? "var(--accent-blue)" :
                       item.path === "/friends" ? "var(--accent-gold)" :
-                      state.season === "spring" ? "#7CFC00" : "#d4831a"
+                      state.season === "spring" ? "#7CFC00" :
+                      state.season === "winter" ? "#a5d8ff" :
+                      "#d4831a"
                     }}>
                       {item.path === "/" ? "quest!"
                         : item.path === "/guild" ? (hasCompletedMissions() ? "loot!" : incomingCoopInvites() > 0 ? "coop!" : "new!")
                         : item.path === "/friends" ? `+${incomingFriendRequests()}`
-                        : state.season === "spring" ? "plant!" : "harvest!"}
+                        : state.season === "spring" ? "plant!"
+                        : state.season === "winter" ? "upgrade!"
+                        : "harvest!"}
                     </span>
                   )}
                 </A>

@@ -15,6 +15,9 @@ export const APIARY: ApiaryDefinition = {
   },
 };
 
+/** Banner art for the apiary card — the same image is reused across all hives. */
+export const APIARY_IMAGE = "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/apiary.png";
+
 // Costs
 export const HIVE_BASE_COST = { wood: 15, stone: 5, gold: 30 };
 export const HIVE_COST_MULTIPLIER = 1.3;

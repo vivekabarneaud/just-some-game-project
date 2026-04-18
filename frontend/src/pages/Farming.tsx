@@ -1,9 +1,9 @@
 import { For, Show, createSignal } from "solid-js";
 import { useGame, type PlayerField, type PlayerGarden, type PlayerPen, type PlayerHive, type PlayerOrchard } from "~/engine/gameState";
-import { CROPS, type CropId, getCrop, getFieldCost, getFieldBuildTime, getSeasonYield, MAX_FIELDS, FIELD_MAX_LEVEL } from "~/data/crops";
+import { CROPS, type CropId, getCrop, getFieldCost, getFieldBuildTime, getSeasonYield, getSoilMultiplier, getSoilStatus, MAX_FIELDS, FIELD_MAX_LEVEL } from "~/data/crops";
 import { VEGGIES, type VeggieId, getVeggie, getGardenCost, getGardenBuildTime, getGardenRate, isGardenActive, MAX_GARDENS, GARDEN_MAX_LEVEL } from "~/data/gardens";
 import { ANIMALS, type AnimalId, getAnimal, getPenCost, getPenBuildTime, getPenProduction, MAX_PENS, PEN_MAX_LEVEL } from "@medieval-realm/shared/data/livestock";
-import { getHiveCost, getHiveBuildTime, getHoneyRate, MAX_HIVES, HIVE_MAX_LEVEL } from "~/data/apiary";
+import { getHiveCost, getHiveBuildTime, getHoneyRate, MAX_HIVES, HIVE_MAX_LEVEL, APIARY_IMAGE } from "~/data/apiary";
 import { FRUITS, type FruitId, getFruit, getOrchardCost, getOrchardBuildTime, getOrchardRate, getOrchardStatus, isOrchardActive, MAX_ORCHARDS, ORCHARD_MAX_LEVEL } from "~/data/orchards";
 import { SEASON_META } from "~/data/seasons";
 import Countdown from "~/components/Countdown";
@@ -23,8 +23,8 @@ function fieldSeasonStatus(season: string, level: number, isHarvesting: boolean)
     case "summer": return { label: "☀️ Growing", color: "var(--accent-green)" };
     case "autumn":
       if (isHarvesting) return { label: "🌾 Harvesting!", color: "#d4831a" };
-      return { label: "✅ Harvest gathered — field resting", color: "var(--accent-red)" };
-    case "winter": return { label: "❄️ Fallow — dormant until spring", color: "var(--text-muted)" };
+      return { label: "✅ Harvest gathered", color: "var(--accent-red)" };
+    case "winter": return { label: "❄️ Dormant until spring", color: "var(--text-muted)" };
     default: return { label: "", color: "" };
   }
 }
@@ -33,101 +33,284 @@ function fieldSeasonStatus(season: string, level: number, isHarvesting: boolean)
 
 function FieldCard(props: { field: PlayerField }) {
   const { actions, state } = useGame();
-  const [showPlantPicker, setShowPlantPicker] = createSignal(false);
   const crop = () => props.field.crop ? getCrop(props.field.crop) : null;
-  const isEmpty = () => !props.field.crop && !props.field.fallow && props.field.level > 0 && !props.field.upgrading;
-  const isFallow = () => props.field.fallow && props.field.level > 0 && !props.field.upgrading;
-  const harvestYield = () => (props.field.level > 0 && crop()) ? getSeasonYield(crop()!, props.field.level) : 0;
+  const isEmpty = () => !props.field.crop && props.field.level > 0 && !props.field.upgrading;
+  /** Expected yield at harvest — base yield × soil multiplier (streak penalty + rest bonus). */
+  const harvestYield = () => {
+    if (!crop() || props.field.level === 0) return 0;
+    const base = getSeasonYield(crop()!, props.field.level);
+    const mult = getSoilMultiplier(props.field.sameCropStreak, props.field.restBonus);
+    return Math.max(0, Math.floor(base * mult));
+  };
+  /** Preview yield for a candidate crop, applied via what the streak WOULD become. */
+  const previewYield = (candidateCropId: CropId) => {
+    const c = getCrop(candidateCropId);
+    const base = getSeasonYield(c, props.field.level);
+    // If candidate matches lastCrop, streak grows by 1; else resets to 0.
+    const nextStreak = props.field.lastCrop === candidateCropId ? props.field.sameCropStreak + 1 : 0;
+    const mult = getSoilMultiplier(nextStreak, props.field.restBonus);
+    return Math.max(0, Math.floor(base * mult));
+  };
+  const soilStatus = () => getSoilStatus(props.field.sameCropStreak);
+  /** Effective max level — gated by the Town Hall level just like buildings.
+   *  FIELD_MAX_LEVEL remains the absolute ceiling. */
+  const effectiveMax = () => Math.min(actions.getTownHallLevel(), FIELD_MAX_LEVEL);
   const upgradeCost = () => props.field.level < FIELD_MAX_LEVEL ? getFieldCost(props.field.level) : null;
   const canUpgrade = () => {
     if (props.field.crop !== null) return false; // can only upgrade empty/fallow fields
-    if (props.field.upgrading || props.field.level >= FIELD_MAX_LEVEL) return false;
+    if (props.field.upgrading || props.field.level >= effectiveMax()) return false;
+    // Fields can only be worked in winter while the ground is dormant.
+    if (state.season !== "winter") return false;
     const cost = upgradeCost();
     return cost ? state.resources.wood >= cost.wood && state.resources.stone >= cost.stone : false;
   };
+  /** Human-readable reason the upgrade button is disabled. Shown on hover/tooltip. */
+  const upgradeBlockedReason = () => {
+    if (props.field.level >= FIELD_MAX_LEVEL) return "Max level reached";
+    if (props.field.level >= effectiveMax()) return `Upgrade Town Hall to lvl ${actions.getTownHallLevel() + 1} to raise this cap`;
+    if (props.field.upgrading) return "Already upgrading…";
+    if (props.field.crop !== null) return "Can't upgrade a planted field";
+    if (state.season !== "winter") return "Fields can only be upgraded in winter";
+    const cost = upgradeCost();
+    if (cost && (state.resources.wood < cost.wood || state.resources.stone < cost.stone)) return "Not enough resources";
+    return "";
+  };
   const isCurrentlyHarvesting = () => actions.isHarvesting();
   const seasonStatus = () => {
-    if (isFallow()) return { label: "🌿 Fallow — resting this year", color: "#9b59b6" };
     if (isEmpty()) {
-      if (state.season === "spring") return { label: "🌱 Ready to plant!", color: "var(--accent-green)" };
-      return { label: "Empty — waiting for spring", color: "var(--text-muted)" };
+      // In spring the crop picker replaces the status line — no need to also say "Ready to plant".
+      if (state.season === "spring") return null;
+      if (state.season === "winter") return { label: "❄️ Dormant — time to upgrade", color: "#a5d8ff" };
+      return { label: "Resting — ready for next spring", color: "#9b59b6" };
     }
     return fieldSeasonStatus(state.season, props.field.level, isCurrentlyHarvesting());
   };
 
+  // Banner image: current crop if planted, else last crop (so the field shows
+  // "what was grown here" after harvest), else nothing (fresh unused field).
+  const bannerImage = () => {
+    if (crop()?.image) return crop()!.image;
+    if (props.field.lastCrop) return getCrop(props.field.lastCrop).image;
+    return undefined;
+  };
+
+  const cardTitle = () => {
+    if (crop()) return `${crop()!.name} Field`;
+    if (props.field.lastCrop) return `${getCrop(props.field.lastCrop).name} Field`;
+    // Fresh, never-planted field: prompt in spring, generic label otherwise.
+    if (state.season === "spring" && !props.field.upgrading && props.field.level > 0) return "Choose a crop";
+    return "Empty Field";
+  };
+
   return (
-    <div class="field-card" classList={{
-      upgrading: props.field.upgrading,
-      harvesting: state.season === "autumn" && props.field.level > 0 && !!crop(),
-    }}>
-      <div class="field-card-header">
-        <span class="field-card-icon">{crop()?.icon ?? "🟫"}</span>
-        <div>
-          <div class="field-card-title">{crop() ? `${crop()!.name} Field` : "Empty Field"}</div>
-          <div class="field-card-level">
-            {props.field.level === 0 ? "Building..." : `Level ${props.field.level} / ${FIELD_MAX_LEVEL}`}
+    <div
+      class="building-card"
+      classList={{
+        upgrading: props.field.upgrading,
+        harvesting: state.season === "autumn" && props.field.level > 0 && !!crop(),
+      }}
+      style={{ cursor: "default" }}
+    >
+      {/* Banner image — title + level sit in the gradient overlay at the bottom,
+          matching the mission/building card visual language. */}
+      {/* No-icon fallback when the field has never been planted — the banner
+          fills in once the player picks their first crop. Title sits up top;
+          the level display is moved below the plant picker so the prompt leads
+          the card and the metadata follows. */}
+      <Show when={bannerImage()} fallback={
+        <div style={{ "margin-bottom": "4px" }}>
+          <div class="building-card-title">{cardTitle()}</div>
+        </div>
+      }>
+        <div class="building-card-image">
+          <img src={bannerImage()} alt="" loading="lazy" />
+          <div class="building-card-image-overlay">
+            <div class="building-card-title">{cardTitle()}</div>
+            <div class="building-card-level">
+              {props.field.level === 0 ? "Building..." : `Level ${props.field.level} / ${effectiveMax()}`}
+            </div>
           </div>
         </div>
-      </div>
+      </Show>
       <Show when={props.field.upgrading && props.field.upgradeRemaining}>
         <div class="field-card-status upgrading-status">
           {props.field.level === 0 ? "Preparing field" : "Upgrading"} — <Countdown remainingSeconds={props.field.upgradeRemaining!} />
         </div>
       </Show>
       <Show when={!props.field.upgrading && props.field.level > 0}>
-        <div class="field-card-status" style={{ color: seasonStatus().color }}>{seasonStatus().label}</div>
+        <Show when={seasonStatus()}>
+          {(s) => <div class="field-card-status" style={{ color: s().color }}>{s().label}</div>}
+        </Show>
+        {/* Soil status pill — only meaningful once the field has a rotation history */}
+        <Show when={props.field.lastCrop !== null}>
+          <div style={{
+            "font-size": "0.7rem",
+            color: soilStatus().color,
+            "margin-top": "2px",
+            display: "flex",
+            gap: "6px",
+            "align-items": "center",
+            "flex-wrap": "wrap",
+          }}>
+            <span>🌾 {soilStatus().label}</span>
+            <Show when={props.field.restBonus}>
+              <span style={{ color: "var(--accent-green)" }}>· 🌿 Rested (+15% next harvest)</span>
+            </Show>
+          </div>
+        </Show>
         <Show when={crop()}>
-          <div class="field-card-harvest">Expected harvest: <strong>{harvestYield()}</strong> {crop()!.isFood ? "food" : "fiber"}</div>
-          <div style={{ "font-size": "0.7rem", color: props.field.harvestsBeforeFallow <= 1 ? "var(--accent-gold)" : "var(--text-muted)", "margin-top": "2px" }}>
-            {props.field.harvestsBeforeFallow > 1
-              ? `${props.field.harvestsBeforeFallow - 1} more harvest${props.field.harvestsBeforeFallow > 2 ? "s" : ""} before fallow`
-              : "Last harvest before fallow"}
+          <div class="field-card-harvest">
+            Expected harvest: <strong>{harvestYield()}</strong> {crop()!.isFood ? "food" : "fiber"}
           </div>
         </Show>
       </Show>
 
-      {/* Plant picker — spring only, empty fields */}
+      {/* Plant picker — spring only, empty fields. Always-visible 3-tile grid,
+          no gating button. Click a tile to plant immediately. */}
+      {/* Plant picker — banner-style: negative horizontal margins take the
+          tiles edge-to-edge with the card, tiles separated by a thin vertical
+          divider, no colored per-tile border (the accent tint lives in the
+          yield text instead). */}
       <Show when={isEmpty() && state.season === "spring"}>
-        <Show when={showPlantPicker()} fallback={
-          <button class="field-upgrade-btn" style={{ "margin-top": "6px", width: "100%" }} onClick={() => setShowPlantPicker(true)}>
-            Plant a crop
-          </button>
-        }>
-          <div style={{ "margin-top": "6px", display: "flex", gap: "4px", "flex-wrap": "wrap" }}>
-            <For each={CROPS}>
-              {(c) => (
+        <div style={{
+          "margin": "8px -16px 0",
+          display: "grid",
+          "grid-template-columns": "1fr 1fr 1fr",
+          gap: "0",
+          "border-top": "1px solid var(--border-color)",
+          "border-bottom": "1px solid var(--border-color)",
+        }}>
+          <For each={CROPS}>
+            {(c, i) => {
+              const preview = () => previewYield(c.id);
+              const wouldDeplete = () => props.field.lastCrop === c.id;
+              const accent = () => wouldDeplete() ? "var(--accent-gold)" : "var(--accent-green)";
+              return (
                 <button
-                  class="field-upgrade-btn"
-                  style={{ "font-size": "0.75rem", padding: "4px 8px" }}
-                  onClick={() => { actions.plantField(props.field.id, c.id); setShowPlantPicker(false); }}
+                  class="crop-picker-tile"
+                  onClick={() => actions.plantField(props.field.id, c.id)}
+                  style={{
+                    height: "160px",
+                    padding: 0,
+                    border: "none",
+                    "border-right": i() < CROPS.length - 1 ? "1px solid var(--border-color)" : "none",
+                    "border-radius": 0,
+                    overflow: "hidden",
+                    cursor: "pointer",
+                    "background-image": c.image ? `url(${c.image})` : undefined,
+                    "background-size": "cover",
+                    "background-position": "center",
+                    background: c.image ? undefined : "var(--bg-secondary)",
+                  }}
+                  title={wouldDeplete()
+                    ? `Same crop as last season — soil depletes. Yield: ${preview()} ${c.isFood ? "food" : "fiber"}.`
+                    : `Rotating to ${c.name} — fresh soil. Yield: ${preview()} ${c.isFood ? "food" : "fiber"}.`}
                 >
-                  {c.icon} {c.name}
+                  <div style={{
+                    position: "absolute", inset: 0,
+                    background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 55%, transparent 100%)",
+                  }} />
+                  <div style={{
+                    position: "absolute", top: "6px", left: "8px", right: "8px",
+                    "font-size": "0.85rem", "font-weight": "bold",
+                    color: "white", "text-shadow": "0 1px 2px rgba(0,0,0,0.8)",
+                    "text-align": "left",
+                    "white-space": "nowrap",
+                    overflow: "hidden",
+                    "text-overflow": "ellipsis",
+                  }}>
+                    {c.icon} {c.name}
+                  </div>
+                  <div style={{
+                    position: "absolute", bottom: "6px", left: "8px", right: "8px",
+                    "text-align": "left",
+                  }}>
+                    <div style={{
+                      "font-size": "0.9rem", color: accent(), "font-weight": "bold",
+                      "text-shadow": "0 1px 2px rgba(0,0,0,0.8)",
+                      "white-space": "nowrap",
+                    }}>
+                      → {preview()} {c.isFood ? "🍞" : "🧵"}
+                    </div>
+                    <div style={{
+                      "font-size": "0.68rem",
+                      color: "white",
+                      opacity: 0.85,
+                      "text-shadow": "0 1px 2px rgba(0,0,0,0.8)",
+                      "margin-top": "2px",
+                      // Allow the reason to wrap to two lines if needed — cropping
+                      // with ellipsis (as the yield line does) cut off meaningful words.
+                      "line-height": "1.3",
+                    }}>
+                      {wouldDeplete() ? "Same as last — depletes" : "Rotation — fresh soil"}
+                    </div>
+                  </div>
                 </button>
-              )}
-            </For>
-            <button
-              style={{ "font-size": "0.75rem", padding: "4px 8px", background: "none", border: "1px solid var(--border-default)", color: "var(--text-muted)", "border-radius": "4px", cursor: "pointer" }}
-              onClick={() => setShowPlantPicker(false)}
-            >
-              Cancel
-            </button>
+              );
+            }}
+          </For>
+        </div>
+        {/* Level readout under the picker — only shown when there's no banner
+            image (fresh field). When a banner is present the level is on the
+            overlay and this row would be redundant. */}
+        <Show when={!bannerImage()}>
+          <div class="building-card-level" style={{ "margin-top": "8px" }}>
+            {props.field.level === 0 ? "Building..." : `Level ${props.field.level} / ${effectiveMax()}`}
           </div>
         </Show>
       </Show>
 
-      {/* Upgrade — empty (non-fallow) fields only */}
-      <Show when={(isEmpty() || isFallow()) && !props.field.upgrading && props.field.level < FIELD_MAX_LEVEL}>
+      {/* Upgrade — empty fields only, winter only (enforced in canUpgrade) */}
+      {/* Upgrade row — winter only, where it's actually actionable. Skipped
+          entirely the rest of the year so the card stays clean. */}
+      <Show when={isEmpty() && !props.field.upgrading && state.season === "winter" && props.field.level < FIELD_MAX_LEVEL}>
         <div class="field-card-upgrade">
           <div class="field-upgrade-info">
             <span class="field-upgrade-cost">🪵 {upgradeCost()!.wood} 🪨 {upgradeCost()!.stone}</span>
             <span class="field-upgrade-time">{formatTime(getFieldBuildTime(props.field.level))}</span>
           </div>
-          <button class="field-upgrade-btn" disabled={!canUpgrade()} onClick={() => actions.upgradeField(props.field.id)}>Upgrade</button>
+          <button
+            class="field-upgrade-btn"
+            disabled={!canUpgrade()}
+            title={canUpgrade() ? "" : upgradeBlockedReason()}
+            onClick={() => actions.upgradeField(props.field.id)}
+          >
+            Upgrade
+          </button>
         </div>
       </Show>
-      <Show when={!props.field.upgrading}>
-        <button class="field-remove-btn" onClick={() => { if (confirm("Remove this field?")) actions.removeField(props.field.id); }}>Remove</button>
-      </Show>
+    </div>
+  );
+}
+
+// ─── Empty Field Slot ──────────────────────────────────────────
+// A visible placeholder for each of the MAX_FIELDS plots that haven't been
+// built yet. Makes the 3-field cap discoverable at a glance and puts the
+// build cost right where the field will eventually live.
+
+/**
+ * Empty plot placeholder. The whole card is the click target for building —
+ * no separate button. An idle "Click to build" hint sits in place of where a
+ * banner/content would be, and the hint brightens on hover to signal
+ * interactivity. Disabled state shows why (not enough resources).
+ */
+function EmptyFieldSlot(props: { canBuild: boolean; isWinter: boolean; onBuild: () => void }) {
+  const cost = getFieldCost(0);
+  const time = getFieldBuildTime(0);
+  return (
+    <div
+      class="empty-field-slot"
+      classList={{ disabled: !props.canBuild }}
+      onClick={() => { if (props.canBuild) props.onBuild(); }}
+      title={!props.canBuild ? "Not enough resources to build yet" : "Click to build a field here"}
+    >
+      <div class="empty-field-slot-label">Unbuilt plot</div>
+      <div class="empty-field-slot-cost">
+        🪵 {cost.wood}   🪨 {cost.stone}   ⏱ {formatTime(time)}
+      </div>
+      <div class="empty-field-slot-hint">
+        {props.canBuild ? "Click to build" : "Not enough resources"}
+      </div>
     </div>
   );
 }
@@ -149,6 +332,7 @@ function GardenCard(props: { garden: PlayerGarden }) {
   return (
     <FarmCard
       icon={veggie().icon}
+      image={veggie().image}
       title={`${veggie().name} Garden`}
       level={props.garden.level}
       maxLevel={GARDEN_MAX_LEVEL}
@@ -198,6 +382,7 @@ function PenCard(props: { pen: PlayerPen }) {
   return (
     <FarmCard
       icon={animal().icon}
+      image={animal().image}
       title={`${animal().name} Pen`}
       level={props.pen.level}
       maxLevel={PEN_MAX_LEVEL}
@@ -273,20 +458,38 @@ interface FarmCardProps {
   onUpgrade: () => void;
   onRemove: () => void;
   removeLabel?: string;
+  /** Optional banner image shown at the top of the card. */
+  image?: string;
 }
 
 function FarmCard(props: FarmCardProps) {
   return (
-    <div class="field-card" classList={{ upgrading: props.upgrading }}>
-      <div class="field-card-header">
-        <span class="field-card-icon">{props.icon}</span>
-        <div>
-          <div class="field-card-title">{props.title}</div>
-          <div class="field-card-level">
-            {props.level === 0 ? (props.buildLabel ?? "Building...") : `Level ${props.level} / ${props.maxLevel}`}
+    <div
+      class="building-card"
+      classList={{ upgrading: props.upgrading }}
+      style={{ cursor: "default" }}
+    >
+      <Show when={props.image} fallback={
+        <div class="building-card-header">
+          <span class="building-card-icon">{props.icon}</span>
+          <div>
+            <div class="building-card-title">{props.title}</div>
+            <div class="building-card-level">
+              {props.level === 0 ? (props.buildLabel ?? "Building...") : `Level ${props.level} / ${props.maxLevel}`}
+            </div>
           </div>
         </div>
-      </div>
+      }>
+        <div class="building-card-image">
+          <img src={props.image} alt="" loading="lazy" />
+          <div class="building-card-image-overlay">
+            <div class="building-card-title">{props.title}</div>
+            <div class="building-card-level">
+              {props.level === 0 ? (props.buildLabel ?? "Building...") : `Level ${props.level} / ${props.maxLevel}`}
+            </div>
+          </div>
+        </div>
+      </Show>
       <Show when={props.upgrading && props.upgradeRemaining !== undefined}>
         <div class="field-card-status upgrading-status">
           {props.level === 0 ? (props.buildLabel ?? "Building") : "Upgrading"} — <Countdown remainingSeconds={props.upgradeRemaining!} />
@@ -335,6 +538,7 @@ function HiveCard(props: { hive: PlayerHive }) {
   return (
     <FarmCard
       icon="🐝"
+      image={APIARY_IMAGE}
       title="Beehive"
       level={props.hive.level}
       maxLevel={HIVE_MAX_LEVEL}
@@ -372,6 +576,7 @@ function OrchardCard(props: { orchard: PlayerOrchard }) {
   return (
     <FarmCard
       icon={fruitDef().icon}
+      image={fruitDef().image}
       title={fruitDef().name}
       level={props.orchard.level}
       maxLevel={ORCHARD_MAX_LEVEL}
@@ -445,6 +650,28 @@ export default function Farming() {
   return (
     <div>
       <h1 class="page-title">Farming</h1>
+
+      {/* Rotation tip — appears only until the player has actually planted, so
+          it doesn't pester veterans. The soil-status pill on each field card
+          handles ongoing guidance after the first planting. */}
+      <Show when={state.fields.every((f) => f.lastCrop === null)}>
+        <div style={{
+          padding: "10px 14px",
+          "margin-bottom": "16px",
+          background: "rgba(139, 195, 74, 0.08)",
+          border: "1px solid var(--accent-green)",
+          "border-radius": "6px",
+          "font-size": "0.85rem",
+          color: "var(--text-secondary)",
+          "line-height": "1.5",
+        }}>
+          🌾 <strong>Tip — rotate your crops.</strong> Planting the same crop
+          in the same field year after year depletes the soil and cuts yield.
+          Rotating between wheat, barley, and flax keeps fields healthy.
+          Leaving a field empty through a season grants a <em>+15% rested</em>
+          bonus on the next harvest.
+        </div>
+      </Show>
 
       <div class="farming-summary">
         <div class="farming-stat">
@@ -522,14 +749,18 @@ export default function Farming() {
         </div>
       </Show>
       <div class="fields-grid">
-        <For each={state.fields}>{(f) => <FieldCard field={f} />}</For>
-        <Show when={state.fields.length < MAX_FIELDS}>
-          <button class="add-card-btn" disabled={!canBuildField()} onClick={() => actions.buildField()}>
-            <span class="add-card-icon">+</span>
-            <span class="add-card-label">New Field</span>
-            <span class="add-card-cost">🪵 {getFieldCost(0).wood} 🪨 {getFieldCost(0).stone}</span>
-          </button>
-        </Show>
+        {/* Always render MAX_FIELDS slots so the player sees the full plot
+            capacity up front — the three-field rotation is the whole game loop,
+            not a capped allowance that needs discovering. */}
+        <For each={Array.from({ length: MAX_FIELDS }, (_, i) => state.fields[i])}>
+          {(f) => f
+            ? <FieldCard field={f} />
+            : <EmptyFieldSlot
+                canBuild={canBuildField()}
+                isWinter={state.season === "winter"}
+                onBuild={() => actions.buildField()}
+              />}
+        </For>
       </div>
 
       {/* ── Gardens ── */}

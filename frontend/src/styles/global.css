@@ -2473,6 +2473,99 @@ body {
   background: rgba(212, 131, 26, 0.05);
 }
 
+/* Same harvesting accent when farming cards reuse the building-card layout. */
+.building-card.harvesting {
+  border-color: #d4831a;
+  background: rgba(212, 131, 26, 0.05);
+}
+
+/* ─── Crop picker tiles ──────────────────────────────────────── */
+/* The 3 tiles sit flush against each other with thin dividers. On hover
+   the one under the cursor lifts slightly, brightens, and pushes its
+   z-index above neighbors so the scaled edges overlap instead of clip. */
+.crop-picker-tile {
+  transition: transform 180ms ease-out, box-shadow 180ms ease-out, filter 180ms ease-out;
+  position: relative;
+  z-index: 1;
+}
+.crop-picker-tile:hover {
+  transform: scale(1.04);
+  z-index: 2;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+  filter: brightness(1.08);
+}
+.crop-picker-tile:active {
+  transform: scale(1.01);
+  transition-duration: 60ms;
+}
+
+/* ─── Empty field slot (unbuilt plot placeholder) ─────────────── */
+/* Whole card is the click target; a subtle hint brightens on hover so
+   interactivity is discoverable without needing a button. */
+.empty-field-slot {
+  /* Dotted feels lighter than dashed while staying visible; the slight alpha
+     boost keeps the placeholder readable without feeling heavy. */
+  border: 1px dashed rgba(180, 150, 100, 0.45);
+  border-radius: 8px;
+  background: transparent;
+  min-height: 220px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s, transform 0.18s;
+}
+
+.empty-field-slot:hover {
+  border-color: var(--accent-green);
+  background: rgba(46, 204, 113, 0.05);
+  transform: translateY(-1px);
+}
+
+.empty-field-slot.disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.empty-field-slot.disabled:hover {
+  border-color: rgba(180, 150, 100, 0.45);
+  background: transparent;
+  transform: none;
+}
+
+.empty-field-slot-label {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+.empty-field-slot-cost {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.empty-field-slot-hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  opacity: 0.65;
+  transition: color 0.18s, opacity 0.18s;
+  font-style: italic;
+}
+
+.empty-field-slot:hover .empty-field-slot-hint {
+  color: var(--accent-green);
+  opacity: 1;
+}
+
+.empty-field-slot.disabled .empty-field-slot-hint {
+  color: var(--text-muted);
+  opacity: 0.65;
+}
+
 .field-card-header {
   display: flex;
   align-items: center;

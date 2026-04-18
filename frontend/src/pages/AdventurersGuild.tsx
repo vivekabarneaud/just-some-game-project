@@ -9,7 +9,6 @@ import {
   RANK_COLORS,
   getRecruitCost,
   getXpForLevel,
-  getUnspentStatPoints,
   getPortraitUrl,
   getOrigin,
   RACE_NAMES,
@@ -18,6 +17,7 @@ import {
   getRelationship,
   getFoodPref,
 } from "@medieval-realm/shared/data/adventurers";
+import { getUnspentTalentPoints } from "~/data/talents";
 import { getItem } from "@medieval-realm/shared/data/items";
 import {
   type MissionTemplate,
@@ -207,7 +207,6 @@ export default function AdventurersGuild() {
   );
   const available = () => availableIds().map((id) => state.adventurers.find((a) => a.id === id)!);
   const roster = () => state.adventurers;
-  const slotInfo = () => actions.getMissionSlotInfo();
   const rosterSize = () => actions.getRosterSize();
 
   const switchTab = (t: Tab) => {
@@ -297,7 +296,7 @@ export default function AdventurersGuild() {
           "flex-wrap": "wrap",
         }}>
           <span>Guild Lv.{guildLevel()}</span>
-          <span>Missions: {slotInfo().used}/{slotInfo().max}</span>
+          <span>Active missions: {state.activeMissions.length}</span>
           <span>Roster: {rosterSize().current}/{rosterSize().max}</span>
           <span>Refresh in: {(() => {
             const now = new Date();
@@ -844,7 +843,7 @@ export default function AdventurersGuild() {
                 };
                 const totalSlots = 11;
                 const emptySlotCount = () => totalSlots - Object.values(adv.equipment).filter(Boolean).length;
-                const unspent = () => getUnspentStatPoints(adv);
+                const unspentTalents = () => getUnspentTalentPoints(adv);
                 return (
                   <A href={`/guild/${adv.id}`} style={{ "text-decoration": "none", display: "flex" }}>
                     <div class="building-card adv-card" style={{
@@ -885,13 +884,30 @@ export default function AdventurersGuild() {
                           </div>
                         </Show>
                         <TraitBadge traitId={adv.trait} />
-                        <div style={{ "margin-top": "auto", "padding-top": "8px", "font-size": "0.75rem", display: "flex", gap: "6px", "flex-wrap": "wrap" }}>
+                        <div style={{ "margin-top": "auto", "padding-top": "8px", "font-size": "0.75rem", display: "flex", gap: "6px", "flex-wrap": "wrap", "align-items": "center" }}>
                           {equippedItems().map((item) => <span title={item!.name}>{item!.icon}</span>)}
                           {emptySlotCount() > 0 && (
                             <span style={{ color: "var(--accent-gold)", "font-size": "0.7rem" }}>
                               {emptySlotCount()} empty gear slot{emptySlotCount() > 1 ? "s" : ""}
                             </span>
                           )}
+                          <Show when={unspentTalents() > 0}>
+                            <span
+                              title="This adventurer has unspent talent points"
+                              style={{
+                                padding: "2px 8px",
+                                "border-radius": "4px",
+                                background: "rgba(52, 152, 219, 0.18)",
+                                border: "1px solid var(--accent-blue)",
+                                color: "var(--accent-blue)",
+                                "font-size": "0.7rem",
+                                "font-weight": "bold",
+                                animation: "pulse 2s infinite",
+                              }}
+                            >
+                              ⭐ {unspentTalents()} talent point{unspentTalents() > 1 ? "s" : ""}
+                            </span>
+                          </Show>
                         </div>
                         {adv.onMission && (
                           <div style={{

@@ -352,7 +352,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     duration: 540,
     rewards: [{ resource: "gold", amount: 25 }, { resource: "stone", amount: 20 }],
     deployCost: 3,
-    difficulty: 1,
+    difficulty: 2,
     minGuildLevel: 1,
     tags: ["combat", "outdoor"],
     encounters: [{ enemyId: "cave_spider", count: 3 }],

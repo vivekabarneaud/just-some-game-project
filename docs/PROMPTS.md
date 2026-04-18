@@ -823,3 +823,65 @@ A slim elongated vial of pale silver-blue liquid that seems to swirl rapidly ins
 **Phoenix Tears**
 A tiny crystal phial of liquid fire — brilliant orange-gold fluid that flickers and dances like living flame inside the glass, a single drop on the outside of the bottle blazing with white-hot light, the phial itself warm enough to glow, the most precious substance imaginable, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
+
+---
+
+## Farm Tiles
+
+Warm pastoral scenes for field/garden/orchard/pen cards. Same image reused across
+all settlement tiers (the crop itself doesn't change with tier). Aspect: --ar 4:3.
+
+### Fields
+
+**Wheat field**
+A small rectangular field of ripe golden wheat swaying gently, the stalks heavy with grain, dry earthen pathways visible at the field's edge, a wooden fence partially enclosing it, late summer afternoon, warm golden light, realistic digital painting --ar 4:3
+
+**Barley field**
+A rectangular field of pale straw-colored barley with long delicate bristled ears bending slightly in the wind, slightly shorter and shaggier than wheat, wooden fence at edges, warm midday light, realistic digital painting --ar 4:3
+
+**Flax field**
+A rectangular field of flax in bloom, covered in small sky-blue flowers on slender green stalks, morning light, delicate and painterly, a wooden fence frame, realistic digital painting --ar 4:3
+
+### Gardens
+
+**Cabbage garden**
+Neat rows of large leafy green cabbages in tilled dark soil, a few wicker baskets at the edge, a wooden plot border, warm summer light, realistic digital painting, cozy pastoral mood --ar 4:3
+
+**Turnip garden**
+Rows of turnips with their purple-and-cream root shoulders pushing up from rich dark soil, green leafy tops, a small wooden basket to one side, realistic digital painting, cozy pastoral mood --ar 4:3
+
+**Pea garden**
+Wooden trellises laced with climbing pea vines, small white-pink flowers and plump green pods hanging, neatly staked rows, soft daylight, realistic digital painting, cozy pastoral mood --ar 4:3
+
+**Squash garden**
+Sprawling squash vines with broad green leaves and large yellow-orange squashes nestled among them on rich brown soil, straw mulch, realistic digital painting, cozy pastoral mood --ar 4:3
+
+### Orchards
+
+**Apple orchard**
+A small grove of three or four apple trees heavy with red-green fruit, soft green grass beneath, a wooden basket half-filled with apples at the base of one tree, dappled afternoon sunlight, realistic digital painting --ar 4:3
+
+**Pear orchard**
+A grove of slender pear trees with hanging golden-green pears, a few fallen on the grass, low stone wall in the background, golden hour light, realistic digital painting --ar 4:3
+
+**Cherry orchard**
+Cherry trees in full bloom with clusters of ripe red cherries and pale-pink blossoms still clinging, a rustic wooden ladder leaned against one trunk, soft spring light, realistic digital painting --ar 4:3
+
+### Animal Pens
+
+**Chicken coop**
+A small wooden coop with a fenced run, several plump brown and white hens pecking at scattered grain in dirt-and-straw ground, a rooster on a low perch, morning light, realistic digital painting, pastoral farm scene --ar 4:3
+
+**Pig pen**
+A muddy wooden-fenced pen with two or three pink pigs — one wallowing, one eating from a trough — straw bedding, a rustic shelter in the back, realistic digital painting, pastoral farm scene --ar 4:3
+
+**Goat pen**
+A hilly fenced enclosure with three or four alert brown-and-white goats, one standing on a rock, a wooden shed at the back, mountain grass, warm daylight, realistic digital painting, pastoral farm scene --ar 4:3
+
+**Sheep pen**
+A grassy enclosure with four fluffy white sheep grazing, a low wooden fence, a rustic shearing post to one side, soft overcast light, realistic digital painting, pastoral farm scene --ar 4:3
+
+### Beehives
+
+**Apiary**
+Three or four traditional woven straw skep beehives on a wooden stand, bees visibly swarming around them, wildflowers growing at the base, a clay honey pot half-visible in the foreground, warm summer midday light, realistic digital painting, pastoral farm scene --ar 4:3

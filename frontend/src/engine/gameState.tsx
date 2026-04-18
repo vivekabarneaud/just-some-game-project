@@ -58,6 +58,7 @@ import {
   getFieldCost,
   getFieldBuildTime,
   getSeasonYield,
+  getSoilMultiplier,
   MAX_FIELDS,
   FIELD_MAX_LEVEL,
 } from "~/data/crops";
@@ -124,7 +125,6 @@ import {
   getMaxRecruitRank,
   getCandidateCount,
   getMaxRoster,
-  getMissionSlots,
   RECRUIT_REFRESH_HOURS,
   MISSION_REFRESH_HOURS,
   RACE_WEIGHTS,
@@ -257,10 +257,11 @@ export interface StorageCaps {
 
 export interface PlayerField {
   id: string;
-  crop: CropId | null; // null = empty/unplanted field
-  harvested: boolean; // true after this field's harvest is collected this year
-  harvestsBeforeFallow: number; // 2 = fresh, 1 = one more harvest, 0 = fallow this year
-  fallow: boolean; // true = resting this year, can't plant
+  crop: CropId | null;          // currently-growing crop; null = empty
+  harvested: boolean;           // already harvested this year, wait for spring
+  lastCrop: CropId | null;      // last crop planted — drives rotation tracking
+  sameCropStreak: number;       // consecutive same-crop years (0 = fresh/rotated)
+  restBonus: boolean;           // +15% yield next harvest (field was idle a year)
   level: number;
   upgrading: boolean;
   upgradeRemaining?: number;
@@ -440,7 +441,6 @@ export interface GameActions {
   collectCompletedMissions: () => CompletedMission[];
   getAvailableAdventurers: () => Adventurer[];
   getRosterSize: () => { current: number; max: number };
-  getMissionSlotInfo: () => { used: number; max: number };
   grantResources: (amount: number) => void;
   // Ale & Happiness
   getAleInfo: () => { current: number; cap: number; production: number; consumption: number };
@@ -695,8 +695,12 @@ function loadGame(): GameState | null {
     if (!saved.yearHarvest) saved.yearHarvest = {};
     for (const f of saved.fields) {
       if ((f as any).harvested === undefined) (f as any).harvested = false;
-      if ((f as any).harvestsBeforeFallow === undefined) (f as any).harvestsBeforeFallow = 2;
-      if ((f as any).fallow === undefined) (f as any).fallow = false;
+      // Migrate away from the forced-fallow counter — fallow is now a strategic choice.
+      delete (f as any).harvestsBeforeFallow;
+      delete (f as any).fallow;
+      if ((f as any).lastCrop === undefined) (f as any).lastCrop = null;
+      if ((f as any).sameCropStreak === undefined) (f as any).sameCropStreak = 0;
+      if ((f as any).restBonus === undefined) (f as any).restBonus = false;
     }
     if (saved.clothing === undefined) saved.clothing = 0;
     if (saved.iron === undefined) saved.iron = 0;
@@ -1220,11 +1224,9 @@ function calcBuildingEffect(buildingId: string, nextLevel: number): string | nul
       return `Defense: +${curDef} → +${nextDef} · Early warning: +${curWarn}h → +${nextWarn}h`;
     }
     case "adventurers_guild": {
-      const curSlots = getMissionSlots(Math.max(0, currentLevel));
-      const nextSlots = getMissionSlots(nextLevel);
       const curRoster = getMaxRoster(Math.max(0, currentLevel));
       const nextRoster = getMaxRoster(nextLevel);
-      return `Mission slots: ${curSlots} → ${nextSlots} · Max roster: ${curRoster} → ${nextRoster}`;
+      return `Max roster: ${curRoster} → ${nextRoster}`;
     }
     default:
       return null;
@@ -1479,28 +1481,28 @@ export function GameProvider(props: ParentProps) {
       s.yearHarvest = {};
       for (const field of s.fields) {
         if (field.crop && field.level > 0) {
+          // Planted this year — harvest with soil multiplier applied
           const crop = getCrop(field.crop);
-          const amount = getSeasonYield(crop, field.level);
+          const base = getSeasonYield(crop, field.level);
+          const mult = getSoilMultiplier(field.sameCropStreak, field.restBonus);
+          const amount = Math.max(0, Math.floor(base * mult));
           s.yearHarvest[crop.name] = (s.yearHarvest[crop.name] ?? 0) + amount;
           field.harvested = true;
           field.crop = null;
-          // Decrement harvests before fallow
-          field.harvestsBeforeFallow -= 1;
-          if (field.harvestsBeforeFallow <= 0) {
-            field.fallow = true;
-          }
+          // Rest bonus is consumed by this harvest
+          field.restBonus = false;
+        } else if (field.level > 0 && field.lastCrop !== null) {
+          // Field was left idle through this growing season — grant rest bonus
+          // for the next harvest. Only applies if there's been a previous crop
+          // (fresh fields already have full yield).
+          field.restBonus = true;
         }
       }
     }
-    // Reset fallow and harvested flags in spring
+    // Reset per-year UI flag in spring
     if (next === "spring") {
       for (const field of s.fields) {
         field.harvested = false;
-        if (field.fallow) {
-          // Fallow year is over — field is refreshed
-          field.fallow = false;
-          field.harvestsBeforeFallow = 2;
-        }
       }
     }
     if (prev === "summer") {
@@ -2553,7 +2555,12 @@ export function GameProvider(props: ParentProps) {
       setState(produce((s) => {
         s.resources.wood -= cost.wood;
         s.resources.stone -= cost.stone;
-        s.fields.push({ id, crop: null, level: 0, upgrading: true, upgradeRemaining: getFieldBuildTime(0), harvested: false, harvestsBeforeFallow: 2, fallow: false });
+        s.fields.push({
+          id, level: 0,
+          upgrading: true, upgradeRemaining: getFieldBuildTime(0),
+          crop: null, harvested: false,
+          lastCrop: null, sameCropStreak: 0, restBonus: false,
+        });
       }));
       scheduleSave();
       return true;
@@ -2564,11 +2571,18 @@ export function GameProvider(props: ParentProps) {
       const field = state.fields.find((f) => f.id === fieldId);
       if (!field || field.upgrading || field.level === 0) return false;
       if (field.crop !== null) return false; // already planted
-      if (field.fallow) return false; // resting this year
       setState(produce((s) => {
         const f = s.fields.find((f) => f.id === fieldId)!;
         f.crop = crop;
         f.harvested = false;
+        // Update rotation tracking: same crop in a row = depleted streak grows,
+        // different crop = streak resets. This determines yield at harvest.
+        if (f.lastCrop === crop) {
+          f.sameCropStreak += 1;
+        } else {
+          f.sameCropStreak = 0;
+        }
+        f.lastCrop = crop;
       }));
       scheduleSave();
       return true;
@@ -2579,6 +2593,11 @@ export function GameProvider(props: ParentProps) {
       if (!field || field.upgrading || field.level >= FIELD_MAX_LEVEL) return false;
       // Can only upgrade empty or fallow fields (not planted ones)
       if (field.crop !== null) return false;
+      // Winter-only: fields can only be worked when the ground is dormant.
+      // Creates a yearly cycle — winter upgrades, spring plants, etc.
+      if (state.season !== "winter") return false;
+      // TH-gated: fields can't exceed the current Town Hall level, same rule as buildings.
+      if (field.level >= getTownHallLevel(state.buildings)) return false;
       const cost = getFieldCost(field.level);
       if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
       setState(produce((s) => {
@@ -2840,8 +2859,6 @@ export function GameProvider(props: ParentProps) {
     deployMission(missionId, adventurerIds, adventurerSupplies = {}, precomputedSuccess?: number) {
       const guildLvl = this.getGuildLevel();
       if (guildLvl === 0) return false;
-      const maxSlots = getMissionSlots(guildLvl);
-      if (state.activeMissions.length >= maxSlots) return false;
 
       const template = getMission(missionId);
       if (!template || template.minGuildLevel > guildLvl) return false;
@@ -2951,10 +2968,6 @@ export function GameProvider(props: ParentProps) {
     getRosterSize() {
       const guildLvl = this.getGuildLevel();
       return { current: state.adventurers.length, max: getMaxRoster(guildLvl) };
-    },
-    getMissionSlotInfo() {
-      const guildLvl = this.getGuildLevel();
-      return { used: state.activeMissions.length, max: getMissionSlots(guildLvl) };
     },
     getAleInfo() {
       const breweryLvl = state.buildings.find((b) => b.buildingId === "brewery")?.level ?? 0;

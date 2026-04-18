@@ -47,10 +47,16 @@ export type CropId = "wheat" | "barley" | "flax";
 
 export interface PlayerField {
   id: string;
+  /** Currently-growing crop. Null between autumn harvest and next spring planting. */
   crop: CropId | null;
+  /** UI flag — already harvested this year, wait for spring. Reset each spring. */
   harvested: boolean;
-  harvestsBeforeFallow: number;
-  fallow: boolean;
+  /** Last crop planted in this field (kept across years). Drives rotation bonuses/penalties. */
+  lastCrop: CropId | null;
+  /** How many years in a row the same crop has been planted. 0 = fresh or rotated. */
+  sameCropStreak: number;
+  /** Next harvest receives a +15% bonus (field was left idle through a growing season). */
+  restBonus: boolean;
   level: number;
   upgrading: boolean;
   upgradeRemaining?: number;

@@ -87,19 +87,23 @@ export default function EventBanner() {
     onCleanup(() => clearTimeout(fallback));
   });
 
+  // Keyed Show: when the queue advances, the DOM is rebuilt rather than
+  // re-used. Without this, the CSS marquee/entry animations wouldn't
+  // restart for the next banner — they'd still be in the final frame of
+  // the previous one.
   return (
-    <Show when={current()}>
+    <Show when={current()} keyed>
       {(item) => {
-        const accent = () => item().accent ?? DEFAULT_ACCENTS[item().type];
+        const accent = () => item.accent ?? DEFAULT_ACCENTS[item.type];
         return (
           <div
             class="event-banner"
             classList={{ exiting: exiting() }}
             onClick={() => {
-              const cb = item().onClick;
+              const cb = item.onClick;
               if (cb) {
                 cb();
-                dismissEvent(item().id);
+                dismissEvent(item.id);
               }
             }}
             style={{
@@ -112,7 +116,7 @@ export default function EventBanner() {
               "border-bottom": `2px solid ${accent()}`,
               overflow: "hidden",
               "z-index": 9,
-              cursor: item().onClick ? "pointer" : "default",
+              cursor: item.onClick ? "pointer" : "default",
               // prevent content from briefly shifting when banner appears
               "box-shadow": "0 2px 8px rgba(0, 0, 0, 0.3)",
             }}
@@ -136,7 +140,7 @@ export default function EventBanner() {
                   // Several animations fire animationend — only the scroll one
                   // marks the banner as "done". Ignore entrance/exit frames.
                   if (e.animationName !== "event-banner-scroll") return;
-                  startExit(item().id);
+                  startExit(item.id);
                 }}
                 style={{
                   display: "flex",
@@ -157,10 +161,10 @@ export default function EventBanner() {
                   "letter-spacing": "0.5px",
                 }}
               >
-                <Show when={item().icon}>
-                  <span style={{ "font-size": "1.1rem" }}>{item().icon}</span>
+                <Show when={item.icon}>
+                  <span style={{ "font-size": "1.1rem" }}>{item.icon}</span>
                 </Show>
-                <span>{item().message}</span>
+                <span>{item.message}</span>
               </div>
             </div>
           </div>

@@ -73,7 +73,6 @@ export default function MissionAssemblyPanel(props: Props) {
   const [adventurerSupplies, setAdventurerSupplies] = createSignal<Record<string, AdventurerMissionSupplies>>({});
   const mission = () => props.mission;
   const freshMission = () => getMission(mission().id) ?? mission();
-  const slotInfo = () => actions.getMissionSlotInfo();
   const isCoop = () => !!props.coopId;
 
   // ─── Coop mode: fetch + poll coop detail ────────────────────────
@@ -971,7 +970,7 @@ export default function MissionAssemblyPanel(props: Props) {
           <button
             class="upgrade-btn"
             style={{ width: "100%", "margin-top": "12px" }}
-            disabled={teamIds().length === 0 || slotInfo().used >= slotInfo().max || state.resources.gold < freshMission().deployCost || !areRequiredSlotsFilled(freshMission(), team())}
+            disabled={teamIds().length === 0 || state.resources.gold < freshMission().deployCost || !areRequiredSlotsFilled(freshMission(), team())}
             onClick={handleDeploy}
           >
             Deploy Team ({freshMission().deployCost}g)
@@ -1066,11 +1065,6 @@ export default function MissionAssemblyPanel(props: Props) {
         <Show when={teamIds().length > 0 && !areRequiredSlotsFilled(freshMission(), team())}>
           <div style={{ color: "var(--accent-red)", "font-size": "0.8rem", "text-align": "center", "margin-top": "6px" }}>
             Required class slot not filled
-          </div>
-        </Show>
-        <Show when={slotInfo().used >= slotInfo().max}>
-          <div style={{ color: "var(--accent-gold)", "font-size": "0.85rem", "text-align": "center", "margin-top": "6px" }}>
-            All mission slots in use
           </div>
         </Show>
       </div>

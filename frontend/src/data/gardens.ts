@@ -9,6 +9,7 @@ export interface VeggieDefinition {
   description: string;
   activeSeasons: Season[]; // seasons when this veggie produces
   baseRate: number; // food per hour when active
+  image?: string;
 }
 
 export const VEGGIES: VeggieDefinition[] = [
@@ -19,6 +20,7 @@ export const VEGGIES: VeggieDefinition[] = [
     description: "Hardy greens that grow across three seasons. Reliable but modest yield.",
     activeSeasons: ["spring", "summer", "autumn"],
     baseRate: 4,
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/garden_cabbages.png",
   },
   {
     id: "turnips",
@@ -27,6 +29,7 @@ export const VEGGIES: VeggieDefinition[] = [
     description: "Fast-growing root vegetables. Good yield in spring and summer.",
     activeSeasons: ["spring", "summer"],
     baseRate: 5,
+    // image: pending — not yet generated
   },
   {
     id: "peas",
@@ -35,6 +38,7 @@ export const VEGGIES: VeggieDefinition[] = [
     description: "Nutritious legumes that enrich the soil. Spring and summer crop.",
     activeSeasons: ["spring", "summer"],
     baseRate: 4,
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/garden_peas.png",
   },
   {
     id: "squash",
@@ -43,6 +47,7 @@ export const VEGGIES: VeggieDefinition[] = [
     description: "A hardy winter crop. Grows in autumn and keeps through the cold months when nothing else will.",
     activeSeasons: ["autumn", "winter"],
     baseRate: 5,
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/garden_squash.png",
   },
 ];
 

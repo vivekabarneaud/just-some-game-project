@@ -11,6 +11,7 @@ export interface AnimalDefinition {
   /** Secondary resource produced (e.g. wool) */
   secondaryResource?: string;
   secondaryPerHour?: number;
+  image?: string;
 }
 
 export const ANIMALS: AnimalDefinition[] = [
@@ -22,6 +23,7 @@ export const ANIMALS: AnimalDefinition[] = [
     foodConsumedPerHour: 1,
     foodProducedPerHour: 3,
     foodLabel: "Eggs",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/pen_chickens.png",
   },
   {
     id: "goats",
@@ -31,6 +33,7 @@ export const ANIMALS: AnimalDefinition[] = [
     foodConsumedPerHour: 2,
     foodProducedPerHour: 4,
     foodLabel: "Milk",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/pen_goats.png",
   },
   {
     id: "pigs",
@@ -40,6 +43,7 @@ export const ANIMALS: AnimalDefinition[] = [
     foodConsumedPerHour: 3,
     foodProducedPerHour: 6,
     foodLabel: "Meat",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/pen_pigs.png",
   },
   {
     id: "sheep",
@@ -51,6 +55,7 @@ export const ANIMALS: AnimalDefinition[] = [
     foodLabel: "Meat",
     secondaryResource: "wool",
     secondaryPerHour: 3,
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/pen_sheep.png",
   },
 ];
 

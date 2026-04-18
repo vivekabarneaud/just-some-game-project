@@ -10,6 +10,7 @@ export interface FruitDefinition {
   harvestSeasons: Season[];
   baseRate: number; // fruit per hour when active
   maturationSeasons: number; // seasons until first harvest
+  image?: string;
 }
 
 export const FRUITS: FruitDefinition[] = [
@@ -21,6 +22,7 @@ export const FRUITS: FruitDefinition[] = [
     harvestSeasons: ["autumn"],
     baseRate: 5,
     maturationSeasons: 4,
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/orchard_apples.png",
   },
   {
     id: "pears",
@@ -30,6 +32,7 @@ export const FRUITS: FruitDefinition[] = [
     harvestSeasons: ["summer", "autumn"],
     baseRate: 3,
     maturationSeasons: 4,
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/orchard_pears.png",
   },
   {
     id: "cherries",
@@ -39,6 +42,7 @@ export const FRUITS: FruitDefinition[] = [
     harvestSeasons: ["summer"],
     baseRate: 3,
     maturationSeasons: 4,
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/orchard_cherries.png",
   },
 ];
 
