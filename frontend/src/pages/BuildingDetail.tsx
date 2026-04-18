@@ -6,7 +6,7 @@ import {
   getTierPrerequisitesMet,
   type SettlementTier,
   getUnlockRequirement,
-  getNextTierForLevels,
+  getNextLevelRequirement,
   applyMasonCostReduction,
   applyMasonTimeReduction,
   getRepairCost,
@@ -108,11 +108,10 @@ export default function BuildingDetail() {
     actions.cancelBuild(params.id);
   };
 
-  const tierCapInfo = () => {
+  const nextLevelReq = () => {
     const b = building();
     if (!b) return null;
-    const tier = actions.getSettlementTier();
-    return getNextTierForLevels(b, tier);
+    return getNextLevelRequirement(b, actions.getTownHallLevel());
   };
 
   return (
@@ -399,7 +398,7 @@ export default function BuildingDetail() {
                 >
                   {(playerBuilding()?.level ?? 0) >= b().maxLevel
                     ? "Maximum Level Reached"
-                    : `Level cap reached — Upgrade to ${tierCapInfo()?.name} to unlock up to Level ${tierCapInfo()?.maxLevel}`}
+                    : `Capped by Town Hall — upgrade Town Hall to lvl ${nextLevelReq()?.requiredTownHallLevel} to raise this cap`}
                 </div>
               </Show>
             </Show>

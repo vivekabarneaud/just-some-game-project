@@ -6,6 +6,8 @@ import settlement from "./routes/settlement.js";
 import world from "./routes/world.js";
 import leaderboard from "./routes/leaderboard.js";
 import trade from "./routes/trade.js";
+import friends from "./routes/friends.js";
+import coop from "./routes/coop.js";
 
 const app = new Hono();
 
@@ -28,5 +30,7 @@ app.route("/api", settlement);
 app.route("/api", world);
 app.route("/api", leaderboard);
 app.route("/api", trade);
+app.route("/api", friends);
+app.route("/api", coop);
 
 export default app;

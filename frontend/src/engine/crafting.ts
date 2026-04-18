@@ -88,6 +88,16 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     craftTime: 5,
   },
   {
+    id: "bandage",
+    name: "Bandage",
+    icon: "🩹",
+    building: "tailoring_shop",
+    minLevel: 1,
+    costs: [{ resource: "fiber", amount: 3 }],
+    produces: { resource: "potions", amount: 1 },
+    craftTime: 20,
+  },
+  {
     id: "woolen_robe",
     name: "Woolen Robe",
     icon: "🧶",

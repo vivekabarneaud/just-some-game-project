@@ -6,7 +6,7 @@ import {
   RANK_COLORS,
   CLASS_COLORS,
   type Adventurer,
-} from "~/data/adventurers";
+} from "@medieval-realm/shared/data/adventurers";
 
 interface AdventurerPickerCardProps {
   adventurer: Adventurer;

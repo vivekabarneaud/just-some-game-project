@@ -1,10 +1,11 @@
 import { For, Show, createSignal } from "solid-js";
 import { A } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
-import { HERBS } from "~/data/herbs";
-import { ALCHEMY_RECIPES, getAvailableAlchemyRecipes, getDiscoverableRecipes, RESEARCH_BASE_COST } from "~/data/alchemy_recipes";
-import { isCombatPotion } from "~/data/items";
+import { HERBS } from "@medieval-realm/shared/data/herbs";
+import { ALCHEMY_RECIPES, getAvailableAlchemyRecipes, getDiscoverableRecipes, RESEARCH_BASE_COST } from "@medieval-realm/shared/data/alchemy_recipes";
+import { isCombatPotion } from "@medieval-realm/shared/data/items";
 import Countdown from "~/components/Countdown";
+import RecipeCard from "~/components/RecipeCard";
 
 function formatTime(seconds: number): string {
   if (seconds < 60) return `${seconds}s`;
@@ -31,15 +32,42 @@ export default function Alchemy() {
     ALCHEMY_RECIPES.some((r) => r.id === c.recipeId)
   );
 
-  const canCraft = (recipeId: string) => {
+  const canCraft = (recipeId: string, qty: number = 1) => {
     if (labDamaged()) return false;
     const recipe = ALCHEMY_RECIPES.find((r) => r.id === recipeId);
     if (!recipe || recipe.minLabLevel > labLevel()) return false;
     if (activeCrafts().length >= labLevel() + 1) return false;
     for (const cost of recipe.costs) {
-      if ((state.herbs?.[cost.resource] ?? 0) < cost.amount) return false;
+      if ((state.herbs?.[cost.resource] ?? 0) < cost.amount * qty) return false;
     }
     return true;
+  };
+
+  const maxBrewable = (recipeId: string): number => {
+    const recipe = ALCHEMY_RECIPES.find((r) => r.id === recipeId);
+    if (!recipe) return 0;
+    let max = 99;
+    for (const cost of recipe.costs) {
+      const have = state.herbs?.[cost.resource] ?? 0;
+      max = Math.min(max, Math.floor(have / cost.amount));
+    }
+    return Math.max(1, max);
+  };
+
+  const brewDisabledReason = (recipeId: string, qty: number): string | null => {
+    if (labDamaged()) return "Lab is damaged";
+    const recipe = ALCHEMY_RECIPES.find((r) => r.id === recipeId);
+    if (!recipe) return "Recipe not found";
+    if (recipe.minLabLevel > labLevel()) return `Requires Lab Lv.${recipe.minLabLevel}`;
+    if (activeCrafts().length >= labLevel() + 1) return "Brewing queue full — upgrade the Lab";
+    for (const cost of recipe.costs) {
+      const have = state.herbs?.[cost.resource] ?? 0;
+      if (have < cost.amount * qty) {
+        const herb = HERBS.find((h) => h.id === cost.resource);
+        return `Not enough ${herb?.name ?? cost.resource}`;
+      }
+    }
+    return null;
   };
 
   const herbCount = (id: string) => state.herbs?.[id] ?? 0;
@@ -207,9 +235,13 @@ export default function Alchemy() {
                           ? <img src={recipe()!.image} alt="" style={{ width: "28px", height: "28px", "object-fit": "cover", "border-radius": "4px" }} />
                           : <span style={{ "font-size": "1.2rem" }}>{recipe()?.icon}</span>
                         }
-                        <span style={{ color: "var(--text-primary)" }}>{recipe()?.name}</span>
+                        <span style={{ color: "var(--text-primary)" }}>
+                          {recipe()?.name}
+                          {(craft.quantity ?? 1) > 1 && <span style={{ color: "var(--accent-gold)", "margin-left": "4px" }}>×{craft.quantity}</span>}
+                        </span>
                         <span style={{ color: "var(--accent-gold)" }}>
                           <Countdown remainingSeconds={craft.remaining} />
+                          {(craft.quantity ?? 1) > 1 && <span style={{ color: "var(--text-muted)", "margin-left": "6px" }}>({craft.quantity} left)</span>}
                         </span>
                       </div>
                     );
@@ -228,48 +260,44 @@ export default function Alchemy() {
               <div class="buildings-grid">
                 <For each={availableRecipes()}>
                   {(recipe) => (
-                    <div class="building-card">
-                      <div class="building-card-header">
-                        {recipe.image
-                          ? <img src={recipe.image} alt="" style={{ width: "40px", height: "40px", "object-fit": "cover", "border-radius": "6px", "flex-shrink": "0" }} />
-                          : <div class="building-card-icon">{recipe.icon}</div>
-                        }
-                        <div>
-                          <div class="building-card-title">{recipe.name}</div>
-                          <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
-                            {formatTime(recipe.craftTime)} · {recipe.tier}
+                    <RecipeCard
+                      icon={recipe.icon}
+                      image={recipe.image}
+                      title={recipe.name}
+                      subtitle={`${formatTime(recipe.craftTime)} · ${recipe.tier}`}
+                      info={
+                        <div style={{ "margin-top": "4px", padding: "4px 8px", background: "var(--bg-primary)", "border-radius": "4px", "font-size": "0.75rem" }}>
+                          <span style={{ color: "var(--accent-green)" }}>{recipe.description}</span>
+                          <div style={{ "margin-top": "3px", "font-size": "0.65rem", color: isCombatPotion(recipe.id) ? "var(--accent-red)" : "var(--accent-blue)" }}>
+                            {isCombatPotion(recipe.id) ? "⚔️ Combat only" : "📋 Non-combat missions only"}
                           </div>
                         </div>
-                      </div>
-                      <div style={{ "margin-top": "4px", padding: "4px 8px", background: "var(--bg-primary)", "border-radius": "4px", "font-size": "0.75rem" }}>
-                        <span style={{ color: "var(--accent-green)" }}>{recipe.description}</span>
-                        <div style={{ "margin-top": "3px", "font-size": "0.65rem", color: isCombatPotion(recipe.id) ? "var(--accent-red)" : "var(--accent-blue)" }}>
-                          {isCombatPotion(recipe.id) ? "⚔️ Combat only" : "📋 Non-combat missions only"}
-                        </div>
-                      </div>
-                      <div style={{ "margin-top": "6px", "font-size": "0.8rem", color: "var(--text-secondary)" }}>
-                        Cost:{" "}
-                        {recipe.costs.map((c) => {
-                          const herb = HERBS.find((h) => h.id === c.resource);
-                          const have = herbCount(c.resource);
-                          const enough = have >= c.amount;
-                          return (
-                            <span style={{ color: enough ? "var(--text-secondary)" : "var(--accent-red)", "margin-right": "6px" }}>
-                              {herb?.icon ?? ""} {c.amount} {herb?.name ?? c.resource}
-                              <span style={{ color: "var(--text-muted)" }}> ({have})</span>
-                            </span>
-                          );
-                        })}
-                      </div>
-                      <button
-                        class="upgrade-btn"
-                        disabled={!canCraft(recipe.id)}
-                        onClick={() => actions.startAlchemyCraft(recipe.id)}
-                        style={{ "margin-top": "auto", "padding-top": "8px", width: "100%" }}
-                      >
-                        🧪 Brew
-                      </button>
-                    </div>
+                      }
+                      costs={
+                        <>
+                          Cost:{" "}
+                          {recipe.costs.map((c) => {
+                            const herb = HERBS.find((h) => h.id === c.resource);
+                            const have = herbCount(c.resource);
+                            const enough = have >= c.amount;
+                            return (
+                              <span style={{ color: enough ? "var(--text-secondary)" : "var(--accent-red)", "margin-right": "6px" }}>
+                                {herb?.icon ?? ""} {c.amount} {herb?.name ?? c.resource}
+                                <span style={{ color: "var(--text-muted)" }}> ({have})</span>
+                              </span>
+                            );
+                          })}
+                        </>
+                      }
+                      action={{
+                        type: "craft",
+                        maxQty: () => maxBrewable(recipe.id),
+                        canCraft: (qty) => canCraft(recipe.id, qty),
+                        disabledReason: (qty) => brewDisabledReason(recipe.id, qty),
+                        onCraft: (qty) => actions.startAlchemyCraft(recipe.id, qty),
+                        verb: "Brew",
+                      }}
+                    />
                   )}
                 </For>
               </div>

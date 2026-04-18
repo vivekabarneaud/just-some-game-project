@@ -1,6 +1,7 @@
 import type { GameState, TradeResourceKey } from "@medieval-realm/shared";
 import { prisma } from "../lib/prisma.js";
 import { addResource } from "../lib/resources.js";
+import { resolveActiveCoops } from "./coopResolution.js";
 
 const TICK_INTERVAL_MS = 60_000; // 60 seconds
 const SKIP_IF_RECENT_MS = 30_000; // skip if client saved recently
@@ -145,13 +146,17 @@ export function applyServerTick(state: GameState, elapsedMs: number): GameState 
 
   s.resources.wood += woodPerHour * elapsedHours * happinessMod;
   s.resources.stone += stonePerHour * elapsedHours * happinessMod;
-  s.resources.food += (foodPerHour - foodConsumed) * elapsedHours * happinessMod;
   s.resources.gold += goldPerHour * elapsedHours * happinessMod;
+
+  // Food is now tracked per-type in s.foods (wheat/meat/berries/etc.) — add net gains to wheat as a simple default
+  if (s.foods) {
+    const netFood = (foodPerHour - foodConsumed) * elapsedHours * happinessMod;
+    s.foods.wheat = Math.max(0, ((s.foods.wheat as number) ?? 0) + netFood);
+  }
 
   // Clamp to zero (no negatives)
   s.resources.wood = Math.max(0, s.resources.wood);
   s.resources.stone = Math.max(0, s.resources.stone);
-  s.resources.food = Math.max(0, s.resources.food);
   s.resources.gold = Math.max(0, s.resources.gold);
 
   // Wool from sheep pens (simplified — no seasonal variation on server)
@@ -210,6 +215,9 @@ async function deliverArrivedCaravans() {
 }
 
 export async function tickAllSettlements() {
+  // Resolve any coop expeditions whose duration has elapsed
+  await resolveActiveCoops();
+
   // Deliver arrived caravans first (before settlement ticks)
   await deliverArrivedCaravans();
 

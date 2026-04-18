@@ -23,8 +23,8 @@ import {
   AGE_LABELS,
   getRelationship,
   CLASS_ABILITIES,
-} from "~/data/adventurers";
-import { getItem, getItemsForSlot, getEquipmentStats, getEquipmentDefense, isSupplyItem, type ItemSlot } from "~/data/items";
+} from "@medieval-realm/shared/data/adventurers";
+import { getItem, getItemsForSlot, getEquipmentStats, getEquipmentDefense, isSupplyItem, type ItemSlot } from "@medieval-realm/shared/data/items";
 import { getTalentsForClass, getTalentPoints, getUnspentTalentPoints, canUnlockTalent, getEarnedTitle, getTalent, type TalentNode } from "~/data/talents";
 import Tooltip from "~/components/Tooltip";
 import TraitBadge from "~/components/TraitBadge";

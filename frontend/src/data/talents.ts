@@ -1,5 +1,5 @@
-import type { AdventurerClass } from "./adventurers";
-import type { Adventurer } from "./adventurers";
+import type { AdventurerClass } from "@medieval-realm/shared/data/adventurers";
+import type { Adventurer } from "@medieval-realm/shared/data/adventurers";
 
 // ─── Talent Tree Definitions ────────────────────────────────────
 // Each node knows its children. Row index controls vertical position.
@@ -617,11 +617,15 @@ export function getParents(id: string, talents: TalentNode[]): TalentNode[] {
 }
 
 export function getTalentPoints(level: number): number {
-  return level;
+  // First talent unlocks at level 2 — recruiting a fresh adventurer no longer
+  // dumps them with an immediately-available talent point they could miss.
+  return Math.max(0, level - 1);
 }
 
 export function getUnspentTalentPoints(adv: Adventurer): number {
-  return getTalentPoints(adv.level) - (adv.talents?.length ?? 0);
+  // Clamp ≥ 0 so legacy saves that unlocked a talent under the old formula
+  // (talent at level 1) don't report a negative balance after the shift.
+  return Math.max(0, getTalentPoints(adv.level) - (adv.talents?.length ?? 0));
 }
 
 export function canUnlockTalent(adv: Adventurer, talentId: string): boolean {

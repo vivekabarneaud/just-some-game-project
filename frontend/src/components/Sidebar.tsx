@@ -1,10 +1,13 @@
-import { Show, createSignal, onMount } from "solid-js";
+import { Show, createSignal, onMount, onCleanup } from "solid-js";
 import { A, useLocation } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
 import { SEASON_META, HOURS_PER_SEASON, IS_DEV, getGlobalSeason } from "~/data/seasons";
 import { logout, getUsername } from "~/api/auth";
 import { QUEST_CHAIN } from "~/data/quests";
 import { fetchLeaderboard } from "~/api/leaderboard";
+import { fetchFriends } from "~/api/friends";
+import { fetchCoops } from "~/api/coop";
+import { wsClient } from "~/api/ws";
 
 interface NavItem {
   path: string;
@@ -64,7 +67,7 @@ const navSections: { title: string; items: NavItem[] }[] = [
       { path: "/leaderboard", icon: "🏆", label: "Leaderboard" },
       { path: "/shrine", icon: "🔮", label: "Shrine" },
       { path: "/chronicle", icon: "📖", label: "Chronicle" },
-      { path: "/encyclopedia", icon: "📚", label: "Encyclopedia" },
+      { path: "/friends", icon: "👥", label: "Friends" },
       { path: "/events", icon: "📣", label: "Events" },
     ],
   },
@@ -76,6 +79,8 @@ export default function Sidebar() {
   const location = useLocation();
   const { state, actions } = useGame();
   const [myRank, setMyRank] = createSignal<number | null>(null);
+  const [incomingFriendRequests, setIncomingFriendRequests] = createSignal(0);
+  const [incomingCoopInvites, setIncomingCoopInvites] = createSignal(0);
 
   onMount(async () => {
     try {
@@ -90,6 +95,41 @@ export default function Sidebar() {
         if (idx >= 0) setMyRank(idx + 1);
       }
     } catch { /* silent */ }
+  });
+
+  // Poll incoming friend requests every 30s so the sidebar blinks when a request arrives
+  const refreshFriendRequests = async () => {
+    try {
+      const data = await fetchFriends();
+      setIncomingFriendRequests(data.incoming.length);
+    } catch { /* silent */ }
+  };
+  // Poll incoming coop invites (pending, where I'm the guest)
+  const refreshCoopInvites = async () => {
+    try {
+      const data = await fetchCoops();
+      const myId = undefined; // we don't have the playerId in the sidebar directly; filter by iAmHost=false + status=pending
+      const count = data.coops.filter((c) => !c.iAmHost && c.status === "pending").length;
+      setIncomingCoopInvites(count);
+    } catch { /* silent */ }
+  };
+  onMount(() => {
+    refreshFriendRequests();
+    refreshCoopInvites();
+    // Slow fallback poll — WS pushes are the primary path. Catches missed events
+    // if the socket ever drops and something arrived while disconnected.
+    const timer = setInterval(() => {
+      refreshFriendRequests();
+      refreshCoopInvites();
+    }, 120_000);
+    onCleanup(() => clearInterval(timer));
+
+    // Realtime: refresh immediately when the backend pushes
+    const offFriend = wsClient.on("friend:update", () => refreshFriendRequests());
+    const offInvite = wsClient.on("coop:invite", () => refreshCoopInvites());
+    const offUpdate = wsClient.on("coop:update", () => refreshCoopInvites());
+    const offCancelled = wsClient.on("coop:cancelled", () => refreshCoopInvites());
+    onCleanup(() => { offFriend(); offInvite(); offUpdate(); offCancelled(); });
   });
 
   const isActive = (path: string) => {
@@ -160,7 +200,8 @@ export default function Sidebar() {
                   (state.season === "spring" && hasEmptyFields()) ||
                   (state.season === "autumn" && state.seasonElapsed < 6)
                 )) ||
-                (item.path === "/guild" && (actions.hasNewGuildContent() || hasCompletedMissions()));
+                (item.path === "/guild" && (actions.hasNewGuildContent() || hasCompletedMissions() || incomingCoopInvites() > 0)) ||
+                (item.path === "/friends" && incomingFriendRequests() > 0);
               return (
                 <A
                   href={item.path}
@@ -179,10 +220,12 @@ export default function Sidebar() {
                     <span style={{ "margin-left": "auto", "font-size": "0.7rem", color:
                       item.path === "/" ? "var(--accent-gold)" :
                       item.path === "/guild" ? "var(--accent-blue)" :
+                      item.path === "/friends" ? "var(--accent-gold)" :
                       state.season === "spring" ? "#7CFC00" : "#d4831a"
                     }}>
                       {item.path === "/" ? "quest!"
-                        : item.path === "/guild" ? (hasCompletedMissions() ? "loot!" : "new!")
+                        : item.path === "/guild" ? (hasCompletedMissions() ? "loot!" : incomingCoopInvites() > 0 ? "coop!" : "new!")
+                        : item.path === "/friends" ? `+${incomingFriendRequests()}`
                         : state.season === "spring" ? "plant!" : "harvest!"}
                     </span>
                   )}

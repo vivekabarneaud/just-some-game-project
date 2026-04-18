@@ -1,6 +1,7 @@
 import { For, Show } from "solid-js";
 import { useGame, BUILDING_TOOLS, getBuildingTool } from "~/engine/gameState";
-import { ITEMS, getItem } from "~/data/items";
+import { ITEMS, getItem, getPotionInfo, isSupplyItem, ARMOR_TYPE_META } from "@medieval-realm/shared/data/items";
+import { ALCHEMY_RECIPES } from "@medieval-realm/shared/data/alchemy_recipes";
 import { BUILDINGS } from "~/data/buildings";
 
 export default function Inventory() {
@@ -103,6 +104,58 @@ export default function Inventory() {
         );
       })()}
 
+      {/* Potions (combat + mission supplies) */}
+      {(() => {
+        const potionItems = () => state.inventory
+          .filter((inv) => inv.quantity > 0 && isSupplyItem(inv.itemId))
+          .map((inv) => {
+            const item = getItem(inv.itemId);
+            if (item) return { inv, name: item.name, icon: item.icon, image: item.image, description: item.description };
+            const alch = ALCHEMY_RECIPES.find((r) => r.id === inv.itemId);
+            if (alch) return { inv, name: alch.name, icon: alch.icon, image: alch.image, description: alch.description };
+            return null;
+          })
+          .filter(Boolean) as { inv: { itemId: string; quantity: number }; name: string; icon: string; image?: string; description: string }[];
+        return (
+          <Show when={potionItems().length > 0}>
+            <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "10px", color: "var(--text-primary)" }}>
+              Potions
+            </h3>
+            <div class="buildings-grid" style={{ "margin-bottom": "20px" }}>
+              <For each={potionItems()}>
+                {(p) => {
+                  const info = getPotionInfo(p.inv.itemId);
+                  const categoryLabel = info?.category === "combat" ? "combat" : "mission";
+                  return (
+                    <div class="building-card">
+                      <span class="building-card-category">{categoryLabel}</span>
+                      <div class="building-card-header" style={{ "margin-top": "4px" }}>
+                        {p.image
+                          ? <img src={p.image} alt="" style={{ width: "40px", height: "40px", "object-fit": "cover", "border-radius": "6px", "flex-shrink": "0" }} />
+                          : <div class="building-card-icon">{p.icon}</div>
+                        }
+                        <div>
+                          <div class="building-card-title">{p.name}</div>
+                          <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
+                            {categoryLabel === "combat" ? "Used during combat" : "Non-combat missions"}
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ "font-size": "0.8rem", color: "var(--accent-green)", "margin-top": "4px" }}>
+                        {p.description}
+                      </div>
+                      <div style={{ "margin-top": "6px", "font-size": "0.85rem", color: "var(--text-secondary)" }}>
+                        In stock: <strong>{p.inv.quantity}</strong>
+                      </div>
+                    </div>
+                  );
+                }}
+              </For>
+            </div>
+          </Show>
+        );
+      })()}
+
       {/* Equipment items */}
       <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "10px", color: "var(--text-primary)" }}>
         Equipment
@@ -119,7 +172,9 @@ export default function Inventory() {
             const equipped = () => equippedCount(inv.itemId);
             return (
               <Show when={item()}>
-                {(it) => (
+                {(it) => {
+                  const armorMeta = () => it().armorType ? ARMOR_TYPE_META[it().armorType!] : null;
+                  return (
                   <div class="building-card">
                     <span class="building-card-category">{it().slot}</span>
                     <div class="building-card-header" style={{ "margin-top": "4px" }}>
@@ -137,6 +192,32 @@ export default function Inventory() {
                     <div style={{ "font-size": "0.8rem", color: "var(--accent-green)", "margin-top": "4px" }}>
                       {it().description}
                     </div>
+                    <Show when={armorMeta() || it().classes.length > 0}>
+                      <div style={{ display: "flex", gap: "6px", "margin-top": "4px", "flex-wrap": "wrap" }}>
+                        <Show when={armorMeta()}>
+                          <span style={{
+                            "font-size": "0.65rem", padding: "1px 5px",
+                            background: "rgba(120, 120, 140, 0.2)",
+                            border: "1px solid var(--border-color)",
+                            "border-radius": "3px",
+                            color: "var(--text-secondary)",
+                          }}>
+                            {armorMeta()!.icon} {armorMeta()!.label}
+                          </span>
+                        </Show>
+                        <Show when={it().classes.length > 0}>
+                          <span style={{
+                            "font-size": "0.65rem", padding: "1px 5px",
+                            background: "rgba(245, 197, 66, 0.12)",
+                            border: "1px solid rgba(245, 197, 66, 0.35)",
+                            "border-radius": "3px",
+                            color: "var(--accent-gold)",
+                          }}>
+                            {it().classes.join(", ")} only
+                          </span>
+                        </Show>
+                      </div>
+                    </Show>
                     <div style={{ "margin-top": "6px", "font-size": "0.85rem", display: "flex", gap: "12px" }}>
                       <span style={{ color: "var(--text-secondary)" }}>
                         In stock: <strong>{inv.quantity}</strong>
@@ -148,7 +229,8 @@ export default function Inventory() {
                       </Show>
                     </div>
                   </div>
-                )}
+                  );
+                }}
               </Show>
             );
           }}

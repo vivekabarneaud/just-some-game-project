@@ -1,9 +1,10 @@
 import { Show } from "solid-js";
-import type { MissionTemplate } from "~/data/missions";
-import { getMission, formatReward } from "~/data/missions";
-import { getMissionXp } from "~/data/adventurers";
-import { getEnemy } from "~/data/enemies";
-import { DIFFICULTY_LABELS, DIFFICULTY_COLORS } from "~/data/constants";
+import type { MissionTemplate } from "@medieval-realm/shared/data/missions";
+import { getMission, getMissionRank, formatReward, isExpedition } from "@medieval-realm/shared/data/missions";
+import { getMissionXp } from "@medieval-realm/shared/data/adventurers";
+import { getEnemy } from "@medieval-realm/shared/data/enemies";
+import { MISSION_RANK_LABELS, MISSION_RANK_COLORS } from "~/data/constants";
+import { useGame } from "~/engine/gameState";
 import EnemyCard from "./EnemyCard";
 
 function getMissionImage(missionId: string): string | undefined {
@@ -27,40 +28,73 @@ interface MissionCardProps {
 }
 
 export default function MissionCard(props: MissionCardProps) {
+  const { state, actions } = useGame();
   const mission = () => props.mission;
   const image = () => getMissionImage(mission().id);
   const fresh = () => getMission(mission().id) ?? mission();
   const isStory = () => !!props.storyChapter;
+  const isExped = () => isExpedition(fresh());
+  const guildLevel = () => actions.getGuildLevel();
+  const isLocked = () => isExped() && guildLevel() < fresh().minGuildLevel;
+  const isDiscovered = (enemyId: string) => (state.discoveredEnemies ?? []).includes(enemyId);
 
   return (
     <div
       class="building-card"
       classList={{ upgrading: props.selected }}
-      onClick={props.onClick}
+      onClick={() => { if (!isLocked()) props.onClick(); }}
       style={{
-        cursor: "pointer",
+        cursor: isLocked() ? "not-allowed" : "pointer",
+        opacity: isLocked() ? 0.55 : 1,
+        position: "relative",
         ...(image() ? { padding: "0", overflow: "hidden" } : {}),
         ...(isStory() ? { border: "2px solid var(--accent-gold)" } : {}),
+        ...(isExped() && !isStory() ? { border: "2px solid #a78bfa" } : {}),
       }}
     >
+      {/* Locked overlay */}
+      <Show when={isLocked()}>
+        <div style={{
+          position: "absolute", top: "50%", left: "50%",
+          transform: "translate(-50%, -50%)",
+          padding: "6px 12px",
+          background: "rgba(0, 0, 0, 0.75)",
+          border: "1px solid #a78bfa",
+          "border-radius": "6px",
+          color: "#a78bfa",
+          "font-size": "0.8rem",
+          "font-weight": "bold",
+          "z-index": "2",
+          "text-align": "center",
+          "white-space": "nowrap",
+        }}>
+          🔒 Requires Adventurer's Guild Lv.{fresh().minGuildLevel}
+        </div>
+      </Show>
       {/* Banner image */}
       <Show when={image()}>
         <div class="building-card-image" style={{ margin: "0", "border-radius": "0" }}>
           <img src={image()} alt={mission().name} loading="lazy" />
-          {/* Difficulty badge top-right */}
-          <div style={{
-            position: "absolute", top: "6px", right: "6px",
-            padding: "2px 8px", "border-radius": "4px",
-            background: "rgba(0, 0, 0, 0.7)",
-            "font-size": "0.65rem", "line-height": "1.4",
-          }}>
-            <span style={{ color: DIFFICULTY_COLORS[mission().difficulty] }}>
-              {DIFFICULTY_LABELS[mission().difficulty]}
-            </span>
-            <Show when={!isStory()}>
-              <span style={{ color: "var(--text-muted)" }}>{" · "}{mission().tags.join(", ")}</span>
-            </Show>
-          </div>
+          {/* Rank + star badge top-right */}
+          {(() => {
+            const rank = getMissionRank(mission().id);
+            const stars = "★".repeat(Math.max(1, Math.min(3, mission().difficulty)));
+            return (
+              <div style={{
+                position: "absolute", top: "6px", right: "6px",
+                padding: "2px 8px", "border-radius": "4px",
+                background: "rgba(0, 0, 0, 0.7)",
+                "font-size": "0.65rem", "line-height": "1.4",
+              }}>
+                <span style={{ color: rank ? MISSION_RANK_COLORS[rank] : "var(--text-muted)" }}>
+                  {stars} {rank ? MISSION_RANK_LABELS[rank] : ""}
+                </span>
+                <Show when={!isStory()}>
+                  <span style={{ color: "var(--text-muted)" }}>{" · "}{mission().tags.join(", ")}</span>
+                </Show>
+              </div>
+            );
+          })()}
           {/* Title overlay */}
           <div class="building-card-image-overlay">
             <Show when={isStory()}>
@@ -68,7 +102,12 @@ export default function MissionCard(props: MissionCardProps) {
                 Story Mission · {props.storyChapter}
               </div>
             </Show>
-            <div class="building-card-title" style={{ color: isStory() ? "var(--accent-gold)" : undefined }}>
+            <Show when={isExped() && !isStory()}>
+              <div style={{ "font-size": "0.6rem", color: "#a78bfa", "margin-bottom": "2px", "text-transform": "uppercase", "letter-spacing": "0.5px", opacity: "0.9" }}>
+                ⚔️ Expedition{(fresh() as any).biome ? ` · ${(fresh() as any).biome}` : ""}
+              </div>
+            </Show>
+            <div class="building-card-title" style={{ color: isStory() ? "var(--accent-gold)" : isExped() ? "#a78bfa" : undefined }}>
               {mission().name}
             </div>
           </div>
@@ -84,12 +123,23 @@ export default function MissionCard(props: MissionCardProps) {
               Story · {props.storyChapter}
             </div>
           </Show>
-          <span class="building-card-category">
-            <span style={{ color: DIFFICULTY_COLORS[mission().difficulty] }}>
-              {DIFFICULTY_LABELS[mission().difficulty]}
-            </span>
-            {" · "}{mission().tags.join(", ")}
-          </span>
+          <Show when={isExped() && !isStory()}>
+            <div style={{ "font-size": "0.6rem", color: "#a78bfa", "text-transform": "uppercase", "letter-spacing": "0.5px", "margin-bottom": "4px" }}>
+              ⚔️ Expedition{(fresh() as any).biome ? ` · ${(fresh() as any).biome}` : ""}
+            </div>
+          </Show>
+          {(() => {
+            const rank = getMissionRank(mission().id);
+            const stars = "★".repeat(Math.max(1, Math.min(3, mission().difficulty)));
+            return (
+              <span class="building-card-category">
+                <span style={{ color: rank ? MISSION_RANK_COLORS[rank] : "var(--text-muted)" }}>
+                  {stars} {rank ? MISSION_RANK_LABELS[rank] : ""}
+                </span>
+                {" · "}{mission().tags.join(", ")}
+              </span>
+            );
+          })()}
           <div class="building-card-header" style={{ "margin-top": "14px" }}>
             <div class="building-card-icon">{mission().icon}</div>
             <div>
@@ -113,7 +163,7 @@ export default function MissionCard(props: MissionCardProps) {
           <div style={{ "margin-top": "14px", display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
             {fresh().encounters!.map((enc) => {
               const enemy = getEnemy(enc.enemyId);
-              return enemy ? <EnemyCard enemy={enemy} count={enc.count} /> : null;
+              return enemy ? <EnemyCard enemy={enemy} count={enc.count} hidden={!isDiscovered(enc.enemyId)} /> : null;
             })}
           </div>
         </Show>

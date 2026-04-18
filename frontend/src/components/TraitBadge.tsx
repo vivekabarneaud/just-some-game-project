@@ -1,5 +1,5 @@
 import { Show } from "solid-js";
-import { BACKSTORY_TRAITS } from "~/data/adventurers";
+import { BACKSTORY_TRAITS } from "@medieval-realm/shared/data/adventurers";
 
 interface TraitBadgeProps {
   traitId: string;

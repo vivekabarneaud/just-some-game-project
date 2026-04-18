@@ -540,44 +540,25 @@ export const DEFAULT_TIER_LEVEL_CAPS: Record<SettlementTier, number> = {
   city: 999, // effectively uncapped
 };
 
-/** Returns the effective max level a building can reach at the player's current tier */
-export function getEffectiveMaxLevel(building: BuildingDefinition, currentTier: SettlementTier): number {
-  // Town Hall is never capped by tier — it drives tier progression
+/**
+ * Effective max level for a building = Town Hall level.
+ *
+ * Hard cap: nothing can exceed the Town Hall. Simplifies progression pacing —
+ * the TH becomes the single lever, everything else follows. The legacy
+ * `tierLevelCaps` per-building field is kept in the schema for future opt-in
+ * overrides (e.g. a building that caps at TH − 1), but is otherwise unused.
+ */
+export function getEffectiveMaxLevel(building: BuildingDefinition, townHallLevel: number): number {
   if (building.id === "town_hall") return building.maxLevel;
-
-  const tierOrder: SettlementTier[] = ["camp", "village", "town", "city"];
-  const currentIdx = tierOrder.indexOf(currentTier);
-  const caps = building.tierLevelCaps;
-
-  if (caps) {
-    // Find the highest cap at or below the player's current tier
-    let cap = 0;
-    for (let i = currentIdx; i >= 0; i--) {
-      const tierCap = caps[tierOrder[i]];
-      if (tierCap !== undefined) { cap = tierCap; break; }
-    }
-    return Math.min(cap || 0, building.maxLevel);
-  }
-
-  // Use default caps
-  return Math.min(DEFAULT_TIER_LEVEL_CAPS[currentTier], building.maxLevel);
+  return Math.min(townHallLevel, building.maxLevel);
 }
 
-/** Returns the next tier needed to unlock more levels, or null if already at max */
-export function getNextTierForLevels(building: BuildingDefinition, currentTier: SettlementTier): { tier: SettlementTier; name: string; maxLevel: number } | null {
+/** What the player needs to do to unlock the next level of this building, or null if already at max. */
+export function getNextLevelRequirement(building: BuildingDefinition, townHallLevel: number): { requiredTownHallLevel: number } | null {
   if (building.id === "town_hall") return null;
-  const tierOrder: SettlementTier[] = ["camp", "village", "town", "city"];
-  const currentIdx = tierOrder.indexOf(currentTier);
-  const currentCap = getEffectiveMaxLevel(building, currentTier);
+  const currentCap = getEffectiveMaxLevel(building, townHallLevel);
   if (currentCap >= building.maxLevel) return null;
-
-  for (let i = currentIdx + 1; i < tierOrder.length; i++) {
-    const nextCap = getEffectiveMaxLevel(building, tierOrder[i]);
-    if (nextCap > currentCap) {
-      return { tier: tierOrder[i], name: getSettlementName(tierOrder[i]), maxLevel: nextCap };
-    }
-  }
-  return null;
+  return { requiredTownHallLevel: townHallLevel + 1 };
 }
 
 // ─── Mason's Guild helpers ──────────────────────────────────────

@@ -1,7 +1,8 @@
 import { For, Show } from "solid-js";
 import { RESOURCES } from "~/data/resources";
-import { HERBS } from "~/data/herbs";
+import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { useGame } from "~/engine/gameState";
+import { FOOD_ITEMS, getTotalFood, type FoodItemType } from "~/data/foods";
 
 export default function ResourceBar() {
   const { state, actions } = useGame();
@@ -12,6 +13,10 @@ export default function ResourceBar() {
   const foodBreakdown = () => actions.getFoodBreakdown();
 
   const getAmount = (id: string) => {
+    // For food, show the sum of per-type floors so the total always matches what's visible in the dropdown
+    if (id === "food") {
+      return FOOD_ITEMS.reduce((sum, fi) => sum + Math.floor(state.foods?.[fi.id] ?? 0), 0);
+    }
     return Math.floor(state.resources[id as keyof typeof state.resources] as number);
   };
 
@@ -58,19 +63,39 @@ export default function ResourceBar() {
 
               <Show when={res.id === "food"}>
                 <div class="resource-dropdown">
-                  <div class="dropdown-title">Food Sources</div>
-                  <Show when={foodBreakdown().length > 0}>
-                    <For each={foodBreakdown()}>
-                      {(source) => (
-                        <div class="dropdown-row">
-                          <span>{source.icon} {source.label}</span>
-                          <span class="rate-positive">+{source.rate}/h</span>
-                        </div>
-                      )}
-                    </For>
-                  </Show>
-                  <Show when={foodBreakdown().length === 0}>
-                    <div class="dropdown-row" style={{ color: "var(--text-muted)" }}>No food production</div>
+                  <div class="dropdown-title">Food Stockpile</div>
+                  {/* Per-type stocks with production rate alongside */}
+                  <For each={FOOD_ITEMS}>
+                    {(fi) => {
+                      const stockRaw = () => state.foods?.[fi.id] ?? 0;
+                      const stock = () => Math.floor(stockRaw());
+                      const rate = () => {
+                        const src = foodBreakdown().find((s) => s.type === fi.id);
+                        return src?.rate ?? 0;
+                      };
+                      // Show only if the player has at least 1 whole unit OR is producing this type
+                      const show = () => stock() > 0 || rate() > 0;
+                      return (
+                        <Show when={show()}>
+                          <div class="dropdown-row">
+                            <span>{fi.icon} {fi.label}</span>
+                            <span style={{ display: "flex", gap: "8px", "align-items": "center" }}>
+                              <span style={{ color: "var(--text-primary)" }}>{stock()}</span>
+                              <Show when={rate() > 0} fallback={
+                                <span style={{ "min-width": "64px", "text-align": "right", color: "var(--text-muted)", "font-size": "0.72rem" }}>
+                                  (dormant)
+                                </span>
+                              }>
+                                <span class="rate-positive" style={{ "min-width": "64px", "text-align": "right" }}>+{rate()}/h</span>
+                              </Show>
+                            </span>
+                          </div>
+                        </Show>
+                      );
+                    }}
+                  </For>
+                  <Show when={foodBreakdown().length === 0 && getTotalFood(state.foods) === 0}>
+                    <div class="dropdown-row" style={{ color: "var(--text-muted)" }}>No food stockpile</div>
                   </Show>
                   <div class="dropdown-row dropdown-total">
                     <span>👤 Citizens</span>

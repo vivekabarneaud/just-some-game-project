@@ -4,9 +4,10 @@ import { BUILDINGS, getSettlementName, SETTLEMENT_TIERS } from "~/data/buildings
 import { RESOURCES } from "~/data/resources";
 import { SEASON_META } from "~/data/seasons";
 import { getRaid, calcRaidSuccessChance, getDefenseTips, type RaidResult } from "~/data/raids";
-import { QUEST_CHAIN } from "~/data/quests";
+import { QUEST_CHAIN, type QuestDefinition } from "~/data/quests";
 import { useGame } from "~/engine/gameState";
 import Countdown from "~/components/Countdown";
+import QuestClaimModal from "~/components/QuestClaimModal";
 
 export default function Overview() {
   const { state, actions } = useGame();
@@ -71,6 +72,8 @@ export default function Overview() {
   const questProgress = () => claimed().length;
   const allQuestsComplete = () => questProgress() >= QUEST_CHAIN.length;
   const [dismissedCongrats, setDismissedCongrats] = createSignal(false);
+  /** Quest shown in the claim modal — clicking Claim on a quest opens this, the modal applies the reward on confirm. */
+  const [claimingQuest, setClaimingQuest] = createSignal<QuestDefinition | null>(null);
 
   const TIER_IMAGES: Record<string, string> = {
     camp: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/settlement_camp.png",
@@ -81,6 +84,20 @@ export default function Overview() {
 
   return (
     <div>
+      {/* Quest claim modal — opens from "Claim Reward" button on the quest card. */}
+      <Show when={claimingQuest()}>
+        {(q) => (
+          <QuestClaimModal
+            quest={q()}
+            onClaim={() => {
+              actions.claimQuestReward(q().id);
+              setClaimingQuest(null);
+            }}
+            onClose={() => setClaimingQuest(null)}
+          />
+        )}
+      </Show>
+
       <div class="settlement-banner">
         <img src={TIER_IMAGES[tier()] ?? TIER_IMAGES.camp} alt={tier()} />
         <div class="settlement-banner-overlay">
@@ -200,7 +217,7 @@ export default function Overview() {
             </div>
             <div class="quest-actions">
               <Show when={isQuestComplete()}>
-                <button class="quest-claim-btn" onClick={() => actions.claimQuestReward(quest().id)}>
+                <button class="quest-claim-btn" onClick={() => setClaimingQuest(quest())}>
                   Claim Reward
                 </button>
               </Show>

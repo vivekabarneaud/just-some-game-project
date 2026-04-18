@@ -138,7 +138,10 @@ export default function Marketplace() {
   const confirmMerchant = () => {
     const m = pendingMerchant();
     if (!m) return;
-    setTakenMerchantIds((s) => { const next = new Set(s); next.add(m.id); return next; });
+    const ok = actions.trade(m.give, m.giveAmount, m.receive, m.receiveAmount);
+    if (ok) {
+      setTakenMerchantIds((s) => { const next = new Set(s); next.add(m.id); return next; });
+    }
     setPendingMerchant(null);
   };
 

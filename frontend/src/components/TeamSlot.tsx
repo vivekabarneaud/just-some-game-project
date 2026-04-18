@@ -6,8 +6,8 @@ import {
   getFoodPref,
   type Adventurer,
   type AdventurerClass,
-} from "~/data/adventurers";
-import type { MissionSlot } from "~/data/missions";
+} from "@medieval-realm/shared/data/adventurers";
+import type { MissionSlot } from "@medieval-realm/shared/data/missions";
 
 interface TeamSlotProps {
   slot: MissionSlot;

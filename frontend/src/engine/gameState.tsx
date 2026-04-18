@@ -79,7 +79,15 @@ import {
   getPenProduction,
   MAX_PENS,
   PEN_MAX_LEVEL,
-} from "~/data/livestock";
+} from "@medieval-realm/shared/data/livestock";
+import {
+  type FoodItemType,
+  emptyFoods,
+  getTotalFood,
+  consumeFood,
+  addFood,
+  migrateFoodsFromLegacy,
+} from "~/data/foods";
 import {
   getHiveCost,
   getHiveBuildTime,
@@ -125,8 +133,8 @@ import {
   getOrigin,
   BACKSTORY_TRAITS,
   PERSONALITY_QUIRKS,
-} from "~/data/adventurers";
-import { PREMADE_CHARACTERS } from "~/data/premade-characters";
+} from "@medieval-realm/shared/data/adventurers";
+import { PREMADE_CHARACTERS } from "@medieval-realm/shared/data/premade-characters";
 import {
   type ActiveMission,
   type CompletedMission,
@@ -135,6 +143,7 @@ import {
   getMission,
   generateMissionBoard,
   MISSION_POOL,
+  NOVICE_MISSIONS,
   getMissionBoardSize,
   calcSuccessChance,
   calcDeathChance,
@@ -144,12 +153,13 @@ import {
   PRIEST_REVIVE_CHANCE,
   formatReward,
   STORY_MISSIONS,
-} from "~/data/missions";
+  isExpedition,
+} from "@medieval-realm/shared/data/missions";
 import {
   getMissionXp,
   applyXp,
   RANK_NAMES,
-} from "~/data/adventurers";
+} from "@medieval-realm/shared/data/adventurers";
 import {
   type InventoryItem,
   type ItemSlot,
@@ -158,7 +168,9 @@ import {
   getEquipmentStats,
   ITEMS,
   getSupplyEffect,
-} from "~/data/items";
+  MATCHED_FOOD_LOYALTY_BONUS,
+  getArmorAccess,
+} from "@medieval-realm/shared/data/items";
 import {
   calcStats as calcAdvStats,
   getUnspentStatPoints,
@@ -169,7 +181,7 @@ import {
   FOOD_PREFERENCES,
   type AgeCategory,
   ORIGIN_RECIPES,
-} from "~/data/adventurers";
+} from "@medieval-realm/shared/data/adventurers";
 import {
   type IncomingRaid,
   type RaidResult,
@@ -183,10 +195,10 @@ import {
 } from "~/data/raids";
 
 import { QUEST_CHAIN } from "~/data/quests";
-import { HERBS } from "~/data/herbs";
-import { ALCHEMY_RECIPES, getDiscoverableRecipes, getAvailableAlchemyRecipes, RESEARCH_BASE_COST } from "~/data/alchemy_recipes";
+import { HERBS } from "@medieval-realm/shared/data/herbs";
+import { ALCHEMY_RECIPES, getDiscoverableRecipes, getAvailableAlchemyRecipes, RESEARCH_BASE_COST } from "@medieval-realm/shared/data/alchemy_recipes";
 import { getDeity, getCurrentDeity } from "~/data/deities";
-import { simulateCombat } from "~/data/combat";
+import { simulateCombat } from "@medieval-realm/shared/data/combat";
 import { canUnlockTalent } from "~/data/talents";
 import { getEnchantment } from "~/data/enchantments";
 import {
@@ -218,6 +230,14 @@ export interface GameEvent {
 }
 
 import { type CraftingRecipe, type ActiveCraft, CRAFTING_RECIPES, getBuildingToolByRecipe, getBuildingTool, getRequiredTool, type BuildingToolDef } from "./crafting";
+import {
+  calcAdventurerMaxHp,
+  resolveEventSlot,
+  resolveExpeditionEvent,
+  applyBetweenEventHeal,
+  applyRecoveryItems,
+  isTeamWiped,
+} from "@medieval-realm/shared/data/expeditionEngine";
 export type { CraftingRecipe, ActiveCraft, BuildingToolDef };
 export { CRAFTING_RECIPES, getBuildingTool, getBuildingToolByRecipe, getRequiredTool };
 export { getBuildingToolsForBuilding, BUILDING_TOOLS } from "./crafting";
@@ -226,7 +246,6 @@ export interface ResourceState {
   gold: number;
   wood: number;
   stone: number;
-  food: number;
 }
 
 export interface StorageCaps {
@@ -290,6 +309,8 @@ export interface GameState {
   orchards: PlayerOrchard[];
   honey: number;
   fruit: number;
+  /** Per-type food stockpiles — total capped by pantry */
+  foods: Record<FoodItemType, number>;
   population: number;
   season: Season;
   seasonElapsed: number;
@@ -333,6 +354,8 @@ export interface GameState {
   craftingQueue: ActiveCraft[];
   /** Building tool slots: buildingId → installed tool IDs */
   buildingTools: Record<string, string[]>;
+  /** Enemy IDs the player has encountered on missions */
+  discoveredEnemies: string[];
   // Event log
   eventLog: GameEvent[];
   // Ale & Happiness
@@ -395,7 +418,7 @@ export interface GameActions {
   resetGame: () => void;
   markIntroSeen: () => void;
   skipSeason: () => void;
-  getProductionRates: () => ResourceState;
+  getProductionRates: () => { gold: number; wood: number; stone: number; food: number };
   getMaxPopulation: () => number;
   getFoodConsumption: () => number;
   getAnimalFoodConsumption: () => number;
@@ -413,7 +436,7 @@ export interface GameActions {
   getGuildLevel: () => number;
   recruitAdventurer: (candidateId: string) => boolean;
   dismissAdventurer: (adventurerId: string) => boolean;
-  deployMission: (missionId: string, adventurerIds: string[], supplies?: string[], precomputedSuccess?: number) => boolean;
+  deployMission: (missionId: string, adventurerIds: string[], adventurerSupplies?: Record<string, { potion?: string; food?: string; recovery?: string }>, precomputedSuccess?: number) => boolean;
   collectCompletedMissions: () => CompletedMission[];
   getAvailableAdventurers: () => Adventurer[];
   getRosterSize: () => { current: number; max: number };
@@ -448,17 +471,20 @@ export interface GameActions {
   visitGuild: () => void;
   hasNewGuildContent: () => boolean;
   rerollMissions: () => boolean;
+  /** Dev-only: replace the mission board with every novice mission, ignoring prerequisites. */
+  devSpawnAllNoviceMissions: () => void;
   rerollRecruits: () => boolean;
   claimQuestReward: (questId: string) => boolean;
   startAlchemyResearch: () => boolean;
-  startAlchemyCraft: (recipeId: string) => boolean;
+  startAlchemyCraft: (recipeId: string, quantity?: number) => boolean;
   getHerbCount: (herbId: string) => number;
   makeOffering: (deityId: string) => boolean;
   claimMissionReward: (index: number) => void;
+  applyCoopClaim: (response: import("@medieval-realm/shared").CoopClaimResponse, expeditionId: string) => import("@medieval-realm/shared/data/missions").CompletedMission;
   skipRaidTimer: () => void;
   skipMissionTimers: () => void;
   devAddShards: (amount: number) => void;
-  trade: (give: keyof ResourceState, giveAmount: number, receive: keyof ResourceState, receiveAmount: number) => boolean;
+  trade: (give: string, giveAmount: number, receive: string, receiveAmount: number) => boolean;
 }
 
 // ─── Constants ───────────────────────────────────────────────────
@@ -490,8 +516,11 @@ function generateSettlementName(): string {
 }
 
 function createInitialState(): GameState {
+  const initialFoods = emptyFoods();
+  initialFoods.wheat = 100;
   return {
-    resources: { gold: 50, wood: 300, stone: 200, food: 100 },
+    resources: { gold: 50, wood: 300, stone: 200 },
+    foods: initialFoods,
     buildings: BUILDINGS.map((b) => ({
       buildingId: b.id,
       level: b.id === "town_hall" ? 1 : 0,
@@ -533,6 +562,7 @@ function createInitialState(): GameState {
     inventory: [],
     craftingQueue: [],
     buildingTools: {},
+    discoveredEnemies: [],
     eventLog: [],
     ale: 0,
     happiness: 50,
@@ -626,6 +656,11 @@ function loadGame(): GameState | null {
     // Adventurer's Guild migration
     if (!saved.adventurers) saved.adventurers = [];
     if (!saved.activeMissions) saved.activeMissions = [];
+    // Migrate old flat supplies to new per-adventurer shape (drop old data — low cost)
+    for (const am of saved.activeMissions) {
+      if ((am as any).supplies !== undefined) delete (am as any).supplies;
+      if (!(am as any).adventurerSupplies) (am as any).adventurerSupplies = {};
+    }
     if (!saved.completedMissions) saved.completedMissions = [];
     if (!saved.recruitCandidates) saved.recruitCandidates = [];
     if (!saved.missionBoard) saved.missionBoard = [];
@@ -696,6 +731,15 @@ function loadGame(): GameState | null {
     for (const adv of saved.recruitCandidates) migrateEquipment(adv);
     if (!saved.craftingQueue) saved.craftingQueue = [];
     if (!saved.buildingTools) saved.buildingTools = {};
+    if (!saved.discoveredEnemies) saved.discoveredEnemies = [];
+    // Migrate old resources.food to typed foods map
+    if (!saved.foods) {
+      const legacyFood = (saved.resources as any)?.food;
+      saved.foods = migrateFoodsFromLegacy(typeof legacyFood === "number" ? legacyFood : 0);
+    }
+    if (saved.resources && "food" in saved.resources) {
+      delete (saved.resources as any).food;
+    }
     // Event log migration
     if (!saved.eventLog) saved.eventLog = [];
     // Ale & Happiness migration
@@ -819,9 +863,9 @@ function isHarvestTime(season: Season, seasonElapsed: number): boolean {
 
 // ─── Derived calculations ────────────────────────────────────────
 
-function calcProductionRates(state: GameState): ResourceState {
+function calcProductionRates(state: GameState): { gold: number; wood: number; stone: number; food: number } {
   const { buildings, fields, gardens, pens, population, season, seasonElapsed } = state;
-  const rates: ResourceState = { gold: 0, wood: 0, stone: 0, food: 0 };
+  const rates = { gold: 0, wood: 0, stone: 0, food: 0 };
 
   // Citizen tax
   rates.gold += Math.floor(population) * GOLD_TAX_PER_CITIZEN_PER_HOUR;
@@ -842,7 +886,7 @@ function calcProductionRates(state: GameState): ResourceState {
     if (!def) continue;
     const levelDef = def.levels[pb.level - 1];
     if (levelDef?.production) {
-      const res = levelDef.production.resource as keyof ResourceState;
+      const res = levelDef.production.resource as keyof typeof rates;
       let rate = levelDef.production.rate;
       // Apply seasonal modifier for food gathering buildings
       if (FOOD_GATHERING.has(pb.buildingId)) {
@@ -897,6 +941,72 @@ function calcAnimalFoodConsumption(pens: PlayerPen[]): number {
   return total;
 }
 
+/** Per-food-type production rates, used to add to the typed foods map each tick. */
+function calcFoodRates(state: GameState): Record<FoodItemType, number> {
+  const rates = emptyFoods();
+  const { buildings, fields, gardens, pens, season, seasonElapsed } = state;
+
+  const foodSeasonMod: Record<string, number> = {
+    spring: 1.0, summer: 1.0, autumn: 0.75, winter: 0.5,
+  };
+  const foragerSeasonMod: Record<string, number> = {
+    spring: 1.0, summer: 1.0, autumn: 0.75, winter: 0.25,
+  };
+
+  // Fields — harvest season only
+  if (isHarvestTime(season, seasonElapsed)) {
+    for (const field of fields) {
+      if (field.level === 0 || !field.crop) continue;
+      const crop = getCrop(field.crop);
+      if (!crop.isFood) continue;
+      const rate = getSeasonYield(crop, field.level) / HARVEST_DURATION_HOURS;
+      if (crop.id in rates) rates[crop.id as FoodItemType] += rate;
+    }
+  }
+
+  // Gardens — active season only
+  for (const garden of gardens) {
+    if (garden.level === 0) continue;
+    const veggie = getVeggie(garden.veggie);
+    if (!isGardenActive(veggie, season)) continue;
+    const rate = getGardenRate(veggie, garden.level);
+    if (veggie.id in rates) rates[veggie.id as FoodItemType] += rate;
+  }
+
+  // Pens — animal products by foodLabel (Meat/Eggs/Milk → meat/eggs/milk)
+  for (const pen of pens) {
+    if (pen.level === 0) continue;
+    const animal = getAnimal(pen.animal);
+    const prod = getPenProduction(animal, pen.level);
+    const type = animal.foodLabel.toLowerCase() as FoodItemType;
+    if (type in rates) rates[type] += prod.produced;
+  }
+
+  // Buildings — hunting, forager, fishing
+  for (const pb of buildings) {
+    if (pb.level === 0 || pb.damaged) continue;
+    const def = BUILDINGS.find((b) => b.id === pb.buildingId);
+    if (!def) continue;
+    const levelDef = def.levels[pb.level - 1];
+    if (!levelDef?.production || levelDef.production.resource !== "food") continue;
+    let rate = levelDef.production.rate;
+    let target: FoodItemType | null = null;
+    if (pb.buildingId === "hunting_camp") {
+      rate = Math.floor(rate * (foodSeasonMod[season] ?? 1));
+      target = "meat";
+    } else if (pb.buildingId === "forager_hut") {
+      rate = Math.floor(rate * (foragerSeasonMod[season] ?? 1));
+      target = season === "autumn" ? "mushrooms" : season === "winter" ? "nuts" : "berries";
+    } else if (pb.buildingId === "fishing_hut") {
+      rate = Math.floor(rate * (foodSeasonMod[season] ?? 1));
+      target = "fish";
+    }
+    if (target) rates[target] += rate;
+  }
+
+  return rates;
+}
+
 const FOOD_TYPE_META: Record<string, { label: string; icon: string }> = {
   grain: { label: "Grain", icon: "🌾" },
   meat: { label: "Meat", icon: "🥩" },
@@ -911,27 +1021,34 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
   const { buildings, fields, gardens, pens, season, seasonElapsed } = state;
   const sources: FoodSource[] = [];
 
-  // Fields (harvest only)
+  const foodSeasonMod: Record<string, number> = {
+    spring: 1.0, summer: 1.0, autumn: 0.75, winter: 0.5,
+  };
+  const foragerSeasonMod: Record<string, number> = {
+    spring: 1.0, summer: 1.0, autumn: 0.75, winter: 0.25,
+  };
+
+  // Fields (harvest only) — use crop.id (wheat/barley) as the food type
   if (isHarvestTime(season, seasonElapsed)) {
     for (const field of fields) {
       if (field.level === 0 || !field.crop) continue;
       const crop = getCrop(field.crop);
       if (!crop.isFood) continue;
       const rate = Math.round(getSeasonYield(crop, field.level) / HARVEST_DURATION_HOURS);
-      sources.push({ type: "grain", label: crop.name, icon: crop.icon, rate, building: `${crop.name} Field Lv${field.level}` });
+      sources.push({ type: crop.id, label: crop.name, icon: crop.icon, rate, building: `${crop.name} Field Lv${field.level}` });
     }
   }
 
-  // Gardens
+  // Gardens — use veggie.id (cabbages/turnips/peas/squash)
   for (const garden of gardens) {
     if (garden.level === 0) continue;
     const veggie = getVeggie(garden.veggie);
     if (!isGardenActive(veggie, season)) continue;
     const rate = getGardenRate(veggie, garden.level);
-    sources.push({ type: "veggies", label: veggie.name, icon: veggie.icon, rate, building: `${veggie.name} Garden Lv${garden.level}` });
+    sources.push({ type: veggie.id, label: veggie.name, icon: veggie.icon, rate, building: `${veggie.name} Garden Lv${garden.level}` });
   }
 
-  // Pens
+  // Pens — meat/eggs/milk
   for (const pen of pens) {
     if (pen.level === 0) continue;
     const animal = getAnimal(pen.animal);
@@ -939,18 +1056,31 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
     sources.push({ type: animal.foodLabel.toLowerCase(), label: animal.foodLabel, icon: animal.icon, rate: prod.produced, building: `${animal.name} Pen Lv${pen.level}` });
   }
 
-  // Buildings (hunting, foraging, fishing)
+  // Buildings — hunting (meat), forager (seasonal berries/mushrooms/nuts), fishing (fish)
   for (const pb of buildings) {
     if (pb.level === 0) continue;
     const def = BUILDINGS.find((b) => b.id === pb.buildingId);
     if (!def) continue;
     const levelDef = def.levels[pb.level - 1];
-    if (levelDef?.production?.resource === "food" && levelDef.production.foodType) {
-      const ft = levelDef.production.foodType;
-      const meta = FOOD_TYPE_META[ft];
-      if (meta) {
-        sources.push({ type: ft, label: meta.label, icon: meta.icon, rate: levelDef.production.rate, building: def.name });
-      }
+    if (levelDef?.production?.resource !== "food") continue;
+    let rate = levelDef.production.rate;
+    let type = "";
+    let icon = "";
+    let label = "";
+    if (pb.buildingId === "hunting_camp") {
+      rate = Math.floor(rate * (foodSeasonMod[season] ?? 1));
+      type = "meat"; icon = "🍖"; label = "Meat";
+    } else if (pb.buildingId === "forager_hut") {
+      rate = Math.floor(rate * (foragerSeasonMod[season] ?? 1));
+      if (season === "autumn") { type = "mushrooms"; icon = "🍄"; label = "Mushrooms"; }
+      else if (season === "winter") { type = "nuts"; icon = "🌰"; label = "Nuts"; }
+      else { type = "berries"; icon = "🫐"; label = "Berries"; }
+    } else if (pb.buildingId === "fishing_hut") {
+      rate = Math.floor(rate * (foodSeasonMod[season] ?? 1));
+      type = "fish"; icon = "🐟"; label = "Fish";
+    }
+    if (type && rate > 0) {
+      sources.push({ type, label, icon, rate, building: def.name });
     }
   }
 
@@ -1227,7 +1357,7 @@ export function GameProvider(props: ParentProps) {
                   raid: template,
                   raidStrength: ir.strength,
                   defense,
-                  resources: serverState.resources,
+                  resources: { ...serverState.resources, food: getTotalFood(serverState.foods) },
                   population: serverState.population,
                   homeAdventurers: homeAdvs,
                 });
@@ -1245,7 +1375,7 @@ export function GameProvider(props: ParentProps) {
                   serverState.resources.gold = Math.max(0, serverState.resources.gold - result.resourcesLost.gold);
                   serverState.resources.wood = Math.max(0, serverState.resources.wood - result.resourcesLost.wood);
                   serverState.resources.stone = Math.max(0, serverState.resources.stone - result.resourcesLost.stone);
-                  serverState.resources.food = Math.max(0, serverState.resources.food - result.resourcesLost.food);
+                  if (serverState.foods) consumeFood(serverState.foods, result.resourcesLost.food);
                   serverState.population = Math.max(BASE_POPULATION, serverState.population - result.citizensLost);
                   // Damage buildings
                   const damageable = serverState.buildings.filter((b: any) => b.level > 0 && !b.damaged && b.buildingId !== "town_hall");
@@ -1441,6 +1571,7 @@ export function GameProvider(props: ParentProps) {
         }
 
         const rates = calcProductionRates(s);
+        const foodRates = calcFoodRates(s);
         const citizenFood = calcFoodConsumption(s.population);
         const animalFood = calcAnimalFoodConsumption(s.pens);
         const caps = calcStorageCaps(s.buildings);
@@ -1455,7 +1586,14 @@ export function GameProvider(props: ParentProps) {
         s.resources.gold = Math.min(caps.gold, Math.max(0, s.resources.gold + rates.gold * happinessMod * elapsedHours));
         s.resources.wood = Math.min(caps.wood, Math.max(0, s.resources.wood + rates.wood * happinessMod * elapsedHours));
         s.resources.stone = Math.min(caps.stone, Math.max(0, s.resources.stone + rates.stone * happinessMod * elapsedHours));
-        s.resources.food = Math.min(caps.food, Math.max(0, s.resources.food + netFoodRate * happinessMod * elapsedHours));
+
+        // Food: add per-type production (capped at pantry total), then consume proportionally
+        if (!s.foods) s.foods = emptyFoods();
+        for (const [type, rate] of Object.entries(foodRates) as [FoodItemType, number][]) {
+          if (rate > 0) addFood(s.foods, type, rate * happinessMod * elapsedHours, caps.food);
+        }
+        const foodToConsume = (citizenFood + animalFood) * elapsedHours;
+        if (foodToConsume > 0) consumeFood(s.foods, foodToConsume);
 
         // ── Wool from sheep pens (seasonal) ──
         const woolSeasonMod = s.season === "spring" || s.season === "summer" ? 1.0
@@ -1629,9 +1767,9 @@ export function GameProvider(props: ParentProps) {
         if (breweryLvl > 0) {
           const aleProduced = ALE_PRODUCTION_PER_BREWERY_LEVEL * breweryLvl * elapsedHours;
           const foodNeeded = ALE_FOOD_COST_PER_BREWERY_LEVEL * breweryLvl * elapsedHours;
-          // Only produce if we have enough food
-          if (s.resources.food >= foodNeeded) {
-            s.resources.food -= foodNeeded;
+          // Only produce if we have enough food total (proportionally drawn)
+          if (getTotalFood(s.foods) >= foodNeeded) {
+            consumeFood(s.foods, foodNeeded);
             s.ale = Math.min(aleStorageCap, s.ale + aleProduced);
           }
         }
@@ -1672,7 +1810,7 @@ export function GameProvider(props: ParentProps) {
         else if (netFoodRate < 0) happiness -= Math.min(30, Math.abs(netFoodRate) / 3);
 
         // Starvation penalty — resets to 75 when people starve, decays over 24h after food is restored
-        if (s.resources.food <= 0) {
+        if (getTotalFood(s.foods) <= 0) {
           s.starvationPenalty = 75; // hold at max while starving
         } else if (s.starvationPenalty > 0) {
           // Decay: lose 75 points over 24 hours = ~3.125 per hour
@@ -1737,7 +1875,7 @@ export function GameProvider(props: ParentProps) {
           }
         }
         const foodTypes = foodSources.size;
-        if (s.resources.food > 0) {
+        if (getTotalFood(s.foods) > 0) {
           if (foodTypes <= 1) happiness -= 5;
           else if (foodTypes === 3) happiness += 3;
           else if (foodTypes === 4) happiness += 6;
@@ -1787,7 +1925,7 @@ export function GameProvider(props: ParentProps) {
         } else if (s.population > BASE_POPULATION) {
           // Starvation and unhappiness stack — percentage-based so it scales with population
           let ratePct = 0;
-          if (s.resources.food <= 0) ratePct += 0.10; // 10%/hour — brutal, but self-correcting as pop drops
+          if (getTotalFood(s.foods) <= 0) ratePct += 0.10; // 10%/hour — brutal, but self-correcting as pop drops
           if (s.happiness < 20) ratePct += 0.02;      // 2%/hour fleeing
           if (ratePct > 0) {
             // Exponential decay: pop * (1 - rate)^hours, clamped to base
@@ -1800,7 +1938,7 @@ export function GameProvider(props: ParentProps) {
           pushEvent(s, "citizen_born", "👶", `${popAfter - popBefore} new citizen${popAfter - popBefore > 1 ? "s" : ""} arrived`);
         } else if (popAfter < popBefore) {
           const lost = popBefore - popAfter;
-          if (s.resources.food <= 0) {
+          if (getTotalFood(s.foods) <= 0) {
             pushEvent(s, "citizen_died", "💀", `${lost} citizen${lost > 1 ? "s" : ""} starved to death`);
           } else if (s.happiness < 20) {
             pushEvent(s, "citizen_left", "🚶", `${lost} citizen${lost > 1 ? "s" : ""} left (unhappy)`);
@@ -1814,28 +1952,100 @@ export function GameProvider(props: ParentProps) {
           for (let i = s.activeMissions.length - 1; i >= 0; i--) {
             const am = s.activeMissions[i];
             am.remaining -= elapsedSeconds;
+
+            // ── Expedition event ticking ──────────────────────────
+            const expTemplate = getMission(am.missionId);
+            if (expTemplate && isExpedition(expTemplate) && am.expeditionResolvedEvents && am.initialDuration) {
+              const events = am.expeditionResolvedEvents;
+              const totalEvents = events.length;
+              // How many events should have fired by now? Evenly spaced across duration.
+              const elapsed = am.initialDuration - Math.max(0, am.remaining);
+              const shouldHaveFired = Math.min(totalEvents, Math.floor((elapsed / am.initialDuration) * totalEvents + 0.0001) + 1);
+
+              const team = am.adventurerIds.map((id) => s.adventurers.find((a) => a.id === id)).filter(Boolean) as Adventurer[];
+              const hpMap = am.expeditionHp ?? {};
+              const maxHpMap = am.expeditionMaxHp ?? {};
+              const rewards = am.expeditionRewards ?? [];
+              const log = am.expeditionLog ?? [];
+              const supplies = am.adventurerSupplies ?? {};
+
+              while ((am.expeditionEventIndex ?? 0) < Math.min(shouldHaveFired, totalEvents)) {
+                const eventIdx = am.expeditionEventIndex ?? 0;
+                const ev = events[eventIdx];
+
+                // Between-event heal (skipped before first event — team starts fresh)
+                if (eventIdx > 0) {
+                  applyBetweenEventHeal(team, hpMap, maxHpMap);
+                  applyRecoveryItems(team, hpMap, maxHpMap, supplies);
+                }
+
+                // Seed for deterministic combat simulation in expeditions
+                let seed = 0;
+                const seedStr = am.missionId + "|" + eventIdx;
+                for (let j = 0; j < seedStr.length; j++) seed = ((seed << 5) - seed + seedStr.charCodeAt(j)) | 0;
+
+                resolveExpeditionEvent(ev, {
+                  template: expTemplate as any,
+                  team,
+                  hpMap,
+                  maxHpMap,
+                  rewards,
+                  log,
+                  supplies,
+                  seed,
+                  eventIndex: eventIdx,
+                });
+
+                am.expeditionEventIndex = eventIdx + 1;
+
+                // If team wiped, fast-forward to mission completion
+                if (isTeamWiped(team, hpMap)) {
+                  am.remaining = 0;
+                  break;
+                }
+              }
+
+              // Persist back
+              am.expeditionHp = hpMap;
+              am.expeditionRewards = rewards;
+              am.expeditionLog = log;
+              am.adventurerSupplies = supplies;
+            }
+
             if (am.remaining <= 0) {
               // Mission complete — resolve
               const template = getMission(am.missionId);
               const team = am.adventurerIds.map((id) => s.adventurers.find((a) => a.id === id)).filter(Boolean) as Adventurer[];
 
-              // Combat simulation for missions with encounters; probability for the rest
-              const combatResult = template ? simulateCombat(template, team, am.supplies) : null;
-              const success = combatResult ? combatResult.victory : Math.random() * 100 < am.successChance;
+              const isExped = template && isExpedition(template);
+
+              // Combat simulation for single-encounter missions; expeditions use pre-resolved event data; stat-based for the rest
+              const combatResult = (isExped || !template) ? null : simulateCombat(template, team, am.adventurerSupplies);
+              const success = isExped
+                ? !isTeamWiped(team, am.expeditionHp ?? {})
+                : (combatResult ? combatResult.victory : Math.random() * 100 < am.successChance);
 
               const casualties: string[] = [];
               const revived: string[] = [];
               const levelUps: string[] = [];
               const rankUps: { name: string; newRank: string }[] = [];
 
-              if (!success && template) {
+              // Expeditions: compute fallen from HP at end of mission. Regular missions: use combat result.
+              const expeditionFallenIds = isExped
+                ? new Set(team.filter((a) => (am.expeditionHp?.[a.id] ?? 0) <= 0).map((a) => a.id))
+                : null;
+
+              if ((!success || (isExped && expeditionFallenIds && expeditionFallenIds.size > 0)) && template) {
                 // Check for deaths — tied to combat results when available
-                const fallenInCombat = new Set(combatResult?.fallenAdventurerIds ?? []);
+                const fallenInCombat = expeditionFallenIds ?? new Set(combatResult?.fallenAdventurerIds ?? []);
                 const deadIds: string[] = [];
                 for (const adv of team) {
                   const baseChance = calcDeathChance(template, team, adv);
                   let deathChance: number;
-                  if (combatResult) {
+                  if (isExped) {
+                    // Expedition: fallen during events = death check (HP hit 0)
+                    deathChance = fallenInCombat.has(adv.id) ? baseChance * 1.5 : 0;
+                  } else if (combatResult) {
                     // Fell in combat: high death chance (base * 1.5)
                     // Survived combat: they made it home alive — no death risk
                     deathChance = fallenInCombat.has(adv.id) ? baseChance * 1.5 : 0;
@@ -1896,6 +2106,14 @@ export function GameProvider(props: ParentProps) {
                   const survivors = team.filter((a) => !casualties.includes(a.id));
                   rewards = calcAssassinFailRewards(template, team, survivors);
                 }
+                // Expeditions: add rewards accumulated from events (treasure, encounter outcomes, combat loot)
+                if (isExped && am.expeditionRewards?.length) {
+                  for (const r of am.expeditionRewards) {
+                    const existing = rewards.find((x) => x.resource === r.resource);
+                    if (existing) existing.amount += r.amount;
+                    else rewards.push({ ...r });
+                  }
+                }
               }
 
               // Add combat loot from killed enemies
@@ -1922,8 +2140,12 @@ export function GameProvider(props: ParentProps) {
                 }
               }
 
-              // Grant XP to all surviving adventurers (WIS boosts XP)
+              // Grant XP — the mission has `slots × baseXp` total XP, split among the deployed team.
+              // Going in with fewer adventurers than slots = bigger individual share (risk/reward).
               const baseXp = template ? getMissionXp(template.difficulty, success) : 0;
+              const totalSlots = template?.slots.length ?? 1;
+              const deployedSize = Math.max(1, team.length);
+              const perAdvBase = (baseXp * totalSlots) / deployedSize;
               for (const adv of team) {
                 if (!casualties.includes(adv.id)) {
                   const advInState = s.adventurers.find((a) => a.id === adv.id);
@@ -1932,7 +2154,7 @@ export function GameProvider(props: ParentProps) {
                     const stats = calcAdvStats(advInState, equipStats);
                     const wisBonus = 1 + stats.wis * 0.02; // +2% XP per WIS point
                     const traitBonus = advInState.trait === "quick_learner" ? 1.10 : 1;
-                    const xpGain = Math.floor(baseXp * wisBonus * traitBonus);
+                    const xpGain = Math.floor(perAdvBase * wisBonus * traitBonus);
                     const result = applyXp(advInState, xpGain);
                     if (result.leveled) levelUps.push(advInState.name);
                     if (result.rankUp && advInState.rank !== result.oldRank) {
@@ -1952,6 +2174,17 @@ export function GameProvider(props: ParentProps) {
                     const oldRank = getLoyaltyRank(oldLoyalty);
                     let gain = success ? 2 : 0;
                     if (isDangerous) gain += 1; // bonus for surviving dangerous missions
+                    // Matched food bonus: +1 loyalty when eaten food matches preference on success
+                    if (success) {
+                      const foodId = am.adventurerSupplies?.[adv.id]?.food;
+                      if (foodId) {
+                        const foodItem = getItem(foodId);
+                        if (foodItem?.foodFlavors && advInState.foodPreference &&
+                            foodItem.foodFlavors.includes(advInState.foodPreference as any)) {
+                          gain += MATCHED_FOOD_LOYALTY_BONUS;
+                        }
+                      }
+                    }
                     advInState.loyalty = Math.min(100, oldLoyalty + gain);
                     const newRank = getLoyaltyRank(advInState.loyalty);
                     if (newRank.rank > oldRank.rank) {
@@ -1995,6 +2228,16 @@ export function GameProvider(props: ParentProps) {
               if (success && STORY_MISSIONS.some((sm) => sm.id === am.missionId)) {
                 if (!s.completedStoryMissions.includes(am.missionId)) {
                   s.completedStoryMissions.push(am.missionId);
+                }
+              }
+
+              // Record discovered enemies — success or failure, the player has now seen them
+              if (template?.encounters) {
+                if (!s.discoveredEnemies) s.discoveredEnemies = [];
+                for (const enc of template.encounters) {
+                  if (!s.discoveredEnemies.includes(enc.enemyId)) {
+                    s.discoveredEnemies.push(enc.enemyId);
+                  }
                 }
               }
 
@@ -2070,7 +2313,7 @@ export function GameProvider(props: ParentProps) {
                 raid: template,
                 raidStrength: ir.strength,
                 defense,
-                resources: s.resources,
+                resources: { ...s.resources, food: getTotalFood(s.foods) },
                 population: s.population,
                 homeAdventurers: homeAdvs,
               });
@@ -2122,7 +2365,7 @@ export function GameProvider(props: ParentProps) {
                 s.resources.gold = Math.max(0, s.resources.gold - result.resourcesLost.gold);
                 s.resources.wood = Math.max(0, s.resources.wood - result.resourcesLost.wood);
                 s.resources.stone = Math.max(0, s.resources.stone - result.resourcesLost.stone);
-                s.resources.food = Math.max(0, s.resources.food - result.resourcesLost.food);
+                if (result.resourcesLost.food > 0) consumeFood(s.foods, result.resourcesLost.food);
                 s.population = Math.max(BASE_POPULATION, s.population - result.citizensLost);
               }
 
@@ -2265,9 +2508,9 @@ export function GameProvider(props: ParentProps) {
       const def = BUILDINGS.find((b) => b.id === buildingId);
       if (!def || !isBuildingUnlocked(def, getTownHallLevel(state.buildings))) return false;
 
-      // Check tier-gated level cap
-      const tier = getSettlementTier(getTownHallLevel(state.buildings));
-      const effectiveMax = getEffectiveMaxLevel(def, tier);
+      // Check Town Hall-gated level cap (no building may exceed TH level)
+      const thLevel = getTownHallLevel(state.buildings);
+      const effectiveMax = getEffectiveMaxLevel(def, thLevel);
       if (pb.level >= effectiveMax) return false;
 
       // Check tier upgrade prerequisites for Town Hall
@@ -2563,8 +2806,7 @@ export function GameProvider(props: ParentProps) {
     getEffectiveMaxLevel(buildingId) {
       const def = BUILDINGS.find((b) => b.id === buildingId);
       if (!def) return 0;
-      const tier = getSettlementTier(getTownHallLevel(state.buildings));
-      return getEffectiveMaxLevel(def, tier);
+      return getEffectiveMaxLevel(def, getTownHallLevel(state.buildings));
     },
     getGuildLevel() {
       return state.buildings.find((b) => b.buildingId === "adventurers_guild")?.level ?? 0;
@@ -2595,7 +2837,7 @@ export function GameProvider(props: ParentProps) {
       scheduleSave();
       return true;
     },
-    deployMission(missionId, adventurerIds, supplies = [], precomputedSuccess?: number) {
+    deployMission(missionId, adventurerIds, adventurerSupplies = {}, precomputedSuccess?: number) {
       const guildLvl = this.getGuildLevel();
       if (guildLvl === 0) return false;
       const maxSlots = getMissionSlots(guildLvl);
@@ -2616,7 +2858,7 @@ export function GameProvider(props: ParentProps) {
       // Check deploy cost
       if (state.resources.gold < template.deployCost) return false;
 
-      const successChance = precomputedSuccess ?? calcSuccessChance(template, team);
+      const successChance = precomputedSuccess ?? calcSuccessChance(template, team, 0, adventurerSupplies);
       let effectiveDuration = calcEffectiveDuration(template, team);
 
       // Apply equipment duration/loot mods
@@ -2639,18 +2881,55 @@ export function GameProvider(props: ParentProps) {
           const adv = s.adventurers.find((a) => a.id === id);
           if (adv) adv.onMission = true;
         }
-        // Consume supply potions from inventory
-        for (const supplyId of supplies) {
-          const inv = s.inventory.find((i) => i.itemId === supplyId);
-          if (inv && inv.quantity > 0) inv.quantity -= 1;
+        // Consume per-adventurer supplies from inventory
+        for (const advId of adventurerIds) {
+          const sup = adventurerSupplies[advId];
+          if (!sup) continue;
+          for (const itemId of [sup.potion, sup.food, sup.recovery]) {
+            if (!itemId) continue;
+            const inv = s.inventory.find((i) => i.itemId === itemId);
+            if (inv && inv.quantity > 0) inv.quantity -= 1;
+          }
         }
-        s.activeMissions.push({
+        const activeMission: any = {
           missionId: template.id,
           adventurerIds: [...adventurerIds],
           remaining: effectiveDuration,
           successChance,
-          supplies: [...supplies],
-        });
+          adventurerSupplies: { ...adventurerSupplies },
+        };
+
+        // Expedition-specific state: snapshot resolved events, init HP maps, initialDuration
+        if (isExpedition(template)) {
+          const expTemplate = template;
+          const resolvedEvents: any[] = [];
+          // Use a deterministic seed per mission so resolution is stable across reloads
+          let seed = 0;
+          const seedStr = template.id + "|" + adventurerIds.join(",");
+          for (let i = 0; i < seedStr.length; i++) seed = ((seed << 5) - seed + seedStr.charCodeAt(i)) | 0;
+          let s2 = seed;
+          const rand = () => { s2 = (s2 * 1664525 + 1013904223) & 0x7fffffff; return s2 / 0x7fffffff; };
+          for (const slot of expTemplate.events) {
+            const chosen = resolveEventSlot(slot, rand);
+            if (chosen) resolvedEvents.push(chosen);
+          }
+          const hpMap: Record<string, number> = {};
+          const maxHpMap: Record<string, number> = {};
+          for (const adv of team) {
+            const m = calcAdventurerMaxHp(adv);
+            hpMap[adv.id] = m;
+            maxHpMap[adv.id] = m;
+          }
+          activeMission.expeditionEventIndex = 0;
+          activeMission.expeditionHp = hpMap;
+          activeMission.expeditionMaxHp = maxHpMap;
+          activeMission.expeditionResolvedEvents = resolvedEvents;
+          activeMission.initialDuration = effectiveDuration;
+          activeMission.expeditionLog = [];
+          activeMission.expeditionRewards = [];
+        }
+
+        s.activeMissions.push(activeMission);
         // Remove from mission board so it can't be repeated
         s.missionBoard = s.missionBoard.filter((m) => m.id !== template.id);
         s.firstMissionSent = true;
@@ -2711,7 +2990,7 @@ export function GameProvider(props: ParentProps) {
         if (res === "gold") return state.resources.gold;
         if (res === "wood") return state.resources.wood;
         if (res === "stone") return state.resources.stone;
-        if (res === "food") return state.resources.food;
+        if (res === "food") return getTotalFood(state.foods);
         if (res === "astralShards") return state.astralShards;
         const inv = state.inventory.find((i) => i.itemId === res);
         return inv?.quantity ?? 0;
@@ -2731,7 +3010,7 @@ export function GameProvider(props: ParentProps) {
           else if (res === "gold") s.resources.gold -= total;
           else if (res === "wood") s.resources.wood -= total;
           else if (res === "stone") s.resources.stone -= total;
-          else if (res === "food") s.resources.food -= total;
+          else if (res === "food") consumeFood(s.foods, total);
           else if (res === "astralShards") s.astralShards -= total;
           else {
             const inv = s.inventory.find((i) => i.itemId === res);
@@ -2876,8 +3155,13 @@ export function GameProvider(props: ParentProps) {
       if (!adv || adv.onMission) return false;
       const itemDef = getItem(itemId);
       if (!itemDef) return false;
-      // Class restriction check
+      // Class restriction (themed items like wizard_hat, priest_circlet)
       if (itemDef.classes.length > 0 && !itemDef.classes.includes(adv.class)) return false;
+      // Armor type restriction — check base class access + talent grants
+      if (itemDef.armorType) {
+        const access = getArmorAccess(adv.class, adv.talents);
+        if (!access.has(itemDef.armorType)) return false;
+      }
       const inv = state.inventory.find((i) => i.itemId === itemId);
       if (!inv || inv.quantity <= 0) return false;
       setState(produce((s) => {
@@ -2950,7 +3234,7 @@ export function GameProvider(props: ParentProps) {
       else if (netFood < 0) factors.push({ label: "Food deficit", value: -Math.min(30, Math.round(Math.abs(netFood) / 3)) });
       if (state.starvationPenalty > 0) {
         const val = -Math.round(state.starvationPenalty);
-        factors.push({ label: state.resources.food <= 0 ? "Starvation" : "Famine recovery (fading)", value: val });
+        factors.push({ label: getTotalFood(state.foods) <= 0 ? "Starvation" : "Famine recovery (fading)", value: val });
       }
 
       const maxPop = calcMaxPopulation(state.buildings);
@@ -3000,7 +3284,7 @@ export function GameProvider(props: ParentProps) {
         if (pen.level > 0) { const animal = getAnimal(pen.animal); foodSources.add(animal.foodLabel.toLowerCase()); }
       }
       const ft = foodSources.size;
-      if (state.resources.food > 0) {
+      if (getTotalFood(state.foods) > 0) {
         if (ft <= 1) factors.push({ label: `Monotonous diet (${ft} type)`, value: -5 });
         else if (ft === 3) factors.push({ label: `Good diet (${ft} types)`, value: 3 });
         else if (ft === 4) factors.push({ label: `Varied diet (${ft} types)`, value: 6 });
@@ -3165,6 +3449,12 @@ export function GameProvider(props: ParentProps) {
       scheduleSave();
       return true;
     },
+    devSpawnAllNoviceMissions() {
+      setState(produce((s) => {
+        s.missionBoard = [...NOVICE_MISSIONS];
+      }));
+      scheduleSave();
+    },
     rerollRecruits() {
       const rerollCount = typeof state.recruitRerollToday === "number" ? state.recruitRerollToday : 0;
       const cost = 10 * Math.pow(2, rerollCount);
@@ -3193,7 +3483,7 @@ export function GameProvider(props: ParentProps) {
         s.resources.gold = Math.min(caps.gold, s.resources.gold + amount);
         s.resources.wood = Math.min(caps.wood, s.resources.wood + amount);
         s.resources.stone = Math.min(caps.stone, s.resources.stone + amount);
-        s.resources.food = Math.min(caps.food, s.resources.food + amount);
+        addFood(s.foods, "wheat", amount, caps.food);
         s.wool = Math.min(200, s.wool + amount);
       }));
     },
@@ -3268,7 +3558,7 @@ export function GameProvider(props: ParentProps) {
       for (const cost of deity.offeringCost) {
         const res = cost.resource;
         if (res === "gold" && state.resources.gold < cost.amount) return false;
-        if (res === "food" && state.resources.food < cost.amount) return false;
+        if (res === "food" && getTotalFood(state.foods) < cost.amount) return false;
         if (res === "wood" && state.resources.wood < cost.amount) return false;
         if (res === "stone" && state.resources.stone < cost.amount) return false;
         if (res === "wool" && state.wool < cost.amount) return false;
@@ -3283,7 +3573,7 @@ export function GameProvider(props: ParentProps) {
         for (const cost of deity.offeringCost) {
           const res = cost.resource;
           if (res === "gold") s.resources.gold -= cost.amount;
-          else if (res === "food") s.resources.food -= cost.amount;
+          else if (res === "food") consumeFood(s.foods, cost.amount);
           else if (res === "wood") s.resources.wood -= cost.amount;
           else if (res === "stone") s.resources.stone -= cost.amount;
           else if (res === "wool") s.wool -= cost.amount;
@@ -3324,7 +3614,8 @@ export function GameProvider(props: ParentProps) {
       scheduleSave();
       return true;
     },
-    startAlchemyCraft(recipeId: string) {
+    startAlchemyCraft(recipeId: string, quantity = 1) {
+      if (quantity < 1) return false;
       const labLvl = state.buildings.find((b) => b.buildingId === "alchemy_lab")?.level ?? 0;
       if (labLvl === 0) return false;
       const lab = state.buildings.find((b) => b.buildingId === "alchemy_lab");
@@ -3342,18 +3633,18 @@ export function GameProvider(props: ParentProps) {
       ).length;
       if (activeAlchemy >= labLvl + 1) return false;
 
-      // Check herb costs
+      // Check herb costs for the full quantity
       for (const cost of recipe.costs) {
         const have = state.herbs?.[cost.resource] ?? 0;
-        if (have < cost.amount) return false;
+        if (have < cost.amount * quantity) return false;
       }
 
       setState(produce((s) => {
         for (const cost of recipe.costs) {
           if (!s.herbs) s.herbs = {};
-          s.herbs[cost.resource] = (s.herbs[cost.resource] ?? 0) - cost.amount;
+          s.herbs[cost.resource] = (s.herbs[cost.resource] ?? 0) - cost.amount * quantity;
         }
-        s.craftingQueue.push({ recipeId, remaining: recipe.craftTime });
+        s.craftingQueue.push({ recipeId, remaining: recipe.craftTime, quantity });
       }));
       scheduleSave();
       return true;
@@ -3379,6 +3670,64 @@ export function GameProvider(props: ParentProps) {
       }));
       scheduleSave();
     },
+    applyCoopClaim(response, expeditionId) {
+      // Apply server-authoritative coop results: rewards to resources, deaths to
+      // adventurers, XP + potential level/rank ups. Returns a CompletedMission
+      // shape so the caller can hand it to the existing LootModal.
+      const herbIds = new Set(HERBS.map((h) => h.id));
+      const casualties: string[] = [];
+      const levelUps: string[] = [];
+      const rankUps: { name: string; newRank: string }[] = [];
+      let totalXp = 0;
+
+      setState(produce((s) => {
+        const caps = calcStorageCaps(s.buildings);
+        for (const reward of response.rewards) {
+          if (reward.resource === "astralShards") {
+            s.astralShards += reward.amount;
+          } else if (herbIds.has(reward.resource)) {
+            if (!s.herbs) s.herbs = {};
+            s.herbs[reward.resource] = (s.herbs[reward.resource] ?? 0) + reward.amount;
+          } else {
+            const key = reward.resource as keyof typeof s.resources;
+            if (key in s.resources) {
+              s.resources[key] = Math.min(caps[key], s.resources[key] + reward.amount);
+            }
+          }
+        }
+
+        for (const outcome of response.myAdventurers) {
+          const adv = s.adventurers.find((a) => a.id === outcome.id);
+          if (!adv) continue;
+          if (outcome.died) {
+            adv.alive = false;
+            casualties.push(adv.name);
+            continue;
+          }
+          if (outcome.xpGained > 0) {
+            const oldRank = adv.rank;
+            const result = applyXp(adv, outcome.xpGained);
+            totalXp += outcome.xpGained;
+            if (result.leveled) levelUps.push(adv.name);
+            if (result.rankUp && adv.rank !== oldRank) {
+              rankUps.push({ name: adv.name, newRank: RANK_NAMES[adv.rank] });
+            }
+          }
+        }
+      }));
+      scheduleSave();
+
+      return {
+        missionId: expeditionId,
+        success: response.success,
+        rewards: response.rewards.map((r) => ({ resource: r.resource as any, amount: r.amount })),
+        casualties,
+        revived: [],
+        xpGained: totalXp,
+        levelUps,
+        rankUps,
+      };
+    },
     skipRaidTimer() {
       if (state.incomingRaids.length === 0) return;
       setState(produce((s) => {
@@ -3400,16 +3749,59 @@ export function GameProvider(props: ParentProps) {
       scheduleSave();
     },
     trade(give, giveAmount, receive, receiveAmount) {
-      if (state.resources[give] < giveAmount) return false;
       const marketLevel = state.buildings.find((b) => b.buildingId === "marketplace")?.level ?? 0;
       if (marketLevel === 0) return false;
-      // Check cooldown (5 min at lvl 1, decreasing 30s per level, min 1 min)
-      const cooldownMs = Math.max(60, 300 - (marketLevel - 1) * 30) * 1000;
-      if (Date.now() - (state.lastTradeAt ?? 0) < cooldownMs) return false;
+
+      // Read current stock of a tradable resource (handles base resources, food total,
+      // and top-level fields like wool/fiber/iron/ale/honey/fruit).
+      const readAmount = (key: string): number => {
+        if (key === "gold" || key === "wood" || key === "stone") {
+          return state.resources[key as keyof ResourceState] ?? 0;
+        }
+        if (key === "food")  return getTotalFood(state.foods);
+        if (key === "iron")  return state.iron ?? 0;
+        if (key === "wool")  return state.wool ?? 0;
+        if (key === "fiber") return state.fiber ?? 0;
+        if (key === "ale")   return state.ale ?? 0;
+        if (key === "honey") return state.honey ?? 0;
+        if (key === "fruit") return state.fruit ?? 0;
+        return 0;
+      };
+
+      if (readAmount(give) < giveAmount) return false;
+
       setState(produce((s) => {
         const caps = calcStorageCaps(s.buildings);
-        s.resources[give] -= giveAmount;
-        s.resources[receive] = Math.min(caps[receive], s.resources[receive] + receiveAmount);
+
+        // Deduct the "give" side
+        if (give === "gold" || give === "wood" || give === "stone") {
+          s.resources[give as keyof ResourceState] -= giveAmount;
+        } else if (give === "food") {
+          consumeFood(s.foods, giveAmount);
+        } else if (give === "iron")  s.iron -= giveAmount;
+        else if (give === "wool")    s.wool -= giveAmount;
+        else if (give === "fiber")   s.fiber -= giveAmount;
+        else if (give === "ale")     s.ale = Math.max(0, s.ale - giveAmount);
+        else if (give === "honey")   s.honey = Math.max(0, s.honey - giveAmount);
+        else if (give === "fruit")   s.fruit = Math.max(0, s.fruit - giveAmount);
+
+        // Credit the "receive" side (respecting caps where applicable)
+        if (receive === "gold" || receive === "wood" || receive === "stone") {
+          const key = receive as keyof ResourceState;
+          s.resources[key] = Math.min(caps[key], s.resources[key] + receiveAmount);
+        } else if (receive === "food") {
+          addFood(s.foods, "wheat", receiveAmount, caps.food);
+        } else if (receive === "iron")  s.iron = Math.min(300, s.iron + receiveAmount);
+        else if (receive === "wool")    s.wool = Math.min(200, s.wool + receiveAmount);
+        else if (receive === "fiber")   s.fiber = Math.min(200, s.fiber + receiveAmount);
+        else if (receive === "ale") {
+          const breweryLvl = s.buildings.find((b) => b.buildingId === "brewery")?.level ?? 0;
+          const aleCap = ALE_STORAGE_BASE + breweryLvl * ALE_STORAGE_PER_BREWERY_LEVEL;
+          s.ale = Math.min(aleCap, s.ale + receiveAmount);
+        }
+        else if (receive === "honey")   s.honey = s.honey + receiveAmount;
+        else if (receive === "fruit")   s.fruit = s.fruit + receiveAmount;
+
         s.lastTradeAt = Date.now();
       }));
       scheduleSave();

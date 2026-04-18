@@ -12,14 +12,14 @@ import {
   getMaterial,
   type ItemSlot,
   type InventoryItem,
-} from "~/data/items";
+} from "@medieval-realm/shared/data/items";
 import {
   getPortraitUrl,
   RANK_NAMES,
   RANK_COLORS,
   getClassMeta,
-} from "~/data/adventurers";
-import type { Adventurer } from "~/data/adventurers";
+} from "@medieval-realm/shared/data/adventurers";
+import type { Adventurer } from "@medieval-realm/shared/data/adventurers";
 import Tooltip from "~/components/Tooltip";
 
 const SLOT_ORDER: { id: ItemSlot; icon: string }[] = [

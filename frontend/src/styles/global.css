@@ -2754,6 +2754,183 @@ body {
   50% { opacity: 0.6; }
 }
 
+/* ─── Loot modal animations ───────────────────────────────── */
+
+@keyframes loot-backdrop-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Modal card: drops in with a slight tilt + overshoot — feels like a card tossed on a table */
+@keyframes loot-card-drop {
+  0%   { opacity: 0; transform: scale(0.9) translateY(16px) rotate(-1.5deg); }
+  70%  { opacity: 1; transform: scale(1.02) translateY(0) rotate(0.3deg); }
+  100% { opacity: 1; transform: scale(1) translateY(0) rotate(0); }
+}
+
+/* Staggered content sections — fade only, no vertical movement.
+   The translateY caused a transient scrollbar flash in some browsers because
+   transforms can briefly push content past the card's max-height during
+   overlap with the card's own drop-in animation. */
+@keyframes loot-section-rise {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Individual reward chips — spring in with overshoot */
+@keyframes loot-chip-pop {
+  0%   { opacity: 0; transform: scale(0.4) translateY(6px); }
+  60%  { opacity: 1; transform: scale(1.12) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.loot-backdrop {
+  animation: loot-backdrop-fade 200ms ease-out both;
+}
+
+.loot-card {
+  animation: loot-card-drop 380ms cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+/* Exit: reverse of the entry — card fades and drops slightly while the
+   backdrop fades. Shorter duration than entry (it's a departure, not a
+   reveal). Triggered by toggling .exiting on the modal elements. */
+@keyframes loot-backdrop-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes loot-card-drop-out {
+  from { opacity: 1; transform: scale(1) translateY(0) rotate(0); }
+  to   { opacity: 0; transform: scale(0.94) translateY(10px) rotate(0.8deg); }
+}
+
+.loot-backdrop.exiting {
+  animation: loot-backdrop-fade-out 220ms ease-in both;
+}
+
+.loot-card.exiting {
+  animation: loot-card-drop-out 240ms cubic-bezier(0.4, 0, 0.7, 1) both;
+}
+
+/* Sections start hidden and fade in on a stagger — delays set inline per child */
+.loot-section {
+  animation: loot-section-rise 320ms ease-out both;
+  opacity: 0;
+}
+
+.loot-chip {
+  animation: loot-chip-pop 360ms cubic-bezier(0.2, 0.7, 0.3, 1.25) both;
+  opacity: 0;
+  /* Origin keeps the pop centered on the chip */
+  transform-origin: center;
+  display: inline-flex;
+}
+
+/* Respect user's reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .loot-backdrop,
+  .loot-card,
+  .loot-section,
+  .loot-chip {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  /* Exit: opacity fade only, no transform */
+  .loot-backdrop.exiting,
+  .loot-card.exiting {
+    animation: none !important;
+    opacity: 0 !important;
+    transition: opacity 200ms ease-out;
+  }
+}
+
+/* ─── Toast ───────────────────────────────────────────────── */
+
+/* Slide in from the top and fade */
+@keyframes toast-slide-in {
+  from { opacity: 0; transform: translateY(-12px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Timer bar shrinks from full width to zero over the toast's duration */
+@keyframes toast-timer-bar {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+.quest-toast {
+  animation: toast-slide-in 260ms cubic-bezier(0.2, 0.7, 0.3, 1.1) both;
+}
+
+/* ─── Announcement banner ─────────────────────────────────── */
+
+/* Slide down from the topbar */
+@keyframes event-banner-slide-down {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+/* Marquee: the inner text starts pushed off-screen right (via padding-left: 100%)
+   and ends translated fully off-screen left. One full pass across the duration. */
+@keyframes event-banner-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-100%); }
+}
+
+.event-banner {
+  animation: event-banner-slide-down 300ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+/* Exit: banner slides up and fades out. Plays in the last 300ms of its lifetime
+   (scheduled from JS), then the component unmounts cleanly. */
+@keyframes event-banner-slide-up {
+  from { transform: translateY(0); opacity: 1; }
+  to   { transform: translateY(-100%); opacity: 0; }
+}
+
+.event-banner.exiting {
+  animation: event-banner-slide-up 500ms cubic-bezier(0.4, 0, 0.6, 1) forwards;
+}
+
+/* Asymmetric fade with a "dead zone" on the left: text is fully transparent
+   from 0-15% of the wrapper, fades in over 15-20%, then is fully opaque.
+   On the right, a tight 24px fade-in. Letters cross the 20% threshold, dissolve
+   over a ~5% band, then are completely gone for the remainder of their travel
+   — not lingering half-visible at the far edge. */
+.event-banner-mask {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    transparent 15%,
+    black 20%,
+    black calc(100% - 24px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    transparent 15%,
+    black 20%,
+    black calc(100% - 24px),
+    transparent 100%
+  );
+}
+
+/* 7s scroll — brisk enough to feel announcement-y without being ticker-tape. */
+.event-banner-marquee {
+  animation: event-banner-scroll 7s linear forwards;
+}
+
+/* Reduced-motion: slow the scroll way down and drop the slide animations.
+   Keeps the feature usable without rapid motion. */
+@media (prefers-reduced-motion: reduce) {
+  .event-banner { animation: none; }
+  .event-banner.exiting { animation: none; opacity: 0; }
+  .event-banner-marquee { animation-duration: 25s; }
+}
+
 /* ─── Talent Tree ──────────────────────────────────────────── */
 
 .talent-node {

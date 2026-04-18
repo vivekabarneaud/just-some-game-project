@@ -4,7 +4,11 @@ import { Router, Route, Navigate } from "@solidjs/router";
 import App from "./App";
 import { GameProvider } from "./engine/gameState";
 import { isLoggedIn } from "./api/auth";
+import { wsClient } from "./api/ws";
 import "./styles/global.css";
+
+// Open the realtime WS if we already have a token (returning visitor).
+if (isLoggedIn()) wsClient.connect();
 
 const Overview = lazy(() => import("./pages/Overview"));
 const Buildings = lazy(() => import("./pages/Buildings"));
@@ -25,6 +29,7 @@ const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const Marketplace = lazy(() => import("./pages/Marketplace"));
 const WorldMap = lazy(() => import("./pages/WorldMap"));
 const Chronicle = lazy(() => import("./pages/Chronicle"));
+const Friends = lazy(() => import("./pages/Friends"));
 const Shrine = lazy(() => import("./pages/Shrine"));
 const CharacterEncyclopedia = lazy(() => import("./pages/CharacterEncyclopedia"));
 const ComingSoon = lazy(() => import("./pages/ComingSoon"));
@@ -61,6 +66,7 @@ render(
         <Route path="/marketplace" component={Marketplace} />
         <Route path="/map" component={WorldMap} />
         <Route path="/chronicle" component={Chronicle} />
+        <Route path="/friends" component={Friends} />
         <Route path="/encyclopedia" component={CharacterEncyclopedia} />
         <Route path="/shrine" component={Shrine} />
         <Route path="*" component={ComingSoon} />

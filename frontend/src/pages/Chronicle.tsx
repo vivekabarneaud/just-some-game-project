@@ -1,99 +1,60 @@
-import { createSignal, For, Show } from "solid-js";
-import { useGame } from "~/engine/gameState";
-import { getUnlockedEntries, CATEGORY_INFO, type ChronicleEntry } from "~/data/chronicle";
+import { createSignal, Show } from "solid-js";
+import ChronicleLore from "./chronicle/ChronicleLore";
+import ChronicleCharacters from "./chronicle/ChronicleCharacters";
+import ChronicleBestiary from "./chronicle/ChronicleBestiary";
 
-type Category = ChronicleEntry["category"] | "all";
+type Tab = "lore" | "characters" | "bestiary";
+
+const TABS: { id: Tab; label: string; icon: string }[] = [
+  { id: "lore", label: "Lore", icon: "📖" },
+  { id: "characters", label: "Characters", icon: "👥" },
+  { id: "bestiary", label: "Bestiary", icon: "🐉" },
+];
 
 export default function Chronicle() {
-  const { state } = useGame();
-  const [filter, setFilter] = createSignal<Category>("all");
-  const [expanded, setExpanded] = createSignal<string | null>(null);
-
-  const entries = () => getUnlockedEntries(state.questRewardsClaimed ?? []);
-  const filtered = () => {
-    const f = filter();
-    return f === "all" ? entries() : entries().filter((e) => e.category === f);
-  };
-
-  const categories = () => {
-    const cats = new Set(entries().map((e) => e.category));
-    return Object.entries(CATEGORY_INFO).filter(([key]) => cats.has(key as ChronicleEntry["category"]));
-  };
+  const [tab, setTab] = createSignal<Tab>("lore");
 
   return (
     <div>
       <h1 class="page-title">Chronicle of the Realm</h1>
-      <p style={{
-        color: "var(--text-secondary)",
-        "font-style": "italic",
-        "margin-bottom": "20px",
-        "font-size": "0.9rem",
+
+      {/* Tab bar */}
+      <div style={{
+        display: "flex", gap: "4px", "margin-bottom": "20px",
+        "border-bottom": "1px solid var(--border-color)",
       }}>
-        Everything you've learned about the world, its history, and its people. New entries appear as you explore and complete quests.
-      </p>
-
-      {/* Category filters */}
-      <div style={{ "margin-bottom": "20px", display: "flex", gap: "6px", "flex-wrap": "wrap" }}>
-        <button
-          class="trade-filter-btn"
-          classList={{ active: filter() === "all" }}
-          onClick={() => setFilter("all")}
-        >
-          All ({entries().length})
-        </button>
-        <For each={categories()}>
-          {([key, info]) => {
-            const count = () => entries().filter((e) => e.category === key).length;
-            return (
-              <button
-                class="trade-filter-btn"
-                classList={{ active: filter() === key }}
-                onClick={() => setFilter(key as Category)}
-              >
-                {info.icon} {info.label} ({count()})
-              </button>
-            );
-          }}
-        </For>
+        {TABS.map((t) => {
+          const active = () => tab() === t.id;
+          return (
+            <button
+              onClick={() => setTab(t.id)}
+              style={{
+                padding: "8px 16px",
+                background: active() ? "var(--bg-secondary)" : "transparent",
+                border: "none",
+                "border-bottom": active() ? "2px solid var(--accent-gold)" : "2px solid transparent",
+                color: active() ? "var(--text-primary)" : "var(--text-muted)",
+                cursor: "pointer",
+                "font-family": "var(--font-heading)",
+                "font-size": "0.95rem",
+                "margin-bottom": "-1px",
+                transition: "color 0.15s, border-color 0.15s",
+              }}
+            >
+              {t.icon} {t.label}
+            </button>
+          );
+        })}
       </div>
 
-      {/* Entries */}
-      <div class="chronicle-entries">
-        <For each={filtered()}>
-          {(entry) => {
-            const catInfo = CATEGORY_INFO[entry.category];
-            const isExpanded = () => expanded() === entry.id;
-
-            return (
-              <div
-                class="chronicle-entry"
-                classList={{ expanded: isExpanded() }}
-                onClick={() => setExpanded(isExpanded() ? null : entry.id)}
-              >
-                <div class="chronicle-entry-header">
-                  <span class="chronicle-entry-cat" style={{ color: catInfo.color }}>
-                    {catInfo.icon}
-                  </span>
-                  <div class="chronicle-entry-title">{entry.title}</div>
-                  <span class="chronicle-entry-cat-label" style={{ color: catInfo.color }}>
-                    {catInfo.label}
-                  </span>
-                </div>
-                <Show when={isExpanded()}>
-                  <div class="chronicle-entry-text">
-                    {entry.text}
-                  </div>
-                </Show>
-              </div>
-            );
-          }}
-        </For>
-      </div>
-
-      <Show when={filtered().length === 0}>
-        <div style={{ color: "var(--text-muted)", "text-align": "center", padding: "40px" }}>
-          No entries yet in this category. Keep exploring!
-        </div>
+      <Show when={tab() === "lore"}>
+        <ChronicleLore />
+      </Show>
+      <Show when={tab() === "characters"}>
+        <ChronicleCharacters />
+      </Show>
+      <Show when={tab() === "bestiary"}>
+        <ChronicleBestiary />
       </Show>
     </div>
   );

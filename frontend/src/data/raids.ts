@@ -1,4 +1,4 @@
-import type { Adventurer } from "./adventurers";
+import type { Adventurer } from "@medieval-realm/shared/data/adventurers";
 import type { PlayerBuilding } from "./buildings";
 import type { SettlementTier } from "./buildings";
 

@@ -26,6 +26,8 @@ const bldg = (state: GameState, id: string) =>
   state.buildings.find((b) => b.buildingId === id);
 
 export const QUEST_CHAIN: QuestDefinition[] = [
+  // ── Wave 1 — build out the basics at Town Hall 1 ──────────────
+  // Everything caps at Town Hall level, so we build first, upgrade later.
   // 1 — Lumber Mill
   {
     id: "first_things_first",
@@ -35,7 +37,8 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Build a Lumber Mill",
     icon: "🪓",
     condition: (s) => (bldg(s, "lumber_mill")?.level ?? 0) >= 1,
-    rewards: [{ resource: "wood", amount: 100, label: "Wood" }],
+    // Refund-style reward: matches the lvl 1 build cost
+    rewards: [{ resource: "wood", amount: 30, label: "Wood" }, { resource: "stone", amount: 40, label: "Stone" }],
     targetBuildingId: "lumber_mill",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_1.png",
   },
@@ -48,7 +51,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Build a Stone Quarry",
     icon: "⛏️",
     condition: (s) => (bldg(s, "quarry")?.level ?? 0) >= 1,
-    rewards: [{ resource: "stone", amount: 100, label: "Stone" }],
+    rewards: [{ resource: "wood", amount: 60, label: "Wood" }, { resource: "stone", amount: 10, label: "Stone" }],
     targetBuildingId: "quarry",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_2.png",
   },
@@ -61,7 +64,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Build a Forager's Hut",
     icon: "🫐",
     condition: (s) => (bldg(s, "forager_hut")?.level ?? 0) >= 1,
-    rewards: [{ resource: "food", amount: 50, label: "Food" }],
+    rewards: [{ resource: "wood", amount: 30, label: "Wood" }, { resource: "stone", amount: 5, label: "Stone" }],
     targetBuildingId: "forager_hut",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_3.png",
   },
@@ -74,37 +77,11 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Build a Hunting Camp",
     icon: "🏹",
     condition: (s) => (bldg(s, "hunting_camp")?.level ?? 0) >= 1,
-    rewards: [{ resource: "food", amount: 75, label: "Food" }],
+    rewards: [{ resource: "wood", amount: 40, label: "Wood" }, { resource: "stone", amount: 10, label: "Stone" }],
     targetBuildingId: "hunting_camp",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_4.png",
   },
-  // 5 — Upgrade Lumber Mill to lvl 2
-  {
-    id: "sharper_axes",
-    title: "Sharper Axes",
-    narrative:
-      "Your woodcutters have learned the grain of every tree in the forest. With better tools and technique, the timber will flow twice as fast.",
-    objective: "Upgrade Lumber Mill to level 2",
-    icon: "🪓",
-    condition: (s) => (bldg(s, "lumber_mill")?.level ?? 0) >= 2,
-    rewards: [{ resource: "wood", amount: 150, label: "Wood" }],
-    targetBuildingId: "lumber_mill",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_5.png",
-  },
-  // 6 — Upgrade Stone Quarry to lvl 2
-  {
-    id: "deeper_veins",
-    title: "Deeper Veins",
-    narrative:
-      "The surface stone is running thin, but your miners swear they can hear richer deposits echoing below. Time to dig deeper.",
-    objective: "Upgrade Stone Quarry to level 2",
-    icon: "⛏️",
-    condition: (s) => (bldg(s, "quarry")?.level ?? 0) >= 2,
-    rewards: [{ resource: "stone", amount: 150, label: "Stone" }],
-    targetBuildingId: "quarry",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_6.png",
-  },
-  // 7 — Houses
+  // 5 — Houses
   {
     id: "a_roof_over_their_heads",
     title: "A Roof Over Their Heads",
@@ -113,11 +90,11 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Build Houses",
     icon: "🏠",
     condition: (s) => (bldg(s, "houses")?.level ?? 0) >= 1,
-    rewards: [{ resource: "food", amount: 25, label: "Food" }, { resource: "stone", amount: 50, label: "Stone" }],
+    rewards: [{ resource: "wood", amount: 60, label: "Wood" }, { resource: "stone", amount: 40, label: "Stone" }],
     targetBuildingId: "houses",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_7.png",
   },
-  // 8 — Fishing Hut
+  // 6 — Fishing Hut
   {
     id: "from_the_deep",
     title: "From the Deep",
@@ -126,11 +103,11 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Build a Fishing Hut",
     icon: "🐟",
     condition: (s) => (bldg(s, "fishing_hut")?.level ?? 0) >= 1,
-    rewards: [{ resource: "food", amount: 50, label: "Food" }],
+    rewards: [{ resource: "wood", amount: 35, label: "Wood" }, { resource: "stone", amount: 10, label: "Stone" }],
     targetBuildingId: "fishing_hut",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_8.png",
   },
-  // 9 — Pantry
+  // 7 — Pantry
   {
     id: "stockpile_for_winter",
     title: "Stockpile for Winter",
@@ -139,11 +116,11 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Build a Pantry",
     icon: "🥫",
     condition: (s) => (bldg(s, "pantry")?.level ?? 0) >= 1,
-    rewards: [{ resource: "food", amount: 50, label: "Food" }],
+    rewards: [{ resource: "wood", amount: 50, label: "Wood" }, { resource: "stone", amount: 30, label: "Stone" }],
     targetBuildingId: "pantry",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_9.png",
   },
-  // 10 — Adventurer's Guild (the big early unlock!)
+  // 8 — Adventurer's Guild (the big early unlock!)
   {
     id: "heroes_wanted",
     title: "Heroes Wanted",
@@ -160,7 +137,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
       { resource: "stone", amount: 25, label: "Stone" }
     ],
   },
-  // 11 — Recruit
+  // 9 — Recruit
   {
     id: "a_brave_soul",
     title: "A Brave Soul",
@@ -173,7 +150,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     targetPage: "/guild?tab=recruit",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_11.png",
   },
-  // 12 — Send mission
+  // 10 — Send mission
   {
     id: "into_the_unknown",
     title: "Into the Unknown",
@@ -186,7 +163,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     targetPage: "/guild",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_12.png",
   },
-  // 13 — Field or Garden
+  // 11 — Field or Garden
   {
     id: "seeds_of_prosperity",
     title: "Seeds of Prosperity",
@@ -195,11 +172,12 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Build a Field or a Garden",
     icon: "🌾",
     condition: (s) => s.fields.some((f) => f.level >= 1) || s.gardens.some((g) => g.level >= 1),
-    rewards: [{ resource: "food", amount: 75, label: "Food" }, {resource: "wood", amount: 25, label: "Wood"}],
+    // Refund matches a field's build cost (gardens are cheaper; field is the common case)
+    rewards: [{ resource: "wood", amount: 40, label: "Wood" }, { resource: "stone", amount: 10, label: "Stone" }],
     targetPage: "/farming",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_13.png",
   },
-  // 14 — Sheep Pen
+  // 12 — Sheep Pen
   {
     id: "woolly_friends",
     title: "Woolly Friends",
@@ -212,7 +190,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     targetPage: "/farming",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_14.png",
   },
-  // 15 — Tailoring Shop
+  // 13 — Tailoring Shop
   {
     id: "warm_and_proper",
     title: "Warm and Proper",
@@ -221,10 +199,10 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Build a Tailoring Shop",
     icon: "🧵",
     condition: (s) => (bldg(s, "tailoring_shop")?.level ?? 0) >= 1,
-    rewards: [{ resource: "gold", amount: 30, label: "Gold" }, { resource: "wood", amount: 25, label: "Wood" }],
+    rewards: [{ resource: "wood", amount: 50, label: "Wood" }, { resource: "stone", amount: 30, label: "Stone" }],
     targetBuildingId: "tailoring_shop",
   },
-  // 16 — Craft clothing
+  // 14 — Craft clothing
   {
     id: "first_stitch",
     title: "The First Stitch",
@@ -233,12 +211,14 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Craft Wool or Linen Clothing for your citizens",
     icon: "🧥",
     condition: (s) => Math.round(s.clothing) >= 1,
+    // Refund the wool spent on the first clothing craft
     rewards: [
-      { resource: "gold", amount: 15, label: "Gold" },
+      { resource: "wool", amount: 5, label: "Wool" },
     ],
     targetPage: "/tailoring",
   },
-  // 17 — Town Hall lvl 2
+  // ── Wave 2 — Town Hall 2 unlocks upgrade levels ───────────────
+  // 15 — Town Hall lvl 2
   {
     id: "ambition_rises",
     title: "Ambition Rises",
@@ -247,11 +227,38 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Upgrade Town Hall to level 2",
     icon: "🏛️",
     condition: (s) => (bldg(s, "town_hall")?.level ?? 0) >= 2,
-    rewards: [{ resource: "gold", amount: 40, label: "Gold" }, { resource: "wood", amount: 50, label: "Wood" }, { resource: "stone", amount: 50, label: "Stone" }],
+    // Refund the TH lvl 2 upgrade cost
+    rewards: [{ resource: "wood", amount: 108, label: "Wood" }, { resource: "stone", amount: 108, label: "Stone" }],
     targetBuildingId: "town_hall",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/settlement_camp.png",
   },
-  // 16 — Build a Marketplace
+  // 16 — Upgrade Lumber Mill to lvl 2 (needs TH 2)
+  {
+    id: "sharper_axes",
+    title: "Sharper Axes",
+    narrative:
+      "Your woodcutters have learned the grain of every tree in the forest. With better tools and technique, the timber will flow twice as fast.",
+    objective: "Upgrade Lumber Mill to level 2",
+    icon: "🪓",
+    condition: (s) => (bldg(s, "lumber_mill")?.level ?? 0) >= 2,
+    rewards: [{ resource: "wood", amount: 40, label: "Wood" }, { resource: "stone", amount: 54, label: "Stone" }],
+    targetBuildingId: "lumber_mill",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_5.png",
+  },
+  // 17 — Upgrade Stone Quarry to lvl 2 (needs TH 2)
+  {
+    id: "deeper_veins",
+    title: "Deeper Veins",
+    narrative:
+      "The surface stone is running thin, but your miners swear they can hear richer deposits echoing below. Time to dig deeper.",
+    objective: "Upgrade Stone Quarry to level 2",
+    icon: "⛏️",
+    condition: (s) => (bldg(s, "quarry")?.level ?? 0) >= 2,
+    rewards: [{ resource: "wood", amount: 81, label: "Wood" }, { resource: "stone", amount: 13, label: "Stone" }],
+    targetBuildingId: "quarry",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_6.png",
+  },
+  // 18 — Build a Marketplace
   {
     id: "merchants_welcome",
     title: "Merchants Welcome",
@@ -261,14 +268,13 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     icon: "🏪",
     condition: (s) => (bldg(s, "marketplace")?.level ?? 0) >= 1,
     rewards: [
-      { resource: "gold", amount: 30, label: "Gold" },
-      { resource: "wood", amount: 100, label: "Wood" },
-      { resource: "stone", amount: 50, label: "Stone" }
+      { resource: "wood", amount: 60, label: "Wood" },
+      { resource: "stone", amount: 40, label: "Stone" },
     ],
     targetBuildingId: "marketplace",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/marketplace.png",
   },
-  // 17 — Build a Woodworker
+  // 19 — Build a Woodworker
   {
     id: "tools_of_the_trade",
     title: "Tools of the Trade",
@@ -277,11 +283,11 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Build a Woodworker",
     icon: "🪚",
     condition: (s) => (bldg(s, "woodworker")?.level ?? 0) >= 1,
-    rewards: [{ resource: "wood", amount: 200, label: "Wood" }],
+    rewards: [{ resource: "wood", amount: 60, label: "Wood" }, { resource: "stone", amount: 20, label: "Stone" }],
     targetBuildingId: "woodworker",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/woodworker.png",
   },
-  // 18 — Craft a weapon
+  // 20 — Craft a weapon
   {
     id: "arm_the_brave",
     title: "Arm the Brave",
@@ -293,7 +299,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     rewards: [{ resource: "gold", amount: 20, label: "Gold" }],
     targetPage: "/woodworker",
   },
-  // 19 — Equip an adventurer
+  // 21 — Equip an adventurer
   {
     id: "ready_for_battle",
     title: "Ready for Battle",
@@ -305,7 +311,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     rewards: [{ resource: "gold", amount: 20, label: "Gold" }],
     targetPage: "/guild?tab=roster",
   },
-  // 20 — Build a Chapel
+  // 22 — Build a Shrine
   {
     id: "faith_and_solace",
     title: "Faith and Solace",
@@ -314,12 +320,17 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Build a Shrine",
     icon: "🔮",
     condition: (s) => (bldg(s, "shrine")?.level ?? 0) >= 1,
-    rewards: [{ resource: "gold", amount: 30, label: "Gold" }, { resource: "stone", amount: 50, label: "Stone" }
+    // Refund build cost + a few shards to seed the first offering
+    rewards: [
+      { resource: "wood", amount: 40, label: "Wood" },
+      { resource: "stone", amount: 60, label: "Stone" },
+      { resource: "astralShards", amount: 3, label: "Astral Shards" },
     ],
     targetBuildingId: "shrine",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/shrine.png",
   },
-  // 20 — Town Hall lvl 3
+  // ── Wave 3 — Town Hall 3 ──────────────────────────────────────
+  // 23 — Town Hall lvl 3
   {
     id: "the_road_to_greatness",
     title: "The Road to Greatness",
@@ -330,12 +341,14 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "town_hall")?.level ?? 0) >= 3,
     targetBuildingId: "town_hall",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/settlement_village.png",
+    // Refund TH lvl 3 cost + shards as a milestone bonus
     rewards: [
-      { resource: "gold", amount: 60, label: "Gold" },
+      { resource: "wood", amount: 167, label: "Wood" },
+      { resource: "stone", amount: 167, label: "Stone" },
       { resource: "astralShards", amount: 5, label: "Astral Shards" },
     ],
   },
-  // 21 — Bandits spotted (triggers a weak, slow raid)
+  // 24 — Bandits spotted (triggers a weak, slow raid)
   {
     id: "the_first_threat",
     title: "The First Threat",
@@ -346,12 +359,12 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Build Walls",
     icon: "🧱",
     condition: (s) => (bldg(s, "walls")?.level ?? 0) >= 1,
-    rewards: [{ resource: "stone", amount: 100, label: "Stone" }],
+    rewards: [{ resource: "wood", amount: 40, label: "Wood" }, { resource: "stone", amount: 120, label: "Stone" }],
     targetBuildingId: "walls",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/walls.png",
     triggersRaid: true, // special flag — spawns a weak raid when quest appears
   },
-  // 22 — Survive the raid
+  // 25 — Survive the raid
   {
     id: "baptism_of_fire",
     title: "Baptism of Fire",
@@ -365,7 +378,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
       { resource: "astralShards", amount: 3, label: "Astral Shards" },
     ],
   },
-  // 23 — Build a Watchtower (lesson learned)
+  // 26 — Build a Watchtower (lesson learned)
   {
     id: "eyes_on_the_horizon",
     title: "Eyes on the Horizon",
@@ -374,7 +387,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     objective: "Build a Watchtower",
     icon: "🏰",
     condition: (s) => (bldg(s, "watchtower")?.level ?? 0) >= 1,
-    rewards: [{ resource: "wood", amount: 100, label: "Wood" }],
+    rewards: [{ resource: "wood", amount: 60, label: "Wood" }, { resource: "stone", amount: 120, label: "Stone" }],
     targetBuildingId: "watchtower",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/watchtower.png",
   },

@@ -17,6 +17,56 @@ model Player {
   settlements  Settlement[]
   tradeOffersSold   TradeOffer[] @relation("TradeOffersSold")
   tradeOffersBought TradeOffer[] @relation("TradeOffersBought")
+  friendshipsRequested Friendship[] @relation("FriendshipRequester")
+  friendshipsReceived  Friendship[] @relation("FriendshipAddressee")
+  coopsHosted          CoopExpedition[] @relation("CoopExpeditionHost")
+  coopsGuested         CoopExpedition[] @relation("CoopExpeditionGuest")
+}
+
+model CoopExpedition {
+  id             String   @id @default(cuid())
+  hostId         String
+  guestId        String
+  expeditionId   String   // template id (from EXPEDITION_POOL)
+  status         String   @default("pending") // pending | preparing | active | complete | cancelled
+  // Rosters — JSON { adventurerIds: string[], supplies: Record<string, {potion?,food?,recovery?}> }
+  hostRoster     Json?
+  guestRoster    Json?
+  // Ready flags — when both true, expedition auto-deploys
+  hostReady      Boolean  @default(false)
+  guestReady     Boolean  @default(false)
+  // Runtime state once complete — holds the simulation result (rewards, adventurer deltas, combat log)
+  runtimeState   Json?
+  // Per-player claim tracking — becomes true once that side has applied rewards locally
+  hostClaimed    Boolean  @default(false)
+  guestClaimed   Boolean  @default(false)
+  deployedAt     DateTime?
+  completedAt    DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  host  Player @relation("CoopExpeditionHost", fields: [hostId], references: [id])
+  guest Player @relation("CoopExpeditionGuest", fields: [guestId], references: [id])
+
+  @@index([hostId, status])
+  @@index([guestId, status])
+}
+
+model Friendship {
+  id           String   @id @default(cuid())
+  requesterId  String
+  addresseeId  String
+  status       String   @default("pending") // pending | accepted
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  requester Player @relation("FriendshipRequester", fields: [requesterId], references: [id])
+  addressee Player @relation("FriendshipAddressee", fields: [addresseeId], references: [id])
+
+  // A pair of players can only have one friendship row
+  @@unique([requesterId, addresseeId])
+  @@index([addresseeId, status])
+  @@index([requesterId, status])
 }
 
 model World {

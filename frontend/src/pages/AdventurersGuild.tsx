@@ -1,4 +1,4 @@
-import { createSignal, createMemo, For, Show } from "solid-js";
+import { createSignal, createMemo, createResource, createEffect, For, Show, onCleanup } from "solid-js";
 import { A, useSearchParams } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
 import { IS_DEV } from "~/data/seasons";
@@ -17,8 +17,8 @@ import {
   type AdventurerRank,
   getRelationship,
   getFoodPref,
-} from "~/data/adventurers";
-import { getItem } from "~/data/items";
+} from "@medieval-realm/shared/data/adventurers";
+import { getItem } from "@medieval-realm/shared/data/items";
 import {
   type MissionTemplate,
   type MissionSlot,
@@ -26,7 +26,8 @@ import {
   formatReward,
   getCurrentStoryMission,
   STORY_MISSIONS,
-} from "~/data/missions";
+  isExpedition,
+} from "@medieval-realm/shared/data/missions";
 import type { CinematicSlide } from "~/components/CinematicOverlay";
 import CinematicOverlay from "~/components/CinematicOverlay";
 import { STORY_CINEMATICS } from "~/data/cinematics";
@@ -35,6 +36,10 @@ import Tooltip from "~/components/Tooltip";
 import MissionCard from "~/components/MissionCard";
 import TraitBadge from "~/components/TraitBadge";
 import MissionAssemblyPanel from "~/components/MissionAssemblyPanel";
+import LootModal from "~/components/LootModal";
+import { fetchCoops, respondCoop, cancelCoop, fetchCoopDetail, claimCoop } from "~/api/coop";
+import { wsClient } from "~/api/ws";
+import type { CompletedMission } from "@medieval-realm/shared/data/missions";
 
 type Tab = "missions" | "roster" | "recruit";
 
@@ -83,17 +88,113 @@ export default function AdventurersGuild() {
   const [selectedMission, setSelectedMission] = createSignal<MissionTemplate | null>(null);
   const [selectedTeam, setSelectedTeam] = createSignal<string[]>([]);
   const [selectedSupplies, setSelectedSupplies] = createSignal<string[]>([]);
-  const [storyCinematic, setStoryCinematic] = createSignal<CinematicSlide[] | null>(null);
 
-  /** Claim a mission reward; if it's a story mission with a cinematic, show it */
+  // Co-op expeditions (polled from backend)
+  const [coopData, { refetch: refetchCoops }] = createResource(() => fetchCoops());
+  const [selectedCoopId, setSelectedCoopId] = createSignal<string | null>(null);
+
+  // Ticking "now" for coop countdowns (local render only, no state churn)
+  const [nowMs, setNowMs] = createSignal(Date.now());
+  const nowTimer = setInterval(() => setNowMs(Date.now()), 1000);
+  onCleanup(() => clearInterval(nowTimer));
+
+  // Expedition IDs that have an in-flight coop — hide them from the main mission list
+  const coopActiveExpeditionIds = createMemo(() => {
+    const s = new Set<string>();
+    for (const c of coopData()?.coops ?? []) {
+      if (c.status === "preparing" || c.status === "active") s.add(c.expeditionId);
+    }
+    return s;
+  });
+
+  // Fetch coop detail for all preparing/active coops to compute the locked-adv set.
+  // Simple approach: for each coop in preparing/active, fetch its detail and union the MY-side adv IDs.
+  const [coopLockedAdvIds, setCoopLockedAdvIds] = createSignal<Set<string>>(new Set());
+  const refreshLockedAdvIds = async () => {
+    const coops = coopData()?.coops ?? [];
+    const active = coops.filter((c) => c.status === "preparing" || c.status === "active");
+    if (active.length === 0) { setCoopLockedAdvIds(new Set<string>()); return; }
+    try {
+      const details = await Promise.all(active.map((c) => fetchCoopDetail(c.id).catch(() => null)));
+      const locked = new Set<string>();
+      for (const d of details) {
+        if (!d) continue;
+        const mine = d.coop.iAmHost ? d.coop.hostRoster : d.coop.guestRoster;
+        for (const id of mine.adventurerIds) locked.add(id);
+      }
+      setCoopLockedAdvIds(locked);
+    } catch { /* silent */ }
+  };
+  // Refresh whenever coopData updates
+  createEffect(() => { coopData(); refreshLockedAdvIds(); });
+  // Slow fallback poll — WS pushes are primary. Catches missed events if socket drops.
+  const coopPollTimer = setInterval(() => refetchCoops(), 120_000);
+  onCleanup(() => clearInterval(coopPollTimer));
+
+  // Realtime: refetch the coop list on any coop event
+  const offCoopInvite = wsClient.on("coop:invite", () => refetchCoops());
+  const offCoopUpdate = wsClient.on("coop:update", () => refetchCoops());
+  const offCoopCancelled = wsClient.on("coop:cancelled", () => refetchCoops());
+  onCleanup(() => { offCoopInvite(); offCoopUpdate(); offCoopCancelled(); });
+  const handleRespondCoop = async (id: string, accept: boolean) => {
+    try { await respondCoop(id, accept); refetchCoops(); } catch (e: any) { console.error(e.message); }
+  };
+  const handleCancelCoop = async (id: string) => {
+    if (!confirm("Cancel this co-op expedition?")) return;
+    try { await cancelCoop(id); refetchCoops(); } catch (e: any) { console.error(e.message); }
+  };
+  const [storyCinematic, setStoryCinematic] = createSignal<CinematicSlide[] | null>(null);
+  const [lootModalIndex, setLootModalIndex] = createSignal<number | null>(null);
+  /** Pending coop claim awaiting user confirm in the loot modal — null when not showing. */
+  const [coopClaimModal, setCoopClaimModal] = createSignal<CompletedMission | null>(null);
+
+  const handleClaimCoop = async (coopId: string, expeditionId: string) => {
+    try {
+      const response = await claimCoop(coopId);
+      // Only apply if this is the first claim — alreadyClaimed handles crash-recovery
+      // cases where the server thinks we claimed but the client didn't save yet.
+      // The modal still shows so the user sees what they got.
+      if (!response.alreadyClaimed) {
+        const completed = actions.applyCoopClaim(response, expeditionId);
+        setCoopClaimModal(completed);
+      } else {
+        // Build a display-only CompletedMission from the server payload
+        setCoopClaimModal({
+          missionId: expeditionId,
+          success: response.success,
+          rewards: response.rewards.map((r) => ({ resource: r.resource as any, amount: r.amount })),
+          casualties: response.myAdventurers.filter((a) => a.died).map((a) => {
+            const adv = state.adventurers.find((x) => x.id === a.id);
+            return adv?.name ?? a.id;
+          }),
+          revived: [],
+          xpGained: response.myAdventurers.reduce((s, a) => s + a.xpGained, 0),
+          levelUps: [],
+          rankUps: [],
+        });
+      }
+      refetchCoops();
+    } catch (e: any) {
+      console.error("Claim failed:", e.message);
+    }
+  };
+
+  /** Open the loot modal for a completed mission. Rewards apply only on modal Confirm. */
   const handleClaim = (index: number) => {
     const result = state.completedMissions[index];
     if (!result) return;
+    setLootModalIndex(index);
+  };
+
+  const confirmLootClaim = () => {
+    const idx = lootModalIndex();
+    if (idx === null) return;
+    const result = state.completedMissions[idx];
+    if (!result) { setLootModalIndex(null); return; }
     const cinematic = STORY_CINEMATICS[result.missionId];
-    actions.claimMissionReward(index);
-    if (cinematic) {
-      setStoryCinematic(cinematic);
-    }
+    actions.claimMissionReward(idx);
+    setLootModalIndex(null);
+    if (cinematic) setStoryCinematic(cinematic);
   };
   const guildLevel = () => actions.getGuildLevel();
   const storyMission = () => getCurrentStoryMission(guildLevel(), state.completedStoryMissions ?? []);
@@ -137,6 +238,29 @@ export default function AdventurersGuild() {
             slides={slides()}
             villageName={state.villageName}
             onComplete={() => setStoryCinematic(null)}
+          />
+        )}
+      </Show>
+
+      {/* Loot modal for completed missions */}
+      <Show when={lootModalIndex() !== null && state.completedMissions[lootModalIndex()!]}>
+        {(result) => (
+          <LootModal
+            result={result()}
+            onConfirm={confirmLootClaim}
+            onClose={() => setLootModalIndex(null)}
+          />
+        )}
+      </Show>
+
+      {/* Loot modal for completed coop expeditions — rewards already applied when the modal opens */}
+      <Show when={coopClaimModal()}>
+        {(result) => (
+          <LootModal
+            result={result()}
+            subtitle="Co-op expedition"
+            onConfirm={() => setCoopClaimModal(null)}
+            onClose={() => setCoopClaimModal(null)}
           />
         )}
       </Show>
@@ -346,6 +470,125 @@ export default function AdventurersGuild() {
 
         {/* ── Missions tab ── */}
         <Show when={tab() === "missions"}>
+          {/* ── Co-op Expeditions ── */}
+          <Show when={(coopData()?.coops ?? []).length > 0}>
+            <div style={{ "margin-bottom": "20px" }}>
+              <h3 style={{ "font-family": "var(--font-heading)", color: "#a78bfa", "margin-bottom": "8px" }}>
+                ⚔️ Co-op Expeditions
+              </h3>
+              <For each={coopData()!.coops}>
+                {(c) => {
+                  const tpl = getMission(c.expeditionId);
+                  const otherName = c.iAmHost ? c.guestUsername : c.hostUsername;
+                  const isIncoming = !c.iAmHost && c.status === "pending";
+                  return (
+                    <div style={{
+                      padding: "10px 14px",
+                      "margin-bottom": "6px",
+                      background: "rgba(167, 139, 250, 0.05)",
+                      border: `1px solid ${isIncoming ? "#a78bfa" : "rgba(167, 139, 250, 0.3)"}`,
+                      "border-radius": "6px",
+                    }}>
+                      <div style={{ display: "flex", "align-items": "center", gap: "10px", "flex-wrap": "wrap" }}>
+                        <div style={{ "font-size": "1.3rem" }}>{tpl?.icon ?? "⚔️"}</div>
+                        <div>
+                          <div style={{ color: "var(--text-primary)", "font-weight": "bold", "font-size": "0.95rem" }}>
+                            {tpl?.name ?? c.expeditionId}
+                          </div>
+                          <div style={{ "font-size": "0.75rem", color: "var(--text-muted)" }}>
+                            {c.iAmHost ? "You invited" : "Invited by"} <span style={{ color: "var(--accent-gold)" }}>{otherName}</span>
+                            {" · "}
+                            <span style={{
+                              color: c.status === "pending" ? "var(--accent-gold)" :
+                                c.status === "preparing" ? "#a78bfa" :
+                                c.status === "active" ? "var(--accent-green)" : "var(--text-muted)",
+                            }}>
+                              {c.status === "pending" ? (isIncoming ? "Awaiting your response" : "Awaiting response") :
+                                c.status === "preparing" ? "Preparing" :
+                                c.status === "active" ? "In progress" : c.status}
+                            </span>
+                          </div>
+                        </div>
+                        <div style={{ "margin-left": "auto", display: "flex", gap: "6px" }}>
+                          <Show when={isIncoming}>
+                            <button
+                              class="upgrade-btn"
+                              onClick={() => handleRespondCoop(c.id, true)}
+                              style={{ padding: "4px 12px", "font-size": "0.8rem" }}
+                            >
+                              Accept
+                            </button>
+                            <button
+                              onClick={() => handleRespondCoop(c.id, false)}
+                              style={{
+                                padding: "4px 12px", background: "transparent",
+                                border: "1px solid var(--border-color)", "border-radius": "4px",
+                                color: "var(--text-muted)", cursor: "pointer", "font-size": "0.8rem",
+                              }}
+                            >
+                              Decline
+                            </button>
+                          </Show>
+                          <Show when={c.status === "preparing"}>
+                            <button
+                              class="upgrade-btn"
+                              onClick={() => {
+                                // Load the expedition template and open the assembly panel in coop mode
+                                const tpl = getMission(c.expeditionId);
+                                if (tpl) {
+                                  setSelectedMission(tpl);
+                                  setSelectedCoopId(c.id);
+                                }
+                              }}
+                              style={{ padding: "4px 12px", "font-size": "0.8rem" }}
+                            >
+                              Open
+                            </button>
+                          </Show>
+                          <Show when={c.status === "active"}>
+                            {(() => {
+                              const remaining = () => {
+                                if (!c.deployedAt || !tpl) return 0;
+                                const endMs = new Date(c.deployedAt).getTime() + tpl.duration * 1000;
+                                return Math.max(0, (endMs - nowMs()) / 1000);
+                              };
+                              return (
+                                <span style={{ "font-size": "0.75rem", color: "var(--accent-green)" }}>
+                                  ⏳ <Countdown remainingSeconds={remaining()} />
+                                </span>
+                              );
+                            })()}
+                          </Show>
+                          <Show when={c.status === "pending" && !isIncoming}>
+                            <button
+                              onClick={() => handleCancelCoop(c.id)}
+                              style={{
+                                padding: "4px 12px", background: "transparent",
+                                border: "1px solid var(--border-color)", "border-radius": "4px",
+                                color: "var(--text-muted)", cursor: "pointer", "font-size": "0.8rem",
+                              }}
+                            >
+                              Cancel
+                            </button>
+                          </Show>
+                          <Show when={c.status === "complete" && !c.iAmClaimed}>
+                            <button
+                              class="upgrade-btn"
+                              onClick={() => handleClaimCoop(c.id, c.expeditionId)}
+                              style={{ padding: "4px 12px", "font-size": "0.8rem" }}
+                            >
+                              Claim rewards
+                            </button>
+                          </Show>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }}
+              </For>
+            </div>
+          </Show>
+
           <Show when={state.activeMissions.length > 0}>
             <div style={{ display: "flex", "align-items": "center", gap: "10px", "margin-bottom": "8px" }}>
               <h3 style={{ "font-family": "var(--font-heading)", margin: 0, color: "var(--text-primary)" }}>
@@ -398,6 +641,61 @@ export default function AdventurersGuild() {
                           Rewards: {template().rewards.map((r: any) => formatReward(r)).join(", ")}
                         </div>
                       </Show>
+
+                      {/* Expedition timeline */}
+                      <Show when={isExpedition(template())}>
+                        {(() => {
+                          const totalEvents = () => am.expeditionResolvedEvents?.length ?? 0;
+                          const currentIdx = () => am.expeditionEventIndex ?? 0;
+                          const lastLog = () => {
+                            const log = am.expeditionLog;
+                            return log && log.length > 0 ? log[log.length - 1] : null;
+                          };
+                          return (
+                            <div style={{ "margin-top": "8px", padding: "8px", background: "rgba(167, 139, 250, 0.05)", "border-radius": "4px", border: "1px solid rgba(167, 139, 250, 0.2)" }}>
+                              <div style={{ display: "flex", "align-items": "center", gap: "6px", "margin-bottom": "6px" }}>
+                                <span style={{ color: "#a78bfa", "font-size": "0.75rem", "font-weight": "bold" }}>
+                                  ⚔️ Expedition · Event {Math.min(currentIdx() + 1, totalEvents())}/{totalEvents()}
+                                </span>
+                              </div>
+                              {/* Timeline dots */}
+                              <div style={{ display: "flex", gap: "4px", "align-items": "center", "margin-bottom": "6px" }}>
+                                <For each={am.expeditionResolvedEvents ?? []}>
+                                  {(_, i) => {
+                                    const idx = i();
+                                    const done = idx < currentIdx();
+                                    const isCurrent = idx === currentIdx();
+                                    const logEntry = am.expeditionLog?.[idx];
+                                    return (
+                                      <div style={{
+                                        width: "20px", height: "20px", "border-radius": "50%",
+                                        display: "flex", "align-items": "center", "justify-content": "center",
+                                        "font-size": "0.7rem",
+                                        background: done
+                                          ? (logEntry?.success ? "rgba(46, 204, 113, 0.3)" : "rgba(231, 76, 60, 0.3)")
+                                          : isCurrent ? "rgba(167, 139, 250, 0.4)" : "var(--bg-primary)",
+                                        border: isCurrent
+                                          ? "1px solid #a78bfa"
+                                          : done
+                                            ? `1px solid ${logEntry?.success ? "var(--accent-green)" : "var(--accent-red)"}`
+                                            : "1px solid var(--border-color)",
+                                        color: done ? "var(--text-primary)" : "var(--text-muted)",
+                                      }}>
+                                        {done ? (logEntry?.icon ?? "·") : isCurrent ? "·" : "?"}
+                                      </div>
+                                    );
+                                  }}
+                                </For>
+                              </div>
+                              <Show when={lastLog()}>
+                                <div style={{ "font-size": "0.7rem", color: "var(--text-secondary)", "font-style": "italic" }}>
+                                  Last: {lastLog()!.summary}
+                                </div>
+                              </Show>
+                            </div>
+                          );
+                        })()}
+                      </Show>
                     </div>
                   );
                 }}
@@ -431,6 +729,15 @@ export default function AdventurersGuild() {
             </button>
               );
             })()}
+            <Show when={IS_DEV}>
+              <button
+                onClick={() => actions.devSpawnAllNoviceMissions()}
+                class="skip-season-btn"
+                style={{ "font-size": "0.7rem", padding: "3px 10px" }}
+              >
+                Spawn all novice
+              </button>
+            </Show>
           </div>
           <Show when={state.missionBoard.length === 0}>
             <p style={{ color: "var(--text-muted)", "font-size": "0.85rem" }}>
@@ -455,7 +762,7 @@ export default function AdventurersGuild() {
                 />
               )}
             </Show>
-            <For each={state.missionBoard}>
+            <For each={state.missionBoard.filter((m) => !coopActiveExpeditionIds().has(m.id))}>
               {(saved) => {
                 const mission = getMission(saved.id) ?? saved;
                 return (
@@ -477,9 +784,17 @@ export default function AdventurersGuild() {
             {(mission) => (
               <MissionAssemblyPanel
                 mission={mission()}
-                onCancel={() => { setSelectedMission(null); setSelectedTeam([]); setSelectedSupplies([]); }}
-                onDeploy={(missionId, teamIds, supplyIds, successPct) => {
-                  if (actions.deployMission(missionId, teamIds, supplyIds, successPct)) {
+                coopId={selectedCoopId() ?? undefined}
+                coopLockedAdvIds={coopLockedAdvIds()}
+                onCancel={() => { setSelectedMission(null); setSelectedTeam([]); setSelectedSupplies([]); setSelectedCoopId(null); }}
+                onCoopInvited={(coopId) => { setSelectedCoopId(coopId); refetchCoops(); }}
+                onCoopEnded={() => {
+                  setSelectedCoopId(null);
+                  setSelectedMission(null);
+                  refetchCoops();
+                }}
+                onDeploy={(missionId, teamIds, adventurerSupplies, successPct) => {
+                  if (actions.deployMission(missionId, teamIds, adventurerSupplies, successPct)) {
                     setSelectedMission(null);
                     setSelectedTeam([]);
                     setSelectedSupplies([]);

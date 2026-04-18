@@ -1,7 +1,7 @@
 import { createSignal, For, Show } from "solid-js";
-import { PREMADE_CHARACTERS, CHAR_RELATIONSHIPS, type PremadeCharacter } from "~/data/premade-characters";
-import { RACE_NAMES, getClassMeta, getFoodPref, CLASS_COLORS, type AdventurerClass, BACKSTORY_TRAITS, CDN_CHARS } from "~/data/adventurers";
-import { ORIGINS } from "~/data/adventurers";
+import { PREMADE_CHARACTERS, CHAR_RELATIONSHIPS, type PremadeCharacter } from "@medieval-realm/shared/data/premade-characters";
+import { RACE_NAMES, getClassMeta, getFoodPref, CLASS_COLORS, type AdventurerClass, BACKSTORY_TRAITS, CDN_CHARS } from "@medieval-realm/shared/data/adventurers";
+import { ORIGINS } from "@medieval-realm/shared/data/adventurers";
 import TraitBadge from "~/components/TraitBadge";
 
 const CLASS_ORDER: AdventurerClass[] = ["warrior", "wizard", "priest", "archer", "assassin"];

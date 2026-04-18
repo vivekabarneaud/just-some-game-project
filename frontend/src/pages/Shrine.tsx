@@ -2,6 +2,7 @@ import { Show, For } from "solid-js";
 import { useGame } from "~/engine/gameState";
 import { getCurrentDeity, getSeasonDeities, getDeity } from "~/data/deities";
 import { IS_DEV, getGlobalSeason, SEASON_META } from "~/data/seasons";
+import { getTotalFood } from "~/data/foods";
 
 const RESOURCE_ICONS: Record<string, string> = {
   gold: "🪙", food: "🍖", wood: "🪵", stone: "🪨",
@@ -24,7 +25,7 @@ export default function Shrine() {
     const deity = currentDeity();
     for (const cost of deity.offeringCost) {
       if (cost.resource === "gold" && state.resources.gold < cost.amount) return false;
-      if (cost.resource === "food" && state.resources.food < cost.amount) return false;
+      if (cost.resource === "food" && getTotalFood(state.foods) < cost.amount) return false;
       if (cost.resource === "wood" && state.resources.wood < cost.amount) return false;
       if (cost.resource === "stone" && state.resources.stone < cost.amount) return false;
       if (cost.resource === "wool" && state.wool < cost.amount) return false;

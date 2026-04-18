@@ -1,6 +1,6 @@
 import { Show, For, createSignal } from "solid-js";
 import Tooltip from "./Tooltip";
-import type { EnemyDefinition } from "~/data/enemies";
+import type { EnemyDefinition } from "@medieval-realm/shared/data/enemies";
 
 // ─── Stat hints ─────────────────────────────────────────────────
 
@@ -61,16 +61,38 @@ function EnemyTooltipContent(props: { enemy: EnemyDefinition }) {
 interface EnemyCardProps {
   enemy: EnemyDefinition;
   count?: number;
+  /** When true, hide the enemy's identity (undiscovered creature) */
+  hidden?: boolean;
+}
+
+function HiddenEnemyTooltipContent() {
+  return (
+    <div style={{ "min-width": "140px" }}>
+      <div style={{ "font-weight": "bold", color: "var(--text-primary)", "margin-bottom": "4px" }}>
+        Unknown Creature
+      </div>
+      <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "font-style": "italic" }}>
+        You haven't encountered this creature yet.
+      </div>
+    </div>
+  );
 }
 
 export default function EnemyCard(props: EnemyCardProps) {
-  const borderColor = () => props.enemy.boss ? "var(--accent-gold)" : "rgba(231, 76, 60, 0.3)";
+  const borderColor = () =>
+    props.hidden ? "rgba(150, 150, 150, 0.35)"
+    : props.enemy.boss ? "var(--accent-gold)"
+    : "rgba(231, 76, 60, 0.3)";
+  const bg = () =>
+    props.hidden ? "rgba(60, 60, 70, 0.2)"
+    : props.enemy.boss ? "rgba(245, 197, 66, 0.08)"
+    : "rgba(231, 76, 60, 0.06)";
   return (
-    <Tooltip content={<EnemyTooltipContent enemy={props.enemy} />}>
+    <Tooltip content={props.hidden ? <HiddenEnemyTooltipContent /> : <EnemyTooltipContent enemy={props.enemy} />}>
       <div style={{
         width: "80px",
         height: "110px",
-        background: props.enemy.boss ? "rgba(245, 197, 66, 0.08)" : "rgba(231, 76, 60, 0.06)",
+        background: bg(),
         border: `1px solid ${borderColor()}`,
         "border-radius": "6px",
         overflow: "hidden",
@@ -90,33 +112,46 @@ export default function EnemyCard(props: EnemyCardProps) {
             {props.count}x
           </div>
         </Show>
-        {props.enemy.image
-          ? (() => {
-              const zoomed = props.enemy.image!.replace(".png", "_zoomed.png");
-              const [src, setSrc] = createSignal(zoomed);
-              return <img src={src()} alt="" onError={() => setSrc(props.enemy.image!)} style={{
-                width: "80px", height: "80px", "object-fit": "cover",
-                display: "block", "flex-shrink": "0",
-              }} />;
-            })()
-          : <div style={{
-              width: "80px", height: "80px", "flex-shrink": "0",
-              display: "flex", "align-items": "center", "justify-content": "center",
-              background: "rgba(0, 0, 0, 0.2)", "font-size": "2.2rem",
-            }}>{props.enemy.icon}</div>
-        }
+        <Show when={props.hidden} fallback={
+          props.enemy.image
+            ? (() => {
+                const zoomed = props.enemy.image!.replace(".png", "_zoomed.png");
+                const [src, setSrc] = createSignal(zoomed);
+                return <img src={src()} alt="" onError={() => setSrc(props.enemy.image!)} style={{
+                  width: "80px", height: "80px", "object-fit": "cover",
+                  display: "block", "flex-shrink": "0",
+                }} />;
+              })()
+            : <div style={{
+                width: "80px", height: "80px", "flex-shrink": "0",
+                display: "flex", "align-items": "center", "justify-content": "center",
+                background: "rgba(0, 0, 0, 0.2)", "font-size": "2.2rem",
+              }}>{props.enemy.icon}</div>
+        }>
+          <div style={{
+            width: "80px", height: "80px", "flex-shrink": "0",
+            display: "flex", "align-items": "center", "justify-content": "center",
+            background: "rgba(0, 0, 0, 0.35)",
+            "font-size": "2.6rem",
+            color: "rgba(200, 200, 210, 0.55)",
+            "text-shadow": "0 0 6px rgba(0,0,0,0.6)",
+          }}>?</div>
+        </Show>
         <div style={{
           padding: "2px 4px",
           "text-align": "center",
           "font-size": "0.6rem",
-          color: props.enemy.boss ? "var(--accent-gold)" : "var(--text-secondary)",
+          color: props.hidden ? "var(--text-muted)"
+            : props.enemy.boss ? "var(--accent-gold)"
+            : "var(--text-secondary)",
           "line-height": "1.15",
           flex: "1",
           display: "flex",
           "align-items": "center",
           "justify-content": "center",
+          "font-style": props.hidden ? "italic" : "normal",
         }}>
-          {props.enemy.name}
+          {props.hidden ? "???" : props.enemy.name}
         </div>
       </div>
     </Tooltip>

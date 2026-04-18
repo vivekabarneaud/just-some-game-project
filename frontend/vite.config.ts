@@ -12,7 +12,13 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      "/api": "http://localhost:4000",
+      "/api": {
+        target: "http://localhost:4000",
+      },
+      "/ws": {
+        target: "http://localhost:4000",
+        ws: true, // forward WebSocket upgrade requests to the backend
+      },
     },
   },
 });

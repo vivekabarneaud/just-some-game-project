@@ -1,6 +1,6 @@
 import { For, Show, onMount } from "solid-js";
 import { A } from "@solidjs/router";
-import { BUILDINGS, isBuildingUnlocked, getUnlockRequirement, getNextTierForLevels, applyMasonCostReduction, applyMasonTimeReduction, getTierPrerequisitesMet, getRepairCost, getBuildingImage, type BuildingDefinition } from "~/data/buildings";
+import { BUILDINGS, isBuildingUnlocked, getUnlockRequirement, getNextLevelRequirement, applyMasonCostReduction, applyMasonTimeReduction, getTierPrerequisitesMet, getRepairCost, getBuildingImage, type BuildingDefinition } from "~/data/buildings";
 import { QUEST_CHAIN } from "~/data/quests";
 import { useGame } from "~/engine/gameState";
 import Countdown from "~/components/Countdown";
@@ -114,8 +114,8 @@ export default function Buildings() {
                     if (isUpgrading()) return "Upgrading...";
                     if (pb()?.damaged) return "Damaged — repair first";
                     if (level() >= effMax()) {
-                      const tierInfo = getNextTierForLevels(building, actions.getSettlementTier());
-                      return tierInfo ? `Max for tier — need ${tierInfo.name}` : "Max level reached";
+                      const req = getNextLevelRequirement(building, thLevel());
+                      return req ? `Upgrade Town Hall to lvl ${req.requiredTownHallLevel}` : "Max level reached";
                     }
                     const next = nextLevelDef();
                     if (!next) return "Max level";
@@ -139,8 +139,8 @@ export default function Buildings() {
                     if (isUpgrading()) return "Upgrading...";
                     if (pb()?.damaged) return "🔧 Damaged — repair first";
                     if (level() >= effMax()) {
-                      const tierInfo = getNextTierForLevels(building, actions.getSettlementTier());
-                      return tierInfo ? `🔒 Max for tier — need ${tierInfo.name}` : "🏆 Max level reached";
+                      const req = getNextLevelRequirement(building, thLevel());
+                      return req ? `🔒 Upgrade Town Hall to lvl ${req.requiredTownHallLevel}` : "🏆 Max level reached";
                     }
                     const next = nextLevelDef();
                     if (!next) return "🏆 Max level";

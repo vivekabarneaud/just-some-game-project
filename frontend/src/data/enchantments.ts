@@ -1,5 +1,5 @@
-import type { AdventurerStats } from "./adventurers";
-import type { ItemSlot } from "./items";
+import type { AdventurerStats } from "@medieval-realm/shared/data/adventurers";
+import type { ItemSlot } from "@medieval-realm/shared/data/items";
 
 // ─── Enchantment Definitions ────────────────────────────────────
 

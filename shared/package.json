@@ -3,5 +3,16 @@
   "version": "0.1.0",
   "type": "module",
   "main": "src/index.ts",
-  "types": "src/index.ts"
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./data/combat": "./src/data/combat/index.ts",
+    "./data/combat/*": "./src/data/combat/*.ts",
+    "./data/missions": "./src/data/missions/index.ts",
+    "./data/missions/*": "./src/data/missions/*.ts",
+    "./data/*": "./src/data/*.ts"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
 }

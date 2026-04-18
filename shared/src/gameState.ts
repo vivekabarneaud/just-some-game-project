@@ -12,7 +12,6 @@ export interface ResourceState {
   gold: number;
   wood: number;
   stone: number;
-  food: number;
 }
 
 export interface StorageCaps {
@@ -176,11 +175,18 @@ export interface MissionTemplate {
   tags: MissionTag[];
 }
 
+export interface AdventurerMissionSupplies {
+  potion?: string;
+  food?: string;
+  recovery?: string;
+}
+
 export interface ActiveMission {
   missionId: string;
   adventurerIds: string[];
   remaining: number;
   successChance: number;
+  adventurerSupplies?: Record<string, AdventurerMissionSupplies>;
 }
 
 export interface CompletedMission {
@@ -252,6 +258,8 @@ export interface GameState {
   orchards: PlayerOrchard[];
   honey: number;
   fruit: number;
+  /** Per-type food stockpiles — total is capped by pantry */
+  foods: Record<string, number>;
   population: number;
   season: Season;
   seasonElapsed: number;
@@ -291,6 +299,8 @@ export interface GameState {
   craftingQueue: ActiveCraft[];
   /** Building tool slots: buildingId → installed tool IDs */
   buildingTools: Record<string, string[]>;
+  /** Enemy IDs the player has encountered on missions */
+  discoveredEnemies: string[];
   // Event log
   eventLog: GameEvent[];
   // Ale & Happiness
