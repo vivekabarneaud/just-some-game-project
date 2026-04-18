@@ -1,6 +1,6 @@
 import type { AdventurerStats, Adventurer } from "../adventurers.js";
 import { calcStats } from "../adventurers.js";
-import { getEquipmentStats, getSupplyEffect, getFoodEffect, MATCHED_FOOD_HP_BONUS } from "../items.js";
+import { getEquipmentStats, getSupplyEffect, getFoodEffect, MATCHED_FOOD_HP_BONUS, getMaterial, getItem } from "../items.js";
 import { getHerb } from "../herbs.js";
 import type { MissionReward, MissionTemplate, MissionTag, MissionRequirements, AdventurerMissionSupplies } from "./types.js";
 import { NOVICE_MISSIONS } from "./noviceMissions.js";
@@ -24,7 +24,31 @@ const RESOURCE_LABELS: Record<string, { icon: string; name: string }> = {
   wood: { icon: "🪵", name: "Wood" },
   stone: { icon: "🪨", name: "Stone" },
   food: { icon: "🍖", name: "Food" },
+  wool: { icon: "🐑", name: "Wool" },
+  fiber: { icon: "🪻", name: "Fiber" },
+  leather: { icon: "🐄", name: "Leather" },
+  iron: { icon: "⚒️", name: "Iron" },
+  honey: { icon: "🍯", name: "Honey" },
   astralShards: { icon: "💎", name: "Astral Shards" },
+};
+
+const FOOD_ITEM_LABELS: Record<string, { icon: string; name: string }> = {
+  wheat: { icon: "🌾", name: "Wheat" },
+  barley: { icon: "🌿", name: "Barley" },
+  cabbages: { icon: "🥬", name: "Cabbages" },
+  turnips: { icon: "🥕", name: "Turnips" },
+  peas: { icon: "🫛", name: "Peas" },
+  squash: { icon: "🎃", name: "Squash" },
+  apples: { icon: "🍎", name: "Apples" },
+  pears: { icon: "🍐", name: "Pears" },
+  cherries: { icon: "🍒", name: "Cherries" },
+  meat: { icon: "🍖", name: "Meat" },
+  eggs: { icon: "🥚", name: "Eggs" },
+  milk: { icon: "🥛", name: "Milk" },
+  fish: { icon: "🐟", name: "Fish" },
+  berries: { icon: "🫐", name: "Berries" },
+  mushrooms: { icon: "🍄", name: "Mushrooms" },
+  nuts: { icon: "🌰", name: "Nuts" },
 };
 
 /** Format a mission reward as "icon amount Name" */
@@ -33,6 +57,12 @@ export function formatReward(r: MissionReward): string {
   if (herb) return `${herb.icon} ${r.amount} ${herb.name}`;
   const info = RESOURCE_LABELS[r.resource];
   if (info) return `${info.icon} ${r.amount} ${info.name}`;
+  const food = FOOD_ITEM_LABELS[r.resource];
+  if (food) return `${food.icon} ${r.amount} ${food.name}`;
+  const material = getMaterial(r.resource);
+  if (material) return `${material.icon} ${r.amount} ${material.name}`;
+  const item = getItem(r.resource);
+  if (item) return `${item.icon} ${r.amount} ${item.name}`;
   return `+${r.amount} ${r.resource}`;
 }
 

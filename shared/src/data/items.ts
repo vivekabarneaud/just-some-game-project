@@ -211,29 +211,6 @@ export const ITEMS: ItemDefinition[] = [
     recipeId: "iron_dagger", consumable: false,
   },
 
-  // ── Potions (Alchemy) — all classes, consumable ───────────────
-  {
-    id: "healing_potion_equip", name: "Healing Potion", icon: "❤️", slot: "trinket",
-    description: "+4 VIT (consumed)",
-    classes: [],
-    stats: { vit: 4 }, durationMod: 1, lootMod: 1,
-    recipeId: "healing_potion", consumable: true,
-  },
-  {
-    id: "strength_elixir_equip", name: "Strength Elixir", icon: "💪", slot: "trinket",
-    description: "+2 STR, +1 DEX (consumed)",
-    classes: [],
-    stats: { str: 2, dex: 1 }, durationMod: 1, lootMod: 1,
-    recipeId: "strength_elixir", consumable: true,
-  },
-  {
-    id: "antidote_equip", name: "Antidote", icon: "🧪", slot: "trinket",
-    description: "+3 VIT (consumed)",
-    classes: [],
-    stats: { vit: 3 }, durationMod: 1, lootMod: 1,
-    recipeId: "antidote", consumable: true,
-  },
-
   // ── Recovery items (between-event heal on expeditions, pre-combat heal on simple missions)
   {
     id: "bandage", name: "Bandage", icon: "🩹", slot: "trinket",
@@ -953,8 +930,6 @@ export interface PotionInfo {
 
 const POTION_REGISTRY: Record<string, PotionInfo> = {
   // ── Mission potions (non-combat only) ─────────────────────────
-  "healing_potion_equip":   { category: "mission", mission: { successBonus: 0,  deathReduction: 0.5 } },
-  "antidote_equip":         { category: "mission", mission: { successBonus: 5,  deathReduction: 0.7 } },
   "healing_salve":          { category: "mission", mission: { successBonus: 0,  deathReduction: 0.75 } },
   "vigor_tea":              { category: "mission", mission: { successBonus: 5,  deathReduction: 1.0 } },
   "herbal_antidote":        { category: "mission", mission: { successBonus: 5,  deathReduction: 0.85 } },
@@ -962,7 +937,6 @@ const POTION_REGISTRY: Record<string, PotionInfo> = {
   "eagle_eye_elixir":       { category: "mission", mission: { successBonus: 15, deathReduction: 1.0 } },
 
   // ── Combat potions (used during combat, consumed) ─────────────
-  "strength_elixir_equip":  { category: "combat", combat: { type: "damage_boost", value: 50, duration: 2, trigger: "before_first_attack" } },
   "strength_draught":       { category: "combat", combat: { type: "damage_boost", value: 25, duration: 3, trigger: "before_first_attack" } },
   "ironhide_tonic":         { category: "combat", combat: { type: "defense_boost", value: 30, duration: 3, trigger: "auto_low_hp" } },
   "phoenix_tears":          { category: "combat", combat: { type: "heal_pct", value: 100, trigger: "auto_low_hp" } },

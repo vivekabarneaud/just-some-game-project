@@ -1,6 +1,6 @@
 import { For, Show } from "solid-js";
 import { useGame, BUILDING_TOOLS, getBuildingTool } from "~/engine/gameState";
-import { ITEMS, getItem, getPotionInfo, isSupplyItem, ARMOR_TYPE_META } from "@medieval-realm/shared/data/items";
+import { ITEMS, MATERIALS, getItem, getMaterial, getPotionInfo, isSupplyItem, ARMOR_TYPE_META } from "@medieval-realm/shared/data/items";
 import { ALCHEMY_RECIPES } from "@medieval-realm/shared/data/alchemy_recipes";
 import { BUILDINGS } from "~/data/buildings";
 
@@ -237,7 +237,47 @@ export default function Inventory() {
         </For>
       </div>
 
-      {/* All known items reference */}
+      {/* Crafting Materials — looted from missions, spent in workshop recipes */}
+      {(() => {
+        const ownedMaterials = () => state.inventory
+          .filter((inv) => inv.quantity > 0 && getMaterial(inv.itemId))
+          .map((inv) => ({ inv, mat: getMaterial(inv.itemId)! }))
+          .sort((a, b) => a.mat.tier - b.mat.tier || a.mat.name.localeCompare(b.mat.name));
+        return (
+          <Show when={ownedMaterials().length > 0}>
+            <h3 style={{ "font-family": "var(--font-heading)", "margin-top": "24px", "margin-bottom": "10px", color: "var(--text-primary)" }}>
+              Crafting Materials
+            </h3>
+            <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-bottom": "10px" }}>
+              Looted from missions. Used by blacksmiths, tailors, and alchemists.
+            </div>
+            <div class="buildings-grid">
+              <For each={ownedMaterials()}>
+                {({ inv, mat }) => (
+                  <div class="building-card">
+                    <span class="building-card-category">{mat.category} · tier {mat.tier}</span>
+                    <div class="building-card-header" style={{ "margin-top": "4px" }}>
+                      {mat.image
+                        ? <img src={mat.image} alt="" style={{ width: "40px", height: "40px", "object-fit": "cover", "border-radius": "6px", "flex-shrink": "0" }} />
+                        : <div class="building-card-icon">{mat.icon}</div>
+                      }
+                      <div>
+                        <div class="building-card-title">{mat.name} <span style={{ color: "var(--accent-gold)", "font-weight": 600 }}>×{inv.quantity}</span></div>
+                        <div style={{ "font-size": "0.8rem", color: "var(--text-secondary)", "font-style": "italic" }}>
+                          {mat.description}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </For>
+            </div>
+          </Show>
+        );
+      })()}
+
+      {/* All known items reference — equipment only; consumables (potions,
+          elixirs, food) live in the Potions section above. */}
       <h3 style={{ "font-family": "var(--font-heading)", "margin-top": "24px", "margin-bottom": "10px", color: "var(--text-primary)" }}>
         Item Catalog
       </h3>
@@ -245,7 +285,7 @@ export default function Inventory() {
         All craftable equipment. Items are crafted at their respective workshops.
       </div>
       <div class="buildings-grid">
-        <For each={ITEMS}>
+        <For each={ITEMS.filter((i) => !i.consumable)}>
           {(item) => {
             const owned = () => state.inventory.find((i) => i.itemId === item.id)?.quantity ?? 0;
             return (

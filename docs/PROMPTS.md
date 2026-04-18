@@ -768,3 +768,119 @@ A grassy enclosure with four fluffy white sheep grazing, a low wooden fence, a r
 
 **Apiary**
 Three or four traditional woven straw skep beehives on a wooden stand, bees visibly swarming around them, wildflowers growing at the base, a clay honey pot half-visible in the foreground, warm summer midday light, realistic digital painting, pastoral farm scene --ar 4:3
+
+## Crafting Material Icons (remaining 25)
+
+Base template — reuse for every material. Use `--sref <existing-material-url>` (e.g. wolfhide_strip) to keep the batch visually consistent with the existing 31 icons.
+
+```
+flat game UI icon of a <SUBJECT>, painterly fantasy style, warm ornate medieval feel, centered composition, readable silhouette, rich shadows, subtle rim light, soft painted textures, pure solid color background, no text, no frame --transparent --v 7 --ar 1:1 --style raw
+```
+
+Save each file with the exact material ID as the filename (e.g. `thick_pelt.png`) under `/media/The Shattered Realm/materials/`.
+
+### Hides & Bones (tier 1–2)
+
+**thick_pelt** — a thick shaggy bear pelt with dark brown fur, coarse and matted, rolled slightly, claws at one edge
+
+**bristlehide** — a section of boar hide bristling with coarse needle-sharp quills, mottled dark gray and umber
+
+**bear_claw** — a single massive curved bear claw, obsidian-black, sharp tip, leather wrap at the base
+
+**serpent_fang** — a long hollow curved serpent fang, pale ivory, glistening green venom dripping from the tip
+
+**tusk_shard** — a broken jagged boar tusk fragment, cream and bone-white, rough etched surface
+
+**alpha_fang** — a large curved wolf's alpha fang, warm ivory, faintly gleaming, runes lightly carved into the surface
+
+**beast_heart** — a massive steaming beast heart, dark crimson red, glistening wet, faintly luminous veins
+
+### Alchemy Ingredients (tier 1–4)
+
+**snake_oil** — a small corked glass vial of amber-yellow viscous oil, label scrawled in faded ink, sealed with wax
+
+**glowcap_spore** — a pouch of luminous blue-green fungal spores, softly glowing, puff of spore dust rising
+
+**ghoul_marrow** — a fragment of cold grey bone marrow, faintly luminescent, unsettling sickly glow, nestled in cloth
+
+**grave_dust** — a small pile of fine grey graveyard dust on dark cloth, bone fragments within, cold blue-grey tint
+
+**ashblood** — a glass vial filled with thick dark red demon blood, almost black, smoking faintly, ornate silver stopper
+
+**hellite** — a jagged crystal of crystallized brimstone, deep purple-violet, cold glowing cracks, sharp obsidian edges
+
+### Enchanting Essences & Oddities (tier 2–5)
+
+**veilmist** — a sealed ornate glass flask swirling with ghostly grey mist, ethereal tendrils pressed against the glass
+
+**voidthorn** — a shard of crystallized black void, jagged obsidian thorn, light bending around it, subtle purple aura
+
+**shadow_fragment** — a fragment of solid shadow, shifting black mist, edges bleeding into smoke, faint eye-like glow
+
+**witch_eye** — a preserved milky witch eye in a small glass jar, iris glowing purple, unsettling but beautiful
+
+**hex_fetish** — a small bundled fetish of bones, feathers, red thread, and a carved wooden totem, cursed tribal charm
+
+**amber_resin** — a chunk of translucent golden amber resin, an insect preserved inside, warm luminous glow
+
+### Gems & Divine (tier 4–5)
+
+**keening_shard** — a crystalline banshee-scream shard, pale blue-white, faint motion blur suggesting vibration, thin hairline cracks
+
+**godspark** — a small golden divine spark, warm glowing orb wrapped in soft halo, flecks of light rising from it
+
+**dormant_sigil** — an ornate circular temple sigil, dark iron engraved with runes, faintly glowing amber cracks, dormant but alive
+
+**charite** — a polished rose-colored gemstone of charite, warm pink inner glow, refracted light rays, celestial feel
+
+### Dragon & Nature (tier 3–5)
+
+**pyrewing_core** — a blazing dragon pyrewing core, molten orange-red sphere with black fractal fissures, radiating heat waves and embers
+
+**living_heartwood** — a chunk of living heartwood, dark bark outside with glowing emerald green veins running through it, small sprout on top
+
+## Equipment & Item Icons
+
+Same base template as the materials — centered flat icon, painterly fantasy, transparent background. Save each file with the exact item ID as the filename (e.g. `woolen_robe.png`, `iron_dagger.png`) under `/media/The Shattered Realm/items/`.
+
+```
+flat game UI icon of a <SUBJECT>, painterly fantasy style, warm ornate medieval feel, centered composition, readable silhouette, rich shadows, subtle rim light, soft painted textures, pure solid color background, no text, no frame --transparent --v 7 --ar 1:1 --style raw
+```
+
+Use `--sref` on an existing item icon (e.g. `alpha_fang_amulet.png`) to keep the new batch visually consistent.
+
+### Cloth & Robes
+
+**woolen_robe** — a simple homespun woolen robe laid flat, natural cream and oatmeal tones, coarse hand-woven texture, rope belt, plain and warm, peasant-tier garment
+
+**priest_robes** — an ornate priestly robe in pale cream and gold, embroidered sun sigil on the chest, soft flowing sleeves, silver trim at the hem, devout and dignified
+
+**wizard_robes** — a deep indigo wizard's robe with silver star embroidery, wide hooded cowl, celestial embroidered trim, mysterious and scholarly
+
+**windweave_robe** — a shimmering storm-grey robe woven from windweave fibers, trailing ribbons of translucent cloth that hint at motion, faint blue-white glow at the seams, ethereal and weightless
+
+**necromancer_cowl** — a dark hooded cowl in black tattered cloth, bone clasps at the collar, faint purple inner glow from within the hood, sinister and otherworldly
+
+**trollhide_cloak** — a heavy cloak of mottled troll hide, greenish-grey thick leather, crude stitching with coarse thread, weather-beaten and primal
+
+### Armor
+
+**wolfhide_armor** — a rugged leather vest of stitched wolfhide, dark brown fur trim at the shoulders, bone buckles, primal frontier craftsmanship
+
+**chitin_vest** — a segmented black chitin carapace vest, iridescent purple-green sheen, insect-armor plates layered over dark leather, alien and hard
+
+**infernal_mail** — a suit of chain mail forged from infernal links, blackened iron rings with faint red heat glow between them, demonic runes etched into the pauldrons, menacing
+
+**wyrmscale_armor** — a suit of iridescent dragon-scale armor, overlapping crimson and gold scales, warm to the touch, radiating power, exotic and rare
+
+### Weapons & Banners
+
+**iron_dagger** — a simple well-forged iron dagger, straight double-edged blade, wooden hilt wrapped in leather cord, no embellishment, functional and sharp
+
+**war_banner** — a tattered war banner on a short wooden pole, black cloth with a bone-white sigil torn across it, scorched edges, battle-worn and grim
+
+### Recovery & Food
+
+**bandage** — a roll of clean linen bandage, partially unspooled, small iron pin tucked through one layer, simple and utilitarian
+
+**shepherds_pie** — a rustic pie in a terracotta dish, mashed potato crust with fork-drawn lines browned on top, crumbled meat and gravy visible at the edges, steam rising, hearty comfort food

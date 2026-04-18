@@ -24,7 +24,7 @@ export const EXPERT_MISSIONS: MissionTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/enchanted_grove.png",
     slots: [{ class: "wizard" }, { class: "archer" }, { class: "priest" }],
     duration: 3600,
-    rewards: [{ resource: "food", amount: 300 }, { resource: "wood", amount: 300 }, { resource: "gold", amount: 100 }],
+    rewards: [{ resource: "wheat", amount: 300 }, { resource: "wood", amount: 300 }, { resource: "gold", amount: 100 }],
     deployCost: 60,
     difficulty: 4,
     minGuildLevel: 4,

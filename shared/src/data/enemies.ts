@@ -117,7 +117,7 @@ export const ENEMIES: EnemyDefinition[] = [
         effect: { type: "bleed", pctPerRound: 20, rounds: 2 } },
     ],
     loot: [
-      { type: "resource", resource: "food", chance: 0.4, min: 2, max: 6 },
+      { type: "resource", resource: "wheat", chance: 0.4, min: 2, max: 6 },
       { type: "resource", resource: "wolfhide_strip", chance: 0.3, min: 1, max: 1 },
       { type: "resource", resource: "fang", chance: 0.2, min: 1, max: 2 },
       { type: "resource", resource: "sinew_cord", chance: 0.15, min: 1, max: 1 },
@@ -133,7 +133,7 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 4, dex: 6, int: 1, vit: 5, wis: 1 },
     tags: ["beast"],
     loot: [
-      { type: "resource", resource: "food", chance: 0.2, min: 1, max: 3 },
+      { type: "resource", resource: "meat", chance: 0.2, min: 1, max: 3 },
       { type: "resource", resource: "gnawed_marrow", chance: 0.2, min: 1, max: 1 },
     ],
   },
@@ -169,7 +169,7 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 3, dex: 4, int: 1, vit: 3, wis: 1 },
     tags: ["beast"],
     loot: [
-      { type: "resource", resource: "food", chance: 0.3, min: 1, max: 3 },
+      { type: "resource", resource: "meat", chance: 0.3, min: 1, max: 3 },
       { type: "resource", resource: "wolfhide_strip", chance: 0.15, min: 1, max: 1 },
     ],
   },
@@ -182,7 +182,7 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 4, dex: 3, int: 1, vit: 4, wis: 1 },
     tags: ["beast"],
     loot: [
-      { type: "resource", resource: "food", chance: 0.4, min: 2, max: 4 },
+      { type: "resource", resource: "meat", chance: 0.4, min: 2, max: 4 },
     ],
   },
   {
@@ -732,7 +732,7 @@ export const ENEMIES: EnemyDefinition[] = [
     tags: ["beast"],
     abilities: [{ id: "maul", name: "Maul", icon: "🐾", cooldown: 2, trigger: "always", effect: { type: "damage_mult", mult: 1.5, targets: 1 } }],
     loot: [
-      { type: "resource", resource: "food", chance: 0.5, min: 3, max: 8 },
+      { type: "resource", resource: "meat", chance: 0.5, min: 3, max: 8 },
       { type: "resource", resource: "thick_pelt", chance: 0.35, min: 1, max: 1 },
       { type: "resource", resource: "bear_claw", chance: 0.2, min: 1, max: 2 },
     ],
@@ -763,7 +763,7 @@ export const ENEMIES: EnemyDefinition[] = [
     tags: ["beast"],
     abilities: [{ id: "charge", name: "Charge", icon: "💨", cooldown: 99, trigger: "round_start", effect: { type: "damage_mult", mult: 1.5, targets: 1 } }],
     loot: [
-      { type: "resource", resource: "food", chance: 0.5, min: 2, max: 6 },
+      { type: "resource", resource: "meat", chance: 0.5, min: 2, max: 6 },
       { type: "resource", resource: "bristlehide", chance: 0.3, min: 1, max: 1 },
       { type: "resource", resource: "tusk_shard", chance: 0.2, min: 1, max: 1 },
     ],
@@ -840,7 +840,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "alpha_fang", chance: 0.4, min: 1, max: 1 },
       { type: "resource", resource: "thick_pelt", chance: 0.6, min: 1, max: 2 },
       { type: "resource", resource: "sinew_cord", chance: 0.4, min: 1, max: 2 },
-      { type: "resource", resource: "food", chance: 0.8, min: 4, max: 10 },
+      { type: "resource", resource: "meat", chance: 0.8, min: 4, max: 10 },
     ],
   },
   {
@@ -983,7 +983,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "thick_pelt", chance: 0.8, min: 2, max: 4 },
       { type: "resource", resource: "bear_claw", chance: 0.6, min: 1, max: 3 },
       { type: "resource", resource: "beast_heart", chance: 0.15, min: 1, max: 1 },
-      { type: "resource", resource: "food", chance: 0.9, min: 8, max: 20 },
+      { type: "resource", resource: "meat", chance: 0.9, min: 8, max: 20 },
       { type: "item", itemId: "beast_heart_charm", chance: 0.08 },
     ],
   },

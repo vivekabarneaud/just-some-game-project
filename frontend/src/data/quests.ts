@@ -1,7 +1,7 @@
 import type { GameState } from "~/engine/gameState";
 
 export interface QuestReward {
-  resource: "gold" | "wood" | "stone" | "food" | "wool" | "astralShards";
+  resource: "gold" | "wood" | "stone" | "wheat" | "wool" | "astralShards";
   amount: number;
   label: string;
 }
@@ -168,10 +168,12 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "seeds_of_prosperity",
     title: "Seeds of Prosperity",
     narrative:
-      "The soil here is dark and rich — perfect for planting. Fields can only be planted in spring, so if it's not the season, build a garden instead — they grow year-round except in winter.",
-    objective: "Build a Field or a Garden",
+      "The soil here is dark and rich — perfect for planting. Fields can only be sown in spring. Each garden veggie has its own planting season too — check the cards to find one you can plant right now.",
+    objective: "Plant seeds in a Field or a Garden",
     icon: "🌾",
-    condition: (s) => s.fields.some((f) => f.level >= 1) || s.gardens.some((g) => g.level >= 1),
+    condition: (s) =>
+      s.fields.some((f) => f.level >= 1 && f.crop !== null) ||
+      s.gardens.some((g) => g.level >= 1 && g.plantedYear != null),
     // Refund matches a field's build cost (gardens are cheaper; field is the common case)
     rewards: [{ resource: "wood", amount: 40, label: "Wood" }, { resource: "stone", amount: 10, label: "Stone" }],
     targetPage: "/farming",
@@ -182,12 +184,12 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "woolly_friends",
     title: "Woolly Friends",
     narrative:
-      "A shepherd arrives at your gate with a small flock, looking for pasture. Wool for clothing, milk for the table — these creatures earn their keep.",
+      "A shepherd arrives at your gate with a small flock, looking for pasture — no gold needed, just wood and stone to build a pen. Wool for clothing, meat for the table. These creatures earn their keep.",
     objective: "Build a Sheep Pen",
     icon: "🐑",
-    condition: (s) => s.pens.some((p) => p.level >= 1),
-    rewards: [{ resource: "food", amount: 50, label: "Food" }, { resource: "wool", amount: 10, label: "Wool" }, { resource: "wood", amount: 50, label: "Wood" }],
-    targetPage: "/farming",
+    condition: (s) => s.pens.some((p) => p.animal === "sheep" && p.level >= 1),
+    rewards: [{ resource: "wheat", amount: 50, label: "Wheat" }, { resource: "wool", amount: 10, label: "Wool" }, { resource: "wood", amount: 50, label: "Wood" }],
+    targetPage: "/farming#pen-sheep",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_14.png",
   },
   // 13 — Tailoring Shop

@@ -1,12 +1,14 @@
-import { For, Show } from "solid-js";
-import { useGame, type PlayerField, type PlayerGarden, type PlayerPen, type PlayerHive, type PlayerOrchard } from "~/engine/gameState";
+import { For, Show, onMount } from "solid-js";
+import { useGame, type GameState, type PlayerField, type PlayerGarden, type PlayerPen, type PlayerHive, type PlayerOrchard } from "~/engine/gameState";
 import { CROPS, type CropId, getCrop, getFieldCost, getFieldBuildTime, getSeasonYield, getSoilMultiplier, getSoilStatus, MAX_FIELDS, FIELD_MAX_LEVEL } from "~/data/crops";
 import { getVeggie, getGardenCost, getGardenBuildTime, getGardenRate, getSeedCost, canPlantVeggie, isVeggieProducing, MAX_GARDENS, GARDEN_MAX_LEVEL } from "~/data/gardens";
 import { getAnimal, getPenCost, getPenBuildTime, getPenProduction, PEN_MAX_LEVEL } from "@medieval-realm/shared/data/livestock";
-import { ANIMAL_FEED, FEED_CATEGORY_ICON, FEED_CATEGORY_LABEL, GRAZING_PER_FIELD, isGrazer } from "~/data/animalFeed";
+import { ANIMAL_FEED, FEED_CATEGORY_ICON, FEED_CATEGORY_LABEL, FOOD_CATEGORY, GRAZING_PER_FIELD, isGrazer, type FeedCategory } from "~/data/animalFeed";
+import type { FoodItemType } from "~/data/foods";
 import { getHiveCost, getHiveBuildTime, getHoneyRate, HIVE_MAX_LEVEL, APIARY_IMAGE } from "~/data/apiary";
 import { getFruit, getOrchardCost, getOrchardBuildTime, getOrchardRate, getOrchardStatus, isOrchardActive, ORCHARD_MAX_LEVEL } from "~/data/orchards";
 import { SEASON_META } from "~/data/seasons";
+import { QUEST_CHAIN } from "~/data/quests";
 import Countdown from "~/components/Countdown";
 import { UpgradeIndicator } from "~/components/UpgradeIndicator";
 
@@ -164,6 +166,18 @@ function FieldCard(props: { field: PlayerField }) {
         <Show when={seasonStatus()}>
           {(s) => <div class="field-card-status" style={{ color: s().color }}>{s().label}</div>}
         </Show>
+        {/* Season hint — green when it's spring (can plant), red otherwise.
+            Only shown on empty fields since planted ones speak for themselves. */}
+        <Show when={isEmpty()}>
+          <div style={{
+            "font-size": "0.72rem",
+            color: state.season === "spring" ? "var(--accent-green)" : "var(--accent-red)",
+            "font-weight": 600,
+            "margin-top": "2px",
+          }}>
+            {state.season === "spring" ? "🌱 Fields can be planted now (spring)" : "Fields can only be planted in spring"}
+          </div>
+        </Show>
         {/* Soil status pill — only meaningful once the field has a rotation history */}
         <Show when={props.field.lastCrop !== null}>
           <div style={{
@@ -299,24 +313,40 @@ function FieldCard(props: { field: PlayerField }) {
  * interactivity. Disabled state shows why (not enough resources).
  */
 function EmptyFieldSlot(props: { canBuild: boolean; isWinter: boolean; onBuild: () => void }) {
+  const { state } = useGame();
   const cost = getFieldCost(0);
   const time = getFieldBuildTime(0);
   const blockedReason = () => !props.canBuild ? "Not enough resources" : "";
+  const isSpring = () => state.season === "spring";
   return (
     <div class="building-card unbuilt-farm-card" style={{ cursor: "default", position: "relative" }}>
-      <UpgradeIndicator
-        level={0}
-        canAct={props.canBuild}
-        costTip={`🪵 ${cost.wood} 🪨 ${cost.stone} · ${formatTime(time)}`}
-        blockedReason={blockedReason()}
-        onClick={props.onBuild}
-      />
-      <div style={{ "margin-bottom": "4px" }}>
-        <div class="building-card-title">Unbuilt plot</div>
-        <div class="building-card-level not-built">Not built yet</div>
+      <div class="building-card-image">
+        <img
+          src="https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/empty_field.png"
+          alt=""
+          loading="lazy"
+          style={{ filter: "brightness(0.55) saturate(0.6)" }}
+        />
+        <div class="building-card-image-overlay" style={{ display: "flex", "justify-content": "space-between", "align-items": "flex-end" }}>
+          <div>
+            <div class="building-card-title">Unbuilt plot</div>
+            <div class="building-card-level not-built">Not built yet</div>
+          </div>
+          <UpgradeIndicator
+            level={0}
+            canAct={props.canBuild}
+            costTip={`🪵 ${cost.wood} 🪨 ${cost.stone} · ${formatTime(time)}`}
+            blockedReason={blockedReason()}
+            onClick={props.onBuild}
+            inOverlay
+          />
+        </div>
       </div>
-      <div style={{ "font-size": "0.75rem", color: "var(--text-muted)" }}>
-        A fresh plot, waiting for a crop. Fields are planted in spring.
+      <div class="building-card-desc">
+        A fresh plot, waiting for a crop.{" "}
+        <span style={{ color: isSpring() ? "var(--accent-green)" : "var(--accent-red)", "font-weight": 600 }}>
+          {isSpring() ? "🌱 Fields are planted in spring — plant now!" : "Fields are planted in spring."}
+        </span>
       </div>
     </div>
   );
@@ -390,8 +420,21 @@ function GardenCard(props: { garden: PlayerGarden }) {
     return null;
   };
 
-  const cycleHint = () =>
-    `Plant in ${veggie().plantSeasons.map((s) => SEASON_META[s].icon).join(" ")} · Produces in ${veggie().produceSeasons.map((s) => SEASON_META[s].icon).join(" ")}`;
+  // "Plant in 🌸 · Produces in ☀️ 🍂" — the "Plant in" part is highlighted green
+  // when we're currently in a plantable season, red otherwise. Helps the player
+  // see at a glance whether they can sow this veggie right now.
+  const renderCycleHint = () => (
+    <>
+      <span style={{
+        color: inPlantSeason() ? "var(--accent-green)" : "var(--accent-red)",
+        "font-weight": 600,
+      }}>
+        Plant in {veggie().plantSeasons.map((s) => SEASON_META[s].icon).join(" ")}
+      </span>
+      {" · Produces in "}
+      {veggie().produceSeasons.map((s) => SEASON_META[s].icon).join(" ")}
+    </>
+  );
 
   const showUpgradeIndicator = () =>
     !props.garden.upgrading &&
@@ -446,7 +489,7 @@ function GardenCard(props: { garden: PlayerGarden }) {
 
         <div class="building-card-desc">{veggie().description}</div>
         <div style={{ "font-size": "0.7rem", color: "var(--text-muted)" }}>
-          Plant in {veggie().plantSeasons.map((s) => SEASON_META[s].icon).join(" ")} · Produces in {veggie().produceSeasons.map((s) => SEASON_META[s].icon).join(" ")}
+          {renderCycleHint()}
         </div>
       </div>
     }>
@@ -503,7 +546,7 @@ function GardenCard(props: { garden: PlayerGarden }) {
 
         <Show when={!props.garden.upgrading}>
           <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "2px" }}>
-            {cycleHint()}
+            {renderCycleHint()}
           </div>
         </Show>
 
@@ -532,15 +575,23 @@ function PenCard(props: { pen: PlayerPen }) {
   const effectiveMax = () => Math.min(actions.getTownHallLevel(), PEN_MAX_LEVEL);
 
   const isUnbuilt = () => props.pen.level === 0 && !props.pen.upgrading;
-  const buildCost = () => getPenCost(0);
+  // Shepherd brings her own flock — first sheep pen is gold-free.
+  const isFirstSheep = () => props.pen.animal === "sheep" && props.pen.level === 0;
+  const buildCost = () => {
+    const c = getPenCost(0);
+    return isFirstSheep() ? { ...c, gold: 0 } : c;
+  };
   const canBuild = () => {
     const c = buildCost();
     return state.resources.wood >= c.wood && state.resources.stone >= c.stone && state.resources.gold >= c.gold;
   };
   const buildBlockedReason = () => {
     const c = buildCost();
-    if (state.resources.wood < c.wood || state.resources.stone < c.stone || state.resources.gold < c.gold) return "Not enough resources";
-    return "";
+    const missing: string[] = [];
+    if (state.resources.wood < c.wood) missing.push(`🪵 ${c.wood - Math.floor(state.resources.wood)} more wood`);
+    if (state.resources.stone < c.stone) missing.push(`🪨 ${c.stone - Math.floor(state.resources.stone)} more stone`);
+    if (state.resources.gold < c.gold) missing.push(`🪙 ${c.gold - Math.floor(state.resources.gold)} more gold`);
+    return missing.length ? `Need ${missing.join(", ")}` : "";
   };
 
   const prod = () => props.pen.level > 0 ? getPenProduction(animal(), props.pen.level) : { produced: 0, consumed: 0, secondary: undefined as any };
@@ -570,10 +621,14 @@ function PenCard(props: { pen: PlayerPen }) {
   const grazingCovered = () => Math.min(prod().consumed, grazingForThisPen());
   const pantryNeed = () => Math.max(0, prod().consumed - grazingCovered());
 
-  const feedCategoryList = () =>
-    ANIMAL_FEED[props.pen.animal]
-      .map((c) => `${FEED_CATEGORY_ICON[c]} ${FEED_CATEGORY_LABEL[c]}`)
-      .join(" · ");
+  /** Does the pantry have any of this feed category in stock right now? */
+  const categoryHasFood = (cat: FeedCategory): boolean => {
+    const foods = state.foods ?? {} as Record<FoodItemType, number>;
+    for (const [food, c] of Object.entries(FOOD_CATEGORY)) {
+      if (c === cat && (foods[food as FoodItemType] ?? 0) > 0) return true;
+    }
+    return false;
+  };
 
   const upgradeCost = () => props.pen.level < PEN_MAX_LEVEL ? getPenCost(props.pen.level) : null;
   const canUpgrade = () => {
@@ -589,8 +644,12 @@ function PenCard(props: { pen: PlayerPen }) {
     if (props.pen.upgrading) return "Already upgrading…";
     if (props.pen.level >= 1 && state.season !== "winter") return "Pens can only be upgraded in winter";
     const c = upgradeCost();
-    if (c && (state.resources.wood < c.wood || state.resources.stone < c.stone || state.resources.gold < c.gold)) return "Not enough resources";
-    return "";
+    if (!c) return "";
+    const missing: string[] = [];
+    if (state.resources.wood < c.wood) missing.push(`🪵 ${c.wood - Math.floor(state.resources.wood)} more wood`);
+    if (state.resources.stone < c.stone) missing.push(`🪨 ${c.stone - Math.floor(state.resources.stone)} more stone`);
+    if (state.resources.gold < c.gold) missing.push(`🪙 ${c.gold - Math.floor(state.resources.gold)} more gold`);
+    return missing.length ? `Need ${missing.join(", ")}` : "";
   };
 
   const showUpgradeIndicator = () =>
@@ -599,14 +658,24 @@ function PenCard(props: { pen: PlayerPen }) {
     (props.pen.level === 0 || state.season === "winter");
   const indicatorCostTip = () => {
     const c = props.pen.level === 0 ? buildCost() : upgradeCost();
-    return c ? `🪵 ${c.wood} 🪨 ${c.stone} 🪙 ${c.gold} · ${formatTime(getPenBuildTime(props.pen.level))}` : "";
+    if (!c) return "";
+    const goldPart = c.gold > 0 ? `🪙 ${c.gold}` : "🪙 free!";
+    return `🪵 ${c.wood} 🪨 ${c.stone} ${goldPart} · ${formatTime(getPenBuildTime(props.pen.level))}`;
   };
   const indicatorBlockedReason = () => props.pen.level === 0 ? buildBlockedReason() : upgradeBlockedReason();
   const indicatorCanAct = () => props.pen.level === 0 ? canBuild() : canUpgrade();
 
+  const anchorId = () => `pen-${props.pen.animal}`;
+  const isHighlighted = () => getActiveFarmingQuestAnchor(state) === anchorId();
+
   return (
     <Show when={!isUnbuilt()} fallback={
-      <div class="building-card unbuilt-farm-card" style={{ cursor: "default", position: "relative" }}>
+      <div
+        id={anchorId()}
+        class="building-card unbuilt-farm-card"
+        classList={{ "quest-target": isHighlighted() }}
+        style={{ cursor: "default", position: "relative" }}
+      >
         <Show when={animal().image} fallback={
           <>
             <UpgradeIndicator
@@ -644,7 +713,12 @@ function PenCard(props: { pen: PlayerPen }) {
         <div class="building-card-desc">{animal().description}</div>
       </div>
     }>
-      <div class="building-card" classList={{ upgrading: props.pen.upgrading }} style={{ cursor: "default", position: "relative" }}>
+      <div
+        id={anchorId()}
+        class="building-card"
+        classList={{ upgrading: props.pen.upgrading, "quest-target": isHighlighted() }}
+        style={{ cursor: "default", position: "relative" }}
+      >
         <Show when={animal().image} fallback={
           <>
             <Show when={showUpgradeIndicator()}>
@@ -706,8 +780,22 @@ function PenCard(props: { pen: PlayerPen }) {
             </div>
           </Show>
           <Show when={pantryNeed() > 0}>
-            <div class="building-card-production" style={{ color: "var(--accent-red)" }}>
-              Eats: -{pantryNeed().toFixed(1)}/h · {feedCategoryList()}
+            <div class="building-card-production" style={{ color: "var(--text-secondary)" }}>
+              Eats: <span style={{ color: "var(--accent-gold)" }}>{pantryNeed().toFixed(1)}/h</span>
+              {" · "}
+              <For each={ANIMAL_FEED[props.pen.animal]}>
+                {(cat, i) => (
+                  <>
+                    {i() > 0 ? " · " : null}
+                    <span style={{
+                      color: categoryHasFood(cat) ? "var(--text-secondary)" : "var(--accent-red)",
+                      "font-weight": categoryHasFood(cat) ? "normal" : 600,
+                    }}>
+                      {FEED_CATEGORY_ICON[cat]} {FEED_CATEGORY_LABEL[cat]}
+                    </span>
+                  </>
+                )}
+              </For>
             </div>
           </Show>
           <Show when={pantryNeed() === 0 && grazingCovered() > 0 && grazingCovered() >= prod().consumed}>
@@ -996,8 +1084,41 @@ function OrchardCard(props: { orchard: PlayerOrchard }) {
 
 // ─── Main Page ───────────────────────────────────────────────────
 
+/** On mount, if the URL has a hash like #pen-sheep, smooth-scroll to the
+ *  matching element. Runs once — we don't track the hash reactively for the
+ *  highlight (the active-quest derivation does that job). */
+function useFarmingScrollToHash() {
+  onMount(() => {
+    if (typeof window === "undefined") return;
+    if (window.location.hash) {
+      setTimeout(() => {
+        document.querySelector(window.location.hash)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 150);
+    }
+  });
+}
+
+/** Anchor (like "pen-sheep") of the current unclaimed quest pointing to the
+ *  Farming page — used for the golden highlight. Mirrors how Buildings.tsx
+ *  picks its quest target building. Returns null when no active farming quest.
+ *
+ *  "Active" = first quest whose rewards are unclaimed AND whose condition is
+ *  still unmet. Once the player satisfies the condition the highlight fades. */
+export function getActiveFarmingQuestAnchor(state: GameState): string | null {
+  const claimed = state.questRewardsClaimed ?? [];
+  for (const q of QUEST_CHAIN) {
+    if (claimed.includes(q.id)) continue;
+    if (q.condition(state)) return null; // already completed, just waiting to claim
+    const page = q.targetPage ?? "";
+    const m = page.match(/^\/farming#(.+)$/);
+    return m ? m[1] : null;
+  }
+  return null;
+}
+
 export default function Farming() {
   const { state, actions } = useGame();
+  useFarmingScrollToHash();
   // Fields are built empty, crops chosen per-field in spring.
   // Gardens/pens/hives/orchards use pre-attributed slots — each card handles its own build/plant action.
 

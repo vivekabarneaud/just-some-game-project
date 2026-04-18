@@ -83,7 +83,7 @@ export const STORY_MISSIONS: StoryMission[] = [
     duration: 1500,
     rewards: [
       { resource: "gold", amount: 120 },
-      { resource: "food", amount: 80 },
+      { resource: "wheat", amount: 80 },
     ],
     deployCost: 15,
     difficulty: 2,

@@ -74,6 +74,10 @@ export interface ActiveCraft {
   recipeId: string;
   remaining: number; // game-seconds for current item
   quantity?: number;  // total items to craft (counts down as each completes)
+  /** True when this craft is queued behind others and waiting for a slot.
+   *  Pending crafts do not tick. Promoted when a peer in the same building
+   *  finishes (and that was the last copy of its recipe). */
+  pending?: boolean;
 }
 
 export const CRAFTING_RECIPES: CraftingRecipe[] = [

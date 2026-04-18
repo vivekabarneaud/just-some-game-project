@@ -149,10 +149,14 @@ export default function CraftingPage(props: CraftingPageProps) {
     return r.building === props.buildingId && buildingLevel() < r.minLevel;
   });
 
-  const activeCrafts = () => state.craftingQueue.filter((c) => {
+  /** All entries in this building's queue — active and pending. */
+  const buildingCrafts = () => state.craftingQueue.filter((c) => {
     const r = CRAFTING_RECIPES.find((cr) => cr.id === c.recipeId);
     return r?.building === props.buildingId;
   });
+  /** Just the entries currently being worked on (pending are waiting in line). */
+  const activeCrafts = () => buildingCrafts().filter((c) => !c.pending);
+  const pendingCrafts = () => buildingCrafts().filter((c) => c.pending);
 
   const getResourceAmount = (res: string): number => {
     if (res === "wool") return state.wool;
@@ -180,9 +184,8 @@ export default function CraftingPage(props: CraftingPageProps) {
     if (b.damaged) return "Building is damaged";
     const missingTool = getRequiredTool(recipe, installedToolIds());
     if (missingTool) return `Requires ${missingTool.name}`;
-    const slotsUsed = activeCrafts().length;
-    const maxSlots = b.level + (props.buildingId === "kitchen" ? 1 : 0);
-    if (slotsUsed >= maxSlots) return `Queue full — upgrade ${props.buildingName} for more slots`;
+    // No queue limit — any overflow just enters as pending and picks up when
+    // a slot frees. Slot count still informs display ("active vs. pending").
     for (const cost of recipe.costs) {
       const have = getResourceAmount(cost.resource);
       if (have < cost.amount * qty) {
@@ -454,7 +457,7 @@ export default function CraftingPage(props: CraftingPageProps) {
             <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "8px", color: "var(--text-primary)" }}>
               In Progress
             </h3>
-            <Show when={activeCrafts().length === 0}>
+            <Show when={buildingCrafts().length === 0}>
               <div style={{ color: "var(--text-muted)", "font-size": "0.85rem" }}>No active crafts</div>
             </Show>
             <For each={activeCrafts()}>
@@ -483,6 +486,39 @@ export default function CraftingPage(props: CraftingPageProps) {
                 );
               }}
             </For>
+            <Show when={pendingCrafts().length > 0}>
+              <div style={{
+                "font-size": "0.72rem", "text-transform": "uppercase",
+                "letter-spacing": "1px", color: "var(--text-muted)",
+                "margin-top": "10px", "margin-bottom": "6px",
+              }}>
+                Up next
+              </div>
+              <For each={pendingCrafts()}>
+                {(craft, i) => {
+                  const recipe = () => CRAFTING_RECIPES.find((r) => r.id === craft.recipeId);
+                  return (
+                    <div style={{
+                      padding: "6px 10px",
+                      "margin-bottom": "4px",
+                      background: "var(--bg-secondary)",
+                      "border-radius": "6px",
+                      border: "1px dashed var(--border-default)",
+                      opacity: 0.7,
+                    }}>
+                      <div style={{ display: "flex", "align-items": "center", gap: "6px" }}>
+                        <span style={{ "font-size": "0.7rem", color: "var(--text-muted)", "min-width": "18px" }}>#{i() + 1}</span>
+                        <span>{recipe()?.icon}</span>
+                        <span style={{ "font-size": "0.82rem", color: "var(--text-secondary)" }}>
+                          {recipe()?.name}
+                          {(craft.quantity ?? 1) > 1 && <span style={{ color: "var(--accent-gold)", "margin-left": "4px" }}>×{craft.quantity}</span>}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                }}
+              </For>
+            </Show>
           </div>
         </div>
       </Show>

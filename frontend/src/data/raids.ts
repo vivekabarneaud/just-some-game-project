@@ -83,7 +83,7 @@ export const RAID_POOL: RaidTemplate[] = [
     maxCitizenLoss: 4,
     minTier: "camp",
     baseWarning: 3,
-    victoryLoot: [{ resource: "food", amount: 40 }],
+    victoryLoot: [{ resource: "meat", amount: 40 }],
   },
   {
     id: "petty_thieves",
@@ -149,7 +149,7 @@ export const RAID_POOL: RaidTemplate[] = [
     maxCitizenLoss: 6,
     minTier: "village",
     baseWarning: 2,
-    victoryLoot: [{ resource: "food", amount: 80 }],
+    victoryLoot: [{ resource: "meat", amount: 80 }],
   },
 
   // ── Town-tier raids ───────────────────────────────────────────
@@ -199,7 +199,7 @@ export const RAID_POOL: RaidTemplate[] = [
     maxCitizenLoss: 8,
     minTier: "town",
     baseWarning: 6,
-    victoryLoot: [{ resource: "food", amount: 100 }, { resource: "stone", amount: 40 }],
+    victoryLoot: [{ resource: "meat", amount: 100 }, { resource: "stone", amount: 40 }],
   },
 
   // ── City-tier raids ───────────────────────────────────────────
@@ -249,7 +249,7 @@ export const RAID_POOL: RaidTemplate[] = [
     maxCitizenLoss: 20,
     minTier: "city",
     baseWarning: 8,
-    victoryLoot: [{ resource: "gold", amount: 300 }, { resource: "food", amount: 150 }, { resource: "astralShards", amount: 8 }],
+    victoryLoot: [{ resource: "gold", amount: 300 }, { resource: "wheat", amount: 150 }, { resource: "astralShards", amount: 8 }],
   },
 ];
 

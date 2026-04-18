@@ -159,7 +159,14 @@ export interface InventoryItem {
 // ─── Missions ───────────────────────────────────────────────────
 
 export type RewardType = "gold" | "wood" | "stone" | "food" | "astralShards"
-  | "chamomile" | "mugwort" | "nettle" | "nightbloom" | "moonpetal"; // herbs
+  // Typed foods (post-food-refactor missions use these directly)
+  | "wheat" | "barley"
+  | "cabbages" | "turnips" | "peas" | "squash"
+  | "apples" | "pears" | "cherries"
+  | "meat" | "eggs" | "milk" | "fish"
+  | "berries" | "mushrooms" | "nuts"
+  // Herbs
+  | "chamomile" | "mugwort" | "nettle" | "nightbloom" | "moonpetal";
 
 export interface MissionReward {
   resource: RewardType;
@@ -237,6 +244,9 @@ export interface RaidResult {
 export interface ActiveCraft {
   recipeId: string;
   remaining: number;
+  /** Undefined/false = active (ticks down). True = waiting in line for a slot
+   *  to free up (does not tick; promoted to active when a peer completes). */
+  pending?: boolean;
 }
 
 // ─── Events ─────────────────────────────────────────────────────

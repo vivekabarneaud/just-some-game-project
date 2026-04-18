@@ -1938,11 +1938,15 @@ export function GameProvider(props: ParentProps) {
         }
 
         // ── Crafting queue tick ──
+        // Only active (non-pending) entries tick. When an active one finishes
+        // its last item, a pending entry in the SAME building gets promoted.
         for (let i = s.craftingQueue.length - 1; i >= 0; i--) {
           const craft = s.craftingQueue[i];
+          if (craft.pending) continue;
           craft.remaining -= elapsedSeconds;
           if (craft.remaining <= 0) {
             const recipe = CRAFTING_RECIPES.find((r) => r.id === craft.recipeId);
+            let completedBuilding: string | null = null;
             if (recipe) {
               const res = recipe.produces.resource;
               const amt = recipe.produces.amount;
@@ -1975,6 +1979,7 @@ export function GameProvider(props: ParentProps) {
                 craft.remaining = recipe.craftTime;
                 craft.quantity = remaining;
               } else {
+                completedBuilding = recipe.building;
                 s.craftingQueue.splice(i, 1);
               }
             } else {
@@ -1991,10 +1996,28 @@ export function GameProvider(props: ParentProps) {
                   craft.remaining = alchRecipe.craftTime;
                   craft.quantity = remaining;
                 } else {
+                  completedBuilding = "alchemy_lab";
                   s.craftingQueue.splice(i, 1);
                 }
               } else {
                 s.craftingQueue.splice(i, 1);
+              }
+            }
+            // Promote the next pending entry in the same building (if any)
+            if (completedBuilding) {
+              const nextPending = s.craftingQueue.find((c) => {
+                if (!c.pending) return false;
+                const r = CRAFTING_RECIPES.find((cr) => cr.id === c.recipeId);
+                if (r) return r.building === completedBuilding;
+                // Alchemy recipes share a single "alchemy_lab" slot pool
+                return completedBuilding === "alchemy_lab" && ALCHEMY_RECIPES.some((ar) => ar.id === c.recipeId);
+              });
+              if (nextPending) {
+                nextPending.pending = false;
+                // Reset the timer now that it's starting
+                const r = CRAFTING_RECIPES.find((cr) => cr.id === nextPending.recipeId)
+                  ?? (ALCHEMY_RECIPES.find((ar) => ar.id === nextPending.recipeId) as any);
+                if (r) nextPending.remaining = r.craftTime;
               }
             }
           }
@@ -2049,9 +2072,9 @@ export function GameProvider(props: ParentProps) {
         // ── Happiness calculation ──
         let happiness = 50; // baseline
 
-        // Food surplus/deficit
+        // Food surplus/deficit — deficit is punishing; surplus caps modestly
         if (netFoodRate > 0) happiness += Math.min(15, netFoodRate / 5);
-        else if (netFoodRate < 0) happiness -= Math.min(30, Math.abs(netFoodRate) / 3);
+        else if (netFoodRate < 0) happiness -= Math.min(40, Math.abs(netFoodRate) / 2);
 
         // Starvation penalty — resets to 75 when people starve, decays over 24h after food is restored
         if (getTotalFood(s.foods) <= 0) {
@@ -2068,9 +2091,8 @@ export function GameProvider(props: ParentProps) {
           if (s.resources.wood <= 0) happiness += WINTER_NO_WOOD_HAPPINESS;
         }
 
-        // Housing
-        if (s.population > maxPop) happiness -= 15; // overcrowded
-        else if (s.population > maxPop * 0.9) happiness -= 5; // nearly full
+        // Housing — only a real overcrowding penalty; no "nearly full" nag
+        if (s.population > maxPop) happiness -= 15;
 
         // Chapel
         const shrineLvl = s.buildings.find((b) => b.buildingId === "shrine")?.level ?? 0;
@@ -2120,7 +2142,8 @@ export function GameProvider(props: ParentProps) {
         }
         const foodTypes = foodSources.size;
         if (getTotalFood(s.foods) > 0) {
-          if (foodTypes <= 1) happiness -= 5;
+          if (foodTypes <= 1) happiness -= 12;
+          else if (foodTypes === 2) happiness -= 5;
           else if (foodTypes === 3) happiness += 3;
           else if (foodTypes === 4) happiness += 6;
           else if (foodTypes >= 5) happiness += 10;
@@ -2912,12 +2935,14 @@ export function GameProvider(props: ParentProps) {
         if (state.season !== "winter") return false;
         if (pen.level >= getTownHallLevel(state.buildings)) return false;
       }
-      const cost = getPenCost(pen.level);
-      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone || state.resources.gold < cost.gold) return false;
+      const base = getPenCost(pen.level);
+      // Shepherd brings her own flock — first sheep pen doesn't cost gold.
+      const goldCost = pen.animal === "sheep" && pen.level === 0 ? 0 : base.gold;
+      if (state.resources.wood < base.wood || state.resources.stone < base.stone || state.resources.gold < goldCost) return false;
       setState(produce((s) => {
-        s.resources.wood -= cost.wood;
-        s.resources.stone -= cost.stone;
-        s.resources.gold -= cost.gold;
+        s.resources.wood -= base.wood;
+        s.resources.stone -= base.stone;
+        s.resources.gold -= goldCost;
         const p = s.pens.find((p) => p.id === penId)!;
         p.upgrading = true;
         p.upgradeRemaining = getPenBuildTime(pen.level);
@@ -3178,13 +3203,9 @@ export function GameProvider(props: ParentProps) {
       // Check building tool requirements
       const missingTool = getRequiredTool(recipe, state.buildingTools?.[recipe.building] ?? []);
       if (missingTool) return false;
-      // Check max crafting slots: consumable buildings (kitchen) get +1 bonus slot
-      const activeCrafts = state.craftingQueue.filter((c) => {
-        const r = CRAFTING_RECIPES.find((cr) => cr.id === c.recipeId);
-        return r?.building === recipe.building;
-      }).length;
-      const consumableBonus = recipe.building === "kitchen" ? 1 : 0;
-      if (activeCrafts >= building.level + consumableBonus) return false;
+      // Queue is unlimited. Slots just gate how many items in this building
+      // can be PARALLEL-crafted — any overflow enters the queue as `pending`
+      // and picks up automatically when a peer finishes.
       // Check costs for total quantity
       const getResourceAmount = (res: string): number => {
         if (res === "wool") return state.wool;
@@ -3226,7 +3247,28 @@ export function GameProvider(props: ParentProps) {
             if (inv) inv.quantity -= total;
           }
         }
-        s.craftingQueue.push({ recipeId, remaining: recipe.craftTime, quantity });
+        // Stack onto the existing entry if one's already crafting this recipe,
+        // otherwise push a new queue entry — active if a slot's free in this
+        // building, pending otherwise.
+        const existing = s.craftingQueue.find((c) => c.recipeId === recipeId);
+        if (existing) {
+          existing.quantity = (existing.quantity ?? 1) + quantity;
+        } else {
+          const activeInBuilding = s.craftingQueue.filter((c) => {
+            if (c.pending) return false;
+            const r = CRAFTING_RECIPES.find((cr) => cr.id === c.recipeId);
+            return r?.building === recipe.building;
+          }).length;
+          const consumableBonus = recipe.building === "kitchen" ? 1 : 0;
+          const maxSlots = building.level + consumableBonus;
+          const pending = activeInBuilding >= maxSlots;
+          s.craftingQueue.push({
+            recipeId,
+            remaining: recipe.craftTime,
+            quantity,
+            pending,
+          });
+        }
       }));
       scheduleSave();
       return true;
@@ -3440,7 +3482,7 @@ export function GameProvider(props: ParentProps) {
       const animalFood = calcAnimalFoodConsumption(state.pens);
       const netFood = rates.food - foodCons - animalFood;
       if (netFood > 0) factors.push({ label: "Food surplus", value: Math.min(15, Math.round(netFood / 5)) });
-      else if (netFood < 0) factors.push({ label: "Food deficit", value: -Math.min(30, Math.round(Math.abs(netFood) / 3)) });
+      else if (netFood < 0) factors.push({ label: "Food deficit", value: -Math.min(40, Math.round(Math.abs(netFood) / 2)) });
       if (state.starvationPenalty > 0) {
         const val = -Math.round(state.starvationPenalty);
         factors.push({ label: getTotalFood(state.foods) <= 0 ? "Starvation" : "Famine recovery (fading)", value: val });
@@ -3448,7 +3490,6 @@ export function GameProvider(props: ParentProps) {
 
       const maxPop = calcMaxPopulation(state.buildings);
       if (state.population > maxPop) factors.push({ label: "Overcrowded", value: -15 });
-      else if (state.population > maxPop * 0.9) factors.push({ label: "Housing tight", value: -5 });
 
       const shrineLvl = state.buildings.find((b) => b.buildingId === "shrine")?.level ?? 0;
       if (shrineLvl > 0) factors.push({ label: `Shrine Lv.${shrineLvl}`, value: shrineLvl * SHRINE_HAPPINESS_PER_LEVEL });
@@ -3494,7 +3535,8 @@ export function GameProvider(props: ParentProps) {
       }
       const ft = foodSources.size;
       if (getTotalFood(state.foods) > 0) {
-        if (ft <= 1) factors.push({ label: `Monotonous diet (${ft} type)`, value: -5 });
+        if (ft <= 1) factors.push({ label: `Monotonous diet (${ft} type)`, value: -12 });
+        else if (ft === 2) factors.push({ label: `Bland diet (${ft} types)`, value: -5 });
         else if (ft === 3) factors.push({ label: `Good diet (${ft} types)`, value: 3 });
         else if (ft === 4) factors.push({ label: `Varied diet (${ft} types)`, value: 6 });
         else if (ft >= 5) factors.push({ label: `Diverse feast (${ft} types)`, value: 10 });
@@ -3836,12 +3878,6 @@ export function GameProvider(props: ParentProps) {
       // Must be a starter recipe or discovered
       if (!recipe.starterRecipe && !(state.discoveredRecipes ?? []).includes(recipeId)) return false;
 
-      // Check crafting slots: alchemy gets +1 bonus slot for consumables
-      const activeAlchemy = state.craftingQueue.filter((c) =>
-        ALCHEMY_RECIPES.some((r) => r.id === c.recipeId)
-      ).length;
-      if (activeAlchemy >= labLvl + 1) return false;
-
       // Check herb costs for the full quantity
       for (const cost of recipe.costs) {
         const have = state.herbs?.[cost.resource] ?? 0;
@@ -3853,7 +3889,17 @@ export function GameProvider(props: ParentProps) {
           if (!s.herbs) s.herbs = {};
           s.herbs[cost.resource] = (s.herbs[cost.resource] ?? 0) - cost.amount * quantity;
         }
-        s.craftingQueue.push({ recipeId, remaining: recipe.craftTime, quantity });
+        // Stack onto existing alchemy queue entry, or push new (pending if over slot cap)
+        const existing = s.craftingQueue.find((c) => c.recipeId === recipeId);
+        if (existing) {
+          existing.quantity = (existing.quantity ?? 1) + quantity;
+        } else {
+          const activeAlchemy = s.craftingQueue.filter((c) =>
+            !c.pending && ALCHEMY_RECIPES.some((r) => r.id === c.recipeId)
+          ).length;
+          const pending = activeAlchemy >= labLvl + 1;
+          s.craftingQueue.push({ recipeId, remaining: recipe.craftTime, quantity, pending });
+        }
       }));
       scheduleSave();
       return true;
@@ -3865,14 +3911,33 @@ export function GameProvider(props: ParentProps) {
       setState(produce((s) => {
         const caps = calcStorageCaps(s.buildings);
         for (const reward of mission.rewards) {
-          if (reward.resource === "astralShards") {
+          // reward.resource is typed as RewardType but the loot pipeline widens
+          // it with `as any` to include material IDs, food types, etc. — treat
+          // it as a plain string here.
+          const res = reward.resource as string;
+          if (res === "astralShards") {
             s.astralShards += reward.amount;
-          } else if (herbIds.has(reward.resource)) {
+          } else if (herbIds.has(res)) {
             if (!s.herbs) s.herbs = {};
-            s.herbs[reward.resource] = (s.herbs[reward.resource] ?? 0) + reward.amount;
-          } else {
-            const key = reward.resource as keyof typeof s.resources;
+            s.herbs[res] = (s.herbs[res] ?? 0) + reward.amount;
+          } else if (res === "gold" || res === "wood" || res === "stone") {
+            const key = res as keyof typeof s.resources;
             s.resources[key] = Math.min(caps[key], s.resources[key] + reward.amount);
+          } else if (res === "food") {
+            // Legacy generic "food" reward — credit as wheat
+            addFood(s.foods, "wheat", reward.amount, caps.food);
+          } else if (isFoodItemType(res)) {
+            addFood(s.foods, res, reward.amount, caps.food);
+          } else if (res === "wool") s.wool = Math.min(200, s.wool + reward.amount);
+          else if (res === "fiber") s.fiber = Math.min(200, s.fiber + reward.amount);
+          else if (res === "leather") s.leather = Math.min(200, s.leather + reward.amount);
+          else if (res === "iron") s.iron = Math.min(300, s.iron + reward.amount);
+          else if (res === "honey") s.honey = s.honey + reward.amount;
+          else {
+            // Material or item → add to inventory
+            const existing = s.inventory.find((i) => i.itemId === res);
+            if (existing) existing.quantity += reward.amount;
+            else s.inventory.push({ itemId: res, quantity: reward.amount });
           }
         }
         s.completedMissions.splice(index, 1);
