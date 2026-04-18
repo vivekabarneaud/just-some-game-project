@@ -1,12 +1,13 @@
-import { For, Show } from "solid-js";
+import { For, Show, type JSX } from "solid-js";
 import { A } from "@solidjs/router";
 import { useGame, CRAFTING_RECIPES, getBuildingToolsForBuilding, getRequiredTool } from "~/engine/gameState";
 import { getItemByRecipe, ARMOR_TYPE_META } from "@medieval-realm/shared/data/items";
-import { getTotalFood } from "~/data/foods";
+import { getTotalFood, isFoodItemType, getFoodCostAmount, getFoodMeta, type FoodItemType } from "~/data/foods";
 import { BUILDINGS } from "~/data/buildings";
 import Countdown from "~/components/Countdown";
 import Tooltip from "~/components/Tooltip";
 import RecipeCard from "~/components/RecipeCard";
+import FoodIcon from "~/components/FoodIcon";
 
 /** Split item description into stats and flavor text */
 function splitDescription(desc: string): { stats: string; flavor: string | null } {
@@ -33,6 +34,35 @@ interface CraftingPageProps {
 function formatResource(resource: string, buildingId: string): string {
   if (resource === "potions" && buildingId === "kitchen") return "meal";
   return resource;
+}
+
+const RESOURCE_ICON: Record<string, string> = {
+  gold: "🪙", wood: "🪵", stone: "🪨",
+  wool: "🐑", fiber: "🪻", leather: "🐄", iron: "⚒️",
+  honey: "🍯", astralShards: "🌟",
+  grain: "🌾",
+};
+
+/** Render a recipe cost with an icon — uses the FoodIcon (image-aware) for
+ *  food items, a small emoji span for other resources. */
+function renderCost(resource: string, amount: number): JSX.Element {
+  const label = (text: string) => (
+    <span style={{ display: "inline-flex", "align-items": "center", gap: "4px" }}>{text}</span>
+  );
+  if (resource === "grain") {
+    return <span style={{ display: "inline-flex", "align-items": "center", gap: "4px" }}>
+      {amount} <span style={{ "font-size": "14px" }}>🌾</span> grain
+    </span>;
+  }
+  if (isFoodItemType(resource)) {
+    const meta = getFoodMeta(resource as FoodItemType);
+    return <span style={{ display: "inline-flex", "align-items": "center", gap: "4px" }}>
+      {amount} <FoodIcon id={resource as FoodItemType} size={16} /> {meta.label.toLowerCase()}
+    </span>;
+  }
+  const icon = RESOURCE_ICON[resource];
+  if (icon) return label(`${amount} ${icon}`);
+  return label(`${amount} ${resource.replace(/_/g, " ")}`);
 }
 
 function formatTime(seconds: number): string {
@@ -133,7 +163,9 @@ export default function CraftingPage(props: CraftingPageProps) {
     if (res === "wood") return state.resources.wood;
     if (res === "stone") return state.resources.stone;
     if (res === "food") return getTotalFood(state.foods);
+    if (res === "honey") return state.honey;
     if (res === "astralShards") return state.astralShards;
+    if (res === "grain" || isFoodItemType(res)) return getFoodCostAmount(state.foods, res);
     const inv = state.inventory.find((i) => i.itemId === res);
     return inv?.quantity ?? 0;
   };
@@ -153,7 +185,14 @@ export default function CraftingPage(props: CraftingPageProps) {
     if (slotsUsed >= maxSlots) return `Queue full — upgrade ${props.buildingName} for more slots`;
     for (const cost of recipe.costs) {
       const have = getResourceAmount(cost.resource);
-      if (have < cost.amount * qty) return `Not enough ${cost.resource.replace(/_/g, " ")}`;
+      if (have < cost.amount * qty) {
+        if (cost.resource === "grain") return "Not enough grain (wheat or barley)";
+        if (isFoodItemType(cost.resource)) {
+          const meta = getFoodMeta(cost.resource as FoodItemType);
+          return `Not enough ${meta.label.toLowerCase()}`;
+        }
+        return `Not enough ${cost.resource.replace(/_/g, " ")}`;
+      }
     }
     return null;
   };
@@ -319,7 +358,7 @@ export default function CraftingPage(props: CraftingPageProps) {
                       title={recipe.name}
                       subtitle={`${formatTime(recipe.craftTime)} · +${recipe.produces.amount}x ${formatResource(recipe.produces.resource, props.buildingId)}`}
                       info={itemInfoPanel(recipe.id, isToolLocked())}
-                      costs={<>Cost: {recipe.costs.map((c) => `${c.amount} ${c.resource}`).join(", ")}</>}
+                      costs={<>Cost: <For each={recipe.costs}>{(c, i) => <>{i() > 0 ? ", " : ""}{renderCost(c.resource, c.amount)}</>}</For></>}
                       action={
                         isToolLocked()
                           ? {
@@ -375,7 +414,7 @@ export default function CraftingPage(props: CraftingPageProps) {
                         title={recipe.name}
                         subtitle={`+${recipe.produces.amount}x ${formatResource(recipe.produces.resource, props.buildingId)}`}
                         info={itemInfoPanel(recipe.id, true)}
-                        costs={<>Cost: {recipe.costs.map((c) => `${c.amount} ${c.resource}`).join(", ")}</>}
+                        costs={<>Cost: <For each={recipe.costs}>{(c, i) => <>{i() > 0 ? ", " : ""}{renderCost(c.resource, c.amount)}</>}</For></>}
                         action={{
                           type: "locked",
                           badge: <div style={{

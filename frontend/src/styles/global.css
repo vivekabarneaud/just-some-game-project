@@ -993,6 +993,21 @@ body {
   border-top: 1px solid var(--border-color);
 }
 
+.dropdown-category-header {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-top: 8px;
+  padding-bottom: 2px;
+  border-bottom: 1px dashed var(--border-color);
+  opacity: 0.8;
+}
+
+.dropdown-category-header:first-child {
+  margin-top: 0;
+}
+
 /* Sidebar controls */
 .sidebar-controls {
   padding: 12px 20px 16px;

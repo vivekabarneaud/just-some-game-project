@@ -1,12 +1,14 @@
-import { For, Show, createSignal } from "solid-js";
+import { For, Show } from "solid-js";
 import { useGame, type PlayerField, type PlayerGarden, type PlayerPen, type PlayerHive, type PlayerOrchard } from "~/engine/gameState";
 import { CROPS, type CropId, getCrop, getFieldCost, getFieldBuildTime, getSeasonYield, getSoilMultiplier, getSoilStatus, MAX_FIELDS, FIELD_MAX_LEVEL } from "~/data/crops";
-import { VEGGIES, type VeggieId, getVeggie, getGardenCost, getGardenBuildTime, getGardenRate, isGardenActive, MAX_GARDENS, GARDEN_MAX_LEVEL } from "~/data/gardens";
-import { ANIMALS, type AnimalId, getAnimal, getPenCost, getPenBuildTime, getPenProduction, MAX_PENS, PEN_MAX_LEVEL } from "@medieval-realm/shared/data/livestock";
-import { getHiveCost, getHiveBuildTime, getHoneyRate, MAX_HIVES, HIVE_MAX_LEVEL, APIARY_IMAGE } from "~/data/apiary";
-import { FRUITS, type FruitId, getFruit, getOrchardCost, getOrchardBuildTime, getOrchardRate, getOrchardStatus, isOrchardActive, MAX_ORCHARDS, ORCHARD_MAX_LEVEL } from "~/data/orchards";
+import { getVeggie, getGardenCost, getGardenBuildTime, getGardenRate, getSeedCost, canPlantVeggie, isVeggieProducing, MAX_GARDENS, GARDEN_MAX_LEVEL } from "~/data/gardens";
+import { getAnimal, getPenCost, getPenBuildTime, getPenProduction, PEN_MAX_LEVEL } from "@medieval-realm/shared/data/livestock";
+import { ANIMAL_FEED, FEED_CATEGORY_ICON, FEED_CATEGORY_LABEL, GRAZING_PER_FIELD, isGrazer } from "~/data/animalFeed";
+import { getHiveCost, getHiveBuildTime, getHoneyRate, HIVE_MAX_LEVEL, APIARY_IMAGE } from "~/data/apiary";
+import { getFruit, getOrchardCost, getOrchardBuildTime, getOrchardRate, getOrchardStatus, isOrchardActive, ORCHARD_MAX_LEVEL } from "~/data/orchards";
 import { SEASON_META } from "~/data/seasons";
 import Countdown from "~/components/Countdown";
+import { UpgradeIndicator } from "~/components/UpgradeIndicator";
 
 function formatTime(seconds: number): string {
   if (seconds < 60) return `${seconds}s`;
@@ -118,17 +120,38 @@ function FieldCard(props: { field: PlayerField }) {
           the level display is moved below the plant picker so the prompt leads
           the card and the metadata follows. */}
       <Show when={bannerImage()} fallback={
-        <div style={{ "margin-bottom": "4px" }}>
+        <div style={{ "margin-bottom": "4px", position: "relative" }}>
           <div class="building-card-title">{cardTitle()}</div>
+          <Show when={isEmpty() && !props.field.upgrading && state.season === "winter" && props.field.level < FIELD_MAX_LEVEL && upgradeCost()}>
+            <UpgradeIndicator
+              level={props.field.level}
+              canAct={canUpgrade()}
+              costTip={`🪵 ${upgradeCost()!.wood} 🪨 ${upgradeCost()!.stone} · ${formatTime(getFieldBuildTime(props.field.level))}`}
+              blockedReason={upgradeBlockedReason()}
+              onClick={() => actions.upgradeField(props.field.id)}
+            />
+          </Show>
         </div>
       }>
         <div class="building-card-image">
           <img src={bannerImage()} alt="" loading="lazy" />
-          <div class="building-card-image-overlay">
-            <div class="building-card-title">{cardTitle()}</div>
-            <div class="building-card-level">
-              {props.field.level === 0 ? "Building..." : `Level ${props.field.level} / ${effectiveMax()}`}
+          <div class="building-card-image-overlay" style={{ display: "flex", "justify-content": "space-between", "align-items": "flex-end" }}>
+            <div>
+              <div class="building-card-title">{cardTitle()}</div>
+              <div class="building-card-level">
+                {props.field.level === 0 ? "Building..." : `Level ${props.field.level} / ${effectiveMax()}`}
+              </div>
             </div>
+            <Show when={isEmpty() && !props.field.upgrading && state.season === "winter" && props.field.level < FIELD_MAX_LEVEL && upgradeCost()}>
+              <UpgradeIndicator
+                level={props.field.level}
+                canAct={canUpgrade()}
+                costTip={`🪵 ${upgradeCost()!.wood} 🪨 ${upgradeCost()!.stone} · ${formatTime(getFieldBuildTime(props.field.level))}`}
+                blockedReason={upgradeBlockedReason()}
+                onClick={() => actions.upgradeField(props.field.id)}
+                inOverlay
+              />
+            </Show>
           </div>
         </div>
       </Show>
@@ -260,25 +283,6 @@ function FieldCard(props: { field: PlayerField }) {
         </Show>
       </Show>
 
-      {/* Upgrade — empty fields only, winter only (enforced in canUpgrade) */}
-      {/* Upgrade row — winter only, where it's actually actionable. Skipped
-          entirely the rest of the year so the card stays clean. */}
-      <Show when={isEmpty() && !props.field.upgrading && state.season === "winter" && props.field.level < FIELD_MAX_LEVEL}>
-        <div class="field-card-upgrade">
-          <div class="field-upgrade-info">
-            <span class="field-upgrade-cost">🪵 {upgradeCost()!.wood} 🪨 {upgradeCost()!.stone}</span>
-            <span class="field-upgrade-time">{formatTime(getFieldBuildTime(props.field.level))}</span>
-          </div>
-          <button
-            class="field-upgrade-btn"
-            disabled={!canUpgrade()}
-            title={canUpgrade() ? "" : upgradeBlockedReason()}
-            onClick={() => actions.upgradeField(props.field.id)}
-          >
-            Upgrade
-          </button>
-        </div>
-      </Show>
     </div>
   );
 }
@@ -297,19 +301,22 @@ function FieldCard(props: { field: PlayerField }) {
 function EmptyFieldSlot(props: { canBuild: boolean; isWinter: boolean; onBuild: () => void }) {
   const cost = getFieldCost(0);
   const time = getFieldBuildTime(0);
+  const blockedReason = () => !props.canBuild ? "Not enough resources" : "";
   return (
-    <div
-      class="empty-field-slot"
-      classList={{ disabled: !props.canBuild }}
-      onClick={() => { if (props.canBuild) props.onBuild(); }}
-      title={!props.canBuild ? "Not enough resources to build yet" : "Click to build a field here"}
-    >
-      <div class="empty-field-slot-label">Unbuilt plot</div>
-      <div class="empty-field-slot-cost">
-        🪵 {cost.wood}   🪨 {cost.stone}   ⏱ {formatTime(time)}
+    <div class="building-card unbuilt-farm-card" style={{ cursor: "default", position: "relative" }}>
+      <UpgradeIndicator
+        level={0}
+        canAct={props.canBuild}
+        costTip={`🪵 ${cost.wood} 🪨 ${cost.stone} · ${formatTime(time)}`}
+        blockedReason={blockedReason()}
+        onClick={props.onBuild}
+      />
+      <div style={{ "margin-bottom": "4px" }}>
+        <div class="building-card-title">Unbuilt plot</div>
+        <div class="building-card-level not-built">Not built yet</div>
       </div>
-      <div class="empty-field-slot-hint">
-        {props.canBuild ? "Click to build" : "Not enough resources"}
+      <div style={{ "font-size": "0.75rem", color: "var(--text-muted)" }}>
+        A fresh plot, waiting for a crop. Fields are planted in spring.
       </div>
     </div>
   );
@@ -320,279 +327,670 @@ function EmptyFieldSlot(props: { canBuild: boolean; isWinter: boolean; onBuild: 
 function GardenCard(props: { garden: PlayerGarden }) {
   const { actions, state } = useGame();
   const veggie = () => getVeggie(props.garden.veggie);
-  const rate = () => props.garden.level > 0 ? getGardenRate(veggie(), props.garden.level) : 0;
-  const active = () => props.garden.level > 0 && isGardenActive(veggie(), state.season);
-  const cost = () => props.garden.level < GARDEN_MAX_LEVEL ? getGardenCost(props.garden.level) : null;
-  const canUpgrade = () => {
-    if (props.garden.upgrading || props.garden.level >= GARDEN_MAX_LEVEL) return false;
-    const c = cost();
-    return c ? state.resources.wood >= c.wood && state.resources.stone >= c.stone : false;
+  const effectiveMax = () => Math.min(actions.getTownHallLevel(), GARDEN_MAX_LEVEL);
+
+  // ── Unbuilt (level 0) path: dashed placeholder, click to build. Same
+  //    pattern as EmptyFieldSlot but specific to a pre-attributed veggie. ──
+  const isUnbuilt = () => props.garden.level === 0 && !props.garden.upgrading;
+  const buildCost = () => getGardenCost(0);
+  const canBuild = () => {
+    const c = buildCost();
+    return state.resources.wood >= c.wood && state.resources.stone >= c.stone;
   };
 
+  // ── Built path: level >= 1. Plant/produce cycle driven by the veggie. ──
+  const planted = () => props.garden.plantedYear === state.year;
+  const inPlantSeason = () => canPlantVeggie(veggie(), state.season);
+  const producing = () => planted() && isVeggieProducing(veggie(), state.season);
+  const rate = () => getGardenRate(veggie(), Math.max(1, props.garden.level));
+  const seedCost = () => getSeedCost(veggie(), Math.max(1, props.garden.level));
+  const canPlant = () =>
+    props.garden.level > 0 &&
+    !props.garden.upgrading &&
+    inPlantSeason() &&
+    !planted() &&
+    state.resources.gold >= seedCost();
+  const plantBlockedReason = () => {
+    if (props.garden.level === 0) return "Build the garden first";
+    if (props.garden.upgrading) return "Garden is being built";
+    if (!inPlantSeason()) return `${veggie().name} are planted in ${veggie().plantSeasons.join(", ")}`;
+    if (planted()) return "Already planted this cycle";
+    if (state.resources.gold < seedCost()) return `Need ${seedCost()} gold for seeds`;
+    return "";
+  };
+
+  const upgradeCost = () => props.garden.level < GARDEN_MAX_LEVEL ? getGardenCost(props.garden.level) : null;
+  const canUpgrade = () => {
+    if (props.garden.upgrading || props.garden.level >= GARDEN_MAX_LEVEL) return false;
+    if (props.garden.level >= 1 && state.season !== "winter") return false;
+    if (props.garden.level >= effectiveMax()) return false;
+    const c = upgradeCost();
+    return c ? state.resources.wood >= c.wood && state.resources.stone >= c.stone : false;
+  };
+  const upgradeBlockedReason = () => {
+    if (props.garden.level >= GARDEN_MAX_LEVEL) return "Max level reached";
+    if (props.garden.level >= effectiveMax()) return `Upgrade Town Hall to lvl ${actions.getTownHallLevel() + 1}`;
+    if (props.garden.upgrading) return "Already upgrading…";
+    if (props.garden.level >= 1 && state.season !== "winter") return "Gardens can only be upgraded in winter";
+    const c = upgradeCost();
+    if (c && (state.resources.wood < c.wood || state.resources.stone < c.stone)) return "Not enough resources";
+    return "";
+  };
+
+  // ── Status line ─────────────────────────────────────────────────────
+  const statusLine = (): { label: string; color: string } | null => {
+    if (producing()) return { label: `Producing: +${rate()}/h ${veggie().name.toLowerCase()}`, color: "var(--accent-green)" };
+    if (planted() && !isVeggieProducing(veggie(), state.season)) {
+      return { label: "Planted — waiting to produce", color: "var(--text-secondary)" };
+    }
+    if (props.garden.level > 0 && inPlantSeason() && !planted()) {
+      return { label: `Time to plant (${seedCost()}g seeds)`, color: "var(--accent-gold)" };
+    }
+    if (props.garden.level > 0) return { label: "Dormant — waiting for its season", color: "var(--text-muted)" };
+    return null;
+  };
+
+  const cycleHint = () =>
+    `Plant in ${veggie().plantSeasons.map((s) => SEASON_META[s].icon).join(" ")} · Produces in ${veggie().produceSeasons.map((s) => SEASON_META[s].icon).join(" ")}`;
+
+  const showUpgradeIndicator = () =>
+    !props.garden.upgrading &&
+    props.garden.level < GARDEN_MAX_LEVEL &&
+    (props.garden.level === 0 || state.season === "winter");
+  const indicatorCostTip = () => {
+    const c = props.garden.level === 0 ? buildCost() : upgradeCost();
+    return c ? `🪵 ${c.wood} 🪨 ${c.stone} · ${formatTime(getGardenBuildTime(props.garden.level))}` : "";
+  };
+  const indicatorBlockedReason = () => props.garden.level === 0
+    ? (canBuild() ? "" : "Not enough resources")
+    : upgradeBlockedReason();
+  const indicatorCanAct = () => props.garden.level === 0 ? canBuild() : canUpgrade();
+
   return (
-    <FarmCard
-      icon={veggie().icon}
-      image={veggie().image}
-      title={`${veggie().name} Garden`}
-      level={props.garden.level}
-      maxLevel={GARDEN_MAX_LEVEL}
-      upgrading={props.garden.upgrading}
-      upgradeRemaining={props.garden.upgradeRemaining}
-      buildLabel="Planting"
-      statusLine={active() ? `Producing +${rate()}/h` : `Dormant (grows in ${veggie().activeSeasons.join(", ")})`}
-      statusColor={active() ? "var(--accent-green)" : "var(--text-muted)"}
-      detailLine={`Seasons: ${veggie().activeSeasons.map((s) => SEASON_META[s].icon).join(" ")}`}
-      upgradeCost={cost() ? `🪵 ${cost()!.wood} 🪨 ${cost()!.stone}` : undefined}
-      upgradeTime={cost() ? formatTime(getGardenBuildTime(props.garden.level)) : undefined}
-      upgradeYield={cost() ? `→ +${getGardenRate(veggie(), props.garden.level + 1)}/h` : undefined}
-      canUpgrade={canUpgrade()}
-      onUpgrade={() => actions.upgradeGarden(props.garden.id)}
-      onRemove={() => actions.removeGarden(props.garden.id)}
-      removeLabel={`Remove this ${veggie().name} garden?`}
-    />
+    <Show when={!isUnbuilt()} fallback={
+      <div class="building-card unbuilt-farm-card" style={{ cursor: "default", position: "relative" }}>
+        <Show when={veggie().image} fallback={
+          <>
+            <UpgradeIndicator
+              level={0}
+              canAct={canBuild()}
+              costTip={indicatorCostTip()}
+              blockedReason={indicatorBlockedReason()}
+              onClick={() => actions.upgradeGarden(props.garden.id)}
+            />
+            <div style={{ "margin-bottom": "4px" }}>
+              <div class="building-card-title">{veggie().name} Garden</div>
+              <div class="building-card-level not-built">Not built yet</div>
+            </div>
+          </>
+        }>
+          <div class="building-card-image">
+            {/* Dim the banner so unbuilt state reads as "placeholder" without losing the art */}
+            <img src={veggie().image} alt="" loading="lazy" style={{ filter: "brightness(0.55) saturate(0.6)" }} />
+            <div class="building-card-image-overlay" style={{ display: "flex", "justify-content": "space-between", "align-items": "flex-end" }}>
+              <div>
+                <div class="building-card-title">{veggie().name} Garden</div>
+                <div class="building-card-level not-built">Not built yet</div>
+              </div>
+              <UpgradeIndicator
+                level={0}
+                canAct={canBuild()}
+                costTip={indicatorCostTip()}
+                blockedReason={indicatorBlockedReason()}
+                onClick={() => actions.upgradeGarden(props.garden.id)}
+                inOverlay
+              />
+            </div>
+          </div>
+        </Show>
+
+        <div class="building-card-desc">{veggie().description}</div>
+        <div style={{ "font-size": "0.7rem", color: "var(--text-muted)" }}>
+          Plant in {veggie().plantSeasons.map((s) => SEASON_META[s].icon).join(" ")} · Produces in {veggie().produceSeasons.map((s) => SEASON_META[s].icon).join(" ")}
+        </div>
+      </div>
+    }>
+      <div class="building-card" classList={{ upgrading: props.garden.upgrading }} style={{ cursor: "default", position: "relative" }}>
+        <Show when={veggie().image} fallback={
+          <>
+            <Show when={showUpgradeIndicator()}>
+              <UpgradeIndicator
+                level={props.garden.level}
+                canAct={indicatorCanAct()}
+                costTip={indicatorCostTip()}
+                blockedReason={indicatorBlockedReason()}
+                onClick={() => actions.upgradeGarden(props.garden.id)}
+              />
+            </Show>
+            <div style={{ "margin-bottom": "4px" }}>
+              <div class="building-card-title">{veggie().name} Garden</div>
+              <div class="building-card-level">Level {props.garden.level} / {effectiveMax()}</div>
+            </div>
+          </>
+        }>
+          <div class="building-card-image">
+            <img src={veggie().image} alt="" loading="lazy" />
+            <div class="building-card-image-overlay" style={{ display: "flex", "justify-content": "space-between", "align-items": "flex-end" }}>
+              <div>
+                <div class="building-card-title">{veggie().name} Garden</div>
+                <div class="building-card-level">Level {props.garden.level} / {effectiveMax()}</div>
+              </div>
+              <Show when={showUpgradeIndicator()}>
+                <UpgradeIndicator
+                  level={props.garden.level}
+                  canAct={indicatorCanAct()}
+                  costTip={indicatorCostTip()}
+                  blockedReason={indicatorBlockedReason()}
+                  onClick={() => actions.upgradeGarden(props.garden.id)}
+                  inOverlay
+                />
+              </Show>
+            </div>
+          </div>
+        </Show>
+
+        <div class="building-card-desc">{veggie().description}</div>
+
+        <Show when={props.garden.upgrading && props.garden.upgradeRemaining}>
+          <div class="building-card-upgrading">
+            {props.garden.level === 0 ? "Preparing garden" : "Upgrading"} — <Countdown remainingSeconds={props.garden.upgradeRemaining!} />
+          </div>
+        </Show>
+
+        <Show when={!props.garden.upgrading && statusLine()}>
+          {(s) => <div class="building-card-production" style={{ color: s().color }}>{s().label}</div>}
+        </Show>
+
+        <Show when={!props.garden.upgrading}>
+          <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "2px" }}>
+            {cycleHint()}
+          </div>
+        </Show>
+
+        {/* Plant action — only while the garden is built and this cycle hasn't been sown yet */}
+        <Show when={!props.garden.upgrading && props.garden.level > 0 && !planted()}>
+          <button
+            class="field-upgrade-btn"
+            style={{ "margin-top": "8px", width: "100%" }}
+            disabled={!canPlant()}
+            title={canPlant() ? "" : plantBlockedReason()}
+            onClick={() => actions.plantGarden(props.garden.id)}
+          >
+            Plant seeds — {seedCost()}g
+          </button>
+        </Show>
+      </div>
+    </Show>
   );
 }
 
-// ─── Pen Card (uses FarmCard) ───────────────────────────────────
+// ─── Pen Card ────────────────────────────────────────────────────
 
 function PenCard(props: { pen: PlayerPen }) {
   const { actions, state } = useGame();
   const animal = () => getAnimal(props.pen.animal);
-  const prod = () => props.pen.level > 0 ? getPenProduction(animal(), props.pen.level) : { produced: 0, consumed: 0 };
-  const cost = () => props.pen.level < PEN_MAX_LEVEL ? getPenCost(props.pen.level) : null;
+  const effectiveMax = () => Math.min(actions.getTownHallLevel(), PEN_MAX_LEVEL);
+
+  const isUnbuilt = () => props.pen.level === 0 && !props.pen.upgrading;
+  const buildCost = () => getPenCost(0);
+  const canBuild = () => {
+    const c = buildCost();
+    return state.resources.wood >= c.wood && state.resources.stone >= c.stone && state.resources.gold >= c.gold;
+  };
+  const buildBlockedReason = () => {
+    const c = buildCost();
+    if (state.resources.wood < c.wood || state.resources.stone < c.stone || state.resources.gold < c.gold) return "Not enough resources";
+    return "";
+  };
+
+  const prod = () => props.pen.level > 0 ? getPenProduction(animal(), props.pen.level) : { produced: 0, consumed: 0, secondary: undefined as any };
+  const productionLine = () => {
+    const p = prod();
+    let line = `Producing: +${p.produced}/h ${animal().foodLabel.toLowerCase()}`;
+    if (p.secondary) line += `, +${p.secondary.amount}/h ${p.secondary.resource}`;
+    return line;
+  };
+
+  // Grazing — sheep and goats can feed off fallow fields before dipping into the pantry
+  const fallowFields = () => state.fields.filter((f) => f.level >= 1 && f.crop === null).length;
+  const grazingPerHour = () => fallowFields() * GRAZING_PER_FIELD;
+  const totalGrazerDemand = () => {
+    let d = 0;
+    for (const p of state.pens) {
+      if (p.level === 0 || !isGrazer(p.animal)) continue;
+      d += getPenProduction(getAnimal(p.animal), p.level).consumed;
+    }
+    return d;
+  };
+  const grazingForThisPen = () => {
+    if (!isGrazer(props.pen.animal) || totalGrazerDemand() === 0) return 0;
+    const share = prod().consumed / totalGrazerDemand();
+    return grazingPerHour() * share;
+  };
+  const grazingCovered = () => Math.min(prod().consumed, grazingForThisPen());
+  const pantryNeed = () => Math.max(0, prod().consumed - grazingCovered());
+
+  const feedCategoryList = () =>
+    ANIMAL_FEED[props.pen.animal]
+      .map((c) => `${FEED_CATEGORY_ICON[c]} ${FEED_CATEGORY_LABEL[c]}`)
+      .join(" · ");
+
+  const upgradeCost = () => props.pen.level < PEN_MAX_LEVEL ? getPenCost(props.pen.level) : null;
   const canUpgrade = () => {
     if (props.pen.upgrading || props.pen.level >= PEN_MAX_LEVEL) return false;
-    const c = cost();
+    if (props.pen.level >= 1 && state.season !== "winter") return false;
+    if (props.pen.level >= effectiveMax()) return false;
+    const c = upgradeCost();
     return c ? state.resources.wood >= c.wood && state.resources.stone >= c.stone && state.resources.gold >= c.gold : false;
   };
-  const statusLine = () => {
-    const p = prod();
-    let line = `+${p.produced}/h ${animal().foodLabel}`;
-    if (p.secondary) line += ` · +${p.secondary.amount}/h ${p.secondary.resource}`;
-    line += ` (eats ${p.consumed}/h)`;
-    return line;
-  };
-  const detailLine = () => {
-    const p = prod();
-    let line = `Net: +${p.produced - p.consumed}/h food`;
-    if (p.secondary) line += ` · +${p.secondary.amount}/h ${p.secondary.resource}`;
-    return line;
+  const upgradeBlockedReason = () => {
+    if (props.pen.level >= PEN_MAX_LEVEL) return "Max level reached";
+    if (props.pen.level >= effectiveMax()) return `Upgrade Town Hall to lvl ${actions.getTownHallLevel() + 1}`;
+    if (props.pen.upgrading) return "Already upgrading…";
+    if (props.pen.level >= 1 && state.season !== "winter") return "Pens can only be upgraded in winter";
+    const c = upgradeCost();
+    if (c && (state.resources.wood < c.wood || state.resources.stone < c.stone || state.resources.gold < c.gold)) return "Not enough resources";
+    return "";
   };
 
-  return (
-    <FarmCard
-      icon={animal().icon}
-      image={animal().image}
-      title={`${animal().name} Pen`}
-      level={props.pen.level}
-      maxLevel={PEN_MAX_LEVEL}
-      upgrading={props.pen.upgrading}
-      upgradeRemaining={props.pen.upgradeRemaining}
-      buildLabel="Building pen"
-      statusLine={statusLine()}
-      statusColor="var(--accent-green)"
-      detailLine={detailLine()}
-      detailColor="var(--accent-green)"
-      upgradeCost={cost() ? `🪵 ${cost()!.wood} 🪨 ${cost()!.stone} 🪙 ${cost()!.gold}` : undefined}
-      upgradeTime={cost() ? formatTime(getPenBuildTime(props.pen.level)) : undefined}
-      canUpgrade={canUpgrade()}
-      onUpgrade={() => actions.upgradePen(props.pen.id)}
-      onRemove={() => actions.removePen(props.pen.id)}
-      removeLabel={`Remove this ${animal().name} pen?`}
-    />
-  );
-}
+  const showUpgradeIndicator = () =>
+    !props.pen.upgrading &&
+    props.pen.level < PEN_MAX_LEVEL &&
+    (props.pen.level === 0 || state.season === "winter");
+  const indicatorCostTip = () => {
+    const c = props.pen.level === 0 ? buildCost() : upgradeCost();
+    return c ? `🪵 ${c.wood} 🪨 ${c.stone} 🪙 ${c.gold} · ${formatTime(getPenBuildTime(props.pen.level))}` : "";
+  };
+  const indicatorBlockedReason = () => props.pen.level === 0 ? buildBlockedReason() : upgradeBlockedReason();
+  const indicatorCanAct = () => props.pen.level === 0 ? canBuild() : canUpgrade();
 
-// ─── Picker Component ────────────────────────────────────────────
-
-function Picker<T extends { id: string; name: string; icon: string; description: string }>(props: {
-  title: string;
-  items: T[];
-  disabled: boolean;
-  getYieldLabel: (item: T) => string;
-  onSelect: (id: string) => void;
-  onCancel: () => void;
-}) {
   return (
-    <div class="crop-picker">
-      <h3 class="crop-picker-title">{props.title}</h3>
-      <div class="crop-picker-grid">
-        <For each={props.items}>
-          {(item) => (
-            <button class="crop-option" disabled={props.disabled} onClick={() => props.onSelect(item.id)}>
-              <span class="crop-option-icon">{item.icon}</span>
-              <span class="crop-option-name">{item.name}</span>
-              <span class="crop-option-desc">{item.description}</span>
-              <span class="crop-option-yield">{props.getYieldLabel(item)}</span>
-            </button>
-          )}
-        </For>
+    <Show when={!isUnbuilt()} fallback={
+      <div class="building-card unbuilt-farm-card" style={{ cursor: "default", position: "relative" }}>
+        <Show when={animal().image} fallback={
+          <>
+            <UpgradeIndicator
+              level={0}
+              canAct={canBuild()}
+              costTip={indicatorCostTip()}
+              blockedReason={buildBlockedReason()}
+              onClick={() => actions.upgradePen(props.pen.id)}
+            />
+            <div style={{ "margin-bottom": "4px" }}>
+              <div class="building-card-title">{animal().name} Pen</div>
+              <div class="building-card-level not-built">Not built yet</div>
+            </div>
+          </>
+        }>
+          <div class="building-card-image">
+            <img src={animal().image} alt="" loading="lazy" style={{ filter: "brightness(0.55) saturate(0.6)" }} />
+            <div class="building-card-image-overlay" style={{ display: "flex", "justify-content": "space-between", "align-items": "flex-end" }}>
+              <div>
+                <div class="building-card-title">{animal().name} Pen</div>
+                <div class="building-card-level not-built">Not built yet</div>
+              </div>
+              <UpgradeIndicator
+                level={0}
+                canAct={canBuild()}
+                costTip={indicatorCostTip()}
+                blockedReason={buildBlockedReason()}
+                onClick={() => actions.upgradePen(props.pen.id)}
+                inOverlay
+              />
+            </div>
+          </div>
+        </Show>
+
+        <div class="building-card-desc">{animal().description}</div>
       </div>
-      <button class="crop-picker-cancel" onClick={props.onCancel}>Cancel</button>
-    </div>
+    }>
+      <div class="building-card" classList={{ upgrading: props.pen.upgrading }} style={{ cursor: "default", position: "relative" }}>
+        <Show when={animal().image} fallback={
+          <>
+            <Show when={showUpgradeIndicator()}>
+              <UpgradeIndicator
+                level={props.pen.level}
+                canAct={indicatorCanAct()}
+                costTip={indicatorCostTip()}
+                blockedReason={indicatorBlockedReason()}
+                onClick={() => actions.upgradePen(props.pen.id)}
+              />
+            </Show>
+            <div style={{ "margin-bottom": "4px" }}>
+              <div class="building-card-title">{animal().name} Pen</div>
+              <div class="building-card-level">Level {props.pen.level} / {effectiveMax()}</div>
+            </div>
+          </>
+        }>
+          <div class="building-card-image">
+            <img src={animal().image} alt="" loading="lazy" />
+            <div class="building-card-image-overlay" style={{ display: "flex", "justify-content": "space-between", "align-items": "flex-end" }}>
+              <div>
+                <div class="building-card-title">{animal().name} Pen</div>
+                <div class="building-card-level">Level {props.pen.level} / {effectiveMax()}</div>
+              </div>
+              <Show when={showUpgradeIndicator()}>
+                <UpgradeIndicator
+                  level={props.pen.level}
+                  canAct={indicatorCanAct()}
+                  costTip={indicatorCostTip()}
+                  blockedReason={indicatorBlockedReason()}
+                  onClick={() => actions.upgradePen(props.pen.id)}
+                  inOverlay
+                />
+              </Show>
+            </div>
+          </div>
+        </Show>
+
+        <div class="building-card-desc">{animal().description}</div>
+
+        <Show when={props.pen.upgrading && props.pen.upgradeRemaining}>
+          <div class="building-card-upgrading">
+            {props.pen.level === 0 ? "Building pen" : "Upgrading"} — <Countdown remainingSeconds={props.pen.upgradeRemaining!} />
+          </div>
+        </Show>
+
+        <Show when={!props.pen.upgrading && props.pen.level > 0}>
+          <Show when={props.pen.starving}>
+            <div class="building-card-production" style={{ color: "var(--accent-red)" }}>
+              ⚠️ Starving — not producing
+            </div>
+          </Show>
+          <Show when={!props.pen.starving}>
+            <div class="building-card-production">{productionLine()}</div>
+          </Show>
+          <Show when={grazingCovered() > 0}>
+            <div class="building-card-production" style={{ color: "var(--accent-green)" }}>
+              🌿 Grazing: covers -{grazingCovered().toFixed(1)}/h food
+            </div>
+          </Show>
+          <Show when={pantryNeed() > 0}>
+            <div class="building-card-production" style={{ color: "var(--accent-red)" }}>
+              Eats: -{pantryNeed().toFixed(1)}/h · {feedCategoryList()}
+            </div>
+          </Show>
+          <Show when={pantryNeed() === 0 && grazingCovered() > 0 && grazingCovered() >= prod().consumed}>
+            <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "2px" }}>
+              Fully covered by grazing — no pantry cost
+            </div>
+          </Show>
+        </Show>
+      </div>
+    </Show>
   );
 }
 
-// ─── Generic Farm Card ───────────────────────────────────────────
-// Shared component for gardens, pens, hives, and orchards.
-
-interface FarmCardProps {
-  icon: string;
-  title: string;
-  level: number;
-  maxLevel: number;
-  upgrading: boolean;
-  upgradeRemaining?: number;
-  buildLabel?: string;        // "Building pen", "Planting", etc.
-  /** Status line when built and not upgrading */
-  statusLine?: string;
-  statusColor?: string;
-  /** Secondary info line (e.g., seasons, net food) */
-  detailLine?: string;
-  detailColor?: string;
-  /** Upgrade cost display */
-  upgradeCost?: string;
-  upgradeTime?: string;
-  upgradeYield?: string;      // e.g., "→ +12/h"
-  canUpgrade: boolean;
-  onUpgrade: () => void;
-  onRemove: () => void;
-  removeLabel?: string;
-  /** Optional banner image shown at the top of the card. */
-  image?: string;
-}
-
-function FarmCard(props: FarmCardProps) {
-  return (
-    <div
-      class="building-card"
-      classList={{ upgrading: props.upgrading }}
-      style={{ cursor: "default" }}
-    >
-      <Show when={props.image} fallback={
-        <div class="building-card-header">
-          <span class="building-card-icon">{props.icon}</span>
-          <div>
-            <div class="building-card-title">{props.title}</div>
-            <div class="building-card-level">
-              {props.level === 0 ? (props.buildLabel ?? "Building...") : `Level ${props.level} / ${props.maxLevel}`}
-            </div>
-          </div>
-        </div>
-      }>
-        <div class="building-card-image">
-          <img src={props.image} alt="" loading="lazy" />
-          <div class="building-card-image-overlay">
-            <div class="building-card-title">{props.title}</div>
-            <div class="building-card-level">
-              {props.level === 0 ? (props.buildLabel ?? "Building...") : `Level ${props.level} / ${props.maxLevel}`}
-            </div>
-          </div>
-        </div>
-      </Show>
-      <Show when={props.upgrading && props.upgradeRemaining !== undefined}>
-        <div class="field-card-status upgrading-status">
-          {props.level === 0 ? (props.buildLabel ?? "Building") : "Upgrading"} — <Countdown remainingSeconds={props.upgradeRemaining!} />
-        </div>
-      </Show>
-      <Show when={!props.upgrading && props.level > 0 && props.statusLine}>
-        <div class="field-card-status" style={{ color: props.statusColor ?? "var(--text-secondary)" }}>
-          {props.statusLine}
-        </div>
-      </Show>
-      <Show when={!props.upgrading && props.level > 0 && props.detailLine}>
-        <div class="field-card-harvest" style={{ "font-size": "0.75rem", color: props.detailColor ?? "var(--text-muted)" }}>
-          {props.detailLine}
-        </div>
-      </Show>
-      <Show when={!props.upgrading && props.level > 0 && props.level < props.maxLevel && props.upgradeCost}>
-        <div class="field-card-upgrade">
-          <div class="field-upgrade-info">
-            <span class="field-upgrade-cost">{props.upgradeCost}</span>
-            <Show when={props.upgradeTime}><span class="field-upgrade-time">{props.upgradeTime}</span></Show>
-            <Show when={props.upgradeYield}><span class="field-upgrade-yield">{props.upgradeYield}</span></Show>
-          </div>
-          <button class="field-upgrade-btn" disabled={!props.canUpgrade} onClick={props.onUpgrade}>Upgrade</button>
-        </div>
-      </Show>
-      <Show when={!props.upgrading}>
-        <button class="field-remove-btn" onClick={() => { if (confirm(props.removeLabel ?? "Remove this?")) props.onRemove(); }}>Remove</button>
-      </Show>
-    </div>
-  );
-}
-
-// ─── Hive Card (uses FarmCard) ──────────────────────────────────
+// ─── Hive Card ───────────────────────────────────────────────────
 
 function HiveCard(props: { hive: PlayerHive }) {
   const { actions, state } = useGame();
-  const honeyRate = () => props.hive.level > 0 ? getHoneyRate(props.hive.level, state.season) : 0;
-  const cost = () => props.hive.level < HIVE_MAX_LEVEL ? getHiveCost(props.hive.level) : null;
-  const canUpgrade = () => {
-    const c = cost();
-    if (!c || props.hive.upgrading) return false;
+  const effectiveMax = () => Math.min(actions.getTownHallLevel(), HIVE_MAX_LEVEL);
+
+  const isUnbuilt = () => props.hive.level === 0 && !props.hive.upgrading;
+  const buildCost = () => getHiveCost(0);
+  const canBuild = () => {
+    const c = buildCost();
     return state.resources.wood >= c.wood && state.resources.stone >= c.stone && state.resources.gold >= c.gold;
   };
+  const buildBlockedReason = () => {
+    const c = buildCost();
+    if (state.resources.wood < c.wood || state.resources.stone < c.stone || state.resources.gold < c.gold) return "Not enough resources";
+    return "";
+  };
+
+  const honeyRate = () => props.hive.level > 0 ? getHoneyRate(props.hive.level, state.season) : 0;
   const isDormant = () => props.hive.level > 0 && !props.hive.upgrading && honeyRate() === 0;
 
+  const upgradeCost = () => props.hive.level < HIVE_MAX_LEVEL ? getHiveCost(props.hive.level) : null;
+  const canUpgrade = () => {
+    if (props.hive.upgrading || props.hive.level >= HIVE_MAX_LEVEL) return false;
+    if (props.hive.level >= 1 && state.season !== "winter") return false;
+    if (props.hive.level >= effectiveMax()) return false;
+    const c = upgradeCost();
+    return c ? state.resources.wood >= c.wood && state.resources.stone >= c.stone && state.resources.gold >= c.gold : false;
+  };
+  const upgradeBlockedReason = () => {
+    if (props.hive.level >= HIVE_MAX_LEVEL) return "Max level reached";
+    if (props.hive.level >= effectiveMax()) return `Upgrade Town Hall to lvl ${actions.getTownHallLevel() + 1}`;
+    if (props.hive.upgrading) return "Already upgrading…";
+    if (props.hive.level >= 1 && state.season !== "winter") return "Hives can only be upgraded in winter";
+    const c = upgradeCost();
+    if (c && (state.resources.wood < c.wood || state.resources.stone < c.stone || state.resources.gold < c.gold)) return "Not enough resources";
+    return "";
+  };
+
+  const showUpgradeIndicator = () =>
+    !props.hive.upgrading &&
+    props.hive.level < HIVE_MAX_LEVEL &&
+    (props.hive.level === 0 || state.season === "winter");
+  const indicatorCostTip = () => {
+    const c = props.hive.level === 0 ? buildCost() : upgradeCost();
+    return c ? `🪵 ${c.wood} 🪨 ${c.stone} 🪙 ${c.gold} · ${formatTime(getHiveBuildTime(props.hive.level))}` : "";
+  };
+  const indicatorBlockedReason = () => props.hive.level === 0 ? buildBlockedReason() : upgradeBlockedReason();
+  const indicatorCanAct = () => props.hive.level === 0 ? canBuild() : canUpgrade();
+
   return (
-    <FarmCard
-      icon="🐝"
-      image={APIARY_IMAGE}
-      title="Beehive"
-      level={props.hive.level}
-      maxLevel={HIVE_MAX_LEVEL}
-      upgrading={props.hive.upgrading}
-      upgradeRemaining={props.hive.upgradeRemaining}
-      buildLabel="Building hive"
-      statusLine={isDormant() ? "❄️ Dormant (winter)" : `🍯 +${honeyRate()}/h honey`}
-      statusColor={isDormant() ? "var(--text-muted)" : "var(--accent-gold)"}
-      upgradeCost={cost() ? `🪵 ${cost()!.wood} 🪨 ${cost()!.stone} 🪙 ${cost()!.gold}` : undefined}
-      upgradeTime={cost() ? formatTime(getHiveBuildTime(props.hive.level)) : undefined}
-      canUpgrade={canUpgrade()}
-      onUpgrade={() => actions.upgradeHive(props.hive.id)}
-      onRemove={() => actions.removeHive(props.hive.id)}
-      removeLabel="Remove this beehive?"
-    />
+    <Show when={!isUnbuilt()} fallback={
+      <div class="building-card unbuilt-farm-card" style={{ cursor: "default", position: "relative" }}>
+        <div class="building-card-image">
+          <img src={APIARY_IMAGE} alt="" loading="lazy" style={{ filter: "brightness(0.55) saturate(0.6)" }} />
+          <div class="building-card-image-overlay" style={{ display: "flex", "justify-content": "space-between", "align-items": "flex-end" }}>
+            <div>
+              <div class="building-card-title">Beehive</div>
+              <div class="building-card-level not-built">Not built yet</div>
+            </div>
+            <UpgradeIndicator
+              level={0}
+              canAct={canBuild()}
+              costTip={indicatorCostTip()}
+              blockedReason={buildBlockedReason()}
+              onClick={() => actions.upgradeHive(props.hive.id)}
+              inOverlay
+            />
+          </div>
+        </div>
+
+        <div class="building-card-desc">
+          A simple wooden hive. Bees produce honey in warm months and hibernate through winter.
+        </div>
+      </div>
+    }>
+      <div class="building-card" classList={{ upgrading: props.hive.upgrading }} style={{ cursor: "default", position: "relative" }}>
+        <div class="building-card-image">
+          <img src={APIARY_IMAGE} alt="" loading="lazy" />
+          <div class="building-card-image-overlay" style={{ display: "flex", "justify-content": "space-between", "align-items": "flex-end" }}>
+            <div>
+              <div class="building-card-title">Beehive</div>
+              <div class="building-card-level">Level {props.hive.level} / {effectiveMax()}</div>
+            </div>
+            <Show when={showUpgradeIndicator()}>
+              <UpgradeIndicator
+                level={props.hive.level}
+                canAct={indicatorCanAct()}
+                costTip={indicatorCostTip()}
+                blockedReason={indicatorBlockedReason()}
+                onClick={() => actions.upgradeHive(props.hive.id)}
+                inOverlay
+              />
+            </Show>
+          </div>
+        </div>
+
+        <div class="building-card-desc">
+          A simple wooden hive. Bees produce honey in warm months and hibernate through winter.
+        </div>
+
+        <Show when={props.hive.upgrading && props.hive.upgradeRemaining}>
+          <div class="building-card-upgrading">
+            {props.hive.level === 0 ? "Building hive" : "Upgrading"} — <Countdown remainingSeconds={props.hive.upgradeRemaining!} />
+          </div>
+        </Show>
+
+        <Show when={!props.hive.upgrading && props.hive.level > 0}>
+          <div class="building-card-production" style={{ color: isDormant() ? "var(--text-muted)" : "var(--accent-gold)" }}>
+            {isDormant() ? "Dormant — no honey until spring" : `Producing: +${honeyRate()}/h honey`}
+          </div>
+        </Show>
+      </div>
+    </Show>
   );
 }
 
-// ─── Orchard Card (uses FarmCard) ───────────────────────────────
+// ─── Orchard Card ────────────────────────────────────────────────
 
 function OrchardCard(props: { orchard: PlayerOrchard }) {
   const { actions, state } = useGame();
   const fruitDef = () => getFruit(props.orchard.fruit);
+  const effectiveMax = () => Math.min(actions.getTownHallLevel(), ORCHARD_MAX_LEVEL);
+
+  const isUnbuilt = () => props.orchard.level === 0 && !props.orchard.upgrading;
+  const buildCost = () => getOrchardCost(0);
+  const canBuild = () => {
+    const c = buildCost();
+    return state.resources.wood >= c.wood && state.resources.stone >= c.stone && state.resources.gold >= c.gold;
+  };
+  const buildBlockedReason = () => {
+    const c = buildCost();
+    if (state.resources.wood < c.wood || state.resources.stone < c.stone || state.resources.gold < c.gold) return "Not enough resources";
+    return "";
+  };
+
   const rate = () => props.orchard.level > 0 && props.orchard.mature && isOrchardActive(fruitDef(), state.season)
     ? getOrchardRate(fruitDef(), props.orchard.level) : 0;
   const status = () => props.orchard.level > 0 && !props.orchard.upgrading
     ? getOrchardStatus(fruitDef(), state.season, props.orchard.mature, props.orchard.seasonsGrown) : "";
-  const cost = () => props.orchard.level < ORCHARD_MAX_LEVEL ? getOrchardCost(props.orchard.level) : null;
+
+  const upgradeCost = () => props.orchard.level < ORCHARD_MAX_LEVEL ? getOrchardCost(props.orchard.level) : null;
   const canUpgrade = () => {
-    const c = cost();
-    if (!c || props.orchard.upgrading) return false;
-    return state.resources.wood >= c.wood && state.resources.stone >= c.stone && state.resources.gold >= c.gold;
+    if (props.orchard.upgrading || props.orchard.level >= ORCHARD_MAX_LEVEL) return false;
+    if (props.orchard.level >= 1 && state.season !== "winter") return false;
+    if (props.orchard.level >= effectiveMax()) return false;
+    const c = upgradeCost();
+    return c ? state.resources.wood >= c.wood && state.resources.stone >= c.stone && state.resources.gold >= c.gold : false;
+  };
+  const upgradeBlockedReason = () => {
+    if (props.orchard.level >= ORCHARD_MAX_LEVEL) return "Max level reached";
+    if (props.orchard.level >= effectiveMax()) return `Upgrade Town Hall to lvl ${actions.getTownHallLevel() + 1}`;
+    if (props.orchard.upgrading) return "Already upgrading…";
+    if (props.orchard.level >= 1 && state.season !== "winter") return "Orchards can only be upgraded in winter";
+    const c = upgradeCost();
+    if (c && (state.resources.wood < c.wood || state.resources.stone < c.stone || state.resources.gold < c.gold)) return "Not enough resources";
+    return "";
   };
 
+  const showUpgradeIndicator = () =>
+    !props.orchard.upgrading &&
+    props.orchard.level < ORCHARD_MAX_LEVEL &&
+    (props.orchard.level === 0 || state.season === "winter");
+  const indicatorCostTip = () => {
+    const c = props.orchard.level === 0 ? buildCost() : upgradeCost();
+    return c ? `🪵 ${c.wood} 🪨 ${c.stone} 🪙 ${c.gold} · ${formatTime(getOrchardBuildTime(props.orchard.level))}` : "";
+  };
+  const indicatorBlockedReason = () => props.orchard.level === 0 ? buildBlockedReason() : upgradeBlockedReason();
+  const indicatorCanAct = () => props.orchard.level === 0 ? canBuild() : canUpgrade();
+
   return (
-    <FarmCard
-      icon={fruitDef().icon}
-      image={fruitDef().image}
-      title={fruitDef().name}
-      level={props.orchard.level}
-      maxLevel={ORCHARD_MAX_LEVEL}
-      upgrading={props.orchard.upgrading}
-      upgradeRemaining={props.orchard.upgradeRemaining}
-      buildLabel="Planting"
-      statusLine={rate() > 0 ? `🍎 +${rate()}/h fruit` : status()}
-      statusColor={rate() > 0 ? "var(--accent-green)" : "var(--text-muted)"}
-      detailLine={props.orchard.level > 0 && !props.orchard.upgrading ? `Harvests: ${fruitDef().harvestSeasons.map((s) => SEASON_META[s].icon).join(" ")}` : undefined}
-      upgradeCost={cost() ? `🪵 ${cost()!.wood} 🪨 ${cost()!.stone} 🪙 ${cost()!.gold}` : undefined}
-      upgradeTime={cost() ? formatTime(getOrchardBuildTime(props.orchard.level)) : undefined}
-      canUpgrade={canUpgrade()}
-      onUpgrade={() => actions.upgradeOrchard(props.orchard.id)}
-      onRemove={() => actions.removeOrchard(props.orchard.id)}
-      removeLabel={`Remove this ${fruitDef().name} orchard?`}
-    />
+    <Show when={!isUnbuilt()} fallback={
+      <div class="building-card unbuilt-farm-card" style={{ cursor: "default", position: "relative" }}>
+        <Show when={fruitDef().image} fallback={
+          <>
+            <UpgradeIndicator
+              level={0}
+              canAct={canBuild()}
+              costTip={indicatorCostTip()}
+              blockedReason={buildBlockedReason()}
+              onClick={() => actions.upgradeOrchard(props.orchard.id)}
+            />
+            <div style={{ "margin-bottom": "4px" }}>
+              <div class="building-card-title">{fruitDef().name}</div>
+              <div class="building-card-level not-built">Not built yet</div>
+            </div>
+          </>
+        }>
+          <div class="building-card-image">
+            <img src={fruitDef().image} alt="" loading="lazy" style={{ filter: "brightness(0.55) saturate(0.6)" }} />
+            <div class="building-card-image-overlay" style={{ display: "flex", "justify-content": "space-between", "align-items": "flex-end" }}>
+              <div>
+                <div class="building-card-title">{fruitDef().name}</div>
+                <div class="building-card-level not-built">Not built yet</div>
+              </div>
+              <UpgradeIndicator
+                level={0}
+                canAct={canBuild()}
+                costTip={indicatorCostTip()}
+                blockedReason={buildBlockedReason()}
+                onClick={() => actions.upgradeOrchard(props.orchard.id)}
+                inOverlay
+              />
+            </div>
+          </div>
+        </Show>
+
+        <div class="building-card-desc">{fruitDef().description}</div>
+        <div style={{ "font-size": "0.7rem", color: "var(--text-muted)" }}>
+          Harvests: {fruitDef().harvestSeasons.map((s) => SEASON_META[s].icon).join(" ")} · {fruitDef().maturationSeasons} seasons to mature
+        </div>
+      </div>
+    }>
+      <div class="building-card" classList={{ upgrading: props.orchard.upgrading }} style={{ cursor: "default", position: "relative" }}>
+        <Show when={fruitDef().image} fallback={
+          <>
+            <Show when={showUpgradeIndicator()}>
+              <UpgradeIndicator
+                level={props.orchard.level}
+                canAct={indicatorCanAct()}
+                costTip={indicatorCostTip()}
+                blockedReason={indicatorBlockedReason()}
+                onClick={() => actions.upgradeOrchard(props.orchard.id)}
+              />
+            </Show>
+            <div style={{ "margin-bottom": "4px" }}>
+              <div class="building-card-title">{fruitDef().name}</div>
+              <div class="building-card-level">Level {props.orchard.level} / {effectiveMax()}</div>
+            </div>
+          </>
+        }>
+          <div class="building-card-image">
+            <img src={fruitDef().image} alt="" loading="lazy" />
+            <div class="building-card-image-overlay" style={{ display: "flex", "justify-content": "space-between", "align-items": "flex-end" }}>
+              <div>
+                <div class="building-card-title">{fruitDef().name}</div>
+                <div class="building-card-level">Level {props.orchard.level} / {effectiveMax()}</div>
+              </div>
+              <Show when={showUpgradeIndicator()}>
+                <UpgradeIndicator
+                  level={props.orchard.level}
+                  canAct={indicatorCanAct()}
+                  costTip={indicatorCostTip()}
+                  blockedReason={indicatorBlockedReason()}
+                  onClick={() => actions.upgradeOrchard(props.orchard.id)}
+                  inOverlay
+                />
+              </Show>
+            </div>
+          </div>
+        </Show>
+
+        <div class="building-card-desc">{fruitDef().description}</div>
+
+        <Show when={props.orchard.upgrading && props.orchard.upgradeRemaining}>
+          <div class="building-card-upgrading">
+            {props.orchard.level === 0 ? "Planting" : "Upgrading"} — <Countdown remainingSeconds={props.orchard.upgradeRemaining!} />
+          </div>
+        </Show>
+
+        <Show when={!props.orchard.upgrading && props.orchard.level > 0}>
+          <div class="building-card-production" style={{ color: rate() > 0 ? "var(--accent-green)" : "var(--text-muted)" }}>
+            {rate() > 0 ? `Producing: +${rate()}/h fruit` : status()}
+          </div>
+          <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "2px" }}>
+            Harvests: {fruitDef().harvestSeasons.map((s) => SEASON_META[s].icon).join(" ")}
+          </div>
+        </Show>
+      </div>
+    </Show>
   );
 }
 
@@ -600,10 +998,8 @@ function OrchardCard(props: { orchard: PlayerOrchard }) {
 
 export default function Farming() {
   const { state, actions } = useGame();
-  // showFieldPicker removed — fields are built empty, crops chosen per-field in spring
-  const [showGardenPicker, setShowGardenPicker] = createSignal(false);
-  const [showPenPicker, setShowPenPicker] = createSignal(false);
-  const [showOrchardPicker, setShowOrchardPicker] = createSignal(false);
+  // Fields are built empty, crops chosen per-field in spring.
+  // Gardens/pens/hives/orchards use pre-attributed slots — each card handles its own build/plant action.
 
   const seasonMeta = () => SEASON_META[state.season];
 
@@ -611,30 +1007,6 @@ export default function Farming() {
     if (state.fields.length >= MAX_FIELDS) return false;
     const cost = getFieldCost(0);
     return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone;
-  };
-
-  const canBuildGarden = () => {
-    if (state.gardens.length >= MAX_GARDENS) return false;
-    const cost = getGardenCost(0);
-    return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone;
-  };
-
-  const canBuildHive = () => {
-    if (state.hives.length >= MAX_HIVES) return false;
-    const cost = getHiveCost(0);
-    return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone && state.resources.gold >= cost.gold;
-  };
-
-  const canBuildOrchard = () => {
-    if (state.orchards.length >= MAX_ORCHARDS) return false;
-    const cost = getOrchardCost(0);
-    return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone && state.resources.gold >= cost.gold;
-  };
-
-  const canBuildPen = () => {
-    if (state.pens.length >= MAX_PENS) return false;
-    const cost = getPenCost(0);
-    return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone && state.resources.gold >= cost.gold;
   };
 
   const totalExpectedHarvest = () => {
@@ -706,6 +1078,14 @@ export default function Farming() {
           <span class="farming-stat-label">Animal Feed</span>
           <span class="farming-stat-value rate-negative">-{actions.getAnimalFoodConsumption()}/h</span>
         </div>
+        <Show when={state.fields.some((f) => f.level >= 1 && f.crop === null)}>
+          <div class="farming-stat">
+            <span class="farming-stat-label">Grazing</span>
+            <span class="farming-stat-value" style={{ color: "var(--accent-green)" }}>
+              +{state.fields.filter((f) => f.level >= 1 && f.crop === null).length * GRAZING_PER_FIELD}/h (sheep/goats)
+            </span>
+          </div>
+        </Show>
       </div>
 
       <Show when={state.season === "autumn" && actions.isHarvesting()}>
@@ -716,7 +1096,7 @@ export default function Farming() {
       </Show>
 
       {/* ── Fields ── */}
-      <h2 class="farming-section-title">🌾 Fields ({state.fields.length}/{MAX_FIELDS})</h2>
+      <h2 class="farming-section-title">🌾 Fields</h2>
       <Show when={state.fields.length === 0 && state.season !== "spring"}>
         <div style={{
           padding: "8px 12px",
@@ -764,86 +1144,27 @@ export default function Farming() {
       </div>
 
       {/* ── Gardens ── */}
-      <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🥬 Gardens ({state.gardens.length}/{MAX_GARDENS})</h2>
+      <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🥬 Gardens</h2>
       <div class="fields-grid">
         <For each={state.gardens}>{(g) => <GardenCard garden={g} />}</For>
-        <Show when={state.gardens.length < MAX_GARDENS}>
-          <Show when={showGardenPicker()} fallback={
-            <button class="add-card-btn" disabled={!canBuildGarden()} onClick={() => setShowGardenPicker(true)}>
-              <span class="add-card-icon">+</span>
-              <span class="add-card-label">New Garden</span>
-              <span class="add-card-cost">🪵 {getGardenCost(0).wood} 🪨 {getGardenCost(0).stone}</span>
-            </button>
-          }>
-            <Picker title="Choose a Vegetable" items={VEGGIES} disabled={!canBuildGarden()}
-              getYieldLabel={(v) => `+${getGardenRate(v, 1)}/h (${v.activeSeasons.map((s) => SEASON_META[s].icon).join(" ")})`}
-              onSelect={(id) => { actions.buildGarden(id as VeggieId); setShowGardenPicker(false); }}
-              onCancel={() => setShowGardenPicker(false)} />
-          </Show>
-        </Show>
       </div>
 
       {/* ── Livestock ── */}
-      <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🐄 Livestock ({state.pens.length}/{MAX_PENS})</h2>
+      <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🐄 Livestock</h2>
       <div class="fields-grid">
         <For each={state.pens}>{(p) => <PenCard pen={p} />}</For>
-        <Show when={state.pens.length < MAX_PENS}>
-          <Show when={showPenPicker()} fallback={
-            <button class="add-card-btn" disabled={!canBuildPen()} onClick={() => setShowPenPicker(true)}>
-              <span class="add-card-icon">+</span>
-              <span class="add-card-label">New Pen</span>
-              <span class="add-card-cost">🪵 {getPenCost(0).wood} 🪨 {getPenCost(0).stone} 🪙 {getPenCost(0).gold}</span>
-            </button>
-          }>
-            <Picker title="Choose an Animal" items={ANIMALS} disabled={!canBuildPen()}
-              getYieldLabel={(a) => {
-                const prod = getPenProduction(a, 1);
-                let label = `+${prod.produced}/h ${a.foodLabel}`;
-                if (prod.secondary) label += ` · +${prod.secondary.amount}/h ${prod.secondary.resource}`;
-                label += ` (eats ${prod.consumed}/h)`;
-                return label;
-              }}
-              onSelect={(id) => { actions.buildPen(id as AnimalId); setShowPenPicker(false); }}
-              onCancel={() => setShowPenPicker(false)} />
-          </Show>
-        </Show>
       </div>
 
       {/* ── Apiary ── */}
-      <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🐝 Apiary ({state.hives.length}/{MAX_HIVES}) — 🍯 {Math.floor(state.honey)} honey</h2>
+      <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🐝 Apiary</h2>
       <div class="fields-grid">
         <For each={state.hives}>{(h) => <HiveCard hive={h} />}</For>
-        <Show when={state.hives.length < MAX_HIVES}>
-          <button class="add-card-btn" disabled={!canBuildHive()} onClick={() => actions.buildHive()}>
-            <span class="add-card-icon">+</span>
-            <span class="add-card-label">New Beehive</span>
-            <span class="add-card-cost">🪵 {getHiveCost(0).wood} 🪨 {getHiveCost(0).stone} 🪙 {getHiveCost(0).gold}</span>
-          </button>
-        </Show>
       </div>
 
       {/* ── Orchards ── */}
-      <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🌳 Orchards ({state.orchards.length}/{MAX_ORCHARDS}) — 🍎 {Math.floor(state.fruit)} fruit</h2>
+      <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🌳 Orchards</h2>
       <div class="fields-grid">
         <For each={state.orchards}>{(o) => <OrchardCard orchard={o} />}</For>
-        <Show when={state.orchards.length < MAX_ORCHARDS}>
-          <Show when={showOrchardPicker()} fallback={
-            <button class="add-card-btn" disabled={!canBuildOrchard()} onClick={() => setShowOrchardPicker(true)}>
-              <span class="add-card-icon">+</span>
-              <span class="add-card-label">Plant Orchard</span>
-              <span class="add-card-cost">🪵 {getOrchardCost(0).wood} 🪨 {getOrchardCost(0).stone} 🪙 {getOrchardCost(0).gold}</span>
-            </button>
-          }>
-            <Picker title="Choose Fruit Trees" items={FRUITS} disabled={!canBuildOrchard()}
-              getYieldLabel={(f) => {
-                const rate = getOrchardRate(f, 1);
-                const seasons = f.harvestSeasons.join(", ");
-                return `+${rate}/h fruit (${seasons}) — ${f.maturationSeasons} seasons to mature`;
-              }}
-              onSelect={(id) => { actions.buildOrchard(id as FruitId); setShowOrchardPicker(false); }}
-              onCancel={() => setShowOrchardPicker(false)} />
-          </Show>
-        </Show>
       </div>
     </div>
   );

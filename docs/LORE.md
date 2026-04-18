@@ -1,8 +1,8 @@
-# The World of Eldoria
+# The World of Valenheart
 
 ## The Sundering
 
-Thousands of years ago, the world of Eldoria was shaped by the **Eternal Court** — seven deities of immense power. They carved the mountains, grew the forests, filled the oceans, and lit the skies. Under their guidance, mortals built a great civilization. Kingdoms flourished, magic was studied in grand academies, and noble houses governed in the deities' names.
+Thousands of years ago, the world of Valenheart was shaped by the **Eternal Court** — seven deities of immense power. They carved the mountains, grew the forests, filled the oceans, and lit the skies. Under their guidance, mortals built a great civilization. Kingdoms flourished, magic was studied in grand academies, and noble houses governed in the deities' names.
 
 Then came **the Sundering**.
 
@@ -10,7 +10,7 @@ The seventh deity, **Netheron**, broke the Eternal Court. His argument was not w
 
 The Six opposed him. Netheron acted alone.
 
-The result was catastrophic. The land shattered. The great kingdom fell. Millions died. And the deities — all seven of them, including Netheron — were destroyed. Not killed, not banished. **Fragmented.** Their consciousness shattered into countless pieces, scattered across Eldoria, embedded in sacred places, ancient artifacts, and the living land itself.
+The result was catastrophic. The land shattered. The great kingdom fell. Millions died. And the deities — all seven of them, including Netheron — were destroyed. Not killed, not banished. **Fragmented.** Their consciousness shattered into countless pieces, scattered across Valenheart, embedded in sacred places, ancient artifacts, and the living land itself.
 
 ---
 
@@ -42,7 +42,7 @@ The Cult of the Hollow's Hierophant claims to channel Netheron's will. Whether t
 
 ## Magic — The Aether
 
-All magic in Eldoria flows from **the Aether** — the residual energy left behind when the Eternal Court shaped the world. It is not divine power. It is the echo of creation itself, woven into the stones, the rivers, the ancient trees, and the air above the Sundering scars.
+All magic in Valenheart flows from **the Aether** — the residual energy left behind when the Eternal Court shaped the world. It is not divine power. It is the echo of creation itself, woven into the stones, the rivers, the ancient trees, and the air above the Sundering scars.
 
 **Astral Shards** are crystallized Aether — the purest form of magical energy, sometimes found deep in mines or in places where the Aether is concentrated.
 
@@ -99,17 +99,17 @@ She needs agents — young, strong, capable people unbeholden to any faction tha
 
 When the Church shut down the Academy (the last institution of organized magical learning), Halldora fled with half the library. The Inquisition has been looking for her ever since. She communicates through ravens and coded messages not because she's dramatic, but because she's hunted.
 
-She is, by all accounts, the only living person who understands what Netheron actually did to break the world. Whether that knowledge can save Eldoria is another question — one she cannot answer alone.
+She is, by all accounts, the only living person who understands what Netheron actually did to break the world. Whether that knowledge can save Valenheart is another question — one she cannot answer alone.
 
 ---
 
-## The Factions of Eldoria
+## The Factions of Valenheart
 
 ### The Ashenmark Dominion
 
 **"Order through strength. Unity through faith."**
 
-The largest and oldest surviving kingdom in Eldoria, founded over five centuries ago when the Ashford dynasty united the warring successor states that had formed in the centuries after the Sundering. The Dominion has had time to build deep traditions, a complex bureaucracy, an established nobility, and the weight of genuine history. The Crown and the Church of the Radiant One grew together over these centuries — not as a cynical alliance but as a shared cultural evolution. The King rules politics and military, the Archpriest rules spiritual matters.
+The largest and oldest surviving kingdom in Valenheart, founded over five centuries ago when the Ashford dynasty united the warring successor states that had formed in the centuries after the Sundering. The Dominion has had time to build deep traditions, a complex bureaucracy, an established nobility, and the weight of genuine history. The Crown and the Church of the Radiant One grew together over these centuries — not as a cynical alliance but as a shared cultural evolution. The King rules politics and military, the Archpriest rules spiritual matters.
 
 The **Church of the Radiant One** teaches that the six deities were aspects of a single god — the Radiant One — and the Sundering was divine punishment. The Church funds hospitals and schools, but also persecutes magic users through the Inquisition.
 
@@ -127,7 +127,7 @@ The Dominion views Free Settlements as unclaimed tax revenue. Some want peaceful
 
 **"The land remembers. We listen."**
 
-A coalition of forest clans and druid circles in the northwest. Governed by the Circle of Elders. Masters of Primal magic — their healers are the best in Eldoria, their rangers can track anything.
+A coalition of forest clans and druid circles in the northwest. Governed by the Circle of Elders. Masters of Primal magic — their healers are the best in Valenheart, their rangers can track anything.
 
 They maintain an ancient network of Primal wards that slow the Wastes' spread — but maintaining these wards requires constant magic, which the Church argues makes things worse.
 
@@ -173,13 +173,13 @@ Faction alignment isn't a binary choice — your actions naturally shift reputat
 
 The Sundering's epicenter. Netheron's fragmented essence leaking uncontrolled. The ground is scarred, vegetation is blackened, the dead rise, and the boundary between life and death is thin.
 
-For thousands of years after the Sundering, the Wastes were **stable** — a fixed dead zone. Dangerous, but it didn't grow. People avoided it the way they'd avoid a volcanic crater. Common knowledge across Eldoria is that the Wastes are distant, static, and not worth worrying about.
+For thousands of years after the Sundering, the Wastes were **stable** — a fixed dead zone. Dangerous, but it didn't grow. People avoided it the way they'd avoid a volcanic crater. Common knowledge across Valenheart is that the Wastes are distant, static, and not worth worrying about.
 
 **That changed roughly 150-200 years ago.** The Wastes began to expand — slowly at first, then in unpredictable surges. Sometimes pushing far outward before partially receding. Each surge reaches a little further than the last. Each retreat doesn't pull back quite as far. Ruins and abandoned outposts dot the land north of the current boundary — remnants of the Dominion's attempt to establish a southern border when the expansion first began.
 
 **Why the Wastes started spreading is unknown.** The factions have theories:
 - **Halldora** suspects the Cult's Hollow magic rituals, practiced for roughly the same period, have been disturbing Netheron's dormant essence — like poking a sleeping body until it twitches.
-- **The Church** believes cumulative magic use across all of Eldoria reached a tipping point — too much Aether manipulation destabilized the Wastes.
+- **The Church** believes cumulative magic use across all of Valenheart reached a tipping point — too much Aether manipulation destabilized the Wastes.
 - **The Cult** claims the spreading is natural and inevitable — the Liberator's work completing itself.
 - **The Thornveil** blames deforestation — the forests were a natural Primal barrier, and centuries of logging weakened them.
 
@@ -190,7 +190,7 @@ This is the existential threat — regardless of faction politics, if the Wastes
 Deep within the Wastes, Sundering Scars produce dragon eggs — concentrations of raw Aether crystallizing into life over centuries.
 
 **Can the Wastes be healed?** Nobody knows for certain. Theories:
-- **Halldora:** Gathering and concentrating the six deities' fragments through a network of strengthened shrines might counterbalance Netheron's essence. Requires cooperation across all of Eldoria.
+- **Halldora:** Gathering and concentrating the six deities' fragments through a network of strengthened shrines might counterbalance Netheron's essence. Requires cooperation across all of Valenheart.
 - **The Thornveil:** Patient expansion of Primal wards over generations. No quick fix.
 - **The Dominion:** Military containment. Walls, garrisons, burn anything corrupted.
 - **The Cult:** Control and harness the corruption. Don't heal it — use it.
@@ -202,7 +202,7 @@ The truth is probably a combination — and the dragons might play a role nobody
 
 ## Your Story
 
-You are a Free Settler. You've claimed a patch of land in the wilds of Eldoria, lit your first campfire, and started building. The forest is dark. The nights are long. You have five citizens, a dream, and not much else.
+You are a Free Settler. You've claimed a patch of land in the wilds of Valenheart, lit your first campfire, and started building. The forest is dark. The nights are long. You have five citizens, a dream, and not much else.
 
 But the land is rich. And somewhere out there, beyond the tree line, forces older than any kingdom are stirring.
 
@@ -212,4 +212,4 @@ And if you're lucky — or unlucky — you might one day find a raven on your wi
 
 It will be signed with a single letter: **H.**
 
-The Sundering broke Eldoria. What rises from the ashes is up to you.
+The Sundering broke Valenheart. What rises from the ashes is up to you.

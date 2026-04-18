@@ -67,9 +67,12 @@ export type VeggieId = "cabbages" | "turnips" | "peas" | "squash";
 export interface PlayerGarden {
   id: string;
   veggie: VeggieId;
-  level: number;
+  level: number; // 0 = unbuilt plot, 1+ = built
   upgrading: boolean;
   upgradeRemaining?: number;
+  /** Year the garden was last sown with seeds. Null = not planted this cycle.
+   *  Cleared when the produce window closes so the player must replant. */
+  plantedYear: number | null;
 }
 
 export type AnimalId = "chickens" | "pigs" | "goats" | "sheep";
@@ -80,6 +83,8 @@ export interface PlayerPen {
   level: number;
   upgrading: boolean;
   upgradeRemaining?: number;
+  /** True when the pen couldn't cover its food need last tick — production drops to 0 until fed. */
+  starving?: boolean;
 }
 
 export interface PlayerHive {
@@ -243,7 +248,8 @@ export type GameEventType =
   | "raid_victory" | "raid_defeat" | "raid_incoming"
   | "winter_freezing"
   | "loot_drop"
-  | "trade_accepted" | "trade_delivered";
+  | "trade_accepted" | "trade_delivered"
+  | "pen_starving";
 
 export interface GameEvent {
   type: GameEventType;
@@ -263,8 +269,8 @@ export interface GameState {
   hives: PlayerHive[];
   orchards: PlayerOrchard[];
   honey: number;
-  fruit: number;
-  /** Per-type food stockpiles — total is capped by pantry */
+  /** Per-type food stockpiles — total is capped by pantry.
+   *  Orchard fruits (apples/pears/cherries) now live here as first-class foods. */
   foods: Record<string, number>;
   population: number;
   season: Season;

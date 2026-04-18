@@ -2,7 +2,8 @@ import { For, Show } from "solid-js";
 import { RESOURCES } from "~/data/resources";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { useGame } from "~/engine/gameState";
-import { FOOD_ITEMS, getTotalFood, type FoodItemType } from "~/data/foods";
+import { FOOD_ITEMS, FOOD_CATEGORIES, getTotalFood, type FoodItemType, type FoodCategoryId } from "~/data/foods";
+import FoodIcon from "~/components/FoodIcon";
 
 export default function ResourceBar() {
   const { state, actions } = useGame();
@@ -64,37 +65,56 @@ export default function ResourceBar() {
               <Show when={res.id === "food"}>
                 <div class="resource-dropdown">
                   <div class="dropdown-title">Food Stockpile</div>
-                  {/* Per-type stocks with production rate alongside */}
-                  <For each={FOOD_ITEMS}>
-                    {(fi) => {
-                      const stockRaw = () => state.foods?.[fi.id] ?? 0;
-                      const stock = () => Math.floor(stockRaw());
-                      const rate = () => {
-                        const src = foodBreakdown().find((s) => s.type === fi.id);
-                        return src?.rate ?? 0;
-                      };
-                      // Show only if the player has at least 1 whole unit OR is producing this type
-                      const show = () => stock() > 0 || rate() > 0;
+                  {/* Per-type stocks grouped by category — only categories with any stock/production show up */}
+                  <For each={FOOD_CATEGORIES}>
+                    {(cat) => {
+                      const itemsInCat = () => FOOD_ITEMS
+                        .filter((fi) => fi.category === cat.id)
+                        .sort((a, b) => a.order - b.order);
+                      const visibleItems = () => itemsInCat().filter((fi) => {
+                        const stock = Math.floor(state.foods?.[fi.id] ?? 0);
+                        const rate = foodBreakdown().find((s) => s.type === fi.id)?.rate ?? 0;
+                        return stock > 0 || rate > 0;
+                      });
                       return (
-                        <Show when={show()}>
-                          <div class="dropdown-row">
-                            <span>{fi.icon} {fi.label}</span>
-                            <span style={{ display: "flex", gap: "8px", "align-items": "center" }}>
-                              <span style={{ color: "var(--text-primary)" }}>{stock()}</span>
-                              <Show when={rate() > 0} fallback={
-                                <span style={{ "min-width": "64px", "text-align": "right", color: "var(--text-muted)", "font-size": "0.72rem" }}>
-                                  (dormant)
-                                </span>
-                              }>
-                                <span class="rate-positive" style={{ "min-width": "64px", "text-align": "right" }}>+{rate()}/h</span>
-                              </Show>
-                            </span>
-                          </div>
+                        <Show when={visibleItems().length > 0}>
+                          <div class="dropdown-category-header">{cat.icon} {cat.label}</div>
+                          <For each={visibleItems()}>
+                            {(fi) => {
+                              const stock = () => Math.floor(state.foods?.[fi.id] ?? 0);
+                              const rate = () => foodBreakdown().find((s) => s.type === fi.id)?.rate ?? 0;
+                              return (
+                                <div class="dropdown-row">
+                                  <span style={{ display: "flex", "align-items": "center", gap: "6px" }}>
+                                    <FoodIcon id={fi.id} size={16} /> {fi.label}
+                                  </span>
+                                  <span style={{ display: "flex", gap: "8px", "align-items": "center" }}>
+                                    <span style={{ color: "var(--text-primary)" }}>{stock()}</span>
+                                    <Show when={rate() > 0} fallback={
+                                      <span style={{ "min-width": "64px", "text-align": "right", color: "var(--text-muted)", "font-size": "0.72rem" }}>
+                                        (dormant)
+                                      </span>
+                                    }>
+                                      <span class="rate-positive" style={{ "min-width": "64px", "text-align": "right" }}>+{rate()}/h</span>
+                                    </Show>
+                                  </span>
+                                </div>
+                              );
+                            }}
+                          </For>
                         </Show>
                       );
                     }}
                   </For>
-                  <Show when={foodBreakdown().length === 0 && getTotalFood(state.foods) === 0}>
+                  {/* Pantry: honey lives outside the typed foods map but belongs with food */}
+                  <Show when={state.honey > 0}>
+                    <div class="dropdown-category-header">🍯 Pantry</div>
+                    <div class="dropdown-row">
+                      <span>🍯 Honey</span>
+                      <span style={{ color: "var(--text-primary)" }}>{Math.floor(state.honey)}</span>
+                    </div>
+                  </Show>
+                  <Show when={foodBreakdown().length === 0 && getTotalFood(state.foods) === 0 && state.honey === 0}>
                     <div class="dropdown-row" style={{ color: "var(--text-muted)" }}>No food stockpile</div>
                   </Show>
                   <div class="dropdown-row dropdown-total">
@@ -146,7 +166,7 @@ export default function ResourceBar() {
           </div>
         </div>
       </div>
-      <Show when={state.wool > 0 || state.fiber > 0 || state.leather > 0 || state.iron > 0 || state.gems > 0 || state.honey > 0 || state.fruit > 0}>
+      <Show when={state.wool > 0 || state.fiber > 0 || state.leather > 0 || state.iron > 0 || state.gems > 0}>
         <div class="resource-item has-dropdown">
           <span class="resource-icon">🧵</span>
           <span class="resource-amount">{Math.floor(state.wool) + Math.floor(state.fiber) + Math.floor(state.leather ?? 0) + Math.floor(state.iron)}</span>
@@ -172,18 +192,6 @@ export default function ResourceBar() {
               <div class="dropdown-row">
                 <span>💎 Gems</span>
                 <span>{state.gems}</span>
-              </div>
-            </Show>
-            <Show when={state.honey > 0}>
-              <div class="dropdown-row">
-                <span>🍯 Honey</span>
-                <span>{Math.floor(state.honey)}</span>
-              </div>
-            </Show>
-            <Show when={state.fruit > 0}>
-              <div class="dropdown-row">
-                <span>🍎 Fruit</span>
-                <span>{Math.floor(state.fruit)}</span>
               </div>
             </Show>
           </div>

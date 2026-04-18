@@ -1,7 +1,7 @@
 import { prisma } from "../lib/prisma.js";
 import { SPAWN_MASK } from "../data/spawnMask.js";
 
-const DEFAULT_WORLD_NAME = "Eldoria";
+const DEFAULT_WORLD_NAME = "Valenheart";
 const MIN_SETTLEMENT_DISTANCE = 30;
 const MASK_GRID = SPAWN_MASK.length; // 100
 

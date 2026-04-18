@@ -64,21 +64,24 @@ import {
 } from "~/data/crops";
 import {
   type VeggieId,
+  VEGGIES,
   getVeggie,
   getGardenCost,
   getGardenBuildTime,
   getGardenRate,
-  isGardenActive,
+  getSeedCost,
+  canPlantVeggie,
+  isVeggieProducing,
   MAX_GARDENS,
   GARDEN_MAX_LEVEL,
 } from "~/data/gardens";
 import {
   type AnimalId,
+  ANIMALS,
   getAnimal,
   getPenCost,
   getPenBuildTime,
   getPenProduction,
-  MAX_PENS,
   PEN_MAX_LEVEL,
 } from "@medieval-realm/shared/data/livestock";
 import {
@@ -88,7 +91,16 @@ import {
   consumeFood,
   addFood,
   migrateFoodsFromLegacy,
+  isFoodItemType,
+  getFoodCostAmount,
+  consumeFoodCost,
 } from "~/data/foods";
+import {
+  ANIMAL_FEED,
+  GRAZING_PER_FIELD,
+  isGrazer,
+  consumeFromCategories,
+} from "~/data/animalFeed";
 import {
   getHiveCost,
   getHiveBuildTime,
@@ -99,14 +111,13 @@ import {
 } from "~/data/apiary";
 import {
   type FruitId,
+  FRUITS,
   getFruit,
   getOrchardCost,
   getOrchardBuildTime,
   getOrchardRate,
   isOrchardActive,
-  MAX_ORCHARDS,
   ORCHARD_MAX_LEVEL,
-  getFruitStorageCap,
 } from "~/data/orchards";
 import {
   type Season,
@@ -220,7 +231,8 @@ export type GameEventType =
   | "raid_victory" | "raid_defeat" | "raid_incoming"
   | "winter_freezing"
   | "loot_drop"
-  | "trade_accepted" | "trade_delivered";
+  | "trade_accepted" | "trade_delivered"
+  | "pen_starving";
 
 export interface GameEvent {
   type: GameEventType;
@@ -270,9 +282,10 @@ export interface PlayerField {
 export interface PlayerGarden {
   id: string;
   veggie: VeggieId;
-  level: number;
+  level: number;          // 0 = unbuilt
   upgrading: boolean;
   upgradeRemaining?: number;
+  plantedYear: number | null; // null = needs replanting; else the year we sowed
 }
 
 export interface PlayerPen {
@@ -281,6 +294,8 @@ export interface PlayerPen {
   level: number;
   upgrading: boolean;
   upgradeRemaining?: number;
+  /** True when the pen didn't cover its food need last tick. Production = 0 while starving. */
+  starving?: boolean;
 }
 
 export interface PlayerHive {
@@ -309,7 +324,6 @@ export interface GameState {
   hives: PlayerHive[];
   orchards: PlayerOrchard[];
   honey: number;
-  fruit: number;
   /** Per-type food stockpiles — total capped by pantry */
   foods: Record<FoodItemType, number>;
   population: number;
@@ -402,18 +416,12 @@ export interface GameActions {
   plantField: (fieldId: string, crop: CropId) => boolean;
   upgradeField: (fieldId: string) => boolean;
   removeField: (fieldId: string) => void;
-  buildGarden: (veggie: VeggieId) => boolean;
   upgradeGarden: (gardenId: string) => boolean;
-  removeGarden: (gardenId: string) => void;
-  buildPen: (animal: AnimalId) => boolean;
+  /** Pay seed gold to sow the garden for this cycle. Only valid during the veggie's plantSeasons. */
+  plantGarden: (gardenId: string) => boolean;
   upgradePen: (penId: string) => boolean;
-  removePen: (penId: string) => void;
-  buildHive: () => boolean;
   upgradeHive: (hiveId: string) => boolean;
-  removeHive: (hiveId: string) => void;
-  buildOrchard: (fruit: FruitId) => boolean;
   upgradeOrchard: (orchardId: string) => boolean;
-  removeOrchard: (orchardId: string) => void;
   setGameSpeed: (speed: number) => void;
   renameVillage: (name: string) => void;
   resetGame: () => void;
@@ -528,12 +536,38 @@ function createInitialState(): GameState {
       damaged: false,
     })),
     fields: [],
-    gardens: [],
-    pens: [],
-    hives: [],
-    orchards: [],
+    // Pre-spawn one unbuilt slot per veggie so the player sees the 4-garden
+    // shape immediately (cabbages / turnips / peas / squash).
+    gardens: VEGGIES.map((v) => ({
+      id: nextId("garden"),
+      veggie: v.id,
+      level: 0,
+      upgrading: false,
+      plantedYear: null,
+    })),
+    // Pre-spawn one pen per animal (chickens / goats / pigs / sheep).
+    pens: ANIMALS.map((a) => ({
+      id: nextId("pen"),
+      animal: a.id,
+      level: 0,
+      upgrading: false,
+    })),
+    // Pre-spawn apiary slots — all identical, no type variants.
+    hives: Array.from({ length: MAX_HIVES }, () => ({
+      id: nextId("hive"),
+      level: 0,
+      upgrading: false,
+    })),
+    // Pre-spawn one orchard per fruit (apples / pears / cherries).
+    orchards: FRUITS.map((f) => ({
+      id: nextId("orchard"),
+      fruit: f.id,
+      level: 0,
+      upgrading: false,
+      seasonsGrown: 0,
+      mature: false,
+    })),
     honey: 0,
-    fruit: 0,
     population: BASE_POPULATION,
     season: "spring",
     seasonElapsed: 0,
@@ -647,11 +681,68 @@ function loadGame(): GameState | null {
     }
     if (!saved.fields) saved.fields = [];
     if (!saved.gardens) saved.gardens = [];
+    // Garden migration: add plantedYear on each, and ensure one slot per veggie
+    // exists so the pre-attributed 4-slot layout works on old saves.
+    for (const g of saved.gardens) {
+      if ((g as any).plantedYear === undefined) (g as any).plantedYear = null;
+    }
+    for (const v of VEGGIES) {
+      if (!saved.gardens.some((g: any) => g.veggie === v.id)) {
+        saved.gardens.push({
+          id: nextId("garden"),
+          veggie: v.id,
+          level: 0,
+          upgrading: false,
+          plantedYear: null,
+        });
+      }
+    }
     if (!saved.pens) saved.pens = [];
     if (!saved.hives) saved.hives = [];
     if (!saved.orchards) saved.orchards = [];
+    // Pens: ensure one pre-attributed slot per animal
+    for (const a of ANIMALS) {
+      if (!saved.pens.some((p: any) => p.animal === a.id)) {
+        saved.pens.push({
+          id: nextId("pen"),
+          animal: a.id,
+          level: 0,
+          upgrading: false,
+        });
+      }
+    }
+    // Orchards: ensure one pre-attributed slot per fruit
+    for (const f of FRUITS) {
+      if (!saved.orchards.some((o: any) => o.fruit === f.id)) {
+        saved.orchards.push({
+          id: nextId("orchard"),
+          fruit: f.id,
+          level: 0,
+          upgrading: false,
+          seasonsGrown: 0,
+          mature: false,
+        });
+      }
+    }
+    // Hives: backfill up to MAX_HIVES slots
+    while (saved.hives.length < MAX_HIVES) {
+      saved.hives.push({
+        id: nextId("hive"),
+        level: 0,
+        upgrading: false,
+      });
+    }
     if (saved.honey === undefined) saved.honey = 0;
-    if (saved.fruit === undefined) saved.fruit = 0;
+    // Migrate legacy `fruit` bucket → split evenly across apples/pears/cherries in the typed pantry
+    if ((saved as any).fruit !== undefined && (saved as any).fruit > 0) {
+      const legacy = (saved as any).fruit;
+      if (!saved.foods) (saved as any).foods = {};
+      const each = legacy / 3;
+      (saved.foods as any).apples = ((saved.foods as any).apples ?? 0) + each;
+      (saved.foods as any).pears = ((saved.foods as any).pears ?? 0) + each;
+      (saved.foods as any).cherries = ((saved.foods as any).cherries ?? 0) + each;
+    }
+    delete (saved as any).fruit;
     if (!saved.season) { saved.season = "spring"; saved.seasonElapsed = 0; saved.year = 1; }
     // Adventurer's Guild migration
     if (!saved.adventurers) saved.adventurers = [];
@@ -914,11 +1005,12 @@ function calcProductionRates(state: GameState): { gold: number; wood: number; st
     }
   }
 
-  // Gardens — produce during active seasons
+  // Gardens — produce only if planted this cycle and in a produce season
   for (const garden of gardens) {
     if (garden.level === 0) continue;
+    if (garden.plantedYear == null) continue;
     const veggie = getVeggie(garden.veggie);
-    if (isGardenActive(veggie, season)) {
+    if (isVeggieProducing(veggie, season)) {
       rates.food += getGardenRate(veggie, garden.level);
     }
   }
@@ -945,10 +1037,76 @@ function calcAnimalFoodConsumption(pens: PlayerPen[]): number {
   return total;
 }
 
-/** Per-food-type production rates, used to add to the typed foods map each tick. */
-function calcFoodRates(state: GameState): Record<FoodItemType, number> {
+/** Count fallow fields available for grazing (level ≥ 1, no crop planted). */
+function calcGrazingCapacity(fields: PlayerField[]): number {
+  let count = 0;
+  for (const f of fields) if (f.level >= 1 && f.crop === null) count++;
+  return count * GRAZING_PER_FIELD;
+}
+
+/** Drain pantry for each pen, applying grazing + category preferences.
+ *  Returns per-pen fedRatio (0-1). Mutates pen.starving. */
+function applyAnimalFeed(s: GameState, elapsedHours: number): Map<string, number> {
+  const fedRatios = new Map<string, number>();
+  if (!s.pens.length || elapsedHours <= 0) return fedRatios;
+
+  const grazingPerHour = calcGrazingCapacity(s.fields);
+
+  // Grazer demand weight (for splitting grazing proportionally)
+  let totalGrazerDemand = 0;
+  for (const pen of s.pens) {
+    if (pen.level === 0 || !isGrazer(pen.animal)) continue;
+    totalGrazerDemand += getPenProduction(getAnimal(pen.animal), pen.level).consumed;
+  }
+
+  for (const pen of s.pens) {
+    if (pen.level === 0) {
+      fedRatios.set(pen.id, 1);
+      pen.starving = false;
+      continue;
+    }
+    const animal = getAnimal(pen.animal);
+    const prod = getPenProduction(animal, pen.level);
+    const baseNeed = prod.consumed * elapsedHours;
+    if (baseNeed <= 0) {
+      fedRatios.set(pen.id, 1);
+      pen.starving = false;
+      continue;
+    }
+
+    let covered = 0;
+
+    // Grazing share for sheep/goats, proportional to their consumption
+    if (isGrazer(pen.animal) && totalGrazerDemand > 0) {
+      const share = prod.consumed / totalGrazerDemand;
+      const grazingForPen = grazingPerHour * share * elapsedHours;
+      covered += Math.min(baseNeed, grazingForPen);
+    }
+
+    // Pantry consumption for the remainder (from preferred categories only)
+    const remaining = Math.max(0, baseNeed - covered);
+    if (remaining > 0 && s.foods) {
+      covered += consumeFromCategories(s.foods, ANIMAL_FEED[pen.animal], remaining);
+    }
+
+    const ratio = Math.max(0, Math.min(1, covered / baseNeed));
+    fedRatios.set(pen.id, ratio);
+
+    const wasStarving = pen.starving === true;
+    pen.starving = ratio < 0.5;
+    if (pen.starving && !wasStarving) {
+      pushEvent(s, "pen_starving", "🥀", `The ${animal.name.toLowerCase()} pen is starving — no food in its diet!`);
+    }
+  }
+
+  return fedRatios;
+}
+
+/** Per-food-type production rates, used to add to the typed foods map each tick.
+ *  Pass `fedRatios` to scale per-pen food output (starving pens produce less). */
+function calcFoodRates(state: GameState, fedRatios?: Map<string, number>): Record<FoodItemType, number> {
   const rates = emptyFoods();
-  const { buildings, fields, gardens, pens, season, seasonElapsed } = state;
+  const { buildings, fields, gardens, pens, orchards, season, seasonElapsed } = state;
 
   const foodSeasonMod: Record<string, number> = {
     spring: 1.0, summer: 1.0, autumn: 0.75, winter: 0.5,
@@ -968,22 +1126,34 @@ function calcFoodRates(state: GameState): Record<FoodItemType, number> {
     }
   }
 
-  // Gardens — active season only
+  // Gardens — active season only, and only if planted this cycle
   for (const garden of gardens) {
     if (garden.level === 0) continue;
+    if (garden.plantedYear == null) continue;
     const veggie = getVeggie(garden.veggie);
-    if (!isGardenActive(veggie, season)) continue;
+    if (!isVeggieProducing(veggie, season)) continue;
     const rate = getGardenRate(veggie, garden.level);
     if (veggie.id in rates) rates[veggie.id as FoodItemType] += rate;
+  }
+
+  // Orchards — mature + harvest-season only, per-fruit
+  for (const orchard of orchards ?? []) {
+    if (orchard.level === 0 || orchard.upgrading || !orchard.mature) continue;
+    const fruitDef = getFruit(orchard.fruit);
+    if (!isOrchardActive(fruitDef, season)) continue;
+    const rate = getOrchardRate(fruitDef, orchard.level);
+    if (fruitDef.id in rates) rates[fruitDef.id as FoodItemType] += rate;
   }
 
   // Pens — animal products by foodLabel (Meat/Eggs/Milk → meat/eggs/milk)
   for (const pen of pens) {
     if (pen.level === 0) continue;
+    const ratio = fedRatios ? (fedRatios.get(pen.id) ?? 0) : 1;
+    if (ratio <= 0) continue;
     const animal = getAnimal(pen.animal);
     const prod = getPenProduction(animal, pen.level);
     const type = animal.foodLabel.toLowerCase() as FoodItemType;
-    if (type in rates) rates[type] += prod.produced;
+    if (type in rates) rates[type] += prod.produced * ratio;
   }
 
   // Buildings — hunting, forager, fishing
@@ -1046,8 +1216,9 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
   // Gardens — use veggie.id (cabbages/turnips/peas/squash)
   for (const garden of gardens) {
     if (garden.level === 0) continue;
+    if (garden.plantedYear == null) continue;
     const veggie = getVeggie(garden.veggie);
-    if (!isGardenActive(veggie, season)) continue;
+    if (!isVeggieProducing(veggie, season)) continue;
     const rate = getGardenRate(veggie, garden.level);
     sources.push({ type: veggie.id, label: veggie.name, icon: veggie.icon, rate, building: `${veggie.name} Garden Lv${garden.level}` });
   }
@@ -1308,6 +1479,67 @@ export function GameProvider(props: ParentProps) {
           if (num > maxId) maxId = num;
         }
         idCounter = maxId + 1;
+        // Gardens: add plantedYear + ensure one pre-attributed slot per veggie
+        serverState.gardens = serverState.gardens ?? [];
+        for (const g of serverState.gardens) {
+          if ((g as any).plantedYear === undefined) (g as any).plantedYear = null;
+        }
+        for (const v of VEGGIES) {
+          if (!serverState.gardens.some((g: any) => g.veggie === v.id)) {
+            serverState.gardens.push({
+              id: nextId("garden"),
+              veggie: v.id,
+              level: 0,
+              upgrading: false,
+              plantedYear: null,
+            });
+          }
+        }
+        // Pens: ensure one pre-attributed slot per animal
+        serverState.pens = serverState.pens ?? [];
+        for (const a of ANIMALS) {
+          if (!serverState.pens.some((p: any) => p.animal === a.id)) {
+            serverState.pens.push({
+              id: nextId("pen"),
+              animal: a.id,
+              level: 0,
+              upgrading: false,
+            });
+          }
+        }
+        // Orchards: ensure one pre-attributed slot per fruit
+        serverState.orchards = serverState.orchards ?? [];
+        for (const f of FRUITS) {
+          if (!serverState.orchards.some((o: any) => o.fruit === f.id)) {
+            serverState.orchards.push({
+              id: nextId("orchard"),
+              fruit: f.id,
+              level: 0,
+              upgrading: false,
+              seasonsGrown: 0,
+              mature: false,
+            });
+          }
+        }
+        // Hives: backfill up to MAX_HIVES pre-attributed slots
+        serverState.hives = serverState.hives ?? [];
+        while (serverState.hives.length < MAX_HIVES) {
+          serverState.hives.push({
+            id: nextId("hive"),
+            level: 0,
+            upgrading: false,
+          });
+        }
+        // Legacy fruit bucket → split into typed pantry (apples/pears/cherries)
+        if ((serverState as any).fruit !== undefined && (serverState as any).fruit > 0) {
+          const legacy = (serverState as any).fruit;
+          if (!serverState.foods) (serverState as any).foods = {};
+          const each = legacy / 3;
+          (serverState.foods as any).apples = ((serverState.foods as any).apples ?? 0) + each;
+          (serverState.foods as any).pears = ((serverState.foods as any).pears ?? 0) + each;
+          (serverState.foods as any).cherries = ((serverState.foods as any).cherries ?? 0) + each;
+        }
+        delete (serverState as any).fruit;
         // Equipment migration: old 3-slot → new 11-slot
         const migrateEq = (adv: any) => {
           if (adv.equipment?.weapon !== undefined || adv.equipment?.armor !== undefined) {
@@ -1505,6 +1737,15 @@ export function GameProvider(props: ParentProps) {
         field.harvested = false;
       }
     }
+    // Clear each garden's plantedYear when we enter its veggie's plant season
+    // from a previous cycle — the player has to buy fresh seeds and replant.
+    for (const garden of s.gardens) {
+      if (garden.plantedYear == null) continue;
+      const veggie = getVeggie(garden.veggie);
+      if (veggie.plantSeasons.includes(next) && garden.plantedYear < s.year) {
+        garden.plantedYear = null;
+      }
+    }
     if (prev === "summer") {
       pushEvent(s, "building_completed", "🍂", "Autumn is here — harvest season begins!");
     }
@@ -1573,7 +1814,11 @@ export function GameProvider(props: ParentProps) {
         }
 
         const rates = calcProductionRates(s);
-        const foodRates = calcFoodRates(s);
+        // Animals eat from their preferred categories (and graze fallow fields) FIRST.
+        // This drains the pantry in-place and returns a fedRatio per pen so
+        // starving pens don't produce food/wool/leather this tick.
+        const fedRatios = applyAnimalFeed(s, elapsedHours);
+        const foodRates = calcFoodRates(s, fedRatios);
         const citizenFood = calcFoodConsumption(s.population);
         const animalFood = calcAnimalFoodConsumption(s.pens);
         const caps = calcStorageCaps(s.buildings);
@@ -1589,12 +1834,13 @@ export function GameProvider(props: ParentProps) {
         s.resources.wood = Math.min(caps.wood, Math.max(0, s.resources.wood + rates.wood * happinessMod * elapsedHours));
         s.resources.stone = Math.min(caps.stone, Math.max(0, s.resources.stone + rates.stone * happinessMod * elapsedHours));
 
-        // Food: add per-type production (capped at pantry total), then consume proportionally
+        // Food: add per-type production (capped at pantry total), then citizens eat proportionally.
+        // Animal consumption already happened above in applyAnimalFeed.
         if (!s.foods) s.foods = emptyFoods();
         for (const [type, rate] of Object.entries(foodRates) as [FoodItemType, number][]) {
           if (rate > 0) addFood(s.foods, type, rate * happinessMod * elapsedHours, caps.food);
         }
-        const foodToConsume = (citizenFood + animalFood) * elapsedHours;
+        const foodToConsume = citizenFood * elapsedHours;
         if (foodToConsume > 0) consumeFood(s.foods, foodToConsume);
 
         // ── Wool from sheep pens (seasonal) ──
@@ -1602,10 +1848,12 @@ export function GameProvider(props: ParentProps) {
           : s.season === "autumn" ? 0.5 : 0; // no wool in winter
         for (const pen of s.pens) {
           if (pen.level === 0) continue;
+          const ratio = fedRatios.get(pen.id) ?? 1;
+          if (ratio <= 0) continue;
           const animal = getAnimal(pen.animal);
           const prod = getPenProduction(animal, pen.level);
           if (prod.secondary && prod.secondary.resource === "wool" && woolSeasonMod > 0) {
-            s.wool = Math.min(200, s.wool + prod.secondary.amount * woolSeasonMod * elapsedHours);
+            s.wool = Math.min(200, s.wool + prod.secondary.amount * woolSeasonMod * ratio * elapsedHours);
           }
         }
 
@@ -1617,9 +1865,11 @@ export function GameProvider(props: ParentProps) {
         for (const pen of s.pens) {
           if (pen.level === 0) continue;
           if (pen.animal === "chickens") continue; // chickens don't produce leather
+          const ratio = fedRatios.get(pen.id) ?? 1;
+          if (ratio <= 0) continue;
           // Pigs, goats, sheep produce small amounts of leather (hides)
           const leatherRate = pen.animal === "goats" ? 1.2 : 0.8;
-          s.leather = Math.min(200, s.leather + leatherRate * pen.level * elapsedHours);
+          s.leather = Math.min(200, s.leather + leatherRate * pen.level * ratio * elapsedHours);
         }
 
         // ── Fiber from forager's hut (wild flax and plant fibers) ──
@@ -1663,16 +1913,8 @@ export function GameProvider(props: ParentProps) {
           }
         }
 
-        // ── Fruit from orchards (seasonal, mature only) ──
-        const fruitCap = getFruitStorageCap(s.orchards);
-        for (const orchard of s.orchards) {
-          if (orchard.level === 0 || orchard.upgrading || !orchard.mature) continue;
-          const fruitDef = getFruit(orchard.fruit);
-          if (isOrchardActive(fruitDef, s.season)) {
-            const rate = getOrchardRate(fruitDef, orchard.level);
-            s.fruit = Math.min(fruitCap, s.fruit + rate * elapsedHours);
-          }
-        }
+        // Orchards no longer use a separate state.fruit bucket — per-fruit
+        // production is added via calcFoodRates above, into the typed pantry.
 
         // ── Iron production + gem/shard procs ──
         const ironMineLvl = s.buildings.find((b) => b.buildingId === "iron_mine")?.level ?? 0;
@@ -2619,23 +2861,18 @@ export function GameProvider(props: ParentProps) {
       scheduleSave();
     },
 
-    buildGarden(veggie) {
-      if (state.gardens.length >= MAX_GARDENS) return false;
-      const cost = getGardenCost(0);
-      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
-      const id = nextId("garden");
-      setState(produce((s) => {
-        s.resources.wood -= cost.wood;
-        s.resources.stone -= cost.stone;
-        s.gardens.push({ id, veggie, level: 0, upgrading: true, upgradeRemaining: getGardenBuildTime(0) });
-      }));
-      scheduleSave();
-      return true;
-    },
+    // Gardens use fixed pre-attributed slots (one per veggie), so there's no
+    // build-by-type action. upgradeGarden handles both the initial 0→1 build
+    // (available any season) and subsequent level-ups (winter + TH gated).
 
     upgradeGarden(gardenId) {
       const garden = state.gardens.find((g) => g.id === gardenId);
       if (!garden || garden.upgrading || garden.level >= GARDEN_MAX_LEVEL) return false;
+      // Level 1+ upgrades mirror the field rules: winter only, TH-capped.
+      if (garden.level >= 1) {
+        if (state.season !== "winter") return false;
+        if (garden.level >= getTownHallLevel(state.buildings)) return false;
+      }
       const cost = getGardenCost(garden.level);
       if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
       setState(produce((s) => {
@@ -2649,32 +2886,32 @@ export function GameProvider(props: ParentProps) {
       return true;
     },
 
-    removeGarden(gardenId) {
+    plantGarden(gardenId) {
+      const garden = state.gardens.find((g) => g.id === gardenId);
+      if (!garden || garden.upgrading || garden.level === 0) return false;
+      const veggie = getVeggie(garden.veggie);
+      if (!canPlantVeggie(veggie, state.season)) return false;
+      if (garden.plantedYear === state.year) return false; // already sown this cycle
+      const cost = getSeedCost(veggie, garden.level);
+      if (state.resources.gold < cost) return false;
       setState(produce((s) => {
-        const idx = s.gardens.findIndex((g) => g.id === gardenId);
-        if (idx !== -1) s.gardens.splice(idx, 1);
-      }));
-      scheduleSave();
-    },
-
-    buildPen(animal) {
-      if (state.pens.length >= MAX_PENS) return false;
-      const cost = getPenCost(0);
-      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone || state.resources.gold < cost.gold) return false;
-      const id = nextId("pen");
-      setState(produce((s) => {
-        s.resources.wood -= cost.wood;
-        s.resources.stone -= cost.stone;
-        s.resources.gold -= cost.gold;
-        s.pens.push({ id, animal, level: 0, upgrading: true, upgradeRemaining: getPenBuildTime(0) });
+        s.resources.gold -= cost;
+        const g = s.gardens.find((g) => g.id === gardenId)!;
+        g.plantedYear = s.year;
       }));
       scheduleSave();
       return true;
     },
 
+    // Pens use pre-attributed slots (one per animal). upgradePen handles 0→1
+    // build (any season) and level-ups (winter + TH capped, mirrors gardens).
     upgradePen(penId) {
       const pen = state.pens.find((p) => p.id === penId);
       if (!pen || pen.upgrading || pen.level >= PEN_MAX_LEVEL) return false;
+      if (pen.level >= 1) {
+        if (state.season !== "winter") return false;
+        if (pen.level >= getTownHallLevel(state.buildings)) return false;
+      }
       const cost = getPenCost(pen.level);
       if (state.resources.wood < cost.wood || state.resources.stone < cost.stone || state.resources.gold < cost.gold) return false;
       setState(produce((s) => {
@@ -2689,33 +2926,14 @@ export function GameProvider(props: ParentProps) {
       return true;
     },
 
-    removePen(penId) {
-      setState(produce((s) => {
-        const idx = s.pens.findIndex((p) => p.id === penId);
-        if (idx !== -1) s.pens.splice(idx, 1);
-      }));
-      scheduleSave();
-    },
-
     // ── Hives (Apiary) ──
-    buildHive() {
-      if (state.hives.length >= MAX_HIVES) return false;
-      const cost = getHiveCost(0);
-      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone || state.resources.gold < cost.gold) return false;
-      const id = nextId("hive");
-      setState(produce((s) => {
-        s.resources.wood -= cost.wood;
-        s.resources.stone -= cost.stone;
-        s.resources.gold -= cost.gold;
-        s.hives.push({ id, level: 0, upgrading: true, upgradeRemaining: getHiveBuildTime(0) });
-      }));
-      scheduleSave();
-      return true;
-    },
-
     upgradeHive(hiveId) {
       const hive = state.hives.find((h) => h.id === hiveId);
       if (!hive || hive.upgrading || hive.level >= HIVE_MAX_LEVEL) return false;
+      if (hive.level >= 1) {
+        if (state.season !== "winter") return false;
+        if (hive.level >= getTownHallLevel(state.buildings)) return false;
+      }
       const cost = getHiveCost(hive.level);
       if (state.resources.wood < cost.wood || state.resources.stone < cost.stone || state.resources.gold < cost.gold) return false;
       setState(produce((s) => {
@@ -2730,33 +2948,14 @@ export function GameProvider(props: ParentProps) {
       return true;
     },
 
-    removeHive(hiveId) {
-      setState(produce((s) => {
-        const idx = s.hives.findIndex((h) => h.id === hiveId);
-        if (idx !== -1) s.hives.splice(idx, 1);
-      }));
-      scheduleSave();
-    },
-
     // ── Orchards ──
-    buildOrchard(fruit) {
-      if (state.orchards.length >= MAX_ORCHARDS) return false;
-      const cost = getOrchardCost(0);
-      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone || state.resources.gold < cost.gold) return false;
-      const id = nextId("orchard");
-      setState(produce((s) => {
-        s.resources.wood -= cost.wood;
-        s.resources.stone -= cost.stone;
-        s.resources.gold -= cost.gold;
-        s.orchards.push({ id, fruit, level: 0, upgrading: true, upgradeRemaining: getOrchardBuildTime(0), seasonsGrown: 0, mature: false });
-      }));
-      scheduleSave();
-      return true;
-    },
-
     upgradeOrchard(orchardId) {
       const orchard = state.orchards.find((o) => o.id === orchardId);
       if (!orchard || orchard.upgrading || orchard.level >= ORCHARD_MAX_LEVEL) return false;
+      if (orchard.level >= 1) {
+        if (state.season !== "winter") return false;
+        if (orchard.level >= getTownHallLevel(state.buildings)) return false;
+      }
       const cost = getOrchardCost(orchard.level);
       if (state.resources.wood < cost.wood || state.resources.stone < cost.stone || state.resources.gold < cost.gold) return false;
       setState(produce((s) => {
@@ -2769,14 +2968,6 @@ export function GameProvider(props: ParentProps) {
       }));
       scheduleSave();
       return true;
-    },
-
-    removeOrchard(orchardId) {
-      setState(produce((s) => {
-        const idx = s.orchards.findIndex((o) => o.id === orchardId);
-        if (idx !== -1) s.orchards.splice(idx, 1);
-      }));
-      scheduleSave();
     },
 
     setGameSpeed(speed) { setState("gameSpeed", speed); },
@@ -3004,7 +3195,10 @@ export function GameProvider(props: ParentProps) {
         if (res === "wood") return state.resources.wood;
         if (res === "stone") return state.resources.stone;
         if (res === "food") return getTotalFood(state.foods);
+        if (res === "honey") return state.honey;
         if (res === "astralShards") return state.astralShards;
+        // Food items (wheat, meat, eggs, ...) and the "grain" alias
+        if (res === "grain" || isFoodItemType(res)) return getFoodCostAmount(state.foods, res);
         const inv = state.inventory.find((i) => i.itemId === res);
         return inv?.quantity ?? 0;
       };
@@ -3024,7 +3218,9 @@ export function GameProvider(props: ParentProps) {
           else if (res === "wood") s.resources.wood -= total;
           else if (res === "stone") s.resources.stone -= total;
           else if (res === "food") consumeFood(s.foods, total);
+          else if (res === "honey") s.honey = Math.max(0, s.honey - total);
           else if (res === "astralShards") s.astralShards -= total;
+          else if (res === "grain" || isFoodItemType(res)) consumeFoodCost(s.foods, res, total);
           else {
             const inv = s.inventory.find((i) => i.itemId === res);
             if (inv) inv.quantity -= total;
@@ -3777,7 +3973,10 @@ export function GameProvider(props: ParentProps) {
         if (key === "fiber") return state.fiber ?? 0;
         if (key === "ale")   return state.ale ?? 0;
         if (key === "honey") return state.honey ?? 0;
-        if (key === "fruit") return state.fruit ?? 0;
+        if (key === "fruit") {
+          const f = state.foods ?? {};
+          return (f.apples ?? 0) + (f.pears ?? 0) + (f.cherries ?? 0);
+        }
         return 0;
       };
 
@@ -3796,7 +3995,18 @@ export function GameProvider(props: ParentProps) {
         else if (give === "fiber")   s.fiber -= giveAmount;
         else if (give === "ale")     s.ale = Math.max(0, s.ale - giveAmount);
         else if (give === "honey")   s.honey = Math.max(0, s.honey - giveAmount);
-        else if (give === "fruit")   s.fruit = Math.max(0, s.fruit - giveAmount);
+        else if (give === "fruit") {
+          // Proportionally drain apples/pears/cherries
+          const f = s.foods ?? emptyFoods();
+          const total = (f.apples ?? 0) + (f.pears ?? 0) + (f.cherries ?? 0);
+          if (total > 0) {
+            const toTake = Math.min(total, giveAmount);
+            for (const k of ["apples", "pears", "cherries"] as const) {
+              const share = (f[k] ?? 0) / total;
+              f[k] = Math.max(0, (f[k] ?? 0) - toTake * share);
+            }
+          }
+        }
 
         // Credit the "receive" side (respecting caps where applicable)
         if (receive === "gold" || receive === "wood" || receive === "stone") {
@@ -3813,7 +4023,13 @@ export function GameProvider(props: ParentProps) {
           s.ale = Math.min(aleCap, s.ale + receiveAmount);
         }
         else if (receive === "honey")   s.honey = s.honey + receiveAmount;
-        else if (receive === "fruit")   s.fruit = s.fruit + receiveAmount;
+        else if (receive === "fruit") {
+          // Split incoming fruit evenly across the three types
+          const each = receiveAmount / 3;
+          addFood(s.foods, "apples", each, caps.food);
+          addFood(s.foods, "pears", each, caps.food);
+          addFood(s.foods, "cherries", each, caps.food);
+        }
 
         s.lastTradeAt = Date.now();
       }));
