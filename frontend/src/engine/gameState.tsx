@@ -207,6 +207,7 @@ import {
 
 import { QUEST_CHAIN } from "~/data/quests";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
+import { EXOTIC_IDS } from "@medieval-realm/shared/data/exotics";
 import { ALCHEMY_RECIPES, getDiscoverableRecipes, getAvailableAlchemyRecipes, RESEARCH_BASE_COST } from "@medieval-realm/shared/data/alchemy_recipes";
 import { getDeity, getCurrentDeity } from "~/data/deities";
 import { simulateCombat } from "@medieval-realm/shared/data/combat";
@@ -358,6 +359,8 @@ export interface GameState {
   // Herbs
   herbs: Record<string, number>; // { chamomile: 5, mugwort: 3, ... }
   foragedTotal: number; // tracks total food foraged for herb procs
+  // Exotic goods — caravan/escort drops only, used in Kitchen + a few Alchemy recipes
+  exotics: Record<string, number>; // { pepper: 5, cinnamon: 2, tea: 1, ... }
   // Alchemy research
   discoveredRecipes: string[]; // recipe IDs discovered through research
   alchemyResearchAvailable: boolean; // resets daily
@@ -398,6 +401,13 @@ export interface GameState {
   introSeen: boolean;
   // Story missions
   completedStoryMissions: string[];
+  // Chronicle (Lord's journal) — entries that have fired and bio fragments unlocked
+  chronicleEntriesFired: string[];
+  /** Entries the player has visited in the Journal archive. Used to power the "new!" sidebar pulse. */
+  chronicleEntriesSeen: string[];
+  unlockedBioFragments: string[];
+  /** Bio fragments the player has visited in the Cast archive. Parallel to chronicleEntriesSeen. */
+  bioFragmentsSeen: string[];
 }
 
 export interface FoodSource {
@@ -478,6 +488,11 @@ export interface GameActions {
   canClaimDailyLogin: () => boolean;
   visitGuild: () => void;
   hasNewGuildContent: () => boolean;
+  visitChronicleJournal: () => void;
+  visitChronicleCast: () => void;
+  hasNewChronicleContent: () => boolean;
+  countUnseenJournalEntries: () => number;
+  countUnseenMemories: () => number;
   rerollMissions: () => boolean;
   /** Dev-only: replace the mission board with every novice mission, ignoring prerequisites. */
   devSpawnAllNoviceMissions: () => void;
@@ -589,6 +604,7 @@ function createInitialState(): GameState {
     ironMinedTotal: 0,
     herbs: {},
     foragedTotal: 0,
+    exotics: {},
     discoveredRecipes: [],
     alchemyResearchAvailable: true,
     activeBlessing: null,
@@ -625,6 +641,10 @@ function createInitialState(): GameState {
     firstMissionSent: false,
     introSeen: false,
     completedStoryMissions: [],
+    chronicleEntriesFired: [],
+    chronicleEntriesSeen: [],
+    unlockedBioFragments: [],
+    bioFragmentsSeen: [],
   };
 }
 
@@ -802,6 +822,7 @@ function loadGame(): GameState | null {
     if (saved.gems === undefined) saved.gems = 0;
     if (!saved.herbs) saved.herbs = {};
     if (saved.foragedTotal === undefined) saved.foragedTotal = 0;
+    if (!saved.exotics) saved.exotics = {};
     if (!saved.discoveredRecipes) saved.discoveredRecipes = [];
     if (saved.alchemyResearchAvailable === undefined) saved.alchemyResearchAvailable = true;
     if (saved.activeBlessing === undefined) saved.activeBlessing = null;
@@ -861,6 +882,23 @@ function loadGame(): GameState | null {
     if (saved.firstMissionSent === undefined) saved.firstMissionSent = false;
     if (saved.introSeen === undefined) saved.introSeen = true; // existing saves have already "seen" the intro
     if (!saved.completedStoryMissions) saved.completedStoryMissions = [];
+    // Chronicle migration — entries fired and bio fragments unlocked
+    if (!saved.chronicleEntriesFired) saved.chronicleEntriesFired = [];
+    if (!saved.chronicleEntriesSeen) saved.chronicleEntriesSeen = [];
+    if (!saved.unlockedBioFragments) saved.unlockedBioFragments = [];
+    if (!saved.bioFragmentsSeen) saved.bioFragmentsSeen = [];
+    // Backfill the Arrival entry for players who already saw the intro
+    if (saved.introSeen && !saved.chronicleEntriesFired.includes("ch1_arrival")) {
+      saved.chronicleEntriesFired.push("ch1_arrival");
+    }
+    // Restructure (April 2026): "Edda's Cup" moved from journal entry to character fragment.
+    // Players who completed the campfire quest before this change get the fragment backfilled.
+    if (
+      saved.questRewardsClaimed.includes("the_first_fire") &&
+      !saved.unlockedBioFragments.includes("edda_first_cup")
+    ) {
+      saved.unlockedBioFragments.push("edda_first_cup");
+    }
     // Migrate adventurers missing xp/level fields
     for (const adv of saved.adventurers) {
       if ((adv as any).level === undefined) { (adv as any).level = 1; (adv as any).xp = 0; }
@@ -1454,6 +1492,7 @@ export function GameProvider(props: ParentProps) {
         if (!serverState.completedStoryMissions) serverState.completedStoryMissions = [];
         if (!serverState.herbs) serverState.herbs = {};
         if (serverState.foragedTotal === undefined) serverState.foragedTotal = 0;
+        if (!serverState.exotics) serverState.exotics = {};
         if (serverState.starvationPenalty === undefined) serverState.starvationPenalty = 0;
         // Backfill any new buildings that were added since this save was created
         for (const def of BUILDINGS) {
@@ -3012,7 +3051,13 @@ export function GameProvider(props: ParentProps) {
     },
 
     markIntroSeen() {
-      setState("introSeen", true);
+      setState(produce((s) => {
+        s.introSeen = true;
+        // Fire the opening Chronicle entry on intro completion
+        if (!s.chronicleEntriesFired.includes("ch1_arrival")) {
+          s.chronicleEntriesFired.push("ch1_arrival");
+        }
+      }));
       scheduleSave();
     },
 
@@ -3220,6 +3265,8 @@ export function GameProvider(props: ParentProps) {
         if (res === "astralShards") return state.astralShards;
         // Food items (wheat, meat, eggs, ...) and the "grain" alias
         if (res === "grain" || isFoodItemType(res)) return getFoodCostAmount(state.foods, res);
+        // Exotic goods (pepper, cinnamon, tea, chili, saffron)
+        if (EXOTIC_IDS.includes(res)) return state.exotics?.[res] ?? 0;
         const inv = state.inventory.find((i) => i.itemId === res);
         return inv?.quantity ?? 0;
       };
@@ -3242,6 +3289,10 @@ export function GameProvider(props: ParentProps) {
           else if (res === "honey") s.honey = Math.max(0, s.honey - total);
           else if (res === "astralShards") s.astralShards -= total;
           else if (res === "grain" || isFoodItemType(res)) consumeFoodCost(s.foods, res, total);
+          else if (EXOTIC_IDS.includes(res)) {
+            if (!s.exotics) s.exotics = {};
+            s.exotics[res] = Math.max(0, (s.exotics[res] ?? 0) - total);
+          }
           else {
             const inv = s.inventory.find((i) => i.itemId === res);
             if (inv) inv.quantity -= total;
@@ -3665,6 +3716,56 @@ export function GameProvider(props: ParentProps) {
       return (state.lastMissionRefresh > state.lastGuildVisit && state.missionBoard.length > 0) ||
              (state.lastRecruitRefresh > state.lastGuildVisit && state.recruitCandidates.length > 0);
     },
+    visitChronicleJournal() {
+      // Mark all currently-fired entries as seen
+      const fired = state.chronicleEntriesFired ?? [];
+      const seen = new Set(state.chronicleEntriesSeen ?? []);
+      const anyNew = fired.some((id) => !seen.has(id));
+      if (!anyNew) return;
+      setState(produce((s) => {
+        if (!s.chronicleEntriesSeen) s.chronicleEntriesSeen = [];
+        for (const id of fired) {
+          if (!s.chronicleEntriesSeen.includes(id)) {
+            s.chronicleEntriesSeen.push(id);
+          }
+        }
+      }));
+      scheduleSave();
+    },
+    visitChronicleCast() {
+      // Mark all currently-unlocked bio fragments as seen
+      const unlocked = state.unlockedBioFragments ?? [];
+      const seen = new Set(state.bioFragmentsSeen ?? []);
+      const anyNew = unlocked.some((id) => !seen.has(id));
+      if (!anyNew) return;
+      setState(produce((s) => {
+        if (!s.bioFragmentsSeen) s.bioFragmentsSeen = [];
+        for (const id of unlocked) {
+          if (!s.bioFragmentsSeen.includes(id)) {
+            s.bioFragmentsSeen.push(id);
+          }
+        }
+      }));
+      scheduleSave();
+    },
+    hasNewChronicleContent() {
+      const entriesFired = state.chronicleEntriesFired ?? [];
+      const entriesSeen = new Set(state.chronicleEntriesSeen ?? []);
+      if (entriesFired.some((id) => !entriesSeen.has(id))) return true;
+      const fragsUnlocked = state.unlockedBioFragments ?? [];
+      const fragsSeen = new Set(state.bioFragmentsSeen ?? []);
+      return fragsUnlocked.some((id) => !fragsSeen.has(id));
+    },
+    countUnseenJournalEntries() {
+      const fired = state.chronicleEntriesFired ?? [];
+      const seen = new Set(state.chronicleEntriesSeen ?? []);
+      return fired.filter((id) => !seen.has(id)).length;
+    },
+    countUnseenMemories() {
+      const unlocked = state.unlockedBioFragments ?? [];
+      const seen = new Set(state.bioFragmentsSeen ?? []);
+      return unlocked.filter((id) => !seen.has(id)).length;
+    },
     canClaimDailyLogin() {
       if (state.lastDailyLogin === 0) return true;
       const lastDay = new Date(state.lastDailyLogin).toDateString();
@@ -3780,6 +3881,18 @@ export function GameProvider(props: ParentProps) {
           }
         }
 
+        // Fire Chronicle entry + unlock bio fragments if the quest has them
+        if (quest.chronicleEntryId && !s.chronicleEntriesFired.includes(quest.chronicleEntryId)) {
+          s.chronicleEntriesFired.push(quest.chronicleEntryId);
+        }
+        if (quest.unlocksBioFragments) {
+          for (const fragId of quest.unlocksBioFragments) {
+            if (!s.unlockedBioFragments.includes(fragId)) {
+              s.unlockedBioFragments.push(fragId);
+            }
+          }
+        }
+
         // Check if the NEXT quest triggers a raid
         const nextQuest = QUEST_CHAIN[questIdx + 1];
         if (nextQuest?.triggersRaid && s.incomingRaids.length === 0) {
@@ -3878,16 +3991,23 @@ export function GameProvider(props: ParentProps) {
       // Must be a starter recipe or discovered
       if (!recipe.starterRecipe && !(state.discoveredRecipes ?? []).includes(recipeId)) return false;
 
-      // Check herb costs for the full quantity
+      // Check ingredient costs for the full quantity (herbs + exotics like tea)
       for (const cost of recipe.costs) {
-        const have = state.herbs?.[cost.resource] ?? 0;
+        const have = EXOTIC_IDS.includes(cost.resource)
+          ? (state.exotics?.[cost.resource] ?? 0)
+          : (state.herbs?.[cost.resource] ?? 0);
         if (have < cost.amount * quantity) return false;
       }
 
       setState(produce((s) => {
         for (const cost of recipe.costs) {
-          if (!s.herbs) s.herbs = {};
-          s.herbs[cost.resource] = (s.herbs[cost.resource] ?? 0) - cost.amount * quantity;
+          if (EXOTIC_IDS.includes(cost.resource)) {
+            if (!s.exotics) s.exotics = {};
+            s.exotics[cost.resource] = (s.exotics[cost.resource] ?? 0) - cost.amount * quantity;
+          } else {
+            if (!s.herbs) s.herbs = {};
+            s.herbs[cost.resource] = (s.herbs[cost.resource] ?? 0) - cost.amount * quantity;
+          }
         }
         // Stack onto existing alchemy queue entry, or push new (pending if over slot cap)
         const existing = s.craftingQueue.find((c) => c.recipeId === recipeId);
@@ -3908,6 +4028,7 @@ export function GameProvider(props: ParentProps) {
       const mission = state.completedMissions[index];
       if (!mission) return;
       const herbIds = new Set(HERBS.map((h) => h.id));
+      const exoticIds = new Set(EXOTIC_IDS);
       setState(produce((s) => {
         const caps = calcStorageCaps(s.buildings);
         for (const reward of mission.rewards) {
@@ -3920,6 +4041,9 @@ export function GameProvider(props: ParentProps) {
           } else if (herbIds.has(res)) {
             if (!s.herbs) s.herbs = {};
             s.herbs[res] = (s.herbs[res] ?? 0) + reward.amount;
+          } else if (exoticIds.has(res)) {
+            if (!s.exotics) s.exotics = {};
+            s.exotics[res] = (s.exotics[res] ?? 0) + reward.amount;
           } else if (res === "gold" || res === "wood" || res === "stone") {
             const key = res as keyof typeof s.resources;
             s.resources[key] = Math.min(caps[key], s.resources[key] + reward.amount);
@@ -3949,6 +4073,7 @@ export function GameProvider(props: ParentProps) {
       // adventurers, XP + potential level/rank ups. Returns a CompletedMission
       // shape so the caller can hand it to the existing LootModal.
       const herbIds = new Set(HERBS.map((h) => h.id));
+      const exoticIds = new Set(EXOTIC_IDS);
       const casualties: string[] = [];
       const levelUps: string[] = [];
       const rankUps: { name: string; newRank: string }[] = [];
@@ -3962,6 +4087,9 @@ export function GameProvider(props: ParentProps) {
           } else if (herbIds.has(reward.resource)) {
             if (!s.herbs) s.herbs = {};
             s.herbs[reward.resource] = (s.herbs[reward.resource] ?? 0) + reward.amount;
+          } else if (exoticIds.has(reward.resource)) {
+            if (!s.exotics) s.exotics = {};
+            s.exotics[reward.resource] = (s.exotics[reward.resource] ?? 0) + reward.amount;
           } else {
             const key = reward.resource as keyof typeof s.resources;
             if (key in s.resources) {
@@ -4042,6 +4170,7 @@ export function GameProvider(props: ParentProps) {
           const f = state.foods ?? {};
           return (f.apples ?? 0) + (f.pears ?? 0) + (f.cherries ?? 0);
         }
+        if (EXOTIC_IDS.includes(key)) return state.exotics?.[key] ?? 0;
         return 0;
       };
 
@@ -4072,6 +4201,10 @@ export function GameProvider(props: ParentProps) {
             }
           }
         }
+        else if (EXOTIC_IDS.includes(give)) {
+          if (!s.exotics) s.exotics = {};
+          s.exotics[give] = Math.max(0, (s.exotics[give] ?? 0) - giveAmount);
+        }
 
         // Credit the "receive" side (respecting caps where applicable)
         if (receive === "gold" || receive === "wood" || receive === "stone") {
@@ -4094,6 +4227,10 @@ export function GameProvider(props: ParentProps) {
           addFood(s.foods, "apples", each, caps.food);
           addFood(s.foods, "pears", each, caps.food);
           addFood(s.foods, "cherries", each, caps.food);
+        }
+        else if (EXOTIC_IDS.includes(receive)) {
+          if (!s.exotics) s.exotics = {};
+          s.exotics[receive] = (s.exotics[receive] ?? 0) + receiveAmount;
         }
 
         s.lastTradeAt = Date.now();

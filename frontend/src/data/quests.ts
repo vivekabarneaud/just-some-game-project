@@ -20,60 +20,107 @@ export interface QuestDefinition {
   triggersRaid?: boolean; // spawns a weak raid when this quest becomes active
   hint?: string; // extra hint text shown below the narrative
   hintLink?: string; // optional link for the hint
+  /** Short vignette shown while the quest is active. Preferred over `narrative` when present. */
+  startNarrative?: string;
+  /** Chronicle entry fired into the archive when the reward is claimed. */
+  chronicleEntryId?: string;
+  /** Founding-cast bio fragment IDs unlocked when the reward is claimed. */
+  unlocksBioFragments?: string[];
 }
 
 const bldg = (state: GameState, id: string) =>
   state.buildings.find((b) => b.buildingId === id);
 
 export const QUEST_CHAIN: QuestDefinition[] = [
-  // ── Wave 1 — build out the basics at Town Hall 1 ──────────────
-  // Everything caps at Town Hall level, so we build first, upgrade later.
-  // 1 — Lumber Mill
+  // ── Chapter 1 — The First Camp ──────────────────────────────────
+  // 1 — Campfire (The Kitchens at level 1 is just a cookfire and a pot).
   {
-    id: "first_things_first",
-    title: "First Things First",
+    id: "the_first_fire",
+    title: "The First Fire",
     narrative:
-      "The Corsair League promised fertile land and freedom from Dominion taxes. They didn't mention the silence. Your five settlers stare at the tree line, wondering what they've gotten into. Well — timber first, doubts later.",
+      "Edda has stood over the empty firepit twice this morning with her arms crossed. She has not said anything. She has looked at me three times. I know what that means.",
+    startNarrative:
+      "Edda has stood over the empty firepit twice this morning with her arms crossed. She has not said anything. She has looked at me three times. I know what that means.",
+    objective: "Build the Kitchens — a cookfire, at least.",
+    icon: "🔥",
+    condition: (s) => (bldg(s, "kitchen")?.level ?? 0) >= 1,
+    // Refund-style reward: matches the lvl 1 build cost
+    rewards: [{ resource: "wood", amount: 20, label: "Wood" }, { resource: "stone", amount: 10, label: "Stone" }],
+    targetBuildingId: "kitchen",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/the_first_fire.png",
+    unlocksBioFragments: ["edda_first_cup"],
+  },
+  // 2 — Lumber Mill (Jory)
+  {
+    id: "the_sawhorse",
+    title: "The Sawhorse",
+    narrative:
+      "Jory walked the tree line this morning with the back of his axe, tapping trunks and listening. He has returned with a list of three good pines and a muttered opinion about the others. I promised him a proper mill before the week is out.",
+    startNarrative:
+      "Jory walked the tree line this morning with the back of his axe, tapping trunks and listening. He has returned with a list of three good pines and a muttered opinion about the others. I promised him a proper mill before the week is out.",
     objective: "Build a Lumber Mill",
     icon: "🪓",
     condition: (s) => (bldg(s, "lumber_mill")?.level ?? 0) >= 1,
     // Refund-style reward: matches the lvl 1 build cost
     rewards: [{ resource: "wood", amount: 30, label: "Wood" }, { resource: "stone", amount: 40, label: "Stone" }],
     targetBuildingId: "lumber_mill",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_1.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/the_sawhorse.png",
+    unlocksBioFragments: ["jory_sawhorse"],
   },
-  // 2 — Stone Quarry
+  // 3 — Stone Quarry (Tomas)
   {
-    id: "foundation_of_stone",
-    title: "Foundation of Stone",
+    id: "the_first_cut",
+    title: "The First Cut",
     narrative:
-      "Your woodcutters found something odd — old foundation stones buried in the undergrowth, from a settlement that was here before yours. It didn't last. Yours will. Start with the quarry.",
-    objective: "Build a Stone Quarry",
+      "Tomas sharpened his chisel twice before lunch and asked me nothing. That is how he asks for a proper quarry — quietly, and without waiting for permission. The ridge of stone to the north will do.",
+    startNarrative:
+      "Tomas sharpened his chisel twice before lunch and asked me nothing. That is how he asks for a proper quarry — quietly, and without waiting for permission. The ridge of stone to the north will do.",
+    objective: "Open the Stone Quarry",
     icon: "⛏️",
     condition: (s) => (bldg(s, "quarry")?.level ?? 0) >= 1,
     rewards: [{ resource: "wood", amount: 60, label: "Wood" }, { resource: "stone", amount: 10, label: "Stone" }],
     targetBuildingId: "quarry",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_2.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/the_first_cut.png",
+    unlocksBioFragments: ["tomas_quarry"],
   },
-  // 3 — Forager's Hut
+  // 4 — Forager's Hut (Edda + Nell; reframe only, no memory)
   {
     id: "the_foragers_path",
     title: "The Forager's Path",
     narrative:
-      "The forest is generous — berries, mushrooms, wild herbs. One of your settlers claims the old folk used to say Sylvana's blessing made these woods grow thick. You're not sure who Sylvana is, but the berries are real enough.",
+      "The forest gives more than we can carry. Edda brings back mushrooms; Nell brings back everything she finds, including the things Edda tells her to put back. We need a hut — a roof and a table and a door that closes. Things spoil, and we are not yet wealthy enough to waste anything.",
+    startNarrative:
+      "The forest gives more than we can carry. Edda brings back mushrooms; Nell brings back everything she finds, including the things Edda tells her to put back. We need a hut — a roof and a table and a door that closes. Things spoil, and we are not yet wealthy enough to waste anything.",
     objective: "Build a Forager's Hut",
     icon: "🫐",
     condition: (s) => (bldg(s, "forager_hut")?.level ?? 0) >= 1,
     rewards: [{ resource: "wood", amount: 30, label: "Wood" }, { resource: "stone", amount: 5, label: "Stone" }],
     targetBuildingId: "forager_hut",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_3.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/the_foragers_path.png",
   },
-  // 4 — Hunting Camp
+  // 5 — Houses (settlement grows — first new citizens arrive after this)
   {
-    id: "the_hunt_begins",
-    title: "The Hunt Begins",
+    id: "a_roof_over_their_heads",
+    title: "A Roof Over Their Heads",
     narrative:
-      "The game here is plentiful — almost too plentiful, as if nothing has hunted these woods in a long time. The deer don't even run from your scouts. Whatever drove the last settlers away, it wasn't starvation.",
+      "A raven arrived yesterday from the Crown's land office: two more families are on the road, due within the week. The tents we have will not hold them. Edda has been saying for weeks that a settlement of six is a picnic, not a village — she will now say it with more conviction.",
+    startNarrative:
+      "A raven arrived yesterday from the Crown's land office: two more families are on the road, due within the week. The tents we have will not hold them. Edda has been saying for weeks that a settlement of six is a picnic, not a village — she will now say it with more conviction.",
+    objective: "Build Houses",
+    icon: "🏠",
+    condition: (s) => (bldg(s, "houses")?.level ?? 0) >= 1,
+    rewards: [{ resource: "wood", amount: 60, label: "Wood" }, { resource: "stone", amount: 40, label: "Stone" }],
+    targetBuildingId: "houses",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/a_roof_over_their_heads.png",
+  },
+  // 6 — Hunting Camp (new citizen brought a bow; reframe only, no memory)
+  {
+    id: "the_new_hunter",
+    title: "The New Hunter",
+    narrative:
+      "Two new families arrived this week. One of them has a son with a bow, and he has already brought in more meat than Edda can salt. We need a hunting camp — if only to keep the smoke out of our sleeping tents.",
+    startNarrative:
+      "Two new families arrived this week. One of them has a son with a bow, and he has already brought in more meat than Edda can salt. We need a hunting camp — if only to keep the smoke out of our sleeping tents.",
     objective: "Build a Hunting Camp",
     icon: "🏹",
     condition: (s) => (bldg(s, "hunting_camp")?.level ?? 0) >= 1,
@@ -81,25 +128,14 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     targetBuildingId: "hunting_camp",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_4.png",
   },
-  // 5 — Houses
-  {
-    id: "a_roof_over_their_heads",
-    title: "A Roof Over Their Heads",
-    narrative:
-      "Your people are tough — they left the Dominion's comforts for freedom. But freedom doesn't keep the rain out. Build them proper homes, and they'll stop muttering about going back north.",
-    objective: "Build Houses",
-    icon: "🏠",
-    condition: (s) => (bldg(s, "houses")?.level ?? 0) >= 1,
-    rewards: [{ resource: "wood", amount: 60, label: "Wood" }, { resource: "stone", amount: 40, label: "Stone" }],
-    targetBuildingId: "houses",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_7.png",
-  },
-  // 6 — Fishing Hut
+  // 7 — Fishing Hut (filler reframe, no memory)
   {
     id: "from_the_deep",
     title: "From the Deep",
     narrative:
-      "The river runs clear and cold from the northern mountains. The old Corsair maps call it the Nereia's Vein — named after some goddess of water. The fish don't care what you call it. They're biting.",
+      "The river runs clear and cold from the mountains. Edda calls it a Nereia's stream — Nereia being a goddess her grandmother swore by when the catch was good. The fish do not seem to care what we call them. A hut and some salt, and we can eat from it through winter.",
+    startNarrative:
+      "The river runs clear and cold from the mountains. Edda calls it a Nereia's stream — Nereia being a goddess her grandmother swore by when the catch was good. The fish do not seem to care what we call them. A hut and some salt, and we can eat from it through winter.",
     objective: "Build a Fishing Hut",
     icon: "🐟",
     condition: (s) => (bldg(s, "fishing_hut")?.level ?? 0) >= 1,
@@ -107,25 +143,46 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     targetBuildingId: "fishing_hut",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_8.png",
   },
-  // 7 — Pantry
+  // 8 — Pantry (fires Entry VI — Nell's Notebook, quiet pre-winter reflection)
   {
     id: "stockpile_for_winter",
     title: "Stockpile for Winter",
     narrative:
-      "A wise leader plans for lean times. Build a pantry before the frost comes, or watch your harvest rot in the open air.",
+      "Winter is closer than I like. The pantry in Ashwick was a stone room with onions hanging from the rafters; ours will be wood-floored and smelling of nothing yet. Tomas says the cellar can go down four feet before we hit the water table. That will do.",
+    startNarrative:
+      "Winter is closer than I like. The pantry in Ashwick was a stone room with onions hanging from the rafters; ours will be wood-floored and smelling of nothing yet. Tomas says the cellar can go down four feet before we hit the water table. That will do.",
     objective: "Build a Pantry",
     icon: "🥫",
     condition: (s) => (bldg(s, "pantry")?.level ?? 0) >= 1,
     rewards: [{ resource: "wood", amount: 50, label: "Wood" }, { resource: "stone", amount: 30, label: "Stone" }],
     targetBuildingId: "pantry",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_9.png",
+    chronicleEntryId: "ch1_nell_notebook",
   },
-  // 8 — Adventurer's Guild (the big early unlock!)
+  // 9 — The Rough Altar (Father Corin)
+  {
+    id: "the_rough_altar",
+    title: "The Rough Altar",
+    narrative:
+      "Father Corin has been carrying his hymnal under his cloak all week, saying nothing, smiling at anyone who asks. He asked me tonight if we had space for a proper place of worship. \"The Radiant One does not need a grand temple,\" he said, \"but He does need somewhere to be.\"",
+    startNarrative:
+      "Father Corin has been carrying his hymnal under his cloak all week, saying nothing, smiling at anyone who asks. He asked me tonight if we had space for a proper place of worship. \"The Radiant One does not need a grand temple,\" he said, \"but He does need somewhere to be.\"",
+    objective: "Build the Shrine",
+    icon: "🕯️",
+    condition: (s) => (bldg(s, "shrine")?.level ?? 0) >= 1,
+    rewards: [{ resource: "wood", amount: 40, label: "Wood" }, { resource: "stone", amount: 60, label: "Stone" }],
+    targetBuildingId: "shrine",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/the_rough_altar.png",
+    unlocksBioFragments: ["corin_altar"],
+  },
+  // 10 — Adventurer's Guild (first wanderer already arrived; formalize the system)
   {
     id: "heroes_wanted",
     title: "Heroes Wanted",
     narrative:
-      "Word of your settlement is reaching the drifters and fortune-seekers who roam between the Dominion and the frontier. Some are running from something. Some are looking for something. All of them can fight. Build a guild hall and see who shows up.",
+      "Two travelers have knocked at our gate this month — one left, one stayed, and the one who stayed is sharpening arrows in the yard. More will come. A proper guild hall will give them somewhere to gather, and us a way to ask what they can do.",
+    startNarrative:
+      "Two travelers have knocked at our gate this month — one left, one stayed, and the one who stayed is sharpening arrows in the yard. More will come. A proper guild hall will give them somewhere to gather, and us a way to ask what they can do.",
     objective: "Build the Adventurer's Guild",
     icon: "🏰",
     condition: (s) => (bldg(s, "adventurers_guild")?.level ?? 0) >= 1,
@@ -137,12 +194,14 @@ export const QUEST_CHAIN: QuestDefinition[] = [
       { resource: "stone", amount: 25, label: "Stone" }
     ],
   },
-  // 9 — Recruit
+  // 11 — Recruit
   {
     id: "a_brave_soul",
     title: "A Brave Soul",
     narrative:
-      "The Guild's doors creak open. Rough-looking warriors, secretive mages, and sharp-eyed archers crowd the hall. Choose your first champion wisely.",
+      "The Guild's doors are open, and more have come than I expected. A woman from Nordveld with a bow she will not put down. A priest's apprentice who will not say which parish. Two others who walked in without speaking. I cannot keep them all — I must choose.",
+    startNarrative:
+      "The Guild's doors are open, and more have come than I expected. A woman from Nordveld with a bow she will not put down. A priest's apprentice who will not say which parish. Two others who walked in without speaking. I cannot keep them all — I must choose.",
     objective: "Recruit an adventurer",
     icon: "⚔️",
     condition: (s) => s.adventurers.length >= 1,
@@ -265,7 +324,9 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "merchants_welcome",
     title: "Merchants Welcome",
     narrative:
-      "A Corsair trader passed through yesterday, impressed by your growth. 'Build a proper market,' she said, 'and I'll make sure the League's caravans know about you.' The Corsairs may be pirates, but their coin spends the same as anyone's.",
+      "A Dominion trader stopped through yesterday with two mules and more opinions than cargo. \"You have grown enough to be worth a second visit,\" she said, \"if you build a proper market. No one unloads in the mud.\" She may be right. Coin spends the same wherever it comes from.",
+    startNarrative:
+      "A Dominion trader stopped through yesterday with two mules and more opinions than cargo. \"You have grown enough to be worth a second visit,\" she said, \"if you build a proper market. No one unloads in the mud.\" She may be right. Coin spends the same wherever it comes from.",
     objective: "Build a Marketplace",
     icon: "🏪",
     condition: (s) => (bldg(s, "marketplace")?.level ?? 0) >= 1,
@@ -313,31 +374,15 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     rewards: [{ resource: "gold", amount: 20, label: "Gold" }],
     targetPage: "/guild?tab=roster",
   },
-  // 22 — Build a Shrine
-  {
-    id: "faith_and_solace",
-    title: "Faith and Solace",
-    narrative:
-      "Some of your settlers follow the Church of the Radiant One. Others whisper the old names — Ferros, Sylvana, Solara. A few pray to no one at all. But everyone needs a place to find peace. Build a shrine, and let each soul find comfort in their own way.",
-    objective: "Build a Shrine",
-    icon: "🔮",
-    condition: (s) => (bldg(s, "shrine")?.level ?? 0) >= 1,
-    // Refund build cost + a few shards to seed the first offering
-    rewards: [
-      { resource: "wood", amount: 40, label: "Wood" },
-      { resource: "stone", amount: 60, label: "Stone" },
-      { resource: "astralShards", amount: 3, label: "Astral Shards" },
-    ],
-    targetBuildingId: "shrine",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/shrine.png",
-  },
   // ── Wave 3 — Town Hall 3 ──────────────────────────────────────
-  // 23 — Town Hall lvl 3
+  // 23 — Town Hall lvl 3 (Camp → Village tier-up; fires Entry VII — Chapter 1 close)
   {
     id: "the_road_to_greatness",
     title: "The Road to Greatness",
     narrative:
-      "New arrivals are coming — refugees from the Dominion's taxes, adventurers seeking fortune, families looking for a fresh start. Your little camp is becoming something real. The Dominion will notice soon. Best be ready.",
+      "The Town Hall is too small now. Edda has taken to calling it \"the cupboard.\" We are more than a camp — proper houses, two wells, a shrine, a mission board, and more names on the roster than I can list from memory. It is time to raise the hall and admit what we have become.",
+    startNarrative:
+      "The Town Hall is too small now. Edda has taken to calling it \"the cupboard.\" We are more than a camp — proper houses, two wells, a shrine, a mission board, and more names on the roster than I can list from memory. It is time to raise the hall and admit what we have become.",
     objective: "Upgrade Town Hall to level 3",
     icon: "⭐",
     condition: (s) => (bldg(s, "town_hall")?.level ?? 0) >= 3,
@@ -349,6 +394,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
       { resource: "stone", amount: 167, label: "Stone" },
       { resource: "astralShards", amount: 5, label: "Astral Shards" },
     ],
+    chronicleEntryId: "ch1_stable_now",
   },
   // 24 — Bandits spotted (triggers a weak, slow raid)
   {

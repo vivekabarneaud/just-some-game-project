@@ -152,6 +152,30 @@ export default function WorldMap() {
       </Show>
 
       <Show when={!loading() && !error() && mapData()}>
+        {/* Debug/info strip — quick signal when markers go missing. */}
+        <div style={{
+          padding: "6px 12px",
+          "margin-bottom": "8px",
+          "border-radius": "6px",
+          background: "var(--bg-secondary)",
+          "font-size": "0.8rem",
+          color: "var(--text-secondary)",
+          display: "flex",
+          gap: "16px",
+          "flex-wrap": "wrap",
+        }}>
+          <span>{mapData()!.settlements.length} settlement{mapData()!.settlements.length !== 1 ? "s" : ""} in {mapData()!.world.name}</span>
+          <Show when={mySettlement()}>
+            {(my) => <span style={{ color: "var(--accent-gold)" }}>
+              Your position: ({my().x}, {my().y})
+            </span>}
+          </Show>
+          <Show when={!mySettlement()}>
+            <span style={{ color: "var(--accent-red)" }}>
+              ⚠️ Your settlement not found in world data — try refreshing
+            </span>
+          </Show>
+        </div>
         <div class="world-map-container">
           <svg
             viewBox={`${viewBox().x} ${viewBox().y} ${viewBox().w} ${viewBox().h}`}
@@ -195,40 +219,52 @@ export default function WorldMap() {
                       setSelectedSettlement(settlement);
                     }}
                   >
-                    {/* Glow for own settlement */}
+                    {/* Pulsing halo for own settlement */}
                     <Show when={isOwn()}>
-                      <circle r="18" fill="none" stroke="#f5c542" stroke-width="0.8" opacity="0.4">
-                        <animate attributeName="r" values="16;24;16" dur="3s" repeatCount="indefinite" />
-                        <animate attributeName="opacity" values="0.4;0.1;0.4" dur="3s" repeatCount="indefinite" />
+                      <circle r="28" fill="none" stroke="#f5c542" stroke-width="2" opacity="0.9">
+                        <animate attributeName="r" values="26;40;26" dur="2.5s" repeatCount="indefinite" />
+                        <animate attributeName="opacity" values="0.9;0.25;0.9" dur="2.5s" repeatCount="indefinite" />
                       </circle>
                     </Show>
 
-                    {/* Invisible hit area (larger than marker for easier clicking) */}
-                    <circle r="14" fill="transparent" />
+                    {/* Invisible hit area */}
+                    <circle r="22" fill="transparent" />
+
+                    {/* Contrast disc — dark backdrop that reads clearly against
+                        the sepia map parchment. Bumped large so markers pop
+                        even when zoomed out. */}
+                    <circle
+                      r="18"
+                      fill={isOwn() ? "#8b1e1e" : "#2a1a10"}
+                      stroke={isOwn() ? "#f5c542" : isHovered() ? "#f0e0c0" : "#c8b890"}
+                      stroke-width="2"
+                    />
 
                     {/* Castle marker */}
                     <polygon
-                      points="-6,-10 -6,-4 -8,-4 0,-14 8,-4 6,-4 6,-10 3,-10 3,-6 -3,-6 -3,-10"
-                      fill={isOwn() ? "#f5c542" : isHovered() ? "#e0e8f0" : "#c8d4e0"}
-                      stroke={isOwn() ? "#d4a017" : isHovered() ? "#ffffff" : "#8090a8"}
+                      points="-9,-12 -9,-3 -12,-3 0,-18 12,-3 9,-3 9,-12 4.5,-12 4.5,-6 -4.5,-6 -4.5,-12"
+                      fill={isOwn() ? "#f5c542" : "#f0e0c0"}
+                      stroke={isOwn() ? "#8b1e1e" : "#2a1a10"}
                       stroke-width="1"
                     />
                     {/* Base */}
-                    <rect x="-8" y="-4" width="16" height="5" rx="1"
-                      fill={isOwn() ? "#d4a017" : isHovered() ? "#c0c8d8" : "#a0b0c0"}
+                    <rect x="-10" y="-3" width="20" height="6" rx="1.5"
+                      fill={isOwn() ? "#d4a017" : "#c8b890"}
+                      stroke={isOwn() ? "#8b1e1e" : "#2a1a10"}
+                      stroke-width="1"
                     />
 
                     {/* Name label with dark outline for readability */}
                     <Show when={showLabel()}>
                       <text
-                        y="12"
+                        y="32"
                         text-anchor="middle"
-                        font-size={isOwn() ? "7" : "6"}
-                        fill={isOwn() ? "#f5c542" : "#ffffff"}
+                        font-size={isOwn() ? "10" : "9"}
+                        fill={isOwn() ? "#f5c542" : "#f5f0e0"}
                         font-family="MedievalSharp, cursive"
                         font-weight="bold"
-                        stroke="#000000"
-                        stroke-width="2"
+                        stroke="#1a0f08"
+                        stroke-width="3"
                         paint-order="stroke"
                       >
                         {settlement.name}

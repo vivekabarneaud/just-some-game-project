@@ -23,6 +23,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
   // ── Novice (Lab lvl 1-2, starter recipes) ─────────────────────
   {
     id: "healing_salve",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/alchemy_lab/healing_salve.png",
     name: "Healing Salve",
     icon: "💚",
     description: "-25% death chance on next mission",
@@ -36,7 +37,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
   },
   {
     id: "vigor_tea",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/vigor_tea.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/alchemy_lab/vigor_tea.png",
     name: "Vigor Tea",
     icon: "🍵",
     description: "+5 to relevant stat check",
@@ -50,6 +51,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
   },
   {
     id: "foragers_tonic",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/alchemy_lab/foragers_tonic.png",
     name: "Forager's Tonic",
     icon: "🧃",
     description: "+50 bonus food from mission rewards",
@@ -65,7 +67,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
   // ── Novice (discoverable) ─────────────────────────────────────
   {
     id: "herbal_antidote",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/herbal_antidote.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/alchemy_lab/herbal_antidote.png",
     name: "Herbal Antidote",
     icon: "🧪",
     description: "+5 to stat check, -15% death risk",
@@ -80,7 +82,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
   // ── Apprentice (Lab lvl 3-4) ──────────────────────────────────
   {
     id: "strength_draught",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/strength_draught.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/alchemy_lab/strength_draught.png",
     name: "Strength Draught",
     icon: "💪",
     description: "+25% damage for 3 rounds in combat",
@@ -93,7 +95,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
   },
   {
     id: "mending_potion",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/mending_potion.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/alchemy_lab/mending_potion.png",
     name: "Mending Potion",
     icon: "❤️‍🩹",
     description: "-50% death chance for entire party",
@@ -106,6 +108,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
   },
   {
     id: "swiftfoot_brew",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/alchemy_lab/swiftfoot_brew.png",
     name: "Swiftfoot Brew",
     icon: "💨",
     description: "-20% mission duration",
@@ -118,7 +121,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
   },
   {
     id: "eagle_eye_elixir",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/eagle_eye_elixir.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/alchemy_lab/eagle_eye_elixir.png",
     name: "Eagle Eye Elixir",
     icon: "🦅",
     description: "+15 to DEX-based stat checks",
@@ -133,7 +136,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
   // ── Journeyman (Lab lvl 5-6) ──────────────────────────────────
   {
     id: "ironhide_tonic",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/ironhide_tonic.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/alchemy_lab/ironhide_tonic.png",
     name: "Ironhide Tonic",
     icon: "🛡️",
     description: "+20 defense for next raid",
@@ -146,6 +149,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
   },
   {
     id: "scholars_draught",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/alchemy_lab/scholars_draught.png",
     name: "Scholar's Draught",
     icon: "📚",
     description: "+30% XP from next mission",
@@ -157,9 +161,40 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
     discoveryChance: 0.15,
   },
 
+  // ── Tea-based brews (require traded tea leaves) ───────────────
+  // Tea is an exotic good — only obtainable from caravan missions or
+  // marketplace trade. These recipes give alchemists a second use for it.
+  {
+    id: "clarity_brew",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/alchemy_lab/clarity_brew.png",
+    name: "Clarity Brew",
+    icon: "🍵",
+    description: "+10 to INT/WIS-based stat checks",
+    tier: "apprentice",
+    minLabLevel: 3,
+    costs: [{ resource: "tea", amount: 1 }, { resource: "chamomile", amount: 2 }],
+    effect: "successBonus:10",
+    craftTime: 540,
+    discoveryChance: 0.3,
+  },
+  {
+    id: "focus_elixir",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/alchemy_lab/focus_elixir.png",
+    name: "Focus Elixir",
+    icon: "👁️‍🗨️",
+    description: "+15% XP from next mission",
+    tier: "journeyman",
+    minLabLevel: 5,
+    costs: [{ resource: "tea", amount: 2 }, { resource: "mugwort", amount: 2 }],
+    effect: "xpBonus:0.15",
+    craftTime: 900,
+    discoveryChance: 0.2,
+  },
+
   // ── Veteran (Lab lvl 7+) ──────────────────────────────────────
   {
     id: "phoenix_tears",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/alchemy_lab/phoenix_tears.png",
     name: "Phoenix Tears",
     icon: "🔥",
     description: "Auto-revive entire party on mission failure",
@@ -172,7 +207,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
   },
   {
     id: "elixir_of_insight",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/elixir_of_insight.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/alchemy_lab/elixir_of_insight.png",
     name: "Elixir of Insight",
     icon: "👁️",
     description: "Guaranteed rare loot drop on next mission",
@@ -185,7 +220,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
   },
   {
     id: "netherons_draught",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/netherons_draught.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/alchemy_lab/netherons_draught.png",
     name: "Netheron's Draught",
     icon: "☠️",
     description: "2x mission rewards but 2x death chance",

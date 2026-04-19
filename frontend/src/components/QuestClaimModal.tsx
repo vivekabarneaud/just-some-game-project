@@ -1,5 +1,7 @@
-import { createSignal, For } from "solid-js";
+import { createSignal, For, Show } from "solid-js";
 import type { QuestDefinition } from "~/data/quests";
+import { getChronicleEntry } from "~/data/chronicle_entries";
+import { getCharactersForFragments } from "~/data/founding_characters";
 
 interface Props {
   quest: QuestDefinition;
@@ -110,6 +112,95 @@ export default function QuestClaimModal(props: Props) {
               </For>
             </div>
           </div>
+
+          {/* New journal entry note — shown only if this quest unlocks a Chronicle entry */}
+          <Show when={props.quest.chronicleEntryId && getChronicleEntry(props.quest.chronicleEntryId)}>
+            {(entry) => (
+              <div class="loot-section" style={{
+                "animation-delay": "380ms",
+                padding: "10px 14px",
+                background: "rgba(96, 165, 250, 0.08)",
+                border: "1px solid var(--accent-blue)",
+                "border-radius": "6px",
+              }}>
+                <div style={{
+                  "font-size": "0.7rem",
+                  "text-transform": "uppercase",
+                  "letter-spacing": "1px",
+                  color: "var(--accent-blue)",
+                  "font-weight": "bold",
+                  "margin-bottom": "4px",
+                }}>
+                  📖 New journal entry
+                </div>
+                <div style={{
+                  "font-size": "0.95rem",
+                  color: "var(--text-primary)",
+                  "font-family": "var(--font-heading)",
+                }}>
+                  {entry().title}
+                </div>
+                <div style={{
+                  "font-size": "0.8rem",
+                  color: "var(--text-secondary)",
+                  "font-style": "italic",
+                  "line-height": "1.45",
+                  "margin-top": "4px",
+                }}>
+                  {entry().teaser}
+                </div>
+              </div>
+            )}
+          </Show>
+
+          {/* New memory notes — one per character whose fragment was unlocked */}
+          <Show when={props.quest.unlocksBioFragments && props.quest.unlocksBioFragments.length > 0}>
+            <For each={getCharactersForFragments(props.quest.unlocksBioFragments ?? [])}>
+              {(char, i) => (
+                <div class="loot-section" style={{
+                  "animation-delay": `${380 + i() * 80}ms`,
+                  padding: "10px 14px",
+                  background: "rgba(96, 165, 250, 0.08)",
+                  border: "1px solid var(--accent-blue)",
+                  "border-radius": "6px",
+                  display: "flex",
+                  "align-items": "center",
+                  gap: "12px",
+                }}>
+                  <img
+                    src={char.portrait}
+                    alt={char.name}
+                    style={{
+                      width: "48px", height: "48px",
+                      "border-radius": "6px",
+                      "object-fit": "cover",
+                      "flex-shrink": "0",
+                      border: "1px solid rgba(96, 165, 250, 0.4)",
+                    }}
+                  />
+                  <div style={{ "min-width": "0" }}>
+                    <div style={{
+                      "font-size": "0.7rem",
+                      "text-transform": "uppercase",
+                      "letter-spacing": "1px",
+                      color: "var(--accent-blue)",
+                      "font-weight": "bold",
+                      "margin-bottom": "2px",
+                    }}>
+                      📖 New memory
+                    </div>
+                    <div style={{
+                      "font-size": "0.95rem",
+                      color: "var(--text-primary)",
+                      "font-family": "var(--font-heading)",
+                    }}>
+                      {char.name}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </For>
+          </Show>
         </div>
 
         {/* Footer */}

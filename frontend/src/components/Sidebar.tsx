@@ -205,6 +205,7 @@ export default function Sidebar() {
                   (state.season === "winter" && hasUpgradableFields())
                 )) ||
                 (item.path === "/guild" && (actions.hasNewGuildContent() || hasCompletedMissions() || incomingCoopInvites() > 0)) ||
+                (item.path === "/chronicle" && actions.hasNewChronicleContent()) ||
                 (item.path === "/friends" && incomingFriendRequests() > 0);
               return (
                 <A
@@ -224,6 +225,7 @@ export default function Sidebar() {
                     <span style={{ "margin-left": "auto", "font-size": "0.7rem", color:
                       item.path === "/" ? "var(--accent-gold)" :
                       item.path === "/guild" ? "var(--accent-blue)" :
+                      item.path === "/chronicle" ? "var(--accent-gold)" :
                       item.path === "/friends" ? "var(--accent-gold)" :
                       state.season === "spring" ? "#7CFC00" :
                       state.season === "winter" ? "#a5d8ff" :
@@ -231,6 +233,7 @@ export default function Sidebar() {
                     }}>
                       {item.path === "/" ? "quest!"
                         : item.path === "/guild" ? (hasCompletedMissions() ? "loot!" : incomingCoopInvites() > 0 ? "coop!" : "new!")
+                        : item.path === "/chronicle" ? "new!"
                         : item.path === "/friends" ? `+${incomingFriendRequests()}`
                         : state.season === "spring" ? "plant!"
                         : state.season === "winter" ? "upgrade!"

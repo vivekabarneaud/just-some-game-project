@@ -166,7 +166,9 @@ export type RewardType = "gold" | "wood" | "stone" | "food" | "astralShards"
   | "meat" | "eggs" | "milk" | "fish"
   | "berries" | "mushrooms" | "nuts"
   // Herbs
-  | "chamomile" | "mugwort" | "nettle" | "nightbloom" | "moonpetal";
+  | "chamomile" | "mugwort" | "nettle" | "nightbloom" | "moonpetal"
+  // Exotic goods (caravan/escort drops only — non-growable)
+  | "pepper" | "cinnamon" | "tea" | "chili" | "saffron";
 
 export interface MissionReward {
   resource: RewardType;

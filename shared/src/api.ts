@@ -68,7 +68,8 @@ export interface WorldMapResponse {
 
 // ─── Trade ─────────────────────────────────────────────────────
 
-export type TradeResourceKey = "gold" | "wood" | "stone" | "food" | "iron" | "wool" | "fiber" | "ale" | "honey" | "fruit";
+export type TradeResourceKey = "gold" | "wood" | "stone" | "food" | "iron" | "wool" | "fiber" | "ale" | "honey" | "fruit"
+  | "pepper" | "cinnamon" | "tea" | "chili" | "saffron";
 
 export interface CreateTradeOfferRequest {
   settlementId: string;

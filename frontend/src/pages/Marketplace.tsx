@@ -16,6 +16,12 @@ const RES: Record<TradeResourceKey, { icon: string; name: string }> = {
   ale:   { icon: "🍺", name: "Ale" },
   honey: { icon: "🍯", name: "Honey" },
   fruit: { icon: "🍎", name: "Fruit" },
+  // Exotic goods — non-growable, caravan-only or player-traded
+  pepper:   { icon: "🌶️", name: "Pepper" },
+  cinnamon: { icon: "🟫", name: "Cinnamon" },
+  tea:      { icon: "🍵", name: "Tea Leaves" },
+  chili:    { icon: "🥵", name: "Chili Peppers" },
+  saffron:  { icon: "🌸", name: "Saffron" },
 };
 const RES_KEYS = Object.keys(RES) as TradeResourceKey[];
 
@@ -34,8 +40,8 @@ interface MerchantOffer {
 // Resources available per tier + amount scaling
 const TIER_RESOURCES: Record<SettlementTier, TradeResourceKey[]> = {
   camp:    ["gold", "wood", "stone", "food"],
-  village: ["gold", "wood", "stone", "food", "iron", "wool", "ale"],
-  town:    ["gold", "wood", "stone", "food", "iron", "wool", "fiber", "ale", "honey"],
+  village: ["gold", "wood", "stone", "food", "iron", "wool", "ale", "pepper"],
+  town:    ["gold", "wood", "stone", "food", "iron", "wool", "fiber", "ale", "honey", "pepper", "cinnamon", "tea"],
   city:    RES_KEYS,
 };
 const TIER_SCALE: Record<SettlementTier, { min: number; max: number }> = {
@@ -44,9 +50,11 @@ const TIER_SCALE: Record<SettlementTier, { min: number; max: number }> = {
   town:    { min: 20, max: 100 },
   city:    { min: 30, max: 150 },
 };
-// Fair exchange ratios: how much "value" 1 unit of each resource is worth
+// Fair exchange ratios: how much "value" 1 unit of each resource is worth.
+// Exotic goods are scarce (non-growable) — priced well above normal materials.
 const RES_VALUE: Record<TradeResourceKey, number> = {
   gold: 3, wood: 1, stone: 1.2, food: 0.8, iron: 2.5, wool: 2, fiber: 2, ale: 3, honey: 3, fruit: 1.5,
+  pepper: 12, cinnamon: 18, tea: 22, chili: 25, saffron: 60,
 };
 
 function generateMerchantOffers(seed: number, count: number, tier: SettlementTier): MerchantOffer[] {

@@ -644,6 +644,21 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
   { id: "fishermans_broth", name: "Fisherman's Broth", icon: "🥣", building: "kitchen", minLevel: 7,
     costs: [{ resource: "fish", amount: 3 }, { resource: "turnips", amount: 1 }, { resource: "cabbages", amount: 1 }], produces: { resource: "potions", amount: 1 }, craftTime: 60 },
 
+  // ── Exotic-spice recipes (require caravan-only ingredients) ─────
+  // Spices and tea can't be grown — only obtained via escort missions
+  // or marketplace trade. These dishes give variety to advanced kitchens.
+
+  { id: "spiced_stew", name: "Spiced Stew", icon: "🌶️", building: "kitchen", minLevel: 3,
+    costs: [{ resource: "meat", amount: 3 }, { resource: "turnips", amount: 1 }, { resource: "pepper", amount: 1 }], produces: { resource: "potions", amount: 2 }, craftTime: 45 },
+  { id: "cinnamon_honey_cake", name: "Cinnamon Honey Cake", icon: "🍰", building: "kitchen", minLevel: 4,
+    costs: [{ resource: "grain", amount: 2 }, { resource: "honey", amount: 2 }, { resource: "eggs", amount: 1 }, { resource: "cinnamon", amount: 1 }], produces: { resource: "potions", amount: 2 }, craftTime: 45 },
+  { id: "fiery_broth", name: "Fiery Broth", icon: "🥵", building: "kitchen", minLevel: 5,
+    costs: [{ resource: "meat", amount: 2 }, { resource: "cabbages", amount: 2 }, { resource: "chili", amount: 1 }], produces: { resource: "potions", amount: 2 }, craftTime: 45 },
+  { id: "steeped_tea_leaves", name: "Steeped Tea Leaves", icon: "🍵", building: "kitchen", minLevel: 3,
+    costs: [{ resource: "tea", amount: 1 }, { resource: "honey", amount: 1 }], produces: { resource: "potions", amount: 1 }, craftTime: 30 },
+  { id: "royal_feast", name: "Royal Feast", icon: "👑", building: "kitchen", minLevel: 7,
+    costs: [{ resource: "meat", amount: 4 }, { resource: "grain", amount: 3 }, { resource: "milk", amount: 2 }, { resource: "saffron", amount: 1 }], produces: { resource: "potions", amount: 4 }, craftTime: 90 },
+
   // ── Origin Recipes (loyalty-unlocked) ───────────────────────────
   // Discovered when an adventurer from that origin reaches the required loyalty rank.
 

@@ -20,17 +20,45 @@ All use: realistic digital painting, dark moody atmosphere, cinematic lighting, 
 
 ### Story Mission 2 — The Hilltop Ruins
 
+**POV rule:** The player stays at the settlement. The adventurers scout the ruins and bring back what they find. All slides are either first-person POV of the player (at their desk, in the hall, at the watchtower) OR depict the scene as the player imagines it from the returned report.
 
-**Story 2 Slide 3 — Walking Away**
-First-person POV of a hand holding the damaged journal, the settlement visible in the background through a ruined archway, walking away from the ruins back toward home, late afternoon long shadows, realistic digital painting, contemplative mood, cinematic lighting, no text --ar 16:9
-> Journal text: I brought the journal back. I don't know why — it's mostly ruined. But something about those last words. Soldiers don't carve warnings into stone unless they think no one will be left to carry the message. What is south of us?
+**Story 2 Slide 1 — The Scouts Return**
+First-person POV from the settlement gate at dusk, three travel-worn scouts walking toward the viewer on the muddy path, one holding a wrapped bundle under her arm — a damaged leather-bound journal — the others with weapons lowered, their faces tired and troubled, torches in wooden brackets on the palisade lighting their faces in warm amber, the distant southern hills visible behind them fading into twilight blue, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
+> Journal text: The scouts came back near dusk, three of them, walking slower than I'd have liked. Marta carried something wrapped in oilcloth. A journal, she said. Found in the ruined tower on the hilltop south of here. She wouldn't say more until she'd sat down.
+
+**Story 2 Slide 2 — The Journal on the Table**
+Close-up first-person POV of a damaged leather-bound journal lying open on a rough wooden table, pages water-stained and partially burnt, careful soldier's handwriting at the top of the page giving way to frantic scrawl further down, a candle flickering at the edge of the frame casting warm amber light on the parchment, a quill and inkpot beside the journal, one finger of the viewer's hand resting on the final entry where the ink trails off mid-word, a dark study interior behind the candlelight, realistic digital painting, intimate cinematic lighting, no text --ar 16:9
+> Journal text: The journal belonged to a Captain Vardin Hale — garrison commander of the southern watchtower, forty-three soldiers at full strength. The first dozen pages are mundane. Patrol rosters. Supply inventories. Complaints about the cook. Then, eleven days in, the tone changes:
+>
+> *"Day 11. Scouts report grey mist at the southern ridge. Advancing. Two leagues since last check."*
+>
+> *"Day 14. Private Halren did not return from her watch. We found her boots at the palisade, laces untied, facing south. No tracks. She did not cry out."*
+>
+> *"Day 19. Our own dead are walking. Men I buried with my own hands last winter, confused and slow, not knowing where they are. Commander Vale orders us to hold. We cannot hold against our own."*
+>
+> The last entry is scratched in the dark, the ink thinning to nothing:
+>
+> *"They are at the door. The Aether stones have gone cold. Something is wrong with the—"*
+
+**Story 2 Slide 3 — Watchtower at Dusk**
+First-person POV of a hand resting on the wooden railing of a watchtower at dusk, the closed journal placed on the railing beside the hand, the settlement's rooftops and chimney smoke visible below, looking south over dark forest toward faint silhouettes of distant hills, the sky fading from orange to deep indigo, a single pale wisp of grey mist barely visible on the southern horizon, contemplative quiet dread, realistic digital painting, cinematic lighting, no text --ar 16:9
+> Journal text: I went up to the watchtower after the others turned in. Stood with the journal in my hand, looking south. Captain Hale's garrison held its post for nineteen days. The Dominion granted us this land and called it safe frontier. They never told us about Hale. They never told us the ruined tower my scouts stood in this morning was a garrison that fell in a single week — and no one was ever sent to find out why.
 
 ### Story Mission 3 — The Silent Forest
 
+**POV rule:** Same as Story 2. The player never leaves the settlement. The adventurers see the boundary — the player hears about it.
 
-**Story 3 Slide 3 — The Boundary**
-Wide panoramic shot from the edge of the dead forest looking south, a stark divide between living green forest behind the viewer and miles of dead grey wasteland stretching to the horizon ahead, a faint shimmer in the air like cold heat haze marking the boundary line, the sky above the dead zone is darker and more oppressive than the sky behind, the contrast between life and death is the entire composition, a few adventurers standing at the boundary looking out with their backs to the viewer, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
-> Journal text: We pulled back. At the treeline, looking south, I could see it — miles of grey, stretching to the horizon. Not a dead patch. Not a blighted field. A boundary. And it's closer to us than anyone told us it would be.
+**Story 3 Slide 1 — The Scout's Account**
+Interior of a rough wooden hall, first-person POV sitting at the head of a long table, a weathered scout standing across from the viewer mid-sentence, one hand held flat to describe a horizon line, his cloak still damp, mud on his boots, expression grim and lost for words, a map of the region half-unrolled on the table in front of him showing the southern hills with a charcoal smudge where the dead forest was marked, a hearth fire crackling at the edge of the frame, realistic digital painting, warm amber light on his face, cinematic lighting, no text --ar 16:9
+> Journal text: He came straight to the hall, didn't even sit. Said the forest stopped being a forest. Trees with bark like ash, no birds, no insects, no sound. They made it to a ridge two days south. What he saw from that ridge, he said, he didn't have words for. He borrowed mine: *"It's not a patch. It's a line."*
+
+**Story 3 Slide 2 — Trees of Ash**
+Wide shot of a dead grey forest at midday, skeletal trees with bark like cold ash, no leaves, no undergrowth, no birds, the silence palpable, a soft unnatural mist curling between the trunks, two figures in the middle distance moving carefully with cloaks drawn tight, the air thick and wrong, a sense of the forest watching, realistic digital painting, desaturated cold palette, cinematic lighting, no text --ar 16:9
+> Journal text: *(as reported by the scouts, drawn on a page of the journal)* The trees go grey about half a day south of the ridge. The moss dies first. Then the leaves. Then the bark turns the color of old bone. Nothing moves in there. Nothing breathes. The wind stops when you cross in.
+
+**Story 3 Slide 3 — The Boundary (as they described it)**
+Wide panoramic shot from a ridge edge looking south, a stark divide between living green forest behind the viewer and miles of dead grey wasteland stretching to the horizon ahead, a faint shimmer in the air like cold heat haze marking the boundary line, the sky above the dead zone darker and more oppressive than the sky behind, the contrast between life and death is the entire composition, three adventurers standing at the boundary with their backs to the viewer, small in the frame, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
+> Journal text: They pulled back. At the treeline, they said, they could see it — miles of grey, stretching to the horizon. Not a dead patch. Not a blighted field. A boundary. And it's closer to us than anyone told us it would be.
 
 ### Story Mission 4 — A Ranger's Warning
 
@@ -48,17 +76,19 @@ Close-up of Kess's weathered hand resting on the hilt of her blade, the runes al
 
 ### Story Mission 5 — The Cracked Ward-Stone
 
-**Story 5 Slide 1 — The Ritual**
+**POV rule:** The team (wizard + adventurers + Kess) goes south to reinforce the ward-stone. The player stays at the settlement and waits. Slides 1–2 show what happened out there as the team described it on return. Slide 3 is Kess back at the settlement in the morning, talking to the player.
+
+**Story 5 Slide 1 — The Ritual (as they described it)**
 A moss-covered stone monolith in a moonlit forest clearing, cracked down the middle with ancient runes carved into its surface, a wizard in dark robes standing before it with hands extended channeling streams of blue-white light into the stone, Kess the Ranger kneeling beside the stone chanting with her eyes closed, the runes flickering between dark and glowing, magical energy swirling in the air like luminous mist, the surrounding forest dark and watchful, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
-> Journal text: The ritual took hours. Our wizard channeled Aether into the stone while Kess chanted in a language I've never heard. The runes flickered, dimmed — then held. A faint blue glow that pushed back the grey.
+> Journal text: They left at dawn and I didn't sleep that night. Our wizard told me later that the ritual took hours — she channeled Aether into the stone while Kess chanted in a language the Thornveil keep to themselves. The runes flickered, dimmed, then held. A faint blue glow pushing back the grey.
 
-**Story 5 Slide 2 — The Dead Come**
+**Story 5 Slide 2 — The Dead Come (as they described it)**
 Night scene in the ward-stone clearing, translucent pale spectral figures emerging from grey mist on all sides, reaching with confused ghostly hands, some with expressions of bewilderment rather than malice, adventurers in defensive formation around the glowing ward-stone with weapons drawn, blue ward-light clashing with grey ghostly mist, sparks of magical energy where spirits meet the ward's barrier, tense and eerie but not evil, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
-> Journal text: The dead came. Not with hate — with confusion. Spirits that didn't understand why they were there, drawn to the weakening ward like moths to a crack of light. We held the line while the ritual finished.
+> Journal text: The dead came, Kess said. Not with hate — with confusion. Spirits that didn't understand why they were there, drawn to the weakening ward like moths to a crack of light. The team held the line while the ritual finished. No one died. A close thing.
 
-**Story 5 Slide 3 — Kess at Rest**
-Kess the Thornveil Ranger sitting with her back against the now-glowing ward-stone, exhausted, her blade across her lap, dawn light beginning to filter through the trees, the clearing is quiet and peaceful, the grey mist has retreated, she is looking directly at the viewer with a tired evaluating expression, half-smile, the ward-stone behind her pulsing with steady blue light, a sense of hard-won victory and deeper questions ahead, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
-> Journal text: Afterward, Kess sat against the stone and told me the truth. The god of death was destroyed thousands of years ago. Without him, the boundary between the living and the dead is failing. *"Everyone has a theory. My people just patch the wards and hope someone smarter comes along."* She looked at me. *"You're building something here. That takes a certain kind of stubborn. We could use stubborn."*
+**Story 5 Slide 3 — Kess Returns at Dawn**
+First-person POV sitting on a wooden bench outside the settlement's main hall at sunrise, Kess the Thornveil Ranger sitting across from the viewer on an opposite bench, travel-stained and exhausted, her blade across her lap, dawn mist rising from the ground between them, a clay cup of tea in her hand, the settlement's rough wooden buildings behind her, she is looking directly at the viewer with a tired evaluating expression and half-smile, a sense of hard-won victory and deeper questions ahead, realistic digital painting, warm morning light, cinematic lighting, no text --ar 16:9
+> Journal text: Kess came back with the others at first light, too tired to go to bed. I sat with her outside the hall while the sun came up, and she told me the truth. The god of death was destroyed thousands of years ago. Without him, the boundary between the living and the dead is failing. *"Everyone has a theory. My people just patch the wards and hope someone smarter comes along."* She looked at me. *"You're building something here. That takes a certain kind of stubborn. We could use stubborn."*
 
 ### Story Mission 6 — The Robin's Message
 
@@ -659,23 +689,6 @@ All use: realistic digital painting, dark moody background, warm candlelight fro
 ### Intermediate (Kitchen Lv.3)
 
 
-**Shepherd's Pie**
-A rustic clay dish of shepherd's pie with a golden mashed potato crust browned on top, the edge showing layers of minced lamb and vegetables beneath, steam rising through fork marks in the crust, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Smoked Elk & Cloudberries**
-Thick slices of dark smoked elk meat fanned on a wooden board with bright orange cloudberries scattered between them, a sprig of juniper, Nordic rustic presentation, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-
-### Advanced (Kitchen Lv.4-5)
-
-
-**Zah'kari Jollof**
-A mound of deep orange-red jollof rice on a wooden plate, fragrant with tomatoes and peppers, topped with a grilled drumstick and fried plantain slices on the side, West African feast colors, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-
-### Premium (Kitchen Lv.7)
-
-
 ## Alchemy Potion Icons
 
 Potion/elixir icons: single bottle or container on dark background, square format.
@@ -683,91 +696,9 @@ All use: realistic digital painting, dark moody background, warm candlelight fro
 
 ### Novice
 
-**Healing Salve**
-A small clay jar with a cork stopper, the lid removed to show a thick green herbal paste inside, a smear of the salve on the rim, a faint warm glow emanating from the paste, chamomile flowers beside the jar, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-
-**Forager's Tonic**
-A small round glass bottle filled with bright yellow-green liquid, a cork stopper tied with twine, a tiny sprig of chamomile tucked under the cord, the liquid glowing faintly like bottled sunlight, simple and rustic, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-
-### Apprentice
-
-
-**Swiftfoot Brew**
-A slim elongated vial of pale silver-blue liquid that seems to swirl rapidly inside as if caught in a tiny whirlwind, condensation on the glass, a feather tied to the cork with silver thread, the liquid almost weightless and restless, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-
-### Journeyman
-
-
-### Veteran
-
-**Phoenix Tears**
-A tiny crystal phial of liquid fire — brilliant orange-gold fluid that flickers and dances like living flame inside the glass, a single drop on the outside of the bottle blazing with white-hot light, the phial itself warm enough to glow, the most precious substance imaginable, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
 
 
 ---
-
-## Farm Tiles
-
-Warm pastoral scenes for field/garden/orchard/pen cards. Same image reused across
-all settlement tiers (the crop itself doesn't change with tier). Aspect: --ar 4:3.
-
-### Fields
-
-**Wheat field**
-A small rectangular field of ripe golden wheat swaying gently, the stalks heavy with grain, dry earthen pathways visible at the field's edge, a wooden fence partially enclosing it, late summer afternoon, warm golden light, realistic digital painting --ar 4:3
-
-**Barley field**
-A rectangular field of pale straw-colored barley with long delicate bristled ears bending slightly in the wind, slightly shorter and shaggier than wheat, wooden fence at edges, warm midday light, realistic digital painting --ar 4:3
-
-**Flax field**
-A rectangular field of flax in bloom, covered in small sky-blue flowers on slender green stalks, morning light, delicate and painterly, a wooden fence frame, realistic digital painting --ar 4:3
-
-### Gardens
-
-**Cabbage garden**
-Neat rows of large leafy green cabbages in tilled dark soil, a few wicker baskets at the edge, a wooden plot border, warm summer light, realistic digital painting, cozy pastoral mood --ar 4:3
-
-**Turnip garden**
-Rows of turnips with their purple-and-cream root shoulders pushing up from rich dark soil, green leafy tops, a small wooden basket to one side, realistic digital painting, cozy pastoral mood --ar 4:3
-
-**Pea garden**
-Wooden trellises laced with climbing pea vines, small white-pink flowers and plump green pods hanging, neatly staked rows, soft daylight, realistic digital painting, cozy pastoral mood --ar 4:3
-
-**Squash garden**
-Sprawling squash vines with broad green leaves and large yellow-orange squashes nestled among them on rich brown soil, straw mulch, realistic digital painting, cozy pastoral mood --ar 4:3
-
-### Orchards
-
-**Apple orchard**
-A small grove of three or four apple trees heavy with red-green fruit, soft green grass beneath, a wooden basket half-filled with apples at the base of one tree, dappled afternoon sunlight, realistic digital painting --ar 4:3
-
-**Pear orchard**
-A grove of slender pear trees with hanging golden-green pears, a few fallen on the grass, low stone wall in the background, golden hour light, realistic digital painting --ar 4:3
-
-**Cherry orchard**
-Cherry trees in full bloom with clusters of ripe red cherries and pale-pink blossoms still clinging, a rustic wooden ladder leaned against one trunk, soft spring light, realistic digital painting --ar 4:3
-
-### Animal Pens
-
-**Chicken coop**
-A small wooden coop with a fenced run, several plump brown and white hens pecking at scattered grain in dirt-and-straw ground, a rooster on a low perch, morning light, realistic digital painting, pastoral farm scene --ar 4:3
-
-**Pig pen**
-A muddy wooden-fenced pen with two or three pink pigs — one wallowing, one eating from a trough — straw bedding, a rustic shelter in the back, realistic digital painting, pastoral farm scene --ar 4:3
-
-**Goat pen**
-A hilly fenced enclosure with three or four alert brown-and-white goats, one standing on a rock, a wooden shed at the back, mountain grass, warm daylight, realistic digital painting, pastoral farm scene --ar 4:3
-
-**Sheep pen**
-A grassy enclosure with four fluffy white sheep grazing, a low wooden fence, a rustic shearing post to one side, soft overcast light, realistic digital painting, pastoral farm scene --ar 4:3
-
-### Beehives
-
-**Apiary**
-Three or four traditional woven straw skep beehives on a wooden stand, bees visibly swarming around them, wildflowers growing at the base, a clay honey pot half-visible in the foreground, warm summer midday light, realistic digital painting, pastoral farm scene --ar 4:3
 
 ## Crafting Material Icons (remaining 25)
 
@@ -781,63 +712,17 @@ Save each file with the exact material ID as the filename (e.g. `thick_pelt.png`
 
 ### Hides & Bones (tier 1–2)
 
-**thick_pelt** — a thick shaggy bear pelt with dark brown fur, coarse and matted, rolled slightly, claws at one edge
-
 **bristlehide** — a section of boar hide bristling with coarse needle-sharp quills, mottled dark gray and umber
-
-**bear_claw** — a single massive curved bear claw, obsidian-black, sharp tip, leather wrap at the base
 
 **serpent_fang** — a long hollow curved serpent fang, pale ivory, glistening green venom dripping from the tip
 
 **tusk_shard** — a broken jagged boar tusk fragment, cream and bone-white, rough etched surface
-
-**alpha_fang** — a large curved wolf's alpha fang, warm ivory, faintly gleaming, runes lightly carved into the surface
 
 **beast_heart** — a massive steaming beast heart, dark crimson red, glistening wet, faintly luminous veins
 
 ### Alchemy Ingredients (tier 1–4)
 
 **snake_oil** — a small corked glass vial of amber-yellow viscous oil, label scrawled in faded ink, sealed with wax
-
-**glowcap_spore** — a pouch of luminous blue-green fungal spores, softly glowing, puff of spore dust rising
-
-**ghoul_marrow** — a fragment of cold grey bone marrow, faintly luminescent, unsettling sickly glow, nestled in cloth
-
-**grave_dust** — a small pile of fine grey graveyard dust on dark cloth, bone fragments within, cold blue-grey tint
-
-**ashblood** — a glass vial filled with thick dark red demon blood, almost black, smoking faintly, ornate silver stopper
-
-**hellite** — a jagged crystal of crystallized brimstone, deep purple-violet, cold glowing cracks, sharp obsidian edges
-
-### Enchanting Essences & Oddities (tier 2–5)
-
-**veilmist** — a sealed ornate glass flask swirling with ghostly grey mist, ethereal tendrils pressed against the glass
-
-**voidthorn** — a shard of crystallized black void, jagged obsidian thorn, light bending around it, subtle purple aura
-
-**shadow_fragment** — a fragment of solid shadow, shifting black mist, edges bleeding into smoke, faint eye-like glow
-
-**witch_eye** — a preserved milky witch eye in a small glass jar, iris glowing purple, unsettling but beautiful
-
-**hex_fetish** — a small bundled fetish of bones, feathers, red thread, and a carved wooden totem, cursed tribal charm
-
-**amber_resin** — a chunk of translucent golden amber resin, an insect preserved inside, warm luminous glow
-
-### Gems & Divine (tier 4–5)
-
-**keening_shard** — a crystalline banshee-scream shard, pale blue-white, faint motion blur suggesting vibration, thin hairline cracks
-
-**godspark** — a small golden divine spark, warm glowing orb wrapped in soft halo, flecks of light rising from it
-
-**dormant_sigil** — an ornate circular temple sigil, dark iron engraved with runes, faintly glowing amber cracks, dormant but alive
-
-**charite** — a polished rose-colored gemstone of charite, warm pink inner glow, refracted light rays, celestial feel
-
-### Dragon & Nature (tier 3–5)
-
-**pyrewing_core** — a blazing dragon pyrewing core, molten orange-red sphere with black fractal fissures, radiating heat waves and embers
-
-**living_heartwood** — a chunk of living heartwood, dark bark outside with glowing emerald green veins running through it, small sprout on top
 
 ## Equipment & Item Icons
 
@@ -851,36 +736,6 @@ Use `--sref` on an existing item icon (e.g. `alpha_fang_amulet.png`) to keep the
 
 ### Cloth & Robes
 
-**woolen_robe** — a simple homespun woolen robe laid flat, natural cream and oatmeal tones, coarse hand-woven texture, rope belt, plain and warm, peasant-tier garment
-
-**priest_robes** — an ornate priestly robe in pale cream and gold, embroidered sun sigil on the chest, soft flowing sleeves, silver trim at the hem, devout and dignified
-
-**wizard_robes** — a deep indigo wizard's robe with silver star embroidery, wide hooded cowl, celestial embroidered trim, mysterious and scholarly
-
-**windweave_robe** — a shimmering storm-grey robe woven from windweave fibers, trailing ribbons of translucent cloth that hint at motion, faint blue-white glow at the seams, ethereal and weightless
-
-**necromancer_cowl** — a dark hooded cowl in black tattered cloth, bone clasps at the collar, faint purple inner glow from within the hood, sinister and otherworldly
-
-**trollhide_cloak** — a heavy cloak of mottled troll hide, greenish-grey thick leather, crude stitching with coarse thread, weather-beaten and primal
-
 ### Armor
 
-**wolfhide_armor** — a rugged leather vest of stitched wolfhide, dark brown fur trim at the shoulders, bone buckles, primal frontier craftsmanship
-
-**chitin_vest** — a segmented black chitin carapace vest, iridescent purple-green sheen, insect-armor plates layered over dark leather, alien and hard
-
 **infernal_mail** — a suit of chain mail forged from infernal links, blackened iron rings with faint red heat glow between them, demonic runes etched into the pauldrons, menacing
-
-**wyrmscale_armor** — a suit of iridescent dragon-scale armor, overlapping crimson and gold scales, warm to the touch, radiating power, exotic and rare
-
-### Weapons & Banners
-
-**iron_dagger** — a simple well-forged iron dagger, straight double-edged blade, wooden hilt wrapped in leather cord, no embellishment, functional and sharp
-
-**war_banner** — a tattered war banner on a short wooden pole, black cloth with a bone-white sigil torn across it, scorched edges, battle-worn and grim
-
-### Recovery & Food
-
-**bandage** — a roll of clean linen bandage, partially unspooled, small iron pin tucked through one layer, simple and utilitarian
-
-**shepherds_pie** — a rustic pie in a terracotta dish, mashed potato crust with fork-drawn lines browned on top, crumbled meat and gravy visible at the edges, steam rising, hearty comfort food

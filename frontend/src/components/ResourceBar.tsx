@@ -1,6 +1,7 @@
 import { For, Show } from "solid-js";
 import { RESOURCES } from "~/data/resources";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
+import { EXOTICS } from "@medieval-realm/shared/data/exotics";
 import { useGame } from "~/engine/gameState";
 import { FOOD_ITEMS, FOOD_CATEGORIES, getTotalFood, type FoodItemType, type FoodCategoryId } from "~/data/foods";
 import FoodIcon from "~/components/FoodIcon";
@@ -210,6 +211,30 @@ export default function ResourceBar() {
                   <div class="dropdown-row">
                     <span>{herb.icon} {herb.name}</span>
                     <span>{state.herbs?.[herb.id] ?? 0}</span>
+                  </div>
+                </Show>
+              )}
+            </For>
+          </div>
+        </div>
+      </Show>
+
+      {/* Exotic goods — caravan-only spices & tea */}
+      <Show when={state.exotics && Object.values(state.exotics).some((v) => (v as number) > 0)}>
+        <div class="resource-item has-dropdown">
+          <span class="resource-icon">🌶️</span>
+          <span class="resource-amount">{Object.values(state.exotics ?? {}).reduce((sum, v) => sum + (v as number), 0)}</span>
+          <div class="resource-dropdown">
+            <div class="dropdown-title">Exotic Goods</div>
+            <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-bottom": "6px", "padding-bottom": "4px", "border-bottom": "1px solid var(--border-default)" }}>
+              From caravan & escort missions only
+            </div>
+            <For each={EXOTICS}>
+              {(ex) => (
+                <Show when={(state.exotics?.[ex.id] ?? 0) > 0}>
+                  <div class="dropdown-row">
+                    <span>{ex.icon} {ex.name}</span>
+                    <span>{state.exotics?.[ex.id] ?? 0}</span>
                   </div>
                 </Show>
               )}

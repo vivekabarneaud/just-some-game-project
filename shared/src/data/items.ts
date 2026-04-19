@@ -181,21 +181,21 @@ export const ITEMS: ItemDefinition[] = [
 
   // ── Cloth armor (Tailoring) ───────────────────────────────────
   {
-    id: "woolen_robe", name: "Woolen Robe", icon: "🧶", slot: "chest",
+    id: "woolen_robe", name: "Woolen Robe", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/tailoring/woolen_robe.png", icon: "🧶", slot: "chest",
     description: "+1 VIT, +1 WIS, 10 DEF",
     classes: [], armorType: "cloth",
     stats: { vit: 1, wis: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "woolen_robe", consumable: false, defense: 10,
   },
   {
-    id: "priest_robes", name: "Priest Robes", icon: "🥋", slot: "chest",
+    id: "priest_robes", name: "Priest Robes", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/tailoring/priest_robes.png", icon: "🥋", slot: "chest",
     description: "+2 VIT, +1 WIS, 18 DEF",
     classes: ["priest"], armorType: "cloth",
     stats: { vit: 2, wis: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "priest_robes", consumable: false, defense: 18,
   },
   {
-    id: "wizard_robes", name: "Wizard Robes", icon: "🧙", slot: "chest",
+    id: "wizard_robes", name: "Wizard Robes", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/tailoring/wizard_robes.png", icon: "🧙", slot: "chest",
     description: "+2 VIT, +2 INT, -10% duration, 18 DEF",
     classes: ["wizard"], armorType: "cloth",
     stats: { vit: 2, int: 2 }, durationMod: 0.9, lootMod: 1,
@@ -213,7 +213,7 @@ export const ITEMS: ItemDefinition[] = [
 
   // ── Recovery items (between-event heal on expeditions, pre-combat heal on simple missions)
   {
-    id: "bandage", name: "Bandage", icon: "🩹", slot: "trinket",
+    id: "bandage", name: "Bandage", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/bandage.png", icon: "🩹", slot: "trinket",
     description: "Clean linen strips. Heals 25% max HP before combat.",
     classes: [],
     stats: {}, durationMod: 1, lootMod: 1,
@@ -322,28 +322,28 @@ export const ITEMS: ItemDefinition[] = [
 
   // Leatherworking — material armor
   {
-    id: "wolfhide_armor", name: "Wolfhide Armor", icon: "🐺", slot: "chest",
+    id: "wolfhide_armor", name: "Wolfhide Armor", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/wolfhide_armor.png", icon: "🐺", slot: "chest",
     description: "+1 VIT, +1 DEX, 25 DEF. Tough and pungent. The frontier's favorite.",
     classes: [], armorType: "leather",
     stats: { vit: 1, dex: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "wolfhide_armor", consumable: false, defense: 25,
   },
   {
-    id: "chitin_vest", name: "Chitin Vest", icon: "🕷️", slot: "chest",
+    id: "chitin_vest", name: "Chitin Vest", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/chitin_vest.png", icon: "🕷️", slot: "chest",
     description: "+2 DEX, 35 DEF. Light as wood, hard as iron. Spider-silk stitching.",
     classes: [], armorType: "leather",
     stats: { dex: 2 }, durationMod: 1, lootMod: 1,
     recipeId: "chitin_vest", consumable: false, defense: 35,
   },
   {
-    id: "trollhide_cloak", name: "Trollhide Cloak", icon: "🧌", slot: "cloak",
+    id: "trollhide_cloak", name: "Trollhide Cloak", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/trollhide_cloak.png", icon: "🧌", slot: "cloak",
     description: "+2 VIT, +1 STR, 30 DEF. Still warm. The regeneration lingers.",
     classes: [], armorType: "leather",
     stats: { vit: 2, str: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "trollhide_cloak", consumable: false, defense: 30,
   },
   {
-    id: "wyrmscale_armor", name: "Wyrmscale Armor", icon: "🐉", slot: "chest",
+    id: "wyrmscale_armor", name: "Wyrmscale Armor", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/wyrmscale_armor.png", icon: "🐉", slot: "chest",
     description: "+3 VIT, +2 STR, 70 DEF. Dragon scales over leather. Forge-resistant and magnificent.",
     classes: [], armorType: "plate",
     stats: { vit: 3, str: 2 }, durationMod: 1, lootMod: 1,
@@ -359,14 +359,14 @@ export const ITEMS: ItemDefinition[] = [
     recipeId: "ghostweave_cloak", consumable: false, defense: 15,
   },
   {
-    id: "windweave_robe", name: "Windweave Robe", icon: "💨", slot: "chest",
+    id: "windweave_robe", name: "Windweave Robe", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/tailoring/windweave_robe.png", icon: "💨", slot: "chest",
     description: "+3 INT, +1 DEX, 20 DEF. Weighs nothing. Dries instantly. 5% faster missions.",
     classes: ["wizard"], armorType: "cloth",
     stats: { int: 3, dex: 1 }, durationMod: 0.95, lootMod: 1,
     recipeId: "windweave_robe", consumable: false, defense: 20,
   },
   {
-    id: "war_banner", name: "War Banner", icon: "🏴", slot: "trinket",
+    id: "war_banner", name: "War Banner", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/war_banner.png", icon: "🏴", slot: "trinket",
     description: "+1 STR to entire party. Orc warlord's standard, restitched and blessed.",
     classes: [],
     stats: { str: 1 }, durationMod: 1, lootMod: 1,
@@ -630,7 +630,7 @@ export const ITEMS: ItemDefinition[] = [
     classes: [], stats: { dex: 2, str: 1 }, durationMod: 1, lootMod: 1.10, recipeId: "", consumable: false,
   },
   {
-    id: "necromancer_cowl", name: "Necromancer's Cowl", icon: "🧥", slot: "head",
+    id: "necromancer_cowl", name: "Necromancer's Cowl", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/tailoring/necromancer_cowl.png", icon: "🧥", slot: "head",
     description: "+3 INT, +1 WIS. The fabric whispers when you put it on. Best not to listen.",
     classes: ["wizard"], stats: { int: 3, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "", consumable: false, defense: 10,
   },
@@ -1178,19 +1178,19 @@ export const MATERIALS: MaterialDefinition[] = [
     category: "alchemy", tier: 2,
   },
   {
-    id: "ashblood", name: "Ashblood", icon: "🩸",
+    id: "ashblood", name: "Ashblood", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/ashblood.png", icon: "🩸",
     description: "Demon blood. It smells like burning hair and moves on its own when left in a bowl. The Khor'vani pay well for this.",
     category: "alchemy", tier: 4,
   },
   {
-    id: "hellite", name: "Hellite", icon: "💜",
+    id: "hellite", name: "Hellite", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/hellite.png", icon: "💜",
     description: "Crystallized brimstone from the demon realm. Burns cold. The Alchemists say it's 'theoretically useful and practically terrifying.'",
     category: "alchemy", tier: 4,
   },
 
   // ── Enchanting Essences ──────────────────────────────────────
   {
-    id: "veilmist", name: "Veilmist", icon: "🌫️",
+    id: "veilmist", name: "Veilmist", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/veilmist.png", icon: "🌫️",
     description: "Mist from the other side of the boundary. Collected in a sealed flask, it swirls endlessly. The dead breathe this.",
     category: "enchanting", tier: 2,
   },
@@ -1225,29 +1225,29 @@ export const MATERIALS: MaterialDefinition[] = [
     category: "enchanting", tier: 3,
   },
   {
-    id: "voidthorn", name: "Voidthorn", icon: "🖤",
+    id: "voidthorn", name: "Voidthorn", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/voidthorn.png", icon: "🖤",
     description: "A shard of crystallized darkness from beyond the boundary. It drinks light and pricks like a needle that isn't there.",
     category: "enchanting", tier: 5,
   },
   {
-    id: "shadow_fragment", name: "Shadow Fragment", icon: "🌑",
+    id: "shadow_fragment", name: "Shadow Fragment", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/shadow_fragment.png", icon: "🌑",
     description: "A piece of a Shadow Lord. It exists and doesn't. Looking at it too long gives you a headache shaped like a scream.",
     category: "enchanting", tier: 5,
   },
 
   // ── Gems & Divine ────────────────────────────────────────────
   {
-    id: "keening_shard", name: "Keening Shard", icon: "💠",
+    id: "keening_shard", name: "Keening Shard", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/keening_shard.png", icon: "💠",
     description: "Crystallized from a banshee's scream. It hums a single note, always. Jewelcrafters say it's beautiful. Everyone else says it's unsettling.",
     category: "gem", tier: 4,
   },
   {
-    id: "godspark", name: "Godspark", icon: "⭐",
+    id: "godspark", name: "Godspark", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/godspark.png", icon: "⭐",
     description: "A fragment of dormant divine essence. Warm, golden, and faintly aware. The Church would kill to have this. The Cult would kill to use it.",
     category: "gem", tier: 4,
   },
   {
-    id: "dormant_sigil", name: "Dormant Sigil", icon: "⚜️",
+    id: "dormant_sigil", name: "Dormant Sigil", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/dormant_sigil.png", icon: "⚜️",
     description: "Pried from a temple guardian's chest. The runes are dark now, but they flicker when you pray.",
     category: "gem", tier: 4,
   },
@@ -1264,7 +1264,7 @@ export const MATERIALS: MaterialDefinition[] = [
 
   // ── Dragon-specific ──────────────────────────────────────────
   {
-    id: "pyrewing_core", name: "Pyrewing Core", icon: "🔥",
+    id: "pyrewing_core", name: "Pyrewing Core", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/pyrewing_core.png", icon: "🔥",
     description: "The furnace inside an ancient wyrm. It still burns. It will burn for centuries. Handle with something that isn't your hands.",
     category: "dragon", tier: 5,
   },
@@ -1282,28 +1282,28 @@ export const MATERIALS: MaterialDefinition[] = [
   // ── New Materials — Content Expansion ──────────────────────────
 
   // Hides
-  { id: "thick_pelt", name: "Thick Pelt", icon: "🐻", description: "Heavy bear fur, tough enough to turn a blade. Smells worse than it looks.", category: "hide", tier: 1 },
+  { id: "thick_pelt", name: "Thick Pelt", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/thick_pelt.png", icon: "🐻", description: "Heavy bear fur, tough enough to turn a blade. Smells worse than it looks.", category: "hide", tier: 1 },
   { id: "bristlehide", name: "Bristlehide", icon: "🐗", description: "Coarse boar skin covered in needle-sharp bristles. Makes surprisingly good padding.", category: "hide", tier: 1 },
 
   // Bones & Parts
-  { id: "bear_claw", name: "Bear Claw", icon: "🐾", description: "Curved, sharp, and the size of a dagger. The hunters mount them as trophies. The Jewelcrafters see raw material.", category: "bone", tier: 1 },
+  { id: "bear_claw", name: "Bear Claw", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/bear_claw.png", icon: "🐾", description: "Curved, sharp, and the size of a dagger. The hunters mount them as trophies. The Jewelcrafters see raw material.", category: "bone", tier: 1 },
   { id: "serpent_fang", name: "Serpent Fang", icon: "🐍", description: "Hollow, curved, and still glistening with venom. Handle with thick gloves.", category: "bone", tier: 1 },
   { id: "tusk_shard", name: "Tusk Shard", icon: "🦷", description: "A broken boar tusk, dense as stone. The Khazdurim use them for practice scrimshaw.", category: "bone", tier: 1 },
-  { id: "alpha_fang", name: "Alpha Fang", icon: "🐺", description: "The largest fang from the pack leader's jaw. Warm to the touch, as if the beast's fury persists.", category: "bone", tier: 2 },
+  { id: "alpha_fang", name: "Alpha Fang", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/alpha_fang.png", icon: "🐺", description: "The largest fang from the pack leader's jaw. Warm to the touch, as if the beast's fury persists.", category: "bone", tier: 2 },
   { id: "beast_heart", name: "Beast Heart", icon: "❤️", description: "Massive, still faintly warm. The old hunters say eating it raw gives you the bear's courage. Don't.", category: "alchemy", tier: 3 },
 
   // Alchemy
   { id: "snake_oil", name: "Snake Oil", icon: "🧪", description: "Rendered from marsh adder venom. The alchemists call it a universal solvent. Everyone else calls it poison.", category: "alchemy", tier: 1 },
-  { id: "glowcap_spore", name: "Glowcap Spore", icon: "🍄", description: "Luminous fungal spores that glow blue-green in the dark. Mildly hallucinogenic if inhaled. Useful for alchemy.", category: "alchemy", tier: 1 },
-  { id: "ghoul_marrow", name: "Ghoul Marrow", icon: "🦴", description: "Grey, cold, and faintly luminescent. The alchemists want it. The priests want it burned. The alchemists are more persuasive.", category: "alchemy", tier: 2 },
-  { id: "grave_dust", name: "Grave Dust", icon: "💀", description: "Fine grey powder from where the undead walk. Disturbing to collect, invaluable to enchanters.", category: "alchemy", tier: 2 },
-  { id: "witch_eye", name: "Witch's Eye", icon: "👁️", description: "A glass eye that isn't glass. It blinks when you're not looking. The witch says she has a spare.", category: "enchanting", tier: 2 },
-  { id: "hex_fetish", name: "Hex Fetish", icon: "🪬", description: "A crude totem of bone and feathers, still humming with hedge-magic. The goblins hang them from their belts like lucky charms.", category: "enchanting", tier: 2 },
+  { id: "glowcap_spore", name: "Glowcap Spore", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/glowcap_spore.png", icon: "🍄", description: "Luminous fungal spores that glow blue-green in the dark. Mildly hallucinogenic if inhaled. Useful for alchemy.", category: "alchemy", tier: 1 },
+  { id: "ghoul_marrow", name: "Ghoul Marrow", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/ghoul_marrow.png", icon: "🦴", description: "Grey, cold, and faintly luminescent. The alchemists want it. The priests want it burned. The alchemists are more persuasive.", category: "alchemy", tier: 2 },
+  { id: "grave_dust", name: "Grave Dust", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/grave_dust.png", icon: "💀", description: "Fine grey powder from where the undead walk. Disturbing to collect, invaluable to enchanters.", category: "alchemy", tier: 2 },
+  { id: "witch_eye", name: "Witch's Eye", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/witch_eye.png", icon: "👁️", description: "A glass eye that isn't glass. It blinks when you're not looking. The witch says she has a spare.", category: "enchanting", tier: 2 },
+  { id: "hex_fetish", name: "Hex Fetish", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/hex_fetish.png", icon: "🪬", description: "A crude totem of bone and feathers, still humming with hedge-magic. The goblins hang them from their belts like lucky charms.", category: "enchanting", tier: 2 },
 
   // Nature
-  { id: "living_heartwood", name: "Living Heartwood", icon: "🪵", description: "Cut from the core of a corrupted treant. It's warm, it bleeds sap, and if you leave it in soil it tries to grow roots overnight.", category: "enchanting", tier: 3 },
-  { id: "amber_resin", name: "Amber Resin", icon: "🟠", description: "Golden tree-blood hardened into crystal. Ancient insects trapped inside sometimes still move.", category: "gem", tier: 3 },
-  { id: "charite", name: "Charite", icon: "🔶", description: "Crystallized fire-ash from the bones of a Burnt Skeleton. It's always warm and glows faintly in the dark.", category: "enchanting", tier: 2 },
+  { id: "living_heartwood", name: "Living Heartwood", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/living_heartwood.png", icon: "🪵", description: "Cut from the core of a corrupted treant. It's warm, it bleeds sap, and if you leave it in soil it tries to grow roots overnight.", category: "enchanting", tier: 3 },
+  { id: "amber_resin", name: "Amber Resin", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/amber_resin.png", icon: "🟠", description: "Golden tree-blood hardened into crystal. Ancient insects trapped inside sometimes still move.", category: "gem", tier: 3 },
+  { id: "charite", name: "Charite", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/charite.png", icon: "🔶", description: "Crystallized fire-ash from the bones of a Burnt Skeleton. It's always warm and glows faintly in the dark.", category: "enchanting", tier: 2 },
 
   // Elemental Gems
   { id: "crude_ruby", name: "Crude Ruby", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/crude_ruby.png", icon: "🔴", description: "An uncut fire-touched gemstone, cloudy and rough. A Jewelcrafter could refine it into something beautiful.", category: "gem", tier: 2 },

@@ -222,7 +222,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     name: "Shrine",
     category: "settlement",
     description:
-      "A sacred place where the old gods are honored. Each day a different deity visits — make an offering to receive their blessing. Also improves settlement happiness.",
+      "A humble altar, then a proper shrine — dedicated to the saints of the Radiant One. Each day a different saint is honored; offer something of your stores to receive their blessing. Also improves settlement happiness.",
     icon: "🔮",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/shrine.png",
     maxLevel: 10,

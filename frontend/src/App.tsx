@@ -162,7 +162,16 @@ export default function App(props: ParentProps) {
         <CinematicOverlay
           slides={INTRO_CINEMATIC}
           villageName={state.villageName}
-          onComplete={() => actions.markIntroSeen()}
+          onComplete={() => {
+            actions.markIntroSeen();
+            showEvent({
+              type: "info",
+              icon: "📖",
+              message: "New journal entry — Arrival",
+              accent: "var(--accent-blue)",
+              onClick: () => navigate("/chronicle?entry=ch1_arrival"),
+            });
+          }}
         />
       </Show>
 
