@@ -342,9 +342,11 @@ export default function MissionAssemblyPanel(props: Props) {
       let seed = 0;
       for (let i = 0; i < seedStr.length; i++) seed = ((seed << 5) - seed + seedStr.charCodeAt(i)) | 0;
 
-      // Run 40 seeded simulations for 2.5% granularity (instant with seeded PRNG)
+      // Run 200 seeded simulations for ~3.4% standard error at 90% success.
+      // Higher count tightens variance between near-identical teams — two
+      // similarly-equipped adventurers should read similar odds.
       let wins = 0;
-      const SIMS = 40;
+      const SIMS = 200;
       for (let i = 0; i < SIMS; i++) {
         if (simulateCombat(fm, snapshot, sups, seed + i)?.victory) wins++;
       }

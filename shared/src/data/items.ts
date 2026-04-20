@@ -81,7 +81,7 @@ export const ITEMS: ItemDefinition[] = [
   // ── Swords (Blacksmith) — warrior, assassin ───────────────────
   {
     id: "iron_sword", name: "Iron Sword", icon: "⚔️", slot: "mainHand",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/iron_sword.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/iron_sword.png",
     description: "+1 STR",
     classes: ["warrior", "assassin"],
     stats: { str: 1 }, durationMod: 1, lootMod: 1,
@@ -89,7 +89,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "steel_sword", name: "Steel Sword", icon: "🗡️", slot: "mainHand",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/steel_sword.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/steel_sword.png",
     description: "+3 STR, +1 DEX",
     classes: ["warrior", "assassin"],
     stats: { str: 3, dex: 1 }, durationMod: 1, lootMod: 1.05,
@@ -99,7 +99,7 @@ export const ITEMS: ItemDefinition[] = [
   // ── Staves (Woodworker) — wizard, priest ──────────────────────
   {
     id: "wooden_staff", name: "Wooden Staff", icon: "🪄", slot: "mainHand",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/wooden_staff.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/woodworker/wooden_staff.png",
     description: "+1 INT",
     classes: ["wizard", "priest"],
     stats: { int: 1 }, durationMod: 1, lootMod: 1,
@@ -107,7 +107,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "enchanted_staff", name: "Enchanted Staff", icon: "✨", slot: "mainHand",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/enchanted_staff.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/woodworker/enchanted_staff.png",
     description: "+4 INT, +2 WIS, -15% duration", twoHanded: true,
     classes: ["wizard", "priest"],
     stats: { int: 4, wis: 2 }, durationMod: 0.85, lootMod: 1,
@@ -117,7 +117,7 @@ export const ITEMS: ItemDefinition[] = [
   // ── Bows (Woodworker) — archer ────────────────────────────────
   {
     id: "short_bow", name: "Short Bow", icon: "🏹", slot: "mainHand",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/short_bow.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/woodworker/short_bow.png",
     description: "+1 DEX (basic)",
     classes: ["archer"],
     stats: { dex: 1 }, durationMod: 1, lootMod: 1,
@@ -125,7 +125,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "hunting_bow", name: "Hunting Bow", icon: "🏹", slot: "mainHand",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/hunting_bow.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/woodworker/hunting_bow.png",
     description: "+1 DEX",
     classes: ["archer"],
     stats: { dex: 1 }, durationMod: 1, lootMod: 1,
@@ -133,7 +133,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "longbow", name: "Longbow", icon: "🎯", slot: "mainHand",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/longbow.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/woodworker/longbow.png",
     description: "+3 DEX, +1 STR",
     classes: ["archer"],
     stats: { dex: 3, str: 1 }, durationMod: 1, lootMod: 1.05,
@@ -144,7 +144,7 @@ export const ITEMS: ItemDefinition[] = [
   // Plate items no longer class-restricted — anyone with plate access (warriors + Blessed Armor priests) can wear.
   {
     id: "iron_shield", name: "Iron Shield", icon: "🛡️", slot: "offHand",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/iron_shield.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/iron_shield.png",
     description: "+2 VIT, 45 DEF",
     classes: [], armorType: "plate",
     stats: { vit: 2 }, durationMod: 1, lootMod: 1,
@@ -152,7 +152,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "iron_armor", name: "Iron Armor", icon: "🦺", slot: "chest",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/iron_armor.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/iron_armor.png",
     description: "+3 VIT, +1 STR, 65 DEF",
     classes: [], armorType: "plate",
     stats: { vit: 3, str: 1 }, durationMod: 1, lootMod: 1,
@@ -162,7 +162,7 @@ export const ITEMS: ItemDefinition[] = [
   // ── Mail armor (Blacksmith) — medium armor, dex-flavored ──────
   {
     id: "chainmail", name: "Chainmail Armor", icon: "⛓️", slot: "chest",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/chainmail_armor.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/chainmail_armor.png",
     description: "+3 VIT, +2 DEX, 55 DEF. Flexible rings — protects without sacrificing speed.",
     classes: [], armorType: "mail",
     stats: { vit: 3, dex: 2 }, durationMod: 1, lootMod: 1,
@@ -172,7 +172,7 @@ export const ITEMS: ItemDefinition[] = [
   // ── Light armor (Woodworker) ──────────────────────────────────
   {
     id: "wooden_shield", name: "Wooden Shield", icon: "🪵", slot: "offHand",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/wooden_shield.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/woodworker/wooden_shield.png",
     description: "+1 VIT, 25 DEF",
     classes: ["warrior", "archer", "assassin"],
     stats: { vit: 1 }, durationMod: 1, lootMod: 1,
@@ -205,6 +205,7 @@ export const ITEMS: ItemDefinition[] = [
   // ── Trinkets — all classes ────────────────────────────────────
   {
     id: "iron_dagger_equip", name: "Iron Dagger", icon: "🗡️", slot: "mainHand",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/iron_dagger.png",
     description: "+1 DEX. A simple but sharp blade — every adventurer's first real weapon.",
     classes: [],
     stats: { dex: 1 }, durationMod: 1, lootMod: 1,
@@ -213,7 +214,7 @@ export const ITEMS: ItemDefinition[] = [
 
   // ── Recovery items (between-event heal on expeditions, pre-combat heal on simple missions)
   {
-    id: "bandage", name: "Bandage", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/bandage.png", icon: "🩹", slot: "trinket",
+    id: "bandage", name: "Bandage", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/tailoring/bandage.png", icon: "🩹", slot: "trinket",
     description: "Clean linen strips. Heals 25% max HP before combat.",
     classes: [],
     stats: {}, durationMod: 1, lootMod: 1,
@@ -223,7 +224,7 @@ export const ITEMS: ItemDefinition[] = [
   // ── Leather armor (Leatherworking) ────────────────────────────
   {
     id: "leather_vest", name: "Leather Vest", icon: "🦺", slot: "chest",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leather_vest.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/leather_vest.png",
     description: "+1 DEX, 30 DEF",
     classes: [], armorType: "leather",
     stats: { dex: 1 }, durationMod: 1, lootMod: 1,
@@ -231,7 +232,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "leather_boots", name: "Leather Boots", icon: "🥾", slot: "boots",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leather_boots.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/leather_boots.png",
     description: "+1 DEX, 15 DEF",
     classes: [], armorType: "leather",
     stats: { dex: 1 }, durationMod: 1, lootMod: 1,
@@ -239,7 +240,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "leather_hood", name: "Leather Hood", icon: "🪖", slot: "head",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leather_hood.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/leather_hood.png",
     description: "+1 DEX, 15 DEF",
     classes: [], armorType: "leather",
     stats: { dex: 1 }, durationMod: 1, lootMod: 1,
@@ -247,7 +248,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "leather_pants", name: "Leather Pants", icon: "👖", slot: "legs",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leather_pants.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/leather_pants.png",
     description: "+1 VIT, 20 DEF",
     classes: [], armorType: "leather",
     stats: { vit: 1 }, durationMod: 1, lootMod: 1,
@@ -255,7 +256,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "leather_cloak", name: "Leather Cloak", icon: "🧥", slot: "cloak",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leather_cloak.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/leather_cloak.png",
     description: "+1 DEX, 12 DEF",
     classes: [], armorType: "leather",
     stats: { dex: 1 }, durationMod: 1, lootMod: 1,
@@ -263,7 +264,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "rangers_garb", name: "Ranger's Garb", icon: "🏹", slot: "chest",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/rangers_garb.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/rangers_garb.png",
     description: "+2 DEX, +1 VIT, 40 DEF",
     classes: ["archer"], armorType: "leather",
     stats: { dex: 2, vit: 1 }, durationMod: 1, lootMod: 1,
@@ -271,7 +272,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "shadow_mantle", name: "Shadow Mantle", icon: "🗡️", slot: "cloak",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/shadow_mantle.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/shadow_mantle.png",
     description: "+2 DEX, +1 STR, 22 DEF",
     classes: ["assassin"], armorType: "leather",
     stats: { dex: 2, str: 1 }, durationMod: 1, lootMod: 1,
@@ -283,7 +284,7 @@ export const ITEMS: ItemDefinition[] = [
   // Blacksmith — material weapons & armor
   {
     id: "orc_cleaver", name: "Orc Cleaver", icon: "🪓", slot: "mainHand",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/orc_cleaver.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/orc_cleaver.png",
     description: "+3 STR. Crude but brutally effective.",
     classes: ["warrior"],
     stats: { str: 3 }, durationMod: 1, lootMod: 1,
@@ -291,7 +292,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "cursed_blade", name: "Cursed Blade", icon: "⚔️", slot: "mainHand",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/cursed_blade.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/cursed_blade.png",
     description: "+2 STR, +2 INT. The edge never dulls. It whispers when drawn.",
     classes: ["warrior", "assassin"],
     stats: { str: 2, int: 2 }, durationMod: 1, lootMod: 1,
@@ -299,7 +300,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "dragonbone_sword", name: "Dragonbone Sword", icon: "🗡️", slot: "mainHand",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/dragonbone_sword.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/dragonbone_sword.png",
     description: "+5 STR, +2 DEX. Forged with dragon fang — it cuts through armor like parchment.",
     classes: ["warrior", "assassin"],
     stats: { str: 5, dex: 2 }, durationMod: 1, lootMod: 1,
@@ -313,7 +314,7 @@ export const ITEMS: ItemDefinition[] = [
     recipeId: "infernal_mail", consumable: false, defense: 65,
   },
   {
-    id: "fang_necklace", name: "Fang Necklace", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/fang_necklace.png", icon: "🦷", slot: "amulet",
+    id: "fang_necklace", name: "Fang Necklace", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/fang_necklace.png", icon: "🦷", slot: "amulet",
     description: "+1 STR, +1 DEX. Zah'kari courage charm — wolf fangs on sinew cord.",
     classes: [],
     stats: { str: 1, dex: 1 }, durationMod: 1, lootMod: 1,
@@ -352,7 +353,7 @@ export const ITEMS: ItemDefinition[] = [
 
   // Tailoring — material robes & cloaks
   {
-    id: "ghostweave_cloak", name: "Ghostweave Cloak", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/shadow_cloak.png", icon: "👻", slot: "cloak",
+    id: "ghostweave_cloak", name: "Ghostweave Cloak", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/tailoring/shadow_cloak.png", icon: "👻", slot: "cloak",
     description: "+2 INT, +1 WIS, 15 DEF. Nearly invisible. Cold as moonlight.",
     classes: [], armorType: "cloth",
     stats: { int: 2, wis: 1 }, durationMod: 1, lootMod: 1,
@@ -366,7 +367,7 @@ export const ITEMS: ItemDefinition[] = [
     recipeId: "windweave_robe", consumable: false, defense: 20,
   },
   {
-    id: "war_banner", name: "War Banner", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/war_banner.png", icon: "🏴", slot: "trinket",
+    id: "war_banner", name: "War Banner", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/tailoring/war_banner.png", icon: "🏴", slot: "trinket",
     description: "+1 STR to entire party. Orc warlord's standard, restitched and blessed.",
     classes: [],
     stats: { str: 1 }, durationMod: 1, lootMod: 1,
@@ -376,7 +377,7 @@ export const ITEMS: ItemDefinition[] = [
   // Woodworker — material weapons
   {
     id: "sinew_bow", name: "Sinew Bow", icon: "🏹", slot: "mainHand",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/sinew_bow.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/woodworker/sinew_bow.png",
     description: "+2 DEX, +1 STR. Wolf-sinew string. Never snaps in the cold.",
     classes: ["archer"],
     stats: { dex: 2, str: 1 }, durationMod: 1, lootMod: 1,
@@ -384,7 +385,7 @@ export const ITEMS: ItemDefinition[] = [
   },
   {
     id: "dragonfire_staff", name: "Dragonfire Staff", icon: "🔥", slot: "mainHand",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/dragonfire_staff.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/woodworker/dragonfire_staff.png",
     description: "+5 INT, +2 WIS. The tip smolders permanently. Ink evaporates near it.",
     classes: ["wizard"],
     stats: { int: 5, wis: 2 }, durationMod: 0.9, lootMod: 1,
@@ -395,89 +396,89 @@ export const ITEMS: ItemDefinition[] = [
 
   // ── Rings (Jewelcrafter) ─────────────────────────────────────────
   {
-    id: "copper_band", name: "Copper Band", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/copper_band.png", icon: "💍", slot: "ring1",
+    id: "copper_band", name: "Copper Band", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/copper_band.png", icon: "💍", slot: "ring1",
     description: "+1 VIT. Simple copper ring, polished smooth. Better than nothing.",
     classes: [], stats: { vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "copper_band", consumable: false,
   },
   {
-    id: "bone_ring", name: "Bone Ring", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/bone_ring.png", icon: "💍", slot: "ring1",
+    id: "bone_ring", name: "Bone Ring", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/bone_ring.png", icon: "💍", slot: "ring1",
     description: "+1 STR. Carved from barrowfield bone. The dead don't need it anymore.",
     classes: ["warrior", "assassin"], stats: { str: 1 }, durationMod: 1, lootMod: 1, recipeId: "bone_ring", consumable: false,
   },
   {
-    id: "woven_vine_ring", name: "Woven Vine Ring", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/woven_vine_ring.png", icon: "💍", slot: "ring1",
+    id: "woven_vine_ring", name: "Woven Vine Ring", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/woven_vine_ring.png", icon: "💍", slot: "ring1",
     description: "+1 WIS. Living vine twisted into a ring. It grows tighter on your finger — but not uncomfortably.",
     classes: ["priest", "wizard"], stats: { wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "woven_vine_ring", consumable: false,
   },
   {
-    id: "ruby_signet", name: "Ruby Signet", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/ruby_signet.png", icon: "💍", slot: "ring1",
+    id: "ruby_signet", name: "Ruby Signet", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/ruby_signet.png", icon: "💍", slot: "ring1",
     description: "+2 STR, +1 VIT. A fire ruby set in iron. Warm to the touch, always.",
     classes: ["warrior"], stats: { str: 2, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "ruby_signet", consumable: false,
   },
   {
-    id: "sapphire_ring", name: "Sapphire Ring", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/sapphire_ring.png", icon: "💍", slot: "ring1",
+    id: "sapphire_ring", name: "Sapphire Ring", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/sapphire_ring.png", icon: "💍", slot: "ring1",
     description: "+2 INT, +1 WIS. A frost sapphire in silver. Keeps your mind clear and your fingers cold.",
     classes: ["wizard", "priest"], stats: { int: 2, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "sapphire_ring", consumable: false,
   },
   {
-    id: "topaz_band", name: "Topaz Band", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/storm_ring.png", icon: "💍", slot: "ring1",
+    id: "topaz_band", name: "Topaz Band", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/storm_ring.png", icon: "💍", slot: "ring1",
     description: "+2 DEX, +1 STR. A storm topaz in copper. Crackles faintly when you move fast.",
     classes: ["archer", "assassin"], stats: { dex: 2, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "topaz_band", consumable: false,
   },
   {
-    id: "emerald_loop", name: "Emerald Loop", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/emerald_band.png", icon: "💍", slot: "ring1",
+    id: "emerald_loop", name: "Emerald Loop", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/emerald_band.png", icon: "💍", slot: "ring1",
     description: "+2 WIS, +1 VIT. An emerald shard in twisted silver. Smells faintly of forest rain.",
     classes: ["priest"], stats: { wis: 2, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "emerald_loop", consumable: false,
   },
   {
-    id: "moonstone_seal", name: "Moonstone Seal", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/moonstone_ring.png", icon: "💍", slot: "ring1",
+    id: "moonstone_seal", name: "Moonstone Seal", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/moonstone_ring.png", icon: "💍", slot: "ring1",
     description: "+3 WIS, +2 INT, +1 VIT. Divine light trapped in stone. The priests weep when they see it.",
     classes: ["priest", "wizard"], stats: { wis: 3, int: 2, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "moonstone_seal", consumable: false,
   },
   {
-    id: "void_band", name: "Void Band", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/void_ring.png", icon: "💍", slot: "ring1",
+    id: "void_band", name: "Void Band", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/void_ring.png", icon: "💍", slot: "ring1",
     description: "+3 DEX, +2 STR. The shadows seem darker near your hand. You move faster. You don't question why.",
     classes: ["assassin"], stats: { dex: 3, str: 2 }, durationMod: 1, lootMod: 1, recipeId: "void_band", consumable: false,
   },
   {
-    id: "dragonfire_ring", name: "Dragonfire Ring", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/dragonscale_ring.png", icon: "💍", slot: "ring1",
+    id: "dragonfire_ring", name: "Dragonfire Ring", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/dragonscale_ring.png", icon: "💍", slot: "ring1",
     description: "+3 STR, +2 VIT. Dragon blood fused with ruby. It pulses like a second heartbeat.",
     classes: ["warrior"], stats: { str: 3, vit: 2 }, durationMod: 1, lootMod: 1, recipeId: "dragonfire_ring", consumable: false,
   },
 
   // ── Head Armor ──────────────────────────────────────────────────
   {
-    id: "iron_helm", name: "Iron Helm", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/steel_helm.png", icon: "🪖", slot: "head",
+    id: "iron_helm", name: "Iron Helm", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/steel_helm.png", icon: "🪖", slot: "head",
     description: "+2 VIT, +1 STR, 35 DEF. Heavy, hot, and the reason you still have a skull.",
     classes: [], armorType: "plate",
     stats: { vit: 2, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "iron_helm", consumable: false, defense: 35,
   },
   {
-    id: "chainmail_coif", name: "Chainmail Coif", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/chainmail_coif.png", icon: "⛓️", slot: "head",
+    id: "chainmail_coif", name: "Chainmail Coif", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/chainmail_coif.png", icon: "⛓️", slot: "head",
     description: "+1 VIT, +1 DEX, 25 DEF. Iron rings woven tight. Light enough to turn your head in.",
     classes: [], armorType: "mail",
     stats: { vit: 1, dex: 1 }, durationMod: 1, lootMod: 1, recipeId: "chainmail_coif", consumable: false, defense: 25,
   },
   {
-    id: "wizard_hat", name: "Wizard's Hat", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/wizard_hat.png", icon: "🎩", slot: "head",
+    id: "wizard_hat", name: "Wizard's Hat", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/tailoring/wizard_hat.png", icon: "🎩", slot: "head",
     description: "+2 INT, 8 DEF. Tall, pointed, and embroidered with arcane sigils. Yes, it's a bit much.",
     classes: ["wizard"], armorType: "cloth",
     stats: { int: 2 }, durationMod: 1, lootMod: 1, recipeId: "wizard_hat", consumable: false, defense: 8,
   },
   {
-    id: "priest_circlet", name: "Priest's Circlet", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/moonstone_circlet.png", icon: "👑", slot: "head",
+    id: "priest_circlet", name: "Priest's Circlet", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/moonstone_circlet.png", icon: "👑", slot: "head",
     description: "+1 WIS, +1 INT, 12 DEF. A simple gold band set with a moonstone chip. Consecrated.",
     classes: ["priest"], armorType: "cloth",
     stats: { wis: 1, int: 1 }, durationMod: 1, lootMod: 1, recipeId: "priest_circlet", consumable: false, defense: 12,
   },
   {
-    id: "shadow_cowl", name: "Shadow Cowl", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/assassin_hood.png", icon: "🥷", slot: "head",
+    id: "shadow_cowl", name: "Shadow Cowl", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/assassin_hood.png", icon: "🥷", slot: "head",
     description: "+2 DEX, +1 STR, 18 DEF. Dark leather hood that covers everything but the eyes. The eyes are the point.",
     classes: ["assassin"], armorType: "leather",
     stats: { dex: 2, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "shadow_cowl", consumable: false, defense: 18,
   },
   {
-    id: "bear_skull_helm", name: "Bear-Skull Helm", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/beast_skull_helm.png", icon: "💀", slot: "head",
+    id: "bear_skull_helm", name: "Bear-Skull Helm", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/beast_skull_helm.png", icon: "💀", slot: "head",
     description: "+1 STR, +1 VIT, +1 DEX, 30 DEF. A dire bear skull, hollowed and lined with fur. Terrifying to enemies. Uncomfortable for you.",
     classes: [], armorType: "mail",
     stats: { str: 1, vit: 1, dex: 1 }, durationMod: 1, lootMod: 1, recipeId: "bear_skull_helm", consumable: false, defense: 30,
@@ -485,25 +486,25 @@ export const ITEMS: ItemDefinition[] = [
 
   // ── Leg Armor ───────────────────────────────────────────────────
   {
-    id: "iron_greaves", name: "Iron Greaves", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/steel_greaves.png", icon: "🦵", slot: "legs",
+    id: "iron_greaves", name: "Iron Greaves", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/steel_greaves.png", icon: "🦵", slot: "legs",
     description: "+2 VIT, +1 STR, 40 DEF. Plate leg armor. Loud, heavy, and reassuringly solid.",
     classes: [], armorType: "plate",
     stats: { vit: 2, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "iron_greaves", consumable: false, defense: 40,
   },
   {
-    id: "cloth_leggings", name: "Cloth Leggings", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/priest_vestments_legs.png", icon: "👖", slot: "legs",
+    id: "cloth_leggings", name: "Cloth Leggings", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/tailoring/priest_vestments_legs.png", icon: "👖", slot: "legs",
     description: "+1 VIT, +1 WIS, 8 DEF. Reinforced linen with prayer-stitched hems. Comfortable for long rituals.",
     classes: [], armorType: "cloth",
     stats: { vit: 1, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "cloth_leggings", consumable: false, defense: 8,
   },
   {
-    id: "ranger_trousers", name: "Ranger's Trousers", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/ranger_trousers.png", icon: "👖", slot: "legs",
+    id: "ranger_trousers", name: "Ranger's Trousers", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/ranger_trousers.png", icon: "👖", slot: "legs",
     description: "+1 DEX, +1 VIT, 22 DEF. Leather-reinforced at the knees. Built for running and crouching.",
     classes: [], armorType: "leather",
     stats: { dex: 1, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "ranger_trousers", consumable: false, defense: 22,
   },
   {
-    id: "wyrmscale_greaves", name: "Wyrmscale Greaves", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/dragonscale_greaves.png", icon: "🐉", slot: "legs",
+    id: "wyrmscale_greaves", name: "Wyrmscale Greaves", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/dragonscale_greaves.png", icon: "🐉", slot: "legs",
     description: "+3 VIT, +1 STR, 50 DEF. Dragon-scale leg plates. Worth more than most houses.",
     classes: [], armorType: "plate",
     stats: { vit: 3, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "wyrmscale_greaves", consumable: false, defense: 50,
@@ -511,25 +512,25 @@ export const ITEMS: ItemDefinition[] = [
 
   // ── Boots ───────────────────────────────────────────────────────
   {
-    id: "iron_sabatons", name: "Iron Sabatons", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/steel_boots.png", icon: "🥾", slot: "boots",
+    id: "iron_sabatons", name: "Iron Sabatons", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/steel_boots.png", icon: "🥾", slot: "boots",
     description: "+1 VIT, +1 STR, 30 DEF. Plated boots. Every step sounds like a hammer.",
     classes: [], armorType: "plate",
     stats: { vit: 1, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "iron_sabatons", consumable: false, defense: 30,
   },
   {
-    id: "soft_shoes", name: "Soft Shoes", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/pilgrim_sandals.png", icon: "👟", slot: "boots",
+    id: "soft_shoes", name: "Soft Shoes", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/tailoring/pilgrim_sandals.png", icon: "👟", slot: "boots",
     description: "+1 DEX, +1 WIS, 5 DEF. Cloth shoes with cork soles. Quiet, comfortable, terrible in mud.",
     classes: [], armorType: "cloth",
     stats: { dex: 1, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "soft_shoes", consumable: false, defense: 5,
   },
   {
-    id: "scout_boots", name: "Scout's Boots", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/stalker_boots.png", icon: "🥾", slot: "boots",
+    id: "scout_boots", name: "Scout's Boots", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/stalker_boots.png", icon: "🥾", slot: "boots",
     description: "+2 DEX, 18 DEF. Supple leather, silent on any surface. The archer's best friend.",
     classes: [], armorType: "leather",
     stats: { dex: 2 }, durationMod: 1, lootMod: 1, recipeId: "scout_boots", consumable: false, defense: 18,
   },
   {
-    id: "trollhide_boots", name: "Trollhide Boots", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/troll_stompers.png", icon: "🥾", slot: "boots",
+    id: "trollhide_boots", name: "Trollhide Boots", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/troll_stompers.png", icon: "🥾", slot: "boots",
     description: "+2 VIT, +1 DEX, 25 DEF. Tough as stone, ugly as sin. They'll outlast you.",
     classes: [], armorType: "leather",
     stats: { vit: 2, dex: 1 }, durationMod: 1, lootMod: 1, recipeId: "trollhide_boots", consumable: false, defense: 25,
@@ -537,95 +538,95 @@ export const ITEMS: ItemDefinition[] = [
 
   // ── Amulets (Jewelcrafter) ──────────────────────────────────────
   {
-    id: "holy_pendant", name: "Holy Pendant", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/moonstone_pendant.png", icon: "✝️", slot: "amulet",
+    id: "holy_pendant", name: "Holy Pendant", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/moonstone_pendant.png", icon: "✝️", slot: "amulet",
     description: "+2 WIS, +1 VIT. A moonstone set in silver, blessed by three priests. Warm against the skin.",
     classes: ["priest"], stats: { wis: 2, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "holy_pendant", consumable: false,
   },
   {
-    id: "amber_charm", name: "Amber Charm", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/amber_amulet.png", icon: "🟠", slot: "amulet",
+    id: "amber_charm", name: "Amber Charm", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/amber_amulet.png", icon: "🟠", slot: "amulet",
     description: "+2 INT, +1 WIS. Ancient amber with a perfect insect inside. The Silvaneth say it thinks.",
     classes: ["wizard"], stats: { int: 2, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "amber_charm", consumable: false,
   },
   {
-    id: "predator_tooth", name: "Predator's Tooth", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/alpha_fang_amulet.png", icon: "🦷", slot: "amulet",
+    id: "predator_tooth", name: "Predator's Tooth", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/alpha_fang_amulet.png", icon: "🦷", slot: "amulet",
     description: "+2 DEX, +1 STR. An alpha wolf's fang on braided sinew. The pack respects the kill.",
     classes: ["archer", "assassin"], stats: { dex: 2, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "predator_tooth", consumable: false,
   },
   {
-    id: "warlord_chain", name: "Warlord's Chain", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/warlord_chain.png", icon: "⛓️", slot: "amulet",
+    id: "warlord_chain", name: "Warlord's Chain", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/warlord_chain.png", icon: "⛓️", slot: "amulet",
     description: "+2 STR, +2 VIT. Orc-steel links and a fire ruby clasp. Taken from a chief who doesn't need it anymore.",
     classes: ["warrior"], stats: { str: 2, vit: 2 }, durationMod: 1, lootMod: 1, recipeId: "warlord_chain", consumable: false,
   },
   {
-    id: "ghostveil_locket", name: "Ghostveil Locket", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/spirit_locket.png", icon: "👻", slot: "amulet",
+    id: "ghostveil_locket", name: "Ghostveil Locket", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/spirit_locket.png", icon: "👻", slot: "amulet",
     description: "+2 INT, +1 DEX. A locket that holds a wisp of ghostweave. The dead don't notice you as easily.",
     classes: [], stats: { int: 2, dex: 1 }, durationMod: 1, lootMod: 1, recipeId: "ghostveil_locket", consumable: false,
   },
 
   // ── Off-Hand — New ──────────────────────────────────────────────
   {
-    id: "arcane_focus", name: "Arcane Focus", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/crystal_orb.png", icon: "🔮", slot: "offHand",
+    id: "arcane_focus", name: "Arcane Focus", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/woodworker/crystal_orb.png", icon: "🔮", slot: "offHand",
     description: "+2 INT, +1 WIS. A crystal orb that floats beside your hand. Show-off? Maybe. Effective? Definitely.",
     classes: ["wizard"], stats: { int: 2, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "arcane_focus", consumable: false,
   },
   {
-    id: "prayer_book", name: "Prayer Book", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/tome_of_power.png", icon: "📖", slot: "offHand",
+    id: "prayer_book", name: "Prayer Book", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/tailoring/tome_of_power.png", icon: "📖", slot: "offHand",
     description: "+2 WIS, +1 INT. Leather-bound, well-thumbed, with annotations in three languages.",
     classes: ["priest"], stats: { wis: 2, int: 1 }, durationMod: 1, lootMod: 1, recipeId: "prayer_book", consumable: false,
   },
   {
-    id: "parrying_dagger", name: "Parrying Dagger", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/parrying_dagger.png", icon: "🗡️", slot: "offHand",
+    id: "parrying_dagger", name: "Parrying Dagger", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/parrying_dagger.png", icon: "🗡️", slot: "offHand",
     description: "+1 DEX, +1 STR, 15 DEF. A wide-bladed dagger built for catching swords, not throwing.",
     classes: ["assassin"], stats: { dex: 1, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "parrying_dagger", consumable: false, defense: 15,
   },
   {
-    id: "quiver_precision", name: "Quiver of Precision", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/enchanted_quiver.png", icon: "🏹", slot: "offHand",
+    id: "quiver_precision", name: "Quiver of Precision", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/enchanted_quiver.png", icon: "🏹", slot: "offHand",
     description: "+2 DEX. Enchanted quiver — arrows slide out nocked and ready. Faster than thinking.",
     classes: ["archer"], stats: { dex: 2 }, durationMod: 1, lootMod: 1, recipeId: "quiver_precision", consumable: false,
   },
 
   // ── Assassin Daggers (mainHand) ─────────────────────────────────
   {
-    id: "stiletto", name: "Stiletto", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/stiletto.png", icon: "🗡️", slot: "mainHand",
+    id: "stiletto", name: "Stiletto", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/stiletto.png", icon: "🗡️", slot: "mainHand",
     description: "+2 DEX, +1 STR. Needle-thin, whisper-quiet. Made for gaps in armor, not fair fights.",
     classes: ["assassin"], stats: { dex: 2, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "stiletto", consumable: false,
   },
   {
-    id: "poisoned_blade", name: "Poisoned Blade", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/venom_blade.png", icon: "🗡️", slot: "mainHand",
+    id: "poisoned_blade", name: "Poisoned Blade", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/venom_blade.png", icon: "🗡️", slot: "mainHand",
     description: "+3 DEX, +2 STR. The groove along the blade holds venom. The nick is worse than the cut.",
     classes: ["assassin"], stats: { dex: 3, str: 2 }, durationMod: 1, lootMod: 1, recipeId: "poisoned_blade", consumable: false,
   },
   {
-    id: "shadow_dagger", name: "Shadow Dagger", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/void_dagger.png", icon: "🗡️", slot: "mainHand",
+    id: "shadow_dagger", name: "Shadow Dagger", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/void_dagger.png", icon: "🗡️", slot: "mainHand",
     description: "+4 DEX, +3 STR. Void-touched steel that drinks the light. The wound hurts before the blade arrives.",
     classes: ["assassin"], stats: { dex: 4, str: 3 }, durationMod: 1, lootMod: 1, recipeId: "shadow_dagger", consumable: false,
   },
 
   // ── Priest Weapons (mainHand) ───────────────────────────────────
   {
-    id: "iron_mace", name: "Iron Mace", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/war_mace.png", icon: "🔨", slot: "mainHand",
+    id: "iron_mace", name: "Iron Mace", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/war_mace.png", icon: "🔨", slot: "mainHand",
     description: "+1 STR, +1 WIS. Heavy, blunt, and sanctioned by the Church. For when prayer isn't enough.",
     classes: ["priest", "warrior"], stats: { str: 1, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "iron_mace", consumable: false,
   },
   {
-    id: "blessed_mace", name: "Blessed Mace", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/holy_mace.png", icon: "🔨", slot: "mainHand",
+    id: "blessed_mace", name: "Blessed Mace", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/holy_mace.png", icon: "🔨", slot: "mainHand",
     description: "+2 WIS, +2 STR, +1 VIT. Moonstone-capped and consecrated. The undead hate it. So does everything else you hit with it.",
     classes: ["priest"], stats: { wis: 2, str: 2, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "blessed_mace", consumable: false,
   },
 
   // ── Boss Loot Equipment (not craftable) ─────────────────────────
   {
-    id: "alpha_fang_amulet", name: "Alpha's Fang", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/alpha_fang_amulet.png", icon: "🐺", slot: "amulet",
+    id: "alpha_fang_amulet", name: "Alpha's Fang", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/alpha_fang_amulet.png", icon: "🐺", slot: "amulet",
     description: "+2 STR, +1 DEX. The pack leader's broken fang, still warm. Wearing it feels like being watched by yellow eyes.",
     classes: [], stats: { str: 2, dex: 1 }, durationMod: 1, lootMod: 1, recipeId: "", consumable: false,
   },
   {
-    id: "witch_eye_trinket", name: "Witch's Eye", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/witch_eye_pendant.png", icon: "👁️", slot: "trinket",
+    id: "witch_eye_trinket", name: "Witch's Eye", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/witch_eye_pendant.png", icon: "👁️", slot: "trinket",
     description: "+2 INT, +1 WIS, -5% duration. It sees what you can't. Don't ask what it shows the witch.",
     classes: ["wizard", "priest"], stats: { int: 2, wis: 1 }, durationMod: 0.95, lootMod: 1, recipeId: "", consumable: false,
   },
   {
-    id: "goblin_crown", name: "Goblin Crown", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/goblin_crown.png", icon: "👑", slot: "head",
+    id: "goblin_crown", name: "Goblin Crown", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/goblin_crown.png", icon: "👑", slot: "head",
     description: "+2 DEX, +1 STR, +10% loot. Bent copper and stolen gems. It's ugly. It's also lucky.",
     classes: [], stats: { dex: 2, str: 1 }, durationMod: 1, lootMod: 1.10, recipeId: "", consumable: false,
   },
@@ -635,12 +636,12 @@ export const ITEMS: ItemDefinition[] = [
     classes: ["wizard"], stats: { int: 3, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "", consumable: false, defense: 10,
   },
   {
-    id: "beast_heart_charm", name: "Beast Heart Charm", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/beast_heart_charm.png", icon: "❤️", slot: "trinket",
+    id: "beast_heart_charm", name: "Beast Heart Charm", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/beast_heart_charm.png", icon: "❤️", slot: "trinket",
     description: "+2 VIT, +2 STR. A dire bear's heart, dried and bound in leather. Courage you can wear.",
     classes: [], stats: { vit: 2, str: 2 }, durationMod: 1, lootMod: 1, recipeId: "", consumable: false,
   },
   {
-    id: "infernal_signet", name: "Infernal Signet", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/infernal_signet.png", icon: "💍", slot: "ring1",
+    id: "infernal_signet", name: "Infernal Signet", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/infernal_signet.png", icon: "💍", slot: "ring1",
     description: "+3 STR, +2 VIT. Demon-forged iron and fire ruby. Burns cold. Grants strength at a cost nobody can name.",
     classes: ["warrior", "assassin"], stats: { str: 3, vit: 2 }, durationMod: 1, lootMod: 1, recipeId: "", consumable: false,
   },
@@ -651,49 +652,49 @@ export const ITEMS: ItemDefinition[] = [
 
   // Tier 1 — Simple (1 tag, Kitchen Lv 1-2)
   {
-    id: "honeycake", name: "Honeycake", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/honeycake.png", icon: "🍯", slot: "trinket",
+    id: "honeycake", name: "Honeycake", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/honeycake.png", icon: "🍯", slot: "trinket",
     description: "Sweet golden cake made with fresh honey. Adventurers with a sweet tooth love it.",
     classes: [], stats: { vit: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "honeycake", consumable: true, foodFlavors: ["sweet"],
   },
   {
-    id: "peppered_jerky", name: "Peppered Jerky", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/peppered_jerky.png", icon: "🌶️", slot: "trinket",
+    id: "peppered_jerky", name: "Peppered Jerky", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/peppered_jerky.png", icon: "🌶️", slot: "trinket",
     description: "Dried meat rubbed with wild herbs and crushed peppers. Burns going down.",
     classes: [], stats: { str: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "peppered_jerky", consumable: true, foodFlavors: ["spicy"],
   },
   {
-    id: "herb_salad", name: "Fresh Herb Salad", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/herb_salad.png", icon: "🥬", slot: "trinket",
+    id: "herb_salad", name: "Fresh Herb Salad", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/herb_salad.png", icon: "🥬", slot: "trinket",
     description: "Wild herbs, cabbages, and berries tossed with a light dressing. Refreshing.",
     classes: [], stats: { dex: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "herb_salad", consumable: true, foodFlavors: ["fresh"],
   },
   {
-    id: "smoked_fish", name: "Smoked Fish", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/smoked_fish.png", icon: "🐟", slot: "trinket",
+    id: "smoked_fish", name: "Smoked Fish", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/smoked_fish.png", icon: "🐟", slot: "trinket",
     description: "River fish smoked over applewood. The campfire crowd's favorite.",
     classes: [], stats: { wis: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "smoked_fish", consumable: true, foodFlavors: ["smoky"],
   },
   {
-    id: "meat_pie", name: "Meat Pie", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/meat_pie.png", icon: "🥧", slot: "trinket",
+    id: "meat_pie", name: "Meat Pie", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/meat_pie.png", icon: "🥧", slot: "trinket",
     description: "A thick, filling pie stuffed with seasoned meat and gravy. Stick-to-your-ribs good.",
     classes: [], stats: { vit: 1, str: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "meat_pie", consumable: true, foodFlavors: ["hearty"],
   },
   {
-    id: "cheese_bread", name: "Cheese Bread", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/cheese_bread.png", icon: "🧀", slot: "trinket",
+    id: "cheese_bread", name: "Cheese Bread", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/cheese_bread.png", icon: "🧀", slot: "trinket",
     description: "Warm bread stuffed with melted goat cheese. Simple and satisfying.",
     classes: [], stats: { vit: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "cheese_bread", consumable: true, foodFlavors: ["hearty"],
   },
   {
-    id: "grilled_mushrooms", name: "Grilled Mushrooms", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/grilled_mushrooms.png", icon: "🍄", slot: "trinket",
+    id: "grilled_mushrooms", name: "Grilled Mushrooms", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/grilled_mushrooms.png", icon: "🍄", slot: "trinket",
     description: "Forest mushrooms charred over an open flame with herbs. Earthy and rich.",
     classes: [], stats: { int: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "grilled_mushrooms", consumable: true, foodFlavors: ["smoky"],
   },
   {
-    id: "fruit_tart", name: "Fruit Tart", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/fruit_tart.png", icon: "🍎", slot: "trinket",
+    id: "fruit_tart", name: "Fruit Tart", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/fruit_tart.png", icon: "🍎", slot: "trinket",
     description: "Pastry shell filled with fresh fruit and honey glaze. A rare treat on the frontier.",
     classes: [], stats: { wis: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "fruit_tart", consumable: true, foodFlavors: ["sweet"],
@@ -701,37 +702,37 @@ export const ITEMS: ItemDefinition[] = [
 
   // Tier 2 — Complex (2 tags, Kitchen Lv 3-4)
   {
-    id: "hunters_stew", name: "Hunter's Stew", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/hunters_stew.png", icon: "🍲", slot: "trinket",
+    id: "hunters_stew", name: "Hunter's Stew", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/hunters_stew.png", icon: "🍲", slot: "trinket",
     description: "Slow-cooked meat with root vegetables and mushrooms. Smells like the campfire after a good hunt.",
     classes: [], stats: { str: 1, vit: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "hunters_stew", consumable: true, foodFlavors: ["hearty", "smoky"],
   },
   {
-    id: "spiced_honeycake", name: "Spiced Honeycake", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/spiced_honeycake.png", icon: "🍰", slot: "trinket",
+    id: "spiced_honeycake", name: "Spiced Honeycake", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/spiced_honeycake.png", icon: "🍰", slot: "trinket",
     description: "Honeycake with crushed herbs and pepper. Sweet heat that lingers.",
     classes: [], stats: { wis: 1, str: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "spiced_honeycake", consumable: true, foodFlavors: ["sweet", "spicy"],
   },
   {
-    id: "pea_mint_bowl", name: "Pea & Mint Bowl", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/pea_mint_bowl.png", icon: "🫛", slot: "trinket",
+    id: "pea_mint_bowl", name: "Pea & Mint Bowl", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/pea_mint_bowl.png", icon: "🫛", slot: "trinket",
     description: "Fresh peas with mint and a kick of pepper. Light but energizing.",
     classes: [], stats: { dex: 1, int: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "pea_mint_bowl", consumable: true, foodFlavors: ["fresh", "spicy"],
   },
   {
-    id: "cherry_cheese_plate", name: "Cherry Cheese Plate", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/cherry_cheese_plate.png", icon: "🍒", slot: "trinket",
+    id: "cherry_cheese_plate", name: "Cherry Cheese Plate", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/cherry_cheese_plate.png", icon: "🍒", slot: "trinket",
     description: "Goat cheese with fresh fruit and wild berries. Elegant for the frontier.",
     classes: [], stats: { wis: 1, dex: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "cherry_cheese_plate", consumable: true, foodFlavors: ["sweet", "fresh"],
   },
   {
-    id: "smoked_pork_roast", name: "Smoked Pork Roast", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/smoked_pork_roast.png", icon: "🍖", slot: "trinket",
+    id: "smoked_pork_roast", name: "Smoked Pork Roast", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/smoked_pork_roast.png", icon: "🍖", slot: "trinket",
     description: "Thick-cut pork smoked with squash and hardwood. A meal that fights back.",
     classes: [], stats: { str: 2 }, durationMod: 1, lootMod: 1,
     recipeId: "smoked_pork_roast", consumable: true, foodFlavors: ["smoky", "hearty"],
   },
   {
-    id: "fishermans_broth", name: "Fisherman's Broth", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/fishermans_broth.png", icon: "🥣", slot: "trinket",
+    id: "fishermans_broth", name: "Fisherman's Broth", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/fishermans_broth.png", icon: "🥣", slot: "trinket",
     description: "Fish, cabbage, and herbs in a clear broth. Light, warm, and keeps death at bay.",
     classes: [], stats: { vit: 2 }, durationMod: 1, lootMod: 1,
     recipeId: "fishermans_broth", consumable: true, foodFlavors: ["fresh", "hearty"],
@@ -742,109 +743,109 @@ export const ITEMS: ItemDefinition[] = [
   { id: "shepherds_pie", name: "Shepherd's Pie", icon: "🥧", slot: "trinket",
     description: "Ashwick comfort food — meat and mashed roots under a golden crust. Tastes like home.",
     classes: [], stats: { vit: 2 }, durationMod: 1, lootMod: 1, recipeId: "shepherds_pie", consumable: true, foodFlavors: ["hearty"] },
-  { id: "ashwick_ale_stew", name: "Ashwick Ale Stew", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/ashwick_ale_stew.png", icon: "🍺", slot: "trinket",
+  { id: "ashwick_ale_stew", name: "Ashwick Ale Stew", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/ashwick_ale_stew.png", icon: "🍺", slot: "trinket",
     description: "Slow-cooked in dark ale until the meat falls apart. The Hearthlands in a bowl.",
     classes: [], stats: { str: 1, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "ashwick_ale_stew", consumable: true, foodFlavors: ["hearty", "smoky"] },
-  { id: "blackberry_crumble", name: "Blackberry Crumble", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blackberry_crumble.png", icon: "🫐", slot: "trinket",
+  { id: "blackberry_crumble", name: "Blackberry Crumble", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/blackberry_crumble.png", icon: "🫐", slot: "trinket",
     description: "Wild blackberries under a buttery oat crust with honey drizzle. Grandma's recipe.",
     classes: [], stats: { wis: 1, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "blackberry_crumble", consumable: true, foodFlavors: ["sweet"] },
 
   // Nordveld
-  { id: "smoked_elk_berries", name: "Smoked Elk & Cloudberries", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/smoked_elk_berries.png", icon: "🫐", slot: "trinket",
+  { id: "smoked_elk_berries", name: "Smoked Elk & Cloudberries", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/smoked_elk_berries.png", icon: "🫐", slot: "trinket",
     description: "Elk smoked over pine coals, served with tart cloudberries. A Nordveld jarl's meal.",
     classes: [], stats: { str: 2 }, durationMod: 1, lootMod: 1, recipeId: "smoked_elk_berries", consumable: true, foodFlavors: ["smoky", "sweet"] },
-  { id: "nordveld_porridge", name: "Nordveld Barley Porridge", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/nordveld_porridge.png", icon: "🥣", slot: "trinket",
+  { id: "nordveld_porridge", name: "Nordveld Barley Porridge", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/nordveld_porridge.png", icon: "🥣", slot: "trinket",
     description: "Thick barley porridge with honey and salt. Keeps you warm through any blizzard.",
     classes: [], stats: { vit: 2 }, durationMod: 1, lootMod: 1, recipeId: "nordveld_porridge", consumable: true, foodFlavors: ["hearty", "sweet"] },
-  { id: "pickled_herring", name: "Pickled Herring", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/pickled_herring.png", icon: "🐟", slot: "trinket",
+  { id: "pickled_herring", name: "Pickled Herring", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/pickled_herring.png", icon: "🐟", slot: "trinket",
     description: "Herring preserved in brine and herbs. An acquired taste. The Nordveld never acquired any other.",
     classes: [], stats: { dex: 1, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "pickled_herring", consumable: true, foodFlavors: ["fresh"] },
 
   // Meridian
-  { id: "saffron_fish_stew", name: "Saffron Fish Stew", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/saffron_fish_stew.png", icon: "🍲", slot: "trinket",
+  { id: "saffron_fish_stew", name: "Saffron Fish Stew", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/saffron_fish_stew.png", icon: "🍲", slot: "trinket",
     description: "A Corsair captain's recipe — white fish in saffron broth with lemon and peppers.",
     classes: [], stats: { int: 1, dex: 1 }, durationMod: 1, lootMod: 1, recipeId: "saffron_fish_stew", consumable: true, foodFlavors: ["fresh", "spicy"] },
-  { id: "grilled_octopus", name: "Grilled Octopus", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/grilled_octopus.png", icon: "🐙", slot: "trinket",
+  { id: "grilled_octopus", name: "Grilled Octopus", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/grilled_octopus.png", icon: "🐙", slot: "trinket",
     description: "Charred over driftwood with sea salt and olive oil. The harbor smells like this on good days.",
     classes: [], stats: { dex: 2 }, durationMod: 1, lootMod: 1, recipeId: "grilled_octopus", consumable: true, foodFlavors: ["smoky", "fresh"] },
-  { id: "fig_honey_toast", name: "Fig & Honey Toast", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/fig_honey_toast.png", icon: "🍯", slot: "trinket",
+  { id: "fig_honey_toast", name: "Fig & Honey Toast", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/fig_honey_toast.png", icon: "🍯", slot: "trinket",
     description: "Toasted bread with ripe figs, honey, and a whisper of sea salt. Meridian mornings in a bite.",
     classes: [], stats: { wis: 2 }, durationMod: 1, lootMod: 1, recipeId: "fig_honey_toast", consumable: true, foodFlavors: ["sweet"] },
 
   // Zah'kari
-  { id: "groundnut_spice_bowl", name: "Groundnut Spice Bowl", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/groundnut_spice_bowl.png", icon: "🥜", slot: "trinket",
+  { id: "groundnut_spice_bowl", name: "Groundnut Spice Bowl", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/groundnut_spice_bowl.png", icon: "🥜", slot: "trinket",
     description: "Crushed groundnuts in a thick spiced sauce over grain. A Zah'kari council-day staple.",
     classes: [], stats: { str: 1, int: 1 }, durationMod: 1, lootMod: 1, recipeId: "groundnut_spice_bowl", consumable: true, foodFlavors: ["spicy", "hearty"] },
-  { id: "jollof_rice", name: "Zah'kari Jollof", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jollof_rice.png", icon: "🍚", slot: "trinket",
+  { id: "jollof_rice", name: "Zah'kari Jollof", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/jollof_rice.png", icon: "🍚", slot: "trinket",
     description: "Tomato-spiced rice with smoked meat. Every Zah'kari family claims theirs is the best.",
     classes: [], stats: { str: 1, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "jollof_rice", consumable: true, foodFlavors: ["spicy", "smoky"] },
-  { id: "plantain_pepper_fry", name: "Plantain Pepper Fry", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/plantain_pepper_fry.png", icon: "🍌", slot: "trinket",
+  { id: "plantain_pepper_fry", name: "Plantain Pepper Fry", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/plantain_pepper_fry.png", icon: "🍌", slot: "trinket",
     description: "Fried plantain with crushed peppers and palm oil. Sweet heat that makes you sweat.",
     classes: [], stats: { dex: 1, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "plantain_pepper_fry", consumable: true, foodFlavors: ["sweet", "spicy"] },
 
   // Tianzhou
-  { id: "steamed_dumplings", name: "Steamed Dumplings", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/steamed_dumplings.png", icon: "🥟", slot: "trinket",
+  { id: "steamed_dumplings", name: "Steamed Dumplings", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/steamed_dumplings.png", icon: "🥟", slot: "trinket",
     description: "Delicate pork dumplings in paper-thin wrappers. A Tianzhou scholar's working lunch.",
     classes: [], stats: { int: 1, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "steamed_dumplings", consumable: true, foodFlavors: ["fresh"] },
-  { id: "five_spice_duck", name: "Five-Spice Duck", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/five_spice_duck.png", icon: "🦆", slot: "trinket",
+  { id: "five_spice_duck", name: "Five-Spice Duck", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/five_spice_duck.png", icon: "🦆", slot: "trinket",
     description: "Slow-roasted duck glazed in five imperial spices. An entire afternoon of cooking for one perfect meal.",
     classes: [], stats: { str: 1, int: 1, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "five_spice_duck", consumable: true, foodFlavors: ["smoky", "spicy"] },
-  { id: "jade_tea_soup", name: "Jade Tea Soup", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jade_tea_soup.png", icon: "🍵", slot: "trinket",
+  { id: "jade_tea_soup", name: "Jade Tea Soup", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/jade_tea_soup.png", icon: "🍵", slot: "trinket",
     description: "A clear broth infused with green tea and ginger. Tianzhou monks drink this before meditation.",
     classes: [], stats: { wis: 2 }, durationMod: 1, lootMod: 1, recipeId: "jade_tea_soup", consumable: true, foodFlavors: ["fresh"] },
 
   // Khor'vani
-  { id: "lamb_tagine", name: "Lamb Tagine", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/lamb_tagine.png", icon: "🍲", slot: "trinket",
+  { id: "lamb_tagine", name: "Lamb Tagine", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/lamb_tagine.png", icon: "🍲", slot: "trinket",
     description: "Slow-cooked lamb with dried fruit and twelve spices in a clay pot. The Crossroads' signature dish.",
     classes: [], stats: { str: 1, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "lamb_tagine", consumable: true, foodFlavors: ["smoky", "spicy"] },
-  { id: "saffron_rice_pilaf", name: "Saffron Rice Pilaf", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/saffron_rice_pilaf.png", icon: "🍚", slot: "trinket",
+  { id: "saffron_rice_pilaf", name: "Saffron Rice Pilaf", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/saffron_rice_pilaf.png", icon: "🍚", slot: "trinket",
     description: "Golden rice studded with dried fruits and toasted nuts. Every grain worth its weight.",
     classes: [], stats: { int: 2 }, durationMod: 1, lootMod: 1, recipeId: "saffron_rice_pilaf", consumable: true, foodFlavors: ["sweet", "spicy"] },
-  { id: "rosewater_pastries", name: "Rosewater Pastries", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/rosewater_pastries.png", icon: "🌹", slot: "trinket",
+  { id: "rosewater_pastries", name: "Rosewater Pastries", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/rosewater_pastries.png", icon: "🌹", slot: "trinket",
     description: "Flaky pastry soaked in rosewater and honey. The Khor'vani serve these to honored guests.",
     classes: [], stats: { wis: 1, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "rosewater_pastries", consumable: true, foodFlavors: ["sweet"] },
 
   // Silvaneth
-  { id: "honeyed_acorn_bread", name: "Honeyed Acorn Bread", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/honeyed_acorn_bread.png", icon: "🌰", slot: "trinket",
+  { id: "honeyed_acorn_bread", name: "Honeyed Acorn Bread", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/honeyed_acorn_bread.png", icon: "🌰", slot: "trinket",
     description: "Dense nutty bread sweetened with wild honey. The Silvaneth bake it in hot stones.",
     classes: [], stats: { vit: 1, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "honeyed_acorn_bread", consumable: true, foodFlavors: ["sweet", "fresh"] },
-  { id: "elderflower_broth", name: "Elderflower Broth", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/elderflower_broth.png", icon: "🌸", slot: "trinket",
+  { id: "elderflower_broth", name: "Elderflower Broth", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/elderflower_broth.png", icon: "🌸", slot: "trinket",
     description: "A delicate clear broth with elderflower and forest herbs. Heals what ails you.",
     classes: [], stats: { wis: 2 }, durationMod: 1, lootMod: 1, recipeId: "elderflower_broth", consumable: true, foodFlavors: ["fresh"] },
-  { id: "moss_wrapped_trout", name: "Moss-Wrapped Trout", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/moss_wrapped_trout.png", icon: "🐟", slot: "trinket",
+  { id: "moss_wrapped_trout", name: "Moss-Wrapped Trout", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/moss_wrapped_trout.png", icon: "🐟", slot: "trinket",
     description: "River trout wrapped in damp moss and slow-steamed over coals. Tastes of the forest itself.",
     classes: [], stats: { dex: 1, int: 1 }, durationMod: 1, lootMod: 1, recipeId: "moss_wrapped_trout", consumable: true, foodFlavors: ["smoky", "fresh"] },
 
   // Hauts-Cieux
-  { id: "starfruit_meringue", name: "Starfruit Meringue", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/starfruit_meringue.png", icon: "⭐", slot: "trinket",
+  { id: "starfruit_meringue", name: "Starfruit Meringue", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/starfruit_meringue.png", icon: "⭐", slot: "trinket",
     description: "Whipped cloud-light meringue with crystallized starfruit. It tastes like the sky looks at dawn.",
     classes: [], stats: { int: 1, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "starfruit_meringue", consumable: true, foodFlavors: ["sweet"] },
-  { id: "crystal_consomme", name: "Crystal Consommé", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/crystal_consomme.png", icon: "🥣", slot: "trinket",
+  { id: "crystal_consomme", name: "Crystal Consommé", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/crystal_consomme.png", icon: "🥣", slot: "trinket",
     description: "A broth so clear you can read through it. The Hauts-Cieux consider cloudy soup a moral failing.",
     classes: [], stats: { int: 2 }, durationMod: 1, lootMod: 1, recipeId: "crystal_consomme", consumable: true, foodFlavors: ["fresh"] },
-  { id: "moonpetal_sorbet", name: "Moonpetal Sorbet", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/moonpetal_sorbet.png", icon: "🍨", slot: "trinket",
+  { id: "moonpetal_sorbet", name: "Moonpetal Sorbet", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/moonpetal_sorbet.png", icon: "🍨", slot: "trinket",
     description: "Frozen sorbet made with moonpetal essence. Glows faintly silver. Tastes of starlight and regret.",
     classes: [], stats: { wis: 2, int: 1 }, durationMod: 1, lootMod: 1, recipeId: "moonpetal_sorbet", consumable: true, foodFlavors: ["sweet", "fresh"] },
 
   // Khazdurim
-  { id: "forge_roasted_boar", name: "Forge-Roasted Boar", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/forge_roasted_boar.png", icon: "🐗", slot: "trinket",
+  { id: "forge_roasted_boar", name: "Forge-Roasted Boar", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/forge_roasted_boar.png", icon: "🐗", slot: "trinket",
     description: "Whole boar roasted in forge heat until the fat crackles. The Khazdurim eat this before battle.",
     classes: [], stats: { str: 2 }, durationMod: 1, lootMod: 1, recipeId: "forge_roasted_boar", consumable: true, foodFlavors: ["smoky", "hearty"] },
-  { id: "deep_mushroom_stew", name: "Deep Mushroom Stew", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/deep_mushroom_stew.png", icon: "🍄", slot: "trinket",
+  { id: "deep_mushroom_stew", name: "Deep Mushroom Stew", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/deep_mushroom_stew.png", icon: "🍄", slot: "trinket",
     description: "Mushrooms from the third level, slow-cooked in dark ale. Don't ask what level means.",
     classes: [], stats: { vit: 1, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "deep_mushroom_stew", consumable: true, foodFlavors: ["hearty", "smoky"] },
-  { id: "iron_bread", name: "Iron Bread", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/iron_bread.png", icon: "🍞", slot: "trinket",
+  { id: "iron_bread", name: "Iron Bread", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/iron_bread.png", icon: "🍞", slot: "trinket",
     description: "Bread so dense you could hammer nails with it. The Khazdurim consider this a feature.",
     classes: [], stats: { vit: 2 }, durationMod: 1, lootMod: 1, recipeId: "iron_bread", consumable: true, foodFlavors: ["hearty"] },
 
   // Feldgrund
-  { id: "harvest_ale_stew", name: "Harvest Ale Stew", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/harvest_ale_stew.png", icon: "🍺", slot: "trinket",
+  { id: "harvest_ale_stew", name: "Harvest Ale Stew", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/harvest_ale_stew.png", icon: "🍺", slot: "trinket",
     description: "Root vegetables and sausage in golden ale broth. The Feldgrund version of fine dining.",
     classes: [], stats: { vit: 1, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "harvest_ale_stew", consumable: true, foodFlavors: ["hearty"] },
-  { id: "cheese_and_onion_pie", name: "Cheese & Onion Pie", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/cheese_and_onion_pie.png", icon: "🥧", slot: "trinket",
+  { id: "cheese_and_onion_pie", name: "Cheese & Onion Pie", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/cheese_and_onion_pie.png", icon: "🥧", slot: "trinket",
     description: "Flaky crust packed with caramelized onions and three kinds of cheese. Pub perfection.",
     classes: [], stats: { vit: 2 }, durationMod: 1, lootMod: 1, recipeId: "cheese_and_onion_pie", consumable: true, foodFlavors: ["hearty", "smoky"] },
-  { id: "apple_butter_toast", name: "Apple Butter Toast", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/apple_butter_toast.png", icon: "🍎", slot: "trinket",
+  { id: "apple_butter_toast", name: "Apple Butter Toast", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/apple_butter_toast.png", icon: "🍎", slot: "trinket",
     description: "Thick toast with spiced apple butter. A Feldgrund child's first breakfast and an elder's last comfort.",
     classes: [], stats: { wis: 1, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "apple_butter_toast", consumable: true, foodFlavors: ["sweet", "hearty"] },
 ];

@@ -1,4 +1,5 @@
 import type { GameState } from "~/engine/gameState";
+import { getItem } from "@medieval-realm/shared/data/items";
 
 export interface QuestReward {
   resource: "gold" | "wood" | "stone" | "wheat" | "wool" | "astralShards";
@@ -111,7 +112,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     condition: (s) => (bldg(s, "houses")?.level ?? 0) >= 1,
     rewards: [{ resource: "wood", amount: 60, label: "Wood" }, { resource: "stone", amount: 40, label: "Stone" }],
     targetBuildingId: "houses",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/a_roof_over_their_heads.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/houses_camp.png",
   },
   // 6 — Hunting Camp (new citizen brought a bow; reframe only, no memory)
   {
@@ -146,17 +147,17 @@ export const QUEST_CHAIN: QuestDefinition[] = [
   // 8 — Pantry (fires Entry VI — Nell's Notebook, quiet pre-winter reflection)
   {
     id: "stockpile_for_winter",
-    title: "Stockpile for Winter",
+    title: "A Proper Pantry",
     narrative:
-      "Winter is closer than I like. The pantry in Ashwick was a stone room with onions hanging from the rafters; ours will be wood-floored and smelling of nothing yet. Tomas says the cellar can go down four feet before we hit the water table. That will do.",
+      "Edda has taken to hanging onions from a tent pole and calling it a pantry. It is not a pantry. The one in Ashwick was a stone room that smelled of root vegetables and salt; ours will be wood-floored and smell of nothing yet. Tomas says the cellar can go down four feet before we hit the water table. That will do.",
     startNarrative:
-      "Winter is closer than I like. The pantry in Ashwick was a stone room with onions hanging from the rafters; ours will be wood-floored and smelling of nothing yet. Tomas says the cellar can go down four feet before we hit the water table. That will do.",
+      "Edda has taken to hanging onions from a tent pole and calling it a pantry. It is not a pantry. The one in Ashwick was a stone room that smelled of root vegetables and salt; ours will be wood-floored and smell of nothing yet. Tomas says the cellar can go down four feet before we hit the water table. That will do.",
     objective: "Build a Pantry",
     icon: "🥫",
     condition: (s) => (bldg(s, "pantry")?.level ?? 0) >= 1,
     rewards: [{ resource: "wood", amount: 50, label: "Wood" }, { resource: "stone", amount: 30, label: "Stone" }],
     targetBuildingId: "pantry",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_9.png",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/pantry.png",
     chronicleEntryId: "ch1_nell_notebook",
   },
   // 9 — The Rough Altar (Father Corin)
@@ -298,7 +299,9 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "sharper_axes",
     title: "Sharper Axes",
     narrative:
-      "Your woodcutters have learned the grain of every tree in the forest. With better tools and technique, the timber will flow twice as fast.",
+      "Jory has stopped tapping trunks with the back of his axe and started marking them with chalk — a sign he has learned which pines here are worth felling and which are not. He says the mill needs a proper pit-saw and a second horse if we want the timber to flow faster. He says it the way he says everything: quietly, and as if he has already budgeted the wood.",
+    startNarrative:
+      "Jory has stopped tapping trunks with the back of his axe and started marking them with chalk — a sign he has learned which pines here are worth felling and which are not. He says the mill needs a proper pit-saw and a second horse if we want the timber to flow faster. He says it the way he says everything: quietly, and as if he has already budgeted the wood.",
     objective: "Upgrade Lumber Mill to level 2",
     icon: "🪓",
     condition: (s) => (bldg(s, "lumber_mill")?.level ?? 0) >= 2,
@@ -311,7 +314,9 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "deeper_veins",
     title: "Deeper Veins",
     narrative:
-      "The surface stone is running thin, but your miners swear they can hear richer deposits echoing below. Time to dig deeper.",
+      "Tomas has been sleeping at the quarry two nights a week, coming back with dust in his beard and a list of what the surface ledge cannot give us. He wants to cut down — proper steps, a winch, maybe a second face. He says the good stone is just below, and he says it like a man who can already hear it.",
+    startNarrative:
+      "Tomas has been sleeping at the quarry two nights a week, coming back with dust in his beard and a list of what the surface ledge cannot give us. He wants to cut down — proper steps, a winch, maybe a second face. He says the good stone is just below, and he says it like a man who can already hear it.",
     objective: "Upgrade Stone Quarry to level 2",
     icon: "⛏️",
     condition: (s) => (bldg(s, "quarry")?.level ?? 0) >= 2,
@@ -358,7 +363,11 @@ export const QUEST_CHAIN: QuestDefinition[] = [
       "Your adventurers eye the new workshop with interest. A proper weapon could mean the difference between victory and a shallow grave. Craft something worthy of a hero.",
     objective: "Craft a weapon at the Woodworker",
     icon: "🪄",
-    condition: (s) => s.weapons >= 1 || s.inventory.some((i) => i.quantity > 0),
+    condition: (s) => s.weapons >= 1 || s.inventory.some((i) => {
+      if (i.quantity <= 0) return false;
+      const item = getItem(i.itemId);
+      return item?.slot === "mainHand" || item?.slot === "offHand";
+    }),
     rewards: [{ resource: "gold", amount: 20, label: "Gold" }],
     targetPage: "/woodworker",
   },
@@ -380,9 +389,9 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "the_road_to_greatness",
     title: "The Road to Greatness",
     narrative:
-      "The Town Hall is too small now. Edda has taken to calling it \"the cupboard.\" We are more than a camp — proper houses, two wells, a shrine, a mission board, and more names on the roster than I can list from memory. It is time to raise the hall and admit what we have become.",
+      "The Town Hall is too small now. Edda has taken to calling it \"the cupboard.\" We have outgrown this camp — tents on every level stretch of ground, two wells, a shrine, a mission board, and more names on the roster than I can list from memory. The canvas will not last another winter. It is time to raise a proper hall, and then to trade tents for walls.",
     startNarrative:
-      "The Town Hall is too small now. Edda has taken to calling it \"the cupboard.\" We are more than a camp — proper houses, two wells, a shrine, a mission board, and more names on the roster than I can list from memory. It is time to raise the hall and admit what we have become.",
+      "The Town Hall is too small now. Edda has taken to calling it \"the cupboard.\" We have outgrown this camp — tents on every level stretch of ground, two wells, a shrine, a mission board, and more names on the roster than I can list from memory. The canvas will not last another winter. It is time to raise a proper hall, and then to trade tents for walls.",
     objective: "Upgrade Town Hall to level 3",
     icon: "⭐",
     condition: (s) => (bldg(s, "town_hall")?.level ?? 0) >= 3,
@@ -431,7 +440,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "eyes_on_the_horizon",
     title: "Eyes on the Horizon",
     narrative:
-      "You survived — barely. But you were lucky this time. Your adventurers happened to spot them on a mission. Next time, you might not be so fortunate. A watchtower would give you proper warning — hours instead of minutes. You won't be caught off guard again.",
+      "We saw them in time — but only because a returning patrol heard the brush move. Next raid, we might not be so lucky. A proper watchtower would give us hours of warning instead of minutes. No one else is getting inside our fence unnoticed.",
     objective: "Build a Watchtower",
     icon: "🏰",
     condition: (s) => (bldg(s, "watchtower")?.level ?? 0) >= 1,

@@ -4,7 +4,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
 {
     id: "gather_timber",
     name: "Gather Timber",
-    description: "Send a woodcutter into the near forest. A pair of wolf pups have been sniffing around — nothing a swung axe can't handle.",
+    description: "Jory has marked three pines on the southern tree line and wants a hand hauling them back. A pair of wolf pups have been sniffing around his tools — nothing a swung axe can't handle.",
     icon: "🪵",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/gather_timber.png",
     slots: [{ class: "any" }],
@@ -19,7 +19,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
 {
     id: "quarry_expedition",
     name: "Quarry Expedition",
-    description: "Scout the hills for loose stone and haul it back to the settlement.",
+    description: "Tomas has scouted a run of loose stone up in the hills and needs strong backs to haul it down. The ridge is crawling with rats that have made nests in the cracks — bring a club.",
     icon: "🪨",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/quarry_expedition.png",
     slots: [{ class: "any" }, { class: "any" }],
@@ -34,7 +34,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
 {
     id: "foraging_run",
     name: "Foraging Run",
-    description: "Gather wild berries, roots, and game from the surrounding lands.",
+    description: "Nell has been coming back with her apron full of things Edda has to sort through twice — some edible, some not. Send someone with her who can tell a turnip root from a death cap.",
     icon: "🍖",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/foraging_run.png",
     slots: [{ class: "any" }],
@@ -65,7 +65,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
 {
     id: "herb_gathering",
     name: "Herb Gathering",
-    description: "The meadows beyond the tree line are dotted with wildflowers and fragrant herbs. Your adventurer returns with bundles of chamomile and mugwort — and a handful of berries for the road.",
+    description: "Edda has a list — chamomile for the sleepless, mugwort for the fevered, and berries for the children who keep finding her pockets. The meadows beyond the tree line have all three if someone walks them carefully.",
     icon: "🌿",
     slots: [{ class: "any" }],
     duration: 540,

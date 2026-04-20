@@ -239,7 +239,7 @@ export default function Enchanting() {
                               const have = () => state.inventory.find((i) => i.itemId === cost.resource)?.quantity ?? 0;
                               const enough = () => have() >= cost.amount;
                               return (
-                                <Tooltip content={
+                                <Tooltip content={() => (
                                   <div>
                                     <strong>{mat()?.name ?? cost.resource.replace(/_/g, " ")}</strong>
                                     <Show when={mat()?.description}>
@@ -248,7 +248,7 @@ export default function Enchanting() {
                                       </div>
                                     </Show>
                                   </div>
-                                }>
+                                )}>
                                   <span class={`enchanting-cost ${enough() ? "" : "missing"}`}>
                                     {mat()?.icon ?? "?"} {have()}/{cost.amount}
                                   </span>
@@ -336,7 +336,7 @@ export default function Enchanting() {
                             const canEnchant = () => eligible() && canAffordSelected();
                             const faded = () => selectedEnchant() !== null && !eligible() && itemId() !== null;
                             return (
-                              <Tooltip content={
+                              <Tooltip content={() => (
                                 <div>
                                   <strong>{item()?.name ?? SLOT_LABELS[slotDef.id]}</strong>
                                   <Show when={enchants().length > 0}>
@@ -350,7 +350,7 @@ export default function Enchanting() {
                                     </div>
                                   </Show>
                                 </div>
-                              }>
+                              )}>
                                 <div
                                   class={`enchanting-gear-slot ${itemId() ? "filled" : "empty"} ${canEnchant() ? "valid-target" : ""} ${eligible() && !canAffordSelected() ? "eligible" : ""} ${faded() ? "faded" : ""}`}
                                   onClick={() => canEnchant() && handleEnchantEquipped(adv.id, slotDef.id)}
@@ -400,7 +400,7 @@ export default function Enchanting() {
                   const canEnchant = () => eligible() && canAffordSelected();
                   const faded = () => selectedEnchant() !== null && !eligible();
                   return (
-                    <Tooltip content={
+                    <Tooltip content={() => (
                       <div>
                         <strong>{item()?.name}</strong>
                         {inv.quantity > 1 && <span> x{inv.quantity}</span>}
@@ -416,7 +416,7 @@ export default function Enchanting() {
                           </div>
                         </Show>
                       </div>
-                    }>
+                    )}>
                       <div
                         class={`enchanting-inv-slot ${canEnchant() ? "valid-target" : ""} ${eligible() && !canAffordSelected() ? "eligible" : ""} ${faded() ? "faded" : ""}`}
                         onClick={() => canEnchant() && handleEnchantInventory(idx)}

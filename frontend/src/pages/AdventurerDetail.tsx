@@ -71,6 +71,7 @@ const SLOT_NAMES: Record<string, string> = {
 export default function AdventurerDetail() {
   const params = useParams<{ id: string }>();
   const { state, actions } = useGame();
+  const navigate = useNavigate();
 
   const adventurer = () => state.adventurers.find((a) => a.id === params.id);
 
@@ -478,7 +479,7 @@ export default function AdventurerDetail() {
                                   };
                                   const slotLabel = SLOT_NAMES[item.slot] ?? item.slot;
                                   return (
-                                    <Tooltip content={
+                                    <Tooltip content={() => (
                                       <div>
                                         <div style={{ "font-weight": "bold", color: "var(--text-primary)" }}>{item.icon} {item.name}</div>
                                         <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "2px" }}>{slotLabel}</div>
@@ -487,7 +488,7 @@ export default function AdventurerDetail() {
                                           <div style={{ "font-size": "0.65rem", color: "var(--accent-red)", "margin-top": "2px" }}>Wrong class</div>
                                         </Show>
                                       </div>
-                                    } position="bottom">
+                                    )} position="bottom">
                                       <div
                                         onClick={() => { if (canEquip()) actions.equipItem(params.id, item.id); }}
                                         style={{
@@ -803,7 +804,7 @@ export default function AdventurerDetail() {
                     <div style={{ display: "flex", "flex-direction": "column", gap: "8px" }}>
                       <For each={CLASS_ABILITIES[adv().class]}>
                         {(ability) => (
-                          <Tooltip content={
+                          <Tooltip content={() => (
                             <div style={{ "max-width": "220px" }}>
                               <div style={{ "font-weight": "bold", color: "var(--text-primary)" }}>{ability.name}</div>
                               <div style={{ "font-size": "0.72rem", color: "var(--text-secondary)", "margin-top": "4px" }}>{ability.description}</div>
@@ -811,7 +812,7 @@ export default function AdventurerDetail() {
                                 {ability.trigger} · {ability.cooldown === 99 ? "Once per combat" : `${ability.cooldown}rd cooldown`}
                               </div>
                             </div>
-                          } position="left">
+                          )} position="left">
                             <div style={{
                               display: "flex",
                               "align-items": "center",
@@ -845,13 +846,13 @@ export default function AdventurerDetail() {
                         .map((id) => getTalent(id))
                         .filter((t): t is TalentNode => !!t && !t.description.startsWith("+"))}>
                         {(talent) => (
-                          <Tooltip content={
+                          <Tooltip content={() => (
                             <div style={{ "max-width": "220px" }}>
                               <div style={{ "font-weight": "bold", color: "var(--accent-gold)" }}>{talent.name}</div>
                               <div style={{ "font-size": "0.72rem", color: "var(--text-secondary)", "margin-top": "4px" }}>{talent.description}</div>
                               <div style={{ "font-size": "0.65rem", color: "var(--text-muted)", "margin-top": "6px" }}>Talent</div>
                             </div>
-                          } position="left">
+                          )} position="left">
                             <div style={{
                               display: "flex", "align-items": "center", gap: "10px", padding: "6px",
                               "border-radius": "6px", background: "rgba(245, 197, 66, 0.05)",
@@ -895,7 +896,7 @@ export default function AdventurerDetail() {
                       onClick={() => {
                         if (confirm(`Dismiss ${adv().name}? This cannot be undone.`)) {
                           actions.dismissAdventurer(params.id);
-                          useNavigate()("/guild?tab=roster");
+                          navigate("/guild?tab=roster");
                         }
                       }}
                       style={{

@@ -4,6 +4,10 @@ export interface CraftingRecipe {
   id: string;
   name: string;
   icon: string;
+  /** Optional sprite. Used for bulk-resource recipes (clothing, potions) that
+   *  don't have a corresponding ITEM entry. Equipment recipes fall back to
+   *  the matching ItemDefinition.image via getItemByRecipe. */
+  image?: string;
   building: string; // building ID required
   minLevel: number; // minimum building level
   costs: { resource: string; amount: number }[];
@@ -85,6 +89,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     id: "wool_clothing",
     name: "Wool Clothing",
     icon: "🧥",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/tailoring/wool_clothing.png",
     building: "tailoring_shop",
     minLevel: 1,
     costs: [{ resource: "wool", amount: 5 }],
@@ -115,6 +120,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     id: "linen_clothing",
     name: "Linen Clothing",
     icon: "👘",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/tailoring/linen_clothing.png",
     building: "tailoring_shop",
     minLevel: 1,
     costs: [{ resource: "fiber", amount: 10 }],
@@ -125,6 +131,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     id: "fine_clothing",
     name: "Fine Clothing",
     icon: "👔",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/tailoring/fine_clothing.png",
     building: "tailoring_shop",
     minLevel: 3,
     costs: [{ resource: "wool", amount: 5 }, { resource: "fiber", amount: 5 }, { resource: "gold", amount: 10 }],

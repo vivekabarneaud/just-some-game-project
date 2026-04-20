@@ -357,7 +357,7 @@ export default function CraftingPage(props: CraftingPageProps) {
                   return (
                     <RecipeCard
                       icon={recipe.icon}
-                      image={item?.image}
+                      image={recipe.image ?? item?.image}
                       title={recipe.name}
                       subtitle={`${formatTime(recipe.craftTime)} · +${recipe.produces.amount}x ${formatResource(recipe.produces.resource, props.buildingId)}`}
                       info={itemInfoPanel(recipe.id, isToolLocked())}
@@ -413,7 +413,7 @@ export default function CraftingPage(props: CraftingPageProps) {
                     return (
                       <RecipeCard
                         icon={recipe.icon}
-                        image={item?.image}
+                        image={recipe.image ?? item?.image}
                         title={recipe.name}
                         subtitle={`+${recipe.produces.amount}x ${formatResource(recipe.produces.resource, props.buildingId)}`}
                         info={itemInfoPanel(recipe.id, true)}

@@ -53,7 +53,11 @@ export default function SupplySlot(props: SupplySlotProps) {
   const tooltipText = () => {
     if (props.disabledReason) return props.disabledReason;
     const it = selectedItem();
-    if (it) return `${it.icon} ${it.name}`;
+    if (it) {
+      const opt = props.options.find((o) => o.id === it.id);
+      const hint = opt?.hint;
+      return hint ? `${it.icon} ${it.name} — ${hint}` : `${it.icon} ${it.name}`;
+    }
     return `Add ${LABEL[props.kind]}`;
   };
 

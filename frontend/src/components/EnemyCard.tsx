@@ -65,6 +65,15 @@ interface EnemyCardProps {
   hidden?: boolean;
 }
 
+function EnemyImage(props: { src: string }) {
+  const zoomed = props.src.replace(".png", "_zoomed.png");
+  const [src, setSrc] = createSignal(zoomed);
+  return <img src={src()} alt="" onError={() => setSrc(props.src)} style={{
+    width: "80px", height: "80px", "object-fit": "cover",
+    display: "block", "flex-shrink": "0",
+  }} />;
+}
+
 function HiddenEnemyTooltipContent() {
   return (
     <div style={{ "min-width": "140px" }}>
@@ -88,7 +97,7 @@ export default function EnemyCard(props: EnemyCardProps) {
     : props.enemy.boss ? "rgba(245, 197, 66, 0.08)"
     : "rgba(231, 76, 60, 0.06)";
   return (
-    <Tooltip content={props.hidden ? <HiddenEnemyTooltipContent /> : <EnemyTooltipContent enemy={props.enemy} />}>
+    <Tooltip content={() => props.hidden ? <HiddenEnemyTooltipContent /> : <EnemyTooltipContent enemy={props.enemy} />}>
       <div style={{
         width: "80px",
         height: "110px",
@@ -114,14 +123,7 @@ export default function EnemyCard(props: EnemyCardProps) {
         </Show>
         <Show when={props.hidden} fallback={
           props.enemy.image
-            ? (() => {
-                const zoomed = props.enemy.image!.replace(".png", "_zoomed.png");
-                const [src, setSrc] = createSignal(zoomed);
-                return <img src={src()} alt="" onError={() => setSrc(props.enemy.image!)} style={{
-                  width: "80px", height: "80px", "object-fit": "cover",
-                  display: "block", "flex-shrink": "0",
-                }} />;
-              })()
+            ? <EnemyImage src={props.enemy.image} />
             : <div style={{
                 width: "80px", height: "80px", "flex-shrink": "0",
                 display: "flex", "align-items": "center", "justify-content": "center",

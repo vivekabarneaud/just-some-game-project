@@ -1,13 +1,20 @@
 import { For, Show } from "solid-js";
 import { useGame, BUILDING_TOOLS, getBuildingTool } from "~/engine/gameState";
-import { ITEMS, MATERIALS, getItem, getMaterial, getPotionInfo, isSupplyItem, ARMOR_TYPE_META } from "@medieval-realm/shared/data/items";
+import { ITEMS, MATERIALS, getItem, getMaterial, getPotionInfo, isSupplyItem, isFoodItem, getFoodEffect, MATCHED_FOOD_HP_BONUS, ARMOR_TYPE_META } from "@medieval-realm/shared/data/items";
 import { ALCHEMY_RECIPES } from "@medieval-realm/shared/data/alchemy_recipes";
 import { BUILDINGS } from "~/data/buildings";
 
 export default function Inventory() {
   const { state } = useGame();
 
-  const ownedItems = () => state.inventory.filter((i) => i.quantity > 0);
+  // Equipment section — excludes food (shown separately) and consumables/potions
+  // (rendered in their own section above).
+  const ownedItems = () => state.inventory.filter((i) => {
+    if (i.quantity <= 0) return false;
+    const item = getItem(i.itemId);
+    if (!item) return false;
+    return !isFoodItem(i.itemId) && !isSupplyItem(i.itemId) && !item.consumable;
+  });
 
   // Count equipped items across all adventurers
   const equippedCount = (itemId: string) =>
@@ -146,6 +153,67 @@ export default function Inventory() {
                       </div>
                       <div style={{ "margin-top": "6px", "font-size": "0.85rem", color: "var(--text-secondary)" }}>
                         In stock: <strong>{p.inv.quantity}</strong>
+                      </div>
+                    </div>
+                  );
+                }}
+              </For>
+            </div>
+          </Show>
+        );
+      })()}
+
+      {/* Food */}
+      {(() => {
+        const foodItems = () => state.inventory
+          .filter((inv) => inv.quantity > 0 && isFoodItem(inv.itemId))
+          .map((inv) => ({ inv, item: getItem(inv.itemId)! }))
+          .filter(({ item }) => !!item);
+        const foodBuffParts = (itemId: string): string[] => {
+          const fx = getFoodEffect(itemId);
+          const parts: string[] = [];
+          if (fx?.statBonus) parts.push(`+${fx.statBonus.amount} ${fx.statBonus.stat.toUpperCase()}`);
+          if (fx?.hpBonus) parts.push(`+${fx.hpBonus} HP`);
+          return parts;
+        };
+        return (
+          <Show when={foodItems().length > 0}>
+            <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "10px", color: "var(--text-primary)" }}>
+              Food
+            </h3>
+            <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-bottom": "10px" }}>
+              Carry one per adventurer. Matching the adventurer's flavor preference grants +{MATCHED_FOOD_HP_BONUS} HP and +1 loyalty on mission success.
+            </div>
+            <div class="buildings-grid" style={{ "margin-bottom": "20px" }}>
+              <For each={foodItems()}>
+                {({ inv, item }) => {
+                  const buffs = foodBuffParts(item.id);
+                  const flavors = item.foodFlavors ?? [];
+                  return (
+                    <div class="building-card">
+                      <span class="building-card-category">food</span>
+                      <div class="building-card-header" style={{ "margin-top": "4px" }}>
+                        {item.image
+                          ? <img src={item.image} alt="" style={{ width: "40px", height: "40px", "object-fit": "cover", "border-radius": "6px", "flex-shrink": "0" }} />
+                          : <div class="building-card-icon">{item.icon}</div>
+                        }
+                        <div>
+                          <div class="building-card-title">{item.name}</div>
+                          <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
+                            {flavors.join(", ") || "food"}
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ "font-size": "0.8rem", color: "var(--text-secondary)", "font-style": "italic", "margin-top": "4px" }}>
+                        {item.description}
+                      </div>
+                      <Show when={buffs.length > 0}>
+                        <div style={{ "font-size": "0.8rem", color: "var(--accent-green)", "margin-top": "4px" }}>
+                          {buffs.join(" · ")}
+                        </div>
+                      </Show>
+                      <div style={{ "margin-top": "6px", "font-size": "0.85rem", color: "var(--text-secondary)" }}>
+                        In stock: <strong>{inv.quantity}</strong>
                       </div>
                     </div>
                   );
