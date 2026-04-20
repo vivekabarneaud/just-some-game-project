@@ -1,9 +1,16 @@
-import type { GameState } from "@medieval-realm/shared";
+import type { GameState, TradeResourceKey as SharedTradeResourceKey } from "@medieval-realm/shared";
 
-export type TradeResourceKey = "gold" | "wood" | "stone" | "food" | "iron" | "wool" | "fiber" | "ale" | "honey" | "fruit";
+// Re-export shared's union so routes and services that cross the API boundary
+// get the same type the client sends. Runtime access via `(state as any)[key]`
+// below handles any new key added to the union — only the validator set needs
+// to stay in sync.
+export type TradeResourceKey = SharedTradeResourceKey;
 
 const CORE_RESOURCES = new Set(["gold", "wood", "stone", "food"]);
-const VALID_RESOURCES = new Set<string>(["gold", "wood", "stone", "food", "iron", "wool", "fiber", "ale", "honey", "fruit"]);
+const VALID_RESOURCES = new Set<string>([
+  "gold", "wood", "stone", "food", "iron", "wool", "fiber", "ale", "honey", "fruit",
+  "pepper", "cinnamon", "tea", "chili", "saffron",
+]);
 
 export function isValidResource(key: string): key is TradeResourceKey {
   return VALID_RESOURCES.has(key);
