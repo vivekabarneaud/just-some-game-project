@@ -49,7 +49,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     rewards: [{ resource: "wood", amount: 20, label: "Wood" }, { resource: "stone", amount: 10, label: "Stone" }],
     targetBuildingId: "kitchen",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/the_first_fire.png",
-    unlocksBioFragments: ["edda_first_cup"],
+    unlocksBioFragments: ["edda_first_fire"],
   },
   // 2 — Lumber Mill (Jory)
   {
@@ -84,7 +84,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/the_first_cut.png",
     unlocksBioFragments: ["tomas_quarry"],
   },
-  // 4 — Forager's Hut (Edda + Nell; reframe only, no memory)
+  // 4 — Forager's Hut (Edda + Nell)
   {
     id: "the_foragers_path",
     title: "The Forager's Path",
@@ -98,6 +98,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     rewards: [{ resource: "wood", amount: 30, label: "Wood" }, { resource: "stone", amount: 5, label: "Stone" }],
     targetBuildingId: "forager_hut",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/the_foragers_path.png",
+    unlocksBioFragments: ["edda_gronmoder"],
   },
   // 5 — Houses (settlement grows — first new citizens arrive after this)
   {
@@ -129,20 +130,21 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     targetBuildingId: "hunting_camp",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_4.png",
   },
-  // 7 — Fishing Hut (filler reframe, no memory)
+  // 7 — Fishing Hut (Edda)
   {
     id: "from_the_deep",
     title: "From the Deep",
     narrative:
-      "The river runs clear and cold from the mountains. Edda calls it a Nereia's stream — Nereia being a goddess her grandmother swore by when the catch was good. The fish do not seem to care what we call them. A hut and some salt, and we can eat from it through winter.",
+      "The river runs clear and cold from the mountains. A hut by the bank, some salt for the catch, and we can eat from it through winter.",
     startNarrative:
-      "The river runs clear and cold from the mountains. Edda calls it a Nereia's stream — Nereia being a goddess her grandmother swore by when the catch was good. The fish do not seem to care what we call them. A hut and some salt, and we can eat from it through winter.",
+      "The river runs clear and cold from the mountains. A hut by the bank, some salt for the catch, and we can eat from it through winter.",
     objective: "Build a Fishing Hut",
     icon: "🐟",
     condition: (s) => (bldg(s, "fishing_hut")?.level ?? 0) >= 1,
     rewards: [{ resource: "wood", amount: 35, label: "Wood" }, { resource: "stone", amount: 10, label: "Stone" }],
     targetBuildingId: "fishing_hut",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_8.png",
+    unlocksBioFragments: ["edda_nereia_stream"],
   },
   // 8 — Pantry (fires Entry VI — Nell's Notebook, quiet pre-winter reflection)
   {
@@ -159,6 +161,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     targetBuildingId: "pantry",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/pantry.png",
     chronicleEntryId: "ch1_nell_notebook",
+    unlocksBioFragments: ["edda_my_boy"],
   },
   // 9 — The Rough Altar (Father Corin)
   {

@@ -1,12 +1,14 @@
 // ─── Founding Cast ───────────────────────────────────────────────
-// The six settlers who founded the Lord's settlement together. They
-// have static core bios (always visible) plus unlockable fragments
-// that accumulate as the Chronicle unfolds. Fragment unlocks are
-// wired through quests (see `unlocksBioFragments` on QuestDefinition).
+// The six settlers who founded the Lord's settlement together.
 //
-// Fragments carry the texture of each character and accumulate over
-// time — they are richer than a one-liner. Character pages are where
-// the reader gets to know each person; the journal is for story beats.
+// Design: coreBio is a minimal nameplate — name, role, one baseline
+// fact. Everything the player "discovers" about a founder — history,
+// secrets, relationships, the texture — lives in fragments. Fragments
+// unlock through quest and chronicle events, accumulating on the
+// character page over the course of play.
+//
+// Source of truth for all character lore: docs/FOUNDING_CHARACTERS.md.
+// Fragments are scenes from the Lord's journal, written in his voice.
 
 export interface BioFragment {
   id: string;
@@ -32,10 +34,11 @@ export const FOUNDING_CHARACTERS: FoundingCharacter[] = [
   {
     id: "the_lord",
     name: "The Lord",
+    age: 37,
     role: "Settlement founder · former schoolmaster of Ashwick",
     portrait: `${CDN_CAST}/the_lord.png`,
     coreBio:
-      "Took the Crown's land grant the week Ashwick's school was to close. Taught children their letters for a decade; now learns their fathers' trades beside them. Keeps a journal because a schoolmaster keeps books.",
+      "I am thirty-seven. I was the schoolmaster of Ashwick. I keep this book because a schoolmaster keeps books.",
     fragments: [],
   },
   {
@@ -45,14 +48,37 @@ export const FOUNDING_CHARACTERS: FoundingCharacter[] = [
     role: "Midwife · cellarer · keeper of the hearth",
     portrait: `${CDN_CAST}/edda.png`,
     coreBio:
-      "Delivered half of Ashwick across forty years, including the Lord himself. Lost her own daughter and granddaughter to fever in '47 and never remarried; learned the herbs better instead. She calls the Lord \"my boy\" in private because she earned the right before he could walk.",
+      "Midwife of Ashwick for forty years. She came south with us.",
     fragments: [
       {
-        id: "edda_first_cup",
+        id: "edda_first_fire",
         text:
-          "Edda was up before dawn, which is how Edda is, and she put a tin cup of something hot into my hand before I had even found my shoes.\n\n" +
-          "\"My boy,\" she said, \"you will need to sleep when the others sleep, or there will be a day you cannot stand.\" She did not wait for an answer. She walked off toward the stream, herbs already bundled in her apron, and I drank what she gave me. It was bitter and warm and there was an old song in it, somewhere.\n\n" +
-          "My father taught me my letters and the names of Dominion princes, and it turns out that is not the knowledge a man needs at the end of a logging road. Edda knows which herbs keep a fever down. I am learning to listen.",
+          "I got the fire going, and Edda came over with her apron full of herbs she had probably gathered at dawn, while the rest of us were still asleep. She crushed them between her palms and let them fall into a pot — and as I watched her, I began to feel at home for the first time since we left Ashwick.\n\n" +
+          "She gave me a cup when it was ready. It was bitter and warm, and there was an old song in it, somewhere.",
+      },
+      {
+        id: "edda_my_boy",
+        text:
+          "Edda walked into the pantry the minute it was finished, and I followed her in. She climbed onto a stool without asking for help, began setting jars on the top shelf, and muttered the names of herbs under her breath the way she used to in her own kitchen.\n\n" +
+          "I stood in the doorway and watched her, remembering all the times she has been there — a remedy for every cut, every fever, every childhood fear that had no name. She still says \"you'll live, my boy\" the way she said it when I was four.\n\n" +
+          "She has been here my whole life.",
+      },
+      {
+        id: "edda_gronmoder",
+        text:
+          "I was crossing behind the forager's hut when I heard Edda's voice in the herb patch, low and deliberate, the way she reads to children.\n\n" +
+          "\"Grønmoder,\" she was saying. \"That is the old name. It stays in this patch. You understand?\"\n\n" +
+          "I stopped. Nell was kneeling beside her. She mouthed the word back — Grønmoder — and smiled the small smile, the one no one else ever gets.\n\n" +
+          "I have known Edda my whole life, and I had never heard her speak that word, or any word like it. I understood without needing to be told that I was not meant to hear it now either.\n\n" +
+          "I walked the long way around.",
+      },
+      {
+        id: "edda_nereia_stream",
+        text:
+          "We finished the fishing hut today. I stayed by the water a while after the others had left. Edda stayed too, a little way upstream. She did not see me.\n\n" +
+          "She had a small bundle in her hand — herbs, tied with a length of string. She held it a moment. Then she tossed it into the river, with a small, deliberate motion, the way one might hand something to someone standing in the water.\n\n" +
+          "I heard her say a name under her breath. Nereia.\n\n" +
+          "I was a schoolmaster for ten years. I do not remember a saint by that name. Probably an old folk ritual, the kind grandmothers pass down without thinking about it. It is Edda. I did not stay.",
       },
     ],
   },
@@ -63,7 +89,7 @@ export const FOUNDING_CHARACTERS: FoundingCharacter[] = [
     role: "Carpenter · widower · the Lord's oldest friend",
     portrait: `${CDN_CAST}/jory.png`,
     coreBio:
-      "Grew up next door to the Lord. Took over his father's carpentry shop; married a girl from the neighboring village. Lost her to the hard winter fever three years ago, when Nell was seven. Carries his axe, his grief, and his daughter with the same quiet steadiness.",
+      "Carpenter. He grew up next door to me.",
     fragments: [
       {
         id: "jory_sawhorse",
@@ -82,7 +108,7 @@ export const FOUNDING_CHARACTERS: FoundingCharacter[] = [
     role: "Stonemason · quarry lead · former militia sergeant",
     portrait: `${CDN_CAST}/tomas.png`,
     coreBio:
-      "Conscripted fifteen years ago for a border muster against southern bandits. Came home with a limp, a silence, and a decision under pressure he still isn't sure was right. Lays stone because stone doesn't argue. Would die for any of the other five without making a speech about it.",
+      "Stonemason, former militia sergeant. He came home from the border with a limp.",
     fragments: [
       {
         id: "tomas_quarry",
@@ -100,7 +126,7 @@ export const FOUNDING_CHARACTERS: FoundingCharacter[] = [
     role: "Priest of the Radiant One (retired) · hymnal keeper",
     portrait: `${CDN_CAST}/father_corin.png`,
     coreBio:
-      "Ordained forty-five years ago. Served Ashwick and the neighboring parishes his whole career. Baptized the Lord. Married Jory and his late wife. Buried her. When the Church ordered him to a retirement cloister, he refused and asked for the frontier instead. The shepherd goes with the flock.",
+      "Priest of the Radiant One, retired. He baptized me.",
     fragments: [
       {
         id: "corin_altar",
@@ -118,7 +144,7 @@ export const FOUNDING_CHARACTERS: FoundingCharacter[] = [
     role: "Jory's daughter · apprentice scribe · too-fearless child",
     portrait: `${CDN_CAST}/nell.png`,
     coreBio:
-      "Her mother died when she was seven; her father went quiet. Edda and the Lord filled the edges. The Lord taught her letters at four, and she has been ahead ever since. She keeps her own small book. She writes in it when she thinks no one is watching.",
+      "Jory's daughter. She is eleven.",
     fragments: [],
   },
 ];
