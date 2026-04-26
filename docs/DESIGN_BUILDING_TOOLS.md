@@ -1,4 +1,4 @@
-# Building Tools — Expansion
+TTTE# Building Tools — Expansion
 
 **Status:** Design doc, not yet implemented (extends the live tool-slot system).
 **Prerequisites:** Existing `BUILDING_TOOLS` system in `frontend/src/engine/crafting.ts`; Cutting Board already ships and gates Kitchen Lv 3+ recipes.
