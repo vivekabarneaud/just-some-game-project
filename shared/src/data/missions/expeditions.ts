@@ -39,7 +39,7 @@ export const EXPEDITION_POOL: ExpeditionTemplate[] = [
   // ── Burnt Crypt Expedition — undead dungeon ────────────────────
   {
     id: "burnt_crypt_expedition",
-    name: "The Burning Crypt — Deep",
+    name: "The Burning Crypt: Deep",
     description: "The fires in the old crypt haven't gone out, even in the rain. Whatever lit them is still down there. Your team descends past the entry chamber this time. Bring water, bring faith, bring a priest if you can.",
     icon: "🔥",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/burning_crypt.png",

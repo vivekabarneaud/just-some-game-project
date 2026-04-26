@@ -91,7 +91,7 @@ Serious, interior, watchful. Keeps her own counsel. The book is hers alone; the 
 
 ### Core history
 - Grew up next door to the Lord in Ashwick. Took over his father's carpentry shop.
-- Married a girl from a neighboring village. Lost her to the hard winter fever three years ago, when Nell was seven.
+- Married a girl from a neighboring village named **Lyra**. Lost her to the hard winter fever three years ago, when Nell was seven. (Lyra locked April 2026 — first on-screen mention in `jory_old_songs` fragment, Lord narrating "I miss Lyra too.")
 - Came south with the Lord because they were good friends, and nothing held him in Ashwick after his wife died. Not obligation — companionship and a fresh start.
 
 ### Music — lutes and wooden instruments
@@ -114,7 +114,7 @@ Serious, interior, watchful. Keeps her own counsel. The book is hers alone; the 
 Oldest friend. Comfortable silences, no performance between them. He drops the joke-armor around the Lord more than anywhere else.
 
 ### Open threads
-- Wife's name? How long were they married? Was it love or village-arranged?
+- ~~Wife's name?~~ **Lyra** (locked April 2026). How long were they married? Was it love or village-arranged?
 - Has his joking ever been called out as armor? By whom?
 - Does he ever talk about his wife? To whom? (Edda is the likely one.)
 

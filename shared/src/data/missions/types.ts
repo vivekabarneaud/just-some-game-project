@@ -11,8 +11,15 @@ export type RewardType = "gold" | "wood" | "stone" | "food" | "astralShards"
   | "berries" | "mushrooms" | "nuts"
   // Herbs
   | "chamomile" | "mugwort" | "nettle" | "nightbloom" | "moonpetal"
-  // Exotic goods (caravan/escort drops only — non-growable)
-  | "pepper" | "cinnamon" | "tea" | "chili" | "saffron";
+  // Exotic goods (caravan/escort drops only, non-growable)
+  | "pepper" | "cinnamon" | "tea" | "chili" | "saffron"
+  // Crafting materials (also drop via combat loot; can be guaranteed mission rewards too)
+  | "wolfhide_strip" | "fang" | "sinew_cord"
+  | "thick_pelt" | "bear_claw"
+  | "bristlehide" | "tusk_shard"
+  | "chitin_plate" | "spinners_bile"
+  | "serpent_fang" | "snake_oil"
+  | "gnawed_marrow" | "bonewalk_shard";
 
 export interface MissionReward {
   resource: RewardType;

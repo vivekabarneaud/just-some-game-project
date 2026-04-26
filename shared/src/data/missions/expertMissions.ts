@@ -24,7 +24,7 @@ export const EXPERT_MISSIONS: MissionTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/enchanted_grove.png",
     slots: [{ class: "wizard" }, { class: "archer" }, { class: "priest" }],
     duration: 3600,
-    rewards: [{ resource: "wheat", amount: 300 }, { resource: "wood", amount: 300 }, { resource: "gold", amount: 100 }],
+    rewards: [{ resource: "mushrooms", amount: 60 }, { resource: "moonpetal", amount: 30 }, { resource: "wood", amount: 300 }, { resource: "gold", amount: 100 }],
     deployCost: 60,
     difficulty: 4,
     minGuildLevel: 4,
@@ -49,7 +49,7 @@ export const EXPERT_MISSIONS: MissionTemplate[] = [
 {
     id: "crystal_caverns",
     name: "Crystal Caverns",
-    description: "Deep beneath the mountains lie caverns of shimmering crystal. Beautiful — and well-guarded.",
+    description: "Deep beneath the mountains lie caverns of shimmering crystal. Beautiful, and well-guarded.",
     icon: "💎",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/crystal_caverns.png",
     slots: [{ class: "wizard" }, { class: "assassin" }, { class: "warrior" }, { class: "priest" }],
@@ -94,7 +94,7 @@ export const EXPERT_MISSIONS: MissionTemplate[] = [
 {
     id: "aether_convergence",
     name: "Aether Convergence",
-    description: "Pure crystallized Aether has formed into something alive. Magic dissolves against it. The Hauts-Cieux have never seen anything like this — they want samples. Your warriors want to hit it.",
+    description: "Pure crystallized Aether has formed into something alive. Magic dissolves against it. The Hauts-Cieux have never seen anything like this. They want samples. Your warriors want to hit it.",
     icon: "✨",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/aether_convergence.png",
     slots: [{ class: "warrior" }, { class: "archer" }, { class: "warrior" }, { class: "priest" }],
@@ -109,7 +109,7 @@ export const EXPERT_MISSIONS: MissionTemplate[] = [
 {
     id: "magma_depths",
     name: "The Magma Depths",
-    description: "Deep below the Ironspine, the Khazdurim sealed something that burns. The seals are weakening. Stone and fire fused into a walking furnace — the ground melts where it treads.",
+    description: "Deep below the Ironspine, the Khazdurim sealed something that burns. The seals are weakening. Stone and fire fused into a walking furnace. The ground melts where it treads.",
     icon: "🌋",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/magma_depths.png",
     slots: [{ class: "warrior" }, { class: "wizard" }, { class: "priest" }, { class: "any" }],
@@ -124,7 +124,7 @@ export const EXPERT_MISSIONS: MissionTemplate[] = [
 {
     id: "fallen_seraph_hunt",
     name: "The Weeping Light",
-    description: "Something fell from the Hauts-Cieux sky-ruins. It still glows. It still weeps. And it still believes it's righteous. The Hauts-Cieux elves are terrified — they say it's a fragment of divine will, corrupted beyond recognition.",
+    description: "Something fell from the Hauts-Cieux sky-ruins. It still glows. It still weeps. And it still believes it's righteous. The Hauts-Cieux elves are terrified. They say it's a fragment of divine will, corrupted beyond recognition.",
     icon: "👼",
     slots: [{ class: "warrior" }, { class: "wizard" }, { class: "priest" }, { class: "assassin" }],
     duration: 5400,
@@ -138,7 +138,7 @@ export const EXPERT_MISSIONS: MissionTemplate[] = [
 {
     id: "ancient_wyrm_lair",
     name: "The Ancient Wyrm's Lair",
-    description: "A thousand years of hunger, rage, and fire. The Thornveil scouts found her lair in the mountains — volcanic vents, charred bones, and the stench of sulfur. Kingdoms have fallen to lesser dragons. Bring your best.",
+    description: "A thousand years of hunger, rage, and fire. The Thornveil scouts found her lair in the mountains: volcanic vents, charred bones, and the stench of sulfur. Kingdoms have fallen to lesser dragons. Bring your best.",
     icon: "🐲",
     slots: [{ class: "warrior" }, { class: "wizard" }, { class: "priest" }, { class: "archer" }, { class: "any" }],
     duration: 7200,

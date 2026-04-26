@@ -11,6 +11,7 @@ import {
 export default function ChronicleJournal() {
   const { state, actions } = useGame();
   const [openEntryId, setOpenEntryId] = createSignal<string | null>(null);
+  const [dismissedFresh, setDismissedFresh] = createSignal(new Set<string>());
   const [searchParams] = useSearchParams();
 
   // Snapshot of entries that were unseen when this page was mounted. Drives the
@@ -130,7 +131,7 @@ export default function ChronicleJournal() {
                 <For each={entries()}>
                   {(entry) => {
                     const unlocked = () => isFired(entry.id);
-                    const fresh = () => unlocked() && isFresh(entry.id);
+                    const fresh = () => unlocked() && isFresh(entry.id) && !dismissedFresh().has(entry.id);
                     return (
                       <div
                         id={`chronicle-entry-${entry.id}`}
@@ -138,7 +139,7 @@ export default function ChronicleJournal() {
                         style={{
                           opacity: unlocked() ? 1 : 0.55,
                           cursor: unlocked() ? "pointer" : "default",
-                          transition: "transform 0.15s, opacity 0.15s",
+                          transition: "transform 0.15s, opacity 0.15s, border-color 0.25s, box-shadow 0.25s, background 0.25s",
                           ...(fresh()
                             ? {
                                 border: "1px solid var(--accent-blue)",
@@ -147,7 +148,16 @@ export default function ChronicleJournal() {
                               }
                             : {}),
                         }}
-                        onClick={() => { if (unlocked()) setOpenEntryId(entry.id); }}
+                        onClick={() => {
+                          if (!unlocked()) return;
+                          setOpenEntryId(entry.id);
+                          setDismissedFresh((prev) => {
+                            if (prev.has(entry.id)) return prev;
+                            const next = new Set(prev);
+                            next.add(entry.id);
+                            return next;
+                          });
+                        }}
                       >
                         <Show when={fresh()}>
                           <div style={{

@@ -42,14 +42,14 @@ export const QUEST_CHAIN: QuestDefinition[] = [
       "Edda has stood over the empty firepit twice this morning with her arms crossed. She has not said anything. She has looked at me three times. I know what that means.",
     startNarrative:
       "Edda has stood over the empty firepit twice this morning with her arms crossed. She has not said anything. She has looked at me three times. I know what that means.",
-    objective: "Build the Kitchens — a cookfire, at least.",
+    objective: "Build the Kitchens, a cookfire at least.",
     icon: "🔥",
     condition: (s) => (bldg(s, "kitchen")?.level ?? 0) >= 1,
     // Refund-style reward: matches the lvl 1 build cost
     rewards: [{ resource: "wood", amount: 20, label: "Wood" }, { resource: "stone", amount: 10, label: "Stone" }],
     targetBuildingId: "kitchen",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/the_first_fire.png",
-    unlocksBioFragments: ["edda_first_cup"],
+    unlocksBioFragments: ["edda_first_fire"],
   },
   // 2 — Lumber Mill (Jory)
   {
@@ -73,9 +73,9 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "the_first_cut",
     title: "The First Cut",
     narrative:
-      "Tomas sharpened his chisel twice before lunch and asked me nothing. That is how he asks for a proper quarry — quietly, and without waiting for permission. The ridge of stone to the north will do.",
+      "Tomas sharpened his chisel twice before lunch and asked me nothing. That is how he asks for a proper quarry: quietly, and without waiting for permission. The ridge of stone to the north will do.",
     startNarrative:
-      "Tomas sharpened his chisel twice before lunch and asked me nothing. That is how he asks for a proper quarry — quietly, and without waiting for permission. The ridge of stone to the north will do.",
+      "Tomas sharpened his chisel twice before lunch and asked me nothing. That is how he asks for a proper quarry: quietly, and without waiting for permission. The ridge of stone to the north will do.",
     objective: "Open the Stone Quarry",
     icon: "⛏️",
     condition: (s) => (bldg(s, "quarry")?.level ?? 0) >= 1,
@@ -89,24 +89,25 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "the_foragers_path",
     title: "The Forager's Path",
     narrative:
-      "The forest gives more than we can carry. Edda brings back mushrooms; Nell brings back everything she finds, including the things Edda tells her to put back. We need a hut — a roof and a table and a door that closes. Things spoil, and we are not yet wealthy enough to waste anything.",
+      "The forest gives more than we can carry. Edda brings back mushrooms; Nell brings back everything she finds, including the things Edda tells her to put back. We need a hut. A roof and a table and a door that closes. Things spoil, and we are not yet wealthy enough to waste anything.",
     startNarrative:
-      "The forest gives more than we can carry. Edda brings back mushrooms; Nell brings back everything she finds, including the things Edda tells her to put back. We need a hut — a roof and a table and a door that closes. Things spoil, and we are not yet wealthy enough to waste anything.",
+      "The forest gives more than we can carry. Edda brings back mushrooms; Nell brings back everything she finds, including the things Edda tells her to put back. We need a hut. A roof and a table and a door that closes. Things spoil, and we are not yet wealthy enough to waste anything.",
     objective: "Build a Forager's Hut",
     icon: "🫐",
     condition: (s) => (bldg(s, "forager_hut")?.level ?? 0) >= 1,
     rewards: [{ resource: "wood", amount: 30, label: "Wood" }, { resource: "stone", amount: 5, label: "Stone" }],
     targetBuildingId: "forager_hut",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/the_foragers_path.png",
+    unlocksBioFragments: ["edda_forager_hut"],
   },
   // 5 — Houses (settlement grows — first new citizens arrive after this)
   {
     id: "a_roof_over_their_heads",
     title: "A Roof Over Their Heads",
     narrative:
-      "A raven arrived yesterday from the Crown's land office: two more families are on the road, due within the week. The tents we have will not hold them. Edda has been saying for weeks that a settlement of six is a picnic, not a village — she will now say it with more conviction.",
+      "A raven arrived yesterday from the Crown's land office: two more families are on the road, due within the week. The tents we have will not hold them. Edda has been saying for weeks that a settlement of six is a picnic, not a village; she will now say it with more conviction.",
     startNarrative:
-      "A raven arrived yesterday from the Crown's land office: two more families are on the road, due within the week. The tents we have will not hold them. Edda has been saying for weeks that a settlement of six is a picnic, not a village — she will now say it with more conviction.",
+      "A raven arrived yesterday from the Crown's land office: two more families are on the road, due within the week. The tents we have will not hold them. Edda has been saying for weeks that a settlement of six is a picnic, not a village; she will now say it with more conviction.",
     objective: "Build Houses",
     icon: "🏠",
     condition: (s) => (bldg(s, "houses")?.level ?? 0) >= 1,
@@ -119,9 +120,9 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "the_new_hunter",
     title: "The New Hunter",
     narrative:
-      "Two new families arrived this week. One of them has a son with a bow, and he has already brought in more meat than Edda can salt. We need a hunting camp — if only to keep the smoke out of our sleeping tents.",
+      "Two new families arrived this week. One of them has a son with a bow, and he has already brought in more meat than Edda can salt. We need a hunting camp, if only to keep the smoke out of our sleeping tents.",
     startNarrative:
-      "Two new families arrived this week. One of them has a son with a bow, and he has already brought in more meat than Edda can salt. We need a hunting camp — if only to keep the smoke out of our sleeping tents.",
+      "Two new families arrived this week. One of them has a son with a bow, and he has already brought in more meat than Edda can salt. We need a hunting camp, if only to keep the smoke out of our sleeping tents.",
     objective: "Build a Hunting Camp",
     icon: "🏹",
     condition: (s) => (bldg(s, "hunting_camp")?.level ?? 0) >= 1,
@@ -134,9 +135,9 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "from_the_deep",
     title: "From the Deep",
     narrative:
-      "The river runs clear and cold from the mountains. Edda calls it a Nereia's stream — Nereia being a goddess her grandmother swore by when the catch was good. The fish do not seem to care what we call them. A hut and some salt, and we can eat from it through winter.",
+      "The river runs clear and cold from the mountains, and Edda has been eyeing it like a larder. A hut and some salt, and we can eat from it through winter.",
     startNarrative:
-      "The river runs clear and cold from the mountains. Edda calls it a Nereia's stream — Nereia being a goddess her grandmother swore by when the catch was good. The fish do not seem to care what we call them. A hut and some salt, and we can eat from it through winter.",
+      "The river runs clear and cold from the mountains, and Edda has been eyeing it like a larder. A hut and some salt, and we can eat from it through winter.",
     objective: "Build a Fishing Hut",
     icon: "🐟",
     condition: (s) => (bldg(s, "fishing_hut")?.level ?? 0) >= 1,
@@ -159,6 +160,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     targetBuildingId: "pantry",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/pantry.png",
     chronicleEntryId: "ch1_nell_notebook",
+    unlocksBioFragments: ["edda_pantry"],
   },
   // 9 — The Rough Altar (Father Corin)
   {
@@ -181,9 +183,9 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "heroes_wanted",
     title: "Heroes Wanted",
     narrative:
-      "Two travelers have knocked at our gate this month — one left, one stayed, and the one who stayed is sharpening arrows in the yard. More will come. A proper guild hall will give them somewhere to gather, and us a way to ask what they can do.",
+      "Two travelers have knocked at our gate this month: one left, one stayed, and the one who stayed is sharpening arrows in the yard. More will come. A proper guild hall will give them somewhere to gather, and us a way to ask what they can do.",
     startNarrative:
-      "Two travelers have knocked at our gate this month — one left, one stayed, and the one who stayed is sharpening arrows in the yard. More will come. A proper guild hall will give them somewhere to gather, and us a way to ask what they can do.",
+      "Two travelers have knocked at our gate this month: one left, one stayed, and the one who stayed is sharpening arrows in the yard. More will come. A proper guild hall will give them somewhere to gather, and us a way to ask what they can do.",
     objective: "Build the Adventurer's Guild",
     icon: "🏰",
     condition: (s) => (bldg(s, "adventurers_guild")?.level ?? 0) >= 1,
@@ -200,9 +202,9 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "a_brave_soul",
     title: "A Brave Soul",
     narrative:
-      "The Guild's doors are open, and more have come than I expected. A woman from Nordveld with a bow she will not put down. A priest's apprentice who will not say which parish. Two others who walked in without speaking. I cannot keep them all — I must choose.",
+      "The Guild's doors are open, and more have come than I expected. A woman from Nordveld with a bow she will not put down. A priest's apprentice who will not say which parish. Two others who walked in without speaking. I cannot keep them all. I must choose.",
     startNarrative:
-      "The Guild's doors are open, and more have come than I expected. A woman from Nordveld with a bow she will not put down. A priest's apprentice who will not say which parish. Two others who walked in without speaking. I cannot keep them all — I must choose.",
+      "The Guild's doors are open, and more have come than I expected. A woman from Nordveld with a bow she will not put down. A priest's apprentice who will not say which parish. Two others who walked in without speaking. I cannot keep them all. I must choose.",
     objective: "Recruit an adventurer",
     icon: "⚔️",
     condition: (s) => s.adventurers.length >= 1,
@@ -228,7 +230,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "seeds_of_prosperity",
     title: "Seeds of Prosperity",
     narrative:
-      "The soil here is dark and rich — perfect for planting. Fields can only be sown in spring. Each garden veggie has its own planting season too — check the cards to find one you can plant right now.",
+      "The soil here is dark and rich, perfect for planting. Fields can only be sown in spring. Each garden veggie has its own planting season too: check the cards to find one you can plant right now.",
     objective: "Plant seeds in a Field or a Garden",
     icon: "🌾",
     condition: (s) =>
@@ -244,7 +246,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "woolly_friends",
     title: "Woolly Friends",
     narrative:
-      "A shepherd arrives at your gate with a small flock, looking for pasture — no gold needed, just wood and stone to build a pen. Wool for clothing, meat for the table. These creatures earn their keep.",
+      "A shepherd arrives at your gate with a small flock, looking for pasture. No gold needed, just wood and stone to build a pen. Wool for clothing, meat for the table. These creatures earn their keep.",
     objective: "Build a Sheep Pen",
     icon: "🐑",
     condition: (s) => s.pens.some((p) => p.animal === "sheep" && p.level >= 1),
@@ -257,7 +259,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "warm_and_proper",
     title: "Warm and Proper",
     narrative:
-      "Your settlers shiver in patched-together rags. With wool from your sheep, a proper tailor could clothe them — and warm clothes mean happy citizens, especially when winter comes.",
+      "Your settlers shiver in patched-together rags. With wool from your sheep, a proper tailor could clothe them, and warm clothes mean happy citizens, especially when winter comes.",
     objective: "Build a Tailoring Shop",
     icon: "🧵",
     condition: (s) => (bldg(s, "tailoring_shop")?.level ?? 0) >= 1,
@@ -269,7 +271,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "first_stitch",
     title: "The First Stitch",
     narrative:
-      "Your tailor examines the wool and nods approvingly. 'Good fiber. I can make proper clothes from this — your people are shivering in rags. Clothe them and they'll be happier, especially come winter. Robes and armor can wait — warmth first.'",
+      "Your tailor examines the wool and nods approvingly. 'Good fiber. I can make proper clothes from this. Your people are shivering in rags. Clothe them and they'll be happier, especially come winter. Robes and armor can wait. Warmth first.'",
     objective: "Craft Wool or Linen Clothing for your citizens",
     icon: "🧥",
     condition: (s) => Math.round(s.clothing) >= 1,
@@ -299,30 +301,32 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "sharper_axes",
     title: "Sharper Axes",
     narrative:
-      "Jory has stopped tapping trunks with the back of his axe and started marking them with chalk — a sign he has learned which pines here are worth felling and which are not. He says the mill needs a proper pit-saw and a second horse if we want the timber to flow faster. He says it the way he says everything: quietly, and as if he has already budgeted the wood.",
+      "Jory has stopped tapping trunks with the back of his axe and started marking them with chalk: a sign he has learned which pines here are worth felling and which are not. He says the mill needs a proper pit-saw and a second horse, and he announces it over breakfast in front of everyone, which is how Jory gets things done.",
     startNarrative:
-      "Jory has stopped tapping trunks with the back of his axe and started marking them with chalk — a sign he has learned which pines here are worth felling and which are not. He says the mill needs a proper pit-saw and a second horse if we want the timber to flow faster. He says it the way he says everything: quietly, and as if he has already budgeted the wood.",
+      "Jory has stopped tapping trunks with the back of his axe and started marking them with chalk: a sign he has learned which pines here are worth felling and which are not. He says the mill needs a proper pit-saw and a second horse, and he announces it over breakfast in front of everyone, which is how Jory gets things done.",
     objective: "Upgrade Lumber Mill to level 2",
     icon: "🪓",
     condition: (s) => (bldg(s, "lumber_mill")?.level ?? 0) >= 2,
     rewards: [{ resource: "wood", amount: 40, label: "Wood" }, { resource: "stone", amount: 54, label: "Stone" }],
     targetBuildingId: "lumber_mill",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_5.png",
+    unlocksBioFragments: ["jory_old_songs"],
   },
   // 17 — Upgrade Stone Quarry to lvl 2 (needs TH 2)
   {
     id: "deeper_veins",
     title: "Deeper Veins",
     narrative:
-      "Tomas has been sleeping at the quarry two nights a week, coming back with dust in his beard and a list of what the surface ledge cannot give us. He wants to cut down — proper steps, a winch, maybe a second face. He says the good stone is just below, and he says it like a man who can already hear it.",
+      "Tomas has been sleeping at the quarry two nights a week, coming back with dust in his beard and a list of what the surface ledge cannot give us. He wants to cut down: proper steps, a winch, maybe a second face. He says the good stone is just below, and he says it like a man who can already hear it.",
     startNarrative:
-      "Tomas has been sleeping at the quarry two nights a week, coming back with dust in his beard and a list of what the surface ledge cannot give us. He wants to cut down — proper steps, a winch, maybe a second face. He says the good stone is just below, and he says it like a man who can already hear it.",
+      "Tomas has been sleeping at the quarry two nights a week, coming back with dust in his beard and a list of what the surface ledge cannot give us. He wants to cut down: proper steps, a winch, maybe a second face. He says the good stone is just below, and he says it like a man who can already hear it.",
     objective: "Upgrade Stone Quarry to level 2",
     icon: "⛏️",
     condition: (s) => (bldg(s, "quarry")?.level ?? 0) >= 2,
     rewards: [{ resource: "wood", amount: 81, label: "Wood" }, { resource: "stone", amount: 13, label: "Stone" }],
     targetBuildingId: "quarry",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_6.png",
+    unlocksBioFragments: ["tomas_quarry_shack"],
   },
   // 18 — Build a Marketplace
   {
@@ -376,7 +380,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "ready_for_battle",
     title: "Ready for Battle",
     narrative:
-      "A weapon in the stockpile does no good. Put it in the hands of someone who knows how to use it — visit an adventurer's detail page and equip their new gear.",
+      "A weapon in the stockpile does no good. Put it in the hands of someone who knows how to use it. Visit an adventurer's detail page and equip their new gear.",
     objective: "Equip a weapon on an adventurer",
     icon: "⚔️",
     condition: (s) => s.adventurers.some((a) => a.equipment && Object.values(a.equipment).some((slot) => slot !== null)),
@@ -389,9 +393,9 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "the_road_to_greatness",
     title: "The Road to Greatness",
     narrative:
-      "The Town Hall is too small now. Edda has taken to calling it \"the cupboard.\" We have outgrown this camp — tents on every level stretch of ground, two wells, a shrine, a mission board, and more names on the roster than I can list from memory. The canvas will not last another winter. It is time to raise a proper hall, and then to trade tents for walls.",
+      "The Town Hall is too small now. Edda has taken to calling it \"the cupboard.\" We have outgrown this camp: tents on every level stretch of ground, two wells, a shrine, a mission board, and more names on the roster than I can list from memory. The canvas will not last another winter. It is time to raise a proper hall, and then to trade tents for walls.",
     startNarrative:
-      "The Town Hall is too small now. Edda has taken to calling it \"the cupboard.\" We have outgrown this camp — tents on every level stretch of ground, two wells, a shrine, a mission board, and more names on the roster than I can list from memory. The canvas will not last another winter. It is time to raise a proper hall, and then to trade tents for walls.",
+      "The Town Hall is too small now. Edda has taken to calling it \"the cupboard.\" We have outgrown this camp: tents on every level stretch of ground, two wells, a shrine, a mission board, and more names on the roster than I can list from memory. The canvas will not last another winter. It is time to raise a proper hall, and then to trade tents for walls.",
     objective: "Upgrade Town Hall to level 3",
     icon: "⭐",
     condition: (s) => (bldg(s, "town_hall")?.level ?? 0) >= 3,
@@ -410,7 +414,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "the_first_threat",
     title: "The First Threat",
     narrative:
-      "Your adventurers return from their last mission with troubling news: they spotted a group of armed men in the hills, watching your settlement. They're poorly equipped — desperate, not organized — but they're heading this way. Your scouts estimate twelve hours before they arrive. Build walls. Now.",
+      "Your adventurers return from their last mission with troubling news: they spotted a group of armed men in the hills, watching your settlement. They're poorly equipped, desperate, not organized, but they're heading this way. Your scouts estimate twelve hours before they arrive. Build walls. Now.",
     hint: "Short on stone? Trade for some at the Marketplace.",
     hintLink: "/marketplace",
     objective: "Build Walls",
@@ -426,7 +430,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "baptism_of_fire",
     title: "Baptism of Fire",
     narrative:
-      "They're here. A ragged band of hungry bandits, driven south by Dominion taxes and hard winters. They're not evil — just desperate. But desperate men with swords are still dangerous. Your walls will be tested for the first time.",
+      "They're here. A ragged band of hungry bandits, driven south by Dominion taxes and hard winters. They're not evil, just desperate. But desperate men with swords are still dangerous. Your walls will be tested for the first time.",
     objective: "Survive the raid",
     icon: "⚔️",
     condition: (s) => s.lastRaidOutcome === "victory",
@@ -440,7 +444,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     id: "eyes_on_the_horizon",
     title: "Eyes on the Horizon",
     narrative:
-      "We saw them in time — but only because a returning patrol heard the brush move. Next raid, we might not be so lucky. A proper watchtower would give us hours of warning instead of minutes. No one else is getting inside our fence unnoticed.",
+      "We saw them in time, but only because a returning patrol heard the brush move. Next raid, we might not be so lucky. A proper watchtower would give us hours of warning instead of minutes. No one else is getting inside our fence unnoticed.",
     objective: "Build a Watchtower",
     icon: "🏰",
     condition: (s) => (bldg(s, "watchtower")?.level ?? 0) >= 1,

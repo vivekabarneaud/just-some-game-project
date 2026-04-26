@@ -38,22 +38,17 @@ export const STORY_CINEMATICS: Record<string, CinematicSlide[]> = {
 
 export const INTRO_CINEMATIC: CinematicSlide[] = [
   {
-    image: `${CDN_STORIES}/intro_slide_1_updated.png`,
+    image: `${CDN_STORIES}/intro_slide_1_final.webp`,
     text: ``,
     position: "bottom",
   },
   {
-    image: `${CDN_STORIES}/intro_slide_2_updated.png`,
+    image: `${CDN_STORIES}/intro_slide_2_final.webp`,
     text: ``,
     position: "bottom",
   },
   {
-    image: `${CDN_STORIES}/intro_slide_3_updated.png`,
-    text: ``,
-    position: "bottom",
-  },
-  {
-    image: `${CDN_STORIES}/intro_slide_4_updated.png`,
+    image: `${CDN_STORIES}/intro_slide_3_final.webp`,
     text: ``,
     position: "bottom",
   },

@@ -895,9 +895,17 @@ function loadGame(): GameState | null {
     // Players who completed the campfire quest before this change get the fragment backfilled.
     if (
       saved.questRewardsClaimed.includes("the_first_fire") &&
-      !saved.unlockedBioFragments.includes("edda_first_cup")
+      !saved.unlockedBioFragments.includes("edda_first_fire")
     ) {
-      saved.unlockedBioFragments.push("edda_first_cup");
+      saved.unlockedBioFragments.push("edda_first_fire");
+    }
+    // Rename (April 2026): edda_first_cup → edda_first_fire (fragment rewrite).
+    const cupIdx = saved.unlockedBioFragments.indexOf("edda_first_cup");
+    if (cupIdx !== -1) {
+      saved.unlockedBioFragments.splice(cupIdx, 1);
+      if (!saved.unlockedBioFragments.includes("edda_first_fire")) {
+        saved.unlockedBioFragments.push("edda_first_fire");
+      }
     }
     // Migrate adventurers missing xp/level fields
     for (const adv of saved.adventurers) {
