@@ -2,7 +2,7 @@
 
 **Status:** Design doc, not yet implemented (extends the live tool-slot system).
 **Prerequisites:** Existing `BUILDING_TOOLS` system in `frontend/src/engine/crafting.ts`; Cutting Board already ships and gates Kitchen Lv 3+ recipes.
-
+e
 ## Overview
 
 Crafting buildings have tool slots. Tools are crafted at building A, installed at building B, and either **unlock** higher-tier recipes or **buff** the building's output. The current system has one tool (Cutting Board, Woodworker → Kitchen). This doc proposes the full roster.
