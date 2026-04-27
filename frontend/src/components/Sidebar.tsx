@@ -76,7 +76,11 @@ const navSections: { title: string; items: NavItem[] }[] = [
 
 const SPEEDS = [1, 2, 5, 10, 50];
 
-export default function Sidebar() {
+interface SidebarProps {
+  onClose?: () => void;
+}
+
+export default function Sidebar(props: SidebarProps) {
   const location = useLocation();
   const { state, actions } = useGame();
   const [myRank, setMyRank] = createSignal<number | null>(null);
@@ -140,6 +144,13 @@ export default function Sidebar() {
 
   return (
     <aside class="sidebar">
+      <button
+        class="sidebar-close-btn"
+        aria-label="Close menu"
+        onClick={() => props.onClose?.()}
+      >
+        ×
+      </button>
       <div class="sidebar-header">
         <h1>Valenheart</h1>
         {(() => {

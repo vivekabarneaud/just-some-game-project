@@ -42,7 +42,11 @@ export default function ResourceBar() {
         {(res) => {
           const rate = () => getRate(res.id);
           return (
-            <div class="resource-item" classList={{ "has-dropdown": res.id === "food" }}>
+            <div
+              class="resource-item"
+              classList={{ "has-dropdown": res.id === "food" }}
+              tabIndex={res.id === "food" ? 0 : undefined}
+            >
               <span class="resource-icon">{res.icon}</span>
               <span
                 class="resource-amount"

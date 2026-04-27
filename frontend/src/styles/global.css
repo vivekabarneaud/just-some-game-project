@@ -693,6 +693,44 @@ body {
   gap: 20px;
 }
 
+/* Raid report — was inline-styled. Promoted to class so it can collapse on mobile. */
+.raid-report {
+  margin: 12px 0;
+  padding: 16px;
+  border-radius: 8px;
+}
+.raid-report-victory {
+  background: rgba(76, 175, 80, 0.08);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+.raid-report-defeat {
+  background: rgba(229, 57, 53, 0.08);
+  border: 1px solid rgba(229, 57, 53, 0.3);
+}
+.raid-report-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 24px;
+  font-size: 0.85rem;
+}
+
+/* Threat card — was inline-styled. Promoted so the two-column layout can collapse. */
+.threat-card {
+  padding: 16px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  background: rgba(231, 76, 60, 0.1);
+  border: 1px solid var(--accent-red);
+  position: relative;
+  overflow: hidden;
+}
+.threat-card-layout {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 16px;
+}
+
 .overview-panel {
   background: var(--bg-panel);
   border: 1px solid var(--border-color);
@@ -965,8 +1003,15 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
-.resource-item.has-dropdown:hover .resource-dropdown {
+/* Show on hover (desktop) and on focus-within (touch — tabIndex makes the
+   item focusable, so tapping it shows the dropdown; tapping elsewhere blurs
+   and closes it) */
+.resource-item.has-dropdown:hover .resource-dropdown,
+.resource-item.has-dropdown:focus-within .resource-dropdown {
   display: block;
+}
+.resource-item.has-dropdown:focus {
+  outline: none;
 }
 
 .dropdown-title {
@@ -3344,5 +3389,272 @@ body {
   }
   .enchanting-recipes {
     width: 100%;
+  }
+}
+
+/* ─── Hamburger button (desktop: hidden, mobile: visible in topbar) ─── */
+.hamburger-btn {
+  display: none;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 8px;
+  width: 40px;
+  height: 36px;
+  cursor: pointer;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  flex-shrink: 0;
+}
+.hamburger-btn span {
+  display: block;
+  height: 2px;
+  width: 100%;
+  background: var(--text-primary);
+  border-radius: 1px;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+/* Backdrop element exists in DOM but only visible on mobile when drawer is open */
+.sidebar-backdrop {
+  display: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* Close-X button inside the drawer (mobile only) */
+.sidebar-close-btn {
+  display: none;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-panel);
+  color: var(--text-primary);
+  font-size: 1.4rem;
+  line-height: 1;
+  border-radius: 6px;
+  cursor: pointer;
+  z-index: 1;
+}
+.sidebar-close-btn:hover {
+  background: var(--bg-hover);
+}
+
+/* ─── Mobile (≤768px): drawer pattern + topbar reflow ─── */
+@media (max-width: 768px) {
+  .app-layout {
+    /* Single-column on mobile: topbar + content stacked, sidebar floats over */
+    grid-template-columns: 1fr;
+    grid-template-rows: var(--topbar-height) 1fr;
+    grid-template-areas:
+      "topbar"
+      "content";
+  }
+
+  /* Sidebar becomes a left-edge off-canvas drawer */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: min(280px, 85vw);
+    height: 100vh;
+    z-index: 200;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.4);
+  }
+  .app-layout.sidebar-open .sidebar {
+    transform: translateX(0);
+  }
+
+  /* Backdrop visible only when drawer is open */
+  .sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 150;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .app-layout.sidebar-open .sidebar-backdrop {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Hamburger visible on mobile, sized for touch */
+  .hamburger-btn {
+    display: flex;
+  }
+
+  /* Close-X visible inside the drawer */
+  .sidebar-close-btn {
+    display: block;
+  }
+
+  /* Topbar grows taller on mobile to fit two rows of resources */
+  :root {
+    --topbar-height: auto;
+  }
+  .topbar {
+    padding: 8px 12px;
+    gap: 8px;
+    align-items: stretch;
+    min-height: 60px;
+  }
+
+  /* Content padding reduced for narrow screens */
+  .content {
+    padding: 16px 12px;
+  }
+
+  /* Resource bar: wrap to 2 rows, items stacked icon-over-value */
+  .resource-bar {
+    gap: 8px 14px;
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: center;
+  }
+  .resource-item {
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    line-height: 1.1;
+    flex-shrink: 0;
+  }
+  .resource-icon {
+    font-size: 1.05rem;
+  }
+  .resource-amount {
+    font-size: 0.78rem;
+  }
+
+  /* Building grid: tighter cards on phone */
+  .buildings-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+  }
+  .building-card {
+    padding: 10px;
+  }
+  /* Image's negative margins must match the card padding so it bleeds to the
+     edges without overshooting */
+  .building-card-image {
+    margin: -10px -10px 8px -10px;
+    height: 100px;
+  }
+
+  /* Farming page uses the same card layout — apply the same grid + padding */
+  .fields-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+  }
+  .field-card {
+    padding: 10px;
+  }
+
+  /* ── Overview page ── */
+  /* Stack the 2-column overview cards into a single column */
+  .overview-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .overview-panel {
+    padding: 14px;
+  }
+
+  /* Settlement banner: edge-to-edge hero, flush with topbar, fading into page */
+  .settlement-banner {
+    height: 160px;
+    /* Negative margins:
+       - top -16px pulls into the topbar (no gap)
+       - sides -12px reach the screen edges (no inset)
+       - bottom -40px lets content below overlap into the faded portion */
+    margin: -16px -12px -20px;
+    border-radius: 0;
+  }
+  /* Mask the image so its bottom fades into transparency — no hard card edge */
+  .settlement-banner img {
+    -webkit-mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
+  }
+  /* Position the title higher and drop the dark gradient — text-shadow alone
+     handles legibility, and removing the gradient eliminates the mid-banner
+     shadow band */
+  .settlement-banner-overlay {
+    bottom: 50px;
+    padding: 6px 14px;
+    background: transparent;
+  }
+  .settlement-banner-title {
+    font-size: 1.15rem;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.85), 0 0 4px rgba(0, 0, 0, 0.6);
+  }
+
+  /* Quest panel: image stacks above content instead of beside it */
+  .quest-panel {
+    padding: 14px 16px;
+  }
+  .quest-panel.has-image {
+    flex-direction: column;
+  }
+  .quest-image {
+    width: 100%;
+    height: 140px;
+    border-radius: 8px 8px 0 0;
+  }
+  .quest-image img {
+    object-position: center 30%;
+  }
+  .quest-panel-content {
+    padding: 14px 16px;
+  }
+  .quest-header {
+    flex-wrap: wrap;
+  }
+  .quest-progress {
+    margin-left: 0;
+  }
+
+  /* Raid report grid: stack the four stat cells into one column */
+  .raid-report-grid {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  /* Threat card: stack attacker info above player defense */
+  .threat-card-layout {
+    flex-direction: column;
+    gap: 14px;
+  }
+  /* The right column was right-aligned on desktop; left-align on mobile */
+  .threat-card-layout > div:last-child {
+    align-items: flex-start !important;
+    text-align: left !important;
+  }
+}
+
+/* ─── Phone-narrow (≤480px): drop ResourceBar labels for icon+amount only ─── */
+@media (max-width: 480px) {
+  .resource-cap,
+  .resource-rate {
+    display: none;
+  }
+  .resource-bar {
+    gap: 6px 10px;
+  }
+  .topbar {
+    padding: 6px 8px;
+    gap: 6px;
+  }
+  .page-title {
+    font-size: 1.3rem;
+    margin-bottom: 14px;
   }
 }

@@ -115,13 +115,10 @@ export default function Overview() {
           const lost = report().resourcesLost;
           const totalLost = lost.gold + lost.wood + lost.stone + lost.food;
           return (
-            <div style={{
-              margin: "12px 0",
-              padding: "16px",
-              "border-radius": "8px",
-              background: report().victory ? "rgba(76, 175, 80, 0.08)" : "rgba(229, 57, 53, 0.08)",
-              border: `1px solid ${report().victory ? "rgba(76, 175, 80, 0.3)" : "rgba(229, 57, 53, 0.3)"}`,
-            }}>
+            <div
+              class="raid-report"
+              classList={{ "raid-report-victory": report().victory, "raid-report-defeat": !report().victory }}
+            >
               <div style={{ display: "flex", "justify-content": "space-between", "align-items": "center", "margin-bottom": "10px" }}>
                 <h3 style={{
                   margin: 0,
@@ -137,7 +134,7 @@ export default function Overview() {
                   ✕
                 </button>
               </div>
-              <div style={{ display: "grid", "grid-template-columns": "1fr 1fr", gap: "6px 24px", "font-size": "0.85rem" }}>
+              <div class="raid-report-grid">
                 <div style={{ color: "var(--text-secondary)" }}>
                   Defense: <strong style={{ color: "var(--text-primary)" }}>{report().defenseScore}</strong> vs Strength: <strong style={{ color: "var(--text-primary)" }}>{report().raidStrength}</strong>
                 </div>
@@ -489,16 +486,10 @@ export default function Overview() {
                 const onMissionCount = () => state.adventurers.filter((a) => a.onMission).length;
                 const tips = () => getDefenseTips(defense(), ir.strength, state.buildings, onMissionCount());
                 return (
-                  <div style={{
-                    padding: "16px",
-                    "min-height": raid()?.image ? "220px" : undefined,
-                    "margin-bottom": "8px",
-                    "border-radius": "6px",
-                    background: "rgba(231, 76, 60, 0.1)",
-                    border: "1px solid var(--accent-red)",
-                    position: "relative",
-                    overflow: "hidden",
-                  }}>
+                  <div
+                    class="threat-card"
+                    style={{ "min-height": raid()?.image ? "220px" : undefined }}
+                  >
                     {/* Background image — left-aligned, fades into red bg */}
                     <Show when={raid()?.image}>
                       <div style={{
@@ -518,7 +509,7 @@ export default function Overview() {
                     </Show>
 
                     {/* Two-column layout */}
-                    <div style={{ position: "relative", "z-index": 1, display: "flex", gap: "16px" }}>
+                    <div class="threat-card-layout">
 
                       {/* Left — Attacker info */}
                       <div style={{ flex: 1 }}>

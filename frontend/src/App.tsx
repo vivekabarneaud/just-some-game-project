@@ -1,4 +1,4 @@
-import { Show, createEffect, onMount, onCleanup, type ParentProps } from "solid-js";
+import { Show, createEffect, createSignal, onMount, onCleanup, type ParentProps } from "solid-js";
 import { useNavigate, useLocation } from "@solidjs/router";
 import Sidebar from "./components/Sidebar";
 import ResourceBar from "./components/ResourceBar";
@@ -27,11 +27,15 @@ export default function App(props: ParentProps) {
   const location = useLocation();
   let contentRef: HTMLElement | undefined;
 
+  const [sidebarOpen, setSidebarOpen] = createSignal(false);
+
   // Reset the main scroll area to the top on every route change. The sidebar is
   // separate so it keeps its own scroll; only the content pane is reset.
+  // Also closes the mobile drawer if it was open.
   createEffect(() => {
     location.pathname; // track
     if (contentRef) contentRef.scrollTop = 0;
+    setSidebarOpen(false);
   });
 
   // Quest-completion watcher: when the current (unclaimed) quest's condition
@@ -177,9 +181,22 @@ export default function App(props: ParentProps) {
 
       <ToastContainer />
 
-      <div class="app-layout">
-        <Sidebar />
+      <div class="app-layout" classList={{ "sidebar-open": sidebarOpen() }}>
+        <Sidebar onClose={() => setSidebarOpen(false)} />
+        <button
+          class="sidebar-backdrop"
+          aria-label="Close menu"
+          onClick={() => setSidebarOpen(false)}
+        />
         <header class="topbar">
+          <button
+            class="hamburger-btn"
+            aria-label="Open menu"
+            aria-expanded={sidebarOpen()}
+            onClick={() => setSidebarOpen((v) => !v)}
+          >
+            <span /><span /><span />
+          </button>
           <ResourceBar />
           {/* Announcement banner descends from the topbar, overlaying content briefly */}
           <EventBanner />
