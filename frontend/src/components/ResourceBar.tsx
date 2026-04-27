@@ -138,7 +138,159 @@ export default function ResourceBar() {
           );
         }}
       </For>
-      <div class="resource-item has-dropdown">
+      <Show when={
+        state.wool > 0 || state.fiber > 0 || state.leather > 0 || state.iron > 0 || state.gems > 0
+        || (state.herbs && Object.values(state.herbs).some((v) => (v as number) > 0))
+      }>
+        <div class="resource-item has-dropdown">
+          <span class="resource-icon">🧵</span>
+          <span class="resource-amount">{Math.floor(state.wool) + Math.floor(state.fiber) + Math.floor(state.leather ?? 0) + Math.floor(state.iron)}</span>
+          <div class="resource-dropdown">
+            <div class="dropdown-title">Crafting Materials</div>
+            <div class="dropdown-row">
+              <span>🐑 Wool</span>
+              <span>{Math.floor(state.wool)}/200</span>
+            </div>
+            <div class="dropdown-row">
+              <span>🪻 Fiber</span>
+              <span>{Math.floor(state.fiber)}/200</span>
+            </div>
+            <div class="dropdown-row">
+              <span>🐄 Leather</span>
+              <span>{Math.floor(state.leather ?? 0)}/200</span>
+            </div>
+            <div class="dropdown-row">
+              <span>⚒️ Iron</span>
+              <span>{Math.floor(state.iron)}/200</span>
+            </div>
+            <Show when={state.gems > 0}>
+              <div class="dropdown-row">
+                <span>💎 Gems</span>
+                <span>{state.gems}</span>
+              </div>
+            </Show>
+            <Show when={state.herbs && Object.values(state.herbs).some((v) => (v as number) > 0)}>
+              <div class="dropdown-category-header">🌿 Herbs</div>
+              <For each={HERBS}>
+                {(herb) => (
+                  <Show when={(state.herbs?.[herb.id] ?? 0) > 0}>
+                    <div class="dropdown-row">
+                      <span>{herb.icon} {herb.name}</span>
+                      <span>{state.herbs?.[herb.id] ?? 0}</span>
+                    </div>
+                  </Show>
+                )}
+              </For>
+            </Show>
+          </div>
+        </div>
+      </Show>
+
+      {/* Exotic goods — caravan-only spices & tea */}
+      <Show when={state.exotics && Object.values(state.exotics).some((v) => (v as number) > 0)}>
+        <div class="resource-item has-dropdown">
+          <span class="resource-icon">🌶️</span>
+          <span class="resource-amount">{Object.values(state.exotics ?? {}).reduce((sum, v) => sum + (v as number), 0)}</span>
+          <div class="resource-dropdown">
+            <div class="dropdown-title">Exotic Goods</div>
+            <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-bottom": "6px", "padding-bottom": "4px", "border-bottom": "1px solid var(--border-default)" }}>
+              From caravan & escort missions only
+            </div>
+            <For each={EXOTICS}>
+              {(ex) => (
+                <Show when={(state.exotics?.[ex.id] ?? 0) > 0}>
+                  <div class="dropdown-row">
+                    <span>{ex.icon} {ex.name}</span>
+                    <span>{state.exotics?.[ex.id] ?? 0}</span>
+                  </div>
+                </Show>
+              )}
+            </For>
+          </div>
+        </div>
+      </Show>
+
+      <Show when={state.clothing > 0 || actions.getClothingInfo().needed > 0 || actions.getAleInfo().cap > 0}>
+        {(() => {
+          const clothing = () => actions.getClothingInfo();
+          const ale = () => actions.getAleInfo();
+          const hasClothing = () => clothing().needed > 0 || clothing().current > 0;
+          const hasAle = () => ale().cap > 0;
+          const aleNet = () => {
+            const a = ale();
+            const eff = (a.current <= 0 && a.production <= 0) ? 0 : a.consumption;
+            return a.production - eff;
+          };
+          const allMet = () =>
+            (!hasClothing() || clothing().current >= clothing().needed)
+            && (!hasAle() || ale().current > 0);
+          return (
+            <div class="resource-item has-dropdown" tabIndex={0}>
+              <span class="resource-icon">🛍️</span>
+              <span class="resource-amount" style={{
+                color: allMet() ? "var(--accent-green)" : "var(--accent-red)",
+              }}>
+                {allMet() ? "✓" : "!"}
+              </span>
+              <div class="resource-dropdown">
+                <div class="dropdown-title">Comforts</div>
+                <Show when={hasClothing()}>
+                  <div class="dropdown-row">
+                    <span>👕 Clothing</span>
+                    <span style={{
+                      color: clothing().current >= clothing().needed ? "var(--accent-green)" : "var(--accent-red)",
+                    }}>
+                      {clothing().current}/{clothing().needed}
+                    </span>
+                  </div>
+                </Show>
+                <Show when={hasAle()}>
+                  <div class="dropdown-row">
+                    <span>🍺 Ale</span>
+                    <span>
+                      {ale().current}/{ale().cap}
+                      <Show when={aleNet() !== 0}>
+                        <span classList={{
+                          "rate-positive": aleNet() > 0,
+                          "rate-negative": aleNet() < 0,
+                        }} style={{ "margin-left": "6px", "font-size": "0.72rem" }}>
+                          {aleNet() >= 0 ? "+" : ""}{aleNet()}/h
+                        </span>
+                      </Show>
+                    </span>
+                  </div>
+                </Show>
+              </div>
+            </div>
+          );
+        })()}
+      </Show>
+      <div class="resource-item" style={{ "border-left": "1px solid var(--border-default)", "padding-left": "12px" }}>
+        <span class="resource-icon">💠</span>
+        <span class="resource-amount" style={{ color: "#a78bfa" }}>
+          {state.astralShards}
+        </span>
+        <Show when={actions.canClaimDailyLogin()}>
+          <button
+            onClick={() => actions.claimDailyLogin()}
+            style={{
+              "margin-left": "6px",
+              padding: "2px 8px",
+              background: "rgba(167, 139, 250, 0.2)",
+              border: "1px solid #a78bfa",
+              color: "#a78bfa",
+              "border-radius": "4px",
+              cursor: "pointer",
+              "font-size": "0.7rem",
+              "white-space": "nowrap",
+            }}
+          >
+            +10 daily
+          </button>
+        </Show>
+      </div>
+      {/* Happiness — moved here to sit on the right next to the citizen count */}
+      <div class="resource-item has-dropdown happiness-display">
         <span class="resource-icon">{state.happiness >= 70 ? "😊" : state.happiness >= 40 ? "😐" : "😟"}</span>
         <span class="resource-amount" style={{
           color: state.happiness >= 70 ? "var(--accent-green)" : state.happiness >= 40 ? "var(--accent-gold)" : "var(--accent-red)",
@@ -170,137 +322,6 @@ export default function ResourceBar() {
             <span>{state.happiness}</span>
           </div>
         </div>
-      </div>
-      <Show when={state.wool > 0 || state.fiber > 0 || state.leather > 0 || state.iron > 0 || state.gems > 0}>
-        <div class="resource-item has-dropdown">
-          <span class="resource-icon">🧵</span>
-          <span class="resource-amount">{Math.floor(state.wool) + Math.floor(state.fiber) + Math.floor(state.leather ?? 0) + Math.floor(state.iron)}</span>
-          <div class="resource-dropdown">
-            <div class="dropdown-title">Crafting Materials</div>
-            <div class="dropdown-row">
-              <span>🐑 Wool</span>
-              <span>{Math.floor(state.wool)}/200</span>
-            </div>
-            <div class="dropdown-row">
-              <span>🪻 Fiber</span>
-              <span>{Math.floor(state.fiber)}/200</span>
-            </div>
-            <div class="dropdown-row">
-              <span>🐄 Leather</span>
-              <span>{Math.floor(state.leather ?? 0)}/200</span>
-            </div>
-            <div class="dropdown-row">
-              <span>⚒️ Iron</span>
-              <span>{Math.floor(state.iron)}/200</span>
-            </div>
-            <Show when={state.gems > 0}>
-              <div class="dropdown-row">
-                <span>💎 Gems</span>
-                <span>{state.gems}</span>
-              </div>
-            </Show>
-          </div>
-        </div>
-      </Show>
-      {/* Herbs */}
-      <Show when={state.herbs && Object.values(state.herbs).some((v) => (v as number) > 0)}>
-        <div class="resource-item has-dropdown">
-          <span class="resource-icon">🌿</span>
-          <span class="resource-amount">{Object.values(state.herbs ?? {}).reduce((sum, v) => sum + (v as number), 0)}</span>
-          <div class="resource-dropdown">
-            <div class="dropdown-title">Herbs</div>
-            <For each={HERBS}>
-              {(herb) => (
-                <Show when={(state.herbs?.[herb.id] ?? 0) > 0}>
-                  <div class="dropdown-row">
-                    <span>{herb.icon} {herb.name}</span>
-                    <span>{state.herbs?.[herb.id] ?? 0}</span>
-                  </div>
-                </Show>
-              )}
-            </For>
-          </div>
-        </div>
-      </Show>
-
-      {/* Exotic goods — caravan-only spices & tea */}
-      <Show when={state.exotics && Object.values(state.exotics).some((v) => (v as number) > 0)}>
-        <div class="resource-item has-dropdown">
-          <span class="resource-icon">🌶️</span>
-          <span class="resource-amount">{Object.values(state.exotics ?? {}).reduce((sum, v) => sum + (v as number), 0)}</span>
-          <div class="resource-dropdown">
-            <div class="dropdown-title">Exotic Goods</div>
-            <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-bottom": "6px", "padding-bottom": "4px", "border-bottom": "1px solid var(--border-default)" }}>
-              From caravan & escort missions only
-            </div>
-            <For each={EXOTICS}>
-              {(ex) => (
-                <Show when={(state.exotics?.[ex.id] ?? 0) > 0}>
-                  <div class="dropdown-row">
-                    <span>{ex.icon} {ex.name}</span>
-                    <span>{state.exotics?.[ex.id] ?? 0}</span>
-                  </div>
-                </Show>
-              )}
-            </For>
-          </div>
-        </div>
-      </Show>
-
-      <Show when={state.clothing > 0 || actions.getClothingInfo().needed > 0}>
-        <div class="resource-item">
-          <span class="resource-icon">👕</span>
-          <span class="resource-amount" style={{
-            color: actions.getClothingInfo().current >= actions.getClothingInfo().needed ? "var(--accent-green)" : "var(--accent-red)",
-          }}>
-            {actions.getClothingInfo().current}/{actions.getClothingInfo().needed}
-          </span>
-        </div>
-      </Show>
-      <Show when={actions.getAleInfo().cap > 0}>
-        <div class="resource-item">
-          <span class="resource-icon">🍺</span>
-          <span class="resource-amount">{actions.getAleInfo().current}</span>
-          <span class="resource-cap">/ {actions.getAleInfo().cap}</span>
-          {(() => {
-            const ale = actions.getAleInfo();
-            // Don't show consumption if there's no ale and no production
-            const effectiveConsumption = (ale.current <= 0 && ale.production <= 0) ? 0 : ale.consumption;
-            const net = ale.production - effectiveConsumption;
-            return net !== 0 ? (
-              <span class="resource-rate" classList={{
-                "rate-positive": net > 0,
-                "rate-negative": net < 0,
-              }}>
-                {net >= 0 ? "+" : ""}{net}/h
-              </span>
-            ) : null;
-          })()}
-        </div>
-      </Show>
-      <div class="resource-item" style={{ "border-left": "1px solid var(--border-default)", "padding-left": "12px" }}>
-        <span class="resource-icon">💠</span>
-        <span class="resource-amount" style={{ color: "#a78bfa" }}>
-          {state.astralShards}
-        </span>
-        <Show when={actions.canClaimDailyLogin()}>
-          <button
-            onClick={() => actions.claimDailyLogin()}
-            style={{
-              "margin-left": "6px",
-              padding: "2px 8px",
-              background: "rgba(167, 139, 250, 0.2)",
-              border: "1px solid #a78bfa",
-              color: "#a78bfa",
-              "border-radius": "4px",
-              cursor: "pointer",
-              "font-size": "0.7rem",
-              "white-space": "nowrap",
-            }}
-          >
-            +10 daily
-          </button>
-        </Show>
       </div>
       <div class="resource-item pop-display">
         <span class="resource-icon">👤</span>

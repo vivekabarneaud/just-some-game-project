@@ -70,7 +70,10 @@ body {
 /* Layout */
 .app-layout {
   display: grid;
-  grid-template-columns: var(--sidebar-width) 1fr;
+  /* minmax(0, 1fr) instead of 1fr — the implicit `auto` min would let the
+     content column expand to its min-content width, forcing the whole layout
+     past the viewport when grids inside have large intrinsic sizes */
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
   grid-template-rows: var(--topbar-height) 1fr;
   grid-template-areas:
     "sidebar topbar"
@@ -714,6 +717,54 @@ body {
   font-size: 0.85rem;
 }
 
+/* Crafting materials bar — desktop default: meta and list inline together */
+.crafting-materials-meta,
+.crafting-materials-list {
+  display: contents;
+}
+.crafting-mat {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Enemy card (used in mission cards + assembly panel). Sizes are class-based
+   so a media query can shrink them on phone. */
+.enemy-card {
+  width: 80px;
+  height: 110px;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: default;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  flex-shrink: 0;
+}
+.enemy-card-image {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  display: block;
+  object-fit: cover;
+}
+.enemy-card-image-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.2);
+  font-size: 2.2rem;
+}
+.enemy-card-image-hidden {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  font-size: 2.6rem;
+  color: rgba(200, 200, 210, 0.55);
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
+}
+
 /* Threat card — was inline-styled. Promoted so the two-column layout can collapse. */
 .threat-card {
   padding: 16px;
@@ -978,7 +1029,8 @@ body {
   color: var(--text-muted);
 }
 
-.pop-display {
+/* Happiness anchors the right side; pop-display sits beside it */
+.happiness-display {
   margin-left: auto;
 }
 
@@ -3557,6 +3609,193 @@ body {
   }
   .field-card {
     padding: 10px;
+  }
+
+  /* Adventurer's Guild recruit/roster grid: was minmax(360px) — too wide for
+     phone width (overflows). Drop to a phone-friendly size. */
+  .recruit-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+  }
+  /* Roster tab: hide the backstory quote on phone — takes too much vertical
+     space when you already know your hires. (Recruit tab keeps it — backstory
+     is decision-shaping when picking who to hire.) */
+  .roster-card-backstory {
+    display: none;
+  }
+
+  /* Adventurer detail hero: stack portrait above info instead of side-by-side.
+     !important is needed to override inline widths (280px portrait, etc). */
+  .adventurer-hero {
+    flex-direction: column !important;
+    gap: 0 !important;
+  }
+  /* Portrait container: full card width, 220px tall on phone */
+  .adventurer-hero > div:first-child {
+    width: 100% !important;
+    min-height: 220px !important;
+    height: 220px;
+  }
+  /* Info panel: drop the asymmetric padding (was right-only on desktop) */
+  .adventurer-hero > div:nth-child(2) {
+    padding: 16px !important;
+  }
+  /* Right-edge fade gradient inside the portrait — flip to bottom on stacked */
+  .adventurer-hero > div:first-child > div {
+    top: auto !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: auto !important;
+    height: 60px !important;
+    background: linear-gradient(to bottom, transparent, var(--bg-secondary)) !important;
+  }
+
+  /* Stats/Equipment grid: override the inline minmax(240px, 0.6fr) 1fr */
+  .overview-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Crafting pages: stack recipes above the queue panel */
+  .crafting-layout {
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+  .crafting-queue {
+    min-width: 0 !important;
+    max-width: none !important;
+    width: 100%;
+  }
+  /* Recipe cards inside .crafting-layout get slightly wider min-width than
+     the default 140px buildings-grid mobile rule, so the -/+/Max/Craft
+     action row has room to breathe */
+  .crafting-layout .buildings-grid {
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  }
+  /* Wrap the action row when it overflows the card width (better than hidden) */
+  .recipe-card-actions {
+    flex-wrap: wrap;
+  }
+
+  /* Crafting materials bar — phone layout:
+     Row 1: shop name + slots (meta)
+     Row 2: materials, icon-over-value, horizontally scrollable */
+  .crafting-materials-bar {
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+  }
+  .crafting-materials-meta {
+    display: flex !important;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 0.8rem;
+  }
+  .crafting-materials-list {
+    display: flex !important;
+    gap: 14px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .crafting-materials-list::-webkit-scrollbar {
+    display: none;
+  }
+  .crafting-mat {
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    line-height: 1.15;
+    flex-shrink: 0;
+  }
+  .crafting-mat-icon {
+    font-size: 1.1rem;
+  }
+  .crafting-mat-label {
+    display: none;
+  }
+  .crafting-mat-value {
+    font-size: 0.8rem;
+  }
+
+  /* Resource bar dropdowns: switch from parent-anchored to topbar-anchored on
+     mobile, so they become full-width drawers that never spill off-screen.
+     The trick: drop position:relative on the resource-item so the dropdown's
+     position:absolute looks up to .topbar (which already has position:relative). */
+  .resource-item.has-dropdown {
+    position: static !important;
+  }
+  .resource-dropdown {
+    left: 8px !important;
+    right: 8px !important;
+    max-width: none;
+    min-width: 0;
+  }
+  /* The invisible spacer that aligns materials bar with the desktop recipes
+     column is no longer useful when the queue is stacked below */
+  .crafting-queue-spacer {
+    display: none;
+  }
+
+  /* Stack the portrait above the content (instead of side-by-side) — at narrow
+     card widths the row layout leaves too little room for stats & buttons */
+  .adv-card {
+    flex-direction: column !important;
+    min-height: auto;
+  }
+  .adv-card-portrait {
+    width: 100%;
+    height: 140px;
+    min-height: 140px;
+  }
+  .adv-card-portrait img {
+    object-position: center top;
+  }
+  .adv-card-content {
+    padding: 10px 12px 12px;
+    padding-top: 14px;
+  }
+
+  /* Mission cards: shrink the enemy preview cards inside */
+  .enemy-card {
+    width: 56px;
+    height: 78px;
+  }
+  .enemy-card-image,
+  .enemy-card-image-icon,
+  .enemy-card-image-hidden {
+    width: 56px;
+    height: 56px;
+  }
+  .enemy-card-image-icon {
+    font-size: 1.6rem;
+  }
+  .enemy-card-image-hidden {
+    font-size: 1.8rem;
+  }
+
+  /* Mission assembly: stack mission detail above team panel */
+  .mission-assembly {
+    grid-template-columns: 1fr;
+    padding: 14px;
+    gap: 12px;
+  }
+  /* Detail panel: replace right-border divider with bottom-border (stacked layout) */
+  .mission-detail-panel {
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+    padding-right: 0;
+    padding-bottom: 12px;
+  }
+  /* Has-bg variant: detail panel gets its own background card so the divider isn't needed */
+  .mission-assembly.has-bg .mission-detail-panel {
+    border-bottom: none;
+    padding-bottom: 16px;
+  }
+  /* Adventurer pool: smaller minmax so cards fit phone width without overflow */
+  .team-adv-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   }
 
   /* ── Overview page ── */

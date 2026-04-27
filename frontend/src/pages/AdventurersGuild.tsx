@@ -702,8 +702,8 @@ export default function AdventurersGuild() {
             </div>
           </Show>
 
-          <div style={{ display: "flex", "align-items": "center", gap: "12px", "margin-bottom": "8px" }}>
-            <h3 style={{ "font-family": "var(--font-heading)", color: "var(--text-primary)", margin: 0 }}>
+          <div style={{ display: "flex", "align-items": "center", "flex-wrap": "wrap", gap: "8px 12px", "margin-bottom": "8px" }}>
+            <h3 style={{ "font-family": "var(--font-heading)", color: "var(--text-primary)", margin: 0, "white-space": "nowrap" }}>
               Mission Board
             </h3>
             {(() => {
@@ -872,7 +872,7 @@ export default function AdventurersGuild() {
                         </Show>
                         <XpBar xp={adv.xp} level={adv.level} />
                         <Show when={adv.backstory}>
-                          <div style={{
+                          <div class="roster-card-backstory" style={{
                             "font-size": "0.78rem",
                             color: "var(--text-secondary)",
                             "font-style": "italic",

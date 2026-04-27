@@ -68,10 +68,7 @@ interface EnemyCardProps {
 function EnemyImage(props: { src: string }) {
   const zoomed = props.src.replace(".png", "_zoomed.png");
   const [src, setSrc] = createSignal(zoomed);
-  return <img src={src()} alt="" onError={() => setSrc(props.src)} style={{
-    width: "80px", height: "80px", "object-fit": "cover",
-    display: "block", "flex-shrink": "0",
-  }} />;
+  return <img src={src()} alt="" class="enemy-card-image" onError={() => setSrc(props.src)} />;
 }
 
 function HiddenEnemyTooltipContent() {
@@ -98,18 +95,13 @@ export default function EnemyCard(props: EnemyCardProps) {
     : "rgba(231, 76, 60, 0.06)";
   return (
     <Tooltip content={() => props.hidden ? <HiddenEnemyTooltipContent /> : <EnemyTooltipContent enemy={props.enemy} />}>
-      <div style={{
-        width: "80px",
-        height: "110px",
-        background: bg(),
-        border: `1px solid ${borderColor()}`,
-        "border-radius": "6px",
-        overflow: "hidden",
-        cursor: "default",
-        display: "flex",
-        "flex-direction": "column",
-        position: "relative",
-      }}>
+      <div
+        class="enemy-card"
+        style={{
+          background: bg(),
+          border: `1px solid ${borderColor()}`,
+        }}
+      >
         <Show when={props.count != null}>
           <div style={{
             position: "absolute", top: "3px", left: "3px", "z-index": 1,
@@ -124,20 +116,9 @@ export default function EnemyCard(props: EnemyCardProps) {
         <Show when={props.hidden} fallback={
           props.enemy.image
             ? <EnemyImage src={props.enemy.image} />
-            : <div style={{
-                width: "80px", height: "80px", "flex-shrink": "0",
-                display: "flex", "align-items": "center", "justify-content": "center",
-                background: "rgba(0, 0, 0, 0.2)", "font-size": "2.2rem",
-              }}>{props.enemy.icon}</div>
+            : <div class="enemy-card-image enemy-card-image-icon">{props.enemy.icon}</div>
         }>
-          <div style={{
-            width: "80px", height: "80px", "flex-shrink": "0",
-            display: "flex", "align-items": "center", "justify-content": "center",
-            background: "rgba(0, 0, 0, 0.35)",
-            "font-size": "2.6rem",
-            color: "rgba(200, 200, 210, 0.55)",
-            "text-shadow": "0 0 6px rgba(0,0,0,0.6)",
-          }}>?</div>
+          <div class="enemy-card-image enemy-card-image-hidden">?</div>
         </Show>
         <div style={{
           padding: "2px 4px",

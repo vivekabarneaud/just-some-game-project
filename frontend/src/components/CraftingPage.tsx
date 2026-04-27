@@ -235,23 +235,35 @@ export default function CraftingPage(props: CraftingPageProps) {
       <Show when={buildingLevel() > 0}>
         {/* Materials header — uses same flex layout as content to align with recipes column */}
         <div style={{ display: "flex", gap: "20px", "margin-bottom": "16px" }}>
-          <div style={{
-            flex: 1,
-            display: "flex",
-            gap: "16px",
-            padding: "10px 14px",
-            background: "var(--bg-secondary)",
-            "border-radius": "6px",
-            "font-size": "0.85rem",
-            color: "var(--text-secondary)",
-            "flex-wrap": "wrap",
-            "align-items": "center",
-          }}>
-            <span>{props.buildingName} Lv.{buildingLevel()}</span>
-            <span>Slots: {activeCrafts().length}/{buildingLevel() + (props.buildingId === "kitchen" ? 1 : 0)}</span>
-            <For each={props.materials}>
-              {(mat) => <span>{mat.icon} {mat.label}: {mat.value()}</span>}
-            </For>
+          <div
+            class="crafting-materials-bar"
+            style={{
+              flex: 1,
+              display: "flex",
+              gap: "16px",
+              padding: "10px 14px",
+              background: "var(--bg-secondary)",
+              "border-radius": "6px",
+              "font-size": "0.85rem",
+              color: "var(--text-secondary)",
+              "flex-wrap": "wrap",
+              "align-items": "center",
+            }}
+          >
+            <div class="crafting-materials-meta">
+              <span>{props.buildingName} Lv.{buildingLevel()}</span>
+            </div>
+            <div class="crafting-materials-list">
+              <For each={props.materials}>
+                {(mat) => (
+                  <span class="crafting-mat">
+                    <span class="crafting-mat-icon">{mat.icon}</span>
+                    <span class="crafting-mat-label">{mat.label}:</span>
+                    <span class="crafting-mat-value">{mat.value()}</span>
+                  </span>
+                )}
+              </For>
+            </div>
 
             {/* Tool slots — aligned with right edge of recipes column */}
             <Show when={hasToolSlots()}>
@@ -324,7 +336,7 @@ export default function CraftingPage(props: CraftingPageProps) {
             </Show>
           </div>
           {/* Invisible spacer matching queue sidebar width */}
-          <div style={{ "min-width": "220px", "max-width": "280px" }} />
+          <div class="crafting-queue-spacer" style={{ "min-width": "220px", "max-width": "280px" }} />
         </div>
 
         <Show when={building()?.damaged}>
@@ -342,9 +354,9 @@ export default function CraftingPage(props: CraftingPageProps) {
           </div>
         </Show>
 
-        <div style={{ display: "flex", gap: "20px", "align-items": "flex-start" }}>
+        <div class="crafting-layout" style={{ display: "flex", gap: "20px", "align-items": "flex-start" }}>
           {/* Recipes */}
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: 1, "min-width": "0" }}>
             <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "8px", color: "var(--text-primary)" }}>
               Recipes
             </h3>
@@ -453,7 +465,7 @@ export default function CraftingPage(props: CraftingPageProps) {
           </div>
 
           {/* Queue */}
-          <div style={{ "min-width": "220px", "max-width": "280px" }}>
+          <div class="crafting-queue" style={{ "min-width": "220px", "max-width": "280px" }}>
             <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "8px", color: "var(--text-primary)" }}>
               In Progress
             </h3>

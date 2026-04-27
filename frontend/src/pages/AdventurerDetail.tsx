@@ -106,15 +106,18 @@ export default function AdventurerDetail() {
               {(() => {
                 const traitDef = () => BACKSTORY_TRAITS.find((t) => t.id === adv().trait);
                 return (
-                  <div style={{
-                    display: "flex",
-                    gap: "24px",
-                    "margin-bottom": "24px",
-                    background: "var(--bg-secondary)",
-                    "border-radius": "12px",
-                    overflow: "hidden",
-                    border: `1px solid ${RANK_COLORS[adv().rank]}33`,
-                  }}>
+                  <div
+                    class="adventurer-hero"
+                    style={{
+                      display: "flex",
+                      gap: "24px",
+                      "margin-bottom": "24px",
+                      background: "var(--bg-secondary)",
+                      "border-radius": "12px",
+                      overflow: "hidden",
+                      border: `1px solid ${RANK_COLORS[adv().rank]}33`,
+                    }}
+                  >
                     {/* Large Portrait */}
                     <div style={{
                       width: "280px",

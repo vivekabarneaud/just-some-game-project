@@ -69,7 +69,7 @@ export default function RecipeCard(props: RecipeCardProps) {
           const max = () => action.maxQty();
           const verb = () => action.verb ?? "Craft";
           return (
-            <div style={{ "margin-top": "auto", "padding-top": "8px", display: "flex", "align-items": "center", gap: "6px" }}>
+            <div class="recipe-card-actions" style={{ "margin-top": "auto", "padding-top": "8px", display: "flex", "align-items": "center", gap: "6px" }}>
               <div style={{ display: "flex", "align-items": "center", gap: "2px", "border-radius": "4px", border: "1px solid var(--border-color)", overflow: "hidden" }}>
                 <button
                   onClick={() => setQty((q) => Math.max(1, q - 1))}
