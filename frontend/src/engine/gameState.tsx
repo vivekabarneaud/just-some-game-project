@@ -142,6 +142,7 @@ import {
   ORIGINS,
   getOriginsForRace,
   getOrigin,
+  getOriginsForGuildLevel,
   BACKSTORY_TRAITS,
   PERSONALITY_QUIRKS,
 } from "@medieval-realm/shared/data/adventurers";
@@ -2590,7 +2591,7 @@ export function GameProvider(props: ParentProps) {
             const usedNames = new Set(s.adventurers.filter((a) => a.alive).map((a) => a.name));
             s.recruitCandidates = [];
             for (let i = 0; i < count; i++) {
-              const c = generateCandidate(nextId("adv"), maxRank, usedNames);
+              const c = generateCandidate(nextId("adv"), maxRank, usedNames, guildLvl);
               usedNames.add(c.name);
               s.recruitCandidates.push(c);
             }
@@ -3829,7 +3830,7 @@ export function GameProvider(props: ParentProps) {
         const usedNames = new Set(s.adventurers.filter((a) => a.alive).map((a) => a.name));
         s.recruitCandidates = [];
         for (let i = 0; i < count; i++) {
-          const c = generateCandidate(nextId("adv"), maxRank, usedNames);
+          const c = generateCandidate(nextId("adv"), maxRank, usedNames, guildLvl);
           usedNames.add(c.name);
           s.recruitCandidates.push(c);
         }

@@ -232,6 +232,22 @@ export function getOriginsForRace(race: Race): OriginDef[] {
   return ORIGINS.filter((o) => o.race === race);
 }
 
+/** Origins available at each guild level. Word of a new settlement spreads
+ *  outward in concentric rings — neighbors hear first, foreign lands last.
+ *  Each level adds 2 more origins until the full pool is unlocked at Lv.5+. */
+const ORIGINS_BY_GUILD_LEVEL: Record<number, Origin[]> = {
+  1: ["ashwick", "feldgrund"],
+  2: ["ashwick", "feldgrund", "nordveld", "silvaneth"],
+  3: ["ashwick", "feldgrund", "nordveld", "silvaneth", "meridian", "khazdurim"],
+  4: ["ashwick", "feldgrund", "nordveld", "silvaneth", "meridian", "khazdurim", "khorvani", "zahkari"],
+  5: ["ashwick", "feldgrund", "nordveld", "silvaneth", "meridian", "khazdurim", "khorvani", "zahkari", "tianzhou", "hautscieux"],
+};
+
+export function getOriginsForGuildLevel(level: number): Origin[] {
+  if (level <= 0) return [];
+  return ORIGINS_BY_GUILD_LEVEL[Math.min(level, 5)] ?? ORIGINS_BY_GUILD_LEVEL[5];
+}
+
 // ─── Food Preferences & Loyalty ───────────────────────────────
 
 export type FoodPreference = "sweet" | "spicy" | "hearty" | "smoky" | "fresh";
@@ -681,13 +697,13 @@ export function getRelationship(premadeId?: string): string | undefined {
   return CHAR_RELATIONSHIPS[premadeId];
 }
 
-/** Pick a premade character not already in use */
-function pickPremadeCharacter(usedNames?: Set<string>): PremadeCharacter | null {
-  const available = usedNames
-    ? PREMADE_CHARACTERS.filter((c) => !usedNames.has(c.name))
-    : PREMADE_CHARACTERS;
-  if (available.length === 0) return null;
-  return available[Math.floor(Math.random() * available.length)];
+/** Pick a premade character not already in use, optionally filtered by origin. */
+function pickPremadeCharacter(usedNames?: Set<string>, allowedOrigins?: Set<Origin>): PremadeCharacter | null {
+  let pool: PremadeCharacter[] = PREMADE_CHARACTERS;
+  if (allowedOrigins) pool = pool.filter((c) => allowedOrigins.has(c.origin));
+  if (usedNames) pool = pool.filter((c) => !usedNames.has(c.name));
+  if (pool.length === 0) return null;
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 /** Pick a weighted random backstory trait */
@@ -752,12 +768,22 @@ function buildAdventurerFromPremade(id: string, premade: PremadeCharacter, maxRa
   };
 }
 
-/** Generate an adventurer candidate from the premade pool */
-export function generateCandidate(id: string, maxRank: AdventurerRank = 2, usedNames?: Set<string>): Adventurer {
-  const premade = pickPremadeCharacter(usedNames);
+/** Generate an adventurer candidate from the premade pool. Pass guildLevel
+ *  to gate the origin pool by settlement fame (Lv.1 = local only, Lv.5 = all). */
+export function generateCandidate(
+  id: string,
+  maxRank: AdventurerRank = 2,
+  usedNames?: Set<string>,
+  guildLevel = 5,
+): Adventurer {
+  const allowed = new Set(getOriginsForGuildLevel(guildLevel));
+  const premade = pickPremadeCharacter(usedNames, allowed);
   if (premade) return buildAdventurerFromPremade(id, premade, maxRank);
-  // Pool exhaustion fallback (effectively impossible with 226 chars and max roster 13)
-  const fallback = PREMADE_CHARACTERS[Math.floor(Math.random() * PREMADE_CHARACTERS.length)];
+  // Origin-pool exhaustion: fall back to any allowed-origin char even if name reused
+  const allowedPool = PREMADE_CHARACTERS.filter((c) => allowed.has(c.origin));
+  const fallback = allowedPool.length > 0
+    ? allowedPool[Math.floor(Math.random() * allowedPool.length)]
+    : PREMADE_CHARACTERS[Math.floor(Math.random() * PREMADE_CHARACTERS.length)];
   return buildAdventurerFromPremade(id, fallback, maxRank);
 }
 
