@@ -55,6 +55,19 @@ import {
   getTierPrerequisitesMet,
 } from "~/data/buildings";
 import {
+  getWallCost,
+  getWatchtowerCost,
+  getBarracksCost,
+  getWallRepairCost,
+  getDefensiveRepairCost,
+  SOLDIER_COST,
+  ARCHER_COST,
+  maxSoldiers,
+  maxArchers,
+  availableCitizens,
+  ringUnlocked,
+} from "~/data/defenses";
+import {
   type CropId,
   getCrop,
   getFieldCost,
@@ -528,6 +541,17 @@ export interface GameActions {
   getHappinessModifier: () => number;
   getHappinessBreakdown: () => { label: string; value: number }[];
   repairBuilding: (buildingId: string) => boolean;
+  // ── Defenses (rework v1) ─────────────────────────────────────
+  buildOrUpgradeWall: (ring: DefenseRing) => boolean;
+  buildOrUpgradeWatchtower: (ring: DefenseRing) => boolean;
+  buildOrUpgradeBarracks: (ring: DefenseRing) => boolean;
+  repairWall: (ring: DefenseRing) => boolean;
+  repairWatchtower: (ring: DefenseRing) => boolean;
+  repairBarracks: (ring: DefenseRing) => boolean;
+  recruitSoldier: () => boolean;
+  recruitArcher: () => boolean;
+  dismissSoldier: () => boolean;
+  dismissArcher: () => boolean;
   // Raids
   getDefense: () => DefenseBreakdown;
   collectRaidLog: () => RaidResult[];
@@ -3969,6 +3993,159 @@ export function GameProvider(props: ParentProps) {
     getDefense() {
       const homeAdvs = state.adventurers.filter((a) => a.alive && !a.onMission);
       return calcDefense(state.walls, state.watchtowers, state.barracks, homeAdvs, state.population);
+    },
+
+    // ── Defenses (rework v1): build/upgrade/repair/recruit actions ──
+    // Instant for v1 — no construction queue. We can layer queue + mason
+    // bonuses later if it feels right after playtest.
+
+    buildOrUpgradeWall(ring) {
+      const slot = state.walls.find((w) => w.ring === ring);
+      if (!slot) return false;
+      const tier = this.getSettlementTier();
+      if (!ringUnlocked(ring, tier)) return false;
+      const cost = getWallCost(slot.level);
+      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
+      setState(produce((s) => {
+        s.resources.wood -= cost.wood;
+        s.resources.stone -= cost.stone;
+        const w = s.walls.find((x) => x.ring === ring)!;
+        w.level += 1;
+        // Refill HP to the new full value.
+        w.hp = w.level * WALL_BASE_HP;
+        pushEvent(s, "building_completed", "🧱", `${ring} wall raised to level ${w.level}`);
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    buildOrUpgradeWatchtower(ring) {
+      const slot = state.watchtowers.find((t) => t.ring === ring);
+      if (!slot) return false;
+      const tier = this.getSettlementTier();
+      if (!ringUnlocked(ring, tier)) return false;
+      const cost = getWatchtowerCost(slot.level);
+      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
+      setState(produce((s) => {
+        s.resources.wood -= cost.wood;
+        s.resources.stone -= cost.stone;
+        const t = s.watchtowers.find((x) => x.ring === ring)!;
+        t.level += 1;
+        pushEvent(s, "building_completed", "🏰", `${ring} watchtower raised to level ${t.level}`);
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    buildOrUpgradeBarracks(ring) {
+      const slot = state.barracks.find((b) => b.ring === ring);
+      if (!slot) return false;
+      const tier = this.getSettlementTier();
+      if (!ringUnlocked(ring, tier)) return false;
+      const cost = getBarracksCost(slot.level);
+      if (
+        state.resources.wood < cost.wood ||
+        state.resources.stone < cost.stone ||
+        state.iron < cost.iron
+      ) return false;
+      setState(produce((s) => {
+        s.resources.wood -= cost.wood;
+        s.resources.stone -= cost.stone;
+        s.iron -= cost.iron;
+        const b = s.barracks.find((x) => x.ring === ring)!;
+        b.level += 1;
+        pushEvent(s, "building_completed", "⚔️", `${ring} barracks raised to level ${b.level}`);
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    repairWall(ring) {
+      const slot = state.walls.find((w) => w.ring === ring);
+      if (!slot || slot.level === 0) return false;
+      const fullHp = slot.level * WALL_BASE_HP;
+      if (slot.hp >= fullHp) return false;
+      const cost = getWallRepairCost(slot.level);
+      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
+      setState(produce((s) => {
+        s.resources.wood -= cost.wood;
+        s.resources.stone -= cost.stone;
+        const w = s.walls.find((x) => x.ring === ring)!;
+        w.hp = w.level * WALL_BASE_HP;
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    repairWatchtower(ring) {
+      const slot = state.watchtowers.find((t) => t.ring === ring);
+      if (!slot || !slot.damaged) return false;
+      const cost = getDefensiveRepairCost(slot.level);
+      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
+      setState(produce((s) => {
+        s.resources.wood -= cost.wood;
+        s.resources.stone -= cost.stone;
+        const t = s.watchtowers.find((x) => x.ring === ring)!;
+        t.damaged = false;
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    repairBarracks(ring) {
+      const slot = state.barracks.find((b) => b.ring === ring);
+      if (!slot || !slot.damaged) return false;
+      const cost = getDefensiveRepairCost(slot.level);
+      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
+      setState(produce((s) => {
+        s.resources.wood -= cost.wood;
+        s.resources.stone -= cost.stone;
+        const b = s.barracks.find((x) => x.ring === ring)!;
+        b.damaged = false;
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    recruitSoldier() {
+      // Need a free slot AND an unallocated citizen AND the gold/iron.
+      if (state.soldiers >= maxSoldiers(state)) return false;
+      if (availableCitizens(state) <= 0) return false;
+      if (state.resources.gold < SOLDIER_COST.gold || state.iron < SOLDIER_COST.iron) return false;
+      setState(produce((s) => {
+        s.resources.gold -= SOLDIER_COST.gold;
+        s.iron -= SOLDIER_COST.iron;
+        s.soldiers += 1;
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    recruitArcher() {
+      if (state.archers >= maxArchers(state)) return false;
+      if (availableCitizens(state) <= 0) return false;
+      if (state.resources.gold < ARCHER_COST.gold || state.iron < ARCHER_COST.iron) return false;
+      setState(produce((s) => {
+        s.resources.gold -= ARCHER_COST.gold;
+        s.iron -= ARCHER_COST.iron;
+        s.archers += 1;
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    dismissSoldier() {
+      if (state.soldiers <= 0) return false;
+      setState(produce((s) => { s.soldiers -= 1; }));
+      scheduleSave();
+      return true;
+    },
+
+    dismissArcher() {
+      if (state.archers <= 0) return false;
+      setState(produce((s) => { s.archers -= 1; }));
+      scheduleSave();
+      return true;
     },
     collectRaidLog() {
       const log = [...state.raidLog];
