@@ -1520,6 +1520,15 @@ export function GameProvider(props: ParentProps) {
         if (serverState.foragedTotal === undefined) serverState.foragedTotal = 0;
         if (!serverState.exotics) serverState.exotics = {};
         if (serverState.starvationPenalty === undefined) serverState.starvationPenalty = 0;
+        // raidsResolvedCount: durable raid counter for quest progress.
+        // Backfill from event log so already-stuck cloud saves unstick on
+        // next load (Baptism of Fire was checking lastRaidOutcome which decays).
+        if ((serverState as any).raidsResolvedCount === undefined) {
+          const priorRaids = (serverState.eventLog ?? []).filter(
+            (e: any) => e?.type === "raid_victory" || e?.type === "raid_defeat",
+          ).length;
+          (serverState as any).raidsResolvedCount = priorRaids;
+        }
         // Backfill any new buildings that were added since this save was created
         for (const def of BUILDINGS) {
           if (!serverState.buildings.find((b: any) => b.buildingId === def.id)) {
