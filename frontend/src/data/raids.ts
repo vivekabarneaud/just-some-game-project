@@ -1,4 +1,5 @@
 import type { Adventurer } from "@medieval-realm/shared/data/adventurers";
+import type { MissionEncounter } from "@medieval-realm/shared/data/missions";
 import type { PlayerBuilding } from "./buildings";
 import type { SettlementTier } from "./buildings";
 import type { PlayerWall, PlayerWatchtower, PlayerBarracks } from "~/engine/gameState";
@@ -15,7 +16,10 @@ export interface RaidTemplate {
   description: string;
   icon: string;
   tags: RaidTag[];
-  strength: number; // base attack power
+  strength: number; // base attack power (legacy; combat sim will switch to encounters)
+  /** Force composition for the combat sim. Same shape as mission encounters
+   *  so the existing enemy DB and combat engine carry over directly. */
+  encounters: MissionEncounter[];
   /** What the raid targets on success */
   stealsResources: boolean; // takes % of stockpile
   resourceStealPercent: number; // 0-1
@@ -62,6 +66,7 @@ export const RAID_POOL: RaidTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/hungry_bandits.png",
     tags: ["bandits"],
     strength: 25,
+    encounters: [{ enemyId: "bandit_thug", count: 3 }],
     stealsResources: true,
     resourceStealPercent: 0.15,
     killsCitizens: true,
@@ -78,6 +83,7 @@ export const RAID_POOL: RaidTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/wolf_pack.png",
     tags: ["monsters"],
     strength: 20,
+    encounters: [{ enemyId: "wild_wolf", count: 2 }, { enemyId: "wolf_pup", count: 3 }],
     stealsResources: false,
     resourceStealPercent: 0,
     killsCitizens: true,
@@ -94,6 +100,7 @@ export const RAID_POOL: RaidTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/petty_thieves.png",
     tags: ["bandits"],
     strength: 15,
+    encounters: [{ enemyId: "bandit_thug", count: 2 }, { enemyId: "goblin_runt", count: 2 }],
     stealsResources: true,
     resourceStealPercent: 0.10,
     killsCitizens: false,
@@ -112,6 +119,7 @@ export const RAID_POOL: RaidTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/bandit_raid.png",
     tags: ["bandits"],
     strength: 60,
+    encounters: [{ enemyId: "bandit_thug", count: 4 }, { enemyId: "bandit_captain", count: 1 }],
     stealsResources: true,
     resourceStealPercent: 0.20,
     killsCitizens: true,
@@ -128,6 +136,7 @@ export const RAID_POOL: RaidTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/goblin_scouts.png",
     tags: ["monsters"],
     strength: 45,
+    encounters: [{ enemyId: "goblin_scout", count: 4 }, { enemyId: "goblin_shaman", count: 1 }],
     stealsResources: true,
     resourceStealPercent: 0.15,
     killsCitizens: true,
@@ -144,6 +153,7 @@ export const RAID_POOL: RaidTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/wild_boars.png",
     tags: ["monsters"],
     strength: 35,
+    encounters: [{ enemyId: "spooked_boar", count: 3 }, { enemyId: "rabid_boar", count: 2 }],
     stealsResources: false,
     resourceStealPercent: 0,
     killsCitizens: true,
@@ -161,6 +171,7 @@ export const RAID_POOL: RaidTemplate[] = [
     icon: "💀",
     tags: ["undead", "horde"],
     strength: 90,
+    encounters: [{ enemyId: "skeleton", count: 6 }, { enemyId: "skeleton_archer", count: 3 }, { enemyId: "burnt_skeleton", count: 1 }],
     stealsResources: false,
     resourceStealPercent: 0,
     killsCitizens: true,
@@ -178,6 +189,7 @@ export const RAID_POOL: RaidTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/mercenary_company.png",
     tags: ["bandits", "siege"],
     strength: 100,
+    encounters: [{ enemyId: "bandit_thug", count: 4 }, { enemyId: "bandit_captain", count: 2 }, { enemyId: "dark_mage", count: 1 }],
     stealsResources: true,
     resourceStealPercent: 0.25,
     killsCitizens: true,
@@ -194,6 +206,7 @@ export const RAID_POOL: RaidTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/troll_attack.png",
     tags: ["monsters"],
     strength: 80,
+    encounters: [{ enemyId: "troll", count: 1 }, { enemyId: "cave_spider", count: 2 }],
     stealsResources: true,
     resourceStealPercent: 0.15,
     killsCitizens: true,
@@ -212,6 +225,7 @@ export const RAID_POOL: RaidTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/orc_warband.png",
     tags: ["horde", "siege"],
     strength: 160,
+    encounters: [{ enemyId: "orc_warrior", count: 4 }, { enemyId: "orc_warlord", count: 1 }, { enemyId: "goblin_scout", count: 3 }],
     stealsResources: true,
     resourceStealPercent: 0.30,
     killsCitizens: true,
@@ -228,6 +242,7 @@ export const RAID_POOL: RaidTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/necromancer.png",
     tags: ["undead", "horde", "siege"],
     strength: 180,
+    encounters: [{ enemyId: "skeleton", count: 6 }, { enemyId: "skeleton_archer", count: 3 }, { enemyId: "necromancer_acolyte", count: 2 }, { enemyId: "lich_apprentice", count: 1 }],
     stealsResources: true,
     resourceStealPercent: 0.25,
     killsCitizens: true,
@@ -244,6 +259,7 @@ export const RAID_POOL: RaidTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/dragon_attack.png",
     tags: ["monsters"],
     strength: 120,
+    encounters: [{ enemyId: "feral_drake", count: 1 }, { enemyId: "dragon_hatchling", count: 2 }],
     stealsResources: true,
     resourceStealPercent: 0.25,
     killsCitizens: true,
