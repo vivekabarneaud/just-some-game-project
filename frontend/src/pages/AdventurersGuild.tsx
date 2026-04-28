@@ -27,6 +27,7 @@ import {
   getCurrentStoryMission,
   STORY_MISSIONS,
   isExpedition,
+  getMissionPhase,
 } from "@medieval-realm/shared/data/missions";
 import type { CinematicSlide } from "~/components/CinematicOverlay";
 import CinematicOverlay from "~/components/CinematicOverlay";
@@ -38,6 +39,7 @@ import TraitBadge from "~/components/TraitBadge";
 import MissionAssemblyPanel from "~/components/MissionAssemblyPanel";
 import LootModal from "~/components/LootModal";
 import CombatLog from "~/components/CombatLog";
+import CombatPlayback from "~/components/CombatPlayback";
 import { fetchCoops, respondCoop, cancelCoop, fetchCoopDetail, claimCoop } from "~/api/coop";
 import { wsClient } from "~/api/ws";
 import type { CompletedMission } from "@medieval-realm/shared/data/missions";
@@ -377,12 +379,24 @@ export default function AdventurersGuild() {
                         result.revived.length > 0 ? <span style={{ color: "#9b59b6" }}>Revived: {result.revived.length}</span> : null,
                       ].filter(Boolean).map((el, idx, arr) => <>{el}{idx < arr.length - 1 ? " · " : ""}</>)}
                     </div>
-                    {/* Combat log — collapsible */}
+                    {/* Combat log — collapsible + playback */}
                     <Show when={result.combatLog?.length}>
                       {(() => {
                         const [expanded, setExpanded] = createSignal(false);
+                        const [playbackOpen, setPlaybackOpen] = createSignal(false);
+                        const missionTpl = getMission(result.missionId);
                         return (
-                          <div style={{ "margin-top": "4px" }}>
+                          <div style={{ "margin-top": "4px", display: "flex", gap: "10px", "align-items": "center", "flex-wrap": "wrap" }}>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setPlaybackOpen(true); }}
+                              style={{
+                                background: "none", border: "none", cursor: "pointer",
+                                color: "var(--accent-gold)", "font-size": "0.75rem",
+                                padding: "2px 0", "text-decoration": "underline",
+                              }}
+                            >
+                              ▶ Watch combat
+                            </button>
                             <button
                               onClick={(e) => { e.stopPropagation(); setExpanded(!expanded()); }}
                               style={{
@@ -391,16 +405,24 @@ export default function AdventurersGuild() {
                                 padding: "2px 0", "text-decoration": "underline",
                               }}
                             >
-                              {expanded() ? "Hide combat log" : "Show combat log"}
+                              {expanded() ? "Hide log" : "Show log"}
                             </button>
                             <Show when={expanded()}>
                               <div style={{
                                 "margin-top": "4px", padding: "6px 8px",
                                 background: "rgba(0, 0, 0, 0.2)", "border-radius": "4px",
                                 "max-height": "200px", overflow: "auto",
+                                width: "100%",
                               }}>
                                 <CombatLog log={result.combatLog!} compact />
                               </div>
+                            </Show>
+                            <Show when={playbackOpen()}>
+                              <CombatPlayback
+                                log={result.combatLog!}
+                                title={missionTpl?.name}
+                                onClose={() => setPlaybackOpen(false)}
+                              />
                             </Show>
                           </div>
                         );
@@ -557,14 +579,41 @@ export default function AdventurersGuild() {
                   const teamAdvs = () => am.adventurerIds
                     .map((id) => state.adventurers.find((a) => a.id === id))
                     .filter(Boolean);
+                  const phase = () => getMissionPhase(am);
+                  const phaseLabel = () => {
+                    const p = phase();
+                    if (p === "outbound") return { text: "Traveling out", color: "var(--accent-blue)", icon: "🚶" };
+                    if (p === "combat") return { text: "Combat!", color: "var(--accent-red)", icon: "⚔️" };
+                    if (p === "homeward") return { text: "Returning home", color: "var(--accent-green)", icon: "🏡" };
+                    return null;
+                  };
+                  const [playbackOpen, setPlaybackOpen] = createSignal(false);
                   return (
-                    <div class="building-card" style={{ "margin-bottom": "8px" }}>
+                    <div
+                      class="building-card"
+                      classList={{ "active-mission-combat": phase() === "combat" }}
+                      style={{ "margin-bottom": "8px" }}
+                    >
                       <div class="building-card-header">
                         <div class="building-card-icon">{template().icon}</div>
                         <div>
                           <div class="building-card-title">{template().name}</div>
-                          <div style={{ color: "var(--accent-blue)", "font-size": "0.85rem" }}>
+                          <div style={{ color: "var(--accent-blue)", "font-size": "0.85rem", display: "flex", "align-items": "center", gap: "8px", "flex-wrap": "wrap" }}>
                             <Countdown remainingSeconds={am.remaining} /> remaining
+                            <Show when={phaseLabel()}>
+                              {(lbl) => (
+                                <span style={{
+                                  "font-size": "0.78rem",
+                                  color: lbl().color,
+                                  background: "rgba(0, 0, 0, 0.3)",
+                                  padding: "1px 8px",
+                                  "border-radius": "10px",
+                                  border: `1px solid ${lbl().color}`,
+                                }}>
+                                  {lbl().icon} {lbl().text}
+                                </span>
+                              )}
+                            </Show>
                           </div>
                         </div>
                       </div>
@@ -581,6 +630,37 @@ export default function AdventurersGuild() {
                           {am.successChance}% success
                         </span>
                       </div>
+                      <Show when={phase() === "combat" && am.prerolledCombat?.log?.length}>
+                        <div style={{ "margin-top": "6px" }}>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setPlaybackOpen(true); }}
+                            style={{
+                              background: "rgba(231, 76, 60, 0.15)",
+                              border: "1px solid var(--accent-red)",
+                              color: "var(--accent-red)",
+                              cursor: "pointer",
+                              padding: "4px 12px",
+                              "border-radius": "4px",
+                              "font-size": "0.82rem",
+                              "font-weight": "bold",
+                            }}
+                          >
+                            ▶ Watch combat
+                          </button>
+                        </div>
+                      </Show>
+                      {/* Modal lives outside the combat-phase Show so it stays open
+                          after onFinished marks the phase as homeward. The player
+                          dismisses via the Close button at their leisure. */}
+                      <Show when={playbackOpen() && am.prerolledCombat?.log?.length}>
+                        <CombatPlayback
+                          log={am.prerolledCombat!.log}
+                          title={template().name}
+                          victory={am.prerolledCombat!.victory}
+                          onFinished={() => actions.markCombatViewed(am.missionId)}
+                          onClose={() => setPlaybackOpen(false)}
+                        />
+                      </Show>
                       <Show when={template().rewards?.length > 0}>
                         <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-top": "2px" }}>
                           Rewards: {template().rewards.map((r: any) => formatReward(r)).join(", ")}

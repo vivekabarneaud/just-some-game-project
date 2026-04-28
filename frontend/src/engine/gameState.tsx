@@ -166,6 +166,7 @@ import {
   formatReward,
   STORY_MISSIONS,
   isExpedition,
+  getMissionPhase,
 } from "@medieval-realm/shared/data/missions";
 import {
   getMissionXp,
@@ -507,6 +508,7 @@ export interface GameActions {
   applyCoopClaim: (response: import("@medieval-realm/shared").CoopClaimResponse, expeditionId: string) => import("@medieval-realm/shared/data/missions").CompletedMission;
   skipRaidTimer: () => void;
   skipMissionTimers: () => void;
+  markCombatViewed: (missionId: string) => void;
   devAddShards: (amount: number) => void;
   trade: (give: string, giveAmount: number, receive: string, receiveAmount: number) => boolean;
 }
@@ -2327,6 +2329,16 @@ export function GameProvider(props: ParentProps) {
               am.adventurerSupplies = supplies;
             }
 
+            // Wipe shortcut: a non-expedition mission whose entire team will
+            // permadie has no team to make the return trip — once combat
+            // resolves (viewed or 2-min cap), zero the timer so the mission
+            // wraps up immediately instead of waiting through the homeward
+            // phase. getMissionPhase returns "homeward" when combat is over.
+            if (am.wiped && am.remaining > 0) {
+              const phase = getMissionPhase(am);
+              if (phase === "homeward") am.remaining = 0;
+            }
+
             if (am.remaining <= 0) {
               // Mission complete — resolve
               const template = getMission(am.missionId);
@@ -2334,8 +2346,13 @@ export function GameProvider(props: ParentProps) {
 
               const isExped = template && isExpedition(template);
 
-              // Combat simulation for single-encounter missions; expeditions use pre-resolved event data; stat-based for the rest
-              const combatResult = (isExped || !template) ? null : simulateCombat(template, team, am.adventurerSupplies);
+              // Combat simulation for single-encounter missions; expeditions use pre-resolved event data; stat-based for the rest.
+              // Use pre-rolled result from deploy time when available (so the player
+              // can watch the playback mid-mission via the active card). Old saves
+              // without prerolledCombat fall back to compute-at-completion.
+              const combatResult = (isExped || !template)
+                ? null
+                : (am.prerolledCombat ?? (template.encounters?.length ? simulateCombat(template, team, am.adventurerSupplies) : null));
               const success = isExped
                 ? !isTeamWiped(team, am.expeditionHp ?? {})
                 : (combatResult ? combatResult.victory : Math.random() * 100 < am.successChance);
@@ -2351,60 +2368,61 @@ export function GameProvider(props: ParentProps) {
                 : null;
 
               if ((!success || (isExped && expeditionFallenIds && expeditionFallenIds.size > 0)) && template) {
-                // Check for deaths — tied to combat results when available
-                const fallenInCombat = expeditionFallenIds ?? new Set(combatResult?.fallenAdventurerIds ?? []);
-                const deadIds: string[] = [];
-                for (const adv of team) {
-                  const baseChance = calcDeathChance(template, team, adv);
-                  let deathChance: number;
-                  if (isExped) {
-                    // Expedition: fallen during events = death check (HP hit 0)
-                    deathChance = fallenInCombat.has(adv.id) ? baseChance * 1.5 : 0;
-                  } else if (combatResult) {
-                    // Fell in combat: high death chance (base * 1.5)
-                    // Survived combat: they made it home alive — no death risk
-                    deathChance = fallenInCombat.has(adv.id) ? baseChance * 1.5 : 0;
-                  } else {
-                    deathChance = baseChance; // non-combat missions: standard chance
-                  }
-                  if (Math.random() * 100 < deathChance) {
-                    deadIds.push(adv.id);
-                  }
-                }
-
-                // Warrior passive: Shield Wall — protect one ally from death
-                const warriors = team.filter((a) => a.class === "warrior" && !deadIds.includes(a.id));
-                for (const warrior of warriors) {
-                  const protectable = deadIds.filter((id) => id !== warrior.id);
-                  if (protectable.length > 0) {
-                    // Warrior takes the hit instead (50% chance warrior survives)
-                    const savedId = protectable[0];
-                    deadIds.splice(deadIds.indexOf(savedId), 1);
-                    if (Math.random() > 0.5) {
-                      deadIds.push(warrior.id);
+                // Use the deploy-time prerolled deaths when present (regular
+                // missions). Falls back to compute-at-completion for legacy
+                // saves and for paths that don't preroll (expeditions, no-encounter missions).
+                let deadIds: string[];
+                if (am.prerolledCombat?.permanentDeaths) {
+                  deadIds = [...am.prerolledCombat.permanentDeaths];
+                } else {
+                  // Legacy path: roll deaths now.
+                  const fallenInCombat = expeditionFallenIds ?? new Set(combatResult?.fallenAdventurerIds ?? []);
+                  deadIds = [];
+                  for (const adv of team) {
+                    const baseChance = calcDeathChance(template, team, adv);
+                    let deathChance: number;
+                    if (isExped) {
+                      deathChance = fallenInCombat.has(adv.id) ? baseChance * 1.5 : 0;
+                    } else if (combatResult) {
+                      deathChance = fallenInCombat.has(adv.id) ? baseChance * 1.5 : 0;
+                    } else {
+                      deathChance = baseChance;
                     }
-                    break; // only one save per mission
+                    if (Math.random() * 100 < deathChance) deadIds.push(adv.id);
                   }
-                }
-
-                // Priest passive: Divine Grace — chance to revive fallen allies
-                const priests = team.filter((a) => a.class === "priest" && !deadIds.includes(a.id));
-                for (const deadId of [...deadIds]) {
-                  for (const _priest of priests) {
-                    if (Math.random() < PRIEST_REVIVE_CHANCE) {
-                      deadIds.splice(deadIds.indexOf(deadId), 1);
-                      revived.push(deadId);
-                      break; // one revive attempt per fallen
+                  // Warrior Shield Wall — soaks one death
+                  const warriors = team.filter((a) => a.class === "warrior" && !deadIds.includes(a.id));
+                  for (const warrior of warriors) {
+                    const protectable = deadIds.filter((id) => id !== warrior.id);
+                    if (protectable.length > 0) {
+                      const savedId = protectable[0];
+                      deadIds.splice(deadIds.indexOf(savedId), 1);
+                      if (Math.random() > 0.5) deadIds.push(warrior.id);
+                      break;
+                    }
+                  }
+                  // Priest Divine Grace — revive
+                  const priests = team.filter((a) => a.class === "priest" && !deadIds.includes(a.id));
+                  for (const deadId of [...deadIds]) {
+                    for (const _priest of priests) {
+                      if (Math.random() < PRIEST_REVIVE_CHANCE) {
+                        deadIds.splice(deadIds.indexOf(deadId), 1);
+                        revived.push(deadId);
+                        break;
+                      }
                     }
                   }
                 }
 
-                // Apply deaths
+                // Apply deaths. Stamps the death record onto the adventurer
+                // so the pantheon page can read it later.
+                const records = am.deathRecords ?? {};
                 for (const id of deadIds) {
                   const advInState = s.adventurers.find((a) => a.id === id);
                   casualties.push(advInState?.name ?? id);
                   if (advInState) {
                     advInState.alive = false;
+                    if (records[id]) advInState.deathRecord = records[id];
                     // Equipment lost on death
                     advInState.equipment = { head: null, chest: null, legs: null, boots: null, cloak: null, mainHand: null, offHand: null, ring1: null, ring2: null, amulet: null, trinket: null };
                   }
@@ -3184,7 +3202,118 @@ export function GameProvider(props: ParentProps) {
           remaining: effectiveDuration,
           successChance,
           adventurerSupplies: { ...adventurerSupplies },
+          initialDuration: effectiveDuration,
         };
+
+        // Pre-roll combat for non-expedition missions with encounters. Storing
+        // the result on the active mission lets the UI surface it once the
+        // mission passes its halfway/combat phase, and avoids re-rolling at
+        // completion. Expeditions have their own per-event resolution and
+        // skip this path.
+        if (!isExpedition(template) && template.encounters?.length) {
+          const combat = simulateCombat(template, team, adventurerSupplies);
+          if (!combat) {
+            // Shouldn't happen — encounters non-empty and team non-empty —
+            // but guard the type narrowing so TS lets us use combat below.
+          } else {
+
+          // Roll permadeath at deploy too (so the playback log can show
+          // KO vs slain, and so the wipe detection can drive return-travel
+          // skipping). Mirrors the post-combat logic that used to live at
+          // completion: base chance, *1.5 for fallen-in-combat, then Warrior
+          // Shield Wall / Priest Divine Grace passives.
+          const fallenSet = new Set(combat.fallenAdventurerIds);
+          const deadIds: string[] = [];
+          for (const adv of team) {
+            if (!fallenSet.has(adv.id)) continue; // survived combat → no death risk
+            const baseChance = calcDeathChance(template, team, adv);
+            if (Math.random() * 100 < baseChance * 1.5) deadIds.push(adv.id);
+          }
+          // Warrior Shield Wall — soaks one death (50% the warrior dies in their place)
+          const warriors = team.filter((a) => a.class === "warrior" && !deadIds.includes(a.id));
+          for (const warrior of warriors) {
+            const protectable = deadIds.filter((id) => id !== warrior.id);
+            if (protectable.length > 0) {
+              const savedId = protectable[0];
+              deadIds.splice(deadIds.indexOf(savedId), 1);
+              if (Math.random() > 0.5) deadIds.push(warrior.id);
+              break;
+            }
+          }
+          // Priest Divine Grace — chance to revive each fallen
+          const priests = team.filter((a) => a.class === "priest" && !deadIds.includes(a.id));
+          for (const deadId of [...deadIds]) {
+            for (const _priest of priests) {
+              if (Math.random() < PRIEST_REVIVE_CHANCE) {
+                deadIds.splice(deadIds.indexOf(deadId), 1);
+                break;
+              }
+            }
+          }
+          combat.permanentDeaths = deadIds;
+
+          // Stamp permanentDeath onto the killing-blow log entries so the
+          // renderer can show "(slain!)" vs "(unconscious)".
+          const deadSet = new Set(deadIds);
+          const advNameToId: Record<string, string> = {};
+          for (const a of team) advNameToId[a.name] = a.id;
+          // entry.isEnemy = ATTACKER side. When an enemy kills, the target is
+          // an adventurer — those are the entries that get the permanentDeath flag.
+          for (const entry of combat.log) {
+            if (entry.killed && entry.isEnemy && entry.targetName) {
+              const id = advNameToId[entry.targetName];
+              if (id && fallenSet.has(id)) entry.permanentDeath = deadSet.has(id);
+            }
+            if (entry.targets) {
+              for (const t of entry.targets) {
+                if (!t.killed) continue;
+                const id = advNameToId[t.name];
+                if (id && fallenSet.has(id)) t.permanentDeath = deadSet.has(id);
+              }
+            }
+          }
+
+          activeMission.prerolledCombat = combat;
+
+          // Build death records for the pantheon
+          const deathRecords: Record<string, any> = {};
+          if (deadIds.length > 0) {
+            const findKillingBlow = (advName: string) => {
+              for (let i = combat.log.length - 1; i >= 0; i--) {
+                const e = combat.log[i];
+                if (e.killed && e.targetName === advName) {
+                  return { attackerName: e.attackerName, ability: e.abilityName, round: e.round };
+                }
+                if (e.targets?.some((t) => t.killed && t.name === advName)) {
+                  return { attackerName: e.attackerName, ability: e.abilityName, round: e.round };
+                }
+              }
+              return null;
+            };
+            for (const advId of deadIds) {
+              const adv = team.find((a) => a.id === advId);
+              if (!adv) continue;
+              const blow = findKillingBlow(adv.name);
+              deathRecords[advId] = {
+                missionId: template.id,
+                missionName: template.name,
+                killedBy: blow?.attackerName ?? "an unknown foe",
+                killedByAbility: blow?.ability,
+                round: blow?.round ?? combat.rounds,
+                diedAt: Date.now(),
+              };
+            }
+            activeMission.deathRecords = deathRecords;
+          }
+
+          // Wipe = every adventurer perma-dies. Triggers the no-return-travel
+          // tick logic — mission completes the moment combat resolves.
+          if (deadIds.length > 0 && deadIds.length === team.length) {
+            activeMission.wiped = true;
+          }
+
+          } // close: else (combat is non-null)
+        }
 
         // Expedition-specific state: snapshot resolved events, init HP maps, initialDuration
         if (isExpedition(template)) {
@@ -4154,6 +4283,13 @@ export function GameProvider(props: ParentProps) {
           m.remaining = 0;
         }
       }));
+    },
+    markCombatViewed(missionId) {
+      setState(produce((s) => {
+        const m = s.activeMissions.find((am) => am.missionId === missionId);
+        if (m) m.combatViewed = true;
+      }));
+      scheduleSave();
     },
     devAddShards(amount) {
       setState(produce((s) => { s.astralShards += amount; }));

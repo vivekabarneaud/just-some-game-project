@@ -85,8 +85,25 @@ export interface ActiveMission {
   expeditionMaxHp?: Record<string, number>;
   /** Which event was drawn from each random slot (fixed slots show the same index 0). Snapshot at deploy. */
   expeditionResolvedEvents?: ExpeditionEvent[];
-  /** Effective duration at deploy (accounts for wizard reduction). Used to schedule event firings. */
+  /** Effective duration at deploy (accounts for wizard reduction). Used to schedule event firings AND
+   *  to compute the travel/combat/return phase for non-expedition missions. */
   initialDuration?: number;
+  /** Pre-rolled combat result for non-expedition missions with encounters.
+   *  Computed at deploy time (Math.random() is consumed up front), used at
+   *  completion to avoid re-rolling. Lets the UI know what already happened
+   *  mid-mission so the player can watch the playback once past the
+   *  combat phase. Old saves without this fall back to compute-at-completion. */
+  prerolledCombat?: import("../combat").CombatResult;
+  /** True once the player has watched (or skipped) the combat playback for
+   *  this mission. Drives the phase from "combat" to "homeward". */
+  combatViewed?: boolean;
+  /** True if the entire team is fated to permadie in this mission's combat.
+   *  When set, the tick zeroes `remaining` once combat resolves (viewed or
+   *  capped) — there's no team to make the return trip home. */
+  wiped?: boolean;
+  /** Death-record map (adventurerId → DeathRecord) computed at deploy time
+   *  alongside the prerolled combat. Applied to adventurer state at completion. */
+  deathRecords?: Record<string, import("../adventurers").DeathRecord>;
   /** Log of resolved events — displayed in the timeline UI */
   expeditionLog?: ResolvedExpeditionEvent[];
   /** Accumulated rewards from treasure/encounter events (separate from the template's base rewards) */
@@ -187,4 +204,34 @@ export interface ResolvedExpeditionEvent {
 /** Type guard — is this mission template an expedition? */
 export function isExpedition(m: MissionTemplate | undefined | null): m is ExpeditionTemplate {
   return !!m && Array.isArray((m as ExpeditionTemplate).events);
+}
+
+/** Mission travel phase — for non-expedition missions with combat. The trip
+ *  splits into outbound travel (first half), an instant combat moment at the
+ *  midpoint, and homeward travel (second half). Expeditions have their own
+ *  multi-event timeline and don't use this. */
+export type MissionPhase = "outbound" | "combat" | "homeward";
+
+/** Compute the current phase from a mission's elapsed time.
+ *  - outbound: 0% → 50% elapsed (team traveling to the encounter)
+ *  - combat: 50% elapsed → either the player views the playback OR ~2 min cap
+ *  - homeward: after combat resolves → 100% elapsed (team returning with loot)
+ *
+ *  Combat phase is engagement-gated: it persists past the midpoint until the
+ *  player engages with the watch button. Capped at 2 game-minutes so an AFK
+ *  player still sees the mission progress instead of stalling at "combat" forever.
+ *
+ *  Returns null when the mission has no prerolled combat (no encounters or old save). */
+export function getMissionPhase(am: ActiveMission): MissionPhase | null {
+  if (!am.prerolledCombat) return null;
+  const total = am.initialDuration;
+  if (!total || total <= 0) return null;
+  const elapsed = total - am.remaining;
+  const halfway = total / 2;
+  if (elapsed < halfway) return "outbound";
+  if (am.combatViewed) return "homeward";
+  // AFK cap: combat phase auto-resolves after 2 minutes of game time.
+  const COMBAT_PHASE_MAX_SECONDS = 120;
+  if (elapsed - halfway > COMBAT_PHASE_MAX_SECONDS) return "homeward";
+  return "combat";
 }

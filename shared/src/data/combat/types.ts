@@ -51,6 +51,10 @@ export interface CombatLogEntry {
   dodged: boolean;
   crit: boolean;
   killed: boolean;
+  /** Set on the killing-blow entry once death rolls have been applied:
+   *  true = permanently slain (pantheon entry), false = unconscious only.
+   *  Undefined when the death roll hasn't been applied (still in-flight). */
+  permanentDeath?: boolean;
   targetHp?: number;
   targetMaxHp?: number;
   healed?: boolean;
@@ -58,7 +62,15 @@ export interface CombatLogEntry {
   isEnemy: boolean;
   abilityName?: string;
   abilityIcon?: string;
-  targets?: { name: string; damage: number; killed: boolean; hp: number; maxHp: number }[];
+  targets?: {
+    name: string;
+    damage: number;
+    killed: boolean;
+    hp: number;
+    maxHp: number;
+    /** Mirrors the top-level permanentDeath flag for AoE casualties. */
+    permanentDeath?: boolean;
+  }[];
   isPoisonTick?: boolean;
   isTaunt?: boolean;
   isShieldWall?: boolean;
@@ -88,6 +100,10 @@ export interface CombatResult {
   performanceRatio: number;
   survivingEnemies: number;
   fallenAdventurerIds: string[];
+  /** Subset of fallenAdventurerIds that were permanently killed (death roll applied).
+   *  The rest are KO'd and recover. Set after the post-combat death roll runs.
+   *  Empty when the death roll hasn't been applied (legacy compute-at-completion path). */
+  permanentDeaths?: string[];
   totalEnemies: number;
   loot: LootResult[];
   finalHp?: Record<string, number>;

@@ -501,6 +501,22 @@ export const RANK_COLORS: Record<AdventurerRank, string> = {
 
 // ─── Adventurer type ────────────────────────────────────────────
 
+/** Captured at the moment of permadeath — feeds the pantheon's flavor text. */
+export interface DeathRecord {
+  /** Mission ID where they fell — for "Died on mission: Gather Timber" */
+  missionId: string;
+  /** Mission display name (snapshot in case the mission is later removed) */
+  missionName: string;
+  /** Name of the attacker that delivered the killing blow (enemy or ability source). */
+  killedBy: string;
+  /** Optional ability name on the killing blow ("Wolf Bite", "Cleave", etc.) */
+  killedByAbility?: string;
+  /** Round number when they fell. */
+  round: number;
+  /** Wall-clock timestamp of death (ms since epoch). */
+  diedAt: number;
+}
+
 export interface Adventurer {
   id: string;
   premadeId?: string; // ID from PREMADE_CHARACTERS (e.g. "char_042")
@@ -515,6 +531,8 @@ export interface Adventurer {
   level: number;
   xp: number;
   alive: boolean;
+  /** Set when the adventurer dies — drives the pantheon entry. Undefined for alive adventurers. */
+  deathRecord?: DeathRecord;
   onMission: boolean; // true while deployed
   bonusStats: Partial<AdventurerStats>; // player-allocated stat points
   equipment: {

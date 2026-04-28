@@ -50,6 +50,19 @@ export default function CombatLog(props: CombatLogProps) {
   );
 }
 
+/** Fallen-in-combat tag — distinguishes a permanent kill from an unconscious
+ *  drop. permanent === undefined means the death roll wasn't applied (legacy);
+ *  fall back to a generic "killed" tag. */
+function FallenTag(props: { permanent?: boolean }) {
+  if (props.permanent === undefined) {
+    return <span style={{ color: "var(--accent-red)" }}>— killed!</span>;
+  }
+  if (props.permanent) {
+    return <span style={{ color: "var(--accent-red)", "font-weight": "bold" }}>— slain!</span>;
+  }
+  return <span style={{ color: "var(--accent-gold)" }}>— unconscious</span>;
+}
+
 /** Friendly label + icon for a status effect type. */
 function statusLabel(type: string): { text: string; icon: string } {
   if (type === "bleed") return { text: "bleeding", icon: "🩸" };
@@ -109,7 +122,7 @@ function CombatLogLine(props: { entry: CombatLogEntry }) {
           <HpBar current={e.targetHp!} max={e.targetMaxHp ?? e.targetHp!} width="46px" />
         </Show>
         <Show when={e.killed}>
-          <span style={{ color: "var(--accent-red)" }}>— killed!</span>
+          <FallenTag permanent={e.permanentDeath} />
         </Show>
       </Show>
 
@@ -172,7 +185,7 @@ function NonTickContent(props: { entry: CombatLogEntry }) {
               <HpBar current={t.hp} max={t.maxHp ?? t.hp} width="36px" />
             </Show>
             <Show when={t.killed}>
-              <span style={{ color: "var(--accent-red)" }}>(killed!)</span>
+              <FallenTag permanent={t.permanentDeath} />
             </Show>
           </span>
         ))}
@@ -226,7 +239,7 @@ function NonTickContent(props: { entry: CombatLogEntry }) {
         <HpBar current={e.targetHp!} max={e.targetMaxHp ?? e.targetHp!} width="46px" />
       </Show>
       <Show when={e.killed}>
-        <span style={{ color: "var(--accent-red)" }}>— killed!</span>
+        <FallenTag permanent={e.permanentDeath} />
       </Show>
     </>
   );

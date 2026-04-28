@@ -3,6 +3,7 @@ import type { CompletedMission } from "@medieval-realm/shared/data/missions";
 import { formatReward, getMission } from "@medieval-realm/shared/data/missions";
 import { STORY_CINEMATICS } from "~/data/cinematics";
 import CombatLog from "~/components/CombatLog";
+import CombatPlayback from "~/components/CombatPlayback";
 
 interface Props {
   result: CompletedMission;
@@ -24,6 +25,7 @@ export default function LootModal(props: Props) {
   const hasStoryCinematic = () => !!STORY_CINEMATICS[props.result.missionId];
 
   const [logExpanded, setLogExpanded] = createSignal(false);
+  const [showPlayback, setShowPlayback] = createSignal(false);
   // Suppress the card's scrollbar during the entry animation — content briefly
   // reflows as sections/chips settle, which otherwise flashes a scrollbar on
   // the right even when final content fits. Enabled after the animation ends.
@@ -210,6 +212,17 @@ export default function LootModal(props: Props) {
               <Show when={r().combatLog?.length}>
                 {" · "}
                 <button
+                  onClick={() => setShowPlayback(true)}
+                  style={{
+                    background: "none", border: "none", cursor: "pointer",
+                    color: "var(--accent-gold)", "font-size": "0.85rem",
+                    padding: 0, "text-decoration": "underline",
+                  }}
+                >
+                  ▶ Watch combat
+                </button>
+                {" · "}
+                <button
                   onClick={() => setLogExpanded(!logExpanded())}
                   style={{
                     background: "none", border: "none", cursor: "pointer",
@@ -217,7 +230,7 @@ export default function LootModal(props: Props) {
                     padding: 0, "text-decoration": "underline",
                   }}
                 >
-                  {logExpanded() ? "Hide combat log" : "Show combat log"}
+                  {logExpanded() ? "Hide log" : "Show log"}
                 </button>
               </Show>
             </div>
@@ -231,6 +244,14 @@ export default function LootModal(props: Props) {
               }}>
                 <CombatLog log={r().combatLog!} />
               </div>
+            </Show>
+            <Show when={showPlayback() && r().combatLog?.length}>
+              <CombatPlayback
+                log={r().combatLog!}
+                title={template().name}
+                victory={r().combatVictory}
+                onClose={() => setShowPlayback(false)}
+              />
             </Show>
           </Show>
         </div>

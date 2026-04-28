@@ -2997,6 +2997,16 @@ body {
   animation: loot-card-drop 380ms cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
 }
 
+/* Active mission card during the brief combat phase — subtle red pulse so the
+   player notices "something is happening right now" */
+@keyframes active-mission-combat-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); border-color: var(--border-color); }
+  50%      { box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.35); border-color: var(--accent-red); }
+}
+.active-mission-combat {
+  animation: active-mission-combat-pulse 1.4s ease-in-out infinite;
+}
+
 /* Exit: reverse of the entry — card fades and drops slightly while the
    backdrop fades. Shorter duration than entry (it's a departure, not a
    reveal). Triggered by toggling .exiting on the modal elements. */
