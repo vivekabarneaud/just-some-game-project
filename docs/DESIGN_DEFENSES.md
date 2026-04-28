@@ -23,9 +23,11 @@ Defense is organized in named **rings**, scaling with settlement tier:
 | Tier | Available rings |
 |---|---|
 | Camp | Outer |
-| Village | Outer + Inner |
+| Village | Outer + Middle |
 | Town | Outer + Middle + Inner |
 | City | Same as Town for v1 (4th ring deferred) |
+
+Rings unlock outer→inward. A Village player never sees an "Inner Ring" appear before they have a "Middle Ring", which would read as a labelling glitch.
 
 **Always-stable labels.** "Outer" is always outermost (faces raids first). New tiers add inward. Tier-up never re-labels existing walls — your built Outer Wall stays Outer Wall forever.
 

@@ -63,19 +63,21 @@ export function availableCitizens(state: GameState): number {
 // ─── Ring unlocks ─────────────────────────────────────────────────
 
 /** True if a given ring is buildable at the current settlement tier.
- *  Camp = Outer only; Village adds Inner; Town adds Middle. */
+ *  Camp = Outer only; Village adds Middle; Town adds Inner. Rings unlock
+ *  outer→inward so players never see a labelled "inner" ring without a
+ *  "middle" ring between it and "outer". */
 export function ringUnlocked(ring: DefenseRing, tier: SettlementTier): boolean {
   if (ring === "outer") return true;
-  if (ring === "inner") return tier !== "camp";
-  if (ring === "middle") return tier === "town" || tier === "city";
+  if (ring === "middle") return tier !== "camp";
+  if (ring === "inner") return tier === "town" || tier === "city";
   return false;
 }
 
 /** Player-friendly label for the tier where a ring unlocks. */
 export function ringUnlockTier(ring: DefenseRing): SettlementTier {
   if (ring === "outer") return "camp";
-  if (ring === "inner") return "village";
-  return "town"; // middle
+  if (ring === "middle") return "village";
+  return "town"; // inner
 }
 
 // ─── Display ──────────────────────────────────────────────────────

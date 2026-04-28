@@ -192,11 +192,21 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
     state.resources.stone >= repairCost().stone;
 
   // Archer recruitment — global pool, but the slot belongs here visually.
-  const canRecruit = () =>
-    state.archers < maxArchers(state) &&
-    availableCitizens(state) > 0 &&
-    state.resources.gold >= ARCHER_COST.gold &&
-    state.iron >= ARCHER_COST.iron;
+  // Reason returns "" when recruiting is allowed, else a short explanation
+  // for the tooltip / inline label so the player isn't confused by a silent
+  // disabled button.
+  const recruitBlocker = () => {
+    if (state.archers >= maxArchers(state)) {
+      return maxArchers(state) === 0
+        ? "Build or repair a watchtower first"
+        : "All tower slots are full";
+    }
+    if (availableCitizens(state) <= 0) return "No spare citizens — grow population first";
+    if (state.resources.gold < ARCHER_COST.gold) return `Need ${ARCHER_COST.gold} gold`;
+    if (state.iron < ARCHER_COST.iron) return `Need ${ARCHER_COST.iron} iron`;
+    return "";
+  };
+  const canRecruit = () => recruitBlocker() === "";
 
   return (
     <div class="building-card">
@@ -241,22 +251,32 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
         </Show>
         {/* Recruit archer (global pool) — shown for any tower with capacity */}
         <Show when={built() && !props.disabled}>
-          <button
-            disabled={!canRecruit()}
-            onClick={() => actions.recruitArcher()}
-            style={{
-              "font-size": "0.78rem",
-              padding: "5px 10px",
-              background: "rgba(167, 139, 250, 0.1)",
-              border: "1px solid #a78bfa",
-              color: "#a78bfa",
-              "border-radius": "4px",
-              cursor: canRecruit() ? "pointer" : "not-allowed",
-            }}
-            title={`Recruit archer — ${ARCHER_COST.gold}g + ${ARCHER_COST.iron} iron, takes 1 citizen`}
-          >
-            +Archer
-          </button>
+          <div style={{ display: "flex", "flex-direction": "column", gap: "2px" }}>
+            <button
+              disabled={!canRecruit()}
+              onClick={() => actions.recruitArcher()}
+              style={{
+                "font-size": "0.78rem",
+                padding: "5px 10px",
+                background: "rgba(167, 139, 250, 0.1)",
+                border: "1px solid #a78bfa",
+                color: "#a78bfa",
+                "border-radius": "4px",
+                cursor: canRecruit() ? "pointer" : "not-allowed",
+                opacity: canRecruit() ? 1 : 0.5,
+              }}
+              title={canRecruit()
+                ? `Recruit archer — ${ARCHER_COST.gold}g + ${ARCHER_COST.iron} iron, takes 1 citizen`
+                : recruitBlocker()}
+            >
+              +Archer ({ARCHER_COST.gold}g {ARCHER_COST.iron}⚒️)
+            </button>
+            <Show when={!canRecruit()}>
+              <span style={{ "font-size": "0.7rem", color: "var(--accent-red)", "padding-left": "2px" }}>
+                {recruitBlocker()}
+              </span>
+            </Show>
+          </div>
         </Show>
       </div>
     </div>
@@ -279,11 +299,18 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
     state.resources.wood >= repairCost().wood &&
     state.resources.stone >= repairCost().stone;
 
-  const canRecruit = () =>
-    state.soldiers < maxSoldiers(state) &&
-    availableCitizens(state) > 0 &&
-    state.resources.gold >= SOLDIER_COST.gold &&
-    state.iron >= SOLDIER_COST.iron;
+  const recruitBlocker = () => {
+    if (state.soldiers >= maxSoldiers(state)) {
+      return maxSoldiers(state) === 0
+        ? "Build or repair a barracks first"
+        : "All barracks slots are full";
+    }
+    if (availableCitizens(state) <= 0) return "No spare citizens — grow population first";
+    if (state.resources.gold < SOLDIER_COST.gold) return `Need ${SOLDIER_COST.gold} gold`;
+    if (state.iron < SOLDIER_COST.iron) return `Need ${SOLDIER_COST.iron} iron`;
+    return "";
+  };
+  const canRecruit = () => recruitBlocker() === "";
 
   return (
     <div class="building-card">
@@ -329,22 +356,32 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
           </button>
         </Show>
         <Show when={built() && !props.disabled}>
-          <button
-            disabled={!canRecruit()}
-            onClick={() => actions.recruitSoldier()}
-            style={{
-              "font-size": "0.78rem",
-              padding: "5px 10px",
-              background: "rgba(231, 76, 60, 0.1)",
-              border: "1px solid var(--accent-red)",
-              color: "var(--accent-red)",
-              "border-radius": "4px",
-              cursor: canRecruit() ? "pointer" : "not-allowed",
-            }}
-            title={`Recruit soldier — ${SOLDIER_COST.gold}g + ${SOLDIER_COST.iron} iron, takes 1 citizen`}
-          >
-            +Soldier
-          </button>
+          <div style={{ display: "flex", "flex-direction": "column", gap: "2px" }}>
+            <button
+              disabled={!canRecruit()}
+              onClick={() => actions.recruitSoldier()}
+              style={{
+                "font-size": "0.78rem",
+                padding: "5px 10px",
+                background: "rgba(231, 76, 60, 0.1)",
+                border: "1px solid var(--accent-red)",
+                color: "var(--accent-red)",
+                "border-radius": "4px",
+                cursor: canRecruit() ? "pointer" : "not-allowed",
+                opacity: canRecruit() ? 1 : 0.5,
+              }}
+              title={canRecruit()
+                ? `Recruit soldier — ${SOLDIER_COST.gold}g + ${SOLDIER_COST.iron} iron, takes 1 citizen`
+                : recruitBlocker()}
+            >
+              +Soldier ({SOLDIER_COST.gold}g {SOLDIER_COST.iron}⚒️)
+            </button>
+            <Show when={!canRecruit()}>
+              <span style={{ "font-size": "0.7rem", color: "var(--accent-red)", "padding-left": "2px" }}>
+                {recruitBlocker()}
+              </span>
+            </Show>
+          </div>
         </Show>
       </div>
     </div>

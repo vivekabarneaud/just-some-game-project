@@ -1,11 +1,12 @@
-import { createSignal, For, Show } from "solid-js";
+import { createSignal, createMemo, For, Show } from "solid-js";
 import { A } from "@solidjs/router";
 import { BUILDINGS, getSettlementName, SETTLEMENT_TIERS } from "~/data/buildings";
 import { RESOURCES } from "~/data/resources";
 import { SEASON_META } from "~/data/seasons";
-import { getRaid, calcRaidSuccessChance, getDefenseTips, type IncomingRaid } from "~/data/raids";
+import { getRaid, getDefenseTips, type IncomingRaid } from "~/data/raids";
 import { QUEST_CHAIN, type QuestDefinition } from "~/data/quests";
-import { useGame } from "~/engine/gameState";
+import { useGame, WALL_BASE_HP } from "~/engine/gameState";
+import { simulateRaidCombat } from "@medieval-realm/shared/data/raidCombat";
 import Countdown from "~/components/Countdown";
 import QuestClaimModal from "~/components/QuestClaimModal";
 import CombatPlayback from "~/components/CombatPlayback";
@@ -423,12 +424,42 @@ export default function Overview() {
             <For each={state.incomingRaids}>
               {(ir) => {
                 const raid = () => getRaid(ir.raidId);
-                const successPct = () => calcRaidSuccessChance(defense().total, ir.strength);
+                // Monte-Carlo win % from the same sim that resolves the actual
+                // raid. Tracks defenses + stationed counts so it recomputes when
+                // the player builds/repairs/recruits during the prep phase, but
+                // ignores resource ticks (the sim doesn't read them).
+                const SIMS = 50;
+                const successPct = createMemo(() => {
+                  const tmpl = raid();
+                  if (!tmpl?.encounters?.length) return 0;
+                  const wallsSnap = state.walls.map((w) => ({ ring: w.ring, level: w.level, hp: w.hp, maxHp: w.level * WALL_BASE_HP }));
+                  const towersSnap = state.watchtowers.map((t) => ({ ring: t.ring, level: t.level, damaged: t.damaged }));
+                  const barracksSnap = state.barracks.map((b) => ({ ring: b.ring, level: b.level, damaged: b.damaged }));
+                  let seed = 0;
+                  for (let i = 0; i < ir.raidId.length; i++) {
+                    seed = ((seed << 5) - seed + ir.raidId.charCodeAt(i)) | 0;
+                  }
+                  let wins = 0;
+                  for (let i = 0; i < SIMS; i++) {
+                    const result = simulateRaidCombat({
+                      raidId: ir.raidId,
+                      encounters: tmpl.encounters,
+                      walls: wallsSnap,
+                      watchtowers: towersSnap,
+                      barracks: barracksSnap,
+                      totalArchers: state.archers,
+                      totalSoldiers: state.soldiers,
+                      seed: seed + i,
+                    });
+                    if (result.victory) wins++;
+                  }
+                  return Math.round((wins / SIMS) * 100);
+                });
                 const successColor = () =>
                   successPct() >= 80 ? "var(--accent-green)" :
                   successPct() >= 50 ? "var(--accent-gold)" : "var(--accent-red)";
                 const onMissionCount = () => state.adventurers.filter((a) => a.onMission).length;
-                const tips = () => getDefenseTips(defense(), ir.strength, state.walls, state.watchtowers, state.barracks, onMissionCount());
+                const tips = () => getDefenseTips(successPct(), state.walls, state.watchtowers, state.barracks, onMissionCount());
                 return (
                   <div
                     class="threat-card"
@@ -523,12 +554,12 @@ export default function Overview() {
                             <Countdown remainingSeconds={ir.remaining} />
                           </div>
 
-                          {/* Strength vs Defense */}
-                          <div style={{ "margin-top": "8px", display: "flex", "align-items": "center", gap: "8px", "font-size": "0.85rem", "font-weight": "bold" }}>
-                            <span style={{ color: "var(--accent-red)" }}>Strength {ir.strength}</span>
-                            <span style={{ color: "var(--text-muted)" }}>⚔️</span>
-                            <span style={{ color: "var(--accent-blue)" }}>Defense {defense().total}</span>
-                          </div>
+                          {/* Force composition */}
+                          <Show when={raid()?.encounters?.length}>
+                            <div style={{ "margin-top": "8px", "font-size": "0.8rem", color: "var(--accent-red)" }}>
+                              {raid()!.encounters.map((e) => `${e.count}× ${e.enemyId.replace(/_/g, " ")}`).join(", ")}
+                            </div>
+                          </Show>
 
                           {/* Success % */}
                           <div style={{ "margin-top": "8px" }}>

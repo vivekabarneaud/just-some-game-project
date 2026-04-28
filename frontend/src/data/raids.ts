@@ -392,20 +392,6 @@ export function getRaid(raidId: string): RaidTemplate | undefined {
   return RAID_POOL.find((r) => r.id === raidId);
 }
 
-// ─── Success chance ─────────────────────────────────────────────
-
-/**
- * Calculate defense success chance as a percentage.
- * 100% when defense >= strength. Drops off below that.
- */
-export function calcRaidSuccessChance(defenseTotal: number, raidStrength: number): number {
-  if (raidStrength <= 0) return 95;
-  // Equal defense/strength = 50%. Double = ~85%. Half = ~15%.
-  const ratio = defenseTotal / raidStrength;
-  const chance = 50 + (ratio - 1) * 35;
-  return Math.max(5, Math.min(95, Math.round(chance)));
-}
-
 // ─── Defense tips ───────────────────────────────────────────────
 
 export interface DefenseTip {
@@ -415,27 +401,23 @@ export interface DefenseTip {
 }
 
 export function getDefenseTips(
-  defense: DefenseBreakdown,
-  raidStrength: number,
+  successPct: number,
   walls: PlayerWall[],
   watchtowers: PlayerWatchtower[],
   barracks: PlayerBarracks[],
   adventurersOnMission: number,
 ): DefenseTip[] {
   const tips: DefenseTip[] = [];
-  const chance = calcRaidSuccessChance(defense.total, raidStrength);
 
-  if (chance >= 85) {
-    tips.push({ icon: "✅", text: `Strong position (${chance}% chance). But nothing is guaranteed — fortify further.` });
-  } else if (chance >= 60) {
-    tips.push({ icon: "⚠️", text: `Decent odds (${chance}% chance) but risky. Strengthen your defenses.` });
-  } else if (chance >= 40) {
-    tips.push({ icon: "🔶", text: `Dangerous (${chance}% chance). You need more defense or this will hurt.` });
+  if (successPct >= 85) {
+    tips.push({ icon: "✅", text: `Strong position (${successPct}% chance). But nothing is guaranteed — fortify further.` });
+  } else if (successPct >= 60) {
+    tips.push({ icon: "⚠️", text: `Decent odds (${successPct}% chance) but risky. Strengthen your defenses.` });
+  } else if (successPct >= 40) {
+    tips.push({ icon: "🔶", text: `Dangerous (${successPct}% chance). You need more defense or this will hurt.` });
   } else {
-    tips.push({ icon: "🔴", text: `Desperate situation (${chance}% chance). Prepare for heavy losses.` });
+    tips.push({ icon: "🔴", text: `Desperate situation (${successPct}% chance). Prepare for heavy losses.` });
   }
-
-  const gap = raidStrength - defense.total;
 
   // Adventurers on mission
   if (adventurersOnMission > 0) {
@@ -448,17 +430,17 @@ export function getDefenseTips(
   // Walls — total level across all rings. Breached walls (hp <= 0) excluded.
   const wallsLvl = walls.filter((w) => w.hp > 0).reduce((s, w) => s + w.level, 0);
   if (wallsLvl === 0) {
-    tips.push({ icon: "🧱", text: "Build Walls for +12 defense per level.", actionLink: "/defenses" });
-  } else if (chance < 85) {
-    tips.push({ icon: "🧱", text: `Strengthen Walls (Lv.${wallsLvl} total) for +12 defense per level.`, actionLink: "/defenses" });
+    tips.push({ icon: "🧱", text: "Build a Wall to soak the assault.", actionLink: "/defenses" });
+  } else if (successPct < 85) {
+    tips.push({ icon: "🧱", text: `Reinforce your Walls (Lv.${wallsLvl} total) for more HP under siege.`, actionLink: "/defenses" });
   }
 
   // Barracks — total level across all rings. Damaged excluded.
   const barracksLvl = barracks.filter((b) => !b.damaged).reduce((s, b) => s + b.level, 0);
   if (barracksLvl === 0) {
-    tips.push({ icon: "⚔️", text: "Build Barracks for +15 defense per level.", actionLink: "/defenses" });
-  } else if (chance < 85) {
-    tips.push({ icon: "⚔️", text: `Strengthen Barracks (Lv.${barracksLvl} total) for +15 defense per level.`, actionLink: "/defenses" });
+    tips.push({ icon: "⚔️", text: "Build a Barracks and recruit Soldiers — walls alone don't fight back.", actionLink: "/defenses" });
+  } else if (successPct < 85) {
+    tips.push({ icon: "⚔️", text: `Recruit more Soldiers at the Barracks (Lv.${barracksLvl} total).`, actionLink: "/defenses" });
   }
 
   // Watchtower — any tower at all gives early warnings.
