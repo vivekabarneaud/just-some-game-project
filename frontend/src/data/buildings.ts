@@ -656,19 +656,24 @@ const TIER_ORDER: SettlementTier[] = ["camp", "village", "town", "city"];
  *  Falls back to the closest lower tier, then walks up (for locked buildings preview),
  *  then to the building's default image. */
 export function getBuildingImage(building: BuildingDefinition, currentTier: SettlementTier): string | undefined {
-  const tierMap = BUILDING_TIER_IMAGES[building.id];
-  if (tierMap) {
-    const idx = TIER_ORDER.indexOf(currentTier);
-    // Walk down from current tier
-    for (let i = idx; i >= 0; i--) {
-      const file = tierMap[TIER_ORDER[i]];
-      if (file) return `${CDN}/${file}.png`;
-    }
-    // Walk up (preview for locked/higher-tier buildings)
-    for (let i = idx + 1; i < TIER_ORDER.length; i++) {
-      const file = tierMap[TIER_ORDER[i]];
-      if (file) return `${CDN}/${file}.png`;
-    }
+  const byId = getBuildingImageById(building.id, currentTier);
+  return byId ?? building.image;
+}
+
+/** Same lookup as getBuildingImage but keyed by building id only — usable by
+ *  defense-page rings and other callers that don't have a BuildingDefinition
+ *  in hand (e.g. the multi-instance walls / watchtower / barracks / mage tower). */
+export function getBuildingImageById(id: string, currentTier: SettlementTier): string | undefined {
+  const tierMap = BUILDING_TIER_IMAGES[id];
+  if (!tierMap) return undefined;
+  const idx = TIER_ORDER.indexOf(currentTier);
+  for (let i = idx; i >= 0; i--) {
+    const file = tierMap[TIER_ORDER[i]];
+    if (file) return `${CDN}/${file}.png`;
   }
-  return building.image;
+  for (let i = idx + 1; i < TIER_ORDER.length; i++) {
+    const file = tierMap[TIER_ORDER[i]];
+    if (file) return `${CDN}/${file}.png`;
+  }
+  return undefined;
 }

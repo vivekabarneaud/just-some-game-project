@@ -61,6 +61,10 @@ import {
   getWallRepairCost,
   getDefensiveRepairCost,
   getMageTowerCost,
+  getWallBuildTime,
+  getWatchtowerBuildTime,
+  getBarracksBuildTime,
+  getMageTowerBuildTime,
   SOLDIER_COST,
   ARCHER_COST,
   maxSoldiers,
@@ -2478,6 +2482,53 @@ export function GameProvider(props: ParentProps) {
           }
         }
 
+        // Tick defense upgrades — walls, watchtowers, barracks, mage tower.
+        // Walls also need their HP refilled to the new full value when the
+        // upgrade completes, so they can't share the generic loop above.
+        for (const w of s.walls) {
+          if (w.upgrading && w.upgradeRemaining !== undefined) {
+            w.upgradeRemaining -= elapsedSeconds;
+            if (w.upgradeRemaining <= 0) {
+              w.level += 1;
+              w.hp = w.level * WALL_BASE_HP;
+              w.upgrading = false;
+              w.upgradeRemaining = undefined;
+              pushEvent(s, "building_completed", "🧱", `${w.ring} wall raised to level ${w.level}`);
+            }
+          }
+        }
+        for (const t of s.watchtowers) {
+          if (t.upgrading && t.upgradeRemaining !== undefined) {
+            t.upgradeRemaining -= elapsedSeconds;
+            if (t.upgradeRemaining <= 0) {
+              t.level += 1;
+              t.upgrading = false;
+              t.upgradeRemaining = undefined;
+              pushEvent(s, "building_completed", "🏰", `${t.ring} watchtower raised to level ${t.level}`);
+            }
+          }
+        }
+        for (const b of s.barracks) {
+          if (b.upgrading && b.upgradeRemaining !== undefined) {
+            b.upgradeRemaining -= elapsedSeconds;
+            if (b.upgradeRemaining <= 0) {
+              b.level += 1;
+              b.upgrading = false;
+              b.upgradeRemaining = undefined;
+              pushEvent(s, "building_completed", "⚔️", `${b.ring} barracks raised to level ${b.level}`);
+            }
+          }
+        }
+        if (s.mageTower.upgrading && s.mageTower.upgradeRemaining !== undefined) {
+          s.mageTower.upgradeRemaining -= elapsedSeconds;
+          if (s.mageTower.upgradeRemaining <= 0) {
+            s.mageTower.level += 1;
+            s.mageTower.upgrading = false;
+            s.mageTower.upgradeRemaining = undefined;
+            pushEvent(s, "building_completed", "🗼", `Mage Tower raised to level ${s.mageTower.level}`);
+          }
+        }
+
         // Villager growth / decline
         const popBefore = Math.floor(s.population);
         if (netFoodRate > 0 && s.population < maxPop && s.happiness >= 20) {
@@ -4134,19 +4185,19 @@ export function GameProvider(props: ParentProps) {
 
     buildOrUpgradeWall(ring) {
       const slot = state.walls.find((w) => w.ring === ring);
-      if (!slot) return false;
+      if (!slot || slot.upgrading) return false;
       const tier = this.getSettlementTier();
       if (!ringUnlocked(ring, tier)) return false;
-      const cost = getWallCost(slot.level);
+      const masonLvl = state.buildings.find((b) => b.buildingId === "masons_guild")?.level ?? 0;
+      const cost = applyMasonCostReduction(getWallCost(slot.level), masonLvl);
+      const buildTime = applyMasonTimeReduction(getWallBuildTime(slot.level), masonLvl);
       if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
       setState(produce((s) => {
         s.resources.wood -= cost.wood;
         s.resources.stone -= cost.stone;
         const w = s.walls.find((x) => x.ring === ring)!;
-        w.level += 1;
-        // Refill HP to the new full value.
-        w.hp = w.level * WALL_BASE_HP;
-        pushEvent(s, "building_completed", "🧱", `${ring} wall raised to level ${w.level}`);
+        w.upgrading = true;
+        w.upgradeRemaining = buildTime;
       }));
       scheduleSave();
       return true;
@@ -4154,17 +4205,19 @@ export function GameProvider(props: ParentProps) {
 
     buildOrUpgradeWatchtower(ring) {
       const slot = state.watchtowers.find((t) => t.ring === ring);
-      if (!slot) return false;
+      if (!slot || slot.upgrading) return false;
       const tier = this.getSettlementTier();
       if (!ringUnlocked(ring, tier)) return false;
-      const cost = getWatchtowerCost(slot.level);
+      const masonLvl = state.buildings.find((b) => b.buildingId === "masons_guild")?.level ?? 0;
+      const cost = applyMasonCostReduction(getWatchtowerCost(slot.level), masonLvl);
+      const buildTime = applyMasonTimeReduction(getWatchtowerBuildTime(slot.level), masonLvl);
       if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
       setState(produce((s) => {
         s.resources.wood -= cost.wood;
         s.resources.stone -= cost.stone;
         const t = s.watchtowers.find((x) => x.ring === ring)!;
-        t.level += 1;
-        pushEvent(s, "building_completed", "🏰", `${ring} watchtower raised to level ${t.level}`);
+        t.upgrading = true;
+        t.upgradeRemaining = buildTime;
       }));
       scheduleSave();
       return true;
@@ -4172,22 +4225,25 @@ export function GameProvider(props: ParentProps) {
 
     buildOrUpgradeBarracks(ring) {
       const slot = state.barracks.find((b) => b.ring === ring);
-      if (!slot) return false;
+      if (!slot || slot.upgrading) return false;
       const tier = this.getSettlementTier();
       if (!ringUnlocked(ring, tier)) return false;
-      const cost = getBarracksCost(slot.level);
+      const masonLvl = state.buildings.find((b) => b.buildingId === "masons_guild")?.level ?? 0;
+      const baseCost = getBarracksCost(slot.level);
+      const cost = applyMasonCostReduction({ wood: baseCost.wood, stone: baseCost.stone }, masonLvl);
+      const buildTime = applyMasonTimeReduction(getBarracksBuildTime(slot.level), masonLvl);
       if (
         state.resources.wood < cost.wood ||
         state.resources.stone < cost.stone ||
-        state.iron < cost.iron
+        state.iron < baseCost.iron
       ) return false;
       setState(produce((s) => {
         s.resources.wood -= cost.wood;
         s.resources.stone -= cost.stone;
-        s.iron -= cost.iron;
+        s.iron -= baseCost.iron;
         const b = s.barracks.find((x) => x.ring === ring)!;
-        b.level += 1;
-        pushEvent(s, "building_completed", "⚔️", `${ring} barracks raised to level ${b.level}`);
+        b.upgrading = true;
+        b.upgradeRemaining = buildTime;
       }));
       scheduleSave();
       return true;
@@ -4196,15 +4252,18 @@ export function GameProvider(props: ParentProps) {
     buildOrUpgradeMageTower() {
       // Inner-ring-locked: only buildable once the Inner ring itself is
       // unlocked (Town tier per ringUnlocked). Single instance.
+      if (state.mageTower.upgrading) return false;
       const tier = this.getSettlementTier();
       if (!ringUnlocked("inner", tier)) return false;
-      const cost = getMageTowerCost(state.mageTower.level);
+      const masonLvl = state.buildings.find((b) => b.buildingId === "masons_guild")?.level ?? 0;
+      const cost = applyMasonCostReduction(getMageTowerCost(state.mageTower.level), masonLvl);
+      const buildTime = applyMasonTimeReduction(getMageTowerBuildTime(state.mageTower.level), masonLvl);
       if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
       setState(produce((s) => {
         s.resources.wood -= cost.wood;
         s.resources.stone -= cost.stone;
-        s.mageTower.level += 1;
-        pushEvent(s, "building_completed", "🗼", `Mage Tower raised to level ${s.mageTower.level}`);
+        s.mageTower.upgrading = true;
+        s.mageTower.upgradeRemaining = buildTime;
       }));
       scheduleSave();
       return true;

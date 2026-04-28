@@ -9,6 +9,10 @@ import {
   getWallRepairCost,
   getDefensiveRepairCost,
   getMageTowerCost,
+  getWallBuildTime,
+  getWatchtowerBuildTime,
+  getBarracksBuildTime,
+  getMageTowerBuildTime,
   SOLDIER_COST,
   ARCHER_COST,
   maxSoldiers,
@@ -19,33 +23,28 @@ import {
   RING_LABELS,
   RING_DESCRIPTIONS,
 } from "~/data/defenses";
+import { getBuildingImageById, applyMasonCostReduction, applyMasonTimeReduction } from "~/data/buildings";
 import HpBar from "~/components/HpBar";
+import Countdown from "~/components/Countdown";
 
 const RINGS: DefenseRing[] = ["outer", "middle", "inner"];
 
-const R2_BASE = "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings";
-// Only walls.png and watchtower.png are on R2 today; barracks/mage_tower
-// fall back to the icon-header layout until their art is generated.
-const IMG: Record<string, string | undefined> = {
-  wall: `${R2_BASE}/walls.png`,
-  watchtower: `${R2_BASE}/watchtower.png`,
-  barracks: undefined,
-  mageTower: undefined,
-};
-
 /** Header for a defense card — mirrors the Buildings page pattern: image with
- *  overlay when art exists, icon-and-title row when it doesn't. */
+ *  overlay when art exists, icon-and-title row when it doesn't. The image is
+ *  resolved per current settlement tier via getBuildingImageById, so a Town
+ *  player sees barracks_town.png, a City player sees barracks_city.png, etc. */
 function DefenseCardHeader(props: {
-  image?: string;
+  buildingId: string;
   icon: string;
   name: string;
   level: number;
-  /** Optional small badge appended to the level line (e.g. "Damaged"). */
   statusBadge?: string;
 }) {
+  const { actions } = useGame();
+  const image = () => getBuildingImageById(props.buildingId, actions.getSettlementTier());
   return (
     <Show
-      when={props.image}
+      when={image()}
       fallback={
         <div class="building-card-header">
           <div class="building-card-icon">{props.icon}</div>
@@ -62,7 +61,7 @@ function DefenseCardHeader(props: {
       }
     >
       <div class="building-card-image">
-        <img src={props.image!} alt={props.name} loading="lazy" />
+        <img src={image()!} alt={props.name} loading="lazy" />
         <div class="building-card-image-overlay">
           <div>
             <div class="building-card-title">{props.name}</div>
@@ -74,6 +73,76 @@ function DefenseCardHeader(props: {
             </div>
           </div>
         </div>
+      </div>
+    </Show>
+  );
+}
+
+/** Build/Upgrade button that shows a countdown when the slot is upgrading,
+ *  the cost on the button face, and a hover tooltip explaining either the
+ *  next-level details (when affordable) or the blocker (when disabled).
+ *  Mirrors the Buildings page tooltip pattern via .upgrade-indicator hover. */
+function UpgradeButton(props: {
+  built: boolean;
+  level: number;
+  upgrading: boolean;
+  upgradeRemaining?: number;
+  canUpgrade: boolean;
+  /** Empty string when canUpgrade. Otherwise a short reason for the tooltip. */
+  blocker: string;
+  costLabel: string;
+  buildTimeSeconds: number;
+  onUpgrade: () => void;
+}) {
+  return (
+    <Show
+      when={props.upgrading && props.upgradeRemaining !== undefined}
+      fallback={
+        <div class="upgrade-indicator" style={{ position: "relative", display: "inline-block" }}>
+          <button
+            class="upgrade-btn"
+            disabled={!props.canUpgrade}
+            onClick={props.onUpgrade}
+            style={{ "font-size": "0.78rem", padding: "5px 10px" }}
+          >
+            {props.built ? `Upgrade — ${props.costLabel}` : `Build — ${props.costLabel}`}
+          </button>
+          <div class="upgrade-tooltip" style={{
+            position: "absolute",
+            left: 0,
+            top: "calc(100% + 4px)",
+            "min-width": "180px",
+            padding: "6px 10px",
+            background: "var(--bg-panel)",
+            border: `1px solid ${props.canUpgrade ? "var(--accent-green)" : "var(--accent-gold)"}`,
+            "border-radius": "6px",
+            "font-size": "0.75rem",
+            color: "var(--text-secondary)",
+            "z-index": 10,
+            display: "none",
+            "box-shadow": "0 4px 12px rgba(0,0,0,0.3)",
+            "white-space": "nowrap",
+          }}>
+            <Show when={props.canUpgrade}>
+              <div style={{ color: "var(--accent-green)", "font-weight": "bold", "margin-bottom": "2px" }}>
+                {props.built ? `Upgrade to Lv.${props.level + 1}` : "Build Lv.1"}
+              </div>
+              <div>{props.costLabel}</div>
+              <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "2px" }}>
+                Build time: {Math.ceil(props.buildTimeSeconds)}s
+              </div>
+            </Show>
+            <Show when={!props.canUpgrade}>
+              <div style={{ color: "var(--accent-gold)" }}>{props.blocker}</div>
+              <div style={{ "margin-top": "2px" }}>Cost: {props.costLabel}</div>
+            </Show>
+          </div>
+        </div>
+      }
+    >
+      <div style={{ "font-size": "0.78rem", color: "var(--accent-gold)", "font-style": "italic", display: "flex", "align-items": "center", gap: "6px" }}>
+        Upgrading…
+        <Countdown remainingSeconds={props.upgradeRemaining!} />
       </div>
     </Show>
   );
@@ -185,12 +254,18 @@ function WallCard(props: { wall: PlayerWall; ring: DefenseRing; disabled: boolea
   const fullHp = () => props.wall.level * WALL_BASE_HP;
   const built = () => props.wall.level > 0;
   const damaged = () => built() && props.wall.hp < fullHp();
-  const upgradeCost = () => getWallCost(props.wall.level);
+  const masonLvl = () => state.buildings.find((b) => b.buildingId === "masons_guild")?.level ?? 0;
+  const upgradeCost = () => applyMasonCostReduction(getWallCost(props.wall.level), masonLvl());
+  const buildTime = () => applyMasonTimeReduction(getWallBuildTime(props.wall.level), masonLvl());
   const repairCost = () => getWallRepairCost(props.wall.level);
-  const canUpgrade = () =>
-    !props.disabled &&
-    state.resources.wood >= upgradeCost().wood &&
-    state.resources.stone >= upgradeCost().stone;
+  const upgradeBlocker = () => {
+    if (props.disabled) return "Ring locked at this tier";
+    if (props.wall.upgrading) return "Already upgrading";
+    if (state.resources.wood < upgradeCost().wood) return `Need ${upgradeCost().wood} wood`;
+    if (state.resources.stone < upgradeCost().stone) return `Need ${upgradeCost().stone} stone`;
+    return "";
+  };
+  const canUpgrade = () => upgradeBlocker() === "";
   const canRepair = () =>
     !props.disabled &&
     damaged() &&
@@ -200,7 +275,7 @@ function WallCard(props: { wall: PlayerWall; ring: DefenseRing; disabled: boolea
   return (
     <div class="building-card">
       <DefenseCardHeader
-        image={IMG.wall}
+        buildingId="walls"
         icon="🧱"
         name="Wall"
         level={props.wall.level}
@@ -215,15 +290,18 @@ function WallCard(props: { wall: PlayerWall; ring: DefenseRing; disabled: boolea
         </div>
       </Show>
       <div style={{ "margin-top": "auto", "padding-top": "10px", display: "flex", gap: "6px", "flex-wrap": "wrap" }}>
-        <button
-          class="upgrade-btn"
-          disabled={!canUpgrade()}
-          onClick={() => actions.buildOrUpgradeWall(props.ring)}
-          style={{ "font-size": "0.78rem", padding: "5px 10px" }}
-        >
-          {built() ? `Upgrade — ${upgradeCost().wood}🪵 ${upgradeCost().stone}🪨` : `Build — ${upgradeCost().wood}🪵 ${upgradeCost().stone}🪨`}
-        </button>
-        <Show when={damaged()}>
+        <UpgradeButton
+          built={built()}
+          level={props.wall.level}
+          upgrading={props.wall.upgrading}
+          upgradeRemaining={props.wall.upgradeRemaining}
+          canUpgrade={canUpgrade()}
+          blocker={upgradeBlocker()}
+          costLabel={`${upgradeCost().wood}🪵 ${upgradeCost().stone}🪨`}
+          buildTimeSeconds={buildTime()}
+          onUpgrade={() => actions.buildOrUpgradeWall(props.ring)}
+        />
+        <Show when={damaged() && !props.wall.upgrading}>
           <button
             disabled={!canRepair()}
             onClick={() => actions.repairWall(props.ring)}
@@ -248,12 +326,18 @@ function WallCard(props: { wall: PlayerWall; ring: DefenseRing; disabled: boolea
 function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; disabled: boolean }) {
   const { state, actions } = useGame();
   const built = () => props.tower.level > 0;
-  const upgradeCost = () => getWatchtowerCost(props.tower.level);
+  const masonLvl = () => state.buildings.find((b) => b.buildingId === "masons_guild")?.level ?? 0;
+  const upgradeCost = () => applyMasonCostReduction(getWatchtowerCost(props.tower.level), masonLvl());
+  const buildTime = () => applyMasonTimeReduction(getWatchtowerBuildTime(props.tower.level), masonLvl());
   const repairCost = () => getDefensiveRepairCost(props.tower.level);
-  const canUpgrade = () =>
-    !props.disabled &&
-    state.resources.wood >= upgradeCost().wood &&
-    state.resources.stone >= upgradeCost().stone;
+  const upgradeBlocker = () => {
+    if (props.disabled) return "Ring locked at this tier";
+    if (props.tower.upgrading) return "Already upgrading";
+    if (state.resources.wood < upgradeCost().wood) return `Need ${upgradeCost().wood} wood`;
+    if (state.resources.stone < upgradeCost().stone) return `Need ${upgradeCost().stone} stone`;
+    return "";
+  };
+  const canUpgrade = () => upgradeBlocker() === "";
   const canRepair = () =>
     !props.disabled &&
     props.tower.damaged &&
@@ -279,7 +363,7 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
   return (
     <div class="building-card">
       <DefenseCardHeader
-        image={IMG.watchtower}
+        buildingId="watchtower"
         icon="🏰"
         name="Watchtower"
         level={props.tower.level}
@@ -294,15 +378,18 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
         </div>
       </Show>
       <div style={{ "margin-top": "auto", "padding-top": "10px", display: "flex", gap: "6px", "flex-wrap": "wrap" }}>
-        <button
-          class="upgrade-btn"
-          disabled={!canUpgrade()}
-          onClick={() => actions.buildOrUpgradeWatchtower(props.ring)}
-          style={{ "font-size": "0.78rem", padding: "5px 10px" }}
-        >
-          {built() ? `Upgrade — ${upgradeCost().wood}🪵 ${upgradeCost().stone}🪨` : `Build — ${upgradeCost().wood}🪵 ${upgradeCost().stone}🪨`}
-        </button>
-        <Show when={props.tower.damaged}>
+        <UpgradeButton
+          built={built()}
+          level={props.tower.level}
+          upgrading={props.tower.upgrading}
+          upgradeRemaining={props.tower.upgradeRemaining}
+          canUpgrade={canUpgrade()}
+          blocker={upgradeBlocker()}
+          costLabel={`${upgradeCost().wood}🪵 ${upgradeCost().stone}🪨`}
+          buildTimeSeconds={buildTime()}
+          onUpgrade={() => actions.buildOrUpgradeWatchtower(props.ring)}
+        />
+        <Show when={props.tower.damaged && !props.tower.upgrading}>
           <button
             disabled={!canRepair()}
             onClick={() => actions.repairWatchtower(props.ring)}
@@ -356,13 +443,24 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
 function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disabled: boolean }) {
   const { state, actions } = useGame();
   const built = () => props.barracks.level > 0;
-  const upgradeCost = () => getBarracksCost(props.barracks.level);
+  const masonLvl = () => state.buildings.find((b) => b.buildingId === "masons_guild")?.level ?? 0;
+  const baseCost = () => getBarracksCost(props.barracks.level);
+  const upgradeCost = () => {
+    const c = baseCost();
+    const reduced = applyMasonCostReduction({ wood: c.wood, stone: c.stone }, masonLvl());
+    return { wood: reduced.wood, stone: reduced.stone, iron: c.iron };
+  };
+  const buildTime = () => applyMasonTimeReduction(getBarracksBuildTime(props.barracks.level), masonLvl());
   const repairCost = () => getDefensiveRepairCost(props.barracks.level);
-  const canUpgrade = () =>
-    !props.disabled &&
-    state.resources.wood >= upgradeCost().wood &&
-    state.resources.stone >= upgradeCost().stone &&
-    state.iron >= upgradeCost().iron;
+  const upgradeBlocker = () => {
+    if (props.disabled) return "Ring locked at this tier";
+    if (props.barracks.upgrading) return "Already upgrading";
+    if (state.resources.wood < upgradeCost().wood) return `Need ${upgradeCost().wood} wood`;
+    if (state.resources.stone < upgradeCost().stone) return `Need ${upgradeCost().stone} stone`;
+    if (state.iron < upgradeCost().iron) return `Need ${upgradeCost().iron} iron`;
+    return "";
+  };
+  const canUpgrade = () => upgradeBlocker() === "";
   const canRepair = () =>
     !props.disabled &&
     props.barracks.damaged &&
@@ -384,7 +482,7 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
   return (
     <div class="building-card">
       <DefenseCardHeader
-        image={IMG.barracks}
+        buildingId="barracks"
         icon="⚔️"
         name="Barracks"
         level={props.barracks.level}
@@ -399,17 +497,18 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
         </div>
       </Show>
       <div style={{ "margin-top": "auto", "padding-top": "10px", display: "flex", gap: "6px", "flex-wrap": "wrap" }}>
-        <button
-          class="upgrade-btn"
-          disabled={!canUpgrade()}
-          onClick={() => actions.buildOrUpgradeBarracks(props.ring)}
-          style={{ "font-size": "0.78rem", padding: "5px 10px" }}
-        >
-          {built()
-            ? `Upgrade — ${upgradeCost().wood}🪵 ${upgradeCost().stone}🪨 ${upgradeCost().iron}⚒️`
-            : `Build — ${upgradeCost().wood}🪵 ${upgradeCost().stone}🪨 ${upgradeCost().iron}⚒️`}
-        </button>
-        <Show when={props.barracks.damaged}>
+        <UpgradeButton
+          built={built()}
+          level={props.barracks.level}
+          upgrading={props.barracks.upgrading}
+          upgradeRemaining={props.barracks.upgradeRemaining}
+          canUpgrade={canUpgrade()}
+          blocker={upgradeBlocker()}
+          costLabel={`${upgradeCost().wood}🪵 ${upgradeCost().stone}🪨 ${upgradeCost().iron}⚒️`}
+          buildTimeSeconds={buildTime()}
+          onUpgrade={() => actions.buildOrUpgradeBarracks(props.ring)}
+        />
+        <Show when={props.barracks.damaged && !props.barracks.upgrading}>
           <button
             disabled={!canRepair()}
             onClick={() => actions.repairBarracks(props.ring)}
@@ -462,12 +561,18 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
 function MageTowerCard(props: { disabled: boolean }) {
   const { state, actions } = useGame();
   const built = () => state.mageTower.level > 0;
-  const upgradeCost = () => getMageTowerCost(state.mageTower.level);
+  const masonLvl = () => state.buildings.find((b) => b.buildingId === "masons_guild")?.level ?? 0;
+  const upgradeCost = () => applyMasonCostReduction(getMageTowerCost(state.mageTower.level), masonLvl());
+  const buildTime = () => applyMasonTimeReduction(getMageTowerBuildTime(state.mageTower.level), masonLvl());
   const repairCost = () => getDefensiveRepairCost(state.mageTower.level);
-  const canUpgrade = () =>
-    !props.disabled &&
-    state.resources.wood >= upgradeCost().wood &&
-    state.resources.stone >= upgradeCost().stone;
+  const upgradeBlocker = () => {
+    if (props.disabled) return "Inner ring locks the Mage Tower until Town tier";
+    if (state.mageTower.upgrading) return "Already upgrading";
+    if (state.resources.wood < upgradeCost().wood) return `Need ${upgradeCost().wood} wood`;
+    if (state.resources.stone < upgradeCost().stone) return `Need ${upgradeCost().stone} stone`;
+    return "";
+  };
+  const canUpgrade = () => upgradeBlocker() === "";
   const canRepair = () =>
     !props.disabled &&
     state.mageTower.damaged &&
@@ -477,7 +582,7 @@ function MageTowerCard(props: { disabled: boolean }) {
   return (
     <div class="building-card">
       <DefenseCardHeader
-        image={IMG.mageTower}
+        buildingId="mage_tower"
         icon="🗼"
         name="Mage Tower"
         level={state.mageTower.level}
@@ -492,17 +597,18 @@ function MageTowerCard(props: { disabled: boolean }) {
         </div>
       </Show>
       <div style={{ "margin-top": "auto", "padding-top": "10px", display: "flex", gap: "6px", "flex-wrap": "wrap" }}>
-        <button
-          class="upgrade-btn"
-          disabled={!canUpgrade()}
-          onClick={() => actions.buildOrUpgradeMageTower()}
-          style={{ "font-size": "0.78rem", padding: "5px 10px" }}
-        >
-          {built()
-            ? `Upgrade — ${upgradeCost().wood}🪵 ${upgradeCost().stone}🪨`
-            : `Build — ${upgradeCost().wood}🪵 ${upgradeCost().stone}🪨`}
-        </button>
-        <Show when={state.mageTower.damaged}>
+        <UpgradeButton
+          built={built()}
+          level={state.mageTower.level}
+          upgrading={state.mageTower.upgrading}
+          upgradeRemaining={state.mageTower.upgradeRemaining}
+          canUpgrade={canUpgrade()}
+          blocker={upgradeBlocker()}
+          costLabel={`${upgradeCost().wood}🪵 ${upgradeCost().stone}🪨`}
+          buildTimeSeconds={buildTime()}
+          onUpgrade={() => actions.buildOrUpgradeMageTower()}
+        />
+        <Show when={state.mageTower.damaged && !state.mageTower.upgrading}>
           <button
             disabled={!canRepair()}
             onClick={() => actions.repairMageTower()}

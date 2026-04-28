@@ -41,6 +41,28 @@ export function getMageTowerCost(currentLevel: number): { wood: number; stone: n
   return { wood: 60 + 40 * currentLevel, stone: 100 + 60 * currentLevel };
 }
 
+// ─── Build times (game-seconds) ───────────────────────────────────
+// Match the ramp the legacy buildings used: short for early levels,
+// steeper as you climb. Mason's Guild discount applies on top via the
+// upgrade action (existing applyMasonTimeReduction).
+
+function rampedBuildTime(base: number, currentLevel: number): number {
+  return Math.floor(base * Math.pow(1.5, currentLevel));
+}
+
+export function getWallBuildTime(currentLevel: number): number {
+  return rampedBuildTime(25, currentLevel);
+}
+export function getWatchtowerBuildTime(currentLevel: number): number {
+  return rampedBuildTime(32, currentLevel);
+}
+export function getBarracksBuildTime(currentLevel: number): number {
+  return rampedBuildTime(30, currentLevel);
+}
+export function getMageTowerBuildTime(currentLevel: number): number {
+  return rampedBuildTime(38, currentLevel);
+}
+
 /** Recruitment costs — citizen takes the role; gold pays for wages + training.
  *  Gear quality is implicit in barracks/tower level (which already cost iron
  *  to upgrade). Keeping recruit cost gold-only avoids soft-locking the
