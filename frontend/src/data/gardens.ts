@@ -1,6 +1,6 @@
 import type { Season } from "./seasons";
 
-export type VeggieId = "cabbages" | "turnips" | "peas" | "squash";
+export type VeggieId = "cabbages" | "turnips" | "peas" | "squash" | "fava";
 
 export interface VeggieDefinition {
   id: VeggieId;
@@ -62,6 +62,16 @@ export const VEGGIES: VeggieDefinition[] = [
     seedCost: 8,
     baseRate: 5,
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/garden_squash.png",
+  },
+  {
+    id: "fava",
+    name: "Fava Beans",
+    icon: "🫘",
+    description: "Sown before winter takes hold. The vines weather frost and snow, swelling into pods that fill the table from spring through summer. A peasant staple, dried and stored against the lean year.",
+    plantSeasons: ["autumn"],
+    produceSeasons: ["spring", "summer"],
+    seedCost: 7,
+    baseRate: 5,
   },
 ];
 

@@ -4,7 +4,7 @@
 
 export type FoodItemType =
   | "wheat" | "barley"
-  | "cabbages" | "turnips" | "peas" | "squash"
+  | "cabbages" | "turnips" | "peas" | "squash" | "fava"
   | "apples" | "pears" | "cherries"
   | "meat" | "eggs" | "milk" | "fish"
   | "berries" | "mushrooms" | "nuts";
@@ -46,6 +46,7 @@ export const FOOD_ITEMS: FoodItemMeta[] = [
   { id: "turnips",   label: "Turnips",   icon: "🥕", order: 2, category: "veggie" },
   { id: "peas",      label: "Peas",      icon: "🫛", order: 3, category: "veggie" },
   { id: "squash",    label: "Squash",    icon: "🎃", order: 4, category: "veggie" },
+  { id: "fava",      label: "Fava Beans", icon: "🫘", order: 5, category: "veggie" },
   // Fruits
   { id: "apples",    label: "Apples",    icon: "🍎", iconImage: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/apple.png?v=2", order: 1, category: "fruit" },
   { id: "pears",     label: "Pears",     icon: "🍐", order: 2, category: "fruit" },

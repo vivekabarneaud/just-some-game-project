@@ -62,7 +62,7 @@ export interface PlayerField {
   upgradeRemaining?: number;
 }
 
-export type VeggieId = "cabbages" | "turnips" | "peas" | "squash";
+export type VeggieId = "cabbages" | "turnips" | "peas" | "squash" | "fava";
 
 export interface PlayerGarden {
   id: string;
@@ -161,7 +161,7 @@ export interface InventoryItem {
 export type RewardType = "gold" | "wood" | "stone" | "food" | "astralShards"
   // Typed foods (post-food-refactor missions use these directly)
   | "wheat" | "barley"
-  | "cabbages" | "turnips" | "peas" | "squash"
+  | "cabbages" | "turnips" | "peas" | "squash" | "fava"
   | "apples" | "pears" | "cherries"
   | "meat" | "eggs" | "milk" | "fish"
   | "berries" | "mushrooms" | "nuts"

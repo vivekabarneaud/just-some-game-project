@@ -20,6 +20,7 @@ export const FOOD_CATEGORY: Partial<Record<FoodItemType, FeedCategory>> = {
   turnips: "veggie",
   peas: "veggie",
   squash: "veggie",
+  fava: "veggie",
   // "Fruit" includes orchard fruits + foraged berries/nuts/mushrooms
   apples: "fruit",
   pears: "fruit",

@@ -1228,7 +1228,7 @@ export default function Farming() {
           "font-size": "0.8rem",
           color: "var(--accent-gold)",
         }}>
-          Fields can only be planted in spring. You can build one now, but it will sit empty until next spring. Consider building a <strong>garden</strong> instead — they produce food year-round (except winter).
+          Fields can only be planted in spring. You can build one now, but it will sit empty until next spring. Consider planting in a <strong>garden</strong> instead. Each veggie has its own planting window, so there's almost always something you can sow.
         </div>
       </Show>
       <Show when={state.fields.length > 0}>

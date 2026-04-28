@@ -5,7 +5,7 @@ import type { AdventurerClass } from "../adventurers.js";
 export type RewardType = "gold" | "wood" | "stone" | "food" | "astralShards"
   // Typed foods (post-food-refactor missions reward specific items)
   | "wheat" | "barley"
-  | "cabbages" | "turnips" | "peas" | "squash"
+  | "cabbages" | "turnips" | "peas" | "squash" | "fava"
   | "apples" | "pears" | "cherries"
   | "meat" | "eggs" | "milk" | "fish"
   | "berries" | "mushrooms" | "nuts"
