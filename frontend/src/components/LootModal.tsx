@@ -2,6 +2,7 @@ import { createSignal, For, Show } from "solid-js";
 import type { CompletedMission } from "@medieval-realm/shared/data/missions";
 import { formatReward, getMission } from "@medieval-realm/shared/data/missions";
 import { STORY_CINEMATICS } from "~/data/cinematics";
+import CombatLog from "~/components/CombatLog";
 
 interface Props {
   result: CompletedMission;
@@ -227,31 +228,8 @@ export default function LootModal(props: Props) {
                 "border-radius": "4px",
                 "max-height": "240px",
                 overflow: "auto",
-                "font-size": "0.75rem",
-                "line-height": "1.6",
               }}>
-                {(() => {
-                  let lastRound = 0;
-                  return r().combatLog!.map((entry) => {
-                    const showRound = entry.round !== lastRound;
-                    lastRound = entry.round;
-                    return (
-                      <>
-                        {showRound && (
-                          <div style={{ color: "var(--text-muted)", "font-weight": "bold", "margin-top": entry.round > 1 ? "4px" : "0" }}>
-                            Round {entry.round}
-                          </div>
-                        )}
-                        <div style={{ color: entry.isEnemy ? "var(--accent-red)" : "var(--text-secondary)" }}>
-                          {entry.attackerIcon} <strong>{entry.attackerName}</strong>
-                          {entry.targetName && <> → <strong>{entry.targetName}</strong></>}
-                          {entry.damage != null && <> · <span style={{ color: "var(--accent-gold)" }}>{entry.damage} dmg</span></>}
-                          {entry.killed && <span style={{ color: "var(--accent-red)" }}> (killed)</span>}
-                        </div>
-                      </>
-                    );
-                  });
-                })()}
+                <CombatLog log={r().combatLog!} />
               </div>
             </Show>
           </Show>

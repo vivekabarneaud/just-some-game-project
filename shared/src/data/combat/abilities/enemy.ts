@@ -45,6 +45,7 @@ export function tryEnemyAbility(unit: CombatUnit, ctx: CombatContext): boolean {
           abilityName: ability.name,
           targetName: target.name, damage: hit.damage, dodged: false, crit: hit.crit, killed: target.hp <= 0,
           targetHp: Math.max(0, target.hp), targetMaxHp: target.maxHp, isEnemy: true,
+          statusApplied: { type: eff.type, rounds: eff.rounds, perRound: dotDmg },
         });
         if (target.hp <= 0) target.hp = 0;
         return true;
@@ -150,6 +151,7 @@ export function tryEnemyAbility(unit: CombatUnit, ctx: CombatContext): boolean {
           abilityName: ability.name,
           targetName: target.name, damage: 0, dodged: false, crit: false, killed: false,
           targetHp: target.hp, targetMaxHp: target.maxHp, isEnemy: true,
+          statusApplied: { type: `debuff:${eff.stat}`, rounds: eff.rounds },
         });
         return true;
       }

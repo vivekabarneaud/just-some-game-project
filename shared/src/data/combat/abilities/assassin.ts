@@ -41,6 +41,7 @@ export const poison: ClassAbilityHandler = {
       damage: 0, dodged: false, crit: false, killed: false,
       targetHp: target.hp, targetMaxHp: target.maxHp,
       isEnemy: false, abilityName: "Poison", abilityIcon: "☠️",
+      statusApplied: { type: "poison", rounds: 3, perRound: dotDamage },
     });
     return true;
   },

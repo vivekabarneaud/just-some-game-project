@@ -62,6 +62,15 @@ export interface CombatLogEntry {
   isPoisonTick?: boolean;
   isTaunt?: boolean;
   isShieldWall?: boolean;
+  /** Optional inline note that this hit applied a status effect (bleed/slow/etc).
+   *  Rendered as a small italic suffix on the log line. */
+  statusApplied?: {
+    /** Conventional id: "bleed" | "poison" | "slow" | "debuff:str" | "debuff:dex" | ... */
+    type: string;
+    rounds: number;
+    /** For DoTs (bleed/poison): damage per round */
+    perRound?: number;
+  };
 }
 
 export interface LootResult {

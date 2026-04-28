@@ -43,6 +43,7 @@ export const frostBolt: ClassAbilityHandler = {
       damage, dodged: false, crit, killed: target.hp <= 0,
       targetHp: Math.max(0, target.hp), targetMaxHp: target.maxHp,
       isEnemy: false, abilityName: "Frost Bolt", abilityIcon: "❄️",
+      statusApplied: { type: "slow", rounds: 2 },
     });
     return true;
   },

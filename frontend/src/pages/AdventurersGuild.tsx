@@ -37,6 +37,7 @@ import MissionCard from "~/components/MissionCard";
 import TraitBadge from "~/components/TraitBadge";
 import MissionAssemblyPanel from "~/components/MissionAssemblyPanel";
 import LootModal from "~/components/LootModal";
+import CombatLog from "~/components/CombatLog";
 import { fetchCoops, respondCoop, cancelCoop, fetchCoopDetail, claimCoop } from "~/api/coop";
 import { wsClient } from "~/api/ws";
 import type { CompletedMission } from "@medieval-realm/shared/data/missions";
@@ -397,63 +398,8 @@ export default function AdventurersGuild() {
                                 "margin-top": "4px", padding: "6px 8px",
                                 background: "rgba(0, 0, 0, 0.2)", "border-radius": "4px",
                                 "max-height": "200px", overflow: "auto",
-                                "font-size": "0.72rem", "line-height": "1.6",
                               }}>
-                                {(() => {
-                                  let lastRound = 0;
-                                  return result.combatLog!.map((entry) => {
-                                    const showRound = entry.round !== lastRound;
-                                    lastRound = entry.round;
-                                    return (
-                                      <>
-                                        {showRound && (
-                                          <div style={{ color: "var(--text-muted)", "font-weight": "bold", "margin-top": entry.round > 1 ? "4px" : "0" }}>
-                                            Round {entry.round}
-                                          </div>
-                                        )}
-                                        <div style={{ color: entry.isPoisonTick ? "#9b59b6" : entry.isEnemy ? "var(--accent-red)" : "var(--text-secondary)" }}>
-                                          {entry.attackerIcon}{" "}
-                                          {entry.abilityName && <span style={{ color: "var(--accent-gold)" }}>[{entry.abilityName}] </span>}
-                                          {entry.isPoisonTick
-                                            ? <><strong>{entry.targetName}</strong> takes <span style={{ color: "#9b59b6" }}>{entry.damage} damage</span>
-                                                    {entry.targetHp != null && !entry.killed && <span style={{ color: "var(--text-muted)" }}> ({entry.targetHp}/{entry.targetMaxHp})</span>}
-                                                    {entry.killed && <span style={{ color: "var(--accent-red)" }}> — killed!</span>}
-                                                  </>
-                                            : <><strong>{entry.attackerName}</strong>
-                                              {entry.isTaunt
-                                                ? <> taunts all enemies — <span style={{ color: "var(--accent-blue)" }}>they must attack {entry.attackerName} next round!</span></>
-                                                : entry.isShieldWall
-                                                  ? <> absorbs the blow meant for <strong>{entry.targetName}</strong>! <span style={{ color: "var(--accent-red)" }}>{entry.damage} damage taken</span>
-                                                      {entry.killed && <span> — {entry.attackerName} falls!</span>}
-                                                    </>
-                                                  : entry.targets
-                                                  ? <> hits {entry.targets.map((t, i) => (
-                                                      <span>
-                                                        {i > 0 && ", "}
-                                                        <strong>{t.name}</strong> for {entry.healed
-                                                          ? <span style={{ color: "var(--accent-green)" }}>+{Math.abs(t.damage)} HP</span>
-                                                          : <span style={{ color: "var(--accent-gold)" }}>{t.damage}</span>
-                                                        }
-                                                        {t.killed && <span style={{ color: "var(--accent-red)" }}> (killed!)</span>}
-                                                      </span>
-                                                    ))}</>
-                                                  : entry.healed
-                                                    ? <> heals <strong>{entry.targetName}</strong> for <span style={{ color: "var(--accent-green)" }}>+{entry.healAmount} HP</span>
-                                                        {entry.targetHp != null && <span style={{ color: "var(--text-muted)" }}> ({entry.targetHp}/{entry.targetMaxHp})</span>}
-                                                      </>
-                                                    : entry.dodged
-                                                      ? <> attacks <strong>{entry.targetName}</strong> — <span style={{ color: "var(--accent-blue)" }}>dodged!</span></>
-                                                      : <> {entry.crit ? <span style={{ color: "#f39c12" }}>CRIT! </span> : ""}hits <strong>{entry.targetName}</strong> for <span style={{ color: entry.isEnemy ? "var(--accent-red)" : "var(--accent-gold)" }}>{entry.damage} damage</span>
-                                                        {entry.targetHp != null && !entry.killed && <span style={{ color: "var(--text-muted)" }}> ({entry.targetHp}/{entry.targetMaxHp})</span>}
-                                                        {entry.killed && <span style={{ color: "var(--accent-red)" }}> — killed!</span>}
-                                                      </>
-                                              }</>
-                                          }
-                                        </div>
-                                      </>
-                                    );
-                                  });
-                                })()}
+                                <CombatLog log={result.combatLog!} compact />
                               </div>
                             </Show>
                           </div>
