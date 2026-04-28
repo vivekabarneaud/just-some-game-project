@@ -511,10 +511,14 @@ export interface DeathRecord {
   killedBy: string;
   /** Optional ability name on the killing blow ("Wolf Bite", "Cleave", etc.) */
   killedByAbility?: string;
-  /** Round number when they fell. */
+  /** Round number when they fell — kept for analytics, not shown in pantheon flavor text. */
   round: number;
   /** Wall-clock timestamp of death (ms since epoch). */
   diedAt: number;
+  /** In-game season at the time of death (set at completion). */
+  season?: string;
+  /** In-game year at the time of death (set at completion). */
+  year?: number;
 }
 
 export interface Adventurer {

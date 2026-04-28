@@ -34,6 +34,11 @@ function tickStatDebuffs(unit: CombatUnit): void {
 
 function tickPoison(unit: CombatUnit, ctx: CombatContext): void {
   if (unit.poisonTicks.length === 0) return;
+  // Capture the source of the first active tick BEFORE we mutate the array —
+  // this is the "blame" the death record will pick up if the tick is lethal.
+  const source = unit.poisonTicks[0];
+  const sourceName = source.sourceName ?? "Bleeding";
+  const sourceIcon = source.sourceIcon ?? "🩸";
   let totalDot = 0;
   unit.poisonTicks = unit.poisonTicks.filter((p) => {
     totalDot += p.damage;
@@ -43,7 +48,7 @@ function tickPoison(unit: CombatUnit, ctx: CombatContext): void {
   if (totalDot <= 0) return;
   unit.hp -= totalDot;
   ctx.log.push({
-    round: ctx.round, attackerName: "DOT", attackerIcon: "🩸", targetName: unit.name,
+    round: ctx.round, attackerName: sourceName, attackerIcon: sourceIcon, targetName: unit.name,
     damage: totalDot, dodged: false, crit: false, killed: unit.hp <= 0,
     targetHp: Math.max(0, unit.hp), targetMaxHp: unit.maxHp,
     isEnemy: unit.isEnemy, isPoisonTick: true,

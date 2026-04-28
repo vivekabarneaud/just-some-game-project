@@ -3,6 +3,7 @@ import { useGame } from "~/engine/gameState";
 import { getCurrentDeity, getSeasonDeities, getDeity } from "~/data/deities";
 import { IS_DEV, getGlobalSeason, SEASON_META } from "~/data/seasons";
 import { getTotalFood } from "~/data/foods";
+import Pantheon from "~/components/Pantheon";
 
 const RESOURCE_ICONS: Record<string, string> = {
   gold: "🪙", food: "🍖", wood: "🪵", stone: "🪨",
@@ -61,95 +62,78 @@ export default function Shrine() {
       </Show>
 
       <Show when={shrineLvl() > 0}>
-        {/* Current Deity */}
-        <div class="shrine-deity-card">
-          <div class="shrine-deity-header">
-            <span class="shrine-deity-icon">{currentDeity().icon}</span>
-            <div>
-              <h2 style={{ "font-family": "var(--font-heading)", color: "var(--accent-gold)", margin: 0 }}>
-                {currentDeity().name} {currentDeity().title}
-              </h2>
-              <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
-                Visiting the shrine · Changes in {timeUntilRotation()}
-              </div>
-            </div>
-          </div>
-
-          <p style={{ color: "var(--text-secondary)", "font-style": "italic", margin: "12px 0", "line-height": "1.5" }}>
-            "{currentDeity().description}"
-          </p>
-
-          {/* Offering */}
-          <div class="shrine-offering">
-            <div class="shrine-offering-label">Offering</div>
-            <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap", "margin-bottom": "10px" }}>
-              <For each={currentDeity().offeringCost}>
-                {(cost) => (
-                  <span class="quest-reward-item">
-                    {RESOURCE_ICONS[cost.resource] ?? ""} {cost.amount} {cost.resource}
-                  </span>
-                )}
-              </For>
-            </div>
-
-            <div class="shrine-blessing-preview">
-              <span class="shrine-offering-label">Blessing</span>
-              <span style={{ color: "var(--accent-green)", "font-size": "0.9rem" }}>
-                {currentDeity().blessingName}: {currentDeity().blessingDescription}
+        {/* Compact deity strip — single row with offering button */}
+        <div class="shrine-deity-strip">
+          <div class="shrine-deity-strip-icon">{currentDeity().icon}</div>
+          <div class="shrine-deity-strip-info">
+            <div class="shrine-deity-strip-name">
+              {currentDeity().name}
+              <span style={{ color: "var(--text-muted)", "margin-left": "6px", "font-weight": "normal" }}>
+                {currentDeity().title}
               </span>
             </div>
-
-            <Show when={isCurrentDeityActive()}>
-              <div style={{
-                padding: "8px 12px",
-                background: "rgba(46, 204, 113, 0.1)",
-                border: "1px solid var(--accent-green)",
-                "border-radius": "6px",
-                color: "var(--accent-green)",
-                "font-size": "0.85rem",
-                "text-align": "center",
-                "margin-top": "10px",
-              }}>
-                ✓ Blessing active — {currentDeity().blessingDescription}
-              </div>
-            </Show>
-
-            <Show when={!isCurrentDeityActive()}>
+            <div class="shrine-deity-strip-blessing">
+              <span style={{ color: "var(--accent-green)" }}>{currentDeity().blessingName}:</span>{" "}
+              <span style={{ color: "var(--text-secondary)" }}>{currentDeity().blessingDescription}</span>
+            </div>
+            <div class="shrine-deity-strip-offering">
+              <span style={{ color: "var(--text-muted)" }}>Offering:</span>{" "}
+              <For each={currentDeity().offeringCost}>
+                {(cost, i) => (
+                  <>
+                    {i() > 0 && <span style={{ color: "var(--text-muted)" }}>, </span>}
+                    <span>{RESOURCE_ICONS[cost.resource] ?? ""} {cost.amount}</span>
+                  </>
+                )}
+              </For>
+              <span style={{ color: "var(--text-muted)", "margin-left": "10px" }}>
+                · Changes in {timeUntilRotation()}
+              </span>
+            </div>
+          </div>
+          <div class="shrine-deity-strip-action">
+            <Show when={isCurrentDeityActive()} fallback={
               <button
                 class="upgrade-btn"
-                style={{ "margin-top": "10px" }}
                 disabled={!canAffordOffering()}
                 onClick={() => actions.makeOffering(currentDeity().id)}
+                style={{ padding: "6px 14px", "font-size": "0.85rem" }}
               >
                 Make Offering
               </button>
+            }>
+              <span style={{ color: "var(--accent-green)", "font-size": "0.85rem", "white-space": "nowrap" }}>
+                ✓ Blessed
+              </span>
             </Show>
           </div>
         </div>
 
-        {/* Active Blessing */}
+        {/* Carryover blessing from a different deity */}
         <Show when={activeBlessing() && !isCurrentDeityActive()}>
           <div style={{
-            padding: "12px 16px",
+            padding: "8px 14px",
             background: "rgba(46, 204, 113, 0.08)",
             border: "1px solid rgba(46, 204, 113, 0.3)",
-            "border-radius": "8px",
-            "margin-top": "16px",
-            "font-size": "0.85rem",
+            "border-radius": "6px",
+            "margin-top": "10px",
+            "font-size": "0.82rem",
           }}>
             <span style={{ color: "var(--accent-green)" }}>Active blessing:</span>{" "}
             <span style={{ color: "var(--text-primary)" }}>
               {activeBlessing()!.icon} {activeBlessing()!.blessingName} — {activeBlessing()!.blessingDescription}
             </span>
-            <span style={{ color: "var(--text-muted)", "margin-left": "8px" }}>
-              (from a previous offering, still active)
-            </span>
           </div>
         </Show>
 
-        {/* Season Calendar */}
-        <div style={{ "margin-top": "24px" }}>
-          <h2 style={{ "font-family": "var(--font-heading)", color: "var(--text-primary)", "margin-bottom": "12px" }}>
+        {/* Season Calendar — kept always visible at top, before the pantheon */}
+        <div style={{ "margin-top": "20px", "margin-bottom": "24px" }}>
+          <h2 style={{
+            "font-family": "var(--font-heading)",
+            color: "var(--text-primary)",
+            "margin-bottom": "10px",
+            "font-size": "1.05rem",
+          }}>
             Deity Calendar
           </h2>
           <div class="shrine-calendar">
@@ -174,6 +158,9 @@ export default function Shrine() {
             })}
           </div>
         </div>
+
+        {/* Pantheon — main content of the shrine */}
+        <Pantheon />
       </Show>
     </div>
   );

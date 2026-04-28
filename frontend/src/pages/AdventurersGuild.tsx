@@ -658,7 +658,13 @@ export default function AdventurersGuild() {
                           title={template().name}
                           victory={am.prerolledCombat!.victory}
                           onFinished={() => actions.markCombatViewed(am.missionId)}
-                          onClose={() => setPlaybackOpen(false)}
+                          onClose={() => {
+                            setPlaybackOpen(false);
+                            // For a wiped mission, the engine's tick is waiting
+                            // on this close before zeroing remaining (so the
+                            // modal didn't unmount mid-watch). Zero it now.
+                            if (am.wiped) actions.acknowledgeWipeCompletion(am.missionId);
+                          }}
                         />
                       </Show>
                       <Show when={template().rewards?.length > 0}>

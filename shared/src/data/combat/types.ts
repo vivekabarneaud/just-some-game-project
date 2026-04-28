@@ -30,7 +30,7 @@ export interface CombatUnit {
   cooldowns: Record<string, number>;
   tauntedBy?: string;
   slowed: number;
-  poisonTicks: { damage: number; rounds: number }[];
+  poisonTicks: { damage: number; rounds: number; sourceName?: string; sourceIcon?: string }[];
   shieldWallUsed?: boolean;
   enemyAbilities?: EnemyAbility[];
   combatPotion?: CombatPotionEffect;

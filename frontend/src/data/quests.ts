@@ -159,7 +159,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     rewards: [{ resource: "wood", amount: 50, label: "Wood" }, { resource: "stone", amount: 30, label: "Stone" }],
     targetBuildingId: "pantry",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/pantry.png",
-    chronicleEntryId: "ch1_nell_notebook",
+    // chronicleEntryId disabled — see chronicle_entries.ts comment
     unlocksBioFragments: ["edda_pantry"],
   },
   // 9 — The Rough Altar (Father Corin)
@@ -407,7 +407,7 @@ export const QUEST_CHAIN: QuestDefinition[] = [
       { resource: "stone", amount: 167, label: "Stone" },
       { resource: "astralShards", amount: 5, label: "Astral Shards" },
     ],
-    chronicleEntryId: "ch1_stable_now",
+    // chronicleEntryId disabled — see chronicle_entries.ts comment
   },
   // 24 — Bandits spotted (triggers a weak, slow raid)
   {

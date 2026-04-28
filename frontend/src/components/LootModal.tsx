@@ -1,4 +1,5 @@
 import { createSignal, For, Show } from "solid-js";
+import { A } from "@solidjs/router";
 import type { CompletedMission } from "@medieval-realm/shared/data/missions";
 import { formatReward, getMission } from "@medieval-realm/shared/data/missions";
 import { STORY_CINEMATICS } from "~/data/cinematics";
@@ -193,6 +194,12 @@ export default function LootModal(props: Props) {
                   <div style={{ color: "var(--accent-red)" }}>
                     🪦 Fallen: <strong>{r().casualties.join(", ")}</strong>
                   </div>
+                  <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "font-style": "italic" }}>
+                    {r().casualties.length === 1 ? "They have" : "They have"} been laid to rest.{" "}
+                    <A href="/shrine" style={{ color: "var(--accent-gold)" }}>
+                      Visit the shrine →
+                    </A>
+                  </div>
                 </Show>
                 <Show when={r().revived.length > 0}>
                   <div style={{ color: "#9b59b6" }}>
@@ -270,7 +277,7 @@ export default function LootModal(props: Props) {
           >
             {hasRewards()
               ? (hasStoryCinematic() ? "Claim & Continue Story" : "Claim rewards")
-              : "Dismiss"}
+              : (r().casualties.length > 0 ? "Close" : "Dismiss")}
           </button>
         </div>
       </div>

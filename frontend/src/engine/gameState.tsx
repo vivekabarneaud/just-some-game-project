@@ -509,6 +509,7 @@ export interface GameActions {
   skipRaidTimer: () => void;
   skipMissionTimers: () => void;
   markCombatViewed: (missionId: string) => void;
+  acknowledgeWipeCompletion: (missionId: string) => void;
   devAddShards: (amount: number) => void;
   trade: (give: string, giveAmount: number, receive: string, receiveAmount: number) => boolean;
 }
@@ -2330,11 +2331,14 @@ export function GameProvider(props: ParentProps) {
             }
 
             // Wipe shortcut: a non-expedition mission whose entire team will
-            // permadie has no team to make the return trip — once combat
-            // resolves (viewed or 2-min cap), zero the timer so the mission
-            // wraps up immediately instead of waiting through the homeward
-            // phase. getMissionPhase returns "homeward" when combat is over.
-            if (am.wiped && am.remaining > 0) {
+            // permadie has no team to make the return trip. Two cases:
+            //   - Player engaged with the watch modal → wait for them to
+            //     close it before zeroing (handled by acknowledgeWipeCompletion
+            //     action); this gate prevents the modal from being unmounted
+            //     mid-watch when phase shifts to homeward.
+            //   - AFK / 2-min cap fired → combatViewed stays false; we zero
+            //     here so the mission still wraps up.
+            if (am.wiped && am.remaining > 0 && !am.combatViewed) {
               const phase = getMissionPhase(am);
               if (phase === "homeward") am.remaining = 0;
             }
@@ -2361,6 +2365,11 @@ export function GameProvider(props: ParentProps) {
               const revived: string[] = [];
               const levelUps: string[] = [];
               const rankUps: { name: string; newRank: string }[] = [];
+              // ID-based set of dead adventurers, used by all the post-death
+              // gates below (XP, loyalty, assassin survivor rewards). The
+              // pre-existing `casualties.includes(adv.id)` checks were buggy
+              // because casualties stores names, not IDs.
+              const deadIdsSet = new Set<string>();
 
               // Expeditions: compute fallen from HP at end of mission. Regular missions: use combat result.
               const expeditionFallenIds = isExped
@@ -2415,14 +2424,23 @@ export function GameProvider(props: ParentProps) {
                 }
 
                 // Apply deaths. Stamps the death record onto the adventurer
-                // so the pantheon page can read it later.
+                // so the pantheon page can read it later. Season/year are
+                // captured here (at completion) since they reflect when the
+                // settlement actually receives the news.
                 const records = am.deathRecords ?? {};
                 for (const id of deadIds) {
+                  deadIdsSet.add(id);
                   const advInState = s.adventurers.find((a) => a.id === id);
                   casualties.push(advInState?.name ?? id);
                   if (advInState) {
                     advInState.alive = false;
-                    if (records[id]) advInState.deathRecord = records[id];
+                    if (records[id]) {
+                      advInState.deathRecord = {
+                        ...records[id],
+                        season: s.season,
+                        year: s.year,
+                      };
+                    }
                     // Equipment lost on death
                     advInState.equipment = { head: null, chest: null, legs: null, boots: null, cloak: null, mainHand: null, offHand: null, ring1: null, ring2: null, amulet: null, trinket: null };
                   }
@@ -2436,7 +2454,7 @@ export function GameProvider(props: ParentProps) {
                   rewards = calcAssassinBonusRewards(template, team);
                 } else {
                   // Assassin partial loot on failure
-                  const survivors = team.filter((a) => !casualties.includes(a.id));
+                  const survivors = team.filter((a) => !deadIdsSet.has(a.id));
                   rewards = calcAssassinFailRewards(template, team, survivors);
                 }
                 // Expeditions: add rewards accumulated from events (treasure, encounter outcomes, combat loot)
@@ -2480,7 +2498,7 @@ export function GameProvider(props: ParentProps) {
               const deployedSize = Math.max(1, team.length);
               const perAdvBase = (baseXp * totalSlots) / deployedSize;
               for (const adv of team) {
-                if (!casualties.includes(adv.id)) {
+                if (!deadIdsSet.has(adv.id)) {
                   const advInState = s.adventurers.find((a) => a.id === adv.id);
                   if (advInState) {
                     const equipStats = getEquipmentStats(advInState.equipment);
@@ -2500,7 +2518,7 @@ export function GameProvider(props: ParentProps) {
               // Grant loyalty to surviving adventurers
               const isDangerous = template ? template.difficulty >= 4 : false;
               for (const adv of team) {
-                if (!casualties.includes(adv.id)) {
+                if (!deadIdsSet.has(adv.id)) {
                   const advInState = s.adventurers.find((a) => a.id === adv.id);
                   if (advInState) {
                     const oldLoyalty = advInState.loyalty ?? 0;
@@ -2626,8 +2644,9 @@ export function GameProvider(props: ParentProps) {
           }
         }
 
-        // Remove dead adventurers from roster
-        s.adventurers = s.adventurers.filter((a) => a.alive);
+        // Dead adventurers are kept in state.adventurers (with alive: false)
+        // so the Pantheon can read them. All live-roster queries already
+        // filter on `alive` so they don't appear in the active guild list.
 
         // ── Raid system tick ──
         const tier = getSettlementTier(getTownHallLevel(s.buildings));
@@ -3224,8 +3243,15 @@ export function GameProvider(props: ParentProps) {
           // Shield Wall / Priest Divine Grace passives.
           const fallenSet = new Set(combat.fallenAdventurerIds);
           const deadIds: string[] = [];
+          // TEMP: forcing 100% permadeath for pantheon testing — every fallen-in-combat
+          // adventurer permadies. Revert this guard before shipping.
+          const TEMP_FORCE_PERMADEATH = true;
           for (const adv of team) {
             if (!fallenSet.has(adv.id)) continue; // survived combat → no death risk
+            if (TEMP_FORCE_PERMADEATH) {
+              deadIds.push(adv.id);
+              continue;
+            }
             const baseChance = calcDeathChance(template, team, adv);
             if (Math.random() * 100 < baseChance * 1.5) deadIds.push(adv.id);
           }
@@ -4288,6 +4314,19 @@ export function GameProvider(props: ParentProps) {
       setState(produce((s) => {
         const m = s.activeMissions.find((am) => am.missionId === missionId);
         if (m) m.combatViewed = true;
+      }));
+      scheduleSave();
+    },
+    acknowledgeWipeCompletion(missionId) {
+      // Called when the player closes the combat playback modal for a wiped
+      // mission. Zeros remaining so the mission completes; the modal has
+      // already closed so the unmount doesn't surprise the player.
+      setState(produce((s) => {
+        const m = s.activeMissions.find((am) => am.missionId === missionId);
+        if (m?.wiped) {
+          m.combatViewed = true;
+          m.remaining = 0;
+        }
       }));
       scheduleSave();
     },

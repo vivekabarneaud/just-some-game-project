@@ -54,30 +54,38 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "The others are sleeping. The fire is low. I am writing because I do not know what else a man does with the first night of the rest of his life.",
     cinematicId: "intro",
   },
-  {
-    id: "ch1_nell_notebook",
-    chapterId: "ch1",
-    order: 2,
-    title: "Nell's Notebook",
-    teaser: "Winter is closer than it should be. She keeps her own book. He would not ask.",
-    fullText:
-      "Winter feels closer than it should. I caught myself today counting the shelves in the pantry instead of the people who would eat from them. Edda would call that lordly, and she would not mean it as a compliment.\n\n" +
-      "Nell has been writing in her little book again. She will not show me, and I would not ask — I gave it to her on her tenth birthday with the understanding that it was hers alone.\n\n" +
-      "But I see her some evenings: the stubby pencil between her teeth, her knees pulled up, the book balanced on them, her eyes tracking something I cannot see. Jory asked her tonight what she was writing. She said, very seriously: \"Things.\"\n\n" +
-      "I thought, not for the first time, that she will be better at this than I am.",
-  },
-  {
-    id: "ch1_stable_now",
-    chapterId: "ch1",
-    order: 3,
-    title: "We Are Stable Now",
-    teaser: "Cooked food under a roof. Six still. A word for this week.",
-    fullText:
-      "Tonight we ate cooked food under a roof. Only two roofs, really, and one of them leaked — Tomas has already said what he thinks about the leak — but a roof.\n\n" +
-      "The wood pile is longer than my shoulder. The quarry has given us three good blocks and a fourth that Tomas called \"honest work, poor stone.\" The well is dug. Edda has a garden patch no bigger than a bedsheet and she has already forbidden any of us from walking near it. Father Corin reads from his hymnal most evenings, which is how I know what day of the week it is.\n\n" +
-      "We are not safe. I do not pretend we are safe. There are nights I lie awake listening for something I cannot name, and mornings I count the six of us before I do anything else.\n\n" +
-      "But we are stable. That is a word for this week. Next week will have its own.",
-  },
+  // ─── Disabled until rewritten to match the current chronicle voice ───
+  // The entries below were authored before the founding-cast voice pass
+  // (Edda fragments, Jory retcon, Tomas/Corin polish). Surfacing them on
+  // pantry build / settlement upgrade lands "out of the blue" — the
+  // player hasn't earned the depth they assume. Re-enable individually
+  // once the prose has been redone in the locked Lord voice. The quest
+  // wires that triggered them have been removed (see quests.ts).
+  //
+  // {
+  //   id: "ch1_nell_notebook",
+  //   chapterId: "ch1",
+  //   order: 2,
+  //   title: "Nell's Notebook",
+  //   teaser: "Winter is closer than it should be. She keeps her own book. He would not ask.",
+  //   fullText:
+  //     "Winter feels closer than it should. I caught myself today counting the shelves in the pantry instead of the people who would eat from them. Edda would call that lordly, and she would not mean it as a compliment.\n\n" +
+  //     "Nell has been writing in her little book again. She will not show me, and I would not ask — I gave it to her on her tenth birthday with the understanding that it was hers alone.\n\n" +
+  //     "But I see her some evenings: the stubby pencil between her teeth, her knees pulled up, the book balanced on them, her eyes tracking something I cannot see. Jory asked her tonight what she was writing. She said, very seriously: \"Things.\"\n\n" +
+  //     "I thought, not for the first time, that she will be better at this than I am.",
+  // },
+  // {
+  //   id: "ch1_stable_now",
+  //   chapterId: "ch1",
+  //   order: 3,
+  //   title: "We Are Stable Now",
+  //   teaser: "Cooked food under a roof. Six still. A word for this week.",
+  //   fullText:
+  //     "Tonight we ate cooked food under a roof. Only two roofs, really, and one of them leaked — Tomas has already said what he thinks about the leak — but a roof.\n\n" +
+  //     "The wood pile is longer than my shoulder. The quarry has given us three good blocks and a fourth that Tomas called \"honest work, poor stone.\" The well is dug. Edda has a garden patch no bigger than a bedsheet and she has already forbidden any of us from walking near it. Father Corin reads from his hymnal most evenings, which is how I know what day of the week it is.\n\n" +
+  //     "We are not safe. I do not pretend we are safe. There are nights I lie awake listening for something I cannot name, and mornings I count the six of us before I do anything else.\n\n" +
+  //     "But we are stable. That is a word for this week. Next week will have its own.",
+  // },
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────────

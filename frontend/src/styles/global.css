@@ -2263,6 +2263,117 @@ body {
   border-radius: 3px;
 }
 
+/* Compact deity strip — replaces the big shrine-deity-card on the new layout */
+.shrine-deity-strip {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+.shrine-deity-strip-icon {
+  font-size: 2.4rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.shrine-deity-strip-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.shrine-deity-strip-name {
+  font-family: var(--font-heading);
+  color: var(--accent-gold);
+  font-size: 1.05rem;
+  font-weight: bold;
+}
+.shrine-deity-strip-blessing {
+  font-size: 0.85rem;
+}
+.shrine-deity-strip-offering {
+  font-size: 0.78rem;
+}
+.shrine-deity-strip-action {
+  flex-shrink: 0;
+}
+
+/* ─── Pantheon (memorial wall in the shrine) ─── */
+.pantheon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+.pantheon-card {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  position: relative;
+}
+.pantheon-card::before {
+  /* candle/vignette — subtle warm glow at the top corner of each card */
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 50%;
+  height: 50%;
+  background: radial-gradient(ellipse at top right, rgba(245, 197, 66, 0.06), transparent 70%);
+  pointer-events: none;
+  border-radius: 8px;
+}
+.pantheon-card-portrait {
+  width: 72px;
+  height: 96px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 4px;
+  /* Faded — desaturated and dimmed to feel like a memorial portrait */
+  filter: grayscale(0.85) brightness(0.65) contrast(0.9);
+}
+.pantheon-card-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+}
+.pantheon-card-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.pantheon-card-name {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: bold;
+}
+.pantheon-card-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.pantheon-card-flavor {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  line-height: 1.4;
+  margin-top: 4px;
+}
+.pantheon-card-date {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: auto;
+  padding-top: 4px;
+}
+
 .shrine-calendar-deity.active {
   color: var(--accent-gold);
   background: rgba(245, 197, 66, 0.1);
