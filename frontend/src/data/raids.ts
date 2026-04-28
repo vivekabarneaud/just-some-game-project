@@ -277,9 +277,13 @@ export function calcDefense(
   adventurers: Adventurer[],
   population: number,
 ): DefenseBreakdown {
-  const watchtowerLvl = buildings.find((b) => b.buildingId === "watchtower")?.level ?? 0;
-  const barracksLvl = buildings.find((b) => b.buildingId === "barracks")?.level ?? 0;
-  const wallsLvl = buildings.find((b) => b.buildingId === "walls")?.level ?? 0;
+  // Damaged defensive buildings contribute zero — repair them to restore protection.
+  const watchtowerB = buildings.find((b) => b.buildingId === "watchtower");
+  const barracksB = buildings.find((b) => b.buildingId === "barracks");
+  const wallsB = buildings.find((b) => b.buildingId === "walls");
+  const watchtowerLvl = !watchtowerB?.damaged ? (watchtowerB?.level ?? 0) : 0;
+  const barracksLvl = !barracksB?.damaged ? (barracksB?.level ?? 0) : 0;
+  const wallsLvl = !wallsB?.damaged ? (wallsB?.level ?? 0) : 0;
 
   const homeAdventurers = adventurers.filter((a) => a.alive && !a.onMission);
   // Adventurers give a small bonus — buildings are the main defense

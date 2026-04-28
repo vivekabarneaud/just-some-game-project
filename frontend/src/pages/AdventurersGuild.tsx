@@ -148,6 +148,10 @@ export default function AdventurersGuild() {
   };
   const [storyCinematic, setStoryCinematic] = createSignal<CinematicSlide[] | null>(null);
   const [lootModalIndex, setLootModalIndex] = createSignal<number | null>(null);
+  /** Snapshot of the completed mission shown in the modal — used so the modal
+   *  can display data even after the underlying card has been dismissed
+   *  (failure path) or claimed (success path). */
+  const [lootResult, setLootResult] = createSignal<import("@medieval-realm/shared/data/missions").CompletedMission | null>(null);
   /** Pending coop claim awaiting user confirm in the loot modal — null when not showing. */
   const [coopClaimModal, setCoopClaimModal] = createSignal<CompletedMission | null>(null);
 
@@ -182,21 +186,40 @@ export default function AdventurersGuild() {
     }
   };
 
-  /** Open the loot modal for a completed mission. Rewards apply only on modal Confirm. */
+  /** Open the loot modal for a completed mission.
+   *  - Success (has rewards): keep the card around; Claim applies rewards on confirm.
+   *  - Failure (no rewards): dismiss the card immediately so it disappears from
+   *    the results list. The modal stays open with a snapshot so the player
+   *    can still review combat/casualties before closing.
+   */
   const handleClaim = (index: number) => {
     const result = state.completedMissions[index];
     if (!result) return;
-    setLootModalIndex(index);
+    if (result.rewards.length === 0) {
+      // Snapshot the result for the modal, then immediately dismiss the card.
+      // The modal renders from `lootResult` (snapshot), not from the index.
+      setLootResult({ ...result });
+      setLootModalIndex(null);
+      actions.claimMissionReward(index);
+    } else {
+      setLootResult(result);
+      setLootModalIndex(index);
+    }
   };
 
   const confirmLootClaim = () => {
     const idx = lootModalIndex();
-    if (idx === null) return;
+    // Failure path already dismissed the card on open — just close the modal.
+    if (idx === null) {
+      setLootResult(null);
+      return;
+    }
     const result = state.completedMissions[idx];
-    if (!result) { setLootModalIndex(null); return; }
+    if (!result) { setLootModalIndex(null); setLootResult(null); return; }
     const cinematic = STORY_CINEMATICS[result.missionId];
     actions.claimMissionReward(idx);
     setLootModalIndex(null);
+    setLootResult(null);
     if (cinematic) setStoryCinematic(cinematic);
   };
   const guildLevel = () => actions.getGuildLevel();
@@ -244,13 +267,14 @@ export default function AdventurersGuild() {
         )}
       </Show>
 
-      {/* Loot modal for completed missions */}
-      <Show when={lootModalIndex() !== null && state.completedMissions[lootModalIndex()!]}>
+      {/* Loot modal for completed missions — driven by the snapshot signal so
+          it survives the underlying card being removed (failure path). */}
+      <Show when={lootResult()}>
         {(result) => (
           <LootModal
             result={result()}
             onConfirm={confirmLootClaim}
-            onClose={() => setLootModalIndex(null)}
+            onClose={() => { setLootModalIndex(null); setLootResult(null); }}
           />
         )}
       </Show>

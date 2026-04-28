@@ -358,7 +358,7 @@ export default function Buildings() {
                         {pb()?.damaged && (
                           <div style={{ display: "flex", "align-items": "center", "justify-content": "space-between", gap: "8px" }}>
                             <div class="building-card-upgrading" style={{ color: "var(--accent-red)" }}>
-                              Damaged — not producing
+                              Damaged — Inactive
                             </div>
                             {(() => {
                               const cost = getRepairCost(building, level());

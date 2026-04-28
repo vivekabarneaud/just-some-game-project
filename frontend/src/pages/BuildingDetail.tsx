@@ -257,7 +257,7 @@ export default function BuildingDetail() {
                   "border-radius": "6px",
                 }}>
                   <div style={{ color: "var(--accent-red)", "margin-bottom": "8px" }}>
-                    This building is damaged and not producing! Repair it to restore function.
+                    This building is damaged and inactive. Repair it to restore function.
                   </div>
                   <button
                     class="upgrade-btn"
