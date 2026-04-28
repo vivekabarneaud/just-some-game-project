@@ -24,27 +24,58 @@ import HpBar from "~/components/HpBar";
 const RINGS: DefenseRing[] = ["outer", "middle", "inner"];
 
 const R2_BASE = "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings";
-const IMG = {
+// Only walls.png and watchtower.png are on R2 today; barracks/mage_tower
+// fall back to the icon-header layout until their art is generated.
+const IMG: Record<string, string | undefined> = {
   wall: `${R2_BASE}/walls.png`,
   watchtower: `${R2_BASE}/watchtower.png`,
-  barracks: `${R2_BASE}/barracks.png`,
-  mageTower: `${R2_BASE}/mage_tower.png`,
+  barracks: undefined,
+  mageTower: undefined,
 };
 
-/** Compact banner thumbnail shown at the top of each defense card. */
-function CardImage(props: { src: string; alt: string }) {
+/** Header for a defense card — mirrors the Buildings page pattern: image with
+ *  overlay when art exists, icon-and-title row when it doesn't. */
+function DefenseCardHeader(props: {
+  image?: string;
+  icon: string;
+  name: string;
+  level: number;
+  /** Optional small badge appended to the level line (e.g. "Damaged"). */
+  statusBadge?: string;
+}) {
   return (
-    <img
-      src={props.src}
-      alt={props.alt}
-      style={{
-        width: "100%",
-        height: "70px",
-        "object-fit": "cover",
-        "border-radius": "4px",
-        "margin-bottom": "6px",
-      }}
-    />
+    <Show
+      when={props.image}
+      fallback={
+        <div class="building-card-header">
+          <div class="building-card-icon">{props.icon}</div>
+          <div>
+            <div class="building-card-title">{props.name}</div>
+            <div class="building-card-level" classList={{ "not-built": props.level === 0 }}>
+              {props.level === 0 ? "Not built" : `Level ${props.level}`}
+              <Show when={props.statusBadge}>
+                <span style={{ color: "var(--accent-red)", "margin-left": "6px" }}>· {props.statusBadge}</span>
+              </Show>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <div class="building-card-image">
+        <img src={props.image!} alt={props.name} loading="lazy" />
+        <div class="building-card-image-overlay">
+          <div>
+            <div class="building-card-title">{props.name}</div>
+            <div class="building-card-level" classList={{ "not-built": props.level === 0 }}>
+              {props.level === 0 ? "Not built" : `Level ${props.level}`}
+              <Show when={props.statusBadge}>
+                <span style={{ color: "var(--accent-red)", "margin-left": "6px" }}>· {props.statusBadge}</span>
+              </Show>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Show>
   );
 }
 
@@ -168,8 +199,16 @@ function WallCard(props: { wall: PlayerWall; ring: DefenseRing; disabled: boolea
 
   return (
     <div class="building-card">
-      <CardImage src={IMG.wall} alt="Wall" />
-      <div class="building-card-title">🧱 {built() ? `Wall (Lv.${props.wall.level})` : "Wall — unbuilt"}</div>
+      <DefenseCardHeader
+        image={IMG.wall}
+        icon="🧱"
+        name="Wall"
+        level={props.wall.level}
+        statusBadge={damaged() ? "Damaged" : undefined}
+      />
+      <div class="building-card-desc">
+        Soaks damage during a siege. Once it falls, raiders push to the next ring.
+      </div>
       <Show when={built()}>
         <div style={{ "margin-top": "6px", display: "flex", "align-items": "center", gap: "6px" }}>
           <HpBar current={props.wall.hp} max={fullHp()} width="100px" showText />
@@ -239,14 +278,15 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
 
   return (
     <div class="building-card">
-      <CardImage src={IMG.watchtower} alt="Watchtower" />
-      <div class="building-card-title">
-        🏰 {built() ? `Watchtower (Lv.${props.tower.level})` : "Watchtower — unbuilt"}
-        <Show when={props.tower.damaged}>
-          <span style={{ color: "var(--accent-red)", "font-size": "0.75rem", "margin-left": "6px" }}>
-            Damaged
-          </span>
-        </Show>
+      <DefenseCardHeader
+        image={IMG.watchtower}
+        icon="🏰"
+        name="Watchtower"
+        level={props.tower.level}
+        statusBadge={props.tower.damaged ? "Damaged" : undefined}
+      />
+      <div class="building-card-desc">
+        Sentinels spot raids early and rain arrows during a siege. Higher levels see further.
       </div>
       <Show when={built()}>
         <div style={{ "margin-top": "4px", "font-size": "0.78rem", color: "var(--text-muted)" }}>
@@ -343,14 +383,15 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
 
   return (
     <div class="building-card">
-      <CardImage src={IMG.barracks} alt="Barracks" />
-      <div class="building-card-title">
-        ⚔️ {built() ? `Barracks (Lv.${props.barracks.level})` : "Barracks — unbuilt"}
-        <Show when={props.barracks.damaged}>
-          <span style={{ color: "var(--accent-red)", "font-size": "0.75rem", "margin-left": "6px" }}>
-            Damaged
-          </span>
-        </Show>
+      <DefenseCardHeader
+        image={IMG.barracks}
+        icon="⚔️"
+        name="Barracks"
+        level={props.barracks.level}
+        statusBadge={props.barracks.damaged ? "Damaged" : undefined}
+      />
+      <div class="building-card-desc">
+        Trains and houses soldiers. Each level adds 3 melee slots; soldiers fight when the wall breaks.
       </div>
       <Show when={built()}>
         <div style={{ "margin-top": "4px", "font-size": "0.78rem", color: "var(--text-muted)" }}>
@@ -435,14 +476,15 @@ function MageTowerCard(props: { disabled: boolean }) {
 
   return (
     <div class="building-card">
-      <CardImage src={IMG.mageTower} alt="Mage Tower" />
-      <div class="building-card-title">
-        🗼 {built() ? `Mage Tower (Lv.${state.mageTower.level})` : "Mage Tower — unbuilt"}
-        <Show when={state.mageTower.damaged}>
-          <span style={{ color: "var(--accent-red)", "font-size": "0.75rem", "margin-left": "6px" }}>
-            Damaged
-          </span>
-        </Show>
+      <DefenseCardHeader
+        image={IMG.mageTower}
+        icon="🗼"
+        name="Mage Tower"
+        level={state.mageTower.level}
+        statusBadge={state.mageTower.damaged ? "Damaged" : undefined}
+      />
+      <div class="building-card-desc">
+        A spire of arcane research stationed inside the keep. Each level unlocks deeper enchanting recipes.
       </div>
       <Show when={built()}>
         <div style={{ "margin-top": "4px", "font-size": "0.78rem", color: "var(--text-muted)" }}>
