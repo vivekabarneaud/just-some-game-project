@@ -275,6 +275,9 @@ export function simulateRaidCombat(input: RaidCombatInput): RaidCombatResult {
   // ── Run the siege, ring by ring ──────────────────────────────
   const log: CombatLogEntry[] = [];
   let round = 0;
+  // Walls untouched by the sim (because the raid never reached them) keep
+  // their incoming HP. Filled in as each ring's combat resolves.
+  const wallFinalHpByRing: Record<DefenseRing, number | undefined> = { outer: undefined, middle: undefined, inner: undefined };
 
   for (const ring of RING_ORDER) {
     if (raiders.every((r) => r.hp <= 0)) break;
@@ -344,10 +347,7 @@ export function simulateRaidCombat(input: RaidCombatInput): RaidCombatResult {
     }
 
     // Record final wall HP for this ring (if it had a wall)
-    if (wall) {
-      const wallInput = input.walls.find((w) => w.ring === ring);
-      if (wallInput) wallInput.hp = wall.hp; // mutate for output assembly below
-    }
+    if (wall) wallFinalHpByRing[ring] = wall.hp;
   }
 
   setCombatSeed(undefined);
@@ -357,7 +357,12 @@ export function simulateRaidCombat(input: RaidCombatInput): RaidCombatResult {
   const raidersKilled = raiders.length - raidersAlive;
   const victory = raidersAlive === 0;
 
-  const wallFinalHp = input.walls.map((w) => ({ ring: w.ring, hp: w.hp }));
+  // Each wall in the input gets a final HP — sim-affected rings reflect
+  // combat damage, untouched rings keep their incoming HP.
+  const wallFinalHp = input.walls.map((w) => ({
+    ring: w.ring,
+    hp: wallFinalHpByRing[w.ring] ?? w.hp,
+  }));
 
   // Damage flag: ≥half the staffed archers/soldiers fell at this ring
   const damagedTowerRings: DefenseRing[] = [];

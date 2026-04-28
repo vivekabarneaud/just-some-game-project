@@ -216,7 +216,6 @@ import {
   getRaid,
   calcDefense,
   calcWarningTime,
-  resolveRaid,
   spawnRaid,
   getRaidChance,
   type DefenseBreakdown,
@@ -228,6 +227,7 @@ import { EXOTIC_IDS } from "@medieval-realm/shared/data/exotics";
 import { ALCHEMY_RECIPES, getDiscoverableRecipes, getAvailableAlchemyRecipes, RESEARCH_BASE_COST } from "@medieval-realm/shared/data/alchemy_recipes";
 import { getDeity, getCurrentDeity } from "~/data/deities";
 import { simulateCombat } from "@medieval-realm/shared/data/combat";
+import { simulateRaidCombat } from "@medieval-realm/shared/data/raidCombat";
 import { canUnlockTalent } from "~/data/talents";
 import { getEnchantment } from "~/data/enchantments";
 import {
@@ -583,6 +583,7 @@ export interface GameActions {
   skipMissionTimers: () => void;
   markCombatViewed: (missionId: string) => void;
   acknowledgeWipeCompletion: (missionId: string) => void;
+  acknowledgeRaidCombat: (raidId: string) => void;
   devAddShards: (amount: number) => void;
   trade: (give: string, giveAmount: number, receive: string, receiveAmount: number) => boolean;
 }
@@ -1792,26 +1793,45 @@ export function GameProvider(props: ParentProps) {
           serverState.lastTick = Date.now();
         }
         // Resolve expired raids directly (server tick counts down but never resolves)
-        // This runs BEFORE setState to guarantee resolution even if applyTicks throws later
+        // This runs BEFORE setState to guarantee resolution even if applyTicks throws later.
+        // Offline-resolved raids skip playback — too disruptive to bury the
+        // returning player in N replay overlays. Apply outcomes silently.
         if (serverState.incomingRaids?.length) {
           for (let i = serverState.incomingRaids.length - 1; i >= 0; i--) {
             const ir = serverState.incomingRaids[i];
             if (ir.remaining <= 0) {
               const template = getRaid(ir.raidId);
-              if (template) {
-                const homeAdvs = (serverState.adventurers ?? []).filter((a: any) => a.alive && !a.onMission);
-                const defense = calcDefense(serverState.walls, serverState.watchtowers, serverState.barracks, homeAdvs, serverState.population);
-                const result = resolveRaid({
-                  raid: template,
-                  raidStrength: ir.strength,
-                  defense,
-                  resources: { ...serverState.resources, food: getTotalFood(serverState.foods) },
-                  population: serverState.population,
-                  homeAdventurers: homeAdvs,
+              if (template && template.encounters?.length) {
+                const sim = simulateRaidCombat({
+                  raidId: ir.raidId,
+                  encounters: template.encounters,
+                  walls: (serverState.walls ?? []).map((w: any) => ({ ring: w.ring, level: w.level, hp: w.hp, maxHp: w.level * WALL_BASE_HP })),
+                  watchtowers: (serverState.watchtowers ?? []).map((t: any) => ({ ring: t.ring, level: t.level, damaged: t.damaged })),
+                  barracks: (serverState.barracks ?? []).map((b: any) => ({ ring: b.ring, level: b.level, damaged: b.damaged })),
+                  totalArchers: serverState.archers ?? 0,
+                  totalSoldiers: serverState.soldiers ?? 0,
                 });
-                // Apply results directly to server state
-                if (result.victory) {
-                  for (const loot of result.loot) {
+
+                // Apply sim after-state
+                for (const wf of sim.wallFinalHp) {
+                  const w = serverState.walls?.find((x: any) => x.ring === wf.ring);
+                  if (w) w.hp = wf.hp;
+                }
+                for (const ring of sim.damagedTowerRings) {
+                  const t = serverState.watchtowers?.find((x: any) => x.ring === ring);
+                  if (t) t.damaged = true;
+                }
+                for (const ring of sim.damagedBarracksRings) {
+                  const b = serverState.barracks?.find((x: any) => x.ring === ring);
+                  if (b) b.damaged = true;
+                }
+                serverState.archers = Math.max(0, (serverState.archers ?? 0) - sim.archersLost);
+                serverState.soldiers = Math.max(0, (serverState.soldiers ?? 0) - sim.soldiersLost);
+                serverState.population = Math.max(BASE_POPULATION, serverState.population - sim.archersLost - sim.soldiersLost);
+
+                const raidName = template.name ?? ir.raidId;
+                if (sim.victory) {
+                  for (const loot of template.victoryLoot) {
                     if (loot.resource === "astralShards") {
                       serverState.astralShards += loot.amount;
                     } else {
@@ -1820,33 +1840,36 @@ export function GameProvider(props: ParentProps) {
                     }
                   }
                 } else {
-                  serverState.resources.gold = Math.max(0, serverState.resources.gold - result.resourcesLost.gold);
-                  serverState.resources.wood = Math.max(0, serverState.resources.wood - result.resourcesLost.wood);
-                  serverState.resources.stone = Math.max(0, serverState.resources.stone - result.resourcesLost.stone);
-                  if (serverState.foods) consumeFood(serverState.foods, result.resourcesLost.food);
-                  serverState.population = Math.max(BASE_POPULATION, serverState.population - result.citizensLost);
-                  // Damage buildings
+                  const stealPct = template.resourceStealPercent;
+                  serverState.resources.gold = Math.max(0, serverState.resources.gold - Math.floor(serverState.resources.gold * stealPct));
+                  serverState.resources.wood = Math.max(0, serverState.resources.wood - Math.floor(serverState.resources.wood * stealPct));
+                  serverState.resources.stone = Math.max(0, serverState.resources.stone - Math.floor(serverState.resources.stone * stealPct));
+                  if (serverState.foods) consumeFood(serverState.foods, Math.floor(getTotalFood(serverState.foods) * stealPct));
+                  if (template.killsCitizens) {
+                    const extra = Math.min(template.maxCitizenLoss, Math.max(1, Math.floor(serverState.population * 0.1)));
+                    serverState.population = Math.max(BASE_POPULATION, serverState.population - extra);
+                  }
+                  // Damage 1-3 random buildings
                   const damageable = serverState.buildings.filter((b: any) => b.level > 0 && !b.damaged && b.buildingId !== "town_hall");
-                  const damageCount = Math.min(damageable.length, result.buildingsDamaged ?? 1);
+                  const damageCount = Math.min(damageable.length, 1 + Math.floor(Math.random() * 3));
                   for (let d = 0; d < damageCount; d++) {
+                    if (damageable.length === 0) break;
                     const idx = Math.floor(Math.random() * damageable.length);
                     damageable[idx].damaged = true;
                     damageable.splice(idx, 1);
                   }
                 }
-                if (!serverState.raidLog) serverState.raidLog = [];
-                serverState.raidLog.push(result);
-                serverState.lastRaidOutcome = result.victory ? "victory" : "defeat";
+
+                serverState.lastRaidOutcome = sim.victory ? "victory" : "defeat";
                 serverState.lastRaidTime = 0;
                 serverState.raidsResolvedCount = (serverState.raidsResolvedCount ?? 0) + 1;
                 if (!serverState.eventLog) serverState.eventLog = [];
-                const raidName = template.name ?? ir.raidId;
                 serverState.eventLog.unshift({
-                  type: result.victory ? "raid_victory" : "raid_defeat",
-                  icon: result.victory ? "🛡️" : "💔",
-                  message: result.victory
-                    ? `Repelled ${raidName}! Loot: ${result.loot.map((l: any) => `+${l.amount} ${l.resource}`).join(", ")}`
-                    : `Defeated by ${raidName}! Resources stolen, buildings damaged.`,
+                  type: sim.victory ? "raid_victory" : "raid_defeat",
+                  icon: sim.victory ? "🛡️" : "💔",
+                  message: sim.victory
+                    ? `Repelled ${raidName} while you were away! Loot: ${template.victoryLoot.map((l) => `+${l.amount} ${l.resource}`).join(", ")}`
+                    : `Defeated by ${raidName} while you were away! Resources stolen, buildings damaged.`,
                   timestamp: Date.now(),
                 });
               }
@@ -2818,58 +2841,47 @@ export function GameProvider(props: ParentProps) {
         // Countdown incoming raids
         for (let i = s.incomingRaids.length - 1; i >= 0; i--) {
           const ir = s.incomingRaids[i];
+          // Already-resolved raids stay in the panel until the player watches /
+          // dismisses the playback. Don't tick or re-resolve them.
+          if (ir.combatLog) continue;
           ir.remaining -= elapsedSeconds;
           if (ir.remaining <= 0) {
-            // Raid arrives — resolve it
             const template = getRaid(ir.raidId);
-            if (template) {
-              const homeAdvs = s.adventurers.filter((a) => a.alive && !a.onMission);
-              const defense = calcDefense(s.walls, s.watchtowers, s.barracks, homeAdvs, s.population);
-              const result = resolveRaid({
-                raid: template,
-                raidStrength: ir.strength,
-                defense,
-                resources: { ...s.resources, food: getTotalFood(s.foods) },
-                population: s.population,
-                homeAdventurers: homeAdvs,
+            if (template && template.encounters?.length) {
+              // ── Run the siege sim ────────────────────────────────
+              const sim = simulateRaidCombat({
+                raidId: ir.raidId,
+                encounters: template.encounters,
+                walls: s.walls.map((w) => ({ ring: w.ring, level: w.level, hp: w.hp, maxHp: w.level * WALL_BASE_HP })),
+                watchtowers: s.watchtowers.map((t) => ({ ring: t.ring, level: t.level, damaged: t.damaged })),
+                barracks: s.barracks.map((b) => ({ ring: b.ring, level: b.level, damaged: b.damaged })),
+                totalArchers: s.archers,
+                totalSoldiers: s.soldiers,
               });
 
-              // Log and damage buildings on defeat
-              const raidName = template?.name ?? ir.raidId;
-              const injured = result.defendersInjured.length;
-              if (result.victory) {
-                const lootStr = result.loot.map((l) => `+${l.amount} ${l.resource}`).join(", ");
-                const parts = [`Repelled ${raidName}!`, `Loot: ${lootStr}`];
-                if (injured > 0) parts.push(`Injured: ${injured}`);
-                pushEvent(s, "raid_victory", "🛡️", parts.join(" · "));
-              } else {
-                const lost = result.resourcesLost;
-                const lostParts: string[] = [];
-                if (lost.gold > 0) lostParts.push(`${lost.gold}g`);
-                if (lost.wood > 0) lostParts.push(`${lost.wood}w`);
-                if (lost.stone > 0) lostParts.push(`${lost.stone}s`);
-                if (lost.food > 0) lostParts.push(`${lost.food}f`);
-                const parts = [`Defeated by ${raidName}!`];
-                if (lostParts.length > 0) parts.push(`Lost: ${lostParts.join(", ")}`);
-                if (result.citizensLost > 0) parts.push(`Citizens lost: ${result.citizensLost}`);
-                if (injured > 0) parts.push(`Injured: ${injured}`);
-                if (result.buildingsDamaged) parts.push(`Buildings damaged: ${result.buildingsDamaged}`);
-                pushEvent(s, "raid_defeat", "💔", parts.join(" · "));
-                const damageable = s.buildings.filter((b) => b.level > 0 && !b.damaged && b.buildingId !== "town_hall");
-                const damageCount = Math.min(damageable.length, result.buildingsDamaged ?? 1);
-                for (let d = 0; d < damageCount; d++) {
-                  const idx = Math.floor(Math.random() * damageable.length);
-                  damageable[idx].damaged = true;
-                  const def = BUILDINGS.find((b) => b.id === (damageable[idx] as any).buildingId);
-                  if (def) pushEvent(s, "building_damaged", "🔧", `${def.name} was damaged in the raid`);
-                  damageable.splice(idx, 1);
-                }
+              // ── Apply sim after-state ────────────────────────────
+              for (const wf of sim.wallFinalHp) {
+                const w = s.walls.find((x) => x.ring === wf.ring);
+                if (w) w.hp = wf.hp;
               }
+              for (const ring of sim.damagedTowerRings) {
+                const t = s.watchtowers.find((x) => x.ring === ring);
+                if (t) t.damaged = true;
+              }
+              for (const ring of sim.damagedBarracksRings) {
+                const b = s.barracks.find((x) => x.ring === ring);
+                if (b) b.damaged = true;
+              }
+              s.archers = Math.max(0, s.archers - sim.archersLost);
+              s.soldiers = Math.max(0, s.soldiers - sim.soldiersLost);
+              s.population = Math.max(BASE_POPULATION, s.population - sim.archersLost - sim.soldiersLost);
 
-              // Apply losses or grant loot
-              if (result.victory) {
+              const raidName = template.name ?? ir.raidId;
+
+              if (sim.victory) {
+                // ── Victory: grant loot ────────────────────────────
                 const resCaps = calcStorageCaps(s.buildings);
-                for (const loot of result.loot) {
+                for (const loot of template.victoryLoot) {
                   if (loot.resource === "astralShards") {
                     s.astralShards += loot.amount;
                   } else {
@@ -2877,20 +2889,71 @@ export function GameProvider(props: ParentProps) {
                     s.resources[key] = Math.min(resCaps[key], s.resources[key] + loot.amount);
                   }
                 }
+                const lootStr = template.victoryLoot.map((l) => `+${l.amount} ${l.resource}`).join(", ");
+                const parts = [`Repelled ${raidName}!`, `Loot: ${lootStr}`];
+                const losses = sim.archersLost + sim.soldiersLost;
+                if (losses > 0) parts.push(`Casualties: ${losses}`);
+                pushEvent(s, "raid_victory", "🛡️", parts.join(" · "));
               } else {
-                s.resources.gold = Math.max(0, s.resources.gold - result.resourcesLost.gold);
-                s.resources.wood = Math.max(0, s.resources.wood - result.resourcesLost.wood);
-                s.resources.stone = Math.max(0, s.resources.stone - result.resourcesLost.stone);
-                if (result.resourcesLost.food > 0) consumeFood(s.foods, result.resourcesLost.food);
-                s.population = Math.max(BASE_POPULATION, s.population - result.citizensLost);
+                // ── Defeat: plunder on top of sim attrition ────────
+                const stealPct = template.resourceStealPercent;
+                const stolen = {
+                  gold: Math.floor(s.resources.gold * stealPct),
+                  wood: Math.floor(s.resources.wood * stealPct),
+                  stone: Math.floor(s.resources.stone * stealPct),
+                  food: Math.floor(getTotalFood(s.foods) * stealPct),
+                };
+                s.resources.gold = Math.max(0, s.resources.gold - stolen.gold);
+                s.resources.wood = Math.max(0, s.resources.wood - stolen.wood);
+                s.resources.stone = Math.max(0, s.resources.stone - stolen.stone);
+                if (stolen.food > 0) consumeFood(s.foods, stolen.food);
+
+                let extraCitizensLost = 0;
+                if (template.killsCitizens) {
+                  extraCitizensLost = Math.min(template.maxCitizenLoss, Math.max(1, Math.floor(s.population * 0.1)));
+                  s.population = Math.max(BASE_POPULATION, s.population - extraCitizensLost);
+                }
+
+                // Damage 1-3 random buildings (legacy plunder mechanic).
+                const damageable = s.buildings.filter((b) => b.level > 0 && !b.damaged && b.buildingId !== "town_hall");
+                const damageCount = Math.min(damageable.length, 1 + Math.floor(Math.random() * 3));
+                let damagedBuildings = 0;
+                for (let d = 0; d < damageCount; d++) {
+                  if (damageable.length === 0) break;
+                  const idx = Math.floor(Math.random() * damageable.length);
+                  damageable[idx].damaged = true;
+                  damagedBuildings++;
+                  const def = BUILDINGS.find((b) => b.id === (damageable[idx] as any).buildingId);
+                  if (def) pushEvent(s, "building_damaged", "🔧", `${def.name} was damaged in the raid`);
+                  damageable.splice(idx, 1);
+                }
+
+                const lostParts: string[] = [];
+                if (stolen.gold > 0) lostParts.push(`${stolen.gold}g`);
+                if (stolen.wood > 0) lostParts.push(`${stolen.wood}w`);
+                if (stolen.stone > 0) lostParts.push(`${stolen.stone}s`);
+                if (stolen.food > 0) lostParts.push(`${stolen.food}f`);
+                const parts = [`Defeated by ${raidName}!`];
+                if (lostParts.length > 0) parts.push(`Lost: ${lostParts.join(", ")}`);
+                const totalCitizensLost = extraCitizensLost + sim.archersLost + sim.soldiersLost;
+                if (totalCitizensLost > 0) parts.push(`Citizens lost: ${totalCitizensLost}`);
+                if (damagedBuildings > 0) parts.push(`Buildings damaged: ${damagedBuildings}`);
+                pushEvent(s, "raid_defeat", "💔", parts.join(" · "));
               }
 
-              s.raidLog.push(result);
-              s.lastRaidOutcome = result.victory ? "victory" : "defeat";
-              s.raidsResolvedCount = (s.raidsResolvedCount ?? 0) + 1;
+              // Stash combat log on the raid for playback. Card stays in the
+              // panel until acknowledgeRaidCombat() splices it.
+              ir.combatLog = sim.log;
+              ir.combatVictory = sim.victory;
+              ir.combatViewed = false;
+              s.lastRaidOutcome = sim.victory ? "victory" : "defeat";
               s.lastRaidTime = 0;
+              s.raidsResolvedCount = (s.raidsResolvedCount ?? 0) + 1;
+            } else {
+              // No template or no encounters — splice silently. Shouldn't
+              // happen now that all raid templates carry encounter sets.
+              s.incomingRaids.splice(i, 1);
             }
-            s.incomingRaids.splice(i, 1);
           }
         }
 
@@ -4678,6 +4741,16 @@ export function GameProvider(props: ParentProps) {
           m.combatViewed = true;
           m.remaining = 0;
         }
+      }));
+      scheduleSave();
+    },
+    acknowledgeRaidCombat(raidId) {
+      // Called when the player closes the raid combat playback modal. The
+      // raid's outcome was already applied when the timer hit 0 — this just
+      // splices the resolved card from the threats panel.
+      setState(produce((s) => {
+        const idx = s.incomingRaids.findIndex((ir) => ir.raidId === raidId && ir.combatLog);
+        if (idx >= 0) s.incomingRaids.splice(idx, 1);
       }));
       scheduleSave();
     },
