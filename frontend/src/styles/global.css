@@ -78,7 +78,12 @@ body {
   grid-template-areas:
     "sidebar topbar"
     "sidebar content";
+  /* 100vh on mobile = the LARGEST viewport (when URL bar is collapsed). When
+     the URL bar reappears it covers part of the page, hiding the topbar.
+     100dvh = dynamic viewport height — actually shrinks/grows with the
+     browser chrome. Modern browsers support it; vh stays as fallback. */
   height: 100vh;
+  height: 100dvh;
 }
 
 .topbar {
