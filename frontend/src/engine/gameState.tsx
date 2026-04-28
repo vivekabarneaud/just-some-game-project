@@ -310,6 +310,39 @@ export interface PlayerHive {
   upgradeRemaining?: number;
 }
 
+// ─── Defenses (rework v1) ─────────────────────────────────────────
+// Multi-instance walls/watchtowers/barracks organized by ring.
+// See docs/DESIGN_DEFENSES.md.
+
+export type DefenseRing = "outer" | "middle" | "inner";
+
+export interface PlayerWall {
+  ring: DefenseRing;
+  level: number;       // 0 = unbuilt
+  hp: number;          // current HP (0 when unbuilt; full = level * WALL_BASE_HP)
+  upgrading: boolean;
+  upgradeRemaining?: number;
+}
+
+export interface PlayerWatchtower {
+  ring: DefenseRing;
+  level: number;       // 0 = unbuilt
+  damaged: boolean;
+  upgrading: boolean;
+  upgradeRemaining?: number;
+}
+
+export interface PlayerBarracks {
+  ring: DefenseRing;
+  level: number;       // 0 = unbuilt
+  damaged: boolean;
+  upgrading: boolean;
+  upgradeRemaining?: number;
+}
+
+/** Base wall HP per level. Full HP = level × this. Tune during playtest. */
+export const WALL_BASE_HP = 100;
+
 export interface PlayerOrchard {
   id: string;
   fruit: FruitId;
@@ -332,6 +365,15 @@ export interface GameState {
   /** Per-type food stockpiles — total capped by pantry */
   foods: Record<FoodItemType, number>;
   population: number;
+  // ── Defenses (rework v1): multi-instance walls/towers/barracks per ring,
+  //    plus counters for recruited soldier-citizens. See DESIGN_DEFENSES.md.
+  walls: PlayerWall[];
+  watchtowers: PlayerWatchtower[];
+  barracks: PlayerBarracks[];
+  /** Recruited melee soldiers stationed in barracks. Subset of population. */
+  soldiers: number;
+  /** Recruited archers stationed in watchtowers. Subset of population. */
+  archers: number;
   season: Season;
   seasonElapsed: number;
   year: number;
@@ -562,8 +604,8 @@ function createInitialState(): GameState {
       damaged: false,
     })),
     fields: [],
-    // Pre-spawn one unbuilt slot per veggie so the player sees the 4-garden
-    // shape immediately (cabbages / turnips / peas / squash).
+    // Pre-spawn one unbuilt slot per veggie so the player sees the full
+    // garden shape immediately (cabbages / turnips / peas / squash / fava).
     gardens: VEGGIES.map((v) => ({
       id: nextId("garden"),
       veggie: v.id,
@@ -595,6 +637,25 @@ function createInitialState(): GameState {
     })),
     honey: 0,
     population: BASE_POPULATION,
+    // Defenses: 3 unbuilt slots per type (one per ring). All locked behind
+    // settlement tier in the UI; only Outer is buildable from Camp.
+    walls: [
+      { ring: "outer", level: 0, hp: 0, upgrading: false },
+      { ring: "middle", level: 0, hp: 0, upgrading: false },
+      { ring: "inner", level: 0, hp: 0, upgrading: false },
+    ],
+    watchtowers: [
+      { ring: "outer", level: 0, damaged: false, upgrading: false },
+      { ring: "middle", level: 0, damaged: false, upgrading: false },
+      { ring: "inner", level: 0, damaged: false, upgrading: false },
+    ],
+    barracks: [
+      { ring: "outer", level: 0, damaged: false, upgrading: false },
+      { ring: "middle", level: 0, damaged: false, upgrading: false },
+      { ring: "inner", level: 0, damaged: false, upgrading: false },
+    ],
+    soldiers: 0,
+    archers: 0,
     season: "spring",
     seasonElapsed: 0,
     year: 1,
@@ -713,6 +774,58 @@ function loadGame(): GameState | null {
     }
     if (!saved.fields) saved.fields = [];
     if (!saved.gardens) saved.gardens = [];
+
+    // Defenses rework migration (April 2026): create the 3-ring slot layout
+    // for walls/watchtowers/barracks. Old single-instance buildings (lookup
+    // by buildingId in saved.buildings) are mapped onto the Outer ring.
+    // The old entries in saved.buildings stay for now — consumers will be
+    // rewired in subsequent commits. See docs/DESIGN_DEFENSES.md.
+    if (!saved.walls) {
+      const oldWalls = saved.buildings?.find((b: any) => b.buildingId === "walls");
+      const lvl = oldWalls?.level ?? 0;
+      saved.walls = [
+        {
+          ring: "outer",
+          level: lvl,
+          // Carry over the old "damaged" flag as half-HP if set; otherwise full.
+          hp: lvl > 0 ? (oldWalls?.damaged ? Math.floor(lvl * WALL_BASE_HP / 2) : lvl * WALL_BASE_HP) : 0,
+          upgrading: oldWalls?.upgrading ?? false,
+          upgradeRemaining: oldWalls?.upgradeRemaining,
+        },
+        { ring: "middle", level: 0, hp: 0, upgrading: false },
+        { ring: "inner", level: 0, hp: 0, upgrading: false },
+      ];
+    }
+    if (!saved.watchtowers) {
+      const oldTower = saved.buildings?.find((b: any) => b.buildingId === "watchtower");
+      saved.watchtowers = [
+        {
+          ring: "outer",
+          level: oldTower?.level ?? 0,
+          damaged: oldTower?.damaged ?? false,
+          upgrading: oldTower?.upgrading ?? false,
+          upgradeRemaining: oldTower?.upgradeRemaining,
+        },
+        { ring: "middle", level: 0, damaged: false, upgrading: false },
+        { ring: "inner", level: 0, damaged: false, upgrading: false },
+      ];
+    }
+    if (!saved.barracks || !Array.isArray(saved.barracks)) {
+      const oldBarracks = saved.buildings?.find((b: any) => b.buildingId === "barracks");
+      saved.barracks = [
+        {
+          ring: "outer",
+          level: oldBarracks?.level ?? 0,
+          damaged: oldBarracks?.damaged ?? false,
+          upgrading: oldBarracks?.upgrading ?? false,
+          upgradeRemaining: oldBarracks?.upgradeRemaining,
+        },
+        { ring: "middle", level: 0, damaged: false, upgrading: false },
+        { ring: "inner", level: 0, damaged: false, upgrading: false },
+      ];
+    }
+    if (saved.soldiers === undefined) saved.soldiers = 0;
+    if (saved.archers === undefined) saved.archers = 0;
     // Garden migration: add plantedYear on each, and ensure one slot per veggie
     // exists so the pre-attributed 4-slot layout works on old saves.
     for (const g of saved.gardens) {
@@ -1280,7 +1393,7 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
     }
   }
 
-  // Gardens — use veggie.id (cabbages/turnips/peas/squash)
+  // Gardens — use veggie.id (cabbages/turnips/peas/squash/fava)
   for (const garden of gardens) {
     if (garden.level === 0) continue;
     if (garden.plantedYear == null) continue;
