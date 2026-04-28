@@ -1,6 +1,7 @@
 import type { Adventurer } from "@medieval-realm/shared/data/adventurers";
 import type { PlayerBuilding } from "./buildings";
 import type { SettlementTier } from "./buildings";
+import type { PlayerWall, PlayerWatchtower, PlayerBarracks } from "~/engine/gameState";
 
 // ─── Raid tags ──────────────────────────────────────────────────
 
@@ -273,34 +274,43 @@ export interface DefenseBreakdown {
  * - Population: 0.5 per citizen (they help defend)
  */
 export function calcDefense(
-  buildings: PlayerBuilding[],
+  walls: PlayerWall[],
+  watchtowers: PlayerWatchtower[],
+  barracks: PlayerBarracks[],
   adventurers: Adventurer[],
   population: number,
 ): DefenseBreakdown {
-  // Damaged defensive buildings contribute zero — repair them to restore protection.
-  const watchtowerB = buildings.find((b) => b.buildingId === "watchtower");
-  const barracksB = buildings.find((b) => b.buildingId === "barracks");
-  const wallsB = buildings.find((b) => b.buildingId === "walls");
-  const watchtowerLvl = !watchtowerB?.damaged ? (watchtowerB?.level ?? 0) : 0;
-  const barracksLvl = !barracksB?.damaged ? (barracksB?.level ?? 0) : 0;
-  const wallsLvl = !wallsB?.damaged ? (wallsB?.level ?? 0) : 0;
+  // Sum levels across all rings. Walls with hp <= 0 (breached/unbuilt) and
+  // damaged towers/barracks contribute zero. Existing per-level multipliers
+  // (12/8/15) preserved for backward compatibility — a Lv.3 outer wall
+  // matches the old single-instance Lv.3 wall, then Middle/Inner add on top.
+  const wallsLvl = walls
+    .filter((w) => w.hp > 0)
+    .reduce((sum, w) => sum + w.level, 0);
+  const watchtowerLvl = watchtowers
+    .filter((t) => !t.damaged)
+    .reduce((sum, t) => sum + t.level, 0);
+  const barracksLvl = barracks
+    .filter((b) => !b.damaged)
+    .reduce((sum, b) => sum + b.level, 0);
 
   const homeAdventurers = adventurers.filter((a) => a.alive && !a.onMission);
   // Adventurers give a small bonus — buildings are the main defense
   const adventurerDef = homeAdventurers.reduce((sum, a) => sum + 1 + Math.floor(a.level / 3), 0);
 
-  const watchtower = watchtowerLvl * 8;
-  const barracks = barracksLvl * 15;
-  const walls = wallsLvl * 12;
-  const pop = Math.floor(population * 0.3);
+  // Per-level multipliers preserved from the old single-instance model.
+  const watchtowerDef = watchtowerLvl * 8;
+  const barracksDef = barracksLvl * 15;
+  const wallsDef = wallsLvl * 12;
+  const popDef = Math.floor(population * 0.3);
 
   return {
-    total: watchtower + barracks + walls + adventurerDef + pop,
-    watchtower,
-    barracks,
-    walls,
+    total: watchtowerDef + barracksDef + wallsDef + adventurerDef + popDef,
+    watchtower: watchtowerDef,
+    barracks: barracksDef,
+    walls: wallsDef,
     adventurers: adventurerDef,
-    population: pop,
+    population: popDef,
   };
 }
 
@@ -478,7 +488,9 @@ export interface DefenseTip {
 export function getDefenseTips(
   defense: DefenseBreakdown,
   raidStrength: number,
-  buildings: PlayerBuilding[],
+  walls: PlayerWall[],
+  watchtowers: PlayerWatchtower[],
+  barracks: PlayerBarracks[],
   adventurersOnMission: number,
 ): DefenseTip[] {
   const tips: DefenseTip[] = [];
@@ -504,26 +516,26 @@ export function getDefenseTips(
     });
   }
 
-  // Walls
-  const wallsLvl = buildings.find((b) => b.buildingId === "walls")?.level ?? 0;
+  // Walls — total level across all rings. Breached walls (hp <= 0) excluded.
+  const wallsLvl = walls.filter((w) => w.hp > 0).reduce((s, w) => s + w.level, 0);
   if (wallsLvl === 0) {
-    tips.push({ icon: "🧱", text: "Build Walls for +12 defense per level.", actionLink: "/buildings/walls" });
+    tips.push({ icon: "🧱", text: "Build Walls for +12 defense per level.", actionLink: "/defenses" });
   } else if (chance < 85) {
-    tips.push({ icon: "🧱", text: `Upgrade Walls (Lv.${wallsLvl}) for +12 defense per level.`, actionLink: "/buildings/walls" });
+    tips.push({ icon: "🧱", text: `Strengthen Walls (Lv.${wallsLvl} total) for +12 defense per level.`, actionLink: "/defenses" });
   }
 
-  // Barracks
-  const barracksLvl = buildings.find((b) => b.buildingId === "barracks")?.level ?? 0;
+  // Barracks — total level across all rings. Damaged excluded.
+  const barracksLvl = barracks.filter((b) => !b.damaged).reduce((s, b) => s + b.level, 0);
   if (barracksLvl === 0) {
-    tips.push({ icon: "⚔️", text: "Build Barracks for +15 defense per level.", actionLink: "/buildings/barracks" });
+    tips.push({ icon: "⚔️", text: "Build Barracks for +15 defense per level.", actionLink: "/defenses" });
   } else if (chance < 85) {
-    tips.push({ icon: "⚔️", text: `Upgrade Barracks (Lv.${barracksLvl}) for +15 defense per level.`, actionLink: "/buildings/barracks" });
+    tips.push({ icon: "⚔️", text: `Strengthen Barracks (Lv.${barracksLvl} total) for +15 defense per level.`, actionLink: "/defenses" });
   }
 
-  // Watchtower
-  const wtLvl = buildings.find((b) => b.buildingId === "watchtower")?.level ?? 0;
-  if (wtLvl === 0) {
-    tips.push({ icon: "🏰", text: "Build a Watchtower for defense and earlier raid warnings.", actionLink: "/buildings/watchtower" });
+  // Watchtower — any tower at all gives early warnings.
+  const wtMaxLvl = watchtowers.filter((t) => !t.damaged).reduce((m, t) => Math.max(m, t.level), 0);
+  if (wtMaxLvl === 0) {
+    tips.push({ icon: "🏰", text: "Build a Watchtower for defense and earlier raid warnings.", actionLink: "/defenses" });
   }
 
   if (tips.length === 0) {

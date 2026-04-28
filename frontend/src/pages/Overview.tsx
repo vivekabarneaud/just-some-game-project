@@ -484,7 +484,7 @@ export default function Overview() {
                   successPct() >= 80 ? "var(--accent-green)" :
                   successPct() >= 50 ? "var(--accent-gold)" : "var(--accent-red)";
                 const onMissionCount = () => state.adventurers.filter((a) => a.onMission).length;
-                const tips = () => getDefenseTips(defense(), ir.strength, state.buildings, onMissionCount());
+                const tips = () => getDefenseTips(defense(), ir.strength, state.walls, state.watchtowers, state.barracks, onMissionCount());
                 return (
                   <div
                     class="threat-card"

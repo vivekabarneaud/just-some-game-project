@@ -1776,7 +1776,7 @@ export function GameProvider(props: ParentProps) {
               const template = getRaid(ir.raidId);
               if (template) {
                 const homeAdvs = (serverState.adventurers ?? []).filter((a: any) => a.alive && !a.onMission);
-                const defense = calcDefense(serverState.buildings, homeAdvs, serverState.population);
+                const defense = calcDefense(serverState.walls, serverState.watchtowers, serverState.barracks, homeAdvs, serverState.population);
                 const result = resolveRaid({
                   raid: template,
                   raidStrength: ir.strength,
@@ -2800,7 +2800,7 @@ export function GameProvider(props: ParentProps) {
             const template = getRaid(ir.raidId);
             if (template) {
               const homeAdvs = s.adventurers.filter((a) => a.alive && !a.onMission);
-              const defense = calcDefense(s.buildings, homeAdvs, s.population);
+              const defense = calcDefense(s.walls, s.watchtowers, s.barracks, homeAdvs, s.population);
               const result = resolveRaid({
                 raid: template,
                 raidStrength: ir.strength,
@@ -2877,7 +2877,11 @@ export function GameProvider(props: ParentProps) {
           s.hoursSinceLastRaid = 0; // reset timer
           const spawn = spawnRaid(tier, s.year);
           if (spawn) {
-            const wtLevel = s.buildings.find((b) => b.buildingId === "watchtower")?.level ?? 0;
+            // Use the highest tower level across rings — narratively, the
+            // tallest tower has the longest line of sight.
+            const wtLevel = s.watchtowers
+              .filter((t) => !t.damaged)
+              .reduce((max, t) => Math.max(max, t.level), 0);
             const warningHours = calcWarningTime(spawn.raid.baseWarning, wtLevel);
             s.incomingRaids.push({
               raidId: spawn.raid.id,
@@ -3964,7 +3968,7 @@ export function GameProvider(props: ParentProps) {
     },
     getDefense() {
       const homeAdvs = state.adventurers.filter((a) => a.alive && !a.onMission);
-      return calcDefense(state.buildings, homeAdvs, state.population);
+      return calcDefense(state.walls, state.watchtowers, state.barracks, homeAdvs, state.population);
     },
     collectRaidLog() {
       const log = [...state.raidLog];
