@@ -33,12 +33,96 @@ const RINGS: DefenseRing[] = ["outer", "middle", "inner"];
  *  overlay when art exists, icon-and-title row when it doesn't. The image is
  *  resolved per current settlement tier via getBuildingImageById, so a Town
  *  player sees barracks_town.png, a City player sees barracks_city.png, etc. */
+/** Small +/↑ button on the card header. Matches the Buildings page indicator:
+ *  green tint when affordable, muted when blocked, hover tooltip showing
+ *  either next-level details + cost (affordable) or the blocker reason. */
+function UpgradeIndicator(props: {
+  built: boolean;
+  level: number;
+  canUpgrade: boolean;
+  blocker: string;
+  costLabel: string;
+  buildTimeSeconds: number;
+  onUpgrade: () => void;
+  /** True when rendered inside building-card-image-overlay (tooltip pops
+   *  upward); false when at the top-right corner of an icon-header card
+   *  (tooltip pops downward). */
+  inOverlay: boolean;
+}) {
+  return (
+    <div
+      class="upgrade-indicator"
+      style={props.inOverlay
+        ? { position: "relative", "z-index": 5 } as any
+        : { position: "absolute", top: "8px", right: "8px", "z-index": 5 } as any}
+      onClick={(e) => {
+        if (props.canUpgrade) {
+          e.preventDefault();
+          e.stopPropagation();
+          props.onUpgrade();
+        }
+      }}
+    >
+      <div style={{
+        width: "22px",
+        height: "22px",
+        "border-radius": "4px",
+        display: "flex",
+        "align-items": "center",
+        "justify-content": "center",
+        "font-size": "0.75rem",
+        background: props.canUpgrade ? "rgba(46, 204, 113, 0.3)" : "rgba(106, 100, 88, 0.3)",
+        border: `1px solid ${props.canUpgrade ? "var(--accent-green)" : "var(--text-muted)"}`,
+        color: props.canUpgrade ? "var(--accent-green)" : "var(--text-muted)",
+        cursor: props.canUpgrade ? "pointer" : "default",
+      }}>
+        {props.built ? "↑" : "+"}
+      </div>
+      <div class="upgrade-tooltip" style={{
+        position: "absolute",
+        right: 0,
+        ...(props.inOverlay ? { bottom: "28px" } : { top: "28px" }),
+        "min-width": "180px",
+        padding: "6px 10px",
+        background: "var(--bg-panel)",
+        border: `1px solid ${props.canUpgrade ? "var(--accent-green)" : "var(--accent-gold)"}`,
+        "border-radius": "6px",
+        "font-size": "0.75rem",
+        color: "var(--text-secondary)",
+        "z-index": 10,
+        display: "none",
+        "box-shadow": "0 4px 12px rgba(0,0,0,0.3)",
+        "white-space": "nowrap",
+      }}>
+        <Show when={props.canUpgrade}>
+          <div style={{ color: "var(--accent-green)", "font-weight": "bold", "margin-bottom": "2px" }}>
+            {props.built ? `Upgrade to Lv.${props.level + 1}` : "Build Lv.1"}
+          </div>
+          <div>{props.costLabel}</div>
+          <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "2px" }}>
+            Build time: {Math.ceil(props.buildTimeSeconds)}s · Click to start
+          </div>
+        </Show>
+        <Show when={!props.canUpgrade}>
+          <div style={{ color: "var(--accent-gold)" }}>{props.blocker}</div>
+          <div style={{ "margin-top": "2px" }}>Cost: {props.costLabel}</div>
+        </Show>
+      </div>
+    </div>
+  );
+}
+
+/** Header for a defense card — image-with-overlay when art exists, icon row
+ *  otherwise. Optional `indicator` slot is placed inside the overlay (image
+ *  case) or at the top-right corner of the card root (icon case). */
 function DefenseCardHeader(props: {
   buildingId: string;
   icon: string;
   name: string;
   level: number;
   statusBadge?: string;
+  /** Render-prop. Receives `inOverlay` so the tooltip can pop the right way. */
+  indicator?: (inOverlay: boolean) => any;
 }) {
   const { actions } = useGame();
   const image = () => getBuildingImageById(props.buildingId, actions.getSettlementTier());
@@ -46,7 +130,7 @@ function DefenseCardHeader(props: {
     <Show
       when={image()}
       fallback={
-        <div class="building-card-header">
+        <div class="building-card-header" style={{ position: "relative" }}>
           <div class="building-card-icon">{props.icon}</div>
           <div>
             <div class="building-card-title">{props.name}</div>
@@ -57,12 +141,16 @@ function DefenseCardHeader(props: {
               </Show>
             </div>
           </div>
+          <Show when={props.indicator}>{props.indicator!(false)}</Show>
         </div>
       }
     >
       <div class="building-card-image">
         <img src={image()!} alt={props.name} loading="lazy" />
-        <div class="building-card-image-overlay">
+        <div
+          class="building-card-image-overlay"
+          style={{ display: "flex", "justify-content": "space-between", "align-items": "flex-end" }}
+        >
           <div>
             <div class="building-card-title">{props.name}</div>
             <div class="building-card-level" classList={{ "not-built": props.level === 0 }}>
@@ -72,77 +160,8 @@ function DefenseCardHeader(props: {
               </Show>
             </div>
           </div>
+          <Show when={props.indicator}>{props.indicator!(true)}</Show>
         </div>
-      </div>
-    </Show>
-  );
-}
-
-/** Build/Upgrade button that shows a countdown when the slot is upgrading,
- *  the cost on the button face, and a hover tooltip explaining either the
- *  next-level details (when affordable) or the blocker (when disabled).
- *  Mirrors the Buildings page tooltip pattern via .upgrade-indicator hover. */
-function UpgradeButton(props: {
-  built: boolean;
-  level: number;
-  upgrading: boolean;
-  upgradeRemaining?: number;
-  canUpgrade: boolean;
-  /** Empty string when canUpgrade. Otherwise a short reason for the tooltip. */
-  blocker: string;
-  costLabel: string;
-  buildTimeSeconds: number;
-  onUpgrade: () => void;
-}) {
-  return (
-    <Show
-      when={props.upgrading && props.upgradeRemaining !== undefined}
-      fallback={
-        <div class="upgrade-indicator" style={{ position: "relative", display: "inline-block" }}>
-          <button
-            class="upgrade-btn"
-            disabled={!props.canUpgrade}
-            onClick={props.onUpgrade}
-            style={{ "font-size": "0.78rem", padding: "5px 10px" }}
-          >
-            {props.built ? `Upgrade — ${props.costLabel}` : `Build — ${props.costLabel}`}
-          </button>
-          <div class="upgrade-tooltip" style={{
-            position: "absolute",
-            left: 0,
-            top: "calc(100% + 4px)",
-            "min-width": "180px",
-            padding: "6px 10px",
-            background: "var(--bg-panel)",
-            border: `1px solid ${props.canUpgrade ? "var(--accent-green)" : "var(--accent-gold)"}`,
-            "border-radius": "6px",
-            "font-size": "0.75rem",
-            color: "var(--text-secondary)",
-            "z-index": 10,
-            display: "none",
-            "box-shadow": "0 4px 12px rgba(0,0,0,0.3)",
-            "white-space": "nowrap",
-          }}>
-            <Show when={props.canUpgrade}>
-              <div style={{ color: "var(--accent-green)", "font-weight": "bold", "margin-bottom": "2px" }}>
-                {props.built ? `Upgrade to Lv.${props.level + 1}` : "Build Lv.1"}
-              </div>
-              <div>{props.costLabel}</div>
-              <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "2px" }}>
-                Build time: {Math.ceil(props.buildTimeSeconds)}s
-              </div>
-            </Show>
-            <Show when={!props.canUpgrade}>
-              <div style={{ color: "var(--accent-gold)" }}>{props.blocker}</div>
-              <div style={{ "margin-top": "2px" }}>Cost: {props.costLabel}</div>
-            </Show>
-          </div>
-        </div>
-      }
-    >
-      <div style={{ "font-size": "0.78rem", color: "var(--accent-gold)", "font-style": "italic", display: "flex", "align-items": "center", gap: "6px" }}>
-        Upgrading…
-        <Countdown remainingSeconds={props.upgradeRemaining!} />
       </div>
     </Show>
   );
@@ -273,13 +292,25 @@ function WallCard(props: { wall: PlayerWall; ring: DefenseRing; disabled: boolea
     state.resources.stone >= repairCost().stone;
 
   return (
-    <div class="building-card">
+    <div class="building-card" style={{ position: "relative" }}>
       <DefenseCardHeader
         buildingId="walls"
         icon="🧱"
         name="Wall"
         level={props.wall.level}
         statusBadge={damaged() ? "Damaged" : undefined}
+        indicator={props.wall.upgrading ? undefined : (inOverlay) => (
+          <UpgradeIndicator
+            built={built()}
+            level={props.wall.level}
+            canUpgrade={canUpgrade()}
+            blocker={upgradeBlocker()}
+            costLabel={`${upgradeCost().wood}🪵 ${upgradeCost().stone}🪨`}
+            buildTimeSeconds={buildTime()}
+            onUpgrade={() => actions.buildOrUpgradeWall(props.ring)}
+            inOverlay={inOverlay}
+          />
+        )}
       />
       <div class="building-card-desc">
         Soaks damage during a siege. Once it falls, raiders push to the next ring.
@@ -289,19 +320,14 @@ function WallCard(props: { wall: PlayerWall; ring: DefenseRing; disabled: boolea
           <HpBar current={props.wall.hp} max={fullHp()} width="100px" showText />
         </div>
       </Show>
-      <div style={{ "margin-top": "auto", "padding-top": "10px", display: "flex", gap: "6px", "flex-wrap": "wrap" }}>
-        <UpgradeButton
-          built={built()}
-          level={props.wall.level}
-          upgrading={props.wall.upgrading}
-          upgradeRemaining={props.wall.upgradeRemaining}
-          canUpgrade={canUpgrade()}
-          blocker={upgradeBlocker()}
-          costLabel={`${upgradeCost().wood}🪵 ${upgradeCost().stone}🪨`}
-          buildTimeSeconds={buildTime()}
-          onUpgrade={() => actions.buildOrUpgradeWall(props.ring)}
-        />
-        <Show when={damaged() && !props.wall.upgrading}>
+      <Show when={props.wall.upgrading && props.wall.upgradeRemaining !== undefined}>
+        <div class="building-card-upgrading">
+          {built() ? `Upgrading to Lv.${props.wall.level + 1}` : "Building Lv.1"} —{" "}
+          <Countdown remainingSeconds={props.wall.upgradeRemaining!} />
+        </div>
+      </Show>
+      <Show when={damaged() && !props.wall.upgrading}>
+        <div style={{ "margin-top": "auto", "padding-top": "10px" }}>
           <button
             disabled={!canRepair()}
             onClick={() => actions.repairWall(props.ring)}
@@ -317,8 +343,8 @@ function WallCard(props: { wall: PlayerWall; ring: DefenseRing; disabled: boolea
           >
             🔨 Repair — {repairCost().wood}🪵 {repairCost().stone}🪨
           </button>
-        </Show>
-      </div>
+        </div>
+      </Show>
     </div>
   );
 }
@@ -361,13 +387,25 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
   const canRecruit = () => recruitBlocker() === "";
 
   return (
-    <div class="building-card">
+    <div class="building-card" style={{ position: "relative" }}>
       <DefenseCardHeader
         buildingId="watchtower"
         icon="🏰"
         name="Watchtower"
         level={props.tower.level}
         statusBadge={props.tower.damaged ? "Damaged" : undefined}
+        indicator={props.tower.upgrading ? undefined : (inOverlay) => (
+          <UpgradeIndicator
+            built={built()}
+            level={props.tower.level}
+            canUpgrade={canUpgrade()}
+            blocker={upgradeBlocker()}
+            costLabel={`${upgradeCost().wood}🪵 ${upgradeCost().stone}🪨`}
+            buildTimeSeconds={buildTime()}
+            onUpgrade={() => actions.buildOrUpgradeWatchtower(props.ring)}
+            inOverlay={inOverlay}
+          />
+        )}
       />
       <div class="building-card-desc">
         Sentinels spot raids early and rain arrows during a siege. Higher levels see further.
@@ -377,18 +415,13 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
           Archer slots: {props.tower.level}
         </div>
       </Show>
+      <Show when={props.tower.upgrading && props.tower.upgradeRemaining !== undefined}>
+        <div class="building-card-upgrading">
+          {built() ? `Upgrading to Lv.${props.tower.level + 1}` : "Building Lv.1"} —{" "}
+          <Countdown remainingSeconds={props.tower.upgradeRemaining!} />
+        </div>
+      </Show>
       <div style={{ "margin-top": "auto", "padding-top": "10px", display: "flex", gap: "6px", "flex-wrap": "wrap" }}>
-        <UpgradeButton
-          built={built()}
-          level={props.tower.level}
-          upgrading={props.tower.upgrading}
-          upgradeRemaining={props.tower.upgradeRemaining}
-          canUpgrade={canUpgrade()}
-          blocker={upgradeBlocker()}
-          costLabel={`${upgradeCost().wood}🪵 ${upgradeCost().stone}🪨`}
-          buildTimeSeconds={buildTime()}
-          onUpgrade={() => actions.buildOrUpgradeWatchtower(props.ring)}
-        />
         <Show when={props.tower.damaged && !props.tower.upgrading}>
           <button
             disabled={!canRepair()}
@@ -480,13 +513,25 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
   const canRecruit = () => recruitBlocker() === "";
 
   return (
-    <div class="building-card">
+    <div class="building-card" style={{ position: "relative" }}>
       <DefenseCardHeader
         buildingId="barracks"
         icon="⚔️"
         name="Barracks"
         level={props.barracks.level}
         statusBadge={props.barracks.damaged ? "Damaged" : undefined}
+        indicator={props.barracks.upgrading ? undefined : (inOverlay) => (
+          <UpgradeIndicator
+            built={built()}
+            level={props.barracks.level}
+            canUpgrade={canUpgrade()}
+            blocker={upgradeBlocker()}
+            costLabel={`${upgradeCost().wood}🪵 ${upgradeCost().stone}🪨 ${upgradeCost().iron}⚒️`}
+            buildTimeSeconds={buildTime()}
+            onUpgrade={() => actions.buildOrUpgradeBarracks(props.ring)}
+            inOverlay={inOverlay}
+          />
+        )}
       />
       <div class="building-card-desc">
         Trains and houses soldiers. Each level adds 3 melee slots; soldiers fight when the wall breaks.
@@ -496,18 +541,13 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
           Soldier slots: {props.barracks.level * 3}
         </div>
       </Show>
+      <Show when={props.barracks.upgrading && props.barracks.upgradeRemaining !== undefined}>
+        <div class="building-card-upgrading">
+          {built() ? `Upgrading to Lv.${props.barracks.level + 1}` : "Building Lv.1"} —{" "}
+          <Countdown remainingSeconds={props.barracks.upgradeRemaining!} />
+        </div>
+      </Show>
       <div style={{ "margin-top": "auto", "padding-top": "10px", display: "flex", gap: "6px", "flex-wrap": "wrap" }}>
-        <UpgradeButton
-          built={built()}
-          level={props.barracks.level}
-          upgrading={props.barracks.upgrading}
-          upgradeRemaining={props.barracks.upgradeRemaining}
-          canUpgrade={canUpgrade()}
-          blocker={upgradeBlocker()}
-          costLabel={`${upgradeCost().wood}🪵 ${upgradeCost().stone}🪨 ${upgradeCost().iron}⚒️`}
-          buildTimeSeconds={buildTime()}
-          onUpgrade={() => actions.buildOrUpgradeBarracks(props.ring)}
-        />
         <Show when={props.barracks.damaged && !props.barracks.upgrading}>
           <button
             disabled={!canRepair()}
@@ -580,13 +620,25 @@ function MageTowerCard(props: { disabled: boolean }) {
     state.resources.stone >= repairCost().stone;
 
   return (
-    <div class="building-card">
+    <div class="building-card" style={{ position: "relative" }}>
       <DefenseCardHeader
         buildingId="mage_tower"
         icon="🗼"
         name="Mage Tower"
         level={state.mageTower.level}
         statusBadge={state.mageTower.damaged ? "Damaged" : undefined}
+        indicator={state.mageTower.upgrading ? undefined : (inOverlay) => (
+          <UpgradeIndicator
+            built={built()}
+            level={state.mageTower.level}
+            canUpgrade={canUpgrade()}
+            blocker={upgradeBlocker()}
+            costLabel={`${upgradeCost().wood}🪵 ${upgradeCost().stone}🪨`}
+            buildTimeSeconds={buildTime()}
+            onUpgrade={() => actions.buildOrUpgradeMageTower()}
+            inOverlay={inOverlay}
+          />
+        )}
       />
       <div class="building-card-desc">
         A spire of arcane research stationed inside the keep. Each level unlocks deeper enchanting recipes.
@@ -596,19 +648,14 @@ function MageTowerCard(props: { disabled: boolean }) {
           Unlocks enchantments up to Lv.{state.mageTower.level}
         </div>
       </Show>
-      <div style={{ "margin-top": "auto", "padding-top": "10px", display: "flex", gap: "6px", "flex-wrap": "wrap" }}>
-        <UpgradeButton
-          built={built()}
-          level={state.mageTower.level}
-          upgrading={state.mageTower.upgrading}
-          upgradeRemaining={state.mageTower.upgradeRemaining}
-          canUpgrade={canUpgrade()}
-          blocker={upgradeBlocker()}
-          costLabel={`${upgradeCost().wood}🪵 ${upgradeCost().stone}🪨`}
-          buildTimeSeconds={buildTime()}
-          onUpgrade={() => actions.buildOrUpgradeMageTower()}
-        />
-        <Show when={state.mageTower.damaged && !state.mageTower.upgrading}>
+      <Show when={state.mageTower.upgrading && state.mageTower.upgradeRemaining !== undefined}>
+        <div class="building-card-upgrading">
+          {built() ? `Upgrading to Lv.${state.mageTower.level + 1}` : "Building Lv.1"} —{" "}
+          <Countdown remainingSeconds={state.mageTower.upgradeRemaining!} />
+        </div>
+      </Show>
+      <Show when={state.mageTower.damaged && !state.mageTower.upgrading}>
+        <div style={{ "margin-top": "auto", "padding-top": "10px" }}>
           <button
             disabled={!canRepair()}
             onClick={() => actions.repairMageTower()}
@@ -624,8 +671,8 @@ function MageTowerCard(props: { disabled: boolean }) {
           >
             🔨 Repair — {repairCost().wood}🪵 {repairCost().stone}🪨
           </button>
-        </Show>
-      </div>
+        </div>
+      </Show>
     </div>
   );
 }
