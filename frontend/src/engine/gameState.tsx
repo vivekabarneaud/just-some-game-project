@@ -60,6 +60,7 @@ import {
   getBarracksCost,
   getWallRepairCost,
   getDefensiveRepairCost,
+  getMageTowerCost,
   SOLDIER_COST,
   ARCHER_COST,
   maxSoldiers,
@@ -355,6 +356,16 @@ export interface PlayerBarracks {
 /** Base wall HP per level. Full HP = level × this. Tune during playtest. */
 export const WALL_BASE_HP = 100;
 
+/** Mage Tower: single instance, lives at the Inner ring (Town tier). Gates
+ *  enchanting recipes by level. Doesn't fight in raids — purely a research
+ *  building stationed inside the keep. */
+export interface PlayerMageTower {
+  level: number;       // 0 = unbuilt
+  damaged: boolean;
+  upgrading: boolean;
+  upgradeRemaining?: number;
+}
+
 export interface PlayerOrchard {
   id: string;
   fruit: FruitId;
@@ -382,6 +393,8 @@ export interface GameState {
   walls: PlayerWall[];
   watchtowers: PlayerWatchtower[];
   barracks: PlayerBarracks[];
+  /** Inner-ring-only spire of arcane research. Gates enchanting recipes. */
+  mageTower: PlayerMageTower;
   /** Recruited melee soldiers stationed in barracks. Subset of population. */
   soldiers: number;
   /** Recruited archers stationed in watchtowers. Subset of population. */
@@ -543,9 +556,11 @@ export interface GameActions {
   buildOrUpgradeWall: (ring: DefenseRing) => boolean;
   buildOrUpgradeWatchtower: (ring: DefenseRing) => boolean;
   buildOrUpgradeBarracks: (ring: DefenseRing) => boolean;
+  buildOrUpgradeMageTower: () => boolean;
   repairWall: (ring: DefenseRing) => boolean;
   repairWatchtower: (ring: DefenseRing) => boolean;
   repairBarracks: (ring: DefenseRing) => boolean;
+  repairMageTower: () => boolean;
   recruitSoldier: () => boolean;
   recruitArcher: () => boolean;
   dismissSoldier: () => boolean;
@@ -676,6 +691,7 @@ function createInitialState(): GameState {
       { ring: "middle", level: 0, damaged: false, upgrading: false },
       { ring: "inner", level: 0, damaged: false, upgrading: false },
     ],
+    mageTower: { level: 0, damaged: false, upgrading: false },
     soldiers: 0,
     archers: 0,
     season: "spring",
@@ -847,6 +863,24 @@ function loadGame(): GameState | null {
     }
     if (saved.soldiers === undefined) saved.soldiers = 0;
     if (saved.archers === undefined) saved.archers = 0;
+    if (!saved.mageTower) {
+      const oldMage = saved.buildings?.find((b: any) => b.buildingId === "mage_tower");
+      saved.mageTower = {
+        level: oldMage?.level ?? 0,
+        damaged: oldMage?.damaged ?? false,
+        upgrading: oldMage?.upgrading ?? false,
+        upgradeRemaining: oldMage?.upgradeRemaining,
+      };
+    }
+    // Defense category moved to dedicated /defenses page state — drop the
+    // now-removed building entries from older saves so they don't ghost
+    // around in iteration. Levels already migrated into walls/watchtowers/
+    // barracks/mageTower above. Runs AFTER those migrations so the lookups
+    // above still find the legacy entries.
+    {
+      const REMOVED_DEFENSE_IDS = new Set(["walls", "watchtower", "barracks", "mage_tower"]);
+      saved.buildings = saved.buildings.filter((b) => !REMOVED_DEFENSE_IDS.has(b.buildingId));
+    }
     // Garden migration: add plantedYear on each, and ensure one slot per veggie
     // exists so the pre-attributed 4-slot layout works on old saves.
     for (const g of saved.gardens) {
@@ -1577,23 +1611,6 @@ function calcBuildingEffect(buildingId: string, nextLevel: number): string | nul
       const nextAle = nextLevel * ALE_CONSUMED_PER_TAVERN_LEVEL;
       return `Happiness: +${cur} → +${next} · Ale cost: ${curAle}/h → ${nextAle}/h`;
     }
-    case "walls": {
-      const cur = Math.max(0, currentLevel) * 8;
-      const next = nextLevel * 8;
-      return `Defense: +${cur} → +${next}`;
-    }
-    case "barracks": {
-      const cur = Math.max(0, currentLevel) * 12;
-      const next = nextLevel * 12;
-      return `Defense: +${cur} → +${next}`;
-    }
-    case "watchtower": {
-      const curDef = Math.max(0, currentLevel) * 5;
-      const nextDef = nextLevel * 5;
-      const curWarn = Math.max(0, currentLevel) * 2;
-      const nextWarn = nextLevel * 2;
-      return `Defense: +${curDef} → +${nextDef} · Early warning: +${curWarn}h → +${nextWarn}h`;
-    }
     case "adventurers_guild": {
       const curRoster = getMaxRoster(Math.max(0, currentLevel));
       const nextRoster = getMaxRoster(nextLevel);
@@ -1665,12 +1682,57 @@ export function GameProvider(props: ParentProps) {
           ).length;
           (serverState as any).raidsResolvedCount = priorRaids;
         }
-        // Backfill any new buildings that were added since this save was created
+        // Defenses rework: migrate legacy single-instance defense buildings
+        // (walls / watchtower / barracks / mage_tower) into the new ring-keyed
+        // state slots. Cloud saves that pre-date the rework keep their progress.
+        if (!(serverState as any).walls) {
+          const oldWalls = serverState.buildings?.find((b: any) => b.buildingId === "walls");
+          const lvl = oldWalls?.level ?? 0;
+          (serverState as any).walls = [
+            { ring: "outer", level: lvl, hp: lvl > 0 ? (oldWalls?.damaged ? Math.floor(lvl * WALL_BASE_HP / 2) : lvl * WALL_BASE_HP) : 0, upgrading: oldWalls?.upgrading ?? false, upgradeRemaining: oldWalls?.upgradeRemaining },
+            { ring: "middle", level: 0, hp: 0, upgrading: false },
+            { ring: "inner", level: 0, hp: 0, upgrading: false },
+          ];
+        }
+        if (!(serverState as any).watchtowers) {
+          const oldTower = serverState.buildings?.find((b: any) => b.buildingId === "watchtower");
+          (serverState as any).watchtowers = [
+            { ring: "outer", level: oldTower?.level ?? 0, damaged: oldTower?.damaged ?? false, upgrading: oldTower?.upgrading ?? false, upgradeRemaining: oldTower?.upgradeRemaining },
+            { ring: "middle", level: 0, damaged: false, upgrading: false },
+            { ring: "inner", level: 0, damaged: false, upgrading: false },
+          ];
+        }
+        if (!(serverState as any).barracks || !Array.isArray((serverState as any).barracks)) {
+          const oldBarracks = serverState.buildings?.find((b: any) => b.buildingId === "barracks");
+          (serverState as any).barracks = [
+            { ring: "outer", level: oldBarracks?.level ?? 0, damaged: oldBarracks?.damaged ?? false, upgrading: oldBarracks?.upgrading ?? false, upgradeRemaining: oldBarracks?.upgradeRemaining },
+            { ring: "middle", level: 0, damaged: false, upgrading: false },
+            { ring: "inner", level: 0, damaged: false, upgrading: false },
+          ];
+        }
+        if ((serverState as any).soldiers === undefined) (serverState as any).soldiers = 0;
+        if ((serverState as any).archers === undefined) (serverState as any).archers = 0;
+        if (!(serverState as any).mageTower) {
+          const oldMage = serverState.buildings?.find((b: any) => b.buildingId === "mage_tower");
+          (serverState as any).mageTower = {
+            level: oldMage?.level ?? 0,
+            damaged: oldMage?.damaged ?? false,
+            upgrading: oldMage?.upgrading ?? false,
+            upgradeRemaining: oldMage?.upgradeRemaining,
+          };
+        }
+        // Backfill any new buildings that were added since this save was created.
+        // Skip the now-removed defense category — those live on the Defenses page.
+        const REMOVED_BUILDING_IDS = new Set(["walls", "watchtower", "barracks", "mage_tower"]);
         for (const def of BUILDINGS) {
           if (!serverState.buildings.find((b: any) => b.buildingId === def.id)) {
             serverState.buildings.push({ buildingId: def.id, level: 0, upgrading: false, damaged: false });
           }
         }
+        // Strip removed defense buildings from saves that still have them so
+        // they stop appearing in any iteration over state.buildings. Runs
+        // AFTER the per-ring migration so the lookups above still find them.
+        serverState.buildings = serverState.buildings.filter((b: any) => !REMOVED_BUILDING_IDS.has(b.buildingId));
         // Re-apply leveling in case XP curve changed
         for (const adv of serverState.adventurers ?? []) {
           applyXp(adv, 0);
@@ -3801,8 +3863,7 @@ export function GameProvider(props: ParentProps) {
     enchantItem(enchantId, adventurerId, slot, inventoryIdx) {
       const ench = getEnchantment(enchantId);
       if (!ench) return false;
-      const tower = state.buildings.find((b) => b.buildingId === "mage_tower");
-      if (!tower || tower.level < ench.minTowerLevel) return false;
+      if (state.mageTower.level < ench.minTowerLevel) return false;
 
       // Check valid slot
       if (slot && !ench.validSlots.includes(slot as any)) return false;
@@ -4132,6 +4193,23 @@ export function GameProvider(props: ParentProps) {
       return true;
     },
 
+    buildOrUpgradeMageTower() {
+      // Inner-ring-locked: only buildable once the Inner ring itself is
+      // unlocked (Town tier per ringUnlocked). Single instance.
+      const tier = this.getSettlementTier();
+      if (!ringUnlocked("inner", tier)) return false;
+      const cost = getMageTowerCost(state.mageTower.level);
+      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
+      setState(produce((s) => {
+        s.resources.wood -= cost.wood;
+        s.resources.stone -= cost.stone;
+        s.mageTower.level += 1;
+        pushEvent(s, "building_completed", "🗼", `Mage Tower raised to level ${s.mageTower.level}`);
+      }));
+      scheduleSave();
+      return true;
+    },
+
     repairWall(ring) {
       const slot = state.walls.find((w) => w.ring === ring);
       if (!slot || slot.level === 0) return false;
@@ -4174,6 +4252,19 @@ export function GameProvider(props: ParentProps) {
         s.resources.stone -= cost.stone;
         const b = s.barracks.find((x) => x.ring === ring)!;
         b.damaged = false;
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    repairMageTower() {
+      if (!state.mageTower.damaged) return false;
+      const cost = getDefensiveRepairCost(state.mageTower.level);
+      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
+      setState(produce((s) => {
+        s.resources.wood -= cost.wood;
+        s.resources.stone -= cost.stone;
+        s.mageTower.damaged = false;
       }));
       scheduleSave();
       return true;

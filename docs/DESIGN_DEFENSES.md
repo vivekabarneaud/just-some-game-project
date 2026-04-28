@@ -67,6 +67,14 @@ Each ring has the same fixed plot layout:
 
 So a Town tier settlement has 9 total plots (3 rings × 3 building types). Camp has 3 (Outer ring only). Village 6.
 
+### Mage Tower (Inner ring only)
+
+Single-instance research building stationed inside the keep. Doesn't fight in raids — purely a research / enchanting hub. Lives as a 4th plot in the Inner ring, available only at Town tier (when Inner unlocks).
+
+- **Role:** gates enchanting recipes by level (each recipe has a `minTowerLevel`).
+- **State:** `state.mageTower: PlayerMageTower` (level / damaged / upgrading).
+- **Combat:** none in v1. Future iteration could add a wizard defender unit derived from tower level.
+
 ---
 
 ## Soldiers — citizens, not a separate pool

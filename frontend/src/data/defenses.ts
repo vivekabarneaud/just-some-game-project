@@ -35,6 +35,12 @@ export function getDefensiveRepairCost(level: number): { wood: number; stone: nu
   return { wood: 10 + 5 * level, stone: 5 + 5 * level };
 }
 
+/** Mage Tower build/upgrade cost (level N → N+1). Ramp matches the legacy
+ *  building-list mage tower so existing players see the same numbers. */
+export function getMageTowerCost(currentLevel: number): { wood: number; stone: number } {
+  return { wood: 60 + 40 * currentLevel, stone: 100 + 60 * currentLevel };
+}
+
 /** Recruitment costs — citizen takes the role; gold pays for wages + training.
  *  Gear quality is implicit in barracks/tower level (which already cost iron
  *  to upgrade). Keeping recruit cost gold-only avoids soft-locking the

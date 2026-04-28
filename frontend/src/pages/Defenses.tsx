@@ -8,6 +8,7 @@ import {
   getBarracksCost,
   getWallRepairCost,
   getDefensiveRepairCost,
+  getMageTowerCost,
   SOLDIER_COST,
   ARCHER_COST,
   maxSoldiers,
@@ -21,6 +22,31 @@ import {
 import HpBar from "~/components/HpBar";
 
 const RINGS: DefenseRing[] = ["outer", "middle", "inner"];
+
+const R2_BASE = "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings";
+const IMG = {
+  wall: `${R2_BASE}/walls.png`,
+  watchtower: `${R2_BASE}/watchtower.png`,
+  barracks: `${R2_BASE}/barracks.png`,
+  mageTower: `${R2_BASE}/mage_tower.png`,
+};
+
+/** Compact banner thumbnail shown at the top of each defense card. */
+function CardImage(props: { src: string; alt: string }) {
+  return (
+    <img
+      src={props.src}
+      alt={props.alt}
+      style={{
+        width: "100%",
+        height: "70px",
+        "object-fit": "cover",
+        "border-radius": "4px",
+        "margin-bottom": "6px",
+      }}
+    />
+  );
+}
 
 export default function Defenses() {
   const { state, actions } = useGame();
@@ -113,6 +139,9 @@ function RingSection(props: { ring: DefenseRing; unlocked: boolean }) {
         <WallCard wall={wall()} ring={props.ring} disabled={!props.unlocked} />
         <WatchtowerCard tower={tower()} ring={props.ring} disabled={!props.unlocked} />
         <BarracksCard barracks={barracks()} ring={props.ring} disabled={!props.unlocked} />
+        <Show when={props.ring === "inner"}>
+          <MageTowerCard disabled={!props.unlocked} />
+        </Show>
       </div>
     </section>
   );
@@ -139,6 +168,7 @@ function WallCard(props: { wall: PlayerWall; ring: DefenseRing; disabled: boolea
 
   return (
     <div class="building-card">
+      <CardImage src={IMG.wall} alt="Wall" />
       <div class="building-card-title">🧱 {built() ? `Wall (Lv.${props.wall.level})` : "Wall — unbuilt"}</div>
       <Show when={built()}>
         <div style={{ "margin-top": "6px", display: "flex", "align-items": "center", gap: "6px" }}>
@@ -209,6 +239,7 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
 
   return (
     <div class="building-card">
+      <CardImage src={IMG.watchtower} alt="Watchtower" />
       <div class="building-card-title">
         🏰 {built() ? `Watchtower (Lv.${props.tower.level})` : "Watchtower — unbuilt"}
         <Show when={props.tower.damaged}>
@@ -312,6 +343,7 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
 
   return (
     <div class="building-card">
+      <CardImage src={IMG.barracks} alt="Barracks" />
       <div class="building-card-title">
         ⚔️ {built() ? `Barracks (Lv.${props.barracks.level})` : "Barracks — unbuilt"}
         <Show when={props.barracks.damaged}>
@@ -380,6 +412,70 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
               </span>
             </Show>
           </div>
+        </Show>
+      </div>
+    </div>
+  );
+}
+
+function MageTowerCard(props: { disabled: boolean }) {
+  const { state, actions } = useGame();
+  const built = () => state.mageTower.level > 0;
+  const upgradeCost = () => getMageTowerCost(state.mageTower.level);
+  const repairCost = () => getDefensiveRepairCost(state.mageTower.level);
+  const canUpgrade = () =>
+    !props.disabled &&
+    state.resources.wood >= upgradeCost().wood &&
+    state.resources.stone >= upgradeCost().stone;
+  const canRepair = () =>
+    !props.disabled &&
+    state.mageTower.damaged &&
+    state.resources.wood >= repairCost().wood &&
+    state.resources.stone >= repairCost().stone;
+
+  return (
+    <div class="building-card">
+      <CardImage src={IMG.mageTower} alt="Mage Tower" />
+      <div class="building-card-title">
+        🗼 {built() ? `Mage Tower (Lv.${state.mageTower.level})` : "Mage Tower — unbuilt"}
+        <Show when={state.mageTower.damaged}>
+          <span style={{ color: "var(--accent-red)", "font-size": "0.75rem", "margin-left": "6px" }}>
+            Damaged
+          </span>
+        </Show>
+      </div>
+      <Show when={built()}>
+        <div style={{ "margin-top": "4px", "font-size": "0.78rem", color: "var(--text-muted)" }}>
+          Unlocks enchantments up to Lv.{state.mageTower.level}
+        </div>
+      </Show>
+      <div style={{ "margin-top": "auto", "padding-top": "10px", display: "flex", gap: "6px", "flex-wrap": "wrap" }}>
+        <button
+          class="upgrade-btn"
+          disabled={!canUpgrade()}
+          onClick={() => actions.buildOrUpgradeMageTower()}
+          style={{ "font-size": "0.78rem", padding: "5px 10px" }}
+        >
+          {built()
+            ? `Upgrade — ${upgradeCost().wood}🪵 ${upgradeCost().stone}🪨`
+            : `Build — ${upgradeCost().wood}🪵 ${upgradeCost().stone}🪨`}
+        </button>
+        <Show when={state.mageTower.damaged}>
+          <button
+            disabled={!canRepair()}
+            onClick={() => actions.repairMageTower()}
+            style={{
+              "font-size": "0.78rem",
+              padding: "5px 10px",
+              background: "transparent",
+              border: "1px solid var(--accent-gold)",
+              color: "var(--accent-gold)",
+              "border-radius": "4px",
+              cursor: canRepair() ? "pointer" : "not-allowed",
+            }}
+          >
+            🔨 Repair — {repairCost().wood}🪵 {repairCost().stone}🪨
+          </button>
         </Show>
       </div>
     </div>

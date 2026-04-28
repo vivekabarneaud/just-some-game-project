@@ -18,7 +18,7 @@ export type SettlementTier = "camp" | "village" | "town" | "city";
 export interface BuildingDefinition {
   id: string;
   name: string;
-  category: "settlement" | "gathering" | "crafting" | "guild" | "defense" | "magic" | "trade";
+  category: "settlement" | "gathering" | "crafting" | "guild" | "magic" | "trade";
   description: string;
   icon: string;
   image?: string; // path to building illustration
@@ -427,41 +427,9 @@ export const BUILDINGS: BuildingDefinition[] = [
     tierLevelCaps: { camp: 2, village: 5, town: 8, city: 10 },
   },
 
-  // Town tier (TH 5+)
-  {
-    id: "barracks",
-    name: "Barracks",
-    category: "defense",
-    description:
-      "Training grounds for your soldiers. Higher levels unlock more powerful unit types.",
-    icon: "⚔️",
-    maxLevel: 20,
-    levels: generateLevels({ wood: 100, stone: 80 }, 30),
-    requiredTier: "town",
-  },
-  {
-    id: "watchtower",
-    name: "Watchtower",
-    category: "defense",
-    description:
-      "Sentinels keep watch from this tall tower, warning of approaching threats and improving your defenses.",
-    icon: "🏰",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/watchtower.png",
-    maxLevel: 15,
-    levels: generateLevels({ wood: 60, stone: 120 }, 32, undefined, 15),
-    requiredTier: "village",
-  },
-  {
-    id: "mage_tower",
-    name: "Mage Tower",
-    category: "defense",
-    description:
-      "A spire of arcane energy where wizards study the mystic arts. Unlocks magical research.",
-    icon: "🗼",
-    maxLevel: 20,
-    levels: generateLevels({ wood: 60, stone: 100 }, 38),
-    requiredTier: "town",
-  },
+  // Defense buildings (walls, watchtower, barracks, mage tower) live on the
+  // Defenses page now, as multi-instance ring slots — see PlayerWall etc.
+  // in gameState.tsx and the simulateRaidCombat path in raidCombat.ts.
 
   // Camp tier — Adventurer's Guild (missions)
   {
@@ -502,21 +470,6 @@ export const BUILDINGS: BuildingDefinition[] = [
     ],
     requiredTier: "village",
     tierLevelCaps: { village: 2, town: 4, city: 5 },
-  },
-
-  // Town tier — Walls (passive defense)
-  {
-    id: "walls",
-    name: "Walls",
-    category: "defense",
-    description:
-      "Stone fortifications around your settlement. Provides passive defense against raids and attacks.",
-    icon: "🧱",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/walls.png",
-    maxLevel: 15,
-    levels: generateLevels({ wood: 40, stone: 120 }, 25, undefined, 15),
-    requiredTier: "camp",
-    tierLevelCaps: { camp: 2, village: 5, town: 10, city: 15 },
   },
 
   {

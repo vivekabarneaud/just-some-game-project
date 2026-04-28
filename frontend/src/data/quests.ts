@@ -419,9 +419,10 @@ export const QUEST_CHAIN: QuestDefinition[] = [
     hintLink: "/marketplace",
     objective: "Build Walls",
     icon: "🧱",
-    condition: (s) => (bldg(s, "walls")?.level ?? 0) >= 1,
+    // Any wall on any ring counts. Walls live on /defenses now.
+    condition: (s) => s.walls.some((w) => w.level > 0),
     rewards: [{ resource: "wood", amount: 40, label: "Wood" }, { resource: "stone", amount: 120, label: "Stone" }],
-    targetBuildingId: "walls",
+    targetPage: "/defenses",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/walls.png",
     triggersRaid: true, // special flag — spawns a weak raid when quest appears
   },
@@ -451,9 +452,9 @@ export const QUEST_CHAIN: QuestDefinition[] = [
       "We saw them in time, but only because a returning patrol heard the brush move. Next raid, we might not be so lucky. A proper watchtower would give us hours of warning instead of minutes. No one else is getting inside our fence unnoticed.",
     objective: "Build a Watchtower",
     icon: "🏰",
-    condition: (s) => (bldg(s, "watchtower")?.level ?? 0) >= 1,
+    condition: (s) => s.watchtowers.some((t) => t.level > 0),
     rewards: [{ resource: "wood", amount: 60, label: "Wood" }, { resource: "stone", amount: 120, label: "Stone" }],
-    targetBuildingId: "watchtower",
+    targetPage: "/defenses",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/watchtower.png",
   },
 ];

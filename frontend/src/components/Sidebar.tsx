@@ -43,14 +43,12 @@ const navSections: { title: string; items: NavItem[] }[] = [
   {
     title: "Economy",
     items: [
-      { path: "/resources", icon: "📦", label: "Resources" },
       { path: "/marketplace", icon: "🏪", label: "Marketplace" },
     ],
   },
   {
     title: "Military",
     items: [
-      { path: "/troops", icon: "⚔️", label: "Troops" },
       { path: "/defenses", icon: "🛡️", label: "Defenses" },
     ],
   },
