@@ -678,6 +678,57 @@ A Khor'vani astronomical observatory at night, a massive open-roofed circular ch
 Style: Oil painting, dark medieval fantasy, muted blue-grey palette with warm firelight accents, atmospheric, gritty realism, banner composition, no text --ar 2:1
 
 
+### Defenses — Walls (4 tiers)
+
+Naming: `wall.png` (camp), `wall_village.png`, `wall_town.png`, `wall_city.png`. Save under `/media/The Shattered Realm/buildings/`.
+
+**Wall — Camp**
+A rough wooden palisade of vertical sharpened logs lashed together with rope, set into a low earthen berm, gaps mended with timber and woven branches, two settlers atop a crude scaffold inspecting a section of damaged fence with hammers and nails, a single torch burning in an iron bracket, mud underfoot from recent rain, the dark forest pressing close beyond the wall, oil painting, dark medieval fantasy, muted blue-grey palette with warm firelight accents, atmospheric, gritty realism, banner composition, no text --ar 2:1
+
+**Wall — Village**
+A timber-frame curtain wall of squared oak beams over a rubble-stone footing, a wooden parapet running along the top with archer slits cut into the planking, a heavy timber gate banded with iron strips, two militiamen in leather jerkins walking the wall-walk with spears, a brazier glowing on a corner platform, the village rooftops visible behind, dusk light, oil painting, dark medieval fantasy, muted blue-grey palette with warm firelight accents, atmospheric, gritty realism, banner composition, no text --ar 2:1
+
+**Wall — Town**
+A proper stone curtain wall of dressed ashlar blocks, square crenellations along the top, a wide wall-walk with a stone parapet, a portcullis-style iron gate flanked by stone gatehouses, soldiers in mail and surcoats patrolling the battlements, a stone-banked moat with a wooden drawbridge in the foreground, banners snapping in the wind, oil painting, dark medieval fantasy, muted blue-grey palette with warm firelight accents, atmospheric, gritty realism, banner composition, no text --ar 2:1
+
+**Wall — City**
+A massive fortified city wall of polished granite ashlar with intermediate flanking towers, machicolations projecting from the parapet, a vast iron-bound gatehouse with double portcullis, knights in plate harness drilling on the wall-walk, the gatehouse's twin towers rising above the curtain wall, a deep dry moat below, the city's spires and rooftops behind the wall, low golden hour light, oil painting, dark medieval fantasy, muted blue-grey palette with warm firelight accents, atmospheric, gritty realism, banner composition, no text --ar 2:1
+
+
+### Defenses — Watchtowers (4 tiers)
+
+Naming: `watchtower.png` (camp — replaces existing legacy file), `watchtower_village.png`, `watchtower_town.png`, `watchtower_city.png`.
+
+**Watchtower — Camp**
+A simple wooden lookout post built atop four crossed timber legs, a thatched-roof platform at the top with a low railing, a rope ladder hanging down, a single sentry leaning on the rail with a hunting horn at his belt scanning the dark forest, a brazier on the platform throwing warm orange light upward, the surrounding palisade lower than the tower base, dusk light, oil painting, dark medieval fantasy, muted blue-grey palette with warm firelight accents, atmospheric, gritty realism, banner composition, no text --ar 2:1
+
+**Watchtower — Village**
+A timber-framed tower of squared oak rising three storeys above the village palisade, a covered wooden balcony at the top with arrow loops, an iron alarm bell hanging beneath the eaves, a militia archer with longbow drawn standing watch, a second figure climbing the internal ladder visible through an open shutter, lanterns at each storey, the village rooftops below, oil painting, dark medieval fantasy, muted blue-grey palette with warm firelight accents, atmospheric, gritty realism, banner composition, no text --ar 2:1
+
+**Watchtower — Town**
+A square stone watchtower of dressed ashlar blocks four storeys tall, crenellations at the top with arrow slits in every face, a heavy wooden door at the base banded with iron, two crossbowmen in mail patrolling the parapet, a brass signal horn mounted on the wall, a town banner streaming from a pole above the battlements, smoke rising from a brazier on the roof, oil painting, dark medieval fantasy, muted blue-grey palette with warm firelight accents, atmospheric, gritty realism, banner composition, no text --ar 2:1
+
+**Watchtower — City**
+A grand round stone keep-tower of polished granite, machicolations and cap-house roof in dark slate, six storeys high with arrow slits and gun-loops at every level, a gilded weathervane atop a conical spire, master archers in surcoats drawing longbows from the parapet, a great bronze warning bell mounted under the cap-house, a lord's banner snapping above, the city laid out below, low golden light, oil painting, dark medieval fantasy, muted blue-grey palette with warm firelight accents, atmospheric, gritty realism, banner composition, no text --ar 2:1
+
+
+### Defenses — Barracks (4 tiers)
+
+Naming: `barracks.png` (camp), `barracks_village.png`, `barracks_town.png`, `barracks_city.png`.
+
+**Barracks — Camp**
+A simple longhouse of rough-hewn logs with a thatched roof and a single smoking chimney, the door propped open showing wooden bunks and straw mattresses inside, a militiaman sharpening a spear on a whetstone outside the door, a wooden rack holding shields and clubs against the wall, a small cookpot over an open fire pit, mud and trampled grass underfoot, dusk light, oil painting, dark medieval fantasy, muted blue-grey palette with warm firelight accents, atmospheric, gritty realism, banner composition, no text --ar 2:1
+
+**Barracks — Village**
+A two-storey timber-framed barracks hall with whitewashed daub between dark oak beams, a small drilling yard out front with wooden practice posts and pell-targets, a sergeant in a leather jack inspecting four militiamen in formation, racks of spears and round shields along the wall, a stone forge built into the gable end, smoke and the orange glow of the forge fire visible through the open door, oil painting, dark medieval fantasy, muted blue-grey palette with warm firelight accents, atmospheric, gritty realism, banner composition, no text --ar 2:1
+
+**Barracks — Town**
+A long stone barracks-block with arched doorways and slate roof, a paved drilling yard with a row of soldiers in mail practising sword-and-shield drills under a captain's eye, a covered armoury wing visible through an open archway showing racks of swords, helmets and crossbows, a quartermaster handing out rations from a stone storeroom, a banner of the town garrison flying from a pole, oil painting, dark medieval fantasy, muted blue-grey palette with warm firelight accents, atmospheric, gritty realism, banner composition, no text --ar 2:1
+
+**Barracks — City**
+A grand stone garrison complex with arched colonnades along the facade, a vast cobbled parade ground filled with knights in plate harness drilling in formation, a master-at-arms on a raised platform calling cadence, a banner-flagged armoury wing with vaulted doors open showing racks of polished plate and pole-arms, a stone watchtower at one corner of the compound, a fountain in the centre of the yard, late afternoon light, oil painting, dark medieval fantasy, muted blue-grey palette with warm firelight accents, atmospheric, gritty realism, banner composition, no text --ar 2:1
+
+
 ## Kitchen Recipe Icons
 
 Food item icons: single dish on dark background, square format.

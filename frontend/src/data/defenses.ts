@@ -35,9 +35,13 @@ export function getDefensiveRepairCost(level: number): { wood: number; stone: nu
   return { wood: 10 + 5 * level, stone: 5 + 5 * level };
 }
 
-/** Recruitment costs — citizen takes the role; gold pays for arms + training. */
-export const SOLDIER_COST = { gold: 15, iron: 1 };
-export const ARCHER_COST = { gold: 20, iron: 2 };
+/** Recruitment costs — citizen takes the role; gold pays for wages + training.
+ *  Gear quality is implicit in barracks/tower level (which already cost iron
+ *  to upgrade). Keeping recruit cost gold-only avoids soft-locking the
+ *  Baptism of Fire quest, which fires before the player can build an iron
+ *  mine. */
+export const SOLDIER_COST = { gold: 15 };
+export const ARCHER_COST = { gold: 20 };
 
 // ─── Slot caps ────────────────────────────────────────────────────
 

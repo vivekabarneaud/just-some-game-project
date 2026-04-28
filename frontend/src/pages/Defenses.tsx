@@ -203,7 +203,6 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
     }
     if (availableCitizens(state) <= 0) return "No spare citizens — grow population first";
     if (state.resources.gold < ARCHER_COST.gold) return `Need ${ARCHER_COST.gold} gold`;
-    if (state.iron < ARCHER_COST.iron) return `Need ${ARCHER_COST.iron} iron`;
     return "";
   };
   const canRecruit = () => recruitBlocker() === "";
@@ -266,10 +265,10 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
                 opacity: canRecruit() ? 1 : 0.5,
               }}
               title={canRecruit()
-                ? `Recruit archer — ${ARCHER_COST.gold}g + ${ARCHER_COST.iron} iron, takes 1 citizen`
+                ? `Recruit archer — ${ARCHER_COST.gold}g, takes 1 citizen`
                 : recruitBlocker()}
             >
-              +Archer ({ARCHER_COST.gold}g {ARCHER_COST.iron}⚒️)
+              +Archer ({ARCHER_COST.gold}g)
             </button>
             <Show when={!canRecruit()}>
               <span style={{ "font-size": "0.7rem", color: "var(--accent-red)", "padding-left": "2px" }}>
@@ -307,7 +306,6 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
     }
     if (availableCitizens(state) <= 0) return "No spare citizens — grow population first";
     if (state.resources.gold < SOLDIER_COST.gold) return `Need ${SOLDIER_COST.gold} gold`;
-    if (state.iron < SOLDIER_COST.iron) return `Need ${SOLDIER_COST.iron} iron`;
     return "";
   };
   const canRecruit = () => recruitBlocker() === "";
@@ -371,10 +369,10 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
                 opacity: canRecruit() ? 1 : 0.5,
               }}
               title={canRecruit()
-                ? `Recruit soldier — ${SOLDIER_COST.gold}g + ${SOLDIER_COST.iron} iron, takes 1 citizen`
+                ? `Recruit soldier — ${SOLDIER_COST.gold}g, takes 1 citizen`
                 : recruitBlocker()}
             >
-              +Soldier ({SOLDIER_COST.gold}g {SOLDIER_COST.iron}⚒️)
+              +Soldier ({SOLDIER_COST.gold}g)
             </button>
             <Show when={!canRecruit()}>
               <span style={{ "font-size": "0.7rem", color: "var(--accent-red)", "padding-left": "2px" }}>

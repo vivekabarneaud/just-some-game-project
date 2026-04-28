@@ -4180,13 +4180,12 @@ export function GameProvider(props: ParentProps) {
     },
 
     recruitSoldier() {
-      // Need a free slot AND an unallocated citizen AND the gold/iron.
+      // Need a free slot AND an unallocated citizen AND the gold.
       if (state.soldiers >= maxSoldiers(state)) return false;
       if (availableCitizens(state) <= 0) return false;
-      if (state.resources.gold < SOLDIER_COST.gold || state.iron < SOLDIER_COST.iron) return false;
+      if (state.resources.gold < SOLDIER_COST.gold) return false;
       setState(produce((s) => {
         s.resources.gold -= SOLDIER_COST.gold;
-        s.iron -= SOLDIER_COST.iron;
         s.soldiers += 1;
       }));
       scheduleSave();
@@ -4196,10 +4195,9 @@ export function GameProvider(props: ParentProps) {
     recruitArcher() {
       if (state.archers >= maxArchers(state)) return false;
       if (availableCitizens(state) <= 0) return false;
-      if (state.resources.gold < ARCHER_COST.gold || state.iron < ARCHER_COST.iron) return false;
+      if (state.resources.gold < ARCHER_COST.gold) return false;
       setState(produce((s) => {
         s.resources.gold -= ARCHER_COST.gold;
-        s.iron -= ARCHER_COST.iron;
         s.archers += 1;
       }));
       scheduleSave();
