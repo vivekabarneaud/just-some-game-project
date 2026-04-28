@@ -212,7 +212,6 @@ import {
 } from "@medieval-realm/shared/data/adventurers";
 import {
   type IncomingRaid,
-  type RaidResult,
   getRaid,
   calcDefense,
   calcWarningTime,
@@ -443,7 +442,6 @@ export interface GameState {
   starvationPenalty: number; // 0-75, decays over 24h after food is restored
   // Raids
   incomingRaids: IncomingRaid[];
-  raidLog: RaidResult[]; // recent results (cleared on read)
   hoursSinceLastRaid: number; // game-hours until next raid spawns
   /** Total raids that have resolved (victory + defeat). Persistent counter,
    *  used by quests like Baptism of Fire that need to fire on first encounter
@@ -554,7 +552,6 @@ export interface GameActions {
   dismissArcher: () => boolean;
   // Raids
   getDefense: () => DefenseBreakdown;
-  collectRaidLog: () => RaidResult[];
   triggerRaid: () => boolean;
   spawnTestMissions: (...missionIds: string[]) => void;
   recallAdventurers: () => { recalled: number; instant: boolean };
@@ -724,7 +721,6 @@ function createInitialState(): GameState {
     recruitRefreshIn: 0,
     missionRefreshIn: 0,
     incomingRaids: [],
-    raidLog: [],
     hoursSinceLastRaid: 48, // start with 48h of calm
     raidsResolvedCount: 0,
     astralShards: 0,
@@ -1025,7 +1021,6 @@ function loadGame(): GameState | null {
     if (saved.starvationPenalty === undefined) saved.starvationPenalty = 0;
     // Raid migration
     if (!saved.incomingRaids) saved.incomingRaids = [];
-    if (!saved.raidLog) saved.raidLog = [];
     if (saved.hoursSinceLastRaid === undefined) saved.hoursSinceLastRaid = 48;
     // Astral Shards migration
     if (saved.astralShards === undefined) saved.astralShards = 0;
@@ -2878,6 +2873,18 @@ export function GameProvider(props: ParentProps) {
 
               const raidName = template.name ?? ir.raidId;
 
+              // Per-casualty event lines so the player can see the breakdown
+              // beyond the summary. Pushed before the summary so the summary
+              // ends up at the top of the log.
+              if (sim.soldiersLost > 0) {
+                const word = sim.soldiersLost === 1 ? "soldier" : "soldiers";
+                pushEvent(s, "citizen_died", "⚔️", `${sim.soldiersLost} ${word} fell defending the walls`);
+              }
+              if (sim.archersLost > 0) {
+                const word = sim.archersLost === 1 ? "archer" : "archers";
+                pushEvent(s, "citizen_died", "🏹", `${sim.archersLost} ${word} fell at the watchtower`);
+              }
+
               if (sim.victory) {
                 // ── Victory: grant loot ────────────────────────────
                 const resCaps = calcStorageCaps(s.buildings);
@@ -2912,6 +2919,8 @@ export function GameProvider(props: ParentProps) {
                 if (template.killsCitizens) {
                   extraCitizensLost = Math.min(template.maxCitizenLoss, Math.max(1, Math.floor(s.population * 0.1)));
                   s.population = Math.max(BASE_POPULATION, s.population - extraCitizensLost);
+                  const word = extraCitizensLost === 1 ? "citizen" : "citizens";
+                  pushEvent(s, "citizen_died", "💀", `${extraCitizensLost} ${word} taken in the plunder`);
                 }
 
                 // Damage 1-3 random buildings (legacy plunder mechanic).
@@ -4209,14 +4218,6 @@ export function GameProvider(props: ParentProps) {
       setState(produce((s) => { s.archers -= 1; }));
       scheduleSave();
       return true;
-    },
-    collectRaidLog() {
-      const log = [...state.raidLog];
-      if (log.length > 0) {
-        setState(produce((s) => { s.raidLog = []; }));
-        scheduleSave();
-      }
-      return log;
     },
     recallAdventurers() {
       const missions = state.activeMissions;

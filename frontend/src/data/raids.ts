@@ -1,7 +1,6 @@
 import type { Adventurer } from "@medieval-realm/shared/data/adventurers";
 import type { MissionEncounter } from "@medieval-realm/shared/data/missions";
 import type { CombatLogEntry } from "@medieval-realm/shared/data/combat";
-import type { PlayerBuilding } from "./buildings";
 import type { SettlementTier } from "./buildings";
 import type { PlayerWall, PlayerWatchtower, PlayerBarracks } from "~/engine/gameState";
 
@@ -48,18 +47,6 @@ export interface IncomingRaid {
   combatVictory?: boolean;
   /** Once the player has watched / dismissed playback, the raid card clears. */
   combatViewed?: boolean;
-}
-
-export interface RaidResult {
-  raidId: string;
-  victory: boolean;
-  defenseScore: number;
-  raidStrength: number;
-  resourcesLost: { gold: number; wood: number; stone: number; food: number };
-  citizensLost: number;
-  defendersInjured: string[];
-  loot: { resource: string; amount: number }[];
-  buildingsDamaged?: number;
 }
 
 // ─── Raid pool ──────────────────────────────────────────────────
@@ -343,88 +330,6 @@ export function calcDefense(
  */
 export function calcWarningTime(baseWarning: number, watchtowerLevel: number): number {
   return baseWarning + watchtowerLevel * 2;
-}
-
-// ─── Raid resolution ────────────────────────────────────────────
-
-export interface RaidResolutionInput {
-  raid: RaidTemplate;
-  raidStrength: number;
-  defense: DefenseBreakdown;
-  resources: { gold: number; wood: number; stone: number; food: number };
-  population: number;
-  homeAdventurers: Adventurer[];
-}
-
-export function resolveRaid(input: RaidResolutionInput): RaidResult {
-  const { raid, raidStrength, defense, resources, population, homeAdventurers } = input;
-  const successChance = calcRaidSuccessChance(defense.total, raidStrength);
-  const victory = Math.random() * 100 < successChance;
-
-  const result: RaidResult = {
-    raidId: raid.id,
-    victory,
-    defenseScore: defense.total,
-    raidStrength,
-    resourcesLost: { gold: 0, wood: 0, stone: 0, food: 0 },
-    citizensLost: 0,
-    defendersInjured: [],
-    loot: [],
-  };
-
-  if (victory) {
-    // Won! Collect loot
-    result.loot = [...raid.victoryLoot];
-    // Minor adventurer injury chance (10%)
-    for (const adv of homeAdventurers) {
-      if (Math.random() < 0.10) {
-        result.defendersInjured.push(adv.name);
-      }
-    }
-    return result;
-  }
-
-  // Lost — damage scales with how badly outmatched you are
-  // overpower: 0 = barely lost (lucky-loss roll despite strong defense),
-  //            1 = completely overwhelmed.
-  // Clamped to [0, 1] so a high-defense unlucky-loss doesn't produce
-  // negative steal % (which would turn the loot math into a small refund).
-  const overpower = Math.max(0, Math.min(1, (raidStrength - defense.total) / Math.max(1, defense.total)));
-  // severity: the raid template's brutality (higher tier raids are more devastating)
-  const severity = raid.resourceStealPercent + (raid.killsCitizens ? 0.3 : 0);
-
-  if (raid.stealsResources) {
-    // Base steal scales with overpower: barely lost = ~30%, overwhelmed = ~70%+
-    const stealPct = Math.min(0.9, (0.3 + overpower * 0.5) * (1 + severity));
-    result.resourcesLost = {
-      gold: Math.floor(resources.gold * stealPct),
-      wood: Math.floor(resources.wood * stealPct),
-      stone: Math.floor(resources.stone * stealPct),
-      food: Math.floor(resources.food * stealPct),
-    };
-  }
-
-  if (raid.killsCitizens) {
-    // Barely lost = ~20% casualties, overwhelmed = up to 70%
-    const casualtyPct = 0.2 + overpower * 0.5;
-    const maxFromTemplate = raid.maxCitizenLoss;
-    const maxFromPercent = Math.floor(population * casualtyPct);
-    result.citizensLost = Math.max(1, Math.min(maxFromTemplate, maxFromPercent));
-  }
-
-  // Defending adventurers: injury chance scales with overpower
-  const injuryChance = 0.2 + overpower * 0.4; // 20% barely lost, 60% overwhelmed
-  for (const adv of homeAdventurers) {
-    if (Math.random() < injuryChance) {
-      result.defendersInjured.push(adv.name);
-    }
-  }
-
-  // Damage buildings (number of damaged buildings scales with overpower)
-  const maxDamaged = Math.max(1, Math.floor(overpower * 4));
-  result.buildingsDamaged = maxDamaged;
-
-  return result;
 }
 
 // ─── Raid spawning ──────────────────────────────────────────────

@@ -236,18 +236,6 @@ export interface IncomingRaid {
   warned: boolean;
 }
 
-export interface RaidResult {
-  raidId: string;
-  victory: boolean;
-  defenseScore: number;
-  raidStrength: number;
-  resourcesLost: { gold: number; wood: number; stone: number; food: number };
-  citizensLost: number;
-  defendersInjured: string[];
-  loot: { resource: string; amount: number }[];
-  buildingsDamaged?: number;
-}
-
 // ─── Crafting ───────────────────────────────────────────────────
 
 export interface ActiveCraft {
@@ -342,7 +330,6 @@ export interface GameState {
   starvationPenalty: number;
   // Raids
   incomingRaids: IncomingRaid[];
-  raidLog: RaidResult[];
   hoursSinceLastRaid: number;
   // Astral Shards
   astralShards: number;
