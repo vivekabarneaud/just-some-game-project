@@ -209,10 +209,10 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     name: "Wooden Shield",
     icon: "🪵",
     building: "woodworker",
-    minLevel: 2,
-    costs: [{ resource: "wood", amount: 20 }, { resource: "iron", amount: 3 }],
+    minLevel: 1,
+    costs: [{ resource: "wood", amount: 15 }],
     produces: { resource: "armor", amount: 1 },
-    craftTime: 120, // 12 min
+    craftTime: 30,
   },
   {
     id: "longbow",
