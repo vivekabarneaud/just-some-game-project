@@ -351,8 +351,11 @@ export function resolveRaid(input: RaidResolutionInput): RaidResult {
   }
 
   // Lost — damage scales with how badly outmatched you are
-  // overpower: 0 = barely lost, 1 = completely overwhelmed
-  const overpower = Math.min(1, (raidStrength - defense.total) / Math.max(1, defense.total));
+  // overpower: 0 = barely lost (lucky-loss roll despite strong defense),
+  //            1 = completely overwhelmed.
+  // Clamped to [0, 1] so a high-defense unlucky-loss doesn't produce
+  // negative steal % (which would turn the loot math into a small refund).
+  const overpower = Math.max(0, Math.min(1, (raidStrength - defense.total) / Math.max(1, defense.total)));
   // severity: the raid template's brutality (higher tier raids are more devastating)
   const severity = raid.resourceStealPercent + (raid.killsCitizens ? 0.3 : 0);
 

@@ -433,7 +433,11 @@ export const QUEST_CHAIN: QuestDefinition[] = [
       "They're here. A ragged band of hungry bandits, driven south by Dominion taxes and hard winters. They're not evil, just desperate. But desperate men with swords are still dangerous. Your walls will be tested for the first time.",
     objective: "Survive the raid",
     icon: "⚔️",
-    condition: (s) => s.lastRaidOutcome === "victory",
+    // Any resolution counts — the objective text is "survive", and a defeat
+    // still leaves the settlement standing. Uses the durable counter so
+    // players who win, then wait through the lastRaidOutcome decay window,
+    // still pass.
+    condition: (s) => (s.raidsResolvedCount ?? 0) > 0,
     rewards: [
       { resource: "gold", amount: 60, label: "Gold" },
       { resource: "astralShards", amount: 3, label: "Astral Shards" },

@@ -388,6 +388,10 @@ export interface GameState {
   incomingRaids: IncomingRaid[];
   raidLog: RaidResult[]; // recent results (cleared on read)
   hoursSinceLastRaid: number; // game-hours until next raid spawns
+  /** Total raids that have resolved (victory + defeat). Persistent counter,
+   *  used by quests like Baptism of Fire that need to fire on first encounter
+   *  regardless of outcome and survive the lastRaidOutcome decay window. */
+  raidsResolvedCount: number;
   // Astral Shards (premium currency)
   astralShards: number;
   lastDailyLogin: number; // real-world timestamp of last daily reward claim
@@ -633,6 +637,7 @@ function createInitialState(): GameState {
     incomingRaids: [],
     raidLog: [],
     hoursSinceLastRaid: 48, // start with 48h of calm
+    raidsResolvedCount: 0,
     astralShards: 0,
     lastDailyLogin: 0,
     lastGuildVisit: 0,
@@ -867,6 +872,15 @@ function loadGame(): GameState | null {
     if (saved.happiness === undefined) saved.happiness = 50;
     if (!saved.lastRaidOutcome) saved.lastRaidOutcome = "none";
     if (saved.lastRaidTime === undefined) saved.lastRaidTime = 0;
+    // raidsResolvedCount is durable (doesn't decay). Backfill from event log
+    // for older saves so quests like Baptism of Fire don't soft-lock players
+    // who already weathered a raid before this counter existed.
+    if (saved.raidsResolvedCount === undefined) {
+      const priorRaids = (saved.eventLog ?? []).filter(
+        (e: any) => e?.type === "raid_victory" || e?.type === "raid_defeat",
+      ).length;
+      saved.raidsResolvedCount = priorRaids;
+    }
     if (saved.starvationPenalty === undefined) saved.starvationPenalty = 0;
     // Raid migration
     if (!saved.incomingRaids) saved.incomingRaids = [];
@@ -1675,6 +1689,7 @@ export function GameProvider(props: ParentProps) {
                 serverState.raidLog.push(result);
                 serverState.lastRaidOutcome = result.victory ? "victory" : "defeat";
                 serverState.lastRaidTime = 0;
+                serverState.raidsResolvedCount = (serverState.raidsResolvedCount ?? 0) + 1;
                 if (!serverState.eventLog) serverState.eventLog = [];
                 const raidName = template.name ?? ir.raidId;
                 serverState.eventLog.unshift({
@@ -2723,6 +2738,7 @@ export function GameProvider(props: ParentProps) {
 
               s.raidLog.push(result);
               s.lastRaidOutcome = result.victory ? "victory" : "defeat";
+              s.raidsResolvedCount = (s.raidsResolvedCount ?? 0) + 1;
               s.lastRaidTime = 0;
             }
             s.incomingRaids.splice(i, 1);
