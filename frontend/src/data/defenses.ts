@@ -73,6 +73,13 @@ export const ARCHER_COST = { gold: 20 };
 
 // ─── Slot caps ────────────────────────────────────────────────────
 
+// TODO (post-defenses-merge): rethink slot-per-level scaling. Population
+// scales from 5 (camp) up to 1800 (city L20 housing); a L8 tower allowing
+// only 8 archers is a token defense at city tier. Likely options: bump the
+// per-level multipliers (e.g. tower → level × 2-3, barracks → level × 5),
+// or move to triangular/quadratic scaling so late-game garrisons feel like
+// real garrisons. Tracked alongside the future garrison-training feature.
+
 /** Max soldiers across all undamaged barracks (3 per barracks level). */
 export function maxSoldiers(state: GameState): number {
   return state.barracks

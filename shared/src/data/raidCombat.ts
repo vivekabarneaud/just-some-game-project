@@ -102,15 +102,18 @@ function buildWallUnit(ring: DefenseRing, level: number, currentHp: number): Com
   };
 }
 
+// Stats represent untrained-sentry baseline. Future per-building training /
+// equipment (see roadmap: garrison training feature) will layer bonuses on
+// top — this stays the floor.
 function buildArcherUnit(ring: DefenseRing, idx: number): CombatUnit {
-  const hp = 24;
+  const hp = 28;
   return {
     id: `archer_${ring}_${idx}`,
     name: `${RING_LABEL[ring]} Tower Archer`,
     icon: "🏹",
     isEnemy: false,
     hp, maxHp: hp,
-    str: 4, dex: 7, int: 0, vit: 3, wis: 2,
+    str: 5, dex: 14, int: 0, vit: 3, wis: 2,
     class: "archer",
     isMagical: false,
     gearDefense: 8,
@@ -119,14 +122,14 @@ function buildArcherUnit(ring: DefenseRing, idx: number): CombatUnit {
 }
 
 function buildSoldierUnit(ring: DefenseRing, idx: number): CombatUnit {
-  const hp = 32;
+  const hp = 36;
   return {
     id: `soldier_${ring}_${idx}`,
     name: `${RING_LABEL[ring]} Guard`,
     icon: "⚔️",
     isEnemy: false,
     hp, maxHp: hp,
-    str: 7, dex: 4, int: 0, vit: 4, wis: 2,
+    str: 14, dex: 5, int: 0, vit: 4, wis: 2,
     class: "warrior",
     isMagical: false,
     gearDefense: 14,
@@ -343,7 +346,11 @@ export function simulateRaidCombat(input: RaidCombatInput): RaidCombatResult {
       if (raiders.every((r) => r.hp <= 0)) break; // siege over
       const wallDown = !wall || wall.hp <= 0;
       const soldiersGone = soldiers.every((s) => s.hp <= 0);
-      if (wallDown && soldiersGone) break; // ring breached, raid pushes inward
+      const archersGone = archers.every((a) => a.hp <= 0);
+      // Ring breached only when nothing remains to defend it. Archers keep
+      // firing from a fallen wall as long as raiders are still here — they
+      // only stop when killed (or when the raiders move inward / die).
+      if (wallDown && soldiersGone && archersGone) break;
     }
 
     // Record final wall HP for this ring (if it had a wall)
