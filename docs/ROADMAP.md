@@ -7,14 +7,6 @@ Bird's-eye view of pending work. Each item is one-or-two lines + a pointer to th
 
 ## Now (paused mid-discussion or actively in flight)
 
-### Defenses rework — polish pass before merging to main
-Branch `feature/defenses-rework` is feature-complete (rings, sim, playback, recruit, indicator-style upgrade UX, tier-variant images, timed builds, multi-resource tooltips). Before merging:
-- Investigate the 4-vs-5 starter "available citizens" reading (likely fixes itself once Citizen Categories lands, but worth confirming the underlying state isn't drifting).
-- One full-game pass (camp → village raid → playback) to catch stragglers.
-- Rebase + clean PR + merge.
-
-**Doc:** `DESIGN_DEFENSES.md`. **Branch:** `feature/defenses-rework`.
-
 ### Pantry / warehouse destructibility
 Mid-discussion 2026-04-28. Three options on the table:
 - **A.** Destroyable; X% stockpile loss on destruction (most punishing).
@@ -133,6 +125,13 @@ Probably blocked on (or done alongside) the backend phase.
 Co-op guild halls, shared raids, weekly multiplayer expedition events.
 **Memory:** `project_player_guilds.md`. Blocked by backend.
 
+### Cross-player raid defense (send adventurers to help a friend)
+WS push when a friend's raid timer starts → toast on your client ("Edda's settlement is under attack from a Wolf Pack — defend?"). Pick an idle adventurer → they travel to the friend's settlement → join their raid sim as a defender unit when combat fires. Friendship-strengthening, fits the cooperative-medieval-fantasy thesis.
+
+Open design Qs (lock at design time, not now): travel time (instant for nearby friends? Hours for far ones?); what happens if your adventurer dies in someone else's raid (full permadeath? Recovery?); reciprocity/cooldown so it isn't a one-way drain; how the raid sim resolves authoritatively across two clients (server-side once backend lands).
+
+**Memory:** `project_friend_raid_defense.md`. Blocked by backend (raid combat is currently client-resolved; cross-player needs server-side sim or strict coordination).
+
 ### Dragon system
 Egg from late mission, tamagotchi nurturing, defense + PvP.
 **Memory:** `project_dragon_system.md`
@@ -173,6 +172,7 @@ Crafted tools (iron hook, saw) installed in buildings to boost production. Found
 
 ## Recently shipped (last 2-3 weeks, for memory)
 
+- **Defenses rework (2026-04-29)**: concentric Outer/Middle/Inner rings, multi-instance walls/watchtowers/barracks, real raid combat sim sharing the mission combat engine, blow-by-blow playback, soldiers-as-citizens recruit, Mage Tower → Inner ring, panic-build escape hatch on lumber mill / quarry, tier-variant images, Houses prereq cap fix.
 - Phone responsive pass (shell, cards, dropdowns, drawer nav, font scales).
 - Founding cast voice pass (Edda/Jory/Tomas + Corin polish, Lyra named, em dash sweep).
 - Recruit pool gated by guild level.
@@ -186,4 +186,4 @@ Crafted tools (iron hook, saw) installed in buildings to boost production. Found
 
 ---
 
-*Last updated: 2026-04-29. Update when scope or status changes — don't let this drift.*
+*Last updated: 2026-04-29 (post-defenses merge). Update when scope or status changes — don't let this drift.*
