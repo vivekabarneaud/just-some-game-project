@@ -43,11 +43,14 @@ export default function ResourceBar() {
           const rate = () => getRate(res.id);
           // Hover message when wood / stone production is 0/h — nudges new
           // players toward building (or repairing) the right gathering
-          // building before they soft-lock. Other resources don't get a
-          // tooltip; their 0/h is usually expected (e.g. food in winter).
-          const noProductionTitle = () => {
-            if (res.id !== "wood" && res.id !== "stone") return undefined;
-            if (rate() !== 0) return undefined;
+          // building before they soft-lock. Other resources return "" (browser
+          // treats empty title as no tooltip); avoiding `undefined` prevents
+          // Solid from binding it as a literal "undefined" string.
+          const noProductionTitle = (): string => {
+            if (res.id !== "wood" && res.id !== "stone") return "";
+            // Round to match what's displayed (Math.round(rate())). A rate of
+            // ~0.4 reads as 0/h to the player but isn't strictly === 0.
+            if (Math.round(rate()) !== 0) return "";
             const buildingId = res.id === "wood" ? "lumber_mill" : "quarry";
             const buildingName = res.id === "wood" ? "Lumber Mill" : "Stone Quarry";
             const pb = state.buildings.find((b) => b.buildingId === buildingId);
@@ -57,7 +60,7 @@ export default function ResourceBar() {
             if (pb.damaged) {
               return `No ${res.id} production — your ${buildingName} is damaged. Repair it in the Buildings page.`;
             }
-            return undefined;
+            return "";
           };
           return (
             <div
