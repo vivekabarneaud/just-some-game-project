@@ -7,6 +7,14 @@ Bird's-eye view of pending work. Each item is one-or-two lines + a pointer to th
 
 ## Now (paused mid-discussion or actively in flight)
 
+### Defenses rework — polish pass before merging to main
+Branch `feature/defenses-rework` is feature-complete (rings, sim, playback, recruit, indicator-style upgrade UX, tier-variant images, timed builds, multi-resource tooltips). Before merging:
+- Investigate the 4-vs-5 starter "available citizens" reading (likely fixes itself once Citizen Categories lands, but worth confirming the underlying state isn't drifting).
+- One full-game pass (camp → village raid → playback) to catch stragglers.
+- Rebase + clean PR + merge.
+
+**Doc:** `DESIGN_DEFENSES.md`. **Branch:** `feature/defenses-rework`.
+
 ### Pantry / warehouse destructibility
 Mid-discussion 2026-04-28. Three options on the table:
 - **A.** Destroyable; X% stockpile loss on destruction (most punishing).
@@ -97,6 +105,13 @@ Edda has 4 fragments, Jory 2, Tomas 2, Corin 1 (kept from old version). Nell is 
 - Father Corin's secret notebook reveal (mid-game beat, see `founder_father_corin.md`).
 - "First arrival" beats for non-Ashwick origins as guild upgrades unlock them (see `project_origin_tiers.md`).
 
+### Citizen categories (Phase B — full per-category state)
+Replace `state.population: number` with a `CitizenCounts` struct covering toddlers / children / adults / elderly. Aging tick advances cohorts each game-year; food consumption multiplies per category; defense recruitment reads `adults` only (so the Defenses page "available citizens" makes intuitive sense). Growth events get flavor (couple / family / baby / drifter) instead of the generic "1 citizen joined". Founder cast is initialised in-bracket (Edda + Corin elderly, Nell child, Jory + Tomas adult).
+
+Skipped Phase A (cosmetic ratios) per 2026-04-29 discussion — going straight to Phase B once the Defenses rework lands.
+
+**Doc:** `DESIGN_CITIZEN_CATEGORIES.md`. ~3-4 sittings.
+
 ### Backend phase
 Hono + Prisma + Postgres, deploy on Render, DB on Neon. World map + trade + co-op + PvP foundations.
 **Memory:** `project_backend_plan.md`
@@ -142,11 +157,6 @@ Per-adventurer potion + food slots + team scroll slot. Replaces flat 3-supply sy
 Crafted tools (iron hook, saw) installed in buildings to boost production. Foundation in place; full content pass pending.
 **Doc:** `DESIGN_BUILDING_TOOLS.md`. **Memory:** `project_building_tools.md`
 
-### Defenses rework
-Multi-instance walls/watchtowers/barracks organized in concentric rings (Outer/Middle/Inner). Each instance is a `CombatUnit` participating in raid combat — proper blow-by-blow log, reuses the existing playback system. Soldiers are citizens (population decrements on death). Watchtower level extends raid early-warning visibility.
-
-**Doc:** `DESIGN_DEFENSES.md` (locked design, ~3-5 sittings to implement).
-
 ---
 
 ## Open questions / decisions pending
@@ -176,4 +186,4 @@ Multi-instance walls/watchtowers/barracks organized in concentric rings (Outer/M
 
 ---
 
-*Last updated: 2026-04-28. Update when scope or status changes — don't let this drift.*
+*Last updated: 2026-04-29. Update when scope or status changes — don't let this drift.*
