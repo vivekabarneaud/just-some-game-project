@@ -18,7 +18,7 @@ export type SettlementTier = "camp" | "village" | "town" | "city";
 export interface BuildingDefinition {
   id: string;
   name: string;
-  category: "settlement" | "gathering" | "crafting" | "guild" | "defense" | "magic" | "trade";
+  category: "settlement" | "gathering" | "crafting" | "guild" | "magic" | "trade";
   description: string;
   icon: string;
   image?: string; // path to building illustration
@@ -427,41 +427,9 @@ export const BUILDINGS: BuildingDefinition[] = [
     tierLevelCaps: { camp: 2, village: 5, town: 8, city: 10 },
   },
 
-  // Town tier (TH 5+)
-  {
-    id: "barracks",
-    name: "Barracks",
-    category: "defense",
-    description:
-      "Training grounds for your soldiers. Higher levels unlock more powerful unit types.",
-    icon: "⚔️",
-    maxLevel: 20,
-    levels: generateLevels({ wood: 100, stone: 80 }, 30),
-    requiredTier: "town",
-  },
-  {
-    id: "watchtower",
-    name: "Watchtower",
-    category: "defense",
-    description:
-      "Sentinels keep watch from this tall tower, warning of approaching threats and improving your defenses.",
-    icon: "🏰",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/watchtower.png",
-    maxLevel: 15,
-    levels: generateLevels({ wood: 60, stone: 120 }, 32, undefined, 15),
-    requiredTier: "village",
-  },
-  {
-    id: "mage_tower",
-    name: "Mage Tower",
-    category: "defense",
-    description:
-      "A spire of arcane energy where wizards study the mystic arts. Unlocks magical research.",
-    icon: "🗼",
-    maxLevel: 20,
-    levels: generateLevels({ wood: 60, stone: 100 }, 38),
-    requiredTier: "town",
-  },
+  // Defense buildings (walls, watchtower, barracks, mage tower) live on the
+  // Defenses page now, as multi-instance ring slots — see PlayerWall etc.
+  // in gameState.tsx and the simulateRaidCombat path in raidCombat.ts.
 
   // Camp tier — Adventurer's Guild (missions)
   {
@@ -502,21 +470,6 @@ export const BUILDINGS: BuildingDefinition[] = [
     ],
     requiredTier: "village",
     tierLevelCaps: { village: 2, town: 4, city: 5 },
-  },
-
-  // Town tier — Walls (passive defense)
-  {
-    id: "walls",
-    name: "Walls",
-    category: "defense",
-    description:
-      "Stone fortifications around your settlement. Provides passive defense against raids and attacks.",
-    icon: "🧱",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/walls.png",
-    maxLevel: 15,
-    levels: generateLevels({ wood: 40, stone: 120 }, 25, undefined, 15),
-    requiredTier: "camp",
-    tierLevelCaps: { camp: 2, village: 5, town: 10, city: 15 },
   },
 
   {
@@ -703,19 +656,24 @@ const TIER_ORDER: SettlementTier[] = ["camp", "village", "town", "city"];
  *  Falls back to the closest lower tier, then walks up (for locked buildings preview),
  *  then to the building's default image. */
 export function getBuildingImage(building: BuildingDefinition, currentTier: SettlementTier): string | undefined {
-  const tierMap = BUILDING_TIER_IMAGES[building.id];
-  if (tierMap) {
-    const idx = TIER_ORDER.indexOf(currentTier);
-    // Walk down from current tier
-    for (let i = idx; i >= 0; i--) {
-      const file = tierMap[TIER_ORDER[i]];
-      if (file) return `${CDN}/${file}.png`;
-    }
-    // Walk up (preview for locked/higher-tier buildings)
-    for (let i = idx + 1; i < TIER_ORDER.length; i++) {
-      const file = tierMap[TIER_ORDER[i]];
-      if (file) return `${CDN}/${file}.png`;
-    }
+  const byId = getBuildingImageById(building.id, currentTier);
+  return byId ?? building.image;
+}
+
+/** Same lookup as getBuildingImage but keyed by building id only — usable by
+ *  defense-page rings and other callers that don't have a BuildingDefinition
+ *  in hand (e.g. the multi-instance walls / watchtower / barracks / mage tower). */
+export function getBuildingImageById(id: string, currentTier: SettlementTier): string | undefined {
+  const tierMap = BUILDING_TIER_IMAGES[id];
+  if (!tierMap) return undefined;
+  const idx = TIER_ORDER.indexOf(currentTier);
+  for (let i = idx; i >= 0; i--) {
+    const file = tierMap[TIER_ORDER[i]];
+    if (file) return `${CDN}/${file}.png`;
   }
-  return building.image;
+  for (let i = idx + 1; i < TIER_ORDER.length; i++) {
+    const file = tierMap[TIER_ORDER[i]];
+    if (file) return `${CDN}/${file}.png`;
+  }
+  return undefined;
 }

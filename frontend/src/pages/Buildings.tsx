@@ -5,12 +5,13 @@ import { QUEST_CHAIN } from "~/data/quests";
 import { useGame } from "~/engine/gameState";
 import Countdown from "~/components/Countdown";
 
+// Defense buildings (walls / watchtower / barracks / mage tower) live on the
+// dedicated /defenses page now, not as a section here.
 const SECTIONS: { key: BuildingDefinition["category"]; label: string; icon: string }[] = [
   { key: "settlement", label: "Settlement", icon: "🏘️" },
   { key: "gathering", label: "Gathering", icon: "⛏️" },
   { key: "crafting", label: "Crafting", icon: "🧵" },
   { key: "guild", label: "Guilds", icon: "🏛️" },
-  { key: "defense", label: "Defense", icon: "🛡️" },
   { key: "magic", label: "Arcane", icon: "🔮" },
   { key: "trade", label: "Trade", icon: "🏪" },
 ];

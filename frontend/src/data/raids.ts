@@ -1,6 +1,8 @@
 import type { Adventurer } from "@medieval-realm/shared/data/adventurers";
-import type { PlayerBuilding } from "./buildings";
+import type { MissionEncounter } from "@medieval-realm/shared/data/missions";
+import type { CombatLogEntry } from "@medieval-realm/shared/data/combat";
 import type { SettlementTier } from "./buildings";
+import type { PlayerWall, PlayerWatchtower, PlayerBarracks } from "~/engine/gameState";
 
 // ─── Raid tags ──────────────────────────────────────────────────
 
@@ -14,7 +16,10 @@ export interface RaidTemplate {
   description: string;
   icon: string;
   tags: RaidTag[];
-  strength: number; // base attack power
+  strength: number; // base attack power (legacy; combat sim will switch to encounters)
+  /** Force composition for the combat sim. Same shape as mission encounters
+   *  so the existing enemy DB and combat engine carry over directly. */
+  encounters: MissionEncounter[];
   /** What the raid targets on success */
   stealsResources: boolean; // takes % of stockpile
   resourceStealPercent: number; // 0-1
@@ -35,18 +40,13 @@ export interface IncomingRaid {
   remaining: number; // game-seconds until arrival
   strength: number; // actual strength (scaled)
   warned: boolean; // has the player been warned?
-}
-
-export interface RaidResult {
-  raidId: string;
-  victory: boolean;
-  defenseScore: number;
-  raidStrength: number;
-  resourcesLost: { gold: number; wood: number; stone: number; food: number };
-  citizensLost: number;
-  defendersInjured: string[];
-  loot: { resource: string; amount: number }[];
-  buildingsDamaged?: number;
+  /** Combat log emitted by simulateRaidCombat once the timer hits 0.
+   *  Present → raid resolved, "Watch combat" CTA appears on the threats card. */
+  combatLog?: CombatLogEntry[];
+  /** Sim outcome — true when defenders held. */
+  combatVictory?: boolean;
+  /** Once the player has watched / dismissed playback, the raid card clears. */
+  combatViewed?: boolean;
 }
 
 // ─── Raid pool ──────────────────────────────────────────────────
@@ -61,6 +61,7 @@ export const RAID_POOL: RaidTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/hungry_bandits.png",
     tags: ["bandits"],
     strength: 25,
+    encounters: [{ enemyId: "bandit_thug", count: 3 }],
     stealsResources: true,
     resourceStealPercent: 0.15,
     killsCitizens: true,
@@ -77,6 +78,7 @@ export const RAID_POOL: RaidTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/wolf_pack.png",
     tags: ["monsters"],
     strength: 20,
+    encounters: [{ enemyId: "wild_wolf", count: 2 }, { enemyId: "wolf_pup", count: 3 }],
     stealsResources: false,
     resourceStealPercent: 0,
     killsCitizens: true,
@@ -93,6 +95,7 @@ export const RAID_POOL: RaidTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/petty_thieves.png",
     tags: ["bandits"],
     strength: 15,
+    encounters: [{ enemyId: "bandit_thug", count: 2 }, { enemyId: "goblin_runt", count: 2 }],
     stealsResources: true,
     resourceStealPercent: 0.10,
     killsCitizens: false,
@@ -111,6 +114,7 @@ export const RAID_POOL: RaidTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/bandit_raid.png",
     tags: ["bandits"],
     strength: 60,
+    encounters: [{ enemyId: "bandit_thug", count: 4 }, { enemyId: "bandit_captain", count: 1 }],
     stealsResources: true,
     resourceStealPercent: 0.20,
     killsCitizens: true,
@@ -127,6 +131,7 @@ export const RAID_POOL: RaidTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/goblin_scouts.png",
     tags: ["monsters"],
     strength: 45,
+    encounters: [{ enemyId: "goblin_scout", count: 4 }, { enemyId: "goblin_shaman", count: 1 }],
     stealsResources: true,
     resourceStealPercent: 0.15,
     killsCitizens: true,
@@ -143,6 +148,7 @@ export const RAID_POOL: RaidTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/wild_boars.png",
     tags: ["monsters"],
     strength: 35,
+    encounters: [{ enemyId: "spooked_boar", count: 3 }, { enemyId: "rabid_boar", count: 2 }],
     stealsResources: false,
     resourceStealPercent: 0,
     killsCitizens: true,
@@ -160,6 +166,7 @@ export const RAID_POOL: RaidTemplate[] = [
     icon: "💀",
     tags: ["undead", "horde"],
     strength: 90,
+    encounters: [{ enemyId: "skeleton", count: 6 }, { enemyId: "skeleton_archer", count: 3 }, { enemyId: "burnt_skeleton", count: 1 }],
     stealsResources: false,
     resourceStealPercent: 0,
     killsCitizens: true,
@@ -177,6 +184,7 @@ export const RAID_POOL: RaidTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/mercenary_company.png",
     tags: ["bandits", "siege"],
     strength: 100,
+    encounters: [{ enemyId: "bandit_thug", count: 4 }, { enemyId: "bandit_captain", count: 2 }, { enemyId: "dark_mage", count: 1 }],
     stealsResources: true,
     resourceStealPercent: 0.25,
     killsCitizens: true,
@@ -193,6 +201,7 @@ export const RAID_POOL: RaidTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/troll_attack.png",
     tags: ["monsters"],
     strength: 80,
+    encounters: [{ enemyId: "troll", count: 1 }, { enemyId: "cave_spider", count: 2 }],
     stealsResources: true,
     resourceStealPercent: 0.15,
     killsCitizens: true,
@@ -211,6 +220,7 @@ export const RAID_POOL: RaidTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/orc_warband.png",
     tags: ["horde", "siege"],
     strength: 160,
+    encounters: [{ enemyId: "orc_warrior", count: 4 }, { enemyId: "orc_warlord", count: 1 }, { enemyId: "goblin_scout", count: 3 }],
     stealsResources: true,
     resourceStealPercent: 0.30,
     killsCitizens: true,
@@ -227,6 +237,7 @@ export const RAID_POOL: RaidTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/necromancer.png",
     tags: ["undead", "horde", "siege"],
     strength: 180,
+    encounters: [{ enemyId: "skeleton", count: 6 }, { enemyId: "skeleton_archer", count: 3 }, { enemyId: "necromancer_acolyte", count: 2 }, { enemyId: "lich_apprentice", count: 1 }],
     stealsResources: true,
     resourceStealPercent: 0.25,
     killsCitizens: true,
@@ -243,6 +254,7 @@ export const RAID_POOL: RaidTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/dragon_attack.png",
     tags: ["monsters"],
     strength: 120,
+    encounters: [{ enemyId: "feral_drake", count: 1 }, { enemyId: "dragon_hatchling", count: 2 }],
     stealsResources: true,
     resourceStealPercent: 0.25,
     killsCitizens: true,
@@ -273,34 +285,43 @@ export interface DefenseBreakdown {
  * - Population: 0.5 per citizen (they help defend)
  */
 export function calcDefense(
-  buildings: PlayerBuilding[],
+  walls: PlayerWall[],
+  watchtowers: PlayerWatchtower[],
+  barracks: PlayerBarracks[],
   adventurers: Adventurer[],
   population: number,
 ): DefenseBreakdown {
-  // Damaged defensive buildings contribute zero — repair them to restore protection.
-  const watchtowerB = buildings.find((b) => b.buildingId === "watchtower");
-  const barracksB = buildings.find((b) => b.buildingId === "barracks");
-  const wallsB = buildings.find((b) => b.buildingId === "walls");
-  const watchtowerLvl = !watchtowerB?.damaged ? (watchtowerB?.level ?? 0) : 0;
-  const barracksLvl = !barracksB?.damaged ? (barracksB?.level ?? 0) : 0;
-  const wallsLvl = !wallsB?.damaged ? (wallsB?.level ?? 0) : 0;
+  // Sum levels across all rings. Walls with hp <= 0 (breached/unbuilt) and
+  // damaged towers/barracks contribute zero. Existing per-level multipliers
+  // (12/8/15) preserved for backward compatibility — a Lv.3 outer wall
+  // matches the old single-instance Lv.3 wall, then Middle/Inner add on top.
+  const wallsLvl = walls
+    .filter((w) => w.hp > 0)
+    .reduce((sum, w) => sum + w.level, 0);
+  const watchtowerLvl = watchtowers
+    .filter((t) => !t.damaged)
+    .reduce((sum, t) => sum + t.level, 0);
+  const barracksLvl = barracks
+    .filter((b) => !b.damaged)
+    .reduce((sum, b) => sum + b.level, 0);
 
   const homeAdventurers = adventurers.filter((a) => a.alive && !a.onMission);
   // Adventurers give a small bonus — buildings are the main defense
   const adventurerDef = homeAdventurers.reduce((sum, a) => sum + 1 + Math.floor(a.level / 3), 0);
 
-  const watchtower = watchtowerLvl * 8;
-  const barracks = barracksLvl * 15;
-  const walls = wallsLvl * 12;
-  const pop = Math.floor(population * 0.3);
+  // Per-level multipliers preserved from the old single-instance model.
+  const watchtowerDef = watchtowerLvl * 8;
+  const barracksDef = barracksLvl * 15;
+  const wallsDef = wallsLvl * 12;
+  const popDef = Math.floor(population * 0.3);
 
   return {
-    total: watchtower + barracks + walls + adventurerDef + pop,
-    watchtower,
-    barracks,
-    walls,
+    total: watchtowerDef + barracksDef + wallsDef + adventurerDef + popDef,
+    watchtower: watchtowerDef,
+    barracks: barracksDef,
+    walls: wallsDef,
     adventurers: adventurerDef,
-    population: pop,
+    population: popDef,
   };
 }
 
@@ -309,88 +330,6 @@ export function calcDefense(
  */
 export function calcWarningTime(baseWarning: number, watchtowerLevel: number): number {
   return baseWarning + watchtowerLevel * 2;
-}
-
-// ─── Raid resolution ────────────────────────────────────────────
-
-export interface RaidResolutionInput {
-  raid: RaidTemplate;
-  raidStrength: number;
-  defense: DefenseBreakdown;
-  resources: { gold: number; wood: number; stone: number; food: number };
-  population: number;
-  homeAdventurers: Adventurer[];
-}
-
-export function resolveRaid(input: RaidResolutionInput): RaidResult {
-  const { raid, raidStrength, defense, resources, population, homeAdventurers } = input;
-  const successChance = calcRaidSuccessChance(defense.total, raidStrength);
-  const victory = Math.random() * 100 < successChance;
-
-  const result: RaidResult = {
-    raidId: raid.id,
-    victory,
-    defenseScore: defense.total,
-    raidStrength,
-    resourcesLost: { gold: 0, wood: 0, stone: 0, food: 0 },
-    citizensLost: 0,
-    defendersInjured: [],
-    loot: [],
-  };
-
-  if (victory) {
-    // Won! Collect loot
-    result.loot = [...raid.victoryLoot];
-    // Minor adventurer injury chance (10%)
-    for (const adv of homeAdventurers) {
-      if (Math.random() < 0.10) {
-        result.defendersInjured.push(adv.name);
-      }
-    }
-    return result;
-  }
-
-  // Lost — damage scales with how badly outmatched you are
-  // overpower: 0 = barely lost (lucky-loss roll despite strong defense),
-  //            1 = completely overwhelmed.
-  // Clamped to [0, 1] so a high-defense unlucky-loss doesn't produce
-  // negative steal % (which would turn the loot math into a small refund).
-  const overpower = Math.max(0, Math.min(1, (raidStrength - defense.total) / Math.max(1, defense.total)));
-  // severity: the raid template's brutality (higher tier raids are more devastating)
-  const severity = raid.resourceStealPercent + (raid.killsCitizens ? 0.3 : 0);
-
-  if (raid.stealsResources) {
-    // Base steal scales with overpower: barely lost = ~30%, overwhelmed = ~70%+
-    const stealPct = Math.min(0.9, (0.3 + overpower * 0.5) * (1 + severity));
-    result.resourcesLost = {
-      gold: Math.floor(resources.gold * stealPct),
-      wood: Math.floor(resources.wood * stealPct),
-      stone: Math.floor(resources.stone * stealPct),
-      food: Math.floor(resources.food * stealPct),
-    };
-  }
-
-  if (raid.killsCitizens) {
-    // Barely lost = ~20% casualties, overwhelmed = up to 70%
-    const casualtyPct = 0.2 + overpower * 0.5;
-    const maxFromTemplate = raid.maxCitizenLoss;
-    const maxFromPercent = Math.floor(population * casualtyPct);
-    result.citizensLost = Math.max(1, Math.min(maxFromTemplate, maxFromPercent));
-  }
-
-  // Defending adventurers: injury chance scales with overpower
-  const injuryChance = 0.2 + overpower * 0.4; // 20% barely lost, 60% overwhelmed
-  for (const adv of homeAdventurers) {
-    if (Math.random() < injuryChance) {
-      result.defendersInjured.push(adv.name);
-    }
-  }
-
-  // Damage buildings (number of damaged buildings scales with overpower)
-  const maxDamaged = Math.max(1, Math.floor(overpower * 4));
-  result.buildingsDamaged = maxDamaged;
-
-  return result;
 }
 
 // ─── Raid spawning ──────────────────────────────────────────────
@@ -453,20 +392,6 @@ export function getRaid(raidId: string): RaidTemplate | undefined {
   return RAID_POOL.find((r) => r.id === raidId);
 }
 
-// ─── Success chance ─────────────────────────────────────────────
-
-/**
- * Calculate defense success chance as a percentage.
- * 100% when defense >= strength. Drops off below that.
- */
-export function calcRaidSuccessChance(defenseTotal: number, raidStrength: number): number {
-  if (raidStrength <= 0) return 95;
-  // Equal defense/strength = 50%. Double = ~85%. Half = ~15%.
-  const ratio = defenseTotal / raidStrength;
-  const chance = 50 + (ratio - 1) * 35;
-  return Math.max(5, Math.min(95, Math.round(chance)));
-}
-
 // ─── Defense tips ───────────────────────────────────────────────
 
 export interface DefenseTip {
@@ -476,25 +401,23 @@ export interface DefenseTip {
 }
 
 export function getDefenseTips(
-  defense: DefenseBreakdown,
-  raidStrength: number,
-  buildings: PlayerBuilding[],
+  successPct: number,
+  walls: PlayerWall[],
+  watchtowers: PlayerWatchtower[],
+  barracks: PlayerBarracks[],
   adventurersOnMission: number,
 ): DefenseTip[] {
   const tips: DefenseTip[] = [];
-  const chance = calcRaidSuccessChance(defense.total, raidStrength);
 
-  if (chance >= 85) {
-    tips.push({ icon: "✅", text: `Strong position (${chance}% chance). But nothing is guaranteed — fortify further.` });
-  } else if (chance >= 60) {
-    tips.push({ icon: "⚠️", text: `Decent odds (${chance}% chance) but risky. Strengthen your defenses.` });
-  } else if (chance >= 40) {
-    tips.push({ icon: "🔶", text: `Dangerous (${chance}% chance). You need more defense or this will hurt.` });
+  if (successPct >= 85) {
+    tips.push({ icon: "✅", text: `Strong position (${successPct}% chance). But nothing is guaranteed — fortify further.` });
+  } else if (successPct >= 60) {
+    tips.push({ icon: "⚠️", text: `Decent odds (${successPct}% chance) but risky. Strengthen your defenses.` });
+  } else if (successPct >= 40) {
+    tips.push({ icon: "🔶", text: `Dangerous (${successPct}% chance). You need more defense or this will hurt.` });
   } else {
-    tips.push({ icon: "🔴", text: `Desperate situation (${chance}% chance). Prepare for heavy losses.` });
+    tips.push({ icon: "🔴", text: `Desperate situation (${successPct}% chance). Prepare for heavy losses.` });
   }
-
-  const gap = raidStrength - defense.total;
 
   // Adventurers on mission
   if (adventurersOnMission > 0) {
@@ -504,26 +427,26 @@ export function getDefenseTips(
     });
   }
 
-  // Walls
-  const wallsLvl = buildings.find((b) => b.buildingId === "walls")?.level ?? 0;
+  // Walls — total level across all rings. Breached walls (hp <= 0) excluded.
+  const wallsLvl = walls.filter((w) => w.hp > 0).reduce((s, w) => s + w.level, 0);
   if (wallsLvl === 0) {
-    tips.push({ icon: "🧱", text: "Build Walls for +12 defense per level.", actionLink: "/buildings/walls" });
-  } else if (chance < 85) {
-    tips.push({ icon: "🧱", text: `Upgrade Walls (Lv.${wallsLvl}) for +12 defense per level.`, actionLink: "/buildings/walls" });
+    tips.push({ icon: "🧱", text: "Build a Wall to soak the assault.", actionLink: "/defenses" });
+  } else if (successPct < 85) {
+    tips.push({ icon: "🧱", text: `Reinforce your Walls (Lv.${wallsLvl} total) for more HP under siege.`, actionLink: "/defenses" });
   }
 
-  // Barracks
-  const barracksLvl = buildings.find((b) => b.buildingId === "barracks")?.level ?? 0;
+  // Barracks — total level across all rings. Damaged excluded.
+  const barracksLvl = barracks.filter((b) => !b.damaged).reduce((s, b) => s + b.level, 0);
   if (barracksLvl === 0) {
-    tips.push({ icon: "⚔️", text: "Build Barracks for +15 defense per level.", actionLink: "/buildings/barracks" });
-  } else if (chance < 85) {
-    tips.push({ icon: "⚔️", text: `Upgrade Barracks (Lv.${barracksLvl}) for +15 defense per level.`, actionLink: "/buildings/barracks" });
+    tips.push({ icon: "⚔️", text: "Build a Barracks and recruit Soldiers — walls alone don't fight back.", actionLink: "/defenses" });
+  } else if (successPct < 85) {
+    tips.push({ icon: "⚔️", text: `Recruit more Soldiers at the Barracks (Lv.${barracksLvl} total).`, actionLink: "/defenses" });
   }
 
-  // Watchtower
-  const wtLvl = buildings.find((b) => b.buildingId === "watchtower")?.level ?? 0;
-  if (wtLvl === 0) {
-    tips.push({ icon: "🏰", text: "Build a Watchtower for defense and earlier raid warnings.", actionLink: "/buildings/watchtower" });
+  // Watchtower — any tower at all gives early warnings.
+  const wtMaxLvl = watchtowers.filter((t) => !t.damaged).reduce((m, t) => Math.max(m, t.level), 0);
+  if (wtMaxLvl === 0) {
+    tips.push({ icon: "🏰", text: "Build a Watchtower for defense and earlier raid warnings.", actionLink: "/defenses" });
   }
 
   if (tips.length === 0) {

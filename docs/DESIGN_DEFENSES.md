@@ -23,9 +23,11 @@ Defense is organized in named **rings**, scaling with settlement tier:
 | Tier | Available rings |
 |---|---|
 | Camp | Outer |
-| Village | Outer + Inner |
+| Village | Outer + Middle |
 | Town | Outer + Middle + Inner |
 | City | Same as Town for v1 (4th ring deferred) |
+
+Rings unlock outer→inward. A Village player never sees an "Inner Ring" appear before they have a "Middle Ring", which would read as a labelling glitch.
 
 **Always-stable labels.** "Outer" is always outermost (faces raids first). New tiers add inward. Tier-up never re-labels existing walls — your built Outer Wall stays Outer Wall forever.
 
@@ -64,6 +66,14 @@ Each ring has the same fixed plot layout:
 ```
 
 So a Town tier settlement has 9 total plots (3 rings × 3 building types). Camp has 3 (Outer ring only). Village 6.
+
+### Mage Tower (Inner ring only)
+
+Single-instance research building stationed inside the keep. Doesn't fight in raids — purely a research / enchanting hub. Lives as a 4th plot in the Inner ring, available only at Town tier (when Inner unlocks).
+
+- **Role:** gates enchanting recipes by level (each recipe has a `minTowerLevel`).
+- **State:** `state.mageTower: PlayerMageTower` (level / damaged / upgrading).
+- **Combat:** none in v1. Future iteration could add a wizard defender unit derived from tower level.
 
 ---
 

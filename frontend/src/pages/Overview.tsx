@@ -1,13 +1,15 @@
-import { createSignal, createEffect, For, Show, onMount } from "solid-js";
+import { createSignal, createMemo, For, Show } from "solid-js";
 import { A } from "@solidjs/router";
 import { BUILDINGS, getSettlementName, SETTLEMENT_TIERS } from "~/data/buildings";
 import { RESOURCES } from "~/data/resources";
 import { SEASON_META } from "~/data/seasons";
-import { getRaid, calcRaidSuccessChance, getDefenseTips, type RaidResult } from "~/data/raids";
+import { getRaid, getDefenseTips, type IncomingRaid } from "~/data/raids";
 import { QUEST_CHAIN, type QuestDefinition } from "~/data/quests";
-import { useGame } from "~/engine/gameState";
+import { useGame, WALL_BASE_HP } from "~/engine/gameState";
+import { simulateRaidCombat } from "@medieval-realm/shared/data/raidCombat";
 import Countdown from "~/components/Countdown";
 import QuestClaimModal from "~/components/QuestClaimModal";
+import CombatPlayback from "~/components/CombatPlayback";
 
 export default function Overview() {
   const { state, actions } = useGame();
@@ -18,20 +20,6 @@ export default function Overview() {
   const tier = () => actions.getSettlementTier();
   const thLevel = () => actions.getTownHallLevel();
   const defense = () => actions.getDefense();
-
-  // Collect raid logs and show as report
-  const [raidReport, setRaidReport] = createSignal<RaidResult | null>(null);
-  onMount(() => {
-    const logs = actions.collectRaidLog();
-    if (logs.length > 0) setRaidReport(logs[logs.length - 1]);
-  });
-  // Watch for new raid results (e.g. after "Fight now!" skip)
-  createEffect(() => {
-    if (state.raidLog.length > 0) {
-      setRaidReport(state.raidLog[state.raidLog.length - 1]);
-      actions.collectRaidLog(); // clear them
-    }
-  });
 
   const upgradingBuildings = () =>
     state.buildings.filter((b) => b.upgrading && b.upgradeRemaining);
@@ -75,6 +63,10 @@ export default function Overview() {
   /** Quest shown in the claim modal — clicking Claim on a quest opens this, the modal applies the reward on confirm. */
   const [claimingQuest, setClaimingQuest] = createSignal<QuestDefinition | null>(null);
 
+  /** Raid currently being played back. Set when the player clicks "Watch combat"
+   *  on a resolved raid card; cleared (and acknowledged) when the modal closes. */
+  const [playingRaid, setPlayingRaid] = createSignal<IncomingRaid | null>(null);
+
   const TIER_IMAGES: Record<string, string> = {
     camp: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/settlement_camp.png",
     village: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/settlement_village.png",
@@ -98,6 +90,21 @@ export default function Overview() {
         )}
       </Show>
 
+      {/* Raid combat playback — opens from "Watch combat" on a resolved threat card. */}
+      <Show when={playingRaid()}>
+        {(ir) => (
+          <CombatPlayback
+            log={ir().combatLog ?? []}
+            title={getRaid(ir().raidId)?.name ?? ir().raidId}
+            victory={ir().combatVictory}
+            onClose={() => {
+              actions.acknowledgeRaidCombat(ir().raidId);
+              setPlayingRaid(null);
+            }}
+          />
+        )}
+      </Show>
+
       <div class="settlement-banner">
         <img src={TIER_IMAGES[tier()] ?? TIER_IMAGES.camp} alt={tier()} />
         <div class="settlement-banner-overlay">
@@ -107,68 +114,6 @@ export default function Overview() {
         </div>
       </div>
 
-      {/* Raid Report */}
-      <Show when={raidReport()}>
-        {(report) => {
-          const raidDef = getRaid(report().raidId);
-          const raidName = raidDef?.name ?? report().raidId;
-          const lost = report().resourcesLost;
-          const totalLost = lost.gold + lost.wood + lost.stone + lost.food;
-          return (
-            <div
-              class="raid-report"
-              classList={{ "raid-report-victory": report().victory, "raid-report-defeat": !report().victory }}
-            >
-              <div style={{ display: "flex", "justify-content": "space-between", "align-items": "center", "margin-bottom": "10px" }}>
-                <h3 style={{
-                  margin: 0,
-                  "font-family": "var(--font-heading)",
-                  color: report().victory ? "var(--accent-green)" : "var(--accent-red)",
-                }}>
-                  {report().victory ? "🛡️ Victory!" : "💔 Defeat"} — {raidName}
-                </h3>
-                <button
-                  onClick={() => setRaidReport(null)}
-                  style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", "font-size": "1.1rem" }}
-                >
-                  ✕
-                </button>
-              </div>
-              <div class="raid-report-grid">
-                <div style={{ color: "var(--text-secondary)" }}>
-                  Defense: <strong style={{ color: "var(--text-primary)" }}>{report().defenseScore}</strong> vs Strength: <strong style={{ color: "var(--text-primary)" }}>{report().raidStrength}</strong>
-                </div>
-                <div style={{ color: "var(--text-secondary)" }}>
-                  Casualties: <strong style={{ color: report().citizensLost > 0 ? "var(--accent-red)" : "var(--accent-green)" }}>{report().citizensLost}</strong>
-                </div>
-                <div style={{ color: "var(--text-secondary)" }}>
-                  Resources lost: <strong style={{ color: totalLost > 0 ? "var(--accent-red)" : "var(--accent-green)" }}>
-                    {totalLost === 0 ? "None" : [
-                      lost.gold > 0 && `${lost.gold} gold`,
-                      lost.wood > 0 && `${lost.wood} wood`,
-                      lost.stone > 0 && `${lost.stone} stone`,
-                      lost.food > 0 && `${lost.food} food`,
-                    ].filter(Boolean).join(", ")}
-                  </strong>
-                </div>
-                <div style={{ color: "var(--text-secondary)" }}>
-                  Defenders injured: <strong style={{ color: report().defendersInjured.length > 0 ? "var(--accent-red)" : "var(--accent-green)" }}>{report().defendersInjured.length}</strong>
-                </div>
-                <Show when={report().victory && report().loot.length > 0}>
-                  <div style={{ "grid-column": "1 / -1", color: "var(--accent-gold)", "margin-top": "4px" }}>
-                    Loot: {report().loot.map((l) => `+${l.amount} ${l.resource}`).join(", ")}
-                  </div>
-                </Show>
-                <Show when={!report().victory && (report().buildingsDamaged ?? 0) > 0}>
-                  <div style={{ "grid-column": "1 / -1", color: "var(--accent-red)", "margin-top": "4px" }}>
-                    Buildings damaged: {report().buildingsDamaged}
-                  </div>
-                </Show>
-              </div>
-            </div>
-          );
-        }}
-      </Show>
 
       {/* Quest Panel */}
       <Show when={!allQuestsComplete() && currentQuest()}>
@@ -479,12 +424,42 @@ export default function Overview() {
             <For each={state.incomingRaids}>
               {(ir) => {
                 const raid = () => getRaid(ir.raidId);
-                const successPct = () => calcRaidSuccessChance(defense().total, ir.strength);
+                // Monte-Carlo win % from the same sim that resolves the actual
+                // raid. Tracks defenses + stationed counts so it recomputes when
+                // the player builds/repairs/recruits during the prep phase, but
+                // ignores resource ticks (the sim doesn't read them).
+                const SIMS = 50;
+                const successPct = createMemo(() => {
+                  const tmpl = raid();
+                  if (!tmpl?.encounters?.length) return 0;
+                  const wallsSnap = state.walls.map((w) => ({ ring: w.ring, level: w.level, hp: w.hp, maxHp: w.level * WALL_BASE_HP }));
+                  const towersSnap = state.watchtowers.map((t) => ({ ring: t.ring, level: t.level, damaged: t.damaged }));
+                  const barracksSnap = state.barracks.map((b) => ({ ring: b.ring, level: b.level, damaged: b.damaged }));
+                  let seed = 0;
+                  for (let i = 0; i < ir.raidId.length; i++) {
+                    seed = ((seed << 5) - seed + ir.raidId.charCodeAt(i)) | 0;
+                  }
+                  let wins = 0;
+                  for (let i = 0; i < SIMS; i++) {
+                    const result = simulateRaidCombat({
+                      raidId: ir.raidId,
+                      encounters: tmpl.encounters,
+                      walls: wallsSnap,
+                      watchtowers: towersSnap,
+                      barracks: barracksSnap,
+                      totalArchers: state.archers,
+                      totalSoldiers: state.soldiers,
+                      seed: seed + i,
+                    });
+                    if (result.victory) wins++;
+                  }
+                  return Math.round((wins / SIMS) * 100);
+                });
                 const successColor = () =>
                   successPct() >= 80 ? "var(--accent-green)" :
                   successPct() >= 50 ? "var(--accent-gold)" : "var(--accent-red)";
                 const onMissionCount = () => state.adventurers.filter((a) => a.onMission).length;
-                const tips = () => getDefenseTips(defense(), ir.strength, state.buildings, onMissionCount());
+                const tips = () => getDefenseTips(successPct(), state.walls, state.watchtowers, state.barracks, onMissionCount());
                 return (
                   <div
                     class="threat-card"
@@ -543,74 +518,104 @@ export default function Overview() {
                         </Show>
                       </div>
 
-                      {/* Right — Player defense */}
-                      <div style={{ flex: 1, display: "flex", "flex-direction": "column", "align-items": "flex-end", "text-align": "right" }}>
-                        {/* Timer */}
-                        <div style={{ color: "var(--accent-red)", "font-size": "1.1rem", "font-weight": "bold" }}>
-                          <Countdown remainingSeconds={ir.remaining} />
-                        </div>
+                      {/* Right — Player defense (incoming) OR resolved-combat CTA */}
+                      <Show
+                        when={!ir.combatLog}
+                        fallback={
+                          <div style={{ flex: 1, display: "flex", "flex-direction": "column", "align-items": "flex-end", "justify-content": "center", "text-align": "right", gap: "10px" }}>
+                            <div style={{
+                              color: ir.combatVictory ? "var(--accent-green)" : "var(--accent-red)",
+                              "font-size": "1.2rem",
+                              "font-weight": "bold",
+                            }}>
+                              {ir.combatVictory ? "🛡️ Repelled" : "💔 Defeated"}
+                            </div>
+                            <button
+                              onClick={() => setPlayingRaid(ir)}
+                              style={{
+                                padding: "8px 18px",
+                                background: "rgba(180, 150, 100, 0.2)",
+                                border: "1px solid var(--accent-gold)",
+                                color: "var(--accent-gold)",
+                                "border-radius": "4px",
+                                cursor: "pointer",
+                                "font-size": "0.9rem",
+                                "font-weight": "bold",
+                              }}
+                            >
+                              ▶ Watch combat
+                            </button>
+                          </div>
+                        }
+                      >
+                        <div style={{ flex: 1, display: "flex", "flex-direction": "column", "align-items": "flex-end", "text-align": "right" }}>
+                          {/* Timer */}
+                          <div style={{ color: "var(--accent-red)", "font-size": "1.1rem", "font-weight": "bold" }}>
+                            <Countdown remainingSeconds={ir.remaining} />
+                          </div>
 
-                        {/* Strength vs Defense */}
-                        <div style={{ "margin-top": "8px", display: "flex", "align-items": "center", gap: "8px", "font-size": "0.85rem", "font-weight": "bold" }}>
-                          <span style={{ color: "var(--accent-red)" }}>Strength {ir.strength}</span>
-                          <span style={{ color: "var(--text-muted)" }}>⚔️</span>
-                          <span style={{ color: "var(--accent-blue)" }}>Defense {defense().total}</span>
-                        </div>
+                          {/* Force composition */}
+                          <Show when={raid()?.encounters?.length}>
+                            <div style={{ "margin-top": "8px", "font-size": "0.8rem", color: "var(--accent-red)" }}>
+                              {raid()!.encounters.map((e) => `${e.count}× ${e.enemyId.replace(/_/g, " ")}`).join(", ")}
+                            </div>
+                          </Show>
 
-                        {/* Success % */}
-                        <div style={{ "margin-top": "8px" }}>
-                          <span style={{ "font-size": "0.75rem", color: "var(--text-muted)" }}>Success </span>
-                          <span style={{ color: successColor(), "font-weight": "bold", "font-size": "1.4rem" }}>
-                            {successPct()}%
-                          </span>
-                        </div>
+                          {/* Success % */}
+                          <div style={{ "margin-top": "8px" }}>
+                            <span style={{ "font-size": "0.75rem", color: "var(--text-muted)" }}>Success </span>
+                            <span style={{ color: successColor(), "font-weight": "bold", "font-size": "1.4rem" }}>
+                              {successPct()}%
+                            </span>
+                          </div>
 
-                        {/* Tips */}
-                        <div style={{ "margin-top": "auto", "padding-top": "10px" }}>
-                          <For each={tips()}>
-                            {(tip) => (
-                              <div style={{ "font-size": "0.8rem", color: "var(--text-secondary)", "margin-bottom": "3px" }}>
-                                {tip.icon}{" "}
-                                {tip.actionLink ? (
-                                  <A href={tip.actionLink} style={{ color: "var(--accent-gold)" }}>{tip.text}</A>
-                                ) : (
-                                  tip.text
-                                )}
-                              </div>
-                            )}
-                          </For>
-                        </div>
+                          {/* Tips */}
+                          <div style={{ "margin-top": "auto", "padding-top": "10px" }}>
+                            <For each={tips()}>
+                              {(tip) => (
+                                <div style={{ "font-size": "0.8rem", color: "var(--text-secondary)", "margin-bottom": "3px" }}>
+                                  {tip.icon}{" "}
+                                  {tip.actionLink ? (
+                                    <A href={tip.actionLink} style={{ color: "var(--accent-gold)" }}>{tip.text}</A>
+                                  ) : (
+                                    tip.text
+                                  )}
+                                </div>
+                              )}
+                            </For>
+                          </div>
 
-                        {/* Recall button */}
-                        <Show when={onMissionCount() > 0}>
-                          <button
-                            onClick={() => {
-                              const hasWiz = state.activeMissions.some((m) =>
-                                m.adventurerIds.some((id) => state.adventurers.find((a) => a.id === id)?.class === "wizard")
-                              );
-                              const msg = hasWiz
-                                ? `Recall ${onMissionCount()} adventurer(s)? Missions cancelled, but your wizard will teleport 30% of the loot home.`
-                                : `Recall ${onMissionCount()} adventurer(s)? All active missions will be cancelled and rewards forfeited.`;
-                              if (confirm(msg)) {
-                                const result = actions.recallAdventurers();
-                              }
-                            }}
-                            style={{
-                              "margin-top": "8px",
-                              padding: "6px 14px",
-                              background: "rgba(231, 76, 60, 0.2)",
-                              border: "1px solid var(--accent-red)",
-                              color: "var(--accent-red)",
-                              "border-radius": "4px",
-                              cursor: "pointer",
-                              "font-size": "0.85rem",
-                              width: "100%",
-                            }}
-                          >
-                            Recall Adventurers ({onMissionCount()})
-                          </button>
-                        </Show>
-                      </div>
+                          {/* Recall button */}
+                          <Show when={onMissionCount() > 0}>
+                            <button
+                              onClick={() => {
+                                const hasWiz = state.activeMissions.some((m) =>
+                                  m.adventurerIds.some((id) => state.adventurers.find((a) => a.id === id)?.class === "wizard")
+                                );
+                                const msg = hasWiz
+                                  ? `Recall ${onMissionCount()} adventurer(s)? Missions cancelled, but your wizard will teleport 30% of the loot home.`
+                                  : `Recall ${onMissionCount()} adventurer(s)? All active missions will be cancelled and rewards forfeited.`;
+                                if (confirm(msg)) {
+                                  const result = actions.recallAdventurers();
+                                }
+                              }}
+                              style={{
+                                "margin-top": "8px",
+                                padding: "6px 14px",
+                                background: "rgba(231, 76, 60, 0.2)",
+                                border: "1px solid var(--accent-red)",
+                                color: "var(--accent-red)",
+                                "border-radius": "4px",
+                                cursor: "pointer",
+                                "font-size": "0.85rem",
+                                width: "100%",
+                              }}
+                            >
+                              Recall Adventurers ({onMissionCount()})
+                            </button>
+                          </Show>
+                        </div>
+                      </Show>
 
                     </div>{/* end two-column layout */}
                   </div>

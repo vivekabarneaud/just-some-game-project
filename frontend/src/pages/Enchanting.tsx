@@ -64,8 +64,7 @@ export default function Enchanting() {
 
   const [selectedEnchant, setSelectedEnchant] = createSignal<string | null>(null);
 
-  const tower = () => state.buildings.find((b) => b.buildingId === "mage_tower");
-  const towerLevel = () => tower()?.level ?? 0;
+  const towerLevel = () => state.mageTower.level;
 
   const selectedDef = () => {
     const id = selectedEnchant();

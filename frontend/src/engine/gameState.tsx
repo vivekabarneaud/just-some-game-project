@@ -55,6 +55,24 @@ import {
   getTierPrerequisitesMet,
 } from "~/data/buildings";
 import {
+  getWallCost,
+  getWatchtowerCost,
+  getBarracksCost,
+  getWallRepairCost,
+  getDefensiveRepairCost,
+  getMageTowerCost,
+  getWallBuildTime,
+  getWatchtowerBuildTime,
+  getBarracksBuildTime,
+  getMageTowerBuildTime,
+  SOLDIER_COST,
+  ARCHER_COST,
+  maxSoldiers,
+  maxArchers,
+  availableCitizens,
+  ringUnlocked,
+} from "~/data/defenses";
+import {
   type CropId,
   getCrop,
   getFieldCost,
@@ -199,11 +217,9 @@ import {
 } from "@medieval-realm/shared/data/adventurers";
 import {
   type IncomingRaid,
-  type RaidResult,
   getRaid,
   calcDefense,
   calcWarningTime,
-  resolveRaid,
   spawnRaid,
   getRaidChance,
   type DefenseBreakdown,
@@ -215,6 +231,7 @@ import { EXOTIC_IDS } from "@medieval-realm/shared/data/exotics";
 import { ALCHEMY_RECIPES, getDiscoverableRecipes, getAvailableAlchemyRecipes, RESEARCH_BASE_COST } from "@medieval-realm/shared/data/alchemy_recipes";
 import { getDeity, getCurrentDeity } from "~/data/deities";
 import { simulateCombat } from "@medieval-realm/shared/data/combat";
+import { simulateRaidCombat } from "@medieval-realm/shared/data/raidCombat";
 import { canUnlockTalent } from "~/data/talents";
 import { getEnchantment } from "~/data/enchantments";
 import {
@@ -310,6 +327,49 @@ export interface PlayerHive {
   upgradeRemaining?: number;
 }
 
+// ─── Defenses (rework v1) ─────────────────────────────────────────
+// Multi-instance walls/watchtowers/barracks organized by ring.
+// See docs/DESIGN_DEFENSES.md.
+
+export type DefenseRing = "outer" | "middle" | "inner";
+
+export interface PlayerWall {
+  ring: DefenseRing;
+  level: number;       // 0 = unbuilt
+  hp: number;          // current HP (0 when unbuilt; full = level * WALL_BASE_HP)
+  upgrading: boolean;
+  upgradeRemaining?: number;
+}
+
+export interface PlayerWatchtower {
+  ring: DefenseRing;
+  level: number;       // 0 = unbuilt
+  damaged: boolean;
+  upgrading: boolean;
+  upgradeRemaining?: number;
+}
+
+export interface PlayerBarracks {
+  ring: DefenseRing;
+  level: number;       // 0 = unbuilt
+  damaged: boolean;
+  upgrading: boolean;
+  upgradeRemaining?: number;
+}
+
+/** Base wall HP per level. Full HP = level × this. Tune during playtest. */
+export const WALL_BASE_HP = 100;
+
+/** Mage Tower: single instance, lives at the Inner ring (Town tier). Gates
+ *  enchanting recipes by level. Doesn't fight in raids — purely a research
+ *  building stationed inside the keep. */
+export interface PlayerMageTower {
+  level: number;       // 0 = unbuilt
+  damaged: boolean;
+  upgrading: boolean;
+  upgradeRemaining?: number;
+}
+
 export interface PlayerOrchard {
   id: string;
   fruit: FruitId;
@@ -332,6 +392,17 @@ export interface GameState {
   /** Per-type food stockpiles — total capped by pantry */
   foods: Record<FoodItemType, number>;
   population: number;
+  // ── Defenses (rework v1): multi-instance walls/towers/barracks per ring,
+  //    plus counters for recruited soldier-citizens. See DESIGN_DEFENSES.md.
+  walls: PlayerWall[];
+  watchtowers: PlayerWatchtower[];
+  barracks: PlayerBarracks[];
+  /** Inner-ring-only spire of arcane research. Gates enchanting recipes. */
+  mageTower: PlayerMageTower;
+  /** Recruited melee soldiers stationed in barracks. Subset of population. */
+  soldiers: number;
+  /** Recruited archers stationed in watchtowers. Subset of population. */
+  archers: number;
   season: Season;
   seasonElapsed: number;
   year: number;
@@ -388,7 +459,6 @@ export interface GameState {
   starvationPenalty: number; // 0-75, decays over 24h after food is restored
   // Raids
   incomingRaids: IncomingRaid[];
-  raidLog: RaidResult[]; // recent results (cleared on read)
   hoursSinceLastRaid: number; // game-hours until next raid spawns
   /** Total raids that have resolved (victory + defeat). Persistent counter,
    *  used by quests like Baptism of Fire that need to fire on first encounter
@@ -486,9 +556,21 @@ export interface GameActions {
   getHappinessModifier: () => number;
   getHappinessBreakdown: () => { label: string; value: number }[];
   repairBuilding: (buildingId: string) => boolean;
+  // ── Defenses (rework v1) ─────────────────────────────────────
+  buildOrUpgradeWall: (ring: DefenseRing) => boolean;
+  buildOrUpgradeWatchtower: (ring: DefenseRing) => boolean;
+  buildOrUpgradeBarracks: (ring: DefenseRing) => boolean;
+  buildOrUpgradeMageTower: () => boolean;
+  repairWall: (ring: DefenseRing) => boolean;
+  repairWatchtower: (ring: DefenseRing) => boolean;
+  repairBarracks: (ring: DefenseRing) => boolean;
+  repairMageTower: () => boolean;
+  recruitSoldier: () => boolean;
+  recruitArcher: () => boolean;
+  dismissSoldier: () => boolean;
+  dismissArcher: () => boolean;
   // Raids
   getDefense: () => DefenseBreakdown;
-  collectRaidLog: () => RaidResult[];
   triggerRaid: () => boolean;
   spawnTestMissions: (...missionIds: string[]) => void;
   recallAdventurers: () => { recalled: number; instant: boolean };
@@ -517,6 +599,7 @@ export interface GameActions {
   skipMissionTimers: () => void;
   markCombatViewed: (missionId: string) => void;
   acknowledgeWipeCompletion: (missionId: string) => void;
+  acknowledgeRaidCombat: (raidId: string) => void;
   devAddShards: (amount: number) => void;
   trade: (give: string, giveAmount: number, receive: string, receiveAmount: number) => boolean;
 }
@@ -562,8 +645,8 @@ function createInitialState(): GameState {
       damaged: false,
     })),
     fields: [],
-    // Pre-spawn one unbuilt slot per veggie so the player sees the 4-garden
-    // shape immediately (cabbages / turnips / peas / squash).
+    // Pre-spawn one unbuilt slot per veggie so the player sees the full
+    // garden shape immediately (cabbages / turnips / peas / squash / fava).
     gardens: VEGGIES.map((v) => ({
       id: nextId("garden"),
       veggie: v.id,
@@ -595,6 +678,26 @@ function createInitialState(): GameState {
     })),
     honey: 0,
     population: BASE_POPULATION,
+    // Defenses: 3 unbuilt slots per type (one per ring). All locked behind
+    // settlement tier in the UI; only Outer is buildable from Camp.
+    walls: [
+      { ring: "outer", level: 0, hp: 0, upgrading: false },
+      { ring: "middle", level: 0, hp: 0, upgrading: false },
+      { ring: "inner", level: 0, hp: 0, upgrading: false },
+    ],
+    watchtowers: [
+      { ring: "outer", level: 0, damaged: false, upgrading: false },
+      { ring: "middle", level: 0, damaged: false, upgrading: false },
+      { ring: "inner", level: 0, damaged: false, upgrading: false },
+    ],
+    barracks: [
+      { ring: "outer", level: 0, damaged: false, upgrading: false },
+      { ring: "middle", level: 0, damaged: false, upgrading: false },
+      { ring: "inner", level: 0, damaged: false, upgrading: false },
+    ],
+    mageTower: { level: 0, damaged: false, upgrading: false },
+    soldiers: 0,
+    archers: 0,
     season: "spring",
     seasonElapsed: 0,
     year: 1,
@@ -638,7 +741,6 @@ function createInitialState(): GameState {
     recruitRefreshIn: 0,
     missionRefreshIn: 0,
     incomingRaids: [],
-    raidLog: [],
     hoursSinceLastRaid: 48, // start with 48h of calm
     raidsResolvedCount: 0,
     astralShards: 0,
@@ -713,6 +815,76 @@ function loadGame(): GameState | null {
     }
     if (!saved.fields) saved.fields = [];
     if (!saved.gardens) saved.gardens = [];
+
+    // Defenses rework migration (April 2026): create the 3-ring slot layout
+    // for walls/watchtowers/barracks. Old single-instance buildings (lookup
+    // by buildingId in saved.buildings) are mapped onto the Outer ring.
+    // The old entries in saved.buildings stay for now — consumers will be
+    // rewired in subsequent commits. See docs/DESIGN_DEFENSES.md.
+    if (!saved.walls) {
+      const oldWalls = saved.buildings?.find((b: any) => b.buildingId === "walls");
+      const lvl = oldWalls?.level ?? 0;
+      saved.walls = [
+        {
+          ring: "outer",
+          level: lvl,
+          // Carry over the old "damaged" flag as half-HP if set; otherwise full.
+          hp: lvl > 0 ? (oldWalls?.damaged ? Math.floor(lvl * WALL_BASE_HP / 2) : lvl * WALL_BASE_HP) : 0,
+          upgrading: oldWalls?.upgrading ?? false,
+          upgradeRemaining: oldWalls?.upgradeRemaining,
+        },
+        { ring: "middle", level: 0, hp: 0, upgrading: false },
+        { ring: "inner", level: 0, hp: 0, upgrading: false },
+      ];
+    }
+    if (!saved.watchtowers) {
+      const oldTower = saved.buildings?.find((b: any) => b.buildingId === "watchtower");
+      saved.watchtowers = [
+        {
+          ring: "outer",
+          level: oldTower?.level ?? 0,
+          damaged: oldTower?.damaged ?? false,
+          upgrading: oldTower?.upgrading ?? false,
+          upgradeRemaining: oldTower?.upgradeRemaining,
+        },
+        { ring: "middle", level: 0, damaged: false, upgrading: false },
+        { ring: "inner", level: 0, damaged: false, upgrading: false },
+      ];
+    }
+    if (!saved.barracks || !Array.isArray(saved.barracks)) {
+      const oldBarracks = saved.buildings?.find((b: any) => b.buildingId === "barracks");
+      saved.barracks = [
+        {
+          ring: "outer",
+          level: oldBarracks?.level ?? 0,
+          damaged: oldBarracks?.damaged ?? false,
+          upgrading: oldBarracks?.upgrading ?? false,
+          upgradeRemaining: oldBarracks?.upgradeRemaining,
+        },
+        { ring: "middle", level: 0, damaged: false, upgrading: false },
+        { ring: "inner", level: 0, damaged: false, upgrading: false },
+      ];
+    }
+    if (saved.soldiers === undefined) saved.soldiers = 0;
+    if (saved.archers === undefined) saved.archers = 0;
+    if (!saved.mageTower) {
+      const oldMage = saved.buildings?.find((b: any) => b.buildingId === "mage_tower");
+      saved.mageTower = {
+        level: oldMage?.level ?? 0,
+        damaged: oldMage?.damaged ?? false,
+        upgrading: oldMage?.upgrading ?? false,
+        upgradeRemaining: oldMage?.upgradeRemaining,
+      };
+    }
+    // Defense category moved to dedicated /defenses page state — drop the
+    // now-removed building entries from older saves so they don't ghost
+    // around in iteration. Levels already migrated into walls/watchtowers/
+    // barracks/mageTower above. Runs AFTER those migrations so the lookups
+    // above still find the legacy entries.
+    {
+      const REMOVED_DEFENSE_IDS = new Set(["walls", "watchtower", "barracks", "mage_tower"]);
+      saved.buildings = saved.buildings.filter((b) => !REMOVED_DEFENSE_IDS.has(b.buildingId));
+    }
     // Garden migration: add plantedYear on each, and ensure one slot per veggie
     // exists so the pre-attributed 4-slot layout works on old saves.
     for (const g of saved.gardens) {
@@ -887,7 +1059,6 @@ function loadGame(): GameState | null {
     if (saved.starvationPenalty === undefined) saved.starvationPenalty = 0;
     // Raid migration
     if (!saved.incomingRaids) saved.incomingRaids = [];
-    if (!saved.raidLog) saved.raidLog = [];
     if (saved.hoursSinceLastRaid === undefined) saved.hoursSinceLastRaid = 48;
     // Astral Shards migration
     if (saved.astralShards === undefined) saved.astralShards = 0;
@@ -1280,7 +1451,7 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
     }
   }
 
-  // Gardens — use veggie.id (cabbages/turnips/peas/squash)
+  // Gardens — use veggie.id (cabbages/turnips/peas/squash/fava)
   for (const garden of gardens) {
     if (garden.level === 0) continue;
     if (garden.plantedYear == null) continue;
@@ -1444,23 +1615,6 @@ function calcBuildingEffect(buildingId: string, nextLevel: number): string | nul
       const nextAle = nextLevel * ALE_CONSUMED_PER_TAVERN_LEVEL;
       return `Happiness: +${cur} → +${next} · Ale cost: ${curAle}/h → ${nextAle}/h`;
     }
-    case "walls": {
-      const cur = Math.max(0, currentLevel) * 8;
-      const next = nextLevel * 8;
-      return `Defense: +${cur} → +${next}`;
-    }
-    case "barracks": {
-      const cur = Math.max(0, currentLevel) * 12;
-      const next = nextLevel * 12;
-      return `Defense: +${cur} → +${next}`;
-    }
-    case "watchtower": {
-      const curDef = Math.max(0, currentLevel) * 5;
-      const nextDef = nextLevel * 5;
-      const curWarn = Math.max(0, currentLevel) * 2;
-      const nextWarn = nextLevel * 2;
-      return `Defense: +${curDef} → +${nextDef} · Early warning: +${curWarn}h → +${nextWarn}h`;
-    }
     case "adventurers_guild": {
       const curRoster = getMaxRoster(Math.max(0, currentLevel));
       const nextRoster = getMaxRoster(nextLevel);
@@ -1532,12 +1686,57 @@ export function GameProvider(props: ParentProps) {
           ).length;
           (serverState as any).raidsResolvedCount = priorRaids;
         }
-        // Backfill any new buildings that were added since this save was created
+        // Defenses rework: migrate legacy single-instance defense buildings
+        // (walls / watchtower / barracks / mage_tower) into the new ring-keyed
+        // state slots. Cloud saves that pre-date the rework keep their progress.
+        if (!(serverState as any).walls) {
+          const oldWalls = serverState.buildings?.find((b: any) => b.buildingId === "walls");
+          const lvl = oldWalls?.level ?? 0;
+          (serverState as any).walls = [
+            { ring: "outer", level: lvl, hp: lvl > 0 ? (oldWalls?.damaged ? Math.floor(lvl * WALL_BASE_HP / 2) : lvl * WALL_BASE_HP) : 0, upgrading: oldWalls?.upgrading ?? false, upgradeRemaining: oldWalls?.upgradeRemaining },
+            { ring: "middle", level: 0, hp: 0, upgrading: false },
+            { ring: "inner", level: 0, hp: 0, upgrading: false },
+          ];
+        }
+        if (!(serverState as any).watchtowers) {
+          const oldTower = serverState.buildings?.find((b: any) => b.buildingId === "watchtower");
+          (serverState as any).watchtowers = [
+            { ring: "outer", level: oldTower?.level ?? 0, damaged: oldTower?.damaged ?? false, upgrading: oldTower?.upgrading ?? false, upgradeRemaining: oldTower?.upgradeRemaining },
+            { ring: "middle", level: 0, damaged: false, upgrading: false },
+            { ring: "inner", level: 0, damaged: false, upgrading: false },
+          ];
+        }
+        if (!(serverState as any).barracks || !Array.isArray((serverState as any).barracks)) {
+          const oldBarracks = serverState.buildings?.find((b: any) => b.buildingId === "barracks");
+          (serverState as any).barracks = [
+            { ring: "outer", level: oldBarracks?.level ?? 0, damaged: oldBarracks?.damaged ?? false, upgrading: oldBarracks?.upgrading ?? false, upgradeRemaining: oldBarracks?.upgradeRemaining },
+            { ring: "middle", level: 0, damaged: false, upgrading: false },
+            { ring: "inner", level: 0, damaged: false, upgrading: false },
+          ];
+        }
+        if ((serverState as any).soldiers === undefined) (serverState as any).soldiers = 0;
+        if ((serverState as any).archers === undefined) (serverState as any).archers = 0;
+        if (!(serverState as any).mageTower) {
+          const oldMage = serverState.buildings?.find((b: any) => b.buildingId === "mage_tower");
+          (serverState as any).mageTower = {
+            level: oldMage?.level ?? 0,
+            damaged: oldMage?.damaged ?? false,
+            upgrading: oldMage?.upgrading ?? false,
+            upgradeRemaining: oldMage?.upgradeRemaining,
+          };
+        }
+        // Backfill any new buildings that were added since this save was created.
+        // Skip the now-removed defense category — those live on the Defenses page.
+        const REMOVED_BUILDING_IDS = new Set(["walls", "watchtower", "barracks", "mage_tower"]);
         for (const def of BUILDINGS) {
           if (!serverState.buildings.find((b: any) => b.buildingId === def.id)) {
             serverState.buildings.push({ buildingId: def.id, level: 0, upgrading: false, damaged: false });
           }
         }
+        // Strip removed defense buildings from saves that still have them so
+        // they stop appearing in any iteration over state.buildings. Runs
+        // AFTER the per-ring migration so the lookups above still find them.
+        serverState.buildings = serverState.buildings.filter((b: any) => !REMOVED_BUILDING_IDS.has(b.buildingId));
         // Re-apply leveling in case XP curve changed
         for (const adv of serverState.adventurers ?? []) {
           applyXp(adv, 0);
@@ -1655,26 +1854,45 @@ export function GameProvider(props: ParentProps) {
           serverState.lastTick = Date.now();
         }
         // Resolve expired raids directly (server tick counts down but never resolves)
-        // This runs BEFORE setState to guarantee resolution even if applyTicks throws later
+        // This runs BEFORE setState to guarantee resolution even if applyTicks throws later.
+        // Offline-resolved raids skip playback — too disruptive to bury the
+        // returning player in N replay overlays. Apply outcomes silently.
         if (serverState.incomingRaids?.length) {
           for (let i = serverState.incomingRaids.length - 1; i >= 0; i--) {
             const ir = serverState.incomingRaids[i];
             if (ir.remaining <= 0) {
               const template = getRaid(ir.raidId);
-              if (template) {
-                const homeAdvs = (serverState.adventurers ?? []).filter((a: any) => a.alive && !a.onMission);
-                const defense = calcDefense(serverState.buildings, homeAdvs, serverState.population);
-                const result = resolveRaid({
-                  raid: template,
-                  raidStrength: ir.strength,
-                  defense,
-                  resources: { ...serverState.resources, food: getTotalFood(serverState.foods) },
-                  population: serverState.population,
-                  homeAdventurers: homeAdvs,
+              if (template && template.encounters?.length) {
+                const sim = simulateRaidCombat({
+                  raidId: ir.raidId,
+                  encounters: template.encounters,
+                  walls: (serverState.walls ?? []).map((w: any) => ({ ring: w.ring, level: w.level, hp: w.hp, maxHp: w.level * WALL_BASE_HP })),
+                  watchtowers: (serverState.watchtowers ?? []).map((t: any) => ({ ring: t.ring, level: t.level, damaged: t.damaged })),
+                  barracks: (serverState.barracks ?? []).map((b: any) => ({ ring: b.ring, level: b.level, damaged: b.damaged })),
+                  totalArchers: serverState.archers ?? 0,
+                  totalSoldiers: serverState.soldiers ?? 0,
                 });
-                // Apply results directly to server state
-                if (result.victory) {
-                  for (const loot of result.loot) {
+
+                // Apply sim after-state
+                for (const wf of sim.wallFinalHp) {
+                  const w = serverState.walls?.find((x: any) => x.ring === wf.ring);
+                  if (w) w.hp = wf.hp;
+                }
+                for (const ring of sim.damagedTowerRings) {
+                  const t = serverState.watchtowers?.find((x: any) => x.ring === ring);
+                  if (t) t.damaged = true;
+                }
+                for (const ring of sim.damagedBarracksRings) {
+                  const b = serverState.barracks?.find((x: any) => x.ring === ring);
+                  if (b) b.damaged = true;
+                }
+                serverState.archers = Math.max(0, (serverState.archers ?? 0) - sim.archersLost);
+                serverState.soldiers = Math.max(0, (serverState.soldiers ?? 0) - sim.soldiersLost);
+                serverState.population = Math.max(BASE_POPULATION, serverState.population - sim.archersLost - sim.soldiersLost);
+
+                const raidName = template.name ?? ir.raidId;
+                if (sim.victory) {
+                  for (const loot of template.victoryLoot) {
                     if (loot.resource === "astralShards") {
                       serverState.astralShards += loot.amount;
                     } else {
@@ -1683,33 +1901,36 @@ export function GameProvider(props: ParentProps) {
                     }
                   }
                 } else {
-                  serverState.resources.gold = Math.max(0, serverState.resources.gold - result.resourcesLost.gold);
-                  serverState.resources.wood = Math.max(0, serverState.resources.wood - result.resourcesLost.wood);
-                  serverState.resources.stone = Math.max(0, serverState.resources.stone - result.resourcesLost.stone);
-                  if (serverState.foods) consumeFood(serverState.foods, result.resourcesLost.food);
-                  serverState.population = Math.max(BASE_POPULATION, serverState.population - result.citizensLost);
-                  // Damage buildings
+                  const stealPct = template.resourceStealPercent;
+                  serverState.resources.gold = Math.max(0, serverState.resources.gold - Math.floor(serverState.resources.gold * stealPct));
+                  serverState.resources.wood = Math.max(0, serverState.resources.wood - Math.floor(serverState.resources.wood * stealPct));
+                  serverState.resources.stone = Math.max(0, serverState.resources.stone - Math.floor(serverState.resources.stone * stealPct));
+                  if (serverState.foods) consumeFood(serverState.foods, Math.floor(getTotalFood(serverState.foods) * stealPct));
+                  if (template.killsCitizens) {
+                    const extra = Math.min(template.maxCitizenLoss, Math.max(1, Math.floor(serverState.population * 0.1)));
+                    serverState.population = Math.max(BASE_POPULATION, serverState.population - extra);
+                  }
+                  // Damage 1-3 random buildings
                   const damageable = serverState.buildings.filter((b: any) => b.level > 0 && !b.damaged && b.buildingId !== "town_hall");
-                  const damageCount = Math.min(damageable.length, result.buildingsDamaged ?? 1);
+                  const damageCount = Math.min(damageable.length, 1 + Math.floor(Math.random() * 3));
                   for (let d = 0; d < damageCount; d++) {
+                    if (damageable.length === 0) break;
                     const idx = Math.floor(Math.random() * damageable.length);
                     damageable[idx].damaged = true;
                     damageable.splice(idx, 1);
                   }
                 }
-                if (!serverState.raidLog) serverState.raidLog = [];
-                serverState.raidLog.push(result);
-                serverState.lastRaidOutcome = result.victory ? "victory" : "defeat";
+
+                serverState.lastRaidOutcome = sim.victory ? "victory" : "defeat";
                 serverState.lastRaidTime = 0;
                 serverState.raidsResolvedCount = (serverState.raidsResolvedCount ?? 0) + 1;
                 if (!serverState.eventLog) serverState.eventLog = [];
-                const raidName = template.name ?? ir.raidId;
                 serverState.eventLog.unshift({
-                  type: result.victory ? "raid_victory" : "raid_defeat",
-                  icon: result.victory ? "🛡️" : "💔",
-                  message: result.victory
-                    ? `Repelled ${raidName}! Loot: ${result.loot.map((l: any) => `+${l.amount} ${l.resource}`).join(", ")}`
-                    : `Defeated by ${raidName}! Resources stolen, buildings damaged.`,
+                  type: sim.victory ? "raid_victory" : "raid_defeat",
+                  icon: sim.victory ? "🛡️" : "💔",
+                  message: sim.victory
+                    ? `Repelled ${raidName} while you were away! Loot: ${template.victoryLoot.map((l) => `+${l.amount} ${l.resource}`).join(", ")}`
+                    : `Defeated by ${raidName} while you were away! Resources stolen, buildings damaged.`,
                   timestamp: Date.now(),
                 });
               }
@@ -2261,6 +2482,53 @@ export function GameProvider(props: ParentProps) {
           }
         }
 
+        // Tick defense upgrades — walls, watchtowers, barracks, mage tower.
+        // Walls also need their HP refilled to the new full value when the
+        // upgrade completes, so they can't share the generic loop above.
+        for (const w of s.walls) {
+          if (w.upgrading && w.upgradeRemaining !== undefined) {
+            w.upgradeRemaining -= elapsedSeconds;
+            if (w.upgradeRemaining <= 0) {
+              w.level += 1;
+              w.hp = w.level * WALL_BASE_HP;
+              w.upgrading = false;
+              w.upgradeRemaining = undefined;
+              pushEvent(s, "building_completed", "🧱", `${w.ring} wall raised to level ${w.level}`);
+            }
+          }
+        }
+        for (const t of s.watchtowers) {
+          if (t.upgrading && t.upgradeRemaining !== undefined) {
+            t.upgradeRemaining -= elapsedSeconds;
+            if (t.upgradeRemaining <= 0) {
+              t.level += 1;
+              t.upgrading = false;
+              t.upgradeRemaining = undefined;
+              pushEvent(s, "building_completed", "🏰", `${t.ring} watchtower raised to level ${t.level}`);
+            }
+          }
+        }
+        for (const b of s.barracks) {
+          if (b.upgrading && b.upgradeRemaining !== undefined) {
+            b.upgradeRemaining -= elapsedSeconds;
+            if (b.upgradeRemaining <= 0) {
+              b.level += 1;
+              b.upgrading = false;
+              b.upgradeRemaining = undefined;
+              pushEvent(s, "building_completed", "⚔️", `${b.ring} barracks raised to level ${b.level}`);
+            }
+          }
+        }
+        if (s.mageTower.upgrading && s.mageTower.upgradeRemaining !== undefined) {
+          s.mageTower.upgradeRemaining -= elapsedSeconds;
+          if (s.mageTower.upgradeRemaining <= 0) {
+            s.mageTower.level += 1;
+            s.mageTower.upgrading = false;
+            s.mageTower.upgradeRemaining = undefined;
+            pushEvent(s, "building_completed", "🗼", `Mage Tower raised to level ${s.mageTower.level}`);
+          }
+        }
+
         // Villager growth / decline
         const popBefore = Math.floor(s.population);
         if (netFoodRate > 0 && s.population < maxPop && s.happiness >= 20) {
@@ -2681,58 +2949,59 @@ export function GameProvider(props: ParentProps) {
         // Countdown incoming raids
         for (let i = s.incomingRaids.length - 1; i >= 0; i--) {
           const ir = s.incomingRaids[i];
+          // Already-resolved raids stay in the panel until the player watches /
+          // dismisses the playback. Don't tick or re-resolve them.
+          if (ir.combatLog) continue;
           ir.remaining -= elapsedSeconds;
           if (ir.remaining <= 0) {
-            // Raid arrives — resolve it
             const template = getRaid(ir.raidId);
-            if (template) {
-              const homeAdvs = s.adventurers.filter((a) => a.alive && !a.onMission);
-              const defense = calcDefense(s.buildings, homeAdvs, s.population);
-              const result = resolveRaid({
-                raid: template,
-                raidStrength: ir.strength,
-                defense,
-                resources: { ...s.resources, food: getTotalFood(s.foods) },
-                population: s.population,
-                homeAdventurers: homeAdvs,
+            if (template && template.encounters?.length) {
+              // ── Run the siege sim ────────────────────────────────
+              const sim = simulateRaidCombat({
+                raidId: ir.raidId,
+                encounters: template.encounters,
+                walls: s.walls.map((w) => ({ ring: w.ring, level: w.level, hp: w.hp, maxHp: w.level * WALL_BASE_HP })),
+                watchtowers: s.watchtowers.map((t) => ({ ring: t.ring, level: t.level, damaged: t.damaged })),
+                barracks: s.barracks.map((b) => ({ ring: b.ring, level: b.level, damaged: b.damaged })),
+                totalArchers: s.archers,
+                totalSoldiers: s.soldiers,
               });
 
-              // Log and damage buildings on defeat
-              const raidName = template?.name ?? ir.raidId;
-              const injured = result.defendersInjured.length;
-              if (result.victory) {
-                const lootStr = result.loot.map((l) => `+${l.amount} ${l.resource}`).join(", ");
-                const parts = [`Repelled ${raidName}!`, `Loot: ${lootStr}`];
-                if (injured > 0) parts.push(`Injured: ${injured}`);
-                pushEvent(s, "raid_victory", "🛡️", parts.join(" · "));
-              } else {
-                const lost = result.resourcesLost;
-                const lostParts: string[] = [];
-                if (lost.gold > 0) lostParts.push(`${lost.gold}g`);
-                if (lost.wood > 0) lostParts.push(`${lost.wood}w`);
-                if (lost.stone > 0) lostParts.push(`${lost.stone}s`);
-                if (lost.food > 0) lostParts.push(`${lost.food}f`);
-                const parts = [`Defeated by ${raidName}!`];
-                if (lostParts.length > 0) parts.push(`Lost: ${lostParts.join(", ")}`);
-                if (result.citizensLost > 0) parts.push(`Citizens lost: ${result.citizensLost}`);
-                if (injured > 0) parts.push(`Injured: ${injured}`);
-                if (result.buildingsDamaged) parts.push(`Buildings damaged: ${result.buildingsDamaged}`);
-                pushEvent(s, "raid_defeat", "💔", parts.join(" · "));
-                const damageable = s.buildings.filter((b) => b.level > 0 && !b.damaged && b.buildingId !== "town_hall");
-                const damageCount = Math.min(damageable.length, result.buildingsDamaged ?? 1);
-                for (let d = 0; d < damageCount; d++) {
-                  const idx = Math.floor(Math.random() * damageable.length);
-                  damageable[idx].damaged = true;
-                  const def = BUILDINGS.find((b) => b.id === (damageable[idx] as any).buildingId);
-                  if (def) pushEvent(s, "building_damaged", "🔧", `${def.name} was damaged in the raid`);
-                  damageable.splice(idx, 1);
-                }
+              // ── Apply sim after-state ────────────────────────────
+              for (const wf of sim.wallFinalHp) {
+                const w = s.walls.find((x) => x.ring === wf.ring);
+                if (w) w.hp = wf.hp;
+              }
+              for (const ring of sim.damagedTowerRings) {
+                const t = s.watchtowers.find((x) => x.ring === ring);
+                if (t) t.damaged = true;
+              }
+              for (const ring of sim.damagedBarracksRings) {
+                const b = s.barracks.find((x) => x.ring === ring);
+                if (b) b.damaged = true;
+              }
+              s.archers = Math.max(0, s.archers - sim.archersLost);
+              s.soldiers = Math.max(0, s.soldiers - sim.soldiersLost);
+              s.population = Math.max(BASE_POPULATION, s.population - sim.archersLost - sim.soldiersLost);
+
+              const raidName = template.name ?? ir.raidId;
+
+              // Per-casualty event lines so the player can see the breakdown
+              // beyond the summary. Pushed before the summary so the summary
+              // ends up at the top of the log.
+              if (sim.soldiersLost > 0) {
+                const word = sim.soldiersLost === 1 ? "soldier" : "soldiers";
+                pushEvent(s, "citizen_died", "⚔️", `${sim.soldiersLost} ${word} fell defending the walls`);
+              }
+              if (sim.archersLost > 0) {
+                const word = sim.archersLost === 1 ? "archer" : "archers";
+                pushEvent(s, "citizen_died", "🏹", `${sim.archersLost} ${word} fell at the watchtower`);
               }
 
-              // Apply losses or grant loot
-              if (result.victory) {
+              if (sim.victory) {
+                // ── Victory: grant loot ────────────────────────────
                 const resCaps = calcStorageCaps(s.buildings);
-                for (const loot of result.loot) {
+                for (const loot of template.victoryLoot) {
                   if (loot.resource === "astralShards") {
                     s.astralShards += loot.amount;
                   } else {
@@ -2740,20 +3009,73 @@ export function GameProvider(props: ParentProps) {
                     s.resources[key] = Math.min(resCaps[key], s.resources[key] + loot.amount);
                   }
                 }
+                const lootStr = template.victoryLoot.map((l) => `+${l.amount} ${l.resource}`).join(", ");
+                const parts = [`Repelled ${raidName}!`, `Loot: ${lootStr}`];
+                const losses = sim.archersLost + sim.soldiersLost;
+                if (losses > 0) parts.push(`Casualties: ${losses}`);
+                pushEvent(s, "raid_victory", "🛡️", parts.join(" · "));
               } else {
-                s.resources.gold = Math.max(0, s.resources.gold - result.resourcesLost.gold);
-                s.resources.wood = Math.max(0, s.resources.wood - result.resourcesLost.wood);
-                s.resources.stone = Math.max(0, s.resources.stone - result.resourcesLost.stone);
-                if (result.resourcesLost.food > 0) consumeFood(s.foods, result.resourcesLost.food);
-                s.population = Math.max(BASE_POPULATION, s.population - result.citizensLost);
+                // ── Defeat: plunder on top of sim attrition ────────
+                const stealPct = template.resourceStealPercent;
+                const stolen = {
+                  gold: Math.floor(s.resources.gold * stealPct),
+                  wood: Math.floor(s.resources.wood * stealPct),
+                  stone: Math.floor(s.resources.stone * stealPct),
+                  food: Math.floor(getTotalFood(s.foods) * stealPct),
+                };
+                s.resources.gold = Math.max(0, s.resources.gold - stolen.gold);
+                s.resources.wood = Math.max(0, s.resources.wood - stolen.wood);
+                s.resources.stone = Math.max(0, s.resources.stone - stolen.stone);
+                if (stolen.food > 0) consumeFood(s.foods, stolen.food);
+
+                let extraCitizensLost = 0;
+                if (template.killsCitizens) {
+                  extraCitizensLost = Math.min(template.maxCitizenLoss, Math.max(1, Math.floor(s.population * 0.1)));
+                  s.population = Math.max(BASE_POPULATION, s.population - extraCitizensLost);
+                  const word = extraCitizensLost === 1 ? "citizen" : "citizens";
+                  pushEvent(s, "citizen_died", "💀", `${extraCitizensLost} ${word} taken in the plunder`);
+                }
+
+                // Damage 1-3 random buildings (legacy plunder mechanic).
+                const damageable = s.buildings.filter((b) => b.level > 0 && !b.damaged && b.buildingId !== "town_hall");
+                const damageCount = Math.min(damageable.length, 1 + Math.floor(Math.random() * 3));
+                let damagedBuildings = 0;
+                for (let d = 0; d < damageCount; d++) {
+                  if (damageable.length === 0) break;
+                  const idx = Math.floor(Math.random() * damageable.length);
+                  damageable[idx].damaged = true;
+                  damagedBuildings++;
+                  const def = BUILDINGS.find((b) => b.id === (damageable[idx] as any).buildingId);
+                  if (def) pushEvent(s, "building_damaged", "🔧", `${def.name} was damaged in the raid`);
+                  damageable.splice(idx, 1);
+                }
+
+                const lostParts: string[] = [];
+                if (stolen.gold > 0) lostParts.push(`${stolen.gold}g`);
+                if (stolen.wood > 0) lostParts.push(`${stolen.wood}w`);
+                if (stolen.stone > 0) lostParts.push(`${stolen.stone}s`);
+                if (stolen.food > 0) lostParts.push(`${stolen.food}f`);
+                const parts = [`Defeated by ${raidName}!`];
+                if (lostParts.length > 0) parts.push(`Lost: ${lostParts.join(", ")}`);
+                const totalCitizensLost = extraCitizensLost + sim.archersLost + sim.soldiersLost;
+                if (totalCitizensLost > 0) parts.push(`Citizens lost: ${totalCitizensLost}`);
+                if (damagedBuildings > 0) parts.push(`Buildings damaged: ${damagedBuildings}`);
+                pushEvent(s, "raid_defeat", "💔", parts.join(" · "));
               }
 
-              s.raidLog.push(result);
-              s.lastRaidOutcome = result.victory ? "victory" : "defeat";
-              s.raidsResolvedCount = (s.raidsResolvedCount ?? 0) + 1;
+              // Stash combat log on the raid for playback. Card stays in the
+              // panel until acknowledgeRaidCombat() splices it.
+              ir.combatLog = sim.log;
+              ir.combatVictory = sim.victory;
+              ir.combatViewed = false;
+              s.lastRaidOutcome = sim.victory ? "victory" : "defeat";
               s.lastRaidTime = 0;
+              s.raidsResolvedCount = (s.raidsResolvedCount ?? 0) + 1;
+            } else {
+              // No template or no encounters — splice silently. Shouldn't
+              // happen now that all raid templates carry encounter sets.
+              s.incomingRaids.splice(i, 1);
             }
-            s.incomingRaids.splice(i, 1);
           }
         }
 
@@ -2764,7 +3086,11 @@ export function GameProvider(props: ParentProps) {
           s.hoursSinceLastRaid = 0; // reset timer
           const spawn = spawnRaid(tier, s.year);
           if (spawn) {
-            const wtLevel = s.buildings.find((b) => b.buildingId === "watchtower")?.level ?? 0;
+            // Use the highest tower level across rings — narratively, the
+            // tallest tower has the longest line of sight.
+            const wtLevel = s.watchtowers
+              .filter((t) => !t.damaged)
+              .reduce((max, t) => Math.max(max, t.level), 0);
             const warningHours = calcWarningTime(spawn.raid.baseWarning, wtLevel);
             s.incomingRaids.push({
               raidId: spawn.raid.id,
@@ -3588,8 +3914,7 @@ export function GameProvider(props: ParentProps) {
     enchantItem(enchantId, adventurerId, slot, inventoryIdx) {
       const ench = getEnchantment(enchantId);
       if (!ench) return false;
-      const tower = state.buildings.find((b) => b.buildingId === "mage_tower");
-      if (!tower || tower.level < ench.minTowerLevel) return false;
+      if (state.mageTower.level < ench.minTowerLevel) return false;
 
       // Check valid slot
       if (slot && !ench.validSlots.includes(slot as any)) return false;
@@ -3851,15 +4176,196 @@ export function GameProvider(props: ParentProps) {
     },
     getDefense() {
       const homeAdvs = state.adventurers.filter((a) => a.alive && !a.onMission);
-      return calcDefense(state.buildings, homeAdvs, state.population);
+      return calcDefense(state.walls, state.watchtowers, state.barracks, homeAdvs, state.population);
     },
-    collectRaidLog() {
-      const log = [...state.raidLog];
-      if (log.length > 0) {
-        setState(produce((s) => { s.raidLog = []; }));
-        scheduleSave();
-      }
-      return log;
+
+    // ── Defenses (rework v1): build/upgrade/repair/recruit actions ──
+    // Instant for v1 — no construction queue. We can layer queue + mason
+    // bonuses later if it feels right after playtest.
+
+    buildOrUpgradeWall(ring) {
+      const slot = state.walls.find((w) => w.ring === ring);
+      if (!slot || slot.upgrading) return false;
+      const tier = this.getSettlementTier();
+      if (!ringUnlocked(ring, tier)) return false;
+      const masonLvl = state.buildings.find((b) => b.buildingId === "masons_guild")?.level ?? 0;
+      const cost = applyMasonCostReduction(getWallCost(slot.level), masonLvl);
+      const buildTime = applyMasonTimeReduction(getWallBuildTime(slot.level), masonLvl);
+      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
+      setState(produce((s) => {
+        s.resources.wood -= cost.wood;
+        s.resources.stone -= cost.stone;
+        const w = s.walls.find((x) => x.ring === ring)!;
+        w.upgrading = true;
+        w.upgradeRemaining = buildTime;
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    buildOrUpgradeWatchtower(ring) {
+      const slot = state.watchtowers.find((t) => t.ring === ring);
+      if (!slot || slot.upgrading) return false;
+      const tier = this.getSettlementTier();
+      if (!ringUnlocked(ring, tier)) return false;
+      const masonLvl = state.buildings.find((b) => b.buildingId === "masons_guild")?.level ?? 0;
+      const cost = applyMasonCostReduction(getWatchtowerCost(slot.level), masonLvl);
+      const buildTime = applyMasonTimeReduction(getWatchtowerBuildTime(slot.level), masonLvl);
+      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
+      setState(produce((s) => {
+        s.resources.wood -= cost.wood;
+        s.resources.stone -= cost.stone;
+        const t = s.watchtowers.find((x) => x.ring === ring)!;
+        t.upgrading = true;
+        t.upgradeRemaining = buildTime;
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    buildOrUpgradeBarracks(ring) {
+      const slot = state.barracks.find((b) => b.ring === ring);
+      if (!slot || slot.upgrading) return false;
+      const tier = this.getSettlementTier();
+      if (!ringUnlocked(ring, tier)) return false;
+      const masonLvl = state.buildings.find((b) => b.buildingId === "masons_guild")?.level ?? 0;
+      const baseCost = getBarracksCost(slot.level);
+      const cost = applyMasonCostReduction({ wood: baseCost.wood, stone: baseCost.stone }, masonLvl);
+      const buildTime = applyMasonTimeReduction(getBarracksBuildTime(slot.level), masonLvl);
+      if (
+        state.resources.wood < cost.wood ||
+        state.resources.stone < cost.stone ||
+        state.iron < baseCost.iron
+      ) return false;
+      setState(produce((s) => {
+        s.resources.wood -= cost.wood;
+        s.resources.stone -= cost.stone;
+        s.iron -= baseCost.iron;
+        const b = s.barracks.find((x) => x.ring === ring)!;
+        b.upgrading = true;
+        b.upgradeRemaining = buildTime;
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    buildOrUpgradeMageTower() {
+      // Inner-ring-locked: only buildable once the Inner ring itself is
+      // unlocked (Town tier per ringUnlocked). Single instance.
+      if (state.mageTower.upgrading) return false;
+      const tier = this.getSettlementTier();
+      if (!ringUnlocked("inner", tier)) return false;
+      const masonLvl = state.buildings.find((b) => b.buildingId === "masons_guild")?.level ?? 0;
+      const cost = applyMasonCostReduction(getMageTowerCost(state.mageTower.level), masonLvl);
+      const buildTime = applyMasonTimeReduction(getMageTowerBuildTime(state.mageTower.level), masonLvl);
+      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
+      setState(produce((s) => {
+        s.resources.wood -= cost.wood;
+        s.resources.stone -= cost.stone;
+        s.mageTower.upgrading = true;
+        s.mageTower.upgradeRemaining = buildTime;
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    repairWall(ring) {
+      const slot = state.walls.find((w) => w.ring === ring);
+      if (!slot || slot.level === 0) return false;
+      const fullHp = slot.level * WALL_BASE_HP;
+      if (slot.hp >= fullHp) return false;
+      const cost = getWallRepairCost(slot.level);
+      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
+      setState(produce((s) => {
+        s.resources.wood -= cost.wood;
+        s.resources.stone -= cost.stone;
+        const w = s.walls.find((x) => x.ring === ring)!;
+        w.hp = w.level * WALL_BASE_HP;
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    repairWatchtower(ring) {
+      const slot = state.watchtowers.find((t) => t.ring === ring);
+      if (!slot || !slot.damaged) return false;
+      const cost = getDefensiveRepairCost(slot.level);
+      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
+      setState(produce((s) => {
+        s.resources.wood -= cost.wood;
+        s.resources.stone -= cost.stone;
+        const t = s.watchtowers.find((x) => x.ring === ring)!;
+        t.damaged = false;
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    repairBarracks(ring) {
+      const slot = state.barracks.find((b) => b.ring === ring);
+      if (!slot || !slot.damaged) return false;
+      const cost = getDefensiveRepairCost(slot.level);
+      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
+      setState(produce((s) => {
+        s.resources.wood -= cost.wood;
+        s.resources.stone -= cost.stone;
+        const b = s.barracks.find((x) => x.ring === ring)!;
+        b.damaged = false;
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    repairMageTower() {
+      if (!state.mageTower.damaged) return false;
+      const cost = getDefensiveRepairCost(state.mageTower.level);
+      if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
+      setState(produce((s) => {
+        s.resources.wood -= cost.wood;
+        s.resources.stone -= cost.stone;
+        s.mageTower.damaged = false;
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    recruitSoldier() {
+      // Need a free slot AND an unallocated citizen AND the gold.
+      if (state.soldiers >= maxSoldiers(state)) return false;
+      if (availableCitizens(state) <= 0) return false;
+      if (state.resources.gold < SOLDIER_COST.gold) return false;
+      setState(produce((s) => {
+        s.resources.gold -= SOLDIER_COST.gold;
+        s.soldiers += 1;
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    recruitArcher() {
+      if (state.archers >= maxArchers(state)) return false;
+      if (availableCitizens(state) <= 0) return false;
+      if (state.resources.gold < ARCHER_COST.gold) return false;
+      setState(produce((s) => {
+        s.resources.gold -= ARCHER_COST.gold;
+        s.archers += 1;
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    dismissSoldier() {
+      if (state.soldiers <= 0) return false;
+      setState(produce((s) => { s.soldiers -= 1; }));
+      scheduleSave();
+      return true;
+    },
+
+    dismissArcher() {
+      if (state.archers <= 0) return false;
+      setState(produce((s) => { s.archers -= 1; }));
+      scheduleSave();
+      return true;
     },
     recallAdventurers() {
       const missions = state.activeMissions;
@@ -4384,6 +4890,16 @@ export function GameProvider(props: ParentProps) {
           m.combatViewed = true;
           m.remaining = 0;
         }
+      }));
+      scheduleSave();
+    },
+    acknowledgeRaidCombat(raidId) {
+      // Called when the player closes the raid combat playback modal. The
+      // raid's outcome was already applied when the timer hit 0 — this just
+      // splices the resolved card from the threats panel.
+      setState(produce((s) => {
+        const idx = s.incomingRaids.findIndex((ir) => ir.raidId === raidId && ir.combatLog);
+        if (idx >= 0) s.incomingRaids.splice(idx, 1);
       }));
       scheduleSave();
     },
