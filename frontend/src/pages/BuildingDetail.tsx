@@ -11,6 +11,8 @@ import {
   applyMasonTimeReduction,
   getRepairCost,
   getBuildingImage,
+  PANIC_BUILD_IDS,
+  PANIC_BUILD_SHARD_COST,
 } from "~/data/buildings";
 import { RESOURCES } from "~/data/resources";
 import { useGame } from "~/engine/gameState";
@@ -102,6 +104,19 @@ export default function BuildingDetail() {
 
   const handleUpgrade = () => {
     actions.upgradeBuilding(params.id);
+  };
+
+  const panicEligible = () => {
+    if (!PANIC_BUILD_IDS.includes(params.id)) return false;
+    const pb = playerBuilding();
+    if (!pb || pb.level > 0 || pb.upgrading) return false;
+    if (!tierPrereqs().met) return false;
+    return !canUpgrade();
+  };
+  const canPanicBuild = () =>
+    panicEligible() && state.astralShards >= PANIC_BUILD_SHARD_COST;
+  const handlePanicBuild = () => {
+    actions.panicBuildBuilding(params.id);
   };
 
   const handleCancel = () => {
@@ -379,6 +394,31 @@ export default function BuildingDetail() {
                           ? `Build ${b().name}`
                           : `Upgrade to Level ${(playerBuilding()?.level ?? 0) + 1}`}
                       </button>
+                    <Show when={panicEligible()}>
+                      <button
+                        disabled={!canPanicBuild()}
+                        onClick={handlePanicBuild}
+                        title={canPanicBuild()
+                          ? `Soft-lock recovery: spend ${PANIC_BUILD_SHARD_COST} astral shards to build instantly`
+                          : `Need ${PANIC_BUILD_SHARD_COST - state.astralShards} more astral shards`}
+                        style={{
+                          "margin-top": "8px",
+                          padding: "10px 16px",
+                          background: canPanicBuild() ? "rgba(167, 139, 250, 0.15)" : "rgba(106, 100, 88, 0.15)",
+                          border: `1px solid ${canPanicBuild() ? "#a78bfa" : "var(--text-muted)"}`,
+                          color: canPanicBuild() ? "#a78bfa" : "var(--text-muted)",
+                          "border-radius": "6px",
+                          cursor: canPanicBuild() ? "pointer" : "not-allowed",
+                          "font-weight": "bold",
+                          width: "100%",
+                        }}
+                      >
+                        ✨ Use {PANIC_BUILD_SHARD_COST} Astral Shards to build instantly
+                      </button>
+                      <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-top": "4px", "text-align": "center" }}>
+                        Stuck? This skips the resource cost.
+                      </div>
+                    </Show>
                     </div>
                   </>
                 )}

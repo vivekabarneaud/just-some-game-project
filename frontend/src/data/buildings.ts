@@ -605,6 +605,15 @@ export const BASE_POPULATION = 5;
 // Food consumed per citizen per hour
 export const FOOD_PER_CITIZEN_PER_HOUR = 5;
 
+// ─── Panic-build (soft-lock recovery) ─────────────────────────────
+// New players can soft-lock by spending all their stone before they have
+// either a quarry, a marketplace (no trades), or a guild (no stone-fetching
+// missions). Same shape exists on the wood side for the lumber mill. The
+// panic-build escape hatch lets them spend astral shards to instantly raise
+// a Lv.1 building when they can't afford the regular cost.
+export const PANIC_BUILD_IDS: string[] = ["lumber_mill", "quarry"];
+export const PANIC_BUILD_SHARD_COST = 10;
+
 // Material storage (wood & stone) — Warehouse
 export const BASE_MATERIAL_STORAGE = 500;
 export const MATERIAL_STORAGE_PER_WAREHOUSE_LEVEL = 500;

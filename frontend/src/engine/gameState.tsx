@@ -16,6 +16,8 @@ import {
   type SettlementTier,
   BASE_POPULATION,
   FOOD_PER_CITIZEN_PER_HOUR,
+  PANIC_BUILD_IDS,
+  PANIC_BUILD_SHARD_COST,
   BASE_MATERIAL_STORAGE,
   MATERIAL_STORAGE_PER_WAREHOUSE_LEVEL,
   BASE_FOOD_STORAGE,
@@ -426,6 +428,7 @@ export interface FoodSource {
 
 export interface GameActions {
   upgradeBuilding: (buildingId: string) => boolean;
+  panicBuildBuilding: (buildingId: string) => boolean;
   canAfford: (cost: BuildingCost) => boolean;
   getBuildingEffect: (buildingId: string, nextLevel: number) => string | null;
   buildField: () => boolean;
@@ -2917,6 +2920,35 @@ export function GameProvider(props: ParentProps) {
         const b = s.buildings.find((b) => b.buildingId === buildingId)!;
         b.upgrading = true;
         b.upgradeRemaining = adjustedTime;
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    panicBuildBuilding(buildingId) {
+      // Soft-lock recovery: spend astral shards to instantly raise a Lv.1
+      // lumber mill or quarry when the player can't afford the regular cost
+      // and has no recovery path (no marketplace, no guild). Only fires when
+      // the normal cost is genuinely unaffordable — guards against wasting
+      // shards on a building you could already build.
+      if (!PANIC_BUILD_IDS.includes(buildingId)) return false;
+      const pb = state.buildings.find((b) => b.buildingId === buildingId);
+      if (!pb || pb.level > 0 || pb.upgrading) return false;
+      const def = BUILDINGS.find((b) => b.id === buildingId);
+      if (!def) return false;
+      const levelDef = def.levels[0];
+      if (!levelDef) return false;
+      const masonLvl = state.buildings.find((b) => b.buildingId === "masons_guild")?.level ?? 0;
+      const cost = applyMasonCostReduction(levelDef.cost, masonLvl);
+      // Only allow if the player can't actually afford the normal build.
+      const canAffordNormal = state.resources.wood >= cost.wood && state.resources.stone >= cost.stone;
+      if (canAffordNormal) return false;
+      if (state.astralShards < PANIC_BUILD_SHARD_COST) return false;
+      setState(produce((s) => {
+        s.astralShards -= PANIC_BUILD_SHARD_COST;
+        const b = s.buildings.find((x) => x.buildingId === buildingId)!;
+        b.level = 1;
+        pushEvent(s, "building_completed", "✨", `${def.name} raised to Lv.1 with astral shards`);
       }));
       scheduleSave();
       return true;

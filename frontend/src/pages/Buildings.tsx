@@ -1,6 +1,6 @@
 import { For, Show, onMount } from "solid-js";
 import { A } from "@solidjs/router";
-import { BUILDINGS, isBuildingUnlocked, getUnlockRequirement, getNextLevelRequirement, applyMasonCostReduction, applyMasonTimeReduction, getTierPrerequisitesMet, getRepairCost, getBuildingImage, type BuildingDefinition } from "~/data/buildings";
+import { BUILDINGS, isBuildingUnlocked, getUnlockRequirement, getNextLevelRequirement, applyMasonCostReduction, applyMasonTimeReduction, getTierPrerequisitesMet, getRepairCost, getBuildingImage, PANIC_BUILD_IDS, PANIC_BUILD_SHARD_COST, type BuildingDefinition } from "~/data/buildings";
 import { QUEST_CHAIN } from "~/data/quests";
 import { useGame } from "~/engine/gameState";
 import Countdown from "~/components/Countdown";
@@ -110,6 +110,19 @@ export default function Buildings() {
                     if (actions.getActiveQueueCount() >= actions.getMasonBonuses().queueSlots) return false;
                     return true;
                   };
+                  // Panic-build (soft-lock recovery): Lv.0 lumber mill / quarry the
+                  // player can't afford → swap the indicator to a purple "use shards"
+                  // button. The cost-affordability check inside canUpgradeNow already
+                  // failed when this returns true, so we know the regular flow is blocked.
+                  const panicEligible = () =>
+                    PANIC_BUILD_IDS.includes(building.id) &&
+                    level() === 0 &&
+                    !isUpgrading() &&
+                    !pb()?.damaged &&
+                    tierPrereqs().met &&
+                    !canUpgradeNow();
+                  const canPanicBuild = () =>
+                    panicEligible() && state.astralShards >= PANIC_BUILD_SHARD_COST;
                   const upgradeReason = () => {
                     if (isUpgrading()) return "Upgrading...";
                     if (pb()?.damaged) return "Damaged — repair first";
@@ -186,6 +199,10 @@ export default function Buildings() {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 actions.upgradeBuilding(building.id);
+                              } else if (canPanicBuild()) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                actions.panicBuildBuilding(building.id);
                               }
                             }}
                           >
@@ -197,12 +214,24 @@ export default function Buildings() {
                               "align-items": "center",
                               "justify-content": "center",
                               "font-size": "0.75rem",
-                              background: canUpgradeNow() ? "rgba(46, 204, 113, 0.2)" : "rgba(106, 100, 88, 0.15)",
-                              border: `1px solid ${canUpgradeNow() ? "var(--accent-green)" : "var(--text-muted)"}`,
-                              color: canUpgradeNow() ? "var(--accent-green)" : "var(--text-muted)",
-                              cursor: canUpgradeNow() ? "pointer" : "default",
+                              background: canUpgradeNow()
+                                ? "rgba(46, 204, 113, 0.2)"
+                                : panicEligible()
+                                  ? "rgba(167, 139, 250, 0.2)"
+                                  : "rgba(106, 100, 88, 0.15)",
+                              border: `1px solid ${canUpgradeNow()
+                                ? "var(--accent-green)"
+                                : panicEligible()
+                                  ? (canPanicBuild() ? "#a78bfa" : "var(--text-muted)")
+                                  : "var(--text-muted)"}`,
+                              color: canUpgradeNow()
+                                ? "var(--accent-green)"
+                                : panicEligible()
+                                  ? (canPanicBuild() ? "#a78bfa" : "var(--text-muted)")
+                                  : "var(--text-muted)",
+                              cursor: (canUpgradeNow() || canPanicBuild()) ? "pointer" : "default",
                             }}>
-                              {level() === 0 ? "+" : "↑"}
+                              {panicEligible() ? "✨" : (level() === 0 ? "+" : "↑")}
                             </div>
                             <div class="upgrade-tooltip" style={{
                               position: "absolute",
@@ -211,7 +240,11 @@ export default function Buildings() {
                               "min-width": "160px",
                               padding: "6px 10px",
                               background: "var(--bg-panel)",
-                              border: `1px solid ${canUpgradeNow() ? "var(--accent-green)" : "var(--border-default)"}`,
+                              border: `1px solid ${canUpgradeNow()
+                                ? "var(--accent-green)"
+                                : panicEligible()
+                                  ? "#a78bfa"
+                                  : "var(--border-default)"}`,
                               "border-radius": "6px",
                               "font-size": "0.75rem",
                               color: "var(--text-secondary)",
@@ -227,7 +260,20 @@ export default function Buildings() {
                                 <div>{upgradeCostTip()}</div>
                                 <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "2px" }}>Click to upgrade</div>
                               </Show>
-                              <Show when={!canUpgradeNow()}>
+                              <Show when={!canUpgradeNow() && panicEligible()}>
+                                <div style={{ color: "#a78bfa", "font-weight": "bold", "margin-bottom": "2px" }}>
+                                  Use {PANIC_BUILD_SHARD_COST} ✨ to build instantly
+                                </div>
+                                <div style={{ "font-size": "0.7rem", color: "var(--text-muted)" }}>
+                                  Soft-lock recovery — skip the resource cost.
+                                </div>
+                                <Show when={!canPanicBuild()}>
+                                  <div style={{ color: "var(--accent-red)", "margin-top": "2px" }}>
+                                    Need {PANIC_BUILD_SHARD_COST - state.astralShards} more shards
+                                  </div>
+                                </Show>
+                              </Show>
+                              <Show when={!canUpgradeNow() && !panicEligible()}>
                                 <div style={{ color: "var(--accent-gold)" }}>{upgradeReasonFull()}</div>
                                 <Show when={nextLevelDef()}>
                                   <div style={{ "margin-top": "2px" }}>{upgradeCostTip()}</div>
@@ -255,6 +301,10 @@ export default function Buildings() {
                                       e.preventDefault();
                                       e.stopPropagation();
                                       actions.upgradeBuilding(building.id);
+                                    } else if (canPanicBuild()) {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      actions.panicBuildBuilding(building.id);
                                     }
                                   }}
                                 >
@@ -266,12 +316,24 @@ export default function Buildings() {
                                     "align-items": "center",
                                     "justify-content": "center",
                                     "font-size": "0.75rem",
-                                    background: canUpgradeNow() ? "rgba(46, 204, 113, 0.3)" : "rgba(106, 100, 88, 0.3)",
-                                    border: `1px solid ${canUpgradeNow() ? "var(--accent-green)" : "var(--text-muted)"}`,
-                                    color: canUpgradeNow() ? "var(--accent-green)" : "var(--text-muted)",
-                                    cursor: canUpgradeNow() ? "pointer" : "default",
+                                    background: canUpgradeNow()
+                                      ? "rgba(46, 204, 113, 0.3)"
+                                      : panicEligible()
+                                        ? "rgba(167, 139, 250, 0.35)"
+                                        : "rgba(106, 100, 88, 0.3)",
+                                    border: `1px solid ${canUpgradeNow()
+                                      ? "var(--accent-green)"
+                                      : panicEligible()
+                                        ? (canPanicBuild() ? "#a78bfa" : "var(--text-muted)")
+                                        : "var(--text-muted)"}`,
+                                    color: canUpgradeNow()
+                                      ? "var(--accent-green)"
+                                      : panicEligible()
+                                        ? (canPanicBuild() ? "#a78bfa" : "var(--text-muted)")
+                                        : "var(--text-muted)",
+                                    cursor: (canUpgradeNow() || canPanicBuild()) ? "pointer" : "default",
                                   }}>
-                                    {level() === 0 ? "+" : "↑"}
+                                    {panicEligible() ? "✨" : (level() === 0 ? "+" : "↑")}
                                   </div>
                                   <div class="upgrade-tooltip" style={{
                                     position: "absolute",
@@ -280,7 +342,11 @@ export default function Buildings() {
                                     "min-width": "160px",
                                     padding: "6px 10px",
                                     background: "var(--bg-panel)",
-                                    border: `1px solid ${canUpgradeNow() ? "var(--accent-green)" : "var(--border-default)"}`,
+                                    border: `1px solid ${canUpgradeNow()
+                                      ? "var(--accent-green)"
+                                      : panicEligible()
+                                        ? "#a78bfa"
+                                        : "var(--border-default)"}`,
                                     "border-radius": "6px",
                                     "font-size": "0.75rem",
                                     color: "var(--text-secondary)",
@@ -295,7 +361,20 @@ export default function Buildings() {
                                       </div>
                                       <div>{upgradeCostTip()}</div>
                                     </Show>
-                                    <Show when={!canUpgradeNow()}>
+                                    <Show when={!canUpgradeNow() && panicEligible()}>
+                                      <div style={{ color: "#a78bfa", "font-weight": "bold", "margin-bottom": "2px" }}>
+                                        Use {PANIC_BUILD_SHARD_COST} ✨ to build instantly
+                                      </div>
+                                      <div style={{ "font-size": "0.7rem", color: "var(--text-muted)" }}>
+                                        Soft-lock recovery — skip the resource cost.
+                                      </div>
+                                      <Show when={!canPanicBuild()}>
+                                        <div style={{ color: "var(--accent-red)", "margin-top": "2px" }}>
+                                          Need {PANIC_BUILD_SHARD_COST - state.astralShards} more shards
+                                        </div>
+                                      </Show>
+                                    </Show>
+                                    <Show when={!canUpgradeNow() && !panicEligible()}>
                                       <div style={{ color: "var(--accent-gold)" }}>{upgradeReasonFull()}</div>
                                       <Show when={nextLevelDef()}>
                                         <div style={{ "margin-top": "2px" }}>{upgradeCostTip()}</div>
