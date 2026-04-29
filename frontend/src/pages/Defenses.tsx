@@ -33,15 +33,54 @@ const RINGS: DefenseRing[] = ["outer", "middle", "inner"];
  *  overlay when art exists, icon-and-title row when it doesn't. The image is
  *  resolved per current settlement tier via getBuildingImageById, so a Town
  *  player sees barracks_town.png, a City player sees barracks_city.png, etc. */
+/** A single cost line in the upgrade/repair tooltip. `sufficient: false`
+ *  renders the amount in red so the player can see what's missing at a
+ *  glance. */
+interface CostPart {
+  amount: number;
+  icon: string;
+  /** Human label used in the blocker sentence ("wood", "stone", "iron"). */
+  label: string;
+  sufficient: boolean;
+}
+
+/** Render a row of cost parts, colouring shortfalls red. Shared by upgrade
+ *  and repair tooltips so the visuals stay consistent. */
+function CostLine(props: { parts: CostPart[] }) {
+  return (
+    <span>
+      <For each={props.parts}>
+        {(p, i) => (
+          <>
+            <span style={{ color: p.sufficient ? "inherit" : "var(--accent-red)" }}>
+              {p.amount}{p.icon}
+            </span>
+            <Show when={i() < props.parts.length - 1}>{" "}</Show>
+          </>
+        )}
+      </For>
+    </span>
+  );
+}
+
+/** Build the "Need X wood, Y stone" blocker sentence from the cost parts.
+ *  Returns "" when nothing is missing. */
+function shortageBlocker(parts: CostPart[]): string {
+  const missing = parts.filter((p) => !p.sufficient);
+  if (missing.length === 0) return "";
+  return `Need ${missing.map((p) => `${p.amount} ${p.label}`).join(", ")}`;
+}
+
 /** Small +/↑ button on the card header. Matches the Buildings page indicator:
  *  green tint when affordable, muted when blocked, hover tooltip showing
  *  either next-level details + cost (affordable) or the blocker reason. */
 function UpgradeIndicator(props: {
   built: boolean;
   level: number;
-  canUpgrade: boolean;
-  blocker: string;
-  costLabel: string;
+  /** Soft blocker (ring locked, already upgrading) — overrides the resource
+   *  shortage line when set. Empty string when no soft blocker. */
+  softBlocker: string;
+  costParts: CostPart[];
   buildTimeSeconds: number;
   onUpgrade: () => void;
   /** True when rendered inside building-card-image-overlay (tooltip pops
@@ -49,6 +88,8 @@ function UpgradeIndicator(props: {
    *  (tooltip pops downward). */
   inOverlay: boolean;
 }) {
+  const blocker = () => props.softBlocker || shortageBlocker(props.costParts);
+  const canUpgrade = () => blocker() === "";
   return (
     <div
       class="upgrade-indicator"
@@ -56,7 +97,7 @@ function UpgradeIndicator(props: {
         ? { position: "relative", "z-index": 5 } as any
         : { position: "absolute", top: "8px", right: "8px", "z-index": 5 } as any}
       onClick={(e) => {
-        if (props.canUpgrade) {
+        if (canUpgrade()) {
           e.preventDefault();
           e.stopPropagation();
           props.onUpgrade();
@@ -71,10 +112,10 @@ function UpgradeIndicator(props: {
         "align-items": "center",
         "justify-content": "center",
         "font-size": "0.75rem",
-        background: props.canUpgrade ? "rgba(46, 204, 113, 0.3)" : "rgba(106, 100, 88, 0.3)",
-        border: `1px solid ${props.canUpgrade ? "var(--accent-green)" : "var(--text-muted)"}`,
-        color: props.canUpgrade ? "var(--accent-green)" : "var(--text-muted)",
-        cursor: props.canUpgrade ? "pointer" : "default",
+        background: canUpgrade() ? "rgba(46, 204, 113, 0.3)" : "rgba(106, 100, 88, 0.3)",
+        border: `1px solid ${canUpgrade() ? "var(--accent-green)" : "var(--text-muted)"}`,
+        color: canUpgrade() ? "var(--accent-green)" : "var(--text-muted)",
+        cursor: canUpgrade() ? "pointer" : "default",
       }}>
         {props.built ? "↑" : "+"}
       </div>
@@ -85,7 +126,7 @@ function UpgradeIndicator(props: {
         "min-width": "180px",
         padding: "6px 10px",
         background: "var(--bg-panel)",
-        border: `1px solid ${props.canUpgrade ? "var(--accent-green)" : "var(--accent-gold)"}`,
+        border: `1px solid ${canUpgrade() ? "var(--accent-green)" : "var(--accent-gold)"}`,
         "border-radius": "6px",
         "font-size": "0.75rem",
         color: "var(--text-secondary)",
@@ -94,18 +135,85 @@ function UpgradeIndicator(props: {
         "box-shadow": "0 4px 12px rgba(0,0,0,0.3)",
         "white-space": "nowrap",
       }}>
-        <Show when={props.canUpgrade}>
+        <Show when={canUpgrade()}>
           <div style={{ color: "var(--accent-green)", "font-weight": "bold", "margin-bottom": "2px" }}>
             {props.built ? `Upgrade to Lv.${props.level + 1}` : "Build Lv.1"}
           </div>
-          <div>{props.costLabel}</div>
+          <div><CostLine parts={props.costParts} /></div>
           <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "2px" }}>
             Build time: {Math.ceil(props.buildTimeSeconds)}s · Click to start
           </div>
         </Show>
-        <Show when={!props.canUpgrade}>
-          <div style={{ color: "var(--accent-gold)" }}>{props.blocker}</div>
-          <div style={{ "margin-top": "2px" }}>Cost: {props.costLabel}</div>
+        <Show when={!canUpgrade()}>
+          <div style={{ color: "var(--accent-gold)" }}>{blocker()}</div>
+          <div style={{ "margin-top": "2px" }}>Cost: <CostLine parts={props.costParts} /></div>
+        </Show>
+      </div>
+    </div>
+  );
+}
+
+/** Repair button with hover tooltip listing the cost — same shortage
+ *  colouring as the upgrade tooltip so a stuck player can see what's
+ *  missing without guessing. */
+function RepairButton(props: {
+  costParts: CostPart[];
+  onRepair: () => void;
+  /** Optional label override (the wall card shows the cost inline; the
+   *  tower / barracks cards just show "Repair"). */
+  label?: string;
+}) {
+  const blocker = () => shortageBlocker(props.costParts);
+  const canRepair = () => blocker() === "";
+  return (
+    <div class="upgrade-indicator" style={{ position: "relative", display: "inline-block" }}>
+      <button
+        disabled={!canRepair()}
+        onClick={(e) => {
+          if (canRepair()) {
+            e.preventDefault();
+            e.stopPropagation();
+            props.onRepair();
+          }
+        }}
+        style={{
+          "font-size": "0.78rem",
+          padding: "5px 10px",
+          background: "transparent",
+          border: "1px solid var(--accent-gold)",
+          color: "var(--accent-gold)",
+          "border-radius": "4px",
+          cursor: canRepair() ? "pointer" : "not-allowed",
+          opacity: canRepair() ? 1 : 0.55,
+        }}
+      >
+        🔨 {props.label ?? "Repair"}
+      </button>
+      <div class="upgrade-tooltip" style={{
+        position: "absolute",
+        left: 0,
+        top: "calc(100% + 4px)",
+        "min-width": "180px",
+        padding: "6px 10px",
+        background: "var(--bg-panel)",
+        border: `1px solid ${canRepair() ? "var(--accent-green)" : "var(--accent-gold)"}`,
+        "border-radius": "6px",
+        "font-size": "0.75rem",
+        color: "var(--text-secondary)",
+        "z-index": 10,
+        display: "none",
+        "box-shadow": "0 4px 12px rgba(0,0,0,0.3)",
+        "white-space": "nowrap",
+      }}>
+        <Show when={canRepair()}>
+          <div style={{ color: "var(--accent-green)", "font-weight": "bold", "margin-bottom": "2px" }}>
+            Repair
+          </div>
+          <div><CostLine parts={props.costParts} /></div>
+        </Show>
+        <Show when={!canRepair()}>
+          <div style={{ color: "var(--accent-gold)" }}>{blocker()}</div>
+          <div style={{ "margin-top": "2px" }}>Cost: <CostLine parts={props.costParts} /></div>
         </Show>
       </div>
     </div>
@@ -277,19 +385,19 @@ function WallCard(props: { wall: PlayerWall; ring: DefenseRing; disabled: boolea
   const upgradeCost = () => applyMasonCostReduction(getWallCost(props.wall.level), masonLvl());
   const buildTime = () => applyMasonTimeReduction(getWallBuildTime(props.wall.level), masonLvl());
   const repairCost = () => getWallRepairCost(props.wall.level);
-  const upgradeBlocker = () => {
+  const upgradeCostParts = (): CostPart[] => [
+    { amount: upgradeCost().wood, icon: "🪵", label: "wood", sufficient: state.resources.wood >= upgradeCost().wood },
+    { amount: upgradeCost().stone, icon: "🪨", label: "stone", sufficient: state.resources.stone >= upgradeCost().stone },
+  ];
+  const repairCostParts = (): CostPart[] => [
+    { amount: repairCost().wood, icon: "🪵", label: "wood", sufficient: state.resources.wood >= repairCost().wood },
+    { amount: repairCost().stone, icon: "🪨", label: "stone", sufficient: state.resources.stone >= repairCost().stone },
+  ];
+  const softBlocker = () => {
     if (props.disabled) return "Ring locked at this tier";
     if (props.wall.upgrading) return "Already upgrading";
-    if (state.resources.wood < upgradeCost().wood) return `Need ${upgradeCost().wood} wood`;
-    if (state.resources.stone < upgradeCost().stone) return `Need ${upgradeCost().stone} stone`;
     return "";
   };
-  const canUpgrade = () => upgradeBlocker() === "";
-  const canRepair = () =>
-    !props.disabled &&
-    damaged() &&
-    state.resources.wood >= repairCost().wood &&
-    state.resources.stone >= repairCost().stone;
 
   return (
     <div class="building-card" style={{ position: "relative" }}>
@@ -303,9 +411,8 @@ function WallCard(props: { wall: PlayerWall; ring: DefenseRing; disabled: boolea
           <UpgradeIndicator
             built={built()}
             level={props.wall.level}
-            canUpgrade={canUpgrade()}
-            blocker={upgradeBlocker()}
-            costLabel={`${upgradeCost().wood}🪵 ${upgradeCost().stone}🪨`}
+            softBlocker={softBlocker()}
+            costParts={upgradeCostParts()}
             buildTimeSeconds={buildTime()}
             onUpgrade={() => actions.buildOrUpgradeWall(props.ring)}
             inOverlay={inOverlay}
@@ -328,21 +435,10 @@ function WallCard(props: { wall: PlayerWall; ring: DefenseRing; disabled: boolea
       </Show>
       <Show when={damaged() && !props.wall.upgrading}>
         <div style={{ "margin-top": "auto", "padding-top": "10px" }}>
-          <button
-            disabled={!canRepair()}
-            onClick={() => actions.repairWall(props.ring)}
-            style={{
-              "font-size": "0.78rem",
-              padding: "5px 10px",
-              background: "transparent",
-              border: "1px solid var(--accent-gold)",
-              color: "var(--accent-gold)",
-              "border-radius": "4px",
-              cursor: canRepair() ? "pointer" : "not-allowed",
-            }}
-          >
-            🔨 Repair — {repairCost().wood}🪵 {repairCost().stone}🪨
-          </button>
+          <RepairButton
+            costParts={repairCostParts()}
+            onRepair={() => actions.repairWall(props.ring)}
+          />
         </div>
       </Show>
     </div>
@@ -356,19 +452,19 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
   const upgradeCost = () => applyMasonCostReduction(getWatchtowerCost(props.tower.level), masonLvl());
   const buildTime = () => applyMasonTimeReduction(getWatchtowerBuildTime(props.tower.level), masonLvl());
   const repairCost = () => getDefensiveRepairCost(props.tower.level);
-  const upgradeBlocker = () => {
+  const upgradeCostParts = (): CostPart[] => [
+    { amount: upgradeCost().wood, icon: "🪵", label: "wood", sufficient: state.resources.wood >= upgradeCost().wood },
+    { amount: upgradeCost().stone, icon: "🪨", label: "stone", sufficient: state.resources.stone >= upgradeCost().stone },
+  ];
+  const repairCostParts = (): CostPart[] => [
+    { amount: repairCost().wood, icon: "🪵", label: "wood", sufficient: state.resources.wood >= repairCost().wood },
+    { amount: repairCost().stone, icon: "🪨", label: "stone", sufficient: state.resources.stone >= repairCost().stone },
+  ];
+  const softBlocker = () => {
     if (props.disabled) return "Ring locked at this tier";
     if (props.tower.upgrading) return "Already upgrading";
-    if (state.resources.wood < upgradeCost().wood) return `Need ${upgradeCost().wood} wood`;
-    if (state.resources.stone < upgradeCost().stone) return `Need ${upgradeCost().stone} stone`;
     return "";
   };
-  const canUpgrade = () => upgradeBlocker() === "";
-  const canRepair = () =>
-    !props.disabled &&
-    props.tower.damaged &&
-    state.resources.wood >= repairCost().wood &&
-    state.resources.stone >= repairCost().stone;
 
   // Archer recruitment — global pool, but the slot belongs here visually.
   // Reason returns "" when recruiting is allowed, else a short explanation
@@ -398,9 +494,8 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
           <UpgradeIndicator
             built={built()}
             level={props.tower.level}
-            canUpgrade={canUpgrade()}
-            blocker={upgradeBlocker()}
-            costLabel={`${upgradeCost().wood}🪵 ${upgradeCost().stone}🪨`}
+            softBlocker={softBlocker()}
+            costParts={upgradeCostParts()}
             buildTimeSeconds={buildTime()}
             onUpgrade={() => actions.buildOrUpgradeWatchtower(props.ring)}
             inOverlay={inOverlay}
@@ -423,21 +518,10 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
       </Show>
       <div style={{ "margin-top": "auto", "padding-top": "10px", display: "flex", gap: "6px", "flex-wrap": "wrap" }}>
         <Show when={props.tower.damaged && !props.tower.upgrading}>
-          <button
-            disabled={!canRepair()}
-            onClick={() => actions.repairWatchtower(props.ring)}
-            style={{
-              "font-size": "0.78rem",
-              padding: "5px 10px",
-              background: "transparent",
-              border: "1px solid var(--accent-gold)",
-              color: "var(--accent-gold)",
-              "border-radius": "4px",
-              cursor: canRepair() ? "pointer" : "not-allowed",
-            }}
-          >
-            🔨 Repair
-          </button>
+          <RepairButton
+            costParts={repairCostParts()}
+            onRepair={() => actions.repairWatchtower(props.ring)}
+          />
         </Show>
         {/* Recruit archer (global pool) — shown for any tower with capacity */}
         <Show when={built() && !props.disabled}>
@@ -485,20 +569,20 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
   };
   const buildTime = () => applyMasonTimeReduction(getBarracksBuildTime(props.barracks.level), masonLvl());
   const repairCost = () => getDefensiveRepairCost(props.barracks.level);
-  const upgradeBlocker = () => {
+  const upgradeCostParts = (): CostPart[] => [
+    { amount: upgradeCost().wood, icon: "🪵", label: "wood", sufficient: state.resources.wood >= upgradeCost().wood },
+    { amount: upgradeCost().stone, icon: "🪨", label: "stone", sufficient: state.resources.stone >= upgradeCost().stone },
+    { amount: upgradeCost().iron, icon: "⚒️", label: "iron", sufficient: state.iron >= upgradeCost().iron },
+  ];
+  const repairCostParts = (): CostPart[] => [
+    { amount: repairCost().wood, icon: "🪵", label: "wood", sufficient: state.resources.wood >= repairCost().wood },
+    { amount: repairCost().stone, icon: "🪨", label: "stone", sufficient: state.resources.stone >= repairCost().stone },
+  ];
+  const softBlocker = () => {
     if (props.disabled) return "Ring locked at this tier";
     if (props.barracks.upgrading) return "Already upgrading";
-    if (state.resources.wood < upgradeCost().wood) return `Need ${upgradeCost().wood} wood`;
-    if (state.resources.stone < upgradeCost().stone) return `Need ${upgradeCost().stone} stone`;
-    if (state.iron < upgradeCost().iron) return `Need ${upgradeCost().iron} iron`;
     return "";
   };
-  const canUpgrade = () => upgradeBlocker() === "";
-  const canRepair = () =>
-    !props.disabled &&
-    props.barracks.damaged &&
-    state.resources.wood >= repairCost().wood &&
-    state.resources.stone >= repairCost().stone;
 
   const recruitBlocker = () => {
     if (state.soldiers >= maxSoldiers(state)) {
@@ -524,9 +608,8 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
           <UpgradeIndicator
             built={built()}
             level={props.barracks.level}
-            canUpgrade={canUpgrade()}
-            blocker={upgradeBlocker()}
-            costLabel={`${upgradeCost().wood}🪵 ${upgradeCost().stone}🪨 ${upgradeCost().iron}⚒️`}
+            softBlocker={softBlocker()}
+            costParts={upgradeCostParts()}
             buildTimeSeconds={buildTime()}
             onUpgrade={() => actions.buildOrUpgradeBarracks(props.ring)}
             inOverlay={inOverlay}
@@ -549,21 +632,10 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
       </Show>
       <div style={{ "margin-top": "auto", "padding-top": "10px", display: "flex", gap: "6px", "flex-wrap": "wrap" }}>
         <Show when={props.barracks.damaged && !props.barracks.upgrading}>
-          <button
-            disabled={!canRepair()}
-            onClick={() => actions.repairBarracks(props.ring)}
-            style={{
-              "font-size": "0.78rem",
-              padding: "5px 10px",
-              background: "transparent",
-              border: "1px solid var(--accent-gold)",
-              color: "var(--accent-gold)",
-              "border-radius": "4px",
-              cursor: canRepair() ? "pointer" : "not-allowed",
-            }}
-          >
-            🔨 Repair
-          </button>
+          <RepairButton
+            costParts={repairCostParts()}
+            onRepair={() => actions.repairBarracks(props.ring)}
+          />
         </Show>
         <Show when={built() && !props.disabled}>
           <div style={{ display: "flex", "flex-direction": "column", gap: "2px" }}>
@@ -605,19 +677,19 @@ function MageTowerCard(props: { disabled: boolean }) {
   const upgradeCost = () => applyMasonCostReduction(getMageTowerCost(state.mageTower.level), masonLvl());
   const buildTime = () => applyMasonTimeReduction(getMageTowerBuildTime(state.mageTower.level), masonLvl());
   const repairCost = () => getDefensiveRepairCost(state.mageTower.level);
-  const upgradeBlocker = () => {
+  const upgradeCostParts = (): CostPart[] => [
+    { amount: upgradeCost().wood, icon: "🪵", label: "wood", sufficient: state.resources.wood >= upgradeCost().wood },
+    { amount: upgradeCost().stone, icon: "🪨", label: "stone", sufficient: state.resources.stone >= upgradeCost().stone },
+  ];
+  const repairCostParts = (): CostPart[] => [
+    { amount: repairCost().wood, icon: "🪵", label: "wood", sufficient: state.resources.wood >= repairCost().wood },
+    { amount: repairCost().stone, icon: "🪨", label: "stone", sufficient: state.resources.stone >= repairCost().stone },
+  ];
+  const softBlocker = () => {
     if (props.disabled) return "Inner ring locks the Mage Tower until Town tier";
     if (state.mageTower.upgrading) return "Already upgrading";
-    if (state.resources.wood < upgradeCost().wood) return `Need ${upgradeCost().wood} wood`;
-    if (state.resources.stone < upgradeCost().stone) return `Need ${upgradeCost().stone} stone`;
     return "";
   };
-  const canUpgrade = () => upgradeBlocker() === "";
-  const canRepair = () =>
-    !props.disabled &&
-    state.mageTower.damaged &&
-    state.resources.wood >= repairCost().wood &&
-    state.resources.stone >= repairCost().stone;
 
   return (
     <div class="building-card" style={{ position: "relative" }}>
@@ -631,9 +703,8 @@ function MageTowerCard(props: { disabled: boolean }) {
           <UpgradeIndicator
             built={built()}
             level={state.mageTower.level}
-            canUpgrade={canUpgrade()}
-            blocker={upgradeBlocker()}
-            costLabel={`${upgradeCost().wood}🪵 ${upgradeCost().stone}🪨`}
+            softBlocker={softBlocker()}
+            costParts={upgradeCostParts()}
             buildTimeSeconds={buildTime()}
             onUpgrade={() => actions.buildOrUpgradeMageTower()}
             inOverlay={inOverlay}
@@ -656,21 +727,10 @@ function MageTowerCard(props: { disabled: boolean }) {
       </Show>
       <Show when={state.mageTower.damaged && !state.mageTower.upgrading}>
         <div style={{ "margin-top": "auto", "padding-top": "10px" }}>
-          <button
-            disabled={!canRepair()}
-            onClick={() => actions.repairMageTower()}
-            style={{
-              "font-size": "0.78rem",
-              padding: "5px 10px",
-              background: "transparent",
-              border: "1px solid var(--accent-gold)",
-              color: "var(--accent-gold)",
-              "border-radius": "4px",
-              cursor: canRepair() ? "pointer" : "not-allowed",
-            }}
-          >
-            🔨 Repair — {repairCost().wood}🪵 {repairCost().stone}🪨
-          </button>
+          <RepairButton
+            costParts={repairCostParts()}
+            onRepair={() => actions.repairMageTower()}
+          />
         </div>
       </Show>
     </div>
