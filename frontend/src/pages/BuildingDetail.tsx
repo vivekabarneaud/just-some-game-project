@@ -111,7 +111,11 @@ export default function BuildingDetail() {
     const pb = playerBuilding();
     if (!pb || pb.level > 0 || pb.upgrading) return false;
     if (!tierPrereqs().met) return false;
-    return !canUpgrade();
+    // Only fire on resource shortage — queue-full / upgrading-elsewhere are
+    // self-correcting and shouldn't trigger panic.
+    const cost = adjustedCost();
+    if (!cost) return false;
+    return !actions.canAfford(cost);
   };
   const canPanicBuild = () =>
     panicEligible() && state.astralShards >= PANIC_BUILD_SHARD_COST;

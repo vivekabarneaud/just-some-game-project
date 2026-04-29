@@ -111,16 +111,23 @@ export default function Buildings() {
                     return true;
                   };
                   // Panic-build (soft-lock recovery): Lv.0 lumber mill / quarry the
-                  // player can't afford → swap the indicator to a purple "use shards"
-                  // button. The cost-affordability check inside canUpgradeNow already
-                  // failed when this returns true, so we know the regular flow is blocked.
+                  // player can't afford because of a *resource shortage*. Other
+                  // blockers (queue full, upgrade in progress, tier prereqs) are
+                  // self-correcting and don't represent a soft-lock — using
+                  // `!canUpgradeNow()` here would over-fire on those.
+                  const cantAffordCost = () => {
+                    const next = nextLevelDef();
+                    if (!next) return false;
+                    const cost = applyMasonCostReduction(next.cost, effMason());
+                    return state.resources.wood < cost.wood || state.resources.stone < cost.stone;
+                  };
                   const panicEligible = () =>
                     PANIC_BUILD_IDS.includes(building.id) &&
                     level() === 0 &&
                     !isUpgrading() &&
                     !pb()?.damaged &&
                     tierPrereqs().met &&
-                    !canUpgradeNow();
+                    cantAffordCost();
                   const canPanicBuild = () =>
                     panicEligible() && state.astralShards >= PANIC_BUILD_SHARD_COST;
                   const upgradeReason = () => {
