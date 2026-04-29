@@ -65,20 +65,24 @@ export interface TierPrerequisite {
   label: string;
 }
 
+// Each Houses-level prereq must be reachable under the current Town Hall
+// cap (`getEffectiveMaxLevel = min(TH, maxLevel)`). To upgrade TH from
+// N → N+1, the player can have at most Houses L_N. So prereqs are pegged
+// at `target TH − 1`.
 export const TIER_UPGRADE_PREREQUISITES: Record<number, TierPrerequisite[]> = {
   // TH lvl 3 = village: need houses lvl 2 + woodworker lvl 1
   3: [
     { buildingId: "houses", minLevel: 2, label: "Houses Lv.2" },
     { buildingId: "woodworker", minLevel: 1, label: "Woodworker" },
   ],
-  // TH lvl 5 = town: need houses lvl 6 + tailoring shop lvl 1
+  // TH lvl 5 = town: need houses lvl 4 + tailoring shop lvl 1
   5: [
-    { buildingId: "houses", minLevel: 6, label: "Houses Lv.6" },
+    { buildingId: "houses", minLevel: 4, label: "Houses Lv.4" },
     { buildingId: "tailoring_shop", minLevel: 1, label: "Tailoring Shop" },
   ],
-  // TH lvl 7 = city: need houses lvl 10 + blacksmith lvl 1
+  // TH lvl 7 = city: need houses lvl 6 + blacksmith lvl 1
   7: [
-    { buildingId: "houses", minLevel: 10, label: "Houses Lv.10" },
+    { buildingId: "houses", minLevel: 6, label: "Houses Lv.6" },
     { buildingId: "blacksmith", minLevel: 1, label: "Blacksmith" },
   ],
 };
