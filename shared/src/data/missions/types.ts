@@ -127,8 +127,10 @@ export interface CompletedMission {
 export interface StoryMission extends MissionTemplate {
   storyOrder: number;
   prerequisite?: string; // ID of previous story mission that must be completed
-  lore: string; // lore text revealed on completion
   chapter: string;
+  /** Chronicle entry id fired into the archive on success. The cinematic for
+   *  the mission lives in STORY_CINEMATICS keyed by the mission id. */
+  chronicleEntryId?: string;
 }
 
 // ─── Expeditions ────────────────────────────────────────────────

@@ -2876,10 +2876,15 @@ export function GameProvider(props: ParentProps) {
                 if (deadAdv) pushEvent(s, "adventurer_died", "⚰️", `${deadAdv.name} fell on mission "${missionName}"`);
               }
 
-              // Mark story mission as completed on success
+              // Mark story mission as completed on success, and fire its
+              // chronicle entry into the archive so the journal updates.
               if (success && STORY_MISSIONS.some((sm) => sm.id === am.missionId)) {
                 if (!s.completedStoryMissions.includes(am.missionId)) {
                   s.completedStoryMissions.push(am.missionId);
+                }
+                const sm = STORY_MISSIONS.find((m) => m.id === am.missionId);
+                if (sm?.chronicleEntryId && !s.chronicleEntriesFired.includes(sm.chronicleEntryId)) {
+                  s.chronicleEntriesFired.push(sm.chronicleEntryId);
                 }
               }
 

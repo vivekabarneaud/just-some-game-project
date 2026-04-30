@@ -54,6 +54,18 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "The others are sleeping. The fire is low. I am writing because I do not know what else a man does with the first night of the rest of his life.",
     cinematicId: "intro",
   },
+  {
+    id: "ch1_first_scouts",
+    chapterId: "ch1",
+    order: 2,
+    title: "South, on a hill",
+    teaser: "The first scouts return. The map is good. The news, less so.",
+    fullText:
+      "The scouts came back today with a map and a look I did not like. A wolf pack chased them once on the ridge, hungry enough to misjudge them, but they were back at the gate before dark, on their own feet. The land they brought back is workable: game trails to the north, berry thickets along the river, a quarry site on the eastern ridge, water in three places that did not dry by dusk. I have a list now, and a use for each line of it.\n\n" +
+      "But a day's march south, on a hilltop, there are ruins. Stone foundations. A collapsed well. Half a tower still standing. The work of people who had thought ahead. The scouts found no bodies, no signs of a fight, no graves anyone took the trouble to dig. They left, or they were made to leave. The scouts could not tell which.\n\n" +
+      "They had stone walls. They had a watchtower. It was not enough. I do not yet know what we know that they did not, or what they knew that we do not. I will write that down and put the book away.",
+    cinematicId: "story_1_scouting",
+  },
   // ─── Disabled until rewritten to match the current chronicle voice ───
   // The entries below were authored before the founding-cast voice pass
   // (Edda fragments, Jory retcon, Tomas/Corin polish). Surfacing them on
