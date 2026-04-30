@@ -276,6 +276,60 @@ export function calcDeathChance(
   return Math.min(50, Math.max(1, Math.round(chance)));
 }
 
+/**
+ * Resolve permadeath for a finished combat. Single source of truth for both
+ * the actual deploy-time roll and the team-assembly preview's Monte Carlo.
+ *
+ * Inputs: who fell during combat (HP ≤ 0), the team, the mission, supplies.
+ * Output: list of adventurer ids that permanently died (Pantheon entries).
+ *
+ * Roll order:
+ *   1. Per-fallen death roll: `Math.random() * 100 < calcDeathChance × 1.5`.
+ *   2. Warrior Shield Wall — soaks one ally death; 50% chance the warrior
+ *      dies in their place.
+ *   3. Priest Divine Grace — each non-dead priest gets one revive attempt
+ *      per remaining death, at PRIEST_REVIVE_CHANCE.
+ *
+ * Uses Math.random() (not the seeded combat PRNG), so callers running this
+ * inside a Monte-Carlo loop get fresh variance per iteration.
+ */
+export function rollPermanentDeaths(
+  fallenAdventurerIds: string[],
+  team: Adventurer[],
+  mission: MissionTemplate,
+  adventurerSupplies?: Record<string, AdventurerMissionSupplies>,
+): string[] {
+  const fallenSet = new Set(fallenAdventurerIds);
+  const deadIds: string[] = [];
+  for (const adv of team) {
+    if (!fallenSet.has(adv.id)) continue; // survived combat → no death risk
+    const baseChance = calcDeathChance(mission, team, adv, adventurerSupplies);
+    if (Math.random() * 100 < baseChance * 1.5) deadIds.push(adv.id);
+  }
+  // Warrior Shield Wall: soak one death, 50% the warrior dies in their place.
+  const warriors = team.filter((a) => a.class === "warrior" && !deadIds.includes(a.id));
+  for (const warrior of warriors) {
+    const protectable = deadIds.filter((id) => id !== warrior.id);
+    if (protectable.length > 0) {
+      const savedId = protectable[0];
+      deadIds.splice(deadIds.indexOf(savedId), 1);
+      if (Math.random() > 0.5) deadIds.push(warrior.id);
+      break;
+    }
+  }
+  // Priest Divine Grace: per-priest revive roll on each remaining death.
+  const priests = team.filter((a) => a.class === "priest" && !deadIds.includes(a.id));
+  for (const deadId of [...deadIds]) {
+    for (const _priest of priests) {
+      if (Math.random() < PRIEST_REVIVE_CHANCE) {
+        deadIds.splice(deadIds.indexOf(deadId), 1);
+        break;
+      }
+    }
+  }
+  return deadIds;
+}
+
 // ─── Mission board generation ──────────────────────────────────
 
 export interface MissionBoardContext {

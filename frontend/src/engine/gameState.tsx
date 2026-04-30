@@ -179,6 +179,7 @@ import {
   getMissionBoardSize,
   calcSuccessChance,
   calcDeathChance,
+  rollPermanentDeaths,
   calcEffectiveDuration,
   calcAssassinBonusRewards,
   calcAssassinFailRewards,
@@ -3619,39 +3620,12 @@ export function GameProvider(props: ParentProps) {
             // but guard the type narrowing so TS lets us use combat below.
           } else {
 
-          // Roll permadeath at deploy too (so the playback log can show
-          // KO vs slain, and so the wipe detection can drive return-travel
-          // skipping). Mirrors the post-combat logic that used to live at
-          // completion: base chance, *1.5 for fallen-in-combat, then Warrior
-          // Shield Wall / Priest Divine Grace passives.
+          // Roll permadeath at deploy (so the playback log can show KO vs slain,
+          // and so wipe detection can drive return-travel skipping). Logic
+          // extracted to rollPermanentDeaths so the team-assembly preview can
+          // run the same path under Monte Carlo.
           const fallenSet = new Set(combat.fallenAdventurerIds);
-          const deadIds: string[] = [];
-          for (const adv of team) {
-            if (!fallenSet.has(adv.id)) continue; // survived combat → no death risk
-            const baseChance = calcDeathChance(template, team, adv);
-            if (Math.random() * 100 < baseChance * 1.5) deadIds.push(adv.id);
-          }
-          // Warrior Shield Wall — soaks one death (50% the warrior dies in their place)
-          const warriors = team.filter((a) => a.class === "warrior" && !deadIds.includes(a.id));
-          for (const warrior of warriors) {
-            const protectable = deadIds.filter((id) => id !== warrior.id);
-            if (protectable.length > 0) {
-              const savedId = protectable[0];
-              deadIds.splice(deadIds.indexOf(savedId), 1);
-              if (Math.random() > 0.5) deadIds.push(warrior.id);
-              break;
-            }
-          }
-          // Priest Divine Grace — chance to revive each fallen
-          const priests = team.filter((a) => a.class === "priest" && !deadIds.includes(a.id));
-          for (const deadId of [...deadIds]) {
-            for (const _priest of priests) {
-              if (Math.random() < PRIEST_REVIVE_CHANCE) {
-                deadIds.splice(deadIds.indexOf(deadId), 1);
-                break;
-              }
-            }
-          }
+          const deadIds = rollPermanentDeaths(combat.fallenAdventurerIds, team, template, adventurerSupplies);
           combat.permanentDeaths = deadIds;
 
           // Stamp permanentDeath onto the killing-blow log entries so the

@@ -67,6 +67,7 @@ export {
   calcAssassinBonusRewards,
   calcAssassinFailRewards,
   calcDeathChance,
+  rollPermanentDeaths,
   generateMissionBoard,
   getMissionBoardSize,
   getExpeditionSlotCount,

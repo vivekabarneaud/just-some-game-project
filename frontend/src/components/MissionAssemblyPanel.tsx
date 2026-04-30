@@ -20,6 +20,7 @@ import {
   type MissionTemplate,
   calcSuccessChance,
   calcDeathChance,
+  rollPermanentDeaths,
   calcEffectiveDuration,
   getMission,
   getMissionRank,
@@ -274,6 +275,12 @@ export default function MissionAssemblyPanel(props: Props) {
   // ─── Success chance ────────────────────────────────────────────
   // Uses seeded PRNG: same team = same result. Single simulation, instant.
   const [successPct, setSuccessPct] = createSignal(0);
+  // Per-adventurer permadeath risk shown next to each TeamSlot. Computed by
+  // Monte Carlo on the same loop as successPct (shared sim work) — counts
+  // how many of N seeded sims permadied each adventurer through the full
+  // path: combat sim → rollPermanentDeaths (calcDeathChance × 1.5 + Warrior
+  // Shield Wall + Priest Divine Grace).
+  const [deathRisks, setDeathRisks] = createSignal<Record<string, number>>({});
 
   /** Build a synthetic Adventurer from a friend's CoopAdventurerSummary so both clients
    *  compute the same success %. Stats are injected via bonusStats so calcStats() returns
@@ -332,7 +339,7 @@ export default function MissionAssemblyPanel(props: Props) {
       Object.assign(sups, friendSupplies());
     }
 
-    if (snapshot.length === 0) { setSuccessPct(0); return; }
+    if (snapshot.length === 0) { setSuccessPct(0); setDeathRisks({}); return; }
 
     const fm = freshMission();
 
@@ -344,15 +351,32 @@ export default function MissionAssemblyPanel(props: Props) {
 
       // Run 200 seeded simulations for ~3.4% standard error at 90% success.
       // Higher count tightens variance between near-identical teams — two
-      // similarly-equipped adventurers should read similar odds.
+      // similarly-equipped adventurers should read similar odds. Same loop
+      // counts permadeaths per adventurer for the death-risk preview.
       let wins = 0;
+      const deathCounts: Record<string, number> = {};
+      for (const a of snapshot) deathCounts[a.id] = 0;
       const SIMS = 200;
       for (let i = 0; i < SIMS; i++) {
-        if (simulateCombat(fm, snapshot, sups, seed + i)?.victory) wins++;
+        const combat = simulateCombat(fm, snapshot, sups, seed + i);
+        if (!combat) continue;
+        if (combat.victory) wins++;
+        const dead = rollPermanentDeaths(combat.fallenAdventurerIds, snapshot, fm, sups);
+        for (const id of dead) deathCounts[id] = (deathCounts[id] ?? 0) + 1;
       }
       setSuccessPct(Math.round((wins / SIMS) * 100));
+      const risks: Record<string, number> = {};
+      for (const id of Object.keys(deathCounts)) {
+        risks[id] = Math.round((deathCounts[id] / SIMS) * 100);
+      }
+      setDeathRisks(risks);
     } else {
       setSuccessPct(calcSuccessChance(fm, snapshot, 0, sups));
+      // No-encounter mission: legacy resolution rolls calcDeathChance raw
+      // (no fall gating, no 1.5× multiplier), so the preview matches that.
+      const risks: Record<string, number> = {};
+      for (const a of snapshot) risks[a.id] = calcDeathChance(fm, snapshot, a, sups);
+      setDeathRisks(risks);
     }
   }
 
@@ -778,7 +802,7 @@ export default function MissionAssemblyPanel(props: Props) {
                       />
                       <Show when={adv()}>
                         {(() => {
-                          const risk = () => calcDeathChance(freshMission(), team(), adv()!, adventurerSupplies());
+                          const risk = () => deathRisks()[adv()!.id] ?? 0;
                           return (
                             <span style={{
                               "font-size": "0.75rem",
