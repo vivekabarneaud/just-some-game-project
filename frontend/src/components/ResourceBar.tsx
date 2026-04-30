@@ -187,7 +187,7 @@ export default function ResourceBar() {
             </div>
             <div class="dropdown-row">
               <span>⚒️ Iron</span>
-              <span>{Math.floor(state.iron)}/200</span>
+              <span>{Math.floor(state.iron)}/300</span>
             </div>
             <Show when={state.gems > 0}>
               <div class="dropdown-row">
@@ -253,10 +253,13 @@ export default function ResourceBar() {
           return (
             <div class="resource-item has-dropdown" tabIndex={0}>
               <span class="resource-icon">🛍️</span>
+              {/* Total stockpile (clothing + ale units). Red when something
+                  isn't met — matches the at-a-glance pattern of every other
+                  resource pill, with the warning preserved as colour. */}
               <span class="resource-amount" style={{
-                color: allMet() ? "var(--accent-green)" : "var(--accent-red)",
+                color: allMet() ? undefined : "var(--accent-red)",
               }}>
-                {allMet() ? "✓" : "!"}
+                {(clothing().current + ale().current).toLocaleString()}
               </span>
               <div class="resource-dropdown">
                 <div class="dropdown-title">Comforts</div>
