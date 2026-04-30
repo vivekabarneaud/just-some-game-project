@@ -18,8 +18,11 @@ import {
   FOOD_PER_CITIZEN_PER_HOUR,
   PANIC_BUILD_IDS,
   PANIC_BUILD_SHARD_COST,
+  craftingMaterialCap,
   BASE_MATERIAL_STORAGE,
   MATERIAL_STORAGE_PER_WAREHOUSE_LEVEL,
+  BASE_CRAFTING_STORAGE,
+  CRAFTING_STORAGE_PER_WAREHOUSE_LEVEL,
   BASE_FOOD_STORAGE,
   FOOD_STORAGE_PER_PANTRY_LEVEL,
   BASE_GOLD_STORAGE,
@@ -1559,7 +1562,9 @@ function calcBuildingEffect(buildingId: string, nextLevel: number): string | nul
     case "warehouse": {
       const cur = BASE_MATERIAL_STORAGE + Math.max(0, currentLevel) * MATERIAL_STORAGE_PER_WAREHOUSE_LEVEL;
       const next = BASE_MATERIAL_STORAGE + nextLevel * MATERIAL_STORAGE_PER_WAREHOUSE_LEVEL;
-      return `Wood & Stone storage: ${cur.toLocaleString()} → ${next.toLocaleString()}`;
+      const curCraft = BASE_CRAFTING_STORAGE + Math.max(0, currentLevel) * CRAFTING_STORAGE_PER_WAREHOUSE_LEVEL;
+      const nextCraft = BASE_CRAFTING_STORAGE + nextLevel * CRAFTING_STORAGE_PER_WAREHOUSE_LEVEL;
+      return `Wood & Stone: ${cur.toLocaleString()} → ${next.toLocaleString()} · Crafting materials: ${curCraft.toLocaleString()} → ${nextCraft.toLocaleString()}`;
     }
     case "pantry": {
       const cur = BASE_FOOD_STORAGE + Math.max(0, currentLevel) * FOOD_STORAGE_PER_PANTRY_LEVEL;
@@ -2153,14 +2158,14 @@ export function GameProvider(props: ParentProps) {
           const animal = getAnimal(pen.animal);
           const prod = getPenProduction(animal, pen.level);
           if (prod.secondary && prod.secondary.resource === "wool" && woolSeasonMod > 0) {
-            s.wool = Math.min(200, s.wool + prod.secondary.amount * woolSeasonMod * ratio * elapsedHours);
+            s.wool = Math.min(craftingMaterialCap(s.buildings), s.wool + prod.secondary.amount * woolSeasonMod * ratio * elapsedHours);
           }
         }
 
         // ── Leather from hunting camp and animal pens (except chickens) ──
         const huntingCampLvl = s.buildings.find((b) => b.buildingId === "hunting_camp")?.level ?? 0;
         if (huntingCampLvl > 0) {
-          s.leather = Math.min(200, s.leather + huntingCampLvl * 1.0 * elapsedHours);
+          s.leather = Math.min(craftingMaterialCap(s.buildings), s.leather + huntingCampLvl * 1.0 * elapsedHours);
         }
         for (const pen of s.pens) {
           if (pen.level === 0) continue;
@@ -2169,13 +2174,13 @@ export function GameProvider(props: ParentProps) {
           if (ratio <= 0) continue;
           // Pigs, goats, sheep produce small amounts of leather (hides)
           const leatherRate = pen.animal === "goats" ? 1.2 : 0.8;
-          s.leather = Math.min(200, s.leather + leatherRate * pen.level * ratio * elapsedHours);
+          s.leather = Math.min(craftingMaterialCap(s.buildings), s.leather + leatherRate * pen.level * ratio * elapsedHours);
         }
 
         // ── Fiber from forager's hut (wild flax and plant fibers) ──
         const foragerLvl = s.buildings.find((b) => b.buildingId === "forager_hut")?.level ?? 0;
         if (foragerLvl > 0) {
-          s.fiber = Math.min(200, s.fiber + foragerLvl * 1.5 * elapsedHours);
+          s.fiber = Math.min(craftingMaterialCap(s.buildings), s.fiber + foragerLvl * 1.5 * elapsedHours);
 
           // ── Herb procs from foraging ──
           const foodForaged = foragerLvl * 8 * elapsedHours; // approximate food gathered
@@ -2198,7 +2203,7 @@ export function GameProvider(props: ParentProps) {
             const crop = getCrop(field.crop);
             if (!crop.isFood && crop.foodType === "fiber") {
               const fiberRate = getSeasonYield(crop, field.level) / HARVEST_DURATION_HOURS;
-              s.fiber = Math.min(200, s.fiber + fiberRate * elapsedHours);
+              s.fiber = Math.min(craftingMaterialCap(s.buildings), s.fiber + fiberRate * elapsedHours);
             }
           }
         }
@@ -2222,7 +2227,7 @@ export function GameProvider(props: ParentProps) {
         if (ironMineLvl > 0 && !ironMineDamaged) {
           const ironRate = 8 * ironMineLvl;
           const ironMined = ironRate * elapsedHours;
-          s.iron = Math.min(300, s.iron + ironMined);
+          s.iron = Math.min(craftingMaterialCap(s.buildings), s.iron + ironMined);
 
           // 0.5% chance per iron unit for gem, 0.5% for shard
           const gemChance = ironMined * 0.005;
@@ -4530,7 +4535,7 @@ export function GameProvider(props: ParentProps) {
         s.resources.wood = Math.min(caps.wood, s.resources.wood + amount);
         s.resources.stone = Math.min(caps.stone, s.resources.stone + amount);
         addFood(s.foods, "wheat", amount, caps.food);
-        s.wool = Math.min(200, s.wool + amount);
+        s.wool = Math.min(craftingMaterialCap(s.buildings), s.wool + amount);
       }));
     },
     cancelBuild(buildingId) {
@@ -4568,7 +4573,7 @@ export function GameProvider(props: ParentProps) {
           if (reward.resource === "astralShards") {
             s.astralShards += reward.amount;
           } else if (reward.resource === "wool") {
-            s.wool = Math.min(200, s.wool + reward.amount);
+            s.wool = Math.min(craftingMaterialCap(s.buildings), s.wool + reward.amount);
           } else {
             const key = reward.resource as keyof typeof s.resources;
             s.resources[key] = Math.min(caps[key], s.resources[key] + reward.amount);
@@ -4746,10 +4751,10 @@ export function GameProvider(props: ParentProps) {
             addFood(s.foods, "wheat", reward.amount, caps.food);
           } else if (isFoodItemType(res)) {
             addFood(s.foods, res, reward.amount, caps.food);
-          } else if (res === "wool") s.wool = Math.min(200, s.wool + reward.amount);
-          else if (res === "fiber") s.fiber = Math.min(200, s.fiber + reward.amount);
-          else if (res === "leather") s.leather = Math.min(200, s.leather + reward.amount);
-          else if (res === "iron") s.iron = Math.min(300, s.iron + reward.amount);
+          } else if (res === "wool") s.wool = Math.min(craftingMaterialCap(s.buildings), s.wool + reward.amount);
+          else if (res === "fiber") s.fiber = Math.min(craftingMaterialCap(s.buildings), s.fiber + reward.amount);
+          else if (res === "leather") s.leather = Math.min(craftingMaterialCap(s.buildings), s.leather + reward.amount);
+          else if (res === "iron") s.iron = Math.min(craftingMaterialCap(s.buildings), s.iron + reward.amount);
           else if (res === "honey") s.honey = s.honey + reward.amount;
           else {
             // Material or item → add to inventory
@@ -4936,9 +4941,9 @@ export function GameProvider(props: ParentProps) {
           s.resources[key] = Math.min(caps[key], s.resources[key] + receiveAmount);
         } else if (receive === "food") {
           addFood(s.foods, "wheat", receiveAmount, caps.food);
-        } else if (receive === "iron")  s.iron = Math.min(300, s.iron + receiveAmount);
-        else if (receive === "wool")    s.wool = Math.min(200, s.wool + receiveAmount);
-        else if (receive === "fiber")   s.fiber = Math.min(200, s.fiber + receiveAmount);
+        } else if (receive === "iron")  s.iron = Math.min(craftingMaterialCap(s.buildings), s.iron + receiveAmount);
+        else if (receive === "wool")    s.wool = Math.min(craftingMaterialCap(s.buildings), s.wool + receiveAmount);
+        else if (receive === "fiber")   s.fiber = Math.min(craftingMaterialCap(s.buildings), s.fiber + receiveAmount);
         else if (receive === "ale") {
           const breweryLvl = s.buildings.find((b) => b.buildingId === "brewery")?.level ?? 0;
           const aleCap = ALE_STORAGE_BASE + breweryLvl * ALE_STORAGE_PER_BREWERY_LEVEL;

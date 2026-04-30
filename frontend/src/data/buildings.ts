@@ -575,6 +575,21 @@ export const PANIC_BUILD_SHARD_COST = 10;
 export const BASE_MATERIAL_STORAGE = 500;
 export const MATERIAL_STORAGE_PER_WAREHOUSE_LEVEL = 500;
 
+// Crafting-material storage (wool, fiber, leather, iron) — also Warehouse,
+// smaller numbers since crafting materials accumulate slower and a small
+// stockpile is meaningful. L0 base = 100 grace so foragers/hunters don't
+// overflow before the player builds a warehouse.
+export const BASE_CRAFTING_STORAGE = 100;
+export const CRAFTING_STORAGE_PER_WAREHOUSE_LEVEL = 100;
+
+/** Effective crafting-material cap given current warehouse level. Single
+ *  source of truth — replaces the scattered `Math.min(200, ...)` /
+ *  `Math.min(300, ...)` magic numbers. */
+export function craftingMaterialCap(buildings: PlayerBuilding[]): number {
+  const warehouse = buildings.find((b) => b.buildingId === "warehouse");
+  return BASE_CRAFTING_STORAGE + (warehouse?.level ?? 0) * CRAFTING_STORAGE_PER_WAREHOUSE_LEVEL;
+}
+
 // Food storage — Pantry
 export const BASE_FOOD_STORAGE = 300;
 export const FOOD_STORAGE_PER_PANTRY_LEVEL = 300;

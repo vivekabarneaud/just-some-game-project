@@ -4,6 +4,7 @@ import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { EXOTICS } from "@medieval-realm/shared/data/exotics";
 import { useGame } from "~/engine/gameState";
 import { FOOD_ITEMS, FOOD_CATEGORIES, getTotalFood, type FoodItemType, type FoodCategoryId } from "~/data/foods";
+import { craftingMaterialCap } from "~/data/buildings";
 import FoodIcon from "~/components/FoodIcon";
 
 export default function ResourceBar() {
@@ -173,22 +174,29 @@ export default function ResourceBar() {
           <span class="resource-amount">{Math.floor(state.wool) + Math.floor(state.fiber) + Math.floor(state.leather ?? 0) + Math.floor(state.iron)}</span>
           <div class="resource-dropdown">
             <div class="dropdown-title">Crafting Materials</div>
-            <div class="dropdown-row">
-              <span>🐑 Wool</span>
-              <span>{Math.floor(state.wool)}/200</span>
-            </div>
-            <div class="dropdown-row">
-              <span>🪻 Fiber</span>
-              <span>{Math.floor(state.fiber)}/200</span>
-            </div>
-            <div class="dropdown-row">
-              <span>🐄 Leather</span>
-              <span>{Math.floor(state.leather ?? 0)}/200</span>
-            </div>
-            <div class="dropdown-row">
-              <span>⚒️ Iron</span>
-              <span>{Math.floor(state.iron)}/300</span>
-            </div>
+            {(() => {
+              const cap = craftingMaterialCap(state.buildings);
+              return (
+                <>
+                  <div class="dropdown-row">
+                    <span>🐑 Wool</span>
+                    <span>{Math.floor(state.wool)}/{cap}</span>
+                  </div>
+                  <div class="dropdown-row">
+                    <span>🪻 Fiber</span>
+                    <span>{Math.floor(state.fiber)}/{cap}</span>
+                  </div>
+                  <div class="dropdown-row">
+                    <span>🐄 Leather</span>
+                    <span>{Math.floor(state.leather ?? 0)}/{cap}</span>
+                  </div>
+                  <div class="dropdown-row">
+                    <span>⚒️ Iron</span>
+                    <span>{Math.floor(state.iron)}/{cap}</span>
+                  </div>
+                </>
+              );
+            })()}
             <Show when={state.gems > 0}>
               <div class="dropdown-row">
                 <span>💎 Gems</span>
