@@ -3626,15 +3626,8 @@ export function GameProvider(props: ParentProps) {
           // Shield Wall / Priest Divine Grace passives.
           const fallenSet = new Set(combat.fallenAdventurerIds);
           const deadIds: string[] = [];
-          // TEMP: forcing 100% permadeath for pantheon testing — every fallen-in-combat
-          // adventurer permadies. Revert this guard before shipping.
-          const TEMP_FORCE_PERMADEATH = true;
           for (const adv of team) {
             if (!fallenSet.has(adv.id)) continue; // survived combat → no death risk
-            if (TEMP_FORCE_PERMADEATH) {
-              deadIds.push(adv.id);
-              continue;
-            }
             const baseChance = calcDeathChance(template, team, adv);
             if (Math.random() * 100 < baseChance * 1.5) deadIds.push(adv.id);
           }
