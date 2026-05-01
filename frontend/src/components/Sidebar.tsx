@@ -338,6 +338,19 @@ export default function Sidebar(props: SidebarProps) {
       </div>
 
       <div class="sidebar-account">
+        <Show when={getUsername()}>
+          <div
+            style={{
+              "font-size": "0.72rem",
+              color: "var(--text-muted)",
+              "margin-bottom": "6px",
+              "text-align": "center",
+              "word-break": "break-all",
+            }}
+          >
+            Logged in as <span style={{ color: "var(--text-secondary)" }}>{getUsername()}</span>
+          </div>
+        </Show>
         <button
           class="account-btn"
           onClick={() => {
