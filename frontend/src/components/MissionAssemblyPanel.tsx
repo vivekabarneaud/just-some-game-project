@@ -194,6 +194,18 @@ export default function MissionAssemblyPanel(props: Props) {
       .filter((a) => a.alive && !a.onMission && !(props.coopLockedAdvIds?.has(a.id) ?? false))
       .sort((a, b) => (CLASS_ORDER[a.class] ?? 9) - (CLASS_ORDER[b.class] ?? 9) || b.level - a.level)
   );
+  // Counts of alive-but-hidden adventurers, broken down by reason. Surfaced
+  // below the picker so a missing recruit isn't a mystery — used to be silent.
+  const hiddenBreakdown = createMemo(() => {
+    let onMission = 0;
+    let coopLocked = 0;
+    for (const a of state.adventurers) {
+      if (!a.alive) continue;
+      if (a.onMission) onMission++;
+      else if (props.coopLockedAdvIds?.has(a.id)) coopLocked++;
+    }
+    return { onMission, coopLocked, total: onMission + coopLocked };
+  });
 
   // ─── Team management ──────────────────────────────────────────
   const canFitInSlots = (advIds: string[]): boolean => {
@@ -909,6 +921,19 @@ export default function MissionAssemblyPanel(props: Props) {
             );
           }}
         </For>
+
+        <Show when={hiddenBreakdown().total > 0}>
+          <div style={{
+            "font-size": "0.7rem", color: "var(--text-muted)",
+            "margin-top": "8px", "padding-top": "8px",
+            "border-top": "1px dashed var(--border-default)",
+          }}>
+            {hiddenBreakdown().total} hidden:
+            {hiddenBreakdown().onMission > 0 && ` ${hiddenBreakdown().onMission} on a mission`}
+            {hiddenBreakdown().onMission > 0 && hiddenBreakdown().coopLocked > 0 && ","}
+            {hiddenBreakdown().coopLocked > 0 && ` ${hiddenBreakdown().coopLocked} reserved for a co-op`}
+          </div>
+        </Show>
 
         {/* Success summary */}
         <div class="team-summary">

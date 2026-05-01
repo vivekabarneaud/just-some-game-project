@@ -1751,6 +1751,19 @@ export function GameProvider(props: ParentProps) {
         for (const adv of serverState.adventurers ?? []) {
           applyXp(adv, 0);
         }
+        // Self-heal stuck onMission flags. If a mission resolved without
+        // freeing an adventurer (botched completion path, partial save),
+        // they'd vanish from the team-assembly panel forever. Clear the
+        // flag for anyone not actually present in an active mission.
+        const activeAdvIds = new Set<string>();
+        for (const m of serverState.activeMissions ?? []) {
+          for (const id of m.adventurerIds ?? []) activeAdvIds.add(id);
+        }
+        for (const adv of serverState.adventurers ?? []) {
+          if (adv.onMission && !activeAdvIds.has(adv.id)) {
+            adv.onMission = false;
+          }
+        }
         // Restore ID counter from server state and fix any duplicate IDs
         let maxId = 0;
         const allIds = [
