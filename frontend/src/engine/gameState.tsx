@@ -1645,6 +1645,10 @@ export function useGame() {
 
 export function GameProvider(props: ParentProps) {
   const [loaded, setLoaded] = createSignal(false);
+  // Set after auto-retry exhausts, so the UI can show a real error screen
+  // instead of falling through to a phantom blank state (which would fire
+  // the intro cinematic on what looks like a brand new account).
+  const [loadError, setLoadError] = createSignal<string | null>(null);
   // In production, always start with a blank state — the server load will overwrite it.
   // In dev, load from localStorage for offline play.
   const initial = IS_DEV ? (loadGame() ?? createInitialState()) : createInitialState();
@@ -1657,7 +1661,7 @@ export function GameProvider(props: ParentProps) {
       setLoaded(true);
       return;
     }
-    try {
+    async function loadFromServer() {
       const list = await listSettlements();
       let settlement;
       if (list.settlements.length > 0) {
@@ -1985,10 +1989,31 @@ export function GameProvider(props: ParentProps) {
         setState(reconcile(fresh));
         saveSettlementApi(settlement.id, fresh).catch(() => {});
       }
-    } catch (err) {
-      console.warn("Failed to load from server, using local state:", err);
     }
-    setLoaded(true);
+    // Auto-retry with backoff. Mobile networks blip; a single failure used
+    // to fall through to the blank initial state, which fired the intro
+    // cinematic and looked exactly like the user had lost their save.
+    // 4 attempts, ~11s worst case before we surface an error screen.
+    const RETRY_DELAYS_MS = [0, 1000, 3000, 7000];
+    let lastErr: unknown = null;
+    for (let attempt = 0; attempt < RETRY_DELAYS_MS.length; attempt++) {
+      if (RETRY_DELAYS_MS[attempt] > 0) {
+        await new Promise((r) => setTimeout(r, RETRY_DELAYS_MS[attempt]));
+      }
+      try {
+        await loadFromServer();
+        setLoaded(true);
+        return;
+      } catch (err) {
+        lastErr = err;
+        console.warn(
+          `Settlement load attempt ${attempt + 1}/${RETRY_DELAYS_MS.length} failed:`,
+          err,
+        );
+      }
+    }
+    const msg = (lastErr as any)?.message ?? String(lastErr ?? "Could not reach server");
+    setLoadError(msg);
   });
 
   /** Check and unlock origin recipes when an adventurer's loyalty rank increases */
@@ -4975,18 +5000,51 @@ export function GameProvider(props: ParentProps) {
   };
 
   return (
-    <Show when={loaded()} fallback={
-      <div style={{
-        display: "flex", "align-items": "center", "justify-content": "center",
-        height: "100vh", color: "var(--text-secondary)", "font-family": "var(--font-heading)",
-        "font-size": "1.4rem", background: "var(--bg-primary)",
-      }}>
-        Loading your settlement...
-      </div>
+    <Show when={loadError()} fallback={
+      <Show when={loaded()} fallback={
+        <div style={{
+          display: "flex", "align-items": "center", "justify-content": "center",
+          height: "100dvh", color: "var(--text-secondary)", "font-family": "var(--font-heading)",
+          "font-size": "1.4rem", background: "var(--bg-primary)",
+        }}>
+          Loading your settlement...
+        </div>
+      }>
+        <GameContext.Provider value={(() => { if (IS_DEV) (window as any).__game = { state, actions }; return { state, actions }; })()}>
+          {props.children}
+        </GameContext.Provider>
+      </Show>
     }>
-      <GameContext.Provider value={(() => { if (IS_DEV) (window as any).__game = { state, actions }; return { state, actions }; })()}>
-        {props.children}
-      </GameContext.Provider>
+      <div style={{
+        display: "flex", "flex-direction": "column", "align-items": "center", "justify-content": "center",
+        height: "100dvh", padding: "24px", "text-align": "center",
+        color: "var(--text-secondary)", background: "var(--bg-primary)",
+      }}>
+        <div style={{ "font-family": "var(--font-heading)", "font-size": "1.4rem", "margin-bottom": "12px", color: "var(--text-primary)" }}>
+          Couldn't reach the server
+        </div>
+        <div style={{ "font-size": "0.9rem", "margin-bottom": "20px", "max-width": "320px" }}>
+          We tried a few times and gave up. Check your connection and try again. Your settlement is safe on the server.
+        </div>
+        <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-bottom": "24px", "max-width": "320px", "word-break": "break-word" }}>
+          {loadError()}
+        </div>
+        <button
+          onClick={() => window.location.reload()}
+          style={{
+            padding: "10px 24px",
+            background: "var(--accent-gold)",
+            color: "#1a1a1a",
+            border: "none",
+            "border-radius": "6px",
+            "font-size": "1rem",
+            "font-weight": 600,
+            cursor: "pointer",
+          }}
+        >
+          Retry
+        </button>
+      </div>
     </Show>
   );
 }
