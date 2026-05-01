@@ -1,4 +1,4 @@
-import { ErrorBoundary, lazy, type ParentProps } from "solid-js";
+import { ErrorBoundary, createSignal, lazy, type ParentProps } from "solid-js";
 import { render } from "solid-js/web";
 import { Router, Route, Navigate } from "@solidjs/router";
 import App from "./App";
@@ -14,10 +14,47 @@ if (isLoggedIn()) wsClient.connect();
  *  logout button is unreachable in that case). Gives the user a way to wipe
  *  their local save and re-auth from a clean slate. */
 function CrashFallback(props: { err: unknown; reset: () => void }) {
-  const message = props.err instanceof Error ? props.err.message : String(props.err);
+  const e = props.err;
+  const message = e instanceof Error ? e.message : String(e);
+  const stack = e instanceof Error ? (e.stack ?? "") : "";
+  // One blob the user can copy and paste into chat. Includes the URL +
+  // timestamp + UA so the bug report has the context that matters even on
+  // mobile, where dev tools aren't easily available.
+  const report = [
+    `Time: ${new Date().toISOString()}`,
+    `URL: ${typeof window !== "undefined" ? window.location.href : ""}`,
+    `UA: ${typeof navigator !== "undefined" ? navigator.userAgent : ""}`,
+    "",
+    `Error: ${message}`,
+    stack ? `\nStack:\n${stack}` : "",
+  ].join("\n");
+
+  const [copied, setCopied] = createSignal(false);
+  const copyReport = async () => {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(report);
+      } else {
+        // Fallback for older mobile browsers without the Clipboard API.
+        const ta = document.createElement("textarea");
+        ta.value = report;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  };
+
   return (
     <div style={{
-      "max-width": "520px", margin: "80px auto", padding: "24px",
+      "max-width": "640px", margin: "40px auto", padding: "24px",
       "font-family": "system-ui, sans-serif", color: "#e6e1d7",
       background: "rgba(30, 25, 20, 0.9)",
       border: "1px solid rgba(180, 150, 100, 0.4)", "border-radius": "8px",
@@ -25,15 +62,32 @@ function CrashFallback(props: { err: unknown; reset: () => void }) {
       <h1 style={{ margin: "0 0 12px 0", "font-size": "1.4rem" }}>Something went wrong.</h1>
       <p style={{ "line-height": "1.5", color: "#c9c1b1" }}>
         The game ran into an unexpected error. This can happen if your saved data
-        drifted out of sync with a new release. Log out to clear your local save
-        and start fresh — your account on the server will still be there.
+        drifted out of sync with a new release. Tap Copy details and paste it back
+        to me so I can investigate, then Try again or log out to start clean. Your
+        account on the server will still be there.
       </p>
-      <pre style={{
-        background: "rgba(0,0,0,0.3)", padding: "10px", "border-radius": "4px",
-        "font-size": "0.75rem", "white-space": "pre-wrap", "word-break": "break-word",
-        color: "#e67e22", "margin-bottom": "16px",
-      }}>{message}</pre>
-      <div style={{ display: "flex", gap: "8px" }}>
+      <div style={{ position: "relative", "margin-bottom": "16px" }}>
+        <pre style={{
+          background: "rgba(0,0,0,0.3)", padding: "10px", "padding-right": "92px",
+          "border-radius": "4px",
+          "font-size": "0.72rem", "white-space": "pre-wrap", "word-break": "break-word",
+          color: "#e67e22", "max-height": "260px", "overflow": "auto",
+          margin: 0,
+        }}>{report}</pre>
+        <button
+          onClick={copyReport}
+          style={{
+            position: "absolute", top: "8px", right: "8px",
+            padding: "4px 10px",
+            border: "1px solid rgba(180, 150, 100, 0.5)",
+            background: copied() ? "rgba(46, 204, 113, 0.25)" : "rgba(0, 0, 0, 0.4)",
+            color: copied() ? "#2ecc71" : "#e6e1d7",
+            "border-radius": "4px", cursor: "pointer",
+            "font-size": "0.72rem",
+          }}
+        >{copied() ? "Copied" : "Copy details"}</button>
+      </div>
+      <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
         <button
           onClick={() => props.reset()}
           style={{
@@ -42,6 +96,14 @@ function CrashFallback(props: { err: unknown; reset: () => void }) {
             cursor: "pointer",
           }}
         >Try again</button>
+        <button
+          onClick={() => window.location.reload()}
+          style={{
+            padding: "8px 16px", border: "1px solid rgba(180, 150, 100, 0.4)",
+            background: "transparent", color: "#e6e1d7", "border-radius": "4px",
+            cursor: "pointer",
+          }}
+        >Reload page</button>
         <button
           onClick={() => logout()}
           style={{
