@@ -232,7 +232,9 @@ export default function AdventurersGuild() {
       .map((a) => a.id)
   );
   const available = () => availableIds().map((id) => state.adventurers.find((a) => a.id === id)!);
-  const roster = () => state.adventurers;
+  // Roster tab shows only living adventurers; the fallen live on the
+  // Pantheon memorial inside the Shrine (frontend/src/components/Pantheon.tsx).
+  const roster = () => state.adventurers.filter((a) => a.alive);
   const rosterSize = () => actions.getRosterSize();
 
   const switchTab = (t: Tab) => {
