@@ -2,7 +2,8 @@ import type { Adventurer } from "../adventurers.js";
 import { calcStats } from "../adventurers.js";
 import { getEquipmentStats, getEquipmentDefense } from "../items.js";
 import { getEnemy } from "../enemies.js";
-import type { MissionEncounter } from "../missions/index.js";
+import type { MissionEncounter, MissionNpcAlly } from "../missions/index.js";
+import { getNpcAlly } from "../npcs.js";
 import type { CombatUnit } from "./types.js";
 
 /** Convert an Adventurer into a combat-ready unit. HP = VIT × 8. */
@@ -11,13 +12,49 @@ export function buildAdventurerUnit(adv: Adventurer): CombatUnit {
   const stats = calcStats(adv, equipStats);
   const hp = stats.vit * 8;
   return {
-    id: adv.id, name: adv.name, icon: "", isEnemy: false,
+    id: adv.id, name: adv.name, icon: "", kind: "adventurer", isEnemy: false,
     hp, maxHp: hp,
     str: stats.str, dex: stats.dex, int: stats.int, vit: stats.vit, wis: stats.wis,
     class: adv.class,
     isMagical: adv.class === "wizard" || adv.class === "priest",
     gearDefense: getEquipmentDefense(adv.equipment),
     trait: adv.trait,
+    canAct: true, canBeHealed: true, isTauntable: false,
+    threatMultiplier: 1.0,
+    cooldowns: {}, slowed: 0, poisonTicks: [],
+  };
+}
+
+/**
+ * Build an NPC ally unit from a mission's npcAlly block. HP = VIT × 8 (same as
+ * adventurers). Mission-side mechanics (threatMultiplier, isMissionObjective)
+ * stamp here. Baseline threat-vs-tag is applied later, in setup.ts, once enemies
+ * are built and we know which enemy IDs to target.
+ */
+export function buildNpcAllyUnit(missionNpc: MissionNpcAlly): CombatUnit | null {
+  const def = getNpcAlly(missionNpc.npcId);
+  if (!def) return null;
+  const hp = def.stats.vit * 8;
+  // Passive NPCs (ritualists, frail VIPs) take no turn — canAct=false skips
+  // them in the action phase. Enemies still target them; priests still heal them.
+  const passive = !!missionNpc.passive;
+  return {
+    id: `npc_${def.id}`,
+    name: def.name,
+    icon: def.icon,
+    kind: "ally",
+    isEnemy: false,
+    hp, maxHp: hp,
+    str: def.stats.str, dex: def.stats.dex, int: def.stats.int, vit: def.stats.vit, wis: def.stats.wis,
+    class: def.class,
+    isMagical: def.class === "wizard" || def.class === "priest",
+    gearDefense: 0,
+    npcId: def.id,
+    canAct: !passive,
+    canBeHealed: true,
+    isTauntable: false,
+    isMissionObjective: missionNpc.deathFailsMission ?? true,
+    threatMultiplier: missionNpc.threatMultiplier ?? 1.0,
     cooldowns: {}, slowed: 0, poisonTicks: [],
   };
 }
@@ -34,7 +71,7 @@ export function buildEnemyUnits(encounters: MissionEncounter[]): CombatUnit[] {
       units.push({
         id: `${def.id}_${i}`,
         name: enc.count > 1 ? `${def.name} ${i + 1}` : def.name,
-        icon: def.icon, isEnemy: true,
+        icon: def.icon, kind: "enemy", isEnemy: true,
         hp, maxHp: hp,
         str: def.stats.str,
         dex: def.stats.dex,
@@ -45,6 +82,14 @@ export function buildEnemyUnits(encounters: MissionEncounter[]): CombatUnit[] {
         enemyTags: def.tags,
         enemyDefId: def.id,
         enemyAbilities: def.abilities,
+        canAct: true, canBeHealed: true, isTauntable: true,
+        // Tactical = follow threat, scored pick. Designers explicitly tag
+        // exceptions: feral for mindless beasts (random targeting, ignores
+        // threat), cunning for smart casters/elites that hunt the backline.
+        // WIS stays a pure mechanical stat (magic resist + initiative).
+        aiTier: def.aiTier ?? "tactical",
+        tauntImmunity: def.tauntImmunity ?? "none",
+        threatTable: {},
         cooldowns: {}, slowed: 0, poisonTicks: [], statDebuffs: [],
       });
     }

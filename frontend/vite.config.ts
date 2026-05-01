@@ -9,6 +9,11 @@ export default defineConfig({
       "~": path.resolve(__dirname, "./src"),
     },
   },
+  // Workspace package — don't pre-bundle it, otherwise edits in shared/src
+  // serve stale code from .vite/deps/ until the cache is manually cleared.
+  optimizeDeps: {
+    exclude: ["@medieval-realm/shared"],
+  },
   server: {
     port: 3000,
     proxy: {

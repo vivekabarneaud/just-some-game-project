@@ -135,6 +135,7 @@ export function tryEnemyAbility(unit: CombatUnit, ctx: CombatContext): boolean {
           round: ctx.round, attackerName: unit.name, attackerIcon: ability.icon,
           abilityName: ability.name,
           targetName: "all allies", damage: 0, dodged: false, crit: false, killed: false, isEnemy: true,
+          statusApplied: { type: `buff:${eff.stat}`, rounds: eff.rounds },
         });
         return true;
       }
@@ -192,7 +193,7 @@ export function tryEnemyAbility(unit: CombatUnit, ctx: CombatContext): boolean {
           ctx.enemies.push({
             id: `${eff.enemyId}_summon_${ctx.round}_${s}`,
             name: summonDef.name,
-            icon: summonDef.icon, isEnemy: true,
+            icon: summonDef.icon, kind: "enemy", isEnemy: true,
             hp: summonHp, maxHp: summonHp,
             str: summonDef.stats.str,
             dex: summonDef.stats.dex,
@@ -204,6 +205,10 @@ export function tryEnemyAbility(unit: CombatUnit, ctx: CombatContext): boolean {
             gearDefense: 0,
             enemyTags: summonDef.tags,
             enemyDefId: summonDef.id,
+            canAct: true, canBeHealed: true, isTauntable: true,
+            aiTier: summonDef.aiTier ?? "tactical",
+            tauntImmunity: summonDef.tauntImmunity ?? "none",
+            threatTable: {},
             cooldowns: {}, slowed: 0, poisonTicks: [], statDebuffs: [],
           });
         }

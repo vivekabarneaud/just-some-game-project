@@ -2,11 +2,40 @@ import type { AdventurerClass } from "../adventurers.js";
 import type { EnemyTag, EnemyAbility } from "../enemies.js";
 import type { CombatPotionEffect } from "../items.js";
 
-/** An in-combat actor. Adventurer or enemy. Mutated during the simulation. */
+/**
+ * Per-enemy targeting intelligence — drives how the threat system affects them.
+ *   feral    : random target, ignores threat (mindless beasts, low-tier mobs)
+ *   tactical : threat-aware scored pick (default — most enemies)
+ *   cunning  : prioritize backline (priest > wizard) over threat (smart casters, elites)
+ *
+ * Boss flag is orthogonal — a feral dragon is fine. AI tier shapes targeting only.
+ */
+export type AITier = "feral" | "tactical" | "cunning";
+
+/**
+ * Resistance to forced-target effects (warrior taunt, future "elite" taunts).
+ *   none   : tauntable by anything (default)
+ *   normal : ignores generic taunts; only "elite" taunts work (e.g. thorns wall)
+ *   all    : nothing forces targeting on this unit (final-boss tier)
+ */
+export type TauntImmunity = "none" | "normal" | "all";
+
+/**
+ * Combatant role. Finer-grained than `isEnemy` — splits the player's side into
+ * regular adventurers, scripted NPC allies (Niamh), and entities (walls/wards
+ * shipping in a later branch). Enemy is its own side.
+ *
+ * `isEnemy` stays as the two-side discriminator so existing targeting / round /
+ * damage code keeps working untouched. `kind` is additive.
+ */
+export type CombatKind = "adventurer" | "ally" | "entity" | "enemy";
+
+/** An in-combat actor. Adventurer, NPC ally, entity, or enemy. Mutated during the simulation. */
 export interface CombatUnit {
   id: string;
   name: string;
   icon: string;
+  kind: CombatKind;
   isEnemy: boolean;
   hp: number;
   maxHp: number;
@@ -21,11 +50,38 @@ export interface CombatUnit {
   trait?: string;
   enemyTags?: EnemyTag[];
   enemyDefId?: string;
+  /** Backref to NPC_ALLIES catalog when kind === "ally". */
+  npcId?: string;
+  // ── Capabilities (mostly defaults; entities flip these off) ──
+  /** False for walls / ward stones — they don't take a turn in initiative order. */
+  canAct: boolean;
+  /** False for walls — priest heals skip them. Wards may set true ("repair"). */
+  canBeHealed: boolean;
+  /** True if this unit can have a forced-target effect applied to it (warrior taunt etc.). */
+  isTauntable: boolean;
+  /** When true, this unit's death immediately fails the mission. */
+  isMissionObjective?: boolean;
   // ── AI state ──
   /** Per-unit AI behavior id (resolved to a state machine in ai/registry). Defaults apply when absent. */
   aiBehavior?: string;
   /** Current AI state id within the unit's behavior. Transitions evaluated once per round. */
   aiState?: string;
+  /** Targeting tier — drives how threat affects this enemy. Allies/entities don't read this. */
+  aiTier?: AITier;
+  /** Forced-target resistance for enemies. Allies/entities don't read this. */
+  tauntImmunity?: TauntImmunity;
+  // ── Threat (WoW-style per-target threat table) ──
+  /** For enemies: maps allyId → accumulated threat against that ally. Highest entry
+   *  is the preferred target (subject to AI tier rules). Allies leave this empty. */
+  threatTable?: Record<string, number>;
+  /** For allies: how much threat they generate per point of damage/heal. Default 1.0.
+   *  Mission-side (npcAlly.threatMultiplier) overrides per encounter. */
+  threatMultiplier?: number;
+  // ── Mission-modifier flags (set at setup, refreshed each round start) ──
+  /** When true, this enemy's tag-based physical immunity (e.g. ghost) is bypassed
+   *  for the duration of a mission modifier. Cleared when the gate condition
+   *  (e.g. "while Niamh alive") fails. */
+  physicallyPierceable?: boolean;
   // ── Status effects / per-round state ──
   cooldowns: Record<string, number>;
   tauntedBy?: string;
@@ -108,6 +164,10 @@ export interface CombatResult {
   loot: LootResult[];
   finalHp?: Record<string, number>;
   finalMaxHp?: Record<string, number>;
+  /** Set to the NPC ally id when an isMissionObjective ally fell during combat.
+   *  Mission completion treats this as a distinct failure — no rewards, no team
+   *  XP, but surviving adventurers still go home (no team-wipe permadeath cascade). */
+  vipFallen?: string;
 }
 
 /** Context passed to ability handlers and AI state methods. */
@@ -118,4 +178,7 @@ export interface CombatContext {
   /** All enemy units (including fallen). */
   enemies: CombatUnit[];
   log: CombatLogEntry[];
+  /** Per-mission combat-rule modifiers active for this fight. Re-evaluated
+   *  each round so gate conditions (whileAllyAlive) can flip mid-fight. */
+  modifiers?: import("../missions/types.js").MissionModifier[];
 }

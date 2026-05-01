@@ -17,12 +17,17 @@ export function buildResult(
   log: CombatLogEntry[],
   rounds: number,
 ): CombatResult {
+  // A mission-objective ally falling overrides victory regardless of enemy state.
+  // Mission engine reads vipFallen to take the distinct-failure path.
+  const fallenObjective = adventurers.find((u) => u.isMissionObjective && u.hp <= 0);
+
   const aliveAdvs = adventurers.filter((u) => u.hp > 0);
   const aliveEnemies = enemies.filter((u) => u.hp > 0);
   const survivingEnemies = aliveEnemies.length;
 
   let victory: boolean;
-  if (aliveEnemies.length === 0) victory = true;
+  if (fallenObjective) victory = false;
+  else if (aliveEnemies.length === 0) victory = true;
   else if (aliveAdvs.length === 0) victory = false;
   else {
     const advHpRatio = aliveAdvs.reduce((s, u) => s + u.hp, 0) / adventurers.reduce((s, u) => s + u.maxHp, 0);
@@ -32,7 +37,11 @@ export function buildResult(
 
   const enemiesKilled = totalEnemies - survivingEnemies;
   const performanceRatio = totalEnemies > 0 ? enemiesKilled / totalEnemies : 0.5;
-  const fallenAdventurerIds = adventurers.filter((u) => u.hp <= 0).map((u) => u.id);
+  // Filter out NPC allies / entities — fallenAdventurerIds drives the permadeath
+  // roll on the player's side only. Niamh falling is reported via vipFallen.
+  const fallenAdventurerIds = adventurers
+    .filter((u) => u.hp <= 0 && u.kind === "adventurer")
+    .map((u) => u.id);
 
   const loot = rollLoot(enemies);
 
@@ -43,7 +52,11 @@ export function buildResult(
     finalMaxHp[unit.id] = unit.maxHp;
   }
 
-  return { victory, rounds, log, performanceRatio, survivingEnemies, totalEnemies, fallenAdventurerIds, loot, finalHp, finalMaxHp };
+  return {
+    victory, rounds, log, performanceRatio, survivingEnemies, totalEnemies,
+    fallenAdventurerIds, loot, finalHp, finalMaxHp,
+    ...(fallenObjective?.npcId ? { vipFallen: fallenObjective.npcId } : {}),
+  };
 }
 
 /** Roll each killed enemy's drop table using the seeded PRNG. */

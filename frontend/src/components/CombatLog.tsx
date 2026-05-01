@@ -75,6 +75,13 @@ function statusLabel(type: string): { text: string; icon: string } {
     };
     return { text: labels[stat] ?? `debuffed ${stat}`, icon: "🌀" };
   }
+  if (type.startsWith("buff:")) {
+    const stat = type.slice("buff:".length);
+    const labels: Record<string, string> = {
+      str: "strengthened", dex: "quickened", int: "focused", wis: "steeled", vit: "hardened",
+    };
+    return { text: labels[stat] ?? `buffed ${stat}`, icon: "💪" };
+  }
   return { text: type, icon: "✨" };
 }
 
@@ -137,6 +144,19 @@ function CombatLogLine(props: { entry: CombatLogEntry }) {
 /** Everything except the dot-tick branch — keeping the JSX flatter than a giant ternary. */
 function NonTickContent(props: { entry: CombatLogEntry }) {
   const e = props.entry;
+
+  // Group buff (e.g. Captain's Command). Targets all allies, deals no damage,
+  // status-applied tag describes the buff. Render without the misleading
+  // "hits ... for 0 damage" template.
+  if (e.statusApplied?.type.startsWith("buff:") && e.damage === 0 && !e.targets) {
+    return (
+      <>
+        <strong>{e.attackerName}</strong>
+        <span> rallies </span>
+        <strong>{e.targetName}</strong>
+      </>
+    );
+  }
 
   // Taunt
   if (e.isTaunt) {

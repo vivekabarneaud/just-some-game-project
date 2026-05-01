@@ -170,6 +170,7 @@ import {
   PERSONALITY_QUIRKS,
 } from "@medieval-realm/shared/data/adventurers";
 import { PREMADE_CHARACTERS } from "@medieval-realm/shared/data/premade-characters";
+import { getNpcAlly } from "@medieval-realm/shared/data/npcs";
 import {
   type ActiveMission,
   type CompletedMission,
@@ -591,6 +592,8 @@ export interface GameActions {
   rerollMissions: () => boolean;
   /** Dev-only: replace the mission board with every novice mission, ignoring prerequisites. */
   devSpawnAllNoviceMissions: () => void;
+  /** Dev-only: append the npc-escort engine test mission to the board so it can be deployed for testing. */
+  devSpawnCaptainsRestStub: () => void;
   rerollRecruits: () => boolean;
   claimQuestReward: (questId: string) => boolean;
   startAlchemyResearch: () => boolean;
@@ -2786,9 +2789,13 @@ export function GameProvider(props: ParentProps) {
                 }
               }
 
-              // Calculate rewards with class passives
+              // Calculate rewards with class passives.
+              // VIP-fallen path skips ALL rewards (including assassin salvage) — when
+              // the locked NPC dies, the mission's purpose is forfeit. This is distinct
+              // from a team wipe, where the assassin still extracts partial loot.
+              const vipFallen = combatResult?.vipFallen;
               let rewards: MissionReward[] = [];
-              if (template) {
+              if (template && !vipFallen) {
                 if (success) {
                   rewards = calcAssassinBonusRewards(template, team);
                 } else {
@@ -2806,8 +2813,8 @@ export function GameProvider(props: ParentProps) {
                 }
               }
 
-              // Add combat loot from killed enemies
-              if (combatResult?.loot?.length) {
+              // Add combat loot from killed enemies (skipped on VIP-fallen — no loot)
+              if (!vipFallen && combatResult?.loot?.length) {
                 for (const drop of combatResult.loot) {
                   if (drop.type === "resource" && drop.resource) {
                     // Merge resource loot into mission rewards
@@ -2900,6 +2907,9 @@ export function GameProvider(props: ParentProps) {
               if (success) {
                 const rewardStr = rewards.map((r) => formatReward(r)).join(", ");
                 pushEvent(s, "mission_success", "✅", `Mission "${missionName}" succeeded! ${rewardStr}`);
+              } else if (vipFallen) {
+                const npc = getNpcAlly(vipFallen);
+                pushEvent(s, "mission_failed", "💔", `${npc?.name ?? "The ally"} fell on mission "${missionName}". The team retreated.`);
               } else {
                 pushEvent(s, "mission_failed", "❌", `Mission "${missionName}" failed`);
               }
@@ -2951,6 +2961,7 @@ export function GameProvider(props: ParentProps) {
                   combatRounds: combatResult.rounds,
                   combatVictory: combatResult.victory,
                 } : {}),
+                ...(vipFallen ? { vipFallen } : {}),
               });
 
               // Remove from active
@@ -4550,6 +4561,17 @@ export function GameProvider(props: ParentProps) {
     devSpawnAllNoviceMissions() {
       setState(produce((s) => {
         s.missionBoard = [...NOVICE_MISSIONS];
+      }));
+      scheduleSave();
+    },
+    devSpawnCaptainsRestStub() {
+      const stub = MISSION_POOL.find((m) => m.id === "captains_rest_engine_test");
+      if (!stub) return;
+      setState(produce((s) => {
+        // Always replace — drop any stale copy from a previous spawn (which may
+        // hold old slot/minGuildLevel data) and push the fresh template.
+        s.missionBoard = s.missionBoard.filter((m) => m.id !== stub.id);
+        s.missionBoard.push(stub);
       }));
       scheduleSave();
     },

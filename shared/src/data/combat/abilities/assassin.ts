@@ -1,6 +1,7 @@
 import { calcDamageResult } from "../damage.js";
 import { getAttackPower } from "../stats.js";
 import { canUseAbility, startCooldown } from "./cooldown.js";
+import { addDamageThreat } from "../threat.js";
 import type { ClassAbilityHandler } from "./types.js";
 
 /** Backstab — any enemy below 40% HP, 2× damage execute. */
@@ -14,6 +15,7 @@ export const backstab: ClassAbilityHandler = {
     startCooldown(unit, "backstab", 2);
     const { damage, crit } = calcDamageResult(unit, weak, { damageMult: 2.0 });
     weak.hp -= damage;
+    addDamageThreat(weak, unit, damage);
     ctx.log.push({
       round: ctx.round, attackerName: unit.name, attackerIcon: "🗡️", targetName: weak.name,
       damage, dodged: false, crit, killed: weak.hp <= 0,

@@ -90,6 +90,7 @@ function buildWallUnit(ring: DefenseRing, level: number, currentHp: number): Com
     id: `wall_${ring}`,
     name: `${RING_LABEL[ring]} Wall`,
     icon: "🧱",
+    kind: "entity",
     isEnemy: false,
     hp: currentHp,
     maxHp: WALL_BASE_HP * level,
@@ -98,6 +99,8 @@ function buildWallUnit(ring: DefenseRing, level: number, currentHp: number): Com
     wis: 0,
     isMagical: false,
     gearDefense: 30 + 8 * level,
+    canAct: true, canBeHealed: false, isTauntable: false,
+    threatMultiplier: 0,
     cooldowns: {}, slowed: 0, poisonTicks: [],
   };
 }
@@ -111,12 +114,15 @@ function buildArcherUnit(ring: DefenseRing, idx: number): CombatUnit {
     id: `archer_${ring}_${idx}`,
     name: `${RING_LABEL[ring]} Tower Archer`,
     icon: "🏹",
+    kind: "ally",
     isEnemy: false,
     hp, maxHp: hp,
     str: 5, dex: 14, int: 0, vit: 3, wis: 2,
     class: "archer",
     isMagical: false,
     gearDefense: 8,
+    canAct: true, canBeHealed: true, isTauntable: false,
+    threatMultiplier: 1.0,
     cooldowns: {}, slowed: 0, poisonTicks: [],
   };
 }
@@ -127,12 +133,15 @@ function buildSoldierUnit(ring: DefenseRing, idx: number): CombatUnit {
     id: `soldier_${ring}_${idx}`,
     name: `${RING_LABEL[ring]} Guard`,
     icon: "⚔️",
+    kind: "ally",
     isEnemy: false,
     hp, maxHp: hp,
     str: 14, dex: 5, int: 0, vit: 4, wis: 2,
     class: "warrior",
     isMagical: false,
     gearDefense: 14,
+    canAct: true, canBeHealed: true, isTauntable: false,
+    threatMultiplier: 1.0,
     cooldowns: {}, slowed: 0, poisonTicks: [],
   };
 }

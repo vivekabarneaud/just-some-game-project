@@ -31,6 +31,7 @@ import {
   isExpedition,
 } from "@medieval-realm/shared/data/missions";
 import { getEnemy } from "@medieval-realm/shared/data/enemies";
+import { getNpcAlly } from "@medieval-realm/shared/data/npcs";
 import { simulateCombat } from "@medieval-realm/shared/data/combat";
 import { MISSION_RANK_LABELS, MISSION_RANK_COLORS } from "~/data/constants";
 import EnemyCard from "./EnemyCard";
@@ -748,6 +749,63 @@ export default function MissionAssemblyPanel(props: Props) {
               })()}
             </Show>
             <Show when={!isCoop()}>
+            {/* Locked NPC ally slot — non-recruitable companion fixed to this mission. */}
+            <Show when={freshMission().npcAlly}>
+              {(() => {
+                const npc = () => getNpcAlly(freshMission().npcAlly!.npcId);
+                return (
+                  <Show when={npc()}>
+                    <div
+                      title={`${npc()!.name} — ${npc()!.title}\n${npc()!.description}`}
+                      style={{
+                        width: "80px", height: "110px",
+                        background: "rgba(167, 139, 250, 0.08)",
+                        border: "1px solid #a78bfa",
+                        "border-radius": "6px",
+                        overflow: "hidden",
+                        cursor: "default",
+                        display: "flex",
+                        "flex-direction": "column",
+                        position: "relative",
+                      }}
+                    >
+                      <div style={{
+                        position: "absolute", top: "3px", right: "3px",
+                        width: "16px", height: "16px",
+                        "border-radius": "50%",
+                        background: "rgba(0, 0, 0, 0.7)",
+                        display: "flex",
+                        "align-items": "center", "justify-content": "center",
+                        "font-size": "0.7rem",
+                        "z-index": 1,
+                      }} title="Locked — fixed companion">
+                        🔒
+                      </div>
+                      <div style={{
+                        width: "80px", height: "80px",
+                        display: "flex", "align-items": "center", "justify-content": "center",
+                        "font-size": "2.4rem",
+                        background: "rgba(167, 139, 250, 0.04)",
+                        "flex-shrink": 0,
+                      }}>
+                        {npc()!.icon}
+                      </div>
+                      <div style={{
+                        padding: "2px 4px",
+                        "text-align": "center",
+                        "font-size": "0.6rem",
+                        color: "#a78bfa",
+                        "line-height": "1.15",
+                        flex: "1",
+                        display: "flex", "align-items": "center", "justify-content": "center",
+                      }}>
+                        {npc()!.name.split(" ").slice(-1)[0]}
+                      </div>
+                    </div>
+                  </Show>
+                );
+              })()}
+            </Show>
             <For each={freshMission().slots}>
               {(slot, i) => {
                 const isCombat = () => !!freshMission().encounters?.length;

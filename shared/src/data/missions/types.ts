@@ -1,4 +1,5 @@
 import type { AdventurerClass } from "../adventurers.js";
+import type { EnemyTag } from "../enemies.js";
 
 // ─── Mission types ──────────────────────────────────────────────
 
@@ -54,7 +55,62 @@ export interface MissionTemplate {
   encounters?: MissionEncounter[]; // enemies faced during the mission
   guaranteed?: boolean; // always ~98% success regardless of stats
   requires?: MissionRequirements; // conditions for this mission to appear on the board
+  /** Locked NPC ally that fights alongside the team (escort / ritual companion / VIP). */
+  npcAlly?: MissionNpcAlly;
+  /** Per-mission combat-rule modifiers (e.g. physical can hit ghosts during the binding). */
+  modifiers?: MissionModifier[];
 }
+
+/**
+ * Mission-specific NPC ally configuration.
+ *
+ * The character itself (stats, name, portrait) lives in NPC_ALLIES. This block
+ * is the *mission's* layer on top — what makes Niamh-as-ritualist-in-this-mission
+ * different from Niamh-as-ranger-in-some-other-mission.
+ */
+export interface MissionNpcAlly {
+  /** ID into NPC_ALLIES (e.g. "niamh") */
+  npcId: string;
+  /** When true (default), the NPC's death immediately fails the mission, regardless
+   *  of whether the team won the fight. Distinct failure path from team wipe. */
+  deathFailsMission?: boolean;
+  /** When true, the NPC takes no turn — no attacks, no abilities. She still
+   *  has HP, can be healed, and counts as a target for enemies. Used for
+   *  ritualists / frail VIPs / bound captives. The team's job is to keep her
+   *  alive while the rest of the encounter resolves. */
+  passive?: boolean;
+  /** How much threat this NPC generates per point of damage/heal in combat.
+   *  1.0 = same as a regular adventurer. 1.5 = pulls aggro harder. Irrelevant
+   *  when passive=true (she doesn't generate damage threat anyway). */
+  threatMultiplier?: number;
+  /** Pre-loaded threat against enemies matching certain tags, applied at combat
+   *  start. The "ritualist draws the ghost in" feel — Niamh starts with +80
+   *  threat in every ghost's table on this mission only. */
+  baseThreatVsTag?: Partial<Record<EnemyTag, number>>;
+  /** Pre-loaded threat against specific enemy IDs (e.g. the named boss). */
+  baseThreatVsEnemyId?: Record<string, number>;
+}
+
+/**
+ * Per-mission combat-rule overrides. Discriminated union so we can extend
+ * cleanly: each new modifier type is a new variant + one branch in the
+ * applyMissionModifiers function.
+ *
+ * Currently shipping:
+ *   - physical_pierces_tag: lets the party damage tagged enemies (e.g. ghosts)
+ *     with physical attacks. Optionally gated to "while a specific NPC ally is
+ *     alive" — the ritual binds them; if the ritualist dies, the binding fades.
+ */
+export type MissionModifier =
+  | {
+      type: "physical_pierces_tag";
+      /** EnemyTag the modifier targets — e.g. "ghost" */
+      tag: import("../enemies.js").EnemyTag;
+      /** When set, only active while the named NPC ally id is still alive.
+       *  Niamh's binding ritual: ghosts are bindable while she's casting,
+       *  return to full physical immunity if she falls. */
+      whileAllyAlive?: string;
+    };
 
 export interface MissionRequirements {
   story?: string;       // story mission ID that must be completed
@@ -122,6 +178,9 @@ export interface CompletedMission {
   combatLog?: import("../combat").CombatLogEntry[];
   combatRounds?: number;
   combatVictory?: boolean; // distinct from success — success is the overall mission outcome
+  /** Set to the NPC ally id when an isMissionObjective ally fell during combat —
+   *  drives the distinct "Warden Niamh fell, the binding could not complete" UI. */
+  vipFallen?: string;
 }
 
 export interface StoryMission extends MissionTemplate {

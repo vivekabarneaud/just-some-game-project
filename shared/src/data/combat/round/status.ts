@@ -1,8 +1,9 @@
 import type { CombatContext, CombatUnit } from "../types.js";
 import { tickCooldowns } from "../abilities/cooldown.js";
+import { decayAllThreat } from "../threat.js";
 
 /**
- * Round-start phase: cooldowns, slows, stat debuffs, poison DoTs.
+ * Round-start phase: cooldowns, slows, stat debuffs, poison DoTs, threat decay.
  *
  * Called once at the top of each round for every still-alive unit.
  * Mutates units in place and appends DoT damage entries to ctx.log.
@@ -18,6 +19,8 @@ export function tickStatusEffects(ctx: CombatContext): void {
   }
   // Taunt only lasts one round; clear after status tick so new turn starts clean.
   for (const unit of allUnits) unit.tauntedBy = undefined;
+  // Bleed off accumulated threat so fights don't snowball forever.
+  decayAllThreat(ctx.enemies);
 }
 
 function tickStatDebuffs(unit: CombatUnit): void {

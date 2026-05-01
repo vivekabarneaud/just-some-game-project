@@ -1,5 +1,6 @@
 import { calcDamageResult } from "../damage.js";
 import { canUseAbility, startCooldown } from "./cooldown.js";
+import { addDamageThreat } from "../threat.js";
 import type { ClassAbilityHandler } from "./types.js";
 
 /** Fireball — 3+ enemies alive, hit all for 50% damage. */
@@ -14,6 +15,7 @@ export const fireball: ClassAbilityHandler = {
     const hits = alive.map((t) => {
       const { damage } = calcDamageResult(unit, t, { damageMult: 0.5 });
       t.hp -= damage;
+      addDamageThreat(t, unit, damage);
       return { name: t.name, damage, killed: t.hp <= 0, hp: Math.max(0, t.hp), maxHp: t.maxHp };
     });
     ctx.log.push({
@@ -38,6 +40,7 @@ export const frostBolt: ClassAbilityHandler = {
     const { damage, crit } = calcDamageResult(unit, target, { damageMult: 1.3 });
     target.hp -= damage;
     target.slowed = 2;
+    addDamageThreat(target, unit, damage);
     ctx.log.push({
       round: ctx.round, attackerName: unit.name, attackerIcon: "❄️", targetName: target.name,
       damage, dodged: false, crit, killed: target.hp <= 0,

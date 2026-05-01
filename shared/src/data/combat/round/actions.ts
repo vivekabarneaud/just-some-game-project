@@ -5,6 +5,7 @@ import { calcDamageResult } from "../damage.js";
 import { pickTarget, pickTargetForAdventurer } from "../targeting.js";
 import { tryClassAbility, tryEnemyAbility } from "../abilities/index.js";
 import { evaluateTransitions, getCurrentState } from "../ai/index.js";
+import { addDamageThreat } from "../threat.js";
 
 /**
  * The main action phase of a round.
@@ -25,6 +26,9 @@ export function runActions(ctx: CombatContext): void {
 
   for (const unit of alive) {
     if (unit.hp <= 0) continue;
+    // Walls, ritualists, ward stones — units explicitly flagged as non-acting.
+    // Still take damage, still healable, just skip the turn.
+    if (unit.canAct === false) continue;
 
     evaluateTransitions(unit, ctx);
     const { state } = getCurrentState(unit);
@@ -87,6 +91,9 @@ function basicAttack(unit: CombatUnit, ctx: CombatContext): void {
     if (protector && combatRandom() < 0.5) {
       protector.shieldWallUsed = true;
       protector.hp -= damage;
+      // Shield Wall is a protective action — credit threat to the protector,
+      // not the original attacker (the warrior pulled aggro by stepping in).
+      addDamageThreat(unit, protector, damage);
       ctx.log.push({
         round: ctx.round, attackerName: protector.name, attackerIcon: "🛡️",
         targetName: target.name, damage, dodged: false, crit: false,
@@ -100,6 +107,7 @@ function basicAttack(unit: CombatUnit, ctx: CombatContext): void {
   }
 
   target.hp -= damage;
+  if (!unit.isEnemy) addDamageThreat(target, unit, damage);
   ctx.log.push({
     round: ctx.round, attackerName: unit.name,
     attackerIcon: unit.isEnemy ? unit.icon : (unit.isMagical ? "🔮" : "⚔️"),

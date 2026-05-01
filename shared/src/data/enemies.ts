@@ -54,6 +54,11 @@ export interface EnemyAbility {
     | { type: "damage_mult"; mult: number; targets: number };
 }
 
+/** See combat/types.ts for the canonical definition. Re-declared here as a type
+ *  alias to avoid a cross-package import (this file is leaf-level data). */
+export type EnemyAITier = "feral" | "tactical" | "cunning";
+export type EnemyTauntImmunity = "none" | "normal" | "all";
+
 export interface EnemyDefinition {
   id: string;
   name: string;
@@ -70,6 +75,10 @@ export interface EnemyDefinition {
   };
   tags: EnemyTag[];
   boss?: boolean;
+  /** Targeting style. Default "tactical" (threat-aware scored pick). Orthogonal to boss. */
+  aiTier?: EnemyAITier;
+  /** Resistance to forced-target taunt effects. Default "none". */
+  tauntImmunity?: EnemyTauntImmunity;
   abilities?: EnemyAbility[];
   loot?: LootDrop[];   // drops on kill — empty/undefined means no drops
 }
@@ -122,6 +131,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "fang", chance: 0.2, min: 1, max: 2 },
       { type: "resource", resource: "sinew_cord", chance: 0.15, min: 1, max: 1 },
     ],
+    aiTier: "feral"
   },
   {
     id: "giant_rat",
@@ -136,6 +146,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "meat", chance: 0.2, min: 1, max: 3 },
       { type: "resource", resource: "gnawed_marrow", chance: 0.2, min: 1, max: 1 },
     ],
+    aiTier: "feral"
   },
   {
     id: "skeleton",
@@ -154,6 +165,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "bonewalk_shard", chance: 0.3, min: 1, max: 2 },
       { type: "resource", resource: "barrow_ash", chance: 0.15, min: 1, max: 1 },
     ],
+    aiTier: "feral"
   },
 
   // ── Tier 0 — True novice fodder ───────────────────────────────
@@ -172,6 +184,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "meat", chance: 0.3, min: 1, max: 3 },
       { type: "resource", resource: "wolfhide_strip", chance: 0.15, min: 1, max: 1 },
     ],
+    aiTier: "feral"
   },
   {
     id: "spooked_boar",
@@ -184,6 +197,7 @@ export const ENEMIES: EnemyDefinition[] = [
     loot: [
       { type: "resource", resource: "meat", chance: 0.4, min: 2, max: 4 },
     ],
+    aiTier: "feral"
   },
   {
     id: "goblin_runt",
@@ -196,6 +210,7 @@ export const ENEMIES: EnemyDefinition[] = [
     loot: [
       { type: "resource", resource: "gold", chance: 0.3, min: 1, max: 4 },
     ],
+    aiTier: "feral"
   },
 
   // ── Tier 2 — Organized threats ────────────────────────────────
@@ -232,6 +247,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "cursed_iron", chance: 0.2, min: 1, max: 1 },
       { type: "resource", resource: "bonewalk_shard", chance: 0.3, min: 1, max: 2 },
     ],
+    aiTier: "feral"
   },
   {
     id: "bandit_captain",
@@ -265,6 +281,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "spinners_bile", chance: 0.25, min: 1, max: 1 },
       { type: "resource", resource: "chitin_plate", chance: 0.15, min: 1, max: 1 },
     ],
+    aiTier: "feral"
   },
   {
     id: "cursed_spirit",
@@ -305,6 +322,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "torn_banner", chance: 0.3, min: 1, max: 1 },
       { type: "item", itemId: "iron_armor", chance: 0.08 },
     ],
+    aiTier: "cunning"
   },
   {
     id: "dark_mage",
@@ -328,6 +346,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "nettle", chance: 0.2, min: 1, max: 2 },
       { type: "item", itemId: "enchanted_staff", chance: 0.08 },
     ],
+    aiTier: "cunning"
   },
   {
     id: "wraith",
@@ -347,6 +366,33 @@ export const ENEMIES: EnemyDefinition[] = [
     loot: [
       { type: "resource", resource: "ghostweave", chance: 0.2, min: 1, max: 1 },
       { type: "resource", resource: "veilmist", chance: 0.3, min: 1, max: 2 },
+    ],
+  },
+  // ── ENGINE TEST STUB ──────────────────────────────────────────
+  // Captain Hale stand-in for the npc-escort engine test. Real Hale stats,
+  // lore, and portrait will be authored by the parallel story thread —
+  // delete or rename this entry when that lands.
+  {
+    id: "captain_hale_stub",
+    name: "[STUB] Captain Hale's Wraith",
+    icon: "💀",
+    description: "A stand-in for the parallel-thread Captain Hale. Engine-test only.",
+    tier: 3,
+    stats: { str: 14, dex: 14, int: 24, vit: 26, wis: 18 },
+    tags: ["ghost", "magical"],
+    boss: true,
+    aiTier: "cunning",       // ignores threat, hunts priest/wizard backline
+    tauntImmunity: "normal", // bosses don't fall for warrior taunt
+    abilities: [
+      { id: "spectral_lash", name: "Spectral Lash", icon: "💢", cooldown: 2, trigger: "always",
+        effect: { type: "damage_mult", mult: 2.0, targets: 1 } },
+      { id: "captains_command", name: "Captain's Command", icon: "📣", cooldown: 4, trigger: "always",
+        effect: { type: "buff_allies", stat: "str", pct: 25, rounds: 2 } },
+    ],
+    loot: [
+      { type: "resource", resource: "veilmist", chance: 0.6, min: 2, max: 4 },
+      { type: "resource", resource: "ghostweave", chance: 0.4, min: 1, max: 2 },
+      { type: "resource", resource: "soul_shard", chance: 0.25, min: 1, max: 1 },
     ],
   },
   {
@@ -370,6 +416,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "gnawed_marrow", chance: 0.6, min: 2, max: 4 },
       { type: "resource", resource: "gold", chance: 0.5, min: 10, max: 30 },
     ],
+    aiTier: "feral"
   },
 
   // ── Tier 3 — Elemental threats ──────────────────────────────
@@ -458,6 +505,7 @@ export const ENEMIES: EnemyDefinition[] = [
     loot: [
       { type: "resource", resource: "dragonfire_ash", chance: 0.3, min: 1, max: 2 },
     ],
+    aiTier: "feral"
   },
   {
     id: "dragon_hatchling",
@@ -476,6 +524,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "wyrmshell_plate", chance: 0.25, min: 1, max: 2 },
       { type: "resource", resource: "dragonfire_ash", chance: 0.4, min: 1, max: 3 },
     ],
+    aiTier: "feral"
   },
 
   // ── Tier 4 — Elite threats ────────────────────────────────────
@@ -544,6 +593,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "moonpetal", chance: 0.05, min: 1, max: 1 },
       { type: "item", itemId: "enchanted_staff", chance: 0.06 },
     ],
+    aiTier: "cunning"
   },
   {
     id: "demon_scout",
@@ -654,6 +704,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "wyrm_heart", chance: 0.15, min: 1, max: 1 },
       { type: "resource", resource: "astralShards", chance: 0.9, min: 3, max: 8 },
     ],
+    aiTier: "cunning"
   },
   {
     id: "shadow_lord",
@@ -678,6 +729,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "ashblood", chance: 0.6, min: 2, max: 4 },
       { type: "resource", resource: "astralShards", chance: 0.9, min: 3, max: 6 },
     ],
+    aiTier: "cunning"
   },
   {
     id: "seraph_fallen",
@@ -736,6 +788,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "thick_pelt", chance: 0.35, min: 1, max: 1 },
       { type: "resource", resource: "bear_claw", chance: 0.2, min: 1, max: 2 },
     ],
+    aiTier: "feral"
   },
   {
     id: "marsh_adder",
@@ -751,6 +804,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "serpent_fang", chance: 0.25, min: 1, max: 1 },
       { type: "resource", resource: "snake_oil", chance: 0.15, min: 1, max: 1 },
     ],
+    aiTier: "feral"
   },
   {
     id: "rabid_boar",
@@ -767,6 +821,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "bristlehide", chance: 0.3, min: 1, max: 1 },
       { type: "resource", resource: "tusk_shard", chance: 0.2, min: 1, max: 1 },
     ],
+    aiTier: "feral"
   },
   {
     id: "fungal_crawler",
@@ -783,6 +838,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "chitin_plate", chance: 0.1, min: 1, max: 1 },
       { type: "resource", resource: "chamomile", chance: 0.15, min: 1, max: 1 },
     ],
+    aiTier: "feral"
   },
 
   // ── Tier 2 — New Organized Threats ──────────────────────────────
@@ -821,6 +877,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "ghoul_marrow", chance: 0.3, min: 1, max: 2 },
       { type: "resource", resource: "grave_dust", chance: 0.2, min: 1, max: 2 },
     ],
+    aiTier: "feral"
   },
   {
     id: "alpha_wolf",
@@ -882,6 +939,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "bonewalk_shard", chance: 0.2, min: 1, max: 2 },
       { type: "resource", resource: "crude_ruby", chance: 0.08, min: 1, max: 1 },
     ],
+    aiTier: "feral"
   },
 
   // ── Tier 3 — New Dangerous Foes ─────────────────────────────────
@@ -928,6 +986,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "nettle", chance: 0.25, min: 1, max: 2 },
       { type: "resource", resource: "nightbloom", chance: 0.1, min: 1, max: 1 },
     ],
+    aiTier: "cunning"
   },
   {
     id: "ember_elemental",
@@ -986,6 +1045,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "meat", chance: 0.9, min: 8, max: 20 },
       { type: "item", itemId: "beast_heart_charm", chance: 0.08 },
     ],
+    aiTier: "feral"
   },
   {
     id: "swamp_revenant",
@@ -1006,6 +1066,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "mugwort", chance: 0.2, min: 1, max: 1 },
       { type: "resource", resource: "nettle", chance: 0.15, min: 1, max: 1 },
     ],
+    aiTier: "feral"
   },
 
   // ── Tier 4 — New Elite Threats ──────────────────────────────────
@@ -1057,6 +1118,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "nettle", chance: 0.3, min: 1, max: 3 },
       { type: "item", itemId: "necromancer_cowl", chance: 0.06 },
     ],
+    aiTier: "cunning"
   },
   {
     id: "storm_elemental",

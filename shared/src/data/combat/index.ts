@@ -2,20 +2,23 @@ import type { Adventurer } from "../adventurers.js";
 import type { MissionTemplate, MissionEncounter, AdventurerMissionSupplies } from "../missions/index.js";
 import type { CombatContext, CombatResult } from "./types.js";
 import { setCombatSeed } from "./prng.js";
-import { buildAdventurerUnit, buildEnemyUnits } from "./units.js";
+import { buildAdventurerUnit, buildEnemyUnits, buildNpcAllyUnit } from "./units.js";
 import { applySupplies, applyHpOverride, applyPassives } from "./setup.js";
+import { applyMissionAllyBaselineThreat } from "./threat.js";
+import { applyMissionModifiers } from "./modifiers.js";
 import { runRound } from "./round/index.js";
 import { buildResult } from "./result.js";
 
 // ─── Public types re-exported for consumers ─────────────────────
-export type { CombatUnit, CombatLogEntry, CombatResult, LootResult, CombatContext } from "./types.js";
+export type { CombatUnit, CombatLogEntry, CombatResult, LootResult, CombatContext, AITier, TauntImmunity, CombatKind } from "./types.js";
 export { setCombatSeed, combatRandom } from "./prng.js";
 export { calcDamageResult } from "./damage.js";
 export { getAttackPower, getMagicPower, getCritChance, getDodgeChance, getInitiative, getDefenseReduction, getMagicResistReduction, dealsMagicalDamage } from "./stats.js";
 export { pickTarget, pickTargetForAdventurer } from "./targeting.js";
-export { buildAdventurerUnit, buildEnemyUnits, calcFamilyBonuses } from "./units.js";
+export { buildAdventurerUnit, buildEnemyUnits, buildNpcAllyUnit, calcFamilyBonuses } from "./units.js";
 export type { AIBehavior, AIState, AITransition } from "./ai/index.js";
 export { DEFAULT_BEHAVIOR } from "./ai/index.js";
+export { addDamageThreat, addHealThreat, decayAllThreat, applyMissionAllyBaselineThreat, getThreat } from "./threat.js";
 
 const MAX_ROUNDS = 20;
 
@@ -49,11 +52,31 @@ export function simulateCombat(
   applyHpOverride(adventurers, overrides?.hpOverride);
   applyPassives(adventurers, team);
 
+  // Mission's locked NPC ally (Niamh in story 4) joins the adventurer side. She
+  // takes turns + gets healed like an adventurer, but is filtered from XP /
+  // permadeath rolls in the engine. Death triggers a distinct failure (vipFallen).
+  const npcAllyUnit = mission.npcAlly ? buildNpcAllyUnit(mission.npcAlly) : null;
+  if (npcAllyUnit) adventurers.push(npcAllyUnit);
+
   const enemies = buildEnemyUnits(encountersToUse);
   const totalEnemies = enemies.length;
   if (enemies.length === 0) return null;
 
-  const ctx: CombatContext = { round: 0, adventurers, enemies, log: [] };
+  // Apply the mission's baseline threat (e.g. "ghosts focus the ritualist") to
+  // each matching enemy's threat table BEFORE the first round. This is what
+  // makes Niamh draw aggro from round 1 instead of round 2+.
+  if (npcAllyUnit && mission.npcAlly) {
+    applyMissionAllyBaselineThreat(enemies, npcAllyUnit, mission.npcAlly);
+  }
+
+  const ctx: CombatContext = {
+    round: 0, adventurers, enemies, log: [],
+    modifiers: mission.modifiers,
+  };
+  // Stamp initial modifier flags. Re-evaluated each round in case gate
+  // conditions (whileAllyAlive) flip mid-combat (e.g. Niamh dies → physical
+  // immunity returns to ghosts).
+  applyMissionModifiers(ctx);
 
   while (ctx.round < MAX_ROUNDS) {
     ctx.round++;

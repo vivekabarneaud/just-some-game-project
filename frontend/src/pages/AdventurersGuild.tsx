@@ -794,6 +794,14 @@ export default function AdventurersGuild() {
               >
                 Spawn all novice
               </button>
+              <button
+                onClick={() => actions.devSpawnCaptainsRestStub()}
+                class="skip-season-btn"
+                style={{ "font-size": "0.7rem", padding: "3px 10px" }}
+                title="Spawn the NPC-escort engine test mission (Niamh + ghosts)"
+              >
+                Spawn Captain's Rest
+              </button>
             </Show>
           </div>
           <Show when={state.missionBoard.length === 0}>

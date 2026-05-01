@@ -1,11 +1,13 @@
 import { combatRandom } from "../prng.js";
 import { calcDamageResult } from "../damage.js";
 import { canUseAbility, startCooldown } from "./cooldown.js";
+import { addDamageThreat } from "../threat.js";
 import type { ClassAbilityHandler } from "./types.js";
 
 /**
  * Taunt — when an ally drops below 30% HP, force all enemies to target self.
- * Iron Will enemies resist 10% of the time.
+ * Skipped per-enemy if tauntImmunity blocks generic taunts. Iron Will enemies
+ * still resist 10% on top of that.
  */
 export const taunt: ClassAbilityHandler = {
   id: "taunt",
@@ -17,6 +19,10 @@ export const taunt: ClassAbilityHandler = {
     startCooldown(unit, "taunt", 4);
     for (const enemy of ctx.enemies) {
       if (enemy.hp <= 0) continue;
+      // tauntImmunity gates: "normal" enemies ignore generic taunt, "all" ignore everything.
+      // Future "elite" taunts (e.g. thorns wall passive) would bypass "normal" but not "all".
+      if (enemy.tauntImmunity === "normal" || enemy.tauntImmunity === "all") continue;
+      if (enemy.isTauntable === false) continue;
       if (enemy.trait === "iron_will" && combatRandom() < 0.10) continue;
       enemy.tauntedBy = unit.id;
     }
@@ -42,6 +48,7 @@ export const cleave: ClassAbilityHandler = {
     const hits = targets.map((t) => {
       const { damage } = calcDamageResult(unit, t, { damageMult: 0.7 });
       t.hp -= damage;
+      addDamageThreat(t, unit, damage);
       return { name: t.name, damage, killed: t.hp <= 0, hp: Math.max(0, t.hp), maxHp: t.maxHp };
     });
     ctx.log.push({

@@ -29,8 +29,12 @@ export interface DamageResult {
 export function calcDamageResult(attacker: CombatUnit, defender: CombatUnit, opts?: DamageOptions): DamageResult {
   const magical = dealsMagicalDamage(attacker) || !!opts?.ignorePhysicalDef;
 
-  // Ghost: immune to physical unless spirit_sensitive trait
-  if (!magical && defender.enemyTags?.includes("ghost") && attacker.trait !== "spirit_sensitive") {
+  // Ghost: immune to physical unless spirit_sensitive trait, OR a mission
+  // modifier (e.g. Niamh's binding ritual) is currently making the defender
+  // physically pierceable. The flag is refreshed each round, so if the
+  // gate-ally dies, ghosts return to full physical immunity.
+  if (!magical && defender.enemyTags?.includes("ghost") &&
+      attacker.trait !== "spirit_sensitive" && !defender.physicallyPierceable) {
     return { damage: 0, rawDamage: 0, crit: false };
   }
   // Aether elemental: immune to magical damage

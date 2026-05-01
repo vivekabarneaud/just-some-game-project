@@ -1,6 +1,7 @@
 import { combatRandom } from "../prng.js";
 import { calcDamageResult } from "../damage.js";
 import { canUseAbility, startCooldown } from "./cooldown.js";
+import { addDamageThreat } from "../threat.js";
 import type { ClassAbilityHandler } from "./types.js";
 
 /** Multi-shot — 2+ enemies alive, hit up to 3 random alive enemies for 60% damage. */
@@ -17,6 +18,7 @@ export const multiShot: ClassAbilityHandler = {
     const hits = targets.map((t) => {
       const { damage } = calcDamageResult(unit, t, { damageMult: 0.6 });
       t.hp -= damage;
+      addDamageThreat(t, unit, damage);
       return { name: t.name, damage, killed: t.hp <= 0, hp: Math.max(0, t.hp), maxHp: t.maxHp };
     });
     ctx.log.push({
@@ -40,6 +42,7 @@ export const aimedShot: ClassAbilityHandler = {
     const target = [...alive].sort((a, b) => b.hp - a.hp)[0];
     const { damage } = calcDamageResult(unit, target, { forceCrit: true });
     target.hp -= damage;
+    addDamageThreat(target, unit, damage);
     ctx.log.push({
       round: ctx.round, attackerName: unit.name, attackerIcon: "🎯", targetName: target.name,
       damage, dodged: false, crit: true, killed: target.hp <= 0,
