@@ -3575,7 +3575,9 @@ export function GameProvider(props: ParentProps) {
       const candidate = state.recruitCandidates.find((c) => c.id === candidateId);
       if (!candidate) return false;
       const maxRoster = getMaxRoster(guildLvl);
-      if (state.adventurers.length >= maxRoster) return false;
+      // Only the living count toward the cap; the fallen are memorial-only.
+      const livingCount = state.adventurers.filter((a) => a.alive).length;
+      if (livingCount >= maxRoster) return false;
       const cost = getRecruitCost(candidate.rank);
       if (state.resources.gold < cost) return false;
       setState(produce((s) => {
@@ -3790,7 +3792,9 @@ export function GameProvider(props: ParentProps) {
     },
     getRosterSize() {
       const guildLvl = this.getGuildLevel();
-      return { current: state.adventurers.length, max: getMaxRoster(guildLvl) };
+      // Only the living count toward the cap; the fallen are memorial-only.
+      const current = state.adventurers.filter((a) => a.alive).length;
+      return { current, max: getMaxRoster(guildLvl) };
     },
     getAleInfo() {
       const breweryLvl = state.buildings.find((b) => b.buildingId === "brewery")?.level ?? 0;
