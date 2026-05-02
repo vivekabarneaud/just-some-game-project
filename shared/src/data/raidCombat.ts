@@ -4,12 +4,15 @@
 // barracks soldiers engage when the wall breaches. Surviving raiders
 // carry their HP into the next ring inward.
 //
+// Per-ring archer/soldier rosters are STACKS — one CombatUnit per
+// ring representing N soldiers. HP is pooled (headcount × hpPerUnit);
+// outgoing damage scales with the squad's current HP fraction. This
+// keeps the sim fast even at city-tier scale (60+ archers per ring),
+// and post-combat casualties = floor((maxHp - finalHp) / hpPerUnit).
+//
 // Reuses the mission combat primitives — same CombatUnit shape,
 // damage formula, and CombatLogEntry — so the existing playback UI
 // renders raid combat without modification.
-//
-// Pure addition for v1: callers don't yet wire this into the raid
-// lifecycle (commit 6 will swap resolveRaid over to consume this).
 
 import type { MissionEncounter } from "./missions/index.js";
 import type { CombatLogEntry, CombatUnit } from "./combat/types.js";
@@ -30,6 +33,15 @@ const RING_LABEL: Record<DefenseRing, string> = {
 const MAX_ROUNDS_PER_RING = 30;
 const WALL_BASE_HP = 100;
 
+/** HP per individual soldier in a stack at training level 0 — drives pooled
+ *  HP at start AND surviving-headcount derivation post-combat. Tune during
+ *  playtest. */
+const ARCHER_HP_PER_UNIT_BASE = 28;
+const SOLDIER_HP_PER_UNIT_BASE = 36;
+/** Per-trained-level multipliers applied on top of the base. */
+const TRAINING_HP_MULT_PER_LEVEL = 0.25;
+const TRAINING_ATK_MULT_PER_LEVEL = 0.20;
+
 // ─── Inputs ─────────────────────────────────────────────────────
 
 export interface RaidWallInput {
@@ -42,11 +54,19 @@ export interface RaidWatchtowerInput {
   ring: DefenseRing;
   level: number;
   damaged: boolean;
+  /** Archers stationed in this tower (from PlayerWatchtower.garrison.count). */
+  archerCount: number;
+  /** Collective training level — scales squad HP and attack stat. Default 0. */
+  trainedLevel?: number;
 }
 export interface RaidBarracksInput {
   ring: DefenseRing;
   level: number;
   damaged: boolean;
+  /** Soldiers stationed in this barracks (from PlayerBarracks.garrison.count). */
+  soldierCount: number;
+  /** Collective training level — scales squad HP and attack stat. Default 0. */
+  trainedLevel?: number;
 }
 
 export interface RaidCombatInput {
@@ -55,10 +75,6 @@ export interface RaidCombatInput {
   walls: RaidWallInput[];
   watchtowers: RaidWatchtowerInput[];
   barracks: RaidBarracksInput[];
-  /** Stationed archer pool. Allocated outer→inner by tower level until exhausted. */
-  totalArchers: number;
-  /** Stationed soldier pool. Allocated outer→inner by barracks level until exhausted. */
-  totalSoldiers: number;
   seed?: number;
 }
 
@@ -74,7 +90,11 @@ export interface RaidCombatResult {
   /** Towers/barracks marked damaged when ≥half their staff died. */
   damagedTowerRings: DefenseRing[];
   damagedBarracksRings: DefenseRing[];
-  /** Citizens lost — soldiers and archers come from the population. */
+  /** Per-ring casualty deltas — engine writes these back to each garrison.count. */
+  archerCasualtiesByRing: { ring: DefenseRing; lost: number }[];
+  soldierCasualtiesByRing: { ring: DefenseRing; lost: number }[];
+  /** Aggregate citizen losses (sum of per-ring casualties). Engine decrements
+   *  state.archers / state.soldiers / state.population by these. */
   archersLost: number;
   soldiersLost: number;
   raidersKilled: number;
@@ -105,64 +125,63 @@ function buildWallUnit(ring: DefenseRing, level: number, currentHp: number): Com
   };
 }
 
-// Stats represent untrained-sentry baseline. Future per-building training /
-// equipment (see roadmap: garrison training feature) will layer bonuses on
-// top — this stays the floor.
-function buildArcherUnit(ring: DefenseRing, idx: number): CombatUnit {
-  const hp = 28;
+/** Stack of N archers stationed in a watchtower. One CombatUnit per ring;
+ *  HP pooled across the squad. Stats are per-individual archer baseline —
+ *  dodge / crit feel right for one shooter — and the headcount field on the
+ *  unit makes calcDamageResult scale outgoing damage to the squad's size.
+ *  trainedLevel layers HP and attack stat multipliers on top. */
+function buildArcherStack(ring: DefenseRing, count: number, trainedLevel: number): CombatUnit | null {
+  if (count <= 0) return null;
+  const hpMult = 1 + TRAINING_HP_MULT_PER_LEVEL * trainedLevel;
+  const atkMult = 1 + TRAINING_ATK_MULT_PER_LEVEL * trainedLevel;
+  const hpPerUnit = Math.floor(ARCHER_HP_PER_UNIT_BASE * hpMult);
+  const maxHp = hpPerUnit * count;
+  const baseDex = 14;
+  const trainTag = trainedLevel > 0 ? ` Lv.${trainedLevel}` : "";
   return {
-    id: `archer_${ring}_${idx}`,
-    name: `${RING_LABEL[ring]} Tower Archer`,
+    id: `archers_${ring}`,
+    name: `${RING_LABEL[ring]} Tower Archers${trainTag} (${count})`,
     icon: "🏹",
     kind: "ally",
     isEnemy: false,
-    hp, maxHp: hp,
-    str: 5, dex: 14, int: 0, vit: 3, wis: 2,
+    hp: maxHp, maxHp,
+    str: 5, dex: Math.floor(baseDex * atkMult), int: 0, vit: 3, wis: 2,
     class: "archer",
     isMagical: false,
     gearDefense: 8,
     canAct: true, canBeHealed: true, isTauntable: false,
     threatMultiplier: 1.0,
+    headcount: count,
+    hpPerUnit,
     cooldowns: {}, slowed: 0, poisonTicks: [],
   };
 }
 
-function buildSoldierUnit(ring: DefenseRing, idx: number): CombatUnit {
-  const hp = 36;
+function buildSoldierStack(ring: DefenseRing, count: number, trainedLevel: number): CombatUnit | null {
+  if (count <= 0) return null;
+  const hpMult = 1 + TRAINING_HP_MULT_PER_LEVEL * trainedLevel;
+  const atkMult = 1 + TRAINING_ATK_MULT_PER_LEVEL * trainedLevel;
+  const hpPerUnit = Math.floor(SOLDIER_HP_PER_UNIT_BASE * hpMult);
+  const maxHp = hpPerUnit * count;
+  const baseStr = 14;
+  const trainTag = trainedLevel > 0 ? ` Lv.${trainedLevel}` : "";
   return {
-    id: `soldier_${ring}_${idx}`,
-    name: `${RING_LABEL[ring]} Guard`,
+    id: `soldiers_${ring}`,
+    name: `${RING_LABEL[ring]} Guards${trainTag} (${count})`,
     icon: "⚔️",
     kind: "ally",
     isEnemy: false,
-    hp, maxHp: hp,
-    str: 14, dex: 5, int: 0, vit: 4, wis: 2,
+    hp: maxHp, maxHp,
+    str: Math.floor(baseStr * atkMult), dex: 5, int: 0, vit: 4, wis: 2,
     class: "warrior",
     isMagical: false,
     gearDefense: 14,
     canAct: true, canBeHealed: true, isTauntable: false,
     threatMultiplier: 1.0,
+    headcount: count,
+    hpPerUnit,
     cooldowns: {}, slowed: 0, poisonTicks: [],
   };
-}
-
-// ─── Per-ring allocation ────────────────────────────────────────
-
-/** Fill outer ring first, then middle, then inner. Each ring gets up to its
- *  capacity (tower-level for archers, barracks-level × 3 for soldiers). */
-function allocatePerRing(
-  totalPool: number,
-  ringCapacities: Record<DefenseRing, number>,
-): Record<DefenseRing, number> {
-  const out: Record<DefenseRing, number> = { outer: 0, middle: 0, inner: 0 };
-  let remaining = totalPool;
-  for (const ring of RING_ORDER) {
-    const take = Math.min(remaining, ringCapacities[ring]);
-    out[ring] = take;
-    remaining -= take;
-    if (remaining <= 0) break;
-  }
-  return out;
 }
 
 // ─── Combat helpers ─────────────────────────────────────────────
@@ -234,6 +253,13 @@ function attack(
   });
 }
 
+/** Survivors of a stack at end of combat. floor(currentHp / hpPerUnit) — any
+ *  partial-soldier residue counts as wounded but not killed. */
+function surviversOfStack(stack: CombatUnit | null): number {
+  if (!stack || !stack.hpPerUnit || stack.hp <= 0) return 0;
+  return Math.floor(stack.hp / stack.hpPerUnit);
+}
+
 // ─── Main entry ─────────────────────────────────────────────────
 
 export function simulateRaidCombat(input: RaidCombatInput): RaidCombatResult {
@@ -242,7 +268,8 @@ export function simulateRaidCombat(input: RaidCombatInput): RaidCombatResult {
   // ── Build raiders ─────────────────────────────────────────────
   const raiders = buildEnemyUnits(input.encounters);
 
-  // ── Allocate archers/soldiers per ring, outer-first ───────────
+  // ── Build per-ring defender stacks (one stack per ring, gated on
+  //    the building being built and undamaged) ────────────────────
   const towerByRing: Record<DefenseRing, RaidWatchtowerInput | undefined> = {
     outer: input.watchtowers.find((t) => t.ring === "outer"),
     middle: input.watchtowers.find((t) => t.ring === "middle"),
@@ -253,30 +280,24 @@ export function simulateRaidCombat(input: RaidCombatInput): RaidCombatResult {
     middle: input.barracks.find((b) => b.ring === "middle"),
     inner: input.barracks.find((b) => b.ring === "inner"),
   };
-  const archerCapByRing: Record<DefenseRing, number> = {
-    outer: towerByRing.outer && !towerByRing.outer.damaged ? towerByRing.outer.level : 0,
-    middle: towerByRing.middle && !towerByRing.middle.damaged ? towerByRing.middle.level : 0,
-    inner: towerByRing.inner && !towerByRing.inner.damaged ? towerByRing.inner.level : 0,
-  };
-  const soldierCapByRing: Record<DefenseRing, number> = {
-    outer: barracksByRing.outer && !barracksByRing.outer.damaged ? barracksByRing.outer.level * 3 : 0,
-    middle: barracksByRing.middle && !barracksByRing.middle.damaged ? barracksByRing.middle.level * 3 : 0,
-    inner: barracksByRing.inner && !barracksByRing.inner.damaged ? barracksByRing.inner.level * 3 : 0,
-  };
-  const archersPerRing = allocatePerRing(input.totalArchers, archerCapByRing);
-  const soldiersPerRing = allocatePerRing(input.totalSoldiers, soldierCapByRing);
 
-  // ── Build per-ring defender rosters up front ──────────────────
-  const archersByRing: Record<DefenseRing, CombatUnit[]> = { outer: [], middle: [], inner: [] };
-  const soldiersByRing: Record<DefenseRing, CombatUnit[]> = { outer: [], middle: [], inner: [] };
+  const archerStackByRing: Record<DefenseRing, CombatUnit | null> = { outer: null, middle: null, inner: null };
+  const soldierStackByRing: Record<DefenseRing, CombatUnit | null> = { outer: null, middle: null, inner: null };
   const wallByRing: Record<DefenseRing, CombatUnit | undefined> = { outer: undefined, middle: undefined, inner: undefined };
+  // Original headcount per ring (immutable). Casualties = original − survivors.
+  const archerStartCount: Record<DefenseRing, number> = { outer: 0, middle: 0, inner: 0 };
+  const soldierStartCount: Record<DefenseRing, number> = { outer: 0, middle: 0, inner: 0 };
 
   for (const ring of RING_ORDER) {
-    for (let i = 0; i < archersPerRing[ring]; i++) {
-      archersByRing[ring].push(buildArcherUnit(ring, i));
+    const tower = towerByRing[ring];
+    if (tower && !tower.damaged && tower.archerCount > 0) {
+      archerStackByRing[ring] = buildArcherStack(ring, tower.archerCount, tower.trainedLevel ?? 0);
+      archerStartCount[ring] = tower.archerCount;
     }
-    for (let i = 0; i < soldiersPerRing[ring]; i++) {
-      soldiersByRing[ring].push(buildSoldierUnit(ring, i));
+    const bar = barracksByRing[ring];
+    if (bar && !bar.damaged && bar.soldierCount > 0) {
+      soldierStackByRing[ring] = buildSoldierStack(ring, bar.soldierCount, bar.trainedLevel ?? 0);
+      soldierStartCount[ring] = bar.soldierCount;
     }
     const wallInput = input.walls.find((w) => w.ring === ring);
     if (wallInput && wallInput.level > 0 && wallInput.hp > 0) {
@@ -295,27 +316,27 @@ export function simulateRaidCombat(input: RaidCombatInput): RaidCombatResult {
     if (raiders.every((r) => r.hp <= 0)) break;
 
     const wall = wallByRing[ring];
-    const archers = archersByRing[ring];
-    const soldiers = soldiersByRing[ring];
+    const archers = archerStackByRing[ring];
+    const soldiers = soldierStackByRing[ring];
 
     // Ring with no defenders at all? Skip — raid walks through.
-    if (!wall && archers.length === 0 && soldiers.length === 0) continue;
+    if (!wall && !archers && !soldiers) continue;
 
     let ringRound = 0;
     while (ringRound < MAX_ROUNDS_PER_RING) {
       round++;
       ringRound++;
 
-      // 1. Archers fire (this ring only)
-      for (const archer of archers) {
-        if (archer.hp <= 0) continue;
+      // 1. Archer stack fires (this ring only). One attack from the squad
+      //    per round; calcDamageResult scales the damage by the stack's
+      //    current effective headcount.
+      if (archers && archers.hp > 0) {
         const target = pickRandom(aliveTargets(raiders));
-        if (!target) break;
-        attack(archer, target, round, log);
+        if (target) attack(archers, target, round, log);
       }
       if (raiders.every((r) => r.hp <= 0)) break;
 
-      // 2. Raiders attack — wall first, then soldiers when wall down
+      // 2. Raiders attack — wall first, then defenders when wall down
       const livingRaiders = aliveAttackers(raiders);
       const wallStanding = wall && wall.hp > 0;
       for (const raider of livingRaiders) {
@@ -323,42 +344,28 @@ export function simulateRaidCombat(input: RaidCombatInput): RaidCombatResult {
           attack(raider, wall, round, log);
           if (wall.hp <= 0) break; // wall falls mid-round → remaining raiders go next round
         } else {
-          // Wall already down — pick a soldier (or archer if no soldiers)
-          const meleeTargets = aliveTargets(soldiers);
-          const fallback = aliveTargets(archers);
-          const pool = meleeTargets.length > 0 ? meleeTargets : fallback;
-          const target = pickRandom(pool);
+          // Wall down — pick the soldier stack first, archer stack as fallback.
+          const meleeAlive = soldiers && soldiers.hp > 0 ? soldiers : null;
+          const archerAlive = archers && archers.hp > 0 ? archers : null;
+          const target = meleeAlive ?? archerAlive;
           if (!target) break;
           attack(raider, target, round, log);
         }
       }
 
-      // 3. Soldiers melee (only when wall is down)
-      if (wall && wall.hp <= 0) {
-        for (const soldier of soldiers) {
-          if (soldier.hp <= 0) continue;
-          const target = pickRandom(aliveTargets(raiders));
-          if (!target) break;
-          attack(soldier, target, round, log);
-        }
-      } else if (!wall) {
-        // No wall ever existed in this ring — soldiers engage immediately
-        for (const soldier of soldiers) {
-          if (soldier.hp <= 0) continue;
-          const target = pickRandom(aliveTargets(raiders));
-          if (!target) break;
-          attack(soldier, target, round, log);
-        }
+      // 3. Soldier stack melees (only when wall is down or never existed)
+      const wallDown = !wall || wall.hp <= 0;
+      if (wallDown && soldiers && soldiers.hp > 0) {
+        const target = pickRandom(aliveTargets(raiders));
+        if (target) attack(soldiers, target, round, log);
       }
 
       // 4. End conditions for this ring
-      if (raiders.every((r) => r.hp <= 0)) break; // siege over
-      const wallDown = !wall || wall.hp <= 0;
-      const soldiersGone = soldiers.every((s) => s.hp <= 0);
-      const archersGone = archers.every((a) => a.hp <= 0);
+      if (raiders.every((r) => r.hp <= 0)) break;
+      const archersGone = !archers || archers.hp <= 0;
+      const soldiersGone = !soldiers || soldiers.hp <= 0;
       // Ring breached only when nothing remains to defend it. Archers keep
-      // firing from a fallen wall as long as raiders are still here — they
-      // only stop when killed (or when the raiders move inward / die).
+      // firing from a fallen wall as long as the squad still has HP.
       if (wallDown && soldiersGone && archersGone) break;
     }
 
@@ -380,20 +387,27 @@ export function simulateRaidCombat(input: RaidCombatInput): RaidCombatResult {
     hp: wallFinalHpByRing[w.ring] ?? w.hp,
   }));
 
-  // Damage flag: ≥half the staffed archers/soldiers fell at this ring
+  // Per-ring casualties = original headcount − survivors derived from final HP.
+  // Damage flag: ≥half the staffed troops fell at this ring.
   const damagedTowerRings: DefenseRing[] = [];
   const damagedBarracksRings: DefenseRing[] = [];
   let archersLost = 0;
   let soldiersLost = 0;
+  const archerCasualtiesByRing: { ring: DefenseRing; lost: number }[] = [];
+  const soldierCasualtiesByRing: { ring: DefenseRing; lost: number }[] = [];
   for (const ring of RING_ORDER) {
-    const archerLossCount = archersByRing[ring].filter((a) => a.hp <= 0).length;
-    const soldierLossCount = soldiersByRing[ring].filter((s) => s.hp <= 0).length;
-    archersLost += archerLossCount;
-    soldiersLost += soldierLossCount;
-    const archerStart = archersByRing[ring].length;
-    const soldierStart = soldiersByRing[ring].length;
-    if (archerStart > 0 && archerLossCount * 2 >= archerStart) damagedTowerRings.push(ring);
-    if (soldierStart > 0 && soldierLossCount * 2 >= soldierStart) damagedBarracksRings.push(ring);
+    const aStart = archerStartCount[ring];
+    const sStart = soldierStartCount[ring];
+    const aSurv = surviversOfStack(archerStackByRing[ring]);
+    const sSurv = surviversOfStack(soldierStackByRing[ring]);
+    const aLost = Math.max(0, aStart - aSurv);
+    const sLost = Math.max(0, sStart - sSurv);
+    archerCasualtiesByRing.push({ ring, lost: aLost });
+    soldierCasualtiesByRing.push({ ring, lost: sLost });
+    archersLost += aLost;
+    soldiersLost += sLost;
+    if (aStart > 0 && aLost * 2 >= aStart) damagedTowerRings.push(ring);
+    if (sStart > 0 && sLost * 2 >= sStart) damagedBarracksRings.push(ring);
   }
 
   return {
@@ -403,6 +417,8 @@ export function simulateRaidCombat(input: RaidCombatInput): RaidCombatResult {
     wallFinalHp,
     damagedTowerRings,
     damagedBarracksRings,
+    archerCasualtiesByRing,
+    soldierCasualtiesByRing,
     archersLost,
     soldiersLost,
     raidersKilled,

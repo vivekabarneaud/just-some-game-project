@@ -63,40 +63,96 @@ export function getMageTowerBuildTime(currentLevel: number): number {
   return rampedBuildTime(38, currentLevel);
 }
 
-/** Recruitment costs — citizen takes the role; gold pays for wages + training.
- *  Gear quality is implicit in barracks/tower level (which already cost iron
- *  to upgrade). Keeping recruit cost gold-only avoids soft-locking the
- *  Baptism of Fire quest, which fires before the player can build an iron
- *  mine. */
-export const SOLDIER_COST = { gold: 15 };
-export const ARCHER_COST = { gold: 20 };
+/** Per-recruit gold cost. Cheap on purpose — late-game cities station
+ *  hundreds of troops, so a 20g flat cost would price out scaling.
+ *  Future: cost scales with the building's trained level when training lands. */
+export const SOLDIER_COST = { gold: 5 };
+export const ARCHER_COST = { gold: 5 };
 
-// ─── Slot caps ────────────────────────────────────────────────────
+// ─── Per-building capacity (garrison rework) ──────────────────────
+// Quadratic-ish scaling so a city-tier (lvl 6) tower feels like a real
+// garrison rather than a token squad. Curves are tuned so:
+//   lvl 1 → ~4-5 (a frontier squad)
+//   lvl 6 → ~54-60 (an actual castle wall garrison)
+// Building level is itself capped by the town hall, so settlement tier
+// gates the upper end.
 
-// TODO (post-defenses-merge): rethink slot-per-level scaling. Population
-// scales from 5 (camp) up to 1800 (city L20 housing); a L8 tower allowing
-// only 8 archers is a token defense at city tier. Likely options: bump the
-// per-level multipliers (e.g. tower → level × 2-3, barracks → level × 5),
-// or move to triangular/quadratic scaling so late-game garrisons feel like
-// real garrisons. Tracked alongside the future garrison-training feature.
+/** Archer slots in one watchtower at this level. level² + 3·level. */
+export function getWatchtowerArcherCap(level: number): number {
+  if (level <= 0) return 0;
+  return level * level + 3 * level; // 4 / 10 / 18 / 28 / 40 / 54 ...
+}
 
-/** Max soldiers across all undamaged barracks (3 per barracks level). */
+/** Soldier slots in one barracks at this level. level² + 4·level (slightly
+ *  more than archers — barracks have always had a higher density). */
+export function getBarracksSoldierCap(level: number): number {
+  if (level <= 0) return 0;
+  return level * level + 4 * level; // 5 / 12 / 21 / 32 / 45 / 60 ...
+}
+
+/** Max soldiers across all undamaged barracks. Sum of per-building caps. */
 export function maxSoldiers(state: GameState): number {
   return state.barracks
     .filter((b) => !b.damaged)
-    .reduce((sum, b) => sum + b.level * 3, 0);
+    .reduce((sum, b) => sum + getBarracksSoldierCap(b.level), 0);
 }
 
-/** Max archers across all undamaged watchtowers (1 per tower level). */
+/** Max archers across all undamaged watchtowers. Sum of per-building caps. */
 export function maxArchers(state: GameState): number {
   return state.watchtowers
     .filter((t) => !t.damaged)
-    .reduce((sum, t) => sum + t.level, 0);
+    .reduce((sum, t) => sum + getWatchtowerArcherCap(t.level), 0);
 }
 
-/** Available citizens to take a soldier/archer slot — population minus already-stationed. */
+/** Citizens available to take a soldier/archer slot. The 5-founder carve-out
+ *  is a placeholder until the per-category citizen rework (toddler/child/
+ *  adult/elderly) lands — until then, founders are treated as the only
+ *  non-recruitable pop. */
+const FOUNDER_COUNT = 5;
 export function availableCitizens(state: GameState): number {
-  return Math.max(0, Math.floor(state.population) - state.soldiers - state.archers);
+  return Math.max(0, Math.floor(state.population) - FOUNDER_COUNT - state.soldiers - state.archers);
+}
+
+// ─── Training ─────────────────────────────────────────────────────
+// Garrisons level collectively (one trainedLevel per garrison). Each level
+// raises the squad's HP and attack stat. Building level caps the trained
+// level — upgrade the tower/barracks before training higher.
+
+/** Gold to train one level UP (current → current+1). Linear ramp; tunable.
+ *  Free baseline at level 0 means "untrained recruits"; the first investment
+ *  raises them to lvl 1. */
+export function getTrainCost(targetLevel: number): { gold: number } {
+  return { gold: 50 + 50 * Math.max(0, targetLevel - 1) };
+}
+
+/** Game-seconds to train one level UP. Mason's Guild discount does NOT apply
+ *  here (purely military investment, not construction). */
+export function getTrainTime(targetLevel: number): number {
+  return Math.floor(60 * Math.pow(1.4, Math.max(0, targetLevel - 1)));
+}
+
+// ─── Migration ────────────────────────────────────────────────────
+
+/** Spread a legacy global headcount across multiple ring buildings, outer
+ *  first, capped at each building's per-level capacity. Used once at save-load
+ *  time to convert pre-garrison-rework saves to the per-building model.
+ *  Mutates the array in place. */
+export function distributeLegacyGarrison<T extends { level: number; garrison: { count: number; trainedLevel: number } }>(
+  buildings: T[],
+  legacyTotal: number,
+  capFor: (level: number) => number,
+): void {
+  if (!legacyTotal || legacyTotal <= 0) return;
+  // Skip if any garrison already has units — assume migration already ran.
+  if (buildings.some((b) => b.garrison.count > 0)) return;
+  let remaining = legacyTotal;
+  for (const b of buildings) {
+    if (remaining <= 0) break;
+    const cap = capFor(b.level);
+    const take = Math.min(cap, remaining);
+    b.garrison.count = take;
+    remaining -= take;
+  }
 }
 
 // ─── Ring unlocks ─────────────────────────────────────────────────

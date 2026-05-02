@@ -82,6 +82,15 @@ export interface CombatUnit {
    *  for the duration of a mission modifier. Cleared when the gate condition
    *  (e.g. "while Niamh alive") fails. */
   physicallyPierceable?: boolean;
+  // ── Stack/squad representation (raid garrisons) ──
+  /** Original headcount this unit represents. When set, the unit is a "stack"
+   *  of N soldiers sharing one pooled HP bar (HP = headcount × hpPerUnit).
+   *  Outgoing damage scales with current HP fraction so the squad's effective
+   *  output drops as casualties pile up. Adventurer units leave this undefined. */
+  headcount?: number;
+  /** Per-soldier HP used to derive surviving headcount post-combat
+   *  (survivors = floor(currentHp / hpPerUnit)). Required when headcount is set. */
+  hpPerUnit?: number;
   // ── Status effects / per-round state ──
   cooldowns: Record<string, number>;
   tauntedBy?: string;

@@ -1,7 +1,12 @@
-import { For, Show } from "solid-js";
+import { For, Show, createSignal } from "solid-js";
 import { useGame } from "~/engine/gameState";
 import type { DefenseRing, PlayerWall, PlayerWatchtower, PlayerBarracks } from "~/engine/gameState";
 import { WALL_BASE_HP } from "~/engine/gameState";
+import GarrisonDetailModal from "~/components/GarrisonDetailModal";
+
+// Module-scoped signal so any card can pop the manager modal without
+// prop-drilling. One modal at a time — re-clicking another building swaps it.
+const [openGarrison, setOpenGarrison] = createSignal<{ kind: "watchtower" | "barracks"; ring: DefenseRing } | null>(null);
 import {
   getWallCost,
   getWatchtowerCost,
@@ -22,6 +27,8 @@ import {
   ringUnlockTier,
   RING_LABELS,
   RING_DESCRIPTIONS,
+  getWatchtowerArcherCap,
+  getBarracksSoldierCap,
 } from "~/data/defenses";
 import { getBuildingImageById, applyMasonCostReduction, applyMasonTimeReduction } from "~/data/buildings";
 import HpBar from "~/components/HpBar";
@@ -288,6 +295,16 @@ export default function Defenses() {
       <For each={RINGS}>
         {(ring) => <RingSection ring={ring} unlocked={ringUnlocked(ring, tier())} />}
       </For>
+
+      <Show when={openGarrison()}>
+        {(g) => (
+          <GarrisonDetailModal
+            kind={g().kind}
+            ring={g().ring}
+            onClose={() => setOpenGarrison(null)}
+          />
+        )}
+      </Show>
     </div>
   );
 }
@@ -466,16 +483,12 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
     return "";
   };
 
-  // Archer recruitment — global pool, but the slot belongs here visually.
-  // Reason returns "" when recruiting is allowed, else a short explanation
-  // for the tooltip / inline label so the player isn't confused by a silent
-  // disabled button.
+  // Per-tower archer recruitment — each tower has its own roster + cap.
+  const towerCap = () => getWatchtowerArcherCap(props.tower.level);
   const recruitBlocker = () => {
-    if (state.archers >= maxArchers(state)) {
-      return maxArchers(state) === 0
-        ? "Build or repair a watchtower first"
-        : "All tower slots are full";
-    }
+    if (!built()) return "Build or repair a watchtower first";
+    if (props.tower.damaged) return "Repair the watchtower first";
+    if (props.tower.garrison.count >= towerCap()) return "This tower is full";
     if (availableCitizens(state) <= 0) return "No spare citizens — grow population first";
     if (state.resources.gold < ARCHER_COST.gold) return `Need ${ARCHER_COST.gold} gold`;
     return "";
@@ -507,7 +520,7 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
       </div>
       <Show when={built()}>
         <div style={{ "margin-top": "4px", "font-size": "0.78rem", color: "var(--text-muted)" }}>
-          Archer slots: {props.tower.level}
+          Archers: {props.tower.garrison.count} / {towerCap()}
         </div>
       </Show>
       <Show when={props.tower.upgrading && props.tower.upgradeRemaining !== undefined}>
@@ -528,13 +541,13 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
           <div style={{ display: "flex", "flex-direction": "column", gap: "2px" }}>
             <button
               disabled={!canRecruit()}
-              onClick={() => actions.recruitArcher()}
+              onClick={() => actions.recruitArcher(props.ring)}
               style={{
                 "font-size": "0.78rem",
                 padding: "5px 10px",
-                background: "rgba(167, 139, 250, 0.1)",
-                border: "1px solid #a78bfa",
-                color: "#a78bfa",
+                background: "rgba(218, 165, 32, 0.1)",
+                border: "1px solid var(--accent-gold)",
+                color: "var(--accent-gold)",
                 "border-radius": "4px",
                 cursor: canRecruit() ? "pointer" : "not-allowed",
                 opacity: canRecruit() ? 1 : 0.5,
@@ -551,6 +564,19 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
               </span>
             </Show>
           </div>
+          <button
+            onClick={() => setOpenGarrison({ kind: "watchtower", ring: props.ring })}
+            style={{
+              "font-size": "0.78rem", padding: "5px 10px",
+              background: "transparent",
+              border: "1px solid var(--border-color)",
+              color: "var(--text-secondary)",
+              "border-radius": "4px", cursor: "pointer",
+            }}
+            title="Open the watchtower garrison panel"
+          >
+            ⚙ Manage
+          </button>
         </Show>
       </div>
     </div>
@@ -584,12 +610,12 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
     return "";
   };
 
+  // Per-barracks soldier recruitment — each barracks has its own roster + cap.
+  const barracksCap = () => getBarracksSoldierCap(props.barracks.level);
   const recruitBlocker = () => {
-    if (state.soldiers >= maxSoldiers(state)) {
-      return maxSoldiers(state) === 0
-        ? "Build or repair a barracks first"
-        : "All barracks slots are full";
-    }
+    if (!built()) return "Build or repair a barracks first";
+    if (props.barracks.damaged) return "Repair the barracks first";
+    if (props.barracks.garrison.count >= barracksCap()) return "This barracks is full";
     if (availableCitizens(state) <= 0) return "No spare citizens — grow population first";
     if (state.resources.gold < SOLDIER_COST.gold) return `Need ${SOLDIER_COST.gold} gold`;
     return "";
@@ -621,7 +647,7 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
       </div>
       <Show when={built()}>
         <div style={{ "margin-top": "4px", "font-size": "0.78rem", color: "var(--text-muted)" }}>
-          Soldier slots: {props.barracks.level * 3}
+          Soldiers: {props.barracks.garrison.count} / {barracksCap()}
         </div>
       </Show>
       <Show when={props.barracks.upgrading && props.barracks.upgradeRemaining !== undefined}>
@@ -641,13 +667,13 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
           <div style={{ display: "flex", "flex-direction": "column", gap: "2px" }}>
             <button
               disabled={!canRecruit()}
-              onClick={() => actions.recruitSoldier()}
+              onClick={() => actions.recruitSoldier(props.ring)}
               style={{
                 "font-size": "0.78rem",
                 padding: "5px 10px",
-                background: "rgba(231, 76, 60, 0.1)",
-                border: "1px solid var(--accent-red)",
-                color: "var(--accent-red)",
+                background: "rgba(218, 165, 32, 0.1)",
+                border: "1px solid var(--accent-gold)",
+                color: "var(--accent-gold)",
                 "border-radius": "4px",
                 cursor: canRecruit() ? "pointer" : "not-allowed",
                 opacity: canRecruit() ? 1 : 0.5,
@@ -664,6 +690,19 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
               </span>
             </Show>
           </div>
+          <button
+            onClick={() => setOpenGarrison({ kind: "barracks", ring: props.ring })}
+            style={{
+              "font-size": "0.78rem", padding: "5px 10px",
+              background: "transparent",
+              border: "1px solid var(--border-color)",
+              color: "var(--text-secondary)",
+              "border-radius": "4px", cursor: "pointer",
+            }}
+            title="Open the barracks garrison panel"
+          >
+            ⚙ Manage
+          </button>
         </Show>
       </div>
     </div>

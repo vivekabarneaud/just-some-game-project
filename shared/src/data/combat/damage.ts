@@ -56,6 +56,15 @@ export function calcDamageResult(attacker: CombatUnit, defender: CombatUnit, opt
 
   if (attacker.damageBoost) rawDamage = Math.floor(rawDamage * (1 + attacker.damageBoost.pct / 100));
 
+  // Stack/squad scaling: a single CombatUnit may represent N soldiers (raid
+  // garrisons). The unit's outgoing damage is base × current effective
+  // headcount (= original × hp/maxHp). One-shot stat (low STR/DEX) keeps
+  // realistic dodge/crit behavior; magnitude comes from the multiplier here.
+  if (attacker.headcount && attacker.maxHp > 0) {
+    const effective = attacker.headcount * (attacker.hp / attacker.maxHp);
+    rawDamage = Math.max(1, Math.floor(rawDamage * effective));
+  }
+
   const traitBonus = getTraitDamageBonus(attacker, defender);
   if (traitBonus > 0) rawDamage = Math.floor(rawDamage * (1 + traitBonus));
 

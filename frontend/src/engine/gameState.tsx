@@ -74,6 +74,11 @@ import {
   maxArchers,
   availableCitizens,
   ringUnlocked,
+  getWatchtowerArcherCap,
+  getBarracksSoldierCap,
+  distributeLegacyGarrison,
+  getTrainCost,
+  getTrainTime,
 } from "~/data/defenses";
 import {
   type CropId,
@@ -346,12 +351,35 @@ export interface PlayerWall {
   upgradeRemaining?: number;
 }
 
+/**
+ * Per-building garrison: a roster of trained units stationed at this watchtower
+ * or barracks. Headcount caps at the building's level (see capacity formulas in
+ * defenses.ts). All units in a garrison level together; trainedLevel is shared.
+ *
+ * Combat is resolved at the squad level (one CombatUnit per garrison with HP
+ * pooled across the headcount) — see raidCombat.ts when Phase 2 lands.
+ */
+export interface Garrison {
+  /** Current headcount stationed here. Capped by the building level. */
+  count: number;
+  /** Collective level of every unit in this garrison. New recruits join at this
+   *  level (cost scales) — keeps the squad uniform without per-unit bookkeeping.
+   *  Capped at the building's level. */
+  trainedLevel: number;
+  /** Active training queue. When set, gold has been spent up-front and the
+   *  garrison's trainedLevel will rise by 1 once remainingSeconds hits 0.
+   *  Auto-paused while a raid is incoming (not ticked but not cleared). */
+  training?: { targetLevel: number; remainingSeconds: number };
+}
+
 export interface PlayerWatchtower {
   ring: DefenseRing;
   level: number;       // 0 = unbuilt
   damaged: boolean;
   upgrading: boolean;
   upgradeRemaining?: number;
+  /** Archer roster stationed here. Defaults to { count: 0, trainedLevel: 0 }. */
+  garrison: Garrison;
 }
 
 export interface PlayerBarracks {
@@ -360,6 +388,8 @@ export interface PlayerBarracks {
   damaged: boolean;
   upgrading: boolean;
   upgradeRemaining?: number;
+  /** Soldier roster stationed here. Defaults to { count: 0, trainedLevel: 0 }. */
+  garrison: Garrison;
 }
 
 /** Base wall HP per level. Full HP = level × this. Tune during playtest. */
@@ -570,10 +600,13 @@ export interface GameActions {
   repairWatchtower: (ring: DefenseRing) => boolean;
   repairBarracks: (ring: DefenseRing) => boolean;
   repairMageTower: () => boolean;
-  recruitSoldier: () => boolean;
-  recruitArcher: () => boolean;
-  dismissSoldier: () => boolean;
-  dismissArcher: () => boolean;
+  recruitSoldier: (ring: DefenseRing) => boolean;
+  recruitArcher: (ring: DefenseRing) => boolean;
+  dismissSoldier: (ring: DefenseRing) => boolean;
+  dismissArcher: (ring: DefenseRing) => boolean;
+  /** Begin a training cycle on a watchtower or barracks. Pays the gold cost
+   *  up-front and starts the timer. trainedLevel rises by 1 on completion. */
+  startTraining: (kind: "watchtower" | "barracks", ring: DefenseRing) => boolean;
   // Raids
   getDefense: () => DefenseBreakdown;
   triggerRaid: () => boolean;
@@ -693,14 +726,14 @@ function createInitialState(): GameState {
       { ring: "inner", level: 0, hp: 0, upgrading: false },
     ],
     watchtowers: [
-      { ring: "outer", level: 0, damaged: false, upgrading: false },
-      { ring: "middle", level: 0, damaged: false, upgrading: false },
-      { ring: "inner", level: 0, damaged: false, upgrading: false },
+      { ring: "outer", level: 0, damaged: false, upgrading: false, garrison: { count: 0, trainedLevel: 0 } },
+      { ring: "middle", level: 0, damaged: false, upgrading: false, garrison: { count: 0, trainedLevel: 0 } },
+      { ring: "inner", level: 0, damaged: false, upgrading: false, garrison: { count: 0, trainedLevel: 0 } },
     ],
     barracks: [
-      { ring: "outer", level: 0, damaged: false, upgrading: false },
-      { ring: "middle", level: 0, damaged: false, upgrading: false },
-      { ring: "inner", level: 0, damaged: false, upgrading: false },
+      { ring: "outer", level: 0, damaged: false, upgrading: false, garrison: { count: 0, trainedLevel: 0 } },
+      { ring: "middle", level: 0, damaged: false, upgrading: false, garrison: { count: 0, trainedLevel: 0 } },
+      { ring: "inner", level: 0, damaged: false, upgrading: false, garrison: { count: 0, trainedLevel: 0 } },
     ],
     mageTower: { level: 0, damaged: false, upgrading: false },
     soldiers: 0,
@@ -853,9 +886,10 @@ function loadGame(): GameState | null {
           damaged: oldTower?.damaged ?? false,
           upgrading: oldTower?.upgrading ?? false,
           upgradeRemaining: oldTower?.upgradeRemaining,
+          garrison: { count: 0, trainedLevel: 0 },
         },
-        { ring: "middle", level: 0, damaged: false, upgrading: false },
-        { ring: "inner", level: 0, damaged: false, upgrading: false },
+        { ring: "middle", level: 0, damaged: false, upgrading: false, garrison: { count: 0, trainedLevel: 0 } },
+        { ring: "inner", level: 0, damaged: false, upgrading: false, garrison: { count: 0, trainedLevel: 0 } },
       ];
     }
     if (!saved.barracks || !Array.isArray(saved.barracks)) {
@@ -867,13 +901,22 @@ function loadGame(): GameState | null {
           damaged: oldBarracks?.damaged ?? false,
           upgrading: oldBarracks?.upgrading ?? false,
           upgradeRemaining: oldBarracks?.upgradeRemaining,
+          garrison: { count: 0, trainedLevel: 0 },
         },
-        { ring: "middle", level: 0, damaged: false, upgrading: false },
-        { ring: "inner", level: 0, damaged: false, upgrading: false },
+        { ring: "middle", level: 0, damaged: false, upgrading: false, garrison: { count: 0, trainedLevel: 0 } },
+        { ring: "inner", level: 0, damaged: false, upgrading: false, garrison: { count: 0, trainedLevel: 0 } },
       ];
     }
     if (saved.soldiers === undefined) saved.soldiers = 0;
     if (saved.archers === undefined) saved.archers = 0;
+    // Backfill garrison fields onto towers/barracks loaded from older saves
+    // (pre-garrison-rework). Then redistribute the legacy global archers /
+    // soldiers totals across the rings (outer first, then middle, then inner)
+    // so the new per-building model matches what the player had before.
+    for (const t of saved.watchtowers) if (!t.garrison) t.garrison = { count: 0, trainedLevel: 0 };
+    for (const b of saved.barracks) if (!b.garrison) b.garrison = { count: 0, trainedLevel: 0 };
+    distributeLegacyGarrison(saved.watchtowers, saved.archers, getWatchtowerArcherCap);
+    distributeLegacyGarrison(saved.barracks, saved.soldiers, getBarracksSoldierCap);
     if (!saved.mageTower) {
       const oldMage = saved.buildings?.find((b: any) => b.buildingId === "mage_tower");
       saved.mageTower = {
@@ -1714,21 +1757,28 @@ export function GameProvider(props: ParentProps) {
         if (!(serverState as any).watchtowers) {
           const oldTower = serverState.buildings?.find((b: any) => b.buildingId === "watchtower");
           (serverState as any).watchtowers = [
-            { ring: "outer", level: oldTower?.level ?? 0, damaged: oldTower?.damaged ?? false, upgrading: oldTower?.upgrading ?? false, upgradeRemaining: oldTower?.upgradeRemaining },
-            { ring: "middle", level: 0, damaged: false, upgrading: false },
-            { ring: "inner", level: 0, damaged: false, upgrading: false },
+            { ring: "outer", level: oldTower?.level ?? 0, damaged: oldTower?.damaged ?? false, upgrading: oldTower?.upgrading ?? false, upgradeRemaining: oldTower?.upgradeRemaining, garrison: { count: 0, trainedLevel: 0 } },
+            { ring: "middle", level: 0, damaged: false, upgrading: false, garrison: { count: 0, trainedLevel: 0 } },
+            { ring: "inner", level: 0, damaged: false, upgrading: false, garrison: { count: 0, trainedLevel: 0 } },
           ];
         }
         if (!(serverState as any).barracks || !Array.isArray((serverState as any).barracks)) {
           const oldBarracks = serverState.buildings?.find((b: any) => b.buildingId === "barracks");
           (serverState as any).barracks = [
-            { ring: "outer", level: oldBarracks?.level ?? 0, damaged: oldBarracks?.damaged ?? false, upgrading: oldBarracks?.upgrading ?? false, upgradeRemaining: oldBarracks?.upgradeRemaining },
-            { ring: "middle", level: 0, damaged: false, upgrading: false },
-            { ring: "inner", level: 0, damaged: false, upgrading: false },
+            { ring: "outer", level: oldBarracks?.level ?? 0, damaged: oldBarracks?.damaged ?? false, upgrading: oldBarracks?.upgrading ?? false, upgradeRemaining: oldBarracks?.upgradeRemaining, garrison: { count: 0, trainedLevel: 0 } },
+            { ring: "middle", level: 0, damaged: false, upgrading: false, garrison: { count: 0, trainedLevel: 0 } },
+            { ring: "inner", level: 0, damaged: false, upgrading: false, garrison: { count: 0, trainedLevel: 0 } },
           ];
         }
         if ((serverState as any).soldiers === undefined) (serverState as any).soldiers = 0;
         if ((serverState as any).archers === undefined) (serverState as any).archers = 0;
+        // Garrison rework: backfill the per-building roster on saves loaded
+        // from the server, then redistribute the legacy global totals across
+        // the rings (outer first). Mirrors the local-save migration earlier.
+        for (const t of (serverState as any).watchtowers) if (!t.garrison) t.garrison = { count: 0, trainedLevel: 0 };
+        for (const b of (serverState as any).barracks) if (!b.garrison) b.garrison = { count: 0, trainedLevel: 0 };
+        distributeLegacyGarrison((serverState as any).watchtowers, (serverState as any).archers, getWatchtowerArcherCap);
+        distributeLegacyGarrison((serverState as any).barracks, (serverState as any).soldiers, getBarracksSoldierCap);
         if (!(serverState as any).mageTower) {
           const oldMage = serverState.buildings?.find((b: any) => b.buildingId === "mage_tower");
           (serverState as any).mageTower = {
@@ -1893,10 +1943,8 @@ export function GameProvider(props: ParentProps) {
                   raidId: ir.raidId,
                   encounters: template.encounters,
                   walls: (serverState.walls ?? []).map((w: any) => ({ ring: w.ring, level: w.level, hp: w.hp, maxHp: w.level * WALL_BASE_HP })),
-                  watchtowers: (serverState.watchtowers ?? []).map((t: any) => ({ ring: t.ring, level: t.level, damaged: t.damaged })),
-                  barracks: (serverState.barracks ?? []).map((b: any) => ({ ring: b.ring, level: b.level, damaged: b.damaged })),
-                  totalArchers: serverState.archers ?? 0,
-                  totalSoldiers: serverState.soldiers ?? 0,
+                  watchtowers: (serverState.watchtowers ?? []).map((t: any) => ({ ring: t.ring, level: t.level, damaged: t.damaged, archerCount: t.garrison?.count ?? 0, trainedLevel: t.garrison?.trainedLevel ?? 0 })),
+                  barracks: (serverState.barracks ?? []).map((b: any) => ({ ring: b.ring, level: b.level, damaged: b.damaged, soldierCount: b.garrison?.count ?? 0, trainedLevel: b.garrison?.trainedLevel ?? 0 })),
                 });
 
                 // Apply sim after-state
@@ -1911,6 +1959,15 @@ export function GameProvider(props: ParentProps) {
                 for (const ring of sim.damagedBarracksRings) {
                   const b = serverState.barracks?.find((x: any) => x.ring === ring);
                   if (b) b.damaged = true;
+                }
+                // Per-building casualties — same as the client-tick path.
+                for (const c of sim.archerCasualtiesByRing) {
+                  const t = serverState.watchtowers?.find((x: any) => x.ring === c.ring);
+                  if (t?.garrison) t.garrison.count = Math.max(0, t.garrison.count - c.lost);
+                }
+                for (const c of sim.soldierCasualtiesByRing) {
+                  const b = serverState.barracks?.find((x: any) => x.ring === c.ring);
+                  if (b?.garrison) b.garrison.count = Math.max(0, b.garrison.count - c.lost);
                 }
                 serverState.archers = Math.max(0, (serverState.archers ?? 0) - sim.archersLost);
                 serverState.soldiers = Math.max(0, (serverState.soldiers ?? 0) - sim.soldiersLost);
@@ -2127,6 +2184,23 @@ export function GameProvider(props: ParentProps) {
     const elapsedHours = elapsedMs / 3_600_000;
     const elapsedSeconds = elapsedMs / 1000;
     if (elapsedHours <= 0) return;
+
+    // Chunk long offline catch-ups so feedback loops can self-balance: when
+    // famine kills citizens, food consumption drops, and production can pull
+    // the settlement out of deficit. Without chunking, 24h of offline decay
+    // is applied in one shot and wipes a settlement that would have stabilized.
+    // 1 game-hour per chunk is fine-grained enough for the dynamics; tens of
+    // chunks are still cheap (each just reapplies the rate × elapsedHours math).
+    const MAX_CHUNK_MS = 3_600_000; // 1 game-hour
+    if (elapsedMs > MAX_CHUNK_MS) {
+      let remaining = elapsedMs;
+      while (remaining > 0) {
+        const step = Math.min(remaining, MAX_CHUNK_MS);
+        applyTicks(step);
+        remaining -= step;
+      }
+      return;
+    }
 
     setState(
       produce((s) => {
@@ -2589,8 +2663,32 @@ export function GameProvider(props: ParentProps) {
           if (s.happiness < 20) ratePct += 0.02;      // 2%/hour fleeing
           if (ratePct > 0) {
             // Exponential decay: pop * (1 - rate)^hours, clamped to base
+            const popBeforeStarve = s.population;
             const remaining = s.population * Math.pow(1 - ratePct, elapsedHours);
             s.population = Math.max(BASE_POPULATION, remaining);
+            // Soldiers/archers are citizens too — they starve and flee alongside
+            // the rest. Apply the same survival ratio to per-building garrisons,
+            // then reconcile the global totals from the per-building sums so
+            // nothing drifts.
+            if (s.population < popBeforeStarve && popBeforeStarve > 0) {
+              const survivalRatio = s.population / popBeforeStarve;
+              const archersBefore = s.archers;
+              const soldiersBefore = s.soldiers;
+              for (const t of s.watchtowers) t.garrison.count = Math.floor(t.garrison.count * survivalRatio);
+              for (const b of s.barracks) b.garrison.count = Math.floor(b.garrison.count * survivalRatio);
+              s.archers = s.watchtowers.reduce((sum, t) => sum + t.garrison.count, 0);
+              s.soldiers = s.barracks.reduce((sum, b) => sum + b.garrison.count, 0);
+              const archersLost = archersBefore - s.archers;
+              const soldiersLost = soldiersBefore - s.soldiers;
+              if (archersLost > 0) {
+                const word = archersLost === 1 ? "archer" : "archers";
+                pushEvent(s, "citizen_died", "🏹", `${archersLost} ${word} lost to the famine`);
+              }
+              if (soldiersLost > 0) {
+                const word = soldiersLost === 1 ? "soldier" : "soldiers";
+                pushEvent(s, "citizen_died", "⚔️", `${soldiersLost} ${word} lost to the famine`);
+              }
+            }
           }
         }
         const popAfter = Math.floor(s.population);
@@ -3021,10 +3119,8 @@ export function GameProvider(props: ParentProps) {
                 raidId: ir.raidId,
                 encounters: template.encounters,
                 walls: s.walls.map((w) => ({ ring: w.ring, level: w.level, hp: w.hp, maxHp: w.level * WALL_BASE_HP })),
-                watchtowers: s.watchtowers.map((t) => ({ ring: t.ring, level: t.level, damaged: t.damaged })),
-                barracks: s.barracks.map((b) => ({ ring: b.ring, level: b.level, damaged: b.damaged })),
-                totalArchers: s.archers,
-                totalSoldiers: s.soldiers,
+                watchtowers: s.watchtowers.map((t) => ({ ring: t.ring, level: t.level, damaged: t.damaged, archerCount: t.garrison.count, trainedLevel: t.garrison.trainedLevel })),
+                barracks: s.barracks.map((b) => ({ ring: b.ring, level: b.level, damaged: b.damaged, soldierCount: b.garrison.count, trainedLevel: b.garrison.trainedLevel })),
               });
 
               // ── Apply sim after-state ────────────────────────────
@@ -3039,6 +3135,16 @@ export function GameProvider(props: ParentProps) {
               for (const ring of sim.damagedBarracksRings) {
                 const b = s.barracks.find((x) => x.ring === ring);
                 if (b) b.damaged = true;
+              }
+              // Apply casualties per-building so each garrison's count drops by
+              // its own losses. Totals + population shrink alongside.
+              for (const c of sim.archerCasualtiesByRing) {
+                const t = s.watchtowers.find((x) => x.ring === c.ring);
+                if (t) t.garrison.count = Math.max(0, t.garrison.count - c.lost);
+              }
+              for (const c of sim.soldierCasualtiesByRing) {
+                const b = s.barracks.find((x) => x.ring === c.ring);
+                if (b) b.garrison.count = Math.max(0, b.garrison.count - c.lost);
               }
               s.archers = Math.max(0, s.archers - sim.archersLost);
               s.soldiers = Math.max(0, s.soldiers - sim.soldiersLost);
@@ -3137,6 +3243,30 @@ export function GameProvider(props: ParentProps) {
               s.incomingRaids.splice(i, 1);
             }
           }
+        }
+
+        // ── Garrison training tick ──
+        // Auto-pause any training queue while a real raid is incoming
+        // (post-resolution awaiting-acknowledgement raids don't count).
+        const raidPending = s.incomingRaids.some((ir) => !ir.combatLog);
+        if (!raidPending) {
+          const tickGarrison = (kind: "watchtower" | "barracks", arr: PlayerWatchtower[] | PlayerBarracks[]) => {
+            for (const item of arr) {
+              const tq = item.garrison.training;
+              if (!tq) continue;
+              tq.remainingSeconds -= elapsedSeconds;
+              if (tq.remainingSeconds <= 0) {
+                item.garrison.trainedLevel = tq.targetLevel;
+                item.garrison.training = undefined;
+                const where = kind === "watchtower"
+                  ? `${item.ring} watchtower archers`
+                  : `${item.ring} barracks soldiers`;
+                pushEvent(s, "building_completed", "🎖️", `${where} reached training level ${tq.targetLevel}`);
+              }
+            }
+          };
+          tickGarrison("watchtower", s.watchtowers);
+          tickGarrison("barracks", s.barracks);
         }
 
         // Spawn new raids (probability-based, checked each tick)
@@ -4359,44 +4489,84 @@ export function GameProvider(props: ParentProps) {
       return true;
     },
 
-    recruitSoldier() {
-      // Need a free slot AND an unallocated citizen AND the gold.
-      if (state.soldiers >= maxSoldiers(state)) return false;
+    recruitSoldier(ring) {
+      const slot = state.barracks.find((b) => b.ring === ring);
+      if (!slot || slot.damaged || slot.level === 0) return false;
+      // Per-building cap (not the global cap) — each barracks is its own roster.
+      if (slot.garrison.count >= getBarracksSoldierCap(slot.level)) return false;
       if (availableCitizens(state) <= 0) return false;
       if (state.resources.gold < SOLDIER_COST.gold) return false;
       setState(produce((s) => {
         s.resources.gold -= SOLDIER_COST.gold;
-        s.soldiers += 1;
+        const b = s.barracks.find((x) => x.ring === ring)!;
+        b.garrison.count += 1;
+        s.soldiers += 1; // mirror in the global total (kept in sync until phase 2 wires raid losses per-building)
       }));
       scheduleSave();
       return true;
     },
 
-    recruitArcher() {
-      if (state.archers >= maxArchers(state)) return false;
+    recruitArcher(ring) {
+      const slot = state.watchtowers.find((t) => t.ring === ring);
+      if (!slot || slot.damaged || slot.level === 0) return false;
+      if (slot.garrison.count >= getWatchtowerArcherCap(slot.level)) return false;
       if (availableCitizens(state) <= 0) return false;
       if (state.resources.gold < ARCHER_COST.gold) return false;
       setState(produce((s) => {
         s.resources.gold -= ARCHER_COST.gold;
+        const t = s.watchtowers.find((x) => x.ring === ring)!;
+        t.garrison.count += 1;
         s.archers += 1;
       }));
       scheduleSave();
       return true;
     },
 
-    dismissSoldier() {
-      if (state.soldiers <= 0) return false;
-      setState(produce((s) => { s.soldiers -= 1; }));
+    dismissSoldier(ring) {
+      const slot = state.barracks.find((b) => b.ring === ring);
+      if (!slot || slot.garrison.count <= 0) return false;
+      setState(produce((s) => {
+        const b = s.barracks.find((x) => x.ring === ring)!;
+        b.garrison.count -= 1;
+        s.soldiers = Math.max(0, s.soldiers - 1);
+      }));
       scheduleSave();
       return true;
     },
 
-    dismissArcher() {
-      if (state.archers <= 0) return false;
-      setState(produce((s) => { s.archers -= 1; }));
+    dismissArcher(ring) {
+      const slot = state.watchtowers.find((t) => t.ring === ring);
+      if (!slot || slot.garrison.count <= 0) return false;
+      setState(produce((s) => {
+        const t = s.watchtowers.find((x) => x.ring === ring)!;
+        t.garrison.count -= 1;
+        s.archers = Math.max(0, s.archers - 1);
+      }));
       scheduleSave();
       return true;
     },
+
+    startTraining(kind, ring) {
+      const slot = kind === "watchtower"
+        ? state.watchtowers.find((t) => t.ring === ring)
+        : state.barracks.find((b) => b.ring === ring);
+      if (!slot || slot.level === 0 || slot.damaged) return false;
+      if (slot.garrison.training) return false;        // already in progress
+      if (slot.garrison.trainedLevel >= slot.level) return false; // capped at building level
+      const target = slot.garrison.trainedLevel + 1;
+      const cost = getTrainCost(target);
+      if (state.resources.gold < cost.gold) return false;
+      const seconds = getTrainTime(target);
+      setState(produce((s) => {
+        s.resources.gold -= cost.gold;
+        const arr = kind === "watchtower" ? s.watchtowers : s.barracks;
+        const item = arr.find((x) => x.ring === ring)!;
+        item.garrison.training = { targetLevel: target, remainingSeconds: seconds };
+      }));
+      scheduleSave();
+      return true;
+    },
+
     recallAdventurers() {
       const missions = state.activeMissions;
       if (missions.length === 0) return { recalled: 0, instant: false };

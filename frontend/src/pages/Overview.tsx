@@ -433,8 +433,8 @@ export default function Overview() {
                   const tmpl = raid();
                   if (!tmpl?.encounters?.length) return 0;
                   const wallsSnap = state.walls.map((w) => ({ ring: w.ring, level: w.level, hp: w.hp, maxHp: w.level * WALL_BASE_HP }));
-                  const towersSnap = state.watchtowers.map((t) => ({ ring: t.ring, level: t.level, damaged: t.damaged }));
-                  const barracksSnap = state.barracks.map((b) => ({ ring: b.ring, level: b.level, damaged: b.damaged }));
+                  const towersSnap = state.watchtowers.map((t) => ({ ring: t.ring, level: t.level, damaged: t.damaged, archerCount: t.garrison.count, trainedLevel: t.garrison.trainedLevel }));
+                  const barracksSnap = state.barracks.map((b) => ({ ring: b.ring, level: b.level, damaged: b.damaged, soldierCount: b.garrison.count, trainedLevel: b.garrison.trainedLevel }));
                   let seed = 0;
                   for (let i = 0; i < ir.raidId.length; i++) {
                     seed = ((seed << 5) - seed + ir.raidId.charCodeAt(i)) | 0;
@@ -447,8 +447,6 @@ export default function Overview() {
                       walls: wallsSnap,
                       watchtowers: towersSnap,
                       barracks: barracksSnap,
-                      totalArchers: state.archers,
-                      totalSoldiers: state.soldiers,
                       seed: seed + i,
                     });
                     if (result.victory) wins++;
