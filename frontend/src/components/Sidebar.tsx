@@ -256,24 +256,52 @@ export default function Sidebar(props: SidebarProps) {
         ))}
       </nav>
 
-      <Show when={state.incomingRaids.length > 0}>
-        <A href="/" style={{ "text-decoration": "none" }}>
-          <div style={{
-            margin: "0 12px 8px",
-            padding: "8px 10px",
-            background: "rgba(231, 76, 60, 0.15)",
-            border: "1px solid var(--accent-red)",
-            "border-radius": "6px",
-            "font-size": "0.8rem",
-            color: "var(--accent-red)",
-            "text-align": "center",
-            animation: "pulse 2s infinite",
-            cursor: "pointer",
-          }}>
-            Incoming threat{state.incomingRaids.length > 1 ? "s" : ""}! — View Overview
-          </div>
-        </A>
-      </Show>
+      {(() => {
+        // Pre-resolution raids = the actual incoming threat. Post-resolution
+        // raids (have combatLog) are stuck in the array until the player
+        // watches the playback — those should NOT pulse red. Two pills.
+        const pendingRaids = () => state.incomingRaids.filter((r) => !r.combatLog);
+        const resolvedRaids = () => state.incomingRaids.filter((r) => !!r.combatLog);
+        return (
+          <>
+            <Show when={pendingRaids().length > 0}>
+              <A href="/" style={{ "text-decoration": "none" }}>
+                <div style={{
+                  margin: "0 12px 8px",
+                  padding: "8px 10px",
+                  background: "rgba(231, 76, 60, 0.15)",
+                  border: "1px solid var(--accent-red)",
+                  "border-radius": "6px",
+                  "font-size": "0.8rem",
+                  color: "var(--accent-red)",
+                  "text-align": "center",
+                  animation: "pulse 2s infinite",
+                  cursor: "pointer",
+                }}>
+                  Incoming threat{pendingRaids().length > 1 ? "s" : ""}! — View Overview
+                </div>
+              </A>
+            </Show>
+            <Show when={pendingRaids().length === 0 && resolvedRaids().length > 0}>
+              <A href="/" style={{ "text-decoration": "none" }}>
+                <div style={{
+                  margin: "0 12px 8px",
+                  padding: "8px 10px",
+                  background: "rgba(218, 165, 32, 0.12)",
+                  border: "1px solid var(--accent-gold)",
+                  "border-radius": "6px",
+                  "font-size": "0.8rem",
+                  color: "var(--accent-gold)",
+                  "text-align": "center",
+                  cursor: "pointer",
+                }}>
+                  ⚔️ Watch raid combat — View Overview
+                </div>
+              </A>
+            </Show>
+          </>
+        );
+      })()}
 
       <div class="sidebar-controls">
         <div class="nav-section-title">Season</div>

@@ -90,19 +90,17 @@ function FieldCard(props: { field: PlayerField }) {
     return fieldSeasonStatus(state.season, props.field.level, isCurrentlyHarvesting());
   };
 
-  // Banner image: current crop if planted, else last crop (so the field shows
-  // "what was grown here" after harvest), else nothing (fresh unused field).
-  const bannerImage = () => {
-    if (crop()?.image) return crop()!.image;
-    if (props.field.lastCrop) return getCrop(props.field.lastCrop).image;
-    return undefined;
-  };
+  // Banner image: only shown when there's an active crop. We deliberately do
+  // NOT use lastCrop here — an empty field showing a wheat banner looks
+  // identical to a planted one, hiding the crop picker / upgrade button. The
+  // rotation memory lives in the soil-status pill below ("Depleted from wheat"),
+  // which is more informative anyway.
+  const bannerImage = () => crop()?.image;
 
   const cardTitle = () => {
     if (crop()) return `${crop()!.name} Field`;
-    if (props.field.lastCrop) return `${getCrop(props.field.lastCrop).name} Field`;
-    // Fresh, never-planted field: prompt in spring, generic label otherwise.
     if (state.season === "spring" && !props.field.upgrading && props.field.level > 0) return "Choose a crop";
+    if (state.season === "winter" && props.field.level > 0) return "Dormant Field";
     return "Empty Field";
   };
 
