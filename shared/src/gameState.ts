@@ -279,7 +279,14 @@ export interface GameState {
   /** Per-type food stockpiles — total is capped by pantry.
    *  Orchard fruits (apples/pears/cherries) now live here as first-class foods. */
   foods: Record<string, number>;
-  population: number;
+  /** Per-category population breakdown. Total via the citizens helper in
+   *  frontend/src/data/citizens.ts. Replaces the old scalar `population`. */
+  citizens: {
+    toddlers: number;
+    children: number;
+    adults: number;
+    elderly: number;
+  };
   season: Season;
   seasonElapsed: number;
   year: number;
@@ -345,4 +352,8 @@ export interface GameState {
   firstMissionSent: boolean;
   // Story missions
   completedStoryMissions: string[];
+  /** Robin events queued for the player to acknowledge. Empty most of the time. */
+  pendingRobins: string[];
+  /** Robin events already acknowledged (one-shot per save). */
+  firedRobins: string[];
 }

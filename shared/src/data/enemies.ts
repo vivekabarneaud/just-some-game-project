@@ -374,9 +374,10 @@ export const ENEMIES: EnemyDefinition[] = [
   // delete or rename this entry when that lands.
   {
     id: "captain_hale_stub",
-    name: "[STUB] Captain Hale's Wraith",
+    name: "Captain Hale's Wraith",
     icon: "💀",
-    description: "A stand-in for the parallel-thread Captain Hale. Engine-test only.",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/captain_hale_ghost_portrait.png",
+    description: "He held the post for forty-seven days after the order to fall back never came. The Wastes wore him down to grief and silence. Now he stands his line still, and the dead under him will not let go.",
     tier: 3,
     stats: { str: 14, dex: 14, int: 24, vit: 26, wis: 18 },
     tags: ["ghost", "magical"],

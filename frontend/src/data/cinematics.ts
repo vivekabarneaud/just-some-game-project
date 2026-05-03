@@ -32,7 +32,7 @@ export const STORY_CINEMATICS: Record<string, CinematicSlide[]> = {
       image: `${CDN_STORIES}/story_1_slide_2.png`,
       text:
         "But they found something I didn't expect: a day's march south on a hilltop, ruins.\n\n" +
-        "Stone foundations, a collapsed well, a tower still half standing. Someone built here before us, someone organized. Military, maybe?",
+        "Stone foundations, a collapsed well, a tower still half standing. Someone built here before us. Someone who thought to build to last.",
       position: "bottom",
     },
     {
@@ -47,6 +47,39 @@ export const STORY_CINEMATICS: Record<string, CinematicSlide[]> = {
       text:
         "I keep thinking about it. Whoever they were, they had stone walls and a watchtower, and it still wasn't enough.\n\n" +
         "What did they know that we don't?",
+      position: "bottom",
+    },
+  ],
+  story_2_ruins: [
+    {
+      image: `${CDN_STORIES}/story_2_slide_1.png`,
+      text:
+        "They went back with steel. Past the new fence-line at first light. They did not say much before they left.\n\n" +
+        "What the scouts brought back last week was a sketch. What this team brought back is a name.",
+      position: "bottom",
+    },
+    {
+      image: `${CDN_STORIES}/story_2_slide_2.png`,
+      text:
+        "Captain Vardin Hale. The name is on the cover of a tin-bound journal we found under a collapsed beam, dry enough to read.\n\n" +
+        "The seal beside it is a Crown seal, but it is not one I know. I taught children to draw the seals of the Reach for fourteen years, and never once did this one come up.",
+      position: "bottom",
+    },
+    {
+      image: `${CDN_STORIES}/story_2_slide_3.png`,
+      text:
+        "Forty-seven days. That is what the journal holds.\n\n" +
+        "It does not stop because they were attacked. The handwriting thins. Men leave the watch rota one at a time. The voices come for them: kind voices, brothers and mothers and sergeants long dead.\n\n" +
+        "On day forty-four Hale writes a name he has not written before. Ennara. His daughter. She died young.\n\n" +
+        "His last entry: 'I heard Ennara again today. I am going to her.' Then nothing.",
+      position: "bottom",
+    },
+    {
+      image: `${CDN_STORIES}/story_2_slide_4.png`,
+      text:
+        "Hale's journal puts the line where the trees go quiet at seven days' march from his gate. My scouts put that line at three days' walk from mine.\n\n" +
+        "Four days, in a hundred and fifty years.\n\n" +
+        "I do not believe the Crown lied to me. The Crown forgot. I am not going back. I will dig a deeper well.",
       position: "bottom",
     },
   ],

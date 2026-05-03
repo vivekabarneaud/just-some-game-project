@@ -104,13 +104,11 @@ export function maxArchers(state: GameState): number {
     .reduce((sum, t) => sum + getWatchtowerArcherCap(t.level), 0);
 }
 
-/** Citizens available to take a soldier/archer slot. The 5-founder carve-out
- *  is a placeholder until the per-category citizen rework (toddler/child/
- *  adult/elderly) lands — until then, founders are treated as the only
- *  non-recruitable pop. */
-const FOUNDER_COUNT = 5;
+/** Adults available to take a soldier/archer slot. Children, toddlers, and
+ *  the elderly are not combat-eligible — that's the whole point of the
+ *  per-category rework: Nell can't carry a spear, Edda is too old. */
 export function availableCitizens(state: GameState): number {
-  return Math.max(0, Math.floor(state.population) - FOUNDER_COUNT - state.soldiers - state.archers);
+  return Math.max(0, state.citizens.adults - state.soldiers - state.archers);
 }
 
 // ─── Training ─────────────────────────────────────────────────────

@@ -787,8 +787,15 @@ export default function MissionAssemblyPanel(props: Props) {
                         "font-size": "2.4rem",
                         background: "rgba(167, 139, 250, 0.04)",
                         "flex-shrink": 0,
+                        overflow: "hidden",
                       }}>
-                        {npc()!.icon}
+                        <Show when={npc()!.portrait} fallback={<>{npc()!.icon}</>}>
+                          <img
+                            src={npc()!.portrait}
+                            alt={npc()!.name}
+                            style={{ width: "100%", height: "100%", "object-fit": "cover" }}
+                          />
+                        </Show>
                       </div>
                       <div style={{
                         padding: "2px 4px",
@@ -799,7 +806,7 @@ export default function MissionAssemblyPanel(props: Props) {
                         flex: "1",
                         display: "flex", "align-items": "center", "justify-content": "center",
                       }}>
-                        {npc()!.name.split(" ").slice(-1)[0]}
+                        {npc()!.name}
                       </div>
                     </div>
                   </Show>

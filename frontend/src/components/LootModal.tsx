@@ -3,6 +3,7 @@ import { A } from "@solidjs/router";
 import type { CompletedMission } from "@medieval-realm/shared/data/missions";
 import { formatReward, getMission } from "@medieval-realm/shared/data/missions";
 import { STORY_CINEMATICS } from "~/data/cinematics";
+import { getChronicleEntry } from "~/data/chronicle_entries";
 import CombatLog from "~/components/CombatLog";
 import CombatPlayback from "~/components/CombatPlayback";
 
@@ -24,6 +25,15 @@ export default function LootModal(props: Props) {
   const template = () => getMission(props.result.missionId) ?? { name: props.result.missionId, icon: "📜" };
   const hasRewards = () => props.result.rewards.length > 0;
   const hasStoryCinematic = () => !!STORY_CINEMATICS[props.result.missionId];
+  // Chronicle entry tied to this story mission, if any. Surfaces as a "new
+  // chronicle entry" notification row; the entry itself opens automatically
+  // after the loot modal dismisses (handled by AdventurersGuild).
+  const chronicleEntry = () => {
+    if (!props.result.success) return null;
+    const t = getMission(props.result.missionId) as { chronicleEntryId?: string } | undefined;
+    if (!t?.chronicleEntryId) return null;
+    return getChronicleEntry(t.chronicleEntryId) ?? null;
+  };
 
   const [logExpanded, setLogExpanded] = createSignal(false);
   const [showPlayback, setShowPlayback] = createSignal(false);
@@ -151,6 +161,46 @@ export default function LootModal(props: Props) {
                 </Show>
               </div>
             </div>
+          </Show>
+
+          {/* New chronicle entry — shown when this story mission unlocks a journal page */}
+          <Show when={chronicleEntry()}>
+            {(entry) => (
+              <div class="loot-section" style={{
+                "animation-delay": "440ms",
+                padding: "10px 14px",
+                background: "rgba(96, 165, 250, 0.08)",
+                border: "1px solid var(--accent-blue)",
+                "border-radius": "6px",
+              }}>
+                <div style={{
+                  "font-size": "0.7rem",
+                  "text-transform": "uppercase",
+                  "letter-spacing": "1px",
+                  color: "var(--accent-blue)",
+                  "font-weight": "bold",
+                  "margin-bottom": "4px",
+                }}>
+                  📖 New chronicle entry
+                </div>
+                <div style={{
+                  "font-size": "0.95rem",
+                  color: "var(--text-primary)",
+                  "font-family": "var(--font-heading)",
+                }}>
+                  {entry().title}
+                </div>
+                <div style={{
+                  "font-size": "0.8rem",
+                  color: "var(--text-secondary)",
+                  "font-style": "italic",
+                  "line-height": "1.45",
+                  "margin-top": "4px",
+                }}>
+                  {entry().teaser}
+                </div>
+              </div>
+            )}
           </Show>
 
           {/* XP & level/rank ups */}

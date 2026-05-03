@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from "@solidjs/router";
 import Sidebar from "./components/Sidebar";
 import ResourceBar from "./components/ResourceBar";
 import CinematicOverlay from "./components/CinematicOverlay";
+import ChronicleEntryModal from "./components/ChronicleEntryModal";
+import { openChronicleEntry, setOpenChronicleEntry } from "./data/robins";
 import ToastContainer from "./components/Toast";
 import EventBanner, { showEvent } from "./components/EventBanner";
 import { INTRO_CINEMATIC } from "./data/cinematics";
@@ -56,6 +58,28 @@ export default function App(props: ParentProps) {
       message: `Quest complete — ${current.title}. Visit the Overview to claim your reward!`,
       onClick: () => navigate("/"),
     });
+  });
+
+  // Robin-arrival watcher: surface a one-shot toast whenever a new robin lands
+  // (state.pendingRobins gains an entry that wasn't there last tick). Deduped
+  // per-robin so the toast doesn't repeat while the player is busy.
+  const announcedRobins = new Set<string>();
+  createEffect(() => {
+    const pending = state.pendingRobins ?? [];
+    for (const id of pending) {
+      if (announcedRobins.has(id)) continue;
+      announcedRobins.add(id);
+      // Only fire for robins the player hasn't already cleared in this session.
+      // Loaded saves with a stale pending entry should still announce on first
+      // load — that's a feature, not a bug.
+      showEvent({
+        type: "info",
+        icon: "🐦",
+        message: "A robin landed on the watchtower this morning.",
+        accent: "var(--accent-blue)",
+        onClick: () => navigate("/"),
+      });
+    }
   });
 
   // Season-change watcher: announce each new season with its thematic accent.
@@ -180,6 +204,13 @@ export default function App(props: ParentProps) {
       </Show>
 
       <ToastContainer />
+
+      {/* Global chronicle modal — opened by the robin sidebar pill (or any
+          other cross-page chronicle hook). Story-mission claim still uses
+          its own page-level modal in AdventurersGuild. */}
+      <Show when={openChronicleEntry()}>
+        {(entry) => <ChronicleEntryModal entry={entry()} onClose={() => setOpenChronicleEntry(null)} />}
+      </Show>
 
       <div class="app-layout" classList={{ "sidebar-open": sidebarOpen() }}>
         <Sidebar onClose={() => setSidebarOpen(false)} />

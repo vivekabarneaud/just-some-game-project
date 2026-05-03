@@ -337,9 +337,12 @@ function Summary() {
         <span style={{ color: "var(--text-muted)" }}>🏹 Archers: </span>
         <strong>{state.archers}/{aCap()}</strong>
       </span>
-      <span style={{ "margin-left": "auto" }}>
-        <span style={{ color: "var(--text-muted)" }}>👤 Available citizens: </span>
-        <strong style={{ color: free() > 0 ? "var(--accent-green)" : "var(--accent-red)" }}>{free()}</strong>
+      <span
+        style={{ "margin-left": "auto" }}
+        title={`Children, toddlers, and elderly are not combat-eligible.\nBreakdown: ${state.citizens.toddlers} 👶 / ${state.citizens.children} 🧒 / ${state.citizens.adults} 🧑 / ${state.citizens.elderly} 👵`}
+      >
+        <span style={{ color: "var(--text-muted)" }}>🧑 Adults available: </span>
+        <strong style={{ color: free() > 0 ? "var(--accent-green)" : "var(--accent-red)" }}>{free()} / {state.citizens.adults}</strong>
       </span>
     </div>
   );

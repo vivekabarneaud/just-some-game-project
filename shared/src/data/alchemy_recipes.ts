@@ -231,6 +231,23 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
     craftTime: 2700,
     discoveryChance: 0.08,
   },
+
+  // ── Story-unlocked recipe — only appears once a robin event has fired
+  // (see frontend/src/data/robins.ts → robin_first). Not discoverable via
+  // research (discoveryChance: 0). The engine pushes the id into
+  // state.discoveredRecipes when the player acknowledges the robin.
+  {
+    id: "wraithwound_salve",
+    name: "Wraithwound Salve",
+    icon: "🩹",
+    description: "A salve that closes the cold edge of ghost-wounds. Where ordinary bandages fail, this works.",
+    tier: "apprentice",
+    minLabLevel: 2,
+    costs: [{ resource: "moonpetal", amount: 2 }, { resource: "nightbloom", amount: 1 }],
+    effect: "cure:ghost_wound,heal:full",
+    craftTime: 480,
+    discoveryChance: 0,
+  },
 ];
 
 // ─── Helpers ────────────────────────────────────────────────────

@@ -1060,6 +1060,13 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
+/* The population display is the last item on the right edge of the resource
+   bar — anchor its dropdown to the right so it doesn't clip off the viewport. */
+.pop-display.has-dropdown .resource-dropdown {
+  left: auto;
+  right: 0;
+}
+
 /* Show on hover (desktop) and on focus-within (touch — tabIndex makes the
    item focusable, so tapping it shows the dropdown; tapping elsewhere blurs
    and closes it) */

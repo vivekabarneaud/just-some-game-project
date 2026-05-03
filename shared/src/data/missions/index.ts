@@ -39,18 +39,13 @@ export { APPRENTICE_MISSIONS } from "./apprenticeMissions.js";
 export { JOURNEYMAN_MISSIONS } from "./journeymanMissions.js";
 export { EXPERT_MISSIONS } from "./expertMissions.js";
 export { EXPEDITION_POOL } from "./expeditions.js";
-import { ENGINE_TEST_MISSIONS } from "./engineTestMissions.js";
-export { ENGINE_TEST_MISSIONS } from "./engineTestMissions.js";
 
-/** All regular (non-story) missions. Engine-test stubs are bundled in so they
- *  can be spawned via `spawnTestMissions(<id>)`; they don't appear naturally
- *  on the player's mission board. */
+/** All regular (non-story) missions. */
 export const MISSION_POOL: MissionTemplate[] = [
   ...NOVICE_MISSIONS,
   ...APPRENTICE_MISSIONS,
   ...JOURNEYMAN_MISSIONS,
   ...EXPERT_MISSIONS,
-  ...ENGINE_TEST_MISSIONS,
 ];
 
 // ─── Story missions ────────────────────────────────────────────

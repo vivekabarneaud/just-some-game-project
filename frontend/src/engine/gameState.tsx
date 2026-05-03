@@ -81,6 +81,19 @@ import {
   getTrainTime,
 } from "~/data/defenses";
 import {
+  type CitizenCounts,
+  founderCitizens,
+  totalPopulation,
+  effectiveFoodMouths,
+  applySurvivalRatio,
+  reduceByPriority,
+  migrateLegacyPopulation,
+  ageStep,
+  rollArrival,
+  addCitizens,
+} from "~/data/citizens";
+import { getRobinEvent, getRobinForStoryMission } from "~/data/robins";
+import {
   type CropId,
   getCrop,
   getFieldCost,
@@ -426,7 +439,9 @@ export interface GameState {
   honey: number;
   /** Per-type food stockpiles — total capped by pantry */
   foods: Record<FoodItemType, number>;
-  population: number;
+  /** Per-category population breakdown. Read totals via totalPopulation();
+   *  combat eligibility is `citizens.adults`. See data/citizens.ts. */
+  citizens: CitizenCounts;
   // ── Defenses (rework v1): multi-instance walls/towers/barracks per ring,
   //    plus counters for recruited soldier-citizens. See DESIGN_DEFENSES.md.
   walls: PlayerWall[];
@@ -492,6 +507,12 @@ export interface GameState {
   lastRaidOutcome: "none" | "victory" | "defeat";
   lastRaidTime: number; // game-hours elapsed since last raid outcome
   starvationPenalty: number; // 0-75, decays over 24h after food is restored
+  /** Settlement morale bump after a newborn — 0-10, decays linearly over 24
+   *  game-hours (a full season). Stacked births don't compound past the cap. */
+  newbornGlow: number;
+  /** Year of the most recent birth-roll attempt. Birth rolls fire at most
+   *  once per game-year, gated by adults/food/happiness/housing eligibility. */
+  lastBirthYear: number;
   // Raids
   incomingRaids: IncomingRaid[];
   hoursSinceLastRaid: number; // game-hours until next raid spawns
@@ -514,6 +535,13 @@ export interface GameState {
   introSeen: boolean;
   // Story missions
   completedStoryMissions: string[];
+  /** Robin events queued for the player to acknowledge — sidebar banner shown
+   *  while non-empty. Acknowledging applies unlocks and moves the id to
+   *  firedRobins. Each event fires once per save. */
+  pendingRobins: string[];
+  /** Robin events the player has already acknowledged. Prevents re-fire and
+   *  re-applying unlocks if the same trigger conditions hold again. */
+  firedRobins: string[];
   // Chronicle (Lord's journal) — entries that have fired and bio fragments unlocked
   chronicleEntriesFired: string[];
   /** Entries the player has visited in the Journal archive. Used to power the "new!" sidebar pulse. */
@@ -625,8 +653,6 @@ export interface GameActions {
   rerollMissions: () => boolean;
   /** Dev-only: replace the mission board with every novice mission, ignoring prerequisites. */
   devSpawnAllNoviceMissions: () => void;
-  /** Dev-only: append the npc-escort engine test mission to the board so it can be deployed for testing. */
-  devSpawnCaptainsRestStub: () => void;
   rerollRecruits: () => boolean;
   claimQuestReward: (questId: string) => boolean;
   startAlchemyResearch: () => boolean;
@@ -634,6 +660,13 @@ export interface GameActions {
   getHerbCount: (herbId: string) => number;
   makeOffering: (deityId: string) => boolean;
   claimMissionReward: (index: number) => void;
+  /** Acknowledge a pending robin event — applies its unlocks (recipes/cast/
+   *  quests), removes it from pendingRobins, adds it to firedRobins. */
+  acknowledgeRobin: (robinId: string) => void;
+  /** Dev-only: queue the placeholder robin event so the banner / sidebar pill
+   *  / Overview card can be tested without completing a story mission. Idempotent
+   *  — clears prior fired state so the button works repeatedly across sessions. */
+  devTriggerRobin: () => void;
   applyCoopClaim: (response: import("@medieval-realm/shared").CoopClaimResponse, expeditionId: string) => import("@medieval-realm/shared/data/missions").CompletedMission;
   skipRaidTimer: () => void;
   skipMissionTimers: () => void;
@@ -717,7 +750,9 @@ function createInitialState(): GameState {
       mature: false,
     })),
     honey: 0,
-    population: BASE_POPULATION,
+    // Bio-accurate founder mapping: Edda + Father Corin elderly,
+    // Jory + Tomas adults, Nell child. See docs/DESIGN_CITIZEN_CATEGORIES.md.
+    citizens: founderCitizens(),
     // Defenses: 3 unbuilt slots per type (one per ring). All locked behind
     // settlement tier in the UI; only Outer is buildable from Camp.
     walls: [
@@ -773,6 +808,8 @@ function createInitialState(): GameState {
     lastRaidOutcome: "none",
     lastRaidTime: 0,
     starvationPenalty: 0,
+    newbornGlow: 0,
+    lastBirthYear: 0,
     adventurers: [],
     activeMissions: [],
     completedMissions: [],
@@ -795,6 +832,8 @@ function createInitialState(): GameState {
     firstMissionSent: false,
     introSeen: false,
     completedStoryMissions: [],
+    pendingRobins: [],
+    firedRobins: [],
     chronicleEntriesFired: [],
     chronicleEntriesSeen: [],
     unlockedBioFragments: [],
@@ -849,9 +888,17 @@ function loadGame(): GameState | null {
     }
     saved.buildings = saved.buildings.filter((b) => b.buildingId !== "farm");
     if ("mana" in saved.resources) delete (saved.resources as any)["mana"];
-    if (saved.population === undefined) {
-      const houses = saved.buildings.find((b) => b.buildingId === "houses");
-      saved.population = BASE_POPULATION + (HOUSING_POP[houses?.level ?? 0] ?? 0);
+    // Citizen-categories migration (Phase B). Old saves stored a scalar
+    // `population: number`; new shape is `citizens: CitizenCounts`. Preserve
+    // the total — exactly-5 starter saves get the founder slice, others get
+    // the default 60/20/12/8 split.
+    if (!(saved as any).citizens) {
+      const legacy = (saved as any).population;
+      const total = legacy === undefined
+        ? BASE_POPULATION + (HOUSING_POP[saved.buildings.find((b) => b.buildingId === "houses")?.level ?? 0] ?? 0)
+        : Math.floor(legacy);
+      (saved as any).citizens = migrateLegacyPopulation(total);
+      delete (saved as any).population;
     }
     if (!saved.fields) saved.fields = [];
     if (!saved.gardens) saved.gardens = [];
@@ -1107,6 +1154,10 @@ function loadGame(): GameState | null {
       saved.raidsResolvedCount = priorRaids;
     }
     if (saved.starvationPenalty === undefined) saved.starvationPenalty = 0;
+    if (saved.newbornGlow === undefined) saved.newbornGlow = 0;
+    // Initialize birth-roll tracker to current year so existing saves don't
+    // immediately fire a make-up birth roll on first tick after upgrade.
+    if (saved.lastBirthYear === undefined) saved.lastBirthYear = saved.year ?? 0;
     // Raid migration
     if (!saved.incomingRaids) saved.incomingRaids = [];
     if (saved.hoursSinceLastRaid === undefined) saved.hoursSinceLastRaid = 48;
@@ -1124,6 +1175,8 @@ function loadGame(): GameState | null {
     if (saved.firstMissionSent === undefined) saved.firstMissionSent = false;
     if (saved.introSeen === undefined) saved.introSeen = true; // existing saves have already "seen" the intro
     if (!saved.completedStoryMissions) saved.completedStoryMissions = [];
+    if (!saved.pendingRobins) saved.pendingRobins = [];
+    if (!saved.firedRobins) saved.firedRobins = [];
     // Chronicle migration — entries fired and bio fragments unlocked
     if (!saved.chronicleEntriesFired) saved.chronicleEntriesFired = [];
     if (!saved.chronicleEntriesSeen) saved.chronicleEntriesSeen = [];
@@ -1247,11 +1300,12 @@ function isHarvestTime(season: Season, seasonElapsed: number): boolean {
 // ─── Derived calculations ────────────────────────────────────────
 
 function calcProductionRates(state: GameState): { gold: number; wood: number; stone: number; food: number } {
-  const { buildings, fields, gardens, pens, population, season, seasonElapsed } = state;
+  const { buildings, fields, gardens, pens, citizens, season, seasonElapsed } = state;
   const rates = { gold: 0, wood: 0, stone: 0, food: 0 };
 
-  // Citizen tax
-  rates.gold += Math.floor(population) * GOLD_TAX_PER_CITIZEN_PER_HOUR;
+  // Citizen tax — only adults pay (children and elderly don't generate the
+  // same tax base; toddlers obviously not).
+  rates.gold += citizens.adults * GOLD_TAX_PER_CITIZEN_PER_HOUR;
 
   // Building production — damaged buildings don't produce
   // Food gathering buildings have seasonal modifiers
@@ -1581,8 +1635,9 @@ function calcMaxPopulation(buildings: PlayerBuilding[]): number {
   return BASE_POPULATION + (HOUSING_POP[level] ?? 0);
 }
 
-function calcFoodConsumption(population: number): number {
-  return population * FOOD_PER_CITIZEN_PER_HOUR;
+function calcFoodConsumption(citizens: CitizenCounts): number {
+  // Per-category multipliers: toddlers 0.5×, children 0.75×, adults 1.0×, elderly 0.75×.
+  return effectiveFoodMouths(citizens) * FOOD_PER_CITIZEN_PER_HOUR;
 }
 
 function calcStorageCaps(buildings: PlayerBuilding[]): StorageCaps {
@@ -1729,10 +1784,14 @@ export function GameProvider(props: ParentProps) {
         if (!serverState.questRewardsClaimed) serverState.questRewardsClaimed = [];
         if (serverState.firstMissionSent === undefined) serverState.firstMissionSent = false;
         if (!serverState.completedStoryMissions) serverState.completedStoryMissions = [];
+        if (!(serverState as any).pendingRobins) (serverState as any).pendingRobins = [];
+        if (!(serverState as any).firedRobins) (serverState as any).firedRobins = [];
         if (!serverState.herbs) serverState.herbs = {};
         if (serverState.foragedTotal === undefined) serverState.foragedTotal = 0;
         if (!serverState.exotics) serverState.exotics = {};
         if (serverState.starvationPenalty === undefined) serverState.starvationPenalty = 0;
+        if ((serverState as any).newbornGlow === undefined) (serverState as any).newbornGlow = 0;
+        if ((serverState as any).lastBirthYear === undefined) (serverState as any).lastBirthYear = serverState.year ?? 0;
         // raidsResolvedCount: durable raid counter for quest progress.
         // Backfill from event log so already-stuck cloud saves unstick on
         // next load (Baptism of Fire was checking lastRaidOutcome which decays).
@@ -1800,6 +1859,13 @@ export function GameProvider(props: ParentProps) {
         // they stop appearing in any iteration over state.buildings. Runs
         // AFTER the per-ring migration so the lookups above still find them.
         serverState.buildings = serverState.buildings.filter((b: any) => !REMOVED_BUILDING_IDS.has(b.buildingId));
+        // Citizen-categories migration (Phase B). Convert legacy scalar
+        // population to per-category breakdown — same as the local-save path.
+        if (!(serverState as any).citizens) {
+          const legacy = (serverState as any).population;
+          (serverState as any).citizens = migrateLegacyPopulation(legacy ?? BASE_POPULATION);
+          delete (serverState as any).population;
+        }
         // Re-apply leveling in case XP curve changed
         for (const adv of serverState.adventurers ?? []) {
           applyXp(adv, 0);
@@ -1971,7 +2037,19 @@ export function GameProvider(props: ParentProps) {
                 }
                 serverState.archers = Math.max(0, (serverState.archers ?? 0) - sim.archersLost);
                 serverState.soldiers = Math.max(0, (serverState.soldiers ?? 0) - sim.soldiersLost);
-                serverState.population = Math.max(BASE_POPULATION, serverState.population - sim.archersLost - sim.soldiersLost);
+                // Soldier/archer casualties = adult deaths. Reduce adults by the
+                // exact loss count, clamped so total never drops below BASE.
+                const totalAdultLoss = sim.archersLost + sim.soldiersLost;
+                if (totalAdultLoss > 0) {
+                  const popTotal = (serverState as any).citizens
+                    ? (serverState as any).citizens.toddlers + (serverState as any).citizens.children + (serverState as any).citizens.adults + (serverState as any).citizens.elderly
+                    : 0;
+                  const allowed = Math.max(0, popTotal - BASE_POPULATION);
+                  const actual = Math.min(totalAdultLoss, allowed);
+                  if (actual > 0 && (serverState as any).citizens) {
+                    (serverState as any).citizens.adults = Math.max(0, (serverState as any).citizens.adults - actual);
+                  }
+                }
 
                 const raidName = template.name ?? ir.raidId;
                 if (sim.victory) {
@@ -1990,8 +2068,21 @@ export function GameProvider(props: ParentProps) {
                   serverState.resources.stone = Math.max(0, serverState.resources.stone - Math.floor(serverState.resources.stone * stealPct));
                   if (serverState.foods) consumeFood(serverState.foods, Math.floor(getTotalFood(serverState.foods) * stealPct));
                   if (template.killsCitizens) {
-                    const extra = Math.min(template.maxCitizenLoss, Math.max(1, Math.floor(serverState.population * 0.1)));
-                    serverState.population = Math.max(BASE_POPULATION, serverState.population - extra);
+                    const c = (serverState as any).citizens;
+                    const popTotal = c ? c.toddlers + c.children + c.adults + c.elderly : 0;
+                    const extra = Math.min(template.maxCitizenLoss, Math.max(1, Math.floor(popTotal * 0.1)));
+                    const allowed = Math.max(0, popTotal - BASE_POPULATION);
+                    const actual = Math.min(extra, allowed);
+                    if (actual > 0 && c) {
+                      // Adults first (defenders), then elderly, children, toddlers.
+                      let remaining = actual;
+                      for (const cat of ["adults", "elderly", "children", "toddlers"] as const) {
+                        if (remaining <= 0) break;
+                        const take = Math.min(c[cat], remaining);
+                        c[cat] -= take;
+                        remaining -= take;
+                      }
+                    }
                   }
                   // Damage 1-3 random buildings
                   const damageable = serverState.buildings.filter((b: any) => b.level > 0 && !b.damaged && b.buildingId !== "town_hall");
@@ -2110,6 +2201,21 @@ export function GameProvider(props: ParentProps) {
     if (next === "spring") {
       s.year += 1;
       pushEvent(s, "building_completed", "🌱", "Spring has arrived — time to plant your fields!");
+      // Aging tick: once per game-year. Toddlers age into children, children
+      // into adults, adults into elderly, and a slice of the elderly pass on.
+      // Deterministic fractions — no RNG, behaviour is reproducible.
+      const aging = ageStep(s.citizens);
+      s.citizens = aging.next;
+      const g = aging.graduated;
+      if (g.childToAdult > 0) {
+        pushEvent(s, "citizen_born", "🧑", `${g.childToAdult} child${g.childToAdult > 1 ? "ren" : ""} came of age`);
+      }
+      if (g.adultToElderly > 0) {
+        pushEvent(s, "citizen_born", "👵", `${g.adultToElderly} citizen${g.adultToElderly > 1 ? "s" : ""} entered their twilight years`);
+      }
+      if (aging.deaths > 0) {
+        pushEvent(s, "citizen_died", "🪦", `${aging.deaths} elder${aging.deaths > 1 ? "s" : ""} passed peacefully over the winter`);
+      }
     }
     // Record harvest totals and clear crops when entering winter
     if (next === "winter") {
@@ -2239,7 +2345,7 @@ export function GameProvider(props: ParentProps) {
         // starving pens don't produce food/wool/leather this tick.
         const fedRatios = applyAnimalFeed(s, elapsedHours);
         const foodRates = calcFoodRates(s, fedRatios);
-        const citizenFood = calcFoodConsumption(s.population);
+        const citizenFood = calcFoodConsumption(s.citizens);
         const animalFood = calcAnimalFoodConsumption(s.pens);
         const caps = calcStorageCaps(s.buildings);
         const maxPop = calcMaxPopulation(s.buildings);
@@ -2471,20 +2577,24 @@ export function GameProvider(props: ParentProps) {
         // ── Winter cold (clothing reduces wood needed) ──
         const isWinter = s.season === "winter";
         if (isWinter) {
-          const clothingNeeded = Math.ceil(s.population / CLOTHING_PER_CITIZENS);
+          const popTotal = totalPopulation(s.citizens);
+          const clothingNeeded = Math.ceil(popTotal / CLOTHING_PER_CITIZENS);
           const clothingRatio = Math.min(1, s.clothing / Math.max(1, clothingNeeded));
           const woodReduction = clothingRatio * CLOTHING_WINTER_WOOD_REDUCTION;
-          const woodNeeded = WINTER_WOOD_PER_CITIZEN_PER_HOUR * (1 - woodReduction) * s.population * elapsedHours;
+          const woodNeeded = WINTER_WOOD_PER_CITIZEN_PER_HOUR * (1 - woodReduction) * popTotal * elapsedHours;
           if (s.resources.wood >= woodNeeded) {
             s.resources.wood -= woodNeeded;
           } else {
             s.resources.wood = 0;
-            // Freezing — citizens die
-            const frozenBefore = Math.floor(s.population);
-            s.population = Math.max(BASE_POPULATION, s.population - WINTER_NO_WOOD_DEATH_RATE * elapsedHours);
-            const frozenLost = frozenBefore - Math.floor(s.population);
-            if (frozenLost > 0) {
-              pushEvent(s, "winter_freezing", "🥶", `${frozenLost} citizen${frozenLost > 1 ? "s" : ""} froze to death`);
+            // Freezing — vulnerable categories die first (elderly + toddlers
+            // before children + adults). Total clamped to BASE_POPULATION.
+            const frozenBefore = totalPopulation(s.citizens);
+            const rawDeaths = WINTER_NO_WOOD_DEATH_RATE * elapsedHours;
+            const allowed = Math.max(0, frozenBefore - BASE_POPULATION);
+            const deaths = Math.floor(Math.min(rawDeaths, allowed));
+            if (deaths > 0) {
+              s.citizens = reduceByPriority(s.citizens, deaths, ["elderly", "toddlers", "children", "adults"]);
+              pushEvent(s, "winter_freezing", "🥶", `${deaths} citizen${deaths > 1 ? "s" : ""} froze to death`);
             }
           }
         }
@@ -2505,6 +2615,12 @@ export function GameProvider(props: ParentProps) {
         }
         if (s.starvationPenalty > 0) happiness -= Math.round(s.starvationPenalty);
 
+        // Newborn glow — fades over 24 game-hours.
+        if (s.newbornGlow > 0) {
+          s.newbornGlow = Math.max(0, s.newbornGlow - (10 / 24) * elapsedHours);
+          happiness += Math.round(s.newbornGlow);
+        }
+
         // Winter cold
         if (isWinter) {
           happiness += WINTER_HAPPINESS_PENALTY;
@@ -2512,7 +2628,7 @@ export function GameProvider(props: ParentProps) {
         }
 
         // Housing — only a real overcrowding penalty; no "nearly full" nag
-        if (s.population > maxPop) happiness -= 15;
+        if (totalPopulation(s.citizens) > maxPop) happiness -= 15;
 
         // Chapel
         const shrineLvl = s.buildings.find((b) => b.buildingId === "shrine")?.level ?? 0;
@@ -2529,7 +2645,7 @@ export function GameProvider(props: ParentProps) {
         }
 
         // Clothing — scaled penalty when underclothed, doubled in winter
-        const clothingNeededHappy = Math.ceil(s.population / CLOTHING_PER_CITIZENS);
+        const clothingNeededHappy = Math.ceil(totalPopulation(s.citizens) / CLOTHING_PER_CITIZENS);
         if (clothingNeededHappy > 0) {
           const clothRatio = Math.min(1, s.clothing / clothingNeededHappy);
           if (clothRatio >= 1) {
@@ -2650,32 +2766,76 @@ export function GameProvider(props: ParentProps) {
           }
         }
 
+        // ── Yearly birth roll ──
+        // Fires at most once per game-year, gated by adults / food / happy /
+        // housing. Up to 2 newborns per year — one 50% roll per adult pair,
+        // capped at 2. Each birth grants a fading happiness bonus.
+        if (s.year > (s.lastBirthYear ?? 0)) {
+          s.lastBirthYear = s.year;
+          const popTotal = totalPopulation(s.citizens);
+          const eligible =
+            s.citizens.adults >= 2 &&
+            netFoodRate > 0 &&
+            s.happiness >= 60 &&
+            popTotal < 0.9 * maxPop;
+          if (eligible) {
+            const pairs = Math.floor(s.citizens.adults / 2);
+            let births = 0;
+            for (let i = 0; i < pairs && births < 2; i++) {
+              if (Math.random() < 0.5) births++;
+            }
+            if (births > 0) {
+              s.citizens.toddlers += births;
+              // Stack-cap: multiple births don't compound the buff.
+              s.newbornGlow = Math.max(s.newbornGlow, 10);
+              const msg = births === 1
+                ? "A baby has been born — the settlement welcomes a new life."
+                : `${births} babies have been born — the settlement welcomes new life.`;
+              pushEvent(s, "citizen_born", "👶", msg);
+            }
+          }
+        }
+
         // Villager growth / decline
-        const popBefore = Math.floor(s.population);
-        if (netFoodRate > 0 && s.population < maxPop && s.happiness >= 20) {
+        const popBefore = totalPopulation(s.citizens);
+        if (netFoodRate > 0 && popBefore < maxPop && s.happiness >= 20) {
+          // Growth fires as a low-probability event per tick — when it lands,
+          // it's a weighted family unit (drifter / couple / family / elder),
+          // not a flat +1 adult. See data/citizens.ts for the table.
           const growthMod = s.happiness >= 70 ? 1.5 : s.happiness >= 40 ? 1.0 : 0.5;
-          const growth = (1 / VILLAGER_GROWTH_INTERVAL_HOURS) * elapsedHours * growthMod;
-          s.population = Math.min(maxPop, s.population + growth);
-        } else if (s.population > BASE_POPULATION) {
+          const arrivalChance = (1 / VILLAGER_GROWTH_INTERVAL_HOURS) * elapsedHours * growthMod;
+          if (Math.random() < arrivalChance) {
+            const arrival = rollArrival(s.happiness);
+            s.citizens = addCitizens(s.citizens, arrival.delta);
+            // Cap at maxPop — if the arrival would overflow, scale the delta.
+            const newTotal = totalPopulation(s.citizens);
+            if (newTotal > maxPop) {
+              const overflow = newTotal - maxPop;
+              s.citizens = reduceByPriority(s.citizens, overflow, ["toddlers", "children", "elderly", "adults"]);
+            }
+            pushEvent(s, "citizen_born", "👤", arrival.flavor);
+          }
+        } else if (popBefore > BASE_POPULATION) {
           // Starvation and unhappiness stack — percentage-based so it scales with population
           let ratePct = 0;
           if (getTotalFood(s.foods) <= 0) ratePct += 0.10; // 10%/hour — brutal, but self-correcting as pop drops
           if (s.happiness < 20) ratePct += 0.02;      // 2%/hour fleeing
           if (ratePct > 0) {
-            // Exponential decay: pop * (1 - rate)^hours, clamped to base
-            const popBeforeStarve = s.population;
-            const remaining = s.population * Math.pow(1 - ratePct, elapsedHours);
-            s.population = Math.max(BASE_POPULATION, remaining);
-            // Soldiers/archers are citizens too — they starve and flee alongside
-            // the rest. Apply the same survival ratio to per-building garrisons,
-            // then reconcile the global totals from the per-building sums so
-            // nothing drifts.
-            if (s.population < popBeforeStarve && popBeforeStarve > 0) {
-              const survivalRatio = s.population / popBeforeStarve;
+            // Exponential decay applied as a survival ratio across every
+            // category. Clamped so total never drops below BASE_POPULATION.
+            const tickSurvival = Math.pow(1 - ratePct, elapsedHours);
+            const minRatio = popBefore > 0 ? BASE_POPULATION / popBefore : 1;
+            const ratio = Math.max(tickSurvival, minRatio);
+            const before = { ...s.citizens };
+            s.citizens = applySurvivalRatio(s.citizens, ratio);
+            // Soldiers/archers are citizens too — match the adult-survival ratio
+            // for per-building garrisons + global totals.
+            if (before.adults > 0) {
+              const adultRatio = s.citizens.adults / before.adults;
               const archersBefore = s.archers;
               const soldiersBefore = s.soldiers;
-              for (const t of s.watchtowers) t.garrison.count = Math.floor(t.garrison.count * survivalRatio);
-              for (const b of s.barracks) b.garrison.count = Math.floor(b.garrison.count * survivalRatio);
+              for (const t of s.watchtowers) t.garrison.count = Math.floor(t.garrison.count * adultRatio);
+              for (const b of s.barracks) b.garrison.count = Math.floor(b.garrison.count * adultRatio);
               s.archers = s.watchtowers.reduce((sum, t) => sum + t.garrison.count, 0);
               s.soldiers = s.barracks.reduce((sum, b) => sum + b.garrison.count, 0);
               const archersLost = archersBefore - s.archers;
@@ -2691,10 +2851,8 @@ export function GameProvider(props: ParentProps) {
             }
           }
         }
-        const popAfter = Math.floor(s.population);
-        if (popAfter > popBefore) {
-          pushEvent(s, "citizen_born", "👶", `${popAfter - popBefore} new citizen${popAfter - popBefore > 1 ? "s" : ""} arrived`);
-        } else if (popAfter < popBefore) {
+        const popAfter = totalPopulation(s.citizens);
+        if (popAfter < popBefore) {
           const lost = popBefore - popAfter;
           if (getTotalFood(s.foods) <= 0) {
             pushEvent(s, "citizen_died", "💀", `${lost} citizen${lost > 1 ? "s" : ""} starved to death`);
@@ -3032,6 +3190,13 @@ export function GameProvider(props: ParentProps) {
                 if (sm?.chronicleEntryId && !s.chronicleEntriesFired.includes(sm.chronicleEntryId)) {
                   s.chronicleEntriesFired.push(sm.chronicleEntryId);
                 }
+                // Robin event hook — if a robin is bound to this story
+                // mission, queue it so the sidebar pill can surface it.
+                // One-shot per save (firedRobins blocks re-fire).
+                const robin = getRobinForStoryMission(am.missionId);
+                if (robin && !s.firedRobins.includes(robin.id) && !s.pendingRobins.includes(robin.id)) {
+                  s.pendingRobins.push(robin.id);
+                }
               }
 
               // Record discovered enemies — success or failure, the player has now seen them
@@ -3148,7 +3313,17 @@ export function GameProvider(props: ParentProps) {
               }
               s.archers = Math.max(0, s.archers - sim.archersLost);
               s.soldiers = Math.max(0, s.soldiers - sim.soldiersLost);
-              s.population = Math.max(BASE_POPULATION, s.population - sim.archersLost - sim.soldiersLost);
+              // Soldier/archer casualties = adult deaths. Total clamped so we
+              // never drop below the BASE_POPULATION floor.
+              {
+                const totalLoss = sim.archersLost + sim.soldiersLost;
+                const popTotal = totalPopulation(s.citizens);
+                const allowed = Math.max(0, popTotal - BASE_POPULATION);
+                const actual = Math.min(totalLoss, allowed);
+                if (actual > 0) {
+                  s.citizens.adults = Math.max(0, s.citizens.adults - actual);
+                }
+              }
 
               const raidName = template.name ?? ir.raidId;
 
@@ -3196,10 +3371,16 @@ export function GameProvider(props: ParentProps) {
 
                 let extraCitizensLost = 0;
                 if (template.killsCitizens) {
-                  extraCitizensLost = Math.min(template.maxCitizenLoss, Math.max(1, Math.floor(s.population * 0.1)));
-                  s.population = Math.max(BASE_POPULATION, s.population - extraCitizensLost);
-                  const word = extraCitizensLost === 1 ? "citizen" : "citizens";
-                  pushEvent(s, "citizen_died", "💀", `${extraCitizensLost} ${word} taken in the plunder`);
+                  const popTotal = totalPopulation(s.citizens);
+                  const proposed = Math.min(template.maxCitizenLoss, Math.max(1, Math.floor(popTotal * 0.1)));
+                  const allowed = Math.max(0, popTotal - BASE_POPULATION);
+                  extraCitizensLost = Math.min(proposed, allowed);
+                  if (extraCitizensLost > 0) {
+                    // Adults first (defenders / labor), then elderly, children, toddlers.
+                    s.citizens = reduceByPriority(s.citizens, extraCitizensLost, ["adults", "elderly", "children", "toddlers"]);
+                    const word = extraCitizensLost === 1 ? "citizen" : "citizens";
+                    pushEvent(s, "citizen_died", "💀", `${extraCitizensLost} ${word} taken in the plunder`);
+                  }
                 }
 
                 // Damage 1-3 random buildings (legacy plunder mechanic).
@@ -3684,7 +3865,7 @@ export function GameProvider(props: ParentProps) {
 
     getProductionRates() { return calcProductionRates(state); },
     getMaxPopulation() { return calcMaxPopulation(state.buildings); },
-    getFoodConsumption() { return calcFoodConsumption(state.population); },
+    getFoodConsumption() { return calcFoodConsumption(state.citizens); },
     getAnimalFoodConsumption() { return calcAnimalFoodConsumption(state.pens); },
     getFoodBreakdown() { return calcFoodBreakdown(state); },
     getStorageCaps() { return calcStorageCaps(state.buildings); },
@@ -4120,7 +4301,7 @@ export function GameProvider(props: ParentProps) {
     getClothingInfo() {
       return {
         current: Math.round(state.clothing),
-        needed: Math.ceil(state.population / CLOTHING_PER_CITIZENS),
+        needed: Math.ceil(totalPopulation(state.citizens) / CLOTHING_PER_CITIZENS),
       };
     },
     allocateStat(adventurerId, stat) {
@@ -4235,7 +4416,7 @@ export function GameProvider(props: ParentProps) {
       factors.push({ label: "Baseline", value: 50 });
 
       const rates = calcProductionRates(state);
-      const foodCons = calcFoodConsumption(state.population);
+      const foodCons = calcFoodConsumption(state.citizens);
       const animalFood = calcAnimalFoodConsumption(state.pens);
       const netFood = rates.food - foodCons - animalFood;
       if (netFood > 0) factors.push({ label: "Food surplus", value: Math.min(15, Math.round(netFood / 5)) });
@@ -4244,9 +4425,12 @@ export function GameProvider(props: ParentProps) {
         const val = -Math.round(state.starvationPenalty);
         factors.push({ label: getTotalFood(state.foods) <= 0 ? "Starvation" : "Famine recovery (fading)", value: val });
       }
+      if (state.newbornGlow > 0) {
+        factors.push({ label: "👶 Newborn glow (fading)", value: Math.round(state.newbornGlow) });
+      }
 
       const maxPop = calcMaxPopulation(state.buildings);
-      if (state.population > maxPop) factors.push({ label: "Overcrowded", value: -15 });
+      if (totalPopulation(state.citizens) > maxPop) factors.push({ label: "Overcrowded", value: -15 });
 
       const shrineLvl = state.buildings.find((b) => b.buildingId === "shrine")?.level ?? 0;
       if (shrineLvl > 0) factors.push({ label: `Shrine Lv.${shrineLvl}`, value: shrineLvl * SHRINE_HAPPINESS_PER_LEVEL });
@@ -4264,7 +4448,7 @@ export function GameProvider(props: ParentProps) {
       }
 
       // Clothing
-      const clothNeeded = Math.ceil(state.population / CLOTHING_PER_CITIZENS);
+      const clothNeeded = Math.ceil(totalPopulation(state.citizens) / CLOTHING_PER_CITIZENS);
       if (clothNeeded > 0) {
         const clothRatio = Math.min(1, state.clothing / clothNeeded);
         if (clothRatio >= 1) {
@@ -4336,7 +4520,7 @@ export function GameProvider(props: ParentProps) {
     },
     getDefense() {
       const homeAdvs = state.adventurers.filter((a) => a.alive && !a.onMission);
-      return calcDefense(state.walls, state.watchtowers, state.barracks, homeAdvs, state.population);
+      return calcDefense(state.walls, state.watchtowers, state.barracks, homeAdvs, totalPopulation(state.citizens));
     },
 
     // ── Defenses (rework v1): build/upgrade/repair/recruit actions ──
@@ -4734,17 +4918,6 @@ export function GameProvider(props: ParentProps) {
       }));
       scheduleSave();
     },
-    devSpawnCaptainsRestStub() {
-      const stub = MISSION_POOL.find((m) => m.id === "captains_rest_engine_test");
-      if (!stub) return;
-      setState(produce((s) => {
-        // Always replace — drop any stale copy from a previous spawn (which may
-        // hold old slot/minGuildLevel data) and push the fresh template.
-        s.missionBoard = s.missionBoard.filter((m) => m.id !== stub.id);
-        s.missionBoard.push(stub);
-      }));
-      scheduleSave();
-    },
     rerollRecruits() {
       const rerollCount = typeof state.recruitRerollToday === "number" ? state.recruitRerollToday : 0;
       const cost = 10 * Math.pow(2, rerollCount);
@@ -5003,6 +5176,32 @@ export function GameProvider(props: ParentProps) {
           }
         }
         s.completedMissions.splice(index, 1);
+      }));
+      scheduleSave();
+    },
+    devTriggerRobin() {
+      setState(produce((s) => {
+        s.firedRobins = (s.firedRobins ?? []).filter((id) => id !== "robin_dev");
+        s.pendingRobins = s.pendingRobins ?? [];
+        if (!s.pendingRobins.includes("robin_dev")) s.pendingRobins.push("robin_dev");
+      }));
+      scheduleSave();
+    },
+    acknowledgeRobin(robinId) {
+      const robin = getRobinEvent(robinId);
+      if (!robin) return;
+      setState(produce((s) => {
+        s.pendingRobins = s.pendingRobins.filter((id) => id !== robinId);
+        if (!s.firedRobins.includes(robinId)) s.firedRobins.push(robinId);
+        // Apply unlocks. Currently: alchemy recipes pushed into discoveredRecipes.
+        // Cast / quest unlocks are extension points (see RobinUnlocks type).
+        for (const recipeId of robin.unlocks?.recipes ?? []) {
+          if (!s.discoveredRecipes.includes(recipeId)) s.discoveredRecipes.push(recipeId);
+        }
+        // Fire the chronicle entry into the journal so it's archived.
+        if (!s.chronicleEntriesFired.includes(robin.chronicleEntryId)) {
+          s.chronicleEntriesFired.push(robin.chronicleEntryId);
+        }
       }));
       scheduleSave();
     },

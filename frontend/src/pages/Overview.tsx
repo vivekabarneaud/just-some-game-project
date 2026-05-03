@@ -6,6 +6,9 @@ import { SEASON_META } from "~/data/seasons";
 import { getRaid, getDefenseTips, type IncomingRaid } from "~/data/raids";
 import { QUEST_CHAIN, type QuestDefinition } from "~/data/quests";
 import { useGame, WALL_BASE_HP } from "~/engine/gameState";
+import { totalPopulation } from "~/data/citizens";
+import { getRobinEvent, setOpenChronicleEntry } from "~/data/robins";
+import { getChronicleEntry } from "~/data/chronicle_entries";
 import { simulateRaidCombat } from "@medieval-realm/shared/data/raidCombat";
 import Countdown from "~/components/Countdown";
 import QuestClaimModal from "~/components/QuestClaimModal";
@@ -114,6 +117,62 @@ export default function Overview() {
         </div>
       </div>
 
+
+      {/* Robin delivery — surfaces a pending robin (event-driven story beat).
+          Click opens the chronicle entry + applies unlocks via acknowledgeRobin.
+          Sidebar pill mirrors this; the card here is the prominent surface. */}
+      {(() => {
+        const pendingRobin = () => {
+          const id = state.pendingRobins?.[0];
+          return id ? getRobinEvent(id) : undefined;
+        };
+        return (
+          <Show when={pendingRobin()}>
+            {(robin) => (
+              <div
+                onClick={() => {
+                  const entry = getChronicleEntry(robin().chronicleEntryId);
+                  if (entry) setOpenChronicleEntry(entry);
+                  actions.acknowledgeRobin(robin().id);
+                }}
+                style={{
+                  display: "flex",
+                  "align-items": "center",
+                  gap: "12px",
+                  padding: "12px 16px",
+                  "margin-bottom": "16px",
+                  background: "rgba(96, 165, 250, 0.10)",
+                  border: "1px solid var(--accent-blue)",
+                  "border-radius": "8px",
+                  cursor: "pointer",
+                  transition: "background 0.15s ease",
+                }}
+                onMouseEnter={(e) => (e.currentTarget as HTMLDivElement).style.background = "rgba(96, 165, 250, 0.16)"}
+                onMouseLeave={(e) => (e.currentTarget as HTMLDivElement).style.background = "rgba(96, 165, 250, 0.10)"}
+                title="Click to read the message."
+              >
+                <span style={{ "font-size": "1.8rem" }}>🐦</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{
+                    "font-size": "0.7rem",
+                    "text-transform": "uppercase",
+                    "letter-spacing": "1px",
+                    color: "var(--accent-blue)",
+                    "font-weight": "bold",
+                    "margin-bottom": "2px",
+                  }}>
+                    A robin has arrived
+                  </div>
+                  <div style={{ "font-size": "0.9rem", color: "var(--text-primary)" }}>
+                    {robin().bannerText}
+                  </div>
+                </div>
+                <span style={{ color: "var(--accent-blue)", "font-size": "0.85rem" }}>Read →</span>
+              </div>
+            )}
+          </Show>
+        );
+      })()}
 
       {/* Quest Panel */}
       <Show when={!allQuestsComplete() && currentQuest()}>
@@ -331,7 +390,7 @@ export default function Overview() {
           <div class="stat-row">
             <span class="stat-label">Population</span>
             <span class="stat-value">
-              {Math.floor(state.population)} / {actions.getMaxPopulation()}
+              {totalPopulation(state.citizens)} / {actions.getMaxPopulation()}
             </span>
           </div>
           <div class="stat-row">
@@ -362,7 +421,7 @@ export default function Overview() {
               "font-size": "0.8rem",
               color: "#87CEEB",
             }}>
-              ❄️ Winter cold: consuming wood for heating ({Math.round(state.population * 0.5)}/h).
+              ❄️ Winter cold: consuming wood for heating ({Math.round(totalPopulation(state.citizens) * 0.5)}/h).
               {state.resources.wood <= 0 && <span style={{ color: "var(--accent-red)" }}> No wood — citizens are freezing!</span>}
             </div>
           </Show>

@@ -34,7 +34,7 @@ export const NIAMH: NPCAlly = {
   name: "Warden Niamh",
   title: "Silvaneth Primalist of the Thornveil Rangers",
   icon: "🌿",
-  portrait: undefined,
+  portrait: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/niamh_zoomed.png",
   // Tuned to roughly the durability of a level-5 hybrid caster — enough to soak
   // a few hits while the team peels aggro, but fragile enough that ignoring her
   // ends the mission. No class set: missions decide whether she takes turns.

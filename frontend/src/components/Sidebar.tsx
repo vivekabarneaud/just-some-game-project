@@ -4,6 +4,8 @@ import { useGame } from "~/engine/gameState";
 import { SEASON_META, HOURS_PER_SEASON, IS_DEV, getGlobalSeason } from "~/data/seasons";
 import { logout, getUsername } from "~/api/auth";
 import { QUEST_CHAIN } from "~/data/quests";
+import { getRobinEvent, setOpenChronicleEntry } from "~/data/robins";
+import { getChronicleEntry } from "~/data/chronicle_entries";
 import { fetchLeaderboard } from "~/api/leaderboard";
 import { fetchFriends } from "~/api/friends";
 import { fetchCoops } from "~/api/coop";
@@ -206,8 +208,9 @@ export default function Sidebar(props: SidebarProps) {
                 return idx >= 0 && QUEST_CHAIN[idx].condition(state);
               };
               const hasCompletedMissions = () => (state.completedMissions?.length ?? 0) > 0;
+              const hasPendingRobin = () => (state.pendingRobins?.length ?? 0) > 0;
               const shouldBlink = () =>
-                (item.path === "/" && hasClaimableQuest()) ||
+                (item.path === "/" && (hasClaimableQuest() || hasPendingRobin())) ||
                 (item.path === "/farming" && (
                   (state.season === "spring" && hasEmptyFields()) ||
                   (state.season === "autumn" && state.seasonElapsed < 6) ||
@@ -232,7 +235,7 @@ export default function Sidebar(props: SidebarProps) {
                   )}
                   {shouldBlink() && (
                     <span style={{ "margin-left": "auto", "font-size": "0.7rem", color:
-                      item.path === "/" ? "var(--accent-gold)" :
+                      item.path === "/" ? (hasPendingRobin() ? "var(--accent-blue)" : "var(--accent-gold)") :
                       item.path === "/guild" ? "var(--accent-blue)" :
                       item.path === "/chronicle" ? "var(--accent-gold)" :
                       item.path === "/friends" ? "var(--accent-gold)" :
@@ -240,7 +243,7 @@ export default function Sidebar(props: SidebarProps) {
                       state.season === "winter" ? "#a5d8ff" :
                       "#d4831a"
                     }}>
-                      {item.path === "/" ? "quest!"
+                      {item.path === "/" ? (hasPendingRobin() ? "message!" : "quest!")
                         : item.path === "/guild" ? (hasCompletedMissions() ? "loot!" : incomingCoopInvites() > 0 ? "coop!" : "new!")
                         : item.path === "/chronicle" ? "new!"
                         : item.path === "/friends" ? `+${incomingFriendRequests()}`
@@ -300,6 +303,43 @@ export default function Sidebar(props: SidebarProps) {
               </A>
             </Show>
           </>
+        );
+      })()}
+
+      {/* Robin event banner — fires after specific story missions to deliver
+          a chronicle beat + unlocks. Subtle, non-blocking; click pops the
+          chronicle modal and applies unlocks. */}
+      {(() => {
+        const pendingRobin = () => {
+          const id = state.pendingRobins?.[0];
+          return id ? getRobinEvent(id) : undefined;
+        };
+        return (
+          <Show when={pendingRobin()}>
+            {(robin) => (
+              <div
+                onClick={() => {
+                  const entry = getChronicleEntry(robin().chronicleEntryId);
+                  if (entry) setOpenChronicleEntry(entry);
+                  actions.acknowledgeRobin(robin().id);
+                }}
+                style={{
+                  margin: "0 12px 8px",
+                  padding: "8px 10px",
+                  background: "rgba(96, 165, 250, 0.10)",
+                  border: "1px solid var(--accent-blue)",
+                  "border-radius": "6px",
+                  "font-size": "0.8rem",
+                  color: "var(--accent-blue)",
+                  "text-align": "center",
+                  cursor: "pointer",
+                }}
+                title="A robin landed — click to read the message."
+              >
+                🐦 {robin().bannerText}
+              </div>
+            )}
+          </Show>
         );
       })()}
 

@@ -9,22 +9,15 @@ import { JOURNEYMAN_MISSIONS } from "./journeymanMissions.js";
 import { EXPERT_MISSIONS } from "./expertMissions.js";
 import { STORY_MISSIONS } from "./storyMissions.js";
 import { EXPEDITION_POOL } from "./expeditions.js";
-import { ENGINE_TEST_MISSIONS } from "./engineTestMissions.js";
 
-/** Missions eligible for the natural mission-board rotation. Engine-test stubs
- *  are excluded — they're only spawned via dev buttons. */
-const ROTATION_POOL: MissionTemplate[] = [
+/** Pool used for the natural mission-board rotation AND for getMission lookup.
+ *  When engine-test stubs need to live alongside real missions again, split
+ *  this back into a ROTATION_POOL (rotation only) + ALL_MISSIONS (lookup). */
+const ALL_MISSIONS: MissionTemplate[] = [
   ...NOVICE_MISSIONS,
   ...APPRENTICE_MISSIONS,
   ...JOURNEYMAN_MISSIONS,
   ...EXPERT_MISSIONS,
-];
-
-/** Lookup pool for getMission(). Includes engine-test stubs so dev-spawned
- *  missions resolve correctly during deploy / completion / log lookup. */
-const ALL_MISSIONS: MissionTemplate[] = [
-  ...ROTATION_POOL,
-  ...ENGINE_TEST_MISSIONS,
 ];
 
 // ─── Reward formatting ─────────────────────────────────────────
@@ -377,7 +370,7 @@ function meetsRequirements(
  *  Adds expedition slots on top: +1 expedition every 2 guild levels (lvl 2=1, lvl 4=2, lvl 6=3). */
 export function generateMissionBoard(ctx: MissionBoardContext): MissionTemplate[] {
   const { guildLevel, count = 4, seed = Date.now(), maxDifficulty = 5 } = ctx;
-  const available = ROTATION_POOL.filter((m) =>
+  const available = ALL_MISSIONS.filter((m) =>
     m.minGuildLevel <= guildLevel &&
     m.difficulty <= maxDifficulty &&
     meetsRequirements(m.requires, ctx),

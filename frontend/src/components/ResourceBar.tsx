@@ -3,6 +3,7 @@ import { RESOURCES } from "~/data/resources";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { EXOTICS } from "@medieval-realm/shared/data/exotics";
 import { useGame } from "~/engine/gameState";
+import { totalPopulation } from "~/data/citizens";
 import { FOOD_ITEMS, FOOD_CATEGORIES, getTotalFood, type FoodItemType, type FoodCategoryId } from "~/data/foods";
 import { craftingMaterialCap } from "~/data/buildings";
 import FoodIcon from "~/components/FoodIcon";
@@ -360,11 +361,38 @@ export default function ResourceBar() {
           </div>
         </div>
       </div>
-      <div class="resource-item pop-display">
+      <div class="resource-item pop-display has-dropdown" tabIndex={0}>
         <span class="resource-icon">👤</span>
         <span class="resource-amount">
-          {Math.floor(state.population)}/{actions.getMaxPopulation()}
+          {totalPopulation(state.citizens)}/{actions.getMaxPopulation()}
         </span>
+        <div class="resource-dropdown">
+          <div class="dropdown-title">Citizens</div>
+          <div class="dropdown-row">
+            <span>👶 Toddlers</span>
+            <span>{state.citizens.toddlers}</span>
+          </div>
+          <div class="dropdown-row">
+            <span>🧒 Children</span>
+            <span>{state.citizens.children}</span>
+          </div>
+          <div class="dropdown-row">
+            <span>🧑 Adults</span>
+            <span>{state.citizens.adults}</span>
+          </div>
+          <div class="dropdown-row">
+            <span>👵 Elderly</span>
+            <span>{state.citizens.elderly}</span>
+          </div>
+          <div class="dropdown-row dropdown-total">
+            <span>Total</span>
+            <span>{totalPopulation(state.citizens)}</span>
+          </div>
+          <div class="dropdown-row" style={{ color: "var(--text-muted)", "font-size": "0.75rem", "margin-top": "4px", "font-style": "italic" }}>
+            Adults are the labor and military pool. Children, toddlers,
+            and elderly contribute differently to food and growth.
+          </div>
+        </div>
       </div>
     </div>
   );

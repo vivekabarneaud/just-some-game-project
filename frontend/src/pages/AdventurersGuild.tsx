@@ -38,6 +38,8 @@ import MissionCard from "~/components/MissionCard";
 import TraitBadge from "~/components/TraitBadge";
 import MissionAssemblyPanel from "~/components/MissionAssemblyPanel";
 import LootModal from "~/components/LootModal";
+import ChronicleEntryModal from "~/components/ChronicleEntryModal";
+import { getChronicleEntry, type ChronicleEntry } from "~/data/chronicle_entries";
 import CombatLog from "~/components/CombatLog";
 import CombatPlayback from "~/components/CombatPlayback";
 import { fetchCoops, respondCoop, cancelCoop, fetchCoopDetail, claimCoop } from "~/api/coop";
@@ -147,6 +149,10 @@ export default function AdventurersGuild() {
     try { await cancelCoop(id); refetchCoops(); } catch (e: any) { console.error(e.message); }
   };
   const [storyCinematic, setStoryCinematic] = createSignal<CinematicSlide[] | null>(null);
+  /** Chronicle entry shown in the post-mission narrative modal. Set when the
+   *  player claims a story mission tagged with chronicleEntryId. Replaces the
+   *  cinematic playback as the post-mission story beat. */
+  const [openChronicleEntry, setOpenChronicleEntry] = createSignal<ChronicleEntry | null>(null);
   const [lootModalIndex, setLootModalIndex] = createSignal<number | null>(null);
   /** Snapshot of the completed mission shown in the modal — used so the modal
    *  can display data even after the underlying card has been dismissed
@@ -216,11 +222,18 @@ export default function AdventurersGuild() {
     }
     const result = state.completedMissions[idx];
     if (!result) { setLootModalIndex(null); setLootResult(null); return; }
-    const cinematic = STORY_CINEMATICS[result.missionId];
     actions.claimMissionReward(idx);
     setLootModalIndex(null);
     setLootResult(null);
-    if (cinematic) setStoryCinematic(cinematic);
+    // STORY_CINEMATICS playback is intentionally NOT triggered here. Cinematic
+    // art has been deferred; the chronicle entry modal serves as the post-
+    // mission narrative beat instead. Data + intro-cinematic path stay intact.
+    // Auto-open the chronicle entry tied to this story mission, if any.
+    const chronicleEntryId = (getMission(result.missionId) as { chronicleEntryId?: string } | undefined)?.chronicleEntryId;
+    if (chronicleEntryId) {
+      const entry = getChronicleEntry(chronicleEntryId);
+      if (entry) setOpenChronicleEntry(entry);
+    }
   };
   const guildLevel = () => actions.getGuildLevel();
   const storyMission = () => getCurrentStoryMission(guildLevel(), state.completedStoryMissions ?? []);
@@ -258,7 +271,8 @@ export default function AdventurersGuild() {
 
   return (
     <>
-      {/* Story mission cinematic overlay */}
+      {/* Story mission cinematic overlay — kept for the intro path / future
+          re-introduction; story-mission claim no longer auto-plays this. */}
       <Show when={storyCinematic()}>
         {(slides) => (
           <CinematicOverlay
@@ -266,6 +280,14 @@ export default function AdventurersGuild() {
             villageName={state.villageName}
             onComplete={() => setStoryCinematic(null)}
           />
+        )}
+      </Show>
+
+      {/* Post-mission chronicle entry — auto-opens after the LootModal closes
+          when the completed mission has a chronicleEntryId. */}
+      <Show when={openChronicleEntry()}>
+        {(entry) => (
+          <ChronicleEntryModal entry={entry()} onClose={() => setOpenChronicleEntry(null)} />
         )}
       </Show>
 
@@ -795,12 +817,12 @@ export default function AdventurersGuild() {
                 Spawn all novice
               </button>
               <button
-                onClick={() => actions.devSpawnCaptainsRestStub()}
+                onClick={() => actions.devTriggerRobin()}
                 class="skip-season-btn"
                 style={{ "font-size": "0.7rem", padding: "3px 10px" }}
-                title="Spawn the NPC-escort engine test mission (Niamh + ghosts)"
+                title="Queue a placeholder robin to test the banner/sidebar/Overview flow"
               >
-                Spawn Captain's Rest
+                🐦 Trigger robin
               </button>
             </Show>
           </div>

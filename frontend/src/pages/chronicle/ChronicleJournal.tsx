@@ -7,6 +7,7 @@ import {
   getEntriesByChapter,
   type ChronicleEntry,
 } from "~/data/chronicle_entries";
+import ChronicleEntryModal from "~/components/ChronicleEntryModal";
 
 export default function ChronicleJournal() {
   const { state, actions } = useGame();
@@ -219,14 +220,15 @@ export default function ChronicleJournal() {
 
       {/* Entry modal */}
       <Show when={openEntry()}>
-        {(entry) => <EntryModal entry={entry()} onClose={() => setOpenEntryId(null)} />}
+        {(entry) => <ChronicleEntryModal entry={entry()} onClose={() => setOpenEntryId(null)} />}
       </Show>
     </div>
   );
 }
 
-// ─── Entry detail modal ───────────────────────────────────────────
-
+// Legacy private modal — kept temporarily for reference; replaced by the
+// shared ChronicleEntryModal component above. Safe to remove.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function EntryModal(props: { entry: ChronicleEntry; onClose: () => void }) {
   const paragraphs = () => props.entry.fullText.split("\n\n");
 
