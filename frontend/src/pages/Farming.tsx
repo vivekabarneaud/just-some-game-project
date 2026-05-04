@@ -12,15 +12,8 @@ import { QUEST_DEFINITIONS, isQuestActive } from "~/data/quests";
 import Countdown from "~/components/Countdown";
 import { UpgradeIndicator } from "~/components/UpgradeIndicator";
 import Tooltip from "~/components/Tooltip";
+import { formatTimeLong as formatTime } from "~/utils/format";
 import type { JSX } from "solid-js";
-
-function formatTime(seconds: number): string {
-  if (seconds < 60) return `${seconds}s`;
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  return `${h}h ${m}m`;
-}
 
 function fieldSeasonStatus(season: string, level: number, isHarvesting: boolean): { label: string; color: string } {
   if (level === 0) return { label: "Under construction", color: "var(--accent-blue)" };

@@ -6,14 +6,7 @@ import { ALCHEMY_RECIPES, getAvailableAlchemyRecipes, getDiscoverableRecipes, RE
 import { isCombatPotion } from "@medieval-realm/shared/data/items";
 import Countdown from "~/components/Countdown";
 import RecipeCard from "~/components/RecipeCard";
-
-function formatTime(seconds: number): string {
-  if (seconds < 60) return `${seconds}s`;
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  return m > 0 ? `${h}h ${m}m` : `${h}h`;
-}
+import { formatTimeShort as formatTime } from "~/utils/format";
 
 export default function Alchemy() {
   const { state, actions } = useGame();

@@ -5,7 +5,6 @@ import {
   CHRONICLE_CHAPTERS,
   CHRONICLE_ENTRIES,
   getEntriesByChapter,
-  type ChronicleEntry,
 } from "~/data/chronicle_entries";
 import ChronicleEntryModal from "~/components/ChronicleEntryModal";
 
@@ -230,126 +229,6 @@ export default function ChronicleJournal() {
       <Show when={openEntry()}>
         {(entry) => <ChronicleEntryModal entry={entry()} onClose={() => setOpenEntryId(null)} />}
       </Show>
-    </div>
-  );
-}
-
-// Legacy private modal — kept temporarily for reference; replaced by the
-// shared ChronicleEntryModal component above. Safe to remove.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function EntryModal(props: { entry: ChronicleEntry; onClose: () => void }) {
-  const paragraphs = () => props.entry.fullText.split("\n\n");
-
-  return (
-    <div
-      style={{
-        position: "fixed", inset: "0",
-        background: "rgba(0, 0, 0, 0.75)",
-        "z-index": "1000",
-        display: "flex", "align-items": "center", "justify-content": "center",
-        padding: "24px",
-      }}
-      onClick={props.onClose}
-    >
-      <div
-        style={{
-          "max-width": "620px",
-          "max-height": "86vh",
-          overflow: "auto",
-          background: "var(--bg-secondary)",
-          border: "1px solid var(--border-color)",
-          "border-radius": "10px",
-          padding: "28px 32px",
-          "box-shadow": "0 12px 40px rgba(0,0,0,0.5)",
-          position: "relative",
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button
-          onClick={props.onClose}
-          style={{
-            position: "absolute", top: "10px", right: "12px",
-            background: "transparent", border: "none",
-            color: "var(--text-muted)", "font-size": "1.4rem",
-            cursor: "pointer", "line-height": "1",
-          }}
-          aria-label="Close"
-        >
-          ×
-        </button>
-
-        <div style={{
-          "font-size": "0.7rem",
-          color: "var(--accent-gold)",
-          "letter-spacing": "0.08em",
-          "text-transform": "uppercase",
-          "margin-bottom": "6px",
-        }}>
-          Page {props.entry.order}
-        </div>
-        <h2 style={{
-          "font-size": "1.35rem",
-          color: "var(--text-primary)",
-          "margin-bottom": "18px",
-          "font-family": "var(--font-heading)",
-        }}>
-          {props.entry.title}
-        </h2>
-
-        <div style={{
-          "font-size": "0.95rem",
-          color: "var(--text-secondary)",
-          "font-style": "italic",
-          "line-height": "1.7",
-        }}>
-          <For each={paragraphs()}>
-            {(p) => <p style={{ "margin-bottom": "14px" }}>{p}</p>}
-          </For>
-        </div>
-
-        <div style={{
-          "margin-top": "20px",
-          "padding-top": "16px",
-          "border-top": "1px solid var(--border-color)",
-          display: "flex",
-          "align-items": "center",
-          gap: "12px",
-        }}>
-          <Show when={props.entry.cinematicId === "intro"}>
-            <button
-              style={{
-                padding: "8px 14px",
-                background: "rgba(167, 139, 250, 0.15)",
-                border: "1px solid rgba(167, 139, 250, 0.4)",
-                color: "var(--text-primary)",
-                "border-radius": "6px",
-                cursor: "pointer",
-                "font-size": "0.85rem",
-              }}
-              onClick={() => {
-                alert("Replay cinematic: " + props.entry.cinematicId + " (not wired yet)");
-              }}
-            >
-              ▶ Replay cinematic
-            </button>
-          </Show>
-          <button
-            onClick={props.onClose}
-            style={{
-              "margin-left": "auto",
-              padding: "8px 16px",
-              background: "var(--bg-primary)",
-              border: "1px solid var(--border-color)",
-              color: "var(--text-primary)",
-              "border-radius": "6px",
-              cursor: "pointer",
-              "font-size": "0.85rem",
-            }}
-          >
-            Dismiss
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

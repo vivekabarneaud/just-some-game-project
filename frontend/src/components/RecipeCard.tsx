@@ -58,18 +58,7 @@ export default function RecipeCard(props: RecipeCardProps) {
       }}
     >
       <Show when={highlight()}>
-        <div style={{
-          position: "absolute",
-          top: "6px",
-          right: "6px",
-          background: "var(--accent-blue)",
-          color: "white",
-          "font-size": "0.6rem",
-          "font-weight": "700",
-          padding: "2px 6px",
-          "border-radius": "3px",
-          "letter-spacing": "0.05em",
-        }}>NEW</div>
+        <div class="notification-badge is-tag" style={{ position: "absolute", top: "6px", right: "6px" }}>NEW</div>
       </Show>
       <div class="building-card-header">
         {props.image

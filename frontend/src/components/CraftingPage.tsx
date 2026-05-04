@@ -8,6 +8,7 @@ import Countdown from "~/components/Countdown";
 import Tooltip from "~/components/Tooltip";
 import RecipeCard from "~/components/RecipeCard";
 import FoodIcon from "~/components/FoodIcon";
+import { formatTimeShort } from "~/utils/format";
 
 /** Split item description into stats and flavor text */
 function splitDescription(desc: string): { stats: string; flavor: string | null } {
@@ -63,14 +64,6 @@ function renderCost(resource: string, amount: number): JSX.Element {
   const icon = RESOURCE_ICON[resource];
   if (icon) return label(`${amount} ${icon}`);
   return label(`${amount} ${resource.replace(/_/g, " ")}`);
-}
-
-function formatTime(seconds: number): string {
-  if (seconds < 60) return `${seconds}s`;
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  return m > 0 ? `${h}h ${m}m` : `${h}h`;
 }
 
 /** Info panel content for item-bearing recipes (stats, armor type, classes, consumable, flavor) */
@@ -371,7 +364,7 @@ export default function CraftingPage(props: CraftingPageProps) {
                       icon={recipe.icon}
                       image={recipe.image ?? item?.image}
                       title={recipe.name}
-                      subtitle={`${formatTime(recipe.craftTime)} · +${recipe.produces.amount}x ${formatResource(recipe.produces.resource, props.buildingId)}`}
+                      subtitle={`${formatTimeShort(recipe.craftTime)} · +${recipe.produces.amount}x ${formatResource(recipe.produces.resource, props.buildingId)}`}
                       info={itemInfoPanel(recipe.id, isToolLocked())}
                       costs={<>Cost: <For each={recipe.costs}>{(c, i) => <>{i() > 0 ? ", " : ""}{renderCost(c.resource, c.amount)}</>}</For></>}
                       isUnseen={!(state.recipesSeen ?? []).includes(recipe.id)}

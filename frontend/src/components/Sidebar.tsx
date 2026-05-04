@@ -295,21 +295,7 @@ export default function Sidebar(props: SidebarProps) {
                     (item.path === "/chronicle" && unseenChronicleCount() > 0) ||
                     (item.path === "/guild" && completedMissionCount() > 0) ||
                     (CRAFTING_PATH_TO_BUILDING_ID[item.path] && unseenRecipeCount() > 0)) && (
-                    <span style={{
-                      "margin-left": "auto",
-                      "min-width": "20px",
-                      "height": "20px",
-                      "padding": "0 6px",
-                      "border-radius": "10px",
-                      "background": "var(--accent-blue)",
-                      "color": "#fff",
-                      "font-size": "0.75rem",
-                      "font-weight": "bold",
-                      "display": "inline-flex",
-                      "align-items": "center",
-                      "justify-content": "center",
-                      "box-shadow": "0 0 6px rgba(96, 165, 250, 0.5)",
-                    }}>
+                    <span class="notification-badge" style={{ "margin-left": "auto" }}>
                       {item.path === "/" ? (state.pendingRobins?.length ?? 0)
                         : item.path === "/quests" ? unseenActiveCount()
                         : item.path === "/chronicle" ? unseenChronicleCount()
