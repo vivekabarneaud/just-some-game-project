@@ -98,7 +98,7 @@ export const NARRATIVE_EVENTS: NarrativeEvent[] = [
     id: "event_hunters_volunteer",
     triggers: [settlementChapterDone(2)],
     banner:
-      "Some of the hunters who arrived are restless. Two of them want to scout the south for whatever is out there. They are asking for somewhere to gather, and someone to send them.",
+      "The south is still unknown to us, and we should not stay ignorant of it for long. But Edda is up to her elbows in herbs and Nell, Jory is married to the mill, and Tomas has not climbed out of the quarry since the third frost. I am not much better. Father Corin would gladly read about it, which is about the best he could offer. The new families brought us hunters, and they are pacing the edge of the camp like dogs that have not been walked. They need a hall to gather in, and someone with the patience to send them out.",
     unlocks: {
       activateStoryline: { storyline: "guild", chapter: 1 },
     },

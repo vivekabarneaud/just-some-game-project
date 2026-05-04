@@ -52,8 +52,8 @@ export default function Buildings() {
   const sectionHasVisible = (category: string) =>
     buildingsInSection(category).some(
       (b) =>
-        ((isBuildingUnlocked(b, thLevel()) && isBuildingChapterUnlocked(b, state)) ||
-          (getPlayerBuilding(b.id)?.level ?? 0) > 0),
+        (isBuildingUnlocked(b, thLevel()) && isBuildingChapterUnlocked(b, state)) ||
+        (getPlayerBuilding(b.id)?.level ?? 0) > 0,
     );
 
   return (
@@ -101,10 +101,12 @@ export default function Buildings() {
                   const isUpgrading = () => pb()?.upgrading ?? false;
                   const currentLevel = () => (level() > 0 ? building.levels[level() - 1] : null);
                   const unlocked = () => {
-                    // Already-built buildings always show the regular upgrade card,
-                    // regardless of chapter gates. This keeps the Town Hall and
-                    // any other always-on building visible from save load on.
-                    if ((pb()?.level ?? 0) > 0) return true;
+                    // Already-built buildings normally stay visible regardless of
+                    // tier (legacy escape hatch for saves that built something
+                    // before a tier requirement was added). Buildings with an
+                    // explicit narrative gate (`unlockedAt`) opt out: Town Hall
+                    // starts at L1 but should still hide until ch.4 fires.
+                    if (!building.unlockedAt && (pb()?.level ?? 0) > 0) return true;
                     return isBuildingUnlocked(building, thLevel()) &&
                       isBuildingChapterUnlocked(building, state);
                   };

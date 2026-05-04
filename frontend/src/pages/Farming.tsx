@@ -1117,6 +1117,7 @@ function LockedShell(props: { locked: boolean; reason: string; children: JSX.Ele
     <Show when={props.locked} fallback={props.children}>
       <Tooltip
         position="cursor"
+        block
         content={() => (
           <div style={{ "min-width": "200px" }}>
             <div style={{
@@ -1178,44 +1179,17 @@ export default function Farming() {
     return total;
   };
 
-  // Farming arrives with the shepherd. Until then the player gets food from
-  // the Forager's Hut, Hunting Camp, and Fishing Hut. Settlement Ch.3 is
-  // where Woolly Friends fires.
+  // Farming arrives in two waves. Settlement Ch.3 fires "Woolly Friends"
+  // (the shepherd's gift) and unlocks the sheep pen. Ch.4 unlocks the rest:
+  // crop fields, gardens, other pens, hives, orchards. The page renders the
+  // full layout always — earlier chapters just see everything as locked
+  // cards with the unlock-condition tooltip.
   const settlementChapter = () =>
     state.chapters?.find((c) => c.storyline === "settlement")?.current ?? 0;
   const farmingUnlocked = () => settlementChapter() >= 3;
-  // Most farming features come later. Settlement Ch.3 unlocks the sheep pen
-  // (the shepherd's gift); other pens, gardens, hives, orchards, and crop
-  // fields come at Ch.4 with the Town Hall upgrade arc.
   const sheepPenOnly = () => settlementChapter() < 4;
 
   return (
-    <Show when={farmingUnlocked()} fallback={
-      <div>
-        <h1 class="page-title">Farming</h1>
-        <div style={{
-          padding: "32px 24px",
-          "margin-top": "20px",
-          background: "var(--bg-secondary)",
-          border: "1px solid var(--border-color)",
-          "border-radius": "8px",
-          "text-align": "center",
-        }}>
-          <div style={{ "font-size": "2rem", "margin-bottom": "10px" }}>🌾</div>
-          <div style={{
-            "font-family": "var(--font-heading)",
-            "font-size": "1.1rem",
-            color: "var(--text-primary)",
-            "margin-bottom": "6px",
-          }}>
-            Locked
-          </div>
-          <div style={{ color: "var(--text-muted)", "font-size": "0.9rem" }}>
-            A shepherd will arrive in time. Until then, food comes from the forest, the river, and the hunters.
-          </div>
-        </div>
-      </div>
-    }>
     <div>
       <h1 class="page-title">Farming</h1>
 
@@ -1349,21 +1323,25 @@ export default function Farming() {
         </div>
       </LockedShell>
 
-      {/* ── Livestock ── In sheep-pen-only mode, only the sheep pen is
-          interactive; other pens render with a locked overlay + tooltip. */}
+      {/* ── Livestock ── Two-stage gate: the sheep pen unlocks at Ch.3 with
+          the shepherd's arrival; the rest stays locked until Ch.4. Before
+          Ch.3 every pen is locked with a "chapter 3" reason. */}
       <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🐄 Livestock</h2>
       <div class="fields-grid">
         <For each={state.pens}>
-          {(p) => (
-            <Show
-              when={sheepPenOnly() && p.animal !== "sheep"}
-              fallback={<PenCard pen={p} />}
-            >
-              <LockedShell locked={true} reason="Locked until Settlement chapter 4">
+          {(p) => {
+            const locked = () =>
+              !farmingUnlocked() || (sheepPenOnly() && p.animal !== "sheep");
+            const reason = () =>
+              !farmingUnlocked()
+                ? "Locked until Settlement chapter 3"
+                : "Locked until Settlement chapter 4";
+            return (
+              <LockedShell locked={locked()} reason={reason()}>
                 <PenCard pen={p} />
               </LockedShell>
-            </Show>
-          )}
+            );
+          }}
         </For>
       </div>
 
@@ -1383,6 +1361,5 @@ export default function Farming() {
         </div>
       </LockedShell>
     </div>
-    </Show>
   );
 }

@@ -5,8 +5,9 @@
 //
 // Extracted from ChronicleJournal.tsx so it can be opened from anywhere.
 
-import { For, Show } from "solid-js";
+import { For, Show, onMount } from "solid-js";
 import type { ChronicleEntry } from "~/data/chronicle_entries";
+import { playSound } from "~/engine/sounds";
 
 interface Props {
   entry: ChronicleEntry;
@@ -15,6 +16,7 @@ interface Props {
 
 export default function ChronicleEntryModal(props: Props) {
   const paragraphs = () => props.entry.fullText.split("\n\n");
+  onMount(() => playSound("page_turn"));
 
   return (
     <div

@@ -10,6 +10,9 @@ interface TooltipProps extends ParentProps {
   /** Position relative to the anchor element, OR "cursor" to follow the mouse. */
   position?: "top" | "bottom" | "left" | "right" | "cursor";
   maxWidth?: number;
+  /** When true, the anchor renders as `display: block` so it fills its
+   *  parent's width. Default `inline-block` (shrinks to content). */
+  block?: boolean;
 }
 
 export default function Tooltip(props: TooltipProps) {
@@ -89,7 +92,7 @@ export default function Tooltip(props: TooltipProps) {
       onMouseEnter={show}
       onMouseMove={move}
       onMouseLeave={hide}
-      style={{ display: "inline-block" }}
+      style={{ display: props.block ? "block" : "inline-block" }}
     >
       {props.children}
       <Show when={visible() && hasContent()}>

@@ -295,6 +295,7 @@ export interface GameEvent {
 }
 
 import { type CraftingRecipe, type ActiveCraft, CRAFTING_RECIPES, getBuildingToolByRecipe, getBuildingTool, getRequiredTool, type BuildingToolDef } from "./crafting";
+import { playSound } from "./sounds";
 import {
   calcAdventurerMaxHp,
   resolveEventSlot,
@@ -2425,7 +2426,11 @@ export function GameProvider(props: ParentProps) {
     }
   }
 
-  function applyTicks(elapsedMs: number) {
+  function applyTicks(elapsedMs: number, live: boolean = false) {
+    // `live` distinguishes the foreground tick (player is watching) from the
+    // offline catch-up. Audio cues only fire when live, so a player who
+    // returns after a day doesn't get a barrage of "plop"s for every queued
+    // upgrade that completed while they were away.
     const elapsedHours = elapsedMs / 3_600_000;
     const elapsedSeconds = elapsedMs / 1000;
     if (elapsedHours <= 0) return;
@@ -2441,7 +2446,7 @@ export function GameProvider(props: ParentProps) {
       let remaining = elapsedMs;
       while (remaining > 0) {
         const step = Math.min(remaining, MAX_CHUNK_MS);
-        applyTicks(step);
+        applyTicks(step, live);
         remaining -= step;
       }
       return;
@@ -2853,6 +2858,7 @@ export function GameProvider(props: ParentProps) {
                   const def = BUILDINGS.find((b) => b.id === (item as any).buildingId);
                   if (def) pushEvent(s, "building_completed", def.icon, `${def.name} upgraded to level ${item.level}`);
                 }
+                if (live) playSound("plop");
               }
             }
           }
@@ -3651,7 +3657,7 @@ export function GameProvider(props: ParentProps) {
     }
     if (elapsed > 500) {
       try {
-        applyTicks(elapsed * getSpeed());
+        applyTicks(elapsed * getSpeed(), true);
       } catch (err) {
         console.error("Tick error:", err);
         // Reset lastTick so the next tick doesn't accumulate a huge elapsed

@@ -1,4 +1,4 @@
-import { createSignal, createMemo, createResource, createEffect, For, Show, onCleanup } from "solid-js";
+import { createSignal, createMemo, createResource, createEffect, For, Show, onCleanup, onMount } from "solid-js";
 import { A, useSearchParams } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
 import { IS_DEV } from "~/data/seasons";
@@ -41,6 +41,7 @@ import LootModal from "~/components/LootModal";
 import ChronicleEntryModal from "~/components/ChronicleEntryModal";
 import { getChronicleEntry, type ChronicleEntry } from "~/data/chronicle_entries";
 import CombatLog from "~/components/CombatLog";
+import { playSound } from "~/engine/sounds";
 import CombatPlayback from "~/components/CombatPlayback";
 import { fetchCoops, respondCoop, cancelCoop, fetchCoopDetail, claimCoop } from "~/api/coop";
 import { wsClient } from "~/api/ws";
@@ -87,6 +88,7 @@ function DeathRisk(props: { chance: number }) {
 export default function AdventurersGuild() {
   const { state, actions } = useGame();
   actions.visitGuild();
+  onMount(() => playSound("dagger"));
   const [searchParams] = useSearchParams();
   const initialTab = (searchParams.tab === "roster" || searchParams.tab === "recruit") ? searchParams.tab as Tab : "missions";
   const [tab, setTab] = createSignal<Tab>(initialTab);
@@ -882,6 +884,7 @@ export default function AdventurersGuild() {
                 }}
                 onDeploy={(missionId, teamIds, adventurerSupplies, successPct) => {
                   if (actions.deployMission(missionId, teamIds, adventurerSupplies, successPct)) {
+                    playSound("dagger");
                     setSelectedMission(null);
                     setSelectedTeam([]);
                     setSelectedSupplies([]);

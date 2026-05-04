@@ -1,6 +1,7 @@
 import { Show, createSignal, onMount, onCleanup } from "solid-js";
 import { A, useLocation } from "@solidjs/router";
 import { useGame, CRAFTING_RECIPES } from "~/engine/gameState";
+import { isMuted, toggleMuted } from "~/engine/sounds";
 import { SEASON_META, HOURS_PER_SEASON, IS_DEV, getGlobalSeason } from "~/data/seasons";
 import { logout, getUsername } from "~/api/auth";
 import { QUEST_DEFINITIONS, isQuestTriggered } from "~/data/quests";
@@ -440,6 +441,15 @@ export default function Sidebar(props: SidebarProps) {
             Logged in as <span style={{ color: "var(--text-secondary)" }}>{getUsername()}</span>
           </div>
         </Show>
+        <button
+          class="account-btn"
+          onClick={toggleMuted}
+          title={isMuted() ? "Unmute sound effects" : "Mute sound effects"}
+          style={{ "margin-bottom": "6px" }}
+        >
+          <span style={{ "margin-right": "6px" }}>{isMuted() ? "🔇" : "🔊"}</span>
+          {isMuted() ? "Sound off" : "Sound on"}
+        </button>
         <button
           class="account-btn"
           onClick={() => {

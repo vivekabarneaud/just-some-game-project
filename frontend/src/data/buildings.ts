@@ -163,14 +163,10 @@ export function getUnlockRequirement(building: BuildingDefinition): string {
   return `Requires ${tierInfo.name} (Town Hall ${tierInfo.minTownHall})`;
 }
 
-/** Human-readable label for a narrative unlock gate. */
-function unlockGateLabel(gate: BuildingUnlockGate): string {
-  if ("requiresBuildings" in gate) {
-    const names = gate.requiresBuildings.map(
-      (id) => BUILDINGS.find((b) => b.id === id)?.name ?? id,
-    );
-    return `Requires ${names.join(" + ")}`;
-  }
+/** Human-readable label for a chapter unlock gate. The building-prereq
+ *  flavor is split into per-building rows by `getUnlockConditions`, so this
+ *  helper handles the chapter case only. */
+function chapterGateLabel(gate: { storyline: string; chapter: number }): string {
   const storylineLabels: Record<string, string> = {
     settlement: "Settlement",
     guild: "Adventurer's Guild",
@@ -213,12 +209,23 @@ export function getUnlockConditions(
       met: isBuildingUnlocked(building, thLevel),
     });
   }
-  // Narrative gate (chapter or building prereqs)
-  if (building.unlockedAt) {
-    conditions.push({
-      label: unlockGateLabel(building.unlockedAt),
-      met: isBuildingChapterUnlocked(building, state),
-    });
+  // Narrative gate (chapter or building prereqs). Building prereqs are split
+  // into one row per required building so the tooltip checklist gives a
+  // green/red tick per dependency.
+  const gate = building.unlockedAt;
+  if (gate) {
+    if ("requiresBuildings" in gate) {
+      for (const id of gate.requiresBuildings) {
+        const name = BUILDINGS.find((b) => b.id === id)?.name ?? id;
+        const built = (state.buildings.find((b) => b.buildingId === id)?.level ?? 0) >= 1;
+        conditions.push({ label: `Build a ${name}`, met: built });
+      }
+    } else {
+      conditions.push({
+        label: chapterGateLabel(gate),
+        met: isBuildingChapterUnlocked(building, state),
+      });
+    }
   }
   return conditions;
 }

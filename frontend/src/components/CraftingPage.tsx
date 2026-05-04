@@ -1,6 +1,7 @@
 import { For, Show, type JSX } from "solid-js";
 import { A } from "@solidjs/router";
 import { useGame, CRAFTING_RECIPES, getBuildingToolsForBuilding, getRequiredTool, type CraftingRecipe } from "~/engine/gameState";
+import { playSound, type SoundId } from "~/engine/sounds";
 import { getItemByRecipe, ARMOR_TYPE_META } from "@medieval-realm/shared/data/items";
 import { getTotalFood, isFoodItemType, getFoodCostAmount, getFoodMeta, type FoodItemType } from "~/data/foods";
 import { BUILDINGS } from "~/data/buildings";
@@ -29,6 +30,9 @@ interface CraftingPageProps {
   materials: { icon: string; label: string; value: () => number }[];
   /** Verb for the craft button (default: "Craft") */
   craftVerb?: string;
+  /** SFX fired when a craft starts. Set per-building (e.g. Kitchen → "dagger"
+   *  for the chopping cue). Omit for silent crafts. */
+  craftSound?: SoundId;
 }
 
 /** Display-friendly name for produced resource */
@@ -416,7 +420,10 @@ export default function CraftingPage(props: CraftingPageProps) {
                               maxQty: () => maxCraftable(recipe.id),
                               canCraft: (qty) => canCraft(recipe.id, qty),
                               disabledReason: (qty) => craftDisabledReason(recipe.id, qty),
-                              onCraft: (qty) => actions.startCraft(recipe.id, qty),
+                              onCraft: (qty) => {
+                                if (props.craftSound) playSound(props.craftSound);
+                                actions.startCraft(recipe.id, qty);
+                              },
                               verb: props.craftVerb,
                             }
                       }

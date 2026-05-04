@@ -9,6 +9,7 @@ export default function Woodworker() {
       buildingId="woodworker"
       buildingName="Woodworker"
       icon="🪚"
+      craftSound="plop"
       materials={[
         { icon: "🪵", label: "Wood", value: () => Math.floor(state.resources.wood) },
         { icon: "🪻", label: "Fiber", value: () => Math.floor(state.fiber) },

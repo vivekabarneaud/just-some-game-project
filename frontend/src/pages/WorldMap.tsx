@@ -3,6 +3,7 @@ import { A } from "@solidjs/router";
 import { fetchWorldMap, type WorldSettlement } from "~/api/world";
 import { getSettlementId } from "~/engine/gameState";
 import type { WorldMapResponse } from "@medieval-realm/shared";
+import { playSound } from "~/engine/sounds";
 
 const TIER_ICONS: Record<string, string> = {
   camp: "🏕️",
@@ -54,6 +55,7 @@ export default function WorldMap() {
   };
 
   onMount(async () => {
+    playSound("page_turn");
     try {
       const data = await fetchWorldMap();
       setMapData(data);
