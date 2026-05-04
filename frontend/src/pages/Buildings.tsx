@@ -1,7 +1,7 @@
 import { For, Show, onMount } from "solid-js";
 import { A } from "@solidjs/router";
 import { BUILDINGS, isBuildingUnlocked, isBuildingChapterUnlocked, getUnlockRequirement, getUnlockReasons, getUnlockConditions, getNextLevelRequirement, applyMasonCostReduction, applyMasonTimeReduction, getTierPrerequisitesMet, getRepairCost, getBuildingImage, PANIC_BUILD_IDS, PANIC_BUILD_SHARD_COST, type BuildingDefinition } from "~/data/buildings";
-import { QUEST_DEFINITIONS, isQuestActive, isQuestClaimable } from "~/data/quests";
+import { QUEST_DEFINITIONS, isQuestActive } from "~/data/quests";
 import { useGame } from "~/engine/gameState";
 import Countdown from "~/components/Countdown";
 import Tooltip from "~/components/Tooltip";
@@ -30,13 +30,17 @@ export default function Buildings() {
       }, 100);
     }
   });
-  const questTarget = () => {
-    // Highlight the building targeted by the current most-relevant quest:
-    // prefer a claimable quest, fall back to first active quest.
-    const claimable = QUEST_DEFINITIONS.find((q) => isQuestClaimable(q, state));
-    if (claimable?.targetBuildingId) return claimable.targetBuildingId;
-    const active = QUEST_DEFINITIONS.find((q) => isQuestActive(q, state));
-    return active?.targetBuildingId ?? null;
+  const isQuestTargeted = (buildingId: string) => {
+    // Multiple chapter quests can be active at once, each with its own
+    // target. Highlight every building that has an active, not-yet-met
+    // quest pointing at it. Drop the highlight once the condition is
+    // satisfied — no need to nudge toward what's already done.
+    return QUEST_DEFINITIONS.some(
+      (q) =>
+        q.targetBuildingId === buildingId &&
+        isQuestActive(q, state) &&
+        !q.condition(state),
+    );
   };
 
   const getPlayerBuilding = (buildingId: string) =>
@@ -191,16 +195,7 @@ export default function Buildings() {
                     return "";
                   };
 
-                  const isQuestTarget = () => {
-                    const qt = questTarget();
-                    if (qt !== building.id) return false;
-                    // Hide the highlight once the player has met the target
-                    // (no need to nudge them toward something they've already done).
-                    const targetingQuest = QUEST_DEFINITIONS.find(
-                      (q) => isQuestActive(q, state) && q.targetBuildingId === building.id,
-                    );
-                    return !!targetingQuest && !targetingQuest.condition(state);
-                  };
+                  const isQuestTarget = () => isQuestTargeted(building.id);
 
                   const isNewlyUnlocked = () => {
                     if (!unlocked()) return false;
