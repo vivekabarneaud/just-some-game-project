@@ -4,14 +4,14 @@ import { BUILDINGS, getSettlementName, SETTLEMENT_TIERS } from "~/data/buildings
 import { RESOURCES } from "~/data/resources";
 import { SEASON_META } from "~/data/seasons";
 import { getRaid, getDefenseTips, type IncomingRaid } from "~/data/raids";
-import { QUEST_CHAIN, type QuestDefinition } from "~/data/quests";
+import { QUEST_DEFINITIONS, isQuestActive, isQuestClaimable, isQuestClaimed } from "~/data/quests";
 import { useGame, WALL_BASE_HP } from "~/engine/gameState";
 import { totalPopulation } from "~/data/citizens";
 import { getRobinEvent, setOpenChronicleEntry } from "~/data/robins";
 import { getChronicleEntry } from "~/data/chronicle_entries";
 import { simulateRaidCombat } from "@medieval-realm/shared/data/raidCombat";
 import Countdown from "~/components/Countdown";
-import QuestClaimModal from "~/components/QuestClaimModal";
+// QuestClaimModal removed — claim flow lives on /quests now.
 import CombatPlayback from "~/components/CombatPlayback";
 
 export default function Overview() {
@@ -49,22 +49,12 @@ export default function Overview() {
 
   const hasThreats = () => state.incomingRaids.length > 0;
 
-  // Quest system
-  const claimed = () => state.questRewardsClaimed ?? [];
-  const currentQuest = () => {
-    const c = claimed();
-    const idx = QUEST_CHAIN.findIndex((q) => !c.includes(q.id));
-    return idx >= 0 ? QUEST_CHAIN[idx] : null;
-  };
-  const isQuestComplete = () => {
-    const quest = currentQuest();
-    return quest ? quest.condition(state) : false;
-  };
-  const questProgress = () => claimed().length;
-  const allQuestsComplete = () => questProgress() >= QUEST_CHAIN.length;
+  // Quest system — Overview now shows a single summary card linking to the
+  // Quest Log. Detail / claim flows live on /quests. Helpers below drive the
+  // summary card text and the "all done" congratulations panel.
+  const allQuestsComplete = () =>
+    QUEST_DEFINITIONS.every((q) => isQuestClaimed(q, state));
   const [dismissedCongrats, setDismissedCongrats] = createSignal(false);
-  /** Quest shown in the claim modal — clicking Claim on a quest opens this, the modal applies the reward on confirm. */
-  const [claimingQuest, setClaimingQuest] = createSignal<QuestDefinition | null>(null);
 
   /** Raid currently being played back. Set when the player clicks "Watch combat"
    *  on a resolved raid card; cleared (and acknowledged) when the modal closes. */
@@ -79,19 +69,7 @@ export default function Overview() {
 
   return (
     <div>
-      {/* Quest claim modal — opens from "Claim Reward" button on the quest card. */}
-      <Show when={claimingQuest()}>
-        {(q) => (
-          <QuestClaimModal
-            quest={q()}
-            onClaim={() => {
-              actions.claimQuestReward(q().id);
-              setClaimingQuest(null);
-            }}
-            onClose={() => setClaimingQuest(null)}
-          />
-        )}
-      </Show>
+      {/* (Quest claim modal removed — claims now happen on the Quest Log page.) */}
 
       {/* Raid combat playback — opens from "Watch combat" on a resolved threat card. */}
       <Show when={playingRaid()}>
@@ -174,84 +152,53 @@ export default function Overview() {
         );
       })()}
 
-      {/* Quest Panel */}
-      <Show when={!allQuestsComplete() && currentQuest()}>
-        {(quest) => (
-          <div class="quest-panel" classList={{ "has-image": !!quest().image }}>
-            <Show when={quest().image}>
-              <div class="quest-image">
-                <img src={quest().image} alt={quest().title} />
-              </div>
-            </Show>
-            <div class="quest-panel-content">
-              <div class="quest-header">
-                <Show when={!quest().image}>
-                  <span class="quest-icon">{quest().icon}</span>
-                </Show>
-                <div>
-                  <h2>Quest: {quest().title}</h2>
-                  <p class="quest-narrative">"{quest().narrative}"</p>
-                  <Show when={quest().hint}>
-                    <p style={{ "font-size": "0.8rem", "margin-top": "6px", color: "var(--accent-gold)" }}>
-                      <Show when={quest().hintLink} fallback={<strong>{quest().hint}</strong>}>
-                        <A href={quest().hintLink!} style={{ color: "var(--accent-gold)", "font-weight": "bold" }}>{quest().hint}</A>
-                      </Show>
+      {/* Quest summary card — directs the player to the Quest Log for full
+          quest detail. Replaces the old in-Overview claim panel; the log handles
+          claim flow now. The golden frame styling is preserved for continuity. */}
+      <Show when={!allQuestsComplete()}>
+        {(() => {
+          const activeQuests = () =>
+            QUEST_DEFINITIONS.filter((q) => isQuestActive(q, state));
+          const activeCount = () => activeQuests().length;
+          const claimableCount = () =>
+            activeQuests().filter((q) => isQuestClaimable(q, state)).length;
+          const newCount = () => {
+            const seen = state.questsClaimableSeen ?? [];
+            return activeQuests().filter((q) => !seen.includes(q.id)).length;
+          };
+          // Build a comma-separated breakdown like "1 new, 1 claimable, 3 active"
+          const breakdown = () => {
+            const parts: string[] = [];
+            if (newCount() > 0) parts.push(`${newCount()} new`);
+            if (claimableCount() > 0) parts.push(`${claimableCount()} claimable`);
+            parts.push(`${activeCount()} active`);
+            return parts.join(", ");
+          };
+          // Flavor headline. Constant by default; shifts to a slightly more
+          // urgent line when there are claimable rewards to nudge the player.
+          const headline = () => {
+            if (claimableCount() > 0) return "Matters waiting on your stamp";
+            return "Matters to attend to today";
+          };
+          return (
+            <div class="quest-panel" style={{ "padding": "16px 20px" }}>
+              <div class="quest-panel-content">
+                <div class="quest-header" style={{ "align-items": "center" }}>
+                  <span class="quest-icon" style={{ "font-size": "1.6rem" }}>📋</span>
+                  <div>
+                    <h2 style={{ "margin": 0 }}>{headline()}</h2>
+                    <p class="quest-narrative" style={{ "margin": "4px 0 0" }}>
+                      {breakdown()}
                     </p>
-                  </Show>
+                  </div>
+                  <A href="/quests" class="quest-link" style={{ "margin-left": "auto" }}>
+                    Open Quest Log →
+                  </A>
                 </div>
-                <span class="quest-progress">{questProgress() + 1} / {QUEST_CHAIN.length}</span>
-              </div>
-            <div class="quest-body">
-              <div class="quest-objective">
-                <span class="quest-objective-label">Objective: </span>
-                {quest().objective}
-                <Show when={isQuestComplete()}>
-                  <span class="quest-check"> — Complete!</span>
-                </Show>
-              </div>
-              <div class="quest-rewards">
-                <span class="quest-reward-label">Reward: </span>
-                {quest().rewards.map((r) => (
-                  <span class="quest-reward-item">+{r.amount} {r.label}</span>
-                ))}
               </div>
             </div>
-            <div class="quest-actions">
-              <Show when={isQuestComplete()}>
-                <button class="quest-claim-btn" onClick={() => setClaimingQuest(quest())}>
-                  Claim Reward
-                </button>
-              </Show>
-              <Show when={!isQuestComplete()}>
-                {(() => {
-                  const bid = quest().targetBuildingId;
-                  const page = quest().targetPage ?? (bid ? "/buildings" : null);
-                  const href = bid ? `/buildings#building-${bid}` : page;
-                  const labels: Record<string, string> = {
-                    "/buildings": "Go to Buildings",
-                    "/farming": "Go to Farming",
-                    "/guild": "Go to Adventurer's Guild",
-                  };
-                  const label = bid ? `Go to Buildings` : (labels[page ?? ""] ?? "Go");
-                  return href ? <A href={href} class="quest-link">{label} →</A> : null;
-                })()}
-              </Show>
-              <Show when={quest().id === "baptism_of_fire" && state.incomingRaids.length > 0}>
-                <span style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-left": "8px" }}>
-                  Ready? Skip the waiting —
-                </span>
-                <button
-                  class="quest-claim-btn"
-                  style={{ background: "var(--accent-red)", "margin-left": "4px" }}
-                  onClick={() => actions.skipRaidTimer()}
-                >
-                  Fight now!
-                </button>
-              </Show>
-            </div>
-            </div>{/* end quest-panel-content */}
-          </div>
-        )}
+          );
+        })()}
       </Show>
 
       <Show when={allQuestsComplete() && !dismissedCongrats()}>

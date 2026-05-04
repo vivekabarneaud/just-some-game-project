@@ -7,8 +7,9 @@ import ChronicleEntryModal from "./components/ChronicleEntryModal";
 import { openChronicleEntry, setOpenChronicleEntry } from "./data/robins";
 import ToastContainer from "./components/Toast";
 import EventBanner, { showEvent } from "./components/EventBanner";
+import EventModal from "./components/EventModal";
 import { INTRO_CINEMATIC } from "./data/cinematics";
-import { QUEST_CHAIN } from "./data/quests";
+import { QUEST_DEFINITIONS, isQuestClaimable } from "./data/quests";
 import { SEASON_META } from "./data/seasons";
 import { getMission } from "@medieval-realm/shared/data/missions";
 import { useGame } from "./engine/gameState";
@@ -40,24 +41,23 @@ export default function App(props: ParentProps) {
     setSidebarOpen(false);
   });
 
-  // Quest-completion watcher: when the current (unclaimed) quest's condition
-  // transitions false → true, broadcast it via the event banner. Deduped by id
-  // — won't re-fire for the same quest if the condition briefly toggles.
-  let lastCompletedQuestId: string | null = null;
+  // Quest-completion watcher: whenever any active quest transitions to a
+  // claimable state, broadcast a one-shot toast. Deduped by id so each quest
+  // fires at most once per session even if its condition briefly toggles.
+  // Multiple concurrent quests are handled — one toast per newly-claimable id.
+  const announcedQuests = new Set<string>();
   createEffect(() => {
-    const claimed = state.questRewardsClaimed ?? [];
-    const idx = QUEST_CHAIN.findIndex((q) => !claimed.includes(q.id));
-    if (idx < 0) return;
-    const current = QUEST_CHAIN[idx];
-    if (!current.condition(state)) return;
-    if (lastCompletedQuestId === current.id) return;
-    lastCompletedQuestId = current.id;
-    showEvent({
-      type: "quest",
-      icon: current.icon,
-      message: `Quest complete — ${current.title}. Visit the Overview to claim your reward!`,
-      onClick: () => navigate("/"),
-    });
+    for (const quest of QUEST_DEFINITIONS) {
+      if (!isQuestClaimable(quest, state)) continue;
+      if (announcedQuests.has(quest.id)) continue;
+      announcedQuests.add(quest.id);
+      showEvent({
+        type: "quest",
+        icon: quest.icon,
+        message: `Quest complete — ${quest.title}. Visit the Quest Log to claim your reward!`,
+        onClick: () => navigate("/quests"),
+      });
+    }
   });
 
   // Robin-arrival watcher: surface a one-shot toast whenever a new robin lands
@@ -211,6 +211,10 @@ export default function App(props: ParentProps) {
       <Show when={openChronicleEntry()}>
         {(entry) => <ChronicleEntryModal entry={entry()} onClose={() => setOpenChronicleEntry(null)} />}
       </Show>
+
+      {/* Narrative event banner modal — auto-shows when state.pendingEvents
+          has items. Each event is read-and-dismissed by the player. */}
+      <EventModal />
 
       <div class="app-layout" classList={{ "sidebar-open": sidebarOpen() }}>
         <Sidebar onClose={() => setSidebarOpen(false)} />

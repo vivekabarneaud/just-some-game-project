@@ -139,6 +139,7 @@ const Chronicle = lazy(() => import("./pages/Chronicle"));
 const Friends = lazy(() => import("./pages/Friends"));
 const Shrine = lazy(() => import("./pages/Shrine"));
 const Defenses = lazy(() => import("./pages/Defenses"));
+const QuestLog = lazy(() => import("./pages/QuestLog"));
 const CharacterEncyclopedia = lazy(() => import("./pages/CharacterEncyclopedia"));
 const ComingSoon = lazy(() => import("./pages/ComingSoon"));
 const Login = lazy(() => import("./pages/Login"));
@@ -179,6 +180,7 @@ render(
         <Route path="/encyclopedia" component={CharacterEncyclopedia} />
         <Route path="/shrine" component={Shrine} />
         <Route path="/defenses" component={Defenses} />
+        <Route path="/quests" component={QuestLog} />
         <Route path="*" component={ComingSoon} />
       </Route>
     </Router>

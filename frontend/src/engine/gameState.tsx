@@ -50,6 +50,7 @@ import {
   getSettlementTier,
   getSettlementName,
   isBuildingUnlocked,
+  isBuildingChapterUnlocked,
   getEffectiveMaxLevel,
   getMasonBonuses,
   applyMasonCostReduction,
@@ -248,7 +249,14 @@ import {
   type DefenseBreakdown,
 } from "~/data/raids";
 
-import { QUEST_CHAIN } from "~/data/quests";
+import {
+  QUEST_DEFINITIONS,
+  isQuestTriggered,
+  isChapterComplete,
+  type StorylineId,
+  type ChapterState,
+} from "~/data/quests";
+import { getReadyEvents } from "~/data/events";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { EXOTIC_IDS } from "@medieval-realm/shared/data/exotics";
 import { ALCHEMY_RECIPES, getDiscoverableRecipes, getAvailableAlchemyRecipes, RESEARCH_BASE_COST } from "@medieval-realm/shared/data/alchemy_recipes";
@@ -531,6 +539,22 @@ export interface GameState {
   lastRecruitRefresh: number; // timestamp when recruits last refreshed
   // Quest system
   questRewardsClaimed: string[];
+  /** Per-storyline chapter state. Drives chapter unlocks and the quest log. */
+  chapters: import("~/data/quests").ChapterState[];
+  /** Narrative events that have already fired (one-shot). */
+  firedEvents: string[];
+  /** Narrative events queued for the player to read; cleared on dismiss. */
+  pendingEvents: string[];
+  /** Quest IDs the player has already glanced at since they became claimable.
+   *  Drives the red sidebar notification badge — count is unseen-claimable.
+   *  Hovering a quest card in the Quest Log adds the id to this list. */
+  questsClaimableSeen: string[];
+  /** Building IDs the player has hovered/visited since unlock. Drives the
+   *  blue "newly unlocked" highlight in the Buildings page. */
+  buildingsSeen: string[];
+  /** Recipe IDs the player has hovered. Drives the blue "newly available"
+   *  highlight on RecipeCards + the per-crafting-building sidebar badge. */
+  recipesSeen: string[];
   firstMissionSent: boolean;
   introSeen: boolean;
   // Story missions
@@ -647,6 +671,11 @@ export interface GameActions {
   hasNewGuildContent: () => boolean;
   visitChronicleJournal: () => void;
   visitChronicleCast: () => void;
+  /** Mark a single chronicle entry as glanced-at — clears its highlight and
+   *  ticks the sidebar badge down by one. Used by per-card hover. */
+  markChronicleEntrySeen: (entryId: string) => void;
+  /** Mark a single bio fragment (memory) as glanced-at. */
+  markBioFragmentSeen: (fragmentId: string) => void;
   hasNewChronicleContent: () => boolean;
   countUnseenJournalEntries: () => number;
   countUnseenMemories: () => number;
@@ -663,6 +692,18 @@ export interface GameActions {
   /** Acknowledge a pending robin event — applies its unlocks (recipes/cast/
    *  quests), removes it from pendingRobins, adds it to firedRobins. */
   acknowledgeRobin: (robinId: string) => void;
+  /** Dismiss a pending narrative event banner. Unlocks were already applied
+   *  when the event fired; this only removes the banner from the queue. */
+  dismissEvent: (eventId: string) => void;
+  /** Mark a claimable quest as glanced-at. The red sidebar notification clears
+   *  for that quest until a new one becomes claimable. */
+  markQuestClaimableSeen: (questId: string) => void;
+  /** Mark a building as glanced-at. Clears the blue "newly unlocked" highlight
+   *  on its card in the Buildings page. */
+  markBuildingSeen: (buildingId: string) => void;
+  /** Mark a recipe as glanced-at. Clears its blue highlight + ticks the
+   *  crafting-building sidebar badge down. */
+  markRecipeSeen: (recipeId: string) => void;
   /** Dev-only: queue the placeholder robin event so the banner / sidebar pill
    *  / Overview card can be tested without completing a story mission. Idempotent
    *  — clears prior fired state so the button works repeatedly across sessions. */
@@ -829,6 +870,17 @@ function createInitialState(): GameState {
     recruitRerollToday: 0,
     lastRerollReset: Date.now(),
     questRewardsClaimed: [],
+    chapters: [
+      { storyline: "settlement", current: 1, completedChapters: [] },
+      { storyline: "guild", current: 0, completedChapters: [] },
+      { storyline: "story", current: 1, completedChapters: [] },
+      { storyline: "defense", current: 0, completedChapters: [] },
+    ],
+    firedEvents: [],
+    pendingEvents: [],
+    questsClaimableSeen: [],
+    buildingsSeen: [],
+    recipesSeen: [],
     firstMissionSent: false,
     introSeen: false,
     completedStoryMissions: [],
@@ -1174,6 +1226,66 @@ function loadGame(): GameState | null {
     if (!saved.questRewardsClaimed) saved.questRewardsClaimed = [];
     if (saved.firstMissionSent === undefined) saved.firstMissionSent = false;
     if (saved.introSeen === undefined) saved.introSeen = true; // existing saves have already "seen" the intro
+    // Event system migration (May 2026): start fresh — events that should
+    // have fired already will fire on next state evaluation. Banners are
+    // ephemeral; replaying them on legacy saves is acceptable.
+    if (!saved.firedEvents) saved.firedEvents = [];
+    if (!saved.pendingEvents) saved.pendingEvents = [];
+    if (!saved.questsClaimableSeen) saved.questsClaimableSeen = [];
+    if (!saved.buildingsSeen) {
+      // Existing save — assume the player has already seen anything they could
+      // possibly have built. We mark all currently-unlocked buildings as seen
+      // so older saves don't suddenly light up blue everywhere.
+      saved.buildingsSeen = BUILDINGS
+        .filter((b) => isBuildingUnlocked(b, getTownHallLevel(saved.buildings)) &&
+          isBuildingChapterUnlocked(b, saved as any))
+        .map((b) => b.id);
+    }
+    if (!saved.recipesSeen) {
+      // Same backfill story as buildingsSeen: any recipe whose building is at
+      // the right level today is treated as already-seen on the legacy save.
+      saved.recipesSeen = CRAFTING_RECIPES
+        .filter((r) => {
+          const b = saved.buildings.find((bb) => bb.buildingId === r.building);
+          return (b?.level ?? 0) >= r.minLevel;
+        })
+        .map((r) => r.id);
+    }
+    // Chapter system migration (May 2026): backfill chapter state from existing
+    // quest claims. Each storyline starts with chapter 1 (or 0 if locked) and
+    // every chapter whose quests are all claimed is marked completed.
+    if (!saved.chapters) {
+      saved.chapters = [
+        { storyline: "settlement", current: 1, completedChapters: [] },
+        { storyline: "guild", current: 0, completedChapters: [] },
+        { storyline: "story", current: 1, completedChapters: [] },
+        { storyline: "defense", current: 0, completedChapters: [] },
+      ];
+      // Walk each storyline and mark chapters completed based on existing claims.
+      for (const cs of saved.chapters) {
+        const chaptersInStoryline = new Set(
+          QUEST_DEFINITIONS
+            .filter((q) => q.storyline === cs.storyline)
+            .map((q) => q.chapter),
+        );
+        for (const chapter of [...chaptersInStoryline].sort((a, b) => a - b)) {
+          const allClaimed = QUEST_DEFINITIONS
+            .filter((q) => q.storyline === cs.storyline && q.chapter === chapter)
+            .every((q) => saved.questRewardsClaimed.includes(q.id));
+          if (allClaimed) {
+            cs.completedChapters.push(chapter);
+            cs.current = chapter + 1;
+          } else if (cs.current === 0 && saved.questRewardsClaimed.some((id) =>
+            QUEST_DEFINITIONS.find((q) => q.id === id)?.storyline === cs.storyline)) {
+            // Storyline has at least one claimed quest; activate it.
+            cs.current = chapter;
+            break;
+          } else {
+            break;
+          }
+        }
+      }
+    }
     if (!saved.completedStoryMissions) saved.completedStoryMissions = [];
     if (!saved.pendingRobins) saved.pendingRobins = [];
     if (!saved.firedRobins) saved.firedRobins = [];
@@ -1291,6 +1403,33 @@ const MAX_EVENT_LOG = 50;
 function pushEvent(s: GameState, type: GameEventType, icon: string, message: string) {
   s.eventLog.unshift({ type, icon, message, timestamp: Date.now() });
   if (s.eventLog.length > MAX_EVENT_LOG) s.eventLog.length = MAX_EVENT_LOG;
+}
+
+/** Run the narrative-event evaluator against a state draft. Fires any events
+ *  whose triggers are now satisfied, queues their banners in pendingEvents,
+ *  and applies their unlocks (storyline activation, chronicle entries).
+ *  Loops to fixpoint so cascading unlocks resolve in one call. */
+function applyEventEvaluation(s: GameState): void {
+  for (let iter = 0; iter < 10; iter++) {
+    const ready = getReadyEvents(s);
+    if (ready.length === 0) return;
+    for (const event of ready) {
+      s.firedEvents.push(event.id);
+      s.pendingEvents.push(event.id);
+      if (event.unlocks?.activateStoryline) {
+        const { storyline, chapter } = event.unlocks.activateStoryline;
+        const cs = s.chapters.find((c) => c.storyline === storyline);
+        if (cs && cs.current < chapter) {
+          cs.current = chapter;
+        }
+      }
+      if (event.unlocks?.chronicleEntryId) {
+        if (!s.chronicleEntriesFired.includes(event.unlocks.chronicleEntryId)) {
+          s.chronicleEntriesFired.push(event.unlocks.chronicleEntryId);
+        }
+      }
+    }
+  }
 }
 
 function isHarvestTime(season: Season, seasonElapsed: number): boolean {
@@ -3197,6 +3336,9 @@ export function GameProvider(props: ParentProps) {
                 if (robin && !s.firedRobins.includes(robin.id) && !s.pendingRobins.includes(robin.id)) {
                   s.pendingRobins.push(robin.id);
                 }
+                // Narrative event evaluator: story-mission triggers may now
+                // satisfy events like the three-reports banner.
+                applyEventEvaluation(s);
               }
 
               // Record discovered enemies — success or failure, the player has now seen them
@@ -3584,6 +3726,8 @@ export function GameProvider(props: ParentProps) {
       if (!pb || pb.upgrading) return false;
       const def = BUILDINGS.find((b) => b.id === buildingId);
       if (!def || !isBuildingUnlocked(def, getTownHallLevel(state.buildings))) return false;
+      // Chapter gate: building hidden until its storyline chapter is reached.
+      if (!isBuildingChapterUnlocked(def, state)) return false;
 
       // Check Town Hall-gated level cap (no building may exceed TH level)
       const thLevel = getTownHallLevel(state.buildings);
@@ -4859,6 +5003,24 @@ export function GameProvider(props: ParentProps) {
       }));
       scheduleSave();
     },
+    markChronicleEntrySeen(entryId) {
+      setState(produce((s) => {
+        if (!s.chronicleEntriesSeen) s.chronicleEntriesSeen = [];
+        if (!s.chronicleEntriesSeen.includes(entryId)) {
+          s.chronicleEntriesSeen.push(entryId);
+        }
+      }));
+      scheduleSave();
+    },
+    markBioFragmentSeen(fragmentId) {
+      setState(produce((s) => {
+        if (!s.bioFragmentsSeen) s.bioFragmentsSeen = [];
+        if (!s.bioFragmentsSeen.includes(fragmentId)) {
+          s.bioFragmentsSeen.push(fragmentId);
+        }
+      }));
+      scheduleSave();
+    },
     hasNewChronicleContent() {
       const entriesFired = state.chronicleEntriesFired ?? [];
       const entriesSeen = new Set(state.chronicleEntriesSeen ?? []);
@@ -4972,11 +5134,11 @@ export function GameProvider(props: ParentProps) {
       return true;
     },
     claimQuestReward(questId) {
-      const questIdx = QUEST_CHAIN.findIndex((q) => q.id === questId);
-      if (questIdx < 0) return false;
-      const quest = QUEST_CHAIN[questIdx];
+      const quest = QUEST_DEFINITIONS.find((q) => q.id === questId);
+      if (!quest) return false;
       if (state.questRewardsClaimed.includes(questId)) return false;
-      if (questIdx > 0 && !state.questRewardsClaimed.includes(QUEST_CHAIN[questIdx - 1].id)) return false;
+      // Quest must be currently triggered (active in the chapter system).
+      if (!isQuestTriggered(quest, state)) return false;
       if (!quest.condition(state)) return false;
       setState(produce((s) => {
         s.questRewardsClaimed.push(questId);
@@ -5004,18 +5166,32 @@ export function GameProvider(props: ParentProps) {
           }
         }
 
-        // Check if the NEXT quest triggers a raid
-        const nextQuest = QUEST_CHAIN[questIdx + 1];
-        if (nextQuest?.triggersRaid && s.incomingRaids.length === 0) {
-          // Spawn a weak, slow raid — 12 hours (43200 game-seconds)
-          s.incomingRaids.push({
-            raidId: "hungry_bandits",
-            remaining: 43200,
-            strength: 10, // very weak
-            warned: true,
-          });
-          pushEvent(s, "raid_incoming", "⚠️", "Your adventurers spotted bandits heading this way! Estimated arrival: 12 hours.");
+        // Brigand-raid trigger has moved to the event-banner system (Phase 2)
+        // and is no longer driven by the quest chain. The deferred event will
+        // spawn the raid based on TH level + game-day thresholds. The legacy
+        // `triggersRaid` field has been removed from the quest schema.
+
+        // Chapter advancement: if claiming this quest completes its chapter,
+        // mark the chapter as completed and advance the storyline pointer.
+        // Multiple chapters can advance in one claim if the previous chapter
+        // was already empty (e.g. a guild chapter unlocking when its first
+        // quest is claimed). Each storyline tracks its own progression.
+        if (s.chapters) {
+          const cs = s.chapters.find((c) => c.storyline === quest.storyline);
+          if (cs && !cs.completedChapters.includes(quest.chapter)) {
+            // Inline-check chapter completion against the post-claim state.
+            // (We just pushed questId into questRewardsClaimed above, so the
+            // subsequent isChapterComplete call sees the claim.)
+            if (isChapterComplete(s, quest.storyline, quest.chapter)) {
+              cs.completedChapters.push(quest.chapter);
+              cs.current = quest.chapter + 1;
+            }
+          }
         }
+
+        // Run narrative event evaluator: chapter completion may have triggered
+        // cross-storyline events (e.g. settlement Ch.2 done → guild activates).
+        applyEventEvaluation(s);
       }));
       scheduleSave();
       return true;
@@ -5202,6 +5378,33 @@ export function GameProvider(props: ParentProps) {
         if (!s.chronicleEntriesFired.includes(robin.chronicleEntryId)) {
           s.chronicleEntriesFired.push(robin.chronicleEntryId);
         }
+      }));
+      scheduleSave();
+    },
+    dismissEvent(eventId) {
+      setState(produce((s) => {
+        s.pendingEvents = (s.pendingEvents ?? []).filter((id) => id !== eventId);
+      }));
+      scheduleSave();
+    },
+    markQuestClaimableSeen(questId) {
+      setState(produce((s) => {
+        if (!s.questsClaimableSeen) s.questsClaimableSeen = [];
+        if (!s.questsClaimableSeen.includes(questId)) s.questsClaimableSeen.push(questId);
+      }));
+      scheduleSave();
+    },
+    markBuildingSeen(buildingId) {
+      setState(produce((s) => {
+        if (!s.buildingsSeen) s.buildingsSeen = [];
+        if (!s.buildingsSeen.includes(buildingId)) s.buildingsSeen.push(buildingId);
+      }));
+      scheduleSave();
+    },
+    markRecipeSeen(recipeId) {
+      setState(produce((s) => {
+        if (!s.recipesSeen) s.recipesSeen = [];
+        if (!s.recipesSeen.includes(recipeId)) s.recipesSeen.push(recipeId);
       }));
       scheduleSave();
     },

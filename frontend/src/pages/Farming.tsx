@@ -8,9 +8,11 @@ import type { FoodItemType } from "~/data/foods";
 import { getHiveCost, getHiveBuildTime, getHoneyRate, HIVE_MAX_LEVEL, APIARY_IMAGE } from "~/data/apiary";
 import { getFruit, getOrchardCost, getOrchardBuildTime, getOrchardRate, getOrchardStatus, isOrchardActive, ORCHARD_MAX_LEVEL } from "~/data/orchards";
 import { SEASON_META } from "~/data/seasons";
-import { QUEST_CHAIN } from "~/data/quests";
+import { QUEST_DEFINITIONS, isQuestActive } from "~/data/quests";
 import Countdown from "~/components/Countdown";
 import { UpgradeIndicator } from "~/components/UpgradeIndicator";
+import Tooltip from "~/components/Tooltip";
+import type { JSX } from "solid-js";
 
 function formatTime(seconds: number): string {
   if (seconds < 60) return `${seconds}s`;
@@ -1103,15 +1105,60 @@ function useFarmingScrollToHash() {
  *  "Active" = first quest whose rewards are unclaimed AND whose condition is
  *  still unmet. Once the player satisfies the condition the highlight fades. */
 export function getActiveFarmingQuestAnchor(state: GameState): string | null {
-  const claimed = state.questRewardsClaimed ?? [];
-  for (const q of QUEST_CHAIN) {
-    if (claimed.includes(q.id)) continue;
+  // Walk the new quest definitions, picking the first active (triggered + not
+  // yet claimed) farming quest whose condition isn't satisfied yet.
+  for (const q of QUEST_DEFINITIONS) {
+    if (!isQuestActive(q, state)) continue;
     if (q.condition(state)) return null; // already completed, just waiting to claim
     const page = q.targetPage ?? "";
     const m = page.match(/^\/farming#(.+)$/);
-    return m ? m[1] : null;
+    if (m) return m[1];
   }
   return null;
+}
+
+/** Wraps content in a faded, click-disabled shell with a tooltip listing the
+ *  unlock condition. Mirrors the locked-building pattern from the Buildings page. */
+function LockedShell(props: { locked: boolean; reason: string; children: JSX.Element }) {
+  return (
+    <Show when={props.locked} fallback={props.children}>
+      <Tooltip
+        position="cursor"
+        content={() => (
+          <div style={{ "min-width": "200px" }}>
+            <div style={{
+              "font-size": "0.7rem",
+              "letter-spacing": "0.06em",
+              "text-transform": "uppercase",
+              color: "var(--text-muted)",
+              "margin-bottom": "6px",
+              "font-weight": "bold",
+            }}>
+              Unlock conditions
+            </div>
+            <div style={{
+              "padding": "2px 0",
+              color: "var(--accent-red)",
+              "font-size": "0.8rem",
+            }}>
+              <span style={{ "margin-right": "6px" }}>✗</span>
+              {props.reason}
+            </div>
+          </div>
+        )}
+      >
+        <div style={{
+          position: "relative",
+          opacity: 0.4,
+          "pointer-events": "none",
+          filter: "grayscale(0.5)",
+          width: "100%",
+        }}>
+          {props.children}
+        </div>
+      </Tooltip>
+    </Show>
+  );
 }
 
 export default function Farming() {
@@ -1138,7 +1185,44 @@ export default function Farming() {
     return total;
   };
 
+  // Farming arrives with the shepherd. Until then the player gets food from
+  // the Forager's Hut, Hunting Camp, and Fishing Hut. Settlement Ch.3 is
+  // where Woolly Friends fires.
+  const settlementChapter = () =>
+    state.chapters?.find((c) => c.storyline === "settlement")?.current ?? 0;
+  const farmingUnlocked = () => settlementChapter() >= 3;
+  // Most farming features come later. Settlement Ch.3 unlocks the sheep pen
+  // (the shepherd's gift); other pens, gardens, hives, orchards, and crop
+  // fields come at Ch.4 with the Town Hall upgrade arc.
+  const sheepPenOnly = () => settlementChapter() < 4;
+
   return (
+    <Show when={farmingUnlocked()} fallback={
+      <div>
+        <h1 class="page-title">Farming</h1>
+        <div style={{
+          padding: "32px 24px",
+          "margin-top": "20px",
+          background: "var(--bg-secondary)",
+          border: "1px solid var(--border-color)",
+          "border-radius": "8px",
+          "text-align": "center",
+        }}>
+          <div style={{ "font-size": "2rem", "margin-bottom": "10px" }}>🌾</div>
+          <div style={{
+            "font-family": "var(--font-heading)",
+            "font-size": "1.1rem",
+            color: "var(--text-primary)",
+            "margin-bottom": "6px",
+          }}>
+            Locked
+          </div>
+          <div style={{ color: "var(--text-muted)", "font-size": "0.9rem" }}>
+            A shepherd will arrive in time. Until then, food comes from the forest, the river, and the hunters.
+          </div>
+        </div>
+      </div>
+    }>
     <div>
       <h1 class="page-title">Farming</h1>
 
@@ -1216,6 +1300,7 @@ export default function Farming() {
 
       {/* ── Fields ── */}
       <h2 class="farming-section-title">🌾 Fields</h2>
+      <LockedShell locked={sheepPenOnly()} reason="Locked until Settlement chapter 4">
       <Show when={state.fields.length === 0 && state.season !== "spring"}>
         <div style={{
           padding: "8px 12px",
@@ -1261,30 +1346,50 @@ export default function Farming() {
               />}
         </For>
       </div>
+      </LockedShell>
 
       {/* ── Gardens ── */}
       <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🥬 Gardens</h2>
-      <div class="fields-grid">
-        <For each={state.gardens}>{(g) => <GardenCard garden={g} />}</For>
-      </div>
+      <LockedShell locked={sheepPenOnly()} reason="Locked until Settlement chapter 4">
+        <div class="fields-grid">
+          <For each={state.gardens}>{(g) => <GardenCard garden={g} />}</For>
+        </div>
+      </LockedShell>
 
-      {/* ── Livestock ── */}
+      {/* ── Livestock ── In sheep-pen-only mode, only the sheep pen is
+          interactive; other pens render with a locked overlay + tooltip. */}
       <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🐄 Livestock</h2>
       <div class="fields-grid">
-        <For each={state.pens}>{(p) => <PenCard pen={p} />}</For>
+        <For each={state.pens}>
+          {(p) => (
+            <Show
+              when={sheepPenOnly() && p.animal !== "sheep"}
+              fallback={<PenCard pen={p} />}
+            >
+              <LockedShell locked={true} reason="Locked until Settlement chapter 4">
+                <PenCard pen={p} />
+              </LockedShell>
+            </Show>
+          )}
+        </For>
       </div>
 
       {/* ── Apiary ── */}
       <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🐝 Apiary</h2>
-      <div class="fields-grid">
-        <For each={state.hives}>{(h) => <HiveCard hive={h} />}</For>
-      </div>
+      <LockedShell locked={sheepPenOnly()} reason="Locked until Settlement chapter 4">
+        <div class="fields-grid">
+          <For each={state.hives}>{(h) => <HiveCard hive={h} />}</For>
+        </div>
+      </LockedShell>
 
       {/* ── Orchards ── */}
       <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🌳 Orchards</h2>
-      <div class="fields-grid">
-        <For each={state.orchards}>{(o) => <OrchardCard orchard={o} />}</For>
-      </div>
+      <LockedShell locked={sheepPenOnly()} reason="Locked until Settlement chapter 4">
+        <div class="fields-grid">
+          <For each={state.orchards}>{(o) => <OrchardCard orchard={o} />}</For>
+        </div>
+      </LockedShell>
     </div>
+    </Show>
   );
 }

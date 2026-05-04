@@ -15,6 +15,13 @@ export interface BuildingLevel {
 
 export type SettlementTier = "camp" | "village" | "town" | "city";
 
+export interface BuildingUnlockGate {
+  /** Storyline whose chapter must be unlocked. Mirrors the StorylineId in quests.ts
+   *  (kept as a literal union here to avoid an import cycle). */
+  storyline: "settlement" | "guild" | "story" | "defense";
+  chapter: number;
+}
+
 export interface BuildingDefinition {
   id: string;
   name: string;
@@ -27,6 +34,11 @@ export interface BuildingDefinition {
   requiredTier: SettlementTier;
   /** Per-tier level caps — if set, the building can't exceed this level until the player reaches a higher tier */
   tierLevelCaps?: Partial<Record<SettlementTier, number>>;
+  /** Quest-system chapter gate. If set, building is hidden in the picker until
+   *  the corresponding storyline chapter is unlocked. Independent of tier — both
+   *  must be satisfied. Buildings without `unlockedAt` are available from game start
+   *  (subject only to tier). */
+  unlockedAt?: BuildingUnlockGate;
 }
 
 export interface PlayerBuilding {
@@ -115,9 +127,76 @@ export function isBuildingUnlocked(building: BuildingDefinition, townHallLevel: 
   return tierOrder.indexOf(currentTier) >= tierOrder.indexOf(building.requiredTier);
 }
 
+/** Chapter-based unlock check. Independent of tier — both gates must pass for
+ *  the building to be available in the picker. Pure on `state.chapters`. */
+export function isBuildingChapterUnlocked(
+  building: BuildingDefinition,
+  state: { chapters?: Array<{ storyline: string; current: number; completedChapters: number[] }> },
+): boolean {
+  if (!building.unlockedAt) return true;
+  const cs = state.chapters?.find((c) => c.storyline === building.unlockedAt!.storyline);
+  if (!cs) return false;
+  return cs.current >= building.unlockedAt.chapter
+    || cs.completedChapters.includes(building.unlockedAt.chapter);
+}
+
 export function getUnlockRequirement(building: BuildingDefinition): string {
   const tierInfo = SETTLEMENT_TIERS.find((t) => t.tier === building.requiredTier)!;
   return `Requires ${tierInfo.name} (Town Hall ${tierInfo.minTownHall})`;
+}
+
+/** Human-readable label for a chapter gate. */
+function chapterGateLabel(gate: BuildingUnlockGate): string {
+  const storylineLabels: Record<string, string> = {
+    settlement: "Settlement",
+    guild: "Adventurer's Guild",
+    story: "Story",
+    defense: "Defense",
+  };
+  return `${storylineLabels[gate.storyline] ?? gate.storyline} chapter ${gate.chapter}`;
+}
+
+/** Returns every unmet prerequisite for a locked building, as human-readable
+ *  strings. Used by the tooltip on locked building cards so the player sees
+ *  the full list of conditions, not just the most prominent one. */
+export function getUnlockReasons(
+  building: BuildingDefinition,
+  state: { buildings: PlayerBuilding[]; chapters?: Array<{ storyline: string; current: number; completedChapters: number[] }> },
+): string[] {
+  return getUnlockConditions(building, state).filter((c) => !c.met).map((c) => c.label);
+}
+
+export interface UnlockCondition {
+  label: string;
+  met: boolean;
+}
+
+/** Returns every unlock condition for a building, met or unmet. Drives the
+ *  tooltip on locked cards so the player sees a checklist (green for met,
+ *  red for outstanding). */
+export function getUnlockConditions(
+  building: BuildingDefinition,
+  state: { buildings: PlayerBuilding[]; chapters?: Array<{ storyline: string; current: number; completedChapters: number[] }> },
+): UnlockCondition[] {
+  const conditions: UnlockCondition[] = [];
+  const thLevel = state.buildings.find((b) => b.buildingId === "town_hall")?.level ?? 0;
+  // Tier — only included as a condition when it actually gates this building
+  // beyond the default. Otherwise we'd list "Requires Camp (Town Hall 1)" on
+  // every camp-tier building, which is noise.
+  if (building.requiredTier !== "camp") {
+    conditions.push({
+      label: getUnlockRequirement(building),
+      met: isBuildingUnlocked(building, thLevel),
+    });
+  }
+  // Chapter gate
+  if (building.unlockedAt) {
+    conditions.push({
+      label: `Locked until ${chapterGateLabel(building.unlockedAt)}`,
+      met: isBuildingChapterUnlocked(building, state),
+    });
+  }
+  return conditions;
 }
 
 // ─── Level generation ────────────────────────────────────────────
@@ -167,6 +246,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     maxLevel: 25,
     levels: generateLevels({ wood: 80, stone: 80 }, 60, undefined, 25),
     requiredTier: "camp",
+    unlockedAt: { storyline: "settlement", chapter: 2 },
   },
   {
     id: "houses",
@@ -179,6 +259,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     maxLevel: 20,
     levels: generateLevels({ wood: 60, stone: 40 }, 6),
     requiredTier: "camp",
+    unlockedAt: { storyline: "settlement", chapter: 2 },
   },
   {
     id: "warehouse",
@@ -203,6 +284,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     maxLevel: 20,
     levels: generateLevels({ wood: 50, stone: 30 }, 6),
     requiredTier: "camp",
+    unlockedAt: { storyline: "settlement", chapter: 2 },
   },
 
   // Camp tier — Woodworker (wood-based equipment)
@@ -218,6 +300,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     levels: generateLevels({ wood: 60, stone: 20 }, 15, undefined, 10),
     requiredTier: "camp",
     tierLevelCaps: { camp: 3, village: 6, town: 8, city: 10 },
+    unlockedAt: { storyline: "guild", chapter: 2 },
   },
 
   // Camp tier — Shrine (happiness + deity blessings)
@@ -233,6 +316,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     levels: generateLevels({ wood: 40, stone: 60 }, 18, undefined, 10),
     requiredTier: "camp",
     tierLevelCaps: { camp: 2, village: 5, town: 8, city: 10 },
+    unlockedAt: { storyline: "settlement", chapter: 3 },
   },
 
   // Camp tier — production basics
@@ -271,6 +355,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     maxLevel: 15,
     levels: generateLevels({ wood: 40, stone: 10 }, 6, { resource: "food", baseRate: 14, foodType: "meat" }, 15),
     requiredTier: "camp",
+    unlockedAt: { storyline: "settlement", chapter: 2 },
   },
 
   {
@@ -297,6 +382,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     maxLevel: 10,
     levels: generateLevels({ wood: 35, stone: 10 }, 6, { resource: "food", baseRate: 12, foodType: "fish" }, 10),
     requiredTier: "camp",
+    unlockedAt: { storyline: "settlement", chapter: 2 },
   },
 
   // Village tier — Brewery & Tavern (ale chain + happiness)
@@ -340,6 +426,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     levels: generateLevels({ wood: 50, stone: 30 }, 18, undefined, 10),
     requiredTier: "camp",
     tierLevelCaps: { camp: 2, village: 5, town: 8, city: 10 },
+    unlockedAt: { storyline: "settlement", chapter: 3 },
   },
 
   // Village tier (TH 3+)
@@ -425,6 +512,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     levels: generateLevels({ wood: 60, stone: 40 }, 25, undefined, 10),
     requiredTier: "camp",
     tierLevelCaps: { camp: 2, village: 5, town: 8, city: 10 },
+    unlockedAt: { storyline: "settlement", chapter: 4 },
   },
 
   // Defense buildings (walls, watchtower, barracks, mage tower) live on the
@@ -450,6 +538,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     ],
     requiredTier: "camp",
     tierLevelCaps: { camp: 2, village: 3, town: 4, city: 5 },
+    unlockedAt: { storyline: "guild", chapter: 1 },
   },
 
   // Village tier — Mason's Guild (queue + build bonuses)
@@ -483,6 +572,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     maxLevel: 15,
     levels: generateLevels({ wood: 15, stone: 10 }, 45, undefined, 15),
     requiredTier: "camp",
+    unlockedAt: { storyline: "settlement", chapter: 4 },
   },
 ];
 

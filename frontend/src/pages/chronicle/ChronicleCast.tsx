@@ -28,13 +28,14 @@ export default function ChronicleCast() {
       }
     }
   }
-  const isFreshChar = (id: string) => charsWithFreshMemories.has(id);
+  const [dismissedFreshChars, setDismissedFreshChars] = createSignal(new Set<string>());
+  const isFreshChar = (id: string) =>
+    charsWithFreshMemories.has(id) && !dismissedFreshChars().has(id);
 
-  onMount(() => {
-    // Mark all currently-unlocked fragments as seen — clears the sidebar pulse
-    // and tab badge for next time.
-    actions.visitChronicleCast();
-  });
+  // Per-character hover marks all of that character's unseen fragments as seen.
+  // Replaces the old "mark all on mount" behavior so unhovered characters keep
+  // their highlight.
+  onMount(() => { /* no-op; per-card hover does the seen marking now */ });
 
   const fragmentCount = (char: FoundingCharacter) =>
     char.fragments.filter((f) => unlocked().has(f.id)).length;
@@ -57,12 +58,28 @@ export default function ChronicleCast() {
         <For each={FOUNDING_CHARACTERS}>
           {(char) => {
             const fresh = () => isFreshChar(char.id);
+            const dismissFresh = () => {
+              if (!fresh()) return;
+              setDismissedFreshChars((prev) => {
+                if (prev.has(char.id)) return prev;
+                const next = new Set(prev);
+                next.add(char.id);
+                return next;
+              });
+              // Mark each newly-unlocked fragment for this character as seen.
+              const seen = new Set(state.bioFragmentsSeen ?? []);
+              for (const frag of char.fragments) {
+                if (unlocked().has(frag.id) && !seen.has(frag.id)) {
+                  actions.markBioFragmentSeen(frag.id);
+                }
+              }
+            };
             return (
             <div
               class="building-card"
               style={{
                 cursor: "pointer",
-                transition: "transform 0.15s",
+                transition: "transform 0.15s, border-color 0.25s, box-shadow 0.25s, background 0.25s",
                 position: "relative",
                 ...(fresh()
                   ? {
@@ -72,7 +89,11 @@ export default function ChronicleCast() {
                     }
                   : {}),
               }}
-              onClick={() => setOpenCharId(char.id)}
+              onMouseEnter={dismissFresh}
+              onClick={() => {
+                setOpenCharId(char.id);
+                dismissFresh();
+              }}
             >
               <Show when={fresh()}>
                 <div style={{

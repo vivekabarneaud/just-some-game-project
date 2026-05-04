@@ -1,9 +1,10 @@
 import { For, Show, onMount } from "solid-js";
 import { A } from "@solidjs/router";
-import { BUILDINGS, isBuildingUnlocked, getUnlockRequirement, getNextLevelRequirement, applyMasonCostReduction, applyMasonTimeReduction, getTierPrerequisitesMet, getRepairCost, getBuildingImage, PANIC_BUILD_IDS, PANIC_BUILD_SHARD_COST, type BuildingDefinition } from "~/data/buildings";
-import { QUEST_CHAIN } from "~/data/quests";
+import { BUILDINGS, isBuildingUnlocked, isBuildingChapterUnlocked, getUnlockRequirement, getUnlockReasons, getUnlockConditions, getNextLevelRequirement, applyMasonCostReduction, applyMasonTimeReduction, getTierPrerequisitesMet, getRepairCost, getBuildingImage, PANIC_BUILD_IDS, PANIC_BUILD_SHARD_COST, type BuildingDefinition } from "~/data/buildings";
+import { QUEST_DEFINITIONS, isQuestActive, isQuestClaimable } from "~/data/quests";
 import { useGame } from "~/engine/gameState";
 import Countdown from "~/components/Countdown";
+import Tooltip from "~/components/Tooltip";
 
 // Defense buildings (walls / watchtower / barracks / mage tower) live on the
 // dedicated /defenses page now, not as a section here.
@@ -30,9 +31,12 @@ export default function Buildings() {
     }
   });
   const questTarget = () => {
-    const c = state.questRewardsClaimed ?? [];
-    const idx = QUEST_CHAIN.findIndex((q) => !c.includes(q.id));
-    return idx >= 0 ? QUEST_CHAIN[idx].targetBuildingId : null;
+    // Highlight the building targeted by the current most-relevant quest:
+    // prefer a claimable quest, fall back to first active quest.
+    const claimable = QUEST_DEFINITIONS.find((q) => isQuestClaimable(q, state));
+    if (claimable?.targetBuildingId) return claimable.targetBuildingId;
+    const active = QUEST_DEFINITIONS.find((q) => isQuestActive(q, state));
+    return active?.targetBuildingId ?? null;
   };
 
   const getPlayerBuilding = (buildingId: string) =>
@@ -42,7 +46,11 @@ export default function Buildings() {
     BUILDINGS.filter((b) => b.category === category);
 
   const sectionHasVisible = (category: string) =>
-    buildingsInSection(category).some((b) => isBuildingUnlocked(b, thLevel()) || (getPlayerBuilding(b.id)?.level ?? 0) > 0);
+    buildingsInSection(category).some(
+      (b) =>
+        ((isBuildingUnlocked(b, thLevel()) && isBuildingChapterUnlocked(b, state)) ||
+          (getPlayerBuilding(b.id)?.level ?? 0) > 0),
+    );
 
   return (
     <div>
@@ -88,7 +96,14 @@ export default function Buildings() {
                   const level = () => pb()?.level ?? 0;
                   const isUpgrading = () => pb()?.upgrading ?? false;
                   const currentLevel = () => (level() > 0 ? building.levels[level() - 1] : null);
-                  const unlocked = () => isBuildingUnlocked(building, thLevel());
+                  const unlocked = () => {
+                    // Already-built buildings always show the regular upgrade card,
+                    // regardless of chapter gates. This keeps the Town Hall and
+                    // any other always-on building visible from save load on.
+                    if ((pb()?.level ?? 0) > 0) return true;
+                    return isBuildingUnlocked(building, thLevel()) &&
+                      isBuildingChapterUnlocked(building, state);
+                  };
                   const effMax = () => actions.getEffectiveMaxLevel(building.id);
 
                   const nextLevelDef = () => {
@@ -179,17 +194,39 @@ export default function Buildings() {
                   const isQuestTarget = () => {
                     const qt = questTarget();
                     if (qt !== building.id) return false;
-                    const c = state.questRewardsClaimed ?? [];
-                    const idx = QUEST_CHAIN.findIndex((q) => !c.includes(q.id));
-                    return idx >= 0 && !QUEST_CHAIN[idx].condition(state);
+                    // Hide the highlight once the player has met the target
+                    // (no need to nudge them toward something they've already done).
+                    const targetingQuest = QUEST_DEFINITIONS.find(
+                      (q) => isQuestActive(q, state) && q.targetBuildingId === building.id,
+                    );
+                    return !!targetingQuest && !targetingQuest.condition(state);
                   };
 
+                  const isNewlyUnlocked = () => {
+                    if (!unlocked()) return false;
+                    const seen = state.buildingsSeen ?? [];
+                    return !seen.includes(building.id);
+                  };
                   return unlocked() ? (
                     <A href={`/buildings/${building.id}`} id={`building-${building.id}`} style={{ "text-decoration": "none" }}>
                       <div
                         class="building-card"
                         classList={{ upgrading: isUpgrading(), "quest-target": isQuestTarget() }}
-                        style={{ opacity: pb()?.damaged ? 0.7 : 1, position: "relative" }}
+                        onMouseEnter={() => {
+                          if (isNewlyUnlocked()) actions.markBuildingSeen(building.id);
+                        }}
+                        style={{
+                          opacity: pb()?.damaged ? 0.7 : 1,
+                          position: "relative",
+                          ...(isNewlyUnlocked()
+                            ? {
+                                border: "1px solid var(--accent-blue)",
+                                "box-shadow": "0 0 0 1px var(--accent-blue), 0 0 12px rgba(96, 165, 250, 0.25)",
+                                background: "rgba(96, 165, 250, 0.06)",
+                              }
+                            : {}),
+                          "transition": "border-color 0.25s, box-shadow 0.25s, background 0.25s",
+                        }}
                       >
                         {/* Upgrade indicator with tooltip (non-image cards only) */}
                         <Show when={!isUpgrading() && !getBuildingImage(building, actions.getSettlementTier())}>
@@ -482,31 +519,72 @@ export default function Buildings() {
                       </div>
                     </A>
                   ) : (
-                    <div class="building-card locked" id={`building-${building.id}`}>
-                      <Show when={getBuildingImage(building, actions.getSettlementTier())}>
-                        <div class="building-card-image locked-image">
-                          <img src={getBuildingImage(building, actions.getSettlementTier())!} alt={building.name} loading="lazy" />
-                          <div class="building-card-image-overlay">
-                            <div class="building-card-title locked-title">{building.name}</div>
-                            <div class="building-card-level locked-req">
-                              {getUnlockRequirement(building)}
-                            </div>
+                    (() => {
+                      const reasons = getUnlockReasons(building, state);
+                      const conditions = getUnlockConditions(building, state);
+                      const primaryReason = reasons[0] ?? getUnlockRequirement(building);
+                      const tooltipContent = () => (
+                        <div style={{ "min-width": "200px" }}>
+                          <div style={{
+                            "font-size": "0.7rem",
+                            "letter-spacing": "0.06em",
+                            "text-transform": "uppercase",
+                            "color": "var(--text-muted)",
+                            "margin-bottom": "6px",
+                            "font-weight": "bold",
+                          }}>
+                            Unlock conditions
                           </div>
+                          <ul style={{
+                            "list-style": "none",
+                            "margin": 0,
+                            "padding": 0,
+                          }}>
+                            <For each={conditions.length > 0 ? conditions : [{ label: getUnlockRequirement(building), met: false }]}>
+                              {(c) => (
+                                <li style={{
+                                  "padding": "2px 0",
+                                  "color": c.met ? "var(--accent-green)" : "var(--accent-red)",
+                                  "font-size": "0.8rem",
+                                }}>
+                                  <span style={{ "margin-right": "6px" }}>{c.met ? "✓" : "✗"}</span>
+                                  {c.label}
+                                </li>
+                              )}
+                            </For>
+                          </ul>
                         </div>
-                      </Show>
-                      <Show when={!getBuildingImage(building, actions.getSettlementTier())}>
-                        <div class="building-card-header">
-                          <div class="building-card-icon locked-icon">{building.icon}</div>
-                          <div>
-                            <div class="building-card-title locked-title">{building.name}</div>
-                            <div class="building-card-level locked-req">
-                              {getUnlockRequirement(building)}
-                            </div>
+                      );
+                      return (
+                        <Tooltip content={tooltipContent} position="cursor">
+                          <div class="building-card locked" id={`building-${building.id}`}>
+                            <Show when={getBuildingImage(building, actions.getSettlementTier())}>
+                              <div class="building-card-image locked-image">
+                                <img src={getBuildingImage(building, actions.getSettlementTier())!} alt={building.name} loading="lazy" />
+                                <div class="building-card-image-overlay">
+                                  <div class="building-card-title locked-title">{building.name}</div>
+                                  <div class="building-card-level locked-req">
+                                    {primaryReason}
+                                  </div>
+                                </div>
+                              </div>
+                            </Show>
+                            <Show when={!getBuildingImage(building, actions.getSettlementTier())}>
+                              <div class="building-card-header">
+                                <div class="building-card-icon locked-icon">{building.icon}</div>
+                                <div>
+                                  <div class="building-card-title locked-title">{building.name}</div>
+                                  <div class="building-card-level locked-req">
+                                    {primaryReason}
+                                  </div>
+                                </div>
+                              </div>
+                            </Show>
+                            <div class="building-card-desc">{building.description}</div>
                           </div>
-                        </div>
-                      </Show>
-                      <div class="building-card-desc">{building.description}</div>
-                    </div>
+                        </Tooltip>
+                      );
+                    })()
                   );
                 }}
               </For>

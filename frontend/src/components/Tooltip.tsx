@@ -7,13 +7,15 @@ interface TooltipProps extends ParentProps {
    *  content depends on reactive signals — it defers evaluation to render time
    *  so the inner JSX doesn't create orphaned computations inside event handlers. */
   content?: JSX.Element | (() => JSX.Element);
-  position?: "top" | "bottom" | "left" | "right";
+  /** Position relative to the anchor element, OR "cursor" to follow the mouse. */
+  position?: "top" | "bottom" | "left" | "right" | "cursor";
   maxWidth?: number;
 }
 
 export default function Tooltip(props: TooltipProps) {
   const [visible, setVisible] = createSignal(false);
   const [anchor, setAnchor] = createSignal<DOMRect | null>(null);
+  const [cursor, setCursor] = createSignal<{ x: number; y: number } | null>(null);
 
   // Avoid triggering the JSX getter on `props.content` — accessing an inline
   // JSX prop forces eager evaluation of its reactive inserts. We only care
@@ -24,7 +26,14 @@ export default function Tooltip(props: TooltipProps) {
     if (!hasContent()) return;
     const target = e.currentTarget as HTMLElement;
     setAnchor(target.getBoundingClientRect());
+    setCursor({ x: e.clientX, y: e.clientY });
     setVisible(true);
+  };
+
+  const move = (e: MouseEvent) => {
+    if (props.position !== "cursor") return;
+    if (!visible()) return;
+    setCursor({ x: e.clientX, y: e.clientY });
   };
 
   const hide = () => setVisible(false);
@@ -33,9 +42,23 @@ export default function Tooltip(props: TooltipProps) {
   const pos = () => props.position ?? "top";
 
   const tooltipStyle = (): Record<string, string> => {
+    const s: Record<string, string> = {};
+    if (pos() === "cursor") {
+      const c = cursor();
+      if (!c) return {};
+      // Offset slightly below-right so the tooltip doesn't sit on top of the
+      // cursor. Clamp to viewport so it doesn't escape on right/bottom edges.
+      const offsetX = 14;
+      const offsetY = 18;
+      const tipW = maxW();
+      const x = Math.min(c.x + offsetX, window.innerWidth - tipW - 8);
+      const y = Math.min(c.y + offsetY, window.innerHeight - 60);
+      s.left = `${x}px`;
+      s.top = `${y}px`;
+      return s;
+    }
     const a = anchor();
     if (!a) return {};
-    const s: Record<string, string> = {};
     switch (pos()) {
       case "top":
         s.bottom = `${window.innerHeight - a.top + 8}px`;
@@ -64,6 +87,7 @@ export default function Tooltip(props: TooltipProps) {
   return (
     <span
       onMouseEnter={show}
+      onMouseMove={move}
       onMouseLeave={hide}
       style={{ display: "inline-block" }}
     >

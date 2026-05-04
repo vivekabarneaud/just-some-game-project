@@ -852,6 +852,11 @@ body {
   mix-blend-mode: screen;
 }
 
+/* Underline-on-hover for the clickable objective line in Quest Log cards. */
+.quest-objective-link:hover {
+  text-decoration: underline;
+}
+
 .quest-header {
   display: flex;
   align-items: flex-start;

@@ -29,8 +29,9 @@ export default function ChronicleJournal() {
   const isFresh = (id: string) => freshOnMount.has(id);
 
   onMount(() => {
-    // Now mark everything seen — clears the sidebar pulse for next time.
-    actions.visitChronicleJournal();
+    // Per-entry hover marks each entry seen individually (see onMouseEnter
+    // below). The page-level visit no longer mass-clears the sidebar badge,
+    // so entries the player skips past stay unseen until they actually look.
     // Auto-scroll to the targeted entry if ?entry=<id> was passed in the URL
     const targetId = typeof searchParams.entry === "string" ? searchParams.entry : undefined;
     if (targetId) {
@@ -133,6 +134,17 @@ export default function ChronicleJournal() {
                   {(entry) => {
                     const unlocked = () => isFired(entry.id);
                     const fresh = () => unlocked() && isFresh(entry.id) && !dismissedFresh().has(entry.id);
+                    const dismissFresh = () => {
+                      if (!fresh()) return;
+                      setDismissedFresh((prev) => {
+                        if (prev.has(entry.id)) return prev;
+                        const next = new Set(prev);
+                        next.add(entry.id);
+                        return next;
+                      });
+                      // Per-entry seen marker — drops the sidebar badge by one.
+                      actions.markChronicleEntrySeen(entry.id);
+                    };
                     return (
                       <div
                         id={`chronicle-entry-${entry.id}`}
@@ -149,15 +161,11 @@ export default function ChronicleJournal() {
                               }
                             : {}),
                         }}
+                        onMouseEnter={dismissFresh}
                         onClick={() => {
                           if (!unlocked()) return;
                           setOpenEntryId(entry.id);
-                          setDismissedFresh((prev) => {
-                            if (prev.has(entry.id)) return prev;
-                            const next = new Set(prev);
-                            next.add(entry.id);
-                            return next;
-                          });
+                          dismissFresh();
                         }}
                       >
                         <Show when={fresh()}>
@@ -299,8 +307,15 @@ function EntryModal(props: { entry: ChronicleEntry; onClose: () => void }) {
           </For>
         </div>
 
-        <Show when={props.entry.cinematicId}>
-          <div style={{ "margin-top": "20px", "padding-top": "16px", "border-top": "1px solid var(--border-color)" }}>
+        <div style={{
+          "margin-top": "20px",
+          "padding-top": "16px",
+          "border-top": "1px solid var(--border-color)",
+          display: "flex",
+          "align-items": "center",
+          gap: "12px",
+        }}>
+          <Show when={props.entry.cinematicId === "intro"}>
             <button
               style={{
                 padding: "8px 14px",
@@ -312,14 +327,28 @@ function EntryModal(props: { entry: ChronicleEntry; onClose: () => void }) {
                 "font-size": "0.85rem",
               }}
               onClick={() => {
-                // TODO: wire cinematic replay — depends on cinematicId routing
                 alert("Replay cinematic: " + props.entry.cinematicId + " (not wired yet)");
               }}
             >
               ▶ Replay cinematic
             </button>
-          </div>
-        </Show>
+          </Show>
+          <button
+            onClick={props.onClose}
+            style={{
+              "margin-left": "auto",
+              padding: "8px 16px",
+              background: "var(--bg-primary)",
+              border: "1px solid var(--border-color)",
+              color: "var(--text-primary)",
+              "border-radius": "6px",
+              cursor: "pointer",
+              "font-size": "0.85rem",
+            }}
+          >
+            Dismiss
+          </button>
+        </div>
       </div>
     </div>
   );

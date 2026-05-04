@@ -114,7 +114,7 @@ export default function QuestClaimModal(props: Props) {
           </div>
 
           {/* New journal entry note — shown only if this quest unlocks a Chronicle entry */}
-          <Show when={props.quest.chronicleEntryId && getChronicleEntry(props.quest.chronicleEntryId)}>
+          <Show when={props.quest.chronicleEntryId ? getChronicleEntry(props.quest.chronicleEntryId) : null}>
             {(entry) => (
               <div class="loot-section" style={{
                 "animation-delay": "380ms",

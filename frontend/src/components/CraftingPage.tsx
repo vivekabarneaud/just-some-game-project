@@ -374,6 +374,8 @@ export default function CraftingPage(props: CraftingPageProps) {
                       subtitle={`${formatTime(recipe.craftTime)} · +${recipe.produces.amount}x ${formatResource(recipe.produces.resource, props.buildingId)}`}
                       info={itemInfoPanel(recipe.id, isToolLocked())}
                       costs={<>Cost: <For each={recipe.costs}>{(c, i) => <>{i() > 0 ? ", " : ""}{renderCost(c.resource, c.amount)}</>}</For></>}
+                      isUnseen={!(state.recipesSeen ?? []).includes(recipe.id)}
+                      onSeen={() => actions.markRecipeSeen(recipe.id)}
                       action={
                         isToolLocked()
                           ? {

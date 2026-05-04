@@ -32,13 +32,45 @@ export interface RecipeCardProps {
   costs: JSX.Element;
   /** Action — either craft controls or a locked badge */
   action: RecipeCardAction;
+  /** Recipe is "newly available" — gets the blue highlight until the player
+   *  hovers it. Caller drives the unseen state via state.recipesSeen. */
+  isUnseen?: boolean;
+  /** Called on `mouseenter` — caller marks the recipe as seen. */
+  onSeen?: () => void;
 }
 
 export default function RecipeCard(props: RecipeCardProps) {
   const isLocked = () => props.action.type === "locked";
+  const highlight = () => !!props.isUnseen;
 
   return (
-    <div class="building-card" style={{ opacity: isLocked() ? 0.5 : 1 }}>
+    <div
+      class="building-card"
+      onMouseEnter={() => props.onSeen?.()}
+      style={{
+        opacity: isLocked() ? 0.5 : 1,
+        position: "relative",
+        ...(highlight() ? {
+          border: "1px solid var(--accent-blue)",
+          "box-shadow": "0 0 0 1px var(--accent-blue), 0 0 12px rgba(91, 155, 213, 0.35)",
+          background: "linear-gradient(180deg, rgba(91, 155, 213, 0.08), transparent 70%), var(--bg-secondary)",
+        } : {}),
+      }}
+    >
+      <Show when={highlight()}>
+        <div style={{
+          position: "absolute",
+          top: "6px",
+          right: "6px",
+          background: "var(--accent-blue)",
+          color: "white",
+          "font-size": "0.6rem",
+          "font-weight": "700",
+          padding: "2px 6px",
+          "border-radius": "3px",
+          "letter-spacing": "0.05em",
+        }}>NEW</div>
+      </Show>
       <div class="building-card-header">
         {props.image
           ? <img src={props.image} alt="" style={{ width: "40px", height: "40px", "object-fit": "cover", "border-radius": "6px", "flex-shrink": "0" }} />

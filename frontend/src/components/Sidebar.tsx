@@ -1,11 +1,11 @@
 import { Show, createSignal, onMount, onCleanup } from "solid-js";
 import { A, useLocation } from "@solidjs/router";
-import { useGame } from "~/engine/gameState";
+import { useGame, CRAFTING_RECIPES } from "~/engine/gameState";
 import { SEASON_META, HOURS_PER_SEASON, IS_DEV, getGlobalSeason } from "~/data/seasons";
 import { logout, getUsername } from "~/api/auth";
-import { QUEST_CHAIN } from "~/data/quests";
-import { getRobinEvent, setOpenChronicleEntry } from "~/data/robins";
-import { getChronicleEntry } from "~/data/chronicle_entries";
+import { QUEST_DEFINITIONS, isQuestTriggered } from "~/data/quests";
+// (Robin pill removed from sidebar — robin notifications surface via the
+//  Overview badge + the Overview page's robin card instead.)
 import { fetchLeaderboard } from "~/api/leaderboard";
 import { fetchFriends } from "~/api/friends";
 import { fetchCoops } from "~/api/coop";
@@ -23,6 +23,7 @@ const navSections: { title: string; items: NavItem[] }[] = [
     title: "Village",
     items: [
       { path: "/", icon: "🏘️", label: "Overview" },
+      { path: "/quests", icon: "📋", label: "Quests" },
       { path: "/buildings", icon: "🏗️", label: "Buildings" },
       { path: "/farming", icon: "🌾", label: "Farming" },
       { path: "/guild", icon: "🏰", label: "Adventurers" },
@@ -75,6 +76,19 @@ const navSections: { title: string; items: NavItem[] }[] = [
 ];
 
 const SPEEDS = [1, 2, 5, 10, 50];
+
+/** Sidebar nav path → buildingId for crafting buildings.
+ *  Drives the per-page "new recipes" badge. Pages without a building
+ *  (e.g. /enchanting, not built yet) are simply omitted. */
+const CRAFTING_PATH_TO_BUILDING_ID: Record<string, string> = {
+  "/tailoring": "tailoring_shop",
+  "/woodworker": "woodworker",
+  "/blacksmith": "blacksmith",
+  "/leatherworking": "leatherworking",
+  "/alchemy": "alchemy_lab",
+  "/jewelcrafting": "jewelcrafter",
+  "/kitchen": "kitchen",
+};
 
 interface SidebarProps {
   onClose?: () => void;
@@ -203,21 +217,64 @@ export default function Sidebar(props: SidebarProps) {
               // Winter nudge: farming is dormant, use the downtime to level up fields.
               const hasUpgradableFields = () => state.fields.some((f) => f.level > 0 && f.level < FIELD_MAX_LEVEL && !f.upgrading);
               const hasClaimableQuest = () => {
-                const c = state.questRewardsClaimed ?? [];
-                const idx = QUEST_CHAIN.findIndex((q) => !c.includes(q.id));
-                return idx >= 0 && QUEST_CHAIN[idx].condition(state);
+                // Any active (triggered + not-claimed) quest whose completion
+                // condition is met. New chapter system means multiple quests
+                // can be claimable at once — the badge fires if any one is.
+                for (const q of QUEST_DEFINITIONS) {
+                  if (state.questRewardsClaimed?.includes(q.id)) continue;
+                  if (!isQuestTriggered(q, state)) continue;
+                  if (q.condition(state)) return true;
+                }
+                return false;
               };
-              const hasCompletedMissions = () => (state.completedMissions?.length ?? 0) > 0;
+              const unseenActiveCount = () => {
+                // Notification badge: count of active (triggered, not-claimed)
+                // quests that either haven't been hovered yet OR are ready to
+                // claim right now. Hovering only dismisses the "new" status —
+                // a claimable quest keeps signaling until the player claims.
+                const seen = state.questsClaimableSeen ?? [];
+                let n = 0;
+                for (const q of QUEST_DEFINITIONS) {
+                  if (state.questRewardsClaimed?.includes(q.id)) continue;
+                  if (!isQuestTriggered(q, state)) continue;
+                  const isUnseen = !seen.includes(q.id);
+                  const isClaimable = q.condition(state);
+                  if (isUnseen || isClaimable) n++;
+                }
+                return n;
+              };
+              const unseenChronicleCount = () =>
+                actions.countUnseenJournalEntries() + actions.countUnseenMemories();
+              const unseenRecipeCount = () => {
+                // Crafting nav badge: unseen recipes whose building level is met.
+                // Tool-locked counts too — the player still wants to know the
+                // recipe exists, even if they need to craft a tool to use it.
+                const buildingId = CRAFTING_PATH_TO_BUILDING_ID[item.path];
+                if (!buildingId) return 0;
+                const b = state.buildings.find((bb) => bb.buildingId === buildingId);
+                if (!b || b.level === 0) return 0;
+                const seen = state.recipesSeen ?? [];
+                let n = 0;
+                for (const r of CRAFTING_RECIPES) {
+                  if (r.building !== buildingId) continue;
+                  if (b.level < r.minLevel) continue;
+                  if (seen.includes(r.id)) continue;
+                  n++;
+                }
+                return n;
+              };
+              const completedMissionCount = () => state.completedMissions?.length ?? 0;
               const hasPendingRobin = () => (state.pendingRobins?.length ?? 0) > 0;
+              // Resolved missions get a numeric blue badge instead of pulse —
+              // matches the quests/chronicle/recipe pattern. Other guild blinks
+              // (new content, coop invites) keep the textual pulse for now.
               const shouldBlink = () =>
-                (item.path === "/" && (hasClaimableQuest() || hasPendingRobin())) ||
                 (item.path === "/farming" && (
                   (state.season === "spring" && hasEmptyFields()) ||
                   (state.season === "autumn" && state.seasonElapsed < 6) ||
                   (state.season === "winter" && hasUpgradableFields())
                 )) ||
-                (item.path === "/guild" && (actions.hasNewGuildContent() || hasCompletedMissions() || incomingCoopInvites() > 0)) ||
-                (item.path === "/chronicle" && actions.hasNewChronicleContent()) ||
+                (item.path === "/guild" && (actions.hasNewGuildContent() || incomingCoopInvites() > 0)) ||
                 (item.path === "/friends" && incomingFriendRequests() > 0);
               return (
                 <A
@@ -233,19 +290,42 @@ export default function Sidebar(props: SidebarProps) {
                       #{myRank()}
                     </span>
                   )}
+                  {((item.path === "/" && hasPendingRobin()) ||
+                    (item.path === "/quests" && unseenActiveCount() > 0) ||
+                    (item.path === "/chronicle" && unseenChronicleCount() > 0) ||
+                    (item.path === "/guild" && completedMissionCount() > 0) ||
+                    (CRAFTING_PATH_TO_BUILDING_ID[item.path] && unseenRecipeCount() > 0)) && (
+                    <span style={{
+                      "margin-left": "auto",
+                      "min-width": "20px",
+                      "height": "20px",
+                      "padding": "0 6px",
+                      "border-radius": "10px",
+                      "background": "var(--accent-blue)",
+                      "color": "#fff",
+                      "font-size": "0.75rem",
+                      "font-weight": "bold",
+                      "display": "inline-flex",
+                      "align-items": "center",
+                      "justify-content": "center",
+                      "box-shadow": "0 0 6px rgba(96, 165, 250, 0.5)",
+                    }}>
+                      {item.path === "/" ? (state.pendingRobins?.length ?? 0)
+                        : item.path === "/quests" ? unseenActiveCount()
+                        : item.path === "/chronicle" ? unseenChronicleCount()
+                        : item.path === "/guild" ? completedMissionCount()
+                        : unseenRecipeCount()}
+                    </span>
+                  )}
                   {shouldBlink() && (
                     <span style={{ "margin-left": "auto", "font-size": "0.7rem", color:
-                      item.path === "/" ? (hasPendingRobin() ? "var(--accent-blue)" : "var(--accent-gold)") :
                       item.path === "/guild" ? "var(--accent-blue)" :
-                      item.path === "/chronicle" ? "var(--accent-gold)" :
                       item.path === "/friends" ? "var(--accent-gold)" :
                       state.season === "spring" ? "#7CFC00" :
                       state.season === "winter" ? "#a5d8ff" :
                       "#d4831a"
                     }}>
-                      {item.path === "/" ? (hasPendingRobin() ? "message!" : "quest!")
-                        : item.path === "/guild" ? (hasCompletedMissions() ? "loot!" : incomingCoopInvites() > 0 ? "coop!" : "new!")
-                        : item.path === "/chronicle" ? "new!"
+                      {item.path === "/guild" ? (incomingCoopInvites() > 0 ? "coop!" : "new!")
                         : item.path === "/friends" ? `+${incomingFriendRequests()}`
                         : state.season === "spring" ? "plant!"
                         : state.season === "winter" ? "upgrade!"
@@ -306,42 +386,9 @@ export default function Sidebar(props: SidebarProps) {
         );
       })()}
 
-      {/* Robin event banner — fires after specific story missions to deliver
-          a chronicle beat + unlocks. Subtle, non-blocking; click pops the
-          chronicle modal and applies unlocks. */}
-      {(() => {
-        const pendingRobin = () => {
-          const id = state.pendingRobins?.[0];
-          return id ? getRobinEvent(id) : undefined;
-        };
-        return (
-          <Show when={pendingRobin()}>
-            {(robin) => (
-              <div
-                onClick={() => {
-                  const entry = getChronicleEntry(robin().chronicleEntryId);
-                  if (entry) setOpenChronicleEntry(entry);
-                  actions.acknowledgeRobin(robin().id);
-                }}
-                style={{
-                  margin: "0 12px 8px",
-                  padding: "8px 10px",
-                  background: "rgba(96, 165, 250, 0.10)",
-                  border: "1px solid var(--accent-blue)",
-                  "border-radius": "6px",
-                  "font-size": "0.8rem",
-                  color: "var(--accent-blue)",
-                  "text-align": "center",
-                  cursor: "pointer",
-                }}
-                title="A robin landed — click to read the message."
-              >
-                🐦 {robin().bannerText}
-              </div>
-            )}
-          </Show>
-        );
-      })()}
+      {/* (Robin sidebar pill removed — robin notifications now surface as the
+           sidebar Overview badge, plus the dedicated robin card on the
+           Overview page itself.) */}
 
       <div class="sidebar-controls">
         <div class="nav-section-title">Season</div>

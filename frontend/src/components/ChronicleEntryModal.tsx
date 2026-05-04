@@ -83,8 +83,17 @@ export default function ChronicleEntryModal(props: Props) {
           </For>
         </div>
 
-        <Show when={props.entry.cinematicId}>
-          <div style={{ "margin-top": "20px", "padding-top": "16px", "border-top": "1px solid var(--border-color)" }}>
+        <div style={{
+          "margin-top": "20px",
+          "padding-top": "16px",
+          "border-top": "1px solid var(--border-color)",
+          display: "flex",
+          "align-items": "center",
+          gap: "12px",
+        }}>
+          {/* Replay is hidden for now except for the arrival intro — other
+              cinematics are deferred (no art yet). */}
+          <Show when={props.entry.cinematicId === "intro"}>
             <button
               style={{
                 padding: "8px 14px",
@@ -96,15 +105,28 @@ export default function ChronicleEntryModal(props: Props) {
                 "font-size": "0.85rem",
               }}
               onClick={() => {
-                // Cinematic art has been deferred — replay UI stays intact for
-                // when art lands. See docs/DESIGN_CINEMATICS.md (or similar).
                 alert("Replay cinematic: " + props.entry.cinematicId + " (not wired yet)");
               }}
             >
               ▶ Replay cinematic
             </button>
-          </div>
-        </Show>
+          </Show>
+          <button
+            onClick={props.onClose}
+            style={{
+              "margin-left": "auto",
+              padding: "8px 16px",
+              background: "var(--bg-primary)",
+              border: "1px solid var(--border-color)",
+              color: "var(--text-primary)",
+              "border-radius": "6px",
+              cursor: "pointer",
+              "font-size": "0.85rem",
+            }}
+          >
+            Dismiss
+          </button>
+        </div>
       </div>
     </div>
   );
