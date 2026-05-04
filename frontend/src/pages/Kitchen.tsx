@@ -11,7 +11,7 @@ export default function Kitchen() {
       buildingName="The Kitchens"
       icon="🍳"
       craftVerb="Cook!"
-      craftSound="dagger"
+      craftSound="kitchen"
       materials={[
         { icon: "🌾", label: "Grain",   value: () => Math.floor((f().wheat ?? 0) + (f().barley ?? 0)) },
         { icon: "🍖", label: "Meat",    value: () => Math.floor(f().meat ?? 0) },

@@ -240,8 +240,7 @@ function DefenseCardHeader(props: {
   /** Render-prop. Receives `inOverlay` so the tooltip can pop the right way. */
   indicator?: (inOverlay: boolean) => any;
 }) {
-  const { actions } = useGame();
-  const image = () => getBuildingImageById(props.buildingId, actions.getSettlementTier());
+  const image = () => getBuildingImageById(props.buildingId, props.level);
   return (
     <Show
       when={image()}

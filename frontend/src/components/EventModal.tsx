@@ -1,6 +1,7 @@
-import { Show } from "solid-js";
+import { Show, onMount } from "solid-js";
 import { useGame } from "~/engine/gameState";
 import { getEvent } from "~/data/events";
+import { playSound } from "~/engine/sounds";
 
 /** Modal that shows the next pending narrative event banner.
  *  Auto-renders when state.pendingEvents has items; player dismisses to advance. */
@@ -17,6 +18,7 @@ export default function EventModal() {
     <Show when={currentEvent()}>
       {(eventGetter) => {
         const event = eventGetter();
+        onMount(() => playSound("notify"));
         return (
           <div
             style={{

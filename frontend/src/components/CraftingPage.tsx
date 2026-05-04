@@ -1,4 +1,4 @@
-import { For, Show, type JSX } from "solid-js";
+import { For, Show, onMount, type JSX } from "solid-js";
 import { A } from "@solidjs/router";
 import { useGame, CRAFTING_RECIPES, getBuildingToolsForBuilding, getRequiredTool, type CraftingRecipe } from "~/engine/gameState";
 import { playSound, type SoundId } from "~/engine/sounds";
@@ -124,6 +124,12 @@ export default function CraftingPage(props: CraftingPageProps) {
 
   const building = () => state.buildings.find((b) => b.buildingId === props.buildingId);
   const buildingLevel = () => building()?.level ?? 0;
+
+  // "You haven't built this yet" cue — fire the error SFX on mount when the
+  // page lands in its empty state. Skipped if the player already has it built.
+  onMount(() => {
+    if (buildingLevel() === 0) playSound("error");
+  });
 
   const installedToolIds = () => state.buildingTools?.[props.buildingId] ?? [];
   const availableTools = () => getBuildingToolsForBuilding(props.buildingId);
@@ -425,6 +431,7 @@ export default function CraftingPage(props: CraftingPageProps) {
                                 actions.startCraft(recipe.id, qty);
                               },
                               verb: props.craftVerb,
+                              silentClick: !!props.craftSound,
                             }
                       }
                     />

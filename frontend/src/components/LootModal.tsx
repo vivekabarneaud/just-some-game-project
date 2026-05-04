@@ -1,5 +1,6 @@
-import { createSignal, For, Show } from "solid-js";
+import { createSignal, For, Show, onMount } from "solid-js";
 import { A } from "@solidjs/router";
+import { playSound } from "~/engine/sounds";
 import type { CompletedMission } from "@medieval-realm/shared/data/missions";
 import { formatReward, getMission } from "@medieval-realm/shared/data/missions";
 import { STORY_CINEMATICS } from "~/data/cinematics";
@@ -22,6 +23,7 @@ interface Props {
 const EXIT_ANIMATION_MS = 240;
 
 export default function LootModal(props: Props) {
+  onMount(() => playSound("notify"));
   const template = () => getMission(props.result.missionId) ?? { name: props.result.missionId, icon: "📜" };
   const hasRewards = () => props.result.rewards.length > 0;
   const hasStoryCinematic = () => !!STORY_CINEMATICS[props.result.missionId];

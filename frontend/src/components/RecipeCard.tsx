@@ -11,6 +11,10 @@ export type RecipeCardAction =
       onCraft: (qty: number) => void;
       /** Verb for the action button — e.g., "Craft", "Brew", "Cook!" */
       verb?: string;
+      /** Skip the global confirm SFX on click — set when onCraft already
+       *  plays its own themed sound (kitchen, bubbles, plop), to avoid
+       *  doubling up. */
+      silentClick?: boolean;
     }
   | {
       type: "locked";
@@ -121,6 +125,7 @@ export default function RecipeCard(props: RecipeCardProps) {
                   disabled={!action.canCraft(qty())}
                   onClick={() => { action.onCraft(qty()); setQty(1); }}
                   style={{ "font-size": "0.85rem", padding: "6px 14px" }}
+                  {...(action.silentClick ? { "data-no-click-sound": "" } : {})}
                 >
                   {verb()}{qty() > 1 ? ` ×${qty()}` : ""}
                 </button>

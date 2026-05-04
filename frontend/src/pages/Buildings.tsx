@@ -226,12 +226,12 @@ export default function Buildings() {
                         }}
                       >
                         {/* Upgrade indicator with tooltip (non-image cards only) */}
-                        <Show when={!isUpgrading() && !getBuildingImage(building, actions.getSettlementTier())}>
+                        <Show when={!isUpgrading() && !getBuildingImage(building, level())}>
                           <div
                             class="upgrade-indicator"
                             style={{
                               position: "absolute",
-                              ...(getBuildingImage(building, actions.getSettlementTier())
+                              ...(getBuildingImage(building, level())
                                 ? { bottom: "8px", right: "8px" }
                                 : { top: "8px", right: "8px" }),
                               "z-index": "5",
@@ -324,9 +324,9 @@ export default function Buildings() {
                             </div>
                           </div>
                         </Show>
-                        <Show when={getBuildingImage(building, actions.getSettlementTier())}>
+                        <Show when={getBuildingImage(building, level())}>
                           <div class="building-card-image">
-                            <img src={getBuildingImage(building, actions.getSettlementTier())!} alt={building.name} loading="lazy" />
+                            <img src={getBuildingImage(building, level())!} alt={building.name} loading="lazy" />
                             <div class="building-card-image-overlay" style={{ display: "flex", "justify-content": "space-between", "align-items": "flex-end" }}>
                               <div>
                                 <div class="building-card-title">{building.name}</div>
@@ -428,7 +428,7 @@ export default function Buildings() {
                             </div>
                           </div>
                         </Show>
-                        <Show when={!getBuildingImage(building, actions.getSettlementTier())}>
+                        <Show when={!getBuildingImage(building, level())}>
                           <div class="building-card-header">
                             <div class="building-card-icon">{building.icon}</div>
                             <div>
@@ -555,9 +555,9 @@ export default function Buildings() {
                       return (
                         <Tooltip content={tooltipContent} position="cursor">
                           <div class="building-card locked" id={`building-${building.id}`}>
-                            <Show when={getBuildingImage(building, actions.getSettlementTier())}>
+                            <Show when={getBuildingImage(building, level())}>
                               <div class="building-card-image locked-image">
-                                <img src={getBuildingImage(building, actions.getSettlementTier())!} alt={building.name} loading="lazy" />
+                                <img src={getBuildingImage(building, level())!} alt={building.name} loading="lazy" />
                                 <div class="building-card-image-overlay">
                                   <div class="building-card-title locked-title">{building.name}</div>
                                   <div class="building-card-level locked-req">
@@ -566,7 +566,7 @@ export default function Buildings() {
                                 </div>
                               </div>
                             </Show>
-                            <Show when={!getBuildingImage(building, actions.getSettlementTier())}>
+                            <Show when={!getBuildingImage(building, level())}>
                               <div class="building-card-header">
                                 <div class="building-card-icon locked-icon">{building.icon}</div>
                                 <div>

@@ -7,6 +7,7 @@ import { isCombatPotion } from "@medieval-realm/shared/data/items";
 import Countdown from "~/components/Countdown";
 import RecipeCard from "~/components/RecipeCard";
 import { formatTimeShort as formatTime } from "~/utils/format";
+import { playSound } from "~/engine/sounds";
 
 export default function Alchemy() {
   const { state, actions } = useGame();
@@ -287,8 +288,9 @@ export default function Alchemy() {
                         maxQty: () => maxBrewable(recipe.id),
                         canCraft: (qty) => canCraft(recipe.id, qty),
                         disabledReason: (qty) => brewDisabledReason(recipe.id, qty),
-                        onCraft: (qty) => actions.startAlchemyCraft(recipe.id, qty),
+                        onCraft: (qty) => { playSound("bubbles"); actions.startAlchemyCraft(recipe.id, qty); },
                         verb: "Brew",
+                        silentClick: true,
                       }}
                     />
                   )}

@@ -1,7 +1,8 @@
-import { createSignal, For, Show } from "solid-js";
+import { createSignal, For, Show, onMount } from "solid-js";
 import type { QuestDefinition } from "~/data/quests";
 import { getChronicleEntry } from "~/data/chronicle_entries";
 import { getCharactersForFragments } from "~/data/founding_characters";
+import { playSound } from "~/engine/sounds";
 
 interface Props {
   quest: QuestDefinition;
@@ -18,6 +19,7 @@ const EXIT_ANIMATION_MS = 240;
  * `loot-chip`) from global.css so the entry/exit animations are consistent.
  */
 export default function QuestClaimModal(props: Props) {
+  onMount(() => playSound("notify"));
   const [exiting, setExiting] = createSignal(false);
   const dismissWith = (kind: "close" | "claim") => {
     if (exiting()) return;

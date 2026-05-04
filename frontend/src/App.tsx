@@ -8,6 +8,7 @@ import { openChronicleEntry, setOpenChronicleEntry } from "./data/robins";
 import ToastContainer from "./components/Toast";
 import EventBanner, { showEvent } from "./components/EventBanner";
 import EventModal from "./components/EventModal";
+import { installGlobalClickSound } from "./engine/sounds";
 import { INTRO_CINEMATIC } from "./data/cinematics";
 import { QUEST_DEFINITIONS, isQuestClaimable } from "./data/quests";
 import { SEASON_META } from "./data/seasons";
@@ -148,6 +149,7 @@ export default function App(props: ParentProps) {
   // complete set on mount so pre-existing unclaimed completions don't spam.
   const seenCompletedCoops = new Set<string>();
   onMount(async () => {
+    installGlobalClickSound();
     try {
       const data = await fetchCoops();
       for (const c of data.coops) {

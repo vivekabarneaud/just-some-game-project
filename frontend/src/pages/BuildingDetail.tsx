@@ -134,7 +134,7 @@ export default function BuildingDetail() {
 
       <Show when={building()} fallback={<p>Building not found.</p>}>
         {(b) => {
-          const effectiveImage = () => getBuildingImage(b(), actions.getSettlementTier());
+          const effectiveImage = () => getBuildingImage(b(), playerBuilding()?.level ?? 0);
           return (<>
           <Show when={effectiveImage()}>
             <div class="building-page-bg">

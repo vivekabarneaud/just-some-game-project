@@ -1088,6 +1088,7 @@ export default function MissionAssemblyPanel(props: Props) {
             style={{ width: "100%", "margin-top": "12px" }}
             disabled={teamIds().length === 0 || state.resources.gold < freshMission().deployCost || !areRequiredSlotsFilled(freshMission(), team())}
             onClick={handleDeploy}
+            data-no-click-sound
           >
             Deploy Team ({freshMission().deployCost}g)
           </button>

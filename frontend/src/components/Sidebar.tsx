@@ -446,6 +446,7 @@ export default function Sidebar(props: SidebarProps) {
           onClick={toggleMuted}
           title={isMuted() ? "Unmute sound effects" : "Mute sound effects"}
           style={{ "margin-bottom": "6px" }}
+          data-no-click-sound
         >
           <span style={{ "margin-right": "6px" }}>{isMuted() ? "🔇" : "🔊"}</span>
           {isMuted() ? "Sound off" : "Sound on"}
