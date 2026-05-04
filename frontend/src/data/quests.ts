@@ -295,6 +295,28 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/the_foragers_path.png",
     unlocksBioFragments: ["edda_forager_hut"],
   },
+  {
+    id: "the_growing_pile",
+    storyline: "settlement",
+    chapter: 1,
+    title: "The Growing Pile",
+    narrative:
+      "Jory is laughing about it, mostly. He says the wood pile in front of his shop has its own opinions now, and it tripped him yesterday when he was carrying a saw. Tomas does not laugh. He has been stacking quarry stone behind the workshop, neat as a wall, and waiting for me to notice. They are both right. We need a roof over the surplus before the rain teaches us a lesson.",
+    objective: "Build a Warehouse",
+    icon: "🏚️",
+    triggers: [
+      { type: "building_built", buildingId: "lumber_mill" },
+      { type: "building_built", buildingId: "quarry" },
+    ],
+    requiresAll: true,
+    condition: (s) => (bldg(s, "warehouse")?.level ?? 0) >= 1,
+    rewards: [
+      { resource: "wood", amount: 50, label: "Wood" },
+      { resource: "stone", amount: 30, label: "Stone" },
+    ],
+    targetBuildingId: "warehouse",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/warehouse.png",
+  },
 
   // ╔══════════════════════════════════════════════════════════════╗
   // ║ SETTLEMENT — Chapter 2: The Hunters                         ║

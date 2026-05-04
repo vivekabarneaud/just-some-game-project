@@ -15,12 +15,20 @@ export interface BuildingLevel {
 
 export type SettlementTier = "camp" | "village" | "town" | "city";
 
-export interface BuildingUnlockGate {
-  /** Storyline whose chapter must be unlocked. Mirrors the StorylineId in quests.ts
-   *  (kept as a literal union here to avoid an import cycle). */
-  storyline: "settlement" | "guild" | "story" | "defense";
-  chapter: number;
-}
+/** Two flavors:
+ *  - **Chapter gate** — building is hidden until a storyline chapter unlocks.
+ *  - **Buildings gate** — building is hidden until every listed building exists
+ *    (level ≥ 1). Used for narrative gates like "you have surplus to store
+ *    once both the lumber mill and quarry are running."
+ *
+ *  Discriminated by which keys are present (no `type` field). StorylineId is
+ *  inlined as a literal union to avoid an import cycle with quests.ts. */
+export type BuildingUnlockGate =
+  | {
+      storyline: "settlement" | "guild" | "story" | "defense";
+      chapter: number;
+    }
+  | { requiresBuildings: string[] };
 
 export interface BuildingDefinition {
   id: string;
@@ -127,17 +135,27 @@ export function isBuildingUnlocked(building: BuildingDefinition, townHallLevel: 
   return tierOrder.indexOf(currentTier) >= tierOrder.indexOf(building.requiredTier);
 }
 
-/** Chapter-based unlock check. Independent of tier — both gates must pass for
- *  the building to be available in the picker. Pure on `state.chapters`. */
+/** Narrative unlock check (chapter or building-prereq gate). Independent of
+ *  tier — both gates must pass for the building to be available in the picker.
+ *  Name kept as `isBuildingChapterUnlocked` for back-compat with existing
+ *  call sites; covers both gate flavors. */
 export function isBuildingChapterUnlocked(
   building: BuildingDefinition,
-  state: { chapters?: Array<{ storyline: string; current: number; completedChapters: number[] }> },
+  state: {
+    buildings?: PlayerBuilding[];
+    chapters?: Array<{ storyline: string; current: number; completedChapters: number[] }>;
+  },
 ): boolean {
-  if (!building.unlockedAt) return true;
-  const cs = state.chapters?.find((c) => c.storyline === building.unlockedAt!.storyline);
+  const gate = building.unlockedAt;
+  if (!gate) return true;
+  if ("requiresBuildings" in gate) {
+    return gate.requiresBuildings.every(
+      (id) => (state.buildings?.find((b) => b.buildingId === id)?.level ?? 0) >= 1,
+    );
+  }
+  const cs = state.chapters?.find((c) => c.storyline === gate.storyline);
   if (!cs) return false;
-  return cs.current >= building.unlockedAt.chapter
-    || cs.completedChapters.includes(building.unlockedAt.chapter);
+  return cs.current >= gate.chapter || cs.completedChapters.includes(gate.chapter);
 }
 
 export function getUnlockRequirement(building: BuildingDefinition): string {
@@ -145,15 +163,21 @@ export function getUnlockRequirement(building: BuildingDefinition): string {
   return `Requires ${tierInfo.name} (Town Hall ${tierInfo.minTownHall})`;
 }
 
-/** Human-readable label for a chapter gate. */
-function chapterGateLabel(gate: BuildingUnlockGate): string {
+/** Human-readable label for a narrative unlock gate. */
+function unlockGateLabel(gate: BuildingUnlockGate): string {
+  if ("requiresBuildings" in gate) {
+    const names = gate.requiresBuildings.map(
+      (id) => BUILDINGS.find((b) => b.id === id)?.name ?? id,
+    );
+    return `Requires ${names.join(" + ")}`;
+  }
   const storylineLabels: Record<string, string> = {
     settlement: "Settlement",
     guild: "Adventurer's Guild",
     story: "Story",
     defense: "Defense",
   };
-  return `${storylineLabels[gate.storyline] ?? gate.storyline} chapter ${gate.chapter}`;
+  return `Locked until ${storylineLabels[gate.storyline] ?? gate.storyline} chapter ${gate.chapter}`;
 }
 
 /** Returns every unmet prerequisite for a locked building, as human-readable
@@ -189,10 +213,10 @@ export function getUnlockConditions(
       met: isBuildingUnlocked(building, thLevel),
     });
   }
-  // Chapter gate
+  // Narrative gate (chapter or building prereqs)
   if (building.unlockedAt) {
     conditions.push({
-      label: `Locked until ${chapterGateLabel(building.unlockedAt)}`,
+      label: unlockGateLabel(building.unlockedAt),
       met: isBuildingChapterUnlocked(building, state),
     });
   }
@@ -235,7 +259,8 @@ function generateLevels(
 // ─── Building definitions ────────────────────────────────────────
 
 export const BUILDINGS: BuildingDefinition[] = [
-  // Always available — Town Hall is special, always shown
+  // Town Hall stays L1 by default; the card surfaces in chapter 4 when the
+  // "Ambition Rises" quest pushes the player toward upgrading it.
   {
     id: "town_hall",
     name: "Town Hall",
@@ -246,7 +271,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     maxLevel: 25,
     levels: generateLevels({ wood: 80, stone: 80 }, 60, undefined, 25),
     requiredTier: "camp",
-    unlockedAt: { storyline: "settlement", chapter: 2 },
+    unlockedAt: { storyline: "settlement", chapter: 4 },
   },
   {
     id: "houses",
@@ -272,6 +297,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     maxLevel: 20,
     levels: generateLevels({ wood: 80, stone: 60 }, 7),
     requiredTier: "camp",
+    unlockedAt: { requiresBuildings: ["lumber_mill", "quarry"] },
   },
   {
     id: "pantry",
