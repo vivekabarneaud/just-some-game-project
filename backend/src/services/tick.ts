@@ -6,6 +6,16 @@ import { resolveActiveCoops } from "./coopResolution.js";
 const TICK_INTERVAL_MS = 60_000; // 60 seconds
 const SKIP_IF_RECENT_MS = 30_000; // skip if client saved recently
 
+/** Total citizens across age buckets — replaces the legacy scalar
+ *  `state.population`. Frontend has a richer category-weighted helper for
+ *  food math; the offline tick is coarse enough that a flat total matches
+ *  the prior behavior. Tolerates undefined for any pre-Phase-B DB rows
+ *  that haven't been migrated by a frontend load yet. */
+function totalPop(citizens: GameState["citizens"] | undefined): number {
+  if (!citizens) return 0;
+  return citizens.toddlers + citizens.children + citizens.adults + citizens.elderly;
+}
+
 // Simplified server-side tick for offline progress.
 // Handles resource production, season advancement, building upgrades, and crafting.
 // The client tick is more detailed — this covers what matters while offline.
@@ -138,8 +148,9 @@ export function applyServerTick(state: GameState, elapsedMs: number): GameState 
     }
   }
 
-  const goldPerHour = Math.floor(s.population) * 0.2; // tax
-  const foodConsumed = Math.floor(s.population) * 5;
+  const pop = totalPop(s.citizens);
+  const goldPerHour = pop * 0.2; // tax
+  const foodConsumed = pop * 5;
 
   // Happiness modifier (simplified)
   const happinessMod = s.happiness >= 50 ? 1.0 : 0.6 + (s.happiness / 50) * 0.4;

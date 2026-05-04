@@ -11,6 +11,13 @@ const TIER_SCORES: Record<string, number> = {
   city: 4,
 };
 
+/** Total citizens across age buckets — replaces legacy `state.population`.
+ *  Tolerates undefined for un-migrated pre-Phase-B DB rows. */
+function totalPop(citizens: GameState["citizens"] | undefined): number {
+  if (!citizens) return 0;
+  return citizens.toddlers + citizens.children + citizens.adults + citizens.elderly;
+}
+
 function getTierFromTHLevel(level: number): string {
   if (level >= 7) return "city";
   if (level >= 5) return "town";
@@ -47,7 +54,7 @@ leaderboard.get("/leaderboard", async (c) => {
         tier: getTierFromTHLevel(
           state?.buildings?.find((b) => b.buildingId === "town_hall")?.level ?? 1
         ),
-        population: Math.floor(state?.population ?? 0),
+        population: totalPop(state?.citizens),
       };
     })
     .sort((a, b) => b.score - a.score)
