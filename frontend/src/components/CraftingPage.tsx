@@ -1,6 +1,6 @@
 import { For, Show, type JSX } from "solid-js";
 import { A } from "@solidjs/router";
-import { useGame, CRAFTING_RECIPES, getBuildingToolsForBuilding, getRequiredTool } from "~/engine/gameState";
+import { useGame, CRAFTING_RECIPES, getBuildingToolsForBuilding, getRequiredTool, type CraftingRecipe } from "~/engine/gameState";
 import { getItemByRecipe, ARMOR_TYPE_META } from "@medieval-realm/shared/data/items";
 import { getTotalFood, isFoodItemType, getFoodCostAmount, getFoodMeta, type FoodItemType } from "~/data/foods";
 import { BUILDINGS } from "~/data/buildings";
@@ -205,6 +205,49 @@ export default function CraftingPage(props: CraftingPageProps) {
     return Math.max(1, max);
   };
 
+  // Shared display props for the two RecipeCard sections (unlocked + locked).
+  // Subtitle and action differ between the call sites and are spread separately.
+  const recipeDisplayProps = (recipe: CraftingRecipe) => {
+    const item = getItemByRecipe(recipe.id);
+    return {
+      icon: recipe.icon,
+      image: recipe.image ?? item?.image,
+      title: recipe.name,
+      costs: <>Cost: <For each={recipe.costs}>{(c, i) => <>{i() > 0 ? ", " : ""}{renderCost(c.resource, c.amount)}</>}</For></>,
+    };
+  };
+  const recipeProduces = (recipe: CraftingRecipe) =>
+    `+${recipe.produces.amount}x ${formatResource(recipe.produces.resource, props.buildingId)}`;
+  const toolLockedBadge = (icon: string, name: string) => (
+    <div style={{
+      padding: "4px 8px",
+      "border-radius": "4px",
+      background: "rgba(230, 126, 34, 0.1)",
+      border: "1px solid #e67e22",
+      "font-size": "0.75rem",
+      color: "#e67e22",
+      display: "flex",
+      "align-items": "center",
+      gap: "4px",
+    }}>
+      <span>{icon}</span>
+      Requires {name}
+    </div>
+  );
+  const levelLockedBadge = (minLevel: number, buildingName: string, currentLevel: number) => (
+    <div style={{
+      padding: "4px 8px",
+      "border-radius": "4px",
+      background: "rgba(245, 197, 66, 0.1)",
+      border: "1px solid var(--accent-gold)",
+      "font-size": "0.75rem",
+      color: "var(--accent-gold)",
+    }}>
+      Requires {buildingName} Lv.{minLevel}
+      {currentLevel > 0 && ` (currently Lv.${currentLevel})`}
+    </div>
+  );
+
   return (
     <div>
       <h1 class="page-title">{props.icon} {props.title}</h1>
@@ -358,36 +401,16 @@ export default function CraftingPage(props: CraftingPageProps) {
                 {(recipe) => {
                   const missingTool = () => getRequiredTool(recipe, installedToolIds());
                   const isToolLocked = () => !!missingTool();
-                  const item = getItemByRecipe(recipe.id);
                   return (
                     <RecipeCard
-                      icon={recipe.icon}
-                      image={recipe.image ?? item?.image}
-                      title={recipe.name}
-                      subtitle={`${formatTimeShort(recipe.craftTime)} · +${recipe.produces.amount}x ${formatResource(recipe.produces.resource, props.buildingId)}`}
+                      {...recipeDisplayProps(recipe)}
+                      subtitle={`${formatTimeShort(recipe.craftTime)} · ${recipeProduces(recipe)}`}
                       info={itemInfoPanel(recipe.id, isToolLocked())}
-                      costs={<>Cost: <For each={recipe.costs}>{(c, i) => <>{i() > 0 ? ", " : ""}{renderCost(c.resource, c.amount)}</>}</For></>}
                       isUnseen={!(state.recipesSeen ?? []).includes(recipe.id)}
                       onSeen={() => actions.markRecipeSeen(recipe.id)}
                       action={
                         isToolLocked()
-                          ? {
-                              type: "locked",
-                              badge: <div style={{
-                                padding: "4px 8px",
-                                "border-radius": "4px",
-                                background: "rgba(230, 126, 34, 0.1)",
-                                border: "1px solid #e67e22",
-                                "font-size": "0.75rem",
-                                color: "#e67e22",
-                                display: "flex",
-                                "align-items": "center",
-                                gap: "4px",
-                              }}>
-                                <span>{missingTool()?.icon}</span>
-                                Requires {missingTool()?.name}
-                              </div>,
-                            }
+                          ? { type: "locked", badge: toolLockedBadge(missingTool()!.icon, missingTool()!.name) }
                           : {
                               type: "craft",
                               maxQty: () => maxCraftable(recipe.id),
@@ -415,33 +438,17 @@ export default function CraftingPage(props: CraftingPageProps) {
               </h3>
               <div class="buildings-grid">
                 <For each={lockedRecipes()}>
-                  {(recipe) => {
-                    const item = getItemByRecipe(recipe.id);
-                    return (
-                      <RecipeCard
-                        icon={recipe.icon}
-                        image={recipe.image ?? item?.image}
-                        title={recipe.name}
-                        subtitle={`+${recipe.produces.amount}x ${formatResource(recipe.produces.resource, props.buildingId)}`}
-                        info={itemInfoPanel(recipe.id, true)}
-                        costs={<>Cost: <For each={recipe.costs}>{(c, i) => <>{i() > 0 ? ", " : ""}{renderCost(c.resource, c.amount)}</>}</For></>}
-                        action={{
-                          type: "locked",
-                          badge: <div style={{
-                            padding: "4px 8px",
-                            "border-radius": "4px",
-                            background: "rgba(245, 197, 66, 0.1)",
-                            border: "1px solid var(--accent-gold)",
-                            "font-size": "0.75rem",
-                            color: "var(--accent-gold)",
-                          }}>
-                            Requires {props.buildingName} Lv.{recipe.minLevel}
-                            {buildingLevel() > 0 && ` (currently Lv.${buildingLevel()})`}
-                          </div>,
-                        }}
-                      />
-                    );
-                  }}
+                  {(recipe) => (
+                    <RecipeCard
+                      {...recipeDisplayProps(recipe)}
+                      subtitle={recipeProduces(recipe)}
+                      info={itemInfoPanel(recipe.id, true)}
+                      action={{
+                        type: "locked",
+                        badge: levelLockedBadge(recipe.minLevel, props.buildingName, buildingLevel()),
+                      }}
+                    />
+                  )}
                 </For>
               </div>
             </Show>

@@ -151,6 +151,75 @@ export default function Sidebar(props: SidebarProps) {
     onCleanup(() => { offFriend(); offInvite(); offUpdate(); offCancelled(); });
   });
 
+  // ─── Per-nav signal helpers ────────────────────────────────────
+  // The sidebar surfaces two kinds of attention signals: a numeric blue
+  // badge (unseen counts) and a pulsing colored label (situational nudges).
+  // Both are looked up by path so the JSX stays a flat map.
+
+  const unseenQuestCount = () => {
+    // Count of active quests that are either un-hovered or claim-ready.
+    // Hovering only dismisses "new"; a claimable quest keeps signaling
+    // until the player claims it.
+    const seen = state.questsClaimableSeen ?? [];
+    let n = 0;
+    for (const q of QUEST_DEFINITIONS) {
+      if (state.questRewardsClaimed?.includes(q.id)) continue;
+      if (!isQuestTriggered(q, state)) continue;
+      if (!seen.includes(q.id) || q.condition(state)) n++;
+    }
+    return n;
+  };
+
+  const unseenChronicleCount = () =>
+    actions.countUnseenJournalEntries() + actions.countUnseenMemories();
+
+  const unseenRecipeCount = (path: string) => {
+    // Tool-locked recipes count too — the player still wants to know they
+    // exist, even if a tool is needed before they can be crafted.
+    const buildingId = CRAFTING_PATH_TO_BUILDING_ID[path];
+    if (!buildingId) return 0;
+    const b = state.buildings.find((bb) => bb.buildingId === buildingId);
+    if (!b || b.level === 0) return 0;
+    const seen = state.recipesSeen ?? [];
+    let n = 0;
+    for (const r of CRAFTING_RECIPES) {
+      if (r.building !== buildingId) continue;
+      if (b.level < r.minLevel) continue;
+      if (seen.includes(r.id)) continue;
+      n++;
+    }
+    return n;
+  };
+
+  const badgeCountFor = (path: string): number => {
+    if (path === "/") return state.pendingRobins?.length ?? 0;
+    if (path === "/quests") return unseenQuestCount();
+    if (path === "/chronicle") return unseenChronicleCount();
+    if (path === "/guild") return state.completedMissions?.length ?? 0;
+    if (CRAFTING_PATH_TO_BUILDING_ID[path]) return unseenRecipeCount(path);
+    return 0;
+  };
+
+  const pulseFor = (path: string): { color: string; text: string } | null => {
+    if (path === "/farming") {
+      const hasEmptyFields = state.fields.some((f) => !f.crop && f.level > 0 && !f.upgrading);
+      const hasUpgradableFields = state.fields.some((f) => f.level > 0 && f.level < FIELD_MAX_LEVEL && !f.upgrading);
+      if (state.season === "spring" && hasEmptyFields) return { color: "#7CFC00", text: "plant!" };
+      if (state.season === "autumn" && state.seasonElapsed < 6) return { color: "#d4831a", text: "harvest!" };
+      if (state.season === "winter" && hasUpgradableFields) return { color: "#a5d8ff", text: "upgrade!" };
+      return null;
+    }
+    if (path === "/guild") {
+      if (incomingCoopInvites() > 0) return { color: "var(--accent-blue)", text: "coop!" };
+      if (actions.hasNewGuildContent()) return { color: "var(--accent-blue)", text: "new!" };
+      return null;
+    }
+    if (path === "/friends" && incomingFriendRequests() > 0) {
+      return { color: "var(--accent-gold)", text: `+${incomingFriendRequests()}` };
+    }
+    return null;
+  };
+
   const isActive = (path: string) => {
     if (path === "/") return location.pathname === "/";
     return location.pathname.startsWith(path);
@@ -213,75 +282,14 @@ export default function Sidebar(props: SidebarProps) {
           <>
             <div class="nav-section-title">{section.title}</div>
             {section.items.map((item) => {
-              const hasEmptyFields = () => state.fields.some((f) => !f.crop && f.level > 0 && !f.upgrading);
-              // Winter nudge: farming is dormant, use the downtime to level up fields.
-              const hasUpgradableFields = () => state.fields.some((f) => f.level > 0 && f.level < FIELD_MAX_LEVEL && !f.upgrading);
-              const hasClaimableQuest = () => {
-                // Any active (triggered + not-claimed) quest whose completion
-                // condition is met. New chapter system means multiple quests
-                // can be claimable at once — the badge fires if any one is.
-                for (const q of QUEST_DEFINITIONS) {
-                  if (state.questRewardsClaimed?.includes(q.id)) continue;
-                  if (!isQuestTriggered(q, state)) continue;
-                  if (q.condition(state)) return true;
-                }
-                return false;
-              };
-              const unseenActiveCount = () => {
-                // Notification badge: count of active (triggered, not-claimed)
-                // quests that either haven't been hovered yet OR are ready to
-                // claim right now. Hovering only dismisses the "new" status —
-                // a claimable quest keeps signaling until the player claims.
-                const seen = state.questsClaimableSeen ?? [];
-                let n = 0;
-                for (const q of QUEST_DEFINITIONS) {
-                  if (state.questRewardsClaimed?.includes(q.id)) continue;
-                  if (!isQuestTriggered(q, state)) continue;
-                  const isUnseen = !seen.includes(q.id);
-                  const isClaimable = q.condition(state);
-                  if (isUnseen || isClaimable) n++;
-                }
-                return n;
-              };
-              const unseenChronicleCount = () =>
-                actions.countUnseenJournalEntries() + actions.countUnseenMemories();
-              const unseenRecipeCount = () => {
-                // Crafting nav badge: unseen recipes whose building level is met.
-                // Tool-locked counts too — the player still wants to know the
-                // recipe exists, even if they need to craft a tool to use it.
-                const buildingId = CRAFTING_PATH_TO_BUILDING_ID[item.path];
-                if (!buildingId) return 0;
-                const b = state.buildings.find((bb) => bb.buildingId === buildingId);
-                if (!b || b.level === 0) return 0;
-                const seen = state.recipesSeen ?? [];
-                let n = 0;
-                for (const r of CRAFTING_RECIPES) {
-                  if (r.building !== buildingId) continue;
-                  if (b.level < r.minLevel) continue;
-                  if (seen.includes(r.id)) continue;
-                  n++;
-                }
-                return n;
-              };
-              const completedMissionCount = () => state.completedMissions?.length ?? 0;
-              const hasPendingRobin = () => (state.pendingRobins?.length ?? 0) > 0;
-              // Resolved missions get a numeric blue badge instead of pulse —
-              // matches the quests/chronicle/recipe pattern. Other guild blinks
-              // (new content, coop invites) keep the textual pulse for now.
-              const shouldBlink = () =>
-                (item.path === "/farming" && (
-                  (state.season === "spring" && hasEmptyFields()) ||
-                  (state.season === "autumn" && state.seasonElapsed < 6) ||
-                  (state.season === "winter" && hasUpgradableFields())
-                )) ||
-                (item.path === "/guild" && (actions.hasNewGuildContent() || incomingCoopInvites() > 0)) ||
-                (item.path === "/friends" && incomingFriendRequests() > 0);
+              const badge = badgeCountFor(item.path);
+              const pulse = pulseFor(item.path);
               return (
                 <A
                   href={item.path}
                   class="nav-link"
                   classList={{ active: isActive(item.path) }}
-                  style={{ animation: shouldBlink() ? "pulse 2s infinite" : undefined }}
+                  style={{ animation: pulse ? "pulse 2s infinite" : undefined }}
                 >
                   <span class="nav-icon">{item.icon}</span>
                   {item.label}
@@ -290,32 +298,12 @@ export default function Sidebar(props: SidebarProps) {
                       #{myRank()}
                     </span>
                   )}
-                  {((item.path === "/" && hasPendingRobin()) ||
-                    (item.path === "/quests" && unseenActiveCount() > 0) ||
-                    (item.path === "/chronicle" && unseenChronicleCount() > 0) ||
-                    (item.path === "/guild" && completedMissionCount() > 0) ||
-                    (CRAFTING_PATH_TO_BUILDING_ID[item.path] && unseenRecipeCount() > 0)) && (
-                    <span class="notification-badge" style={{ "margin-left": "auto" }}>
-                      {item.path === "/" ? (state.pendingRobins?.length ?? 0)
-                        : item.path === "/quests" ? unseenActiveCount()
-                        : item.path === "/chronicle" ? unseenChronicleCount()
-                        : item.path === "/guild" ? completedMissionCount()
-                        : unseenRecipeCount()}
-                    </span>
+                  {badge > 0 && (
+                    <span class="notification-badge" style={{ "margin-left": "auto" }}>{badge}</span>
                   )}
-                  {shouldBlink() && (
-                    <span style={{ "margin-left": "auto", "font-size": "0.7rem", color:
-                      item.path === "/guild" ? "var(--accent-blue)" :
-                      item.path === "/friends" ? "var(--accent-gold)" :
-                      state.season === "spring" ? "#7CFC00" :
-                      state.season === "winter" ? "#a5d8ff" :
-                      "#d4831a"
-                    }}>
-                      {item.path === "/guild" ? (incomingCoopInvites() > 0 ? "coop!" : "new!")
-                        : item.path === "/friends" ? `+${incomingFriendRequests()}`
-                        : state.season === "spring" ? "plant!"
-                        : state.season === "winter" ? "upgrade!"
-                        : "harvest!"}
+                  {pulse && (
+                    <span style={{ "margin-left": "auto", "font-size": "0.7rem", color: pulse.color }}>
+                      {pulse.text}
                     </span>
                   )}
                 </A>
