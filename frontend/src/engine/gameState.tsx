@@ -1290,6 +1290,50 @@ function loadGame(): GameState | null {
     if (!saved.completedStoryMissions) saved.completedStoryMissions = [];
     if (!saved.pendingRobins) saved.pendingRobins = [];
     if (!saved.firedRobins) saved.firedRobins = [];
+
+    // Chapter pointer recompute (May 2026, idempotent). Legacy saves whose
+    // pre-chapter linear quests are already done don't have any of the new
+    // chapter-quest IDs in `questRewardsClaimed`, so the one-shot migration
+    // above leaves their pointer stuck at chapter 1 even though they have
+    // a sheep pen, tailoring shop, or upgraded Town Hall in their world.
+    // This pass uses state evidence (built buildings, TH level) to bump
+    // each storyline's `current` forward — never backward — so already-
+    // earned content unlocks. Runs every load; cheap and safe.
+    {
+      const buildLvl = (id: string) =>
+        saved.buildings?.find((b: any) => b.buildingId === id)?.level ?? 0;
+      const hasPen = (animal: string) =>
+        (saved.pens ?? []).some((p: any) => p.animal === animal && (p.level ?? 0) >= 1);
+      const bumpTo = (storyline: string, target: number) => {
+        const cs = saved.chapters?.find((c: any) => c.storyline === storyline);
+        if (cs && cs.current < target) cs.current = target;
+      };
+      // Settlement storyline
+      if (
+        buildLvl("houses") >= 1 ||
+        buildLvl("hunting_camp") >= 1 ||
+        buildLvl("pantry") >= 1
+      ) bumpTo("settlement", 2);
+      if (
+        hasPen("sheep") ||
+        buildLvl("tailoring_shop") >= 1 ||
+        buildLvl("shrine") >= 1
+      ) bumpTo("settlement", 3);
+      if (
+        buildLvl("town_hall") >= 2 ||
+        buildLvl("marketplace") >= 1 ||
+        buildLvl("masons_guild") >= 1
+      ) bumpTo("settlement", 4);
+      // Guild storyline
+      if (buildLvl("adventurers_guild") >= 1) bumpTo("guild", 1);
+      if (buildLvl("woodworker") >= 1) bumpTo("guild", 2);
+      // Defense storyline — any defense investment activates ch.1
+      const hasDefense =
+        ((saved as any).walls ?? []).some((w: any) => (w.level ?? 0) >= 1) ||
+        ((saved as any).watchtowers ?? []).some((t: any) => (t.level ?? 0) >= 1) ||
+        (saved.raidsResolvedCount ?? 0) > 0;
+      if (hasDefense) bumpTo("defense", 1);
+    }
     // Chronicle migration — entries fired and bio fragments unlocked
     if (!saved.chronicleEntriesFired) saved.chronicleEntriesFired = [];
     if (!saved.chronicleEntriesSeen) saved.chronicleEntriesSeen = [];
@@ -2005,6 +2049,78 @@ export function GameProvider(props: ParentProps) {
           const legacy = (serverState as any).population;
           (serverState as any).citizens = migrateLegacyPopulation(legacy ?? BASE_POPULATION);
           delete (serverState as any).population;
+        }
+        // Chapter system migration — same logic as loadGame (localStorage path).
+        // Cloud-loaded saves bypassed this entirely, so a player whose cloud
+        // save predates the chapter rework would land here without a chapters
+        // field; farming and other chapter-gated content stayed locked even
+        // after they'd claimed every chapter quest.
+        if (!(serverState as any).chapters) {
+          (serverState as any).chapters = [
+            { storyline: "settlement", current: 1, completedChapters: [] },
+            { storyline: "guild", current: 0, completedChapters: [] },
+            { storyline: "story", current: 1, completedChapters: [] },
+            { storyline: "defense", current: 0, completedChapters: [] },
+          ];
+          for (const cs of (serverState as any).chapters) {
+            const chaptersInStoryline = new Set(
+              QUEST_DEFINITIONS
+                .filter((q) => q.storyline === cs.storyline)
+                .map((q) => q.chapter),
+            );
+            for (const chapter of [...chaptersInStoryline].sort((a, b) => a - b)) {
+              const allClaimed = QUEST_DEFINITIONS
+                .filter((q) => q.storyline === cs.storyline && q.chapter === chapter)
+                .every((q) => (serverState.questRewardsClaimed ?? []).includes(q.id));
+              if (allClaimed) {
+                cs.completedChapters.push(chapter);
+                cs.current = chapter + 1;
+              } else if (cs.current === 0 && (serverState.questRewardsClaimed ?? []).some((id: string) =>
+                QUEST_DEFINITIONS.find((q) => q.id === id)?.storyline === cs.storyline)) {
+                cs.current = chapter;
+                break;
+              } else {
+                break;
+              }
+            }
+          }
+        }
+        if (!(serverState as any).firedEvents) (serverState as any).firedEvents = [];
+        if (!(serverState as any).pendingEvents) (serverState as any).pendingEvents = [];
+        // Idempotent chapter pointer recompute — same as loadGame. Bumps
+        // `current` forward based on state evidence for legacy linear-quest
+        // saves whose chapter pointers don't match what they've actually built.
+        {
+          const buildLvl = (id: string) =>
+            (serverState.buildings ?? []).find((b: any) => b.buildingId === id)?.level ?? 0;
+          const hasPen = (animal: string) =>
+            ((serverState as any).pens ?? []).some((p: any) => p.animal === animal && (p.level ?? 0) >= 1);
+          const bumpTo = (storyline: string, target: number) => {
+            const cs = (serverState as any).chapters?.find((c: any) => c.storyline === storyline);
+            if (cs && cs.current < target) cs.current = target;
+          };
+          if (
+            buildLvl("houses") >= 1 ||
+            buildLvl("hunting_camp") >= 1 ||
+            buildLvl("pantry") >= 1
+          ) bumpTo("settlement", 2);
+          if (
+            hasPen("sheep") ||
+            buildLvl("tailoring_shop") >= 1 ||
+            buildLvl("shrine") >= 1
+          ) bumpTo("settlement", 3);
+          if (
+            buildLvl("town_hall") >= 2 ||
+            buildLvl("marketplace") >= 1 ||
+            buildLvl("masons_guild") >= 1
+          ) bumpTo("settlement", 4);
+          if (buildLvl("adventurers_guild") >= 1) bumpTo("guild", 1);
+          if (buildLvl("woodworker") >= 1) bumpTo("guild", 2);
+          const hasDefense =
+            ((serverState as any).walls ?? []).some((w: any) => (w.level ?? 0) >= 1) ||
+            ((serverState as any).watchtowers ?? []).some((t: any) => (t.level ?? 0) >= 1) ||
+            ((serverState as any).raidsResolvedCount ?? 0) > 0;
+          if (hasDefense) bumpTo("defense", 1);
         }
         // Re-apply leveling in case XP curve changed
         for (const adv of serverState.adventurers ?? []) {

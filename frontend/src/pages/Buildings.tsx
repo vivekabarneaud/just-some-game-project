@@ -50,11 +50,11 @@ export default function Buildings() {
     BUILDINGS.filter((b) => b.category === category);
 
   const sectionHasVisible = (category: string) =>
-    buildingsInSection(category).some(
-      (b) =>
-        (isBuildingUnlocked(b, thLevel()) && isBuildingChapterUnlocked(b, state)) ||
-        (getPlayerBuilding(b.id)?.level ?? 0) > 0,
-    );
+    buildingsInSection(category).some((b) => {
+      const built = (getPlayerBuilding(b.id)?.level ?? 0) > (b.defaultLevel ?? 0);
+      const gateMet = isBuildingUnlocked(b, thLevel()) && isBuildingChapterUnlocked(b, state);
+      return built || gateMet;
+    });
 
   return (
     <div>
@@ -101,12 +101,13 @@ export default function Buildings() {
                   const isUpgrading = () => pb()?.upgrading ?? false;
                   const currentLevel = () => (level() > 0 ? building.levels[level() - 1] : null);
                   const unlocked = () => {
-                    // Already-built buildings normally stay visible regardless of
-                    // tier (legacy escape hatch for saves that built something
-                    // before a tier requirement was added). Buildings with an
-                    // explicit narrative gate (`unlockedAt`) opt out: Town Hall
-                    // starts at L1 but should still hide until ch.4 fires.
-                    if (!building.unlockedAt && (pb()?.level ?? 0) > 0) return true;
+                    // "Already built" → always show as upgradeable, even past a
+                    // narrative gate. The bar is `level > defaultLevel` so that
+                    // Town Hall (which starts at L1 by default) stays locked
+                    // behind its ch.4 gate, while a player-built warehouse
+                    // remains visible regardless of its prereq state.
+                    const defaultLvl = building.defaultLevel ?? 0;
+                    if ((pb()?.level ?? 0) > defaultLvl) return true;
                     return isBuildingUnlocked(building, thLevel()) &&
                       isBuildingChapterUnlocked(building, state);
                   };

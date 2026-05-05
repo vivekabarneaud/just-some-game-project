@@ -47,6 +47,12 @@ export interface BuildingDefinition {
    *  must be satisfied. Buildings without `unlockedAt` are available from game start
    *  (subject only to tier). */
   unlockedAt?: BuildingUnlockGate;
+  /** Starting level baked into a fresh save. Anything at or below this level
+   *  is treated as default state (not "the player built this"), so the
+   *  "already built → always visible" escape only fires above it. Town Hall
+   *  uses `defaultLevel: 1` to stay locked behind its narrative gate even
+   *  though every save begins with TH at L1. */
+  defaultLevel?: number;
 }
 
 export interface PlayerBuilding {
@@ -279,6 +285,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     levels: generateLevels({ wood: 80, stone: 80 }, 60, undefined, 25),
     requiredTier: "camp",
     unlockedAt: { storyline: "settlement", chapter: 4 },
+    defaultLevel: 1,
   },
   {
     id: "houses",
