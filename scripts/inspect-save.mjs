@@ -100,6 +100,22 @@ async function main() {
       console.log(`    ${gs.questRewardsClaimed.join(", ")}`);
     }
     console.log();
+
+    // Snapshots — rolling history of prior gameStates (newest first). Each
+    // line summarizes a snapshot so you can spot regressions vs current.
+    const snapshots = await prisma.settlementSnapshot.findMany({
+      where: { settlementId: s.id },
+      orderBy: { createdAt: "desc" },
+    }).catch(() => []);
+    console.log(`  ## Snapshots: ${snapshots.length}`);
+    for (const snap of snapshots) {
+      const sg = snap.gameState ?? {};
+      const advs = sg.adventurers ?? [];
+      const aliveLevels = advs.filter((a) => a.alive).map((a) => `L${a.level ?? "?"}`).join(",");
+      const th = (sg.buildings ?? []).find((b) => b.buildingId === "town_hall")?.level ?? "?";
+      console.log(`    ${fmt(snap.createdAt)}  TH=L${th}  advs=[${aliveLevels}]  year=${sg.year ?? "?"}`);
+    }
+    console.log();
   }
 }
 

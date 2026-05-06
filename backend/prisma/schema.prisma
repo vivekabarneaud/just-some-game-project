@@ -95,9 +95,25 @@ model Settlement {
   world  World  @relation(fields: [worldId], references: [id])
   tradeOffersFrom TradeOffer[] @relation("TradeOffersFromSettlement")
   tradeOffersTo   TradeOffer[] @relation("TradeOffersToSettlement")
+  snapshots SettlementSnapshot[]
 
   @@index([playerId])
   @@index([worldId])
+}
+
+// Rolling history of the last N gameStates per settlement. Written on each
+// successful save (the *outgoing* state, just before it's replaced) so we
+// can recover from bad saves and diff against current. Capped server-side
+// to ~10 per settlement; the save handler prunes older rows.
+model SettlementSnapshot {
+  id           String   @id @default(cuid())
+  settlementId String
+  gameState    Json
+  createdAt    DateTime @default(now())
+
+  settlement Settlement @relation(fields: [settlementId], references: [id], onDelete: Cascade)
+
+  @@index([settlementId, createdAt])
 }
 
 model TradeOffer {
