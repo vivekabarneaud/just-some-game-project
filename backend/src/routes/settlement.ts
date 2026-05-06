@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import type { GameState, SettlementResponse, SettlementListResponse, SaveSettlementRequest } from "@medieval-realm/shared";
+import type { GameState, SettlementResponse, SettlementListResponse, SaveSettlementRequest, SaveSettlementResponse } from "@medieval-realm/shared";
 import { prisma } from "../lib/prisma.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { getOrCreateDefaultWorld, randomPosition } from "../services/world.js";
@@ -36,6 +36,7 @@ settlement.get("/settlement/:id", async (c) => {
       y: s.y,
       worldId: s.worldId,
       gameState: s.gameState as unknown as GameState,
+      updatedAt: s.updatedAt.toISOString(),
     },
   });
 });
@@ -53,29 +54,32 @@ settlement.put("/settlement/:id", async (c) => {
     return c.json({ error: "Settlement not found" }, 404);
   }
 
-  // Stale-tab guard. A second tab/device that loaded this settlement at an
-  // earlier moment can have an in-memory state that's hours behind reality;
-  // its periodic save would otherwise clobber the live progress. Reject
-  // saves whose lastTick is older than what we already have. Returning 409
-  // lets the client know to reload from the server instead of retrying.
-  const incomingTick = Number((body.gameState as any)?.lastTick ?? 0);
-  const existingState = existing.gameState as any;
-  const existingTick = Number(existingState?.lastTick ?? 0);
-  if (incomingTick > 0 && existingTick > 0 && incomingTick < existingTick) {
-    return c.json(
-      {
-        error: "stale_state",
-        message: "Server has newer state.",
-        serverLastTick: existingTick,
-        incomingLastTick: incomingTick,
-      },
-      409,
-    );
+  // Optimistic concurrency check. The client captures `updatedAt` on load
+  // and echoes it back as `expectedUpdatedAt` on every save. If it doesn't
+  // match the row's current `updatedAt`, another tab/device wrote in
+  // between — this client's view is stale and accepting its save would
+  // clobber the newer state. 409 tells the client to reload from server.
+  // Optional for backwards compat: legacy clients without the field fall
+  // through to last-write-wins (existing pre-deploy behavior).
+  if (body.expectedUpdatedAt !== undefined) {
+    const currentVersion = existing.updatedAt.toISOString();
+    if (currentVersion !== body.expectedUpdatedAt) {
+      return c.json(
+        {
+          error: "stale_state",
+          message: "Settlement was modified by another tab or device.",
+          currentUpdatedAt: currentVersion,
+          expectedUpdatedAt: body.expectedUpdatedAt,
+        },
+        409,
+      );
+    }
   }
 
   // Snapshot the *outgoing* state before replacing it, then prune to the
   // last SNAPSHOT_CAP rows. Best-effort: failures don't block the save.
-  // We skip the empty-object case (newly created settlements).
+  // Skip the empty-object case (newly created settlements with no real state).
+  const existingTick = Number((existing.gameState as any)?.lastTick ?? 0);
   if (existingTick > 0) {
     try {
       await prisma.settlementSnapshot.create({
@@ -97,16 +101,20 @@ settlement.put("/settlement/:id", async (c) => {
     }
   }
 
-  await prisma.settlement.update({
+  const updated = await prisma.settlement.update({
     where: { id },
     data: {
       gameState: body.gameState as any,
       lastTickAt: new Date(),
       name: body.gameState.villageName || existing.name,
     },
+    select: { updatedAt: true },
   });
 
-  return c.json({ ok: true });
+  return c.json<SaveSettlementResponse>({
+    ok: true,
+    updatedAt: updated.updatedAt.toISOString(),
+  });
 });
 
 // Auto-create a settlement if the player has none (called during initial load)
@@ -144,6 +152,7 @@ settlement.post("/settlement/create", async (c) => {
       y: s.y,
       worldId: s.worldId,
       gameState: s.gameState as unknown as GameState,
+      updatedAt: s.updatedAt.toISOString(),
     },
   });
 });

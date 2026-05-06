@@ -34,6 +34,9 @@ export interface SettlementInfo {
 export interface SettlementResponse {
   settlement: SettlementInfo & {
     gameState: GameState;
+    /** Server-managed write version. Frontend captures this on load and
+     *  echoes it back on save as `expectedUpdatedAt` — see SaveSettlementRequest. */
+    updatedAt: string;
   };
 }
 
@@ -43,6 +46,20 @@ export interface SettlementListResponse {
 
 export interface SaveSettlementRequest {
   gameState: GameState;
+  /** Optimistic concurrency token. The value of `settlement.updatedAt` from
+   *  the moment the client most recently loaded or successfully saved this
+   *  settlement. Server rejects with 409 if it doesn't match the current
+   *  row's updatedAt — that means another tab/device wrote in between and
+   *  this client's view is stale. Optional for backwards compat: missing
+   *  values bypass the check (legacy clients still get last-write-wins). */
+  expectedUpdatedAt?: string;
+}
+
+export interface SaveSettlementResponse {
+  ok: boolean;
+  /** New updatedAt after this write. Client stashes it as the next
+   *  `expectedUpdatedAt`. */
+  updatedAt: string;
 }
 
 // ─── World ──────────────────────────────────────────────────────
