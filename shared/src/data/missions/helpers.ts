@@ -388,6 +388,15 @@ function missionRankNumeric(missionId: string): number | null {
  *  shouldn't be drowning in trivial missions either way. */
 const BELOW_REFERENCE_QUOTA = 2;
 
+/** How many regular slots reserved for a stretch mission one rank above the
+ *  team's highest rank. A risky reward run that demands real preparation —
+ *  good to keep one always present so there's something to grow into. */
+const STRETCH_QUOTA = 1;
+
+/** Highest mission rank that exists as a tier (veteran). Anything above
+ *  caps here for stretch purposes — there are no "elite" mission pools. */
+const MAX_MISSION_RANK = 4;
+
 export function generateMissionBoard(ctx: MissionBoardContext): MissionTemplate[] {
   const { guildLevel, count = 4, seed = Date.now(), maxDifficulty = 5 } = ctx;
   const available = ALL_MISSIONS.filter((m) =>
@@ -406,16 +415,21 @@ export function generateMissionBoard(ctx: MissionBoardContext): MissionTemplate[
   // Rank quota — only applies when we have alive adventurer ranks. Floor =
   // lowest alive adventurer's rank (so a fresh recruit unlocks novice
   // missions). Reference = mode (most common rank); ties prefer the higher
-  // rank since that better describes a stronger team. Anything below floor
-  // is dropped; up to BELOW_REFERENCE_QUOTA slots may go to ranks in
-  // [floor, reference); the rest are filled at-or-above reference.
+  // rank. Stretch = one rank above the team's highest, capped at veteran
+  // (no elite missions exist). Anything below floor is dropped; up to
+  // BELOW_REFERENCE_QUOTA slots may go to ranks in [floor, reference);
+  // STRETCH_QUOTA slots reserved for stretch rank if any exist; the rest
+  // fill at-or-above reference.
   const ranks = ctx.adventurerRanks ?? [];
-  let pool = available;
-  let belowQuota = available;
-  let useQuota = false;
-  if (ranks.length > 0) {
-    useQuota = true;
+  const useQuota = ranks.length > 0;
+
+  let regular: MissionTemplate[];
+  if (useQuota) {
     const floor = Math.min(...ranks);
+    const highest = Math.max(...ranks);
+    const stretch = Math.min(highest + 1, MAX_MISSION_RANK);
+    const hasStretch = stretch > highest;
+
     const counts = new Map<number, number>();
     for (const r of ranks) counts.set(r, (counts.get(r) ?? 0) + 1);
     let reference = floor;
@@ -426,30 +440,41 @@ export function generateMissionBoard(ctx: MissionBoardContext): MissionTemplate[
         reference = r;
       }
     }
-    pool = available.filter((m) => {
+
+    const eligible = available.filter((m) => {
       const r = missionRankNumeric(m.id);
       return r === null || r >= floor; // null = story/expedition, not subject to quota
     });
-    belowQuota = pool.filter((m) => {
+
+    // Below-reference: prefer ranks closer to reference (apprentice before
+    // novice for a journeyman team) so catch-up slots aren't stuck at the
+    // lowest tier when something more useful is available.
+    const belowPool = eligible.filter((m) => {
       const r = missionRankNumeric(m.id);
       return r !== null && r < reference;
     });
-  }
+    const below = [...belowPool]
+      .sort(() => rand() - 0.5)
+      .sort((a, b) => (missionRankNumeric(b.id) ?? 0) - (missionRankNumeric(a.id) ?? 0))
+      .slice(0, Math.min(BELOW_REFERENCE_QUOTA, belowPool.length));
 
-  let regular: MissionTemplate[];
-  if (useQuota) {
-    // Below-reference: prefer ranks closer to reference (apprentice before
-    // novice for a journeyman team) so the catch-up slots aren't stuck at
-    // the lowest tier when something more useful is available.
-    const sortedBelow = [...belowQuota].sort(() => rand() - 0.5)
-      .sort((a, b) => (missionRankNumeric(b.id) ?? 0) - (missionRankNumeric(a.id) ?? 0));
-    const below = sortedBelow.slice(0, Math.min(BELOW_REFERENCE_QUOTA, sortedBelow.length));
-    const belowIds = new Set(below.map((m) => m.id));
-    const aboveOrAt = pool.filter((m) => !belowIds.has(m.id) && !belowQuota.some((b) => b.id === m.id));
-    const shuffledAbove = [...aboveOrAt].sort(() => rand() - 0.5);
-    const aboveSlots = Math.max(0, count - below.length);
-    const above = shuffledAbove.slice(0, Math.min(aboveSlots, shuffledAbove.length));
-    regular = [...above, ...below];
+    // Stretch: one rank above the team's highest rank.
+    const stretchPool = hasStretch
+      ? eligible.filter((m) => missionRankNumeric(m.id) === stretch)
+      : [];
+    const stretchSlots = [...stretchPool]
+      .sort(() => rand() - 0.5)
+      .slice(0, Math.min(STRETCH_QUOTA, stretchPool.length));
+
+    // Remainder: at-or-above reference, excluding stretch (already picked).
+    const taken = new Set([...below, ...stretchSlots].map((m) => m.id));
+    const middlePool = eligible.filter((m) => !taken.has(m.id) && !belowPool.some((b) => b.id === m.id));
+    const middleSlots = Math.max(0, count - below.length - stretchSlots.length);
+    const middle = [...middlePool]
+      .sort(() => rand() - 0.5)
+      .slice(0, Math.min(middleSlots, middlePool.length));
+
+    regular = [...middle, ...stretchSlots, ...below];
   } else {
     const shuffledRegular = [...available].sort(() => rand() - 0.5);
     regular = shuffledRegular.slice(0, Math.min(count, available.length));
