@@ -343,6 +343,10 @@ export interface MissionBoardContext {
   completedStoryMissions?: string[];
   buildings?: { buildingId: string; level: number }[];
   pens?: { animal: string; level: number }[];
+  /** Alive adventurers' ranks (1-5). Drives the rank-floor + below-reference
+   *  quota so a senior team isn't drowning in novice missions. Optional —
+   *  when missing or empty, board generation behaves as before (no quota). */
+  adventurerRanks?: number[];
 }
 
 /** Check whether a mission's requirements are met */
@@ -368,6 +372,22 @@ function meetsRequirements(
 
 /** Pick random missions for the board based on guild level and requirements.
  *  Adds expedition slots on top: +1 expedition every 2 guild levels (lvl 2=1, lvl 4=2, lvl 6=3). */
+/** Numeric rank of a mission for quota purposes — only the four standard
+ *  pools are ranked (story + expedition are handled separately). */
+function missionRankNumeric(missionId: string): number | null {
+  const r = getMissionRank(missionId);
+  if (r === "novice") return 1;
+  if (r === "apprentice") return 2;
+  if (r === "journeyman") return 3;
+  if (r === "veteran") return 4;
+  return null;
+}
+
+/** How many regular slots may go to missions whose rank is below the team's
+ *  reference rank. Catch-up filler for the lowest adventurer; senior team
+ *  shouldn't be drowning in trivial missions either way. */
+const BELOW_REFERENCE_QUOTA = 2;
+
 export function generateMissionBoard(ctx: MissionBoardContext): MissionTemplate[] {
   const { guildLevel, count = 4, seed = Date.now(), maxDifficulty = 5 } = ctx;
   const available = ALL_MISSIONS.filter((m) =>
@@ -383,11 +403,59 @@ export function generateMissionBoard(ctx: MissionBoardContext): MissionTemplate[
     return s / 0x7fffffff;
   }
 
-  // Regular missions
-  const shuffledRegular = [...available].sort(() => rand() - 0.5);
-  const regular = shuffledRegular.slice(0, Math.min(count, available.length));
+  // Rank quota — only applies when we have alive adventurer ranks. Floor =
+  // lowest alive adventurer's rank (so a fresh recruit unlocks novice
+  // missions). Reference = mode (most common rank); ties prefer the higher
+  // rank since that better describes a stronger team. Anything below floor
+  // is dropped; up to BELOW_REFERENCE_QUOTA slots may go to ranks in
+  // [floor, reference); the rest are filled at-or-above reference.
+  const ranks = ctx.adventurerRanks ?? [];
+  let pool = available;
+  let belowQuota = available;
+  let useQuota = false;
+  if (ranks.length > 0) {
+    useQuota = true;
+    const floor = Math.min(...ranks);
+    const counts = new Map<number, number>();
+    for (const r of ranks) counts.set(r, (counts.get(r) ?? 0) + 1);
+    let reference = floor;
+    let bestCount = -1;
+    for (const [r, c] of counts) {
+      if (c > bestCount || (c === bestCount && r > reference)) {
+        bestCount = c;
+        reference = r;
+      }
+    }
+    pool = available.filter((m) => {
+      const r = missionRankNumeric(m.id);
+      return r === null || r >= floor; // null = story/expedition, not subject to quota
+    });
+    belowQuota = pool.filter((m) => {
+      const r = missionRankNumeric(m.id);
+      return r !== null && r < reference;
+    });
+  }
 
-  // Expeditions: +1 per 2 guild levels
+  let regular: MissionTemplate[];
+  if (useQuota) {
+    // Below-reference: prefer ranks closer to reference (apprentice before
+    // novice for a journeyman team) so the catch-up slots aren't stuck at
+    // the lowest tier when something more useful is available.
+    const sortedBelow = [...belowQuota].sort(() => rand() - 0.5)
+      .sort((a, b) => (missionRankNumeric(b.id) ?? 0) - (missionRankNumeric(a.id) ?? 0));
+    const below = sortedBelow.slice(0, Math.min(BELOW_REFERENCE_QUOTA, sortedBelow.length));
+    const belowIds = new Set(below.map((m) => m.id));
+    const aboveOrAt = pool.filter((m) => !belowIds.has(m.id) && !belowQuota.some((b) => b.id === m.id));
+    const shuffledAbove = [...aboveOrAt].sort(() => rand() - 0.5);
+    const aboveSlots = Math.max(0, count - below.length);
+    const above = shuffledAbove.slice(0, Math.min(aboveSlots, shuffledAbove.length));
+    regular = [...above, ...below];
+  } else {
+    const shuffledRegular = [...available].sort(() => rand() - 0.5);
+    regular = shuffledRegular.slice(0, Math.min(count, available.length));
+  }
+
+  // Expeditions: +1 per 2 guild levels (not subject to the rank quota)
   const expeditionSlots = getExpeditionSlotCount(guildLevel);
   const availableExpeditions = EXPEDITION_POOL.filter((e) =>
     e.minGuildLevel <= guildLevel &&

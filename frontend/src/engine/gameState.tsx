@@ -3516,11 +3516,13 @@ export function GameProvider(props: ParentProps) {
             s.lastRecruitRefresh = now;
             // Missions — cap difficulty at best adventurer's rank + 1
             const boardSize = getMissionBoardSize(guildLvl);
-            const bestRank = s.adventurers.length > 0 ? Math.max(...s.adventurers.map((a) => a.rank)) : 1;
+            const aliveRanks = s.adventurers.filter((a) => a.alive).map((a) => a.rank);
+            const bestRank = aliveRanks.length > 0 ? Math.max(...aliveRanks) : 1;
             const maxDiff = Math.min(5, bestRank + 1);
             s.missionBoard = generateMissionBoard({
               guildLevel: guildLvl, count: boardSize, seed: now + s.year * 777, maxDifficulty: maxDiff,
               completedStoryMissions: s.completedStoryMissions, buildings: s.buildings, pens: s.pens,
+              adventurerRanks: aliveRanks,
             });
             s.lastMissionRefresh = now;
           }
@@ -5186,11 +5188,13 @@ export function GameProvider(props: ParentProps) {
         s.astralShards -= cost;
         s.missionRerollToday = rerollCount + 1;
         const boardSize = getMissionBoardSize(guildLvl);
-        const bestRank = s.adventurers.length > 0 ? Math.max(...s.adventurers.map((a) => a.rank)) : 1;
+        const aliveRanks = s.adventurers.filter((a) => a.alive).map((a) => a.rank);
+        const bestRank = aliveRanks.length > 0 ? Math.max(...aliveRanks) : 1;
         const maxDiff = Math.min(5, bestRank + 1);
         s.missionBoard = generateMissionBoard({
           guildLevel: guildLvl, count: boardSize, seed: Date.now(), maxDifficulty: maxDiff,
           completedStoryMissions: s.completedStoryMissions, buildings: s.buildings, pens: s.pens,
+          adventurerRanks: aliveRanks,
         });
       }));
       scheduleSave();
