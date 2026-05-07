@@ -26,16 +26,7 @@ export default function EventModal() {
         onMount(() => playSound("notify"));
         return (
           <div
-            style={{
-              "position": "fixed",
-              "inset": 0,
-              "background": "rgba(0,0,0,0.6)",
-              "display": "flex",
-              "align-items": "center",
-              "justify-content": "center",
-              "z-index": 1000,
-              "padding": "20px",
-            }}
+            class="modal-overlay"
             onClick={(e) => {
               // Click outside the panel dismisses too.
               if (e.target === e.currentTarget) {

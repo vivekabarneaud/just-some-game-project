@@ -64,17 +64,10 @@ export default function LootModal(props: Props) {
 
   return (
     <div
-      class="loot-backdrop"
+      class="loot-backdrop modal-overlay"
       classList={{ exiting: exiting() }}
       onClick={() => dismissWith("close")}
-      style={{
-        position: "fixed", inset: 0,
-        background: "rgba(0, 0, 0, 0.7)",
-        "z-index": 1000,
-        display: "flex", "align-items": "center", "justify-content": "center",
-        padding: "20px",
-        overflow: "hidden", // prevent animation transforms from triggering page/backdrop scroll
-      }}
+      style={{ overflow: "hidden" }}
     >
       <div
         class="loot-card"
@@ -102,12 +95,10 @@ export default function LootModal(props: Props) {
           <div style={{ display: "flex", "align-items": "center", gap: "12px" }}>
             <span style={{ "font-size": "2rem" }}>{template().icon}</span>
             <div>
-              <div style={{
+              <div class="section-label" style={{
                 "font-size": "0.8rem",
-                "text-transform": "uppercase",
-                "letter-spacing": "1px",
                 color: r().success ? "var(--accent-green)" : "var(--accent-red)",
-                "font-weight": "bold",
+                "margin-bottom": "0",
               }}>
                 {r().success ? "Success" : "Failed"}
               </div>
@@ -133,10 +124,7 @@ export default function LootModal(props: Props) {
             </div>
           }>
             <div class="loot-section" style={{ "animation-delay": "180ms" }}>
-              <div style={{
-                "font-size": "0.75rem", "text-transform": "uppercase", "letter-spacing": "1px",
-                color: "var(--text-muted)", "margin-bottom": "6px",
-              }}>
+              <div class="section-label">
                 Loot
               </div>
               <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
@@ -175,12 +163,9 @@ export default function LootModal(props: Props) {
                 border: "1px solid var(--accent-blue)",
                 "border-radius": "6px",
               }}>
-                <div style={{
+                <div class="section-label" style={{
                   "font-size": "0.7rem",
-                  "text-transform": "uppercase",
-                  "letter-spacing": "1px",
                   color: "var(--accent-blue)",
-                  "font-weight": "bold",
                   "margin-bottom": "4px",
                 }}>
                   📖 New chronicle entry
@@ -208,10 +193,7 @@ export default function LootModal(props: Props) {
           {/* XP & level/rank ups */}
           <Show when={r().xpGained > 0 || r().levelUps.length > 0 || r().rankUps.length > 0}>
             <div class="loot-section" style={{ "animation-delay": "540ms" }}>
-              <div style={{
-                "font-size": "0.75rem", "text-transform": "uppercase", "letter-spacing": "1px",
-                color: "var(--text-muted)", "margin-bottom": "6px",
-              }}>
+              <div class="section-label">
                 Experience
               </div>
               <div style={{ display: "flex", "flex-direction": "column", gap: "4px", "font-size": "0.88rem" }}>
@@ -235,10 +217,7 @@ export default function LootModal(props: Props) {
           {/* Casualties & revives */}
           <Show when={r().casualties.length > 0 || r().revived.length > 0}>
             <div class="loot-section" style={{ "animation-delay": "640ms" }}>
-              <div style={{
-                "font-size": "0.75rem", "text-transform": "uppercase", "letter-spacing": "1px",
-                color: "var(--text-muted)", "margin-bottom": "6px",
-              }}>
+              <div class="section-label">
                 Casualties
               </div>
               <div style={{ display: "flex", "flex-direction": "column", gap: "4px", "font-size": "0.88rem" }}>

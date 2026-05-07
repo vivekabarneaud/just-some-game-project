@@ -214,6 +214,34 @@ body {
   box-shadow: none;
 }
 
+/* Modal backdrop overlay — shared by LootModal, QuestClaimModal,
+ * ChronicleEntryModal, EventModal. Click on the backdrop typically
+ * dismisses the modal (handlers wired per-component). The inner panel
+ * stops propagation so clicks inside don't dismiss. */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* Small uppercase letter-spaced caption — used as section headers
+ * inside modal cards, the assembly panel, the adventurer detail page,
+ * etc. Defaults to muted color; override `color` inline for accent
+ * variants (gold = primary, blue = informational, etc.). */
+.section-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: bold;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
 /* Resource bar */
 .resource-bar {
   display: flex;

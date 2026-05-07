@@ -32,17 +32,10 @@ export default function QuestClaimModal(props: Props) {
 
   return (
     <div
-      class="loot-backdrop"
+      class="loot-backdrop modal-overlay"
       classList={{ exiting: exiting() }}
       onClick={() => dismissWith("close")}
-      style={{
-        position: "fixed", inset: 0,
-        background: "rgba(0, 0, 0, 0.7)",
-        "z-index": 1000,
-        display: "flex", "align-items": "center", "justify-content": "center",
-        padding: "20px",
-        overflow: "hidden",
-      }}
+      style={{ overflow: "hidden" }}
     >
       <div
         class="loot-card"
@@ -70,13 +63,7 @@ export default function QuestClaimModal(props: Props) {
           <div style={{ display: "flex", "align-items": "center", gap: "12px" }}>
             <span style={{ "font-size": "2rem" }}>{props.quest.icon}</span>
             <div>
-              <div style={{
-                "font-size": "0.75rem",
-                "text-transform": "uppercase",
-                "letter-spacing": "1px",
-                color: "var(--accent-gold)",
-                "font-weight": "bold",
-              }}>
+              <div class="section-label" style={{ color: "var(--accent-gold)", "margin-bottom": "0" }}>
                 Quest Complete
               </div>
               <div style={{ "font-family": "var(--font-heading)", "font-size": "1.3rem", color: "var(--text-primary)" }}>
@@ -89,10 +76,7 @@ export default function QuestClaimModal(props: Props) {
         {/* Body */}
         <div style={{ padding: "16px 20px", display: "flex", "flex-direction": "column", gap: "14px" }}>
           <div class="loot-section" style={{ "animation-delay": "180ms" }}>
-            <div style={{
-              "font-size": "0.75rem", "text-transform": "uppercase", "letter-spacing": "1px",
-              color: "var(--text-muted)", "margin-bottom": "6px",
-            }}>
+            <div class="section-label">
               Rewards
             </div>
             <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
@@ -127,12 +111,9 @@ export default function QuestClaimModal(props: Props) {
               }}>
                 <div style={{
                   "font-size": "0.7rem",
-                  "text-transform": "uppercase",
-                  "letter-spacing": "1px",
                   color: "var(--accent-blue)",
-                  "font-weight": "bold",
                   "margin-bottom": "4px",
-                }}>
+                }} class="section-label">
                   📖 New journal entry
                 </div>
                 <div style={{
@@ -183,12 +164,9 @@ export default function QuestClaimModal(props: Props) {
                   <div style={{ "min-width": "0" }}>
                     <div style={{
                       "font-size": "0.7rem",
-                      "text-transform": "uppercase",
-                      "letter-spacing": "1px",
                       color: "var(--accent-blue)",
-                      "font-weight": "bold",
                       "margin-bottom": "2px",
-                    }}>
+                    }} class="section-label">
                       📖 New memory
                     </div>
                     <div style={{

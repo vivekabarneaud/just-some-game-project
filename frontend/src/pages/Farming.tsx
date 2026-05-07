@@ -1119,14 +1119,7 @@ function LockedShell(props: { locked: boolean; reason: string; children: JSX.Ele
         block
         content={() => (
           <div style={{ "min-width": "200px" }}>
-            <div style={{
-              "font-size": "0.7rem",
-              "letter-spacing": "0.06em",
-              "text-transform": "uppercase",
-              color: "var(--text-muted)",
-              "margin-bottom": "6px",
-              "font-weight": "bold",
-            }}>
+            <div class="section-label" style={{ "font-size": "0.7rem", "letter-spacing": "0.06em" }}>
               Unlock conditions
             </div>
             <div style={{

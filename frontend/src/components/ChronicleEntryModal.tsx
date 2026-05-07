@@ -19,16 +19,7 @@ export default function ChronicleEntryModal(props: Props) {
   onMount(() => playSound("page_turn"));
 
   return (
-    <div
-      style={{
-        position: "fixed", inset: "0",
-        background: "rgba(0, 0, 0, 0.75)",
-        "z-index": "1000",
-        display: "flex", "align-items": "center", "justify-content": "center",
-        padding: "24px",
-      }}
-      onClick={props.onClose}
-    >
+    <div class="modal-overlay" onClick={props.onClose}>
       <div
         style={{
           "max-width": "620px",
@@ -56,13 +47,7 @@ export default function ChronicleEntryModal(props: Props) {
           ×
         </button>
 
-        <div style={{
-          "font-size": "0.7rem",
-          color: "var(--accent-gold)",
-          "letter-spacing": "0.08em",
-          "text-transform": "uppercase",
-          "margin-bottom": "6px",
-        }}>
+        <div class="section-label" style={{ "font-size": "0.7rem", color: "var(--accent-gold)", "letter-spacing": "0.08em" }}>
           Page {props.entry.order}
         </div>
         <h2 style={{
