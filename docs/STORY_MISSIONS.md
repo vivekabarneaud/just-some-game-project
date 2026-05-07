@@ -43,7 +43,7 @@ This doc consolidates all three per story mission for writing and review. When p
 >
 > The land they brought back is workable. Game trails to the north. Berry thickets along the river. A quarry site on the eastern ridge: Tomas brightened at that, which is the closest thing to a smile I have seen on him this week. Water in three places that did not dry by dusk. I have a list now, and a use for each line of it.
 >
-> But a day's march south, on a hilltop, there are ruins. Stone foundations. A collapsed well. Half a tower still standing. The work of people who had thought ahead. The scouts found no bodies, no signs of a fight, no graves anyone took the trouble to dig. They left, or they were made to leave. The scouts could not tell which.
+> But two days' march south, on a hilltop, there are ruins. Stone foundations. A collapsed well. Half a tower still standing. The work of people who had thought ahead. The scouts found no bodies, no signs of a fight, no graves anyone took the trouble to dig. They left, or they were made to leave. The scouts could not tell which.
 >
 > They had stone walls. They had a watchtower. It was not enough. I do not yet know what we know that they did not, or what they knew that we do not.
 >
@@ -322,11 +322,11 @@ Triggered automatically the morning after `story_4_captains_rest` completes. Not
 
 ### Geography (locked)
 
-- **Settlement → ruins:** 1 day's march south.
+- **Settlement → ruins:** 2 days' march south.
 - **Ruins → Wastes (Hale's record, 150 years ago):** 7 days.
 - **Ruins → Wastes (now, Story 5 measurement):** 6 days. The team comes back and reports it casually.
 - **Ruins → Wastes (later chapters):** 5 days. Then 4. Each measurement comes from a different scout report or expedition return, said in passing.
-- **Settlement → Wastes (now):** 7 days. The settlement is comfortably out of reach. The Lord does not feel personally threatened — yet.
+- **Settlement → Wastes (now):** 8 days. The settlement is comfortably out of reach. The Lord does not feel personally threatened — yet.
 
 The thinning's leading edge has barely advanced in 150 years. The Wastes have advanced at the same slow rate. Both motions are within the noise floor of any single measurement. What gives the game away is *consistency* across many measurements — and that's a story-spanning beat, not a single mission.
 

@@ -295,7 +295,7 @@ The middle period. Cultures settle. Trade networks form between distant peoples.
 - **The Cult ramps up.** Their rituals increase in frequency and ambition over the last century. Each one destabilizes further.
 - **The Thornveil Rangers** expand their ward network as fast as they can carve stones, but the line moves faster than they can keep up.
 - **Rowena Ashford** organizes the Thornveil into its modern coherent form during this era.
-- **Warden Kess** comes of age in the recent decades. Hot-headed, impatient, ranger-trained. She is currently watching the Free Settlements that have appeared on the leading edge.
+- **Warden Niamh** comes of age in the recent decades. Hot-headed, impatient, ranger-trained. She is currently watching the Free Settlements that have appeared on the leading edge.
 - **Halldora's body fails further** despite the binding. Aether is thinning faster than her ritual can compensate. She begins reaching out to specific Free Settlements, looking for someone she can trust to carry her work if she falls.
 - **The Eighth's seals weaken.** Whether from the Sundering's continuing shockwave or the Eighth's own accumulated effort, the Khazdurim Watch reports more frequent disturbances. Sensitive Khazdurim hear whispers in the stone. The Cult experiences "visions" that are not divine. Late-game, this becomes urgent.
 
@@ -305,9 +305,9 @@ The middle period. Cultures settle. Trade networks form between distant peoples.
 
 - **The Lord receives his land grant.** A former schoolmaster of Ashwick, ~37, gathers five other drifting Ashwick people (Edda, Nell, Jory, Tomas, Father Corin) and goes south.
 - **They arrive at Parcel 14.** A river bending east, a ridge of stone to the north, an old forest to the south. Fresh stumps in the clearing — someone was here before, briefly, then was not.
-- **A day's march south** lie the Hilltop Ruins. The Lord does not yet know their name or history.
+- **Two days' march south** lie the Hilltop Ruins. The Lord does not yet know their name or history.
 - **Halldora is watching.** A robin will arrive eventually.
-- **Kess is watching.** A ward at the Hilltop Ruins is failing. She has been waiting for someone capable enough to talk to.
+- **Niamh is watching.** A ward at the Hilltop Ruins is failing. She has been waiting for someone capable enough to talk to.
 - **The Cult is moving.** Unseen, but moving.
 - **Varek is awake on the other side of the boundary.** He sees every Free Settlement as a future subject or obstacle.
 - **The Eighth whispers, faintly, to the right kind of ears.** Nobody at the settlement has those ears yet.
@@ -460,7 +460,7 @@ The middle period. Cultures settle. Trade networks form between distant peoples.
 - **Magic.** Primal. Sylvana's dormant essence cooperates with their rituals.
 - **Function.** They manually perform fragments of Netheron's lost cycle — soul-shepherding, ward-carving, boundary maintenance. Crude, exhausting, slowly losing ground. Their wards are small carved stones, hidden under moss and masonry.
 - **Modern coherence.** Rowena Ashford built the modern Pact over the last fifty years from scattered forest communities. She remains its Elder.
-- **Rangers.** Patrol the ward-line, carry messages, respond to disturbances. Warden Kess leads them now. She is hot-headed and impatient. Rowena reminds her of patience; Kess reminds Rowena of urgency. They are both right.
+- **Rangers.** Patrol the ward-line, carry messages, respond to disturbances. Warden Niamh leads them now. She is hot-headed and impatient. Rowena reminds her of patience; Niamh reminds Rowena of urgency. They are both right.
 - **Soul-crossing rites.** Rangers can free trapped souls through ritual work. Slow. They do this quietly, without record.
 - **Today.** They watch the Free Settlements appearing on the leading edge. They place wards where they can. They occasionally walk into a settlement and introduce themselves when they think the settlers are ready to listen.
 
@@ -637,7 +637,7 @@ When writing chronicle entries, cinematics, or mission descriptions, keep these 
 - **Gods are celestial, not humanoid.** Lights in the high sky. Mortals named them by what they observed. Pre-Sundering worship is observational and abstract, not encounter-based. No "the goddess walked into the village" stories.
 - **Netheron's body literally crashed at the Academy site.** The Wastes are his corpse leaking. Don't have characters describe the Wastes as just "cursed land" if the Lord ever learns the truth — the Wastes are a god's grave.
 - **The Lord doesn't know the Wastes have been moving.** He learns this in story 2 from Hale's journal.
-- **Combat dispels ghosts; only ritual frees them.** Players learn this from Kess in story 4. Until then they think they killed Hale.
+- **Combat dispels ghosts; only ritual frees them.** Players learn this from Niamh in story 4. Until then they think they killed Hale.
 - **Wards are large monoliths blended into landscape.** Regional area of effect. The one near the Hilltop Ruins covers the ruins and the path home but no longer reaches the thinning pocket south.
 - **Voices are real.** They are the trapped dead, not "something wearing voices." Save the wearing-voices reveal for late chapters.
 - **Radiant One belief is two-layered.** Official Church monotheism (the Radiant One does all things). Folk practice retains Netheron as the devil. Both held simultaneously without contradiction by ordinary believers.
