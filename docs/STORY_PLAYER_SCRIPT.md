@@ -1,43 +1,26 @@
-# Story Missions — Source-of-truth Reference
+# Valenheart — Player Story Script
 
-Living document. Each story mission's content lives in three places:
-
-1. **Mission template** — `shared/src/data/missions/storyMissions.ts` (gameplay: name, description, encounter, rewards, etc.)
-2. **Cinematic slides** — `frontend/src/data/cinematics.ts` (slide prose; source-of-truth even when art is redone)
-3. **Chronicle entry** — `frontend/src/data/chronicle_entries.ts` (the Lord's journal page after success)
-
-This doc consolidates all three per story mission for writing and review. When prose changes, update both this doc and the TS files.
+> **What this is.** A reading-order view of the story content the player actually sees. Mission cards (real text), short writer's notes on what happens during each mission (so you understand the chain of cause and effect), and the chronicle entries the player reads after returning. Banners and robins appear in the order they fire.
+>
+> **What this is not.** No internal lore mechanics, no offscreen worldbuilding, no spoilers about what *we* know but the player doesn't. If something hasn't been revealed in-game by this point in the script, it isn't in this doc.
+>
+> **Setup the player walks in with.** They are the Lord of a brand-new settlement on the southern frontier. Five people came with them: Edda (an old midwife, mixed-faith), Nell (her ward, an eleven-year-old who has not spoken since her mother's death), Jory (a carpenter and old friend of the Lord's, plays the lute), Tomas (a discharged sergeant), and Father Corin (a retired priest). The player is the first-person voice of the journal entries.
 
 ---
 
-## Story 1 — Scouting the Surroundings
+## Chapter 1: Ashes and Dust
 
-### Mission
+### Story 1 — Scouting the Surroundings
 
-| Field | Value |
-|---|---|
-| ID | `story_1_scouting` |
-| Chapter | Chapter 1: Ashes and Dust |
-| Prerequisite | (none) |
-| Slots | 2 × any |
-| Duration | 900s |
-| Deploy cost | 5 gold |
-| Rewards | 50 gold, 50 wood |
-| Difficulty | 1 |
-| Min guild level | 1 |
-| Tags | exploration, outdoor |
-| Encounter | 3× Wastes Wolf |
-| Chronicle entry | `ch1_first_scouts` |
-
-**Description:**
+**Mission card the player reads:**
 
 > Time to know our land. Send scouts to map what's around us: water, game trails, stone, anything useful. And anything dangerous.
 
-### Chronicle entry — `ch1_first_scouts`
+**What happens during the mission:**
 
-**Title:** South, on a hill
+The Lord sends two adventurers south. They map game trails, water, a stone-rich ridge, and then come across the remains of an old settlement: stone foundations, a collapsed well, half a tower still standing on a hilltop a few days' march south. They get chased by hungry wolves on the way back but make it home. They report what they found.
 
-**Teaser:** The first scouts return. The map is good. The news, less so.
+**Chronicle entry — *South, on a hill***
 
 > The scouts came back today with a map and a look I did not like. A wolf pack chased them once on the ridge, hungry enough to misjudge them, but they were back at the gate before dark, on their own feet. Father Corin said a blessing over their bread when they came in. Edda gave them water with mint in it. Then they sat down with me and Tomas and we read the map by candle.
 >
@@ -51,34 +34,33 @@ This doc consolidates all three per story mission for writing and review. When p
 
 ---
 
-## Story 2 — The Hilltop Ruins
+### Banner — *Two more families on the road*
 
-### Mission
+> A raven arrived from the Crown's land office this morning. Two more families are on the road, due within the week. The tents will not hold them.
 
-| Field | Value |
-|---|---|
-| ID | `story_2_ruins` |
-| Chapter | Chapter 1: Ashes and Dust |
-| Prerequisite | `story_1_scouting` |
-| Slots | 2 × any |
-| Duration | 1200s |
-| Deploy cost | 10 gold |
-| Rewards | 80 gold, 60 stone |
-| Difficulty | 1 |
-| Min guild level | 1 |
-| Tags | exploration, combat |
-| Encounter | 3× Ruin Rat + 1× Wastes Wolf |
-| Chronicle entry | `ch1_garrison_ruins` |
+The settlement grows. New citizens arrive. Houses get built, a hunting camp, food stores. The Lord is too busy to think about the hilltop ruins for a while.
 
-**Description:**
+---
+
+### Banner — *The hunters volunteer*
+
+> The south is still unknown to us, and we should not stay ignorant of it for long. But Edda is up to her elbows in herbs and Nell, Jory is married to the mill, and Tomas has not climbed out of the quarry since the third frost. I am not much better. Father Corin would gladly read about it, which is about the best he could offer. The new families brought us hunters, and they are pacing the edge of the camp like dogs that have not been walked. They need a hall to gather in, and someone with the patience to send them out.
+
+The Adventurer's Guild opens. The Lord gathers a roster. The hunters have asked to be sent south properly — to walk the ruins and see what's there.
+
+---
+
+### Story 2 — The Hilltop Ruins
+
+**Mission card the player reads:**
 
 > The hilltop ruins your scouts mapped. Stone foundations, a half-standing watchtower, a collapsed well: the work of someone who built to last. They still failed. Send a team in. Bring someone who can hold a line if the place is not as empty as it looks.
 
-### Chronicle entry — `ch1_garrison_ruins`
+**What happens during the mission:**
 
-**Title:** Forty-seven days
+The team explores the ruins. They fight a few rats and a stray wolf nesting in the broken walls. In the ruins they find a tin chest containing a hand-written journal. They push a little further south while they have the daylight; they don't go far, but they come back saying the trees three days down "go strange." They bring the chest to the Lord.
 
-**Teaser:** A name on a journal cover. A seal I do not know. Forty-seven days I cannot make sense of.
+**Chronicle entry — *Forty-seven days***
 
 > The team came back from the ruins with a tin chest. They were tired but unhurt. Tomas walked them up to my tent himself and stayed while they set the chest on the long table. They told me they had pushed a little further south while they had the daylight: the trees go strange about three days down, they said. They had not walked that far. They felt it from a ridge.
 >
@@ -126,34 +108,25 @@ This doc consolidates all three per story mission for writing and review. When p
 
 ---
 
-## Story 3 — Past the Ruins
+### Banner — *Three reports from the south*
 
-### Mission
+> The scouts came back with three reports. A wolf pack on the ridge. A band of brigands camped two ridges east, watching us. And ruins, a day's march south, that nobody can explain.
 
-| Field | Value |
-|---|---|
-| ID | `story_3_dark_treeline` (legacy id; display name is "Past the Ruins") |
-| Chapter | Chapter 1: Ashes and Dust |
-| Prerequisite | `story_2_ruins` |
-| Slots | 3 × any |
-| Duration | 1800s |
-| Deploy cost | 15 gold |
-| Rewards | 100 gold, 80 wood |
-| Difficulty | 2 |
-| Min guild level | 1 |
-| Tags | exploration, outdoor, survival |
-| Encounter | 1× Wailing Phantom + 3× Cursed Spirit |
-| Chronicle entry | `ch1_warden` |
+Walls and watchtowers. The settlement starts thinking about defense.
 
-**Description:**
+---
+
+### Story 3 — Past the Ruins
+
+**Mission card the player reads:**
 
 > Send the team back south, past the ruins. Walk further this time and count the days honestly. I want to know what is really beyond. Bring someone who can deal with what does not bleed.
 
-### Chronicle entry — `ch1_warden`
+**What happens during the mission:**
 
-**Title:** The Warden
+The team walks past the ruins, into the strange-tree zone they reported earlier. They hear a man's voice calling a name from the trees — they don't recognize it. The voice belongs to something dead that attacks them: anchored ghosts, hard to fight with steel. They hold their ground, and eventually a stranger walks them home: a woman in dark green, long ears, a bow, the moss-grey hair of an elf. She introduces herself as Niamh, Warden of the Thornveil Rangers. She has business with the Lord.
 
-**Teaser:** She walked my team home from a fight they should not have survived. She came inside. She had business to discuss.
+**Chronicle entry — *The Warden***
 
 > The team came back from the trees with a stranger.
 >
@@ -217,37 +190,17 @@ This doc consolidates all three per story mission for writing and review. When p
 
 ---
 
-## Story 4 — The Captain's Rest
+### Story 4 — The Captain's Rest
 
-### Mission
-
-| Field | Value |
-|---|---|
-| ID | `story_4_captains_rest` |
-| Chapter | Chapter 1: Ashes and Dust |
-| Prerequisite | `story_3_dark_treeline` |
-| Slots | 1× Niamh (locked NPC, passive ritualist) + 3× adventurers (1 warrior + 2 any) |
-| Duration | 1500s |
-| Deploy cost | 10 gold |
-| Rewards | 100 gold + 1 astralShard |
-| Difficulty | 2 |
-| Min guild level | 1 |
-| Tags | combat, magical, escort |
-| Encounter | 1× Captain Hale (boss) + 3× wraith + 5× cursed spirit |
-| Chronicle entry | `ch1_captains_rest` |
-
-**npcAlly:** Niamh (passive, deathFailsMission, baseThreatVsTag ghost: 80)
-**Modifier:** while Niamh is alive, physical attacks pierce ghost immunity (`physical_pierces_tag` on ghost tag)
-
-**Description:**
+**Mission card the player reads:**
 
 > Niamh has come back. The team rides with her at first light to bind the captain to his rest. Her work lets our weapons cut what should not bleed, but only while she stands. Keep her alive at any cost.
 
-### Chronicle entry — `ch1_captains_rest`
+**What happens during the mission:**
 
-**Title:** The Captain's Rest
+The team rides south with Niamh at dawn. They carry the cloth. Niamh marks her ritual circle and begins. The captain manifests, drawn by the disturbance, and other ghosts gather around. The team holds the line. While Niamh stands and works, the team's steel can touch what should not bleed. The captain's manifestation fades as the binding closes. At the end, one of the team holds out the cloth. The captain looks at it. Niamh closes the work. He is gone. The trees are quieter than they were before.
 
-**Teaser:** The team rode south with Niamh at dawn. I waited at the gate. They came back at dusk.
+**Chronicle entry — *The Captain's Rest***
 
 > The team rode out at first light. Niamh was waiting at the south gate, the same dark green coat, the same patience. She did not greet anyone. She just nodded to the team and turned south.
 >
@@ -287,22 +240,11 @@ This doc consolidates all three per story mission for writing and review. When p
 
 ---
 
-## Event — First Robin (post-story-4 trigger, not a mission)
+### Bridge — *A robin landed on the watchtower this morning*
 
-Triggered automatically the morning after `story_4_captains_rest` completes. Not a mission; a banner + chronicle modal + alchemy unlock.
+A small robin arrives at first light, with a folded note and a packet tied to its leg. No name, no sigil, just precise trembling handwriting: *"What you did for him mattered. Use this when the wounds will not heal."* The packet is a salve. Edda recognizes the herbs but not the way they're combined. She uses it on the bandaged team. Whoever sent it knew exactly what the team had just been through.
 
-### Triggers (engine work, parallel instance)
-
-- Banner: *"A robin landed on the watchtower this morning."*
-- Open chronicle entry modal: `ch1_first_robin`
-- Unlock alchemy recipe: **Wraithwound Salve** (moonpetal + a Nordveld herb; cures ghost-tagged lingering wounds on adventurers)
-- Robin sender stays anonymous; Lord assumes Thornveil. Halldora identity reveal stays many chapters out.
-
-### Chronicle entry — `ch1_first_robin`
-
-**Title:** What the robin brought
-
-**Teaser:** A note. A salve. And a thing about ghost wounds I had not known.
+**Chronicle entry — *What the robin brought***
 
 > A robin landed on the watchtower at first light. There was a folded scrap of paper and a small parcel tied to its leg. No sigil. No name. The handwriting on the note is precise but trembling, the kind of hand that has been writing for a very long time.
 >
@@ -328,55 +270,17 @@ Triggered automatically the morning after `story_4_captains_rest` completes. Not
 
 ---
 
-## Stories 5+ — slow-burn measurement arc
+## Chapter 2: ?
 
-**Locked approach (May 2026):** the question of whether the Wastes are advancing is *not* answered in one mission. It surfaces as a quiet mismatch in Story 5 (Hale wrote 7, the team measures 6 — could be miscount), gets reinforced by casual scout reports across multiple later missions (5 days south, then 4), and only becomes a panic moment several chapters in when the Lord assembles the data himself. The boundary really is moving, but slowly enough that within any single mission's report it looks like a measurement error.
+**This is where we are now.** The Lord has put a man to rest, met an elf-ranger he didn't expect, learned that a stone he'd never seen has been protecting his settlement, and received an anonymous gift in handwriting he doesn't recognize. He is starting to suspect his land is more populated than the Crown's land office told him.
 
-### Geography (locked)
+The next chapter wants to do at least one of:
 
-- **Settlement → ruins:** 2 days' march south.
-- **Ruins → Wastes (Hale's record, 150 years ago):** 7 days.
-- **Ruins → Wastes (now, Story 5 measurement):** 6 days. The team comes back and reports it casually.
-- **Ruins → Wastes (later chapters):** 5 days. Then 4. Each measurement comes from a different scout report or expedition return, said in passing.
-- **Settlement → Wastes (now):** 8 days. The settlement is comfortably out of reach. The Lord does not feel personally threatened — yet.
+- **Push deeper south.** A scouting mission past where the team fought Hale, to see what's actually beyond. The team comes back saying the Wastes proper start at six days south of the ruins. Hale's journal said seven. The Lord notes the mismatch but flags it as miscount or slow creep. Doesn't yet realize this is a question that will keep coming back.
+- **Settlement-side beat.** Someone dies — winter, illness, accident — and Father Corin and Edda quietly disagree on the rite. The Lord, who is keeping things from his settlers, has to decide what to say at the funeral.
+- **A second robin.** Specific this time — a warning, not a gift. *"Three of them passed your south path two nights ago. They wore grey. They were not pilgrims."* The Lord realizes someone is *watching* his land, not just remembering Captain Hale.
+- **Niamh returns with a harder ask.** Another anchored ghost; or an introduction to her elder; or a measurement she wants the Lord to take.
 
-The thinning's leading edge has barely advanced in 150 years. The Wastes have advanced at the same slow rate. Both motions are within the noise floor of any single measurement. What gives the game away is *consistency* across many measurements — and that's a story-spanning beat, not a single mission.
+The slow-burn mystery to thread through chapter 2 is the question of whether the Wastes are advancing. Within any single mission, the answer is "we can't tell — Hale might have miscounted, our scout might have miscounted, six days vs seven days is within human error." Across multiple casual scout reports over multiple chapters, the answer becomes "they're moving." That recognition lands when the Lord builds it himself, not when someone tells him.
 
-### Vocabulary
-
-The internal word "thinning" is **dropped from player-facing prose**. The two-zone canon stays intact internally (Niamh's work, anchored ghosts vs skeletons, etc.) but no character explains it as a glossary entry. Use descriptive phrases:
-- *"the edge where the dead are still close enough to be heard"* (not "the thinning")
-- *"the Wastes proper"* / *"the actual Wastes"* (not "the physical Wastes")
-- *"voices in the trees"* / *"the cold edge"* / *"the bad ground south"* — descriptive, not categorical
-
-### Halldora's protocol — why she doesn't warn the Lord directly
-
-Halldora's robins carry **specific, useful, anonymous gifts** — never the big-picture warning. Her pattern across the arc:
-
-- Story 4 robin: wraith salve (tied to the just-finished story).
-- Subsequent robins: another tool, another small warning, never the Wastes-are-advancing news.
-- Late chapter: when the Lord has assembled the truth himself and writes back (or asks Niamh a pointed question that travels north), Halldora confirms with relief, not revelation. Her dramatic moment is *"You finally see what I have been seeing for two thousand years,"* not *"I told you so."*
-
-She has been doing this for centuries. She has learned that anonymous warnings about world-ending news are dismissed as superstition. People only believe what they prove themselves. So she seeds the discovery — never delivers the conclusion. This is wisdom, not coyness, and it deepens her character.
-
-This means: across stories 5–N, the Lord cannot just be told. He has to find out. The robins are tools and small kindnesses; the Wastes truth is his own reckoning.
-
-### Story 5 — proposed: "The Hollow Line"
-
-Lord-driven scouting expedition past the ruins. Team walks ~6 days south, hits dead trees + skeletons (Wastes proper). Encounter: tier 2–3 skeletons, maybe a wraith. Team returns shaken but intact.
-
-Chronicle beat: scout reports the Wastes start at 6 days south of the ruins. Lord notes Hale's journal said 7. *"Could be Hale was off by a day. Could be the line crept. There is no way to tell from one walk."* He poses it casually to Niamh next time he sees her; Niamh says she does not measure the Wastes — her work is at the edge. The Lord shelves the question.
-
-The reveal is *the question itself*, not the answer. The answer takes chapters.
-
-### Story 6+ — open threads
-
-To be drafted. Possible directions:
-
-- **Settlement-side beat.** A villager dies; Father Corin and Edda quietly disagree on the rite. Cast deepening, no Wastes content.
-- **Niamh returns with a harder ask.** Another anchored ghost, or a message from the Thornveil higher-ups (Rowena wants to meet).
-- **Cult brush.** A small Cult-aligned figure passes through. Not a confrontation — a quiet hint. Adventurers come back having seen "people in dark robes" who watched but did not engage.
-- **Second robin.** A specific warning ("three of them passed your south path two nights ago, they wore grey, they were not pilgrims"). Lord realizes someone is *watching* his land, not just remembering Captain Hale.
-- **A casual measurement.** A scout returning from a regular mission mentions the Wastes are 5 days south of the ruins. Said in passing, end of conversation. The Lord notes it.
-
-The slow-burn measurement arc threads through whichever of these we pick — the casual scout reports happen as a backdrop to whatever the chapter's main beat is.
+One open question for whoever's writing next: does **Niamh** return as the chapter 2 anchor, or do we let the Lord and his cast carry it without her for a while? Bringing her back early reuses a strong NPC; holding her out gives the cast oxygen. Either is good — it's a pacing call.

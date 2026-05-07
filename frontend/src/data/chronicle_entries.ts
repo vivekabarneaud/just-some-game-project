@@ -126,6 +126,12 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "'And you cannot fight,' she said. 'You would be a liability.'\n\n" +
       "I think she meant it kindly.\n\n" +
       "I asked her how far the Wastes really were. She said she did not know. Her work is at the edge, she said. The edge is where the dead are still close enough to be heard. The Wastes lie further. She does not go there.\n\n" +
+      "I asked her another thing. The captain heard the voices at his garrison. We have walked his ground twice now and not heard them. She was quiet for a moment, looking into her cup.\n\n" +
+      "'There is a ward near the ruins,' she said. 'A stone older than us, set into the land where you would not see it. It holds the edge back from where you live, and from the road between.'\n\n" +
+      "I asked who placed it. She said she did not know. 'The work is older than the Pact. Whoever set it is gone, and so are the rangers who knew them.'\n\n" +
+      "Then she said the captain stood on its grave. 'It had been forgotten in his time. The line of women who kept it had thinned to nothing. He felt what an unkept ward fails to keep.'\n\n" +
+      "She set down her cup. 'My grandmother's teacher reset it after he fell. We have kept it since. Old things end.'\n\n" +
+      "She drank her tea.\n\n" +
       "When she stood to leave I asked where she was sleeping. She said the trees were fine.\n\n" +
       "'Three days,' she said again, and was gone.\n\n" +
       "I do not know what I am dealing with. I know she did not have to walk my team home. I know she did not have to tell me what she told me tonight. I know she could have left me to read Hale's journal alone for the rest of my life and never appeared at my gate.\n\n" +
