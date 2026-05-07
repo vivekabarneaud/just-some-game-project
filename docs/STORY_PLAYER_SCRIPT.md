@@ -58,7 +58,7 @@ The Adventurer's Guild opens. The Lord gathers a roster. The hunters have asked 
 
 **What happens during the mission:**
 
-The team explores the ruins. They fight a few rats and a stray wolf nesting in the broken walls. In the ruins they find a tin chest containing a hand-written journal. They push a little further south while they have the daylight; they don't go far, but they come back saying the trees three days down "go strange." They bring the chest to the Lord.
+The team explores the ruins. They fight a few rats and a stray wolf nesting in the broken walls. In the ruins they find a tin chest containing a hand-written journal. They push a little further south while they have the daylight; they don't walk far themselves, but from a ridge they can see that the trees go strange about three days south of the ruins. They bring the chest back to the Lord.
 
 **Chronicle entry — *Forty-seven days***
 
