@@ -193,7 +193,7 @@ This doc consolidates all three per story mission for writing and review. When p
 >
 > I think she meant it kindly.
 >
-> I asked her how far the Wastes really were. She said she did not know. She works the thinning, she said. The thinning is the edge where the dead can be heard. The Wastes are further. She does not go there.
+> I asked her how far the Wastes really were. She said she did not know. Her work is at the edge, she said. The edge is where the dead are still close enough to be heard. The Wastes lie further. She does not go there.
 >
 > When she stood to leave I asked where she was sleeping. She said the trees were fine.
 >
@@ -316,11 +316,55 @@ Triggered automatically the morning after `story_4_captains_rest` completes. Not
 
 ---
 
-## Stories 5+ (Chapter 2)
+## Stories 5+ — slow-burn measurement arc
 
-Outline only at present:
+**Locked approach (May 2026):** the question of whether the Wastes are advancing is *not* answered in one mission. It surfaces as a quiet mismatch in Story 5 (Hale wrote 7, the team measures 6 — could be miscount), gets reinforced by casual scout reports across multiple later missions (5 days south, then 4), and only becomes a panic moment several chapters in when the Lord assembles the data himself. The boundary really is moving, but slowly enough that within any single mission's report it looks like a measurement error.
 
-- **Story 5 — proposed: "The Hollow Line".** Lord-driven scouting mission. Team walks past the dormant ward, past the thinning, to the leading edge of the *physical* Wastes. Encounter at the edge: skeletons (tier 2-3, they belong here), maybe a wraith. Team turns back with a measurement. Confirms: the Wastes are closer than folk-maps say, and they are still moving. Closes Lord's "is the line really moving?" arc.
-- **Story 6+:** TBD. Possible threads: cracked ward (Niamh-led), a Cult brush, a dragon glimpse, settlement defense, Thornveil errand.
+### Geography (locked)
 
-To be drafted as we get there.
+- **Settlement → ruins:** 1 day's march south.
+- **Ruins → Wastes (Hale's record, 150 years ago):** 7 days.
+- **Ruins → Wastes (now, Story 5 measurement):** 6 days. The team comes back and reports it casually.
+- **Ruins → Wastes (later chapters):** 5 days. Then 4. Each measurement comes from a different scout report or expedition return, said in passing.
+- **Settlement → Wastes (now):** 7 days. The settlement is comfortably out of reach. The Lord does not feel personally threatened — yet.
+
+The thinning's leading edge has barely advanced in 150 years. The Wastes have advanced at the same slow rate. Both motions are within the noise floor of any single measurement. What gives the game away is *consistency* across many measurements — and that's a story-spanning beat, not a single mission.
+
+### Vocabulary
+
+The internal word "thinning" is **dropped from player-facing prose**. The two-zone canon stays intact internally (Niamh's work, anchored ghosts vs skeletons, etc.) but no character explains it as a glossary entry. Use descriptive phrases:
+- *"the edge where the dead are still close enough to be heard"* (not "the thinning")
+- *"the Wastes proper"* / *"the actual Wastes"* (not "the physical Wastes")
+- *"voices in the trees"* / *"the cold edge"* / *"the bad ground south"* — descriptive, not categorical
+
+### Halldora's protocol — why she doesn't warn the Lord directly
+
+Halldora's robins carry **specific, useful, anonymous gifts** — never the big-picture warning. Her pattern across the arc:
+
+- Story 4 robin: wraith salve (tied to the just-finished story).
+- Subsequent robins: another tool, another small warning, never the Wastes-are-advancing news.
+- Late chapter: when the Lord has assembled the truth himself and writes back (or asks Niamh a pointed question that travels north), Halldora confirms with relief, not revelation. Her dramatic moment is *"You finally see what I have been seeing for two thousand years,"* not *"I told you so."*
+
+She has been doing this for centuries. She has learned that anonymous warnings about world-ending news are dismissed as superstition. People only believe what they prove themselves. So she seeds the discovery — never delivers the conclusion. This is wisdom, not coyness, and it deepens her character.
+
+This means: across stories 5–N, the Lord cannot just be told. He has to find out. The robins are tools and small kindnesses; the Wastes truth is his own reckoning.
+
+### Story 5 — proposed: "The Hollow Line"
+
+Lord-driven scouting expedition past the ruins. Team walks ~6 days south, hits dead trees + skeletons (Wastes proper). Encounter: tier 2–3 skeletons, maybe a wraith. Team returns shaken but intact.
+
+Chronicle beat: scout reports the Wastes start at 6 days south of the ruins. Lord notes Hale's journal said 7. *"Could be Hale was off by a day. Could be the line crept. There is no way to tell from one walk."* He poses it casually to Niamh next time he sees her; Niamh says she does not measure the Wastes — her work is at the edge. The Lord shelves the question.
+
+The reveal is *the question itself*, not the answer. The answer takes chapters.
+
+### Story 6+ — open threads
+
+To be drafted. Possible directions:
+
+- **Settlement-side beat.** A villager dies; Father Corin and Edda quietly disagree on the rite. Cast deepening, no Wastes content.
+- **Niamh returns with a harder ask.** Another anchored ghost, or a message from the Thornveil higher-ups (Rowena wants to meet).
+- **Cult brush.** A small Cult-aligned figure passes through. Not a confrontation — a quiet hint. Adventurers come back having seen "people in dark robes" who watched but did not engage.
+- **Second robin.** A specific warning ("three of them passed your south path two nights ago, they wore grey, they were not pilgrims"). Lord realizes someone is *watching* his land, not just remembering Captain Hale.
+- **A casual measurement.** A scout returning from a regular mission mentions the Wastes are 5 days south of the ruins. Said in passing, end of conversation. The Lord notes it.
+
+The slow-burn measurement arc threads through whichever of these we pick — the casual scout reports happen as a backdrop to whatever the chapter's main beat is.

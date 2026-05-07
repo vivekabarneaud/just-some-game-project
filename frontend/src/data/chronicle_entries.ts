@@ -125,7 +125,7 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "I told her I wished I could carry it myself, but the village needs me here.\n\n" +
       "'And you cannot fight,' she said. 'You would be a liability.'\n\n" +
       "I think she meant it kindly.\n\n" +
-      "I asked her how far the Wastes really were. She said she did not know. She works the thinning, she said. The thinning is the edge where the dead can be heard. The Wastes are further. She does not go there.\n\n" +
+      "I asked her how far the Wastes really were. She said she did not know. Her work is at the edge, she said. The edge is where the dead are still close enough to be heard. The Wastes lie further. She does not go there.\n\n" +
       "When she stood to leave I asked where she was sleeping. She said the trees were fine.\n\n" +
       "'Three days,' she said again, and was gone.\n\n" +
       "I do not know what I am dealing with. I know she did not have to walk my team home. I know she did not have to tell me what she told me tonight. I know she could have left me to read Hale's journal alone for the rest of my life and never appeared at my gate.\n\n" +
