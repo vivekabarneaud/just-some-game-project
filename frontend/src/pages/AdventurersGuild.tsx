@@ -95,6 +95,18 @@ export default function AdventurersGuild() {
   const [selectedMission, setSelectedMission] = createSignal<MissionTemplate | null>(null);
   const [selectedTeam, setSelectedTeam] = createSignal<string[]>([]);
   const [selectedSupplies, setSelectedSupplies] = createSignal<string[]>([]);
+  // Helpers for the mission card toggle pattern (shared between story + regular
+  // missions). `clearSelection` also drops the team + supplies, since they're
+  // always tied to the currently-selected mission.
+  const clearSelection = () => {
+    setSelectedMission(null);
+    setSelectedTeam([]);
+    setSelectedSupplies([]);
+  };
+  const toggleMissionSelect = (mission: MissionTemplate) => {
+    if (selectedMission()?.id === mission.id) clearSelection();
+    else { setSelectedMission(mission); setSelectedTeam([]); setSelectedSupplies([]); }
+  };
 
   // Co-op expeditions (polled from backend)
   const [coopData, { refetch: refetchCoops }] = createResource(() => fetchCoops());
@@ -844,10 +856,7 @@ export default function AdventurersGuild() {
                   mission={story()}
                   selected={selectedMission()?.id === story().id}
                   storyChapter={(story() as any).chapter}
-                  onClick={() => {
-                    if (selectedMission()?.id === story().id) { setSelectedMission(null); setSelectedTeam([]); setSelectedSupplies([]); }
-                    else { setSelectedMission(story()); setSelectedTeam([]); setSelectedSupplies([]); }
-                  }}
+                  onClick={() => toggleMissionSelect(story())}
                 />
               )}
             </Show>
@@ -858,10 +867,7 @@ export default function AdventurersGuild() {
                   <MissionCard
                     mission={mission}
                     selected={selectedMission()?.id === mission.id}
-                    onClick={() => {
-                      if (selectedMission()?.id === mission.id) { setSelectedMission(null); setSelectedTeam([]); setSelectedSupplies([]); }
-                      else { setSelectedMission(mission); setSelectedTeam([]); setSelectedSupplies([]); }
-                    }}
+                    onClick={() => toggleMissionSelect(mission)}
                   />
                 );
               }}

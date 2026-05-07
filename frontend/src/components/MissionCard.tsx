@@ -19,6 +19,19 @@ function formatDuration(seconds: number): string {
   return m > 0 ? `${h}h ${m}m` : `${h}h`;
 }
 
+/** Inline `<span>` of star-icons + rank label (e.g. "★★★ Apprentice"),
+ *  colored by rank. Shared by the image and no-image card branches —
+ *  callers wrap it with their own positioning/container. */
+function RankStars(props: { mission: MissionTemplate }) {
+  const rank = getMissionRank(props.mission.id);
+  const stars = "★".repeat(Math.max(1, Math.min(3, props.mission.difficulty)));
+  return (
+    <span style={{ color: rank ? MISSION_RANK_COLORS[rank] : "var(--text-muted)" }}>
+      {stars} {rank ? MISSION_RANK_LABELS[rank] : ""}
+    </span>
+  );
+}
+
 interface MissionCardProps {
   mission: MissionTemplate;
   selected: boolean;
@@ -76,25 +89,17 @@ export default function MissionCard(props: MissionCardProps) {
         <div class="building-card-image" style={{ margin: "0", "border-radius": "0" }}>
           <img src={image()} alt={mission().name} loading="lazy" />
           {/* Rank + star badge top-right */}
-          {(() => {
-            const rank = getMissionRank(mission().id);
-            const stars = "★".repeat(Math.max(1, Math.min(3, mission().difficulty)));
-            return (
-              <div style={{
-                position: "absolute", top: "6px", right: "6px",
-                padding: "2px 8px", "border-radius": "4px",
-                background: "rgba(0, 0, 0, 0.7)",
-                "font-size": "0.65rem", "line-height": "1.4",
-              }}>
-                <span style={{ color: rank ? MISSION_RANK_COLORS[rank] : "var(--text-muted)" }}>
-                  {stars} {rank ? MISSION_RANK_LABELS[rank] : ""}
-                </span>
-                <Show when={!isStory()}>
-                  <span style={{ color: "var(--text-muted)" }}>{" · "}{mission().tags.join(", ")}</span>
-                </Show>
-              </div>
-            );
-          })()}
+          <div style={{
+            position: "absolute", top: "6px", right: "6px",
+            padding: "2px 8px", "border-radius": "4px",
+            background: "rgba(0, 0, 0, 0.7)",
+            "font-size": "0.65rem", "line-height": "1.4",
+          }}>
+            <RankStars mission={mission()} />
+            <Show when={!isStory()}>
+              <span style={{ color: "var(--text-muted)" }}>{" · "}{mission().tags.join(", ")}</span>
+            </Show>
+          </div>
           {/* Title overlay */}
           <div class="building-card-image-overlay">
             <Show when={isStory()}>
@@ -128,18 +133,10 @@ export default function MissionCard(props: MissionCardProps) {
               ⚔️ Expedition{(fresh() as any).biome ? ` · ${(fresh() as any).biome}` : ""}
             </div>
           </Show>
-          {(() => {
-            const rank = getMissionRank(mission().id);
-            const stars = "★".repeat(Math.max(1, Math.min(3, mission().difficulty)));
-            return (
-              <span class="building-card-category">
-                <span style={{ color: rank ? MISSION_RANK_COLORS[rank] : "var(--text-muted)" }}>
-                  {stars} {rank ? MISSION_RANK_LABELS[rank] : ""}
-                </span>
-                {" · "}{mission().tags.join(", ")}
-              </span>
-            );
-          })()}
+          <span class="building-card-category">
+            <RankStars mission={mission()} />
+            {" · "}{mission().tags.join(", ")}
+          </span>
           <div class="building-card-header" style={{ "margin-top": "14px" }}>
             <div class="building-card-icon">{mission().icon}</div>
             <div>

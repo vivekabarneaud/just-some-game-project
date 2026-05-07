@@ -284,7 +284,8 @@ export function calcDeathChance(
  * the actual deploy-time roll and the team-assembly preview's Monte Carlo.
  *
  * Inputs: who fell during combat (HP ≤ 0), the team, the mission, supplies.
- * Output: list of adventurer ids that permanently died (Pantheon entries).
+ * Output: ids that permanently died (Pantheon entries) and ids whose roll
+ * was undone by a priest revive (loot-modal "X was revived" line).
  *
  * Roll order:
  *   1. Per-fallen death roll: `Math.random() * 100 < calcDeathChance × 1.5`.
@@ -296,18 +297,31 @@ export function calcDeathChance(
  * Uses Math.random() (not the seeded combat PRNG), so callers running this
  * inside a Monte-Carlo loop get fresh variance per iteration.
  */
+export interface PermadeathResult {
+  /** Adventurer ids that permanently died (Pantheon entries). */
+  dead: string[];
+  /** Adventurer ids whose death roll was undone by a priest's revive. */
+  revived: string[];
+}
+
 export function rollPermanentDeaths(
   fallenAdventurerIds: string[],
   team: Adventurer[],
   mission: MissionTemplate,
   adventurerSupplies?: Record<string, AdventurerMissionSupplies>,
-): string[] {
+): PermadeathResult {
+  // No-encounter missions (herb_gathering, tavern_intel, smuggler_deal):
+  // every adventurer rolls at baseline (no fall gating, no 1.5× multiplier
+  // because nobody actually collapsed in combat). Encounter missions: only
+  // those who fell are at risk, multiplied by 1.5×.
+  const noEncounters = !mission.encounters?.length;
   const fallenSet = new Set(fallenAdventurerIds);
   const deadIds: string[] = [];
   for (const adv of team) {
-    if (!fallenSet.has(adv.id)) continue; // survived combat → no death risk
+    if (!noEncounters && !fallenSet.has(adv.id)) continue;
     const baseChance = calcDeathChance(mission, team, adv, adventurerSupplies);
-    if (Math.random() * 100 < baseChance * 1.5) deadIds.push(adv.id);
+    const chance = noEncounters ? baseChance : baseChance * 1.5;
+    if (Math.random() * 100 < chance) deadIds.push(adv.id);
   }
   // Warrior Shield Wall: soak one death, 50% the warrior dies in their place.
   const warriors = team.filter((a) => a.class === "warrior" && !deadIds.includes(a.id));
@@ -322,15 +336,17 @@ export function rollPermanentDeaths(
   }
   // Priest Divine Grace: per-priest revive roll on each remaining death.
   const priests = team.filter((a) => a.class === "priest" && !deadIds.includes(a.id));
+  const revived: string[] = [];
   for (const deadId of [...deadIds]) {
     for (const _priest of priests) {
       if (Math.random() < PRIEST_REVIVE_CHANCE) {
         deadIds.splice(deadIds.indexOf(deadId), 1);
+        revived.push(deadId);
         break;
       }
     }
   }
-  return deadIds;
+  return { dead: deadIds, revived };
 }
 
 // ─── Mission board generation ──────────────────────────────────

@@ -201,12 +201,10 @@ import {
   NOVICE_MISSIONS,
   getMissionBoardSize,
   calcSuccessChance,
-  calcDeathChance,
   rollPermanentDeaths,
   calcEffectiveDuration,
   calcAssassinBonusRewards,
   calcAssassinFailRewards,
-  PRIEST_REVIVE_CHANCE,
   formatReward,
   STORY_MISSIONS,
   isExpedition,
@@ -1445,6 +1443,24 @@ function loadGame(): GameState | null {
 // ─── Season helpers ──────────────────────────────────────────────
 
 const MAX_EVENT_LOG = 50;
+/** Build the context object for a mission board refresh from current state.
+ *  Both refresh sites (daily timer + paid reroll) need the same shape;
+ *  caller provides the seed for determinism + the guild level. */
+function buildMissionBoardContext(s: GameState, guildLevel: number, seed: number) {
+  const aliveRanks = s.adventurers.filter((a) => a.alive).map((a) => a.rank);
+  const bestRank = aliveRanks.length > 0 ? Math.max(...aliveRanks) : 1;
+  return {
+    guildLevel,
+    count: getMissionBoardSize(guildLevel),
+    seed,
+    maxDifficulty: Math.min(5, bestRank + 1),
+    completedStoryMissions: s.completedStoryMissions,
+    buildings: s.buildings,
+    pens: s.pens,
+    adventurerRanks: aliveRanks,
+  };
+}
+
 function pushEvent(s: GameState, type: GameEventType, icon: string, message: string) {
   s.eventLog.unshift({ type, icon, message, timestamp: Date.now() });
   if (s.eventLog.length > MAX_EVENT_LOG) s.eventLog.length = MAX_EVENT_LOG;
@@ -3236,50 +3252,22 @@ export function GameProvider(props: ParentProps) {
                 : null;
 
               if ((!success || (isExped && expeditionFallenIds && expeditionFallenIds.size > 0)) && template) {
-                // Use the deploy-time prerolled deaths when present (regular
-                // missions). Falls back to compute-at-completion for legacy
-                // saves and for paths that don't preroll (expeditions, no-encounter missions).
+                // Prefer deploy-time prerolled deaths (regular missions ran
+                // rollPermanentDeaths at deploy and stamped log entries).
+                // For paths that don't preroll (expeditions, legacy saves)
+                // we run the same helper now so death chance honors supplies
+                // and the warrior/priest rules stay in lock-step.
                 let deadIds: string[];
                 if (am.prerolledCombat?.permanentDeaths) {
                   deadIds = [...am.prerolledCombat.permanentDeaths];
+                  for (const id of am.prerolledCombat.revivedAdventurerIds ?? []) revived.push(id);
                 } else {
-                  // Legacy path: roll deaths now.
-                  const fallenInCombat = expeditionFallenIds ?? new Set(combatResult?.fallenAdventurerIds ?? []);
-                  deadIds = [];
-                  for (const adv of team) {
-                    const baseChance = calcDeathChance(template, team, adv);
-                    let deathChance: number;
-                    if (isExped) {
-                      deathChance = fallenInCombat.has(adv.id) ? baseChance * 1.5 : 0;
-                    } else if (combatResult) {
-                      deathChance = fallenInCombat.has(adv.id) ? baseChance * 1.5 : 0;
-                    } else {
-                      deathChance = baseChance;
-                    }
-                    if (Math.random() * 100 < deathChance) deadIds.push(adv.id);
-                  }
-                  // Warrior Shield Wall — soaks one death
-                  const warriors = team.filter((a) => a.class === "warrior" && !deadIds.includes(a.id));
-                  for (const warrior of warriors) {
-                    const protectable = deadIds.filter((id) => id !== warrior.id);
-                    if (protectable.length > 0) {
-                      const savedId = protectable[0];
-                      deadIds.splice(deadIds.indexOf(savedId), 1);
-                      if (Math.random() > 0.5) deadIds.push(warrior.id);
-                      break;
-                    }
-                  }
-                  // Priest Divine Grace — revive
-                  const priests = team.filter((a) => a.class === "priest" && !deadIds.includes(a.id));
-                  for (const deadId of [...deadIds]) {
-                    for (const _priest of priests) {
-                      if (Math.random() < PRIEST_REVIVE_CHANCE) {
-                        deadIds.splice(deadIds.indexOf(deadId), 1);
-                        revived.push(deadId);
-                        break;
-                      }
-                    }
-                  }
+                  const fallenIds = expeditionFallenIds
+                    ? [...expeditionFallenIds]
+                    : (combatResult?.fallenAdventurerIds ?? []);
+                  const result = rollPermanentDeaths(fallenIds, team, template, am.adventurerSupplies);
+                  deadIds = result.dead;
+                  for (const id of result.revived) revived.push(id);
                 }
 
                 // Apply deaths. Stamps the death record onto the adventurer
@@ -3515,15 +3503,7 @@ export function GameProvider(props: ParentProps) {
             }
             s.lastRecruitRefresh = now;
             // Missions — cap difficulty at best adventurer's rank + 1
-            const boardSize = getMissionBoardSize(guildLvl);
-            const aliveRanks = s.adventurers.filter((a) => a.alive).map((a) => a.rank);
-            const bestRank = aliveRanks.length > 0 ? Math.max(...aliveRanks) : 1;
-            const maxDiff = Math.min(5, bestRank + 1);
-            s.missionBoard = generateMissionBoard({
-              guildLevel: guildLvl, count: boardSize, seed: now + s.year * 777, maxDifficulty: maxDiff,
-              completedStoryMissions: s.completedStoryMissions, buildings: s.buildings, pens: s.pens,
-              adventurerRanks: aliveRanks,
-            });
+            s.missionBoard = generateMissionBoard(buildMissionBoardContext(s, guildLvl, now + s.year * 777));
             s.lastMissionRefresh = now;
           }
         }
@@ -4265,8 +4245,11 @@ export function GameProvider(props: ParentProps) {
           // extracted to rollPermanentDeaths so the team-assembly preview can
           // run the same path under Monte Carlo.
           const fallenSet = new Set(combat.fallenAdventurerIds);
-          const deadIds = rollPermanentDeaths(combat.fallenAdventurerIds, team, template, adventurerSupplies);
+          const { dead: deadIds, revived: revivedIds } = rollPermanentDeaths(
+            combat.fallenAdventurerIds, team, template, adventurerSupplies,
+          );
           combat.permanentDeaths = deadIds;
+          combat.revivedAdventurerIds = revivedIds;
 
           // Stamp permanentDeath onto the killing-blow log entries so the
           // renderer can show "(slain!)" vs "(unconscious)".
@@ -5187,15 +5170,7 @@ export function GameProvider(props: ParentProps) {
       setState(produce((s) => {
         s.astralShards -= cost;
         s.missionRerollToday = rerollCount + 1;
-        const boardSize = getMissionBoardSize(guildLvl);
-        const aliveRanks = s.adventurers.filter((a) => a.alive).map((a) => a.rank);
-        const bestRank = aliveRanks.length > 0 ? Math.max(...aliveRanks) : 1;
-        const maxDiff = Math.min(5, bestRank + 1);
-        s.missionBoard = generateMissionBoard({
-          guildLevel: guildLvl, count: boardSize, seed: Date.now(), maxDifficulty: maxDiff,
-          completedStoryMissions: s.completedStoryMissions, buildings: s.buildings, pens: s.pens,
-          adventurerRanks: aliveRanks,
-        });
+        s.missionBoard = generateMissionBoard(buildMissionBoardContext(s, guildLvl, Date.now()));
       }));
       scheduleSave();
       return true;

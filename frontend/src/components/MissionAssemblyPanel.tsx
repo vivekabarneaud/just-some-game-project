@@ -19,7 +19,6 @@ import SupplySlot from "./SupplySlot";
 import {
   type MissionTemplate,
   calcSuccessChance,
-  calcDeathChance,
   rollPermanentDeaths,
   calcEffectiveDuration,
   getMission,
@@ -356,41 +355,46 @@ export default function MissionAssemblyPanel(props: Props) {
 
     const fm = freshMission();
 
+    // Run 200 seeded simulations for ~3.4% standard error at 90% success.
+    // Tight enough that two similarly-equipped adventurers read similar odds.
+    // Same loop drives the death-risk preview by counting permadeaths.
+    const SIMS = 200;
+    const deathCounts: Record<string, number> = {};
+    for (const a of snapshot) deathCounts[a.id] = 0;
+
     if (fm.encounters?.length) {
-      // Generate a stable seed from team composition
+      // Encounter missions: simulate combat, then run the same permadeath
+      // helper used at deploy time so the preview stays exact.
       const seedStr = ids.sort().join(",") + "|" + fm.id;
       let seed = 0;
       for (let i = 0; i < seedStr.length; i++) seed = ((seed << 5) - seed + seedStr.charCodeAt(i)) | 0;
 
-      // Run 200 seeded simulations for ~3.4% standard error at 90% success.
-      // Higher count tightens variance between near-identical teams — two
-      // similarly-equipped adventurers should read similar odds. Same loop
-      // counts permadeaths per adventurer for the death-risk preview.
       let wins = 0;
-      const deathCounts: Record<string, number> = {};
-      for (const a of snapshot) deathCounts[a.id] = 0;
-      const SIMS = 200;
       for (let i = 0; i < SIMS; i++) {
         const combat = simulateCombat(fm, snapshot, sups, seed + i);
         if (!combat) continue;
         if (combat.victory) wins++;
-        const dead = rollPermanentDeaths(combat.fallenAdventurerIds, snapshot, fm, sups);
+        const { dead } = rollPermanentDeaths(combat.fallenAdventurerIds, snapshot, fm, sups);
         for (const id of dead) deathCounts[id] = (deathCounts[id] ?? 0) + 1;
       }
       setSuccessPct(Math.round((wins / SIMS) * 100));
-      const risks: Record<string, number> = {};
-      for (const id of Object.keys(deathCounts)) {
-        risks[id] = Math.round((deathCounts[id] / SIMS) * 100);
-      }
-      setDeathRisks(risks);
     } else {
+      // No-encounter missions (herb_gathering, tavern_intel, smuggler_deal):
+      // success comes straight from calcSuccessChance; permadeath rolls per
+      // adventurer at baseline. Run rollPermanentDeaths in the same loop so
+      // warrior Shield Wall and priest Divine Grace are factored in.
       setSuccessPct(calcSuccessChance(fm, snapshot, 0, sups));
-      // No-encounter mission: legacy resolution rolls calcDeathChance raw
-      // (no fall gating, no 1.5× multiplier), so the preview matches that.
-      const risks: Record<string, number> = {};
-      for (const a of snapshot) risks[a.id] = calcDeathChance(fm, snapshot, a, sups);
-      setDeathRisks(risks);
+      for (let i = 0; i < SIMS; i++) {
+        const { dead } = rollPermanentDeaths([], snapshot, fm, sups);
+        for (const id of dead) deathCounts[id] = (deathCounts[id] ?? 0) + 1;
+      }
     }
+
+    const risks: Record<string, number> = {};
+    for (const id of Object.keys(deathCounts)) {
+      risks[id] = Math.round((deathCounts[id] / SIMS) * 100);
+    }
+    setDeathRisks(risks);
   }
 
   // Reactively recompute success when team or supplies change

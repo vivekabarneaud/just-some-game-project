@@ -169,6 +169,9 @@ export interface CombatResult {
    *  The rest are KO'd and recover. Set after the post-combat death roll runs.
    *  Empty when the death roll hasn't been applied (legacy compute-at-completion path). */
   permanentDeaths?: string[];
+  /** Subset of fallenAdventurerIds whose permadeath roll was undone by a
+   *  priest's Divine Grace. Drives the loot-modal "X was revived" line. */
+  revivedAdventurerIds?: string[];
   totalEnemies: number;
   loot: LootResult[];
   finalHp?: Record<string, number>;
