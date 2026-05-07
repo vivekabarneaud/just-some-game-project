@@ -1,4 +1,5 @@
 import type { Season } from "./seasons";
+import { growth } from "@medieval-realm/shared/data/farmingMath";
 
 export type FruitId = "apples" | "pears" | "cherries";
 
@@ -62,16 +63,15 @@ export const FRUIT_BASE_STORAGE = 50;
 export const FRUIT_STORAGE_PER_LEVEL = 20;
 
 export function getOrchardCost(level: number): { wood: number; stone: number; gold: number } {
-  const mult = Math.pow(ORCHARD_COST_MULTIPLIER, level);
   return {
-    wood: Math.floor(ORCHARD_BASE_COST.wood * mult),
-    stone: Math.floor(ORCHARD_BASE_COST.stone * mult),
+    wood: growth(ORCHARD_BASE_COST.wood, ORCHARD_COST_MULTIPLIER, level),
+    stone: growth(ORCHARD_BASE_COST.stone, ORCHARD_COST_MULTIPLIER, level),
     gold: ORCHARD_BASE_COST.gold + level * ORCHARD_GOLD_PER_LEVEL,
   };
 }
 
 export function getOrchardBuildTime(level: number): number {
-  return Math.floor(ORCHARD_BASE_BUILD_TIME * Math.pow(ORCHARD_BUILD_TIME_MULTIPLIER, level));
+  return growth(ORCHARD_BASE_BUILD_TIME, ORCHARD_BUILD_TIME_MULTIPLIER, level);
 }
 
 export function getOrchardRate(fruit: FruitDefinition, level: number): number {

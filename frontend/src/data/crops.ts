@@ -1,3 +1,5 @@
+import { growth } from "@medieval-realm/shared/data/farmingMath";
+
 export type CropId = "wheat" | "barley" | "flax";
 
 export interface CropDefinition {
@@ -58,15 +60,14 @@ export const MAX_FIELDS = 3;
 export const FIELD_MAX_LEVEL = 10;
 
 export function getFieldCost(level: number): { wood: number; stone: number } {
-  const mult = Math.pow(FIELD_COST_MULTIPLIER, level);
   return {
-    wood: Math.floor(FIELD_BASE_COST.wood * mult),
-    stone: Math.floor(FIELD_BASE_COST.stone * mult),
+    wood: growth(FIELD_BASE_COST.wood, FIELD_COST_MULTIPLIER, level),
+    stone: growth(FIELD_BASE_COST.stone, FIELD_COST_MULTIPLIER, level),
   };
 }
 
 export function getFieldBuildTime(level: number): number {
-  return Math.floor(FIELD_BASE_BUILD_TIME * Math.pow(FIELD_BUILD_TIME_MULTIPLIER, level));
+  return growth(FIELD_BASE_BUILD_TIME, FIELD_BUILD_TIME_MULTIPLIER, level);
 }
 
 // Total harvest yield for a field at a given level, before soil multipliers.

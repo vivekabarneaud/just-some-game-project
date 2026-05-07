@@ -1,4 +1,5 @@
 import type { Season } from "./seasons";
+import { growth } from "@medieval-realm/shared/data/farmingMath";
 
 export type VeggieId = "cabbages" | "turnips" | "peas" | "squash" | "fava";
 
@@ -88,15 +89,14 @@ export const MAX_GARDENS = VEGGIES.length;
 export const GARDEN_MAX_LEVEL = 8;
 
 export function getGardenCost(level: number): { wood: number; stone: number } {
-  const mult = Math.pow(GARDEN_COST_MULTIPLIER, level);
   return {
-    wood: Math.floor(GARDEN_BASE_COST.wood * mult),
-    stone: Math.floor(GARDEN_BASE_COST.stone * mult),
+    wood: growth(GARDEN_BASE_COST.wood, GARDEN_COST_MULTIPLIER, level),
+    stone: growth(GARDEN_BASE_COST.stone, GARDEN_COST_MULTIPLIER, level),
   };
 }
 
 export function getGardenBuildTime(level: number): number {
-  return Math.floor(GARDEN_BASE_BUILD_TIME * Math.pow(GARDEN_BUILD_TIME_MULTIPLIER, level));
+  return growth(GARDEN_BASE_BUILD_TIME, GARDEN_BUILD_TIME_MULTIPLIER, level);
 }
 
 export function getGardenRate(veggie: VeggieDefinition, level: number): number {
@@ -116,9 +116,4 @@ export function canPlantVeggie(veggie: VeggieDefinition, season: Season): boolea
 /** Is the garden producing food this season (assuming it's planted)? */
 export function isVeggieProducing(veggie: VeggieDefinition, season: Season): boolean {
   return veggie.produceSeasons.includes(season);
-}
-
-/** Legacy alias — kept so existing callers that only care about "is this season relevant?" don't break. */
-export function isGardenActive(veggie: VeggieDefinition, season: Season): boolean {
-  return isVeggieProducing(veggie, season);
 }

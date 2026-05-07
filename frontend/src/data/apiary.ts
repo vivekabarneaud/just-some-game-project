@@ -1,4 +1,5 @@
 import type { Season } from "./seasons";
+import { growth } from "@medieval-realm/shared/data/farmingMath";
 
 export interface ApiaryDefinition {
   baseHoneyPerHour: number;
@@ -30,16 +31,15 @@ export const HONEY_BASE_STORAGE = 30;
 export const HONEY_STORAGE_PER_LEVEL = 15;
 
 export function getHiveCost(level: number): { wood: number; stone: number; gold: number } {
-  const mult = Math.pow(HIVE_COST_MULTIPLIER, level);
   return {
-    wood: Math.floor(HIVE_BASE_COST.wood * mult),
-    stone: Math.floor(HIVE_BASE_COST.stone * mult),
+    wood: growth(HIVE_BASE_COST.wood, HIVE_COST_MULTIPLIER, level),
+    stone: growth(HIVE_BASE_COST.stone, HIVE_COST_MULTIPLIER, level),
     gold: HIVE_BASE_COST.gold + level * HIVE_GOLD_PER_LEVEL,
   };
 }
 
 export function getHiveBuildTime(level: number): number {
-  return Math.floor(HIVE_BASE_BUILD_TIME * Math.pow(HIVE_BUILD_TIME_MULTIPLIER, level));
+  return growth(HIVE_BASE_BUILD_TIME, HIVE_BUILD_TIME_MULTIPLIER, level);
 }
 
 export function getHoneyRate(level: number, season: Season): number {

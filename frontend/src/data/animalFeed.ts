@@ -49,6 +49,16 @@ export function isGrazer(animal: AnimalId): boolean {
   return GRAZERS.includes(animal);
 }
 
+/** Total grazing food/hour available right now. A field is grazeable when
+ *  it's been built (level ≥ 1) and currently has no crop planted; each
+ *  contributes GRAZING_PER_FIELD/h. Used by the pen tick (food math) and
+ *  the Farming UI (PenCard summary + per-pen grazing pill). */
+export function calcGrazingCapacity(fields: { level: number; crop: string | null }[]): number {
+  let count = 0;
+  for (const f of fields) if (f.level >= 1 && f.crop === null) count++;
+  return count * GRAZING_PER_FIELD;
+}
+
 /** Sum how many food units a pen can get from its preferred categories. */
 export function availableFromCategories(
   foods: Record<FoodItemType, number>,

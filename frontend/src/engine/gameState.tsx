@@ -139,9 +139,9 @@ import {
 } from "~/data/foods";
 import {
   ANIMAL_FEED,
-  GRAZING_PER_FIELD,
   isGrazer,
   consumeFromCategories,
+  calcGrazingCapacity,
 } from "~/data/animalFeed";
 import {
   getHiveCost,
@@ -1577,13 +1577,6 @@ function calcAnimalFoodConsumption(pens: PlayerPen[]): number {
     total += prod.consumed;
   }
   return total;
-}
-
-/** Count fallow fields available for grazing (level ≥ 1, no crop planted). */
-function calcGrazingCapacity(fields: PlayerField[]): number {
-  let count = 0;
-  for (const f of fields) if (f.level >= 1 && f.crop === null) count++;
-  return count * GRAZING_PER_FIELD;
 }
 
 /** Drain pantry for each pen, applying grazing + category preferences.

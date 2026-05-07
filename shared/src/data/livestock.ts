@@ -1,3 +1,5 @@
+import { growth } from "./farmingMath";
+
 export type AnimalId = "chickens" | "pigs" | "goats" | "sheep";
 
 export interface AnimalDefinition {
@@ -74,16 +76,15 @@ export const MAX_PENS = 6;
 export const PEN_MAX_LEVEL = 8;
 
 export function getPenCost(level: number): { wood: number; stone: number; gold: number } {
-  const mult = Math.pow(PEN_COST_MULTIPLIER, level);
   return {
-    wood: Math.floor(PEN_BASE_COST.wood * mult),
-    stone: Math.floor(PEN_BASE_COST.stone * mult),
+    wood: growth(PEN_BASE_COST.wood, PEN_COST_MULTIPLIER, level),
+    stone: growth(PEN_BASE_COST.stone, PEN_COST_MULTIPLIER, level),
     gold: PEN_GOLD_COST + level * PEN_GOLD_COST_PER_LEVEL,
   };
 }
 
 export function getPenBuildTime(level: number): number {
-  return Math.floor(PEN_BASE_BUILD_TIME * Math.pow(PEN_BUILD_TIME_MULTIPLIER, level));
+  return growth(PEN_BASE_BUILD_TIME, PEN_BUILD_TIME_MULTIPLIER, level);
 }
 
 // Production scales with level

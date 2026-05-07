@@ -3,7 +3,7 @@ import { useGame, type GameState, type PlayerField, type PlayerGarden, type Play
 import { CROPS, type CropId, getCrop, getFieldCost, getFieldBuildTime, getSeasonYield, getSoilMultiplier, getSoilStatus, MAX_FIELDS, FIELD_MAX_LEVEL } from "~/data/crops";
 import { getVeggie, getGardenCost, getGardenBuildTime, getGardenRate, getSeedCost, canPlantVeggie, isVeggieProducing, MAX_GARDENS, GARDEN_MAX_LEVEL } from "~/data/gardens";
 import { getAnimal, getPenCost, getPenBuildTime, getPenProduction, PEN_MAX_LEVEL } from "@medieval-realm/shared/data/livestock";
-import { ANIMAL_FEED, FEED_CATEGORY_ICON, FEED_CATEGORY_LABEL, FOOD_CATEGORY, GRAZING_PER_FIELD, isGrazer, type FeedCategory } from "~/data/animalFeed";
+import { ANIMAL_FEED, FEED_CATEGORY_ICON, FEED_CATEGORY_LABEL, FOOD_CATEGORY, isGrazer, calcGrazingCapacity, type FeedCategory } from "~/data/animalFeed";
 import type { FoodItemType } from "~/data/foods";
 import { getHiveCost, getHiveBuildTime, getHoneyRate, HIVE_MAX_LEVEL, APIARY_IMAGE } from "~/data/apiary";
 import { getFruit, getOrchardCost, getOrchardBuildTime, getOrchardRate, getOrchardStatus, isOrchardActive, ORCHARD_MAX_LEVEL } from "~/data/orchards";
@@ -596,8 +596,7 @@ function PenCard(props: { pen: PlayerPen }) {
   };
 
   // Grazing — sheep and goats can feed off fallow fields before dipping into the pantry
-  const fallowFields = () => state.fields.filter((f) => f.level >= 1 && f.crop === null).length;
-  const grazingPerHour = () => fallowFields() * GRAZING_PER_FIELD;
+  const grazingPerHour = () => calcGrazingCapacity(state.fields);
   const totalGrazerDemand = () => {
     let d = 0;
     for (const p of state.pens) {
@@ -1252,7 +1251,7 @@ export default function Farming() {
           <div class="farming-stat">
             <span class="farming-stat-label">Grazing</span>
             <span class="farming-stat-value" style={{ color: "var(--accent-green)" }}>
-              +{state.fields.filter((f) => f.level >= 1 && f.crop === null).length * GRAZING_PER_FIELD}/h (sheep/goats)
+              +{calcGrazingCapacity(state.fields)}/h (sheep/goats)
             </span>
           </div>
         </Show>
