@@ -15,9 +15,14 @@ export default function EventModal() {
   };
 
   return (
-    <Show when={currentEvent()}>
-      {(eventGetter) => {
-        const event = eventGetter();
+    <Show when={currentEvent()} keyed>
+      {(event) => {
+        // `keyed` makes Solid re-run this function whenever the event
+        // changes (not just when when goes truthy/falsy). Without it, a
+        // chained queue of pending events would lock on the first one —
+        // dismissing it removes it from `pendingEvents` but the children
+        // function never re-runs to point at the next event, so clicking
+        // Continue keeps trying to dismiss the already-gone first one.
         onMount(() => playSound("notify"));
         return (
           <div

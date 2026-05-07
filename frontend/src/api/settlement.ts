@@ -34,6 +34,10 @@ export async function loadSettlement(id: string): Promise<SettlementResponse> {
   return res;
 }
 
+// Guard so concurrent in-flight saves don't trigger N reloads when they all
+// 409 at once.
+let _reloadingForStaleState = false;
+
 export async function saveSettlement(id: string, gameState: GameState): Promise<void> {
   try {
     const res = await apiFetch<SaveSettlementResponse>(`/settlement/${id}`, {
@@ -45,13 +49,16 @@ export async function saveSettlement(id: string, gameState: GameState): Promise<
     });
     _expectedUpdatedAt = res.updatedAt;
   } catch (err) {
-    // 409 stale_state — server has newer data than what this client most
-    // recently saw. Almost always a stale tab/device that loaded the
-    // settlement hours ago and is firing periodic saves with old state.
-    // We don't try to merge — the call sites .catch silently and the
-    // client keeps tab in its forked state until the player reloads.
+    // 409 stale_state — server was written by another tab or device since
+    // we last loaded. The simplest correct fix is to reload the page so
+    // the normal load path pulls fresh state with all migrations applied.
+    // Anything in-flight in this tab was destined to be rejected anyway.
     if (err instanceof Error && err.message === "stale_state") {
-      console.warn("[settlement] save rejected (stale state) — another tab or device wrote in between; reload to sync");
+      console.warn("[settlement] save rejected (stale state) — reloading to sync");
+      if (typeof window !== "undefined" && !_reloadingForStaleState) {
+        _reloadingForStaleState = true;
+        window.location.reload();
+      }
     }
     throw err;
   }
