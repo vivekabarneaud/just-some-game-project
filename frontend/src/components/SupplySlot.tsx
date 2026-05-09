@@ -23,6 +23,8 @@ interface SupplySlotProps {
   onChange: (itemId: string | null) => void;
   /** If non-empty, this slot is disabled and shows the reason on hover */
   disabledReason?: string;
+  /** Square size in px for the slot tile. Default 20 (compact). */
+  size?: number;
 }
 
 const PLACEHOLDER_ICON = { potion: "🧪", food: "🍖", recovery: "🩹" } as const;
@@ -70,8 +72,8 @@ export default function SupplySlot(props: SupplySlotProps) {
             setOpen((o) => !o);
           }}
           style={{
-            width: "20px",
-            height: "20px",
+            width: `${props.size ?? 20}px`,
+            height: `${props.size ?? 20}px`,
             "border-radius": "4px",
             border: `1px ${props.value ? "solid" : "dashed"} var(--border-color)`,
             background: props.value ? "rgba(167, 139, 250, 0.15)" : "rgba(0, 0, 0, 0.25)",
@@ -80,7 +82,7 @@ export default function SupplySlot(props: SupplySlotProps) {
             display: "flex",
             "align-items": "center",
             "justify-content": "center",
-            "font-size": "0.75rem",
+            "font-size": `${Math.max(0.75, (props.size ?? 20) / 26)}rem`,
             "line-height": "1",
           }}
         >
@@ -97,7 +99,7 @@ export default function SupplySlot(props: SupplySlotProps) {
       <Show when={open()}>
         <div style={{
           position: "absolute",
-          top: "24px",
+          top: `${(props.size ?? 20) + 4}px`,
           left: "0",
           "z-index": "1000",
           "min-width": "170px",

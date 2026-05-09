@@ -57,16 +57,11 @@ export default function EventModal() {
               >
                 A new beat
               </div>
-              <p
-                style={{
-                  "color": "var(--text-primary)",
-                  "font-size": "1.05rem",
-                  "line-height": 1.55,
-                  "margin": "0 0 24px",
-                }}
-              >
-                {event.banner}
-              </p>
+              <div style={{ "color": "var(--text-primary)", "font-size": "1.05rem", "line-height": 1.55, "margin": "0 0 24px" }}>
+                {event.banner.split("\n\n").map((para) => (
+                  <p style={{ margin: "0 0 12px" }}>{para}</p>
+                ))}
+              </div>
               <div style={{ "text-align": "right" }}>
                 <button
                   onClick={() => actions.dismissEvent(event.id)}

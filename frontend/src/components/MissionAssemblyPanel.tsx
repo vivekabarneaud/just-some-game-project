@@ -8,6 +8,7 @@ import {
   getXpForLevel,
   getClassMeta,
   getZoomedPortraitUrl,
+  getFoodPref,
   RANK_NAMES,
   RANK_COLORS,
   type Adventurer,
@@ -610,23 +611,56 @@ export default function MissionAssemblyPanel(props: Props) {
                 const emptyCount = Math.max(0, freshMission().slots.length - friendCoopAdvs().length);
                 return Array.from({ length: emptyCount }, (_, i) => (
                   <div style={{
-                    width: "60px",
-                    display: "flex", "flex-direction": "column", "align-items": "center", gap: "2px",
+                    display: "flex", "flex-direction": "column",
+                    background: "var(--bg-secondary)",
+                    border: "1px dashed var(--border-color)",
+                    "border-radius": "10px",
+                    opacity: 0.55,
+                    width: "160px",
                   }}>
                     <div style={{
-                      width: "60px", height: "60px",
-                      "border-radius": "4px",
-                      background: "rgba(255, 255, 255, 0.02)",
-                      border: "1px dashed var(--border-color)",
-                      display: "flex", "align-items": "center", "justify-content": "center",
-                      "font-size": "1.4rem",
-                      color: "var(--text-muted)",
-                      opacity: 0.4,
+                      position: "relative", width: "100%", height: "140px",
+                      overflow: "hidden",
+                      "border-radius": "10px 10px 0 0",
                     }}>
-                      👤
+                      <div style={{
+                        width: "100%", height: "100%",
+                        display: "flex", "align-items": "center", "justify-content": "center",
+                        "font-size": "2.4rem", color: "var(--text-muted)",
+                      }}>
+                        👤
+                      </div>
+                      <div class="building-card-image-overlay" style={{ padding: "8px 10px" }}>
+                        <div style={{
+                          "font-family": "var(--font-heading)",
+                          "font-size": "0.85rem",
+                          color: "var(--text-muted)",
+                          "text-align": "left",
+                          "text-shadow": "0 1px 2px rgba(0,0,0,0.8)",
+                        }}>
+                          Empty slot
+                        </div>
+                      </div>
                     </div>
-                    <div style={{ "font-size": "0.65rem", color: "var(--text-muted)", "text-align": "center", "line-height": "1.1", opacity: 0.6 }}>
-                      empty
+                    {/* Supplies-row equivalent so the empty card matches a
+                     * filled card's height. */}
+                    <div style={{
+                      padding: "10px 10px 8px",
+                      display: "flex", "align-items": "center", "justify-content": "center",
+                      "min-height": "52px",
+                      "font-size": "0.7rem",
+                      color: "var(--text-muted)",
+                    }}>
+                      unfilled
+                    </div>
+                    {/* Phantom risk-row to match the filled card's bottom row height. */}
+                    <div style={{
+                      padding: "4px 10px 10px",
+                      "font-size": "0.7rem",
+                      color: "transparent",
+                      "text-align": "center",
+                    }}>
+                      Risk of permanent death: —
                     </div>
                   </div>
                 ));
@@ -710,41 +744,98 @@ export default function MissionAssemblyPanel(props: Props) {
                             return { id: s.item.id, name: s.item.name, icon: s.item.icon, qty: remainingQty, hint };
                           })
                           .filter(Boolean) as { id: string; name: string; icon: string; qty: number; hint: string }[];
+                        const risk = () => deathRisks()[advId] ?? 0;
+                        const riskColor = () =>
+                          risk() >= 15 ? "var(--accent-red)" :
+                          risk() >= 5 ? "var(--accent-gold)" :
+                          "var(--accent-green)";
                         return (
-                          <div style={{ display: "flex", "align-items": "flex-start", gap: "4px" }}>
-                            <div style={{ display: "flex", "flex-direction": "column", "align-items": "center", gap: "2px" }}>
-                              <div
-                                onClick={() => toggleTeam(advId)}
-                                title="Click to remove"
-                                style={{
-                                  width: "60px", height: "60px",
-                                  "border-radius": "4px", overflow: "hidden",
-                                  border: `1px solid ${CLASS_COLORS[adv()!.class] ?? "var(--border-color)"}`,
-                                  cursor: "pointer",
-                                }}
-                              >
-                                <img
-                                  src={getZoomedPortraitUrl(adv()!)}
-                                  alt={adv()!.name}
-                                  style={{ width: "100%", height: "100%", "object-fit": "cover" }}
-                                />
+                          <div
+                            style={{
+                              display: "flex", "flex-direction": "column",
+                              background: "var(--bg-secondary)",
+                              border: `1px solid ${CLASS_COLORS[adv()!.class] ?? "var(--border-color)"}`,
+                              "border-radius": "10px",
+                              width: "160px",
+                            }}
+                          >
+                            <div
+                              style={{
+                                position: "relative", width: "100%", height: "140px",
+                                overflow: "hidden",
+                                "border-radius": "10px 10px 0 0",
+                                cursor: "pointer",
+                              }}
+                              onClick={() => toggleTeam(advId)}
+                              title={`Click to remove ${adv()!.name}`}
+                            >
+                              <img
+                                src={getZoomedPortraitUrl(adv()!)}
+                                alt={adv()!.name}
+                                style={{ width: "100%", height: "100%", "object-fit": "cover", display: "block" }}
+                              />
+                              <Show when={getFoodPref(adv()!.foodPreference)}>
+                                <div
+                                  title={getFoodPref(adv()!.foodPreference)!.trait}
+                                  style={{
+                                    position: "absolute",
+                                    top: "6px",
+                                    right: "6px",
+                                    width: "22px",
+                                    height: "22px",
+                                    "border-radius": "50%",
+                                    background: "rgba(0, 0, 0, 0.7)",
+                                    display: "flex",
+                                    "align-items": "center",
+                                    "justify-content": "center",
+                                    "font-size": "0.75rem",
+                                    "line-height": "1",
+                                  }}
+                                >
+                                  {getFoodPref(adv()!.foodPreference)!.icon}
+                                </div>
+                              </Show>
+                              <div class="building-card-image-overlay" style={{ padding: "8px 10px" }}>
+                                <div style={{
+                                  "font-family": "var(--font-heading)",
+                                  "font-size": "0.9rem",
+                                  "line-height": "1.15",
+                                  color: CLASS_COLORS[adv()!.class] ?? "var(--text-primary)",
+                                  "text-align": "left",
+                                  "text-shadow": "0 1px 2px rgba(0,0,0,0.8)",
+                                }}>
+                                  {adv()!.name}
+                                </div>
                               </div>
-                              <span style={{ "font-size": "0.65rem", color: "var(--text-muted)", "line-height": "1" }}>
-                                {adv()!.name.split(" ")[0]}
-                              </span>
                             </div>
-                            <div style={{ display: "flex", "flex-direction": "column", gap: "3px", "margin-top": "2px" }}>
-                              <SupplySlot kind="potion" value={adventurerSupplies()[advId]?.potion}
+                            {/* Supplies row */}
+                            <div style={{ padding: "10px 10px 8px", display: "flex", gap: "8px", "justify-content": "center" }}>
+                              <SupplySlot kind="potion" size={36}
+                                value={adventurerSupplies()[advId]?.potion}
                                 options={potionOptions()}
                                 onChange={(id) => setAdvSupply(advId, "potion", id)} />
-                              <SupplySlot kind="food" value={adventurerSupplies()[advId]?.food}
+                              <SupplySlot kind="food" size={36}
+                                value={adventurerSupplies()[advId]?.food}
                                 options={foodOptions()}
                                 onChange={(id) => setAdvSupply(advId, "food", id)} />
                               <Show when={isExpedition(freshMission())}>
-                                <SupplySlot kind="recovery" value={adventurerSupplies()[advId]?.recovery}
+                                <SupplySlot kind="recovery" size={36}
+                                  value={adventurerSupplies()[advId]?.recovery}
                                   options={recoveryOptions()}
                                   onChange={(id) => setAdvSupply(advId, "recovery", id)} />
                               </Show>
+                            </div>
+                            {/* Death-risk text (coop). Same shape as solo. */}
+                            <div style={{
+                              padding: "4px 10px 10px",
+                              "font-size": "0.7rem",
+                              color: "var(--text-muted)",
+                              "text-align": "center",
+                            }}>
+                              Risk of permanent death:{" "}
+                              <span style={{ color: riskColor(), "font-weight": "bold" }}>
+                                {risk()}%
+                              </span>
                             </div>
                           </div>
                         );
@@ -758,23 +849,56 @@ export default function MissionAssemblyPanel(props: Props) {
                 const emptyCount = Math.max(0, freshMission().slots.length - teamIds().length);
                 return Array.from({ length: emptyCount }, () => (
                   <div style={{
-                    width: "60px",
-                    display: "flex", "flex-direction": "column", "align-items": "center", gap: "2px",
+                    display: "flex", "flex-direction": "column",
+                    background: "var(--bg-secondary)",
+                    border: "1px dashed var(--border-color)",
+                    "border-radius": "10px",
+                    opacity: 0.55,
+                    width: "160px",
                   }}>
                     <div style={{
-                      width: "60px", height: "60px",
-                      "border-radius": "4px",
-                      background: "rgba(255, 255, 255, 0.02)",
-                      border: "1px dashed var(--border-color)",
-                      display: "flex", "align-items": "center", "justify-content": "center",
-                      "font-size": "1.4rem",
-                      color: "var(--text-muted)",
-                      opacity: 0.4,
+                      position: "relative", width: "100%", height: "140px",
+                      overflow: "hidden",
+                      "border-radius": "10px 10px 0 0",
                     }}>
-                      👤
+                      <div style={{
+                        width: "100%", height: "100%",
+                        display: "flex", "align-items": "center", "justify-content": "center",
+                        "font-size": "2.4rem", color: "var(--text-muted)",
+                      }}>
+                        👤
+                      </div>
+                      <div class="building-card-image-overlay" style={{ padding: "8px 10px" }}>
+                        <div style={{
+                          "font-family": "var(--font-heading)",
+                          "font-size": "0.85rem",
+                          color: "var(--text-muted)",
+                          "text-align": "left",
+                          "text-shadow": "0 1px 2px rgba(0,0,0,0.8)",
+                        }}>
+                          Empty slot
+                        </div>
+                      </div>
                     </div>
-                    <div style={{ "font-size": "0.65rem", color: "var(--text-muted)", "text-align": "center", "line-height": "1.1", opacity: 0.6 }}>
-                      empty
+                    {/* Supplies-row equivalent so the empty card matches a
+                     * filled card's height. */}
+                    <div style={{
+                      padding: "10px 10px 8px",
+                      display: "flex", "align-items": "center", "justify-content": "center",
+                      "min-height": "52px",
+                      "font-size": "0.7rem",
+                      color: "var(--text-muted)",
+                    }}>
+                      unfilled
+                    </div>
+                    {/* Phantom risk-row to match the filled card's bottom row height. */}
+                    <div style={{
+                      padding: "4px 10px 10px",
+                      "font-size": "0.7rem",
+                      color: "transparent",
+                      "text-align": "center",
+                    }}>
+                      Risk of permanent death: —
                     </div>
                   </div>
                 ));
@@ -898,54 +1022,156 @@ export default function MissionAssemblyPanel(props: Props) {
                     })
                     .filter(Boolean) as { id: string; name: string; icon: string; qty: number; hint: string }[];
                 };
+                // Reactive accessors — must be called inside JSX so Solid
+                // tracks updates. Capturing `const a = adv()` at the top of
+                // the For child snapshots the value once and never re-renders
+                // when the team changes.
+                const requiredClass = () => slot.required && slot.class !== "any"
+                  ? getClassMeta(slot.class as AdventurerClass)
+                  : null;
+                const cardBorder = () => {
+                  const a = adv();
+                  if (a) return `1px solid ${CLASS_COLORS[a.class] ?? "var(--border-color)"}`;
+                  const rc = requiredClass();
+                  return `1px dashed ${rc ? CLASS_COLORS[slot.class as keyof typeof CLASS_COLORS] : "var(--border-color)"}`;
+                };
+                const risk = () => {
+                  const a = adv();
+                  return a ? (deathRisks()[a.id] ?? 0) : 0;
+                };
+                const riskColor = () =>
+                  risk() >= 15 ? "var(--accent-red)" :
+                  risk() >= 5 ? "var(--accent-gold)" :
+                  "var(--accent-green)";
                 return (
-                  <div style={{ display: "flex", "align-items": "flex-start", gap: "4px" }}>
-                    <div style={{ display: "flex", "flex-direction": "column", "align-items": "center", gap: "2px" }}>
-                      <TeamSlot
-                        slot={slot}
-                        adventurer={adv()}
-                        onClick={() => {
-                          const a = adv();
-                          if (a) toggleTeam(a.id);
-                        }}
-                      />
-                      <Show when={adv()}>
-                        {(() => {
-                          const risk = () => deathRisks()[adv()!.id] ?? 0;
-                          return (
-                            <span style={{
-                              "font-size": "0.75rem",
-                              color: risk() >= 15 ? "var(--accent-red)" : risk() >= 5 ? "var(--accent-gold)" : "var(--text-muted)",
-                            }}>
-                              ☠ <span style={{ "font-weight": "bold" }}>{risk()}%</span>
-                            </span>
-                          );
-                        })()}
+                  <div style={{
+                    display: "flex", "flex-direction": "column",
+                    background: "var(--bg-secondary)",
+                    border: cardBorder(),
+                    "border-radius": "10px",
+                    /* overflow stays visible so SupplySlot dropdowns and
+                     * tooltips can extend past the card edges. The portrait
+                     * div below carries its own overflow:hidden + rounded
+                     * top corners to clip the image. */
+                    width: "160px",
+                  }}>
+                    <div
+                      style={{
+                        position: "relative", width: "100%", height: "140px",
+                        overflow: "hidden",
+                        "border-radius": "10px 10px 0 0",
+                        cursor: adv() ? "pointer" : "default",
+                      }}
+                      onClick={() => { const a = adv(); if (a) toggleTeam(a.id); }}
+                      title={adv() ? `Click to remove ${adv()!.name}` : undefined}
+                    >
+                      <Show when={adv()} fallback={
+                        <div style={{
+                          width: "100%", height: "100%",
+                          display: "flex", "align-items": "center", "justify-content": "center",
+                          "font-size": "2.4rem", color: "var(--text-muted)", opacity: "0.3",
+                        }}>
+                          {requiredClass()?.icon ?? "👤"}
+                        </div>
+                      }>
+                        {(a) => (
+                          <>
+                            <img
+                              src={getZoomedPortraitUrl(a())}
+                              alt={a().name}
+                              style={{ width: "100%", height: "100%", "object-fit": "cover", display: "block" }}
+                            />
+                            <Show when={getFoodPref(a().foodPreference)}>
+                              <div
+                                title={getFoodPref(a().foodPreference)!.trait}
+                                style={{
+                                  position: "absolute",
+                                  top: "6px",
+                                  right: "6px",
+                                  width: "22px",
+                                  height: "22px",
+                                  "border-radius": "50%",
+                                  background: "rgba(0, 0, 0, 0.7)",
+                                  display: "flex",
+                                  "align-items": "center",
+                                  "justify-content": "center",
+                                  "font-size": "0.75rem",
+                                  "line-height": "1",
+                                }}
+                              >
+                                {getFoodPref(a().foodPreference)!.icon}
+                              </div>
+                            </Show>
+                          </>
+                        )}
+                      </Show>
+                      {/* Name overlay — left-aligned in the gradient. */}
+                      <div class="building-card-image-overlay" style={{ padding: "8px 10px" }}>
+                        <div style={{
+                          "font-family": "var(--font-heading)",
+                          "font-size": "0.9rem",
+                          "line-height": "1.15",
+                          color: adv() ? (CLASS_COLORS[adv()!.class] ?? "var(--text-primary)") : "var(--text-muted)",
+                          "text-align": "left",
+                          "text-shadow": "0 1px 2px rgba(0,0,0,0.8)",
+                        }}>
+                          {adv()?.name ?? (requiredClass()?.name ?? "Empty slot")}
+                        </div>
+                      </div>
+                    </div>
+                    {/* Supplies row */}
+                    <div style={{
+                      padding: "10px 10px 8px",
+                      display: "flex", gap: "8px", "justify-content": "center",
+                      "min-height": adv() ? undefined : "52px",
+                    }}>
+                      <Show when={adv()} fallback={
+                        <span style={{ "font-size": "0.7rem", color: "var(--text-muted)", "align-self": "center" }}>
+                          unfilled
+                        </span>
+                      }>
+                        {(a) => (
+                          <>
+                            <SupplySlot
+                              kind="potion"
+                              size={36}
+                              value={adventurerSupplies()[a().id]?.potion}
+                              options={potionOptions()}
+                              onChange={(id) => setAdvSupply(a().id, "potion", id)}
+                            />
+                            <SupplySlot
+                              kind="food"
+                              size={36}
+                              value={adventurerSupplies()[a().id]?.food}
+                              options={foodOptions()}
+                              onChange={(id) => setAdvSupply(a().id, "food", id)}
+                            />
+                            <Show when={isExpedition(freshMission())}>
+                              <SupplySlot
+                                kind="recovery"
+                                size={36}
+                                value={adventurerSupplies()[a().id]?.recovery}
+                                options={recoveryOptions()}
+                                onChange={(id) => setAdvSupply(a().id, "recovery", id)}
+                              />
+                            </Show>
+                          </>
+                        )}
                       </Show>
                     </div>
-                    {/* Per-adventurer supply slots */}
+                    {/* Death-risk text. Plain copy is more honest than the
+                     * old circle — players read it once and understand. */}
                     <Show when={adv()}>
-                      <div style={{ display: "flex", "flex-direction": "column", gap: "4px", "margin-top": "2px" }}>
-                        <SupplySlot
-                          kind="potion"
-                          value={adventurerSupplies()[adv()!.id]?.potion}
-                          options={potionOptions()}
-                          onChange={(id) => setAdvSupply(adv()!.id, "potion", id)}
-                        />
-                        <SupplySlot
-                          kind="food"
-                          value={adventurerSupplies()[adv()!.id]?.food}
-                          options={foodOptions()}
-                          onChange={(id) => setAdvSupply(adv()!.id, "food", id)}
-                        />
-                        <Show when={isExpedition(freshMission())}>
-                          <SupplySlot
-                            kind="recovery"
-                            value={adventurerSupplies()[adv()!.id]?.recovery}
-                            options={recoveryOptions()}
-                            onChange={(id) => setAdvSupply(adv()!.id, "recovery", id)}
-                          />
-                        </Show>
+                      <div style={{
+                        padding: "4px 10px 10px",
+                        "font-size": "0.7rem",
+                        color: "var(--text-muted)",
+                        "text-align": "center",
+                      }}>
+                        Risk of permanent death:{" "}
+                        <span style={{ color: riskColor(), "font-weight": "bold" }}>
+                          {risk()}%
+                        </span>
                       </div>
                     </Show>
                   </div>

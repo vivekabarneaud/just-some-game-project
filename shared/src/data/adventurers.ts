@@ -234,13 +234,20 @@ export function getOriginsForRace(race: Race): OriginDef[] {
 
 /** Origins available at each guild level. Word of a new settlement spreads
  *  outward in concentric rings — neighbors hear first, foreign lands last.
- *  Each level adds 2 more origins until the full pool is unlocked at Lv.5+. */
+ *
+ *  TEMP (May 2026): Feldgrund locked out everywhere. The Lord's settlement
+ *  hasn't met the Feldgrund yet — that introduction belongs to story_5
+ *  ("The Old Tongue"). Same applies to Nordveld, Silvaneth, etc. — most of
+ *  these origins should be gated by story progression, not guild level.
+ *  This whole table will be replaced by a story-gated origin system when
+ *  we hook chapter completion into the recruit pool. Until then, the pool
+ *  is Ashwick-only, which matches the founding cast. */
 const ORIGINS_BY_GUILD_LEVEL: Record<number, Origin[]> = {
-  1: ["ashwick", "feldgrund"],
-  2: ["ashwick", "feldgrund", "nordveld", "silvaneth"],
-  3: ["ashwick", "feldgrund", "nordveld", "silvaneth", "meridian", "khazdurim"],
-  4: ["ashwick", "feldgrund", "nordveld", "silvaneth", "meridian", "khazdurim", "khorvani", "zahkari"],
-  5: ["ashwick", "feldgrund", "nordveld", "silvaneth", "meridian", "khazdurim", "khorvani", "zahkari", "tianzhou", "hautscieux"],
+  1: ["ashwick"],
+  2: ["ashwick"],
+  3: ["ashwick"],
+  4: ["ashwick"],
+  5: ["ashwick"],
 };
 
 export function getOriginsForGuildLevel(level: number): Origin[] {
