@@ -49,6 +49,15 @@ export const HERBS: HerbDefinition[] = [
     description: "An ethereal petal that shimmers with faint Aether. Legends say it grows only where the old gods once walked.",
     dropRate: 0.003, // ~1 per 300 food foraged (gem-tier)
   },
+  {
+    id: "greymantle",
+    name: "Greymantle",
+    icon: "🌾",
+    rarity: "rare",
+    description:
+      "A grey-leafed northern plant that thrives in cool hill country. Feldgrund herbalists use it for sleep and old grief; Nordveld matriarchs taught the same use in their old tongue. Does not grow this far south.",
+    dropRate: 0, // not foraged locally — sourced via missions and trade only
+  },
 ];
 
 export function getHerb(id: string): HerbDefinition | undefined {

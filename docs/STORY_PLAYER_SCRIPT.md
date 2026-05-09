@@ -270,17 +270,69 @@ A small robin arrives at first light, with a folded note and a packet tied to it
 
 ---
 
-## Chapter 2: ?
+## Chapter 2: Our Own Hands
 
-**This is where we are now.** The Lord has put a man to rest, met an elf-ranger he didn't expect, learned that a stone he'd never seen has been protecting his settlement, and received an anonymous gift in handwriting he doesn't recognize. He is starting to suspect his land is more populated than the Crown's land office told him.
+The robin came once. The Lord can't count on more. Chapter 2 opens with the salve running out — the gift was helpful but finite — and the settlement learning to source what it needs on its own. The throughline: *we learn to do this ourselves.*
 
-The next chapter wants to do at least one of:
+### Story 5 — The Old Tongue
 
-- **Push deeper south.** A scouting mission past where the team fought Hale, to see what's actually beyond. The team comes back saying the Wastes proper start at six days south of the ruins. Hale's journal said seven. The Lord notes the mismatch but flags it as miscount or slow creep. Doesn't yet realize this is a question that will keep coming back.
-- **Settlement-side beat.** Someone dies — winter, illness, accident — and Father Corin and Edda quietly disagree on the rite. The Lord, who is keeping things from his settlers, has to decide what to say at the funeral.
-- **A second robin.** Specific this time — a warning, not a gift. *"Three of them passed your south path two nights ago. They wore grey. They were not pilgrims."* The Lord realizes someone is *watching* his land, not just remembering Captain Hale.
-- **Niamh returns with a harder ask.** Another anchored ghost; or an introduction to her elder; or a measurement she wants the Lord to take.
+**Mission card the player reads:**
 
-The slow-burn mystery to thread through chapter 2 is the question of whether the Wastes are advancing. Within any single mission, the answer is "we can't tell — Hale might have miscounted, our scout might have miscounted, six days vs seven days is within human error." Across multiple casual scout reports over multiple chapters, the answer becomes "they're moving." That recognition lands when the Lord builds it himself, not when someone tells him.
+> Edda needs more of the herb the robin's salve was made from. She has drawn a map and a word her grandmother taught her. The plant grows in Feldgrund hills, off the road, north and east. Send a team. Be civil. Bring news, not coin. They prefer news.
 
-One open question for whoever's writing next: does **Niamh** return as the chapter 2 anchor, or do we let the Lord and his cast carry it without her for a while? Bringing her back early reuses a strong NPC; holding her out gives the cast oxygen. Either is good — it's a pacing call.
+**What happens during the mission:**
+
+The team rides north for the first time. Two weeks round-trip. They pass a Crown tithe-post on the third day and a man with a ledger takes their names. They reach a small Feldgrund (dwarf) hamlet in the cool hills where Edda's grandmother once gathered the plant. The villagers are polite but private; an iron-haired elder gives them a bundle of grey-leafed herbs and a pouch of seeds without asking why. On the return ride, on a clear afternoon, the team sees the northern peaks for the first time.
+
+**Chronicle entry — *The old tongue***
+
+> The salve worked. The cold edge eased; the dressings began to dry. Edda kept three jars on a shelf above the stove and counted them every morning. Three became two became one, and we knew we had a problem before we said it out loud.
+>
+> She came to me yesterday with a folded paper. On it was a careful drawing: a stem, paired leaves, a small four-petalled flower, a notation about the underside being grey rather than green. She had written a word above it in a hand I did not recognize. Not Crown letters, not the old script Father Corin uses. Her grandmother's word, she said. The plant is called this in the old tongue.
+>
+> I asked where it grew. She said not here. Not anywhere south of the road. It needs cool hills and a particular soil, and the place she remembered was a fortnight's ride north and east, off the main road, in country we did not cross on the way down.
+>
+> *Feldgrund hills,* she said. *If anywhere still grows it. The men there are dwarves and they are private about their land. They will not be unkind. They may not be helpful either. Bring them news, not coin. They prefer news.*
+>
+> I sent a team at first light with the drawing, the word, a half-loaf for the road, and instructions to be civil and quiet.
+>
+> They were gone fourteen days.
+>
+> The country they brought back in their voices was different from the country I knew. They had ridden through a Crown tithe-post on the third day and a man with a ledger had taken their names and asked where they were from; they had answered honestly because they had nothing to hide and the man had nodded slowly and written the answer down. They did not know what to make of that and neither did I.
+>
+> On the seventh day the road ended in a stream and the stream took them up into the hills. The hills were grey and quiet and full of small farms hidden from the road. They asked at three before they found the village Edda's map pointed to. The villagers were polite. The villagers were not interested.
+>
+> There was an elder, a woman with iron-grey hair tied at the nape, and she received them at her door without inviting them in. She looked at the drawing. She looked at the word written above it. She did not look at the team. She said something quietly to a younger woman behind her, who went into the house and came back with a folded cloth.
+>
+> Inside the cloth: a bundle of grey-leafed plants tied with twine, and a small leather pouch of seeds. The elder did not say what the plant was for. She said her own people use it for sleep and for old grief; she said it grows wild along stone walls if the soil is right; she said the seeds prefer to be sown in autumn. She did not ask why the southerners wanted it. She did not want to know.
+>
+> When the team thanked her she only nodded. As they were leaving she said, almost as an afterthought, that the old word had not been spoken at her door in some years. The team understood that they had been given something private and were being asked, gently, not to make a story of it.
+>
+> On the seventh day of the return, on a clear afternoon, they crested a ridge and saw the northern peaks for the first time. Snow on them, even in summer. The boy who was riding lead pulled up and looked for a long time. He told me later he had not believed mountains were real before he saw them.
+>
+> They came home with the bundle, the seeds, and a saying the elder spoke when they left, which they tried hard to remember and were not sure they had right. The closest they could render it was: *Sown north, used south, the year that needs it.*
+>
+> Edda took the bundle and breathed it in. She said the old word again, very softly. Then she said: *My grandmother spoke of that hill once. Not by name. By a word she would not translate.* And she did not say more.
+>
+> Nell drew a picture of the mountains the team described. She has never seen mountains. She has them right.
+>
+> I have the seeds in a small jar on my desk. We will sow them in autumn, the way the elder said. We have enough Greymantle for a few jars of salve. The next time someone is wounded by a thing that does not bleed, we will be ready.
+>
+> I am going to ask Edda about her grandmother one of these evenings. Not yet. But one of these evenings.
+
+---
+
+### Where chapter 2 goes from here
+
+**This is where we are now.** The Lord has put a man to rest, met an elf-ranger he didn't expect, learned that a stone he'd never seen has been protecting his settlement, received an anonymous gift in handwriting he doesn't recognize, and now sent a team north for the first time. He's starting to suspect his land is more populated than the Crown's land office told him.
+
+The rest of chapter 2 wants to do some mix of:
+
+- **Settlement-side seasonal events.** Four small mini-arcs, one per season, each fired by season change as a banner + chronicle + one mission + resolution chronicle. Spring foal, summer Crown courier, autumn village funeral, winter stranger at the gate. They run in parallel to the main story and give chapter 2 its texture.
+- **A scouting mission past where the team fought Hale.** The team comes back reporting the Wastes proper start at six days south of the ruins. Hale's journal said seven. The Lord notes the mismatch but flags it as miscount or slow creep.
+- **A second robin.** Specific gift, not the big-picture warning. Halldora's protocol stays anonymous and useful.
+- **Niamh returns with a harder ask** (probably later in the chapter, not as the opener).
+
+The slow-burn mystery threading through chapter 2 is whether the Wastes are advancing. Within any single mission the answer is "we can't tell, six vs seven could be human error." Across multiple casual scout reports over multiple chapters, the answer becomes "they're moving." Recognition lands when the Lord builds it himself, not when someone tells him.
+
+One open question for whoever's writing next: does **Niamh** return mid-chapter 2 as a recurring anchor, or do we let the Lord and his cast carry it without her for a while? Bringing her back early reuses a strong NPC; holding her out gives the cast oxygen. Either is good. It's a pacing call.

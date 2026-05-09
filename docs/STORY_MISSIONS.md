@@ -328,7 +328,46 @@ Triggered automatically the morning after `story_4_captains_rest` completes. Not
 
 ---
 
-## Stories 5+ — slow-burn measurement arc
+## Story 5 — The Old Tongue
+
+### Mission
+
+| Field | Value |
+|---|---|
+| ID | `story_5_old_tongue` |
+| Chapter | Chapter 2: Our Own Hands |
+| Prerequisite | `story_4_captains_rest` |
+| Slots | 2 × any |
+| Duration | 2400s |
+| Deploy cost | 12 gold |
+| Rewards | 80 gold, 6 Greymantle |
+| Difficulty | 1 |
+| Min guild level | 1 |
+| Tags | exploration, outdoor, peaceful |
+| Encounter | (none — this is a journey mission) |
+| Chronicle entry | `ch2_old_tongue` |
+
+**Description:**
+
+> Edda needs more of the herb the robin's salve was made from. She has drawn a map and a word her grandmother taught her. The plant grows in Feldgrund hills, off the road, north and east. Send a team. Be civil. Bring news, not coin — they prefer news.
+
+### Mechanical effects
+
+- Adds the new herb **Greymantle** to inventory (`state.herbs.greymantle`).
+- Wraithwound Salve recipe now requires Greymantle (replacing nightbloom). Without this mission's reward, players cannot craft more salve once they run out — the chapter 2 throughline.
+- Greymantle does not drop from foraging (`dropRate: 0`). Sourced exclusively via missions and (eventually) trade.
+
+### Chronicle entry — `ch2_old_tongue`
+
+**Title:** The old tongue
+
+**Teaser:** Edda needs more of the herb. The team rides north for the first time.
+
+(See `frontend/src/data/chronicle_entries.ts` for the full text — it's long. Key beats: Edda's drawing + grandmother's word; the team's two-week ride north into Feldgrund hills; a Crown tithe-post on the third day; an iron-haired elder who gives them the herb without asking why; the team glimpsing the northern peaks for the first time on the return ride; Edda's quiet mention that her grandmother spoke of that hill once.)
+
+---
+
+## Stories 6+ — slow-burn measurement arc
 
 **Locked approach (May 2026):** the question of whether the Wastes are advancing is *not* answered in one mission. It surfaces as a quiet mismatch in Story 5 (Hale wrote 7, the team measures 6 — could be miscount), gets reinforced by casual scout reports across multiple later missions (5 days south, then 4), and only becomes a panic moment several chapters in when the Lord assembles the data himself. The boundary really is moving, but slowly enough that within any single mission's report it looks like a measurement error.
 
@@ -361,7 +400,7 @@ She has been doing this for centuries. She has learned that anonymous warnings a
 
 This means: across stories 5–N, the Lord cannot just be told. He has to find out. The robins are tools and small kindnesses; the Wastes truth is his own reckoning.
 
-### Story 5 — proposed: "The Hollow Line"
+### Story 6 — proposed: "The Hollow Line"
 
 Lord-driven scouting expedition past the ruins. Team walks ~6 days south, hits dead trees + skeletons (Wastes proper). Encounter: tier 2–3 skeletons, maybe a wraith. Team returns shaken but intact.
 

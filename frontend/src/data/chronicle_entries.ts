@@ -36,6 +36,12 @@ export const CHRONICLE_CHAPTERS: ChronicleChapter[] = [
     title: "The First Camp",
     tagline: "Arrival, survival, and the first names written in this book.",
   },
+  {
+    id: "ch2",
+    number: 2,
+    title: "Our Own Hands",
+    tagline: "The robin came once. We learn to do the rest ourselves.",
+  },
 ];
 
 // ─── Entries ─────────────────────────────────────────────────────
@@ -182,6 +188,31 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "She told me then what I had not known. The cuts the ghosts make do not heal the way other cuts do. The skin closes but the edge stays cold. The wounds weep slow. She had been changing the dressings every morning, hoping it would resolve, and it had not. She had been wishing for something better. Now there was something better.\n\n" +
       "She is going to use it on them tomorrow.\n\n" +
       "I do not know who sent the bird. I assume the Thornveil. I find I am grateful in a way that does not have a name yet.",
+  },
+  {
+    id: "ch2_old_tongue",
+    chapterId: "ch2",
+    order: 1,
+    title: "The old tongue",
+    teaser: "Edda needs more of the herb. The team rides north for the first time.",
+    fullText:
+      "The salve worked. The cold edge eased; the dressings began to dry. Edda kept three jars on a shelf above the stove and counted them every morning. Three became two became one, and we knew we had a problem before we said it out loud.\n\n" +
+      "She came to me yesterday with a folded paper. On it was a careful drawing: a stem, paired leaves, a small four-petalled flower, a notation about the underside being grey rather than green. She had written a word above it in a hand I did not recognize. Not Crown letters, not the old script Father Corin uses. Her grandmother's word, she said. The plant is called this in the old tongue.\n\n" +
+      "I asked where it grew. She said not here. Not anywhere south of the road. It needs cool hills and a particular soil, and the place she remembered was a fortnight's ride north and east, off the main road, in country we did not cross on the way down.\n\n" +
+      "*Feldgrund hills,*" + " she said. " + "*If anywhere still grows it. The men there are dwarves and they are private about their land. They will not be unkind. They may not be helpful either. Bring them news, not coin. They prefer news.*\n\n" +
+      "I sent a team at first light with the drawing, the word, a half-loaf for the road, and instructions to be civil and quiet.\n\n" +
+      "They were gone fourteen days.\n\n" +
+      "The country they brought back in their voices was different from the country I knew. They had ridden through a Crown tithe-post on the third day and a man with a ledger had taken their names and asked where they were from; they had answered honestly because they had nothing to hide and the man had nodded slowly and written the answer down. They did not know what to make of that and neither did I.\n\n" +
+      "On the seventh day the road ended in a stream and the stream took them up into the hills. The hills were grey and quiet and full of small farms hidden from the road. They asked at three before they found the village Edda's map pointed to. The villagers were polite. The villagers were not interested.\n\n" +
+      "There was an elder, a woman with iron-grey hair tied at the nape, and she received them at her door without inviting them in. She looked at the drawing. She looked at the word written above it. She did not look at the team. She said something quietly to a younger woman behind her, who went into the house and came back with a folded cloth.\n\n" +
+      "Inside the cloth: a bundle of grey-leafed plants tied with twine, and a small leather pouch of seeds. The elder did not say what the plant was for. She said her own people use it for sleep and for old grief; she said it grows wild along stone walls if the soil is right; she said the seeds prefer to be sown in autumn. She did not ask why the southerners wanted it. She did not want to know.\n\n" +
+      "When the team thanked her she only nodded. As they were leaving she said, almost as an afterthought, that the old word had not been spoken at her door in some years. The team understood that they had been given something private and were being asked, gently, not to make a story of it.\n\n" +
+      "On the seventh day of the return, on a clear afternoon, they crested a ridge and saw the northern peaks for the first time. Snow on them, even in summer. The boy who was riding lead pulled up and looked for a long time. He told me later he had not believed mountains were real before he saw them.\n\n" +
+      "They came home with the bundle, the seeds, and a saying the elder spoke when they left, which they tried hard to remember and were not sure they had right. The closest they could render it was: *Sown north, used south, the year that needs it.*\n\n" +
+      "Edda took the bundle and breathed it in. She said the old word again, very softly. Then she said: *My grandmother spoke of that hill once. Not by name. By a word she would not translate.* And she did not say more.\n\n" +
+      "Nell drew a picture of the mountains the team described. She has never seen mountains. She has them right.\n\n" +
+      "I have the seeds in a small jar on my desk. We will sow them in autumn, the way the elder said. We have enough Greymantle for a few jars of salve. The next time someone is wounded by a thing that does not bleed, we will be ready.\n\n" +
+      "I am going to ask Edda about her grandmother one of these evenings. Not yet. But one of these evenings.",
   },
   // ─── Disabled until rewritten to match the current chronicle voice ───
   // The entries below were authored before the founding-cast voice pass

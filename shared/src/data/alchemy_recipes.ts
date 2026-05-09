@@ -243,7 +243,11 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
     description: "A salve that closes the cold edge of ghost-wounds. Where ordinary bandages fail, this works.",
     tier: "apprentice",
     minLabLevel: 2,
-    costs: [{ resource: "moonpetal", amount: 2 }, { resource: "nightbloom", amount: 1 }],
+    // Recipe needs Greymantle (Feldgrund-hill plant Edda's grandmother knew).
+    // Sourced via story 5 mission and future northern trade — does not grow
+    // this far south. The salve runs out without resupply, which is the
+    // chapter 2 motivation.
+    costs: [{ resource: "moonpetal", amount: 2 }, { resource: "greymantle", amount: 1 }],
     effect: "cure:ghost_wound,heal:full",
     craftTime: 480,
     discoveryChance: 0,

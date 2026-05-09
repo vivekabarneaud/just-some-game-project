@@ -11,7 +11,7 @@ export type RewardType = "gold" | "wood" | "stone" | "food" | "astralShards"
   | "meat" | "eggs" | "milk" | "fish"
   | "berries" | "mushrooms" | "nuts"
   // Herbs
-  | "chamomile" | "mugwort" | "nettle" | "nightbloom" | "moonpetal"
+  | "chamomile" | "mugwort" | "nettle" | "nightbloom" | "moonpetal" | "greymantle"
   // Exotic goods (caravan/escort drops only, non-growable)
   | "pepper" | "cinnamon" | "tea" | "chili" | "saffron"
   // Crafting materials (also drop via combat loot; can be guaranteed mission rewards too)
@@ -32,7 +32,7 @@ export interface MissionSlot {
   required?: boolean; // if true, must be filled with the specified class to deploy
 }
 
-export type MissionTag = "combat" | "exploration" | "magical" | "outdoor" | "stealth" | "escort" | "spying" | "assassination" | "dungeon" | "survival";
+export type MissionTag = "combat" | "exploration" | "magical" | "outdoor" | "stealth" | "escort" | "spying" | "assassination" | "dungeon" | "survival" | "peaceful";
 
 export interface MissionEncounter {
   enemyId: string;

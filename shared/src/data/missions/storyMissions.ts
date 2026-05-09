@@ -114,6 +114,32 @@ export const STORY_MISSIONS: StoryMission[] = [
       { type: "physical_pierces_tag", tag: "ghost", whileAllyAlive: "niamh" },
     ],
   },
+  {
+    id: "story_5_old_tongue",
+    storyOrder: 5,
+    prerequisite: "story_4_captains_rest",
+    chapter: "Chapter 2: Our Own Hands",
+    name: "The Old Tongue",
+    description:
+      "Edda needs more of the herb the robin's salve was made from. She has drawn a map and a word her grandmother taught her. The plant grows in Feldgrund hills, off the road, north and east. Send a team. Be civil. Bring news, not coin — they prefer news.",
+    icon: "🌾",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/the_old_tongue.png",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 2400,
+    rewards: [
+      { resource: "gold", amount: 80 },
+      { resource: "greymantle", amount: 6 },
+    ],
+    deployCost: 12,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["exploration", "outdoor", "peaceful"],
+    // No combat encounter — this is a journey mission. The story is the
+    // ride, the people met, and what the team brings back. If we ever
+    // want to add a small wolf or brigand encounter for texture, it
+    // shouldn't be the focus.
+    chronicleEntryId: "ch2_old_tongue",
+  },
 ];
 
 /** Get the current story mission available to the player, or null */
