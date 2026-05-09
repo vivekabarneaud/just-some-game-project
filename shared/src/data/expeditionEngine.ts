@@ -165,6 +165,12 @@ export function resolveExpeditionEvent(
           : `Defeat — ${defeated}/${enemyTotal} enemies fell before the team broke`,
         icon: combatResult.victory ? "⚔️" : "💀",
         success: combatResult.victory,
+        // Persist the per-round combat log so the player can play it back
+        // through the same modal used for regular missions. combatViewed
+        // starts false and flips when the player watches.
+        combatLog: combatResult.log,
+        combatVictory: combatResult.victory,
+        combatViewed: false,
       });
       return;
     }

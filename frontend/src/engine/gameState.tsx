@@ -5583,7 +5583,22 @@ export function GameProvider(props: ParentProps) {
     markCombatViewed(missionId) {
       setState(produce((s) => {
         const m = s.activeMissions.find((am) => am.missionId === missionId);
-        if (m) m.combatViewed = true;
+        if (!m) return;
+        // Regular mission: stamp the mission-level flag.
+        m.combatViewed = true;
+        // Expedition: stamp the most recent combat event in the log so the
+        // red pulse releases for *that* fight specifically. The next
+        // combat event in the same expedition will set its own flag back
+        // to false on resolution and start the cycle again.
+        const log = m.expeditionLog;
+        if (log) {
+          for (let i = log.length - 1; i >= 0; i--) {
+            if (log[i].kind === "combat") {
+              log[i].combatViewed = true;
+              break;
+            }
+          }
+        }
       }));
       scheduleSave();
     },

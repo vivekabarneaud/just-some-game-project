@@ -260,6 +260,16 @@ export interface ResolvedExpeditionEvent {
   /** Icon for the timeline dot */
   icon: string;
   success: boolean;
+  /** Per-round combat log for combat events. Lets the player play back any
+   *  expedition fight via the same playback modal used for regular missions.
+   *  Empty/missing for non-combat events. */
+  combatLog?: import("../combat/types.js").CombatLogEntry[];
+  /** Combat victory flag — distinct from `success` (treasure/encounter events
+   *  use `success` differently). Used by the playback modal banner. */
+  combatVictory?: boolean;
+  /** True once the player has watched this combat. Drives the red-pulse
+   *  release on the active expedition card so it stops drawing attention. */
+  combatViewed?: boolean;
 }
 
 /** Type guard — is this mission template an expedition? */
@@ -267,23 +277,45 @@ export function isExpedition(m: MissionTemplate | undefined | null): m is Expedi
   return !!m && Array.isArray((m as ExpeditionTemplate).events);
 }
 
-/** Mission travel phase — for non-expedition missions with combat. The trip
- *  splits into outbound travel (first half), an instant combat moment at the
- *  midpoint, and homeward travel (second half). Expeditions have their own
- *  multi-event timeline and don't use this. */
+/** Mission travel phase. Three states for both regular missions and
+ *  expeditions, just computed differently. Expeditions move through these
+ *  states event-by-event as their timeline ticks. */
 export type MissionPhase = "outbound" | "combat" | "homeward";
 
 /** Compute the current phase from a mission's elapsed time.
+ *
+ *  Regular missions:
  *  - outbound: 0% → 50% elapsed (team traveling to the encounter)
- *  - combat: 50% elapsed → either the player views the playback OR ~2 min cap
+ *  - combat:   50% elapsed → either the player views the playback OR ~2 min cap
  *  - homeward: after combat resolves → 100% elapsed (team returning with loot)
  *
  *  Combat phase is engagement-gated: it persists past the midpoint until the
  *  player engages with the watch button. Capped at 2 game-minutes so an AFK
  *  player still sees the mission progress instead of stalling at "combat" forever.
  *
- *  Returns null when the mission has no prerolled combat (no encounters or old save). */
+ *  Expeditions:
+ *  - outbound: no events resolved yet, OR most recent event was non-combat
+ *  - combat:   most recent resolved event is a combat event, AND the player
+ *              hasn't viewed its playback yet (analogous to combatViewed gate)
+ *  - homeward: all events resolved, traveling home with the loot
+ *
+ *  Returns null when the mission has no resolvable phase (no prerolled combat
+ *  for regular missions, or no expedition log yet for an expedition). */
 export function getMissionPhase(am: ActiveMission): MissionPhase | null {
+  // ── Expedition phase ─────────────────────────────────────────
+  if (am.expeditionResolvedEvents !== undefined) {
+    const log = am.expeditionLog ?? [];
+    const totalEvents = am.expeditionResolvedEvents.length;
+    const resolved = am.expeditionEventIndex ?? 0;
+    if (resolved === 0) return "outbound";
+    if (resolved >= totalEvents && am.remaining <= 0) return "homeward";
+    const lastEvent = log[log.length - 1];
+    if (!lastEvent) return "outbound";
+    if (lastEvent.kind === "combat" && !lastEvent.combatViewed) return "combat";
+    // Between events / non-combat event most recent: still on the road
+    return resolved >= totalEvents ? "homeward" : "outbound";
+  }
+  // ── Regular non-expedition mission ───────────────────────────
   if (!am.prerolledCombat) return null;
   const total = am.initialDuration;
   if (!total || total <= 0) return null;

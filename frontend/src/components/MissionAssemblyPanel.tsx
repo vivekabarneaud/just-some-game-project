@@ -32,6 +32,7 @@ import {
 import { getEnemy } from "@medieval-realm/shared/data/enemies";
 import { getNpcAlly } from "@medieval-realm/shared/data/npcs";
 import { simulateCombat } from "@medieval-realm/shared/data/combat";
+import { resolveFullExpedition, calcAdventurerMaxHp } from "@medieval-realm/shared/data/expeditionEngine";
 import { MISSION_RANK_LABELS, MISSION_RANK_COLORS } from "~/data/constants";
 import EnemyCard from "./EnemyCard";
 import TeamSlot from "./TeamSlot";
@@ -362,7 +363,34 @@ export default function MissionAssemblyPanel(props: Props) {
     const deathCounts: Record<string, number> = {};
     for (const a of snapshot) deathCounts[a.id] = 0;
 
-    if (fm.encounters?.length) {
+    if (isExpedition(fm)) {
+      // Expedition Monte Carlo. resolveFullExpedition runs the whole event
+      // chain (combat, treasure, traps, encounters) and returns final HP +
+      // wiped flag. We treat "wiped" as failure and "not wiped" as success;
+      // anyone with HP ≤ 0 at the end rolls permadeath via the same helper.
+      // Without this branch, expeditions fall through to the no-encounter
+      // baseline and players see meaningless 0% death risks for fights
+      // that may actually be punishing.
+      const seedStr = ids.sort().join(",") + "|" + fm.id;
+      let seed = 0;
+      for (let i = 0; i < seedStr.length; i++) seed = ((seed << 5) - seed + seedStr.charCodeAt(i)) | 0;
+
+      let wins = 0;
+      for (let i = 0; i < SIMS; i++) {
+        const result = resolveFullExpedition(fm, snapshot, sups, seed + i);
+        if (!result.wiped) wins++;
+        // Anyone whose HP ended ≤ 0 fell during the expedition — they're
+        // the candidates for the permadeath roll, just like fallenAdventurerIds
+        // for combat missions.
+        const fallenIds: string[] = [];
+        for (const adv of snapshot) {
+          if ((result.hpMap[adv.id] ?? calcAdventurerMaxHp(adv)) <= 0) fallenIds.push(adv.id);
+        }
+        const { dead } = rollPermanentDeaths(fallenIds, snapshot, fm, sups);
+        for (const id of dead) deathCounts[id] = (deathCounts[id] ?? 0) + 1;
+      }
+      setSuccessPct(Math.round((wins / SIMS) * 100));
+    } else if (fm.encounters?.length) {
       // Encounter missions: simulate combat, then run the same permadeath
       // helper used at deploy time so the preview stays exact.
       const seedStr = ids.sort().join(",") + "|" + fm.id;

@@ -649,6 +649,25 @@ export default function AdventurersGuild() {
                     if (p === "homeward") return { text: "Returning home", color: "var(--accent-green)", icon: "🏡" };
                     return null;
                   };
+                  // Resolve the combat log to play back. Regular missions store
+                  // it once on prerolledCombat; expeditions store one per
+                  // combat event on expeditionLog. Show the *most recent*
+                  // combat event for an expedition.
+                  const currentCombat = () => {
+                    if (am.expeditionLog) {
+                      for (let i = am.expeditionLog.length - 1; i >= 0; i--) {
+                        const ev = am.expeditionLog[i];
+                        if (ev.kind === "combat" && ev.combatLog?.length) {
+                          return { log: ev.combatLog, victory: !!ev.combatVictory };
+                        }
+                      }
+                      return null;
+                    }
+                    if (am.prerolledCombat?.log?.length) {
+                      return { log: am.prerolledCombat.log, victory: am.prerolledCombat.victory };
+                    }
+                    return null;
+                  };
                   const [playbackOpen, setPlaybackOpen] = createSignal(false);
                   return (
                     <div
@@ -692,7 +711,7 @@ export default function AdventurersGuild() {
                           {am.successChance}% success
                         </span>
                       </div>
-                      <Show when={phase() === "combat" && am.prerolledCombat?.log?.length}>
+                      <Show when={phase() === "combat" && currentCombat()}>
                         <div style={{ "margin-top": "6px" }}>
                           <button
                             onClick={(e) => { e.stopPropagation(); setPlaybackOpen(true); }}
@@ -714,20 +733,22 @@ export default function AdventurersGuild() {
                       {/* Modal lives outside the combat-phase Show so it stays open
                           after onFinished marks the phase as homeward. The player
                           dismisses via the Close button at their leisure. */}
-                      <Show when={playbackOpen() && am.prerolledCombat?.log?.length}>
-                        <CombatPlayback
-                          log={am.prerolledCombat!.log}
-                          title={template().name}
-                          victory={am.prerolledCombat!.victory}
-                          onFinished={() => actions.markCombatViewed(am.missionId)}
-                          onClose={() => {
-                            setPlaybackOpen(false);
-                            // For a wiped mission, the engine's tick is waiting
-                            // on this close before zeroing remaining (so the
-                            // modal didn't unmount mid-watch). Zero it now.
-                            if (am.wiped) actions.acknowledgeWipeCompletion(am.missionId);
-                          }}
-                        />
+                      <Show when={playbackOpen() && currentCombat()}>
+                        {(combat) => (
+                          <CombatPlayback
+                            log={combat().log}
+                            title={template().name}
+                            victory={combat().victory}
+                            onFinished={() => actions.markCombatViewed(am.missionId)}
+                            onClose={() => {
+                              setPlaybackOpen(false);
+                              // For a wiped mission, the engine's tick is waiting
+                              // on this close before zeroing remaining (so the
+                              // modal didn't unmount mid-watch). Zero it now.
+                              if (am.wiped) actions.acknowledgeWipeCompletion(am.missionId);
+                            }}
+                          />
+                        )}
                       </Show>
                       <Show when={template().rewards?.length > 0}>
                         <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-top": "2px" }}>
