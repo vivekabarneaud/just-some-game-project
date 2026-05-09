@@ -1,0 +1,52 @@
+flowchart TD
+    Entry["STEALTH INITIATE<br/>(entry node)"]
+
+    subgraph CENTER["CENTER — Spine"]
+        direction TB
+        Ambush(["Ambush<br/>(active)"])
+        Vanish(["Vanish<br/>(active)"])
+        EW["Exploit Weakness<br/>(armor ignore)"]
+
+        Ambush --> Vanish
+        Ambush --> EW
+    end
+
+    subgraph LEFT["LEFT — Tricks &amp; Stealth<br/>(toward Venomancer)"]
+        direction TB
+        PS(["Pocket Sand<br/>(active)"])
+        SB(["Smoke Bomb<br/>(active)"])
+        Unseen["Slip the Eye<br/>(threat reduction)"]
+
+        PS --> SB
+        SB --> Unseen
+    end
+
+    subgraph RIGHT["RIGHT — Flurry &amp; Hunter<br/>(toward Shadowblade)"]
+        direction TB
+        Flurry["The Flurry<br/>(combo attacks)"]
+        Backstab["Opportunist<br/>(Backstab passive)"]
+        SI["Hunter's Eye<br/>(Shadow Instinct)"]
+        TC(["Throat Crush<br/>(active)"])
+        DF["No Honor<br/>(Dirty Fighting — endgame)"]
+
+        Flurry --> Backstab
+        Flurry --> SI
+        SI --> TC
+        Backstab --> DF
+    end
+
+    Entry --> PS
+    Entry --> Ambush
+    Entry --> Flurry
+
+    Vanish -. "stealth chain" .-> Unseen
+    EW -. "stun synergy" .-> Flurry
+    SB -. "blind &rarr; backstab" .-> Backstab
+
+    classDef active fill:#5b3b6a,stroke:#a78bfa,stroke-width:3px,color:#fff
+    classDef cluster fill:#2e4a6e,stroke:#5b9bd5,stroke-width:2px,color:#fff
+    classDef entry fill:#7a5a2a,stroke:#daa520,stroke-width:3px,color:#fff
+
+    class Entry entry
+    class PS,SB,Ambush,Vanish,TC active
+    class EW,Unseen,Flurry,Backstab,SI,DF cluster
