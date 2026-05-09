@@ -1,0 +1,122 @@
+flowchart TD
+    Entry["STEALTH INITIATE<br/>(entry)"]:::entry
+
+    subgraph CENTER["CENTER — Spine"]
+        direction TB
+        Ambush(["Ambush"]):::active
+        AmbStun["Stun on crit"]:::minor
+        AmbStun2["+Stun rate"]:::minor
+        AmbCrit["+Crit vs healthy"]:::minor
+        AmbCrit2["Crit threshold 70%"]:::minor
+        AmbCrit3["Crit threshold 60%"]:::minor
+
+        Vanish(["Vanish"]):::active
+        VanCD["Reduce CD"]:::minor
+
+        EW["Exploit Weakness"]:::cluster
+        EWBase["+Base ignore %"]:::minor
+        EWCrit["+Ignore on crit"]:::minor
+        EWStun["+Ignore vs stunned"]:::bridge
+        EWAmb["+Ignore on Ambush"]:::bridge
+
+        Ambush --- AmbStun
+        AmbStun --- AmbStun2
+        Ambush --- AmbCrit
+        AmbCrit --- AmbCrit2
+        AmbCrit2 --- AmbCrit3
+        Ambush --> Vanish
+        Vanish --- VanCD
+        Ambush --> EW
+        EW --- EWBase
+        EW --- EWCrit
+        EW --- EWStun
+        EW --- EWAmb
+    end
+
+    subgraph LEFT["LEFT — Tricks &amp; Stealth"]
+        direction TB
+        PS(["Pocket Sand"]):::active
+        PSCD["Reduce CD"]:::minor
+        PSCaster["Affects casters"]:::minor
+        PSAuto["Auto-Backstab on blind"]:::bridge
+
+        SB(["Smoke Bomb"]):::active
+        SBMiss["+Miss %"]:::minor
+        SBCaster["Affects casters"]:::minor
+        SBThreat["Threat dump on use"]:::minor
+
+        Unseen["Slip the Eye"]:::cluster
+        UnMore["+Threat reduction"]:::minor
+        UnDmg["+Dmg when unfocused"]:::minor
+        UnStealth["Stay stealth +1 turn"]:::bridge
+
+        PS --- PSCD
+        PS --- PSCaster
+        PS --- PSAuto
+        PS --> SB
+        SB --- SBMiss
+        SB --- SBCaster
+        SB --- SBThreat
+        SB --> Unseen
+        Unseen --- UnMore
+        Unseen --- UnDmg
+        Unseen --- UnStealth
+    end
+
+    subgraph RIGHT["RIGHT — Flurry &amp; Hunter"]
+        direction TB
+        Flurry["The Flurry"]:::cluster
+        FlRate["+Combo rate"]:::minor
+        FlRate2["+More combo rate"]:::minor
+        FlCaster["+Combo vs casters"]:::bridge
+        FlStun["+Combo vs stunned"]:::bridge
+
+        Backstab["Opportunist"]:::cluster
+        BSDmg["+Backstab dmg"]:::minor
+        BSCrit["+Backstab crit"]:::minor
+
+        SI["Hunter's Eye"]:::cluster
+        SICrit["+Crit vs casters"]:::minor
+
+        TC(["Throat Crush"]):::active
+        TCCD["Reduce CD"]:::minor
+        TCDmg["+Dmg"]:::minor
+        TCAuto["Passive proc vs casters"]:::minor
+
+        DF["No Honor"]:::cluster
+        DFTurn["+Extra turn chance"]:::minor
+        DFCombo3["3rd combo chance"]:::minor
+
+        Flurry --- FlRate
+        FlRate --- FlRate2
+        Flurry --- FlCaster
+        Flurry --- FlStun
+        Flurry --> Backstab
+        Backstab --- BSDmg
+        Backstab --- BSCrit
+        Flurry --> SI
+        SI --- SICrit
+        SI --> TC
+        TC --- TCCD
+        TC --- TCDmg
+        TC --- TCAuto
+        Backstab --> DF
+        DF --- DFTurn
+        DF --- DFCombo3
+    end
+
+    Entry --> PS
+    Entry --> Ambush
+    Entry --> Flurry
+
+    AmbStun -. "stun feeds" .-> EWStun
+    EWStun -. "stun feeds" .-> FlStun
+    PSAuto -. "blind→backstab" .-> Backstab
+    UnStealth -. "stealth chain" .-> Vanish
+    SICrit -. "caster synergy" .-> FlCaster
+
+    classDef entry fill:#7a5a2a,stroke:#daa520,stroke-width:3px,color:#fff
+    classDef active fill:#5b3b6a,stroke:#a78bfa,stroke-width:3px,color:#fff
+    classDef cluster fill:#2e4a6e,stroke:#5b9bd5,stroke-width:2px,color:#fff
+    classDef minor fill:#1a1a2a,stroke:#555,stroke-width:1px,color:#aaa
+    classDef bridge fill:#3a2a1a,stroke:#daa520,stroke-width:1px,color:#fcd
