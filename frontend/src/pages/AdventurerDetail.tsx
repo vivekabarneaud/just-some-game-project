@@ -24,7 +24,7 @@ import {
   getRelationship,
   CLASS_ABILITIES,
 } from "@medieval-realm/shared/data/adventurers";
-import { getItem, getItemsForSlot, getEquipmentStats, getEquipmentDefense, isSupplyItem, type ItemSlot } from "@medieval-realm/shared/data/items";
+import { getItem, getItemsForSlot, getEquipmentStats, getEquipmentDefense, isSupplyItem, getArmorAccess, ARMOR_TYPE_META, type ItemSlot } from "@medieval-realm/shared/data/items";
 import { getTalentsForClass, getTalentPoints, getUnspentTalentPoints, canUnlockTalent, getEarnedTitle, getTalent, type TalentNode } from "~/data/talents";
 import Tooltip from "~/components/Tooltip";
 import TraitBadge from "~/components/TraitBadge";
@@ -476,10 +476,17 @@ export default function AdventurerDetail() {
                                   </div>
                                 );
                                 return items.map(({ item, qty }) => {
-                                  const canEquip = () => {
-                                    if (item.classes.length > 0 && !item.classes.includes(adv().class)) return false;
-                                    return true;
+                                  // Mirror gameState.equipItem's gate so the UI matches what
+                                  // the action will accept: class restriction first, then
+                                  // armor-type restriction (cloth/leather/mail/plate) against
+                                  // the adventurer's class + talent-granted access.
+                                  const wrongClass = () => item.classes.length > 0 && !item.classes.includes(adv().class);
+                                  const wrongArmor = () => {
+                                    if (!item.armorType) return false;
+                                    const access = getArmorAccess(adv().class, adv().talents);
+                                    return !access.has(item.armorType);
                                   };
+                                  const canEquip = () => !wrongClass() && !wrongArmor();
                                   const slotLabel = SLOT_NAMES[item.slot] ?? item.slot;
                                   return (
                                     <Tooltip content={() => (
@@ -487,8 +494,13 @@ export default function AdventurerDetail() {
                                         <div style={{ "font-weight": "bold", color: "var(--text-primary)" }}>{item.icon} {item.name}</div>
                                         <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "2px" }}>{slotLabel}</div>
                                         <div style={{ "font-size": "0.7rem", color: "var(--accent-green)", "margin-top": "2px" }}>{item.description}</div>
-                                        <Show when={!canEquip()}>
+                                        <Show when={wrongClass()}>
                                           <div style={{ "font-size": "0.65rem", color: "var(--accent-red)", "margin-top": "2px" }}>Wrong class</div>
+                                        </Show>
+                                        <Show when={wrongArmor()}>
+                                          <div style={{ "font-size": "0.65rem", color: "var(--accent-red)", "margin-top": "2px" }}>
+                                            Cannot wear {ARMOR_TYPE_META[item.armorType!].label.toLowerCase()}
+                                          </div>
                                         </Show>
                                       </div>
                                     )} position="bottom">
