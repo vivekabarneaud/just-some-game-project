@@ -35,7 +35,7 @@ import { getNpcAlly } from "@medieval-realm/shared/data/npcs";
 import { simulateCombat } from "@medieval-realm/shared/data/combat";
 import { resolveFullExpedition, calcAdventurerMaxHp } from "@medieval-realm/shared/data/expeditionEngine";
 import { MISSION_RANK_LABELS, MISSION_RANK_COLORS } from "~/data/constants";
-import EnemyCard from "./EnemyCard";
+import MissionEnemyCard from "./MissionEnemyCard";
 import TeamSlot from "./TeamSlot";
 import AdventurerPickerCard from "./AdventurerPickerCard";
 import Tooltip from "./Tooltip";
@@ -561,7 +561,7 @@ export default function MissionAssemblyPanel(props: Props) {
               {freshMission().encounters!.map((enc) => {
                 const enemy = getEnemy(enc.enemyId);
                 const discovered = (state.discoveredEnemies ?? []).includes(enc.enemyId);
-                return enemy ? <EnemyCard enemy={enemy} count={enc.count} hidden={!discovered} /> : null;
+                return enemy ? <MissionEnemyCard enemy={enemy} count={enc.count} hidden={!discovered} /> : null;
               })}
             </div>
           </div>
@@ -616,7 +616,7 @@ export default function MissionAssemblyPanel(props: Props) {
                     border: "1px dashed var(--border-color)",
                     "border-radius": "10px",
                     opacity: 0.55,
-                    width: "160px",
+                    width: "140px",
                   }}>
                     <div style={{
                       position: "relative", width: "100%", height: "140px",
@@ -645,7 +645,7 @@ export default function MissionAssemblyPanel(props: Props) {
                     {/* Supplies-row equivalent so the empty card matches a
                      * filled card's height. */}
                     <div style={{
-                      padding: "10px 10px 8px",
+                      padding: "8px 8px 4px",
                       display: "flex", "align-items": "center", "justify-content": "center",
                       "min-height": "52px",
                       "font-size": "0.7rem",
@@ -655,7 +655,7 @@ export default function MissionAssemblyPanel(props: Props) {
                     </div>
                     {/* Phantom risk-row to match the filled card's bottom row height. */}
                     <div style={{
-                      padding: "4px 10px 10px",
+                      padding: "0 8px 8px",
                       "font-size": "0.7rem",
                       color: "transparent",
                       "text-align": "center",
@@ -756,7 +756,7 @@ export default function MissionAssemblyPanel(props: Props) {
                               background: "var(--bg-secondary)",
                               border: `1px solid ${CLASS_COLORS[adv()!.class] ?? "var(--border-color)"}`,
                               "border-radius": "10px",
-                              width: "160px",
+                              width: "140px",
                             }}
                           >
                             <div
@@ -809,7 +809,7 @@ export default function MissionAssemblyPanel(props: Props) {
                               </div>
                             </div>
                             {/* Supplies row */}
-                            <div style={{ padding: "10px 10px 8px", display: "flex", gap: "8px", "justify-content": "center" }}>
+                            <div style={{ padding: "8px 8px 4px", display: "flex", gap: "8px", "justify-content": "center" }}>
                               <SupplySlot kind="potion" size={36}
                                 value={adventurerSupplies()[advId]?.potion}
                                 options={potionOptions()}
@@ -827,7 +827,7 @@ export default function MissionAssemblyPanel(props: Props) {
                             </div>
                             {/* Death-risk text (coop). Same shape as solo. */}
                             <div style={{
-                              padding: "4px 10px 10px",
+                              padding: "0 8px 8px",
                               "font-size": "0.7rem",
                               color: "var(--text-muted)",
                               "text-align": "center",
@@ -854,7 +854,7 @@ export default function MissionAssemblyPanel(props: Props) {
                     border: "1px dashed var(--border-color)",
                     "border-radius": "10px",
                     opacity: 0.55,
-                    width: "160px",
+                    width: "140px",
                   }}>
                     <div style={{
                       position: "relative", width: "100%", height: "140px",
@@ -883,7 +883,7 @@ export default function MissionAssemblyPanel(props: Props) {
                     {/* Supplies-row equivalent so the empty card matches a
                      * filled card's height. */}
                     <div style={{
-                      padding: "10px 10px 8px",
+                      padding: "8px 8px 4px",
                       display: "flex", "align-items": "center", "justify-content": "center",
                       "min-height": "52px",
                       "font-size": "0.7rem",
@@ -893,7 +893,7 @@ export default function MissionAssemblyPanel(props: Props) {
                     </div>
                     {/* Phantom risk-row to match the filled card's bottom row height. */}
                     <div style={{
-                      padding: "4px 10px 10px",
+                      padding: "0 8px 8px",
                       "font-size": "0.7rem",
                       color: "transparent",
                       "text-align": "center",
@@ -1053,7 +1053,7 @@ export default function MissionAssemblyPanel(props: Props) {
                      * tooltips can extend past the card edges. The portrait
                      * div below carries its own overflow:hidden + rounded
                      * top corners to clip the image. */
-                    width: "160px",
+                    width: "140px",
                   }}>
                     <div
                       style={{
@@ -1121,7 +1121,7 @@ export default function MissionAssemblyPanel(props: Props) {
                     </div>
                     {/* Supplies row */}
                     <div style={{
-                      padding: "10px 10px 8px",
+                      padding: "8px 8px 4px",
                       display: "flex", gap: "8px", "justify-content": "center",
                       "min-height": adv() ? undefined : "52px",
                     }}>
@@ -1159,21 +1159,22 @@ export default function MissionAssemblyPanel(props: Props) {
                         )}
                       </Show>
                     </div>
-                    {/* Death-risk text. Plain copy is more honest than the
-                     * old circle — players read it once and understand. */}
-                    <Show when={adv()}>
-                      <div style={{
-                        padding: "4px 10px 10px",
-                        "font-size": "0.7rem",
-                        color: "var(--text-muted)",
-                        "text-align": "center",
-                      }}>
+                    {/* Death-risk text. Always rendered so filled and empty
+                     * cards stay the same height; the copy goes transparent
+                     * when no adventurer is assigned. */}
+                    <div style={{
+                      padding: "0 8px 8px",
+                      "font-size": "0.7rem",
+                      color: adv() ? "var(--text-muted)" : "transparent",
+                      "text-align": "center",
+                    }}>
+                      <Show when={adv()} fallback={<>Risk of permanent death: —</>}>
                         Risk of permanent death:{" "}
                         <span style={{ color: riskColor(), "font-weight": "bold" }}>
                           {risk()}%
                         </span>
-                      </div>
-                    </Show>
+                      </Show>
+                    </div>
                   </div>
                 );
               }}
