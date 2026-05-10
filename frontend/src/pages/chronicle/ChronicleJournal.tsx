@@ -7,7 +7,7 @@ import {
   getEntriesByChapter,
 } from "~/data/chronicle_entries";
 import ChronicleEntryModal from "~/components/ChronicleEntryModal";
-import { playSound } from "~/engine/sounds";
+import { playPageMountSound } from "~/engine/sounds";
 
 export default function ChronicleJournal() {
   const { state, actions } = useGame();
@@ -29,7 +29,7 @@ export default function ChronicleJournal() {
   const isFresh = (id: string) => freshOnMount.has(id);
 
   onMount(() => {
-    playSound("page_turn");
+    playPageMountSound("page_turn");
     // Per-entry hover marks each entry seen individually (see onMouseEnter
     // below). The page-level visit no longer mass-clears the sidebar badge,
     // so entries the player skips past stay unseen until they actually look.

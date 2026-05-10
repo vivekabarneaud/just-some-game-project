@@ -1,6 +1,6 @@
 import { Show, For, onMount } from "solid-js";
 import { useGame } from "~/engine/gameState";
-import { playSound } from "~/engine/sounds";
+import { playPageMountSound } from "~/engine/sounds";
 import { getCurrentDeity, getSeasonDeities, getDeity } from "~/data/deities";
 import { IS_DEV, getGlobalSeason, SEASON_META } from "~/data/seasons";
 import { getTotalFood } from "~/data/foods";
@@ -13,7 +13,7 @@ const RESOURCE_ICONS: Record<string, string> = {
 
 export default function Shrine() {
   const { state, actions } = useGame();
-  onMount(() => playSound("bell"));
+  onMount(() => playPageMountSound("bell"));
 
   const shrineLvl = () => state.buildings.find((b) => b.buildingId === "shrine")?.level ?? 0;
   const seasonInfo = () => IS_DEV

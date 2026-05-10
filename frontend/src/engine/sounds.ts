@@ -138,9 +138,13 @@ export function installGlobalClickSound() {
 }
 
 /** Fire a registered SFX. `volumeOverride` replaces the per-sound default.
- *  Multi-URL sounds pick a random variant per call. */
+ *  Multi-URL sounds pick a random variant per call. Sounds are suppressed
+ *  while the document is hidden (background tab, locked screen) — the
+ *  player isn't there to hear them, and nothing should surprise them when
+ *  they come back. */
 export function playSound(id: SoundId, volumeOverride?: number) {
   if (muted()) return;
+  if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
   const def = SOUNDS[id];
   const urls = urlsFor(def);
   const url = urls[Math.floor(Math.random() * urls.length)];
@@ -156,4 +160,21 @@ export function playSound(id: SoundId, volumeOverride?: number) {
     // play() start from 0; the pool warms up after the first round.
   }
   void target.play().catch(() => { /* autoplay blocked or asset missing */ });
+}
+
+/** Page-mount sound — fires a sound only on a real navigation, not on a
+ *  reload. Uses sessionStorage to compare the previous pathname; if it
+ *  matches the current one, the page reloaded (or the user re-entered
+ *  the same page somehow), and we stay silent. Without this, the
+ *  stale-state auto-reload (when laptop wakes from sleep with a 409)
+ *  would replay every page-mount sound and surprise the player. */
+const PAGE_MOUNT_KEY = "valenheart.sfx.lastPath";
+export function playPageMountSound(id: SoundId, volumeOverride?: number) {
+  if (typeof window === "undefined") return;
+  const path = window.location.pathname;
+  let prev: string | null = null;
+  try { prev = sessionStorage.getItem(PAGE_MOUNT_KEY); } catch { /* private mode */ }
+  try { sessionStorage.setItem(PAGE_MOUNT_KEY, path); } catch { /* private mode */ }
+  if (prev === path) return;
+  playSound(id, volumeOverride);
 }

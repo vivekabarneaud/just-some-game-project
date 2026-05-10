@@ -1,7 +1,7 @@
 import { createSignal, For, Show, onMount } from "solid-js";
 import { A } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
-import { playSound } from "~/engine/sounds";
+import { playPageMountSound } from "~/engine/sounds";
 import {
   QUEST_DEFINITIONS,
   STORYLINE_LABELS,
@@ -23,7 +23,7 @@ const RIGHT_COLUMN: StorylineId[] = ["guild", "story"];
 
 export default function QuestLog() {
   const { state, actions } = useGame();
-  onMount(() => playSound("page_turn"));
+  onMount(() => playPageMountSound("page_turn"));
 
   // Per-storyline collapse state
   const [collapsed, setCollapsed] = createSignal<Record<StorylineId, boolean>>({

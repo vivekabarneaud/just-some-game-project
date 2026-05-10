@@ -1,6 +1,6 @@
 import { For, Show, createSignal, onMount } from "solid-js";
 import { useGame } from "~/engine/gameState";
-import { playSound } from "~/engine/sounds";
+import { playPageMountSound } from "~/engine/sounds";
 import type { DefenseRing, PlayerWall, PlayerWatchtower, PlayerBarracks } from "~/engine/gameState";
 import { WALL_BASE_HP } from "~/engine/gameState";
 import GarrisonDetailModal from "~/components/GarrisonDetailModal";
@@ -285,7 +285,7 @@ function DefenseCardHeader(props: {
 export default function Defenses() {
   const { state, actions } = useGame();
   const tier = () => actions.getSettlementTier();
-  onMount(() => playSound("dagger"));
+  onMount(() => playPageMountSound("dagger"));
 
   return (
     <div>

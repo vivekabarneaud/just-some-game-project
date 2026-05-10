@@ -41,7 +41,7 @@ import LootModal from "~/components/LootModal";
 import ChronicleEntryModal from "~/components/ChronicleEntryModal";
 import { getChronicleEntry, type ChronicleEntry } from "~/data/chronicle_entries";
 import CombatLog from "~/components/CombatLog";
-import { playSound } from "~/engine/sounds";
+import { playSound, playPageMountSound } from "~/engine/sounds";
 import CombatPlayback from "~/components/CombatPlayback";
 import { fetchCoops, respondCoop, cancelCoop, fetchCoopDetail, claimCoop } from "~/api/coop";
 import { wsClient } from "~/api/ws";
@@ -88,7 +88,7 @@ function DeathRisk(props: { chance: number }) {
 export default function AdventurersGuild() {
   const { state, actions } = useGame();
   actions.visitGuild();
-  onMount(() => playSound("dagger"));
+  onMount(() => playPageMountSound("dagger"));
   const [searchParams] = useSearchParams();
   const initialTab = (searchParams.tab === "roster" || searchParams.tab === "recruit") ? searchParams.tab as Tab : "missions";
   const [tab, setTab] = createSignal<Tab>(initialTab);
