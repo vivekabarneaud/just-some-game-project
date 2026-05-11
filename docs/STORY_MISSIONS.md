@@ -328,56 +328,74 @@ Triggered automatically the morning after `story_4_captains_rest` completes. Not
 
 ---
 
-## Story 5 — The Old Tongue
+## Story 5 — North of the Road
 
 ### Mission
 
 | Field | Value |
 |---|---|
-| ID | `story_5_old_tongue` |
+| ID | `story_5_old_tongue` (kept for save compat) |
 | Chapter | Chapter 2: Our Own Hands |
 | Prerequisite | `story_4_captains_rest` |
-| Slots | 2 × any |
+| Slots | 3 × any |
 | Duration | 2400s |
 | Deploy cost | 12 gold |
-| Rewards | 80 gold, 6 Greymantle |
-| Difficulty | 1 |
+| Rewards | 80 gold, 6 Greymantle (+ chance of 10 wheat from herder treasure) |
+| Difficulty | 2 |
 | Min guild level | 1 |
-| Tags | exploration, outdoor, peaceful |
-| Encounter | (none — this is a journey mission) |
+| Tags | exploration, outdoor, combat |
+| Biome | Forest |
+| Format | Expedition (4 events) |
 | Chronicle entry | `ch2_old_tongue` |
 
 **Description:**
 
-> Edda needs more of the herb the robin's salve was made from. She has drawn a map and a word her grandmother taught her. The plant grows in Feldgrund hills, off the road, north and east. Send a team. Be civil. Bring news, not coin — they prefer news.
+> Edda needs more of the herb the robin's salve was made from. She has drawn a careful picture of it. The plant grows in Feldgrund hills, off the road, north and east. The road is long, the country is rough, and the people up there are private. Bring civility, and bring someone who can handle wolves.
+
+**Expedition events:**
+
+1. **Outbound, fixed:** 3 wild wolves on the forest road.
+2. **Outbound, random:** forest bear (w2) / 3 brigands (w2) / 3 wolves (w1).
+3. **Return, random:** 2 brigands (w2) / forest bear (w1) / treasure of 10 wheat from a grateful herder (w1).
+4. **Return, fixed:** the peaks vision, an encounter event, pure flavor.
 
 ### Mechanical effects
 
-- Adds the new herb **Greymantle** to inventory (`state.herbs.greymantle`).
-- Wraithwound Salve recipe now requires Greymantle (replacing nightbloom). Without this mission's reward, players cannot craft more salve once they run out — the chapter 2 throughline.
-- Greymantle does not drop from foraging (`dropRate: 0`). Sourced exclusively via missions and (eventually) trade.
+- Adds the herb **Greymantle** to inventory (`state.herbs.greymantle`).
+- Wraithwound Salve recipe requires Greymantle (replaced nightbloom). Without this mission's reward, players cannot craft more salve once they run out, which is the chapter 2 throughline.
+- Greymantle does not drop from foraging (`dropRate: 0`). Sourced via missions and (eventually) trade.
 
 ### Chronicle entry — `ch2_old_tongue`
 
-**Title:** The old tongue
+**Title:** North of the road
 
 **Teaser:** Edda needs more of the herb. The team rides north for the first time.
 
-(See `frontend/src/data/chronicle_entries.ts` for the full text — it's long. Key beats: Edda's drawing + grandmother's word; the team's two-week ride north into Feldgrund hills; a Crown tithe-post on the third day; an iron-haired elder who gives them the herb without asking why; the team glimpsing the northern peaks for the first time on the return ride; Edda's quiet mention that her grandmother spoke of that hill once.)
+(See `frontend/src/data/chronicle_entries.ts` for the full text. Key beats: Edda's drawing of the plant, the team's two-week ride north through wolves, bandits, and a territorial bear, an iron-haired Feldgrund elder who gives them the herb and politely closes the door, the team glimpsing the northern peaks for the first time on the return ride, and the Lord's closing realization that the Feldgrund are a pocket of normalcy the southerners are no longer in.)
+
+### Narrative direction
+
+The Feldgrund are hobbit-coded pastoral folk. Far north of the Wastes and the thinning, they have never experienced the dead walking. The southerners' story sounds like a frontier ghost tale and they politely don't believe it. They give the plant out of decency and make it clear the door is closing behind them. No language thread, no Helga connection, no hidden lore: the meeting is exactly what it looks like.
+
+The emotional payoff is loneliness. The team came hoping for kinship, advice, help. They get a polite no. The world they live in is not the world the Feldgrund live in. Pockets of normal life persist somewhere. They are not in one.
+
+**Future hook:** story 5 completion is the in-fiction reason Feldgrund-origin recruitment unlocks. A few restless younger Feldgrund, the curious and not-quite-fitting, drift south after the team's visit and start appearing in the recruitment rotation. The existing premade Feldgrund cast (Clover Meadbrook, Nettle, Tobias, Hazel, etc.) is exactly the restless few, already written.
 
 ---
 
 ## Stories 6+ — slow-burn measurement arc
 
-**Locked approach (May 2026):** the question of whether the Wastes are advancing is *not* answered in one mission. It surfaces as a quiet mismatch in Story 5 (Hale wrote 7, the team measures 6 — could be miscount), gets reinforced by casual scout reports across multiple later missions (5 days south, then 4), and only becomes a panic moment several chapters in when the Lord assembles the data himself. The boundary really is moving, but slowly enough that within any single mission's report it looks like a measurement error.
+**Locked approach (May 2026):** the question of whether the Wastes are advancing is *not* answered in one mission. It surfaces as a quiet mismatch in a chapter 2 scouting expedition past Hale's ruins (Hale wrote 7, the team measures 6, could be miscount), gets reinforced by casual scout reports across multiple later missions (5 days south, then 4), and only becomes a panic moment several chapters in when the Lord assembles the data himself. The boundary really is moving, but slowly enough that within any single mission's report it looks like a measurement error.
+
+> Note: the first measurement used to live in Story 5, but story 5 was rewritten as a journey *north* (see "North of the Road" above). The 6-vs-7 measurement now belongs to a separate chapter 2 scouting mission past the ruins, yet to be written.
 
 ### Geography (locked)
 
 - **Settlement → ruins:** 2 days' march south.
 - **Ruins → Wastes (Hale's record, 150 years ago):** 7 days.
-- **Ruins → Wastes (now, Story 5 measurement):** 6 days. The team comes back and reports it casually.
+- **Ruins → Wastes (now, first chapter 2 measurement):** 6 days. Reported casually after a scouting expedition past the ruins.
 - **Ruins → Wastes (later chapters):** 5 days. Then 4. Each measurement comes from a different scout report or expedition return, said in passing.
-- **Settlement → Wastes (now):** 8 days. The settlement is comfortably out of reach. The Lord does not feel personally threatened — yet.
+- **Settlement → Wastes (now):** 8 days. The settlement is comfortably out of reach. The Lord does not feel personally threatened, yet.
 
 The thinning's leading edge has barely advanced in 150 years. The Wastes have advanced at the same slow rate. Both motions are within the noise floor of any single measurement. What gives the game away is *consistency* across many measurements — and that's a story-spanning beat, not a single mission.
 
