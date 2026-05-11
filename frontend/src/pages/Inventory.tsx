@@ -132,7 +132,11 @@ export default function Inventory() {
               <For each={potionItems()}>
                 {(p) => {
                   const info = getPotionInfo(p.inv.itemId);
-                  const categoryLabel = info?.category === "combat" ? "combat" : "mission";
+                  const hasMission = !!info?.mission;
+                  const hasCombat = !!info?.combat;
+                  const hasRecovery = !!info?.recovery;
+                  const categoryLabel = hasRecovery ? "recovery" : (hasMission && hasCombat) ? "any" : hasCombat ? "combat" : "mission";
+                  const usageHint = hasRecovery ? "Heals between encounters" : (hasMission && hasCombat) ? "Any mission" : hasCombat ? "Used during combat" : "Non-combat missions";
                   return (
                     <div class="building-card">
                       <span class="building-card-category">{categoryLabel}</span>
@@ -144,7 +148,7 @@ export default function Inventory() {
                         <div>
                           <div class="building-card-title">{p.name}</div>
                           <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
-                            {categoryLabel === "combat" ? "Used during combat" : "Non-combat missions"}
+                            {usageHint}
                           </div>
                         </div>
                       </div>

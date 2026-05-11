@@ -3,7 +3,7 @@ import { A } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { ALCHEMY_RECIPES, getAvailableAlchemyRecipes, getDiscoverableRecipes, RESEARCH_BASE_COST } from "@medieval-realm/shared/data/alchemy_recipes";
-import { isCombatPotion } from "@medieval-realm/shared/data/items";
+import { getPotionInfo } from "@medieval-realm/shared/data/items";
 import Countdown from "~/components/Countdown";
 import RecipeCard from "~/components/RecipeCard";
 import { formatTimeShort as formatTime } from "~/utils/format";
@@ -262,9 +262,23 @@ export default function Alchemy() {
                       info={
                         <div style={{ "margin-top": "4px", padding: "4px 8px", background: "var(--bg-primary)", "border-radius": "4px", "font-size": "0.75rem" }}>
                           <span style={{ color: "var(--accent-green)" }}>{recipe.description}</span>
-                          <div style={{ "margin-top": "3px", "font-size": "0.65rem", color: isCombatPotion(recipe.id) ? "var(--accent-red)" : "var(--accent-blue)" }}>
-                            {isCombatPotion(recipe.id) ? "⚔️ Combat only" : "📋 Non-combat missions only"}
-                          </div>
+                          {(() => {
+                            const info = getPotionInfo(recipe.id);
+                            const hasMission = !!info?.mission;
+                            const hasCombat = !!info?.combat;
+                            const hasRecovery = !!info?.recovery;
+                            let label = "";
+                            let color = "var(--accent-blue)";
+                            if (hasRecovery) { label = "❤️‍🩹 Recovery"; color = "var(--accent-blue)"; }
+                            else if (hasMission && hasCombat) { label = "📋 Any mission"; color = "var(--accent-blue)"; }
+                            else if (hasCombat) { label = "⚔️ Combat only"; color = "var(--accent-red)"; }
+                            else if (hasMission) { label = "📋 Non-combat only"; color = "var(--accent-blue)"; }
+                            return (
+                              <div style={{ "margin-top": "3px", "font-size": "0.65rem", color }}>
+                                {label}
+                              </div>
+                            );
+                          })()}
                         </div>
                       }
                       costs={
