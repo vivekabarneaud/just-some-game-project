@@ -268,6 +268,8 @@ import {
   loadSettlement as loadSettlementApi,
   saveSettlement as saveSettlementApi,
   createSettlement as createSettlementApi,
+  peekSettlementUpdatedAt,
+  getExpectedUpdatedAt,
 } from "~/api/settlement";
 import { isLoggedIn } from "~/api/auth";
 
@@ -3757,17 +3759,36 @@ export function GameProvider(props: ParentProps) {
     }
   }, TICK_INTERVAL_MS);
 
-  // Catch up when tab becomes visible again (browsers throttle background tabs)
-  const handleVisibility = () => {
-    if (!document.hidden) {
-      const offlineMs = Date.now() - state.lastTick;
-      if (offlineMs > 2000) {
-        try {
-          applyTicks(offlineMs);
-        } catch (err) {
-          console.error("Visibility catch-up error:", err);
-          setState("lastTick", Date.now());
+  // Catch up when tab becomes visible again (browsers throttle background tabs).
+  // Mobile tabs in particular can be put to sleep for hours; when they wake we
+  // must check the server etag BEFORE applying the local tick catch-up. If
+  // another device wrote while we slept (a 409 is coming) we want to reload now,
+  // not 30s later when the next periodic save finally fails — otherwise the
+  // player has done 30s of doomed local actions that get erased on reload.
+  let _staleReloadFired = false;
+  const handleVisibility = async () => {
+    if (document.hidden) return;
+    const offlineMs = Date.now() - state.lastTick;
+    if (offlineMs > 30000 && _settlementId && getExpectedUpdatedAt() && !_staleReloadFired) {
+      try {
+        const serverUpdatedAt = await peekSettlementUpdatedAt(_settlementId);
+        if (serverUpdatedAt !== getExpectedUpdatedAt()) {
+          console.warn("[settlement] wake-up etag mismatch — reloading before stale play accumulates");
+          _staleReloadFired = true;
+          window.location.reload();
+          return;
         }
+      } catch {
+        // Network failure on the wake-up check — fall through to local catch-up.
+        // Worst case the periodic save still hits 409 and reloads as before.
+      }
+    }
+    if (offlineMs > 2000) {
+      try {
+        applyTicks(offlineMs);
+      } catch (err) {
+        console.error("Visibility catch-up error:", err);
+        setState("lastTick", Date.now());
       }
     }
   };

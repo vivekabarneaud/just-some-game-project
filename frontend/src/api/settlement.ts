@@ -34,6 +34,15 @@ export async function loadSettlement(id: string): Promise<SettlementResponse> {
   return res;
 }
 
+/** Read-only check used on tab wake-up: returns the server's current updatedAt
+ *  without touching the cached etag. If this differs from getExpectedUpdatedAt()
+ *  the local state is stale (another tab/device wrote while we slept) and the
+ *  caller should reload before letting the player act on doomed local state. */
+export async function peekSettlementUpdatedAt(id: string): Promise<string> {
+  const res = await apiFetch<SettlementResponse>(`/settlement/${id}`);
+  return res.settlement.updatedAt;
+}
+
 // Guard so concurrent in-flight saves don't trigger N reloads when they all
 // 409 at once.
 let _reloadingForStaleState = false;
