@@ -3739,14 +3739,51 @@ export function GameProvider(props: ParentProps) {
 
   // In production, speed is always 1. In dev, player can adjust.
   const getSpeed = () => IS_DEV ? state.gameSpeed : 1;
+
+  // Stale-state detection on resume. Mobile tabs (and laptops) can sleep for
+  // hours; on resume, our local state may be older than what another device
+  // wrote in the interim. The visibilitychange event is unreliable on phones
+  // (the tab is often "visible" the whole time the screen is off), so the
+  // tick loop itself does the check: when it sees a long gap since lastTick,
+  // it verifies the server etag before applying the catch-up. If stale, we
+  // reload immediately, not 30s later when the next save would have 409'd.
+  let _staleReloadFired = false;
+  let _wakeupCheckInFlight = false;
+  const ensureNotStale = async (): Promise<boolean> => {
+    if (_staleReloadFired) return false;
+    if (!_settlementId || !getExpectedUpdatedAt()) return true;
+    _wakeupCheckInFlight = true;
+    try {
+      const serverUpdatedAt = await peekSettlementUpdatedAt(_settlementId);
+      if (serverUpdatedAt !== getExpectedUpdatedAt()) {
+        console.warn("[settlement] etag mismatch on resume, reloading before stale play accumulates");
+        _staleReloadFired = true;
+        window.location.reload();
+        return false;
+      }
+      return true;
+    } catch {
+      // Network failure on the wake-up check. Fall through to local catch-up.
+      // Worst case the periodic save still hits 409 and reloads as before.
+      return true;
+    } finally {
+      _wakeupCheckInFlight = false;
+    }
+  };
+
   // Use real elapsed time since lastTick, not fixed interval — handles browser throttling
-  const tickInterval = setInterval(() => {
+  const tickInterval = setInterval(async () => {
+    if (_wakeupCheckInFlight || _staleReloadFired) return;
     const now = Date.now();
     const elapsed = now - state.lastTick;
     if (Number.isNaN(elapsed) || elapsed < 0) {
       // lastTick is invalid — reset it so the tick loop can resume
       setState("lastTick", now);
       return;
+    }
+    if (elapsed > 30000) {
+      const ok = await ensureNotStale();
+      if (!ok) return;
     }
     if (elapsed > 500) {
       try {
@@ -3759,29 +3796,16 @@ export function GameProvider(props: ParentProps) {
     }
   }, TICK_INTERVAL_MS);
 
-  // Catch up when tab becomes visible again (browsers throttle background tabs).
-  // Mobile tabs in particular can be put to sleep for hours; when they wake we
-  // must check the server etag BEFORE applying the local tick catch-up. If
-  // another device wrote while we slept (a 409 is coming) we want to reload now,
-  // not 30s later when the next periodic save finally fails — otherwise the
-  // player has done 30s of doomed local actions that get erased on reload.
-  let _staleReloadFired = false;
+  // Belt-and-suspenders: also do the check on visibilitychange for desktop tabs
+  // where the event is reliable. On mobile this rarely fires correctly, but on
+  // desktop it lets us pre-empt a wake-up check before the next tick fires.
   const handleVisibility = async () => {
     if (document.hidden) return;
+    if (_wakeupCheckInFlight || _staleReloadFired) return;
     const offlineMs = Date.now() - state.lastTick;
-    if (offlineMs > 30000 && _settlementId && getExpectedUpdatedAt() && !_staleReloadFired) {
-      try {
-        const serverUpdatedAt = await peekSettlementUpdatedAt(_settlementId);
-        if (serverUpdatedAt !== getExpectedUpdatedAt()) {
-          console.warn("[settlement] wake-up etag mismatch — reloading before stale play accumulates");
-          _staleReloadFired = true;
-          window.location.reload();
-          return;
-        }
-      } catch {
-        // Network failure on the wake-up check — fall through to local catch-up.
-        // Worst case the periodic save still hits 409 and reloads as before.
-      }
+    if (offlineMs > 30000) {
+      const ok = await ensureNotStale();
+      if (!ok) return;
     }
     if (offlineMs > 2000) {
       try {
