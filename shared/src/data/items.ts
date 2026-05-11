@@ -930,19 +930,39 @@ export interface PotionInfo {
 }
 
 const POTION_REGISTRY: Record<string, PotionInfo> = {
-  // ── Mission potions (non-combat only) ─────────────────────────
-  "healing_salve":          { category: "mission", mission: { successBonus: 0,  deathReduction: 0.75 } },
-  "vigor_tea":              { category: "mission", mission: { successBonus: 5,  deathReduction: 1.0 } },
-  "herbal_antidote":        { category: "mission", mission: { successBonus: 5,  deathReduction: 0.85 } },
-  "swiftfoot_brew":         { category: "mission", mission: { successBonus: 3,  deathReduction: 1.0 } },
-  "eagle_eye_elixir":       { category: "mission", mission: { successBonus: 15, deathReduction: 1.0 } },
+  // Mission potions also work in combat now — each has a combat effect so
+  // the player can equip them on any mission. The `category` field is the
+  // potion's *primary* flavor (kept for UI grouping); availability is
+  // gated on whether the potion has a `mission` / `combat` / `recovery`
+  // effect, not on the category string. See getAvailableSupplies below.
+  //
+  // ── Healing / death-reduction potions ─────────────────────────
+  "healing_salve":          { category: "mission",
+                              mission: { successBonus: 0,  deathReduction: 0.75 },
+                              combat:  { type: "heal_pct",     value: 30, trigger: "auto_low_hp" } },
+  "vigor_tea":              { category: "mission",
+                              mission: { successBonus: 5,  deathReduction: 1.0 },
+                              combat:  { type: "damage_boost", value: 15, duration: 2, trigger: "before_first_attack" } },
+  "herbal_antidote":        { category: "mission",
+                              mission: { successBonus: 5,  deathReduction: 0.85 },
+                              combat:  { type: "heal_pct",     value: 20, trigger: "auto_low_hp" } },
+  "swiftfoot_brew":         { category: "mission",
+                              mission: { successBonus: 3,  deathReduction: 1.0 },
+                              combat:  { type: "damage_boost", value: 20, duration: 2, trigger: "before_first_attack" } },
+  "eagle_eye_elixir":       { category: "mission",
+                              mission: { successBonus: 15, deathReduction: 1.0 },
+                              combat:  { type: "damage_boost", value: 25, duration: 2, trigger: "before_first_attack" } },
+  "scholars_draught":       { category: "mission",
+                              mission: { successBonus: 0, deathReduction: 1.0 }, // XP bonus handled separately
+                              combat:  { type: "damage_boost", value: 10, duration: 3, trigger: "before_first_attack" } },
+  "foragers_tonic":         { category: "mission",
+                              mission: { successBonus: 0, deathReduction: 1.0 }, // food bonus handled separately
+                              combat:  { type: "heal_pct",     value: 15, trigger: "auto_low_hp" } },
 
-  // ── Combat potions (used during combat, consumed) ─────────────
+  // ── Combat potions ────────────────────────────────────────────
   "strength_draught":       { category: "combat", combat: { type: "damage_boost", value: 25, duration: 3, trigger: "before_first_attack" } },
   "ironhide_tonic":         { category: "combat", combat: { type: "defense_boost", value: 30, duration: 3, trigger: "auto_low_hp" } },
   "phoenix_tears":          { category: "combat", combat: { type: "heal_pct", value: 100, trigger: "auto_low_hp" } },
-  "scholars_draught":       { category: "mission", mission: { successBonus: 0, deathReduction: 1.0 } }, // XP bonus handled separately
-  "foragers_tonic":         { category: "mission", mission: { successBonus: 0, deathReduction: 1.0 } }, // food bonus handled separately
 
   // ── Recovery items (between-event heal on expeditions, pre-combat heal on simple missions) ─
   "bandage":                { category: "recovery", recovery: { healPct: 25 } },
@@ -1018,8 +1038,14 @@ export interface InventoryItem {
 }
 
 export function getAvailableSupplies(inventory: InventoryItem[], category?: PotionCategory): { item: { id: string; name: string; icon: string; description: string }; qty: number }[] {
+  // `category` filters by which effect FIELD is present, not by the primary
+  // category flavor. A potion with both `mission` and `combat` effects shows
+  // in both lists. Lets mission potions be equipped on combat missions and
+  // vice versa — the engine applies whichever effect is relevant.
   return inventory
-    .filter((inv) => inv.quantity > 0 && isSupplyItem(inv.itemId) && (!category || POTION_REGISTRY[inv.itemId]?.category === category))
+    .filter((inv) => inv.quantity > 0 && isSupplyItem(inv.itemId) && (
+      !category || POTION_REGISTRY[inv.itemId]?.[category] !== undefined
+    ))
     .map((inv) => {
       const item = getItem(inv.itemId);
       if (item) return { item, qty: inv.quantity };
