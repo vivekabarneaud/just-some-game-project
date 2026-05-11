@@ -190,6 +190,11 @@ export interface StoryMission extends MissionTemplate {
   /** Chronicle entry id fired into the archive on success. The cinematic for
    *  the mission lives in STORY_CINEMATICS keyed by the mission id. */
   chronicleEntryId?: string;
+  /** Optional expedition fields. When present, the mission also routes through
+   *  the expedition engine (multi-event timeline). isExpedition() picks this up
+   *  structurally. */
+  events?: ExpeditionEventSlot[];
+  biome?: string;
 }
 
 // ─── Expeditions ────────────────────────────────────────────────

@@ -119,25 +119,42 @@ export const STORY_MISSIONS: StoryMission[] = [
     storyOrder: 5,
     prerequisite: "story_4_captains_rest",
     chapter: "Chapter 2: Our Own Hands",
-    name: "The Old Tongue",
+    name: "North of the Road",
     description:
-      "Edda needs more of the herb the robin's salve was made from. She has drawn a map and a word her grandmother taught her. The plant grows in Feldgrund hills, off the road, north and east. Send a team. Be civil. Bring news, not coin — they prefer news.",
+      "Edda needs more of the herb the robin's salve was made from. She has drawn a careful picture of it. The plant grows in Feldgrund hills, off the road, north and east. The road is long, the country is rough, and the people up there are private. Bring civility, and bring someone who can handle wolves.",
     icon: "🌾",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/the_old_tongue.png",
-    slots: [{ class: "any" }, { class: "any" }],
+    slots: [{ class: "any" }, { class: "any" }, { class: "any" }],
     duration: 2400,
     rewards: [
       { resource: "gold", amount: 80 },
       { resource: "greymantle", amount: 6 },
     ],
     deployCost: 12,
-    difficulty: 1,
+    difficulty: 2,
     minGuildLevel: 1,
-    tags: ["exploration", "outdoor", "peaceful"],
-    // No combat encounter — this is a journey mission. The story is the
-    // ride, the people met, and what the team brings back. If we ever
-    // want to add a small wolf or brigand encounter for texture, it
-    // shouldn't be the focus.
+    tags: ["exploration", "outdoor", "combat"],
+    biome: "Forest",
+    events: [
+      // Outbound — wolves on the forest road. Warm-up fight.
+      { type: "fixed", event: { kind: "combat", encounters: [{ enemyId: "wild_wolf", count: 3 }] } },
+      // Outbound — the dangerous slot. Bear, brigands, or a heavier wolf pack.
+      { type: "random", pool: [
+        { weight: 2, event: { kind: "combat", encounters: [{ enemyId: "forest_bear", count: 1 }] } },
+        { weight: 2, event: { kind: "combat", encounters: [{ enemyId: "bandit_thug", count: 3 }] } },
+        { weight: 1, event: { kind: "combat", encounters: [{ enemyId: "wild_wolf", count: 3 }] } },
+      ]},
+      // Return — lighter. Stragglers, an angry bear, or a herder's thanks.
+      { type: "random", pool: [
+        { weight: 2, event: { kind: "combat", encounters: [{ enemyId: "bandit_thug", count: 2 }] } },
+        { weight: 1, event: { kind: "combat", encounters: [{ enemyId: "forest_bear", count: 1 }] } },
+        { weight: 1, event: { kind: "treasure", rewards: [{ resource: "wheat", amount: 10 }] } },
+      ]},
+      // Return — the peaks vision. Pure flavor, no mechanical effect.
+      { type: "fixed", event: { kind: "encounter", text: "On a clear afternoon, the team crests a ridge.", outcomes: [
+        { weight: 1, text: "The boy riding lead pulls up and looks for a long time. He had not believed mountains were real before he saw them.", effect: { type: "nothing" } },
+      ]}},
+    ],
     chronicleEntryId: "ch2_old_tongue",
   },
 ];
