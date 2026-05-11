@@ -557,7 +557,7 @@ export default function MissionAssemblyPanel(props: Props) {
         <Show when={freshMission().encounters?.length}>
           <div class="mission-detail-section">
             <div class="mission-detail-label">Encounters</div>
-            <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
+            <div class="assembly-card-row" style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
               {freshMission().encounters!.map((enc) => {
                 const enemy = getEnemy(enc.enemyId);
                 const discovered = (state.discoveredEnemies ?? []).includes(enc.enemyId);
@@ -580,7 +580,7 @@ export default function MissionAssemblyPanel(props: Props) {
                 {friendReady() ? "✓ Ready" : `${friendCoopAdvs().length} adventurer${friendCoopAdvs().length === 1 ? "" : "s"}`}
               </span>
             </div>
-            <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
+            <div class="assembly-card-row" style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
               <For each={friendCoopAdvs()}>
                 {(a) => {
                   const cls = getClassMeta(a.class);
@@ -616,7 +616,7 @@ export default function MissionAssemblyPanel(props: Props) {
                     border: "1px dashed var(--border-color)",
                     "border-radius": "10px",
                     opacity: 0.55,
-                    width: "140px",
+                    width: "var(--assembly-card-width, 140px)",
                   }}>
                     <div style={{
                       position: "relative", width: "100%", height: "140px",
@@ -686,7 +686,7 @@ export default function MissionAssemblyPanel(props: Props) {
               <>Team ({teamIds().length}/{freshMission().slots.length})</>
             )}
           </div>
-          <div style={{ display: "flex", gap: "10px", "flex-wrap": "wrap" }}>
+          <div class="assembly-card-row" style={{ display: "flex", gap: "10px", "flex-wrap": "wrap" }}>
             <Show when={isCoop()}>
               {/* Coop: free-form contributed adventurers */}
               <For each={teamIds()}>
@@ -756,7 +756,7 @@ export default function MissionAssemblyPanel(props: Props) {
                               background: "var(--bg-secondary)",
                               border: `1px solid ${CLASS_COLORS[adv()!.class] ?? "var(--border-color)"}`,
                               "border-radius": "10px",
-                              width: "140px",
+                              width: "var(--assembly-card-width, 140px)",
                             }}
                           >
                             <div
@@ -854,7 +854,7 @@ export default function MissionAssemblyPanel(props: Props) {
                     border: "1px dashed var(--border-color)",
                     "border-radius": "10px",
                     opacity: 0.55,
-                    width: "140px",
+                    width: "var(--assembly-card-width, 140px)",
                   }}>
                     <div style={{
                       position: "relative", width: "100%", height: "140px",
@@ -1053,7 +1053,7 @@ export default function MissionAssemblyPanel(props: Props) {
                      * tooltips can extend past the card edges. The portrait
                      * div below carries its own overflow:hidden + rounded
                      * top corners to clip the image. */
-                    width: "140px",
+                    width: "var(--assembly-card-width, 140px)",
                   }}>
                     <div
                       style={{

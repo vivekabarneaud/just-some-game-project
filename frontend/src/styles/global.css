@@ -4077,6 +4077,17 @@ body {
   }
 }
 
+/* Mission assembly panel — team-member cards + enemy cards default to a
+ * fixed 140px width on desktop (set inline via --assembly-card-width).
+ * Below 600px viewport, override the variable so two cards fit side by
+ * side in a flex-wrap row instead of one card per row. The gap on
+ * the container is ~8-10px so we shave half of that from each card. */
+@media (max-width: 600px) {
+  .assembly-card-row {
+    --assembly-card-width: calc(50% - 6px);
+  }
+}
+
 /* ─── Phone-narrow (≤480px): drop ResourceBar labels for icon+amount only ─── */
 @media (max-width: 480px) {
   .resource-cap,

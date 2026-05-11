@@ -35,7 +35,7 @@ export default function MissionEnemyCard(props: MissionEnemyCardProps) {
       background: bg(),
       border: `1px solid ${borderColor()}`,
       "border-radius": "10px",
-      width: "140px",
+      width: "var(--assembly-card-width, 140px)",
     }}>
       {/* Portrait area + name overlay. Same shape as the team card. */}
       <div style={{
