@@ -235,13 +235,9 @@ export function getOriginsForRace(race: Race): OriginDef[] {
 /** Origins available at each guild level. Word of a new settlement spreads
  *  outward in concentric rings — neighbors hear first, foreign lands last.
  *
- *  TEMP (May 2026): Feldgrund locked out everywhere. The Lord's settlement
- *  hasn't met the Feldgrund yet — that introduction belongs to story_5
- *  ("The Old Tongue"). Same applies to Nordveld, Silvaneth, etc. — most of
- *  these origins should be gated by story progression, not guild level.
- *  This whole table will be replaced by a story-gated origin system when
- *  we hook chapter completion into the recruit pool. Until then, the pool
- *  is Ashwick-only, which matches the founding cast. */
+ *  Base table is Ashwick-only at every guild level. Story-gated origins
+ *  unlock incrementally as the player completes the missions that introduce
+ *  them. See STORY_UNLOCKED_ORIGINS below. */
 const ORIGINS_BY_GUILD_LEVEL: Record<number, Origin[]> = {
   1: ["ashwick"],
   2: ["ashwick"],
@@ -250,9 +246,29 @@ const ORIGINS_BY_GUILD_LEVEL: Record<number, Origin[]> = {
   5: ["ashwick"],
 };
 
-export function getOriginsForGuildLevel(level: number): Origin[] {
+/** Origins unlocked by completing a specific story mission. Keyed by mission
+ *  id. Survivors and inspired-others from that mission's region start appearing
+ *  in the recruit pool once the player has completed it. */
+const STORY_UNLOCKED_ORIGINS: Record<string, Origin[]> = {
+  // After the player saves Marigold's party at the broken stone, Feldgrund
+  // recruits start appearing — both the survivors themselves (now in the
+  // premade pool) and the wider Feldgrund cast of restless hill-folk who
+  // hear what happened and drift south.
+  story_6_broken_stone: ["feldgrund"],
+};
+
+export function getOriginsForGuildLevel(
+  level: number,
+  completedStoryMissions: readonly string[] = [],
+): Origin[] {
   if (level <= 0) return [];
-  return ORIGINS_BY_GUILD_LEVEL[Math.min(level, 5)] ?? ORIGINS_BY_GUILD_LEVEL[5];
+  const base = ORIGINS_BY_GUILD_LEVEL[Math.min(level, 5)] ?? ORIGINS_BY_GUILD_LEVEL[5];
+  const unlocked = new Set<Origin>(base);
+  for (const missionId of completedStoryMissions) {
+    const fromMission = STORY_UNLOCKED_ORIGINS[missionId];
+    if (fromMission) for (const o of fromMission) unlocked.add(o);
+  }
+  return Array.from(unlocked);
 }
 
 // ─── Food Preferences & Loyalty ───────────────────────────────
@@ -798,14 +814,17 @@ function buildAdventurerFromPremade(id: string, premade: PremadeCharacter, maxRa
 }
 
 /** Generate an adventurer candidate from the premade pool. Pass guildLevel
- *  to gate the origin pool by settlement fame (Lv.1 = local only, Lv.5 = all). */
+ *  to gate the origin pool by settlement fame (Lv.1 = local only, Lv.5 = all),
+ *  and completedStoryMissions to apply story-gated unlocks (e.g. Feldgrund
+ *  recruits appear once story 6 is done). */
 export function generateCandidate(
   id: string,
   maxRank: AdventurerRank = 2,
   usedNames?: Set<string>,
   guildLevel = 5,
+  completedStoryMissions: readonly string[] = [],
 ): Adventurer {
-  const allowed = new Set(getOriginsForGuildLevel(guildLevel));
+  const allowed = new Set(getOriginsForGuildLevel(guildLevel, completedStoryMissions));
   const premade = pickPremadeCharacter(usedNames, allowed);
   if (premade) return buildAdventurerFromPremade(id, premade, maxRank);
   // Origin-pool exhaustion: fall back to any allowed-origin char even if name reused

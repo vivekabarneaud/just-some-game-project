@@ -318,17 +318,59 @@ The team rides north for the first time. Two weeks round-trip. The road is hard:
 
 ---
 
+### Story 6 — The Broken Stone
+
+**Mission card the player reads:**
+
+> A wounded dwarf at our gate. Three of her people are still down there, pinned around a broken stone south-east of here. The country has gone bad in a way no one warned us about. Ride hard. Bring them home if you can.
+
+**What happens during the mission:**
+
+A wounded young Feldgrund named Marigold Hawthorn arrives at the gates in the night, asking for the lord. Tomas brings her in. Edda treats her cold-edge wound. Nell silently fetches what Edda asks for. Father Corin, who happened to be at Edda's that evening as he often is now, sits with Marigold through the long night. Marigold tells what she can between Edda's questions: four of them had come south to see for themselves whether the southerners' story was true; they had passed our settlement without stopping; they had wandered south-east looking for the Wastes and not found them; they had come over a low rise and seen a broken standing stone, and beyond the stone the air had been wrong; her brother Sorrel had told her to ride; she had.
+
+The Lord sends a team south-east within the hour. They are gone five days. They return with two of the three pinned dwarves alive: Sorrel and Tansy. Reed has fallen. They report that the bad ground around the broken stone is something other than the Wastes proper, which they estimate are still five days further south. They saw other stones along the ridge, broken too, and did not have time to look at them.
+
+**Chronicle entry — *The dwarf at the gate***
+
+> Tomas was on the lower watch when he heard her at the gate, calling for the lord in a voice that did not have much breath left in it. He brought her in himself, half-carrying her, and laid her by Edda's stove. Edda was already lighting it. Nell had come down the ladder without being asked and stood ready at Edda's elbow. The salve was on the table before her wound was uncovered, because Edda knew what kind of wound it was the moment she saw the colour of it.
+>
+> Her first words, between Edda's questions, were not about herself. *They are still down there. My brother. Please send someone. Please now.*
+>
+> She was Marigold Hawthorn. They had been four. Her brother Sorrel, two friends called Reed and Tansy. They had gone south two weeks before, looking for the Wastes the southerners had spoken of. They had not believed the story, but they had not been able to stop thinking about it.
+>
+> They had walked south for days and not found what they had come for. They had passed our settlement without stopping, not knowing we would be friends. They had circled east, looking for the bad ground the southerners had described. They had not found that either, until they came over a low rise and saw the stone.
+>
+> Standing, taller than a dwarf, carved on three sides with lines none of them could read, and broken. Not weathered. The pieces lay around the base. Beyond it, Marigold said, the air had been wrong, and the cold in the air had been the cold of a thing watching them.
+>
+> Sorrel had seen the shapes first. Coming up out of nothing, the way breath comes up out of cold water, except shaped, except watching. He had told her to ride. He had used the voice he used to use when she was small and would not listen. She had ridden.
+>
+> I had three in the saddle within the hour. I gave them two spare horses and the little salve we could spare. I told them where to go, and what not to do, and to bring people home.
+>
+> Father Corin came when the shout went up; he had been with Edda already, the way he is most evenings now. He stayed through the night and the day after. He did not say much. Once Marigold opened her eyes and he was there and she closed them again and seemed to breathe easier.
+>
+> The team was gone five days. They brought back two of the three. Sorrel and Tansy were alive. Reed had fallen on the second night, and the team had buried him under stones east of the broken stone, with his face toward the hills, because Sorrel had asked.
+>
+> They reported the country plainly. The ground there had not been the Wastes proper. The Wastes proper were still five days further south, if Hale's reckoning was right. What had killed Reed was something else: bad ground that should not have been bad, growing out from the broken stone the way damp grows up a wall. They had seen other stones along the ridge. They had not had time to look at them.
+>
+> Sorrel and Tansy are with us now. Marigold is up and walking, slowly. Edda checks them twice a day. They are quiet. They sit in the sun in the afternoons and do not look at each other much. We do not ask them anything they have not offered. There will be time.
+>
+> Yesterday Edda was making salve and Marigold was sleeping and Corin was watching her sleep, and Edda said, without looking up from her work, *I am glad you are here.* Father Corin did not answer for a long time. Then he said, *I have been wanting to be useful, for a long time.* Edda did not say anything to that. She went on with her work.
+>
+> I have read back what I wrote when our team returned from the north. *I am glad it is still there to keep.* I do not strike the line through. I leave it where it is. But underneath, tonight, I write this:
+>
+> *There was a stone south-east of us that I did not know about. It was holding something back. It is not holding it back anymore. I do not know how many more of those stones there are, or who put them where, or who knows how to mend them. I do not know who has been keeping us alive without telling us. I am going to find out.*
+
+---
+
 ### Where chapter 2 goes from here
 
-**This is where we are now.** The Lord has put a man to rest, met an elf-ranger he didn't expect, learned that a stone he'd never seen has been protecting his settlement, received an anonymous gift in handwriting he doesn't recognize, and now sent a team north for the first time. He's starting to suspect his land is more populated than the Crown's land office told him.
+**This is where we are now.** The Lord has put a man to rest, met an elf-ranger he didn't expect, sent a team north for the first time and learned the Feldgrund are pockets of normalcy he cannot share, and then watched a wounded young dwarf arrive at the gate with news of a broken stone that has been protecting them without their knowing. He is starting to suspect his land is more populated than the Crown's land office told him, and more fragile than anyone has admitted.
 
 The rest of chapter 2 wants to do some mix of:
 
+- **Niamh returns with a harder ask.** The Lord has questions about the broken stone. She has answers, but they come with a request: more stones along the ridge are failing. She needs help finding them and learning how they were placed. This is the natural next story mission after the Broken Stone.
 - **Settlement-side seasonal events.** Four small mini-arcs, one per season, each fired by season change as a banner + chronicle + one mission + resolution chronicle. Spring foal, summer Crown courier, autumn village funeral, winter stranger at the gate. They run in parallel to the main story and give chapter 2 its texture.
-- **A scouting mission past where the team fought Hale.** The team comes back reporting the Wastes proper start at six days south of the ruins. Hale's journal said seven. The Lord notes the mismatch but flags it as miscount or slow creep.
+- **A scouting mission past where the team fought Hale.** The team comes back reporting the Wastes proper start at six days south of the ruins. Hale's journal said seven. The Lord notes the mismatch but flags it as miscount or slow creep. (The 6-vs-7 measurement, separate from the Broken Stone thread.)
 - **A second robin.** Specific gift, not the big-picture warning. Halldora's protocol stays anonymous and useful.
-- **Niamh returns with a harder ask** (probably later in the chapter, not as the opener).
 
-The slow-burn mystery threading through chapter 2 is whether the Wastes are advancing. Within any single mission the answer is "we can't tell, six vs seven could be human error." Across multiple casual scout reports over multiple chapters, the answer becomes "they're moving." Recognition lands when the Lord builds it himself, not when someone tells him.
-
-One open question for whoever's writing next: does **Niamh** return mid-chapter 2 as a recurring anchor, or do we let the Lord and his cast carry it without her for a while? Bringing her back early reuses a strong NPC; holding her out gives the cast oxygen. Either is good. It's a pacing call.
+The slow-burn mystery threading through chapter 2 is whether the Wastes are advancing. Within any single mission the answer is "we can't tell, six vs seven could be human error." Across multiple casual scout reports over multiple chapters, the answer becomes "they're moving." Recognition lands when the Lord builds it himself, not when someone tells him. The Broken Stone arc adds a second, more immediate mystery: the protective infrastructure is failing too.

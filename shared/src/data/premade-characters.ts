@@ -241,6 +241,15 @@ export const PREMADE_CHARACTERS: PremadeCharacter[] = [
   { id: "char_223", name: "Gyasi Mensah", class: "wizard", race: "human", origin: "zahkari", age: "middle", portrait: "gyasi_mensah", foodPreference: "smoky", backstory: "An engineer-mage who designed fortifications for three city-states, until one of his walls collapsed and killed the workers inside. Whether it was his fault or sabotage, he couldn't stay to find out." },
   { id: "char_224", name: "Annan Traore", class: "wizard", race: "human", origin: "zahkari", age: "old", portrait: "annan_traore", foodPreference: "fresh", backstory: "The oldest living graduate of the Traore war-college, who spent fifty years perfecting a shield-ward that could stop any siege weapon. He left because no one would fund it, and he refuses to die before seeing it tested." },
   { id: "char_225", name: "Kwesi Okafor", class: "wizard", race: "human", origin: "zahkari", age: "young", portrait: "kwesi_okafor", foodPreference: "sweet", backstory: "A student who stole a forbidden text from the Okafor archive because he was certain the elders were hiding knowledge that could help people. He was right about the hiding, wrong about getting away with it." },
+
+  // ─── Feldgrund — Broken Stone survivors (story 6) ────────────────
+  // Marigold rode for help when her party was ambushed at the broken
+  // ward-stone south-east of the settlement. Sorrel and Tansy were
+  // rescued by the player's team; Reed fell. All three stay south
+  // rather than carry the news home and break their families' peace.
+  { id: "char_226", name: "Marigold Hawthorn", class: "archer", race: "dwarf", origin: "feldgrund", age: "young", portrait: "marigold_hawthorn", foodPreference: "spicy", backstory: "Marigold won every roving-archery contest in the hill towns and figured she could outride anything she couldn't outshoot. When her brother Sorrel said the southerners' story would not let him sleep, she packed before he had finished asking. When he told her to ride, she rode. She does not write home about why she has stayed." },
+  { id: "char_227", name: "Sorrel Hawthorn", class: "warrior", race: "dwarf", origin: "feldgrund", age: "mature", portrait: "sorrel_hawthorn", foodPreference: "hearty", backstory: "Sorrel was the steady one in the family. He sang while he split wood. He told Marigold to ride when the ghosts came up because he was the closest and the slowest, and he expected to die where he stood. He has not spoken of Reed since. He stays south because the road north is empty in a way he cannot walk through." },
+  { id: "char_228", name: "Tansy Hollowbough", class: "priest", race: "dwarf", origin: "feldgrund", age: "young", portrait: "tansy_hollowbough", foodPreference: "fresh", backstory: "Tansy was the village's quiet hand for the dying. She knew how to sit by a bed. She knew how to listen. She rode south with Marigold and Sorrel because she did not want them to ride without someone who would know what to do if they were hurt. She did. She does not feel useful in the way she used to." },
 ];
 
 /** Hand-crafted family relationships keyed by character ID */
@@ -526,4 +535,7 @@ export const CHAR_RELATIONSHIPS: Record<string, string> = {
   char_210: "Son of Annan, brother of Chukwu, father of Adaeze",
   char_217: "Son of Annan, brother of Kwaku",
   char_224: "Father of Kwaku and Chukwu, grandfather of Adaeze",
+  // Hawthorn siblings (story 6 survivors)
+  char_226: "Sister of Sorrel, rode for help when their party was ambushed at the broken stone",
+  char_227: "Brother of Marigold, held the line at the broken stone, watched Reed fall",
 };

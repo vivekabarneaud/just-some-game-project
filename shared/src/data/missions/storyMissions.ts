@@ -157,6 +157,33 @@ export const STORY_MISSIONS: StoryMission[] = [
     ],
     chronicleEntryId: "ch2_old_tongue",
   },
+  {
+    id: "story_6_broken_stone",
+    storyOrder: 6,
+    prerequisite: "story_5_old_tongue",
+    chapter: "Chapter 2: Our Own Hands",
+    name: "The Broken Stone",
+    description:
+      "A wounded dwarf at our gate. Three of her people are still down there, pinned around a broken stone south-east of here. The country has gone bad in a way no one warned us about. Ride hard. Bring them home if you can.",
+    icon: "🪦",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/the_broken_stone.png",
+    slots: [{ class: "any" }, { class: "any" }, { class: "any" }],
+    duration: 1800,
+    rewards: [
+      { resource: "gold", amount: 100 },
+      { resource: "astralShards", amount: 1 },
+    ],
+    deployCost: 15,
+    difficulty: 3,
+    minGuildLevel: 1,
+    tags: ["exploration", "combat", "magical"],
+    encounters: [
+      { enemyId: "wailing_phantom", count: 1 },
+      { enemyId: "wraith", count: 2 },
+      { enemyId: "cursed_spirit", count: 4 },
+    ],
+    chronicleEntryId: "ch2_broken_stone",
+  },
 ];
 
 /** Get the current story mission available to the player, or null */

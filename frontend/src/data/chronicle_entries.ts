@@ -212,6 +212,28 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "I have the seeds in a small jar on my desk. We will sow them in autumn, the way the elder said. We have enough Greymantle for a few jars of salve. The next time someone is wounded by a thing that does not bleed, we will be ready.\n\n" +
       "I had hoped, going in, that we would find more than a plant. I think we did and we did not. The Feldgrund are people. They have their land, their winters, their small good things. They will not help us with what is coming for us, because they do not know it is coming and they would not believe it if we told them. That is theirs to keep. I am glad it is still there to keep.",
   },
+  {
+    id: "ch2_broken_stone",
+    chapterId: "ch2",
+    order: 2,
+    title: "The dwarf at the gate",
+    teaser: "A wounded dwarf at the gate. There were four of them. One made it back.",
+    fullText:
+      "Tomas was on the lower watch when he heard her at the gate, calling for the lord in a voice that did not have much breath left in it. He brought her in himself, half-carrying her, and laid her by Edda's stove. Edda was already lighting it. Nell had come down the ladder without being asked and stood ready at Edda's elbow. The salve was on the table before her wound was uncovered, because Edda knew what kind of wound it was the moment she saw the colour of it.\n\n" +
+      "Her first words, between Edda's questions, were not about herself. *They are still down there. My brother. Please send someone. Please now.*\n\n" +
+      "She was Marigold Hawthorn. They had been four. Her brother Sorrel, two friends called Reed and Tansy. They had gone south two weeks before, looking for the Wastes the southerners had spoken of. They had not believed the story, but they had not been able to stop thinking about it.\n\n" +
+      "They had walked south for days and not found what they had come for. They had passed our settlement without stopping, not knowing we would be friends. They had circled east, looking for the bad ground the southerners had described. They had not found that either, until they came over a low rise and saw the stone.\n\n" +
+      "Standing, taller than a dwarf, carved on three sides with lines none of them could read, and broken. Not weathered. The pieces lay around the base. Beyond it, Marigold said, the air had been wrong, and the cold in the air had been the cold of a thing watching them.\n\n" +
+      "Sorrel had seen the shapes first. Coming up out of nothing, the way breath comes up out of cold water, except shaped, except watching. He had told her to ride. He had used the voice he used to use when she was small and would not listen. She had ridden.\n\n" +
+      "I had three in the saddle within the hour. I gave them two spare horses and the little salve we could spare. I told them where to go, and what not to do, and to bring people home.\n\n" +
+      "Father Corin came when the shout went up; he had been with Edda already, the way he is most evenings now. He stayed through the night and the day after. He did not say much. Once Marigold opened her eyes and he was there and she closed them again and seemed to breathe easier.\n\n" +
+      "The team was gone five days. They brought back two of the three. Sorrel and Tansy were alive. Reed had fallen on the second night, and the team had buried him under stones east of the broken stone, with his face toward the hills, because Sorrel had asked.\n\n" +
+      "They reported the country plainly. The ground there had not been the Wastes proper. The Wastes proper were still five days further south, if Hale's reckoning was right. What had killed Reed was something else: bad ground that should not have been bad, growing out from the broken stone the way damp grows up a wall. They had seen other stones along the ridge. They had not had time to look at them.\n\n" +
+      "Sorrel and Tansy are with us now. Marigold is up and walking, slowly. Edda checks them twice a day. They are quiet. They sit in the sun in the afternoons and do not look at each other much. We do not ask them anything they have not offered. There will be time.\n\n" +
+      "Yesterday Edda was making salve and Marigold was sleeping and Corin was watching her sleep, and Edda said, without looking up from her work, *I am glad you are here.* Father Corin did not answer for a long time. Then he said, *I have been wanting to be useful, for a long time.* Edda did not say anything to that. She went on with her work.\n\n" +
+      "I have read back what I wrote when our team returned from the north. *I am glad it is still there to keep.* I do not strike the line through. I leave it where it is. But underneath, tonight, I write this:\n\n" +
+      "*There was a stone south-east of us that I did not know about. It was holding something back. It is not holding it back anymore. I do not know how many more of those stones there are, or who put them where, or who knows how to mend them. I do not know who has been keeping us alive without telling us. I am going to find out.*",
+  },
   // ─── Disabled until rewritten to match the current chronicle voice ───
   // The entries below were authored before the founding-cast voice pass
   // (Edda fragments, Jory retcon, Tomas/Corin polish). Surfacing them on

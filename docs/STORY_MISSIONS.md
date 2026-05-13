@@ -379,11 +379,59 @@ The Feldgrund are hobbit-coded pastoral folk. Far north of the Wastes and the th
 
 The emotional payoff is loneliness. The team came hoping for kinship, advice, help. They get a polite no. The world they live in is not the world the Feldgrund live in. Pockets of normal life persist somewhere. They are not in one.
 
-**Future hook:** story 5 completion is the in-fiction reason Feldgrund-origin recruitment unlocks. A few restless younger Feldgrund, the curious and not-quite-fitting, drift south after the team's visit and start appearing in the recruitment rotation. The existing premade Feldgrund cast (Clover Meadbrook, Nettle, Tobias, Hazel, etc.) is exactly the restless few, already written.
+**Future hook:** Feldgrund-origin recruitment unlocks not on story 5 but on story 6 ("The Broken Stone"), when a wounded Feldgrund party arrives at the gates and the southerners ride to their rescue. The existing premade Feldgrund cast (Clover Meadbrook, Nettle, Tobias, Hazel, etc.) plus the three story-6 survivors (Marigold, Sorrel, Tansy) all enter the recruit pool together.
 
 ---
 
-## Stories 6+ — slow-burn measurement arc
+## Story 6 — The Broken Stone
+
+### Mission
+
+| Field | Value |
+|---|---|
+| ID | `story_6_broken_stone` |
+| Chapter | Chapter 2: Our Own Hands |
+| Prerequisite | `story_5_old_tongue` |
+| Slots | 3 × any |
+| Duration | 1800s |
+| Deploy cost | 15 gold |
+| Rewards | 100 gold, 1 Astral Shard |
+| Difficulty | 3 |
+| Min guild level | 1 |
+| Tags | exploration, combat, magical |
+| Encounter | 1 wailing_phantom + 2 wraith + 4 cursed_spirit (single combat at the broken stone) |
+| Chronicle entry | `ch2_broken_stone` |
+
+**Description:**
+
+> A wounded dwarf at our gate. Three of her people are still down there, pinned around a broken stone south-east of here. The country has gone bad in a way no one warned us about. Ride hard. Bring them home if you can.
+
+### Mechanical effects
+
+- **Feldgrund recruitment unlocks** on completion. All Feldgrund premade characters, including the three story-6 survivors (`char_226` Marigold Hawthorn, `char_227` Sorrel Hawthorn, `char_228` Tansy Hollowbough), enter the recruit pool.
+- Unlock wired via `STORY_UNLOCKED_ORIGINS` in `shared/src/data/adventurers.ts`. The framework extends to future story-gated origins (Nordveld, Silvaneth, etc.).
+
+### Chronicle entry — `ch2_broken_stone`
+
+**Title:** The dwarf at the gate
+
+**Teaser:** A wounded dwarf at the gate. There were four of them. One made it back.
+
+(See `frontend/src/data/chronicle_entries.ts` for the full text. Key beats: Tomas finds Marigold collapsed at the gate; Edda treats her, Nell silently assists, Father Corin sits with her through the night; the team rides south-east within the hour and is gone five days; they return with Sorrel and Tansy alive but Reed buried east of the stone; the team's report establishes that the bad ground here is NOT the Wastes proper, that the Wastes are still five days further south, and that the broken stone was holding something back; the Lord closes with a hard line under his story-5 reread, vowing to find out who has been keeping them alive without telling them.)
+
+### Narrative direction
+
+This mission flips story 5's "polite refusal" beat hard. The Feldgrund who came south to see for themselves were not believed in their own village; they wanted to know. The world they did not believe in killed one of them. The Lord helps without saying I-told-you-so, and the survivors stay south rather than carry the news home, because telling their families would break the same peace the southerners just learned to be jealous of.
+
+**Father Corin earns a beat.** He has been quietly observing Edda's herb-work for 40 years (per founder bio) without ever practicing. The gate event places him in Edda's house at the right moment and gives him a small, late line of usefulness. The chronicle records this without explanation; the player who has read his founder memory will know what it means.
+
+**Slow-burn arc seed.** The team's report says the Wastes proper are "still five days further south, if Hale's reckoning was right" — a deliberate hedge that points the player toward the measurement arc without committing to a precise number yet. The 6-vs-7 measurement still belongs to a future scouting mission past the ruins.
+
+**The bigger reveal.** The chronicle establishes that the settlement has been protected by something neither the Lord nor any of his cast knew about: ward-stones. One is broken. Others exist along the ridge. Who placed them, who maintains them, and what they are holding back becomes the chapter 2 spine. Story 7 (Niamh's return) walks into this question.
+
+---
+
+## Stories 7+ — slow-burn measurement arc
 
 **Locked approach (May 2026):** the question of whether the Wastes are advancing is *not* answered in one mission. It surfaces as a quiet mismatch in a chapter 2 scouting expedition past Hale's ruins (Hale wrote 7, the team measures 6, could be miscount), gets reinforced by casual scout reports across multiple later missions (5 days south, then 4), and only becomes a panic moment several chapters in when the Lord assembles the data himself. The boundary really is moving, but slowly enough that within any single mission's report it looks like a measurement error.
 
