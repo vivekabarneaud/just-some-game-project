@@ -362,15 +362,38 @@ The Lord sends a team south-east within the hour. They are gone five days. They 
 
 ---
 
+### Story 7 — Walking the Line
+
+**Mission card the player reads:**
+
+> I have asked the team to walk the line. Map the stones. Mark which are standing and which have fallen. Bring back enough that I can see the shape of the thing we have apparently been sitting inside.
+
+**What happens during the mission:**
+
+The team rides out to walk the local arc and map every stone they can find. They visit the east intact stone (silent, populated air, birds at the base). They turn south to the Hilltop Ruins and finally see the two stones flanking it that they had ridden past without noticing on previous missions. Both broken. They pass through quickly; Niamh's binding at Hale's grave still holds, but the air is wrong. They turn west to a stone beyond country anyone has walked, intact, humming. And then deeper west to a fourth stone, broken — sabotage signs that could be sabotage signs or could be weather, the team won't commit. They fight a hard skirmish at the broken stone, retreat with the map, and ride home.
+
+**Chronicle entry — *Walking the line***
+
+(See `frontend/src/data/chronicle_entries.ts` for the full text. Key beats: the Lord's schoolmaster instinct to count and map; the team's first conscious look at the east stone they had walked past for months; the retroactive realization at the Ruins-flanking stones that the garrison fell because the wall above their heads went down; the team's hedged language about sabotage at the deep-west stone; the Lord's closing count of seven things he did not know yesterday; the robin arriving in the evening with Niamh's location at the bend of the silver birches.)
+
+---
+
 ### Where chapter 2 goes from here
 
-**This is where we are now.** The Lord has put a man to rest, met an elf-ranger he didn't expect, sent a team north for the first time and learned the Feldgrund are pockets of normalcy he cannot share, and then watched a wounded young dwarf arrive at the gate with news of a broken stone that has been protecting them without their knowing. He is starting to suspect his land is more populated than the Crown's land office told him, and more fragile than anyone has admitted.
+**This is where we are now.** The Lord has put a man to rest, met an elf-ranger he didn't expect, sent a team north for the first time and learned the Feldgrund are pockets of normalcy he cannot share, watched a wounded young dwarf arrive at the gate with news of a broken stone, and now has a parchment on his desk that shows him living inside a partial arc of ancient ward-stones with at least three of them broken. A robin has just told him where to find Niamh.
 
 The rest of chapter 2 wants to do some mix of:
 
-- **Niamh returns with a harder ask.** The Lord has questions about the broken stone. She has answers, but they come with a request: more stones along the ridge are failing. She needs help finding them and learning how they were placed. This is the natural next story mission after the Broken Stone.
-- **Settlement-side seasonal events.** Four small mini-arcs, one per season, each fired by season change as a banner + chronicle + one mission + resolution chronicle. Spring foal, summer Crown courier, autumn village funeral, winter stranger at the gate. They run in parallel to the main story and give chapter 2 its texture.
+- **Story 8: ride east to fetch Niamh.** Light travel mission following the robin's hint. Niamh joins the team on the return. Mission completes at the settlement; chronicle entry covers the conversation where she names what the stones are and agrees to ongoing partnership.
+- **Story 9: the first restoration.** Niamh leads the team to a cracked stone (story-6's? the left X? a fresh discovery?) and demonstrates ward-restoration. Team protects her while she works. Similar shape to story 4 (Niamh-passive NPC ally, the team holds threat).
+- **Settlement-side seasonal events.** Four small mini-arcs, one per season, each fired by season change as a banner + chronicle + one mission + resolution chronicle. Spring foal, summer Crown courier, autumn village funeral, winter stranger at the gate. They run in parallel to the main story.
 - **A scouting mission past where the team fought Hale.** The team comes back reporting the Wastes proper start at six days south of the ruins. Hale's journal said seven. The Lord notes the mismatch but flags it as miscount or slow creep. (The 6-vs-7 measurement, separate from the Broken Stone thread.)
-- **A second robin.** Specific gift, not the big-picture warning. Halldora's protocol stays anonymous and useful.
 
 The slow-burn mystery threading through chapter 2 is whether the Wastes are advancing. Within any single mission the answer is "we can't tell, six vs seven could be human error." Across multiple casual scout reports over multiple chapters, the answer becomes "they're moving." Recognition lands when the Lord builds it himself, not when someone tells him. The Broken Stone arc adds a second, more immediate mystery: the protective infrastructure is failing too.
+
+### Lord open threads (parked May 2026)
+
+Two character threads we want to land somewhere in chapter 2 or early chapter 3, both surfaced while drafting story 7:
+
+- **The Crown grant question.** The Lord was granted this land by the Crown's land office. He has not, to date, wondered why the Crown would grant homestead land directly next to a fallen Crown garrison and a strange-tree zone that locals know to avoid. Per canon (`project_story_canon_locked`), the answer is *Crown didn't lie, Crown forgot* — the land office hasn't looked at this frontier in 150 years. But the Lord doesn't know that yet. There should be a chronicle entry where he sits with the question, decides he doesn't fully trust the answer, and starts wondering whether he was given this land to be a buffer for someone else. Place: probably a quiet beat between two action missions.
+- **Letters home.** The Lord writes to his parents periodically. Plain news of the work, the cast, the seasons. He doesn't write the dark parts. Build into the chronicle as small mentions ("I wrote to my mother this week and did not tell her about the dwarves at the gate") or as a dedicated chronicle entry where we see what he chooses to share. Character texture, low-stakes, high-warmth.

@@ -427,11 +427,58 @@ This mission flips story 5's "polite refusal" beat hard. The Feldgrund who came 
 
 **Slow-burn arc seed.** The team's report says the Wastes proper are "still five days further south, if Hale's reckoning was right" — a deliberate hedge that points the player toward the measurement arc without committing to a precise number yet. The 6-vs-7 measurement still belongs to a future scouting mission past the ruins.
 
-**The bigger reveal.** The chronicle establishes that the settlement has been protected by something neither the Lord nor any of his cast knew about: ward-stones. One is broken. Others exist along the ridge. Who placed them, who maintains them, and what they are holding back becomes the chapter 2 spine. Story 7 (Niamh's return) walks into this question.
+**The bigger reveal.** The chronicle establishes that the settlement has been protected by something neither the Lord nor any of his cast knew about: ward-stones. One is broken. Others exist along the ridge. Who placed them, who maintains them, and what they are holding back becomes the chapter 2 spine.
 
 ---
 
-## Stories 7+ — slow-burn measurement arc
+## Story 7 — Walking the Line
+
+### Mission
+
+| Field | Value |
+|---|---|
+| ID | `story_7_walking_the_line` |
+| Chapter | Chapter 2: Our Own Hands |
+| Prerequisite | `story_6_broken_stone` |
+| Slots | 3 × any |
+| Duration | 2400s |
+| Deploy cost | 12 gold |
+| Rewards | 80 gold, 1 Astral Shard |
+| Difficulty | 3 |
+| Min guild level | 1 |
+| Tags | exploration, combat, magical |
+| Biome | Thinning Edge |
+| Format | Expedition (5 events) |
+| Chronicle entry | `ch2_walking_the_line` |
+
+**Description:**
+
+> I have asked the team to walk the line. Map the stones. Mark which are standing and which have fallen. Bring back enough that I can see the shape of the thing we have apparently been sitting inside.
+
+**Expedition events:**
+
+1. **Fixed: East intact stone** — environment event, atmospheric, no combat. The team marks it standing.
+2. **Random pool: Ruins area, the two flanking broken stones** (3 outcomes weighted):
+   - w2: combat (1 wraith + 2 cursed_spirit)
+   - w1: environment event (the Ruins quiet today)
+   - w1: light combat (3 cursed_spirit)
+3. **Fixed: West intact stone** — environment event, the team is starting to read the pattern.
+4. **Fixed: Left X (the unknown broken stone, deep west)** — hard combat (1 wailing_phantom + 1 wraith + 3 cursed_spirit), the expedition's climax. Sabotage evidence described.
+5. **Fixed: Return home with the map** — encounter event, narrative wrap-up.
+
+### Narrative direction
+
+The team walks the visible arc and brings back a map of seven things the Lord did not know yesterday. He realizes the principle: stones are protection; where they stand the land sits well, where they have fallen the land does not. He does not yet know who placed them, who maintains them, or who might be breaking them.
+
+**The retroactive read of Hale.** The two stones flanking the Hilltop Ruins were broken 150 years ago. The Lord puts this together: the garrison did not fall by accident. The wall above their heads went down and nobody told them. He records this without having the Cult/sabotage frame yet; the player who knows the locked ward-canon will read the implications correctly.
+
+**Subtle sabotage evidence.** At the left X (the new broken stone, deep west), the team finds clues that are not weather: clean cracks, neatly fallen pieces, faint scratches that cross the original carving. Each clue has a benign explanation AND a sinister one. The team and the Lord refuse to commit. The reader does the inferring.
+
+**Halldora's second robin.** At the end of the chronicle, a robin arrives with Niamh's location: *"east, three days, at the bend of the stream where the silver birches grow. She is there for the next moon."* Useful, specific, anonymous gift; matches Halldora's protocol. Tells the Lord he has weeks, not months. Sets up story 8 as a *go now* mission, not optional.
+
+---
+
+## Stories 8+ — slow-burn measurement arc
 
 **Locked approach (May 2026):** the question of whether the Wastes are advancing is *not* answered in one mission. It surfaces as a quiet mismatch in a chapter 2 scouting expedition past Hale's ruins (Hale wrote 7, the team measures 6, could be miscount), gets reinforced by casual scout reports across multiple later missions (5 days south, then 4), and only becomes a panic moment several chapters in when the Lord assembles the data himself. The boundary really is moving, but slowly enough that within any single mission's report it looks like a measurement error.
 

@@ -184,6 +184,53 @@ export const STORY_MISSIONS: StoryMission[] = [
     ],
     chronicleEntryId: "ch2_broken_stone",
   },
+  {
+    id: "story_7_walking_the_line",
+    storyOrder: 7,
+    prerequisite: "story_6_broken_stone",
+    chapter: "Chapter 2: Our Own Hands",
+    name: "Walking the Line",
+    description:
+      "I have asked the team to walk the line. Map the stones. Mark which are standing and which have fallen. Bring back enough that I can see the shape of the thing we have apparently been sitting inside.",
+    icon: "🗺️",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/walking_the_line.png",
+    slots: [{ class: "any" }, { class: "any" }, { class: "any" }],
+    duration: 2400,
+    rewards: [
+      { resource: "gold", amount: 80 },
+      { resource: "astralShards", amount: 1 },
+    ],
+    deployCost: 12,
+    difficulty: 3,
+    minGuildLevel: 1,
+    tags: ["exploration", "combat", "magical"],
+    biome: "Thinning Edge",
+    events: [
+      // Event 1 — east intact stone (atmospheric, no combat)
+      { type: "fixed", event: { kind: "encounter", text: "The east stone stands on a low ridge a day east of the settlement. The air around it is still in a way that does not feel empty.", outcomes: [
+        { weight: 1, text: "The team approaches without difficulty. Birds rest at the base. They mark it standing on the parchment.", effect: { type: "nothing" } },
+      ]}},
+      // Event 2 — Ruins area, the two flanking broken stones. Random pool.
+      { type: "random", pool: [
+        { weight: 2, event: { kind: "combat", encounters: [{ enemyId: "wraith", count: 1 }, { enemyId: "cursed_spirit", count: 2 }] } },
+        { weight: 1, event: { kind: "encounter", text: "The two stones flanking the Hilltop Ruins are broken and have been for a long time. Niamh's binding at the captain's grave still holds the worst of it down. The team passes through with eyes down.", outcomes: [
+          { weight: 1, text: "Nothing rises. The Ruins stay quiet today. The team marks both stones and rides on.", effect: { type: "nothing" } },
+        ]}},
+        { weight: 1, event: { kind: "combat", encounters: [{ enemyId: "cursed_spirit", count: 3 }] } },
+      ]},
+      // Event 3 — west intact stone (atmospheric, no combat)
+      { type: "fixed", event: { kind: "encounter", text: "The west stone stands beyond the line of any country the settlement has walked before. It hums faintly when the wind moves through the trees nearby.", outcomes: [
+        { weight: 1, text: "The team marks it standing. The pattern is starting to make sense.", effect: { type: "nothing" } },
+      ]}},
+      // Event 4 — left X (deep west), hard combat at the new sabotaged stone
+      { type: "fixed", event: { kind: "combat", encounters: [{ enemyId: "wailing_phantom", count: 1 }, { enemyId: "wraith", count: 1 }, { enemyId: "cursed_spirit", count: 3 }] } },
+      // Event 5 — return home with the map (atmospheric wrap-up)
+      { type: "fixed", event: { kind: "encounter", text: "On the seventh day the team rides for home with the parchment safe inside an oiled cloth. The country between them and the settlement runs gentle and quiet.", outcomes: [
+        { weight: 1, text: "They eat well, sleep soundly, and ride through the gate at first light.", effect: { type: "nothing" } },
+      ]}},
+    ],
+    chronicleEntryId: "ch2_walking_the_line",
+  },
 ];
 
 /** Get the current story mission available to the player, or null */
