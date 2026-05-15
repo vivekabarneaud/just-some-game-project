@@ -378,16 +378,69 @@ The team rides out to walk the local arc and map every stone they can find. They
 
 ---
 
+### Story 8 — The Silver Birches *(draft, pending review)*
+
+**Mission card the player reads:**
+
+> Niamh is at the silver birches, three days east. The robin says she will not be there long. Send two riders, polite and quiet. The road is mostly safe but not all. Bring her home if she will come.
+
+**What happens during the mission:**
+
+The Lord sends two riders east the morning after the robin came. The east axis is in protected ground because the east intact stone still stands; the road is mostly safe but not all. The team passes the east stone on the second day and pauses there for a long time, looking at it differently now that they know what it is. They fight off a small wolf pack on the road. On the third day they reach the bend of the stream where the silver birches grow and find Niamh at her camp, working with a strip of bark and a knife. She packs without asking why. They ride back together. She comes into the Lord's hall and reads the map without speaking, then names the stones as wards, names them as her people's work, agrees to ongoing partnership, and chooses the eastern broken stone (the one where Marigold's brother fell) as the first to restore. She refuses to answer who has been sending the robin. She stays three nights, meets quietly with Edda one evening, and rides out on the fourth morning. She will meet the team at the broken stone in eight days.
+
+**Chronicle entry — *The silver birches***
+
+> I sent two of the team east the morning after the robin came. I asked them for nothing but quiet courtesy. I asked them to be the smallest party I could send and still feel that I had sent something.
+>
+> They were gone six days.
+>
+> On the second day they passed the east standing stone, the one we had marked on the map. They paused there for a long time. One of them wrote in the report that the stone "asked them to slow down a little" and then crossed the line out, then wrote it back in.
+>
+> On the third day they came to the bend of the stream where the silver birches grow. The camp was small: a fire ring, a stretched canvas, a horse, a single Thornveil ranger sitting cross-legged in the moss working with a strip of bark and a knife. They had expected Niamh. They had not expected to find her at her work. They stood at the edge of the clearing until she looked up. She nodded once. She put down the bark and the knife and stood.
+>
+> The team delivered the message carefully. They said that the lord had been looking for her, and that there was a map at the lord's table waiting for her eyes, and that the lord asked her to come if she would.
+>
+> Niamh did not ask why. She did not ask what kind of map. She packed her camp inside an hour. They rode south for three days and arrived at our gate at sundown.
+>
+> She came into the hall and read the parchment without speaking. She looked at the east stone on the map. She looked at the west stone. She looked at the line of three broken ones. She looked at the small mark like a wound my team had drawn at the deep west stone. She put her finger on each of them in turn.
+>
+> Then she said: *They are wards. My people put them down a long time ago. Most of them are older than we remember. Some we have kept up. Some we have lost. The one near where your dwarves were hurt was one we should not have lost.*
+>
+> I asked her what they hold back. She said: *Things that would otherwise be where you are sitting.*
+>
+> I asked her if more had failed than the ones we had found. She said: *Yes. Below the line we walked, there are stones we cannot reach anymore. They have been broken for a long time. The Wastes are over them. We will not get them back. The fight is for the ones we can still reach.*
+>
+> I asked her who broke them. She did not answer that question directly. She looked at the parchment for a long time and then she said: *Different stones, different hands. I will tell you what I know when there is reason to. For now, the question is which of the standing stones we will lose next, and the answer is whichever one we leave alone.*
+>
+> We talked terms. She did not hide that her people are few. She said they cannot walk the line alone, that they have not been able to for centuries, and that finding a settlement with hands and a head and a willingness to count was the first piece of good news her people had had in her lifetime. She asked us to be the eyes that watch the line. She and her rangers would be the hands that mend what we find.
+>
+> I asked her where to start. She put her finger on the easternmost broken mark, where Marigold's brother had told her to ride. *There. We close that wound first. Then we walk west.*
+>
+> I asked her about the robin. I asked who had been writing to me.
+>
+> She looked at me for a long moment. Then she said: *There are watchers older than my people. Some of them keep us alive. Some of them prefer that we do not look at them. Be grateful and do not chase the bird.*
+>
+> She stayed three nights at the settlement. She slept little. She met with Edda one evening and they spoke quietly in a kitchen in a way I did not ask about. She rode out on the fourth morning with two of her rangers who had come up to meet her here. She said she would meet us at the broken stone in eight days, with what she needed.
+>
+> I have eight days to ready a team. I have eight days to consider that for the first time since I came to this country, my settlement is part of something larger than itself, and that the something larger has been losing ground for a thousand years, and that we have just stopped it from losing another inch.
+
+**Two beats flagged for review:**
+
+- The Edda/Niamh kitchen conversation: quiet, unexplained. Could be Nordveld recognition (Niamh sees Edda's old-northern lineage), could be herb-talk, could be both. The Lord does not probe. Keeps Edda's grandmother thread on slow burn.
+- "Watchers older than my people": Niamh's answer about the robin. Keeps Halldora a mystery to both the Lord AND mostly to Niamh, and plants that there are layers above the Thornveils. Halldora-canon pays this off eventually.
+
+---
+
 ### Where chapter 2 goes from here
 
-**This is where we are now.** The Lord has put a man to rest, met an elf-ranger he didn't expect, sent a team north for the first time and learned the Feldgrund are pockets of normalcy he cannot share, watched a wounded young dwarf arrive at the gate with news of a broken stone, and now has a parchment on his desk that shows him living inside a partial arc of ancient ward-stones with at least three of them broken. A robin has just told him where to find Niamh.
+**This is where we are now.** The Lord has put a man to rest, met an elf-ranger he didn't expect, sent a team north for the first time and learned the Feldgrund are pockets of normalcy he cannot share, watched a wounded young dwarf arrive at the gate with news of a broken stone, mapped the local arc of ward-stones, and now has Niamh as an ally with a partnership agreement. She will meet his team at the eastern broken stone in eight days to perform the first restoration.
 
 The rest of chapter 2 wants to do some mix of:
 
-- **Story 8: ride east to fetch Niamh.** Light travel mission following the robin's hint. Niamh joins the team on the return. Mission completes at the settlement; chronicle entry covers the conversation where she names what the stones are and agrees to ongoing partnership.
-- **Story 9: the first restoration.** Niamh leads the team to a cracked stone (story-6's? the left X? a fresh discovery?) and demonstrates ward-restoration. Team protects her while she works. Similar shape to story 4 (Niamh-passive NPC ally, the team holds threat).
+- **Story 9: the first restoration.** Niamh meets the team at the eastern broken stone (where Marigold's brother fell). She performs the ward-restoration ritual while the team protects her. Similar shape to story 4 (Niamh-passive NPC ally, the team holds threat). The stone is restored; the ground around it begins to clear. The Lord has won back one inch.
 - **Settlement-side seasonal events.** Four small mini-arcs, one per season, each fired by season change as a banner + chronicle + one mission + resolution chronicle. Spring foal, summer Crown courier, autumn village funeral, winter stranger at the gate. They run in parallel to the main story.
 - **A scouting mission past where the team fought Hale.** The team comes back reporting the Wastes proper start at six days south of the ruins. Hale's journal said seven. The Lord notes the mismatch but flags it as miscount or slow creep. (The 6-vs-7 measurement, separate from the Broken Stone thread.)
+- **Letters home.** Periodic flavor chronicle entries: the Lord writes to his family, family replies by raven, a Crown tithe notice eventually arrives. Drafts and tone target saved in memory ([[project_letters_home]]); anecdotes need rework before shipping.
 
 The slow-burn mystery threading through chapter 2 is whether the Wastes are advancing. Within any single mission the answer is "we can't tell, six vs seven could be human error." Across multiple casual scout reports over multiple chapters, the answer becomes "they're moving." Recognition lands when the Lord builds it himself, not when someone tells him. The Broken Stone arc adds a second, more immediate mystery: the protective infrastructure is failing too.
 
