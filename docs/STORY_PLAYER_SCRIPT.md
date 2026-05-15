@@ -574,13 +574,90 @@ While the Lord waits for Niamh to return, he sends the team out to do work the T
 
 ---
 
-### Direction beyond story 10 *(in design)*
+### Story 11 — The Second Inch *(draft, pending review)*
 
-- **Story 11: the deep-west stone restoration.** Niamh returns. The team rides west with her. Heightened stakes from story 10's voice-retreat beat: the bad ground there is wider than story 7 found, so the fight at the stone will be harder than story 9's was. Niamh might note it. Same shape as story 9 (Niamh as passive NPC ally, binding modifier, team protects).
-- **Bridge chronicle: a raven from the Thornveil.** Not Halldora's hand. A formal seal. An invitation: Elder Rowena Ashford intends to visit the settlement.
-- **Story 12 / chronicle event: Rowena visits the settlement.** The Lord kneels reflexively; she waves it off ("we are not at the Crown here, my lord; I left that title a long time ago"). She thanks him, frames the work as a war, asks for partnership in expanding the map further east and west, keeps silence on the saboteur identity. Alliance formalized. Cedric Ashford, Bronwyn Ashford, and Roderick Ashford enter the recruit pool from this point.
-- **Story 13+: expanded scouting.** The team rides further along the outer belt, mapping more stones than the visible local arc. Some intact, some broken, some sabotaged. The map grows; the war becomes real. Saboteur evidence accumulates without identification.
-- **Chapter 3 climax (tbd):** the first hard saboteur encounter, OR a second Rowena visit raising the inner belt question.
+**Mission card the player reads:**
+
+> Niamh returns with what she needs. The deep-west stone is the next one we can reach. The team rides west with her in three days. Bring the salve we have, and bring three you trust to keep her standing while she works.
+
+**What happens during the mission:**
+
+Niamh returns to the settlement three days before the deployment, with a fresh wooden case and her two rangers. The team rides west with her at first light. They pass the west intact stone on the second morning. On the fifth day they reach the line of markers their own team had posted in story 10 — they don't pass the markers. Niamh has them hold the outer line at the stakes while she and her two rangers move closer to the broken stone for the ritual work. The fight that comes is harder than story 9's: more shapes come up, faster. Niamh's two rangers get hurt; both walk out. When she finishes, the stone is whole. She walks the circle once and says, *we are losing this line faster than we are mending it. We need more hands. I will send word.* The team rides home on the eighth day. The Lord registers the words and expects a letter.
+
+**Chronicle entry — *The second inch***
+
+> The team rode out with Niamh and two of her rangers at first light. She had come back to us three days before with a fresh wooden case and the same patience we had learned to read as readiness.
+>
+> They rode west through the country we marked when we planted the line. They passed the west intact stone on the second morning and the air around it sat still as it had before. They rode further west and on the fifth day reached the line of markers our own team had posted above the deep-west broken stone.
+>
+> Niamh stood at the markers for a long time, looking south. The team said her face did not change. She said only: *the team that posted these markers was right to set them where they did.*
+>
+> They told me afterward that she had not let them ride closer to the stump than the marker line. She had sent her two rangers further south to make a smaller perimeter around the broken pieces themselves. The team held the outer line at the stakes. Niamh worked inside the smaller circle the rangers held. The team's task was to keep anything that came up out of the ground from reaching the inner perimeter.
+>
+> The first ones came up before her case was open. The shapes the team had described from the eastern stone came up here too, more of them, faster. The team's blades worked because Niamh's binding held; they fought hard for what the team afterward called the better part of an hour, the longest fight any of them had been in since the captain's grave.
+>
+> Niamh's two rangers got hurt. Both walked out.
+>
+> When Niamh finished, the stone was whole. The humming started in their teeth again. The cold lifted in sheets again. The shapes that had been pressing on the outer line broke. The bad ground retreated, not all at once, but enough that the team could ride back through where they had fought without difficulty.
+>
+> Niamh walked the circle of the stone once. She did not say *good* this time. She said: *we are losing this line faster than we are mending it. We need more hands. I will send word.*
+>
+> I have written that down. I have written it down twice. I do not yet know what *I will send word* means in her voice, but I know enough to expect a letter.
+>
+> The team came home on the eighth day. Edda's stove was lit for whoever needed her. Niamh and her rangers rode out the morning after they got back; she said she would be back when she had what she needed.
+>
+> We have won a second inch. I have written *mended* beside the deep-west mark on the parchment. There are now two such marks. Beside both, I have written something I did not write last time: the date.
+
+**Beats flagged for review:**
+
+- **Niamh's "I will send word"** sets up the raven from the Thornveil that arrives between stories 11 and 12. The Lord registers it; the player expects something coming.
+- **The dated parchment.** The Lord is becoming a record-keeper. Small detail; matters when the Inquisition eventually demands evidence (chapter 5+).
+- **Vague casualty language.** *"Edda's stove was lit for whoever needed her"* works whether the player's mission rolled no losses, wounded, or deaths. When the dynamic-chronicle feature lands ([[project_dynamic_chronicles]]) this becomes a slot with specific names.
+
+---
+
+### Direction beyond story 11 *(chapter 3 remaining)*
+
+- **Chronicle / small event: a suspicious break.** A routine patrol (going to inspect the markers from story 10) finds that one of the stones the team marked **intact** has fallen. The break looks careful — weathered cracks, no obvious tool marks, plausibly old age. The Lord records both possibilities ("the stone has failed of old age, or the failure has been made to look like old age"). He cannot commit. He is suspicious anyway.
+- **Story 12: expanded scouting.** The Lord sends a team further than they've been to verify the pattern. They find evidence at another stone — this time slightly more obvious. Faint tool marks where weather wouldn't have left them. Two suspicious breaks now on the Lord's desk.
+- **Bridge chronicle: a raven from the Thornveil.** Formal seal (not Halldora's blue wax). An invitation: Elder Rowena Ashford intends to visit the settlement.
+- **Story 13 / chronicle event: Rowena visits the settlement. CHAPTER 3 CLIMAX.** The Lord brings her the parchment with the two suspicious breaks already on it. He doesn't go in empty-handed; he goes in with a question. She kneels-rejected ("we are not at the Crown here, my lord; I left that title a long time ago"). She frames the work as a war, asks for partnership in expanding the map, keeps silence on the saboteur identity. Alliance formalized. **Recruit unlock fires here: Cedric Ashford, Bronwyn Ashford, Roderick Ashford, plus the Silvaneth origin pool.**
+- **Chapter 3 closing chronicle.** The Lord processes. He doesn't know who has been breaking the stones, but he knows the Thornveils have been losing this war for a long time. He has chosen which side he is on. He does not yet know what that costs him.
+
+---
+
+## Chapters 4-5+ outlook *(planned)*
+
+The full arc shape is locked in memory ([[project_faith_loyalty_arc]]). Summary for review:
+
+### Chapter 4: the Cult of the Hollow emerges
+
+The saboteur the Lord has been chasing finally has a name. The Cult of the Hollow (canonical name; what the Hearthlands Church teaches as "the heretics trying to bring back the devil-god Netheron"). The Lord knows them from Church teaching. The chapter likely climaxes with **an attack on the settlement** — Cult fanatics with ritual implements, marked clothing, perhaps some necromantic effects (bodies that don't fall when struck). Niamh names them in the aftermath.
+
+**The Lord's faith locks in.** His chapter 3 reconciliation (Thornveils oppose the devil, therefore the Thornveils serve the Radiant One) gets its proof. The Cult is the true enemy. The Lord can pray with certainty.
+
+**His political loyalty stays unresolved.** Crown / Thornveils / Cult is now a three-body problem he can't easily simplify.
+
+### Chapter 5+: the Doctrine of Silence arrives
+
+The Inquisition has been operating in the world all along, formalizing the Doctrine of Silence centuries ago (all magic feeds the Wastes; suppress all practice). The frontier has been beneath their notice. Eventually a Crown tithe courier reports magical activity, or the Inquisition traces robins and identifies Halldora-correspondence here, and an Inquisitor is sent.
+
+**Likely figure: Inquisitor Maren Ashvale** (canonical name). She uses evidence-and-maps rather than fire, which makes her *more* dangerous. Her data overlay of Wastes expansion + magical activity is genuinely unsettling. Her conclusion is wrong but reasonable from inside her data.
+
+**Her demands (likely):**
+- Turn over the settlement's wizards.
+- End the Thornveil alliance.
+- Produce evidence of Halldora-correspondence.
+
+**The Lord can't comply** without losing everything he has built. **He can't refuse** without becoming officially a heretic. He has to find a third way: hide what cannot be hidden, lean on Rowena's political weight, possibly recruit a sympathetic clergyman (Father Corin's "between the lines" reading could matter here).
+
+### Slow-burn arcs running across these chapters
+
+- **The Cult info-drip.** Chapter 4 establishes the name. Chapter 5+ reveals the Cult is *layered*: research-oriented inner circle, splinter zealots who commit the publicized atrocities, an outer ring of Old Faith villagers seeking shelter. Late game: the Cult was founded by Halldora's research circle (the Vigil of the Shepherd). She walked away. **She is the robin sender.** Every robin re-contextualizes.
+- **Edda's quiet recognition.** When the Lord brings Cult artifacts back from a site, Edda would recognize ritual fragments through her Nordveld grandmother's old-gods knowledge. She won't volunteer this. Slow burn through chapter 4+.
+- **Father Corin as theological ally.** His "between the lines" reading might soften the Inquisition encounter. Chapter 5+ payoff for his founder-bio secret.
+- **The thinning is moving.** Already seeded in story 10 (the half-mile retreat). Future scout reports across multiple chapters will accumulate evidence. The boundary really is moving. Recognition lands when the Lord builds it himself, not when someone tells him.
+- **Late-game pivots.** Netheron wasn't the devil. The Eighth exists. The Thornveils are technically performing Netheron's cycle-work without naming it. Each pivot re-contextualizes everything the Lord has done.
 
 **Settlement-side beats running in parallel:**
 
