@@ -374,7 +374,29 @@ The team rides out to walk the local arc and map every stone they can find. They
 
 **Chronicle entry — *Walking the line***
 
-(See `frontend/src/data/chronicle_entries.ts` for the full text. Key beats: the Lord's schoolmaster instinct to count and map; the team's first conscious look at the east stone they had walked past for months; the retroactive realization at the Ruins-flanking stones that the garrison fell because the wall above their heads went down; the team's hedged language about sabotage at the deep-west stone; the Lord's closing count of seven things he did not know yesterday; the robin arriving in the evening with Niamh's location at the bend of the silver birches.)
+> The team rode out at first light with bread, ink, and a roll of parchment. I had asked them to walk the line. Map the stones. Mark which were standing and which had fallen. Bring back enough that I could see the shape of the thing we have apparently been sitting inside.
+>
+> They were gone six days.
+>
+> The first stone they reached was east of us, on a ridge I had walked past more than once. They had ridden past it more than once too. Until now none of us had thought to look at it. It was twice the height of a man, weathered, carved on three sides with the same kind of lines Marigold had described. The air around it was still. The kind of stillness that does not feel empty. Birds rested at the base, the team said. There were more birds at the base than around it. They marked it standing.
+>
+> They turned south to the ruins. We have ridden through that country half a dozen times. We have buried a man there. We have bound a captain there. We never once thought to look at the two standing stones a half-mile north and a half-mile south of the watchtower. The team said they had not seen them on the way down to Hale's mission either. The mind does not see what it has no name for.
+>
+> Both stones were broken. Not weathered. Broken. The pieces lay in the long grass. The team said that when they stood between them they could feel the air change in a way that was familiar from Marigold's road. Niamh's binding still holds at the captain's grave; the small things did not come out at the team. But the team understood, standing there, that for a hundred and fifty years the bones in the ruins above them had been kept stirring by something that should not have been stirring them. The garrison did not fall by accident. The garrison fell because the wall above their heads went down and nobody told them.
+>
+> I am writing this in plain sight, because I want it on the page: someone broke those stones. Or the weather did, and weather is harder on standing things than I had ever believed. The team could not say. The cracks were too clean and the pieces too neatly fallen for weather, they said. But who would have done it, and why, and how long ago, none of us could say.
+>
+> They rode west then. The road west goes through country I have never seen. They marked one more standing stone on the parchment, west of where we sit, intact. They said it hummed at them, very faintly, the way a stretched string hums when the wind passes over it. They marked it.
+>
+> Then they came to the fourth stone, deeper west, well outside any ground I had walked or thought about. This one was broken. The team did not say so directly but I read it in the way they wrote it down on the parchment. They put a small mark there I have not seen before in any of their handwriting: a single short line, like a wound. The ground around the stone was bad ground. They fought there, briefly, and lost no one, and got out with the map. They told me afterward that the breakage on that stone looked different from the breakage on the stones near the ruins. The marks were fresher. There were chiseled lines that crossed the original carving in places, faint and shallow, that could have been the work of a careless tool or could have been something else. They could not say.
+>
+> They came home on the seventh day.
+>
+> I have the parchment on my desk. It shows seven things I did not know yesterday: a settlement, a ruin, two standing stones, and three broken ones, counting the one Marigold's brother fell beside. Whatever the stones are, they are doing something where they still stand, and they are not doing it where they have fallen. The land moves around them in a way the team can describe but not explain. I cannot explain it either. But I can count, and I am counting.
+>
+> A robin came in this evening. There was a piece of paper tied to its leg in the same hand that the first robin's note was written in. It said: *east, three days, at the bend of the stream where the silver birches grow. She is there for the next moon.*
+>
+> I do not know who is writing to me. I do not know how they know what I am looking for. I know now where she is. I am going to ride.
 
 ---
 
