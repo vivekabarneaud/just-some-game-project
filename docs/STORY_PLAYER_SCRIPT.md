@@ -616,13 +616,97 @@ Niamh returns to the settlement three days before the deployment, with a fresh w
 
 ---
 
-### Direction beyond story 11 *(chapter 3 remaining)*
+### Bridge — *Watch the Walls* quest start *(draft, pending review)*
 
-- **Chronicle / small event: a suspicious break.** A routine patrol (going to inspect the markers from story 10) finds that one of the stones the team marked **intact** has fallen. The break looks careful — weathered cracks, no obvious tool marks, plausibly old age. The Lord records both possibilities ("the stone has failed of old age, or the failure has been made to look like old age"). He cannot commit. He is suspicious anyway.
-- **Story 12: expanded scouting.** The Lord sends a team further than they've been to verify the pattern. They find evidence at another stone — this time slightly more obvious. Faint tool marks where weather wouldn't have left them. Two suspicious breaks now on the Lord's desk.
-- **Bridge chronicle: a raven from the Thornveil.** Formal seal (not Halldora's blue wax). An invitation: Elder Rowena Ashford intends to visit the settlement.
-- **Story 13 / chronicle event: Rowena visits the settlement. CHAPTER 3 CLIMAX.** The Lord brings her the parchment with the two suspicious breaks already on it. He doesn't go in empty-handed; he goes in with a question. She kneels-rejected ("we are not at the Crown here, my lord; I left that title a long time ago"). She frames the work as a war, asks for partnership in expanding the map, keeps silence on the saboteur identity. Alliance formalized. **Recruit unlock fires here: Cedric Ashford, Bronwyn Ashford, Roderick Ashford, plus the Silvaneth origin pool.**
-- **Chapter 3 closing chronicle.** The Lord processes. He doesn't know who has been breaking the stones, but he knows the Thornveils have been losing this war for a long time. He has chosen which side he is on. He does not yet know what that costs him.
+This quest fires on completion of story 11 and gates story 12 (which appears as a "???" card until the quest is finished). Quest mechanics (specific building levels, soldier counts) are **TODO — pending the broader progression-alignment design work** (see [[project_chapter_3_defense_quest]] in memory). Narrative is locked.
+
+**Quest start narrative (chronicle entry):**
+
+> A patrol returned this morning. They had been east to check the line of markers we posted in the long-grass country. They brought news I had not expected so soon. One of the stones the team marked *standing* a season ago is lying in pieces in the grass.
+>
+> The break is clean. The team would not commit to whether it is weather or whether it is someone's hand. They wrote on the parchment, in the same careful way they always do: *the cracks are too neat for weather. The pieces have not been moved, but they did not fall the way an old thing falls. We cannot say.*
+>
+> I cannot send anyone to look more closely. Niamh said she would send word and rode out. I do not know where she is. I cannot ride after her. The team that found the broken stone could not cross into the bad ground around it because they had no one to make the cold edge less cold.
+>
+> I have sat with the parchment most of the afternoon.
+>
+> I cannot ride after Niamh and I cannot mend a stone without her. What I can do, while I wait, is turn my hand back to the work inside my own gate. I have been pouring my attention into the line for a year. I should ask my settlement whether everything inside it is as ready as it ought to be. We can always do more.
+>
+> I have called the cast together. Tomorrow we start.
+
+**Quest completion chronicle — *Inside the gate*:**
+
+> The work took longer than I hoped and less time than I had feared. Tomas drew up a list the first night and walked the palisade with his hand against every post; he marked the ones that had to be replaced with a smear of soot and his thumb, and Jory replaced them one by one. The new posts are younger oak. They will outlast the old. They will also, I think, outlast me, though I have stopped saying that kind of thing where the team can hear.
+>
+> We have raised what could be raised. The palisade stands taller and steadier than it did. The eastern corner has a watchtower now, three storeys, with a bell at the top that Jory cast from an old kettle Edda refused to give up until she did. Tomas has slept in it the last two nights, which is to say he has not slept in it but he has sat in it and counted things, which for Tomas is the same as resting. The barracks has more hands than it did. We have hands at the gate we did not have before.
+>
+> I walked the perimeter at dusk with the cast and we did not say much. The settlement looks like a settlement now. It looked like a camp before, even after a year. I had not noticed when it had stopped being a camp.
+>
+> A raven came in this evening. It was not a robin. There was a wax seal I had not seen before, dark green, pressed with the mark of a tree's open leaf. The letter inside was three lines:
+>
+> *Elder Rowena Ashford of the Thornveil intends to call at your settlement. She will arrive within the next moon, with two of her people. We send our regards.*
+>
+> I read it twice. I put it on the desk beside the parchment of stones. I have not told the cast yet what is in it. I think I will tonight at the table.
+
+---
+
+### Story 12 — Hands Beside Ours *(draft, pending review — CHAPTER 3 CLIMAX)*
+
+**Mission card the player reads (while quest in progress, shown as "???" with "complete *Watch the Walls* to unlock"):**
+
+After the quest completes, the card reveals:
+
+> Elder Rowena Ashford of the Thornveil is coming to our settlement. She will arrive within the next moon, with two of her people. Prepare the hall. The day she comes, we host her properly.
+
+**What happens during the mission:**
+
+This is a chronicle event more than a combat mission. Rowena arrives at the settlement with two of her rangers. The Lord meets her at the gate, kneels reflexively (she is still an Ashford and he is loyal to House Ashford), she waves it off — *"we are not at the Crown here, my friend"*. She comes inside, breaks bread, reads the parchment. She thanks Edda by name, and Edda's secret forty-year admiration cracks visible in a reddening ear; Father Corin, who has known the secret as long as it has existed, has a hard time keeping the laugh in. Rowena lays out what she wants: partnership in expanding the map, with her rangers ritualizing and the Lord's team scouting, marking, and protecting. She refuses to name the saboteurs yet. She stays two nights, walks the wall with Tomas, sits with Edda in the kitchen on the second afternoon in a way the Lord does not ask about. She rides out on the third morning, telling the Lord she is sending two of her grandchildren and a cousin south to work with him. **Recruit unlock fires here: Cedric Ashford, Bronwyn Ashford, Roderick Ashford, plus the Silvaneth origin pool.**
+
+**Chronicle entry — *Hands beside ours***
+
+> In the eleven days between the letter and her arrival, Edda did things I had never seen her do. She baked twice as much bread as the household needed and gave half of it to anyone who would take it. She swept the front room three times in two days. She rewashed cups that had been clean since the spring. Father Corin watched her, I noticed, and said nothing. I did not say anything either. Edda would tell us if it mattered.
+>
+> She came at noon on the eleventh day after the letter arrived. We had been watching the east road from the new tower since dawn.
+>
+> There were three riders. The two flanking her were Thornveil rangers in dark green; the one in the middle wore a riding cloak of the same colour and rode a tall grey mare. She wore her hair pinned at the nape, grey running through brown, and she sat the horse the way a person sits a horse when they have done it for longer than most people are alive. I went out to the gate myself.
+>
+> I knelt when she dismounted. I did not think about it. She was an Ashford. I am loyal to House Ashford as I am loyal to the king it gave us, and the king is her grand-nephew. The name is the name. I knelt.
+>
+> She looked at me for a moment with something that was not quite tenderness but was close to it. She said: *We are not at the Crown here, my friend. I left that title a long time ago. Stand up, please. You have done good work and I would rather not see you on your knees for it.* Her voice carried the weight of someone who has commanded for a long time and the warmth of someone who has spent her life raising people up.
+>
+> I stood. I took her hand because I did not know what else to do. She let me, briefly, then took it back. She said: *I am Rowena. Sit down. There is bread on the table and we should not let it get cold. You have been keeping company with my people for some months and I came to see who you were.*
+>
+> I brought her inside. Edda had laid out bread and cheese on the long table; Father Corin had lit a candle on the shelf above the stove. Jory had cleaned his hands and was waiting in the doorway. Tomas, in the corner, watched the rangers and said nothing. Nell was on the ladder.
+>
+> Rowena took the bread. She broke it. She ate it slowly, the way a person eats who is paying attention. She thanked Edda by name. Edda did not say anything to that, but her hand was on the rim of the bread board and her thumb was on the wood, and she did not lift it. I have seen Edda thanked by many people over many years. I have not seen her ear redden like that since the year she came to us. She nodded at Father Corin. He nodded back. Then he glanced at Edda, who had not moved, and a smile got loose on his face that he tried to keep small. He covered his mouth with his hand and looked down at his lap. His shoulders kept moving for a moment after they should have stopped. He did not look up again. Rowena did not seem surprised by anyone present.
+>
+> We sat. I put the parchment on the table between us and laid it open. She looked at it for a long time. She put her finger on the east stone. Then on the west. Then on the dwarves' stone, where I had written *mended* in my own hand. Then on the deep-west stone, where I had written *mended* and a date. Then on the stone the patrol had reported broken, where I had not written anything.
+>
+> She said: *Two stones in a year. With one ranger. With a settlement that did not know what wards were a year ago. I have not seen work this fast in fifty years.*
+>
+> I said the work was Niamh's. She said: *The work was hers and yours. She has told me. She has also told me she is losing the line faster than she can mend it, and that she needs hands she does not have. That is why I came.*
+>
+> She set out what she wanted plainly. Her people work the line; my settlement extends the line. Her rangers ritualize the restoration; my team scouts, marks, and protects. Two stones a year, she said, is not enough. We need ten. We will not get ten. We may get four. Four is twice two, and twice two is what we have not had in any year she had lived.
+>
+> I asked her if she could put names to who was breaking the stones. She did not look away. She said: *I can. I will not, yet. The names would do you no good without the context to hold them, and the context is long and difficult. When the time is right we will speak them. For now, you know enough to keep watching, and you will see what you need to see.*
+>
+> I did not push. I had been told, kindly, to wait. I have been told that before.
+>
+> She stayed two nights. She walked the new wall with Tomas the first morning and asked him questions about angles of sight that I did not understand. She sat with Edda the second afternoon in the kitchen for a long time and they spoke quietly, the way Niamh and Edda had spoken quietly some months before, in a way I did not ask about and have stopped expecting to.
+>
+> She rode out on the third morning. As she swung up on the grey mare she said one more thing, almost in passing. She said: *I am sending some of my own south to you. Two of my grandchildren, who have been wanting work that mattered, and a cousin of theirs who needs to be somewhere the Crown's reach does not. They will arrive when they arrive. Be kind to them.*
+>
+> She did not say her grandchildren's names. She did not have to. I knew there was an Ashford line that had not gone back to the court after she had walked out; I had read the names in books. I would meet them when they came.
+>
+> I have read back what I wrote when the team came home from the captain's grave. *I do not know who is writing to me.* I have read what I wrote after the first stone. *I am going to find out who has been keeping us alive without telling us.* I have read what I wrote after the second. *I have written it on the parchment beside the eastern stone, on a small line of my own: mended.* I read these things tonight not because they make me proud, although they do, but because I want to mark how much of what I now know was not known to me a year ago.
+>
+> The Crown will call them heretics. The Church will call them worse. But they are the ones who hold the line against what the Church teaches us to fear. They are doing the Radiant One's work whether their priests would name it that or not. I cannot believe my alliance with them is heresy when it is exactly the work my faith would have me do. I am loyal to the king. I serve the Radiant One. The rest of this I will write when I have figured out what the rest of this is.
+>
+> For tonight, it is enough. She came. She broke our bread. She saw what we have done. She has sent us help we did not have a way to ask for. I will sleep.
+
+---
+
+*(Chapter 3 closes here. The "I will sleep" line is the chapter close — no separate closing chronicle needed.)*
 
 ---
 
