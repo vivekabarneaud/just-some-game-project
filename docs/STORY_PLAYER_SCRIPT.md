@@ -455,18 +455,95 @@ The Lord sends two riders east the morning after the robin came. The east axis i
 
 ---
 
+### Story 9 — The First Inch *(draft, pending review)*
+
+**Mission card the player reads:**
+
+> Niamh meets us at the eastern broken stone in eight days. She will mend it. We are to keep her alive while she works. Send three. Bring everything we have.
+
+**What happens during the mission:**
+
+The team rides east with Niamh and two of her rangers. Niamh has a small wooden case she does not open until they reach the stone. They pass the east intact stone on the second morning. They reach the broken stone at midday on the third day. Niamh sets the team to make a perimeter, opens her case, kneels at the broken pieces, and begins her ritual. The worst things come up out of the ground as she works; her binding lets the team's blades cut what should not cut. One of the team takes a cold-edge wound protecting her but survives. When she is done the stone is whole. The team rides home with her. She sits at the Lord's table that evening, eats, and says one thing he writes down twice because he does not want to lose it: *more and more stones are breaking recently, more than the years can account for. My people do not yet know what is wrong. We will work this line as fast as we can.*
+
+**Chronicle entry — *The first inch***
+
+> The team rode out at sunrise on the eighth day. Niamh met them where she said she would, with two of her rangers behind her on horseback. She had a small wooden case with her that she did not open until they reached the stone. They did not ask what was in it.
+>
+> The ride out was quiet, they said. They passed the east intact stone on the second morning. They rode through the air around it without comment. They knew what it was now. There was nothing to say about it that the silence did not say.
+>
+> They reached the broken stone at midday on the third day. They told me afterward that the parchment had not shown how tall it had once been. The pieces lay in long grass around a stump that came up to a man's waist. The carved lines were still legible in places, very old. What the parchment had also not shown was that the country around the stone felt watched in a way the country between the settlement and the stone did not.
+>
+> Niamh asked them to make a perimeter around the stump. She said she would need the better part of an hour. She said the worst things would come up out of the ground when she started, because the ground would not want her to do what she was about to do. She said that her binding would let their blades cut what should not cut, but only while she stood. She said: *if I fall, get out. Do not stay for me. Get out and ride for Edda's table and forget this place. I will be no use to you dead.*
+>
+> They made the perimeter. She opened the case. She knelt at the broken pieces and began.
+>
+> It is not their place to tell me what she did, and they could not have if they had wanted to. What they brought home was their side of the perimeter.
+>
+> The first ones came up within the first minute. They described it as the air thickening, then peeling open, then a shape stepping through the peel. The shapes did not look like the dead any of them had ever seen drawn or described. They looked like the dead might look if no one had ever told them they were dead. The team's blades struck them; the blades worked; the binding held.
+>
+> More came up as Niamh worked. The team kept the perimeter. There was a moment in the middle, they said, where one of the wraith-shaped things turned away from the team and toward Niamh, and one of them got between them, and that one did not die but came back to the settlement walking. He will heal. He told me afterward he had not known the cold could move that fast.
+>
+> Niamh worked. She did not speak, they said. She did not look up from the broken pieces once.
+>
+> When she was done the stone was whole. There was no flash of light. There was no roar. There was a humming that started in their teeth, they said, before it reached their ears, and then a quiet that was different from the quiet before. The shapes that had been pressing against the perimeter were gone. The cold lifted, they said, the way a fog lifts off a river in the morning. Not all at once. In sheets.
+>
+> Niamh stood up slowly. She closed the case. She walked the circle of the stone once, very slowly, looking at the air around it. She said: *good.* It was the first word any of them had heard her speak since she knelt down.
+>
+> They rode home. They carried nothing back that they had not brought except the man with the cold-edge cut and a feeling none of them yet had a name for. Edda treated the cut. He will recover.
+>
+> Niamh sat at our table that evening. She ate. She did not say much, but she said one thing that I have written down twice because I did not want to lose it. She said: *more and more stones are breaking recently. More than the years can account for. My people do not yet know what is wrong. We will work this line as fast as we can.*
+>
+> She rode out the following morning. She said she would be back to mend the next one when she had what she needed.
+>
+> We have won an inch. I have written it on the parchment beside the eastern stone, on a small line of my own: *mended.*
+
+---
+
+### Chapter 2 closing — *An inch* *(draft, pending review, no mission)*
+
+> Some weeks have passed since the stone went back up.
+>
+> The team that walked the line that first time has been east twice more, on no errand more dangerous than counting. They report that the ground around the restored stone is doing what Niamh said it would do. The air is sitting still in the way it sits at the east stone and the west stone, the way it did not sit before. Songbirds are back in trees that had been quiet for as long as anyone we have asked can remember. Tomas walked it himself with his cat under his arm and came home saying the cat had not bristled once, which is the highest praise the cat gives.
+>
+> Sorrel and Tansy rode out together three mornings after the stone went up, with a flask of ale and a small bundle of grey-leafed sprigs from Edda's stove. They came back at sunset with lighter saddlebags than they had ridden out with. None of us asked. Marigold sat with them at the table that night. None of them spoke much. Edda set bread between them and did not ask anything either.
+>
+> I have tried to make myself believe that what we have done is small. It is small. One stone, of many. A line that runs for hundreds of miles, broken in places we cannot reach, and we have mended one piece of it in a country we can ride to in two days. I am supposed to be a grown man about this. I am supposed to know what proportion is.
+>
+> But we did not have it, and now we have it. There is ground that was bad ground a season ago and is good ground now. Songbirds came back. A boy will grow up here who does not know how close it was, who walks a hill in spring without the cold catching at his bones, and that boy was not going to grow up here a year ago.
+>
+> I do not claim a victory. I claim an inch.
+>
+> I have been at my desk all morning looking at the parchment. The west stone, deep in country none of us had walked before the team rode out, is the next one we can reach. It is broken in the way that suggests new work, not old work. Niamh said the marks there were fresher. She said when she comes back we will mend that one too, and then we will see what we can see.
+>
+> The two stones flanking the ruins are still standing. They have always been standing. I did not know what they were until last month, and now I owe them more than I have. But they were never the wall I had imagined. The protection they keep reaches only so far south. The country beyond them was less protected, and a hundred and fifty years ago something further down gave way, and the bad ground rose up and walked north until it found Hale's men where they had been told to stand. The stones that broke under his garrison are not the stones we can reach. They are two more days south, in country we cannot ride to. The stones further south of those are in the Wastes proper, and have been for a long time. We will not mend any of these. I have written this out to myself in the parchment's margin, in small letters, and then I have written under it: *not yet, not now, possibly not ever, but I want to remember to remember.*
+>
+> There is good ground east of here that there was not a season ago. That is enough for tonight.
+
+---
+
 ### Where chapter 2 goes from here
 
-**This is where we are now.** The Lord has put a man to rest, met an elf-ranger he didn't expect, sent a team north for the first time and learned the Feldgrund are pockets of normalcy he cannot share, watched a wounded young dwarf arrive at the gate with news of a broken stone, mapped the local arc of ward-stones, and now has Niamh as an ally with a partnership agreement. She will meet his team at the eastern broken stone in eight days to perform the first restoration.
+**This is where we are now.** Chapter 2 has closed on the Lord's "I claim an inch" beat: the dwarves' stone mended, the country east of the settlement clear again, Niamh promised to return for the deep-west stone when she has what she needs. The Lord has a parchment, an alliance, a measure of his own work in inches.
 
-The rest of chapter 2 wants to do some mix of:
+## Chapter 3 — direction *(in design, May 2026)*
 
-- **Story 9: the first restoration.** Niamh meets the team at the eastern broken stone (where Marigold's brother fell). She performs the ward-restoration ritual while the team protects her. Similar shape to story 4 (Niamh-passive NPC ally, the team holds threat). The stone is restored; the ground around it begins to clear. The Lord has won back one inch.
-- **Settlement-side seasonal events.** Four small mini-arcs, one per season, each fired by season change as a banner + chronicle + one mission + resolution chronicle. Spring foal, summer Crown courier, autumn village funeral, winter stranger at the gate. They run in parallel to the main story.
-- **A scouting mission past where the team fought Hale.** The team comes back reporting the Wastes proper start at six days south of the ruins. Hale's journal said seven. The Lord notes the mismatch but flags it as miscount or slow creep. (The 6-vs-7 measurement, separate from the Broken Stone thread.)
+**Spine in progress:** Chapter 2 was *we learn what we are sitting inside of*. Chapter 3 starts to be *the world is bigger than we knew, and it is starting to look back at us*. The Thornveils stop being Niamh-alone in the Lord's mind; they become an order with leadership, structure, history. The saboteur identity question deepens but is not yet answered. The Lord begins to understand the work he has joined as a war, not a maintenance project.
+
+**Tentative chapter 3 shape:**
+
+- **Story 10: the deep-west stone restoration.** Niamh returns. The team rides west with her. The work is competent, the rhythm now familiar. The Lord and Niamh's working relationship deepens. Niamh may drop in passing that her elders have been told about the Lord, without specifics.
+- **Bridge chronicle: a raven from the Thornveil.** Not Halldora's hand. A formal seal. An invitation: Elder Rowena Ashford intends to visit the settlement.
+- **Story 11 / chronicle event: Rowena visits the settlement.** The Lord kneels reflexively; she waves it off ("we are not at the Crown here"). She thanks him, frames the work as a war, asks for partnership in expanding the map further east and west, keeps silence on the saboteur identity. Alliance formalized. Cedric Ashford, Bronwyn Ashford, and Roderick Ashford enter the recruit pool from this point.
+- **Story 12+: expanded scouting.** The team rides further along the outer belt, mapping more stones than the visible local arc. Some intact, some broken, some sabotaged. The map grows; the war becomes real. Saboteur evidence accumulates without identification.
+- **Chapter 3 climax (tbd):** the first hard saboteur encounter, OR a second Rowena visit raising the inner belt question.
+
+**Settlement-side beats running in parallel:**
+
+- **Seasonal events.** Four small mini-arcs, one per season, each fired by season change as a banner + chronicle + one mission + resolution chronicle. Spring foal, summer Crown courier, autumn village funeral, winter stranger at the gate.
 - **Letters home.** Periodic flavor chronicle entries: the Lord writes to his family, family replies by raven, a Crown tithe notice eventually arrives. Drafts and tone target saved in memory ([[project_letters_home]]); anecdotes need rework before shipping.
+- **The thinning expansion thread.** Eventually a scout report will note that supposedly-safe ground is no longer safe. Deferred until chapter 4 or later in chapter 3, after Rowena's first visit.
 
-The slow-burn mystery threading through chapter 2 is whether the Wastes are advancing. Within any single mission the answer is "we can't tell, six vs seven could be human error." Across multiple casual scout reports over multiple chapters, the answer becomes "they're moving." Recognition lands when the Lord builds it himself, not when someone tells him. The Broken Stone arc adds a second, more immediate mystery: the protective infrastructure is failing too.
+The slow-burn mystery threading through chapters 2-3 is whether the Wastes are advancing. Within any single mission the answer is "we can't tell, six vs seven could be human error." Across multiple casual scout reports over multiple chapters, the answer becomes "they're moving." Recognition lands when the Lord builds it himself, not when someone tells him.
 
 ### Lord open threads (parked May 2026)
 
