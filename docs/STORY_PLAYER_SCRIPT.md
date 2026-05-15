@@ -525,16 +525,61 @@ The team rides east with Niamh and two of her rangers. Niamh has a small wooden 
 
 **This is where we are now.** Chapter 2 has closed on the Lord's "I claim an inch" beat: the dwarves' stone mended, the country east of the settlement clear again, Niamh promised to return for the deep-west stone when she has what she needs. The Lord has a parchment, an alliance, a measure of his own work in inches.
 
-## Chapter 3 — direction *(in design, May 2026)*
+---
 
-**Spine in progress:** Chapter 2 was *we learn what we are sitting inside of*. Chapter 3 starts to be *the world is bigger than we knew, and it is starting to look back at us*. The Thornveils stop being Niamh-alone in the Lord's mind; they become an order with leadership, structure, history. The saboteur identity question deepens but is not yet answered. The Lord begins to understand the work he has joined as a war, not a maintenance project.
+## Chapter 3: Hands Beside Ours
 
-**Tentative chapter 3 shape:**
+**Spine:** Chapter 2 was *we learn what we are sitting inside of*. Chapter 3 starts to be *the world is bigger than we knew, and it is starting to look back at us*. The Thornveils stop being Niamh-alone in the Lord's mind; they become an order with leadership, structure, history. The saboteur identity question deepens but is not yet answered. The Lord begins to understand the work he has joined as a war, not a maintenance project.
 
-- **Story 10: the deep-west stone restoration.** Niamh returns. The team rides west with her. The work is competent, the rhythm now familiar. The Lord and Niamh's working relationship deepens. Niamh may drop in passing that her elders have been told about the Lord, without specifics.
+### Story 10 — Post the Line *(draft, pending review)*
+
+**Mission card the player reads:**
+
+> Stones break. We cannot stop them from breaking. We can mark the line above them, so that whoever walks this country after us knows what we have learned. Send a team with stakes, rope, and a pot of red paint. Mark the boundary above every stone we have found, intact or broken.
+
+**What happens during the mission:**
+
+While the Lord waits for Niamh to return, he sends the team out to do work the Thornveils can't: post physical markers along the visible arc of stones so that the boundary is legible to anyone who walks south, even when a stone fails. The team rides with stakes cut from young oak, rope, and a clay pot of red paint Edda makes from beet root and oak gall. They start south at the Hilltop Ruins, work the two flanking intact stones, ride east to mark the line above the east intact stone and the dwarves' mended stone, fight off a small wolf pack, then swing west to the west intact stone and finally to the deep-west broken stone. At the deep-west stone they discover voices closer than they should be: the team retreats half a mile and plants the stake-line there instead, with a quiet note on the parchment: *we cannot say if we drew it wrong then or whether the ground moves.*
+
+**Chronicle entry — *Post the line***
+
+> I asked the team to do something the Thornveils could not. The Thornveils mend stones. The stones break again. We cannot stop them from breaking. What we can do, the smallest among us can do as well as anyone, is mark the line so that anyone who walks south of where we sit knows what we have learned in the past year.
+>
+> I sent them out with stakes cut from young oak, with rope, with a small clay pot of red paint Edda had made for me from beet root and oak gall. They were to plant stakes in a line a few yards north of each known stone, intact or broken. They were to wind the rope between the stakes, loose enough to walk through, tight enough to feel under your hand. They were to paint a red mark on the south face of each stake. They were to make the boundary something a tired rider could see in fading light.
+>
+> They were gone seven days.
+>
+> They started south, at the Hilltop Ruins. They worked first at the two stones that flank the watchtower, which we have come to think of as the gates of our country whether we like the word or not. The team posted markers in the long grass between the two stones, three to the north of each, well clear of the ruins themselves. They marked the line with rope and red paint and rode east.
+>
+> They posted the next line above the east intact stone, on the ridge our team had walked past more than once before we knew what it was. They posted another line further east, above the dwarves' stone, which I have written *mended* beside on the parchment. The air around that stone has changed since the work, the team said. Birds are at the base now that were not at the base in summer. They marked the line anyway. We do not yet trust permanence.
+>
+> They rode further east still and a small pack of wolves came at them in a clearing. The team sent the wolves off with no losses on our side and no time wasted; they continued the work the same afternoon.
+>
+> They turned west on the fifth day and posted markers above the west intact stone without incident. Further west still, where the parchment showed the deep-west broken stone, the team approached the place we had drawn for them on the map and stopped before they reached it. The voices were closer than they had been when our team walked that ground last. Not as loud as Marigold described at the moment the shapes came up, but loud. The team retreated a half-mile and posted the stake-line there instead, north of where the parchment had said.
+>
+> They marked the broken stone's stake differently. They put a small notch above the red line, the way they had agreed, so the difference would be visible: this is the line, and this is where it has failed and not yet been put back. They wrote a small note on the parchment beside the stake-line, in their own hand: *the line is a half-mile north of where we drew it last time. We cannot say if we drew it wrong then or whether the ground moves.*
+>
+> They came home in the evening.
+>
+> I have walked out to the nearest line of markers since they returned. I can see the stakes from a hill not far from the settlement. The line is visible now. It was not visible a week ago. We have not made the stones permanent. We have made the boundary legible.
+>
+> I have written this in the chronicle because I want to mark something else too. The work was not heroic. It was carpentry. There was no fight worth speaking of, no ritual, no revelation. There was a team of our people taking stakes and rope and a pot of paint out into country we now know, and putting markers down where markers had not been, and coming home. We have been at the work for a year. There are days when the work that matters is the simplest work there is.
+>
+> But I have also been looking at the parchment a great deal since they came home. The half-mile they pulled the stake-line north of where they had drawn the stone is a small thing. The team and I both said so. We may have walked off our paces wrong before, and the team that goes back next will measure it again and find the old number, and the new mark on the parchment will become a footnote we tease the cartographer about for years. Or the bad ground around that stone may be a half-mile wider than it was, and the line of markers we just planted may need to be re-planted a half-mile further north before another year is out. I have written both possibilities under the new mark. I will write them under the next one too, if there is a next one to write.
+
+**Two beats flagged for review:**
+
+- **The Lord's reasoning for the work itself.** *"There are days when the work that matters is the simplest work there is."* That's his mature voice settling in. He's becoming the custodian he needs to be. Could sharpen or soften.
+- **The half-mile seed.** The chronicle records both possibilities — measurement error OR moving ground — without picking. First seed of the slow-burn thinning expansion thread. The Lord doesn't have the frame to interpret it yet; future scout reports will pile up evidence.
+
+---
+
+### Direction beyond story 10 *(in design)*
+
+- **Story 11: the deep-west stone restoration.** Niamh returns. The team rides west with her. Heightened stakes from story 10's voice-retreat beat: the bad ground there is wider than story 7 found, so the fight at the stone will be harder than story 9's was. Niamh might note it. Same shape as story 9 (Niamh as passive NPC ally, binding modifier, team protects).
 - **Bridge chronicle: a raven from the Thornveil.** Not Halldora's hand. A formal seal. An invitation: Elder Rowena Ashford intends to visit the settlement.
-- **Story 11 / chronicle event: Rowena visits the settlement.** The Lord kneels reflexively; she waves it off ("we are not at the Crown here"). She thanks him, frames the work as a war, asks for partnership in expanding the map further east and west, keeps silence on the saboteur identity. Alliance formalized. Cedric Ashford, Bronwyn Ashford, and Roderick Ashford enter the recruit pool from this point.
-- **Story 12+: expanded scouting.** The team rides further along the outer belt, mapping more stones than the visible local arc. Some intact, some broken, some sabotaged. The map grows; the war becomes real. Saboteur evidence accumulates without identification.
+- **Story 12 / chronicle event: Rowena visits the settlement.** The Lord kneels reflexively; she waves it off ("we are not at the Crown here, my lord; I left that title a long time ago"). She thanks him, frames the work as a war, asks for partnership in expanding the map further east and west, keeps silence on the saboteur identity. Alliance formalized. Cedric Ashford, Bronwyn Ashford, and Roderick Ashford enter the recruit pool from this point.
+- **Story 13+: expanded scouting.** The team rides further along the outer belt, mapping more stones than the visible local arc. Some intact, some broken, some sabotaged. The map grows; the war becomes real. Saboteur evidence accumulates without identification.
 - **Chapter 3 climax (tbd):** the first hard saboteur encounter, OR a second Rowena visit raising the inner belt question.
 
 **Settlement-side beats running in parallel:**
