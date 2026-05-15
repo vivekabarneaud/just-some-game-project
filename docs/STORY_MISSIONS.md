@@ -458,7 +458,7 @@ This mission flips story 5's "polite refusal" beat hard. The Feldgrund who came 
 **Expedition events:**
 
 1. **Fixed: East intact stone** — environment event, atmospheric, no combat. The team marks it standing.
-2. **Random pool: Ruins area, the two flanking broken stones** (3 outcomes weighted):
+2. **Random pool: Ruins area, the two flanking intact stones** (3 outcomes weighted). The stones themselves are standing, but the Ruins sit at the edge of their protective range and small things still leak through:
    - w2: combat (1 wraith + 2 cursed_spirit)
    - w1: environment event (the Ruins quiet today)
    - w1: light combat (3 cursed_spirit)
@@ -468,9 +468,9 @@ This mission flips story 5's "polite refusal" beat hard. The Feldgrund who came 
 
 ### Narrative direction
 
-The team walks the visible arc and brings back a map of seven things the Lord did not know yesterday. He realizes the principle: stones are protection; where they stand the land sits well, where they have fallen the land does not. He does not yet know who placed them, who maintains them, or who might be breaking them.
+The team walks the visible arc and brings back a map of eight things the Lord did not know yesterday. He realizes the principle: stones are protection; where they stand the land sits well, where they have fallen the land does not. He does not yet know who placed them, who maintains them, or who might be breaking them.
 
-**The retroactive read of Hale.** The two stones flanking the Hilltop Ruins were broken 150 years ago. The Lord puts this together: the garrison did not fall by accident. The wall above their heads went down and nobody told them. He records this without having the Cult/sabotage frame yet; the player who knows the locked ward-canon will read the implications correctly.
+**The retroactive read of Hale.** The two stones flanking the Hilltop Ruins are *standing*. They always have been. But their protective reach is finite, and Hale's garrison was south of that reach. The wall that killed him was further down: inner-belt stones two days south of the Ruins that gave way 150 years ago, in country the player cannot ride to. The Lord puts this together. The garrison did not fall by accident; they fell because a wall further down went down and the bad ground reached them. He records this without having the Cult/sabotage frame yet; the player who knows the locked ward-canon will read the implications correctly.
 
 **Subtle sabotage evidence.** At the left X (the new broken stone, deep west), the team finds clues that are not weather: clean cracks, neatly fallen pieces, faint scratches that cross the original carving. Each clue has a benign explanation AND a sinister one. The team and the Lord refuse to commit. The reader does the inferring.
 
