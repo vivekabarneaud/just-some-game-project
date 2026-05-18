@@ -688,7 +688,7 @@ This is a chronicle event more than a combat mission. Rowena arrives at the sett
 >
 > She set out what she wanted plainly. Her people work the line; my settlement extends the line. Her rangers ritualize the restoration; my team scouts, marks, and protects. Two stones a year, she said, is not enough. We need ten. We will not get ten. We may get four. Four is twice two, and twice two is what we have not had in any year she had lived.
 >
-> I asked her if she could put names to who was breaking the stones. She did not look away. She said: *I can. I will not, yet. The names would do you no good without the context to hold them, and the context is long and difficult. When the time is right we will speak them. For now, you know enough to keep watching, and you will see what you need to see.*
+> I asked her if she could put names to who was breaking the stones. She did not look away. She said: *I can. I will not, yet. The names would do you no good without the context to hold them, and the context is long and difficult. When the time is right we will speak them. For now, when you see their work, you will recognize it from what you learned as a boy. The Church will hand you a name. They have their reasons for handing it the way they do, and I am not going to argue with them at your table tonight.* She glanced once at Father Corin as she said this, briefly, then back at me. Father Corin nodded, very small, and went back to looking at his hands. *Write the name down when you see it. Write it small, the way a careful person writes things they do not yet trust. When you are ready to know more, ask me.*
 >
 > I did not push. I had been told, kindly, to wait. I have been told that before.
 >
@@ -707,6 +707,81 @@ This is a chronicle event more than a combat mission. Rowena arrives at the sett
 ---
 
 *(Chapter 3 closes here. The "I will sleep" line is the chapter close — no separate closing chronicle needed.)*
+
+---
+
+## Chapter 4: title TBD *(in design, May 2026)*
+
+**Spine:** The Lord names the antagonist for himself. The Cult of the Hollow arrives as a real threat, not a Church abstraction. The settlement's defense — both the wall work from *Watch the Walls* and the alliance with the Thornveils — gets tested for the first time. Faith reconciles around a clear enemy; political loyalty stays open.
+
+### Story 13 — The Hand That Broke It *(draft, pending review)*
+
+**Mission card the player reads:**
+
+> Niamh has come back from the north with a fresh case and very little patience for waiting. She wants to mend the broken stone east of the markers before the trail grows colder. Send three to ride with her. Bring what we have.
+
+**What happens during the mission:**
+
+Niamh returns to the settlement a week earlier than expected, alone, with a fresh wooden case. She has heard about the broken-stone report from the east. She rides east with the team the next morning. They find the broken stone in country they had ridden through before this season — chisel marks, burn patterns, signs of work that is not weather. Niamh hints she has seen this before but does not name it. She does the ritual work; the team holds the outer line against ghosts that come up faster and more coordinated than at the deep-west stone. The team brings home rubbings of the chisel marks and a drawing of the burn pattern. The Lord recognizes the symbols from books his father did not want him reading at twelve. He writes *Hollow* in the margin of the parchment, small, exactly the size Rowena told him to. He does not yet tell the cast.
+
+**Chronicle entry — *The hand that broke it***
+
+> Niamh came back to us a week before her word said she would. She rode in alone, on the same grey mare she had ridden out on, with a fresh wooden case strapped behind her saddle. She had been working further north, she said when asked. She had heard about the patrol's report from the east. She would not stay long. There was work to do.
+>
+> She nodded at Edda's table without sitting. She took bread. She asked how soon I could put three in the saddle. I had three in the saddle the next morning.
+>
+> The new broken stone was a day east of where we had posted the line, in country we had ridden through twice this season already. The patrol that had found the break a month ago had not approached it; they had marked the spot from a distance and ridden home. Niamh and our team rode in close enough this time to see what they had to see.
+>
+> It was not weather. Even before they could ask Niamh, the team knew. The pieces did not lie the way old stones lie when they fall. The breaks were too clean. There were chisel marks across the original carving in three places, fresh enough that the cuts had not yet gone grey at the edges. There were burn marks in the grass near the base in a shape the team did not have a word for.
+>
+> Niamh looked at the burn pattern for a long moment. The team said her shoulders went very still in a way they had not seen before. She said only: *I had not expected to see this work this close to your gate.*
+>
+> The team asked her what work she meant. She said: *Work I have seen twice before. Both times on stones inside the thinning. The hand that did this is not new at it.* She did not say more. She did not seem to want to. The team did not press her. They had been told what they needed to be told.
+>
+> She set her case on the ground a half-mile north of the broken stone and began.
+>
+> The fight that came up was harder than the last one and the team said so plainly. More shapes than at the deep-west stone, faster, more coordinated, as if they had been waiting to be loosed. The team's blades worked because Niamh's binding held. They held the outer line for the better part of an hour. Some came home with cold-edge cuts. Edda has them.
+>
+> When Niamh finished, the stone was whole. She walked the circle once. She did not say *good* this time either. She turned the grey mare back the way she had come without staying for our table.
+>
+> The team came home with rubbings of the chisel marks and a careful drawing of the burn pattern. They put them on my desk and went to wash and eat.
+>
+> I have been looking at the rubbings since the candle went down. I have seen these marks before. Not in this country. In a book my father did not want me to read at twelve and that I read twice. The book was about the heresies the Church teaches us to recognize. The marks in the book were said to be the iconography of the Cult of the Hollow.
+>
+> Rowena told me, the night she stayed at our table, that the Church would hand me a name when I saw their work. She told me to write the name small, the way a careful person writes things they do not yet trust. She told me Father Corin would not object to careful reading, and Father Corin did not object that night.
+>
+> I am writing the name in the margin tonight. I am writing it small.
+>
+> *Hollow.*
+>
+> I am not yet writing more. I will hold this for tonight. Tomorrow I will think about what comes next.
+
+---
+
+### Breath chronicle — *What the margin holds* *(draft, pending review, no mission)*
+
+> I have been at my desk most evenings this week. The parchment is open. The word in the margin has not moved.
+>
+> I have been thinking about what the Church taught me at twelve and what Rowena taught me four months ago. The Church taught me the Cult of the Hollow are devil-worshippers who would unmake the world to bring back a god who deserved to fall. Rowena taught me to read carefully and to write small. I do not know yet which to trust.
+>
+> Both, perhaps. Most of what I have been taught in my life has been some part true and some part not, and I have learned the trick is to hold the parts open and let them sort themselves with time.
+>
+> I spoke briefly with Father Corin tonight. I did not say much. I said only that I had been told to read carefully something I had been taught to read plainly. He did not answer for a long time. Then he said: *the Radiant One does not, in my reading, condemn careful reading. He gave us minds that were meant to be used.* He went back to his hymnal. I have written this down because I want to remember it.
+>
+> I have also been writing other things in the margin. Not large. I have written a second word beside the first. The word is *Crown?* I have written it small too. I do not know that the Crown has done me wrong. I was given this land by King Aldren, by way of clerks who have not seen this country in my lifetime, and I will not believe he meant me ill. He has been a good king. The Crown writes to me about the tithe and about nothing else. I have not, in fairness, written to them about anything but the tithe in return. I have been handling what I had in front of me, and I have had Niamh, and I did not want to bother an office in Tessoria with work I thought was mine to do. I am beginning to wonder if it was.
+>
+> I wrote to my mother tonight. I told her the work is going well, that Jory is impossible and Tomas is steady, that Edda has put up so much bread we may have to give some to the cows. I did not tell her the rest of what I have written in this chronicle. She has worried enough for one lifetime already. I will not add to it.
+>
+> Tomorrow I will go back to the wall. There is work that holds while I think.
+
+---
+
+### Direction beyond the breath chronicle *(in design)*
+
+- **Bridge chronicle: Halldora's robin.** Different from any robin before. *Hollow at your gate in three nights. They come from the south road. Many — men in dark robes and dead things that walk. Set your watch.* The Lord reads "Hollow," looks at the margin where he wrote that word a week ago, and the dread sharpens. He has been right.
+- **Quest fires: *Survive the Cult Raid*.** Existing raid system; this is the marquee event. Defense intensifies, alarms tighten, the settlement on three-night countdown.
+- **Story 14: The Cult raid. CHAPTER 4 CLIMAX.** Mixed force (Cult fanatics + necromancer-summoned skeletons). Settlement-side defense, not adventurer expedition. The team and the founders hold what they have built.
+- **Chapter 4 closing chronicle.** Aftermath. Niamh's people arrive late in the day or after. The Cult is named explicitly. The war has come home.
 
 ---
 
