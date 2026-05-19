@@ -3434,6 +3434,16 @@ export function GameProvider(props: ParentProps) {
                 if (sm?.chronicleEntryId && !s.chronicleEntriesFired.includes(sm.chronicleEntryId)) {
                   s.chronicleEntriesFired.push(sm.chronicleEntryId);
                 }
+                // Bridge chronicles that follow this mission's completion
+                // (breath beats, narrative follow-ups). Fired all at once for
+                // now; proper pacing/delays is a future feature.
+                if (sm?.additionalChronicleEntryIds) {
+                  for (const id of sm.additionalChronicleEntryIds) {
+                    if (!s.chronicleEntriesFired.includes(id)) {
+                      s.chronicleEntriesFired.push(id);
+                    }
+                  }
+                }
                 // Robin event hook — if a robin is bound to this story
                 // mission, queue it so the sidebar pill can surface it.
                 // One-shot per save (firedRobins blocks re-fire).
@@ -3492,7 +3502,7 @@ export function GameProvider(props: ParentProps) {
             const usedNames = new Set(s.adventurers.filter((a) => a.alive).map((a) => a.name));
             s.recruitCandidates = [];
             for (let i = 0; i < count; i++) {
-              const c = generateCandidate(nextId("adv"), maxRank, usedNames, guildLvl, s.completedStoryMissions);
+              const c = generateCandidate(nextId("adv"), maxRank, usedNames, guildLvl, s.completedStoryMissions, s.questRewardsClaimed);
               usedNames.add(c.name);
               s.recruitCandidates.push(c);
             }
@@ -5233,7 +5243,7 @@ export function GameProvider(props: ParentProps) {
         const usedNames = new Set(s.adventurers.filter((a) => a.alive).map((a) => a.name));
         s.recruitCandidates = [];
         for (let i = 0; i < count; i++) {
-          const c = generateCandidate(nextId("adv"), maxRank, usedNames, guildLvl, s.completedStoryMissions);
+          const c = generateCandidate(nextId("adv"), maxRank, usedNames, guildLvl, s.completedStoryMissions, s.questRewardsClaimed);
           usedNames.add(c.name);
           s.recruitCandidates.push(c);
         }

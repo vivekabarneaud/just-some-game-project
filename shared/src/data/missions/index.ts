@@ -49,7 +49,7 @@ export const MISSION_POOL: MissionTemplate[] = [
 ];
 
 // ─── Story missions ────────────────────────────────────────────
-export { STORY_MISSIONS, getCurrentStoryMission } from "./storyMissions.js";
+export { STORY_MISSIONS, getCurrentStoryMission, getLockedStoryMission } from "./storyMissions.js";
 
 // ─── Helpers & constants ───────────────────────────────────────
 export {

@@ -231,18 +231,231 @@ export const STORY_MISSIONS: StoryMission[] = [
     ],
     chronicleEntryId: "ch2_walking_the_line",
   },
+  {
+    id: "story_8_silver_birches",
+    storyOrder: 8,
+    prerequisite: "story_7_walking_the_line",
+    chapter: "Chapter 2: Our Own Hands",
+    name: "The Silver Birches",
+    description:
+      "Niamh is at the silver birches, three days east. The robin says she will not be there long. Send two riders, polite and quiet. The road is mostly safe but not all. Bring her home if she will come.",
+    icon: "🌲",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/the_silver_birches.png",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 1500,
+    rewards: [
+      { resource: "gold", amount: 60 },
+      { resource: "astralShards", amount: 1 },
+    ],
+    deployCost: 10,
+    difficulty: 2,
+    minGuildLevel: 1,
+    tags: ["exploration"],
+    encounters: [
+      { enemyId: "wild_wolf", count: 3 },
+    ],
+    chronicleEntryId: "ch2_silver_birches",
+  },
+  {
+    id: "story_9_first_inch",
+    storyOrder: 9,
+    prerequisite: "story_8_silver_birches",
+    chapter: "Chapter 2: Our Own Hands",
+    name: "The First Inch",
+    description:
+      "Niamh meets us at the eastern broken stone in eight days. She will mend it. We are to keep her alive while she works. Send three. Bring everything we have.",
+    icon: "🗿",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/the_first_inch.png",
+    slots: [{ class: "any" }, { class: "any" }, { class: "any" }],
+    duration: 1800,
+    rewards: [
+      { resource: "gold", amount: 100 },
+      { resource: "astralShards", amount: 1 },
+    ],
+    deployCost: 15,
+    difficulty: 3,
+    minGuildLevel: 1,
+    tags: ["combat", "magical", "escort"],
+    encounters: [
+      { enemyId: "wailing_phantom", count: 1 },
+      { enemyId: "wraith", count: 2 },
+      { enemyId: "cursed_spirit", count: 5 },
+    ],
+    npcAlly: {
+      npcId: "niamh",
+      deathFailsMission: true,
+      passive: true,
+      baseThreatVsTag: { ghost: 80 },
+    },
+    modifiers: [
+      { type: "physical_pierces_tag", tag: "ghost", whileAllyAlive: "niamh" },
+    ],
+    chronicleEntryId: "ch2_first_inch",
+  },
+  {
+    id: "story_10_post_the_line",
+    storyOrder: 10,
+    prerequisite: "story_9_first_inch",
+    chapter: "Chapter 3: Hands Beside Ours",
+    name: "Post the Line",
+    description:
+      "Stones break. We cannot stop them from breaking. We can mark the line above them, so that whoever walks this country after us knows what we have learned. Send a team with stakes, rope, and a pot of red paint. Mark the boundary above every stone we have found, intact or broken.",
+    icon: "🪧",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/post_the_line.png",
+    slots: [{ class: "any" }, { class: "any" }, { class: "any" }],
+    duration: 2100,
+    rewards: [
+      { resource: "gold", amount: 50 },
+      { resource: "wood", amount: 10 },
+    ],
+    deployCost: 8,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["exploration"],
+    biome: "Outer Belt",
+    events: [
+      // Event 1 — Ruins area: post markers above the two intact flanking stones
+      { type: "fixed", event: { kind: "encounter", text: "The team works first at the two stones that flank the watchtower. The grass is long and the country has gone quiet again with summer.", outcomes: [
+        { weight: 1, text: "They post markers in the long grass between the two stones, three to the north of each, well clear of the ruins themselves.", effect: { type: "nothing" } },
+      ]}},
+      // Event 2 — East intact + dwarves' mended stone. Random pool: env or light wolves.
+      { type: "random", pool: [
+        { weight: 2, event: { kind: "encounter", text: "They ride east and post markers above the east intact stone and the dwarves' mended stone. Birds are at the base of the mended one that were not at the base in summer. The team marks the line anyway.", outcomes: [
+          { weight: 1, text: "We do not yet trust permanence.", effect: { type: "nothing" } },
+        ]}},
+        { weight: 1, event: { kind: "combat", encounters: [{ enemyId: "wild_wolf", count: 3 }] } },
+      ]},
+      // Event 3 — west intact stone (atmospheric)
+      { type: "fixed", event: { kind: "encounter", text: "They turn west on the fifth day and post markers above the west intact stone without incident.", outcomes: [
+        { weight: 1, text: "The line is taking shape on the parchment.", effect: { type: "nothing" } },
+      ]}},
+      // Event 4 — deep-west broken stone: voice-retreat beat. No combat; the team pulls back.
+      { type: "fixed", event: { kind: "encounter", text: "Further west still, where the parchment showed the deep-west broken stone, the team approached the place we had drawn for them on the map and stopped before they reached it. The voices were closer than they had been when our team walked that ground last.", outcomes: [
+        { weight: 1, text: "The team retreated a half-mile and posted the stake-line there instead, north of where the parchment had said. They marked the stake differently — a small notch above the red line — and wrote a note on the parchment: the line is a half-mile north of where we drew it last time.", effect: { type: "nothing" } },
+      ]}},
+    ],
+    chronicleEntryId: "ch3_post_the_line",
+  },
+  {
+    id: "story_11_second_inch",
+    storyOrder: 11,
+    prerequisite: "story_10_post_the_line",
+    chapter: "Chapter 3: Hands Beside Ours",
+    name: "The Second Inch",
+    description:
+      "Niamh returns with what she needs. The deep-west stone is the next one we can reach. The team rides west with her in three days. Bring the salve we have, and bring three you trust to keep her standing while she works.",
+    icon: "🗿",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/the_second_inch.png",
+    slots: [{ class: "any" }, { class: "any" }, { class: "any" }],
+    duration: 2400,
+    rewards: [
+      { resource: "gold", amount: 100 },
+      { resource: "astralShards", amount: 1 },
+    ],
+    deployCost: 15,
+    difficulty: 4,
+    minGuildLevel: 1,
+    tags: ["combat", "magical", "escort"],
+    encounters: [
+      { enemyId: "wailing_phantom", count: 1 },
+      { enemyId: "wraith", count: 3 },
+      { enemyId: "cursed_spirit", count: 4 },
+    ],
+    npcAlly: {
+      npcId: "niamh",
+      deathFailsMission: true,
+      passive: true,
+      baseThreatVsTag: { ghost: 80 },
+    },
+    modifiers: [
+      { type: "physical_pierces_tag", tag: "ghost", whileAllyAlive: "niamh" },
+    ],
+    chronicleEntryId: "ch3_second_inch",
+  },
+  {
+    id: "story_13_hand_that_broke_it",
+    storyOrder: 13,
+    prerequisite: "story_11_second_inch",
+    prerequisiteQuest: "watch_the_walls",
+    chapter: "Chapter 4: Hands Beside Ours",
+    name: "The Hand That Broke It",
+    description:
+      "Niamh has come back from the north with a fresh case and very little patience for waiting. She wants to mend the broken stone east of the markers before the trail grows colder. Send three to ride with her. Bring what we have.",
+    icon: "🪨",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/the_hand_that_broke_it.png",
+    slots: [{ class: "any" }, { class: "any" }, { class: "any" }],
+    duration: 2100,
+    rewards: [
+      { resource: "gold", amount: 100 },
+      { resource: "astralShards", amount: 1 },
+    ],
+    deployCost: 15,
+    difficulty: 4,
+    minGuildLevel: 1,
+    tags: ["combat", "magical", "escort"],
+    encounters: [
+      { enemyId: "wailing_phantom", count: 1 },
+      { enemyId: "wraith", count: 3 },
+      { enemyId: "cursed_spirit", count: 4 },
+    ],
+    npcAlly: {
+      npcId: "niamh",
+      deathFailsMission: true,
+      passive: true,
+      baseThreatVsTag: { ghost: 80 },
+    },
+    modifiers: [
+      { type: "physical_pierces_tag", tag: "ghost", whileAllyAlive: "niamh" },
+    ],
+    chronicleEntryId: "ch4_hand_that_broke_it",
+    // Bridge chronicles that follow story 13's completion. These should ideally
+    // be paced over game-time (breath ~1 game-week later, Three nights ~1 week
+    // after that), but the pacing mechanism does not yet exist. For now all
+    // three chronicles fire at once on story 13 completion. The narrative
+    // closes chapter 4 on the cliffhanger of the incoming Cult raid (story 14
+    // remains undrafted).
+    additionalChronicleEntryIds: ["ch4_what_the_margin_holds", "ch4_three_nights"],
+  },
 ];
+
+/** Get the next story mission that is currently locked specifically by a quest
+ *  prerequisite — i.e. the player has met the prior-mission prerequisite and
+ *  the guild-level requirement, but a parallel quest must still complete. Used
+ *  by the UI to render a "???" placeholder card with the unlock hint. Returns
+ *  null when no quest-locked story mission is next in line (which means either
+ *  the current story mission is unlocked normally, or the chain has run out). */
+export function getLockedStoryMission(
+  guildLevel: number,
+  completedStoryMissions: readonly string[],
+  completedQuests: readonly string[] = [],
+): { mission: StoryMission; lockedByQuest: string } | null {
+  const completed = new Set(completedStoryMissions);
+  const quests = new Set(completedQuests);
+  for (const m of STORY_MISSIONS) {
+    if (completed.has(m.id)) continue;
+    if (m.minGuildLevel > guildLevel) return null;
+    if (m.prerequisite && !completed.has(m.prerequisite)) return null;
+    if (m.prerequisiteQuest && !quests.has(m.prerequisiteQuest)) {
+      return { mission: m, lockedByQuest: m.prerequisiteQuest };
+    }
+    return null; // story mission is unlocked normally; no locked card to show
+  }
+  return null;
+}
 
 /** Get the current story mission available to the player, or null */
 export function getCurrentStoryMission(
   guildLevel: number,
   completedStoryMissions: string[],
+  completedQuests: readonly string[] = [],
 ): StoryMission | null {
   const completed = new Set(completedStoryMissions);
+  const quests = new Set(completedQuests);
   for (const m of STORY_MISSIONS) {
     if (completed.has(m.id)) continue;
     if (m.minGuildLevel > guildLevel) return null;
     if (m.prerequisite && !completed.has(m.prerequisite)) return null;
+    if (m.prerequisiteQuest && !quests.has(m.prerequisiteQuest)) return null;
     return m;
   }
   return null;

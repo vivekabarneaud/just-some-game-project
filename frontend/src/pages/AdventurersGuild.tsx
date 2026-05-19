@@ -25,6 +25,7 @@ import {
   getMission,
   formatReward,
   getCurrentStoryMission,
+  getLockedStoryMission,
   STORY_MISSIONS,
   isExpedition,
   getMissionPhase,
@@ -250,7 +251,8 @@ export default function AdventurersGuild() {
     }
   };
   const guildLevel = () => actions.getGuildLevel();
-  const storyMission = () => getCurrentStoryMission(guildLevel(), state.completedStoryMissions ?? []);
+  const storyMission = () => getCurrentStoryMission(guildLevel(), state.completedStoryMissions ?? [], state.questRewardsClaimed ?? []);
+  const lockedStoryMission = () => getLockedStoryMission(guildLevel(), state.completedStoryMissions ?? [], state.questRewardsClaimed ?? []);
   const CLASS_ORDER: Record<string, number> = { warrior: 0, priest: 1, wizard: 2, archer: 3, assassin: 4 };
   const availableIds = createMemo(() =>
     state.adventurers
@@ -879,6 +881,26 @@ export default function AdventurersGuild() {
                   storyChapter={(story() as any).chapter}
                   onClick={() => toggleMissionSelect(story())}
                 />
+              )}
+            </Show>
+            {/* Locked story mission placeholder: shown when the next story
+                mission is gated by a parallel quest that hasn't completed
+                yet. Renders as a "???" card with the unlock hint, similar
+                to the bestiary's "???" enemy cards. */}
+            <Show when={lockedStoryMission()}>
+              {(locked) => (
+                <div class="building-card" style={{ opacity: 0.6, cursor: "default" }}>
+                  <span class="building-card-category">{(locked().mission as any).chapter}</span>
+                  <div class="building-card-header" style={{ "margin-top": "4px" }}>
+                    <div class="building-card-icon" style={{ "font-size": "2rem" }}>❓</div>
+                    <div>
+                      <div class="building-card-title">???</div>
+                      <div style={{ "font-size": "0.85rem", color: "var(--text-muted)" }}>
+                        Complete the active quest to unlock the next story mission.
+                      </div>
+                    </div>
+                  </div>
+                </div>
               )}
             </Show>
             <For each={state.missionBoard.filter((m) => !coopActiveExpeditionIds().has(m.id))}>

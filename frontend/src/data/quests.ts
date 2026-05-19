@@ -732,6 +732,42 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     targetPage: "/defenses",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/watchtower.png",
   },
+
+  // ╔══════════════════════════════════════════════════════════════╗
+  // ║ DEFENSE — Chapter 3: Watch the Walls                        ║
+  // ║ Triggered by completion of story_11_second_inch.            ║
+  // ║ Gates story_12_hands_beside_ours (the Rowena visit, fired   ║
+  // ║ via this quest's chronicleEntryId on completion).           ║
+  // ║                                                              ║
+  // ║ TODO progression-alignment: the condition is placeholder.   ║
+  // ║ Currently requires outer wall AND outer watchtower built.   ║
+  // ║ When progression-alignment design lands, tune to expected   ║
+  // ║ player state at this story milestone.                       ║
+  // ╚══════════════════════════════════════════════════════════════╝
+
+  {
+    id: "watch_the_walls",
+    storyline: "defense",
+    chapter: 3,
+    title: "Watch the Walls",
+    narrative:
+      "Niamh is away. The work inside the gate has been waiting. While I cannot ride after her or mend a stone without her, I can ask my settlement whether everything inside it is as ready as it ought to be.",
+    startNarrative:
+      "A patrol returned with a stone that should have been standing. I cannot send anyone to look more closely. What I can do, while I wait, is turn my hand back to the work inside my own gate.",
+    objective: "Strengthen the settlement's defenses: build the outer wall and a watchtower.",
+    icon: "🛡️",
+    triggers: [{ type: "story_mission_completed", missionId: "story_11_second_inch" }],
+    condition: (s) =>
+      (s.walls.find((w) => w.ring === "outer")?.level ?? 0) >= 1 &&
+      s.watchtowers.some((t) => t.level >= 1),
+    rewards: [
+      { resource: "gold", amount: 80, label: "Gold" },
+      { resource: "astralShards", amount: 1, label: "Astral Shards" },
+    ],
+    targetPage: "/defenses",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/watch_the_walls.png",
+    chronicleEntryId: "ch3_hands_beside_ours",
+  },
 ];
 
 // (The legacy `QUEST_CHAIN` back-compat alias was removed in Phase 2 once all

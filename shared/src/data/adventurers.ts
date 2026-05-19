@@ -257,9 +257,23 @@ const STORY_UNLOCKED_ORIGINS: Record<string, Origin[]> = {
   story_6_broken_stone: ["feldgrund"],
 };
 
+/** Origins unlocked by completing a specific quest. Keyed by quest id.
+ *  Used when a story beat is delivered via quest (e.g. the Rowena visit
+ *  fires as the Watch the Walls completion chronicle). */
+const QUEST_UNLOCKED_ORIGINS: Record<string, Origin[]> = {
+  // When Rowena Ashford visits the settlement (chronicle ch3_hands_beside_ours
+  // fired by the Watch the Walls quest completion), the alliance is formal.
+  // Silvaneth elves of the Thornveil start drifting south to the work, and
+  // Rowena specifically sends her grandchildren (Cedric, Bronwyn) and a
+  // cousin (Roderick) — all of them human Ashfork-origin characters with
+  // their own backstories already in the premade pool.
+  watch_the_walls: ["silvaneth"],
+};
+
 export function getOriginsForGuildLevel(
   level: number,
   completedStoryMissions: readonly string[] = [],
+  completedQuests: readonly string[] = [],
 ): Origin[] {
   if (level <= 0) return [];
   const base = ORIGINS_BY_GUILD_LEVEL[Math.min(level, 5)] ?? ORIGINS_BY_GUILD_LEVEL[5];
@@ -267,6 +281,10 @@ export function getOriginsForGuildLevel(
   for (const missionId of completedStoryMissions) {
     const fromMission = STORY_UNLOCKED_ORIGINS[missionId];
     if (fromMission) for (const o of fromMission) unlocked.add(o);
+  }
+  for (const questId of completedQuests) {
+    const fromQuest = QUEST_UNLOCKED_ORIGINS[questId];
+    if (fromQuest) for (const o of fromQuest) unlocked.add(o);
   }
   return Array.from(unlocked);
 }
@@ -815,16 +833,18 @@ function buildAdventurerFromPremade(id: string, premade: PremadeCharacter, maxRa
 
 /** Generate an adventurer candidate from the premade pool. Pass guildLevel
  *  to gate the origin pool by settlement fame (Lv.1 = local only, Lv.5 = all),
- *  and completedStoryMissions to apply story-gated unlocks (e.g. Feldgrund
- *  recruits appear once story 6 is done). */
+ *  completedStoryMissions to apply story-gated unlocks (e.g. Feldgrund
+ *  recruits appear once story 6 is done), and completedQuests to apply
+ *  quest-gated unlocks (e.g. Silvaneth recruits after Watch the Walls). */
 export function generateCandidate(
   id: string,
   maxRank: AdventurerRank = 2,
   usedNames?: Set<string>,
   guildLevel = 5,
   completedStoryMissions: readonly string[] = [],
+  completedQuests: readonly string[] = [],
 ): Adventurer {
-  const allowed = new Set(getOriginsForGuildLevel(guildLevel, completedStoryMissions));
+  const allowed = new Set(getOriginsForGuildLevel(guildLevel, completedStoryMissions, completedQuests));
   const premade = pickPremadeCharacter(usedNames, allowed);
   if (premade) return buildAdventurerFromPremade(id, premade, maxRank);
   // Origin-pool exhaustion: fall back to any allowed-origin char even if name reused

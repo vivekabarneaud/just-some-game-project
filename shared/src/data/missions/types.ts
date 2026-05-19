@@ -186,10 +186,21 @@ export interface CompletedMission {
 export interface StoryMission extends MissionTemplate {
   storyOrder: number;
   prerequisite?: string; // ID of previous story mission that must be completed
+  /** Optional quest prerequisite — if set, the player must have claimed
+   *  this quest's reward before the mission is unlocked. Used when a
+   *  story beat is gated by parallel settlement work (e.g. story 13
+   *  waits for Watch the Walls to complete, since Rowena's visit happens
+   *  via that quest's chronicle). */
+  prerequisiteQuest?: string;
   chapter: string;
   /** Chronicle entry id fired into the archive on success. The cinematic for
    *  the mission lives in STORY_CINEMATICS keyed by the mission id. */
   chronicleEntryId?: string;
+  /** Additional chronicle entries to fire alongside the primary one on
+   *  mission completion. Used for bridge chronicles (breath beats, narrative
+   *  follow-ups) that have no other natural trigger. Note: these all fire at
+   *  once with the main chronicle; proper pacing/delays is a future feature. */
+  additionalChronicleEntryIds?: string[];
   /** Optional expedition fields. When present, the mission also routes through
    *  the expedition engine (multi-event timeline). isExpedition() picks this up
    *  structurally. */
