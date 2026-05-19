@@ -776,11 +776,38 @@ Niamh returns to the settlement a week earlier than expected, alone, with a fres
 
 ---
 
-### Direction beyond the breath chronicle *(in design)*
+### Bridge chronicle — *Three nights* *(draft, pending review, no mission)*
 
-- **Bridge chronicle: Halldora's robin.** Different from any robin before. *Hollow at your gate in three nights. They come from the south road. Many — men in dark robes and dead things that walk. Set your watch.* The Lord reads "Hollow," looks at the margin where he wrote that word a week ago, and the dread sharpens. He has been right.
-- **Quest fires: *Survive the Cult Raid*.** Existing raid system; this is the marquee event. Defense intensifies, alarms tighten, the settlement on three-night countdown.
-- **Story 14: The Cult raid. CHAPTER 4 CLIMAX.** Mixed force (Cult fanatics + necromancer-summoned skeletons). Settlement-side defense, not adventurer expedition. The team and the founders hold what they have built.
+> A robin came in at dusk three days after I wrote the breath into this chronicle. Blue wax, the same anonymous hand as the two previous papers. I knew where it came from before I broke the seal — or as much as anyone can know who has been sent useful things by no one.
+>
+> The note was four lines.
+>
+> *Hollow knows your name now. At your gate in three nights, from the south road. Two score in robes. Their dead walking at twice that number. Set your watch.*
+>
+> I read it twice. Then I went to the desk and turned to the parchment of stones and looked at the margin where I had written *Hollow* a week ago. The two words faced each other across the room. I had been right.
+>
+> Twice before, the same hand had brought me work I could begin — a recipe to make, a person to find. This time the message was the gift. There was no errand to ride out for. There was only the work that was riding toward us.
+>
+> I called the cast to the table that evening. I read them the note. I did not soften it. Edda listened with her hand on the bread board, the way she does. Jory whistled once through his teeth, very low, and said nothing. Tomas listened without speaking. Halfway through my reading he stood, took his cloak from the peg by the door, and went out toward the eastern tower. He did not return until well after dark. Father Corin closed his hymnal and put his hand on the cover and left it there. Nell came down off the ladder and stood beside Edda for the rest of the conversation.
+>
+> I gave the orders that needed giving. Tomas would set the watch in two shifts of three from tonight onward. The bell in the eastern tower would be rung at any sign of approach from the south. Jory would lay another row of stakes inside the south wall, where the country slopes down toward the river — a second line behind the first, low and unfinished but better than nothing in three nights. Edda would make as much salve as we had Greymantle for; I would not let her stop until the jar was full. Nell would help her. Father Corin would go among the people who lived along the lower lanes, who would not have heard yet, and tell them what was coming and what to do.
+>
+> I sent two riders out at dawn. One east, with a sealed note for Niamh wherever she could be reached. One north along Rowena's path, on the slim chance her party was still on the road. I did not expect either rider to reach their person in time to bring help back. I sent them anyway. We were not going to be the last people who tried to tell someone what was happening to us.
+>
+> I have not asked the cast to be brave. I do not think any of us would have a word for what we are being asked to be. We are being asked to be in a building when something comes for it. We do not run. There is nowhere we would run to that would have us, and we built the wall for exactly this. The work that matters now is the work of staying in the building.
+>
+> I have not enlarged the word in the margin. They have given me their name themselves, but they have not yet given me everything the Church teaches that name means. I will defend my settlement. I will hold the larger question until it is mine to answer. Both things at once.
+>
+> I walked the wall after the cast had gone to bed. Tomas was already in the tower. The eastern country was quiet. The southern country was not loud. It was nothing I could yet hear that was wrong. It was something I knew was coming. There is a difference between those two things and I have not slept since I learned it.
+>
+> Three nights.
+
+---
+
+### Direction beyond *Three nights* *(in design)*
+
+- **Quest fires: *Survive the Cult Raid*.** Existing raid system; this is the marquee event. Three-night countdown. Defense intensifies, alarms tighten, the settlement on watch.
+- **Story 14: The Cult raid. CHAPTER 4 CLIMAX.** Mixed force (~40 Cult fanatics + ~80 necromancer-summoned skeletons). Settlement-side defense, not adventurer expedition. The team and the founders hold what they have built.
 - **Chapter 4 closing chronicle.** Aftermath. Niamh's people arrive late in the day or after. The Cult is named explicitly. The war has come home.
 
 ---
