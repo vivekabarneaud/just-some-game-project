@@ -75,6 +75,27 @@ const STAT_LABELS: Record<string, string> = {
   str: "STR", dex: "DEX", int: "INT", vit: "VIT", wis: "WIS",
 };
 
+/** Render the visual for a recipe in a queue row: the item's image if it has
+ *  one, otherwise the recipe's emoji icon. Used by both the active and pending
+ *  queue lists so the visual stays consistent. Building tools don't have a
+ *  recipe-to-image mapping yet — they fall through to the emoji path. */
+function recipeQueueIcon(recipe: CraftingRecipe, size: number = 24): JSX.Element {
+  const item = getItemByRecipe(recipe.id);
+  if (item?.image) {
+    return <img
+      src={item.image}
+      alt=""
+      style={{
+        width: `${size}px`, height: `${size}px`,
+        "object-fit": "cover",
+        "border-radius": "4px",
+        "flex-shrink": "0",
+      }}
+    />;
+  }
+  return <span style={{ "font-size": `${Math.round(size * 0.75)}px` }}>{recipe.icon}</span>;
+}
+
 /** Info panel content for item-bearing recipes (stats, armor type, classes, consumable, flavor) */
 function itemInfoPanel(recipeId: string, hideConsumableTag: boolean = false) {
   const item = getItemByRecipe(recipeId);
@@ -551,8 +572,8 @@ export default function CraftingPage(props: CraftingPageProps) {
                     "border-radius": "6px",
                     border: "1px solid var(--border-default)",
                   }}>
-                    <div style={{ display: "flex", "align-items": "center", gap: "6px" }}>
-                      <span>{recipe()?.icon}</span>
+                    <div style={{ display: "flex", "align-items": "center", gap: "8px" }}>
+                      <Show when={recipe()}>{(r) => recipeQueueIcon(r(), 28)}</Show>
                       <span style={{ "font-size": "0.85rem", color: "var(--text-primary)" }}>
                         {recipe()?.name}
                         {(craft.quantity ?? 1) > 1 && <span style={{ color: "var(--accent-gold)", "margin-left": "4px" }}>×{craft.quantity}</span>}
@@ -586,9 +607,9 @@ export default function CraftingPage(props: CraftingPageProps) {
                       border: "1px dashed var(--border-default)",
                       opacity: 0.7,
                     }}>
-                      <div style={{ display: "flex", "align-items": "center", gap: "6px" }}>
+                      <div style={{ display: "flex", "align-items": "center", gap: "8px" }}>
                         <span style={{ "font-size": "0.7rem", color: "var(--text-muted)", "min-width": "18px" }}>#{i() + 1}</span>
-                        <span>{recipe()?.icon}</span>
+                        <Show when={recipe()}>{(r) => recipeQueueIcon(r(), 22)}</Show>
                         <span style={{ "font-size": "0.82rem", color: "var(--text-secondary)" }}>
                           {recipe()?.name}
                           {(craft.quantity ?? 1) > 1 && <span style={{ color: "var(--accent-gold)", "margin-left": "4px" }}>×{craft.quantity}</span>}

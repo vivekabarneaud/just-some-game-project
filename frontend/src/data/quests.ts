@@ -523,7 +523,15 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
       "The Town Hall is too small now. Edda has taken to calling it \"the cupboard.\" We have outgrown this camp: tents on every level stretch of ground, two wells, a shrine, a mission board, and more names on the roster than I can list from memory. The canvas will not last another winter. It is time to raise a proper hall, and then to trade tents for walls.",
     objective: "Upgrade Town Hall to level 3",
     icon: "⭐",
-    triggers: [{ type: "quest_completed", questId: "ambition_rises" }],
+    // Gated on the three Ch.4 prereq quests rather than firing the instant
+    // Town Hall hits Lv.2 — gives the player room to actually upgrade the
+    // mill, quarry, and marketplace before the next milestone surfaces.
+    triggers: [
+      { type: "quest_completed", questId: "sharper_axes" },
+      { type: "quest_completed", questId: "deeper_veins" },
+      { type: "quest_completed", questId: "merchants_welcome" },
+    ],
+    requiresAll: true,
     condition: (s) => (bldg(s, "town_hall")?.level ?? 0) >= 3,
     rewards: [
       { resource: "wood", amount: 167, label: "Wood" },

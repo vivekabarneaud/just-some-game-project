@@ -106,9 +106,18 @@ export function maxArchers(state: GameState): number {
 
 /** Adults available to take a soldier/archer slot. Children, toddlers, and
  *  the elderly are not combat-eligible — that's the whole point of the
- *  per-category rework: Nell can't carry a spear, Edda is too old. */
+ *  per-category rework: Nell can't carry a spear, Edda is too old.
+ *
+ *  We also reserve a few adults from conscription so the founding cast
+ *  (specifically Jory and Tomas, the two non-Lord founder adults) can't
+ *  be silently drafted into a watchtower. This is a safety net only —
+ *  it does NOT protect founders from starvation or freezing deaths;
+ *  that requires the per-person tracking in the deferred citizen-
+ *  categories rework. */
+const FOUNDER_ADULT_RESERVE = 2;
+
 export function availableCitizens(state: GameState): number {
-  return Math.max(0, state.citizens.adults - state.soldiers - state.archers);
+  return Math.max(0, state.citizens.adults - state.soldiers - state.archers - FOUNDER_ADULT_RESERVE);
 }
 
 // ─── Training ─────────────────────────────────────────────────────

@@ -46,6 +46,18 @@ export function founderCitizens(): CitizenCounts {
   return { toddlers: 0, children: 1, adults: 2, elderly: 2 };
 }
 
+/** Per-category floor that protects the founding cast from ever being
+ *  silently killed by starvation, freezing, raids, or unhappiness-departure.
+ *  Same shape as founderCitizens — Nell, Jory, Tomas, Edda, Corin will
+ *  always survive until the named-founder rework lets them die for real
+ *  story reasons. Passed to reduceByPriority as the `floor` argument. */
+export const FOUNDER_FLOOR: Partial<CitizenCounts> = {
+  toddlers: 0,
+  children: 1,
+  adults: 2,
+  elderly: 2,
+};
+
 /** Total population — what `state.population` used to be. */
 export function totalPopulation(c: CitizenCounts): number {
   return c.toddlers + c.children + c.adults + c.elderly;
@@ -65,14 +77,18 @@ export function effectiveFoodMouths(c: CitizenCounts): number {
 
 /** Apply a survival ratio (0..1) to every category, flooring to keep counts
  *  integer. Used for famine / freeze / unhappiness — losses spread across
- *  the whole population uniformly. */
-export function applySurvivalRatio(c: CitizenCounts, ratio: number): CitizenCounts {
+ *  the whole population uniformly.
+ *
+ *  Optional `floor` clamps each category from below: useful with
+ *  FOUNDER_FLOOR so the founding cast (Nell, Jory, Tomas, Edda, Corin)
+ *  is never silently killed by ratio-based attrition. */
+export function applySurvivalRatio(c: CitizenCounts, ratio: number, floor: Partial<CitizenCounts> = {}): CitizenCounts {
   const r = Math.max(0, Math.min(1, ratio));
   return {
-    toddlers: Math.floor(c.toddlers * r),
-    children: Math.floor(c.children * r),
-    adults: Math.floor(c.adults * r),
-    elderly: Math.floor(c.elderly * r),
+    toddlers: Math.max(floor.toddlers ?? 0, Math.floor(c.toddlers * r)),
+    children: Math.max(floor.children ?? 0, Math.floor(c.children * r)),
+    adults: Math.max(floor.adults ?? 0, Math.floor(c.adults * r)),
+    elderly: Math.max(floor.elderly ?? 0, Math.floor(c.elderly * r)),
   };
 }
 
@@ -83,13 +99,16 @@ export function reduceByPriority(
   c: CitizenCounts,
   count: number,
   priority: CitizenCategory[] = ["adults", "elderly", "children", "toddlers"],
+  floor: Partial<CitizenCounts> = {},
 ): CitizenCounts {
   if (count <= 0) return c;
   const out: CitizenCounts = { ...c };
   let remaining = count;
   for (const cat of priority) {
     if (remaining <= 0) break;
-    const take = Math.min(out[cat], remaining);
+    const floorVal = floor[cat] ?? 0;
+    const reducible = Math.max(0, out[cat] - floorVal);
+    const take = Math.min(reducible, remaining);
     out[cat] -= take;
     remaining -= take;
   }

@@ -84,6 +84,7 @@ import {
 import {
   type CitizenCounts,
   founderCitizens,
+  FOUNDER_FLOOR,
   totalPopulation,
   effectiveFoodMouths,
   applySurvivalRatio,
@@ -2868,7 +2869,7 @@ export function GameProvider(props: ParentProps) {
             const allowed = Math.max(0, frozenBefore - BASE_POPULATION);
             const deaths = Math.floor(Math.min(rawDeaths, allowed));
             if (deaths > 0) {
-              s.citizens = reduceByPriority(s.citizens, deaths, ["elderly", "toddlers", "children", "adults"]);
+              s.citizens = reduceByPriority(s.citizens, deaths, ["elderly", "toddlers", "children", "adults"], FOUNDER_FLOOR);
               pushEvent(s, "winter_freezing", "🥶", `${deaths} citizen${deaths > 1 ? "s" : ""} froze to death`);
             }
           }
@@ -3087,7 +3088,7 @@ export function GameProvider(props: ParentProps) {
             const newTotal = totalPopulation(s.citizens);
             if (newTotal > maxPop) {
               const overflow = newTotal - maxPop;
-              s.citizens = reduceByPriority(s.citizens, overflow, ["toddlers", "children", "elderly", "adults"]);
+              s.citizens = reduceByPriority(s.citizens, overflow, ["toddlers", "children", "elderly", "adults"], FOUNDER_FLOOR);
             }
             pushEvent(s, "citizen_born", "👤", arrival.flavor);
           }
@@ -3103,7 +3104,7 @@ export function GameProvider(props: ParentProps) {
             const minRatio = popBefore > 0 ? BASE_POPULATION / popBefore : 1;
             const ratio = Math.max(tickSurvival, minRatio);
             const before = { ...s.citizens };
-            s.citizens = applySurvivalRatio(s.citizens, ratio);
+            s.citizens = applySurvivalRatio(s.citizens, ratio, FOUNDER_FLOOR);
             // Soldiers/archers are citizens too — match the adult-survival ratio
             // for per-building garrisons + global totals.
             if (before.adults > 0) {
@@ -3632,7 +3633,7 @@ export function GameProvider(props: ParentProps) {
                   extraCitizensLost = Math.min(proposed, allowed);
                   if (extraCitizensLost > 0) {
                     // Adults first (defenders / labor), then elderly, children, toddlers.
-                    s.citizens = reduceByPriority(s.citizens, extraCitizensLost, ["adults", "elderly", "children", "toddlers"]);
+                    s.citizens = reduceByPriority(s.citizens, extraCitizensLost, ["adults", "elderly", "children", "toddlers"], FOUNDER_FLOOR);
                     const word = extraCitizensLost === 1 ? "citizen" : "citizens";
                     pushEvent(s, "citizen_died", "💀", `${extraCitizensLost} ${word} taken in the plunder`);
                   }
