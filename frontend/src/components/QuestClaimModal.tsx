@@ -1,8 +1,11 @@
 import { createSignal, For, Show, onMount } from "solid-js";
 import type { QuestDefinition } from "~/data/quests";
-import { getChronicleEntry } from "~/data/chronicle_entries";
-import { getCharactersForFragments } from "~/data/founding_characters";
+import { getChronicleEntry, type ChronicleEntry } from "~/data/chronicle_entries";
+import { resolveFragments, type BioFragment, type FoundingCharacter } from "~/data/founding_characters";
 import { playSound } from "~/engine/sounds";
+import UnlockCard from "~/components/UnlockCard";
+import ChronicleEntryModal from "~/components/ChronicleEntryModal";
+import MemoryPreviewModal from "~/components/MemoryPreviewModal";
 
 interface Props {
   quest: QuestDefinition;
@@ -21,6 +24,8 @@ const EXIT_ANIMATION_MS = 240;
 export default function QuestClaimModal(props: Props) {
   onMount(() => playSound("notify"));
   const [exiting, setExiting] = createSignal(false);
+  const [previewEntry, setPreviewEntry] = createSignal<ChronicleEntry | null>(null);
+  const [previewMemory, setPreviewMemory] = createSignal<{ character: FoundingCharacter; fragment: BioFragment } | null>(null);
   const dismissWith = (kind: "close" | "claim") => {
     if (exiting()) return;
     setExiting(true);
@@ -30,7 +35,12 @@ export default function QuestClaimModal(props: Props) {
     }, EXIT_ANIMATION_MS);
   };
 
+  /** First paragraph of a memory fragment, used as the card teaser. */
+  const fragmentTeaser = (text: string) => text.split("\n\n")[0] ?? text;
+  const unlockedMemories = () => resolveFragments(props.quest.unlocksBioFragments ?? []);
+
   return (
+    <>
     <div
       class="loot-backdrop modal-overlay"
       classList={{ exiting: exiting() }}
@@ -99,88 +109,33 @@ export default function QuestClaimModal(props: Props) {
             </div>
           </div>
 
-          {/* New journal entry note — shown only if this quest unlocks a Chronicle entry */}
+          {/* New journal entry — clickable, opens preview */}
           <Show when={props.quest.chronicleEntryId ? getChronicleEntry(props.quest.chronicleEntryId) : null}>
             {(entry) => (
-              <div class="loot-section" style={{
-                "animation-delay": "380ms",
-                padding: "10px 14px",
-                background: "rgba(96, 165, 250, 0.08)",
-                border: "1px solid var(--accent-blue)",
-                "border-radius": "6px",
-              }}>
-                <div style={{
-                  "font-size": "0.7rem",
-                  color: "var(--accent-blue)",
-                  "margin-bottom": "4px",
-                }} class="section-label">
-                  📖 New journal entry
-                </div>
-                <div style={{
-                  "font-size": "0.95rem",
-                  color: "var(--text-primary)",
-                  "font-family": "var(--font-heading)",
-                }}>
-                  {entry().title}
-                </div>
-                <div style={{
-                  "font-size": "0.8rem",
-                  color: "var(--text-secondary)",
-                  "font-style": "italic",
-                  "line-height": "1.45",
-                  "margin-top": "4px",
-                }}>
-                  {entry().teaser}
-                </div>
-              </div>
+              <UnlockCard
+                image={{ kind: "icon", emoji: "📖" }}
+                label="New journal entry"
+                title={entry().title}
+                teaser={entry().teaser}
+                onClick={() => setPreviewEntry(entry())}
+                animationDelay="380ms"
+              />
             )}
           </Show>
 
-          {/* New memory notes — one per character whose fragment was unlocked */}
-          <Show when={props.quest.unlocksBioFragments && props.quest.unlocksBioFragments.length > 0}>
-            <For each={getCharactersForFragments(props.quest.unlocksBioFragments ?? [])}>
-              {(char, i) => (
-                <div class="loot-section" style={{
-                  "animation-delay": `${380 + i() * 80}ms`,
-                  padding: "10px 14px",
-                  background: "rgba(96, 165, 250, 0.08)",
-                  border: "1px solid var(--accent-blue)",
-                  "border-radius": "6px",
-                  display: "flex",
-                  "align-items": "center",
-                  gap: "12px",
-                }}>
-                  <img
-                    src={char.portrait}
-                    alt={char.name}
-                    style={{
-                      width: "48px", height: "48px",
-                      "border-radius": "6px",
-                      "object-fit": "cover",
-                      "flex-shrink": "0",
-                      border: "1px solid rgba(96, 165, 250, 0.4)",
-                    }}
-                  />
-                  <div style={{ "min-width": "0" }}>
-                    <div style={{
-                      "font-size": "0.7rem",
-                      color: "var(--accent-blue)",
-                      "margin-bottom": "2px",
-                    }} class="section-label">
-                      📖 New memory
-                    </div>
-                    <div style={{
-                      "font-size": "0.95rem",
-                      color: "var(--text-primary)",
-                      "font-family": "var(--font-heading)",
-                    }}>
-                      {char.name}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </For>
-          </Show>
+          {/* New memory notes — one card per unlocked fragment */}
+          <For each={unlockedMemories()}>
+            {(item, i) => (
+              <UnlockCard
+                image={{ kind: "portrait", src: item.character.portrait, alt: item.character.name }}
+                label="New memory"
+                title={item.character.name}
+                teaser={fragmentTeaser(item.fragment.text)}
+                onClick={() => setPreviewMemory(item)}
+                animationDelay={`${460 + i() * 80}ms`}
+              />
+            )}
+          </For>
         </div>
 
         {/* Footer */}
@@ -200,5 +155,21 @@ export default function QuestClaimModal(props: Props) {
         </div>
       </div>
     </div>
+
+    {/* Nested preview modals. Mounting them as siblings of the loot-backdrop
+        so they overlay it via their own modal-overlay (z-index 1100). */}
+    <Show when={previewEntry()}>
+      {(entry) => <ChronicleEntryModal entry={entry()} onClose={() => setPreviewEntry(null)} />}
+    </Show>
+    <Show when={previewMemory()}>
+      {(item) => (
+        <MemoryPreviewModal
+          character={item().character}
+          fragment={item().fragment}
+          onClose={() => setPreviewMemory(null)}
+        />
+      )}
+    </Show>
+    </>
   );
 }

@@ -10,6 +10,8 @@
     "./data/combat/*": "./src/data/combat/*.ts",
     "./data/missions": "./src/data/missions/index.ts",
     "./data/missions/*": "./src/data/missions/*.ts",
+    "./data/items": "./src/data/items/index.ts",
+    "./data/items/*": "./src/data/items/*.ts",
     "./data/*": "./src/data/*.ts"
   },
   "devDependencies": {

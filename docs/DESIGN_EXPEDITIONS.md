@@ -218,9 +218,8 @@ Approach: author 2-4 new enemies per biome/theme as expeditions are built. Don't
 Expedition mechanics create space for new talent-tree depth. Talents that affect between-event behavior give players reasons to specialize and to bring specific classes on expeditions.
 
 Examples:
-- **Primalist (warrior/priest hybrid):** *Cauterize* — cleanse bleed/poison from all allies between events. *Primal Recovery* — +5% max HP party-wide between events (stacks with priest heal).
+- **Primalist (wizard × archer hybrid):** *Cauterize* — cleanse bleed/poison from all allies between events (fire-themed sealing). *Primal Recovery* — +5% max HP party-wide between events (stacks with priest heal).
 - **Ranger (archer talent):** *Field Dressing* — bandages heal 15% more on this adventurer. *Trailblazer* — treasure events have +25% loot.
-- **Monk (assassin/priest hybrid):** *Meditation* — this adventurer regenerates 15% max HP between events without priest presence.
 - **Paladin (warrior/priest hybrid):** *Lay on Hands* — once per expedition, fully heal one ally between events.
 - **Scholar (wizard talent):** *Lore* — skip trap events on a successful INT check. *Translate* — encounter events can give an extra reward option.
 - **Assassin — Adrenaline (risk/reward):** When HP < 30%, +50% DEX and +50% initiative. Creates a real choice: do I bandage this assassin or let them enter combat bloodied and dangerous? Pairs beautifully with the recovery-slot decision.

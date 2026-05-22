@@ -1,6 +1,6 @@
 import type { AdventurerStats, Adventurer } from "../adventurers.js";
 import { calcStats } from "../adventurers.js";
-import { getEquipmentStats, getSupplyEffect, getFoodEffect, MATCHED_FOOD_HP_BONUS, getMaterial, getItem } from "../items.js";
+import { getEquipmentStats, getSupplyEffect, getFoodEffect, MATCHED_FOOD_HP_BONUS, getMaterial, getItem } from "../items/index.js";
 import { getHerb } from "../herbs.js";
 import type { MissionReward, MissionTemplate, MissionTag, MissionRequirements, AdventurerMissionSupplies } from "./types.js";
 import { NOVICE_MISSIONS } from "./noviceMissions.js";

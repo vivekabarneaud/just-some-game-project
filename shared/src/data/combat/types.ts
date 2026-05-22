@@ -1,6 +1,6 @@
 import type { AdventurerClass } from "../adventurers.js";
 import type { EnemyTag, EnemyAbility } from "../enemies.js";
-import type { CombatPotionEffect } from "../items.js";
+import type { CombatPotionEffect } from "../items/index.js";
 
 /**
  * Per-enemy targeting intelligence — drives how the threat system affects them.

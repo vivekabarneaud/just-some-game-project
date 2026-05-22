@@ -104,7 +104,7 @@ export default function Enchanting() {
     const ench = selectedDef();
     if (!ench) return false;
     const item = getItem(inv.itemId);
-    if (!item || item.consumable) return false;
+    if (!item || item.consumable || !item.slot) return false;
     return ench.validSlots.includes(item.slot);
   };
 

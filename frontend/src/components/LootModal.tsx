@@ -4,9 +4,11 @@ import { playSound } from "~/engine/sounds";
 import type { CompletedMission } from "@medieval-realm/shared/data/missions";
 import { formatReward, getMission } from "@medieval-realm/shared/data/missions";
 import { STORY_CINEMATICS } from "~/data/cinematics";
-import { getChronicleEntry } from "~/data/chronicle_entries";
+import { getChronicleEntry, type ChronicleEntry } from "~/data/chronicle_entries";
 import CombatLog from "~/components/CombatLog";
 import CombatPlayback from "~/components/CombatPlayback";
+import UnlockCard from "~/components/UnlockCard";
+import ChronicleEntryModal from "~/components/ChronicleEntryModal";
 
 interface Props {
   result: CompletedMission;
@@ -39,6 +41,7 @@ export default function LootModal(props: Props) {
 
   const [logExpanded, setLogExpanded] = createSignal(false);
   const [showPlayback, setShowPlayback] = createSignal(false);
+  const [previewEntry, setPreviewEntry] = createSignal<ChronicleEntry | null>(null);
   // Suppress the card's scrollbar during the entry animation — content briefly
   // reflows as sections/chips settle, which otherwise flashes a scrollbar on
   // the right even when final content fits. Enabled after the animation ends.
@@ -63,6 +66,7 @@ export default function LootModal(props: Props) {
   const r = () => props.result;
 
   return (
+    <>
     <div
       class="loot-backdrop modal-overlay"
       classList={{ exiting: exiting() }}
@@ -153,40 +157,19 @@ export default function LootModal(props: Props) {
             </div>
           </Show>
 
-          {/* New chronicle entry — shown when this story mission unlocks a journal page */}
+          {/* New chronicle entry — clickable, opens preview. Previewing marks the
+              entry as seen, which suppresses the AdventurersGuild auto-open after
+              claim (see chronicleEntriesSeen guard there). */}
           <Show when={chronicleEntry()}>
             {(entry) => (
-              <div class="loot-section" style={{
-                "animation-delay": "440ms",
-                padding: "10px 14px",
-                background: "rgba(96, 165, 250, 0.08)",
-                border: "1px solid var(--accent-blue)",
-                "border-radius": "6px",
-              }}>
-                <div class="section-label" style={{
-                  "font-size": "0.7rem",
-                  color: "var(--accent-blue)",
-                  "margin-bottom": "4px",
-                }}>
-                  📖 New chronicle entry
-                </div>
-                <div style={{
-                  "font-size": "0.95rem",
-                  color: "var(--text-primary)",
-                  "font-family": "var(--font-heading)",
-                }}>
-                  {entry().title}
-                </div>
-                <div style={{
-                  "font-size": "0.8rem",
-                  color: "var(--text-secondary)",
-                  "font-style": "italic",
-                  "line-height": "1.45",
-                  "margin-top": "4px",
-                }}>
-                  {entry().teaser}
-                </div>
-              </div>
+              <UnlockCard
+                image={{ kind: "icon", emoji: "📖" }}
+                label="New chronicle entry"
+                title={entry().title}
+                teaser={entry().teaser}
+                onClick={() => setPreviewEntry(entry())}
+                animationDelay="440ms"
+              />
             )}
           </Show>
 
@@ -313,5 +296,13 @@ export default function LootModal(props: Props) {
         </div>
       </div>
     </div>
+
+    {/* Nested chronicle entry preview — opens above the loot modal when the
+        player clicks the new-entry card. Marking-seen happens in the modal
+        itself, which lets AdventurersGuild skip its post-claim auto-open. */}
+    <Show when={previewEntry()}>
+      {(entry) => <ChronicleEntryModal entry={entry()} onClose={() => setPreviewEntry(null)} />}
+    </Show>
+    </>
   );
 }

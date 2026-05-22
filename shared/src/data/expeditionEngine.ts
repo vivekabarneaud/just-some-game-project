@@ -13,7 +13,7 @@ import type {
 } from "./missions/index.js";
 import type { Adventurer } from "./adventurers.js";
 import { calcStats } from "./adventurers.js";
-import { getEquipmentStats, getRecoveryEffect } from "./items.js";
+import { getEquipmentStats, getRecoveryEffect } from "./items/index.js";
 import { simulateCombat } from "./combat/index.js";
 
 /** Calculate an adventurer's max HP using the same formula as combat. */

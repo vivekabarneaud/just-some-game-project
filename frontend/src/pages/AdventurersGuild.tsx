@@ -244,8 +244,11 @@ export default function AdventurersGuild() {
     // art has been deferred; the chronicle entry modal serves as the post-
     // mission narrative beat instead. Data + intro-cinematic path stay intact.
     // Auto-open the chronicle entry tied to this story mission, if any.
+    // Skip if the player already previewed it inside the LootModal (in which
+    // case it's already in chronicleEntriesSeen) — avoids reopening the same
+    // modal twice in a row.
     const chronicleEntryId = (getMission(result.missionId) as { chronicleEntryId?: string } | undefined)?.chronicleEntryId;
-    if (chronicleEntryId) {
+    if (chronicleEntryId && !(state.chronicleEntriesSeen ?? []).includes(chronicleEntryId)) {
       const entry = getChronicleEntry(chronicleEntryId);
       if (entry) setOpenChronicleEntry(entry);
     }

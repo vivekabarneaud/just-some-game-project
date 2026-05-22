@@ -57,7 +57,7 @@ The discriminated-union refactor was deferred until we have 3-4 new kinds to jus
 ### Talent system v1
 Frost Nova → Evaporate combo (cold sets up, fire spends). Thorns Wall (HP entity, taunt, fire-vulnerable). Aether Crystals (auto-explode at N stacks). Cross-class border nodes (wizard burn-amp ↔ primalist ↔ archer fire-arrows).
 **Discussion:** 2026-04-27 evening (auto-memory carries the design).
-**Stub doc:** `TALENTS_IDEAS.md` (538 bytes — needs expansion).
+**Design doc:** `docs/DESIGN_TALENT_TREES.md` (identity pass per class + cross-tree synergy principle).
 **Memory:** `project_talent_pentagon.md`, `project_class_talents.md`
 
 ### Per-event combat playback for expeditions

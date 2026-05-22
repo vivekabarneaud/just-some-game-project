@@ -216,7 +216,9 @@ export default function Buildings() {
                         style={{
                           opacity: pb()?.damaged ? 0.7 : 1,
                           position: "relative",
-                          ...(isNewlyUnlocked()
+                          // Quest-target gold border takes priority over the
+                          // newly-unlocked blue highlight when both apply.
+                          ...(isNewlyUnlocked() && !isQuestTarget()
                             ? {
                                 border: "1px solid var(--accent-blue)",
                                 "box-shadow": "0 0 0 1px var(--accent-blue), 0 0 12px rgba(96, 165, 250, 0.25)",

@@ -2,7 +2,7 @@ import { For, Show, onMount, type JSX } from "solid-js";
 import { A } from "@solidjs/router";
 import { useGame, CRAFTING_RECIPES, getBuildingToolsForBuilding, getRequiredTool, type CraftingRecipe } from "~/engine/gameState";
 import { playSound, type SoundId } from "~/engine/sounds";
-import { getItemByRecipe, ARMOR_TYPE_META } from "@medieval-realm/shared/data/items";
+import { getItemByRecipe, ARMOR_TYPE_META, isFoodItem, getFoodEffect } from "@medieval-realm/shared/data/items";
 import { getTotalFood, isFoodItemType, getFoodCostAmount, getFoodMeta, type FoodItemType } from "~/data/foods";
 import { BUILDINGS } from "~/data/buildings";
 import Countdown from "~/components/Countdown";
@@ -36,8 +36,8 @@ interface CraftingPageProps {
 }
 
 /** Display-friendly name for produced resource */
-function formatResource(resource: string, buildingId: string): string {
-  if (resource === "potions" && buildingId === "kitchen") return "meal";
+function formatResource(resource: string, _buildingId: string): string {
+  if (resource === "food") return "meal";
   return resource;
 }
 
@@ -70,10 +70,62 @@ function renderCost(resource: string, amount: number): JSX.Element {
   return label(`${amount} ${resource.replace(/_/g, " ")}`);
 }
 
+/** Stat key → label (kept short for crafting card chips). */
+const STAT_LABELS: Record<string, string> = {
+  str: "STR", dex: "DEX", int: "INT", vit: "VIT", wis: "WIS",
+};
+
 /** Info panel content for item-bearing recipes (stats, armor type, classes, consumable, flavor) */
 function itemInfoPanel(recipeId: string, hideConsumableTag: boolean = false) {
   const item = getItemByRecipe(recipeId);
   if (!item) return null;
+
+  // Food items use a structured layout: stats come from item.stats + the
+  // FOOD_EFFECTS hpBonus, flavor tags from foodFlavors, description is
+  // pure flavor at the bottom. Other items keep the legacy
+  // splitDescription path which assumes "+N STAT, ...  Flavor sentence."
+  // formatted descriptions.
+  if (isFoodItem(item.id)) {
+    const food = getFoodEffect(item.id);
+    const statEntries = Object.entries(item.stats).filter(([, v]) => v && v > 0);
+    const hpBonus = food?.hpBonus ?? 0;
+    return (
+      <div style={{ "margin-top": "4px", padding: "4px 8px", background: "var(--bg-primary)", "border-radius": "4px", "font-size": "0.75rem" }}>
+        <div style={{ display: "flex", gap: "6px", "flex-wrap": "wrap", "align-items": "center" }}>
+          {statEntries.map(([stat, amount]) => (
+            <span style={{ color: "var(--accent-green)" }}>
+              +{amount} {STAT_LABELS[stat] ?? stat.toUpperCase()}
+            </span>
+          ))}
+          {hpBonus > 0 && (
+            <span style={{ color: "var(--accent-green)" }}>+{hpBonus} HP</span>
+          )}
+          {statEntries.length === 0 && hpBonus === 0 && (
+            <span style={{ color: "var(--text-muted)" }}>No stat bonus</span>
+          )}
+        </div>
+        {item.foodFlavors && item.foodFlavors.length > 0 && (
+          <div style={{ display: "flex", gap: "4px", "margin-top": "4px", "flex-wrap": "wrap" }}>
+            {item.foodFlavors.map((f) => (
+              <span style={{
+                "font-size": "0.65rem", padding: "1px 6px",
+                background: "rgba(96, 165, 250, 0.12)",
+                border: "1px solid rgba(96, 165, 250, 0.35)",
+                "border-radius": "3px",
+                color: "var(--accent-blue)",
+              }}>
+                {f}
+              </span>
+            ))}
+          </div>
+        )}
+        <div style={{ color: "var(--text-muted)", "font-style": "italic", "margin-top": "4px", "font-size": "0.7rem" }}>
+          {item.description}
+        </div>
+      </div>
+    );
+  }
+
   const { stats, flavor } = splitDescription(item.description);
   const armorMeta = item.armorType ? ARMOR_TYPE_META[item.armorType] : null;
   return (

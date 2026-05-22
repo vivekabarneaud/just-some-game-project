@@ -57,9 +57,15 @@ export default function EventModal() {
               >
                 A new beat
               </div>
-              <div style={{ "color": "var(--text-primary)", "font-size": "1.05rem", "line-height": 1.55, "margin": "0 0 24px" }}>
+              <div style={{
+                "color": "var(--text-secondary)",
+                "font-size": "0.95rem",
+                "font-style": "italic",
+                "line-height": 1.7,
+                "margin": "0 0 24px",
+              }}>
                 {event.banner.split("\n\n").map((para) => (
-                  <p style={{ margin: "0 0 12px" }}>{para}</p>
+                  <p style={{ margin: "0 0 14px" }}>{para}</p>
                 ))}
               </div>
               <div style={{ "text-align": "right" }}>

@@ -1,26 +1,28 @@
-// ─── Chronicle Entry Modal ─────────────────────────────────────
-// Standalone viewer for a single chronicle entry. Used by the Chronicle
-// Journal page (click an entry card) and by post-mission / robin-event flows
-// that need to surface a narrative beat without taking the player off-page.
+// ─── Memory Preview Modal ─────────────────────────────────────
+// Standalone viewer for a single unlocked bio fragment. Mirrors
+// ChronicleEntryModal so memories and journal entries feel like the
+// same kind of thing: a page from the Lord's book.
 //
-// Extracted from ChronicleJournal.tsx so it can be opened from anywhere.
+// Opening this modal marks the fragment as seen so the "New" highlight
+// on the Cast page clears.
 
-import { For, Show, onMount } from "solid-js";
-import type { ChronicleEntry } from "~/data/chronicle_entries";
+import { For, onMount } from "solid-js";
+import type { BioFragment, FoundingCharacter } from "~/data/founding_characters";
 import { useGame } from "~/engine/gameState";
 import { playSound } from "~/engine/sounds";
 
 interface Props {
-  entry: ChronicleEntry;
+  character: FoundingCharacter;
+  fragment: BioFragment;
   onClose: () => void;
 }
 
-export default function ChronicleEntryModal(props: Props) {
+export default function MemoryPreviewModal(props: Props) {
   const { actions } = useGame();
-  const paragraphs = () => props.entry.fullText.split("\n\n");
+  const paragraphs = () => props.fragment.text.split("\n\n");
   onMount(() => {
     playSound("page_turn");
-    actions.markChronicleEntrySeen(props.entry.id);
+    actions.markBioFragmentSeen(props.fragment.id);
   });
 
   return (
@@ -53,17 +55,35 @@ export default function ChronicleEntryModal(props: Props) {
           ×
         </button>
 
-        <div class="section-label" style={{ "font-size": "0.7rem", color: "var(--accent-gold)", "letter-spacing": "0.08em" }}>
-          Page {props.entry.order}
+        <div style={{ display: "flex", "align-items": "center", gap: "14px", "margin-bottom": "18px" }}>
+          <img
+            src={props.character.portrait}
+            alt={props.character.name}
+            style={{
+              width: "56px", height: "56px",
+              "border-radius": "8px",
+              "object-fit": "cover",
+              border: "1px solid rgba(96, 165, 250, 0.4)",
+            }}
+          />
+          <div>
+            <div class="section-label" style={{
+              "font-size": "0.7rem",
+              color: "var(--accent-blue)",
+              "letter-spacing": "0.08em",
+            }}>
+              A memory
+            </div>
+            <h2 style={{
+              "font-size": "1.35rem",
+              color: "var(--text-primary)",
+              "font-family": "var(--font-heading)",
+              margin: 0,
+            }}>
+              {props.character.name}
+            </h2>
+          </div>
         </div>
-        <h2 style={{
-          "font-size": "1.35rem",
-          color: "var(--text-primary)",
-          "margin-bottom": "18px",
-          "font-family": "var(--font-heading)",
-        }}>
-          {props.entry.title}
-        </h2>
 
         <div style={{
           "font-size": "0.95rem",
@@ -81,33 +101,11 @@ export default function ChronicleEntryModal(props: Props) {
           "padding-top": "16px",
           "border-top": "1px solid var(--border-color)",
           display: "flex",
-          "align-items": "center",
-          gap: "12px",
+          "justify-content": "flex-end",
         }}>
-          {/* Replay is hidden for now except for the arrival intro — other
-              cinematics are deferred (no art yet). */}
-          <Show when={props.entry.cinematicId === "intro"}>
-            <button
-              style={{
-                padding: "8px 14px",
-                background: "rgba(167, 139, 250, 0.15)",
-                border: "1px solid rgba(167, 139, 250, 0.4)",
-                color: "var(--text-primary)",
-                "border-radius": "6px",
-                cursor: "pointer",
-                "font-size": "0.85rem",
-              }}
-              onClick={() => {
-                alert("Replay cinematic: " + props.entry.cinematicId + " (not wired yet)");
-              }}
-            >
-              ▶ Replay cinematic
-            </button>
-          </Show>
           <button
             onClick={props.onClose}
             style={{
-              "margin-left": "auto",
               padding: "8px 16px",
               background: "var(--bg-primary)",
               border: "1px solid var(--border-color)",

@@ -487,7 +487,7 @@ export default function AdventurerDetail() {
                                     return !access.has(item.armorType);
                                   };
                                   const canEquip = () => !wrongClass() && !wrongArmor();
-                                  const slotLabel = SLOT_NAMES[item.slot] ?? item.slot;
+                                  const slotLabel = item.slot ? (SLOT_NAMES[item.slot] ?? item.slot) : "Item";
                                   return (
                                     <Tooltip content={() => (
                                       <div>

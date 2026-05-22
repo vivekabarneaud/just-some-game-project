@@ -1,6 +1,6 @@
 import type { Adventurer } from "../adventurers.js";
 import type { AdventurerMissionSupplies } from "../missions/index.js";
-import { getCombatPotionEffect, getFoodEffect, getRecoveryEffect, MATCHED_FOOD_HP_BONUS, getItem } from "../items.js";
+import { getCombatPotionEffect, getFoodEffect, getRecoveryEffect, MATCHED_FOOD_HP_BONUS, getItem } from "../items/index.js";
 import type { CombatUnit } from "./types.js";
 import { calcFamilyBonuses } from "./units.js";
 

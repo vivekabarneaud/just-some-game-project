@@ -148,8 +148,7 @@ export interface Adventurer {
 }
 
 // ─── Items ──────────────────────────────────────────────────────
-
-export type ItemSlot = "head" | "chest" | "legs" | "boots" | "cloak" | "mainHand" | "offHand" | "ring1" | "ring2" | "amulet" | "trinket";
+// ItemSlot lives in ./data/items/types.ts — single source of truth.
 
 export interface InventoryItem {
   itemId: string;

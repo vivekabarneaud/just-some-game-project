@@ -2756,6 +2756,10 @@ export function GameProvider(props: ParentProps) {
               else if (res === "gold") s.resources.gold += amt;
               else if (res === "wool") s.wool += amt;
               else if (res === "fiber") s.fiber += amt;
+              // Kitchen meals don't have a bulk counter — they land in
+              // inventory as item entries via getItemByRecipe below and
+              // are picked from there as per-mission food supplies.
+              else if (res === "food") { /* no-op */ }
               // Also add equippable item or building tool to inventory
               const itemDef = getItemByRecipe(recipe.id);
               if (itemDef) {
@@ -4643,6 +4647,11 @@ export function GameProvider(props: ParentProps) {
       if (!adv || adv.onMission) return false;
       const itemDef = getItem(itemId);
       if (!itemDef) return false;
+      // Items without a slot are pure consumables (foods, recovery items) or
+      // materials — they don't go through equipment, they route via mission
+      // supplies / inventory. Reject any attempt to equip them.
+      if (!itemDef.slot) return false;
+      const slot: ItemSlot = itemDef.slot;
       // Class restriction (themed items like wizard_hat, priest_circlet)
       if (itemDef.classes.length > 0 && !itemDef.classes.includes(adv.class)) return false;
       // Armor type restriction — check base class access + talent grants
@@ -4655,16 +4664,16 @@ export function GameProvider(props: ParentProps) {
       setState(produce((s) => {
         const a = s.adventurers.find((a) => a.id === adventurerId)!;
         // Unequip current item in that slot first (return to inventory)
-        const currentItemId = a.equipment[itemDef.slot];
+        const currentItemId = a.equipment[slot];
         if (currentItemId) {
           const curInv = s.inventory.find((i) => i.itemId === currentItemId);
           if (curInv) curInv.quantity += 1;
           else s.inventory.push({ itemId: currentItemId, quantity: 1 });
         }
         // Equip new item
-        a.equipment[itemDef.slot] = itemId;
+        a.equipment[slot] = itemId;
         // 2H weapon clears offHand
-        if (itemDef.slot === "mainHand" && itemDef.twoHanded && a.equipment.offHand) {
+        if (slot === "mainHand" && itemDef.twoHanded && a.equipment.offHand) {
           const offId = a.equipment.offHand;
           a.equipment.offHand = null;
           const offInv = s.inventory.find((i) => i.itemId === offId);
@@ -4672,7 +4681,7 @@ export function GameProvider(props: ParentProps) {
           else s.inventory.push({ itemId: offId, quantity: 1 });
         }
         // Equipping offHand clears 2H mainHand
-        if (itemDef.slot === "offHand" && a.equipment.mainHand) {
+        if (slot === "offHand" && a.equipment.mainHand) {
           const mainItem = getItem(a.equipment.mainHand);
           if (mainItem?.twoHanded) {
             const mainId = a.equipment.mainHand;

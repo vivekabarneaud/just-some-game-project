@@ -188,3 +188,19 @@ export function getCharactersForFragments(fragmentIds: string[]): FoundingCharac
   }
   return result;
 }
+
+/** Resolves a list of fragment IDs into {character, fragment} pairs in the order
+ *  given. Used by the quest claim flow to render one card per memory unlocked. */
+export function resolveFragments(fragmentIds: string[]): Array<{ character: FoundingCharacter; fragment: BioFragment }> {
+  const result: Array<{ character: FoundingCharacter; fragment: BioFragment }> = [];
+  for (const id of fragmentIds) {
+    for (const c of FOUNDING_CHARACTERS) {
+      const fragment = c.fragments.find((f) => f.id === id);
+      if (fragment) {
+        result.push({ character: c, fragment });
+        break;
+      }
+    }
+  }
+  return result;
+}

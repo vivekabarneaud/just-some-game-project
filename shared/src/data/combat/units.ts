@@ -1,6 +1,6 @@
 import type { Adventurer } from "../adventurers.js";
 import { calcStats } from "../adventurers.js";
-import { getEquipmentStats, getEquipmentDefense } from "../items.js";
+import { getEquipmentStats, getEquipmentDefense } from "../items/index.js";
 import { getEnemy } from "../enemies.js";
 import type { MissionEncounter, MissionNpcAlly } from "../missions/index.js";
 import { getNpcAlly } from "../npcs.js";
