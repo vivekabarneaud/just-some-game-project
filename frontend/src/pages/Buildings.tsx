@@ -13,7 +13,6 @@ const SECTIONS: { key: BuildingDefinition["category"]; label: string; icon: stri
   { key: "gathering", label: "Gathering", icon: "⛏️" },
   { key: "crafting", label: "Crafting", icon: "🧵" },
   { key: "guild", label: "Guilds", icon: "🏛️" },
-  { key: "magic", label: "Arcane", icon: "🔮" },
   { key: "trade", label: "Trade", icon: "🏪" },
 ];
 
@@ -49,12 +48,16 @@ export default function Buildings() {
   const buildingsInSection = (category: string) =>
     BUILDINGS.filter((b) => b.category === category);
 
-  const sectionHasVisible = (category: string) =>
-    buildingsInSection(category).some((b) => {
-      const built = (getPlayerBuilding(b.id)?.level ?? 0) > (b.defaultLevel ?? 0);
-      const gateMet = isBuildingUnlocked(b, thLevel()) && isBuildingChapterUnlocked(b, state);
-      return built || gateMet;
-    });
+  /** First building currently in progress, resolved to {name, remaining}.
+   *  Shown next to the queue counter so the player sees the timer at a
+   *  glance instead of scrolling to find the upgrading card. */
+  const currentBuild = () => {
+    const pb = state.buildings.find((b) => b.upgrading);
+    if (!pb) return null;
+    const def = BUILDINGS.find((b) => b.id === pb.buildingId);
+    if (!def) return null;
+    return { name: def.name, remaining: pb.upgradeRemaining ?? 0 };
+  };
 
   return (
     <div>
@@ -71,6 +74,13 @@ export default function Buildings() {
       }}>
         <span>
           Build Queue: {actions.getActiveQueueCount()} / {actions.getMasonBonuses().queueSlots}
+          <Show when={currentBuild()}>
+            {(b) => (
+              <span style={{ "margin-left": "8px", color: "var(--accent-gold)" }}>
+                · {b().name}: <Countdown remainingSeconds={b().remaining} />
+              </span>
+            )}
+          </Show>
         </span>
         <Show when={actions.getMasonLevel() > 0}>
           <span style={{ color: "var(--accent-green)" }}>
@@ -81,7 +91,7 @@ export default function Buildings() {
 
       <For each={SECTIONS}>
         {(section) => (
-          <Show when={sectionHasVisible(section.key)}>
+          <>
             <h2 style={{
               "font-family": "var(--font-heading)",
               "margin-top": "20px",
@@ -582,7 +592,7 @@ export default function Buildings() {
                 }}
               </For>
             </div>
-          </Show>
+          </>
         )}
       </For>
     </div>

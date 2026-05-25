@@ -21,6 +21,25 @@ export interface EventUnlocks {
    *  probabilistic spawner. The raid uses its template baseWarning (adjusted
    *  by current watchtower level) for its warning timer. */
   raidSpawn?: { raidId: string };
+  /** Add citizens to the settlement when the event fires. Used to make story
+   *  arrivals (families arriving, refugees joining, etc.) actually materialize
+   *  on the population counter instead of staying purely narrative. */
+  addCitizens?: Partial<{ toddlers: number; children: number; adults: number; elderly: number }>;
+  /** Add typed food units to the settlement (wheat / meat / fish / etc.).
+   *  Used when story arrivals bring their own rations — softens the food
+   *  pressure spike of new mouths without erasing it. */
+  addFood?: Partial<Record<string, number>>;
+  /** Add non-food stockpile resources brought along by the arrival.
+   *  Currently supports clothing — extend as future events bring tools,
+   *  weapons, materials, etc. Recipe bring-alongs will live in their own
+   *  field once the loot-recipe system lands (see project_loot_recipes). */
+  addResources?: Partial<{
+    clothing: number;
+    wood: number;
+    stone: number;
+    iron: number;
+    gold: number;
+  }>;
 }
 
 export interface NarrativeEvent {
@@ -98,16 +117,37 @@ export const NARRATIVE_EVENTS: NarrativeEvent[] = [
       "A raven arrived from the Crown's land office this morning. Two more families are on the road, due within the week. The tents will not hold them.",
   },
 
-  // ── Settlement Ch.2 → guild Ch.1: hunters volunteer to scout ──
+  // ── Houses + Hunter Camp built → families arrive, guild activates ──
+  // Fires once both Houses (somewhere for them to sleep) and Hunter Camp
+  // (the hunter son is "on the roster") are built. The families actually
+  // materialize on the population counter, and guild Ch1 activates so
+  // Heroes Wanted surfaces — gives the player a juicier parallel track
+  // alongside the lower-stakes Pantry quest.
   {
     id: "event_hunters_volunteer",
-    triggers: [settlementChapterDone(2)],
+    triggers: [
+      { type: "building_built", buildingId: "hunting_camp" },
+      { type: "building_built", buildingId: "houses" },
+    ],
+    requiresAll: true,
     banner:
       "The south is still unknown to us, and we should not stay ignorant of it for long.\n\n" +
       "But Edda is up to her elbows in herbs and Nell, Jory is married to the mill, and Tomas has not climbed out of the quarry since the third frost. I am not much better. Father Corin would gladly read about it, which is about the best he could offer.\n\n" +
       "The new families brought us hunters, and they are pacing the edge of the camp like dogs that have not been walked. They need a hall to gather in, and someone with the patience to send them out.",
     unlocks: {
       activateStoryline: { storyline: "guild", chapter: 1 },
+      // Two families: parents + the hunter son (3 adults) + one younger
+      // sibling (1 child). The new child runs the camp; Nell barely notices,
+      // absorbed in Edda's herb patch.
+      addCitizens: { adults: 3, children: 1 },
+      // What they walked here with: meat the hunters preserved on the road,
+      // a few smoked fish. Not enough to cover the food curve for long,
+      // just a buffer while the player scales production.
+      addFood: { meat: 15, fish: 5 },
+      // The clothes on their backs — modest, just enough to bump comforts
+      // by one. Two families equals one effective unit in the abstract
+      // counter; they're not arriving with a wardrobe.
+      addResources: { clothing: 1 },
     },
   },
 

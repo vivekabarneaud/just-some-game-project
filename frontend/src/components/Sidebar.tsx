@@ -1,5 +1,5 @@
 import { Show, createSignal, onMount, onCleanup } from "solid-js";
-import { A, useLocation } from "@solidjs/router";
+import { A, useLocation, useNavigate } from "@solidjs/router";
 import { useGame, CRAFTING_RECIPES } from "~/engine/gameState";
 import { isMuted, toggleMuted } from "~/engine/sounds";
 import { SEASON_META, HOURS_PER_SEASON, IS_DEV, getGlobalSeason } from "~/data/seasons";
@@ -57,13 +57,6 @@ const navSections: { title: string; items: NavItem[] }[] = [
     ],
   },
   {
-    title: "Arcane",
-    items: [
-      { path: "/research", icon: "📜", label: "Research" },
-      { path: "/spells", icon: "🔮", label: "Spells" },
-    ],
-  },
-  {
     title: "World",
     items: [
       { path: "/map", icon: "🗺️", label: "World Map" },
@@ -97,6 +90,7 @@ interface SidebarProps {
 
 export default function Sidebar(props: SidebarProps) {
   const location = useLocation();
+  const navigate = useNavigate();
   const { state, actions } = useGame();
   const [myRank, setMyRank] = createSignal<number | null>(null);
   const [incomingFriendRequests, setIncomingFriendRequests] = createSignal(0);
@@ -420,6 +414,10 @@ export default function Sidebar(props: SidebarProps) {
           <button class="reset-btn" onClick={() => {
             if (confirm("Start a new game? All progress will be lost.")) {
               actions.resetGame();
+              // Send the player to the Overview — that's where a real new
+              // game lands after the intro cinematic, and the dev shortcut
+              // should mirror that flow.
+              navigate("/", { replace: true });
             }
           }}>
             New Game

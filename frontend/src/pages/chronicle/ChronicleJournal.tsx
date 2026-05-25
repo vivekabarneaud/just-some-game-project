@@ -7,6 +7,7 @@ import {
   getEntriesByChapter,
 } from "~/data/chronicle_entries";
 import ChronicleEntryModal from "~/components/ChronicleEntryModal";
+import Tooltip from "~/components/Tooltip";
 import { playPageMountSound } from "~/engine/sounds";
 
 export default function ChronicleJournal() {
@@ -146,10 +147,16 @@ export default function ChronicleJournal() {
                       // Per-entry seen marker — drops the sidebar badge by one.
                       actions.markChronicleEntrySeen(entry.id);
                     };
-                    return (
+                    const cardOnClick = () => {
+                      if (!unlocked()) return;
+                      setOpenEntryId(entry.id);
+                      dismissFresh();
+                    };
+                    const card = (
                       <div
                         id={`chronicle-entry-${entry.id}`}
                         class="building-card"
+                        classList={{ "chronicle-entry-card": unlocked() }}
                         style={{
                           opacity: unlocked() ? 1 : 0.55,
                           cursor: unlocked() ? "pointer" : "default",
@@ -163,11 +170,7 @@ export default function ChronicleJournal() {
                             : {}),
                         }}
                         onMouseEnter={dismissFresh}
-                        onClick={() => {
-                          if (!unlocked()) return;
-                          setOpenEntryId(entry.id);
-                          dismissFresh();
-                        }}
+                        onClick={cardOnClick}
                       >
                         <Show when={fresh()}>
                           <div style={{
@@ -219,6 +222,11 @@ export default function ChronicleJournal() {
                         </Show>
                       </div>
                     );
+                    return unlocked() ? (
+                      <Tooltip text="Click to read" position="cursor-top" block>
+                        {card}
+                      </Tooltip>
+                    ) : card;
                   }}
                 </For>
               </div>

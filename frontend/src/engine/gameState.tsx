@@ -751,8 +751,16 @@ function generateSettlementName(): string {
 }
 
 function createInitialState(): GameState {
+  // Travel rations the founders arrived with. After a ~47-day walk from
+  // Ashwick the perishables are gone; what's left is preserved grain (their
+  // bread/hardtack stash), dried meat strips, and a handful of nuts Nell
+  // picked up on the road. ~55 units ≈ a week of food for the camp before
+  // production has to carry — sets up the "build the Forager fast" pressure
+  // and seeds food-diversity from day one.
   const initialFoods = emptyFoods();
-  initialFoods.wheat = 100;
+  initialFoods.wheat = 30;
+  initialFoods.meat = 15;
+  initialFoods.nuts = 10;
   return {
     resources: { gold: 50, wood: 300, stone: 200 },
     foods: initialFoods,
@@ -1493,6 +1501,60 @@ function applyEventEvaluation(s: GameState): void {
         if (!s.chronicleEntriesFired.includes(event.unlocks.chronicleEntryId)) {
           s.chronicleEntriesFired.push(event.unlocks.chronicleEntryId);
         }
+      }
+      if (event.unlocks?.addCitizens) {
+        const add = event.unlocks.addCitizens;
+        let totalAdded = 0;
+        for (const cat of ["toddlers", "children", "adults", "elderly"] as const) {
+          const n = add[cat] ?? 0;
+          if (n > 0) {
+            s.citizens[cat] += n;
+            totalAdded += n;
+          }
+        }
+        if (totalAdded > 0) {
+          // Build a "bringing X and Y" fragment from whatever the event also
+          // adds (food + non-food resources). Keeps the log line specific to
+          // what the player actually received, not a generic "joined" line.
+          const bringings: string[] = [];
+          if (event.unlocks.addFood) {
+            for (const [type, amount] of Object.entries(event.unlocks.addFood)) {
+              if (amount && amount > 0) bringings.push(`${amount} ${type}`);
+            }
+          }
+          if (event.unlocks.addResources) {
+            for (const [type, amount] of Object.entries(event.unlocks.addResources)) {
+              if (amount && amount > 0) bringings.push(`${amount} ${type}`);
+            }
+          }
+          // English list joiner with Oxford comma: one item stays as-is,
+          // two items use "X and Y", three or more use "X, Y, and Z".
+          const joinList = (items: string[]): string => {
+            if (items.length <= 1) return items.join("");
+            if (items.length === 2) return `${items[0]} and ${items[1]}`;
+            return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
+          };
+          const tail = bringings.length > 0
+            ? `, bringing ${joinList(bringings)}`
+            : "";
+          pushEvent(s, "citizen_born", "👤", `${totalAdded} new ${totalAdded === 1 ? "settler" : "settlers"} joined the camp${tail}.`);
+        }
+      }
+      if (event.unlocks?.addFood) {
+        const caps = calcStorageCaps(s.buildings);
+        for (const [type, amount] of Object.entries(event.unlocks.addFood)) {
+          if (amount && amount > 0 && isFoodItemType(type)) {
+            addFood(s.foods, type, amount, caps.food);
+          }
+        }
+      }
+      if (event.unlocks?.addResources) {
+        const r = event.unlocks.addResources;
+        if (r.clothing) s.clothing += r.clothing;
+        if (r.iron) s.iron += r.iron;
+        if (r.wood) s.resources.wood += r.wood;
+        if (r.stone) s.resources.stone += r.stone;
+        if (r.gold) s.resources.gold += r.gold;
       }
       if (event.unlocks?.raidSpawn) {
         const raid = RAID_POOL.find((r) => r.id === event.unlocks!.raidSpawn!.raidId);
@@ -3001,6 +3063,10 @@ export function GameProvider(props: ParentProps) {
         s.happiness = Math.max(0, Math.min(100, Math.round(happiness)));
 
         // Tick upgrades — buildings, fields, gardens, pens, hives, orchards
+        // Tracks whether anything finished this tick so we can re-evaluate
+        // narrative events afterwards (events with building_built triggers
+        // would otherwise sit dormant until the next quest claim).
+        let buildingFinishedThisTick = false;
         for (const list of [s.buildings, s.fields, s.gardens, s.pens, s.hives, s.orchards]) {
           for (const item of list) {
             if (item.upgrading && item.upgradeRemaining !== undefined) {
@@ -3009,6 +3075,7 @@ export function GameProvider(props: ParentProps) {
                 item.level += 1;
                 item.upgrading = false;
                 item.upgradeRemaining = undefined;
+                buildingFinishedThisTick = true;
                 // Log building completion
                 if ("buildingId" in item) {
                   const def = BUILDINGS.find((b) => b.id === (item as any).buildingId);
@@ -3031,6 +3098,7 @@ export function GameProvider(props: ParentProps) {
               w.hp = w.level * WALL_BASE_HP;
               w.upgrading = false;
               w.upgradeRemaining = undefined;
+              buildingFinishedThisTick = true;
               pushEvent(s, "building_completed", "🧱", `${w.ring} wall raised to level ${w.level}`);
             }
           }
@@ -3042,6 +3110,7 @@ export function GameProvider(props: ParentProps) {
               t.level += 1;
               t.upgrading = false;
               t.upgradeRemaining = undefined;
+              buildingFinishedThisTick = true;
               pushEvent(s, "building_completed", "🏰", `${t.ring} watchtower raised to level ${t.level}`);
             }
           }
@@ -3053,6 +3122,7 @@ export function GameProvider(props: ParentProps) {
               b.level += 1;
               b.upgrading = false;
               b.upgradeRemaining = undefined;
+              buildingFinishedThisTick = true;
               pushEvent(s, "building_completed", "⚔️", `${b.ring} barracks raised to level ${b.level}`);
             }
           }
@@ -3063,8 +3133,17 @@ export function GameProvider(props: ParentProps) {
             s.mageTower.level += 1;
             s.mageTower.upgrading = false;
             s.mageTower.upgradeRemaining = undefined;
+            buildingFinishedThisTick = true;
             pushEvent(s, "building_completed", "🗼", `Mage Tower raised to level ${s.mageTower.level}`);
           }
+        }
+
+        // Run the narrative event evaluator if any building finished —
+        // events with building_built triggers (like event_hunters_volunteer,
+        // which fires when Houses + Hunter Camp are both up) would otherwise
+        // sit dormant until the next quest claim or story-mission completion.
+        if (buildingFinishedThisTick) {
+          applyEventEvaluation(s);
         }
 
         // ── Yearly birth roll ──
@@ -3117,10 +3196,17 @@ export function GameProvider(props: ParentProps) {
             pushEvent(s, "citizen_born", "👤", arrival.flavor);
           }
         } else if (popBefore > BASE_POPULATION) {
-          // Starvation and unhappiness stack — percentage-based so it scales with population
+          // Starvation and unhappiness stack — percentage-based so it scales with population.
+          // Unhappiness-departure is gated to Village+ tier: at Camp tier the
+          // player has very few happiness levers (no ale chain, no church,
+          // limited food variety) so losing citizens to a happiness dip would
+          // be a frustrating "step forward, step back" loop right when new
+          // arrivals show up. Starvation still applies at Camp — that's a
+          // binary "have food or don't" mechanic the player can directly act on.
+          const currentTier = getSettlementTier(getTownHallLevel(s.buildings));
           let ratePct = 0;
           if (getTotalFood(s.foods) <= 0) ratePct += 0.10; // 10%/hour — brutal, but self-correcting as pop drops
-          if (s.happiness < 20) ratePct += 0.02;      // 2%/hour fleeing
+          if (s.happiness < 20 && currentTier !== "camp") ratePct += 0.02;      // 2%/hour fleeing (Village+)
           if (ratePct > 0) {
             // Exponential decay applied as a survival ratio across every
             // category. Clamped so total never drops below BASE_POPULATION.
@@ -3977,6 +4063,9 @@ export function GameProvider(props: ParentProps) {
         const b = s.buildings.find((x) => x.buildingId === buildingId)!;
         b.level = 1;
         pushEvent(s, "building_completed", "✨", `${def.name} raised to Lv.1 with astral shards`);
+        // Building leveled — re-evaluate narrative events that might depend
+        // on building_built triggers.
+        applyEventEvaluation(s);
       }));
       scheduleSave();
       return true;

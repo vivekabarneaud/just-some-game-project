@@ -7,8 +7,9 @@ interface TooltipProps extends ParentProps {
    *  content depends on reactive signals — it defers evaluation to render time
    *  so the inner JSX doesn't create orphaned computations inside event handlers. */
   content?: JSX.Element | (() => JSX.Element);
-  /** Position relative to the anchor element, OR "cursor" to follow the mouse. */
-  position?: "top" | "bottom" | "left" | "right" | "cursor";
+  /** Position relative to the anchor element, OR "cursor" to follow the mouse
+   *  (below-right of the cursor), OR "cursor-top" (just above the cursor). */
+  position?: "top" | "bottom" | "left" | "right" | "cursor" | "cursor-top";
   maxWidth?: number;
   /** When true, the anchor renders as `display: block` so it fills its
    *  parent's width. Default `inline-block` (shrinks to content). */
@@ -34,7 +35,7 @@ export default function Tooltip(props: TooltipProps) {
   };
 
   const move = (e: MouseEvent) => {
-    if (props.position !== "cursor") return;
+    if (props.position !== "cursor" && props.position !== "cursor-top") return;
     if (!visible()) return;
     setCursor({ x: e.clientX, y: e.clientY });
   };
@@ -58,6 +59,20 @@ export default function Tooltip(props: TooltipProps) {
       const y = Math.min(c.y + offsetY, window.innerHeight - 60);
       s.left = `${x}px`;
       s.top = `${y}px`;
+      return s;
+    }
+    if (pos() === "cursor-top") {
+      const c = cursor();
+      if (!c) return {};
+      // Centred above the cursor with a small gap. `bottom` anchors the
+      // tooltip's bottom edge so we don't need to know its height. Clamp
+      // horizontally so it doesn't escape the viewport on either side.
+      const gap = 12;
+      const tipW = maxW();
+      const x = Math.min(Math.max(c.x, tipW / 2 + 8), window.innerWidth - tipW / 2 - 8);
+      s.left = `${x}px`;
+      s.bottom = `${window.innerHeight - c.y + gap}px`;
+      s.transform = "translateX(-50%)";
       return s;
     }
     const a = anchor();

@@ -26,7 +26,7 @@ export default function EventModal() {
         onMount(() => playSound("notify"));
         return (
           <div
-            class="modal-overlay"
+            class="modal-overlay page-modal-backdrop"
             onClick={(e) => {
               // Click outside the panel dismisses too.
               if (e.target === e.currentTarget) {
@@ -35,6 +35,7 @@ export default function EventModal() {
             }}
           >
             <div
+              class="page-modal-card"
               style={{
                 "background": "var(--bg-secondary)",
                 "border": "1px solid var(--accent-gold)",

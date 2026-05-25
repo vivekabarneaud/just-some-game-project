@@ -913,6 +913,16 @@ body {
   text-decoration: underline;
 }
 
+/* Click affordance for unlocked Chronicle entry cards — the whole card is
+ * clickable, but the title underlines on hover so the player has a clear
+ * "this is interactive" signal. Paired with a "Click to read" tooltip. */
+.chronicle-entry-card:hover .building-card-title {
+  text-decoration: underline;
+  text-decoration-color: var(--accent-gold);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
 /* Clickable "new unlock" card used in QuestClaimModal / LootModal to surface
  * a freshly unlocked chronicle entry or character memory. Click opens the
  * full preview modal. */

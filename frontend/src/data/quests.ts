@@ -118,7 +118,7 @@ const chapterUnlocked = (
   return cs.current >= chapter || cs.completedChapters.includes(chapter);
 };
 
-const evalTrigger = (trigger: QuestTrigger, state: GameState): boolean => {
+export const evalTrigger = (trigger: QuestTrigger, state: GameState): boolean => {
   switch (trigger.type) {
     case "game_start":
       return true;
@@ -228,7 +228,11 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
       "Edda has stood over the empty firepit twice this morning with her arms crossed. She has not said anything. She has looked at me three times. I know what that means.",
     objective: "Build the Kitchens, a cookfire at least.",
     icon: "🔥",
-    triggers: [{ type: "game_start" }],
+    // Fires once the Forager's Hut is up — Edda has herbs and mushrooms but
+    // nowhere to cook them. That setup matches her bio fragment (she's at the
+    // mortar crushing herbs the moment the fire catches), and grilled_mushrooms
+    // becomes a craftable recipe the player can actually use day one.
+    triggers: [{ type: "building_built", buildingId: "forager_hut" }],
     condition: (s) => (bldg(s, "kitchen")?.level ?? 0) >= 1,
     rewards: [
       { resource: "wood", amount: 20, label: "Wood" },
@@ -368,7 +372,10 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
       "Edda has taken to hanging onions from a tent pole and calling it a pantry. It is not a pantry. The one in Ashwick was a stone room that smelled of root vegetables and salt; ours will be wood-floored and smell of nothing yet. Tomas says the cellar can go down four feet before we hit the water table. That will do.",
     objective: "Build a Pantry",
     icon: "🥫",
-    triggers: [{ type: "chapter_unlocked", storyline: "settlement", chapter: 2 }],
+    // Gated on the Hunter Camp so meat surplus is actually a felt problem
+    // when Edda complains about storage — not just an abstract worry on the
+    // first morning of Ch2 alongside Houses + Hunter.
+    triggers: [{ type: "building_built", buildingId: "hunting_camp" }],
     condition: (s) => (bldg(s, "pantry")?.level ?? 0) >= 1,
     rewards: [
       { resource: "wood", amount: 50, label: "Wood" },

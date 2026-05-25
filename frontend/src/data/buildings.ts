@@ -324,7 +324,9 @@ export const BUILDINGS: BuildingDefinition[] = [
     maxLevel: 20,
     levels: generateLevels({ wood: 50, stone: 30 }, 6),
     requiredTier: "camp",
-    unlockedAt: { storyline: "settlement", chapter: 2 },
+    // Mirrors A Proper Pantry quest trigger: surfaces once Hunter Camp is up
+    // and there's actual meat surplus to motivate a cellar.
+    unlockedAt: { requiresBuildings: ["hunting_camp"] },
   },
 
   // Camp tier — Woodworker (wood-based equipment)
@@ -422,7 +424,13 @@ export const BUILDINGS: BuildingDefinition[] = [
     maxLevel: 10,
     levels: generateLevels({ wood: 35, stone: 10 }, 6, { resource: "food", baseRate: 12, foodType: "fish" }, 10),
     requiredTier: "camp",
-    unlockedAt: { storyline: "settlement", chapter: 2 },
+    // No dedicated quest — surfaces once the Kitchen is up. The player has
+    // just had their first cooking experience (grilled_mushrooms) and is
+    // looking at the smoked_fish recipe wondering where the fish come from;
+    // the locked card flipping to buildable answers the question without
+    // a quest. Fishing drops to 50% in winter, so picking it up early is
+    // also a strategic hedge before the cold.
+    unlockedAt: { requiresBuildings: ["kitchen"] },
   },
 
   // Village tier — Brewery & Tavern (ale chain + happiness)
@@ -527,6 +535,11 @@ export const BUILDINGS: BuildingDefinition[] = [
     levels: generateLevels({ wood: 20, stone: 10 }, 12, undefined, 8),
     requiredTier: "camp",
     tierLevelCaps: { camp: 2, village: 4, town: 6, city: 8 },
+    // Gated behind the Forager's Hut: matches the First Fire quest's trigger
+    // (Edda has herbs to cook, so the kitchen finally has a purpose). Prevents
+    // a savvy player from building the Kitchen at game start and skipping the
+    // quest narrative.
+    unlockedAt: { requiresBuildings: ["forager_hut"] },
   },
   {
     id: "jewelcrafter",

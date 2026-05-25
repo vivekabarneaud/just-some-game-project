@@ -5,6 +5,7 @@ import { RESOURCES } from "~/data/resources";
 import { SEASON_META } from "~/data/seasons";
 import { getRaid, getDefenseTips, type IncomingRaid } from "~/data/raids";
 import { militiaCount } from "~/data/defenses";
+import { getCurrentOverviewFlavor } from "~/data/overview_flavors";
 import { QUEST_DEFINITIONS, isQuestActive, isQuestClaimable, isQuestClaimed } from "~/data/quests";
 import { useGame, WALL_BASE_HP } from "~/engine/gameState";
 import { totalPopulation } from "~/data/citizens";
@@ -181,16 +182,38 @@ export default function Overview() {
             if (claimableCount() > 0) return "Matters waiting on your stamp";
             return "Matters to attend to today";
           };
+          // Lord-voice narration of the current settlement mood — see
+          // data/overview_flavors.ts. Sits below the count breakdown as an
+          // italic-muted reflection; absent entries fall back to no extra line.
+          const flavor = () => getCurrentOverviewFlavor(state);
           return (
             <div class="quest-panel" style={{ "padding": "16px 20px" }}>
               <div class="quest-panel-content">
                 <div class="quest-header" style={{ "align-items": "center" }}>
                   <span class="quest-icon" style={{ "font-size": "1.6rem" }}>📋</span>
-                  <div>
+                  <div style={{ "flex": "1", "min-width": "0" }}>
                     <h2 style={{ "margin": 0 }}>{headline()}</h2>
-                    <p class="quest-narrative" style={{ "margin": "4px 0 0" }}>
+                    <p class="quest-narrative" style={{
+                      "margin": "1px 0 0",
+                      "font-size": "0.75rem",
+                      "line-height": "1.3",
+                    }}>
                       {breakdown()}
                     </p>
+                    <Show when={flavor()}>
+                      {(f) => (
+                        <p style={{
+                          "margin": "16px 0 0",
+                          "font-size": "0.9rem",
+                          "font-style": "italic",
+                          "color": "var(--text-secondary)",
+                          "line-height": "1.5",
+                          "max-width": "800px",
+                        }}>
+                          {f().text}
+                        </p>
+                      )}
+                    </Show>
                   </div>
                   <A href="/quests" class="quest-link" style={{ "margin-left": "auto" }}>
                     Open Quest Log →
