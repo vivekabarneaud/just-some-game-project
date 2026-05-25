@@ -120,6 +120,13 @@ export function availableCitizens(state: GameState): number {
   return Math.max(0, state.citizens.adults - state.soldiers - state.archers - FOUNDER_ADULT_RESERVE);
 }
 
+/** Uncommitted adults who grab pitchforks when a raid lands. Same headcount
+ *  as availableCitizens — the recruitment-reserve adults (founders) don't
+ *  fight either. Passed to simulateRaidCombat as militiaCount. */
+export function militiaCount(state: GameState): number {
+  return availableCitizens(state);
+}
+
 // ─── Training ─────────────────────────────────────────────────────
 // Garrisons level collectively (one trainedLevel per garrison). Each level
 // raises the squad's HP and attack stat. Building level caps the trained
@@ -165,21 +172,21 @@ export function distributeLegacyGarrison<T extends { level: number; garrison: { 
 // ─── Ring unlocks ─────────────────────────────────────────────────
 
 /** True if a given ring is buildable at the current settlement tier.
- *  Camp = Outer only; Village adds Middle; Town adds Inner. Rings unlock
+ *  Camp = Outer only; Town adds Middle; City adds Inner. Rings unlock
  *  outer→inward so players never see a labelled "inner" ring without a
  *  "middle" ring between it and "outer". */
 export function ringUnlocked(ring: DefenseRing, tier: SettlementTier): boolean {
   if (ring === "outer") return true;
-  if (ring === "middle") return tier !== "camp";
-  if (ring === "inner") return tier === "town" || tier === "city";
+  if (ring === "middle") return tier === "town" || tier === "city";
+  if (ring === "inner") return tier === "city";
   return false;
 }
 
 /** Player-friendly label for the tier where a ring unlocks. */
 export function ringUnlockTier(ring: DefenseRing): SettlementTier {
   if (ring === "outer") return "camp";
-  if (ring === "middle") return "village";
-  return "town"; // inner
+  if (ring === "middle") return "town";
+  return "city"; // inner
 }
 
 // ─── Display ──────────────────────────────────────────────────────

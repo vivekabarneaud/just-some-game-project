@@ -4,6 +4,7 @@ import { BUILDINGS, getSettlementName, SETTLEMENT_TIERS } from "~/data/buildings
 import { RESOURCES } from "~/data/resources";
 import { SEASON_META } from "~/data/seasons";
 import { getRaid, getDefenseTips, type IncomingRaid } from "~/data/raids";
+import { militiaCount } from "~/data/defenses";
 import { QUEST_DEFINITIONS, isQuestActive, isQuestClaimable, isQuestClaimed } from "~/data/quests";
 import { useGame, WALL_BASE_HP } from "~/engine/gameState";
 import { totalPopulation } from "~/data/citizens";
@@ -419,7 +420,7 @@ export default function Overview() {
             {defense().barracks > 0 && <span>Barracks +{defense().barracks} · </span>}
             {defense().walls > 0 && <span>Walls +{defense().walls} · </span>}
             {defense().adventurers > 0 && <span>Adventurers +{defense().adventurers} · </span>}
-            <span>Citizens +{defense().population}</span>
+            <span>Militia +{defense().population}</span>
           </div>
 
           <Show when={state.incomingRaids.length > 0} fallback={
@@ -453,6 +454,7 @@ export default function Overview() {
                       walls: wallsSnap,
                       watchtowers: towersSnap,
                       barracks: barracksSnap,
+                      militiaCount: militiaCount(state),
                       seed: seed + i,
                     });
                     if (result.victory) wins++;

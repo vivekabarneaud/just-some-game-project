@@ -16,6 +16,11 @@ export interface EventUnlocks {
   activateStoryline?: { storyline: StorylineId; chapter: number };
   /** Chronicle entry to fire on event acknowledgement. */
   chronicleEntryId?: string;
+  /** Queue a specific raid for arrival alongside the banner. Used to make
+   *  scripted story raids land deterministically instead of relying on the
+   *  probabilistic spawner. The raid uses its template baseWarning (adjusted
+   *  by current watchtower level) for its warning timer. */
+  raidSpawn?: { raidId: string };
 }
 
 export interface NarrativeEvent {
@@ -138,6 +143,11 @@ export const NARRATIVE_EVENTS: NarrativeEvent[] = [
     requiresAll: true,
     banner:
       "The brigands the scouts saw are no longer waiting. A ragged column is forming at the eastern ridge, half a day off. They will be at the gate by dusk.",
+    unlocks: {
+      // Spawn the camp-tier brigand raid that the_first_threat warned about.
+      // hungry_bandits matches the narrative: "poorly equipped, desperate".
+      raidSpawn: { raidId: "hungry_bandits" },
+    },
   },
 ];
 

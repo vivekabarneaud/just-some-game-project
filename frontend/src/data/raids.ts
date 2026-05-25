@@ -282,14 +282,19 @@ export interface DefenseBreakdown {
  * - Barracks: 12 per level (main military building)
  * - Walls: 8 per level (passive defense)
  * - Adventurers at home: level * 2 each
- * - Population: 0.5 per citizen (they help defend)
+ * - Militia: 2 per uncommitted adult (pitchforks at the outer wall)
+ *
+ * The "population" field on the breakdown is actually the militia value —
+ * kept under the same name so the Overview UI keeps working without label
+ * gymnastics. The label in the UI now reads as "Militia" or similar; pass
+ * militiaCount (not total population) when calling.
  */
 export function calcDefense(
   walls: PlayerWall[],
   watchtowers: PlayerWatchtower[],
   barracks: PlayerBarracks[],
   adventurers: Adventurer[],
-  population: number,
+  militiaCount: number,
 ): DefenseBreakdown {
   // Sum levels across all rings. Walls with hp <= 0 (breached/unbuilt) and
   // damaged towers/barracks contribute zero. Existing per-level multipliers
@@ -313,7 +318,9 @@ export function calcDefense(
   const watchtowerDef = watchtowerLvl * 8;
   const barracksDef = barracksLvl * 15;
   const wallsDef = wallsLvl * 12;
-  const popDef = Math.floor(population * 0.3);
+  // Militia value: 2 per uncommitted adult. Rough estimator of their
+  // contribution; the real sim consumes the actual militiaCount.
+  const popDef = militiaCount * 2;
 
   return {
     total: watchtowerDef + barracksDef + wallsDef + adventurerDef + popDef,

@@ -256,9 +256,12 @@ export default function ResourceBar() {
             const eff = (a.current <= 0 && a.production <= 0) ? 0 : a.consumption;
             return a.production - eff;
           };
+          // Red only when something *vital* is unmet. Clothing is vital
+          // (citizens need to stay warm / survive winter). Ale is a happiness
+          // luxury — its rate indicator inside the dropdown is enough; not
+          // having any ale shouldn't flag the comforts pill as a warning.
           const allMet = () =>
-            (!hasClothing() || clothing().current >= clothing().needed)
-            && (!hasAle() || ale().current > 0);
+            (!hasClothing() || clothing().current >= clothing().needed);
           return (
             <div class="resource-item has-dropdown" tabIndex={0}>
               <span class="resource-icon">🛍️</span>

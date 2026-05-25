@@ -38,6 +38,9 @@ const WALL_BASE_HP = 100;
  *  playtest. */
 const ARCHER_HP_PER_UNIT_BASE = 28;
 const SOLDIER_HP_PER_UNIT_BASE = 36;
+/** Militia are untrained villagers — pitchforks and kitchen knives. Roughly
+ *  half a soldier's effectiveness, no training scaling. */
+const MILITIA_HP_PER_UNIT = 14;
 /** Per-trained-level multipliers applied on top of the base. */
 const TRAINING_HP_MULT_PER_LEVEL = 0.25;
 const TRAINING_ATK_MULT_PER_LEVEL = 0.20;
@@ -75,6 +78,11 @@ export interface RaidCombatInput {
   walls: RaidWallInput[];
   watchtowers: RaidWatchtowerInput[];
   barracks: RaidBarracksInput[];
+  /** Uncommitted adult citizens who grab pitchforks when a raid lands.
+   *  Spawned as a militia stack at the outer ring. Weak (~half a soldier's
+   *  effectiveness, no training), but enough to make the early-game
+   *  walls-only player not completely defenseless. */
+  militiaCount?: number;
   seed?: number;
 }
 
@@ -97,6 +105,9 @@ export interface RaidCombatResult {
    *  state.archers / state.soldiers / state.population by these. */
   archersLost: number;
   soldiersLost: number;
+  /** Adults who grabbed pitchforks and died. Engine reduces citizens.adults
+   *  by this, respecting FOUNDER_FLOOR. */
+  militiaLost: number;
   raidersKilled: number;
   raidersAlive: number;
 }
@@ -151,6 +162,32 @@ function buildArcherStack(ring: DefenseRing, count: number, trainedLevel: number
     gearDefense: 8,
     canAct: true, canBeHealed: true, isTauntable: false,
     threatMultiplier: 1.0,
+    headcount: count,
+    hpPerUnit,
+    cooldowns: {}, slowed: 0, poisonTicks: [],
+  };
+}
+
+/** Untrained-citizen stack — adults with pitchforks at the outer wall.
+ *  Half a soldier's HP, half its strength, very little armor, lower threat
+ *  multiplier so raiders don't preferentially target them. */
+function buildMilitiaStack(count: number): CombatUnit | null {
+  if (count <= 0) return null;
+  const hpPerUnit = MILITIA_HP_PER_UNIT;
+  const maxHp = hpPerUnit * count;
+  return {
+    id: `militia_outer`,
+    name: `Townsfolk Militia (${count})`,
+    icon: "🍞",
+    kind: "ally",
+    isEnemy: false,
+    hp: maxHp, maxHp,
+    str: 7, dex: 4, int: 0, vit: 2, wis: 0,
+    class: "warrior",
+    isMagical: false,
+    gearDefense: 4,
+    canAct: true, canBeHealed: true, isTauntable: false,
+    threatMultiplier: 0.6,
     headcount: count,
     hpPerUnit,
     cooldowns: {}, slowed: 0, poisonTicks: [],
@@ -287,6 +324,9 @@ export function simulateRaidCombat(input: RaidCombatInput): RaidCombatResult {
   // Original headcount per ring (immutable). Casualties = original − survivors.
   const archerStartCount: Record<DefenseRing, number> = { outer: 0, middle: 0, inner: 0 };
   const soldierStartCount: Record<DefenseRing, number> = { outer: 0, middle: 0, inner: 0 };
+  // Militia — outer ring only, one squad regardless of how many rings exist.
+  const militiaStartCount = input.militiaCount ?? 0;
+  const militiaStack: CombatUnit | null = buildMilitiaStack(militiaStartCount);
 
   for (const ring of RING_ORDER) {
     const tower = towerByRing[ring];
@@ -318,9 +358,11 @@ export function simulateRaidCombat(input: RaidCombatInput): RaidCombatResult {
     const wall = wallByRing[ring];
     const archers = archerStackByRing[ring];
     const soldiers = soldierStackByRing[ring];
+    // Militia spawns only at the outer ring.
+    const militia = ring === "outer" ? militiaStack : null;
 
     // Ring with no defenders at all? Skip — raid walks through.
-    if (!wall && !archers && !soldiers) continue;
+    if (!wall && !archers && !soldiers && !militia) continue;
 
     let ringRound = 0;
     while (ringRound < MAX_ROUNDS_PER_RING) {
@@ -344,10 +386,14 @@ export function simulateRaidCombat(input: RaidCombatInput): RaidCombatResult {
           attack(raider, wall, round, log);
           if (wall.hp <= 0) break; // wall falls mid-round → remaining raiders go next round
         } else {
-          // Wall down — pick the soldier stack first, archer stack as fallback.
+          // Wall down — soldiers first, then militia, archers last (they
+          // shoot from broken walls). Threat-multiplier on militia (0.6)
+          // doesn't change targeting here — it's a uniform pick — but it
+          // matters for the future taunt/threat features.
           const meleeAlive = soldiers && soldiers.hp > 0 ? soldiers : null;
+          const militiaAlive = militia && militia.hp > 0 ? militia : null;
           const archerAlive = archers && archers.hp > 0 ? archers : null;
-          const target = meleeAlive ?? archerAlive;
+          const target = meleeAlive ?? militiaAlive ?? archerAlive;
           if (!target) break;
           attack(raider, target, round, log);
         }
@@ -360,13 +406,20 @@ export function simulateRaidCombat(input: RaidCombatInput): RaidCombatResult {
         if (target) attack(soldiers, target, round, log);
       }
 
+      // 3b. Militia hands fly when the wall falls. Same gate as soldiers.
+      if (wallDown && militia && militia.hp > 0) {
+        const target = pickRandom(aliveTargets(raiders));
+        if (target) attack(militia, target, round, log);
+      }
+
       // 4. End conditions for this ring
       if (raiders.every((r) => r.hp <= 0)) break;
       const archersGone = !archers || archers.hp <= 0;
       const soldiersGone = !soldiers || soldiers.hp <= 0;
+      const militiaGone = !militia || militia.hp <= 0;
       // Ring breached only when nothing remains to defend it. Archers keep
       // firing from a fallen wall as long as the squad still has HP.
-      if (wallDown && soldiersGone && archersGone) break;
+      if (wallDown && soldiersGone && archersGone && militiaGone) break;
     }
 
     // Record final wall HP for this ring (if it had a wall)
@@ -410,6 +463,9 @@ export function simulateRaidCombat(input: RaidCombatInput): RaidCombatResult {
     if (sStart > 0 && sLost * 2 >= sStart) damagedBarracksRings.push(ring);
   }
 
+  const militiaSurvivors = surviversOfStack(militiaStack);
+  const militiaLost = Math.max(0, militiaStartCount - militiaSurvivors);
+
   return {
     victory,
     rounds: round,
@@ -421,6 +477,7 @@ export function simulateRaidCombat(input: RaidCombatInput): RaidCombatResult {
     soldierCasualtiesByRing,
     archersLost,
     soldiersLost,
+    militiaLost,
     raidersKilled,
     raidersAlive,
   };

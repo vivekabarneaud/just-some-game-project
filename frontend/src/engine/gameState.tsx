@@ -74,6 +74,7 @@ import {
   maxSoldiers,
   maxArchers,
   availableCitizens,
+  militiaCount,
   ringUnlocked,
   getWatchtowerArcherCap,
   getBarracksSoldierCap,
@@ -245,6 +246,7 @@ import {
   calcWarningTime,
   spawnRaid,
   getRaidChance,
+  RAID_POOL,
   type DefenseBreakdown,
 } from "~/data/raids";
 
@@ -1492,6 +1494,27 @@ function applyEventEvaluation(s: GameState): void {
           s.chronicleEntriesFired.push(event.unlocks.chronicleEntryId);
         }
       }
+      if (event.unlocks?.raidSpawn) {
+        const raid = RAID_POOL.find((r) => r.id === event.unlocks!.raidSpawn!.raidId);
+        if (raid) {
+          const yearBonus = 1 + (s.year - 1) * 0.20;
+          const strength = Math.floor(raid.strength * yearBonus);
+          const wtLevel = s.watchtowers
+            .filter((t) => !t.damaged)
+            .reduce((max, t) => Math.max(max, t.level), 0);
+          const warningHours = calcWarningTime(raid.baseWarning, wtLevel);
+          s.incomingRaids.push({
+            raidId: raid.id,
+            remaining: warningHours * 3600,
+            strength,
+            warned: true,
+          });
+          // Reset the probability timer so a random raid doesn't pile up on
+          // this scripted one within the same window.
+          s.hoursSinceLastRaid = 0;
+          pushEvent(s, "raid_incoming", "⚠️", `${raid.name} approaching!`);
+        }
+      }
     }
   }
 }
@@ -2279,6 +2302,7 @@ export function GameProvider(props: ParentProps) {
                   walls: (serverState.walls ?? []).map((w: any) => ({ ring: w.ring, level: w.level, hp: w.hp, maxHp: w.level * WALL_BASE_HP })),
                   watchtowers: (serverState.watchtowers ?? []).map((t: any) => ({ ring: t.ring, level: t.level, damaged: t.damaged, archerCount: t.garrison?.count ?? 0, trainedLevel: t.garrison?.trainedLevel ?? 0 })),
                   barracks: (serverState.barracks ?? []).map((b: any) => ({ ring: b.ring, level: b.level, damaged: b.damaged, soldierCount: b.garrison?.count ?? 0, trainedLevel: b.garrison?.trainedLevel ?? 0 })),
+                  militiaCount: militiaCount(serverState as GameState),
                 });
 
                 // Apply sim after-state
@@ -3542,6 +3566,7 @@ export function GameProvider(props: ParentProps) {
                 walls: s.walls.map((w) => ({ ring: w.ring, level: w.level, hp: w.hp, maxHp: w.level * WALL_BASE_HP })),
                 watchtowers: s.watchtowers.map((t) => ({ ring: t.ring, level: t.level, damaged: t.damaged, archerCount: t.garrison.count, trainedLevel: t.garrison.trainedLevel })),
                 barracks: s.barracks.map((b) => ({ ring: b.ring, level: b.level, damaged: b.damaged, soldierCount: b.garrison.count, trainedLevel: b.garrison.trainedLevel })),
+                militiaCount: militiaCount(s),
               });
 
               // ── Apply sim after-state ────────────────────────────
@@ -3569,15 +3594,16 @@ export function GameProvider(props: ParentProps) {
               }
               s.archers = Math.max(0, s.archers - sim.archersLost);
               s.soldiers = Math.max(0, s.soldiers - sim.soldiersLost);
-              // Soldier/archer casualties = adult deaths. Total clamped so we
-              // never drop below the BASE_POPULATION floor.
+              // Soldier + archer + militia casualties = adult deaths. Total
+              // clamped so we never drop below the BASE_POPULATION floor.
+              // Founders are also protected via FOUNDER_FLOOR on the reducer.
               {
-                const totalLoss = sim.archersLost + sim.soldiersLost;
+                const totalLoss = sim.archersLost + sim.soldiersLost + sim.militiaLost;
                 const popTotal = totalPopulation(s.citizens);
                 const allowed = Math.max(0, popTotal - BASE_POPULATION);
                 const actual = Math.min(totalLoss, allowed);
                 if (actual > 0) {
-                  s.citizens.adults = Math.max(0, s.citizens.adults - actual);
+                  s.citizens = reduceByPriority(s.citizens, actual, ["adults"], FOUNDER_FLOOR);
                 }
               }
 
@@ -3594,6 +3620,10 @@ export function GameProvider(props: ParentProps) {
                 const word = sim.archersLost === 1 ? "archer" : "archers";
                 pushEvent(s, "citizen_died", "🏹", `${sim.archersLost} ${word} fell at the watchtower`);
               }
+              if (sim.militiaLost > 0) {
+                const word = sim.militiaLost === 1 ? "villager" : "villagers";
+                pushEvent(s, "citizen_died", "🍞", `${sim.militiaLost} ${word} fell with pitchforks in hand`);
+              }
 
               if (sim.victory) {
                 // ── Victory: grant loot ────────────────────────────
@@ -3608,7 +3638,7 @@ export function GameProvider(props: ParentProps) {
                 }
                 const lootStr = template.victoryLoot.map((l) => `+${l.amount} ${l.resource}`).join(", ");
                 const parts = [`Repelled ${raidName}!`, `Loot: ${lootStr}`];
-                const losses = sim.archersLost + sim.soldiersLost;
+                const losses = sim.archersLost + sim.soldiersLost + sim.militiaLost;
                 if (losses > 0) parts.push(`Casualties: ${losses}`);
                 pushEvent(s, "raid_victory", "🛡️", parts.join(" · "));
               } else {
@@ -3725,7 +3755,7 @@ export function GameProvider(props: ParentProps) {
               strength: spawn.strength,
               warned: true,
             });
-            pushEvent(s, "raid_incoming", "⚠️", `${spawn.raid.name} approaching! (strength ${spawn.strength})`);
+            pushEvent(s, "raid_incoming", "⚠️", `${spawn.raid.name} approaching!`);
           }
         }
 
@@ -4829,7 +4859,7 @@ export function GameProvider(props: ParentProps) {
     },
     getDefense() {
       const homeAdvs = state.adventurers.filter((a) => a.alive && !a.onMission);
-      return calcDefense(state.walls, state.watchtowers, state.barracks, homeAdvs, totalPopulation(state.citizens));
+      return calcDefense(state.walls, state.watchtowers, state.barracks, homeAdvs, militiaCount(state));
     },
 
     // ── Defenses (rework v1): build/upgrade/repair/recruit actions ──
