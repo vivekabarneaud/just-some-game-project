@@ -437,7 +437,11 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     objective: "Craft Wool or Linen Clothing for your citizens",
     icon: "🧥",
     triggers: [{ type: "quest_completed", questId: "warm_and_proper" }],
-    condition: (s) => Math.round(s.clothing) >= 1,
+    // Bumped from >= 1 to >= 2: the hunters arrival event brings 1 clothing
+    // as part of "they bring their own clothes" flavor, which would otherwise
+    // satisfy this quest before the player has used the tailor at all. The
+    // bump forces at least one actual craft to learn the tailoring loop.
+    condition: (s) => Math.round(s.clothing) >= 2,
     rewards: [{ resource: "wool", amount: 5, label: "Wool" }],
     targetPage: "/tailoring",
   },
@@ -527,7 +531,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     chapter: 4,
     title: "The Road to Greatness",
     narrative:
-      "The Town Hall is too small now. Edda has taken to calling it \"the cupboard.\" We have outgrown this camp: tents on every level stretch of ground, two wells, a shrine, a mission board, and more names on the roster than I can list from memory. The canvas will not last another winter. It is time to raise a proper hall, and then to trade tents for walls.",
+      "The Town Hall is too small now. Edda has taken to calling it \"the cupboard.\" We have outgrown this camp: tents on every level stretch of ground, two wells, a mission board, and more names on the roster than I can list from memory. The canvas leaks when it rains hard. The firepit is the only place we gather, and decisions made standing in the wet do not hold long. It is time to raise a proper hall, and then to trade tents for walls.",
     objective: "Upgrade Town Hall to level 3",
     icon: "⭐",
     // Gated on the three Ch.4 prereq quests rather than firing the instant
@@ -579,7 +583,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     chapter: 1,
     title: "A Brave Soul",
     narrative:
-      "The Guild's doors are open, and more have come than I expected. A woman from Nordveld with a bow she will not put down. A priest's apprentice who will not say which parish. Two others who walked in without speaking. I cannot keep them all. I must choose.",
+      "The Guild's doors are open, and more have come than I expected. Some carry weapons that have seen more than this camp has. Others stand at the edge, watching, saying nothing. I cannot keep them all. I must choose.",
     objective: "Recruit an adventurer",
     icon: "⚔️",
     triggers: [{ type: "quest_completed", questId: "heroes_wanted" }],

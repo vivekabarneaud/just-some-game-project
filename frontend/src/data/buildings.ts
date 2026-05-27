@@ -1,3 +1,5 @@
+import { QUEST_DEFINITIONS, isQuestTriggered } from "./quests";
+
 export interface BuildingCost {
   wood: number;
   stone: number;
@@ -22,13 +24,20 @@ export type SettlementTier = "camp" | "village" | "town" | "city";
  *    once both the lumber mill and quarry are running."
  *
  *  Discriminated by which keys are present (no `type` field). StorylineId is
- *  inlined as a literal union to avoid an import cycle with quests.ts. */
+ *  inlined as a literal union to avoid an import cycle with quests.ts.
+ *
+ *  `requiresQuestTriggered` gates the building on a specific quest being
+ *  *visible* to the player (its triggers satisfied). Use when the building's
+ *  natural narrative is "the quest tells you to build it" but tier/chapter
+ *  gating isn't precise enough — e.g. a quest that fires at TH lvl 2 while
+ *  the building would otherwise unlock at a later chapter. */
 export type BuildingUnlockGate =
   | {
       storyline: "settlement" | "guild" | "story" | "defense";
       chapter: number;
     }
-  | { requiresBuildings: string[] };
+  | { requiresBuildings: string[] }
+  | { requiresQuestTriggered: string };
 
 export interface BuildingDefinition {
   id: string;
@@ -159,6 +168,15 @@ export function isBuildingChapterUnlocked(
       (id) => (state.buildings?.find((b) => b.buildingId === id)?.level ?? 0) >= 1,
     );
   }
+  if ("requiresQuestTriggered" in gate) {
+    const quest = QUEST_DEFINITIONS.find((q) => q.id === gate.requiresQuestTriggered);
+    if (!quest) return false;
+    // Quest triggers evaluate against the full GameState. The slim state
+    // type passed here doesn't claim all fields, but the values isQuestTriggered
+    // actually reads (chapters, questRewardsClaimed, completedStoryMissions,
+    // raidsResolvedCount, buildings) are present at runtime — cast to any.
+    return isQuestTriggered(quest, state as any);
+  }
   const cs = state.chapters?.find((c) => c.storyline === gate.storyline);
   if (!cs) return false;
   return cs.current >= gate.chapter || cs.completedChapters.includes(gate.chapter);
@@ -215,9 +233,9 @@ export function getUnlockConditions(
       met: isBuildingUnlocked(building, thLevel),
     });
   }
-  // Narrative gate (chapter or building prereqs). Building prereqs are split
-  // into one row per required building so the tooltip checklist gives a
-  // green/red tick per dependency.
+  // Narrative gate (chapter, building prereqs, or quest-triggered). Building
+  // prereqs are split into one row per required building so the tooltip
+  // checklist gives a green/red tick per dependency.
   const gate = building.unlockedAt;
   if (gate) {
     if ("requiresBuildings" in gate) {
@@ -226,6 +244,13 @@ export function getUnlockConditions(
         const built = (state.buildings.find((b) => b.buildingId === id)?.level ?? 0) >= 1;
         conditions.push({ label: `Build a ${name}`, met: built });
       }
+    } else if ("requiresQuestTriggered" in gate) {
+      const quest = QUEST_DEFINITIONS.find((q) => q.id === gate.requiresQuestTriggered);
+      const questTitle = quest?.title ?? gate.requiresQuestTriggered;
+      conditions.push({
+        label: `Unlocked when the "${questTitle}" quest appears`,
+        met: isBuildingChapterUnlocked(building, state),
+      });
     } else {
       conditions.push({
         label: chapterGateLabel(gate),
@@ -565,7 +590,10 @@ export const BUILDINGS: BuildingDefinition[] = [
     levels: generateLevels({ wood: 60, stone: 40 }, 25, undefined, 10),
     requiredTier: "camp",
     tierLevelCaps: { camp: 2, village: 5, town: 8, city: 10 },
-    unlockedAt: { storyline: "settlement", chapter: 4 },
+    // Gated on the Merchants Welcome quest appearing (TH lvl 2). Was
+    // previously settlement Ch4, which left the quest sitting in the log
+    // with nothing the player could act on for a long time.
+    unlockedAt: { requiresQuestTriggered: "merchants_welcome" },
   },
 
   // Defense buildings (walls, watchtower, barracks, mage tower) live on the

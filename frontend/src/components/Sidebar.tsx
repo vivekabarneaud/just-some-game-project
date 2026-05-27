@@ -284,7 +284,6 @@ export default function Sidebar(props: SidebarProps) {
                   href={item.path}
                   class="nav-link"
                   classList={{ active: isActive(item.path) }}
-                  style={{ animation: pulse ? "pulse 2s infinite" : undefined }}
                 >
                   <span class="nav-icon">{item.icon}</span>
                   {item.label}
@@ -297,7 +296,7 @@ export default function Sidebar(props: SidebarProps) {
                     <span class="notification-badge" style={{ "margin-left": "auto" }}>{badge}</span>
                   )}
                   {pulse && (
-                    <span style={{ "margin-left": "auto", "font-size": "0.7rem", color: pulse.color }}>
+                    <span class="nav-link-pulse" style={{ "margin-left": "auto", "font-size": "0.7rem", color: pulse.color }}>
                       {pulse.text}
                     </span>
                   )}

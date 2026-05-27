@@ -31,8 +31,8 @@ export const STORY_CINEMATICS: Record<string, CinematicSlide[]> = {
     {
       image: `${CDN_STORIES}/story_1_slide_2.png`,
       text:
-        "But they found something I didn't expect: a day's march south on a hilltop, ruins.\n\n" +
-        "Stone foundations, a collapsed well, a tower still half standing. Someone built here before us. Someone who thought to build to last.",
+        "But they found something I didn't expect: a day's march south on a hilltop, an abandoned watchtower.\n\n" +
+        "Stone foundations, a collapsed well, the tower still half standing. Someone built here before us. Someone who thought to build to last.",
       position: "bottom",
     },
     {

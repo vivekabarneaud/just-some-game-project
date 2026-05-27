@@ -28,9 +28,9 @@ export const STORY_MISSIONS: StoryMission[] = [
     storyOrder: 2,
     prerequisite: "story_1_scouting",
     chapter: "Chapter 1: Ashes and Dust",
-    name: "The Hilltop Ruins",
+    name: "The Old Watch",
     description:
-      "The hilltop ruins your scouts mapped. Stone foundations, a half-standing watchtower, a collapsed well: the work of someone who built to last. They still failed. Send a team in. Bring someone who can hold a line if the place is not as empty as it looks.",
+      "The old watch your scouts mapped. Stone foundations, a half-standing tower, a collapsed well: the work of someone who built to last. They still failed. Send a team in. Bring someone who can hold a line if the place is not as empty as it looks.",
     icon: "🏚️",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/hilltop_ruins.png",
     slots: [{ class: "any" }, { class: "any" }],

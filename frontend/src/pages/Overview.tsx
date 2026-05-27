@@ -5,7 +5,7 @@ import { RESOURCES } from "~/data/resources";
 import { SEASON_META } from "~/data/seasons";
 import { getRaid, getDefenseTips, type IncomingRaid } from "~/data/raids";
 import { militiaCount } from "~/data/defenses";
-import { getCurrentOverviewFlavor } from "~/data/overview_flavors";
+import { getCurrentOverviewFlavors, FLAVOR_CATEGORY_ORDER } from "~/data/overview_flavors";
 import { QUEST_DEFINITIONS, isQuestActive, isQuestClaimable, isQuestClaimed } from "~/data/quests";
 import { useGame, WALL_BASE_HP } from "~/engine/gameState";
 import { totalPopulation } from "~/data/citizens";
@@ -183,9 +183,13 @@ export default function Overview() {
             return "Matters to attend to today";
           };
           // Lord-voice narration of the current settlement mood — see
-          // data/overview_flavors.ts. Sits below the count breakdown as an
-          // italic-muted reflection; absent entries fall back to no extra line.
-          const flavor = () => getCurrentOverviewFlavor(state);
+          // data/overview_flavors.ts. One paragraph per category (settlement,
+          // adventurers, defense), each tracking its own latest match. Lets
+          // the player see parallel priorities at the same time.
+          const flavors = () => getCurrentOverviewFlavors(state);
+          const activeFlavors = () => FLAVOR_CATEGORY_ORDER
+            .map((cat) => flavors()[cat])
+            .filter((f): f is NonNullable<typeof f> => !!f);
           return (
             <div class="quest-panel" style={{ "padding": "16px 20px" }}>
               <div class="quest-panel-content">
@@ -200,19 +204,28 @@ export default function Overview() {
                     }}>
                       {breakdown()}
                     </p>
-                    <Show when={flavor()}>
-                      {(f) => (
-                        <p style={{
-                          "margin": "16px 0 0",
-                          "font-size": "0.9rem",
-                          "font-style": "italic",
-                          "color": "var(--text-secondary)",
-                          "line-height": "1.5",
-                          "max-width": "800px",
-                        }}>
-                          {f().text}
-                        </p>
-                      )}
+                    <Show when={activeFlavors().length > 0}>
+                      <div style={{
+                        "margin": "16px 0 0",
+                        display: "flex",
+                        "flex-direction": "column",
+                        gap: "8px",
+                        "max-width": "800px",
+                      }}>
+                        <For each={activeFlavors()}>
+                          {(f) => (
+                            <p style={{
+                              "margin": 0,
+                              "font-size": "0.9rem",
+                              "font-style": "italic",
+                              "color": "var(--text-secondary)",
+                              "line-height": "1.5",
+                            }}>
+                              {f.text}
+                            </p>
+                          )}
+                        </For>
+                      </div>
                     </Show>
                   </div>
                   <A href="/quests" class="quest-link" style={{ "margin-left": "auto" }}>

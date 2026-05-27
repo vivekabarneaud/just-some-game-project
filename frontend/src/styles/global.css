@@ -186,6 +186,15 @@ body {
   text-align: center;
 }
 
+/* Pulsing attention nudge on the small badge inside a nav-link (harvest!,
+ * plant!, new!, coop!). Scoped to the badge text only — pulsing the whole
+ * nav-link (icon + label + badge) reads as "this row is broken" rather than
+ * "look at this badge". The badge is conditionally rendered, so the element
+ * is fresh each appearance and the animation doesn't restart mid-cycle. */
+.nav-link-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
 /* Notification badge — blue pill used in the sidebar (unseen counts) and on
  * cards (the "NEW" tag on RecipeCard / QuestCard / chronicle entries).
  * Variant `.is-tag` is the small uppercase label form used inside cards. */

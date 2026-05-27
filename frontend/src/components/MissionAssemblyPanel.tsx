@@ -440,6 +440,33 @@ export default function MissionAssemblyPanel(props: Props) {
     untrack(() => recomputeSuccess());
   });
 
+  /** Helper text rendered under the success % to nudge the player about
+   *  what to do when odds look bad. Red tier surfaces every lever the
+   *  player has (level, gear, supplies, talents) plus the permadeath
+   *  warning so a brand-new player isn't blindsided. Orange tier focuses
+   *  on supplies since the team is roughly viable. Returns null when the
+   *  team is empty (nothing actionable yet) or the odds are good. */
+  const successTip = (): { main: string; warning?: string } | null => {
+    const teamCount = teamIds().length;
+    if (teamCount === 0) return null;
+    const slotsCount = freshMission().slots.length;
+    const hasOpenSlots = teamCount < slotsCount;
+    const slotsHint = hasOpenSlots
+      ? " Adding another adventurer would help too."
+      : "";
+    const pct = successPct();
+    if (pct >= 70) return null;
+    if (pct >= 40) {
+      return {
+        main: "Odds are uncertain. Packing food and combat potions, and equipping gear, can tip the fight your way." + slotsHint,
+      };
+    }
+    return {
+      main: "Your team is likely not ready. Build experience on easier missions, equip gear, pack food and combat potions, and spend talent points before sending them out." + slotsHint,
+      warning: "Adventurers who fall on a mission may not return.",
+    };
+  };
+
   const successColor = () => {
     const pct = successPct();
     return pct >= 70 ? "var(--accent-green)" :
@@ -1276,6 +1303,36 @@ export default function MissionAssemblyPanel(props: Props) {
             )}
           </div>
         </div>
+        {/* Contextual tip when the odds are uncertain or worse. Red tier
+            surfaces all levers + permadeath warning; orange focuses on
+            supplies; green shows nothing. */}
+        <Show when={successTip()}>
+          {(tip) => (
+            <div style={{
+              "margin-top": "8px",
+              "padding": "8px 12px",
+              "background": "rgba(0, 0, 0, 0.2)",
+              "border-left": `3px solid ${successColor()}`,
+              "border-radius": "4px",
+              "font-size": "0.8rem",
+              "font-style": "italic",
+              "color": "var(--text-secondary)",
+              "line-height": "1.5",
+            }}>
+              {tip().main}
+              <Show when={tip().warning}>
+                {(warning) => (
+                  <>
+                    {" "}
+                    <span style={{ "font-weight": "600", color: "var(--text-primary)" }}>
+                      {warning()}
+                    </span>
+                  </>
+                )}
+              </Show>
+            </div>
+          )}
+        </Show>
 
         {/* Coop mode: Ready Up button */}
         <Show when={isCoop()}>

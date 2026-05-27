@@ -1921,6 +1921,54 @@ function calcFoodConsumption(citizens: CitizenCounts): number {
   return effectiveFoodMouths(citizens) * FOOD_PER_CITIZEN_PER_HOUR;
 }
 
+/** Pre-computed lookup sets for reward dispatch — used by grantReward below.
+ *  Module-level so they're built once at import time, not per-claim. */
+const _HERB_IDS = new Set(HERBS.map((h) => h.id));
+const _EXOTIC_IDS = new Set(EXOTIC_IDS);
+
+/** Grant a single reward to the state, dispatching by resource type. Shared
+ *  by quest-claim and mission-claim paths so they stay in sync (previously
+ *  the quest path only handled gold/wood/stone/wool/astralShards and
+ *  silently dropped food/herb/material/inventory rewards into NaN). */
+function grantReward(
+  s: GameState,
+  reward: { resource: string; amount: number },
+  caps: StorageCaps,
+): void {
+  const res = reward.resource;
+  if (res === "astralShards") {
+    s.astralShards += reward.amount;
+  } else if (_HERB_IDS.has(res)) {
+    if (!s.herbs) s.herbs = {};
+    s.herbs[res] = (s.herbs[res] ?? 0) + reward.amount;
+  } else if (_EXOTIC_IDS.has(res)) {
+    if (!s.exotics) s.exotics = {};
+    s.exotics[res] = (s.exotics[res] ?? 0) + reward.amount;
+  } else if (res === "gold" || res === "wood" || res === "stone") {
+    const key = res as keyof typeof s.resources;
+    s.resources[key] = Math.min(caps[key], s.resources[key] + reward.amount);
+  } else if (res === "food") {
+    addFood(s.foods, "wheat", reward.amount, caps.food);
+  } else if (isFoodItemType(res)) {
+    addFood(s.foods, res, reward.amount, caps.food);
+  } else if (res === "wool") {
+    s.wool = Math.min(craftingMaterialCap(s.buildings), s.wool + reward.amount);
+  } else if (res === "fiber") {
+    s.fiber = Math.min(craftingMaterialCap(s.buildings), s.fiber + reward.amount);
+  } else if (res === "leather") {
+    s.leather = Math.min(craftingMaterialCap(s.buildings), s.leather + reward.amount);
+  } else if (res === "iron") {
+    s.iron = Math.min(craftingMaterialCap(s.buildings), s.iron + reward.amount);
+  } else if (res === "honey") {
+    s.honey = s.honey + reward.amount;
+  } else {
+    // Unknown to the resource counters — treat as a material/item entry.
+    const existing = s.inventory.find((i) => i.itemId === res);
+    if (existing) existing.quantity += reward.amount;
+    else s.inventory.push({ itemId: res, quantity: reward.amount });
+  }
+}
+
 function calcStorageCaps(buildings: PlayerBuilding[]): StorageCaps {
   const warehouse = buildings.find((b) => b.buildingId === "warehouse");
   const pantry = buildings.find((b) => b.buildingId === "pantry");
@@ -5422,14 +5470,7 @@ export function GameProvider(props: ParentProps) {
         s.questRewardsClaimed.push(questId);
         const caps = calcStorageCaps(s.buildings);
         for (const reward of quest.rewards) {
-          if (reward.resource === "astralShards") {
-            s.astralShards += reward.amount;
-          } else if (reward.resource === "wool") {
-            s.wool = Math.min(craftingMaterialCap(s.buildings), s.wool + reward.amount);
-          } else {
-            const key = reward.resource as keyof typeof s.resources;
-            s.resources[key] = Math.min(caps[key], s.resources[key] + reward.amount);
-          }
+          grantReward(s, reward, caps);
         }
 
         // Fire Chronicle entry + unlock bio fragments if the quest has them
@@ -5592,42 +5633,10 @@ export function GameProvider(props: ParentProps) {
     claimMissionReward(index) {
       const mission = state.completedMissions[index];
       if (!mission) return;
-      const herbIds = new Set(HERBS.map((h) => h.id));
-      const exoticIds = new Set(EXOTIC_IDS);
       setState(produce((s) => {
         const caps = calcStorageCaps(s.buildings);
         for (const reward of mission.rewards) {
-          // reward.resource is typed as RewardType but the loot pipeline widens
-          // it with `as any` to include material IDs, food types, etc. — treat
-          // it as a plain string here.
-          const res = reward.resource as string;
-          if (res === "astralShards") {
-            s.astralShards += reward.amount;
-          } else if (herbIds.has(res)) {
-            if (!s.herbs) s.herbs = {};
-            s.herbs[res] = (s.herbs[res] ?? 0) + reward.amount;
-          } else if (exoticIds.has(res)) {
-            if (!s.exotics) s.exotics = {};
-            s.exotics[res] = (s.exotics[res] ?? 0) + reward.amount;
-          } else if (res === "gold" || res === "wood" || res === "stone") {
-            const key = res as keyof typeof s.resources;
-            s.resources[key] = Math.min(caps[key], s.resources[key] + reward.amount);
-          } else if (res === "food") {
-            // Legacy generic "food" reward — credit as wheat
-            addFood(s.foods, "wheat", reward.amount, caps.food);
-          } else if (isFoodItemType(res)) {
-            addFood(s.foods, res, reward.amount, caps.food);
-          } else if (res === "wool") s.wool = Math.min(craftingMaterialCap(s.buildings), s.wool + reward.amount);
-          else if (res === "fiber") s.fiber = Math.min(craftingMaterialCap(s.buildings), s.fiber + reward.amount);
-          else if (res === "leather") s.leather = Math.min(craftingMaterialCap(s.buildings), s.leather + reward.amount);
-          else if (res === "iron") s.iron = Math.min(craftingMaterialCap(s.buildings), s.iron + reward.amount);
-          else if (res === "honey") s.honey = s.honey + reward.amount;
-          else {
-            // Material or item → add to inventory
-            const existing = s.inventory.find((i) => i.itemId === res);
-            if (existing) existing.quantity += reward.amount;
-            else s.inventory.push({ itemId: res, quantity: reward.amount });
-          }
+          grantReward(s, reward as { resource: string; amount: number }, caps);
         }
         s.completedMissions.splice(index, 1);
       }));

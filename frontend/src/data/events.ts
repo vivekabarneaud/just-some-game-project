@@ -156,7 +156,7 @@ export const NARRATIVE_EVENTS: NarrativeEvent[] = [
     id: "event_three_reports",
     triggers: [{ type: "story_mission_completed", missionId: "story_1_scouting" }],
     banner:
-      "The scouts came back with three reports. A wolf pack on the ridge. A band of brigands camped two ridges east, watching us. And ruins, a day's march south, that nobody can explain.",
+      "The scouts came back with three reports. A wolf pack on the ridge. A band of brigands camped two ridges east, watching us. And an abandoned watchtower, a day's march south, that nobody can explain.",
     unlocks: {
       activateStoryline: { storyline: "defense", chapter: 1 },
     },
@@ -167,7 +167,7 @@ export const NARRATIVE_EVENTS: NarrativeEvent[] = [
     id: "event_outgrowing_canvas",
     triggers: [settlementChapterDone(3)],
     banner:
-      "Edda calls the Town Hall \"the cupboard.\" Tents on every level stretch of ground. Two wells. A shrine. A mission board. The canvas will not last another winter. It is time to raise a proper hall.",
+      "Edda calls the Town Hall \"the cupboard.\" Tents on every level stretch of ground, two wells, a mission board, and a roster I cannot hold in my head. The canvas leaks when it rains hard, the firepit is the only place we gather, and decisions made standing in the wet do not hold long. It is time to raise a proper hall.",
   },
 
   // ── The deferred brigand raid ─────────────────────────────────
