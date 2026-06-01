@@ -190,6 +190,34 @@ export default function Overview() {
           const activeFlavors = () => FLAVOR_CATEGORY_ORDER
             .map((cat) => flavors()[cat])
             .filter((f): f is NonNullable<typeof f> => !!f);
+
+          // Immediate-danger banner inside the Matters card. Matches the
+          // red "!" badge in the sidebar — surfaces when food is running
+          // out so a player who closes the game with a deficit doesn't
+          // wake up to a wiped settlement.
+          const foodDanger = (): { headline: string; detail: string } | null => {
+            const total = Object.values(state.foods ?? {}).reduce((s, v) => s + v, 0);
+            const pop = totalPopulation(state.citizens);
+            if (pop === 0) return null;
+            const net = netRate("food");
+            // Treat anything under one full ration as effectively empty.
+            // Prevents the message from flickering between "no food" and
+            // "runs out in under an hour" when the stockpile oscillates
+            // near zero from float-point tick math.
+            if (total < 1) {
+              return { headline: "No food in the stores", detail: "Citizens are starving. Build a Forager's Hut, Hunting Camp, or Fishing Hut now." };
+            }
+            if (net < 0) {
+              const hours = total / Math.abs(net);
+              if (hours < 12) {
+                return {
+                  headline: `Food runs out in ${hours < 1 ? "under an hour" : `~${Math.round(hours)}h`}`,
+                  detail: `Consumption exceeds production by ${Math.abs(net).toFixed(1)}/hr. Add a food building or upgrade an existing one before this hits zero.`,
+                };
+              }
+            }
+            return null;
+          };
           return (
             <div class="quest-panel" style={{ "padding": "16px 20px" }}>
               <div class="quest-panel-content">
@@ -204,6 +232,39 @@ export default function Overview() {
                     }}>
                       {breakdown()}
                     </p>
+                    <Show when={foodDanger()}>
+                      {(d) => (
+                        <div style={{
+                          "margin": "14px 0 0",
+                          padding: "10px 14px",
+                          background: "rgba(231, 76, 60, 0.10)",
+                          border: "1px solid var(--accent-red)",
+                          "border-left-width": "4px",
+                          "border-radius": "6px",
+                          "max-width": "800px",
+                        }}>
+                          <div style={{
+                            "font-weight": "700",
+                            color: "var(--accent-red)",
+                            "font-size": "0.9rem",
+                            display: "flex",
+                            "align-items": "center",
+                            gap: "8px",
+                          }}>
+                            <span>⚠️</span>
+                            <span>{d().headline}</span>
+                          </div>
+                          <div style={{
+                            "margin-top": "4px",
+                            "font-size": "0.82rem",
+                            color: "var(--text-secondary)",
+                            "line-height": "1.5",
+                          }}>
+                            {d().detail}
+                          </div>
+                        </div>
+                      )}
+                    </Show>
                     <Show when={activeFlavors().length > 0}>
                       <div style={{
                         "margin": "16px 0 0",

@@ -5,6 +5,7 @@ import { isMuted, toggleMuted } from "~/engine/sounds";
 import { SEASON_META, HOURS_PER_SEASON, IS_DEV, getGlobalSeason } from "~/data/seasons";
 import { logout, getUsername } from "~/api/auth";
 import { QUEST_DEFINITIONS, isQuestTriggered } from "~/data/quests";
+import { totalPopulation } from "~/data/citizens";
 // (Robin pill removed from sidebar — robin notifications surface via the
 //  Overview badge + the Overview page's robin card instead.)
 import { fetchLeaderboard } from "~/api/leaderboard";
@@ -220,6 +221,29 @@ export default function Sidebar(props: SidebarProps) {
     return location.pathname.startsWith(path);
   };
 
+  /** Immediate-danger flag (renders as red "!" badge). Different from the
+   *  blue notification badge and the pulse — this is "fix this NOW, citizens
+   *  will die". Returns a one-word reason for the tooltip when active, or
+   *  null when no danger applies to this nav item. */
+  const dangerFor = (path: string): string | null => {
+    if (path === "/") {
+      const foods = state.foods;
+      if (!foods) return null;
+      const total = (Object.values(foods) as number[]).reduce((s, v) => s + v, 0);
+      const pop = totalPopulation(state.citizens);
+      if (pop === 0) return null;
+      const rates = actions.getProductionRates();
+      const net = rates.food - actions.getFoodConsumption() - actions.getAnimalFoodConsumption();
+      // Match the Overview's `< 1` threshold so the sidebar badge label
+      // doesn't bounce between "Out of food" and "Food running out" while
+      // the stockpile oscillates near zero from float-point tick math.
+      if (total < 1) return "Out of food";
+      if (net < 0 && total / Math.abs(net) < 12) return "Food running out";
+      return null;
+    }
+    return null;
+  };
+
   return (
     <aside class="sidebar">
       <button
@@ -279,6 +303,7 @@ export default function Sidebar(props: SidebarProps) {
             {section.items.map((item) => {
               const badge = badgeCountFor(item.path);
               const pulse = pulseFor(item.path);
+              const danger = dangerFor(item.path);
               return (
                 <A
                   href={item.path}
@@ -292,10 +317,13 @@ export default function Sidebar(props: SidebarProps) {
                       #{myRank()}
                     </span>
                   )}
-                  {badge > 0 && (
+                  {danger && (
+                    <span class="danger-badge" title={danger} style={{ "margin-left": "auto" }}>!</span>
+                  )}
+                  {!danger && badge > 0 && (
                     <span class="notification-badge" style={{ "margin-left": "auto" }}>{badge}</span>
                   )}
-                  {pulse && (
+                  {!danger && pulse && (
                     <span class="nav-link-pulse" style={{ "margin-left": "auto", "font-size": "0.7rem", color: pulse.color }}>
                       {pulse.text}
                     </span>

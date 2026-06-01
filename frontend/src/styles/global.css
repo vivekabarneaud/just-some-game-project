@@ -212,6 +212,25 @@ body {
   justify-content: center;
   box-shadow: 0 0 6px rgba(96, 165, 250, 0.5);
 }
+/* Red "!" badge — immediate-danger flag in the sidebar. Sibling of
+ * notification-badge but tuned for "fix this now, citizens will die".
+ * Subtle pulse keeps it from blending into the rest of the chrome. */
+.danger-badge {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--accent-red);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 900;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 8px rgba(231, 76, 60, 0.55);
+  animation: pulse 2s ease-in-out infinite;
+}
+
 .notification-badge.is-tag {
   height: auto;
   min-width: 0;
