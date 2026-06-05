@@ -2,6 +2,8 @@
 
 *Designed 2026-04-10. Captures decisions from collaborative design session.*
 
+**Status:** BUILT — mostly (2026-06-05 audit). Races/origins + stat mods, enemy tags, backstory-trait passives, and ghost/aether immunities are live. The full per-tag weakness/resistance multiplier table is only partial; the "Future Considerations" section is largely shipped.
+
 ---
 
 ## 1. Enemy Type Tags

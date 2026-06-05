@@ -1,5 +1,7 @@
 # Workers & Plagues — Design Spec
 
+**Status:** BACKLOG (2026-06-05 audit). Neither the worker-staffing system nor plague events are built. Depends on citizen-categories (now built).
+
 ## 1. Worker System
 
 ### Concept

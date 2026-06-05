@@ -1,6 +1,6 @@
 # Backend slice — minimum viable persistence
 
-**Status:** design agreed May 2026. Not yet built.
+**Status:** BUILT (2026-06-05 audit). The backend exists — `backend/` with `prisma/schema.prisma`, routes (auth/settlement/trade/friends/coop/world/ws), and tick + co-op-resolution services. NOTE: the schema diverged from this slice — Adventurer/ActiveMission were NOT promoted to their own tables; they stay inside the `Settlement.gameState` JSON blob. Treat the table-design sections below as historical.
 **Stack:** TypeScript + Hono + Prisma + PostgreSQL. Render (app) + Neon (db). Frontend on Vercel, assets on R2.
 
 ## Why now

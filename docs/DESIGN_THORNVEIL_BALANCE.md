@@ -1,5 +1,7 @@
 # Thornveil Forest Balance — Design Spec
 
+**Status:** BACKLOG (2026-06-05 audit). Forest-debt / Sylvan Regrowth / Thornveil-raid logic is unbuilt. Explicitly the mirror of DESIGN_CHURCH_BALANCE; consider merging into one faction-balance spec.
+
 ## Overview
 
 A mechanic that ties deforestation (Lumber Mill) to magical reforestation (Mage Tower spell), with the Thornveil Pact as the enforcer. If the player cuts too many trees without regrowing them, they receive escalating warnings from Elder Rowena Ashford, culminating in Thornveil raids.

@@ -1,5 +1,7 @@
 # Food, Scrolls & Loyalty — Design Spec
 
+**Status:** PARTIAL (2026-06-05 audit). Food crafting + loyalty + per-adventurer food/potion slots are BUILT. Enchanted team SCROLLS are NOT built — that's the only remaining third. NOTE: the farming section duplicates DESIGN_FARMING_EXPANSION.md (now the authoritative copy).
+
 ## Overview
 
 Interconnected systems that deepen the player's relationship with their adventurers and give new purpose to the farming economy:

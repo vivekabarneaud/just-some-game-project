@@ -1,6 +1,6 @@
 # Talent trees — design
 
-**Status:** identity pass in progress (May 2026). Tree structure + point economy deferred to a later pass.
+**Status:** BUILT (2026-06-05 audit). `frontend/src/data/talents.ts` has full per-class trees (rows/children/capstones) with the hybrid-title capstones. REMAINING: some advanced combat mechanics (status_consumed / stack_explode, etc.) and final point-economy tuning.
 **Pentagon order (working assumption):** warrior — assassin — archer — wizard — priest — (warrior). Adjacent pairs produce hybrid titles. See [[project_talent_pentagon]] memory for the locked decisions.
 
 ## Design principles

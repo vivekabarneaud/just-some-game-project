@@ -1,5 +1,7 @@
 # Quirks Rework — Design Spec
 
+**Status:** BACKLOG (2026-06-05 audit). Quirks are still a flat `PERSONALITY_QUIRKS: string[]`; the tagged system below is unbuilt.
+
 ## Problem
 
 The current 16 quirks are untagged strings — any quirk can appear on any adventurer. This causes immersion breaks:

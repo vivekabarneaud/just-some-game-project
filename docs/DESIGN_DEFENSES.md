@@ -2,7 +2,7 @@
 
 Big architectural change to how raids resolve. Replaces the current scalar `defense vs strength` comparison with a real combat simulation between attackers (raid force) and defenders (walls + soldiers + tower archers). Reuses the combat log + playback system already shipped for adventurer missions.
 
-**Status:** designed 2026-04-28, not yet implemented.
+**Status:** BUILT (2026-06-05 audit). Ring combat sim (`shared/src/data/raidCombat.ts`), Defenses page, and garrison modal all shipped. CORRECTION: the ring→tier unlock table below is wrong vs code — `ringUnlocked` opens the Middle ring at **Town** and the Inner ring at **City** (not Village/Town).
 **Touches:** raid system, combat sim, building system, population, UI (new Defenses page).
 **Scope:** v1 only. Specialized soldier types, adventurer auto-garrison, named officers, settlement-map UI, etc. are deferred.
 

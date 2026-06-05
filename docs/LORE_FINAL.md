@@ -1,6 +1,8 @@
 # Valenheart — Definitive Lore
 
 > **STATUS UPDATE (April 2026):** The cosmology and the origin of the Sundering have been reframed — see **`LORE_EIGHTH_GOD.md`** for the current canonical account. Headline changes: the pantheon is eight gods, not seven (an Eighth, the god of Malice, was sealed in the Ironspine Deeps and forgotten); Netheron was the full Aether-cycle engineer, not only the Shepherd of the dead; the Sundering was engineered by the Eighth's long-planted agents, not a purely tragic accident. This document remains valid for factions, named characters, locations, and mechanics not touched by that reframe. A full consolidation pass is planned.
+>
+> **CANON NOTE (2026-06-05):** `LORE_TIMELINE.md` is now the top authority and supersedes both this doc and `LORE_EIGHTH_GOD.md` on the cosmology / Sundering axis. Name drift to be aware of when reading below: **Commander Dryven → Drayven**, and the ranger warden **Kess → Niamh** (TIMELINE's names win). This doc is still the richest source for faction/NPC/race texture.
 
 ---
 

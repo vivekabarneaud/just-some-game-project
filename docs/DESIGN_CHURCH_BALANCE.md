@@ -1,5 +1,7 @@
 # Church / Dominion Balance — Design Spec
 
+**Status:** BACKLOG — premise needs revisiting (2026-06-05 audit). No heresy/Inquisition logic exists, and the "Chapel" this is built around was renamed to **Shrine** with a different (deity-offering) role — so the core mechanic needs a rethink. Mirrors DESIGN_THORNVEIL_BALANCE; consider merging the two into one faction-balance spec.
+
 ## Overview
 
 A mirror mechanic to the Thornveil forest balance. The Church of the Radiant One watches for excessive magic use. If the player's Mage Tower gets too powerful without a Chapel to "sanctify" the settlement, the Inquisition takes notice.

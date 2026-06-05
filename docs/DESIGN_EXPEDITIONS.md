@@ -1,6 +1,6 @@
 # Expeditions — Multi-Event Mission System
 
-**Status:** Design doc, not yet implemented.
+**Status:** BUILT — core (2026-06-05 audit). `expeditionEngine.ts`, expedition content, the recovery supply slot, the timeline UI, and even server-side co-op resolution are live. REMAINING: Phase 5 (authored multi-day expeditions + enemy-roster fill) and deferred polish (retreat mechanic, volatility badge, expedition-flavored talents).
 **Prerequisites:** Third per-adventurer supply slot (recovery), new item types (bandages, mending potions), expanded enemy roster.
 
 ## Overview

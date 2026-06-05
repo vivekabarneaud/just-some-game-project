@@ -1,5 +1,7 @@
 # Pre-Made Character Pool — Design Spec
 
+**Status:** PARTIAL (2026-06-05 audit). The curated pool (~219 characters) + Pantheon are BUILT. NOT built: the family system, rarity-weighting, and unlock conditions (those fields aren't on `PremadeCharacter` yet).
+
 ## Overview
 
 Replace random adventurer generation with a curated pool of ~150 handcrafted characters, each with a unique portrait, name, backstory, and personality. Characters are real people in the world, not dice rolls.

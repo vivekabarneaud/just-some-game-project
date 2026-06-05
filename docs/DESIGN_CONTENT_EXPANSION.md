@@ -1,5 +1,7 @@
 # Content Expansion — Enemies, Equipment & Jewelcrafting
 
+**Status:** BUILT (2026-06-05 audit). New enemies, elemental gems, the Jewelcrafter building + page, and the ring slots all shipped.
+
 ## Overview
 
 A major content pass adding:

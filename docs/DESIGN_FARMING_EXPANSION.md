@@ -1,5 +1,7 @@
 # Farming Expansion — Beehives, Orchards, Mushrooms & Cheese
 
+**Status:** BUILT (2026-06-05 audit). Apiary/honey, orchards/fruit, forager mushrooms, and kitchen cheese are all live. NOTE: this content is duplicated in DESIGN_FOOD_SCROLLS_LOYALTY.md §1 — treat this doc as the authoritative copy.
+
 ## Overview
 
 Four additions to the farming system that create new resources for Tavern food crafting and add depth to the farming page. Each follows existing patterns (gardens, livestock pens) and fits into the current UI.

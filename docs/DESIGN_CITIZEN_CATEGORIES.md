@@ -2,7 +2,7 @@
 
 Replace the single `state.population: number` with a per-category breakdown so the player can see *who* makes up the settlement and the game can model lifecycle, food, and combat eligibility differently per group. Going straight to **Phase B** (real per-category state, aging, differential food, weighted births) — Phase A (cosmetic ratios) skipped per discussion 2026-04-29.
 
-**Status:** designed 2026-04-29, not yet implemented. Scoped after the Defenses rework lands on main.
+**Status:** BUILT (2026-06-05 audit). `CitizenCounts`, `founderCitizens()`, `ageStep`, per-category food multipliers, and adults-only defense eligibility are all live. Implementation adds a founder-floor/reserve (founders can't die yet) not described below.
 **Trigger:** Defenses page reads "Available citizens: 4" with a 5-citizen starter, with no breakdown to explain it.
 **Touches:** population state, food consumption, growth/decline tick, defense recruit eligibility, topbar UI, event log copy.
 
