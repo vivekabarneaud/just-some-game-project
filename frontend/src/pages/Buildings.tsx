@@ -3,6 +3,7 @@ import { A } from "@solidjs/router";
 import { BUILDINGS, isBuildingUnlocked, isBuildingChapterUnlocked, getUnlockRequirement, getUnlockReasons, getUnlockConditions, getNextLevelRequirement, applyMasonCostReduction, applyMasonTimeReduction, getTierPrerequisitesMet, getRepairCost, getBuildingImage, PANIC_BUILD_IDS, PANIC_BUILD_SHARD_COST, type BuildingDefinition } from "~/data/buildings";
 import { QUEST_DEFINITIONS, isQuestActive } from "~/data/quests";
 import { useGame } from "~/engine/gameState";
+import { playSound } from "~/engine/sounds";
 import Countdown from "~/components/Countdown";
 import Tooltip from "~/components/Tooltip";
 
@@ -253,10 +254,12 @@ export default function Buildings() {
                               if (canUpgradeNow()) {
                                 e.preventDefault();
                                 e.stopPropagation();
+                                playSound("build");
                                 actions.upgradeBuilding(building.id);
                               } else if (canPanicBuild()) {
                                 e.preventDefault();
                                 e.stopPropagation();
+                                playSound("build");
                                 actions.panicBuildBuilding(building.id);
                               }
                             }}
@@ -355,10 +358,12 @@ export default function Buildings() {
                                     if (canUpgradeNow()) {
                                       e.preventDefault();
                                       e.stopPropagation();
+                                      playSound("build");
                                       actions.upgradeBuilding(building.id);
                                     } else if (canPanicBuild()) {
                                       e.preventDefault();
                                       e.stopPropagation();
+                                      playSound("build");
                                       actions.panicBuildBuilding(building.id);
                                     }
                                   }}

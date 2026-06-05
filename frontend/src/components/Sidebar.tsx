@@ -1,8 +1,9 @@
 import { Show, createSignal, onMount, onCleanup } from "solid-js";
 import { A, useLocation, useNavigate } from "@solidjs/router";
 import { useGame, CRAFTING_RECIPES } from "~/engine/gameState";
-import { isMuted, toggleMuted } from "~/engine/sounds";
+import { setOpenSettings } from "~/components/SettingsModal";
 import { SEASON_META, HOURS_PER_SEASON, IS_DEV, getGlobalSeason } from "~/data/seasons";
+import { WEATHER_META, WEATHER_TYPES, resolveWeather, weatherOverride, setWeatherOverride } from "~/data/weather";
 import { logout, getUsername } from "~/api/auth";
 import { QUEST_DEFINITIONS, isQuestTriggered } from "~/data/quests";
 import { totalPopulation } from "~/data/citizens";
@@ -71,6 +72,13 @@ const navSections: { title: string; items: NavItem[] }[] = [
 ];
 
 const SPEEDS = [1, 2, 5, 10, 50];
+
+/** Routes whose page plays its own themed mount sound (page_turn / dagger /
+ *  bell). Suppress the generic nav click on these links so navigating to them
+ *  doesn't fire two sounds at once — the themed page sound wins. */
+const PATHS_WITH_MOUNT_SOUND = new Set([
+  "/quests", "/chronicle", "/map", "/guild", "/defenses", "/shrine",
+]);
 
 /** Sidebar nav path → buildingId for crafting buildings.
  *  Drives the per-page "new recipes" badge. Pages without a building
@@ -309,6 +317,7 @@ export default function Sidebar(props: SidebarProps) {
                   href={item.path}
                   class="nav-link"
                   classList={{ active: isActive(item.path) }}
+                  data-no-click-sound={PATHS_WITH_MOUNT_SOUND.has(item.path) ? "" : undefined}
                 >
                   <span class="nav-icon">{item.icon}</span>
                   {item.label}
@@ -399,6 +408,16 @@ export default function Sidebar(props: SidebarProps) {
                 <span class="season-name" style={{ color: SEASON_META[seasonInfo().season].color }}>
                   {SEASON_META[seasonInfo().season].name}
                 </span>
+                {(() => {
+                  const wx = () => resolveWeather(seasonInfo().season, seasonInfo().progress, seasonInfo().year);
+                  return (
+                    <span class="weather-chip" tabindex="0">
+                      <span class="wx-chip-icon">{WEATHER_META[wx()].icon}</span>
+                      <span class="wx-chip-name">{WEATHER_META[wx()].name}</span>
+                      <span class="weather-tip">{WEATHER_META[wx()].blurb}</span>
+                    </span>
+                  );
+                })()}
                 <span class="season-year">Year {seasonInfo().year}</span>
               </div>
               <div class="season-progress-bar">
@@ -438,6 +457,22 @@ export default function Sidebar(props: SidebarProps) {
           <button class="skip-season-btn" onClick={() => actions.triggerRaid()}>
             Trigger raid (1min)
           </button>
+          <div class="dev-weather-row">
+            <span class="dev-weather-label">Weather</span>
+            <select
+              class="dev-weather-select"
+              value={weatherOverride() ?? "auto"}
+              onChange={(e) => {
+                const v = e.currentTarget.value;
+                setWeatherOverride(v === "auto" ? null : (v as any));
+              }}
+            >
+              <option value="auto">Auto (ambient)</option>
+              {WEATHER_TYPES.map((w) => (
+                <option value={w}>{WEATHER_META[w].icon} {WEATHER_META[w].name}</option>
+              ))}
+            </select>
+          </div>
           <button class="reset-btn" onClick={() => {
             if (confirm("Start a new game? All progress will be lost.")) {
               actions.resetGame();
@@ -468,13 +503,11 @@ export default function Sidebar(props: SidebarProps) {
         </Show>
         <button
           class="account-btn"
-          onClick={toggleMuted}
-          title={isMuted() ? "Unmute sound effects" : "Mute sound effects"}
+          onClick={() => setOpenSettings(true)}
+          title="Open settings"
           style={{ "margin-bottom": "6px" }}
-          data-no-click-sound
         >
-          <span style={{ "margin-right": "6px" }}>{isMuted() ? "🔇" : "🔊"}</span>
-          {isMuted() ? "Sound off" : "Sound on"}
+          <span style={{ "margin-right": "6px" }}>⚙</span> Settings
         </button>
         <button
           class="account-btn"

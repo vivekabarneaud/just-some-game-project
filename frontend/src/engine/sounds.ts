@@ -13,6 +13,7 @@ export type SoundId =
   | "page_turn"
   | "plop"
   | "dagger"
+  | "build"
   | "bubbles"
   | "kitchen"
   | "bell"
@@ -20,6 +21,11 @@ export type SoundId =
   | "confirm"
   | "error"
   | "notify";
+
+/** Mixer channels. Each has its own player-set volume (see settings). `ui`
+ *  is the default for one-shot interface SFX; `ambient` is for looping weather
+ *  /environment beds; `music` is reserved for a future score. */
+export type SoundChannel = "ui" | "ambient" | "music";
 
 interface SoundDef {
   /** Single URL OR a list. When a list is set, each play picks one at
@@ -31,25 +37,31 @@ interface SoundDef {
   /** Default gain in [0, 1]. HTMLAudioElement caps at 1; quieter clips need
    *  amplification on the source file (or a Web Audio refactor + R2 CORS). */
   volume?: number;
+  /** Mixer channel. Defaults to "ui". */
+  channel?: SoundChannel;
 }
 
+// Sourced from the "Ultimate Medieval Fantasy UI Sounds" pack, mapped by theme
+// to each action (Wood = clicks, Coins = rewards, Metal = martial, Magic =
+// arcane, Stone = denied, Paper = pages). Multi-URL entries get a random variant
+// per play. `kitchen` keeps its original sizzle — the pack has no cooking sound.
 const SOUNDS: Record<SoundId, SoundDef> = {
-  page_turn: { url: `${R2_BASE}/page_turn.wav`,   volume: 0.7 },
-  plop:      { url: `${R2_BASE}/object_drop.wav`, volume: 0.7 },
-  // ?v=3 cache-busts the third dagger upload (Cache-Control on R2 is immutable).
-  dagger:    { url: `${R2_BASE}/dagger.wav?v=3`,  volume: 1.0 },
-  bubbles:   { url: `${R2_BASE}/bubbles.wav`,     volume: 0.7 },
-  kitchen:   { url: `${R2_BASE}/kitchen.wav`,     volume: 0.7 },
-  bell:      { url: `${R2_BASE}/bells_1.wav`,     volume: 0.6 },
-  // Semantic UI sounds. Each maps to one of the four `soundN` variants:
-  //   sound1 → notify (modal pop, banner)
-  //   sound2 → error (failure, empty/locked state)
-  //   sound3 → confirm (golden upgrade-btn click — claim, craft, upgrade)
-  //   sound4 → nav (sidebar nav-link click)
-  notify:  { url: `${R2_BASE}/sound1.wav`, volume: 0.5 },
-  error:   { url: `${R2_BASE}/sound2.wav`, volume: 0.5 },
-  confirm: { url: `${R2_BASE}/sound3.wav`, volume: 0.5 },
-  nav:     { url: `${R2_BASE}/sound4.wav`, volume: 0.5 },
+  page_turn: { url: [`${R2_BASE}/ui_page_turn_1.wav`, `${R2_BASE}/ui_page_turn_2.wav`], volume: 0.6 },
+  plop:      { url: `${R2_BASE}/ui_plop.wav`,   volume: 0.7 },
+  dagger:    { url: `${R2_BASE}/ui_dagger.wav`, volume: 0.8 },
+  build:     { url: [`${R2_BASE}/ui_build_1.wav`, `${R2_BASE}/ui_build_2.wav`], volume: 0.7 },
+  bubbles:   { url: `${R2_BASE}/ui_bubbles.wav`, volume: 0.6 },
+  kitchen:   { url: `${R2_BASE}/kitchen.wav`,   volume: 0.7 },
+  bell:      { url: `${R2_BASE}/ui_bell.wav`,   volume: 0.5 },
+  // Semantic UI sounds:
+  //   notify  → reward jingle (loot / quest-claim modal)
+  //   error   → dull stone thud (failure, empty/locked state)
+  //   confirm → meaty wood+metal click (golden upgrade-btn: claim, craft, upgrade)
+  //   nav     → light wood click (sidebar nav-link)
+  notify:  { url: `${R2_BASE}/ui_notify.wav`, volume: 0.6 },
+  error:   { url: `${R2_BASE}/ui_error.wav`,  volume: 0.6 },
+  confirm: { url: [`${R2_BASE}/ui_confirm_1.wav`, `${R2_BASE}/ui_confirm_2.wav`], volume: 0.6 },
+  nav:     { url: [`${R2_BASE}/ui_nav_misc_1.wav`, `${R2_BASE}/ui_nav_misc_2.wav`], volume: 0.5 },
 };
 
 const MUTE_KEY = "valenheart.sfx.muted";
@@ -75,6 +87,54 @@ export function setMuted(value: boolean) {
 
 export function toggleMuted() {
   setMuted(!muted());
+}
+
+// ─── Mixer channel volumes ──────────────────────────────────────
+// Player-set gains in [0, 1], persisted. Final play volume is:
+//   clip.volume × channelVolume × masterVolume   (then gated by mute).
+// `ambient` and `music` have no assets wired yet, but the controls persist so
+// they take effect the moment looping beds / a score are added.
+const VOL_KEYS = {
+  master: "valenheart.vol.master",
+  ui: "valenheart.vol.ui",
+  ambient: "valenheart.vol.ambient",
+  music: "valenheart.vol.music",
+} as const;
+
+function loadVol(key: string, fallback: number): number {
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw == null) return fallback;
+    const n = parseFloat(raw);
+    return Number.isFinite(n) ? Math.min(1, Math.max(0, n)) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+const [masterVol, setMasterVolSignal] = createSignal(loadVol(VOL_KEYS.master, 1));
+const [uiVol, setUiVolSignal] = createSignal(loadVol(VOL_KEYS.ui, 1));
+const [ambientVol, setAmbientVolSignal] = createSignal(loadVol(VOL_KEYS.ambient, 0.7));
+const [musicVol, setMusicVolSignal] = createSignal(loadVol(VOL_KEYS.music, 0.6));
+
+export const masterVolume = masterVol;
+export const uiVolume = uiVol;
+export const ambientVolume = ambientVol;
+export const musicVolume = musicVol;
+
+function persistVol(key: string, value: number) {
+  try { localStorage.setItem(key, String(value)); } catch { /* private mode */ }
+}
+
+export function setMasterVolume(v: number) { const c = Math.min(1, Math.max(0, v)); setMasterVolSignal(c); persistVol(VOL_KEYS.master, c); }
+export function setUiVolume(v: number) { const c = Math.min(1, Math.max(0, v)); setUiVolSignal(c); persistVol(VOL_KEYS.ui, c); }
+export function setAmbientVolume(v: number) { const c = Math.min(1, Math.max(0, v)); setAmbientVolSignal(c); persistVol(VOL_KEYS.ambient, c); }
+export function setMusicVolume(v: number) { const c = Math.min(1, Math.max(0, v)); setMusicVolSignal(c); persistVol(VOL_KEYS.music, c); }
+
+/** Effective gain for a channel, before the clip's own volume. */
+export function channelVolume(channel: SoundChannel): number {
+  const ch = channel === "ambient" ? ambientVol() : channel === "music" ? musicVol() : uiVol();
+  return ch * masterVol();
 }
 
 // Pool of pre-loaded Audio elements per source URL. cloneNode on an
@@ -152,7 +212,8 @@ export function playSound(id: SoundId, volumeOverride?: number) {
   // Pick an idle slot (paused or finished). If everything is mid-play
   // (rare), fall back to the oldest — better to cut off than to drop.
   const target = arr.find((a) => a.paused || a.ended) ?? arr[0];
-  target.volume = volumeOverride ?? def.volume ?? 0.6;
+  const base = volumeOverride ?? def.volume ?? 0.6;
+  target.volume = Math.min(1, Math.max(0, base * channelVolume(def.channel ?? "ui")));
   try {
     target.currentTime = def.startOffset ?? 0;
   } catch {

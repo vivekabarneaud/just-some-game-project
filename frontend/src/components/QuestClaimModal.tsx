@@ -22,7 +22,8 @@ const EXIT_ANIMATION_MS = 240;
  * `loot-chip`) from global.css so the entry/exit animations are consistent.
  */
 export default function QuestClaimModal(props: Props) {
-  onMount(() => playSound("notify"));
+  // Page sound when the reward modal opens; the money jingle plays on Claim.
+  onMount(() => playSound("page_turn"));
   const [exiting, setExiting] = createSignal(false);
   const [previewEntry, setPreviewEntry] = createSignal<ChronicleEntry | null>(null);
   const [previewMemory, setPreviewMemory] = createSignal<{ character: FoundingCharacter; fragment: BioFragment } | null>(null);
@@ -147,7 +148,8 @@ export default function QuestClaimModal(props: Props) {
         }}>
           <button
             class="upgrade-btn"
-            onClick={() => dismissWith("claim")}
+            data-no-click-sound
+            onClick={() => { playSound("notify"); dismissWith("claim"); }}
             style={{ padding: "8px 20px", "font-size": "0.95rem" }}
           >
             Claim

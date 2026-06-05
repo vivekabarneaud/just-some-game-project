@@ -2,12 +2,14 @@ import { Show, createEffect, createSignal, onMount, onCleanup, type ParentProps 
 import { useNavigate, useLocation } from "@solidjs/router";
 import Sidebar from "./components/Sidebar";
 import ResourceBar from "./components/ResourceBar";
+import WeatherAmbience from "./components/WeatherAmbience";
 import CinematicOverlay from "./components/CinematicOverlay";
 import ChronicleEntryModal from "./components/ChronicleEntryModal";
 import { openChronicleEntry, setOpenChronicleEntry } from "./data/robins";
 import ToastContainer from "./components/Toast";
 import EventBanner, { showEvent } from "./components/EventBanner";
 import EventModal from "./components/EventModal";
+import SettingsModal from "./components/SettingsModal";
 import { installGlobalClickSound } from "./engine/sounds";
 import { INTRO_CINEMATIC } from "./data/cinematics";
 import { QUEST_DEFINITIONS, isQuestClaimable } from "./data/quests";
@@ -217,6 +219,7 @@ export default function App(props: ParentProps) {
       {/* Narrative event banner modal — auto-shows when state.pendingEvents
           has items. Each event is read-and-dismissed by the player. */}
       <EventModal />
+      <SettingsModal />
 
       <div class="app-layout" classList={{ "sidebar-open": sidebarOpen() }}>
         <Sidebar onClose={() => setSidebarOpen(false)} />
@@ -226,6 +229,7 @@ export default function App(props: ParentProps) {
           onClick={() => setSidebarOpen(false)}
         />
         <header class="topbar">
+          <WeatherAmbience />
           <button
             class="hamburger-btn"
             aria-label="Open menu"

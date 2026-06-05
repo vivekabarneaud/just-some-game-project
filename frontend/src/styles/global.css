@@ -4181,3 +4181,290 @@ body {
     margin-bottom: 14px;
   }
 }
+
+/* ─── Weather ambience (cosmetic mood layer) ──────────────────────────────── */
+/* Subtle particle strip living behind the top resource bar. See data/weather.ts
+   and components/WeatherAmbience.tsx. Keep the topbar's real controls above it. */
+.weather-ambience {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.topbar .resource-bar,
+.topbar .hamburger-btn,
+.topbar .event-banner {
+  position: relative;
+  z-index: 1;
+}
+
+/* Rain */
+.wx-rain {
+  position: absolute;
+  top: -20px;
+  width: 1px;
+  height: 14px;
+  background: linear-gradient(to bottom, transparent, rgba(165,195,225,0.55));
+  animation-name: wx-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.wx-rain-heavy {
+  height: 22px;
+  background: linear-gradient(to bottom, transparent, rgba(185,210,240,0.78));
+}
+/* Rain falls on a slight wind-blown angle. The horizontal drift (30px over a
+   ~92px vertical travel ≈ 18°) is matched to the streak's 18deg rotation, so the
+   drops actually MOVE along the diagonal they're tilted on, not just straight down. */
+@keyframes wx-fall {
+  0%   { transform: translate(-12px, -20px) rotate(18deg); opacity: 0; }
+  12%  { opacity: 1; }
+  100% { transform: translate(18px, 72px) rotate(18deg); opacity: 0.85; }
+}
+
+/* Snow */
+.wx-snow {
+  position: absolute;
+  top: -10px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.88);
+  animation-name: wx-snow-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+@keyframes wx-snow-fall {
+  0%   { transform: translate(0, -10px); opacity: 0; }
+  15%  { opacity: 0.9; }
+  50%  { transform: translate(9px, 32px); }
+  100% { transform: translate(-7px, 70px); opacity: 0.6; }
+}
+
+/* Fog */
+.wx-fog {
+  position: absolute;
+  left: -45%;
+  width: 60%;
+  height: 80%;
+  background: radial-gradient(ellipse at center, rgba(205,210,216,0.20), transparent 70%);
+  animation-name: wx-fog-drift;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+@keyframes wx-fog-drift {
+  0%   { transform: translateX(0); opacity: 0; }
+  25%  { opacity: 1; }
+  75%  { opacity: 1; }
+  100% { transform: translateX(270%); opacity: 0; }
+}
+
+/* Overcast: a slow grey band drifting across */
+.wx-overcast {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 0%, rgba(125,135,145,0.12) 42%, rgba(125,135,145,0.16) 58%, transparent 100%);
+  background-size: 220% 100%;
+  animation: wx-overcast-drift 28s linear infinite;
+}
+@keyframes wx-overcast-drift {
+  0%   { background-position: 0% 0; }
+  100% { background-position: 220% 0; }
+}
+
+/* Clear: warm sun glow + lazy golden motes */
+.wx-sun-glow {
+  position: absolute;
+  top: -70%;
+  right: 5%;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, rgba(245,197,66,0.20), transparent 65%);
+  animation: wx-glow-pulse 7.5s ease-in-out infinite;
+}
+@keyframes wx-glow-pulse {
+  0%, 100% { opacity: 0.5;  transform: scale(1); }
+  50%      { opacity: 0.85; transform: scale(1.08); }
+}
+.wx-mote {
+  position: absolute;
+  bottom: -8px;
+  border-radius: 50%;
+  background: rgba(245,210,120,0.7);
+  box-shadow: 0 0 4px rgba(245,210,120,0.5);
+  animation-name: wx-mote-float;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+@keyframes wx-mote-float {
+  0%   { transform: translateY(0);     opacity: 0; }
+  20%  { opacity: 0.8; }
+  80%  { opacity: 0.55; }
+  100% { transform: translateY(-54px); opacity: 0; }
+}
+
+/* Storm lightning flash (ready for the future event layer) */
+.wx-flash {
+  position: absolute;
+  inset: 0;
+  background: rgba(200,220,255,0);
+  animation: wx-flash-anim 6s steps(1, end) infinite;
+}
+@keyframes wx-flash-anim {
+  0%, 92%, 100% { background: rgba(200,220,255,0); }
+  93%           { background: rgba(212,226,255,0.45); }
+  94%           { background: rgba(200,220,255,0.05); }
+  95%           { background: rgba(212,226,255,0.35); }
+  96%           { background: rgba(200,220,255,0); }
+}
+.wx-flash-aether { animation-name: wx-flash-aether-anim; }
+@keyframes wx-flash-aether-anim {
+  0%, 90%, 100% { background: rgba(150,90,220,0); }
+  91%           { background: rgba(162,92,232,0.5); }
+  92%           { background: rgba(120,200,140,0.18); }
+  93%           { background: rgba(150,90,220,0.05); }
+  94%           { background: rgba(172,100,240,0.4); }
+  96%           { background: rgba(150,90,220,0); }
+}
+
+/* Weather chip in the sidebar season block */
+.weather-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.8rem;
+  cursor: default;
+}
+.weather-chip .wx-chip-icon { font-size: 0.95rem; line-height: 1; }
+.weather-chip .wx-chip-name { color: var(--text-muted); }
+.weather-chip .weather-tip {
+  position: absolute;
+  top: 135%;
+  left: 0;
+  width: 190px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition: opacity 140ms ease, transform 140ms ease;
+  z-index: 50;
+}
+.weather-chip:hover .weather-tip,
+.weather-chip:focus-within .weather-tip { opacity: 1; transform: translateY(0); }
+
+@media (prefers-reduced-motion: reduce) {
+  .weather-ambience * { animation: none !important; }
+  .wx-flash, .wx-flash-aether { display: none !important; }
+  .wx-rain, .wx-snow, .wx-mote, .wx-fog { opacity: 0.4 !important; }
+}
+
+/* Dev tools: weather override picker */
+.dev-weather-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+.dev-weather-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.dev-weather-select {
+  flex: 1;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  padding: 4px 6px;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+/* ─── Settings modal ──────────────────────────────────────────────────────── */
+.settings-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--accent-gold);
+  border-radius: 10px;
+  width: min(420px, calc(100vw - 32px));
+  padding: 22px 24px 26px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  font-family: var(--font-body);
+}
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.settings-title {
+  font-family: var(--font-heading);
+  color: var(--accent-gold);
+  font-size: 1.15rem;
+}
+.settings-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 5px;
+}
+.settings-close:hover { color: var(--text-secondary); background: rgba(255,255,255,0.06); }
+.settings-section-title {
+  font-family: var(--font-heading);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+.settings-mute-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+.settings-mute-toggle.muted { border-color: var(--accent-gold); color: var(--accent-gold); }
+.settings-slider-row { margin-bottom: 16px; }
+.settings-slider-row.disabled { opacity: 0.45; }
+.settings-slider-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.settings-slider-icon { font-size: 1rem; }
+.settings-slider-pct {
+  margin-left: auto;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.settings-slider-row input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent-gold);
+  cursor: pointer;
+}
+.settings-slider-row.disabled input[type="range"] { cursor: not-allowed; }
+.settings-slider-hint {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+  font-style: italic;
+}
