@@ -12,7 +12,7 @@ Layer 1 (cosmetic, season-derived weather: top-bar strip + chip) shipped 2026-06
 **Doc:** `DESIGN_WEATHER.md`. **Memory:** `project_weather_ambience.md`.
 
 ### Design-doc sweep
-`DESIGN_INDEX.md` created 2026-06-05 — every doc tagged BUILT/PARTIAL/BACKLOG against the code; stale status lines fixed. Remaining structural cleanup (archive `LORE_DEEP_SEALS`, merge Church+Thornveil, retire/merge `STORY_MISSIONS`) still pending.
+`DESIGN_INDEX.md` created 2026-06-05 — every doc tagged BUILT/PARTIAL/BACKLOG against the code; stale status lines fixed. Structural cleanup done same day: archived `LORE_DEEP_SEALS` (salvaged into `LORE_EIGHTH_GOD`), merged Church+Thornveil → `DESIGN_FACTION_BALANCE.md`, retired `STORY_MISSIONS`. Still pending: reconcile Khor'vani Alchemy canon status, retitle `GAME_DESIGN.md`.
 
 ### Pantry / warehouse destructibility
 Still mid-discussion (since 2026-04-28). Lean: option A (destroyable, capped stockpile loss, only at higher raid difficulties).
@@ -27,7 +27,7 @@ Still mid-discussion (since 2026-04-28). Lean: option A (destroyable, capped sto
 - **Building tools full roster** — ~18 tools + buff/secondary slots; only `cutting_board` exists (`DESIGN_BUILDING_TOOLS.md`).
 - **Workers & plagues** — now unblocked since citizen-categories shipped (`DESIGN_WORKERS_PLAGUES.md`).
 - **Quirks rework** — tagged personality system replacing the flat string list (`DESIGN_QUIRKS_REWORK.md`).
-- **Faction balance** — Church + Thornveil escalation; needs a merge + a Chapel/Shrine rethink (`DESIGN_CHURCH_BALANCE.md` + `DESIGN_THORNVEIL_BALANCE.md`).
+- **Faction balance** — Church + Thornveil escalation; needs a Chapel/Shrine rethink (`DESIGN_FACTION_BALANCE.md`).
 - **Premade characters: family/rarity/unlock layer** — pool + Pantheon shipped; these fields pending (`DESIGN_PREMADE_CHARACTERS.md`).
 - **Expeditions Phase 5** — authored multi-day expeditions + enemy-roster fill; core engine shipped (`DESIGN_EXPEDITIONS.md`).
 - **Mission character ties** — apprentice/journeyman mission text through the founding cast; novice tier started. **Memory:** `project_mission_character_ties.md`.

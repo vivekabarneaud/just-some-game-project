@@ -1,5 +1,7 @@
 # The Deep Seals — Lore Document
 
+> **⚠️ ARCHIVED / SUPERSEDED (2026-06-05).** This early draft's premise — a "King of Demons" predating and separate from the gods — is contradicted by current canon, where the sealed entity is the **Eighth** (god of Malice), sealed by the Seven. See `LORE_EIGHTH_GOD.md` and `LORE_TIMELINE.md`. The salvageable named detail (Bahruun, the Hammerfall sisters) has been migrated into `LORE_EIGHTH_GOD.md` §6. Kept for history only — do not treat as canon.
+
 ## Overview
 
 Beneath the Ironspine Mountains, the Khazdurim mine system intersects with an ancient prison built by a pre-Sundering civilization. The prison holds the King of Demons — something older than the Sundering, older than the dormant gods, older than recorded history.

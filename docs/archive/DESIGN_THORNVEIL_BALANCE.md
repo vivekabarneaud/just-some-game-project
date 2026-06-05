@@ -1,5 +1,7 @@
 # Thornveil Forest Balance — Design Spec
 
+> **⚠️ ARCHIVED / MERGED (2026-06-05).** Merged with Church Balance into `docs/DESIGN_FACTION_BALANCE.md` — use that as the live spec. Kept for history.
+
 **Status:** BACKLOG (2026-06-05 audit). Forest-debt / Sylvan Regrowth / Thornveil-raid logic is unbuilt. Explicitly the mirror of DESIGN_CHURCH_BALANCE; consider merging into one faction-balance spec.
 
 ## Overview

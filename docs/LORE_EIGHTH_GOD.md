@@ -68,6 +68,10 @@ The Khazdurim Watch is neither divinely appointed nor purely accidental. It exis
 
 The Khazdurim tragedy is doubled: they were careless, *and* they were deceived. They should have known better, but they were being steered.
 
+### Named detail (salvaged from the retired `LORE_DEEP_SEALS.md`)
+
+The most powerful demon to breach the outer seals in recorded Khazdurim memory is **Bahruun, Warlord of the Third Depth**, known among demonkind as the **Herald of the Deep**. He broke the second seal, slaughtered an Anvil Guard team, and dismissed the two survivors — the sisters **Brunhild and Magna Hammerfall** — as not worth killing. *(In the older Deep Seals draft, Bahruun heralded a separate "King of Demons." Under current canon that role is the Eighth; Bahruun is one of the greater bound things in the Deeps, and his "the deep is coming" is the seal-decay signal, not a rival cosmology.)*
+
 ## 7. Implications for Factions
 
 - **The Cult of the Hollow** — becomes genuinely tragic. They correctly perceive that the Aether cycle is broken and the Shepherd must be restored. They are trying to save the world. They may not know that their founding philosophy was seeded at its root (TBD). Either way, restoring a broken Netheron without understanding the Eighth's role risks amplifying the Eighth's influence.

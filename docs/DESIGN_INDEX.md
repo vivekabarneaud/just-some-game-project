@@ -28,8 +28,7 @@
 | DESIGN_ROSTER_ECONOMY.md | **BACKLOG** (accurate) | Wages/states/vacation/retirement unbuilt; hard cap `3+guildLevel×2` still enforced. Loyalty model overlaps the shipped 0-100 loyalty. → **Keep; reconcile loyalty model when built.** |
 | DESIGN_WORKERS_PLAGUES.md | **BACKLOG** | Worker-staffing + plague events unbuilt. Depends on citizen-categories. → **Add explicit BACKLOG status line.** |
 | DESIGN_QUIRKS_REWORK.md | **BACKLOG** | Still a flat `PERSONALITY_QUIRKS: string[]`; tagged system unbuilt. → **Add status line.** |
-| DESIGN_CHURCH_BALANCE.md | **BACKLOG** (premise broken) | No heresy/Inquisition logic. **The "Chapel" it's built on was renamed to "Shrine"** (different role), invalidating the premise. Mirrors THORNVEIL_BALANCE. → **Update status + flag retcon; merge with Thornveil.** |
-| DESIGN_THORNVEIL_BALANCE.md | **BACKLOG** | Forest-debt / Sylvan Regrowth / Thornveil raid unbuilt. Explicitly the mirror of Church Balance. → **Merge with Church Balance into one faction-balance spec.** |
+| DESIGN_FACTION_BALANCE.md | **BACKLOG** | Merged Church + Thornveil escalation (2026-06-05); originals in `archive/`. Neither built; Church side needs a Chapel→Shrine rethink. → **The live faction-balance spec.** |
 | DESIGN_LORE_EXPANSION.md | **REF / BACKLOG** | Varek's ghost court lore (reference); its boss-progression + missions unbuilt. → **Keep as lore ref; cross-link to LORE_TIMELINE.** |
 
 ## Lore canon (hierarchy)
@@ -43,7 +42,7 @@
 | LORE_OPEN_IDEAS.md | **HOLDING** | Working as intended. Khor'vani Alchemy is parked here but already treated as canon in FINAL/TIMELINE. → **Reconcile that one item.** |
 | LORE_FINAL.md | **CANON-PARTIAL** | Still owns factions/NPCs/races; cosmology stale. Name drift: **Dryven→Drayven, Kess→Niamh** (TIMELINE wins). → **Update status + note name drift.** |
 | LORE_EIGHTH_GOD.md | **CANON-PARTIAL** | Introduced the reframe; overtaken by TIMELINE (Severance-misfire vs Cassandra-Netheron). → **Cross-ref TIMELINE; fold in eventual consolidation.** |
-| LORE_DEEP_SEALS.md | **SUPERSEDED** | "King of Demons, separate from the gods" directly contradicts the now-canon Eighth-God framing. → **Archive; migrate the Bahruun/Hammerfall detail first.** |
+| ~~LORE_DEEP_SEALS.md~~ → `archive/` | **SUPERSEDED** | Contradicted the Eighth-God canon. Bahruun/Hammerfall detail migrated to `LORE_EIGHTH_GOD.md` §6; archived 2026-06-05. |
 
 ## Meta / story / tracking
 
@@ -52,7 +51,7 @@
 | STORY_PLAYER_SCRIPT.md | **CURRENT** | Most up-to-date story doc (through Story 13). → **Treat as the primary story source.** |
 | PROMPTS_DONE.md | **CURRENT** | Done-log half of the art-prompt pair; consistent with shipped assets. → **Keep.** |
 | PROMPTS.md | **PARTIAL-STALE** | Live art backlog, but story-slide titles drifted vs code. → **Reconcile slide titles; prune completed.** |
-| STORY_MISSIONS.md | **STALE** | Stops at Story 7, stale titles ("Hilltop Ruins" vs code's "The Old Watch"); redundant with PLAYER_SCRIPT (which reaches Story 13). → **Merge into PLAYER_SCRIPT and retire, or bring current.** |
+| ~~STORY_MISSIONS.md~~ → `archive/` | **RETIRED** | Superseded by STORY_PLAYER_SCRIPT (Story 13) + `storyMissions.ts`; archived 2026-06-05. |
 | GAME_DESIGN.md | **PARTIAL-STALE** | Oldest doc; still titled "Medieval Realm" (now Valenheart); predates lore/story/guild/talents/weather. → **Retitle + scope to economy/systems, point lore at TIMELINE.** |
 | ROADMAP.md | **STALE** | Last updated 2026-04-29; lists Defenses/Citizen-categories/Expeditions/Talents as pending though they shipped. → **Refresh against this index.** |
 
@@ -73,10 +72,15 @@ Distilled from the above — the real backlog, not the doc count:
 - Premade characters — family/rarity/unlock layer (PREMADE_CHARACTERS)
 - Expeditions Phase 5 — authored multi-day expeditions (EXPEDITIONS)
 
-**Doc hygiene (no code):**
-- Mark the 8 stale "not implemented" docs as BUILT/PARTIAL
-- Fix contradictions: Defenses ring→tier table; Backend schema; Church Chapel→Shrine; lore name drift (Drayven/Niamh); Khor'vani Alchemy canon status
-- Archive LORE_DEEP_SEALS; merge Church+Thornveil; retire/merge STORY_MISSIONS; refresh ROADMAP & GAME_DESIGN
+**Doc hygiene — DONE 2026-06-05:**
+- ✓ Marked the stale "not implemented" docs BUILT/PARTIAL/BACKLOG
+- ✓ Flagged contradictions: Defenses ring→tier table; Backend schema; Church Chapel→Shrine; lore name drift (Drayven/Niamh)
+- ✓ Archived LORE_DEEP_SEALS (salvaged Bahruun first); merged Church+Thornveil → DESIGN_FACTION_BALANCE; retired STORY_MISSIONS; refreshed ROADMAP
+
+**Doc hygiene — still pending:**
+- Reconcile Khor'vani Alchemy (parked in LORE_OPEN_IDEAS but treated as canon in FINAL/TIMELINE)
+- Retitle/scope GAME_DESIGN.md (still "Medieval Realm"; predates the lore/story layer)
+- Eventual lore consolidation: fold FINAL + EIGHTH_GOD into LORE_TIMELINE
 
 ---
 

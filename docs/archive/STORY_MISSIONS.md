@@ -1,5 +1,7 @@
 # Story Missions — Source-of-truth Reference
 
+> **⚠️ ARCHIVED / RETIRED (2026-06-05).** Superseded by `docs/STORY_PLAYER_SCRIPT.md` (current to Story 13; this doc stalled at Story 7 with stale titles). The authoritative mechanical fields (IDs, durations, rewards, encounters) live in `shared/src/data/missions/storyMissions.ts`. Kept for history.
+
 Living document. Each story mission's content lives in three places:
 
 1. **Mission template** — `shared/src/data/missions/storyMissions.ts` (gameplay: name, description, encounter, rewards, etc.)

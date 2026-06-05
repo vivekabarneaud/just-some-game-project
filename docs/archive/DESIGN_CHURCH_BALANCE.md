@@ -1,5 +1,7 @@
 # Church / Dominion Balance — Design Spec
 
+> **⚠️ ARCHIVED / MERGED (2026-06-05).** Merged with Thornveil Balance into `docs/DESIGN_FACTION_BALANCE.md` — use that as the live spec. Kept for history.
+
 **Status:** BACKLOG — premise needs revisiting (2026-06-05 audit). No heresy/Inquisition logic exists, and the "Chapel" this is built around was renamed to **Shrine** with a different (deity-offering) role — so the core mechanic needs a rethink. Mirrors DESIGN_THORNVEIL_BALANCE; consider merging the two into one faction-balance spec.
 
 ## Overview
