@@ -132,8 +132,8 @@ A team that finally reaches close enough to see the shape of Netheron's body wou
 - Voices cannot get through a working ward.
 - Wards are placed where they can blend with the landscape: moss-grown, set into hillsides, half-buried, easy to overlook from a distance but visible up close. Rangers do not advertise their locations.
 - **A broken ward simply stops working.** The area returns to its underlying thinning state. Broken wards do not actively spread Wastes (this is a common folk misconception).
-- **A dormant ward** is one that has cracked or weakened but not fully failed; its area of effect shrinks. The ward serving the Hilltop Ruins is in this state today: its core covers the ruins themselves and most of the path home, but no longer reaches the thinning pocket south of them.
-- The Hilltop Ruins ward was placed *after* Hale's garrison fell — likely within the century that followed, when Thornveil rangers learned of the disaster and tried to cap the area. Hale's men had no ward. That is why they heard voices from day one.
+- **A dormant ward** is one that has cracked or weakened but not fully failed; its area of effect shrinks.
+- **The old watch (Hale's garrison) `[LOCKED 2026-06-11]`:** the watch is flanked by **two ancient pre-Pact ward stones**, a half-mile north and a half-mile south of the tower. The **south stone broke around the time Hale's company arrived** (the line of keepers had thinned to nothing; an unkept ward cracks). The north stone held, but one stone keeps only its own circle and the garrison stood beyond its reach — that is why Hale's men heard voices from day one. **Niamh's grandmother's teacher reset the south stone after the garrison fell**; rangers have kept the pair since. Today both stones stand whole (the south one visibly seamed with mending) and the watch ground is quiet — which is why the Lord's scouts hear nothing there. *(Replaces the earlier "ward placed after Hale / Hale's men had no ward" account.)*
 - Cleansing or repairing a ward draws attention from nearby thinning-bound entities. Combat during repair is from the disturbance, not from the ward itself.
 
 ---
@@ -307,7 +307,7 @@ The middle period. Cultures settle. Trade networks form between distant peoples.
 - **They arrive at Parcel 14.** A river bending east, a ridge of stone to the north, an old forest to the south. Fresh stumps in the clearing — someone was here before, briefly, then was not.
 - **Two days' march south** lie the Hilltop Ruins. The Lord does not yet know their name or history.
 - **Halldora is watching.** A robin will arrive eventually.
-- **Niamh is watching.** A ward at the Hilltop Ruins is failing. She has been waiting for someone capable enough to talk to.
+- **Niamh is watching.** Wards along the line south and west are failing, and her order has fewer hands than stones. She has been waiting for someone capable enough to talk to.
 - **The Cult is moving.** Unseen, but moving.
 - **Varek is awake on the other side of the boundary.** He sees every Free Settlement as a future subject or obstacle.
 - **The Eighth whispers, faintly, to the right kind of ears.** Nobody at the settlement has those ears yet.
@@ -638,7 +638,7 @@ When writing chronicle entries, cinematics, or mission descriptions, keep these 
 - **Netheron's body literally crashed at the Academy site.** The Wastes are his corpse leaking. Don't have characters describe the Wastes as just "cursed land" if the Lord ever learns the truth — the Wastes are a god's grave.
 - **The Lord doesn't know the Wastes have been moving.** He learns this in story 2 from Hale's journal.
 - **Combat dispels ghosts; only ritual frees them.** Players learn this from Niamh in story 4. Until then they think they killed Hale.
-- **Wards are large monoliths blended into landscape.** Regional area of effect. The one near the Hilltop Ruins covers the ruins and the path home but no longer reaches the thinning pocket south.
+- **Wards are large monoliths blended into landscape.** Regional area of effect. The old watch sits between a flanking pair: both stand whole today (the south one broke in Hale's time and was reset after he fell), and their protection does not reach the thinning pocket further south.
 - **Voices are real.** They are the trapped dead, not "something wearing voices." Save the wearing-voices reveal for late chapters.
 - **Radiant One belief is two-layered.** Official Church monotheism (the Radiant One does all things). Folk practice retains Netheron as the devil. Both held simultaneously without contradiction by ordinary believers.
 - **The Doctrine of Silence has two roots.** Hubris narrative (don't study Aether, the Academy was punished) plus devil narrative (Netheron the rebel-god fell). Both reinforce the same conclusion. Inquisition uses whichever fits the audience.

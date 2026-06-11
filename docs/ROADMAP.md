@@ -5,6 +5,21 @@ Bird's-eye view of pending work. One-or-two lines per item + a pointer to the de
 
 ---
 
+## 🎯 The goal: Act 1 Alpha (set 2026-06-11)
+
+A complete, balanced Act 1 ending on the **Story 14 cult assault cliffhanger**, good enough to hand to first outside players (boyfriend → his friends; nephew later via the French translation). Milestones in order:
+
+1. **Lore locked through Story 14** — finish the `LORE_AUDIT_2026-06-11.md` punch-list, settle the remaining canon decisions (Nordveld, Khor'vani alchemy), wire the orphaned Rowena-letter chronicles, draft Story 14 + the cult-raid quest (doesn't exist in code yet). Ward-stone canon LOCKED 2026-06-11.
+2. **Progression & anti-softlock pass** — audit every gate/cost/duration through Act 1, simulate playthroughs, eliminate every way to get permanently stuck.
+3. **Content quality pass** — loot/gear first (biggest dissatisfaction), then potions & foods.
+4. **Talent trees deepening.**
+5. **Alpha packaging** — first-hour polish, loot-chest reveal moment, onboarding.
+6. **French translation (i18n)** — tutorial slice first, per the existing plan.
+
+Working agreement: Claude executes, the user decides/reacts/plays. No task is scheduled that requires the user to grind.
+
+---
+
 ## Now (in flight)
 
 ### Weather & ambience

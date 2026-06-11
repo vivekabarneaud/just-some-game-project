@@ -53,6 +53,11 @@ Full sweep: cross-doc lore contradictions, in-game text vs canon, story-arc cont
 
 Hale's garrison facts consistent everywhere; Rowena/Aldren ages & genealogy consistent; Le Déclin/elf lifespans consistent across docs; robins-vs-ravens clean; founder math (except Jory's one line) checks out; Helga corroborated in the Nordveld name pool; Frostvik place/family name corroborates Halldora's lineage; Varek's assassination consistent; Edda/Helga timeline fits any Nordveld version; chronicle entries + cinematics + founder fragments contain **zero** em dashes (the style pass was applied rigorously where it was applied).
 
+## Resolution log
+
+- **2026-06-11 (pass 1):** A1 Kess→Niamh ✓, A4 chapter label ✓, "Ashfork" ✓, Jory three→four years ✓ (doc+code), EIGHTH_GOD banner ✓, DESIGN_LORE_EXPANSION banner ✓, RACES_ORIGINS header ✓.
+- **2026-06-11 (pass 2 — ward canon LOCKED):** C14 resolved with the owner's master version: the old watch sits BETWEEN two ancient flanking stones; the **south stone broke around the time Hale's company arrived** (keepers' line had thinned); the north stone held but the garrison stood beyond its single circle → that's why Hale's men heard voices; **Niamh's grandmother's teacher reset the south stone after he fell**; today both stand whole (south one visibly mended) → scouts hear nothing. Rewrites applied: Story 3 Niamh dialogue, Story 7 chronicle (¶3-4), "An inch" ¶7, Story 7 mission event (A2 ✓), LORE_TIMELINE lines ~135-136/310/641. STORY_PLAYER_SCRIPT.md back-feed still pending (it lags code anyway, see item 16).
+
 ## Suggested order of attack
 
 1. **Mechanical, no decisions** (one sitting): Kess→Niamh in expertMissions; story 13 chapter label; "Ashfork" typo; Jory "three"→"four years ago" (doc + code); EIGHTH_GOD supersession banner; DESIGN_LORE_EXPANSION canon-note banner; RACES_ORIGINS header count; em-dash sweep of premades/chronicle.ts/storyMissions.

@@ -213,8 +213,8 @@ export const STORY_MISSIONS: StoryMission[] = [
       // Event 2 — Ruins area, the two flanking broken stones. Random pool.
       { type: "random", pool: [
         { weight: 2, event: { kind: "combat", encounters: [{ enemyId: "wraith", count: 1 }, { enemyId: "cursed_spirit", count: 2 }] } },
-        { weight: 1, event: { kind: "encounter", text: "The two stones flanking the Hilltop Ruins are broken and have been for a long time. Niamh's binding at the captain's grave still holds the worst of it down. The team passes through with eyes down.", outcomes: [
-          { weight: 1, text: "Nothing rises. The Ruins stay quiet today. The team marks both stones and rides on.", effect: { type: "nothing" } },
+        { weight: 1, event: { kind: "encounter", text: "The two stones flanking the old watch stand whole, the south one seamed with old mending. The ground between them is quiet. The ground south of their reach is not. The team passes the line of their protection with eyes down.", outcomes: [
+          { weight: 1, text: "Nothing rises. The old watch stays quiet today. The team marks both stones and rides on.", effect: { type: "nothing" } },
         ]}},
         { weight: 1, event: { kind: "combat", encounters: [{ enemyId: "cursed_spirit", count: 3 }] } },
       ]},
