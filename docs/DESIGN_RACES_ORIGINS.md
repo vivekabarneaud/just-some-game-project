@@ -61,7 +61,7 @@ Before the Sundering, elves were truly immortal — sustained by the complete Ae
 
 Each origin is a homeland with its own culture, name pool, and connection to the game's lore.
 
-### Human Origins (7)
+### Human Origins (6)
 
 #### Ashwick (English/Celtic) — The Dominion Heartlands
 The common folk AND the displaced elite of the Ashenmark Dominion. Farmers, soldiers, merchants, and scholars/nobles who fled the Doctrine of Silence. Most settlers came south for cheap land or to escape the Church's grip.

@@ -87,7 +87,7 @@ export const FOUNDING_CHARACTERS: FoundingCharacter[] = [
     role: "Carpenter · widower · the Lord's oldest friend",
     portrait: `${CDN_CAST}/jory.png`,
     coreBio:
-      "The Lord's oldest friend. Carpenter and maker of wooden instruments. Widowed three years ago; father to Nell.",
+      "The Lord's oldest friend. Carpenter and maker of wooden instruments. Widowed four years ago; father to Nell.",
     fragments: [
       {
         id: "jory_sawhorse",

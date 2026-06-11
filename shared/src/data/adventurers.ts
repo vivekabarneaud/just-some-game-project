@@ -265,7 +265,7 @@ const QUEST_UNLOCKED_ORIGINS: Record<string, Origin[]> = {
   // fired by the Watch the Walls quest completion), the alliance is formal.
   // Silvaneth elves of the Thornveil start drifting south to the work, and
   // Rowena specifically sends her grandchildren (Cedric, Bronwyn) and a
-  // cousin (Roderick) — all of them human Ashfork-origin characters with
+  // cousin (Roderick) — all of them human Ashwick-origin characters with
   // their own backstories already in the premade pool.
   watch_the_walls: ["silvaneth"],
 };

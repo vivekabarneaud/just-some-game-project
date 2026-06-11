@@ -1,5 +1,7 @@
 # Lore Expansion — Politics, Varek's Court & Cultural Depth
 
+> **⚠️ CANON NOTE (2026-06-11 audit):** this doc predates several canon locks and `LORE_TIMELINE.md` wins where they disagree. Known stale points: "Dryven" → **Drayven**; the Khazdurim Deep Seals section (Netheron+Ferros essence) is replaced by the **Eighth God** canon (`LORE_EIGHTH_GOD.md`); the five-year Zah'kari ground war contradicts TIMELINE's locked "Varek's conquest does not reach them in force"; **Aelindra "487 years old, remembers Le Déclin" is mathematically impossible** (Le Déclin was ~2000 years ago; elves live ≤500) — her age or memories must change; the pre-Varek Nordveld colony vs TIMELINE's invasion-during-Varek `[PROPOSAL]` is the open Nordveld canon gap, still needs a lock. Full list: `LORE_AUDIT_2026-06-11.md`. Still valuable for: Varek's biography/campaigns (Phases 1-3), the ghost court, Hearthlands→Ashenmark history, cultural politics.
+
 ## 1. Varek the Undying — Khor'vani Origin
 
 ### Who Was Varek?
@@ -12,7 +14,8 @@ He left the Crossroads at 22, not for wealth but because he'd already solved the
 
 In the centuries after the Sundering, the continent was a patchwork of warring successor states:
 
-**The Hearthlands** (modern-day Ashenmark / Dominion heartlands) — a fertile central region of rolling farmland and river valleys, ruled by a dozen feuding noble houses: Ashford, Blackwood, Greystone, Thornwood, Emberheart, and others. The common folk called their land "the Hearthlands" — a name about home and hearth-fires, not conquest. The nobles called it whatever their house name was and fought constantly over its borders. The Ashfords were one house among many, not particularly powerful.
+<!-- House names deliberately left generic (except Ashford, which is canon via Rowena / the Ashford coup). The other house names aren't enumerated here because common-folk surnames in the `ashwick` origin pool (Blackwood, Greystone, Thornwood, Emberheart, etc.) reuse them, and we don't want to canonize those as noble bloodlines. Revisit if the houses ever need naming. -->
+**The Hearthlands** (modern-day Ashenmark / Dominion heartlands) — a fertile central region of rolling farmland and river valleys, ruled by a dozen feuding noble houses. The common folk called their land "the Hearthlands" — a name about home and hearth-fires, not conquest. The nobles called it whatever their house name was and fought constantly over its borders. The Ashfords were one house among many, not particularly powerful.
 
 **The Nordveld** — not the frozen border folk they are today. The Nordveld were **raiders and conquerors** — the continent's Vikings. Their longships raided every coast, and their war-chiefs had already pushed south into the northern Hearthlands, occupying farmland and ruling over Ashwick peasants as a warrior aristocracy. For two generations, Nordveld jarls taxed Hearthland grain and conscripted Hearthland sons. The northern Hearthlands were effectively a Nordveld colony.
 

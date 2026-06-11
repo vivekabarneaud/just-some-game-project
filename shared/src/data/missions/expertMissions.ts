@@ -166,7 +166,7 @@ export const EXPERT_MISSIONS: MissionTemplate[] = [
 {
     id: "wasteland_wyrm_lair",
     name: "The Corrupted Nest",
-    description: "Deep in the grey zone, Kess found a nest that's wrong. The eggs are black. The drake guarding them has scales like charcoal and breath that rots instead of burns. It was born in the Wastes. It IS the Wastes.",
+    description: "Deep in the grey zone, Niamh found a nest that's wrong. The eggs are black. The drake guarding them has scales like charcoal and breath that rots instead of burns. It was born in the Wastes. It IS the Wastes.",
     icon: "🐲",
     slots: [{ class: "warrior" }, { class: "wizard" }, { class: "priest" }, { class: "any" }, { class: "any" }],
     duration: 5400,

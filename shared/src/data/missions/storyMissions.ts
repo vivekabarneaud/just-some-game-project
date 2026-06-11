@@ -377,7 +377,7 @@ export const STORY_MISSIONS: StoryMission[] = [
     storyOrder: 13,
     prerequisite: "story_11_second_inch",
     prerequisiteQuest: "watch_the_walls",
-    chapter: "Chapter 4: Hands Beside Ours",
+    chapter: "Chapter 4: The Hand That Broke It",
     name: "The Hand That Broke It",
     description:
       "Niamh has come back from the north with a fresh case and very little patience for waiting. She wants to mend the broken stone east of the markers before the trail grows colder. Send three to ride with her. Bring what we have.",

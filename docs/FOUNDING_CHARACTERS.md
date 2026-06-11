@@ -91,7 +91,7 @@ Serious, interior, watchful. Keeps her own counsel. The book is hers alone; the 
 
 ### Core history
 - Grew up next door to the Lord in Ashwick. Took over his father's carpentry shop.
-- Married a girl from a neighboring village named **Lyra**. Lost her to the hard winter fever three years ago, when Nell was seven. (Lyra locked April 2026 — first on-screen mention in `jory_old_songs` fragment, Lord narrating "I miss Lyra too.")
+- Married a girl from a neighboring village named **Lyra**. Lost her to the hard winter fever four years ago, when Nell was seven. (Four, not three: Nell is 11 and lost her mother at seven — fixed 2026-06-11, the Nell section always said four.) (Lyra locked April 2026 — first on-screen mention in `jory_old_songs` fragment, Lord narrating "I miss Lyra too.")
 - Came south with the Lord because they were good friends, and nothing held him in Ashwick after his wife died. Not obligation — companionship and a fresh start.
 
 ### Music — lutes and wooden instruments
