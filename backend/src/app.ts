@@ -11,6 +11,15 @@ import coop from "./routes/coop.js";
 
 const app = new Hono();
 
+// Global error safety net: log the real error server-side, hand the client
+// a friendly, parseable JSON body. Without this, an unexpected throw (e.g.
+// a Prisma schema drift) surfaces as a bare "error 500" in the UI.
+app.onError((err, c) => {
+  console.error(`[error] ${c.req.method} ${c.req.path}:`, err);
+  return c.json({ error: "Something went wrong on our side. Give it a moment and try again." }, 500);
+});
+app.notFound((c) => c.json({ error: "Not found" }, 404));
+
 app.use("*", logger());
 const allowedOrigins = [
   "http://localhost:3000",

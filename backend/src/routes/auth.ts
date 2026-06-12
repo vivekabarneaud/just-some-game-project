@@ -55,9 +55,19 @@ auth.post("/register", async (c) => {
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
-  const player = await prisma.player.create({
-    data: { username, email, passwordHash },
-  });
+  let player;
+  try {
+    player = await prisma.player.create({
+      data: { username, email, passwordHash },
+    });
+  } catch (err: any) {
+    // Unique-constraint race (someone claimed the name/email between our
+    // check and the insert). P2002 = Prisma unique violation.
+    if (err?.code === "P2002") {
+      return c.json({ error: "Username or email already taken" }, 409);
+    }
+    throw err;
+  }
 
   const token = await signToken({ playerId: player.id, username: player.username });
 
