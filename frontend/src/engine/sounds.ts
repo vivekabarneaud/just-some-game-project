@@ -68,7 +68,7 @@ const SOUNDS: Record<SoundId, SoundDef> = {
   // ("a snap that doesn't fully snap" — literally). ?v=2: re-sliced with
   // roomier 330ms windows + 120ms fades (v1 trims chopped the ring). Previous
   // candidates kept on R2: ui_tap_1/2/3, ui_tick_1/2/3, ui_nav_misc_1/2, ui_nav_1/2/3.
-  nav:     { url: [`${R2_BASE}/ui_snap_1.wav?v=2`, `${R2_BASE}/ui_snap_2.wav?v=2`, `${R2_BASE}/ui_snap_3.wav?v=2`], volume: 0.3 },
+  nav:     { url: [`${R2_BASE}/ui_snap_1.wav?v=2`, `${R2_BASE}/ui_snap_2.wav?v=2`, `${R2_BASE}/ui_snap_3.wav?v=2`], volume: 0.15 },
 };
 
 const MUTE_KEY = "valenheart.sfx.muted";
