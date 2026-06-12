@@ -6,7 +6,9 @@ const secret = new TextEncoder().encode(env.JWT_SECRET);
 export async function signToken(payload: { playerId: string; username: string }): Promise<string> {
   return new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
-    .setExpirationTime("7d")
+    // 60 days: the old 7d expiry silently logged players out weekly and (in
+    // dev) stranded throwaway accounts. Tokens live in per-device localStorage.
+    .setExpirationTime("60d")
     .sign(secret);
 }
 

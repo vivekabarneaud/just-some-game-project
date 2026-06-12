@@ -4468,3 +4468,201 @@ body {
   margin-top: 4px;
   font-style: italic;
 }
+
+/* ─── Login page: paper-theater stage + land-grant deed ───────────────────── */
+.lg-page {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: linear-gradient(180deg, #0c0c20 0%, #16213e 55%, #1d2b4a 100%);
+  padding: 24px 12px;
+}
+.lg-backdrop { position: absolute; inset: 0; pointer-events: none; }
+.lg-star {
+  position: absolute;
+  border-radius: 50%;
+  background: #e8e2cc;
+  animation: lg-twinkle 3.4s ease-in-out infinite;
+}
+@keyframes lg-twinkle { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.85; } }
+.lg-moon {
+  position: absolute;
+  top: 9%; right: 13%;
+  width: 74px; height: 74px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 35%, #f4ecca, #d9cf9e 60%, #b8ae7e);
+  box-shadow: 0 0 50px 12px rgba(244, 236, 202, 0.18);
+}
+.lg-hill { position: absolute; left: -4vw; right: -4vw; bottom: 0; }
+.lg-hill svg { display: block; width: 100%; height: 100%; }
+.lg-hill-back  { height: 46vh; filter: drop-shadow(0 -6px 14px rgba(0,0,0,0.45)); }
+.lg-hill-mid   { height: 32vh; filter: drop-shadow(0 -8px 16px rgba(0,0,0,0.55)); }
+.lg-hill-front { height: 20vh; filter: drop-shadow(0 -10px 18px rgba(0,0,0,0.6)); }
+
+/* login weather */
+.lg-drop {
+  position: absolute; top: -24px;
+  width: 1.5px; height: 16px;
+  background: linear-gradient(to bottom, transparent, rgba(165, 195, 225, 0.5));
+  animation: lg-fall linear infinite;
+}
+@keyframes lg-fall {
+  0%   { transform: translate(0, -24px) rotate(14deg); opacity: 0; }
+  10%  { opacity: 1; }
+  100% { transform: translate(26px, 105vh) rotate(14deg); opacity: 0.6; }
+}
+.lg-flake {
+  position: absolute; top: -12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  animation: lg-snow linear infinite;
+}
+@keyframes lg-snow {
+  0%   { transform: translate(0, -12px); opacity: 0; }
+  10%  { opacity: 0.9; }
+  50%  { transform: translate(14px, 50vh); }
+  100% { transform: translate(-10px, 105vh); opacity: 0.5; }
+}
+.lg-mote {
+  position: absolute; bottom: 18vh;
+  border-radius: 50%;
+  background: rgba(245, 210, 120, 0.65);
+  box-shadow: 0 0 5px rgba(245, 210, 120, 0.45);
+  animation: lg-float ease-in-out infinite;
+}
+@keyframes lg-float {
+  0%   { transform: translateY(0); opacity: 0; }
+  20%  { opacity: 0.8; }
+  100% { transform: translateY(-46vh); opacity: 0; }
+}
+
+/* the deed */
+.lg-deed {
+  position: relative;
+  z-index: 10;
+  width: 440px;
+  max-width: 94vw;
+  padding: 40px 44px 32px;
+  color: #3a2c18;
+  transform: rotate(-1.2deg);
+  background:
+    radial-gradient(ellipse at 20% 10%, rgba(120, 90, 40, 0.10), transparent 50%),
+    radial-gradient(ellipse at 85% 90%, rgba(120, 90, 40, 0.14), transparent 55%),
+    linear-gradient(165deg, #e8d9b0 0%, #dcc794 48%, #d3bd85 100%);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.65), inset 0 0 60px rgba(110, 80, 30, 0.25);
+  clip-path: polygon(1% 2%, 6% 0%, 14% 1.5%, 25% 0.4%, 38% 1.8%, 52% 0.2%, 66% 1.6%, 79% 0.3%, 90% 1.4%, 99% 0.6%, 100% 8%, 98.6% 18%, 99.8% 30%, 98.4% 44%, 99.7% 58%, 98.5% 71%, 99.8% 84%, 98.7% 94%, 99% 99%, 90% 98%, 78% 99.6%, 64% 98.2%, 50% 99.7%, 36% 98.3%, 22% 99.5%, 10% 98.4%, 1.5% 99%, 0.4% 90%, 1.6% 78%, 0.2% 64%, 1.5% 50%, 0.3% 36%, 1.7% 22%, 0.5% 10%);
+}
+.lg-deed-eyebrow {
+  font-family: var(--font-heading);
+  text-align: center;
+  font-size: 0.85rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: #5a4520;
+  margin-bottom: 2px;
+}
+.lg-deed-title {
+  font-family: var(--font-heading);
+  text-align: center;
+  font-size: 1.7rem;
+  color: #43331a;
+  margin: 0 0 10px;
+}
+.lg-deed-rule { border: none; border-top: 2px solid rgba(90, 69, 32, 0.45); margin: 8px 18% 12px; }
+.lg-deed-body {
+  font-style: italic;
+  text-align: center;
+  font-size: 0.86rem;
+  color: #5d4a28;
+  line-height: 1.5;
+  margin-bottom: 18px;
+}
+.lg-deed-error {
+  background: rgba(177, 39, 28, 0.12);
+  border: 1px solid rgba(177, 39, 28, 0.55);
+  border-radius: 5px;
+  color: #8a1d14;
+  font-size: 0.84rem;
+  padding: 8px 10px;
+  margin-bottom: 14px;
+  text-align: center;
+}
+.lg-field { margin-bottom: 14px; }
+.lg-field label {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  color: #5a4520;
+  margin-bottom: 2px;
+}
+.lg-field input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid rgba(90, 69, 32, 0.55);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-style: italic;
+  color: #2e2210;
+  padding: 4px 2px;
+  outline: none;
+  border-radius: 0;
+}
+.lg-field input:focus { border-bottom-color: #8a5a10; }
+.lg-field input::placeholder { color: rgba(93, 74, 40, 0.45); }
+.lg-seal-row { display: flex; justify-content: center; margin: 22px 0 4px; }
+.lg-wax-seal {
+  width: 104px; height: 104px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  background: radial-gradient(circle at 35% 32%, #e05545 0%, #b1271c 45%, #7e150f 100%);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45), inset 0 -4px 10px rgba(0, 0, 0, 0.35), inset 0 3px 6px rgba(255, 255, 255, 0.18);
+  color: #f8d9c8;
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  line-height: 1.2;
+  padding: 14px;
+  transition: transform 130ms ease;
+}
+.lg-wax-seal:hover:not(:disabled) { transform: scale(1.05) rotate(-3deg); }
+.lg-wax-seal:disabled { cursor: wait; opacity: 0.85; }
+.lg-cold-start {
+  text-align: center;
+  font-size: 0.76rem;
+  font-style: italic;
+  color: #6a5530;
+  margin-top: 8px;
+}
+.lg-deed-or {
+  text-align: center;
+  font-size: 0.78rem;
+  color: #6a5530;
+  margin: 14px 0 10px;
+}
+.lg-deed-or::before { content: "— "; }
+.lg-deed-or::after { content: " —"; }
+.lg-google { display: flex; justify-content: center; min-height: 44px; }
+.lg-deed-switch {
+  text-align: center;
+  margin-top: 14px;
+  font-size: 0.82rem;
+  color: #6a5530;
+}
+.lg-deed-switch span {
+  color: #8a5a10;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lg-star, .lg-drop, .lg-flake, .lg-mote { animation: none !important; opacity: 0.4 !important; }
+}
+@media (max-width: 520px) {
+  .lg-deed { padding: 30px 26px 24px; transform: rotate(0deg); }
+  .lg-hill-back { height: 34vh; }
+}

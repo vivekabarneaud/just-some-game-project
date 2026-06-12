@@ -13,6 +13,11 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface GoogleAuthRequest {
+  /** Google Identity Services ID-token credential (JWT). */
+  credential: string;
+}
+
 export interface AuthResponse {
   token: string;
   player: {

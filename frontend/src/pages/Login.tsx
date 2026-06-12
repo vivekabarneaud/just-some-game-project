@@ -1,6 +1,111 @@
-import { createSignal } from "solid-js";
+import { For, Show, Switch, Match, createSignal, onMount } from "solid-js";
 import { useNavigate } from "@solidjs/router";
-import { register, login } from "~/api/auth";
+import { register, login, googleLogin, GOOGLE_CLIENT_ID } from "~/api/auth";
+import { getGlobalSeason } from "~/data/seasons";
+import { getAmbientWeather } from "~/data/weather";
+
+// ─── Paper-theater backdrop ─────────────────────────────────────────────────
+// Layered cardboard-cutout night landscape behind the login deed. The weather
+// is the REAL ambient weather for the current global season, so the page
+// breathes with the same sky as the game behind it.
+
+const spread = (i: number, salt: number) => {
+  const v = Math.sin((i + 1) * (12.9898 + salt)) * 43758.5453;
+  return v - Math.floor(v); // 0..1, stable per index
+};
+
+const STARS = Array.from({ length: 70 }, (_, i) => ({
+  left: spread(i, 1) * 100,
+  top: spread(i, 5) * 55,
+  size: 0.8 + spread(i, 9) * 2.2,
+  delay: spread(i, 13) * 3,
+}));
+const RAIN = Array.from({ length: 44 }, (_, i) => ({
+  left: spread(i, 2) * 100,
+  duration: 0.9 + spread(i, 6) * 0.8,
+  delay: -spread(i, 10) * 2,
+}));
+const SNOW = Array.from({ length: 30 }, (_, i) => ({
+  left: spread(i, 3) * 100,
+  size: 2 + spread(i, 7) * 4,
+  duration: 7 + spread(i, 11) * 6,
+  delay: -spread(i, 15) * 12,
+}));
+const MOTES = Array.from({ length: 14 }, (_, i) => ({
+  left: spread(i, 4) * 100,
+  size: 2.5 + spread(i, 8) * 4,
+  duration: 7 + spread(i, 12) * 7,
+  delay: -spread(i, 16) * 12,
+}));
+
+function LoginBackdrop() {
+  const info = getGlobalSeason();
+  const weather = getAmbientWeather(info.season, info.progress, info.year);
+
+  return (
+    <div class="lg-backdrop" aria-hidden="true">
+      <For each={STARS}>
+        {(s) => (
+          <span
+            class="lg-star"
+            style={{
+              left: `${s.left}%`, top: `${s.top}%`,
+              width: `${s.size}px`, height: `${s.size}px`,
+              "animation-delay": `${s.delay}s`,
+            }}
+          />
+        )}
+      </For>
+      <div class="lg-moon" />
+
+      <Switch>
+        <Match when={weather === "rain" || weather === "fog"}>
+          <For each={RAIN}>
+            {(d) => (
+              <span class="lg-drop" style={{ left: `${d.left}%`, "animation-duration": `${d.duration}s`, "animation-delay": `${d.delay}s` }} />
+            )}
+          </For>
+        </Match>
+        <Match when={weather === "snow"}>
+          <For each={SNOW}>
+            {(f) => (
+              <span class="lg-flake" style={{ left: `${f.left}%`, width: `${f.size}px`, height: `${f.size}px`, "animation-duration": `${f.duration}s`, "animation-delay": `${f.delay}s` }} />
+            )}
+          </For>
+        </Match>
+        <Match when={weather === "clear"}>
+          <For each={MOTES}>
+            {(m) => (
+              <span class="lg-mote" style={{ left: `${m.left}%`, width: `${m.size}px`, height: `${m.size}px`, "animation-duration": `${m.duration}s`, "animation-delay": `${m.delay}s` }} />
+            )}
+          </For>
+        </Match>
+      </Switch>
+
+      {/* Layered cutout hills: back ridge carries the old watch; the middle
+          hill carries the settlement roofs; the front line carries trees. */}
+      <div class="lg-hill lg-hill-back">
+        <svg preserveAspectRatio="none" viewBox="0 0 1200 300">
+          <path d="M0,300 L0,170 Q140,100 290,150 L370,120 L372,62 L366,62 L372,46 L408,46 L414,62 L408,62 L410,110 Q420,105 470,125 Q650,60 820,140 Q1000,90 1200,160 L1200,300 Z" fill="#232c4e" />
+        </svg>
+      </div>
+      <div class="lg-hill lg-hill-mid">
+        <svg preserveAspectRatio="none" viewBox="0 0 1200 220">
+          <path d="M0,220 L0,120 Q200,40 430,110 Q600,150 780,90 Q1000,30 1200,110 L1200,220 Z" fill="#1a2240" />
+          <path d="M560,118 l16,-14 16,14 Z M590,122 l13,-11 13,11 Z M620,118 l15,-13 15,13 Z" fill="#10172e" />
+        </svg>
+      </div>
+      <div class="lg-hill lg-hill-front">
+        <svg preserveAspectRatio="none" viewBox="0 0 1200 140">
+          <path d="M0,140 L0,80 Q260,20 520,70 Q800,110 1200,50 L1200,140 Z" fill="#121831" />
+          <path d="M150,80 l10,-22 10,22 Z M172,84 l9,-19 9,19 Z M950,62 l11,-24 11,24 Z M974,66 l9,-20 9,20 Z" fill="#0c1124" />
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+// ─── The land-grant deed ────────────────────────────────────────────────────
 
 export default function Login() {
   const navigate = useNavigate();
@@ -11,11 +116,50 @@ export default function Login() {
   const [error, setError] = createSignal("");
   const [loading, setLoading] = createSignal(false);
 
+  let googleBtnRef: HTMLDivElement | undefined;
+
+  onMount(() => {
+    // Load Google Identity Services and render the official button. The
+    // callback receives an ID-token credential we trade for our own session.
+    const init = () => {
+      const g = (window as any).google;
+      if (!g?.accounts?.id || !googleBtnRef) return;
+      g.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: async (resp: { credential: string }) => {
+          setError("");
+          setLoading(true);
+          try {
+            await googleLogin(resp.credential);
+            navigate("/", { replace: true });
+          } catch (err: any) {
+            setError(err.message || "Google sign-in failed");
+          } finally {
+            setLoading(false);
+          }
+        },
+      });
+      g.accounts.id.renderButton(googleBtnRef, {
+        theme: "outline", size: "large", width: 300,
+        text: "continue_with", shape: "pill",
+      });
+    };
+
+    if ((window as any).google?.accounts?.id) {
+      init();
+    } else {
+      const script = document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.onload = init;
+      document.head.appendChild(script);
+    }
+  });
+
   async function handleSubmit(e: Event) {
     e.preventDefault();
     setError("");
     setLoading(true);
-
     try {
       if (isRegister()) {
         await register({ username: username(), email: email(), password: password() });
@@ -31,153 +175,81 @@ export default function Login() {
   }
 
   return (
-    <div style={{
-      display: "flex",
-      "align-items": "center",
-      "justify-content": "center",
-      height: "100vh",
-      background: "var(--bg-primary)",
-    }}>
-      <div style={{
-        background: "var(--bg-panel)",
-        border: "1px solid var(--border-color)",
-        "border-radius": "12px",
-        padding: "2.5rem",
-        width: "380px",
-        "max-width": "90vw",
-      }}>
-        <h1 style={{
-          "font-family": "var(--font-heading)",
-          color: "var(--accent-gold)",
-          "text-align": "center",
-          "margin-bottom": "0.5rem",
-          "font-size": "1.8rem",
-        }}>
-          Valenheart
-        </h1>
-        <p style={{
-          "text-align": "center",
-          color: "var(--text-secondary)",
-          "margin-bottom": "1.5rem",
-          "font-size": "0.9rem",
-        }}>
-          {isRegister() ? "Create your account" : "Welcome back, adventurer"}
+    <div class="lg-page">
+      <LoginBackdrop />
+
+      <div class="lg-deed">
+        <div class="lg-deed-eyebrow">By order of the Crown of the Ashenmark</div>
+        <h1 class="lg-deed-title">{isRegister() ? "A Grant of Land" : "A Returning Settler"}</h1>
+        <hr class="lg-deed-rule" />
+        <p class="lg-deed-body">
+          {isRegister()
+            ? "Be it known that the bearer is hereby granted freehold upon the southern frontier, to settle, work, and defend."
+            : "Present your grant, and the frontier will remember you."}
         </p>
 
-        {error() && (
-          <div style={{
-            background: "rgba(231, 76, 60, 0.15)",
-            border: "1px solid var(--accent-red)",
-            "border-radius": "6px",
-            padding: "0.5rem 0.75rem",
-            "margin-bottom": "1rem",
-            color: "var(--accent-red)",
-            "font-size": "0.85rem",
-          }}>
-            {error()}
-          </div>
-        )}
+        <Show when={error()}>
+          <div class="lg-deed-error">{error()}</div>
+        </Show>
 
         <form onSubmit={handleSubmit}>
-          {isRegister() && (
-            <div style={{ "margin-bottom": "1rem" }}>
-              <label style={{ display: "block", color: "var(--text-secondary)", "font-size": "0.85rem", "margin-bottom": "0.3rem" }}>
-                Username
-              </label>
+          <Show when={isRegister()}>
+            <div class="lg-field">
+              <label>Name of the grantee</label>
               <input
                 type="text"
                 value={username()}
                 onInput={(e) => setUsername(e.currentTarget.value.replace(/[^a-zA-Z0-9_ ]/g, ""))}
-                required
-                minLength={3}
-                maxLength={20}
+                required minLength={3} maxLength={20}
                 pattern="[a-zA-Z0-9_ ]+"
                 title="Letters, numbers, spaces, and underscores only"
-                style={inputStyle}
-                placeholder="Letters, numbers, spaces only"
+                placeholder="how shall the deed read?"
               />
             </div>
-          )}
+          </Show>
 
-          <div style={{ "margin-bottom": "1rem" }}>
-            <label style={{ display: "block", color: "var(--text-secondary)", "font-size": "0.85rem", "margin-bottom": "0.3rem" }}>
-              Email
-            </label>
+          <div class="lg-field">
+            <label>Raven post (email)</label>
             <input
               type="email"
               value={email()}
               onInput={(e) => setEmail(e.currentTarget.value)}
               required
-              style={inputStyle}
-              placeholder="your@email.com"
+              placeholder="where the Crown may reach you"
             />
           </div>
 
-          <div style={{ "margin-bottom": "1.5rem" }}>
-            <label style={{ display: "block", color: "var(--text-secondary)", "font-size": "0.85rem", "margin-bottom": "0.3rem" }}>
-              Password
-            </label>
+          <div class="lg-field">
+            <label>Seal word (password)</label>
             <input
               type="password"
               value={password()}
               onInput={(e) => setPassword(e.currentTarget.value)}
-              required
-              minLength={6}
-              style={inputStyle}
-              placeholder="At least 6 characters"
+              required minLength={6}
+              placeholder="known to you alone"
             />
           </div>
 
-          <button
-            type="submit"
-            disabled={loading()}
-            style={{
-              width: "100%",
-              padding: "0.75rem",
-              background: "var(--accent-gold)",
-              color: "var(--bg-primary)",
-              border: "none",
-              "border-radius": "6px",
-              "font-weight": "bold",
-              "font-size": "1rem",
-              cursor: loading() ? "wait" : "pointer",
-              opacity: loading() ? "0.7" : "1",
-            }}
-          >
-            {loading()
-              ? "Waking up the server... (can take up to 30s)"
-              : isRegister()
-              ? "Create Account"
-              : "Enter the Realm"}
-          </button>
+          <div class="lg-seal-row">
+            <button type="submit" class="lg-wax-seal" disabled={loading()} data-no-click-sound>
+              {loading() ? "SEALING..." : isRegister() ? "TAKE UP YOUR GRANT" : "PRESENT YOUR GRANT"}
+            </button>
+          </div>
+          <Show when={loading()}>
+            <p class="lg-cold-start">Waking up the server... this can take up to 30 seconds.</p>
+          </Show>
         </form>
 
-        <p style={{
-          "text-align": "center",
-          "margin-top": "1rem",
-          color: "var(--text-secondary)",
-          "font-size": "0.85rem",
-        }}>
-          {isRegister() ? "Already have an account?" : "New to the realm?"}{" "}
-          <span
-            onClick={() => { setIsRegister(!isRegister()); setError(""); }}
-            style={{ color: "var(--accent-gold)", cursor: "pointer", "text-decoration": "underline" }}
-          >
-            {isRegister() ? "Log in" : "Create account"}
+        <p class="lg-deed-or">or present credentials from afar</p>
+        <div class="lg-google" ref={googleBtnRef} />
+
+        <p class="lg-deed-switch">
+          {isRegister() ? "Already hold a grant?" : "New to the frontier?"}{" "}
+          <span onClick={() => { setIsRegister(!isRegister()); setError(""); }}>
+            {isRegister() ? "Present it" : "Claim your grant"}
           </span>
         </p>
       </div>
     </div>
   );
 }
-
-const inputStyle = {
-  width: "100%",
-  padding: "0.6rem 0.75rem",
-  background: "var(--bg-secondary)",
-  border: "1px solid var(--border-color)",
-  "border-radius": "6px",
-  color: "var(--text-primary)",
-  "font-size": "0.95rem",
-  outline: "none",
-};
