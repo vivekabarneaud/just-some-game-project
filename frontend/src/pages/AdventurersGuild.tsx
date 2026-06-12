@@ -934,6 +934,12 @@ export default function AdventurersGuild() {
                   setSelectedMission(null);
                   refetchCoops();
                 }}
+                onGoRecruit={() => {
+                  setSelectedMission(null);
+                  setSelectedTeam([]);
+                  setSelectedSupplies([]);
+                  setTab("recruit");
+                }}
                 onDeploy={(missionId, teamIds, adventurerSupplies, successPct) => {
                   if (actions.deployMission(missionId, teamIds, adventurerSupplies, successPct)) {
                     playSound("dagger");

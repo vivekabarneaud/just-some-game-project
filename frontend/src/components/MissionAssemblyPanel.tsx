@@ -68,6 +68,9 @@ interface Props {
   onCoopInvited?: (coopId: string) => void;
   /** Called when coop is cancelled or completed, to clear the panel */
   onCoopEnded?: () => void;
+  /** Called when the player clicks through to the recruitment tab from the
+   *  empty-roster state (first guild visit: missions exist, no one to send). */
+  onGoRecruit?: () => void;
 }
 
 export default function MissionAssemblyPanel(props: Props) {
@@ -1244,9 +1247,47 @@ export default function MissionAssemblyPanel(props: Props) {
         </h3>
 
         <Show when={availableAdvs().length === 0}>
-          <p style={{ color: "var(--text-muted)", "font-size": "0.85rem" }}>
-            No adventurers available. Recruit some from the Recruit tab!
-          </p>
+          <Show
+            when={state.adventurers.some((a) => a.alive)}
+            fallback={
+              /* First visit: the guild stands, but nobody has been hired yet. */
+              <div style={{
+                border: "1px dashed var(--border-highlight)",
+                "border-radius": "8px",
+                padding: "18px 16px",
+                "text-align": "center",
+                "margin-bottom": "12px",
+              }}>
+                <div style={{ "font-size": "1.6rem", "margin-bottom": "6px" }}>🪶</div>
+                <p style={{ color: "var(--text-primary)", "font-size": "0.9rem", margin: "0 0 4px" }}>
+                  The guild roster is empty.
+                </p>
+                <p style={{ color: "var(--text-muted)", "font-size": "0.8rem", margin: "0 0 12px", "line-height": "1.5" }}>
+                  Missions need a team. Hire your first adventurers at the recruitment board.
+                </p>
+                <Show when={props.onGoRecruit}>
+                  <button
+                    class="upgrade-btn"
+                    style={{ padding: "8px 18px", "font-size": "0.85rem" }}
+                    onClick={props.onGoRecruit}
+                  >
+                    Go to recruitment
+                  </button>
+                </Show>
+              </div>
+            }
+          >
+            <p style={{ color: "var(--text-muted)", "font-size": "0.85rem", "line-height": "1.5" }}>
+              Everyone is out.
+              {hiddenBreakdown().onMission > 0 && ` ${hiddenBreakdown().onMission} on missions.`}
+              {hiddenBreakdown().coopLocked > 0 && ` ${hiddenBreakdown().coopLocked} pledged to a co-op expedition.`}
+              {" "}They will return. Or{" "}
+              <span
+                style={{ color: "var(--accent-gold)", cursor: "pointer", "text-decoration": "underline" }}
+                onClick={props.onGoRecruit}
+              >recruit more hands</span>.
+            </p>
+          </Show>
         </Show>
 
         <For each={ADVENTURER_CLASSES.filter((cls) => availableAdvs().some((a) => a.class === cls.id))}>
