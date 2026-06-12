@@ -1,5 +1,6 @@
 import { createSignal, createMemo, onMount, onCleanup, For } from "solid-js";
 import { PageFlip } from "page-flip";
+import { playSound } from "~/engine/sounds";
 
 export interface CinematicSlide {
   image: string;
@@ -40,6 +41,9 @@ export default function CinematicOverlay(props: CinematicOverlayProps) {
 
   const advance = () => {
     if (exiting() || !ready()) return;
+    // Every advance is a page turn — including the final one, where the
+    // chronicle closes and the story begins.
+    playSound("page_turn");
     if (isLast()) {
       setExiting(true);
       setTimeout(() => props.onComplete(), 800);
