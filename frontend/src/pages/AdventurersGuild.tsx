@@ -1209,8 +1209,9 @@ export default function AdventurersGuild() {
                     <div style={{ "margin-top": "auto", "padding-top": "10px" }}>
                       <button
                         class="upgrade-btn"
+                        data-no-click-sound
                         disabled={!canAfford() || rosterFull()}
-                        onClick={() => actions.recruitAdventurer(candidate.id)}
+                        onClick={() => { playSound("coins"); actions.recruitAdventurer(candidate.id); }}
                         style={{ "font-size": "0.85rem", padding: "6px 14px" }}
                       >
                         Recruit ({cost}g)

@@ -14,6 +14,7 @@ export type SoundId =
   | "plop"
   | "dagger"
   | "build"
+  | "coins"
   | "bubbles"
   | "kitchen"
   | "bell"
@@ -50,6 +51,8 @@ const SOUNDS: Record<SoundId, SoundDef> = {
   plop:      { url: `${R2_BASE}/ui_plop.wav`,   volume: 0.7 },
   dagger:    { url: `${R2_BASE}/ui_dagger.wav`, volume: 0.8 },
   build:     { url: [`${R2_BASE}/ui_build_1.wav`, `${R2_BASE}/ui_build_2.wav`], volume: 0.7 },
+  // Coin pouch for paid actions (recruiting). Distinct from `notify`'s reward jingle.
+  coins:     { url: [`${R2_BASE}/ui_coins_1.wav`, `${R2_BASE}/ui_coins_2.wav`], volume: 0.6 },
   bubbles:   { url: `${R2_BASE}/ui_bubbles.wav`, volume: 0.6 },
   kitchen:   { url: `${R2_BASE}/kitchen.wav`,   volume: 0.7 },
   bell:      { url: `${R2_BASE}/ui_bell.wav`,   volume: 0.5 },
@@ -61,11 +64,10 @@ const SOUNDS: Record<SoundId, SoundDef> = {
   notify:  { url: `${R2_BASE}/ui_notify.wav`, volume: 0.6 },
   error:   { url: `${R2_BASE}/ui_error.wav`,  volume: 0.6 },
   confirm: { url: [`${R2_BASE}/ui_confirm_1.wav`, `${R2_BASE}/ui_confirm_2.wav`], volume: 0.6 },
-  // Neutral synthesized taps ("a snap that doesn't fully snap"): low-passed
-  // noise transient + sub-thump, no tonal core. Nav should be near-invisible;
-  // themed sounds stay reserved for meaningful actions. Previous candidates
-  // kept on R2: ui_tick_1/2/3, ui_nav_misc_1/2, ui_nav_1/2/3.
-  nav:     { url: [`${R2_BASE}/ui_tap_1.wav`, `${R2_BASE}/ui_tap_2.wav`, `${R2_BASE}/ui_tap_3.wav`], volume: 0.55 },
+  // The owner's actual soft finger snaps, recorded, sliced, and normalized
+  // ("a snap that doesn't fully snap" — literally). Previous candidates kept
+  // on R2: ui_tap_1/2/3, ui_tick_1/2/3, ui_nav_misc_1/2, ui_nav_1/2/3.
+  nav:     { url: [`${R2_BASE}/ui_snap_1.wav`, `${R2_BASE}/ui_snap_2.wav`, `${R2_BASE}/ui_snap_3.wav`], volume: 0.6 },
 };
 
 const MUTE_KEY = "valenheart.sfx.muted";
