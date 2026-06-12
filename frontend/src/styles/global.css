@@ -4666,3 +4666,59 @@ body {
   .lg-deed { padding: 30px 26px 24px; transform: rotate(0deg); }
   .lg-hill-back { height: 34vh; }
 }
+
+/* ─── Login: the notice board the deed is nailed to ───────────────────────── */
+.lg-board-wrap { position: relative; z-index: 10; }
+.lg-post {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 100vh;
+  background:
+    repeating-linear-gradient(180deg, rgba(0,0,0,0.10) 0 26px, transparent 26px 52px),
+    linear-gradient(90deg, #3b2614 0%, #54381e 35%, #4a3019 65%, #2e1d0e 100%);
+  border-radius: 3px;
+  box-shadow: 0 0 22px rgba(0, 0, 0, 0.5);
+}
+.lg-board {
+  position: relative;
+  padding: 16px;
+  border-radius: 8px;
+  background:
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.13) 0 3px, transparent 3px 86px),
+    repeating-linear-gradient(180deg, rgba(255,255,255,0.025) 0 2px, transparent 2px 9px),
+    linear-gradient(160deg, #5e3f22 0%, #4c3119 55%, #3a2410 100%);
+  border: 5px solid #2e1d0e;
+  box-shadow:
+    0 22px 55px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    inset 0 0 28px rgba(0, 0, 0, 0.45);
+}
+/* pinned flat: tighten the deed's shadow so it sits ON the wood */
+.lg-board .lg-deed {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45), inset 0 0 60px rgba(110, 80, 30, 0.25);
+}
+.lg-nail {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #c9c9c9 0%, #8a8a8a 40%, #3f3f3f 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.55), 1px 3px 5px rgba(0, 0, 0, 0.35);
+}
+/* nail positions track the deed's tilt: the paper hangs from them */
+.lg-nail-tl { top: 33px; left: 36px; }
+.lg-nail-tr { top: 24px; right: 38px; }
+.lg-nail-bl { bottom: 26px; left: 38px; }
+.lg-nail-br { bottom: 35px; right: 36px; }
+
+@media (max-width: 520px) {
+  .lg-board { padding: 10px; border-width: 4px; }
+  .lg-post { width: 22px; }
+  .lg-nail-tl { top: 22px; left: 24px; }
+  .lg-nail-tr { top: 18px; right: 26px; }
+  .lg-nail-bl { bottom: 18px; left: 26px; }
+  .lg-nail-br { bottom: 22px; right: 24px; }
+}

@@ -178,7 +178,12 @@ export default function Login() {
     <div class="lg-page">
       <LoginBackdrop />
 
-      <div class="lg-deed">
+      {/* The deed is nailed to a wooden notice board on a post planted in the
+          scene — in a paper-theater world, nothing floats. */}
+      <div class="lg-board-wrap">
+        <div class="lg-post" />
+        <div class="lg-board">
+          <div class="lg-deed">
         <div class="lg-deed-eyebrow">By order of the Crown of the Ashenmark</div>
         <h1 class="lg-deed-title">{isRegister() ? "A Grant of Land" : "A Returning Settler"}</h1>
         <hr class="lg-deed-rule" />
@@ -249,6 +254,12 @@ export default function Login() {
             {isRegister() ? "Present it" : "Claim your grant"}
           </span>
         </p>
+          </div>
+          <span class="lg-nail lg-nail-tl" />
+          <span class="lg-nail lg-nail-tr" />
+          <span class="lg-nail lg-nail-bl" />
+          <span class="lg-nail lg-nail-br" />
+        </div>
       </div>
     </div>
   );
