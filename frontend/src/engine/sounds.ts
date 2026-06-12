@@ -61,7 +61,10 @@ const SOUNDS: Record<SoundId, SoundDef> = {
   notify:  { url: `${R2_BASE}/ui_notify.wav`, volume: 0.6 },
   error:   { url: `${R2_BASE}/ui_error.wav`,  volume: 0.6 },
   confirm: { url: [`${R2_BASE}/ui_confirm_1.wav`, `${R2_BASE}/ui_confirm_2.wav`], volume: 0.6 },
-  nav:     { url: [`${R2_BASE}/ui_nav_misc_1.wav`, `${R2_BASE}/ui_nav_misc_2.wav`], volume: 0.5 },
+  // Neutral synthesized ticks (not from the medieval pack): nav clicks should
+  // be near-invisible; themed sounds are reserved for meaningful actions.
+  // Previous candidates kept on R2: ui_nav_misc_1/2.wav, ui_nav_1/2/3.wav.
+  nav:     { url: [`${R2_BASE}/ui_tick_1.wav`, `${R2_BASE}/ui_tick_2.wav`, `${R2_BASE}/ui_tick_3.wav`], volume: 0.5 },
 };
 
 const MUTE_KEY = "valenheart.sfx.muted";
