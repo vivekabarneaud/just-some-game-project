@@ -942,7 +942,7 @@ export default function AdventurersGuild() {
                 }}
                 onDeploy={(missionId, teamIds, adventurerSupplies, successPct) => {
                   if (actions.deployMission(missionId, teamIds, adventurerSupplies, successPct)) {
-                    playSound("dagger");
+                    playSound("deploy");
                     setSelectedMission(null);
                     setSelectedTeam([]);
                     setSelectedSupplies([]);

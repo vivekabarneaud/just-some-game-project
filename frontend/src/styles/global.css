@@ -4192,7 +4192,12 @@ body {
   pointer-events: none;
   z-index: 0;
 }
-.topbar .resource-bar,
+/* Resource bar sits ABOVE the event banner (inline z-index 9), so hover
+   dropdowns aren't buried while a banner is showing. */
+.topbar .resource-bar {
+  position: relative;
+  z-index: 12;
+}
 .topbar .hamburger-btn,
 .topbar .event-banner {
   position: relative;

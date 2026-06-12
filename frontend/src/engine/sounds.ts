@@ -13,6 +13,7 @@ export type SoundId =
   | "page_turn"
   | "plop"
   | "dagger"
+  | "deploy"
   | "build"
   | "coins"
   | "bubbles"
@@ -50,6 +51,9 @@ const SOUNDS: Record<SoundId, SoundDef> = {
   page_turn: { url: [`${R2_BASE}/ui_page_turn_1.wav`, `${R2_BASE}/ui_page_turn_2.wav`], volume: 0.6 },
   plop:      { url: `${R2_BASE}/ui_plop.wav`,   volume: 0.7 },
   dagger:    { url: `${R2_BASE}/ui_dagger.wav`, volume: 0.8 },
+  // Sword leaving its sheath — the team sets out. Only on mission deploy;
+  // page mounts keep the short dagger.
+  deploy:    { url: `${R2_BASE}/ui_deploy.wav`, volume: 0.7 },
   build:     { url: [`${R2_BASE}/ui_build_1.wav`, `${R2_BASE}/ui_build_2.wav`], volume: 0.7 },
   // Coin pouch for paid actions (recruiting). Distinct from `notify`'s reward jingle.
   coins:     { url: [`${R2_BASE}/ui_coins_1.wav`, `${R2_BASE}/ui_coins_2.wav`], volume: 0.6 },
