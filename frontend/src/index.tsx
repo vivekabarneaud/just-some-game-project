@@ -10,6 +10,20 @@ import "./styles/global.css";
 // Open the realtime WS if we already have a token (returning visitor).
 if (isLoggedIn()) wsClient.connect();
 
+// Self-heal after deploys: when Vercel replaces the hashed JS chunks while a
+// tab is open, the next lazy route import 404s and Vite fires this event.
+// One automatic reload picks up the fresh index.html; the sessionStorage
+// guard prevents a reload loop if something is genuinely broken.
+window.addEventListener("vite:preloadError", (event) => {
+  const KEY = "valenheart.chunkReloadAt";
+  const last = Number(sessionStorage.getItem(KEY) ?? "0");
+  if (Date.now() - last > 30_000) {
+    event.preventDefault(); // we handle it; don't surface the error
+    sessionStorage.setItem(KEY, String(Date.now()));
+    window.location.reload();
+  }
+});
+
 /** Fallback shown when a render-time error crashes the app tree (the Sidebar
  *  logout button is unreachable in that case). Gives the user a way to wipe
  *  their local save and re-auth from a clean slate. */

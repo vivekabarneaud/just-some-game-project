@@ -1,4 +1,6 @@
 import { Show, createSignal, For } from "solid-js";
+import { useNavigate } from "@solidjs/router";
+import { useGame } from "~/engine/gameState";
 import {
   isMuted, toggleMuted, playSound,
   masterVolume, setMasterVolume,
@@ -22,6 +24,20 @@ type Channel = {
 };
 
 export default function SettingsModal() {
+  const { actions } = useGame();
+  const navigate = useNavigate();
+  const [confirmReset, setConfirmReset] = createSignal(false);
+
+  const handleNewGame = () => {
+    // resetGame() writes the fresh state to localStorage AND pushes it to
+    // the server save, so the old settlement is gone on both sides.
+    actions.resetGame();
+    setConfirmReset(false);
+    setOpen(false);
+    // Land where a real new game starts (intro cinematic / Overview).
+    navigate("/", { replace: true });
+  };
+
   const channels = (): Channel[] => [
     { label: "Master", icon: "🎚️", get: masterVolume, set: setMasterVolume, preview: true },
     { label: "UI & effects", icon: "🖱️", get: uiVolume, set: setUiVolume, preview: true },
@@ -29,7 +45,7 @@ export default function SettingsModal() {
     { label: "Music", icon: "🎵", get: musicVolume, set: setMusicVolume, hint: "No music yet — reserved for a future score." },
   ];
 
-  const close = () => setOpen(false);
+  const close = () => { setConfirmReset(false); setOpen(false); };
 
   return (
     <Show when={open()}>
@@ -80,6 +96,33 @@ export default function SettingsModal() {
               </div>
             )}
           </For>
+
+          <div class="settings-section-title" style={{ "margin-top": "18px" }}>The settlement</div>
+
+          <Show
+            when={confirmReset()}
+            fallback={
+              <button class="settings-danger-btn" onClick={() => setConfirmReset(true)}>
+                🔥 Start a new game...
+              </button>
+            }
+          >
+            <div class="settings-confirm">
+              <p class="settings-confirm-title">Burn the chronicle?</p>
+              <p class="settings-confirm-body">
+                Your settlement, buildings, adventurers, and story progress will be
+                wiped, on this device and on the server. There is no way back.
+              </p>
+              <div class="settings-confirm-actions">
+                <button class="settings-confirm-keep" onClick={() => setConfirmReset(false)}>
+                  Keep my settlement
+                </button>
+                <button class="settings-confirm-burn" onClick={handleNewGame} data-no-click-sound>
+                  Start anew
+                </button>
+              </div>
+            </div>
+          </Show>
         </div>
       </div>
     </Show>

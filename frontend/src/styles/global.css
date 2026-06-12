@@ -4847,3 +4847,61 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .lgb-cover { transition: none; }
 }
+
+/* Settings: the danger zone (start a new game) */
+.settings-danger-btn {
+  display: block;
+  width: 100%;
+  padding: 9px 12px;
+  background: rgba(231, 76, 60, 0.08);
+  color: var(--accent-red);
+  border: 1px solid rgba(231, 76, 60, 0.45);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-align: left;
+  transition: background 130ms ease;
+}
+.settings-danger-btn:hover { background: rgba(231, 76, 60, 0.16); }
+.settings-confirm {
+  border: 1px solid rgba(231, 76, 60, 0.5);
+  border-radius: 8px;
+  padding: 14px;
+  background: rgba(231, 76, 60, 0.07);
+}
+.settings-confirm-title {
+  font-family: var(--font-heading);
+  color: var(--accent-red);
+  font-size: 1.05rem;
+  margin: 0 0 6px;
+}
+.settings-confirm-body {
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
+.settings-confirm-actions { display: flex; gap: 8px; }
+.settings-confirm-keep {
+  flex: 1;
+  padding: 9px;
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.settings-confirm-keep:hover { color: var(--text-primary); border-color: var(--border-highlight); }
+.settings-confirm-burn {
+  flex: 1;
+  padding: 9px;
+  background: var(--accent-red);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.settings-confirm-burn:hover { background: #c0392b; }
