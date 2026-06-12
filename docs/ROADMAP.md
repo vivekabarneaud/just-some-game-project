@@ -56,7 +56,7 @@ Still mid-discussion (since 2026-04-28). Lean: option A (destroyable, capped sto
 - **Per-event combat playback for expeditions** — blow-by-blow per expedition event. **Memory:** `project_combat_log_plan.md`.
 - **Custom hand-drawn icons** — replace 200+ emoji; art pass (see `PROMPTS.md`).
 - **i18n (French)** — `@solid-primitives/i18n`, tutorial slice first; deferred until content stabilizes.
-- **Proper authentication** — email verification, OAuth (Google/Discord), password reset, session hardening (alongside the now-built backend).
+- **Proper authentication** — Google OAuth SHIPPED 2026-06-12 (ID-token flow, account linking by verified email, 60d sessions, land-grant deed login page). Remaining: email verification, password reset, optional Discord OAuth, session hardening.
 - **More founder fragments / chronicle entries** — Tomas/Corin late beats; rewrite the two commented-out ch1 entries in the locked Lord voice.
 
 ---
