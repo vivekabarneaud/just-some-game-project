@@ -148,6 +148,17 @@ Hunting dogs are even more natural (hunters bring hounds; no origin question). C
 - Mirrors the Isla-dog (trained/functional) vs Nettle-cat (loved/emotional) distinction AT THE BUILDING LEVEL: cats are loved, dogs are trained.
 - **Scope guard:** keep the kennel UTILITARIAN — no full cozy-happiness sub-loop like the shelter (dogs are working animals; the contrast is the point, and it avoids two copies of the same system). See `DESIGN_ROSTER_CURATION.md` (signature companions).
 
+### Cat Shelter introduction — chronicle-driven unlock (2026-06-22)
+The feature is introduced through the story, not a build-menu button (consistent with the game's chronicle-leads-mechanic approach). Three beats, all in the Lord's voice (em-dash-free):
+1. **The first cat (charm/hook).** A stray arrives with a newcomer's wagon, nowhere to go; the soft-hearted Lord takes it in. **He names it himself — NOT the player's choice.** This teaches the naming-as-care motif by example + humanizes the Lord. No mechanic yet. (Best version: he doesn't *decide* to name it; he just starts calling it something and realizes it stuck — same tender logic as Sable's frog.)
+2. **The problem (need).** Food starts disappearing; rat droppings by the pantry, gnawed grain sacks. **This is the diegetic ON-SWITCH for the food-theft mechanic** — the chronicle narrates the loss as it begins, so the player never gets unexplained food drain. His one cat keeps its corner clear, but it's one cat.
+3. **More cats → unlock.** Strays keep drifting in (food → rats → cats). The Lord writes something wry/fond ("I have to do something about all these cats") → **unlocks the Cat Shelter**. Control of naming + assigning passes to the player.
+Arc shape: **charm → problem → solution**, all earned.
+
+Flavor details to keep:
+- **Tomas's un-neutered cat** = the in-world reason cats multiply. A recurring gag, NOT a breeding sim ("Edda says half the strays have Tomas's cat's eyes. Tomas says nothing. The cat says nothing.").
+- **The Lord's first cat name: TBD** (user to name) — a former schoolmaster, plain-spoken, soft under it; a name he'd grumble and keep using.
+
 ### Cat motif
 Cats are a through-line now: Nettle's cat, Tomas's cat (founder), the `cat_parent` trait, this shelter. A motif, not clutter — lean into it. Naming strays ties to the same naming-as-care thread as Sable.
 
