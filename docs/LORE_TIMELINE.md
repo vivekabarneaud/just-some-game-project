@@ -590,6 +590,16 @@ The reveal of her identity is its own story beat: the moment the children's-stor
 
 ---
 
+## Part 4.5 — The wild peoples & monsters `[goblins LOCKED 2026-06-22; Ghar'kal from existing enemy canon]`
+
+Two deliberately different registers of humanoid threat (the timeline never stated this before; locked from the user's call + the enemy descriptions already in `shared/src/data/enemies.ts`):
+
+- **Goblins — the OLD, KNOWN, mundane menace.** Native vermin-folk of the hills and deep woods, here long before the kingdoms ("the frontier breeds them like flies"). Their own grubby hierarchy: runts → frontier goblins → shamans → a Warchief in a crown of bent copper. **Commoners know them completely** (folklore, door-charms, warnings to children). NOT tied to the Sundering/Wastes — the everyday weather of frontier danger. This is the *known* threat.
+- **Ghar'kal — the game's orc-analogue (no literal "orcs"; homegrown name preferred).** NOT an old menace: a proud warrior people **displaced south by the advancing Wastes**, fighting settlers for the same shrinking habitable land ("kill or be displaced"; the Warlord commands "the displaced southern clans"). **Refugees with axes, not ancient evil.** Knowledge layer: commoners see brutal "southern clan" raiders; the *truth* — the Wastes uprooted them, they flee what's coming for everyone — is part of the deeper discovery (a possible story beat: realizing they're running, not conquering; eventual sympathy/alliance against the common dark). A human-scale face of the cosmic threat.
+- **Trolls & wild monsters** (e.g. the Thornveil Troll) — not a people; rare dangerous fauna of specific deep-wild places. Mundane-monstrous.
+
+**Design principle:** goblins = known/mundane (commoners understand them) ↔ Ghar'kal = new/displaced (a tangible symptom of the Wastes, hidden under a raider surface). Maps onto the early-known → late-cosmic difficulty/story progression and the two-track-knowledge theme. *(Open confirm: "no literal orcs, Ghar'kal IS the analogue" — assumed per the homegrown-name preference; user to ratify.)*
+
 ## Part 5 — Open Threads (still TBD)
 
 These are gaps the user and I have not locked yet. Listed by priority.
