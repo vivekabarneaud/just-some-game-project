@@ -23,6 +23,9 @@ Uses lore that already exists (the Bog Witch enemy: *"lives in the marsh and tal
 4. **A small choice:** try to bring her back (maybe with Edda's help), drive her off, or accept she's beyond saving.
 - **Double duty / the payoff:** Edda recognizes it — *"That's not witchery gone bad. That's the bad ground talking through her."* So the cozy side-quest becomes the **first human-scale hint of what the Wastes do to a mind** (foreshadows the Hollow Sickness / the cosmic threat). A side story that quietly feeds the main one. Possible reward: a recipe / Greymantle / a small boon.
 
+## Second prototype chain — The Tainted Spring (2026-06-22)
+Sibling to the Bog Witch; same *family* (the thinning seeping into the everyday — into a person / into the water). **Supplies the missing CAUSE for an effect already in the game:** `rabid_boar`'s flavor is "something in the bad water drives them mad" — the tainted spring is *why*. Seeded now by the refined novice mission **`enchanted_spring` → "The Tainted Spring"** (a spring glowing wrong, water tasting of metal, deer gone, a boar came back foaming; a wizard reads it; a cursed spirit drawn to the bad water). The chain (later): discover the wrong water → connect it to the maddened animals (rabid boars) → trace the source → cleanse / cap it (a ward? a wizard rite?) or learn it's beyond fixing and fear it. Two-track knowledge: commoners see rabid beasts + a pretty glowing spring; the truth is the bad ground bleeding up through the water table. Possible Edda/Niamh tie (they'd recognize the taint).
+
 ## Why it's worth building (later)
 Emergent-feeling world, optional content + replayability without bloating the main spine, and it turns existing flavor (the Bog Witch, and others) into playable arcs. Candidates beyond the witch: anything atmospheric the scouts could "find" in the Act 1 forest/river.
 
