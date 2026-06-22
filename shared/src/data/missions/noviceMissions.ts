@@ -96,7 +96,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
 {
     id: "wandering_spirit",
     name: "Wandering Spirit",
-    description: "A restless spirit haunts the old crossroads. Only a priest's blessing can lay it to rest. Mundane weapons pass through bone and cloth alike.",
+    description: "What the travelers took for one restless spirit at the old crossroads turned out to be two, close enough in the dark to seem like one. Only a priest's blessing can lay them to rest, and mundane weapons pass through bone and cloth alike.",
     icon: "👻",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/wandering_spirit.png",
     slots: [{ class: "priest", required: true }, { class: "any" }],
