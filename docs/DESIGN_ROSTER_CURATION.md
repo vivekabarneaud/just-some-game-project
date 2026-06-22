@@ -133,4 +133,16 @@ A character's special thing can be any of: (1) signature weapon [Leofric], (2) w
 ### Ashwick rebalance (proposed 2026-06-22, pending confirm)
 13 current keepers (incl. Sable) skew: 4 warrior, **3 assassin** (Roderick/Elspeth/Sable), 2 archer, 2 wizard, 2 priest. **CONFIRMED (2026-06-22): cut Roderick Ashford, add back Edmund Blackwood** (Elspeth's son — matched mother-son assassin pair, enables a synergy duo, better story than the cousin; Cedric+Bronwyn already carry the Ashford canon). Keeps assassins at 3. Edmund: assassin, "everything Edmund knows, his mother taught him."
 
+### Loyalty as the signature-progression spine (2026-06-22) ⭐
+
+The framework already exists: `LOYALTY_RANKS` (Familiar +1 stat, Trusted +2% crit, Devoted +3% success, Bonded +5% loot) — but it's GENERIC (same flat bumps for everyone). **Upgrade (user's idea):** make loyalty the track along which each character's *signature feature* deepens, not just flat stats. Loyalty becomes the single spine unifying three things: generic rank bonuses (built), bespoke signatures (designing now), and tavern conversations (already loyalty-gated).
+
+Per-character examples:
+- **Sable** — her trinket/soft-side reveal is loyalty-gated: at high loyalty she shows you the frog (her tavern scene). Narratively her bond *rewrites her own ability*: "Nothing to Lose" was true as a Stranger; Bonded, she has something to lose (you).
+- **Leofric** — signature blade deepens at loyalty milestones (re-forges it sharper as he believes in the cause), atop level-scaling.
+- **Elspeth** — unlocks her deadlier bespoke poisons as loyalty climbs (a poisoner guards her real recipes from strangers).
+- **Cedric/Bronwyn** — Thornveil/Ashford "doors" open wider with loyalty.
+
+Flags: (1) permadeath stakes — bonding into a character who can permadie is high-risk/high-reward; cushion with revival/reserve. (2) No grind — loyalty rises from *playing with them* (missions, preferred food), never a chore.
+
 *Created 2026-06-22 from the weekend "fewer, better adventurers" idea.*
