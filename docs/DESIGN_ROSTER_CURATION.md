@@ -63,4 +63,11 @@ Existing saves reference culled character IDs. A removed character in someone's 
 5. **Recruitment UI rework** — show-all-by-origin, drop rotation.
 6. **Reserve pool + revival balancing**; later: skins.
 
+## Phase 2/3 working log (decisions as they're made)
+
+- **Triage done (2026-06-22):** ~52 keepers chosen (see the agent triage; Ashwick 12, Feldgrund 6, Silvaneth 5, Nordveld 5, Meridian 4, Khor'vani 6, Hautscieux 6, Khazdurim 5, Tianzhou 3, Zah'kari 3). Lore landmines cut (Odin, pre-Sundering-memory elves, name collisions). `CHAR_RELATIONSHIPS` needs pruning for cut IDs when surgery happens.
+- **Rescued from the cut pile:** **Thrain Fireaxe** (Khazdurim assassin, the "drinks because of what's behind the third Seal" one — among the best in the file). **Lyra Emberheart** → renamed **Sable** (first name only; "Lyra" collided with canon Lyra/Jory's wife). Sable is a **mononym** on purpose — fits "no name worth keeping"; characterizes the one person who erased her surname.
+- **Cedric Ashford:** backstory kept as-is (canon, excellent). Ability proposed: new trait **"Thornveil-Taught"** (+6% dmg vs ghost & aether). Not yet wired.
+- **Ability approach (proposed, awaiting confirmation):** each curated character gets a story-fitting `trait` (reuse `BACKSTORY_TRAITS` where one fits; bespoke new traits for standouts; flag any needing engine wiring beyond the data tables). Pace (one-at-a-time vs batch) TBD — user was too tired to continue 2026-06-22.
+
 *Created 2026-06-22 from the weekend "fewer, better adventurers" idea.*
