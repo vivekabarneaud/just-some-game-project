@@ -4,7 +4,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
 {
     id: "gather_timber",
     name: "Gather Timber",
-    description: "Jory has marked three pines on the southern tree line and wants a hand hauling them back. A pair of wolf pups have been sniffing around his tools, nothing a swung axe can't handle.",
+    description: "Jory has marked three pines on the southern tree line and wants a hand hauling them back. A couple of stray wolves have been sniffing around his tools, nothing a swung axe can't handle.",
     icon: "🪵",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/gather_timber.png",
     slots: [{ class: "any" }],
