@@ -66,7 +66,7 @@ Existing saves reference culled character IDs. A removed character in someone's 
 ## Phase 2/3 working log (decisions as they're made)
 
 - **Triage done (2026-06-22):** ~52 keepers chosen (see the agent triage; Ashwick 12, Feldgrund 6, Silvaneth 5, Nordveld 5, Meridian 4, Khor'vani 6, Hautscieux 6, Khazdurim 5, Tianzhou 3, Zah'kari 3). Lore landmines cut (Odin, pre-Sundering-memory elves, name collisions). `CHAR_RELATIONSHIPS` needs pruning for cut IDs when surgery happens.
-- **Rescued from the cut pile:** **Thrain Fireaxe** (Khazdurim assassin, the "drinks because of what's behind the third Seal" one — among the best in the file). **Lyra Emberheart** → renamed **Sable** (first name only; "Lyra" collided with canon Lyra/Jory's wife). Sable is a **mononym** on purpose — fits "no name worth keeping"; characterizes the one person who erased her surname.
+- **Rescued from the cut pile:** **Thrain Fireaxe** (Khazdurim assassin, the "drinks because of what's behind the third Seal" one — among the best in the file). **Lyra Emberheart** → renamed **Sable** (first name only; "Lyra" collided with canon Lyra/Jory's wife). Sable is a **mononym** on purpose — fits "no name worth keeping". **Celeste Aubepine** (Hautscieux princess) — rescued for her aureole/signature-item potential (needs the small pre-Sundering lore fix above). Hautscieux now ~7, running total ~53-54.
 - **Cedric Ashford:** backstory kept as-is (canon, excellent). Ability proposed: new trait **"Thornveil-Taught"** (+6% dmg vs ghost & aether). Not yet wired.
 - **Ability approach (proposed, awaiting confirmation):** each curated character gets a story-fitting `trait` (reuse `BACKSTORY_TRAITS` where one fits; bespoke new traits for standouts; flag any needing engine wiring beyond the data tables). Pace (one-at-a-time vs batch) TBD — user was too tired to continue 2026-06-22.
 
@@ -98,10 +98,24 @@ Tally: 8 ready-as-data (incl. Cedric's trivial new tag), 3 new-wire (Bronwyn tau
 User's idea (2026-06-22), and it's the real payoff of the small-cast decision: a few characters get a **bound signature item that grows with them** (WoW-heirloom-style) — stats scale with the owner's level, and it **gains gem sockets** at level thresholds. Reuses existing tech (gems from Content Expansion, the Jewelcrafter, equipment slots).
 
 Design guardrails:
-- **Rare, not universal** — only a handful of characters (Leofric the smith = prototype; maybe a mage's staff, a noble heirloom). Scarcity keeps them special and bounds the scope.
-- **Reliable, not strictly optimal** — grows into something good + convenient (never *needs* replacing), but a top crafted weapon can still beat it, so the crafting economy stays meaningful (choice = sentimental/convenient vs min-maxed).
-- It's a real subsystem (bound items, level-scaling, socket progression), NOT a trait. **Design now, build after the Act 1 alpha** — must not block story/balance work.
-- **Leofric** for now keeps the placeholder "Last Blade" trait; flagged as first in line for the real signature-weapon system.
+- **Rare, not universal** — only a handful of characters. Scarcity keeps them special and bounds scope.
+- **Powerful is OK** (user call 2026-06-22): these are the character's *special ability*, and this is cozy co-op PvE, not competitive — a power-fantasy signature item is a feature, not a balance problem. (Earlier "reliable not optimal" guardrail RELAXED.) The depth/personalization, not the rarity of power, is the point.
+- It's a real subsystem (bound items, level-scaling, **gem sockets with effects** — note: socket *effects* don't exist yet, gems are currently only crafting ingredients), NOT a trait. **Design now, build after the Act 1 alpha** — must not block story/balance work.
+- **Not always a weapon.** Signature items are a category of "special thing per character":
+  - **Leofric** (smith) — bound **weapon** that scales with his level + gains gem sockets. Placeholder "Last Blade" trait until built. Extra-strong is fine (his ability).
+  - **Celeste Aubepine** (Hautscieux, RESCUED 2026-06-22) — her **aureole / Circlet of Light** (a worn trinket or party aura). Was cut for a lore snag (crown "passed mother-to-daughter since before the Sundering" implies an unbroken elven line across the die-off). **Lore fix on the rewrite pass:** make the dynasty "older than the city kept records" rather than explicitly pre-Sundering; keep "a circlet of light no living mage knows how to forge" (lost art ≠ memory). Backstory otherwise kept.
+
+**Gem → effect mapping** (reuses existing gems in `materials.ts` + the combat engine's element/tag damage). Socketing a gem into a signature item grants:
+| Gem | Effect |
+|---|---|
+| charite | +dmg vs demons |
+| moonstone | holy damage |
+| frost_sapphire | frost damage |
+| fire_ruby (/ crude_ruby) | fire damage |
+| storm_topaz | lightning damage |
+| void_topaz | void / aether damage |
+| emerald_shard | nature / vs-beast |
+This could later generalize to a game-wide equipment-socket feature, not just signature items.
 
 This expresses the curation thesis: per-character bespoke mechanics are only affordable BECAUSE the cast is small. Related: gem/Jewelcrafter content (DESIGN_CONTENT_EXPANSION, shipped).
 
