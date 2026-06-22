@@ -10,6 +10,10 @@ Act 1 = forest / meadow / river, with the thinning (Wastes edge) near. The world
 - Correction to the earlier audit note: Ghar'kal ARE in early missions (`orc_warrior` ×3), not "barely used."
 - Next steps the user floated: review Act 1 missions one-by-one, refine, and add new ones; gear **set bonuses** deferred to later acts (Act 1 gear stays clean). A separate Act 1 loot/gear audit is queued.
 
+## Act 1 "home is safe" principle + parked missions (2026-06-22)
+**Rule:** in Act 1, HOME is the safe hearth you venture out *from*. **Mundane** threats may reach the homestead (rats in the cellar, a fox in the henhouse); **supernatural/cosmic** threats stay OUT THERE (the old crossroads, the cemetery, crypts near the Wastes border, the forest spring). Home being compromised is a *later-act* escalation you earn.
+- **PARKED: `cursed_well`** (removed from novice 2026-06-22). It was a supernatural haunting at the VILLAGE well — breaks the rule. **Restore-later concept** (option A, needs no prior-settlement-on-this-spot): the settlers dig their own new well and break into an **old grave** (the land holds old dead — the Barrowfields / Barrowfield Walker); a grief-bound spirit; a priest lays it to rest. Bring it back when home can be threatened, or reframe it as an "out there" well. (Verified: nothing else references `cursed_well`.)
+
 ## Future / deferred enemy work (from the 2026-06-22 roster audit + ideas)
 Naming/lore fixes were APPLIED 2026-06-22 (Wolf Pup→Lone Wolf, Wastes Wolf→Grey Wolf, Spooked Boar→Wild Boar, Goblin Runt reframe, Forest Bear cubs→den, Rabid Boar de-Wastes'd, Fallen Seraph→Fallen Radiance, Silvaneth Banshee→Silvaneth Keener). Still open:
 - **A *real* Wastes wolf (future enemy, the freed-up name).** Undead wolves, or living wolves that scavenged corpses + aether at the Wastes' edge and came back wrong. Tags: undead/aether; restricted to Wastes-adjacent/late missions only. This is the creature the old mislabeled "Wastes Wolf" pretended to be.
