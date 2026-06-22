@@ -28,6 +28,7 @@
 | DESIGN_ROSTER_ECONOMY.md | **BACKLOG** (accurate) | Wages/states/vacation/retirement unbuilt; hard cap `3+guildLevel×2` still enforced. Loyalty model overlaps the shipped 0-100 loyalty. → **Keep; reconcile loyalty model when built.** |
 | DESIGN_WORKERS_PLAGUES.md | **BACKLOG** | Worker-staffing + plague events unbuilt. Depends on citizen-categories. → **Add explicit BACKLOG status line.** |
 | DESIGN_QUIRKS_REWORK.md | **BACKLOG** | Still a flat `PERSONALITY_QUIRKS: string[]`; tagged system unbuilt. → **Add status line.** |
+| DESIGN_ROSTER_CURATION.md | **DESIGN** | Cut ~229 premades → ~45-50 curated cast (weighted by origin prominence) + replenishing reserve pool; drop daily rotation. Unifies PREMADE_CHARACTERS + QUIRKS_REWORK + ROSTER_ECONOMY. → **The live roster spec; those three are now sub-concerns.** |
 | DESIGN_FACTION_BALANCE.md | **BACKLOG** | Merged Church + Thornveil escalation (2026-06-05); originals in `archive/`. Neither built; Church side needs a Chapel→Shrine rethink. → **The live faction-balance spec.** |
 | DESIGN_LORE_EXPANSION.md | **REF / BACKLOG** | Varek's ghost court lore (reference); its boss-progression + missions unbuilt. → **Keep as lore ref; cross-link to LORE_TIMELINE.** |
 
