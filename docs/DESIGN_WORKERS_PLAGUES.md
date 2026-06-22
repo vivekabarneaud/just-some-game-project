@@ -138,6 +138,16 @@ Tempting idea: a mini-Adventurers-Guild — recruit cats, level them, send them 
 - **Design principle (load-bearing):** the shelter must **reward care with warmth, never punish neglect with stress.** Tended cats → +happiness + good mousing; neglected ones just gently drift away (a small sadness, never a crisis). It's the cozy corner you visit to feel good, NOT another anxiety meter. (Same ethos as the plague system: manageable joy, not random punishment.)
 - **The loop:** stray appears → name it (adopt) → feed it (Kitchen) + toy (Woodworker) + post it (pantry/granary/barn) → content, stays, mouses, settlement happier. Tend nothing → strays move on.
 
+### Where the cats come from (worldbuilding → pacing mechanic, 2026-06-22)
+A new frontier settlement wouldn't *have* cats — so don't start with them. **Cats are camp-followers of people + grain:** ~none early (maybe one that trailed the founders' wagons), then strays **drift in as you store food and grow** (food → rats → cats follow). Some are **feral descendants of the old watch's barn cats** (Hale's garrison had people 150y ago) — ties to existing lore. Payoff: the shelter *fills up as the settlement becomes worth coming to* — a stray arriving is a quiet signal you've built something that draws life. The consistency question becomes the pacing. (Generalizes: a thriving frontier outpost is a magnet for people/traders/animals, not a museum.)
+
+### Dog training — the Hunting Camp kennel (parallel building, 2026-06-22)
+Hunting dogs are even more natural (hunters bring hounds; no origin question). Creates a deliberate SYMMETRY with the Cat Shelter:
+- **Cat Shelter** = cozy, *cared for* (naming-as-care, can drift away), vermin/food/plague/happiness, source of **cat** companions (Nettle's cat).
+- **Hunting Camp kennel** = working, *trained* (loyal working animals), boosts hunting yields (more game with hounds; could guard/scout), source of **dog** companions — **this is where Isla's lurcher comes from.**
+- Mirrors the Isla-dog (trained/functional) vs Nettle-cat (loved/emotional) distinction AT THE BUILDING LEVEL: cats are loved, dogs are trained.
+- **Scope guard:** keep the kennel UTILITARIAN — no full cozy-happiness sub-loop like the shelter (dogs are working animals; the contrast is the point, and it avoids two copies of the same system). See `DESIGN_ROSTER_CURATION.md` (signature companions).
+
 ### Cat motif
 Cats are a through-line now: Nettle's cat, Tomas's cat (founder), the `cat_parent` trait, this shelter. A motif, not clutter — lean into it. Naming strays ties to the same naming-as-care thread as Sable.
 
