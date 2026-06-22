@@ -2,6 +2,13 @@
 
 **Status:** BUILT (2026-06-05 audit). New enemies, elemental gems, the Jewelcrafter building + page, and the ring slots all shipped.
 
+## Future / deferred enemy work (from the 2026-06-22 roster audit + ideas)
+Naming/lore fixes were APPLIED 2026-06-22 (Wolf Pup→Lone Wolf, Wastes Wolf→Grey Wolf, Spooked Boar→Wild Boar, Goblin Runt reframe, Forest Bear cubs→den, Rabid Boar de-Wastes'd, Fallen Seraph→Fallen Radiance, Silvaneth Banshee→Silvaneth Keener). Still open:
+- **A *real* Wastes wolf (future enemy, the freed-up name).** Undead wolves, or living wolves that scavenged corpses + aether at the Wastes' edge and came back wrong. Tags: undead/aether; restricted to Wastes-adjacent/late missions only. This is the creature the old mislabeled "Wastes Wolf" pretended to be.
+- **Differentiate duplicates:** `flame_wisp` "Ley-Flame Wisp" vs `ember_elemental` "Ember Elemental" (near-identical T3 fire elementals — merge, or make one a fast swarm-add); `lich_apprentice` "Half-Lich" blurs against the necromancer line (lean into phylactery/Hauts-Cieux angle).
+- **`captain_hale_stub` "Captain Hale's Wraith"** — flagged in-file as an npc-escort-engine test stub, but now referenced live in storyMissions. Resolve with the story thread (is it the real Hale now, or still a stub to clean up?).
+- **Optional polish:** bland descriptive names (Forest Bear, Marsh Adder, Dire/Frost/Storm Elemental) could gain place/faction flavor to match the rest of the roster; minor tier-comment tidies (`cursed_spirit`, `wolf_pup` sit under wrong tier-header comments).
+
 ## Overview
 
 A major content pass adding:
