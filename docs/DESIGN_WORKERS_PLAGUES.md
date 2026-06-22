@@ -157,7 +157,16 @@ Arc shape: **charm → problem → solution**, all earned.
 
 Flavor details to keep:
 - **Tomas's un-neutered cat** = the in-world reason cats multiply. A recurring gag, NOT a breeding sim ("Edda says half the strays have Tomas's cat's eyes. Tomas says nothing. The cat says nothing.").
-- **The Lord's first cat name: TBD** (user to name) — a former schoolmaster, plain-spoken, soft under it; a name he'd grumble and keep using.
+- **The Lord's first cat: HIS LORDSHIP** (locked 2026-06-22). The gag is role-reversal — the Lord of the settlement keeps a fat stray he mock-defers to. Chronicle comedy writes itself: *"His Lordship has taken the warm chair by the fire. I am, it seems, a guest in my own house."* / *"Edda asked who the real lord is around here. I did not dignify it. Neither did His Lordship."*
+
+### Cat name bank (for shelter strays — "descriptor → funny feature-name")
+The comedy engine = mock-grandeur on a scruffy stray; each stray arrives with a one-line look, the name riffs on the feature. Pool to draw from:
+- **One eye:** The Captain · Admiral Squint · Old Winker · Patch
+- **Bent/hooked tail:** Comma (a schoolmaster can't not name it after punctuation) · Query (question-mark tail) · Fishhook · Sir Crook
+- **Fat/dignified:** His Lordship (TAKEN by the Lord's cat) · The Magistrate · Alderman Whiskers
+- **Scruffy/deadpan-plain:** Tuesday (found on a Tuesday, that's the whole reason) · Footnote (always underfoot) · Ledger · Vagrant
+- **Mock-title register:** Mister Whiskersworth Esq. · Sergeant Mittens · Lord Pemberton the Third
+(Naming-as-care still applies: player christens most strays; this bank is suggestions/auto-fill fodder.)
 
 ### Cat motif
 Cats are a through-line now: Nettle's cat, Tomas's cat (founder), the `cat_parent` trait, this shelter. A motif, not clutter — lean into it. Naming strays ties to the same naming-as-care thread as Sable.
