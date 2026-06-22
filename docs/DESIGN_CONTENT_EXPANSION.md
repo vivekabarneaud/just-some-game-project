@@ -2,6 +2,14 @@
 
 **Status:** BUILT (2026-06-05 audit). New enemies, elemental gems, the Jewelcrafter building + page, and the ring slots all shipped.
 
+## Act 1 enemy palette (PROPOSAL 2026-06-22, pending ratify + mission cleanup)
+Act 1 = forest / meadow / river, with the thinning (Wastes edge) near. The world should feel inhabited, not just stocked: **beasts + desperate people + the restless dead + goblins + one uncanny witch.**
+- **KEEP (grounded):** wolves (Lone/Grey/Alpha), boars (Wild/Rabid), bears (Forest/Dire), cave spiders, marsh adders, giant rats, fungal crawlers; the thinning's dead (skeletons, skeleton archers, grief-bound spirits, ghouls, the drowned swamp revenant); **people** (bandit thug/captain — bandit_thug is the 2nd-most-used Act 1 enemy — displaced brigands, Dominion deserters); goblins (scout/shaman — the mundane known menace); and **the Bog Witch** (the Act 1 uncanny mini-boss / side-story; see `DESIGN_SIDE_STORIES.md`).
+- **PULL from Act 1 (too exotic, leapfrogs the tone → save for deeper/later acts):** fire/frost/ember elementals, the dragon wyrmling, corrupted treant, the necromancer-acolyte (a tier-3 caster boss), and the Ghar'kal (`orc_warrior` ~3 early uses, `orc_warlord` ×1 — deferred peoples). Replace with grounded picks (more bandits/goblins/beasts/dead).
+- **Nuance:** consider keeping ONE deliberate glimpse of the deeper horror at Act 1's edge (e.g. a single corrupted treant where the forest sickens near the thinning) as a "something worse is south" beat — pull the *clutter*, keep the *one*.
+- Correction to the earlier audit note: Ghar'kal ARE in early missions (`orc_warrior` ×3), not "barely used."
+- Next steps the user floated: review Act 1 missions one-by-one, refine, and add new ones; gear **set bonuses** deferred to later acts (Act 1 gear stays clean). A separate Act 1 loot/gear audit is queued.
+
 ## Future / deferred enemy work (from the 2026-06-22 roster audit + ideas)
 Naming/lore fixes were APPLIED 2026-06-22 (Wolf Pup→Lone Wolf, Wastes Wolf→Grey Wolf, Spooked Boar→Wild Boar, Goblin Runt reframe, Forest Bear cubs→den, Rabid Boar de-Wastes'd, Fallen Seraph→Fallen Radiance, Silvaneth Banshee→Silvaneth Keener). Still open:
 - **A *real* Wastes wolf (future enemy, the freed-up name).** Undead wolves, or living wolves that scavenged corpses + aether at the Wastes' edge and came back wrong. Tags: undead/aether; restricted to Wastes-adjacent/late missions only. This is the creature the old mislabeled "Wastes Wolf" pretended to be.
