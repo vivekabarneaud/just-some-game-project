@@ -114,7 +114,7 @@ export const ENEMIES: EnemyDefinition[] = [
   },
   {
     id: "wild_wolf",
-    name: "Wastes Wolf",
+    name: "Grey Wolf",
     icon: "🐺",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/wild_wolf.png",
     description: "Lean, hungry, and hunting in packs. Since Le Declin, even the wolves have grown bolder.",
@@ -174,7 +174,7 @@ export const ENEMIES: EnemyDefinition[] = [
   // to grade difficulty without jumping from trivial to deadly.
   {
     id: "wolf_pup",
-    name: "Wolf Pup",
+    name: "Lone Wolf",
     icon: "🐺",
     description: "A lean yearling, kicked out of the pack too early. Hungry and nervous, but still a predator.",
     tier: 1,
@@ -885,7 +885,7 @@ export const ENEMIES: EnemyDefinition[] = [
     name: "Alpha Wolf",
     icon: "🐺",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/alpha_wolf.png",
-    description: "Twice the size of a Wastes Wolf, with scars from a dozen challengers. The pack follows where it leads, and it leads toward your livestock.",
+    description: "Twice the size of a grey wolf, with scars from a dozen challengers. The pack follows where it leads, and it leads toward your livestock.",
     tier: 2,
     stats: { str: 16, dex: 14, int: 4, vit: 18, wis: 4 },
     tags: ["beast"],
