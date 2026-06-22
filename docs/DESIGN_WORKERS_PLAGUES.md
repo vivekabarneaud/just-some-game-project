@@ -102,9 +102,26 @@ Periodic plague events that reduce population and/or make workers sick, reducing
 | Category | Settlement |
 | Unlock | Village tier |
 | Max Level | 5 |
-| Effect | -15% plague chance per level, prevents Rat Fever at Lv.3+ |
-| Description | "A warm corner of the settlement where cats gather, breed, and earn their keep. Every rat they catch is a fever prevented." |
-| Cosmetic | Cats appear on the overview page. More cats at higher levels. |
+| Effect | Reduces vermin (see below): protects stored food AND prevents Rat Fever (Lv.3+). +small happiness per level (people love the cats). |
+| Description | "A warm corner of the settlement where cats gather, breed, and earn their keep. Every rat they catch is a fever prevented — and a sack of grain saved." |
+| Cosmetic | Named cats wander the overview. More cats at higher levels. |
+
+### Vermin — the dual threat (developed 2026-06-22, the cat-shelter's real job)
+The Cat Shelter's *everyday* purpose, not just plague-prevention:
+- **Vermin pressure** rises with food stored (rats follow the feast), settlement size, and **season** (winter drives them indoors → into the pantry).
+- High vermin does TWO things: (1) **slowly drains stored food** from the pantry/warehouse (a persistent, *felt* loss), and (2) feeds the **Rat Fever** plague chance.
+- **Cats counter both**, and **need no upkeep — they eat the rats.** The thing they prevent feeds them (self-sustaining; tells the whole story in one line). Higher shelter level → vermin near zero → food safe + plague rare.
+
+### Charm layer (the heart of the idea)
+- **+Happiness** — joy, not just utility.
+- **Named, adoptable cats** with little personalities, wandering the overview (handcraft ethos, like the cast).
+- **Adoption → the pet system.** Shelter cats can be adopted as **companions** — this is where Nettle's cat and adventurers' pet-cats come from. Links building ↔ pets ↔ cast into one loop (adopt a stray → it becomes a hero's familiar). See `DESIGN_ROSTER_CURATION.md` (signature companions).
+
+### Scoping note
+The **food-theft half needs only the existing pantry/food system** — no plague system required. So the Cat Shelter can ship EARLY (cozy "protect food / adopt cats / +happiness" building), with the plague-prevention layer added when the rest of this doc lands. Alpha-friendly, not post-alpha-locked.
+
+### Cat motif
+Cats are a through-line now: Nettle's cat, Tomas's cat (founder), the `cat_parent` trait, this shelter. A motif, not clutter — lean into it.
 
 ### Event Log Integration
 - "A plague of Rat Fever has struck! 8 workers are sick."
