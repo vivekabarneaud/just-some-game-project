@@ -89,4 +89,20 @@ Existing saves reference culled character IDs. A removed character in someone's 
 
 Tally: 8 ready-as-data (incl. Cedric's trivial new tag), 3 new-wire (Bronwyn taunt, Oswin consumables, Leofric weapon) + their existing-trait fallbacks if we want zero engine work for now.
 
+### Sable (ex-Lyra Emberheart) — ability options (2026-06-22)
+- **lone_wolf** (existing, +2 stats solo) — fits "raised herself, no family." Zero code.
+- **"Nothing to Lose"** (new, light wiring) — crit/damage spike at low HP; the cornered street-fighter. *(User leaning here; pending confirm.)*
+
+### Signature items — bound evolving gear (IDEA, post-alpha)
+
+User's idea (2026-06-22), and it's the real payoff of the small-cast decision: a few characters get a **bound signature item that grows with them** (WoW-heirloom-style) — stats scale with the owner's level, and it **gains gem sockets** at level thresholds. Reuses existing tech (gems from Content Expansion, the Jewelcrafter, equipment slots).
+
+Design guardrails:
+- **Rare, not universal** — only a handful of characters (Leofric the smith = prototype; maybe a mage's staff, a noble heirloom). Scarcity keeps them special and bounds the scope.
+- **Reliable, not strictly optimal** — grows into something good + convenient (never *needs* replacing), but a top crafted weapon can still beat it, so the crafting economy stays meaningful (choice = sentimental/convenient vs min-maxed).
+- It's a real subsystem (bound items, level-scaling, socket progression), NOT a trait. **Design now, build after the Act 1 alpha** — must not block story/balance work.
+- **Leofric** for now keeps the placeholder "Last Blade" trait; flagged as first in line for the real signature-weapon system.
+
+This expresses the curation thesis: per-character bespoke mechanics are only affordable BECAUSE the cast is small. Related: gem/Jewelcrafter content (DESIGN_CONTENT_EXPANSION, shipped).
+
 *Created 2026-06-22 from the weekend "fewer, better adventurers" idea.*
