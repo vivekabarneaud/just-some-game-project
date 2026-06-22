@@ -120,6 +120,14 @@ The Cat Shelter's *everyday* purpose, not just plague-prevention:
 ### Scoping note
 The **food-theft half needs only the existing pantry/food system** — no plague system required. So the Cat Shelter can ship EARLY (cozy "protect food / adopt cats / +happiness" building), with the plague-prevention layer added when the rest of this doc lands. Alpha-friendly, not post-alpha-locked.
 
+### How the shelter PLAYS (explored 2026-06-22)
+Tempting idea: a mini-Adventurers-Guild — recruit cats, level them, send them on cat-missions. **Rejected as the literal version** because it (a) competes with / dilutes the real Adventurers Guild, (b) doubles balance+content work, (c) ironically re-creates the "many interchangeable units" problem the roster curation is removing, and (d) sending cats into danger fights the cozy *shelter* (safe-haven) tone. But the FUN is salvageable — keep it, just post cats at home instead of sending them away:
+- **Cat roster** at the shelter: named cats, personalities, the collection itch. ✓
+- **Assign cats to POSTS** (pantry / granary / barn / docks): a cat on the pantry protects the pantry → the vermin mechanic becomes *spatial & assignable* (the "deploy units" satisfaction, cats safe at home).
+- **Seniority/levels via tenure** — kitten = poor mouser, years on the job = grizzled ratter. No micromanage.
+- **"Cats on missions" done right = companion adoption:** assign a cat as an *adventurer's* companion and it rides along on real missions, bonded & meaningful (this is where Nettle's cat / pet-cats come from). Honors the instinct without a parallel guild.
+- **The comedy survives as FLAVOR, not a system:** cats go on their own "expeditions" and deposit trophies in the event log — a dead mouse, a shiny button, one (1) sock, a smug expression. The joke of cats-adventuring, zero mechanics cost.
+
 ### Cat motif
 Cats are a through-line now: Nettle's cat, Tomas's cat (founder), the `cat_parent` trait, this shelter. A motif, not clutter — lean into it.
 
