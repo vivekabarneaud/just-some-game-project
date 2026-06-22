@@ -220,7 +220,7 @@ export const ENEMIES: EnemyDefinition[] = [
     name: "Ghar'kal Raider",
     icon: "👹",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/orc_warrior.png",
-    description: "Broad-shouldered and battle-scarred. Pushed south by the Wastes, they fight for territory now — kill or be displaced.",
+    description: "Broad-shouldered and battle-scarred. Driven north by the spreading Wastes, they fight for what land is left: kill or be displaced.",
     tier: 2,
     stats: { str: 18, dex: 7, int: 2, vit: 20, wis: 3 },
     tags: ["humanoid"],
