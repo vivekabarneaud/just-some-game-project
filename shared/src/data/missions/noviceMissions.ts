@@ -19,7 +19,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
 {
     id: "quarry_expedition",
     name: "Quarry Expedition",
-    description: "Tomas has scouted a run of loose stone up in the hills, but the ridge isn't empty. A goblin band has holed up in the cracks, and something with too many legs nests in the dark below. Clear them out before the haulers can work.",
+    description: "Tomas has scouted a run of loose stone up in the hills, but the ridge isn't empty: something with too many legs has nested deep in the cracks. Clear it out before the haulers can work.",
     icon: "🪨",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/quarry_expedition.png",
     slots: [{ class: "any" }, { class: "any" }],
@@ -29,7 +29,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["outdoor", "exploration", "combat"],
-    encounters: [{ enemyId: "goblin_scout", count: 2 }, { enemyId: "cave_spider", count: 1 }],
+    encounters: [{ enemyId: "cave_spider", count: 3 }],
   },
 {
     id: "foraging_run",
