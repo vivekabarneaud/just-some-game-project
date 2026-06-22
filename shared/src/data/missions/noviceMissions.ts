@@ -106,7 +106,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 1,
     tags: ["magical"],
-    encounters: [{ enemyId: "skeleton", count: 2 }],
+    encounters: [{ enemyId: "cursed_spirit", count: 2 }],
     requires: { story: "story_1_scouting" },
   },
 {
