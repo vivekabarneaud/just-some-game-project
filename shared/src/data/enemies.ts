@@ -174,7 +174,7 @@ export const ENEMIES: EnemyDefinition[] = [
   // to grade difficulty without jumping from trivial to deadly.
   {
     id: "wolf_pup",
-    name: "Lone Wolf",
+    name: "Gaunt Wolf",
     icon: "🐺",
     description: "A lean yearling, kicked out of the pack too early. Hungry and nervous, but still a predator.",
     tier: 1,
