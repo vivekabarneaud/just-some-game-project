@@ -151,4 +151,17 @@ Both kept. Brunhild (priest, prayer-wards) + Magna (wizard, rune-locks) held the
 - **Pair synergy** (category #6): deployed together they recreate the prayer+runes partnership → bonus. The synergy *is* their 30 years.
 - **Magna's vengeance** (signature): she keeps a list of every name lost that night; grows stronger per demon killed ("take something back for each one"). Bahruun as a possible late-game boss they get a bonus against.
 
+### Signature companions — pets (2026-06-22)
+
+Category #4 of the signature taxonomy. Builds on the existing `dog_companion` trait. **Keep rare** (a couple of characters); generic `dog_companion`/`cat_parent` traits stay as the light version. **Pets are KO, not permadeath** (cozy/found-family tone) — knocked out for the mission, recover after. Heroic Guard-sacrifice death DEFERRED (and the cat's "nine lives" idea parks with it).
+
+**Isla Foxglove — the lurcher (functional companion).** She's a poacher; a silent hunting dog completes her. Personalized by **training/role, not gems** (a creature is trained, not socketed): Maul (fights), Guard (shields/draws hits for owner), Flush (cuts ambush/trap risk), Fetch (extra loot/materials). Grows with level; can deepen with loyalty.
+
+**Nettle Meadbrook — the cat (emotional companion). The cat is NOT magic — Nettle just loves it.** Her power is love, not arcana (same grounded-feeling-dressed-as-magic aesthetic as Sable's frog / real-finger snaps). The cat doesn't fight (naps on her spellbook, winds her ankles — combat whimsy). Mechanic = a **two-mode flip on the cat's state**, NOT a power up/down (KO shouldn't make her weaker — it makes her *furious*). Her name encodes it: *Meadbrook* (sweet) ↔ *Nettle* (stings):
+- **Cat safe → "Meadbrook" (tending):** warm, *protective/supportive* magic — wards, shields, steady hearth-warmth, control.
+- **Cat KO → "Nettle" (roused):** fierce *offensive* magic — burst/raw fury (hearth-fire roars to a blaze; or thorn/sting DoT, playing on her name). NOT aether (aether = Wastes/corruption in canon, wrong for a cozy grandma).
+- **Balance guardrail:** Nettle-mode is a SIDEGRADE, not an upgrade — high damage but reckless/exposed (drops wards, takes more hits), so players never KO their own cat on purpose. The cat getting hurt is a crisis to fight through, not a combo to set up.
+
+Contrast worth keeping: Isla's dog = *trained/functional*, Nettle's cat = *loved/emotional*. Proves the signature-companion idea has range. **Names TBD** (user to name the dog + cat).
+
 *Created 2026-06-22 from the weekend "fewer, better adventurers" idea.*
