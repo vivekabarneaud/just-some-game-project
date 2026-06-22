@@ -119,4 +119,18 @@ This could later generalize to a game-wide equipment-socket feature, not just si
 
 This expresses the curation thesis: per-character bespoke mechanics are only affordable BECAUSE the cast is small. Related: gem/Jewelcrafter content (DESIGN_CONTENT_EXPANSION, shipped).
 
+### Signature-feature taxonomy (2026-06-22) — "it doesn't have to be a weapon"
+
+A character's special thing can be any of: (1) signature weapon [Leofric], (2) worn regalia/trinket [Celeste's aureole], (3) **bespoke consumable set** [Elspeth's poisons], (4) named combat companion [the `dog_companion` trait already does this], (5) personal aura/passive, (6) **pair/family synergy** — deploy two related characters together for a bonus, (7) **settlement perk** — their presence at home buffs the town (Leofric→forge, Elspeth→alchemy lab), (8) unique mechanic.
+
+**#6 (pair/family synergy) is high-value & cheap** and fits the family clusters all over the roster (Ashford siblings, Foxglove sisters, Ravencroft mother-son, Hawthorn, Meadbrook). Only feasible because the cast is small enough to know.
+
+### Per-character signature designs (drafts, 2026-06-22)
+- **Sable** — ability **"Nothing to Lose"** CONFIRMED (low-HP crit/damage spike). Trinket optional & thematically tricky (she "owns nothing"); if any, "the one thing she never sold" (small luck/escape charm). May be stronger to give her NO item — nothing-to-lose as her whole identity.
+- **Cedric + Bronwyn** — **sibling synergy** (raised sparring in the Thornveil → +stats deployed together). Optional **Ashford signet** = a *settlement perk* (name opens doors: small trade/reputation bonus), not raw power. Royalty as influence, not a bigger sword.
+- **Elspeth** — **poison master**. Cool version: an **extra Elspeth-only mission supply slot** stocked with her own bespoke strong potions, chosen pre-mission (e.g. Widow's Kiss = heavy DoT, Dead Man's Draught = cheat death once, Quietus = burst). Reuses the existing per-adventurer supply-slot tech. Simple fallback: trait = +poison/DoT damage.
+
+### Ashwick rebalance (proposed 2026-06-22, pending confirm)
+13 current keepers (incl. Sable) skew: 4 warrior, **3 assassin** (Roderick/Elspeth/Sable), 2 archer, 2 wizard, 2 priest. **Proposed swap: cut Roderick Ashford, add back Edmund Blackwood** (Elspeth's son — matched mother-son assassin pair, enables a synergy duo, better story than the cousin; Cedric+Bronwyn already carry the Ashford canon). Keeps assassins at 3. Edmund: assassin, "everything Edmund knows, his mother taught him."
+
 *Created 2026-06-22 from the weekend "fewer, better adventurers" idea.*
