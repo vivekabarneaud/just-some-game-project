@@ -293,23 +293,9 @@ export function getOriginsForGuildLevel(
 
 export type FoodPreference = "sweet" | "spicy" | "hearty" | "smoky" | "fresh";
 
-export type AgeCategory = "young" | "middle" | "mature" | "old";
-
-export const AGE_CATEGORIES: AgeCategory[] = ["young", "middle", "mature", "old"];
-
-export const AGE_LABELS: Record<AgeCategory, string> = {
-  young: "Young",
-  middle: "Adult",
-  mature: "Mature",
-  old: "Elder",
-};
-
-export const AGE_WEIGHTS: { age: AgeCategory; weight: number }[] = [
-  { age: "young", weight: 25 },
-  { age: "middle", weight: 35 },
-  { age: "mature", weight: 25 },
-  { age: "old", weight: 15 },
-];
+// (Adventurer age category removed 2026-06-22 — it was display-only flavor,
+// redundant with portraits + backstories, and AGE_CATEGORIES/AGE_WEIGHTS were
+// already dead code. Founder numeric ages in founding_characters.ts are separate.)
 
 export const FOOD_PREFERENCES: { id: FoodPreference; label: string; icon: string; trait: string }[] = [
   { id: "sweet", label: "Sweet", icon: "🍯", trait: "Has a sweet tooth" },
@@ -600,8 +586,6 @@ export interface Adventurer {
   foodPreference?: FoodPreference;
   /** Loyalty score 0-100, grows from missions and care */
   loyalty?: number;
-  /** Age category — affects portrait selection and kinship labels */
-  age?: AgeCategory;
   /** Override portrait filename for premade characters */
   portrait?: string;
 }
@@ -826,7 +810,6 @@ function buildAdventurerFromPremade(id: string, premade: PremadeCharacter, maxRa
     talents: [],
     foodPreference: premade.foodPreference,
     loyalty: 0,
-    age: premade.age,
     portrait: premade.portrait,
   };
 }

@@ -236,7 +236,6 @@ import {
   getLoyaltyRank,
   LOYALTY_RANKS,
   FOOD_PREFERENCES,
-  type AgeCategory,
   ORIGIN_RECIPES,
 } from "@medieval-realm/shared/data/adventurers";
 import {
@@ -1413,16 +1412,6 @@ function loadGame(): GameState | null {
     };
     for (const adv of saved.adventurers) backfillFoodLoyalty(adv);
     for (const adv of saved.recruitCandidates) backfillFoodLoyalty(adv);
-    // Age migration
-    const backfillAge = (adv: any) => {
-      if (adv.age === undefined) {
-        const hash = adv.name.split("").reduce((h: number, c: string) => h + c.charCodeAt(0), 0);
-        const ages: AgeCategory[] = ["young", "middle", "mature", "old"];
-        adv.age = ages[hash % ages.length];
-      }
-    };
-    for (const adv of saved.adventurers) backfillAge(adv);
-    for (const adv of saved.recruitCandidates) backfillAge(adv);
     // Match premade characters by backstory to fix renamed names/portraits
     const migratePremadeByBackstory = (adv: any) => {
       if (!adv.backstory) return;

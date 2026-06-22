@@ -20,7 +20,6 @@ import {
   getLoyaltyRank,
   getNextLoyaltyRank,
   LOYALTY_RANKS,
-  AGE_LABELS,
   getRelationship,
   CLASS_ABILITIES,
 } from "@medieval-realm/shared/data/adventurers";
@@ -165,9 +164,6 @@ export default function AdventurerDetail() {
                             {RANK_NAMES[adv().rank]}
                           </span>
                           {" "}· Level {adv().level}
-                          <Show when={adv().age}>
-                            {" "}· <span style={{ color: "var(--text-muted)" }}>{AGE_LABELS[adv().age!]}</span>
-                          </Show>
                         </div>
                         <Show when={adv().origin}>
                           <div style={{ "font-size": "0.85rem", color: "var(--text-muted)", "margin-top": "2px" }}>
