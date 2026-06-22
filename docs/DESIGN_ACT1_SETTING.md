@@ -25,4 +25,19 @@ Frontier-grade: a lone peddler daring the road, a rare Dominion supply wagon, ba
 
 Each mission should answer: *which category, and what specifically out there does it engage?* If it can't, it's a placeholder.
 
+## Current novice missions, mapped (2026-06-22)
+- **① Taming your ground (rich ✓):** gather_timber, quarry_expedition, foraging_run, herb_gathering, cellar_rats, first_patrol, lost_flock, chicken_coop_raiders, old_bridge, lost_child.
+- **② Surroundings safe (rich ✓):** The Tainted Spring, bear_den, boar_hunt, marsh_clearing, alpha_wolf_hunt, spider_hollow, night_howling, stranger_tracks, hunter_keepsake. ⚠ goblin_shaman_camp (goblins deferred).
+- **③ Lifeline north (thin/messy):** merchant_escort ✓; caravan_guard (redundant twin — reframe); ⚠ smuggler_deal ("docks"/smuggling overstate an isolated frontier — rework or park).
+- **④ Neighbours: EMPTY ← the gap + the richest vein.** Only tavern_intel is near (reframe → frontier news).
+- **⑤ Toward the dread: ~empty in novice** (Tainted Spring foreshadows; story missions carry it — fine).
+- **⑥ Hauntings, out there (✓):** wandering_spirit, ghoul_infestation, burnt_crypt.
+
+**Inspiration / next moves:**
+- ① and ② are the grounded heart and already strong — don't pad them.
+- **Build category ④ (Neighbours):** help a struggling grant · carry a letter/news between settlements · joint defense vs a shared raid · a barter run · a neighbour gone silent · a boundary dispute.
+- **Sub-vein "settler requests with heart"** — your warmest missions (lost_child, hunter_keepsake) are personal/human, not kill-X-for-loot. Make more.
+- **Two-birds:** reframe `caravan_guard` as escorting incoming settlers / a neighbour barter run → kills the escort redundancy AND becomes the first ④ Neighbours mission.
+- Minor flags: rats-as-wild-creature in wilderness_trek + old_bridge (rats are vermin, not wild monsters); smuggler_deal outlier; goblin_shaman_camp (deferred goblins).
+
 *Created 2026-06-22 from the "what's actually around us in Act 1?" discussion.*
