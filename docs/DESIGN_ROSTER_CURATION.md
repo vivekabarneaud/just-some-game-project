@@ -70,4 +70,23 @@ Existing saves reference culled character IDs. A removed character in someone's 
 - **Cedric Ashford:** backstory kept as-is (canon, excellent). Ability proposed: new trait **"Thornveil-Taught"** (+6% dmg vs ghost & aether). Not yet wired.
 - **Ability approach (proposed, awaiting confirmation):** each curated character gets a story-fitting `trait` (reuse `BACKSTORY_TRAITS` where one fits; bespoke new traits for standouts; flag any needing engine wiring beyond the data tables). Pace (one-at-a-time vs batch) TBD — user was too tired to continue 2026-06-22.
 
+### Ashwick ability drafts (2026-06-22, awaiting user reaction)
+
+`[existing]` = reuses a current `BACKSTORY_TRAITS` entry, ready as data. `[new-data]` = new trait that's just a tag-bonus table entry (trivial). `[new-wire]` = new trait needing a little combat/deploy wiring.
+
+1. **Cedric Ashford** (archer) → **Thornveil-Taught** `[new-data]` — +6% dmg vs ghost & aether. (His Silvaneth upbringing = fights the Wastes-things.)
+2. **Bronwyn Ashford** (warrior) → **First Through the Gate** `[new-wire]` — draws enemy focus (taunt), protects the party. ("see what else is worth defending.")
+3. **Roderick Ashford** (assassin) → **lucky** (+3% crit) `[existing]` — the court's precise problem-solver. (Bespoke "Clean Work" possible later.)
+4. **Elspeth Ravencroft** (assassin) → **survivor** (-15% death on failure) `[existing]` — outlived three husbands; watches the exits.
+5. **Helga Ironbark** (warrior) → **iron_will** (+10% fear/taunt resist) `[existing]` — the trait's own flavor ("didn't break") is literally her.
+6. **Morgause Dunwall** (warrior) → **veteran_campaigner** (+5% vs humanoid) `[existing]` — 30 years on the border garrisons.
+7. **Isla Foxglove** (archer) → **beast_tracker** (+5% vs beast) `[existing]` — poached deer to feed her sisters.
+8. **Elara Foxglove** (wizard) → **quick_learner** (+10% XP) `[existing]` — sixteen and learning fast on the run.
+9. **Elinor Whitmore** (priest) → **pious_heart** (+5% vs demon & divine) `[existing]` — devout parish healer.
+10. **Oswin Holloway** (priest) → **Folk Remedy** `[new-wire]` — +potion/consumable effectiveness (cured fevers with his brother's brews). Fallback: existing **bread_savant**.
+11. **Gwendolen Hearthwood** (wizard) → **elemental_attuned** (+5% vs elemental) `[existing]` — hearth-fire bends to her hands.
+12. **Leofric Coldwell** (warrior) → **Last Blade** `[new-wire]` — small flat damage bonus (carries the last sword he forged). Fallback: existing **offering_keeper** (+1 all stats).
+
+Tally: 8 ready-as-data (incl. Cedric's trivial new tag), 3 new-wire (Bronwyn taunt, Oswin consumables, Leofric weapon) + their existing-trait fallbacks if we want zero engine work for now.
+
 *Created 2026-06-22 from the weekend "fewer, better adventurers" idea.*
