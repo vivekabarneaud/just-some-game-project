@@ -164,4 +164,10 @@ Category #4 of the signature taxonomy. Builds on the existing `dog_companion` tr
 
 Contrast worth keeping: Isla's dog = *trained/functional*, Nettle's cat = *loved/emotional*. Proves the signature-companion idea has range. **Names TBD** (user to name the dog + cat).
 
+### Co-op duplicates (consequence of the small pool) — 2026-06-22
+A small curated pool means co-op allies will often field **duplicate named characters** (two Elara Foxgloves), which breaks immersion (they're specific people).
+- **DON'T client-side-rename the ally's duplicate.** Problems: desync (different name per client in a shared mission/log), identity-mismatch (Elara's portrait/story/class ≠ a renamed "Maren" — you'd show Elara's face under Maren's name), and it re-introduces cut characters as costumes.
+- **DO: dedupe at contribution.** You can't field a character an ally already brought to the shared mission — extend the existing `coopLockedAdvIds` mechanic from "locked" to "locked by identity." Lore-clean, consistent across clients, and good co-op design (nudges complementary teams). Plus: tag contributed adventurers with the ally's settlement name; in-world, names repeat across frontier settlements, you just don't field the same person twice in one fight.
+- **Scope:** co-op is post-alpha (alpha = single-player Act 1), so this doesn't bite the alpha. Design now, build when co-op lands.
+
 *Created 2026-06-22 from the weekend "fewer, better adventurers" idea.*
