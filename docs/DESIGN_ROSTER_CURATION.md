@@ -145,4 +145,10 @@ Per-character examples:
 
 Flags: (1) permadeath stakes — bonding into a character who can permadie is high-risk/high-reward; cushion with revival/reserve. (2) No grind — loyalty rises from *playing with them* (missions, preferred food), never a chore.
 
+### Hammerfall sisters (Khazdurim) — canon-tied demon-hunting duo (2026-06-22)
+Both kept. Brunhild (priest, prayer-wards) + Magna (wizard, rune-locks) held the second Seal 30 years until **Bahruun** broke through, killed their team, and dismissed them ("Go home, grandmothers"). **Now canon-tied:** Bahruun + the Hammerfalls live in `LORE_EIGHTH_GOD` §6 (salvaged from the archived Deep Seals doc) — they're named survivors of a named lore demon. Signature kit, almost zero invention needed:
+- **`demon_hunter` trait** on both (+dmg vs demon) — they left the mountain to hunt what humiliated them.
+- **Pair synergy** (category #6): deployed together they recreate the prayer+runes partnership → bonus. The synergy *is* their 30 years.
+- **Magna's vengeance** (signature): she keeps a list of every name lost that night; grows stronger per demon killed ("take something back for each one"). Bahruun as a possible late-game boss they get a bonus against.
+
 *Created 2026-06-22 from the weekend "fewer, better adventurers" idea.*
