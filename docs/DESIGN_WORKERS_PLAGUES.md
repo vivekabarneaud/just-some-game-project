@@ -128,8 +128,18 @@ Tempting idea: a mini-Adventurers-Guild — recruit cats, level them, send them 
 - **"Cats on missions" done right = companion adoption:** assign a cat as an *adventurer's* companion and it rides along on real missions, bonded & meaningful (this is where Nettle's cat / pet-cats come from). Honors the instinct without a parallel guild.
 - **The comedy survives as FLAVOR, not a system:** cats go on their own "expeditions" and deposit trophies in the event log — a dead mouse, a shiny button, one (1) sock, a smug expression. The joke of cats-adventuring, zero mechanics cost.
 
+### Adoption, naming & care (explored 2026-06-22)
+- **Strays arrive UNNAMED, with a portrait + an evocative descriptor** ("a wary one-eyed ginger who won't come close yet"). **Naming = the adoption** — the moment a stray becomes the player's. (Mirrors Sable: "no name worth keeping" → you give one. Naming-as-care is a game-wide motif; the shelter is its purest form.) A few rare cats may arrive pre-named with a story (a famous local mouser).
+- **Happiness & leaving = ONE mechanic, via the naming motif:** a cat you've named/fed/toy'd is *yours* and stays; a nameless, untended stray quietly **drifts away** ("the grey tom you never named was gone by morning"). So happiness isn't a separate babysit-bar — it's *whether you actually welcomed the cat*. Naming + care = keeping.
+- **Cross-building ties (cheap, charming, give existing buildings new purpose):**
+  - **Woodworker → cat toys** (carved mouse, feather-stick) = enrichment/contentment.
+  - **Kitchen → cat treats** (dried fish, cream) = the food half.
+  - Together the shelter pulls on Woodworker + Kitchen + settlement happiness → the interconnected, lived-in feel (Manor Lords depth).
+- **Design principle (load-bearing):** the shelter must **reward care with warmth, never punish neglect with stress.** Tended cats → +happiness + good mousing; neglected ones just gently drift away (a small sadness, never a crisis). It's the cozy corner you visit to feel good, NOT another anxiety meter. (Same ethos as the plague system: manageable joy, not random punishment.)
+- **The loop:** stray appears → name it (adopt) → feed it (Kitchen) + toy (Woodworker) + post it (pantry/granary/barn) → content, stays, mouses, settlement happier. Tend nothing → strays move on.
+
 ### Cat motif
-Cats are a through-line now: Nettle's cat, Tomas's cat (founder), the `cat_parent` trait, this shelter. A motif, not clutter — lean into it.
+Cats are a through-line now: Nettle's cat, Tomas's cat (founder), the `cat_parent` trait, this shelter. A motif, not clutter — lean into it. Naming strays ties to the same naming-as-care thread as Sable.
 
 ### Event Log Integration
 - "A plague of Rat Fever has struck! 8 workers are sick."
