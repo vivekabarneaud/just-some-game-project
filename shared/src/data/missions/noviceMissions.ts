@@ -163,7 +163,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
 {
     id: "bear_den",
     name: "A Wide Berth",
-    description: "A forest bear has denned up by the lumber road, and the woodcutters want it dead. We will not kill a bear for sleeping where bears have always slept. Scout a fresh stand of timber clear of its range, and mark the cutters a path that never crosses the den.",
+    description: "The cutters came back from the southern stand white-faced: a forest bear has denned up by the lumber road, and they want it dead. We will not kill a bear for sleeping where bears have always slept. Treat the den as a neighbour's land, not friendly, not at war, best left unprovoked. Walk its range and mark the bounds so no one blunders in unwarned, then scout the cutters a fresh stand well clear of it. There is no shortage of trees.",
     icon: "🐻",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/bears_den.png",
     slots: [{ class: "any" }, { class: "any" }],
@@ -174,6 +174,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     minGuildLevel: 1,
     tags: ["outdoor", "exploration", "peaceful"],
     guaranteed: true,
+    unique: true,
   },
 {
     id: "boar_hunt",
