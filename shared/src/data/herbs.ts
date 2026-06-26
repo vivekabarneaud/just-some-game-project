@@ -58,6 +58,15 @@ export const HERBS: HerbDefinition[] = [
       "A grey-leafed northern plant that thrives in cool hill country. Feldgrund herbalists use it for sleep and old grief; Nordveld matriarchs taught the same use in their old tongue. Does not grow this far south.",
     dropRate: 0, // not foraged locally — sourced via missions and trade only
   },
+  {
+    id: "fenbalm",
+    name: "Fenbalm",
+    icon: "🌿",
+    rarity: "uncommon",
+    description:
+      "A grey-green marsh herb, bitter and cold to the touch. Edda steeps it against winter fevers and the deep-cough. It takes only in the standing water past the reeds, and withers in dry ground.",
+    dropRate: 0, // marsh-only — never foraged at the hut; won from the fen via missions
+  },
 ];
 
 export function getHerb(id: string): HerbDefinition | undefined {
