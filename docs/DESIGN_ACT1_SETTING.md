@@ -43,6 +43,14 @@ Mechanism: `unique?` on `MissionTemplate`; `completedUniqueMissionIds` in game s
 - **⑤ Toward the dread: ~empty in novice** (Tainted Spring foreshadows; story missions carry it — fine).
 - **⑥ Hauntings, out there (✓):** wandering_spirit, ghoul_infestation, burnt_crypt.
 
+## Staged (holding pen) — `shared/src/data/missions/stagedMissions.ts`
+Placeholders pulled off the board for a clean slate (2026-06-22). Mechanism: `staged: true` → still resolvable by `getMission()` (saves mid-flight survive) but never generated onto the board. Un-stage = move the entry back into its tier array, drop the flag, rework the text.
+- `caravan_guard` — redundant twin of merchant_escort → candidate to rebecome the first **④ Neighbours** (settler/barter) run.
+- `tavern_intel` — generic "gather rumors" → reframe as frontier news (④).
+- `wilderness_trek` — generic "survive a week" (+ stray rat).
+- `smuggler_deal` — "docks"/smuggling overstate an isolated frontier.
+- `goblin_shaman_camp` — goblins deferred to a later tier.
+
 **Inspiration / next moves:**
 - ① and ② are the grounded heart and already strong — don't pad them.
 - **Build category ④ (Neighbours):** help a struggling grant · carry a letter/news between settlements · joint defense vs a shared raid · a barter run · a neighbour gone silent · a boundary dispute.

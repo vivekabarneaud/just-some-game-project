@@ -9,6 +9,7 @@ import { JOURNEYMAN_MISSIONS } from "./journeymanMissions.js";
 import { EXPERT_MISSIONS } from "./expertMissions.js";
 import { STORY_MISSIONS } from "./storyMissions.js";
 import { EXPEDITION_POOL } from "./expeditions.js";
+import { STAGED_MISSIONS } from "./stagedMissions.js";
 
 /** Pool used for the natural mission-board rotation AND for getMission lookup.
  *  When engine-test stubs need to live alongside real missions again, split
@@ -18,6 +19,9 @@ const ALL_MISSIONS: MissionTemplate[] = [
   ...APPRENTICE_MISSIONS,
   ...JOURNEYMAN_MISSIONS,
   ...EXPERT_MISSIONS,
+  // Staged placeholders: included for getMission() lookup only (a save with one
+  // mid-flight still resolves). generateMissionBoard filters out `staged`.
+  ...STAGED_MISSIONS,
 ];
 
 // ─── Reward formatting ─────────────────────────────────────────
@@ -424,6 +428,7 @@ export function generateMissionBoard(ctx: MissionBoardContext): MissionTemplate[
   const { guildLevel, count = 4, seed = Date.now(), maxDifficulty = 5 } = ctx;
   const completedUnique = new Set(ctx.completedUniqueMissionIds ?? []);
   const available = ALL_MISSIONS.filter((m) =>
+    !m.staged &&
     m.minGuildLevel <= guildLevel &&
     m.difficulty <= maxDifficulty &&
     !(m.unique && completedUnique.has(m.id)) &&

@@ -60,6 +60,11 @@ export interface MissionTemplate {
    *  repetition would break immersion. Omit/false = a recurring "chore" that
    *  keeps reappearing (timber, foraging, patrols, livestock threats). */
   unique?: boolean;
+  /** Parked placeholder. Still resolvable by getMission() (so saves mid-flight
+   *  don't break) but never generated onto the board. Lives in
+   *  STAGED_MISSIONS — the holding pen we pull from and rework. Un-stage by
+   *  moving it back into its tier array and dropping this flag. */
+  staged?: boolean;
   requires?: MissionRequirements; // conditions for this mission to appear on the board
   /** Locked NPC ally that fights alongside the team (escort / ritual companion / VIP). */
   npcAlly?: MissionNpcAlly;

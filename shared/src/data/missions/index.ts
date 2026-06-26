@@ -39,6 +39,7 @@ export { APPRENTICE_MISSIONS } from "./apprenticeMissions.js";
 export { JOURNEYMAN_MISSIONS } from "./journeymanMissions.js";
 export { EXPERT_MISSIONS } from "./expertMissions.js";
 export { EXPEDITION_POOL } from "./expeditions.js";
+export { STAGED_MISSIONS } from "./stagedMissions.js";
 
 /** All regular (non-story) missions. */
 export const MISSION_POOL: MissionTemplate[] = [
