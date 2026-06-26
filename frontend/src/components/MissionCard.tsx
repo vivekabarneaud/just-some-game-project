@@ -47,6 +47,8 @@ export default function MissionCard(props: MissionCardProps) {
   const fresh = () => getMission(mission().id) ?? mission();
   const isStory = () => !!props.storyChapter;
   const isExped = () => isExpedition(fresh());
+  const isSideChain = () => !isStory() && !isExped() && !!fresh().sideChain;
+  const sideChainName = () => fresh().sideChain?.name;
   const guildLevel = () => actions.getGuildLevel();
   const isLocked = () => isExped() && guildLevel() < fresh().minGuildLevel;
   const isDiscovered = (enemyId: string) => (state.discoveredEnemies ?? []).includes(enemyId);
@@ -63,6 +65,7 @@ export default function MissionCard(props: MissionCardProps) {
         ...(image() ? { padding: "0", overflow: "hidden" } : {}),
         ...(isStory() ? { border: "2px solid var(--accent-gold)" } : {}),
         ...(isExped() && !isStory() ? { border: "2px solid #a78bfa" } : {}),
+        ...(isSideChain() ? { border: "2px solid #2dd4bf" } : {}),
       }}
     >
       {/* Locked overlay */}
@@ -112,7 +115,12 @@ export default function MissionCard(props: MissionCardProps) {
                 ⚔️ Expedition{(fresh() as any).biome ? ` · ${(fresh() as any).biome}` : ""}
               </div>
             </Show>
-            <div class="building-card-title" style={{ color: isStory() ? "var(--accent-gold)" : isExped() ? "#a78bfa" : undefined }}>
+            <Show when={isSideChain()}>
+              <div style={{ "font-size": "0.6rem", color: "#2dd4bf", "margin-bottom": "2px", "text-transform": "uppercase", "letter-spacing": "0.5px", opacity: "0.9" }}>
+                ✦ {sideChainName()}
+              </div>
+            </Show>
+            <div class="building-card-title" style={{ color: isStory() ? "var(--accent-gold)" : isExped() ? "#a78bfa" : isSideChain() ? "#2dd4bf" : undefined }}>
               {mission().name}
             </div>
           </div>
@@ -133,6 +141,11 @@ export default function MissionCard(props: MissionCardProps) {
               ⚔️ Expedition{(fresh() as any).biome ? ` · ${(fresh() as any).biome}` : ""}
             </div>
           </Show>
+          <Show when={isSideChain()}>
+            <div style={{ "font-size": "0.6rem", color: "#2dd4bf", "text-transform": "uppercase", "letter-spacing": "0.5px", "margin-bottom": "4px" }}>
+              ✦ {sideChainName()}
+            </div>
+          </Show>
           <span class="building-card-category">
             <RankStars mission={mission()} />
             {" · "}{mission().tags.join(", ")}
@@ -140,7 +153,7 @@ export default function MissionCard(props: MissionCardProps) {
           <div class="building-card-header" style={{ "margin-top": "14px" }}>
             <div class="building-card-icon">{mission().icon}</div>
             <div>
-              <div class="building-card-title" style={{ color: isStory() ? "var(--accent-gold)" : undefined }}>
+              <div class="building-card-title" style={{ color: isStory() ? "var(--accent-gold)" : isSideChain() ? "#2dd4bf" : undefined }}>
                 {mission().name}
               </div>
               <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>

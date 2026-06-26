@@ -60,6 +60,12 @@ export interface MissionTemplate {
    *  repetition would break immersion. Omit/false = a recurring "chore" that
    *  keeps reappearing (timber, foraging, patrols, livestock threats). */
   unique?: boolean;
+  /** Marks this mission as a beat in a side-story chain. Drives the card's
+   *  side-story styling (teal frame + the chain's name banner, distinct from
+   *  the main story's gold). `id` is internal (may be spoilery, never shown);
+   *  `name` is the player-facing banner and must not spoil (e.g. id "bad_water"
+   *  shows as "The Maddened Herd"). Also the hook for any future side-quest log. */
+  sideChain?: { id: string; name: string };
   /** Parked placeholder. Still resolvable by getMission() (so saves mid-flight
    *  don't break) but never generated onto the board. Lives in
    *  STAGED_MISSIONS — the holding pen we pull from and rework. Un-stage by
