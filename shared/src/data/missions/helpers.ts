@@ -10,6 +10,7 @@ import { EXPERT_MISSIONS } from "./expertMissions.js";
 import { STORY_MISSIONS } from "./storyMissions.js";
 import { EXPEDITION_POOL } from "./expeditions.js";
 import { STAGED_MISSIONS } from "./stagedMissions.js";
+import { SIDE_CHAIN_MISSIONS } from "./sideChainMissions.js";
 
 /** Pool used for the natural mission-board rotation AND for getMission lookup.
  *  When engine-test stubs need to live alongside real missions again, split
@@ -19,6 +20,10 @@ const ALL_MISSIONS: MissionTemplate[] = [
   ...APPRENTICE_MISSIONS,
   ...JOURNEYMAN_MISSIONS,
   ...EXPERT_MISSIONS,
+  // Side-story chains: rank-neutral (getMissionRank returns undefined), so the
+  // board quota treats them like story/expedition content — always eligible
+  // when their gates open, balanced by their own difficulty, never tier-filed.
+  ...SIDE_CHAIN_MISSIONS,
   // Staged placeholders: included for getMission() lookup only (a save with one
   // mid-flight still resolves). generateMissionBoard filters out `staged`.
   ...STAGED_MISSIONS,

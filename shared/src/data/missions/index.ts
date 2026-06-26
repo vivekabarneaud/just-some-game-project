@@ -32,6 +32,7 @@ import { NOVICE_MISSIONS } from "./noviceMissions.js";
 import { APPRENTICE_MISSIONS } from "./apprenticeMissions.js";
 import { JOURNEYMAN_MISSIONS } from "./journeymanMissions.js";
 import { EXPERT_MISSIONS } from "./expertMissions.js";
+import { SIDE_CHAIN_MISSIONS } from "./sideChainMissions.js";
 import type { MissionTemplate } from "./types.js";
 
 export { NOVICE_MISSIONS } from "./noviceMissions.js";
@@ -40,6 +41,7 @@ export { JOURNEYMAN_MISSIONS } from "./journeymanMissions.js";
 export { EXPERT_MISSIONS } from "./expertMissions.js";
 export { EXPEDITION_POOL } from "./expeditions.js";
 export { STAGED_MISSIONS } from "./stagedMissions.js";
+export { SIDE_CHAIN_MISSIONS } from "./sideChainMissions.js";
 
 /** All regular (non-story) missions. */
 export const MISSION_POOL: MissionTemplate[] = [
@@ -47,6 +49,7 @@ export const MISSION_POOL: MissionTemplate[] = [
   ...APPRENTICE_MISSIONS,
   ...JOURNEYMAN_MISSIONS,
   ...EXPERT_MISSIONS,
+  ...SIDE_CHAIN_MISSIONS,
 ];
 
 // ─── Story missions ────────────────────────────────────────────
