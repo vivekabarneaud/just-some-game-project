@@ -14,8 +14,6 @@ import type { MissionTemplate } from "./types.js";
  * fits the world (see docs/DESIGN_ACT1_SETTING.md — the 6 mission categories).
  *
  * Why parked (2026-06-22):
- *   - caravan_guard      redundant twin of merchant_escort; candidate to
- *                        rebecome the first ④ Neighbours (settler/barter) run.
  *   - tavern_intel       generic "gather rumors"; reframe as frontier news (④).
  *   - wilderness_trek    generic "survive a week"; also carried a stray rat.
  *   - smuggler_deal      "docks"/smuggling overstate an isolated frontier.
@@ -23,22 +21,6 @@ import type { MissionTemplate } from "./types.js";
  *                        + dead).
  */
 export const STAGED_MISSIONS: MissionTemplate[] = [
-  {
-    id: "caravan_guard",
-    name: "Caravan Guard Duty",
-    description: "A merchant caravan needs protection along the bandit-infested trade route. The cargo crates rattle with peppercorns and dried herbs.",
-    icon: "🐴",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/caravan_guard.png",
-    slots: [{ class: "warrior" }, { class: "any" }],
-    duration: 900,
-    rewards: [{ resource: "gold", amount: 50 }, { resource: "wheat", amount: 30 }, { resource: "pepper", amount: 3 }],
-    deployCost: 10,
-    difficulty: 1,
-    minGuildLevel: 1,
-    tags: ["escort", "combat"],
-    encounters: [{ enemyId: "bandit_thug", count: 2 }],
-    staged: true,
-  },
   {
     id: "tavern_intel",
     name: "Tavern Intelligence",

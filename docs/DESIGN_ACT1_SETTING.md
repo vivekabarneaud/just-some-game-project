@@ -8,6 +8,7 @@ The Crown reopened the southern frontier with **land grants**, then largely **fo
 ## What's around (cardinal model)
 - **NORTH — the Dominion, the distant lifeline.** The King's Road back to the Ashenmark heartlands; source of supplies, news, new settlers, and (later) the Crown's tithe-collector. Far; the Crown barely looks your way yet.
 - **NEARBY — other land-grant settlements (NEIGHBOURS).** The same grant-push founded others around you. **BOTH NPC** (single-player society + missions now; the Marketplace's NPC trades already fit this) **AND player settlements** (multiplayer / world-map). Your real nearby society: barter, mutual aid, rivalry, news, a neighbour who didn't make it.
+  - **Named neighbours:** **Greyford** — a half-day downriver, founded the same spring as us; their fields drowned but they struck good stone, so they trade stone for our grain. The first neighbour you meet (via "The Road to Greyford"). *(Name provisional — easy to rename.)*
 - **SOUTH — the dread.** Old watch (~2 days) → the thinning → the Wastes. The dangerous direction; the story spine.
 - **ALL AROUND — the wild** (forest / meadow / river / hills): beasts (wolves, boars, bears, spiders), goblins (hills, deferred), bandits (the lawless frontier), and the restless dead **out there** (per the home-is-safe rule).
 - **THE WOODS — the Thornveil** (Niamh, Rowena, the Silvaneth, the ward-stones). Future allies; keepers of the line.
@@ -45,13 +46,12 @@ Mechanism: `unique?` on `MissionTemplate`; `completedUniqueMissionIds` in game s
 - **① Taming your ground (rich ✓):** gather_timber, quarry_expedition, foraging_run, herb_gathering, first_patrol, lost_flock, chicken_coop_raiders *(chores)* · **old_bridge, lost_child, hunter_keepsake `unique`** · ~~cellar_rats~~ **CUT** (vermin = Cat Shelter's job; art `cellar_rats.png` banked for that feature). Dropped stray `giant_rat` from old_bridge (vermin rule).
 - **② Surroundings safe (rich ✓):** The Tainted Spring, bear_den, boar_hunt, marsh_clearing, alpha_wolf_hunt, spider_hollow, night_howling, stranger_tracks, hunter_keepsake. ⚠ goblin_shaman_camp (goblins deferred).
 - **③ Lifeline north (thin/messy):** **merchant_escort REWORKED** — split into `merchant_escort_first` (unique milestone, gated on the Marketplace = the payoff of the `merchants_welcome` quest's "second visit" promise; fixes the bug where merchants reached a brand-new mud-camp) → recurring `merchant_escort`. caravan_guard (now the odd one out: still story_1-early, contradicts isolation — repurpose as ④ settler/neighbour escort or remove); ⚠ smuggler_deal ("docks"/smuggling overstate an isolated frontier — rework or park).
-- **④ Neighbours: EMPTY ← the gap + the richest vein.** Only tavern_intel is near (reframe → frontier news).
+- **④ Neighbours (seeded):** **caravan_guard → "The Road to Greyford"** (unique first-contact: escort the first barter between us and the neighbour grant Greyford; bandits on the road). The first of the vein — still want: aid a struggling grant, carry news, joint defense, a recurring barter run, a neighbour gone silent.
 - **⑤ Toward the dread: ~empty in novice** (Tainted Spring foreshadows; story missions carry it — fine).
 - **⑥ Hauntings, out there (✓):** wandering_spirit, ghoul_infestation, burnt_crypt.
 
 ## Staged (holding pen) — `shared/src/data/missions/stagedMissions.ts`
 Placeholders pulled off the board for a clean slate (2026-06-22). Mechanism: `staged: true` → still resolvable by `getMission()` (saves mid-flight survive) but never generated onto the board. Un-stage = move the entry back into its tier array, drop the flag, rework the text.
-- `caravan_guard` — redundant twin of merchant_escort → candidate to rebecome the first **④ Neighbours** (settler/barter) run.
 - `tavern_intel` — generic "gather rumors" → reframe as frontier news (④).
 - `wilderness_trek` — generic "survive a week" (+ stray rat).
 - `smuggler_deal` — "docks"/smuggling overstate an isolated frontier.
