@@ -38,7 +38,7 @@ Mechanism: `unique?` on `MissionTemplate`; `completedUniqueMissionIds` in game s
 ## Current novice missions, mapped (2026-06-22)
 - **① Taming your ground (rich ✓):** gather_timber, quarry_expedition, foraging_run, herb_gathering, first_patrol, lost_flock, chicken_coop_raiders *(chores)* · **old_bridge, lost_child, hunter_keepsake `unique`** · ~~cellar_rats~~ **CUT** (vermin = Cat Shelter's job; art `cellar_rats.png` banked for that feature). Dropped stray `giant_rat` from old_bridge (vermin rule).
 - **② Surroundings safe (rich ✓):** The Tainted Spring, bear_den, boar_hunt, marsh_clearing, alpha_wolf_hunt, spider_hollow, night_howling, stranger_tracks, hunter_keepsake. ⚠ goblin_shaman_camp (goblins deferred).
-- **③ Lifeline north (thin/messy):** merchant_escort ✓; caravan_guard (redundant twin — reframe); ⚠ smuggler_deal ("docks"/smuggling overstate an isolated frontier — rework or park).
+- **③ Lifeline north (thin/messy):** **merchant_escort REWORKED** — split into `merchant_escort_first` (unique milestone, gated on the Marketplace = the payoff of the `merchants_welcome` quest's "second visit" promise; fixes the bug where merchants reached a brand-new mud-camp) → recurring `merchant_escort`. caravan_guard (now the odd one out: still story_1-early, contradicts isolation — repurpose as ④ settler/neighbour escort or remove); ⚠ smuggler_deal ("docks"/smuggling overstate an isolated frontier — rework or park).
 - **④ Neighbours: EMPTY ← the gap + the richest vein.** Only tavern_intel is near (reframe → frontier news).
 - **⑤ Toward the dread: ~empty in novice** (Tainted Spring foreshadows; story missions carry it — fine).
 - **⑥ Hauntings, out there (✓):** wandering_spirit, ghoul_infestation, burnt_crypt.
