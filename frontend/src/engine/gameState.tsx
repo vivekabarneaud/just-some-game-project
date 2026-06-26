@@ -747,10 +747,22 @@ const NAME_SUFFIXES = [
   "shire", "brook", "marsh", "ridge", "peak", "gate", "wall", "helm",
 ];
 
+/** Names reserved for canon NPC neighbour settlements (see
+ *  docs/DESIGN_ACT1_SETTING.md). A player town must never be auto-named one of
+ *  these, so generateSettlementName() re-rolls on a hit. Lowercased for
+ *  case-insensitive comparison. None are currently producible by the
+ *  prefix+suffix generator, but this guards against future pool drift. */
+const CANON_NEIGHBOUR_NAMES = new Set(["greyford"]);
+
 function generateSettlementName(): string {
-  const prefix = NAME_PREFIXES[Math.floor(Math.random() * NAME_PREFIXES.length)];
-  const suffix = NAME_SUFFIXES[Math.floor(Math.random() * NAME_SUFFIXES.length)];
-  return prefix + suffix;
+  for (let attempt = 0; attempt < 20; attempt++) {
+    const prefix = NAME_PREFIXES[Math.floor(Math.random() * NAME_PREFIXES.length)];
+    const suffix = NAME_SUFFIXES[Math.floor(Math.random() * NAME_SUFFIXES.length)];
+    const name = prefix + suffix;
+    if (!CANON_NEIGHBOUR_NAMES.has(name.toLowerCase())) return name;
+  }
+  // Astronomically unlikely fallback (every roll hit a reserved name).
+  return "Newhold";
 }
 
 function createInitialState(): GameState {
