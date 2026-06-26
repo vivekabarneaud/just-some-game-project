@@ -163,7 +163,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
 {
     id: "bear_den",
     name: "A Wide Berth",
-    description: "A forest bear has denned up by the lumber road, and the woodcutters want it dead. The Lord will not have it killed for sleeping where bears have always slept. Scout a fresh stand of timber clear of its range, and mark the cutters a path that never crosses the den.",
+    description: "A forest bear has denned up by the lumber road, and the woodcutters want it dead. We will not kill a bear for sleeping where bears have always slept. Scout a fresh stand of timber clear of its range, and mark the cutters a path that never crosses the den.",
     icon: "🐻",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/bears_den.png",
     slots: [{ class: "any" }, { class: "any" }],

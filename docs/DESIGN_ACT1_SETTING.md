@@ -25,6 +25,9 @@ Frontier-grade: a lone peddler daring the road, a rare Dominion supply wagon, ba
 
 Each mission should answer: *which category, and what specifically out there does it engage?* If it can't, it's a placeholder.
 
+## Voice: mission cards speak as the settlement, not about the Lord
+Mission descriptions use the **settlement's present-tense voice** — observational, names the people involved (Jory, Edda, Bram, Tomas), uses **we/us/camp** for the collective, and gives soft imperatives ("Send a wizard," "Clear it out"). **The Lord is the implicit "we" and is NEVER named in the third person** ("the Lord will…" is wrong — the player *is* him; write "We will…"). First-person singular "I" is reserved for the **Chronicle journal** (the Lord's private, reflective voice). See `[[project_chronicle_journal]]`, `[[project_lord_character]]`.
+
 ## Principle: animals aren't kill-on-sight (the Lord's compassion)
 Healthy wild animals are not enemies. Fighting a beast needs a *real reason*: it's **maddened** (the tainted water), **wounded**, **actively predating on people or livestock**, or you're **honestly hunting for meat**. A bear simply denning near the lumber road is none of those, so the Lord reroutes the cutters rather than kill it. This sharpens combat (bandits, the dead, the rabid boar, the livestock-raiding alpha wolf, venomous things nesting at the well all still stand) and only retires "it was in our way" kills. `bear_den` ("A Wide Berth") is the reframed example. Revisit `stranger_tracks` against this lens. See `[[project_lord_character]]`.
 
