@@ -629,6 +629,8 @@ export interface GameActions {
   recruitAdventurer: (candidateId: string) => boolean;
   dismissAdventurer: (adventurerId: string) => boolean;
   deployMission: (missionId: string, adventurerIds: string[], adventurerSupplies?: Record<string, { potion?: string; food?: string; recovery?: string }>, precomputedSuccess?: number) => boolean;
+  /** Current quantity of any resource/item/herb/material (for deploy-item costs). */
+  resourceQty: (res: string) => number;
   collectCompletedMissions: () => CompletedMission[];
   getAvailableAdventurers: () => Adventurer[];
   getRosterSize: () => { current: number; max: number };
@@ -1987,6 +1989,42 @@ function grantReward(
     if (existing) existing.quantity += reward.amount;
     else s.inventory.push({ itemId: res, quantity: reward.amount });
   }
+}
+
+/** How much of a given resource/item the player currently has. Mirror of
+ *  grantReward's dispatch (read side). Used to check + display deploy-item
+ *  (barter/offering) costs. */
+function getResourceQty(s: GameState, res: string): number {
+  if (res === "astralShards") return s.astralShards;
+  if (_HERB_IDS.has(res)) return s.herbs?.[res] ?? 0;
+  if (_EXOTIC_IDS.has(res)) return s.exotics?.[res] ?? 0;
+  if (res === "gold" || res === "wood" || res === "stone") return s.resources[res as keyof typeof s.resources];
+  if (res === "food") return s.foods.wheat ?? 0;
+  if (isFoodItemType(res)) return s.foods[res] ?? 0;
+  if (res === "wool") return s.wool;
+  if (res === "fiber") return s.fiber;
+  if (res === "leather") return s.leather;
+  if (res === "iron") return s.iron;
+  if (res === "honey") return s.honey;
+  return s.inventory.find((i) => i.itemId === res)?.quantity ?? 0;
+}
+
+/** Consume a resource/item (deploy-item cost). Mirror of grantReward (spend
+ *  side); floors at 0. */
+function spendResource(s: GameState, res: string, amount: number): void {
+  if (res === "astralShards") { s.astralShards = Math.max(0, s.astralShards - amount); return; }
+  if (_HERB_IDS.has(res)) { if (!s.herbs) s.herbs = {}; s.herbs[res] = Math.max(0, (s.herbs[res] ?? 0) - amount); return; }
+  if (_EXOTIC_IDS.has(res)) { if (!s.exotics) s.exotics = {}; s.exotics[res] = Math.max(0, (s.exotics[res] ?? 0) - amount); return; }
+  if (res === "gold" || res === "wood" || res === "stone") { const k = res as keyof typeof s.resources; s.resources[k] = Math.max(0, s.resources[k] - amount); return; }
+  if (res === "food") { s.foods.wheat = Math.max(0, (s.foods.wheat ?? 0) - amount); return; }
+  if (isFoodItemType(res)) { s.foods[res] = Math.max(0, (s.foods[res] ?? 0) - amount); return; }
+  if (res === "wool") { s.wool = Math.max(0, s.wool - amount); return; }
+  if (res === "fiber") { s.fiber = Math.max(0, s.fiber - amount); return; }
+  if (res === "leather") { s.leather = Math.max(0, s.leather - amount); return; }
+  if (res === "iron") { s.iron = Math.max(0, s.iron - amount); return; }
+  if (res === "honey") { s.honey = Math.max(0, s.honey - amount); return; }
+  const inv = s.inventory.find((i) => i.itemId === res);
+  if (inv) inv.quantity = Math.max(0, inv.quantity - amount);
 }
 
 function calcStorageCaps(buildings: PlayerBuilding[]): StorageCaps {
@@ -4412,6 +4450,9 @@ export function GameProvider(props: ParentProps) {
       scheduleSave();
       return true;
     },
+    resourceQty(res: string) {
+      return getResourceQty(state, res);
+    },
     deployMission(missionId, adventurerIds, adventurerSupplies = {}, precomputedSuccess?: number) {
       const guildLvl = this.getGuildLevel();
       if (guildLvl === 0) return false;
@@ -4431,6 +4472,13 @@ export function GameProvider(props: ParentProps) {
       // Check deploy cost
       if (state.resources.gold < template.deployCost) return false;
 
+      // Check barter / offering cost (deploy items): must have all of them
+      if (template.deployItems) {
+        for (const cost of template.deployItems) {
+          if (getResourceQty(state, cost.resource) < cost.amount) return false;
+        }
+      }
+
       const successChance = precomputedSuccess ?? calcSuccessChance(template, team, 0, adventurerSupplies);
       let effectiveDuration = calcEffectiveDuration(template, team);
 
@@ -4449,6 +4497,10 @@ export function GameProvider(props: ParentProps) {
 
       setState(produce((s) => {
         s.resources.gold -= template.deployCost;
+        // Consume the barter / offering cost (deploy items)
+        if (template.deployItems) {
+          for (const cost of template.deployItems) spendResource(s, cost.resource, cost.amount);
+        }
         // Mark adventurers as on mission
         for (const id of adventurerIds) {
           const adv = s.adventurers.find((a) => a.id === id);

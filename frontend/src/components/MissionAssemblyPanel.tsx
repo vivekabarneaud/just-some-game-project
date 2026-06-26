@@ -80,6 +80,9 @@ export default function MissionAssemblyPanel(props: Props) {
   const mission = () => props.mission;
   const freshMission = () => getMission(mission().id) ?? mission();
   const isCoop = () => !!props.coopId;
+  // Barter/offering cost (deployItems): the ones the player can't currently afford.
+  const deployItemsShort = () =>
+    (freshMission().deployItems ?? []).filter((c) => actions.resourceQty(c.resource) < c.amount);
 
   // ─── Coop mode: fetch + poll coop detail ────────────────────────
   const [coopDetail, { refetch: refetchCoop }] = createResource(
@@ -1225,6 +1228,18 @@ export default function MissionAssemblyPanel(props: Props) {
         <div class="mission-detail-stats">
           <div><span class="mission-detail-label">Duration</span> {formatDuration(freshMission().duration)}</div>
           <div><span class="mission-detail-label">Deploy cost</span> {freshMission().deployCost}g</div>
+          <Show when={freshMission().deployItems?.length}>
+            <div>
+              <span class="mission-detail-label">Bring</span>{" "}
+              <For each={freshMission().deployItems!}>
+                {(c, i) => (
+                  <span style={{ color: actions.resourceQty(c.resource) < c.amount ? "var(--accent-red, #e05a5a)" : undefined }}>
+                    {i() > 0 ? ", " : ""}{formatReward(c)} ({actions.resourceQty(c.resource)} on hand)
+                  </span>
+                )}
+              </For>
+            </div>
+          </Show>
           <div><span class="mission-detail-label">Key stats</span> {topStats().join(", ")}</div>
         </div>
 
@@ -1443,7 +1458,7 @@ export default function MissionAssemblyPanel(props: Props) {
           <button
             class="upgrade-btn"
             style={{ width: "100%", "margin-top": "12px" }}
-            disabled={teamIds().length === 0 || state.resources.gold < freshMission().deployCost || !areRequiredSlotsFilled(freshMission(), team())}
+            disabled={teamIds().length === 0 || state.resources.gold < freshMission().deployCost || deployItemsShort().length > 0 || !areRequiredSlotsFilled(freshMission(), team())}
             onClick={handleDeploy}
             data-no-click-sound
           >

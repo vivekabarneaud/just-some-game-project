@@ -48,6 +48,12 @@ export interface MissionTemplate {
   duration: number; // game-seconds
   rewards: MissionReward[];
   deployCost: number; // gold to send the team
+  /** Barter / offering cost: item-or-resource amounts paid ON DEPLOY, in
+   *  addition to `deployCost` gold. The player must HAVE them (deploy is
+   *  blocked otherwise) and they're consumed when the team sets out. Powers
+   *  real trade (bring grain, return with stone), tribute, ritual offerings.
+   *  Same {resource, amount} shape as a reward — here it's a cost. */
+  deployItems?: MissionReward[];
   difficulty: 1 | 2 | 3 | 4 | 5;
   minGuildLevel: number;
   tags: MissionTag[];
