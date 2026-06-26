@@ -14,7 +14,7 @@ import type { MissionTemplate } from "./types.js";
  * fits the world (see docs/DESIGN_ACT1_SETTING.md — the 6 mission categories).
  *
  * Why parked (2026-06-22):
- *   - boar_hunt          replaced by the "Bad Water" boar chain (bad_blood →
+ *   - boar_hunt          replaced by the "Maddened Herd" boar chain (bad_blood →
  *                        bad_season_boars → what_scouts_saw → … → the spring);
  *                        its text also leaked the cause + misplaced the Wastes.
  *   - tavern_intel       generic "gather rumors"; reframe as frontier news (④).

@@ -18,7 +18,7 @@ import type { MissionTemplate } from "./types.js";
  * Add new chains here. See docs/DESIGN_ACT1_SETTING.md + docs/DESIGN_SIDE_STORIES.md.
  */
 export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
-  // ── "Bad Water" (display: "The Maddened Herd") — rabid boars → the Tainted Spring ──
+  // ── "The Maddened Herd" — rabid boars → the Tainted Spring ──
   {
     id: "bad_blood",
     name: "Bad Blood",
@@ -35,7 +35,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     encounters: [{ enemyId: "rabid_boar", count: 1 }],
     requires: { story: "story_1_scouting" },
     unique: true,
-    sideChain: { id: "bad_water", name: "The Maddened Herd" },
+    sideChain: { id: "maddened_herd", name: "The Maddened Herd" },
   },
   {
     id: "bad_season_boars",
@@ -53,7 +53,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     encounters: [{ enemyId: "rabid_boar", count: 3 }],
     requires: { missionDone: "bad_blood" },
     unique: true,
-    sideChain: { id: "bad_water", name: "The Maddened Herd" },
+    sideChain: { id: "maddened_herd", name: "The Maddened Herd" },
   },
   {
     id: "what_scouts_saw",
@@ -71,7 +71,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     encounters: [{ enemyId: "tainted_boar", count: 2 }, { enemyId: "rabid_boar", count: 1 }],
     requires: { missionDone: "bad_season_boars", story: "story_2_ruins" },
     unique: true,
-    sideChain: { id: "bad_water", name: "The Maddened Herd" },
+    sideChain: { id: "maddened_herd", name: "The Maddened Herd" },
   },
   {
     id: "reading_the_carcass",
@@ -89,7 +89,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     guaranteed: true,
     requires: { missionDone: "what_scouts_saw", story: "story_4_captains_rest" },
     unique: true,
-    sideChain: { id: "bad_water", name: "The Maddened Herd" },
+    sideChain: { id: "maddened_herd", name: "The Maddened Herd" },
     npcAlly: { npcId: "corin", passive: true },
   },
   {
@@ -108,6 +108,6 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     encounters: [{ enemyId: "tainted_patriarch_boar", count: 1 }, { enemyId: "tainted_boar", count: 2 }],
     requires: { missionDone: "reading_the_carcass" },
     unique: true,
-    sideChain: { id: "bad_water", name: "The Maddened Herd" },
+    sideChain: { id: "maddened_herd", name: "The Maddened Herd" },
   },
 ];
