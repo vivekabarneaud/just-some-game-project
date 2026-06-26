@@ -110,4 +110,25 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     unique: true,
     sideChain: { id: "maddened_herd", name: "The Maddened Herd" },
   },
+
+  // ── "The Bog Witch" front — UNTAGGED on purpose (no sideChain banner): reads
+  //    as an ordinary errand. Its completion is the hook that later opens
+  //    "The Cabin in the Reeds." Full chain design in docs/DESIGN_SIDE_STORIES.md. ──
+  {
+    id: "marsh_clearing",
+    name: "Clear the Marshes",
+    description: "Edda needs fenbalm before the winter fevers come, and it grows nowhere but the wet ground past the reeds. The trouble is the adders, long as a man and quick to strike, that have made the fen their own. We will not put a marsh to the sword for being a marsh. Walk Edda's gatherers in along the firm ground, keep them whole while they cut what they need, turn back the snakes that come at you, and leave the fen to its keepers.",
+    icon: "🐍",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/clear_marshes.png",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 700,
+    rewards: [{ resource: "fenbalm", amount: 4 }, { resource: "nettle", amount: 4 }, { resource: "gold", amount: 40 }],
+    deployCost: 5,
+    difficulty: 2,
+    minGuildLevel: 1,
+    tags: ["combat", "outdoor", "escort"],
+    encounters: [{ enemyId: "marsh_adder", count: 3 }],
+    requires: { story: "story_1_scouting" },
+    unique: true,
+  },
 ];

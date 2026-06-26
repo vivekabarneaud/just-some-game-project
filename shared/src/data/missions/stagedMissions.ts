@@ -22,6 +22,12 @@ import type { MissionTemplate } from "./types.js";
  *   - smuggler_deal      "docks"/smuggling overstate an isolated frontier.
  *   - goblin_shaman_camp goblins deferred to a later tier (Act 1 stays beasts
  *                        + dead).
+ *   - ghoul_infestation  animated undead (ghouls + skeletons) at a home-area
+ *                        cemetery: Wastes-grade, no Hollow source near home.
+ *                        Near-home hauntings = SPIRITS (the thinning); undead
+ *                        belong in Wastes-proximate / higher-tier content.
+ *   - burnt_crypt        same problem (burnt skeletons), only a "near the
+ *                        Wastes border" fig-leaf; novice is too early/close.
  */
 export const STAGED_MISSIONS: MissionTemplate[] = [
   {
@@ -100,6 +106,38 @@ export const STAGED_MISSIONS: MissionTemplate[] = [
     minGuildLevel: 1,
     tags: ["combat", "magical"],
     encounters: [{ enemyId: "goblin_shaman", count: 2 }, { enemyId: "goblin_scout", count: 3 }],
+    staged: true,
+  },
+  {
+    id: "ghoul_infestation",
+    name: "Ghoul Infestation",
+    description: "Something is digging up the old cemetery at night. The gravedigger found claw marks and half-eaten remains. Ghouls, and they're getting bolder.",
+    icon: "🧟",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/ghoul_infestation.png",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 1200,
+    rewards: [{ resource: "gold", amount: 70 }],
+    deployCost: 10,
+    difficulty: 2,
+    minGuildLevel: 1,
+    tags: ["combat", "dungeon"],
+    encounters: [{ enemyId: "ghoul", count: 3 }, { enemyId: "skeleton", count: 2 }],
+    staged: true,
+  },
+  {
+    id: "burnt_crypt",
+    name: "The Burning Crypt",
+    description: "An old crypt near the Wastes border has caught fire, from the inside. Burnt skeletons walk out at night trailing flames. The crypt needs clearing before the fire spreads to the forest.",
+    icon: "🔥",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/burning_crypt.png",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 1200,
+    rewards: [{ resource: "gold", amount: 80 }, { resource: "stone", amount: 40 }],
+    deployCost: 12,
+    difficulty: 3,
+    minGuildLevel: 1,
+    tags: ["combat", "dungeon"],
+    encounters: [{ enemyId: "burnt_skeleton", count: 4 }, { enemyId: "skeleton", count: 2 }],
     staged: true,
   },
 ];

@@ -33,6 +33,9 @@ Mission descriptions use the **settlement's present-tense voice** — observatio
 ## Principle: animals aren't kill-on-sight (the Lord's compassion)
 Healthy wild animals are not enemies. Fighting a beast needs a *real reason*: it's **maddened** (the tainted water), **wounded**, **actively predating on people or livestock**, or you're **honestly hunting for meat**. A bear simply denning near the lumber road is none of those, so the Lord reroutes the cutters rather than kill it. This sharpens combat (bandits, the dead, the rabid boar, the livestock-raiding alpha wolf, venomous things nesting at the well all still stand) and only retires "it was in our way" kills. `bear_den` ("A Wide Berth") is the reframed example. Revisit `stranger_tracks` against this lens. See `[[project_lord_character]]`.
 
+## Principle: near-home hauntings = spirits, not animated undead
+The **thinning** (what reaches near home) makes the dead *perceptible* — **voices, grief-bound spirits**, laid to rest by a priest (`wandering_spirit`). **Animated undead** (ghouls, skeletons, revenants) need a **Hollow / negative-Aether concentration** — normally *only* the deep Wastes, or a *locally-engineered* pocket (a cultist, or a hollowed witch like Aldith). So a random home-area cemetery has **no source to animate the dead** → no ghouls. Near-home / Act 1 hauntings are **spirits**; animated undead belong in **Wastes-proximate / higher-tier** content (or where a Hollow source is *shown*). `ghoul_infestation` + `burnt_crypt` stashed for violating this. (Same canon line as the boars' "death doesn't take" vs full reanimation.) Corollary: undead near home *implies a cult* — which is **story territory** (the Story-14 raid), not throwaway side-content.
+
 ## Two-track mission model (LOCKED 2026-06-22)
 Missions are now one of:
 - **Chore (recurring, default):** no flag. Standing settlement labor (timber, stone, foraging, herbs, patrols, livestock threats). Keeps reappearing on the board.
