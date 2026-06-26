@@ -840,6 +840,22 @@ export const ENEMIES: EnemyDefinition[] = [
     aiTier: "feral"
   },
   {
+    id: "tainted_patriarch_boar",
+    name: "Tainted Patriarch",
+    icon: "🐗",
+    description: "The old father of the herd, and the most ruined of them. Grey to the bone, weeping black from a dozen wounds that never close. It should have died a season ago. It did not. It guards the bad water as though it were still its own.",
+    tier: 3,
+    stats: { str: 11, dex: 4, int: 1, vit: 18, wis: 1 },
+    tags: ["beast"],
+    boss: true,
+    abilities: [{ id: "charge", name: "Goring Charge", icon: "💨", cooldown: 3, trigger: "round_start", effect: { type: "damage_mult", mult: 1.8, targets: 1 } }],
+    loot: [
+      { type: "resource", resource: "tusk_shard", chance: 1, min: 2, max: 3 },
+      { type: "resource", resource: "bristlehide", chance: 0.6, min: 1, max: 2 },
+    ],
+    aiTier: "feral"
+  },
+  {
     id: "fungal_crawler",
     name: "Fungal Crawler",
     icon: "🍄",

@@ -44,7 +44,21 @@ export const NIAMH: NPCAlly = {
     "A primalist of the Thornveil, trained in old binding rites. She walks softly and speaks the names that hold spirits in place.",
 };
 
-export const NPC_ALLIES: NPCAlly[] = [NIAMH];
+export const CORIN: NPCAlly = {
+  id: "corin",
+  name: "Father Corin",
+  title: "The Settlement's Retired Priest",
+  icon: "🕯️",
+  portrait: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/father_corin.png",
+  // Frail and old, never meant for a fight. Missions that field him mark him
+  // passive: he comes to read what the living cannot, not to swing.
+  stats: { str: 3, dex: 4, int: 9, vit: 9, wis: 14 },
+  class: "priest",
+  description:
+    "A retired village priest who reads scripture for its mercy, between the lines. Forty years quietly fascinated by the old rites, though he has never dared practice them.",
+};
+
+export const NPC_ALLIES: NPCAlly[] = [NIAMH, CORIN];
 
 export function getNpcAlly(id: string): NPCAlly | undefined {
   return NPC_ALLIES.find((n) => n.id === id);
