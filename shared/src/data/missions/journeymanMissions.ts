@@ -14,7 +14,7 @@ export const JOURNEYMAN_MISSIONS: MissionTemplate[] = [
     difficulty: 4,
     minGuildLevel: 3,
     tags: ["combat", "exploration"],
-    encounters: [{ enemyId: "orc_warrior", count: 3 }, { enemyId: "feral_drake", count: 1 }],
+    encounters: [{ enemyId: "gharkal_raider", count: 3 }, { enemyId: "feral_drake", count: 1 }],
   },
 {
     id: "haunted_ruins",
@@ -44,7 +44,7 @@ export const JOURNEYMAN_MISSIONS: MissionTemplate[] = [
     difficulty: 3,
     minGuildLevel: 3,
     tags: ["combat", "outdoor"],
-    encounters: [{ enemyId: "troll", count: 1 }, { enemyId: "orc_warrior", count: 2 }, { enemyId: "wild_wolf", count: 4 }],
+    encounters: [{ enemyId: "troll", count: 1 }, { enemyId: "gharkal_raider", count: 2 }, { enemyId: "wild_wolf", count: 4 }],
   },
 {
     id: "lumber_contract",
@@ -59,7 +59,7 @@ export const JOURNEYMAN_MISSIONS: MissionTemplate[] = [
     difficulty: 3,
     minGuildLevel: 3,
     tags: ["outdoor"],
-    encounters: [{ enemyId: "wild_wolf", count: 2 }, { enemyId: "orc_warrior", count: 1 }],
+    encounters: [{ enemyId: "wild_wolf", count: 2 }, { enemyId: "gharkal_raider", count: 1 }],
   },
 {
     id: "noble_escort",
@@ -74,7 +74,7 @@ export const JOURNEYMAN_MISSIONS: MissionTemplate[] = [
     difficulty: 3,
     minGuildLevel: 3,
     tags: ["escort", "combat", "stealth"],
-    encounters: [{ enemyId: "bandit_thug", count: 2 }, { enemyId: "bandit_captain", count: 1 }, { enemyId: "orc_warrior", count: 1 }],
+    encounters: [{ enemyId: "bandit_thug", count: 2 }, { enemyId: "bandit_captain", count: 1 }, { enemyId: "gharkal_raider", count: 1 }],
   },
 {
     id: "bandit_leader",
@@ -119,7 +119,7 @@ export const JOURNEYMAN_MISSIONS: MissionTemplate[] = [
     difficulty: 4,
     minGuildLevel: 3,
     tags: ["survival", "outdoor", "exploration"],
-    encounters: [{ enemyId: "troll", count: 2 }, { enemyId: "orc_warrior", count: 3 }, { enemyId: "wild_wolf", count: 4 }],
+    encounters: [{ enemyId: "troll", count: 2 }, { enemyId: "gharkal_raider", count: 3 }, { enemyId: "wild_wolf", count: 4 }],
   },
 {
     id: "lost_library",

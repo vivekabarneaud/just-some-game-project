@@ -1197,6 +1197,18 @@ function loadGame(): GameState | null {
     if (!saved.craftingQueue) saved.craftingQueue = [];
     if (!saved.buildingTools) saved.buildingTools = {};
     if (!saved.discoveredEnemies) saved.discoveredEnemies = [];
+    // Migrate renamed enemy ids (2026-06-22) so the Bestiary keeps prior discoveries.
+    {
+      const ENEMY_ID_RENAMES: Record<string, string> = {
+        wolf_pup: "gaunt_wolf",
+        spooked_boar: "wild_boar",
+        orc_warrior: "gharkal_raider",
+        orc_warlord: "gharkal_warlord",
+      };
+      saved.discoveredEnemies = Array.from(
+        new Set(saved.discoveredEnemies.map((id: string) => ENEMY_ID_RENAMES[id] ?? id)),
+      );
+    }
     // Migrate old resources.food to typed foods map
     if (!saved.foods) {
       const legacyFood = (saved.resources as any)?.food;

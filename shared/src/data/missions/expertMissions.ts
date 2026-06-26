@@ -44,7 +44,7 @@ export const EXPERT_MISSIONS: MissionTemplate[] = [
     difficulty: 4,
     minGuildLevel: 4,
     tags: ["spying", "stealth"],
-    encounters: [{ enemyId: "dark_mage", count: 1 }, { enemyId: "orc_warrior", count: 3 }, { enemyId: "bandit_captain", count: 1 }],
+    encounters: [{ enemyId: "dark_mage", count: 1 }, { enemyId: "gharkal_raider", count: 3 }, { enemyId: "bandit_captain", count: 1 }],
   },
 {
     id: "crystal_caverns",
@@ -59,7 +59,7 @@ export const EXPERT_MISSIONS: MissionTemplate[] = [
     difficulty: 5,
     minGuildLevel: 4,
     tags: ["dungeon", "exploration", "combat"],
-    encounters: [{ enemyId: "orc_warrior", count: 4 }, { enemyId: "orc_warlord", count: 1 }, { enemyId: "demon_scout", count: 2 }, { enemyId: "dark_mage", count: 1 }],
+    encounters: [{ enemyId: "gharkal_raider", count: 4 }, { enemyId: "gharkal_warlord", count: 1 }, { enemyId: "demon_scout", count: 2 }, { enemyId: "dark_mage", count: 1 }],
   },
 {
     id: "arcane_rift",

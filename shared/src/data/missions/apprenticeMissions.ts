@@ -119,7 +119,7 @@ export const APPRENTICE_MISSIONS: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 2,
     tags: ["spying", "stealth", "combat"],
-    encounters: [{ enemyId: "bandit_thug", count: 2 }, { enemyId: "orc_warrior", count: 1 }],
+    encounters: [{ enemyId: "bandit_thug", count: 2 }, { enemyId: "gharkal_raider", count: 1 }],
   },
 {
     id: "corrupt_official",
@@ -149,7 +149,7 @@ export const APPRENTICE_MISSIONS: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 2,
     tags: ["dungeon", "combat"],
-    encounters: [{ enemyId: "goblin_scout", count: 6 }, { enemyId: "orc_warrior", count: 2 }],
+    encounters: [{ enemyId: "goblin_scout", count: 6 }, { enemyId: "gharkal_raider", count: 2 }],
   },
 {
     id: "monster_hunt",
@@ -299,7 +299,7 @@ export const APPRENTICE_MISSIONS: MissionTemplate[] = [
     difficulty: 3,
     minGuildLevel: 2,
     tags: ["combat"],
-    encounters: [{ enemyId: "bandit_thug", count: 3 }, { enemyId: "orc_warrior", count: 2 }, { enemyId: "bandit_captain", count: 1 }],
+    encounters: [{ enemyId: "bandit_thug", count: 3 }, { enemyId: "gharkal_raider", count: 2 }, { enemyId: "bandit_captain", count: 1 }],
   },
 {
     id: "tianzhou_scholar",

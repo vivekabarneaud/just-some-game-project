@@ -173,7 +173,7 @@ export const ENEMIES: EnemyDefinition[] = [
   // Used for the first "prove yourself" missions — mix with tier 1 enemies
   // to grade difficulty without jumping from trivial to deadly.
   {
-    id: "wolf_pup",
+    id: "gaunt_wolf",
     name: "Gaunt Wolf",
     icon: "🐺",
     description: "A lean yearling, kicked out of the pack too early. Hungry and nervous, but still a predator.",
@@ -187,7 +187,7 @@ export const ENEMIES: EnemyDefinition[] = [
     aiTier: "feral"
   },
   {
-    id: "spooked_boar",
+    id: "wild_boar",
     name: "Wild Boar",
     icon: "🐗",
     description: "All muscle and bad temper, and quick for its size. Those tusks are not for show.",
@@ -216,7 +216,7 @@ export const ENEMIES: EnemyDefinition[] = [
   // ── Tier 2 — Organized threats ────────────────────────────────
   // Require level 4-6 WITH basic gear. Dangerous without.
   {
-    id: "orc_warrior",
+    id: "gharkal_raider",
     name: "Ghar'kal Raider",
     icon: "👹",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/orc_warrior.png",
@@ -301,7 +301,7 @@ export const ENEMIES: EnemyDefinition[] = [
   // ── Tier 3 — Dangerous foes ───────────────────────────────────
   // Require level 6-10 with decent gear. Party composition matters.
   {
-    id: "orc_warlord",
+    id: "gharkal_warlord",
     name: "Ghar'kal Warlord",
     icon: "🔱",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/orc_warlord.png",

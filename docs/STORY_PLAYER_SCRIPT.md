@@ -780,11 +780,11 @@ Niamh returns to the settlement a week earlier than expected, alone, with a fres
 
 > A robin came in at dusk three days after I wrote the breath into this chronicle. Blue wax, the same anonymous hand as the two previous papers. I knew where it came from before I broke the seal — or as much as anyone can know who has been sent useful things by no one.
 >
-> The note was four lines.
+> The note was five lines.
 >
-> *Hollow knows your name now. At your gate in three nights, from the south road. Two score in robes. Their dead walking at twice that number. Set your watch.*
+> *Hollow knows your name now. At your gate in three nights, from the south road. Two score in robes. Their dead walking at twice that number. Set your watch. They are not who your Church says they are, but they are still coming for you.*
 >
-> I read it twice. Then I went to the desk and turned to the parchment of stones and looked at the margin where I had written *Hollow* a week ago. The two words faced each other across the room. I had been right.
+> I read it twice. Then I went to the desk and turned to the parchment of stones and looked at the margin where I had written *Hollow* a week ago. The two words faced each other across the room. I had been right. The last line did not tell me what to do. It told me what not to assume.
 >
 > Twice before, the same hand had brought me work I could begin — a recipe to make, a person to find. This time the message was the gift. There was no errand to ride out for. There was only the work that was riding toward us.
 >

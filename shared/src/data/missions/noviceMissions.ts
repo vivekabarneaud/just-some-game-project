@@ -14,7 +14,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["outdoor"],
-    encounters: [{ enemyId: "wolf_pup", count: 2 }],
+    encounters: [{ enemyId: "gaunt_wolf", count: 2 }],
   },
 {
     id: "quarry_expedition",
@@ -387,7 +387,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["outdoor", "combat"],
-    encounters: [{ enemyId: "wolf_pup", count: 2 }],
+    encounters: [{ enemyId: "gaunt_wolf", count: 2 }],
   },
 
   // ── Pre-scouting missions gated behind livestock pens ─────────
