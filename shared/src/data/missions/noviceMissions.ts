@@ -281,21 +281,6 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
 
   // ── Pre-scouting village missions (no story gate) ─────────────
   {
-    id: "cellar_rats",
-    name: "Cellar Infestation",
-    description: "Edda found droppings in the granary cellar. Rats the size of cats have moved in, and the grain stores won't last the week if someone doesn't clear them out. Bring a club and watch the corners.",
-    icon: "🐀",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/cellar_rats.png",
-    slots: [{ class: "any" }, { class: "any" }],
-    duration: 360,
-    rewards: [{ resource: "wheat", amount: 40 }, { resource: "gold", amount: 15 }],
-    deployCost: 3,
-    difficulty: 1,
-    minGuildLevel: 1,
-    tags: ["combat"],
-    encounters: [{ enemyId: "giant_rat", count: 4 }],
-  },
-  {
     id: "lost_child",
     name: "The Miller's Boy",
     description: "The miller's son went to check the fish traps at dawn and hasn't come back. The creek runs past the boar wallows, and the boy is seven. Someone needs to find him before dark.",
@@ -310,6 +295,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     tags: ["outdoor", "exploration"],
     encounters: [{ enemyId: "rabid_boar", count: 2 }],
     guaranteed: true,
+    unique: true,
   },
   {
     id: "hunter_keepsake",
@@ -325,6 +311,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     minGuildLevel: 1,
     tags: ["outdoor", "exploration"],
     encounters: [{ enemyId: "forest_bear", count: 1 }],
+    unique: true,
   },
   {
     id: "spider_hollow",
@@ -369,7 +356,8 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     difficulty: 3,
     minGuildLevel: 1,
     tags: ["outdoor", "exploration"],
-    encounters: [{ enemyId: "rabid_boar", count: 2 }, { enemyId: "giant_rat", count: 2 }],
+    encounters: [{ enemyId: "rabid_boar", count: 2 }],
+    unique: true,
   },
   {
     id: "stranger_tracks",

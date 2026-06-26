@@ -562,6 +562,10 @@ export interface GameState {
   introSeen: boolean;
   // Story missions
   completedStoryMissions: string[];
+  /** Ids of one-time (`unique`) missions completed successfully. Filtered out
+   *  of future board generation so a resolved personal/narrative beat never
+   *  reappears. (Recurring "chore" missions are never added here.) */
+  completedUniqueMissionIds: string[];
   /** Robin events queued for the player to acknowledge — sidebar banner shown
    *  while non-empty. Acknowledging applies unlocks and moves the id to
    *  firedRobins. Each event fires once per save. */
@@ -895,6 +899,7 @@ function createInitialState(): GameState {
     firstMissionSent: false,
     introSeen: false,
     completedStoryMissions: [],
+    completedUniqueMissionIds: [],
     pendingRobins: [],
     firedRobins: [],
     chronicleEntriesFired: [],
@@ -1298,6 +1303,7 @@ function loadGame(): GameState | null {
       }
     }
     if (!saved.completedStoryMissions) saved.completedStoryMissions = [];
+    if (!saved.completedUniqueMissionIds) saved.completedUniqueMissionIds = [];
     if (!saved.pendingRobins) saved.pendingRobins = [];
     if (!saved.firedRobins) saved.firedRobins = [];
 
@@ -1457,6 +1463,7 @@ function buildMissionBoardContext(s: GameState, guildLevel: number, seed: number
     seed,
     maxDifficulty: Math.min(5, bestRank + 1),
     completedStoryMissions: s.completedStoryMissions,
+    completedUniqueMissionIds: s.completedUniqueMissionIds,
     buildings: s.buildings,
     pens: s.pens,
     adventurerRanks: aliveRanks,
@@ -3606,6 +3613,11 @@ export function GameProvider(props: ParentProps) {
                 // Narrative event evaluator: story-mission triggers may now
                 // satisfy events like the three-reports banner.
                 applyEventEvaluation(s);
+              }
+
+              // One-time missions: on success, retire from the board forever.
+              if (success && template?.unique && !s.completedUniqueMissionIds.includes(am.missionId)) {
+                s.completedUniqueMissionIds.push(am.missionId);
               }
 
               // Record discovered enemies — success or failure, the player has now seen them

@@ -54,6 +54,12 @@ export interface MissionTemplate {
   image?: string; // optional mission illustration
   encounters?: MissionEncounter[]; // enemies faced during the mission
   guaranteed?: boolean; // always ~98% success regardless of stats
+  /** One-time mission. Once completed successfully it never returns to the
+   *  board (its id lands in completedUniqueMissionIds). Use for personal /
+   *  narrative beats (a rescue, a found keepsake, a neighbour's plea) where
+   *  repetition would break immersion. Omit/false = a recurring "chore" that
+   *  keeps reappearing (timber, foraging, patrols, livestock threats). */
+  unique?: boolean;
   requires?: MissionRequirements; // conditions for this mission to appear on the board
   /** Locked NPC ally that fights alongside the team (escort / ritual companion / VIP). */
   npcAlly?: MissionNpcAlly;

@@ -363,6 +363,9 @@ export interface MissionBoardContext {
    *  quota so a senior team isn't drowning in novice missions. Optional —
    *  when missing or empty, board generation behaves as before (no quota). */
   adventurerRanks?: number[];
+  /** Ids of one-time (`unique`) missions already completed. They're filtered
+   *  out so a resolved personal/narrative beat never returns to the board. */
+  completedUniqueMissionIds?: string[];
 }
 
 /** Check whether a mission's requirements are met */
@@ -415,9 +418,11 @@ const MAX_MISSION_RANK = 4;
 
 export function generateMissionBoard(ctx: MissionBoardContext): MissionTemplate[] {
   const { guildLevel, count = 4, seed = Date.now(), maxDifficulty = 5 } = ctx;
+  const completedUnique = new Set(ctx.completedUniqueMissionIds ?? []);
   const available = ALL_MISSIONS.filter((m) =>
     m.minGuildLevel <= guildLevel &&
     m.difficulty <= maxDifficulty &&
+    !(m.unique && completedUnique.has(m.id)) &&
     meetsRequirements(m.requires, ctx),
   );
 

@@ -25,8 +25,16 @@ Frontier-grade: a lone peddler daring the road, a rare Dominion supply wagon, ba
 
 Each mission should answer: *which category, and what specifically out there does it engage?* If it can't, it's a placeholder.
 
+## Two-track mission model (LOCKED 2026-06-22)
+Missions are now one of:
+- **Chore (recurring, default):** no flag. Standing settlement labor (timber, stone, foraging, herbs, patrols, livestock threats). Keeps reappearing on the board.
+- **Unique (`unique: true`):** one-time personal/narrative beat. On *success* its id lands in `state.completedUniqueMissionIds` and it never returns. (Rescues, found keepsakes, neighbour pleas, side-story triggers.)
+- **Seasonal (future):** recurring per season (spring berries / autumn mushrooms). Designed, not built.
+
+Mechanism: `unique?` on `MissionTemplate`; `completedUniqueMissionIds` in game state (+ save migration); `generateMissionBoard` filters completed uniques; completion block marks them on success. All three packages typecheck.
+
 ## Current novice missions, mapped (2026-06-22)
-- **① Taming your ground (rich ✓):** gather_timber, quarry_expedition, foraging_run, herb_gathering, cellar_rats, first_patrol, lost_flock, chicken_coop_raiders, old_bridge, lost_child.
+- **① Taming your ground (rich ✓):** gather_timber, quarry_expedition, foraging_run, herb_gathering, first_patrol, lost_flock, chicken_coop_raiders *(chores)* · **old_bridge, lost_child, hunter_keepsake `unique`** · ~~cellar_rats~~ **CUT** (vermin = Cat Shelter's job; art `cellar_rats.png` banked for that feature). Dropped stray `giant_rat` from old_bridge (vermin rule).
 - **② Surroundings safe (rich ✓):** The Tainted Spring, bear_den, boar_hunt, marsh_clearing, alpha_wolf_hunt, spider_hollow, night_howling, stranger_tracks, hunter_keepsake. ⚠ goblin_shaman_camp (goblins deferred).
 - **③ Lifeline north (thin/messy):** merchant_escort ✓; caravan_guard (redundant twin — reframe); ⚠ smuggler_deal ("docks"/smuggling overstate an isolated frontier — rework or park).
 - **④ Neighbours: EMPTY ← the gap + the richest vein.** Only tavern_intel is near (reframe → frontier news).
