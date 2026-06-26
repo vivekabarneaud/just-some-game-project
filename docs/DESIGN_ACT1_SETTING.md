@@ -31,6 +31,8 @@ Missions are now one of:
 - **Unique (`unique: true`):** one-time personal/narrative beat. On *success* its id lands in `state.completedUniqueMissionIds` and it never returns. (Rescues, found keepsakes, neighbour pleas, side-story triggers.)
 - **Seasonal (future):** recurring per season (spring berries / autumn mushrooms). Designed, not built.
 
+**Discovery → routine pattern (BUILT 2026-06-22):** where a chore's *first* run is a genuine discovery, split it into a `unique` "first" mission that, on success, unlocks the recurring version via `requires: { missionDone: "<first_id>" }` (gate checks `completedUniqueMissionIds`). The two never coexist on the board (first retires, recurring is gated). The recurring keeps the canonical id + art; the discovery gets `<id>_first`. Applied to `foraging_run` (Nell's hollow) + `quarry_expedition` (the stone seam). NOT applied to pure chores like `gather_timber`. The "memory" is `completedUniqueMissionIds`; a chronicle line on the flip is deferred (silent for now).
+
 Mechanism: `unique?` on `MissionTemplate`; `completedUniqueMissionIds` in game state (+ save migration); `generateMissionBoard` filters completed uniques; completion block marks them on success. All three packages typecheck.
 
 ## Current novice missions, mapped (2026-06-22)

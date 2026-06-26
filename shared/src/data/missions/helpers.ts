@@ -386,6 +386,10 @@ function meetsRequirements(
     const hasPen = ctx.pens?.some((p) => p.animal === req.pen && p.level > 0);
     if (!hasPen) return false;
   }
+  if (req.missionDone) {
+    const done = new Set(ctx.completedUniqueMissionIds ?? []);
+    if (!done.has(req.missionDone)) return false;
+  }
   return true;
 }
 
