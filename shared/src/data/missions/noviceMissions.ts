@@ -251,7 +251,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     npcAlly: { npcId: "corin", passive: true },
   },
 {
-    id: "enchanted_spring",
+    id: "tainted_spring",
     name: "The Tainted Spring",
     description: "The trail the wizard and Father Corin pointed to ends at a spring in the deep wood, glowing faint and wrong, the water tasting of cold metal, the ground around it grey and dead. This is where the boars drank. The worst of them has denned by the water, a great patriarch more than half turned, and it will not let anyone near. We cannot make the water clean again, not with what we have. Put down what the spring has ruined, then cap the spring and mark it wide, so nothing drinks here again. We hold this; we do not win it.",
     icon: "💧",

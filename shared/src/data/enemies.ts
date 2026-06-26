@@ -266,7 +266,7 @@ export const ENEMIES: EnemyDefinition[] = [
   },
   {
     id: "cave_spider",
-    name: "Khazdurim Spinner",
+    name: "Cave Spinner",
     icon: "🕷️",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/cave_spider.png",
     description: "Silent, venomous, and the size of a dog. The old Khazdurim mines are thick with them now.",
