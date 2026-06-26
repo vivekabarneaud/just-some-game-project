@@ -825,6 +825,21 @@ export const ENEMIES: EnemyDefinition[] = [
     aiTier: "feral"
   },
   {
+    id: "tainted_boar",
+    name: "Tainted Boar",
+    icon: "🐗",
+    description: "Grey-mottled and weeping black, reeking of cold metal. A spear through the heart barely slows it; the body keeps moving long after it should have stopped, as if the death will not take. Whatever is in these beasts will not let them die easily.",
+    tier: 2,
+    stats: { str: 8, dex: 4, int: 1, vit: 13, wis: 1 },
+    tags: ["beast"],
+    abilities: [{ id: "charge", name: "Charge", icon: "💨", cooldown: 99, trigger: "round_start", effect: { type: "damage_mult", mult: 1.5, targets: 1 } }],
+    loot: [
+      { type: "resource", resource: "bristlehide", chance: 0.4, min: 1, max: 1 },
+      { type: "resource", resource: "tusk_shard", chance: 0.3, min: 1, max: 1 },
+    ],
+    aiTier: "feral"
+  },
+  {
     id: "fungal_crawler",
     name: "Fungal Crawler",
     icon: "🍄",

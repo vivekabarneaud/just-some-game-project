@@ -14,6 +14,9 @@ import type { MissionTemplate } from "./types.js";
  * fits the world (see docs/DESIGN_ACT1_SETTING.md — the 6 mission categories).
  *
  * Why parked (2026-06-22):
+ *   - boar_hunt          replaced by the "Bad Water" boar chain (bad_blood →
+ *                        bad_season_boars → what_scouts_saw → … → the spring);
+ *                        its text also leaked the cause + misplaced the Wastes.
  *   - tavern_intel       generic "gather rumors"; reframe as frontier news (④).
  *   - wilderness_trek    generic "survive a week"; also carried a stray rat.
  *   - smuggler_deal      "docks"/smuggling overstate an isolated frontier.
@@ -21,6 +24,22 @@ import type { MissionTemplate } from "./types.js";
  *                        + dead).
  */
 export const STAGED_MISSIONS: MissionTemplate[] = [
+  {
+    id: "boar_hunt",
+    name: "Rabid Boar Hunt",
+    description: "Something in the water near the Wastes is driving the boars mad. One charged through the vegetable gardens last night. Time to put it down before the herd follows.",
+    icon: "🐗",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/rabid_boar_hunt.png",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 500,
+    rewards: [{ resource: "meat", amount: 50 }],
+    deployCost: 3,
+    difficulty: 3,
+    minGuildLevel: 1,
+    tags: ["combat", "outdoor"],
+    encounters: [{ enemyId: "rabid_boar", count: 1 }],
+    staged: true,
+  },
   {
     id: "tavern_intel",
     name: "Tavern Intelligence",
