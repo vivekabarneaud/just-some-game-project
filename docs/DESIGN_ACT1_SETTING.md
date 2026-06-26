@@ -25,6 +25,9 @@ Frontier-grade: a lone peddler daring the road, a rare Dominion supply wagon, ba
 
 Each mission should answer: *which category, and what specifically out there does it engage?* If it can't, it's a placeholder.
 
+## Principle: animals aren't kill-on-sight (the Lord's compassion)
+Healthy wild animals are not enemies. Fighting a beast needs a *real reason*: it's **maddened** (the tainted water), **wounded**, **actively predating on people or livestock**, or you're **honestly hunting for meat**. A bear simply denning near the lumber road is none of those, so the Lord reroutes the cutters rather than kill it. This sharpens combat (bandits, the dead, the rabid boar, the livestock-raiding alpha wolf, venomous things nesting at the well all still stand) and only retires "it was in our way" kills. `bear_den` ("A Wide Berth") is the reframed example. Revisit `stranger_tracks` against this lens. See `[[project_lord_character]]`.
+
 ## Two-track mission model (LOCKED 2026-06-22)
 Missions are now one of:
 - **Chore (recurring, default):** no flag. Standing settlement labor (timber, stone, foraging, herbs, patrols, livestock threats). Keeps reappearing on the board.
