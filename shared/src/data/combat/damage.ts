@@ -1,7 +1,7 @@
 import type { CombatUnit } from "./types.js";
 import { combatRandom } from "./prng.js";
 import { getAttackPower, getMagicPower, getCritChance, getDefenseReduction, getMagicResistReduction, dealsMagicalDamage } from "./stats.js";
-import { getTraitDamageBonus, getTraitCritBonus } from "./traits.js";
+import { getTraitDamageBonus, getTraitCritBonus, getWeaponTraitBonus } from "./traits.js";
 
 export interface DamageOptions {
   /** Forces a crit regardless of the roll (used by Aimed Shot etc.). */
@@ -67,6 +67,9 @@ export function calcDamageResult(attacker: CombatUnit, defender: CombatUnit, opt
 
   const traitBonus = getTraitDamageBonus(attacker, defender);
   if (traitBonus > 0) rawDamage = Math.floor(rawDamage * (1 + traitBonus));
+
+  const weaponBonus = getWeaponTraitBonus(attacker);
+  if (weaponBonus > 0) rawDamage = Math.floor(rawDamage * (1 + weaponBonus));
 
   const damage = Math.max(1, Math.floor(rawDamage * (1 - reductionPct)));
   return { damage, rawDamage, crit };

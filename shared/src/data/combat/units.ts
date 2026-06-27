@@ -1,6 +1,6 @@
 import type { Adventurer } from "../adventurers.js";
 import { calcStats } from "../adventurers.js";
-import { getEquipmentStats, getEquipmentDefense } from "../items/index.js";
+import { getEquipmentStats, getEquipmentDefense, getItem } from "../items/index.js";
 import { getEnemy } from "../enemies.js";
 import type { MissionEncounter, MissionNpcAlly } from "../missions/index.js";
 import { getNpcAlly } from "../npcs.js";
@@ -19,6 +19,7 @@ export function buildAdventurerUnit(adv: Adventurer): CombatUnit {
     isMagical: adv.class === "wizard" || adv.class === "priest",
     gearDefense: getEquipmentDefense(adv.equipment),
     trait: adv.trait,
+    weaponType: adv.equipment.mainHand ? getItem(adv.equipment.mainHand)?.weaponType : undefined,
     canAct: true, canBeHealed: true, isTauntable: false,
     threatMultiplier: 1.0,
     cooldowns: {}, slowed: 0, poisonTicks: [],

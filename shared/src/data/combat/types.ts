@@ -48,6 +48,8 @@ export interface CombatUnit {
   isMagical: boolean;
   gearDefense: number;
   trait?: string;
+  /** Equipped mainHand weapon family (for weapon-affinity traits like axe mastery). */
+  weaponType?: string;
   enemyTags?: EnemyTag[];
   enemyDefId?: string;
   /** Backref to NPC_ALLIES catalog when kind === "ally". */

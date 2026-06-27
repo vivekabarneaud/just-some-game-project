@@ -25,6 +25,22 @@ export function getTraitDamageBonus(attacker: CombatUnit, defender: CombatUnit):
   return hasMatch ? entry.bonus : 0;
 }
 
+/**
+ * Weapon-affinity trait bonuses: damage when the attacker wields a matching
+ * weapon family. (Distinct from the enemy-tag bonuses above — conditioned on
+ * the attacker's own gear, not the defender.) e.g. Hester's axe mastery.
+ */
+const TRAIT_WEAPON_BONUSES: Record<string, { weaponType: string; bonus: number }> = {
+  axe_master: { weaponType: "axe", bonus: 0.12 },
+};
+
+/** Damage multiplier bonus from a weapon-affinity trait (0 if the trait/weapon don't match). */
+export function getWeaponTraitBonus(attacker: CombatUnit): number {
+  if (!attacker.trait || !attacker.weaponType) return 0;
+  const entry = TRAIT_WEAPON_BONUSES[attacker.trait];
+  return entry && entry.weaponType === attacker.weaponType ? entry.bonus : 0;
+}
+
 /** Lucky trait grants +3% crit chance. */
 export function getTraitCritBonus(unit: CombatUnit): number {
   return unit.trait === "lucky" ? 3 : 0;

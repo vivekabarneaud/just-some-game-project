@@ -372,6 +372,8 @@ export const BACKSTORY_TRAITS: BackstoryTrait[] = [
   { id: "iron_will", name: "Iron Will", flavor: "Tortured by bandits and didn't break", description: "+10% resist to fear/taunt", weight: 8 },
   { id: "survivor", name: "Survivor", flavor: "Has already died once, technically", description: "-15% death chance on failure", weight: 6 },
   { id: "veteran_campaigner", name: "Veteran Campaigner", flavor: "Served in the Border Wars", description: "+5% damage vs humanoid", weight: 10 },
+  // Weapon-affinity (weight 0 = never randomly rolled; assigned to specific curated characters)
+  { id: "axe_master", name: "Felling Arm", flavor: "A decade swinging an axe; the haft knows her hand", description: "+12% damage while wielding an axe", weight: 0 },
   { id: "lucky", name: "Lucky", flavor: "Found a four-leaf clover at age six. Still carries it.", description: "+3% crit chance", weight: 7 },
   { id: "quick_learner", name: "Quick Learner", flavor: "Reads every book they find", description: "+10% XP gain", weight: 7 },
   // Personality-driven traits

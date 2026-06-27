@@ -8,6 +8,9 @@ export type ItemSlot = "head" | "chest" | "legs" | "boots" | "cloak" | "mainHand
 
 /** Armor tier — gates equipment by class + talents. Weapons/rings/trinkets have no armorType. */
 export type ArmorType = "cloth" | "leather" | "mail" | "plate";
+/** Weapon family for mainHand items. Drives weapon-affinity traits (e.g. Hester's
+ *  axe mastery). Optional — untagged weapons simply match no affinity. */
+export type WeaponType = "sword" | "axe" | "dagger" | "mace" | "spear" | "staff" | "wand" | "bow";
 
 // ─── Armor access by class ──────────────────────────────────────
 // Base armor types each class can wear. Talents (e.g. p_armor for priest) can extend this.
@@ -58,6 +61,8 @@ export interface ItemDefinition {
   classes: AdventurerClass[];
   /** Armor tier — if set, adventurer must have access to this type. Not used for weapons/jewelry. */
   armorType?: ArmorType;
+  /** Weapon family (mainHand only) — drives weapon-affinity traits. Optional. */
+  weaponType?: WeaponType;
   /** Stat bonuses provided by this item */
   stats: Partial<AdventurerStats>;
   /** Duration reduction multiplier (0.9 = 10% faster) */
