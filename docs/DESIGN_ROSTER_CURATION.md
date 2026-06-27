@@ -78,7 +78,7 @@ Existing saves reference culled character IDs. A removed character in someone's 
 2. **Bronwyn Ashford** (warrior) → **First Through the Gate** `[new-wire]` — draws enemy focus (taunt), protects the party. ("see what else is worth defending.")
 3. **Roderick Ashford** (assassin) → **lucky** (+3% crit) `[existing]` — the court's precise problem-solver. (Bespoke "Clean Work" possible later.)
 4. **Elspeth Ravencroft** (assassin) → **survivor** (-15% death on failure) `[existing]` — outlived three husbands; watches the exits.
-5. **Helga Ironbark** (warrior) → **iron_will** (+10% fear/taunt resist) `[existing]` — the trait's own flavor ("didn't break") is literally her.
+5. ~~Helga Ironbark~~ → **Hester Ironbark** (warrior) → **Felling Arm** (`axe_master`, +12% dmg with an axe) **✅ DONE (weapon-affinities branch)** — renamed (collided with canon Helga/Edda's grandmother), backstory deepened (she broke once; the iron is the wall she built; she whittles birds from offcuts, keeps the axe that did both jobs sharp), trait wired. *Bonus dormant until a craftable axe exists (follow-up).*
 6. **Morgause Dunwall** (warrior) → **veteran_campaigner** (+5% vs humanoid) `[existing]` — 30 years on the border garrisons.
 7. **Isla Foxglove** (archer) → **beast_tracker** (+5% vs beast) `[existing]` — poached deer to feed her sisters.
 8. **Elara Foxglove** (wizard) → **quick_learner** (+10% XP) `[existing]` — sixteen and learning fast on the run.
@@ -88,6 +88,9 @@ Existing saves reference culled character IDs. A removed character in someone's 
 12. **Leofric Coldwell** (warrior) → **Last Blade** `[new-wire]` — small flat damage bonus (carries the last sword he forged). Fallback: existing **offering_keeper** (+1 all stats).
 
 Tally: 8 ready-as-data (incl. Cedric's trivial new tag), 3 new-wire (Bronwyn taunt, Oswin consumables, Leofric weapon) + their existing-trait fallbacks if we want zero engine work for now.
+
+### Weapon affinities — BUILT (2026-06, `weapon-affinities` branch) ⭐
+A new **signature-feature category**: a `weaponType` tag on mainHand weapons (axe/sword/dagger/…) + a trait that boosts damage with a matching family (`combat/traits.ts` `TRAIT_WEAPON_BONUSES` → `getWeaponTraitBonus` → applied in `damage.ts`; `CombatUnit.weaponType` resolved in `buildAdventurerUnit`). First user: **Hester's `axe_master` / "Felling Arm"** (+12% with an axe; `weight: 0` so never randomly rolled; assigned via `premade.trait`). **Reusable** for future cast (a bow-deadly archer, a dagger duelist). **Follow-up:** add craftable **axe items** (tag `weaponType: "axe"`) so Hester's bonus activates — until then it's a dormant, visible "string."
 
 ### Sable (ex-Lyra Emberheart) — ability options (2026-06-22)
 - **lone_wolf** (existing, +2 stats solo) — fits "raised herself, no family." Zero code.
