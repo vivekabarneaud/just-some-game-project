@@ -180,6 +180,11 @@ export default function MissionCard(props: MissionCardProps) {
 
         {/* Bottom section */}
         <div style={{ "margin-top": "auto", "padding-top": "12px" }}>
+          <Show when={fresh().deployItems?.length}>
+            <div style={{ "font-size": "0.8rem", color: "#d9a441", "margin-bottom": "2px" }}>
+              🤝 Bring: {fresh().deployItems!.map((r) => formatReward(r)).join(", ")}
+            </div>
+          </Show>
           <div style={{ "font-size": "0.8rem", color: "var(--accent-green)" }}>
             Rewards: {mission().rewards.map((r) => formatReward(r)).join(", ")}
           </div>
