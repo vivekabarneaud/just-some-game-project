@@ -748,7 +748,7 @@ export function getRelationship(premadeId?: string): string | undefined {
 
 /** Pick a premade character not already in use, optionally filtered by origin. */
 function pickPremadeCharacter(usedNames?: Set<string>, allowedOrigins?: Set<Origin>): PremadeCharacter | null {
-  let pool: PremadeCharacter[] = PREMADE_CHARACTERS;
+  let pool: PremadeCharacter[] = PREMADE_CHARACTERS.filter((c) => !c.questOnly);
   if (allowedOrigins) pool = pool.filter((c) => allowedOrigins.has(c.origin));
   if (usedNames) pool = pool.filter((c) => !usedNames.has(c.name));
   if (pool.length === 0) return null;
@@ -833,11 +833,18 @@ export function generateCandidate(
   const premade = pickPremadeCharacter(usedNames, allowed);
   if (premade) return buildAdventurerFromPremade(id, premade, maxRank);
   // Origin-pool exhaustion: fall back to any allowed-origin char even if name reused
-  const allowedPool = PREMADE_CHARACTERS.filter((c) => allowed.has(c.origin));
+  const browsable = PREMADE_CHARACTERS.filter((c) => !c.questOnly);
+  const allowedPool = browsable.filter((c) => allowed.has(c.origin));
   const fallback = allowedPool.length > 0
     ? allowedPool[Math.floor(Math.random() * allowedPool.length)]
-    : PREMADE_CHARACTERS[Math.floor(Math.random() * PREMADE_CHARACTERS.length)];
+    : browsable[Math.floor(Math.random() * browsable.length)];
   return buildAdventurerFromPremade(id, fallback, maxRank);
+}
+
+/** Build a specific premade as a roster-ready adventurer (for quest-unlock recruits). */
+export function buildRecruitFromPremadeId(advId: string, premadeId: string, rank: AdventurerRank = 1): Adventurer | null {
+  const premade = PREMADE_CHARACTERS.find((c) => c.id === premadeId);
+  return premade ? buildAdventurerFromPremade(advId, premade, rank) : null;
 }
 
 /** Max adventurer rank available — based on guild level AND average top-3 adventurer levels */

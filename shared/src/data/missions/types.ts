@@ -54,6 +54,10 @@ export interface MissionTemplate {
    *  real trade (bring grain, return with stone), tribute, ritual offerings.
    *  Same {resource, amount} shape as a reward — here it's a cost. */
   deployItems?: MissionReward[];
+  /** Premade character ids recruited to the roster when this mission SUCCEEDS
+   *  (earned, bypasses the browse cap). Powers quest-unlock characters — you
+   *  play their story to gain them. e.g. saving Edmund recruits Edmund + Elspeth. */
+  recruitsOnSuccess?: string[];
   difficulty: 1 | 2 | 3 | 4 | 5;
   minGuildLevel: number;
   tags: MissionTag[];

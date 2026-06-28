@@ -176,6 +176,7 @@ import {
   type AdventurerRank,
   type Race,
   generateCandidate,
+  buildRecruitFromPremadeId,
   getRecruitCost,
   getMaxRecruitRank,
   getCandidateCount,
@@ -3680,6 +3681,19 @@ export function GameProvider(props: ParentProps) {
               // One-time missions: on success, retire from the board forever.
               if (success && template?.unique && !s.completedUniqueMissionIds.includes(am.missionId)) {
                 s.completedUniqueMissionIds.push(am.missionId);
+              }
+
+              // Recruitment quests: on success the named premades JOIN the roster
+              // (earned — bypasses the browse cap; skips any already recruited).
+              if (success && template?.recruitsOnSuccess?.length) {
+                for (const pid of template.recruitsOnSuccess) {
+                  if (s.adventurers.some((a) => a.premadeId === pid)) continue;
+                  const rec = buildRecruitFromPremadeId(nextId("adv"), pid, 1);
+                  if (rec) {
+                    s.adventurers.push(rec);
+                    pushEvent(s, "mission_success", "🫂", `${rec.name} has joined the settlement.`);
+                  }
+                }
               }
 
               // Record discovered enemies — success or failure, the player has now seen them

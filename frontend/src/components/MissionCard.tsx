@@ -185,6 +185,11 @@ export default function MissionCard(props: MissionCardProps) {
               🤝 Bring: {fresh().deployItems!.map((r) => formatReward(r)).join(", ")}
             </div>
           </Show>
+          <Show when={fresh().recruitsOnSuccess?.length}>
+            <div style={{ "font-size": "0.8rem", color: "#c77dff", "margin-bottom": "2px" }}>
+              🫂 Recruit a new ally
+            </div>
+          </Show>
           <div style={{ "font-size": "0.8rem", color: "var(--accent-green)" }}>
             Rewards: {mission().rewards.map((r) => formatReward(r)).join(", ")}
           </div>

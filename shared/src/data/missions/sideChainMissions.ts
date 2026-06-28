@@ -131,4 +131,24 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     requires: { story: "story_1_scouting" },
     unique: true,
   },
+
+  // ── Recruitment quest: save the hunted gambler → Edmund + Elspeth join ──
+  //    (recruitsOnSuccess; Elspeth gives the plea, both join on the win.) ──
+  {
+    id: "a_mothers_errand",
+    name: "A Mother's Errand",
+    description: "A woman came to the gate before dawn, grey-faced and giving no name, only this: her son is cornered at the old ford, a pack of men closing in over money he won that he maybe should not have. She cannot reach him in time, and she is begging. Whatever he did or did not do at the table, no one deserves to be beaten to death over a hand of cards. Get there, drive them off, and bring the fool home. His mother will not leave the gate until you do.",
+    icon: "🃏",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 600,
+    rewards: [{ resource: "gold", amount: 20 }],
+    recruitsOnSuccess: ["char_009", "char_007"],
+    deployCost: 5,
+    difficulty: 2,
+    minGuildLevel: 1,
+    tags: ["combat", "escort"],
+    encounters: [{ enemyId: "bandit_thug", count: 3 }],
+    requires: { story: "story_1_scouting" },
+    unique: true,
+  },
 ];
