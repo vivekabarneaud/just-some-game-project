@@ -77,7 +77,7 @@ Existing saves reference culled character IDs. A removed character in someone's 
 1. **Cedric Ashford** (archer) → **Thornveil-Taught** `[new-data]` — +6% dmg vs ghost & aether. (His Silvaneth upbringing = fights the Wastes-things.)
 2. **Bronwyn Ashford** (warrior) → **First Through the Gate** `[new-wire]` — draws enemy focus (taunt), protects the party. ("see what else is worth defending.")
 3. **Roderick Ashford** (assassin) → **lucky** (+3% crit) `[existing]` — the court's precise problem-solver. (Bespoke "Clean Work" possible later.)
-4. **Elspeth Ravencroft** (assassin) → **survivor** (-15% death on failure) `[existing]` — outlived three husbands; watches the exits.
+4. **Elspeth Ravencroft** (assassin) → **survivor** `[existing]` **✅ DONE** — recharacterized: not a black-widow but a *reluctant poisoner-mother* who killed one violent man (Edmund's father) to survive + shield her son, no fighter, here **only for Edmund** (won't let him adventure alone), crochets for the settlement's children (soft tell). Backstory + trait written.
 5. ~~Helga Ironbark~~ → **Hester Ironbark** (warrior) → **Felling Arm** (`axe_master`, +12% dmg with an axe) **✅ DONE (weapon-affinities branch)** — renamed (collided with canon Helga/Edda's grandmother), backstory deepened (she broke once; the iron is the wall she built; she whittles birds from offcuts, keeps the axe that did both jobs sharp), trait wired. *Bonus dormant until a craftable axe exists (follow-up).*
 6. **Morgause Dunwall** (warrior) → **veteran_campaigner** (+5% vs humanoid) `[existing]` — 30 years on the border garrisons.
 7. **Isla Foxglove** (archer) → **beast_tracker** (+5% vs beast) `[existing]` — poached deer to feed her sisters.
@@ -166,6 +166,13 @@ Category #4 of the signature taxonomy. Builds on the existing `dog_companion` tr
 - **Balance guardrail:** Nettle-mode is a SIDEGRADE, not an upgrade — high damage but reckless/exposed (drops wards, takes more hits), so players never KO their own cat on purpose. The cat getting hurt is a crisis to fight through, not a combo to set up.
 
 Contrast worth keeping: Isla's dog = *trained/functional*, Nettle's cat = *loved/emotional*. Proves the signature-companion idea has range. **Names TBD** (user to name the dog + cat).
+
+### Quest-unlock recruitment — Edmund & Elspeth as the flagship (2026-06-28) ⭐
+A new recruitment axis from a dream: some standout characters aren't browsed at the guild desk, they're **earned through a side-quest that *is* their backstory** (so the player actually lives the story instead of skimming a recruit card). NOT all characters — the standouts. Buildable on the existing quest-unlock machinery (one notch finer than `QUEST_UNLOCKED_ORIGINS`). **New bit to build:** a mission/quest whose completion **recruits a specific character**.
+- **Edmund Blackwood — the gambler-assassin.** DONE (backstory + `lucky` interim trait). His real signature is a **momentum/luck mechanic** (lucky streaks → crits, cold streaks → misses) + a momentum talent branch (amplify the swing vs. soften the cold streak) — **banked as a real combat feature**, too big for now; `lucky` holds the seat. Hook: *is the luck real, or is he the best cheat alive?* (never answered).
+- **Elspeth gives the quest, the pair joins together.** Answers "why is a reluctant non-fighter in the guild?": she isn't there for herself, she's there for **him**. She arrives undone (*"my son's gotten himself hunted, I can't reach him in time"*) → you **drive off the sore-loser thugs** hunting Edmund (combat-extraction mission, NOT a stealth minigame) → Edmund joins (the danger suits him), Elspeth joins (she won't let him go alone). The mother-son synergy becomes *literal*. The chase from the dream = chronicle flavor; the gameplay is a justified fight.
+- **Broader principle:** not everyone walks up to the guild desk — some arrive through **relationships and stories** (Elspeth via her son).
+- **NEXT:** build the recruitment-quest system (mission-completion → recruit a character) + author Edmund's quest.
 
 ### Co-op duplicates (consequence of the small pool) — 2026-06-22
 A small curated pool means co-op allies will often field **duplicate named characters** (two Elara Foxgloves), which breaks immersion (they're specific people).
