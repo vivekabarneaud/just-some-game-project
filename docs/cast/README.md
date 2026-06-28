@@ -21,6 +21,7 @@ One file per character. This is the **deep canon** for each member of the cast: 
 - [elspeth-ravencroft.md](elspeth-ravencroft.md) — char_007, assassin, the reluctant poisoner-mother (quest-unlock)
 - [edmund-blackwood.md](edmund-blackwood.md) — char_009, assassin, the gambler (quest-unlock)
 - [morgause-dunwall.md](morgause-dunwall.md) — char_020, warrior, the discarded commander
+- [sable.md](sable.md) — char_008, assassin, the street orphan with nothing to lose (mononym, ex-Lyra)
 
 ### Side-story figures (NPCs)
 - [aldith-the-bog-witch.md](aldith-the-bog-witch.md) — the Bog Witch & her dead granddaughter Ada
