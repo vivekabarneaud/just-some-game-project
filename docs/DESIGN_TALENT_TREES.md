@@ -1,5 +1,7 @@
 # Talent trees — design
 
+> ⚠️ **UNDER RECONSIDERATION (2026-06-28).** With the roster cut to a small *curated* cast, the user leans strongly toward scrapping the class-pentagon for **per-character bespoke trees** — the characters already *are* their archetypes (Leofric = paladin, Elspeth = venomancer, Edmund = cheat), so the tree should *be* the character, not built-toward. Banked as a **major future project** (system rewrite + ~50 trees; heavier permadeath, resolved by Phoenix-Tears recovery). See [[project_talent_pentagon]] for the full reasoning. Don't deepen the pentagon further until this is decided.
+
 **Status:** BUILT (2026-06-05 audit). `frontend/src/data/talents.ts` has full per-class trees (rows/children/capstones) with the hybrid-title capstones. REMAINING: some advanced combat mechanics (status_consumed / stack_explode, etc.) and final point-economy tuning.
 **Pentagon order (working assumption):** warrior — assassin — archer — wizard — priest — (warrior). Adjacent pairs produce hybrid titles. See [[project_talent_pentagon]] memory for the locked decisions.
 
