@@ -64,8 +64,8 @@ Both instances use the same shape:
 |---|---|---|---|
 | 3+ | immediate | Census notice (Dominion) | "📜 'The Crown has noted your settlement's growing interest in arcane studies. A census of magical activity is being prepared.'" |
 | 4+ | 2 seasons | Inquisitor's aide observes | "⚠️ An Inquisitor's aide has arrived to 'observe and document.' She's polite. She writes down everything." |
-| 5+ | 2 more seasons | Formal demand — Inquisitor Maren Ashvale | "📜 'I do not burn people. I present evidence. The evidence suggests your settlement requires spiritual guidance. Build a chapel. This is not optional.'" |
-| 6+ | 1 more season | **Church raid** — Dawn Knights | Dawn Knights + Inquisition raid; damage the Mage Tower specifically, confiscate mana crystals + enchanting materials, leave a Church banner at the gate. |
+| 5+ | 2 more seasons | Formal demand — Inquisitor Selwyn Crane | "📜 'I do not burn people. I present evidence. The evidence suggests your settlement requires spiritual guidance. Build a chapel. This is not optional.'" |
+| 6+ | 1 more season | **Church raid** — Radiant Knights | Radiant Knights + Inquisition raid; damage the Mage Tower specifically, confiscate mana crystals + enchanting materials, leave a Church banner at the gate. |
 
 The Church escalation is **bureaucratic and cold** (forms, surveillance, data-driven), in deliberate contrast to the Thornveil's personal/grandmotherly tone. **Resolution:** raise the faith offset to parity → warnings clear. **Over-investment:** +1 → +2 happiness; +2 → reduced Dominion trade prices; +3 → Dominion reputation (future faction system).
 
@@ -91,4 +91,4 @@ churchWarningStage:    0|1|2|3|4;  churchWarningSeasons:    number;  faithOffset
 
 **UI:** Mage Tower gains a "Spells" tab (Sylvan Regrowth first). Overview shows two small indicators — 🌲 forest (green/yellow/red) and a faith/heresy marker. Warning events use faction-styled entries in the log.
 
-**Raids:** add Thornveil (Silvaneth archers + Rangers, targets Lumber Mill, low strength, loot = wood/herbs) and Church (Dawn Knights + Inquisition, targets Mage Tower, confiscates magical materials) raid types.
+**Raids:** add Thornveil (Silvaneth archers + Rangers, targets Lumber Mill, low strength, loot = wood/herbs) and Church (Radiant Knights + Inquisition, targets Mage Tower, confiscates magical materials) raid types.

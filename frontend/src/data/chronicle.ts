@@ -108,7 +108,7 @@ export const QUEST_ENTRIES: ChronicleEntry[] = [
     id: "dominion_notice",
     title: "The Dominion Takes Notice",
     category: "factions",
-    text: "Your settlement is growing. That means you're visible. The Dominion considers all unclaimed land to be 'unincorporated territory' — which is a polite way of saying they think it's theirs. Sooner or later, a tax collector or a Dawn Knight patrol will come knocking. Best to be ready when they do.",
+    text: "Your settlement is growing. That means you're visible. The Dominion considers all unclaimed land to be 'unincorporated territory' — which is a polite way of saying they think it's theirs. Sooner or later, a tax collector or a Radiant Knight patrol will come knocking. Best to be ready when they do.",
     unlockedBy: "the_road_to_greatness",
   },
 ];

@@ -828,7 +828,7 @@ The saboteur the Lord has been chasing finally has a name. The Cult of the Hollo
 
 The Inquisition has been operating in the world all along, formalizing the Doctrine of Silence centuries ago (all magic feeds the Wastes; suppress all practice). The frontier has been beneath their notice. Eventually a Crown tithe courier reports magical activity, or the Inquisition traces robins and identifies Halldora-correspondence here, and an Inquisitor is sent.
 
-**Likely figure: Inquisitor Maren Ashvale** (canonical name). She uses evidence-and-maps rather than fire, which makes her *more* dangerous. Her data overlay of Wastes expansion + magical activity is genuinely unsettling. Her conclusion is wrong but reasonable from inside her data.
+**Likely figure: Inquisitor Selwyn Crane** (canonical name). She uses evidence-and-maps rather than fire, which makes her *more* dangerous. Her data overlay of Wastes expansion + magical activity is genuinely unsettling. Her conclusion is wrong but reasonable from inside her data.
 
 **Her demands (likely):**
 - Turn over the settlement's wizards.

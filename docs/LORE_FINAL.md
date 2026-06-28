@@ -210,7 +210,7 @@ Their evidence is real. Their conclusion is wrong.
 
 The true mechanism: magic use generates Aether activity. When that Aether eventually dies (all magical effects fade), it becomes dead Aether that can't be recycled. More magic use = more dead Aether = more fuel for the Wastes. The Church is right about the correlation but wrong about the prescription — stopping magic use would slow the accumulation but can't fix the underlying problem. Only restoring the death cycle can do that.
 
-But nobody can prove the Church wrong definitively. And Inquisitor Maren Ashvale's maps — showing the Wastes' expansion overlaid with magical activity — are genuinely unsettling. The Church's position is wrong, but it's not stupid.
+But nobody can prove the Church wrong definitively. And Inquisitor Selwyn Crane's maps — showing the Wastes' expansion overlaid with magical activity — are genuinely unsettling. The Church's position is wrong, but it's not stupid.
 
 ### Dragons — Born from the Broken Cycle
 
@@ -322,14 +322,14 @@ The **Church of the Radiant One** grew alongside the Dominion as a shared cultur
 
 The Church has a deeper problem it cannot face: accepting that Netheron — the god of death — was essential and necessary would unravel their entire monotheistic theology. They built their religion on the idea that the Radiant One is the only god that matters. Admitting they need the god of death — admitting that the Six *killed* Netheron and that this act is the root cause of the world's decay — would destroy them. So they'd rather let the world burn than admit they're wrong. This isn't cruelty — it's theological pride so deep it's become existential.
 
-The **Order of the Dawn** is the Dominion's elite military-religious force: Dawn Knights (heavy cavalry), Paladins (warrior-priests), and Inquisitors (enforcers of the Doctrine of Silence).
+The **Radiant Order** is the Dominion's elite military-religious force: Radiant Knights (heavy cavalry), Paladins (warrior-priests), and Inquisitors (enforcers of the Doctrine of Silence).
 
 **Key figures:**
 - **High King Aldren Ashford** — 28, the latest in a dynasty stretching back five centuries to the coup against Varek. Ambitious, a genuine believer in unity and faith. Doesn't know the full truth of how his ancestors took the throne. When he learns, it will shake him.
 - **Grand Marshal Elara Voss** — commander of the Dominion armies. Pragmatic, ruthless. Cares about borders, not theology. Would work with a demon if it secured the frontier.
-- **Archpriest Caelen** — head of the Church. Elderly, wise, and trapped by his own doctrine. He privately suspects the Doctrine of Silence is incomplete, but admitting it would collapse the Church's authority.
-- **Inquisitor Maren Ashvale** — former field medic. Calm, methodical. Her maps of the Wastes' expansion are real data, and her conclusion — that magic is making things worse — is wrong but reasonable. She doesn't burn people. She shows them evidence and asks them to choose.
-- **Captain Aldric Bright** — a young Dawn Knight. Earnest, heroic, genuinely good. He fights undead on the southern border and has doubts about the Church's doctrine that he can't voice.
+- **Archpriest Caelen** — head of the Church. Elderly, wise, sincerely devout. A small, lifelong part of him *doubts* the Doctrine of Silence, but the doubt is unformed: he has never understood *what* is wrong with it and has no evidence to feed the unease, so the larger part of him stays convinced he is doing good, and he continues in faith. Not a cynic hiding a truth — a faithful man whose intuition is ahead of his evidence.
+- **Inquisitor Selwyn Crane** — former field medic. Calm, methodical. Her maps of the Wastes' expansion are real data, and her conclusion — that magic is making things worse — is wrong but reasonable. She doesn't burn people. She shows them evidence and asks them to choose.
+- **Captain Aldric Bright** — a young Radiant Knight. Earnest, heroic, genuinely good. He fights undead on the southern border and has doubts about the Church's doctrine that he can't voice.
 
 ### The Thornveil Pact
 
@@ -373,7 +373,7 @@ They are terrifying not because they're evil but because they're **committed.** 
 
 **Key figures:**
 - **The Hierophant** — masked, charismatic, magnetically persuasive. Genuinely trying to resurrect a dead god through forbidden knowledge and sheer will. Whether they're making progress or just making things worse is ambiguous.
-- **Commander Dryven** — former Dawn Knight. Defected after watching the Church burn an Old Faith village. Leads the Cult's military arm, the Pale Hand. Dangerous because he knows exactly how the Dominion fights.
+- **Commander Dryven** — former Radiant Knight. Defected after watching the Church burn an Old Faith village. Leads the Cult's military arm, the Pale Hand. Dangerous because he knows exactly how the Dominion fights.
 
 ### The Free Settlements (Players)
 

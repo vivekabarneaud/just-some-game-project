@@ -117,7 +117,7 @@ Varek spent 500 years on the other side of the boundary, organizing the dead. Hi
 - **Boss encounter:** Tier 4 story mission. Ghost/Magical/Elf. Abilities: Arcane Barrage (AoE), Temporal Slow (debuff DEX all), but occasionally "glitches" — one round where she doesn't attack and instead heals an adventurer (her resistance breaking through).
 
 **Dryven the Twice-Turned** — *The Defector's Defector*
-- Wait — Dryven is already established in the lore as the Cult of the Hollow's military commander (former Dawn Knight who defected to the Cult). What if, in a future story arc, Dryven dies and Varek claims him? A triple-defector: Dominion → Cult → Varek's Court.
+- Wait — Dryven is already established in the lore as the Cult of the Hollow's military commander (former Radiant Knight who defected to the Cult). What if, in a future story arc, Dryven dies and Varek claims him? A triple-defector: Dominion → Cult → Varek's Court.
 - Not a current general, but a future one. A story beat where the player watches an ally become an enemy become something worse.
 
 ### The Rank and File
@@ -136,7 +136,7 @@ Varek's army isn't just generals. It's layered:
 - **Structure:** King → High Lords (regional governors) → Lesser Lords → Landed Knights → Common folk
 - **Current King:** High King Aldren Ashford, 28. Well-meaning, devout, naive. Believes in unity through faith. Doesn't know the Ashford coup was a power grab, not a liberation.
 - **Real power:** Split three ways — the Crown (Aldren), the Church (Archpriest Caelen), and the Military (Grand Marshal Elara Voss). They agree on almost nothing.
-- **The Inquisition:** Technically a Church body, practically a secret police. Inquisitor Maren Ashvale runs it with calm efficiency. She doesn't burn people. She shows them data.
+- **The Inquisition:** Technically a Church body, practically a secret police. Inquisitor Selwyn Crane runs it with calm efficiency. She doesn't burn people. She shows them data.
 - **Internal tension:** The military wants to fight the Wastes. The Church wants to ban magic. The King wants to unite everyone. These goals are incompatible.
 - **Relationship to player:** The Dominion sold you the land grant. They expect taxes, obedience, and maybe soldiers when they call. What they don't expect is for you to discover the truth about the Wastes, the boundary, and the lie that the frontier is safe.
 

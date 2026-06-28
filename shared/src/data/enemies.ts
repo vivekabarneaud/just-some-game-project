@@ -932,6 +932,9 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "meat", chance: 0.8, min: 4, max: 10 },
     ],
   },
+  /* STASHED 2026-06-28 — Bog Witch enemy retired alongside the stale `bog_witch_lair`
+     mission. Preserved for a future remake per the tragic Aldith/Ada design in
+     docs/cast/aldith-the-bog-witch.md. Not referenced by any active mission.
   {
     id: "bog_witch",
     name: "Bog Witch",
@@ -956,6 +959,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "item", itemId: "witch_eye_trinket", chance: 0.08 },
     ],
   },
+  */
   {
     id: "burnt_skeleton",
     name: "Burnt Skeleton",
