@@ -1028,6 +1028,12 @@ function loadGame(): GameState | null {
     if (!saved.fields) saved.fields = [];
     if (!saved.gardens) saved.gardens = [];
 
+    // Recovery system (Model C): persistent HP. Backfill legacy saves so every
+    // hero starts at full; conditions default to none. maxHp stays derived.
+    for (const a of saved.adventurers ?? []) {
+      if (a.currentHp == null) a.currentHp = calcAdventurerMaxHp(a);
+    }
+
     // Defenses rework migration (April 2026): create the 3-ring slot layout
     // for walls/watchtowers/barracks. Old single-instance buildings (lookup
     // by buildingId in saved.buildings) are mapped onto the Outer ring.
@@ -2939,6 +2945,26 @@ export function GameProvider(props: ParentProps) {
           }
         }
 
+        // ── Adventurer recovery (Model C) ──────────────────────────
+        // Wounded heroes regenerate HP over game-time while resting at home.
+        // Lingering wounds (bleed/poison) block regen until they decay (later:
+        // until treated by a potion / Edda / the Infirmary). Tunable.
+        const REGEN_PCT_PER_HOUR = 0.12;       // full from empty in ~8 game-hours
+        const HOURS_PER_CONDITION_ROUND = 1.5; // a 3-round wound lingers ~4.5 game-hours
+        for (const adv of s.adventurers) {
+          if (!adv.alive || adv.onMission) continue;
+          const advMaxHp = calcAdventurerMaxHp(adv);
+          if (adv.currentHp == null) adv.currentHp = advMaxHp;
+          if (adv.conditions?.length) {
+            for (const c of adv.conditions) c.remainingRounds -= elapsedHours / HOURS_PER_CONDITION_ROUND;
+            const live = adv.conditions.filter((c) => c.remainingRounds > 0);
+            adv.conditions = live.length ? live : undefined;
+          }
+          if (!adv.conditions?.length && adv.currentHp < advMaxHp) {
+            adv.currentHp = Math.min(advMaxHp, adv.currentHp + advMaxHp * REGEN_PCT_PER_HOUR * elapsedHours);
+          }
+        }
+
         // ── Honey from apiaries (seasonal) ──
         const honeyCap = getHoneyStorageCap(s.hives);
         for (const hive of s.hives) {
@@ -3659,12 +3685,25 @@ export function GameProvider(props: ParentProps) {
                 }
               }
 
-              // Free surviving adventurers
+              // Free surviving adventurers, and write their HP + lingering
+              // wounds home (Model C recovery). Survivors who were KO'd but not
+              // slain come home critically wounded (clamped to 1 HP, never 0).
               for (const id of am.adventurerIds) {
                 const adv = s.adventurers.find((a) => a.id === id);
-                if (adv) {
-                  adv.onMission = false;
+                if (!adv) continue;
+                adv.onMission = false;
+                if (!adv.alive) continue; // the fallen are handled by the death roll above
+                const maxHp = calcAdventurerMaxHp(adv);
+                if (isExped) {
+                  const hp = am.expeditionHp?.[id];
+                  if (hp != null) adv.currentHp = Math.max(1, Math.min(maxHp, Math.round(hp)));
+                } else if (combatResult) {
+                  const hp = combatResult.finalHp?.[id];
+                  if (hp != null) adv.currentHp = Math.max(1, Math.min(maxHp, Math.round(hp)));
+                  const conds = combatResult.finalConditions?.[id];
+                  adv.conditions = conds && conds.length ? conds.map((c) => ({ ...c })) : undefined;
                 }
+                // No-encounter missions don't damage HP — leave currentHp as-is.
               }
 
               // Rewards are NOT auto-granted — player claims them via the Guild page
@@ -4585,7 +4624,11 @@ export function GameProvider(props: ParentProps) {
         // completion. Expeditions have their own per-event resolution and
         // skip this path.
         if (!isExpedition(template) && template.encounters?.length) {
-          const combat = simulateCombat(template, team, adventurerSupplies);
+          // Start each hero from current HP so the rolled outcome matches the
+          // HP-aware preview the player just saw.
+          const deployHpOverride: Record<string, number> = {};
+          for (const a of team) deployHpOverride[a.id] = a.currentHp ?? calcAdventurerMaxHp(a);
+          const combat = simulateCombat(template, team, adventurerSupplies, undefined, { hpOverride: deployHpOverride });
           if (!combat) {
             // Shouldn't happen — encounters non-empty and team non-empty —
             // but guard the type narrowing so TS lets us use combat below.
@@ -4683,7 +4726,8 @@ export function GameProvider(props: ParentProps) {
           const maxHpMap: Record<string, number> = {};
           for (const adv of team) {
             const m = calcAdventurerMaxHp(adv);
-            hpMap[adv.id] = m;
+            // Enter the expedition at current HP (wounded heroes start wounded).
+            hpMap[adv.id] = Math.min(m, adv.currentHp ?? m);
             maxHpMap[adv.id] = m;
           }
           activeMission.expeditionEventIndex = 0;

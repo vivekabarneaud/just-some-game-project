@@ -290,6 +290,10 @@ export function resolveFullExpedition(
   team: Adventurer[],
   supplies: Record<string, AdventurerMissionSupplies>,
   seed: number,
+  /** Optional per-adventurer starting HP (id → hp). Lets a wounded team enter
+   *  an expedition wounded, so the preview matches the deploy reality. Clamped
+   *  to maxHp; absent ids start at full. */
+  startHp?: Record<string, number>,
 ): {
   hpMap: Record<string, number>;
   maxHpMap: Record<string, number>;
@@ -303,7 +307,7 @@ export function resolveFullExpedition(
   for (const adv of team) {
     const maxHp = calcAdventurerMaxHp(adv);
     maxHpMap[adv.id] = maxHp;
-    hpMap[adv.id] = maxHp;
+    hpMap[adv.id] = Math.min(maxHp, startHp?.[adv.id] ?? maxHp);
   }
 
   const rewards: MissionReward[] = [];

@@ -97,7 +97,7 @@ export interface CombatUnit {
   cooldowns: Record<string, number>;
   tauntedBy?: string;
   slowed: number;
-  poisonTicks: { damage: number; rounds: number; sourceName?: string; sourceIcon?: string }[];
+  poisonTicks: { damage: number; rounds: number; sourceName?: string; sourceIcon?: string; type?: "bleed" | "poison" }[];
   shieldWallUsed?: boolean;
   enemyAbilities?: EnemyAbility[];
   combatPotion?: CombatPotionEffect;
@@ -178,6 +178,10 @@ export interface CombatResult {
   loot: LootResult[];
   finalHp?: Record<string, number>;
   finalMaxHp?: Record<string, number>;
+  /** Lingering DoTs (bleed/poison) still active on SURVIVING adventurers when
+   *  combat ended. Written home as Adventurer.conditions — they block passive
+   *  regen until they decay/are treated. Keyed by adventurer id. */
+  finalConditions?: Record<string, { type: "bleed" | "poison"; remainingRounds: number; perRound?: number; icon?: string }[]>;
   /** Set to the NPC ally id when an isMissionObjective ally fell during combat.
    *  Mission completion treats this as a distinct failure — no rewards, no team
    *  XP, but surviving adventurers still go home (no team-wipe permadeath cascade). */

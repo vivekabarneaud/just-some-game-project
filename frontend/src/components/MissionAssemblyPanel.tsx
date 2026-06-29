@@ -39,6 +39,7 @@ import { MISSION_RANK_LABELS, MISSION_RANK_COLORS } from "~/data/constants";
 import MissionEnemyCard from "./MissionEnemyCard";
 import TeamSlot from "./TeamSlot";
 import AdventurerPickerCard from "./AdventurerPickerCard";
+import AdventurerVitals from "./AdventurerVitals";
 import Tooltip from "./Tooltip";
 import { fetchFriends } from "~/api/friends";
 import { inviteCoop, fetchCoopDetail, updateCoopRoster, setCoopReady, cancelCoop } from "~/api/coop";
@@ -364,6 +365,12 @@ export default function MissionAssemblyPanel(props: Props) {
 
     if (snapshot.length === 0) { setSuccessPct(0); setDeathRisks({}); return; }
 
+    // HP-aware preview: start each hero from their CURRENT hp (wounded heroes
+    // honestly read lower success + higher risk), so the odds match what the
+    // deploy roll will actually do. Falls back to full for legacy/healthy.
+    const hpOverride: Record<string, number> = {};
+    for (const a of snapshot) hpOverride[a.id] = a.currentHp ?? calcAdventurerMaxHp(a);
+
     const fm = freshMission();
 
     // Run 200 seeded simulations for ~3.4% standard error at 90% success.
@@ -387,7 +394,7 @@ export default function MissionAssemblyPanel(props: Props) {
 
       let wins = 0;
       for (let i = 0; i < SIMS; i++) {
-        const result = resolveFullExpedition(fm, snapshot, sups, seed + i);
+        const result = resolveFullExpedition(fm, snapshot, sups, seed + i, hpOverride);
         if (!result.wiped) wins++;
         // Anyone whose HP ended ≤ 0 fell during the expedition — they're
         // the candidates for the permadeath roll, just like fallenAdventurerIds
@@ -409,7 +416,7 @@ export default function MissionAssemblyPanel(props: Props) {
 
       let wins = 0;
       for (let i = 0; i < SIMS; i++) {
-        const combat = simulateCombat(fm, snapshot, sups, seed + i);
+        const combat = simulateCombat(fm, snapshot, sups, seed + i, { hpOverride });
         if (!combat) continue;
         if (combat.victory) wins++;
         const { dead } = rollPermanentDeaths(combat.fallenAdventurerIds, snapshot, fm, sups);
@@ -1213,6 +1220,13 @@ export default function MissionAssemblyPanel(props: Props) {
                         )}
                       </Show>
                     </div>
+                    {/* Current vitals — HP bar + lingering wounds. A wounded
+                     * hero here is why the success/risk numbers shifted. */}
+                    <Show when={adv()}>
+                      <div style={{ padding: "0 8px 4px", display: "flex", "justify-content": "center" }}>
+                        <AdventurerVitals adventurer={adv()!} width="90px" showText />
+                      </div>
+                    </Show>
                     {/* Death-risk text. Always rendered so filled and empty
                      * cards stay the same height; the copy goes transparent
                      * when no adventurer is assigned. */}
@@ -1380,6 +1394,14 @@ export default function MissionAssemblyPanel(props: Props) {
             )}
           </div>
         </div>
+        {/* Model-C reframe: a lost combat mission is a retreat, not a wipe — so
+            a low success % paired with a low perma-death % is expected, not a
+            bug. Expeditions are lethal by design and don't get this note. */}
+        <Show when={(freshMission().encounters?.length ?? 0) > 0 && !isExpedition(freshMission())}>
+          <div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "margin-top": "4px", "font-style": "italic" }}>
+            On a loss the team retreats wounded — perma-death stays a rare, unlucky outcome, not the price of failing.
+          </div>
+        </Show>
         {/* Contextual tip when the odds are uncertain or worse. Red tier
             surfaces all levers + permadeath warning; orange focuses on
             supplies; green shows nothing. */}

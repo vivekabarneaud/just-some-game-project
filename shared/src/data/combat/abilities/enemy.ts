@@ -39,7 +39,7 @@ export function tryEnemyAbility(unit: CombatUnit, ctx: CombatContext): boolean {
         const hit = calcDamageResult(unit, target);
         target.hp -= hit.damage;
         const dotDmg = Math.max(1, Math.floor(getAttackPower(unit) * eff.pctPerRound / 100));
-        target.poisonTicks.push({ damage: dotDmg, rounds: eff.rounds, sourceName: unit.name, sourceIcon: ability.icon });
+        target.poisonTicks.push({ damage: dotDmg, rounds: eff.rounds, sourceName: unit.name, sourceIcon: ability.icon, type: eff.type });
         ctx.log.push({
           round: ctx.round, attackerName: unit.name, attackerIcon: ability.icon,
           abilityName: ability.name,

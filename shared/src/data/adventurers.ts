@@ -584,6 +584,18 @@ export interface DeathRecord {
   year?: number;
 }
 
+/** A lingering wound carried home from combat. Blocks passive HP regen while
+ *  present; decays over game-time (see applyTicks). `remainingRounds` is the
+ *  DoT's remaining duration at the moment combat ended — it future-proofs the
+ *  banked "decay over real time" refinement (see DESIGN_RECOVERY_AND_RETREAT). */
+export interface AdventurerCondition {
+  type: "bleed" | "poison";
+  remainingRounds: number;
+  /** Per-round damage the DoT was dealing in combat (display only for now). */
+  perRound?: number;
+  icon?: string;
+}
+
 export interface Adventurer {
   id: string;
   premadeId?: string; // ID from PREMADE_CHARACTERS (e.g. "char_042")
@@ -624,6 +636,13 @@ export interface Adventurer {
   loyalty?: number;
   /** Override portrait filename for premade characters */
   portrait?: string;
+  /** Persistent HP between missions. Heroes come home at whatever HP they ended
+   *  combat on and regenerate over time. Undefined on legacy saves → treated as
+   *  full (maxHp) by the migration. maxHp stays derived (calcAdventurerMaxHp). */
+  currentHp?: number;
+  /** Lingering wounds (bleed/poison) carried home. Block regen until they decay
+   *  or are treated. Undefined/empty = healthy. */
+  conditions?: AdventurerCondition[];
 }
 
 // ─── Stats ──────────────────────────────────────────────────────
@@ -854,7 +873,7 @@ function buildAdventurerFromPremade(id: string, premade: PremadeCharacter, maxRa
   const level = Math.max(1, RANK_LEVEL_THRESHOLDS[rank] - 1);
   const actualRank = getRankForLevel(level);
 
-  return {
+  const adv: Adventurer = {
     id,
     premadeId: premade.id,
     name: premade.name,
@@ -876,6 +895,9 @@ function buildAdventurerFromPremade(id: string, premade: PremadeCharacter, maxRa
     loyalty: 0,
     portrait: premade.portrait,
   };
+  // Start at full HP (no equipment yet → maxHp = base VIT × 8).
+  adv.currentHp = calcStats(adv).vit * 8;
+  return adv;
 }
 
 /** Generate an adventurer candidate from the premade pool. Pass guildLevel

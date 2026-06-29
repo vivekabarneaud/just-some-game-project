@@ -37,7 +37,7 @@ export const poison: ClassAbilityHandler = {
     startCooldown(unit, "poison", 4);
     const target = [...alive].sort((a, b) => b.hp - a.hp)[0];
     const dotDamage = Math.floor(getAttackPower(unit) * 0.3);
-    target.poisonTicks.push({ damage: dotDamage, rounds: 3, sourceName: unit.name, sourceIcon: "☠️" });
+    target.poisonTicks.push({ damage: dotDamage, rounds: 3, sourceName: unit.name, sourceIcon: "☠️", type: "poison" });
     ctx.log.push({
       round: ctx.round, attackerName: unit.name, attackerIcon: "☠️", targetName: target.name,
       damage: 0, dodged: false, crit: false, killed: false,

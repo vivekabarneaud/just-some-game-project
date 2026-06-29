@@ -27,6 +27,7 @@ import { getItem, getItemsForSlot, getEquipmentStats, getEquipmentDefense, isSup
 import { getTalentsForClass, getTalentPoints, getUnspentTalentPoints, canUnlockTalent, getEarnedTitle, getTalent, type TalentNode } from "~/data/talents";
 import Tooltip from "~/components/Tooltip";
 import TraitBadge from "~/components/TraitBadge";
+import AdventurerVitals from "~/components/AdventurerVitals";
 
 // ─── Equipment slot types ───────────────────────────────────────
 
@@ -170,6 +171,9 @@ export default function AdventurerDetail() {
                             {getOrigin(adv().origin)?.name} — {getOrigin(adv().origin)?.region}
                           </div>
                         </Show>
+                        <div style={{ "margin-top": "8px" }}>
+                          <AdventurerVitals adventurer={adv()} width="160px" showText />
+                        </div>
                       </div>
 
                       {/* Backstory & Quirk — grouped tighter */}

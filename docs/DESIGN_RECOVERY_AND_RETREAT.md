@@ -42,6 +42,10 @@ The retreat/rescue/heal layer is rich bespoke-tree fuel:
 3. **Healing systems** — potions/spells/bandages/recipes + the **Infirmary** building; the talents above.
 4. **Permadeath scope** — wire the lethal exceptions (expeditions, special missions).
 
+## Banked refinements (NOT building yet)
+- **Conditions decay over real time.** When a hero comes home still bleeding/poisoned, carry the DoT's *remaining rounds* home and let the condition fade on its own — rough idea **~30 real minutes per remaining tick/round**. So a nearly-faded bleed clears soon; a fresh deep wound lingers. Pairs with "block passive regen": while the condition is active it blocks regen, then it expires (or a potion/Edda clears it early) and regen resumes. *v1 stores the remaining-rounds on the condition so the data is there, but behaves as persist-until-treated; wire the timed decay later.* (User idea, 2026-06-29, "not sure yet.")
+- **Adventurers can die at home (untreated wounds worsen).** The "slowly drain HP at home" option — an untreated bleed/poison ticks down even in the settlement and can push a hero to critical/death. Realistic and good for tension, but deliberately *deferred*: it conflicts with "losses are survivable" unless paired with reliable treatment (Infirmary), so it belongs to a later, harder difficulty pass. (User: "realistic and good but I don't feel we should implement it right now.")
+
 ## Notes
 - The current code's forgiving death *roll* is a reasonable **interim** under C (losses rarely kill), so no urgent change is needed before the build — the "0% success → ~10% death" the user flagged is actually *fine* under C (you flee and mostly survive); it just needs **reframing the outcome as "failed, team wounded"** rather than a death percentage, which Phase 1/2 does.
 - Cross-refs: [[project_adventurer_recovery]] (the original recovery memo), `DESIGN_ROSTER_ECONOMY.md` (the superseded 100%-on-KO), `DESIGN_EXPEDITIONS.md` (Adrenaline), `DESIGN_TALENT_TREES.md` (bespoke trees — the talent home), the death-confirm modal (already built).

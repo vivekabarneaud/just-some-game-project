@@ -38,6 +38,7 @@ import Countdown from "~/components/Countdown";
 import Tooltip from "~/components/Tooltip";
 import MissionCard from "~/components/MissionCard";
 import TraitBadge from "~/components/TraitBadge";
+import AdventurerVitals from "~/components/AdventurerVitals";
 import MissionAssemblyPanel from "~/components/MissionAssemblyPanel";
 import LootModal from "~/components/LootModal";
 import ChronicleEntryModal from "~/components/ChronicleEntryModal";
@@ -1045,6 +1046,9 @@ export default function AdventurersGuild() {
                           </div>
                         </Show>
                         <XpBar xp={adv.xp} level={adv.level} />
+                        <div style={{ "margin-top": "4px" }}>
+                          <AdventurerVitals adventurer={adv} width="100%" showText />
+                        </div>
                         <Show when={adv.backstory}>
                           <div class="roster-card-backstory" style={{
                             "font-size": "0.78rem",

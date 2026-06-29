@@ -47,14 +47,31 @@ export function buildResult(
 
   const finalHp: Record<string, number> = {};
   const finalMaxHp: Record<string, number> = {};
+  const finalConditions: Record<string, { type: "bleed" | "poison"; remainingRounds: number; perRound?: number; icon?: string }[]> = {};
   for (const unit of adventurers) {
     finalHp[unit.id] = Math.max(0, unit.hp);
     finalMaxHp[unit.id] = unit.maxHp;
+    // Only SURVIVORS carry wounds home — the fallen are handled by the death roll.
+    // Collapse the unit's remaining DoTs into one condition per type, keeping the
+    // longest remaining duration and its per-round damage.
+    if (unit.kind === "adventurer" && unit.hp > 0 && unit.poisonTicks.length > 0) {
+      const byType = new Map<"bleed" | "poison", { remainingRounds: number; perRound?: number; icon?: string }>();
+      for (const tick of unit.poisonTicks) {
+        const type = tick.type ?? "bleed";
+        const prev = byType.get(type);
+        if (!prev || tick.rounds > prev.remainingRounds) {
+          byType.set(type, { remainingRounds: tick.rounds, perRound: tick.damage, icon: tick.sourceIcon });
+        }
+      }
+      const conds = [...byType.entries()].map(([type, v]) => ({ type, ...v }));
+      if (conds.length > 0) finalConditions[unit.id] = conds;
+    }
   }
 
   return {
     victory, rounds, log, performanceRatio, survivingEnemies, totalEnemies,
     fallenAdventurerIds, loot, finalHp, finalMaxHp,
+    ...(Object.keys(finalConditions).length > 0 ? { finalConditions } : {}),
     ...(fallenObjective?.npcId ? { vipFallen: fallenObjective.npcId } : {}),
   };
 }
