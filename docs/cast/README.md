@@ -24,6 +24,8 @@ One file per character. This is the **deep canon** for each member of the cast: 
 - [sable.md](sable.md) — char_008, assassin, the street orphan with nothing to lose (mononym, ex-Lyra)
 - [aldwin-stonebridge.md](aldwin-stonebridge.md) — char_017, priest, the shelterer-priest whose faith cracks for love of his wizard brother
 - [magnus-stonebridge.md](magnus-stonebridge.md) — char_029, wizard, the hunted prodigy (your first magic; ex-Alaric)
+- [stonebridge-arrival.md](stonebridge-arrival.md) — *story arc:* the magic-unlock beat (their arrival, Magnus's confession, the Lord's mercy, the faith-crack)
+- [arrival-order.md](arrival-order.md) — *planning:* who arrives when and *why* (the three arrival engines + the rough Act-1 order + unlock gates)
 
 ### Side-story figures (NPCs)
 - [aldith-the-bog-witch.md](aldith-the-bog-witch.md) — the Bog Witch & her dead granddaughter Ada
