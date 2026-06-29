@@ -28,8 +28,12 @@
 ## Preferences & specificities
 - Sweet tooth (the mother's honey). The barley-seed pouch. Never misses a shot.
 
-## Talent / ability ideas
-- The "never misses" identity → a **precision/marksmanship** lean (guaranteed-hit, no-waste mechanics that flavor-match her rationing). The "mother" identity → a **protective/team-sustain** angle (she keeps people alive, fed, standing). Bespoke tree TBD when the per-character talent system lands.
+## Combat identity & talents (parked 2026-06-29)
+**Archetype: Survival Hunter — the finisher + family anchor (archer).** Light woodland hunter: hides / uses terrain (**low aggro**), places **traps**, **evasive** (good dodge + flee), higher DEX/WIS, and **targets low-HP first** — she *finishes* exactly what Godric softens and pins on himself. Thematically she does the killing so the gentle giant doesn't have to ("she decided who ate, which is who lives"). She also **commands the Thornwoods only** — informal, family-scoped (Morgause commands anyone; Brenna just *her* three, because she raised them). Talent model = Godric's template (signature passive → minors-as-gates → fork → capstones; see [godric-thornwood.md](godric-thornwood.md)).
+- *Signature passive (L1):* **Cull** — bonus damage to low-HP enemies; she never wastes a shot. The finisher's eye + her targeting priority.
+- *Talent seeds (park):* **Trapper** ⭐ (snare/control a foe), **From the Trees** (camouflage — generates little threat, bonus opener from concealment), **Light-Footed** (dodge + better escape roll), **Finishing Shot** ⭐ (execute: big bonus vs low-HP), **Thornwood Command** ⭐ (family-only — Thornwoods near her get the coordinated-retreat bonus + steadying).
+- *Possible fork (very her):* **Provider** (team-sustain — keeps people standing, the mother) vs **Hunter** (pure lethality — the killer). Nurture and kill are the same act in Brenna; the fork lets the player lean one way.
+- *Minors:* +DEX, +WIS, +crit-vs-wounded, +trap potency, +evasion.
 
 ## Open threads / TBD
 - Assign a backstory trait (something matching "steady provider / protector").

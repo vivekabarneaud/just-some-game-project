@@ -34,11 +34,15 @@
 
 **Base kit & unlock rule (project-wide):** L1 = **auto-attack + the character's signature passive**. Passives are **per-character, not class-wide** (decided 2026-06-29): Shield Wall is *Godric's* passive, not every warrior's (it would be noise on Hester, who wants an axe/execute passive). The old class passives (Shield Wall, priest revive, assassin loot, wizard speed) survive only as the **default for generic/non-curated recruits**. Class still drives the *chassis* (base stats, growth, attack stat, role/targeting). *All* other abilities come from the **tree** (single unlock channel); tiers gated by points spent (≈ level), so capstones land late automatically. The intimate capstone is additionally **loyalty-gated**. Abilities are **AI-driven** (auto-combat), not player-pressed buttons. (Option held in reserve: a small per-character L1 signature if a recruit should feel distinct the instant they join; default is the class innate + let the tree carry personality.)
 
-**Godric's tree — "The Wall"** *(sketch; user is drawing the real layout):*
-- **Tier 1 — Foundations** (cheap, ranked): **Thick Hide** (+damage reduction/pt), **Broad Shoulders** (+max HP/pt).
-- **Tier 2 — Draw Their Eye** (aggro identity): **Provoke** (taunt — forces enemies onto him a round), **Unmissable** (ranked: +threat generation; they look at the big man first).
-- **Tier 3 — the fork** (both pure Godric): **Iron Resolve** (mitigation scales up as his HP drops → survive being the last one standing) **OR** **Aegis** (Shield Wall covers more allies, triggers more often, can intercept a blow meant for anyone → throw himself wider for the team).
-- **Tier 4 — Capstones** (signatures): **Last Stand** (on a team rout he refuses to flee: plants himself, pulls *all* aggro, huge defense for a few rounds, buys the family's escape) and **The Gentle Giant** (loyalty-gated: won't land a finishing blow on a fleeing/low-HP foe; spared enemies are likelier to break and run = fewer left attacking the family; hits harder when purely defending — the pacifism, made mechanical).
+**Godric's tree — "The Wall"** *(layout 2026-06-29; vanilla-WoW tiers — minors are the connective tissue + the gates you spend points on to reach the keystones ⭐):*
+- *Signature passive (free, L1):* **Shield Wall** — throws himself in front of a killing blow meant for an ally. His base identity; the tree builds on it. (NB: the earlier "Aegis = a better Shield Wall" fork was redundant and is **cut** — Shield-Wall upgrades live in the **Shield Training** minor instead.)
+- **Tier 1** (minors; ~5 pts to open T2): **Thick Hide** (+mitigation/rank), **Broad Shoulders** (+max HP/rank).
+- **Tier 2** (5 pts): **Unmissable** (+threat/rank), **Provoke** ⭐ (active taunt), **Shield Training** (+Shield Wall trigger chance/rank).
+- **Tier 3** (10 pts): **Iron Grip** (taunts stick longer/rank), **Stagger** ⭐ (the peel/stun — interrupts an enemy attacking a weaker ally, stuns it a turn, dumps huge aggro on it), **Heavy Frame** (can't be knocked / feared / pulled off-target).
+- **Tier 4 — the fork** (15 pts): **Iron Resolve** ⭐ (mitigation rises as HP drops → survive being the last one standing) **OR** **Bodyguard** ⭐ (aura: the nearest lowest-HP ally takes less damage → shield others wider).
+- **Tier 5 — capstones** (20 pts): **Last Stand** ⭐ (refuse to flee, plant, pull all aggro, huge defense, buy the family's escape) and **The Gentle Giant** ⭐ (loyalty-gated: won't finish a fleeing/low-HP foe; spared foes break and run; hits harder purely defending).
+
+*Placement principle (the thing that unblocks drawing):* keystones ⭐ are the landmarks; the ranked minors fill the early rows and gate access to the deeper tiers, so the choice is "how much do I invest to path toward which keystone." ~11 nodes, vanilla-WoW scale.
 
 **Design tension to preserve:** Last Stand + his self-worthlessness means he *wants* to be the one left behind; Iron Resolve, the family, and the player have to keep the wall alive *despite* him. Echoes the bio — *"not one of them will let that stand."*
 

@@ -26,8 +26,12 @@
 ## Preferences & specificities
 - Best marksman of the three. The badge in the boot. Sweet tooth.
 
-## Talent / ability ideas
-- The "best shot in the company" → an **elite-marksman** tree (the precise, decisive shot). A "protector of the pushed-around" angle could bleed into taunt/peel mechanics. Bespoke tree TBD.
+## Combat identity & talents (parked 2026-06-29)
+**Archetype: Elite Marksman / Sharpshooter (archer) — the disciplined soldier-bow.** Big **single-target** damage, **focus-fire** (rarely switches targets), **high crit, low miss, armor-pierce**, and uniquely a **heavier archer** (can wear chainmail — the trained soldier survives the front, unlike Brenna's light woodland kit). His "starts fights over anyone pushed around" bleeds into a **peel / cover-the-weak** angle. Talent model = Godric's template (see [godric-thornwood.md](godric-thornwood.md)).
+- *Signature passive (L1):* **Focused Aim** — stacking bonus damage the longer he stays on one target (rewards his focus-fire discipline).
+- *Talent seeds (park):* **Aimed Shot** ⭐ (one decisive big single-target hit), **Suppressing Fire** ⭐ (peel — an enemy targeting a weaker ally is pulled onto Gareth; "fights for the pushed-around"), **Soldier's Discipline** (chainmail: +mitigation, the tanky archer), and your **Armor Pierce vs Crit** either/or as the signature small fork.
+- *Possible fork:* **Sharpshooter** (max burst — crit + pierce + Aimed Shot) vs **Linebreaker** (chainmail tankiness + Suppressing Fire — the soldier who stands his ground for others). Pierce-vs-crit lives inside the Sharpshooter lean.
+- *Minors:* +crit, +armor-pierce, +single-target dmg, +mitigation.
 
 ## Open threads / TBD
 - **Wanted-deserter hook:** at risk if the Dominion's reach reaches the frontier. Shared with Godric.
