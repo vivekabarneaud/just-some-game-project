@@ -786,6 +786,12 @@ function syncArrivals(s: GameState): void {
       }
     }
   }
+  // The guild's first hands: when the Thornwoods arrive (guild opens), the Lord
+  // writes them into the Chronicle. Fires once.
+  const THORNWOOD_IDS = ["char_000", "char_005", "char_021"];
+  if (THORNWOOD_IDS.some((id) => havePremadeIds.has(id)) && !s.chronicleEntriesFired.includes("ch1_thornwoods")) {
+    s.chronicleEntriesFired.push("ch1_thornwoods");
+  }
 }
 
 const NAME_PREFIXES = [

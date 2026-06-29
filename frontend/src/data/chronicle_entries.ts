@@ -73,9 +73,23 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
     cinematicId: "intro",
   },
   {
-    id: "ch1_first_scouts",
+    id: "ch1_thornwoods",
     chapterId: "ch1",
     order: 2,
+    title: "Two bows, a strong back, and a loud boy",
+    teaser: "A family of hunters walked in from the trees. I have their names. The rest will take longer.",
+    fullText:
+      "They came in from the north trees a little after midday: four of them. Three grown, walking with the easy quiet of people who have come a long way and learned not to spend breath on it, and a small boy who was not quiet in the least. Hunters, the elder three. They asked for less than I expected and offered more, fresh meat for the pot and their bows for whatever the camp needs hunted or watched. I said yes. We are a small handful against a forest older than any king who ever claimed it; I would have said yes to almost anyone. But I think I would have said yes to these in any case.\n\n" +
+      "They are a family. Thornwood. The eldest is Brenna, and it took me about one breath to see that she is the one who decides things, for all three of them. She does not raise her voice. She does not need to. She looked the camp over once, the way Tomas looks at a stone he means to cut, and I had the sense she had already counted our stores and guessed to the day how long they would last. I would rather have her counting than not.\n\n" +
+      "The second is Gareth, who talks enough for all three and laughs before the joke is finished. Good company, the kind a camp wants by its fire. But I marked something under the ease. He keeps an eye on whoever is being treated badly, and the one time a voice rose in anger across the camp he was on his feet before he knew he had stood, ready to step in, then caught himself and turned it into a joke instead. The quickness to laugh and the quickness to defend someone seem to come from the same place in him. I do not yet know what that place is.\n\n" +
+      "The third is Godric, and you notice him the way you notice weather. He is the largest man I have ever stood beside and, so far, the gentlest. He carried half our firewood before anyone asked, and gave his share of the meat to the children before anyone could tell him to keep it. He has said perhaps ten words since midday. When Brenna speaks he listens as though it were scripture.\n\n" +
+      "The boy is perhaps seven, and the loudest thing that has happened to this camp since we raised the first tent. He had told me his name, and a good deal of other business besides, before the grown three had finished saying good day. He is not theirs by blood, I think, though I would not swear to it and I did not ask; they keep him in the middle of them the way you keep the one thing you carried out of a burning house. Our Nell watched him the whole while from the tent flap and did not say a word. I do not know yet what to make of that. I made a note of it all the same.\n\n" +
+      "I have their names and almost nothing else, and that is right. People do not arrive at the edge of the world with their whole story written on them. But I have set the names down here, in this book, and that is the small thing that turns a stranger into one of us: that someone troubled to keep the record. The guild has its first hands. Tomorrow I will learn what they can do. The rest, who they were before the trees, I expect I will learn the way you learn anything true out here. Slowly. Usually by accident.",
+  },
+  {
+    id: "ch1_first_scouts",
+    chapterId: "ch1",
+    order: 3,
     title: "South, on a hill",
     teaser: "The first scouts return. The map is good. The news, less so.",
     fullText:
@@ -89,7 +103,7 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
   {
     id: "ch1_garrison_ruins",
     chapterId: "ch1",
-    order: 3,
+    order: 4,
     title: "Forty-seven days",
     teaser: "A name on a journal cover. A seal I do not know. Forty-seven days I cannot make sense of.",
     fullText:
@@ -120,7 +134,7 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
   {
     id: "ch1_warden",
     chapterId: "ch1",
-    order: 4,
+    order: 5,
     title: "The Warden",
     teaser: "She walked my team home from a fight they should not have survived. She came inside. She had business to discuss.",
     fullText:
@@ -159,7 +173,7 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
   {
     id: "ch1_captains_rest",
     chapterId: "ch1",
-    order: 5,
+    order: 6,
     title: "The Captain's Rest",
     teaser: "The team rode south with Niamh at dawn. I waited at the gate. They came back at dusk.",
     fullText:
@@ -185,7 +199,7 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
   {
     id: "ch1_first_robin",
     chapterId: "ch1",
-    order: 6,
+    order: 7,
     title: "What the robin brought",
     teaser: "A note. A salve. And a thing about ghost wounds I had not known.",
     fullText:
