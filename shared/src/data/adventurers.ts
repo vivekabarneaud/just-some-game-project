@@ -780,6 +780,19 @@ export function getRelationship(premadeId?: string): string | undefined {
   return CHAR_RELATIONSHIPS[premadeId];
 }
 
+/** A tight summary for roster cards: the character's hand-written `summary`, or
+ *  the first sentence of their backstory as a fallback. The full bio is shown on
+ *  the adventurer detail page. */
+export function getCharacterSummary(premadeId?: string): string | undefined {
+  if (!premadeId) return undefined;
+  const c = PREMADE_CHARACTERS.find((x) => x.id === premadeId);
+  if (!c) return undefined;
+  if (c.summary) return c.summary;
+  const bio = c.backstory ?? "";
+  const m = bio.match(/^[^.!?]*[.!?]/);
+  return m ? m[0].trim() : bio;
+}
+
 /** Pick a premade character not already in use, optionally filtered by origin. */
 function pickPremadeCharacter(usedNames?: Set<string>, allowedOrigins?: Set<Origin>): PremadeCharacter | null {
   let pool: PremadeCharacter[] = PREMADE_CHARACTERS.filter((c) => !c.questOnly);

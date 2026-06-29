@@ -15,6 +15,7 @@ import {
   type Adventurer,
   type AdventurerRank,
   getRelationship,
+  getCharacterSummary,
   getFoodPref,
 } from "@medieval-realm/shared/data/adventurers";
 import { getUnspentTalentPoints } from "~/data/talents";
@@ -1051,7 +1052,7 @@ export default function AdventurersGuild() {
                             "padding-left": "8px",
                             "border-left": "2px solid var(--border-color)",
                           }}>
-                            "{adv.backstory}"
+                            "{getCharacterSummary(adv.premadeId) ?? adv.backstory}"
                           </div>
                         </Show>
                         <TraitBadge traitId={adv.trait} />
