@@ -215,6 +215,7 @@ export default function Sidebar(props: SidebarProps) {
     }
     if (path === "/guild") {
       if (incomingCoopInvites() > 0) return { color: "var(--accent-blue)", text: "coop!" };
+      if (actions.hasNewAdventurers()) return { color: "var(--accent-blue)", text: "new!" };
       if (actions.hasNewGuildContent()) return { color: "var(--accent-blue)", text: "new!" };
       return null;
     }

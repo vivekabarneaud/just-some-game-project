@@ -560,6 +560,10 @@ export interface GameState {
   /** Recipe IDs the player has hovered. Drives the blue "newly available"
    *  highlight on RecipeCards + the per-crafting-building sidebar badge. */
   recipesSeen: string[];
+  /** Adventurer IDs the player has glanced at in the Roster. A newly-arrived
+   *  character not in this list shows an "unread" highlight (and drives the
+   *  Roster tab dot + the sidebar guild "new!" pulse) until the Roster is viewed. */
+  adventurersSeen: string[];
   firstMissionSent: boolean;
   introSeen: boolean;
   // Story missions
@@ -680,6 +684,8 @@ export interface GameActions {
   canClaimDailyLogin: () => boolean;
   visitGuild: () => void;
   hasNewGuildContent: () => boolean;
+  hasNewAdventurers: () => boolean;
+  markAdventurersSeen: () => void;
   visitChronicleJournal: () => void;
   visitChronicleCast: () => void;
   /** Mark a single chronicle entry as glanced-at — clears its highlight and
@@ -945,6 +951,7 @@ function createInitialState(): GameState {
     questsClaimableSeen: [],
     buildingsSeen: [],
     recipesSeen: [],
+    adventurersSeen: [],
     firstMissionSent: false,
     introSeen: false,
     completedStoryMissions: [],
@@ -1309,6 +1316,9 @@ function loadGame(): GameState | null {
     if (!saved.firedEvents) saved.firedEvents = [];
     if (!saved.pendingEvents) saved.pendingEvents = [];
     if (!saved.questsClaimableSeen) saved.questsClaimableSeen = [];
+    // Existing saves: treat everyone already on the roster as "seen" so old
+    // saves don't light up blue. New arrivals after this point will be unread.
+    if (!saved.adventurersSeen) saved.adventurersSeen = (saved.adventurers ?? []).map((a: any) => a.id);
     if (!saved.buildingsSeen) {
       // Existing save — assume the player has already seen anything they could
       // possibly have built. We mark all currently-unlocked buildings as seen
@@ -5421,6 +5431,21 @@ export function GameProvider(props: ParentProps) {
     hasNewGuildContent() {
       return (state.lastMissionRefresh > state.lastGuildVisit && state.missionBoard.length > 0) ||
              (state.lastRecruitRefresh > state.lastGuildVisit && state.recruitCandidates.length > 0);
+    },
+    hasNewAdventurers() {
+      const seen = new Set(state.adventurersSeen ?? []);
+      return state.adventurers.some((a) => a.alive && !seen.has(a.id));
+    },
+    markAdventurersSeen() {
+      const seen = new Set(state.adventurersSeen ?? []);
+      if (state.adventurers.every((a) => seen.has(a.id))) return;
+      setState(produce((s) => {
+        if (!s.adventurersSeen) s.adventurersSeen = [];
+        for (const a of s.adventurers) {
+          if (!s.adventurersSeen.includes(a.id)) s.adventurersSeen.push(a.id);
+        }
+      }));
+      scheduleSave();
     },
     visitChronicleJournal() {
       // Mark all currently-fired entries as seen

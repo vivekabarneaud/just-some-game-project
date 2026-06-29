@@ -89,10 +89,21 @@ function DeathRisk(props: { chance: number }) {
 export default function AdventurersGuild() {
   const { state, actions } = useGame();
   actions.visitGuild();
-  onMount(() => playPageMountSound("dagger"));
+  onMount(() => {
+    playPageMountSound("dagger");
+    // Deep-linked straight to the Roster: snapshot new arrivals, then mark seen.
+    if (tab() === "roster") {
+      const seen = new Set(state.adventurersSeen ?? []);
+      setNewlyArrivedIds(state.adventurers.filter((a) => a.alive && !seen.has(a.id)).map((a) => a.id));
+      actions.markAdventurersSeen();
+    }
+  });
   const [searchParams] = useSearchParams();
   const initialTab = searchParams.tab === "roster" ? "roster" : "missions";
   const [tab, setTab] = createSignal<Tab>(initialTab);
+  // Adventurers that were "new" when the Roster was opened — drives the blue
+  // outline this visit (captured before they're marked seen, or it'd vanish instantly).
+  const [newlyArrivedIds, setNewlyArrivedIds] = createSignal<string[]>([]);
   const [selectedMission, setSelectedMission] = createSignal<MissionTemplate | null>(null);
   const [selectedTeam, setSelectedTeam] = createSignal<string[]>([]);
   const [selectedSupplies, setSelectedSupplies] = createSignal<string[]>([]);
@@ -273,6 +284,13 @@ export default function AdventurersGuild() {
     setTab(t);
     setSelectedMission(null);
     setSelectedTeam([]);
+    // Viewing the roster clears the "new arrival" markers, but snapshot who was
+    // new first so this visit can still show their blue outline.
+    if (t === "roster") {
+      const seen = new Set(state.adventurersSeen ?? []);
+      setNewlyArrivedIds(state.adventurers.filter((a) => a.alive && !seen.has(a.id)).map((a) => a.id));
+      actions.markAdventurersSeen();
+    }
   };
 
 
@@ -385,7 +403,10 @@ export default function AdventurersGuild() {
               onClick={() => switchTab(t)}
               style={{ padding: "8px 16px", "font-size": "0.9rem" }}
             >
-              {t === "missions" ? "Missions" : t === "roster" ? "Roster" : "Recruit"}
+              {t === "missions" ? "Missions" : "Roster"}
+              <Show when={t === "roster" && actions.hasNewAdventurers()}>
+                <span title="New arrival" style={{ "margin-left": "6px", display: "inline-block", width: "8px", height: "8px", "border-radius": "50%", background: "var(--accent-blue)", "vertical-align": "middle" }} />
+              </Show>
             </button>
           ))}
         </div>
@@ -959,7 +980,7 @@ export default function AdventurersGuild() {
         <Show when={tab() === "roster"}>
           <Show when={roster().length === 0}>
             <p style={{ color: "var(--text-muted)", "font-size": "0.85rem" }}>
-              No adventurers yet. Visit the Recruit tab to hire heroes!
+              No adventurers yet. Newcomers arrive as your settlement grows.
             </p>
           </Show>
           <For each={ADVENTURER_CLASSES.filter((cls) => roster().some((a) => a.class === cls.id))}>
@@ -1001,7 +1022,8 @@ export default function AdventurersGuild() {
                       width: "100%",
                       opacity: adv.onMission ? 0.7 : 1,
                       background: adv.onMission ? "var(--bg-secondary)" : "var(--bg-card)",
-                      "border-color": adv.onMission ? "var(--accent-blue)" : undefined,
+                      "border-color": newlyArrivedIds().includes(adv.id) ? "var(--accent-blue)" : adv.onMission ? "var(--accent-blue)" : undefined,
+                      "box-shadow": newlyArrivedIds().includes(adv.id) ? "0 0 0 1px var(--accent-blue), 0 0 12px rgba(96, 165, 250, 0.25)" : undefined,
                     }}>
                       <span class="building-card-category" style={{ color: RANK_COLORS[adv.rank] }}>
                         {RANK_NAMES[adv.rank]}
