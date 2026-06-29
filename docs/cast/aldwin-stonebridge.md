@@ -30,8 +30,11 @@
 - **Old Bede** — Aldwin found him to teach Magnus; his public burning is the loss that drove the brothers onto the road (see Magnus's file).
 - **Bridge to the Lord:** a believer whose faith already cracked under love — a mirror/guide for the Lord's own coming reckoning with magic. (Alongside **Edda**'s Old-Faith folk-ritual and **Corin**'s secret study — the settlement's built-in bridges to accepting magic.)
 
-## Talent / ability ideas
-- Healer-priest (Primal healing/ward), possibly a bespoke **"sheltering"** support angle — buffs/protects the wounded and the hunted (his whole life is taking people in). Per-character talent rework pending; priest stays the chassis.
+## Combat identity & talents (parked 2026-06-29)
+**Archetype: pure healer + protector (priest).** Heals, shields, wards — straight support, no offense to speak of; his power is keeping others alive, and keeping **Magnus** alive above all. Talent model = Godric's template (see [godric-thornwood.md](godric-thornwood.md)).
+- *Signature passive — Answered Prayers (the secret):* his heals occasionally over-heal/cleanse and his wards bite **undead / aether** harder than a priest's should, because he is an **unwitting Primal** ([[project_magic_rules]]: priests = unwitting Primal) — and *"it would never occur to him to wonder why."* A **discovery beat** (the player sees his prayers shrug off the Wastes' wrongness; he never does) *and* his arc (he is exactly the thing the Church would burn).
+- *Shields Magnus in priority:* heals/wards flow to his brother first; he'll hold a **Last Stand for Magnus** without hesitation, and **won't flee without him** (retreat system — he stays for the boy). His protection is *what lets Magnus unleash.*
+- *Talent seeds (park):* **Sanctuary** ⭐ (shield/ward an ally — Magnus first), **Greater Healing**, **Ward Against the Dark** ⭐ (the Primal bite vs undead/aether — surfaces his hidden nature), **Intercession** ⭐ (take-the-hit / Last Stand for an ally, brother-focused). Minors: +heal power, +ward strength, +WIS.
 
 ## Open threads / TBD
 - Assign a trait.

@@ -34,8 +34,16 @@
 - **Aldwin** — brother and the man who raised him; won't let him leave to "spare" him. The bond is the spine of both characters.
 - **The dramatic irony he can't see:** Aldwin does magic too (unwitting Primal healing) — they're the same force, sorted by the Church into "holy" and "damned." (See Aldwin's file + `LORE_TIMELINE.md`.)
 
-## Talent / ability ideas
-- **Untrained-prodigy** flavor: very high raw power, shaky control — a possible **glass-cannon / high-variance** bespoke direction that *gains control* as he grows / with loyalty (a literal mechanical arc from wild to disciplined, echoing Bede's lessons finally taking root). Per-character talent rework pending; wizard stays the chassis. School: **Arcane**, raw.
+## Combat identity & talents (parked 2026-06-29)
+**Archetype: the caged firestorm (wizard) — restraint vs unleash.** Default = he **throttles** himself: small, controlled, *low-attention* magic (makes himself small, stays hidden). **Unleash** is a deliberate, devastating choice he only takes **when it's safe — when the enemies' attention is elsewhere** (mechanically: when his own threat/aggro is low because Godric/Gareth hold the line). So he's a **team payoff**: the tank pulls eyes, Aldwin shields his back, *then* the boy levels the field. The firestorm needs cover — the brothers' whole life in one mechanic. Talent model = Godric's template (see [godric-thornwood.md](godric-thornwood.md)).
+- **Magic = wind (elemental), leaning** (user call, 2026-06-29 — confirm before locking). Invisible by nature, so his restraint/unleash is *literal*: a breeze draws no eye, a gale can't be hidden. Chosen over **pure aether** (aether = the corruption substance in-lore — it would taint an innocent boy and imply he's *corrupting*, not just powerful) and over plain **force** (same invisibility, less poetry). Small/unseen by default; the unleash is a visible storm.
+- *Signature mechanic — Restraint / Unleash:* low, safe output by default; an **Unleash** (big AoE storm) that fires when his threat is low / he's unobserved, **loyalty-gated** (he only dares cut loose for people he trusts).
+- *Prodigy-control arc:* very high raw power, shaky control early → *gains* control as he levels / with loyalty (Bede's lessons finally taking root) — a literal wild-to-disciplined arc.
+- *Talent seeds (park):* **Gale** ⭐ (the unleash — AoE knockback storm), **Stillness** (deeper restraint: near-zero threat while throttled → stays unseen longer), **Eye of the Storm** ⭐ (control: unleash without the wild-surge downside). Minors: +INT, +control, +AoE radius.
+
+## The pair (with Aldwin) — codependency
+- **Aldwin alive + near → Magnus dares to unleash** (he feels safe). **Aldwin falls → Magnus breaks**: a wild uncontrolled surge, or he panics and shuts down. Losing the brother unmakes him.
+- Aldwin shields/heals Magnus **first**, so the firestorm survives to fire. They are only whole together. See [aldwin-stonebridge.md](aldwin-stonebridge.md), [stonebridge-arrival.md](stonebridge-arrival.md).
 
 ## Open threads / TBD
 - Assign a trait / build the prodigy mechanic.
