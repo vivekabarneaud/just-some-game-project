@@ -93,6 +93,19 @@ export interface CombatUnit {
   /** Per-soldier HP used to derive surviving headcount post-combat
    *  (survivors = floor(currentHp / hpPerUnit)). Required when headcount is set. */
   hpPerUnit?: number;
+  // ── Retreat / recovery (Model C) ──
+  /** Survival reflex spent: a non-overkill lethal blow already left them at 1 HP
+   *  once this fight. After that, the next lethal hit downs them for real. */
+  reflexUsed?: boolean;
+  /** Reeling — out of the fighting line for the rest of combat; can only try to
+   *  flee. A heal restores HP (helps survive the run) but does NOT un-break them. */
+  broken?: boolean;
+  /** Escaped the field alive — removed from targeting + the action order, comes
+   *  home wounded. */
+  fled?: boolean;
+  /** This unit's presence upgrades the team's retreat judgment (Morgause). Set at
+   *  unit-build time. Command is lost if they fall/flee/break. */
+  isCommander?: boolean;
   // ── Status effects / per-round state ──
   cooldowns: Record<string, number>;
   tauntedBy?: string;
@@ -150,6 +163,12 @@ export interface CombatLogEntry {
     /** For DoTs (bleed/poison): damage per round */
     perRound?: number;
   };
+  /** Retreat/recovery narrative beat (Model C). Interim flat-schema marker until
+   *  the combat-log discriminated-union refactor lands; the renderer can special-
+   *  case these as highlighted lines. */
+  beat?: "broken" | "flee_success" | "flee_fail" | "order_hold" | "order_fallback" | "abandoned";
+  /** Human-readable narrative line for a `beat` entry. */
+  note?: string;
 }
 
 export interface LootResult {
@@ -176,6 +195,12 @@ export interface CombatResult {
   revivedAdventurerIds?: string[];
   totalEnemies: number;
   loot: LootResult[];
+  /** The player's side broke off (fled / routed) rather than winning or being
+   *  wiped. Mission fails, but the escapees come home wounded. */
+  retreated?: boolean;
+  /** Adventurer ids that escaped the field alive (came home wounded). Distinct
+   *  from fallenAdventurerIds (downed, did NOT escape → death-roll candidates). */
+  fledAdventurerIds?: string[];
   finalHp?: Record<string, number>;
   finalMaxHp?: Record<string, number>;
   /** Lingering DoTs (bleed/poison) still active on SURVIVING adventurers when
@@ -199,4 +224,13 @@ export interface CombatContext {
   /** Per-mission combat-rule modifiers active for this fight. Re-evaluated
    *  each round so gate conditions (whileAllyAlive) can flip mid-fight. */
   modifiers?: import("../missions/types.js").MissionModifier[];
+  // ── Retreat state (Model C) ──
+  /** Set by evaluateRetreat: the team is routing this round (all able units flee). */
+  retreating?: boolean;
+  /** Set by evaluateRetreat: an active commander (Morgause) is directing, so flees
+   *  this round get the coordinated bonus. */
+  retreatCoordinated?: boolean;
+  /** When true, the whole retreat/reflex layer is off (expeditions, special
+   *  missions — lethal by design). */
+  disableRetreat?: boolean;
 }

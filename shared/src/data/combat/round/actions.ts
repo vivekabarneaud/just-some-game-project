@@ -6,6 +6,7 @@ import { pickTarget, pickTargetForAdventurer } from "../targeting.js";
 import { tryClassAbility, tryEnemyAbility } from "../abilities/index.js";
 import { evaluateTransitions, getCurrentState } from "../ai/index.js";
 import { addDamageThreat } from "../threat.js";
+import { shouldFlee, attemptFlee } from "../retreat.js";
 
 /**
  * The main action phase of a round.
@@ -25,10 +26,14 @@ export function runActions(ctx: CombatContext): void {
     .sort((a, b) => getInitiative(b) - getInitiative(a));
 
   for (const unit of alive) {
-    if (unit.hp <= 0) continue;
+    if (unit.hp <= 0 || unit.fled) continue;
     // Walls, ritualists, ward stones — units explicitly flagged as non-acting.
     // Still take damage, still healable, just skip the turn.
     if (unit.canAct === false) continue;
+
+    // Retreat (Model C): broken heroes, and everyone once the team is routing,
+    // spend their turn trying to break contact instead of fighting.
+    if (shouldFlee(unit, ctx)) { attemptFlee(unit, ctx); continue; }
 
     evaluateTransitions(unit, ctx);
     const { state } = getCurrentState(unit);

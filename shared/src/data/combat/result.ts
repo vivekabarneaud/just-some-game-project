@@ -21,7 +21,8 @@ export function buildResult(
   // Mission engine reads vipFallen to take the distinct-failure path.
   const fallenObjective = adventurers.find((u) => u.isMissionObjective && u.hp <= 0);
 
-  const aliveAdvs = adventurers.filter((u) => u.hp > 0);
+  // Fled units left the field alive — they don't count toward "still fighting".
+  const aliveAdvs = adventurers.filter((u) => u.hp > 0 && !u.fled);
   const aliveEnemies = enemies.filter((u) => u.hp > 0);
   const survivingEnemies = aliveEnemies.length;
 
@@ -39,9 +40,17 @@ export function buildResult(
   const performanceRatio = totalEnemies > 0 ? enemiesKilled / totalEnemies : 0.5;
   // Filter out NPC allies / entities — fallenAdventurerIds drives the permadeath
   // roll on the player's side only. Niamh falling is reported via vipFallen.
+  // Fallen = downed adventurers who did NOT escape — the death-roll candidates.
+  // (Fled units always have hp > 0, so they're naturally excluded.)
   const fallenAdventurerIds = adventurers
-    .filter((u) => u.hp <= 0 && u.kind === "adventurer")
+    .filter((u) => u.hp <= 0 && u.kind === "adventurer" && !u.fled)
     .map((u) => u.id);
+  // Escapees come home wounded.
+  const fledAdventurerIds = adventurers
+    .filter((u) => u.fled && u.kind === "adventurer")
+    .map((u) => u.id);
+  // The team broke off rather than winning or being wiped.
+  const retreated = !victory && fledAdventurerIds.length > 0;
 
   const loot = rollLoot(enemies);
 
@@ -71,6 +80,7 @@ export function buildResult(
   return {
     victory, rounds, log, performanceRatio, survivingEnemies, totalEnemies,
     fallenAdventurerIds, loot, finalHp, finalMaxHp,
+    ...(fledAdventurerIds.length > 0 ? { fledAdventurerIds, retreated } : {}),
     ...(Object.keys(finalConditions).length > 0 ? { finalConditions } : {}),
     ...(fallenObjective?.npcId ? { vipFallen: fallenObjective.npcId } : {}),
   };

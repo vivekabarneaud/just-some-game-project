@@ -40,6 +40,9 @@ export function simulateCombat(
     encounters?: MissionEncounter[];
     hpOverride?: Record<string, number>;
     skipRecoveryHeal?: boolean;
+    /** Turn off the whole retreat/reflex layer (expeditions + special missions,
+     *  which are lethal by design). Model C — see DESIGN_RECOVERY_AND_RETREAT. */
+    disableRetreat?: boolean;
   },
 ): CombatResult | null {
   const encountersToUse = overrides?.encounters ?? mission.encounters;
@@ -72,6 +75,7 @@ export function simulateCombat(
   const ctx: CombatContext = {
     round: 0, adventurers, enemies, log: [],
     modifiers: mission.modifiers,
+    disableRetreat: overrides?.disableRetreat,
   };
   // Stamp initial modifier flags. Re-evaluated each round in case gate
   // conditions (whileAllyAlive) flip mid-combat (e.g. Niamh dies → physical

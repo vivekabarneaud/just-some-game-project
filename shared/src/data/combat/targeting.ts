@@ -14,7 +14,7 @@ import { getThreat } from "./threat.js";
  * never has tauntedBy set in the first place.
  */
 export function pickTarget(attacker: CombatUnit, targets: CombatUnit[]): CombatUnit | null {
-  const alive = targets.filter((u) => u.hp > 0);
+  const alive = targets.filter((u) => u.hp > 0 && !u.fled);
   if (alive.length === 0) return null;
 
   if (attacker.tauntedBy) {
@@ -50,7 +50,7 @@ export function pickTarget(attacker: CombatUnit, targets: CombatUnit[]): CombatU
  * Threat doesn't apply on this side — adventurers/allies pick their own targets.
  */
 export function pickTargetForAdventurer(attacker: CombatUnit, targets: CombatUnit[]): CombatUnit | null {
-  const alive = targets.filter((u) => u.hp > 0);
+  const alive = targets.filter((u) => u.hp > 0 && !u.fled);
   if (alive.length === 0) return null;
   if (alive.length === 1) return alive[0];
   return scoredPick(attacker, alive, 20, 0.15, 0);

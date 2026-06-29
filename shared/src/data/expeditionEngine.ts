@@ -131,7 +131,7 @@ export function resolveExpeditionEvent(
         ctx.team,
         ctx.supplies,
         ctx.seed + ctx.eventIndex * 1000,
-        { encounters: event.encounters, hpOverride: ctx.hpMap, skipRecoveryHeal: true },
+        { encounters: event.encounters, hpOverride: ctx.hpMap, skipRecoveryHeal: true, disableRetreat: true },
       );
       if (!combatResult) {
         ctx.log.push({ kind: "combat", summary: "No combat resolved", icon: "⚔️", success: false });

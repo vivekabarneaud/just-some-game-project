@@ -6,11 +6,18 @@ import type { MissionEncounter, MissionNpcAlly } from "../missions/index.js";
 import { getNpcAlly } from "../npcs.js";
 import type { CombatUnit } from "./types.js";
 
+/** Premades who upgrade the team's retreat judgment (Model C commander system).
+ *  Interim: recognized by premadeId until a "tactics"/commander talent exists —
+ *  then this becomes a talent check and generalizes. Morgause is the gold standard. */
+const COMMANDER_PREMADE_IDS = new Set(["char_020"]); // Morgause Dunwall
+
 /** Convert an Adventurer into a combat-ready unit. HP = VIT × 8. */
 export function buildAdventurerUnit(adv: Adventurer): CombatUnit {
   const equipStats = getEquipmentStats(adv.equipment);
   const stats = calcStats(adv, equipStats);
   const hp = stats.vit * 8;
+  const isCommander = (adv.premadeId ? COMMANDER_PREMADE_IDS.has(adv.premadeId) : false)
+    || (adv.talents?.includes("commander_tactics") ?? false);
   return {
     id: adv.id, name: adv.name, icon: "", kind: "adventurer", isEnemy: false,
     hp, maxHp: hp,
@@ -21,6 +28,7 @@ export function buildAdventurerUnit(adv: Adventurer): CombatUnit {
     trait: adv.trait,
     weaponType: adv.equipment.mainHand ? getItem(adv.equipment.mainHand)?.weaponType : undefined,
     canAct: true, canBeHealed: true, isTauntable: false,
+    isCommander,
     threatMultiplier: 1.0,
     cooldowns: {}, slowed: 0, poisonTicks: [],
   };
