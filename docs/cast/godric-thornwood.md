@@ -27,8 +27,20 @@
 ## Preferences & specificities
 - Spicy food (no sweet-tooth — no memory of the mother's honey). Self-denying to a fault.
 
-## Talent / ability ideas
-- The "wall who takes the blows" → a **frontline tank / protector** tree (peel, guard-an-ally, soak damage). The restraint motif → mechanics that reward **non-lethal / drive-off** outcomes if the combat model ever supports it. Bespoke tree TBD.
+## Combat identity & talents (design, 2026-06-29)
+**Archetype: the Wall (warrior tank) — locked.** Takes the hits so others don't; **high aggro** (the biggest thing on the field); **high VIT/survivability**; shield-bearer; signature **Last Stand**; and crucially **he doesn't finish people** — the killing is *Brenna's* job. They complement exactly: Godric softens + pins enemies on himself, Brenna executes the low-HP ones he leaves. His combat role **is his wound**: worth = protecting others; the player slowly discovers the man who calls himself "the least of the three" is the reason the team comes home.
+
+**Talent system (simplified, project-wide — supersedes the pentagon):** the old 5-class-pentagon 3-column trees are **dropped**. Each character gets **one** vanilla-WoW-style tree, **archetype-locked** (talents *tune* the identity, never redefine it): a few tiers, mostly **ranked passives** (+X%/point, including the raw-stat minors), a couple of **keystone abilities**, and a few real **either/or choices**. Spend points as you level; the choice is mostly *what to prioritize*. Uses the existing `talents` + talent-point system.
+
+**Base kit & unlock rule (project-wide):** L1 = **auto-attack + the class innate** (warrior = **Shield Wall**, already in the engine, already peak Godric). *All* other abilities come from the **tree** (single unlock channel); tiers gated by points spent (≈ level), so capstones land late automatically. The intimate capstone is additionally **loyalty-gated**. Abilities are **AI-driven** (auto-combat), not player-pressed buttons. (Option held in reserve: a small per-character L1 signature if a recruit should feel distinct the instant they join; default is the class innate + let the tree carry personality.)
+
+**Godric's tree — "The Wall"** *(sketch; user is drawing the real layout):*
+- **Tier 1 — Foundations** (cheap, ranked): **Thick Hide** (+damage reduction/pt), **Broad Shoulders** (+max HP/pt).
+- **Tier 2 — Draw Their Eye** (aggro identity): **Provoke** (taunt — forces enemies onto him a round), **Unmissable** (ranked: +threat generation; they look at the big man first).
+- **Tier 3 — the fork** (both pure Godric): **Iron Resolve** (mitigation scales up as his HP drops → survive being the last one standing) **OR** **Aegis** (Shield Wall covers more allies, triggers more often, can intercept a blow meant for anyone → throw himself wider for the team).
+- **Tier 4 — Capstones** (signatures): **Last Stand** (on a team rout he refuses to flee: plants himself, pulls *all* aggro, huge defense for a few rounds, buys the family's escape) and **The Gentle Giant** (loyalty-gated: won't land a finishing blow on a fleeing/low-HP foe; spared enemies are likelier to break and run = fewer left attacking the family; hits harder when purely defending — the pacifism, made mechanical).
+
+**Design tension to preserve:** Last Stand + his self-worthlessness means he *wants* to be the one left behind; Iron Resolve, the family, and the player have to keep the wall alive *despite* him. Echoes the bio — *"not one of them will let that stand."*
 
 ## Open threads / TBD
 - **Wanted-deserter hook** (shared with Gareth).
