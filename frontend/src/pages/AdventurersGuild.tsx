@@ -91,7 +91,7 @@ export default function AdventurersGuild() {
   actions.visitGuild();
   onMount(() => playPageMountSound("dagger"));
   const [searchParams] = useSearchParams();
-  const initialTab = (searchParams.tab === "roster" || searchParams.tab === "recruit") ? searchParams.tab as Tab : "missions";
+  const initialTab = searchParams.tab === "roster" ? "roster" : "missions";
   const [tab, setTab] = createSignal<Tab>(initialTab);
   const [selectedMission, setSelectedMission] = createSignal<MissionTemplate | null>(null);
   const [selectedTeam, setSelectedTeam] = createSignal<string[]>([]);
@@ -378,7 +378,7 @@ export default function AdventurersGuild() {
         </div>
 
         <div style={{ display: "flex", gap: "4px", "margin-bottom": "16px" }}>
-          {(["missions", "roster", "recruit"] as Tab[]).map((t) => (
+          {(["missions", "roster"] as Tab[]).map((t) => (
             <button
               class="speed-btn"
               classList={{ active: tab() === t }}
@@ -938,7 +938,7 @@ export default function AdventurersGuild() {
                   setSelectedMission(null);
                   setSelectedTeam([]);
                   setSelectedSupplies([]);
-                  setTab("recruit");
+                  setTab("roster");
                 }}
                 onDeploy={(missionId, teamIds, adventurerSupplies, successPct) => {
                   if (actions.deployMission(missionId, teamIds, adventurerSupplies, successPct)) {

@@ -739,12 +739,13 @@ function nextId(prefix: string): string {
   return `${prefix}_${idCounter++}`;
 }
 
-/** Keep recruitCandidates in sync with the curated "arrived" cast: characters
- *  whose scripted arrival condition is met and who aren't already recruited.
- *  Stable (a given character keeps its candidate until recruited or its
- *  condition lapses) and idempotent (no-op when nothing changed, so it's cheap
- *  to call every tick). Replaces the old random daily candidate rotation. */
-function syncRecruitCandidates(s: GameState): void {
+/** Auto-join the curated cast: any character whose scripted arrival condition
+ *  is now met joins the roster directly — free, no roster cap. The cast is a
+ *  finite collection you assemble over the game (paced by arrival conditions),
+ *  not a managed-size pool. A character already on the roster (alive OR dead —
+ *  permadeath is permanent) never re-arrives. Idempotent + cheap each tick.
+ *  New arrivals are "unread" until the player views the roster (adventurersSeen). */
+function syncArrivals(s: GameState): void {
   const builtBuildingIds = new Set(s.buildings.filter((b) => b.level > 0).map((b) => b.buildingId));
   const loyaltyByPremadeId: Record<string, number> = {};
   for (const a of s.adventurers) {
@@ -759,22 +760,14 @@ function syncRecruitCandidates(s: GameState): void {
     builtBuildingIds,
     loyaltyByPremadeId,
   });
-  const recruitedPremadeIds = new Set(
-    s.adventurers.filter((a) => a.alive && a.premadeId).map((a) => a.premadeId as string),
-  );
-  const wanted = arrived.filter((c) => !recruitedPremadeIds.has(c.id));
-  const wantedIds = new Set(wanted.map((c) => c.id));
-  const currentIds = new Set(s.recruitCandidates.map((c) => c.premadeId).filter(Boolean) as string[]);
-  // No-op guard: same set of premades already shown → nothing to do.
-  if (currentIds.size === wanted.length && wanted.every((c) => currentIds.has(c.id))) return;
-  // Drop candidates no longer wanted (recruited, condition lapsed, or stale random).
-  s.recruitCandidates = s.recruitCandidates.filter((c) => c.premadeId && wantedIds.has(c.premadeId));
-  // Add any newly-arrived not already present (built once, kept stable).
-  const presentIds = new Set(s.recruitCandidates.map((c) => c.premadeId));
-  for (const c of wanted) {
-    if (!presentIds.has(c.id)) {
+  const havePremadeIds = new Set(s.adventurers.map((a) => a.premadeId).filter(Boolean) as string[]);
+  for (const c of arrived) {
+    if (!havePremadeIds.has(c.id)) {
       const rec = buildRecruitFromPremadeId(nextId("adv"), c.id, 1);
-      if (rec) s.recruitCandidates.push(rec);
+      if (rec) {
+        s.adventurers.push(rec);
+        havePremadeIds.add(c.id);
+      }
     }
   }
 }
@@ -3784,8 +3777,8 @@ export function GameProvider(props: ParentProps) {
             s.missionBoard = generateMissionBoard(buildMissionBoardContext(s, guildLvl, now + s.year * 777));
             s.lastMissionRefresh = now;
           }
-          // Keep the curated recruit list in sync with who has "arrived".
-          syncRecruitCandidates(s);
+          // Newly-arrived curated characters join the roster automatically.
+          syncArrivals(s);
         }
 
         // Dead adventurers are kept in state.adventurers (with alive: false)
