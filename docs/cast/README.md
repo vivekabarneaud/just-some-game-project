@@ -22,6 +22,8 @@ One file per character. This is the **deep canon** for each member of the cast: 
 - [edmund-blackwood.md](edmund-blackwood.md) — char_009, assassin, the gambler (quest-unlock)
 - [morgause-dunwall.md](morgause-dunwall.md) — char_020, warrior, the discarded commander
 - [sable.md](sable.md) — char_008, assassin, the street orphan with nothing to lose (mononym, ex-Lyra)
+- [aldwin-stonebridge.md](aldwin-stonebridge.md) — char_017, priest, the shelterer-priest whose faith cracks for love of his wizard brother
+- [magnus-stonebridge.md](magnus-stonebridge.md) — char_029, wizard, the hunted prodigy (your first magic; ex-Alaric)
 
 ### Side-story figures (NPCs)
 - [aldith-the-bog-witch.md](aldith-the-bog-witch.md) — the Bog Witch & her dead granddaughter Ada
