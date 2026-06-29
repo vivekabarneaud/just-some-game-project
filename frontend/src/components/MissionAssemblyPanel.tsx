@@ -483,11 +483,29 @@ export default function MissionAssemblyPanel(props: Props) {
   const effectiveDuration = () => calcEffectiveDuration(freshMission(), team());
 
   // ─── Deploy ───────────────────────────────────────────────────
-  const handleDeploy = () => {
+  // Permadeath safety: deploying anyone with more than this % chance of dying
+  // requires an explicit confirmation, so a hero is never lost to a misclick.
+  const DEATH_WARN_THRESHOLD = 10;
+  const [showDeathWarning, setShowDeathWarning] = createSignal(false);
+  /** Deployed adventurers whose permadeath risk is over the warning threshold. */
+  const atRiskMembers = () =>
+    teamIds()
+      .map((id) => ({ adv: state.adventurers.find((a) => a.id === id), risk: deathRisks()[id] ?? 0 }))
+      .filter((m) => m.adv && m.risk > DEATH_WARN_THRESHOLD)
+      .map((m) => ({ name: m.adv!.name, risk: m.risk }));
+
+  const doDeploy = () => {
     if (props.onDeploy(mission().id, teamIds(), adventurerSupplies(), successPct())) {
       setTeamIds([]);
       setAdventurerSupplies({});
     }
+  };
+  const handleDeploy = () => {
+    if (atRiskMembers().length > 0) {
+      setShowDeathWarning(true);
+      return;
+    }
+    doDeploy();
   };
 
   // ─── Co-op invite (expeditions only) ──────────────────────────
@@ -1554,6 +1572,52 @@ export default function MissionAssemblyPanel(props: Props) {
         <Show when={teamIds().length > 0 && !areRequiredSlotsFilled(freshMission(), team())}>
           <div style={{ color: "var(--accent-red)", "font-size": "0.8rem", "text-align": "center", "margin-top": "6px" }}>
             Required class slot not filled
+          </div>
+        </Show>
+
+        <Show when={showDeathWarning()}>
+          <div
+            class="modal-overlay page-modal-backdrop"
+            onClick={(e) => { if (e.target === e.currentTarget) setShowDeathWarning(false); }}
+          >
+            <div
+              class="page-modal-card"
+              style={{
+                background: "var(--bg-secondary)",
+                border: "1px solid var(--accent-red)",
+                "border-radius": "10px",
+                "max-width": "440px",
+                padding: "24px 28px",
+                "box-shadow": "0 8px 32px rgba(0,0,0,0.5)",
+                "font-family": "var(--font-body)",
+              }}
+            >
+              <div style={{ "font-family": "var(--font-heading)", color: "var(--accent-red)", "font-size": "0.85rem", "letter-spacing": "0.08em", "text-transform": "uppercase", "margin-bottom": "12px" }}>
+                ⚠️ Be careful
+              </div>
+              <p style={{ color: "var(--text-secondary)", "font-size": "0.9rem", "line-height": 1.6, margin: "0 0 12px" }}>
+                Sending this team risks losing someone <strong>permanently</strong>. Death here cannot be undone.
+              </p>
+              <ul style={{ margin: "0 0 18px", padding: "0 0 0 18px", color: "var(--text-primary)", "font-size": "0.9rem", "line-height": 1.7 }}>
+                {atRiskMembers().map((m) => (
+                  <li><strong>{m.name}</strong> — {Math.round(m.risk)}% chance of dying</li>
+                ))}
+              </ul>
+              <div style={{ display: "flex", gap: "10px", "justify-content": "flex-end" }}>
+                <button
+                  onClick={() => setShowDeathWarning(false)}
+                  style={{ padding: "9px 18px", background: "transparent", border: "1px solid var(--border-color)", "border-radius": "6px", color: "var(--text-secondary)", cursor: "pointer", "font-family": "var(--font-heading)" }}
+                >
+                  Keep them home
+                </button>
+                <button
+                  onClick={() => { setShowDeathWarning(false); doDeploy(); }}
+                  style={{ padding: "9px 18px", background: "var(--accent-red)", border: "none", "border-radius": "6px", color: "#fff", cursor: "pointer", "font-weight": "bold", "font-family": "var(--font-heading)" }}
+                >
+                  Send them anyway
+                </button>
+              </div>
+            </div>
           </div>
         </Show>
       </div>
