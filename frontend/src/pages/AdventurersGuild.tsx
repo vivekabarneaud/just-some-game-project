@@ -1017,7 +1017,9 @@ export default function AdventurersGuild() {
                 const unspentTalents = () => getUnspentTalentPoints(adv);
                 return (
                   <A href={`/guild/${adv.id}`} style={{ "text-decoration": "none", display: "flex" }}>
-                    <div class="building-card adv-card" style={{
+                    <div class="building-card adv-card"
+                      onMouseEnter={() => setNewlyArrivedIds((prev) => prev.filter((id) => id !== adv.id))}
+                      style={{
                       cursor: "pointer",
                       position: "relative",
                       width: "100%",

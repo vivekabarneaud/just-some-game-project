@@ -900,31 +900,8 @@ export default function AdventurerDetail() {
                   </div>{/* end flex container */}
                 </div>
 
-                {/* Dismiss */}
-                <Show when={!adv().onMission}>
-                  <div style={{ "margin-top": "24px", "text-align": "right" }}>
-                    <button
-                      onClick={() => {
-                        if (confirm(`Dismiss ${adv().name}? This cannot be undone.`)) {
-                          actions.dismissAdventurer(params.id);
-                          navigate("/guild?tab=roster");
-                        }
-                      }}
-                      style={{
-                        padding: "6px 14px",
-                        background: "none",
-                        border: "1px solid rgba(231, 76, 60, 0.3)",
-                        color: "var(--accent-red)",
-                        "border-radius": "4px",
-                        cursor: "pointer",
-                        "font-size": "0.8rem",
-                        opacity: "0.6",
-                      }}
-                    >
-                      Dismiss Adventurer
-                    </button>
-                  </div>
-                </Show>
+                {/* Dismiss removed — the cast is a finite collection you assemble;
+                    you don't release people (you only lose them to permadeath). */}
               </div>
             </div>
           );

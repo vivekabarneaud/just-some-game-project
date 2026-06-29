@@ -578,24 +578,6 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     ],
   },
   {
-    id: "a_brave_soul",
-    storyline: "guild",
-    chapter: 1,
-    title: "A Brave Soul",
-    narrative:
-      "The Guild's doors are open, and more have come than I expected. Some carry weapons that have seen more than this camp has. Others stand at the edge, watching, saying nothing. I cannot keep them all. I must choose.",
-    objective: "Recruit an adventurer",
-    icon: "⚔️",
-    triggers: [{ type: "quest_completed", questId: "heroes_wanted" }],
-    condition: (s) => s.adventurers.length >= 1,
-    rewards: [
-      { resource: "gold", amount: 40, label: "Gold" },
-      { resource: "wood", amount: 25, label: "Wood" },
-    ],
-    targetPage: "/guild?tab=recruit",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_11.png",
-  },
-  {
     id: "into_the_unknown",
     storyline: "guild",
     chapter: 1,
@@ -604,7 +586,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
       "The mission board is nailed to the wall, ink still wet. The southern frontier is full of ruins, rumours, and things that the Dominion's maps don't show. Time to find out what's really out here.",
     objective: "Send your first mission",
     icon: "🗺️",
-    triggers: [{ type: "quest_completed", questId: "a_brave_soul" }],
+    triggers: [{ type: "quest_completed", questId: "heroes_wanted" }],
     condition: (s) => s.firstMissionSent === true,
     rewards: [
       { resource: "astralShards", amount: 10, label: "Astral Shards" },
