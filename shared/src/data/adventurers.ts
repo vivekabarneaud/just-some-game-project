@@ -289,6 +289,40 @@ export function getOriginsForGuildLevel(
   return Array.from(unlocked);
 }
 
+// ─── Scripted arrivals (curated recruit availability) ───────────
+// A curated character is recruitable only when its `arrival` condition is met.
+// Characters with NO `arrival` are not part of the curated pool (reserve / not
+// yet curated) and never appear in the recruit list. Replaces the old
+// origin-gated random daily candidate pool for the curated cast.
+
+export interface ArrivalContext {
+  guildBuilt: boolean;
+  completedStoryMissions: readonly string[];
+  completedQuests: readonly string[];
+  builtBuildingIds: ReadonlySet<string>;
+  /** premadeId -> highest loyalty among recruited instances of that character */
+  loyaltyByPremadeId: Readonly<Record<string, number>>;
+}
+
+/** Has this curated character "arrived" (become recruitable) given current state? */
+export function isArrived(c: PremadeCharacter, ctx: ArrivalContext): boolean {
+  if (c.questOnly) return false; // quest-recruited only; never browse-available
+  const a = c.arrival;
+  if (!a) return false; // no condition = not part of the curated pool
+  switch (a.type) {
+    case "guild_open": return ctx.guildBuilt;
+    case "story": return ctx.completedStoryMissions.includes(a.missionId);
+    case "quest": return ctx.completedQuests.includes(a.questId);
+    case "building": return ctx.builtBuildingIds.has(a.buildingId);
+    case "loyalty": return (ctx.loyaltyByPremadeId[a.premadeId] ?? -1) >= a.minLoyalty;
+  }
+}
+
+/** All curated characters whose arrival condition is currently met. */
+export function getArrivedPremades(ctx: ArrivalContext): PremadeCharacter[] {
+  return PREMADE_CHARACTERS.filter((c) => isArrived(c, ctx));
+}
+
 // ─── Food Preferences & Loyalty ───────────────────────────────
 
 export type FoodPreference = "sweet" | "spicy" | "hearty" | "smoky" | "fresh";

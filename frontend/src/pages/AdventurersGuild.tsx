@@ -1089,31 +1089,8 @@ export default function AdventurersGuild() {
         <Show when={tab() === "recruit"}>
           <div style={{ display: "flex", "align-items": "center", gap: "12px", "margin-bottom": "12px", "font-size": "0.85rem", color: "var(--text-secondary)" }}>
             <span>
-              Roster: {rosterSize().current}/{rosterSize().max} ·
-              New candidates in {Math.ceil(state.recruitRefreshIn)}h
+              Roster: {rosterSize().current}/{rosterSize().max} · Newcomers arrive as your settlement grows
             </span>
-            {(() => {
-              const count = typeof state.recruitRerollToday === "number" ? state.recruitRerollToday : 0;
-              const cost = 10 * Math.pow(2, count);
-              const canAfford = state.astralShards >= cost;
-              return (
-            <button
-              onClick={() => actions.rerollRecruits()}
-              disabled={!canAfford}
-              style={{
-                padding: "3px 10px",
-                background: canAfford ? "rgba(167, 139, 250, 0.2)" : "var(--bg-secondary)",
-                border: `1px solid ${canAfford ? "#a78bfa" : "var(--border-default)"}`,
-                color: canAfford ? "#a78bfa" : "var(--text-muted)",
-                "border-radius": "4px",
-                cursor: canAfford ? "pointer" : "default",
-                "font-size": "0.75rem",
-              }}
-            >
-              Reroll ({cost} 💠)
-            </button>
-              );
-            })()}
             <Show when={IS_DEV}>
               <button
                 onClick={() => actions.devAddShards(1000)}
@@ -1126,7 +1103,7 @@ export default function AdventurersGuild() {
           </div>
           <Show when={state.recruitCandidates.length === 0}>
             <p style={{ color: "var(--text-muted)", "font-size": "0.85rem" }}>
-              No candidates available right now. New candidates appear daily.
+              No one has come to join yet. People arrive as your settlement grows and word of it spreads.
             </p>
           </Show>
           <div class="recruit-grid">

@@ -177,6 +177,7 @@ import {
   type Race,
   generateCandidate,
   buildRecruitFromPremadeId,
+  getArrivedPremades,
   getRecruitCost,
   getMaxRecruitRank,
   getCandidateCount,
@@ -736,6 +737,46 @@ let idCounter = 1;
 
 function nextId(prefix: string): string {
   return `${prefix}_${idCounter++}`;
+}
+
+/** Keep recruitCandidates in sync with the curated "arrived" cast: characters
+ *  whose scripted arrival condition is met and who aren't already recruited.
+ *  Stable (a given character keeps its candidate until recruited or its
+ *  condition lapses) and idempotent (no-op when nothing changed, so it's cheap
+ *  to call every tick). Replaces the old random daily candidate rotation. */
+function syncRecruitCandidates(s: GameState): void {
+  const builtBuildingIds = new Set(s.buildings.filter((b) => b.level > 0).map((b) => b.buildingId));
+  const loyaltyByPremadeId: Record<string, number> = {};
+  for (const a of s.adventurers) {
+    if (a.alive && a.premadeId) {
+      loyaltyByPremadeId[a.premadeId] = Math.max(loyaltyByPremadeId[a.premadeId] ?? 0, a.loyalty ?? 0);
+    }
+  }
+  const arrived = getArrivedPremades({
+    guildBuilt: builtBuildingIds.has("adventurers_guild"),
+    completedStoryMissions: s.completedStoryMissions,
+    completedQuests: s.questRewardsClaimed,
+    builtBuildingIds,
+    loyaltyByPremadeId,
+  });
+  const recruitedPremadeIds = new Set(
+    s.adventurers.filter((a) => a.alive && a.premadeId).map((a) => a.premadeId as string),
+  );
+  const wanted = arrived.filter((c) => !recruitedPremadeIds.has(c.id));
+  const wantedIds = new Set(wanted.map((c) => c.id));
+  const currentIds = new Set(s.recruitCandidates.map((c) => c.premadeId).filter(Boolean) as string[]);
+  // No-op guard: same set of premades already shown → nothing to do.
+  if (currentIds.size === wanted.length && wanted.every((c) => currentIds.has(c.id))) return;
+  // Drop candidates no longer wanted (recruited, condition lapsed, or stale random).
+  s.recruitCandidates = s.recruitCandidates.filter((c) => c.premadeId && wantedIds.has(c.premadeId));
+  // Add any newly-arrived not already present (built once, kept stable).
+  const presentIds = new Set(s.recruitCandidates.map((c) => c.premadeId));
+  for (const c of wanted) {
+    if (!presentIds.has(c.id)) {
+      const rec = buildRecruitFromPremadeId(nextId("adv"), c.id, 1);
+      if (rec) s.recruitCandidates.push(rec);
+    }
+  }
 }
 
 const NAME_PREFIXES = [
@@ -3736,21 +3777,15 @@ export function GameProvider(props: ParentProps) {
           if (today3am.getTime() > now) today3am.setUTCDate(today3am.getUTCDate() - 1);
           const lastRefresh = Math.max(s.lastMissionRefresh, s.lastRecruitRefresh);
           if (lastRefresh < today3am.getTime()) {
-            // Recruits
-            const count = getCandidateCount(guildLvl);
-            const maxRank = getMaxRecruitRank(guildLvl, s.adventurers);
-            const usedNames = new Set(s.adventurers.filter((a) => a.alive).map((a) => a.name));
-            s.recruitCandidates = [];
-            for (let i = 0; i < count; i++) {
-              const c = generateCandidate(nextId("adv"), maxRank, usedNames, guildLvl, s.completedStoryMissions, s.questRewardsClaimed);
-              usedNames.add(c.name);
-              s.recruitCandidates.push(c);
-            }
+            // Recruits no longer rotate daily — the curated cast arrives via
+            // scripted conditions (syncRecruitCandidates, run each tick below).
             s.lastRecruitRefresh = now;
             // Missions — cap difficulty at best adventurer's rank + 1
             s.missionBoard = generateMissionBoard(buildMissionBoardContext(s, guildLvl, now + s.year * 777));
             s.lastMissionRefresh = now;
           }
+          // Keep the curated recruit list in sync with who has "arrived".
+          syncRecruitCandidates(s);
         }
 
         // Dead adventurers are kept in state.adventurers (with alive: false)
