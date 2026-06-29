@@ -28,6 +28,12 @@ export default function LootModal(props: Props) {
   onMount(() => playSound("notify"));
   const template = () => getMission(props.result.missionId) ?? { name: props.result.missionId, icon: "📜" };
   const hasRewards = () => props.result.rewards.length > 0;
+  // Outcome is three-way under Model C: success / retreated (broke off, came
+  // home wounded) / failed (wiped). Retreat reads amber, not the wipe red.
+  const retreated = () => !props.result.success && !!props.result.retreated;
+  const outcomeColor = () => props.result.success ? "var(--accent-green)" : retreated() ? "#d4831a" : "var(--accent-red)";
+  const outcomeTint = () => props.result.success ? "rgba(46, 204, 113, 0.1)" : retreated() ? "rgba(212, 131, 26, 0.12)" : "rgba(231, 76, 60, 0.1)";
+  const outcomeLabel = () => props.result.success ? "Success" : retreated() ? "Retreated" : "Failed";
   const hasStoryCinematic = () => !!STORY_CINEMATICS[props.result.missionId];
   // Chronicle entry tied to this story mission, if any. Surfaces as a "new
   // chronicle entry" notification row; the entry itself opens automatically
@@ -79,7 +85,7 @@ export default function LootModal(props: Props) {
         onClick={(e) => e.stopPropagation()}
         style={{
           background: "var(--bg-secondary)",
-          border: `2px solid ${r().success ? "var(--accent-green)" : "var(--accent-red)"}`,
+          border: `2px solid ${outcomeColor()}`,
           "border-radius": "10px",
           "max-width": "560px",
           width: "100%",
@@ -92,8 +98,8 @@ export default function LootModal(props: Props) {
         {/* Header */}
         <div class="loot-section" style={{
           padding: "16px 20px",
-          background: r().success ? "rgba(46, 204, 113, 0.1)" : "rgba(231, 76, 60, 0.1)",
-          "border-bottom": `1px solid ${r().success ? "var(--accent-green)" : "var(--accent-red)"}`,
+          background: outcomeTint(),
+          "border-bottom": `1px solid ${outcomeColor()}`,
           "animation-delay": "100ms",
         }}>
           <div style={{ display: "flex", "align-items": "center", gap: "12px" }}>
@@ -101,10 +107,10 @@ export default function LootModal(props: Props) {
             <div>
               <div class="section-label" style={{
                 "font-size": "0.8rem",
-                color: r().success ? "var(--accent-green)" : "var(--accent-red)",
+                color: outcomeColor(),
                 "margin-bottom": "0",
               }}>
-                {r().success ? "Success" : "Failed"}
+                {outcomeLabel()}
               </div>
               <div style={{ "font-family": "var(--font-heading)", "font-size": "1.3rem", color: "var(--text-primary)" }}>
                 {template().name}

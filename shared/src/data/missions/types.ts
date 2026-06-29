@@ -209,6 +209,9 @@ export interface CompletedMission {
   combatLog?: import("../combat").CombatLogEntry[];
   combatRounds?: number;
   combatVictory?: boolean; // distinct from success — success is the overall mission outcome
+  /** The team broke off and retreated (Model C) rather than being wiped — the
+   *  loss reads as "Retreated" + most of the team comes home wounded. */
+  retreated?: boolean;
   /** Set to the NPC ally id when an isMissionObjective ally fell during combat —
    *  drives the distinct "Warden Niamh fell, the binding could not complete" UI. */
   vipFallen?: string;

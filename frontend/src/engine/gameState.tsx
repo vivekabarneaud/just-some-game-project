@@ -3804,6 +3804,7 @@ export function GameProvider(props: ParentProps) {
                   combatLog: combatResult.log,
                   combatRounds: combatResult.rounds,
                   combatVictory: combatResult.victory,
+                  ...(combatResult.retreated ? { retreated: true } : {}),
                 } : {}),
                 ...(vipFallen ? { vipFallen } : {}),
               });

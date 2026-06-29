@@ -101,9 +101,41 @@ function StatusAppliedNote(props: { applied: NonNullable<CombatLogEntry["statusA
   );
 }
 
+/** Visual treatment for a Model-C retreat beat (commander orders, broken, flee,
+ *  abandonment). These are narrative moments, not attacks, so they render as
+ *  centered highlighted lines that stand out from the damage chatter. */
+const BEAT_STYLE: Record<string, { color: string; bg: string; weight: string }> = {
+  order_hold:     { color: "var(--accent-gold)", bg: "rgba(212, 175, 55, 0.10)", weight: "600" },
+  order_fallback: { color: "#d4831a",            bg: "rgba(212, 131, 26, 0.12)", weight: "700" },
+  broken:         { color: "#d4831a",            bg: "rgba(212, 131, 26, 0.08)", weight: "600" },
+  flee_success:   { color: "var(--accent-green)",bg: "rgba(46, 204, 113, 0.10)", weight: "600" },
+  flee_fail:      { color: "var(--accent-red)",  bg: "rgba(231, 76, 60, 0.08)",  weight: "500" },
+  abandoned:      { color: "var(--accent-red)",  bg: "rgba(231, 76, 60, 0.14)",  weight: "700" },
+};
+
+/** A retreat/recovery narrative beat — highlighted, centered, set apart. */
+function BeatLine(props: { entry: CombatLogEntry }) {
+  const e = props.entry;
+  const s = BEAT_STYLE[e.beat ?? ""] ?? { color: "var(--text-secondary)", bg: "rgba(255,255,255,0.04)", weight: "600" };
+  return (
+    <div style={{
+      display: "flex", "align-items": "center", "justify-content": "center", gap: "6px",
+      margin: "3px 0", padding: "3px 8px", "border-radius": "4px",
+      background: s.bg, color: s.color, "font-weight": s.weight, "font-style": "italic",
+      "text-align": "center",
+    }}>
+      <span style={{ "font-style": "normal" }}>{e.attackerIcon}</span>
+      <span>{e.note}</span>
+    </div>
+  );
+}
+
 /** A single entry. Picks the right shape based on the booleans/fields set. */
 function CombatLogLine(props: { entry: CombatLogEntry }) {
   const e = props.entry;
+
+  // Retreat beats render as their own highlighted narrative line.
+  if (e.beat) return <BeatLine entry={e} />;
 
   const lineColor = e.isPoisonTick
     ? "#9b59b6"
