@@ -13,6 +13,7 @@ import {
   RANK_COLORS,
   type Adventurer,
   type AdventurerClass,
+  getDeployCost,
 } from "@medieval-realm/shared/data/adventurers";
 import { getItem, getAvailableSupplies, getAvailableFood, getSupplyEffect, getCombatPotionEffect, getFoodEffect, getRecoveryEffect, MATCHED_FOOD_HP_BONUS } from "@medieval-realm/shared/data/items";
 import type { AdventurerMissionSupplies } from "@medieval-realm/shared/data/missions";
@@ -268,6 +269,8 @@ export default function MissionAssemblyPanel(props: Props) {
   const team = createMemo(() =>
     teamIds().map((id) => state.adventurers.find((a) => a.id === id)).filter(Boolean) as Adventurer[]
   );
+  // Deploy cost scales with the team: sum of each member's wage by rank.
+  const deployCost = createMemo(() => getDeployCost(team()));
 
   // ─── Slot assignments (for display) ───────────────────────────
   const slotAssignments = createMemo(() => {
@@ -1245,7 +1248,7 @@ export default function MissionAssemblyPanel(props: Props) {
 
         <div class="mission-detail-stats">
           <div><span class="mission-detail-label">Duration</span> {formatDuration(freshMission().duration)}</div>
-          <div><span class="mission-detail-label">Deploy cost</span> {freshMission().deployCost}g</div>
+          <div><span class="mission-detail-label">Deploy cost</span> {deployCost()}g</div>
           <Show when={freshMission().deployItems?.length}>
             <div>
               <span class="mission-detail-label">Bring</span>{" "}
@@ -1476,11 +1479,11 @@ export default function MissionAssemblyPanel(props: Props) {
           <button
             class="upgrade-btn"
             style={{ width: "100%", "margin-top": "12px" }}
-            disabled={teamIds().length === 0 || state.resources.gold < freshMission().deployCost || deployItemsShort().length > 0 || !areRequiredSlotsFilled(freshMission(), team())}
+            disabled={teamIds().length === 0 || state.resources.gold < deployCost() || deployItemsShort().length > 0 || !areRequiredSlotsFilled(freshMission(), team())}
             onClick={handleDeploy}
             data-no-click-sound
           >
-            Deploy Team ({freshMission().deployCost}g)
+            Deploy Team ({deployCost()}g)
           </button>
         </Show>
 

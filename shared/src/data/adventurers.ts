@@ -825,6 +825,21 @@ export function getRecruitCost(rank: AdventurerRank): number {
   return COSTS[rank];
 }
 
+/** Per-adventurer deploy wage by rank — the cost to send one hero on a mission
+ *  (supplies + pay). Deploy cost is the sum over the deployed team, so a bigger
+ *  or higher-ranked team costs more: you right-size who you send. */
+export const DEPLOY_WAGE_BY_RANK: Record<AdventurerRank, number> = {
+  1: 5,
+  2: 12,
+  3: 25,
+  4: 50,
+  5: 100,
+};
+/** Gold cost to deploy a given team = sum of per-adventurer wages by rank. */
+export function getDeployCost(team: Adventurer[]): number {
+  return team.reduce((sum, a) => sum + (DEPLOY_WAGE_BY_RANK[a.rank] ?? 0), 0);
+}
+
 /** Build an Adventurer from a premade character definition */
 function buildAdventurerFromPremade(id: string, premade: PremadeCharacter, maxRank: AdventurerRank): Adventurer {
   const quirk = PERSONALITY_QUIRKS[Math.floor(Math.random() * PERSONALITY_QUIRKS.length)];

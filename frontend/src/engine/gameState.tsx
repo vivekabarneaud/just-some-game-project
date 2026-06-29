@@ -179,6 +179,7 @@ import {
   buildRecruitFromPremadeId,
   getArrivedPremades,
   getRecruitCost,
+  getDeployCost,
   getMaxRecruitRank,
   getCandidateCount,
   getMaxRoster,
@@ -4521,8 +4522,9 @@ export function GameProvider(props: ParentProps) {
         team.push(adv);
       }
 
-      // Check deploy cost
-      if (state.resources.gold < template.deployCost) return false;
+      // Check deploy cost — sum of the team's per-adventurer wages by rank.
+      const deployCost = getDeployCost(team);
+      if (state.resources.gold < deployCost) return false;
 
       // Check barter / offering cost (deploy items): must have all of them
       if (template.deployItems) {
@@ -4548,7 +4550,7 @@ export function GameProvider(props: ParentProps) {
       }
 
       setState(produce((s) => {
-        s.resources.gold -= template.deployCost;
+        s.resources.gold -= deployCost;
         // Consume the barter / offering cost (deploy items)
         if (template.deployItems) {
           for (const cost of template.deployItems) spendResource(s, cost.resource, cost.amount);
