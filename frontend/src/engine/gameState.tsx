@@ -642,6 +642,11 @@ export interface GameActions {
   getAvailableAdventurers: () => Adventurer[];
   getRosterSize: () => { current: number; max: number };
   grantResources: (amount: number) => void;
+  // Dev-only test snapshot: stash the current save and roll back to it.
+  saveDevSnapshot: () => void;
+  restoreDevSnapshot: () => void;
+  hasDevSnapshot: () => boolean;
+  devSnapshotTime: () => number | null;
   // Ale & Happiness
   getAleInfo: () => { current: number; cap: number; production: number; consumption: number };
   startCraft: (recipeId: string, quantity?: number) => boolean;
@@ -739,6 +744,10 @@ export interface GameActions {
 // ─── Constants ───────────────────────────────────────────────────
 
 const STORAGE_KEY = "medieval-realm-save";
+/** Dev-only manual snapshot slot — a copy of the save blob the player can stash
+ *  and roll back to while testing. Separate from the live save key. */
+const SNAPSHOT_KEY = "medieval-realm-dev-snapshot";
+const SNAPSHOT_META_KEY = "medieval-realm-dev-snapshot-meta";
 const TICK_INTERVAL_MS = 1000;
 let idCounter = 1;
 
@@ -5628,6 +5637,41 @@ export function GameProvider(props: ParentProps) {
         addFood(s.foods, "wheat", amount, caps.food);
         s.wool = Math.min(craftingMaterialCap(s.buildings), s.wool + amount);
       }));
+    },
+    saveDevSnapshot() {
+      try {
+        // Persist the live state to the save slot, then copy it into the
+        // snapshot slot so the blob goes through the same shape as a real save.
+        saveGameLocal(JSON.parse(JSON.stringify(state)));
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          localStorage.setItem(SNAPSHOT_KEY, raw);
+          localStorage.setItem(SNAPSHOT_META_KEY, String(Date.now()));
+        }
+      } catch (e) {
+        console.error("Dev snapshot save failed:", e);
+      }
+    },
+    restoreDevSnapshot() {
+      try {
+        const snap = localStorage.getItem(SNAPSHOT_KEY);
+        if (!snap) return;
+        // Drop the snapshot into the live save slot and reload, so the whole
+        // normal load + migration pipeline runs against it — no state surgery.
+        localStorage.setItem(STORAGE_KEY, snap);
+        location.reload();
+      } catch (e) {
+        console.error("Dev snapshot restore failed:", e);
+      }
+    },
+    hasDevSnapshot() {
+      try { return localStorage.getItem(SNAPSHOT_KEY) != null; } catch { return false; }
+    },
+    devSnapshotTime() {
+      try {
+        const t = localStorage.getItem(SNAPSHOT_META_KEY);
+        return t ? Number(t) : null;
+      } catch { return null; }
     },
     cancelBuild(buildingId) {
       const pb = state.buildings.find((b) => b.buildingId === buildingId);

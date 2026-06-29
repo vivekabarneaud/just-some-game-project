@@ -102,6 +102,8 @@ export default function Sidebar(props: SidebarProps) {
   const navigate = useNavigate();
   const { state, actions } = useGame();
   const [myRank, setMyRank] = createSignal<number | null>(null);
+  const [snapSaved, setSnapSaved] = createSignal(false);
+  const [hasSnap, setHasSnap] = createSignal(actions.hasDevSnapshot());
   const [incomingFriendRequests, setIncomingFriendRequests] = createSignal(0);
   const [incomingCoopInvites, setIncomingCoopInvites] = createSignal(0);
 
@@ -474,6 +476,25 @@ export default function Sidebar(props: SidebarProps) {
               ))}
             </select>
           </div>
+          <div class="nav-section-title" style={{ "margin-top": "12px" }}>Test Snapshot</div>
+          <button class="skip-season-btn" onClick={() => {
+            actions.saveDevSnapshot();
+            setHasSnap(true);
+            setSnapSaved(true);
+            setTimeout(() => setSnapSaved(false), 2000);
+          }}>
+            {snapSaved() ? "✓ Snapshot saved" : "💾 Save snapshot"}
+          </button>
+          <Show when={hasSnap()}>
+            <button class="skip-season-btn" onClick={() => {
+              if (confirm("Restore the saved snapshot? Your current progress will be replaced by the snapshot and the page will reload.")) {
+                actions.restoreDevSnapshot();
+              }
+            }}>
+              ↩️ Restore snapshot
+            </button>
+          </Show>
+
           <button class="reset-btn" onClick={() => {
             if (confirm("Start a new game? All progress will be lost.")) {
               actions.resetGame();
