@@ -59,7 +59,7 @@ export const OVERVIEW_FLAVORS: OverviewFlavor[] = [
     category: "settlement",
     triggers: [{ type: "chapter_unlocked", storyline: "settlement", chapter: 2 }],
     text:
-      "A raven brought word: two families on the road, due within the week. Edda walked the tents this morning, counting, and shook her head. The shape is set. What comes next is making room.",
+      "A raven brought word: a family on the road, due within the week. Edda walked the tents this morning, counting, and shook her head. The shape is set. What comes next is making room.",
   },
   {
     id: "hunters_settling",
@@ -70,7 +70,7 @@ export const OVERVIEW_FLAVORS: OverviewFlavor[] = [
     ],
     requiresAll: true,
     text:
-      "The new families have settled in. The hunters bring meat enough to salt twice over. A new child runs the camp, smaller than Nell and louder; Nell barely looks up from Edda's herbs. The ration count is heavier by four. We will need more, faster.",
+      "The new family has settled in. The hunters bring meat enough to salt twice over. A new child runs the camp, smaller than Nell and louder; Nell barely looks up from Edda's herbs. The ration count is heavier by four. We will need more, faster.",
   },
   {
     // Single merged flavor covering the guild-built / scouts-needed arc.

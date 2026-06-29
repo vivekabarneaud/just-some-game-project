@@ -333,7 +333,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     chapter: 2,
     title: "A Roof Over Their Heads",
     narrative:
-      "A raven arrived yesterday from the Crown's land office: two more families are on the road, due within the week. The tents we have will not hold them. Edda has been saying for weeks that a settlement of six is a picnic, not a village; she will now say it with more conviction.",
+      "A raven arrived yesterday from the Crown's land office: a family is on the road, due within the week. The tents we have will not hold them. Edda has been saying for weeks that a settlement of six is a picnic, not a village; she will now say it with more conviction.",
     objective: "Build Houses",
     icon: "🏠",
     triggers: [{ type: "chapter_unlocked", storyline: "settlement", chapter: 2 }],
@@ -349,9 +349,9 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     id: "the_new_hunter",
     storyline: "settlement",
     chapter: 2,
-    title: "The New Hunter",
+    title: "The New Hunters",
     narrative:
-      "Two new families arrived this week. One of them has a son with a bow, and he has already brought in more meat than Edda can salt. We need a hunting camp, if only to keep the smoke out of our sleeping tents.",
+      "A family arrived this week, hunters by trade, with two good bows between them, and they have already brought in more meat than Edda can salt. We need a hunting camp, if only to keep the smoke out of our sleeping tents.",
     objective: "Build a Hunting Camp",
     icon: "🏹",
     triggers: [{ type: "chapter_unlocked", storyline: "settlement", chapter: 2 }],

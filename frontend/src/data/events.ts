@@ -132,8 +132,8 @@ export const NARRATIVE_EVENTS: NarrativeEvent[] = [
     requiresAll: true,
     banner:
       "The south is still unknown to us, and we should not stay ignorant of it for long.\n\n" +
-      "But Edda is up to her elbows in herbs and Nell, Jory is married to the mill, and Tomas has not climbed out of the quarry since the third frost. I am not much better. Father Corin would gladly read about it, which is about the best he could offer.\n\n" +
-      "The new families brought us hunters, and they are pacing the edge of the camp like dogs that have not been walked. They need a hall to gather in, and someone with the patience to send them out.",
+      "But Edda is up to her elbows in herbs and Nell, Jory is married to the mill, and Tomas has barely climbed out of the quarry since we broke ground. I am not much better. Father Corin would gladly read about it, which is about the best he could offer.\n\n" +
+      "A family of hunters came in with the wagons, and they have been pacing the edge of the camp like dogs that have not been walked. They need a hall to gather in, and someone with the patience to send them out.",
     unlocks: {
       activateStoryline: { storyline: "guild", chapter: 1 },
       // Two families: parents + the hunter son (3 adults) + one younger
