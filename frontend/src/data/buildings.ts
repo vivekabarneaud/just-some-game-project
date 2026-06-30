@@ -105,10 +105,13 @@ export interface TierPrerequisite {
 // N → N+1, the player can have at most Houses L_N. So prereqs are pegged
 // at `target TH − 1`.
 export const TIER_UPGRADE_PREREQUISITES: Record<number, TierPrerequisite[]> = {
-  // TH lvl 3 = village: need houses lvl 2 + woodworker lvl 1
+  // TH lvl 3 = village: need houses lvl 2 + lumber mill lvl 1.
+  // (Was woodworker; moved to the Lumber Mill so the Woodworker can be locked
+  // behind Hester's arrival without a circular dependency — raw lumber + houses
+  // = a village; fine carving is a later luxury Hester unlocks.)
   3: [
     { buildingId: "houses", minLevel: 2, label: "Houses Lv.2" },
-    { buildingId: "woodworker", minLevel: 1, label: "Woodworker" },
+    { buildingId: "lumber_mill", minLevel: 1, label: "Lumber Mill Lv.1" },
   ],
   // TH lvl 5 = town: need houses lvl 4 + tailoring shop lvl 1
   5: [
