@@ -114,13 +114,13 @@ export const NARRATIVE_EVENTS: NarrativeEvent[] = [
     id: "event_hunters_arriving",
     triggers: [settlementChapterDone(1)],
     banner:
-      "A raven arrived from the Crown's land office this morning. Two more families are on the road, due within the week. The tents will not hold them.",
+      "A family walked out of the trees this morning, hunters by their gear, road-worn and asking for nothing but a place to stand. No one sent them, and no one knew they were coming. The tents we have will not hold them, and I will not turn them back into the wild.",
   },
 
-  // ── Houses + Hunter Camp built → families arrive, guild activates ──
+  // ── Houses + Hunter Camp built → the family settles, guild activates ──
   // Fires once both Houses (somewhere for them to sleep) and Hunter Camp
-  // (the hunter son is "on the roster") are built. The families actually
-  // materialize on the population counter, and guild Ch1 activates so
+  // (so their bows have a base) are built. The family actually
+  // materializes on the population counter, and guild Ch1 activates so
   // Heroes Wanted surfaces — gives the player a juicier parallel track
   // alongside the lower-stakes Pantry quest.
   {
@@ -133,20 +133,19 @@ export const NARRATIVE_EVENTS: NarrativeEvent[] = [
     banner:
       "The south is still unknown to us, and we should not stay ignorant of it for long.\n\n" +
       "But Edda is up to her elbows in herbs and Nell, Jory is married to the mill, and Tomas has barely climbed out of the quarry since we broke ground. I am not much better. Father Corin would gladly read about it, which is about the best he could offer.\n\n" +
-      "A family of hunters came in with the wagons, and they have been pacing the edge of the camp like dogs that have not been walked. They need a hall to gather in, and someone with the patience to send them out.",
+      "The family of hunters who walked in off the road have been pacing the edge of the camp like dogs that have not been walked. They need a hall to gather in, and someone with the patience to send them out.",
     unlocks: {
       activateStoryline: { storyline: "guild", chapter: 1 },
-      // Two families: parents + the hunter son (3 adults) + one younger
-      // sibling (1 child). The new child runs the camp; Nell barely notices,
-      // absorbed in Edda's herb patch.
+      // The Thornwood family: three siblings (Brenna, Gareth, Godric = 3 adults)
+      // and their adopted boy (1 child). The boy runs the camp, loud where Nell
+      // is silent; Nell barely notices, absorbed in Edda's herb patch.
       addCitizens: { adults: 3, children: 1 },
       // What they walked here with: meat the hunters preserved on the road,
       // a few smoked fish. Not enough to cover the food curve for long,
       // just a buffer while the player scales production.
       addFood: { meat: 15, fish: 5 },
       // The clothes on their backs — modest, just enough to bump comforts
-      // by one. Two families equals one effective unit in the abstract
-      // counter; they're not arriving with a wardrobe.
+      // by one. They walked here with what they could carry, not a wardrobe.
       addResources: { clothing: 1 },
     },
   },

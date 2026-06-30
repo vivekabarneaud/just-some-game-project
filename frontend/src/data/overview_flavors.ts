@@ -59,7 +59,7 @@ export const OVERVIEW_FLAVORS: OverviewFlavor[] = [
     category: "settlement",
     triggers: [{ type: "chapter_unlocked", storyline: "settlement", chapter: 2 }],
     text:
-      "A raven brought word: a family on the road, due within the week. Edda walked the tents this morning, counting, and shook her head. The shape is set. What comes next is making room.",
+      "A family of hunters walked in from the wilds, road-worn and asking for shelter. Edda walked the tents this morning, counting heads against bedrolls, and shook her head. The shape is set. What comes next is making room.",
   },
   {
     id: "hunters_settling",
