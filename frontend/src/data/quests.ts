@@ -564,7 +564,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     chapter: 1,
     title: "Heroes Wanted",
     narrative:
-      "Two travelers have knocked at our gate this month: one left, one stayed, and the one who stayed is sharpening arrows in the yard. More will come. A proper guild hall will give them somewhere to gather, and us a way to ask what they can do.",
+      "A family of hunters walked in from the wilds and stayed: two good bows and a big quiet one who carries half the camp without being asked. They have been pacing the edge of the camp like dogs that need walking, and there will be more drifting in after them. A proper guild hall would give them somewhere to gather, and us a way to ask what they can do and send them out to do it.",
     objective: "Build the Adventurer's Guild",
     icon: "🏰",
     triggers: [{ type: "chapter_unlocked", storyline: "guild", chapter: 1 }],
