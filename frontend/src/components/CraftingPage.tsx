@@ -38,7 +38,10 @@ interface CraftingPageProps {
 /** Display-friendly name for produced resource */
 function formatResource(resource: string, _buildingId: string): string {
   if (resource === "food") return "meal";
-  return resource;
+  if (resource === "grain") return "grain";
+  if (resource === "wild") return "foraged food";
+  if (isFoodItemType(resource)) return getFoodMeta(resource as FoodItemType).label;
+  return resource.replace(/_/g, " ");
 }
 
 const RESOURCE_ICON: Record<string, string> = {
@@ -57,6 +60,11 @@ function renderCost(resource: string, amount: number): JSX.Element {
   if (resource === "grain") {
     return <span style={{ display: "inline-flex", "align-items": "center", gap: "4px" }}>
       {amount} <span style={{ "font-size": "14px" }}>🌾</span> grain
+    </span>;
+  }
+  if (resource === "wild") {
+    return <span style={{ display: "inline-flex", "align-items": "center", gap: "4px" }}>
+      {amount} <span style={{ "font-size": "14px" }}>🍄</span> foraged
     </span>;
   }
   if (isFoodItemType(resource)) {
@@ -245,7 +253,7 @@ export default function CraftingPage(props: CraftingPageProps) {
     if (res === "food") return getTotalFood(state.foods);
     if (res === "honey") return state.honey;
     if (res === "astralShards") return state.astralShards;
-    if (res === "grain" || isFoodItemType(res)) return getFoodCostAmount(state.foods, res);
+    if (res === "grain" || res === "wild" || isFoodItemType(res)) return getFoodCostAmount(state.foods, res);
     const inv = state.inventory.find((i) => i.itemId === res);
     return inv?.quantity ?? 0;
   };
@@ -266,6 +274,7 @@ export default function CraftingPage(props: CraftingPageProps) {
       const have = getResourceAmount(cost.resource);
       if (have < cost.amount * qty) {
         if (cost.resource === "grain") return "Not enough grain (wheat or barley)";
+        if (cost.resource === "wild") return "Not enough foraged food (berries, mushrooms, or nuts)";
         if (isFoodItemType(cost.resource)) {
           const meta = getFoodMeta(cost.resource as FoodItemType);
           return `Not enough ${meta.label.toLowerCase()}`;
@@ -485,6 +494,7 @@ export default function CraftingPage(props: CraftingPageProps) {
                   const missingTool = () => getRequiredTool(recipe, installedToolIds());
                   const isToolLocked = () => !!missingTool();
                   return (
+                    <div style={{ display: "flex", "flex-direction": "column", gap: "3px" }}>
                     <RecipeCard
                       {...recipeDisplayProps(recipe)}
                       subtitle={`${formatTimeShort(recipe.craftTime)} · ${recipeProduces(recipe)}`}
@@ -508,6 +518,39 @@ export default function CraftingPage(props: CraftingPageProps) {
                             }
                       }
                     />
+                    {/* Passive "keep cooking" toggle — kitchen staples that feed
+                        citizens (food-type produce). Burns ~1 wood/hr while lit. */}
+                    <Show when={props.buildingId === "kitchen" && isFoodItemType(recipe.produces.resource) && !isToolLocked()}>
+                      {(() => {
+                        const isOn = () => state.autoCook?.[props.buildingId] === recipe.id;
+                        // Why a lit pot can't actually simmer right now.
+                        const stallReason = (): string => {
+                          if (state.resources.wood <= 0) return "no wood to burn";
+                          const missing = recipe.costs.find((c) => getResourceAmount(c.resource) < c.amount);
+                          return missing ? `not enough ${missing.resource}` : "";
+                        };
+                        const label = () =>
+                          !isOn() ? "🔥 Keep cooking"
+                          : stallReason() ? `⏸ Paused — ${stallReason()}`
+                          : "🔥 Cooking — tap to stop";
+                        const stalled = () => isOn() && !!stallReason();
+                        return (
+                          <button
+                            onClick={() => actions.setAutoCook(props.buildingId, isOn() ? null : recipe.id)}
+                            title="Keep cooking this while there are ingredients and wood to burn"
+                            style={{
+                              padding: "4px 8px", "font-size": "0.72rem", "border-radius": "4px", cursor: "pointer",
+                              border: `1px solid ${isOn() ? (stalled() ? "var(--border-color)" : "var(--accent-gold)") : "var(--border-color)"}`,
+                              background: isOn() && !stalled() ? "rgba(212, 175, 55, 0.15)" : "transparent",
+                              color: stalled() ? "var(--text-muted)" : isOn() ? "var(--accent-gold)" : "var(--text-muted)",
+                            }}
+                          >
+                            {label()}
+                          </button>
+                        );
+                      })()}
+                    </Show>
+                    </div>
                   );
                 }}
               </For>

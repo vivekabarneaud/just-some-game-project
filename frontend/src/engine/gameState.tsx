@@ -509,6 +509,10 @@ export interface GameState {
   lastTradeAt: number; // timestamp of last trade
   inventory: InventoryItem[];
   craftingQueue: ActiveCraft[];
+  /** Passive "keep cooking" assignments: buildingId → recipeId. While set, the
+   *  building auto-re-crafts that recipe whenever it's idle and has ingredients
+   *  (and, for the Kitchen, wood to burn). Empty = nothing auto-running. */
+  autoCook: Record<string, string>;
   /** Building tool slots: buildingId → installed tool IDs */
   buildingTools: Record<string, string[]>;
   /** Enemy IDs the player has encountered on missions */
@@ -650,6 +654,9 @@ export interface GameActions {
   // Ale & Happiness
   getAleInfo: () => { current: number; cap: number; production: number; consumption: number };
   startCraft: (recipeId: string, quantity?: number) => boolean;
+  /** Toggle passive "keep cooking": pass a recipeId to auto-run it at its
+   *  building, or null to stop. One auto-recipe per building. */
+  setAutoCook: (buildingId: string, recipeId: string | null) => void;
   getAvailableRecipes: () => CraftingRecipe[];
   installBuildingTool: (toolId: string, targetBuildingId: string) => boolean;
   getInstalledTools: (buildingId: string) => string[];
@@ -832,15 +839,18 @@ function generateSettlementName(): string {
 
 function createInitialState(): GameState {
   // Travel rations the founders arrived with. After a ~47-day walk from
-  // Ashwick the perishables are gone; what's left is preserved grain (their
-  // bread/hardtack stash), dried meat strips, and a handful of nuts Nell
-  // picked up on the road. ~55 units ≈ a week of food for the camp before
-  // production has to carry — sets up the "build the Forager fast" pressure
-  // and seeds food-diversity from day one.
+  // Ashwick the perishables are gone; what's left is dried/preserved food:
+  // grain (their bread/hardtack stash), dried meat strips, dried fish, a few
+  // handfuls of nuts and dried berries off the road. A modest buffer (~a week)
+  // that makes the food deficit a COUNTDOWN, not instant starvation — and it
+  // seeds every kitchen staple so the player can "keep cooking" from day one
+  // (porridge from grain, Hearth Stew from meat+forage, River Stew from fish).
   const initialFoods = emptyFoods();
   initialFoods.wheat = 30;
   initialFoods.meat = 15;
+  initialFoods.fish = 10;
   initialFoods.nuts = 10;
+  initialFoods.berries = 8;
   return {
     resources: { gold: 50, wood: 300, stone: 200 },
     foods: initialFoods,
@@ -933,6 +943,7 @@ function createInitialState(): GameState {
     lastTradeAt: 0,
     inventory: [],
     craftingQueue: [],
+    autoCook: {},
     buildingTools: {},
     discoveredEnemies: [],
     eventLog: [],
@@ -1343,6 +1354,7 @@ function loadGame(): GameState | null {
     // ephemeral; replaying them on legacy saves is acceptable.
     if (!saved.firedEvents) saved.firedEvents = [];
     if (!saved.pendingEvents) saved.pendingEvents = [];
+    if (!saved.autoCook) saved.autoCook = {};
     if (!saved.questsClaimableSeen) saved.questsClaimableSeen = [];
     // Existing saves: treat everyone already on the roster as "seen" so old
     // saves don't light up blue. New arrivals after this point will be unread.
@@ -3042,9 +3054,11 @@ export function GameProvider(props: ParentProps) {
               else if (res === "gold") s.resources.gold += amt;
               else if (res === "wool") s.wool += amt;
               else if (res === "fiber") s.fiber += amt;
-              // Kitchen meals don't have a bulk counter — they land in
-              // inventory as item entries via getItemByRecipe below and
-              // are picked from there as per-mission food supplies.
+              // Cooked meals (porridge/stew/...) are real food types — they land
+              // in the larder and feed citizens (+ count toward diversity).
+              else if (isFoodItemType(res)) addFood(s.foods, res, amt, caps.food);
+              // Legacy generic "food" recipes land in inventory as mission supplies
+              // (handled by getItemByRecipe below).
               else if (res === "food") { /* no-op */ }
               // Also add equippable item or building tool to inventory
               const itemDef = getItemByRecipe(recipe.id);
@@ -3106,6 +3120,32 @@ export function GameProvider(props: ParentProps) {
                   ?? (ALCHEMY_RECIPES.find((ar) => ar.id === nextPending.recipeId) as any);
                 if (r) nextPending.remaining = r.craftTime;
               }
+            }
+          }
+        }
+
+        // ── Passive cooking: "keep the fire lit" while ingredients + wood last ──
+        // Each autoCook building re-starts its recipe whenever it's idle, paying a
+        // small wood fuel cost per game-hour while a batch actually cooks. The
+        // completion loop above routes the cooked food into the larder. (Cooking
+        // recipe costs are food-type only, so getFoodCostAmount covers them.)
+        const FUEL_WOOD_PER_HOUR = 1;
+        for (const [autoBuildingId, autoRecipeId] of Object.entries(s.autoCook ?? {})) {
+          if (!autoRecipeId) continue;
+          const autoRecipe = CRAFTING_RECIPES.find((r) => r.id === autoRecipeId);
+          if (!autoRecipe) continue;
+          const autoBldg = s.buildings.find((b) => b.buildingId === autoBuildingId);
+          if (!autoBldg || autoBldg.level < autoRecipe.minLevel || autoBldg.damaged) continue;
+          const cooking = s.craftingQueue.some((c) => c.recipeId === autoRecipeId && !c.pending);
+          if (cooking) {
+            // Fire's lit — burn fuel.
+            s.resources.wood = Math.max(0, s.resources.wood - FUEL_WOOD_PER_HOUR * elapsedHours);
+          } else {
+            // Idle — start another batch if we have the ingredients AND wood to burn.
+            const canAfford = autoRecipe.costs.every((c) => getFoodCostAmount(s.foods, c.resource) >= c.amount);
+            if (s.resources.wood > 0 && canAfford) {
+              for (const c of autoRecipe.costs) consumeFoodCost(s.foods, c.resource, c.amount);
+              s.craftingQueue.push({ recipeId: autoRecipeId, remaining: autoRecipe.craftTime, quantity: 1 });
             }
           }
         }
@@ -4796,6 +4836,12 @@ export function GameProvider(props: ParentProps) {
         consumption: tavernLvl * ALE_CONSUMED_PER_TAVERN_LEVEL,
       };
     },
+    setAutoCook(buildingId, recipeId) {
+      setState(produce((s) => {
+        if (recipeId) s.autoCook[buildingId] = recipeId;
+        else delete s.autoCook[buildingId];
+      }));
+    },
     startCraft(recipeId, quantity = 1) {
       const recipe = CRAFTING_RECIPES.find((r) => r.id === recipeId);
       if (!recipe || quantity < 1) return false;
@@ -4820,7 +4866,7 @@ export function GameProvider(props: ParentProps) {
         if (res === "honey") return state.honey;
         if (res === "astralShards") return state.astralShards;
         // Food items (wheat, meat, eggs, ...) and the "grain" alias
-        if (res === "grain" || isFoodItemType(res)) return getFoodCostAmount(state.foods, res);
+        if (res === "grain" || res === "wild" || isFoodItemType(res)) return getFoodCostAmount(state.foods, res);
         // Exotic goods (pepper, cinnamon, tea, chili, saffron)
         if (EXOTIC_IDS.includes(res)) return state.exotics?.[res] ?? 0;
         const inv = state.inventory.find((i) => i.itemId === res);
@@ -4844,7 +4890,7 @@ export function GameProvider(props: ParentProps) {
           else if (res === "food") consumeFood(s.foods, total);
           else if (res === "honey") s.honey = Math.max(0, s.honey - total);
           else if (res === "astralShards") s.astralShards -= total;
-          else if (res === "grain" || isFoodItemType(res)) consumeFoodCost(s.foods, res, total);
+          else if (res === "grain" || res === "wild" || isFoodItemType(res)) consumeFoodCost(s.foods, res, total);
           else if (EXOTIC_IDS.includes(res)) {
             if (!s.exotics) s.exotics = {};
             s.exotics[res] = Math.max(0, (s.exotics[res] ?? 0) - total);

@@ -2,14 +2,68 @@ import { For, Show } from "solid-js";
 import { RESOURCES } from "~/data/resources";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { EXOTICS } from "@medieval-realm/shared/data/exotics";
-import { useGame } from "~/engine/gameState";
+import { useGame, CRAFTING_RECIPES } from "~/engine/gameState";
 import { totalPopulation } from "~/data/citizens";
-import { FOOD_ITEMS, FOOD_CATEGORIES, getTotalFood, type FoodItemType, type FoodCategoryId } from "~/data/foods";
+import { FOOD_ITEMS, FOOD_CATEGORIES, getTotalFood, getFoodCostAmount, type FoodItemType, type FoodCategoryId } from "~/data/foods";
 import { craftingMaterialCap } from "~/data/buildings";
 import FoodIcon from "~/components/FoodIcon";
 
 export default function ResourceBar() {
   const { state, actions } = useGame();
+
+  /** Passive-cooking contribution to the food economy. Only counts recipes that
+   *  can actually run right now (all ingredients present + wood to burn), so a
+   *  stalled pot doesn't claim a phantom rate. Returns the per-cooked-type
+   *  production rate (/h), a per-cooked-type "hours until the limiting ingredient
+   *  runs out", and the NET food rate (produced minus food eaten as inputs). */
+  const cookingRates = () => {
+    const produce: Record<string, number> = {};
+    const hoursLeft: Record<string, number> = {};
+    let net = 0;
+    for (const rid of Object.values(state.autoCook ?? {})) {
+      const r = CRAFTING_RECIPES.find((cr) => cr.id === rid);
+      if (!r) continue;
+      const inputsOk = r.costs.every((c) => getFoodCostAmount(state.foods, c.resource) >= c.amount);
+      const woodOk = state.resources.wood > 0; // the fire needs fuel
+      if (!inputsOk || !woodOk) continue; // stalled → no contribution
+      const perHour = 3600 / r.craftTime;
+      const outType = r.produces.resource;
+      produce[outType] = (produce[outType] ?? 0) + r.produces.amount * perHour;
+      let netBatch = r.produces.amount;
+      let minHours = Infinity;
+      for (const c of r.costs) {
+        netBatch -= c.amount; // inputs are food → leave the larder
+        const burn = c.amount * perHour;
+        const stock = getFoodCostAmount(state.foods, c.resource);
+        if (burn > 0) minHours = Math.min(minHours, stock / burn);
+      }
+      net += netBatch * perHour;
+      hoursLeft[outType] = Math.min(hoursLeft[outType] ?? Infinity, minHours);
+    }
+    return { produce, hoursLeft, net };
+  };
+  /** Is a pot assigned to this food type at all? (Used for the stalled-pot
+   *  fallback label when it isn't currently producing.) */
+  const isCooking = (foodId: string): boolean =>
+    Object.values(state.autoCook ?? {}).some((rid) =>
+      CRAFTING_RECIPES.find((cr) => cr.id === rid)?.produces.resource === foodId);
+  /** If a pot is assigned to this dish but can't run, why? ("no fuel" / "out of
+   *  grain"). Empty string when it isn't assigned or is running fine. */
+  const cookStallReason = (foodId: string): string => {
+    const r = Object.values(state.autoCook ?? {})
+      .map((rid) => CRAFTING_RECIPES.find((cr) => cr.id === rid))
+      .find((cr) => cr?.produces.resource === foodId);
+    if (!r) return "";
+    if (state.resources.wood <= 0) return "no fuel";
+    const missing = r.costs.find((c) => getFoodCostAmount(state.foods, c.resource) < c.amount);
+    return missing ? `out of ${missing.resource}` : "";
+  };
+  /** "~4h left" style label, or "" when the supply is effectively open-ended. */
+  const cookLeftLabel = (hours: number): string => {
+    if (!isFinite(hours) || hours > 99) return "";
+    if (hours < 1) return " (<1h left)";
+    return ` (~${Math.round(hours)}h left)`;
+  };
   const rates = () => actions.getProductionRates();
   const foodCons = () => actions.getFoodConsumption();
   const animalCons = () => actions.getAnimalFoodConsumption();
@@ -32,7 +86,11 @@ export default function ResourceBar() {
   const getRate = (id: string) => {
     const r = rates();
     const base = r[id as keyof typeof r] as number;
-    if (id === "food") return base - foodCons() - animalCons();
+    // Fold passive cooking's NET (food produced minus food eaten as ingredients)
+    // into the headline rate so the player sees -14/h climb when a pot is on.
+    // The "how long until the larder runs dry" detail stays on the cooked-food
+    // line only; here it'd be misleading (several pots, several timers).
+    if (id === "food") return base - foodCons() - animalCons() + cookingRates().net;
     return base;
   };
 
@@ -99,7 +157,8 @@ export default function ResourceBar() {
                       const visibleItems = () => itemsInCat().filter((fi) => {
                         const stock = Math.floor(state.foods?.[fi.id] ?? 0);
                         const rate = foodBreakdown().find((s) => s.type === fi.id)?.rate ?? 0;
-                        return stock > 0 || rate > 0;
+                        // A pot currently simmering this dish counts, even from an empty larder.
+                        return stock > 0 || rate > 0 || (cookingRates().produce[fi.id] ?? 0) > 0 || isCooking(fi.id);
                       });
                       return (
                         <Show when={visibleItems().length > 0}>
@@ -108,6 +167,8 @@ export default function ResourceBar() {
                             {(fi) => {
                               const stock = () => Math.floor(state.foods?.[fi.id] ?? 0);
                               const rate = () => foodBreakdown().find((s) => s.type === fi.id)?.rate ?? 0;
+                              const cookRate = () => cookingRates().produce[fi.id] ?? 0;
+                              const totalRate = () => rate() + cookRate();
                               return (
                                 <div class="dropdown-row">
                                   <span style={{ display: "flex", "align-items": "center", gap: "6px" }}>
@@ -115,12 +176,20 @@ export default function ResourceBar() {
                                   </span>
                                   <span style={{ display: "flex", gap: "8px", "align-items": "center" }}>
                                     <span style={{ color: "var(--text-primary)" }}>{stock()}</span>
-                                    <Show when={rate() > 0} fallback={
-                                      <span style={{ "min-width": "64px", "text-align": "right", color: "var(--text-muted)", "font-size": "0.72rem" }}>
-                                        (dormant)
-                                      </span>
+                                    <Show when={cookRate() > 0} fallback={
+                                      <Show when={rate() > 0} fallback={
+                                        <span style={{ "min-width": "64px", "text-align": "right", color: "var(--text-muted)", "font-size": "0.72rem", "white-space": "nowrap" }}>
+                                          {isCooking(fi.id) ? `⏸ ${cookStallReason(fi.id) || "paused"}` : "(dormant)"}
+                                        </span>
+                                      }>
+                                        <span class="rate-positive" style={{ "min-width": "64px", "text-align": "right" }}>+{rate()}/h</span>
+                                      </Show>
                                     }>
-                                      <span class="rate-positive" style={{ "min-width": "64px", "text-align": "right" }}>+{rate()}/h</span>
+                                      {/* Simmering: show the production rate and how long the
+                                          larder will keep the fire fed (this line only). */}
+                                      <span class="rate-positive" style={{ "text-align": "right", color: "var(--accent-gold)", "white-space": "nowrap" }}>
+                                        🔥 +{Math.round(totalRate())}/h{cookLeftLabel(cookingRates().hoursLeft[fi.id] ?? Infinity)}
+                                      </span>
                                     </Show>
                                   </span>
                                 </div>

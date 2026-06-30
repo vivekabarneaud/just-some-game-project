@@ -26,6 +26,7 @@ const navSections: { title: string; items: NavItem[] }[] = [
     title: "Village",
     items: [
       { path: "/", icon: "🏘️", label: "Overview" },
+      { path: "/chronicle", icon: "📖", label: "Chronicle" },
       { path: "/quests", icon: "📋", label: "Quests" },
       { path: "/buildings", icon: "🏗️", label: "Buildings" },
       { path: "/farming", icon: "🌾", label: "Farming" },
@@ -36,6 +37,7 @@ const navSections: { title: string; items: NavItem[] }[] = [
   {
     title: "Crafting",
     items: [
+      { path: "/kitchen", icon: "🍳", label: "The Kitchens" },
       { path: "/tailoring", icon: "🧵", label: "Tailoring" },
       { path: "/woodworker", icon: "🪚", label: "Woodworker" },
       { path: "/blacksmith", icon: "🔨", label: "Blacksmith" },
@@ -43,7 +45,6 @@ const navSections: { title: string; items: NavItem[] }[] = [
       { path: "/alchemy", icon: "🧪", label: "Alchemy" },
       { path: "/enchanting", icon: "✨", label: "Enchanting" },
       { path: "/jewelcrafting", icon: "💎", label: "Jewelcrafting" },
-      { path: "/kitchen", icon: "🍳", label: "The Kitchens" },
     ],
   },
   {
@@ -64,7 +65,6 @@ const navSections: { title: string; items: NavItem[] }[] = [
       { path: "/map", icon: "🗺️", label: "World Map" },
       { path: "/leaderboard", icon: "🏆", label: "Leaderboard" },
       { path: "/shrine", icon: "🔮", label: "Shrine" },
-      { path: "/chronicle", icon: "📖", label: "Chronicle" },
       { path: "/friends", icon: "👥", label: "Friends" },
       { path: "/events", icon: "📣", label: "Events" },
     ],
@@ -72,6 +72,20 @@ const navSections: { title: string; items: NavItem[] }[] = [
 ];
 
 const SPEEDS = [1, 2, 5, 10, 50];
+
+/** Crafting links whose page is useless until the building exists — these get
+ *  DISABLED (greyed, non-clickable) rather than shown enabled with a "go build
+ *  this first" message on click. Keeps the early-game sidebar legible. Keyed by
+ *  nav path → building id. (Enchanting/Alchemy use other systems; left alone.) */
+const CRAFTING_LINK_BUILDING: Record<string, string> = {
+  "/kitchen": "kitchen",
+  "/tailoring": "tailoring_shop",
+  "/woodworker": "woodworker",
+  "/blacksmith": "blacksmith",
+  "/leatherworking": "leatherworking",
+  "/jewelcrafting": "jewelcrafter",
+  "/alchemy": "alchemy_lab",
+};
 
 /** Routes whose page plays its own themed mount sound (page_turn / dagger /
  *  bell). Suppress the generic nav click on these links so navigating to them
@@ -227,6 +241,13 @@ export default function Sidebar(props: SidebarProps) {
     return null;
   };
 
+  /** A crafting link whose building isn't built yet → render disabled. */
+  const isLinkDisabled = (path: string): boolean => {
+    const bid = CRAFTING_LINK_BUILDING[path];
+    if (!bid) return false;
+    return (state.buildings.find((b) => b.buildingId === bid)?.level ?? 0) < 1;
+  };
+
   const isActive = (path: string) => {
     if (path === "/") return location.pathname === "/";
     return location.pathname.startsWith(path);
@@ -315,6 +336,18 @@ export default function Sidebar(props: SidebarProps) {
               const badge = badgeCountFor(item.path);
               const pulse = pulseFor(item.path);
               const danger = dangerFor(item.path);
+              if (isLinkDisabled(item.path)) {
+                return (
+                  <div
+                    class="nav-link"
+                    title="Build this first to use it"
+                    style={{ opacity: "0.4", cursor: "default", "pointer-events": "none" }}
+                  >
+                    <span class="nav-icon">{item.icon}</span>
+                    {item.label}
+                  </div>
+                );
+              }
               return (
                 <A
                   href={item.path}

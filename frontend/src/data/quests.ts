@@ -400,7 +400,10 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
       "A shepherd arrives at your gate with a small flock, looking for pasture. No gold needed, just wood and stone to build a pen. Wool for clothing, meat for the table. These creatures earn their keep.",
     objective: "Build a Sheep Pen",
     icon: "🐑",
-    triggers: [{ type: "chapter_unlocked", storyline: "settlement", chapter: 3 }],
+    // Deferred to Village tier (TH3): a shepherd + flock + wool is incoherent at
+    // a 3-minute camp. Waits for both chapter 3 AND Village so it never fires early.
+    triggers: [{ type: "chapter_unlocked", storyline: "settlement", chapter: 3 }, { type: "th_level", level: 3 }],
+    requiresAll: true,
     condition: (s) => s.pens.some((p) => p.animal === "sheep" && p.level >= 1),
     rewards: [
       { resource: "wheat", amount: 50, label: "Wheat" },
@@ -419,7 +422,11 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
       "Your settlers shiver in patched-together rags. With wool from your sheep, a proper tailor could clothe them, and warm clothes mean happy citizens, especially when winter comes.",
     objective: "Build a Tailoring Shop",
     icon: "🧵",
-    triggers: [{ type: "chapter_unlocked", storyline: "settlement", chapter: 3 }],
+    // Deferred to Village tier (TH3): first-year arrivals brought their own
+    // clothes; a camp shouldn't be manufacturing clothing before it can feed
+    // itself. Waits for both chapter 3 AND Village.
+    triggers: [{ type: "chapter_unlocked", storyline: "settlement", chapter: 3 }, { type: "th_level", level: 3 }],
+    requiresAll: true,
     condition: (s) => (bldg(s, "tailoring_shop")?.level ?? 0) >= 1,
     rewards: [
       { resource: "wood", amount: 50, label: "Wood" },

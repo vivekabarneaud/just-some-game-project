@@ -7,9 +7,10 @@ export type FoodItemType =
   | "cabbages" | "turnips" | "peas" | "squash" | "fava"
   | "apples" | "pears" | "cherries"
   | "meat" | "eggs" | "milk" | "fish"
-  | "berries" | "mushrooms" | "nuts";
+  | "berries" | "mushrooms" | "nuts"
+  | "porridge" | "hearth_stew" | "river_stew";
 
-export type FoodCategoryId = "grain" | "veggie" | "fruit" | "animal" | "wild";
+export type FoodCategoryId = "grain" | "veggie" | "fruit" | "animal" | "wild" | "cooked";
 
 export interface FoodItemMeta {
   id: FoodItemType;
@@ -35,6 +36,7 @@ export const FOOD_CATEGORIES: FoodCategoryMeta[] = [
   { id: "fruit",  label: "Fruits",          icon: "🍎", order: 3 },
   { id: "animal", label: "Animal Products", icon: "🍖", order: 4 },
   { id: "wild",   label: "Wild Foods",      icon: "🍄", order: 5 },
+  { id: "cooked", label: "Cooked Meals",    icon: "🍲", order: 6 },
 ];
 
 export const FOOD_ITEMS: FoodItemMeta[] = [
@@ -60,6 +62,11 @@ export const FOOD_ITEMS: FoodItemMeta[] = [
   { id: "berries",   label: "Berries",   icon: "🫐", order: 1, category: "wild" },
   { id: "mushrooms", label: "Mushrooms", icon: "🍄", order: 2, category: "wild" },
   { id: "nuts",      label: "Nuts",      icon: "🌰", order: 3, category: "wild" },
+  // Cooked meals — made at the Kitchen; stretch raw food into more portions and
+  // count toward food diversity (a hot meal). See crafting.ts kitchen recipes.
+  { id: "porridge",    label: "Porridge",    icon: "🥣", order: 1, category: "cooked" },
+  { id: "hearth_stew", label: "Hearth Stew", icon: "🍲", order: 2, category: "cooked" },
+  { id: "river_stew",  label: "River Stew",  icon: "🍲", order: 3, category: "cooked" },
 ];
 
 export const FOOD_ITEM_IDS: FoodItemType[] = FOOD_ITEMS.map((f) => f.id);
@@ -79,6 +86,7 @@ export function isFoodItemType(id: string): id is FoodItemType {
 export function getFoodCostAmount(foods: Record<FoodItemType, number> | undefined, resource: string): number {
   if (!foods) return 0;
   if (resource === "grain") return (foods.wheat ?? 0) + (foods.barley ?? 0);
+  if (resource === "wild") return (foods.berries ?? 0) + (foods.mushrooms ?? 0) + (foods.nuts ?? 0);
   if (isFoodItemType(resource)) return foods[resource] ?? 0;
   return 0;
 }
@@ -94,6 +102,19 @@ export function consumeFoodCost(foods: Record<FoodItemType, number>, resource: s
     const order: FoodItemType[] = (foods.wheat ?? 0) >= (foods.barley ?? 0)
       ? ["wheat", "barley"]
       : ["barley", "wheat"];
+    for (const t of order) {
+      const take = Math.min(foods[t] ?? 0, remaining);
+      foods[t] = (foods[t] ?? 0) - take;
+      remaining -= take;
+      if (remaining <= 0) break;
+    }
+    return;
+  }
+  if (resource === "wild") {
+    // Take foraged foods most-abundant-first (berries / mushrooms / nuts).
+    let remaining = amount;
+    const order = ([ "berries", "mushrooms", "nuts" ] as FoodItemType[])
+      .sort((a, b) => (foods[b] ?? 0) - (foods[a] ?? 0));
     for (const t of order) {
       const take = Math.min(foods[t] ?? 0, remaining);
       foods[t] = (foods[t] ?? 0) - take;
