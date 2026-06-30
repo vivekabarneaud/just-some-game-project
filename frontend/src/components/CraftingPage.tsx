@@ -38,7 +38,10 @@ interface CraftingPageProps {
 /** Display-friendly name for produced resource */
 function formatResource(resource: string, _buildingId: string): string {
   if (resource === "food") return "meal";
-  return resource;
+  if (resource === "grain") return "grain";
+  if (resource === "wild") return "foraged food";
+  if (isFoodItemType(resource)) return getFoodMeta(resource as FoodItemType).label;
+  return resource.replace(/_/g, " ");
 }
 
 const RESOURCE_ICON: Record<string, string> = {
@@ -57,6 +60,11 @@ function renderCost(resource: string, amount: number): JSX.Element {
   if (resource === "grain") {
     return <span style={{ display: "inline-flex", "align-items": "center", gap: "4px" }}>
       {amount} <span style={{ "font-size": "14px" }}>🌾</span> grain
+    </span>;
+  }
+  if (resource === "wild") {
+    return <span style={{ display: "inline-flex", "align-items": "center", gap: "4px" }}>
+      {amount} <span style={{ "font-size": "14px" }}>🍄</span> foraged
     </span>;
   }
   if (isFoodItemType(resource)) {
@@ -245,7 +253,7 @@ export default function CraftingPage(props: CraftingPageProps) {
     if (res === "food") return getTotalFood(state.foods);
     if (res === "honey") return state.honey;
     if (res === "astralShards") return state.astralShards;
-    if (res === "grain" || isFoodItemType(res)) return getFoodCostAmount(state.foods, res);
+    if (res === "grain" || res === "wild" || isFoodItemType(res)) return getFoodCostAmount(state.foods, res);
     const inv = state.inventory.find((i) => i.itemId === res);
     return inv?.quantity ?? 0;
   };
@@ -266,6 +274,7 @@ export default function CraftingPage(props: CraftingPageProps) {
       const have = getResourceAmount(cost.resource);
       if (have < cost.amount * qty) {
         if (cost.resource === "grain") return "Not enough grain (wheat or barley)";
+        if (cost.resource === "wild") return "Not enough foraged food (berries, mushrooms, or nuts)";
         if (isFoodItemType(cost.resource)) {
           const meta = getFoodMeta(cost.resource as FoodItemType);
           return `Not enough ${meta.label.toLowerCase()}`;

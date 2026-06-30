@@ -614,15 +614,15 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
   // Campfire recipes (Lv 1-2) — basic grilling and smoking. Quick craft
   // times so the early-game player gets fast feedback while learning the
   // food loop (matches Lv.1 building build times around 5s).
-  { id: "peppered_jerky", name: "Peppered Jerky", icon: "🌶️", building: "kitchen", minLevel: 1,
+  { id: "peppered_jerky", name: "Peppered Jerky", icon: "🌶️", building: "kitchen", minLevel: 2,
     costs: [{ resource: "meat", amount: 4 }], produces: { resource: "food", amount: 1 }, craftTime: 5,
     requiredTool: "cutting_board" },
-  { id: "herb_salad", name: "Fresh Herb Salad", icon: "🥬", building: "kitchen", minLevel: 1,
+  { id: "herb_salad", name: "Fresh Herb Salad", icon: "🥬", building: "kitchen", minLevel: 2,
     costs: [{ resource: "cabbages", amount: 2 }, { resource: "mushrooms", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 5,
     requiredTool: "cutting_board" },
-  { id: "smoked_fish", name: "Smoked Fish", icon: "🐟", building: "kitchen", minLevel: 1,
+  { id: "smoked_fish", name: "Smoked Fish", icon: "🐟", building: "kitchen", minLevel: 2,
     costs: [{ resource: "fish", amount: 3 }, { resource: "wood", amount: 2 }], produces: { resource: "food", amount: 1 }, craftTime: 5 },
-  { id: "grilled_mushrooms", name: "Grilled Mushrooms", icon: "🍄", building: "kitchen", minLevel: 1,
+  { id: "grilled_mushrooms", name: "Grilled Mushrooms", icon: "🍄", building: "kitchen", minLevel: 2,
     costs: [{ resource: "mushrooms", amount: 3 }], produces: { resource: "food", amount: 1 }, craftTime: 5 },
 
   // ── Citizen staple meals (Lv 1) — the food MULTIPLIER. Unlike the campfire
