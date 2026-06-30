@@ -677,6 +677,18 @@ export const BUILDINGS: BuildingDefinition[] = [
     requiredTier: "camp",
     unlockedAt: { storyline: "settlement", chapter: 4 },
   },
+  {
+    id: "enchanting_shop",
+    name: "Enchanting Shop",
+    category: "crafting",
+    description:
+      "A quiet workshop of chalk sigils, etched silver, and steady candlelight, where good steel is coaxed into something more: an edge that bites with frost or fire, a ward that turns a blow. The Mage Tower keeps the walls; this keeps the work.",
+    icon: "✨",
+    maxLevel: 8,
+    levels: generateLevels({ wood: 40, stone: 50 }, 25, undefined, 8),
+    requiredTier: "town",
+    tierLevelCaps: { camp: 0, village: 0, town: 5, city: 8 },
+  },
 ];
 
 // ─── Default tier level caps ────────────────────────────────────

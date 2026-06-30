@@ -4969,7 +4969,8 @@ export function GameProvider(props: ParentProps) {
     enchantItem(enchantId, adventurerId, slot, inventoryIdx) {
       const ench = getEnchantment(enchantId);
       if (!ench) return false;
-      if (state.mageTower.level < ench.minTowerLevel) return false;
+      const enchantShopLevel = state.buildings.find((b) => b.buildingId === "enchanting_shop")?.level ?? 0;
+      if (enchantShopLevel < ench.minShopLevel) return false;
 
       // Check valid slot
       if (slot && !ench.validSlots.includes(slot as any)) return false;

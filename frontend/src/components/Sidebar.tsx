@@ -76,8 +76,8 @@ const SPEEDS = [1, 2, 5, 10, 50];
 /** Crafting links whose page is useless until the building exists — these get
  *  DISABLED (greyed, non-clickable) rather than shown enabled with a "go build
  *  this first" message on click. Keeps the early-game sidebar legible. Keyed by
- *  nav path → building id. (Enchanting/Alchemy use other systems; left alone.) */
-const CRAFTING_LINK_BUILDING: Record<string, string> = {
+ *  nav path → the building that page needs (greyed until that building exists). */
+const LINK_REQUIRED_BUILDING: Record<string, string> = {
   "/kitchen": "kitchen",
   "/tailoring": "tailoring_shop",
   "/woodworker": "woodworker",
@@ -85,6 +85,9 @@ const CRAFTING_LINK_BUILDING: Record<string, string> = {
   "/leatherworking": "leatherworking",
   "/jewelcrafting": "jewelcrafter",
   "/alchemy": "alchemy_lab",
+  "/enchanting": "enchanting_shop",
+  "/marketplace": "marketplace",
+  "/shrine": "shrine",
 };
 
 /** Routes whose page plays its own themed mount sound (page_turn / dagger /
@@ -241,9 +244,9 @@ export default function Sidebar(props: SidebarProps) {
     return null;
   };
 
-  /** A crafting link whose building isn't built yet → render disabled. */
+  /** A link whose required building isn't built yet → render disabled. */
   const isLinkDisabled = (path: string): boolean => {
-    const bid = CRAFTING_LINK_BUILDING[path];
+    const bid = LINK_REQUIRED_BUILDING[path];
     if (!bid) return false;
     return (state.buildings.find((b) => b.buildingId === bid)?.level ?? 0) < 1;
   };

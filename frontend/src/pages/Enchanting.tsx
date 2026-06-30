@@ -64,16 +64,18 @@ export default function Enchanting() {
 
   const [selectedEnchant, setSelectedEnchant] = createSignal<string | null>(null);
 
-  const towerLevel = () => state.mageTower.level;
+  // Enchanting lives at the Enchanting Shop (a craft building) now, not the
+  // Mage Tower. The Tower is purely defensive.
+  const shopLevel = () => state.buildings.find((b) => b.buildingId === "enchanting_shop")?.level ?? 0;
 
   const selectedDef = () => {
     const id = selectedEnchant();
     return id ? getEnchantment(id) : undefined;
   };
 
-  // Available enchantments (tower level met)
-  const availableEnchants = () => ENCHANTMENTS.filter((e) => towerLevel() >= e.minTowerLevel);
-  const lockedEnchants = () => ENCHANTMENTS.filter((e) => towerLevel() < e.minTowerLevel);
+  // Available enchantments (shop level met)
+  const availableEnchants = () => ENCHANTMENTS.filter((e) => shopLevel() >= e.minShopLevel);
+  const lockedEnchants = () => ENCHANTMENTS.filter((e) => shopLevel() < e.minShopLevel);
 
   // Can we afford the selected enchantment?
   const canAffordSelected = () => {
@@ -146,7 +148,7 @@ export default function Enchanting() {
     <div>
       <h1 class="page-title">✨ Enchanting</h1>
 
-      <Show when={towerLevel() === 0}>
+      <Show when={shopLevel() === 0}>
         <div style={{
           padding: "24px",
           background: "var(--bg-secondary)",
@@ -154,15 +156,15 @@ export default function Enchanting() {
           "text-align": "center",
           color: "var(--text-muted)",
         }}>
-          <div style={{ "font-size": "2rem", "margin-bottom": "8px" }}>🏰</div>
-          <p>Build the Mage Tower to unlock enchanting.</p>
-          <A href="/buildings/mage_tower" style={{ color: "var(--accent-gold)" }}>
+          <div style={{ "font-size": "2rem", "margin-bottom": "8px" }}>✨</div>
+          <p>Build an Enchanting Shop to unlock enchanting.</p>
+          <A href="/buildings/enchanting_shop" style={{ color: "var(--accent-gold)" }}>
             Go to building →
           </A>
         </div>
       </Show>
 
-      <Show when={towerLevel() > 0}>
+      <Show when={shopLevel() > 0}>
         {/* Header bar */}
         <div style={{
           display: "flex",
@@ -176,7 +178,7 @@ export default function Enchanting() {
           "flex-wrap": "wrap",
           "align-items": "center",
         }}>
-          <span>🏰 Mage Tower Lv.{towerLevel()}</span>
+          <span>✨ Enchanting Shop Lv.{shopLevel()}</span>
           <Show when={selectedDef()}>
             <span style={{ color: "var(--text-muted)" }}>|</span>
             <span>
@@ -281,7 +283,7 @@ export default function Enchanting() {
                           <div>
                             <div class="enchanting-recipe-name">{ench.name}</div>
                             <div class="enchanting-recipe-desc" style={{ color: "var(--text-muted)" }}>
-                              Requires Mage Tower Lv.{ench.minTowerLevel}
+                              Requires Enchanting Shop Lv.{ench.minShopLevel}
                             </div>
                           </div>
                         </div>
