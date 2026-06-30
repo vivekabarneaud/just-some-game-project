@@ -103,9 +103,56 @@ export function getGardenRate(veggie: VeggieDefinition, level: number): number {
   return Math.floor(veggie.baseRate * level * 1.1);
 }
 
-/** Scales seed cost lightly with level so bigger gardens cost a bit more to sow. */
+/** Scales seed cost lightly with level so bigger gardens cost a bit more to sow.
+ *  NOTE: legacy gold-cost planting. Superseded by the per-crop seed system
+ *  (getSeedCapacity / getEffectiveGardenRate); kept only for the marketplace
+ *  buy price, which still reads it. */
 export function getSeedCost(veggie: VeggieDefinition, level: number): number {
   return Math.max(1, Math.floor(veggie.seedCost * (1 + (level - 1) * 0.2)));
+}
+
+// ─── Per-crop seed system ───────────────────────────────────────
+// Seeds are what you SOW, not the harvest. Each seed becomes a plant that
+// yields vegetables all season (the +X/h rate). Sowing fills the plot up to
+// its capacity; yield scales with how full it is. A steady plot saves its own
+// seed at year's end (plus a little surplus), so you only buy seed to expand
+// past your own supply or recover after a famine ate it.
+
+/** Seeds a garden holds at a given level — bigger plot, more seed to fill it.
+ *  10 per level (L1=10 … L8=80). */
+export function getSeedCapacity(level: number): number {
+  return Math.max(0, level) * 10;
+}
+
+/** The food/hour a planted garden actually produces, scaled by how full it is
+ *  sown. Fully seeded → the base getGardenRate; half-seeded → half. */
+export function getEffectiveGardenRate(
+  veggie: VeggieDefinition,
+  level: number,
+  seedsPlanted: number,
+): number {
+  const cap = getSeedCapacity(level);
+  if (cap <= 0) return 0;
+  const fill = Math.min(1, Math.max(0, seedsPlanted) / cap);
+  return Math.floor(getGardenRate(veggie, level) * fill);
+}
+
+/** Seed kept back from a season's crop. >1 so a steady plot self-sustains and
+ *  the surplus slowly funds expansion; big jumps still need the market. */
+export const SEED_RETURN_FACTOR = 1.5;
+export function getSeedReturn(seedsPlanted: number): number {
+  return Math.floor(Math.max(0, seedsPlanted) * SEED_RETURN_FACTOR);
+}
+
+/** Seeds the founding crew arrives with — enough to fully sow a first L1 plot
+ *  of each crop (capacity 10) with a little buffer, so day-one planting needs
+ *  no shopping. */
+export const STARTING_SEED_PER_CROP = 20;
+export function makeStartingSeeds(): Record<VeggieId, number> {
+  return VEGGIES.reduce((acc, v) => {
+    acc[v.id] = STARTING_SEED_PER_CROP;
+    return acc;
+  }, {} as Record<VeggieId, number>);
 }
 
 /** Can the player plant seeds in this garden right now? */

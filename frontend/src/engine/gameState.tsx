@@ -112,8 +112,10 @@ import {
   getVeggie,
   getGardenCost,
   getGardenBuildTime,
-  getGardenRate,
-  getSeedCost,
+  getSeedCapacity,
+  getEffectiveGardenRate,
+  getSeedReturn,
+  makeStartingSeeds,
   canPlantVeggie,
   isVeggieProducing,
   MAX_GARDENS,
@@ -345,6 +347,7 @@ export interface PlayerGarden {
   upgrading: boolean;
   upgradeRemaining?: number;
   plantedYear: number | null; // null = needs replanting; else the year we sowed
+  seedsPlanted: number;       // seeds sown this cycle; scales the yield rate (0 when unplanted)
 }
 
 export interface PlayerPen {
@@ -447,6 +450,7 @@ export interface GameState {
   buildings: PlayerBuilding[];
   fields: PlayerField[];
   gardens: PlayerGarden[];
+  seeds: Record<VeggieId, number>; // per-crop seed stock for sowing gardens
   pens: PlayerPen[];
   hives: PlayerHive[];
   orchards: PlayerOrchard[];
@@ -869,7 +873,10 @@ function createInitialState(): GameState {
       level: 0,
       upgrading: false,
       plantedYear: null,
+      seedsPlanted: 0,
     })),
+    // The crew arrived with seed — enough to sow a first plot of each crop.
+    seeds: makeStartingSeeds(),
     // Pre-spawn one pen per animal (chickens / goats / pigs / sheep).
     pens: ANIMALS.map((a) => ({
       id: nextId("pen"),
@@ -1149,6 +1156,11 @@ function loadGame(): GameState | null {
     // exists so the pre-attributed 4-slot layout works on old saves.
     for (const g of saved.gardens) {
       if ((g as any).plantedYear === undefined) (g as any).plantedYear = null;
+      // Seed system: a garden planted under the old gold-cost system counts as
+      // fully sown so its rate doesn't drop to zero on load; empty plots get 0.
+      if ((g as any).seedsPlanted === undefined) {
+        (g as any).seedsPlanted = (g as any).plantedYear != null ? getSeedCapacity((g as any).level ?? 0) : 0;
+      }
     }
     for (const v of VEGGIES) {
       if (!saved.gardens.some((g: any) => g.veggie === v.id)) {
@@ -1158,7 +1170,17 @@ function loadGame(): GameState | null {
           level: 0,
           upgrading: false,
           plantedYear: null,
+          seedsPlanted: 0,
         });
+      }
+    }
+    // Per-crop seed stock: existing saves get the same starting pouch the crew
+    // would have brought, so planting works immediately after the update.
+    if (!(saved as any).seeds) {
+      (saved as any).seeds = makeStartingSeeds();
+    } else {
+      for (const v of VEGGIES) {
+        if (typeof (saved as any).seeds[v.id] !== "number") (saved as any).seeds[v.id] = 0;
       }
     }
     if (!saved.pens) saved.pens = [];
@@ -1748,7 +1770,7 @@ function calcProductionRates(state: GameState): { gold: number; wood: number; st
     if (garden.plantedYear == null) continue;
     const veggie = getVeggie(garden.veggie);
     if (isVeggieProducing(veggie, season)) {
-      rates.food += getGardenRate(veggie, garden.level);
+      rates.food += getEffectiveGardenRate(veggie, garden.level, garden.seedsPlanted);
     }
   }
 
@@ -1862,7 +1884,7 @@ function calcFoodRates(state: GameState, fedRatios?: Map<string, number>): Recor
     if (garden.plantedYear == null) continue;
     const veggie = getVeggie(garden.veggie);
     if (!isVeggieProducing(veggie, season)) continue;
-    const rate = getGardenRate(veggie, garden.level);
+    const rate = getEffectiveGardenRate(veggie, garden.level, garden.seedsPlanted);
     if (veggie.id in rates) rates[veggie.id as FoodItemType] += rate;
   }
 
@@ -1949,7 +1971,7 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
     if (garden.plantedYear == null) continue;
     const veggie = getVeggie(garden.veggie);
     if (!isVeggieProducing(veggie, season)) continue;
-    const rate = getGardenRate(veggie, garden.level);
+    const rate = getEffectiveGardenRate(veggie, garden.level, garden.seedsPlanted);
     sources.push({ type: veggie.id, label: veggie.name, icon: veggie.icon, rate, building: `${veggie.name} Garden Lv${garden.level}` });
   }
 
@@ -2445,6 +2467,9 @@ export function GameProvider(props: ParentProps) {
         serverState.gardens = serverState.gardens ?? [];
         for (const g of serverState.gardens) {
           if ((g as any).plantedYear === undefined) (g as any).plantedYear = null;
+          if ((g as any).seedsPlanted === undefined) {
+            (g as any).seedsPlanted = (g as any).plantedYear != null ? getSeedCapacity((g as any).level ?? 0) : 0;
+          }
         }
         for (const v of VEGGIES) {
           if (!serverState.gardens.some((g: any) => g.veggie === v.id)) {
@@ -2454,7 +2479,15 @@ export function GameProvider(props: ParentProps) {
               level: 0,
               upgrading: false,
               plantedYear: null,
+              seedsPlanted: 0,
             });
+          }
+        }
+        if (!(serverState as any).seeds) {
+          (serverState as any).seeds = makeStartingSeeds();
+        } else {
+          for (const v of VEGGIES) {
+            if (typeof (serverState as any).seeds[v.id] !== "number") (serverState as any).seeds[v.id] = 0;
           }
         }
         // Pens: ensure one pre-attributed slot per animal
@@ -2791,13 +2824,23 @@ export function GameProvider(props: ParentProps) {
         field.harvested = false;
       }
     }
-    // Clear each garden's plantedYear when we enter its veggie's plant season
-    // from a previous cycle — the player has to buy fresh seeds and replant.
+    // A finished crop is cleared for replanting when its plant season comes
+    // round again. That's also when we harvest seed: a steady plot returns its
+    // sown seed plus a surplus (getSeedReturn), so it self-sustains and slowly
+    // funds expansion. Skipped if the plot was never sown (seedsPlanted 0).
     for (const garden of s.gardens) {
       if (garden.plantedYear == null) continue;
       const veggie = getVeggie(garden.veggie);
       if (veggie.plantSeasons.includes(next) && garden.plantedYear < s.year) {
+        if (garden.seedsPlanted > 0) {
+          const returned = getSeedReturn(garden.seedsPlanted);
+          s.seeds[garden.veggie] = (s.seeds[garden.veggie] ?? 0) + returned;
+          if (returned > 0) {
+            pushEvent(s, "building_completed", veggie.icon, `Saved ${returned} ${veggie.name.toLowerCase()} seed from the ${veggie.name.toLowerCase()} crop`);
+          }
+        }
         garden.plantedYear = null;
+        garden.seedsPlanted = 0;
       }
     }
     if (prev === "summer") {
@@ -4439,12 +4482,20 @@ export function GameProvider(props: ParentProps) {
       const veggie = getVeggie(garden.veggie);
       if (!canPlantVeggie(veggie, state.season)) return false;
       if (garden.plantedYear === state.year) return false; // already sown this cycle
-      const cost = getSeedCost(veggie, garden.level);
-      if (state.resources.gold < cost) return false;
+      // Sow from the per-crop seed stock, up to the plot's capacity. A partial
+      // fill is allowed — the yield just scales down (getEffectiveGardenRate).
+      const stock = state.seeds?.[garden.veggie] ?? 0;
+      if (stock <= 0) return false;
+      const sow = Math.min(stock, getSeedCapacity(garden.level));
+      if (sow <= 0) return false;
       setState(produce((s) => {
-        s.resources.gold -= cost;
+        s.seeds[garden.veggie] -= sow;
         const g = s.gardens.find((g) => g.id === gardenId)!;
         g.plantedYear = s.year;
+        g.seedsPlanted = sow;
+        const cap = getSeedCapacity(garden.level);
+        const partial = sow < cap ? ` (${sow}/${cap} — short on seed)` : "";
+        pushEvent(s, "building_completed", veggie.icon, `Sowed ${sow} ${veggie.name.toLowerCase()} seed${partial}`);
       }));
       scheduleSave();
       return true;
@@ -4969,7 +5020,8 @@ export function GameProvider(props: ParentProps) {
     enchantItem(enchantId, adventurerId, slot, inventoryIdx) {
       const ench = getEnchantment(enchantId);
       if (!ench) return false;
-      if (state.mageTower.level < ench.minTowerLevel) return false;
+      const enchantShopLevel = state.buildings.find((b) => b.buildingId === "enchanting_shop")?.level ?? 0;
+      if (enchantShopLevel < ench.minShopLevel) return false;
 
       // Check valid slot
       if (slot && !ench.validSlots.includes(slot as any)) return false;

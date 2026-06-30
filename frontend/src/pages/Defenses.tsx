@@ -755,13 +755,8 @@ function MageTowerCard(props: { disabled: boolean }) {
         )}
       />
       <div class="building-card-desc">
-        A spire of arcane research stationed inside the keep. Each level unlocks deeper enchanting recipes.
+        A spire of war-wards and watchful magic, raised inside the keep. Its arcane defenses help turn back raids and the stranger things that come with them.
       </div>
-      <Show when={built()}>
-        <div style={{ "margin-top": "4px", "font-size": "0.78rem", color: "var(--text-muted)" }}>
-          Unlocks enchantments up to Lv.{state.mageTower.level}
-        </div>
-      </Show>
       <Show when={state.mageTower.upgrading && state.mageTower.upgradeRemaining !== undefined}>
         <div class="building-card-upgrading">
           {built() ? `Upgrading to Lv.${state.mageTower.level + 1}` : "Building Lv.1"} —{" "}

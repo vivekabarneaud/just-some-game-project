@@ -385,6 +385,30 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/pantry.png",
     unlocksBioFragments: ["edda_pantry"],
   },
+  {
+    id: "eddas_garden",
+    storyline: "settlement",
+    chapter: 2,
+    title: "Edda's Garden",
+    narrative:
+      "Edda has been eyeing a sunny patch behind the cook tent for a week, and Nell pockets seeds from half of what she forages. A kitchen garden would put both to use: greens we can pull through the season instead of waiting on whatever the woods decide to give us. Something to tend, too, while the scouts are away.",
+    objective: "Build a garden and plant it",
+    icon: "🥬",
+    // Fires the moment the first scouts go out, so the camp has something to
+    // do during the wait. Gated on Ch.2 as well, since that's when fields and
+    // gardens unlock — the trigger can't outrun the unlock.
+    triggers: [
+      { type: "custom", check: (s) => s.firstMissionSent === true },
+      { type: "chapter_unlocked", storyline: "settlement", chapter: 2 },
+    ],
+    requiresAll: true,
+    condition: (s) => s.gardens.some((g) => g.level >= 1 && g.plantedYear === s.year),
+    rewards: [
+      { resource: "gold", amount: 20, label: "Gold" },
+      { resource: "wood", amount: 20, label: "Wood" },
+    ],
+    targetPage: "/farming",
+  },
 
   // ╔══════════════════════════════════════════════════════════════╗
   // ║ SETTLEMENT — Chapter 3: The Shepherd                        ║
@@ -614,12 +638,16 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     chapter: 2,
     title: "Tools of the Trade",
     narrative:
-      "A travelling carpenter offers to stay if you build him a workshop. With the right wood, he can craft staves for your wizards, bows for your archers, and shields for your warriors.",
+      "With Hester taking the lumber mill, Jory can finally put down the felling axe and pick up the work he keeps muttering about. Give him a proper bench and good wood, and he'll turn out bows for the archers, staves for the casters, shields for the rest.",
     objective: "Build a Woodworker",
     icon: "🪚",
+    // The Woodworker is gated on Hester's rescue (she frees Jory for the fine
+    // carving), so this can't fire until then — otherwise it asks the player to
+    // build something still locked. Gate it on the same hester_rescue flag the
+    // building reads (completedUniqueMissionIds).
     triggers: [
       { type: "chapter_unlocked", storyline: "guild", chapter: 2 },
-      { type: "story_mission_completed", missionId: "story_1_scouting" },
+      { type: "custom", check: (s) => (s.completedUniqueMissionIds ?? []).includes("hester_rescue") },
     ],
     requiresAll: true,
     condition: (s) => (bldg(s, "woodworker")?.level ?? 0) >= 1,

@@ -21,7 +21,7 @@ export interface EnchantmentDefinition {
   /** Material costs */
   costs: { resource: string; amount: number }[];
   /** Required Mage Tower level */
-  minTowerLevel: number;
+  minShopLevel: number;
 }
 
 export const ENCHANTMENTS: EnchantmentDefinition[] = [
@@ -35,7 +35,7 @@ export const ENCHANTMENTS: EnchantmentDefinition[] = [
     damageBonus: 5,
     element: "fire",
     costs: [{ resource: "livingflame_bead", amount: 2 }],
-    minTowerLevel: 1,
+    minShopLevel: 1,
   },
   {
     id: "frost_bite",
@@ -47,7 +47,7 @@ export const ENCHANTMENTS: EnchantmentDefinition[] = [
     stats: { wis: 2 },
     element: "frost",
     costs: [{ resource: "frozen_droplet", amount: 2 }],
-    minTowerLevel: 1,
+    minShopLevel: 1,
   },
   {
     id: "lightning_strike",
@@ -58,7 +58,7 @@ export const ENCHANTMENTS: EnchantmentDefinition[] = [
     damageBonus: 8,
     element: "lightning",
     costs: [{ resource: "thunderglass", amount: 2 }],
-    minTowerLevel: 2,
+    minShopLevel: 2,
   },
   {
     id: "holy_smite",
@@ -70,7 +70,7 @@ export const ENCHANTMENTS: EnchantmentDefinition[] = [
     stats: { int: 2 },
     element: "holy",
     costs: [{ resource: "godspark", amount: 1 }],
-    minTowerLevel: 3,
+    minShopLevel: 3,
   },
   {
     id: "shadow_edge",
@@ -82,7 +82,7 @@ export const ENCHANTMENTS: EnchantmentDefinition[] = [
     stats: { dex: 3 },
     element: "shadow",
     costs: [{ resource: "shadow_fragment", amount: 1 }, { resource: "veilmist", amount: 2 }],
-    minTowerLevel: 3,
+    minShopLevel: 3,
   },
   {
     id: "dragonfire",
@@ -94,7 +94,7 @@ export const ENCHANTMENTS: EnchantmentDefinition[] = [
     stats: { str: 3 },
     element: "fire",
     costs: [{ resource: "dragonfire_ash", amount: 3 }, { resource: "dragon_blood", amount: 1 }],
-    minTowerLevel: 4,
+    minShopLevel: 4,
   },
 
   // ── Armor enchantments ──────────────────────────────────────────
@@ -108,7 +108,7 @@ export const ENCHANTMENTS: EnchantmentDefinition[] = [
     stats: { vit: 2 },
     element: "frost",
     costs: [{ resource: "frozen_droplet", amount: 1 }, { resource: "shimmer", amount: 1 }],
-    minTowerLevel: 1,
+    minShopLevel: 1,
   },
   {
     id: "fire_ward",
@@ -120,7 +120,7 @@ export const ENCHANTMENTS: EnchantmentDefinition[] = [
     stats: { vit: 3 },
     element: "fire",
     costs: [{ resource: "livingflame_bead", amount: 1 }, { resource: "shimmer", amount: 1 }],
-    minTowerLevel: 1,
+    minShopLevel: 1,
   },
   {
     id: "arcane_shield",
@@ -132,7 +132,7 @@ export const ENCHANTMENTS: EnchantmentDefinition[] = [
     stats: { wis: 3, int: 2 },
     element: "arcane",
     costs: [{ resource: "shimmer", amount: 2 }],
-    minTowerLevel: 2,
+    minShopLevel: 2,
   },
   {
     id: "nature_blessing",
@@ -143,7 +143,7 @@ export const ENCHANTMENTS: EnchantmentDefinition[] = [
     stats: { vit: 3, wis: 3 },
     element: "nature",
     costs: [{ resource: "heartstone", amount: 1 }],
-    minTowerLevel: 2,
+    minShopLevel: 2,
   },
   {
     id: "shadow_weave",
@@ -155,7 +155,7 @@ export const ENCHANTMENTS: EnchantmentDefinition[] = [
     stats: { dex: 5 },
     element: "shadow",
     costs: [{ resource: "ghostweave", amount: 2 }, { resource: "veilmist", amount: 1 }],
-    minTowerLevel: 3,
+    minShopLevel: 3,
   },
 
   // ── Accessory/boot enchantments ─────────────────────────────────
@@ -167,7 +167,7 @@ export const ENCHANTMENTS: EnchantmentDefinition[] = [
     validSlots: ["boots", "cloak", "ring1", "ring2"],
     stats: { dex: 5 },
     costs: [{ resource: "windweave_fiber", amount: 2 }],
-    minTowerLevel: 1,
+    minShopLevel: 1,
   },
   {
     id: "fortitude",
@@ -177,7 +177,7 @@ export const ENCHANTMENTS: EnchantmentDefinition[] = [
     validSlots: ["ring1", "ring2", "amulet"],
     stats: { str: 5, vit: 3 },
     costs: [{ resource: "heartstone", amount: 1 }, { resource: "orc_steel", amount: 2 }],
-    minTowerLevel: 2,
+    minShopLevel: 2,
   },
   {
     id: "divine_grace",
@@ -189,7 +189,7 @@ export const ENCHANTMENTS: EnchantmentDefinition[] = [
     stats: { wis: 5, int: 3 },
     element: "holy",
     costs: [{ resource: "godspark", amount: 1 }, { resource: "shimmer", amount: 2 }],
-    minTowerLevel: 4,
+    minShopLevel: 4,
   },
 ];
 

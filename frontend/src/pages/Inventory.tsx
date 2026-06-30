@@ -3,6 +3,7 @@ import { useGame, BUILDING_TOOLS, getBuildingTool } from "~/engine/gameState";
 import { ITEMS, MATERIALS, getItem, getMaterial, getPotionInfo, isSupplyItem, isFoodItem, getFoodEffect, MATCHED_FOOD_HP_BONUS, ARMOR_TYPE_META } from "@medieval-realm/shared/data/items";
 import { ALCHEMY_RECIPES } from "@medieval-realm/shared/data/alchemy_recipes";
 import { BUILDINGS } from "~/data/buildings";
+import { VEGGIES } from "~/data/gardens";
 
 export default function Inventory() {
   const { state } = useGame();
@@ -308,6 +309,42 @@ export default function Inventory() {
           }}
         </For>
       </div>
+
+      {/* Seeds — per-crop stock for sowing gardens. Saved from each harvest,
+          topped up at the Marketplace. */}
+      {(() => {
+        const ownedSeeds = () => VEGGIES
+          .map((v) => ({ v, n: state.seeds?.[v.id] ?? 0 }))
+          .filter((s) => s.n > 0);
+        return (
+          <Show when={ownedSeeds().length > 0}>
+            <h3 style={{ "font-family": "var(--font-heading)", "margin-top": "24px", "margin-bottom": "10px", color: "var(--text-primary)" }}>
+              Seeds
+            </h3>
+            <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-bottom": "10px" }}>
+              Sown in gardens — each seed grows a plant that yields all season. A steady plot saves its own seed at year's end.
+            </div>
+            <div class="buildings-grid">
+              <For each={ownedSeeds()}>
+                {({ v, n }) => (
+                  <div class="building-card">
+                    <span class="building-card-category">seed</span>
+                    <div class="building-card-header" style={{ "margin-top": "4px" }}>
+                      <div class="building-card-icon">{v.icon}</div>
+                      <div>
+                        <div class="building-card-title">{v.name} Seed <span style={{ color: "var(--accent-gold)", "font-weight": 600 }}>×{n}</span></div>
+                        <div style={{ "font-size": "0.8rem", color: "var(--text-secondary)", "font-style": "italic" }}>
+                          Sow in {v.plantSeasons.join(", ")}.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </For>
+            </div>
+          </Show>
+        );
+      })()}
 
       {/* Crafting Materials — looted from missions, spent in workshop recipes */}
       {(() => {

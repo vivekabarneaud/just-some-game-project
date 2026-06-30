@@ -11,7 +11,11 @@ export const STORY_MISSIONS: StoryMission[] = [
     icon: "🗺️",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/scouting_the_surroundings.png",
     slots: [{ class: "any" }, { class: "any" }],
-    duration: 900,
+    // The first story mission is the gate to the whole next quest wave
+    // (Woodworker, Walls, story_2). Kept short (3 min) so the opening loop
+    // closes fast and the camp doesn't sit idle waiting on it. Later missions
+    // stretch back out to 10+ min.
+    duration: 180,
     rewards: [
       { resource: "gold", amount: 50 },
       { resource: "wood", amount: 50 },
