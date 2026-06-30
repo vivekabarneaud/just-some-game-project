@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { defineConfig } from "vite";
 import solidPlugin from "vite-plugin-solid";
 import path from "path";
@@ -8,6 +9,13 @@ export default defineConfig({
     alias: {
       "~": path.resolve(__dirname, "./src"),
     },
+  },
+  // Unit tests (Vitest). Reuses the resolve alias + workspace package below.
+  // Pure logic runs in `node`; add a jsdom env later if we test components.
+  test: {
+    environment: "node",
+    include: ["src/**/*.test.ts"],
+    setupFiles: ["./src/test-setup.ts"],
   },
   // Workspace package — don't pre-bundle it, otherwise edits in shared/src
   // serve stale code from .vite/deps/ until the cache is manually cleared.

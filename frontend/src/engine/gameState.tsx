@@ -841,7 +841,7 @@ function generateSettlementName(): string {
   return "Newhold";
 }
 
-function createInitialState(): GameState {
+export function createInitialState(): GameState {
   // Travel rations the founders arrived with. After a ~47-day walk from
   // Ashwick the perishables are gone; what's left is dried/preserved food:
   // grain (their bread/hardtack stash), dried meat strips, dried fish, a few
@@ -1040,11 +1040,12 @@ function scheduleSave() {
   }, 1000);
 }
 
-function loadGame(): GameState | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const saved = JSON.parse(raw) as GameState;
+/** Canonical save-migration / backfill pass. Brings any older save — local OR
+ *  server — up to the current GameState shape: adds fields that postdate the
+ *  save, migrates renamed/legacy structures, and restores the id counter. MUST
+ *  run on BOTH load paths; skipping it (as the server path historically did)
+ *  leaves new fields undefined and crashes the tick. Mutates and returns `saved`. */
+export function migrateSaveState(saved: GameState): GameState {
     for (const def of BUILDINGS) {
       if (!saved.buildings.find((b) => b.buildingId === def.id)) {
         saved.buildings.push({ buildingId: def.id, level: 0, upgrading: false, damaged: false });
@@ -1576,6 +1577,13 @@ function loadGame(): GameState | null {
     }
     idCounter = maxId + 1;
     return saved;
+}
+
+function loadGame(): GameState | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return migrateSaveState(JSON.parse(raw) as GameState);
   } catch {
     return null;
   }
@@ -2274,6 +2282,15 @@ export function GameProvider(props: ParentProps) {
       // If server has game state (not empty), use it as source of truth
       const serverState = settlement.gameState as GameState;
       if (serverState && serverState.resources) {
+        // Canonical backfill — the single source of truth shared with the local
+        // load path. Runs FIRST so every field added since this save was written
+        // exists before the tick (or anything else) reads it. This is the P0 fix:
+        // the server path used to backfill only a subset, leaving fields like
+        // craftingQueue/autoCook/discoveredEnemies undefined → the tick threw
+        // every frame and the game silently froze. The inline migration below
+        // predates this call and is now largely redundant (every step is guarded
+        // or idempotent); it's slated for removal in a separate dedup pass.
+        migrateSaveState(serverState as GameState);
         // Migrate missing fields for old saves
         if (!serverState.questRewardsClaimed) serverState.questRewardsClaimed = [];
         if (serverState.firstMissionSent === undefined) serverState.firstMissionSent = false;
