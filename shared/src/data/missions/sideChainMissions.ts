@@ -151,4 +151,31 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     requires: { story: "story_1_scouting" },
     unique: true,
   },
+
+  // ── "The Woodcutter" — Hester Ironbark's arrival, Beat 1 (the rescue) ──
+  //    Gareth-driven field rescue of a woman run down by the foreman's crew.
+  //    She is deliberately NOT recruited here (no recruitsOnSuccess): she flees
+  //    the moment she's free. Completing this records missionDone "hester_rescue",
+  //    which later gates Beat 2 — her peaceful return + recruitment + the
+  //    Woodworker unlock (see docs/cast/hester-ironbark.md). The crew reuse the
+  //    bandit enemies; the team subdues them (drive-off-don't-slaughter ethic)
+  //    and lets them go. ──
+  {
+    id: "hester_rescue",
+    name: "Run Down",
+    description: "Gareth came back from the south trees with his jaw set in a way we have learned not to argue with. A woman, alone, run down through the brush by a pack of men the way you would course a deer. We do not know her, and we do not know what she did to set a mob on her heels. But we know what many against one looks like, and we did not come to the edge of the world to look away from it. Go down there. Put the men on their knees, not in the ground, and send them off with nothing but a story to tell. Let the woman go where she will.",
+    icon: "🪓",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/hester_rescue.png",
+    slots: [{ class: "any" }, { class: "any" }, { class: "any" }],
+    duration: 600,
+    rewards: [{ resource: "gold", amount: 45 }],
+    deployCost: 6,
+    difficulty: 2,
+    minGuildLevel: 2,
+    tags: ["combat", "outdoor"],
+    encounters: [{ enemyId: "bandit_thug", count: 3 }, { enemyId: "bandit_captain", count: 1 }],
+    requires: { story: "story_2_ruins" },
+    unique: true,
+    sideChain: { id: "the_woodcutter", name: "The Woodcutter" },
+  },
 ];
