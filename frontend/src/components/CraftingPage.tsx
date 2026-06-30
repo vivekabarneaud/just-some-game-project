@@ -521,18 +521,34 @@ export default function CraftingPage(props: CraftingPageProps) {
                     {/* Passive "keep cooking" toggle — kitchen staples that feed
                         citizens (food-type produce). Burns ~1 wood/hr while lit. */}
                     <Show when={props.buildingId === "kitchen" && isFoodItemType(recipe.produces.resource) && !isToolLocked()}>
-                      <button
-                        onClick={() => actions.setAutoCook(props.buildingId, state.autoCook?.[props.buildingId] === recipe.id ? null : recipe.id)}
-                        title="Keep cooking this while there are ingredients and wood to burn"
-                        style={{
-                          padding: "4px 8px", "font-size": "0.72rem", "border-radius": "4px", cursor: "pointer",
-                          border: `1px solid ${state.autoCook?.[props.buildingId] === recipe.id ? "var(--accent-gold)" : "var(--border-color)"}`,
-                          background: state.autoCook?.[props.buildingId] === recipe.id ? "rgba(212, 175, 55, 0.15)" : "transparent",
-                          color: state.autoCook?.[props.buildingId] === recipe.id ? "var(--accent-gold)" : "var(--text-muted)",
-                        }}
-                      >
-                        {state.autoCook?.[props.buildingId] === recipe.id ? "🔥 Cooking — tap to stop" : "🔥 Keep cooking"}
-                      </button>
+                      {(() => {
+                        const isOn = () => state.autoCook?.[props.buildingId] === recipe.id;
+                        // Why a lit pot can't actually simmer right now.
+                        const stallReason = (): string => {
+                          if (state.resources.wood <= 0) return "no wood to burn";
+                          const missing = recipe.costs.find((c) => getResourceAmount(c.resource) < c.amount);
+                          return missing ? `not enough ${missing.resource}` : "";
+                        };
+                        const label = () =>
+                          !isOn() ? "🔥 Keep cooking"
+                          : stallReason() ? `⏸ Paused — ${stallReason()}`
+                          : "🔥 Cooking — tap to stop";
+                        const stalled = () => isOn() && !!stallReason();
+                        return (
+                          <button
+                            onClick={() => actions.setAutoCook(props.buildingId, isOn() ? null : recipe.id)}
+                            title="Keep cooking this while there are ingredients and wood to burn"
+                            style={{
+                              padding: "4px 8px", "font-size": "0.72rem", "border-radius": "4px", cursor: "pointer",
+                              border: `1px solid ${isOn() ? (stalled() ? "var(--border-color)" : "var(--accent-gold)") : "var(--border-color)"}`,
+                              background: isOn() && !stalled() ? "rgba(212, 175, 55, 0.15)" : "transparent",
+                              color: stalled() ? "var(--text-muted)" : isOn() ? "var(--accent-gold)" : "var(--text-muted)",
+                            }}
+                          >
+                            {label()}
+                          </button>
+                        );
+                      })()}
                     </Show>
                     </div>
                   );
