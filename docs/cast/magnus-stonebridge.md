@@ -39,7 +39,15 @@
 - **Magic = a mix of pure Aether + Wind** (user call, 2026-06-29). Both are real combat elements (`elemental_aether`, `elemental_wind`) and both are *invisible*, so his restraint/unleash is **doubly literal**: nothing to see until the storm lands (a draft draws no eye; a gale can't be hidden). **Aether is neutral** — the raw substrate of *all* magic (LORE_TIMELINE: "all magic flows from the Aether") — which fits his early, raw, can't-be-hidden power; **Wind** gives it form and motion. NB: the *corruption* is **Hollow** magic (dead/stagnant Aether — the Cult, the Wastes), nothing to do with Magnus; he channels *living, raw* Aether shaped as wind. Default small/unseen; the unleash is a visible storm.
 - *Signature mechanic — Restraint / Unleash:* low, safe output by default; an **Unleash** (big AoE storm) that fires when his threat is low / he's unobserved, **loyalty-gated** (he only dares cut loose for people he trusts).
 - *Prodigy-control arc:* very high raw power, shaky control early → *gains* control as he levels / with loyalty (Bede's lessons finally taking root) — a literal wild-to-disciplined arc.
-- *Talent seeds (park):* **Gale** ⭐ (the unleash — AoE knockback storm), **Stillness** (deeper restraint: near-zero threat while throttled → stays unseen longer), **Eye of the Storm** ⭐ (control: unleash without the wild-surge downside). Minors: +INT, +control, +AoE radius.
+**Tree layout (2026-06-30):**
+- *Signature passive (free, L1):* **Held Breath** — throttled by default: low output, **low threat** (he makes himself small).
+- **T1 — Foundations** (minors): **Focus** (+INT/rank), **Control** (−wild-surge chance/rank).
+- **T2 — The Draft:** **Whisperwind** (ranked — tiny near-invisible hits, almost no threat), **Stillness** ⭐ (while throttled he's nearly ignored — sets up the unleash).
+- **T3 — The Gathering:** **Gale** ⭐ (the unleash — big AoE aether-wind storm, but *loud*: spikes his threat), **Updraft** (ranked — +radius/damage), **Eye of the Storm** (ranked — tame the unleash's downside).
+- **T4 — fork:** **Tempest** ⭐ (cut loose — bigger Gale, more often, max devastation) **OR** **Zephyr** ⭐ (Bede's discipline — precise repeated bursts, low risk, stays hidden). His inner conflict *is* the fork.
+- **T5 — capstones:** **Unleashed** ⭐ (loyalty — when safe, the boy stops being afraid and lets go *completely*) and **Brother's Shadow** ⭐ (codependency: while Aldwin's up + near, his unleash is empowered; if Aldwin falls → **Wild Surge**, uncontrolled, huge and indiscriminate).
+- *Minors:* +INT, +control, +AoE radius.
+- *Pair note:* Aldwin's **Brother's Keeper** + Magnus's **Brother's Shadow** are the same bond from both sides; and his restraint/unleash keys off the **threat system** — the team (Godric/Gareth aggro, Aldwin shields) keeps enemies off him so the unseen boy can level the field.
 
 ## The pair (with Aldwin) — codependency
 - **Aldwin alive + near → Magnus dares to unleash** (he feels safe). **Aldwin falls → Magnus breaks**: a wild uncontrolled surge, or he panics and shuts down. Losing the brother unmakes him.

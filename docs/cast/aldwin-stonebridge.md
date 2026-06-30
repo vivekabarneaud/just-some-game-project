@@ -34,7 +34,14 @@
 **Archetype: pure healer + protector (priest).** Heals, shields, wards — straight support, no offense to speak of; his power is keeping others alive, and keeping **Magnus** alive above all. Talent model = Godric's template (see [godric-thornwood.md](godric-thornwood.md)).
 - *Signature passive — Answered Prayers (the secret):* his heals occasionally over-heal/cleanse, and his wards lay the **undead** to rest and hold against the **thinning's wrongness** (the perceptible dead / the boundary — *not* "aether," which is neutral; Primal acts on the dead and *contains* Hollow corruption, it doesn't cleanse matter) more than a priest's should, because he is an **unwitting Primal** ([[project_magic_rules]]: priests = unwitting Primal) — and *"it would never occur to him to wonder why."* A **discovery beat** (the player sees his prayers shrug off the Wastes' wrongness; he never does) *and* his arc (he is exactly the thing the Church would burn).
 - *Shields Magnus in priority:* heals/wards flow to his brother first; he'll hold a **Last Stand for Magnus** without hesitation, and **won't flee without him** (retreat system — he stays for the boy). His protection is *what lets Magnus unleash.*
-- *Talent seeds (park):* **Sanctuary** ⭐ (shield/ward an ally — Magnus first), **Greater Healing**, **Ward Against the Dark** ⭐ (the Primal bite vs undead + the thinning's wrongness — surfaces his hidden nature), **Intercession** ⭐ (take-the-hit / Last Stand for an ally, brother-focused). Minors: +heal power, +ward strength, +WIS.
+**Tree layout (2026-06-30):**
+- **T1 — Foundations** (minors): **Devotion** (+heal power/rank), **Faith** (+WIS/rank).
+- **T2 — Sanctuary:** **Sanctuary** ⭐ (shield an ally — absorbs damage; *Magnus first*), **Steady Hands** (ranked — heals also lightly cleanse).
+- **T3 — The Shelter:** **Greater Healing** (ranked), **Ward Against the Dark** ⭐ (bite vs undead + the thinning's wrongness — surfaces his hidden nature), **Intercession** (ranked — soak some of an ally's incoming).
+- **T4 — fork:** **The Healer** ⭐ (raw sustain — big heals, revive odds) **OR** **The Shield** ⭐ (prevention — stronger wards, damage redirection, mitigation aura). Heal-the-damage vs stop-the-damage.
+- **T5 — capstones:** **Brother's Keeper** ⭐ (Sanctuary on Magnus auto + huge; while Aldwin lives Magnus can't be one-shot; Aldwin will Last-Stand for him) and **The Unasked Gift** ⭐ (loyalty — his unwitting magic surges into a true cleanse/ward on the corruption itself; the player sees the truth he never will).
+- *Minors:* +heal power, +ward strength, +WIS.
+- ⚠️ *Flavor pending the light-vs-Primal lore call (2026-06-30, [[project_magic_rules]]): if priestly magic becomes **Light / Solara** rather than Primal, the wording shifts (light that comforts the dead + warms and shields the living), but the tree structure is unchanged.*
 
 ## Open threads / TBD
 - Assign a trait.
