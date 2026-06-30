@@ -841,7 +841,7 @@ function generateSettlementName(): string {
   return "Newhold";
 }
 
-function createInitialState(): GameState {
+export function createInitialState(): GameState {
   // Travel rations the founders arrived with. After a ~47-day walk from
   // Ashwick the perishables are gone; what's left is dried/preserved food:
   // grain (their bread/hardtack stash), dried meat strips, dried fish, a few
@@ -1045,7 +1045,7 @@ function scheduleSave() {
  *  save, migrates renamed/legacy structures, and restores the id counter. MUST
  *  run on BOTH load paths; skipping it (as the server path historically did)
  *  leaves new fields undefined and crashes the tick. Mutates and returns `saved`. */
-function migrateSaveState(saved: GameState): GameState {
+export function migrateSaveState(saved: GameState): GameState {
     for (const def of BUILDINGS) {
       if (!saved.buildings.find((b) => b.buildingId === def.id)) {
         saved.buildings.push({ buildingId: def.id, level: 0, upgrading: false, damaged: false });

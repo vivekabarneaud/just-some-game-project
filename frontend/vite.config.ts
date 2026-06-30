@@ -15,6 +15,7 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["src/**/*.test.ts"],
+    setupFiles: ["./src/test-setup.ts"],
   },
   // Workspace package — don't pre-bundle it, otherwise edits in shared/src
   // serve stale code from .vite/deps/ until the cache is manually cleared.
