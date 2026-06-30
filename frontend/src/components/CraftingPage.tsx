@@ -523,26 +523,37 @@ export default function CraftingPage(props: CraftingPageProps) {
                     <Show when={props.buildingId === "kitchen" && isFoodItemType(recipe.produces.resource) && !isToolLocked()}>
                       {(() => {
                         const isOn = () => state.autoCook?.[props.buildingId] === recipe.id;
-                        // Why a lit pot can't actually simmer right now.
+                        // Same gate as the "cook!" button — you can't set a
+                        // standing order for a dish you can't even make once.
+                        const startBlocked = () => craftDisabledReason(recipe.id, 1);
+                        // Once a pot IS lit, it stays assigned and just pauses;
+                        // wood is the cooking-only fuel craftDisabledReason ignores.
                         const stallReason = (): string => {
                           if (state.resources.wood <= 0) return "no wood to burn";
-                          const missing = recipe.costs.find((c) => getResourceAmount(c.resource) < c.amount);
-                          return missing ? `not enough ${missing.resource}` : "";
+                          const r = craftDisabledReason(recipe.id, 1);
+                          return r ? r.toLowerCase() : "";
                         };
+                        const disabled = () => !isOn() && !!startBlocked();
+                        const stalled = () => isOn() && !!stallReason();
                         const label = () =>
                           !isOn() ? "🔥 Keep cooking"
-                          : stallReason() ? `⏸ Paused — ${stallReason()}`
+                          : stalled() ? `⏸ Paused — ${stallReason()}`
                           : "🔥 Cooking — tap to stop";
-                        const stalled = () => isOn() && !!stallReason();
+                        const title = () =>
+                          disabled() ? startBlocked()!
+                          : "Keep cooking this while there are ingredients and wood to burn";
                         return (
                           <button
-                            onClick={() => actions.setAutoCook(props.buildingId, isOn() ? null : recipe.id)}
-                            title="Keep cooking this while there are ingredients and wood to burn"
+                            disabled={disabled()}
+                            onClick={() => { if (!disabled()) actions.setAutoCook(props.buildingId, isOn() ? null : recipe.id); }}
+                            title={title()}
                             style={{
-                              padding: "4px 8px", "font-size": "0.72rem", "border-radius": "4px", cursor: "pointer",
-                              border: `1px solid ${isOn() ? (stalled() ? "var(--border-color)" : "var(--accent-gold)") : "var(--border-color)"}`,
+                              padding: "4px 8px", "font-size": "0.72rem", "border-radius": "4px",
+                              cursor: disabled() ? "not-allowed" : "pointer",
+                              opacity: disabled() ? 0.5 : 1,
+                              border: `1px solid ${isOn() && !stalled() ? "var(--accent-gold)" : "var(--border-color)"}`,
                               background: isOn() && !stalled() ? "rgba(212, 175, 55, 0.15)" : "transparent",
-                              color: stalled() ? "var(--text-muted)" : isOn() ? "var(--accent-gold)" : "var(--text-muted)",
+                              color: isOn() && !stalled() ? "var(--accent-gold)" : "var(--text-muted)",
                             }}
                           >
                             {label()}

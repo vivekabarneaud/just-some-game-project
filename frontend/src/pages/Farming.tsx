@@ -1171,15 +1171,19 @@ export default function Farming() {
     return total;
   };
 
-  // Farming arrives in two waves. Settlement Ch.3 fires "Woolly Friends"
-  // (the shepherd's gift) and unlocks the sheep pen. Ch.4 unlocks the rest:
-  // crop fields, gardens, other pens, hives, orchards. The page renders the
-  // full layout always — earlier chapters just see everything as locked
-  // cards with the unlock-condition tooltip.
+  // Farming arrives in two waves, food first. The kitchen garden opens early
+  // (settlement Ch.2, as the camp grows past its founders) — a few raised beds
+  // are the climbable answer to the early food deficit. Everything heavier waits
+  // for Village (Town Hall Lv.3): crop fields are acreage that needs draft
+  // animals and hands; livestock, bees, and orchards are settled-life too. A
+  // tent camp of ten doesn't plough fields. The page renders the full layout
+  // always — locked sections just show the unlock tooltip.
   const settlementChapter = () =>
     state.chapters?.find((c) => c.storyline === "settlement")?.current ?? 0;
-  const farmingUnlocked = () => settlementChapter() >= 3;
-  const sheepPenOnly = () => settlementChapter() < 4;
+  const townHallLevel = () =>
+    state.buildings.find((b) => b.buildingId === "town_hall")?.level ?? 0;
+  const gardensUnlocked = () => settlementChapter() >= 2; // kitchen gardens — camp-scale
+  const villageUnlocked = () => townHallLevel() >= 3;     // fields, livestock, apiary, orchards
 
   return (
     <div>
@@ -1257,9 +1261,10 @@ export default function Farming() {
         <div class="winter-banner">❄️ Winter — fields and gardens are dormant. Survive on stored food, hunting, fishing, and livestock.</div>
       </Show>
 
-      {/* ── Fields ── */}
+      {/* ── Fields ── Village-scale: acreage, ploughing, draft animals. Not a
+          camp's work — opens with the Town Hall reaching Village (Lv.3). */}
       <h2 class="farming-section-title">🌾 Fields</h2>
-      <LockedShell locked={sheepPenOnly()} reason="Locked until Settlement chapter 4">
+      <LockedShell locked={!villageUnlocked()} reason="Locked until your settlement becomes a Village (Town Hall Lv.3)">
       <Show when={state.fields.length === 0 && state.season !== "spring"}>
         <div style={{
           padding: "8px 12px",
@@ -1309,37 +1314,25 @@ export default function Farming() {
 
       {/* ── Gardens ── */}
       <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🥬 Gardens</h2>
-      <LockedShell locked={sheepPenOnly()} reason="Locked until Settlement chapter 4">
+      <LockedShell locked={!gardensUnlocked()} reason="Locked until your camp grows (Settlement chapter 2)">
         <div class="fields-grid">
           <For each={state.gardens}>{(g) => <GardenCard garden={g} />}</For>
         </div>
       </LockedShell>
 
-      {/* ── Livestock ── Two-stage gate: the sheep pen unlocks at Ch.3 with
-          the shepherd's arrival; the rest stays locked until Ch.4. Before
-          Ch.3 every pen is locked with a "chapter 3" reason. */}
+      {/* ── Livestock ── Deferred to Village (Town Hall Lv.3). A shepherd and a
+          flock are settled-life, not camp survival; this matches the "Woolly
+          Friends" quest, which also waits for Village. */}
       <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🐄 Livestock</h2>
-      <div class="fields-grid">
-        <For each={state.pens}>
-          {(p) => {
-            const locked = () =>
-              !farmingUnlocked() || (sheepPenOnly() && p.animal !== "sheep");
-            const reason = () =>
-              !farmingUnlocked()
-                ? "Locked until Settlement chapter 3"
-                : "Locked until Settlement chapter 4";
-            return (
-              <LockedShell locked={locked()} reason={reason()}>
-                <PenCard pen={p} />
-              </LockedShell>
-            );
-          }}
-        </For>
-      </div>
+      <LockedShell locked={!villageUnlocked()} reason="Locked until your settlement becomes a Village (Town Hall Lv.3)">
+        <div class="fields-grid">
+          <For each={state.pens}>{(p) => <PenCard pen={p} />}</For>
+        </div>
+      </LockedShell>
 
       {/* ── Apiary ── */}
       <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🐝 Apiary</h2>
-      <LockedShell locked={sheepPenOnly()} reason="Locked until Settlement chapter 4">
+      <LockedShell locked={!villageUnlocked()} reason="Locked until your settlement becomes a Village (Town Hall Lv.3)">
         <div class="fields-grid">
           <For each={state.hives}>{(h) => <HiveCard hive={h} />}</For>
         </div>
@@ -1347,7 +1340,7 @@ export default function Farming() {
 
       {/* ── Orchards ── */}
       <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🌳 Orchards</h2>
-      <LockedShell locked={sheepPenOnly()} reason="Locked until Settlement chapter 4">
+      <LockedShell locked={!villageUnlocked()} reason="Locked until your settlement becomes a Village (Town Hall Lv.3)">
         <div class="fields-grid">
           <For each={state.orchards}>{(o) => <OrchardCard orchard={o} />}</For>
         </div>

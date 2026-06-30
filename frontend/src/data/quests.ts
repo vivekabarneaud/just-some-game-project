@@ -385,6 +385,30 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/pantry.png",
     unlocksBioFragments: ["edda_pantry"],
   },
+  {
+    id: "eddas_garden",
+    storyline: "settlement",
+    chapter: 2,
+    title: "Edda's Garden",
+    narrative:
+      "Edda has been eyeing a sunny patch behind the cook tent for a week, and Nell pockets seeds from half of what she forages. A kitchen garden would put both to use: greens we can pull through the season instead of waiting on whatever the woods decide to give us. Something to tend, too, while the scouts are away.",
+    objective: "Build a garden and plant it",
+    icon: "🥬",
+    // Fires the moment the first scouts go out, so the camp has something to
+    // do during the wait. Gated on Ch.2 as well, since that's when fields and
+    // gardens unlock — the trigger can't outrun the unlock.
+    triggers: [
+      { type: "custom", check: (s) => s.firstMissionSent === true },
+      { type: "chapter_unlocked", storyline: "settlement", chapter: 2 },
+    ],
+    requiresAll: true,
+    condition: (s) => s.gardens.some((g) => g.level >= 1 && g.plantedYear === s.year),
+    rewards: [
+      { resource: "gold", amount: 20, label: "Gold" },
+      { resource: "wood", amount: 20, label: "Wood" },
+    ],
+    targetPage: "/farming",
+  },
 
   // ╔══════════════════════════════════════════════════════════════╗
   // ║ SETTLEMENT — Chapter 3: The Shepherd                        ║
