@@ -2,7 +2,7 @@ import { For, Show } from "solid-js";
 import { RESOURCES } from "~/data/resources";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { EXOTICS } from "@medieval-realm/shared/data/exotics";
-import { useGame } from "~/engine/gameState";
+import { useGame, CRAFTING_RECIPES } from "~/engine/gameState";
 import { totalPopulation } from "~/data/citizens";
 import { FOOD_ITEMS, FOOD_CATEGORIES, getTotalFood, type FoodItemType, type FoodCategoryId } from "~/data/foods";
 import { craftingMaterialCap } from "~/data/buildings";
@@ -10,6 +10,15 @@ import FoodIcon from "~/components/FoodIcon";
 
 export default function ResourceBar() {
   const { state, actions } = useGame();
+
+  /** Is this food type currently being produced by a passive "keep cooking"
+   *  assignment? (Its rate is input-limited + bursty, so we show a "cooking"
+   *  status rather than a misleading steady /h.) */
+  const isCooking = (foodId: string): boolean =>
+    Object.values(state.autoCook ?? {}).some((rid) => {
+      const r = CRAFTING_RECIPES.find((cr) => cr.id === rid);
+      return r?.produces.resource === foodId;
+    });
   const rates = () => actions.getProductionRates();
   const foodCons = () => actions.getFoodConsumption();
   const animalCons = () => actions.getAnimalFoodConsumption();
@@ -116,8 +125,8 @@ export default function ResourceBar() {
                                   <span style={{ display: "flex", gap: "8px", "align-items": "center" }}>
                                     <span style={{ color: "var(--text-primary)" }}>{stock()}</span>
                                     <Show when={rate() > 0} fallback={
-                                      <span style={{ "min-width": "64px", "text-align": "right", color: "var(--text-muted)", "font-size": "0.72rem" }}>
-                                        (dormant)
+                                      <span style={{ "min-width": "64px", "text-align": "right", color: isCooking(fi.id) ? "var(--accent-gold)" : "var(--text-muted)", "font-size": "0.72rem" }}>
+                                        {isCooking(fi.id) ? "🔥 cooking" : "(dormant)"}
                                       </span>
                                     }>
                                       <span class="rate-positive" style={{ "min-width": "64px", "text-align": "right" }}>+{rate()}/h</span>

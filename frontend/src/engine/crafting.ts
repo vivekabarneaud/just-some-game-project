@@ -634,9 +634,9 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
   { id: "porridge", name: "Porridge", icon: "🥣", building: "kitchen", minLevel: 1,
     costs: [{ resource: "grain", amount: 2 }], produces: { resource: "porridge", amount: 4 }, craftTime: 12 },
   { id: "hearth_stew", name: "Hearth Stew", icon: "🍲", building: "kitchen", minLevel: 1,
-    costs: [{ resource: "meat", amount: 2 }, { resource: "wild", amount: 2 }], produces: { resource: "hearth_stew", amount: 5 }, craftTime: 20 },
+    costs: [{ resource: "meat", amount: 2 }, { resource: "nuts", amount: 2 }], produces: { resource: "hearth_stew", amount: 5 }, craftTime: 20 },
   { id: "river_stew", name: "River Stew", icon: "🍲", building: "kitchen", minLevel: 1,
-    costs: [{ resource: "fish", amount: 2 }, { resource: "wild", amount: 1 }], produces: { resource: "river_stew", amount: 4 }, craftTime: 16 },
+    costs: [{ resource: "fish", amount: 2 }, { resource: "berries", amount: 1 }], produces: { resource: "river_stew", amount: 4 }, craftTime: 16 },
 
   // Village kitchen recipes (Lv 3-4) — proper cooking with ovens and prep tables
   { id: "cheese", name: "Cheese", icon: "🧀", building: "kitchen", minLevel: 3,
