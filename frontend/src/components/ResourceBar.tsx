@@ -179,7 +179,7 @@ export default function ResourceBar() {
                                     <Show when={cookRate() > 0} fallback={
                                       <Show when={rate() > 0} fallback={
                                         <span style={{ "min-width": "64px", "text-align": "right", color: "var(--text-muted)", "font-size": "0.72rem", "white-space": "nowrap" }}>
-                                          {isCooking(fi.id) ? `⏸ ${cookStallReason(fi.id) || "paused"}` : "(dormant)"}
+                                          {isCooking(fi.id) ? `⏸ ${cookStallReason(fi.id) || "paused"}` : (fi.category === "cooked" ? "(not cooking)" : "(dormant)")}
                                         </span>
                                       }>
                                         <span class="rate-positive" style={{ "min-width": "64px", "text-align": "right" }}>+{rate()}/h</span>
