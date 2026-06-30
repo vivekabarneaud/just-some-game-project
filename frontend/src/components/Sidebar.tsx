@@ -26,6 +26,7 @@ const navSections: { title: string; items: NavItem[] }[] = [
     title: "Village",
     items: [
       { path: "/", icon: "🏘️", label: "Overview" },
+      { path: "/chronicle", icon: "📖", label: "Chronicle" },
       { path: "/quests", icon: "📋", label: "Quests" },
       { path: "/buildings", icon: "🏗️", label: "Buildings" },
       { path: "/farming", icon: "🌾", label: "Farming" },
@@ -64,7 +65,6 @@ const navSections: { title: string; items: NavItem[] }[] = [
       { path: "/map", icon: "🗺️", label: "World Map" },
       { path: "/leaderboard", icon: "🏆", label: "Leaderboard" },
       { path: "/shrine", icon: "🔮", label: "Shrine" },
-      { path: "/chronicle", icon: "📖", label: "Chronicle" },
       { path: "/friends", icon: "👥", label: "Friends" },
       { path: "/events", icon: "📣", label: "Events" },
     ],
