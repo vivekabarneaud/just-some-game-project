@@ -625,6 +625,19 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
   { id: "grilled_mushrooms", name: "Grilled Mushrooms", icon: "🍄", building: "kitchen", minLevel: 1,
     costs: [{ resource: "mushrooms", amount: 3 }], produces: { resource: "food", amount: 1 }, craftTime: 5 },
 
+  // ── Citizen staple meals (Lv 1) — the food MULTIPLIER. Unlike the campfire
+  //    recipes above (which make adventurer mission-supplies via generic "food"),
+  //    these produce real LARDER food types that FEED CITIZENS, stretching raw
+  //    food into more portions + adding diversity (a hot meal). Built for the
+  //    passive "keep cooking" toggle; the fire burns wood/hr while it runs (see
+  //    the auto-cook tick). "grain"/"wild" are aliases (any grain / any foraged). ──
+  { id: "porridge", name: "Porridge", icon: "🥣", building: "kitchen", minLevel: 1,
+    costs: [{ resource: "grain", amount: 2 }], produces: { resource: "porridge", amount: 4 }, craftTime: 12 },
+  { id: "hearth_stew", name: "Hearth Stew", icon: "🍲", building: "kitchen", minLevel: 1,
+    costs: [{ resource: "meat", amount: 2 }, { resource: "wild", amount: 2 }], produces: { resource: "hearth_stew", amount: 5 }, craftTime: 20 },
+  { id: "river_stew", name: "River Stew", icon: "🍲", building: "kitchen", minLevel: 1,
+    costs: [{ resource: "fish", amount: 2 }, { resource: "wild", amount: 1 }], produces: { resource: "river_stew", amount: 4 }, craftTime: 16 },
+
   // Village kitchen recipes (Lv 3-4) — proper cooking with ovens and prep tables
   { id: "cheese", name: "Cheese", icon: "🧀", building: "kitchen", minLevel: 3,
     costs: [{ resource: "milk", amount: 3 }], produces: { resource: "food", amount: 1 }, craftTime: 30 },

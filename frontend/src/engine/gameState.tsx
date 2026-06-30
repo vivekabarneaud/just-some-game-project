@@ -3042,9 +3042,11 @@ export function GameProvider(props: ParentProps) {
               else if (res === "gold") s.resources.gold += amt;
               else if (res === "wool") s.wool += amt;
               else if (res === "fiber") s.fiber += amt;
-              // Kitchen meals don't have a bulk counter — they land in
-              // inventory as item entries via getItemByRecipe below and
-              // are picked from there as per-mission food supplies.
+              // Cooked meals (porridge/stew/...) are real food types — they land
+              // in the larder and feed citizens (+ count toward diversity).
+              else if (isFoodItemType(res)) addFood(s.foods, res, amt, caps.food);
+              // Legacy generic "food" recipes land in inventory as mission supplies
+              // (handled by getItemByRecipe below).
               else if (res === "food") { /* no-op */ }
               // Also add equippable item or building tool to inventory
               const itemDef = getItemByRecipe(recipe.id);
@@ -4820,7 +4822,7 @@ export function GameProvider(props: ParentProps) {
         if (res === "honey") return state.honey;
         if (res === "astralShards") return state.astralShards;
         // Food items (wheat, meat, eggs, ...) and the "grain" alias
-        if (res === "grain" || isFoodItemType(res)) return getFoodCostAmount(state.foods, res);
+        if (res === "grain" || res === "wild" || isFoodItemType(res)) return getFoodCostAmount(state.foods, res);
         // Exotic goods (pepper, cinnamon, tea, chili, saffron)
         if (EXOTIC_IDS.includes(res)) return state.exotics?.[res] ?? 0;
         const inv = state.inventory.find((i) => i.itemId === res);
@@ -4844,7 +4846,7 @@ export function GameProvider(props: ParentProps) {
           else if (res === "food") consumeFood(s.foods, total);
           else if (res === "honey") s.honey = Math.max(0, s.honey - total);
           else if (res === "astralShards") s.astralShards -= total;
-          else if (res === "grain" || isFoodItemType(res)) consumeFoodCost(s.foods, res, total);
+          else if (res === "grain" || res === "wild" || isFoodItemType(res)) consumeFoodCost(s.foods, res, total);
           else if (EXOTIC_IDS.includes(res)) {
             if (!s.exotics) s.exotics = {};
             s.exotics[res] = Math.max(0, (s.exotics[res] ?? 0) - total);
