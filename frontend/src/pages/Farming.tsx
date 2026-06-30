@@ -1,7 +1,7 @@
 import { For, Show, onMount } from "solid-js";
 import { useGame, type GameState, type PlayerField, type PlayerGarden, type PlayerPen, type PlayerHive, type PlayerOrchard } from "~/engine/gameState";
 import { CROPS, type CropId, getCrop, getFieldCost, getFieldBuildTime, getSeasonYield, getSoilMultiplier, getSoilStatus, MAX_FIELDS, FIELD_MAX_LEVEL } from "~/data/crops";
-import { getVeggie, getGardenCost, getGardenBuildTime, getGardenRate, getSeedCost, canPlantVeggie, isVeggieProducing, MAX_GARDENS, GARDEN_MAX_LEVEL } from "~/data/gardens";
+import { getVeggie, getGardenCost, getGardenBuildTime, getSeedCapacity, getEffectiveGardenRate, canPlantVeggie, isVeggieProducing, MAX_GARDENS, GARDEN_MAX_LEVEL } from "~/data/gardens";
 import { getAnimal, getPenCost, getPenBuildTime, getPenProduction, PEN_MAX_LEVEL } from "@medieval-realm/shared/data/livestock";
 import { ANIMAL_FEED, FEED_CATEGORY_ICON, FEED_CATEGORY_LABEL, FOOD_CATEGORY, isGrazer, calcGrazingCapacity, type FeedCategory } from "~/data/animalFeed";
 import type { FoodItemType } from "~/data/foods";
@@ -365,20 +365,25 @@ function GardenCard(props: { garden: PlayerGarden }) {
   const planted = () => props.garden.plantedYear === state.year;
   const inPlantSeason = () => canPlantVeggie(veggie(), state.season);
   const producing = () => planted() && isVeggieProducing(veggie(), state.season);
-  const rate = () => getGardenRate(veggie(), Math.max(1, props.garden.level));
-  const seedCost = () => getSeedCost(veggie(), Math.max(1, props.garden.level));
+  // Seed-driven sowing: the plot holds `capacity` seeds; sow up to that from
+  // your stock. Yield scales with how full it is.
+  const seedStock = () => state.seeds?.[props.garden.veggie] ?? 0;
+  const capacity = () => getSeedCapacity(Math.max(1, props.garden.level));
+  const sowAmount = () => Math.min(seedStock(), capacity()); // what we'd sow right now
+  const effRate = () => getEffectiveGardenRate(veggie(), Math.max(1, props.garden.level), props.garden.seedsPlanted);
+  const partialSow = () => planted() && props.garden.seedsPlanted < capacity();
   const canPlant = () =>
     props.garden.level > 0 &&
     !props.garden.upgrading &&
     inPlantSeason() &&
     !planted() &&
-    state.resources.gold >= seedCost();
+    seedStock() > 0;
   const plantBlockedReason = () => {
     if (props.garden.level === 0) return "Build the garden first";
     if (props.garden.upgrading) return "Garden is being built";
     if (!inPlantSeason()) return `${veggie().name} are planted in ${veggie().plantSeasons.join(", ")}`;
     if (planted()) return "Already planted this cycle";
-    if (state.resources.gold < seedCost()) return `Need ${seedCost()} gold for seeds`;
+    if (seedStock() <= 0) return `No ${veggie().name.toLowerCase()} seed in store — a harvested plot saves seed for next year`;
     return "";
   };
 
@@ -402,12 +407,15 @@ function GardenCard(props: { garden: PlayerGarden }) {
 
   // ── Status line ─────────────────────────────────────────────────────
   const statusLine = (): { label: string; color: string } | null => {
-    if (producing()) return { label: `Producing: +${rate()}/h ${veggie().name.toLowerCase()}`, color: "var(--accent-green)" };
+    if (producing()) {
+      const partial = partialSow() ? ` (${props.garden.seedsPlanted}/${capacity()} sown)` : "";
+      return { label: `Producing: +${effRate()}/h ${veggie().name.toLowerCase()}${partial}`, color: "var(--accent-green)" };
+    }
     if (planted() && !isVeggieProducing(veggie(), state.season)) {
       return { label: "Planted — waiting to produce", color: "var(--text-secondary)" };
     }
     if (props.garden.level > 0 && inPlantSeason() && !planted()) {
-      return { label: `Time to plant (${seedCost()}g seeds)`, color: "var(--accent-gold)" };
+      return { label: `Time to plant — ${sowAmount()}/${capacity()} seed ready`, color: "var(--accent-gold)" };
     }
     if (props.garden.level > 0) return { label: "Dormant — waiting for its season", color: "var(--text-muted)" };
     return null;
@@ -543,6 +551,14 @@ function GardenCard(props: { garden: PlayerGarden }) {
           </div>
         </Show>
 
+        {/* Seed store readout — bigger plots need more seed to run at full rate */}
+        <Show when={!props.garden.upgrading && props.garden.level > 0}>
+          <div style={{ "font-size": "0.7rem", color: "var(--text-secondary)", "margin-top": "4px", display: "flex", "align-items": "center", gap: "5px" }}>
+            <span>{veggie().icon} {seedStock()} {veggie().name.toLowerCase()} seed in store</span>
+            <span style={{ color: "var(--text-muted)" }}>· plot holds {capacity()}</span>
+          </div>
+        </Show>
+
         {/* Plant action — only while the garden is built and this cycle hasn't been sown yet */}
         <Show when={!props.garden.upgrading && props.garden.level > 0 && !planted()}>
           <button
@@ -552,7 +568,9 @@ function GardenCard(props: { garden: PlayerGarden }) {
             title={canPlant() ? "" : plantBlockedReason()}
             onClick={() => actions.plantGarden(props.garden.id)}
           >
-            Plant seeds — {seedCost()}g
+            {seedStock() > 0
+              ? `Sow ${sowAmount()} ${veggie().name.toLowerCase()} seed${sowAmount() < capacity() ? ` (plot holds ${capacity()})` : ""}`
+              : "No seed to sow"}
           </button>
         </Show>
       </div>
