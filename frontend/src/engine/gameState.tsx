@@ -839,15 +839,18 @@ function generateSettlementName(): string {
 
 function createInitialState(): GameState {
   // Travel rations the founders arrived with. After a ~47-day walk from
-  // Ashwick the perishables are gone; what's left is preserved grain (their
-  // bread/hardtack stash), dried meat strips, and a handful of nuts Nell
-  // picked up on the road. ~55 units ≈ a week of food for the camp before
-  // production has to carry — sets up the "build the Forager fast" pressure
-  // and seeds food-diversity from day one.
+  // Ashwick the perishables are gone; what's left is dried/preserved food:
+  // grain (their bread/hardtack stash), dried meat strips, dried fish, a few
+  // handfuls of nuts and dried berries off the road. A modest buffer (~a week)
+  // that makes the food deficit a COUNTDOWN, not instant starvation — and it
+  // seeds every kitchen staple so the player can "keep cooking" from day one
+  // (porridge from grain, Hearth Stew from meat+forage, River Stew from fish).
   const initialFoods = emptyFoods();
   initialFoods.wheat = 30;
   initialFoods.meat = 15;
+  initialFoods.fish = 10;
   initialFoods.nuts = 10;
+  initialFoods.berries = 8;
   return {
     resources: { gold: 50, wood: 300, stone: 200 },
     foods: initialFoods,

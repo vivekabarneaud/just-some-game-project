@@ -516,8 +516,11 @@ export const BUILDINGS: BuildingDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/tailoring_shop.png",
     maxLevel: 10,
     levels: generateLevels({ wood: 50, stone: 30 }, 18, undefined, 10),
-    requiredTier: "camp",
-    tierLevelCaps: { camp: 2, village: 5, town: 8, city: 10 },
+    // Deferred to Village tier (was camp): clothing is a first-year non-problem
+    // (arrivals bring their own); the camp shouldn't make clothes before food.
+    // Still gates the Town tier (TH5), so it's available at Village, in time.
+    requiredTier: "village",
+    tierLevelCaps: { village: 5, town: 8, city: 10 },
     unlockedAt: { storyline: "settlement", chapter: 3 },
   },
 
