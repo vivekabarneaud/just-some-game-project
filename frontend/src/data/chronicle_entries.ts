@@ -216,6 +216,20 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "I do not know who sent the bird. I assume the Thornveil. I find I am grateful in a way that does not have a name yet.",
   },
   {
+    id: "ch1_woodcutter",
+    chapterId: "ch1",
+    order: 8,
+    title: "The ghost in the woodpile",
+    teaser: "Clean-cut timber kept appearing at the mill, and no one would own to it. I called it a ghost. I was wrong about that, twice over.",
+    fullText:
+      "Jory came to me a week ago with a puzzle and a grin. Wood had been turning up on the mill stack overnight, more each morning, clean-felled and squared better than any hand we have can manage, and no one would own to it. I told him it was a ghost. We both laughed. A man laughs at what he has not yet been given reason to fear.\n\n" +
+      "It went on for days. The mill-hands took to leaving the pile half-watched, half-hoping. Whoever it was wanted nothing for the work, and did not want to be seen wanting nothing.\n\n" +
+      "This morning she let herself be found. Jory brought her to my tent pleased as a boy with a bird's nest, not knowing what he had caught. Gareth was with me when she came in. He went still, and then he said it: that is her. The woman from the chase. The one the men called a murderer, the day we put them on their knees and she was already gone.\n\n" +
+      "So now I knew. The ghost in our woodpile was a hunted woman with some price on her, who had crept back to the one place that had done her a kindness and paid it the only way she seemed to have, in timber, in the dark, asking nothing.\n\n" +
+      "She did not explain herself. She did not ask me to take her word over the word of the men who hunted her. She stood with her jaw set like a barred door and waited for me to decide what she was. I have learned to weigh what a person does against what is said of them. What this one had done was leave us a week of honest work in the dark and take nothing for it. The word of men who run a lone woman through the brush does not weigh much against that.\n\n" +
+      "I told her she could stay. She nodded, once, and went back to the mill. Gareth looked glad, and tried to hide it. We have a feller now, the finest I have ever seen, and a great many questions I have decided not to ask. The wood was her thanks. I understood that much, at least.",
+  },
+  {
     id: "ch2_old_tongue",
     chapterId: "ch2",
     order: 1,

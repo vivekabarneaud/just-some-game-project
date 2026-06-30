@@ -299,6 +299,8 @@ export interface ArrivalContext {
   guildBuilt: boolean;
   completedStoryMissions: readonly string[];
   completedQuests: readonly string[];
+  /** Unique/side-chain missions completed (e.g. Hester's "hester_rescue"). */
+  completedUniqueMissionIds: readonly string[];
   builtBuildingIds: ReadonlySet<string>;
   /** premadeId -> highest loyalty among recruited instances of that character */
   loyaltyByPremadeId: Readonly<Record<string, number>>;
@@ -313,6 +315,7 @@ export function isArrived(c: PremadeCharacter, ctx: ArrivalContext): boolean {
     case "guild_open": return ctx.guildBuilt;
     case "story": return ctx.completedStoryMissions.includes(a.missionId);
     case "quest": return ctx.completedQuests.includes(a.questId);
+    case "missionDone": return ctx.completedUniqueMissionIds.includes(a.missionId);
     case "building": return ctx.builtBuildingIds.has(a.buildingId);
     case "loyalty": return (ctx.loyaltyByPremadeId[a.premadeId] ?? -1) >= a.minLoyalty;
   }

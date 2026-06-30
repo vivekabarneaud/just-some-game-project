@@ -37,7 +37,8 @@ export type BuildingUnlockGate =
       chapter: number;
     }
   | { requiresBuildings: string[] }
-  | { requiresQuestTriggered: string };
+  | { requiresQuestTriggered: string }
+  | { requiresMissionDone: string };  // a unique/side-chain mission completed (e.g. Hester's "hester_rescue" → unlocks the Woodworker)
 
 export interface BuildingDefinition {
   id: string;
@@ -180,6 +181,12 @@ export function isBuildingChapterUnlocked(
     // raidsResolvedCount, buildings) are present at runtime — cast to any.
     return isQuestTriggered(quest, state as any);
   }
+  if ("requiresMissionDone" in gate) {
+    // completedUniqueMissionIds isn't on the slim state type but is present at
+    // runtime (same cast-to-any pattern as requiresQuestTriggered above).
+    const done = (state as any).completedUniqueMissionIds as string[] | undefined;
+    return Array.isArray(done) && done.includes(gate.requiresMissionDone);
+  }
   const cs = state.chapters?.find((c) => c.storyline === gate.storyline);
   if (!cs) return false;
   return cs.current >= gate.chapter || cs.completedChapters.includes(gate.chapter);
@@ -252,6 +259,11 @@ export function getUnlockConditions(
       const questTitle = quest?.title ?? gate.requiresQuestTriggered;
       conditions.push({
         label: `Unlocked when the "${questTitle}" quest appears`,
+        met: isBuildingChapterUnlocked(building, state),
+      });
+    } else if ("requiresMissionDone" in gate) {
+      conditions.push({
+        label: "Unlocked once a master woodworker joins the settlement",
         met: isBuildingChapterUnlocked(building, state),
       });
     } else {
@@ -370,7 +382,11 @@ export const BUILDINGS: BuildingDefinition[] = [
     levels: generateLevels({ wood: 60, stone: 20 }, 15, undefined, 10),
     requiredTier: "camp",
     tierLevelCaps: { camp: 3, village: 6, town: 8, city: 10 },
-    unlockedAt: { storyline: "guild", chapter: 2 },
+    // Locked until Hester arrives: completing her rescue (Beat 1) → she returns
+    // (Beat 2) → the Woodworker (fine carving: the family's good bows/shields)
+    // opens, with Jory at the bench and Hester on the Lumber Mill. See
+    // docs/cast/hester-ironbark.md.
+    unlockedAt: { requiresMissionDone: "hester_rescue" },
   },
 
   // Camp tier — Shrine (happiness + deity blessings)
