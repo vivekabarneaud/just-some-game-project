@@ -509,6 +509,10 @@ export interface GameState {
   lastTradeAt: number; // timestamp of last trade
   inventory: InventoryItem[];
   craftingQueue: ActiveCraft[];
+  /** Passive "keep cooking" assignments: buildingId → recipeId. While set, the
+   *  building auto-re-crafts that recipe whenever it's idle and has ingredients
+   *  (and, for the Kitchen, wood to burn). Empty = nothing auto-running. */
+  autoCook: Record<string, string>;
   /** Building tool slots: buildingId → installed tool IDs */
   buildingTools: Record<string, string[]>;
   /** Enemy IDs the player has encountered on missions */
@@ -650,6 +654,9 @@ export interface GameActions {
   // Ale & Happiness
   getAleInfo: () => { current: number; cap: number; production: number; consumption: number };
   startCraft: (recipeId: string, quantity?: number) => boolean;
+  /** Toggle passive "keep cooking": pass a recipeId to auto-run it at its
+   *  building, or null to stop. One auto-recipe per building. */
+  setAutoCook: (buildingId: string, recipeId: string | null) => void;
   getAvailableRecipes: () => CraftingRecipe[];
   installBuildingTool: (toolId: string, targetBuildingId: string) => boolean;
   getInstalledTools: (buildingId: string) => string[];
@@ -933,6 +940,7 @@ function createInitialState(): GameState {
     lastTradeAt: 0,
     inventory: [],
     craftingQueue: [],
+    autoCook: {},
     buildingTools: {},
     discoveredEnemies: [],
     eventLog: [],
@@ -1343,6 +1351,7 @@ function loadGame(): GameState | null {
     // ephemeral; replaying them on legacy saves is acceptable.
     if (!saved.firedEvents) saved.firedEvents = [];
     if (!saved.pendingEvents) saved.pendingEvents = [];
+    if (!saved.autoCook) saved.autoCook = {};
     if (!saved.questsClaimableSeen) saved.questsClaimableSeen = [];
     // Existing saves: treat everyone already on the roster as "seen" so old
     // saves don't light up blue. New arrivals after this point will be unread.
@@ -3112,6 +3121,32 @@ export function GameProvider(props: ParentProps) {
           }
         }
 
+        // ── Passive cooking: "keep the fire lit" while ingredients + wood last ──
+        // Each autoCook building re-starts its recipe whenever it's idle, paying a
+        // small wood fuel cost per game-hour while a batch actually cooks. The
+        // completion loop above routes the cooked food into the larder. (Cooking
+        // recipe costs are food-type only, so getFoodCostAmount covers them.)
+        const FUEL_WOOD_PER_HOUR = 1;
+        for (const [autoBuildingId, autoRecipeId] of Object.entries(s.autoCook ?? {})) {
+          if (!autoRecipeId) continue;
+          const autoRecipe = CRAFTING_RECIPES.find((r) => r.id === autoRecipeId);
+          if (!autoRecipe) continue;
+          const autoBldg = s.buildings.find((b) => b.buildingId === autoBuildingId);
+          if (!autoBldg || autoBldg.level < autoRecipe.minLevel || autoBldg.damaged) continue;
+          const cooking = s.craftingQueue.some((c) => c.recipeId === autoRecipeId && !c.pending);
+          if (cooking) {
+            // Fire's lit — burn fuel.
+            s.resources.wood = Math.max(0, s.resources.wood - FUEL_WOOD_PER_HOUR * elapsedHours);
+          } else {
+            // Idle — start another batch if we have the ingredients AND wood to burn.
+            const canAfford = autoRecipe.costs.every((c) => getFoodCostAmount(s.foods, c.resource) >= c.amount);
+            if (s.resources.wood > 0 && canAfford) {
+              for (const c of autoRecipe.costs) consumeFoodCost(s.foods, c.resource, c.amount);
+              s.craftingQueue.push({ recipeId: autoRecipeId, remaining: autoRecipe.craftTime, quantity: 1 });
+            }
+          }
+        }
+
         // ── Clothing degradation ──
         s.clothing = Math.max(0, s.clothing - (CLOTHING_DEGRADE_PER_DAY / 24) * elapsedHours);
 
@@ -4797,6 +4832,12 @@ export function GameProvider(props: ParentProps) {
         production: breweryLvl * ALE_PRODUCTION_PER_BREWERY_LEVEL,
         consumption: tavernLvl * ALE_CONSUMED_PER_TAVERN_LEVEL,
       };
+    },
+    setAutoCook(buildingId, recipeId) {
+      setState(produce((s) => {
+        if (recipeId) s.autoCook[buildingId] = recipeId;
+        else delete s.autoCook[buildingId];
+      }));
     },
     startCraft(recipeId, quantity = 1) {
       const recipe = CRAFTING_RECIPES.find((r) => r.id === recipeId);

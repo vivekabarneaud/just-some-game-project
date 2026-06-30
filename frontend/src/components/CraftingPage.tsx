@@ -485,6 +485,7 @@ export default function CraftingPage(props: CraftingPageProps) {
                   const missingTool = () => getRequiredTool(recipe, installedToolIds());
                   const isToolLocked = () => !!missingTool();
                   return (
+                    <div style={{ display: "flex", "flex-direction": "column", gap: "3px" }}>
                     <RecipeCard
                       {...recipeDisplayProps(recipe)}
                       subtitle={`${formatTimeShort(recipe.craftTime)} · ${recipeProduces(recipe)}`}
@@ -508,6 +509,23 @@ export default function CraftingPage(props: CraftingPageProps) {
                             }
                       }
                     />
+                    {/* Passive "keep cooking" toggle — kitchen staples that feed
+                        citizens (food-type produce). Burns ~1 wood/hr while lit. */}
+                    <Show when={props.buildingId === "kitchen" && isFoodItemType(recipe.produces.resource) && !isToolLocked()}>
+                      <button
+                        onClick={() => actions.setAutoCook(props.buildingId, state.autoCook?.[props.buildingId] === recipe.id ? null : recipe.id)}
+                        title="Keep cooking this while there are ingredients and wood to burn"
+                        style={{
+                          padding: "4px 8px", "font-size": "0.72rem", "border-radius": "4px", cursor: "pointer",
+                          border: `1px solid ${state.autoCook?.[props.buildingId] === recipe.id ? "var(--accent-gold)" : "var(--border-color)"}`,
+                          background: state.autoCook?.[props.buildingId] === recipe.id ? "rgba(212, 175, 55, 0.15)" : "transparent",
+                          color: state.autoCook?.[props.buildingId] === recipe.id ? "var(--accent-gold)" : "var(--text-muted)",
+                        }}
+                      >
+                        {state.autoCook?.[props.buildingId] === recipe.id ? "🔥 Cooking — tap to stop" : "🔥 Keep cooking"}
+                      </button>
+                    </Show>
+                    </div>
                   );
                 }}
               </For>
