@@ -16,7 +16,7 @@
 - **He all but raised Magnus.** ~15 when the boy was born, eldest in a poor house — he's more father than brother. That's the root of how fiercely he protects him.
 - **Why he shelters the hunted — "both," with a spine.** He was always soft-hearted, but **raising and hiding one hunted innocent for twenty years is what forged that softness into a vocation.** He keeps a door open to every hunted soul because he has spent his life hiding one; every refugee in his chapel is, in a way, a stand-in for the brother he can't stop protecting. The priesthood came from real faith *and* because holy orders let his heart do its work (mercy, shelter, standing, cover).
 - **His faith has been a contradiction for twenty years**, not a recent crack: a servant of the Radiant One who quietly, constantly defies the Church's cruelty. Loving Magnus is the sharpest edge of a lifelong tension. (This is **Caelen's doubt at the family scale** — the brother is the evidence that breaks the teaching. He is *not sorry.*)
-- **THE IRONY (dramatic, for the player — Aldwin does NOT know it):** priests are **unwitting Primal practitioners.** His healing and easing of the dying *are real Aether-work* he calls "answered prayer." **The man who spent his life hiding his brother the wizard is, unknowingly, a wizard himself** — the only difference being labeling and visibility. Future Doctrine-shattering reveal. (See `LORE_TIMELINE.md` priest note.)
+- **THE IRONY (dramatic, for the player — Aldwin does NOT know it):** priests are **unwitting Light practitioners** (Solara's domain — light, warmth, hope; reframed from Primal 2026-06-30). His healing, his comfort to the dying, the warm light of his "blessing" *are real Aether-work* he calls "answered prayer." **The man who spent his life hiding his brother the wizard is, unknowingly, a mage himself** — the only difference being labeling and visibility. Future Doctrine-shattering reveal. (See `LORE_TIMELINE.md` priest note.)
 
 ## Family (parents)
 - **Parents alive, left behind — the brothers are exiles, not orphans.** To save Magnus (the Inquisition punishes a wizard's kin), they fled and can never safely return or send word. So **the man who shelters everyone had to abandon his own living parents** — a quiet, private grief he doesn't speak of.
@@ -32,7 +32,7 @@
 
 ## Combat identity & talents (parked 2026-06-29)
 **Archetype: pure healer + protector (priest).** Heals, shields, wards — straight support, no offense to speak of; his power is keeping others alive, and keeping **Magnus** alive above all. Talent model = Godric's template (see [godric-thornwood.md](godric-thornwood.md)).
-- *Signature passive — Answered Prayers (the secret):* his heals occasionally over-heal/cleanse, and his wards lay the **undead** to rest and hold against the **thinning's wrongness** (the perceptible dead / the boundary — *not* "aether," which is neutral; Primal acts on the dead and *contains* Hollow corruption, it doesn't cleanse matter) more than a priest's should, because he is an **unwitting Primal** ([[project_magic_rules]]: priests = unwitting Primal) — and *"it would never occur to him to wonder why."* A **discovery beat** (the player sees his prayers shrug off the Wastes' wrongness; he never does) *and* his arc (he is exactly the thing the Church would burn).
+- *Signature passive — Answered Prayers (the secret):* his heals occasionally over-heal/cleanse, and his **light** comforts the **undead** to rest and drives back the **dark** (the thinning's wrongness, the perceptible dead) more than a priest's should, because he is an **unwitting Light practitioner** ([[project_magic_rules]]: priests = unwitting **Light/Solara** — both the literal light and its symbol, hope) — and *"it would never occur to him to wonder why."* A **discovery beat** (the player sees his prayers shrug off the Wastes' wrongness; he never does) *and* his arc (he is exactly the thing the Church would burn). *(NB: warding/containing corrupted matter is **Primal** — Niamh's domain; Aldwin's is the **Light** side: heal the living, comfort/guide the dead, push back the dark.)*
 - *Shields Magnus in priority:* heals/wards flow to his brother first; he'll hold a **Last Stand for Magnus** without hesitation, and **won't flee without him** (retreat system — he stays for the boy). His protection is *what lets Magnus unleash.*
 **Tree layout (2026-06-30):**
 - **T1 — Foundations** (minors): **Devotion** (+heal power/rank), **Faith** (+WIS/rank).
@@ -41,11 +41,11 @@
 - **T4 — fork:** **The Healer** ⭐ (raw sustain — big heals, revive odds) **OR** **The Shield** ⭐ (prevention — stronger wards, damage redirection, mitigation aura). Heal-the-damage vs stop-the-damage.
 - **T5 — capstones:** **Brother's Keeper** ⭐ (Sanctuary on Magnus auto + huge; while Aldwin lives Magnus can't be one-shot; Aldwin will Last-Stand for him) and **The Unasked Gift** ⭐ (loyalty — his unwitting magic surges into a true cleanse/ward on the corruption itself; the player sees the truth he never will).
 - *Minors:* +heal power, +ward strength, +WIS.
-- ⚠️ *Flavor pending the light-vs-Primal lore call (2026-06-30, [[project_magic_rules]]): if priestly magic becomes **Light / Solara** rather than Primal, the wording shifts (light that comforts the dead + warms and shields the living), but the tree structure is unchanged.*
+- *Lore call RESOLVED 2026-06-30: priestly magic is **Light / Solara** (not Primal) — see [[project_magic_rules]] + LORE_TIMELINE. Aldwin's whole kit reads as light (warmth that heals, radiance that comforts the dead and drives back the dark). Tree structure unchanged.*
 
 ## Open threads / TBD
 - Assign a trait.
 - **The unwitting-magic reveal** — when/how Aldwin learns *he* does magic (a gut-punch tied to the Doctrine's collapse). Banked.
 
 ## Cross-refs
-- `premade-characters.ts` char_017; `LORE_TIMELINE.md` (priests = unwitting Primal + the Inquisition-irony note); Caelen; [[founder_edda]]; [[founder_father_corin]]; magnus-stonebridge.md.
+- `premade-characters.ts` char_017; `LORE_TIMELINE.md` (priests = unwitting **Light/Solara** + the Inquisition-irony note); Caelen; [[founder_edda]]; [[founder_father_corin]]; magnus-stonebridge.md.

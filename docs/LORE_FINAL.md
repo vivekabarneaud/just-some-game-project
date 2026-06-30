@@ -194,11 +194,13 @@ With Netheron gone, the cycle is broken. Living things still create Aether. But 
 
 **Astral Shards** are crystallized Aether — small fragments where the energy has solidified into a physical form. They're extraordinarily valuable and inherently magical.
 
-### The Three Traditions
+### The Four Traditions
 
 **Arcane Magic** — The scholarly tradition. Power through understanding. Formulas, incantations, precise manipulation of Aether. The Academy of the Aether (now destroyed) was the greatest institution of Arcane learning. Halldora is its last master.
 
-**Primal Magic** — The natural tradition. Power through harmony. Druids, shamans, and priests listen to the Aether's flow and work with it rather than commanding it. The Thornveil Pact practices Primal magic to maintain their ward network — essentially performing Netheron's function in a crude, exhausting, manual way.
+**Primal Magic** — The natural tradition. Power through harmony. Druids and shamans listen to the Aether's flow and work with it rather than commanding it. The Thornveil Pact practices Primal magic to maintain their ward network — essentially performing Netheron's function in a crude, exhausting, manual way.
+
+**Light Magic** — Solara's domain: light, warmth, hope. Heals the living, comforts and guides the dead across the broken boundary, drives back the dark. **What priests unknowingly do** — they call it the Radiant One's blessing, never knowing it is their own Aether-work. (Reframed 2026-06-30 from "priests = Primal"; deepens the Church's irony — its priests are unwitting mages.)
 
 **Hollow Magic** — The forbidden tradition. Power drawn from stagnant dead Aether — from the Wastes themselves, from Netheron's broken essence. Immensely powerful, deeply corrupting. The Cult uses it in their attempts to reassemble Netheron. Each use further destabilizes the already-damaged Aether flow, making the Wastes temporarily worse — but the Cult believes the short-term cost is worth the long-term goal.
 

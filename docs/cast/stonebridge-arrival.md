@@ -52,11 +52,11 @@
 
 ## Roles — why Magnus is NOT the "anti-undead tool"
 Distinct jobs, so Magnus isn't redundant *and* isn't a required key:
-- **Aldwin (priest, Primal):** eases the *perceptible dead* — lays near-home spirits to rest (early hauntings; not combat) + healing.
+- **Aldwin (priest, Light/Solara):** comforts and guides the *perceptible dead* across — lays near-home spirits to rest (early hauntings; not combat) + healing + light against the dark. (Warding/containing is Niamh's Primal domain, not his.)
 - **Magnus (wizard, Arcane):** raw magical **combat firepower** + reading/handling Aether-*corruption* (e.g. the boar chain's "reading the carcass"). His value is power + story, not anti-ghost utility.
 - **Warden Niamh (Thornveil, Primal — EARLY, Chapter 1 / Story 3–4):** she walks the team home from the first ghosts and binds Captain Hale; her presence lets *physical* attackers pierce ghosts (the anti-undead-combat enabler). So the undead problem is handled from **Chapter 1** — which **confirms Magnus is not your anti-undead tool.** Different school, different job: Niamh is an *external Thornveil ally* doing protective ward-craft; Magnus is *harbored Arcane firepower* + story. *(Corrected from an earlier "~Story 12" estimate — see STORY_ACT1_BEAT_MAP.md.)*
 
 **Reframe this forces (important):** the Stonebridges are **not** the player's first magic — **Niamh is.** She is the first magic the Lord *allies with* (protective, external, Thornveil, against the obvious evil). The Stonebridges are the first magic the Lord *harbors* — a hunted **Arcane** heretic taken into the settlement as family, with the Inquisition death-sentence attached. Niamh having softened him first does not weaken this beat; it **sets it up** (he has already seen magic do good — *harboring a wizard* is the deeper, personal test of the Doctrine).
 
 ## Cross-refs
-- [aldwin-stonebridge.md](aldwin-stonebridge.md), [magnus-stonebridge.md](magnus-stonebridge.md); `LORE_TIMELINE.md` (Doctrine, the three magic traditions, priests = unwitting Primal, Niamh/Thornveil); [[project_faith_loyalty_arc]]; [[project_chronicle_journal]]; [[project_tavern_conversations]].
+- [aldwin-stonebridge.md](aldwin-stonebridge.md), [magnus-stonebridge.md](magnus-stonebridge.md); `LORE_TIMELINE.md` (Doctrine, the four magic traditions, priests = unwitting Light/Solara, Niamh/Thornveil = Primal); [[project_faith_loyalty_arc]]; [[project_chronicle_journal]]; [[project_tavern_conversations]].
