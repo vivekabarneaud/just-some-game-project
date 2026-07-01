@@ -646,10 +646,11 @@ export default function MissionAssemblyPanel(props: Props) {
                 {(a) => {
                   const cls = getClassMeta(a.class);
                   return (
+                    <Tooltip text={`${a.name} · ${cls.name} Lv.${a.level}`}>
                     <div style={{
                       width: "60px",
                       display: "flex", "flex-direction": "column", "align-items": "center", gap: "2px",
-                    }} title={`${a.name} · ${cls.name} Lv.${a.level}`}>
+                    }}>
                       <div style={{
                         width: "60px", height: "60px",
                         "border-radius": "4px",
@@ -664,6 +665,7 @@ export default function MissionAssemblyPanel(props: Props) {
                         {a.name.split(" ")[0]}
                       </div>
                     </div>
+                    </Tooltip>
                   );
                 }}
               </For>
@@ -820,6 +822,7 @@ export default function MissionAssemblyPanel(props: Props) {
                               width: "var(--assembly-card-width, 140px)",
                             }}
                           >
+                            <Tooltip text={`Click to remove ${adv()!.name}`} block>
                             <div
                               style={{
                                 position: "relative", width: "100%", height: "140px",
@@ -828,7 +831,6 @@ export default function MissionAssemblyPanel(props: Props) {
                                 cursor: "pointer",
                               }}
                               onClick={() => toggleTeam(advId)}
-                              title={`Click to remove ${adv()!.name}`}
                             >
                               <img
                                 src={getZoomedPortraitUrl(adv()!)}
@@ -836,12 +838,9 @@ export default function MissionAssemblyPanel(props: Props) {
                                 style={{ width: "100%", height: "100%", "object-fit": "cover", display: "block" }}
                               />
                               <Show when={getFoodPref(adv()!.foodPreference)}>
+                                <Tooltip text={getFoodPref(adv()!.foodPreference)!.trait} style={{ position: "absolute", top: "6px", right: "6px" }}>
                                 <div
-                                  title={getFoodPref(adv()!.foodPreference)!.trait}
                                   style={{
-                                    position: "absolute",
-                                    top: "6px",
-                                    right: "6px",
                                     width: "22px",
                                     height: "22px",
                                     "border-radius": "50%",
@@ -855,6 +854,7 @@ export default function MissionAssemblyPanel(props: Props) {
                                 >
                                   {getFoodPref(adv()!.foodPreference)!.icon}
                                 </div>
+                                </Tooltip>
                               </Show>
                               <div class="building-card-image-overlay" style={{ padding: "8px 10px" }}>
                                 <div style={{
@@ -869,6 +869,7 @@ export default function MissionAssemblyPanel(props: Props) {
                                 </div>
                               </div>
                             </div>
+                            </Tooltip>
                             {/* Supplies row */}
                             <div style={{ padding: "8px 8px 4px", display: "flex", gap: "8px", "justify-content": "center" }}>
                               <SupplySlot kind="potion" size={36}
@@ -972,8 +973,8 @@ export default function MissionAssemblyPanel(props: Props) {
                 const npc = () => getNpcAlly(freshMission().npcAlly!.npcId);
                 return (
                   <Show when={npc()}>
+                    <Tooltip content={() => <div style={{ "white-space": "pre-line" }}>{`${npc()!.name} — ${npc()!.title}\n${npc()!.description}`}</div>}>
                     <div
-                      title={`${npc()!.name} — ${npc()!.title}\n${npc()!.description}`}
                       style={{
                         width: "80px", height: "110px",
                         background: "rgba(167, 139, 250, 0.08)",
@@ -986,18 +987,21 @@ export default function MissionAssemblyPanel(props: Props) {
                         position: "relative",
                       }}
                     >
-                      <div style={{
+                      <Tooltip text="Locked — fixed companion" style={{
                         position: "absolute", top: "3px", right: "3px",
+                        "z-index": 1,
+                      }}>
+                      <div style={{
                         width: "16px", height: "16px",
                         "border-radius": "50%",
                         background: "rgba(0, 0, 0, 0.7)",
                         display: "flex",
                         "align-items": "center", "justify-content": "center",
                         "font-size": "0.7rem",
-                        "z-index": 1,
-                      }} title="Locked — fixed companion">
+                      }}>
                         🔒
                       </div>
+                      </Tooltip>
                       <div style={{
                         width: "80px", height: "80px",
                         display: "flex", "align-items": "center", "justify-content": "center",
@@ -1026,6 +1030,7 @@ export default function MissionAssemblyPanel(props: Props) {
                         {npc()!.name}
                       </div>
                     </div>
+                    </Tooltip>
                   </Show>
                 );
               })()}
@@ -1116,6 +1121,7 @@ export default function MissionAssemblyPanel(props: Props) {
                      * top corners to clip the image. */
                     width: "var(--assembly-card-width, 140px)",
                   }}>
+                    <Tooltip text={adv() ? `Click to remove ${adv()!.name}` : undefined} block>
                     <div
                       style={{
                         position: "relative", width: "100%", height: "140px",
@@ -1124,7 +1130,6 @@ export default function MissionAssemblyPanel(props: Props) {
                         cursor: adv() ? "pointer" : "default",
                       }}
                       onClick={() => { const a = adv(); if (a) toggleTeam(a.id); }}
-                      title={adv() ? `Click to remove ${adv()!.name}` : undefined}
                     >
                       <Show when={adv()} fallback={
                         <div style={{
@@ -1143,12 +1148,9 @@ export default function MissionAssemblyPanel(props: Props) {
                               style={{ width: "100%", height: "100%", "object-fit": "cover", display: "block" }}
                             />
                             <Show when={getFoodPref(a().foodPreference)}>
+                              <Tooltip text={getFoodPref(a().foodPreference)!.trait} style={{ position: "absolute", top: "6px", right: "6px" }}>
                               <div
-                                title={getFoodPref(a().foodPreference)!.trait}
                                 style={{
-                                  position: "absolute",
-                                  top: "6px",
-                                  right: "6px",
                                   width: "22px",
                                   height: "22px",
                                   "border-radius": "50%",
@@ -1162,6 +1164,7 @@ export default function MissionAssemblyPanel(props: Props) {
                               >
                                 {getFoodPref(a().foodPreference)!.icon}
                               </div>
+                              </Tooltip>
                             </Show>
                           </>
                         )}
@@ -1180,6 +1183,7 @@ export default function MissionAssemblyPanel(props: Props) {
                         </div>
                       </div>
                     </div>
+                    </Tooltip>
                     {/* Supplies row */}
                     <div style={{
                       padding: "8px 8px 4px",

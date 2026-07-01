@@ -1,4 +1,5 @@
 import { Show } from "solid-js";
+import Tooltip from "./Tooltip";
 import {
   getClassMeta,
   getZoomedPortraitUrl,
@@ -59,12 +60,9 @@ export default function TeamSlot(props: TeamSlotProps) {
             style={{ width: "80px", height: "80px", "object-fit": "cover", display: "block" }}
           />
           <Show when={getFoodPref(assigned()!.foodPreference)}>
+            <Tooltip text={getFoodPref(assigned()!.foodPreference)!.trait} style={{ position: "absolute", bottom: "2px", right: "2px" }}>
             <div
-              title={getFoodPref(assigned()!.foodPreference)!.trait}
               style={{
-                position: "absolute",
-                bottom: "2px",
-                right: "2px",
                 width: "18px",
                 height: "18px",
                 "border-radius": "50%",
@@ -78,6 +76,7 @@ export default function TeamSlot(props: TeamSlotProps) {
             >
               {getFoodPref(assigned()!.foodPreference)!.icon}
             </div>
+            </Tooltip>
           </Show>
         </div>
       </Show>

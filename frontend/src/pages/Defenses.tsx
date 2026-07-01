@@ -4,6 +4,7 @@ import { playPageMountSound } from "~/engine/sounds";
 import type { DefenseRing, PlayerWall, PlayerWatchtower, PlayerBarracks } from "~/engine/gameState";
 import { WALL_BASE_HP } from "~/engine/gameState";
 import GarrisonDetailModal from "~/components/GarrisonDetailModal";
+import Tooltip from "~/components/Tooltip";
 
 // Module-scoped signal so any card can pop the manager modal without
 // prop-drilling. One modal at a time — re-clicking another building swaps it.
@@ -338,13 +339,19 @@ function Summary() {
         <span style={{ color: "var(--text-muted)" }}>🏹 Archers: </span>
         <strong>{state.archers}/{aCap()}</strong>
       </span>
-      <span
+      <Tooltip
         style={{ "margin-left": "auto" }}
-        title={`Children, toddlers, and elderly are not combat-eligible.\nYour household (${state.namedResidents.adults} adults: founders + named folk) stays out of the militia.\nBreakdown: ${state.citizens.toddlers} 👶 / ${state.citizens.children} 🧒 / ${state.citizens.adults} 🧑 / ${state.citizens.elderly} 👵`}
+        content={() => (
+          <div style={{ "white-space": "pre-line" }}>
+            {`Children, toddlers, and elderly are not combat-eligible.\nYour household (${state.namedResidents.adults} adults: founders + named folk) stays out of the militia.\nBreakdown: ${state.citizens.toddlers} 👶 / ${state.citizens.children} 🧒 / ${state.citizens.adults} 🧑 / ${state.citizens.elderly} 👵`}
+          </div>
+        )}
       >
-        <span style={{ color: "var(--text-muted)" }}>🧑 Adults available: </span>
-        <strong style={{ color: free() > 0 ? "var(--accent-green)" : "var(--accent-red)" }}>{free()} / {state.citizens.adults}</strong>
-      </span>
+        <span>
+          <span style={{ color: "var(--text-muted)" }}>🧑 Adults available: </span>
+          <strong style={{ color: free() > 0 ? "var(--accent-green)" : "var(--accent-red)" }}>{free()} / {state.citizens.adults}</strong>
+        </span>
+      </Tooltip>
     </div>
   );
 }
@@ -543,6 +550,9 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
         {/* Recruit archer (global pool) — shown for any tower with capacity */}
         <Show when={built() && !props.disabled}>
           <div style={{ display: "flex", "flex-direction": "column", gap: "2px" }}>
+            <Tooltip text={canRecruit()
+              ? `Recruit archer — ${ARCHER_COST.gold}g, takes 1 citizen`
+              : recruitBlocker()}>
             <button
               disabled={!canRecruit()}
               onClick={() => actions.recruitArcher(props.ring)}
@@ -556,18 +566,17 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
                 cursor: canRecruit() ? "pointer" : "not-allowed",
                 opacity: canRecruit() ? 1 : 0.5,
               }}
-              title={canRecruit()
-                ? `Recruit archer — ${ARCHER_COST.gold}g, takes 1 citizen`
-                : recruitBlocker()}
             >
               +Archer ({ARCHER_COST.gold}g)
             </button>
+            </Tooltip>
             <Show when={!canRecruit()}>
               <span style={{ "font-size": "0.7rem", color: "var(--accent-red)", "padding-left": "2px" }}>
                 {recruitBlocker()}
               </span>
             </Show>
           </div>
+          <Tooltip text="Open the watchtower garrison panel">
           <button
             onClick={() => setOpenGarrison({ kind: "watchtower", ring: props.ring })}
             style={{
@@ -577,10 +586,10 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
               color: "var(--text-secondary)",
               "border-radius": "4px", cursor: "pointer",
             }}
-            title="Open the watchtower garrison panel"
           >
             ⚙ Manage
           </button>
+          </Tooltip>
         </Show>
       </div>
     </div>
@@ -669,6 +678,9 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
         </Show>
         <Show when={built() && !props.disabled}>
           <div style={{ display: "flex", "flex-direction": "column", gap: "2px" }}>
+            <Tooltip text={canRecruit()
+              ? `Recruit soldier — ${SOLDIER_COST.gold}g, takes 1 citizen`
+              : recruitBlocker()}>
             <button
               disabled={!canRecruit()}
               onClick={() => actions.recruitSoldier(props.ring)}
@@ -682,18 +694,17 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
                 cursor: canRecruit() ? "pointer" : "not-allowed",
                 opacity: canRecruit() ? 1 : 0.5,
               }}
-              title={canRecruit()
-                ? `Recruit soldier — ${SOLDIER_COST.gold}g, takes 1 citizen`
-                : recruitBlocker()}
             >
               +Soldier ({SOLDIER_COST.gold}g)
             </button>
+            </Tooltip>
             <Show when={!canRecruit()}>
               <span style={{ "font-size": "0.7rem", color: "var(--accent-red)", "padding-left": "2px" }}>
                 {recruitBlocker()}
               </span>
             </Show>
           </div>
+          <Tooltip text="Open the barracks garrison panel">
           <button
             onClick={() => setOpenGarrison({ kind: "barracks", ring: props.ring })}
             style={{
@@ -703,10 +714,10 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
               color: "var(--text-secondary)",
               "border-radius": "4px", cursor: "pointer",
             }}
-            title="Open the barracks garrison panel"
           >
             ⚙ Manage
           </button>
+          </Tooltip>
         </Show>
       </div>
     </div>

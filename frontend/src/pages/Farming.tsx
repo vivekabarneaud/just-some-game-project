@@ -216,10 +216,14 @@ function FieldCard(props: { field: PlayerField }) {
               const wouldDeplete = () => props.field.lastCrop === c.id;
               const accent = () => wouldDeplete() ? "var(--accent-gold)" : "var(--accent-green)";
               return (
+                <Tooltip block text={wouldDeplete()
+                  ? `Same crop as last season — soil depletes. Yield: ${preview()} ${c.isFood ? "food" : "fiber"}.`
+                  : `Rotating to ${c.name} — fresh soil. Yield: ${preview()} ${c.isFood ? "food" : "fiber"}.`}>
                 <button
                   class="crop-picker-tile"
                   onClick={() => actions.plantField(props.field.id, c.id)}
                   style={{
+                    width: "100%",
                     height: "160px",
                     padding: 0,
                     border: "none",
@@ -232,9 +236,6 @@ function FieldCard(props: { field: PlayerField }) {
                     "background-position": "center",
                     background: c.image ? undefined : "var(--bg-secondary)",
                   }}
-                  title={wouldDeplete()
-                    ? `Same crop as last season — soil depletes. Yield: ${preview()} ${c.isFood ? "food" : "fiber"}.`
-                    : `Rotating to ${c.name} — fresh soil. Yield: ${preview()} ${c.isFood ? "food" : "fiber"}.`}
                 >
                   <div style={{
                     position: "absolute", inset: 0,
@@ -276,6 +277,7 @@ function FieldCard(props: { field: PlayerField }) {
                     </div>
                   </div>
                 </button>
+                </Tooltip>
               );
             }}
           </For>
@@ -561,17 +563,18 @@ function GardenCard(props: { garden: PlayerGarden }) {
 
         {/* Plant action — only while the garden is built and this cycle hasn't been sown yet */}
         <Show when={!props.garden.upgrading && props.garden.level > 0 && !planted()}>
+          <Tooltip block style={{ "margin-top": "8px" }} text={canPlant() ? "" : plantBlockedReason()}>
           <button
             class="field-upgrade-btn"
-            style={{ "margin-top": "8px", width: "100%" }}
+            style={{ width: "100%" }}
             disabled={!canPlant()}
-            title={canPlant() ? "" : plantBlockedReason()}
             onClick={() => actions.plantGarden(props.garden.id)}
           >
             {seedStock() > 0
               ? `Sow ${sowAmount()} ${veggie().name.toLowerCase()} seed${sowAmount() < capacity() ? ` (plot holds ${capacity()})` : ""}`
               : "No seed to sow"}
           </button>
+          </Tooltip>
         </Show>
       </div>
     </Show>

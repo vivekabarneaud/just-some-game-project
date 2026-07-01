@@ -17,6 +17,7 @@ import {
 import { RESOURCES } from "~/data/resources";
 import { useGame } from "~/engine/gameState";
 import Countdown from "~/components/Countdown";
+import Tooltip from "~/components/Tooltip";
 import { formatTimeLong as formatTime } from "~/utils/format";
 
 const COST_RESOURCES = RESOURCES.filter((r) => r.id === "wood" || r.id === "stone");
@@ -392,14 +393,13 @@ export default function BuildingDetail() {
                           : `Upgrade to Level ${(playerBuilding()?.level ?? 0) + 1}`}
                       </button>
                     <Show when={panicEligible()}>
+                      <Tooltip block style={{ "margin-top": "8px" }} text={canPanicBuild()
+                        ? `Soft-lock recovery: spend ${PANIC_BUILD_SHARD_COST} astral shards to build instantly`
+                        : `Need ${PANIC_BUILD_SHARD_COST - state.astralShards} more astral shards`}>
                       <button
                         disabled={!canPanicBuild()}
                         onClick={handlePanicBuild}
-                        title={canPanicBuild()
-                          ? `Soft-lock recovery: spend ${PANIC_BUILD_SHARD_COST} astral shards to build instantly`
-                          : `Need ${PANIC_BUILD_SHARD_COST - state.astralShards} more astral shards`}
                         style={{
-                          "margin-top": "8px",
                           padding: "10px 16px",
                           background: canPanicBuild() ? "rgba(167, 139, 250, 0.15)" : "rgba(106, 100, 88, 0.15)",
                           border: `1px solid ${canPanicBuild() ? "#a78bfa" : "var(--text-muted)"}`,
@@ -412,6 +412,7 @@ export default function BuildingDetail() {
                       >
                         ✨ Use {PANIC_BUILD_SHARD_COST} Astral Shards to build instantly
                       </button>
+                      </Tooltip>
                       <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-top": "4px", "text-align": "center" }}>
                         Stuck? This skips the resource cost.
                       </div>

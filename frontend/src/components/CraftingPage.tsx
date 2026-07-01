@@ -548,10 +548,10 @@ export default function CraftingPage(props: CraftingPageProps) {
                           : disabled() ? startBlocked()!
                           : "Keep cooking this while there are ingredients and wood to burn";
                         return (
+                          <Tooltip text={title()}>
                           <button
                             disabled={disabled()}
                             onClick={() => { if (!disabled()) actions.setAutoCook(props.buildingId, recipe.id); }}
-                            title={title()}
                             style={{
                               padding: "4px 8px", "font-size": "0.72rem", "border-radius": "4px",
                               cursor: disabled() ? "not-allowed" : "pointer",
@@ -563,6 +563,7 @@ export default function CraftingPage(props: CraftingPageProps) {
                           >
                             {label()}
                           </button>
+                          </Tooltip>
                         );
                       })()}
                     </Show>

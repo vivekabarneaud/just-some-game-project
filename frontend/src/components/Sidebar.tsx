@@ -14,6 +14,7 @@ import { fetchFriends } from "~/api/friends";
 import { fetchCoops } from "~/api/coop";
 import { wsClient } from "~/api/ws";
 import { FIELD_MAX_LEVEL } from "~/data/crops";
+import Tooltip from "~/components/Tooltip";
 
 interface NavItem {
   path: string;
@@ -306,14 +307,15 @@ export default function Sidebar(props: SidebarProps) {
 
           return (
             <Show when={editing()} fallback={
+              <Tooltip text="Click to rename">
               <div
                 class="village-name"
                 onClick={startEditing}
-                title="Click to rename"
                 style={{ cursor: "pointer" }}
               >
                 Village of {state.villageName} <span style={{ "font-size": "0.65rem", opacity: 0.5 }}>✏</span>
               </div>
+              </Tooltip>
             }>
               <input
                 class="village-name-input"
@@ -341,14 +343,15 @@ export default function Sidebar(props: SidebarProps) {
               const danger = dangerFor(item.path);
               if (isLinkDisabled(item.path)) {
                 return (
+                  <Tooltip text="Build this first to use it" position="right" block>
                   <div
                     class="nav-link"
-                    title="Build this first to use it"
                     style={{ opacity: "0.4", cursor: "default", "pointer-events": "none" }}
                   >
                     <span class="nav-icon">{item.icon}</span>
                     {item.label}
                   </div>
+                  </Tooltip>
                 );
               }
               return (
@@ -367,7 +370,9 @@ export default function Sidebar(props: SidebarProps) {
                     </span>
                   )}
                   {danger && (
-                    <span class="danger-badge" title={danger} style={{ "margin-left": "auto" }}>!</span>
+                    <Tooltip text={danger} style={{ "margin-left": "auto" }}>
+                      <span class="danger-badge">!</span>
+                    </Tooltip>
                   )}
                   {!danger && badge > 0 && (
                     <span class="notification-badge" style={{ "margin-left": "auto" }}>{badge}</span>
@@ -560,14 +565,14 @@ export default function Sidebar(props: SidebarProps) {
             Logged in as <span style={{ color: "var(--text-secondary)" }}>{getUsername()}</span>
           </div>
         </Show>
+        <Tooltip text="Open settings" block style={{ "margin-bottom": "6px" }}>
         <button
           class="account-btn"
           onClick={() => setOpenSettings(true)}
-          title="Open settings"
-          style={{ "margin-bottom": "6px" }}
         >
           <span style={{ "margin-right": "6px" }}>⚙</span> Settings
         </button>
+        </Tooltip>
         <button
           class="account-btn"
           onClick={() => {
