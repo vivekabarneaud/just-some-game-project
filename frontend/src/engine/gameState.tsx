@@ -314,6 +314,12 @@ import {
 } from "@medieval-realm/shared/data/expeditionEngine";
 export type { CraftingRecipe, ActiveCraft, BuildingToolDef };
 export { CRAFTING_RECIPES, getBuildingTool, getBuildingToolByRecipe, getRequiredTool };
+
+/** How many dishes a kitchen can keep-cooking at once: one per level (naturally
+ *  capped by the number of food recipes it has unlocked). */
+export function cookSlotsForLevel(level: number): number {
+  return Math.max(1, level);
+}
 export { getBuildingToolsForBuilding, BUILDING_TOOLS } from "./crafting";
 
 export interface ResourceState {
@@ -520,7 +526,7 @@ export interface GameState {
   /** Passive "keep cooking" assignments: buildingId → recipeId. While set, the
    *  building auto-re-crafts that recipe whenever it's idle and has ingredients
    *  (and, for the Kitchen, wood to burn). Empty = nothing auto-running. */
-  autoCook: Record<string, string>;
+  autoCook: Record<string, string[]>;
   /** Building tool slots: buildingId → installed tool IDs */
   buildingTools: Record<string, string[]>;
   /** Enemy IDs the player has encountered on missions */
@@ -672,7 +678,12 @@ export interface GameActions {
   startCraft: (recipeId: string, quantity?: number) => boolean;
   /** Toggle passive "keep cooking": pass a recipeId to auto-run it at its
    *  building, or null to stop. One auto-recipe per building. */
-  setAutoCook: (buildingId: string, recipeId: string | null) => void;
+  /** Toggle a recipe in/out of a building's "keep cooking" set. Adding is capped
+   *  at the building's cook-slot count (kitchen level); toggling an active recipe
+   *  removes it. */
+  setAutoCook: (buildingId: string, recipeId: string) => void;
+  /** How many dishes this building can keep-cooking simultaneously (by level). */
+  getAutoCookSlots: (buildingId: string) => number;
   getAvailableRecipes: () => CraftingRecipe[];
   installBuildingTool: (toolId: string, targetBuildingId: string) => boolean;
   getInstalledTools: (buildingId: string) => string[];
@@ -1399,6 +1410,14 @@ export function migrateSaveState(saved: GameState): GameState {
     if (!saved.firedEvents) saved.firedEvents = [];
     if (!saved.pendingEvents) saved.pendingEvents = [];
     if (!saved.autoCook) saved.autoCook = {};
+    else {
+      // Multi-cook migration: autoCook went from one recipe per building
+      // (string) to a slot list (string[]). Wrap any legacy string values.
+      for (const k of Object.keys(saved.autoCook)) {
+        const v = (saved.autoCook as any)[k];
+        if (typeof v === "string") (saved.autoCook as any)[k] = [v];
+      }
+    }
     if (!saved.questsClaimableSeen) saved.questsClaimableSeen = [];
     // Existing saves: treat everyone already on the roster as "seen" so old
     // saves don't light up blue. New arrivals after this point will be unread.
@@ -3211,22 +3230,23 @@ export function GameProvider(props: ParentProps) {
         // completion loop above routes the cooked food into the larder. (Cooking
         // recipe costs are food-type only, so getFoodCostAmount covers them.)
         const FUEL_WOOD_PER_HOUR = 1;
-        for (const [autoBuildingId, autoRecipeId] of Object.entries(s.autoCook ?? {})) {
-          if (!autoRecipeId) continue;
-          const autoRecipe = CRAFTING_RECIPES.find((r) => r.id === autoRecipeId);
-          if (!autoRecipe) continue;
+        for (const [autoBuildingId, autoRecipeIds] of Object.entries(s.autoCook ?? {})) {
           const autoBldg = s.buildings.find((b) => b.buildingId === autoBuildingId);
-          if (!autoBldg || autoBldg.level < autoRecipe.minLevel || autoBldg.damaged) continue;
-          const cooking = s.craftingQueue.some((c) => c.recipeId === autoRecipeId && !c.pending);
-          if (cooking) {
-            // Fire's lit — burn fuel.
-            s.resources.wood = Math.max(0, s.resources.wood - FUEL_WOOD_PER_HOUR * elapsedHours);
-          } else {
-            // Idle — start another batch if we have the ingredients AND wood to burn.
-            const canAfford = autoRecipe.costs.every((c) => getFoodCostAmount(s.foods, c.resource) >= c.amount);
-            if (s.resources.wood > 0 && canAfford) {
-              for (const c of autoRecipe.costs) consumeFoodCost(s.foods, c.resource, c.amount);
-              s.craftingQueue.push({ recipeId: autoRecipeId, remaining: autoRecipe.craftTime, quantity: 1 });
+          if (!autoBldg || autoBldg.damaged) continue;
+          // Each kept-cooking dish is its own pot: re-starts when idle and burns
+          // its own fuel while lit, so N pots burn N× the wood.
+          for (const autoRecipeId of autoRecipeIds ?? []) {
+            const autoRecipe = CRAFTING_RECIPES.find((r) => r.id === autoRecipeId);
+            if (!autoRecipe || autoBldg.level < autoRecipe.minLevel) continue;
+            const cooking = s.craftingQueue.some((c) => c.recipeId === autoRecipeId && !c.pending);
+            if (cooking) {
+              s.resources.wood = Math.max(0, s.resources.wood - FUEL_WOOD_PER_HOUR * elapsedHours);
+            } else {
+              const canAfford = autoRecipe.costs.every((c) => getFoodCostAmount(s.foods, c.resource) >= c.amount);
+              if (s.resources.wood > 0 && canAfford) {
+                for (const c of autoRecipe.costs) consumeFoodCost(s.foods, c.resource, c.amount);
+                s.craftingQueue.push({ recipeId: autoRecipeId, remaining: autoRecipe.craftTime, quantity: 1 });
+              }
             }
           }
         }
@@ -4643,16 +4663,18 @@ export function GameProvider(props: ParentProps) {
     getAnimalFoodConsumption() { return calcAnimalFoodConsumption(state.pens); },
     getCookingFoodNet() {
       let net = 0;
-      for (const rid of Object.values(state.autoCook ?? {})) {
-        const r = CRAFTING_RECIPES.find((cr) => cr.id === rid);
-        if (!r) continue;
-        // Only count a pot that can actually simmer now (ingredients + wood).
-        const inputsOk = r.costs.every((c) => getFoodCostAmount(state.foods, c.resource) >= c.amount);
-        if (!inputsOk || state.resources.wood <= 0) continue;
-        const perHour = 3600 / r.craftTime;
-        let netBatch = r.produces.amount;
-        for (const c of r.costs) netBatch -= c.amount;
-        net += netBatch * perHour;
+      for (const rids of Object.values(state.autoCook ?? {})) {
+        for (const rid of rids ?? []) {
+          const r = CRAFTING_RECIPES.find((cr) => cr.id === rid);
+          if (!r) continue;
+          // Only count a pot that can actually simmer now (ingredients + wood).
+          const inputsOk = r.costs.every((c) => getFoodCostAmount(state.foods, c.resource) >= c.amount);
+          if (!inputsOk || state.resources.wood <= 0) continue;
+          const perHour = 3600 / r.craftTime;
+          let netBatch = r.produces.amount;
+          for (const c of r.costs) netBatch -= c.amount;
+          net += netBatch * perHour;
+        }
       }
       return net;
     },
@@ -4965,9 +4987,22 @@ export function GameProvider(props: ParentProps) {
     },
     setAutoCook(buildingId, recipeId) {
       setState(produce((s) => {
-        if (recipeId) s.autoCook[buildingId] = recipeId;
-        else delete s.autoCook[buildingId];
+        if (!s.autoCook[buildingId]) s.autoCook[buildingId] = [];
+        const arr = s.autoCook[buildingId];
+        const idx = arr.indexOf(recipeId);
+        if (idx >= 0) {
+          arr.splice(idx, 1); // toggle off
+        } else {
+          const level = s.buildings.find((b) => b.buildingId === buildingId)?.level ?? 1;
+          if (arr.length < cookSlotsForLevel(level)) arr.push(recipeId); // add if a slot's free
+        }
+        if (arr.length === 0) delete s.autoCook[buildingId];
       }));
+      scheduleSave();
+    },
+    getAutoCookSlots(buildingId) {
+      const level = state.buildings.find((b) => b.buildingId === buildingId)?.level ?? 1;
+      return cookSlotsForLevel(level);
     },
     startCraft(recipeId, quantity = 1) {
       const recipe = CRAFTING_RECIPES.find((r) => r.id === recipeId);
