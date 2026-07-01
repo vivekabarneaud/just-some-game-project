@@ -16,7 +16,7 @@ export const POTION_ITEMS: ItemDefinition[] = [
   // ── Recovery items (between-event heal on expeditions, pre-combat heal on simple missions)
   {
     id: "bandage", name: "Bandage", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/tailoring/bandage.png", icon: "🩹",
-    description: "Clean linen strips. Heals 25% max HP before combat.",
+    description: "Clean linen strips. Heals 25% of max HP and stops bleeding. Use one on a resting hero at home, or pack it for a mission to patch up before a fight.",
     classes: [],
     stats: {}, durationMod: 1, lootMod: 1,
     recipeId: "bandage", consumable: true,

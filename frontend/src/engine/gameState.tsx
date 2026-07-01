@@ -4669,6 +4669,10 @@ export function GameProvider(props: ParentProps) {
         const a = s.adventurers.find((x) => x.id === adventurerId)!;
         const m = calcAdventurerMaxHp(a);
         a.currentHp = Math.min(m, (a.currentHp ?? m) + (m * healPct) / 100);
+        // A bandage dresses the wound: clear bleeding so passive regen resumes.
+        // (Poison isn't stopped by a bandage — that needs a cleanse/antidote.)
+        const remaining = (a.conditions ?? []).filter((c) => c.type !== "bleed");
+        a.conditions = remaining.length ? remaining : undefined;
         const it = s.inventory.find((i) => i.itemId === itemId)!;
         it.quantity -= 1;
       }));

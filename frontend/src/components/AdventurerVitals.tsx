@@ -42,19 +42,24 @@ export default function AdventurerVitals(props: Props) {
   return (
     <span style={{ display: full() ? "flex" : "inline-flex", "align-items": "center", gap: "6px", width: full() ? "100%" : undefined, "min-width": full() ? "0" : undefined }}>
       <HpBar current={current()} max={maxHp()} width={props.width} showText={props.showText} />
-      <For each={conditions()}>
-        {(c) => {
-          const meta = CONDITION_META[c.type] ?? { icon: "❓", label: c.type };
-          const hrsLeft = () => Math.max(1, Math.round(c.remainingRounds * HOURS_PER_CONDITION_ROUND));
-          return (
-            <Tooltip text={`${meta.label} — fades on its own in about ${hrsLeft()}h (or use a Bandage). Blocks HP regen until it does.`}>
-              <span style={{ "font-size": "0.72rem", "line-height": 1, color: "#d4831a", "white-space": "nowrap", cursor: "help" }}>
-                {meta.icon} ~{hrsLeft()}h
-              </span>
-            </Tooltip>
-          );
-        }}
-      </For>
+      {/* At full HP in the at-home (showRegen) view, a lingering condition only
+          blocks regen you don't need — hide it so the card reads "healthy". It
+          still shows everywhere else (assembly/combat) and whenever wounded. */}
+      <Show when={!props.showRegen || current() < maxHp()}>
+        <For each={conditions()}>
+          {(c) => {
+            const meta = CONDITION_META[c.type] ?? { icon: "❓", label: c.type };
+            const hrsLeft = () => Math.max(1, Math.round(c.remainingRounds * HOURS_PER_CONDITION_ROUND));
+            return (
+              <Tooltip text={`${meta.label} — fades on its own in about ${hrsLeft()}h (or use a Bandage). Blocks HP regen until it does.`}>
+                <span style={{ "font-size": "0.72rem", "line-height": 1, color: "#d4831a", "white-space": "nowrap", cursor: "help" }}>
+                  {meta.icon} ~{hrsLeft()}h
+                </span>
+              </Tooltip>
+            );
+          }}
+        </For>
+      </Show>
       <Show when={props.showRegen && !props.adventurer.onMission && !conditions().length && current() < maxHp()}>
         <Tooltip text="Rests to heal at home. Bring a 🩹 Bandage on missions — or use one here — to heal faster.">
           <span style={{ color: "var(--accent-green)", "font-size": "0.7rem", "white-space": "nowrap", cursor: "help" }}>
