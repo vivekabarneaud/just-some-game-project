@@ -5,7 +5,7 @@
 //
 // Extracted from ChronicleJournal.tsx so it can be opened from anywhere.
 
-import { For, Show, onMount } from "solid-js";
+import { For, Show, createSignal, onMount } from "solid-js";
 import type { ChronicleEntry } from "~/data/chronicle_entries";
 import { useGame } from "~/engine/gameState";
 import { playSound } from "~/engine/sounds";
@@ -23,9 +23,50 @@ export default function ChronicleEntryModal(props: Props) {
     actions.markChronicleEntrySeen(props.entry.id);
   });
 
+  let cardRef: HTMLDivElement | undefined;
+  const [folding, setFolding] = createSignal(false);
+
+  // Dismiss = fold the card down into the sidebar Chronicle link, so the player
+  // sees where the entry "lives" and how to find it again. Falls back to a plain
+  // close if the sidebar link isn't on screen (e.g. a collapsed layout).
+  const handleDismiss = () => {
+    if (folding()) return;
+    const card = cardRef;
+    const target = document.querySelector('[data-nav-path="/chronicle"]') as HTMLElement | null;
+    if (!card || !target) {
+      props.onClose();
+      return;
+    }
+    const c = card.getBoundingClientRect();
+    const t = target.getBoundingClientRect();
+    const dx = t.left + t.width / 2 - (c.left + c.width / 2);
+    const dy = t.top + t.height / 2 - (c.top + c.height / 2);
+
+    setFolding(true);
+    playSound("nav"); // the finger-snap, as it tucks into the sidebar
+    // Clear the open-animation (fill: both) so it stops overriding our transform.
+    card.style.animation = "none";
+    card.style.transition = "transform 0.5s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.5s ease-in";
+    card.style.transformOrigin = "center center";
+    requestAnimationFrame(() => {
+      card.style.transform = `translate(${dx}px, ${dy}px) scale(0.06)`;
+      card.style.opacity = "0";
+    });
+    // Flash the sidebar icon as the entry "lands" there.
+    window.setTimeout(() => target.classList.add("nav-fold-land"), 420);
+    window.setTimeout(() => target.classList.remove("nav-fold-land"), 1000);
+    window.setTimeout(() => props.onClose(), 500);
+  };
+
   return (
-    <div class="modal-overlay page-modal-backdrop" onClick={props.onClose} style={{ "z-index": "1100" }}>
+    <div
+      class="modal-overlay page-modal-backdrop chronicle-entry-overlay"
+      classList={{ folding: folding() }}
+      onClick={handleDismiss}
+      style={{ "z-index": "1100" }}
+    >
       <div
+        ref={cardRef}
         class="page-modal-card"
         style={{
           "max-width": "620px",
@@ -41,7 +82,7 @@ export default function ChronicleEntryModal(props: Props) {
         onClick={(e) => e.stopPropagation()}
       >
         <button
-          onClick={props.onClose}
+          onClick={handleDismiss}
           style={{
             position: "absolute", top: "10px", right: "12px",
             background: "transparent", border: "none",
@@ -105,7 +146,7 @@ export default function ChronicleEntryModal(props: Props) {
             </button>
           </Show>
           <button
-            onClick={props.onClose}
+            onClick={handleDismiss}
             style={{
               "margin-left": "auto",
               padding: "8px 16px",

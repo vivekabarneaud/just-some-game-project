@@ -1173,6 +1173,28 @@ body {
   }
 }
 
+/* Chronicle entry: fade the backdrop away while the card folds into the sidebar. */
+.chronicle-entry-overlay {
+  transition: background 0.45s ease, backdrop-filter 0.45s ease;
+}
+.chronicle-entry-overlay.folding {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  pointer-events: none;
+}
+/* The sidebar Chronicle icon "catches" the folded entry: a quick gold pop. */
+@keyframes nav-fold-land {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+.nav-link.nav-fold-land .nav-icon {
+  display: inline-block;
+  animation: nav-fold-land 0.55s ease;
+  color: var(--accent-gold);
+  filter: drop-shadow(0 0 6px var(--accent-gold));
+}
+
 .quest-header {
   display: flex;
   align-items: flex-start;
