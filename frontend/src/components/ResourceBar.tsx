@@ -17,6 +17,13 @@ export default function ResourceBar() {
   const awayAdventurers = () => state.adventurers.filter((a) => a.alive && a.onMission).length;
   const housingOccupancy = () => totalPopulation(state.citizens) + livingAdventurers();
 
+  // "The household" = named/protected residents (founders + named arrivals).
+  // The age rows show only the generic townsfolk (total minus the household),
+  // clamped so aging drift can't render a negative.
+  const household = () => totalPopulation(state.namedResidents);
+  const townsfolk = (cat: "toddlers" | "children" | "adults" | "elderly") =>
+    Math.max(0, state.citizens[cat] - state.namedResidents[cat]);
+
   /** Passive-cooking contribution to the food economy. Only counts recipes that
    *  can actually run right now (all ingredients present + wood to burn), so a
    *  stalled pot doesn't claim a phantom rate. Returns the per-cooked-type
@@ -461,21 +468,27 @@ export default function ResourceBar() {
         </span>
         <div class="resource-dropdown">
           <div class="dropdown-title">Housing</div>
+          <div class="dropdown-subhead">Townsfolk</div>
           <div class="dropdown-row">
             <span>👶 Toddlers</span>
-            <span>{state.citizens.toddlers}</span>
+            <span>{townsfolk("toddlers")}</span>
           </div>
           <div class="dropdown-row">
             <span>🧒 Children</span>
-            <span>{state.citizens.children}</span>
+            <span>{townsfolk("children")}</span>
           </div>
           <div class="dropdown-row">
             <span>🧑 Adults</span>
-            <span>{state.citizens.adults}</span>
+            <span>{townsfolk("adults")}</span>
           </div>
           <div class="dropdown-row">
             <span>👵 Elderly</span>
-            <span>{state.citizens.elderly}</span>
+            <span>{townsfolk("elderly")}</span>
+          </div>
+          <div class="dropdown-subhead">Your people</div>
+          <div class="dropdown-row">
+            <span>🏠 The household</span>
+            <span>{household()}</span>
           </div>
           <div class="dropdown-row">
             <span>🗡️ Adventurers</span>
@@ -489,8 +502,8 @@ export default function ResourceBar() {
             <span>{housingOccupancy()}/{actions.getMaxPopulation()}</span>
           </div>
           <div class="dropdown-row" style={{ color: "var(--text-muted)", "font-size": "0.75rem", "margin-top": "4px", "font-style": "italic" }}>
-            Adventurers share the town's beds and food. Build more houses to make
-            room; a crowded settlement is an unhappy one.
+            The household and your adventurers share the town's beds and food, and
+            never join the militia. Build more houses to make room.
           </div>
         </div>
       </div>

@@ -58,6 +58,17 @@ export const FOUNDER_FLOOR: Partial<CitizenCounts> = {
   elderly: 2,
 };
 
+/** The starting "household" — the five founders as a full CitizenCounts. Seeds
+ *  `state.namedResidents`, the protected floor that named arrivals grow. */
+export function founderHousehold(): CitizenCounts {
+  return {
+    toddlers: FOUNDER_FLOOR.toddlers ?? 0,
+    children: FOUNDER_FLOOR.children ?? 0,
+    adults: FOUNDER_FLOOR.adults ?? 0,
+    elderly: FOUNDER_FLOOR.elderly ?? 0,
+  };
+}
+
 /** Total population — what `state.population` used to be. */
 export function totalPopulation(c: CitizenCounts): number {
   return c.toddlers + c.children + c.adults + c.elderly;

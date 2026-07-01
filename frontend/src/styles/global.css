@@ -1443,6 +1443,16 @@ body {
   border-bottom: 1px solid var(--border-color);
 }
 
+/* Section label inside a dropdown (e.g. "Townsfolk" / "Your people"). */
+.dropdown-subhead {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  opacity: 0.75;
+  margin: 6px 0 2px;
+}
+
 .dropdown-row {
   display: flex;
   justify-content: space-between;

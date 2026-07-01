@@ -25,6 +25,9 @@ export interface EventUnlocks {
    *  arrivals (families arriving, refugees joining, etc.) actually materialize
    *  on the population counter instead of staying purely narrative. */
   addCitizens?: Partial<{ toddlers: number; children: number; adults: number; elderly: number }>;
+  /** Named, protected residents ("the household") — same shape as addCitizens
+   *  but these also raise the protected floor (RNG never kills them). */
+  addNamedResidents?: Partial<{ toddlers: number; children: number; adults: number; elderly: number }>;
   /** Add typed food units to the settlement (wheat / meat / fish / etc.).
    *  Used when story arrivals bring their own rations — softens the food
    *  pressure spike of new mouths without erasing it. */
@@ -141,8 +144,9 @@ export const NARRATIVE_EVENTS: NarrativeEvent[] = [
       // syncArrivals (char_000/005/021), so we only add the boy as a citizen
       // here, else the siblings would be double-counted (population + roster).
       // The boy runs the camp, loud where Nell is silent; Nell barely notices,
-      // absorbed in Edda's herb patch.
-      addCitizens: { children: 1 },
+      // absorbed in Edda's herb patch. He's a named resident (the household),
+      // so he's protected from RNG death and shows under "The household".
+      addNamedResidents: { children: 1 },
       // What they walked here with: meat the hunters preserved on the road,
       // a few smoked fish. Not enough to cover the food curve for long,
       // just a buffer while the player scales production.
