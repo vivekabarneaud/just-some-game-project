@@ -522,7 +522,11 @@ export default function CraftingPage(props: CraftingPageProps) {
                         citizens (food-type produce). Burns ~1 wood/hr while lit. */}
                     <Show when={props.buildingId === "kitchen" && isFoodItemType(recipe.produces.resource) && !isToolLocked()}>
                       {(() => {
-                        const isOn = () => state.autoCook?.[props.buildingId] === recipe.id;
+                        const active = () => state.autoCook?.[props.buildingId] ?? [];
+                        const isOn = () => active().includes(recipe.id);
+                        const slots = () => actions.getAutoCookSlots(props.buildingId);
+                        // Kitchen can keep N dishes going at once (one per level).
+                        const slotsFull = () => !isOn() && active().length >= slots();
                         // Same gate as the "cook!" button — you can't set a
                         // standing order for a dish you can't even make once.
                         const startBlocked = () => craftDisabledReason(recipe.id, 1);
@@ -533,19 +537,20 @@ export default function CraftingPage(props: CraftingPageProps) {
                           const r = craftDisabledReason(recipe.id, 1);
                           return r ? r.toLowerCase() : "";
                         };
-                        const disabled = () => !isOn() && !!startBlocked();
+                        const disabled = () => !isOn() && (!!startBlocked() || slotsFull());
                         const stalled = () => isOn() && !!stallReason();
                         const label = () =>
-                          !isOn() ? "🔥 Keep cooking"
+                          !isOn() ? (slotsFull() ? `🔥 Kitchen full (${active().length}/${slots()})` : "🔥 Keep cooking")
                           : stalled() ? `⏸ Paused — ${stallReason()}`
                           : "🔥 Cooking — tap to stop";
                         const title = () =>
-                          disabled() ? startBlocked()!
+                          slotsFull() ? "All cook slots are in use — upgrade the Kitchen to keep more dishes going at once."
+                          : disabled() ? startBlocked()!
                           : "Keep cooking this while there are ingredients and wood to burn";
                         return (
                           <button
                             disabled={disabled()}
-                            onClick={() => { if (!disabled()) actions.setAutoCook(props.buildingId, isOn() ? null : recipe.id); }}
+                            onClick={() => { if (!disabled()) actions.setAutoCook(props.buildingId, recipe.id); }}
                             title={title()}
                             style={{
                               padding: "4px 8px", "font-size": "0.72rem", "border-radius": "4px",

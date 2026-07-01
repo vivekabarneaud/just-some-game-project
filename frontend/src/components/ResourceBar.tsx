@@ -20,7 +20,7 @@ export default function ResourceBar() {
     const produce: Record<string, number> = {};
     const hoursLeft: Record<string, number> = {};
     let net = 0;
-    for (const rid of Object.values(state.autoCook ?? {})) {
+    for (const rid of Object.values(state.autoCook ?? {}).flat()) {
       const r = CRAFTING_RECIPES.find((cr) => cr.id === rid);
       if (!r) continue;
       const inputsOk = r.costs.every((c) => getFoodCostAmount(state.foods, c.resource) >= c.amount);
@@ -45,12 +45,12 @@ export default function ResourceBar() {
   /** Is a pot assigned to this food type at all? (Used for the stalled-pot
    *  fallback label when it isn't currently producing.) */
   const isCooking = (foodId: string): boolean =>
-    Object.values(state.autoCook ?? {}).some((rid) =>
+    Object.values(state.autoCook ?? {}).flat().some((rid) =>
       CRAFTING_RECIPES.find((cr) => cr.id === rid)?.produces.resource === foodId);
   /** If a pot is assigned to this dish but can't run, why? ("no fuel" / "out of
    *  grain"). Empty string when it isn't assigned or is running fine. */
   const cookStallReason = (foodId: string): string => {
-    const r = Object.values(state.autoCook ?? {})
+    const r = Object.values(state.autoCook ?? {}).flat()
       .map((rid) => CRAFTING_RECIPES.find((cr) => cr.id === rid))
       .find((cr) => cr?.produces.resource === foodId);
     if (!r) return "";
