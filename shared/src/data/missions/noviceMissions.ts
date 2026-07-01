@@ -141,6 +141,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     rewards: [{ resource: "berries", amount: 20 }, { resource: "chamomile", amount: 3 }, { resource: "mugwort", amount: 2 }],
     deployCost: 5,
     difficulty: 1,
+    deathRisk: 0, // a safe herb walk — never risk a permanent death
     minGuildLevel: 1,
     tags: ["outdoor"],
     guaranteed: true,
@@ -212,6 +213,11 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     guaranteed: true,
     unique: true,
   },
+  // PARKED (July 2026): "Old Bram" names a random townsfolk we don't model yet.
+  // With only the known founding cast in play, an unnamed citizen reads as out of
+  // place. Revisit when there's a generic-citizen / townsfolk layer to hang this
+  // on. Re-enable by uncommenting. (Relates to the mission-character-ties pass.)
+  /*
   {
     id: "hunter_keepsake",
     name: "The Hunter's Keepsake",
@@ -228,6 +234,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     encounters: [{ enemyId: "forest_bear", count: 1 }],
     unique: true,
   },
+  */
   {
     id: "spider_hollow",
     name: "Spider Hollow",

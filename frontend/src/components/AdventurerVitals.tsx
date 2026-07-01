@@ -1,12 +1,19 @@
-import { For } from "solid-js";
+import { For, Show } from "solid-js";
 import type { Adventurer } from "@medieval-realm/shared/data/adventurers";
 import { calcAdventurerMaxHp } from "@medieval-realm/shared/data/expeditionEngine";
 import HpBar from "./HpBar";
+import Tooltip from "./Tooltip";
 
 const CONDITION_META: Record<string, { icon: string; label: string }> = {
   bleed: { icon: "🩸", label: "Bleeding" },
   poison: { icon: "☣️", label: "Poisoned" },
 };
+
+// Mirrors of the recovery-tick constants in gameState. Heroes heal this fraction
+// of max HP per game-hour while resting at home; a condition blocks regen and
+// decays over ~this many game-hours per remaining round.
+const REGEN_PCT_PER_HOUR = 0.12;
+const HOURS_PER_CONDITION_ROUND = 1.5;
 
 interface Props {
   adventurer: Adventurer;
@@ -14,6 +21,9 @@ interface Props {
   width?: string;
   /** Show "current/max" text next to the bar. */
   showText?: boolean;
+  /** Append the passive HP regen rate ("+N/h") while resting, or a blocked note
+   *  when a wound is stopping regen. For at-home views like the roster. */
+  showRegen?: boolean;
 }
 
 /**
@@ -26,22 +36,37 @@ export default function AdventurerVitals(props: Props) {
   const maxHp = () => calcAdventurerMaxHp(props.adventurer);
   const current = () => Math.round(props.adventurer.currentHp ?? maxHp());
   const conditions = () => props.adventurer.conditions ?? [];
+  // Full-width mode: lay out as a real flex row so the bar can grow and the
+  // condition icons sit inside the row instead of overflowing (assembly-slot fix).
+  const full = () => props.width === "100%";
   return (
-    <span style={{ display: "inline-flex", "align-items": "center", gap: "6px" }}>
+    <span style={{ display: full() ? "flex" : "inline-flex", "align-items": "center", gap: "6px", width: full() ? "100%" : undefined, "min-width": full() ? "0" : undefined }}>
       <HpBar current={current()} max={maxHp()} width={props.width} showText={props.showText} />
-      <For each={conditions()}>
-        {(c) => {
-          const meta = CONDITION_META[c.type] ?? { icon: "❓", label: c.type };
-          return (
-            <span
-              title={`${meta.label} — won't heal until the wound fades`}
-              style={{ "font-size": "0.85rem", "line-height": 1, cursor: "help" }}
-            >
-              {meta.icon}
-            </span>
-          );
-        }}
-      </For>
+      {/* At full HP in the at-home (showRegen) view, a lingering condition only
+          blocks regen you don't need — hide it so the card reads "healthy". It
+          still shows everywhere else (assembly/combat) and whenever wounded. */}
+      <Show when={!props.showRegen || current() < maxHp()}>
+        <For each={conditions()}>
+          {(c) => {
+            const meta = CONDITION_META[c.type] ?? { icon: "❓", label: c.type };
+            const hrsLeft = () => Math.max(1, Math.round(c.remainingRounds * HOURS_PER_CONDITION_ROUND));
+            return (
+              <Tooltip text={`${meta.label} — fades on its own in about ${hrsLeft()}h (or use a Bandage). Blocks HP regen until it does.`}>
+                <span style={{ "font-size": "0.72rem", "line-height": 1, color: "#d4831a", "white-space": "nowrap", cursor: "help" }}>
+                  {meta.icon} ~{hrsLeft()}h
+                </span>
+              </Tooltip>
+            );
+          }}
+        </For>
+      </Show>
+      <Show when={props.showRegen && !props.adventurer.onMission && !conditions().length && current() < maxHp()}>
+        <Tooltip text="Rests to heal at home. Bring a 🩹 Bandage on missions — or use one here — to heal faster.">
+          <span style={{ color: "var(--accent-green)", "font-size": "0.7rem", "white-space": "nowrap", cursor: "help" }}>
+            +{Math.round(maxHp() * REGEN_PCT_PER_HOUR)}/h
+          </span>
+        </Tooltip>
+      </Show>
     </span>
   );
 }

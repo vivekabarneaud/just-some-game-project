@@ -230,6 +230,7 @@ import {
   getEquipmentStats,
   ITEMS,
   getSupplyEffect,
+  getPotionInfo,
   MATCHED_FOOD_LOYALTY_BONUS,
   getArmorAccess,
 } from "@medieval-realm/shared/data/items";
@@ -512,6 +513,9 @@ export interface GameState {
   // Marketplace
   lastTradeAt: number; // timestamp of last trade
   inventory: InventoryItem[];
+  /** One-time flag so the starting medical supplies (bandages) are granted once
+   *  — to new games and, via migration, to saves that predate them. */
+  startingSuppliesGiven?: boolean;
   craftingQueue: ActiveCraft[];
   /** Passive "keep cooking" assignments: buildingId → recipeId. While set, the
    *  building auto-re-crafts that recipe whenever it's idle and has ingredients
@@ -629,6 +633,10 @@ export interface GameActions {
   getMaxPopulation: () => number;
   getFoodConsumption: () => number;
   getAnimalFoodConsumption: () => number;
+  /** Net food/h added by passive cooking (produced minus ingredients eaten),
+   *  counting only pots that can actually run right now. Shared so the top bar
+   *  and the Overview panel report the same surplus/deficit. */
+  getCookingFoodNet: () => number;
   getFoodBreakdown: () => FoodSource[];
   getStorageCaps: () => StorageCaps;
   getSettlementTier: () => SettlementTier;
@@ -643,6 +651,10 @@ export interface GameActions {
   getGuildLevel: () => number;
   recruitAdventurer: (candidateId: string) => boolean;
   dismissAdventurer: (adventurerId: string) => boolean;
+  /** Use a recovery item (e.g. a Bandage) on a resting hero at home: consumes
+   *  one from inventory and heals its healPct of max HP. No-op if the hero is
+   *  away, already full, or there's none in stock. */
+  useRecoveryItem: (adventurerId: string, itemId: string) => boolean;
   deployMission: (missionId: string, adventurerIds: string[], adventurerSupplies?: Record<string, { potion?: string; food?: string; recovery?: string }>, precomputedSuccess?: number) => boolean;
   /** Current quantity of any resource/item/herb/material (for deploy-item costs). */
   resourceQty: (res: string) => number;
@@ -948,7 +960,9 @@ export function createInitialState(): GameState {
     alchemyResearchAvailable: true,
     activeBlessing: null,
     lastTradeAt: 0,
-    inventory: [],
+    // The crew arrived with basic medical supplies — bandages to take on missions.
+    inventory: [{ itemId: "bandage", quantity: 5 }],
+    startingSuppliesGiven: true,
     craftingQueue: [],
     autoCook: {},
     buildingTools: {},
@@ -1296,6 +1310,13 @@ export function migrateSaveState(saved: GameState): GameState {
     if (saved.lastTradeAt === undefined) saved.lastTradeAt = 0;
     if (saved.ironMinedTotal === undefined) saved.ironMinedTotal = 0;
     if (!saved.inventory) saved.inventory = [];
+    // One-time starting medical supplies for saves that predate them (bandages
+    // to take on missions / use at home). Flag-guarded so it never re-grants.
+    if (!(saved as any).startingSuppliesGiven) {
+      const b = saved.inventory.find((i) => i.itemId === "bandage");
+      if (b) b.quantity += 5; else saved.inventory.push({ itemId: "bandage", quantity: 5 });
+      (saved as any).startingSuppliesGiven = true;
+    }
     // Equipment migration: old 3-slot → new 11-slot
     const migrateEquipment = (adv: any) => {
       if (!adv.equipment) {
@@ -4620,6 +4641,44 @@ export function GameProvider(props: ParentProps) {
     getMaxPopulation() { return calcMaxPopulation(state.buildings); },
     getFoodConsumption() { return calcFoodConsumption(state.citizens); },
     getAnimalFoodConsumption() { return calcAnimalFoodConsumption(state.pens); },
+    getCookingFoodNet() {
+      let net = 0;
+      for (const rid of Object.values(state.autoCook ?? {})) {
+        const r = CRAFTING_RECIPES.find((cr) => cr.id === rid);
+        if (!r) continue;
+        // Only count a pot that can actually simmer now (ingredients + wood).
+        const inputsOk = r.costs.every((c) => getFoodCostAmount(state.foods, c.resource) >= c.amount);
+        if (!inputsOk || state.resources.wood <= 0) continue;
+        const perHour = 3600 / r.craftTime;
+        let netBatch = r.produces.amount;
+        for (const c of r.costs) netBatch -= c.amount;
+        net += netBatch * perHour;
+      }
+      return net;
+    },
+    useRecoveryItem(adventurerId, itemId) {
+      const adv = state.adventurers.find((a) => a.id === adventurerId);
+      if (!adv || !adv.alive || adv.onMission) return false;
+      const healPct = getPotionInfo(itemId)?.recovery?.healPct;
+      if (!healPct) return false; // not an at-home heal item
+      const inv = state.inventory.find((i) => i.itemId === itemId);
+      if (!inv || inv.quantity <= 0) return false;
+      const maxHp = calcAdventurerMaxHp(adv);
+      if ((adv.currentHp ?? maxHp) >= maxHp) return false; // already full — don't waste it
+      setState(produce((s) => {
+        const a = s.adventurers.find((x) => x.id === adventurerId)!;
+        const m = calcAdventurerMaxHp(a);
+        a.currentHp = Math.min(m, (a.currentHp ?? m) + (m * healPct) / 100);
+        // A bandage dresses the wound: clear bleeding so passive regen resumes.
+        // (Poison isn't stopped by a bandage — that needs a cleanse/antidote.)
+        const remaining = (a.conditions ?? []).filter((c) => c.type !== "bleed");
+        a.conditions = remaining.length ? remaining : undefined;
+        const it = s.inventory.find((i) => i.itemId === itemId)!;
+        it.quantity -= 1;
+      }));
+      scheduleSave();
+      return true;
+    },
     getFoodBreakdown() { return calcFoodBreakdown(state); },
     getStorageCaps() { return calcStorageCaps(state.buildings); },
     getSettlementTier() { return getSettlementTier(getTownHallLevel(state.buildings)); },

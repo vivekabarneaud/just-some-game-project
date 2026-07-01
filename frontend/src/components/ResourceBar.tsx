@@ -90,7 +90,7 @@ export default function ResourceBar() {
     // into the headline rate so the player sees -14/h climb when a pot is on.
     // The "how long until the larder runs dry" detail stays on the cooked-food
     // line only; here it'd be misleading (several pots, several timers).
-    if (id === "food") return base - foodCons() - animalCons() + cookingRates().net;
+    if (id === "food") return base - foodCons() - animalCons() + actions.getCookingFoodNet();
     return base;
   };
 
@@ -101,6 +101,11 @@ export default function ResourceBar() {
       <For each={RESOURCES}>
         {(res) => {
           const rate = () => getRate(res.id);
+          // "Fragile" food surplus: positive ONLY because a pot is cooking. When
+          // the ingredients run out the surplus vanishes and food goes negative
+          // again — so we flag it yellow + a clock instead of a reassuring green.
+          const foodFragile = () =>
+            res.id === "food" && rate() >= 0 && (rate() - actions.getCookingFoodNet()) < 0;
           // Soft-lock nudge for wood / stone at 0/h. Empty string = no
           // dropdown shown. Round to match the displayed value (Math.round
           // of a 0.4 rate reads as 0/h but wouldn't pass strict equality).
@@ -140,14 +145,24 @@ export default function ResourceBar() {
                   "rate-negative": rate() < 0,
                   "rate-zero": rate() === 0,
                 }}
+                style={{ color: foodFragile() ? "var(--accent-gold)" : undefined }}
               >
-                {rate() >= 0 ? "+" : ""}
+                {foodFragile() ? "⏳ " : ""}{rate() >= 0 ? "+" : ""}
                 {Math.round(rate())}/h
               </span>
 
               <Show when={res.id === "food"}>
                 <div class="resource-dropdown">
                   <div class="dropdown-title">Food Stockpile</div>
+                  <Show when={foodFragile()}>
+                    <div style={{
+                      "font-size": "0.72rem", color: "var(--accent-gold)", "margin-bottom": "8px",
+                      padding: "6px 8px", "border-radius": "4px", background: "rgba(245, 197, 66, 0.1)",
+                      border: "1px solid rgba(245, 197, 66, 0.3)",
+                    }}>
+                      ⏳ You're only in surplus because a pot is cooking. It reverts to a deficit once the ingredients run out.
+                    </div>
+                  </Show>
                   {/* Per-type stocks grouped by category — only categories with any stock/production show up */}
                   <For each={FOOD_CATEGORIES}>
                     {(cat) => {

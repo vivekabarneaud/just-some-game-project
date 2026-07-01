@@ -1334,6 +1334,11 @@ body {
 .dimmed {
   filter: var(--locked-dim);
 }
+/* A locked card shouldn't show its (non-clickable) build "+" — a green button
+   reads as an active action. Hide the upgrade indicator inside a locked shell. */
+.dimmed .upgrade-indicator {
+  display: none;
+}
 
 .locked-icon {
   filter: grayscale(0.4);

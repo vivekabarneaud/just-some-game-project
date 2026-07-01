@@ -257,16 +257,26 @@ export function calcDeathChance(
   adventurer: Adventurer,
   adventurerSupplies?: Record<string, AdventurerMissionSupplies>,
 ): number {
-  // Base death chance: 8% per difficulty level
-  let chance = mission.difficulty * 8;
+  // Death is a COMBAT outcome. Missions with no encounters carry only a light
+  // "wilderness mishap" risk that starts at ZERO for difficulty 1 (a safe
+  // errand like herb gathering must not threaten a permanent death) and scales
+  // up for riskier no-combat jobs. Encounter missions use the full 8%/difficulty.
+  const noEncounters = !mission.encounters?.length;
+  const hasOverride = typeof mission.deathRisk === "number";
+  let chance = hasOverride
+    ? mission.deathRisk!
+    : noEncounters ? Math.max(0, (mission.difficulty - 1) * 4) : mission.difficulty * 8;
 
   // VIT reduces death chance: each point of VIT above 10 reduces by 0.8%
   const equipStats = getEquipmentStats(adventurer.equipment);
   const stats = calcStats(adventurer, equipStats);
   chance -= Math.max(0, (stats.vit - 10) * 0.8);
 
-  // Floor: VIT can't reduce below a meaningful threshold
-  chance = Math.max(chance, 2 + mission.difficulty * 2);
+  // Floor: encounter missions keep a meaningful minimum VIT can't erase. An
+  // explicit override or a no-encounter mission may legitimately reach 0.
+  chance = (hasOverride || noEncounters)
+    ? Math.max(chance, 0)
+    : Math.max(chance, 2 + mission.difficulty * 2);
 
   // Priest passive: each priest reduces death chance by 60%
   const priestCount = team.filter((a) => a.class === "priest" && a.id !== adventurer.id).length;

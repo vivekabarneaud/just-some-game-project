@@ -38,7 +38,7 @@ export default function Overview() {
   const netRate = (id: string) => {
     const r = rates();
     const base = r[id as keyof typeof r] as number;
-    if (id === "food") return base - foodCons() - actions.getAnimalFoodConsumption();
+    if (id === "food") return base - foodCons() - actions.getAnimalFoodConsumption() + actions.getCookingFoodNet();
     return base;
   };
 
@@ -438,17 +438,28 @@ export default function Overview() {
               {totalPopulation(state.citizens)} / {actions.getMaxPopulation()}
             </span>
           </div>
-          <div class="stat-row">
-            <span class="stat-label">Food Balance</span>
-            <span
-              class="stat-value"
-              style={{
-                color: netRate("food") >= 0 ? "var(--accent-green)" : "var(--accent-red)",
-              }}
-            >
-              {netRate("food") >= 0 ? "Surplus" : "Deficit"} ({Math.round(netRate("food"))}/h)
-            </span>
-          </div>
+          {(() => {
+            const net = netRate("food");
+            // Surplus that exists ONLY because a pot is cooking is fragile — it
+            // reverts to a deficit when ingredients run out. Flag it yellow + a
+            // clock, and (unlike the cramped top bar) spell it out inline.
+            const fragile = net >= 0 && net - actions.getCookingFoodNet() < 0;
+            const color = net < 0 ? "var(--accent-red)" : fragile ? "var(--accent-gold)" : "var(--accent-green)";
+            const label = net < 0 ? "Deficit" : fragile ? "⏳ Surplus (while cooking)" : "Surplus";
+            return (
+              <>
+                <div class="stat-row">
+                  <span class="stat-label">Food Balance</span>
+                  <span class="stat-value" style={{ color }}>{label} ({Math.round(net)}/h)</span>
+                </div>
+                <Show when={fragile}>
+                  <div style={{ "font-size": "0.75rem", color: "var(--accent-gold)", "margin-top": "-2px", "margin-bottom": "6px", "line-height": 1.35 }}>
+                    Only positive while a pot is cooking. It drops back to a deficit once the ingredients run out, so stock up or add a food source.
+                  </div>
+                </Show>
+              </>
+            );
+          })()}
           <Show when={state.season === "autumn" || state.season === "winter"}>
             <div style={{ "font-size": "0.75rem", color: "var(--accent-gold)", "padding": "2px 0 4px", "font-style": "italic" }}>
               {state.season === "winter"
