@@ -7,7 +7,6 @@ import {
   getClassMeta,
   RANK_NAMES,
   RANK_COLORS,
-  getRecruitCost,
   getXpForLevel,
   getPortraitUrl,
   getOrigin,
@@ -51,7 +50,7 @@ import { fetchCoops, respondCoop, cancelCoop, fetchCoopDetail, claimCoop } from 
 import { wsClient } from "~/api/ws";
 import type { CompletedMission } from "@medieval-realm/shared/data/missions";
 
-type Tab = "missions" | "roster" | "recruit";
+type Tab = "missions" | "roster";
 
 
 
@@ -388,7 +387,7 @@ export default function AdventurersGuild() {
         }}>
           <span>Guild Lv.{guildLevel()}</span>
           <span>Active missions: {state.activeMissions.length}</span>
-          <span>Roster: {rosterSize().current}/{rosterSize().max}</span>
+          <span>Roster: {rosterSize().current}</span>
           <span>Refresh in: {(() => {
             const now = new Date();
             const next3am = new Date();
@@ -1127,131 +1126,6 @@ export default function AdventurersGuild() {
           </For>
         </Show>
 
-        {/* ── Recruit tab ── */}
-        <Show when={tab() === "recruit"}>
-          <div style={{ display: "flex", "align-items": "center", gap: "12px", "margin-bottom": "12px", "font-size": "0.85rem", color: "var(--text-secondary)" }}>
-            <span>
-              Roster: {rosterSize().current}/{rosterSize().max} · Newcomers arrive as your settlement grows
-            </span>
-            <Show when={IS_DEV}>
-              <button
-                onClick={() => actions.devAddShards(1000)}
-                style={{ "font-size": "0.7rem", padding: "2px 8px", "margin-left": "8px" }}
-                class="skip-season-btn"
-              >
-                +1000 💠
-              </button>
-            </Show>
-          </div>
-          <Show when={state.recruitCandidates.length === 0}>
-            <p style={{ color: "var(--text-muted)", "font-size": "0.85rem" }}>
-              No one has come to join yet. People arrive as your settlement grows and word of it spreads.
-            </p>
-          </Show>
-          <div class="recruit-grid">
-            <For each={state.recruitCandidates}>
-              {(candidate) => {
-                const cls = getClassMeta(candidate.class);
-                const cost = getRecruitCost(candidate.rank);
-                const canAfford = () => state.resources.gold >= cost;
-                const rosterFull = () => rosterSize().current >= rosterSize().max;
-                return (
-                  <div class="building-card adv-card">
-                    <span class="building-card-category" style={{ color: RANK_COLORS[candidate.rank] }}>
-                      {RANK_NAMES[candidate.rank]}
-                    </span>
-                    <div class="adv-card-portrait">
-                      <img src={getPortraitUrl(candidate)} alt={candidate.name} loading="lazy" />
-                    </div>
-                    <div class="adv-card-content">
-                      <div class="building-card-title">{candidate.name}</div>
-                      <div style={{ "font-size": "0.85rem", color: "var(--text-muted)" }}>
-                        {candidate.race ? `${RACE_NAMES[candidate.race]} ` : ""}{cls.name} · Lv.{candidate.level}
-                      </div>
-                      <Show when={candidate.origin}>
-                        <div style={{ "font-size": "0.75rem", color: "var(--text-muted)" }}>
-                          {getOrigin(candidate.origin)?.name} — {getOrigin(candidate.origin)?.region}
-                        </div>
-                      </Show>
-                      {/* Kinship — premade relationship from CHAR_RELATIONSHIPS */}
-                      <Show when={getRelationship(candidate.premadeId)}>
-                        {(rel) => (
-                          <div style={{
-                            "font-size": "0.78rem",
-                            color: "var(--accent-gold)",
-                            "margin-top": "2px",
-                            display: "flex",
-                            "align-items": "center",
-                            gap: "4px",
-                          }}>
-                            <span>👨‍👩‍👧‍👦</span>
-                            <span>{rel()}</span>
-                          </div>
-                        )}
-                      </Show>
-                      {/* Food preference */}
-                      <Show when={getFoodPref(candidate.foodPreference)}>
-                        <div style={{
-                          "font-size": "0.75rem",
-                          color: "var(--text-muted)",
-                          "margin-top": "2px",
-                          display: "flex",
-                          "align-items": "center",
-                          gap: "4px",
-                        }}>
-                          <span>{getFoodPref(candidate.foodPreference)!.icon}</span>
-                          <span>{getFoodPref(candidate.foodPreference)!.trait}</span>
-                        </div>
-                      </Show>
-                      <Show when={candidate.backstory}>
-                        <div style={{
-                          "font-size": "0.78rem",
-                          color: "var(--text-secondary)",
-                          "font-style": "italic",
-                          "line-height": "1.4",
-                          "margin-top": "4px",
-                          "padding-left": "8px",
-                          "border-left": "2px solid var(--border-color)",
-                        }}>
-                          "{candidate.backstory}"
-                        </div>
-                      </Show>
-                      <Show when={candidate.trait} fallback={
-                        <div style={{ "font-size": "0.78rem", color: "var(--text-muted)" }}>
-                          {cls.passive.name}: {cls.passive.description}
-                        </div>
-                      }>
-                        {(() => {
-                          return <TraitBadge traitId={candidate.trait} />;
-                        })()}
-                      </Show>
-                    <div style={{ "margin-top": "auto", "padding-top": "10px" }}>
-                      <button
-                        class="upgrade-btn"
-                        data-no-click-sound
-                        disabled={!canAfford() || rosterFull()}
-                        onClick={() => { playSound("coins"); actions.recruitAdventurer(candidate.id); }}
-                        style={{ "font-size": "0.85rem", padding: "6px 14px" }}
-                      >
-                        Recruit ({cost}g)
-                      </button>
-                      <Show when={rosterFull()}>
-                        <span style={{ "font-size": "0.8rem", "margin-left": "8px" }}>
-                          <span style={{ color: "var(--accent-red)" }}>Roster full</span>
-                          {" — "}
-                          <A href="/buildings/adventurers_guild" style={{ color: "var(--accent-gold)", "font-size": "0.8rem" }}>
-                            Upgrade guild for more slots
-                          </A>
-                        </span>
-                      </Show>
-                    </div>
-                    </div>{/* end adv-card-content */}
-                  </div>
-                );
-              }}
-            </For>
-          </div>
-        </Show>
       </Show>
     </div>
     </>

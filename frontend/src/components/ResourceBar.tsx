@@ -11,6 +11,12 @@ import FoodIcon from "~/components/FoodIcon";
 export default function ResourceBar() {
   const { state, actions } = useGame();
 
+  // Adventurers share the town's beds and eat from its stores, so they count
+  // toward housing occupancy. Derived live from the roster (source of truth).
+  const livingAdventurers = () => state.adventurers.filter((a) => a.alive).length;
+  const awayAdventurers = () => state.adventurers.filter((a) => a.alive && a.onMission).length;
+  const housingOccupancy = () => totalPopulation(state.citizens) + livingAdventurers();
+
   /** Passive-cooking contribution to the food economy. Only counts recipes that
    *  can actually run right now (all ingredients present + wood to burn), so a
    *  stalled pot doesn't claim a phantom rate. Returns the per-cooked-type
@@ -451,10 +457,10 @@ export default function ResourceBar() {
       <div class="resource-item pop-display has-dropdown" tabIndex={0}>
         <span class="resource-icon">👤</span>
         <span class="resource-amount">
-          {totalPopulation(state.citizens)}/{actions.getMaxPopulation()}
+          {housingOccupancy()}/{actions.getMaxPopulation()}
         </span>
         <div class="resource-dropdown">
-          <div class="dropdown-title">Citizens</div>
+          <div class="dropdown-title">Housing</div>
           <div class="dropdown-row">
             <span>👶 Toddlers</span>
             <span>{state.citizens.toddlers}</span>
@@ -471,13 +477,20 @@ export default function ResourceBar() {
             <span>👵 Elderly</span>
             <span>{state.citizens.elderly}</span>
           </div>
+          <div class="dropdown-row">
+            <span>🗡️ Adventurers</span>
+            <span>
+              {livingAdventurers()}
+              {awayAdventurers() > 0 ? ` (${awayAdventurers()} away)` : ""}
+            </span>
+          </div>
           <div class="dropdown-row dropdown-total">
-            <span>Total</span>
-            <span>{totalPopulation(state.citizens)}</span>
+            <span>Housed</span>
+            <span>{housingOccupancy()}/{actions.getMaxPopulation()}</span>
           </div>
           <div class="dropdown-row" style={{ color: "var(--text-muted)", "font-size": "0.75rem", "margin-top": "4px", "font-style": "italic" }}>
-            Adults are the labor and military pool. Children, toddlers,
-            and elderly contribute differently to food and growth.
+            Adventurers share the town's beds and food. Build more houses to make
+            room; a crowded settlement is an unhappy one.
           </div>
         </div>
       </div>
