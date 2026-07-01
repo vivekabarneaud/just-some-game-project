@@ -1,7 +1,7 @@
 import { createSignal, For, Show, onMount } from "solid-js";
 import { A } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
-import { playPageMountSound } from "~/engine/sounds";
+import { playPageMountSound, playSound } from "~/engine/sounds";
 import {
   QUEST_DEFINITIONS,
   STORYLINE_LABELS,
@@ -372,6 +372,7 @@ function QuestCard(props: {
             return href ? (
               <A
                 href={href}
+                onClick={() => playSound("nav")}
                 style={{
                   "display": "block",
                   "margin": "8px 0 4px",

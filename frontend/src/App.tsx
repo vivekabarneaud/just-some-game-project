@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "@solidjs/router";
 import Sidebar from "./components/Sidebar";
 import ResourceBar from "./components/ResourceBar";
 import WeatherAmbience from "./components/WeatherAmbience";
+import AmbientRain from "./components/AmbientRain";
 import CinematicOverlay from "./components/CinematicOverlay";
 import ChronicleEntryModal from "./components/ChronicleEntryModal";
 import { openChronicleEntry, setOpenChronicleEntry } from "./data/robins";
@@ -225,6 +226,8 @@ export default function App(props: ParentProps) {
       <div class="weather-glass" aria-hidden="true" />
       {/* Weather mood vignette — darkens the frame edges in wet weather. */}
       <div class="weather-vignette" aria-hidden="true" />
+      {/* Rain ambience on the audio `ambient` channel (weather-driven loop). */}
+      <AmbientRain />
 
       <div class="app-layout" classList={{ "sidebar-open": sidebarOpen() }}>
         <Sidebar onClose={() => setSidebarOpen(false)} />
