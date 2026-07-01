@@ -312,8 +312,11 @@ function generateLevels(
 // ─── Building definitions ────────────────────────────────────────
 
 export const BUILDINGS: BuildingDefinition[] = [
-  // Town Hall stays L1 by default; the card surfaces in chapter 4 when the
-  // "Ambition Rises" quest pushes the player toward upgrading it.
+  // Town Hall upgrade opens at Ch.3. It USED to gate on Ch.4, but deferring the
+  // flock/tailoring to Village (th_level 3) made that a deadlock: Ch.4 needs
+  // Ch.3 done → Ch.3 quests need TH3 → TH upgrades were gated on Ch.4. Opening
+  // at Ch.3 lets tier prerequisites (Houses Lv.2 + Lumber Mill for Village)
+  // drive growth toward the flock, breaking the loop.
   {
     id: "town_hall",
     name: "Town Hall",
@@ -324,7 +327,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     maxLevel: 25,
     levels: generateLevels({ wood: 80, stone: 80 }, 60, undefined, 25),
     requiredTier: "camp",
-    unlockedAt: { storyline: "settlement", chapter: 4 },
+    unlockedAt: { storyline: "settlement", chapter: 3 },
     defaultLevel: 1,
   },
   {
