@@ -221,6 +221,9 @@ export default function App(props: ParentProps) {
       <EventModal />
       <SettingsModal />
 
+      {/* Weather mood vignette — darkens the frame edges in wet weather. */}
+      <div class="weather-vignette" aria-hidden="true" />
+
       <div class="app-layout" classList={{ "sidebar-open": sidebarOpen() }}>
         <Sidebar onClose={() => setSidebarOpen(false)} />
         <button

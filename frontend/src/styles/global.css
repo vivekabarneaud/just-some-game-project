@@ -54,10 +54,20 @@
     --border-color 2.5s ease;
 }
 
-/* Rain / storm: a real drop into cold, dim, stormy slate-blue. Backgrounds go
-   markedly darker; borders SOFTEN toward the bg so cards recede into the gloom
-   (heavier, murkier storm). Gold + text stay put, so contrast only improves. */
-:root[data-weather="rain"],
+/* Rain: only a HAIR darker + a touch cooler. The "wet" comes from the sheen and
+   a light vignette, not from dimming everything. Keep it readable and close to
+   the dry look. */
+:root[data-weather="rain"] {
+  --bg-primary: #171826;
+  --bg-secondary: #131c30;
+  --bg-panel: #1c2643;
+  --bg-card: #182036;
+  --bg-hover: #223050;
+  --border-color: #2b3c5e;
+}
+
+/* Storm: THIS is where it gets dramatic — a real drop into cold, dim slate-blue,
+   backgrounds markedly darker. The heavy weather earns the gloom. */
 :root[data-weather="storm"] {
   --bg-primary: #0c1019;
   --bg-secondary: #0d1626;
@@ -95,6 +105,54 @@
 
 @media (prefers-reduced-motion: reduce) {
   :root { transition: none; }
+}
+
+/* Mood vignette — a fixed frame-darkening that fades in with wet weather, for
+   overcast weight. Above content, below modals; never blocks clicks. */
+.weather-vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 250;
+  opacity: 0;
+  transition: opacity 2.5s ease;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(0, 0, 0, 0.6) 100%);
+}
+:root[data-weather="rain"] .weather-vignette { opacity: 0.22; }
+:root[data-weather="storm"] .weather-vignette { opacity: 0.55; }
+:root[data-weather="unnatural_storm"] .weather-vignette {
+  opacity: 0.5;
+  background: radial-gradient(ellipse at center, transparent 54%, rgba(28, 10, 48, 0.55) 100%);
+}
+
+/* Specular sheen — a thin cool gleam along the TOP edge of cards that fades in
+   when wet, like light catching a rain-slicked surface. Concentrated in the top
+   edge (over padding, not text) so it reads as a wet highlight, not a wash. Uses
+   its own opacity transition, independent of the card's fast hover transition. */
+.building-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(210, 230, 255, 0.15) 0%,
+    rgba(210, 230, 255, 0.05) 16%,
+    transparent 40%
+  );
+  opacity: 0;
+  transition: opacity 2.5s ease;
+}
+:root[data-weather="rain"] .building-card::after,
+:root[data-weather="storm"] .building-card::after,
+:root[data-weather="unnatural_storm"] .building-card::after {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .weather-vignette,
+  .building-card::after { transition: none; }
 }
 
 * {
@@ -1014,7 +1072,7 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(8, 6, 3, 0.5);
+  background: rgba(8, 6, 3, 0.32);
   opacity: 0;
   transition: opacity 2.5s ease;
   pointer-events: none;
@@ -4297,29 +4355,8 @@ body {
   z-index: 1;
 }
 
-/* Rain */
-.wx-rain {
-  position: absolute;
-  top: -20px;
-  width: 1px;
-  height: 14px;
-  background: linear-gradient(to bottom, transparent, rgba(165,195,225,0.55));
-  animation-name: wx-fall;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-}
-.wx-rain-heavy {
-  height: 22px;
-  background: linear-gradient(to bottom, transparent, rgba(185,210,240,0.78));
-}
-/* Rain falls on a slight wind-blown angle. The horizontal drift (30px over a
-   ~92px vertical travel ≈ 18°) is matched to the streak's 18deg rotation, so the
-   drops actually MOVE along the diagonal they're tilted on, not just straight down. */
-@keyframes wx-fall {
-  0%   { transform: translate(-12px, -20px) rotate(18deg); opacity: 0; }
-  12%  { opacity: 1; }
-  100% { transform: translate(18px, 72px) rotate(18deg); opacity: 0.85; }
-}
+/* Rain in the top strip is now drawn by RainCanvas (components/RainCanvas.tsx);
+   the old CSS-droplet rules (.wx-rain / @keyframes wx-fall) were removed. */
 
 /* Snow */
 .wx-snow {
@@ -4459,7 +4496,7 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .weather-ambience * { animation: none !important; }
   .wx-flash, .wx-flash-aether { display: none !important; }
-  .wx-rain, .wx-snow, .wx-mote, .wx-fog { opacity: 0.4 !important; }
+  .wx-snow, .wx-mote, .wx-fog { opacity: 0.4 !important; }
 }
 
 /* Dev tools: weather override picker */
