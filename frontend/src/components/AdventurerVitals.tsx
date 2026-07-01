@@ -2,16 +2,18 @@ import { For, Show } from "solid-js";
 import type { Adventurer } from "@medieval-realm/shared/data/adventurers";
 import { calcAdventurerMaxHp } from "@medieval-realm/shared/data/expeditionEngine";
 import HpBar from "./HpBar";
+import Tooltip from "./Tooltip";
 
 const CONDITION_META: Record<string, { icon: string; label: string }> = {
   bleed: { icon: "🩸", label: "Bleeding" },
   poison: { icon: "☣️", label: "Poisoned" },
 };
 
-// Mirror of the passive-regen rate in gameState's recovery tick. Heroes heal
-// this fraction of max HP per game-hour while resting at home (blocked by a
-// lingering condition until it fades).
+// Mirrors of the recovery-tick constants in gameState. Heroes heal this fraction
+// of max HP per game-hour while resting at home; a condition blocks regen and
+// decays over ~this many game-hours per remaining round.
 const REGEN_PCT_PER_HOUR = 0.12;
+const HOURS_PER_CONDITION_ROUND = 1.5;
 
 interface Props {
   adventurer: Adventurer;
@@ -43,31 +45,22 @@ export default function AdventurerVitals(props: Props) {
       <For each={conditions()}>
         {(c) => {
           const meta = CONDITION_META[c.type] ?? { icon: "❓", label: c.type };
+          const hrsLeft = () => Math.max(1, Math.round(c.remainingRounds * HOURS_PER_CONDITION_ROUND));
           return (
-            <span
-              title={`${meta.label} — won't heal until the wound fades`}
-              style={{ "font-size": "0.85rem", "line-height": 1, cursor: "help" }}
-            >
-              {meta.icon}
-            </span>
+            <Tooltip text={`${meta.label} — fades on its own in about ${hrsLeft()}h (or use a Bandage). Blocks HP regen until it does.`}>
+              <span style={{ "font-size": "0.72rem", "line-height": 1, color: "#d4831a", "white-space": "nowrap", cursor: "help" }}>
+                {meta.icon} ~{hrsLeft()}h
+              </span>
+            </Tooltip>
           );
         }}
       </For>
-      <Show when={props.showRegen && !props.adventurer.onMission && current() < maxHp()}>
-        <Show
-          when={!conditions().length}
-          fallback={
-            <span style={{ color: "#d4831a", "font-size": "0.7rem", "white-space": "nowrap" }}
-              title="A lingering wound stops regen. It heals on its own after a while; a Bandage taken on a mission can clear it sooner.">
-              won't heal yet
-            </span>
-          }
-        >
-          <span style={{ color: "var(--accent-green)", "font-size": "0.7rem", "white-space": "nowrap" }}
-            title="Rests to heal at home. Bring a 🩹 Bandage on missions to heal on the trip.">
+      <Show when={props.showRegen && !props.adventurer.onMission && !conditions().length && current() < maxHp()}>
+        <Tooltip text="Rests to heal at home. Bring a 🩹 Bandage on missions — or use one here — to heal faster.">
+          <span style={{ color: "var(--accent-green)", "font-size": "0.7rem", "white-space": "nowrap", cursor: "help" }}>
             +{Math.round(maxHp() * REGEN_PCT_PER_HOUR)}/h
           </span>
-        </Show>
+        </Tooltip>
       </Show>
     </span>
   );
