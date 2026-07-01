@@ -59,6 +59,11 @@ export interface MissionTemplate {
    *  play their story to gain them. e.g. saving Edmund recruits Edmund + Elspeth. */
   recruitsOnSuccess?: string[];
   difficulty: 1 | 2 | 3 | 4 | 5;
+  /** Optional per-mission override for the BASE permadeath chance (%). When set,
+   *  it replaces the difficulty/encounter formula in calcDeathChance (player
+   *  mitigations like VIT/priests/potions still apply). Use 0 for missions that
+   *  should never risk a permanent death (e.g. a safe herb gather). */
+  deathRisk?: number;
   minGuildLevel: number;
   tags: MissionTag[];
   image?: string; // optional mission illustration

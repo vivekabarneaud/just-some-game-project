@@ -141,6 +141,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     rewards: [{ resource: "berries", amount: 20 }, { resource: "chamomile", amount: 3 }, { resource: "mugwort", amount: 2 }],
     deployCost: 5,
     difficulty: 1,
+    deathRisk: 0, // a safe herb walk — never risk a permanent death
     minGuildLevel: 1,
     tags: ["outdoor"],
     guaranteed: true,
