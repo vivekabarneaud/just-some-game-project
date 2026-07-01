@@ -146,7 +146,6 @@ export default function ResourceBar() {
                   "rate-zero": rate() === 0,
                 }}
                 style={{ color: foodFragile() ? "var(--accent-gold)" : undefined }}
-                title={foodFragile() ? "Surplus only while cooking — reverts to a deficit once the pot runs out of ingredients." : undefined}
               >
                 {foodFragile() ? "⏳ " : ""}{rate() >= 0 ? "+" : ""}
                 {Math.round(rate())}/h
@@ -155,6 +154,15 @@ export default function ResourceBar() {
               <Show when={res.id === "food"}>
                 <div class="resource-dropdown">
                   <div class="dropdown-title">Food Stockpile</div>
+                  <Show when={foodFragile()}>
+                    <div style={{
+                      "font-size": "0.72rem", color: "var(--accent-gold)", "margin-bottom": "8px",
+                      padding: "6px 8px", "border-radius": "4px", background: "rgba(245, 197, 66, 0.1)",
+                      border: "1px solid rgba(245, 197, 66, 0.3)",
+                    }}>
+                      ⏳ You're only in surplus because a pot is cooking. It reverts to a deficit once the ingredients run out.
+                    </div>
+                  </Show>
                   {/* Per-type stocks grouped by category — only categories with any stock/production show up */}
                   <For each={FOOD_CATEGORIES}>
                     {(cat) => {
