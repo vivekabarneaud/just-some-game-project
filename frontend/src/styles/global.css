@@ -41,6 +41,7 @@
 @property --bg-secondary { syntax: "<color>"; inherits: true; initial-value: #16213e; }
 @property --bg-panel     { syntax: "<color>"; inherits: true; initial-value: #1e2a45; }
 @property --bg-card      { syntax: "<color>"; inherits: true; initial-value: #1b2540; }
+@property --bg-hover     { syntax: "<color>"; inherits: true; initial-value: #253555; }
 @property --border-color { syntax: "<color>"; inherits: true; initial-value: #2a3a5c; }
 
 :root {
@@ -49,26 +50,31 @@
     --bg-secondary 2.5s ease,
     --bg-panel 2.5s ease,
     --bg-card 2.5s ease,
+    --bg-hover 2.5s ease,
     --border-color 2.5s ease;
 }
 
-/* Rain: cooler and a shade darker — moody without hurting contrast. */
+/* Rain / storm: a real drop into cold, dim, stormy slate-blue. The backgrounds
+   go markedly darker; the border warms UP to a cool rim-light so cards still
+   pop (a "wet edge" read). Gold + text stay put, so contrast only improves. */
 :root[data-weather="rain"],
 :root[data-weather="storm"] {
-  --bg-primary: #15161f;
-  --bg-secondary: #121a2e;
-  --bg-panel: #1a2540;
-  --bg-card: #161e34;
-  --border-color: #273750;
+  --bg-primary: #0c1019;
+  --bg-secondary: #0d1626;
+  --bg-panel: #15223e;
+  --bg-card: #101b33;
+  --bg-hover: #1d2d4d;
+  --border-color: #32517d;
 }
 
-/* Unnatural storm: the base cool-dark, pulled toward aether violet. */
+/* Unnatural storm: same dramatic dimming, pulled hard toward aether violet. */
 :root[data-weather="unnatural_storm"] {
-  --bg-primary: #191426;
-  --bg-secondary: #1a1633;
-  --bg-panel: #241d40;
-  --bg-card: #1e1836;
-  --border-color: #3a2d55;
+  --bg-primary: #140f24;
+  --bg-secondary: #17112f;
+  --bg-panel: #251c42;
+  --bg-card: #1b1333;
+  --bg-hover: #2a1f4d;
+  --border-color: #4a377a;
 }
 
 @media (prefers-reduced-motion: reduce) {
