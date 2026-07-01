@@ -85,7 +85,7 @@ import {
 import {
   type CitizenCounts,
   founderCitizens,
-  FOUNDER_FLOOR,
+  founderHousehold,
   totalPopulation,
   effectiveFoodMouths,
   applySurvivalRatio,
@@ -467,6 +467,12 @@ export interface GameState {
   /** Per-category population breakdown. Read totals via totalPopulation();
    *  combat eligibility is `citizens.adults`. See data/citizens.ts. */
   citizens: CitizenCounts;
+  /** "The household" — named, protected residents (founders + named arrivals
+   *  like the Thornwood boy), by age. A subset of `citizens`: it's the death
+   *  floor (RNG never kills named folk) and the reserve that stays out of the
+   *  militia. Generic townsfolk = citizens − namedResidents. Named people age
+   *  via scripted beats, not the statistical aging tick. */
+  namedResidents: CitizenCounts;
   // ── Defenses (rework v1): multi-instance walls/towers/barracks per ring,
   //    plus counters for recruited soldier-citizens. See DESIGN_DEFENSES.md.
   walls: PlayerWall[];
@@ -926,6 +932,7 @@ export function createInitialState(): GameState {
     // Bio-accurate founder mapping: Edda + Father Corin elderly,
     // Jory + Tomas adults, Nell child. See docs/DESIGN_CITIZEN_CATEGORIES.md.
     citizens: founderCitizens(),
+    namedResidents: founderHousehold(),
     // Defenses: 3 unbuilt slots per type (one per ring). All locked behind
     // settlement tier in the UI; only Outer is buildable from Camp.
     walls: [
@@ -1089,6 +1096,12 @@ export function migrateSaveState(saved: GameState): GameState {
         : Math.floor(legacy);
       (saved as any).citizens = migrateLegacyPopulation(total);
       delete (saved as any).population;
+    }
+    // "The household" (named/protected residents). Legacy saves predate it —
+    // seed the founder composition. Named arrivals that already happened aren't
+    // reconstructed (alpha: disposable saves); a fresh game is exact.
+    if (!(saved as any).namedResidents) {
+      (saved as any).namedResidents = founderHousehold();
     }
     if (!saved.fields) saved.fields = [];
     if (!saved.gardens) saved.gardens = [];
@@ -1679,14 +1692,23 @@ function applyEventEvaluation(s: GameState): void {
           s.chronicleEntriesFired.push(event.unlocks.chronicleEntryId);
         }
       }
-      if (event.unlocks?.addCitizens) {
-        const add = event.unlocks.addCitizens;
+      if (event.unlocks?.addCitizens || event.unlocks?.addNamedResidents) {
+        const genericAdd = event.unlocks.addCitizens;
+        const namedAdd = event.unlocks.addNamedResidents;
         let totalAdded = 0;
         for (const cat of ["toddlers", "children", "adults", "elderly"] as const) {
-          const n = add[cat] ?? 0;
-          if (n > 0) {
-            s.citizens[cat] += n;
-            totalAdded += n;
+          const g = genericAdd?.[cat] ?? 0;
+          const nmd = namedAdd?.[cat] ?? 0;
+          // Generic settlers join the anonymous pool. Named residents ("the
+          // household") also raise the protected floor so RNG can't kill them.
+          if (g > 0) {
+            s.citizens[cat] += g;
+            totalAdded += g;
+          }
+          if (nmd > 0) {
+            s.citizens[cat] += nmd;
+            s.namedResidents[cat] += nmd;
+            totalAdded += nmd;
           }
         }
         if (totalAdded > 0) {
@@ -3312,7 +3334,7 @@ export function GameProvider(props: ParentProps) {
             const allowed = Math.max(0, frozenBefore - BASE_POPULATION);
             const deaths = Math.floor(Math.min(rawDeaths, allowed));
             if (deaths > 0) {
-              s.citizens = reduceByPriority(s.citizens, deaths, ["elderly", "toddlers", "children", "adults"], FOUNDER_FLOOR);
+              s.citizens = reduceByPriority(s.citizens, deaths, ["elderly", "toddlers", "children", "adults"], s.namedResidents);
               pushEvent(s, "winter_freezing", "🥶", `${deaths} citizen${deaths > 1 ? "s" : ""} froze to death`);
             }
           }
@@ -3553,7 +3575,7 @@ export function GameProvider(props: ParentProps) {
             const newTotal = totalPopulation(s.citizens);
             if (newTotal > maxPop) {
               const overflow = newTotal - maxPop;
-              s.citizens = reduceByPriority(s.citizens, overflow, ["toddlers", "children", "elderly", "adults"], FOUNDER_FLOOR);
+              s.citizens = reduceByPriority(s.citizens, overflow, ["toddlers", "children", "elderly", "adults"], s.namedResidents);
             }
             pushEvent(s, "citizen_born", "👤", arrival.flavor);
           }
@@ -3576,7 +3598,7 @@ export function GameProvider(props: ParentProps) {
             const minRatio = popBefore > 0 ? BASE_POPULATION / popBefore : 1;
             const ratio = Math.max(tickSurvival, minRatio);
             const before = { ...s.citizens };
-            s.citizens = applySurvivalRatio(s.citizens, ratio, FOUNDER_FLOOR);
+            s.citizens = applySurvivalRatio(s.citizens, ratio, s.namedResidents);
             // Soldiers/archers are citizens too — match the adult-survival ratio
             // for per-building garrisons + global totals.
             if (before.adults > 0) {
@@ -4070,14 +4092,15 @@ export function GameProvider(props: ParentProps) {
               s.soldiers = Math.max(0, s.soldiers - sim.soldiersLost);
               // Soldier + archer + militia casualties = adult deaths. Total
               // clamped so we never drop below the BASE_POPULATION floor.
-              // Founders are also protected via FOUNDER_FLOOR on the reducer.
+              // The household (founders + named) is protected by the
+              // s.namedResidents floor on the reducer.
               {
                 const totalLoss = sim.archersLost + sim.soldiersLost + sim.militiaLost;
                 const popTotal = totalPopulation(s.citizens);
                 const allowed = Math.max(0, popTotal - BASE_POPULATION);
                 const actual = Math.min(totalLoss, allowed);
                 if (actual > 0) {
-                  s.citizens = reduceByPriority(s.citizens, actual, ["adults"], FOUNDER_FLOOR);
+                  s.citizens = reduceByPriority(s.citizens, actual, ["adults"], s.namedResidents);
                 }
               }
 
@@ -4137,7 +4160,7 @@ export function GameProvider(props: ParentProps) {
                   extraCitizensLost = Math.min(proposed, allowed);
                   if (extraCitizensLost > 0) {
                     // Adults first (defenders / labor), then elderly, children, toddlers.
-                    s.citizens = reduceByPriority(s.citizens, extraCitizensLost, ["adults", "elderly", "children", "toddlers"], FOUNDER_FLOOR);
+                    s.citizens = reduceByPriority(s.citizens, extraCitizensLost, ["adults", "elderly", "children", "toddlers"], s.namedResidents);
                     const word = extraCitizensLost === 1 ? "citizen" : "citizens";
                     pushEvent(s, "citizen_died", "💀", `${extraCitizensLost} ${word} taken in the plunder`);
                   }

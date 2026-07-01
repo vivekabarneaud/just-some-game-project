@@ -340,7 +340,7 @@ function Summary() {
       </span>
       <span
         style={{ "margin-left": "auto" }}
-        title={`Children, toddlers, and elderly are not combat-eligible.\nBreakdown: ${state.citizens.toddlers} 👶 / ${state.citizens.children} 🧒 / ${state.citizens.adults} 🧑 / ${state.citizens.elderly} 👵`}
+        title={`Children, toddlers, and elderly are not combat-eligible.\nYour household (${state.namedResidents.adults} adults: founders + named folk) stays out of the militia.\nBreakdown: ${state.citizens.toddlers} 👶 / ${state.citizens.children} 🧒 / ${state.citizens.adults} 🧑 / ${state.citizens.elderly} 👵`}
       >
         <span style={{ color: "var(--text-muted)" }}>🧑 Adults available: </span>
         <strong style={{ color: free() > 0 ? "var(--accent-green)" : "var(--accent-red)" }}>{free()} / {state.citizens.adults}</strong>
@@ -493,7 +493,7 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
     if (!built()) return "Build or repair a watchtower first";
     if (props.tower.damaged) return "Repair the watchtower first";
     if (props.tower.garrison.count >= towerCap()) return "This tower is full";
-    if (availableCitizens(state) <= 0) return "No spare citizens — grow population first";
+    if (availableCitizens(state) <= 0) return "No spare townsfolk — the household stays out of the muster. Grow your population first";
     if (state.resources.gold < ARCHER_COST.gold) return `Need ${ARCHER_COST.gold} gold`;
     return "";
   };
@@ -620,7 +620,7 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
     if (!built()) return "Build or repair a barracks first";
     if (props.barracks.damaged) return "Repair the barracks first";
     if (props.barracks.garrison.count >= barracksCap()) return "This barracks is full";
-    if (availableCitizens(state) <= 0) return "No spare citizens — grow population first";
+    if (availableCitizens(state) <= 0) return "No spare townsfolk — the household stays out of the muster. Grow your population first";
     if (state.resources.gold < SOLDIER_COST.gold) return `Need ${SOLDIER_COST.gold} gold`;
     return "";
   };

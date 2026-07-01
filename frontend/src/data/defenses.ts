@@ -108,16 +108,12 @@ export function maxArchers(state: GameState): number {
  *  the elderly are not combat-eligible — that's the whole point of the
  *  per-category rework: Nell can't carry a spear, Edda is too old.
  *
- *  We also reserve a few adults from conscription so the founding cast
- *  (specifically Jory and Tomas, the two non-Lord founder adults) can't
- *  be silently drafted into a watchtower. This is a safety net only —
- *  it does NOT protect founders from starvation or freezing deaths;
- *  that requires the per-person tracking in the deferred citizen-
- *  categories rework. */
-const FOUNDER_ADULT_RESERVE = 2;
-
+ *  We also reserve the household's adults from conscription, so named folk
+ *  (Jory, Tomas, and any named adult who joins) can't be silently drafted
+ *  into a watchtower. Reads the live `namedResidents.adults` floor so it
+ *  grows as named adults arrive. */
 export function availableCitizens(state: GameState): number {
-  return Math.max(0, state.citizens.adults - state.soldiers - state.archers - FOUNDER_ADULT_RESERVE);
+  return Math.max(0, state.citizens.adults - state.soldiers - state.archers - state.namedResidents.adults);
 }
 
 /** Uncommitted adults who grab pitchforks when a raid lands. Same headcount
