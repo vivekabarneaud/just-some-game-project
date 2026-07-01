@@ -698,7 +698,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
   },
 
   // ╔══════════════════════════════════════════════════════════════╗
-  // ║ DEFENSE — Chapter 1: Brigands on the Horizon                ║
+  // ║ DEFENSE — Chapter 1: Threats on the Horizon                 ║
   // ║ Triggered by event_three_reports (after story_1_scouting)   ║
   // ╚══════════════════════════════════════════════════════════════╝
 
@@ -732,11 +732,12 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     chapter: 1,
     title: "Baptism of Fire",
     narrative:
-      "They're here. A ragged band of hungry bandits, driven south by Dominion taxes and hard winters. They're not evil, just desperate. But desperate men with swords are still dangerous. Your walls will be tested for the first time.",
+      "They're here. The first raiders have found the fence, drawn by a lonely holding that looks like easy pickings on the edge of nowhere. Whoever they are, they mean to take what we have. Your walls will be tested for the first time.",
     objective: "Survive the raid",
     icon: "⚔️",
-    // Triggered by event_brigand_raid which fires later (TH 2 + game days threshold).
-    // For now use a custom trigger: walls built AND a raid has happened.
+    // The scripted brigand raid is deferred (July 2026), so this fires on the
+    // first resolved raid of ANY kind once walls are up — hence the neutral,
+    // raid-type-agnostic narrative above.
     triggers: [
       {
         type: "custom",
