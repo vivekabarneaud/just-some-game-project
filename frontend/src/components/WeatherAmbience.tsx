@@ -1,18 +1,22 @@
-import { For, Match, Switch, createMemo } from "solid-js";
+import { For, Match, Switch, createMemo, createEffect } from "solid-js";
 import { useGame } from "~/engine/gameState";
 import { HOURS_PER_SEASON, IS_DEV, getGlobalSeason } from "~/data/seasons";
 import { resolveWeather } from "~/data/weather";
+import RainCanvas from "./RainCanvas";
 
 /**
- * Subtle ambient weather strip that sits behind the top resource bar.
- * Purely cosmetic (Layer 1). The weather it draws is DERIVED from the season,
- * so it needs no save state. `storm` / `unnatural_storm` render cases are wired
- * up ready for the future event layers, even though ambient drift never picks
- * them. pointer-events are disabled so it never blocks the bar's controls.
+ * Subtle ambient weather strip that sits behind the top resource bar. Cosmetic
+ * (Layer 1); weather is DERIVED from the season, so no save state. Rain is now
+ * drawn by the shared <RainCanvas> (particle streaks) instead of CSS droplets;
+ * snow / fog / clear stay CSS. pointer-events are disabled so it never blocks
+ * the bar's controls.
+ *
+ * This component also stamps the resolved weather onto <html data-weather="…">,
+ * which drives the weather UI mood (subtle per-weather palette shifts in
+ * global.css). One source of truth for "what's the weather right now".
  */
 
-// Deterministic per-index spread so particles keep their positions across
-// reactive re-renders (no Math.random reshuffles, no SSR concerns).
+// Deterministic per-index spread so particles keep positions across re-renders.
 const spread = (i: number, salt: number) => {
   const v = Math.sin((i + 1) * (12.9898 + salt)) * 43758.5453;
   return v - Math.floor(v); // 0..1
@@ -23,33 +27,14 @@ type Particle = { left: number; delay: number; duration: number; scale: number }
 const makeParticles = (count: number, minDur: number, maxDur: number): Particle[] =>
   Array.from({ length: count }, (_, i) => ({
     left: spread(i, 0) * 100,
-    delay: spread(i, 7) * -maxDur, // negative => already mid-flight on mount
+    delay: spread(i, 7) * -maxDur,
     duration: minDur + spread(i, 3) * (maxDur - minDur),
     scale: 0.7 + spread(i, 11) * 0.7,
   }));
 
-const RAIN = makeParticles(16, 0.7, 1.4);
-const HEAVY_RAIN = makeParticles(26, 0.4, 0.9);
 const SNOW = makeParticles(14, 6, 11);
 const MOTES = makeParticles(9, 6, 12);
 const FOG = makeParticles(3, 14, 22);
-
-function RainLayer(props: { particles: Particle[]; heavy?: boolean }) {
-  return (
-    <For each={props.particles}>
-      {(p) => (
-        <span
-          class={props.heavy ? "wx-rain wx-rain-heavy" : "wx-rain"}
-          style={{
-            left: `${p.left}%`,
-            "animation-delay": `${p.delay}s`,
-            "animation-duration": `${p.duration}s`,
-          }}
-        />
-      )}
-    </For>
-  );
-}
 
 export default function WeatherAmbience() {
   const { state } = useGame();
@@ -61,13 +46,18 @@ export default function WeatherAmbience() {
     return resolveWeather(info.season, info.progress, info.year);
   });
 
+  // Drive the weather UI mood: <html data-weather="rain"> etc. → palette shift.
+  createEffect(() => {
+    document.documentElement.setAttribute("data-weather", weather());
+  });
+
   return (
     <div class={`weather-ambience weather-${weather()}`} aria-hidden="true">
+      {/* Rain / storm / unnatural-storm are drawn by the canvas (it self-detects
+          intensity + tint). The Switch below handles the other moods + the
+          storm lightning flash overlay. */}
+      <RainCanvas variant="strip" />
       <Switch>
-        <Match when={weather() === "rain"}>
-          <RainLayer particles={RAIN} />
-        </Match>
-
         <Match when={weather() === "snow"}>
           <For each={SNOW}>
             {(p) => (
@@ -122,14 +112,12 @@ export default function WeatherAmbience() {
           </For>
         </Match>
 
-        {/* Future event layers — ready, but ambient drift never selects these. */}
+        {/* Storms: the canvas draws the rain; these add the lightning flash. */}
         <Match when={weather() === "storm"}>
-          <RainLayer particles={HEAVY_RAIN} heavy />
           <span class="wx-flash" />
         </Match>
 
         <Match when={weather() === "unnatural_storm"}>
-          <RainLayer particles={HEAVY_RAIN} heavy />
           <span class="wx-flash wx-flash-aether" />
         </Match>
       </Switch>

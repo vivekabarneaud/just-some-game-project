@@ -29,6 +29,52 @@
   --topbar-height: 60px;
 }
 
+/* ─── Weather UI mood ─────────────────────────────────────────────────────── */
+/* A light/dark-style theme that drifts with the weather. WeatherAmbience stamps
+   <html data-weather="rain|clear|snow|…>; the rules below nudge a SUBSET of the
+   base palette (backgrounds + borders only — gold and text stay put so nothing
+   gets harder to read). Registering the vars with @property makes them animate,
+   so a weather change fades over a couple of seconds instead of snapping.
+   Browsers without @property just snap — no harm. Add one palette per weather;
+   `rain` is the first pass, the rest inherit the neutral :root default. */
+@property --bg-primary   { syntax: "<color>"; inherits: true; initial-value: #1a1a2e; }
+@property --bg-secondary { syntax: "<color>"; inherits: true; initial-value: #16213e; }
+@property --bg-panel     { syntax: "<color>"; inherits: true; initial-value: #1e2a45; }
+@property --bg-card      { syntax: "<color>"; inherits: true; initial-value: #1b2540; }
+@property --border-color { syntax: "<color>"; inherits: true; initial-value: #2a3a5c; }
+
+:root {
+  transition:
+    --bg-primary 2.5s ease,
+    --bg-secondary 2.5s ease,
+    --bg-panel 2.5s ease,
+    --bg-card 2.5s ease,
+    --border-color 2.5s ease;
+}
+
+/* Rain: cooler and a shade darker — moody without hurting contrast. */
+:root[data-weather="rain"],
+:root[data-weather="storm"] {
+  --bg-primary: #15161f;
+  --bg-secondary: #121a2e;
+  --bg-panel: #1a2540;
+  --bg-card: #161e34;
+  --border-color: #273750;
+}
+
+/* Unnatural storm: the base cool-dark, pulled toward aether violet. */
+:root[data-weather="unnatural_storm"] {
+  --bg-primary: #191426;
+  --bg-secondary: #1a1633;
+  --bg-panel: #241d40;
+  --bg-card: #1e1836;
+  --border-color: #3a2d55;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { transition: none; }
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -4183,6 +4229,14 @@ body {
 }
 
 /* ─── Weather ambience (cosmetic mood layer) ──────────────────────────────── */
+/* Rain particle canvas (components/RainCanvas.tsx). Two placements share one
+   component; both are pointer-events:none so they never block the UI. */
+.rain-canvas { pointer-events: none; }
+/* Full-screen backdrop (parked for now): behind all content, above the base fill. */
+.rain-canvas--screen { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; }
+/* Top-bar strip: fills the weather-ambience container behind the resource bar. */
+.rain-canvas--strip { position: absolute; inset: 0; width: 100%; height: 100%; }
+
 /* Subtle particle strip living behind the top resource bar. See data/weather.ts
    and components/WeatherAmbience.tsx. Keep the topbar's real controls above it. */
 .weather-ambience {
