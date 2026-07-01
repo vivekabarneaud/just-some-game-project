@@ -322,7 +322,7 @@ export default function Alchemy() {
                       const needsLevel = recipe.minLabLevel > labLevel();
                       const needsResearch = !recipe.starterRecipe && !(state.discoveredRecipes ?? []).includes(recipe.id);
                       return (
-                        <div class="building-card" style={{ opacity: 0.5 }}>
+                        <div class="building-card dimmed">
                           <div class="building-card-header">
                             <div class="building-card-icon">❓</div>
                             <div>

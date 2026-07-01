@@ -1151,11 +1151,9 @@ function LockedShell(props: { locked: boolean; reason: string; children: JSX.Ele
           </div>
         )}
       >
-        <div style={{
+        <div class="dimmed" style={{
           position: "relative",
-          opacity: 0.4,
           "pointer-events": "none",
-          filter: "grayscale(0.5)",
           width: "100%",
         }}>
           {props.children}

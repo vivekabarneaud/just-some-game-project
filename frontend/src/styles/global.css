@@ -27,6 +27,11 @@
   /* Sizing */
   --sidebar-width: 220px;
   --topbar-height: 60px;
+
+  /* Dim for locked/undiscovered cards. Uses filter (not opacity) so the card
+     stays OPAQUE and the weather backdrop can't show through it. Gentle — only
+     a touch desaturated + dimmed, close to the normal colour. One place to tune. */
+  --locked-dim: grayscale(0.28) brightness(0.82);
 }
 
 /* ─── Weather UI mood ─────────────────────────────────────────────────────── */
@@ -107,6 +112,38 @@
   :root { transition: none; }
 }
 
+/* Rain-on-glass / condensation layer. A STATIC image (no animation) faded in
+   behind all content — it shows through the transparent content background, in
+   the gaps around cards, like looking at the scene through a wet window. Sits
+   above the <html> base fill, below everything else.
+   TO ADD THE IMAGE: set --weather-glass-url on :root, e.g.
+     :root { --weather-glass-url: url("https://…r2…/rain_glass.png"); }
+   Until then it falls back to a faint condensation mist so the layer is visible. */
+:root {
+  --weather-glass-url: url("https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/weather/rain_window.jpg");
+}
+.weather-glass {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 2.5s ease;
+  /* A dark scrim is layered OVER the photo so the backdrop reads as a faint,
+     dark wet texture rather than a bright busy image bleeding through the
+     card gaps. Mute via the scrim alpha here + the layer opacity below. */
+  background-image:
+    linear-gradient(rgba(12, 16, 24, 0.62), rgba(12, 16, 24, 0.62)),
+    var(--weather-glass-url, radial-gradient(ellipse at 50% 38%, transparent 32%, rgba(200, 216, 238, 0.12) 100%));
+  background-size: cover, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
+}
+:root[data-weather="rain"] .weather-glass,
+:root[data-weather="storm"] .weather-glass,
+:root[data-weather="unnatural_storm"] .weather-glass { opacity: 0.28; }
+@media (prefers-reduced-motion: reduce) { .weather-glass { transition: none; } }
+
 /* Mood vignette — a fixed frame-darkening that fades in with wet weather, for
    overcast weight. Above content, below modals; never blocks clicks. */
 .weather-vignette {
@@ -169,9 +206,14 @@ body,
   overflow: hidden;
 }
 
+/* Base fill lives on <html> so the rain-on-glass layer (.weather-glass, z-index:-1)
+   can sit between it and the transparent app content — see the weather section. */
+html {
+  background-color: var(--bg-primary);
+}
+
 body {
   font-family: var(--font-body);
-  background-color: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.5;
 }
@@ -1275,7 +1317,7 @@ body {
 
 /* Locked buildings */
 .building-card.locked {
-  opacity: 0.5;
+  filter: var(--locked-dim); /* dim without transparency — keeps the backdrop out */
   cursor: default;
   border-style: dashed;
 }
@@ -1286,8 +1328,15 @@ body {
   background: var(--bg-card);
 }
 
+/* Shared dim for ANY locked / undiscovered / unavailable card. Uses filter, not
+   opacity, so the element stays opaque and the weather backdrop can't show
+   through it. One knob — --locked-dim — tunes every dimmed card in the app. */
+.dimmed {
+  filter: var(--locked-dim);
+}
+
 .locked-icon {
-  filter: grayscale(0.7);
+  filter: grayscale(0.4);
 }
 
 .locked-title {

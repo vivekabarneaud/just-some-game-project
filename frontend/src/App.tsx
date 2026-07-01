@@ -221,6 +221,8 @@ export default function App(props: ParentProps) {
       <EventModal />
       <SettingsModal />
 
+      {/* Rain-on-glass / condensation layer (static image, behind everything). */}
+      <div class="weather-glass" aria-hidden="true" />
       {/* Weather mood vignette — darkens the frame edges in wet weather. */}
       <div class="weather-vignette" aria-hidden="true" />
 
