@@ -54,9 +54,9 @@
     --border-color 2.5s ease;
 }
 
-/* Rain / storm: a real drop into cold, dim, stormy slate-blue. The backgrounds
-   go markedly darker; the border warms UP to a cool rim-light so cards still
-   pop (a "wet edge" read). Gold + text stay put, so contrast only improves. */
+/* Rain / storm: a real drop into cold, dim, stormy slate-blue. Backgrounds go
+   markedly darker; borders SOFTEN toward the bg so cards recede into the gloom
+   (heavier, murkier storm). Gold + text stay put, so contrast only improves. */
 :root[data-weather="rain"],
 :root[data-weather="storm"] {
   --bg-primary: #0c1019;
@@ -64,7 +64,7 @@
   --bg-panel: #15223e;
   --bg-card: #101b33;
   --bg-hover: #1d2d4d;
-  --border-color: #32517d;
+  --border-color: #24375a;
 }
 
 /* Unnatural storm: same dramatic dimming, pulled hard toward aether violet. */
@@ -74,7 +74,23 @@
   --bg-panel: #251c42;
   --bg-card: #1b1333;
   --bg-hover: #2a1f4d;
-  --border-color: #4a377a;
+  --border-color: #352a56;
+}
+
+/* The gold "Matters to attend" card (.quest-panel) is hardcoded warm. In wet
+   weather it STAYS golden but banks darker — a warm hearth low in the gloom.
+   We darken it by fading a dark overlay over the gradient (::after) rather than
+   swapping the gradient, because gradients can't tween — this way it eases in
+   with the rest of the mood. The border-color eases via the transition below. */
+:root[data-weather="rain"] .quest-panel,
+:root[data-weather="storm"] .quest-panel,
+:root[data-weather="unnatural_storm"] .quest-panel {
+  border-color: rgba(150, 122, 78, 0.38);
+}
+:root[data-weather="rain"] .quest-panel::after,
+:root[data-weather="storm"] .quest-panel::after,
+:root[data-weather="unnatural_storm"] .quest-panel::after {
+  opacity: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -941,6 +957,7 @@ body {
 .quest-panel {
   background: linear-gradient(135deg, rgba(58, 44, 28, 0.95), rgba(42, 32, 18, 0.95));
   border: 1px solid rgba(180, 150, 100, 0.4);
+  transition: border-color 2.5s ease; /* border eases with the weather mood */
   border-radius: 10px;
   padding: 20px 24px;
   margin-bottom: 20px;
@@ -971,6 +988,8 @@ body {
 .quest-panel-content {
   flex: 1;
   padding: 20px 24px;
+  position: relative;
+  z-index: 1; /* keep text above the wet-weather dark overlay (::after) */
 }
 
 .quest-panel::before {
@@ -986,6 +1005,20 @@ body {
   pointer-events: none;
   border-radius: 10px;
   mix-blend-mode: screen;
+}
+
+/* Wet-weather dark overlay for the gold card. Fades in via opacity (which DOES
+   animate, unlike a gradient swap), sits below the z-indexed content so text
+   stays readable. Toggled by the [data-weather] rules further up. */
+.quest-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 6, 3, 0.5);
+  opacity: 0;
+  transition: opacity 2.5s ease;
+  pointer-events: none;
+  border-radius: 10px;
 }
 
 /* Underline-on-hover for the clickable objective line in Quest Log cards. */
