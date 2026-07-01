@@ -136,10 +136,13 @@ export const NARRATIVE_EVENTS: NarrativeEvent[] = [
       "The family of hunters who walked in off the road have been pacing the edge of the camp like dogs that have not been walked. They need a hall to gather in, and someone with the patience to send them out.",
     unlocks: {
       activateStoryline: { storyline: "guild", chapter: 1 },
-      // The Thornwood family: three siblings (Brenna, Gareth, Godric = 3 adults)
-      // and their adopted boy (1 child). The boy runs the camp, loud where Nell
-      // is silent; Nell barely notices, absorbed in Edda's herb patch.
-      addCitizens: { adults: 3, children: 1 },
+      // The Thornwood family: three siblings (Brenna, Gareth, Godric) and their
+      // adopted boy. The three siblings join the ADVENTURER roster via
+      // syncArrivals (char_000/005/021), so we only add the boy as a citizen
+      // here, else the siblings would be double-counted (population + roster).
+      // The boy runs the camp, loud where Nell is silent; Nell barely notices,
+      // absorbed in Edda's herb patch.
+      addCitizens: { children: 1 },
       // What they walked here with: meat the hunters preserved on the road,
       // a few smoked fish. Not enough to cover the food curve for long,
       // just a buffer while the player scales production.

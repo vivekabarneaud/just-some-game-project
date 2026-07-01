@@ -2093,9 +2093,26 @@ function calcMaxPopulation(buildings: PlayerBuilding[]): number {
   return BASE_POPULATION + (HOUSING_POP[level] ?? 0);
 }
 
-function calcFoodConsumption(citizens: CitizenCounts): number {
+function calcFoodConsumption(citizens: CitizenCounts, adventurerMouths = 0): number {
   // Per-category multipliers: toddlers 0.5×, children 0.75×, adults 1.0×, elderly 0.75×.
-  return effectiveFoodMouths(citizens) * FOOD_PER_CITIZEN_PER_HOUR;
+  // Adventurers eat at an adult's rate (1.0×), whether home or away — away rations
+  // are a separate mission concern, so the town food readout stays steady.
+  return (effectiveFoodMouths(citizens) + adventurerMouths) * FOOD_PER_CITIZEN_PER_HOUR;
+}
+
+/** Living adventurers count as townsfolk for housing + food: they take a bed and
+ *  eat from stores. Derived from the roster (the source of truth) so the count
+ *  can never desync from who's actually alive. */
+function countLivingAdventurers(adventurers: Array<{ alive: boolean }>): number {
+  return adventurers.filter((a) => a.alive).length;
+}
+
+/** Scaled overcrowding happiness penalty (returns a magnitude, apply as negative).
+ *  Grows with how far over the housing cap the settlement is, capped so crowding
+ *  alone can't fully tank happiness. Shared by the tick and the breakdown. */
+function overcrowdingPenalty(occupancy: number, maxPop: number): number {
+  const over = occupancy - maxPop;
+  return over > 0 ? Math.min(45, over * 8) : 0;
 }
 
 /** Pre-computed lookup sets for reward dispatch — used by grantReward below.
@@ -2994,7 +3011,7 @@ export function GameProvider(props: ParentProps) {
         // starving pens don't produce food/wool/leather this tick.
         const fedRatios = applyAnimalFeed(s, elapsedHours);
         const foodRates = calcFoodRates(s, fedRatios);
-        const citizenFood = calcFoodConsumption(s.citizens);
+        const citizenFood = calcFoodConsumption(s.citizens, countLivingAdventurers(s.adventurers));
         const animalFood = calcAnimalFoodConsumption(s.pens);
         const caps = calcStorageCaps(s.buildings);
         const maxPop = calcMaxPopulation(s.buildings);
@@ -3329,8 +3346,10 @@ export function GameProvider(props: ParentProps) {
           if (s.resources.wood <= 0) happiness += WINTER_NO_WOOD_HAPPINESS;
         }
 
-        // Housing — only a real overcrowding penalty; no "nearly full" nag
-        if (totalPopulation(s.citizens) > maxPop) happiness -= 15;
+        // Housing — real overcrowding penalty, scaled by the overflow. Beds are
+        // shared: living adventurers occupy them too, home or away.
+        const occupancy = totalPopulation(s.citizens) + countLivingAdventurers(s.adventurers);
+        happiness -= overcrowdingPenalty(occupancy, maxPop);
 
         // Chapel
         const shrineLvl = s.buildings.find((b) => b.buildingId === "shrine")?.level ?? 0;
@@ -3492,12 +3511,14 @@ export function GameProvider(props: ParentProps) {
         // capped at 2. Each birth grants a fading happiness bonus.
         if (s.year > (s.lastBirthYear ?? 0)) {
           s.lastBirthYear = s.year;
-          const popTotal = totalPopulation(s.citizens);
+          // Occupancy (citizens + adventurers sharing beds) gates growth: a town
+          // whose beds are full of adventurers has no room for new families.
+          const occupancy = totalPopulation(s.citizens) + countLivingAdventurers(s.adventurers);
           const eligible =
             s.citizens.adults >= 2 &&
             netFoodRate > 0 &&
             s.happiness >= 60 &&
-            popTotal < 0.9 * maxPop;
+            occupancy < 0.9 * maxPop;
           if (eligible) {
             const pairs = Math.floor(s.citizens.adults / 2);
             let births = 0;
@@ -3518,7 +3539,8 @@ export function GameProvider(props: ParentProps) {
 
         // Villager growth / decline
         const popBefore = totalPopulation(s.citizens);
-        if (netFoodRate > 0 && popBefore < maxPop && s.happiness >= 20) {
+        const occupancyBefore = popBefore + countLivingAdventurers(s.adventurers);
+        if (netFoodRate > 0 && occupancyBefore < maxPop && s.happiness >= 20) {
           // Growth fires as a low-probability event per tick — when it lands,
           // it's a weighted family unit (drifter / couple / family / elder),
           // not a flat +1 adult. See data/citizens.ts for the table.
@@ -4659,7 +4681,7 @@ export function GameProvider(props: ParentProps) {
 
     getProductionRates() { return calcProductionRates(state); },
     getMaxPopulation() { return calcMaxPopulation(state.buildings); },
-    getFoodConsumption() { return calcFoodConsumption(state.citizens); },
+    getFoodConsumption() { return calcFoodConsumption(state.citizens, countLivingAdventurers(state.adventurers)); },
     getAnimalFoodConsumption() { return calcAnimalFoodConsumption(state.pens); },
     getCookingFoodNet() {
       let net = 0;
@@ -5298,7 +5320,7 @@ export function GameProvider(props: ParentProps) {
       factors.push({ label: "Baseline", value: 50 });
 
       const rates = calcProductionRates(state);
-      const foodCons = calcFoodConsumption(state.citizens);
+      const foodCons = calcFoodConsumption(state.citizens, countLivingAdventurers(state.adventurers));
       const animalFood = calcAnimalFoodConsumption(state.pens);
       const netFood = rates.food - foodCons - animalFood;
       if (netFood > 0) factors.push({ label: "Food surplus", value: Math.min(15, Math.round(netFood / 5)) });
@@ -5312,7 +5334,9 @@ export function GameProvider(props: ParentProps) {
       }
 
       const maxPop = calcMaxPopulation(state.buildings);
-      if (totalPopulation(state.citizens) > maxPop) factors.push({ label: "Overcrowded", value: -15 });
+      const occupancy = totalPopulation(state.citizens) + countLivingAdventurers(state.adventurers);
+      const overcrowd = overcrowdingPenalty(occupancy, maxPop);
+      if (overcrowd > 0) factors.push({ label: "Overcrowded", value: -overcrowd });
 
       const shrineLvl = state.buildings.find((b) => b.buildingId === "shrine")?.level ?? 0;
       if (shrineLvl > 0) factors.push({ label: `Shrine Lv.${shrineLvl}`, value: shrineLvl * SHRINE_HAPPINESS_PER_LEVEL });
