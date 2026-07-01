@@ -513,6 +513,9 @@ export interface GameState {
   // Marketplace
   lastTradeAt: number; // timestamp of last trade
   inventory: InventoryItem[];
+  /** One-time flag so the starting medical supplies (bandages) are granted once
+   *  — to new games and, via migration, to saves that predate them. */
+  startingSuppliesGiven?: boolean;
   craftingQueue: ActiveCraft[];
   /** Passive "keep cooking" assignments: buildingId → recipeId. While set, the
    *  building auto-re-crafts that recipe whenever it's idle and has ingredients
@@ -958,7 +961,8 @@ export function createInitialState(): GameState {
     activeBlessing: null,
     lastTradeAt: 0,
     // The crew arrived with basic medical supplies — bandages to take on missions.
-    inventory: [{ itemId: "bandage", quantity: 3 }],
+    inventory: [{ itemId: "bandage", quantity: 5 }],
+    startingSuppliesGiven: true,
     craftingQueue: [],
     autoCook: {},
     buildingTools: {},
@@ -1306,6 +1310,13 @@ export function migrateSaveState(saved: GameState): GameState {
     if (saved.lastTradeAt === undefined) saved.lastTradeAt = 0;
     if (saved.ironMinedTotal === undefined) saved.ironMinedTotal = 0;
     if (!saved.inventory) saved.inventory = [];
+    // One-time starting medical supplies for saves that predate them (bandages
+    // to take on missions / use at home). Flag-guarded so it never re-grants.
+    if (!(saved as any).startingSuppliesGiven) {
+      const b = saved.inventory.find((i) => i.itemId === "bandage");
+      if (b) b.quantity += 5; else saved.inventory.push({ itemId: "bandage", quantity: 5 });
+      (saved as any).startingSuppliesGiven = true;
+    }
     // Equipment migration: old 3-slot → new 11-slot
     const migrateEquipment = (adv: any) => {
       if (!adv.equipment) {
