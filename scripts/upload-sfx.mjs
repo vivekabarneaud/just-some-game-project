@@ -26,6 +26,7 @@ const CONTENT_TYPES = {
   ".wav": "audio/wav",
   ".mp3": "audio/mpeg",
   ".ogg": "audio/ogg",
+  ".m4a": "audio/mp4",
 };
 
 async function main() {
