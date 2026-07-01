@@ -629,6 +629,10 @@ export interface GameActions {
   getMaxPopulation: () => number;
   getFoodConsumption: () => number;
   getAnimalFoodConsumption: () => number;
+  /** Net food/h added by passive cooking (produced minus ingredients eaten),
+   *  counting only pots that can actually run right now. Shared so the top bar
+   *  and the Overview panel report the same surplus/deficit. */
+  getCookingFoodNet: () => number;
   getFoodBreakdown: () => FoodSource[];
   getStorageCaps: () => StorageCaps;
   getSettlementTier: () => SettlementTier;
@@ -4620,6 +4624,21 @@ export function GameProvider(props: ParentProps) {
     getMaxPopulation() { return calcMaxPopulation(state.buildings); },
     getFoodConsumption() { return calcFoodConsumption(state.citizens); },
     getAnimalFoodConsumption() { return calcAnimalFoodConsumption(state.pens); },
+    getCookingFoodNet() {
+      let net = 0;
+      for (const rid of Object.values(state.autoCook ?? {})) {
+        const r = CRAFTING_RECIPES.find((cr) => cr.id === rid);
+        if (!r) continue;
+        // Only count a pot that can actually simmer now (ingredients + wood).
+        const inputsOk = r.costs.every((c) => getFoodCostAmount(state.foods, c.resource) >= c.amount);
+        if (!inputsOk || state.resources.wood <= 0) continue;
+        const perHour = 3600 / r.craftTime;
+        let netBatch = r.produces.amount;
+        for (const c of r.costs) netBatch -= c.amount;
+        net += netBatch * perHour;
+      }
+      return net;
+    },
     getFoodBreakdown() { return calcFoodBreakdown(state); },
     getStorageCaps() { return calcStorageCaps(state.buildings); },
     getSettlementTier() { return getSettlementTier(getTownHallLevel(state.buildings)); },

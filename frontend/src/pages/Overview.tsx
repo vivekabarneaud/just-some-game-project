@@ -38,7 +38,7 @@ export default function Overview() {
   const netRate = (id: string) => {
     const r = rates();
     const base = r[id as keyof typeof r] as number;
-    if (id === "food") return base - foodCons() - actions.getAnimalFoodConsumption();
+    if (id === "food") return base - foodCons() - actions.getAnimalFoodConsumption() + actions.getCookingFoodNet();
     return base;
   };
 

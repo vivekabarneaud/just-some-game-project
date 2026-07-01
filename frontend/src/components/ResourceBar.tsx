@@ -90,7 +90,7 @@ export default function ResourceBar() {
     // into the headline rate so the player sees -14/h climb when a pot is on.
     // The "how long until the larder runs dry" detail stays on the cooked-food
     // line only; here it'd be misleading (several pots, several timers).
-    if (id === "food") return base - foodCons() - animalCons() + cookingRates().net;
+    if (id === "food") return base - foodCons() - animalCons() + actions.getCookingFoodNet();
     return base;
   };
 
