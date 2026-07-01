@@ -92,7 +92,7 @@ export const OVERVIEW_FLAVORS: OverviewFlavor[] = [
     category: "defense",
     triggers: [{ type: "story_mission_completed", missionId: "story_1_scouting" }],
     text:
-      "The scouts have returned. The south is not empty, and what is in it is not friendly. We will need walls before the brigands come for us. The old watch, for now, can wait.",
+      "The scouts have returned. The south is not empty, and what is in it is not friendly. Nothing is moving on us yet, but a holding without walls is an invitation. We will raise them while the quiet holds.",
   },
   {
     id: "scouts_returned_adventurers",
@@ -113,7 +113,7 @@ export const OVERVIEW_FLAVORS: OverviewFlavor[] = [
     category: "defense",
     triggers: [{ type: "quest_completed", questId: "baptism_of_fire" }],
     text:
-      "The walls held. Tomas walked the perimeter twice before sleep, then twice more before dawn. The brigands were the lightest thing the south can send. They will come back, and angrier, and not alone next time. The walls will need to be higher, and we will need more hands on them.",
+      "The walls held. Tomas walked the perimeter twice before sleep, then twice more before dawn. That was the lightest thing the south can send. It will come back, angrier, and not alone next time. The walls will need to be higher, and we will need more hands on them.",
   },
   {
     // Fires the moment settlement Ch4 opens (the canvas-outgrowing event
