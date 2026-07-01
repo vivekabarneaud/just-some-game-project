@@ -708,7 +708,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     chapter: 1,
     title: "The First Threat",
     narrative:
-      "Your scouts spotted a group of armed men in the hills, watching your settlement. They're poorly equipped, desperate, not organized. They're not at the gate yet, but they will be. Build walls before they arrive.",
+      "Your scouts spotted a band of armed men two ridges east, watching the settlement. Poorly equipped, desperate, not organized, and not moving on us yet. But a frontier holding without walls is an invitation. Raise walls while the quiet holds.",
     hint: "Short on stone? Trade for some at the Marketplace.",
     hintLink: "/marketplace",
     objective: "Build Walls",

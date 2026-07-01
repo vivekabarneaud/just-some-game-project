@@ -169,10 +169,14 @@ export const NARRATIVE_EVENTS: NarrativeEvent[] = [
       "Edda calls the Town Hall \"the cupboard.\" Tents on every level stretch of ground, two wells, a mission board, and a roster I cannot hold in my head. The canvas leaks when it rains hard, the firepit is the only place we gather, and decisions made standing in the wet do not hold long. It is time to raise a proper hall.",
   },
 
-  // ── The deferred brigand raid ─────────────────────────────────
-  // Fires when the player has reached TH 2 AND has built walls AND game has run
-  // long enough. The brigand-sighting (the_first_threat quest) gives the
-  // player time to prepare; this is when the brigands actually arrive.
+  // ── The brigand raid — DEFERRED (July 2026) ───────────────────
+  // Disabled until the defense chapter is properly built: walls deal no damage
+  // and the garrison/adventurer-assignment model is half-finished, so a raid
+  // now is an unwinnable, janky first fight. The brigands stay a WATCHED threat
+  // (event_three_reports foreshadows them; The First Threat is reframed as
+  // prudent prep). Re-enable — and add the "walls held" overview beat — when the
+  // defense system lands. See the defense-chapter progression-alignment note.
+  /*
   {
     id: "event_brigand_raid",
     triggers: [
@@ -183,11 +187,10 @@ export const NARRATIVE_EVENTS: NarrativeEvent[] = [
     banner:
       "The brigands the scouts saw are no longer waiting. A ragged column is forming at the eastern ridge, half a day off. They will be at the gate by dusk.",
     unlocks: {
-      // Spawn the camp-tier brigand raid that the_first_threat warned about.
-      // hungry_bandits matches the narrative: "poorly equipped, desperate".
       raidSpawn: { raidId: "hungry_bandits" },
     },
   },
+  */
 ];
 
 export function getEvent(id: string): NarrativeEvent | undefined {
