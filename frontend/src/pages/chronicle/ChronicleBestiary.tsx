@@ -147,7 +147,7 @@ export default function ChronicleBestiary() {
                     {(enemy) => {
                       const isDiscovered = () => discovered().has(enemy.id);
                       return (
-                        <div class="building-card" style={{ opacity: isDiscovered() ? 1 : 0.65 }}>
+                        <div class="building-card" classList={{ dimmed: !isDiscovered() }}>
                           <Show when={enemy.boss}>
                             <span class="building-card-category" style={{ color: "var(--accent-gold)" }}>
                               ⭐ Boss

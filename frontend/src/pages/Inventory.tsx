@@ -93,7 +93,7 @@ export default function Inventory() {
               </For>
               <For each={installedTools()}>
                 {({ buildingId, tool }) => (
-                  <div class="building-card" style={{ opacity: 0.7 }}>
+                  <div class="building-card dimmed">
                     <span class="building-card-category">installed</span>
                     <div class="building-card-header" style={{ "margin-top": "4px" }}>
                       <div class="building-card-icon">{tool.icon}</div>
@@ -398,7 +398,7 @@ export default function Inventory() {
           {(item) => {
             const owned = () => state.inventory.find((i) => i.itemId === item.id)?.quantity ?? 0;
             return (
-              <div class="building-card" style={{ opacity: owned() > 0 ? 1 : 0.5 }}>
+              <div class="building-card" classList={{ dimmed: owned() === 0 }}>
                 <span class="building-card-category">{item.slot}</span>
                 <div class="building-card-header" style={{ "margin-top": "4px" }}>
                   {item.image

@@ -915,7 +915,7 @@ export default function AdventurersGuild() {
                 to the bestiary's "???" enemy cards. */}
             <Show when={lockedStoryMission()}>
               {(locked) => (
-                <div class="building-card" style={{ opacity: 0.6, cursor: "default" }}>
+                <div class="building-card dimmed" style={{ cursor: "default" }}>
                   <span class="building-card-category">{(locked().mission as any).chapter}</span>
                   <div class="building-card-header" style={{ "margin-top": "4px" }}>
                     <div class="building-card-icon" style={{ "font-size": "2rem" }}>❓</div>

@@ -52,7 +52,10 @@ export default function RecipeCard(props: RecipeCardProps) {
       class="building-card"
       onMouseEnter={() => props.onSeen?.()}
       style={{
-        opacity: isLocked() ? 0.5 : 1,
+        // Dim locked recipes with a filter, not opacity — opacity would make the
+        // whole card see-through and let the weather backdrop show through it.
+        // Shared --locked-dim value so all locked cards match (tuned in global.css).
+        filter: isLocked() ? "var(--locked-dim)" : "none",
         position: "relative",
         ...(highlight() ? {
           border: "1px solid var(--accent-blue)",
