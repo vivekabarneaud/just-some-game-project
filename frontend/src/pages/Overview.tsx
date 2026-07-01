@@ -440,14 +440,24 @@ export default function Overview() {
           </div>
           <div class="stat-row">
             <span class="stat-label">Food Balance</span>
-            <span
-              class="stat-value"
-              style={{
-                color: netRate("food") >= 0 ? "var(--accent-green)" : "var(--accent-red)",
-              }}
-            >
-              {netRate("food") >= 0 ? "Surplus" : "Deficit"} ({Math.round(netRate("food"))}/h)
-            </span>
+            {(() => {
+              const net = netRate("food");
+              // Surplus that exists ONLY because a pot is cooking is fragile — it
+              // reverts to a deficit when ingredients run out. Flag it yellow + a
+              // clock rather than a reassuring green.
+              const fragile = net >= 0 && net - actions.getCookingFoodNet() < 0;
+              const color = net < 0 ? "var(--accent-red)" : fragile ? "var(--accent-gold)" : "var(--accent-green)";
+              const label = net < 0 ? "Deficit" : fragile ? "⏳ Surplus (while cooking)" : "Surplus";
+              return (
+                <span
+                  class="stat-value"
+                  style={{ color }}
+                  title={fragile ? "Positive only while the kitchen is cooking — it will drop back to a deficit when the pot runs out of ingredients." : undefined}
+                >
+                  {label} ({Math.round(net)}/h)
+                </span>
+              );
+            })()}
           </div>
           <Show when={state.season === "autumn" || state.season === "winter"}>
             <div style={{ "font-size": "0.75rem", color: "var(--accent-gold)", "padding": "2px 0 4px", "font-style": "italic" }}>

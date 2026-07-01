@@ -101,6 +101,11 @@ export default function ResourceBar() {
       <For each={RESOURCES}>
         {(res) => {
           const rate = () => getRate(res.id);
+          // "Fragile" food surplus: positive ONLY because a pot is cooking. When
+          // the ingredients run out the surplus vanishes and food goes negative
+          // again — so we flag it yellow + a clock instead of a reassuring green.
+          const foodFragile = () =>
+            res.id === "food" && rate() >= 0 && (rate() - actions.getCookingFoodNet()) < 0;
           // Soft-lock nudge for wood / stone at 0/h. Empty string = no
           // dropdown shown. Round to match the displayed value (Math.round
           // of a 0.4 rate reads as 0/h but wouldn't pass strict equality).
@@ -140,8 +145,10 @@ export default function ResourceBar() {
                   "rate-negative": rate() < 0,
                   "rate-zero": rate() === 0,
                 }}
+                style={{ color: foodFragile() ? "var(--accent-gold)" : undefined }}
+                title={foodFragile() ? "Surplus only while cooking — reverts to a deficit once the pot runs out of ingredients." : undefined}
               >
-                {rate() >= 0 ? "+" : ""}
+                {foodFragile() ? "⏳ " : ""}{rate() >= 0 ? "+" : ""}
                 {Math.round(rate())}/h
               </span>
 
