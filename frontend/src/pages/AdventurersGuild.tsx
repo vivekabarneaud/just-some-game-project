@@ -1047,7 +1047,7 @@ export default function AdventurersGuild() {
                         </Show>
                         <XpBar xp={adv.xp} level={adv.level} />
                         <div style={{ "margin-top": "4px" }}>
-                          <AdventurerVitals adventurer={adv} width="100%" showText />
+                          <AdventurerVitals adventurer={adv} width="100%" showText showRegen />
                         </div>
                         <Show when={adv.backstory}>
                           <div class="roster-card-backstory" style={{

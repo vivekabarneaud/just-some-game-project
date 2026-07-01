@@ -1223,8 +1223,8 @@ export default function MissionAssemblyPanel(props: Props) {
                     {/* Current vitals — HP bar + lingering wounds. A wounded
                      * hero here is why the success/risk numbers shifted. */}
                     <Show when={adv()}>
-                      <div style={{ padding: "0 8px 4px", display: "flex", "justify-content": "center" }}>
-                        <AdventurerVitals adventurer={adv()!} width="90px" showText />
+                      <div style={{ padding: "0 8px 4px" }}>
+                        <AdventurerVitals adventurer={adv()!} width="100%" showText />
                       </div>
                     </Show>
                     {/* Death-risk text. Always rendered so filled and empty

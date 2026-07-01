@@ -952,7 +952,8 @@ export function createInitialState(): GameState {
     alchemyResearchAvailable: true,
     activeBlessing: null,
     lastTradeAt: 0,
-    inventory: [],
+    // The crew arrived with basic medical supplies — bandages to take on missions.
+    inventory: [{ itemId: "bandage", quantity: 3 }],
     craftingQueue: [],
     autoCook: {},
     buildingTools: {},

@@ -25,11 +25,16 @@ export default function HpBar(props: HpBarProps) {
     : pct() > 20 ? "#d4831a"
     : "var(--accent-red)";
 
+  // width="100%" needs a flex row with a growing track — an inline-block at
+  // 100% collapses to ~0 inside an inline-flex parent (the roster-card bug).
+  const full = () => props.width === "100%";
   return (
-    <span style={{ display: "inline-flex", "align-items": "center", gap: "5px" }}>
+    <span style={{ display: full() ? "flex" : "inline-flex", "align-items": "center", gap: "5px", width: full() ? "100%" : undefined, "min-width": full() ? "0" : undefined }}>
       <span style={{
         display: "inline-block",
-        width: props.width ?? "60px",
+        width: full() ? "auto" : (props.width ?? "60px"),
+        flex: full() ? "1 1 0" : undefined,
+        "min-width": full() ? "0" : undefined,
         height: props.height ?? "8px",
         background: "rgba(0, 0, 0, 0.45)",
         "border-radius": "3px",
