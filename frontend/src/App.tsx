@@ -7,6 +7,7 @@ import AmbientRain from "./components/AmbientRain";
 import CinematicOverlay from "./components/CinematicOverlay";
 import ChronicleEntryModal from "./components/ChronicleEntryModal";
 import { openChronicleEntry, setOpenChronicleEntry } from "./data/robins";
+import { getChronicleEntry } from "./data/chronicle_entries";
 import ToastContainer from "./components/Toast";
 import EventBanner, { showEvent } from "./components/EventBanner";
 import EventModal from "./components/EventModal";
@@ -197,13 +198,11 @@ export default function App(props: ParentProps) {
           villageName={state.villageName}
           onComplete={() => {
             actions.markIntroSeen();
-            showEvent({
-              type: "info",
-              icon: "📖",
-              message: "New journal entry — Arrival",
-              accent: "var(--accent-blue)",
-              onClick: () => navigate("/chronicle?entry=ch1_arrival"),
-            });
+            // Auto-open the first chronicle entry so new players meet the journal
+            // right away (once, straight after the intro). Dismissing it folds it
+            // into the sidebar Chronicle link, teaching where to find it later.
+            const entry = getChronicleEntry("ch1_arrival");
+            if (entry) setOpenChronicleEntry(entry);
           }}
         />
       </Show>

@@ -356,6 +356,7 @@ export default function Sidebar(props: SidebarProps) {
                   href={item.path}
                   class="nav-link"
                   classList={{ active: isActive(item.path) }}
+                  data-nav-path={item.path}
                   data-no-click-sound={PATHS_WITH_MOUNT_SOUND.has(item.path) ? "" : undefined}
                 >
                   <span class="nav-icon">{item.icon}</span>
