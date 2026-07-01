@@ -407,7 +407,9 @@ export default function AdventurersGuild() {
             >
               {t === "missions" ? "Missions" : "Roster"}
               <Show when={t === "roster" && actions.hasNewAdventurers()}>
-                <span title="New arrival" style={{ "margin-left": "6px", display: "inline-block", width: "8px", height: "8px", "border-radius": "50%", background: "var(--accent-blue)", "vertical-align": "middle" }} />
+                <Tooltip text="New arrival" style={{ "margin-left": "6px", "vertical-align": "middle" }}>
+                  <span style={{ display: "inline-block", width: "8px", height: "8px", "border-radius": "50%", background: "var(--accent-blue)" }} />
+                </Tooltip>
               </Show>
             </button>
           ))}
@@ -730,7 +732,7 @@ export default function AdventurersGuild() {
                         <span style={{ color: "var(--text-muted)" }}>Team:</span>
                         {teamAdvs().map((a) => {
                           const cls = getClassMeta(a!.class);
-                          return <span title={`${a!.name} (${cls.name} Lv.${a!.level})`}>{cls.icon}</span>;
+                          return <Tooltip text={`${a!.name} (${cls.name} Lv.${a!.level})`}><span>{cls.icon}</span></Tooltip>;
                         })}
                         <span style={{
                           "margin-left": "auto",
@@ -879,14 +881,15 @@ export default function AdventurersGuild() {
               >
                 Spawn all novice
               </button>
+              <Tooltip text="Queue a placeholder robin to test the banner/sidebar/Overview flow">
               <button
                 onClick={() => actions.devTriggerRobin()}
                 class="skip-season-btn"
                 style={{ "font-size": "0.7rem", padding: "3px 10px" }}
-                title="Queue a placeholder robin to test the banner/sidebar/Overview flow"
               >
                 🐦 Trigger robin
               </button>
+              </Tooltip>
             </Show>
           </div>
           <Show when={state.missionBoard.length === 0}>
@@ -1075,15 +1078,15 @@ export default function AdventurersGuild() {
                         </Show>
                         <TraitBadge traitId={adv.trait} />
                         <div style={{ "margin-top": "auto", "padding-top": "8px", "font-size": "0.75rem", display: "flex", gap: "6px", "flex-wrap": "wrap", "align-items": "center" }}>
-                          {equippedItems().map((item) => <span title={item!.name}>{item!.icon}</span>)}
+                          {equippedItems().map((item) => <Tooltip text={item!.name}><span>{item!.icon}</span></Tooltip>)}
                           {emptySlotCount() > 0 && (
                             <span style={{ color: "var(--accent-gold)", "font-size": "0.7rem" }}>
                               {emptySlotCount()} empty gear slot{emptySlotCount() > 1 ? "s" : ""}
                             </span>
                           )}
                           <Show when={unspentTalents() > 0}>
+                            <Tooltip text="This adventurer has unspent talent points">
                             <span
-                              title="This adventurer has unspent talent points"
                               style={{
                                 padding: "2px 8px",
                                 "border-radius": "4px",
@@ -1097,6 +1100,7 @@ export default function AdventurersGuild() {
                             >
                               ⭐ {unspentTalents()} talent point{unspentTalents() > 1 ? "s" : ""}
                             </span>
+                            </Tooltip>
                           </Show>
                         </div>
                         {adv.onMission && (

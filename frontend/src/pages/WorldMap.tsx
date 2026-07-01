@@ -4,6 +4,7 @@ import { fetchWorldMap, type WorldSettlement } from "~/api/world";
 import { getSettlementId } from "~/engine/gameState";
 import type { WorldMapResponse } from "@medieval-realm/shared";
 import { playPageMountSound } from "~/engine/sounds";
+import Tooltip from "~/components/Tooltip";
 
 const TIER_ICONS: Record<string, string> = {
   camp: "🏕️",
@@ -365,9 +366,9 @@ export default function WorldMap() {
 
           {/* Zoom controls */}
           <div class="map-zoom-controls">
-            <button onClick={() => zoom(1 / 1.3)} title="Zoom in">+</button>
-            <button onClick={() => zoom(1.3)} title="Zoom out">−</button>
-            <button onClick={centerOnOwn} title="Center on your settlement">⌂</button>
+            <Tooltip text="Zoom in" position="left"><button onClick={() => zoom(1 / 1.3)}>+</button></Tooltip>
+            <Tooltip text="Zoom out" position="left"><button onClick={() => zoom(1.3)}>−</button></Tooltip>
+            <Tooltip text="Center on your settlement" position="left"><button onClick={centerOnOwn}>⌂</button></Tooltip>
           </div>
         </div>
       </Show>

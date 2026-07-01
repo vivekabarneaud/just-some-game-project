@@ -14,6 +14,12 @@ interface TooltipProps extends ParentProps {
   /** When true, the anchor renders as `display: block` so it fills its
    *  parent's width. Default `inline-block` (shrinks to content). */
   block?: boolean;
+  /** Passthrough class for the wrapper `<span>` anchor. */
+  class?: string;
+  /** Passthrough style for the wrapper `<span>` anchor. Merged after the
+   *  `display` default so callers can override layout-affecting styles
+   *  (e.g. `margin-left: auto` on flex children). */
+  style?: JSX.CSSProperties;
 }
 
 export default function Tooltip(props: TooltipProps) {
@@ -107,7 +113,8 @@ export default function Tooltip(props: TooltipProps) {
       onMouseEnter={show}
       onMouseMove={move}
       onMouseLeave={hide}
-      style={{ display: props.block ? "block" : "inline-block" }}
+      class={props.class}
+      style={{ display: props.block ? "block" : "inline-block", ...props.style }}
     >
       {props.children}
       <Show when={visible() && hasContent()}>

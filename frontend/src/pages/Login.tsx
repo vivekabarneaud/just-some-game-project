@@ -2,6 +2,7 @@ import { For, Show, createSignal, onMount } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { register, login, googleLogin, GOOGLE_CLIENT_ID } from "~/api/auth";
 import { playSound } from "~/engine/sounds";
+import Tooltip from "~/components/Tooltip";
 
 // ─── The Lord's Chronicle login ─────────────────────────────────────────────
 // The login page is the chronicle itself. First-ever visit on a device shows
@@ -140,15 +141,16 @@ export default function Login() {
             <Show when={isRegister()}>
               <div class="lg-field">
                 <label>Name of the settler</label>
+                <Tooltip text="Letters, numbers, spaces, and underscores only" block>
                 <input
                   type="text"
                   value={username()}
                   onInput={(e) => setUsername(e.currentTarget.value.replace(/[^a-zA-Z0-9_ ]/g, ""))}
                   required minLength={3} maxLength={20}
                   pattern="[a-zA-Z0-9_ ]+"
-                  title="Letters, numbers, spaces, and underscores only"
                   placeholder="how shall the chronicle name you?"
                 />
+                </Tooltip>
               </div>
             </Show>
 

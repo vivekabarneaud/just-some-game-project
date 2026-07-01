@@ -408,10 +408,14 @@ export default function AdventurerDetail() {
                         .filter((item) => actions.getInventoryCount(item.id) > 0 && !isSupplyItem(item.id));
 
                       return (
+                        <Tooltip content={() => (
+                          <div style={{ "white-space": "pre-line" }}>
+                            {equippedItem() ? `${equippedItem()!.name}\n${equippedItem()!.description}` : `${slotDef.name} — empty`}
+                          </div>
+                        )}>
                         <div
                           class="gear-slot"
                           classList={{ equipped: !!equippedItem(), "has-sprite": !!equippedItem()?.image }}
-                          title={equippedItem() ? `${equippedItem()!.name}\n${equippedItem()!.description}` : `${slotDef.name} — empty`}
                         >
                           <Show when={equippedItem()?.image}>
                             <img src={equippedItem()!.image} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", "object-fit": "cover", "border-radius": "3px", "z-index": 1 }} />
@@ -438,19 +442,21 @@ export default function AdventurerDetail() {
                               <div class="gear-slot-options">
                                 <For each={availableItems()}>
                                   {(item) => (
+                                    <Tooltip text={`${item.name}: ${item.description}`}>
                                     <button
                                       class="gear-slot-option"
                                       onClick={() => actions.equipItem(params.id, item.id)}
-                                      title={`${item.name}: ${item.description}`}
                                     >
                                       {item.icon}
                                     </button>
+                                    </Tooltip>
                                   )}
                                 </For>
                               </div>
                             </Show>
                           </Show>
                         </div>
+                        </Tooltip>
                       );
                     };
 

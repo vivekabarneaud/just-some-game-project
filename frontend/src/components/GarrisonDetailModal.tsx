@@ -13,6 +13,7 @@ import {
   availableCitizens,
 } from "~/data/defenses";
 import Countdown from "./Countdown";
+import Tooltip from "./Tooltip";
 
 interface Props {
   kind: "watchtower" | "barracks";
@@ -135,16 +136,17 @@ export default function GarrisonDetailModal(props: Props) {
             <h2 style={{ margin: 0, "font-family": "var(--font-heading)", color: "var(--accent-gold)", "font-size": "1.2rem" }}>
               {buildingIcon()} {RING_LABELS[props.ring]} {buildingWord()}
             </h2>
+            <Tooltip text="Close (Esc)">
             <button
               onClick={close}
               style={{
                 background: "transparent", border: "none", color: "var(--text-muted)",
                 "font-size": "1.4rem", cursor: "pointer", padding: "0 4px",
               }}
-              title="Close (Esc)"
             >
               ×
             </button>
+            </Tooltip>
           </div>
 
           <Show when={slot()} fallback={
@@ -194,11 +196,12 @@ export default function GarrisonDetailModal(props: Props) {
                 Recruit
               </div>
               <div style={{ display: "flex", gap: "8px" }}>
+                <Tooltip text={canHire() ? `Hire one ${unitWord()} for ${hireCost()} gold` : hireBlocker()} block style={{ flex: 1 }}>
                 <button
                   disabled={!canHire()}
                   onClick={onHire}
                   style={{
-                    flex: 1,
+                    width: "100%",
                     padding: "8px 12px",
                     background: "rgba(218, 165, 32, 0.12)",
                     border: "1px solid var(--accent-gold)",
@@ -208,10 +211,11 @@ export default function GarrisonDetailModal(props: Props) {
                     opacity: canHire() ? 1 : 0.5,
                     "font-size": "0.85rem",
                   }}
-                  title={canHire() ? `Hire one ${unitWord()} for ${hireCost()} gold` : hireBlocker()}
                 >
                   + Hire {unitWord()} ({hireCost()}g)
                 </button>
+                </Tooltip>
+                <Tooltip text={`Dismiss one ${unitWord()}`}>
                 <button
                   disabled={(garrison()?.count ?? 0) <= 0}
                   onClick={onDismiss}
@@ -225,10 +229,10 @@ export default function GarrisonDetailModal(props: Props) {
                     opacity: (garrison()?.count ?? 0) > 0 ? 1 : 0.4,
                     "font-size": "0.85rem",
                   }}
-                  title={`Dismiss one ${unitWord()}`}
                 >
                   − Dismiss
                 </button>
+                </Tooltip>
               </div>
               <Show when={!canHire() && hireBlocker()}>
                 <div style={{ "font-size": "0.75rem", color: "var(--accent-red)", "margin-top": "4px" }}>
@@ -242,6 +246,9 @@ export default function GarrisonDetailModal(props: Props) {
               <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "1px", "margin-bottom": "6px" }}>
                 Train
               </div>
+              <Tooltip block text={canTrain()
+                ? `Train to Lv.${nextLevel()} — ${trainCost()}g, ${trainSeconds()}s`
+                : trainBlocker()}>
               <button
                 disabled={!canTrain()}
                 onClick={onTrain}
@@ -257,12 +264,10 @@ export default function GarrisonDetailModal(props: Props) {
                   "font-size": "0.9rem",
                   "font-weight": "bold",
                 }}
-                title={canTrain()
-                  ? `Train to Lv.${nextLevel()} — ${trainCost()}g, ${trainSeconds()}s`
-                  : trainBlocker()}
               >
                 ⚙️ Train to Lv.{nextLevel()} ({trainCost()}g · {trainSeconds()}s)
               </button>
+              </Tooltip>
               <Show when={!canTrain() && trainBlocker()}>
                 <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-top": "4px", "font-style": "italic" }}>
                   {trainBlocker()}

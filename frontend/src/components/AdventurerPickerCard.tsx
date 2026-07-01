@@ -1,4 +1,5 @@
 import { Show, For } from "solid-js";
+import Tooltip from "./Tooltip";
 import {
   getZoomedPortraitUrl,
   getXpForLevel,
@@ -66,7 +67,7 @@ export default function AdventurerPickerCard(props: AdventurerPickerCardProps) {
           <Show when={wounded()}>
             <span style={{ color: hpColor() }}>❤ {hpPct()}%</span>
             <For each={adv().conditions ?? []}>
-              {(c) => <span title={c.type === "bleed" ? "Bleeding — won't heal until it fades" : "Poisoned — won't heal until it fades"}>{c.type === "bleed" ? "🩸" : "☣️"}</span>}
+              {(c) => <Tooltip text={c.type === "bleed" ? "Bleeding — won't heal until it fades" : "Poisoned — won't heal until it fades"}><span>{c.type === "bleed" ? "🩸" : "☣️"}</span></Tooltip>}
             </For>
           </Show>
         </div>

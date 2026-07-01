@@ -15,6 +15,7 @@ import { simulateRaidCombat } from "@medieval-realm/shared/data/raidCombat";
 import Countdown from "~/components/Countdown";
 // QuestClaimModal removed — claim flow lives on /quests now.
 import CombatPlayback from "~/components/CombatPlayback";
+import Tooltip from "~/components/Tooltip";
 
 export default function Overview() {
   const { state, actions } = useGame();
@@ -109,6 +110,7 @@ export default function Overview() {
         return (
           <Show when={pendingRobin()}>
             {(robin) => (
+              <Tooltip text="Click to read the message." block style={{ "margin-bottom": "16px" }}>
               <div
                 onClick={() => {
                   const entry = getChronicleEntry(robin().chronicleEntryId);
@@ -120,7 +122,6 @@ export default function Overview() {
                   "align-items": "center",
                   gap: "12px",
                   padding: "12px 16px",
-                  "margin-bottom": "16px",
                   background: "rgba(96, 165, 250, 0.10)",
                   border: "1px solid var(--accent-blue)",
                   "border-radius": "8px",
@@ -129,7 +130,6 @@ export default function Overview() {
                 }}
                 onMouseEnter={(e) => (e.currentTarget as HTMLDivElement).style.background = "rgba(96, 165, 250, 0.16)"}
                 onMouseLeave={(e) => (e.currentTarget as HTMLDivElement).style.background = "rgba(96, 165, 250, 0.10)"}
-                title="Click to read the message."
               >
                 <span style={{ "font-size": "1.8rem" }}>🐦</span>
                 <div style={{ flex: 1 }}>
@@ -149,6 +149,7 @@ export default function Overview() {
                 </div>
                 <span style={{ color: "var(--accent-blue)", "font-size": "0.85rem" }}>Read →</span>
               </div>
+              </Tooltip>
             )}
           </Show>
         );
