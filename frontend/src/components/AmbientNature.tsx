@@ -17,7 +17,7 @@ import { ambientVolume, masterVolume, isMuted } from "~/engine/sounds";
 const R2 = "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/sfx";
 const WIND_STORM_URL = `${R2}/wind_storm.m4a`; // strong gust — storms (constant)
 const BIRD_URLS = [`${R2}/bird_robin_a.m4a`, `${R2}/bird_robin_b.m4a`];
-const STORM_WIND_VOLUME = 0.45;
+const STORM_WIND_VOLUME = 0.1;
 const BIRD_VOLUME = 0.5;
 const FADE_SECONDS = 6;
 const BIRD_MIN_GAP_MS = 12000;

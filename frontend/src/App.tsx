@@ -5,6 +5,7 @@ import ResourceBar from "./components/ResourceBar";
 import WeatherAmbience from "./components/WeatherAmbience";
 import AmbientRain from "./components/AmbientRain";
 import AmbientNature from "./components/AmbientNature";
+import Lightning from "./components/Lightning";
 import CinematicOverlay from "./components/CinematicOverlay";
 import ChronicleEntryModal from "./components/ChronicleEntryModal";
 import { openChronicleEntry, setOpenChronicleEntry } from "./data/robins";
@@ -230,6 +231,8 @@ export default function App(props: ParentProps) {
       <AmbientRain />
       {/* Fair-weather ambience: wind bed + randomized bird chirps (clear/overcast). */}
       <AmbientNature />
+      {/* Scene-wide lightning during storms (screen-blended, irregular strikes). */}
+      <Lightning />
 
       <div class="app-layout" classList={{ "sidebar-open": sidebarOpen() }}>
         <Sidebar onClose={() => setSidebarOpen(false)} />
