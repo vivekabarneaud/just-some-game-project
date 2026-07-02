@@ -223,8 +223,11 @@ export default function App(props: ParentProps) {
       <EventModal />
       <SettingsModal />
 
-      {/* Rain-on-glass / condensation layer (static image, behind everything). */}
+      {/* Weather backdrop layers (static images, behind everything). Two layers
+          — rain-on-glass + iced-window — each fading its own opacity so switching
+          between wet and snowy weather cross-fades instead of popping. */}
       <div class="weather-glass" aria-hidden="true" />
+      <div class="weather-glass weather-glass-snow" aria-hidden="true" />
       {/* Weather mood vignette — darkens the frame edges in wet weather. */}
       <div class="weather-vignette" aria-hidden="true" />
       {/* Rain ambience on the audio `ambient` channel (weather-driven loop). */}

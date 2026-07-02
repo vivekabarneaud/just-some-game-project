@@ -3,6 +3,7 @@ import { useGame } from "~/engine/gameState";
 import { HOURS_PER_SEASON, IS_DEV, getGlobalSeason } from "~/data/seasons";
 import { resolveWeather } from "~/data/weather";
 import RainCanvas from "./RainCanvas";
+import SnowCanvas from "./SnowCanvas";
 
 /**
  * Subtle ambient weather strip that sits behind the top resource bar. Cosmetic
@@ -32,7 +33,6 @@ const makeParticles = (count: number, minDur: number, maxDur: number): Particle[
     scale: 0.7 + spread(i, 11) * 0.7,
   }));
 
-const SNOW = makeParticles(14, 6, 11);
 const MOTES = makeParticles(9, 6, 12);
 const FOG = makeParticles(3, 14, 22);
 
@@ -57,24 +57,8 @@ export default function WeatherAmbience() {
           intensity + tint). Storm lightning is a separate scene-wide overlay
           (<Lightning/>, mounted at app root). The Switch handles other moods. */}
       <RainCanvas variant="strip" />
+      <SnowCanvas variant="strip" />
       <Switch>
-        <Match when={weather() === "snow"}>
-          <For each={SNOW}>
-            {(p) => (
-              <span
-                class="wx-snow"
-                style={{
-                  left: `${p.left}%`,
-                  "animation-delay": `${p.delay}s`,
-                  "animation-duration": `${p.duration}s`,
-                  width: `${2 + p.scale * 3}px`,
-                  height: `${2 + p.scale * 3}px`,
-                }}
-              />
-            )}
-          </For>
-        </Match>
-
         <Match when={weather() === "fog"}>
           <For each={FOG}>
             {(p) => (

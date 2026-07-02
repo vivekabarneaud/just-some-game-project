@@ -1,4 +1,4 @@
-import { onCleanup, onMount, createEffect } from "solid-js";
+import { onCleanup, onMount, createEffect, createMemo } from "solid-js";
 import { useGame } from "~/engine/gameState";
 import { HOURS_PER_SEASON, IS_DEV, getGlobalSeason } from "~/data/seasons";
 import { resolveWeather } from "~/data/weather";
@@ -36,7 +36,7 @@ const LAYERS_STRIP: Layer[] = [
 
 const WIND = 0.20;            // horizontal drift as a fraction of fall speed (the slant)
 const STORM_DENSITY = 1.9;    // extra drops in a storm
-const STORM_SPEED = 1.35;     // faster fall in a storm
+const STORM_SPEED = 1.7;      // noticeably faster, driving fall in a storm
 const RAIN_RGB = "200, 218, 255";       // cool desaturated blue
 const AETHER_RGB = "196, 170, 255";     // eerie violet for the unnatural storm
 const MAX_DT = 0.05;          // clamp frame delta so a paused tab doesn't teleport drops
@@ -62,6 +62,10 @@ export default function RainCanvas(props: { variant?: "screen" | "strip" }) {
       : getGlobalSeason();
     return resolveWeather(info.season, info.progress, info.year);
   };
+  // Memoized weather TYPE so the render effect only re-runs on an actual weather
+  // change, not every tick (weather() reads seasonElapsed) — otherwise the drop
+  // set re-seeds ~1×/sec.
+  const wx = createMemo(weather);
 
   onMount(() => {
     const ctx = canvas.getContext("2d")!;
@@ -140,13 +144,13 @@ export default function RainCanvas(props: { variant?: "screen" | "strip" }) {
 
     const onVisibility = () => {
       if (document.hidden) { running = false; cancelAnimationFrame(rafId); }
-      else if (intensityFor(weather()).active && !reduce?.matches) { running = true; loop(); }
+      else if (intensityFor(wx()).active && !reduce?.matches) { running = true; loop(); }
     };
     document.addEventListener("visibilitychange", onVisibility);
 
     // React to weather: (re)build for the right intensity/tint, or stop.
     createEffect(() => {
-      const it = intensityFor(weather());
+      const it = intensityFor(wx());
       if (!it.active || reduce?.matches) { stop(); return; }
       rgb = it.rgb;
       heavy = it.heavy;
