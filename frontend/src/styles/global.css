@@ -4524,29 +4524,6 @@ body {
 }
 
 /* Storm lightning flash (ready for the future event layer) */
-.wx-flash {
-  position: absolute;
-  inset: 0;
-  background: rgba(200,220,255,0);
-  animation: wx-flash-anim 6s steps(1, end) infinite;
-}
-@keyframes wx-flash-anim {
-  0%, 92%, 100% { background: rgba(200,220,255,0); }
-  93%           { background: rgba(212,226,255,0.45); }
-  94%           { background: rgba(200,220,255,0.05); }
-  95%           { background: rgba(212,226,255,0.35); }
-  96%           { background: rgba(200,220,255,0); }
-}
-.wx-flash-aether { animation-name: wx-flash-aether-anim; }
-@keyframes wx-flash-aether-anim {
-  0%, 90%, 100% { background: rgba(150,90,220,0); }
-  91%           { background: rgba(162,92,232,0.5); }
-  92%           { background: rgba(120,200,140,0.18); }
-  93%           { background: rgba(150,90,220,0.05); }
-  94%           { background: rgba(172,100,240,0.4); }
-  96%           { background: rgba(150,90,220,0); }
-}
-
 /* Weather chip in the sidebar season block */
 .weather-chip {
   position: relative;
@@ -4581,7 +4558,6 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .weather-ambience * { animation: none !important; }
-  .wx-flash, .wx-flash-aether { display: none !important; }
   .wx-snow, .wx-mote, .wx-fog { opacity: 0.4 !important; }
 }
 

@@ -54,8 +54,8 @@ export default function WeatherAmbience() {
   return (
     <div class={`weather-ambience weather-${weather()}`} aria-hidden="true">
       {/* Rain / storm / unnatural-storm are drawn by the canvas (it self-detects
-          intensity + tint). The Switch below handles the other moods + the
-          storm lightning flash overlay. */}
+          intensity + tint). Storm lightning is a separate scene-wide overlay
+          (<Lightning/>, mounted at app root). The Switch handles other moods. */}
       <RainCanvas variant="strip" />
       <Switch>
         <Match when={weather() === "snow"}>
@@ -110,15 +110,6 @@ export default function WeatherAmbience() {
               />
             )}
           </For>
-        </Match>
-
-        {/* Storms: the canvas draws the rain; these add the lightning flash. */}
-        <Match when={weather() === "storm"}>
-          <span class="wx-flash" />
-        </Match>
-
-        <Match when={weather() === "unnatural_storm"}>
-          <span class="wx-flash wx-flash-aether" />
         </Match>
       </Switch>
     </div>
