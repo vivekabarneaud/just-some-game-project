@@ -92,6 +92,18 @@
   --border-color: #352a56;
 }
 
+/* Snow: the one weather that goes UP, not down — a cold, frosty lift, a touch
+   brighter than the dry look and pulled toward pale icy blue, with clearly
+   brighter (frost-lit) borders. Still a dark theme so the light text reads. */
+:root[data-weather="snow"] {
+  --bg-primary: #1f2942;
+  --bg-secondary: #1c2b46;
+  --bg-panel: #28375c;
+  --bg-card: #212e4e;
+  --bg-hover: #31456e;
+  --border-color: #43597f;
+}
+
 /* The gold "Matters to attend" card (.quest-panel) is hardcoded warm. In wet
    weather it STAYS golden but banks darker — a warm hearth low in the gloom.
    We darken it by fading a dark overlay over the gradient (::after) rather than
@@ -121,6 +133,8 @@
    Until then it falls back to a faint condensation mist so the layer is visible. */
 :root {
   --weather-glass-url: url("https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/weather/rain_window.jpg");
+  /* Iced-window backdrop for snow. Unsplash (free, no attribution). On R2. */
+  --weather-glass-url-snow: url("https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/weather/iced_window.jpg");
 }
 .weather-glass {
   position: fixed;
@@ -139,9 +153,21 @@
   background-position: center, center;
   background-repeat: no-repeat, no-repeat;
 }
-:root[data-weather="rain"] .weather-glass,
-:root[data-weather="storm"] .weather-glass,
-:root[data-weather="unnatural_storm"] .weather-glass { opacity: 0.28; }
+:root[data-weather="rain"] .weather-glass:not(.weather-glass-snow),
+:root[data-weather="storm"] .weather-glass:not(.weather-glass-snow),
+:root[data-weather="unnatural_storm"] .weather-glass:not(.weather-glass-snow) { opacity: 0.28; }
+/* Snow rides its OWN glass layer (a second element) so rain <-> snow CROSS-FADES:
+   each layer eases its own opacity over 2.5s instead of the image swapping
+   instantly on a shared element. Keep the solid winter UI colour as the
+   background and float the iced window over it, darkened to a faint frost. */
+.weather-glass-snow {
+  background-image:
+    var(--weather-glass-url-snow, radial-gradient(ellipse at 50% 38%, transparent 32%, rgba(220, 232, 248, 0.14) 100%));
+  /* brightness well below 1 so the bright photo becomes a DARK frost texture,
+     keeping the content area as dark as the regular UI instead of washing it. */
+  filter: contrast(0.5) brightness(0.2) blur(1px);
+}
+:root[data-weather="snow"] .weather-glass-snow { opacity: 0.2; }
 @media (prefers-reduced-motion: reduce) { .weather-glass { transition: none; } }
 
 /* Mood vignette — a fixed frame-darkening that fades in with wet weather, for
@@ -4467,22 +4493,6 @@ body {
    the old CSS-droplet rules (.wx-rain / @keyframes wx-fall) were removed. */
 
 /* Snow */
-.wx-snow {
-  position: absolute;
-  top: -10px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.88);
-  animation-name: wx-snow-fall;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-}
-@keyframes wx-snow-fall {
-  0%   { transform: translate(0, -10px); opacity: 0; }
-  15%  { opacity: 0.9; }
-  50%  { transform: translate(9px, 32px); }
-  100% { transform: translate(-7px, 70px); opacity: 0.6; }
-}
-
 /* Fog */
 .wx-fog {
   position: absolute;

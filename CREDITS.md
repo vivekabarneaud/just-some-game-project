@@ -13,6 +13,15 @@ Third-party assets used in the game, with their required attributions.
   License: CC-BY 4.0. Used as a clear-weather bird one-shot.
 - **"Bird Whistling, Robin, Single, 13"** by **InspectorJ** — https://freesound.org/people/InspectorJ/sounds/456440/
   License: CC-BY 4.0. Used as a clear-weather bird one-shot.
+- **"sfx_thunder-blast"** by **bajko** — https://freesound.org/people/bajko/sounds/399656/
+  License: CC0 (public domain, no attribution required). Storm thunder — close strikes.
+- **"Thunder"** by **netaj** — https://freesound.org/people/netaj/sounds/193170/
+  License: CC0 (public domain, no attribution required). Storm thunder — distant strikes.
+
+## Images
+
+- **Iced window** by **Aaron Burden** — https://unsplash.com/photos/hSPVuakrJqs
+  License: Unsplash License (free for commercial use, no attribution required). Snow-weather backdrop.
 
 ---
 
