@@ -3,13 +3,14 @@ import { getItem } from "@medieval-realm/shared/data/items";
 
 // ─── Storyline / chapter taxonomy ────────────────────────────────
 
-export type StorylineId = "settlement" | "guild" | "story" | "defense";
+export type StorylineId = "settlement" | "guild" | "story" | "defense" | "social";
 
 export const STORYLINE_LABELS: Record<StorylineId, string> = {
   settlement: "Settlement",
   guild: "Adventurer's Guild",
   story: "The Lord's Journal",
   defense: "Defense",
+  social: "The Folk",
 };
 
 export const STORYLINE_ICONS: Record<StorylineId, string> = {
@@ -17,6 +18,7 @@ export const STORYLINE_ICONS: Record<StorylineId, string> = {
   guild: "🏰",
   story: "📖",
   defense: "🛡️",
+  social: "🕯️",
 };
 
 /** Per-storyline chapter state. Drives chapter unlocks + the quest log. */
@@ -33,6 +35,7 @@ export const INITIAL_CHAPTER_STATE: ChapterState[] = [
   { storyline: "guild", current: 0, completedChapters: [] },
   { storyline: "story", current: 1, completedChapters: [] },
   { storyline: "defense", current: 0, completedChapters: [] },
+  { storyline: "social", current: 1, completedChapters: [] },
 ];
 
 // ─── Trigger system ──────────────────────────────────────────────
@@ -240,7 +243,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     ],
     targetBuildingId: "kitchen",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/the_first_fire.png",
-    unlocksBioFragments: ["edda_first_fire"],
+    // edda_first_fire memory deferred to the "See to Edda" social check-in.
   },
   {
     id: "the_sawhorse",
@@ -259,7 +262,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     ],
     targetBuildingId: "lumber_mill",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/the_sawhorse.png",
-    unlocksBioFragments: ["jory_sawhorse"],
+    // jory_sawhorse memory deferred to the "See to Jory" social check-in.
   },
   {
     id: "the_first_cut",
@@ -278,7 +281,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     ],
     targetBuildingId: "quarry",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/the_first_cut.png",
-    unlocksBioFragments: ["tomas_quarry"],
+    // tomas_quarry memory deferred to the "See to Tomas" social check-in.
   },
   {
     id: "the_foragers_path",
@@ -804,6 +807,55 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     targetPage: "/defenses",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/watch_the_walls.png",
     chronicleEntryId: "ch3_hands_beside_ours",
+  },
+
+  // ╔══════════════════════════════════════════════════════════════╗
+  // ║ THE FOLK — check-ins that surface deferred cast memories      ║
+  // ║ Fire in the first real lull (guild opened, scouts out). Each  ║
+  // ║ completes on click; the memory shows on claim. Scripted here  ║
+  // ║ off a quest gap; later rounds can hang off chapter milestones.║
+  // ╚══════════════════════════════════════════════════════════════╝
+  {
+    id: "see_to_edda",
+    storyline: "social",
+    chapter: 1,
+    title: "See to Edda",
+    narrative:
+      "We have done good work these first weeks, and I have hardly looked up to see how the folk who followed me are holding up. Time to go round. Edda first. It is always Edda first.",
+    objective: "Sit a while with Edda",
+    icon: "🕯️",
+    triggers: [{ type: "quest_completed", questId: "heroes_wanted" }],
+    condition: () => true,
+    rewards: [],
+    unlocksBioFragments: ["edda_first_fire"],
+  },
+  {
+    id: "see_to_jory",
+    storyline: "social",
+    chapter: 1,
+    title: "See to Jory",
+    narrative:
+      "Jory set down the felling axe when he saw me and rolled his shoulder. \"You know what I dream about?\" he said. \"The day someone else can run this mill, so I can put the axe down and pick a knife up. Give me a good piece of wood and the time to carve it and I would never fell another tree.\" He said it lightly. He was not being light.",
+    objective: "Share a word with Jory",
+    icon: "🕯️",
+    triggers: [{ type: "quest_completed", questId: "heroes_wanted" }],
+    condition: () => true,
+    rewards: [],
+    unlocksBioFragments: ["jory_sawhorse"],
+  },
+  {
+    id: "see_to_tomas",
+    storyline: "social",
+    chapter: 1,
+    title: "See to Tomas",
+    narrative:
+      "Tomas was at the quarry face, sighting a cut nobody had asked him for yet. He gave me a grunt, which from him is a long and warm conversation. He stands differently here than he did in Ashwick. I know better than to say so.",
+    objective: "Look in on Tomas",
+    icon: "🕯️",
+    triggers: [{ type: "quest_completed", questId: "heroes_wanted" }],
+    condition: () => true,
+    rewards: [],
+    unlocksBioFragments: ["tomas_quarry"],
   },
 ];
 

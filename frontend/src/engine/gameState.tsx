@@ -1017,6 +1017,7 @@ export function createInitialState(): GameState {
       { storyline: "guild", current: 0, completedChapters: [] },
       { storyline: "story", current: 1, completedChapters: [] },
       { storyline: "defense", current: 0, completedChapters: [] },
+      { storyline: "social", current: 1, completedChapters: [] },
     ],
     firedEvents: [],
     pendingEvents: [],
@@ -1463,6 +1464,7 @@ export function migrateSaveState(saved: GameState): GameState {
         { storyline: "guild", current: 0, completedChapters: [] },
         { storyline: "story", current: 1, completedChapters: [] },
         { storyline: "defense", current: 0, completedChapters: [] },
+        { storyline: "social", current: 1, completedChapters: [] },
       ];
       // Walk each storyline and mark chapters completed based on existing claims.
       for (const cs of saved.chapters) {
@@ -1488,6 +1490,10 @@ export function migrateSaveState(saved: GameState): GameState {
           }
         }
       }
+    }
+    // Backfill the "social" storyline (The Folk) for saves made before it existed.
+    if (saved.chapters && !saved.chapters.some((c) => c.storyline === "social")) {
+      saved.chapters.push({ storyline: "social", current: 1, completedChapters: [] });
     }
     if (!saved.completedStoryMissions) saved.completedStoryMissions = [];
     if (!saved.completedUniqueMissionIds) saved.completedUniqueMissionIds = [];
@@ -2467,6 +2473,7 @@ export function GameProvider(props: ParentProps) {
             { storyline: "guild", current: 0, completedChapters: [] },
             { storyline: "story", current: 1, completedChapters: [] },
             { storyline: "defense", current: 0, completedChapters: [] },
+            { storyline: "social", current: 1, completedChapters: [] },
           ];
           for (const cs of (serverState as any).chapters) {
             const chaptersInStoryline = new Set(
@@ -2490,6 +2497,10 @@ export function GameProvider(props: ParentProps) {
               }
             }
           }
+        }
+        // Backfill the "social" storyline for cloud saves made before it existed.
+        if ((serverState as any).chapters && !(serverState as any).chapters.some((c: any) => c.storyline === "social")) {
+          (serverState as any).chapters.push({ storyline: "social", current: 1, completedChapters: [] });
         }
         if (!(serverState as any).firedEvents) (serverState as any).firedEvents = [];
         if (!(serverState as any).pendingEvents) (serverState as any).pendingEvents = [];

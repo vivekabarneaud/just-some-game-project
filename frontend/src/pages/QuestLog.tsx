@@ -14,12 +14,12 @@ import {
 } from "~/data/quests";
 import QuestClaimModal from "~/components/QuestClaimModal";
 
-const STORYLINE_ORDER: StorylineId[] = ["settlement", "guild", "story", "defense"];
+const STORYLINE_ORDER: StorylineId[] = ["settlement", "guild", "story", "defense", "social"];
 // Two-column desk layout: domestic (settlement + defense) on the left,
-// outward (guild + story) on the right. Lets the player see all storylines
-// at a glance without giant card widths.
+// outward + personal (guild + story + the folk) on the right. Lets the player
+// see all storylines at a glance without giant card widths.
 const LEFT_COLUMN: StorylineId[] = ["settlement", "defense"];
-const RIGHT_COLUMN: StorylineId[] = ["guild", "story"];
+const RIGHT_COLUMN: StorylineId[] = ["guild", "story", "social"];
 
 export default function QuestLog() {
   const { state, actions } = useGame();
@@ -31,6 +31,7 @@ export default function QuestLog() {
     guild: false,
     story: false,
     defense: false,
+    social: false,
   });
   const toggle = (id: StorylineId) =>
     setCollapsed((c) => ({ ...c, [id]: !c[id] }));
