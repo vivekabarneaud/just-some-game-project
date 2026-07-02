@@ -4,11 +4,12 @@ import { HOURS_PER_SEASON, IS_DEV, getGlobalSeason } from "~/data/seasons";
 import { resolveWeather } from "~/data/weather";
 
 /**
- * Scene-wide lightning for storms. A full-screen, screen-blended overlay whose
- * opacity is pulsed by JS at irregular intervals, so the whole UI briefly lights
- * up like a real strike — replacing the old fixed 6s CSS loop. Most strikes are
- * dim distant flickers; occasionally a brighter close one double-flashes. Tinted
- * cold blue-white for a natural storm, violet for the unnatural (aether) storm.
+ * Lightning for storms. An edge-only glow (the inverse of the vignette:
+ * transparent in the centre, tinted at the frame) whose opacity is pulsed by JS
+ * at irregular intervals, so the periphery briefly lights up like a strike seen
+ * through the window — without washing out the content in the middle. Most
+ * strikes are dim distant flickers; occasionally a brighter close one
+ * double-flashes. Cold blue-white for a natural storm, violet for the aether one.
  */
 const STORM_TINT = "212, 226, 255"; // cold blue-white
 const AETHER_TINT = "172, 120, 240"; // eerie violet
@@ -47,6 +48,8 @@ export default function Lightning() {
       // single dim flicker. Peaks stay subtle so it lights the scene, not blinds.
       const close = Math.random() < CLOSE_CHANCE;
       const peak = close ? 0.35 + Math.random() * 0.25 : 0.12 + Math.random() * 0.13;
+      // A close strike double-flashes (peak, dip, secondary, out); a distant one
+      // is a single quick flicker.
       const seq: Array<[number, number]> = close
         ? [[0, peak], [70, peak * 0.2], [120, peak * 0.85], [280, 0]]
         : [[0, peak], [90, 0]];
@@ -74,15 +77,10 @@ export default function Lightning() {
   return (
     <div
       aria-hidden="true"
+      class="storm-lightning"
       style={{
-        position: "fixed",
-        inset: "0",
-        "pointer-events": "none",
-        "z-index": "400", // above content, below modals (1100)
         opacity: `${flash()}`,
-        background: `rgb(${stormKind() === "aether" ? AETHER_TINT : STORM_TINT})`,
-        "mix-blend-mode": "screen",
-        transition: "opacity 90ms ease-out",
+        background: `radial-gradient(ellipse at center, transparent 72%, rgb(${stormKind() === "aether" ? AETHER_TINT : STORM_TINT}) 100%)`,
       }}
     />
   );

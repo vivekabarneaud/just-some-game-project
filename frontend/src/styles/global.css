@@ -162,6 +162,28 @@
   background: radial-gradient(ellipse at center, transparent 54%, rgba(28, 10, 48, 0.55) 100%);
 }
 
+/* Storm lightning glow — bounded to the CONTENT pane (the droplet-window
+   backdrop), not the whole viewport, so it lights the window edges without
+   touching the topbar or sidebar. Opacity + tint are pulsed from JS (Lightning). */
+.storm-lightning {
+  position: fixed;
+  top: var(--topbar-height);
+  left: var(--sidebar-width);
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  /* Behind the content cards (above the glass backdrop, which is also -1 but
+     earlier in the DOM), so the strike lights the window backdrop showing
+     through the padding + card gaps rather than washing over the cards. */
+  z-index: -1;
+  mix-blend-mode: screen;
+  transition: opacity 90ms ease-out;
+}
+@media (max-width: 768px) {
+  /* Sidebar floats on mobile, so the content pane spans the full width. */
+  .storm-lightning { left: 0; }
+}
+
 /* Specular sheen — a thin cool gleam along the TOP edge of cards that fades in
    when wet, like light catching a rain-slicked surface. Concentrated in the top
    edge (over padding, not text) so it reads as a wet highlight, not a wash. Uses
