@@ -75,6 +75,8 @@ import {
   maxArchers,
   availableCitizens,
   militiaCount,
+  TRAINER_ID,
+  trainerHome,
   ringUnlocked,
   getWatchtowerArcherCap,
   getBarracksSoldierCap,
@@ -403,10 +405,12 @@ export interface Garrison {
    *  level (cost scales) — keeps the squad uniform without per-unit bookkeeping.
    *  Capped at the building's level. */
   trainedLevel: number;
-  /** Active training queue. When set, gold has been spent up-front and the
-   *  garrison's trainedLevel will rise by 1 once remainingSeconds hits 0.
-   *  Auto-paused while a raid is incoming (not ticked but not cleared). */
-  training?: { targetLevel: number; remainingSeconds: number };
+  /** Active drill. Started by the building's trainer-coordinator (Gareth /
+   *  Morgause); `trainerId` is that adventurer's roster id, which marks them
+   *  busy (can't be sent on a mission until the drill finishes). trainedLevel
+   *  rises by 1 once remainingSeconds hits 0. Auto-paused while a raid is
+   *  incoming (not ticked but not cleared). */
+  training?: { targetLevel: number; remainingSeconds: number; trainerId?: string };
 }
 
 export interface PlayerWatchtower {
@@ -2709,8 +2713,8 @@ export function GameProvider(props: ParentProps) {
                   raidId: ir.raidId,
                   encounters: template.encounters,
                   walls: (serverState.walls ?? []).map((w: any) => ({ ring: w.ring, level: w.level, hp: w.hp, maxHp: w.level * WALL_BASE_HP })),
-                  watchtowers: (serverState.watchtowers ?? []).map((t: any) => ({ ring: t.ring, level: t.level, damaged: t.damaged, archerCount: t.garrison?.count ?? 0, trainedLevel: t.garrison?.trainedLevel ?? 0 })),
-                  barracks: (serverState.barracks ?? []).map((b: any) => ({ ring: b.ring, level: b.level, damaged: b.damaged, soldierCount: b.garrison?.count ?? 0, trainedLevel: b.garrison?.trainedLevel ?? 0 })),
+                  watchtowers: (serverState.watchtowers ?? []).map((t: any) => ({ ring: t.ring, level: t.level, damaged: t.damaged, archerCount: t.garrison?.count ?? 0, trainedLevel: (t.garrison?.trainedLevel ?? 0) + (trainerHome(serverState.adventurers ?? [], "watchtower") ? 1 : 0) })),
+                  barracks: (serverState.barracks ?? []).map((b: any) => ({ ring: b.ring, level: b.level, damaged: b.damaged, soldierCount: b.garrison?.count ?? 0, trainedLevel: (b.garrison?.trainedLevel ?? 0) + (trainerHome(serverState.adventurers ?? [], "barracks") ? 1 : 0) })),
                   militiaCount: militiaCount(serverState as GameState),
                 });
 
@@ -4094,8 +4098,10 @@ export function GameProvider(props: ParentProps) {
                 raidId: ir.raidId,
                 encounters: template.encounters,
                 walls: s.walls.map((w) => ({ ring: w.ring, level: w.level, hp: w.hp, maxHp: w.level * WALL_BASE_HP })),
-                watchtowers: s.watchtowers.map((t) => ({ ring: t.ring, level: t.level, damaged: t.damaged, archerCount: t.garrison.count, trainedLevel: t.garrison.trainedLevel })),
-                barracks: s.barracks.map((b) => ({ ring: b.ring, level: b.level, damaged: b.damaged, soldierCount: b.garrison.count, trainedLevel: b.garrison.trainedLevel })),
+                // Trainer coordination buff: +1 effective trained level while the
+                // building's trainer (Gareth / Morgause) is home.
+                watchtowers: s.watchtowers.map((t) => ({ ring: t.ring, level: t.level, damaged: t.damaged, archerCount: t.garrison.count, trainedLevel: t.garrison.trainedLevel + (trainerHome(s.adventurers, "watchtower") ? 1 : 0) })),
+                barracks: s.barracks.map((b) => ({ ring: b.ring, level: b.level, damaged: b.damaged, soldierCount: b.garrison.count, trainedLevel: b.garrison.trainedLevel + (trainerHome(s.adventurers, "barracks") ? 1 : 0) })),
                 militiaCount: militiaCount(s),
               });
 
@@ -5052,7 +5058,13 @@ export function GameProvider(props: ParentProps) {
       return completed;
     },
     getAvailableAdventurers() {
-      return state.adventurers.filter((a) => a.alive && !a.onMission);
+      // A trainer mid-drill is occupied and can't be sent on a mission.
+      const drilling = new Set<string>();
+      for (const x of [...state.watchtowers, ...state.barracks]) {
+        const id = x.garrison.training?.trainerId;
+        if (id) drilling.add(id);
+      }
+      return state.adventurers.filter((a) => a.alive && !a.onMission && !drilling.has(a.id));
     },
     getRosterSize() {
       const guildLvl = this.getGuildLevel();
@@ -5706,15 +5718,22 @@ export function GameProvider(props: ParentProps) {
       if (!slot || slot.level === 0 || slot.damaged) return false;
       if (slot.garrison.training) return false;        // already in progress
       if (slot.garrison.trainedLevel >= slot.level) return false; // capped at building level
+      // Drilling is done BY the building's trainer-coordinator (Gareth / Morgause),
+      // not with gold. They must be home and not already drilling elsewhere.
+      const trainer = state.adventurers.find(
+        (a) => a.alive && a.premadeId === TRAINER_ID[kind] && !a.onMission,
+      );
+      if (!trainer) return false;
+      const busy = [...state.watchtowers, ...state.barracks].some(
+        (x) => x.garrison.training?.trainerId === trainer.id,
+      );
+      if (busy) return false;
       const target = slot.garrison.trainedLevel + 1;
-      const cost = getTrainCost(target);
-      if (state.resources.gold < cost.gold) return false;
       const seconds = getTrainTime(target);
       setState(produce((s) => {
-        s.resources.gold -= cost.gold;
         const arr = kind === "watchtower" ? s.watchtowers : s.barracks;
         const item = arr.find((x) => x.ring === ring)!;
-        item.garrison.training = { targetLevel: target, remainingSeconds: seconds };
+        item.garrison.training = { targetLevel: target, remainingSeconds: seconds, trainerId: trainer.id };
       }));
       scheduleSave();
       return true;
