@@ -204,6 +204,16 @@ With Netheron gone, the cycle is broken. Living things still create Aether. But 
 
 **Hollow Magic** — The forbidden tradition. Power drawn from stagnant dead Aether — from the Wastes themselves, from Netheron's broken essence. Immensely powerful, deeply corrupting. The Cult uses it in their attempts to reassemble Netheron. Each use further destabilizes the already-damaged Aether flow, making the Wastes temporarily worse — but the Cult believes the short-term cost is worth the long-term goal.
 
+### Intention Shapes the Unwitting
+
+Trained mages (Arcane) understand what Aether *is*, so they command its shape directly. The **unwitting** — Light priests, Primal folk-practitioners like the frontier hearth-keepers — cannot choose the shape; their **intention, belief, and emotion shape it for them.** A healer-priest's Light comes out as mending warmth; a river-blessing as a still, guiding calm. Same well, different vessel — decided not by skill but by what the caster *means*.
+
+This is the engine of the Inquisition's tragedy. An inquisitor faces a "heretic," prays or lifts a blade with the intent to *purify and punish* — and their unwitting Light, bent by that wrath, answers as **fire.** They never cast a spell; they never studied one. The flame simply comes when conviction runs hot enough, and they read it as the Radiant One's own hand backing the righteous. The most fervent inquisitor wields the strongest fire; **doubt weakens the miracle**, so the order quietly selects for zealotry and purges the wavering.
+
+The cruelty runs past hypocrisy. Light's true function is to *heal the living and guide the dead across the broken boundary* — a gentle, shepherding warmth. The Inquisition perverts it into a weapon that kills and leaves its dead **un-guided**, so the pyres may actually thicken the lingering dead around them. The kindest magic, turned to the cruelest end, by people certain they are saints.
+
+*(Open thread: Archpriest **Caelen** — a priest devout enough to be powerful who, in one unbearable moment, recognizes the fire as his own. The seed of a "Radiant One" heterodoxy; and per the rule above, the instant his faith cracks, his fire would fail him.)*
+
 ### The Doctrine of Silence
 
 The Church of the Radiant One has observed — correctly — that the Wastes expand faster near areas of high magical activity. From this, they've concluded that **all magic use feeds the Wastes.**
@@ -211,6 +221,8 @@ The Church of the Radiant One has observed — correctly — that the Wastes exp
 Their evidence is real. Their conclusion is wrong.
 
 The true mechanism: magic use generates Aether activity. When that Aether eventually dies (all magical effects fade), it becomes dead Aether that can't be recycled. More magic use = more dead Aether = more fuel for the Wastes. The Church is right about the correlation but wrong about the prescription — stopping magic use would slow the accumulation but can't fix the underlying problem. Only restoring the death cycle can do that.
+
+And the bitterest turn of all: the Inquisition, which hunts and burns "heretical" magic, are themselves heavy, constant, *unwitting* Light-casters. By the Church's own (correct) correlation, their pyres feed the Wastes as surely as any wizard's spell — the magic-hunters are among the largest contributors to the very corruption they blame on others. Exactly the kind of self-devouring righteousness the Eighth was content to leave running.
 
 But nobody can prove the Church wrong definitively. And Inquisitor Selwyn Crane's maps — showing the Wastes' expansion overlaid with magical activity — are genuinely unsettling. The Church's position is wrong, but it's not stupid.
 
