@@ -2115,11 +2115,16 @@ function calcMaxPopulation(buildings: PlayerBuilding[]): number {
   return BASE_POPULATION + (HOUSING_POP[level] ?? 0);
 }
 
+/** Adventurers eat less than a townsfolk — they're hardy and forage/provision on
+ *  the side. Keeps the early game (when the 3 Thornwood adventurers are a big
+ *  share of the mouths) from tipping into a long deficit that blocks arrivals. */
+export const ADVENTURER_FOOD_MULTIPLIER = 0.5;
+
 function calcFoodConsumption(citizens: CitizenCounts, adventurerMouths = 0): number {
   // Per-category multipliers: toddlers 0.5×, children 0.75×, adults 1.0×, elderly 0.75×.
-  // Adventurers eat at an adult's rate (1.0×), whether home or away — away rations
-  // are a separate mission concern, so the town food readout stays steady.
-  return (effectiveFoodMouths(citizens) + adventurerMouths) * FOOD_PER_CITIZEN_PER_HOUR;
+  // Adventurers eat at ADVENTURER_FOOD_MULTIPLIER of an adult, home or away — away
+  // rations are a separate mission concern, so the town food readout stays steady.
+  return (effectiveFoodMouths(citizens) + adventurerMouths * ADVENTURER_FOOD_MULTIPLIER) * FOOD_PER_CITIZEN_PER_HOUR;
 }
 
 /** Living adventurers count as townsfolk for housing + food: they take a bed and
