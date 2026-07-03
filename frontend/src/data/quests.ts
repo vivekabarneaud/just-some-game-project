@@ -1,5 +1,6 @@
 import type { GameState } from "~/engine/gameState";
 import { getItem } from "@medieval-realm/shared/data/items";
+import type { VeggieId } from "./gardens";
 
 // ─── Storyline / chapter taxonomy ────────────────────────────────
 
@@ -86,6 +87,9 @@ export interface QuestDefinition {
   unlocksBioFragments?: string[];
   /** Building IDs unlocked when this quest's reward is claimed. */
   unlocksBuildings?: string[];
+  /** Specialty crop seed IDs unlocked when this quest's reward is claimed —
+   *  makes their garden buildable/sowable and grants a starter seed stock. */
+  unlocksSeeds?: VeggieId[];
   /** Narrative event banner ID fired on completion. */
   triggersEvent?: string;
 }
@@ -407,6 +411,23 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
       { resource: "gold", amount: 20, label: "Gold" },
       { resource: "wood", amount: 20, label: "Wood" },
     ],
+    targetPage: "/farming",
+  },
+  {
+    id: "a_sweeter_patch",
+    storyline: "settlement",
+    chapter: 2,
+    title: "A Sweeter Patch",
+    narrative:
+      "Nell came back from the treeline with her apron gathered up in both hands, full of small wild berries and not saying a word, only holding them out. They are too few and too scattered to feed anyone, but Edda turned one over in her fingers and said the tame kind, coaxed and tended, comes up sweeter and larger than the woods will ever give. A row of our own, then. Something red to look forward to in the summer, for the child if no one else.",
+    objective: "Tend Edda's garden until the crew settles a proper cultivated patch",
+    icon: "🍓",
+    // A gentle follow-up once the first garden is planted: introduces the
+    // specialty-seed system by granting the strawberry seed as a reward.
+    triggers: [{ type: "quest_completed", questId: "eddas_garden" }],
+    condition: (s) => s.gardens.some((g) => g.level >= 1 && g.plantedYear === s.year),
+    rewards: [{ resource: "gold", amount: 15, label: "Gold" }],
+    unlocksSeeds: ["strawberries"],
     targetPage: "/farming",
   },
 

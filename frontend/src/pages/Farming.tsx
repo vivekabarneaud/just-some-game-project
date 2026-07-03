@@ -1,7 +1,7 @@
 import { For, Show, onMount } from "solid-js";
 import { useGame, type GameState, type PlayerField, type PlayerGarden, type PlayerPen, type PlayerHive, type PlayerOrchard } from "~/engine/gameState";
 import { CROPS, type CropId, getCrop, getFieldCost, getFieldBuildTime, getSeasonYield, getSoilMultiplier, getSoilStatus, MAX_FIELDS, FIELD_MAX_LEVEL } from "~/data/crops";
-import { getVeggie, getGardenCost, getGardenBuildTime, getSeedCapacity, getEffectiveGardenRate, canPlantVeggie, isVeggieProducing, MAX_GARDENS, GARDEN_MAX_LEVEL } from "~/data/gardens";
+import { getVeggie, getGardenCost, getGardenBuildTime, getSeedCapacity, getEffectiveGardenRate, canPlantVeggie, isVeggieProducing, isSeedUnlocked, MAX_GARDENS, GARDEN_MAX_LEVEL } from "~/data/gardens";
 import { getAnimal, getPenCost, getPenBuildTime, getPenProduction, PEN_MAX_LEVEL } from "@medieval-realm/shared/data/livestock";
 import { ANIMAL_FEED, FEED_CATEGORY_ICON, FEED_CATEGORY_LABEL, FOOD_CATEGORY, isGrazer, calcGrazingCapacity, type FeedCategory } from "~/data/animalFeed";
 import type { FoodItemType } from "~/data/foods";
@@ -354,6 +354,14 @@ function GardenCard(props: { garden: PlayerGarden }) {
   const veggie = () => getVeggie(props.garden.veggie);
   const effectiveMax = () => Math.min(actions.getTownHallLevel(), GARDEN_MAX_LEVEL);
 
+  // Specialty crops stay hidden as a "???" mystery slot until the player
+  // acquires their seed (a quest/mission reward or the market). Only unbuilt
+  // slots hide — once a garden is somehow built it always shows.
+  const locked = () =>
+    props.garden.level === 0 &&
+    !props.garden.upgrading &&
+    !isSeedUnlocked(veggie(), state.seedsUnlocked);
+
   // ── Unbuilt (level 0) path: dashed placeholder, click to build. Same
   //    pattern as EmptyFieldSlot but specific to a pre-attributed veggie. ──
   const isUnbuilt = () => props.garden.level === 0 && !props.garden.upgrading;
@@ -458,6 +466,15 @@ function GardenCard(props: { garden: PlayerGarden }) {
   const indicatorCanAct = () => props.garden.level === 0 ? canBuild() : canUpgrade();
 
   return (
+    <Show when={!locked()} fallback={
+      <div class="building-card unbuilt-farm-card garden-locked-card" style={{ cursor: "default", position: "relative", "text-align": "center", opacity: 0.85 }}>
+        <div style={{ "font-size": "2.4rem", "margin-bottom": "6px", filter: "grayscale(1)", opacity: 0.55 }}>🌱</div>
+        <div class="building-card-title" style={{ "letter-spacing": "0.15em" }}>??? Garden</div>
+        <div class="building-card-desc" style={{ "margin-top": "6px", color: "var(--text-muted)", "font-style": "italic" }}>
+          A patch of bare earth, waiting on a seed we do not have yet. Some crops must be found or brought home before they can be sown here.
+        </div>
+      </div>
+    }>
     <Show when={!isUnbuilt()} fallback={
       <div class="building-card unbuilt-farm-card" style={{ cursor: "default", position: "relative" }}>
         <Show when={veggie().image} fallback={
@@ -582,6 +599,7 @@ function GardenCard(props: { garden: PlayerGarden }) {
           </Tooltip>
         </Show>
       </div>
+    </Show>
     </Show>
   );
 }

@@ -1,7 +1,7 @@
 import type { Season } from "./seasons";
 import { growth } from "@medieval-realm/shared/data/farmingMath";
 
-export type VeggieId = "cabbages" | "turnips" | "peas" | "squash" | "fava";
+export type VeggieId = "cabbages" | "turnips" | "peas" | "squash" | "fava" | "strawberries";
 
 export interface VeggieDefinition {
   id: VeggieId;
@@ -17,6 +17,10 @@ export interface VeggieDefinition {
   /** Food per hour when producing, before level scaling. */
   baseRate: number;
   image?: string;
+  /** Staples (the original five) are available from the start. Specialty crops
+   *  are LOCKED until the player acquires their seed (market / mission reward /
+   *  rare drop) — their garden shows as "???" and can't be built until unlocked. */
+  specialty?: boolean;
 }
 
 export const VEGGIES: VeggieDefinition[] = [
@@ -73,6 +77,17 @@ export const VEGGIES: VeggieDefinition[] = [
     produceSeasons: ["spring", "summer"],
     seedCost: 7,
     baseRate: 5,
+  },
+  {
+    id: "strawberries",
+    name: "Strawberries",
+    icon: "🍓",
+    description: "Cultivated sweet berries — not the wild kind the foragers find. Planted in spring, they blush red through summer. Grown for jam and small joys more than for the belly.",
+    plantSeasons: ["spring"],
+    produceSeasons: ["summer"],
+    seedCost: 10,
+    baseRate: 4,
+    specialty: true,
   },
 ];
 
@@ -150,9 +165,21 @@ export function getSeedReturn(seedsPlanted: number): number {
 export const STARTING_SEED_PER_CROP = 20;
 export function makeStartingSeeds(): Record<VeggieId, number> {
   return VEGGIES.reduce((acc, v) => {
-    acc[v.id] = STARTING_SEED_PER_CROP;
+    // Staples arrive stocked; specialty seeds start at 0 (unlocked via play).
+    acc[v.id] = v.specialty ? 0 : STARTING_SEED_PER_CROP;
     return acc;
   }, {} as Record<VeggieId, number>);
+}
+
+/** Staple crops (the original five) are always available; specialty crops must
+ *  be unlocked by acquiring their seed. `unlockedIds` is state.seedsUnlocked. */
+export function isSeedUnlocked(veggie: VeggieDefinition, unlockedIds: readonly VeggieId[]): boolean {
+  return !veggie.specialty || unlockedIds.includes(veggie.id);
+}
+
+/** The seed ids the player starts with unlocked — every staple (non-specialty). */
+export function startingUnlockedSeeds(): VeggieId[] {
+  return VEGGIES.filter((v) => !v.specialty).map((v) => v.id);
 }
 
 /** Can the player plant seeds in this garden right now? */

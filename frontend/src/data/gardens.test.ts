@@ -4,6 +4,8 @@ import {
   getEffectiveGardenRate,
   getSeedReturn,
   makeStartingSeeds,
+  isSeedUnlocked,
+  startingUnlockedSeeds,
   getGardenRate,
   getVeggie,
   VEGGIES,
@@ -62,9 +64,25 @@ describe("getSeedReturn", () => {
 });
 
 describe("makeStartingSeeds", () => {
-  it("gives the crew 20 of every crop", () => {
+  it("gives the crew 20 of every staple, 0 of specialty crops", () => {
     const seeds = makeStartingSeeds();
     expect(Object.keys(seeds).length).toBe(VEGGIES.length);
-    for (const v of VEGGIES) expect(seeds[v.id]).toBe(20);
+    for (const v of VEGGIES) expect(seeds[v.id]).toBe(v.specialty ? 0 : 20);
+  });
+});
+
+describe("isSeedUnlocked / startingUnlockedSeeds", () => {
+  it("staples are always unlocked; specialty crops start locked", () => {
+    const unlocked = startingUnlockedSeeds();
+    for (const v of VEGGIES) {
+      expect(isSeedUnlocked(v, unlocked)).toBe(!v.specialty);
+    }
+  });
+
+  it("unlocks a specialty crop once its id is present", () => {
+    const strawberries = VEGGIES.find((v) => v.id === "strawberries")!;
+    expect(strawberries.specialty).toBe(true);
+    expect(isSeedUnlocked(strawberries, [])).toBe(false);
+    expect(isSeedUnlocked(strawberries, ["strawberries"])).toBe(true);
   });
 });

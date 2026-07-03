@@ -116,6 +116,9 @@ import {
   getEffectiveGardenRate,
   getSeedReturn,
   makeStartingSeeds,
+  startingUnlockedSeeds,
+  isSeedUnlocked,
+  STARTING_SEED_PER_CROP,
   canPlantVeggie,
   isVeggieProducing,
   MAX_GARDENS,
@@ -454,6 +457,7 @@ export interface GameState {
   fields: PlayerField[];
   gardens: PlayerGarden[];
   seeds: Record<VeggieId, number>; // per-crop seed stock for sowing gardens
+  seedsUnlocked: VeggieId[]; // crops the player can grow (staples always; specialty crops unlock on seed acquisition)
   pens: PlayerPen[];
   hives: PlayerHive[];
   orchards: PlayerOrchard[];
@@ -896,6 +900,7 @@ export function createInitialState(): GameState {
     })),
     // The crew arrived with seed — enough to sow a first plot of each crop.
     seeds: makeStartingSeeds(),
+    seedsUnlocked: startingUnlockedSeeds(),
     // Pre-spawn one pen per animal (chickens / goats / pigs / sheep).
     pens: ANIMALS.map((a) => ({
       id: nextId("pen"),
@@ -1207,6 +1212,11 @@ export function migrateSaveState(saved: GameState): GameState {
       for (const v of VEGGIES) {
         if (typeof (saved as any).seeds[v.id] !== "number") (saved as any).seeds[v.id] = 0;
       }
+    }
+    // Unlocked crops: old saves get the staples unlocked; specialty crops
+    // (e.g. strawberries) stay locked until their seed is acquired.
+    if (!(saved as any).seedsUnlocked) {
+      (saved as any).seedsUnlocked = startingUnlockedSeeds();
     }
     if (!saved.pens) saved.pens = [];
     if (!saved.hives) saved.hives = [];
@@ -2558,6 +2568,9 @@ export function GameProvider(props: ParentProps) {
           for (const v of VEGGIES) {
             if (typeof (serverState as any).seeds[v.id] !== "number") (serverState as any).seeds[v.id] = 0;
           }
+        }
+        if (!(serverState as any).seedsUnlocked) {
+          (serverState as any).seedsUnlocked = startingUnlockedSeeds();
         }
         // Pens: ensure one pre-attributed slot per animal
         serverState.pens = serverState.pens ?? [];
@@ -4522,9 +4535,14 @@ export function GameProvider(props: ParentProps) {
     upgradeGarden(gardenId) {
       const garden = state.gardens.find((g) => g.id === gardenId);
       if (!garden || garden.upgrading || garden.level >= GARDEN_MAX_LEVEL) return false;
-      // Building (level 0 → 1): only in the veggie's planting season — no point
-      // raising a plot you can't sow yet (mirrors the Farming UI gate).
-      if (garden.level === 0 && !canPlantVeggie(getVeggie(garden.veggie), state.season)) return false;
+      // Building (level 0 → 1): the crop must be UNLOCKED (staple, or a specialty
+      // whose seed you've acquired) and in its planting season — no point raising
+      // a plot you can't sow yet (mirrors the Farming UI gates).
+      if (garden.level === 0) {
+        const v = getVeggie(garden.veggie);
+        if (!isSeedUnlocked(v, state.seedsUnlocked)) return false;
+        if (!canPlantVeggie(v, state.season)) return false;
+      }
       // Level 1+ upgrades mirror the field rules: winter only, TH-capped.
       if (garden.level >= 1) {
         if (state.season !== "winter") return false;
@@ -4547,6 +4565,7 @@ export function GameProvider(props: ParentProps) {
       const garden = state.gardens.find((g) => g.id === gardenId);
       if (!garden || garden.upgrading || garden.level === 0) return false;
       const veggie = getVeggie(garden.veggie);
+      if (!isSeedUnlocked(veggie, state.seedsUnlocked)) return false;
       if (!canPlantVeggie(veggie, state.season)) return false;
       if (garden.plantedYear === state.year) return false; // already sown this cycle
       // Sow from the per-crop seed stock, up to the plot's capacity. A partial
@@ -5906,6 +5925,16 @@ export function GameProvider(props: ParentProps) {
           for (const fragId of quest.unlocksBioFragments) {
             if (!s.unlockedBioFragments.includes(fragId)) {
               s.unlockedBioFragments.push(fragId);
+            }
+          }
+        }
+        // Unlock specialty crop seeds: mark the seed as unlocked (its garden
+        // becomes buildable/sowable) and grant a starter stock to sow with.
+        if (quest.unlocksSeeds) {
+          for (const seedId of quest.unlocksSeeds) {
+            if (!s.seedsUnlocked.includes(seedId)) {
+              s.seedsUnlocked.push(seedId);
+              s.seeds[seedId] = (s.seeds[seedId] ?? 0) + STARTING_SEED_PER_CROP;
             }
           }
         }
