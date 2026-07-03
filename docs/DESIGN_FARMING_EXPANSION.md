@@ -298,3 +298,34 @@ Each section follows the same card-grid pattern. The page grows vertically but s
 4. **Cheese** — depends on Tavern kitchen tab (implemented alongside food crafting)
 
 Steps 1-3 can be done independently of the food crafting system — they just produce resources that sit in storage until recipes exist to consume them. Step 4 is part of the Tavern crafting implementation.
+
+---
+
+## 5. Garden crops, recipes & rare seeds (design in progress, 2026-07-03)
+
+Turning gardens from "basic food sources" into a **diversity + discovery** layer. Building on the seed system already shipped (per-crop seeds, seed-capacity, self-sustaining harvest).
+
+### Decided
+- **Crop-choice, not crop-fixed.** Today each garden is tied to one veggie (5 veggies = 5 fixed slots, `MAX_GARDENS = VEGGIES.length`). Change to **generic plots**: a bare plot where the player sows a **season-appropriate seed of their choice**; it produces in that crop's produce-seasons; the light seasonal re-sow (self-sustaining seed) stays — that's the cosy ritual, already prompted by the farming pulse. Swapping a plot's crop = just sow a different seed next cycle. Not "stuck", no new chore.
+- **Soft-limit plots by EXPONENTIAL cost, not a hard cap or a forced either/or** (same instinct as the marketplace rework). Start with ~1 plot; each additional plot costs exponentially more. Early game you naturally focus on a crop or two; late game you can afford to grow it all. The price curve decides variety, so the player never faces a punishing "give one up to gain one".
+- **Every crop and recipe needs a SOURCE and a USE** (clutter guard). A crop justifies itself by feeding food-variety happiness, a recipe, a loyalty treat, or a trade good — not by existing.
+- **Recipes are sourced DISCOVERIES, not a flat list.** Two channels: (a) **monster loot** — the existing loot-recipe drops; (b) **character-taught signature dishes** — an adventurer/founder teaches a dish as loyalty grows (e.g. **Brenna's honey cake, learned from her mother**). Ties cooking into the cast, the tavern-conversation/loyalty arc, and the cast files; every founder can own a dish.
+- **Rare seeds** = a progression/collectible layer. Acquired via the market (occasional stock, exponential price) and **mission rewards** (à la loot recipes). Rare seed → rare crop → a recipe you earned → a dish with a real use. Rare seeds create the pressure that makes scarce early plots interesting.
+
+### Open (reflecting)
+- **The crop roster + each crop's purpose** — see the working list below; needs curation (start small, 2-3 new crops with real roles).
+- The exponential plot-cost curve (base + multiplier; gold vs wood/stone).
+- Whether **strawberries** are a garden crop (low, cultivated, distinct from the forager's *wild* berries) or belong with Orchards (§2). Leaning garden crop.
+- How rare seeds gate (pure market luck vs mission-locked vs both — leaning both).
+- Interaction with the already-planned honey/orchard/mushroom/cheese systems (recipes should span all of them).
+
+### Working crop-purpose framework
+Every crop slots into at least one PURPOSE so nothing is filler:
+- **Staple food** (raw calories, seasonal stagger for year-round supply) — the current 5: peas, turnips, cabbages, squash, fava.
+- **Sweet / treat** — e.g. strawberries → jam/dessert recipe + happiness/loyalty treat. Cultivated, distinct from foraged wild berries.
+- **Aromatic / flavor base** — e.g. onions/garlic/herbs → unlock better dishes (recipe ingredient, cooking depth).
+- **Preserving / winter security** — storage crops that carry the settlement past frost (squash/cabbage already lean this way).
+- **Cash crop / trade good** — a high-value crop for the exponential marketplace.
+- **Rare / progression** — rare-seed-only crops feeding prized recipes or a unique buff (the payoff of the rare-seed layer).
+
+Current 5 veggies are all pure "staple food" (baseRate 4-5, no other role) — the expansion adds crops that hit the other purposes.
