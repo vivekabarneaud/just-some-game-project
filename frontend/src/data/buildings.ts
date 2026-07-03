@@ -312,11 +312,15 @@ function generateLevels(
 // ─── Building definitions ────────────────────────────────────────
 
 export const BUILDINGS: BuildingDefinition[] = [
-  // Town Hall upgrade opens at Ch.3. It USED to gate on Ch.4, but deferring the
-  // flock/tailoring to Village (th_level 3) made that a deadlock: Ch.4 needs
-  // Ch.3 done → Ch.3 quests need TH3 → TH upgrades were gated on Ch.4. Opening
-  // at Ch.3 lets tier prerequisites (Houses Lv.2 + Lumber Mill for Village)
-  // drive growth toward the flock, breaking the loop.
+  // Town Hall growth is NOT story-gated. It used to be locked behind a
+  // settlement chapter (which repeatedly deadlocked, since later chapters
+  // needed a higher TH while the TH was gated on those chapters, and it also
+  // trapped players who couldn't fix housing/food until finishing pantry/
+  // warehouse quests). Now growth is driven purely by cost + the tier
+  // build-prerequisites (TIER_UPGRADE_PREREQUISITES): TH2 is cost-only (still
+  // Camp), TH3 = Village needs Houses Lv.2 + Lumber Mill, and so on. Story
+  // chapters advance on their own triggers and guide the less-obvious systems
+  // rather than blocking the settlement from growing.
   {
     id: "town_hall",
     name: "Town Hall",
@@ -327,7 +331,6 @@ export const BUILDINGS: BuildingDefinition[] = [
     maxLevel: 25,
     levels: generateLevels({ wood: 80, stone: 80 }, 60, undefined, 25),
     requiredTier: "camp",
-    unlockedAt: { storyline: "settlement", chapter: 3 },
     defaultLevel: 1,
   },
   {
