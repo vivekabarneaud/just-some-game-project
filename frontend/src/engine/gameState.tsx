@@ -177,13 +177,9 @@ import {
   type Adventurer,
   type AdventurerRank,
   type Race,
-  generateCandidate,
   buildRecruitFromPremadeId,
   getArrivedPremades,
-  getRecruitCost,
   getDeployCost,
-  getMaxRecruitRank,
-  getCandidateCount,
   getMaxRoster,
   RECRUIT_REFRESH_HOURS,
   MISSION_REFRESH_HOURS,
@@ -494,9 +490,7 @@ export interface GameState {
   adventurers: Adventurer[];
   activeMissions: ActiveMission[];
   completedMissions: CompletedMission[]; // recent results (cleared on read)
-  recruitCandidates: Adventurer[];
   missionBoard: MissionTemplate[];
-  recruitRefreshIn: number; // game-hours until next candidate refresh
   missionRefreshIn: number; // game-hours until next mission board refresh
   // Harvest tracking
   yearHarvest: Record<string, number>; // { "wheat": 120, "flax": 60 }
@@ -562,11 +556,9 @@ export interface GameState {
   astralShards: number;
   lastDailyLogin: number; // real-world timestamp of last daily reward claim
   missionRerollToday: boolean | number;
-  recruitRerollToday: boolean | number;
   lastRerollReset: number; // real-world timestamp of last reroll reset (daily)
   lastGuildVisit: number; // timestamp of last guild page visit
   lastMissionRefresh: number; // timestamp when missions last refreshed
-  lastRecruitRefresh: number; // timestamp when recruits last refreshed
   // Quest system
   questRewardsClaimed: string[];
   /** Per-storyline chapter state. Drives chapter unlocks and the quest log. */
@@ -661,7 +653,6 @@ export interface GameActions {
   cancelBuild: (buildingId: string) => boolean;
   // Adventurer's Guild
   getGuildLevel: () => number;
-  recruitAdventurer: (candidateId: string) => boolean;
   dismissAdventurer: (adventurerId: string) => boolean;
   /** Use a recovery item (e.g. a Bandage) on a resting hero at home: consumes
    *  one from inventory and heals its healPct of max HP. No-op if the hero is
@@ -745,7 +736,6 @@ export interface GameActions {
   rerollMissions: () => boolean;
   /** Dev-only: replace the mission board with every novice mission, ignoring prerequisites. */
   devSpawnAllNoviceMissions: () => void;
-  rerollRecruits: () => boolean;
   claimQuestReward: (questId: string) => boolean;
   startAlchemyResearch: () => boolean;
   startAlchemyCraft: (recipeId: string, quantity?: number) => boolean;
@@ -996,9 +986,7 @@ export function createInitialState(): GameState {
     adventurers: [],
     activeMissions: [],
     completedMissions: [],
-    recruitCandidates: [],
     missionBoard: [],
-    recruitRefreshIn: 0,
     missionRefreshIn: 0,
     incomingRaids: [],
     hoursSinceLastRaid: 48, // start with 48h of calm
@@ -1007,9 +995,7 @@ export function createInitialState(): GameState {
     lastDailyLogin: 0,
     lastGuildVisit: 0,
     lastMissionRefresh: 0,
-    lastRecruitRefresh: 0,
     missionRerollToday: 0,
-    recruitRerollToday: 0,
     lastRerollReset: Date.now(),
     questRewardsClaimed: [],
     chapters: [
@@ -1278,9 +1264,7 @@ export function migrateSaveState(saved: GameState): GameState {
       if (!(am as any).adventurerSupplies) (am as any).adventurerSupplies = {};
     }
     if (!saved.completedMissions) saved.completedMissions = [];
-    if (!saved.recruitCandidates) saved.recruitCandidates = [];
     if (!saved.missionBoard) saved.missionBoard = [];
-    if (saved.recruitRefreshIn === undefined) saved.recruitRefreshIn = 0;
     if (saved.missionRefreshIn === undefined) saved.missionRefreshIn = 0;
     // Force mission board refresh if missions lack tags (old save format)
     if (saved.missionBoard?.length > 0 && !(saved.missionBoard[0] as any).tags) {
@@ -1356,7 +1340,6 @@ export function migrateSaveState(saved: GameState): GameState {
       if (!adv.bonusStats) adv.bonusStats = {};
     };
     for (const adv of saved.adventurers) migrateEquipment(adv);
-    for (const adv of saved.recruitCandidates) migrateEquipment(adv);
     if (!saved.craftingQueue) saved.craftingQueue = [];
     if (!saved.buildingTools) saved.buildingTools = {};
     if (!saved.discoveredEnemies) saved.discoveredEnemies = [];
@@ -1409,9 +1392,7 @@ export function migrateSaveState(saved: GameState): GameState {
     if (saved.lastDailyLogin === undefined) saved.lastDailyLogin = 0;
     if (saved.lastGuildVisit === undefined) saved.lastGuildVisit = 0;
     if (saved.lastMissionRefresh === undefined) saved.lastMissionRefresh = 0;
-    if (saved.lastRecruitRefresh === undefined) saved.lastRecruitRefresh = 0;
     if (saved.missionRerollToday === undefined) saved.missionRerollToday = false;
-    if (saved.recruitRerollToday === undefined) saved.recruitRerollToday = false;
     if (saved.lastRerollReset === undefined) saved.lastRerollReset = Date.now();
     // Quest system migration
     if (!saved.questRewardsClaimed) saved.questRewardsClaimed = [];
@@ -1566,9 +1547,6 @@ export function migrateSaveState(saved: GameState): GameState {
     for (const adv of saved.adventurers) {
       if ((adv as any).level === undefined) { (adv as any).level = 1; (adv as any).xp = 0; }
     }
-    for (const adv of saved.recruitCandidates) {
-      if ((adv as any).level === undefined) { (adv as any).level = 1; (adv as any).xp = 0; }
-    }
     // Race/origin/backstory migration — backfill existing adventurers
     const backfillOrigin = (adv: any) => {
       if (adv.race) return; // already has origin data
@@ -1591,10 +1569,8 @@ export function migrateSaveState(saved: GameState): GameState {
       adv.trait = trait.id;
     };
     for (const adv of saved.adventurers) backfillOrigin(adv);
-    for (const adv of saved.recruitCandidates) backfillOrigin(adv);
     // Talent migration
     for (const adv of saved.adventurers) { if (!adv.talents) adv.talents = []; }
-    for (const adv of saved.recruitCandidates) { if (!adv.talents) adv.talents = []; }
     // Food preference & loyalty migration
     const backfillFoodLoyalty = (adv: any) => {
       if (adv.foodPreference === undefined) {
@@ -1604,7 +1580,6 @@ export function migrateSaveState(saved: GameState): GameState {
       if (adv.loyalty === undefined) adv.loyalty = 0;
     };
     for (const adv of saved.adventurers) backfillFoodLoyalty(adv);
-    for (const adv of saved.recruitCandidates) backfillFoodLoyalty(adv);
     // Match premade characters by backstory to fix renamed names/portraits
     const migratePremadeByBackstory = (adv: any) => {
       if (!adv.backstory) return;
@@ -1614,7 +1589,6 @@ export function migrateSaveState(saved: GameState): GameState {
       if (adv.portrait !== match.portrait) adv.portrait = match.portrait;
     };
     for (const adv of saved.adventurers) migratePremadeByBackstory(adv);
-    for (const adv of saved.recruitCandidates) migratePremadeByBackstory(adv);
     for (const pb of saved.buildings) {
       if (pb.upgrading && (pb as any).upgradeFinishTime) {
         pb.upgradeRemaining = Math.max(0, ((pb as any).upgradeFinishTime - Date.now()) / 1000);
@@ -1623,7 +1597,7 @@ export function migrateSaveState(saved: GameState): GameState {
     }
     // Restore ID counter
     let maxId = 0;
-    const allIds: { id: string }[] = [...saved.fields, ...saved.gardens, ...saved.pens, ...saved.adventurers, ...saved.recruitCandidates];
+    const allIds: { id: string }[] = [...saved.fields, ...saved.gardens, ...saved.pens, ...saved.adventurers];
     for (const item of allIds) {
       const num = parseInt(item.id.replace(/^[a-z]+_/, ""), 10);
       if (num > maxId) maxId = num;
@@ -2552,7 +2526,6 @@ export function GameProvider(props: ParentProps) {
           ...(serverState.gardens ?? []),
           ...(serverState.pens ?? []),
           ...(serverState.adventurers ?? []),
-          ...(serverState.recruitCandidates ?? []),
         ];
         for (const item of allIds) {
           const num = parseInt(item.id.replace(/^[a-z]+_/, ""), 10);
@@ -2644,7 +2617,6 @@ export function GameProvider(props: ParentProps) {
           }
         };
         for (const adv of serverState.adventurers ?? []) migrateEq(adv);
-        for (const adv of serverState.recruitCandidates ?? []) migrateEq(adv);
 
         // Rename chapel → shrine for old saves
         for (const b of serverState.buildings ?? []) {
@@ -2653,12 +2625,6 @@ export function GameProvider(props: ParentProps) {
         // Fix duplicate adventurer IDs (from previous bug)
         const seenIds = new Set<string>();
         for (const adv of serverState.adventurers ?? []) {
-          if (seenIds.has(adv.id)) {
-            adv.id = `adv_${idCounter++}`;
-          }
-          seenIds.add(adv.id);
-        }
-        for (const adv of serverState.recruitCandidates ?? []) {
           if (seenIds.has(adv.id)) {
             adv.id = `adv_${idCounter++}`;
           }
@@ -2802,7 +2768,6 @@ export function GameProvider(props: ParentProps) {
           adv.trait = BACKSTORY_TRAITS[hash % BACKSTORY_TRAITS.length].id;
         };
         for (const adv of serverState.adventurers ?? []) backfillOriginServer(adv);
-        for (const adv of serverState.recruitCandidates ?? []) backfillOriginServer(adv);
 
         setState(reconcile(serverState));
         // Catch up for time spent offline
@@ -4020,16 +3985,13 @@ export function GameProvider(props: ParentProps) {
             }
           }
 
-          // Refresh recruits and missions daily at 3 AM UTC
+          // Refresh missions daily at 3 AM UTC
           const now = Date.now();
           const today3am = new Date();
           today3am.setUTCHours(3, 0, 0, 0);
           if (today3am.getTime() > now) today3am.setUTCDate(today3am.getUTCDate() - 1);
-          const lastRefresh = Math.max(s.lastMissionRefresh, s.lastRecruitRefresh);
+          const lastRefresh = s.lastMissionRefresh;
           if (lastRefresh < today3am.getTime()) {
-            // Recruits no longer rotate daily — the curated cast arrives via
-            // scripted conditions (syncRecruitCandidates, run each tick below).
-            s.lastRecruitRefresh = now;
             // Missions — cap difficulty at best adventurer's rank + 1
             s.missionBoard = generateMissionBoard(buildMissionBoardContext(s, guildLvl, now + s.year * 777));
             s.lastMissionRefresh = now;
@@ -4262,7 +4224,6 @@ export function GameProvider(props: ParentProps) {
         const todayStr = new Date(now).toDateString();
         if (lastResetDay !== todayStr) {
           s.missionRerollToday = 0;
-          s.recruitRerollToday = 0;
           s.alchemyResearchAvailable = true;
           s.lastRerollReset = now;
         }
@@ -4769,25 +4730,6 @@ export function GameProvider(props: ParentProps) {
     },
     getGuildLevel() {
       return state.buildings.find((b) => b.buildingId === "adventurers_guild")?.level ?? 0;
-    },
-    recruitAdventurer(candidateId) {
-      const guildLvl = this.getGuildLevel();
-      if (guildLvl === 0) return false;
-      const candidate = state.recruitCandidates.find((c) => c.id === candidateId);
-      if (!candidate) return false;
-      const maxRoster = getMaxRoster(guildLvl);
-      // Only the living count toward the cap; the fallen are memorial-only.
-      const livingCount = state.adventurers.filter((a) => a.alive).length;
-      if (livingCount >= maxRoster) return false;
-      const cost = getRecruitCost(candidate.rank);
-      if (state.resources.gold < cost) return false;
-      setState(produce((s) => {
-        s.resources.gold -= cost;
-        s.adventurers.push({ ...candidate, alive: true, onMission: false });
-        s.recruitCandidates = s.recruitCandidates.filter((c) => c.id !== candidateId);
-      }));
-      scheduleSave();
-      return true;
     },
     dismissAdventurer(adventurerId) {
       const adv = state.adventurers.find((a) => a.id === adventurerId);
@@ -5753,8 +5695,7 @@ export function GameProvider(props: ParentProps) {
       scheduleSave();
     },
     hasNewGuildContent() {
-      return (state.lastMissionRefresh > state.lastGuildVisit && state.missionBoard.length > 0) ||
-             (state.lastRecruitRefresh > state.lastGuildVisit && state.recruitCandidates.length > 0);
+      return state.lastMissionRefresh > state.lastGuildVisit && state.missionBoard.length > 0;
     },
     hasNewAdventurers() {
       const seen = new Set(state.adventurersSeen ?? []);
@@ -5873,28 +5814,6 @@ export function GameProvider(props: ParentProps) {
         s.missionBoard = [...NOVICE_MISSIONS];
       }));
       scheduleSave();
-    },
-    rerollRecruits() {
-      const rerollCount = typeof state.recruitRerollToday === "number" ? state.recruitRerollToday : 0;
-      const cost = 10 * Math.pow(2, rerollCount);
-      if (state.astralShards < cost) return false;
-      const guildLvl = this.getGuildLevel();
-      if (guildLvl === 0) return false;
-      setState(produce((s) => {
-        s.astralShards -= cost;
-        s.recruitRerollToday = rerollCount + 1;
-        const count = getCandidateCount(guildLvl);
-        const maxRank = getMaxRecruitRank(guildLvl, s.adventurers);
-        const usedNames = new Set(s.adventurers.filter((a) => a.alive).map((a) => a.name));
-        s.recruitCandidates = [];
-        for (let i = 0; i < count; i++) {
-          const c = generateCandidate(nextId("adv"), maxRank, usedNames, guildLvl, s.completedStoryMissions, s.questRewardsClaimed);
-          usedNames.add(c.name);
-          s.recruitCandidates.push(c);
-        }
-      }));
-      scheduleSave();
-      return true;
     },
     grantResources(amount) {
       setState(produce((s) => {
