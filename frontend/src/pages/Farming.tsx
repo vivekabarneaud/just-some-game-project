@@ -360,7 +360,10 @@ function GardenCard(props: { garden: PlayerGarden }) {
   const buildCost = () => getGardenCost(0);
   const canBuild = () => {
     const c = buildCost();
-    return state.resources.wood >= c.wood && state.resources.stone >= c.stone;
+    // Don't let players build a garden they can't sow yet — no point raising a
+    // plot out of its planting season (the build is instant-ish, so waiting for
+    // the season costs nothing).
+    return inPlantSeason() && state.resources.wood >= c.wood && state.resources.stone >= c.stone;
   };
 
   // ── Built path: level >= 1. Plant/produce cycle driven by the veggie. ──
@@ -448,7 +451,9 @@ function GardenCard(props: { garden: PlayerGarden }) {
     return c ? `🪵 ${c.wood} 🪨 ${c.stone} · ${formatTime(getGardenBuildTime(props.garden.level))}` : "";
   };
   const indicatorBlockedReason = () => props.garden.level === 0
-    ? (canBuild() ? "" : "Not enough resources")
+    ? (!inPlantSeason()
+        ? `Can't sow ${veggie().name.toLowerCase()} this season — build when it's ${veggie().plantSeasons.join(" or ")}`
+        : (canBuild() ? "" : "Not enough resources"))
     : upgradeBlockedReason();
   const indicatorCanAct = () => props.garden.level === 0 ? canBuild() : canUpgrade();
 

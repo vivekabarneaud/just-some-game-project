@@ -4522,6 +4522,9 @@ export function GameProvider(props: ParentProps) {
     upgradeGarden(gardenId) {
       const garden = state.gardens.find((g) => g.id === gardenId);
       if (!garden || garden.upgrading || garden.level >= GARDEN_MAX_LEVEL) return false;
+      // Building (level 0 → 1): only in the veggie's planting season — no point
+      // raising a plot you can't sow yet (mirrors the Farming UI gate).
+      if (garden.level === 0 && !canPlantVeggie(getVeggie(garden.veggie), state.season)) return false;
       // Level 1+ upgrades mirror the field rules: winter only, TH-capped.
       if (garden.level >= 1) {
         if (state.season !== "winter") return false;
