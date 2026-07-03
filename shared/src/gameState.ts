@@ -296,9 +296,7 @@ export interface GameState {
   adventurers: Adventurer[];
   activeMissions: ActiveMission[];
   completedMissions: CompletedMission[];
-  recruitCandidates: Adventurer[];
   missionBoard: MissionTemplate[];
-  recruitRefreshIn: number;
   missionRefreshIn: number;
   // Harvest tracking
   yearHarvest: Record<string, number>;
@@ -341,11 +339,9 @@ export interface GameState {
   astralShards: number;
   lastDailyLogin: number;
   missionRerollToday: boolean | number;
-  recruitRerollToday: boolean | number;
   lastRerollReset: number;
   lastGuildVisit: number;
   lastMissionRefresh: number;
-  lastRecruitRefresh: number;
   // Quest system
   questRewardsClaimed: string[];
   firstMissionSent: boolean;
