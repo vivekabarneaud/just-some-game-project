@@ -417,26 +417,12 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     ],
     targetPage: "/farming",
   },
-  {
-    id: "a_sweeter_patch",
-    storyline: "settlement",
-    chapter: 2,
-    title: "A Sweeter Patch",
-    narrative:
-      "Nell came back from the treeline with her apron gathered up in both hands, full of small wild berries and not saying a word, only holding them out. They are too few and too scattered to feed anyone, but Edda turned one over in her fingers and said the tame kind, coaxed and tended, comes up sweeter and larger than the woods will ever give. A row of our own, then. Something red to look forward to in the summer, for the child if no one else.",
-    objective: "Take up Nell's strawberries",
-    hint: "Claiming adds strawberry seed to your stores — a new crop you can sow in a garden come spring.",
-    icon: "🍓",
-    // A gentle follow-up once the first garden is planted: introduces the
-    // specialty-seed system by handing over the strawberry seed. The condition
-    // is already met (a garden is planted), so this reads as a narrative gift
-    // the player claims rather than a fresh chore.
-    triggers: [{ type: "quest_completed", questId: "eddas_garden" }],
-    condition: (s) => s.gardens.some((g) => g.level >= 1 && g.plantedYear === s.year),
-    rewards: [{ resource: "gold", amount: 15, label: "Gold" }],
-    unlocksSeeds: ["strawberries"],
-    targetPage: "/farming",
-  },
+  // NOTE: the "A Sweeter Patch" quest was pulled — it handed the strawberry seed
+  // instantly after Edda's Garden, which spoiled the "???" mystery patch. The
+  // strawberry unlock is being redesigned as a later, summer-firing adventurer
+  // mission ("find Nell asleep in the wild strawberries"). Until that lands,
+  // strawberries stay locked (their garden shows as "???"). See
+  // docs/DESIGN_FARMING_EXPANSION.md §5.
 
   // ╔══════════════════════════════════════════════════════════════╗
   // ║ SETTLEMENT — Chapter 3: The Shepherd                        ║
@@ -653,6 +639,22 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     ],
     targetPage: "/guild",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_12.png",
+  },
+  {
+    id: "investigate_old_watch",
+    storyline: "guild",
+    chapter: 1,
+    title: "The Old Watch",
+    narrative:
+      "The scouts came back with a map and a knot in their story: an old watchtower to the south, stone that has outlived whoever raised it. Worth walking its halls, if the place is as empty as it looks. Send a team, and send someone who can hold a line, just in case it is not.",
+    objective: "Send a team to investigate the Old Watch",
+    icon: "🏚️",
+    // Pure guide quest — no reward, just a breadcrumb so the quest log points at
+    // the story_2 mission during the lull after the first scouting run.
+    triggers: [{ type: "story_mission_completed", missionId: "story_1_scouting" }],
+    condition: (s) => (s.completedStoryMissions ?? []).includes("story_2_ruins"),
+    rewards: [],
+    targetPage: "/guild",
   },
 
   // ╔══════════════════════════════════════════════════════════════╗

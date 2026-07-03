@@ -154,7 +154,7 @@ export default function QuestLog() {
                       claimable={isQuestClaimable(quest, state)}
                       isUnseen={!seen().includes(quest.id)}
                       onClaim={() =>
-                        quest.rewards.length === 0
+                        quest.rewards.length === 0 && (quest.unlocksBioFragments?.length ?? 0) > 0
                           ? openCheckinMemory(quest)
                           : setClaimingQuest(quest)
                       }
@@ -292,10 +292,13 @@ function QuestCard(props: {
   onClaim: () => void;
   onSeen?: () => void;
 }) {
-  // Reward-less quests (the "The Folk" check-ins) are personal beats, not
-  // transactions: the objective line itself becomes the button that opens the
-  // memory, and we drop the reward badge + standalone Claim button.
-  const isMemoryOnly = () => props.quest.rewards.length === 0;
+  // Memory check-ins (the "The Folk" quests) are personal beats, not
+  // transactions: no reward, but they surface a cast memory. The objective line
+  // itself becomes the button that opens the memory, and we drop the standalone
+  // Claim button. A reward-less quest WITHOUT a memory (e.g. a pure guide quest)
+  // is not a check-in and behaves like a normal quest.
+  const isMemoryCheckin = () =>
+    props.quest.rewards.length === 0 && (props.quest.unlocksBioFragments?.length ?? 0) > 0;
   return (
     <div
       onMouseEnter={() => props.onSeen?.()}
@@ -345,7 +348,7 @@ function QuestCard(props: {
         </div>
       </Show>
 
-      <Show when={props.isUnseen || (props.claimable && !isMemoryOnly())}>
+      <Show when={props.isUnseen || (props.claimable && !isMemoryCheckin())}>
         <div style={{
           "position": "absolute",
           "top": "8px",
@@ -398,7 +401,7 @@ function QuestCard(props: {
           {(() => {
             // Memory-only check-ins: the objective IS the action. Clicking it
             // opens the memory modal (no separate Claim button on the card).
-            if (isMemoryOnly() && props.claimable) {
+            if (isMemoryCheckin() && props.claimable) {
               return (
                 <button
                   type="button"
@@ -465,7 +468,7 @@ function QuestCard(props: {
               </Show>
             </p>
           </Show>
-          <Show when={!isMemoryOnly()}>
+          <Show when={props.quest.rewards.length > 0}>
             <div style={{
               "margin-top": "8px",
               "color": "var(--text-secondary)",
@@ -482,7 +485,7 @@ function QuestCard(props: {
         </div>
 
         <div style={{ "display": "flex", "flex-direction": "column", "gap": "6px", "align-items": "stretch" }}>
-          <Show when={props.claimable && !isMemoryOnly()}>
+          <Show when={props.claimable && !isMemoryCheckin()}>
             <button
               onClick={props.onClaim}
               style={{

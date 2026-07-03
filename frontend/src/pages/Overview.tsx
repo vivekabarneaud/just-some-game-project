@@ -219,6 +219,18 @@ export default function Overview() {
             }
             return null;
           };
+          // Overcrowding banner — occupancy (citizens + living adventurers) over
+          // the housing cap. Doesn't kill anyone, but it drags happiness down and
+          // stalls new arrivals, so surface it like the food warning.
+          const overcrowded = (): { headline: string; detail: string } | null => {
+            const occupancy = totalPopulation(state.citizens) + state.adventurers.filter((a) => a.alive).length;
+            const cap = actions.getMaxPopulation();
+            if (occupancy <= cap) return null;
+            return {
+              headline: `Overcrowded — ${occupancy}/${cap} under too few roofs`,
+              detail: `Beds are over capacity: happiness suffers and new folk won't settle until there's room${state.season === "winter" ? ", and a crowded camp is a cold one in winter" : ""}. Build or upgrade Houses.`,
+            };
+          };
           return (
             <div class="quest-panel" style={{ "padding": "16px 20px" }}>
               <div class="quest-panel-content">
@@ -253,6 +265,39 @@ export default function Overview() {
                             gap: "8px",
                           }}>
                             <span>⚠️</span>
+                            <span>{d().headline}</span>
+                          </div>
+                          <div style={{
+                            "margin-top": "4px",
+                            "font-size": "0.82rem",
+                            color: "var(--text-secondary)",
+                            "line-height": "1.5",
+                          }}>
+                            {d().detail}
+                          </div>
+                        </div>
+                      )}
+                    </Show>
+                    <Show when={overcrowded()}>
+                      {(d) => (
+                        <div style={{
+                          "margin": "14px 0 0",
+                          padding: "10px 14px",
+                          background: "rgba(212, 175, 55, 0.10)",
+                          border: "1px solid var(--accent-gold)",
+                          "border-left-width": "4px",
+                          "border-radius": "6px",
+                          "max-width": "800px",
+                        }}>
+                          <div style={{
+                            "font-weight": "700",
+                            color: "var(--accent-gold)",
+                            "font-size": "0.9rem",
+                            display: "flex",
+                            "align-items": "center",
+                            gap: "8px",
+                          }}>
+                            <span>🏚️</span>
                             <span>{d().headline}</span>
                           </div>
                           <div style={{

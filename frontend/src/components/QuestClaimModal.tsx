@@ -39,9 +39,11 @@ export default function QuestClaimModal(props: Props) {
   /** First paragraph of a memory fragment, used as the card teaser. */
   const fragmentTeaser = (text: string) => text.split("\n\n")[0] ?? text;
   const unlockedMemories = () => resolveFragments(props.quest.unlocksBioFragments ?? []);
-  // Reward-less check-ins are personal beats, not transactions — soften the
-  // "Quest Complete / Claim" framing into a quiet moment the player closes.
-  const isMemoryOnly = () => props.quest.rewards.length === 0;
+  // Memory check-ins (reward-less + surface a cast memory) are personal beats,
+  // not transactions — soften the "Quest Complete / Claim" framing into a quiet
+  // moment the player closes. Reward-less guide quests (no memory) stay normal.
+  const isMemoryOnly = () =>
+    props.quest.rewards.length === 0 && (props.quest.unlocksBioFragments?.length ?? 0) > 0;
 
   return (
     <>

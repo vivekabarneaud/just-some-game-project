@@ -1463,6 +1463,12 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
+/* The Food dropdown packs the most columns (name · stockpile · rate across
+   several categories), so it needs more room than the default 200px. */
+.resource-dropdown--wide {
+  min-width: 300px;
+}
+
 /* The population display is the last item on the right edge of the resource
    bar — anchor its dropdown to the right so it doesn't clip off the viewport. */
 .pop-display.has-dropdown .resource-dropdown {

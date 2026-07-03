@@ -165,7 +165,7 @@ export default function ResourceBar() {
               </span>
 
               <Show when={res.id === "food"}>
-                <div class="resource-dropdown">
+                <div class="resource-dropdown resource-dropdown--wide">
                   <div class="dropdown-title">Food Stockpile</div>
                   <Show when={foodFragile()}>
                     <div style={{
