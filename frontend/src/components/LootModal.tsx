@@ -7,7 +7,6 @@ import { STORY_CINEMATICS } from "~/data/cinematics";
 import { getChronicleEntry, type ChronicleEntry } from "~/data/chronicle_entries";
 import CombatLog from "~/components/CombatLog";
 import CombatPlayback from "~/components/CombatPlayback";
-import UnlockCard from "~/components/UnlockCard";
 import ChronicleEntryModal from "~/components/ChronicleEntryModal";
 
 interface Props {
@@ -25,7 +24,15 @@ interface Props {
 const EXIT_ANIMATION_MS = 240;
 
 export default function LootModal(props: Props) {
-  onMount(() => playSound("notify"));
+  onMount(() => {
+    playSound("notify");
+    // Fire the story mission's chronicle entry directly on top of the loot
+    // modal rather than leaving it as a card the player might skip. Opening it
+    // marks the entry seen, which suppresses the AdventurersGuild after-dismiss
+    // auto-open. Small delay lets the loot modal animate in underneath first.
+    const entry = chronicleEntry();
+    if (entry) setTimeout(() => setPreviewEntry(entry), 500);
+  });
   const template = () => getMission(props.result.missionId) ?? { name: props.result.missionId, icon: "📜" };
   const hasRewards = () => props.result.rewards.length > 0;
   // Outcome is three-way under Model C: success / retreated (broke off, came
@@ -163,21 +170,9 @@ export default function LootModal(props: Props) {
             </div>
           </Show>
 
-          {/* New chronicle entry — clickable, opens preview. Previewing marks the
-              entry as seen, which suppresses the AdventurersGuild auto-open after
-              claim (see chronicleEntriesSeen guard there). */}
-          <Show when={chronicleEntry()}>
-            {(entry) => (
-              <UnlockCard
-                image={{ kind: "icon", emoji: "📖" }}
-                label="New chronicle entry"
-                title={entry().title}
-                teaser={entry().teaser}
-                onClick={() => setPreviewEntry(entry())}
-                animationDelay="440ms"
-              />
-            )}
-          </Show>
+          {/* The chronicle entry now fires directly on top of this modal (see
+              onMount), so it no longer shows as a card here. It stays available
+              in the Chronicle journal afterwards. */}
 
           {/* XP & level/rank ups */}
           <Show when={r().xpGained > 0 || r().levelUps.length > 0 || r().rankUps.length > 0}>

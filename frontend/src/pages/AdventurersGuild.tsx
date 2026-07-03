@@ -1059,7 +1059,7 @@ export default function AdventurersGuild() {
                           <button
                             class="field-upgrade-btn"
                             style={{ "margin-top": "6px", "font-size": "0.72rem", padding: "3px 8px" }}
-                            onClick={(e) => { e.stopPropagation(); actions.useRecoveryItem(adv.id, "bandage"); }}
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); actions.useRecoveryItem(adv.id, "bandage"); }}
                           >
                             🩹 Use Bandage ({state.inventory.find((i) => i.itemId === "bandage")?.quantity ?? 0})
                           </button>
