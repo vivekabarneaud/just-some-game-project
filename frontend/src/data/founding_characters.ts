@@ -57,7 +57,8 @@ export const FOUNDING_CHARACTERS: FoundingCharacter[] = [
       {
         id: "edda_forager_hut",
         text:
-          "We finished the forager's hut a few hours ago. I came by to see how Edda meant to lay it out, and was about to step round the side when I caught sight of them.\n\n" +
+          "There is a thing I saw at the forager's hut that I have not been able to set down.\n\n" +
+          "I had gone by to see how Edda meant to lay it out, and was about to step round the side when I caught sight of them.\n\n" +
           "Edda and Nell were kneeling in the soft dirt. They did not see me.\n\n" +
           "Edda took Nell's small hand and pressed her thumb into the ground beside the green stems, slow and deliberate. \"Say it,\" she said. \"Grønmoder.\" Nell mouthed the word. Edda nodded. \"Again.\" Nell pressed her thumb down on her own this time, and mouthed it again.\n\n" +
           "\"It is the old name. It stays only in this patch. Do you hear me?\" Nell nodded. And then she smiled. A real smile, the kind I had not seen in a long time.\n\n" +
@@ -92,8 +93,8 @@ export const FOUNDING_CHARACTERS: FoundingCharacter[] = [
       {
         id: "jory_sawhorse",
         text:
-          "We finished the lumber mill at dusk, and Jory was making everyone laugh before the saw had even cooled. Half the men were still smiling when the lamps went up.\n\n" +
-          "I came back later. I had forgotten the lantern at the bench. Jory was alone, sitting on the new sawhorse with his hands quiet on his knees. His face was not the one he had been wearing an hour before.\n\n" +
+          "He wears the joking face so well that it took me a while to learn it is a face. The night we raised the lumber mill, he had half the men laughing before the saw had even cooled.\n\n" +
+          "I came back later for a lantern I had left at the bench, and found him alone, sitting on the new sawhorse with his hands quiet on his knees. His face was not the one he had been wearing an hour before.\n\n" +
           "He looked up and the grin came back the instant he heard my step. \"I am inspecting my work,\" he said, slapping the sawhorse. \"It is excellent. The carpenter is a genius. Do not tell him.\"\n\n" +
           "I did not push it. We grew up next door, long enough to know which face is the one he keeps for himself.",
       },
@@ -121,8 +122,8 @@ export const FOUNDING_CHARACTERS: FoundingCharacter[] = [
       {
         id: "tomas_quarry",
         text:
-          "We finished the quarry at noon: three men, two days, more dust than stone for the trouble of it. Tomas was the last to leave the cut, walking up the path with a hammer over one shoulder and his coat over the other.\n\n" +
-          "I do not remember the last time I saw him walk like that. In Ashwick he walked like a man counting paving stones to keep his mind off something. Today he walked like a man going somewhere.\n\n" +
+          "I keep coming back to the day we opened the quarry: three men, two days, more dust than stone for the trouble of it. Tomas was the last to leave the cut, walking up the path with a hammer over one shoulder and his coat over the other.\n\n" +
+          "I do not remember the last time I saw him walk like that. In Ashwick he walked like a man counting paving stones to keep his mind off something. That day he walked like a man going somewhere.\n\n" +
           "He brought the first proper block to Edda before sunset, for a doorstep, he said, though no one had asked. Edda told him it was excellent. He said nothing. He limped off to the perimeter the way he always does.\n\n" +
           "I do not think he knows he is more alive here than he was in Ashwick. I think we ought not tell him, in case telling him spoils it.",
       },

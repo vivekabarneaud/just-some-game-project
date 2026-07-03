@@ -842,7 +842,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     chapter: 1,
     title: "See to Edda",
     narrative:
-      "We have done good work these first weeks, and I have hardly looked up to see how the folk who followed me are holding up. Time to go round. Edda first. It is always Edda first.",
+      "We have done good work these first weeks, and I have hardly looked up to see how the folk who followed me are holding up. Time I sat with each of them a while. I will start with Edda, who will tell me how everyone else is faring long before she says a word about herself. She always does.",
     objective: "Sit a while with Edda",
     icon: "🕯️",
     triggers: [{ type: "custom", check: (s) => s.firstMissionSent === true }],
@@ -856,7 +856,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     chapter: 1,
     title: "See to Jory",
     narrative:
-      "Jory set down the felling axe when he saw me and rolled his shoulder. \"You know what I dream about?\" he said. \"The day someone else can run this mill, so I can put the axe down and pick a knife up. Give me a good piece of wood and the time to carve it and I would never fell another tree.\" He said it lightly. He was not being light.",
+      "I find Jory at the mill, and he sets down the felling axe when he sees me, rolling his shoulder. \"You know what I dream about?\" he says. \"The day someone else can run this place, so I can put the axe down and pick a knife up. Give me a good piece of wood and the time to carve it, and I would never fell another tree.\" He says it lightly. He is not being light.",
     objective: "Share a word with Jory",
     icon: "🕯️",
     triggers: [{ type: "custom", check: (s) => s.firstMissionSent === true }],
@@ -870,7 +870,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     chapter: 1,
     title: "See to Tomas",
     narrative:
-      "Tomas was at the quarry face, sighting a cut nobody had asked him for yet. He gave me a grunt, which from him is a long and warm conversation. He stands differently here than he did in Ashwick. I know better than to say so.",
+      "I go looking for Tomas and find him at the quarry face, sighting a cut nobody has asked him for yet. He gives me a grunt, which from him is a long and warm conversation. He stands differently here than he did in Ashwick. I know better than to say so.",
     objective: "Look in on Tomas",
     icon: "🕯️",
     triggers: [{ type: "custom", check: (s) => s.firstMissionSent === true }],
