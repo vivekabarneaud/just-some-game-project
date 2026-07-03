@@ -329,3 +329,14 @@ Every crop slots into at least one PURPOSE so nothing is filler:
 - **Rare / progression** — rare-seed-only crops feeding prized recipes or a unique buff (the payoff of the rare-seed layer).
 
 Current 5 veggies are all pure "staple food" (baseRate 4-5, no other role) — the expansion adds crops that hit the other purposes.
+
+### Candidate crops (climate: cool-temperate, central-European-like)
+- **Strawberries** (sweet/treat) — cultivated, distinct from the forager's WILD berries. Plant spring → produce summer. → strawberry jam + a happiness treat / gift. Pairs with Brenna's honey cake (honey + berries).
+- **Onions / aromatics** (flavor base) — stores well. The recipe INGREDIENT that unlocks heartier cooked dishes; gives cooking its depth (a stew wants an aromatic).
+- **Culinary herbs** (thyme/sage) — cooking flavor/quality. Kept DISTINCT from the forager's wild medicinal/alchemy herbs (cultivated-culinary vs foraged-medicinal — no niche overlap).
+- **Hops** (cash / cross-system) — very on-climate (beer country). Feeds the existing brewery/ale chain + sells well. "My garden supplies my tavern."
+- **Rare: saffron** (rare/progression, via rare seed) — historically a marginal-climate central-European *luxury* (Saffron Walden, Austrian saffron), worth its weight in gold. Reads as special *because* it's hard. → a feast dish + high trade value. Alternatives: grapes (wine chain), a noble melon, a prized medicinal.
+- **Rare alchemy herb (garden, later)** — common alchemy herbs stay on the forager's hut; a *rare* one becomes a cultivable garden crop (rare seed), so the forager keeps its niche and gardens gain a rare-alchemy option. (Resolves the "alchemy herbs in gardens?" question without cannibalizing the forager.)
+
+### Gifting is EDDA's domain (not the Lord's)
+Cozy gifting (Animal-Crossing/Hello-Kitty inspiration): a cooked dish gifted for a small **loyalty** bump, ~once a day. The LORD handing out cakes reads wrong — but **Edda** (midwife, cellarer, keeper of the hearth) is exactly who does this. So the player grows the crop → cooks the dish → **Edda carries it round** → loyalty. This finally gives Edda a *mechanical verb* (she's currently all lore), and it anchors the whole crop→recipe→loyalty loop in the right character. Ties to [[project_tavern_conversations]] + her cast file.
