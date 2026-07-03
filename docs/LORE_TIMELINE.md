@@ -1,6 +1,6 @@
 # Valenheart — Master Lore Timeline & Schema
 
-**Status:** Working canon (April–May 2026). Synthesizes `LORE_FINAL.md`, `LORE_EIGHTH_GOD.md`, `FOUNDING_CHARACTERS.md`, and recent canon-locking sessions. Note: this doc has begun to diverge from `LORE_FINAL.md` and `LORE_EIGHTH_GOD.md` on the cosmology axis (gods are now celestial; the Sundering is the Cassandra Netheron version). The older docs will eventually be reconciled or retired.
+**Status: TOP CANON AUTHORITY.** This is the single source of truth for cosmology, the Sundering, eras, cultures, and factions wherever it speaks. It **supersedes `LORE_FINAL.md` and `LORE_EIGHTH_GOD.md`** on the cosmology / Sundering axis (gods are celestial; the Sundering is the Cassandra–Netheron version). Where any doc disagrees with this one, **this one wins.** Those two remain CANON-PARTIAL *references*: `LORE_FINAL.md` for faction/NPC/race texture (mind the name drift — Dryven→**Drayven**, Kess→**Niamh**), `LORE_EIGHTH_GOD.md` for the Eighth's existence/nature. `FOUNDING_CHARACTERS.md` is the parallel authority for the six founders. Also stale, NOT canon: `frontend/src/data/chronicle.ts` (pre-lock v1 draft — see `LORE_AUDIT_2026-06-11.md`). Full consolidation (folding FINAL + EIGHTH_GOD in here) is still planned; until then this doc is authoritative.
 
 This is the consolidated schema. Read it top to bottom for the chronology. Use the cultural sections for per-people deep dives. Open threads at the bottom flag what still needs locking.
 
