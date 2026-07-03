@@ -355,5 +355,7 @@ Recipes/crops/seeds use the existing **???-until-discovered** pattern (like mons
 ### PARKED: Tavern travelers + custom menu → passive gold
 With ale/beer/wine + dish diversity, give the tavern an *economic* role: travelers pass through, the player defines their own **menu** (drinks + dishes), and it earns **passive gold** scaled by variety/quality (a default menu so it's never mandatory). Turns the crop → drink/recipe web into an income engine. Late-game hook; design later.
 
+*Economy-fiction note:* that gold (and all settlement gold) is the **common purse** the Lord *stewards*, not personal/noble wealth — the tavern's takings pool into the shared coffer like everything else. Relatedly, the current gold-income "tax" is a mislabel (free frontier holding, no internal taxation): it's the folk's shared contribution, and adventurers pay in via mission spoils, not tax. See the Lord-character memory for the locked framing + a possible "tax" → "common purse" rename.
+
 ### Gifting is EDDA's domain (not the Lord's)
 Cozy gifting (Animal-Crossing/Hello-Kitty inspiration): a cooked dish gifted for a small **loyalty** bump, ~once a day. The LORD handing out cakes reads wrong — but **Edda** (midwife, cellarer, keeper of the hearth) is exactly who does this. So the player grows the crop → cooks the dish → **Edda carries it round** → loyalty. This finally gives Edda a *mechanical verb* (she's currently all lore), and it anchors the whole crop→recipe→loyalty loop in the right character. Ties to [[project_tavern_conversations]] + her cast file.
