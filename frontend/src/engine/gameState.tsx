@@ -2145,7 +2145,7 @@ export const ADVENTURER_FOOD_MULTIPLIER = 0.5;
  *  a settlement founded in winter tightens its belts through that first winter. */
 export const FOUNDING_WINTER_RATION = 0.7;
 
-function calcFoodConsumption(citizens: CitizenCounts, adventurerMouths = 0, rationMult = 1): number {
+export function calcFoodConsumption(citizens: CitizenCounts, adventurerMouths = 0, rationMult = 1): number {
   // Per-category multipliers: toddlers 0.5×, children 0.75×, adults 1.0×, elderly 0.75×.
   // Adventurers eat at ADVENTURER_FOOD_MULTIPLIER of an adult, home or away — away
   // rations are a separate mission concern, so the town food readout stays steady.

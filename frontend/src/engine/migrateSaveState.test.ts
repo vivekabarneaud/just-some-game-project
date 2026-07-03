@@ -4,7 +4,7 @@
 // into its own module (audit's migration-extraction refactor), this one file
 // runs in a DOM env. The pure suites stay in the fast `node` env.
 import { describe, it, expect } from "vitest";
-import { createInitialState, migrateSaveState } from "./gameState";
+import { createInitialState, migrateSaveState, calcFoodConsumption } from "./gameState";
 
 // Sentinel for the June 2026 P0: the server load path skipped most of the
 // backfill, so fields added over time loaded as `undefined` — and the tick
@@ -63,5 +63,36 @@ describe("migrateSaveState", () => {
     for (const key of Object.keys(fresh)) {
       expect(migrated[key]).toBeDefined();
     }
+  });
+
+  it("seeds foundingYear and defaults foundingWinterGrace off for old saves", () => {
+    const s: any = oldSave();
+    delete s.foundingYear;
+    delete s.foundingWinterGrace;
+    const m: any = migrateSaveState(s);
+    expect(typeof m.foundingYear).toBe("number");
+    expect(m.foundingWinterGrace).toBe(false);
+  });
+});
+
+describe("calcFoodConsumption", () => {
+  const adults = (n: number) => ({ toddlers: 0, children: 0, adults: n, elderly: 0 });
+
+  it("citizens eat at an adult's full rate (5/hr)", () => {
+    expect(calcFoodConsumption(adults(2))).toBe(10); // 2 * 5
+  });
+
+  it("adventurers eat half a townsfolk", () => {
+    // 4 adventurer-mouths → 4 * 0.5 * 5 = 10, i.e. like 2 adults
+    expect(calcFoodConsumption(adults(0), 4)).toBe(10);
+  });
+
+  it("the founding-winter ration trims the whole bill", () => {
+    expect(calcFoodConsumption(adults(4), 0, 0.7)).toBeCloseTo(14); // 4 * 5 * 0.7
+  });
+
+  it("combines citizens + half-fed adventurers + the ration", () => {
+    // (2 + 2*0.5) * 5 * 0.7 = 3 * 5 * 0.7 = 10.5
+    expect(calcFoodConsumption(adults(2), 2, 0.7)).toBeCloseTo(10.5);
   });
 });
