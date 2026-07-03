@@ -336,7 +336,24 @@ Current 5 veggies are all pure "staple food" (baseRate 4-5, no other role) — t
 - **Culinary herbs** (thyme/sage) — cooking flavor/quality. Kept DISTINCT from the forager's wild medicinal/alchemy herbs (cultivated-culinary vs foraged-medicinal — no niche overlap).
 - **Hops** (cash / cross-system) — very on-climate (beer country). Feeds the existing brewery/ale chain + sells well. "My garden supplies my tavern."
 - **Rare: saffron** (rare/progression, via rare seed) — historically a marginal-climate central-European *luxury* (Saffron Walden, Austrian saffron), worth its weight in gold. Reads as special *because* it's hard. → a feast dish + high trade value. Alternatives: grapes (wine chain), a noble melon, a prized medicinal.
+- **Grapes** (cash / cross-system) → a **wine** chain. On-climate (Rhine-valley wine country).
+- **Melon** (luxury/treat) — noble-garden luxury; a treat/trade crop.
 - **Rare alchemy herb (garden, later)** — common alchemy herbs stay on the forager's hut; a *rare* one becomes a cultivable garden crop (rare seed), so the forager keeps its niche and gardens gain a rare-alchemy option. (Resolves the "alchemy herbs in gardens?" question without cannibalizing the forager.)
+
+### Hops ≠ redundant with barley → a tavern DRINK TIER
+Barley is the fermentable base; **hops** (houblon) add bitterness + flavor + *preservation* — historically the ale→beer transition. So the drink tier becomes: **Ale** (barley) → happiness; **Beer** (barley + hops) → more happiness / keeps longer; **Wine** (grapes) → premium, a *different* effect — good candidate: **accelerates home HP-regen** (ties to the recovery system, a good vintage speeds the wounded's mending). Each tavern drink = a distinct buff, which is what justifies hops + grapes.
+
+### Seed-choice UI (the "sow" modal)
+A modal, one button per seed: **icon + name + owned/capacity**. In-season seeds enabled + highlighted at top; off-season disabled with a tooltip ("Sown in autumn"). Show each crop's **produce window** on the button ("yields summer–autumn"). Undiscovered seeds render as **???**. Makes "only *this* is plantable right now" obvious to a new player.
+
+### Loyalty via favorite food (NOT a new Edda mechanic — for now)
+Everything the player does is still "the Lord" (no character-action layer yet), so the cozy gifting loop rides the EXISTING mission food-packing: flavor-matched food already buffs; add that packing an adventurer's **true favorite dish** for a mission gives a **bigger buff + a small loyalty bump.** Lord-consistent (provisioning your people well), reuses existing plumbing. Edda's daily cozy-gifting stays parked as a *future* layer if/when character-driven actions exist.
+
+### Discovery surfacing: in-game ??? + external wiki
+Recipes/crops/seeds use the existing **???-until-discovered** pattern (like monster discovery + the encyclopedia): the in-game list teases that content exists without spoiling it; a **separate community wiki** (wowhead-style) holds full details for completionists. In-game stays about discovery; the wiki is the reference.
+
+### PARKED: Tavern travelers + custom menu → passive gold
+With ale/beer/wine + dish diversity, give the tavern an *economic* role: travelers pass through, the player defines their own **menu** (drinks + dishes), and it earns **passive gold** scaled by variety/quality (a default menu so it's never mandatory). Turns the crop → drink/recipe web into an income engine. Late-game hook; design later.
 
 ### Gifting is EDDA's domain (not the Lord's)
 Cozy gifting (Animal-Crossing/Hello-Kitty inspiration): a cooked dish gifted for a small **loyalty** bump, ~once a day. The LORD handing out cakes reads wrong — but **Edda** (midwife, cellarer, keeper of the hearth) is exactly who does this. So the player grows the crop → cooks the dish → **Edda carries it round** → loyalty. This finally gives Edda a *mechanical verb* (she's currently all lore), and it anchors the whole crop→recipe→loyalty loop in the right character. Ties to [[project_tavern_conversations]] + her cast file.
