@@ -39,6 +39,9 @@ export default function QuestClaimModal(props: Props) {
   /** First paragraph of a memory fragment, used as the card teaser. */
   const fragmentTeaser = (text: string) => text.split("\n\n")[0] ?? text;
   const unlockedMemories = () => resolveFragments(props.quest.unlocksBioFragments ?? []);
+  // Reward-less check-ins are personal beats, not transactions — soften the
+  // "Quest Complete / Claim" framing into a quiet moment the player closes.
+  const isMemoryOnly = () => props.quest.rewards.length === 0;
 
   return (
     <>
@@ -75,7 +78,7 @@ export default function QuestClaimModal(props: Props) {
             <span style={{ "font-size": "2rem" }}>{props.quest.icon}</span>
             <div>
               <div class="section-label" style={{ color: "var(--accent-gold)", "margin-bottom": "0" }}>
-                Quest Complete
+                {isMemoryOnly() ? "A quiet moment" : "Quest Complete"}
               </div>
               <div style={{ "font-family": "var(--font-heading)", "font-size": "1.3rem", color: "var(--text-primary)" }}>
                 {props.quest.title}
@@ -86,29 +89,31 @@ export default function QuestClaimModal(props: Props) {
 
         {/* Body */}
         <div style={{ padding: "16px 20px", display: "flex", "flex-direction": "column", gap: "14px" }}>
-          <div class="loot-section" style={{ "animation-delay": "180ms" }}>
-            <div class="section-label">
-              Rewards
+          <Show when={props.quest.rewards.length > 0}>
+            <div class="loot-section" style={{ "animation-delay": "180ms" }}>
+              <div class="section-label">
+                Rewards
+              </div>
+              <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
+                <For each={props.quest.rewards}>
+                  {(reward, i) => (
+                    <span class="loot-chip" style={{
+                      padding: "6px 12px",
+                      background: "rgba(212, 175, 55, 0.12)",
+                      border: "1px solid var(--accent-gold)",
+                      "border-radius": "4px",
+                      color: "var(--accent-gold)",
+                      "font-size": "0.9rem",
+                      "font-weight": "600",
+                      "animation-delay": `${280 + i() * 55}ms`,
+                    }}>
+                      +{reward.amount} {reward.label}
+                    </span>
+                  )}
+                </For>
+              </div>
             </div>
-            <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
-              <For each={props.quest.rewards}>
-                {(reward, i) => (
-                  <span class="loot-chip" style={{
-                    padding: "6px 12px",
-                    background: "rgba(212, 175, 55, 0.12)",
-                    border: "1px solid var(--accent-gold)",
-                    "border-radius": "4px",
-                    color: "var(--accent-gold)",
-                    "font-size": "0.9rem",
-                    "font-weight": "600",
-                    "animation-delay": `${280 + i() * 55}ms`,
-                  }}>
-                    +{reward.amount} {reward.label}
-                  </span>
-                )}
-              </For>
-            </div>
-          </div>
+          </Show>
 
           {/* New journal entry — clickable, opens preview */}
           <Show when={props.quest.chronicleEntryId ? getChronicleEntry(props.quest.chronicleEntryId) : null}>
@@ -152,7 +157,7 @@ export default function QuestClaimModal(props: Props) {
             onClick={() => { playSound("notify"); dismissWith("claim"); }}
             style={{ padding: "8px 20px", "font-size": "0.95rem" }}
           >
-            Claim
+            {isMemoryOnly() ? "Close" : "Claim"}
           </button>
         </div>
       </div>

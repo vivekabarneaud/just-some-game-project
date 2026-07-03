@@ -264,6 +264,10 @@ function QuestCard(props: {
   onClaim: () => void;
   onSeen?: () => void;
 }) {
+  // Reward-less quests (the "The Folk" check-ins) are personal beats, not
+  // transactions: the objective line itself becomes the button that opens the
+  // memory, and we drop the reward badge + standalone Claim button.
+  const isMemoryOnly = () => props.quest.rewards.length === 0;
   return (
     <div
       onMouseEnter={() => props.onSeen?.()}
@@ -313,7 +317,7 @@ function QuestCard(props: {
         </div>
       </Show>
 
-      <Show when={props.isUnseen || props.claimable}>
+      <Show when={props.isUnseen || (props.claimable && !isMemoryOnly())}>
         <div style={{
           "position": "absolute",
           "top": "8px",
@@ -364,6 +368,31 @@ function QuestCard(props: {
               hover underline + pointer cursor signal it's a link, replacing
               the previous "Go →" button. */}
           {(() => {
+            // Memory-only check-ins: the objective IS the action. Clicking it
+            // opens the memory modal (no separate Claim button on the card).
+            if (isMemoryOnly() && props.claimable) {
+              return (
+                <button
+                  type="button"
+                  onClick={props.onClaim}
+                  classList={{ "quest-objective-link": true }}
+                  style={{
+                    "display": "block",
+                    "margin": "8px 0 4px",
+                    "padding": "0",
+                    "background": "none",
+                    "border": "none",
+                    "text-align": "left",
+                    "color": "var(--accent-gold)",
+                    "font-size": "0.9rem",
+                    "font-family": "inherit",
+                    "cursor": "pointer",
+                  }}
+                >
+                  ▸ {props.quest.objective}
+                </button>
+              );
+            }
             const targetHref = () => {
               if (props.quest.targetBuildingId) return `/buildings#building-${props.quest.targetBuildingId}`;
               if (props.quest.targetPage) return props.quest.targetPage;
@@ -408,22 +437,24 @@ function QuestCard(props: {
               </Show>
             </p>
           </Show>
-          <div style={{
-            "margin-top": "8px",
-            "color": "var(--text-secondary)",
-            "font-size": "0.8rem",
-            "display": "inline-block",
-            "padding": "4px 8px",
-            "background": "rgba(0, 0, 0, 0.45)",
-            "border-radius": "4px",
-          }}>
-            Reward: {props.quest.rewards.map((r) =>
-              `${r.amount} ${r.label}`).join(", ")}
-          </div>
+          <Show when={!isMemoryOnly()}>
+            <div style={{
+              "margin-top": "8px",
+              "color": "var(--text-secondary)",
+              "font-size": "0.8rem",
+              "display": "inline-block",
+              "padding": "4px 8px",
+              "background": "rgba(0, 0, 0, 0.45)",
+              "border-radius": "4px",
+            }}>
+              Reward: {props.quest.rewards.map((r) =>
+                `${r.amount} ${r.label}`).join(", ")}
+            </div>
+          </Show>
         </div>
 
         <div style={{ "display": "flex", "flex-direction": "column", "gap": "6px", "align-items": "stretch" }}>
-          <Show when={props.claimable}>
+          <Show when={props.claimable && !isMemoryOnly()}>
             <button
               onClick={props.onClaim}
               style={{
