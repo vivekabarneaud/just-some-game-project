@@ -304,7 +304,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     ],
     targetBuildingId: "forager_hut",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/the_foragers_path.png",
-    unlocksBioFragments: ["edda_forager_hut"],
+    // edda_forager_hut memory deferred to the "See to Edda" social check-in.
   },
   {
     id: "the_growing_pile",
@@ -832,7 +832,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
 
   // ╔══════════════════════════════════════════════════════════════╗
   // ║ THE FOLK — check-ins that surface deferred cast memories      ║
-  // ║ Fire in the first real lull (guild opened, scouts out). Each  ║
+  // ║ Fire in the first real lull (first mission sent, scouts out). ║
   // ║ completes on click; the memory shows on claim. Scripted here  ║
   // ║ off a quest gap; later rounds can hang off chapter milestones.║
   // ╚══════════════════════════════════════════════════════════════╝
@@ -845,10 +845,10 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
       "We have done good work these first weeks, and I have hardly looked up to see how the folk who followed me are holding up. Time to go round. Edda first. It is always Edda first.",
     objective: "Sit a while with Edda",
     icon: "🕯️",
-    triggers: [{ type: "quest_completed", questId: "heroes_wanted" }],
+    triggers: [{ type: "custom", check: (s) => s.firstMissionSent === true }],
     condition: () => true,
     rewards: [],
-    unlocksBioFragments: ["edda_first_fire"],
+    unlocksBioFragments: ["edda_first_fire", "edda_forager_hut"],
   },
   {
     id: "see_to_jory",
@@ -859,7 +859,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
       "Jory set down the felling axe when he saw me and rolled his shoulder. \"You know what I dream about?\" he said. \"The day someone else can run this mill, so I can put the axe down and pick a knife up. Give me a good piece of wood and the time to carve it and I would never fell another tree.\" He said it lightly. He was not being light.",
     objective: "Share a word with Jory",
     icon: "🕯️",
-    triggers: [{ type: "quest_completed", questId: "heroes_wanted" }],
+    triggers: [{ type: "custom", check: (s) => s.firstMissionSent === true }],
     condition: () => true,
     rewards: [],
     unlocksBioFragments: ["jory_sawhorse"],
@@ -873,7 +873,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
       "Tomas was at the quarry face, sighting a cut nobody had asked him for yet. He gave me a grunt, which from him is a long and warm conversation. He stands differently here than he did in Ashwick. I know better than to say so.",
     objective: "Look in on Tomas",
     icon: "🕯️",
-    triggers: [{ type: "quest_completed", questId: "heroes_wanted" }],
+    triggers: [{ type: "custom", check: (s) => s.firstMissionSent === true }],
     condition: () => true,
     rewards: [],
     unlocksBioFragments: ["tomas_quarry"],
