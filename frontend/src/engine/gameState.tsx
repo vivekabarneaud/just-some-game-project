@@ -4233,9 +4233,15 @@ export function GameProvider(props: ParentProps) {
           tickGarrison("barracks", s.barracks);
         }
 
-        // Spawn new raids (probability-based, checked each tick)
-        s.hoursSinceLastRaid += elapsedHours;
-        const raidChance = getRaidChance(tier, s.hoursSinceLastRaid);
+        // Spawn new raids (probability-based, checked each tick). Raids only
+        // once there's something to defend: gate on the defense storyline being
+        // open (opens after the first scouting, via event_three_reports). While
+        // it's closed, pin the raid clock at 0 so a fresh grace period starts the
+        // moment it opens (giving the player time to raise walls / a watchtower).
+        const defenseOpen = (s.chapters?.find((c) => c.storyline === "defense")?.current ?? 0) >= 1;
+        if (defenseOpen) s.hoursSinceLastRaid += elapsedHours;
+        else s.hoursSinceLastRaid = 0;
+        const raidChance = defenseOpen ? getRaidChance(tier, s.hoursSinceLastRaid) : 0;
         if (raidChance > 0 && Math.random() < raidChance * elapsedHours) {
           s.hoursSinceLastRaid = 0; // reset timer
           const spawn = spawnRaid(tier, s.year);
