@@ -217,4 +217,25 @@ Probably 3-5 sittings of focused work.
 
 ---
 
-*Last updated: 2026-04-28. Update as scope evolves.*
+---
+
+## Early-game defenses & trainer-coordinators (designed 2026-07-03)
+
+The opening (camp, 5 founders) has no one to defend, so raids must not fire yet.
+
+**When raids turn on.** Gate raid spawning on the **defense storyline being open**, NOT on settlement tier. Pace the storyline's unlock so that by the time it opens, at least **one non-founder citizen has naturally arrived** (someone who can actually man a tower). This is pacing, not forcing — we tune the unlock condition/timing so growth has happened, we don't hard-spawn a citizen. Sequence: settle → grow a little → defense storyline opens (First Threat wall + watchtower quests) → only now can raids spawn.
+
+**The food opening + seasons.** Season is global/server-side (everyone on the same season at a given real time), so we do NOT fix the start season. Since the opening uses only **tier-1** buildings, the seasonal spread is small. Balance the **rank-1 food building yields to reach ~0/h net in WINTER** (the worst case) by the time the Thornwoods arrive. Winter starters then hit break-even; spring/summer starters get a small surplus (+2/+3/h), which is acceptable. This lets organic arrivals (gated on net-food > 0) start without a starvation slog, regardless of start season.
+
+**Trainer-coordinators — Gareth (watchtower) & Morgause (garrison).** Two mechanics on these named cast:
+- **Passive coordination buff** — while **home** (present in the settlement, not away on a mission), they buff their ring's defense (Gareth → watchtower, Morgause → garrison). Small, not enormous. Applies whenever home, including while they're training. Away on a mission → buff gone.
+- **Active training** — assign the trainer to their building; they're occupied for a while (~10 min at tier 1) and the units **level up** (archers/soldiers). **Repeatable, capped by the building's level** (watchtower Lv.N → archers trainable toward Lv.N).
+- **They do not die in raids.** Consistent with the named-residents rule (named cast are RNG-death-protected; they die only in scripted mission deaths). They coordinate/train; they're not on the wall.
+
+The garrison (soldiers, Morgause) is a later addition; the watchtower (archers, Gareth) comes first.
+
+**Teaching quest — "Gareth Shares His Knowledge."** Assign Gareth to train the watchtower archers to Lv.2. Teaches the whole train/assign loop and reassures the player that even a single archer + Gareth's buff can repel a wolf raid.
+
+---
+
+*Last updated: 2026-07-03. Update as scope evolves.*
