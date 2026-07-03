@@ -487,6 +487,13 @@ export interface GameState {
   season: Season;
   seasonElapsed: number;
   year: number;
+  /** Global year at founding. Lets `year` read as SETTLEMENT AGE while the season
+   *  stays global/shared: in prod, year = global.year - foundingYear + 1. */
+  foundingYear: number;
+  /** Latched on the first tick: did the settlement begin in winter? While true, a
+   *  food-rationing grace eases consumption; it goes false the moment the
+   *  settlement leaves that first winter (so it only ever helps the opening). */
+  foundingWinterGrace?: boolean;
   lastTick: number;
   gameSpeed: number;
   villageName: string;
@@ -956,6 +963,8 @@ export function createInitialState(): GameState {
     season: "spring",
     seasonElapsed: 0,
     year: 1,
+    foundingYear: getGlobalSeason().year,
+    // foundingWinterGrace left undefined — latched on the first tick.
     lastTick: Date.now(),
     gameSpeed: 1,
     villageName: generateSettlementName(),
@@ -1102,6 +1111,15 @@ export function migrateSaveState(saved: GameState): GameState {
     // reconstructed (alpha: disposable saves); a fresh game is exact.
     if (!(saved as any).namedResidents) {
       (saved as any).namedResidents = founderHousehold();
+    }
+    // Year-as-settlement-age: backfill foundingYear so the displayed year is
+    // preserved (year = global.year - foundingYear + 1). And established saves
+    // never get the founding-winter grace (they're past their opening).
+    if ((saved as any).foundingYear === undefined) {
+      (saved as any).foundingYear = getGlobalSeason().year - (((saved as any).year ?? 1) - 1);
+    }
+    if ((saved as any).foundingWinterGrace === undefined) {
+      (saved as any).foundingWinterGrace = false;
     }
     if (!saved.fields) saved.fields = [];
     if (!saved.gardens) saved.gardens = [];
@@ -2119,12 +2137,16 @@ function calcMaxPopulation(buildings: PlayerBuilding[]): number {
  *  the side. Keeps the early game (when the 3 Thornwood adventurers are a big
  *  share of the mouths) from tipping into a long deficit that blocks arrivals. */
 export const ADVENTURER_FOOD_MULTIPLIER = 0.5;
+/** Consumption multiplier while the founding-winter rationing grace is active —
+ *  a settlement founded in winter tightens its belts through that first winter. */
+export const FOUNDING_WINTER_RATION = 0.7;
 
-function calcFoodConsumption(citizens: CitizenCounts, adventurerMouths = 0): number {
+function calcFoodConsumption(citizens: CitizenCounts, adventurerMouths = 0, rationMult = 1): number {
   // Per-category multipliers: toddlers 0.5×, children 0.75×, adults 1.0×, elderly 0.75×.
   // Adventurers eat at ADVENTURER_FOOD_MULTIPLIER of an adult, home or away — away
   // rations are a separate mission concern, so the town food readout stays steady.
-  return (effectiveFoodMouths(citizens) + adventurerMouths * ADVENTURER_FOOD_MULTIPLIER) * FOOD_PER_CITIZEN_PER_HOUR;
+  // rationMult applies the founding-winter grace (< 1 = everyone eats less).
+  return (effectiveFoodMouths(citizens) + adventurerMouths * ADVENTURER_FOOD_MULTIPLIER) * FOOD_PER_CITIZEN_PER_HOUR * rationMult;
 }
 
 /** Living adventurers count as townsfolk for housing + food: they take a bed and
@@ -3021,7 +3043,8 @@ export function GameProvider(props: ParentProps) {
             }
           }
           s.seasonElapsed = global.progress * HOURS_PER_SEASON;
-          s.year = global.year;
+          // Season is global/shared, but YEAR is local = settlement age.
+          s.year = Math.max(1, global.year - (s.foundingYear ?? global.year) + 1);
 
           // Clear blessing if the deity has rotated
           if (s.activeBlessing) {
@@ -3032,13 +3055,19 @@ export function GameProvider(props: ParentProps) {
           }
         }
 
+        // Founding-winter grace: latch on the first tick whether the settlement
+        // began in winter, then lift it the moment it leaves that first winter,
+        // so the rationing help only ever eases the opening.
+        if (s.foundingWinterGrace === undefined) s.foundingWinterGrace = s.season === "winter";
+        else if (s.foundingWinterGrace && s.season !== "winter") s.foundingWinterGrace = false;
+
         const rates = calcProductionRates(s);
         // Animals eat from their preferred categories (and graze fallow fields) FIRST.
         // This drains the pantry in-place and returns a fedRatio per pen so
         // starving pens don't produce food/wool/leather this tick.
         const fedRatios = applyAnimalFeed(s, elapsedHours);
         const foodRates = calcFoodRates(s, fedRatios);
-        const citizenFood = calcFoodConsumption(s.citizens, countLivingAdventurers(s.adventurers));
+        const citizenFood = calcFoodConsumption(s.citizens, countLivingAdventurers(s.adventurers), s.foundingWinterGrace ? FOUNDING_WINTER_RATION : 1);
         const animalFood = calcAnimalFoodConsumption(s.pens);
         const caps = calcStorageCaps(s.buildings);
         const maxPop = calcMaxPopulation(s.buildings);
@@ -4715,7 +4744,7 @@ export function GameProvider(props: ParentProps) {
 
     getProductionRates() { return calcProductionRates(state); },
     getMaxPopulation() { return calcMaxPopulation(state.buildings); },
-    getFoodConsumption() { return calcFoodConsumption(state.citizens, countLivingAdventurers(state.adventurers)); },
+    getFoodConsumption() { return calcFoodConsumption(state.citizens, countLivingAdventurers(state.adventurers), state.foundingWinterGrace ? FOUNDING_WINTER_RATION : 1); },
     getAnimalFoodConsumption() { return calcAnimalFoodConsumption(state.pens); },
     getCookingFoodNet() {
       let net = 0;
@@ -5354,7 +5383,7 @@ export function GameProvider(props: ParentProps) {
       factors.push({ label: "Baseline", value: 50 });
 
       const rates = calcProductionRates(state);
-      const foodCons = calcFoodConsumption(state.citizens, countLivingAdventurers(state.adventurers));
+      const foodCons = calcFoodConsumption(state.citizens, countLivingAdventurers(state.adventurers), state.foundingWinterGrace ? FOUNDING_WINTER_RATION : 1);
       const animalFood = calcAnimalFoodConsumption(state.pens);
       const netFood = rates.food - foodCons - animalFood;
       if (netFood > 0) factors.push({ label: "Food surplus", value: Math.min(15, Math.round(netFood / 5)) });
