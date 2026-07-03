@@ -424,10 +424,13 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     title: "A Sweeter Patch",
     narrative:
       "Nell came back from the treeline with her apron gathered up in both hands, full of small wild berries and not saying a word, only holding them out. They are too few and too scattered to feed anyone, but Edda turned one over in her fingers and said the tame kind, coaxed and tended, comes up sweeter and larger than the woods will ever give. A row of our own, then. Something red to look forward to in the summer, for the child if no one else.",
-    objective: "Tend Edda's garden until the crew settles a proper cultivated patch",
+    objective: "Take up Nell's strawberries",
+    hint: "Claiming adds strawberry seed to your stores — a new crop you can sow in a garden come spring.",
     icon: "🍓",
     // A gentle follow-up once the first garden is planted: introduces the
-    // specialty-seed system by granting the strawberry seed as a reward.
+    // specialty-seed system by handing over the strawberry seed. The condition
+    // is already met (a garden is planted), so this reads as a narrative gift
+    // the player claims rather than a fresh chore.
     triggers: [{ type: "quest_completed", questId: "eddas_garden" }],
     condition: (s) => s.gardens.some((g) => g.level >= 1 && g.plantedYear === s.year),
     rewards: [{ resource: "gold", amount: 15, label: "Gold" }],
