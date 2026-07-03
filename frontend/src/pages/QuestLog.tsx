@@ -13,6 +13,8 @@ import {
   type StorylineId,
 } from "~/data/quests";
 import QuestClaimModal from "~/components/QuestClaimModal";
+import MemoryPreviewModal from "~/components/MemoryPreviewModal";
+import { resolveFragments } from "~/data/founding_characters";
 
 const STORYLINE_ORDER: StorylineId[] = ["settlement", "guild", "story", "defense", "social"];
 // Two-column desk layout: domestic (settlement + defense) on the left,
@@ -41,6 +43,16 @@ export default function QuestLog() {
   // modal renders rewards, chronicle entry, and memory unlocks, then applies
   // the actual reward when the player confirms.
   const [claimingQuest, setClaimingQuest] = createSignal<QuestDefinition | null>(null);
+  // Reward-less "The Folk" check-ins skip the reward modal entirely: claiming
+  // files the memory + completes the quest, then we open the memory viewer
+  // directly. Each check-in surfaces a single fragment.
+  const [checkinMemory, setCheckinMemory] =
+    createSignal<ReturnType<typeof resolveFragments>[number] | null>(null);
+  const openCheckinMemory = (quest: QuestDefinition) => {
+    actions.claimQuestReward(quest.id);
+    const mems = resolveFragments(quest.unlocksBioFragments ?? []);
+    if (mems.length > 0) setCheckinMemory(mems[0]);
+  };
 
   const questsByStoryline = (id: StorylineId): QuestDefinition[] =>
     QUEST_DEFINITIONS.filter((q) => q.storyline === id);
@@ -141,7 +153,11 @@ export default function QuestLog() {
                       quest={quest}
                       claimable={isQuestClaimable(quest, state)}
                       isUnseen={!seen().includes(quest.id)}
-                      onClaim={() => setClaimingQuest(quest)}
+                      onClaim={() =>
+                        quest.rewards.length === 0
+                          ? openCheckinMemory(quest)
+                          : setClaimingQuest(quest)
+                      }
                       onSeen={() => actions.markQuestClaimableSeen(quest.id)}
                     />
                   );
@@ -167,6 +183,18 @@ export default function QuestLog() {
               setClaimingQuest(null);
             }}
             onClose={() => setClaimingQuest(null)}
+          />
+        )}
+      </Show>
+
+      {/* Direct memory viewer for reward-less check-ins — the claim already
+          fired when the card's objective was clicked. */}
+      <Show when={checkinMemory()}>
+        {(m) => (
+          <MemoryPreviewModal
+            character={m().character}
+            fragment={m().fragment}
+            onClose={() => setCheckinMemory(null)}
           />
         )}
       </Show>

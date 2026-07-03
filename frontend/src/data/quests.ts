@@ -304,7 +304,8 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     ],
     targetBuildingId: "forager_hut",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/the_foragers_path.png",
-    // edda_forager_hut memory deferred to the "See to Edda" social check-in.
+    // edda_forager_hut memory is parked for now (no longer fires on the build);
+    // it can be re-homed to a later check-in round when those land.
   },
   {
     id: "the_growing_pile",
@@ -848,7 +849,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     triggers: [{ type: "custom", check: (s) => s.firstMissionSent === true }],
     condition: () => true,
     rewards: [],
-    unlocksBioFragments: ["edda_first_fire", "edda_forager_hut"],
+    unlocksBioFragments: ["edda_first_fire"],
   },
   {
     id: "see_to_jory",
