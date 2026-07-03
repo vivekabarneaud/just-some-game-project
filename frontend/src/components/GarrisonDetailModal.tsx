@@ -7,10 +7,10 @@ import {
   getBarracksSoldierCap,
   ARCHER_COST,
   SOLDIER_COST,
-  getTrainCost,
   getTrainTime,
   RING_LABELS,
   availableCitizens,
+  TRAINER_ID,
 } from "~/data/defenses";
 import Countdown from "./Countdown";
 import Tooltip from "./Tooltip";
@@ -50,6 +50,17 @@ export default function GarrisonDetailModal(props: Props) {
   const training = () => garrison()?.training;
   const buildingLevel = () => slot()?.level ?? 0;
 
+  // ── Trainer-coordinator (Gareth at the watchtower, Morgause at the barracks) ──
+  const trainer = () => state.adventurers.find((a) => a.premadeId === TRAINER_ID[props.kind]);
+  const trainerName = () => trainer()?.name ?? (props.kind === "watchtower" ? "an archer-captain" : "a drillmaster");
+  const trainerHere = () => !!trainer()?.alive && !trainer()?.onMission; // drilling counts as here
+  const trainerAway = () => !!trainer()?.alive && !!trainer()?.onMission;
+  const drillingHere = () => !!training()?.trainerId && training()!.trainerId === trainer()?.id;
+  const drillingElsewhere = () =>
+    !!trainer() &&
+    !drillingHere() &&
+    [...state.watchtowers, ...state.barracks].some((x) => x.garrison.training?.trainerId === trainer()?.id);
+
   // ── Hire blocker ──
   const hireBlocker = () => {
     const s = slot();
@@ -65,16 +76,18 @@ export default function GarrisonDetailModal(props: Props) {
   // ── Train blocker ──
   const raidPending = () => state.incomingRaids.some((ir) => !ir.combatLog);
   const nextLevel = () => trainedLevel() + 1;
-  const trainCost = () => getTrainCost(nextLevel()).gold;
   const trainSeconds = () => getTrainTime(nextLevel());
   const trainBlocker = () => {
     const s = slot();
     if (!s || s.level === 0) return "Build the building first";
     if (s.damaged) return "Repair the building first";
-    if (training()) return "Already training";
+    if (training()) return "Already drilling";
     if (trainedLevel() >= buildingLevel()) return `Upgrade the ${buildingWord().toLowerCase()} to raise the cap`;
-    if (state.resources.gold < trainCost()) return `Need ${trainCost()} gold`;
-    if (raidPending()) return "Training paused — raid incoming";
+    if ((garrison()?.count ?? 0) <= 0) return `Hire a ${unitWord()} to drill first`;
+    if (!trainer()) return `${trainerName()} hasn't arrived yet`;
+    if (trainerAway()) return `${trainerName()} is away on a mission`;
+    if (drillingElsewhere()) return `${trainerName()} is drilling elsewhere`;
+    if (raidPending()) return "Drilling paused — raid incoming";
     return "";
   };
   const canTrain = () => trainBlocker() === "";
@@ -241,13 +254,33 @@ export default function GarrisonDetailModal(props: Props) {
               </Show>
             </div>
 
-            {/* Train row */}
+            {/* The Watch — trainer-coordinator */}
             <div>
               <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "1px", "margin-bottom": "6px" }}>
-                Train
+                The Watch
+              </div>
+              {/* Trainer status + coordination buff */}
+              <div style={{ "font-size": "0.85rem", "margin-bottom": "8px", color: "var(--text-secondary)" }}>
+                <Show
+                  when={trainer()}
+                  fallback={<span style={{ color: "var(--text-muted)" }}>No trainer has joined yet — units hold at their current drill.</span>}
+                >
+                  <Show when={drillingHere()}>
+                    <span style={{ color: "var(--accent-blue)" }}>⚙️ {trainerName()} is drilling the {unitWord()}s.</span>
+                  </Show>
+                  <Show when={!drillingHere() && trainerHere()}>
+                    <span><strong style={{ color: "var(--accent-gold)" }}>{trainerName()}</strong> is here, steadying the {buildingWord().toLowerCase()} <span style={{ color: "var(--accent-green)" }}>(+1 effective level in a raid)</span>.</span>
+                  </Show>
+                  <Show when={drillingElsewhere()}>
+                    <span style={{ color: "var(--text-muted)" }}>{trainerName()} is drilling another post right now.</span>
+                  </Show>
+                  <Show when={trainerAway()}>
+                    <span style={{ color: "var(--text-muted)" }}>{trainerName()} is away on a mission — no drilling, no bonus.</span>
+                  </Show>
+                </Show>
               </div>
               <Tooltip block text={canTrain()
-                ? `Train to Lv.${nextLevel()} — ${trainCost()}g, ${trainSeconds()}s`
+                ? `${trainerName()} drills the ${unitWord()}s to Lv.${nextLevel()} (~${trainSeconds()}s)`
                 : trainBlocker()}>
               <button
                 disabled={!canTrain()}
@@ -265,10 +298,10 @@ export default function GarrisonDetailModal(props: Props) {
                   "font-weight": "bold",
                 }}
               >
-                ⚙️ Train to Lv.{nextLevel()} ({trainCost()}g · {trainSeconds()}s)
+                🎯 Have {trainerName()} drill to Lv.{nextLevel()} (~{trainSeconds()}s)
               </button>
               </Tooltip>
-              <Show when={!canTrain() && trainBlocker()}>
+              <Show when={!canTrain() && !training() && trainBlocker()}>
                 <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-top": "4px", "font-style": "italic" }}>
                   {trainBlocker()}
                 </div>

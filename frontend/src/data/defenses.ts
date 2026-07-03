@@ -123,6 +123,27 @@ export function militiaCount(state: GameState): number {
   return availableCitizens(state);
 }
 
+// ─── Trainer-coordinators ───────────────────────────────────────
+// A named cast member trains + steadies each garrison building. While home they
+// grant a coordination buff (+1 effective trained level to that building), and
+// they are the ONLY way to drill its units up (no more faceless gold-training).
+export const TRAINER_ID: Record<"watchtower" | "barracks", string> = {
+  watchtower: "char_005", // Gareth Thornwood (archer)
+  barracks: "char_020", //   Morgause Dunwall (warrior)
+};
+
+type TrainerLike = { alive: boolean; premadeId?: string; onMission?: boolean };
+
+/** Is this building's trainer home (alive, not away on a mission)? Drilling
+ *  counts as home — they're right there at the building. */
+export function trainerHome(
+  adventurers: TrainerLike[],
+  kind: "watchtower" | "barracks",
+): boolean {
+  const id = TRAINER_ID[kind];
+  return adventurers.some((a) => a.alive && a.premadeId === id && !a.onMission);
+}
+
 // ─── Training ─────────────────────────────────────────────────────
 // Garrisons level collectively (one trainedLevel per garrison). Each level
 // raises the squad's HP and attack stat. Building level caps the trained

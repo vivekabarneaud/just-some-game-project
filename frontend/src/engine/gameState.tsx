@@ -75,6 +75,8 @@ import {
   maxArchers,
   availableCitizens,
   militiaCount,
+  TRAINER_ID,
+  trainerHome,
   ringUnlocked,
   getWatchtowerArcherCap,
   getBarracksSoldierCap,
@@ -402,10 +404,12 @@ export interface Garrison {
    *  level (cost scales) — keeps the squad uniform without per-unit bookkeeping.
    *  Capped at the building's level. */
   trainedLevel: number;
-  /** Active training queue. When set, gold has been spent up-front and the
-   *  garrison's trainedLevel will rise by 1 once remainingSeconds hits 0.
-   *  Auto-paused while a raid is incoming (not ticked but not cleared). */
-  training?: { targetLevel: number; remainingSeconds: number };
+  /** Active drill. Started by the building's trainer-coordinator (Gareth /
+   *  Morgause); `trainerId` is that adventurer's roster id, which marks them
+   *  busy (can't be sent on a mission until the drill finishes). trainedLevel
+   *  rises by 1 once remainingSeconds hits 0. Auto-paused while a raid is
+   *  incoming (not ticked but not cleared). */
+  training?: { targetLevel: number; remainingSeconds: number; trainerId?: string };
 }
 
 export interface PlayerWatchtower {
@@ -487,6 +491,13 @@ export interface GameState {
   season: Season;
   seasonElapsed: number;
   year: number;
+  /** Global year at founding. Lets `year` read as SETTLEMENT AGE while the season
+   *  stays global/shared: in prod, year = global.year - foundingYear + 1. */
+  foundingYear: number;
+  /** Latched on the first tick: did the settlement begin in winter? While true, a
+   *  food-rationing grace eases consumption; it goes false the moment the
+   *  settlement leaves that first winter (so it only ever helps the opening). */
+  foundingWinterGrace?: boolean;
   lastTick: number;
   gameSpeed: number;
   villageName: string;
@@ -951,6 +962,8 @@ export function createInitialState(): GameState {
     season: "spring",
     seasonElapsed: 0,
     year: 1,
+    foundingYear: getGlobalSeason().year,
+    // foundingWinterGrace left undefined — latched on the first tick.
     lastTick: Date.now(),
     gameSpeed: 1,
     villageName: generateSettlementName(),
@@ -1093,6 +1106,15 @@ export function migrateSaveState(saved: GameState): GameState {
     // reconstructed (alpha: disposable saves); a fresh game is exact.
     if (!(saved as any).namedResidents) {
       (saved as any).namedResidents = founderHousehold();
+    }
+    // Year-as-settlement-age: backfill foundingYear so the displayed year is
+    // preserved (year = global.year - foundingYear + 1). And established saves
+    // never get the founding-winter grace (they're past their opening).
+    if ((saved as any).foundingYear === undefined) {
+      (saved as any).foundingYear = getGlobalSeason().year - (((saved as any).year ?? 1) - 1);
+    }
+    if ((saved as any).foundingWinterGrace === undefined) {
+      (saved as any).foundingWinterGrace = false;
     }
     if (!saved.fields) saved.fields = [];
     if (!saved.gardens) saved.gardens = [];
@@ -2099,11 +2121,20 @@ function calcMaxPopulation(buildings: PlayerBuilding[]): number {
   return BASE_POPULATION + (HOUSING_POP[level] ?? 0);
 }
 
-function calcFoodConsumption(citizens: CitizenCounts, adventurerMouths = 0): number {
+/** Adventurers eat less than a townsfolk — they're hardy and forage/provision on
+ *  the side. Keeps the early game (when the 3 Thornwood adventurers are a big
+ *  share of the mouths) from tipping into a long deficit that blocks arrivals. */
+export const ADVENTURER_FOOD_MULTIPLIER = 0.5;
+/** Consumption multiplier while the founding-winter rationing grace is active —
+ *  a settlement founded in winter tightens its belts through that first winter. */
+export const FOUNDING_WINTER_RATION = 0.7;
+
+export function calcFoodConsumption(citizens: CitizenCounts, adventurerMouths = 0, rationMult = 1): number {
   // Per-category multipliers: toddlers 0.5×, children 0.75×, adults 1.0×, elderly 0.75×.
-  // Adventurers eat at an adult's rate (1.0×), whether home or away — away rations
-  // are a separate mission concern, so the town food readout stays steady.
-  return (effectiveFoodMouths(citizens) + adventurerMouths) * FOOD_PER_CITIZEN_PER_HOUR;
+  // Adventurers eat at ADVENTURER_FOOD_MULTIPLIER of an adult, home or away — away
+  // rations are a separate mission concern, so the town food readout stays steady.
+  // rationMult applies the founding-winter grace (< 1 = everyone eats less).
+  return (effectiveFoodMouths(citizens) + adventurerMouths * ADVENTURER_FOOD_MULTIPLIER) * FOOD_PER_CITIZEN_PER_HOUR * rationMult;
 }
 
 /** Living adventurers count as townsfolk for housing + food: they take a bed and
@@ -2661,8 +2692,8 @@ export function GameProvider(props: ParentProps) {
                   raidId: ir.raidId,
                   encounters: template.encounters,
                   walls: (serverState.walls ?? []).map((w: any) => ({ ring: w.ring, level: w.level, hp: w.hp, maxHp: w.level * WALL_BASE_HP })),
-                  watchtowers: (serverState.watchtowers ?? []).map((t: any) => ({ ring: t.ring, level: t.level, damaged: t.damaged, archerCount: t.garrison?.count ?? 0, trainedLevel: t.garrison?.trainedLevel ?? 0 })),
-                  barracks: (serverState.barracks ?? []).map((b: any) => ({ ring: b.ring, level: b.level, damaged: b.damaged, soldierCount: b.garrison?.count ?? 0, trainedLevel: b.garrison?.trainedLevel ?? 0 })),
+                  watchtowers: (serverState.watchtowers ?? []).map((t: any) => ({ ring: t.ring, level: t.level, damaged: t.damaged, archerCount: t.garrison?.count ?? 0, trainedLevel: (t.garrison?.trainedLevel ?? 0) + (trainerHome(serverState.adventurers ?? [], "watchtower") ? 1 : 0) })),
+                  barracks: (serverState.barracks ?? []).map((b: any) => ({ ring: b.ring, level: b.level, damaged: b.damaged, soldierCount: b.garrison?.count ?? 0, trainedLevel: (b.garrison?.trainedLevel ?? 0) + (trainerHome(serverState.adventurers ?? [], "barracks") ? 1 : 0) })),
                   militiaCount: militiaCount(serverState as GameState),
                 });
 
@@ -2994,7 +3025,8 @@ export function GameProvider(props: ParentProps) {
             }
           }
           s.seasonElapsed = global.progress * HOURS_PER_SEASON;
-          s.year = global.year;
+          // Season is global/shared, but YEAR is local = settlement age.
+          s.year = Math.max(1, global.year - (s.foundingYear ?? global.year) + 1);
 
           // Clear blessing if the deity has rotated
           if (s.activeBlessing) {
@@ -3005,13 +3037,19 @@ export function GameProvider(props: ParentProps) {
           }
         }
 
+        // Founding-winter grace: latch on the first tick whether the settlement
+        // began in winter, then lift it the moment it leaves that first winter,
+        // so the rationing help only ever eases the opening.
+        if (s.foundingWinterGrace === undefined) s.foundingWinterGrace = s.season === "winter";
+        else if (s.foundingWinterGrace && s.season !== "winter") s.foundingWinterGrace = false;
+
         const rates = calcProductionRates(s);
         // Animals eat from their preferred categories (and graze fallow fields) FIRST.
         // This drains the pantry in-place and returns a fedRatio per pen so
         // starving pens don't produce food/wool/leather this tick.
         const fedRatios = applyAnimalFeed(s, elapsedHours);
         const foodRates = calcFoodRates(s, fedRatios);
-        const citizenFood = calcFoodConsumption(s.citizens, countLivingAdventurers(s.adventurers));
+        const citizenFood = calcFoodConsumption(s.citizens, countLivingAdventurers(s.adventurers), s.foundingWinterGrace ? FOUNDING_WINTER_RATION : 1);
         const animalFood = calcAnimalFoodConsumption(s.pens);
         const caps = calcStorageCaps(s.buildings);
         const maxPop = calcMaxPopulation(s.buildings);
@@ -4035,8 +4073,10 @@ export function GameProvider(props: ParentProps) {
                 raidId: ir.raidId,
                 encounters: template.encounters,
                 walls: s.walls.map((w) => ({ ring: w.ring, level: w.level, hp: w.hp, maxHp: w.level * WALL_BASE_HP })),
-                watchtowers: s.watchtowers.map((t) => ({ ring: t.ring, level: t.level, damaged: t.damaged, archerCount: t.garrison.count, trainedLevel: t.garrison.trainedLevel })),
-                barracks: s.barracks.map((b) => ({ ring: b.ring, level: b.level, damaged: b.damaged, soldierCount: b.garrison.count, trainedLevel: b.garrison.trainedLevel })),
+                // Trainer coordination buff: +1 effective trained level while the
+                // building's trainer (Gareth / Morgause) is home.
+                watchtowers: s.watchtowers.map((t) => ({ ring: t.ring, level: t.level, damaged: t.damaged, archerCount: t.garrison.count, trainedLevel: t.garrison.trainedLevel + (trainerHome(s.adventurers, "watchtower") ? 1 : 0) })),
+                barracks: s.barracks.map((b) => ({ ring: b.ring, level: b.level, damaged: b.damaged, soldierCount: b.garrison.count, trainedLevel: b.garrison.trainedLevel + (trainerHome(s.adventurers, "barracks") ? 1 : 0) })),
                 militiaCount: militiaCount(s),
               });
 
@@ -4208,9 +4248,15 @@ export function GameProvider(props: ParentProps) {
           tickGarrison("barracks", s.barracks);
         }
 
-        // Spawn new raids (probability-based, checked each tick)
-        s.hoursSinceLastRaid += elapsedHours;
-        const raidChance = getRaidChance(tier, s.hoursSinceLastRaid);
+        // Spawn new raids (probability-based, checked each tick). Raids only
+        // once there's something to defend: gate on the defense storyline being
+        // open (opens after the first scouting, via event_three_reports). While
+        // it's closed, pin the raid clock at 0 so a fresh grace period starts the
+        // moment it opens (giving the player time to raise walls / a watchtower).
+        const defenseOpen = (s.chapters?.find((c) => c.storyline === "defense")?.current ?? 0) >= 1;
+        if (defenseOpen) s.hoursSinceLastRaid += elapsedHours;
+        else s.hoursSinceLastRaid = 0;
+        const raidChance = defenseOpen ? getRaidChance(tier, s.hoursSinceLastRaid) : 0;
         if (raidChance > 0 && Math.random() < raidChance * elapsedHours) {
           s.hoursSinceLastRaid = 0; // reset timer
           const spawn = spawnRaid(tier, s.year);
@@ -4687,7 +4733,7 @@ export function GameProvider(props: ParentProps) {
 
     getProductionRates() { return calcProductionRates(state); },
     getMaxPopulation() { return calcMaxPopulation(state.buildings); },
-    getFoodConsumption() { return calcFoodConsumption(state.citizens, countLivingAdventurers(state.adventurers)); },
+    getFoodConsumption() { return calcFoodConsumption(state.citizens, countLivingAdventurers(state.adventurers), state.foundingWinterGrace ? FOUNDING_WINTER_RATION : 1); },
     getAnimalFoodConsumption() { return calcAnimalFoodConsumption(state.pens); },
     getCookingFoodNet() {
       let net = 0;
@@ -4976,7 +5022,13 @@ export function GameProvider(props: ParentProps) {
       return completed;
     },
     getAvailableAdventurers() {
-      return state.adventurers.filter((a) => a.alive && !a.onMission);
+      // A trainer mid-drill is occupied and can't be sent on a mission.
+      const drilling = new Set<string>();
+      for (const x of [...state.watchtowers, ...state.barracks]) {
+        const id = x.garrison.training?.trainerId;
+        if (id) drilling.add(id);
+      }
+      return state.adventurers.filter((a) => a.alive && !a.onMission && !drilling.has(a.id));
     },
     getRosterSize() {
       const guildLvl = this.getGuildLevel();
@@ -5307,7 +5359,7 @@ export function GameProvider(props: ParentProps) {
       factors.push({ label: "Baseline", value: 50 });
 
       const rates = calcProductionRates(state);
-      const foodCons = calcFoodConsumption(state.citizens, countLivingAdventurers(state.adventurers));
+      const foodCons = calcFoodConsumption(state.citizens, countLivingAdventurers(state.adventurers), state.foundingWinterGrace ? FOUNDING_WINTER_RATION : 1);
       const animalFood = calcAnimalFoodConsumption(state.pens);
       const netFood = rates.food - foodCons - animalFood;
       if (netFood > 0) factors.push({ label: "Food surplus", value: Math.min(15, Math.round(netFood / 5)) });
@@ -5630,15 +5682,22 @@ export function GameProvider(props: ParentProps) {
       if (!slot || slot.level === 0 || slot.damaged) return false;
       if (slot.garrison.training) return false;        // already in progress
       if (slot.garrison.trainedLevel >= slot.level) return false; // capped at building level
+      // Drilling is done BY the building's trainer-coordinator (Gareth / Morgause),
+      // not with gold. They must be home and not already drilling elsewhere.
+      const trainer = state.adventurers.find(
+        (a) => a.alive && a.premadeId === TRAINER_ID[kind] && !a.onMission,
+      );
+      if (!trainer) return false;
+      const busy = [...state.watchtowers, ...state.barracks].some(
+        (x) => x.garrison.training?.trainerId === trainer.id,
+      );
+      if (busy) return false;
       const target = slot.garrison.trainedLevel + 1;
-      const cost = getTrainCost(target);
-      if (state.resources.gold < cost.gold) return false;
       const seconds = getTrainTime(target);
       setState(produce((s) => {
-        s.resources.gold -= cost.gold;
         const arr = kind === "watchtower" ? s.watchtowers : s.barracks;
         const item = arr.find((x) => x.ring === ring)!;
-        item.garrison.training = { targetLevel: target, remainingSeconds: seconds };
+        item.garrison.training = { targetLevel: target, remainingSeconds: seconds, trainerId: trainer.id };
       }));
       scheduleSave();
       return true;
