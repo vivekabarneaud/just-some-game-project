@@ -5692,7 +5692,10 @@ export function GameProvider(props: ParentProps) {
         : state.barracks.find((b) => b.ring === ring);
       if (!slot || slot.level === 0 || slot.damaged) return false;
       if (slot.garrison.training) return false;        // already in progress
-      if (slot.garrison.trainedLevel >= slot.level) return false; // capped at building level
+      // Units sit at base level 1 (= displayed trainedLevel+1); drilling raises
+      // them toward the building's level, so trainedLevel caps at level-1. A
+      // Lv.1 building can't drill at all (base Lv.1 units); Lv.2 drills to Lv.2.
+      if (slot.garrison.trainedLevel >= slot.level - 1) return false;
       // Drilling is done BY the building's trainer-coordinator (Gareth / Morgause),
       // not with gold. They must be home and not already drilling elsewhere.
       const trainer = state.adventurers.find(

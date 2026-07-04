@@ -75,14 +75,21 @@ export default function GarrisonDetailModal(props: Props) {
 
   // ── Train blocker ──
   const raidPending = () => state.incomingRaids.some((ir) => !ir.combatLog);
+  // Displayed unit level: base 1, +1 per drilled level. `nextLevel` is the
+  // internal (0-based) training target used for timing/startTraining.
+  const unitLevel = () => trainedLevel() + 1;
   const nextLevel = () => trainedLevel() + 1;
+  const nextUnitLevel = () => unitLevel() + 1;
   const trainSeconds = () => getTrainTime(nextLevel());
   const trainBlocker = () => {
     const s = slot();
     if (!s || s.level === 0) return "Build the building first";
     if (s.damaged) return "Repair the building first";
     if (training()) return "Already drilling";
-    if (trainedLevel() >= buildingLevel()) return `Upgrade the ${buildingWord().toLowerCase()} to raise the cap`;
+    if (unitLevel() >= buildingLevel())
+      return buildingLevel() < 2
+        ? `Upgrade the ${buildingWord().toLowerCase()} to Lv.2 to drill the ${unitWord()}s`
+        : `Upgrade the ${buildingWord().toLowerCase()} to Lv.${buildingLevel() + 1} to drill further`;
     if ((garrison()?.count ?? 0) <= 0) return `Hire a ${unitWord()} to drill first`;
     if (!trainer()) return `${trainerName()} hasn't arrived yet`;
     if (trainerAway()) return `${trainerName()} is away on a mission`;
@@ -182,14 +189,14 @@ export default function GarrisonDetailModal(props: Props) {
               background: "var(--bg-primary)", padding: "10px 12px", "border-radius": "4px", "margin-bottom": "16px",
             }}>
               <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "1px", "margin-bottom": "4px" }}>
-                🎖️ Training Level
+                🎖️ {unitWord()} level
               </div>
               <div style={{ display: "flex", "align-items": "baseline", gap: "8px" }}>
                 <span style={{ "font-size": "1.4rem", "font-weight": "bold", color: "var(--accent-gold)" }}>
-                  {trainedLevel()}
+                  {unitLevel()}
                 </span>
                 <span style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
-                  / {buildingLevel()} cap (each level: +25% HP, +20% attack)
+                  / {buildingLevel()} cap (each drill: +25% HP, +20% attack)
                 </span>
               </div>
               <Show when={training()}>
@@ -197,7 +204,7 @@ export default function GarrisonDetailModal(props: Props) {
                   <span style={{ color: raidPending() ? "var(--accent-red)" : "var(--accent-blue)" }}>
                     {raidPending() ? "⏸ Paused — raid incoming" : "⚙️ Training"}
                   </span>{" "}
-                  → Lv.{training()!.targetLevel}{" — "}
+                  → Lv.{training()!.targetLevel + 1}{" — "}
                   <Countdown remainingSeconds={training()!.remainingSeconds} />
                 </div>
               </Show>
@@ -280,7 +287,7 @@ export default function GarrisonDetailModal(props: Props) {
                 </Show>
               </div>
               <Tooltip block text={canTrain()
-                ? `${trainerName()} drills the ${unitWord()}s to Lv.${nextLevel()} (~${trainSeconds()}s)`
+                ? `${trainerName()} drills the ${unitWord()}s to Lv.${nextUnitLevel()} (~${trainSeconds()}s)`
                 : trainBlocker()}>
               <button
                 disabled={!canTrain()}
@@ -298,7 +305,7 @@ export default function GarrisonDetailModal(props: Props) {
                   "font-weight": "bold",
                 }}
               >
-                🎯 Have {trainerName()} drill to Lv.{nextLevel()} (~{trainSeconds()}s)
+                🎯 Have {trainerName()} drill to Lv.{nextUnitLevel()} (~{trainSeconds()}s)
               </button>
               </Tooltip>
               <Show when={!canTrain() && !training() && trainBlocker()}>
