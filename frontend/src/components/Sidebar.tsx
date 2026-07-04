@@ -269,7 +269,10 @@ export default function Sidebar(props: SidebarProps) {
       const pop = totalPopulation(state.citizens);
       if (pop === 0) return null;
       const rates = actions.getProductionRates();
-      const net = rates.food - actions.getFoodConsumption() - actions.getAnimalFoodConsumption();
+      // Must match the Overview's netRate("food") exactly — including the
+      // cooking net (porridge etc.) — or the badge fires while the Overview
+      // shows no danger (cooking surplus the badge was ignoring).
+      const net = rates.food - actions.getFoodConsumption() - actions.getAnimalFoodConsumption() + actions.getCookingFoodNet();
       // Match the Overview's `< 1` threshold so the sidebar badge label
       // doesn't bounce between "Out of food" and "Food running out" while
       // the stockpile oscillates near zero from float-point tick math.
