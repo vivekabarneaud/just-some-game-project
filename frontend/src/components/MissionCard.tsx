@@ -19,15 +19,32 @@ function formatDuration(seconds: number): string {
   return m > 0 ? `${h}h ${m}m` : `${h}h`;
 }
 
+/** Difficulty (1-star..) → rank fallback for missions with no board rank
+ *  (chain / side-chain missions are rank-neutral in the pools). Keeps their
+ *  cards colored + labeled by challenge instead of showing a muted, tag-less
+ *  header. */
+const DIFFICULTY_RANK: Record<number, string> = {
+  1: "novice",
+  2: "apprentice",
+  3: "journeyman",
+  4: "veteran",
+  5: "veteran",
+};
+
 /** Inline `<span>` of star-icons + rank label (e.g. "★★★ Apprentice"),
  *  colored by rank. Shared by the image and no-image card branches —
  *  callers wrap it with their own positioning/container. */
 function RankStars(props: { mission: MissionTemplate }) {
-  const rank = getMissionRank(props.mission.id);
+  // Board rank if the mission belongs to a rank pool; otherwise derive one from
+  // its difficulty so chain missions still read as e.g. "★★ Apprentice".
+  const rank = () =>
+    getMissionRank(props.mission.id) ??
+    DIFFICULTY_RANK[Math.max(1, Math.min(5, props.mission.difficulty))] ??
+    "novice";
   const stars = "★".repeat(Math.max(1, Math.min(3, props.mission.difficulty)));
   return (
-    <span style={{ color: rank ? MISSION_RANK_COLORS[rank] : "var(--text-muted)" }}>
-      {stars} {rank ? MISSION_RANK_LABELS[rank] : ""}
+    <span style={{ color: MISSION_RANK_COLORS[rank()] ?? "var(--text-muted)" }}>
+      {stars} {MISSION_RANK_LABELS[rank()] ?? ""}
     </span>
   );
 }
