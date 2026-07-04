@@ -171,7 +171,10 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     rewards: [{ resource: "gold", amount: 45 }],
     deployCost: 6,
     difficulty: 2,
-    minGuildLevel: 2,
+    // Guild Lv.1 (was 2): the story gate (Old Watch done) is the real pacing
+    // lever — a guild-2 requirement on top was silently withholding the whole
+    // Hester → Woodworker chain from players who hadn't upgraded the guild yet.
+    minGuildLevel: 1,
     tags: ["combat", "outdoor"],
     encounters: [{ enemyId: "bandit_thug", count: 3 }, { enemyId: "bandit_captain", count: 1 }],
     requires: { story: "story_2_ruins" },

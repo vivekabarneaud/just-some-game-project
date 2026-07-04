@@ -102,13 +102,6 @@ export const OVERVIEW_FLAVORS: OverviewFlavor[] = [
       "The first scouts proved themselves and came home. The next expedition will need more hands. We will keep recruiting, and we will send them further.",
   },
   {
-    id: "cloth_for_winter",
-    category: "settlement",
-    triggers: [{ type: "quest_completed", questId: "the_first_stitch" }],
-    text:
-      "The shepherd's flock has settled and the loom has finally turned. The first cloak is on a shoulder. One is not enough. Winter will come whatever the calendar says, and there are more shoulders in the camp than cloaks. We will need to keep weaving.",
-  },
-  {
     id: "more_raids_coming",
     category: "defense",
     triggers: [{ type: "quest_completed", questId: "baptism_of_fire" }],

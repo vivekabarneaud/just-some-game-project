@@ -472,24 +472,10 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     ],
     targetBuildingId: "tailoring_shop",
   },
-  {
-    id: "first_stitch",
-    storyline: "settlement",
-    chapter: 3,
-    title: "The First Stitch",
-    narrative:
-      "Your tailor examines the wool and nods approvingly. 'Good fiber. I can make proper clothes from this. Your people are shivering in rags. Clothe them and they'll be happier, especially come winter. Robes and armor can wait. Warmth first.'",
-    objective: "Craft Wool or Linen Clothing for your citizens",
-    icon: "🧥",
-    triggers: [{ type: "quest_completed", questId: "warm_and_proper" }],
-    // Bumped from >= 1 to >= 2: the hunters arrival event brings 1 clothing
-    // as part of "they bring their own clothes" flavor, which would otherwise
-    // satisfy this quest before the player has used the tailor at all. The
-    // bump forces at least one actual craft to learn the tailoring loop.
-    condition: (s) => Math.round(s.clothing) >= 2,
-    rewards: [{ resource: "wool", amount: 5, label: "Wool" }],
-    targetPage: "/tailoring",
-  },
+  // NOTE: "The First Stitch" (craft clothing) was pulled — the founders arrive
+  // clothed, so a "your people shiver in rags" beat lands wrong in year 1. The
+  // Tailoring Shop still exists for later clothing/armor crafting; only the
+  // early make-clothes-now quest was removed.
 
   // ╔══════════════════════════════════════════════════════════════╗
   // ║ SETTLEMENT — Chapter 4: Growing Up                          ║
