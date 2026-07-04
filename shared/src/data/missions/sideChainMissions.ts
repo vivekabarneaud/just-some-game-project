@@ -26,7 +26,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     icon: "🐗",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/rabid_boar_hunt.png",
     slots: [{ class: "any" }],
-    duration: 480,
+    duration: 60, // a boar in the vegetable rows — it's right here, not a trek
     rewards: [{ resource: "gold", amount: 20 }, { resource: "meat", amount: 20 }],
     deployCost: 3,
     difficulty: 1,

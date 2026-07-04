@@ -450,6 +450,14 @@ export function generateMissionBoard(ctx: MissionBoardContext): MissionTemplate[
     meetsRequirements(m.requires, ctx),
   );
 
+  // Pin eligible unique side-chain missions (narrative chain beats like Hester's
+  // rescue) so they always claim a board slot instead of competing randomly with
+  // filler — otherwise a story-gating chain could sit unshown for a long time.
+  const pinned = available.filter((m) => m.unique && !!m.sideChain);
+  const pinnedIds = new Set(pinned.map((m) => m.id));
+  const pool = available.filter((m) => !pinnedIds.has(m.id));
+  const regularSlots = Math.max(0, count - pinned.length);
+
   // Seeded shuffle
   let s = seed;
   function rand(): number {
@@ -486,7 +494,7 @@ export function generateMissionBoard(ctx: MissionBoardContext): MissionTemplate[
       }
     }
 
-    const eligible = available.filter((m) => {
+    const eligible = pool.filter((m) => {
       const r = missionRankNumeric(m.id);
       return r === null || r >= floor; // null = story/expedition, not subject to quota
     });
@@ -514,16 +522,19 @@ export function generateMissionBoard(ctx: MissionBoardContext): MissionTemplate[
     // Remainder: at-or-above reference, excluding stretch (already picked).
     const taken = new Set([...below, ...stretchSlots].map((m) => m.id));
     const middlePool = eligible.filter((m) => !taken.has(m.id) && !belowPool.some((b) => b.id === m.id));
-    const middleSlots = Math.max(0, count - below.length - stretchSlots.length);
+    const middleSlots = Math.max(0, regularSlots - below.length - stretchSlots.length);
     const middle = [...middlePool]
       .sort(() => rand() - 0.5)
       .slice(0, Math.min(middleSlots, middlePool.length));
 
     regular = [...middle, ...stretchSlots, ...below];
   } else {
-    const shuffledRegular = [...available].sort(() => rand() - 0.5);
-    regular = shuffledRegular.slice(0, Math.min(count, available.length));
+    const shuffledRegular = [...pool].sort(() => rand() - 0.5);
+    regular = shuffledRegular.slice(0, Math.min(regularSlots, pool.length));
   }
+
+  // Pinned chain beats always ride along, ahead of the filler.
+  regular = [...pinned, ...regular];
 
   // Expeditions: +1 per 2 guild levels (not subject to the rank quota)
   const expeditionSlots = getExpeditionSlotCount(guildLevel);
