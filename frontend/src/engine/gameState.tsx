@@ -503,6 +503,9 @@ export interface GameState {
   villageName: string;
   // Adventurer's Guild
   adventurers: Adventurer[];
+  /** Real-ms deadline for Hester's Beat-2b return (set when the "No One Followed"
+   *  patrol is done; she joins once Date.now() passes it). Undefined until then. */
+  hesterReturnAt?: number;
   activeMissions: ActiveMission[];
   completedMissions: CompletedMission[]; // recent results (cleared on read)
   missionBoard: MissionTemplate[];
@@ -805,6 +808,12 @@ function nextId(prefix: string): string {
  *  buffer without removing the need to weave replacements over time. */
 const CLOTHING_PER_ARRIVAL = 2;
 
+/** Hester's Beat 2b return delay: after the uneasy patrol (Beat 2a, the ghost
+ *  puzzle) she stays hidden and stacks wood for a while, then "returns" — the
+ *  reveal fires the next time the player is around after the delay. Real-world
+ *  time (a come-back-tomorrow beat). Shortened in dev so it can be tested. */
+const HESTER_RETURN_DELAY_MS = IS_DEV ? 90_000 : 18 * 60 * 60 * 1000;
+
 /** Auto-join the curated cast: any character whose scripted arrival condition
  *  is now met joins the roster directly — free, no roster cap. The cast is a
  *  finite collection you assemble over the game (paced by arrival conditions),
@@ -837,6 +846,24 @@ function syncArrivals(s: GameState): void {
         // Newcomers arrive with their own clothes (like the founders) — a small
         // clothing bump so early settlements aren't in a clothing crisis. It
         // still decays, so the tailor stays relevant for replacements.
+        s.clothing += CLOTHING_PER_ARRIVAL;
+      }
+    }
+  }
+  // Hester's two-beat return (the Woodcutter chain). Once the uneasy patrol
+  // ("No One Followed", Beat 2a) is done, she stays hidden and stacks wood for a
+  // real-time delay; when it elapses she "returns" (Beat 2b): joins the roster,
+  // and the ch1_woodcutter reveal chronicle fires below (on char_019 presence).
+  // Her premade arrival is `scripted`, so getArrivedPremades never adds her —
+  // only this block does.
+  if ((s.completedUniqueMissionIds ?? []).includes("quiet_the_woods") && !havePremadeIds.has("char_019")) {
+    if (s.hesterReturnAt === undefined) {
+      s.hesterReturnAt = Date.now() + HESTER_RETURN_DELAY_MS;
+    } else if (Date.now() >= s.hesterReturnAt) {
+      const rec = buildRecruitFromPremadeId(nextId("adv"), "char_019", 1);
+      if (rec) {
+        s.adventurers.push(rec);
+        havePremadeIds.add("char_019");
         s.clothing += CLOTHING_PER_ARRIVAL;
       }
     }

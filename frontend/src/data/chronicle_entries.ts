@@ -216,14 +216,40 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "I do not know who sent the bird. I assume the Thornveil. I find I am grateful in a way that does not have a name yet.",
   },
   {
+    // Beat 1 — the rescue (fires when "Run Down" is claimed). She flees; the
+    // word "murderer" is left hanging. The Lord wasn't there; this is the report.
+    id: "ch1_hester_rescue",
+    chapterId: "ch1",
+    order: 7.5,
+    title: "A murderer, they said",
+    teaser: "The team came back from a chase with a rescue that thanked no one, and a word I cannot put down.",
+    fullText:
+      "Gareth would not ride past it. A woman, alone, run down through the brush the way you course a deer, and Gareth has never once in his life been able to watch that and keep walking. The team put the men on their knees, not in the ground, and let them go: nothing else to do with them, no one to hold them, and the woman already gone.\n\n" +
+      "One of them spat as he went. \"Why would you save this murderer?\" And then, bitter, that she had not even stayed to say thank you, she was into the trees the moment the hands came off her.\n\n" +
+      "So I have a rescue that thanked no one, a woman with a price on her head and no name to me, and a word left lying in the dirt where the men dropped it. Murderer. I was not there; I have only the team's telling of it. I do not know what she did. I know what many-against-one looks like, and we did not come to the edge of the world to look away from it. The rest will keep, or it will not.",
+  },
+  {
+    // Beat 2a — the ghost puzzle (fires when "No One Followed" is claimed).
+    // The mystery, and the "it's a ghost" joke. NO reveal yet — that's 2b,
+    // days later (the timed Hester return).
+    id: "ch1_woodcutter_ghost",
+    chapterId: "ch1",
+    order: 7.9,
+    title: "The ghost in the woodpile",
+    teaser: "Clean-cut timber keeps appearing at the mill overnight, and no one will own to it. I called it a ghost. We laughed.",
+    fullText:
+      "Jory came to me with a puzzle and a grin. Wood has been turning up on the mill stack overnight, more each morning, clean-felled and squared better than any hand we have can manage, and no one will own to it. I told him it was a ghost. We both laughed. A man laughs at what he has not yet been given reason to fear.\n\n" +
+      "It has gone on for days now. The mill-hands leave the pile half-watched, half-hoping. Whoever it is wants nothing for the work, and does not want to be seen wanting nothing. Jory has stopped asking who and started just being glad of the timber. A ghost, then. Ours. I can think of stranger things to be haunted by than good clean wood.",
+  },
+  {
+    // Beat 2b — the reveal (fires when Hester returns, ~a day after 2a). The
+    // recognition scene; she stays; her thank-you was the wood all along.
     id: "ch1_woodcutter",
     chapterId: "ch1",
     order: 8,
-    title: "The ghost in the woodpile",
-    teaser: "Clean-cut timber kept appearing at the mill, and no one would own to it. I called it a ghost. I was wrong about that, twice over.",
+    title: "The woman who came back",
+    teaser: "The ghost in our woodpile let herself be found this morning. I knew her the moment Gareth did, and I did not send her away.",
     fullText:
-      "Jory came to me a week ago with a puzzle and a grin. Wood had been turning up on the mill stack overnight, more each morning, clean-felled and squared better than any hand we have can manage, and no one would own to it. I told him it was a ghost. We both laughed. A man laughs at what he has not yet been given reason to fear.\n\n" +
-      "It went on for days. The mill-hands took to leaving the pile half-watched, half-hoping. Whoever it was wanted nothing for the work, and did not want to be seen wanting nothing.\n\n" +
       "This morning she let herself be found. Jory brought her to my tent pleased as a boy with a bird's nest, not knowing what he had caught. Gareth was with me when she came in. He went still, and then he said it: that is her. The woman from the chase. The one the men called a murderer, the day we put them on their knees and she was already gone.\n\n" +
       "So now I knew. The ghost in our woodpile was a hunted woman with some price on her, who had crept back to the one place that had done her a kindness and paid it the only way she seemed to have, in timber, in the dark, asking nothing.\n\n" +
       "She did not explain herself. She did not ask me to take her word over the word of the men who hunted her. She stood with her jaw set like a barred door and waited for me to decide what she was. I have learned to weigh what a person does against what is said of them. What this one had done was leave us a week of honest work in the dark and take nothing for it. The word of men who run a lone woman through the brush does not weigh much against that.\n\n" +

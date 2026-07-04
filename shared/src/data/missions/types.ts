@@ -87,6 +87,9 @@ export interface MissionTemplate {
    *  moving it back into its tier array and dropping this flag. */
   staged?: boolean;
   requires?: MissionRequirements; // conditions for this mission to appear on the board
+  /** Chronicle entry surfaced when this mission is claimed (on success). Story
+   *  missions have always had this; side-chain beats can carry one too. */
+  chronicleEntryId?: string;
   /** Locked NPC ally that fights alongside the team (escort / ritual companion / VIP). */
   npcAlly?: MissionNpcAlly;
   /** Per-mission combat-rule modifiers (e.g. physical can hit ghosts during the binding). */

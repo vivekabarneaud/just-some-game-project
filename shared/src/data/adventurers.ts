@@ -318,6 +318,7 @@ export function isArrived(c: PremadeCharacter, ctx: ArrivalContext): boolean {
     case "missionDone": return ctx.completedUniqueMissionIds.includes(a.missionId);
     case "building": return ctx.builtBuildingIds.has(a.buildingId);
     case "loyalty": return (ctx.loyaltyByPremadeId[a.premadeId] ?? -1) >= a.minLoyalty;
+    case "scripted": return false; // arrival driven by bespoke game-state logic (e.g. Hester's timed return), not this condition set
   }
 }
 

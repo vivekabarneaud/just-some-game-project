@@ -392,7 +392,10 @@ export const BUILDINGS: BuildingDefinition[] = [
     // (Beat 2) → the Woodworker (fine carving: the family's good bows/shields)
     // opens, with Jory at the bench and Hester on the Lumber Mill. See
     // docs/cast/hester-ironbark.md.
-    unlockedAt: { requiresMissionDone: "hester_rescue" },
+    // Beat 2a of the Woodcutter chain: the ghost's clean-felled timber is what
+    // makes fine woodwork possible, so the Woodworker opens once the uneasy
+    // patrol ("No One Followed") is done — a bit before Hester is revealed (2b).
+    unlockedAt: { requiresMissionDone: "quiet_the_woods" },
   },
 
   // Camp tier — Shrine (happiness + deity blessings)

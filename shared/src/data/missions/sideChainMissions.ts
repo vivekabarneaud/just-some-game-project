@@ -180,5 +180,31 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     requires: { story: "story_2_ruins" },
     unique: true,
     sideChain: { id: "the_woodcutter", name: "The Woodcutter" },
+    chronicleEntryId: "ch1_hester_rescue", // Beat 1: she flees, "murderer" hangs
+  },
+  // ── "The Woodcutter" Beat 1.5 — the uneasy patrol (paces Beat 2) ──
+  //    Only appears AFTER the rescue (requires hester_rescue), so it guarantees
+  //    a gap. The camp is rattled — armed men in their woods, a hunted stranger
+  //    loose — so the team walks the approaches. No real threat (the relief of
+  //    a quiet wood; one lone wolf so combat still resolves). Its completion
+  //    fires the ghost-puzzle chronicle (Beat 2a) and starts the timed return.
+  {
+    id: "quiet_the_woods",
+    name: "No One Followed",
+    description: "The chase left us uneasy. We put those men on their knees and let them walk, but they were armed and in our woods, and the woman we pulled out of it went into the trees without a word, a price on her we cannot guess and one word hanging off her we cannot unhear. Nobody says it plainly. Nobody sleeps easy either. Walk the approaches. Make sure that crew kept moving, that nothing and no one followed us home, and come back able to tell the camp the woods are quiet. That is all we want to hear.",
+    icon: "🌲",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/first_patrol.png",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 180, // our own approaches — a short walk, not a trek
+    rewards: [{ resource: "wood", amount: 20 }, { resource: "meat", amount: 10 }],
+    deployCost: 4,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["outdoor", "survival"],
+    encounters: [{ enemyId: "wild_wolf", count: 1 }],
+    requires: { missionDone: "hester_rescue" },
+    unique: true,
+    sideChain: { id: "the_woodcutter", name: "The Woodcutter" },
+    chronicleEntryId: "ch1_woodcutter_ghost", // Beat 2a: the ghost puzzle
   },
 ];
