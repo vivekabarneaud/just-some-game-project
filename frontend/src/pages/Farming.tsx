@@ -382,20 +382,25 @@ function GardenCard(props: { garden: PlayerGarden }) {
   // your stock. Yield scales with how full it is.
   const seedStock = () => state.seeds?.[props.garden.veggie] ?? 0;
   const capacity = () => getSeedCapacity(Math.max(1, props.garden.level));
-  const sowAmount = () => Math.min(seedStock(), capacity()); // what we'd sow right now
+  // Seeds already sown this cycle (0 if not planted this year), and the room
+  // still left to fill — so the player can top up a partially-sown plot (e.g.
+  // after an upgrade raised the capacity, or once more seed comes in).
+  const sownThisYear = () => planted() ? props.garden.seedsPlanted : 0;
+  const roomLeft = () => capacity() - sownThisYear();
+  const sowAmount = () => Math.min(seedStock(), roomLeft()); // what we'd sow right now
   const effRate = () => getEffectiveGardenRate(veggie(), Math.max(1, props.garden.level), props.garden.seedsPlanted);
   const partialSow = () => planted() && props.garden.seedsPlanted < capacity();
   const canPlant = () =>
     props.garden.level > 0 &&
     !props.garden.upgrading &&
     inPlantSeason() &&
-    !planted() &&
+    roomLeft() > 0 &&
     seedStock() > 0;
   const plantBlockedReason = () => {
     if (props.garden.level === 0) return "Build the garden first";
     if (props.garden.upgrading) return "Garden is being built";
     if (!inPlantSeason()) return `${veggie().name} are planted in ${veggie().plantSeasons.join(", ")}`;
-    if (planted()) return "Already planted this cycle";
+    if (roomLeft() <= 0) return "Sown to capacity this cycle";
     if (seedStock() <= 0) return `No ${veggie().name.toLowerCase()} seed in store — a harvested plot saves seed for next year`;
     return "";
   };
@@ -583,8 +588,9 @@ function GardenCard(props: { garden: PlayerGarden }) {
           </div>
         </Show>
 
-        {/* Plant action — only while the garden is built and this cycle hasn't been sown yet */}
-        <Show when={!props.garden.upgrading && props.garden.level > 0 && !planted()}>
+        {/* Plant action — shown while the plot has room to sow this cycle, so a
+            partially-filled plot (e.g. after an upgrade) can be topped up. */}
+        <Show when={!props.garden.upgrading && props.garden.level > 0 && roomLeft() > 0}>
           <Tooltip block style={{ "margin-top": "8px" }} text={canPlant() ? "" : plantBlockedReason()}>
           <button
             class="field-upgrade-btn"
@@ -592,9 +598,11 @@ function GardenCard(props: { garden: PlayerGarden }) {
             disabled={!canPlant()}
             onClick={() => actions.plantGarden(props.garden.id)}
           >
-            {seedStock() > 0
-              ? `Sow ${sowAmount()} ${veggie().name.toLowerCase()} seed${sowAmount() < capacity() ? ` (plot holds ${capacity()})` : ""}`
-              : "No seed to sow"}
+            {seedStock() <= 0
+              ? "No seed to sow"
+              : sownThisYear() > 0
+                ? `Sow ${sowAmount()} more ${veggie().name.toLowerCase()} seed (${sownThisYear() + sowAmount()}/${capacity()})`
+                : `Sow ${sowAmount()} ${veggie().name.toLowerCase()} seed${sowAmount() < capacity() ? ` (plot holds ${capacity()})` : ""}`}
           </button>
           </Tooltip>
         </Show>

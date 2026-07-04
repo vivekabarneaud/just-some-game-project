@@ -4,10 +4,8 @@ import { playSound } from "~/engine/sounds";
 import type { CompletedMission } from "@medieval-realm/shared/data/missions";
 import { formatReward, getMission } from "@medieval-realm/shared/data/missions";
 import { STORY_CINEMATICS } from "~/data/cinematics";
-import { getChronicleEntry, type ChronicleEntry } from "~/data/chronicle_entries";
 import CombatLog from "~/components/CombatLog";
 import CombatPlayback from "~/components/CombatPlayback";
-import ChronicleEntryModal from "~/components/ChronicleEntryModal";
 
 interface Props {
   result: CompletedMission;
@@ -24,15 +22,12 @@ interface Props {
 const EXIT_ANIMATION_MS = 240;
 
 export default function LootModal(props: Props) {
-  onMount(() => {
-    playSound("notify");
-    // Fire the story mission's chronicle entry directly on top of the loot
-    // modal rather than leaving it as a card the player might skip. Opening it
-    // marks the entry seen, which suppresses the AdventurersGuild after-dismiss
-    // auto-open. Small delay lets the loot modal animate in underneath first.
-    const entry = chronicleEntry();
-    if (entry) setTimeout(() => setPreviewEntry(entry), 500);
-  });
+  onMount(() => playSound("notify"));
+  // NOTE: the story-mission chronicle entry is intentionally NOT opened here.
+  // It fires after the player clicks "Claim & Continue Story" — the LootModal
+  // closes, then AdventurersGuild opens the ChronicleEntryModal (its after-claim
+  // handler, guarded by chronicleEntriesSeen). This keeps the narrative beat as
+  // a deliberate "continue" step rather than popping over the unclaimed loot.
   const template = () => getMission(props.result.missionId) ?? { name: props.result.missionId, icon: "📜" };
   const hasRewards = () => props.result.rewards.length > 0;
   // Outcome is three-way under Model C: success / retreated (broke off, came
@@ -42,19 +37,11 @@ export default function LootModal(props: Props) {
   const outcomeTint = () => props.result.success ? "rgba(46, 204, 113, 0.1)" : retreated() ? "rgba(212, 131, 26, 0.12)" : "rgba(231, 76, 60, 0.1)";
   const outcomeLabel = () => props.result.success ? "Success" : retreated() ? "Retreated" : "Failed";
   const hasStoryCinematic = () => !!STORY_CINEMATICS[props.result.missionId];
-  // Chronicle entry tied to this story mission, if any. Surfaces as a "new
-  // chronicle entry" notification row; the entry itself opens automatically
-  // after the loot modal dismisses (handled by AdventurersGuild).
-  const chronicleEntry = () => {
-    if (!props.result.success) return null;
-    const t = getMission(props.result.missionId) as { chronicleEntryId?: string } | undefined;
-    if (!t?.chronicleEntryId) return null;
-    return getChronicleEntry(t.chronicleEntryId) ?? null;
-  };
+  // The story-mission chronicle entry is opened by AdventurersGuild after the
+  // player claims (see its after-claim handler), not from inside this modal.
 
   const [logExpanded, setLogExpanded] = createSignal(false);
   const [showPlayback, setShowPlayback] = createSignal(false);
-  const [previewEntry, setPreviewEntry] = createSignal<ChronicleEntry | null>(null);
   // Suppress the card's scrollbar during the entry animation — content briefly
   // reflows as sections/chips settle, which otherwise flashes a scrollbar on
   // the right even when final content fits. Enabled after the animation ends.
@@ -297,13 +284,6 @@ export default function LootModal(props: Props) {
         </div>
       </div>
     </div>
-
-    {/* Nested chronicle entry preview — opens above the loot modal when the
-        player clicks the new-entry card. Marking-seen happens in the modal
-        itself, which lets AdventurersGuild skip its post-claim auto-open. */}
-    <Show when={previewEntry()}>
-      {(entry) => <ChronicleEntryModal entry={entry()} onClose={() => setPreviewEntry(null)} />}
-    </Show>
     </>
   );
 }

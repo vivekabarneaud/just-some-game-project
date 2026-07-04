@@ -144,6 +144,25 @@ export default function QuestClaimModal(props: Props) {
               />
             )}
           </For>
+
+          {/* Fallback body — a reward-less guide quest (no rewards, chronicle,
+              or memory) would otherwise show an empty modal, so surface its
+              narrative as the closing beat. */}
+          <Show when={
+            props.quest.rewards.length === 0 &&
+            !(props.quest.chronicleEntryId && getChronicleEntry(props.quest.chronicleEntryId)) &&
+            unlockedMemories().length === 0
+          }>
+            <div class="loot-section" style={{
+              "animation-delay": "180ms",
+              "font-size": "0.92rem",
+              color: "var(--text-secondary)",
+              "font-style": "italic",
+              "line-height": "1.6",
+            }}>
+              {props.quest.narrative}
+            </div>
+          </Show>
         </div>
 
         {/* Footer */}

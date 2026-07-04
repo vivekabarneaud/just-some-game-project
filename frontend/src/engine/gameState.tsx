@@ -4624,21 +4624,27 @@ export function GameProvider(props: ParentProps) {
       const veggie = getVeggie(garden.veggie);
       if (!isSeedUnlocked(veggie, state.seedsUnlocked)) return false;
       if (!canPlantVeggie(veggie, state.season)) return false;
-      if (garden.plantedYear === state.year) return false; // already sown this cycle
       // Sow from the per-crop seed stock, up to the plot's capacity. A partial
-      // fill is allowed — the yield just scales down (getEffectiveGardenRate).
+      // fill is allowed — the yield just scales down (getEffectiveGardenRate) —
+      // and the player can top up later in the same season (e.g. after an
+      // upgrade raised the capacity, or once more seed is in store).
+      const cap = getSeedCapacity(garden.level);
+      const already = garden.plantedYear === state.year ? (garden.seedsPlanted ?? 0) : 0;
+      const room = cap - already;
+      if (room <= 0) return false; // already sown to capacity this cycle
       const stock = state.seeds?.[garden.veggie] ?? 0;
       if (stock <= 0) return false;
-      const sow = Math.min(stock, getSeedCapacity(garden.level));
+      const sow = Math.min(stock, room);
       if (sow <= 0) return false;
       setState(produce((s) => {
         s.seeds[garden.veggie] -= sow;
         const g = s.gardens.find((g) => g.id === gardenId)!;
         g.plantedYear = s.year;
-        g.seedsPlanted = sow;
-        const cap = getSeedCapacity(garden.level);
-        const partial = sow < cap ? ` (${sow}/${cap} — short on seed)` : "";
-        pushEvent(s, "building_completed", veggie.icon, `Sowed ${sow} ${veggie.name.toLowerCase()} seed${partial}`);
+        g.seedsPlanted = already + sow;
+        const total = already + sow;
+        const partial = total < cap ? ` (${total}/${cap} — short on seed)` : "";
+        const verb = already > 0 ? `Sowed ${sow} more` : `Sowed ${sow}`;
+        pushEvent(s, "building_completed", veggie.icon, `${verb} ${veggie.name.toLowerCase()} seed${partial}`);
       }));
       scheduleSave();
       return true;
