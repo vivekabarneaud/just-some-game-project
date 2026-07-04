@@ -862,6 +862,30 @@ export function getDeployCost(team: Adventurer[]): number {
   return team.reduce((sum, a) => sum + (DEPLOY_WAGE_BY_RANK[a.rank] ?? 0), 0);
 }
 
+/** The worn kit a newcomer arrives with — their own belongings, by class, with a
+ *  few per-character flavor overrides. All 0-stat (armor gives only a little
+ *  defense); pure immersion so nobody shows up bare. Player replaces with crafted
+ *  gear. See shared/data/items/equipment.ts "Starter / worn gear". */
+function starterEquipment(premade: PremadeCharacter): Adventurer["equipment"] {
+  const empty: Adventurer["equipment"] = {
+    head: null, chest: null, legs: null, boots: null, cloak: null,
+    mainHand: null, offHand: null, ring1: null, ring2: null, amulet: null, trinket: null,
+  };
+  const BY_CLASS: Record<AdventurerClass, { mainHand: string; chest: string }> = {
+    warrior:  { mainHand: "plain_sword", chest: "worn_chainmail" },
+    archer:   { mainHand: "worn_bow",    chest: "patched_leather" },
+    assassin: { mainHand: "worn_dagger", chest: "patched_leather" },
+    wizard:   { mainHand: "plain_staff", chest: "homespun_robe" },
+    priest:   { mainHand: "plain_staff", chest: "homespun_robe" },
+  };
+  const kit = BY_CLASS[premade.class];
+  const eq: Adventurer["equipment"] = { ...empty, mainHand: kit.mainHand, chest: kit.chest };
+  // Per-character flavor (add specifics here as characters need them):
+  if (premade.id === "char_005") eq.chest = "worn_chainmail"; // Gareth: mail, not leather
+  if (premade.id === "char_000") eq.head = "cloth_hood";      // Brenna: a cloth hood
+  return eq;
+}
+
 /** Build an Adventurer from a premade character definition */
 function buildAdventurerFromPremade(id: string, premade: PremadeCharacter, maxRank: AdventurerRank): Adventurer {
   const quirk = PERSONALITY_QUIRKS[Math.floor(Math.random() * PERSONALITY_QUIRKS.length)];
@@ -892,7 +916,7 @@ function buildAdventurerFromPremade(id: string, premade: PremadeCharacter, maxRa
     alive: true,
     onMission: false,
     bonusStats: {},
-    equipment: { head: null, chest: null, legs: null, boots: null, cloak: null, mainHand: null, offHand: null, ring1: null, ring2: null, amulet: null, trinket: null },
+    equipment: starterEquipment(premade),
     talents: [],
     foodPreference: premade.foodPreference,
     loyalty: 0,

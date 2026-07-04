@@ -800,6 +800,11 @@ function nextId(prefix: string): string {
   return `${prefix}_${idCounter++}`;
 }
 
+/** Clothing a newcomer brings with them (they arrive dressed, like the founders).
+ *  Small — clothing degrades ~1/day, so this covers the new head with a little
+ *  buffer without removing the need to weave replacements over time. */
+const CLOTHING_PER_ARRIVAL = 2;
+
 /** Auto-join the curated cast: any character whose scripted arrival condition
  *  is now met joins the roster directly — free, no roster cap. The cast is a
  *  finite collection you assemble over the game (paced by arrival conditions),
@@ -829,6 +834,10 @@ function syncArrivals(s: GameState): void {
       if (rec) {
         s.adventurers.push(rec);
         havePremadeIds.add(c.id);
+        // Newcomers arrive with their own clothes (like the founders) — a small
+        // clothing bump so early settlements aren't in a clothing crisis. It
+        // still decays, so the tailor stays relevant for replacements.
+        s.clothing += CLOTHING_PER_ARRIVAL;
       }
     }
   }
@@ -3604,6 +3613,8 @@ export function GameProvider(props: ParentProps) {
               const overflow = newTotal - maxPop;
               s.citizens = reduceByPriority(s.citizens, overflow, ["toddlers", "children", "elderly", "adults"], s.namedResidents);
             }
+            // Newcomers arrive with their own clothes (scaled to how many came).
+            s.clothing += CLOTHING_PER_ARRIVAL * Math.max(1, totalPopulation(arrival.delta));
             pushEvent(s, "citizen_born", "👤", arrival.flavor);
           }
         } else if (popBefore > BASE_POPULATION) {
