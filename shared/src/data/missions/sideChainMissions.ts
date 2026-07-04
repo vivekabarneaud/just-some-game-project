@@ -167,7 +167,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     icon: "🪓",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/hester_rescue.png",
     slots: [{ class: "any" }, { class: "any" }, { class: "any" }],
-    duration: 600,
+    duration: 180, // a rescue in the south trees, close to home — not a trek
     rewards: [{ resource: "gold", amount: 45 }],
     deployCost: 6,
     difficulty: 2,
