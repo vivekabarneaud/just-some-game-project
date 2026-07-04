@@ -169,9 +169,16 @@ export const NARRATIVE_EVENTS: NarrativeEvent[] = [
   },
 
   // ── Settlement Ch.3 → Ch.4: outgrowing canvas ─────────────────
+  // Nudges the player to raise a proper hall (upgrade TH to Village/Lv.3). Since
+  // the Town Hall is no longer story-gated, a player can already BE at Village by
+  // the time Ch.3 completes — so only fire this beat if they haven't outrun it.
   {
     id: "event_outgrowing_canvas",
-    triggers: [settlementChapterDone(3)],
+    triggers: [
+      settlementChapterDone(3),
+      { type: "custom", check: (s) => (s.buildings.find((b) => b.buildingId === "town_hall")?.level ?? 0) < 3 },
+    ],
+    requiresAll: true,
     banner:
       "Edda calls the Town Hall \"the cupboard.\" Tents on every level stretch of ground, two wells, a mission board, and a roster I cannot hold in my head. The canvas leaks when it rains hard, the firepit is the only place we gather, and decisions made standing in the wet do not hold long. It is time to raise a proper hall.",
   },
