@@ -20,16 +20,20 @@ same seat risks oscillation. Get real signal first (see Method).
 
 ## Observations (from the 24h playtest)
 
-### 1. Progression is not gated on settlement HEALTH (highest priority)
-You can race to Village (TH3) and unlock tavern / animal pens / orchards / apiaries
-**while your citizens are starving to death.** Nothing ties tiering to the settlement
-being stable. Building-prereqs + cost are the only gate (see `project_progression_gating`
-— that ungating was deliberate and good), but there's no floor for *basic viability*.
+### 1. You can grow to Village while your people starve → but it's a FOOD problem, not a gate problem
+Observation: you can race to Village (TH3) and unlock tavern / pens / orchards / apiaries
+while citizens starve to death.
 
-Candidate fix (needs design decision): require a minimum stability to raise the Town Hall
-tier — e.g. no active famine, population fed, happiness above a floor, for the last N
-hours. Growth stays build-gated, but you can't crown yourself a village while the folk
-starve. Keep it forgiving (a warning, then a soft block), not punishing.
+**The paradox (dev's key insight, July 2026):** you can't gate the tier on settlement
+health, because *the player upgrades specifically to be able to feed their people*.
+Blocking the upgrade when starving would trap them (need village to fix food → can't
+reach village because food is bad). So a "health floor on tiering" is the WRONG fix.
+
+Reframe: the real issue is the **food economy** — basic survival (feeding a camp/village)
+should be achievable without the tier-up being the escape hatch. Direction: make early
+food reliably coverable (foragers/hunting/fishing/gardens/pens at low tiers), and fix the
+winter squeeze (item 6). If anything, tiering up should *help* survival, not be gated by
+it. So this collapses into items 2 + 6, not a new gate.
 
 ### 2. Resource abundance — mill/quarry never pinch
 At Village with Lumber Mill + Quarry still Lv.1, wood/stone are effectively unlimited;
@@ -58,19 +62,33 @@ shouldn't pay **gold** (where would the coin come from?) — e.g. clearing a sic
 your own fields. Internal/defensive missions → resources/meat/materials, not coin. Trade/
 escort/outsider missions → gold is fine. Audit rewards alongside the duration pass.
 
-### 6. Food economy / winter famine
-Famine recurs at Village even with all food buildings at Lv.2. Likely (unconfirmed) the
-**founding-winter grace never applies in dev** (dev starts in spring, so the 0.7× ration
-never latches — it only triggers for a winter-founded settlement in prod). Confirm in
-prod, or add a dev toggle to test the grace path. If famine persists WITH grace, the
-winter food economy needs a real tuning look. See `project_early_defenses` (grace),
-`calcFoodConsumption`.
+### 6. Food economy / winter famine (the real item-1 fix)
+Famine recurs at Village even with all food buildings at Lv.2. Two compounding causes:
+- **Founding-winter grace almost never applies.** It latches on the first tick only if
+  the settlement's season is winter, AND the save migration backfills EXISTING saves to
+  `foundingWinterGrace = false` — so any pre-existing save never gets it. A fresh save
+  that starts in winter would. Test: fresh save, winter start, confirm grace + no famine.
+- **Winter food is just tight** even at Lv.2 buildings. Likely needs a real tuning look
+  (higher winter yields, cheaper storage, or a stronger grace) once the grace question
+  is isolated. See `project_early_defenses` (grace), `calcFoodConsumption`.
 
-### 7. Obsolete "recruit more hands" prompt (verify)
-MissionAssemblyPanel's "Everyone is out… recruit more hands" empty state (when all
-adventurers are on missions) is flagged as obsolete — reconcile with the current roster
-model (`project_roster_curation`: curated cast, replenishing reserve, no daily rotation).
-Confirm whether recruitment is still the right pointer, then fix the copy/link.
+### 8. Season/year model — dev vs prod (clarification, not necessarily a bug)
+`IS_DEV = import.meta.env.VITE_DEV_MODE === "true"`. `frontend/.env.development` sets it
+true, so **`pnpm dev` (localhost) → local fast seasons** (spring start, year climbs by
+play, 24 game-hrs/season). The **deployed/prod build does NOT set it → `IS_DEV` false →
+global/server seasons** (real-world 3-day seasons; `year = global.year - foundingYear + 1`).
+So server-synced seasons in play = the prod build. A stale displayed year (e.g. "year 6")
+is a leftover `foundingYear` offset from an earlier state; a fresh save resets it to 1.
+Implication: if the dev has been on the prod build, their seasons were prod-like (NOT
+dev-inflated), so the "too fast to Village" read is more trustworthy than first thought.
+Seasons don't gate tiering regardless, so this is mostly cosmetic for pacing.
+
+### 7. "recruit more hands" prompt — FIXED (copy)
+The recruit *tab* was removed but the advice is fine; it was just wrong as a link.
+Reworded MissionAssemblyPanel's "Everyone is out…" state to plain text: "They will
+return. More hands find their way here as you take on adventures and quests." (delinked).
+TODO (minor): the first-visit empty-roster state still says "recruitment board" / "Go to
+recruitment" (→ roster tab) — reword to match the acquisition model when convenient.
 
 ## Method — how to get REAL signal
 - **Fresh-player alpha** (boyfriend / friends / nephew): watch where they stall, coast,

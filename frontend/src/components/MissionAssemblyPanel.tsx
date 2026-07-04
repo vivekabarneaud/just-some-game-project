@@ -1335,11 +1335,7 @@ export default function MissionAssemblyPanel(props: Props) {
               Everyone is out.
               {hiddenBreakdown().onMission > 0 && ` ${hiddenBreakdown().onMission} on missions.`}
               {hiddenBreakdown().coopLocked > 0 && ` ${hiddenBreakdown().coopLocked} pledged to a co-op expedition.`}
-              {" "}They will return. Or{" "}
-              <span
-                style={{ color: "var(--accent-gold)", cursor: "pointer", "text-decoration": "underline" }}
-                onClick={props.onGoRecruit}
-              >recruit more hands</span>.
+              {" "}They will return. More hands find their way here as you take on adventures and quests.
             </p>
           </Show>
         </Show>
