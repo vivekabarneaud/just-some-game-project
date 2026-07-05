@@ -130,6 +130,16 @@ auth.post("/google", async (c) => {
       `[auth/google] ID-token verification failed: ${(e as Error)?.message ?? e} ` +
       `(backend expects aud=${env.GOOGLE_CLIENT_ID})`,
     );
+    // DIAGNOSTIC: probe Google's JWKS endpoint directly to see the actual
+    // response (the jose error only says "not 200"). Reveals a redirect, a
+    // 403/429, or a captive/proxy body. Runs only on the failure path.
+    try {
+      const probe = await fetch("https://www.googleapis.com/oauth2/v3/certs");
+      const body = (await probe.text()).slice(0, 300);
+      console.error(`[auth/google] JWKS probe → status=${probe.status} ${probe.statusText}; body[0:300]=${body}`);
+    } catch (pe) {
+      console.error(`[auth/google] JWKS probe fetch threw: ${(pe as Error)?.message ?? pe}`);
+    }
     return c.json({ error: "Invalid Google sign-in. Please try again." }, 401);
   }
 
