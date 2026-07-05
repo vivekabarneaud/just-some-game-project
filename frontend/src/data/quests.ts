@@ -642,6 +642,23 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     rewards: [],
     targetPage: "/guild",
   },
+  {
+    id: "count_the_days",
+    storyline: "guild",
+    chapter: 1,
+    title: "Past the Ruins",
+    narrative:
+      "The old watch is behind us, and the story it told is not finished. The team came back saying the trees go wrong a few days further south than they walked, and that they felt it before they saw it. I need to know how far, and what walks there. So I am sending them south again, past the ruins, to count the days honestly this time, and I will send someone with them who can deal with what does not bleed.",
+    objective: "Send a team past the ruins to count the days",
+    icon: "🌑",
+    // Pure guide quest — no reward, just a breadcrumb so the quest log points at
+    // the story_3 mission during the lull after the Old Watch. Mirrors
+    // investigate_old_watch (which pointed at story_2).
+    triggers: [{ type: "story_mission_completed", missionId: "story_2_ruins" }],
+    condition: (s) => (s.completedStoryMissions ?? []).includes("story_3_dark_treeline"),
+    rewards: [],
+    targetPage: "/guild",
+  },
 
   // ╔══════════════════════════════════════════════════════════════╗
   // ║ ADVENTURER'S GUILD — Chapter 2: Wolves on the Ridge         ║

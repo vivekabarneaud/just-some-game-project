@@ -111,6 +111,17 @@ export const OVERVIEW_FLAVORS: OverviewFlavor[] = [
       "The team walked the old watch and came back with a tin chest and a colder story: the trees go wrong a few days further south than they went, and they felt it before they saw it. The guild is earning its keep, and the map grows bigger and darker at its edges. We will need more hands, and steadier ones.",
   },
   {
+    // After Past the Ruins (story_3): the team counted the days into the wastes
+    // and met the dead that do not bleed. Supersedes old_watch_returned_adventurers
+    // (later in the array, same category). Foreshadows the binding mechanic
+    // (story_4, Niamh) without naming her — steel is not enough down there.
+    id: "past_ruins_returned_adventurers",
+    category: "adventurers",
+    triggers: [{ type: "story_mission_completed", missionId: "story_3_dark_treeline" }],
+    text:
+      "The team went past the ruins and counted the days the way I asked. They came back changed. What walks the deep south does not bleed and does not tire, and good steel passed through it like smoke. We cannot hold a line against a thing we cannot touch. Whatever we send next, it will not be more of the same.",
+  },
+  {
     // After the Old Watch (story_2): the ruin that was built to last, and failed.
     id: "old_watch_returned_defense",
     category: "defense",
