@@ -102,11 +102,38 @@ export const OVERVIEW_FLAVORS: OverviewFlavor[] = [
       "The first scouts proved themselves and came home. The next expedition will need more hands. We will keep recruiting, and we will send them further.",
   },
   {
+    // After the Old Watch (story_2): the guild is finding real things, and the
+    // map grows darker at its edges.
+    id: "old_watch_returned_adventurers",
+    category: "adventurers",
+    triggers: [{ type: "story_mission_completed", missionId: "story_2_ruins" }],
+    text:
+      "The team walked the old watch and came back with a tin chest and a colder story: the trees go wrong a few days further south than they went, and they felt it before they saw it. The guild is earning its keep, and the map grows bigger and darker at its edges. We will need more hands, and steadier ones.",
+  },
+  {
+    // After the Old Watch (story_2): the ruin that was built to last, and failed.
+    id: "old_watch_returned_defense",
+    category: "defense",
+    triggers: [{ type: "story_mission_completed", missionId: "story_2_ruins" }],
+    text:
+      "Whoever raised the old watch built to last, and it failed all the same. That is a thing a wall ought to remember. The south is not merely unfriendly; it is old, and something was kept out here once. We raise our own walls higher, and we do not laugh at the people who came before.",
+  },
+  {
     id: "more_raids_coming",
     category: "defense",
     triggers: [{ type: "quest_completed", questId: "baptism_of_fire" }],
     text:
       "The walls held. Tomas walked the perimeter twice before sleep, then twice more before dawn. That was the lightest thing the south can send. It will come back, angrier, and not alone next time. The walls will need to be higher, and we will need more hands on them.",
+  },
+  {
+    // Reaching Village tier (TH3) — the camp has become a village. Superseded
+    // by village_in_the_making once settlement Ch.4 opens (it's later in the
+    // array, so it wins when both fire).
+    id: "village_tier_reached",
+    category: "settlement",
+    triggers: [{ type: "th_level", level: 3 }],
+    text:
+      "The camp is a village now, in the way it holds together as much as in name. More roofs than tents, more names than I can carry in my head, a market's worth of coming and going. It is the good kind of problem, the kind we came out here hoping to have. The work now is keeping every one of them fed through the next winter.",
   },
   {
     // Fires the moment settlement Ch4 opens (the canvas-outgrowing event
