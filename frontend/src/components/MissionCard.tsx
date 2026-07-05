@@ -23,11 +23,14 @@ function formatDuration(seconds: number): string {
  *  (chain / side-chain missions are rank-neutral in the pools). Keeps their
  *  cards colored + labeled by challenge instead of showing a muted, tag-less
  *  header. */
+// Early, low-star missions read as Novice even at 2 stars — a couple of weak
+// foes near home is novice work, not apprentice. (Only the fallback for
+// rank-neutral side-chains; pool missions keep their authored rank.)
 const DIFFICULTY_RANK: Record<number, string> = {
   1: "novice",
-  2: "apprentice",
-  3: "journeyman",
-  4: "veteran",
+  2: "novice",
+  3: "apprentice",
+  4: "journeyman",
   5: "veteran",
 };
 

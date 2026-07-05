@@ -212,6 +212,11 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     encounters: [{ enemyId: "rabid_boar", count: 2 }],
     guaranteed: true,
     unique: true,
+    // SET ASIDE (July 2026): "the miller's boy" assumes a settled village with
+    // named townsfolk (a miller + family), but this can surface on day 1 when
+    // the settlement is just the founders. Staged out until we model townsfolk /
+    // re-gate it to a later tier. `staged` keeps it off the board.
+    staged: true,
   },
   // PARKED (July 2026): "Old Bram" names a random townsfolk we don't model yet.
   // With only the known founding cast in play, an unnamed citizen reads as out of

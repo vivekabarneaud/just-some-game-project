@@ -176,7 +176,9 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     // Hester → Woodworker chain from players who hadn't upgraded the guild yet.
     minGuildLevel: 1,
     tags: ["combat", "outdoor"],
-    encounters: [{ enemyId: "bandit_thug", count: 3 }, { enemyId: "bandit_captain", count: 1 }],
+    // A mob of hired toughs, not organized bandits — many but weak, so it reads
+    // as a novice-tier fight (2 stars) rather than a real brigand engagement.
+    encounters: [{ enemyId: "dominion_thug", count: 5 }],
     requires: { story: "story_2_ruins" },
     unique: true,
     sideChain: { id: "the_woodcutter", name: "The Woodcutter" },

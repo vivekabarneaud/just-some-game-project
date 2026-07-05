@@ -113,6 +113,21 @@ export const ENEMIES: EnemyDefinition[] = [
     ],
   },
   {
+    // Weaker than a brigand — a hired tough, not a fighter. Comes in numbers
+    // (a mob), so a mission can pit 5-6 of them and still read as low-danger.
+    id: "dominion_thug",
+    name: "Dominion Tough",
+    icon: "👊",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/bandit_thug.png",
+    description: "A hired hand doing a cruel errand for coin. Brave in a pack, useless out of one.",
+    tier: 1,
+    stats: { str: 3, dex: 3, int: 1, vit: 4, wis: 1 },
+    tags: ["humanoid"],
+    loot: [
+      { type: "resource", resource: "gold", chance: 0.35, min: 2, max: 6 },
+    ],
+  },
+  {
     id: "wild_wolf",
     name: "Grey Wolf",
     icon: "🐺",

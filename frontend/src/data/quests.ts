@@ -544,7 +544,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     chapter: 4,
     title: "Merchants Welcome",
     narrative:
-      "A Dominion trader stopped through yesterday with two mules and more opinions than cargo. \"You have grown enough to be worth a second visit,\" she said, \"if you build a proper market. No one unloads in the mud.\" She may be right. Coin spends the same wherever it comes from.",
+      "The Dominion trader left us a challenge on his way south: build a proper market and he'll bring a wagon next time, not a mule. \"No one unloads in the mud,\" he said. He may be right. Coin spends the same wherever it comes from.",
     objective: "Build a Marketplace",
     icon: "🏪",
     triggers: [{ type: "th_level", level: 2 }],
