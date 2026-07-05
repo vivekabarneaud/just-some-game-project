@@ -619,6 +619,9 @@ export interface GameState {
   firedRobins: string[];
   // Chronicle (Lord's journal) — entries that have fired and bio fragments unlocked
   chronicleEntriesFired: string[];
+  /** Chronicle entries a story chain wants surfaced as a beat modal, waiting to
+   *  be drained by the UI. Distinct from chronicleEntriesFired (the archive). */
+  pendingChronicleBeats: string[];
   /** Entries the player has visited in the Journal archive. Used to power the "new!" sidebar pulse. */
   chronicleEntriesSeen: string[];
   unlockedBioFragments: string[];
@@ -653,6 +656,8 @@ export interface GameActions {
   renameVillage: (name: string) => void;
   resetGame: () => void;
   markIntroSeen: () => void;
+  /** Remove a chronicle beat from the pending-modal queue once the UI has shown it. */
+  dismissChronicleBeat: (entryId: string) => void;
   skipSeason: () => void;
   getProductionRates: () => { gold: number; wood: number; stone: number; food: number };
   getMaxPopulation: () => number;
@@ -967,8 +972,12 @@ export function createInitialState(): GameState {
     mageTower: { level: 0, damaged: false, upgrading: false },
     soldiers: 0,
     archers: 0,
-    season: "spring",
-    seasonElapsed: 0,
+    // Dev runs its own fast local calendar (starts in spring). Prod seeds the
+    // fresh settlement AT the current shared-world season/progress, so the very
+    // first tick doesn't fast-forward spring -> now and fire a burst of stale
+    // season banners ("Spring has arrived" followed instantly by summer).
+    season: IS_DEV ? "spring" : getGlobalSeason().season,
+    seasonElapsed: IS_DEV ? 0 : getGlobalSeason().progress * HOURS_PER_SEASON,
     year: 1,
     foundingYear: getGlobalSeason().year,
     // foundingWinterGrace left undefined — latched on the first tick.
@@ -979,7 +988,10 @@ export function createInitialState(): GameState {
     wool: 0,
     fiber: 0,
     leather: 0,
-    clothing: 0,
+    // Founders arrive with their own clothes (like later newcomers do) — enough
+    // to cover the household so a fresh settlement doesn't open on a "poorly
+    // clothed" debuff. Still decays, so the tailor loop matters later.
+    clothing: 8,
     iron: 0,
     tools: 0,
     weapons: 0,
@@ -1044,6 +1056,7 @@ export function createInitialState(): GameState {
     pendingRobins: [],
     firedRobins: [],
     chronicleEntriesFired: [],
+    pendingChronicleBeats: [],
     chronicleEntriesSeen: [],
     unlockedBioFragments: [],
     bioFragmentsSeen: [],
@@ -1566,6 +1579,7 @@ export function migrateSaveState(saved: GameState): GameState {
     }
     // Chronicle migration — entries fired and bio fragments unlocked
     if (!saved.chronicleEntriesFired) saved.chronicleEntriesFired = [];
+    if (!saved.pendingChronicleBeats) saved.pendingChronicleBeats = [];
     if (!saved.chronicleEntriesSeen) saved.chronicleEntriesSeen = [];
     if (!saved.unlockedBioFragments) saved.unlockedBioFragments = [];
     if (!saved.bioFragmentsSeen) saved.bioFragmentsSeen = [];
@@ -4773,6 +4787,13 @@ export function GameProvider(props: ParentProps) {
         if (!s.chronicleEntriesFired.includes("ch1_arrival")) {
           s.chronicleEntriesFired.push("ch1_arrival");
         }
+      }));
+      scheduleSave();
+    },
+
+    dismissChronicleBeat(entryId: string) {
+      setState(produce((s) => {
+        s.pendingChronicleBeats = (s.pendingChronicleBeats ?? []).filter((id) => id !== entryId);
       }));
       scheduleSave();
     },

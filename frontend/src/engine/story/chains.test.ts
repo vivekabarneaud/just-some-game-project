@@ -17,7 +17,10 @@ function makeState(over: Partial<ChainState> = {}): ChainState {
   return {
     completedUniqueMissionIds: [],
     adventurers: [],
+    buildings: [],
+    questRewardsClaimed: [],
     chronicleEntriesFired: [],
+    pendingChronicleBeats: [],
     storyTimers: {},
     ...over,
   };
@@ -83,6 +86,44 @@ describe("runStoryChains — primitives", () => {
     expect(s.chronicleEntriesFired).toEqual(["hi"]);
   });
 
+  it("awaitQuestClaimed halts until the quest reward is claimed", () => {
+    const chain: StoryChain = { id: "q", run: (a) => { a.awaitQuestClaimed("q1"); a.fireChronicle("c1"); } };
+    const s = makeState();
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual([]);
+
+    s.questRewardsClaimed = ["q1"];
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual(["c1"]);
+  });
+
+  it("awaitBuilding halts until the building reaches the level", () => {
+    const chain: StoryChain = { id: "b", run: (a) => { a.awaitBuilding("hut", 2); a.fireChronicle("c1"); } };
+    const s = makeState();
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual([]);
+
+    (s.buildings as { buildingId: string; level: number }[]).push({ buildingId: "hut", level: 1 });
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual([]); // level too low
+
+    (s.buildings as { buildingId: string; level: number }[])[0].level = 2;
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual(["c1"]);
+  });
+
+  it("fireChronicleModal archives AND enqueues a beat, once", () => {
+    const chain: StoryChain = { id: "m", run: (a) => { a.fireChronicleModal("c1"); } };
+    const s = makeState();
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual(["c1"]);
+    expect(s.pendingChronicleBeats).toEqual(["c1"]);
+
+    // Replay: already archived — no double-enqueue.
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.pendingChronicleBeats).toEqual(["c1"]);
+  });
+
   it("recruit fires once, then no-ops (guarded on presence)", () => {
     const chain: StoryChain = { id: "r", run: (a) => { a.recruit("cZ"); } };
     const s = makeState();
@@ -104,15 +145,29 @@ describe("runStoryChains — primitives", () => {
 });
 
 describe("real chains", () => {
-  it("the_thornwoods fires ch1_thornwoods once a Thornwood is present", () => {
+  it("the_thornwoods fires ch1_thornwoods (as a beat modal) once the Thornwoods are present, the roof quest is claimed, and the hunting camp is built", () => {
     const chain = STORY_CHAINS.find((c) => c.id === "the_thornwoods")!;
     const s = makeState();
+
+    // No one present yet.
     runStoryChains(s, [chain], makeDeps(s, 0, []));
     expect(s.chronicleEntriesFired).toEqual([]);
 
+    // Thornwoods arrive — still awaiting the settlement to take shape.
     (s.adventurers as { premadeId?: string }[]).push({ premadeId: "char_005" });
     runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual([]);
+
+    // Roof quest claimed — still awaiting the hunting camp.
+    s.questRewardsClaimed = ["a_roof_over_their_heads"];
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual([]);
+
+    // Hunting camp raised — the beat lands, archived AND queued as a modal.
+    (s.buildings as { buildingId: string; level: number }[]).push({ buildingId: "hunting_camp", level: 1 });
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
     expect(s.chronicleEntriesFired).toEqual(["ch1_thornwoods"]);
+    expect(s.pendingChronicleBeats).toEqual(["ch1_thornwoods"]);
   });
 
   it("the_woodcutter walks rescue → patrol → delay → recruit + reveal", () => {

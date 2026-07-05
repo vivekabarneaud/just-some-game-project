@@ -89,6 +89,21 @@ export default function App(props: ParentProps) {
     }
   });
 
+  // Story-chain beat watcher: when a chain enqueues a chronicle entry to
+  // surface as a beat modal (state.pendingChronicleBeats), pop it — once, and
+  // only when no other chronicle modal is already open (so beats don't stack on
+  // an intro/robin entry). The entry is already in the archive; we drain it from
+  // the queue as we show it, so it never re-pops on the next tick or reload.
+  createEffect(() => {
+    const pending = state.pendingChronicleBeats ?? [];
+    if (pending.length === 0) return;
+    if (openChronicleEntry()) return;
+    const id = pending[0];
+    const entry = getChronicleEntry(id);
+    actions.dismissChronicleBeat(id);
+    if (entry) setOpenChronicleEntry(entry);
+  });
+
   // Season-change watcher: announce each new season with its thematic accent.
   // Skip the first reactive run (no transition has occurred yet) by tracking
   // the last seen season — initial load shouldn't fire a banner.

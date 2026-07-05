@@ -50,7 +50,7 @@ export const FOUNDING_CHARACTERS: FoundingCharacter[] = [
       {
         id: "edda_first_fire",
         text:
-          "As soon as the fire caught, Edda was at the mortar, crushing herbs she must have gathered at dawn, while the rest of us were still finding our shoes.\n\n" +
+          "The thing I keep from our first night is Edda at the mortar. The fire had barely caught, and she was already crushing herbs she must have gathered at dawn, while the rest of us were still finding our shoes.\n\n" +
           "It was the first time I had felt at home since we left Ashwick. I did not say so aloud.\n\n" +
           "She put a cup of something hot in my hand without a word. It was bitter and warm, and there was an old song in it somewhere.",
       },
@@ -93,7 +93,7 @@ export const FOUNDING_CHARACTERS: FoundingCharacter[] = [
       {
         id: "jory_sawhorse",
         text:
-          "He wears the joking face so well that it took me a while to learn it is a face. The night we raised the lumber mill, he had half the men laughing before the saw had even cooled.\n\n" +
+          "He wears the joking face so well that it took me a while to learn it is a face. The night we raised the lumber mill, he had the rest of us laughing before the saw had even cooled.\n\n" +
           "I came back later for a lantern I had left at the bench, and found him alone, sitting on the new sawhorse with his hands quiet on his knees. His face was not the one he had been wearing an hour before.\n\n" +
           "He looked up and the grin came back the instant he heard my step. \"I am inspecting my work,\" he said, slapping the sawhorse. \"It is excellent. The carpenter is a genius. Do not tell him.\"\n\n" +
           "I did not push it. We grew up next door, long enough to know which face is the one he keeps for himself.",
@@ -122,7 +122,7 @@ export const FOUNDING_CHARACTERS: FoundingCharacter[] = [
       {
         id: "tomas_quarry",
         text:
-          "I keep coming back to the day we opened the quarry: three men, two days, more dust than stone for the trouble of it. Tomas was the last to leave the cut, walking up the path with a hammer over one shoulder and his coat over the other.\n\n" +
+          "I keep coming back to the day we opened the quarry: the three of us, two days of it, more dust than stone for the trouble. Tomas was the last to leave the cut, walking up the path with a hammer over one shoulder and his coat over the other.\n\n" +
           "I do not remember the last time I saw him walk like that. In Ashwick he walked like a man counting paving stones to keep his mind off something. That day he walked like a man going somewhere.\n\n" +
           "He brought the first proper block to Edda before sunset, for a doorstep, he said, though no one had asked. Edda told him it was excellent. He said nothing. He limped off to the perimeter the way he always does.\n\n" +
           "I do not think he knows he is more alive here than he was in Ashwick. I think we ought not tell him, in case telling him spoils it.",

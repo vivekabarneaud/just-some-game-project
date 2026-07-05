@@ -446,9 +446,12 @@ export default function Sidebar(props: SidebarProps) {
       <div class="sidebar-controls">
         <div class="nav-section-title">Season</div>
         {(() => {
+          // Season + progress follow the shared world clock in prod, but the
+          // YEAR is the settlement's own age (state.year), not the global
+          // world year — a fresh settlement reads "Year 1", not the server's.
           const seasonInfo = () => IS_DEV
             ? { season: state.season, progress: state.seasonElapsed / HOURS_PER_SEASON, year: state.year }
-            : getGlobalSeason();
+            : { ...getGlobalSeason(), year: state.year };
           return (
             <>
               <div class="season-display">

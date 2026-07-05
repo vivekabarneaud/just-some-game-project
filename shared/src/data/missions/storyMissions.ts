@@ -38,7 +38,7 @@ export const STORY_MISSIONS: StoryMission[] = [
     icon: "🏚️",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/hilltop_ruins.png",
     slots: [{ class: "any" }, { class: "any" }],
-    duration: 1200,
+    duration: 300,
     rewards: [
       { resource: "gold", amount: 80 },
       { resource: "stone", amount: 60 },

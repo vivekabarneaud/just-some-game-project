@@ -24,11 +24,19 @@ export interface StoryChainApi {
   awaitMissionDone(missionId: string): void;
   /** Suspend until at least one of these premade characters is on the roster. */
   awaitPremadePresent(premadeId: string | string[]): void;
+  /** Suspend until the player has CLAIMED the given quest's reward. */
+  awaitQuestClaimed(questId: string): void;
+  /** Suspend until the given building is built to at least `minLevel` (default 1). */
+  awaitBuilding(buildingId: string, minLevel?: number): void;
   /** Suspend until `ms` real-world time has passed since the script first
    *  reached this step. `key` disambiguates multiple delays within one chain. */
   awaitDelay(key: string, ms: number): void;
   /** Fire a chronicle entry into the archive (once). */
   fireChronicle(entryId: string): void;
+  /** Fire a chronicle entry AND surface it as a beat modal the moment it
+   *  fires (once). Use for beats the player should see pop, not just find in
+   *  the journal. Idempotent: no-op if the entry has already fired. */
+  fireChronicleModal(entryId: string): void;
   /** Recruit a premade to the roster (once; no-op if already present). */
   recruit(premadeId: string): void;
 }
@@ -43,7 +51,12 @@ export interface StoryChain {
 export interface ChainState {
   completedUniqueMissionIds?: string[];
   adventurers: ReadonlyArray<{ premadeId?: string }>;
+  buildings: ReadonlyArray<{ buildingId: string; level: number }>;
+  questRewardsClaimed?: string[];
   chronicleEntriesFired: string[];
+  /** Queue of chronicle entries waiting to pop as a beat modal (drained by the
+   *  UI). Distinct from `chronicleEntriesFired` (the permanent archive). */
+  pendingChronicleBeats?: string[];
   storyTimers?: Record<string, number>;
 }
 
@@ -79,6 +92,13 @@ export function runStoryChains(s: ChainState, chains: StoryChain[], deps: ChainD
         const ids = Array.isArray(pid) ? pid : [pid];
         if (!s.adventurers.some((a) => !!a.premadeId && ids.includes(a.premadeId))) throw HALT;
       },
+      awaitQuestClaimed(questId) {
+        if (!(s.questRewardsClaimed ?? []).includes(questId)) throw HALT;
+      },
+      awaitBuilding(buildingId, minLevel = 1) {
+        const b = s.buildings.find((bb) => bb.buildingId === buildingId);
+        if (!b || b.level < minLevel) throw HALT;
+      },
       awaitDelay(key, ms) {
         const k = `${chain.id}:${key}`;
         s.storyTimers = s.storyTimers ?? {};
@@ -90,6 +110,12 @@ export function runStoryChains(s: ChainState, chains: StoryChain[], deps: ChainD
       },
       fireChronicle(entryId) {
         if (!s.chronicleEntriesFired.includes(entryId)) s.chronicleEntriesFired.push(entryId);
+      },
+      fireChronicleModal(entryId) {
+        if (s.chronicleEntriesFired.includes(entryId)) return; // already fired — don't re-pop
+        s.chronicleEntriesFired.push(entryId);
+        s.pendingChronicleBeats = s.pendingChronicleBeats ?? [];
+        s.pendingChronicleBeats.push(entryId);
       },
       recruit(premadeId) {
         if (s.adventurers.some((a) => a.premadeId === premadeId)) return;
@@ -108,13 +134,19 @@ export function runStoryChains(s: ChainState, chains: StoryChain[], deps: ChainD
 
 export const STORY_CHAINS: StoryChain[] = [
   // ── The guild's first hands: the Thornwoods (simple, very early) ──
-  // They join via the normal arrival system (guild_open); this script only
-  // writes them into the Chronicle once they're here.
+  // They join via the normal arrival system (guild_open). The Chronicle beat
+  // ("Two bows, a strong back, and a loud boy") lands once the settlement has
+  // taken shape around them: the surplus roofed (a_roof_over_their_heads) AND
+  // the hunting camp raised (where the two archers put down roots). Surfaced as
+  // a beat modal so the player meets it, rather than only finding it later in
+  // the journal.
   {
     id: "the_thornwoods",
     run: (api) => {
       api.awaitPremadePresent(["char_000", "char_005", "char_021"]);
-      api.fireChronicle("ch1_thornwoods");
+      api.awaitQuestClaimed("a_roof_over_their_heads");
+      api.awaitBuilding("hunting_camp");
+      api.fireChronicleModal("ch1_thornwoods");
     },
   },
   // ── The Woodcutter — Hester's rescue → ghost puzzle → timed return ──
