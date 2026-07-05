@@ -178,6 +178,7 @@ import {
   IS_DEV,
   getGlobalSeason,
 } from "~/data/seasons";
+import { STORY_CHAINS, runStoryChains } from "~/engine/story/chains";
 import {
   type Adventurer,
   type AdventurerRank,
@@ -503,9 +504,10 @@ export interface GameState {
   villageName: string;
   // Adventurer's Guild
   adventurers: Adventurer[];
-  /** Real-ms deadline for Hester's Beat-2b return (set when the "No One Followed"
-   *  patrol is done; she joins once Date.now() passes it). Undefined until then. */
-  hesterReturnAt?: number;
+  /** Story-chain timers: real-ms deadlines for `awaitDelay` steps, keyed
+   *  `${chainId}:${key}` (see engine/story/chains.ts). Undefined until a chain
+   *  first reaches a delay step. */
+  storyTimers?: Record<string, number>;
   activeMissions: ActiveMission[];
   completedMissions: CompletedMission[]; // recent results (cleared on read)
   missionBoard: MissionTemplate[];
@@ -808,12 +810,6 @@ function nextId(prefix: string): string {
  *  buffer without removing the need to weave replacements over time. */
 const CLOTHING_PER_ARRIVAL = 2;
 
-/** Hester's Beat 2b return delay: after the uneasy patrol (Beat 2a, the ghost
- *  puzzle) she stays hidden and stacks wood for a while, then "returns" — the
- *  reveal fires the next time the player is around after the delay. Real-world
- *  time (a come-back-tomorrow beat). Shortened in dev so it can be tested. */
-const HESTER_RETURN_DELAY_MS = IS_DEV ? 90_000 : 18 * 60 * 60 * 1000;
-
 /** Auto-join the curated cast: any character whose scripted arrival condition
  *  is now met joins the roster directly — free, no roster cap. The cast is a
  *  finite collection you assemble over the game (paced by arrival conditions),
@@ -850,35 +846,10 @@ function syncArrivals(s: GameState): void {
       }
     }
   }
-  // Hester's two-beat return (the Woodcutter chain). Once the uneasy patrol
-  // ("No One Followed", Beat 2a) is done, she stays hidden and stacks wood for a
-  // real-time delay; when it elapses she "returns" (Beat 2b): joins the roster,
-  // and the ch1_woodcutter reveal chronicle fires below (on char_019 presence).
-  // Her premade arrival is `scripted`, so getArrivedPremades never adds her —
-  // only this block does.
-  if ((s.completedUniqueMissionIds ?? []).includes("quiet_the_woods") && !havePremadeIds.has("char_019")) {
-    if (s.hesterReturnAt === undefined) {
-      s.hesterReturnAt = Date.now() + HESTER_RETURN_DELAY_MS;
-    } else if (Date.now() >= s.hesterReturnAt) {
-      const rec = buildRecruitFromPremadeId(nextId("adv"), "char_019", 1);
-      if (rec) {
-        s.adventurers.push(rec);
-        havePremadeIds.add("char_019");
-        s.clothing += CLOTHING_PER_ARRIVAL;
-      }
-    }
-  }
-  // The guild's first hands: when the Thornwoods arrive (guild opens), the Lord
-  // writes them into the Chronicle. Fires once.
-  const THORNWOOD_IDS = ["char_000", "char_005", "char_021"];
-  if (THORNWOOD_IDS.some((id) => havePremadeIds.has(id)) && !s.chronicleEntriesFired.includes("ch1_thornwoods")) {
-    s.chronicleEntriesFired.push("ch1_thornwoods");
-  }
-  // Hester's return (Beat 2): when she joins (rescue done), the Lord writes the
-  // phantom-woodpile arc into the Chronicle. Fires once.
-  if (havePremadeIds.has("char_019") && !s.chronicleEntriesFired.includes("ch1_woodcutter")) {
-    s.chronicleEntriesFired.push("ch1_woodcutter");
-  }
+  // NOTE: the scripted narrative beats that used to live here (the Thornwoods'
+  // arrival chronicle, and Hester's timed return + reveal) now run in the story
+  // "director" layer — see runStoryChains() / engine/story/chains.ts. syncArrivals
+  // is back to its one job: adding curated cast whose arrival condition is met.
 }
 
 const NAME_PREFIXES = [
@@ -4098,6 +4069,16 @@ export function GameProvider(props: ParentProps) {
           }
           // Newly-arrived curated characters join the roster automatically.
           syncArrivals(s);
+          // Story "director" layer: run the scripted narrative chains (fires
+          // chronicle beats, recruits scripted arrivals like Hester on their
+          // timed return). Re-entrant + idempotent; safe to run every tick.
+          runStoryChains(s, STORY_CHAINS, {
+            now: Date.now(),
+            recruit: (pid) => {
+              const rec = buildRecruitFromPremadeId(nextId("adv"), pid, 1);
+              if (rec) { s.adventurers.push(rec); s.clothing += CLOTHING_PER_ARRIVAL; }
+            },
+          });
         }
 
         // Dead adventurers are kept in state.adventurers (with alive: false)
