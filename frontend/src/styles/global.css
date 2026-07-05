@@ -381,7 +381,12 @@ body {
   color: var(--text-secondary);
   text-decoration: none;
   font-size: 0.9rem;
-  transition: all 0.15s;
+  /* Scope the hover/active transition to the properties that actually change.
+   * `transition: all` also grabbed the inherited, @property-registered
+   * --bg-* color custom properties (which :root transitions for weather drift)
+   * and re-interpolated them at this element every frame, so a hovered link's
+   * background pulsed continuously. Listing real properties stops that. */
+  transition: background-color 0.15s ease, color 0.15s ease, border-left-color 0.15s ease;
   border-left: 3px solid transparent;
 }
 

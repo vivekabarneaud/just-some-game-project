@@ -674,12 +674,13 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
       "With Hester taking the lumber mill, Jory can finally put down the felling axe and pick up the work he keeps muttering about. Give him a proper bench and good wood, and he'll turn out bows for the archers, staves for the casters, shields for the rest.",
     objective: "Build a Woodworker",
     icon: "🪚",
-    // Gated on the same flag the Woodworker building reads (quiet_the_woods —
-    // Beat 2a of the Woodcutter chain), so it can't ask the player to build
-    // something still locked.
+    // Gated on the same condition the Woodworker building reads — Hester
+    // (char_019) actually joining (Beat 2b of the Woodcutter chain) — so the
+    // quest can't ask the player to build something still locked, and its
+    // "With Hester taking the lumber mill" narrative is true when it appears.
     triggers: [
       { type: "chapter_unlocked", storyline: "guild", chapter: 2 },
-      { type: "custom", check: (s) => (s.completedUniqueMissionIds ?? []).includes("quiet_the_woods") },
+      { type: "custom", check: (s) => s.adventurers.some((a) => a.premadeId === "char_019" && a.alive !== false) },
     ],
     requiresAll: true,
     condition: (s) => (bldg(s, "woodworker")?.level ?? 0) >= 1,

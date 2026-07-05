@@ -38,7 +38,8 @@ export type BuildingUnlockGate =
     }
   | { requiresBuildings: string[] }
   | { requiresQuestTriggered: string }
-  | { requiresMissionDone: string };  // a unique/side-chain mission completed (e.g. Hester's "hester_rescue" → unlocks the Woodworker)
+  | { requiresMissionDone: string }  // a unique/side-chain mission completed (e.g. Hester's "hester_rescue" → unlocks the Woodworker)
+  | { requiresPremade: string };  // a premade adventurer is on the roster (e.g. char_019 Hester joins → unlocks the Woodworker)
 
 export interface BuildingDefinition {
   id: string;
@@ -187,6 +188,13 @@ export function isBuildingChapterUnlocked(
     const done = (state as any).completedUniqueMissionIds as string[] | undefined;
     return Array.isArray(done) && done.includes(gate.requiresMissionDone);
   }
+  if ("requiresPremade" in gate) {
+    // adventurers isn't on the slim state type but is present at runtime
+    // (same cast-to-any pattern as above). The premade must be on the roster
+    // and alive — i.e. they have actually joined the settlement.
+    const advs = (state as any).adventurers as Array<{ premadeId?: string; alive?: boolean }> | undefined;
+    return Array.isArray(advs) && advs.some((a) => a.premadeId === gate.requiresPremade && a.alive !== false);
+  }
   const cs = state.chapters?.find((c) => c.storyline === gate.storyline);
   if (!cs) return false;
   return cs.current >= gate.chapter || cs.completedChapters.includes(gate.chapter);
@@ -262,6 +270,11 @@ export function getUnlockConditions(
         met: isBuildingChapterUnlocked(building, state),
       });
     } else if ("requiresMissionDone" in gate) {
+      conditions.push({
+        label: "Unlocked once a master woodworker joins the settlement",
+        met: isBuildingChapterUnlocked(building, state),
+      });
+    } else if ("requiresPremade" in gate) {
       conditions.push({
         label: "Unlocked once a master woodworker joins the settlement",
         met: isBuildingChapterUnlocked(building, state),
@@ -388,14 +401,13 @@ export const BUILDINGS: BuildingDefinition[] = [
     levels: generateLevels({ wood: 60, stone: 20 }, 15, undefined, 10),
     requiredTier: "camp",
     tierLevelCaps: { camp: 3, village: 6, town: 8, city: 10 },
-    // Locked until Hester arrives: completing her rescue (Beat 1) → she returns
-    // (Beat 2) → the Woodworker (fine carving: the family's good bows/shields)
-    // opens, with Jory at the bench and Hester on the Lumber Mill. See
-    // docs/cast/hester-ironbark.md.
-    // Beat 2a of the Woodcutter chain: the ghost's clean-felled timber is what
-    // makes fine woodwork possible, so the Woodworker opens once the uneasy
-    // patrol ("No One Followed") is done — a bit before Hester is revealed (2b).
-    unlockedAt: { requiresMissionDone: "quiet_the_woods" },
+    // Locked until Hester actually joins (Beat 2b of the Woodcutter chain):
+    // her rescue (Beat 1) → uneasy patrol "No One Followed" (Beat 2a) → she
+    // returns and is recruited (Beat 2b, char_019). The Woodworker opens the
+    // moment she joins — Jory moves to the bench, Hester takes the Lumber Mill.
+    // (Was gated on quiet_the_woods / Beat 2a, which opened it before she was
+    // even revealed.) See docs/cast/hester-ironbark.md.
+    unlockedAt: { requiresPremade: "char_019" },
   },
 
   // Camp tier — Shrine (happiness + deity blessings)

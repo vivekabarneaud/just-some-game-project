@@ -60,10 +60,15 @@ export const POTION_REGISTRY: Record<string, PotionInfo> = {
   //
   // ── Healing / death-reduction potions ─────────────────────────
   "healing_salve":          { category: "mission",
-                              mission: { successBonus: 0,  deathReduction: 0.75 },
-                              combat:  { type: "heal_pct",     value: 30, trigger: "auto_low_hp" } },
+                              mission:  { successBonus: 0,  deathReduction: 0.75 },
+                              combat:   { type: "heal_pct",     value: 30, trigger: "auto_low_hp" },
+                              // Also usable at home / pre-combat like a bandage: heals 25% HP,
+                              // no status cure.
+                              recovery: { healPct: 25 } },
   "vigor_tea":              { category: "mission",
-                              mission: { successBonus: 5,  deathReduction: 1.0 },
+                              // No mission stat-check bonus — vigor tea is purely a combat
+                              // opener buff now.
+                              mission: { successBonus: 0,  deathReduction: 1.0 },
                               combat:  { type: "damage_boost", value: 15, duration: 2, trigger: "before_first_attack" } },
   "herbal_antidote":        { category: "mission",
                               mission: { successBonus: 5,  deathReduction: 0.85 },
