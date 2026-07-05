@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Valenheart — Early-Game Pacing Map</title>
+<style>html,body{margin:0;padding:0}</style>
+</head>
+<body>
+<style>
+  :root {
+    /* chosen neutrals — warm parchment with an amber/sepia bias, not grey */
+    --ground: #ece2cd;
+    --panel: #f5eeddff;
+    --panel-2: #efe6d1;
+    --ink: #2f2721;
+    --ink-soft: #6a5d4c;
+    --ink-faint: #9a8a72;
+    --rule: #d8cba9;
+    --rule-soft: #e4d9bf;
+    --shadow: rgba(60, 44, 20, 0.14);
+
+    /* lane accents — each lane its own hue */
+    --story: #5a4a7c;      /* aether indigo — the wastes, the ghosts */
+    --settlement: #6f7a3c; /* timber & earth green */
+    --guild: #3f6a8c;      /* steel blue — adventurers */
+    --defense: #a34a2c;    /* iron rust red */
+    --social: #b0803a;     /* hearth gold — the Folk */
+
+    /* semantic — kept off the accent hues */
+    --gap: #c24a2a;
+    --gap-band: repeating-linear-gradient(45deg, transparent, transparent 7px, rgba(194,74,42,0.10) 7px, rgba(194,74,42,0.10) 14px);
+    --propose: #2f7d63;
+
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #191410;
+      --panel: #221b15;
+      --panel-2: #2a221a;
+      --ink: #ece3d2;
+      --ink-soft: #b8a888;
+      --ink-faint: #7d6e58;
+      --rule: #3a2f24;
+      --rule-soft: #2f271e;
+      --shadow: rgba(0, 0, 0, 0.45);
+      --story: #a495cf;
+      --settlement: #adb872;
+      --guild: #79aad0;
+      --defense: #e08157;
+      --social: #dcac5f;
+      --gap: #f0865f;
+      --gap-band: repeating-linear-gradient(45deg, transparent, transparent 7px, rgba(240,134,95,0.12) 7px, rgba(240,134,95,0.12) 14px);
+      --propose: #6fc4a2;
+    }
+  }
+  :root[data-theme="light"] {
+    --ground:#ece2cd; --panel:#f5eedd; --panel-2:#efe6d1; --ink:#2f2721; --ink-soft:#6a5d4c;
+    --ink-faint:#9a8a72; --rule:#d8cba9; --rule-soft:#e4d9bf; --shadow:rgba(60,44,20,0.14);
+    --story:#5a4a7c; --settlement:#6f7a3c; --guild:#3f6a8c; --defense:#a34a2c; --social:#b0803a;
+    --gap:#c24a2a; --gap-band:repeating-linear-gradient(45deg,transparent,transparent 7px,rgba(194,74,42,0.10) 7px,rgba(194,74,42,0.10) 14px); --propose:#2f7d63;
+  }
+  :root[data-theme="dark"] {
+    --ground:#191410; --panel:#221b15; --panel-2:#2a221a; --ink:#ece3d2; --ink-soft:#b8a888;
+    --ink-faint:#7d6e58; --rule:#3a2f24; --rule-soft:#2f271e; --shadow:rgba(0,0,0,0.45);
+    --story:#a495cf; --settlement:#adb872; --guild:#79aad0; --defense:#e08157; --social:#dcac5f;
+    --gap:#f0865f; --gap-band:repeating-linear-gradient(45deg,transparent,transparent 7px,rgba(240,134,95,0.12) 7px,rgba(240,134,95,0.12) 14px); --propose:#6fc4a2;
+  }
+
+  * { box-sizing: border-box; }
+  .wrap {
+    font-family: var(--sans);
+    color: var(--ink);
+    background:
+      radial-gradient(120% 80% at 50% 0%, color-mix(in srgb, var(--panel) 60%, transparent), transparent 60%),
+      var(--ground);
+    padding: clamp(20px, 4vw, 52px) clamp(14px, 4vw, 48px) 64px;
+    line-height: 1.55;
+    min-height: 100%;
+  }
+  .inner { max-width: 1180px; margin: 0 auto; }
+
+  .eyebrow {
+    font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-faint); font-weight: 600; margin: 0 0 10px;
+  }
+  h1 {
+    font-family: var(--serif); font-weight: 600;
+    font-size: clamp(28px, 5vw, 46px); line-height: 1.05; margin: 0 0 12px;
+    text-wrap: balance; letter-spacing: -0.01em;
+  }
+  .lede { max-width: 68ch; color: var(--ink-soft); font-size: clamp(15px, 1.6vw, 17px); margin: 0 0 4px; }
+  .lede b { color: var(--ink); font-weight: 600; }
+
+  h2 {
+    font-family: var(--serif); font-weight: 600; font-size: 22px;
+    margin: 44px 0 4px; letter-spacing: -0.01em;
+  }
+  .sub { color: var(--ink-soft); font-size: 14px; margin: 0 0 18px; max-width: 70ch; }
+
+  /* ── legend ── */
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center;
+    margin: 26px 0 8px; padding: 14px 18px;
+    background: var(--panel); border: 1px solid var(--rule); border-radius: 10px;
+    font-size: 12.5px; color: var(--ink-soft);
+  }
+  .legend .grp { display: flex; align-items: center; gap: 7px; }
+  .swatch { width: 13px; height: 13px; border-radius: 3px; flex: none; box-shadow: inset 0 0 0 1px var(--shadow); }
+  .chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 2px 7px; border-radius: 999px; white-space: nowrap;
+    background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--ink-soft);
+  }
+
+  /* ── the spine (pacing clock) ── */
+  .spine {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
+    margin: 18px 0 8px;
+  }
+  .spine .node {
+    position: relative; background: var(--panel);
+    border: 1px solid var(--rule); border-top: 3px solid var(--story);
+    border-radius: 9px; padding: 11px 12px 12px;
+  }
+  .spine .ph { font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--story); font-weight: 700; }
+  .spine .nm { font-family: var(--serif); font-size: 15.5px; margin-top: 3px; line-height: 1.15; }
+  .spine .id { font-size: 11px; color: var(--ink-faint); font-family: var(--sans); margin-top: 4px; }
+
+  /* ── lanes ── */
+  .lane { margin-top: 14px; border-radius: 12px; border: 1px solid var(--rule); background: var(--panel); overflow: hidden; }
+  .lane-head {
+    display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+    padding: 12px 16px; border-left: 5px solid var(--c);
+    background: color-mix(in srgb, var(--c) 9%, var(--panel));
+  }
+  .lane-name { font-family: var(--serif); font-size: 18px; color: var(--ink); font-weight: 600; }
+  .lane-clock { font-size: 12px; color: var(--ink-soft); }
+  .lane-clock b { color: var(--c); font-weight: 700; }
+  .lane-unlock { font-size: 11.5px; color: var(--ink-faint); margin-left: auto; }
+  .lane-unlock b { color: var(--ink-soft); }
+
+  .track { display: flex; gap: 12px; padding: 14px 16px; overflow-x: auto; align-items: stretch; }
+  .track::-webkit-scrollbar { height: 9px; }
+  .track::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 9px; }
+
+  .card {
+    flex: 0 0 200px; min-width: 200px;
+    background: var(--panel-2); border: 1px solid var(--rule);
+    border-radius: 9px; padding: 11px 12px 12px; display: flex; flex-direction: column; gap: 7px;
+    box-shadow: 0 1px 2px var(--shadow);
+  }
+  .card .t { font-weight: 650; font-size: 14px; line-height: 1.2; color: var(--ink); }
+  .card .do { font-size: 12.5px; color: var(--ink-soft); }
+  .card .foot { margin-top: auto; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+  .card .id { font-size: 10px; color: var(--ink-faint); font-family: var(--sans); word-break: break-all; }
+  .card .gate { font-size: 11px; color: var(--ink-faint); }
+  .card .gate b { color: var(--ink-soft); font-weight: 600; }
+  .reward { font-size: 10.5px; font-weight: 600; color: var(--ink-soft); }
+  .reward.guide { color: var(--c); opacity: 0.85; }
+
+  .chip.build { background: color-mix(in srgb, var(--settlement) 20%, transparent); color: color-mix(in srgb, var(--settlement) 72%, var(--ink)); }
+  .chip.send { background: color-mix(in srgb, var(--guild) 20%, transparent); color: color-mix(in srgb, var(--guild) 72%, var(--ink)); }
+  .chip.guide { background: transparent; box-shadow: inset 0 0 0 1.4px color-mix(in srgb, var(--c) 55%, transparent); color: color-mix(in srgb, var(--c) 78%, var(--ink)); }
+  .chip.fight { background: color-mix(in srgb, var(--defense) 22%, transparent); color: color-mix(in srgb, var(--defense) 74%, var(--ink)); }
+  .chip.memory { background: color-mix(in srgb, var(--social) 24%, transparent); color: color-mix(in srgb, var(--social) 70%, var(--ink)); }
+  .chip.upgrade { background: color-mix(in srgb, var(--settlement) 14%, transparent); color: var(--ink-soft); }
+
+  /* gap + proposed cards */
+  .card.gap { border: 1.6px dashed var(--gap); background-image: var(--gap-band); }
+  .card.gap .t { color: var(--gap); display: flex; align-items: center; gap: 6px; }
+  .card.gap .do { color: var(--ink-soft); }
+  .card.propose { border: 1.6px dashed var(--propose); background: color-mix(in srgb, var(--propose) 7%, var(--panel-2)); }
+  .card.propose .t { color: var(--propose); }
+  .tag {
+    align-self: flex-start; font-size: 9.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 2px 6px; border-radius: 4px;
+  }
+  .tag.gap { background: var(--gap); color: #fff; }
+  .tag.propose { background: var(--propose); color: #fff; }
+  .tag.empty { background: transparent; color: var(--ink-faint); box-shadow: inset 0 0 0 1px var(--rule); }
+
+  .flow-note {
+    display: flex; gap: 9px; align-items: flex-start; font-size: 12.5px; color: var(--ink-soft);
+    padding: 3px 16px 0;
+  }
+  .flow-note .arrow { color: var(--c); font-weight: 700; flex: none; }
+
+  /* proposals panel */
+  .props { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-top: 6px; }
+  .prop {
+    background: var(--panel); border: 1px solid var(--rule); border-left: 5px solid var(--propose);
+    border-radius: 10px; padding: 15px 17px;
+  }
+  .prop h3 { margin: 0 0 3px; font-family: var(--serif); font-size: 16.5px; }
+  .prop .where { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--propose); font-weight: 700; margin-bottom: 8px; }
+  .prop p { margin: 0 0 8px; font-size: 13px; color: var(--ink-soft); }
+  .prop p:last-child { margin-bottom: 0; }
+  .prop .q { color: var(--ink); font-style: italic; }
+  .prop.hold { border-left-color: var(--social); }
+  .prop.hold .where { color: var(--social); }
+
+  .foot-rule { margin-top: 40px; border: none; border-top: 1px solid var(--rule); }
+  .caption { font-size: 12px; color: var(--ink-faint); margin-top: 14px; max-width: 74ch; }
+  code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.88em; background: color-mix(in srgb, var(--ink) 8%, transparent); padding: 1px 5px; border-radius: 4px; }
+</style>
+
+<div class="wrap">
+<div class="inner">
+
+  <p class="eyebrow">Valenheart · Chronicle of the Frontier</p>
+  <h1>Early-Game Pacing Map</h1>
+  <p class="lede">Every narrative lane in the first act, laid over the story-mission spine. The point of the board: each lane runs on <b>its own clock</b>, and they unlock one another. That is why the defense lane feels broken right now, and where the three missing breadcrumbs should slot.</p>
+
+  <div class="legend" aria-label="Legend">
+    <span class="grp"><span class="swatch" style="background:var(--story)"></span>Story spine</span>
+    <span class="grp"><span class="swatch" style="background:var(--settlement)"></span>Settlement</span>
+    <span class="grp"><span class="swatch" style="background:var(--guild)"></span>Guild</span>
+    <span class="grp"><span class="swatch" style="background:var(--defense)"></span>Defense</span>
+    <span class="grp"><span class="swatch" style="background:var(--social)"></span>The Folk</span>
+    <span class="grp" style="margin-left:auto"><span class="chip build">build</span><span class="chip send">send</span><span class="chip guide" style="--c:var(--guild)">guide</span><span class="chip fight">defend</span><span class="chip memory">memory</span></span>
+  </div>
+
+  <!-- SPINE -->
+  <h2>The story spine <span style="font-weight:400;font-family:var(--sans);font-size:14px;color:var(--ink-soft)">— the pacing clock</span></h2>
+  <p class="sub">The Lord's Journal missions run in a strict line. Everything else is timed roughly against this backbone.</p>
+  <div class="spine">
+    <div class="node"><div class="ph">Phase 0</div><div class="nm">Founding</div><div class="id">the camp is raised</div></div>
+    <div class="node"><div class="ph">Phase 1</div><div class="nm">Scouting the Surroundings</div><div class="id">story_1_scouting · 180s</div></div>
+    <div class="node"><div class="ph">Phase 2</div><div class="nm">The Old Watch</div><div class="id">story_2_ruins · 300s</div></div>
+    <div class="node"><div class="ph">Phase 3</div><div class="nm">Past the Ruins</div><div class="id">story_3_dark_treeline · ghosts appear</div></div>
+    <div class="node"><div class="ph">Phase 4</div><div class="nm">The Captain's Rest</div><div class="id">story_4 · Niamh, binding rite</div></div>
+  </div>
+
+  <!-- SETTLEMENT -->
+  <div class="lane" style="--c:var(--settlement)">
+    <div class="lane-head">
+      <span class="lane-name">Settlement</span>
+      <span class="lane-clock">clock: <b>build &amp; chapter</b> (floats free of the spine)</span>
+      <span class="lane-unlock">unlock: <b>open from the start</b></span>
+    </div>
+    <div class="track">
+      <div class="card"><span class="t">Foundations</span><span class="do">Lumber Mill, Quarry, Forager, Kitchen, Warehouse</span><div class="foot"><span class="chip build">build ×5</span><span class="reward">Ch.1 · wood/stone</span></div></div>
+      <div class="card"><span class="t">The Hunters</span><span class="do">Houses, Hunting Camp, Pantry, Edda's Garden</span><div class="foot"><span class="chip build">build ×4</span><span class="reward">Ch.2</span></div><span class="gate">opens: <b>Ch.1 all claimed</b></span></div>
+      <div class="card"><span class="t">The Shepherd</span><span class="do">Sheep Pen, Tailoring Shop</span><div class="foot"><span class="chip build">build ×2</span><span class="reward">Ch.3 · needs TH3</span></div></div>
+      <div class="card"><span class="t">Growing Up</span><span class="do">Upgrade TH→2→3, Mill, Quarry, Marketplace</span><div class="foot"><span class="chip upgrade">upgrade</span><span class="reward">Ch.4</span></div></div>
+    </div>
+  </div>
+
+  <!-- GUILD -->
+  <div class="lane" style="--c:var(--guild)">
+    <div class="lane-head">
+      <span class="lane-name">Adventurer's Guild</span>
+      <span class="lane-clock">clock: <b>story missions</b></span>
+      <span class="lane-unlock">unlock: <b>Hunting Camp + Houses built</b> (event_hunters_volunteer)</span>
+    </div>
+    <div class="track">
+      <div class="card"><span class="t">Heroes Wanted</span><span class="do">Build the Adventurer's Guild</span><div class="foot"><span class="chip build">build</span><span class="reward">gold · shards</span></div></div>
+      <div class="card"><span class="t">Into the Unknown</span><span class="do">Send your first mission</span><div class="foot"><span class="chip send">send</span><span class="reward">shards · wood</span></div><span class="gate">also opens: <b>The Folk + Edda's Garden</b></span></div>
+      <div class="card"><span class="t">The Old Watch</span><span class="do">Send a team to the Old Watch</span><div class="foot"><span class="chip guide">guide</span><span class="reward guide">breadcrumb → story_2</span></div></div>
+      <div class="card propose"><span class="tag propose">just added</span><span class="t">Past the Ruins</span><span class="do">Send a team south to count the days</span><div class="foot"><span class="chip guide">guide</span><span class="reward guide">breadcrumb → story_3</span></div></div>
+      <div class="card"><span class="t">Tools · Arm · Ready</span><span class="do">Woodworker → craft a weapon → equip it</span><div class="foot"><span class="chip build">build</span><span class="chip send">craft</span><span class="reward">Ch.2</span></div><span class="gate">opens: <b>quiet_the_woods done</b></span></div>
+    </div>
+  </div>
+
+  <!-- DEFENSE -->
+  <div class="lane" style="--c:var(--defense)">
+    <div class="lane-head">
+      <span class="lane-name">Defense</span>
+      <span class="lane-clock">clock: <b>event + a raid</b></span>
+      <span class="lane-unlock">unlock: <b>story_1 done</b> (event_three_reports)</span>
+    </div>
+    <div class="track">
+      <div class="card"><span class="t">The First Threat</span><span class="do">Build Walls</span><div class="foot"><span class="chip build">build</span><span class="reward">wood · stone</span></div></div>
+      <div class="card gap"><span class="tag gap">gap 1</span><span class="t">⚠ dead air</span><span class="do">Walls are up, but the next quest waits on surviving a raid — and the scripted raid is <b>commented out</b>. The lane stalls here.</span></div>
+      <div class="card"><span class="t">Baptism of Fire</span><span class="do">Survive a raid</span><div class="foot"><span class="chip fight">defend</span><span class="reward">gold · shards</span></div><span class="gate">fires only if <b>a raid resolves</b></span></div>
+      <div class="card"><span class="t">Eyes on the Horizon</span><span class="do">Build a Watchtower</span><div class="foot"><span class="chip build">build</span><span class="reward">wood · stone</span></div><span class="gate">gated behind: <b>Baptism of Fire</b></span></div>
+      <div class="card gap"><span class="tag empty">Ch.2</span><span class="t" style="color:var(--gap)">⚠ empty chapter</span><span class="do">Defense Chapter 2 has <b>zero quests</b>. The pointer advances into a void; next real beat is Watch the Walls in Ch.3 (mid-game, story_11).</span></div>
+    </div>
+    <div class="flow-note"><span class="arrow">↳</span><span>Also missing across this whole lane: <b>nothing ever teaches troop training</b> (the <code>startTraining</code> watchtower/barracks mechanic exists but is never introduced), and <b>nothing tells the player they need more people</b>.</span></div>
+    <div style="height:14px"></div>
+  </div>
+
+  <!-- THE FOLK -->
+  <div class="lane" style="--c:var(--social)">
+    <div class="lane-head">
+      <span class="lane-name">The Folk</span>
+      <span class="lane-clock">clock: <b>the first lull</b></span>
+      <span class="lane-unlock">unlock: <b>first mission sent</b></span>
+    </div>
+    <div class="track">
+      <div class="card"><span class="t">See to Edda</span><span class="do">Sit with Edda a while</span><div class="foot"><span class="chip memory">memory</span><span class="reward">edda_first_fire</span></div></div>
+      <div class="card"><span class="t">See to Jory</span><span class="do">A word with Jory</span><div class="foot"><span class="chip memory">memory</span><span class="reward">jory_sawhorse</span></div></div>
+      <div class="card"><span class="t">See to Tomas</span><span class="do">Look in on Tomas</span><div class="foot"><span class="chip memory">memory</span><span class="reward">tomas_quarry</span></div></div>
+    </div>
+  </div>
+
+  <!-- PROPOSALS -->
+  <h2>Where the three breadcrumbs slot</h2>
+  <p class="sub">Two are clean fixes to the defense lane. The third is the one you flagged to sequence last — it needs a design call first.</p>
+  <div class="props">
+    <div class="prop">
+      <div class="where">Defense · fixes Gap 1</div>
+      <h3>1 · Re-gate the Watchtower</h3>
+      <p>Move <b>Eyes on the Horizon</b> to fire on <b>walls built</b> (<code>the_first_threat</code> done) instead of raid-survived. The watchtower now follows the walls naturally, no raid required.</p>
+      <p><b>Baptism of Fire</b> stays as a parallel, optional beat — it completes whenever a raid eventually does resolve, and keeps its reward. No content lost, lane unblocked.</p>
+    </div>
+    <div class="prop">
+      <div class="where">Defense · fills empty Ch.2 + teaches training</div>
+      <h3>2 · Man the Wall</h3>
+      <p>A new Chapter-2 defense quest after the watchtower: <b>train the watch</b>. Teaches the <code>startTraining</code> garrison mechanic that nothing currently introduces, and gives the empty chapter real content.</p>
+      <p class="q">"Stone keeps nothing out on its own. It wants men on it who know the horizon."</p>
+    </div>
+    <div class="prop hold">
+      <div class="where">Population · sequence last · needs a call</div>
+      <h3>3 · Room to Grow</h3>
+      <p>With one citizen, births can't even fire (needs ≥2 adults + food surplus + happiness). Growth comes from <b>arrivals + housing</b>, not a single button.</p>
+      <p>So: a soft <b>overview nudge</b> ("we are too few"), or a real quest? And what action closes it — <span class="q">build houses to a level</span>, or run the recruitment mission? This is the one to decide before writing.</p>
+    </div>
+  </div>
+
+  <hr class="foot-rule">
+  <p class="caption">Card positions are approximate — lanes run on independent clocks, so this is a pacing sketch, not a strict timeline. Gates shown on each card are the real trigger conditions. Source: <code>quests.ts</code>, <code>overview_flavors.ts</code>, <code>chains.ts</code>, <code>storyMissions.ts</code>, <code>events.ts</code>.</p>
+
+</div>
+</div>
+</body>
+</html>

@@ -158,6 +158,25 @@ export const OVERVIEW_FLAVORS: OverviewFlavor[] = [
     text:
       "The camp has outgrown its tents. Edda calls the Town Hall 'the cupboard' and she is not joking. A proper hall is the next thing we need: somewhere indoors to decide things, somewhere the records keep. After that, the mill, the quarry, and the market will all need to grow with us.",
   },
+  {
+    // Population nudge. Placed LAST so it supersedes the other settlement lines
+    // whenever the settlement is genuinely short-handed (few adults) and has
+    // established itself enough to notice (guild built). Steers toward building
+    // houses to make room, and keeping the place healthy so newcomers come.
+    // Stops matching once the settlement grows, and the prior line returns.
+    id: "too_few_hands",
+    category: "settlement",
+    triggers: [
+      {
+        type: "custom",
+        check: (s) =>
+          (s.buildings.find((b) => b.buildingId === "adventurers_guild")?.level ?? 0) >= 1 &&
+          s.citizens.adults < 4,
+      },
+    ],
+    text:
+      "We are still too few for the work in front of us, and the way to grow is to make room to grow. More houses, first: word travels that there is a bed and a warm hearth out here, and a settlement that keeps its larder full and its people content is one that folk walk toward. Build, and they will come.",
+  },
 ];
 
 /** Returns the latest matching flavor per category. Categories with no

@@ -787,10 +787,14 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     chapter: 1,
     title: "Eyes on the Horizon",
     narrative:
-      "We saw them in time, but only because a returning patrol heard the brush move. Next raid, we might not be so lucky. A proper watchtower would give us hours of warning instead of minutes. No one else is getting inside our fence unnoticed.",
+      "The walls are up, but a wall is only as good as the eyes above it. As things stand, the first we would know of trouble is trouble already at the gate. A proper watchtower would give us the horizon: hours of warning instead of a shout in the dark. Let us raise one while the country is quiet.",
     objective: "Build a Watchtower",
     icon: "🏰",
-    triggers: [{ type: "quest_completed", questId: "baptism_of_fire" }],
+    // Follows walls directly (the_first_threat), NOT surviving a raid. The
+    // scripted early raid is deferred, so gating the watchtower behind a raid
+    // stalled the whole lane. baptism_of_fire stays as a parallel optional beat
+    // that completes whenever a raid does resolve.
+    triggers: [{ type: "quest_completed", questId: "the_first_threat" }],
     condition: (s) => s.watchtowers.some((t) => t.level > 0),
     rewards: [
       { resource: "wood", amount: 60, label: "Wood" },
@@ -798,6 +802,28 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     ],
     targetPage: "/defenses",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/watchtower.png",
+  },
+  {
+    id: "man_the_wall",
+    storyline: "defense",
+    chapter: 1,
+    title: "Man the Wall",
+    narrative:
+      "Stone and a tower keep nothing out on their own. They want people on them who know the horizon and will not sleep through it. Gareth soldiered before he ever felled a tree, and he can drill a proper watch if we give him a tower worth standing on. Raise the watchtower another level and let him train the ones who will hold it.",
+    objective: "Raise a watchtower to level 2 and train its watch",
+    icon: "🏹",
+    // Chained by quest (not chapter) so it flows straight off the watchtower
+    // without waiting on the deferred raid / chapter-2 pointer. Teaches the
+    // startTraining garrison drill: drilling needs a level-2 watchtower (level-1
+    // units can't drill) plus Gareth (the watchtower trainer, present from
+    // guild_open). trainedLevel >= 1 is only reachable once both hold.
+    triggers: [{ type: "quest_completed", questId: "eyes_on_the_horizon" }],
+    condition: (s) => s.watchtowers.some((t) => (t.garrison?.trainedLevel ?? 0) >= 1),
+    rewards: [
+      { resource: "gold", amount: 40, label: "Gold" },
+      { resource: "stone", amount: 40, label: "Stone" },
+    ],
+    targetPage: "/defenses",
   },
 
   // ╔══════════════════════════════════════════════════════════════╗

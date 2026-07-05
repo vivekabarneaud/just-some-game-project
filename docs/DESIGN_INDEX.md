@@ -13,6 +13,7 @@
 
 | Doc | Real status | Note → action |
 | --- | --- | --- |
+| EARLY_PACING_MAP.html | **REF** (visual) | Standalone board of every early-game narrative lane (settlement/guild/defense/social) over the story-mission spine, with cross-lane unlocks + gaps. Open in a browser. Built 2026-07 during the defense-lane breadcrumb pass. → **Keep as the pacing source-of-truth; re-render if lanes change.** |
 | DESIGN_BACKEND_SLICE.md | **STALE** (built, diverged) | Full backend exists (`backend/`, `prisma/schema.prisma`, routes, ws, tick). Schema diverged: Adventurer/ActiveMission never got their own tables (stayed in the `gameState` blob). → **Update status + reconcile or archive.** |
 | DESIGN_CITIZEN_CATEGORIES.md | **BUILT** | `CitizenCounts`, `founderCitizens()`, `ageStep`, food multipliers, defense-eligibility all live. Adds a founder-floor not in the doc. → **Update status to BUILT.** |
 | DESIGN_DEFENSES.md | **BUILT** | Ring combat sim (`raidCombat.ts`), Defenses page, garrison modal all shipped. **Contradiction:** doc's ring→tier unlock table is wrong vs `ringUnlocked` (Middle at Town, Inner at City). → **Update status + fix the table.** |
