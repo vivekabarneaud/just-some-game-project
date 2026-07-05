@@ -238,7 +238,7 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
     title: "The ghost in the woodpile",
     teaser: "Clean-cut timber keeps appearing at the mill overnight, and no one will own to it. I called it a ghost. We laughed.",
     fullText:
-      "Jory came to me with a puzzle and a grin. Wood has been turning up on the mill stack overnight, more each morning, clean-felled and squared better than any hand we have can manage, and no one will own to it. I told him it was a ghost. We both laughed. A man laughs at what he has not yet been given reason to fear.\n\n" +
+      "Jory came to me with a puzzle and a grin. Wood has been turning up on the mill stack overnight, more each morning, clean-felled and squared better than any hand we have can manage, and no one will own to it. We agreed it must be a ghost, then, and had a laugh about it. It is easy to laugh at a ghost you have not yet been given a reason to fear.\n\n" +
       "It has gone on for days now. The mill-hands leave the pile half-watched, half-hoping. Whoever it is wants nothing for the work, and does not want to be seen wanting nothing. Jory has stopped asking who and started just being glad of the timber. A ghost, then. Ours. I can think of stranger things to be haunted by than good clean wood.",
   },
   {

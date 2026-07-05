@@ -61,8 +61,11 @@ export interface ChainDeps {
 const HALT = Symbol("story-chain-halt");
 
 // Real-world delay for Hester's Beat-2b return — a "come back tomorrow" beat.
-// Shortened in dev so the whole arc can be tested in one sitting.
-export const HESTER_RETURN_DELAY_MS = IS_DEV ? 90_000 : 18 * 60 * 60 * 1000;
+// Prod: ~18h (the intended overnight gap). Dev: 5 min — long enough that the
+// reveal reads as a real "later" beat (go do other things, come back and she's
+// here) rather than appearing while you're still reading the ghost-puzzle modal,
+// but short enough to test in one session.
+export const HESTER_RETURN_DELAY_MS = IS_DEV ? 5 * 60_000 : 18 * 60 * 60 * 1000;
 
 /** Run every chain against the current state. Re-entrant: call once per tick.
  *  Mutates `s` (fired chronicles, timers, recruited adventurers via deps). */
