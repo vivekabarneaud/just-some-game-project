@@ -75,6 +75,7 @@ export {
   calcDeathChance,
   rollPermanentDeaths,
   generateMissionBoard,
+  eligiblePinnedMissions,
   getMissionBoardSize,
   getExpeditionSlotCount,
   type MissionBoardContext,

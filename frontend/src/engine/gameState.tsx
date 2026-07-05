@@ -206,6 +206,7 @@ import {
   type MissionTemplate,
   getMission,
   generateMissionBoard,
+  eligiblePinnedMissions,
   MISSION_POOL,
   NOVICE_MISSIONS,
   getMissionBoardSize,
@@ -4062,6 +4063,17 @@ export function GameProvider(props: ParentProps) {
           today3am.setUTCHours(3, 0, 0, 0);
           if (today3am.getTime() > now) today3am.setUTCDate(today3am.getUTCDate() - 1);
           const lastRefresh = s.lastMissionRefresh;
+          // A newly-eligible pinned chain beat (e.g. Hester's Run Down the moment
+          // the Old Watch is done) shouldn't wait for the daily 3AM reroll — inject
+          // any that aren't on the board (and aren't already out on a mission).
+          {
+            const boardCtx = buildMissionBoardContext(s, guildLvl, now + s.year * 777);
+            const onBoard = new Set(s.missionBoard.map((m) => m.id));
+            const active = new Set(s.activeMissions.map((m) => m.missionId));
+            for (const m of eligiblePinnedMissions(boardCtx)) {
+              if (!onBoard.has(m.id) && !active.has(m.id)) s.missionBoard.push(m);
+            }
+          }
           if (lastRefresh < today3am.getTime()) {
             // Missions — cap difficulty at best adventurer's rank + 1
             s.missionBoard = generateMissionBoard(buildMissionBoardContext(s, guildLvl, now + s.year * 777));

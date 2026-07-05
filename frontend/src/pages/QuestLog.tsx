@@ -153,11 +153,19 @@ export default function QuestLog() {
                       quest={quest}
                       claimable={isQuestClaimable(quest, state)}
                       isUnseen={!seen().includes(quest.id)}
-                      onClaim={() =>
-                        quest.rewards.length === 0 && (quest.unlocksBioFragments?.length ?? 0) > 0
-                          ? openCheckinMemory(quest)
-                          : setClaimingQuest(quest)
-                      }
+                      onClaim={() => {
+                        const noReward = quest.rewards.length === 0;
+                        const hasMemory = (quest.unlocksBioFragments?.length ?? 0) > 0;
+                        const hasChronicle = !!quest.chronicleEntryId;
+                        // Memory check-in → the memory modal. Bare guide quest
+                        // (no reward/memory/chronicle) → claim silently, no modal
+                        // (its narrative was the active-card breadcrumb; replaying
+                        // it as a "completion" reads as stale instructions). Else
+                        // → the normal reward modal.
+                        if (noReward && hasMemory) openCheckinMemory(quest);
+                        else if (noReward && !hasChronicle) actions.claimQuestReward(quest.id);
+                        else setClaimingQuest(quest);
+                      }}
                       onSeen={() => actions.markQuestClaimableSeen(quest.id)}
                     />
                   );

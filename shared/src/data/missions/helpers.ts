@@ -439,6 +439,24 @@ const STRETCH_QUOTA = 1;
  *  caps here for stretch purposes — there are no "elite" mission pools. */
 const MAX_MISSION_RANK = 4;
 
+/** Eligible unique side-chain missions (narrative chain beats like Hester's
+ *  rescue). These are PINNED — always shown when eligible, never left to random
+ *  filler. Exported so the engine can also inject a newly-eligible one onto the
+ *  current board immediately (between daily refreshes) rather than making a
+ *  story-critical beat wait for the next reroll. */
+export function eligiblePinnedMissions(ctx: MissionBoardContext): MissionTemplate[] {
+  const { guildLevel, maxDifficulty = 5 } = ctx;
+  const completedUnique = new Set(ctx.completedUniqueMissionIds ?? []);
+  return ALL_MISSIONS.filter((m) =>
+    m.unique && !!m.sideChain &&
+    !m.staged &&
+    m.minGuildLevel <= guildLevel &&
+    m.difficulty <= maxDifficulty &&
+    !completedUnique.has(m.id) &&
+    meetsRequirements(m.requires, ctx),
+  );
+}
+
 export function generateMissionBoard(ctx: MissionBoardContext): MissionTemplate[] {
   const { guildLevel, count = 4, seed = Date.now(), maxDifficulty = 5 } = ctx;
   const completedUnique = new Set(ctx.completedUniqueMissionIds ?? []);
@@ -450,10 +468,8 @@ export function generateMissionBoard(ctx: MissionBoardContext): MissionTemplate[
     meetsRequirements(m.requires, ctx),
   );
 
-  // Pin eligible unique side-chain missions (narrative chain beats like Hester's
-  // rescue) so they always claim a board slot instead of competing randomly with
-  // filler — otherwise a story-gating chain could sit unshown for a long time.
-  const pinned = available.filter((m) => m.unique && !!m.sideChain);
+  // Pinned beats always claim a slot instead of competing with filler.
+  const pinned = eligiblePinnedMissions(ctx);
   const pinnedIds = new Set(pinned.map((m) => m.id));
   const pool = available.filter((m) => !pinnedIds.has(m.id));
   const regularSlots = Math.max(0, count - pinned.length);
