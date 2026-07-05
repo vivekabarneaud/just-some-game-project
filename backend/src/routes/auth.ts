@@ -120,7 +120,16 @@ auth.post("/google", async (c) => {
       audience: env.GOOGLE_CLIENT_ID,
     });
     claims = payload as typeof claims;
-  } catch {
+  } catch (e) {
+    // Surface WHY it failed (server logs only — the player still sees the
+    // generic message). jose messages are specific: "unexpected 'aud' claim
+    // value" = client-ID mismatch (frontend VITE_GOOGLE_CLIENT_ID vs backend
+    // GOOGLE_CLIENT_ID), JWKS/timeout = can't reach Google's certs, exp = clock
+    // skew. The message may include the public client IDs, never the token.
+    console.error(
+      `[auth/google] ID-token verification failed: ${(e as Error)?.message ?? e} ` +
+      `(backend expects aud=${env.GOOGLE_CLIENT_ID})`,
+    );
     return c.json({ error: "Invalid Google sign-in. Please try again." }, 401);
   }
 
