@@ -113,35 +113,49 @@ auth.post("/google", async (c) => {
     return c.json({ error: "Missing Google credential" }, 400);
   }
 
-  let claims: { sub: string; email?: string; email_verified?: boolean; name?: string };
+  // Verify the Google ID token. PRIMARY path: Google's `tokeninfo` endpoint on
+  // oauth2.googleapis.com — because Render's shared free-tier egress IP is 403'd
+  // by www.googleapis.com (the JWKS host), so local signature verification can't
+  // fetch the certs there. tokeninfo validates the token server-side (signature
+  // + expiry) on a different host; we still re-check issuer + audience ourselves.
+  // FALLBACK: local JWKS verification, for environments where the cert host is
+  // reachable (local dev, or if the block lifts).
+  let claims: { sub: string; email?: string; email_verified?: boolean; name?: string } | null = null;
+
   try {
-    const { payload } = await jwtVerify(body.credential, GOOGLE_JWKS, {
-      issuer: ["https://accounts.google.com", "accounts.google.com"],
-      audience: env.GOOGLE_CLIENT_ID,
-    });
-    claims = payload as typeof claims;
-  } catch (e) {
-    // Surface WHY it failed (server logs only — the player still sees the
-    // generic message). jose messages are specific: "unexpected 'aud' claim
-    // value" = client-ID mismatch (frontend VITE_GOOGLE_CLIENT_ID vs backend
-    // GOOGLE_CLIENT_ID), JWKS/timeout = can't reach Google's certs, exp = clock
-    // skew. The message may include the public client IDs, never the token.
-    console.error(
-      `[auth/google] ID-token verification failed: ${(e as Error)?.message ?? e} ` +
-      `(backend expects aud=${env.GOOGLE_CLIENT_ID})`,
+    const r = await fetch(
+      `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(body.credential)}`,
     );
-    // DIAGNOSTIC: the JWKS fetch got a 403 from Google's edge. Distinguish a
-    // missing-User-Agent block (fixable) from an IP-reputation block (infra) by
-    // fetching with and without a UA. Runs only on the failure path.
-    try {
-      const noUa = await fetch("https://www.googleapis.com/oauth2/v3/certs");
-      const withUa = await fetch("https://www.googleapis.com/oauth2/v3/certs", {
-        headers: { "User-Agent": "Mozilla/5.0 (compatible; medieval-realm-backend/1.0)" },
-      });
-      console.error(`[auth/google] JWKS probe → no-UA=${noUa.status}, with-UA=${withUa.status}`);
-    } catch (pe) {
-      console.error(`[auth/google] JWKS probe fetch threw: ${(pe as Error)?.message ?? pe}`);
+    if (r.ok) {
+      const t = (await r.json()) as Record<string, string>;
+      const issOk = t.iss === "accounts.google.com" || t.iss === "https://accounts.google.com";
+      const audOk = t.aud === env.GOOGLE_CLIENT_ID;
+      const notExpired = Number(t.exp) * 1000 > Date.now();
+      if (issOk && audOk && notExpired && t.sub) {
+        claims = { sub: t.sub, email: t.email, email_verified: t.email_verified === "true", name: t.name };
+      } else {
+        console.error(`[auth/google] tokeninfo rejected token: iss=${issOk} aud=${audOk} notExpired=${notExpired}`);
+      }
+    } else {
+      console.error(`[auth/google] tokeninfo → ${r.status} ${r.statusText}`);
     }
+  } catch (e) {
+    console.error(`[auth/google] tokeninfo fetch threw: ${(e as Error)?.message ?? e}`);
+  }
+
+  if (!claims) {
+    try {
+      const { payload } = await jwtVerify(body.credential, GOOGLE_JWKS, {
+        issuer: ["https://accounts.google.com", "accounts.google.com"],
+        audience: env.GOOGLE_CLIENT_ID,
+      });
+      claims = payload as { sub: string; email?: string; email_verified?: boolean; name?: string };
+    } catch (e) {
+      console.error(`[auth/google] JWKS fallback verification failed: ${(e as Error)?.message ?? e}`);
+    }
+  }
+
+  if (!claims) {
     return c.json({ error: "Invalid Google sign-in. Please try again." }, 401);
   }
 
