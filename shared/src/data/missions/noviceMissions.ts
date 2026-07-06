@@ -29,7 +29,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["outdoor", "exploration", "combat"],
-    encounters: [{ enemyId: "cave_spider", count: 3 }],
+    encounters: [{ enemyId: "rock_skitter", count: 4 }],
     unique: true,
   },
 {
@@ -45,7 +45,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["outdoor", "exploration", "combat"],
-    encounters: [{ enemyId: "cave_spider", count: 3 }],
+    encounters: [{ enemyId: "rock_skitter", count: 4 }],
     requires: { missionDone: "quarry_expedition_first" },
   },
 {
@@ -119,7 +119,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
 {
     id: "caravan_guard",
     name: "The Road to Greyford",
-    description: "We are not the only grant out here. Greyford sits a half-day downriver, founded the same spring we were, and where our first fields have yet to come in, theirs did. They have grain to spare; we struck good stone they can build with. Load a wagon with stone and meet theirs at the river ford to make the first trade between us, if it lives past the bandits working that road. See the exchange done and bring our people and theirs home whole. Good neighbours outlast good walls.",
+    description: "We are not the only grant out here. Greyford sits a half-day downriver, founded a year before we came, so where our first fields have yet to come in, theirs are long since established. They have grain to spare; we struck good stone they can build with. Load a wagon with stone and meet theirs at the river ford to make the first trade between us, if it lives past the bandits working that road. See the exchange done and bring our people and theirs home whole. Good neighbours outlast good walls.",
     icon: "🐴",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/caravan_guard.png",
     slots: [{ class: "warrior" }, { class: "any" }],
@@ -256,7 +256,10 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 1,
     tags: ["combat", "outdoor"],
-    encounters: [{ enemyId: "cave_spider", count: 3 }],
+    // Difficulty-2 venom fight (the Spinner's poison is what the Herbal Antidote
+    // counters). 3 was unwinnable for an early team (0% in sim); 2 is a real
+    // "gear up / bring an antidote" challenge.
+    encounters: [{ enemyId: "cave_spider", count: 2 }],
   },
   {
     id: "night_howling",

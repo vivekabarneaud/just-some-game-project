@@ -299,6 +299,22 @@ export const ENEMIES: EnemyDefinition[] = [
     aiTier: "feral"
   },
   {
+    id: "rock_skitter",
+    name: "Rock Skitter",
+    icon: "🕷️",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/cave_spider.png",
+    description: "Hand-sized, many-legged, and never alone. The Spinners' small cousins boil up out of the cracks in a scuttling tide. One is nothing; a nest is a problem.",
+    tier: 1,
+    // Fast and fragile swarm fodder — no venom (that stays the Spinner's mark).
+    // Meant to be fought several at once, like brigands.
+    stats: { str: 4, dex: 8, int: 1, vit: 5, wis: 1 },
+    tags: ["beast"],
+    loot: [
+      { type: "resource", resource: "chitin_plate", chance: 0.1, min: 1, max: 1 },
+    ],
+    aiTier: "feral"
+  },
+  {
     id: "cursed_spirit",
     name: "Grief-Bound Spirit",
     icon: "👻",
