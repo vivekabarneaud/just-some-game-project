@@ -129,6 +129,12 @@ export default function Marketplace() {
   const townHallLvl = () => state.buildings.find((b) => b.buildingId === "town_hall")?.level ?? 1;
   const tier = () => getSettlementTier(townHallLvl());
 
+  // Random faceless "Merchant Offers" are retired: the traveling-merchant arc
+  // (named visitors setting up a stall, e.g. Cobb) is the NPC trade now, so a
+  // freshly-built market opens with no random NPC board. Flip to a condition
+  // (or a tier check) if we ever want to bring an ambient board back.
+  const showNpcOffers = () => false;
+
   // ── Merchant offers (client-side, random, refreshable) ──
   const [merchantSeed, setMerchantSeed] = createSignal(Math.floor(Date.now() / 86400000));
   const [merchantRefreshCount, setMerchantRefreshCount] = createSignal(0);
@@ -393,12 +399,13 @@ export default function Marketplace() {
         {/* ════════════ 3-COLUMN LAYOUT ════════════ */}
         <div style={{
           display: "grid",
-          "grid-template-columns": "1fr 1.2fr 1fr",
+          "grid-template-columns": showNpcOffers() ? "1fr 1.2fr 1fr" : "1.3fr 1fr",
           gap: "16px",
           "align-items": "start",
         }}>
 
-          {/* ── LEFT: Merchant Offers ── */}
+          {/* ── LEFT: Merchant Offers (retired — traveling merchants replace them) ── */}
+          <Show when={showNpcOffers()}>
           <div>
             <div style={{ display: "flex", "justify-content": "space-between", "align-items": "center", "margin-bottom": "8px" }}>
               <div style={sectionHeaderStyle}>Merchant Offers</div>
@@ -454,6 +461,7 @@ export default function Marketplace() {
               }}
             </For>
           </div>
+          </Show>
 
           {/* ── CENTER: Player Offers ── */}
           <div>

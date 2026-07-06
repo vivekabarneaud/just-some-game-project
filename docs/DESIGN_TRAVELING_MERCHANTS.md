@@ -102,3 +102,19 @@ traffic scales with how welcoming/prosperous the settlement is.
 - `project_adventurer_recovery` — Greymantle heals wounds/status
 - `project_npc_escort_engine` — merchant escort missions
 - `project_player_guilds` — outbound player-to-player / NPC-settlement trade (backend)
+
+## Marketplace: NPC vs player offers (decided July 2026)
+
+- **Faceless random NPC offers: retired.** A freshly-built marketplace shows no
+  random NPC board — the named traveling merchants (Cobb & co., who set up a
+  stall on their visits) ARE the NPC trade now. (`showNpcOffers` flag off in
+  `Marketplace.tsx`; flip it if we ever want an ambient board back.) A return
+  visit now fires a toast so the player doesn't miss the stall.
+- **Player (P2P) offers — tiering (idea, partly backend-blocked):** start narrow
+  and widen as the settlement grows:
+  - **Early:** only offers **directed at us / from friends** — a private,
+    trusted trickle. NEEDS BACKEND: `fetchTradeOffers` has no recipient/friends
+    scope today; add a "for-this-settlement" / friends filter.
+  - **Village tier:** unlock the **full auction house** (all players' open
+    offers). Same spirit as recruit origin-tiers and merchant-culture unlocks —
+    the world opens to a settlement that has become a known waystation.

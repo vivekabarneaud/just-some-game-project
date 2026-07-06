@@ -9,6 +9,7 @@ import Lightning from "./components/Lightning";
 import CinematicOverlay from "./components/CinematicOverlay";
 import ChronicleEntryModal from "./components/ChronicleEntryModal";
 import TravelingMerchantModal from "./components/TravelingMerchantModal";
+import { getMerchant } from "~/data/merchants";
 import { openChronicleEntry, setOpenChronicleEntry } from "./data/robins";
 import { getChronicleEntry } from "./data/chronicle_entries";
 import ToastContainer from "./components/Toast";
@@ -103,6 +104,26 @@ export default function App(props: ParentProps) {
     const entry = getChronicleEntry(id);
     actions.dismissChronicleBeat(id);
     if (entry) setOpenChronicleEntry(entry);
+  });
+
+  // Traveling-merchant return watcher: when a recurring merchant sets up a stall
+  // at the market (state.merchantStall appears), toast the player so they don't
+  // miss the visit. Deduped by the stall's expiry, so it fires once per return
+  // (and once on a load that finds a stall already standing).
+  let announcedStallExpiry: number | null = null;
+  createEffect(() => {
+    const stall = state.merchantStall;
+    if (!stall) return;
+    if (announcedStallExpiry === stall.expiresAt) return;
+    announcedStallExpiry = stall.expiresAt;
+    const m = getMerchant(stall.merchantId);
+    showEvent({
+      type: "info",
+      icon: "🧳",
+      message: `${m?.name ?? "A trader"} has set up a stall at the market — trading until morning.`,
+      accent: "var(--accent-gold)",
+      onClick: () => navigate("/marketplace"),
+    });
   });
 
   // Season-change watcher: announce each new season with its thematic accent.
