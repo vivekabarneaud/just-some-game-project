@@ -52,6 +52,7 @@ const navSections: { title: string; items: NavItem[] }[] = [
     title: "Economy",
     items: [
       { path: "/marketplace", icon: "🏪", label: "Marketplace" },
+      { path: "/tavern", icon: "🍻", label: "Tavern" },
     ],
   },
   {
@@ -88,6 +89,7 @@ const LINK_REQUIRED_BUILDING: Record<string, string> = {
   "/alchemy": "alchemy_lab",
   "/enchanting": "enchanting_shop",
   "/marketplace": "marketplace",
+  "/tavern": "tavern",
   "/shrine": "shrine",
 };
 

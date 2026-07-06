@@ -148,6 +148,7 @@ const Jewelcrafting = lazy(() => import("./pages/Jewelcrafting"));
 const Kitchen = lazy(() => import("./pages/Kitchen"));
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const Marketplace = lazy(() => import("./pages/Marketplace"));
+const Tavern = lazy(() => import("./pages/Tavern"));
 const WorldMap = lazy(() => import("./pages/WorldMap"));
 const Chronicle = lazy(() => import("./pages/Chronicle"));
 const Friends = lazy(() => import("./pages/Friends"));
@@ -188,6 +189,7 @@ render(
         <Route path="/kitchen" component={Kitchen} />
         <Route path="/leaderboard" component={Leaderboard} />
         <Route path="/marketplace" component={Marketplace} />
+        <Route path="/tavern" component={Tavern} />
         <Route path="/map" component={WorldMap} />
         <Route path="/chronicle" component={Chronicle} />
         <Route path="/friends" component={Friends} />

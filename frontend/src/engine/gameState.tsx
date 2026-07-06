@@ -267,6 +267,7 @@ import {
 } from "~/data/quests";
 import { getReadyEvents } from "~/data/events";
 import { TRAVELING_MERCHANTS } from "~/data/merchants";
+import { calcTavernOccupancyForTownHall, tavernTravelerGoldPerHour, MENU_STAPLE_IDS } from "~/data/tavern";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { EXOTIC_IDS } from "@medieval-realm/shared/data/exotics";
 import { ALCHEMY_RECIPES, getDiscoverableRecipes, getAvailableAlchemyRecipes, RESEARCH_BASE_COST } from "@medieval-realm/shared/data/alchemy_recipes";
@@ -589,6 +590,8 @@ export interface GameState {
   firedEvents: string[];
   /** Traveling-merchant visits that have already happened (one-shot per merchant). */
   merchantVisitsFired: string[];
+  /** Dishes currently featured on the tavern menu (food ids). Drives menu variety. */
+  tavernMenu: string[];
   /** The merchant currently visiting (drives the visit modal); undefined when none. */
   pendingMerchantVisitId?: string;
   /** Narrative events queued for the player to read; cleared on dismiss. */
@@ -665,6 +668,8 @@ export interface GameActions {
   dismissChronicleBeat: (entryId: string) => void;
   /** Close the traveling-merchant visit (he leaves). */
   dismissMerchantVisit: () => void;
+  /** Toggle a dish on/off the tavern menu. */
+  toggleTavernDish: (dishId: string) => void;
   skipSeason: () => void;
   getProductionRates: () => { gold: number; wood: number; stone: number; food: number };
   getMaxPopulation: () => number;
@@ -1052,6 +1057,7 @@ export function createInitialState(): GameState {
     ],
     firedEvents: [],
     merchantVisitsFired: [],
+    tavernMenu: [...MENU_STAPLE_IDS],
     pendingEvents: [],
     questsClaimableSeen: [],
     buildingsSeen: [],
@@ -1465,6 +1471,7 @@ export function migrateSaveState(saved: GameState): GameState {
     // ephemeral; replaying them on legacy saves is acceptable.
     if (!saved.firedEvents) saved.firedEvents = [];
     if (!saved.merchantVisitsFired) saved.merchantVisitsFired = [];
+    if (!saved.tavernMenu) saved.tavernMenu = [...MENU_STAPLE_IDS];
     if (!saved.pendingEvents) saved.pendingEvents = [];
     if (!saved.autoCook) saved.autoCook = {};
     else {
@@ -3520,6 +3527,19 @@ export function GameProvider(props: ParentProps) {
 
         s.happiness = Math.max(0, Math.min(100, Math.round(happiness)));
 
+        // ── Tavern travelers: passive gold from rented rooms ──
+        // A welcoming, well-fed, established settlement fills more beds. Uses the
+        // finalized happiness so occupancy tracks the real mood.
+        if (tavernLvl > 0) {
+          const menuVariety = (s.tavernMenu ?? []).length;
+          const occ = calcTavernOccupancyForTownHall(s.happiness, menuVariety, getTownHallLevel(s.buildings));
+          const travelerGold = tavernTravelerGoldPerHour(tavernLvl, occ) * elapsedHours;
+          if (travelerGold > 0) {
+            const goldCap = calcStorageCaps(s.buildings).gold;
+            s.resources.gold = Math.min(goldCap, s.resources.gold + travelerGold);
+          }
+        }
+
         // Tick upgrades — buildings, fields, gardens, pens, hives, orchards
         // Tracks whether anything finished this tick so we can re-evaluate
         // narrative events afterwards (events with building_built triggers
@@ -4828,6 +4848,14 @@ export function GameProvider(props: ParentProps) {
 
     dismissMerchantVisit() {
       setState(produce((s) => { s.pendingMerchantVisitId = undefined; }));
+      scheduleSave();
+    },
+
+    toggleTavernDish(dishId: string) {
+      setState(produce((s) => {
+        const menu = s.tavernMenu ?? [];
+        s.tavernMenu = menu.includes(dishId) ? menu.filter((d) => d !== dishId) : [...menu, dishId];
+      }));
       scheduleSave();
     },
 
