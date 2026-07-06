@@ -157,6 +157,7 @@ export interface MissionRequirements {
   story?: string;       // story mission ID that must be completed
   building?: string;    // building ID that must be built (level > 0)
   buildings?: string[]; // ALL of these building IDs must be built (level > 0)
+  tavernReputation?: number; // tavern reputation (0-100) must be at least this — "the haven's name has spread"
   pen?: import("../livestock").AnimalId; // pen animal type that must exist (level > 0)
   /** Id of a `unique` mission that must be completed first. Powers the
    *  discovery→routine pattern: a one-time "first" mission unlocks the

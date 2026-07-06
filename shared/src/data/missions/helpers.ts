@@ -385,6 +385,9 @@ export interface MissionBoardContext {
   /** Ids of one-time (`unique`) missions already completed. They're filtered
    *  out so a resolved personal/narrative beat never returns to the board. */
   completedUniqueMissionIds?: string[];
+  /** Current tavern reputation (0-100). Gates "the haven draws the hunted"
+   *  arrivals (e.g. A Mother's Errand) behind a settlement that's become known. */
+  tavernReputation?: number;
 }
 
 /** Check whether a mission's requirements are met */
@@ -413,6 +416,7 @@ function meetsRequirements(
     const done = new Set(ctx.completedUniqueMissionIds ?? []);
     if (!done.has(req.missionDone)) return false;
   }
+  if (req.tavernReputation && (ctx.tavernReputation ?? 0) < req.tavernReputation) return false;
   return true;
 }
 

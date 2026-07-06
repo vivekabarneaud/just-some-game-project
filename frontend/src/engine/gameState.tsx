@@ -1736,6 +1736,7 @@ function buildMissionBoardContext(s: GameState, guildLevel: number, seed: number
     buildings: s.buildings,
     pens: s.pens,
     adventurerRanks: aliveRanks,
+    tavernReputation: s.tavernReputation ?? 0,
   };
 }
 

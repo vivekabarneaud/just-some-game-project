@@ -150,7 +150,10 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     // Hired toughs over a card debt (Dominion Toughs), not desperate displaced
     // farmers — fits the fiction, and they're weaker in a pack.
     encounters: [{ enemyId: "dominion_thug", count: 3 }],
-    requires: { story: "story_1_scouting" },
+    // "The haven's name spreads." Gated on tavern reputation, not just a built
+    // tavern — the hunted only come once the settlement is genuinely running as a
+    // waystation (ale, staffing, a full house are what build reputation). Placeholder 40.
+    requires: { tavernReputation: 40 },
     unique: true,
   },
 
