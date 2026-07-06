@@ -31,6 +31,11 @@ export const TAVERN_GOLD_PER_ROOM_PER_DAY = 5;
 /** How fast reputation eases toward the current service quality (points/game-hour). */
 export const REPUTATION_DRIFT_PER_HOUR = 1.5;
 
+/** Cooked food a full room's worth of guests eats per game-hour. Served dishes
+ *  are drawn from the kitchen's cooked-meal stock (competing with feeding the
+ *  settlement); a dish that runs out drops off the menu. Placeholder. */
+export const TAVERN_FOOD_PER_ROOM_PER_HOUR = 0.5;
+
 export type TavernPricing = "generous" | "fair" | "steep";
 
 /** Pricing is a bounded lever, never a free number: it trades occupancy for

@@ -16,10 +16,13 @@ export default function Tavern() {
   const servers = () => state.tavernServers ?? 0;
   const pricing = () => state.tavernPricing ?? "fair";
   const reputation = () => state.tavernReputation ?? 0;
+  const stockOf = (dishId: string) => Math.floor((state.foods as Record<string, number>)[dishId] ?? 0);
+  // Only dishes with cooked stock can actually be served (count toward variety).
+  const servedInStock = () => menu().filter((d) => stockOf(d) > 0);
 
   const t = () => calcTavern({
     level: level(), happiness: state.happiness, townHallLevel: townHallLvl(),
-    menuVariety: menu().length, servers: servers(), pricing: pricing(), reputation: reputation(),
+    menuVariety: servedInStock().length, servers: servers(), pricing: pricing(), reputation: reputation(),
   });
 
   // Shared adult pool (same one the garrison draws from).
@@ -145,16 +148,23 @@ export default function Tavern() {
             <For each={MENU_STAPLE_IDS as FoodItemType[]}>
               {(dishId) => {
                 const served = () => menu().includes(dishId);
+                const stock = () => stockOf(dishId);
+                const out = () => served() && stock() <= 0;
                 const meta = getFoodMeta(dishId);
                 return (
                   <div style={{
                     display: "flex", "align-items": "center", gap: "10px", padding: "8px 12px",
                     background: served() ? "var(--bg-card)" : "var(--bg-secondary)",
-                    border: `1px solid ${served() ? "var(--accent-gold)" : "var(--border-color)"}`,
-                    "border-radius": "8px", opacity: served() ? "1" : "0.65",
+                    border: `1px solid ${out() ? "var(--accent-red)" : served() ? "var(--accent-gold)" : "var(--border-color)"}`,
+                    "border-radius": "8px", opacity: served() && !out() ? "1" : "0.65",
                   }}>
                     <FoodIcon id={dishId} size={28} />
-                    <span style={{ flex: "1", color: "var(--text-primary)", "font-size": "0.9rem" }}>{meta.label}</span>
+                    <div style={{ flex: "1" }}>
+                      <span style={{ color: "var(--text-primary)", "font-size": "0.9rem" }}>{meta.label}</span>
+                      <span style={{ "font-size": "0.75rem", color: out() ? "var(--accent-red)" : "var(--text-muted)", "margin-left": "8px" }}>
+                        {out() ? "out of stock — cook more" : `${stock()} in stock`}
+                      </span>
+                    </div>
                     <button
                       class="field-upgrade-btn"
                       style={{ "font-size": "0.78rem", padding: "4px 12px", opacity: served() ? "0.75" : "1" }}
@@ -168,7 +178,7 @@ export default function Tavern() {
             </For>
           </div>
           <div style={{ "margin-top": "10px", "font-size": "0.78rem", color: "var(--text-muted)" }}>
-            {menu().length} of {MENU_STAPLE_IDS.length} dishes served.
+            {servedInStock().length} of {menu().length} featured dishes in stock. Serving draws from the kitchen's cooked meals — a busy tavern eats through them, so keep the pots on.
           </div>
         </div>
 

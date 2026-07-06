@@ -267,7 +267,7 @@ import {
 } from "~/data/quests";
 import { getReadyEvents } from "~/data/events";
 import { TRAVELING_MERCHANTS, getMerchant, merchantIntervalDays } from "~/data/merchants";
-import { calcTavern, REPUTATION_DRIFT_PER_HOUR, MENU_STAPLE_IDS, serversNeeded } from "~/data/tavern";
+import { calcTavern, REPUTATION_DRIFT_PER_HOUR, TAVERN_FOOD_PER_ROOM_PER_HOUR, MENU_STAPLE_IDS, serversNeeded } from "~/data/tavern";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { EXOTIC_IDS } from "@medieval-realm/shared/data/exotics";
 import { ALCHEMY_RECIPES, getDiscoverableRecipes, getAvailableAlchemyRecipes, RESEARCH_BASE_COST } from "@medieval-realm/shared/data/alchemy_recipes";
@@ -3606,11 +3606,15 @@ export function GameProvider(props: ParentProps) {
         // margin, reputation raises the ceiling. Uses the finalized happiness so
         // occupancy tracks the real mood. calcTavern is the shared source of truth.
         if (tavernLvl > 0) {
+          const foods = s.foods as Record<string, number>;
+          // Only dishes we actually have cooked stock for can be served — an
+          // empty dish drops off the menu (and stops counting toward variety).
+          const servedInStock = (s.tavernMenu ?? []).filter((d) => (foods[d] ?? 0) > 0);
           const t = calcTavern({
             level: tavernLvl,
             happiness: s.happiness,
             townHallLevel: getTownHallLevel(s.buildings),
-            menuVariety: (s.tavernMenu ?? []).length,
+            menuVariety: servedInStock.length,
             servers: s.tavernServers ?? 0,
             pricing: s.tavernPricing ?? "fair",
             reputation: s.tavernReputation ?? 0,
@@ -3627,6 +3631,14 @@ export function GameProvider(props: ParentProps) {
           s.tavernReputation = Math.max(0, Math.min(100,
             rep + Math.max(-step, Math.min(step, target - rep)),
           ));
+          // Guests eat the featured dishes — drawn from the kitchen's cooked
+          // stock, split across what's actually served (competes with feeding
+          // the settlement).
+          if (servedInStock.length > 0) {
+            const eaten = t.rooms * t.occupancy * TAVERN_FOOD_PER_ROOM_PER_HOUR * elapsedHours;
+            const perDish = eaten / servedInStock.length;
+            for (const d of servedInStock) foods[d] = Math.max(0, (foods[d] ?? 0) - perDish);
+          }
         }
 
         // Tick upgrades — buildings, fields, gardens, pens, hives, orchards

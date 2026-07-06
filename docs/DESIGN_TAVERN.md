@@ -65,8 +65,11 @@ and city unlock the higher levels).
   (scaled by occupancy — a full house eats more), and a dish that's **out of
   stock can't be featured** (greyed on the menu). This makes the menu a real
   choice (feed travelers vs feed the settlement) and ties the tavern to the
-  kitchen loop. Consumption rate + whether it's per-guest or a flat trickle is
-  open. NOT yet built — see the tavern-economy pass below.
+  kitchen loop. BUILT July 2026: serving draws down the featured dishes' cooked
+  stock each tick, scaled by rooms × occupancy (a busy tavern eats more, split
+  across served dishes); an out-of-stock dish drops off the menu and stops
+  counting toward variety (so occupancy dips until you cook more). Rate is
+  placeholder (`TAVERN_FOOD_PER_ROOM_PER_HOUR`). Discrete guests still deferred.
 
 ## 3. Occupancy — traffic from prosperity
 
