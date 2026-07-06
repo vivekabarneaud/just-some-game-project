@@ -267,7 +267,7 @@ import {
 } from "~/data/quests";
 import { getReadyEvents } from "~/data/events";
 import { TRAVELING_MERCHANTS } from "~/data/merchants";
-import { calcTavernOccupancyForTownHall, tavernTravelerGoldPerHour, MENU_STAPLE_IDS } from "~/data/tavern";
+import { calcTavern, REPUTATION_DRIFT_PER_HOUR, MENU_STAPLE_IDS, serversNeeded } from "~/data/tavern";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { EXOTIC_IDS } from "@medieval-realm/shared/data/exotics";
 import { ALCHEMY_RECIPES, getDiscoverableRecipes, getAvailableAlchemyRecipes, RESEARCH_BASE_COST } from "@medieval-realm/shared/data/alchemy_recipes";
@@ -592,6 +592,12 @@ export interface GameState {
   merchantVisitsFired: string[];
   /** Dishes currently featured on the tavern menu (food ids). Drives menu variety. */
   tavernMenu: string[];
+  /** Adults assigned to serve at the tavern (shares the garrison adult pool). */
+  tavernServers: number;
+  /** Tavern pricing lever: trades occupancy for margin. */
+  tavernPricing: import("~/data/tavern").TavernPricing;
+  /** Tavern reputation 0-100 — the tavern's own bar; raises the occupancy ceiling. */
+  tavernReputation: number;
   /** The merchant currently visiting (drives the visit modal); undefined when none. */
   pendingMerchantVisitId?: string;
   /** Narrative events queued for the player to read; cleared on dismiss. */
@@ -670,6 +676,10 @@ export interface GameActions {
   dismissMerchantVisit: () => void;
   /** Toggle a dish on/off the tavern menu. */
   toggleTavernDish: (dishId: string) => void;
+  /** Assign N adults to serve at the tavern (clamped to available adults + slots). */
+  setTavernServers: (n: number) => void;
+  /** Set the tavern pricing lever. */
+  setTavernPricing: (pricing: import("~/data/tavern").TavernPricing) => void;
   skipSeason: () => void;
   getProductionRates: () => { gold: number; wood: number; stone: number; food: number };
   getMaxPopulation: () => number;
@@ -1058,6 +1068,9 @@ export function createInitialState(): GameState {
     firedEvents: [],
     merchantVisitsFired: [],
     tavernMenu: [...MENU_STAPLE_IDS],
+    tavernServers: 0,
+    tavernPricing: "fair",
+    tavernReputation: 0,
     pendingEvents: [],
     questsClaimableSeen: [],
     buildingsSeen: [],
@@ -1472,6 +1485,9 @@ export function migrateSaveState(saved: GameState): GameState {
     if (!saved.firedEvents) saved.firedEvents = [];
     if (!saved.merchantVisitsFired) saved.merchantVisitsFired = [];
     if (!saved.tavernMenu) saved.tavernMenu = [...MENU_STAPLE_IDS];
+    if (saved.tavernServers === undefined) saved.tavernServers = 0;
+    if (!saved.tavernPricing) saved.tavernPricing = "fair";
+    if (saved.tavernReputation === undefined) saved.tavernReputation = 0;
     if (!saved.pendingEvents) saved.pendingEvents = [];
     if (!saved.autoCook) saved.autoCook = {};
     else {
@@ -3527,17 +3543,32 @@ export function GameProvider(props: ParentProps) {
 
         s.happiness = Math.max(0, Math.min(100, Math.round(happiness)));
 
-        // ── Tavern travelers: passive gold from rented rooms ──
-        // A welcoming, well-fed, established settlement fills more beds. Uses the
-        // finalized happiness so occupancy tracks the real mood.
+        // ── Tavern: traveler gold + reputation drift ──
+        // Staffing gates whether beds can be served, pricing trades crowd for
+        // margin, reputation raises the ceiling. Uses the finalized happiness so
+        // occupancy tracks the real mood. calcTavern is the shared source of truth.
         if (tavernLvl > 0) {
-          const menuVariety = (s.tavernMenu ?? []).length;
-          const occ = calcTavernOccupancyForTownHall(s.happiness, menuVariety, getTownHallLevel(s.buildings));
-          const travelerGold = tavernTravelerGoldPerHour(tavernLvl, occ) * elapsedHours;
+          const t = calcTavern({
+            level: tavernLvl,
+            happiness: s.happiness,
+            townHallLevel: getTownHallLevel(s.buildings),
+            menuVariety: (s.tavernMenu ?? []).length,
+            servers: s.tavernServers ?? 0,
+            pricing: s.tavernPricing ?? "fair",
+            reputation: s.tavernReputation ?? 0,
+          });
+          const travelerGold = (t.goldPerDay / 24) * elapsedHours;
           if (travelerGold > 0) {
             const goldCap = calcStorageCaps(s.buildings).gold;
             s.resources.gold = Math.min(goldCap, s.resources.gold + travelerGold);
           }
+          // Reputation eases toward the current service quality (bounded step).
+          const target = t.serviceQuality * 100;
+          const step = REPUTATION_DRIFT_PER_HOUR * elapsedHours;
+          const rep = s.tavernReputation ?? 0;
+          s.tavernReputation = Math.max(0, Math.min(100,
+            rep + Math.max(-step, Math.min(step, target - rep)),
+          ));
         }
 
         // Tick upgrades — buildings, fields, gardens, pens, hives, orchards
@@ -4856,6 +4887,23 @@ export function GameProvider(props: ParentProps) {
         const menu = s.tavernMenu ?? [];
         s.tavernMenu = menu.includes(dishId) ? menu.filter((d) => d !== dishId) : [...menu, dishId];
       }));
+      scheduleSave();
+    },
+
+    setTavernServers(n: number) {
+      setState(produce((s) => {
+        const level = s.buildings.find((b) => b.buildingId === "tavern")?.level ?? 0;
+        const need = serversNeeded(level);
+        // Assignable adults = the shared pool minus standing garrison + named
+        // (NOT minus current servers — we're reassigning within this budget).
+        const assignable = Math.max(0, s.citizens.adults - s.soldiers - s.archers - s.namedResidents.adults);
+        s.tavernServers = Math.max(0, Math.min(Math.floor(n), need, assignable));
+      }));
+      scheduleSave();
+    },
+
+    setTavernPricing(pricing) {
+      setState(produce((s) => { s.tavernPricing = pricing; }));
       scheduleSave();
     },
 
