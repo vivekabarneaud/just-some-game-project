@@ -220,6 +220,7 @@ import {
   isExpedition,
   getMissionPhase,
 } from "@medieval-realm/shared/data/missions";
+import { getEnemy } from "@medieval-realm/shared/data/enemies";
 import {
   getMissionXp,
   applyXp,
@@ -4200,11 +4201,18 @@ export function GameProvider(props: ParentProps) {
                 }
               }
 
-              // Record discovered enemies — success or failure, the player has now seen them
+              // Record discovered enemies — success or failure, the player has now seen them.
+              // Capture the genuine "???" surprises (first seen AND not already known by
+              // reputation) for the loot modal's "New foes faced" reveal.
+              const revealedEnemies: string[] = [];
               if (template?.encounters) {
                 if (!s.discoveredEnemies) s.discoveredEnemies = [];
                 for (const enc of template.encounters) {
                   if (!s.discoveredEnemies.includes(enc.enemyId)) {
+                    const def = getEnemy(enc.enemyId);
+                    if (def && !def.revealPortrait && !revealedEnemies.includes(enc.enemyId)) {
+                      revealedEnemies.push(enc.enemyId);
+                    }
                     s.discoveredEnemies.push(enc.enemyId);
                   }
                 }
@@ -4227,6 +4235,7 @@ export function GameProvider(props: ParentProps) {
                   ...(combatResult.retreated ? { retreated: true } : {}),
                 } : {}),
                 ...(vipFallen ? { vipFallen } : {}),
+                ...(revealedEnemies.length ? { revealedEnemies } : {}),
               });
 
               // Durable per-mission success tally (completedMissions is cleared on

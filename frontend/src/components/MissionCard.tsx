@@ -193,7 +193,9 @@ export default function MissionCard(props: MissionCardProps) {
           <div style={{ "margin-top": "14px", display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
             {fresh().encounters!.map((enc) => {
               const enemy = getEnemy(enc.enemyId);
-              return enemy ? <EnemyCard enemy={enemy} count={enc.count} hidden={!isDiscovered(enc.enemyId)} /> : null;
+              if (!enemy) return null;
+              const reveal = isDiscovered(enc.enemyId) ? "full" : enemy.revealPortrait ? "portrait" : "none";
+              return <EnemyCard enemy={enemy} count={enc.count} reveal={reveal} />;
             })}
           </div>
         </Show>

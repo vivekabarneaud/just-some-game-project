@@ -630,8 +630,10 @@ export default function MissionAssemblyPanel(props: Props) {
             <div class="assembly-card-row" style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
               {freshMission().encounters!.map((enc) => {
                 const enemy = getEnemy(enc.enemyId);
+                if (!enemy) return null;
                 const discovered = (state.discoveredEnemies ?? []).includes(enc.enemyId);
-                return enemy ? <MissionEnemyCard enemy={enemy} count={enc.count} hidden={!discovered} /> : null;
+                const reveal = discovered ? "full" : enemy.revealPortrait ? "portrait" : "none";
+                return <MissionEnemyCard enemy={enemy} count={enc.count} reveal={reveal} />;
               })}
             </div>
           </div>

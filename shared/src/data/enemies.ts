@@ -75,6 +75,12 @@ export interface EnemyDefinition {
   };
   tags: EnemyTag[];
   boss?: boolean;
+  /** The settlement already knows this foe by reputation before ever fighting it
+   *  (named in the journal, described by scouts, etc.). Its PORTRAIT + name show
+   *  on mission cards pre-encounter, but its combat measure (HP, abilities, stat
+   *  hints) stays hidden until actually fought. Contrast the default: unknown
+   *  creatures stay a "???" card until first encountered. */
+  revealPortrait?: boolean;
   /** Targeting style. Default "tactical" (threat-aware scored pick). Orthogonal to boss. */
   aiTier?: EnemyAITier;
   /** Resistance to forced-target taunt effects. Default "none". */
@@ -409,6 +415,7 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "💀",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/captain_hale_ghost_portrait.png",
     description: "He held the post for forty-seven days after the order to fall back never came. The Wastes wore him down to grief and silence. Now he stands his line still, and the dead under him will not let go.",
+    revealPortrait: true, // his name + story are in the journal before we face him
     tier: 3,
     stats: { str: 14, dex: 14, int: 24, vit: 26, wis: 18 },
     tags: ["ghost", "magical"],
@@ -862,6 +869,7 @@ export const ENEMIES: EnemyDefinition[] = [
     name: "Tainted Boar",
     icon: "🐗",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/tainted_boar.png",
+    revealPortrait: true, // the scouts came back describing them ("What the Scouts Saw")
     description: "Grey-mottled and weeping black, reeking of cold metal. A spear through the heart barely slows it; the body keeps moving long after it should have stopped, as if the death will not take. Whatever is in these beasts will not let them die easily.",
     tier: 2,
     stats: { str: 8, dex: 4, int: 1, vit: 13, wis: 1 },
@@ -880,6 +888,7 @@ export const ENEMIES: EnemyDefinition[] = [
     name: "Tainted Patriarch",
     icon: "🐗",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/tainted_patriarch.png",
+    revealPortrait: true, // the mission fiction describes it before we reach the spring
     description: "The old father of the herd, and the most ruined of them. Grey to the bone, weeping black from a dozen wounds that never close. It should have died a season ago. It did not. It guards the bad water as though it were still its own.",
     tier: 3,
     stats: { str: 11, dex: 4, int: 1, vit: 18, wis: 1 },

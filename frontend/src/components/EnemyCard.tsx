@@ -58,11 +58,19 @@ function EnemyTooltipContent(props: { enemy: EnemyDefinition }) {
 
 // ─── Enemy Card ─────────────────────────────────────────────────
 
+/** How much of the enemy to reveal:
+ *  - "full": portrait + name + combat measure (HP/hints). Post-encounter.
+ *  - "portrait": portrait + name + lore, but combat measure withheld. A foe
+ *    known by reputation (revealPortrait) that hasn't been fought yet.
+ *  - "none": a "???" card — an unknown creature. */
+export type EnemyReveal = "full" | "portrait" | "none";
+
 interface EnemyCardProps {
   enemy: EnemyDefinition;
   count?: number;
-  /** When true, hide the enemy's identity (undiscovered creature) */
-  hidden?: boolean;
+  /** Defaults to "full". Use "none" for undiscovered creatures, "portrait" for
+   *  a known-by-reputation foe not yet fought. */
+  reveal?: EnemyReveal;
 }
 
 function EnemyImage(props: { src: string }) {
@@ -84,17 +92,47 @@ function HiddenEnemyTooltipContent() {
   );
 }
 
+/** Known-by-reputation tooltip: name + tags + lore, but the combat measure
+ *  (HP, stat hints) is withheld until the foe is actually fought. */
+function ReputationTooltipContent(props: { enemy: EnemyDefinition }) {
+  const tags = () => props.enemy.tags.map((t) => TAG_LABELS[t]).filter(Boolean);
+  return (
+    <div style={{ "min-width": "160px" }}>
+      <div style={{ display: "flex", "justify-content": "space-between", "align-items": "center", "margin-bottom": "4px" }}>
+        <span style={{ "font-weight": "bold", color: "var(--text-primary)" }}>
+          {props.enemy.icon} {props.enemy.name}
+        </span>
+        <span style={{ "font-size": "0.65rem", color: "var(--text-muted)" }}>
+          {tags().join(", ")}
+        </span>
+      </div>
+      <div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "font-style": "italic", "margin-bottom": "4px" }}>
+        {props.enemy.description}
+      </div>
+      <div style={{ "font-size": "0.72rem", color: "var(--accent-gold)", "font-style": "italic" }}>
+        Known by reputation. Its measure in a fight is unknown until you face it.
+      </div>
+    </div>
+  );
+}
+
 export default function EnemyCard(props: EnemyCardProps) {
+  const reveal = () => props.reveal ?? "full";
+  const known = () => reveal() !== "none"; // portrait + name visible
   const borderColor = () =>
-    props.hidden ? "rgba(150, 150, 150, 0.35)"
+    !known() ? "rgba(150, 150, 150, 0.35)"
     : props.enemy.boss ? "var(--accent-gold)"
     : "rgba(231, 76, 60, 0.3)";
   const bg = () =>
-    props.hidden ? "rgba(60, 60, 70, 0.2)"
+    !known() ? "rgba(60, 60, 70, 0.2)"
     : props.enemy.boss ? "rgba(245, 197, 66, 0.08)"
     : "rgba(231, 76, 60, 0.06)";
+  const tooltip = () =>
+    reveal() === "none" ? <HiddenEnemyTooltipContent />
+    : reveal() === "portrait" ? <ReputationTooltipContent enemy={props.enemy} />
+    : <EnemyTooltipContent enemy={props.enemy} />;
   return (
-    <Tooltip content={() => props.hidden ? <HiddenEnemyTooltipContent /> : <EnemyTooltipContent enemy={props.enemy} />}>
+    <Tooltip content={tooltip}>
       <div
         class="enemy-card"
         style={{
@@ -113,18 +151,18 @@ export default function EnemyCard(props: EnemyCardProps) {
             {props.count}x
           </div>
         </Show>
-        <Show when={props.hidden} fallback={
-          props.enemy.image
-            ? <EnemyImage src={props.enemy.image} />
-            : <div class="enemy-card-image enemy-card-image-icon">{props.enemy.icon}</div>
-        }>
+        <Show when={known()} fallback={
           <div class="enemy-card-image enemy-card-image-hidden">?</div>
+        }>
+          {props.enemy.image
+            ? <EnemyImage src={props.enemy.image} />
+            : <div class="enemy-card-image enemy-card-image-icon">{props.enemy.icon}</div>}
         </Show>
         <div style={{
           padding: "2px 4px",
           "text-align": "center",
           "font-size": "0.6rem",
-          color: props.hidden ? "var(--text-muted)"
+          color: !known() ? "var(--text-muted)"
             : props.enemy.boss ? "var(--accent-gold)"
             : "var(--text-secondary)",
           "line-height": "1.15",
@@ -132,9 +170,9 @@ export default function EnemyCard(props: EnemyCardProps) {
           display: "flex",
           "align-items": "center",
           "justify-content": "center",
-          "font-style": props.hidden ? "italic" : "normal",
+          "font-style": !known() ? "italic" : "normal",
         }}>
-          {props.hidden ? "???" : props.enemy.name}
+          {known() ? props.enemy.name : "???"}
         </div>
       </div>
     </Tooltip>

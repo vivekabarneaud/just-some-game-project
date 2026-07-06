@@ -237,6 +237,10 @@ export interface CompletedMission {
   /** Set to the NPC ally id when an isMissionObjective ally fell during combat —
    *  drives the distinct "Warden Niamh fell, the binding could not complete" UI. */
   vipFallen?: string;
+  /** Enemy ids first encountered on THIS mission that were genuine surprises
+   *  (not `revealPortrait` foes the settlement already knew). Drives the loot
+   *  modal's "New foes faced" reveal — the payoff for the "???" cards. */
+  revealedEnemies?: string[];
 }
 
 export interface StoryMission extends MissionTemplate {
