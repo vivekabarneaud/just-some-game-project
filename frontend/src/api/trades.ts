@@ -7,8 +7,11 @@ import type {
 } from "@medieval-realm/shared";
 import { apiFetch } from "./client";
 
-export async function fetchTradeOffers(settlementId: string): Promise<TradeListResponse> {
-  return apiFetch<TradeListResponse>(`/trades?settlementId=${settlementId}`);
+export async function fetchTradeOffers(
+  settlementId: string,
+  scope: "friends" | "all" = "all",
+): Promise<TradeListResponse> {
+  return apiFetch<TradeListResponse>(`/trades?settlementId=${settlementId}&scope=${scope}`);
 }
 
 export async function fetchOwnTrades(settlementId: string): Promise<OwnTradeListResponse> {

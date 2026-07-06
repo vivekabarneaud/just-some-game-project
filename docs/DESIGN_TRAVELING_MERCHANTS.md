@@ -110,11 +110,15 @@ traffic scales with how welcoming/prosperous the settlement is.
   stall on their visits) ARE the NPC trade now. (`showNpcOffers` flag off in
   `Marketplace.tsx`; flip it if we ever want an ambient board back.) A return
   visit now fires a toast so the player doesn't miss the stall.
-- **Player (P2P) offers — tiering (idea, partly backend-blocked):** start narrow
-  and widen as the settlement grows:
-  - **Early:** only offers **directed at us / from friends** — a private,
-    trusted trickle. NEEDS BACKEND: `fetchTradeOffers` has no recipient/friends
-    scope today; add a "for-this-settlement" / friends filter.
-  - **Village tier:** unlock the **full auction house** (all players' open
-    offers). Same spirit as recruit origin-tiers and merchant-culture unlocks —
-    the world opens to a settlement that has become a known waystation.
+- **Player (P2P) offers — tiering (BUILT July 2026):** the board narrows early
+  and widens as the settlement grows:
+  - **Below village:** "Offers from Friends" — `GET /trades?scope=friends`
+    returns only open offers whose seller is an **accepted friend** (via the
+    Friendship table; no schema change). A trusted trickle.
+  - **Village tier+:** "Auction House" — `scope=all`, every player's open offers.
+    Frontend gates the scope on tier (`playerOfferScope`), same spirit as
+    recruit origin-tiers and merchant-culture unlocks.
+  - **Future refinement:** offers **directed at a specific settlement** (a true
+    "for you" target) would need a nullable `targetSettId` on TradeOffer + a
+    post-to-friend picker. Not built; the seller-is-a-friend model covers the
+    early trusted-trickle intent for now.

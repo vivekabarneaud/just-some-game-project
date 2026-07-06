@@ -128,6 +128,11 @@ export default function Marketplace() {
   const isBuilt = () => marketLevel() > 0;
   const townHallLvl = () => state.buildings.find((b) => b.buildingId === "town_hall")?.level ?? 1;
   const tier = () => getSettlementTier(townHallLvl());
+  // The full player auction opens at Village tier. Below that, a camp only sees
+  // offers from friends — a trusted trickle before it's a known waystation.
+  const TIER_ORDER: SettlementTier[] = ["camp", "village", "town", "city"];
+  const auctionUnlocked = () => TIER_ORDER.indexOf(tier()) >= TIER_ORDER.indexOf("village");
+  const playerOfferScope = (): "friends" | "all" => (auctionUnlocked() ? "all" : "friends");
 
   // Random faceless "Merchant Offers" are retired: the traveling-merchant arc
   // (named visitors setting up a stall, e.g. Cobb) is the NPC trade now, so a
@@ -164,8 +169,8 @@ export default function Marketplace() {
   // ── Player offers (from API) ──
   const settId = () => getSettlementId();
   const [playerOffers, { refetch: refetchOffers }] = createResource(
-    settId,
-    (id) => id ? fetchTradeOffers(id).then((r) => r.offers) : Promise.resolve([]),
+    () => { const id = settId(); return id ? { id, scope: playerOfferScope() } : null; },
+    (src) => fetchTradeOffers(src.id, src.scope).then((r) => r.offers),
   );
   const [ownData, { refetch: refetchOwn }] = createResource(
     settId,
@@ -465,7 +470,14 @@ export default function Marketplace() {
 
           {/* ── CENTER: Player Offers ── */}
           <div>
-            <div style={sectionHeaderStyle}>Player Offers</div>
+            <div style={sectionHeaderStyle}>{auctionUnlocked() ? "Auction House" : "Offers from Friends"}</div>
+
+            <Show when={!auctionUnlocked()}>
+              <div style={{ padding: "8px 12px", "margin-bottom": "8px", background: "var(--bg-secondary)", "border-radius": "6px", color: "var(--text-muted)", "font-size": "0.78rem" }}>
+                Word of your camp hasn't spread far. For now you trade only with friends — the
+                open auction opens once you're a village.
+              </div>
+            </Show>
 
             <Show when={playerOffers.loading}>
               <div style={{ padding: "16px", "text-align": "center", color: "var(--text-muted)", "font-size": "0.85rem" }}>
@@ -475,7 +487,7 @@ export default function Marketplace() {
 
             <Show when={!playerOffers.loading && (playerOffers() ?? []).length === 0}>
               <div style={{ padding: "16px", "text-align": "center", color: "var(--text-muted)", "font-size": "0.85rem" }}>
-                No player offers available.
+                {auctionUnlocked() ? "No player offers available." : "No offers from friends right now."}
               </div>
             </Show>
 

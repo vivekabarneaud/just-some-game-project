@@ -52,8 +52,23 @@ trade.get("/trades", async (c) => {
   const mySett = await prisma.settlement.findFirst({ where: { id: settlementId, playerId } });
   if (!mySett) return c.json({ error: "Settlement not found" }, 404);
 
+  // Scope: "all" = the open auction (everyone's offers); "friends" = only offers
+  // posted by accepted friends — the early-game trusted trickle before a village
+  // unlocks the full house. Unknown/missing scope defaults to "all" (backward
+  // compatible with older clients).
+  const scope = c.req.query("scope") === "friends" ? "friends" : "all";
+  let sellerFilter: { not: string } | { in: string[] } = { not: playerId };
+  if (scope === "friends") {
+    const friendships = await prisma.friendship.findMany({
+      where: { status: "accepted", OR: [{ requesterId: playerId }, { addresseeId: playerId }] },
+      select: { requesterId: true, addresseeId: true },
+    });
+    const friendIds = friendships.map((f) => (f.requesterId === playerId ? f.addresseeId : f.requesterId));
+    sellerFilter = { in: friendIds }; // empty -> no rows, which is correct
+  }
+
   const offers = await prisma.tradeOffer.findMany({
-    where: { status: "open", sellerId: { not: playerId } },
+    where: { status: "open", sellerId: sellerFilter },
     include: {
       seller: { select: { username: true } },
       sellerSett: { select: { name: true, x: true, y: true, gameState: true } },
