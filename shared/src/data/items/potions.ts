@@ -81,7 +81,9 @@ export const POTION_REGISTRY: Record<string, PotionInfo> = {
                               mission: { successBonus: 0,  deathReduction: 1.0 },
                               combat:  { type: "damage_boost", value: 15, duration: 2, trigger: "before_first_attack" } },
   "herbal_antidote":        { category: "mission",
-                              mission:  { successBonus: 5,  deathReduction: 0.85 },
+                              // No mission stat-check or death-reduction (legacy mission-stat
+                              // levers, retired for early-game potions). It's a cure now.
+                              mission:  { successBonus: 0,  deathReduction: 1.0 },
                               // The antidote: cures poison in combat (drunk the moment a poison
                               // DoT lands) with a small bonus heal, and clears poison on a
                               // resting hero at home.
@@ -112,6 +114,53 @@ export const POTION_REGISTRY: Record<string, PotionInfo> = {
 
 export function getPotionInfo(itemId: string): PotionInfo | undefined {
   return POTION_REGISTRY[itemId];
+}
+
+// A couple of potions carry a bespoke mission perk not expressible via the
+// successBonus/deathReduction fields. Surfaced as the "On a mission" line.
+const SPECIAL_MISSION_NOTE: Record<string, string> = {
+  scholars_draught: "grants bonus XP",
+  foragers_tonic: "+50 food when the team returns",
+};
+
+function combatEffectText(c: CombatPotionEffect): string {
+  switch (c.type) {
+    case "heal_pct": return `auto-heals ${c.value}% HP when low`;
+    case "damage_boost": return `+${c.value}% damage for ${c.duration ?? 2} rounds at the opening`;
+    case "defense_boost": return `+${c.value}% defense for ${c.duration ?? 2} rounds when low`;
+    case "cleanse": return c.value > 0 ? `cures poison and heals ${c.value}% HP` : "cures poison";
+    case "haste": return `+${c.value}% attack speed`;
+    default: return "";
+  }
+}
+
+function recoveryEffectText(r: RecoveryEffect): string {
+  const parts: string[] = [];
+  if (r.healPct > 0) parts.push(`heals ${r.healPct}% HP`);
+  if (r.cures?.includes("bleed")) parts.push("stops bleeding");
+  if (r.cures?.includes("poison")) parts.push("cures poison");
+  return parts.join(", ");
+}
+
+/** Human-readable effect lines for a potion, grouped by context (In combat /
+ *  At home / On a mission). Derived from POTION_REGISTRY so it stays in sync
+ *  with the real mechanics. Drives the potion cards. Empty if the id isn't a
+ *  known supply (the caller can fall back to a prose description). */
+export function getPotionEffectLines(itemId: string): { label: string; text: string }[] {
+  const info = POTION_REGISTRY[itemId];
+  if (!info) return [];
+  const lines: { label: string; text: string }[] = [];
+  if (info.combat) lines.push({ label: "In combat", text: combatEffectText(info.combat) });
+  if (info.recovery && recoveryEffectText(info.recovery)) {
+    lines.push({ label: "At home", text: recoveryEffectText(info.recovery) });
+  }
+  const m = info.mission;
+  const missionParts: string[] = [];
+  if (m?.successBonus) missionParts.push(`+${m.successBonus} to the mission check`);
+  if (m && m.deathReduction < 1) missionParts.push(`-${Math.round((1 - m.deathReduction) * 100)}% death risk`);
+  if (SPECIAL_MISSION_NOTE[itemId]) missionParts.push(SPECIAL_MISSION_NOTE[itemId]);
+  if (missionParts.length) lines.push({ label: "On a mission", text: missionParts.join(", ") });
+  return lines;
 }
 
 export function getSupplyEffect(itemId: string): MissionSupplyEffect | undefined {

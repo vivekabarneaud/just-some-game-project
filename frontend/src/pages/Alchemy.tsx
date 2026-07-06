@@ -6,6 +6,7 @@ import { ALCHEMY_RECIPES, getAvailableAlchemyRecipes, getDiscoverableRecipes, RE
 import { getPotionInfo } from "@medieval-realm/shared/data/items";
 import Countdown from "~/components/Countdown";
 import RecipeCard from "~/components/RecipeCard";
+import PotionEffects from "~/components/PotionEffects";
 import { formatTimeShort as formatTime } from "~/utils/format";
 import { playSound } from "~/engine/sounds";
 
@@ -260,8 +261,8 @@ export default function Alchemy() {
                       title={recipe.name}
                       subtitle={`${formatTime(recipe.craftTime)} · ${recipe.tier}`}
                       info={
-                        <div style={{ "margin-top": "4px", padding: "4px 8px", background: "var(--bg-primary)", "border-radius": "4px", "font-size": "0.75rem" }}>
-                          <span style={{ color: "var(--accent-green)" }}>{recipe.description}</span>
+                        <div style={{ "margin-top": "4px", padding: "6px 10px", background: "var(--bg-primary)", "border-radius": "4px", "font-size": "0.75rem", color: "var(--accent-green)" }}>
+                          <PotionEffects itemId={recipe.id} fallback={recipe.description} />
                           {(() => {
                             const info = getPotionInfo(recipe.id);
                             const hasMission = !!info?.mission;

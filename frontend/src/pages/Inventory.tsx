@@ -5,6 +5,7 @@ import { ALCHEMY_RECIPES } from "@medieval-realm/shared/data/alchemy_recipes";
 import { BUILDINGS } from "~/data/buildings";
 import { VEGGIES } from "~/data/gardens";
 import SeedIcon from "~/components/SeedIcon";
+import PotionEffects from "~/components/PotionEffects";
 
 export default function Inventory() {
   const { state } = useGame();
@@ -155,7 +156,7 @@ export default function Inventory() {
                         </div>
                       </div>
                       <div style={{ "font-size": "0.8rem", color: "var(--accent-green)", "margin-top": "4px" }}>
-                        {p.description}
+                        <PotionEffects itemId={p.inv.itemId} fallback={p.description} />
                       </div>
                       <div style={{ "margin-top": "6px", "font-size": "0.85rem", color: "var(--text-secondary)" }}>
                         In stock: <strong>{p.inv.quantity}</strong>
