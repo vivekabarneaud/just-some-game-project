@@ -141,9 +141,8 @@ export const ENEMIES: EnemyDefinition[] = [
         effect: { type: "bleed", pctPerRound: 20, rounds: 2 } },
     ],
     loot: [
-      { type: "resource", resource: "wheat", chance: 0.4, min: 2, max: 6 },
       { type: "resource", resource: "wolfhide_strip", chance: 0.3, min: 1, max: 1 },
-      { type: "resource", resource: "fang", chance: 0.2, min: 1, max: 2 },
+      { type: "resource", resource: "fang", chance: 0.5, min: 1, max: 2 },
       { type: "resource", resource: "sinew_cord", chance: 0.15, min: 1, max: 1 },
     ],
     aiTier: "feral"
@@ -852,6 +851,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "meat", chance: 0.5, min: 2, max: 6 },
       { type: "resource", resource: "bristlehide", chance: 0.3, min: 1, max: 1 },
       { type: "resource", resource: "tusk_shard", chance: 0.2, min: 1, max: 1 },
+      { type: "resource", resource: "cloven_hoof", chance: 0.6, min: 1, max: 2 },
+      { type: "resource", resource: "boar_skull", chance: 0.15, min: 1, max: 1 },
     ],
     aiTier: "feral"
   },
@@ -867,6 +868,8 @@ export const ENEMIES: EnemyDefinition[] = [
     loot: [
       { type: "resource", resource: "bristlehide", chance: 0.4, min: 1, max: 1 },
       { type: "resource", resource: "tusk_shard", chance: 0.3, min: 1, max: 1 },
+      { type: "resource", resource: "cloven_hoof", chance: 0.8, min: 1, max: 2 },
+      { type: "resource", resource: "boar_skull", chance: 0.4, min: 1, max: 1 },
     ],
     aiTier: "feral"
   },
@@ -883,6 +886,8 @@ export const ENEMIES: EnemyDefinition[] = [
     loot: [
       { type: "resource", resource: "tusk_shard", chance: 1, min: 2, max: 3 },
       { type: "resource", resource: "bristlehide", chance: 0.6, min: 1, max: 2 },
+      { type: "resource", resource: "cloven_hoof", chance: 1, min: 2, max: 3 },
+      { type: "resource", resource: "boar_skull", chance: 1, min: 1, max: 1 },
     ],
     aiTier: "feral"
   },

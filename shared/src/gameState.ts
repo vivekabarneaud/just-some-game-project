@@ -171,7 +171,7 @@ export type RewardType = "gold" | "wood" | "stone" | "food" | "astralShards"
   // Crafting materials (also drop via combat loot; can be guaranteed mission rewards too)
   | "wolfhide_strip" | "fang" | "sinew_cord"
   | "thick_pelt" | "bear_claw"
-  | "bristlehide" | "tusk_shard"
+  | "bristlehide" | "tusk_shard" | "cloven_hoof" | "boar_skull"
   | "chitin_plate" | "spinners_bile"
   | "serpent_fang" | "snake_oil"
   | "gnawed_marrow" | "bonewalk_shard";

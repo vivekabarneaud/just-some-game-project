@@ -245,6 +245,8 @@ export const MATERIALS: MaterialDefinition[] = [
   { id: "bear_claw", name: "Bear Claw", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/bear_claw.png", icon: "🐾", description: "Curved, sharp, and the size of a dagger. The hunters mount them as trophies. The Jewelcrafters see raw material.", category: "bone", tier: 1 },
   { id: "serpent_fang", name: "Serpent Fang", icon: "🐍", description: "Hollow, curved, and still glistening with venom. Handle with thick gloves.", category: "bone", tier: 1 },
   { id: "tusk_shard", name: "Tusk Shard", icon: "🦷", description: "A broken boar tusk, dense as stone. The Khazdurim use them for practice scrimshaw.", category: "bone", tier: 1 },
+  { id: "cloven_hoof", name: "Cloven Hoof", icon: "🐐", description: "The split black hoof of a boar, hard as horn. Of no use to anyone, which is what makes it strange that someone asked.", category: "bone", tier: 1 },
+  { id: "boar_skull", name: "Boar Skull", icon: "💀", description: "The long, heavy skull of a boar, tusks still socketed, picked clean. A hunter's trophy, or a butcher's leaving. Nothing more, unless someone wants it.", category: "bone", tier: 1 },
   { id: "alpha_fang", name: "Alpha Fang", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/alpha_fang.png", icon: "🐺", description: "The largest fang from the pack leader's jaw. Warm to the touch, as if the beast's fury persists.", category: "bone", tier: 2 },
   { id: "beast_heart", name: "Beast Heart", icon: "❤️", description: "Massive, still faintly warm. The old hunters say eating it raw gives you the bear's courage. Don't.", category: "alchemy", tier: 3 },
 

@@ -145,7 +145,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/clear_marshes.png",
     slots: [{ class: "any" }, { class: "any" }],
     duration: 600,
-    deployItems: [{ resource: "wheat", amount: 20 }],
+    deployItems: [{ resource: "wheat", amount: 5 }],
     rewards: [{ resource: "fenbalm", amount: 5 }, { resource: "nettle", amount: 3 }],
     deployCost: 3,
     difficulty: 1,
@@ -161,13 +161,13 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   //    so the drift, when it comes later, lands against something familiar. ──
   {
     id: "fen_barter",
-    name: "The Fen Barter",
-    description: "The old woman keeps her bargain, and Edda's fenbalm stores run low again. Leave the grain at the flat stone, cut the herb, and not a snake will stir. She will have whoever we send in for tea, too, and send them home with a full belly. Routine now. Send someone to make the trade.",
-    icon: "🕯️",
+    name: "Tea at Aldith's",
+    description: "The old woman keeps her bargain, and Edda's fenbalm stores run low again. Leave the grain at the flat stone, cut the herb, and not a snake will stir. Aldith, the gatherers call her now, and she will have whoever we send in for tea and send them home with a full belly besides. Routine now. Send someone to make the trade.",
+    icon: "🍵",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/clear_marshes.png",
     slots: [{ class: "any" }],
     duration: 500,
-    deployItems: [{ resource: "wheat", amount: 15 }],
+    deployItems: [{ resource: "wheat", amount: 3 }],
     rewards: [{ resource: "fenbalm", amount: 4 }],
     deployCost: 2,
     difficulty: 1,
@@ -177,19 +177,22 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     // Repeatable (not unique, no beat) — the safe recurring gather.
     requires: { missionDone: "reeds_bargain" },
   },
-  // ── The drift, step 1. After the barter has become routine (fen_barter ×3),
-  //    the old woman's asking changes: no more grain, now a shard of boar tusk
-  //    left at the stone. Still "just an errand," still safe, but the first ask
-  //    that is not food. The_bog_witch chain fires ch1_reeds_bone around it. ──
+  // ── The drift. After the tea (fen_barter ×3, where she learns of Nell), the
+  //    asking stops being grain and starts to read like a recipe: a precise,
+  //    symbolic COUNT of humble parts she could not take herself, the number
+  //    shrinking as the thing grows grimmer — three fangs, two hooves, one skull.
+  //    Each is compliable on its own; the pattern is the horror. The chain fires
+  //    ch1_reeds_tea before the fangs and ch1_reeds_doubt (the line drawn) after
+  //    the skull. The dark descent is still deferred. ──
   {
-    id: "reeds_tusk",
-    name: "A Different Price",
-    description: "The old woman sent her asking back with the last of the fenbalm, and it is not grain this time. A shard of boar tusk, she wants, the kind our hunters bring back by the handful, left at the flat stone by dark. Edda says do as she asks and think nothing of it, the old have their ways. I will hold my tongue and send it. It costs us nothing we would miss. But I find I would like to know what a marsh wants with a splinter of tusk.",
+    id: "reeds_fangs",
+    name: "Three Fangs",
+    description: "The old woman sent her asking back with the last of the fenbalm, and it is not grain this time. Three wolf fangs, she wants, no more and no fewer, left at the flat stone by dark. Edda says the old have their cures and their charms and it is not for us to know the reason of them, so do as she asks and think nothing of it. I will send them. Our hunters have teeth to spare and she cannot take a wolf herself. It is only the exactness of it, three and not four, that sits oddly with me.",
     icon: "🦷",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/clear_marshes.png",
     slots: [{ class: "any" }],
     duration: 500,
-    deployItems: [{ resource: "tusk_shard", amount: 1 }],
+    deployItems: [{ resource: "fang", amount: 3 }],
     rewards: [{ resource: "fenbalm", amount: 5 }, { resource: "nettle", amount: 3 }],
     deployCost: 2,
     difficulty: 1,
@@ -200,26 +203,41 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     unique: true,
     sideChain: { id: "the_bog_witch", name: "The Reeds" },
   },
-  // ── The drift, step 2. The tusk was not the end of it. The next asking is
-  //    a rat's gnawed knuckle: still bone, and now twice she has wanted the
-  //    leavings of a dead thing. This is where it stops being nothing. The chain
-  //    fires ch1_reeds_marrow before and ch1_reeds_doubt after. ──
   {
-    id: "reeds_marrow",
-    name: "The Asking Again",
-    description: "The tusk went to the stone and the herb came home, and I had half forgotten it when her next asking came back. Bone again. A rat's knuckle this time, the kind the ruin-rats leave gnawed clean, left at the flat stone by dark. Twice now she has wanted the leavings of a dead thing and not a word of why. Edda still says think nothing of it. I will send it, because the fenbalm keeps my people through the winter. But I am no longer certain I think nothing of it.",
-    icon: "🦴",
+    id: "reeds_hooves",
+    name: "Two Hooves",
+    description: "The fangs went to the stone and the herb came home, and I had half forgotten it when her next asking came back. Two cloven hooves this time, off a boar, left at the flat stone by dark. Fewer than the fangs, and stranger. Edda still says think nothing of it, an old woman's remedy, and I want to believe her. I will send them, because the fenbalm keeps my people through the winter. But a body does not put hooves in a poultice, and I have started to wonder what she does put them in.",
+    icon: "🐐",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/clear_marshes.png",
     slots: [{ class: "any" }],
     duration: 500,
-    deployItems: [{ resource: "gnawed_marrow", amount: 1 }],
+    deployItems: [{ resource: "cloven_hoof", amount: 2 }],
     rewards: [{ resource: "fenbalm", amount: 5 }, { resource: "nettle", amount: 3 }],
     deployCost: 2,
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["outdoor"],
     guaranteed: true,
-    requires: { missionDone: "reeds_tusk" },
+    requires: { missionDone: "reeds_fangs" },
+    unique: true,
+    sideChain: { id: "the_bog_witch", name: "The Reeds" },
+  },
+  {
+    id: "reeds_skull",
+    name: "One Skull",
+    description: "And now the last of it, or so I will make it the last. One boar's skull, she wants, picked clean, left at the flat stone by dark. Three, then two, then one, and each thing worse than the last. This is no longer a remedy and we both know it, whatever Edda says. I will send the skull, this once, because I will not break faith over a thing that costs us nothing and leave my people short of fenbalm on a suspicion. But I mean to send word with it: grain, from here, and only grain. One more asking like this and we are done with the reeds.",
+    icon: "💀",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/clear_marshes.png",
+    slots: [{ class: "any" }],
+    duration: 500,
+    deployItems: [{ resource: "boar_skull", amount: 1 }],
+    rewards: [{ resource: "fenbalm", amount: 5 }, { resource: "nettle", amount: 3 }],
+    deployCost: 2,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["outdoor"],
+    guaranteed: true,
+    requires: { missionDone: "reeds_hooves" },
     unique: true,
     sideChain: { id: "the_bog_witch", name: "The Reeds" },
   },

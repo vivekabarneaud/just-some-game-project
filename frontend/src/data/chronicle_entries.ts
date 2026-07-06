@@ -292,33 +292,24 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
     chapterId: "ch1",
     order: 9.2,
     title: "The old woman's tea",
-    teaser: "The gatherers stay for tea now, out at the fen. Bett came home full of the old woman's kindness, and a small, funny thing about the little painting by her stove.",
+    teaser: "The gatherers stay for tea now, out at the fen. Bett came home full of Aldith's kindness, and a small, funny thing about the little painting by her stove.",
     fullText:
-      "The gatherers have stopped hurrying home from the fen. The old woman has them in for tea now, sits them down by the stove and talks their ears off, and sends them back with the fenbalm and half a loaf besides. Bett came home this evening still laughing about it. Talked half to death, she said, and worth every minute. A proud grandmother with no one left to be proud to, is Bett's reading of her, and I think she has the right of it.\n\n" +
-      "She keeps a little painting by the stove, of herself and her granddaughter, and Bett swears the girl is the spitting image of our Nell. The same face, she says. You would take them for sisters. The old woman was delighted to hear it and wanted to know all about our Nell, and Bett, who has never once in her life left a question unanswered, told her the lot.\n\n" +
+      "The gatherers have stopped hurrying home from the fen. Aldith has them in for tea now, that is her name, sits them down by the stove and talks their ears off, and sends them back with the fenbalm and half a loaf besides. Bett came home this evening still laughing about it. Talked half to death, she said, and worth every minute. A widow, Bett reckons, forty years someone's wife and no one's now, and she bakes as though she still had a full table to feed. There is always bread, more than one old woman could eat in a week.\n\n" +
+      "I sent word through the gatherers that she would be welcome behind our walls, that no one should winter alone in a marsh. She would not hear of it. The fen is her home, she told them, and she will not leave it now. I can respect that in a soul, even while I wish she would not.\n\n" +
+      "And there is a small thing Bett told me, the way you would mention the weather. Aldith keeps a little painting by the stove, of herself and her granddaughter, and Bett swears the girl is the spitting image of our Nell. The same face, she says. You would take them for sisters. Aldith was delighted to hear it and wanted to know all about our Nell, and Bett, who has never once in her life left a question unanswered, told her the lot.\n\n" +
       "It is a good thing to have a kindly neighbour in a country this hard, even a strange one alone in a marsh. I am glad the trade turned out to be more than a trade.",
-  },
-  {
-    id: "ch1_reeds_marrow",
-    chapterId: "ch1",
-    order: 9.3,
-    title: "Bone, and then more bone",
-    teaser: "The tusk I could shrug off. But her next asking was bone again, and twice is not a whim. Twice is a pattern, and I have started to watch it.",
-    fullText:
-      "I had near forgotten the tusk when her next asking came back with the gatherers. Bone again. A rat's knuckle this time, the kind the ruin-rats leave gnawed clean in the old watch, left at the flat stone by dark.\n\n" +
-      "A tusk I could shrug off. Old woman, old ways, a splinter of no use to anyone. But twice is not a whim. Twice is a pattern, and I have spent enough of my life reading patterns in the accounts of other men to distrust one when it shows itself. She wanted grain for a season and more, and now, twice running, she wants the leavings of dead things and will say no word of why.\n\n" +
-      "Edda tells me I am building a haunted house out of an old woman's shopping. Perhaps I am. I sent the bone. The gatherers walked safe, as ever. But I asked one of them, quiet, to mark where the old woman keeps herself, next time they go. Just so we know. That is all.",
   },
   {
     id: "ch1_reeds_doubt",
     chapterId: "ch1",
-    order: 9.4,
-    title: "What she does with it",
-    teaser: "The bone went to the stone and the fenbalm came home, same as always. Same as always. I keep saying it to myself and it keeps not settling.",
+    order: 9.3,
+    title: "Grain, and only grain",
+    teaser: "Three fangs, then two hooves, then a skull. I sent the skull. And then I drew a line, and did not tell Edda that I had drawn it.",
     fullText:
-      "The bone went to the flat stone and the fenbalm came home, and the gatherers report it all as it ever was: the adders still, the herb cut, the old woman watching from the reeds and raising her hand as they turned for home. Nothing happened. That is the whole of it. Nothing happened, same as always.\n\n" +
-      "And yet I have found myself standing at the edge of the market twice today with the thought half-formed and no good end to it. She has taken our grain a season and more, kept faith every time, asked nothing we could not spare. A kind old woman glad of the company kept at a distance, I have written before, and I believe it still. I do.\n\n" +
-      "It is only that I do not know her name, nor where she came from, nor why a woman alone in a wet fen wants the gnawed bone of a rat and will not say. Small things. The kind a man is a fool to lose sleep over. I will keep sending what she asks, because the herb keeps my people through the winter, and that is a plain good I can hold in my hand. But I have started to keep a closer count of what leaves us for the reeds, and I have not told Edda that I do.",
+      "It went as I feared it would, and I am not easy about how easily it went. The skull to the flat stone by dark, the fenbalm home by morning, the adders still, Aldith raising her hand from the reeds as the gatherers turned for home. Nothing happened. Same as ever. I am tired of writing that down.\n\n" +
+      "It is the shape of it that troubles me. Three fangs. Then two hooves. Then one skull. The asking growing smaller in number and worse in kind, as though she needed less of a thing the nearer it came to whatever she is truly after. I know her name now, and I find that is very near all I know true of her: not where she came from, not who it is she has lost, not what an old woman alone in a fen means to do with the picked skull of a boar. A remedy, Edda says. I have stopped believing it is a remedy.\n\n" +
+      "So I sent the skull, but I sent word with it, plain: grain, from here, and grain only. We will trade her the herb for our bread as we always have, and gladly. But no more teeth, no more hooves, no more bone. One more asking like the last three and we are done with the reeds, fenbalm or no.\n\n" +
+      "I have not told Edda I drew the line, nor why. She is fond of the old woman, and the fondness is a good thing, and I have no cause yet to spoil it. Only a shape, and a count I keep, and this page.",
   },
   {
     id: "ch2_old_tongue",
