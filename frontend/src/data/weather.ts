@@ -1,6 +1,6 @@
 import { createSignal } from "solid-js";
 import type { Season } from "./seasons";
-import { SEASON_ORDER } from "./seasons";
+import { SEASON_ORDER, HOURS_PER_SEASON, IS_DEV, getGlobalSeason } from "./seasons";
 
 // ─── Weather (ambient mood layer) ──────────────────────────────────────────
 //
@@ -98,6 +98,34 @@ export function setWeatherOverride(w: WeatherType | null) {
 /** The weather to actually render: override wins, else ambient drift. */
 export function resolveWeather(season: Season, progress: number, year: number): WeatherType {
   return override() ?? getAmbientWeather(season, progress, year);
+}
+
+/**
+ * THE single source of truth for what (season, progress, year) the weather is
+ * derived from. Every weather consumer (the sidebar chip, WeatherAmbience, the
+ * RainCanvas, the audio bed) MUST go through this so they can never disagree.
+ * In dev it follows the local game clock; in prod it follows the shared world
+ * clock (`getGlobalSeason`, incl. its year — the year seeds the roll).
+ *
+ * IMPORTANT: the year here is the *weather roll* year (world year in prod), NOT
+ * the settlement-age "Year N" shown in the UI (that's `state.year`, a separate
+ * display value). Feeding `state.year` in here is what desynced the chip from
+ * the rendered/audible weather.
+ */
+export function currentWeatherInfo(
+  season: Season,
+  seasonElapsed: number,
+  year: number,
+): { season: Season; progress: number; year: number } {
+  return IS_DEV
+    ? { season, progress: seasonElapsed / HOURS_PER_SEASON, year }
+    : getGlobalSeason();
+}
+
+/** Convenience: resolve the weather straight from the game clock inputs. */
+export function resolveCurrentWeather(season: Season, seasonElapsed: number, year: number): WeatherType {
+  const i = currentWeatherInfo(season, seasonElapsed, year);
+  return resolveWeather(i.season, i.progress, i.year);
 }
 
 /** Ordered list for menus/dropdowns. */

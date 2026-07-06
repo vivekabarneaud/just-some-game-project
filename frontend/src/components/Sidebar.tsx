@@ -2,8 +2,8 @@ import { Show, createSignal, onMount, onCleanup } from "solid-js";
 import { A, useLocation, useNavigate } from "@solidjs/router";
 import { useGame, CRAFTING_RECIPES } from "~/engine/gameState";
 import { setOpenSettings } from "~/components/SettingsModal";
-import { SEASON_META, HOURS_PER_SEASON, IS_DEV, getGlobalSeason } from "~/data/seasons";
-import { WEATHER_META, WEATHER_TYPES, resolveWeather, weatherOverride, setWeatherOverride } from "~/data/weather";
+import { SEASON_META, IS_DEV } from "~/data/seasons";
+import { WEATHER_META, WEATHER_TYPES, resolveWeather, currentWeatherInfo, weatherOverride, setWeatherOverride } from "~/data/weather";
 import { logout, getUsername } from "~/api/auth";
 import { QUEST_DEFINITIONS, isQuestTriggered } from "~/data/quests";
 import { totalPopulation } from "~/data/citizens";
@@ -449,11 +449,11 @@ export default function Sidebar(props: SidebarProps) {
         <div class="nav-section-title">Season</div>
         {(() => {
           // Season + progress follow the shared world clock in prod, but the
-          // YEAR is the settlement's own age (state.year), not the global
-          // world year — a fresh settlement reads "Year 1", not the server's.
-          const seasonInfo = () => IS_DEV
-            ? { season: state.season, progress: state.seasonElapsed / HOURS_PER_SEASON, year: state.year }
-            : { ...getGlobalSeason(), year: state.year };
+          // Weather source of truth (season/progress + the roll's year). The
+          // displayed "Year N" below is the settlement's OWN age (state.year),
+          // deliberately separate — it must NOT feed the weather roll, or the
+          // chip desyncs from the rendered/audible weather.
+          const seasonInfo = () => currentWeatherInfo(state.season, state.seasonElapsed, state.year);
           return (
             <>
               <div class="season-display">
@@ -471,7 +471,7 @@ export default function Sidebar(props: SidebarProps) {
                     </span>
                   );
                 })()}
-                <span class="season-year">Year {seasonInfo().year}</span>
+                <span class="season-year">Year {state.year}</span>
               </div>
               <div class="season-progress-bar">
                 <div

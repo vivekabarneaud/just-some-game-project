@@ -1,7 +1,6 @@
 import { For, Match, Switch, createMemo, createEffect } from "solid-js";
 import { useGame } from "~/engine/gameState";
-import { HOURS_PER_SEASON, IS_DEV, getGlobalSeason } from "~/data/seasons";
-import { resolveWeather } from "~/data/weather";
+import { resolveCurrentWeather } from "~/data/weather";
 import RainCanvas from "./RainCanvas";
 import SnowCanvas from "./SnowCanvas";
 
@@ -39,12 +38,9 @@ const FOG = makeParticles(3, 14, 22);
 export default function WeatherAmbience() {
   const { state } = useGame();
 
-  const weather = createMemo(() => {
-    const info = IS_DEV
-      ? { season: state.season, progress: state.seasonElapsed / HOURS_PER_SEASON, year: state.year }
-      : getGlobalSeason();
-    return resolveWeather(info.season, info.progress, info.year);
-  });
+  const weather = createMemo(() =>
+    resolveCurrentWeather(state.season, state.seasonElapsed, state.year),
+  );
 
   // Drive the weather UI mood: <html data-weather="rain"> etc. → palette shift.
   createEffect(() => {

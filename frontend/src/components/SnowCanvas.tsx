@@ -1,7 +1,6 @@
 import { onCleanup, onMount, createEffect, createMemo } from "solid-js";
 import { useGame } from "~/engine/gameState";
-import { HOURS_PER_SEASON, IS_DEV, getGlobalSeason } from "~/data/seasons";
-import { resolveWeather } from "~/data/weather";
+import { resolveCurrentWeather } from "~/data/weather";
 
 /**
  * Snow drawn on a <canvas> — soft round flakes that fall slowly and sway on a
@@ -50,12 +49,7 @@ export default function SnowCanvas(props: { variant?: "screen" | "strip" }) {
   const layers = () => (props.variant === "strip" ? LAYERS_STRIP : LAYERS_SCREEN);
   let canvas!: HTMLCanvasElement;
 
-  const weather = () => {
-    const info = IS_DEV
-      ? { season: state.season, progress: state.seasonElapsed / HOURS_PER_SEASON, year: state.year }
-      : getGlobalSeason();
-    return resolveWeather(info.season, info.progress, info.year);
-  };
+  const weather = () => resolveCurrentWeather(state.season, state.seasonElapsed, state.year);
   // Memoized so the render effect only re-runs when the weather TYPE flips to/from
   // snow — not on every game tick (weather() reads seasonElapsed, which changes
   // constantly and would otherwise re-seed all flakes ~1×/sec, causing a "jump").

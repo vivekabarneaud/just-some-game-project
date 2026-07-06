@@ -1584,6 +1584,7 @@ body {
   align-items: center;
   gap: 6px;
   margin: 6px 0;
+  position: relative; /* positioning context for the weather tooltip (see .weather-tip) */
 }
 
 .season-icon {
@@ -4569,7 +4570,9 @@ body {
 /* Storm lightning flash (ready for the future event layer) */
 /* Weather chip in the sidebar season block */
 .weather-chip {
-  position: relative;
+  /* NOT position:relative — the tooltip anchors to .season-display (the full
+     sidebar row) instead, so it fits the narrow, overflow-clipped sidebar
+     width. Anchoring to the chip made a 190px tip overflow + get clipped. */
   display: inline-flex;
   align-items: center;
   gap: 3px;
@@ -4578,11 +4581,14 @@ body {
 }
 .weather-chip .wx-chip-icon { font-size: 0.95rem; line-height: 1; }
 .weather-chip .wx-chip-name { color: var(--text-muted); }
+/* Anchored to .season-display and spanning its width (left:0/right:0), so it
+   always fits inside the sidebar. Opens UPWARD into the roomy controls/nav area
+   (the row sits low in the sidebar; opening down would hit the clipped bottom). */
 .weather-chip .weather-tip {
   position: absolute;
-  top: 135%;
+  bottom: calc(100% + 6px);
   left: 0;
-  width: 190px;
+  right: 0;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 6px;
@@ -4592,7 +4598,7 @@ body {
   line-height: 1.4;
   opacity: 0;
   pointer-events: none;
-  transform: translateY(-4px);
+  transform: translateY(4px);
   transition: opacity 140ms ease, transform 140ms ease;
   z-index: 50;
 }

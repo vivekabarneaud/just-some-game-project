@@ -1,7 +1,6 @@
 import { onCleanup, onMount, createEffect, createMemo } from "solid-js";
 import { useGame } from "~/engine/gameState";
-import { HOURS_PER_SEASON, IS_DEV, getGlobalSeason } from "~/data/seasons";
-import { resolveWeather } from "~/data/weather";
+import { resolveCurrentWeather } from "~/data/weather";
 
 /**
  * Rain drawn on a <canvas> — a particle system with parallax depth, a wind
@@ -56,12 +55,7 @@ export default function RainCanvas(props: { variant?: "screen" | "strip" }) {
   const layers = () => (props.variant === "strip" ? LAYERS_STRIP : LAYERS_SCREEN);
   let canvas!: HTMLCanvasElement;
 
-  const weather = () => {
-    const info = IS_DEV
-      ? { season: state.season, progress: state.seasonElapsed / HOURS_PER_SEASON, year: state.year }
-      : getGlobalSeason();
-    return resolveWeather(info.season, info.progress, info.year);
-  };
+  const weather = () => resolveCurrentWeather(state.season, state.seasonElapsed, state.year);
   // Memoized weather TYPE so the render effect only re-runs on an actual weather
   // change, not every tick (weather() reads seasonElapsed) — otherwise the drop
   // set re-seeds ~1×/sec.

@@ -1,7 +1,6 @@
 import { onCleanup, onMount } from "solid-js";
 import { useGame } from "~/engine/gameState";
-import { HOURS_PER_SEASON, IS_DEV, getGlobalSeason } from "~/data/seasons";
-import { resolveWeather } from "~/data/weather";
+import { resolveCurrentWeather } from "~/data/weather";
 import { ambientVolume, masterVolume, isMuted } from "~/engine/sounds";
 
 /**
@@ -33,12 +32,7 @@ interface Bed {
 export default function AmbientNature() {
   const { state } = useGame();
 
-  const weather = () => {
-    const info = IS_DEV
-      ? { season: state.season, progress: state.seasonElapsed / HOURS_PER_SEASON, year: state.year }
-      : getGlobalSeason();
-    return resolveWeather(info.season, info.progress, info.year);
-  };
+  const weather = () => resolveCurrentWeather(state.season, state.seasonElapsed, state.year);
   const isStormy = () => {
     const w = weather();
     return w === "storm" || w === "unnatural_storm";
