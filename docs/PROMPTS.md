@@ -855,3 +855,12 @@ A tiny drawstring linen pouch, small and slack, lying half-empty on dark wood wi
 
 **Strawberry seed** → `frontend/public/images/icons/strawberries_seed.png`
 A tiny drawstring linen pouch, small and slack, lying half-empty on dark wood, a scant pinch of tiny golden strawberry seeds beside it and one small dried red strawberry showing its seeded surface — just a few seeds, sparse, realistic digital painting, dark moody background, warm candlelight from one side, game icon style, square composition, no text --ar 1:1 --no pile, heap, mound, overflowing, full sack, abundance, many seeds
+
+---
+
+## Traveling Merchants — Portraits
+
+Half-body character portraits, same style as the adventurer portraits (square, dark moody, game-icon). Set the resulting URL as the merchant's `portrait` in `frontend/src/data/merchants.ts` (replaces the emoji header).
+
+**Cobb — Dominion road-trader** → `frontend/public/images/merchants/cobb.png`
+Half-body portrait of a short, well-fed middle-aged Dominion road peddler with a comfortable round belly, balding with a fringe of grey-brown hair, ruddy cheeks and a shrewd, good-humored expression, plain worn travel clothes with a leather satchel and a heavy coin purse at his belt, a mule's laden pack just visible behind his shoulder, warm and a little sly, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
