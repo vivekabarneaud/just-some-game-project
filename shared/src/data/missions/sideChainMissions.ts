@@ -147,7 +147,9 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 1,
     tags: ["combat", "escort"],
-    encounters: [{ enemyId: "bandit_thug", count: 3 }],
+    // Hired toughs over a card debt (Dominion Toughs), not desperate displaced
+    // farmers — fits the fiction, and they're weaker in a pack.
+    encounters: [{ enemyId: "dominion_thug", count: 3 }],
     requires: { story: "story_1_scouting" },
     unique: true,
   },
