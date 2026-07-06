@@ -1765,10 +1765,12 @@ function checkMerchantVisits(s: GameState): void {
  *  tavern (reputation) brings him sooner. Game-hour countdowns, so it behaves
  *  in dev fast-mode and prod alike. Mutates the draft; call once per tick. */
 function updateMerchantRecurrence(s: GameState): void {
-  const firstDone = (s.merchantVisitsFired ?? []).includes("dominion_peddler_first");
-  const hasMarket = (s.buildings.find((b) => b.buildingId === "marketplace")?.level ?? 0) >= 1;
-  const hasTavern = (s.buildings.find((b) => b.buildingId === "tavern")?.level ?? 0) >= 1;
-  if (!firstDone || !hasMarket || !hasTavern) return; // recurrence not active yet
+  // Recurrence begins only once the player has escorted Cobb's first real caravan
+  // in (merchant_escort_first — the_returning_trader chain). That escort requires
+  // both a marketplace and a tavern, so completing it implies the settlement can
+  // host his lingering stall.
+  const escortDone = (s.completedUniqueMissionIds ?? []).includes("merchant_escort_first");
+  if (!escortDone) return; // recurrence not active yet
 
   const now = Date.now();
 

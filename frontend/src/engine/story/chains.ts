@@ -176,4 +176,16 @@ export const STORY_CHAINS: StoryChain[] = [
       api.fireChronicle("ch1_woodcutter");       // the reveal
     },
   },
+  // ── The Returning Trader — Cobb keeps his word ──
+  // His first pass (the modal) fired at TH2. Once the settlement can host him
+  // (marketplace + tavern), the escort mission "The First Merchant" appears; on
+  // completing it, the road is open — a beat modal fires, and Cobb's recurring
+  // marketplace stall begins (see updateMerchantRecurrence, gated on that mission).
+  {
+    id: "the_returning_trader",
+    run: (api) => {
+      api.awaitMissionDone("merchant_escort_first");
+      api.fireChronicleModal("ch1_cobb_returns");
+    },
+  },
 ];

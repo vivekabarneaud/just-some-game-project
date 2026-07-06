@@ -208,4 +208,24 @@ describe("real chains", () => {
     expect(log).toEqual(["char_019"]);
     expect(s.chronicleEntriesFired).toEqual(["ch1_woodcutter"]);
   });
+
+  it("the_returning_trader fires the return beat once the escort mission is done", () => {
+    const chain = STORY_CHAINS.find((c) => c.id === "the_returning_trader")!;
+    const s = makeState();
+
+    // Escort not done — nothing yet.
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual([]);
+    expect(s.pendingChronicleBeats).toEqual([]);
+
+    // Escort completed — the "road opens" beat fires as a modal.
+    s.completedUniqueMissionIds = ["merchant_escort_first"];
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual(["ch1_cobb_returns"]);
+    expect(s.pendingChronicleBeats).toEqual(["ch1_cobb_returns"]);
+
+    // Replay — no double fire.
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.pendingChronicleBeats).toEqual(["ch1_cobb_returns"]);
+  });
 });

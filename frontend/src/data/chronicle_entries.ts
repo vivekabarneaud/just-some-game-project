@@ -256,6 +256,17 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "I told her she could stay. She nodded, once, and went back to the mill. Gareth looked glad, and tried to hide it. We have a feller now, the finest I have ever seen, and a great many questions I have decided not to ask. The wood was her thanks. I understood that much, at least.",
   },
   {
+    id: "ch1_cobb_returns",
+    chapterId: "ch1",
+    order: 8.5,
+    title: "The road opens",
+    teaser: "Cobb came back, and not with two mules. A wagon, an axle groaning with goods, and the plain fact of it: someone judged the way to us worth the risk.",
+    fullText:
+      "Cobb came back. I had half thought the wagon was a boast, the kind a trader makes to be polite about a place he does not expect to see again. It was not a boast. The team met him at the boundary marker and brought him in whole, axle groaning, and he climbed down looking pleased with himself and the world.\n\n" +
+      "He walked the market we built for him, and looked a long moment at the tavern, and said little, which for Cobb is a kind of ceremony. Then, climbing back up to his seat: \"You will see me again. I have told others.\"\n\n" +
+      "That last part is what I keep turning over. Not the goods. The plain fact that a man weighed the road to us against the risk of it and decided we were worth the wheels, and then said so to other men. We are on someone's map now: a place people come to, and not only a clearing we are holding against the dark. I did not expect to feel it so much.",
+  },
+  {
     id: "ch2_old_tongue",
     chapterId: "ch2",
     order: 1,

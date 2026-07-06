@@ -474,7 +474,14 @@ function GardenCard(props: { garden: PlayerGarden }) {
   return (
     <Show when={!locked()} fallback={
       <div class="building-card unbuilt-farm-card garden-locked-card" style={{ cursor: "default", position: "relative", "text-align": "center", opacity: 0.85 }}>
-        <div style={{ "font-size": "2.4rem", "margin-bottom": "6px", filter: "grayscale(1)", opacity: 0.55 }}>🌱</div>
+        <div class="building-card-image">
+          <img
+            src="https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/empty_garden.png"
+            alt=""
+            loading="lazy"
+            style={{ filter: "grayscale(0.7) brightness(0.55)" }}
+          />
+        </div>
         <div class="building-card-title" style={{ "letter-spacing": "0.15em" }}>??? Garden</div>
         <div class="building-card-desc" style={{ "margin-top": "6px", color: "var(--text-muted)", "font-style": "italic" }}>
           A patch of bare earth, waiting on a seed we do not have yet. Some crops must be found or brought home before they can be sown here.

@@ -83,7 +83,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
 {
     id: "merchant_escort_first",
     name: "The First Merchant",
-    description: "The opinionated trader kept her word. She is coming back up the road, and not with two mules this time: a real load, the first merchant to judge the way to us worth the risk. Meet her at the boundary marker and bring her in whole. The cargo matters less than what it means. We are on someone's map now.",
+    description: "Cobb kept his word. He is coming back up the road, and not with two mules this time: a wagon, a real load, the first merchant to judge the way to us worth the risk. Meet him at the boundary marker and bring him in whole. The cargo matters less than what it means. We are on someone's map now.",
     icon: "💰",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/merchant_escort.png",
     slots: [{ class: "any" }, { class: "any" }],
@@ -94,7 +94,10 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     minGuildLevel: 1,
     tags: ["outdoor", "combat"],
     encounters: [{ enemyId: "bandit_thug", count: 2 }],
-    requires: { building: "marketplace" },
+    // Fires once the settlement can actually host him — a market to unload in and
+    // a tavern to sleep over. Escorting him in is what starts his recurring stall
+    // (see the_returning_trader chain + updateMerchantRecurrence).
+    requires: { buildings: ["marketplace", "tavern"] },
     unique: true,
   },
 {

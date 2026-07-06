@@ -401,6 +401,10 @@ function meetsRequirements(
     const built = ctx.buildings?.some((b) => b.buildingId === req.building && b.level > 0);
     if (!built) return false;
   }
+  if (req.buildings) {
+    const allBuilt = req.buildings.every((id) => ctx.buildings?.some((b) => b.buildingId === id && b.level > 0));
+    if (!allBuilt) return false;
+  }
   if (req.pen) {
     const hasPen = ctx.pens?.some((p) => p.animal === req.pen && p.level > 0);
     if (!hasPen) return false;
