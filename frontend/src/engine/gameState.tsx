@@ -3914,7 +3914,13 @@ export function GameProvider(props: ParentProps) {
               const combatResult = (isExped || !template)
                 ? null
                 : (am.prerolledCombat ?? (template.encounters?.length ? simulateCombat(template, team, am.adventurerSupplies) : null));
-              const success = isExped
+              // Discovery missions succeed on the objective (what the team learns)
+              // even if the fight is lost — the combat still ran, so survivors
+              // come home wounded via the HP block below, but the mission completes
+              // and the death block is skipped (a scripted retreat, no permadeath).
+              const success = template?.discoveryMission
+                ? true
+                : isExped
                 ? !isTeamWiped(team, am.expeditionHp ?? {})
                 : (combatResult ? combatResult.victory : Math.random() * 100 < am.successChance);
 

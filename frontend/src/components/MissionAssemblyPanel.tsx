@@ -380,6 +380,15 @@ export default function MissionAssemblyPanel(props: Props) {
     const deathCounts: Record<string, number> = {};
     for (const a of snapshot) deathCounts[a.id] = 0;
 
+    // Discovery missions always succeed the objective (surviving to report),
+    // even though the fight itself is unwinnable — so show it as a sure thing
+    // with no death risk. The team returns wounded (handled at resolution).
+    if (fm.discoveryMission) {
+      setSuccessPct(100);
+      setDeathRisks({});
+      return;
+    }
+
     if (isExpedition(fm)) {
       // Expedition Monte Carlo. resolveFullExpedition runs the whole event
       // chain (combat, treasure, traps, encounters) and returns final HP +
@@ -1397,7 +1406,12 @@ export default function MissionAssemblyPanel(props: Props) {
         {/* Model-C reframe: a lost combat mission is a retreat, not a wipe — so
             a low success % paired with a low perma-death % is expected, not a
             bug. Expeditions are lethal by design and don't get this note. */}
-        <Show when={(freshMission().encounters?.length ?? 0) > 0 && !isExpedition(freshMission())}>
+        <Show when={freshMission().discoveryMission}>
+          <div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "margin-top": "4px", "font-style": "italic" }}>
+            This is a scouting run, not a battle. The team cannot beat what does not bleed, but they will bring the knowledge home — wounded, but alive.
+          </div>
+        </Show>
+        <Show when={(freshMission().encounters?.length ?? 0) > 0 && !isExpedition(freshMission()) && !freshMission().discoveryMission}>
           <div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "margin-top": "4px", "font-style": "italic" }}>
             On a loss the team retreats wounded — perma-death stays a rare, unlucky outcome, not the price of failing.
           </div>

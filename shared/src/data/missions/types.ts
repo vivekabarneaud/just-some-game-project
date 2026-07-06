@@ -69,6 +69,12 @@ export interface MissionTemplate {
   image?: string; // optional mission illustration
   encounters?: MissionEncounter[]; // enemies faced during the mission
   guaranteed?: boolean; // always ~98% success regardless of stats
+  /** Discovery mission: the objective is what the team LEARNS, not winning the
+   *  fight. The combat still runs (they come home wounded), but a lost fight
+   *  still completes the mission, and no one dies (a scripted retreat). Used for
+   *  story_3 — the team meets the ghosts, steel does nothing, they barely get the
+   *  knowledge home; Niamh's binding is story_4's payoff. */
+  discoveryMission?: boolean;
   /** One-time mission. Once completed successfully it never returns to the
    *  board (its id lands in completedUniqueMissionIds). Use for personal /
    *  narrative beats (a rescue, a found keepsake, a neighbour's plea) where
