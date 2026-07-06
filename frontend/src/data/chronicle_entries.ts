@@ -267,6 +267,28 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "That last part is what I keep turning over. Not the goods. The plain fact that a man weighed the road to us against the risk of it and decided we were worth the wheels, and then said so to other men. We are on someone's map now: a place people come to, and not only a clearing we are holding against the dark. I did not expect to feel it so much.",
   },
   {
+    id: "ch1_reeds_voice",
+    chapterId: "ch1",
+    order: 9,
+    title: "The voice in the reeds",
+    teaser: "The gatherers brought back the fenbalm and a strange tale: an old woman at the water's edge who did not run from armed men, and offered a bargain.",
+    fullText:
+      "The gatherers came back from the fen whole, the fenbalm cut and the adders turned away, and one of them with a story I have turned over since. There is an old woman living out past the reeds. She did not run from armed men. She came to the edge of the firm ground and offered a bargain, plain as a market-wife: leave a little something for her at the flat stone by the water, and the snakes will let my people cut in peace.\n\n" +
+      "The eldest of the gatherers says the village traded with her once, before our time, and thought nothing of it, until the beasts started dying. She would not say more than that.\n\n" +
+      "I do not much like owing a marsh. But armed men every time the winter fevers come is a dearer price than a handful of grain left on a stone, and Edda wants her fenbalm. We will try the old woman's terms. I will keep my eyes open.",
+  },
+  {
+    id: "ch1_reeds_price",
+    chapterId: "ch1",
+    order: 9.1,
+    title: "What the reeds cost",
+    teaser: "We left the offering and the gatherers walked safe. They also came home having told a stranger more than I would have liked.",
+    fullText:
+      "We left what she asked at the flat stone, and it was as she promised: the gatherers walked the fen and cut their fenbalm, and not one adder rose at them. A fair trade, on the face of it.\n\n" +
+      "Two things sit with me, though. The first is small. What she asked for this time was not quite herbs: a coin, a comb of beeswax, and one thing the gatherer would not name to me and did not like to carry. The list drifts, is what I am saying.\n\n" +
+      "The second is that they came home having said too much. She gave them tea, warm and good, and kept them talking by her fire, and somewhere in the ease of it they had told her of the harvest, and the walls, and, I am told, the children by name. They did not mean to. They could not quite say why they had. A kind old woman alone in a marsh, curious about the folk who send her grain: that is all it need be. I find I am not certain it is all it is.",
+  },
+  {
     id: "ch2_old_tongue",
     chapterId: "ch2",
     order: 1,

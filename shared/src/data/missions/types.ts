@@ -69,6 +69,10 @@ export interface MissionTemplate {
   image?: string; // optional mission illustration
   encounters?: MissionEncounter[]; // enemies faced during the mission
   guaranteed?: boolean; // always ~98% success regardless of stats
+  /** Pin this mission to the board whenever eligible (like sideChain missions),
+   *  but WITHOUT showing a chain banner — for one-off hooks that should reliably
+   *  appear yet read as an ordinary errand (e.g. the bog-witch front). */
+  pinned?: boolean;
   /** Discovery mission: the objective is what the team LEARNS, not winning the
    *  fight. The combat still runs (they come home wounded), but a lost fight
    *  still completes the mission, and no one dies (a scripted retreat). Used for

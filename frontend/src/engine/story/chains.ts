@@ -188,4 +188,18 @@ export const STORY_CHAINS: StoryChain[] = [
       api.fireChronicleModal("ch1_cobb_returns");
     },
   },
+  // ── The bog witch — opening drip (mystery only; the dark descent is deferred).
+  // marsh_clearing (an ordinary herb-errand) → a voice in the reeds offers a
+  // bargain; the barter (reeds_bargain) → the offering drifts + she mines the
+  // gatherers for the settlement's secrets. Folk voice, two-track; the horror
+  // (the Cabin, the letters, the child) comes later. See cast/aldith-the-bog-witch.md.
+  {
+    id: "the_bog_witch",
+    run: (api) => {
+      api.awaitMissionDone("marsh_clearing");
+      api.fireChronicleModal("ch1_reeds_voice");
+      api.awaitMissionDone("reeds_bargain");
+      api.fireChronicleModal("ch1_reeds_price");
+    },
+  },
 ];

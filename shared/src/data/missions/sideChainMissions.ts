@@ -130,6 +130,31 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     encounters: [{ enemyId: "marsh_adder", count: 3 }],
     requires: { story: "story_1_scouting" },
     unique: true,
+    // Pinned so the hook reliably appears, but WITHOUT a chain banner — it must
+    // read as an ordinary herb-errand. The_bog_witch chain fires the beat on it.
+    pinned: true,
+  },
+  // ── The bog-witch front, step 2: the bargain. After clearing the adders once,
+  //    a voice in the reeds offered terms. Bring the offering and the gatherers
+  //    walk safe — a non-combat barter. (The_bog_witch chain fires the beats.) ──
+  {
+    id: "reeds_bargain",
+    name: "The Reeds' Price",
+    description: "The old woman in the reeds kept her word before, so Edda says: leave what she asked at the flat stone by the water, and the adders will let the gatherers cut fenbalm in peace. A strange arrangement, and I do not much like owing a marsh. But it is cheaper than sending armed men every time the fevers come. Take her offering in, leave it where she said, and bring the herb home. No blades needed, if she is honest.",
+    icon: "🕯️",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/clear_marshes.png",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 600,
+    deployItems: [{ resource: "wheat", amount: 20 }],
+    rewards: [{ resource: "fenbalm", amount: 5 }, { resource: "nettle", amount: 3 }],
+    deployCost: 3,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["outdoor"],
+    guaranteed: true,
+    requires: { missionDone: "marsh_clearing" },
+    unique: true,
+    sideChain: { id: "the_bog_witch", name: "The Reeds" },
   },
 
   // ── Recruitment quest: save the hunted gambler → Edmund + Elspeth join ──

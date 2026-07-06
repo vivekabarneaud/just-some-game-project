@@ -456,7 +456,7 @@ export function eligiblePinnedMissions(ctx: MissionBoardContext): MissionTemplat
   const { guildLevel, maxDifficulty = 5 } = ctx;
   const completedUnique = new Set(ctx.completedUniqueMissionIds ?? []);
   return ALL_MISSIONS.filter((m) =>
-    m.unique && !!m.sideChain &&
+    m.unique && (!!m.sideChain || !!m.pinned) &&
     !m.staged &&
     m.minGuildLevel <= guildLevel &&
     m.difficulty <= maxDifficulty &&

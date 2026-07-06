@@ -228,4 +228,22 @@ describe("real chains", () => {
     runStoryChains(s, [chain], makeDeps(s, 0, []));
     expect(s.pendingChronicleBeats).toEqual(["ch1_cobb_returns"]);
   });
+
+  it("the_bog_witch: bargain beat after clearing, price beat after the barter", () => {
+    const chain = STORY_CHAINS.find((c) => c.id === "the_bog_witch")!;
+    const s = makeState();
+
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual([]);
+
+    // Cleared the adders + got fenbalm — the bargaining voice beat lands.
+    s.completedUniqueMissionIds = ["marsh_clearing"];
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual(["ch1_reeds_voice"]);
+
+    // Paid the offering (the barter) — the "what it cost" beat lands.
+    s.completedUniqueMissionIds = ["marsh_clearing", "reeds_bargain"];
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual(["ch1_reeds_voice", "ch1_reeds_price"]);
+  });
 });
