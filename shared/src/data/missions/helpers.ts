@@ -397,8 +397,9 @@ export interface MissionBoardContext {
   rosterClasses?: string[];
 }
 
-/** Check whether a mission's requirements are met */
-function meetsRequirements(
+/** Check whether a mission's requirements are met. Exported for unit tests;
+ *  also the gate behind generateMissionBoard / eligiblePinnedMissions. */
+export function meetsRequirements(
   req: MissionRequirements | undefined,
   ctx: MissionBoardContext,
 ): boolean {

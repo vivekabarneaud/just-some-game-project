@@ -185,3 +185,26 @@ Cats are a through-line now: Nettle's cat, Tomas's cat (founder), the `cat_paren
 2. **Plague system** — builds on workers, adds Cat Shelter and Apothecary
 3. **Cat Shelter** — new building, cosmetic cats on overview
 4. **Cure recipes** — new Alchemy Lab recipes for plague cures
+
+---
+
+## Worker-assignment UX + named-staff buffs (design, July 2026)
+
+Fleshes out the staffing UX on top of the worker system above. Two flavors of staffing, kept distinct:
+
+**1. Quantity (raw boost).** Assigning ordinary citizens to a building increases/accelerates its output (e.g. workers at the Woodcutting Shop speed up crafts). Assign/unassign buttons per building. Unassign must work everywhere — **including the Tavern**, which today auto-staffs from the shared adult pool (no manual control yet).
+
+**2. Named-staff buff.** A specific cast member assigned to a building grants a *qualitative* bonus **while they're home** (ties to loyalty / while-home state, and to the tavern-conversation web). Example: **Elspeth at the Alchemy Lab → bonus potions** while home. This is the more interesting layer; the founder pre-assignments below are really this kind.
+
+**Founders pre-assigned to "their" buildings** (portraits shown, locked — cannot be unassigned; seeing the cast at work is the point):
+
+| Building | Founder(s) |
+| --- | --- |
+| Forager's Hut | Edda + Nell |
+| Hunting Camp | Brenna + Gareth |
+| Fishing Hut | Godric + the kid *(Godric fishes at first — crews the early hut without spending a scarce citizen)* |
+| Lumber Mill → Woodcutting Shop | Jory *(follow him to the shop when he moves; he can work alone)* |
+| Quarry | Tomas |
+| Kitchens / Alchemy Lab | none by default — **the Lord cooks and brews a little himself**; assigned staff then give a buff (see Elspeth above) |
+
+**Scope guard (load-bearing):** early food must NOT be gated behind staffing. Early game there are no spare citizens and food is the growth bottleneck (it's what unlocks the Fishing Hut → population). So the shape is: founders pre-assigned + *optional* extra workers as an accelerator, never a requirement. Ship on 2-3 buildings first; don't wire the whole map at once. See memory `project_worker_assignment`.

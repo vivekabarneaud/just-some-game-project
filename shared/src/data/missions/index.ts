@@ -76,6 +76,7 @@ export {
   rollPermanentDeaths,
   generateMissionBoard,
   eligiblePinnedMissions,
+  meetsRequirements,
   getMissionBoardSize,
   getExpeditionSlotCount,
   type MissionBoardContext,
