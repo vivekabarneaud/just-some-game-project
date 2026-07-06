@@ -122,3 +122,20 @@ traffic scales with how welcoming/prosperous the settlement is.
     "for you" target) would need a nullable `targetSettId` on TradeOffer + a
     post-to-friend picker. Not built; the seller-is-a-friend model covers the
     early trusted-trickle intent for now.
+
+## Merchant cast (July 2026)
+
+- **Cobb** — independent Dominion road-trader (NOT from Greyford). First passing
+  visit at TH2 (modal); recurring stall after the escort (`merchant_escort_first`).
+- **Maren** — Greyford grain-carter. No first-visit modal: the Road to Greyford
+  (`caravan_guard`) IS her introduction, and completing it opens a recurring
+  downriver grain run that **fills the gap between Cobb's visits**. Grain to
+  spare, wants our stone. BUILT July 2026 (multi-merchant recurrence: per-merchant
+  `merchantSchedule`, one stall at a time so due merchants queue + naturally offset).
+- **Tessoria trader (future)** — a merchant from the CAPITAL / the player's home
+  region (Ashwick origin is Dominion; Tessoria is the capital). Unlocked at HIGH
+  TAVERN REPUTATION: word of the waystation reaches the capital. A "someone from
+  home found us" beat. Not built.
+
+Recurrence is data-driven: a merchant recurs if it has `returnUnlock: { missionDone }`
+(or, later, a reputation gate for Tessoria). Add merchants by adding entries.

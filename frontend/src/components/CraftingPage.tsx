@@ -88,10 +88,10 @@ const STAT_LABELS: Record<string, string> = {
  *  queue lists so the visual stays consistent. Building tools don't have a
  *  recipe-to-image mapping yet — they fall through to the emoji path. */
 function recipeQueueIcon(recipe: CraftingRecipe, size: number = 24): JSX.Element {
-  const item = getItemByRecipe(recipe.id);
-  if (item?.image) {
+  const img = recipe.image ?? getItemByRecipe(recipe.id)?.image;
+  if (img) {
     return <img
-      src={item.image}
+      src={img}
       alt=""
       style={{
         width: `${size}px`, height: `${size}px`,

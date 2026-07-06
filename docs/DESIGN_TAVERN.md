@@ -60,9 +60,13 @@ and city unlock the higher levels).
   good table cheers citizens and draws travelers), capped by tavern level.
 - The menu is also the **dish list for tavern conversations** (§4) — you pick a
   dish when inviting someone, and their food preference feeds loyalty.
-- **Does serving dishes drain cooked-food stock?** Early: **no** — the menu is
-  "what's available to feature," not a consumption sink, so a nice table isn't
-  punished. Revisit if it trivializes food.
+- **Does serving dishes drain cooked-food stock?** REVISED (July 2026): **yes.**
+  Serving a dish consumes it from the kitchen's cooked-meal stock over time
+  (scaled by occupancy — a full house eats more), and a dish that's **out of
+  stock can't be featured** (greyed on the menu). This makes the menu a real
+  choice (feed travelers vs feed the settlement) and ties the tavern to the
+  kitchen loop. Consumption rate + whether it's per-guest or a flat trickle is
+  open. NOT yet built — see the tavern-economy pass below.
 
 ## 3. Occupancy — traffic from prosperity
 
@@ -141,7 +145,7 @@ strongest-backstory premades first; premade cast only.
   ceiling, merchant frequency/reach, named guests).
 - **Travelers: abstract or faces?** Start abstract (gold + occupancy readout);
   named passers-through come later.
-- Menu **food-drain** — default off early.
+- Menu **food-drain** — REVISED to ON (serving consumes cooked-meal stock; out-of-stock dishes can't be featured). See §2 + the tavern-economy pass; rate/model still open.
 - **Rooms as adventurer rest?** A bed could aid between-mission recovery (ties
   to `project_adventurer_recovery`). Open, not locked.
 
@@ -152,3 +156,26 @@ strongest-backstory premades first; premade cast only.
 - `project_marketplace_rework` — economy / rapport as a price counter-lever.
 - `project_adventurer_recovery` — possible room-rest tie-in.
 - `DESIGN_WORKERS_PLAGUES` — the worker-staffing system the tavern/garrison assignment is the named exception to.
+
+## Tavern-economy pass (pending, July 2026)
+
+Playtest raised two coupled questions about how occupancy reads and behaves:
+
+- **Occupancy is currently an abstract average fill (0-1)** computed instantly
+  from happiness + menu + tier + pricing, capped by the reputation ceiling and
+  scaled by staffing. It drives passive gold continuously. There is **no
+  temporal "a guest arrives and stays"** model, so it jumps the moment you
+  assign a server, and at 1 room a "50% occupancy" with a rounded "1 bed filled"
+  reads as contradictory.
+- **Two ways to resolve it:**
+  1. **Keep the average model, fix the presentation** — show occupancy as an
+     "average fill / how busy" rate + the gold/day it yields; drop the misleading
+     discrete "beds filled" integer at low room counts.
+  2. **Discrete guests** — travelers actually arrive and depart over time (a bed
+     is occupied or not; gold per guest-night). More immersive, answers "how long
+     until a guest," but a bigger sim change (arrival cadence, guest lifetime).
+- **Meals consume stock** (see §2 revision): serving draws down cooked-meal
+  stock scaled by how busy the tavern is; out-of-stock dishes can't be featured.
+
+These interlock (guests eat what's served), so build them as one pass once the
+model (average-with-better-UI vs discrete guests) is chosen.

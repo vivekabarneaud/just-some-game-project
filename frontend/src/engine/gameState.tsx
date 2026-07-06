@@ -601,11 +601,12 @@ export interface GameState {
   /** The merchant currently visiting (drives the first-visit modal); undefined when none. */
   pendingMerchantVisitId?: string;
   /** A recurring merchant's lingering stall at the marketplace (return visits).
-   *  `expiresAt` is the next-morning (3AM-UTC) timestamp the stall closes at. */
+   *  `expiresAt` is the next-morning (3AM-UTC) timestamp the stall closes at.
+   *  One stall at a time; others queue until it closes. */
   merchantStall?: { merchantId: string; expiresAt: number; takenOffers: string[] };
-  /** Timestamp of the next scheduled return visit (a 3AM-UTC boundary);
-   *  undefined until recurrence starts. */
-  merchantNextArrivalAt?: number;
+  /** Per-merchant next-arrival timestamps (3AM-UTC boundaries) for recurring
+   *  visits; keyed by merchant id. Absent until that merchant's recurrence starts. */
+  merchantSchedule?: Record<string, number>;
   /** Narrative events queued for the player to read; cleared on dismiss. */
   pendingEvents: string[];
   /** Quest IDs the player has already glanced at since they became claimable.
@@ -1750,6 +1751,7 @@ function checkMerchantVisits(s: GameState): void {
   if (s.pendingMerchantVisitId) return; // a visit is already open
   const th = getTownHallLevel(s.buildings);
   for (const m of TRAVELING_MERCHANTS) {
+    if (!m.requires) continue; // no first-passing-visit (e.g. mission-unlocked merchants)
     if ((s.merchantVisitsFired ?? []).includes(m.id)) continue;
     if (m.requires.thLevel && th < m.requires.thLevel) continue;
     s.merchantVisitsFired = s.merchantVisitsFired ?? [];
@@ -1765,38 +1767,45 @@ function checkMerchantVisits(s: GameState): void {
  *  tavern (reputation) brings him sooner. Game-hour countdowns, so it behaves
  *  in dev fast-mode and prod alike. Mutates the draft; call once per tick. */
 function updateMerchantRecurrence(s: GameState): void {
-  // Recurrence begins only once the player has escorted Cobb's first real caravan
-  // in (merchant_escort_first — the_returning_trader chain). That escort requires
-  // both a marketplace and a tavern, so completing it implies the settlement can
-  // host his lingering stall.
-  const escortDone = (s.completedUniqueMissionIds ?? []).includes("merchant_escort_first");
-  if (!escortDone) return; // recurrence not active yet
+  // Each recurring merchant's visits begin once their unlock mission is done
+  // (Cobb: the escort; Maren: the Road to Greyford). They return every 2-3 days
+  // (reputation shortens it), keying off the daily 3AM-UTC boundary. One stall
+  // at a time — a second due merchant queues until the first leaves, which
+  // naturally offsets them so visits fill the gaps between each other.
+  const done = new Set(s.completedUniqueMissionIds ?? []);
+  const active = TRAVELING_MERCHANTS.filter((m) => m.returnUnlock && done.has(m.returnUnlock.missionDone));
+  if (active.length === 0) return;
 
   const now = Date.now();
+  s.merchantSchedule = s.merchantSchedule ?? {};
+  // Newly-active merchants first return the next morning.
+  for (const m of active) {
+    if (s.merchantSchedule[m.id] === undefined) s.merchantSchedule[m.id] = next3amUTC(now);
+  }
 
-  // Close a stall once its morning has come.
+  // Close an expired stall; if one's still open, everyone else waits.
   if (s.merchantStall) {
     if (now >= s.merchantStall.expiresAt) s.merchantStall = undefined;
-    else return; // still open
+    else return;
   }
-  // First return: next morning after conditions were met.
-  if (s.merchantNextArrivalAt === undefined) {
-    s.merchantNextArrivalAt = next3amUTC(now);
-    return;
+
+  // The earliest merchant whose arrival is due takes the (now free) stall.
+  const due = active
+    .filter((m) => (s.merchantSchedule![m.id] ?? Infinity) <= now)
+    .sort((a, b) => s.merchantSchedule![a.id] - s.merchantSchedule![b.id]);
+  if (due.length === 0) return;
+
+  const m = due[0];
+  const scheduled = s.merchantSchedule[m.id];
+  const expiry = next3amUTC(scheduled);
+  if (now < expiry) {
+    s.merchantStall = { merchantId: m.id, expiresAt: expiry, takenOffers: [] };
   }
-  // Arrival due? Open a stall that lingers until the following morning.
-  if (now >= s.merchantNextArrivalAt) {
-    const expiry = next3amUTC(s.merchantNextArrivalAt);
-    if (now < expiry) {
-      s.merchantStall = { merchantId: "dominion_peddler_first", expiresAt: expiry, takenOffers: [] };
-    }
-    // Schedule the next visit 2-3 days on (reputation shortens it), skipping any
-    // windows fully in the past (e.g. after a long absence).
-    const intervalMs = merchantIntervalDays(s.tavernReputation ?? 0) * 86_400_000;
-    let nextAt = s.merchantNextArrivalAt + intervalMs;
-    while (next3amUTC(nextAt) <= now) nextAt += intervalMs;
-    s.merchantNextArrivalAt = nextAt;
-  }
+  // Reschedule this merchant 2-3 days on, skipping windows fully in the past.
+  const intervalMs = merchantIntervalDays(s.tavernReputation ?? 0) * 86_400_000;
+  let nextAt = scheduled + intervalMs;
+  while (next3amUTC(nextAt) <= now) nextAt += intervalMs;
+  s.merchantSchedule[m.id] = nextAt;
 }
 
 /** Run the narrative-event evaluator against a state draft. Fires any events

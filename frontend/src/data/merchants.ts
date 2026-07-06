@@ -23,17 +23,24 @@ export interface TravelingMerchant {
   culture: string;     // "Dominion road-trader"
   icon: string;        // emoji header until a portrait is wired
   portrait?: string;   // optional R2 portrait URL (falls back to `icon`)
-  /** Scene text (the Lord's voice) — the left panel. */
-  narrative: string;
-  /** Why he will not stay, and what would bring him back — the left panel's close. */
-  parting: string;
-  offers: MerchantOffer[];
-  /** The "wagon, not a mule" load shown at the marketplace on RETURN visits. */
+  /** Scene text (the Lord's voice) — the left panel of the FIRST passing visit.
+   *  Omit for merchants who have no first-visit modal (they go straight to a
+   *  recurring stall, e.g. unlocked by a mission). */
+  narrative?: string;
+  /** Why he will not stay, and what would bring him back — first-visit modal. */
+  parting?: string;
+  /** Wares for the first passing visit (modal). Omit if no first visit. */
+  offers?: MerchantOffer[];
+  /** The wares shown at the marketplace on RETURN visits (the recurring stall). */
   returnOffers?: MerchantOffer[];
   /** Short line for the marketplace stall on a return visit. */
   stallGreeting?: string;
-  /** The first (passing-through) visit fires once this condition is met. */
-  requires: { thLevel?: number };
+  /** The first (passing-through) visit fires once this th_level is reached.
+   *  Omit for merchants with no first-visit beat. */
+  requires?: { thLevel?: number };
+  /** Recurring marketplace visits begin once this unique mission is completed.
+   *  Omit for merchants that don't recur (first-visit only). */
+  returnUnlock?: { missionDone: string };
 }
 
 export const TRAVELING_MERCHANTS: TravelingMerchant[] = [
@@ -60,6 +67,26 @@ export const TRAVELING_MERCHANTS: TravelingMerchant[] = [
       { id: "buy_grain", label: "He'll take surplus grain for the road", give: "food", giveAmount: 40, receive: "gold", receiveAmount: 25 },
     ],
     requires: { thLevel: 2 },
+    // His recurring stall begins once you've escorted his first real caravan in.
+    returnUnlock: { missionDone: "merchant_escort_first" },
+  },
+  {
+    // Greyford's grain-carter. No first-passing-visit: the Road to Greyford
+    // (caravan_guard) IS the introduction, and completing it opens a regular
+    // downriver grain run that fills the gap between Cobb's visits. Grain to
+    // spare, wants our stone (per the mission fiction).
+    id: "greyford_grain_carter",
+    name: "Maren",
+    culture: "Greyford grain-carter",
+    icon: "🌾",
+    stallGreeting:
+      "Maren has brought the Greyford wagon up the river road, its bed heavy with grain. Neighbours now, not strangers, and her prices say so.",
+    returnOffers: [
+      { id: "grain_sacks", label: "Sacks of Greyford grain", give: "gold", giveAmount: 20, receive: "food", receiveAmount: 55 },
+      { id: "grain_for_stone", label: "Grain traded for our cut stone", give: "stone", giveAmount: 30, receive: "food", receiveAmount: 65 },
+      { id: "greyford_buys_stone", label: "She'll take stone back for Greyford's walls", give: "stone", giveAmount: 40, receive: "gold", receiveAmount: 35 },
+    ],
+    returnUnlock: { missionDone: "caravan_guard" },
   },
 ];
 

@@ -633,11 +633,11 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
   //    the auto-cook tick). "grain"/"wild" are aliases (any grain / any foraged). ──
   // Slow simmers (10-15 game-min/batch) so passive cooking reads as a steady
   // trickle (~20/h) with multi-hour ingredient durations, not an absurd burst.
-  { id: "porridge", name: "Porridge", icon: "🥣", building: "kitchen", minLevel: 1,
+  { id: "porridge", name: "Porridge", icon: "🥣", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/porridge.png", building: "kitchen", minLevel: 1,
     costs: [{ resource: "grain", amount: 2 }], produces: { resource: "porridge", amount: 4 }, craftTime: 600 },
-  { id: "hearth_stew", name: "Hearth Stew", icon: "🍲", building: "kitchen", minLevel: 1,
+  { id: "hearth_stew", name: "Hearth Stew", icon: "🍲", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/hearth_stew.png", building: "kitchen", minLevel: 1,
     costs: [{ resource: "meat", amount: 2 }, { resource: "nuts", amount: 2 }], produces: { resource: "hearth_stew", amount: 5 }, craftTime: 900 },
-  { id: "river_stew", name: "River Stew", icon: "🍲", building: "kitchen", minLevel: 1,
+  { id: "river_stew", name: "River Stew", icon: "🍲", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/river_stew.png", building: "kitchen", minLevel: 1,
     costs: [{ resource: "fish", amount: 2 }, { resource: "berries", amount: 1 }], produces: { resource: "river_stew", amount: 4 }, craftTime: 720 },
 
   // Village kitchen recipes (Lv 3-4) — proper cooking with ovens and prep tables
