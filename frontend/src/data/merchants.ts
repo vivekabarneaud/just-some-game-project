@@ -28,7 +28,11 @@ export interface TravelingMerchant {
   /** Why he will not stay, and what would bring him back — the left panel's close. */
   parting: string;
   offers: MerchantOffer[];
-  /** The visit fires once this condition is met. */
+  /** The "wagon, not a mule" load shown at the marketplace on RETURN visits. */
+  returnOffers?: MerchantOffer[];
+  /** Short line for the marketplace stall on a return visit. */
+  stallGreeting?: string;
+  /** The first (passing-through) visit fires once this condition is met. */
   requires: { thLevel?: number };
 }
 
@@ -47,9 +51,30 @@ export const TRAVELING_MERCHANTS: TravelingMerchant[] = [
       { id: "buy_timber", label: "He'll take surplus timber off your hands", give: "wood", giveAmount: 50, receive: "gold", receiveAmount: 30 },
       { id: "buy_stone", label: "He'll buy cut stone for coin", give: "stone", giveAmount: 50, receive: "gold", receiveAmount: 30 },
     ],
+    stallGreeting:
+      "Cobb is back, and true to his word he came with a wagon this time, not a mule. His stall stands in the market until morning.",
+    returnOffers: [
+      { id: "provisions_big", label: "Provisions by the wagonload", give: "gold", giveAmount: 40, receive: "food", receiveAmount: 80 },
+      { id: "buy_timber_big", label: "He buys timber by the cartload", give: "wood", giveAmount: 60, receive: "gold", receiveAmount: 45 },
+      { id: "buy_stone_big", label: "He buys cut stone", give: "stone", giveAmount: 60, receive: "gold", receiveAmount: 45 },
+      { id: "buy_grain", label: "He'll take surplus grain for the road", give: "food", giveAmount: 40, receive: "gold", receiveAmount: 25 },
+    ],
     requires: { thLevel: 2 },
   },
 ];
+
+// ─── Recurrence (return visits) ─────────────────────────────────
+// Once the player has BOTH a marketplace and a tavern, Cobb starts coming back
+// and sets up a stall that lingers until the next morning (the daily 3AM-UTC
+// boundary — the same clock the mission board refreshes on). He returns every
+// 2-3 real days; a better tavern (reputation) brings him sooner.
+export const MERCHANT_BASE_INTERVAL_DAYS = 3;   // days between visits at low reputation
+export const MERCHANT_REP_SPEEDUP_DAYS = 1;     // down to 2 days at full reputation
+
+/** Days between return visits, shortened by tavern reputation. */
+export function merchantIntervalDays(reputation: number): number {
+  return MERCHANT_BASE_INTERVAL_DAYS - (Math.max(0, Math.min(100, reputation)) / 100) * MERCHANT_REP_SPEEDUP_DAYS;
+}
 
 export function getMerchant(id: string): TravelingMerchant | undefined {
   return TRAVELING_MERCHANTS.find((m) => m.id === id);

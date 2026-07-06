@@ -178,7 +178,7 @@ import {
   IS_DEV,
   getGlobalSeason,
 } from "~/data/seasons";
-import { STORY_CHAINS, runStoryChains } from "~/engine/story/chains";
+import { STORY_CHAINS, runStoryChains, next3amUTC } from "~/engine/story/chains";
 import {
   type Adventurer,
   type AdventurerRank,
@@ -266,7 +266,7 @@ import {
   type ChapterState,
 } from "~/data/quests";
 import { getReadyEvents } from "~/data/events";
-import { TRAVELING_MERCHANTS } from "~/data/merchants";
+import { TRAVELING_MERCHANTS, getMerchant, merchantIntervalDays } from "~/data/merchants";
 import { calcTavern, REPUTATION_DRIFT_PER_HOUR, MENU_STAPLE_IDS, serversNeeded } from "~/data/tavern";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { EXOTIC_IDS } from "@medieval-realm/shared/data/exotics";
@@ -598,8 +598,14 @@ export interface GameState {
   tavernPricing: import("~/data/tavern").TavernPricing;
   /** Tavern reputation 0-100 — the tavern's own bar; raises the occupancy ceiling. */
   tavernReputation: number;
-  /** The merchant currently visiting (drives the visit modal); undefined when none. */
+  /** The merchant currently visiting (drives the first-visit modal); undefined when none. */
   pendingMerchantVisitId?: string;
+  /** A recurring merchant's lingering stall at the marketplace (return visits).
+   *  `expiresAt` is the next-morning (3AM-UTC) timestamp the stall closes at. */
+  merchantStall?: { merchantId: string; expiresAt: number; takenOffers: string[] };
+  /** Timestamp of the next scheduled return visit (a 3AM-UTC boundary);
+   *  undefined until recurrence starts. */
+  merchantNextArrivalAt?: number;
   /** Narrative events queued for the player to read; cleared on dismiss. */
   pendingEvents: string[];
   /** Quest IDs the player has already glanced at since they became claimable.
@@ -674,6 +680,8 @@ export interface GameActions {
   dismissChronicleBeat: (entryId: string) => void;
   /** Close the traveling-merchant visit (he leaves). */
   dismissMerchantVisit: () => void;
+  /** Take one of the lingering merchant stall's offers (instant trade, once). */
+  takeMerchantStallOffer: (offerId: string) => boolean;
   /** Toggle a dish on/off the tavern menu. */
   toggleTavernDish: (dishId: string) => void;
   /** Assign N adults to serve at the tavern (clamped to available adults + slots). */
@@ -1748,6 +1756,44 @@ function checkMerchantVisits(s: GameState): void {
     s.merchantVisitsFired.push(m.id);
     s.pendingMerchantVisitId = m.id;
     return; // one visit at a time
+  }
+}
+
+/** Recurring merchant visits: once the player has BOTH a marketplace and a
+ *  tavern (and Cobb's first pass has happened), he comes back on a cadence and
+ *  sets up a stall at the marketplace that lingers ~until morning. A better
+ *  tavern (reputation) brings him sooner. Game-hour countdowns, so it behaves
+ *  in dev fast-mode and prod alike. Mutates the draft; call once per tick. */
+function updateMerchantRecurrence(s: GameState): void {
+  const firstDone = (s.merchantVisitsFired ?? []).includes("dominion_peddler_first");
+  const hasMarket = (s.buildings.find((b) => b.buildingId === "marketplace")?.level ?? 0) >= 1;
+  const hasTavern = (s.buildings.find((b) => b.buildingId === "tavern")?.level ?? 0) >= 1;
+  if (!firstDone || !hasMarket || !hasTavern) return; // recurrence not active yet
+
+  const now = Date.now();
+
+  // Close a stall once its morning has come.
+  if (s.merchantStall) {
+    if (now >= s.merchantStall.expiresAt) s.merchantStall = undefined;
+    else return; // still open
+  }
+  // First return: next morning after conditions were met.
+  if (s.merchantNextArrivalAt === undefined) {
+    s.merchantNextArrivalAt = next3amUTC(now);
+    return;
+  }
+  // Arrival due? Open a stall that lingers until the following morning.
+  if (now >= s.merchantNextArrivalAt) {
+    const expiry = next3amUTC(s.merchantNextArrivalAt);
+    if (now < expiry) {
+      s.merchantStall = { merchantId: "dominion_peddler_first", expiresAt: expiry, takenOffers: [] };
+    }
+    // Schedule the next visit 2-3 days on (reputation shortens it), skipping any
+    // windows fully in the past (e.g. after a long absence).
+    const intervalMs = merchantIntervalDays(s.tavernReputation ?? 0) * 86_400_000;
+    let nextAt = s.merchantNextArrivalAt + intervalMs;
+    while (next3amUTC(nextAt) <= now) nextAt += intervalMs;
+    s.merchantNextArrivalAt = nextAt;
   }
 }
 
@@ -3120,6 +3166,7 @@ export function GameProvider(props: ParentProps) {
 
         // A traveling merchant may arrive once the settlement is worth the trip.
         checkMerchantVisits(s);
+        updateMerchantRecurrence(s);
 
         // Founding-winter grace: latch on the first tick whether the settlement
         // began in winter, then lift it the moment it leaves that first winter,
@@ -4880,6 +4927,24 @@ export function GameProvider(props: ParentProps) {
     dismissMerchantVisit() {
       setState(produce((s) => { s.pendingMerchantVisitId = undefined; }));
       scheduleSave();
+    },
+
+    takeMerchantStallOffer(offerId: string) {
+      const stall = state.merchantStall;
+      if (!stall || stall.takenOffers.includes(offerId)) return false;
+      const merchant = getMerchant(stall.merchantId);
+      const offer = (merchant?.returnOffers ?? merchant?.offers ?? []).find((o) => o.id === offerId);
+      if (!offer) return false;
+      const ok = actions.trade(offer.give, offer.giveAmount, offer.receive, offer.receiveAmount, true);
+      if (ok) {
+        setState(produce((s) => {
+          if (s.merchantStall && !s.merchantStall.takenOffers.includes(offerId)) {
+            s.merchantStall.takenOffers.push(offerId);
+          }
+        }));
+        playSound("coins");
+      }
+      return ok;
     },
 
     toggleTavernDish(dishId: string) {

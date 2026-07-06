@@ -2,7 +2,6 @@ import { describe, it, expect } from "vitest";
 import {
   runStoryChains,
   STORY_CHAINS,
-  HESTER_RETURN_DELAY_MS,
   type StoryChain,
   type ChainState,
   type ChainDeps,
@@ -170,35 +169,42 @@ describe("real chains", () => {
     expect(s.pendingChronicleBeats).toEqual(["ch1_thornwoods"]);
   });
 
-  it("the_woodcutter walks rescue → patrol → delay → recruit + reveal", () => {
+  it("the_woodcutter walks rescue → patrol → next morning → recruit + reveal", () => {
     const chain = STORY_CHAINS.find((c) => c.id === "the_woodcutter")!;
     const s = makeState();
     const log: string[] = [];
+    const now0 = Date.UTC(2026, 6, 6, 15, 0, 0); // some afternoon
 
     // Nothing done yet.
-    runStoryChains(s, [chain], makeDeps(s, 0, log));
+    runStoryChains(s, [chain], makeDeps(s, now0, log));
     expect(log).toEqual([]);
     expect(s.chronicleEntriesFired).toEqual([]);
 
     // Rescue done — still awaiting the patrol.
     s.completedUniqueMissionIds = ["hester_rescue"];
-    runStoryChains(s, [chain], makeDeps(s, 0, log));
+    runStoryChains(s, [chain], makeDeps(s, now0, log));
     expect(log).toEqual([]);
 
-    // Patrol done — the delay is stamped, she hasn't returned yet.
+    // Patrol done — the "next morning" deadline is stamped (a future 3AM), no return yet.
     s.completedUniqueMissionIds = ["hester_rescue", "quiet_the_woods"];
-    runStoryChains(s, [chain], makeDeps(s, 1000, log));
-    expect(s.storyTimers!["the_woodcutter:hesterReturn"]).toBe(1000 + HESTER_RETURN_DELAY_MS);
+    runStoryChains(s, [chain], makeDeps(s, now0, log));
+    const deadline = s.storyTimers!["the_woodcutter:hesterReturn"];
+    expect(deadline).toBeGreaterThan(now0);
+    expect(new Date(deadline).getUTCHours()).toBe(3); // it's a 3AM boundary
     expect(log).toEqual([]);
     expect(s.chronicleEntriesFired).toEqual([]);
 
-    // Delay elapsed — she returns: recruited + the reveal chronicle fires.
-    runStoryChains(s, [chain], makeDeps(s, 1000 + HESTER_RETURN_DELAY_MS, log));
+    // Just before morning — still waiting.
+    runStoryChains(s, [chain], makeDeps(s, deadline - 1, log));
+    expect(log).toEqual([]);
+
+    // Morning arrives — she returns: recruited + the reveal chronicle fires.
+    runStoryChains(s, [chain], makeDeps(s, deadline, log));
     expect(log).toEqual(["char_019"]);
     expect(s.chronicleEntriesFired).toEqual(["ch1_woodcutter"]);
 
     // Replay after completion — no double recruit, no double fire.
-    runStoryChains(s, [chain], makeDeps(s, 1000 + HESTER_RETURN_DELAY_MS + 5000, log));
+    runStoryChains(s, [chain], makeDeps(s, deadline + 5000, log));
     expect(log).toEqual(["char_019"]);
     expect(s.chronicleEntriesFired).toEqual(["ch1_woodcutter"]);
   });

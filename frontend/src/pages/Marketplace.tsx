@@ -1,5 +1,7 @@
 import { createSignal, createResource, For, Show, onCleanup } from "solid-js";
 import { useGame, getSettlementId } from "~/engine/gameState";
+import { getMerchant } from "~/data/merchants";
+import { getTotalFood } from "~/data/foods";
 import { fetchTradeOffers, fetchOwnTrades, createTradeOffer, acceptTradeOffer, cancelTradeOffer } from "~/api/trades";
 import type { TradeOfferInfo, CaravanInfo, TradeResourceKey } from "@medieval-realm/shared";
 
@@ -250,6 +252,65 @@ export default function Marketplace() {
       </Show>
 
       <Show when={isBuilt()}>
+        {/* ════════════ TRAVELING MERCHANT STALL ════════════ */}
+        <Show when={state.merchantStall && getMerchant(state.merchantStall.merchantId)}>
+          {(() => {
+            const merchant = () => getMerchant(state.merchantStall!.merchantId)!;
+            const offers = () => merchant().returnOffers ?? merchant().offers;
+            const stockOf = (key: string) =>
+              key === "food" ? getTotalFood(state.foods) : (state.resources[key as "gold" | "wood" | "stone"] ?? 0);
+            return (
+              <div class="building-card" style={{ "margin-bottom": "16px", border: "1px solid var(--accent-gold)" }}>
+                <div class="building-card-header" style={{ "align-items": "center" }}>
+                  <div class="building-card-icon">🧳</div>
+                  <div>
+                    <div class="building-card-title">{merchant().name}'s stall</div>
+                    <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>{merchant().culture}</div>
+                  </div>
+                </div>
+                <Show when={merchant().stallGreeting}>
+                  <p style={{ "font-size": "0.85rem", color: "var(--text-secondary)", margin: "8px 0 12px" }}>{merchant().stallGreeting}</p>
+                </Show>
+                <div style={{ display: "flex", "flex-direction": "column", gap: "8px" }}>
+                  <For each={offers()}>
+                    {(o) => {
+                      const taken = () => state.merchantStall?.takenOffers.includes(o.id) ?? false;
+                      const affordable = () => stockOf(o.give) >= o.giveAmount;
+                      const g = RES[o.give as TradeResourceKey];
+                      const r = RES[o.receive as TradeResourceKey];
+                      return (
+                        <div style={{
+                          display: "flex", "align-items": "center", gap: "10px", padding: "8px 12px",
+                          background: "var(--bg-card)", border: "1px solid var(--border-color)",
+                          "border-radius": "8px", opacity: taken() ? "0.55" : "1",
+                        }}>
+                          <div style={{ flex: "1" }}>
+                            <div style={{ "font-size": "0.85rem", color: "var(--text-primary)" }}>{o.label}</div>
+                            <div style={{ "font-size": "0.8rem", color: "var(--text-secondary)" }}>
+                              {g.icon} {o.giveAmount} {g.name} → <span style={{ color: "var(--accent-gold)", "font-weight": "600" }}>{r.icon} {o.receiveAmount} {r.name}</span>
+                            </div>
+                          </div>
+                          <button
+                            class="field-upgrade-btn"
+                            style={{ "font-size": "0.78rem", padding: "5px 12px" }}
+                            disabled={taken() || !affordable()}
+                            onClick={() => actions.takeMerchantStallOffer(o.id)}
+                          >
+                            {taken() ? "Traded" : affordable() ? "Trade" : `Need ${g.name.toLowerCase()}`}
+                          </button>
+                        </div>
+                      );
+                    }}
+                  </For>
+                </div>
+                <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-top": "10px" }}>
+                  He'll be gone by morning.
+                </div>
+              </div>
+            );
+          })()}
+        </Show>
+
         {/* ════════════ INCOMING CARAVANS ════════════ */}
         <Show when={caravans().length > 0}>
           <div style={{ "margin-bottom": "16px" }}>

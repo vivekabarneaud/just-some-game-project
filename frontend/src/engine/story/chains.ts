@@ -13,8 +13,6 @@
 // The simulation never imports this file; the director reads the sim + writes
 // narrative effects, one-way. See docs (narrative systems) when written.
 
-import { IS_DEV } from "~/data/seasons";
-
 /** The primitives a chain script may call. `await*` suspend the script (throw
  *  the runner's halt sentinel) until their condition holds; the rest are
  *  idempotent effects. Keep this surface small — add a primitive only when a
@@ -31,6 +29,10 @@ export interface StoryChainApi {
   /** Suspend until `ms` real-world time has passed since the script first
    *  reached this step. `key` disambiguates multiple delays within one chain. */
   awaitDelay(key: string, ms: number): void;
+  /** Suspend until the next morning — the next 3AM-UTC boundary after the script
+   *  first reached this step (the same daily clock the mission board uses). A
+   *  clean "come back tomorrow" beat. `key` disambiguates within one chain. */
+  awaitNextMorning(key: string): void;
   /** Fire a chronicle entry into the archive (once). */
   fireChronicle(entryId: string): void;
   /** Fire a chronicle entry AND surface it as a beat modal the moment it
@@ -73,12 +75,14 @@ export interface ChainDeps {
  *  runner; never escapes. */
 const HALT = Symbol("story-chain-halt");
 
-// Real-world delay for Hester's Beat-2b return — a "come back tomorrow" beat.
-// Prod: ~18h (the intended overnight gap). Dev: 5 min — long enough that the
-// reveal reads as a real "later" beat (go do other things, come back and she's
-// here) rather than appearing while you're still reading the ghost-puzzle modal,
-// but short enough to test in one session.
-export const HESTER_RETURN_DELAY_MS = IS_DEV ? 5 * 60_000 : 18 * 60 * 60 * 1000;
+/** The next 3AM-UTC boundary strictly after `afterMs` — the daily "morning" the
+ *  mission board also refreshes on. Used by awaitNextMorning. */
+export function next3amUTC(afterMs: number): number {
+  const d = new Date(afterMs);
+  d.setUTCHours(3, 0, 0, 0);
+  if (d.getTime() <= afterMs) d.setUTCDate(d.getUTCDate() + 1);
+  return d.getTime();
+}
 
 /** Run every chain against the current state. Re-entrant: call once per tick.
  *  Mutates `s` (fired chronicles, timers, recruited adventurers via deps). */
@@ -104,6 +108,15 @@ export function runStoryChains(s: ChainState, chains: StoryChain[], deps: ChainD
         s.storyTimers = s.storyTimers ?? {};
         if (s.storyTimers[k] === undefined) {
           s.storyTimers[k] = deps.now + ms;
+          throw HALT;
+        }
+        if (deps.now < s.storyTimers[k]) throw HALT;
+      },
+      awaitNextMorning(key) {
+        const k = `${chain.id}:${key}`;
+        s.storyTimers = s.storyTimers ?? {};
+        if (s.storyTimers[k] === undefined) {
+          s.storyTimers[k] = next3amUTC(deps.now);
           throw HALT;
         }
         if (deps.now < s.storyTimers[k]) throw HALT;
@@ -158,7 +171,7 @@ export const STORY_CHAINS: StoryChain[] = [
     run: (api) => {
       api.awaitMissionDone("hester_rescue");     // Beat 1 (mission fires its chronicle)
       api.awaitMissionDone("quiet_the_woods");   // Beat 2a (mission fires its chronicle)
-      api.awaitDelay("hesterReturn", HESTER_RETURN_DELAY_MS);
+      api.awaitNextMorning("hesterReturn");   // she returns the next morning
       api.recruit("char_019");                   // she "returns" — Beat 2b
       api.fireChronicle("ch1_woodcutter");       // the reveal
     },
