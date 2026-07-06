@@ -302,7 +302,9 @@ export default function Alchemy() {
                         maxQty: () => maxBrewable(recipe.id),
                         canCraft: (qty) => canCraft(recipe.id, qty),
                         disabledReason: (qty) => brewDisabledReason(recipe.id, qty),
-                        onCraft: (qty) => { playSound("bubbles"); actions.startAlchemyCraft(recipe.id, qty); },
+                        // Finger-snap placeholder: the bubbles clip doesn't read as brewing.
+                        // Swap back to a proper bubbling SFX once we have one.
+                        onCraft: (qty) => { playSound("nav"); actions.startAlchemyCraft(recipe.id, qty); },
                         verb: "Brew",
                         silentClick: true,
                       }}

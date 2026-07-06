@@ -4,6 +4,7 @@ import { ITEMS, MATERIALS, getItem, getMaterial, getPotionInfo, isSupplyItem, is
 import { ALCHEMY_RECIPES } from "@medieval-realm/shared/data/alchemy_recipes";
 import { BUILDINGS } from "~/data/buildings";
 import { VEGGIES } from "~/data/gardens";
+import SeedIcon from "~/components/SeedIcon";
 
 export default function Inventory() {
   const { state } = useGame();
@@ -330,7 +331,7 @@ export default function Inventory() {
                   <div class="building-card">
                     <span class="building-card-category">seed</span>
                     <div class="building-card-header" style={{ "margin-top": "4px" }}>
-                      <div class="building-card-icon">{v.icon}</div>
+                      <div class="building-card-icon"><SeedIcon id={v.id} size={40} /></div>
                       <div>
                         <div class="building-card-title">{v.name} Seed <span style={{ color: "var(--accent-gold)", "font-weight": 600 }}>×{n}</span></div>
                         <div style={{ "font-size": "0.8rem", color: "var(--text-secondary)", "font-style": "italic" }}>

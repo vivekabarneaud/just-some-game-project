@@ -38,7 +38,7 @@ import Tooltip from "~/components/Tooltip";
 import MissionCard from "~/components/MissionCard";
 import TraitBadge from "~/components/TraitBadge";
 import AdventurerVitals from "~/components/AdventurerVitals";
-import { calcAdventurerMaxHp } from "@medieval-realm/shared/data/expeditionEngine";
+import RecoveryActions from "~/components/RecoveryActions";
 import MissionAssemblyPanel from "~/components/MissionAssemblyPanel";
 import LootModal from "~/components/LootModal";
 import ChronicleEntryModal from "~/components/ChronicleEntryModal";
@@ -1052,18 +1052,9 @@ export default function AdventurersGuild() {
                         <div style={{ "margin-top": "4px" }}>
                           <AdventurerVitals adventurer={adv} width="100%" showText showRegen />
                         </div>
-                        {/* Patch up a resting hero with a Bandage (heals 25% max HP). */}
-                        <Show when={!adv.onMission
-                          && (adv.currentHp ?? calcAdventurerMaxHp(adv)) < calcAdventurerMaxHp(adv)
-                          && (state.inventory.find((i) => i.itemId === "bandage")?.quantity ?? 0) > 0}>
-                          <button
-                            class="field-upgrade-btn"
-                            style={{ "margin-top": "6px", "font-size": "0.72rem", padding: "3px 8px" }}
-                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); actions.useRecoveryItem(adv.id, "bandage"); }}
-                          >
-                            🩹 Use Bandage ({state.inventory.find((i) => i.itemId === "bandage")?.quantity ?? 0})
-                          </button>
-                        </Show>
+                        {/* Patch up a resting hero with any owned recovery item
+                            (bandage, healing salve, antidote…). */}
+                        <RecoveryActions adventurer={adv} />
                         <Show when={adv.backstory}>
                           <div class="roster-card-backstory" style={{
                             "font-size": "0.78rem",

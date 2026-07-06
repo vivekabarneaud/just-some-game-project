@@ -64,9 +64,9 @@ export const FOOD_ITEMS: FoodItemMeta[] = [
   { id: "nuts",      label: "Nuts",      icon: "🌰", order: 3, category: "wild" },
   // Cooked meals — made at the Kitchen; stretch raw food into more portions and
   // count toward food diversity (a hot meal). See crafting.ts kitchen recipes.
-  { id: "porridge",    label: "Porridge",    icon: "🥣", order: 1, category: "cooked" },
-  { id: "hearth_stew", label: "Hearth Stew", icon: "🍲", order: 2, category: "cooked" },
-  { id: "river_stew",  label: "River Stew",  icon: "🍲", order: 3, category: "cooked" },
+  { id: "porridge",    label: "Porridge",    icon: "🥣", iconImage: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/porridge.png",    order: 1, category: "cooked" },
+  { id: "hearth_stew", label: "Hearth Stew", icon: "🍲", iconImage: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/hearth_stew.png", order: 2, category: "cooked" },
+  { id: "river_stew",  label: "River Stew",  icon: "🍲", iconImage: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/river_stew.png",  order: 3, category: "cooked" },
 ];
 
 export const FOOD_ITEM_IDS: FoodItemType[] = FOOD_ITEMS.map((f) => f.id);

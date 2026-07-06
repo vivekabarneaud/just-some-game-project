@@ -6,6 +6,7 @@ import { getAnimal, getPenCost, getPenBuildTime, getPenProduction, PEN_MAX_LEVEL
 import { ANIMAL_FEED, FEED_CATEGORY_ICON, FEED_CATEGORY_LABEL, FOOD_CATEGORY, isGrazer, calcGrazingCapacity, type FeedCategory } from "~/data/animalFeed";
 import type { FoodItemType } from "~/data/foods";
 import { getHiveCost, getHiveBuildTime, getHoneyRate, HIVE_MAX_LEVEL, APIARY_IMAGE } from "~/data/apiary";
+import SeedIcon from "~/components/SeedIcon";
 import { getFruit, getOrchardCost, getOrchardBuildTime, getOrchardRate, getOrchardStatus, isOrchardActive, ORCHARD_MAX_LEVEL } from "~/data/orchards";
 import { SEASON_META } from "~/data/seasons";
 import { QUEST_DEFINITIONS, isQuestActive } from "~/data/quests";
@@ -583,7 +584,7 @@ function GardenCard(props: { garden: PlayerGarden }) {
         {/* Seed store readout — bigger plots need more seed to run at full rate */}
         <Show when={!props.garden.upgrading && props.garden.level > 0}>
           <div style={{ "font-size": "0.7rem", color: "var(--text-secondary)", "margin-top": "4px", display: "flex", "align-items": "center", gap: "5px" }}>
-            <span>{veggie().icon} {seedStock()} {veggie().name.toLowerCase()} seed in store</span>
+            <span><SeedIcon id={veggie().id} size={16} /> {seedStock()} {veggie().name.toLowerCase()} seed in store</span>
             <span style={{ color: "var(--text-muted)" }}>· plot holds {capacity()}</span>
           </div>
         </Show>

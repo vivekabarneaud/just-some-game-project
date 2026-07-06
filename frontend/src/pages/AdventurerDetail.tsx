@@ -28,7 +28,7 @@ import { getTalentsForClass, getTalentPoints, getUnspentTalentPoints, canUnlockT
 import Tooltip from "~/components/Tooltip";
 import TraitBadge from "~/components/TraitBadge";
 import AdventurerVitals from "~/components/AdventurerVitals";
-import { calcAdventurerMaxHp } from "@medieval-realm/shared/data/expeditionEngine";
+import RecoveryActions from "~/components/RecoveryActions";
 
 // ─── Equipment slot types ───────────────────────────────────────
 
@@ -174,17 +174,7 @@ export default function AdventurerDetail() {
                         </Show>
                         <div style={{ "margin-top": "8px" }}>
                           <AdventurerVitals adventurer={adv()} width="160px" showText showRegen />
-                          <Show when={!adv().onMission
-                            && (adv().currentHp ?? calcAdventurerMaxHp(adv())) < calcAdventurerMaxHp(adv())
-                            && (state.inventory.find((i) => i.itemId === "bandage")?.quantity ?? 0) > 0}>
-                            <button
-                              class="field-upgrade-btn"
-                              style={{ "margin-top": "8px", "font-size": "0.78rem", padding: "4px 10px" }}
-                              onClick={() => actions.useRecoveryItem(adv().id, "bandage")}
-                            >
-                              🩹 Use Bandage ({state.inventory.find((i) => i.itemId === "bandage")?.quantity ?? 0})
-                            </button>
-                          </Show>
+                          <RecoveryActions adventurer={adv()} />
                         </div>
                       </div>
 

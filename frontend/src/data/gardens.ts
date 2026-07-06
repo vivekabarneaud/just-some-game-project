@@ -16,7 +16,10 @@ export interface VeggieDefinition {
   seedCost: number;
   /** Food per hour when producing, before level scaling. */
   baseRate: number;
+  /** Card banner: the planted garden plot for this crop. */
   image?: string;
+  /** Icon for the sowable seed (seed store, inventory). Falls back to `icon` emoji. */
+  seedImage?: string;
   /** Staples (the original five) are available from the start. Specialty crops
    *  are LOCKED until the player acquires their seed (market / mission reward /
    *  rare drop) — their garden shows as "???" and can't be built until unlocked. */
@@ -34,6 +37,7 @@ export const VEGGIES: VeggieDefinition[] = [
     seedCost: 6,
     baseRate: 4,
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/garden_peas.png",
+    seedImage: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/peas_seed.png",
   },
   {
     id: "turnips",
@@ -45,6 +49,7 @@ export const VEGGIES: VeggieDefinition[] = [
     seedCost: 4,
     baseRate: 5,
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/garden_turnips.png",
+    seedImage: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/turnips_seed.png",
   },
   {
     id: "cabbages",
@@ -56,6 +61,7 @@ export const VEGGIES: VeggieDefinition[] = [
     seedCost: 5,
     baseRate: 4,
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/garden_cabbages.png",
+    seedImage: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/cabbages_seed.png",
   },
   {
     id: "squash",
@@ -67,6 +73,7 @@ export const VEGGIES: VeggieDefinition[] = [
     seedCost: 8,
     baseRate: 5,
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/garden_squash.png",
+    seedImage: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/squash_seed.png",
   },
   {
     id: "fava",
@@ -77,6 +84,8 @@ export const VEGGIES: VeggieDefinition[] = [
     produceSeasons: ["spring", "summer"],
     seedCost: 7,
     baseRate: 5,
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/garden_fava.png",
+    seedImage: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/fava_seed.png",
   },
   {
     id: "strawberries",
@@ -87,6 +96,8 @@ export const VEGGIES: VeggieDefinition[] = [
     produceSeasons: ["summer"],
     seedCost: 10,
     baseRate: 4,
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/garden_strawberries.png",
+    seedImage: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/strawberries_seed.png",
     specialty: true,
   },
 ];

@@ -35,13 +35,21 @@ export interface MissionSupplyEffect {
 export interface CombatPotionEffect {
   type: "heal_pct" | "damage_boost" | "defense_boost" | "cleanse" | "haste";
   value: number;        // heal%=25 means 25% max HP, damage_boost=50 means +50%, etc.
+                        // For "cleanse", value is a small bonus heal % applied alongside the cure.
   duration?: number;    // rounds for buffs (undefined = instant)
-  trigger: "auto_low_hp" | "before_first_attack" | "on_use";  // when the AI drinks it
+  // when the AI drinks it. "when_poisoned" fires the moment the drinker carries a
+  // poison DoT — for antidotes, so they aren't wasted on poison-free fights.
+  trigger: "auto_low_hp" | "before_first_attack" | "on_use" | "when_poisoned";
 }
 
 export interface RecoveryEffect {
-  /** Heal % of max HP. Applied pre-combat on simple missions, between-event on expeditions. */
+  /** Heal % of max HP. Applied pre-combat on simple missions, between-event on
+   *  expeditions, or on a resting hero at home. May be 0 for a pure cure item. */
   healPct: number;
+  /** Persistent conditions this item clears when used on a resting hero at home
+   *  (e.g. a bandage dresses a wound → clears "bleed"; an antidote clears "poison").
+   *  Omit for a heal-only item that cures nothing. */
+  cures?: ("bleed" | "poison")[];
 }
 
 export interface PotionInfo {
@@ -60,7 +68,9 @@ export const POTION_REGISTRY: Record<string, PotionInfo> = {
   //
   // ── Healing / death-reduction potions ─────────────────────────
   "healing_salve":          { category: "mission",
-                              mission:  { successBonus: 0,  deathReduction: 0.75 },
+                              // No mission death-reduction — the salve is a straight heal now
+                              // (combat auto-heal + at-home/pre-combat heal), not a survival charm.
+                              mission:  { successBonus: 0,  deathReduction: 1.0 },
                               combat:   { type: "heal_pct",     value: 30, trigger: "auto_low_hp" },
                               // Also usable at home / pre-combat like a bandage: heals 25% HP,
                               // no status cure.
@@ -71,8 +81,12 @@ export const POTION_REGISTRY: Record<string, PotionInfo> = {
                               mission: { successBonus: 0,  deathReduction: 1.0 },
                               combat:  { type: "damage_boost", value: 15, duration: 2, trigger: "before_first_attack" } },
   "herbal_antidote":        { category: "mission",
-                              mission: { successBonus: 5,  deathReduction: 0.85 },
-                              combat:  { type: "heal_pct",     value: 20, trigger: "auto_low_hp" } },
+                              mission:  { successBonus: 5,  deathReduction: 0.85 },
+                              // The antidote: cures poison in combat (drunk the moment a poison
+                              // DoT lands) with a small bonus heal, and clears poison on a
+                              // resting hero at home.
+                              combat:   { type: "cleanse", value: 20, trigger: "when_poisoned" },
+                              recovery: { healPct: 20, cures: ["poison"] } },
   "swiftfoot_brew":         { category: "mission",
                               mission: { successBonus: 3,  deathReduction: 1.0 },
                               combat:  { type: "damage_boost", value: 20, duration: 2, trigger: "before_first_attack" } },
@@ -92,8 +106,8 @@ export const POTION_REGISTRY: Record<string, PotionInfo> = {
   "phoenix_tears":          { category: "combat", combat: { type: "heal_pct", value: 100, trigger: "auto_low_hp" } },
 
   // ── Recovery items (between-event heal on expeditions, pre-combat heal on simple missions) ─
-  "bandage":                { category: "recovery", recovery: { healPct: 25 } },
-  "mending_potion":         { category: "recovery", recovery: { healPct: 50 } },
+  "bandage":                { category: "recovery", recovery: { healPct: 25, cures: ["bleed"] } },
+  "mending_potion":         { category: "recovery", recovery: { healPct: 50, cures: ["bleed"] } },
 };
 
 export function getPotionInfo(itemId: string): PotionInfo | undefined {

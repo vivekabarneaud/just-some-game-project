@@ -790,3 +790,68 @@ Use `--sref` on an existing item icon (e.g. `alpha_fang_amulet.png`) to keep the
 ### Armor
 
 **infernal_mail** — a suit of chain mail forged from infernal links, blackened iron rings with faint red heat glow between them, demonic runes etched into the pauldrons, menacing
+
+---
+
+## Kitchen Staple Dishes
+
+The settlement's three cooked meals (made at the Kitchen). Humble frontier fare — wooden and clay ware, rough tables — not the fancier culture dishes.
+All use: realistic digital painting, dark moody background, warm candlelight from one side, game icon style, square composition, no text --ar 1:1
+
+**Porridge** (grain) → save to `frontend/public/images/icons/porridge.png`
+A wooden bowl of thick pale oat porridge, steam rising gently, a swirl of dark honey and a scattering of toasted grain across the top, a rough carved wooden spoon resting in the bowl, set on a rough-hewn timber table, humble frontier hearth fare, realistic digital painting, dark moody background, warm candlelight from one side, game icon style, square composition, no text --ar 1:1
+
+**Hearth Stew** (meat + nuts) → save to `frontend/public/images/icons/hearth_stew.png`
+A heavy clay bowl of dark hearty stew, chunks of braised game meat and whole roasted nuts visible in a rich brown gravy, steam curling upward, a torn crust of dark bread balanced on the rim, rustic frontier camp presentation, on a rough wooden table, realistic digital painting, dark moody background, warm candlelight from one side, game icon style, square composition, no text --ar 1:1
+
+**River Stew** (fish + berries) → save to `frontend/public/images/icons/river_stew.png`
+An earthenware bowl of pale river-fish stew, flakes of white fish in a light golden broth flecked with a few dark wild berries, a sprig of green herb floating on top, steam rising, a plain wooden spoon beside the bowl on a rough plank table, rustic frontier presentation, realistic digital painting, dark moody background, warm candlelight from one side, game icon style, square composition, no text --ar 1:1
+
+---
+
+## Garden — Plot Banners
+
+Wide card banners (shown ~full-width at 120px tall). Match the existing garden plot art
+(garden_peas/turnips/cabbages/squash). To keep the batch visually consistent, add
+`--sref https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/garden_peas.png`
+All use: rustic raised kitchen-garden bed, soft natural daylight, realistic digital painting, painterly, no text --ar 16:9
+
+**Empty garden** → `frontend/public/images/farming/empty_garden.png`
+A freshly tilled empty raised garden bed of dark rich soil in neat parallel rows, low rough-timber border boards, a wooden hand-hoe leaning against the edge, no crops yet, a scatter of straw, rustic frontier kitchen garden, soft morning light, realistic digital painting, painterly, no text --ar 16:9
+
+**Fava beans** → `frontend/public/images/farming/garden_fava.png`
+A raised garden bed of upright leafy fava bean plants, sturdy square green stalks with broad grey-green leaves and fat green pods hanging, a few white-and-black blossoms, dark tilled soil below, rustic frontier kitchen garden, soft daylight, realistic digital painting, painterly, no text --ar 16:9
+
+**Strawberries** → `frontend/public/images/farming/garden_strawberries.png`
+A raised garden bed of low strawberry plants, glossy green trefoil leaves with small white five-petal flowers and clusters of ripe red berries nestled near the soil, a little straw mulch, rustic frontier kitchen garden, warm summer light, realistic digital painting, painterly, no text --ar 16:9
+
+## Garden — Seed Icons
+
+Square item icons for the sowable seeds (one per crop). Currently the game shows an emoji;
+these replace it once wired.
+
+**Getting a TINY pouch with only a few seeds:** Midjourney reads "pile / heap / spilling /
+pouch" as abundance and renders a big full sack. Fix it by describing scarcity and scale
+explicitly — *tiny, small, slack, half-empty, just a pinch, a few, sparse, easily counted* —
+and add a `--no` negative for the abundance words. (If it still overfills, drop the pouch
+entirely: "a small scatter of just a few X seeds on dark wood, sparse, close macro" gives the
+tightest control over quantity.)
+All use: realistic digital painting, dark moody background, warm candlelight from one side, game icon style, square composition, no text --ar 1:1 --no pile, heap, mound, overflowing, full sack, abundance, many seeds
+
+**Peas seed** → `frontend/public/images/icons/peas_seed.png`
+A tiny drawstring linen pouch, small and slack, lying half-empty on dark wood with its mouth loosely open, only a small pinch of round pale-green pea seeds beside it — just a few, sparse and easily counted, realistic digital painting, dark moody background, warm candlelight from one side, game icon style, square composition, no text --ar 1:1 --no pile, heap, mound, overflowing, full sack, abundance, many seeds
+
+**Turnip seed** → `frontend/public/images/icons/turnips_seed.png`
+A tiny drawstring linen pouch, small and slack, lying half-empty on dark wood with its mouth loosely open, only a small pinch of tiny reddish-brown turnip seeds beside it — just a few, sparse and easily counted, realistic digital painting, dark moody background, warm candlelight from one side, game icon style, square composition, no text --ar 1:1 --no pile, heap, mound, overflowing, full sack, abundance, many seeds
+
+**Cabbage seed** → `frontend/public/images/icons/cabbages_seed.png`
+A tiny drawstring linen pouch, small and slack, lying half-empty on dark wood with its mouth loosely open, only a small pinch of tiny dark round cabbage seeds beside it — just a few, sparse and easily counted, realistic digital painting, dark moody background, warm candlelight from one side, game icon style, square composition, no text --ar 1:1 --no pile, heap, mound, overflowing, full sack, abundance, many seeds
+
+**Squash seed** → `frontend/public/images/icons/squash_seed.png`
+A tiny drawstring linen pouch, small and slack, lying half-empty on dark wood with its mouth loosely open, only five or six flat cream-colored teardrop squash seeds beside it — sparse and easily counted, realistic digital painting, dark moody background, warm candlelight from one side, game icon style, square composition, no text --ar 1:1 --no pile, heap, mound, overflowing, full sack, abundance, many seeds
+
+**Fava bean seed** → `frontend/public/images/icons/fava_seed.png`
+A tiny drawstring linen pouch, small and slack, lying half-empty on dark wood with its mouth loosely open, only four or five large flat tan dried fava beans beside it — sparse and easily counted, realistic digital painting, dark moody background, warm candlelight from one side, game icon style, square composition, no text --ar 1:1 --no pile, heap, mound, overflowing, full sack, abundance, many seeds
+
+**Strawberry seed** → `frontend/public/images/icons/strawberries_seed.png`
+A tiny drawstring linen pouch, small and slack, lying half-empty on dark wood, a scant pinch of tiny golden strawberry seeds beside it and one small dried red strawberry showing its seeded surface — just a few seeds, sparse, realistic digital painting, dark moody background, warm candlelight from one side, game icon style, square composition, no text --ar 1:1 --no pile, heap, mound, overflowing, full sack, abundance, many seeds

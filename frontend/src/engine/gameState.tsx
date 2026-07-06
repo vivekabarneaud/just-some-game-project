@@ -4824,20 +4824,27 @@ export function GameProvider(props: ParentProps) {
     useRecoveryItem(adventurerId, itemId) {
       const adv = state.adventurers.find((a) => a.id === adventurerId);
       if (!adv || !adv.alive || adv.onMission) return false;
-      const healPct = getPotionInfo(itemId)?.recovery?.healPct;
-      if (!healPct) return false; // not an at-home heal item
+      const recovery = getPotionInfo(itemId)?.recovery;
+      if (!recovery) return false; // not an at-home recovery item
       const inv = state.inventory.find((i) => i.itemId === itemId);
       if (!inv || inv.quantity <= 0) return false;
+      const healPct = recovery.healPct ?? 0;
+      const cures = recovery.cures ?? [];
       const maxHp = calcAdventurerMaxHp(adv);
-      if ((adv.currentHp ?? maxHp) >= maxHp) return false; // already full — don't waste it
+      const needsHeal = healPct > 0 && (adv.currentHp ?? maxHp) < maxHp;
+      const hasCurable = (adv.conditions ?? []).some((c) => cures.includes(c.type));
+      // Nothing to do (full HP and no condition this item can clear) — don't waste it.
+      if (!needsHeal && !hasCurable) return false;
       setState(produce((s) => {
         const a = s.adventurers.find((x) => x.id === adventurerId)!;
         const m = calcAdventurerMaxHp(a);
-        a.currentHp = Math.min(m, (a.currentHp ?? m) + (m * healPct) / 100);
-        // A bandage dresses the wound: clear bleeding so passive regen resumes.
-        // (Poison isn't stopped by a bandage — that needs a cleanse/antidote.)
-        const remaining = (a.conditions ?? []).filter((c) => c.type !== "bleed");
-        a.conditions = remaining.length ? remaining : undefined;
+        if (healPct > 0) a.currentHp = Math.min(m, (a.currentHp ?? m) + (m * healPct) / 100);
+        // Clear only the conditions this item is meant to cure (a bandage dresses
+        // a wound → bleed; an antidote → poison; a plain salve cures nothing).
+        if (cures.length) {
+          const remaining = (a.conditions ?? []).filter((c) => !cures.includes(c.type));
+          a.conditions = remaining.length ? remaining : undefined;
+        }
         const it = s.inventory.find((i) => i.itemId === itemId)!;
         it.quantity -= 1;
       }));

@@ -24,6 +24,7 @@ function shouldDrink(unit: CombatUnit, round: number): boolean {
   const pot = unit.combatPotion!;
   if (pot.trigger === "before_first_attack" && round === 1) return true;
   if (pot.trigger === "auto_low_hp" && unit.hp / unit.maxHp < 0.4) return true;
+  if (pot.trigger === "when_poisoned" && unit.poisonTicks.some((t) => t.type === "poison")) return true;
   return false;
 }
 
@@ -56,6 +57,18 @@ function applyPotion(unit: CombatUnit, ctx: CombatContext): void {
       abilityName: "Defense Potion",
       targetName: unit.name, damage: 0, dodged: false, crit: false, killed: false,
       targetHp: unit.hp, targetMaxHp: unit.maxHp, isEnemy: false,
+    });
+  } else if (pot.type === "cleanse") {
+    // Antidote: strip poison DoTs, then patch up by `value`% max HP.
+    unit.poisonTicks = unit.poisonTicks.filter((t) => t.type !== "poison");
+    const heal = pot.value > 0 ? Math.floor(unit.maxHp * pot.value / 100) : 0;
+    if (heal > 0) unit.hp = Math.min(unit.maxHp, unit.hp + heal);
+    ctx.log.push({
+      round: ctx.round, attackerName: unit.name, attackerIcon: "🧪",
+      abilityName: "Antidote",
+      targetName: unit.name, damage: heal, dodged: false, crit: false, killed: false,
+      targetHp: unit.hp, targetMaxHp: unit.maxHp,
+      isEnemy: false, healed: heal > 0, healAmount: heal,
     });
   }
 }
