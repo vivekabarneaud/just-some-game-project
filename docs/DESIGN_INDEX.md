@@ -13,6 +13,7 @@
 
 | Doc | Real status | Note → action |
 | --- | --- | --- |
+| DESIGN_TAVERN.md | **BACKLOG** (spine) | Hospitality layer on the existing passive ale→happiness tavern: rooms/travelers (exponential 1/2/4/8), menu (staples now, adventurer dishes later), occupancy-from-prosperity, cozy conversations. Locked July 2026. → **Build phase 1 (Tavern page UI prototype).** |
 | EARLY_PACING_MAP.html | **REF** (visual) | Standalone board of every early-game narrative lane (settlement/guild/defense/social) over the story-mission spine, with cross-lane unlocks + gaps. Open in a browser. Built 2026-07 during the defense-lane breadcrumb pass. → **Keep as the pacing source-of-truth; re-render if lanes change.** |
 | DESIGN_BACKEND_SLICE.md | **STALE** (built, diverged) | Full backend exists (`backend/`, `prisma/schema.prisma`, routes, ws, tick). Schema diverged: Adventurer/ActiveMission never got their own tables (stayed in the `gameState` blob). → **Update status + reconcile or archive.** |
 | DESIGN_CITIZEN_CATEGORIES.md | **BUILT** | `CitizenCounts`, `founderCitizens()`, `ageStep`, food multipliers, defense-eligibility all live. Adds a founder-floor not in the doc. → **Update status to BUILT.** |
