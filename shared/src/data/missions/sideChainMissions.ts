@@ -156,6 +156,27 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     unique: true,
     sideChain: { id: "the_bog_witch", name: "The Reeds" },
   },
+  // ── The routine, once the bargain is proven. Repeatable, deliberately light:
+  //    no chronicle beat — it just establishes the pattern (a normal, safe trade)
+  //    so the drift, when it comes later, lands against something familiar. ──
+  {
+    id: "fen_barter",
+    name: "The Fen Barter",
+    description: "The old woman keeps her bargain, and Edda's fenbalm stores run low again. Leave the grain at the flat stone, cut the herb, and not a snake will stir. Routine now. Send someone to make the trade.",
+    icon: "🕯️",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/clear_marshes.png",
+    slots: [{ class: "any" }],
+    duration: 500,
+    deployItems: [{ resource: "wheat", amount: 15 }],
+    rewards: [{ resource: "fenbalm", amount: 4 }],
+    deployCost: 2,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["outdoor"],
+    guaranteed: true,
+    // Repeatable (not unique, no beat) — the safe recurring gather.
+    requires: { missionDone: "reeds_bargain" },
+  },
 
   // ── Recruitment quest: save the hunted gambler → Edmund + Elspeth join ──
   //    (recruitsOnSuccess; Elspeth gives the plea, both join on the win.) ──
