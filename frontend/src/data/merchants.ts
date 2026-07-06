@@ -35,11 +35,11 @@ export interface TravelingMerchant {
 export const TRAVELING_MERCHANTS: TravelingMerchant[] = [
   {
     id: "dominion_peddler_first",
-    name: "Aldric",
+    name: "Cobb",
     culture: "Dominion road-trader",
     icon: "🧳",
     narrative:
-      "A trader came up the south road: a lean Dominion man with two mules and more opinions than cargo, and he walked our camp like a man pricing it. He had been this way before, he said, back when there was nothing here worth stopping for.",
+      "A trader came up the south road: a short, well-fed Dominion man with a comfortable belly, two mules, and more opinions than cargo, and he walked our camp like a man pricing it. He had been this way before, he said, back when there was nothing here worth stopping for.",
     parting:
       "\"You have grown enough to be worth a second visit,\" he said. \"Build a proper market and I will bring the next one a wagon, not a mule. No one unloads in the mud, and a roof a traveller could sleep under would not go amiss either.\" He will not stay the night, but he will trade what fits on a mule before he goes.",
     offers: [
