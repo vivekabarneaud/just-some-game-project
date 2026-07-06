@@ -164,7 +164,10 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     minGuildLevel: 1,
     tags: ["magical"],
     encounters: [{ enemyId: "cursed_spirit", count: 2 }],
-    requires: { story: "story_1_scouting" },
+    // Needs a priest to be doable at all (ghosts pass mundane weapons; only a
+    // priest's blessing lays them). Gate on actually having a priest so it
+    // doesn't tease before your first one arrives (Stonebridge arc, etc.).
+    requires: { story: "story_1_scouting", hasClass: "priest" },
   },
 {
     id: "bear_den",

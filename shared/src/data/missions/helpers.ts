@@ -391,6 +391,10 @@ export interface MissionBoardContext {
   /** Durable per-mission success counts (never cleared). Gates count-based
    *  requirements, e.g. "appears after 3 fen barters." */
   missionCompletions?: Record<string, number>;
+  /** Classes of alive adventurers on the roster. Gates `hasClass` requirements
+   *  so a mission that NEEDS a class (e.g. a priest for ghosts) doesn't surface
+   *  before that class exists. */
+  rosterClasses?: string[];
 }
 
 /** Check whether a mission's requirements are met */
@@ -421,6 +425,7 @@ function meetsRequirements(
   }
   if (req.tavernReputation && (ctx.tavernReputation ?? 0) < req.tavernReputation) return false;
   if (req.missionCount && (ctx.missionCompletions?.[req.missionCount.id] ?? 0) < req.missionCount.count) return false;
+  if (req.hasClass && !(ctx.rosterClasses ?? []).includes(req.hasClass)) return false;
   return true;
 }
 

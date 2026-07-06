@@ -190,6 +190,7 @@ export const ENEMIES: EnemyDefinition[] = [
     id: "gaunt_wolf",
     name: "Gaunt Wolf",
     icon: "🐺",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/wild_wolf.png",
     description: "A lean yearling, kicked out of the pack too early. Hungry and nervous, but still a predator.",
     tier: 1,
     stats: { str: 3, dex: 4, int: 1, vit: 3, wis: 1 },

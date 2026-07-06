@@ -1743,6 +1743,7 @@ function buildMissionBoardContext(s: GameState, guildLevel: number, seed: number
     adventurerRanks: aliveRanks,
     tavernReputation: s.tavernReputation ?? 0,
     missionCompletions: s.missionCompletions ?? {},
+    rosterClasses: [...new Set(s.adventurers.filter((a) => a.alive).map((a) => a.class))],
   };
 }
 
