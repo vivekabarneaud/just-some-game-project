@@ -388,6 +388,9 @@ export interface MissionBoardContext {
   /** Current tavern reputation (0-100). Gates "the haven draws the hunted"
    *  arrivals (e.g. A Mother's Errand) behind a settlement that's become known. */
   tavernReputation?: number;
+  /** Durable per-mission success counts (never cleared). Gates count-based
+   *  requirements, e.g. "appears after 3 fen barters." */
+  missionCompletions?: Record<string, number>;
 }
 
 /** Check whether a mission's requirements are met */
@@ -417,6 +420,7 @@ function meetsRequirements(
     if (!done.has(req.missionDone)) return false;
   }
   if (req.tavernReputation && (ctx.tavernReputation ?? 0) < req.tavernReputation) return false;
+  if (req.missionCount && (ctx.missionCompletions?.[req.missionCount.id] ?? 0) < req.missionCount.count) return false;
   return true;
 }
 

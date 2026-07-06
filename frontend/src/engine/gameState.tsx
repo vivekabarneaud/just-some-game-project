@@ -513,6 +513,9 @@ export interface GameState {
   storyTimers?: Record<string, number>;
   activeMissions: ActiveMission[];
   completedMissions: CompletedMission[]; // recent results (cleared on read)
+  /** Durable per-mission success counts (unlike completedMissions, never cleared).
+   *  Drives count-gated chains + mission requirements. */
+  missionCompletions: Record<string, number>;
   missionBoard: MissionTemplate[];
   missionRefreshIn: number; // game-hours until next mission board refresh
   // Harvest tracking
@@ -1055,6 +1058,7 @@ export function createInitialState(): GameState {
     adventurers: [],
     activeMissions: [],
     completedMissions: [],
+    missionCompletions: {},
     missionBoard: [],
     missionRefreshIn: 0,
     incomingRaids: [],
@@ -1354,6 +1358,7 @@ export function migrateSaveState(saved: GameState): GameState {
       if (!(am as any).adventurerSupplies) (am as any).adventurerSupplies = {};
     }
     if (!saved.completedMissions) saved.completedMissions = [];
+    if (!saved.missionCompletions) saved.missionCompletions = {};
     if (!saved.missionBoard) saved.missionBoard = [];
     if (saved.missionRefreshIn === undefined) saved.missionRefreshIn = 0;
     // Force mission board refresh if missions lack tags (old save format)
@@ -1737,6 +1742,7 @@ function buildMissionBoardContext(s: GameState, guildLevel: number, seed: number
     pens: s.pens,
     adventurerRanks: aliveRanks,
     tavernReputation: s.tavernReputation ?? 0,
+    missionCompletions: s.missionCompletions ?? {},
   };
 }
 
@@ -4221,6 +4227,14 @@ export function GameProvider(props: ParentProps) {
                 } : {}),
                 ...(vipFallen ? { vipFallen } : {}),
               });
+
+              // Durable per-mission success tally (completedMissions is cleared on
+              // read; this persists — drives count-gated chains + requirements,
+              // e.g. "after 3 fen barters the witch's offering changes").
+              if (success) {
+                s.missionCompletions = s.missionCompletions ?? {};
+                s.missionCompletions[am.missionId] = (s.missionCompletions[am.missionId] ?? 0) + 1;
+              }
 
               // Remove from active
               s.activeMissions.splice(i, 1);

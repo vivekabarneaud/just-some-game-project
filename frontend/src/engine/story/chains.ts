@@ -20,6 +20,9 @@
 export interface StoryChainApi {
   /** Suspend until a unique/side-chain mission has been completed. */
   awaitMissionDone(missionId: string): void;
+  /** Suspend until a mission has been completed at least `count` times (uses the
+   *  durable per-mission tally, so it works for repeatable missions). */
+  awaitMissionCount(missionId: string, count: number): void;
   /** Suspend until at least one of these premade characters is on the roster. */
   awaitPremadePresent(premadeId: string | string[]): void;
   /** Suspend until the player has CLAIMED the given quest's reward. */
@@ -52,6 +55,7 @@ export interface StoryChain {
  *  the full GameState, keeping this module engine-dependency-free). */
 export interface ChainState {
   completedUniqueMissionIds?: string[];
+  missionCompletions?: Record<string, number>;
   adventurers: ReadonlyArray<{ premadeId?: string }>;
   buildings: ReadonlyArray<{ buildingId: string; level: number }>;
   questRewardsClaimed?: string[];
@@ -91,6 +95,9 @@ export function runStoryChains(s: ChainState, chains: StoryChain[], deps: ChainD
     const api: StoryChainApi = {
       awaitMissionDone(id) {
         if (!(s.completedUniqueMissionIds ?? []).includes(id)) throw HALT;
+      },
+      awaitMissionCount(id, count) {
+        if ((s.missionCompletions?.[id] ?? 0) < count) throw HALT;
       },
       awaitPremadePresent(pid) {
         const ids = Array.isArray(pid) ? pid : [pid];
@@ -200,6 +207,16 @@ export const STORY_CHAINS: StoryChain[] = [
       api.fireChronicleModal("ch1_reeds_voice");
       api.awaitMissionDone("reeds_bargain");
       api.fireChronicleModal("ch1_reeds_price");
+      // The barter becomes routine (fen_barter ×3) → the tea beat (she learns of
+      // Nell, cozy on the surface). Then the asking drifts to bone: first a boar
+      // tusk (reeds_tusk), then a rat's gnawed knuckle (reeds_marrow). The Lord's
+      // easy dismissal only turns to doubt at the second bone.
+      api.awaitMissionCount("fen_barter", 3);
+      api.fireChronicleModal("ch1_reeds_tea");
+      api.awaitMissionDone("reeds_tusk");
+      api.fireChronicleModal("ch1_reeds_marrow");
+      api.awaitMissionDone("reeds_marrow");
+      api.fireChronicleModal("ch1_reeds_doubt");
     },
   },
 ];

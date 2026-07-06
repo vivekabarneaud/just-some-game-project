@@ -74,6 +74,17 @@ describe("runStoryChains — primitives", () => {
     expect(s.chronicleEntriesFired).toEqual(["done"]);
   });
 
+  it("awaitMissionCount halts until the durable tally reaches the count", () => {
+    const chain: StoryChain = { id: "t", run: (a) => { a.awaitMissionCount("m1", 3); a.fireChronicle("c1"); } };
+    const s = makeState({ missionCompletions: { m1: 2 } });
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual([]);       // 2 < 3, still halted
+
+    s.missionCompletions = { m1: 3 };
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual(["c1"]);   // reached the count
+  });
+
   it("awaitPremadePresent halts until one of the ids is on the roster", () => {
     const chain: StoryChain = { id: "p", run: (a) => { a.awaitPremadePresent(["cX", "cY"]); a.fireChronicle("hi"); } };
     const s = makeState();
@@ -245,5 +256,29 @@ describe("real chains", () => {
     s.completedUniqueMissionIds = ["marsh_clearing", "reeds_bargain"];
     runStoryChains(s, [chain], makeDeps(s, 0, []));
     expect(s.chronicleEntriesFired).toEqual(["ch1_reeds_voice", "ch1_reeds_price"]);
+
+    // Two routine barters — not yet three, so the drift beat holds.
+    s.missionCompletions = { fen_barter: 2 };
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual(["ch1_reeds_voice", "ch1_reeds_price"]);
+
+    // Third routine barter — the tea beat lands (she learns of Nell).
+    s.missionCompletions = { fen_barter: 3 };
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toContain("ch1_reeds_tea");
+    expect(s.chronicleEntriesFired).not.toContain("ch1_reeds_marrow");
+
+    // Tusk delivered — the asking escalates to a rat's bone (ch1_reeds_marrow).
+    s.completedUniqueMissionIds = ["marsh_clearing", "reeds_bargain", "reeds_tusk"];
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toContain("ch1_reeds_marrow");
+    expect(s.chronicleEntriesFired).not.toContain("ch1_reeds_doubt");
+
+    // Marrow delivered — the doubt beat lands.
+    s.completedUniqueMissionIds = ["marsh_clearing", "reeds_bargain", "reeds_tusk", "reeds_marrow"];
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual([
+      "ch1_reeds_voice", "ch1_reeds_price", "ch1_reeds_tea", "ch1_reeds_marrow", "ch1_reeds_doubt",
+    ]);
   });
 });

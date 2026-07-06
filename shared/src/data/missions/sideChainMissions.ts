@@ -162,7 +162,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   {
     id: "fen_barter",
     name: "The Fen Barter",
-    description: "The old woman keeps her bargain, and Edda's fenbalm stores run low again. Leave the grain at the flat stone, cut the herb, and not a snake will stir. Routine now. Send someone to make the trade.",
+    description: "The old woman keeps her bargain, and Edda's fenbalm stores run low again. Leave the grain at the flat stone, cut the herb, and not a snake will stir. She will have whoever we send in for tea, too, and send them home with a full belly. Routine now. Send someone to make the trade.",
     icon: "🕯️",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/clear_marshes.png",
     slots: [{ class: "any" }],
@@ -176,6 +176,52 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     guaranteed: true,
     // Repeatable (not unique, no beat) — the safe recurring gather.
     requires: { missionDone: "reeds_bargain" },
+  },
+  // ── The drift, step 1. After the barter has become routine (fen_barter ×3),
+  //    the old woman's asking changes: no more grain, now a shard of boar tusk
+  //    left at the stone. Still "just an errand," still safe, but the first ask
+  //    that is not food. The_bog_witch chain fires ch1_reeds_bone around it. ──
+  {
+    id: "reeds_tusk",
+    name: "A Different Price",
+    description: "The old woman sent her asking back with the last of the fenbalm, and it is not grain this time. A shard of boar tusk, she wants, the kind our hunters bring back by the handful, left at the flat stone by dark. Edda says do as she asks and think nothing of it, the old have their ways. I will hold my tongue and send it. It costs us nothing we would miss. But I find I would like to know what a marsh wants with a splinter of tusk.",
+    icon: "🦷",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/clear_marshes.png",
+    slots: [{ class: "any" }],
+    duration: 500,
+    deployItems: [{ resource: "tusk_shard", amount: 1 }],
+    rewards: [{ resource: "fenbalm", amount: 5 }, { resource: "nettle", amount: 3 }],
+    deployCost: 2,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["outdoor"],
+    guaranteed: true,
+    requires: { missionCount: { id: "fen_barter", count: 3 } },
+    unique: true,
+    sideChain: { id: "the_bog_witch", name: "The Reeds" },
+  },
+  // ── The drift, step 2. The tusk was not the end of it. The next asking is
+  //    a rat's gnawed knuckle: still bone, and now twice she has wanted the
+  //    leavings of a dead thing. This is where it stops being nothing. The chain
+  //    fires ch1_reeds_marrow before and ch1_reeds_doubt after. ──
+  {
+    id: "reeds_marrow",
+    name: "The Asking Again",
+    description: "The tusk went to the stone and the herb came home, and I had half forgotten it when her next asking came back. Bone again. A rat's knuckle this time, the kind the ruin-rats leave gnawed clean, left at the flat stone by dark. Twice now she has wanted the leavings of a dead thing and not a word of why. Edda still says think nothing of it. I will send it, because the fenbalm keeps my people through the winter. But I am no longer certain I think nothing of it.",
+    icon: "🦴",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/clear_marshes.png",
+    slots: [{ class: "any" }],
+    duration: 500,
+    deployItems: [{ resource: "gnawed_marrow", amount: 1 }],
+    rewards: [{ resource: "fenbalm", amount: 5 }, { resource: "nettle", amount: 3 }],
+    deployCost: 2,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["outdoor"],
+    guaranteed: true,
+    requires: { missionDone: "reeds_tusk" },
+    unique: true,
+    sideChain: { id: "the_bog_witch", name: "The Reeds" },
   },
 
   // ── Recruitment quest: save the hunted gambler → Edmund + Elspeth join ──
