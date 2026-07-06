@@ -158,7 +158,7 @@ export const ENEMIES: EnemyDefinition[] = [
     tags: ["beast"],
     loot: [
       { type: "resource", resource: "meat", chance: 0.2, min: 1, max: 3 },
-      { type: "resource", resource: "gnawed_marrow", chance: 0.5, min: 1, max: 1 },
+      { type: "resource", resource: "gnawed_marrow", chance: 0.2, min: 1, max: 1 },
     ],
     aiTier: "feral"
   },

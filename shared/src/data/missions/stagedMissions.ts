@@ -74,7 +74,7 @@ export const STAGED_MISSIONS: MissionTemplate[] = [
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["survival", "outdoor"],
-    encounters: [{ enemyId: "wild_wolf", count: 1 }, { enemyId: "giant_rat", count: 1 }],
+    encounters: [{ enemyId: "wild_wolf", count: 2 }],
     staged: true,
   },
   {
