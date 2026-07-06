@@ -183,15 +183,10 @@ export const NARRATIVE_EVENTS: NarrativeEvent[] = [
       "Edda calls the Town Hall \"the cupboard.\" Tents on every level stretch of ground, two wells, a mission board, and a roster I cannot hold in my head. The canvas leaks when it rains hard, the firepit is the only place we gather, and decisions made standing in the wet do not hold long. It is time to raise a proper hall.",
   },
 
-  // ── A trader passes through → the Marketplace beat (pairs with the
-  //    merchants_welcome quest, same th_level 2 trigger). The first, faint
-  //    thread of the traveling-merchant layer. ─────────────────────
-  {
-    id: "event_trader_visits",
-    triggers: [{ type: "th_level", level: 2 }],
-    banner:
-      "A trader came up the south road, a lean Dominion man with two mules and more opinions than cargo, and he walked our camp like a man pricing it. He had been this way before, he said, back when there was nothing here worth stopping for. \"You have grown enough to be worth a second visit. Build a proper market and I will bring the next one a wagon, not a mule. No one unloads in the mud.\" He looked at the tents a moment longer and said a roof a traveller could sleep under would not go amiss either. Then he was off down the road before I could offer him ours. Coin spends the same wherever it comes from, and perhaps it is time we gave it somewhere to change hands.",
-  },
+  // ── A trader passes through → now the traveling-merchant VISIT modal
+  //    (checkMerchantVisits in gameState, fires at th_level 2), which carries
+  //    this beat plus instant trade. The old banner-only event_trader_visits
+  //    was replaced by that two-panel visit. Pairs with merchants_welcome. ──
 
   // ── The brigand raid — DEFERRED (July 2026) ───────────────────
   // Disabled until the defense chapter is properly built: walls deal no damage

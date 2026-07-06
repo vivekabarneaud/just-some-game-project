@@ -8,6 +8,7 @@ import AmbientNature from "./components/AmbientNature";
 import Lightning from "./components/Lightning";
 import CinematicOverlay from "./components/CinematicOverlay";
 import ChronicleEntryModal from "./components/ChronicleEntryModal";
+import TravelingMerchantModal from "./components/TravelingMerchantModal";
 import { openChronicleEntry, setOpenChronicleEntry } from "./data/robins";
 import { getChronicleEntry } from "./data/chronicle_entries";
 import ToastContainer from "./components/Toast";
@@ -237,6 +238,11 @@ export default function App(props: ParentProps) {
           has items. Each event is read-and-dismissed by the player. */}
       <EventModal />
       <SettingsModal />
+
+      {/* A traveling merchant is passing through — two-panel visit + instant trade. */}
+      <Show when={state.pendingMerchantVisitId}>
+        {(id) => <TravelingMerchantModal merchantId={id()} onClose={() => actions.dismissMerchantVisit()} />}
+      </Show>
 
       {/* Weather backdrop layers (static images, behind everything). Two layers
           — rain-on-glass + iced-window — each fading its own opacity so switching

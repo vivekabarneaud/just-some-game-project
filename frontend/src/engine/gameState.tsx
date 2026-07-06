@@ -266,6 +266,7 @@ import {
   type ChapterState,
 } from "~/data/quests";
 import { getReadyEvents } from "~/data/events";
+import { TRAVELING_MERCHANTS } from "~/data/merchants";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { EXOTIC_IDS } from "@medieval-realm/shared/data/exotics";
 import { ALCHEMY_RECIPES, getDiscoverableRecipes, getAvailableAlchemyRecipes, RESEARCH_BASE_COST } from "@medieval-realm/shared/data/alchemy_recipes";
@@ -586,6 +587,10 @@ export interface GameState {
   chapters: import("~/data/quests").ChapterState[];
   /** Narrative events that have already fired (one-shot). */
   firedEvents: string[];
+  /** Traveling-merchant visits that have already happened (one-shot per merchant). */
+  merchantVisitsFired: string[];
+  /** The merchant currently visiting (drives the visit modal); undefined when none. */
+  pendingMerchantVisitId?: string;
   /** Narrative events queued for the player to read; cleared on dismiss. */
   pendingEvents: string[];
   /** Quest IDs the player has already glanced at since they became claimable.
@@ -658,6 +663,8 @@ export interface GameActions {
   markIntroSeen: () => void;
   /** Remove a chronicle beat from the pending-modal queue once the UI has shown it. */
   dismissChronicleBeat: (entryId: string) => void;
+  /** Close the traveling-merchant visit (he leaves). */
+  dismissMerchantVisit: () => void;
   skipSeason: () => void;
   getProductionRates: () => { gold: number; wood: number; stone: number; food: number };
   getMaxPopulation: () => number;
@@ -794,7 +801,7 @@ export interface GameActions {
   acknowledgeWipeCompletion: (missionId: string) => void;
   acknowledgeRaidCombat: (raidId: string) => void;
   devAddShards: (amount: number) => void;
-  trade: (give: string, giveAmount: number, receive: string, receiveAmount: number) => boolean;
+  trade: (give: string, giveAmount: number, receive: string, receiveAmount: number, allowWithoutMarket?: boolean) => boolean;
 }
 
 // ─── Constants ───────────────────────────────────────────────────
@@ -1044,6 +1051,7 @@ export function createInitialState(): GameState {
       { storyline: "social", current: 1, completedChapters: [] },
     ],
     firedEvents: [],
+    merchantVisitsFired: [],
     pendingEvents: [],
     questsClaimableSeen: [],
     buildingsSeen: [],
@@ -1456,6 +1464,7 @@ export function migrateSaveState(saved: GameState): GameState {
     // have fired already will fire on next state evaluation. Banners are
     // ephemeral; replaying them on legacy saves is acceptable.
     if (!saved.firedEvents) saved.firedEvents = [];
+    if (!saved.merchantVisitsFired) saved.merchantVisitsFired = [];
     if (!saved.pendingEvents) saved.pendingEvents = [];
     if (!saved.autoCook) saved.autoCook = {};
     else {
@@ -1701,6 +1710,22 @@ function buildMissionBoardContext(s: GameState, guildLevel: number, seed: number
 function pushEvent(s: GameState, type: GameEventType, icon: string, message: string) {
   s.eventLog.unshift({ type, icon, message, timestamp: Date.now() });
   if (s.eventLog.length > MAX_EVENT_LOG) s.eventLog.length = MAX_EVENT_LOG;
+}
+
+/** Check whether a traveling merchant should arrive. One-shot per merchant,
+ *  one visit open at a time. Sets pendingMerchantVisitId, which drives the
+ *  visit modal. Mutates the state draft; call once per tick. */
+function checkMerchantVisits(s: GameState): void {
+  if (s.pendingMerchantVisitId) return; // a visit is already open
+  const th = getTownHallLevel(s.buildings);
+  for (const m of TRAVELING_MERCHANTS) {
+    if ((s.merchantVisitsFired ?? []).includes(m.id)) continue;
+    if (m.requires.thLevel && th < m.requires.thLevel) continue;
+    s.merchantVisitsFired = s.merchantVisitsFired ?? [];
+    s.merchantVisitsFired.push(m.id);
+    s.pendingMerchantVisitId = m.id;
+    return; // one visit at a time
+  }
 }
 
 /** Run the narrative-event evaluator against a state draft. Fires any events
@@ -3069,6 +3094,9 @@ export function GameProvider(props: ParentProps) {
             }
           }
         }
+
+        // A traveling merchant may arrive once the settlement is worth the trip.
+        checkMerchantVisits(s);
 
         // Founding-winter grace: latch on the first tick whether the settlement
         // began in winter, then lift it the moment it leaves that first winter,
@@ -4798,6 +4826,11 @@ export function GameProvider(props: ParentProps) {
       scheduleSave();
     },
 
+    dismissMerchantVisit() {
+      setState(produce((s) => { s.pendingMerchantVisitId = undefined; }));
+      scheduleSave();
+    },
+
     skipSeason() { setState(produce((s) => { advanceSeason(s); })); },
 
     getProductionRates() { return calcProductionRates(state); },
@@ -6414,9 +6447,12 @@ export function GameProvider(props: ParentProps) {
       setState(produce((s) => { s.astralShards += amount; }));
       scheduleSave();
     },
-    trade(give, giveAmount, receive, receiveAmount) {
+    trade(give, giveAmount, receive, receiveAmount, allowWithoutMarket = false) {
       const marketLevel = state.buildings.find((b) => b.buildingId === "marketplace")?.level ?? 0;
-      if (marketLevel === 0) return false;
+      // A traveling merchant who is physically here IS the trade window, so those
+      // trades bypass the marketplace requirement (allowWithoutMarket). The market
+      // is still required for the standing marketplace offer board.
+      if (marketLevel === 0 && !allowWithoutMarket) return false;
 
       // Read current stock of a tradable resource (handles base resources, food total,
       // and top-level fields like wool/fiber/iron/ale/honey/fruit).
