@@ -267,6 +267,28 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "That last part is what I keep turning over. Not the goods. The plain fact that a man weighed the road to us against the risk of it and decided we were worth the wheels, and then said so to other men. We are on someone's map now: a place people come to, and not only a clearing we are holding against the dark. I did not expect to feel it so much.",
   },
   {
+    id: "ch2_mothers_errand",
+    chapterId: "ch2",
+    order: 20,
+    title: "The gambler and his mother",
+    teaser: "The fool we pulled off the ford is already at our fire, telling the tale like a winning hand. The woman who begged for him sits apart, and her needles never stop.",
+    fullText:
+      "The men at the old ford wanted the boy dead over a hand of cards. We put them on the ground instead and brought him home, and by nightfall Edmund Blackwood was at our fire telling the whole thing like it was the best game he ever lost, grinning, doing the voices of the men who had meant to kill him. Good company. The kind a camp warms to fast.\n\n" +
+      "His mother is not like that. She gave no name at the gate, only that her son was cornered and she could not reach him. Elspeth, he calls her. She sat a little apart from the fire tonight, where she could see both doors, with yarn in her hands and the needles going the whole time, turning out some small soft thing for one of the children. She smiled when he did. But when he laughed at how close it had been, at the odds of it, something in her face did not smile.\n\n" +
+      "I do not know their story. I know she came to my gate before dawn with no name and begged for the boy, and I know she watches him the way you watch a spark that has landed near dry thatch. They will stay. We have room for the hunted, and it seems we are becoming the kind of place they come to.",
+  },
+  {
+    id: "ch2_whose_blood",
+    chapterId: "ch2",
+    order: 20.1,
+    title: "Whose blood",
+    teaser: "Edmund cannot sit still without a wager on it. His mother watches him do it, and I have stopped needing to ask why she is afraid.",
+    fullText:
+      "I have had some days to watch them now. Edmund cannot sit an hour without turning it into a wager: dice with the hunters, a bet on whose arrow flies truest, his own skin against a bad road when a safer one runs beside it. He wins more than he should. Whether the luck is real or he is the finest cheat I have met, I cannot say, and I have watched closely.\n\n" +
+      "Elspeth watches closer. She taught him what he knows, I think: the quiet way of moving, the patience, the blade held low. What she did not mean to teach him was the joy of it, and that is the thing she cannot take back. Her needles never stop. The little things she makes are gentle past anything in her eyes when she looks at her grown son laughing at a long odd.\n\n" +
+      "She has not told me what she fears, and she does not have to. It is not the frontier. It is him: what he loves, and where it will take him. There is a small pouch at her belt she never opens in company, and a stillness in her when a stranger stands too near a door. I have decided not to ask what she did before she came here. A man learns which questions to keep to himself, and I have kept harder ones than these.",
+  },
+  {
     id: "ch2_old_tongue",
     chapterId: "ch2",
     order: 1,
