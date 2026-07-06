@@ -72,7 +72,46 @@ camp sits half-empty; a lively one with a good table in a thriving town runs
 full. This is the lever that makes the tavern **reward overall settlement
 health**, not just its own level.
 
-## 4. Conversations (cozy supports)
+## 4. Staffing — who serves
+
+The tavern needs hands to run. **Adults are already a shared pool:** the garrison
+pulls its soldiers/archers from `citizens.adults` (see `defenses.ts` —
+`availableDefenders = adults − soldiers − archers − named adults`). Tavern
+servers draw from the **same pool**, so assigning adults to the tavern reduces
+the adults available for the watchtower/garrison, and vice-versa — a real labor
+tradeoff, as intended.
+
+- Servers needed scales with the tavern (rooms / level); understaffed → capped
+  occupancy (you can't fill beds you can't serve).
+- **Consistency with the worker system** (`DESIGN_WORKERS_PLAGUES`): that spec's
+  stance is "no manual per-building assignment — auto-distribute." Resolve by
+  making the **tavern and the garrison the two *named* exceptions** the player
+  assigns deliberately, while background production (mills, quarries) auto
+  -distributes. Keep it a simple counter ("3 of 4 served"), not micromanagement.
+
+## 5. Pricing — a lever, not a free number
+
+Do **not** let the player type an arbitrary price per meal (a million-gold
+porridge that NPCs happily buy breaks both the fiction and the economy). Pricing
+is a **bounded strategy lever**: a cheap↔premium setting (e.g. 0.5×–2×, or three
+tiers *generous / fair / steep*) that **trades occupancy for margin** — cheap
+fills beds but earns little per head; steep earns more per head but thins the
+crowd. Same satisfying tweak, no exploit, and it folds straight into the
+occupancy model (§3) as another input. Relates to `project_marketplace_rework`.
+
+## 6. Reputation — the tavern's own bar
+
+A **Tavern Reputation** stat (0–100, like happiness/loyalty), the tavern's own
+slow progression, separate from building level. It rises from sustained good
+hospitality (high occupancy, varied menu, fair prices, well-staffed) and decays
+if the place is dry, empty, or neglected. Reputation is what makes the
+settlement a **known waystation**: it raises the occupancy ceiling, pulls
+merchants more often and from farther cultures, and unlocks named recurring
+guests / rumors later. The counterpart to merchant rapport
+(`DESIGN_TRAVELING_MERCHANTS` §5) and the mechanical spine of "traffic scales
+with prosperity."
+
+## 7. Conversations (cozy supports)
 
 The designed cozy feature (see `project_tavern_conversations`): invite a named
 adventurer, pick a dish, unlock a **one-time bespoke chat + one-time loyalty
@@ -91,9 +130,15 @@ strongest-backstory premades first; premade cast only.
 
 ## Open decisions
 
-- Exact **occupancy formula** weights (happiness vs menu vs tier).
+- Exact **occupancy formula** weights (happiness vs menu vs tier vs pricing).
 - **Room counts beyond L4** — tie to the population curve once it's locked.
 - **Passive gold rate** per occupied room.
+- **Staffing:** servers-needed per level; how the shared adult pool is displayed
+  and split against garrison recruitment; whether understaffing caps occupancy
+  or just reduces gold.
+- **Pricing lever:** slider vs 3 tiers; exact occupancy↔margin curve.
+- **Reputation:** growth/decay rates, and exactly what it gates (occupancy
+  ceiling, merchant frequency/reach, named guests).
 - **Travelers: abstract or faces?** Start abstract (gold + occupancy readout);
   named passers-through come later.
 - Menu **food-drain** — default off early.
@@ -106,3 +151,4 @@ strongest-backstory premades first; premade cast only.
 - `project_tavern_conversations` — the cozy character supports.
 - `project_marketplace_rework` — economy / rapport as a price counter-lever.
 - `project_adventurer_recovery` — possible room-rest tie-in.
+- `DESIGN_WORKERS_PLAGUES` — the worker-staffing system the tavern/garrison assignment is the named exception to.
