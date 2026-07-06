@@ -864,3 +864,19 @@ Half-body character portraits, same style as the adventurer portraits (square, d
 
 **Cobb — Dominion road-trader** → `frontend/public/images/merchants/cobb.png`
 Half-body portrait of a short, well-fed middle-aged Dominion road peddler with a comfortable round belly, balding with a fringe of grey-brown hair, ruddy cheeks and a shrewd, good-humored expression, plain worn travel clothes with a leather satchel and a heavy coin purse at his belt, a mule's laden pack just visible behind his shoulder, warm and a little sly, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
+
+---
+
+## Portrait Reworks
+
+Alternate portraits for existing cast. Because the R2 upload skips existing keys and
+serves an immutable 1-year cache, save a rework under a NEW filename (e.g. `_v2`) and
+update the character's `portrait` field to match — don't overwrite the old key.
+
+**Gareth Thornwood — mail archer rework** (differentiate from Brenna's leather + hood)
+Save to `frontend/public/images/characters/ashwick/gareth_thornwood_v2.png`, then set
+`portrait: "gareth_thornwood_v2"` for char_005 in shared/src/data/premade-characters.ts.
+Uses the current portrait as omni-reference to keep his face (tune `--ow` up for a
+stronger face-lock, e.g. 200-400).
+
+Half-body portrait of a fair-skinned human male archer in his thirties, the same warm easy-grinning face, wearing a riveted chainmail hauberk over a padded gambeson with hardened leather archer's bracers on his forearms, a longbow in one hand and a quiver of arrows at his hip, short-cropped brown hair and no hood, the easy confidence of a former soldier with a ready smile, a small dull tin company badge pinned at his collar, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1 --oref https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/ashwick/gareth_thornwood.png --ow 250
