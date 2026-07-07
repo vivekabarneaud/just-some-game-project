@@ -68,7 +68,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
 
   {
     id: "boars_bane_salve",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/alchemy_lab/boars_bane_salve.png",
+    // No art yet — falls back to the 🐗 icon. Add an R2 image here when drawn.
     name: "Boar's-Bane Salve",
     icon: "🐗",
     description: "Cures the froth (rabid-boar bite-sickness) on a resting hero, and heals 30% HP. Ground boar tusk and mugwort — the bite's own cure.",
