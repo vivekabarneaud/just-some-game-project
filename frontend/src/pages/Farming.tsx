@@ -5,7 +5,7 @@ import { getVeggie, getGardenCost, getGardenBuildTime, getSeedCapacity, getEffec
 import { getAnimal, getPenCost, getPenBuildTime, getPenProduction, PEN_MAX_LEVEL } from "@medieval-realm/shared/data/livestock";
 import { ANIMAL_FEED, FEED_CATEGORY_ICON, FEED_CATEGORY_LABEL, FOOD_CATEGORY, isGrazer, calcGrazingCapacity, type FeedCategory } from "~/data/animalFeed";
 import type { FoodItemType } from "~/data/foods";
-import { getHiveCost, getHiveBuildTime, getHoneyRate, HIVE_MAX_LEVEL, APIARY_IMAGE, APIARY } from "~/data/apiary";
+import { getHiveCost, getHiveBuildTime, getHoneyRate, HIVE_MAX_LEVEL, APIARY_IMAGE, APIARY, unlockedHiveCount, hiveSlotUnlock } from "~/data/apiary";
 import SeedIcon from "~/components/SeedIcon";
 import { getFruit, getOrchardCost, getOrchardBuildTime, getOrchardRate, getOrchardStatus, isOrchardActive, ORCHARD_MAX_LEVEL } from "~/data/orchards";
 import { SEASON_META } from "~/data/seasons";
@@ -863,9 +863,13 @@ function PenCard(props: { pen: PlayerPen }) {
 
 // ─── Hive Card ───────────────────────────────────────────────────
 
-function HiveCard(props: { hive: PlayerHive }) {
+function HiveCard(props: { hive: PlayerHive; slotIndex: number }) {
   const { actions, state } = useGame();
   const effectiveMax = () => Math.min(actions.getTownHallLevel(), HIVE_MAX_LEVEL);
+  // A slot beyond the tier's unlocked count is locked — but only while unbuilt,
+  // so an already-built hive on a legacy save is never hidden.
+  const slotLocked = () => props.hive.level === 0 && props.slotIndex >= unlockedHiveCount(actions.getTownHallLevel());
+  const slotLockLabel = () => hiveSlotUnlock(props.slotIndex).label;
 
   const isUnbuilt = () => props.hive.level === 0 && !props.hive.upgrading;
   const buildCost = () => getHiveCost(0);
@@ -913,6 +917,22 @@ function HiveCard(props: { hive: PlayerHive }) {
   const indicatorCanAct = () => props.hive.level === 0 ? canBuild() : canUpgrade();
 
   return (
+    <Show when={!slotLocked()} fallback={
+      <div class="building-card unbuilt-farm-card" style={{ cursor: "default", position: "relative" }}>
+        <div class="building-card-image">
+          <img src={APIARY_IMAGE} alt="" loading="lazy" style={{ filter: "grayscale(0.5) brightness(0.45) saturate(0.5)" }} />
+          <div class="building-card-image-overlay">
+            <div>
+              <div class="building-card-title">Beehive</div>
+              <div class="building-card-level not-built">🔒 Unlocks at {slotLockLabel()}</div>
+            </div>
+          </div>
+        </div>
+        <div class="building-card-desc">
+          Room for another hive as the settlement grows. This one comes with {slotLockLabel()}.
+        </div>
+      </div>
+    }>
     <Show when={!isUnbuilt()} fallback={
       <div class="building-card unbuilt-farm-card" style={{ cursor: "default", position: "relative" }}>
         <div class="building-card-image">
@@ -980,6 +1000,7 @@ function HiveCard(props: { hive: PlayerHive }) {
           </div>
         </Show>
       </div>
+    </Show>
     </Show>
   );
 }
@@ -1247,7 +1268,8 @@ export default function Farming() {
   const townHallLevel = () =>
     state.buildings.find((b) => b.buildingId === "town_hall")?.level ?? 0;
   const gardensUnlocked = () => settlementChapter() >= 2; // kitchen gardens — camp-scale
-  const villageUnlocked = () => townHallLevel() >= 3;     // fields, livestock, apiary, orchards
+  const villageUnlocked = () => townHallLevel() >= 3;     // fields, livestock, orchards
+  const apiaryUnlocked = () => townHallLevel() >= 2;      // first hive comes early (humble beekeeping); more per tier
 
   return (
     <div>
@@ -1396,9 +1418,9 @@ export default function Farming() {
 
       {/* ── Apiary ── */}
       <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🐝 Apiary</h2>
-      <LockedShell locked={!villageUnlocked()} reason="Locked until your settlement becomes a Village (Town Hall Lv.3)">
+      <LockedShell locked={!apiaryUnlocked()} reason="Locked until your settlement grows (Town Hall Lv.2)">
         <div class="fields-grid">
-          <For each={state.hives}>{(h) => <HiveCard hive={h} />}</For>
+          <For each={state.hives}>{(h, i) => <HiveCard hive={h} slotIndex={i()} />}</For>
         </div>
       </LockedShell>
 

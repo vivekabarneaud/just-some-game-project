@@ -160,6 +160,7 @@ import {
   getHoneyStorageCap,
   MAX_HIVES,
   HIVE_MAX_LEVEL,
+  unlockedHiveCount,
 } from "~/data/apiary";
 import {
   type FruitId,
@@ -5048,6 +5049,11 @@ export function GameProvider(props: ParentProps) {
     upgradeHive(hiveId) {
       const hive = state.hives.find((h) => h.id === hiveId);
       if (!hive || hive.upgrading || hive.level >= HIVE_MAX_LEVEL) return false;
+      // Building an unbuilt hive requires its slot to be tier-unlocked.
+      if (hive.level === 0) {
+        const idx = state.hives.findIndex((h) => h.id === hiveId);
+        if (idx >= unlockedHiveCount(getTownHallLevel(state.buildings))) return false;
+      }
       if (hive.level >= 1) {
         if (state.season !== "winter") return false;
         if (hive.level >= getTownHallLevel(state.buildings)) return false;
