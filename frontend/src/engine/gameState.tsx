@@ -712,6 +712,9 @@ export interface GameActions {
   getMaxPopulation: () => number;
   getFoodConsumption: () => number;
   getAnimalFoodConsumption: () => number;
+  /** Food-value per hour the tavern burns cooking dishes to order (0 if no
+   *  tavern or nothing servable). Competes with feeding the settlement. */
+  getTavernFoodConsumption: () => number;
   /** Net food/h added by passive cooking (produced minus ingredients eaten),
    *  counting only pots that can actually run right now. Shared so the top bar
    *  and the Overview panel report the same surplus/deficit. */
@@ -5125,6 +5128,20 @@ export function GameProvider(props: ParentProps) {
     getMaxPopulation() { return calcMaxPopulation(state.buildings); },
     getFoodConsumption() { return calcFoodConsumption(state.citizens, countLivingAdventurers(state.adventurers), state.foundingWinterGrace ? FOUNDING_WINTER_RATION : 1); },
     getAnimalFoodConsumption() { return calcAnimalFoodConsumption(state.pens); },
+    getTavernFoodConsumption() {
+      const tavernLvl = state.buildings.find((b) => b.buildingId === "tavern")?.level ?? 0;
+      if (tavernLvl <= 0) return 0;
+      const servable = (state.tavernMenu ?? [])
+        .map((id) => KITCHEN_DISH_BY_ID.get(id))
+        .filter((r): r is CraftingRecipe => !!r && dishUnlocked(state, r) && dishAvailable(state, r));
+      if (servable.length === 0) return 0;
+      const t = calcTavern({
+        level: tavernLvl, happiness: state.happiness, townHallLevel: getTownHallLevel(state.buildings),
+        menuVariety: servable.length, servers: state.tavernServers ?? 0,
+        pricing: state.tavernPricing ?? "fair", reputation: state.tavernReputation ?? 0,
+      });
+      return t.rooms * t.occupancy * TAVERN_FOOD_PER_ROOM_PER_HOUR;
+    },
     getCookingFoodNet() {
       let net = 0;
       for (const rids of Object.values(state.autoCook ?? {})) {

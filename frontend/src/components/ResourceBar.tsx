@@ -80,6 +80,7 @@ export default function ResourceBar() {
   const rates = () => actions.getProductionRates();
   const foodCons = () => actions.getFoodConsumption();
   const animalCons = () => actions.getAnimalFoodConsumption();
+  const tavernCons = () => actions.getTavernFoodConsumption();
   const caps = () => actions.getStorageCaps();
   const foodBreakdown = () => actions.getFoodBreakdown();
   // Sum ALL production sources of a food type — there can be several (e.g. a
@@ -108,7 +109,7 @@ export default function ResourceBar() {
     // into the headline rate so the player sees -14/h climb when a pot is on.
     // The "how long until the larder runs dry" detail stays on the cooked-food
     // line only; here it'd be misleading (several pots, several timers).
-    if (id === "food") return base - foodCons() - animalCons() + actions.getCookingFoodNet();
+    if (id === "food") return base - foodCons() - animalCons() - tavernCons() + actions.getCookingFoodNet();
     return base;
   };
 
@@ -252,6 +253,12 @@ export default function ResourceBar() {
                     <div class="dropdown-row">
                       <span>🐄 Animal feed</span>
                       <span class="rate-negative">-{Math.round(animalCons())}/h</span>
+                    </div>
+                  </Show>
+                  <Show when={tavernCons() > 0}>
+                    <div class="dropdown-row">
+                      <span>🍺 Tavern</span>
+                      <span class="rate-negative">-{tavernCons() < 1 ? tavernCons().toFixed(1) : Math.round(tavernCons())}/h</span>
                     </div>
                   </Show>
                 </div>
