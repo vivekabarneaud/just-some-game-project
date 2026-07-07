@@ -82,6 +82,11 @@ export default function ResourceBar() {
   const animalCons = () => actions.getAnimalFoodConsumption();
   const caps = () => actions.getStorageCaps();
   const foodBreakdown = () => actions.getFoodBreakdown();
+  // Sum ALL production sources of a food type — there can be several (e.g. a
+  // sheep pen AND the hunting camp both make "meat"). A prior `.find` showed
+  // only the first source, hiding the rest (the hunting camp's meat vanished).
+  const rateForType = (id: string) =>
+    foodBreakdown().filter((s) => s.type === id).reduce((sum, s) => sum + s.rate, 0);
 
   const getAmount = (id: string) => {
     // For food, show the sum of per-type floors so the total always matches what's visible in the dropdown
@@ -184,7 +189,7 @@ export default function ResourceBar() {
                         .sort((a, b) => a.order - b.order);
                       const visibleItems = () => itemsInCat().filter((fi) => {
                         const stock = Math.floor(state.foods?.[fi.id] ?? 0);
-                        const rate = foodBreakdown().find((s) => s.type === fi.id)?.rate ?? 0;
+                        const rate = rateForType(fi.id);
                         // A pot currently simmering this dish counts, even from an empty larder.
                         return stock > 0 || rate > 0 || (cookingRates().produce[fi.id] ?? 0) > 0 || isCooking(fi.id);
                       });
@@ -194,7 +199,7 @@ export default function ResourceBar() {
                           <For each={visibleItems()}>
                             {(fi) => {
                               const stock = () => Math.floor(state.foods?.[fi.id] ?? 0);
-                              const rate = () => foodBreakdown().find((s) => s.type === fi.id)?.rate ?? 0;
+                              const rate = () => rateForType(fi.id);
                               const cookRate = () => cookingRates().produce[fi.id] ?? 0;
                               const totalRate = () => rate() + cookRate();
                               return (
