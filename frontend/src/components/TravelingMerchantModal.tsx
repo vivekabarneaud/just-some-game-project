@@ -10,7 +10,9 @@ const RES: Record<string, { icon: string; label: string }> = {
   gold: { icon: "🪙", label: "Gold" },
   wood: { icon: "🪵", label: "Wood" },
   stone: { icon: "🪨", label: "Stone" },
-  food: { icon: "🍞", label: "Food" },
+  // The "food" trade token resolves to wheat (see trade(): addFood(…, "wheat")),
+  // and every merchant that deals in it is a grain trader — so name it Grain.
+  food: { icon: "🌾", label: "Grain" },
 };
 const res = (k: string) => RES[k] ?? { icon: "📦", label: k };
 
