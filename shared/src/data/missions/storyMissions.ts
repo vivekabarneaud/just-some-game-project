@@ -102,10 +102,14 @@ export const STORY_MISSIONS: StoryMission[] = [
     difficulty: 2,
     minGuildLevel: 1,
     tags: ["combat", "magical", "escort"],
+    // Interim alpha tuning: trimmed from boss + 3 wraiths + 5 spirits (an
+    // untuned engine-test load) down to boss + 1 wraith + 3 spirits, so a
+    // leveled team can win by protecting Niamh. Real Hale tuning comes when the
+    // story thread authors him (captain_hale_stub is still a stub).
     encounters: [
       { enemyId: "captain_hale_stub", count: 1 },
-      { enemyId: "wraith", count: 3 },
-      { enemyId: "cursed_spirit", count: 5 },
+      { enemyId: "wraith", count: 1 },
+      { enemyId: "cursed_spirit", count: 3 },
     ],
     npcAlly: {
       npcId: "niamh",

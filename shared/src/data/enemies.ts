@@ -428,7 +428,7 @@ export const ENEMIES: EnemyDefinition[] = [
     tauntImmunity: "normal", // bosses don't fall for warrior taunt
     abilities: [
       { id: "spectral_lash", name: "Spectral Lash", icon: "💢", cooldown: 2, trigger: "always",
-        effect: { type: "damage_mult", mult: 2.0, targets: 1 } },
+        effect: { type: "damage_mult", mult: 1.75, targets: 1 } },
       { id: "captains_command", name: "Captain's Command", icon: "📣", cooldown: 4, trigger: "always",
         effect: { type: "buff_allies", stat: "str", pct: 25, rounds: 2 } },
     ],
