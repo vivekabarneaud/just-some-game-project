@@ -436,7 +436,7 @@ function GardenCard(props: { garden: PlayerGarden }) {
     if (props.garden.level > 0 && inPlantSeason() && !planted()) {
       return { label: `Time to plant — ${sowAmount()}/${capacity()} seed ready`, color: "var(--accent-gold)" };
     }
-    if (props.garden.level > 0) return { label: "Dormant — waiting for its season", color: "var(--text-muted)" };
+    if (props.garden.level > 0) return { label: `Not planted — sow in ${veggie().plantSeasons.join(", ")}`, color: "var(--text-muted)" };
     return null;
   };
 
