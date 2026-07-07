@@ -2,7 +2,7 @@ import { For, Show, onMount } from "solid-js";
 import { A } from "@solidjs/router";
 import { BUILDINGS, isBuildingUnlocked, isBuildingChapterUnlocked, getUnlockRequirement, getUnlockReasons, getUnlockConditions, getNextLevelRequirement, applyMasonCostReduction, applyMasonTimeReduction, getTierPrerequisitesMet, getRepairCost, getBuildingImage, PANIC_BUILD_IDS, PANIC_BUILD_SHARD_COST, type BuildingDefinition } from "~/data/buildings";
 import { QUEST_DEFINITIONS, isQuestActive } from "~/data/quests";
-import { useGame, isRainyNow, RAIN_FORAGE_MUSHROOM_FRACTION } from "~/engine/gameState";
+import { useGame, isForagerBlooming, RAIN_FORAGE_MUSHROOM_FRACTION } from "~/engine/gameState";
 import { playSound } from "~/engine/sounds";
 import Countdown from "~/components/Countdown";
 import Tooltip from "~/components/Tooltip";
@@ -484,9 +484,9 @@ export default function Buildings() {
                             </div>
                           );
                         })()}
-                        {building.id === "forager_hut" && level() > 0 && currentLevel()?.production && isRainyNow(state) && (
+                        {building.id === "forager_hut" && level() > 0 && currentLevel()?.production && isForagerBlooming(state) && (
                           <div class="building-card-production" style={{ color: "#d4831a" }}>
-                            🌧️ Rain — mushrooms sprouting (+{Math.floor(currentLevel()!.production!.rate * RAIN_FORAGE_MUSHROOM_FRACTION)}/h)
+                            🍄 After the rain — mushrooms sprouting (+{Math.floor(currentLevel()!.production!.rate * RAIN_FORAGE_MUSHROOM_FRACTION)}/h)
                           </div>
                         )}
                         {building.id === "forager_hut" && level() > 0 && (

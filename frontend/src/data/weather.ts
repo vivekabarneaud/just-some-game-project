@@ -137,6 +137,23 @@ export function resolveCurrentWeather(season: Season, seasonElapsed: number, yea
   return resolveWeather(i.season, i.progress, i.year);
 }
 
+const isWetWeather = (w: WeatherType) => w === "rain" || w === "storm" || w === "unnatural_storm";
+
+/**
+ * True during the first DRY window right after a wet one — the damp aftermath a
+ * forager's hut sprouts mushrooms in. Computed from the deterministic wall-clock
+ * weather (dry now AND wet in the previous ~1h window), so it needs no save
+ * state and lasts about one window before fading. Deliberately "after" the rain,
+ * not during. Skips the season-boundary lookback for simplicity.
+ */
+export function forageBloomNow(season: Season, seasonElapsed: number, year: number): boolean {
+  const info = currentWeatherInfo(season, seasonElapsed, year);
+  if (isWetWeather(resolveWeather(info.season, info.progress, info.year))) return false; // still raining
+  const prevProgress = info.progress - 1 / WEATHER_WINDOWS;
+  if (prevProgress < 0) return false; // start of the season — no prior window to read
+  return isWetWeather(resolveWeather(info.season, prevProgress, info.year));
+}
+
 /** Ordered list for menus/dropdowns. */
 export const WEATHER_TYPES: WeatherType[] = [
   "clear", "overcast", "rain", "snow", "fog", "storm", "unnatural_storm",

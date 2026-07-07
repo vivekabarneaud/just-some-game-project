@@ -221,7 +221,7 @@ import {
   getMissionPhase,
 } from "@medieval-realm/shared/data/missions";
 import { getEnemy } from "@medieval-realm/shared/data/enemies";
-import { resolveCurrentWeather } from "~/data/weather";
+import { forageBloomNow } from "~/data/weather";
 import {
   getMissionXp,
   applyXp,
@@ -1933,13 +1933,13 @@ function isHarvestTime(season: Season, seasonElapsed: number): boolean {
   return season === "autumn" && seasonElapsed < HARVEST_DURATION_HOURS;
 }
 
-/** Rain sprouts mushrooms at the Forager's Hut — a bonus yield in ANY season
- *  (the wet ground doesn't care what month it is), on top of the seasonal
- *  gather. A fraction of the hut's base rate, NOT scaled by the season modifier. */
+/** The damp aftermath of rain sprouts mushrooms at the Forager's Hut — a bonus
+ *  yield in ANY season (the wet ground doesn't care what month it is), on top of
+ *  the seasonal gather. A fraction of the hut's base rate, NOT scaled by the
+ *  season modifier. Fires AFTER the rain (see forageBloomNow), not during. */
 export const RAIN_FORAGE_MUSHROOM_FRACTION = 0.5;
-export function isRainyNow(state: GameState): boolean {
-  const w = resolveCurrentWeather(state.season, state.seasonElapsed, state.year);
-  return w === "rain" || w === "storm" || w === "unnatural_storm";
+export function isForagerBlooming(state: GameState): boolean {
+  return forageBloomNow(state.season, state.seasonElapsed, state.year);
 }
 
 // ─── Derived calculations ────────────────────────────────────────
@@ -2152,8 +2152,9 @@ function calcFoodRates(state: GameState, fedRatios?: Map<string, number>): Recor
       const base = rate;
       rate = Math.floor(rate * (foragerSeasonMod[season] ?? 1));
       target = season === "autumn" ? "mushrooms" : season === "winter" ? "nuts" : "berries";
-      // Rain sprouts a mushroom bonus in any season, on top of the seasonal gather.
-      if (isRainyNow(state)) rates.mushrooms += Math.floor(base * RAIN_FORAGE_MUSHROOM_FRACTION);
+      // The aftermath of rain sprouts a mushroom bonus in any season, on top of
+      // the seasonal gather.
+      if (isForagerBlooming(state)) rates.mushrooms += Math.floor(base * RAIN_FORAGE_MUSHROOM_FRACTION);
     } else if (pb.buildingId === "fishing_hut") {
       rate = Math.floor(rate * (foodSeasonMod[season] ?? 1));
       target = "fish";
@@ -2229,7 +2230,7 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
       rate = Math.floor(rate * (foodSeasonMod[season] ?? 1));
       type = "meat"; icon = "🍖"; label = "Meat";
     } else if (pb.buildingId === "forager_hut") {
-      const rainBonus = isRainyNow(state) ? Math.floor(rate * RAIN_FORAGE_MUSHROOM_FRACTION) : 0;
+      const rainBonus = isForagerBlooming(state) ? Math.floor(rate * RAIN_FORAGE_MUSHROOM_FRACTION) : 0;
       rate = Math.floor(rate * (foragerSeasonMod[season] ?? 1));
       if (season === "autumn") { type = "mushrooms"; icon = "🍄"; label = "Mushrooms"; }
       else if (season === "winter") { type = "nuts"; icon = "🌰"; label = "Nuts"; }
