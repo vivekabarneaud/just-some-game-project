@@ -1284,7 +1284,7 @@ export default function MissionAssemblyPanel(props: Props) {
               <For each={freshMission().deployItems!}>
                 {(c, i) => (
                   <span style={{ color: actions.resourceQty(c.resource) < c.amount ? "var(--accent-red, #e05a5a)" : undefined }}>
-                    {i() > 0 ? ", " : ""}{formatReward(c)} ({actions.resourceQty(c.resource)} on hand)
+                    {i() > 0 ? ", " : ""}{formatReward(c)} ({Math.floor(actions.resourceQty(c.resource))} on hand)
                   </span>
                 )}
               </For>
