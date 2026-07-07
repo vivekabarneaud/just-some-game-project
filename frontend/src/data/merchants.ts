@@ -49,7 +49,7 @@ export const TRAVELING_MERCHANTS: TravelingMerchant[] = [
     name: "Cobb",
     culture: "Dominion road-trader",
     icon: "🧳",
-    portrait: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/merchants/cobb.png",
+    portrait: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/merchants/cobb_zoomed.png",
     narrative:
       "A trader came up the south road: a short, well-fed Dominion man with a comfortable belly, two mules, and more opinions than cargo, and he walked our camp like a man pricing it. He had been this way before, he said, back when there was nothing here worth stopping for.",
     parting:

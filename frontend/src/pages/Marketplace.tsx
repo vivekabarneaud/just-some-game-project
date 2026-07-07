@@ -273,7 +273,13 @@ export default function Marketplace() {
             return (
               <div class="building-card" style={{ "margin-bottom": "16px", border: "1px solid var(--accent-gold)" }}>
                 <div class="building-card-header" style={{ "align-items": "center" }}>
-                  <div class="building-card-icon">🧳</div>
+                  <Show when={merchant().portrait} fallback={<div class="building-card-icon">{merchant().icon}</div>}>
+                    <img
+                      src={merchant().portrait}
+                      alt={merchant().name}
+                      style={{ width: "48px", height: "48px", "border-radius": "50%", "object-fit": "cover", border: "1px solid var(--accent-gold)" }}
+                    />
+                  </Show>
                   <div>
                     <div class="building-card-title">{merchant().name}'s stall</div>
                     <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>{merchant().culture}</div>
