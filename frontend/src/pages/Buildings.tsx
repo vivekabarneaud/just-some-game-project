@@ -1,5 +1,6 @@
-import { For, Show, onMount } from "solid-js";
+import { For, Show, onMount, createSignal } from "solid-js";
 import { A } from "@solidjs/router";
+import BreweryManageModal from "~/components/BreweryManageModal";
 import { BUILDINGS, isBuildingUnlocked, isBuildingChapterUnlocked, getUnlockRequirement, getUnlockReasons, getUnlockConditions, getNextLevelRequirement, applyMasonCostReduction, applyMasonTimeReduction, getTierPrerequisitesMet, getRepairCost, getBuildingImage, PANIC_BUILD_IDS, PANIC_BUILD_SHARD_COST, type BuildingDefinition } from "~/data/buildings";
 import { QUEST_DEFINITIONS, isQuestActive } from "~/data/quests";
 import { useGame, isForagerBlooming, RAIN_FORAGE_MUSHROOM_FRACTION } from "~/engine/gameState";
@@ -21,6 +22,7 @@ const SECTIONS: { key: BuildingDefinition["category"]; label: string; icon: stri
 export default function Buildings() {
   const { state, actions } = useGame();
   const thLevel = () => actions.getTownHallLevel();
+  const [manageBrewery, setManageBrewery] = createSignal(false);
 
   onMount(() => {
     const hash = window.location.hash;
@@ -62,6 +64,9 @@ export default function Buildings() {
 
   return (
     <div>
+      <Show when={manageBrewery()}>
+        <BreweryManageModal onClose={() => setManageBrewery(false)} />
+      </Show>
       <h1 class="page-title">Buildings</h1>
       <div style={{
         "margin-bottom": "16px",
@@ -501,6 +506,19 @@ export default function Buildings() {
                           <div class="building-card-production">
                             +{(level() * 1.0).toFixed(1)}/h leather (hides)
                           </div>
+                        )}
+                        {building.id === "brewery" && level() > 0 && (
+                          <button
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setManageBrewery(true); }}
+                            style={{
+                              "margin-top": "6px", padding: "5px 10px", "font-size": "0.78rem",
+                              background: "transparent", border: "1px solid var(--border-color)",
+                              color: "var(--text-secondary)", "border-radius": "4px", cursor: "pointer",
+                              "align-self": "flex-start",
+                            }}
+                          >
+                            ⚙ Manage brewing
+                          </button>
                         )}
                         {pb()?.damaged && (
                           <div style={{ display: "flex", "align-items": "center", "justify-content": "space-between", gap: "8px" }}>

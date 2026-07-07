@@ -5,6 +5,11 @@
   --bg-panel: #1e2a45;
   --bg-hover: #253555;
   --bg-card: #1b2540;
+  /* Stable sidebar hover/active fill. Deliberately NOT --bg-hover: that one is
+     an @property-registered colour that tweens with the weather drift, so a
+     hovered nav-link's background kept shifting (read as a pulse). This one is
+     plain and weather-independent, so the sidebar stays still. */
+  --nav-hover-bg: #253555;
 
   --border-color: #2a3a5c;
   --border-highlight: #4a5a8c;
@@ -391,13 +396,13 @@ body {
 }
 
 .nav-link:hover {
-  background: var(--bg-hover);
+  background: var(--nav-hover-bg);
   color: var(--text-primary);
 }
 
 .nav-link.active {
   color: var(--accent-gold);
-  background: var(--bg-hover);
+  background: var(--nav-hover-bg);
   border-left-color: var(--accent-gold);
 }
 

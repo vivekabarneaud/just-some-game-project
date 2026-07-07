@@ -270,7 +270,7 @@ import {
 } from "~/data/quests";
 import { getReadyEvents } from "~/data/events";
 import { TRAVELING_MERCHANTS, getMerchant, merchantIntervalDays } from "~/data/merchants";
-import { calcTavern, REPUTATION_DRIFT_PER_HOUR, TAVERN_FOOD_PER_ROOM_PER_HOUR, MENU_STAPLE_IDS, serversNeeded, menuCapacity } from "~/data/tavern";
+import { calcTavern, REPUTATION_DRIFT_PER_HOUR, TAVERN_FOOD_PER_ROOM_PER_HOUR, MENU_STAPLE_IDS, serversNeeded, menuCapacity, TAVERN_COMMODITY_DRINKS } from "~/data/tavern";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { EXOTIC_IDS } from "@medieval-realm/shared/data/exotics";
 import { ALCHEMY_RECIPES, getDiscoverableRecipes, getAvailableAlchemyRecipes, RESEARCH_BASE_COST } from "@medieval-realm/shared/data/alchemy_recipes";
@@ -564,6 +564,9 @@ export interface GameState {
   eventLog: GameEvent[];
   // Ale & Happiness
   ale: number;
+  /** Per-drink brewery pause switches, keyed by drink id ("ale", later
+   *  "beer"/"wine"/"mead"). Missing/false = brewing; true = paused. */
+  brewingPaused?: Record<string, boolean>;
   happiness: number; // 0-100
   lastRaidOutcome: "none" | "victory" | "defeat";
   lastRaidTime: number; // game-hours elapsed since last raid outcome
@@ -675,6 +678,9 @@ export interface TavernDish {
   available: boolean;  // unlocked AND ingredients in stock (cookable now)
   missing: string[];   // ingredient resources short of a batch
   costs: { resource: string; amount: number }[]; // the recipe's ingredients
+  /** True for stored-commodity drinks (ale, later wine/mead) poured from stock
+   *  rather than cooked to order — drives "from the barrel" labelling. */
+  commodity?: boolean;
 }
 
 export interface GameActions {
@@ -706,6 +712,10 @@ export interface GameActions {
   toggleTavernDish: (dishId: string) => void;
   /** Replace the whole tavern menu (menu editor's Apply); clamped to capacity. */
   setTavernMenu: (dishIds: string[]) => void;
+  /** Pause/resume brewing a commodity drink at the Brewery (e.g. "ale"). */
+  toggleBrewingPaused: (drinkId: string) => void;
+  /** Whether a commodity drink is currently paused at the Brewery. */
+  isBrewingPaused: (drinkId: string) => boolean;
   /** Assign N adults to serve at the tavern (clamped to available adults + slots). */
   setTavernServers: (n: number) => void;
   /** Set the tavern pricing lever. */
@@ -3576,7 +3586,9 @@ export function GameProvider(props: ParentProps) {
         const tavernLvl = s.buildings.find((b) => b.buildingId === "tavern")?.level ?? 0;
         const aleStorageCap = ALE_STORAGE_BASE + breweryLvl * ALE_STORAGE_PER_BREWERY_LEVEL;
 
-        if (breweryLvl > 0) {
+        // Brew only when not paused AND the barrel isn't already full — otherwise
+        // the brewery kept eating grain to "produce" ale it couldn't store.
+        if (breweryLvl > 0 && !(s.brewingPaused?.ale) && s.ale < aleStorageCap) {
           const aleProduced = ALE_PRODUCTION_PER_BREWERY_LEVEL * breweryLvl * elapsedHours;
           const foodNeeded = ALE_FOOD_COST_PER_BREWERY_LEVEL * breweryLvl * elapsedHours;
           // Only produce if we have enough food total (proportionally drawn)
@@ -3586,9 +3598,13 @@ export function GameProvider(props: ParentProps) {
           }
         }
 
+        // Ale is poured only when it's featured on the tavern menu. Off the menu
+        // the barrel isn't tapped — so it fills to cap and the brewery stops
+        // drawing grain (the runaway-drain fix).
+        const aleOnMenu = (s.tavernMenu ?? []).includes("ale");
+        const aleNeeded = tavernLvl > 0 && aleOnMenu ? ALE_CONSUMED_PER_TAVERN_LEVEL * tavernLvl * elapsedHours : 0;
         let aleConsumed = 0;
-        if (tavernLvl > 0) {
-          const aleNeeded = ALE_CONSUMED_PER_TAVERN_LEVEL * tavernLvl * elapsedHours;
+        if (aleNeeded > 0) {
           aleConsumed = Math.min(s.ale, aleNeeded);
           s.ale = Math.max(0, s.ale - aleConsumed);
         }
@@ -3655,14 +3671,12 @@ export function GameProvider(props: ParentProps) {
         const shrineLvl = s.buildings.find((b) => b.buildingId === "shrine")?.level ?? 0;
         happiness += shrineLvl * SHRINE_HAPPINESS_PER_LEVEL;
 
-        // Tavern (depends on ale)
-        if (tavernLvl > 0) {
-          const aleRatio = aleConsumed / (ALE_CONSUMED_PER_TAVERN_LEVEL * tavernLvl * elapsedHours || 1);
-          if (aleRatio > 0.5) {
-            happiness += tavernLvl * TAVERN_HAPPINESS_PER_LEVEL;
-          } else {
-            happiness += tavernLvl * TAVERN_HAPPINESS_DRY; // dry tavern
-          }
+        // Tavern happiness. Ale is now opt-in: if it's on the menu, a flowing
+        // barrel cheers the settlement and a dry one disappoints; if the player
+        // doesn't feature ale at all, there's no ale-driven swing either way.
+        if (tavernLvl > 0 && aleOnMenu) {
+          const aleRatio = aleConsumed / (aleNeeded || 1);
+          happiness += aleRatio > 0.5 ? tavernLvl * TAVERN_HAPPINESS_PER_LEVEL : tavernLvl * TAVERN_HAPPINESS_DRY;
         }
 
         // Clothing — scaled penalty when underclothed, doubled in winter
@@ -5138,6 +5152,16 @@ export function GameProvider(props: ParentProps) {
       }));
       scheduleSave();
     },
+    toggleBrewingPaused(drinkId: string) {
+      setState(produce((s) => {
+        if (!s.brewingPaused) s.brewingPaused = {};
+        s.brewingPaused[drinkId] = !s.brewingPaused[drinkId];
+      }));
+      scheduleSave();
+    },
+    isBrewingPaused(drinkId: string) {
+      return state.brewingPaused?.[drinkId] ?? false;
+    },
 
     setTavernMenu(dishIds: string[]) {
       // Replace the whole menu (used by the menu editor's Apply). Clamp to the
@@ -5239,7 +5263,7 @@ export function GameProvider(props: ParentProps) {
     },
     getFoodBreakdown() { return calcFoodBreakdown(state); },
     getTavernDishes() {
-      return KITCHEN_DISHES.map((r) => {
+      const kitchen = KITCHEN_DISHES.map((r) => {
         const unlocked = dishUnlocked(state, r);
         const available = unlocked && dishAvailable(state, r);
         const missing = r.costs.filter((c) => readDishCost(state, c.resource) < c.amount).map((c) => c.resource);
@@ -5249,6 +5273,20 @@ export function GameProvider(props: ParentProps) {
           costs: r.costs,
         };
       });
+      // Commodity drinks (ale, later wine/mead): poured from a stored resource,
+      // not cooked. Unlocked once the source building exists; available while the
+      // barrel has stock.
+      const commodity: TavernDish[] = TAVERN_COMMODITY_DRINKS.map((d) => {
+        const unlocked = (state.buildings.find((b) => b.buildingId === d.requiresBuilding)?.level ?? 0) > 0;
+        const stock = getResourceQty(state, d.resource);
+        return {
+          id: d.id, name: d.name, icon: d.icon, image: d.image, kind: "drink" as DishKind,
+          unlocked, onMenu: (state.tavernMenu ?? []).includes(d.id),
+          available: unlocked && stock > 0, missing: stock > 0 ? [] : [d.resource],
+          costs: [], commodity: true,
+        };
+      });
+      return [...kitchen, ...commodity];
     },
     getStorageCaps() { return calcStorageCaps(state.buildings); },
     getSettlementTier() { return getSettlementTier(getTownHallLevel(state.buildings)); },

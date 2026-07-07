@@ -229,7 +229,9 @@ export default function Tavern() {
                         <div style={{ flex: "1", "min-width": "0" }}>
                           <div style={{ color: "var(--text-primary)", "font-size": "0.85rem" }}>{dish.name}</div>
                           <div style={{ "font-size": "0.7rem", color: dish.available ? "var(--text-muted)" : "var(--accent-red)" }}>
-                            {dish.available ? "cooked to order" : `need ${dish.missing.join(", ")}`}
+                            {dish.commodity
+                              ? (dish.available ? "poured from the barrel" : "the barrel is dry")
+                              : (dish.available ? "cooked to order" : `need ${dish.missing.join(", ")}`)}
                           </div>
                         </div>
                         <button title="Remove from the menu" style={{ background: "none", border: "none", cursor: "pointer", "font-size": "0.95rem" }} onClick={() => actions.toggleTavernDish(dish.id)}>🗑</button>

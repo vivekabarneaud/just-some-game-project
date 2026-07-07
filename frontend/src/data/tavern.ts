@@ -25,6 +25,30 @@ export function serversNeeded(level: number): number {
  *  /culture dishes as extra featured slots. */
 export const MENU_STAPLE_IDS = ["porridge", "hearth_stew", "river_stew"];
 
+/** Commodity drinks: NOT kitchen recipes. They're brewed/stored elsewhere (the
+ *  Brewery's ale barrel; later wine/mead) and, when featured on the menu, poured
+ *  from that stock. The tavern draws the stored resource menu-driven — off the
+ *  menu, nothing is drawn (so the Brewery stops eating grain to refill). One
+ *  entry per drink; wire beer/wine/mead here as they arrive. */
+export interface TavernCommodityDrink {
+  id: string;
+  name: string;
+  icon: string;
+  image?: string;
+  /** The stored resource this drink is poured from (e.g. "ale"). */
+  resource: string;
+  /** Building that must exist (level > 0) for the drink to be servable. */
+  requiresBuilding: string;
+}
+
+export const TAVERN_COMMODITY_DRINKS: TavernCommodityDrink[] = [
+  { id: "ale", name: "Ale", icon: "🍺", resource: "ale", requiresBuilding: "brewery" },
+];
+
+export function getCommodityDrink(id: string): TavernCommodityDrink | undefined {
+  return TAVERN_COMMODITY_DRINKS.find((d) => d.id === id);
+}
+
 /** How many dishes the tavern can feature at once, across all columns. Grows
  *  with the tavern — so a bigger house sets a wider table. Level 1 already
  *  seats the three staples with a little room to spare. */

@@ -328,6 +328,9 @@ export interface GameState {
   eventLog: GameEvent[];
   // Ale & Happiness
   ale: number;
+  /** Per-drink brewery pause switches, keyed by drink id ("ale", later
+   *  "beer"/"wine"/"mead"). Missing/false = brewing; true = paused. */
+  brewingPaused?: Record<string, boolean>;
   happiness: number;
   lastRaidOutcome: "none" | "victory" | "defeat";
   lastRaidTime: number;
