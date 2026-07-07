@@ -858,6 +858,13 @@ export const MEAD_CONSUMED_PER_TAVERN_LEVEL = 2; // mead consumed/hour
 export const MEAD_STORAGE_BASE = 30;
 export const MEAD_STORAGE_PER_BREWERY_LEVEL = 20;
 
+// Cider system — pressed from orchard apples at the Brewery (Lv.3). Gentle, like mead.
+export const CIDER_PRODUCTION_PER_BREWERY_LEVEL = 3; // cider/hour
+export const CIDER_APPLE_COST_PER_BREWERY_LEVEL = 2; // apples consumed/hour to press cider
+export const CIDER_CONSUMED_PER_TAVERN_LEVEL = 3; // cider consumed/hour
+export const CIDER_STORAGE_BASE = 40;
+export const CIDER_STORAGE_PER_BREWERY_LEVEL = 25;
+
 // Happiness
 export const SHRINE_HAPPINESS_PER_LEVEL = 3;
 export const TAVERN_HAPPINESS_PER_LEVEL = 5; // when ale is available

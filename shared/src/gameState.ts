@@ -330,6 +330,8 @@ export interface GameState {
   ale: number;
   /** Mead — brewed from honey at the Brewery, served at the tavern like ale. */
   mead?: number;
+  /** Cider — pressed from orchard apples at the Brewery. */
+  cider?: number;
   /** Per-drink brewery pause switches, keyed by drink id ("ale", "mead", later
    *  "beer"/"wine"). Missing/false = brewing; true = paused. */
   brewingPaused?: Record<string, boolean>;

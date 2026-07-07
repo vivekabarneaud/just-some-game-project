@@ -3,6 +3,7 @@ import { RESOURCES } from "~/data/resources";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { EXOTICS } from "@medieval-realm/shared/data/exotics";
 import { useGame, CRAFTING_RECIPES } from "~/engine/gameState";
+import { TAVERN_COMMODITY_DRINKS } from "~/data/tavern";
 import { totalPopulation } from "~/data/citizens";
 import { FOOD_ITEMS, FOOD_CATEGORIES, getTotalFood, getFoodCostAmount, type FoodItemType, type FoodCategoryId } from "~/data/foods";
 import { craftingMaterialCap } from "~/data/buildings";
@@ -82,6 +83,11 @@ export default function ResourceBar() {
   const animalCons = () => actions.getAnimalFoodConsumption();
   const tavernCons = () => actions.getTavernFoodConsumption();
   const honeyRate = () => actions.getHoneyProduction();
+  // Unlocked tavern drinks (ale/mead/cider/…) + their barrel readouts.
+  const drinks = () =>
+    TAVERN_COMMODITY_DRINKS
+      .map((d) => ({ ...d, info: actions.getDrinkInfo(d.id) }))
+      .filter((d) => d.info.cap > 0);
   const caps = () => actions.getStorageCaps();
   const foodBreakdown = () => actions.getFoodBreakdown();
   // Sum ALL production sources of a food type — there can be several (e.g. a
@@ -362,81 +368,54 @@ export default function ResourceBar() {
         </div>
       </Show>
 
-      <Show when={state.clothing > 0 || actions.getClothingInfo().needed > 0 || actions.getAleInfo().cap > 0 || actions.getMeadInfo().cap > 0}>
+      <Show when={state.clothing > 0 || actions.getClothingInfo().needed > 0 || drinks().length > 0}>
         {(() => {
           const clothing = () => actions.getClothingInfo();
-          const ale = () => actions.getAleInfo();
-          const mead = () => actions.getMeadInfo();
           const hasClothing = () => clothing().needed > 0 || clothing().current > 0;
-          const hasAle = () => ale().cap > 0;
-          const hasMead = () => mead().cap > 0;
-          const netOf = (d: { current: number; production: number; consumption: number }) => {
-            const eff = (d.current <= 0 && d.production <= 0) ? 0 : d.consumption;
-            return d.production - eff;
-          };
-          const aleNet = () => netOf(ale());
-          const meadNet = () => netOf(mead());
-          // Red only when something *vital* is unmet. Clothing is vital
-          // (citizens need to stay warm / survive winter). Ale is a happiness
-          // luxury — its rate indicator inside the dropdown is enough; not
-          // having any ale shouldn't flag the comforts pill as a warning.
-          const allMet = () =>
-            (!hasClothing() || clothing().current >= clothing().needed);
+          // Red only when something *vital* is unmet. Clothing is vital (warmth /
+          // surviving winter). Drinks are a happiness luxury — their rate inside
+          // the dropdown is enough; being out shouldn't flag the pill.
+          const allMet = () => (!hasClothing() || clothing().current >= clothing().needed);
+          const drinkTotal = () => drinks().reduce((sum, d) => sum + d.info.current, 0);
           return (
             <div class="resource-item has-dropdown" tabIndex={0}>
               <span class="resource-icon">🛍️</span>
-              {/* Total stockpile (clothing + ale units). Red when something
-                  isn't met — matches the at-a-glance pattern of every other
-                  resource pill, with the warning preserved as colour. */}
-              <span class="resource-amount" style={{
-                color: allMet() ? undefined : "var(--accent-red)",
-              }}>
-                {(clothing().current + ale().current + mead().current).toLocaleString()}
+              <span class="resource-amount" style={{ color: allMet() ? undefined : "var(--accent-red)" }}>
+                {(clothing().current + drinkTotal()).toLocaleString()}
               </span>
               <div class="resource-dropdown">
                 <div class="dropdown-title">Comforts</div>
                 <Show when={hasClothing()}>
                   <div class="dropdown-row">
                     <span>👕 Clothing</span>
-                    <span style={{
-                      color: clothing().current >= clothing().needed ? "var(--accent-green)" : "var(--accent-red)",
-                    }}>
+                    <span style={{ color: clothing().current >= clothing().needed ? "var(--accent-green)" : "var(--accent-red)" }}>
                       {clothing().current}/{clothing().needed}
                     </span>
                   </div>
                 </Show>
-                <Show when={hasAle()}>
-                  <div class="dropdown-row">
-                    <span>🍺 Ale</span>
-                    <span>
-                      {ale().current}/{ale().cap}
-                      <Show when={aleNet() !== 0}>
-                        <span classList={{
-                          "rate-positive": aleNet() > 0,
-                          "rate-negative": aleNet() < 0,
-                        }} style={{ "margin-left": "6px", "font-size": "0.72rem" }}>
-                          {aleNet() >= 0 ? "+" : ""}{aleNet()}/h
+                <For each={drinks()}>
+                  {(d) => {
+                    const net = () => {
+                      const i = d.info;
+                      const eff = (i.current <= 0 && i.production <= 0) ? 0 : i.consumption;
+                      return i.production - eff;
+                    };
+                    return (
+                      <div class="dropdown-row">
+                        <span>{d.icon} {d.name}</span>
+                        <span>
+                          {d.info.current}/{d.info.cap}
+                          <Show when={net() !== 0}>
+                            <span classList={{ "rate-positive": net() > 0, "rate-negative": net() < 0 }}
+                              style={{ "margin-left": "6px", "font-size": "0.72rem" }}>
+                              {net() >= 0 ? "+" : ""}{net()}/h
+                            </span>
+                          </Show>
                         </span>
-                      </Show>
-                    </span>
-                  </div>
-                </Show>
-                <Show when={hasMead()}>
-                  <div class="dropdown-row">
-                    <span>🍯 Mead</span>
-                    <span>
-                      {mead().current}/{mead().cap}
-                      <Show when={meadNet() !== 0}>
-                        <span classList={{
-                          "rate-positive": meadNet() > 0,
-                          "rate-negative": meadNet() < 0,
-                        }} style={{ "margin-left": "6px", "font-size": "0.72rem" }}>
-                          {meadNet() >= 0 ? "+" : ""}{meadNet()}/h
-                        </span>
-                      </Show>
-                    </span>
-                  </div>
-                </Show>
+                      </div>
+                    );
+                  }}
+                </For>
               </div>
             </div>
           );
