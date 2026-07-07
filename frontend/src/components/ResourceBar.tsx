@@ -81,6 +81,7 @@ export default function ResourceBar() {
   const foodCons = () => actions.getFoodConsumption();
   const animalCons = () => actions.getAnimalFoodConsumption();
   const tavernCons = () => actions.getTavernFoodConsumption();
+  const honeyRate = () => actions.getHoneyProduction();
   const caps = () => actions.getStorageCaps();
   const foodBreakdown = () => actions.getFoodBreakdown();
   // Sum ALL production sources of a food type — there can be several (e.g. a
@@ -235,11 +236,18 @@ export default function ResourceBar() {
                     }}
                   </For>
                   {/* Pantry: honey lives outside the typed foods map but belongs with food */}
-                  <Show when={state.honey > 0}>
+                  <Show when={state.honey > 0 || honeyRate() > 0}>
                     <div class="dropdown-category-header">🍯 Pantry</div>
                     <div class="dropdown-row">
                       <span>🍯 Honey</span>
-                      <span style={{ color: "var(--text-primary)" }}>{Math.floor(state.honey)}</span>
+                      <span style={{ display: "flex", gap: "8px", "align-items": "center" }}>
+                        <span style={{ color: "var(--text-primary)" }}>{Math.floor(state.honey)}</span>
+                        <Show when={honeyRate() > 0} fallback={
+                          <span style={{ "min-width": "64px", "text-align": "right", color: "var(--text-muted)", "font-size": "0.72rem" }}>(dormant)</span>
+                        }>
+                          <span class="rate-positive" style={{ "min-width": "64px", "text-align": "right" }}>+{honeyRate()}/h</span>
+                        </Show>
+                      </span>
                     </div>
                   </Show>
                   <Show when={foodBreakdown().length === 0 && getTotalFood(state.foods) === 0 && state.honey === 0}>

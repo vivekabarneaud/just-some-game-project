@@ -718,6 +718,8 @@ export interface GameActions {
   /** Food-value per hour the tavern burns cooking dishes to order (0 if no
    *  tavern or nothing servable). Competes with feeding the settlement. */
   getTavernFoodConsumption: () => number;
+  /** Honey gathered per hour across all active hives (seasonal — 0 in winter). */
+  getHoneyProduction: () => number;
   /** Net food/h added by passive cooking (produced minus ingredients eaten),
    *  counting only pots that can actually run right now. Shared so the top bar
    *  and the Overview panel report the same surplus/deficit. */
@@ -5153,6 +5155,12 @@ export function GameProvider(props: ParentProps) {
         pricing: state.tavernPricing ?? "fair", reputation: state.tavernReputation ?? 0,
       });
       return t.rooms * t.occupancy * TAVERN_FOOD_PER_ROOM_PER_HOUR;
+    },
+    getHoneyProduction() {
+      return state.hives.reduce(
+        (sum, h) => (h.level > 0 && !h.upgrading ? sum + getHoneyRate(h.level, state.season) : sum),
+        0,
+      );
     },
     getCookingFoodNet() {
       let net = 0;
