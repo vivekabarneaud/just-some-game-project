@@ -25,32 +25,10 @@ export const HIVE_COST_MULTIPLIER = 1.3;
 export const HIVE_GOLD_PER_LEVEL = 20;
 export const HIVE_BASE_BUILD_TIME = 5; // seconds
 export const HIVE_BUILD_TIME_MULTIPLIER = 1.4;
-export const MAX_HIVES = 4;
+// A single apiary the settlement upgrades as it grows (upgrades are capped by
+// Town Hall level, like every other building). Not a multi-slot yard.
+export const MAX_HIVES = 1;
 export const HIVE_MAX_LEVEL = 5;
-
-/** How many hive slots the settlement has unlocked at a given Town Hall level.
- *  Beekeeping is humble, so the first hive comes early (TH2, still a camp);
- *  each settlement tier after that unlocks one more, up to MAX_HIVES.
- *  TH2 (camp) → 1, village (TH3) → 2, town (TH5) → 3, city (TH7) → 4. */
-export function unlockedHiveCount(townHallLevel: number): number {
-  let n = 0;
-  if (townHallLevel >= 2) n = 1;
-  if (townHallLevel >= 3) n = 2;
-  if (townHallLevel >= 5) n = 3;
-  if (townHallLevel >= 7) n = 4;
-  return Math.min(MAX_HIVES, n);
-}
-
-/** Town Hall level at which the Nth hive slot (0-indexed) unlocks, and a short
- *  label for the locked card. */
-export function hiveSlotUnlock(slotIndex: number): { thLevel: number; label: string } {
-  switch (slotIndex) {
-    case 0: return { thLevel: 2, label: "Town Hall Lv.2" };
-    case 1: return { thLevel: 3, label: "a Village (Town Hall Lv.3)" };
-    case 2: return { thLevel: 5, label: "a Town (Town Hall Lv.5)" };
-    default: return { thLevel: 7, label: "a City (Town Hall Lv.7)" };
-  }
-}
 export const HONEY_BASE_STORAGE = 30;
 export const HONEY_STORAGE_PER_LEVEL = 15;
 

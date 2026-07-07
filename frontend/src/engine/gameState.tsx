@@ -160,7 +160,6 @@ import {
   getHoneyStorageCap,
   MAX_HIVES,
   HIVE_MAX_LEVEL,
-  unlockedHiveCount,
 } from "~/data/apiary";
 import {
   type FruitId,
@@ -1366,7 +1365,13 @@ export function migrateSaveState(saved: GameState): GameState {
         });
       }
     }
-    // Hives: backfill up to MAX_HIVES slots
+    // Hives: collapse legacy multi-hive saves to the single apiary, keeping the
+    // player's best (highest-level) hive so no upgrade progress is lost.
+    if (saved.hives && saved.hives.length > MAX_HIVES) {
+      const best = saved.hives.reduce((a, b) => (b.level > a.level ? b : a));
+      saved.hives = [best];
+    }
+    // Backfill up to MAX_HIVES slots
     while (saved.hives.length < MAX_HIVES) {
       saved.hives.push({
         id: nextId("hive"),
@@ -2872,8 +2877,12 @@ export function GameProvider(props: ParentProps) {
             });
           }
         }
-        // Hives: backfill up to MAX_HIVES pre-attributed slots
+        // Hives: collapse legacy multi-hive saves to the single apiary (keep best).
         serverState.hives = serverState.hives ?? [];
+        if (serverState.hives.length > MAX_HIVES) {
+          const best = serverState.hives.reduce((a: PlayerHive, b: PlayerHive) => (b.level > a.level ? b : a));
+          serverState.hives = [best];
+        }
         while (serverState.hives.length < MAX_HIVES) {
           serverState.hives.push({
             id: nextId("hive"),
@@ -5049,11 +5058,6 @@ export function GameProvider(props: ParentProps) {
     upgradeHive(hiveId) {
       const hive = state.hives.find((h) => h.id === hiveId);
       if (!hive || hive.upgrading || hive.level >= HIVE_MAX_LEVEL) return false;
-      // Building an unbuilt hive requires its slot to be tier-unlocked.
-      if (hive.level === 0) {
-        const idx = state.hives.findIndex((h) => h.id === hiveId);
-        if (idx >= unlockedHiveCount(getTownHallLevel(state.buildings))) return false;
-      }
       if (hive.level >= 1) {
         if (state.season !== "winter") return false;
         if (hive.level >= getTownHallLevel(state.buildings)) return false;
