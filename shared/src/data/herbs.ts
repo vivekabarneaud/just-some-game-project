@@ -67,6 +67,15 @@ export const HERBS: HerbDefinition[] = [
       "A grey-green marsh herb, bitter and cold to the touch. Edda steeps it against winter fevers and the deep-cough. It takes only in the standing water past the reeds, and withers in dry ground.",
     dropRate: 0, // marsh-only — never foraged at the hut; won from the fen via missions
   },
+  {
+    id: "lavender",
+    name: "Lavender",
+    icon: "🪻",
+    rarity: "uncommon",
+    description:
+      "Fragrant purple blooms, cultivated in the settlement's gardens rather than foraged. Dried for soothing teas, honey-cakes, and calming draughts — and while it flowers, the bees work it hard.",
+    dropRate: 0, // cultivated only — grown in a garden, never foraged at the hut
+  },
 ];
 
 export function getHerb(id: string): HerbDefinition | undefined {

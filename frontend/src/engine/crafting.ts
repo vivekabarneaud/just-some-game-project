@@ -645,6 +645,11 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     costs: [{ resource: "meat", amount: 2 }, { resource: "nuts", amount: 2 }], produces: { resource: "hearth_stew", amount: 5 }, craftTime: 900 },
   { id: "river_stew", name: "River Stew", icon: "🍲", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/river_stew.png", building: "kitchen", minLevel: 1, kind: "meal",
     costs: [{ resource: "fish", amount: 2 }, { resource: "berries", amount: 1 }], produces: { resource: "river_stew", amount: 4 }, craftTime: 720 },
+  // Lavender dishes (grown at a lavender garden — see gardens.ts / herbs.ts).
+  { id: "lavender_tea", name: "Lavender Tea", icon: "🍵", building: "kitchen", minLevel: 2, kind: "drink",
+    costs: [{ resource: "lavender", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 30 },
+  { id: "lavender_honey_cake", name: "Lavender Honey Cake", icon: "🧁", building: "kitchen", minLevel: 3, kind: "dessert",
+    costs: [{ resource: "lavender", amount: 1 }, { resource: "honey", amount: 1 }, { resource: "grain", amount: 2 }], produces: { resource: "food", amount: 1 }, craftTime: 45 },
 
   // Village kitchen recipes (Lv 3-4) — proper cooking with ovens and prep tables
   { id: "cheese", name: "Cheese", icon: "🧀", building: "kitchen", minLevel: 3,

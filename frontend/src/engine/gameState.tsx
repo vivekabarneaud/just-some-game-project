@@ -3283,6 +3283,17 @@ export function GameProvider(props: ParentProps) {
         // starving pens don't produce food/wool/leather this tick.
         const fedRatios = applyAnimalFeed(s, elapsedHours);
         const foodRates = calcFoodRates(s, fedRatios);
+
+        // Lavender (a cultivated HERB, not food) yields to the herb stock — the
+        // food loops skip it (its id isn't a FoodItemType). Grown for the tavern
+        // tea/cake + calming draught.
+        for (const g of s.gardens) {
+          if (g.level === 0 || g.plantedYear == null || g.veggie !== "lavender") continue;
+          const veg = getVeggie(g.veggie);
+          if (!isVeggieProducing(veg, s.season)) continue;
+          const rate = getEffectiveGardenRate(veg, g.level, g.seedsPlanted);
+          s.herbs.lavender = (s.herbs.lavender ?? 0) + rate * elapsedHours;
+        }
         const citizenFood = calcFoodConsumption(s.citizens, countLivingAdventurers(s.adventurers), s.foundingWinterGrace ? FOUNDING_WINTER_RATION : 1);
         const animalFood = calcAnimalFoodConsumption(s.pens);
         const caps = calcStorageCaps(s.buildings);
@@ -3388,10 +3399,16 @@ export function GameProvider(props: ParentProps) {
         }
 
         // ── Honey from apiaries (seasonal) ──
+        // Producing lavender gardens boost the yield — the bees forage the blooms.
+        const LAVENDER_HONEY_BONUS = 0.15; // +15% honey per producing lavender garden
+        const lavenderGardens = s.gardens.filter((g) =>
+          g.level > 0 && g.plantedYear != null && g.veggie === "lavender" && isVeggieProducing(getVeggie(g.veggie), s.season),
+        ).length;
+        const lavenderHoneyMult = 1 + LAVENDER_HONEY_BONUS * lavenderGardens;
         const honeyCap = getHoneyStorageCap(s.hives);
         for (const hive of s.hives) {
           if (hive.level === 0 || hive.upgrading) continue;
-          const rate = getHoneyRate(hive.level, s.season);
+          const rate = Math.floor(getHoneyRate(hive.level, s.season) * lavenderHoneyMult);
           if (rate > 0) {
             s.honey = Math.min(honeyCap, s.honey + rate * elapsedHours);
           }

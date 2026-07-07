@@ -1,7 +1,7 @@
 import type { Season } from "./seasons";
 import { growth } from "@medieval-realm/shared/data/farmingMath";
 
-export type VeggieId = "cabbages" | "turnips" | "peas" | "squash" | "fava" | "strawberries";
+export type VeggieId = "cabbages" | "turnips" | "peas" | "squash" | "fava" | "strawberries" | "lavender";
 
 export interface VeggieDefinition {
   id: VeggieId;
@@ -99,6 +99,19 @@ export const VEGGIES: VeggieDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/garden_strawberries.png",
     seedImage: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/strawberries_seed.png",
     specialty: true,
+  },
+  {
+    id: "lavender",
+    name: "Lavender",
+    icon: "🪻",
+    description: "Fragrant purple spikes — cultivated, not foraged. The bees can't resist it, so a lavender plot sweetens the whole apiary's yield, and its dried blooms make soothing teas, honey-cakes, and calming draughts. Sown in spring, cut through summer and autumn.",
+    plantSeasons: ["spring"],
+    produceSeasons: ["summer", "autumn"],
+    seedCost: 6,
+    baseRate: 3,
+    // image/seedImage: garden_lavender.png + lavender_seed.png to come; falls back to the 🪻 icon.
+    // NOTE (slice 1): not yet `specialty` — sowable from the start until the
+    // market "buy seed" gate lands (slice 2), which makes it Meridian-acquired.
   },
 ];
 
