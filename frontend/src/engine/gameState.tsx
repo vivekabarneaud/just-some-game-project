@@ -4573,6 +4573,19 @@ export function GameProvider(props: ParentProps) {
     try {
       const serverUpdatedAt = await peekSettlementUpdatedAt(_settlementId);
       if (serverUpdatedAt !== getExpectedUpdatedAt()) {
+        // The server changed under us. If we have queued-but-unsaved local
+        // changes (a debounced save still pending — e.g. a fresh sow), FLUSH
+        // them first rather than reloading, or the reload would pull the
+        // pre-action server state and silently discard the action. After a
+        // successful flush our state is authoritative again, so no reload.
+        if (_debouncedSaveTimer && _latestStateGetter && _settlementId) {
+          clearTimeout(_debouncedSaveTimer);
+          _debouncedSaveTimer = null;
+          try {
+            await saveSettlementApi(_settlementId, JSON.parse(JSON.stringify(_latestStateGetter())));
+            return true;
+          } catch { /* flush failed — fall through to the safe reload */ }
+        }
         console.warn("[settlement] etag mismatch on resume, reloading before stale play accumulates");
         _staleReloadFired = true;
         window.location.reload();
