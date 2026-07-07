@@ -469,9 +469,12 @@ export default function Buildings() {
                           const effectiveRate = seasonMod != null ? Math.floor(baseRate * seasonMod) : baseRate;
                           const isReduced = seasonMod != null && seasonMod < 1;
                           const FORAGER_FOOD: Record<string, string> = { spring: "berries", summer: "berries", autumn: "mushrooms", winter: "nuts" };
+                          // Food-gathering buildings produce a generic "food" resource but yield a
+                          // specific type — label it so (meat/fish/seasonal forage), not "food".
+                          const GATHERED_FOOD: Record<string, string> = { hunting_camp: "meat", fishing_hut: "fish" };
                           const foodLabel = building.id === "forager_hut"
                             ? (FORAGER_FOOD[state.season] ?? "food")
-                            : currentLevel()!.production!.resource;
+                            : (GATHERED_FOOD[building.id] ?? currentLevel()!.production!.resource);
                           return (
                             <div class="building-card-production">
                               Producing: +{effectiveRate}/h{" "}
