@@ -2431,11 +2431,12 @@ function calcStorageCaps(buildings: PlayerBuilding[]): StorageCaps {
 }
 
 // ─── Tavern dishes (cook-to-order) ───────────────────────────────
-// Menu-eligible kitchen recipes: any kitchen recipe carrying a `kind`. The
-// tavern features these and cooks them TO ORDER — a dish is available when its
-// ingredients are in stock, and serving guests consumes those ingredients
-// (mirrors the craft path's grain/wild aliases). No pre-cooked stock.
-const KITCHEN_DISHES: CraftingRecipe[] = CRAFTING_RECIPES.filter((r) => r.building === "kitchen" && r.kind);
+// EVERY kitchen recipe is a tavern menu dish; its `kind` picks the column
+// (meal/drink/dessert), defaulting to "meal" when untagged. The tavern cooks
+// them TO ORDER — a dish is available when its ingredients are in stock, and
+// serving guests consumes those ingredients (mirrors the craft path's grain/
+// wild aliases). No pre-cooked stock.
+const KITCHEN_DISHES: CraftingRecipe[] = CRAFTING_RECIPES.filter((r) => r.building === "kitchen");
 const KITCHEN_DISH_BY_ID = new Map(KITCHEN_DISHES.map((r) => [r.id, r]));
 
 function readDishCost(s: GameState, res: string): number {
@@ -5196,7 +5197,7 @@ export function GameProvider(props: ParentProps) {
         const available = unlocked && dishAvailable(state, r);
         const missing = r.costs.filter((c) => readDishCost(state, c.resource) < c.amount).map((c) => c.resource);
         return {
-          id: r.id, name: r.name, icon: r.icon, image: r.image, kind: r.kind!,
+          id: r.id, name: r.name, icon: r.icon, image: r.image, kind: r.kind ?? "meal",
           unlocked, onMenu: (state.tavernMenu ?? []).includes(r.id), available, missing,
         };
       });

@@ -6,9 +6,9 @@ export interface CraftingRecipe {
   id: string;
   name: string;
   icon: string;
-  /** For kitchen recipes: which tavern menu column this dish belongs to. A
-   *  recipe with a `kind` is menu-eligible (the tavern can feature it, cooked
-   *  to order from its `costs`). Untagged recipes never appear on the menu. */
+  /** For kitchen recipes: which tavern menu column this dish belongs to
+   *  (meal/drink/dessert). Every kitchen recipe is menu-eligible; an untagged
+   *  one defaults to "meal". The tavern cooks it to order from its `costs`. */
   kind?: DishKind;
   /** Optional sprite. Used for bulk-resource recipes (clothing, potions) that
    *  don't have a corresponding ITEM entry. Equipment recipes fall back to
@@ -653,21 +653,21 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     costs: [{ resource: "meat", amount: 3 }, { resource: "grain", amount: 2 }], produces: { resource: "food", amount: 1 }, craftTime: 45 },
   { id: "cheese_bread", name: "Cheese Bread", icon: "🧀", building: "kitchen", minLevel: 3,
     costs: [{ resource: "milk", amount: 2 }, { resource: "grain", amount: 2 }], produces: { resource: "food", amount: 1 }, craftTime: 30 },
-  { id: "honeycake", name: "Honeycake", icon: "🍯", building: "kitchen", minLevel: 3,
+  { id: "honeycake", name: "Honeycake", icon: "🍯", building: "kitchen", minLevel: 3, kind: "dessert",
     costs: [{ resource: "grain", amount: 2 }, { resource: "honey", amount: 2 }, { resource: "eggs", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 30 },
-  { id: "fruit_tart", name: "Fruit Tart", icon: "🍎", building: "kitchen", minLevel: 4,
+  { id: "fruit_tart", name: "Fruit Tart", icon: "🍎", building: "kitchen", minLevel: 4, kind: "dessert",
     costs: [{ resource: "grain", amount: 2 }, { resource: "apples", amount: 1 }, { resource: "pears", amount: 1 }, { resource: "honey", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 45 },
 
   // Town kitchen recipes (Lv 5-6) — complex multi-ingredient dishes
   { id: "hunters_stew", name: "Hunter's Stew", icon: "🍲", building: "kitchen", minLevel: 5,
     costs: [{ resource: "meat", amount: 4 }, { resource: "turnips", amount: 2 }, { resource: "mushrooms", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
-  { id: "spiced_honeycake", name: "Spiced Honeycake", icon: "🍰", building: "kitchen", minLevel: 5,
+  { id: "spiced_honeycake", name: "Spiced Honeycake", icon: "🍰", building: "kitchen", minLevel: 5, kind: "dessert",
     costs: [{ resource: "grain", amount: 2 }, { resource: "honey", amount: 3 }, { resource: "eggs", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
   { id: "pea_mint_bowl", name: "Pea & Mint Bowl", icon: "🫛", building: "kitchen", minLevel: 5,
     costs: [{ resource: "peas", amount: 4 }, { resource: "milk", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 45 },
 
   // City kitchen recipes (Lv 7-8) — refined cuisine
-  { id: "cherry_cheese_plate", name: "Cherry Cheese Plate", icon: "🍒", building: "kitchen", minLevel: 7,
+  { id: "cherry_cheese_plate", name: "Cherry Cheese Plate", icon: "🍒", building: "kitchen", minLevel: 7, kind: "dessert",
     costs: [{ resource: "cherries", amount: 2 }, { resource: "milk", amount: 2 }, { resource: "nuts", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
   { id: "smoked_pork_roast", name: "Smoked Pork Roast", icon: "🍖", building: "kitchen", minLevel: 7,
     costs: [{ resource: "meat", amount: 5 }, { resource: "squash", amount: 1 }, { resource: "wood", amount: 2 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
@@ -680,11 +680,11 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
 
   { id: "spiced_stew", name: "Spiced Stew", icon: "🌶️", building: "kitchen", minLevel: 3,
     costs: [{ resource: "meat", amount: 3 }, { resource: "turnips", amount: 1 }, { resource: "pepper", amount: 1 }], produces: { resource: "food", amount: 2 }, craftTime: 45 },
-  { id: "cinnamon_honey_cake", name: "Cinnamon Honey Cake", icon: "🍰", building: "kitchen", minLevel: 4,
+  { id: "cinnamon_honey_cake", name: "Cinnamon Honey Cake", icon: "🍰", building: "kitchen", minLevel: 4, kind: "dessert",
     costs: [{ resource: "grain", amount: 2 }, { resource: "honey", amount: 2 }, { resource: "eggs", amount: 1 }, { resource: "cinnamon", amount: 1 }], produces: { resource: "food", amount: 2 }, craftTime: 45 },
   { id: "fiery_broth", name: "Fiery Broth", icon: "🥵", building: "kitchen", minLevel: 5,
     costs: [{ resource: "meat", amount: 2 }, { resource: "cabbages", amount: 2 }, { resource: "chili", amount: 1 }], produces: { resource: "food", amount: 2 }, craftTime: 45 },
-  { id: "steeped_tea_leaves", name: "Steeped Tea Leaves", icon: "🍵", building: "kitchen", minLevel: 3,
+  { id: "steeped_tea_leaves", name: "Steeped Tea Leaves", icon: "🍵", building: "kitchen", minLevel: 3, kind: "drink",
     costs: [{ resource: "tea", amount: 1 }, { resource: "honey", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 30 },
   { id: "royal_feast", name: "Royal Feast", icon: "👑", building: "kitchen", minLevel: 7,
     costs: [{ resource: "meat", amount: 4 }, { resource: "grain", amount: 3 }, { resource: "milk", amount: 2 }, { resource: "saffron", amount: 1 }], produces: { resource: "food", amount: 4 }, craftTime: 90 },
@@ -697,7 +697,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     costs: [{ resource: "meat", amount: 3 }, { resource: "turnips", amount: 2 }, { resource: "grain", amount: 2 }], produces: { resource: "food", amount: 1 }, craftTime: 45 },
   { id: "ashwick_ale_stew", name: "Ashwick Ale Stew", icon: "🍺", building: "kitchen", minLevel: 5,
     costs: [{ resource: "meat", amount: 3 }, { resource: "cabbages", amount: 2 }, { resource: "grain", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
-  { id: "blackberry_crumble", name: "Blackberry Crumble", icon: "🫐", building: "kitchen", minLevel: 5,
+  { id: "blackberry_crumble", name: "Blackberry Crumble", icon: "🫐", building: "kitchen", minLevel: 5, kind: "dessert",
     costs: [{ resource: "berries", amount: 3 }, { resource: "grain", amount: 2 }, { resource: "honey", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
 
   // Nordveld — smoky, preserved, harsh-winter food
@@ -713,7 +713,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     costs: [{ resource: "fish", amount: 3 }, { resource: "turnips", amount: 1 }, { resource: "squash", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
   { id: "grilled_octopus", name: "Grilled Octopus", icon: "🐙", building: "kitchen", minLevel: 5,
     costs: [{ resource: "fish", amount: 4 }, { resource: "wood", amount: 2 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
-  { id: "fig_honey_toast", name: "Fig & Honey Toast", icon: "🍯", building: "kitchen", minLevel: 5,
+  { id: "fig_honey_toast", name: "Fig & Honey Toast", icon: "🍯", building: "kitchen", minLevel: 5, kind: "dessert",
     costs: [{ resource: "grain", amount: 2 }, { resource: "pears", amount: 1 }, { resource: "honey", amount: 3 }], produces: { resource: "food", amount: 1 }, craftTime: 45 },
 
   // Zah'kari — bold spiced dishes, communal portions
@@ -737,11 +737,11 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     costs: [{ resource: "meat", amount: 4 }, { resource: "squash", amount: 2 }, { resource: "nuts", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
   { id: "saffron_rice_pilaf", name: "Saffron Rice Pilaf", icon: "🍚", building: "kitchen", minLevel: 5,
     costs: [{ resource: "grain", amount: 4 }, { resource: "peas", amount: 1 }, { resource: "nuts", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
-  { id: "rosewater_pastries", name: "Rosewater Pastries", icon: "🌹", building: "kitchen", minLevel: 5,
+  { id: "rosewater_pastries", name: "Rosewater Pastries", icon: "🌹", building: "kitchen", minLevel: 5, kind: "dessert",
     costs: [{ resource: "grain", amount: 2 }, { resource: "honey", amount: 3 }, { resource: "eggs", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
 
   // Silvaneth — wild, foraged, living-forest cuisine
-  { id: "honeyed_acorn_bread", name: "Honeyed Acorn Bread", icon: "🌰", building: "kitchen", minLevel: 3,
+  { id: "honeyed_acorn_bread", name: "Honeyed Acorn Bread", icon: "🌰", building: "kitchen", minLevel: 3, kind: "dessert",
     costs: [{ resource: "nuts", amount: 2 }, { resource: "grain", amount: 2 }, { resource: "honey", amount: 2 }], produces: { resource: "food", amount: 1 }, craftTime: 45 },
   { id: "elderflower_broth", name: "Elderflower Broth", icon: "🌸", building: "kitchen", minLevel: 5,
     costs: [{ resource: "mushrooms", amount: 2 }, { resource: "berries", amount: 2 }, { resource: "peas", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 45 },
@@ -749,11 +749,11 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     costs: [{ resource: "fish", amount: 3 }, { resource: "mushrooms", amount: 2 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
 
   // Hauts-Cieux — refined, delicate, almost too elegant for the frontier
-  { id: "starfruit_meringue", name: "Starfruit Meringue", icon: "⭐", building: "kitchen", minLevel: 3,
+  { id: "starfruit_meringue", name: "Starfruit Meringue", icon: "⭐", building: "kitchen", minLevel: 3, kind: "dessert",
     costs: [{ resource: "eggs", amount: 3 }, { resource: "cherries", amount: 2 }, { resource: "honey", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
   { id: "crystal_consomme", name: "Crystal Consommé", icon: "🥣", building: "kitchen", minLevel: 5,
     costs: [{ resource: "fish", amount: 2 }, { resource: "eggs", amount: 2 }, { resource: "turnips", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
-  { id: "moonpetal_sorbet", name: "Moonpetal Sorbet", icon: "🍨", building: "kitchen", minLevel: 7,
+  { id: "moonpetal_sorbet", name: "Moonpetal Sorbet", icon: "🍨", building: "kitchen", minLevel: 7, kind: "dessert",
     costs: [{ resource: "cherries", amount: 2 }, { resource: "pears", amount: 1 }, { resource: "apples", amount: 1 }, { resource: "honey", amount: 2 }], produces: { resource: "food", amount: 1 }, craftTime: 90 },
 
   // Khazdurim — heavy, hearty, forge-cooked
