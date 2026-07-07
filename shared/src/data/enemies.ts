@@ -43,6 +43,10 @@ export interface EnemyAbility {
   effect:
     | { type: "bleed"; pctPerRound: number; rounds: number }
     | { type: "poison"; pctPerRound: number; rounds: number }
+    /** A bite that has a `chance` (0-1) to infect the target with a lingering
+     *  condition carried home (the rabid boar's "froth"). Deals a normal hit;
+     *  the infection is the payload, not an in-combat DoT. */
+    | { type: "infect"; condition: "froth"; chance: number }
     | { type: "heal_self"; pct: number }
     | { type: "heal_ally"; pct: number }
     | { type: "summon"; enemyId: string; count: number }
@@ -854,7 +858,12 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 1,
     stats: { str: 7, dex: 5, int: 1, vit: 8, wis: 1 },
     tags: ["beast"],
-    abilities: [{ id: "charge", name: "Charge", icon: "💨", cooldown: 99, trigger: "round_start", effect: { type: "damage_mult", mult: 1.5, targets: 1 } }],
+    abilities: [
+      { id: "charge", name: "Charge", icon: "💨", cooldown: 99, trigger: "round_start", effect: { type: "damage_mult", mult: 1.5, targets: 1 } },
+      // The frothing bite: a normal hit that rarely (10%) infects with the froth,
+      // a bite-sickness carried home. Cured only by a Boar's-Bane Salve.
+      { id: "frothing_bite", name: "Frothing Bite", icon: "🤢", cooldown: 1, trigger: "always", effect: { type: "infect", condition: "froth", chance: 0.1 } },
+    ],
     loot: [
       { type: "resource", resource: "meat", chance: 0.5, min: 2, max: 6 },
       { type: "resource", resource: "bristlehide", chance: 0.3, min: 1, max: 1 },

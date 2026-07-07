@@ -593,7 +593,10 @@ export interface DeathRecord {
  *  DoT's remaining duration at the moment combat ended — it future-proofs the
  *  banked "decay over real time" refinement (see DESIGN_RECOVERY_AND_RETREAT). */
 export interface AdventurerCondition {
-  type: "bleed" | "poison";
+  /** "froth" is the rabid-boar bite-sickness: unlike the bleed/poison DoTs it
+   *  does NOT fade on its own — it worsens (drains HP toward a KO floor) and
+   *  blocks deployment until cured with a Boar's-Bane Salve. */
+  type: "bleed" | "poison" | "froth";
   remainingRounds: number;
   /** Per-round damage the DoT was dealing in combat (display only for now). */
   perRound?: number;

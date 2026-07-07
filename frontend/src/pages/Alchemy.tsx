@@ -3,7 +3,7 @@ import { A } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { ALCHEMY_RECIPES, getAvailableAlchemyRecipes, getDiscoverableRecipes, RESEARCH_BASE_COST } from "@medieval-realm/shared/data/alchemy_recipes";
-import { getPotionInfo } from "@medieval-realm/shared/data/items";
+import { getPotionInfo, getMaterial } from "@medieval-realm/shared/data/items";
 import Countdown from "~/components/Countdown";
 import RecipeCard from "~/components/RecipeCard";
 import PotionEffects from "~/components/PotionEffects";
@@ -27,13 +27,27 @@ export default function Alchemy() {
     ALCHEMY_RECIPES.some((r) => r.id === c.recipeId)
   );
 
+  // How many of an ingredient the player has. Recipes may cost herbs, exotics,
+  // or materials (e.g. tusk_shard) — resolve across all three buckets.
+  const have = (id: string) =>
+    state.herbs?.[id] ?? state.exotics?.[id] ?? (state.inventory.find((i) => i.itemId === id)?.quantity ?? 0);
+
+  // Display name + icon for an ingredient, herb or material.
+  const ingredientMeta = (id: string): { name: string; icon: string } => {
+    const herb = HERBS.find((h) => h.id === id);
+    if (herb) return { name: herb.name, icon: herb.icon };
+    const mat = getMaterial(id);
+    if (mat) return { name: mat.name, icon: mat.icon };
+    return { name: id, icon: "" };
+  };
+
   const canCraft = (recipeId: string, qty: number = 1) => {
     if (labDamaged()) return false;
     const recipe = ALCHEMY_RECIPES.find((r) => r.id === recipeId);
     if (!recipe || recipe.minLabLevel > labLevel()) return false;
     if (activeCrafts().length >= labLevel() + 1) return false;
     for (const cost of recipe.costs) {
-      if ((state.herbs?.[cost.resource] ?? 0) < cost.amount * qty) return false;
+      if (have(cost.resource) < cost.amount * qty) return false;
     }
     return true;
   };
@@ -43,8 +57,7 @@ export default function Alchemy() {
     if (!recipe) return 0;
     let max = 99;
     for (const cost of recipe.costs) {
-      const have = state.herbs?.[cost.resource] ?? 0;
-      max = Math.min(max, Math.floor(have / cost.amount));
+      max = Math.min(max, Math.floor(have(cost.resource) / cost.amount));
     }
     return Math.max(1, max);
   };
@@ -56,16 +69,12 @@ export default function Alchemy() {
     if (recipe.minLabLevel > labLevel()) return `Requires Lab Lv.${recipe.minLabLevel}`;
     if (activeCrafts().length >= labLevel() + 1) return "Brewing queue full — upgrade the Lab";
     for (const cost of recipe.costs) {
-      const have = state.herbs?.[cost.resource] ?? 0;
-      if (have < cost.amount * qty) {
-        const herb = HERBS.find((h) => h.id === cost.resource);
-        return `Not enough ${herb?.name ?? cost.resource}`;
+      if (have(cost.resource) < cost.amount * qty) {
+        return `Not enough ${ingredientMeta(cost.resource).name}`;
       }
     }
     return null;
   };
-
-  const herbCount = (id: string) => state.herbs?.[id] ?? 0;
 
   const discoverable = () => getDiscoverableRecipes(labLevel(), state.discoveredRecipes ?? []);
   const canResearch = () =>
@@ -142,8 +151,8 @@ export default function Alchemy() {
             <span style={{ "border-left": "1px solid var(--border-default)", "padding-left": "12px" }}>Herbs:</span>
             <For each={HERBS}>
               {(herb) => (
-                <span style={{ color: herbCount(herb.id) > 0 ? "var(--text-primary)" : "var(--text-muted)" }}>
-                  {herb.icon} {herbCount(herb.id)}
+                <span style={{ color: have(herb.id) > 0 ? "var(--text-primary)" : "var(--text-muted)" }}>
+                  {herb.icon} {have(herb.id)}
                 </span>
               )}
             </For>
@@ -286,13 +295,13 @@ export default function Alchemy() {
                         <>
                           Cost:{" "}
                           {recipe.costs.map((c) => {
-                            const herb = HERBS.find((h) => h.id === c.resource);
-                            const have = herbCount(c.resource);
-                            const enough = have >= c.amount;
+                            const meta = ingredientMeta(c.resource);
+                            const held = have(c.resource);
+                            const enough = held >= c.amount;
                             return (
                               <span style={{ color: enough ? "var(--text-secondary)" : "var(--accent-red)", "margin-right": "6px" }}>
-                                {herb?.icon ?? ""} {c.amount} {herb?.name ?? c.resource}
-                                <span style={{ color: "var(--text-muted)" }}> ({have})</span>
+                                {meta.icon} {c.amount} {meta.name}
+                                <span style={{ color: "var(--text-muted)" }}> ({held})</span>
                               </span>
                             );
                           })}

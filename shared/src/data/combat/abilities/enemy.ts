@@ -51,6 +51,26 @@ export function tryEnemyAbility(unit: CombatUnit, ctx: CombatContext): boolean {
         return true;
       }
 
+      case "infect": {
+        // A normal bite that rarely infects. Deal the hit, then roll the chance;
+        // on a hit the target is marked (carried home as a condition if it lives).
+        const target = aliveTargets[Math.floor(combatRandom() * aliveTargets.length)];
+        if (!target) return false;
+        const hit = calcDamageResult(unit, target);
+        target.hp -= hit.damage;
+        const infected = target.kind === "adventurer" && combatRandom() < eff.chance;
+        if (infected) target.frothed = true;
+        ctx.log.push({
+          round: ctx.round, attackerName: unit.name, attackerIcon: ability.icon,
+          abilityName: ability.name,
+          targetName: target.name, damage: hit.damage, dodged: false, crit: hit.crit, killed: target.hp <= 0,
+          targetHp: Math.max(0, target.hp), targetMaxHp: target.maxHp, isEnemy: true,
+          ...(infected ? { statusApplied: { type: eff.condition, rounds: 0 } } : {}),
+        });
+        if (target.hp <= 0) target.hp = 0;
+        return true;
+      }
+
       case "heal_self": {
         const heal = Math.floor(unit.maxHp * eff.pct / 100);
         unit.hp = Math.min(unit.maxHp, unit.hp + heal);

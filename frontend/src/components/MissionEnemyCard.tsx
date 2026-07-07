@@ -212,6 +212,7 @@ function describeAbility(a: EnemyAbility): string {
   switch (e.type) {
     case "bleed":   return `Inflicts bleed: ${e.pctPerRound}% max HP per round for ${e.rounds} rounds.`;
     case "poison":  return `Inflicts poison: ${e.pctPerRound}% max HP per round for ${e.rounds} rounds.`;
+    case "infect":  return `${Math.round(e.chance * 100)}% chance on a bite to infect with the ${e.condition} — a sickness carried home that worsens until cured.`;
     case "heal_self": return `Heals self for ${e.pct}% of max HP.`;
     case "heal_ally": return `Heals an ally for ${e.pct}% of their max HP.`;
     case "summon":  return `Summons ${e.count}× reinforcements.`;

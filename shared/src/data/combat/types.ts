@@ -114,6 +114,9 @@ export interface CombatUnit {
   tauntedBy?: string;
   slowed: number;
   poisonTicks: { damage: number; rounds: number; sourceName?: string; sourceIcon?: string; type?: "bleed" | "poison" }[];
+  /** Infected with the froth (rabid-boar bite-sickness) this fight. Not a combat
+   *  DoT — it's carried home as an Adventurer condition if the unit survives. */
+  frothed?: boolean;
   shieldWallUsed?: boolean;
   enemyAbilities?: EnemyAbility[];
   combatPotion?: CombatPotionEffect;
@@ -209,7 +212,7 @@ export interface CombatResult {
   /** Lingering DoTs (bleed/poison) still active on SURVIVING adventurers when
    *  combat ended. Written home as Adventurer.conditions — they block passive
    *  regen until they decay/are treated. Keyed by adventurer id. */
-  finalConditions?: Record<string, { type: "bleed" | "poison"; remainingRounds: number; perRound?: number; icon?: string }[]>;
+  finalConditions?: Record<string, { type: "bleed" | "poison" | "froth"; remainingRounds: number; perRound?: number; icon?: string }[]>;
   /** Set to the NPC ally id when an isMissionObjective ally fell during combat.
    *  Mission completion treats this as a distinct failure — no rewards, no team
    *  XP, but surviving adventurers still go home (no team-wipe permadeath cascade). */

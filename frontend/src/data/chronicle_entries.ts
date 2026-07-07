@@ -304,10 +304,10 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
     chapterId: "ch1",
     order: 9.3,
     title: "Grain, and only grain",
-    teaser: "Three fangs, then two hooves, then a skull. I sent the skull. And then I drew a line, and did not tell Edda that I had drawn it.",
+    teaser: "Three tusks, then two hooves, then a skull. I sent the skull. And then I drew a line, and did not tell Edda that I had drawn it.",
     fullText:
       "It went as I feared it would, and I am not easy about how easily it went. The skull to the flat stone by dark, the fenbalm home by morning, the adders still, Aldith raising her hand from the reeds as the gatherers turned for home. Nothing happened. Same as ever. I am tired of writing that down.\n\n" +
-      "It is the shape of it that troubles me. Three fangs. Then two hooves. Then one skull. The asking growing smaller in number and worse in kind, as though she needed less of a thing the nearer it came to whatever she is truly after. I know her name now, and I find that is very near all I know true of her: not where she came from, not who it is she has lost, not what an old woman alone in a fen means to do with the picked skull of a boar. A remedy, Edda says. I have stopped believing it is a remedy.\n\n" +
+      "It is the shape of it that troubles me. Three tusks. Then two hooves. Then one skull. The asking growing smaller in number and worse in kind, as though she needed less of a thing the nearer it came to whatever she is truly after. I know her name now, and I find that is very near all I know true of her: not where she came from, not who it is she has lost, not what an old woman alone in a fen means to do with the picked skull of a boar. A remedy, Edda says. I have stopped believing it is a remedy.\n\n" +
       "So I sent the skull, but I sent word with it, plain: grain, from here, and grain only. We will trade her the herb for our bread as we always have, and gladly. But no more teeth, no more hooves, no more bone. One more asking like the last three and we are done with the reeds, fenbalm or no.\n\n" +
       "I have not told Edda I drew the line, nor why. She is fond of the old woman, and the fondness is a good thing, and I have no cause yet to spoil it. Only a shape, and a count I keep, and this page.",
   },

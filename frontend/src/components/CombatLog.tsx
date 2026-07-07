@@ -67,6 +67,7 @@ function FallenTag(props: { permanent?: boolean }) {
 function statusLabel(type: string): { text: string; icon: string } {
   if (type === "bleed") return { text: "bleeding", icon: "🩸" };
   if (type === "poison") return { text: "poisoned", icon: "☠️" };
+  if (type === "froth") return { text: "infected with the froth", icon: "🤢" };
   if (type === "slow") return { text: "slowed", icon: "❄️" };
   if (type.startsWith("debuff:")) {
     const stat = type.slice("debuff:".length);

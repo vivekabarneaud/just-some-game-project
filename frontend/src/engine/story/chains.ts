@@ -210,12 +210,12 @@ export const STORY_CHAINS: StoryChain[] = [
       // The barter becomes routine (fen_barter ×3) → the tea beat (she learns of
       // Nell, cozy on the surface). Then the asking drifts into a recipe: a
       // symbolic count of parts, shrinking in number and worsening in kind —
-      // three fangs, two hooves, one skull. Each is a light card; the pattern is
+      // three tusks, two hooves, one skull. Each is a light card; the pattern is
       // the horror. At the skull the Lord draws a line (grain only), and the
       // decision beat fires. The dark descent stays deferred.
       api.awaitMissionCount("fen_barter", 3);
       api.fireChronicleModal("ch1_reeds_tea");
-      api.awaitMissionDone("reeds_fangs");
+      api.awaitMissionDone("reeds_tusks");
       api.awaitMissionDone("reeds_hooves");
       api.awaitMissionDone("reeds_skull");
       api.fireChronicleModal("ch1_reeds_doubt");

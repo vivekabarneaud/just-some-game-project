@@ -3386,16 +3386,25 @@ export function GameProvider(props: ParentProps) {
         // until treated by a potion / Edda / the Infirmary). Tunable.
         const REGEN_PCT_PER_HOUR = 0.12;       // full from empty in ~8 game-hours
         const HOURS_PER_CONDITION_ROUND = 1.5; // a 3-round wound lingers ~4.5 game-hours
+        const FROTH_DRAIN_PCT_PER_HOUR = 0.08; // the froth worsens — ~12h from full to KO
         for (const adv of s.adventurers) {
           if (!adv.alive || adv.onMission) continue;
           const advMaxHp = calcAdventurerMaxHp(adv);
           if (adv.currentHp == null) adv.currentHp = advMaxHp;
           if (adv.conditions?.length) {
-            for (const c of adv.conditions) c.remainingRounds -= elapsedHours / HOURS_PER_CONDITION_ROUND;
-            const live = adv.conditions.filter((c) => c.remainingRounds > 0);
+            // The froth never fades on its own — only a Boar's-Bane Salve clears it.
+            // The DoT wounds (bleed/poison) decay over time as before.
+            for (const c of adv.conditions) {
+              if (c.type !== "froth") c.remainingRounds -= elapsedHours / HOURS_PER_CONDITION_ROUND;
+            }
+            const live = adv.conditions.filter((c) => c.type === "froth" || c.remainingRounds > 0);
             adv.conditions = live.length ? live : undefined;
           }
-          if (!adv.conditions?.length && adv.currentHp < advMaxHp) {
+          const hasFroth = adv.conditions?.some((c) => c.type === "froth");
+          if (hasFroth) {
+            // The froth worsens: it drains HP toward a KO floor (1) until treated.
+            adv.currentHp = Math.max(1, adv.currentHp - advMaxHp * FROTH_DRAIN_PCT_PER_HOUR * elapsedHours);
+          } else if (!adv.conditions?.length && adv.currentHp < advMaxHp) {
             adv.currentHp = Math.min(advMaxHp, adv.currentHp + advMaxHp * REGEN_PCT_PER_HOUR * elapsedHours);
           }
         }
@@ -5289,6 +5298,8 @@ export function GameProvider(props: ParentProps) {
       for (const id of adventurerIds) {
         const adv = state.adventurers.find((a) => a.id === id && a.alive && !a.onMission);
         if (!adv) return false;
+        // The froth is a KO condition — too sick to deploy until cured.
+        if (adv.conditions?.some((c) => c.type === "froth")) return false;
         team.push(adv);
       }
 
@@ -6578,23 +6589,15 @@ export function GameProvider(props: ParentProps) {
       // Must be a starter recipe or discovered
       if (!recipe.starterRecipe && !(state.discoveredRecipes ?? []).includes(recipeId)) return false;
 
-      // Check ingredient costs for the full quantity (herbs + exotics like tea)
+      // Check ingredient costs for the full quantity. Generic resolver so a
+      // recipe can spend herbs, exotics, or materials (e.g. tusk_shard).
       for (const cost of recipe.costs) {
-        const have = EXOTIC_IDS.includes(cost.resource)
-          ? (state.exotics?.[cost.resource] ?? 0)
-          : (state.herbs?.[cost.resource] ?? 0);
-        if (have < cost.amount * quantity) return false;
+        if (getResourceQty(state, cost.resource) < cost.amount * quantity) return false;
       }
 
       setState(produce((s) => {
         for (const cost of recipe.costs) {
-          if (EXOTIC_IDS.includes(cost.resource)) {
-            if (!s.exotics) s.exotics = {};
-            s.exotics[cost.resource] = (s.exotics[cost.resource] ?? 0) - cost.amount * quantity;
-          } else {
-            if (!s.herbs) s.herbs = {};
-            s.herbs[cost.resource] = (s.herbs[cost.resource] ?? 0) - cost.amount * quantity;
-          }
+          spendResource(s, cost.resource, cost.amount * quantity);
         }
         // Stack onto existing alchemy queue entry, or push new (pending if over slot cap)
         const existing = s.craftingQueue.find((c) => c.recipeId === recipeId);

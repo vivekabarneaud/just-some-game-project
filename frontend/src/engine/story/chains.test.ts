@@ -263,19 +263,19 @@ describe("real chains", () => {
     expect(s.chronicleEntriesFired).toEqual(["ch1_reeds_voice", "ch1_reeds_price"]);
 
     // Third routine barter — the tea beat lands (she learns of Nell); the drift
-    // asks (fangs → hooves → skull) hold until each is delivered in turn.
+    // asks (tusks → hooves → skull) hold until each is delivered in turn.
     s.missionCompletions = { fen_barter: 3 };
     runStoryChains(s, [chain], makeDeps(s, 0, []));
     expect(s.chronicleEntriesFired).toContain("ch1_reeds_tea");
     expect(s.chronicleEntriesFired).not.toContain("ch1_reeds_doubt");
 
     // Fangs then hooves delivered — still no decision beat until the skull.
-    s.completedUniqueMissionIds = ["marsh_clearing", "reeds_bargain", "reeds_fangs", "reeds_hooves"];
+    s.completedUniqueMissionIds = ["marsh_clearing", "reeds_bargain", "reeds_tusks", "reeds_hooves"];
     runStoryChains(s, [chain], makeDeps(s, 0, []));
     expect(s.chronicleEntriesFired).not.toContain("ch1_reeds_doubt");
 
     // Skull delivered — the line-drawing beat lands.
-    s.completedUniqueMissionIds = ["marsh_clearing", "reeds_bargain", "reeds_fangs", "reeds_hooves", "reeds_skull"];
+    s.completedUniqueMissionIds = ["marsh_clearing", "reeds_bargain", "reeds_tusks", "reeds_hooves", "reeds_skull"];
     runStoryChains(s, [chain], makeDeps(s, 0, []));
     expect(s.chronicleEntriesFired).toEqual([
       "ch1_reeds_voice", "ch1_reeds_price", "ch1_reeds_tea", "ch1_reeds_doubt",

@@ -180,19 +180,19 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   // ── The drift. After the tea (fen_barter ×3, where she learns of Nell), the
   //    asking stops being grain and starts to read like a recipe: a precise,
   //    symbolic COUNT of humble parts she could not take herself, the number
-  //    shrinking as the thing grows grimmer — three fangs, two hooves, one skull.
+  //    shrinking as the thing grows grimmer — three tusks, two hooves, one skull.
   //    Each is compliable on its own; the pattern is the horror. The chain fires
-  //    ch1_reeds_tea before the fangs and ch1_reeds_doubt (the line drawn) after
+  //    ch1_reeds_tea before the tusks and ch1_reeds_doubt (the line drawn) after
   //    the skull. The dark descent is still deferred. ──
   {
-    id: "reeds_fangs",
-    name: "Three Fangs",
-    description: "The old woman sent her asking back with the last of the fenbalm, and it is not grain this time. Three wolf fangs, she wants, no more and no fewer, left at the flat stone by dark. Edda says the old have their cures and their charms and it is not for us to know the reason of them, so do as she asks and think nothing of it. I will send them. Our hunters have teeth to spare and she cannot take a wolf herself. It is only the exactness of it, three and not four, that sits oddly with me.",
+    id: "reeds_tusks",
+    name: "Three Tusks",
+    description: "The old woman sent her asking back with the last of the fenbalm, and it is not grain this time. Three boar tusks, she wants, no more and no fewer, left at the flat stone by dark. Edda says the old have their cures and their charms and it is not for us to know the reason of them, so do as she asks and think nothing of it. I will send them, and gladly: we grind boar tusk for the salve against the froth, and there are shards enough in the store to spare her three. It is only the exactness of it, three and not four, that sits oddly with me.",
     icon: "🦷",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/clear_marshes.png",
     slots: [{ class: "any" }],
     duration: 500,
-    deployItems: [{ resource: "fang", amount: 3 }],
+    deployItems: [{ resource: "tusk_shard", amount: 3 }],
     rewards: [{ resource: "fenbalm", amount: 5 }, { resource: "nettle", amount: 3 }],
     deployCost: 2,
     difficulty: 1,
@@ -206,7 +206,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   {
     id: "reeds_hooves",
     name: "Two Hooves",
-    description: "The fangs went to the stone and the herb came home, and I had half forgotten it when her next asking came back. Two cloven hooves this time, off a boar, left at the flat stone by dark. Fewer than the fangs, and stranger. Edda still says think nothing of it, an old woman's remedy, and I want to believe her. I will send them, because the fenbalm keeps my people through the winter. But a body does not put hooves in a poultice, and I have started to wonder what she does put them in.",
+    description: "The tusks went to the stone and the herb came home, and I had half forgotten it when her next asking came back. Two cloven hooves this time, off a boar, left at the flat stone by dark. Fewer than the tusks, and stranger. Edda still says think nothing of it, an old woman's remedy, and I want to believe her. I will send them, because the fenbalm keeps my people through the winter. But a body does not put hooves in a poultice, and I have started to wonder what she does put them in.",
     icon: "🐐",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/clear_marshes.png",
     slots: [{ class: "any" }],
@@ -218,7 +218,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     minGuildLevel: 1,
     tags: ["outdoor"],
     guaranteed: true,
-    requires: { missionDone: "reeds_fangs" },
+    requires: { missionDone: "reeds_tusks" },
     unique: true,
     sideChain: { id: "the_bog_witch", name: "The Reeds" },
   },

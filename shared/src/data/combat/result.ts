@@ -56,7 +56,7 @@ export function buildResult(
 
   const finalHp: Record<string, number> = {};
   const finalMaxHp: Record<string, number> = {};
-  const finalConditions: Record<string, { type: "bleed" | "poison"; remainingRounds: number; perRound?: number; icon?: string }[]> = {};
+  const finalConditions: Record<string, { type: "bleed" | "poison" | "froth"; remainingRounds: number; perRound?: number; icon?: string }[]> = {};
   for (const unit of adventurers) {
     finalHp[unit.id] = Math.max(0, unit.hp);
     finalMaxHp[unit.id] = unit.maxHp;
@@ -74,6 +74,12 @@ export function buildResult(
       }
       const conds = [...byType.entries()].map(([type, v]) => ({ type, ...v }));
       if (conds.length > 0) finalConditions[unit.id] = conds;
+    }
+    // The froth is carried home by any SURVIVOR who was infected. It doesn't
+    // decay like the DoTs (remainingRounds is a sentinel) — it worsens at home
+    // until treated. remainingRounds:1 keeps it "live" past the decay filter.
+    if (unit.kind === "adventurer" && unit.hp > 0 && unit.frothed) {
+      (finalConditions[unit.id] ??= []).push({ type: "froth", remainingRounds: 1, icon: "🤢" });
     }
   }
 

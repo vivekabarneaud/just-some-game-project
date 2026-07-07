@@ -66,6 +66,21 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
     discoveryChance: 0,
   },
 
+  {
+    id: "boars_bane_salve",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/alchemy_lab/boars_bane_salve.png",
+    name: "Boar's-Bane Salve",
+    icon: "🐗",
+    description: "Cures the froth (rabid-boar bite-sickness) on a resting hero, and heals 30% HP. Ground boar tusk and mugwort — the bite's own cure.",
+    tier: "novice",
+    minLabLevel: 1,
+    costs: [{ resource: "tusk_shard", amount: 2 }, { resource: "mugwort", amount: 1 }],
+    effect: "curefroth",
+    craftTime: 300,
+    starterRecipe: true,
+    discoveryChance: 0,
+  },
+
   // ── Novice (discoverable) ─────────────────────────────────────
   {
     id: "herbal_antidote",

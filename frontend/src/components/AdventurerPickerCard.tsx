@@ -67,7 +67,7 @@ export default function AdventurerPickerCard(props: AdventurerPickerCardProps) {
           <Show when={wounded()}>
             <span style={{ color: hpColor() }}>❤ {hpPct()}%</span>
             <For each={adv().conditions ?? []}>
-              {(c) => <Tooltip text={c.type === "bleed" ? "Bleeding — won't heal until it fades" : "Poisoned — won't heal until it fades"}><span>{c.type === "bleed" ? "🩸" : "☣️"}</span></Tooltip>}
+              {(c) => <Tooltip text={c.type === "bleed" ? "Bleeding — won't heal until it fades" : c.type === "poison" ? "Poisoned — won't heal until it fades" : "Frothing — worsens until cured with a Boar's-Bane Salve"}><span>{c.type === "bleed" ? "🩸" : c.type === "poison" ? "☣️" : "🤢"}</span></Tooltip>}
             </For>
           </Show>
         </div>

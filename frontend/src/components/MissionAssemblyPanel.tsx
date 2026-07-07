@@ -199,9 +199,10 @@ export default function MissionAssemblyPanel(props: Props) {
 
   // ─── Available adventurers ────────────────────────────────────
   const CLASS_ORDER: Record<string, number> = { warrior: 0, priest: 1, wizard: 2, archer: 3, assassin: 4 };
+  const hasFroth = (a: { conditions?: { type: string }[] }) => a.conditions?.some((c) => c.type === "froth") ?? false;
   const availableAdvs = createMemo(() =>
     state.adventurers
-      .filter((a) => a.alive && !a.onMission && !(props.coopLockedAdvIds?.has(a.id) ?? false))
+      .filter((a) => a.alive && !a.onMission && !hasFroth(a) && !(props.coopLockedAdvIds?.has(a.id) ?? false))
       .sort((a, b) => (CLASS_ORDER[a.class] ?? 9) - (CLASS_ORDER[b.class] ?? 9) || b.level - a.level)
   );
   // Counts of alive-but-hidden adventurers, broken down by reason. Surfaced
@@ -209,12 +210,14 @@ export default function MissionAssemblyPanel(props: Props) {
   const hiddenBreakdown = createMemo(() => {
     let onMission = 0;
     let coopLocked = 0;
+    let frothing = 0;
     for (const a of state.adventurers) {
       if (!a.alive) continue;
       if (a.onMission) onMission++;
+      else if (hasFroth(a)) frothing++;
       else if (props.coopLockedAdvIds?.has(a.id)) coopLocked++;
     }
-    return { onMission, coopLocked, total: onMission + coopLocked };
+    return { onMission, coopLocked, frothing, total: onMission + coopLocked + frothing };
   });
 
   // ─── Team management ──────────────────────────────────────────
@@ -1345,6 +1348,7 @@ export default function MissionAssemblyPanel(props: Props) {
             <p style={{ color: "var(--text-muted)", "font-size": "0.85rem", "line-height": "1.5" }}>
               Everyone is out.
               {hiddenBreakdown().onMission > 0 && ` ${hiddenBreakdown().onMission} on missions.`}
+              {hiddenBreakdown().frothing > 0 && ` ${hiddenBreakdown().frothing} laid up with the froth (cure with a Boar's-Bane Salve).`}
               {hiddenBreakdown().coopLocked > 0 && ` ${hiddenBreakdown().coopLocked} pledged to a co-op expedition.`}
               {" "}They will return. More hands find their way here as you take on adventures and quests.
             </p>
@@ -1383,7 +1387,7 @@ export default function MissionAssemblyPanel(props: Props) {
           }}>
             {hiddenBreakdown().total} hidden:
             {hiddenBreakdown().onMission > 0 && ` ${hiddenBreakdown().onMission} on a mission`}
-            {hiddenBreakdown().onMission > 0 && hiddenBreakdown().coopLocked > 0 && ","}
+            {hiddenBreakdown().frothing > 0 && ` ${hiddenBreakdown().frothing} down with the froth`}
             {hiddenBreakdown().coopLocked > 0 && ` ${hiddenBreakdown().coopLocked} reserved for a co-op`}
           </div>
         </Show>
