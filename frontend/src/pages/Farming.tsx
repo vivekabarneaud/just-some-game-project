@@ -1247,8 +1247,7 @@ export default function Farming() {
   const townHallLevel = () =>
     state.buildings.find((b) => b.buildingId === "town_hall")?.level ?? 0;
   const gardensUnlocked = () => settlementChapter() >= 2; // kitchen gardens — camp-scale
-  const villageUnlocked = () => townHallLevel() >= 3;     // fields, livestock, orchards
-  const apiaryUnlocked = () => townHallLevel() >= 2;      // first hive comes early (humble beekeeping); more per tier
+  const villageUnlocked = () => townHallLevel() >= 3;     // fields, livestock & bees, orchards
 
   return (
     <div>
@@ -1385,20 +1384,14 @@ export default function Farming() {
         </div>
       </LockedShell>
 
-      {/* ── Livestock ── Deferred to Village (Town Hall Lv.3). A shepherd and a
-          flock are settled-life, not camp survival; this matches the "Woolly
-          Friends" quest, which also waits for Village. */}
-      <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🐄 Livestock</h2>
+      {/* ── Livestock & Bees ── Deferred to Village (Town Hall Lv.3). A shepherd,
+          a flock, and a settled apiary are all settled-life, not camp survival;
+          this matches the "Woolly Friends" quest, which also waits for Village.
+          The single apiary lives here now rather than in a section of its own. */}
+      <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🐄 Livestock & Bees</h2>
       <LockedShell locked={!villageUnlocked()} reason="Locked until your settlement becomes a Village (Town Hall Lv.3)">
         <div class="fields-grid">
           <For each={state.pens}>{(p) => <PenCard pen={p} />}</For>
-        </div>
-      </LockedShell>
-
-      {/* ── Apiary ── */}
-      <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🐝 Apiary</h2>
-      <LockedShell locked={!apiaryUnlocked()} reason="Locked until your settlement grows (Town Hall Lv.2)">
-        <div class="fields-grid">
           <For each={state.hives}>{(h) => <HiveCard hive={h} />}</For>
         </div>
       </LockedShell>
