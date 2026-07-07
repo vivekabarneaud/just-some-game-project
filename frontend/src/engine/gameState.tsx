@@ -270,7 +270,7 @@ import {
 } from "~/data/quests";
 import { getReadyEvents } from "~/data/events";
 import { TRAVELING_MERCHANTS, getMerchant, merchantIntervalDays } from "~/data/merchants";
-import { calcTavern, REPUTATION_DRIFT_PER_HOUR, TAVERN_FOOD_PER_ROOM_PER_HOUR, MENU_STAPLE_IDS, serversNeeded } from "~/data/tavern";
+import { calcTavern, REPUTATION_DRIFT_PER_HOUR, TAVERN_FOOD_PER_ROOM_PER_HOUR, MENU_STAPLE_IDS, serversNeeded, menuCapacity } from "~/data/tavern";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { EXOTIC_IDS } from "@medieval-realm/shared/data/exotics";
 import { ALCHEMY_RECIPES, getDiscoverableRecipes, getAvailableAlchemyRecipes, RESEARCH_BASE_COST } from "@medieval-realm/shared/data/alchemy_recipes";
@@ -674,6 +674,7 @@ export interface TavernDish {
   onMenu: boolean;
   available: boolean;  // unlocked AND ingredients in stock (cookable now)
   missing: string[];   // ingredient resources short of a batch
+  costs: { resource: string; amount: number }[]; // the recipe's ingredients
 }
 
 export interface GameActions {
@@ -703,6 +704,8 @@ export interface GameActions {
   takeMerchantStallOffer: (offerId: string) => boolean;
   /** Toggle a dish on/off the tavern menu. */
   toggleTavernDish: (dishId: string) => void;
+  /** Replace the whole tavern menu (menu editor's Apply); clamped to capacity. */
+  setTavernMenu: (dishIds: string[]) => void;
   /** Assign N adults to serve at the tavern (clamped to available adults + slots). */
   setTavernServers: (n: number) => void;
   /** Set the tavern pricing lever. */
@@ -5106,6 +5109,14 @@ export function GameProvider(props: ParentProps) {
       scheduleSave();
     },
 
+    setTavernMenu(dishIds: string[]) {
+      // Replace the whole menu (used by the menu editor's Apply). Clamp to the
+      // tavern's capacity so it can never exceed the available slots.
+      const cap = menuCapacity(state.buildings.find((b) => b.buildingId === "tavern")?.level ?? 0);
+      setState("tavernMenu", [...new Set(dishIds)].slice(0, cap));
+      scheduleSave();
+    },
+
     setTavernServers(n: number) {
       setState(produce((s) => {
         const level = s.buildings.find((b) => b.buildingId === "tavern")?.level ?? 0;
@@ -5199,6 +5210,7 @@ export function GameProvider(props: ParentProps) {
         return {
           id: r.id, name: r.name, icon: r.icon, image: r.image, kind: r.kind ?? "meal",
           unlocked, onMenu: (state.tavernMenu ?? []).includes(r.id), available, missing,
+          costs: r.costs,
         };
       });
     },

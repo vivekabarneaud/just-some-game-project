@@ -3,6 +3,7 @@ import { A } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
 import { calcTavern, serversNeeded, menuCapacity, PRICING, type TavernPricing } from "~/data/tavern";
 import { type DishKind } from "~/data/foods";
+import MenuDishCard from "~/components/MenuDishCard";
 
 const PRICING_ORDER: TavernPricing[] = ["generous", "fair", "steep"];
 
@@ -33,7 +34,6 @@ export default function Tavern() {
   // it's on the menu AND cookable right now (its ingredients are in stock).
   const dishes = () => actions.getTavernDishes();
   const onMenuOfKind = (k: DishKind) => dishes().filter((d) => d.onMenu && d.kind === k);
-  const addableOfKind = (k: DishKind) => dishes().filter((d) => !d.onMenu && d.unlocked && d.kind === k);
   const servableCount = () => dishes().filter((d) => d.onMenu && d.available).length;
 
   const t = () => calcTavern({
@@ -46,10 +46,25 @@ export default function Tavern() {
     Math.max(0, state.citizens.adults - state.soldiers - state.archers - state.namedResidents.adults);
   const canAddServer = () => servers() < serversNeeded(level()) && servers() < assignableAdults();
 
-  // Menu management
-  const [addKind, setAddKind] = createSignal<DishKind | null>(null);
-  const hasBrewery = () => (state.buildings.find((b) => b.buildingId === "brewery")?.level ?? 0) > 0;
-  const atCapacity = () => menu().length >= menuCapacity(level());
+  // Menu editor (staged multi-select modal)
+  const [editKind, setEditKind] = createSignal<DishKind | null>(null);
+  const [staged, setStaged] = createSignal<string[]>([]);
+  const cap = () => menuCapacity(level());
+  const openEditor = (kind: DishKind) => {
+    setStaged(dishes().filter((d) => d.onMenu && d.kind === kind).map((d) => d.id));
+    setEditKind(kind);
+  };
+  const toggleStaged = (id: string) =>
+    setStaged((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  // Slots taken by dishes of OTHER kinds (fixed while editing one kind), so the
+  // counter reflects the whole menu, not just this column.
+  const otherKindCount = (kind: DishKind) => dishes().filter((d) => d.onMenu && d.kind !== kind).length;
+  const usedIfApplied = (kind: DishKind) => otherKindCount(kind) + staged().length;
+  const applyEditor = (kind: DishKind) => {
+    const otherIds = menu().filter((id) => (dishes().find((d) => d.id === id)?.kind ?? "meal") !== kind);
+    actions.setTavernMenu([...otherIds, ...staged()]);
+    setEditKind(null);
+  };
 
   const statBox = {
     flex: "1 1 110px", padding: "12px 14px", background: "var(--bg-card)",
@@ -170,49 +185,38 @@ export default function Tavern() {
           </p>
           <div style={{ display: "flex", gap: "12px", "flex-wrap": "wrap", "align-items": "flex-start" }}>
             <For each={MENU_COLUMNS}>
-              {(col) => {
-                const breweryLocked = () => col.kind === "drink" && !hasBrewery();
-                return (
-                  <div style={{ flex: "1 1 200px", "min-width": "180px", display: "flex", "flex-direction": "column", gap: "8px" }}>
-                    <div style={{ "font-family": "var(--font-heading)", "font-size": "0.95rem", color: "var(--accent-gold)", "border-bottom": "1px solid var(--border-color)", "padding-bottom": "4px" }}>
-                      {col.icon} {col.label}
-                    </div>
-                    <Show when={!breweryLocked()} fallback={
-                      <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "font-style": "italic", padding: "6px 0" }}>
-                        Build a <A href="/buildings" style={{ color: "var(--accent-gold)" }}>Brewery</A> first.
-                      </div>
-                    }>
-                      <For each={onMenuOfKind(col.kind)} fallback={
-                        <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "font-style": "italic", padding: "4px 0" }}>
-                          Nothing on the board yet.
-                        </div>
-                      }>
-                        {(dish) => (
-                          <div style={{ display: "flex", "align-items": "center", gap: "8px", padding: "6px 8px", background: "var(--bg-card)", border: `1px solid ${dish.available ? "var(--accent-gold)" : "var(--accent-red)"}`, "border-radius": "8px" }}>
-                            <DishIcon image={dish.image} icon={dish.icon} size={24} />
-                            <div style={{ flex: "1", "min-width": "0" }}>
-                              <div style={{ color: "var(--text-primary)", "font-size": "0.85rem" }}>{dish.name}</div>
-                              <div style={{ "font-size": "0.7rem", color: dish.available ? "var(--text-muted)" : "var(--accent-red)" }}>
-                                {dish.available ? "cooked to order" : `need ${dish.missing.join(", ")}`}
-                              </div>
-                            </div>
-                            <button title="Remove from the menu" style={{ background: "none", border: "none", cursor: "pointer", "font-size": "0.95rem" }} onClick={() => actions.toggleTavernDish(dish.id)}>🗑</button>
-                          </div>
-                        )}
-                      </For>
-                      <button
-                        class="field-upgrade-btn"
-                        disabled={atCapacity()}
-                        title={atCapacity() ? "Menu full — upgrade the tavern for more slots" : ""}
-                        style={{ "font-size": "0.76rem", padding: "5px 10px", opacity: atCapacity() ? "0.5" : "1", "align-self": "flex-start" }}
-                        onClick={() => setAddKind(col.kind)}
-                      >
-                        ＋ Add
-                      </button>
-                    </Show>
+              {(col) => (
+                <div style={{ flex: "1 1 200px", "min-width": "180px", display: "flex", "flex-direction": "column", gap: "8px" }}>
+                  <div style={{ "font-family": "var(--font-heading)", "font-size": "0.95rem", color: "var(--accent-gold)", "border-bottom": "1px solid var(--border-color)", "padding-bottom": "4px" }}>
+                    {col.icon} {col.label}
                   </div>
-                );
-              }}
+                  <For each={onMenuOfKind(col.kind)} fallback={
+                    <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "font-style": "italic", padding: "4px 0" }}>
+                      Nothing on the board yet.
+                    </div>
+                  }>
+                    {(dish) => (
+                      <div style={{ display: "flex", "align-items": "center", gap: "8px", padding: "6px 8px", background: "var(--bg-card)", border: `1px solid ${dish.available ? "var(--accent-gold)" : "var(--accent-red)"}`, "border-radius": "8px" }}>
+                        <DishIcon image={dish.image} icon={dish.icon} size={24} />
+                        <div style={{ flex: "1", "min-width": "0" }}>
+                          <div style={{ color: "var(--text-primary)", "font-size": "0.85rem" }}>{dish.name}</div>
+                          <div style={{ "font-size": "0.7rem", color: dish.available ? "var(--text-muted)" : "var(--accent-red)" }}>
+                            {dish.available ? "cooked to order" : `need ${dish.missing.join(", ")}`}
+                          </div>
+                        </div>
+                        <button title="Remove from the menu" style={{ background: "none", border: "none", cursor: "pointer", "font-size": "0.95rem" }} onClick={() => actions.toggleTavernDish(dish.id)}>🗑</button>
+                      </div>
+                    )}
+                  </For>
+                  <button
+                    class="field-upgrade-btn"
+                    style={{ "font-size": "0.76rem", padding: "5px 10px", "align-self": "flex-start" }}
+                    onClick={() => openEditor(col.kind)}
+                  >
+                    ＋ Add {col.label.toLowerCase()}
+                  </button>
+                </div>
+              )}
             </For>
           </div>
           <div style={{ "margin-top": "12px", "font-size": "0.78rem", color: "var(--text-muted)" }}>
@@ -220,31 +224,57 @@ export default function Tavern() {
           </div>
         </div>
 
-        {/* Add-dish modal — off-menu dishes of the chosen kind. */}
-        <Show when={addKind()}>
-          {(kind) => (
-            <div onClick={() => setAddKind(null)} style={{ position: "fixed", inset: "0", background: "rgba(0,0,0,0.6)", display: "flex", "align-items": "center", "justify-content": "center", "z-index": "1000", padding: "16px" }}>
-              <div onClick={(e) => e.stopPropagation()} class="building-card" style={{ "max-width": "420px", width: "100%", "max-height": "80vh", "overflow-y": "auto" }}>
-                <div class="building-card-title" style={{ "margin-bottom": "10px" }}>
-                  Add {MENU_COLUMNS.find((c) => c.kind === kind())?.label.toLowerCase()}
-                </div>
-                <For each={addableOfKind(kind())} fallback={
-                  <p style={{ "font-size": "0.85rem", color: "var(--text-muted)", "font-style": "italic", margin: "0" }}>
-                    No more recipes yet. <A href="/buildings" style={{ color: "var(--accent-gold)" }}>Upgrade the Kitchens</A> to unlock more.
+        {/* Menu editor — a bigger modal of selectable dish cards for one column. */}
+        <Show when={editKind()}>
+          {(kind) => {
+            const label = () => MENU_COLUMNS.find((c) => c.kind === kind())?.label ?? "Dishes";
+            const all = () => dishes().filter((d) => d.kind === kind());
+            const unlocked = () => all().filter((d) => d.unlocked);
+            const locked = () => all().filter((d) => !d.unlocked);
+            const used = () => usedIfApplied(kind());
+            const over = () => used() > cap();
+            return (
+              <div onClick={() => setEditKind(null)} style={{ position: "fixed", inset: "0", background: "rgba(0,0,0,0.6)", display: "flex", "align-items": "center", "justify-content": "center", "z-index": "1000", padding: "16px" }}>
+                <div onClick={(e) => e.stopPropagation()} class="building-card parchment-card" style={{ "max-width": "760px", width: "100%", "max-height": "85vh", display: "flex", "flex-direction": "column" }}>
+                  <div class="building-card-title" style={{ "margin-bottom": "4px" }}>{label()} on the menu</div>
+                  <p style={{ "font-size": "0.8rem", color: "var(--text-secondary)", "margin-bottom": "12px" }}>
+                    Tap dishes to set the menu. Each is cooked to order from its ingredients.
                   </p>
-                }>
-                  {(dish) => (
-                    <div style={{ display: "flex", "align-items": "center", gap: "10px", padding: "8px 4px", "border-bottom": "1px solid var(--border-color)" }}>
-                      <DishIcon image={dish.image} icon={dish.icon} size={26} />
-                      <span style={{ flex: "1", color: "var(--text-primary)", "font-size": "0.9rem" }}>{dish.name}</span>
-                      <button class="field-upgrade-btn" disabled={atCapacity()} title={atCapacity() ? "Menu full — upgrade the tavern" : ""} style={{ "font-size": "0.78rem", padding: "4px 12px", opacity: atCapacity() ? "0.5" : "1" }} onClick={() => actions.toggleTavernDish(dish.id)}>Add</button>
+                  <div style={{ flex: "1", "overflow-y": "auto", display: "flex", "flex-wrap": "wrap", gap: "10px", "align-content": "flex-start" }}>
+                    <For each={unlocked()} fallback={
+                      <p style={{ "font-size": "0.85rem", color: "var(--text-muted)", "font-style": "italic", margin: "0" }}>
+                        No {label().toLowerCase()} recipes yet. <A href="/buildings" style={{ color: "var(--accent-gold)" }}>Upgrade the Kitchens</A> to unlock more.
+                      </p>
+                    }>
+                      {(dish) => (
+                        <MenuDishCard
+                          name={dish.name} icon={dish.icon} image={dish.image} costs={dish.costs}
+                          selected={staged().includes(dish.id)} available={dish.available}
+                          onClick={() => toggleStaged(dish.id)}
+                        />
+                      )}
+                    </For>
+                    {/* Locked recipes shown dimmed, as a taste of what's to come. */}
+                    <For each={locked()}>
+                      {(dish) => (
+                        <MenuDishCard name={dish.name} icon={dish.icon} image={dish.image} costs={dish.costs} selected={false} locked />
+                      )}
+                    </For>
+                  </div>
+                  {/* Footer: slot counter + apply. */}
+                  <div style={{ display: "flex", "align-items": "center", "justify-content": "space-between", gap: "12px", "margin-top": "14px", "padding-top": "12px", "border-top": "1px solid var(--border-color)" }}>
+                    <div style={{ "font-size": "0.85rem", color: over() ? "var(--accent-red)" : "var(--text-secondary)" }}>
+                      <strong>{used()}</strong> / {cap()} menu slots{over() ? " — remove some to apply" : ""}
                     </div>
-                  )}
-                </For>
-                <button class="field-upgrade-btn" style={{ "margin-top": "12px", "font-size": "0.8rem", padding: "5px 14px" }} onClick={() => setAddKind(null)}>Done</button>
+                    <div style={{ display: "flex", gap: "8px" }}>
+                      <button class="field-upgrade-btn" style={{ "font-size": "0.82rem", padding: "6px 14px", background: "var(--bg-card)" }} onClick={() => setEditKind(null)}>Cancel</button>
+                      <button class="field-upgrade-btn" disabled={over()} style={{ "font-size": "0.82rem", padding: "6px 16px", opacity: over() ? "0.5" : "1" }} onClick={() => applyEditor(kind())}>Apply</button>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-          )}
+            );
+          }}
         </Show>
 
         {/* ── The common room (conversations teaser) ── */}
