@@ -23,6 +23,7 @@ export function buildAdventurerUnit(adv: Adventurer): CombatUnit {
     hp, maxHp: hp,
     str: stats.str, dex: stats.dex, int: stats.int, vit: stats.vit, wis: stats.wis,
     class: adv.class,
+    talents: adv.talents,
     isMagical: adv.class === "wizard" || adv.class === "priest",
     gearDefense: getEquipmentDefense(adv.equipment),
     trait: adv.trait,

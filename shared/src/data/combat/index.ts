@@ -12,7 +12,7 @@ import { buildResult } from "./result.js";
 // ─── Public types re-exported for consumers ─────────────────────
 export type { CombatUnit, CombatLogEntry, CombatResult, LootResult, CombatContext, AITier, TauntImmunity, CombatKind } from "./types.js";
 export { setCombatSeed, combatRandom } from "./prng.js";
-export { calcDamageResult } from "./damage.js";
+export { calcDamageResult, woundedDamageMult } from "./damage.js";
 export { getAttackPower, getMagicPower, getCritChance, getDodgeChance, getInitiative, getDefenseReduction, getMagicResistReduction, dealsMagicalDamage } from "./stats.js";
 export { pickTarget, pickTargetForAdventurer } from "./targeting.js";
 export { buildAdventurerUnit, buildEnemyUnits, buildNpcAllyUnit, calcFamilyBonuses } from "./units.js";

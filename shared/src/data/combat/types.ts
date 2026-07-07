@@ -48,6 +48,9 @@ export interface CombatUnit {
   isMagical: boolean;
   gearDefense: number;
   trait?: string;
+  /** Adventurer talent ids (for combat hooks — e.g. the wounded-damage penalty
+   *  can be bypassed by "unflinching" or inverted by "last_stand"). */
+  talents?: string[];
   /** Equipped mainHand weapon family (for weapon-affinity traits like axe mastery). */
   weaponType?: string;
   enemyTags?: EnemyTag[];

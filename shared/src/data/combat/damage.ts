@@ -18,6 +18,28 @@ export interface DamageResult {
   crit: boolean;
 }
 
+// ── Wounded penalty ──────────────────────────────────────────────
+// A wounded fighter still swings, but with less behind it. Below 40% HP an
+// attacker's outgoing damage scales down, linearly, to a floor at death's door.
+// Applied per-attack off CURRENT hp, so it kicks in whether you send someone
+// wounded OR they take hits mid-fight. Headcount stacks already scale by hp
+// fraction (see below), so they're exempt. Talent hooks: "unflinching" ignores
+// it; "last_stand" inverts it (harder as they bleed).
+const WOUNDED_THRESHOLD = 0.4;
+const WOUNDED_FLOOR = 0.5;      // damage multiplier at ~0 HP
+const LAST_STAND_BONUS = 0.5;   // up to +50% damage at death's door for "last_stand"
+
+export function woundedDamageMult(unit: CombatUnit): number {
+  if (unit.headcount || unit.maxHp <= 0) return 1;
+  const ratio = unit.hp / unit.maxHp;
+  if (ratio >= WOUNDED_THRESHOLD) return 1;
+  const talents = unit.talents ?? [];
+  if (talents.includes("unflinching")) return 1;
+  const wounded = 1 - ratio / WOUNDED_THRESHOLD; // 0 at the threshold → 1 at 0 HP
+  if (talents.includes("last_stand")) return 1 + LAST_STAND_BONUS * wounded;
+  return 1 - (1 - WOUNDED_FLOOR) * wounded;
+}
+
 /**
  * Resolves a single attack's damage. Handles:
  *  - Type immunities (ghost vs physical, aether vs magical)
@@ -64,6 +86,10 @@ export function calcDamageResult(attacker: CombatUnit, defender: CombatUnit, opt
     const effective = attacker.headcount * (attacker.hp / attacker.maxHp);
     rawDamage = Math.max(1, Math.floor(rawDamage * effective));
   }
+
+  // Wounded fighters hit softer (individuals only; stacks scale above).
+  const woundMult = woundedDamageMult(attacker);
+  if (woundMult !== 1) rawDamage = Math.max(1, Math.floor(rawDamage * woundMult));
 
   const traitBonus = getTraitDamageBonus(attacker, defender);
   if (traitBonus > 0) rawDamage = Math.floor(rawDamage * (1 + traitBonus));
