@@ -1160,9 +1160,18 @@ body {
   mix-blend-mode: screen;
 }
 
-/* Reusable parchment wash — same texture as the quest panel, for cards that
-   want the paper feel (e.g. the tavern menu, "The menu"). Content sits above. */
-.parchment-card { position: relative; }
+/* Reusable parchment card — the warm golden panel from the overview/quest
+   board (gradient + amber border + inset shadow) PLUS the parchment texture
+   wash. For cards that want the paper feel (e.g. the tavern menu). Overrides
+   the default blue .building-card background (defined earlier, so this wins).
+   Content sits above the texture. */
+.parchment-card {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(58, 44, 28, 0.95), rgba(42, 32, 18, 0.95));
+  border: 1px solid rgba(180, 150, 100, 0.4);
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.3);
+}
 .parchment-card::before {
   content: "";
   position: absolute;

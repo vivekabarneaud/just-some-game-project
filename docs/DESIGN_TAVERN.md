@@ -202,3 +202,6 @@ A batch of UX + mechanic ideas. Grouped by how deep they cut. NOT locked; a phas
 - Show **who is here right now**: named + typed guests, e.g. *"Cobb · 2 travelers · 1 homeless citizen."* Requires **discrete guest modelling**, which the original design deferred (abstract occupancy). Lovely flavor payoff; the most infra. Merchants-in-residence (Cobb) tie to the traveling-merchant system.
 
 **Recommended order:** Phase 1 (fast, visible), then Phase 2 (the satisfying idle loop), then Phase 3 (flavor). Each is a self-contained pass.
+
+**Phase 4 — the ledger (stats / monitoring, requested July 2026):**
+A little tavern-keeping dashboard so the player can *read* how the house is doing over time, not just the current snapshot: **gold earned** (per day / running total), **most-eaten dish**, **ingredients consumed** (what the kitchen is burning through), busiest pricing, guests served, etc. Pairs naturally with Phase 2 (auto-cook makes ingredient consumption a real, trackable flow) and Phase 3 (guests served by type). Keep it cozy/legible, not a spreadsheet — a few headline numbers + a "what sold best" line. Needs lightweight running counters in tavern state (gold_earned_total, dish_served_counts, ingredient_consumed_counts).
