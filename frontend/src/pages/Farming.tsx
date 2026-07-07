@@ -5,7 +5,7 @@ import { getVeggie, getGardenCost, getGardenBuildTime, getSeedCapacity, getEffec
 import { getAnimal, getPenCost, getPenBuildTime, getPenProduction, PEN_MAX_LEVEL } from "@medieval-realm/shared/data/livestock";
 import { ANIMAL_FEED, FEED_CATEGORY_ICON, FEED_CATEGORY_LABEL, FOOD_CATEGORY, isGrazer, calcGrazingCapacity, type FeedCategory } from "~/data/animalFeed";
 import type { FoodItemType } from "~/data/foods";
-import { getHiveCost, getHiveBuildTime, getHoneyRate, HIVE_MAX_LEVEL, APIARY_IMAGE } from "~/data/apiary";
+import { getHiveCost, getHiveBuildTime, getHoneyRate, HIVE_MAX_LEVEL, APIARY_IMAGE, APIARY } from "~/data/apiary";
 import SeedIcon from "~/components/SeedIcon";
 import { getFruit, getOrchardCost, getOrchardBuildTime, getOrchardRate, getOrchardStatus, isOrchardActive, ORCHARD_MAX_LEVEL } from "~/data/orchards";
 import { SEASON_META } from "~/data/seasons";
@@ -881,6 +881,7 @@ function HiveCard(props: { hive: PlayerHive }) {
 
   const honeyRate = () => props.hive.level > 0 ? getHoneyRate(props.hive.level, state.season) : 0;
   const isDormant = () => props.hive.level > 0 && !props.hive.upgrading && honeyRate() === 0;
+  const seasonMod = () => APIARY.seasonalModifiers[state.season];
 
   const upgradeCost = () => props.hive.level < HIVE_MAX_LEVEL ? getHiveCost(props.hive.level) : null;
   const canUpgrade = () => {
@@ -971,6 +972,11 @@ function HiveCard(props: { hive: PlayerHive }) {
         <Show when={!props.hive.upgrading && props.hive.level > 0}>
           <div class="building-card-production" style={{ color: isDormant() ? "var(--text-muted)" : "var(--accent-gold)" }}>
             {isDormant() ? "Dormant — no honey until spring" : `Producing: +${honeyRate()}/h honey`}
+            <Show when={!isDormant() && seasonMod() < 1}>
+              <span style={{ color: "var(--accent-gold)", "font-size": "0.7rem", "margin-left": "4px" }}>
+                ({Math.round(seasonMod() * 100)}% — {state.season})
+              </span>
+            </Show>
           </div>
         </Show>
       </div>
