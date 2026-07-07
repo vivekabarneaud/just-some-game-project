@@ -359,3 +359,21 @@ With ale/beer/wine + dish diversity, give the tavern an *economic* role: travele
 
 ### Gifting is EDDA's domain (not the Lord's)
 Cozy gifting (Animal-Crossing/Hello-Kitty inspiration): a cooked dish gifted for a small **loyalty** bump, ~once a day. The LORD handing out cakes reads wrong — but **Edda** (midwife, cellarer, keeper of the hearth) is exactly who does this. So the player grows the crop → cooks the dish → **Edda carries it round** → loyalty. This finally gives Edda a *mechanical verb* (she's currently all lore), and it anchors the whole crop→recipe→loyalty loop in the right character. Ties to [[project_tavern_conversations]] + her cast file.
+
+---
+
+## Lavender — cultivated flower (spec, July 2026)
+
+A garden flower that **sweetens the honey and stocks the tavern's tea and cake**. Reuses the existing garden/seed system — NO new garden type, just a new **specialty crop** the player sows in any empty plot.
+
+- **Grown, not foraged.** Foraged herbs (chamomile, dandelion, nettle…) stay at the Forager's Hut. Lavender is *cultivated*; its harvest is a **grown herb ingredient** (lands in the herb stock, usable by both alchemy and the kitchen — the craft cost path already handles herbs). It must NOT appear in the forager's gather pool.
+- **Seed source: the marketplace board**, as a **Meridian** specialty good (lavender = Mediterranean). Buying the seed **unlocks** the crop (specialty-seed flow: `specialty: true`, starts locked/0 seed, `seedsUnlocked.push` on purchase). A Meridian traveling merchant could carry it later.
+- **Seasons:** sow spring, bloom summer/autumn — lines up with when bees are active.
+- **Two payoffs from one plot:**
+  1. **Living blooms boost the apiary** — a passive honey multiplier while a lavender garden is *producing* (bees forage the blooms). Hook into the honey tick: `rate ×= (1 + bonus × #producing lavender gardens)`. No consumption.
+  2. **Harvest = dried lavender** — the ingredient for the recipes below.
+- **Recipes (the fun part):**
+  - **Kitchen → Lavender Tea** (a **Drink** on the tavern menu) + **Lavender Honey Cake** (a **Dessert**; lavender + honey + grain) — fills the thin Drinks/Desserts columns.
+  - **Alchemy → Calming Draught** — increases an adventurer's **hourly HP regen** (a recovery accelerant), NOT a flat %HP heal. Needs a **new alchemy effect type** (e.g. `regenBoost:X`) wired into potion consumption + the recovery/regen tick (`REGEN_PCT_PER_HOUR`).
+- **Art (user provides, like the portraits):** `garden_lavender.png` (planted plot) + `lavender_seed.png`. Placeholder/emoji until then.
+- **Systems touched:** gardens (specialty crop + non-food produce routing to herbs), herbs (new grown herb, excluded from foraging), marketplace (seed offer + unlock), apiary (honey multiplier), alchemy (new regen effect), kitchen (2 recipes), tavern (dishes flow in via existing `kind` tagging). A focused multi-step build, not a one-shot.
