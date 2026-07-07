@@ -37,12 +37,18 @@ export interface TavernCommodityDrink {
   image?: string;
   /** The stored resource this drink is poured from (e.g. "ale"). */
   resource: string;
-  /** Building that must exist (level > 0) for the drink to be servable. */
+  /** Building that must exist for the drink to be servable. */
   requiresBuilding: string;
+  /** Minimum level of `requiresBuilding` before this drink unlocks (default 1).
+   *  Mead needs a more practiced brewery than the everyday ale. */
+  minBuildingLevel?: number;
+  /** Player-facing label for what it's brewed from (e.g. "grain", "honey"). */
+  brewedFrom: string;
 }
 
 export const TAVERN_COMMODITY_DRINKS: TavernCommodityDrink[] = [
-  { id: "ale", name: "Ale", icon: "🍺", resource: "ale", requiresBuilding: "brewery" },
+  { id: "ale", name: "Ale", icon: "🍺", resource: "ale", requiresBuilding: "brewery", minBuildingLevel: 1, brewedFrom: "grain" },
+  { id: "mead", name: "Mead", icon: "🍯", resource: "mead", requiresBuilding: "brewery", minBuildingLevel: 2, brewedFrom: "honey" },
 ];
 
 export function getCommodityDrink(id: string): TavernCommodityDrink | undefined {

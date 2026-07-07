@@ -34,6 +34,11 @@ import {
   ALE_CONSUMED_PER_TAVERN_LEVEL,
   ALE_STORAGE_BASE,
   ALE_STORAGE_PER_BREWERY_LEVEL,
+  MEAD_PRODUCTION_PER_BREWERY_LEVEL,
+  MEAD_HONEY_COST_PER_BREWERY_LEVEL,
+  MEAD_CONSUMED_PER_TAVERN_LEVEL,
+  MEAD_STORAGE_BASE,
+  MEAD_STORAGE_PER_BREWERY_LEVEL,
   SHRINE_HAPPINESS_PER_LEVEL,
   TAVERN_HAPPINESS_PER_LEVEL,
   TAVERN_HAPPINESS_DRY,
@@ -270,7 +275,7 @@ import {
 } from "~/data/quests";
 import { getReadyEvents } from "~/data/events";
 import { TRAVELING_MERCHANTS, getMerchant, merchantIntervalDays } from "~/data/merchants";
-import { calcTavern, REPUTATION_DRIFT_PER_HOUR, TAVERN_FOOD_PER_ROOM_PER_HOUR, MENU_STAPLE_IDS, serversNeeded, menuCapacity, TAVERN_COMMODITY_DRINKS } from "~/data/tavern";
+import { calcTavern, REPUTATION_DRIFT_PER_HOUR, TAVERN_FOOD_PER_ROOM_PER_HOUR, MENU_STAPLE_IDS, serversNeeded, menuCapacity, TAVERN_COMMODITY_DRINKS, getCommodityDrink } from "~/data/tavern";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { EXOTIC_IDS } from "@medieval-realm/shared/data/exotics";
 import { ALCHEMY_RECIPES, getDiscoverableRecipes, getAvailableAlchemyRecipes, RESEARCH_BASE_COST } from "@medieval-realm/shared/data/alchemy_recipes";
@@ -564,8 +569,10 @@ export interface GameState {
   eventLog: GameEvent[];
   // Ale & Happiness
   ale: number;
-  /** Per-drink brewery pause switches, keyed by drink id ("ale", later
-   *  "beer"/"wine"/"mead"). Missing/false = brewing; true = paused. */
+  /** Mead — brewed from honey at the Brewery, served at the tavern like ale. */
+  mead: number;
+  /** Per-drink brewery pause switches, keyed by drink id ("ale", "mead", later
+   *  "beer"/"wine"). Missing/false = brewing; true = paused. */
   brewingPaused?: Record<string, boolean>;
   happiness: number; // 0-100
   lastRaidOutcome: "none" | "victory" | "defeat";
@@ -768,6 +775,7 @@ export interface GameActions {
   devSnapshotTime: () => number | null;
   // Ale & Happiness
   getAleInfo: () => { current: number; cap: number; production: number; consumption: number };
+  getMeadInfo: () => { current: number; cap: number; production: number; consumption: number };
   startCraft: (recipeId: string, quantity?: number) => boolean;
   /** Toggle passive "keep cooking": pass a recipeId to auto-run it at its
    *  building, or null to stop. One auto-recipe per building. */
@@ -1085,6 +1093,7 @@ export function createInitialState(): GameState {
     discoveredEnemies: [],
     eventLog: [],
     ale: 0,
+    mead: 0,
     happiness: 50,
     lastRaidOutcome: "none",
     lastRaidTime: 0,
@@ -1504,6 +1513,7 @@ export function migrateSaveState(saved: GameState): GameState {
     if (!saved.eventLog) saved.eventLog = [];
     // Ale & Happiness migration
     if (saved.ale === undefined) saved.ale = 0;
+    if (saved.mead === undefined) saved.mead = 0;
     if (saved.happiness === undefined) saved.happiness = 50;
     if (!saved.lastRaidOutcome) saved.lastRaidOutcome = "none";
     if (saved.lastRaidTime === undefined) saved.lastRaidTime = 0;
@@ -2418,6 +2428,7 @@ function getResourceQty(s: GameState, res: string): number {
   if (res === "iron") return s.iron;
   if (res === "honey") return s.honey;
   if (res === "ale") return s.ale ?? 0;
+  if (res === "mead") return s.mead ?? 0;
   return s.inventory.find((i) => i.itemId === res)?.quantity ?? 0;
 }
 
@@ -2436,6 +2447,7 @@ function spendResource(s: GameState, res: string, amount: number): void {
   if (res === "iron") { s.iron = Math.max(0, s.iron - amount); return; }
   if (res === "honey") { s.honey = Math.max(0, s.honey - amount); return; }
   if (res === "ale") { s.ale = Math.max(0, s.ale - amount); return; }
+  if (res === "mead") { s.mead = Math.max(0, (s.mead ?? 0) - amount); return; }
   const inv = s.inventory.find((i) => i.itemId === res);
   if (inv) inv.quantity = Math.max(0, inv.quantity - amount);
 }
@@ -2552,7 +2564,9 @@ function calcBuildingEffect(buildingId: string, nextLevel: number): string | nul
       const nextAle = nextLevel * ALE_PRODUCTION_PER_BREWERY_LEVEL;
       const curFood = Math.max(0, currentLevel) * ALE_FOOD_COST_PER_BREWERY_LEVEL;
       const nextFood = nextLevel * ALE_FOOD_COST_PER_BREWERY_LEVEL;
-      return `Ale: +${curAle}/h → +${nextAle}/h · Food cost: ${curFood}/h → ${nextFood}/h`;
+      const meadMin = getCommodityDrink("mead")?.minBuildingLevel ?? 2;
+      const meadNote = nextLevel === meadMin ? " · Unlocks 🍯 mead (from honey)" : "";
+      return `Ale: +${curAle}/h → +${nextAle}/h · Food cost: ${curFood}/h → ${nextFood}/h${meadNote}`;
     }
     case "tavern": {
       const cur = Math.max(0, currentLevel) * TAVERN_HAPPINESS_PER_LEVEL;
@@ -3619,6 +3633,27 @@ export function GameProvider(props: ParentProps) {
           s.ale = Math.max(0, s.ale - aleConsumed);
         }
 
+        // ── Mead: brewed from honey at the Brewery (unlocked at Lv.2), same
+        //    shape as ale. Gentle honey draw, and (per the pause toggle) skippable. ──
+        const meadMinLevel = getCommodityDrink("mead")?.minBuildingLevel ?? 2;
+        const meadStorageCap = MEAD_STORAGE_BASE + breweryLvl * MEAD_STORAGE_PER_BREWERY_LEVEL;
+        if (breweryLvl >= meadMinLevel && !(s.brewingPaused?.mead) && (s.mead ?? 0) < meadStorageCap) {
+          const meadProduced = MEAD_PRODUCTION_PER_BREWERY_LEVEL * breweryLvl * elapsedHours;
+          const honeyNeeded = MEAD_HONEY_COST_PER_BREWERY_LEVEL * breweryLvl * elapsedHours;
+          if (s.honey >= honeyNeeded) {
+            s.honey -= honeyNeeded;
+            s.mead = Math.min(meadStorageCap, (s.mead ?? 0) + meadProduced);
+          }
+        }
+        // Mead is poured only when featured on the menu (same as ale).
+        const meadOnMenu = (s.tavernMenu ?? []).includes("mead");
+        const meadNeeded = tavernLvl > 0 && meadOnMenu ? MEAD_CONSUMED_PER_TAVERN_LEVEL * tavernLvl * elapsedHours : 0;
+        let meadConsumed = 0;
+        if (meadNeeded > 0) {
+          meadConsumed = Math.min(s.mead ?? 0, meadNeeded);
+          s.mead = Math.max(0, (s.mead ?? 0) - meadConsumed);
+        }
+
         // ── Winter cold (clothing reduces wood needed) ──
         const isWinter = s.season === "winter";
         if (isWinter) {
@@ -3681,12 +3716,13 @@ export function GameProvider(props: ParentProps) {
         const shrineLvl = s.buildings.find((b) => b.buildingId === "shrine")?.level ?? 0;
         happiness += shrineLvl * SHRINE_HAPPINESS_PER_LEVEL;
 
-        // Tavern happiness. Ale is now opt-in: if it's on the menu, a flowing
-        // barrel cheers the settlement and a dry one disappoints; if the player
-        // doesn't feature ale at all, there's no ale-driven swing either way.
-        if (tavernLvl > 0 && aleOnMenu) {
-          const aleRatio = aleConsumed / (aleNeeded || 1);
-          happiness += aleRatio > 0.5 ? tavernLvl * TAVERN_HAPPINESS_PER_LEVEL : tavernLvl * TAVERN_HAPPINESS_DRY;
+        // Tavern happiness. Drinks are opt-in: if any drink (ale/mead) is on the
+        // menu, at least one flowing barrel cheers the settlement and an all-dry
+        // board disappoints; feature no drinks and there's no drink-driven swing.
+        if (tavernLvl > 0 && (aleOnMenu || meadOnMenu)) {
+          const aleFlowing = aleOnMenu && aleConsumed / (aleNeeded || 1) > 0.5;
+          const meadFlowing = meadOnMenu && meadConsumed / (meadNeeded || 1) > 0.5;
+          happiness += (aleFlowing || meadFlowing) ? tavernLvl * TAVERN_HAPPINESS_PER_LEVEL : tavernLvl * TAVERN_HAPPINESS_DRY;
         }
 
         // Clothing — scaled penalty when underclothed, doubled in winter
@@ -5287,7 +5323,7 @@ export function GameProvider(props: ParentProps) {
       // not cooked. Unlocked once the source building exists; available while the
       // barrel has stock.
       const commodity: TavernDish[] = TAVERN_COMMODITY_DRINKS.map((d) => {
-        const unlocked = (state.buildings.find((b) => b.buildingId === d.requiresBuilding)?.level ?? 0) > 0;
+        const unlocked = (state.buildings.find((b) => b.buildingId === d.requiresBuilding)?.level ?? 0) >= (d.minBuildingLevel ?? 1);
         const stock = getResourceQty(state, d.resource);
         return {
           id: d.id, name: d.name, icon: d.icon, image: d.image, kind: "drink" as DishKind,
@@ -5563,11 +5599,24 @@ export function GameProvider(props: ParentProps) {
     getAleInfo() {
       const breweryLvl = state.buildings.find((b) => b.buildingId === "brewery")?.level ?? 0;
       const tavernLvl = state.buildings.find((b) => b.buildingId === "tavern")?.level ?? 0;
+      const onMenu = (state.tavernMenu ?? []).includes("ale");
       return {
         current: Math.floor(state.ale),
         cap: ALE_STORAGE_BASE + breweryLvl * ALE_STORAGE_PER_BREWERY_LEVEL,
-        production: breweryLvl * ALE_PRODUCTION_PER_BREWERY_LEVEL,
-        consumption: tavernLvl * ALE_CONSUMED_PER_TAVERN_LEVEL,
+        production: state.brewingPaused?.ale ? 0 : breweryLvl * ALE_PRODUCTION_PER_BREWERY_LEVEL,
+        consumption: onMenu ? tavernLvl * ALE_CONSUMED_PER_TAVERN_LEVEL : 0,
+      };
+    },
+    getMeadInfo() {
+      const breweryLvl = state.buildings.find((b) => b.buildingId === "brewery")?.level ?? 0;
+      const tavernLvl = state.buildings.find((b) => b.buildingId === "tavern")?.level ?? 0;
+      const onMenu = (state.tavernMenu ?? []).includes("mead");
+      const unlocked = breweryLvl >= (getCommodityDrink("mead")?.minBuildingLevel ?? 2);
+      return {
+        current: Math.floor(state.mead ?? 0),
+        cap: unlocked ? MEAD_STORAGE_BASE + breweryLvl * MEAD_STORAGE_PER_BREWERY_LEVEL : 0,
+        production: unlocked && !state.brewingPaused?.mead ? breweryLvl * MEAD_PRODUCTION_PER_BREWERY_LEVEL : 0,
+        consumption: onMenu ? tavernLvl * MEAD_CONSUMED_PER_TAVERN_LEVEL : 0,
       };
     },
     setAutoCook(buildingId, recipeId) {

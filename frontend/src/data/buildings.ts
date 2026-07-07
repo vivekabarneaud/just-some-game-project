@@ -850,6 +850,14 @@ export const ALE_CONSUMED_PER_TAVERN_LEVEL = 4; // ale consumed/hour
 export const ALE_STORAGE_BASE = 50;
 export const ALE_STORAGE_PER_BREWERY_LEVEL = 30;
 
+// Mead system — brewed from honey at the Brewery. Deliberately GENTLE: mead is a
+// treat, not a honey sink that starves the honey-cake/porridge recipes.
+export const MEAD_PRODUCTION_PER_BREWERY_LEVEL = 2; // mead/hour
+export const MEAD_HONEY_COST_PER_BREWERY_LEVEL = 2; // honey consumed/hour to make mead
+export const MEAD_CONSUMED_PER_TAVERN_LEVEL = 2; // mead consumed/hour
+export const MEAD_STORAGE_BASE = 30;
+export const MEAD_STORAGE_PER_BREWERY_LEVEL = 20;
+
 // Happiness
 export const SHRINE_HAPPINESS_PER_LEVEL = 3;
 export const TAVERN_HAPPINESS_PER_LEVEL = 5; // when ale is available

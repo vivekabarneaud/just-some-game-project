@@ -328,8 +328,10 @@ export interface GameState {
   eventLog: GameEvent[];
   // Ale & Happiness
   ale: number;
-  /** Per-drink brewery pause switches, keyed by drink id ("ale", later
-   *  "beer"/"wine"/"mead"). Missing/false = brewing; true = paused. */
+  /** Mead — brewed from honey at the Brewery, served at the tavern like ale. */
+  mead?: number;
+  /** Per-drink brewery pause switches, keyed by drink id ("ale", "mead", later
+   *  "beer"/"wine"). Missing/false = brewing; true = paused. */
   brewingPaused?: Record<string, boolean>;
   happiness: number;
   lastRaidOutcome: "none" | "victory" | "defeat";

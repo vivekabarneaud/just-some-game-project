@@ -362,17 +362,20 @@ export default function ResourceBar() {
         </div>
       </Show>
 
-      <Show when={state.clothing > 0 || actions.getClothingInfo().needed > 0 || actions.getAleInfo().cap > 0}>
+      <Show when={state.clothing > 0 || actions.getClothingInfo().needed > 0 || actions.getAleInfo().cap > 0 || actions.getMeadInfo().cap > 0}>
         {(() => {
           const clothing = () => actions.getClothingInfo();
           const ale = () => actions.getAleInfo();
+          const mead = () => actions.getMeadInfo();
           const hasClothing = () => clothing().needed > 0 || clothing().current > 0;
           const hasAle = () => ale().cap > 0;
-          const aleNet = () => {
-            const a = ale();
-            const eff = (a.current <= 0 && a.production <= 0) ? 0 : a.consumption;
-            return a.production - eff;
+          const hasMead = () => mead().cap > 0;
+          const netOf = (d: { current: number; production: number; consumption: number }) => {
+            const eff = (d.current <= 0 && d.production <= 0) ? 0 : d.consumption;
+            return d.production - eff;
           };
+          const aleNet = () => netOf(ale());
+          const meadNet = () => netOf(mead());
           // Red only when something *vital* is unmet. Clothing is vital
           // (citizens need to stay warm / survive winter). Ale is a happiness
           // luxury — its rate indicator inside the dropdown is enough; not
@@ -388,7 +391,7 @@ export default function ResourceBar() {
               <span class="resource-amount" style={{
                 color: allMet() ? undefined : "var(--accent-red)",
               }}>
-                {(clothing().current + ale().current).toLocaleString()}
+                {(clothing().current + ale().current + mead().current).toLocaleString()}
               </span>
               <div class="resource-dropdown">
                 <div class="dropdown-title">Comforts</div>
@@ -413,6 +416,22 @@ export default function ResourceBar() {
                           "rate-negative": aleNet() < 0,
                         }} style={{ "margin-left": "6px", "font-size": "0.72rem" }}>
                           {aleNet() >= 0 ? "+" : ""}{aleNet()}/h
+                        </span>
+                      </Show>
+                    </span>
+                  </div>
+                </Show>
+                <Show when={hasMead()}>
+                  <div class="dropdown-row">
+                    <span>🍯 Mead</span>
+                    <span>
+                      {mead().current}/{mead().cap}
+                      <Show when={meadNet() !== 0}>
+                        <span classList={{
+                          "rate-positive": meadNet() > 0,
+                          "rate-negative": meadNet() < 0,
+                        }} style={{ "margin-left": "6px", "font-size": "0.72rem" }}>
+                          {meadNet() >= 0 ? "+" : ""}{meadNet()}/h
                         </span>
                       </Show>
                     </span>

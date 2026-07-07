@@ -29,10 +29,10 @@ export default function BreweryManageModal(props: Props) {
     onCleanup(() => window.removeEventListener("keydown", handler));
   });
 
+  const breweryLvl = () => state.buildings.find((b) => b.buildingId === "brewery")?.level ?? 0;
   const breweryDrinks = () => TAVERN_COMMODITY_DRINKS.filter((d) => d.requiresBuilding === "brewery");
-  // Only ale has a dedicated store today; read it directly. Other drinks read 0
-  // until their own stores land, which is fine — the toggle still works.
-  const stockOf = (resource: string) => (resource === "ale" ? state.ale : 0);
+  const stockOf = (resource: string) =>
+    resource === "ale" ? state.ale : resource === "mead" ? (state.mead ?? 0) : 0;
   const onMenu = (id: string) => (state.tavernMenu ?? []).includes(id);
 
   return (
@@ -58,39 +58,46 @@ export default function BreweryManageModal(props: Props) {
             <button onClick={close} style={{ background: "none", border: "none", color: "var(--text-muted)", "font-size": "1.2rem", cursor: "pointer", "line-height": 1 }}>✕</button>
           </div>
           <p style={{ "font-size": "0.8rem", color: "var(--text-secondary)", "margin-bottom": "16px" }}>
-            Pause a drink to stop it drawing grain. The tavern only pours a drink when it's on the menu, so an unfeatured barrel fills once and then rests.
+            Pause a drink to stop it drawing from your stores. The tavern only pours a drink when it's on the menu, so an unfeatured barrel fills once and then rests.
           </p>
 
           <div style={{ display: "flex", "flex-direction": "column", gap: "10px" }}>
             <For each={breweryDrinks()}>
               {(d) => {
                 const paused = () => actions.isBrewingPaused(d.id);
+                const minLvl = d.minBuildingLevel ?? 1;
+                const unlocked = () => breweryLvl() >= minLvl;
                 return (
                   <div style={{
                     display: "flex", "align-items": "center", gap: "10px", padding: "10px 12px",
                     background: "var(--bg-card)", border: "1px solid var(--border-color)", "border-radius": "8px",
+                    opacity: unlocked() ? "1" : "0.6",
                   }}>
-                    <span style={{ "font-size": "1.4rem" }}>{d.icon}</span>
+                    <span style={{ "font-size": "1.4rem", filter: unlocked() ? undefined : "grayscale(0.6)" }}>{d.icon}</span>
                     <div style={{ flex: "1", "min-width": "0" }}>
                       <div style={{ "font-size": "0.9rem" }}>{d.name}</div>
                       <div style={{ "font-size": "0.72rem", color: "var(--text-muted)" }}>
-                        In the barrel: {Math.floor(stockOf(d.resource))}
-                        {" · "}
-                        {onMenu(d.id) ? "on the tavern menu" : "not on the menu"}
+                        <Show when={unlocked()} fallback={<>🔒 Unlocks at Brewery Lv.{minLvl}</>}>
+                          From {d.brewedFrom} · in the barrel: {Math.floor(stockOf(d.resource))}
+                          {" · "}
+                          {onMenu(d.id) ? "on the tavern menu" : "not on the menu"}
+                        </Show>
                       </div>
                     </div>
-                    <button
-                      onClick={() => actions.toggleBrewingPaused(d.id)}
-                      style={{
-                        padding: "6px 12px", "font-size": "0.8rem", "font-weight": 600,
-                        border: "1px solid var(--border-color)", "border-radius": "6px", cursor: "pointer",
-                        background: paused() ? "var(--accent-gold)" : "transparent",
-                        color: paused() ? "#1a1a1a" : "var(--text-secondary)",
-                        "white-space": "nowrap",
-                      }}
-                    >
-                      {paused() ? "▶ Resume" : "⏸ Pause"}
-                    </button>
+                    <Show when={unlocked()}>
+                      <button
+                        onClick={() => actions.toggleBrewingPaused(d.id)}
+                        style={{
+                          padding: "6px 12px", "font-size": "0.8rem", "font-weight": 600,
+                          border: "1px solid var(--border-color)", "border-radius": "6px", cursor: "pointer",
+                          background: paused() ? "var(--accent-gold)" : "transparent",
+                          color: paused() ? "#1a1a1a" : "var(--text-secondary)",
+                          "white-space": "nowrap",
+                        }}
+                      >
+                        {paused() ? "▶ Resume" : "⏸ Pause"}
+                      </button>
+                    </Show>
                   </div>
                 );
               }}
