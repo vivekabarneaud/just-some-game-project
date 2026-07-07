@@ -25,6 +25,13 @@ export function serversNeeded(level: number): number {
  *  /culture dishes as extra featured slots. */
 export const MENU_STAPLE_IDS = ["porridge", "hearth_stew", "river_stew"];
 
+/** How many dishes the tavern can feature at once, across all columns. Grows
+ *  with the tavern — so a bigger house sets a wider table. Level 1 already
+ *  seats the three staples with a little room to spare. */
+export function menuCapacity(level: number): number {
+  return level <= 0 ? 0 : 3 + level; // L1: 4, L2: 5, …
+}
+
 /** Gold per occupied room per game-day, before the pricing margin (placeholder). */
 export const TAVERN_GOLD_PER_ROOM_PER_DAY = 5;
 

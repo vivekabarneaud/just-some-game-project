@@ -1160,6 +1160,22 @@ body {
   mix-blend-mode: screen;
 }
 
+/* Reusable parchment wash — same texture as the quest panel, for cards that
+   want the paper feel (e.g. the tavern menu, "The menu"). Content sits above. */
+.parchment-card { position: relative; }
+.parchment-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/parchment_texture.png");
+  background-size: cover;
+  opacity: 0.08;
+  pointer-events: none;
+  border-radius: 10px;
+  mix-blend-mode: screen;
+}
+.parchment-card > * { position: relative; z-index: 1; }
+
 /* Wet-weather dark overlay for the gold card. Fades in via opacity (which DOES
    animate, unlike a gradient swap), sits below the z-indexed content so text
    stays readable. Toggled by the [data-weather] rules further up. */

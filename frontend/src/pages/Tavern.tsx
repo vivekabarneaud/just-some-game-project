@@ -1,11 +1,21 @@
-import { For, Show } from "solid-js";
+import { For, Show, createSignal } from "solid-js";
 import { A } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
-import { calcTavern, serversNeeded, PRICING, MENU_STAPLE_IDS, type TavernPricing } from "~/data/tavern";
-import { getFoodMeta, type FoodItemType } from "~/data/foods";
+import { calcTavern, serversNeeded, menuCapacity, PRICING, type TavernPricing } from "~/data/tavern";
+import { getFoodMeta, FOOD_ITEMS, type FoodItemType, type DishKind } from "~/data/foods";
 import FoodIcon from "~/components/FoodIcon";
 
 const PRICING_ORDER: TavernPricing[] = ["generous", "fair", "steep"];
+
+/** The tavern menu's three columns, in display order. */
+const MENU_COLUMNS: { kind: DishKind; label: string; icon: string }[] = [
+  { kind: "meal", label: "Meals", icon: "🍲" },
+  { kind: "drink", label: "Drinks", icon: "🍺" },
+  { kind: "dessert", label: "Desserts", icon: "🍯" },
+];
+/** All cooked dishes of a kind (kind defaults to "meal"). */
+const dishesOfKind = (k: DishKind): FoodItemType[] =>
+  FOOD_ITEMS.filter((f) => f.category === "cooked" && (f.kind ?? "meal") === k).map((f) => f.id);
 
 export default function Tavern() {
   const { state, actions } = useGame();
@@ -29,6 +39,13 @@ export default function Tavern() {
   const assignableAdults = () =>
     Math.max(0, state.citizens.adults - state.soldiers - state.archers - state.namedResidents.adults);
   const canAddServer = () => servers() < serversNeeded(level()) && servers() < assignableAdults();
+
+  // Menu management
+  const [addKind, setAddKind] = createSignal<DishKind | null>(null);
+  const hasBrewery = () => (state.buildings.find((b) => b.buildingId === "brewery")?.level ?? 0) > 0;
+  const atCapacity = () => menu().length >= menuCapacity(level());
+  const onMenuOfKind = (k: DishKind) => dishesOfKind(k).filter((d) => menu().includes(d));
+  const addableOfKind = (k: DishKind) => dishesOfKind(k).filter((d) => !menu().includes(d));
 
   const statBox = {
     flex: "1 1 110px", padding: "12px 14px", background: "var(--bg-card)",
@@ -77,10 +94,14 @@ export default function Tavern() {
         <div class="building-card" style={{ "margin-bottom": "16px" }}>
           <div class="building-card-title" style={{ "margin-bottom": "12px" }}>Rooms & travelers</div>
           <div style={{ display: "flex", gap: "10px", "flex-wrap": "wrap" }}>
-            <div style={statBox}><div style={statNum}>{t().rooms}</div><div style={statLabel}>Rooms</div></div>
-            <div style={statBox}><div style={statNum}>{Math.round(t().occupancy * 100)}%</div><div style={statLabel}>Occupancy</div></div>
-            <div style={statBox}><div style={statNum}>{t().occupiedRooms}</div><div style={statLabel}>Beds filled</div></div>
-            <div style={statBox}><div style={statNum}>+{t().goldPerDay}</div><div style={statLabel}>Gold / day</div></div>
+            <div style={statBox}>
+              <div style={statNum}>{t().occupiedRooms} / {t().rooms}</div>
+              <div style={statLabel}>Beds filled</div>
+            </div>
+            <div style={statBox}>
+              <div style={statNum}>+{t().goldPerDay}</div>
+              <div style={statLabel}>Gold / day</div>
+            </div>
           </div>
 
           {/* Pricing lever */}
@@ -138,49 +159,97 @@ export default function Tavern() {
         </div>
 
         {/* ── The menu ── */}
-        <div class="building-card" style={{ "margin-bottom": "16px" }}>
+        <div class="building-card parchment-card" style={{ "margin-bottom": "16px" }}>
           <div class="building-card-title" style={{ "margin-bottom": "4px" }}>The menu</div>
           <p style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "margin-bottom": "12px" }}>
-            What the tavern sets on its tables. A varied menu cheers the settlement and draws more
-            travelers. (Dishes from your adventurers' homelands, coming soon.)
+            What the tavern sets on its tables. A varied menu cheers the settlement and draws more travelers.
           </p>
-          <div style={{ display: "flex", "flex-direction": "column", gap: "8px" }}>
-            <For each={MENU_STAPLE_IDS as FoodItemType[]}>
-              {(dishId) => {
-                const served = () => menu().includes(dishId);
-                const stock = () => stockOf(dishId);
-                const out = () => served() && stock() <= 0;
-                const meta = getFoodMeta(dishId);
+          <div style={{ display: "flex", gap: "12px", "flex-wrap": "wrap", "align-items": "flex-start" }}>
+            <For each={MENU_COLUMNS}>
+              {(col) => {
+                const breweryLocked = () => col.kind === "drink" && !hasBrewery();
                 return (
-                  <div style={{
-                    display: "flex", "align-items": "center", gap: "10px", padding: "8px 12px",
-                    background: served() ? "var(--bg-card)" : "var(--bg-secondary)",
-                    border: `1px solid ${out() ? "var(--accent-red)" : served() ? "var(--accent-gold)" : "var(--border-color)"}`,
-                    "border-radius": "8px", opacity: served() && !out() ? "1" : "0.65",
-                  }}>
-                    <FoodIcon id={dishId} size={28} />
-                    <div style={{ flex: "1" }}>
-                      <span style={{ color: "var(--text-primary)", "font-size": "0.9rem" }}>{meta.label}</span>
-                      <span style={{ "font-size": "0.75rem", color: out() ? "var(--accent-red)" : "var(--text-muted)", "margin-left": "8px" }}>
-                        {out() ? "out of stock — cook more" : `${stock()} in stock`}
-                      </span>
+                  <div style={{ flex: "1 1 200px", "min-width": "180px", display: "flex", "flex-direction": "column", gap: "8px" }}>
+                    <div style={{ "font-family": "var(--font-heading)", "font-size": "0.95rem", color: "var(--accent-gold)", "border-bottom": "1px solid var(--border-color)", "padding-bottom": "4px" }}>
+                      {col.icon} {col.label}
                     </div>
-                    <button
-                      class="field-upgrade-btn"
-                      style={{ "font-size": "0.78rem", padding: "4px 12px", opacity: served() ? "0.75" : "1" }}
-                      onClick={() => actions.toggleTavernDish(dishId)}
-                    >
-                      {served() ? "On the menu" : "Serve"}
-                    </button>
+                    <Show when={!breweryLocked()} fallback={
+                      <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "font-style": "italic", padding: "6px 0" }}>
+                        Build a <A href="/buildings" style={{ color: "var(--accent-gold)" }}>Brewery</A> first.
+                      </div>
+                    }>
+                      <For each={onMenuOfKind(col.kind)} fallback={
+                        <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "font-style": "italic", padding: "4px 0" }}>
+                          Nothing on the board yet.
+                        </div>
+                      }>
+                        {(dishId) => {
+                          const stock = () => stockOf(dishId);
+                          const out = () => stock() <= 0;
+                          const meta = getFoodMeta(dishId);
+                          return (
+                            <div style={{ display: "flex", "align-items": "center", gap: "8px", padding: "6px 8px", background: "var(--bg-card)", border: `1px solid ${out() ? "var(--accent-red)" : "var(--accent-gold)"}`, "border-radius": "8px" }}>
+                              <FoodIcon id={dishId} size={24} />
+                              <div style={{ flex: "1", "min-width": "0" }}>
+                                <div style={{ color: "var(--text-primary)", "font-size": "0.85rem" }}>{meta.label}</div>
+                                <div style={{ "font-size": "0.7rem", color: out() ? "var(--accent-red)" : "var(--text-muted)" }}>
+                                  {out() ? "out of stock" : `${stock()} in stock`}
+                                </div>
+                              </div>
+                              <button title="Remove from the menu" style={{ background: "none", border: "none", cursor: "pointer", "font-size": "0.95rem" }} onClick={() => actions.toggleTavernDish(dishId)}>🗑</button>
+                            </div>
+                          );
+                        }}
+                      </For>
+                      <button
+                        class="field-upgrade-btn"
+                        disabled={atCapacity()}
+                        title={atCapacity() ? "Menu full — upgrade the tavern for more slots" : ""}
+                        style={{ "font-size": "0.76rem", padding: "5px 10px", opacity: atCapacity() ? "0.5" : "1", "align-self": "flex-start" }}
+                        onClick={() => setAddKind(col.kind)}
+                      >
+                        ＋ Add
+                      </button>
+                    </Show>
                   </div>
                 );
               }}
             </For>
           </div>
-          <div style={{ "margin-top": "10px", "font-size": "0.78rem", color: "var(--text-muted)" }}>
-            {servedInStock().length} of {menu().length} featured dishes in stock. Serving draws from the kitchen's cooked meals — a busy tavern eats through them, so keep the pots on.
+          <div style={{ "margin-top": "12px", "font-size": "0.78rem", color: "var(--text-muted)" }}>
+            {servedInStock().length} of {menu().length} featured in stock · {menu().length}/{menuCapacity(level())} menu slots used. Serving draws from the kitchen's cooked meals — keep the pots on.
           </div>
         </div>
+
+        {/* Add-dish modal — off-menu dishes of the chosen kind. */}
+        <Show when={addKind()}>
+          {(kind) => (
+            <div onClick={() => setAddKind(null)} style={{ position: "fixed", inset: "0", background: "rgba(0,0,0,0.6)", display: "flex", "align-items": "center", "justify-content": "center", "z-index": "1000", padding: "16px" }}>
+              <div onClick={(e) => e.stopPropagation()} class="building-card" style={{ "max-width": "420px", width: "100%", "max-height": "80vh", "overflow-y": "auto" }}>
+                <div class="building-card-title" style={{ "margin-bottom": "10px" }}>
+                  Add {MENU_COLUMNS.find((c) => c.kind === kind())?.label.toLowerCase()}
+                </div>
+                <For each={addableOfKind(kind())} fallback={
+                  <p style={{ "font-size": "0.85rem", color: "var(--text-muted)", "font-style": "italic", margin: "0" }}>
+                    No more recipes yet. <A href="/buildings" style={{ color: "var(--accent-gold)" }}>Upgrade the Kitchens</A> to unlock more.
+                  </p>
+                }>
+                  {(dishId) => {
+                    const meta = getFoodMeta(dishId);
+                    return (
+                      <div style={{ display: "flex", "align-items": "center", gap: "10px", padding: "8px 4px", "border-bottom": "1px solid var(--border-color)" }}>
+                        <FoodIcon id={dishId} size={26} />
+                        <span style={{ flex: "1", color: "var(--text-primary)", "font-size": "0.9rem" }}>{meta.label}</span>
+                        <button class="field-upgrade-btn" disabled={atCapacity()} title={atCapacity() ? "Menu full — upgrade the tavern" : ""} style={{ "font-size": "0.78rem", padding: "4px 12px", opacity: atCapacity() ? "0.5" : "1" }} onClick={() => actions.toggleTavernDish(dishId)}>Add</button>
+                      </div>
+                    );
+                  }}
+                </For>
+                <button class="field-upgrade-btn" style={{ "margin-top": "12px", "font-size": "0.8rem", padding: "5px 14px" }} onClick={() => setAddKind(null)}>Done</button>
+              </div>
+            </div>
+          )}
+        </Show>
 
         {/* ── The common room (conversations teaser) ── */}
         <div class="building-card" style={{ opacity: "0.8" }}>
