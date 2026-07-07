@@ -2401,6 +2401,7 @@ function getResourceQty(s: GameState, res: string): number {
   if (res === "leather") return s.leather;
   if (res === "iron") return s.iron;
   if (res === "honey") return s.honey;
+  if (res === "ale") return s.ale ?? 0;
   return s.inventory.find((i) => i.itemId === res)?.quantity ?? 0;
 }
 
@@ -2418,6 +2419,7 @@ function spendResource(s: GameState, res: string, amount: number): void {
   if (res === "leather") { s.leather = Math.max(0, s.leather - amount); return; }
   if (res === "iron") { s.iron = Math.max(0, s.iron - amount); return; }
   if (res === "honey") { s.honey = Math.max(0, s.honey - amount); return; }
+  if (res === "ale") { s.ale = Math.max(0, s.ale - amount); return; }
   const inv = s.inventory.find((i) => i.itemId === res);
   if (inv) inv.quantity = Math.max(0, inv.quantity - amount);
 }

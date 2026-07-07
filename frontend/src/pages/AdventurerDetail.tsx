@@ -419,7 +419,14 @@ export default function AdventurerDetail() {
                             {equippedItem()?.name ?? slotDef.name}
                           </div>
                           <Show when={equippedItem()}>
-                            <div class="gear-slot-stats">{equippedItem()!.description}</div>
+                            <Show when={equippedItem()!.description}>
+                              <div class="gear-slot-stats">{equippedItem()!.description}</div>
+                            </Show>
+                            <Show when={equippedItem()!.flavor}>
+                              <div style={{ "font-size": "0.62rem", color: "var(--text-muted)", "font-style": "italic", "line-height": "1.25", "margin-top": "1px" }}>
+                                {equippedItem()!.flavor}
+                              </div>
+                            </Show>
                           </Show>
                           <Show when={!adv().onMission}>
                             <Show when={equippedItem()}>
@@ -501,7 +508,12 @@ export default function AdventurerDetail() {
                                       <div>
                                         <div style={{ "font-weight": "bold", color: "var(--text-primary)" }}>{item.icon} {item.name}</div>
                                         <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "2px" }}>{slotLabel}</div>
-                                        <div style={{ "font-size": "0.7rem", color: "var(--accent-green)", "margin-top": "2px" }}>{item.description}</div>
+                                        <Show when={item.description}>
+                                          <div style={{ "font-size": "0.7rem", color: "var(--accent-green)", "margin-top": "2px" }}>{item.description}</div>
+                                        </Show>
+                                        <Show when={item.flavor}>
+                                          <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "font-style": "italic", "margin-top": "2px" }}>{item.flavor}</div>
+                                        </Show>
                                         <Show when={wrongClass()}>
                                           <div style={{ "font-size": "0.65rem", color: "var(--accent-red)", "margin-top": "2px" }}>Wrong class</div>
                                         </Show>

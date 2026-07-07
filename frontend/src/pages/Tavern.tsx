@@ -268,26 +268,35 @@ export default function Tavern() {
                   <p style={{ "font-size": "0.8rem", color: "var(--text-secondary)", "margin-bottom": "12px" }}>
                     Tap dishes to set the menu. Each is cooked to order from its ingredients.
                   </p>
-                  <div style={{ flex: "1", "overflow-y": "auto", display: "flex", "flex-wrap": "wrap", gap: "10px", "align-content": "flex-start" }}>
-                    <For each={unlocked()} fallback={
-                      <p style={{ "font-size": "0.85rem", color: "var(--text-muted)", "font-style": "italic", margin: "0" }}>
-                        No {label().toLowerCase()} recipes yet. <A href="/buildings" style={{ color: "var(--accent-gold)" }}>Upgrade the Kitchens</A> to unlock more.
+                  <div style={{ flex: "1", "overflow-y": "auto" }}>
+                    {/* Hint sits ABOVE the card grid (full width), not inside it. */}
+                    <Show when={all().length === 0}>
+                      <p style={{ "font-size": "0.85rem", color: "var(--text-muted)", "font-style": "italic", margin: "0 0 8px" }}>
+                        No {label().toLowerCase()} recipes exist yet.
                       </p>
-                    }>
-                      {(dish) => (
-                        <MenuDishCard
-                          name={dish.name} icon={dish.icon} image={dish.image} costs={dish.costs}
-                          selected={staged().includes(dish.id)} available={dish.available}
-                          onClick={() => toggleStaged(dish.id)}
-                        />
-                      )}
-                    </For>
-                    {/* Locked recipes shown dimmed, as a taste of what's to come. */}
-                    <For each={locked()}>
-                      {(dish) => (
-                        <MenuDishCard name={dish.name} icon={dish.icon} image={dish.image} costs={dish.costs} selected={false} locked />
-                      )}
-                    </For>
+                    </Show>
+                    <Show when={all().length > 0 && unlocked().length === 0}>
+                      <p style={{ "font-size": "0.85rem", color: "var(--text-muted)", "font-style": "italic", margin: "0 0 10px" }}>
+                        No {label().toLowerCase()} unlocked yet. <A href="/buildings" style={{ color: "var(--accent-gold)" }}>Upgrade the Kitchens</A> to unlock these.
+                      </p>
+                    </Show>
+                    <div style={{ display: "flex", "flex-wrap": "wrap", gap: "10px", "align-content": "flex-start" }}>
+                      <For each={unlocked()}>
+                        {(dish) => (
+                          <MenuDishCard
+                            name={dish.name} icon={dish.icon} image={dish.image} costs={dish.costs}
+                            selected={staged().includes(dish.id)} available={dish.available}
+                            onClick={() => toggleStaged(dish.id)}
+                          />
+                        )}
+                      </For>
+                      {/* Locked recipes shown dimmed, as a taste of what's to come. */}
+                      <For each={locked()}>
+                        {(dish) => (
+                          <MenuDishCard name={dish.name} icon={dish.icon} image={dish.image} costs={dish.costs} selected={false} locked />
+                        )}
+                      </For>
+                    </div>
                   </div>
                   {/* Footer: slot counter + apply. */}
                   <div style={{ display: "flex", "align-items": "center", "justify-content": "space-between", gap: "12px", "margin-top": "14px", "padding-top": "12px", "border-top": "1px solid var(--border-color)" }}>

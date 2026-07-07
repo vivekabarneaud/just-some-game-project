@@ -32,7 +32,13 @@ const navSections: { title: string; items: NavItem[] }[] = [
       { path: "/buildings", icon: "🏗️", label: "Buildings" },
       { path: "/farming", icon: "🌾", label: "Farming" },
       { path: "/guild", icon: "🏰", label: "Adventurers" },
-      { path: "/inventory", icon: "🎒", label: "Inventory" },
+    ],
+  },
+  {
+    title: "Economy",
+    items: [
+      { path: "/marketplace", icon: "🏪", label: "Marketplace" },
+      { path: "/tavern", icon: "🍻", label: "Tavern" },
     ],
   },
   {
@@ -46,13 +52,7 @@ const navSections: { title: string; items: NavItem[] }[] = [
       { path: "/alchemy", icon: "🧪", label: "Alchemy" },
       { path: "/enchanting", icon: "✨", label: "Enchanting" },
       { path: "/jewelcrafting", icon: "💎", label: "Jewelcrafting" },
-    ],
-  },
-  {
-    title: "Economy",
-    items: [
-      { path: "/marketplace", icon: "🏪", label: "Marketplace" },
-      { path: "/tavern", icon: "🍻", label: "Tavern" },
+      { path: "/inventory", icon: "🎒", label: "Inventory" },
     ],
   },
   {

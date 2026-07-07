@@ -572,42 +572,42 @@ export const EQUIPMENT_ITEMS: ItemDefinition[] = [
   // the future weapon-damage/spell direction — worn weapons stay 0-stat for now.
   {
     id: "worn_bow", name: "Worn Bow", icon: "🏹", slot: "mainHand", weaponType: "bow",
-    description: "A well-worn hunting bow. It has kept crows off the barley and meat on the table.",
+    description: "", flavor: "A well-worn hunting bow. It has kept crows off the barley and meat on the table.",
     classes: ["archer"], stats: {}, durationMod: 1, lootMod: 1, recipeId: "", consumable: false,
   },
   {
     id: "plain_sword", name: "Plain Sword", icon: "⚔️", slot: "mainHand", weaponType: "sword",
-    description: "A plain, notched blade. Nothing fine about it, but it holds an edge.",
+    description: "", flavor: "A plain, notched blade. Nothing fine about it, but it holds an edge.",
     classes: ["warrior"], stats: {}, durationMod: 1, lootMod: 1, recipeId: "", consumable: false,
   },
   {
     id: "worn_dagger", name: "Worn Dagger", icon: "🔪", slot: "mainHand", weaponType: "dagger",
-    description: "A worn utility knife, kept sharp out of habit.",
+    description: "", flavor: "A worn utility knife, kept sharp out of habit.",
     classes: ["assassin"], stats: {}, durationMod: 1, lootMod: 1, recipeId: "", consumable: false,
   },
   {
     id: "plain_staff", name: "Plain Staff", icon: "🪵", slot: "mainHand", weaponType: "staff", twoHanded: true,
-    description: "A plain walking staff, smooth where a hand has held it for years.",
+    description: "", flavor: "A plain walking staff, smooth where a hand has held it for years.",
     classes: ["wizard", "priest"], stats: {}, durationMod: 1, lootMod: 1, recipeId: "", consumable: false,
   },
   {
     id: "cloth_hood", name: "Cloth Hood", icon: "🧢", slot: "head", armorType: "cloth",
-    description: "A simple cloth hood against the weather.",
+    description: "+2 DEF", flavor: "A simple cloth hood against the weather.",
     classes: [], stats: {}, defense: 2, durationMod: 1, lootMod: 1, recipeId: "", consumable: false,
   },
   {
     id: "patched_leather", name: "Patched Leathers", icon: "🟫", slot: "chest", armorType: "leather",
-    description: "A patched leather jerkin, much mended. It has seen a few winters.",
+    description: "+6 DEF", flavor: "A patched leather jerkin, much mended. It has seen a few winters.",
     classes: [], stats: {}, defense: 6, durationMod: 1, lootMod: 1, recipeId: "", consumable: false,
   },
   {
     id: "worn_chainmail", name: "Worn Chainmail", icon: "⛓️", slot: "chest", armorType: "mail",
-    description: "An old coat of mail, rings gone dull. Heavier than it protects, but better than cloth.",
+    description: "+10 DEF", flavor: "An old coat of mail, rings gone dull. Heavier than it protects, but better than cloth.",
     classes: [], stats: {}, defense: 10, durationMod: 1, lootMod: 1, recipeId: "", consumable: false,
   },
   {
     id: "homespun_robe", name: "Homespun Robe", icon: "🧶", slot: "chest", armorType: "cloth",
-    description: "A plain homespun robe, warm enough and no more.",
+    description: "+4 DEF", flavor: "A plain homespun robe, warm enough and no more.",
     classes: ["wizard", "priest"], stats: {}, defense: 4, durationMod: 1, lootMod: 1, recipeId: "", consumable: false,
   },
 ];
