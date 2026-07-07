@@ -4,6 +4,7 @@ import { useGame } from "~/engine/gameState";
 import { calcTavern, serversNeeded, menuCapacity, PRICING, type TavernPricing } from "~/data/tavern";
 import { type DishKind } from "~/data/foods";
 import MenuDishCard from "~/components/MenuDishCard";
+import { deriveTavernGuests } from "~/data/tavernGuests";
 
 const PRICING_ORDER: TavernPricing[] = ["generous", "fair", "steep"];
 
@@ -35,6 +36,9 @@ export default function Tavern() {
   const dishes = () => actions.getTavernDishes();
   const onMenuOfKind = (k: DishKind) => dishes().filter((d) => d.onMenu && d.kind === k);
   const servableCount = () => dishes().filter((d) => d.onMenu && d.available).length;
+  // Who's staying: the occupied beds as a small flavor roster (derived, stable
+  // within a game-hour). Not persistent state — cosmetic colour over occupancy.
+  const guests = () => deriveTavernGuests(Math.max(0, Math.round(t().occupiedRooms)), Math.floor(state.seasonElapsed));
 
   const t = () => calcTavern({
     level: level(), happiness: state.happiness, townHallLevel: townHallLvl(),
@@ -153,6 +157,30 @@ export default function Tavern() {
             🧳 A bed for the night makes traders more likely to stop here, and to come back with
             more than a mule can carry.
           </div>
+        </div>
+
+        {/* ── Who's staying tonight ── */}
+        <div class="building-card" style={{ "margin-bottom": "16px" }}>
+          <div class="building-card-title" style={{ "margin-bottom": "8px" }}>Who's staying tonight</div>
+          <Show when={guests().length > 0} fallback={
+            <p style={{ "font-size": "0.85rem", color: "var(--text-muted)", "font-style": "italic", margin: "0" }}>
+              The rooms sit empty tonight. A fuller, better-fed, better-known tavern draws more custom.
+            </p>
+          }>
+            <div style={{ display: "flex", "flex-direction": "column", gap: "6px" }}>
+              <For each={guests()}>
+                {(g) => (
+                  <div style={{
+                    display: "flex", "align-items": "center", gap: "9px", "font-size": "0.88rem",
+                    color: g.kind === "notable" ? "var(--accent-gold)" : g.kind === "citizen" ? "#a5d8ff" : "var(--text-secondary)",
+                  }}>
+                    <span style={{ "font-size": "1.05rem", width: "20px", "text-align": "center" }}>{g.icon}</span>
+                    <span>{g.label}</span>
+                  </div>
+                )}
+              </For>
+            </div>
+          </Show>
         </div>
 
         {/* ── Staffing ── */}
