@@ -145,6 +145,7 @@ import {
   isFoodItemType,
   getFoodCostAmount,
   consumeFoodCost,
+  type DishKind,
 } from "~/data/foods";
 import {
   ANIMAL_FEED,
@@ -663,6 +664,18 @@ export interface FoodSource {
   building: string;
 }
 
+export interface TavernDish {
+  id: string;
+  name: string;
+  icon: string;
+  image?: string;
+  kind: DishKind;
+  unlocked: boolean;   // kitchen high enough + recipe discovered
+  onMenu: boolean;
+  available: boolean;  // unlocked AND ingredients in stock (cookable now)
+  missing: string[];   // ingredient resources short of a batch
+}
+
 export interface GameActions {
   upgradeBuilding: (buildingId: string) => boolean;
   panicBuildBuilding: (buildingId: string) => boolean;
@@ -704,6 +717,9 @@ export interface GameActions {
    *  and the Overview panel report the same surplus/deficit. */
   getCookingFoodNet: () => number;
   getFoodBreakdown: () => FoodSource[];
+  /** Tavern menu dishes (cook-to-order): every menu-eligible kitchen recipe with
+   *  its unlock/on-menu/availability state, for the tavern UI. */
+  getTavernDishes: () => TavernDish[];
   getStorageCaps: () => StorageCaps;
   getSettlementTier: () => SettlementTier;
   getTownHallLevel: () => number;
@@ -2411,6 +2427,44 @@ function calcStorageCaps(buildings: PlayerBuilding[]): StorageCaps {
   };
 }
 
+// ─── Tavern dishes (cook-to-order) ───────────────────────────────
+// Menu-eligible kitchen recipes: any kitchen recipe carrying a `kind`. The
+// tavern features these and cooks them TO ORDER — a dish is available when its
+// ingredients are in stock, and serving guests consumes those ingredients
+// (mirrors the craft path's grain/wild aliases). No pre-cooked stock.
+const KITCHEN_DISHES: CraftingRecipe[] = CRAFTING_RECIPES.filter((r) => r.building === "kitchen" && r.kind);
+const KITCHEN_DISH_BY_ID = new Map(KITCHEN_DISHES.map((r) => [r.id, r]));
+
+function readDishCost(s: GameState, res: string): number {
+  return res === "grain" || res === "wild" || isFoodItemType(res)
+    ? getFoodCostAmount(s.foods, res)
+    : getResourceQty(s, res);
+}
+function spendDishCost(s: GameState, res: string, amount: number): void {
+  if (res === "grain" || res === "wild" || isFoodItemType(res)) consumeFoodCost(s.foods, res, amount);
+  else spendResource(s, res, amount);
+}
+/** Kitchen level (0 = no kitchen). Dishes need a kitchen to be cooked. */
+function kitchenLevel(s: GameState): number {
+  return s.buildings.find((b) => b.buildingId === "kitchen")?.level ?? 0;
+}
+/** Kitchen recipe ids that must be DISCOVERED before use (origin/culture dishes
+ *  unlocked via adventurer loyalty). Staples aren't here → always known. */
+const ORIGIN_GATED_RECIPE_IDS = new Set(
+  Object.values(ORIGIN_RECIPES).flat().map((x: { recipeId: string }) => x.recipeId),
+);
+/** A dish's recipe is unlocked (kitchen high enough; origin recipes also need
+ *  to have been discovered via loyalty). */
+function dishUnlocked(s: GameState, r: CraftingRecipe): boolean {
+  if (r.minLevel > kitchenLevel(s)) return false;
+  if (ORIGIN_GATED_RECIPE_IDS.has(r.id)) return (s.discoveredRecipes ?? []).includes(r.id);
+  return true;
+}
+/** Enough ingredients in stock to cook at least one batch right now. */
+function dishAvailable(s: GameState, r: CraftingRecipe): boolean {
+  return r.costs.every((c) => readDishCost(s, c.resource) >= c.amount);
+}
+
 function getTownHallLevel(buildings: PlayerBuilding[]): number {
   return buildings.find((b) => b.buildingId === "town_hall")?.level ?? 0;
 }
@@ -3635,15 +3689,18 @@ export function GameProvider(props: ParentProps) {
         // margin, reputation raises the ceiling. Uses the finalized happiness so
         // occupancy tracks the real mood. calcTavern is the shared source of truth.
         if (tavernLvl > 0) {
-          const foods = s.foods as Record<string, number>;
-          // Only dishes we actually have cooked stock for can be served — an
-          // empty dish drops off the menu (and stops counting toward variety).
-          const servedInStock = (s.tavernMenu ?? []).filter((d) => (foods[d] ?? 0) > 0);
+          // Cook-to-order: a featured dish is served only if its recipe is
+          // unlocked AND its ingredients are in stock. Serving consumes those
+          // ingredients (no pre-cooked stock). Unavailable dishes drop off and
+          // stop counting toward variety.
+          const servable = (s.tavernMenu ?? [])
+            .map((id) => KITCHEN_DISH_BY_ID.get(id))
+            .filter((r): r is CraftingRecipe => !!r && dishUnlocked(s, r) && dishAvailable(s, r));
           const t = calcTavern({
             level: tavernLvl,
             happiness: s.happiness,
             townHallLevel: getTownHallLevel(s.buildings),
-            menuVariety: servedInStock.length,
+            menuVariety: servable.length,
             servers: s.tavernServers ?? 0,
             pricing: s.tavernPricing ?? "fair",
             reputation: s.tavernReputation ?? 0,
@@ -3660,13 +3717,16 @@ export function GameProvider(props: ParentProps) {
           s.tavernReputation = Math.max(0, Math.min(100,
             rep + Math.max(-step, Math.min(step, target - rep)),
           ));
-          // Guests eat the featured dishes — drawn from the kitchen's cooked
-          // stock, split across what's actually served (competes with feeding
-          // the settlement).
-          if (servedInStock.length > 0) {
+          // Guests are fed by cooking the featured dishes to order — the total
+          // "food eaten" is split across what's servable, and each dish's share
+          // is turned into ingredient consumption via its recipe (cost ÷ yield).
+          if (servable.length > 0) {
             const eaten = t.rooms * t.occupancy * TAVERN_FOOD_PER_ROOM_PER_HOUR * elapsedHours;
-            const perDish = eaten / servedInStock.length;
-            for (const d of servedInStock) foods[d] = Math.max(0, (foods[d] ?? 0) - perDish);
+            const perDish = eaten / servable.length;
+            for (const r of servable) {
+              const batches = perDish / (r.produces.amount || 1);
+              for (const c of r.costs) spendDishCost(s, c.resource, c.amount * batches);
+            }
           }
         }
 
@@ -5113,6 +5173,17 @@ export function GameProvider(props: ParentProps) {
       return true;
     },
     getFoodBreakdown() { return calcFoodBreakdown(state); },
+    getTavernDishes() {
+      return KITCHEN_DISHES.map((r) => {
+        const unlocked = dishUnlocked(state, r);
+        const available = unlocked && dishAvailable(state, r);
+        const missing = r.costs.filter((c) => readDishCost(state, c.resource) < c.amount).map((c) => c.resource);
+        return {
+          id: r.id, name: r.name, icon: r.icon, image: r.image, kind: r.kind!,
+          unlocked, onMenu: (state.tavernMenu ?? []).includes(r.id), available, missing,
+        };
+      });
+    },
     getStorageCaps() { return calcStorageCaps(state.buildings); },
     getSettlementTier() { return getSettlementTier(getTownHallLevel(state.buildings)); },
     getTownHallLevel() { return getTownHallLevel(state.buildings); },
