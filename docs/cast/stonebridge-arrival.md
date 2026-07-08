@@ -1,5 +1,5 @@
 # The Stonebridge Arrival — story arc (the magic-unlock beat)
-- **Status:** design locked 2026-06-29; build when the Act 1 story pass reaches it.
+- **Status:** design locked 2026-06-29; **BUILT 2026-07-08** as the `the_stonebridges` story chain (chains.ts) + 5 `ch2_stonebridge_*` chronicle beats. Magnus gate = Aldwin loyalty 15 (Familiar); arrival gated on story_4 + Hester present. Deferred/later: post-reveal enrichment of Aldwin's in-game bio (currently spoiler-safe), the Inquisition-visit concealment mechanic, the haven-reputation long-game.
 - **Characters:** [Aldwin](aldwin-stonebridge.md) (priest), [Magnus](magnus-stonebridge.md) (wizard). Bridges: [[founder_father_corin]], [[founder_edda]]; worried voice: [[founder_tomas]].
 - **What it is:** the settlement's first knowing shelter of hunted magic — the Lord confronting the Doctrine with a human face. It unlocks your first priest *and* wizard, plants the underground-haven long-game, and opens the first crack in the Lord's faith.
 
