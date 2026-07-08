@@ -5,7 +5,7 @@ import { RESOURCES } from "~/data/resources";
 import { SEASON_META } from "~/data/seasons";
 import { getRaid, getDefenseTips, type IncomingRaid } from "~/data/raids";
 import { militiaCount } from "~/data/defenses";
-import { getCurrentOverviewFlavors, FLAVOR_CATEGORY_ORDER } from "~/data/overview_flavors";
+import { getCurrentOverviewFlavors } from "~/data/overview_flavors";
 import { QUEST_DEFINITIONS, isQuestActive, isQuestClaimable, isQuestClaimed } from "~/data/quests";
 import { useGame, WALL_BASE_HP } from "~/engine/gameState";
 import { totalPopulation } from "~/data/citizens";
@@ -187,10 +187,9 @@ export default function Overview() {
           // data/overview_flavors.ts. One paragraph per category (settlement,
           // adventurers, defense), each tracking its own latest match. Lets
           // the player see parallel priorities at the same time.
-          const flavors = () => getCurrentOverviewFlavors(state);
-          const activeFlavors = () => FLAVOR_CATEGORY_ORDER
-            .map((cat) => flavors()[cat])
-            .filter((f): f is NonNullable<typeof f> => !!f);
+          // Ordered live concerns: settlement/adventurers/defense (teaching +
+          // story tracks) then any open chain threads. Already filtered + ordered.
+          const activeFlavors = () => getCurrentOverviewFlavors(state);
 
           // Immediate-danger banner inside the Matters card. Matches the
           // red "!" badge in the sidebar — surfaces when food is running
