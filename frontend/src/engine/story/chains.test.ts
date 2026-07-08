@@ -282,3 +282,55 @@ describe("real chains", () => {
     ]);
   });
 });
+
+describe("the_stonebridges — Aldwin arrives, Magnus unlocks by earning Aldwin's belonging", () => {
+  const chain = STORY_CHAINS.find((c) => c.id === "the_stonebridges")!;
+  const loyaltyOf = (s: ChainState, pid: string, v: number) => {
+    const a = (s.adventurers as { premadeId?: string; loyalty?: number }[]).find((x) => x.premadeId === pid);
+    if (a) a.loyalty = v;
+  };
+
+  it("gates on Ch1's close (Hale) AND Hester having come first", () => {
+    const s = makeState();
+    const log: string[] = [];
+    runStoryChains(s, [chain], makeDeps(s, 0, log));
+    expect(log).toEqual([]); // nothing yet
+
+    // Hale bound, but Hester hasn't arrived — still halted (the hunted come in order).
+    s.completedUniqueMissionIds = ["story_4_captains_rest"];
+    runStoryChains(s, [chain], makeDeps(s, 0, log));
+    expect(log).toEqual([]);
+  });
+
+  it("Aldwin flees in on arrival; Magnus stays hidden until Aldwin belongs", () => {
+    const s = makeState({
+      completedUniqueMissionIds: ["story_4_captains_rest"],
+      adventurers: [{ premadeId: "char_019" }], // Hester present
+    });
+    const log: string[] = [];
+
+    // Arrival: Aldwin recruited + the gate beat, nothing further (loyalty 0).
+    runStoryChains(s, [chain], makeDeps(s, 0, log));
+    expect(log).toEqual(["char_017"]);
+    expect(s.chronicleEntriesFired).toEqual(["ch2_stonebridge_arrival"]);
+
+    // A few missions in (loyalty 8): the Lord's hunch — still no confession.
+    loyaltyOf(s, "char_017", 8);
+    runStoryChains(s, [chain], makeDeps(s, 0, log));
+    expect(s.chronicleEntriesFired).toContain("ch2_stonebridge_hunch");
+    expect(s.chronicleEntriesFired).not.toContain("ch2_stonebridge_confession");
+    expect(log).toEqual(["char_017"]); // Magnus not yet unlocked
+
+    // Aldwin reaches Familiar (15): the confession, Magnus joins, plea + aftermath.
+    loyaltyOf(s, "char_017", 15);
+    runStoryChains(s, [chain], makeDeps(s, 0, log));
+    expect(log).toEqual(["char_017", "char_029"]); // Magnus unlocked
+    expect(s.chronicleEntriesFired).toEqual([
+      "ch2_stonebridge_arrival",
+      "ch2_stonebridge_hunch",
+      "ch2_stonebridge_confession",
+      "ch2_stonebridge_plea",
+      "ch2_stonebridge_aftermath",
+    ]);
+  });
+});

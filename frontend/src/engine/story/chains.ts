@@ -29,6 +29,9 @@ export interface StoryChainApi {
   awaitQuestClaimed(questId: string): void;
   /** Suspend until the given building is built to at least `minLevel` (default 1). */
   awaitBuilding(buildingId: string, minLevel?: number): void;
+  /** Suspend until a recruited character's loyalty reaches `threshold`. Used to
+   *  gate a beat on a bond deepening (e.g. Magnus unlocks once Aldwin belongs). */
+  awaitLoyalty(premadeId: string, threshold: number): void;
   /** Suspend until `ms` real-world time has passed since the script first
    *  reached this step. `key` disambiguates multiple delays within one chain. */
   awaitDelay(key: string, ms: number): void;
@@ -56,7 +59,7 @@ export interface StoryChain {
 export interface ChainState {
   completedUniqueMissionIds?: string[];
   missionCompletions?: Record<string, number>;
-  adventurers: ReadonlyArray<{ premadeId?: string }>;
+  adventurers: ReadonlyArray<{ premadeId?: string; loyalty?: number }>;
   buildings: ReadonlyArray<{ buildingId: string; level: number }>;
   questRewardsClaimed?: string[];
   chronicleEntriesFired: string[];
@@ -109,6 +112,10 @@ export function runStoryChains(s: ChainState, chains: StoryChain[], deps: ChainD
       awaitBuilding(buildingId, minLevel = 1) {
         const b = s.buildings.find((bb) => bb.buildingId === buildingId);
         if (!b || b.level < minLevel) throw HALT;
+      },
+      awaitLoyalty(premadeId, threshold) {
+        const a = s.adventurers.find((x) => x.premadeId === premadeId);
+        if (!a || (a.loyalty ?? 0) < threshold) throw HALT;
       },
       awaitDelay(key, ms) {
         const k = `${chain.id}:${key}`;
@@ -219,6 +226,31 @@ export const STORY_CHAINS: StoryChain[] = [
       api.awaitMissionDone("reeds_hooves");
       api.awaitMissionDone("reeds_skull");
       api.fireChronicleModal("ch1_reeds_doubt");
+    },
+  },
+  // ── The Stonebridges — the first magic the Lord knowingly HARBORS ──
+  // Aldwin (priest) flees in early Ch2, once the world has clearly turned
+  // strange (Hale bound) and Hester — the first of the hunted — has come. He's
+  // chain-only (no auto-arrival), so recruit() brings him in; he offers his
+  // hands at once (a healer earning the shelter). As his belonging deepens, his
+  // hidden brother Magnus can't watch him pull back from home for the secret's
+  // sake, and confesses ALONE to free him — which unlocks Magnus and cracks the
+  // Lord's faith. Magnus's gate is modest (Familiar) so it never soft-locks;
+  // and the boar chain needs a PRIEST, not a wizard, so there's nothing to race.
+  {
+    id: "the_stonebridges",
+    run: (api) => {
+      api.awaitMissionDone("story_4_captains_rest"); // Ch1's ghosts/Hale close out
+      api.awaitPremadePresent("char_019");           // Hester came first (the hunted find us)
+      api.recruit("char_017");                        // Aldwin flees in, offers his hands
+      api.fireChronicleModal("ch2_stonebridge_arrival");
+      api.awaitLoyalty("char_017", 8);               // a few missions in — the Lord notices
+      api.fireChronicleModal("ch2_stonebridge_hunch");
+      api.awaitLoyalty("char_017", 15);              // Familiar — he clearly belongs now
+      api.fireChronicleModal("ch2_stonebridge_confession");
+      api.recruit("char_029");                        // Magnus, freed by his own courage
+      api.fireChronicleModal("ch2_stonebridge_plea");
+      api.fireChronicleModal("ch2_stonebridge_aftermath");
     },
   },
 ];
