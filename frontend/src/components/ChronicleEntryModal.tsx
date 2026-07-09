@@ -74,6 +74,16 @@ export default function ChronicleEntryModal(props: Props) {
     window.setTimeout(() => props.onClose(), 500);
   };
 
+  // Parchment page look (UX refont): dark ink on aged paper, the texture's own
+  // edges ARE the border, so no gold frame here. Two portrait variants (one has
+  // a torn cut) picked deterministically per entry so pages feel handmade.
+  const INK = "#3a2e1c";
+  const INK_STRONG = "#241a0e";
+  const INK_SOFT = "#6b5636";
+  const parchmentSrc = ([...props.entry.id].reduce((a, c) => a + c.charCodeAt(0), 0) % 2 === 0
+    ? "/images/parchment/parchment_page.png"
+    : "/images/parchment/parchment_page_cut.png");
+
   return (
     <div
       class="modal-overlay page-modal-backdrop chronicle-entry-overlay"
@@ -88,11 +98,13 @@ export default function ChronicleEntryModal(props: Props) {
           "max-width": "620px",
           "max-height": "86vh",
           overflow: "auto",
-          background: "var(--bg-secondary)",
-          border: "1px solid var(--border-color)",
-          "border-radius": "10px",
-          padding: "28px 32px",
-          "box-shadow": "0 12px 40px rgba(0,0,0,0.5)",
+          // Aged-paper surface, stretched to fill so its darkened edges sit at
+          // the card boundary (they are the border — no frame, no rounded box).
+          background: `url(${parchmentSrc}) 0 0 / 100% 100% no-repeat`,
+          border: "none",
+          "border-radius": "0",
+          padding: "42px 46px",
+          "box-shadow": "0 12px 40px rgba(0,0,0,0.55)",
           position: "relative",
         }}
         onClick={(e) => e.stopPropagation()}
@@ -100,9 +112,9 @@ export default function ChronicleEntryModal(props: Props) {
         <button
           onClick={handleDismiss}
           style={{
-            position: "absolute", top: "10px", right: "12px",
+            position: "absolute", top: "12px", right: "16px",
             background: "transparent", border: "none",
-            color: "var(--text-muted)", "font-size": "1.4rem",
+            color: INK_SOFT, "font-size": "1.4rem",
             cursor: "pointer", "line-height": "1",
           }}
           aria-label="Close"
@@ -110,12 +122,12 @@ export default function ChronicleEntryModal(props: Props) {
           ×
         </button>
 
-        <div class="section-label" style={{ "font-size": "0.7rem", color: "var(--accent-gold)", "letter-spacing": "0.08em" }}>
+        <div class="section-label" style={{ "font-size": "0.7rem", color: INK_SOFT, "letter-spacing": "0.08em" }}>
           Page {props.entry.order}
         </div>
         <h2 style={{
           "font-size": "1.35rem",
-          color: "var(--text-primary)",
+          color: INK_STRONG,
           "margin-bottom": "18px",
           "font-family": "var(--font-heading)",
         }}>
@@ -124,7 +136,7 @@ export default function ChronicleEntryModal(props: Props) {
 
         <div style={{
           "font-size": "0.95rem",
-          color: "var(--text-secondary)",
+          color: INK,
           "font-style": "italic",
           "line-height": "1.7",
         }}>
@@ -136,7 +148,7 @@ export default function ChronicleEntryModal(props: Props) {
         <div style={{
           "margin-top": "20px",
           "padding-top": "16px",
-          "border-top": "1px solid var(--border-color)",
+          "border-top": "1px solid rgba(90, 74, 48, 0.3)",
           display: "flex",
           "align-items": "center",
           gap: "12px",
@@ -169,8 +181,8 @@ export default function ChronicleEntryModal(props: Props) {
               style={{
                 padding: "8px 14px",
                 background: "transparent",
-                border: "1px solid var(--border-color)",
-                color: "var(--text-secondary)",
+                border: `1px solid ${INK_SOFT}`,
+                color: INK,
                 "border-radius": "6px",
                 cursor: slide() === 0 ? "default" : "pointer",
                 opacity: slide() === 0 ? "0.35" : "1",
@@ -184,7 +196,7 @@ export default function ChronicleEntryModal(props: Props) {
                 {(_, i) => (
                   <span style={{
                     width: "7px", height: "7px", "border-radius": "50%",
-                    background: i() === slide() ? "var(--accent-gold)" : "var(--border-color)",
+                    background: i() === slide() ? INK_STRONG : "rgba(90, 74, 48, 0.35)",
                     transition: "background 0.2s ease",
                   }} />
                 )}
@@ -196,9 +208,9 @@ export default function ChronicleEntryModal(props: Props) {
             style={{
               "margin-left": "auto",
               padding: "8px 16px",
-              background: isLast() ? "var(--bg-primary)" : "var(--accent-gold)",
-              border: `1px solid ${isLast() ? "var(--border-color)" : "var(--accent-gold)"}`,
-              color: isLast() ? "var(--text-primary)" : "#1a1a1a",
+              background: isLast() ? "transparent" : "#5f4a2a",
+              border: `1px solid ${isLast() ? INK_SOFT : "#5f4a2a"}`,
+              color: isLast() ? INK : "#f3ead4",
               "border-radius": "6px",
               cursor: "pointer",
               "font-size": "0.85rem",
