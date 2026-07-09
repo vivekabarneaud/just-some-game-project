@@ -3,6 +3,7 @@ import { A, useParams } from "@solidjs/router";
 import {
   BUILDINGS,
   isBuildingUnlocked,
+  isBuildingChapterUnlocked,
   getTierPrerequisitesMet,
   type SettlementTier,
   getUnlockRequirement,
@@ -31,7 +32,12 @@ export default function BuildingDetail() {
   const playerBuilding = () => state.buildings.find((b) => b.buildingId === params.id);
   const unlocked = () => {
     const b = building();
-    return b ? isBuildingUnlocked(b, actions.getTownHallLevel()) : false;
+    // Must match the Buildings list: a building is only truly buildable when
+    // BOTH its tier/TH gate AND its chapter/story gate are open. Missing the
+    // chapter check here showed a live "Build" button on chapter-locked
+    // buildings (e.g. the guild before its storyline activates) that played the
+    // sound but no-op'd, since upgradeBuilding enforces the chapter gate.
+    return b ? isBuildingUnlocked(b, actions.getTownHallLevel()) && isBuildingChapterUnlocked(b, state) : false;
   };
 
   const currentLevel = () => {

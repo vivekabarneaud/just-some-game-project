@@ -6479,6 +6479,11 @@ export function GameProvider(props: ParentProps) {
       return state.lastMissionRefresh > state.lastGuildVisit && state.missionBoard.length > 0;
     },
     hasNewAdventurers() {
+      // No "new!" nudge before the guild is raised: the roster page only shows
+      // "build the Adventurer's Guild" until then, so pinging the player there
+      // is a dead end. The Thornwoods can arrive (and staff their camps) before
+      // the guild exists — they surface on the roster once it's built.
+      if ((state.buildings.find((b) => b.buildingId === "adventurers_guild")?.level ?? 0) <= 0) return false;
       const seen = new Set(state.adventurersSeen ?? []);
       return state.adventurers.some((a) => a.alive && !seen.has(a.id));
     },
