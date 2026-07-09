@@ -85,10 +85,8 @@ export default function QuestLog() {
 
     return (
       <Show when={active().length > 0 || completed().length > 0}>
-        <div style={{
+        <div class="ornament-frame" style={{
           "background": "var(--bg-secondary)",
-          "border": "1px solid var(--border-color)",
-          "border-radius": "8px",
           "margin-bottom": "16px",
           "overflow": "hidden",
         }}>
