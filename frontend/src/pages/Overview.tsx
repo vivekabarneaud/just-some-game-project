@@ -249,15 +249,15 @@ export default function Overview() {
                         <div style={{
                           "margin": "14px 0 0",
                           padding: "10px 14px",
-                          background: "rgba(231, 76, 60, 0.10)",
-                          border: "1px solid var(--accent-red)",
+                          background: "rgba(231, 76, 60, 0.20)",
+                          border: "1px solid #8a2417",
                           "border-left-width": "4px",
                           "border-radius": "6px",
                           "max-width": "800px",
                         }}>
                           <div style={{
                             "font-weight": "700",
-                            color: "var(--accent-red)",
+                            color: "#8a2417",
                             "font-size": "0.9rem",
                             display: "flex",
                             "align-items": "center",
@@ -269,7 +269,7 @@ export default function Overview() {
                           <div style={{
                             "margin-top": "4px",
                             "font-size": "0.82rem",
-                            color: "var(--text-secondary)",
+                            color: "#3a2418",
                             "line-height": "1.5",
                           }}>
                             {d().detail}
@@ -282,15 +282,15 @@ export default function Overview() {
                         <div style={{
                           "margin": "14px 0 0",
                           padding: "10px 14px",
-                          background: "rgba(212, 175, 55, 0.10)",
-                          border: "1px solid var(--accent-gold)",
+                          background: "rgba(212, 175, 55, 0.22)",
+                          border: "1px solid #7a5713",
                           "border-left-width": "4px",
                           "border-radius": "6px",
                           "max-width": "800px",
                         }}>
                           <div style={{
                             "font-weight": "700",
-                            color: "var(--accent-gold)",
+                            color: "#6b4e10",
                             "font-size": "0.9rem",
                             display: "flex",
                             "align-items": "center",
@@ -302,7 +302,7 @@ export default function Overview() {
                           <div style={{
                             "margin-top": "4px",
                             "font-size": "0.82rem",
-                            color: "var(--text-secondary)",
+                            color: "#3a2418",
                             "line-height": "1.5",
                           }}>
                             {d().detail}

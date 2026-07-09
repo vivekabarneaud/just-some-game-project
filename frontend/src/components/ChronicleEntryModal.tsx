@@ -98,13 +98,12 @@ export default function ChronicleEntryModal(props: Props) {
           "max-width": "620px",
           "max-height": "86vh",
           overflow: "auto",
-          // Aged-paper surface. `cover` crops the outermost (roughly-cut) rim
-          // so only the cleaner interior shows — no frame, no rounded box.
-          background: `url(${parchmentSrc}) center / cover no-repeat`,
+          // Full texture, no crop (100% 100%) so the whole page shows for review.
+          background: `url(${parchmentSrc}) center / 100% 100% no-repeat`,
           border: "none",
           "border-radius": "0",
           padding: "42px 46px",
-          "box-shadow": "0 12px 40px rgba(0,0,0,0.55)",
+          "box-shadow": "0 6px 20px rgba(0,0,0,0.35)",
           position: "relative",
         }}
         onClick={(e) => e.stopPropagation()}
