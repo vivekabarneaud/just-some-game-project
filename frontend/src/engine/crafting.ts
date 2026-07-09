@@ -90,6 +90,20 @@ export interface ActiveCraft {
   pending?: boolean;
 }
 
+/** Passive "keep cooking" runs much slower than a hand-cranked one-shot craft.
+ *  The active "Cook!" stays quick (a burst of food on demand); the kept-lit pot
+ *  is a slow, sustainable trickle so it doesn't shred the larder's raw
+ *  ingredients in a few minutes. At 4×, porridge (4 per 600s active) settles to
+ *  4 per 2400s = 1 porridge per 10 game-minutes. Bump this to make passive
+ *  cooking even gentler. */
+export const PASSIVE_COOK_TIME_MULT = 4;
+
+/** Per-batch timer for a recipe cooked passively (autoCook), vs its snappy
+ *  active craftTime. Kitchen-staple pots only ever use this path. */
+export function passiveCookTime(recipe: CraftingRecipe): number {
+  return recipe.craftTime * PASSIVE_COOK_TIME_MULT;
+}
+
 export const CRAFTING_RECIPES: CraftingRecipe[] = [
   {
     id: "wool_clothing",

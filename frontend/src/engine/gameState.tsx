@@ -316,7 +316,7 @@ export interface GameEvent {
   timestamp: number; // game tick when it happened
 }
 
-import { type CraftingRecipe, type ActiveCraft, CRAFTING_RECIPES, getBuildingToolByRecipe, getBuildingTool, getRequiredTool, type BuildingToolDef } from "./crafting";
+import { type CraftingRecipe, type ActiveCraft, CRAFTING_RECIPES, passiveCookTime, getBuildingToolByRecipe, getBuildingTool, getRequiredTool, type BuildingToolDef } from "./crafting";
 import { playSound } from "./sounds";
 import {
   calcAdventurerMaxHp,
@@ -327,7 +327,7 @@ import {
   isTeamWiped,
 } from "@medieval-realm/shared/data/expeditionEngine";
 export type { CraftingRecipe, ActiveCraft, BuildingToolDef };
-export { CRAFTING_RECIPES, getBuildingTool, getBuildingToolByRecipe, getRequiredTool };
+export { CRAFTING_RECIPES, passiveCookTime, getBuildingTool, getBuildingToolByRecipe, getRequiredTool };
 
 /** How many dishes a kitchen can keep-cooking at once: one per level (naturally
  *  capped by the number of food recipes it has unlocked). */
@@ -3743,7 +3743,10 @@ export function GameProvider(props: ParentProps) {
               const canAfford = autoRecipe.costs.every((c) => getFoodCostAmount(s.foods, c.resource) >= c.amount);
               if (s.resources.wood > 0 && canAfford) {
                 for (const c of autoRecipe.costs) consumeFoodCost(s.foods, c.resource, c.amount);
-                s.craftingQueue.push({ recipeId: autoRecipeId, remaining: autoRecipe.craftTime, quantity: 1 });
+                // Passive pots run on a slow, sustainable cadence (much longer
+                // than the snappy active craft) so they trickle food instead of
+                // draining the larder's raw ingredients in minutes.
+                s.craftingQueue.push({ recipeId: autoRecipeId, remaining: passiveCookTime(autoRecipe), quantity: 1 });
               }
             }
           }
@@ -5397,7 +5400,8 @@ export function GameProvider(props: ParentProps) {
           // Only count a pot that can actually simmer now (ingredients + wood).
           const inputsOk = r.costs.every((c) => getFoodCostAmount(state.foods, c.resource) >= c.amount);
           if (!inputsOk || state.resources.wood <= 0) continue;
-          const perHour = 3600 / r.craftTime;
+          // Passive pots use the slow sustainable cadence, not craftTime.
+          const perHour = 3600 / passiveCookTime(r);
           let netBatch = r.produces.amount;
           for (const c of r.costs) netBatch -= c.amount;
           net += netBatch * perHour;

@@ -2,7 +2,7 @@ import { For, Show } from "solid-js";
 import { RESOURCES } from "~/data/resources";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { EXOTICS } from "@medieval-realm/shared/data/exotics";
-import { useGame, CRAFTING_RECIPES } from "~/engine/gameState";
+import { useGame, CRAFTING_RECIPES, passiveCookTime } from "~/engine/gameState";
 import { TAVERN_COMMODITY_DRINKS } from "~/data/tavern";
 import { totalPopulation } from "~/data/citizens";
 import { FOOD_ITEMS, FOOD_CATEGORIES, getTotalFood, getFoodCostAmount, type FoodItemType, type FoodCategoryId } from "~/data/foods";
@@ -40,7 +40,9 @@ export default function ResourceBar() {
       const inputsOk = r.costs.every((c) => getFoodCostAmount(state.foods, c.resource) >= c.amount);
       const woodOk = state.resources.wood > 0; // the fire needs fuel
       if (!inputsOk || !woodOk) continue; // stalled → no contribution
-      const perHour = 3600 / r.craftTime;
+      // Passive pots run on the slow sustainable cadence, not the snappy active
+      // craftTime — the readout must match, or it overstates the pot's output.
+      const perHour = 3600 / passiveCookTime(r);
       const outType = r.produces.resource;
       produce[outType] = (produce[outType] ?? 0) + r.produces.amount * perHour;
       let netBatch = r.produces.amount;
