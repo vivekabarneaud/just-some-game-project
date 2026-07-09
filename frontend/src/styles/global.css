@@ -313,6 +313,21 @@ body {
   height: 100dvh;
 }
 
+/* UX refont: parchment-surfaced panel (aged paper + dark ink text, no gold
+   frame — the texture's own edges are the border). Add to a text panel to turn
+   it into a written page. Wide texture, stretched so its edges sit at the box
+   boundary. */
+.parchment-panel {
+  background: url(/images/parchment/parchment_wide.png) center / 100% 100% no-repeat !important;
+  border: none !important;
+  border-radius: 0 !important;
+  color: #3a2e1c;
+}
+.parchment-panel h1, .parchment-panel h2, .parchment-panel h3, .parchment-panel h4 {
+  color: #241a0e;
+}
+.parchment-panel p, .parchment-panel .quest-narrative { color: #3a2e1c; }
+
 .topbar {
   grid-area: topbar;
   background: var(--bg-secondary);

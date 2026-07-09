@@ -231,7 +231,7 @@ export default function Overview() {
             };
           };
           return (
-            <div class="quest-panel" style={{ "padding": "16px 20px" }}>
+            <div class="quest-panel parchment-panel" style={{ "padding": "20px 24px" }}>
               <div class="quest-panel-content">
                 <div class="quest-header" style={{ "align-items": "center" }}>
                   <span class="quest-icon" style={{ "font-size": "1.6rem" }}>📋</span>
