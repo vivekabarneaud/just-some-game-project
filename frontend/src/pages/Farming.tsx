@@ -471,6 +471,18 @@ function GardenCard(props: { garden: PlayerGarden }) {
     : upgradeBlockedReason();
   const indicatorCanAct = () => props.garden.level === 0 ? canBuild() : canUpgrade();
 
+  // Stat-box styling (echoes the Tavern's rooms/gold boxes) — one fact per box
+  // so the card reads at a glance instead of as a wall of stacked lines.
+  const statBox = {
+    flex: "1", padding: "10px 12px", background: "var(--bg-card)",
+    border: "1px solid var(--border-color)", "border-radius": "8px", "text-align": "center" as const,
+  };
+  const statLabel = {
+    "font-size": "0.66rem", color: "var(--text-muted)", "text-transform": "uppercase" as const,
+    "letter-spacing": "0.6px", "margin-bottom": "3px",
+  };
+  const statVal = { "font-size": "0.95rem", "font-weight": 600 as const };
+
   return (
     <Show when={!locked()} fallback={
       <div class="building-card unbuilt-farm-card garden-locked-card" style={{ cursor: "default", position: "relative", "text-align": "center", opacity: 0.85 }}>
@@ -578,22 +590,41 @@ function GardenCard(props: { garden: PlayerGarden }) {
           </div>
         </Show>
 
-        <Show when={!props.garden.upgrading && statusLine()}>
-          {(s) => <div class="building-card-production" style={{ color: s().color }}>{s().label}</div>}
-        </Show>
-
+        {/* ── The two season facts, each in its own box so they breathe ── */}
         <Show when={!props.garden.upgrading}>
-          <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "2px" }}>
-            {renderCycleHint()}
+          <div style={{ display: "flex", gap: "8px", "margin-top": "10px" }}>
+            <div style={statBox}>
+              <div style={statLabel}>Sow in</div>
+              <div style={{ ...statVal, color: inPlantSeason() ? "var(--accent-green)" : "var(--text-secondary)" }}>
+                {veggie().plantSeasons.map((s) => `${SEASON_META[s].icon} ${SEASON_META[s].name}`).join(" / ")}
+              </div>
+            </div>
+            <div style={statBox}>
+              <div style={statLabel}>Produces</div>
+              <div style={statVal}>
+                {veggie().produceSeasons.map((s) => SEASON_META[s].icon).join(" ")}
+                <span style={{ color: "var(--accent-green)", "margin-left": "6px" }}>+{effRate()}/h</span>
+              </div>
+            </div>
           </div>
         </Show>
 
-        {/* Seed store readout — bigger plots need more seed to run at full rate */}
+        {/* ── Seed store vs plot capacity — the actionable pair, grouped with
+            the Sow button below it ── */}
         <Show when={!props.garden.upgrading && props.garden.level > 0}>
-          <div style={{ "font-size": "0.7rem", color: "var(--text-secondary)", "margin-top": "4px", display: "flex", "align-items": "center", gap: "5px" }}>
-            <span><SeedIcon id={veggie().id} size={16} /> {seedStock()} {veggie().name.toLowerCase()} seed in store</span>
-            <span style={{ color: "var(--text-muted)" }}>· plot holds {capacity()}</span>
+          <div style={{ ...statBox, "margin-top": "8px", display: "flex", "align-items": "center", "justify-content": "center", gap: "6px", "flex-wrap": "wrap" }}>
+            <SeedIcon id={veggie().id} size={16} />
+            <span style={{ "font-weight": 600, color: "var(--text-primary)" }}>{seedStock()}</span>
+            <span style={{ "font-size": "0.74rem", color: "var(--text-muted)" }}>
+              {veggie().name.toLowerCase()} seed in store · plot holds {capacity()}
+            </span>
           </div>
+        </Show>
+
+        {/* Current-state nudge sits right above the button (e.g. "Time to plant
+            — 10/10 seed ready", or "Producing", or "waiting to produce"). */}
+        <Show when={!props.garden.upgrading && statusLine()}>
+          {(s) => <div style={{ color: s().color, "font-size": "0.8rem", "font-weight": 600, "text-align": "center", "margin-top": "8px" }}>{s().label}</div>}
         </Show>
 
         {/* Plant action — shown while the plot has room to sow this cycle, so a
@@ -1379,7 +1410,7 @@ export default function Farming() {
       {/* ── Gardens ── */}
       <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🥬 Gardens</h2>
       <LockedShell locked={!gardensUnlocked()} reason="Locked until your camp grows (Settlement chapter 2)">
-        <div class="fields-grid">
+        <div class="gardens-grid">
           <For each={state.gardens}>{(g) => <GardenCard garden={g} />}</For>
         </div>
       </LockedShell>

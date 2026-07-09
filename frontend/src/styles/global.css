@@ -3146,6 +3146,15 @@ body {
   margin-bottom: 20px;
 }
 
+/* Gardens get roomier cards than fields — they carry more per-card detail
+   (sow/produce seasons, seed store, capacity), so they need space to breathe. */
+.gardens-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
 .field-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -4197,6 +4206,10 @@ body {
   /* Farming page uses the same card layout — apply the same grid + padding */
   .fields-grid {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+  }
+  .gardens-grid {
+    grid-template-columns: 1fr;
     gap: 10px;
   }
   .field-card {
