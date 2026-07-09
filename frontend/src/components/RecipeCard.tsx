@@ -65,10 +65,14 @@ export default function RecipeCard(props: RecipeCardProps) {
         filter: isLocked() ? "var(--locked-dim)" : "none",
         position: "relative",
         ...(highlight() ? {
-          border: "1px solid var(--accent-blue)",
           "box-shadow": "0 0 0 1px var(--accent-blue), 0 0 12px rgba(91, 155, 213, 0.35)",
           background: "linear-gradient(180deg, rgba(91, 155, 213, 0.08), transparent 70%), var(--bg-secondary)",
         } : {}),
+        // THROWAWAY 9-slice card-frame trial (uncommon ornament: plain edges,
+        // corner-only ornament). Tune the slice (55) / border-width (20px) once
+        // it's on screen. Remove with the rest of the frame preview.
+        border: "20px solid transparent",
+        "border-image": "url(/images/frames/item_frame_uncommon.png) 55 stretch",
       }}
     >
       <Show when={highlight()}>

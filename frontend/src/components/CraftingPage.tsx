@@ -15,9 +15,11 @@ import { formatTimeShort } from "~/utils/format";
 // icons so the look can be judged in context. To be replaced by a real
 // per-item rarity system when the items list is reworked. Safe to delete.
 const PREVIEW_EQUIP_FRAMES = [
-  "/images/frames/frame_uncommon.png",
-  "/images/frames/frame_rare.png",
-  "/images/frames/frame_epic.png",
+  "/images/frames/item_frame_common.png",
+  "/images/frames/item_frame_uncommon.png",
+  "/images/frames/item_frame_rare.png",
+  "/images/frames/item_frame_epic.png",
+  "/images/frames/item_frame_legendary.png",
 ];
 
 /** Split item description into stats and flavor text */
