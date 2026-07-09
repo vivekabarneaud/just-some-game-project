@@ -51,7 +51,9 @@
      cards read as a lighter tier; flush to the card edge via its own outset
      (11px margin * 20/34 ≈ 6px). */
   --card-frame-w: 20px;
-  --card-frame-outset: 6px;
+  /* 0 = keep the frame's own ~6px blank margin (drawn line sits slightly inside
+     the card edge). Chrome rules use their own --chrome-rule-outset, unaffected. */
+  --card-frame-outset: 0px;
   /* 66, not 60: the bottom ornament rule is a --chrome-rule-w border, so the
      extra 6px keeps the resources row the same height it had at a 20px border.
      Kept in sync with the sidebar's rule for a matched junction. */
