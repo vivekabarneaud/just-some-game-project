@@ -11,6 +11,15 @@ import RecipeCard from "~/components/RecipeCard";
 import FoodIcon from "~/components/FoodIcon";
 import { formatTimeShort } from "~/utils/format";
 
+// THROWAWAY PREVIEW: hand-drawn ornament frames, cycled across crafted gear
+// icons so the look can be judged in context. To be replaced by a real
+// per-item rarity system when the items list is reworked. Safe to delete.
+const PREVIEW_EQUIP_FRAMES = [
+  "/images/frames/frame_uncommon.png",
+  "/images/frames/frame_rare.png",
+  "/images/frames/frame_epic.png",
+];
+
 /** Split item description into stats and flavor text */
 function splitDescription(desc: string): { stats: string; flavor: string | null } {
   // Descriptions like "+3 STR, +1 DEX. Crude but effective."
@@ -519,9 +528,15 @@ export default function CraftingPage(props: CraftingPageProps) {
             </h3>
             <div class="buildings-grid">
               <For each={recipes()}>
-                {(recipe) => {
+                {(recipe, i) => {
                   const missingTool = () => getRequiredTool(recipe, installedToolIds());
                   const isToolLocked = () => !!missingTool();
+                  // Preview frame: only on crafted GEAR (recipe → item with an
+                  // equipment slot), cycling the three ornament tiers by index.
+                  const previewFrame = () => {
+                    const it = getItemByRecipe(recipe.id);
+                    return it?.slot ? PREVIEW_EQUIP_FRAMES[i() % PREVIEW_EQUIP_FRAMES.length] : undefined;
+                  };
                   // Passive "keep cooking" toggle — kitchen staples that feed
                   // citizens (food-type produce). Sits next to Cook (extraAction);
                   // burns ~1 wood/hr while lit. Null for non-staple / other buildings.
@@ -574,6 +589,7 @@ export default function CraftingPage(props: CraftingPageProps) {
                       info={recipeInfoPanel(recipe, isToolLocked())}
                       isUnseen={!(state.recipesSeen ?? []).includes(recipe.id)}
                       onSeen={() => actions.markRecipeSeen(recipe.id)}
+                      frameUrl={previewFrame()}
                       extraAction={keepCookingBtn()}
                       action={
                         isToolLocked()

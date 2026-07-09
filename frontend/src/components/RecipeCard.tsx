@@ -44,6 +44,10 @@ export interface RecipeCardProps {
   /** Optional control rendered in the action row, next to the craft button
    *  (e.g. the kitchen's "keep cooking" toggle). Wraps below on narrow cards. */
   extraAction?: JSX.Element;
+  /** Optional ornamental frame (URL) drawn around the item icon — a throwaway
+   *  preview of the hand-drawn rarity frames. Remove when the real item/rarity
+   *  rework lands. */
+  frameUrl?: string;
 }
 
 export default function RecipeCard(props: RecipeCardProps) {
@@ -71,10 +75,19 @@ export default function RecipeCard(props: RecipeCardProps) {
         <div class="notification-badge is-tag" style={{ position: "absolute", top: "6px", right: "6px" }}>NEW</div>
       </Show>
       <div class="building-card-header">
-        {props.image
-          ? <img src={props.image} alt="" style={{ width: "40px", height: "40px", "object-fit": "cover", "border-radius": "6px", "flex-shrink": "0" }} />
-          : <div class="building-card-icon">{props.icon}</div>
-        }
+        <Show when={props.frameUrl} fallback={
+          props.image
+            ? <img src={props.image} alt="" style={{ width: "40px", height: "40px", "object-fit": "cover", "border-radius": "6px", "flex-shrink": "0" }} />
+            : <div class="building-card-icon">{props.icon}</div>
+        }>
+          {/* Framed icon (throwaway rarity-frame preview) */}
+          <div style={{ position: "relative", width: "56px", height: "56px", "flex-shrink": "0", display: "grid", "place-items": "center" }}>
+            {props.image
+              ? <img src={props.image} alt="" style={{ width: "34px", height: "34px", "object-fit": "cover", "border-radius": "4px" }} />
+              : <span style={{ "font-size": "1.5rem", "line-height": "1" }}>{props.icon}</span>}
+            <img src={props.frameUrl} alt="" aria-hidden="true" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", "pointer-events": "none" }} />
+          </div>
+        </Show>
         <div>
           <div class="building-card-title">{props.title}</div>
           <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
