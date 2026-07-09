@@ -65,9 +65,9 @@ export const VEGGIES: VeggieDefinition[] = [
   },
   {
     id: "squash",
-    name: "Squash",
+    name: "Gourd",
     icon: "🎃",
-    description: "Planted in summer, ripens through autumn and keeps in the cellar for winter. A storage crop that feeds you past the frost.",
+    description: "A hardy climbing gourd, sown in summer and gathered through autumn. Eaten through the cellar-months, and the hard-shelled ones dried for flasks, bowls, and dippers. It keeps you fed past the frost.",
     plantSeasons: ["summer"],
     produceSeasons: ["autumn", "winter"],
     seedCost: 8,

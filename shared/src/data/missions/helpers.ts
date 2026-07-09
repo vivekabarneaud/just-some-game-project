@@ -50,7 +50,7 @@ const FOOD_ITEM_LABELS: Record<string, { icon: string; name: string }> = {
   cabbages: { icon: "🥬", name: "Cabbages" },
   turnips: { icon: "🥕", name: "Turnips" },
   peas: { icon: "🫛", name: "Peas" },
-  squash: { icon: "🎃", name: "Squash" },
+  squash: { icon: "🎃", name: "Gourd" },
   apples: { icon: "🍎", name: "Apples" },
   pears: { icon: "🍐", name: "Pears" },
   cherries: { icon: "🍒", name: "Cherries" },

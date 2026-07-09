@@ -88,7 +88,7 @@ export const FOOD_ITEMS: ItemDefinition[] = [
   },
   {
     id: "smoked_pork_roast", name: "Smoked Pork Roast", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/kitchens/smoked_pork_roast.png", icon: "🍖",
-    description: "Thick-cut pork smoked with squash and hardwood. A meal that fights back.",
+    description: "Thick-cut pork, hardwood-smoked and served with roast gourd. A meal that fights back.",
     classes: [], stats: { str: 2 }, durationMod: 1, lootMod: 1,
     recipeId: "smoked_pork_roast", consumable: true, foodFlavors: ["smoky", "hearty"],
   },
