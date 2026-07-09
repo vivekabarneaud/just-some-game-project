@@ -22,7 +22,7 @@ const RES: Record<TradeResourceKey, { icon: string; name: string }> = {
   pepper:   { icon: "🌶️", name: "Pepper" },
   cinnamon: { icon: "🟫", name: "Cinnamon" },
   tea:      { icon: "🍵", name: "Tea Leaves" },
-  chili:    { icon: "🥵", name: "Chili Peppers" },
+  chili:    { icon: "🥵", name: "Long Pepper" },
   saffron:  { icon: "🌸", name: "Saffron" },
 };
 const RES_KEYS = Object.keys(RES) as TradeResourceKey[];

@@ -36,10 +36,10 @@ export const EXOTICS: ExoticDefinition[] = [
   },
   {
     id: "chili",
-    name: "Chili Peppers",
+    name: "Long Pepper",
     icon: "🥵",
     rarity: "uncommon",
-    description: "Dried red pods that burn going down and warm long after. A favourite of winter cooks.",
+    description: "Dried, catkin-like spikes from the far eastern trade roads, hotter than black pepper and slow to fade on the tongue. A favourite of winter cooks.",
   },
   {
     id: "saffron",

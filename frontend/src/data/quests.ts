@@ -325,7 +325,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     chapter: 2,
     title: "A Roof Over Their Heads",
     narrative:
-      "A family of hunters walked in from the wilds yesterday, lean and asking for shelter; no one sent them, they simply found us. The tents we have will not hold them. Edda has been saying for weeks that a settlement of six is a picnic, not a village; she will now say it with more conviction.",
+      "A family of hunters walked in from the wilds yesterday, lean and asking for shelter; no one sent them, they simply found us. The tents we have will not hold them. Edda has been saying for weeks that a settlement of six is a supper table, not a village; she will now say it with more conviction.",
     objective: "Build Houses",
     icon: "🏠",
     triggers: [{ type: "chapter_unlocked", storyline: "settlement", chapter: 2 }],
