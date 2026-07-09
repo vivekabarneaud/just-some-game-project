@@ -1240,9 +1240,14 @@ body {
    Add this class to any image-less card; framed image cards come later. */
 .ornament-frame {
   border: var(--card-frame-w) solid transparent;
-  border-image: var(--ornament-src) 34 stretch;
+  border-image: var(--frame-src, var(--ornament-src)) 34 stretch;
   border-image-outset: var(--card-frame-outset);
   border-radius: 0;
+}
+/* Lower-rarity variant: the plain common frame (single line, small corners) so
+   e.g. undiscovered Chronicle pages read plainer than found (uncommon) ones. */
+.ornament-frame--common {
+  --frame-src: url(/images/frames/item_frame_common.png);
 }
 /* The frame ring already insets content ~20px; trim the panel's own padding so
    framed cards don't double up on empty margin. */
@@ -1252,6 +1257,12 @@ body {
 /* Same padding trim for framed building-cards (e.g. Chronicle entry cards). */
 .building-card.ornament-frame {
   padding: 12px 14px;
+}
+/* The rain sheen (.building-card::after) uses inset:0 = the PADDING box, which
+   the frame's thick transparent border shrinks — so the gleam floated 20px
+   inside the frame. Push it back out to the border box for framed cards. */
+.building-card.ornament-frame::after {
+  inset: calc(-1 * var(--card-frame-w));
 }
 
 .overview-panel h2 {

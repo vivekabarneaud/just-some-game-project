@@ -156,7 +156,7 @@ export default function ChronicleJournal() {
                       <div
                         id={`chronicle-entry-${entry.id}`}
                         class="building-card"
-                        classList={{ "chronicle-entry-card": unlocked(), dimmed: !unlocked(), "ornament-frame": unlocked() }}
+                        classList={{ "chronicle-entry-card": unlocked(), dimmed: !unlocked(), "ornament-frame": true, "ornament-frame--common": !unlocked() }}
                         style={{
                           cursor: unlocked() ? "pointer" : "default",
                           transition: "transform 0.15s, filter 0.15s, border-color 0.25s, box-shadow 0.25s, background 0.25s",
