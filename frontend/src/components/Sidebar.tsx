@@ -1,6 +1,6 @@
 import { Show, createSignal, onMount, onCleanup } from "solid-js";
 import { A, useLocation, useNavigate } from "@solidjs/router";
-import { useGame, CRAFTING_RECIPES } from "~/engine/gameState";
+import { useGame, CRAFTING_RECIPES, isRecipeDiscovered } from "~/engine/gameState";
 import { setOpenSettings } from "~/components/SettingsModal";
 import { SEASON_META, IS_DEV } from "~/data/seasons";
 import { WEATHER_META, WEATHER_TYPES, resolveWeather, currentWeatherInfo, weatherOverride, setWeatherOverride } from "~/data/weather";
@@ -211,6 +211,9 @@ export default function Sidebar(props: SidebarProps) {
     for (const r of CRAFTING_RECIPES) {
       if (r.building !== buildingId) continue;
       if (b.level < r.minLevel) continue;
+      // A discovery-gated recipe only counts once it's actually unlocked — no
+      // badge teasing something the player can't see or make yet.
+      if (!isRecipeDiscovered(r, state.discoveredRecipes ?? [])) continue;
       if (seen.includes(r.id)) continue;
       n++;
     }

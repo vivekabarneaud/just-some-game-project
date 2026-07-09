@@ -5,7 +5,7 @@
 export type FoodItemType =
   | "wheat" | "barley"
   | "cabbages" | "turnips" | "peas" | "squash" | "fava"
-  | "apples" | "pears" | "cherries"
+  | "apples" | "pears" | "cherries" | "strawberries"
   | "meat" | "eggs" | "milk" | "fish"
   | "berries" | "mushrooms" | "nuts"
   | "porridge" | "hearth_stew" | "river_stew";
@@ -60,6 +60,7 @@ export const FOOD_ITEMS: FoodItemMeta[] = [
   { id: "apples",    label: "Apples",    icon: "🍎", iconImage: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/apple.png?v=2", order: 1, category: "fruit" },
   { id: "pears",     label: "Pears",     icon: "🍐", order: 2, category: "fruit" },
   { id: "cherries",  label: "Cherries",  icon: "🍒", order: 3, category: "fruit" },
+  { id: "strawberries", label: "Strawberries", icon: "🍓", order: 4, category: "fruit" },
   // Animal products
   { id: "meat",      label: "Meat",      icon: "🍖", order: 1, category: "animal" },
   { id: "eggs",      label: "Eggs",      icon: "🥚", order: 2, category: "animal" },

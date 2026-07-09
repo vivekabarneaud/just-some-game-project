@@ -21,6 +21,16 @@ export interface CraftingRecipe {
   craftTime: number; // game-seconds
   /** Explicit per-recipe tool requirement (overrides level-based gating) */
   requiredTool?: string;
+  /** Hidden at its building until unlocked (pushed into state.discoveredRecipes,
+   *  e.g. by a mission via the story-director's unlockRecipe). Undiscovered
+   *  discovery-recipes don't show and don't badge. */
+  requiresDiscovery?: boolean;
+}
+
+/** Is a discovery-gated recipe unlocked yet? Non-discovery recipes are always
+ *  "discovered". `discovered` is state.discoveredRecipes. */
+export function isRecipeDiscovered(r: CraftingRecipe, discovered: readonly string[]): boolean {
+  return !r.requiresDiscovery || discovered.includes(r.id);
 }
 
 // ─── Building Tools ─────────────────────────────────────────────
@@ -680,6 +690,11 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     costs: [{ resource: "grain", amount: 2 }, { resource: "honey", amount: 2 }, { resource: "eggs", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 30 },
   { id: "fruit_tart", name: "Fruit Tart", icon: "🍎", building: "kitchen", minLevel: 4, kind: "dessert",
     costs: [{ resource: "grain", amount: 2 }, { resource: "apples", amount: 1 }, { resource: "pears", amount: 1 }, { resource: "honey", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 45 },
+  // Strawberry jam — unlocked by the "Where's Nell?" beat (the_strawberry_patch
+  // chain calls unlockRecipe). Cultivated strawberries + honey; low level so the
+  // reward is usable the moment it's earned. Hidden until discovered.
+  { id: "strawberry_jam", name: "Strawberry Jam", icon: "🍓", building: "kitchen", minLevel: 1, kind: "dessert", requiresDiscovery: true,
+    costs: [{ resource: "strawberries", amount: 3 }, { resource: "honey", amount: 1 }], produces: { resource: "food", amount: 2 }, craftTime: 30 },
 
   // Town kitchen recipes (Lv 5-6) — complex multi-ingredient dishes
   { id: "hunters_stew", name: "Hunter's Stew", icon: "🍲", building: "kitchen", minLevel: 5,

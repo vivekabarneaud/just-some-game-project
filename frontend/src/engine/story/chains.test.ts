@@ -80,6 +80,7 @@ describe("runStoryChains — primitives", () => {
     runStoryChains(s, [chain], makeDeps(s, 0, log));
     expect(s.chronicleEntriesFired).toContain("ch2_nell_found");
     expect(log).toContain("seed:strawberries");
+    expect(log).toContain("recipe:strawberry_jam");
   });
 
   it("is idempotent under replay — no double-fire", () => {

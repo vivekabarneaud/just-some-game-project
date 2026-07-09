@@ -1,6 +1,6 @@
 import { For, Show, onMount, type JSX } from "solid-js";
 import { A } from "@solidjs/router";
-import { useGame, CRAFTING_RECIPES, getBuildingToolsForBuilding, getRequiredTool, type CraftingRecipe } from "~/engine/gameState";
+import { useGame, CRAFTING_RECIPES, isRecipeDiscovered, getBuildingToolsForBuilding, getRequiredTool, type CraftingRecipe } from "~/engine/gameState";
 import { playSound, type SoundId } from "~/engine/sounds";
 import { getItemByRecipe, ARMOR_TYPE_META, isFoodItem, getFoodEffect } from "@medieval-realm/shared/data/items";
 import { getTotalFood, isFoodItemType, getFoodCostAmount, getFoodMeta, type FoodItemType } from "~/data/foods";
@@ -221,7 +221,8 @@ export default function CraftingPage(props: CraftingPageProps) {
   const recipes = () => {
     const ids = installedToolIds();
     return CRAFTING_RECIPES
-      .filter((r) => r.building === props.buildingId && buildingLevel() >= r.minLevel)
+      .filter((r) => r.building === props.buildingId && buildingLevel() >= r.minLevel
+        && isRecipeDiscovered(r, state.discoveredRecipes ?? []))
       .sort((a, b) => {
         const aLocked = getRequiredTool(a, ids) ? 1 : 0;
         const bLocked = getRequiredTool(b, ids) ? 1 : 0;
@@ -230,7 +231,10 @@ export default function CraftingPage(props: CraftingPageProps) {
   };
 
   const lockedRecipes = () => CRAFTING_RECIPES.filter((r) => {
-    return r.building === props.buildingId && buildingLevel() < r.minLevel;
+    // Level-locked recipes still show (as a teaser), but an undiscovered
+    // discovery-recipe stays fully hidden until it's unlocked.
+    return r.building === props.buildingId && buildingLevel() < r.minLevel
+      && isRecipeDiscovered(r, state.discoveredRecipes ?? []);
   });
 
   /** All entries in this building's queue — active and pending. */

@@ -316,7 +316,7 @@ export interface GameEvent {
   timestamp: number; // game tick when it happened
 }
 
-import { type CraftingRecipe, type ActiveCraft, CRAFTING_RECIPES, passiveCookTime, getBuildingToolByRecipe, getBuildingTool, getRequiredTool, type BuildingToolDef } from "./crafting";
+import { type CraftingRecipe, type ActiveCraft, CRAFTING_RECIPES, passiveCookTime, isRecipeDiscovered, getBuildingToolByRecipe, getBuildingTool, getRequiredTool, type BuildingToolDef } from "./crafting";
 import { playSound } from "./sounds";
 import {
   calcAdventurerMaxHp,
@@ -327,7 +327,7 @@ import {
   isTeamWiped,
 } from "@medieval-realm/shared/data/expeditionEngine";
 export type { CraftingRecipe, ActiveCraft, BuildingToolDef };
-export { CRAFTING_RECIPES, passiveCookTime, getBuildingTool, getBuildingToolByRecipe, getRequiredTool };
+export { CRAFTING_RECIPES, passiveCookTime, isRecipeDiscovered, getBuildingTool, getBuildingToolByRecipe, getRequiredTool };
 
 /** How many dishes a kitchen can keep-cooking at once: one per level (naturally
  *  capped by the number of food recipes it has unlocked). */
