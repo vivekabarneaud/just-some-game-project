@@ -360,11 +360,33 @@ body {
   position: relative;
 }
 
-/* NOTE: edge-flourishes (epic-frame motif centered on the top bar / sidebar
-   edges) were tried and pulled — the top bar edge is crowded (resources above,
-   event banner below) and the sidebar scrolls, so a centered flourish has no
-   clean anchor. Revisit with a dedicated flourish PNG + a fixed placement
-   (e.g. the sidebar/top-bar corner junction), or only on edges with room. */
+/* UX refont: an ornament corner-piece at the one true frame corner — the
+   top-left of the content area, where the sidebar's right rule meets the top
+   bar's bottom rule (i.e. the top bar's own bottom-left corner). Cropped from
+   the epic frame's top-left star so its arms run along both rules, sitting ON
+   the junction rather than floating. The top bar is fixed (unlike the
+   scrolling sidebar/content), so its bottom-left is a stable anchor.
+   Tunable knobs:
+     --corner-size  : rendered size of the ornament box
+     --corner-crop  : how many source px of the epic corner to capture
+     left / bottom  : nudge onto the exact junction
+   (left: -24px undoes the top bar's 24px left padding → reaches the junction x;
+    bottom drops the box below the bottom rule so the star sits in the corner.) */
+.topbar::before {
+  --corner-size: 46px;
+  --corner-crop: 82px;
+  content: "";
+  position: absolute;
+  left: -24px;
+  bottom: calc(0px - var(--corner-size) - var(--ornament-w));
+  width: var(--corner-size);
+  height: var(--corner-size);
+  background: url(/images/frames/item_frame_epic.png) no-repeat 0 0;
+  /* scale the source so --corner-crop px of the top-left corner fill the box */
+  background-size: calc(512px * var(--corner-size) / var(--corner-crop)) auto;
+  pointer-events: none;
+  z-index: 15;
+}
 
 .content {
   grid-area: content;
