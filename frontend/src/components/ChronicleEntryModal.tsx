@@ -98,9 +98,9 @@ export default function ChronicleEntryModal(props: Props) {
           "max-width": "620px",
           "max-height": "86vh",
           overflow: "auto",
-          // Aged-paper surface, stretched to fill so its darkened edges sit at
-          // the card boundary (they are the border — no frame, no rounded box).
-          background: `url(${parchmentSrc}) 0 0 / 100% 100% no-repeat`,
+          // Aged-paper surface. `cover` crops the outermost (roughly-cut) rim
+          // so only the cleaner interior shows — no frame, no rounded box.
+          background: `url(${parchmentSrc}) center / cover no-repeat`,
           border: "none",
           "border-radius": "0",
           padding: "42px 46px",
