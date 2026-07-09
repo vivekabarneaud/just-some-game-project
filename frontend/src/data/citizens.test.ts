@@ -24,8 +24,10 @@ describe("effectiveFoodMouths", () => {
 });
 
 describe("founder shape", () => {
-  it("founderCitizens and founderHousehold are the same {0,1,2,2}", () => {
-    const expected: CitizenCounts = { toddlers: 0, children: 1, adults: 2, elderly: 2 };
+  it("founderCitizens and founderHousehold are the same {0,1,3,2}", () => {
+    // Six founders: the Lord + Jory + Tomas (adults), Edda + Corin (elderly),
+    // Nell (child). The Lord is a counted resident, never a drafted worker.
+    const expected: CitizenCounts = { toddlers: 0, children: 1, adults: 3, elderly: 2 };
     expect(founderCitizens()).toEqual(expected);
     expect(founderHousehold()).toEqual(expected);
   });

@@ -43,6 +43,11 @@ export interface EventUnlocks {
     iron: number;
     gold: number;
   }>;
+  /** Premade IDs to roster the moment this event fires, instead of waiting on
+   *  an arrival condition. Idempotent (skips anyone already recruited). Lets a
+   *  story arrival (e.g. the Thornwood siblings) show up as adventurers right
+   *  when the family walks in, not later when the guild is raised. */
+  recruitPremadeIds?: string[];
 }
 
 export interface NarrativeEvent {
@@ -113,19 +118,38 @@ const settlementChapterDone = (chapter: number) =>
 
 export const NARRATIVE_EVENTS: NarrativeEvent[] = [
   // ── Settlement Ch.1 → Ch.2: hunters arrive ────────────────────
+  // The whole Thornwood family materializes the moment they walk in — the three
+  // siblings join the ADVENTURER roster (counted once, via the roster, never
+  // double-counted as citizens) and the adopted boy joins the household. They
+  // arrive over-cap on purpose (the tents will not hold them), which drives the
+  // player to raise Houses + a Hunting Camp next. The guild still comes later
+  // (event_hunters_volunteer): they are HERE now; the hall to command them is
+  // what's missing.
   {
     id: "event_hunters_arriving",
     triggers: [settlementChapterDone(1)],
     banner:
       "A family walked out of the trees this morning, hunters by their gear, road-worn and asking for nothing but a place to stand. No one sent them, and no one knew they were coming. The tents we have will not hold them, and I will not turn them back into the wild.",
+    unlocks: {
+      // Brenna, Gareth, Godric — rostered here, not at guild_open, so their
+      // hunting camp / fishing hut read as staffed the moment they're built.
+      recruitPremadeIds: ["char_000", "char_005", "char_021"],
+      // The adopted boy runs the camp, loud where Nell is silent; Nell barely
+      // notices, absorbed in Edda's herb patch. Named resident (the household),
+      // protected from RNG death, shows under "The household".
+      addNamedResidents: { children: 1 },
+      // What they walked here with: meat the hunters preserved on the road,
+      // a few smoked fish. A buffer while the player scales production.
+      addFood: { meat: 15, fish: 5 },
+      // The clothes on their backs — modest, one comfort bump.
+      addResources: { clothing: 1 },
+    },
   },
 
-  // ── Houses + Hunter Camp built → the family settles, guild activates ──
-  // Fires once both Houses (somewhere for them to sleep) and Hunter Camp
-  // (so their bows have a base) are built. The family actually
-  // materializes on the population counter, and guild Ch1 activates so
-  // Heroes Wanted surfaces — gives the player a juicier parallel track
-  // alongside the lower-stakes Pantry quest.
+  // ── Houses + Hunter Camp built → the guild activates ──
+  // The family is already here (event_hunters_arriving). Fires once both Houses
+  // and the Hunter Camp are up, activating guild Ch1 so Heroes Wanted surfaces:
+  // a hall to gather the hunters in and send them out.
   {
     id: "event_hunters_volunteer",
     triggers: [
@@ -139,21 +163,6 @@ export const NARRATIVE_EVENTS: NarrativeEvent[] = [
       "The family of hunters who walked in off the road have been pacing the edge of the camp like dogs that have not been walked. They need a hall to gather in, and someone with the patience to send them out.",
     unlocks: {
       activateStoryline: { storyline: "guild", chapter: 1 },
-      // The Thornwood family: three siblings (Brenna, Gareth, Godric) and their
-      // adopted boy. The three siblings join the ADVENTURER roster via
-      // syncArrivals (char_000/005/021), so we only add the boy as a citizen
-      // here, else the siblings would be double-counted (population + roster).
-      // The boy runs the camp, loud where Nell is silent; Nell barely notices,
-      // absorbed in Edda's herb patch. He's a named resident (the household),
-      // so he's protected from RNG death and shows under "The household".
-      addNamedResidents: { children: 1 },
-      // What they walked here with: meat the hunters preserved on the road,
-      // a few smoked fish. Not enough to cover the food curve for long,
-      // just a buffer while the player scales production.
-      addFood: { meat: 15, fish: 5 },
-      // The clothes on their backs — modest, just enough to bump comforts
-      // by one. They walked here with what they could carry, not a wardrobe.
-      addResources: { clothing: 1 },
     },
   },
 

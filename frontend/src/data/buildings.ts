@@ -474,7 +474,11 @@ export const BUILDINGS: BuildingDefinition[] = [
     icon: "🫐",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/forager_hut.png",
     maxLevel: 10,
-    levels: generateLevels({ wood: 30, stone: 5 }, 6, { resource: "food", baseRate: 8, foodType: "berries" }, 10),
+    // baseRate 10 (was 8): a modest bump to help cover the Lord now counting as
+    // a mouth (the founding household is six, not five). Partial offset by
+    // design — the Lord adds ~5 food/h of demand; this returns ~2/h at Lv.1,
+    // more as it levels.
+    levels: generateLevels({ wood: 30, stone: 5 }, 6, { resource: "food", baseRate: 10, foodType: "berries" }, 10),
     requiredTier: "camp",
   },
 
@@ -783,7 +787,7 @@ export function applyMasonTimeReduction(buildTime: number, masonLevel: number): 
 export const HOUSES_POP_PER_LEVEL = 8;
 
 // Base population (you always have some citizens even without houses)
-export const BASE_POPULATION = 5;
+export const BASE_POPULATION = 6;
 
 // Food consumed per citizen per hour
 export const FOOD_PER_CITIZEN_PER_HOUR = 5;

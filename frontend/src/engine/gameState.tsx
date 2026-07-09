@@ -1972,6 +1972,20 @@ function applyEventEvaluation(s: GameState): void {
         if (r.stone) s.resources.stone += r.stone;
         if (r.gold) s.resources.gold += r.gold;
       }
+      if (event.unlocks?.recruitPremadeIds) {
+        // Roster named cast the moment the event fires (e.g. the Thornwood
+        // siblings walking in with the family), rather than waiting on an
+        // arrival condition. Idempotent: skip anyone already on the roster.
+        const have = new Set(s.adventurers.map((a) => a.premadeId).filter(Boolean) as string[]);
+        for (const pid of event.unlocks.recruitPremadeIds) {
+          if (have.has(pid)) continue;
+          const rec = buildRecruitFromPremadeId(nextId("adv"), pid, 1);
+          if (rec) {
+            s.adventurers.push(rec);
+            have.add(pid);
+          }
+        }
+      }
       if (event.unlocks?.raidSpawn) {
         const raid = RAID_POOL.find((r) => r.id === event.unlocks!.raidSpawn!.raidId);
         if (raid) {
