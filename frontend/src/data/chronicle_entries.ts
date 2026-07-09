@@ -499,6 +499,26 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "There is good ground east of here that there was not a season ago. That is enough for tonight.",
   },
   {
+    id: "ch2_nell_wandering",
+    chapterId: "ch2",
+    order: 7,
+    title: "Gone from the beds",
+    teaser: "Nell was gone from Edda's herb beds by midday. Edda stands at the treeline and will not come in.",
+    fullText:
+      "Nell was gone from Edda's beds by midday, and the whole camp felt it before anyone could say why. She keeps her own hours and her own silence, and most days that is no trouble at all. But the woods to the south run further than a small girl should walk alone, and if she is lost out there she cannot call for us, or she will not.\n\n" +
+      "Edda has said nothing either. She only stands at the treeline, watching the green, the way she does when she is most afraid. I have sent word to the guild. Someone who can read a small pair of footprints through summer grass will find her faster than the rest of us tramping about and calling a name she has never once answered to.",
+  },
+  {
+    id: "ch2_nell_found",
+    chapterId: "ch2",
+    order: 8,
+    title: "Red to the wrists",
+    teaser: "They found her past the treeline, asleep in a hollow of wild strawberries, and not the least bit sorry.",
+    fullText:
+      "They found her near dusk, past the treeline, asleep in a hollow full of wild strawberries. Stained red to the wrists, curled up like a fox in the last of the sun, and not the least bit sorry to be found. Edda laughed and wept at the same time and insisted it was only the weeping.\n\n" +
+      "Nell had filled her apron with the little berries and would not give them up, not even sleeping. Edda says the wild ones bruise and will not keep a season, but a cutting will take to a tended bed if we mind it through the summer. So we will. Nell decided it, the way she decides everything, without a word.",
+  },
+  {
     id: "ch3_post_the_line",
     chapterId: "ch3",
     order: 1,

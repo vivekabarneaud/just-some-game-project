@@ -35,6 +35,8 @@ function makeDeps(s: ChainState, now: number, log: string[]): ChainDeps {
       log.push(pid);
       (s.adventurers as { premadeId?: string }[]).push({ premadeId: pid });
     },
+    unlockSeed: (vid) => log.push(`seed:${vid}`),
+    unlockRecipe: (rid) => log.push(`recipe:${rid}`),
   };
 }
 
@@ -48,6 +50,36 @@ describe("runStoryChains — primitives", () => {
     s.completedUniqueMissionIds = ["m1"];
     runStoryChains(s, [chain], makeDeps(s, 0, []));
     expect(s.chronicleEntriesFired).toEqual(["c1"]);
+  });
+
+  it("awaitSeason halts until season AND year are both met", () => {
+    const chain: StoryChain = { id: "t", run: (a) => { a.awaitSeason("summer", 2); a.fireChronicle("c1"); } };
+    const s = makeState({ season: "spring", year: 1 });
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual([]); // wrong season + wrong year
+
+    s.season = "summer"; // right season, still year 1
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual([]); // year too early
+
+    s.year = 2; // summer, year 2 — fires
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual(["c1"]);
+  });
+
+  it("the strawberry patch: season gate → worry → mission → found → seed unlock", () => {
+    const log: string[] = [];
+    const chain = STORY_CHAINS.find((c) => c.id === "the_strawberry_patch")!;
+    const s = makeState({ season: "summer", year: 2 });
+
+    runStoryChains(s, [chain], makeDeps(s, 0, log));
+    expect(s.chronicleEntriesFired).toEqual(["ch2_nell_wandering"]); // worry fired, waiting on the mission
+    expect(log).not.toContain("seed:strawberries");
+
+    s.completedUniqueMissionIds = ["find_nell"];
+    runStoryChains(s, [chain], makeDeps(s, 0, log));
+    expect(s.chronicleEntriesFired).toContain("ch2_nell_found");
+    expect(log).toContain("seed:strawberries");
   });
 
   it("is idempotent under replay — no double-fire", () => {

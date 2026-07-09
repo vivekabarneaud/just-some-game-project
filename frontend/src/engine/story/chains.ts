@@ -39,6 +39,10 @@ export interface StoryChainApi {
    *  first reached this step (the same daily clock the mission board uses). A
    *  clean "come back tomorrow" beat. `key` disambiguates within one chain. */
   awaitNextMorning(key: string): void;
+  /** Suspend until it's the given season AND at least `minYear`. Fires on the
+   *  first matching season at or after that year (e.g. the first summer once
+   *  year 2 has come). */
+  awaitSeason(season: string, minYear: number): void;
   /** Fire a chronicle entry into the archive (once). */
   fireChronicle(entryId: string): void;
   /** Fire a chronicle entry AND surface it as a beat modal the moment it
@@ -47,6 +51,12 @@ export interface StoryChainApi {
   fireChronicleModal(entryId: string): void;
   /** Recruit a premade to the roster (once; no-op if already present). */
   recruit(premadeId: string): void;
+  /** Unlock a specialty crop's seed (idempotent): its garden becomes buildable
+   *  and a starter stock is granted, like the quest `unlocksSeeds` path. */
+  unlockSeed(veggieId: string): void;
+  /** Unlock a discovery-gated recipe (idempotent): pushes it into
+   *  discoveredRecipes so it appears at its building (and badges the sidebar). */
+  unlockRecipe(recipeId: string): void;
 }
 
 export interface StoryChain {
@@ -62,6 +72,8 @@ export interface ChainState {
   adventurers: ReadonlyArray<{ premadeId?: string; loyalty?: number }>;
   buildings: ReadonlyArray<{ buildingId: string; level: number }>;
   questRewardsClaimed?: string[];
+  season?: string;
+  year?: number;
   chronicleEntriesFired: string[];
   /** Queue of chronicle entries waiting to pop as a beat modal (drained by the
    *  UI). Distinct from `chronicleEntriesFired` (the permanent archive). */
@@ -76,6 +88,10 @@ export interface ChainDeps {
   /** Build + push the premade onto the roster (+ any arrival side effects).
    *  Only called when the character isn't already present. */
   recruit: (premadeId: string) => void;
+  /** Unlock a specialty crop seed (idempotent — engine owns starter-stock size). */
+  unlockSeed: (veggieId: string) => void;
+  /** Unlock a discovery-gated recipe (idempotent). */
+  unlockRecipe: (recipeId: string) => void;
 }
 
 /** Thrown by `await*` to stop a script at its first unmet step. Caught by the
@@ -135,6 +151,9 @@ export function runStoryChains(s: ChainState, chains: StoryChain[], deps: ChainD
         }
         if (deps.now < s.storyTimers[k]) throw HALT;
       },
+      awaitSeason(season, minYear) {
+        if ((s.year ?? 1) < minYear || s.season !== season) throw HALT;
+      },
       fireChronicle(entryId) {
         if (!s.chronicleEntriesFired.includes(entryId)) s.chronicleEntriesFired.push(entryId);
       },
@@ -147,6 +166,12 @@ export function runStoryChains(s: ChainState, chains: StoryChain[], deps: ChainD
       recruit(premadeId) {
         if (s.adventurers.some((a) => a.premadeId === premadeId)) return;
         deps.recruit(premadeId);
+      },
+      unlockSeed(veggieId) {
+        deps.unlockSeed(veggieId);
+      },
+      unlockRecipe(recipeId) {
+        deps.unlockRecipe(recipeId);
       },
     };
     try {
@@ -251,6 +276,22 @@ export const STORY_CHAINS: StoryChain[] = [
       api.recruit("char_029");                        // Magnus, freed by his own courage
       api.fireChronicleModal("ch2_stonebridge_plea");
       api.fireChronicleModal("ch2_stonebridge_aftermath");
+    },
+  },
+
+  // ── The Strawberry Patch — Nell wanders off; the team brings her home ──
+  // A warm summer lull beat (year 2+). The worry beat pops, which opens the
+  // "Where's Nell?" search mission (gated on that chronicle firing). Running it
+  // brings her back, asleep in a wild strawberry hollow — and Edda's cutting
+  // becomes the settlement's first cultivated strawberry bed (seed unlock).
+  {
+    id: "the_strawberry_patch",
+    run: (api) => {
+      api.awaitSeason("summer", 2);
+      api.fireChronicleModal("ch2_nell_wandering");   // worry — opens the search mission
+      api.awaitMissionDone("find_nell");              // the team goes and finds her
+      api.fireChronicleModal("ch2_nell_found");       // relief + the strawberry hollow
+      api.unlockSeed("strawberries");                 // Edda's cutting → a cultivated bed
     },
   },
 ];

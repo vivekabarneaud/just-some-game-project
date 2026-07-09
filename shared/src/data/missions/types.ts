@@ -169,6 +169,10 @@ export interface MissionRequirements {
    *  discovery→routine pattern: a one-time "first" mission unlocks the
    *  recurring "chore" version (checked against completedUniqueMissionIds). */
   missionDone?: string;
+  /** A chronicle entry that must have fired. Lets a story-director beat surface
+   *  a mission only after its setup has played (e.g. the "Nell's gone
+   *  wandering" worry beat opens the search mission). */
+  chronicleFired?: string;
 }
 
 /** Per-adventurer mission supplies: potion (combat), food (mission start buff), recovery (between-event heal). */

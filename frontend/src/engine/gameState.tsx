@@ -1820,6 +1820,7 @@ function buildMissionBoardContext(s: GameState, guildLevel: number, seed: number
     tavernReputation: s.tavernReputation ?? 0,
     missionCompletions: s.missionCompletions ?? {},
     rosterClasses: [...new Set(s.adventurers.filter((a) => a.alive).map((a) => a.class))],
+    chronicleEntriesFired: s.chronicleEntriesFired,
   };
 }
 
@@ -4573,6 +4574,16 @@ export function GameProvider(props: ParentProps) {
             recruit: (pid) => {
               const rec = buildRecruitFromPremadeId(nextId("adv"), pid, 1);
               if (rec) { s.adventurers.push(rec); s.clothing += CLOTHING_PER_ARRIVAL; }
+            },
+            unlockSeed: (vid) => {
+              const v = vid as VeggieId;
+              if (!s.seedsUnlocked.includes(v)) {
+                s.seedsUnlocked.push(v);
+                s.seeds[v] = (s.seeds[v] ?? 0) + STARTING_SEED_PER_CROP;
+              }
+            },
+            unlockRecipe: (rid) => {
+              if (!s.discoveredRecipes.includes(rid)) s.discoveredRecipes.push(rid);
             },
           });
         }

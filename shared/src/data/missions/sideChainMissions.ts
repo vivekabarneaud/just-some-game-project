@@ -324,4 +324,25 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     sideChain: { id: "the_woodcutter", name: "The Woodcutter" },
     chronicleEntryId: "ch1_woodcutter_ghost", // Beat 2a: the ghost puzzle
   },
+  {
+    id: "find_nell",
+    name: "Where's Nell?",
+    description: "Nell slipped away from Edda's herb beds sometime after breakfast, and no one has seen her since. She does not answer when she is called, she never has, and the woods run a long way south. We would all rest easier with someone out there who can follow a small pair of footprints through the summer grass before the light goes.",
+    icon: "🧺",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/first_patrol.png",
+    slots: [{ class: "any" }],
+    duration: 120, // our own south woods — a search before dusk, not a trek
+    rewards: [{ resource: "berries", amount: 10 }], // the wild berries she'd gathered, brought home
+    deployCost: 3,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["exploration", "peaceful"],
+    guaranteed: true,
+    // Opened by the worry beat (fired by the_strawberry_patch chain in summer,
+    // year 2). The chain fires the "found" beat + the seed unlock on completion,
+    // so this mission carries no chronicleEntryId of its own.
+    requires: { chronicleFired: "ch2_nell_wandering" },
+    unique: true,
+    sideChain: { id: "the_strawberry_patch", name: "The Strawberry Patch" },
+  },
 ];

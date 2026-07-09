@@ -395,6 +395,9 @@ export interface MissionBoardContext {
    *  so a mission that NEEDS a class (e.g. a priest for ghosts) doesn't surface
    *  before that class exists. */
   rosterClasses?: string[];
+  /** Chronicle entries that have fired. Gates `chronicleFired` requirements so a
+   *  mission only appears after its story-director setup beat has played. */
+  chronicleEntriesFired?: string[];
 }
 
 /** Check whether a mission's requirements are met. Exported for unit tests;
@@ -427,6 +430,7 @@ export function meetsRequirements(
   if (req.tavernReputation && (ctx.tavernReputation ?? 0) < req.tavernReputation) return false;
   if (req.missionCount && (ctx.missionCompletions?.[req.missionCount.id] ?? 0) < req.missionCount.count) return false;
   if (req.hasClass && !(ctx.rosterClasses ?? []).includes(req.hasClass)) return false;
+  if (req.chronicleFired && !(ctx.chronicleEntriesFired ?? []).includes(req.chronicleFired)) return false;
   return true;
 }
 
