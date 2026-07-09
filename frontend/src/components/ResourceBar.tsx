@@ -2,7 +2,7 @@ import { For, Show } from "solid-js";
 import { RESOURCES } from "~/data/resources";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { EXOTICS } from "@medieval-realm/shared/data/exotics";
-import { useGame, CRAFTING_RECIPES, passiveCookTime } from "~/engine/gameState";
+import { useGame, CRAFTING_RECIPES, passiveCookTime, isForagerBlooming } from "~/engine/gameState";
 import { TAVERN_COMMODITY_DRINKS } from "~/data/tavern";
 import { totalPopulation } from "~/data/citizens";
 import { FOOD_ITEMS, FOOD_CATEGORIES, getTotalFood, getFoodCostAmount, type FoodItemType, type FoodCategoryId } from "~/data/foods";
@@ -225,7 +225,12 @@ export default function ResourceBar() {
                                           {isCooking(fi.id) ? `⏸ ${cookStallReason(fi.id) || "paused"}` : (fi.category === "cooked" ? "(not cooking)" : "(dormant)")}
                                         </span>
                                       }>
-                                        <span class="rate-positive" style={{ "min-width": "64px", "text-align": "right" }}>+{rate()}/h</span>
+                                        <span class="rate-positive" style={{ "min-width": "64px", "text-align": "right", "white-space": "nowrap" }}>
+                                          +{rate()}/h
+                                          <Show when={fi.id === "mushrooms" && isForagerBlooming(state)}>
+                                            <span style={{ color: "#7BA05B", "font-size": "0.62rem" }}> (after rain)</span>
+                                          </Show>
+                                        </span>
                                       </Show>
                                     }>
                                       {/* Simmering: show the production rate and how long the

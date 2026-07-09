@@ -499,7 +499,7 @@ export default function Buildings() {
                         })()}
                         {building.id === "forager_hut" && level() > 0 && currentLevel()?.production && isForagerBlooming(state) && (
                           <div class="building-card-production" style={{ color: "#d4831a" }}>
-                            🍄 After the rain — mushrooms sprouting (+{Math.floor(currentLevel()!.production!.rate * RAIN_FORAGE_MUSHROOM_FRACTION)}/h)
+                            🍄 It rained, and your gatherers found bonus mushrooms! (+{Math.floor(currentLevel()!.production!.rate * RAIN_FORAGE_MUSHROOM_FRACTION)}/h)
                           </div>
                         )}
                         {building.id === "forager_hut" && level() > 0 && (
