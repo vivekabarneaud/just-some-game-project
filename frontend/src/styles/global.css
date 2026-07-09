@@ -351,9 +351,13 @@ body {
   background: var(--bg-secondary);
   /* UX refont: ornament the inner edge. Width only on the right → border-image
      draws just that side (the frame's plain double-rule, stretched vertically).
-     Tune the width (14px) / slice (55) once on screen. */
-  border-right: var(--ornament-w) solid transparent;
-  border-image: var(--ornament-src) var(--ornament-slice) stretch;
+     Local slice 34 (not the shared 55): the frame corner runs to y~33, so 34
+     is the tightest slice that keeps the stretched middle a clean line — and a
+     tighter slice against a 26px border renders the rule at ~1.5px (crisp),
+     not the 0.7px hairline the 20/55 combo gave. This is the weight the
+     mid-edge flourish (below) is matched to. */
+  border-right: 26px solid transparent;
+  border-image: var(--ornament-src) 34 stretch;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -369,13 +373,16 @@ body {
    it. (The epic frame can't itself 9-slice as the rule: its corners are too
    large, so any slice that clears them leaves a hairline edge.)
    Fixed to the viewport (top:50%) so it holds while the sidebar scrolls.
+   --fl-scale 0.76 renders the epic scroll's 2px native strokes at ~1.5px,
+   matching the boldened rule above so ornament and line read as one weight.
    Tunable knobs:
-     --fl-scale : overall size (source motif is 24x63px)
-     --fl-x     : horizontal nudge to butt exactly against the rule (+ = right)
+     --fl-scale : overall size (source motif is 24x63px) — also sets stroke weight
+     --fl-x     : horizontal nudge; right edge lands at sidebar-width + this
+                  (default -13px butts it against the rule's inner line)
    Hidden on mobile, where the sidebar becomes a drawer (see @media below). */
 .sidebar::after {
-  --fl-scale: 1.4;
-  --fl-x: -5px;
+  --fl-scale: 0.76;
+  --fl-x: -13px;
   content: "";
   position: fixed;
   top: 50%;
