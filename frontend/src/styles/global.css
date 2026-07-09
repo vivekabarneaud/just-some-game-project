@@ -41,6 +41,11 @@
      border this wide (sidebar right + topbar bottom). Centralised so children
      that must account for it (weather strip, event banner) stay in sync. */
   --chrome-rule-w: 26px;
+  /* The frame PNG keeps ~11px of blank margin outside its drawn line (wanted
+     for the item frames). For the chrome rules we push the border image out by
+     that margin (scaled: 11px * 26/34 ≈ 8px) so the drawn pixels sit flush
+     against the sidebar/top-bar edge. Both flourishes shift by this too. */
+  --chrome-rule-outset: 8px;
   /* 66, not 60: the bottom ornament rule is a --chrome-rule-w border, so the
      extra 6px keeps the resources row the same height it had at a 20px border.
      Kept in sync with the sidebar's rule for a matched junction. */
@@ -348,6 +353,8 @@ body {
      +6px to absorb this border. */
   border-bottom: var(--chrome-rule-w) solid transparent;
   border-image: var(--ornament-src) 34 stretch;
+  /* push the drawn line flush to the bar's bottom edge (out past the PNG margin) */
+  border-image-outset: 0 0 var(--chrome-rule-outset) 0;
   display: flex;
   align-items: center;
   padding: 0 24px;
@@ -364,7 +371,9 @@ body {
    the box so its bottom butts the rule's inner line. */
 .topbar::after {
   --fl-scale: 0.76;
-  --fl-y: -13px;
+  /* -13px butts the rule's inner line; - the outset follows the line as it's
+     pushed flush to the bottom edge */
+  --fl-y: calc(-13px - var(--chrome-rule-outset));
   content: "";
   position: absolute;
   left: 50%;
@@ -394,6 +403,8 @@ body {
      mid-edge flourish (below) is matched to. */
   border-right: var(--chrome-rule-w) solid transparent;
   border-image: var(--ornament-src) 34 stretch;
+  /* push the drawn line flush to the sidebar's right edge (out past the PNG margin) */
+  border-image-outset: 0 var(--chrome-rule-outset) 0 0;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -418,7 +429,9 @@ body {
    Hidden on mobile, where the sidebar becomes a drawer (see @media below). */
 .sidebar::after {
   --fl-scale: 0.76;
-  --fl-x: -13px;
+  /* -13px butts the rule's inner line; + the outset follows the line as it's
+     pushed flush to the edge */
+  --fl-x: calc(-13px + var(--chrome-rule-outset));
   content: "";
   position: fixed;
   top: 50%;
