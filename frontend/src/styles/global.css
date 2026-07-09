@@ -360,29 +360,32 @@ body {
   position: relative;
 }
 
-/* UX refont: the epic frame's mid-edge flourish, centered on the sidebar's
-   RIGHT rule — a single ornament sitting ON the edge line (not floating). It's
-   cropped straight from the epic frame's right-edge center (source rect
-   454,196 → 502,324: the scroll motif + the double running line), so its line
-   lands on the sidebar's existing rule and the scrollwork bulges inward.
-   Fixed to the viewport (top:50%) so it stays put while the sidebar scrolls.
+/* UX refont: the epic frame's mid-edge SCROLLWORK (its running line cropped
+   OUT — source rect 465,225 → 489,288), centered on and butting against the
+   sidebar's existing right rule so it reads as one ornament growing off the
+   line. Cropping out the flourish's own line is deliberate: the rule is drawn
+   thin (border-image width/slice), so a second, heavier epic line would clash
+   — this way there's a single line (the rule) and the scroll just decorates
+   it. (The epic frame can't itself 9-slice as the rule: its corners are too
+   large, so any slice that clears them leaves a hairline edge.)
+   Fixed to the viewport (top:50%) so it holds while the sidebar scrolls.
    Tunable knobs:
-     --fl-scale : overall size (source window is 48x128px)
-     --fl-x     : horizontal nudge to sit exactly on the rule (+ = right)
+     --fl-scale : overall size (source motif is 24x63px)
+     --fl-x     : horizontal nudge to butt exactly against the rule (+ = right)
    Hidden on mobile, where the sidebar becomes a drawer (see @media below). */
 .sidebar::after {
-  --fl-scale: 0.75;
-  --fl-x: 0px;
+  --fl-scale: 1.4;
+  --fl-x: -5px;
   content: "";
   position: fixed;
   top: 50%;
-  left: calc(var(--sidebar-width) - 48px * var(--fl-scale) + var(--fl-x));
-  width: calc(48px * var(--fl-scale));
-  height: calc(128px * var(--fl-scale));
+  left: calc(var(--sidebar-width) - 24px * var(--fl-scale) + var(--fl-x));
+  width: calc(24px * var(--fl-scale));
+  height: calc(63px * var(--fl-scale));
   transform: translateY(-50%);
   background: url(/images/frames/item_frame_epic.png) no-repeat;
   background-size: calc(512px * var(--fl-scale)) auto;
-  background-position: calc(-454px * var(--fl-scale)) calc(-196px * var(--fl-scale));
+  background-position: calc(-465px * var(--fl-scale)) calc(-225px * var(--fl-scale));
   pointer-events: none;
   z-index: 20;
 }
