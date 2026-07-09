@@ -310,7 +310,9 @@ body {
 .topbar {
   grid-area: topbar;
   background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-color);
+  /* UX refont: ornament the bottom edge only (width only on bottom). */
+  border-bottom: 14px solid transparent;
+  border-image: url(/images/frames/item_frame_uncommon.png) 55 stretch;
   display: flex;
   align-items: center;
   padding: 0 24px;
@@ -322,7 +324,11 @@ body {
 .sidebar {
   grid-area: sidebar;
   background: var(--bg-secondary);
-  border-right: 1px solid var(--border-color);
+  /* UX refont: ornament the inner edge. Width only on the right → border-image
+     draws just that side (the frame's plain double-rule, stretched vertically).
+     Tune the width (14px) / slice (55) once on screen. */
+  border-right: 14px solid transparent;
+  border-image: url(/images/frames/item_frame_uncommon.png) 55 stretch;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
