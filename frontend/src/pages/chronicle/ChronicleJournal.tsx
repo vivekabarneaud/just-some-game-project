@@ -130,6 +130,10 @@ export default function ChronicleJournal() {
               <div style={{
                 display: "grid",
                 "grid-template-columns": "repeat(auto-fill, minmax(260px, 1fr))",
+                // Equal-height cards across ALL rows (not just within a row):
+                // every implicit row is 1fr, and the content floor lifts them
+                // all to the tallest card's height.
+                "grid-auto-rows": "1fr",
                 gap: "12px",
               }}>
                 <For each={entries()}>
