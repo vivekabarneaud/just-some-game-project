@@ -1476,7 +1476,7 @@ export default function Farming() {
       {/* ── Gardens ── */}
       <h2 class="farming-section-title" style={{ "margin-top": "28px" }}>🥬 Gardens</h2>
       <LockedShell locked={!gardensUnlocked()} reason="Locked until your camp grows (Settlement chapter 2)">
-        <div class="gardens-grid">
+        <div class="fields-grid">
           <For each={state.gardens}>{(g) => <GardenCard garden={g} />}</For>
         </div>
       </LockedShell>

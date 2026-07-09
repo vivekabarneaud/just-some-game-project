@@ -3139,16 +3139,9 @@ body {
   margin-bottom: 16px;
 }
 
+/* All farming sections (fields, gardens, livestock, orchards) share this grid.
+   Roomy cards (min 320px) so the per-card stat boxes have space to breathe. */
 .fields-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-/* Gardens get roomier cards than fields — they carry more per-card detail
-   (sow/produce seasons, seed store, capacity), so they need space to breathe. */
-.gardens-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 14px;
@@ -4203,12 +4196,8 @@ body {
     height: 100px;
   }
 
-  /* Farming page uses the same card layout — apply the same grid + padding */
+  /* Farming page — one column on mobile so the roomy cards aren't squeezed */
   .fields-grid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 10px;
-  }
-  .gardens-grid {
     grid-template-columns: 1fr;
     gap: 10px;
   }
