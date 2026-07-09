@@ -593,7 +593,7 @@ body {
 .building-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: 0;
   padding: 16px;
   cursor: pointer;
   transition: all 0.15s;
@@ -616,7 +616,7 @@ body {
 .building-card-image {
   position: relative;
   margin: -16px -16px 10px -16px;
-  border-radius: 8px 8px 0 0;
+  border-radius: 0;
   overflow: hidden;
   height: 120px;
 }
@@ -1138,7 +1138,7 @@ body {
 .overview-panel {
   background: var(--bg-panel);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: 0;
   padding: 20px;
 }
 
@@ -1154,7 +1154,7 @@ body {
   background: linear-gradient(135deg, rgba(58, 44, 28, 0.95), rgba(42, 32, 18, 0.95));
   border: 1px solid rgba(180, 150, 100, 0.4);
   transition: border-color 2.5s ease; /* border eases with the weather mood */
-  border-radius: 10px;
+  border-radius: 0;
   padding: 20px 24px;
   margin-bottom: 20px;
   position: relative;
@@ -3189,7 +3189,7 @@ body {
 .field-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: 0;
   padding: 14px;
   position: relative;
 }
