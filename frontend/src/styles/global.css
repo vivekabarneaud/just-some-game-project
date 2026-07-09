@@ -360,32 +360,34 @@ body {
   position: relative;
 }
 
-/* UX refont: an ornament corner-piece at the one true frame corner — the
-   top-left of the content area, where the sidebar's right rule meets the top
-   bar's bottom rule (i.e. the top bar's own bottom-left corner). Cropped from
-   the epic frame's top-left star so its arms run along both rules, sitting ON
-   the junction rather than floating. The top bar is fixed (unlike the
-   scrolling sidebar/content), so its bottom-left is a stable anchor.
+/* UX refont: the epic frame's mid-edge flourish, centered on the sidebar's
+   RIGHT rule — a single ornament sitting ON the edge line (not floating). It's
+   cropped straight from the epic frame's right-edge center (source rect
+   454,196 → 502,324: the scroll motif + the double running line), so its line
+   lands on the sidebar's existing rule and the scrollwork bulges inward.
+   Fixed to the viewport (top:50%) so it stays put while the sidebar scrolls.
    Tunable knobs:
-     --corner-size  : rendered size of the ornament box
-     --corner-crop  : how many source px of the epic corner to capture
-     left / bottom  : nudge onto the exact junction
-   (left: -24px undoes the top bar's 24px left padding → reaches the junction x;
-    bottom drops the box below the bottom rule so the star sits in the corner.) */
-.topbar::before {
-  --corner-size: 46px;
-  --corner-crop: 82px;
+     --fl-scale : overall size (source window is 48x128px)
+     --fl-x     : horizontal nudge to sit exactly on the rule (+ = right)
+   Hidden on mobile, where the sidebar becomes a drawer (see @media below). */
+.sidebar::after {
+  --fl-scale: 0.75;
+  --fl-x: 0px;
   content: "";
-  position: absolute;
-  left: -24px;
-  bottom: calc(0px - var(--corner-size) - var(--ornament-w));
-  width: var(--corner-size);
-  height: var(--corner-size);
-  background: url(/images/frames/item_frame_epic.png) no-repeat 0 0;
-  /* scale the source so --corner-crop px of the top-left corner fill the box */
-  background-size: calc(512px * var(--corner-size) / var(--corner-crop)) auto;
+  position: fixed;
+  top: 50%;
+  left: calc(var(--sidebar-width) - 48px * var(--fl-scale) + var(--fl-x));
+  width: calc(48px * var(--fl-scale));
+  height: calc(128px * var(--fl-scale));
+  transform: translateY(-50%);
+  background: url(/images/frames/item_frame_epic.png) no-repeat;
+  background-size: calc(512px * var(--fl-scale)) auto;
+  background-position: calc(-454px * var(--fl-scale)) calc(-196px * var(--fl-scale));
   pointer-events: none;
-  z-index: 15;
+  z-index: 20;
+}
+@media (max-width: 768px) {
+  .sidebar::after { display: none; }
 }
 
 .content {
