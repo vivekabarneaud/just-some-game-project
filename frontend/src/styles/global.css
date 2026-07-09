@@ -46,6 +46,12 @@
      that margin (scaled: 11px * 26/34 ≈ 8px) so the drawn pixels sit flush
      against the sidebar/top-bar edge. Both flourishes shift by this too. */
   --chrome-rule-outset: 8px;
+  /* Card ornament frame (.ornament-frame): the uncommon frame's corner knots +
+     plain double edges as a 9-slice border. Thinner than the chrome rule so
+     cards read as a lighter tier; flush to the card edge via its own outset
+     (11px margin * 20/34 ≈ 6px). */
+  --card-frame-w: 20px;
+  --card-frame-outset: 6px;
   /* 66, not 60: the bottom ornament rule is a --chrome-rule-w border, so the
      extra 6px keeps the resources row the same height it had at a 20px border.
      Kept in sync with the sidebar's rule for a matched junction. */
@@ -1223,6 +1229,23 @@ body {
   border: 1px solid var(--border-color);
   border-radius: 0;
   padding: 20px;
+}
+
+/* UX refont: reusable card frame. The uncommon frame's corner knots + plain
+   double-line edges as a 9-slice border-image; slice 34 matches the chrome
+   rules (clears the corner, clean stretched edge), pushed flush to the card
+   edge past the PNG margin. Square by design so it sits inside the frame.
+   Add this class to any image-less card; framed image cards come later. */
+.ornament-frame {
+  border: var(--card-frame-w) solid transparent;
+  border-image: var(--ornament-src) 34 stretch;
+  border-image-outset: var(--card-frame-outset);
+  border-radius: 0;
+}
+/* The frame ring already insets content ~20px; trim the panel's own padding so
+   framed cards don't double up on empty margin. */
+.overview-panel.ornament-frame {
+  padding: 12px 16px;
 }
 
 .overview-panel h2 {

@@ -361,7 +361,7 @@ export default function Overview() {
       </Show>
 
       <div class="overview-grid">
-        <div class="overview-panel">
+        <div class="overview-panel ornament-frame">
           <h2>Production Overview</h2>
           <For each={RESOURCES}>
             {(res) => {
@@ -403,7 +403,7 @@ export default function Overview() {
           </div>
         </div>
 
-        <div class="overview-panel">
+        <div class="overview-panel ornament-frame">
           <h2>Building Activity</h2>
           <div class="stat-row" style={{ "margin-bottom": "8px" }}>
             <span class="stat-label">Queue</span>
@@ -437,7 +437,7 @@ export default function Overview() {
           </Show>
         </div>
 
-        <div class="overview-panel">
+        <div class="overview-panel ornament-frame">
           <h2>Top Buildings</h2>
           <For each={topBuildings()}>
             {(pb) => {
@@ -459,7 +459,7 @@ export default function Overview() {
           </div>
         </div>
 
-        <div class="overview-panel">
+        <div class="overview-panel ornament-frame">
           <h2>Settlement Status</h2>
           <div class="stat-row">
             <span class="stat-label">Settlement</span>
@@ -560,7 +560,7 @@ export default function Overview() {
         </div>
 
         {/* Threats & Defense — moves to top when raids incoming */}
-        <div class="overview-panel" style={{ order: hasThreats() ? -1 : 0 }}>
+        <div class="overview-panel ornament-frame" style={{ order: hasThreats() ? -1 : 0 }}>
           <h2>Threats & Defense</h2>
           <div class="stat-row">
             <span class="stat-label">Defense Score</span>
@@ -786,7 +786,7 @@ export default function Overview() {
 
         {/* Event Log */}
         <Show when={state.eventLog.length > 0}>
-          <div class="overview-panel">
+          <div class="overview-panel ornament-frame">
             <h2>Event Log</h2>
             <div style={{ "max-height": "300px", overflow: "auto" }}>
               <For each={state.eventLog.slice(0, 20)}>
