@@ -37,9 +37,13 @@
 
   /* Sizing */
   --sidebar-width: 220px;
-  /* 66, not 60: the bottom ornament rule is a 26px border (see .topbar), so
-     the extra 6px keeps the resources row the same height it had at a 20px
-     border. Kept in sync with the sidebar's 26px rule for a matched junction. */
+  /* The boldened ornament rule on the chrome edges is drawn as a transparent
+     border this wide (sidebar right + topbar bottom). Centralised so children
+     that must account for it (weather strip, event banner) stay in sync. */
+  --chrome-rule-w: 26px;
+  /* 66, not 60: the bottom ornament rule is a --chrome-rule-w border, so the
+     extra 6px keeps the resources row the same height it had at a 20px border.
+     Kept in sync with the sidebar's rule for a matched junction. */
   --topbar-height: 66px;
 
   /* Dim for locked/undiscovered cards. Uses filter (not opacity) so the card
@@ -342,7 +346,7 @@ body {
      26px/34 to match the sidebar rule exactly (see .sidebar): crisp ~1.5px
      line, corner (to y~33) cleared by the 34 slice. --topbar-height carries
      +6px to absorb this border. */
-  border-bottom: 26px solid transparent;
+  border-bottom: var(--chrome-rule-w) solid transparent;
   border-image: var(--ornament-src) 34 stretch;
   display: flex;
   align-items: center;
@@ -388,7 +392,7 @@ body {
      tighter slice against a 26px border renders the rule at ~1.5px (crisp),
      not the 0.7px hairline the 20/55 combo gave. This is the weight the
      mid-edge flourish (below) is matched to. */
-  border-right: 26px solid transparent;
+  border-right: var(--chrome-rule-w) solid transparent;
   border-image: var(--ornament-src) 34 stretch;
   display: flex;
   flex-direction: column;
@@ -4620,7 +4624,13 @@ body {
    and components/WeatherAmbience.tsx. Keep the topbar's real controls above it. */
 .weather-ambience {
   position: absolute;
-  inset: 0;
+  /* Not inset:0 — an abs-positioned child fills the PADDING box, which now
+     stops --chrome-rule-w short of the top bar's visual bottom (the ornament
+     rule is a border). Extend past it so the strip fills the whole bar. */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: calc(-1 * var(--chrome-rule-w));
   overflow: hidden;
   pointer-events: none;
   z-index: 0;
