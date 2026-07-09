@@ -1,4 +1,10 @@
 :root {
+  /* UX refont — one shared ornament band width + slice so every border-image
+     (cards, sidebar edge, top bar edge, later item frames) renders the gold
+     linework at the SAME weight. Tune here once. */
+  --ornament-w: 20px;
+  --ornament-slice: 55;
+  --ornament-src: url(/images/frames/item_frame_uncommon.png);
   /* Colors - dark medieval theme */
   --bg-primary: #1a1a2e;
   --bg-secondary: #16213e;
@@ -311,8 +317,8 @@ body {
   grid-area: topbar;
   background: var(--bg-secondary);
   /* UX refont: ornament the bottom edge only (width only on bottom). */
-  border-bottom: 14px solid transparent;
-  border-image: url(/images/frames/item_frame_uncommon.png) 55 stretch;
+  border-bottom: var(--ornament-w) solid transparent;
+  border-image: var(--ornament-src) var(--ornament-slice) stretch;
   display: flex;
   align-items: center;
   padding: 0 24px;
@@ -327,8 +333,8 @@ body {
   /* UX refont: ornament the inner edge. Width only on the right → border-image
      draws just that side (the frame's plain double-rule, stretched vertically).
      Tune the width (14px) / slice (55) once on screen. */
-  border-right: 14px solid transparent;
-  border-image: url(/images/frames/item_frame_uncommon.png) 55 stretch;
+  border-right: var(--ornament-w) solid transparent;
+  border-image: var(--ornament-src) var(--ornament-slice) stretch;
   display: flex;
   flex-direction: column;
   overflow-y: auto;

@@ -71,8 +71,8 @@ export default function RecipeCard(props: RecipeCardProps) {
         // THROWAWAY 9-slice card-frame trial (uncommon ornament: plain edges,
         // corner-only ornament). Tune the slice (55) / border-width (20px) once
         // it's on screen. Remove with the rest of the frame preview.
-        border: "20px solid transparent",
-        "border-image": "url(/images/frames/item_frame_uncommon.png) 55 stretch",
+        border: "var(--ornament-w) solid transparent",
+        "border-image": "var(--ornament-src) var(--ornament-slice) stretch",
       }}
     >
       <Show when={highlight()}>
