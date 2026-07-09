@@ -89,7 +89,7 @@ export default function ChronicleJournal() {
                 padding: "14px 18px",
                 background: "rgba(212, 163, 115, 0.08)",
                 border: "1px solid rgba(212, 163, 115, 0.25)",
-                "border-radius": "8px",
+                "border-radius": "0",
                 "margin-bottom": "14px",
               }}>
                 <div style={{
@@ -156,13 +156,15 @@ export default function ChronicleJournal() {
                       <div
                         id={`chronicle-entry-${entry.id}`}
                         class="building-card"
-                        classList={{ "chronicle-entry-card": unlocked(), dimmed: !unlocked() }}
+                        classList={{ "chronicle-entry-card": unlocked(), dimmed: !unlocked(), "ornament-frame": unlocked() }}
                         style={{
                           cursor: unlocked() ? "pointer" : "default",
                           transition: "transform 0.15s, filter 0.15s, border-color 0.25s, box-shadow 0.25s, background 0.25s",
+                          // Fresh highlight uses box-shadow + tint only (no
+                          // `border`, which would override the ornament frame's
+                          // border-width and kill the frame).
                           ...(fresh()
                             ? {
-                                border: "1px solid var(--accent-blue)",
                                 "box-shadow": "0 0 0 1px var(--accent-blue), 0 0 12px rgba(96, 165, 250, 0.25)",
                                 background: "rgba(96, 165, 250, 0.06)",
                               }

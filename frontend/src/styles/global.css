@@ -1249,6 +1249,10 @@ body {
 .overview-panel.ornament-frame {
   padding: 12px 16px;
 }
+/* Same padding trim for framed building-cards (e.g. Chronicle entry cards). */
+.building-card.ornament-frame {
+  padding: 12px 14px;
+}
 
 .overview-panel h2 {
   font-family: var(--font-heading);
