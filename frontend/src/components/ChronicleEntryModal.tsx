@@ -75,14 +75,14 @@ export default function ChronicleEntryModal(props: Props) {
   };
 
   // Parchment page look (UX refont): dark ink on aged paper, the texture's own
-  // edges ARE the border, so no gold frame here. Two portrait variants (one has
-  // a torn cut) picked deterministically per entry so pages feel handmade.
+  // edges ARE the border, so no gold frame here. The paged modal renders
+  // roughly square (short slides), so the SQUARE texture fits its aspect
+  // cleanly — a portrait texture cropped to a square box bled its darkened
+  // edges into view. Portrait variants are kept for a future tall layout.
   const INK = "#2a2012";
   const INK_STRONG = "#17100a";
   const INK_SOFT = "#6b5636";
-  const parchmentSrc = ([...props.entry.id].reduce((a, c) => a + c.charCodeAt(0), 0) % 2 === 0
-    ? "/images/parchment/parchment_page.png"
-    : "/images/parchment/parchment_page_cut.png");
+  const parchmentSrc = "/images/parchment/parchment_square.png";
 
   return (
     <div
