@@ -318,15 +318,19 @@ body {
    it into a written page. Wide texture, stretched so its edges sit at the box
    boundary. */
 .parchment-panel {
-  background: url(/images/parchment/parchment_wide.png) center / 100% 100% no-repeat !important;
+  background: url(/images/parchment/parchment_wide.png) center / cover no-repeat !important;
   border: none !important;
   border-radius: 0 !important;
-  color: #3a2e1c;
+  color: #2a2012 !important;
 }
-.parchment-panel h1, .parchment-panel h2, .parchment-panel h3, .parchment-panel h4 {
-  color: #241a0e;
+/* The parchment is light, and much of this text ships with a dark-theme grey
+   inline color — force a dark ink so it reads. !important beats the inline. */
+.parchment-panel h1, .parchment-panel h2, .parchment-panel h3, .parchment-panel h4,
+.parchment-panel .building-card-title {
+  color: #17100a !important;
 }
-.parchment-panel p, .parchment-panel .quest-narrative { color: #3a2e1c; }
+.parchment-panel p, .parchment-panel .quest-narrative,
+.parchment-panel .quest-header h2 { color: #2a2012 !important; }
 
 .topbar {
   grid-area: topbar;

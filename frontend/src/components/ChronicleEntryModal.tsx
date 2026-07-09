@@ -77,8 +77,8 @@ export default function ChronicleEntryModal(props: Props) {
   // Parchment page look (UX refont): dark ink on aged paper, the texture's own
   // edges ARE the border, so no gold frame here. Two portrait variants (one has
   // a torn cut) picked deterministically per entry so pages feel handmade.
-  const INK = "#3a2e1c";
-  const INK_STRONG = "#241a0e";
+  const INK = "#2a2012";
+  const INK_STRONG = "#17100a";
   const INK_SOFT = "#6b5636";
   const parchmentSrc = ([...props.entry.id].reduce((a, c) => a + c.charCodeAt(0), 0) % 2 === 0
     ? "/images/parchment/parchment_page.png"
