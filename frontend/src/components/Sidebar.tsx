@@ -325,7 +325,7 @@ export default function Sidebar(props: SidebarProps) {
                 onClick={startEditing}
                 style={{ cursor: "pointer" }}
               >
-                Village of {state.villageName} <span style={{ "font-size": "0.65rem", opacity: 0.5 }}>✏</span>
+                {(() => { const t = actions.getSettlementTier(); return t.charAt(0).toUpperCase() + t.slice(1); })()} of {state.villageName} <span style={{ "font-size": "0.65rem", opacity: 0.5 }}>✏</span>
               </div>
               </Tooltip>
             }>
