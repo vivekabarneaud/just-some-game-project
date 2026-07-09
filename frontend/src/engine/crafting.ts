@@ -19,6 +19,9 @@ export interface CraftingRecipe {
   costs: { resource: string; amount: number }[];
   produces: { resource: string; amount: number };
   craftTime: number; // game-seconds
+  /** Short flavor line shown on the recipe card (kitchen dishes especially, so
+   *  staples read as "food for the settlement" rather than a bare cost/output). */
+  description?: string;
   /** Explicit per-recipe tool requirement (overrides level-based gating) */
   requiredTool?: string;
   /** Hidden at its building until unlocked (pushed into state.discoveredRecipes,
@@ -664,10 +667,13 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
   // Slow simmers (10-15 game-min/batch) so passive cooking reads as a steady
   // trickle (~20/h) with multi-hour ingredient durations, not an absurd burst.
   { id: "porridge", name: "Porridge", icon: "🥣", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/porridge.png", building: "kitchen", minLevel: 1, kind: "meal",
+    description: "Plain boiled grain, warm and filling. A daily staple — keep a pot on and it feeds the settlement, stretching raw grain into more portions.",
     costs: [{ resource: "grain", amount: 2 }], produces: { resource: "porridge", amount: 4 }, craftTime: 600 },
   { id: "hearth_stew", name: "Hearth Stew", icon: "🍲", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/hearth_stew.png", building: "kitchen", minLevel: 1, kind: "meal",
+    description: "Meat and nuts simmered slow. A hearty staple that keeps the table full through a hard week — leave it on to feed the settlement.",
     costs: [{ resource: "meat", amount: 2 }, { resource: "nuts", amount: 2 }], produces: { resource: "hearth_stew", amount: 5 }, craftTime: 900 },
   { id: "river_stew", name: "River Stew", icon: "🍲", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/river_stew.png", building: "kitchen", minLevel: 1, kind: "meal",
+    description: "Fish and foraged berries in a thin, honest broth. A staple that stretches a lean larder to feed the settlement.",
     costs: [{ resource: "fish", amount: 2 }, { resource: "berries", amount: 1 }], produces: { resource: "river_stew", amount: 4 }, craftTime: 720 },
   // Ale is NOT a kitchen recipe — it's brewed at the Brewery and served from the
   // barrel as a stored-commodity menu drink (see TAVERN_COMMODITY_DRINKS + the
@@ -694,6 +700,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
   // chain calls unlockRecipe). Cultivated strawberries + honey; low level so the
   // reward is usable the moment it's earned. Hidden until discovered.
   { id: "strawberry_jam", name: "Strawberry Jam", icon: "🍓", building: "kitchen", minLevel: 1, kind: "dessert", requiresDiscovery: true,
+    description: "Cultivated strawberries preserved with honey. Not a staple, a small sweetness: a treat for the table that lifts the settlement's spirits.",
     costs: [{ resource: "strawberries", amount: 3 }, { resource: "honey", amount: 1 }], produces: { resource: "food", amount: 2 }, craftTime: 30 },
 
   // Town kitchen recipes (Lv 5-6) — complex multi-ingredient dishes
