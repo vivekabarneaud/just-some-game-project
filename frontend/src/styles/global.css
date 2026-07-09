@@ -37,7 +37,10 @@
 
   /* Sizing */
   --sidebar-width: 220px;
-  --topbar-height: 60px;
+  /* 66, not 60: the bottom ornament rule is a 26px border (see .topbar), so
+     the extra 6px keeps the resources row the same height it had at a 20px
+     border. Kept in sync with the sidebar's 26px rule for a matched junction. */
+  --topbar-height: 66px;
 
   /* Dim for locked/undiscovered cards. Uses filter (not opacity) so the card
      stays OPAQUE and the weather backdrop can't show through it. Gentle — only
@@ -335,15 +338,44 @@ body {
 .topbar {
   grid-area: topbar;
   background: var(--bg-secondary);
-  /* UX refont: ornament the bottom edge only (width only on bottom). */
-  border-bottom: var(--ornament-w) solid transparent;
-  border-image: var(--ornament-src) var(--ornament-slice) stretch;
+  /* UX refont: ornament the bottom edge only (width only on bottom). Local
+     26px/34 to match the sidebar rule exactly (see .sidebar): crisp ~1.5px
+     line, corner (to y~33) cleared by the 34 slice. --topbar-height carries
+     +6px to absorb this border. */
+  border-bottom: 26px solid transparent;
+  border-image: var(--ornament-src) 34 stretch;
   display: flex;
   align-items: center;
   padding: 0 24px;
   gap: 24px;
   position: relative;
   z-index: 10;
+}
+
+/* UX refont: the epic frame's bottom-edge center flourish (the exact transpose
+   of the sidebar's crop — source 225,465 -> 288,489), centered on the top bar's
+   bottom rule and pointing up into it. Same --fl-scale 0.76 as the sidebar, so
+   both edges wear the same motif at the same weight. The top bar doesn't scroll,
+   so this is absolutely positioned (no fixed needed). --fl-y default -13px drops
+   the box so its bottom butts the rule's inner line. */
+.topbar::after {
+  --fl-scale: 0.76;
+  --fl-y: -13px;
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: var(--fl-y);
+  width: calc(63px * var(--fl-scale));
+  height: calc(24px * var(--fl-scale));
+  transform: translateX(-50%);
+  background: url(/images/frames/item_frame_epic.png) no-repeat;
+  background-size: calc(512px * var(--fl-scale)) auto;
+  background-position: calc(-225px * var(--fl-scale)) calc(-465px * var(--fl-scale));
+  pointer-events: none;
+  z-index: 15;
+}
+@media (max-width: 768px) {
+  .topbar::after { display: none; }
 }
 
 .sidebar {
