@@ -239,10 +239,10 @@ function FieldCard(props: { field: PlayerField }) {
           </Show>
         }>
           <StatRow>
-            <StatBox label="Harvest">🍂 ~{harvestYield()} {crop()!.isFood ? "food" : "fiber"}</StatBox>
             <StatBox label="Soil" valColor={soilStatus().color}>
               {soilStatus().label}{props.field.restBonus ? " · 🌿 +15%" : ""}
             </StatBox>
+            <StatBox label="Harvest">🍂 ~{harvestYield()} {crop()!.isFood ? "food" : "fiber"}</StatBox>
           </StatRow>
         </Show>
       </Show>
@@ -523,9 +523,10 @@ function GardenCard(props: { garden: PlayerGarden }) {
   const seedBoxEl = (cap: number, dim: boolean) => (
     <WideBox dim={dim}>
       <SeedIcon id={veggie().id} size={16} />
-      <span style={{ "font-weight": 600, color: "var(--text-primary)" }}>{seedStock()}</span>
-      <span style={{ "font-size": "0.74rem", color: "var(--text-muted)" }}>
-        {veggie().name.toLowerCase()} seed in store · plot holds {cap}
+      <span style={{ "font-size": "0.8rem", color: "var(--text-secondary)" }}>
+        <b style={{ color: "var(--text-primary)" }}>{sownThisYear()}/{cap}</b> sown
+        {" · "}
+        <b style={{ color: "var(--text-primary)" }}>{seedStock()}</b> seed in store
       </span>
     </WideBox>
   );
@@ -818,13 +819,13 @@ function PenCard(props: { pen: PlayerPen }) {
         <div class="building-card-desc">{animal().description}</div>
         {/* Greyed preview of what a built pen would give */}
         <StatRow dim>
+          <StatBox label="Eats">{getPenProduction(animal(), 1).consumed.toFixed(0)}/h feed</StatBox>
           <StatBox label="Produces">
             +{getPenProduction(animal(), 1).produced}/h {animal().foodLabel.toLowerCase()}
             <Show when={getPenProduction(animal(), 1).secondary}>
               <span style={{ color: "var(--text-secondary)", "font-size": "0.78rem" }}> · +{getPenProduction(animal(), 1).secondary!.amount}/h {getPenProduction(animal(), 1).secondary!.resource}</span>
             </Show>
           </StatBox>
-          <StatBox label="Eats">{getPenProduction(animal(), 1).consumed.toFixed(0)}/h feed</StatBox>
         </StatRow>
       </div>
     }>
@@ -882,16 +883,16 @@ function PenCard(props: { pen: PlayerPen }) {
 
         <Show when={!props.pen.upgrading && props.pen.level > 0}>
           <StatRow>
-            <StatBox label="Produces">
-              +{prod().produced}/h {animal().foodLabel.toLowerCase()}
-              <Show when={prod().secondary}>
-                <span style={{ color: "var(--text-secondary)", "font-size": "0.78rem" }}> · +{prod().secondary!.amount}/h {prod().secondary!.resource}</span>
-              </Show>
-            </StatBox>
             <StatBox label="Eats" valColor={pantryNeed() > 0 ? undefined : "var(--accent-green)"}>
               {prod().consumed.toFixed(0)}/h feed
               <Show when={grazingCovered() > 0}>
                 <span style={{ color: "var(--accent-green)", "font-size": "0.78rem" }}> · 🌿 {grazingCovered().toFixed(0)} grazed</span>
+              </Show>
+            </StatBox>
+            <StatBox label="Produces">
+              +{prod().produced}/h {animal().foodLabel.toLowerCase()}
+              <Show when={prod().secondary}>
+                <span style={{ color: "var(--text-secondary)", "font-size": "0.78rem" }}> · +{prod().secondary!.amount}/h {prod().secondary!.resource}</span>
               </Show>
             </StatBox>
           </StatRow>
@@ -1014,8 +1015,8 @@ function HiveCard(props: { hive: PlayerHive }) {
         </div>
         {/* Greyed preview of what a built hive would give */}
         <StatRow dim>
-          <StatBox label="Produces">+{honeyPeak(1)}/h honey</StatBox>
           <StatBox label="Active in">{seasonList(activeSeasons(), false)}</StatBox>
+          <StatBox label="Produces">+{honeyPeak(1)}/h honey</StatBox>
         </StatRow>
       </div>
     }>
@@ -1052,8 +1053,8 @@ function HiveCard(props: { hive: PlayerHive }) {
 
         <Show when={!props.hive.upgrading && props.hive.level > 0}>
           <StatRow>
-            <StatBox label="Produces">+{honeyPeak(props.hive.level)}/h honey</StatBox>
             <StatBox label="Active in">{seasonList(activeSeasons(), false)}</StatBox>
+            <StatBox label="Produces">+{honeyPeak(props.hive.level)}/h honey</StatBox>
           </StatRow>
           <div style={{
             "font-size": "0.8rem", "text-align": "center", "margin-top": "8px",
@@ -1165,8 +1166,8 @@ function OrchardCard(props: { orchard: PlayerOrchard }) {
         {/* Greyed preview of what a planted orchard would give */}
         <StatRow dim>
           <StatBox label="Harvest in">{seasonList(fruitDef().harvestSeasons, false)}</StatBox>
-          <StatBox label="Yield">+{getOrchardRate(fruitDef(), 1)}/h fruit</StatBox>
           <StatBox label="Maturity">🌱 {fruitDef().maturationSeasons} seasons</StatBox>
+          <StatBox label="Yield">+{getOrchardRate(fruitDef(), 1)}/h fruit</StatBox>
         </StatRow>
       </div>
     }>
@@ -1220,10 +1221,10 @@ function OrchardCard(props: { orchard: PlayerOrchard }) {
         <Show when={!props.orchard.upgrading && props.orchard.level > 0}>
           <StatRow>
             <StatBox label="Harvest in">{seasonList(fruitDef().harvestSeasons, false)}</StatBox>
-            <StatBox label="Yield">+{getOrchardRate(fruitDef(), props.orchard.level)}/h fruit</StatBox>
             <StatBox label="Maturity">
               {props.orchard.mature ? "🌳 Mature" : `🌱 ${props.orchard.seasonsGrown}/${fruitDef().maturationSeasons}`}
             </StatBox>
+            <StatBox label="Yield">+{getOrchardRate(fruitDef(), props.orchard.level)}/h fruit</StatBox>
           </StatRow>
           <div style={{
             "font-size": "0.8rem", "text-align": "center", "margin-top": "8px",
