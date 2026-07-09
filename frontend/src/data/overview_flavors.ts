@@ -190,7 +190,7 @@ export const OVERVIEW_FLAVORS: OverviewFlavor[] = [
     triggers: [{
       type: "custom",
       check: (s) =>
-        s.completedUniqueMissionIds.includes("a_mothers_errand") &&
+        s.completedUniqueMissionIds.includes("hester_rescue") &&
         !s.completedUniqueMissionIds.includes("quiet_the_woods"),
     }],
     text: "Hester keeps to the tree line and her own silence. The woods past her are not yet quiet.",

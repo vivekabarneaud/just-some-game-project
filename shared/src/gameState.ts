@@ -280,6 +280,9 @@ export interface GameState {
   foods: Record<string, number>;
   /** Per-category population breakdown. Total via the citizens helper in
    *  frontend/src/data/citizens.ts. Replaces the old scalar `population`. */
+  /** Citizens assigned to work each production building (by buildingId), incl.
+   *  bench beyond capacity. Drawn from the shared adult pool. */
+  buildingWorkers?: Record<string, number>;
   citizens: {
     toddlers: number;
     children: number;

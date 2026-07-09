@@ -937,3 +937,39 @@ export function getBuildingImageById(id: string, level: number): string | undefi
   }
   return undefined;
 }
+
+// ─── Building staffing (Phase 1) ───────────────────────────────────
+// Coverage model: a building runs at full yield when its worker slots are
+// filled. Named staff fill slots — founders never leave; adventurers leave
+// when deployed. Kids are FLAVOR (0 slots). The player benches citizens to
+// cover gaps. Output FLOORS at the previous level's full yield, so leveling
+// never nerfs — it opens capacity you realize by staffing. See
+// getBuildingStaffing() in gameState. Only buildings in BUILDING_STAFF are
+// affected; everything else stays at 100% untouched.
+export const STAFF_CAPACITY_BY_LEVEL = [1, 1, 2, 3, 5, 10] as const;
+export function staffCapacity(level: number): number {
+  if (level <= 0) return 0;
+  return STAFF_CAPACITY_BY_LEVEL[Math.min(level, STAFF_CAPACITY_BY_LEVEL.length) - 1];
+}
+
+/** An unstaffed level-1 building still limps along at this fraction (there's no
+ *  prior level to floor at). "The folk pitch in." */
+export const STAFF_LVL1_FLOOR = 0.5;
+
+export interface BuildingStaffConfig {
+  founders?: string[];    // founding_characters ids — always present
+  adventurers?: string[]; // premade ids — present unless deployed
+  kids?: string[];        // flavor labels only (0 slots)
+}
+
+export const BUILDING_STAFF: Record<string, BuildingStaffConfig> = {
+  lumber_mill: { founders: ["jory"] },
+  quarry: { founders: ["tomas"] },
+  forager_hut: { founders: ["edda"], kids: ["Nell"] },
+  hunting_camp: { adventurers: ["char_000"] },                              // Brenna
+  fishing_hut: { adventurers: ["char_021"], kids: ["the Thornwood boy"] },  // Godric
+};
+
+export function isStaffable(buildingId: string): boolean {
+  return buildingId in BUILDING_STAFF;
+}

@@ -57,7 +57,12 @@ import {
   applyMasonTimeReduction,
   type MasonBonuses,
   getTierPrerequisitesMet,
+  BUILDING_STAFF,
+  staffCapacity,
+  STAFF_LVL1_FLOOR,
+  isStaffable,
 } from "~/data/buildings";
+import { FOUNDING_CHARACTERS } from "~/data/founding_characters";
 import {
   getWallCost,
   getWatchtowerCost,
@@ -197,6 +202,7 @@ import {
   getOriginsForGuildLevel,
   BACKSTORY_TRAITS,
   PERSONALITY_QUIRKS,
+  getPortraitUrl,
 } from "@medieval-realm/shared/data/adventurers";
 import { PREMADE_CHARACTERS } from "@medieval-realm/shared/data/premade-characters";
 import { getNpcAlly } from "@medieval-realm/shared/data/npcs";
@@ -478,6 +484,9 @@ export interface GameState {
   /** Per-category population breakdown. Read totals via totalPopulation();
    *  combat eligibility is `citizens.adults`. See data/citizens.ts. */
   citizens: CitizenCounts;
+  /** Citizens assigned to work each production building (by buildingId), incl.
+   *  bench beyond capacity. Drawn from the shared adult pool. */
+  buildingWorkers?: Record<string, number>;
   /** "The household" — named, protected residents (founders + named arrivals
    *  like the Thornwood boy), by age. A subset of `citizens`: it's the death
    *  floor (RNG never kills named folk) and the reserve that stays out of the
@@ -720,6 +729,14 @@ export interface GameActions {
   toggleBrewingPaused: (drinkId: string) => void;
   /** Whether a commodity drink is currently paused at the Brewery. */
   isBrewingPaused: (drinkId: string) => boolean;
+  /** Staffing readout for a production building (capacity, named staff, active,
+   *  coverage multiplier) — powers the Manage modal + the coverage tick. */
+  getBuildingStaffing: (buildingId: string) => BuildingStaffing;
+  /** Assign one townsfolk (from the shared adult pool) to a building's staff,
+   *  incl. bench beyond capacity. Returns false if no adult is spare. */
+  assignBuildingWorker: (buildingId: string) => boolean;
+  /** Pull one assigned townsfolk off a building (back to the pool). */
+  unassignBuildingWorker: (buildingId: string) => boolean;
   /** Assign N adults to serve at the tavern (clamped to available adults + slots). */
   setTavernServers: (n: number) => void;
   /** Set the tavern pricing lever. */
@@ -1026,6 +1043,7 @@ export function createInitialState(): GameState {
     // Bio-accurate founder mapping: Edda + Father Corin elderly,
     // Jory + Tomas adults, Nell child. See docs/DESIGN_CITIZEN_CATEGORIES.md.
     citizens: founderCitizens(),
+    buildingWorkers: {},
     namedResidents: founderHousehold(),
     // Defenses: 3 unbuilt slots per type (one per ring). All locked behind
     // settlement tier in the UI; only Outer is buildable from Camp.
@@ -1209,6 +1227,7 @@ export function migrateSaveState(saved: GameState): GameState {
     // "The household" (named/protected residents). Legacy saves predate it —
     // seed the founder composition. Named arrivals that already happened aren't
     // reconstructed (alpha: disposable saves); a fresh game is exact.
+    if (!(saved as any).buildingWorkers) (saved as any).buildingWorkers = {};
     if (!(saved as any).namedResidents) {
       (saved as any).namedResidents = founderHousehold();
     }
@@ -1993,6 +2012,64 @@ export function isForagerBlooming(state: GameState): boolean {
 
 // ─── Derived calculations ────────────────────────────────────────
 
+export interface BuildingStaffMember {
+  id?: string;
+  name: string;
+  kind: "founder" | "adventurer";
+  present: boolean;
+  reason?: string;      // why absent (e.g. "away on a mission")
+  portrait?: string;
+}
+export interface BuildingStaffing {
+  staffable: boolean;
+  capacity: number;
+  named: BuildingStaffMember[];
+  kids: string[];       // flavour labels, 0 slots
+  citizens: number;     // assigned townsfolk (incl. bench)
+  active: number;       // present-named + citizens, capped at capacity
+  multiplier: number;   // production multiplier (floored at prev level's full)
+}
+
+/** Coverage-model staffing for a production building. Founders are always
+ *  present; adventurers are present unless deployed. Output floors at the
+ *  previous level's full yield, so leveling never nerfs. Non-staffable
+ *  buildings return multiplier 1 (untouched). */
+function getBuildingStaffing(s: GameState, buildingId: string, level: number): BuildingStaffing {
+  const cfg = BUILDING_STAFF[buildingId];
+  if (!cfg || level <= 0) {
+    return { staffable: false, capacity: 0, named: [], kids: [], citizens: 0, active: 0, multiplier: 1 };
+  }
+  const capacity = staffCapacity(level);
+  const named: BuildingStaffMember[] = [];
+  for (const fid of cfg.founders ?? []) {
+    const f = FOUNDING_CHARACTERS.find((x) => x.id === fid);
+    named.push({ id: fid, name: f?.name ?? fid, kind: "founder", present: true, portrait: f?.portrait });
+  }
+  for (const aid of cfg.adventurers ?? []) {
+    const adv = s.adventurers.find((a) => a.premadeId === aid && a.alive);
+    const present = !!adv && !adv.onMission;
+    named.push({
+      id: aid, name: adv?.name ?? aid, kind: "adventurer", present,
+      reason: !adv ? "not yet arrived" : adv.onMission ? `${adv.name} is away on a mission` : undefined,
+      portrait: adv ? getPortraitUrl(adv) : undefined,
+    });
+  }
+  const presentNamed = named.filter((n) => n.present).length;
+  const citizens = s.buildingWorkers?.[buildingId] ?? 0;
+  const active = Math.min(presentNamed + citizens, capacity);
+  const raw = capacity > 0 ? active / capacity : 1;
+  // Floor at the previous level's full yield (or the lvl-1 "folk pitch in" floor).
+  let floor = STAFF_LVL1_FLOOR;
+  if (level > 1) {
+    const def = BUILDINGS.find((b) => b.id === buildingId);
+    const cur = def?.levels[level - 1]?.production?.rate ?? 0;
+    const prev = def?.levels[level - 2]?.production?.rate ?? 0;
+    floor = cur > 0 ? Math.min(1, prev / cur) : STAFF_LVL1_FLOOR;
+  }
+  const multiplier = Math.max(floor, Math.min(1, raw));
+  return { staffable: true, capacity, named, kids: cfg.kids ?? [], citizens, active, multiplier };
+}
+
 function calcProductionRates(state: GameState): { gold: number; wood: number; stone: number; food: number } {
   const { buildings, fields, gardens, pens, citizens, season, seasonElapsed } = state;
   const rates = { gold: 0, wood: 0, stone: 0, food: 0 };
@@ -2025,6 +2102,10 @@ function calcProductionRates(state: GameState): { gold: number; wood: number; st
           ? (foragerSeasonMod[season] ?? 1)
           : (foodSeasonMod[season] ?? 1);
         rate = Math.floor(rate * mod);
+      }
+      // Staff coverage — 1 for non-staffable buildings, floored for staffed ones.
+      if (isStaffable(pb.buildingId)) {
+        rate = Math.floor(rate * getBuildingStaffing(state, pb.buildingId, pb.level).multiplier);
       }
       if (res in rates) rates[res] += rate;
     }
@@ -2207,6 +2288,11 @@ function calcFoodRates(state: GameState, fedRatios?: Map<string, number>): Recor
     } else if (pb.buildingId === "fishing_hut") {
       rate = Math.floor(rate * (foodSeasonMod[season] ?? 1));
       target = "fish";
+    }
+    // Staff coverage — deploying the building's adventurer (or an empty slot)
+    // dips output toward the floor; a benched citizen restores it.
+    if (target && isStaffable(pb.buildingId)) {
+      rate = Math.floor(rate * getBuildingStaffing(state, pb.buildingId, pb.level).multiplier);
     }
     if (target) rates[target] += rate;
   }
@@ -5211,6 +5297,30 @@ export function GameProvider(props: ParentProps) {
     },
     isBrewingPaused(drinkId: string) {
       return state.brewingPaused?.[drinkId] ?? false;
+    },
+
+    getBuildingStaffing(buildingId: string) {
+      const pb = state.buildings.find((b) => b.buildingId === buildingId);
+      return getBuildingStaffing(state, buildingId, pb?.level ?? 0);
+    },
+    assignBuildingWorker(buildingId: string) {
+      if (!isStaffable(buildingId)) return false;
+      if (availableCitizens(state) <= 0) return false;
+      setState(produce((s) => {
+        if (!s.buildingWorkers) s.buildingWorkers = {};
+        s.buildingWorkers[buildingId] = (s.buildingWorkers[buildingId] ?? 0) + 1;
+      }));
+      scheduleSave();
+      return true;
+    },
+    unassignBuildingWorker(buildingId: string) {
+      if ((state.buildingWorkers?.[buildingId] ?? 0) <= 0) return false;
+      setState(produce((s) => {
+        if (!s.buildingWorkers) s.buildingWorkers = {};
+        s.buildingWorkers[buildingId] = Math.max(0, (s.buildingWorkers[buildingId] ?? 0) - 1);
+      }));
+      scheduleSave();
+      return true;
     },
 
     setTavernMenu(dishIds: string[]) {

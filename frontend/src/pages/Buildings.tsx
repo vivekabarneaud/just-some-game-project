@@ -1,7 +1,8 @@
 import { For, Show, onMount, createSignal } from "solid-js";
 import { A } from "@solidjs/router";
 import BreweryManageModal from "~/components/BreweryManageModal";
-import { BUILDINGS, isBuildingUnlocked, isBuildingChapterUnlocked, getUnlockRequirement, getUnlockReasons, getUnlockConditions, getNextLevelRequirement, applyMasonCostReduction, applyMasonTimeReduction, getTierPrerequisitesMet, getRepairCost, getBuildingImage, PANIC_BUILD_IDS, PANIC_BUILD_SHARD_COST, type BuildingDefinition } from "~/data/buildings";
+import StaffManageModal from "~/components/StaffManageModal";
+import { BUILDINGS, isBuildingUnlocked, isBuildingChapterUnlocked, getUnlockRequirement, getUnlockReasons, getUnlockConditions, getNextLevelRequirement, applyMasonCostReduction, applyMasonTimeReduction, getTierPrerequisitesMet, getRepairCost, getBuildingImage, isStaffable, PANIC_BUILD_IDS, PANIC_BUILD_SHARD_COST, type BuildingDefinition } from "~/data/buildings";
 import { QUEST_DEFINITIONS, isQuestActive } from "~/data/quests";
 import { useGame, isForagerBlooming, RAIN_FORAGE_MUSHROOM_FRACTION } from "~/engine/gameState";
 import { playSound } from "~/engine/sounds";
@@ -23,6 +24,7 @@ export default function Buildings() {
   const { state, actions } = useGame();
   const thLevel = () => actions.getTownHallLevel();
   const [manageBrewery, setManageBrewery] = createSignal(false);
+  const [manageStaff, setManageStaff] = createSignal<string | null>(null);
 
   onMount(() => {
     const hash = window.location.hash;
@@ -66,6 +68,9 @@ export default function Buildings() {
     <div>
       <Show when={manageBrewery()}>
         <BreweryManageModal onClose={() => setManageBrewery(false)} />
+      </Show>
+      <Show when={manageStaff()}>
+        {(id) => <StaffManageModal buildingId={id()} onClose={() => setManageStaff(null)} />}
       </Show>
       <h1 class="page-title">Buildings</h1>
       <div style={{
@@ -520,6 +525,24 @@ export default function Buildings() {
                             ⚙ Manage brewing
                           </button>
                         )}
+                        {isStaffable(building.id) && level() > 0 && (() => {
+                          const st = () => actions.getBuildingStaffing(building.id);
+                          const short = () => st().active < st().capacity;
+                          return (
+                            <button
+                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setManageStaff(building.id); }}
+                              style={{
+                                "margin-top": "6px", padding: "5px 10px", "font-size": "0.78rem",
+                                background: "transparent",
+                                border: `1px solid ${short() ? "var(--accent-red)" : "var(--border-color)"}`,
+                                color: short() ? "var(--accent-red)" : "var(--text-secondary)",
+                                "border-radius": "4px", cursor: "pointer", "align-self": "flex-start",
+                              }}
+                            >
+                              ⚙ Manage staff · {st().active}/{st().capacity}
+                            </button>
+                          );
+                        })()}
                         {pb()?.damaged && (
                           <div style={{ display: "flex", "align-items": "center", "justify-content": "space-between", gap: "8px" }}>
                             <div class="building-card-upgrading" style={{ color: "var(--accent-red)" }}>
