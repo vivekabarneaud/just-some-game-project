@@ -440,21 +440,6 @@ function GardenCard(props: { garden: PlayerGarden }) {
     return null;
   };
 
-  // "Plant in 🌸 · Produces in ☀️ 🍂" — the "Plant in" part is highlighted green
-  // when we're currently in a plantable season, red otherwise. Helps the player
-  // see at a glance whether they can sow this veggie right now.
-  const renderCycleHint = () => (
-    <>
-      <span style={{
-        color: inPlantSeason() ? "var(--accent-green)" : "var(--accent-red)",
-        "font-weight": 600,
-      }}>
-        Plant in {veggie().plantSeasons.map((s) => SEASON_META[s].icon).join(" ")}
-      </span>
-      {" · Produces in "}
-      {veggie().produceSeasons.map((s) => SEASON_META[s].icon).join(" ")}
-    </>
-  );
 
   const showUpgradeIndicator = () =>
     !props.garden.upgrading &&
@@ -482,6 +467,35 @@ function GardenCard(props: { garden: PlayerGarden }) {
     "letter-spacing": "0.6px", "margin-bottom": "3px",
   };
   const statVal = { "font-size": "0.95rem", "font-weight": 600 as const };
+
+  // Season fact-boxes + seed-store box, shared by the built and unbuilt cards so
+  // they can't drift. `dim` greys them out for the not-yet-built preview.
+  const seasonBoxes = (rate: number, dim: boolean) => (
+    <div style={{ display: "flex", gap: "8px", "margin-top": "10px", opacity: dim ? "0.55" : "1" }}>
+      <div style={statBox}>
+        <div style={statLabel}>Sow in</div>
+        <div style={{ ...statVal, color: !dim && inPlantSeason() ? "var(--accent-green)" : "var(--text-secondary)" }}>
+          {veggie().plantSeasons.map((s) => `${SEASON_META[s].icon} ${SEASON_META[s].name}`).join(" / ")}
+        </div>
+      </div>
+      <div style={statBox}>
+        <div style={statLabel}>Produces</div>
+        <div style={statVal}>
+          {veggie().produceSeasons.map((s) => SEASON_META[s].icon).join(" ")}
+          <span style={{ color: dim ? "var(--text-muted)" : "var(--accent-green)", "margin-left": "6px" }}>+{rate}/h</span>
+        </div>
+      </div>
+    </div>
+  );
+  const seedBoxEl = (cap: number, dim: boolean) => (
+    <div style={{ ...statBox, "margin-top": "8px", display: "flex", "align-items": "center", "justify-content": "center", gap: "6px", "flex-wrap": "wrap", opacity: dim ? "0.55" : "1" }}>
+      <SeedIcon id={veggie().id} size={16} />
+      <span style={{ "font-weight": 600, color: "var(--text-primary)" }}>{seedStock()}</span>
+      <span style={{ "font-size": "0.74rem", color: "var(--text-muted)" }}>
+        {veggie().name.toLowerCase()} seed in store · plot holds {cap}
+      </span>
+    </div>
+  );
 
   return (
     <Show when={!locked()} fallback={
@@ -538,9 +552,10 @@ function GardenCard(props: { garden: PlayerGarden }) {
         </Show>
 
         <div class="building-card-desc">{veggie().description}</div>
-        <div style={{ "font-size": "0.7rem", color: "var(--text-muted)" }}>
-          {renderCycleHint()}
-        </div>
+        {/* Same stat boxes as a built plot, greyed — previews the sow/produce
+            seasons and the yield-and-capacity you'd get once it's raised. */}
+        {seasonBoxes(getEffectiveGardenRate(veggie(), 1, getSeedCapacity(1)), true)}
+        {seedBoxEl(getSeedCapacity(1), true)}
       </div>
     }>
       <div class="building-card" classList={{ upgrading: props.garden.upgrading }} style={{ cursor: "default", position: "relative" }}>
@@ -592,33 +607,13 @@ function GardenCard(props: { garden: PlayerGarden }) {
 
         {/* ── The two season facts, each in its own box so they breathe ── */}
         <Show when={!props.garden.upgrading}>
-          <div style={{ display: "flex", gap: "8px", "margin-top": "10px" }}>
-            <div style={statBox}>
-              <div style={statLabel}>Sow in</div>
-              <div style={{ ...statVal, color: inPlantSeason() ? "var(--accent-green)" : "var(--text-secondary)" }}>
-                {veggie().plantSeasons.map((s) => `${SEASON_META[s].icon} ${SEASON_META[s].name}`).join(" / ")}
-              </div>
-            </div>
-            <div style={statBox}>
-              <div style={statLabel}>Produces</div>
-              <div style={statVal}>
-                {veggie().produceSeasons.map((s) => SEASON_META[s].icon).join(" ")}
-                <span style={{ color: "var(--accent-green)", "margin-left": "6px" }}>+{effRate()}/h</span>
-              </div>
-            </div>
-          </div>
+          {seasonBoxes(effRate(), false)}
         </Show>
 
         {/* ── Seed store vs plot capacity — the actionable pair, grouped with
             the Sow button below it ── */}
         <Show when={!props.garden.upgrading && props.garden.level > 0}>
-          <div style={{ ...statBox, "margin-top": "8px", display: "flex", "align-items": "center", "justify-content": "center", gap: "6px", "flex-wrap": "wrap" }}>
-            <SeedIcon id={veggie().id} size={16} />
-            <span style={{ "font-weight": 600, color: "var(--text-primary)" }}>{seedStock()}</span>
-            <span style={{ "font-size": "0.74rem", color: "var(--text-muted)" }}>
-              {veggie().name.toLowerCase()} seed in store · plot holds {capacity()}
-            </span>
-          </div>
+          {seedBoxEl(capacity(), false)}
         </Show>
 
         {/* Current-state nudge sits right above the button (e.g. "Time to plant
