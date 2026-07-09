@@ -236,6 +236,10 @@ export default function Sidebar(props: SidebarProps) {
       return null;
     }
     if (path === "/guild") {
+      // No guild nudges before the hall is raised — the roster page only shows
+      // "build the guild" until then, so any "new!"/"coop!" ping dead-ends there
+      // (the Thornwoods can arrive and staff their camps pre-guild).
+      if ((state.buildings.find((b) => b.buildingId === "adventurers_guild")?.level ?? 0) < 1) return null;
       if (incomingCoopInvites() > 0) return { color: "var(--accent-blue)", text: "coop!" };
       if (actions.hasNewAdventurers()) return { color: "var(--accent-blue)", text: "new!" };
       if (actions.hasNewGuildContent()) return { color: "var(--accent-blue)", text: "new!" };
