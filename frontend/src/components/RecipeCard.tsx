@@ -84,12 +84,20 @@ export default function RecipeCard(props: RecipeCardProps) {
             ? <img src={props.image} alt="" style={{ width: "40px", height: "40px", "object-fit": "cover", "border-radius": "6px", "flex-shrink": "0" }} />
             : <div class="building-card-icon">{props.icon}</div>
         }>
-          {/* Framed icon (throwaway rarity-frame preview) */}
-          <div style={{ position: "relative", width: "56px", height: "56px", "flex-shrink": "0", display: "grid", "place-items": "center" }}>
+          {/* Framed icon — 9-slice border-image (not a scaled overlay), so the
+              ornament line weight stays crisp at icon size instead of shrinking
+              to nothing. Border-width sets the thickness; the corner slice (55)
+              is fixed. (Only the corner-frames 9-slice cleanly; the edge-
+              ornamented tiers will stretch their edge motif — that's the point,
+              it shows which frames belong in a 9-slice system.) */}
+          <div style={{
+            width: "58px", height: "58px", "flex-shrink": "0", display: "grid", "place-items": "center",
+            border: "10px solid transparent",
+            "border-image": `url(${props.frameUrl}) 55 stretch`,
+          }}>
             {props.image
-              ? <img src={props.image} alt="" style={{ width: "34px", height: "34px", "object-fit": "cover", "border-radius": "4px" }} />
-              : <span style={{ "font-size": "1.5rem", "line-height": "1" }}>{props.icon}</span>}
-            <img src={props.frameUrl} alt="" aria-hidden="true" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", "pointer-events": "none" }} />
+              ? <img src={props.image} alt="" style={{ width: "32px", height: "32px", "object-fit": "cover", "border-radius": "3px" }} />
+              : <span style={{ "font-size": "1.4rem", "line-height": "1" }}>{props.icon}</span>}
           </div>
         </Show>
         <div>
