@@ -1364,6 +1364,12 @@ export function migrateSaveState(saved: GameState): GameState {
     if (!(saved as any).seedsUnlocked) {
       (saved as any).seedsUnlocked = startingUnlockedSeeds();
     }
+    // Lavender became a specialty (acquired) crop — clear any legacy free
+    // starter stock from saves that got it before the flip, unless the player
+    // has since unlocked it for real. Idempotent; safe to delete post-alpha.
+    if (!(saved as any).seedsUnlocked.includes("lavender")) {
+      (saved as any).seeds.lavender = 0;
+    }
     if (!saved.pens) saved.pens = [];
     if (!saved.hives) saved.hives = [];
     if (!saved.orchards) saved.orchards = [];

@@ -110,8 +110,10 @@ export const VEGGIES: VeggieDefinition[] = [
     seedCost: 6,
     baseRate: 3,
     // image/seedImage: garden_lavender.png + lavender_seed.png to come; falls back to the 🪻 icon.
-    // NOTE (slice 1): not yet `specialty` — sowable from the start until the
-    // market "buy seed" gate lands (slice 2), which makes it Meridian-acquired.
+    // Specialty: acquired, not free from the start (a Meridian trade / quest,
+    // to be wired — see the strawberry questline pattern). Locked "???" plot
+    // until its seed is earned.
+    specialty: true,
   },
 ];
 
