@@ -27,6 +27,19 @@ export interface ChronicleEntry {
   cinematicId?: string;
 }
 
+/** Split an entry's fullText into authored slides for the paged modal. A
+ *  paragraph consisting only of "---" is a page-turn; everything between markers
+ *  is one slide (an array of paragraphs). Entries with no marker return a single
+ *  slide (the whole entry), so the view is unchanged for short entries. */
+export function splitChronicleSlides(fullText: string): string[][] {
+  const groups: string[][] = [[]];
+  for (const p of fullText.split("\n\n")) {
+    if (p.trim() === "---") { groups.push([]); continue; }
+    groups[groups.length - 1].push(p);
+  }
+  return groups.filter((g) => g.length > 0);
+}
+
 // ─── Chapters ────────────────────────────────────────────────────
 
 export const CHRONICLE_CHAPTERS: ChronicleChapter[] = [
@@ -110,6 +123,7 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "The team came back from the old watch with a tin chest. They were tired but unhurt. Tomas walked them up to my tent himself and stayed while they set the chest on the long table. They told me they had pushed a little further south while they had the daylight: the trees go strange about three days down, they said. They had not walked that far. They felt it from a ridge.\n\n" +
       "The chest held a journal. The name on the cover is Captain Vardin Hale, of a Crown garrison whose seal I cannot place. Folded beneath it was something else: a small square of cloth, a child's first try at stitching, a few uneven flowers, no name. I set it aside before I began to read.\n\n" +
       "I read it alone, by candle, after the others had gone to bed.\n\n" +
+      "---\n\n" +
       "The first entries are clean. Day one: posting accepted. Three sections of the southern barracks need re-roofing before winter. Hale wrote in a clean clerical hand. He was not a soldier who had given up on writing.\n\n" +
       "Day thirteen, his first strange entry. Sergeant Marrick reported on south-watch that he had heard his brother calling him from the tree-line. Marrick's brother died at sea fifteen years ago. Hale recorded the report and told Marrick to drink less.\n\n" +
       "Day fifteen, Marrick is gone. Bunk cold. Boots gone.\n\n" +
@@ -122,11 +136,13 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "Day forty-five. Two lines.\n\n" +
       "'I heard Ennara again today. I am going to her.'\n\n" +
       "Then nothing. The journal stops.\n\n" +
+      "---\n\n" +
       "I sat with the page open for a long time. I do not know what I have just read.\n\n" +
       "The men heard the dead. The voices called by name. They walked through barred gates at midnight. They walked at noon in plain daylight, calmly, where the others could see them go. Hale records all of this with the patience of a man who hopes the next page will explain. The next page never does.\n\n" +
       "What kind of plague does this? What kind of madness travels through walls and calls a man's brother by name? I do not know. I do not think Hale knew either. He kept writing because writing was what he could still do.\n\n" +
       "There is one more thing I cannot place. Hale wrote his garrison stood seven days' march from the Hollow Wastes. His gate is the old watch. My team felt the wrongness three days south of it.\n\n" +
       "A captain does not miscount a march. My team are not soldiers but they have eyes. I will send them back tomorrow to count the days honestly.\n\n" +
+      "---\n\n" +
       "I went back to the folded cloth before I closed the chest. It was hers. Of course it was hers.\n\n" +
       "The rest I cannot place. I will sleep on it, if I manage to sleep at all.",
     cinematicId: "story_2_ruins",
@@ -142,6 +158,7 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "She had walked them home from a fight they should not have survived. Two of them are bandaged tonight. They came up to the gate at dusk, and behind them was a woman in dark green, a bow across her back, the long ears and moss-grey hair of the Silvaneth. I had not stood near an elf before.\n\n" +
       "She introduced herself as Niamh, Warden of the Thornveil Rangers. She said she had business to discuss. She said it the way a stonemason says the wall needs a new course before winter. No warmth. No apology. Just the fact.\n\n" +
       "I sat her down at the long table. Edda put a cup of chamomile in front of her. Niamh wrapped her hands around it and drank slowly.\n\n" +
+      "---\n\n" +
       "The team told me what happened. They had walked past the old watch, south, counting their steps the way I had asked them to. The trees went quiet a little less than three days down. They felt it before they heard it. Then they heard a man's voice in the trees, calling a name they did not know.\n\n" +
       "'Ennara,' they said.\n\n" +
       "I put my hand on the journal that was still open on the desk where I had left it last night. I did not need to move it.\n\n" +
@@ -157,6 +174,7 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "I told her I wished I could carry it myself, but the village needs me here.\n\n" +
       "'And you cannot fight,' she said. 'You would be a liability.'\n\n" +
       "I think she meant it kindly.\n\n" +
+      "---\n\n" +
       "I asked her how far the Wastes really were. She said she did not know. Her work is at the edge, she said. The edge is where the dead are still close enough to be heard. The Wastes lie further. She does not go there.\n\n" +
       "I asked her another thing. The captain heard the voices at his garrison. We have walked his ground twice now and not heard them. She was quiet for a moment, looking into her cup.\n\n" +
       "'There are two wards near the old watch,' she said. 'Standing stones, older than us, set into the land where you would not see them. One north of the tower, one south. Together they hold the edge back from where you live, and from the road between.'\n\n" +
@@ -164,6 +182,7 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "Then she said the captain had camped in the gap between them. 'The south stone broke around the time his company came. The line of women who kept it had thinned to nothing, and an unkept ward cracks like an unkept roof. The north stone held, but one stone keeps one circle, and his walls stood past the reach of it. He felt what a broken ward fails to keep.'\n\n" +
       "She set down her cup. 'My grandmother's teacher reset the south stone after he fell. We have kept the pair since. Old things end.'\n\n" +
       "She drank her tea.\n\n" +
+      "---\n\n" +
       "When she stood to leave I asked where she was sleeping. She said the trees were fine.\n\n" +
       "'Three days,' she said again, and was gone.\n\n" +
       "I do not know what I am dealing with. I know she did not have to walk my team home. I know she did not have to tell me what she told me tonight. I know she could have left me to read Hale's journal alone for the rest of my life and never appeared at my gate.\n\n" +

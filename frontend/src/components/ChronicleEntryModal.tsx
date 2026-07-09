@@ -6,7 +6,7 @@
 // Extracted from ChronicleJournal.tsx so it can be opened from anywhere.
 
 import { For, Show, createSignal, onMount } from "solid-js";
-import type { ChronicleEntry } from "~/data/chronicle_entries";
+import { type ChronicleEntry, splitChronicleSlides } from "~/data/chronicle_entries";
 import { useGame } from "~/engine/gameState";
 import { playSound } from "~/engine/sounds";
 
@@ -17,14 +17,30 @@ interface Props {
 
 export default function ChronicleEntryModal(props: Props) {
   const { actions } = useGame();
-  const paragraphs = () => props.entry.fullText.split("\n\n");
+  // Authored slides: a paragraph that is just "---" marks a page-turn. Entries
+  // with no marker parse to a single slide (unchanged from the old scroll view);
+  // long, dramatic entries turn like journal pages, landing a beat per page.
+  const slides = () => splitChronicleSlides(props.entry.fullText);
+  const [slide, setSlide] = createSignal(0);
+  const slideCount = () => slides().length;
+  const current = () => slides()[Math.min(slide(), slideCount() - 1)] ?? [];
+  const isLast = () => slide() >= slideCount() - 1;
+
+  let cardRef: HTMLDivElement | undefined;
+  const [folding, setFolding] = createSignal(false);
+
+  const turnTo = (i: number) => {
+    setSlide(i);
+    playSound("page_turn");
+    cardRef?.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  const next = () => { if (!isLast()) turnTo(slide() + 1); };
+  const back = () => { if (slide() > 0) turnTo(slide() - 1); };
+
   onMount(() => {
     playSound("page_turn");
     actions.markChronicleEntrySeen(props.entry.id);
   });
-
-  let cardRef: HTMLDivElement | undefined;
-  const [folding, setFolding] = createSignal(false);
 
   // Dismiss = fold the card down into the sidebar Chronicle link, so the player
   // sees where the entry "lives" and how to find it again. Falls back to a plain
@@ -112,7 +128,7 @@ export default function ChronicleEntryModal(props: Props) {
           "font-style": "italic",
           "line-height": "1.7",
         }}>
-          <For each={paragraphs()}>
+          <For each={current()}>
             {(p) => <p style={{ "margin-bottom": "14px" }}>{p}</p>}
           </For>
         </div>
@@ -145,20 +161,51 @@ export default function ChronicleEntryModal(props: Props) {
               ▶ Replay cinematic
             </button>
           </Show>
+          {/* Page-turn controls — only when the entry is authored into slides */}
+          <Show when={slideCount() > 1}>
+            <button
+              onClick={back}
+              disabled={slide() === 0}
+              style={{
+                padding: "8px 14px",
+                background: "transparent",
+                border: "1px solid var(--border-color)",
+                color: "var(--text-secondary)",
+                "border-radius": "6px",
+                cursor: slide() === 0 ? "default" : "pointer",
+                opacity: slide() === 0 ? "0.35" : "1",
+                "font-size": "0.85rem",
+              }}
+            >
+              ← Back
+            </button>
+            <div style={{ display: "flex", gap: "6px", "align-items": "center" }}>
+              <For each={slides()}>
+                {(_, i) => (
+                  <span style={{
+                    width: "7px", height: "7px", "border-radius": "50%",
+                    background: i() === slide() ? "var(--accent-gold)" : "var(--border-color)",
+                    transition: "background 0.2s ease",
+                  }} />
+                )}
+              </For>
+            </div>
+          </Show>
           <button
-            onClick={handleDismiss}
+            onClick={() => (isLast() ? handleDismiss() : next())}
             style={{
               "margin-left": "auto",
               padding: "8px 16px",
-              background: "var(--bg-primary)",
-              border: "1px solid var(--border-color)",
-              color: "var(--text-primary)",
+              background: isLast() ? "var(--bg-primary)" : "var(--accent-gold)",
+              border: `1px solid ${isLast() ? "var(--border-color)" : "var(--accent-gold)"}`,
+              color: isLast() ? "var(--text-primary)" : "#1a1a1a",
               "border-radius": "6px",
               cursor: "pointer",
               "font-size": "0.85rem",
+              "font-weight": isLast() ? 400 : 600,
             }}
           >
-            Dismiss
+            {isLast() ? "Dismiss" : "Next →"}
           </button>
         </div>
       </div>
