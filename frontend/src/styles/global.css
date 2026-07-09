@@ -357,6 +357,35 @@ body {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  position: relative;
+}
+
+/* UX refont: the epic frame's centered edge flourish, isolated from the full
+   frame (bg-position crops to the top-center motif) and dropped on the middle
+   of each chrome edge. First cut — tune the crop box / size / offset once on
+   screen (a dedicated flourish PNG would be crisper). */
+.topbar::after,
+.sidebar::after {
+  content: "";
+  position: absolute;
+  width: 120px;
+  height: 56px;
+  background: url(/images/frames/item_frame_epic.png) no-repeat;
+  background-size: 614px auto;   /* 512 * (120/100) — scales the ~100px flourish to 120px */
+  background-position: -247px 0; /* crop to source x~206, y~0 (the top-center flourish) */
+  pointer-events: none;
+  z-index: 12;
+}
+.topbar::after {
+  left: 50%;
+  bottom: -14px;
+  transform: translateX(-50%);
+}
+.sidebar::after {
+  top: 50%;
+  right: -32px;
+  transform: translateY(-50%) rotate(90deg);
+  transform-origin: center;
 }
 
 .content {
