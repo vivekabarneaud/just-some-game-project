@@ -94,6 +94,14 @@ export function getAnimalBuyCost(animal: AnimalId): number {
   return ANIMAL_BUY_COST[animal];
 }
 
+// ── Flock dynamics (slice 2) — births + starvation deaths per tick. Tune. ──
+/** Fraction of a fully-starved flock lost per game-hour (scaled by how unfed). */
+export const LIVESTOCK_STARVE_DEATH_PER_HOUR = 0.01;
+/** Fraction a fed flock grows per game-hour in a breeding season (needs a pair + room). */
+export const LIVESTOCK_BREED_PER_HOUR = 0.015;
+/** The warm seasons when a fed flock breeds (lambs in spring; growth into summer). */
+export const LIVESTOCK_BREEDING_SEASONS = ["spring", "summer"] as const;
+
 export function getPenCost(level: number): { wood: number; stone: number; gold: number } {
   return {
     wood: growth(PEN_BASE_COST.wood, PEN_COST_MULTIPLIER, level),

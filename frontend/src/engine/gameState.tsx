@@ -140,6 +140,9 @@ import {
   getPenProduction,
   getPenCapacity,
   getAnimalBuyCost,
+  LIVESTOCK_STARVE_DEATH_PER_HOUR,
+  LIVESTOCK_BREED_PER_HOUR,
+  LIVESTOCK_BREEDING_SEASONS,
   PEN_MAX_LEVEL,
 } from "@medieval-realm/shared/data/livestock";
 import {
@@ -309,7 +312,9 @@ export type GameEventType =
   | "winter_freezing"
   | "loot_drop"
   | "trade_accepted" | "trade_delivered"
-  | "pen_starving";
+  | "pen_starving"
+  | "pen_deaths"
+  | "pen_births";
 
 export interface GameEvent {
   type: GameEventType;
@@ -2244,6 +2249,38 @@ function applyAnimalFeed(s: GameState, elapsedHours: number): Map<string, number
   return fedRatios;
 }
 
+/** Flock population change each tick (livestock slice 2): a fed flock breeds in
+ *  the warm seasons (needs a pair + room, never past capacity); an unfed flock
+ *  loses head to hunger. Mutates pen.count. Never auto-culls — shrinkage is only
+ *  starvation; deliberate culling is a separate player action. See DESIGN_LIVESTOCK.md. */
+function applyFlockDynamics(s: GameState, fedRatios: Map<string, number>, elapsedHours: number): void {
+  if (elapsedHours <= 0) return;
+  const breeding = (LIVESTOCK_BREEDING_SEASONS as readonly string[]).includes(s.season);
+  for (const pen of s.pens) {
+    if (pen.level === 0 || pen.count <= 0) continue;
+    const capacity = getPenCapacity(pen.level);
+    const ratio = fedRatios.get(pen.id) ?? 1;
+    // Starvation deaths — an unfed flock dwindles (harsher the hungrier it is).
+    if (ratio < 0.5) {
+      const severity = Math.min(1, (0.5 - ratio) / 0.5);
+      const deaths = Math.min(pen.count, Math.round(pen.count * LIVESTOCK_STARVE_DEATH_PER_HOUR * severity * elapsedHours));
+      if (deaths > 0) {
+        pen.count -= deaths;
+        pushEvent(s, "pen_deaths", "💀", `Hunger took ${deaths} from the ${getAnimal(pen.animal).name.toLowerCase()} pen.`);
+      }
+      continue; // a starving flock doesn't breed
+    }
+    // Breeding — a fed pair grows the flock toward capacity in the warm seasons.
+    if (breeding && pen.count >= 2 && pen.count < capacity) {
+      const births = Math.min(capacity - pen.count, Math.round(pen.count * LIVESTOCK_BREED_PER_HOUR * elapsedHours));
+      if (births > 0) {
+        pen.count += births;
+        pushEvent(s, "pen_births", "🐣", `${births} born in the ${getAnimal(pen.animal).name.toLowerCase()} pen.`);
+      }
+    }
+  }
+}
+
 /** Per-food-type production rates, used to add to the typed foods map each tick.
  *  Pass `fedRatios` to scale per-pen food output (starving pens produce less). */
 function calcFoodRates(state: GameState, fedRatios?: Map<string, number>): Record<FoodItemType, number> {
@@ -3484,6 +3521,7 @@ export function GameProvider(props: ParentProps) {
         // This drains the pantry in-place and returns a fedRatio per pen so
         // starving pens don't produce food/wool/leather this tick.
         const fedRatios = applyAnimalFeed(s, elapsedHours);
+        applyFlockDynamics(s, fedRatios, elapsedHours);
         const foodRates = calcFoodRates(s, fedRatios);
 
         // Lavender (a cultivated HERB, not food) yields to the herb stock — the

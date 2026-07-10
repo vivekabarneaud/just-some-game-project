@@ -260,7 +260,9 @@ export type GameEventType =
   | "winter_freezing"
   | "loot_drop"
   | "trade_accepted" | "trade_delivered"
-  | "pen_starving";
+  | "pen_starving"
+  | "pen_deaths"
+  | "pen_births";
 
 export interface GameEvent {
   type: GameEventType;
