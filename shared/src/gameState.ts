@@ -57,6 +57,9 @@ export interface PlayerField {
   sameCropStreak: number;
   /** Next harvest receives a +15% bonus (field was left idle through a growing season). */
   restBonus: boolean;
+  /** Hay rick left on the field after the autumn grain harvest (straw byproduct).
+   *  Grazers eat it through winter; cleared at spring replant. Fiber crops leave none. */
+  hay?: number;
   level: number;
   upgrading: boolean;
   upgradeRemaining?: number;
@@ -92,6 +95,9 @@ export interface PlayerPen {
   starving?: boolean;
   /** A guard dog is kept with this flock — stops wolf predation on it. */
   guardDog?: boolean;
+  /** Accumulated game-hours of starvation; when it crosses the death threshold
+   *  an animal dies and it resets. Cleared when the flock is fed again. */
+  starveHours?: number;
 }
 
 export interface PlayerHive {

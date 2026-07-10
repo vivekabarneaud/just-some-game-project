@@ -75,6 +75,21 @@ export function getSeasonYield(crop: CropDefinition, level: number): number {
   return Math.floor(crop.baseSeasonYield * level * 1.1);
 }
 
+// ─── Hay (winter fodder) ────────────────────────────────────────
+// Harvesting a grain field leaves straw behind — a fraction of the grain becomes
+// hay, stacked as a rick ON that field. Grazers (sheep/goats) eat wild grass for
+// free spring→autumn; in winter, when the grass is gone, they live off these
+// hayricks (then fall back to larder grain/veggies, then starve). Fiber crops
+// (flax) leave no fodder-hay. Tune HAY_PER_GRAIN by playtest — the larder backs
+// it up, so this is a buffer, not the whole winter supply. See DESIGN_LIVESTOCK.md.
+export const HAY_PER_GRAIN = 0.35;
+
+/** Hay produced by a harvest of `grainAmount` (0 for non-food/fiber crops). */
+export function getHayFromHarvest(crop: CropDefinition, grainAmount: number): number {
+  if (!crop.isFood) return 0;
+  return Math.round(grainAmount * HAY_PER_GRAIN);
+}
+
 // ─── Soil depletion / crop rotation ─────────────────────────────
 // Planting the same crop in a row depletes the soil. Rotating refreshes it.
 // Leaving a field idle through a growing season grants a rest bonus.

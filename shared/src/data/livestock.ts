@@ -108,8 +108,10 @@ export function getWoolSeasonMod(season: string): number {
 }
 
 // ── Flock dynamics (slice 2) — births + starvation deaths per tick. Tune. ──
-/** Fraction of a fully-starved flock lost per game-hour (scaled by how unfed). */
-export const LIVESTOCK_STARVE_DEATH_PER_HOUR = 0.01;
+/** Game-hours of full starvation before one animal dies (accumulated across
+ *  ticks, scaled by how unfed the flock is; a season is 24h). At x50 dev speed
+ *  ~1 game-hour is ~72 real seconds, so this is ~5 real minutes per death. */
+export const LIVESTOCK_STARVE_DEATH_HOURS = 4;
 /** Fraction a fed flock grows per game-hour in a breeding season (needs room). */
 export const LIVESTOCK_BREED_PER_HOUR = 0.015;
 /** Minimum headcount before a flock breeds. >2 on purpose: two animals read as

@@ -110,6 +110,7 @@ import {
   getFieldBuildTime,
   getSeasonYield,
   getSoilMultiplier,
+  getHayFromHarvest,
   MAX_FIELDS,
   FIELD_MAX_LEVEL,
 } from "~/data/crops";
@@ -140,7 +141,7 @@ import {
   getPenProduction,
   getPenCapacity,
   getAnimalBuyCost,
-  LIVESTOCK_STARVE_DEATH_PER_HOUR,
+  LIVESTOCK_STARVE_DEATH_HOURS,
   LIVESTOCK_BREED_PER_HOUR,
   LIVESTOCK_MIN_BREEDING_FLOCK,
   LIVESTOCK_BREEDING_SEASONS,
@@ -168,7 +169,6 @@ import {
   ANIMAL_FEED,
   isGrazer,
   consumeFromCategories,
-  calcGrazingCapacity,
 } from "~/data/animalFeed";
 import {
   getHiveCost,
@@ -371,6 +371,7 @@ export interface PlayerField {
   lastCrop: CropId | null;      // last crop planted — drives rotation tracking
   sameCropStreak: number;       // consecutive same-crop years (0 = fresh/rotated)
   restBonus: boolean;           // +15% yield next harvest (field was idle a year)
+  hay?: number;                 // straw rick left after harvest — winter grazer fodder; cleared at spring replant
   level: number;
   upgrading: boolean;
   upgradeRemaining?: number;
@@ -399,6 +400,9 @@ export interface PlayerPen {
   starving?: boolean;
   /** A guard dog is kept with this flock — stops wolf predation on it. */
   guardDog?: boolean;
+  /** Accumulated game-hours of starvation; an animal dies each time it crosses
+   *  the death threshold, then it resets. Cleared once the flock is fed. */
+  starveHours?: number;
 }
 
 export interface PlayerHive {
@@ -2210,19 +2214,45 @@ function calcAnimalFoodConsumption(pens: PlayerPen[]): number {
   return total;
 }
 
-/** Drain pantry for each pen, applying grazing + category preferences.
- *  Returns per-pen fedRatio (0-1). Mutates pen.starving. */
+/** Drain up to `amount` units of hay from the field ricks (mutating), taking
+ *  from the fullest rick first so a near-empty one isn't stranded with a scrap.
+ *  Returns how much hay was actually eaten. */
+function consumeHayFromFields(fields: PlayerField[], amount: number): number {
+  let need = amount;
+  let taken = 0;
+  const ricks = fields
+    .filter((f) => (f.hay ?? 0) > 0)
+    .sort((a, b) => (b.hay ?? 0) - (a.hay ?? 0));
+  for (const f of ricks) {
+    if (need <= 0) break;
+    const t = Math.min(f.hay ?? 0, need);
+    f.hay = (f.hay ?? 0) - t;
+    need -= t;
+    taken += t;
+  }
+  return taken;
+}
+
+/** Feed each pen and return its per-pen fedRatio (0-1). Grazers (sheep/goats)
+ *  live off free wild grass spring→autumn; in winter the grass is gone and they
+ *  eat the hay ricked on the fields at harvest, then fall back to larder
+ *  grain/veggies, then starve. Non-grazers always eat from the larder.
+ *  Mutates pen.starving and field.hay. */
 function applyAnimalFeed(s: GameState, elapsedHours: number): Map<string, number> {
   const fedRatios = new Map<string, number>();
   if (!s.pens.length || elapsedHours <= 0) return fedRatios;
 
-  const grazingPerHour = calcGrazingCapacity(s.fields);
+  const isWinter = s.season === "winter";
 
-  // Grazer demand weight (for splitting grazing proportionally)
+  // Winter only: split the finite hay stock across grazing flocks by consumption.
   let totalGrazerDemand = 0;
-  for (const pen of s.pens) {
-    if (pen.level === 0 || !isGrazer(pen.animal)) continue;
-    totalGrazerDemand += getPenProduction(getAnimal(pen.animal), pen.count).consumed;
+  let totalHay = 0;
+  if (isWinter) {
+    for (const pen of s.pens) {
+      if (pen.level === 0 || !isGrazer(pen.animal)) continue;
+      totalGrazerDemand += getPenProduction(getAnimal(pen.animal), pen.count).consumed;
+    }
+    for (const f of s.fields) totalHay += f.hay ?? 0;
   }
 
   for (const pen of s.pens) {
@@ -2242,14 +2272,20 @@ function applyAnimalFeed(s: GameState, elapsedHours: number): Map<string, number
 
     let covered = 0;
 
-    // Grazing share for sheep/goats, proportional to their consumption
-    if (isGrazer(pen.animal) && totalGrazerDemand > 0) {
-      const share = prod.consumed / totalGrazerDemand;
-      const grazingForPen = grazingPerHour * share * elapsedHours;
-      covered += Math.min(baseNeed, grazingForPen);
+    if (isGrazer(pen.animal)) {
+      if (!isWinter) {
+        // Free wild grass covers the whole flock in the warm seasons.
+        covered = baseNeed;
+      } else if (totalGrazerDemand > 0 && totalHay > 0) {
+        // This flock's fair slice of the winter hay ricks.
+        const share = prod.consumed / totalGrazerDemand;
+        const want = Math.min(baseNeed, totalHay * share);
+        covered += consumeHayFromFields(s.fields, want);
+      }
     }
 
-    // Pantry consumption for the remainder (from preferred categories only)
+    // Larder covers any shortfall — all of it for non-grazers, and for grazers
+    // the winter gap once grass and hay run out.
     const remaining = Math.max(0, baseNeed - covered);
     if (remaining > 0 && s.foods) {
       covered += consumeFromCategories(s.foods, ANIMAL_FEED[pen.animal], remaining);
@@ -2261,7 +2297,7 @@ function applyAnimalFeed(s: GameState, elapsedHours: number): Map<string, number
     const wasStarving = pen.starving === true;
     pen.starving = ratio < 0.5;
     if (pen.starving && !wasStarving) {
-      pushEvent(s, "pen_starving", "🥀", `The ${animal.name.toLowerCase()} pen is starving — no food in its diet!`);
+      pushEvent(s, "pen_starving", "🥀", `The ${animal.name.toLowerCase()} pen is starving — no food to see it through.`);
     }
   }
 
@@ -2294,16 +2330,25 @@ function applyFlockDynamics(s: GameState, fedRatios: Map<string, number>, elapse
       }
     }
 
-    // Starvation deaths — an unfed flock dwindles (harsher the hungrier it is).
+    // Starvation deaths — accumulate game-hours of hunger (scaled by how unfed);
+    // each full threshold kills one animal. Accumulating (not per-tick rounding)
+    // so tiny ticks still add up over time. Reset once the flock is fed again.
     if (ratio < 0.5) {
       const severity = Math.min(1, (0.5 - ratio) / 0.5);
-      const deaths = Math.min(pen.count, Math.round(pen.count * LIVESTOCK_STARVE_DEATH_PER_HOUR * severity * elapsedHours));
+      pen.starveHours = (pen.starveHours ?? 0) + severity * elapsedHours;
+      let deaths = 0;
+      while (pen.starveHours >= LIVESTOCK_STARVE_DEATH_HOURS && pen.count - deaths > 0) {
+        pen.starveHours -= LIVESTOCK_STARVE_DEATH_HOURS;
+        deaths++;
+      }
       if (deaths > 0) {
         pen.count -= deaths;
+        if (pen.count <= 0) pen.starveHours = 0;
         pushEvent(s, "pen_deaths", "💀", `Hunger took ${deaths} from the ${getAnimal(pen.animal).name.toLowerCase()} pen.`);
       }
       continue; // a starving flock doesn't breed
     }
+    if (pen.starveHours) pen.starveHours = 0; // fed again — the starvation clock resets
     // Breeding — a fed flock (not just a pair) grows toward capacity in the warm
     // seasons. Two animals never breed alone (inbreeding optic + forces buying in).
     if (breeding && pen.count >= LIVESTOCK_MIN_BREEDING_FLOCK && pen.count < capacity) {
@@ -3421,6 +3466,9 @@ export function GameProvider(props: ParentProps) {
           field.crop = null;
           // Rest bonus is consumed by this harvest
           field.restBonus = false;
+          // Straw byproduct — a hay rick stays on the field for the flock to eat
+          // through winter (grain crops only; flax leaves nothing).
+          field.hay = getHayFromHarvest(crop, amount);
         } else if (field.level > 0 && field.lastCrop !== null) {
           // Field was left idle through this growing season — grant rest bonus
           // for the next harvest. Only applies if there's been a previous crop
@@ -3433,6 +3481,8 @@ export function GameProvider(props: ParentProps) {
     if (next === "spring") {
       for (const field of s.fields) {
         field.harvested = false;
+        // Any hay not eaten over winter rots off — fields start the year clean.
+        field.hay = 0;
       }
     }
     // A finished crop is cleared for replanting when its plant season comes
