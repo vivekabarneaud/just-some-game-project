@@ -356,9 +356,13 @@ export default function Sidebar(props: SidebarProps) {
           <>
             <div class="nav-section-title">{section.title}</div>
             {section.items.map((item) => {
-              const badge = badgeCountFor(item.path);
-              const pulse = pulseFor(item.path);
-              const danger = dangerFor(item.path);
+              // Accessors (not plain values): the Sidebar renders once and lives
+              // in the persistent layout, so these must stay reactive to reflect
+              // live state (a famine that starts while you're sitting on a page,
+              // new recipes, etc.). Read inside JSX below so Solid tracks them.
+              const badge = () => badgeCountFor(item.path);
+              const pulse = () => pulseFor(item.path);
+              const danger = () => dangerFor(item.path);
               if (isLinkDisabled(item.path)) {
                 return (
                   <Tooltip text="Build this first to use it" position="right" block>
@@ -392,12 +396,12 @@ export default function Sidebar(props: SidebarProps) {
                       immediate danger, gold for new-content / nudges (plant!,
                       new recipes, coop invite…). The old word keeps living in
                       the hover tooltip so nothing is lost. */}
-                  {danger ? (
-                    <Tooltip text={danger} style={{ "margin-left": "auto" }}>
+                  {danger() ? (
+                    <Tooltip text={danger()!} style={{ "margin-left": "auto" }}>
                       <NavSpark urgent />
                     </Tooltip>
-                  ) : (badge > 0 || pulse) ? (
-                    <Tooltip text={pulse?.text ?? "Something new"} style={{ "margin-left": "auto" }}>
+                  ) : (badge() > 0 || pulse()) ? (
+                    <Tooltip text={pulse()?.text ?? "Something new"} style={{ "margin-left": "auto" }}>
                       <NavSpark />
                     </Tooltip>
                   ) : null}

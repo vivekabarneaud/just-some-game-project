@@ -316,7 +316,8 @@ function QuestCard(props: {
         "border": (props.isUnseen || props.claimable)
           ? "1px solid var(--accent-blue)"
           : "1px solid var(--border-color)",
-        "border-radius": "6px",
+        // Square corners to sit consistently inside the squared chapter frame.
+        "border-radius": "0",
         "margin-bottom": "10px",
         "background": (props.isUnseen || props.claimable)
           ? "rgba(96, 165, 250, 0.06)"

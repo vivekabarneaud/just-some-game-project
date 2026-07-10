@@ -11,11 +11,13 @@
   --bg-panel: #1e2a45;
   --bg-hover: #253555;
   --bg-card: #1b2540;
-  /* Stable sidebar hover/active fill. Deliberately NOT --bg-hover: that one is
-     an @property-registered colour that tweens with the weather drift, so a
-     hovered nav-link's background kept shifting (read as a pulse). This one is
-     plain and weather-independent, so the sidebar stays still. */
+  /* Stable sidebar fills. Deliberately NOT the --bg-* @property colours: those
+     tween with the weather drift (fast at dev x50), so anything painted with
+     them shimmers — the hovered nav-link fill, and the sidebar's own base
+     behind the semi-transparent glyph/arrow. These plain twins keep the whole
+     sidebar still, weather-independent, as intended. */
   --nav-hover-bg: #253555;
+  --sidebar-bg: #16213e;
 
   --border-color: #2a3a5c;
   --border-highlight: #4a5a8c;
@@ -401,7 +403,9 @@ body {
 
 .sidebar {
   grid-area: sidebar;
-  background: var(--bg-secondary);
+  /* Static (not the weather-drifting --bg-secondary) so the sidebar stays still
+     while the content area keeps its weather ambience. */
+  background: var(--sidebar-bg);
   /* UX refont: ornament the inner edge. Width only on the right → border-image
      draws just that side (the frame's plain double-rule, stretched vertically).
      Local slice 34 (not the shared 55): the frame corner runs to y~33, so 34
@@ -654,9 +658,12 @@ body {
  * `.urgent` swaps the art to red (via --spark-img on the element) and
  * speeds the halo up. Sized with the dev at 28px; carries no count. */
 .nav-spark {
+  /* inline-block so its width/height apply even inside the inline-block Tooltip
+     wrapper (a bare inline <span> would collapse to 0 and render nothing). */
+  display: inline-block;
   position: relative;
-  width: 25px;
-  height: 25px;
+  width: 20px;
+  height: 20px;
   flex: 0 0 auto;
   overflow: visible;
 }
@@ -672,6 +679,10 @@ body {
 }
 .nav-spark-halo {
   animation: nav-spark-halo 2.2s ease-out infinite;
+  /* Composite the halo on its own GPU layer so its transform/opacity animation
+     doesn't dirty the whole nav row each frame — otherwise the semi-transparent
+     gold arrow/glyph get re-rasterized in sync and shimmer at the halo's rate. */
+  will-change: transform, opacity;
 }
 .nav-spark-halo.h2 {
   animation-delay: 1.1s;
