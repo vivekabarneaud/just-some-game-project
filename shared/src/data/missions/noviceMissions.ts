@@ -4,7 +4,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
 {
     id: "gather_timber",
     name: "Gather Timber",
-    description: "Jory has marked a stand of pines on the southern tree line and wants a hand hauling them back. A couple of stray wolves have been sniffing around his tools, nothing a swung axe can't handle.",
+    description: "Jory has marked a stand of pines on the southern tree line and wants hands to haul them back. A lean young wolf has been nosing round the crew's kit, hungry more than dangerous; it keeps its distance while someone stands watch. Bring the timber home, and leave the wolf to its hunger.",
     icon: "🪵",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/gather_timber.png",
     slots: [{ class: "any" }],
@@ -13,8 +13,8 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     deployCost: 5,
     difficulty: 1,
     minGuildLevel: 1,
-    tags: ["outdoor"],
-    encounters: [{ enemyId: "gaunt_wolf", count: 2 }],
+    tags: ["outdoor", "peaceful"],
+    guaranteed: true, // a timber haul: the starving yearling only keeps its distance, no fight
   },
 {
     id: "quarry_expedition_first",
@@ -188,7 +188,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
 {
     id: "alpha_wolf_hunt",
     name: "The Pack Leader",
-    description: "The alpha has organized the wolves into coordinated raids on your livestock. Kill the leader and the pack scatters. Miss, and next time they come for the children.",
+    description: "A big pale wolf has taken the pack in hand, and under it they hit the pens on the same nights, from the same wind. The mothers have started keeping the little ones in after dark. It is no fault of the wolves that the game is gone and the winter ran long, but a fed pack that has learned our fences will not unlearn them. Break the pack's hold, by its leader if there is no other way, and give the valley back its nights.",
     icon: "🐺",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/pack_leader.png",
     slots: [{ class: "any" }, { class: "any" }],
@@ -267,7 +267,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   {
     id: "night_howling",
     name: "Night Howling",
-    description: "The wolves have been circling closer every night. Last night they came within a stone's throw of the campfires. Tomas wants a team to push the pack back before they get bold enough to come inside the perimeter.",
+    description: "The wolves have been circling closer every night; last night they came within a stone's throw of the campfires. Tomas wants them pushed back, no more than that. Hungry as they are, they will test a quiet camp, so make ours loud and watched until they think better of it.",
     icon: "🌙",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/night_howling.png",
     slots: [{ class: "any" }, { class: "any" }],
@@ -298,22 +298,22 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   {
     id: "stranger_tracks",
     name: "Tracks at the Treeline",
-    description: "The woodcutters found deep claw marks gouged into the bark near their worksite, and something large bedded down in the undergrowth overnight. Investigate before someone stumbles into it.",
+    description: "The woodcutters found deep claw marks gouged into the bark near their worksite, and something large bedded down in the undergrowth overnight. Track it far enough to know what it is, no closer. It proves a bear's day-bed, not a hunt; mark the ground so the cutters swing wide, and move their work to fresh timber well clear of it. A lone wolf trails the treeline a while, then thinks better of it.",
     icon: "🐾",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/stranger_tracks.png",
     slots: [{ class: "any" }],
     duration: 540,
     rewards: [{ resource: "gold", amount: 30 }, { resource: "wood", amount: 30 }],
     deployCost: 3,
-    difficulty: 2,
+    difficulty: 1,
     minGuildLevel: 1,
-    tags: ["outdoor", "exploration"],
-    encounters: [{ enemyId: "forest_bear", count: 1 }, { enemyId: "wild_wolf", count: 1 }],
+    tags: ["outdoor", "exploration", "peaceful"],
+    guaranteed: true, // investigate + reroute: the bear gets a wide berth, not a fight
   },
   {
     id: "first_patrol",
     name: "Something to Prove",
-    description: "The northern perimeter hasn't been walked since we arrived. A pair of young wolves have been sniffing at the traps, nothing a steady hand can't handle.",
+    description: "The northern perimeter hasn't been walked since we came. A pair of young wolves have been worrying the trap line, thin-ribbed and skittish. No need for blood: walk the bounds, see them off, and come back having proven you can hold a line without drawing one.",
     icon: "🚩",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/first_patrol.png",
     slots: [{ class: "any" }],
@@ -330,7 +330,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   {
     id: "lost_flock",
     name: "The Wayward Flock",
-    description: "The sheep wandered past the tree line again. Last time this happened, two came back bloody and one didn't come back at all. Find the flock before the wolves do.",
+    description: "The sheep have drifted past the tree line again. Last time, two came back bloody and one not at all. The pack out there is gaunt this season and growing bold with it. Bring the flock in before the wolves do, and stand between them if it comes to that.",
     icon: "🐑",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/lost_flock.png",
     slots: [{ class: "any" }],
