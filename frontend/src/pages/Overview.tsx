@@ -207,6 +207,11 @@ export default function Overview() {
             if (total < 1) {
               return { headline: "No food in the stores", detail: "Citizens are starving. Build a Forager's Hut, Hunting Camp, or Fishing Hut now." };
             }
+            // Stores ran empty at some point and morale is still crashing, even
+            // if a trickle has nudged the total back above one ration.
+            if (state.starvationPenalty > 0) {
+              return { headline: "Citizens are starving", detail: "The stores ran empty and morale is crashing. Get food production positive and keep a buffer to recover." };
+            }
             if (net < 0) {
               const hours = total / Math.abs(net);
               if (hours < 12) {

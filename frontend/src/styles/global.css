@@ -573,6 +573,25 @@ body {
   text-align: center;
 }
 
+/* Interim nav glyph: the hand-painted quatrefoil star (--nav-icon-img, set on
+   .sidebar-nav) standing in for the old emoji until per-item symbols land. Same
+   painted gold as the arrow. Slightly dimmed at rest; hover/active lift it. */
+.nav-link .nav-icon-spark {
+  width: 24px; /* keep the old icon column so labels don't shift */
+  height: 16px;
+  flex: 0 0 auto;
+  background-image: var(--nav-icon-img);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 13px auto; /* small glyph centered in the column */
+  opacity: 0.8;
+  transition: opacity 0.15s ease;
+}
+.nav-link:hover .nav-icon-spark,
+.nav-link.active .nav-icon-spark {
+  opacity: 1;
+}
+
 /* Pulsing attention nudge on the small badge inside a nav-link (harvest!,
  * plant!, new!, coop!). Scoped to the badge text only — pulsing the whole
  * nav-link (icon + label + badge) reads as "this row is broken" rather than
@@ -699,8 +718,7 @@ body {
   background-size: contain;
   transition: width 0.2s ease, opacity 0.2s ease;
 }
-.nav-link:hover .nav-arrow,
-.nav-link.active .nav-arrow {
+.nav-link:hover .nav-arrow {
   width: 30px;
   opacity: 1;
 }
