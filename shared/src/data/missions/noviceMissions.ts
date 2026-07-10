@@ -344,6 +344,21 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     requires: { pen: "sheep" },
   },
   {
+    id: "fold_vigil",
+    name: "A Wolf at the Fold",
+    description: "Every night now the pack drifts down to the pens, testing the fences, watching the sheep with a patient hunger. No blood is needed for this, only presence. Sit the night watch by the fold: keep the fires up, the dogs restless, a spear leaned close and unused. Let the wolves learn this fold is watched, and they will look elsewhere before hunger makes them bold.",
+    icon: "🔥",
+    slots: [{ class: "any" }],
+    duration: 540,
+    rewards: [{ resource: "gold", amount: 20 }, { resource: "milk", amount: 6 }],
+    deployCost: 3,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["outdoor", "survival"],
+    guaranteed: true, // a vigil, not a hunt — presence turns the pack, no fight
+    requires: { pen: "sheep" },
+  },
+  {
     id: "chicken_coop_raiders",
     name: "Something in the Henhouse",
     description: "Three hens dead this week, torn apart in the night, and the coop door nosed open from outside. A fox, most likely, fast and bold and back every night now that it knows the way in. No work for blades. Set someone to stand a quiet watch, mend the coop, lay a snare, and see the thief off for good.",
