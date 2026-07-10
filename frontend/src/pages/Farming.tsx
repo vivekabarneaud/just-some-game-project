@@ -35,7 +35,7 @@ function fieldSeasonStatus(season: string, level: number, isHarvesting: boolean)
 // instead of as a wall of stacked lines. `dim` greys a row for the
 // not-yet-built preview.
 const STAT_BOX: JSX.CSSProperties = {
-  flex: "1", padding: "10px 12px", background: "var(--bg-card)",
+  flex: "1", padding: "16px 12px", background: "var(--bg-card)",
   border: "1px solid var(--border-color)", "border-radius": "8px", "text-align": "center",
   // Center content vertically so short + tall boxes in a row read balanced
   // (the row stretches them to equal height).
@@ -70,7 +70,7 @@ function StatBox(props: { label: string; valColor?: string; warn?: boolean; chil
 function WideBox(props: { dim?: boolean; children: JSX.Element }) {
   return (
     <div style={{
-      ...STAT_BOX, "margin-top": "8px", display: "flex", "align-items": "center",
+      ...STAT_BOX, "margin-top": "8px", display: "flex", "flex-direction": "row", "align-items": "center",
       "justify-content": "center", gap: "6px", "flex-wrap": "wrap", opacity: props.dim ? "0.55" : "1",
     }}>
       {props.children}
@@ -941,30 +941,47 @@ function PenCard(props: { pen: PlayerPen }) {
             </div>
           </Show>
 
-          {/* Flock population — buy animals with gold, up to the pen's capacity */}
-          <div style={{ display: "flex", "align-items": "center", "justify-content": "space-between", gap: "8px", "margin-top": "8px" }}>
-            <span style={{ "font-size": "0.85rem", color: "var(--text-secondary)" }}>
-              Flock <b style={{ color: "var(--text-primary)" }}>{props.pen.count}</b> / {getPenCapacity(props.pen.level)}
-            </span>
-            <div style={{ display: "flex", gap: "6px" }}>
-              <button
-                onClick={() => actions.buyLivestock(props.pen.id, 1)}
-                disabled={props.pen.count >= getPenCapacity(props.pen.level) || state.resources.gold < getAnimalBuyCost(props.pen.animal)}
-                style={{ padding: "4px 10px", "font-size": "0.8rem", cursor: "pointer" }}
-              >
-                Buy {animal().icon} 💰{getAnimalBuyCost(props.pen.animal)}
-              </button>
-              <Tooltip text={`Slaughter one for +${getCullYield(props.pen.animal).meat} meat${getCullYield(props.pen.animal).leather ? `, +${getCullYield(props.pen.animal).leather} leather` : ""}${getCullYield(props.pen.animal).bone ? `, +${getCullYield(props.pen.animal).bone} bone` : ""}`}>
-                <button
-                  onClick={() => actions.cullLivestock(props.pen.id, 1)}
-                  disabled={props.pen.count <= 0}
-                  style={{ padding: "4px 10px", "font-size": "0.8rem", cursor: "pointer" }}
-                >
-                  Cull 🥩
-                </button>
-              </Tooltip>
-            </div>
-          </div>
+          {/* Flock card (full width): count centered on top, golden Buy on the
+              left, red Cull on the right. */}
+          {(() => {
+            const cap = () => getPenCapacity(props.pen.level);
+            const buyCost = () => getAnimalBuyCost(props.pen.animal);
+            const buyDisabled = () => props.pen.count >= cap() || state.resources.gold < buyCost();
+            const cy = () => getCullYield(props.pen.animal);
+            return (
+              <div style={{ ...STAT_BOX, "margin-top": "8px", "flex-direction": "column", "align-items": "stretch", gap: "12px" }}>
+                <div style={{ "font-size": "1rem", "font-weight": 600 }}>
+                  Flock <span style={{ color: "var(--text-primary)" }}>{props.pen.count}</span> / {cap()}
+                </div>
+                <div style={{ display: "flex", "justify-content": "space-between", "align-items": "center", gap: "10px" }}>
+                  <button
+                    onClick={() => actions.buyLivestock(props.pen.id, 1)}
+                    disabled={buyDisabled()}
+                    style={{
+                      padding: "6px 14px", "font-size": "0.85rem", cursor: buyDisabled() ? "default" : "pointer", "border-radius": "6px",
+                      border: "1px solid var(--accent-gold)", color: "var(--accent-gold)", background: "rgba(212, 175, 55, 0.12)",
+                      opacity: buyDisabled() ? 0.45 : 1,
+                    }}
+                  >
+                    Buy {animal().icon} 💰{buyCost()}
+                  </button>
+                  <Tooltip text={`Slaughter one for +${cy().meat} meat${cy().leather ? `, +${cy().leather} leather` : ""}${cy().bone ? `, +${cy().bone} bone` : ""}`}>
+                    <button
+                      onClick={() => actions.cullLivestock(props.pen.id, 1)}
+                      disabled={props.pen.count <= 0}
+                      style={{
+                        padding: "6px 14px", "font-size": "0.85rem", cursor: props.pen.count <= 0 ? "default" : "pointer", "border-radius": "6px",
+                        border: "1px solid var(--accent-red)", color: "var(--accent-red)", background: "rgba(231, 76, 60, 0.10)",
+                        opacity: props.pen.count <= 0 ? 0.45 : 1,
+                      }}
+                    >
+                      Cull 🥩
+                    </button>
+                  </Tooltip>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Guard dog — stops wolf predation on this fold */}
           <div style={{ display: "flex", "align-items": "center", "justify-content": "space-between", gap: "8px", "margin-top": "6px" }}>
