@@ -922,7 +922,7 @@ function PenCard(props: { pen: PlayerPen }) {
               <button
                 onClick={() => actions.cullLivestock(props.pen.id, 1)}
                 disabled={props.pen.count <= 0}
-                title={`Slaughter one for +${getCullYield(props.pen.animal).meat} meat${getCullYield(props.pen.animal).leather ? `, +${getCullYield(props.pen.animal).leather} leather` : ""}`}
+                title={`Slaughter one for +${getCullYield(props.pen.animal).meat} meat${getCullYield(props.pen.animal).leather ? `, +${getCullYield(props.pen.animal).leather} leather` : ""}${getCullYield(props.pen.animal).bone ? `, +${getCullYield(props.pen.animal).bone} bone` : ""}`}
                 style={{ padding: "4px 10px", "font-size": "0.8rem", cursor: "pointer" }}
               >
                 Cull 🥩

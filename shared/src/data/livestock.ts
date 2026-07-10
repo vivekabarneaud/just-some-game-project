@@ -138,12 +138,12 @@ export const GUARD_DOG_COST = 60;
 // ── Culling (slice 4): the player's DELIBERATE choice to slaughter one animal.
 // Yields meat (food) + leather (feeds leatherworking). Bone deferred until a
 // livestock-bone recipe exists (no dead-end drops). Chickens have no hide. Tune.
-export interface CullYield { meat: number; leather: number; }
+export interface CullYield { meat: number; leather: number; bone: number; }
 export const CULL_YIELD: Record<AnimalId, CullYield> = {
-  chickens: { meat: 2, leather: 0 },
-  goats: { meat: 4, leather: 1 },
-  pigs: { meat: 8, leather: 1 },
-  sheep: { meat: 5, leather: 2 },
+  chickens: { meat: 2, leather: 0, bone: 1 },
+  goats: { meat: 4, leather: 1, bone: 2 },
+  pigs: { meat: 8, leather: 1, bone: 3 },
+  sheep: { meat: 5, leather: 2, bone: 2 },
 };
 export function getCullYield(animal: AnimalId): CullYield {
   return CULL_YIELD[animal];

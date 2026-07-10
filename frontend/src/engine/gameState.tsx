@@ -556,6 +556,9 @@ export interface GameState {
   wool: number;
   fiber: number;
   leather: number;
+  /** Bone — from culling livestock + the hunting camp. Feeds bone broth (and,
+   *  later, fertilizer / bone tools). A crafting material like leather. */
+  bone: number;
   clothing: number;
   iron: number;
   tools: number;
@@ -1108,6 +1111,7 @@ export function createInitialState(): GameState {
     wool: 0,
     fiber: 0,
     leather: 0,
+    bone: 0,
     // Founders arrive with their own clothes (like later newcomers do) — enough
     // to cover the household so a fresh settlement doesn't open on a "poorly
     // clothed" debuff. Still decays, so the tailor loop matters later.
@@ -1490,6 +1494,7 @@ export function migrateSaveState(saved: GameState): GameState {
     // Materials migration
     if (saved.wool === undefined) saved.wool = 0;
     if (saved.leather === undefined) saved.leather = 0;
+    if (saved.bone === undefined) saved.bone = 0;
     if (saved.fiber === undefined) saved.fiber = 0;
     if (!saved.yearHarvest) saved.yearHarvest = {};
     for (const f of saved.fields) {
@@ -2609,6 +2614,7 @@ function getResourceQty(s: GameState, res: string): number {
   if (res === "wool") return s.wool;
   if (res === "fiber") return s.fiber;
   if (res === "leather") return s.leather;
+  if (res === "bone") return s.bone;
   if (res === "iron") return s.iron;
   if (res === "honey") return s.honey;
   if (res === "ale") return s.ale ?? 0;
@@ -2629,6 +2635,7 @@ function spendResource(s: GameState, res: string, amount: number): void {
   if (res === "wool") { s.wool = Math.max(0, s.wool - amount); return; }
   if (res === "fiber") { s.fiber = Math.max(0, s.fiber - amount); return; }
   if (res === "leather") { s.leather = Math.max(0, s.leather - amount); return; }
+  if (res === "bone") { s.bone = Math.max(0, s.bone - amount); return; }
   if (res === "iron") { s.iron = Math.max(0, s.iron - amount); return; }
   if (res === "honey") { s.honey = Math.max(0, s.honey - amount); return; }
   if (res === "ale") { s.ale = Math.max(0, s.ale - amount); return; }
@@ -3605,6 +3612,8 @@ export function GameProvider(props: ParentProps) {
         const huntingCampLvl = s.buildings.find((b) => b.buildingId === "hunting_camp")?.level ?? 0;
         if (huntingCampLvl > 0) {
           s.leather = Math.min(craftingMaterialCap(s.buildings), s.leather + huntingCampLvl * 1.0 * elapsedHours);
+          // Hunters bring bones home too — the non-cull path to a bone supply.
+          s.bone = Math.min(craftingMaterialCap(s.buildings), s.bone + huntingCampLvl * 0.6 * elapsedHours);
         }
         for (const pen of s.pens) {
           if (pen.level === 0) continue;
@@ -5341,6 +5350,7 @@ export function GameProvider(props: ParentProps) {
         if (!s.foods) s.foods = emptyFoods();
         if (y.meat > 0) addFood(s.foods, "meat", y.meat * n, caps.food);
         if (y.leather > 0) s.leather = Math.min(craftingMaterialCap(s.buildings), s.leather + y.leather * n);
+        if (y.bone > 0) s.bone = Math.min(craftingMaterialCap(s.buildings), s.bone + y.bone * n);
       }));
       scheduleSave();
       return true;

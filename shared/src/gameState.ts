@@ -317,6 +317,8 @@ export interface GameState {
   wool: number;
   fiber: number;
   leather: number;
+  /** Bone — from culling + the hunting camp. Feeds bone broth (later fertilizer). */
+  bone: number;
   clothing: number;
   iron: number;
   tools: number;
