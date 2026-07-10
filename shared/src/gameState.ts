@@ -90,6 +90,8 @@ export interface PlayerPen {
   upgradeRemaining?: number;
   /** True when the pen couldn't cover its food need last tick — production drops to 0 until fed. */
   starving?: boolean;
+  /** A guard dog is kept with this flock — stops wolf predation on it. */
+  guardDog?: boolean;
 }
 
 export interface PlayerHive {
@@ -262,7 +264,8 @@ export type GameEventType =
   | "trade_accepted" | "trade_delivered"
   | "pen_starving"
   | "pen_deaths"
-  | "pen_births";
+  | "pen_births"
+  | "pen_predation";
 
 export interface GameEvent {
   type: GameEventType;

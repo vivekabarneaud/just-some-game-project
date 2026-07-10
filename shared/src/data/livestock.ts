@@ -107,6 +107,21 @@ export const LIVESTOCK_MIN_BREEDING_FLOCK = 3;
 /** The warm seasons when a fed flock breeds (lambs in spring; growth into summer). */
 export const LIVESTOCK_BREEDING_SEASONS = ["spring", "summer"] as const;
 
+// ── Predation (slice 3): wolves thin an UNDEFENDED fold, worse in lean seasons. Tune. ──
+/** Base per-game-hour chance of a wolf raid on an undefended pen with livestock. */
+export const PREDATION_PER_HOUR = 0.004;
+/** Season multiplier on that chance — hungriest (and boldest) in winter. */
+export const PREDATION_SEASON_MOD: Record<string, number> = {
+  spring: 1,
+  summer: 0.8,
+  autumn: 1.4,
+  winter: 2.5,
+};
+/** Most animals a single raid takes. */
+export const PREDATION_MAX_LOSS = 2;
+/** Gold to keep a guard dog with a pen — stops predation on that fold. */
+export const GUARD_DOG_COST = 60;
+
 export function getPenCost(level: number): { wood: number; stone: number; gold: number } {
   return {
     wood: growth(PEN_BASE_COST.wood, PEN_COST_MULTIPLIER, level),

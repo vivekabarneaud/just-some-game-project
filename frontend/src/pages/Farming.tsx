@@ -2,7 +2,7 @@ import { For, Show, onMount } from "solid-js";
 import { useGame, type GameState, type PlayerField, type PlayerGarden, type PlayerPen, type PlayerHive, type PlayerOrchard } from "~/engine/gameState";
 import { CROPS, type CropId, getCrop, getFieldCost, getFieldBuildTime, getSeasonYield, getSoilMultiplier, getSoilStatus, MAX_FIELDS, FIELD_MAX_LEVEL } from "~/data/crops";
 import { getVeggie, getGardenCost, getGardenBuildTime, getSeedCapacity, getEffectiveGardenRate, canPlantVeggie, isVeggieProducing, isSeedUnlocked, MAX_GARDENS, GARDEN_MAX_LEVEL } from "~/data/gardens";
-import { getAnimal, getPenCost, getPenBuildTime, getPenProduction, getPenCapacity, getAnimalBuyCost, PEN_MAX_LEVEL } from "@medieval-realm/shared/data/livestock";
+import { getAnimal, getPenCost, getPenBuildTime, getPenProduction, getPenCapacity, getAnimalBuyCost, GUARD_DOG_COST, PEN_MAX_LEVEL } from "@medieval-realm/shared/data/livestock";
 import { ANIMAL_FEED, FEED_CATEGORY_ICON, FEED_CATEGORY_LABEL, FOOD_CATEGORY, isGrazer, calcGrazingCapacity, type FeedCategory } from "~/data/animalFeed";
 import type { FoodItemType } from "~/data/foods";
 import { getHiveCost, getHiveBuildTime, getHoneyRate, HIVE_MAX_LEVEL, APIARY_IMAGE, APIARY } from "~/data/apiary";
@@ -909,6 +909,25 @@ function PenCard(props: { pen: PlayerPen }) {
             >
               Buy {animal().icon} 💰{getAnimalBuyCost(props.pen.animal)}
             </button>
+          </div>
+
+          {/* Guard dog — stops wolf predation on this fold */}
+          <div style={{ display: "flex", "align-items": "center", "justify-content": "space-between", gap: "8px", "margin-top": "6px" }}>
+            <Show
+              when={props.pen.guardDog}
+              fallback={<span style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>🐺 Unguarded fold</span>}
+            >
+              <span style={{ "font-size": "0.8rem", color: "var(--accent-green)" }}>🐕 Guarded by a dog</span>
+            </Show>
+            <Show when={!props.pen.guardDog}>
+              <button
+                onClick={() => actions.buyGuardDog(props.pen.id)}
+                disabled={state.resources.gold < GUARD_DOG_COST}
+                style={{ padding: "4px 10px", "font-size": "0.8rem", cursor: "pointer" }}
+              >
+                Guard dog 💰{GUARD_DOG_COST}
+              </button>
+            </Show>
           </div>
 
           <Show when={props.pen.starving}>

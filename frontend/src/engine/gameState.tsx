@@ -144,6 +144,10 @@ import {
   LIVESTOCK_BREED_PER_HOUR,
   LIVESTOCK_MIN_BREEDING_FLOCK,
   LIVESTOCK_BREEDING_SEASONS,
+  PREDATION_PER_HOUR,
+  PREDATION_SEASON_MOD,
+  PREDATION_MAX_LOSS,
+  GUARD_DOG_COST,
   PEN_MAX_LEVEL,
 } from "@medieval-realm/shared/data/livestock";
 import {
@@ -315,7 +319,8 @@ export type GameEventType =
   | "trade_accepted" | "trade_delivered"
   | "pen_starving"
   | "pen_deaths"
-  | "pen_births";
+  | "pen_births"
+  | "pen_predation";
 
 export interface GameEvent {
   type: GameEventType;
@@ -390,6 +395,8 @@ export interface PlayerPen {
   upgradeRemaining?: number;
   /** True when the pen didn't cover its food need last tick. Production = 0 while starving. */
   starving?: boolean;
+  /** A guard dog is kept with this flock — stops wolf predation on it. */
+  guardDog?: boolean;
 }
 
 export interface PlayerHive {
@@ -722,6 +729,8 @@ export interface GameActions {
   upgradePen: (penId: string) => boolean;
   /** Buy `qty` animals for a built pen with gold, up to its capacity. */
   buyLivestock: (penId: string, qty?: number) => boolean;
+  /** Keep a guard dog with a pen (gold, one-off) — stops wolf predation on it. */
+  buyGuardDog: (penId: string) => boolean;
   upgradeHive: (hiveId: string) => boolean;
   upgradeOrchard: (orchardId: string) => boolean;
   setGameSpeed: (speed: number) => void;
@@ -2261,6 +2270,21 @@ function applyFlockDynamics(s: GameState, fedRatios: Map<string, number>, elapse
     if (pen.level === 0 || pen.count <= 0) continue;
     const capacity = getPenCapacity(pen.level);
     const ratio = fedRatios.get(pen.id) ?? 1;
+
+    // Predation — wolves thin an UNDEFENDED fold (fed or not), worse in the lean
+    // seasons. A guard dog stops it entirely. At most one raid per tick; the
+    // chance compounds over elapsed hours so an offline stretch isn't a wipe.
+    if (!pen.guardDog) {
+      const mod = PREDATION_SEASON_MOD[s.season] ?? 1;
+      const raidChance = 1 - Math.pow(1 - PREDATION_PER_HOUR * mod, elapsedHours);
+      if (Math.random() < raidChance) {
+        const lost = Math.min(pen.count, 1 + Math.floor(Math.random() * PREDATION_MAX_LOSS));
+        pen.count -= lost;
+        pushEvent(s, "pen_predation", "🐺", `Wolves took ${lost} from the ${getAnimal(pen.animal).name.toLowerCase()} pen in the night.`);
+        if (pen.count <= 0) continue;
+      }
+    }
+
     // Starvation deaths — an unfed flock dwindles (harsher the hungrier it is).
     if (ratio < 0.5) {
       const severity = Math.min(1, (0.5 - ratio) / 0.5);
@@ -5280,6 +5304,20 @@ export function GameProvider(props: ParentProps) {
         s.resources.gold -= cost;
         const p = s.pens.find((p) => p.id === penId)!;
         p.count += n;
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    // Keep a guard dog with a pen (one-off gold cost) — stops wolf predation there.
+    buyGuardDog(penId) {
+      const pen = state.pens.find((p) => p.id === penId);
+      if (!pen || pen.level < 1 || pen.guardDog) return false;
+      if (state.resources.gold < GUARD_DOG_COST) return false;
+      setState(produce((s) => {
+        s.resources.gold -= GUARD_DOG_COST;
+        const p = s.pens.find((p) => p.id === penId)!;
+        p.guardDog = true;
       }));
       scheduleSave();
       return true;
