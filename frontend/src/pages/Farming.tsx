@@ -37,6 +37,9 @@ function fieldSeasonStatus(season: string, level: number, isHarvesting: boolean)
 const STAT_BOX: JSX.CSSProperties = {
   flex: "1", padding: "10px 12px", background: "var(--bg-card)",
   border: "1px solid var(--border-color)", "border-radius": "8px", "text-align": "center",
+  // Center content vertically so short + tall boxes in a row read balanced
+  // (the row stretches them to equal height).
+  display: "flex", "flex-direction": "column", "justify-content": "center",
 };
 const STAT_LABEL: JSX.CSSProperties = {
   "font-size": "0.66rem", color: "var(--text-muted)", "text-transform": "uppercase",
@@ -901,25 +904,23 @@ function PenCard(props: { pen: PlayerPen }) {
           <StatRow>
             <StatBox label="Eats" warn={props.pen.starving}
               valColor={props.pen.starving ? "var(--accent-red)" : (pantryNeed() > 0 ? undefined : "var(--accent-green)")}>
-              {/* Rate + the feed source inline: "2/h grain or veggies". Each
-                  category reddens when the pantry's out of it. */}
-              {prod().consumed.toFixed(0)}/h{" "}
-              <For each={ANIMAL_FEED[props.pen.animal]}>
-                {(cat, i) => (
-                  <>
-                    {i() > 0 ? <span style={{ "font-weight": 400, color: "var(--text-muted)" }}> or </span> : null}
-                    <span style={{ "font-weight": 400, color: categoryHasFood(cat) ? "var(--text-secondary)" : "var(--accent-red)" }}>
-                      {FEED_CATEGORY_ICON[cat]} {FEED_CATEGORY_LABEL[cat]}
-                    </span>
-                  </>
-                )}
-              </For>
-              <Show when={grazingCovered() > 0}>
-                <span style={{ color: "var(--accent-green)", "font-size": "0.72rem" }}> · 🌿 {grazingCovered().toFixed(0)} grazed</span>
-              </Show>
-              <Show when={props.pen.starving}>
-                <div style={{ color: "var(--accent-red)", "font-weight": 600, "font-size": "0.72rem", "margin-top": "3px" }}>⚠️ Starving — not producing</div>
-              </Show>
+              {/* Big rate, with the feed source stacked smaller beneath it. */}
+              <div style={{ "font-size": "1.15rem" }}>{prod().consumed.toFixed(0)}/h</div>
+              <div style={{ "font-weight": 400, "font-size": "0.72rem", "margin-top": "2px", "line-height": 1.4 }}>
+                <For each={ANIMAL_FEED[props.pen.animal]}>
+                  {(cat, i) => (
+                    <>
+                      {i() > 0 ? <span style={{ color: "var(--text-muted)" }}> or </span> : null}
+                      <span style={{ color: categoryHasFood(cat) ? "var(--text-secondary)" : "var(--accent-red)" }}>
+                        {FEED_CATEGORY_ICON[cat]} {FEED_CATEGORY_LABEL[cat]}
+                      </span>
+                    </>
+                  )}
+                </For>
+                <Show when={grazingCovered() > 0}>
+                  <span style={{ color: "var(--accent-green)" }}> · 🌿 {grazingCovered().toFixed(0)} grazed</span>
+                </Show>
+              </div>
             </StatBox>
             <StatBox label="Produces">
               <Show
@@ -931,6 +932,14 @@ function PenCard(props: { pen: PlayerPen }) {
               {secondaryDisplay()}
             </StatBox>
           </StatRow>
+
+          {/* Starving warning — its own line beneath the boxes (the Eats box also
+              reddens); the flock stops producing and starts to lose head. */}
+          <Show when={props.pen.starving}>
+            <div style={{ color: "var(--accent-red)", "font-weight": 600, "font-size": "0.8rem", "text-align": "center", "margin-top": "8px" }}>
+              ⚠️ Starving — not producing, and losing animals
+            </div>
+          </Show>
 
           {/* Flock population — buy animals with gold, up to the pen's capacity */}
           <div style={{ display: "flex", "align-items": "center", "justify-content": "space-between", gap: "8px", "margin-top": "8px" }}>
