@@ -901,23 +901,22 @@ function PenCard(props: { pen: PlayerPen }) {
           <StatRow>
             <StatBox label="Eats" warn={props.pen.starving}
               valColor={props.pen.starving ? "var(--accent-red)" : (pantryNeed() > 0 ? undefined : "var(--accent-green)")}>
-              {prod().consumed.toFixed(0)}/h feed
+              {/* Rate + the feed source inline: "2/h grain or veggies". Each
+                  category reddens when the pantry's out of it. */}
+              {prod().consumed.toFixed(0)}/h{" "}
+              <For each={ANIMAL_FEED[props.pen.animal]}>
+                {(cat, i) => (
+                  <>
+                    {i() > 0 ? <span style={{ "font-weight": 400, color: "var(--text-muted)" }}> or </span> : null}
+                    <span style={{ "font-weight": 400, color: categoryHasFood(cat) ? "var(--text-secondary)" : "var(--accent-red)" }}>
+                      {FEED_CATEGORY_ICON[cat]} {FEED_CATEGORY_LABEL[cat]}
+                    </span>
+                  </>
+                )}
+              </For>
               <Show when={grazingCovered() > 0}>
                 <span style={{ color: "var(--accent-green)", "font-size": "0.72rem" }}> · 🌿 {grazingCovered().toFixed(0)} grazed</span>
               </Show>
-              {/* Feed source — the categories this animal eats; red when the pantry's out of one */}
-              <div style={{ "font-weight": 400, "font-size": "0.72rem", "margin-top": "3px", "line-height": 1.4 }}>
-                <For each={ANIMAL_FEED[props.pen.animal]}>
-                  {(cat, i) => (
-                    <>
-                      {i() > 0 ? " · " : null}
-                      <span style={{ color: categoryHasFood(cat) ? "var(--text-muted)" : "var(--accent-red)", "font-weight": categoryHasFood(cat) ? 400 : 600 }}>
-                        {FEED_CATEGORY_ICON[cat]} {FEED_CATEGORY_LABEL[cat]}
-                      </span>
-                    </>
-                  )}
-                </For>
-              </div>
               <Show when={props.pen.starving}>
                 <div style={{ color: "var(--accent-red)", "font-weight": 600, "font-size": "0.72rem", "margin-top": "3px" }}>⚠️ Starving — not producing</div>
               </Show>
