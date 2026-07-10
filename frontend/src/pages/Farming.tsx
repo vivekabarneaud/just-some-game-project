@@ -2,7 +2,7 @@ import { For, Show, onMount } from "solid-js";
 import { useGame, type GameState, type PlayerField, type PlayerGarden, type PlayerPen, type PlayerHive, type PlayerOrchard } from "~/engine/gameState";
 import { CROPS, type CropId, getCrop, getFieldCost, getFieldBuildTime, getSeasonYield, getSoilMultiplier, getSoilStatus, MAX_FIELDS, FIELD_MAX_LEVEL } from "~/data/crops";
 import { getVeggie, getGardenCost, getGardenBuildTime, getSeedCapacity, getEffectiveGardenRate, canPlantVeggie, isVeggieProducing, isSeedUnlocked, MAX_GARDENS, GARDEN_MAX_LEVEL } from "~/data/gardens";
-import { getAnimal, getPenCost, getPenBuildTime, getPenProduction, getPenCapacity, getAnimalBuyCost, GUARD_DOG_COST, PEN_MAX_LEVEL } from "@medieval-realm/shared/data/livestock";
+import { getAnimal, getPenCost, getPenBuildTime, getPenProduction, getPenCapacity, getAnimalBuyCost, getCullYield, GUARD_DOG_COST, PEN_MAX_LEVEL } from "@medieval-realm/shared/data/livestock";
 import { ANIMAL_FEED, FEED_CATEGORY_ICON, FEED_CATEGORY_LABEL, FOOD_CATEGORY, isGrazer, calcGrazingCapacity, type FeedCategory } from "~/data/animalFeed";
 import type { FoodItemType } from "~/data/foods";
 import { getHiveCost, getHiveBuildTime, getHoneyRate, HIVE_MAX_LEVEL, APIARY_IMAGE, APIARY } from "~/data/apiary";
@@ -902,13 +902,23 @@ function PenCard(props: { pen: PlayerPen }) {
             <span style={{ "font-size": "0.85rem", color: "var(--text-secondary)" }}>
               Flock <b style={{ color: "var(--text-primary)" }}>{props.pen.count}</b> / {getPenCapacity(props.pen.level)}
             </span>
-            <button
-              onClick={() => actions.buyLivestock(props.pen.id, 1)}
-              disabled={props.pen.count >= getPenCapacity(props.pen.level) || state.resources.gold < getAnimalBuyCost(props.pen.animal)}
-              style={{ padding: "4px 10px", "font-size": "0.8rem", cursor: "pointer" }}
-            >
-              Buy {animal().icon} 💰{getAnimalBuyCost(props.pen.animal)}
-            </button>
+            <div style={{ display: "flex", gap: "6px" }}>
+              <button
+                onClick={() => actions.buyLivestock(props.pen.id, 1)}
+                disabled={props.pen.count >= getPenCapacity(props.pen.level) || state.resources.gold < getAnimalBuyCost(props.pen.animal)}
+                style={{ padding: "4px 10px", "font-size": "0.8rem", cursor: "pointer" }}
+              >
+                Buy {animal().icon} 💰{getAnimalBuyCost(props.pen.animal)}
+              </button>
+              <button
+                onClick={() => actions.cullLivestock(props.pen.id, 1)}
+                disabled={props.pen.count <= 0}
+                title={`Slaughter one for +${getCullYield(props.pen.animal).meat} meat${getCullYield(props.pen.animal).leather ? `, +${getCullYield(props.pen.animal).leather} leather` : ""}`}
+                style={{ padding: "4px 10px", "font-size": "0.8rem", cursor: "pointer" }}
+              >
+                Cull 🥩
+              </button>
+            </div>
           </div>
 
           {/* Guard dog — stops wolf predation on this fold */}

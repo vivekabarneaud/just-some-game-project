@@ -148,6 +148,7 @@ import {
   PREDATION_SEASON_MOD,
   PREDATION_MAX_LOSS,
   GUARD_DOG_COST,
+  getCullYield,
   PEN_MAX_LEVEL,
 } from "@medieval-realm/shared/data/livestock";
 import {
@@ -731,6 +732,8 @@ export interface GameActions {
   buyLivestock: (penId: string, qty?: number) => boolean;
   /** Keep a guard dog with a pen (gold, one-off) — stops wolf predation on it. */
   buyGuardDog: (penId: string) => boolean;
+  /** Deliberately slaughter `qty` animals from a pen for meat + leather. */
+  cullLivestock: (penId: string, qty?: number) => boolean;
   upgradeHive: (hiveId: string) => boolean;
   upgradeOrchard: (orchardId: string) => boolean;
   setGameSpeed: (speed: number) => void;
@@ -3610,7 +3613,7 @@ export function GameProvider(props: ParentProps) {
           if (ratio <= 0) continue;
           // Pigs, goats, sheep produce small amounts of leather (hides)
           const leatherRate = pen.animal === "goats" ? 1.2 : 0.8;
-          s.leather = Math.min(craftingMaterialCap(s.buildings), s.leather + leatherRate * pen.level * ratio * elapsedHours);
+          s.leather = Math.min(craftingMaterialCap(s.buildings), s.leather + leatherRate * pen.count * ratio * elapsedHours);
         }
 
         // ── Fiber from forager's hut (wild flax and plant fibers) ──
@@ -5318,6 +5321,26 @@ export function GameProvider(props: ParentProps) {
         s.resources.gold -= GUARD_DOG_COST;
         const p = s.pens.find((p) => p.id === penId)!;
         p.guardDog = true;
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    // Deliberate cull — the player's choice to slaughter for meat + leather.
+    // Never automatic (the flock only shrinks otherwise via hunger/predation).
+    cullLivestock(penId, qty = 1) {
+      const pen = state.pens.find((p) => p.id === penId);
+      if (!pen || pen.count <= 0) return false;
+      const n = Math.min(qty, pen.count);
+      if (n <= 0) return false;
+      const y = getCullYield(pen.animal);
+      setState(produce((s) => {
+        const p = s.pens.find((p) => p.id === penId)!;
+        p.count -= n;
+        const caps = calcStorageCaps(s.buildings);
+        if (!s.foods) s.foods = emptyFoods();
+        if (y.meat > 0) addFood(s.foods, "meat", y.meat * n, caps.food);
+        if (y.leather > 0) s.leather = Math.min(craftingMaterialCap(s.buildings), s.leather + y.leather * n);
       }));
       scheduleSave();
       return true;

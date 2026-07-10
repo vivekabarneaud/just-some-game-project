@@ -122,6 +122,20 @@ export const PREDATION_MAX_LOSS = 2;
 /** Gold to keep a guard dog with a pen — stops predation on that fold. */
 export const GUARD_DOG_COST = 60;
 
+// ── Culling (slice 4): the player's DELIBERATE choice to slaughter one animal.
+// Yields meat (food) + leather (feeds leatherworking). Bone deferred until a
+// livestock-bone recipe exists (no dead-end drops). Chickens have no hide. Tune.
+export interface CullYield { meat: number; leather: number; }
+export const CULL_YIELD: Record<AnimalId, CullYield> = {
+  chickens: { meat: 2, leather: 0 },
+  goats: { meat: 4, leather: 1 },
+  pigs: { meat: 8, leather: 1 },
+  sheep: { meat: 5, leather: 2 },
+};
+export function getCullYield(animal: AnimalId): CullYield {
+  return CULL_YIELD[animal];
+}
+
 export function getPenCost(level: number): { wood: number; stone: number; gold: number } {
   return {
     wood: growth(PEN_BASE_COST.wood, PEN_COST_MULTIPLIER, level),
