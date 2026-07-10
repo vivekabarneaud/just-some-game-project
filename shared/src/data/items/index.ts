@@ -6,7 +6,7 @@
 
 import type { AdventurerClass, AdventurerStats } from "../adventurers.js";
 import type { ItemDefinition, ItemSlot } from "./types.js";
-import { EQUIPMENT_ITEMS } from "./equipment.js";
+import { EQUIPMENT_ITEMS } from "./equipment/index.js";
 import { POTION_ITEMS } from "./potions.js";
 import { FOOD_ITEMS } from "./foods.js";
 
@@ -60,7 +60,7 @@ export function getItemsForSlot(slot: ItemSlot, adventurerClass?: AdventurerClas
 
 // ─── Re-exports ────────────────────────────────────────────────
 export * from "./types.js";
-export * from "./equipment.js";
+export * from "./equipment/index.js";
 export * from "./foods.js";
 export * from "./potions.js";
 export * from "./materials.js";

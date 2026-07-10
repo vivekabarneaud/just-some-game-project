@@ -12,6 +12,12 @@ export type ArmorType = "cloth" | "leather" | "mail" | "plate";
  *  axe mastery). Optional — untagged weapons simply match no affinity. */
 export type WeaponType = "sword" | "axe" | "dagger" | "mace" | "spear" | "staff" | "wand" | "bow";
 
+/** Rarity tier — drives the ornament frame shown in the UI and roughly tracks
+ *  power/source (common/uncommon crafted basics → rare/epic material & boss
+ *  pieces → legendary). Split the equipment folder holds one file per item
+ *  TYPE; this field is the cross-cutting rank within each. */
+export type ItemRarity = "common" | "uncommon" | "rare" | "epic" | "legendary";
+
 // ─── Armor access by class ──────────────────────────────────────
 // Base armor types each class can wear. Talents (e.g. p_armor for priest) can extend this.
 export const CLASS_ARMOR_ACCESS: Record<AdventurerClass, ArmorType[]> = {
@@ -51,6 +57,9 @@ export interface ItemDefinition {
   id: string;
   name: string;
   icon: string;
+  /** Rarity tier (equipment). Drives the ornament frame; optional so consumables
+   *  (foods/potions) can omit it. Defaults to common in the UI when absent. */
+  rarity?: ItemRarity;
   /** Equipment slot. Omitted for pure consumables (foods, recovery items) and
    *  inventory-only entries — those use isFoodItem / isSupplyItem helpers
    *  instead of the slot field to route through mission-supplies rather than
