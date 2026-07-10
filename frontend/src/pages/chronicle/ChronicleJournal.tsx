@@ -165,6 +165,10 @@ export default function ChronicleJournal() {
                         class="building-card"
                         classList={{ "chronicle-entry-card": unlocked(), dimmed: !unlocked() }}
                         style={{
+                          // Fill the equalized grid cell (grid-auto-rows:1fr) so
+                          // every card matches the tallest — the frame border used
+                          // to mask the gaps; bare cards need the explicit height.
+                          height: "100%",
                           cursor: unlocked() ? "pointer" : "default",
                           transition: "transform 0.15s, filter 0.15s, border-color 0.25s, box-shadow 0.25s, background 0.25s",
                           // Fresh highlight uses box-shadow + tint only (no
@@ -231,7 +235,7 @@ export default function ChronicleJournal() {
                       </div>
                     );
                     return unlocked() ? (
-                      <Tooltip text="Click to read" position="cursor-top" block>
+                      <Tooltip text="Click to read" position="cursor-top" block style={{ height: "100%" }}>
                         {card}
                       </Tooltip>
                     ) : card;

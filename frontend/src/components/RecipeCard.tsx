@@ -68,38 +68,22 @@ export default function RecipeCard(props: RecipeCardProps) {
           "box-shadow": "0 0 0 1px var(--accent-blue), 0 0 12px rgba(91, 155, 213, 0.35)",
           background: "linear-gradient(180deg, rgba(91, 155, 213, 0.08), transparent 70%), var(--bg-secondary)",
         } : {}),
-        // THROWAWAY 9-slice card-frame trial (uncommon ornament: plain edges,
-        // corner-only ornament). Tune the slice (55) / border-width (20px) once
-        // it's on screen. Remove with the rest of the frame preview.
+        // Rarity frame drawn around the whole CARD (the item icon stays
+        // frameless). Falls back to the uncommon ornament when no rarity URL is
+        // given. Same 9-slice (55) / 20px border as the other card frames.
         border: "var(--ornament-w) solid transparent",
-        "border-image": "var(--ornament-src) var(--ornament-slice) stretch",
+        "border-image": `${props.frameUrl ? `url(${props.frameUrl})` : "var(--ornament-src)"} var(--ornament-slice) stretch`,
       }}
     >
       <Show when={highlight()}>
         <div class="notification-badge is-tag" style={{ position: "absolute", top: "6px", right: "6px" }}>NEW</div>
       </Show>
       <div class="building-card-header">
-        <Show when={props.frameUrl} fallback={
-          props.image
-            ? <img src={props.image} alt="" style={{ width: "40px", height: "40px", "object-fit": "cover", "border-radius": "6px", "flex-shrink": "0" }} />
-            : <div class="building-card-icon">{props.icon}</div>
-        }>
-          {/* Framed icon — 9-slice border-image (not a scaled overlay), so the
-              ornament line weight stays crisp at icon size instead of shrinking
-              to nothing. Border-width sets the thickness; the corner slice (55)
-              is fixed. (Only the corner-frames 9-slice cleanly; the edge-
-              ornamented tiers will stretch their edge motif — that's the point,
-              it shows which frames belong in a 9-slice system.) */}
-          <div style={{
-            width: "58px", height: "58px", "flex-shrink": "0", display: "grid", "place-items": "center",
-            border: "10px solid transparent",
-            "border-image": `url(${props.frameUrl}) 55 stretch`,
-          }}>
-            {props.image
-              ? <img src={props.image} alt="" style={{ width: "32px", height: "32px", "object-fit": "cover", "border-radius": "3px" }} />
-              : <span style={{ "font-size": "1.4rem", "line-height": "1" }}>{props.icon}</span>}
-          </div>
-        </Show>
+        {/* Frameless icon — the rarity frame lives on the card now, so the image
+            fills its box instead of being shrunk inside an icon-sized frame. */}
+        {props.image
+          ? <img src={props.image} alt="" style={{ width: "40px", height: "40px", "object-fit": "cover", "border-radius": "6px", "flex-shrink": "0" }} />
+          : <div class="building-card-icon">{props.icon}</div>}
         <div>
           <div class="building-card-title">{props.title}</div>
           <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>

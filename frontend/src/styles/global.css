@@ -819,6 +819,12 @@ body {
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 16px;
 }
+/* Crafting recipe grids: give every card the tallest card's height so the
+   rarity frame renders uniformly instead of stretching taller on the longer
+   recipes. (Buildings scopes its equal-height inline; here it's page-wide.) */
+.crafting-layout .buildings-grid {
+  grid-auto-rows: 1fr;
+}
 
 .buildings-grid > a {
   display: flex;

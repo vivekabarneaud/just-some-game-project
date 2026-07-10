@@ -25,6 +25,13 @@ export default function MemoryPreviewModal(props: Props) {
     actions.markBioFragmentSeen(props.fragment.id);
   });
 
+  // Parchment palette — mirror ChronicleEntryModal so a memory reads as a page
+  // from the same book (this module's header always intended that).
+  const INK = "#2a2012";
+  const INK_STRONG = "#17100a";
+  const INK_SOFT = "#6b5636";
+  const parchmentSrc = "/images/parchment/parchment_square.png";
+
   return (
     <div class="modal-overlay page-modal-backdrop" onClick={props.onClose} style={{ "z-index": "1100" }}>
       <div
@@ -33,11 +40,11 @@ export default function MemoryPreviewModal(props: Props) {
           "max-width": "620px",
           "max-height": "86vh",
           overflow: "auto",
-          background: "var(--bg-secondary)",
-          border: "1px solid var(--border-color)",
-          "border-radius": "10px",
-          padding: "28px 32px",
-          "box-shadow": "0 12px 40px rgba(0,0,0,0.5)",
+          background: `url(${parchmentSrc}) center / 100% 100% no-repeat`,
+          border: "none",
+          "border-radius": "0",
+          padding: "42px 46px",
+          "box-shadow": "0 6px 20px rgba(0,0,0,0.35)",
           position: "relative",
         }}
         onClick={(e) => e.stopPropagation()}
@@ -47,7 +54,7 @@ export default function MemoryPreviewModal(props: Props) {
           style={{
             position: "absolute", top: "10px", right: "12px",
             background: "transparent", border: "none",
-            color: "var(--text-muted)", "font-size": "1.4rem",
+            color: INK_SOFT, "font-size": "1.4rem",
             cursor: "pointer", "line-height": "1",
           }}
           aria-label="Close"
@@ -63,20 +70,20 @@ export default function MemoryPreviewModal(props: Props) {
               width: "56px", height: "56px",
               "border-radius": "8px",
               "object-fit": "cover",
-              border: "1px solid rgba(96, 165, 250, 0.4)",
+              border: "1px solid rgba(23, 16, 10, 0.25)",
             }}
           />
           <div>
             <div class="section-label" style={{
               "font-size": "0.7rem",
-              color: "var(--accent-blue)",
+              color: INK_SOFT,
               "letter-spacing": "0.08em",
             }}>
               A memory
             </div>
             <h2 style={{
               "font-size": "1.35rem",
-              color: "var(--text-primary)",
+              color: INK_STRONG,
               "font-family": "var(--font-heading)",
               margin: 0,
             }}>
@@ -87,7 +94,7 @@ export default function MemoryPreviewModal(props: Props) {
 
         <div style={{
           "font-size": "0.95rem",
-          color: "var(--text-secondary)",
+          color: INK,
           "font-style": "italic",
           "line-height": "1.7",
         }}>
@@ -99,7 +106,7 @@ export default function MemoryPreviewModal(props: Props) {
         <div style={{
           "margin-top": "20px",
           "padding-top": "16px",
-          "border-top": "1px solid var(--border-color)",
+          "border-top": "1px solid rgba(107, 86, 54, 0.35)",
           display: "flex",
           "justify-content": "flex-end",
         }}>
@@ -107,9 +114,9 @@ export default function MemoryPreviewModal(props: Props) {
             onClick={props.onClose}
             style={{
               padding: "8px 16px",
-              background: "var(--bg-primary)",
-              border: "1px solid var(--border-color)",
-              color: "var(--text-primary)",
+              background: "rgba(23, 16, 10, 0.06)",
+              border: "1px solid rgba(107, 86, 54, 0.5)",
+              color: INK_STRONG,
               "border-radius": "6px",
               cursor: "pointer",
               "font-size": "0.85rem",
