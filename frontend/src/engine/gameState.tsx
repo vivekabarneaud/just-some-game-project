@@ -149,6 +149,7 @@ import {
   PREDATION_MAX_LOSS,
   GUARD_DOG_COST,
   getCullYield,
+  getWoolSeasonMod,
   PEN_MAX_LEVEL,
 } from "@medieval-realm/shared/data/livestock";
 import {
@@ -3588,8 +3589,7 @@ export function GameProvider(props: ParentProps) {
         if (foodToConsume > 0) consumeFood(s.foods, foodToConsume);
 
         // ── Wool from sheep pens (seasonal) ──
-        const woolSeasonMod = s.season === "spring" || s.season === "summer" ? 1.0
-          : s.season === "autumn" ? 0.5 : 0; // no wool in winter
+        const woolSeasonMod = getWoolSeasonMod(s.season);
         for (const pen of s.pens) {
           if (pen.level === 0) continue;
           const ratio = fedRatios.get(pen.id) ?? 1;

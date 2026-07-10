@@ -2,7 +2,7 @@ import { For, Show, onMount } from "solid-js";
 import { useGame, type GameState, type PlayerField, type PlayerGarden, type PlayerPen, type PlayerHive, type PlayerOrchard } from "~/engine/gameState";
 import { CROPS, type CropId, getCrop, getFieldCost, getFieldBuildTime, getSeasonYield, getSoilMultiplier, getSoilStatus, MAX_FIELDS, FIELD_MAX_LEVEL } from "~/data/crops";
 import { getVeggie, getGardenCost, getGardenBuildTime, getSeedCapacity, getEffectiveGardenRate, canPlantVeggie, isVeggieProducing, isSeedUnlocked, MAX_GARDENS, GARDEN_MAX_LEVEL } from "~/data/gardens";
-import { getAnimal, getPenCost, getPenBuildTime, getPenProduction, getPenCapacity, getAnimalBuyCost, getCullYield, GUARD_DOG_COST, PEN_MAX_LEVEL } from "@medieval-realm/shared/data/livestock";
+import { getAnimal, getPenCost, getPenBuildTime, getPenProduction, getPenCapacity, getAnimalBuyCost, getCullYield, getWoolSeasonMod, GUARD_DOG_COST, PEN_MAX_LEVEL } from "@medieval-realm/shared/data/livestock";
 import { ANIMAL_FEED, FEED_CATEGORY_ICON, FEED_CATEGORY_LABEL, FOOD_CATEGORY, isGrazer, calcGrazingCapacity, type FeedCategory } from "~/data/animalFeed";
 import type { FoodItemType } from "~/data/foods";
 import { getHiveCost, getHiveBuildTime, getHoneyRate, HIVE_MAX_LEVEL, APIARY_IMAGE, APIARY } from "~/data/apiary";
@@ -708,6 +708,17 @@ function PenCard(props: { pen: PlayerPen }) {
   };
 
   const prod = () => props.pen.level > 0 ? getPenProduction(animal(), props.pen.count) : { produced: 0, consumed: 0, secondary: undefined as any };
+  // Secondary byproduct (wool) is seasonal: full spring/summer, half autumn,
+  // dormant winter. The primary product (milk/eggs/meat) is year-round.
+  const secondaryDisplay = () => {
+    const sec = prod().secondary;
+    if (!sec) return null;
+    const mod = sec.resource === "wool" ? getWoolSeasonMod(state.season) : 1;
+    if (mod <= 0) {
+      return <span style={{ color: "var(--text-muted)", "font-size": "0.78rem" }}> · {sec.resource}: dormant (winter)</span>;
+    }
+    return <span style={{ color: "var(--text-secondary)", "font-size": "0.78rem" }}> · +{Math.floor(sec.amount * mod)}/h {sec.resource}{mod < 1 ? " (reduced, autumn)" : ""}</span>;
+  };
 
   // Grazing — sheep and goats can feed off fallow fields before dipping into the pantry
   const grazingPerHour = () => calcGrazingCapacity(state.fields);
@@ -891,9 +902,7 @@ function PenCard(props: { pen: PlayerPen }) {
             </StatBox>
             <StatBox label="Produces">
               +{prod().produced}/h {animal().foodLabel.toLowerCase()}
-              <Show when={prod().secondary}>
-                <span style={{ color: "var(--text-secondary)", "font-size": "0.78rem" }}> · +{prod().secondary!.amount}/h {prod().secondary!.resource}</span>
-              </Show>
+              {secondaryDisplay()}
             </StatBox>
           </StatRow>
 

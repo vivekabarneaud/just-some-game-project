@@ -94,6 +94,19 @@ export function getAnimalBuyCost(animal: AnimalId): number {
   return ANIMAL_BUY_COST[animal];
 }
 
+/** Seasonal multiplier on WOOL (the only seasonal byproduct — sheep are shorn
+ *  in the warm months; nothing usable in deep winter). Primary products
+ *  (milk/eggs/meat) are year-round and NOT affected. */
+export const WOOL_SEASON_MOD: Record<string, number> = {
+  spring: 1,
+  summer: 1,
+  autumn: 0.5,
+  winter: 0,
+};
+export function getWoolSeasonMod(season: string): number {
+  return WOOL_SEASON_MOD[season] ?? 1;
+}
+
 // ── Flock dynamics (slice 2) — births + starvation deaths per tick. Tune. ──
 /** Fraction of a fully-starved flock lost per game-hour (scaled by how unfed). */
 export const LIVESTOCK_STARVE_DEATH_PER_HOUR = 0.01;
