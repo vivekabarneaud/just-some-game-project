@@ -80,7 +80,12 @@ export type AnimalId = "chickens" | "pigs" | "goats" | "sheep";
 export interface PlayerPen {
   id: string;
   animal: AnimalId;
+  /** Capacity tier. 0 = not built. Level sets how many animals the pen holds
+   *  (getPenCapacity); it no longer drives production directly. */
   level: number;
+  /** Headcount — animals actually in the pen (0..capacity). Bought with gold;
+   *  production/consumption scale with this. */
+  count: number;
   upgrading: boolean;
   upgradeRemaining?: number;
   /** True when the pen couldn't cover its food need last tick — production drops to 0 until fed. */

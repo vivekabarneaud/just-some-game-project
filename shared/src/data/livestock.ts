@@ -75,6 +75,25 @@ export const PEN_BUILD_TIME_MULTIPLIER = 1.5;
 export const MAX_PENS = 6;
 export const PEN_MAX_LEVEL = 8;
 
+// ── Population model (slice 1) ──
+// A pen's LEVEL sets its capacity; you BUY animals (gold/head) to fill it, and
+// production scales with the actual headcount, not the level. Tune freely.
+export const PEN_HEADS_PER_LEVEL = 3;
+/** How many animals the pen can hold at this level (0 = not built). */
+export function getPenCapacity(level: number): number {
+  return level * PEN_HEADS_PER_LEVEL;
+}
+/** Gold to buy one animal, per species. Chickens cheap, pigs/sheep dearer. */
+export const ANIMAL_BUY_COST: Record<AnimalId, number> = {
+  chickens: 6,
+  goats: 18,
+  pigs: 22,
+  sheep: 20,
+};
+export function getAnimalBuyCost(animal: AnimalId): number {
+  return ANIMAL_BUY_COST[animal];
+}
+
 export function getPenCost(level: number): { wood: number; stone: number; gold: number } {
   return {
     wood: growth(PEN_BASE_COST.wood, PEN_COST_MULTIPLIER, level),
@@ -87,16 +106,18 @@ export function getPenBuildTime(level: number): number {
   return growth(PEN_BASE_BUILD_TIME, PEN_BUILD_TIME_MULTIPLIER, level);
 }
 
-// Production scales with level
-export function getPenProduction(animal: AnimalDefinition, level: number): { produced: number; consumed: number; secondary?: { resource: string; amount: number } } {
+// Production scales with the HEADCOUNT — the animals actually in the pen, not
+// the pen level (which now just sets capacity). An empty pen (count 0) yields
+// nothing; a full one yields count x the per-head rate.
+export function getPenProduction(animal: AnimalDefinition, count: number): { produced: number; consumed: number; secondary?: { resource: string; amount: number } } {
   const result: { produced: number; consumed: number; secondary?: { resource: string; amount: number } } = {
-    produced: Math.floor(animal.foodProducedPerHour * level * 1.1),
-    consumed: Math.floor(animal.foodConsumedPerHour * level * 1.05),
+    produced: Math.floor(animal.foodProducedPerHour * count),
+    consumed: Math.floor(animal.foodConsumedPerHour * count),
   };
-  if (animal.secondaryResource && animal.secondaryPerHour) {
+  if (count > 0 && animal.secondaryResource && animal.secondaryPerHour) {
     result.secondary = {
       resource: animal.secondaryResource,
-      amount: Math.floor(animal.secondaryPerHour * level * 1.1),
+      amount: Math.floor(animal.secondaryPerHour * count),
     };
   }
   return result;

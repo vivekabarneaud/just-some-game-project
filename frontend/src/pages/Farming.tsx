@@ -2,7 +2,7 @@ import { For, Show, onMount } from "solid-js";
 import { useGame, type GameState, type PlayerField, type PlayerGarden, type PlayerPen, type PlayerHive, type PlayerOrchard } from "~/engine/gameState";
 import { CROPS, type CropId, getCrop, getFieldCost, getFieldBuildTime, getSeasonYield, getSoilMultiplier, getSoilStatus, MAX_FIELDS, FIELD_MAX_LEVEL } from "~/data/crops";
 import { getVeggie, getGardenCost, getGardenBuildTime, getSeedCapacity, getEffectiveGardenRate, canPlantVeggie, isVeggieProducing, isSeedUnlocked, MAX_GARDENS, GARDEN_MAX_LEVEL } from "~/data/gardens";
-import { getAnimal, getPenCost, getPenBuildTime, getPenProduction, PEN_MAX_LEVEL } from "@medieval-realm/shared/data/livestock";
+import { getAnimal, getPenCost, getPenBuildTime, getPenProduction, getPenCapacity, getAnimalBuyCost, PEN_MAX_LEVEL } from "@medieval-realm/shared/data/livestock";
 import { ANIMAL_FEED, FEED_CATEGORY_ICON, FEED_CATEGORY_LABEL, FOOD_CATEGORY, isGrazer, calcGrazingCapacity, type FeedCategory } from "~/data/animalFeed";
 import type { FoodItemType } from "~/data/foods";
 import { getHiveCost, getHiveBuildTime, getHoneyRate, HIVE_MAX_LEVEL, APIARY_IMAGE, APIARY } from "~/data/apiary";
@@ -707,7 +707,7 @@ function PenCard(props: { pen: PlayerPen }) {
     return missing.length ? `Need ${missing.join(", ")}` : "";
   };
 
-  const prod = () => props.pen.level > 0 ? getPenProduction(animal(), props.pen.level) : { produced: 0, consumed: 0, secondary: undefined as any };
+  const prod = () => props.pen.level > 0 ? getPenProduction(animal(), props.pen.count) : { produced: 0, consumed: 0, secondary: undefined as any };
 
   // Grazing — sheep and goats can feed off fallow fields before dipping into the pantry
   const grazingPerHour = () => calcGrazingCapacity(state.fields);
@@ -715,7 +715,7 @@ function PenCard(props: { pen: PlayerPen }) {
     let d = 0;
     for (const p of state.pens) {
       if (p.level === 0 || !isGrazer(p.animal)) continue;
-      d += getPenProduction(getAnimal(p.animal), p.level).consumed;
+      d += getPenProduction(getAnimal(p.animal), p.count).consumed;
     }
     return d;
   };
@@ -896,6 +896,20 @@ function PenCard(props: { pen: PlayerPen }) {
               </Show>
             </StatBox>
           </StatRow>
+
+          {/* Flock population — buy animals with gold, up to the pen's capacity */}
+          <div style={{ display: "flex", "align-items": "center", "justify-content": "space-between", gap: "8px", "margin-top": "8px" }}>
+            <span style={{ "font-size": "0.85rem", color: "var(--text-secondary)" }}>
+              Flock <b style={{ color: "var(--text-primary)" }}>{props.pen.count}</b> / {getPenCapacity(props.pen.level)}
+            </span>
+            <button
+              onClick={() => actions.buyLivestock(props.pen.id, 1)}
+              disabled={props.pen.count >= getPenCapacity(props.pen.level) || state.resources.gold < getAnimalBuyCost(props.pen.animal)}
+              style={{ padding: "4px 10px", "font-size": "0.8rem", cursor: "pointer" }}
+            >
+              Buy {animal().icon} 💰{getAnimalBuyCost(props.pen.animal)}
+            </button>
+          </div>
 
           <Show when={props.pen.starving}>
             <div style={{ color: "var(--accent-red)", "font-size": "0.8rem", "font-weight": 600, "text-align": "center", "margin-top": "8px" }}>

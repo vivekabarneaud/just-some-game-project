@@ -138,6 +138,8 @@ import {
   getPenCost,
   getPenBuildTime,
   getPenProduction,
+  getPenCapacity,
+  getAnimalBuyCost,
   PEN_MAX_LEVEL,
 } from "@medieval-realm/shared/data/livestock";
 import {
@@ -374,7 +376,10 @@ export interface PlayerGarden {
 export interface PlayerPen {
   id: string;
   animal: AnimalId;
+  /** Capacity tier (0 = not built). Sets how many animals fit, not production. */
   level: number;
+  /** Headcount — animals in the pen (0..capacity). Bought with gold; production scales with it. */
+  count: number;
   upgrading: boolean;
   upgradeRemaining?: number;
   /** True when the pen didn't cover its food need last tick. Production = 0 while starving. */
@@ -709,6 +714,8 @@ export interface GameActions {
   /** Pay seed gold to sow the garden for this cycle. Only valid during the veggie's plantSeasons. */
   plantGarden: (gardenId: string) => boolean;
   upgradePen: (penId: string) => boolean;
+  /** Buy `qty` animals for a built pen with gold, up to its capacity. */
+  buyLivestock: (penId: string, qty?: number) => boolean;
   upgradeHive: (hiveId: string) => boolean;
   upgradeOrchard: (orchardId: string) => boolean;
   setGameSpeed: (speed: number) => void;
@@ -1022,6 +1029,7 @@ export function createInitialState(): GameState {
       id: nextId("pen"),
       animal: a.id,
       level: 0,
+      count: 0,
       upgrading: false,
     })),
     // Pre-spawn apiary slots — all identical, no type variants.
@@ -1371,6 +1379,8 @@ export function migrateSaveState(saved: GameState): GameState {
       (saved as any).seeds.lavender = 0;
     }
     if (!saved.pens) saved.pens = [];
+    // Population model: default a headcount on any pre-count pen (no NaN in food math).
+    for (const p of saved.pens) if (typeof (p as any).count !== "number") (p as any).count = 0;
     if (!saved.hives) saved.hives = [];
     if (!saved.orchards) saved.orchards = [];
     // Pens: ensure one pre-attributed slot per animal
@@ -1380,6 +1390,7 @@ export function migrateSaveState(saved: GameState): GameState {
           id: nextId("pen"),
           animal: a.id,
           level: 0,
+          count: 0,
           upgrading: false,
         });
       }
@@ -2157,7 +2168,7 @@ function calcProductionRates(state: GameState): { gold: number; wood: number; st
   for (const pen of pens) {
     if (pen.level === 0) continue;
     const animal = getAnimal(pen.animal);
-    const prod = getPenProduction(animal, pen.level);
+    const prod = getPenProduction(animal, pen.count);
     rates.food += prod.produced;
   }
 
@@ -2169,7 +2180,7 @@ function calcAnimalFoodConsumption(pens: PlayerPen[]): number {
   for (const pen of pens) {
     if (pen.level === 0) continue;
     const animal = getAnimal(pen.animal);
-    const prod = getPenProduction(animal, pen.level);
+    const prod = getPenProduction(animal, pen.count);
     total += prod.consumed;
   }
   return total;
@@ -2187,7 +2198,7 @@ function applyAnimalFeed(s: GameState, elapsedHours: number): Map<string, number
   let totalGrazerDemand = 0;
   for (const pen of s.pens) {
     if (pen.level === 0 || !isGrazer(pen.animal)) continue;
-    totalGrazerDemand += getPenProduction(getAnimal(pen.animal), pen.level).consumed;
+    totalGrazerDemand += getPenProduction(getAnimal(pen.animal), pen.count).consumed;
   }
 
   for (const pen of s.pens) {
@@ -2197,7 +2208,7 @@ function applyAnimalFeed(s: GameState, elapsedHours: number): Map<string, number
       continue;
     }
     const animal = getAnimal(pen.animal);
-    const prod = getPenProduction(animal, pen.level);
+    const prod = getPenProduction(animal, pen.count);
     const baseNeed = prod.consumed * elapsedHours;
     if (baseNeed <= 0) {
       fedRatios.set(pen.id, 1);
@@ -2282,7 +2293,7 @@ function calcFoodRates(state: GameState, fedRatios?: Map<string, number>): Recor
     const ratio = fedRatios ? (fedRatios.get(pen.id) ?? 0) : 1;
     if (ratio <= 0) continue;
     const animal = getAnimal(pen.animal);
-    const prod = getPenProduction(animal, pen.level);
+    const prod = getPenProduction(animal, pen.count);
     const type = animal.foodLabel.toLowerCase() as FoodItemType;
     if (type in rates) rates[type] += prod.produced * ratio;
   }
@@ -2367,7 +2378,7 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
   for (const pen of pens) {
     if (pen.level === 0) continue;
     const animal = getAnimal(pen.animal);
-    const prod = getPenProduction(animal, pen.level);
+    const prod = getPenProduction(animal, pen.count);
     sources.push({ type: animal.foodLabel.toLowerCase(), label: animal.foodLabel, icon: animal.icon, rate: prod.produced, building: `${animal.name} Pen Lv${pen.level}` });
   }
 
@@ -3027,6 +3038,7 @@ export function GameProvider(props: ParentProps) {
               id: nextId("pen"),
               animal: a.id,
               level: 0,
+              count: 0,
               upgrading: false,
             });
           }
@@ -3516,7 +3528,7 @@ export function GameProvider(props: ParentProps) {
           const ratio = fedRatios.get(pen.id) ?? 1;
           if (ratio <= 0) continue;
           const animal = getAnimal(pen.animal);
-          const prod = getPenProduction(animal, pen.level);
+          const prod = getPenProduction(animal, pen.count);
           if (prod.secondary && prod.secondary.resource === "wool" && woolSeasonMod > 0) {
             s.wool = Math.min(craftingMaterialCap(s.buildings), s.wool + prod.secondary.amount * woolSeasonMod * ratio * elapsedHours);
           }
@@ -5209,6 +5221,25 @@ export function GameProvider(props: ParentProps) {
         const p = s.pens.find((p) => p.id === penId)!;
         p.upgrading = true;
         p.upgradeRemaining = getPenBuildTime(pen.level);
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    // Buy livestock (gold per head) to fill a built pen toward its capacity.
+    // The animals appear instantly — the pen must exist (level >= 1) and have room.
+    buyLivestock(penId, qty = 1) {
+      const pen = state.pens.find((p) => p.id === penId);
+      if (!pen || pen.level < 1) return false;
+      const room = getPenCapacity(pen.level) - pen.count;
+      const n = Math.min(qty, room);
+      if (n <= 0) return false;
+      const cost = getAnimalBuyCost(pen.animal) * n;
+      if (state.resources.gold < cost) return false;
+      setState(produce((s) => {
+        s.resources.gold -= cost;
+        const p = s.pens.find((p) => p.id === penId)!;
+        p.count += n;
       }));
       scheduleSave();
       return true;
