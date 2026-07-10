@@ -10,6 +10,8 @@ import { totalPopulation } from "~/data/citizens";
 // (Robin pill removed from sidebar — robin notifications surface via the
 //  Overview badge + the Overview page's robin card instead.)
 import { fetchLeaderboard } from "~/api/leaderboard";
+import { NavSpark } from "~/components/NavSpark";
+import { NAV_ARROW } from "~/data/navWidgets";
 import { fetchFriends } from "~/api/friends";
 import { fetchCoops } from "~/api/coop";
 import { wsClient } from "~/api/ws";
@@ -345,7 +347,8 @@ export default function Sidebar(props: SidebarProps) {
           );
         })()}
       </div>
-      <nav class="sidebar-nav">
+      <div class="sidebar-scroll">
+      <nav class="sidebar-nav" style={{ "--nav-arrow-img": `url(${NAV_ARROW})` }}>
         {navSections.map((section) => (
           <>
             <div class="nav-section-title">{section.title}</div>
@@ -375,6 +378,7 @@ export default function Sidebar(props: SidebarProps) {
                   data-no-click-sound={PATHS_WITH_MOUNT_SOUND.has(item.path) ? "" : undefined}
                 >
                   <span class="nav-icon">{item.icon}</span>
+                  <span class="nav-arrow" aria-hidden="true" />
                   {item.label}
                   {item.path === "/leaderboard" && myRank() && (
                     <span style={{ "margin-left": "auto", "font-size": "0.7rem", color: "var(--accent-gold)" }}>
@@ -383,11 +387,13 @@ export default function Sidebar(props: SidebarProps) {
                   )}
                   {danger && (
                     <Tooltip text={danger} style={{ "margin-left": "auto" }}>
-                      <span class="danger-badge">!</span>
+                      <NavSpark urgent />
                     </Tooltip>
                   )}
                   {!danger && badge > 0 && (
-                    <span class="notification-badge" style={{ "margin-left": "auto" }}>{badge}</span>
+                    <span style={{ "margin-left": "auto", display: "flex" }}>
+                      <NavSpark />
+                    </span>
                   )}
                   {!danger && pulse && (
                     <span class="nav-link-pulse" style={{ "margin-left": "auto", "font-size": "0.7rem", color: pulse.color }}>
@@ -564,6 +570,8 @@ export default function Sidebar(props: SidebarProps) {
             New Game
           </button>
         </Show>
+      </div>
+
       </div>
 
       <div class="sidebar-account">

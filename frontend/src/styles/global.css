@@ -36,7 +36,7 @@
   --font-body: "Inter", sans-serif;
 
   /* Sizing */
-  --sidebar-width: 220px;
+  --sidebar-width: 248px;
   /* The boldened ornament rule on the chrome edges is drawn as a transparent
      border this wide (sidebar right + topbar bottom). Centralised so children
      that must account for it (weather strip, event banner) stay in sync. */
@@ -415,7 +415,9 @@ body {
   border-image-outset: 0 var(--chrome-rule-outset) 0 0;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  /* Scroll moved to .sidebar-nav (below): the header + account stay pinned, and
+     the scrollbar no longer sits ~26px inside the ornament border. */
+  overflow: visible;
   position: relative;
 }
 
@@ -497,6 +499,36 @@ body {
 .sidebar-nav {
   padding: 12px 0;
   flex: 1;
+}
+
+/* Scroll region: the nav list + the season/speed/dev controls scroll together,
+   while the header and the account block (settings/log out) stay pinned. This
+   keeps the (tall, in dev) controls from crushing the nav.
+   The wrapper reaches ~16px past the content box toward the sidebar's outer edge
+   (negative margin) so its scrollbar sits ~10px inside the ornament rule instead
+   of ~26px in; an equal padding-right cancels the shift so the CONTENT stays put
+   and still lines up with the pinned account block. The spark bloom clears both
+   the scrollbar and the clip. */
+.sidebar-scroll {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin-right: calc(10px - var(--chrome-rule-w));
+  padding-right: calc(var(--chrome-rule-w) - 10px);
+}
+.sidebar-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+/* Pinned top + bottom — don't let them shrink when the scroll area is tight. */
+.sidebar-header,
+.sidebar-account {
+  flex-shrink: 0;
 }
 
 .nav-section-title {
@@ -595,6 +627,87 @@ body {
   font-weight: 700;
   letter-spacing: 0.05em;
   box-shadow: none;
+}
+
+/* ── Sidebar notification spark (hand-drawn) ──────────────────────
+ * Replaces the numbered blue pill and the red "!" in the nav. A static
+ * gold core with two staggered "halo" ghosts that bloom outward and fade.
+ * `.urgent` swaps the art to red (via --spark-img on the element) and
+ * speeds the halo up. Sized with the dev at 28px; carries no count. */
+.nav-spark {
+  position: relative;
+  width: 25px;
+  height: 25px;
+  flex: 0 0 auto;
+  overflow: visible;
+}
+.nav-spark-core,
+.nav-spark-halo {
+  position: absolute;
+  inset: 0;
+  background-image: var(--spark-img);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  transform-origin: center;
+}
+.nav-spark-halo {
+  animation: nav-spark-halo 2.2s ease-out infinite;
+}
+.nav-spark-halo.h2 {
+  animation-delay: 1.1s;
+}
+.nav-spark.urgent .nav-spark-halo {
+  animation-duration: 1.2s;
+}
+.nav-spark.urgent .nav-spark-halo.h2 {
+  animation-delay: 0.6s;
+}
+@keyframes nav-spark-halo {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.7;
+  }
+  70% {
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-spark-halo {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* Filigree arrow (--nav-arrow-img, set on .sidebar-nav) that slides in
+ * ahead of the label on hover/active. Width animates from 0 so it costs
+ * no space when idle; the negative margin cancels the extra flex gap. */
+.nav-link .nav-arrow {
+  width: 0;
+  height: 15px;
+  flex: 0 0 auto;
+  opacity: 0;
+  overflow: hidden;
+  margin-left: -8px;
+  background-image: var(--nav-arrow-img);
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: contain;
+  transition: width 0.2s ease, opacity 0.2s ease;
+}
+.nav-link:hover .nav-arrow,
+.nav-link.active .nav-arrow {
+  width: 30px;
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-link .nav-arrow {
+    transition: opacity 0.2s ease;
+  }
 }
 
 /* Modal backdrop overlay — shared by LootModal, QuestClaimModal,
