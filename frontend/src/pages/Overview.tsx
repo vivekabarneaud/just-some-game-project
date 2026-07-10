@@ -230,6 +230,16 @@ export default function Overview() {
               detail: `Beds are over capacity: happiness suffers and new folk won't settle until there's room${state.season === "winter" ? ", and a crowded camp is a cold one in winter" : ""}. Build or upgrade Houses.`,
             };
           };
+          // Livestock going hungry — unfed pens stop producing and lose head.
+          const livestockStarving = (): { headline: string; detail: string } | null => {
+            const starving = (state.pens ?? []).filter((p) => p.level > 0 && (p.count ?? 0) > 0 && p.starving);
+            if (starving.length === 0) return null;
+            const names = [...new Set(starving.map((p) => p.animal))].join(", ");
+            return {
+              headline: `Livestock going hungry (${names})`,
+              detail: "Unfed animals stop producing and begin to die. Stock their feed (grain or veggies) in the larder, or graze them on fallow fields before you lose the flock.",
+            };
+          };
           return (
             <div class="quest-panel" style={{ "padding": "16px 20px" }}>
               <div class="quest-panel-content">
@@ -305,6 +315,23 @@ export default function Overview() {
                             color: "var(--text-secondary)",
                             "line-height": "1.5",
                           }}>
+                            {d().detail}
+                          </div>
+                        </div>
+                      )}
+                    </Show>
+                    <Show when={livestockStarving()}>
+                      {(d) => (
+                        <div style={{
+                          "margin": "14px 0 0", padding: "10px 14px",
+                          background: "rgba(231, 76, 60, 0.10)", border: "1px solid var(--accent-red)",
+                          "border-left-width": "4px", "border-radius": "6px", "max-width": "800px",
+                        }}>
+                          <div style={{ "font-weight": "700", color: "var(--accent-red)", "font-size": "0.9rem", display: "flex", "align-items": "center", gap: "8px" }}>
+                            <span>🥀</span>
+                            <span>{d().headline}</span>
+                          </div>
+                          <div style={{ "margin-top": "4px", "font-size": "0.82rem", color: "var(--text-secondary)", "line-height": "1.5" }}>
                             {d().detail}
                           </div>
                         </div>

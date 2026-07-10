@@ -51,9 +51,12 @@ function StatRow(props: { dim?: boolean; children: JSX.Element }) {
     </div>
   );
 }
-function StatBox(props: { label: string; valColor?: string; children: JSX.Element }) {
+function StatBox(props: { label: string; valColor?: string; warn?: boolean; children: JSX.Element }) {
   return (
-    <div style={STAT_BOX}>
+    <div style={{
+      ...STAT_BOX,
+      ...(props.warn ? { border: "1px solid var(--accent-red)", background: "rgba(231, 76, 60, 0.12)" } : {}),
+    }}>
       <div style={STAT_LABEL}>{props.label}</div>
       <div style={{ ...STAT_VAL, ...(props.valColor ? { color: props.valColor } : {}) }}>{props.children}</div>
     </div>
@@ -710,14 +713,16 @@ function PenCard(props: { pen: PlayerPen }) {
   const prod = () => props.pen.level > 0 ? getPenProduction(animal(), props.pen.count) : { produced: 0, consumed: 0, secondary: undefined as any };
   // Secondary byproduct (wool) is seasonal: full spring/summer, half autumn,
   // dormant winter. The primary product (milk/eggs/meat) is year-round.
+  // A byproduct line for the Produces column — full size, stacked under the
+  // primary (not an inline afterthought). Wool carries its seasonal state.
   const secondaryDisplay = () => {
     const sec = prod().secondary;
     if (!sec) return null;
     const mod = sec.resource === "wool" ? getWoolSeasonMod(state.season) : 1;
     if (mod <= 0) {
-      return <span style={{ color: "var(--text-muted)", "font-size": "0.78rem" }}> · {sec.resource}: dormant (winter)</span>;
+      return <div style={{ color: "var(--text-muted)" }}>{sec.resource}: dormant <span style={{ "font-size": "0.72rem" }}>(winter)</span></div>;
     }
-    return <span style={{ color: "var(--text-secondary)", "font-size": "0.78rem" }}> · +{Math.floor(sec.amount * mod)}/h {sec.resource}{mod < 1 ? " (reduced, autumn)" : ""}</span>;
+    return <div>+{Math.floor(sec.amount * mod)}/h {sec.resource}{mod < 1 ? <span style={{ color: "var(--text-muted)", "font-size": "0.72rem" }}> (autumn)</span> : null}</div>;
   };
 
   // Grazing — sheep and goats can feed off fallow fields before dipping into the pantry
@@ -894,18 +899,35 @@ function PenCard(props: { pen: PlayerPen }) {
 
         <Show when={!props.pen.upgrading && props.pen.level > 0}>
           <StatRow>
-            <StatBox label="Eats" valColor={pantryNeed() > 0 ? undefined : "var(--accent-green)"}>
+            <StatBox label="Eats" warn={props.pen.starving}
+              valColor={props.pen.starving ? "var(--accent-red)" : (pantryNeed() > 0 ? undefined : "var(--accent-green)")}>
               {prod().consumed.toFixed(0)}/h feed
               <Show when={grazingCovered() > 0}>
-                <span style={{ color: "var(--accent-green)", "font-size": "0.78rem" }}> · 🌿 {grazingCovered().toFixed(0)} grazed</span>
+                <span style={{ color: "var(--accent-green)", "font-size": "0.72rem" }}> · 🌿 {grazingCovered().toFixed(0)} grazed</span>
+              </Show>
+              {/* Feed source — the categories this animal eats; red when the pantry's out of one */}
+              <div style={{ "font-weight": 400, "font-size": "0.72rem", "margin-top": "3px", "line-height": 1.4 }}>
+                <For each={ANIMAL_FEED[props.pen.animal]}>
+                  {(cat, i) => (
+                    <>
+                      {i() > 0 ? " · " : null}
+                      <span style={{ color: categoryHasFood(cat) ? "var(--text-muted)" : "var(--accent-red)", "font-weight": categoryHasFood(cat) ? 400 : 600 }}>
+                        {FEED_CATEGORY_ICON[cat]} {FEED_CATEGORY_LABEL[cat]}
+                      </span>
+                    </>
+                  )}
+                </For>
+              </div>
+              <Show when={props.pen.starving}>
+                <div style={{ color: "var(--accent-red)", "font-weight": 600, "font-size": "0.72rem", "margin-top": "3px" }}>⚠️ Starving — not producing</div>
               </Show>
             </StatBox>
             <StatBox label="Produces">
               <Show
                 when={getPenProduction(animal(), 1).produced > 0}
-                fallback={<span style={{ color: "var(--text-muted)" }}>raised for meat · cull for the yield</span>}
+                fallback={<div style={{ color: "var(--text-muted)", "font-size": "0.85rem" }}>raised for meat · cull for the yield</div>}
               >
-                +{prod().produced}/h {animal().foodLabel.toLowerCase()}
+                <div>+{prod().produced}/h {animal().foodLabel.toLowerCase()}</div>
               </Show>
               {secondaryDisplay()}
             </StatBox>
@@ -955,31 +977,7 @@ function PenCard(props: { pen: PlayerPen }) {
             </Show>
           </div>
 
-          <Show when={props.pen.starving}>
-            <div style={{ color: "var(--accent-red)", "font-size": "0.8rem", "font-weight": 600, "text-align": "center", "margin-top": "8px" }}>
-              ⚠️ Starving — not producing
-            </div>
-          </Show>
-
-          {/* What they eat — flags red when the pantry's out of a feed category */}
-          <Show when={pantryNeed() > 0}>
-            <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "6px", "text-align": "center", "line-height": 1.5 }}>
-              Feeds on{" "}
-              <For each={ANIMAL_FEED[props.pen.animal]}>
-                {(cat, i) => (
-                  <>
-                    {i() > 0 ? " · " : null}
-                    <span style={{
-                      color: categoryHasFood(cat) ? "var(--text-secondary)" : "var(--accent-red)",
-                      "font-weight": categoryHasFood(cat) ? "normal" : 600,
-                    }}>
-                      {FEED_CATEGORY_ICON[cat]} {FEED_CATEGORY_LABEL[cat]}
-                    </span>
-                  </>
-                )}
-              </For>
-            </div>
-          </Show>
+          {/* Feed source + starving state now live inside the Eats box above. */}
           <Show when={pantryNeed() === 0 && grazingCovered() > 0 && grazingCovered() >= prod().consumed}>
             <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "6px", "text-align": "center" }}>
               Fully covered by grazing — no pantry cost

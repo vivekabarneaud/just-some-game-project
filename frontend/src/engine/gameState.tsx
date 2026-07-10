@@ -3608,21 +3608,13 @@ export function GameProvider(props: ParentProps) {
           }
         }
 
-        // ── Leather from hunting camp and animal pens (except chickens) ──
+        // ── Leather + bone from the hunting camp ──
+        // Animal leather/bone otherwise comes only from CULLING now — a living
+        // flock sheds wool, not hides (hunters, by contrast, bring skins home).
         const huntingCampLvl = s.buildings.find((b) => b.buildingId === "hunting_camp")?.level ?? 0;
         if (huntingCampLvl > 0) {
           s.leather = Math.min(craftingMaterialCap(s.buildings), s.leather + huntingCampLvl * 1.0 * elapsedHours);
-          // Hunters bring bones home too — the non-cull path to a bone supply.
           s.bone = Math.min(craftingMaterialCap(s.buildings), s.bone + huntingCampLvl * 0.6 * elapsedHours);
-        }
-        for (const pen of s.pens) {
-          if (pen.level === 0) continue;
-          if (pen.animal === "chickens") continue; // chickens don't produce leather
-          const ratio = fedRatios.get(pen.id) ?? 1;
-          if (ratio <= 0) continue;
-          // Pigs, goats, sheep produce small amounts of leather (hides)
-          const leatherRate = pen.animal === "goats" ? 1.2 : 0.8;
-          s.leather = Math.min(craftingMaterialCap(s.buildings), s.leather + leatherRate * pen.count * ratio * elapsedHours);
         }
 
         // ── Fiber from forager's hut (wild flax and plant fibers) ──
