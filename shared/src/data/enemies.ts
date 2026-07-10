@@ -867,7 +867,7 @@ export const ENEMIES: EnemyDefinition[] = [
     loot: [
       { type: "resource", resource: "meat", chance: 0.5, min: 2, max: 6 },
       { type: "resource", resource: "bristlehide", chance: 0.3, min: 1, max: 1 },
-      { type: "resource", resource: "tusk_shard", chance: 0.2, min: 1, max: 1 },
+      { type: "resource", resource: "tusk_shard", chance: 1, min: 1, max: 1 },
       { type: "resource", resource: "cloven_hoof", chance: 0.6, min: 1, max: 2 },
       { type: "resource", resource: "boar_skull", chance: 0.15, min: 1, max: 1 },
     ],
@@ -886,7 +886,7 @@ export const ENEMIES: EnemyDefinition[] = [
     abilities: [{ id: "charge", name: "Charge", icon: "💨", cooldown: 99, trigger: "round_start", effect: { type: "damage_mult", mult: 1.5, targets: 1 } }],
     loot: [
       { type: "resource", resource: "bristlehide", chance: 0.4, min: 1, max: 1 },
-      { type: "resource", resource: "tusk_shard", chance: 0.3, min: 1, max: 1 },
+      { type: "resource", resource: "tusk_shard", chance: 1, min: 1, max: 1 },
       { type: "resource", resource: "cloven_hoof", chance: 0.8, min: 1, max: 2 },
       { type: "resource", resource: "boar_skull", chance: 0.4, min: 1, max: 1 },
     ],

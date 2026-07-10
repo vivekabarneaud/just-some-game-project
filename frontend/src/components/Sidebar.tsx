@@ -10,6 +10,8 @@ import { totalPopulation } from "~/data/citizens";
 // (Robin pill removed from sidebar — robin notifications surface via the
 //  Overview badge + the Overview page's robin card instead.)
 import { fetchLeaderboard } from "~/api/leaderboard";
+import { NavSpark } from "~/components/NavSpark";
+import { NAV_ARROW, NAV_GLYPH } from "~/data/navWidgets";
 import { fetchFriends } from "~/api/friends";
 import { fetchCoops } from "~/api/coop";
 import { wsClient } from "~/api/ws";
@@ -286,6 +288,9 @@ export default function Sidebar(props: SidebarProps) {
       // doesn't bounce between "Out of food" and "Food running out" while
       // the stockpile oscillates near zero from float-point tick math.
       if (total < 1) return "Out of food";
+      // Actively starving (or still recovering) — stores hit zero at some point
+      // and morale is crashing, even if a trickle has since nudged total above 1.
+      if (state.starvationPenalty > 0) return "Citizens starving";
       if (net < 0 && total / Math.abs(net) < 12) return "Food running out";
       return null;
     }
@@ -345,14 +350,19 @@ export default function Sidebar(props: SidebarProps) {
           );
         })()}
       </div>
-      <nav class="sidebar-nav">
+      <div class="sidebar-scroll">
+      <nav class="sidebar-nav" style={{ "--nav-arrow-img": `url(${NAV_ARROW})`, "--nav-icon-img": `url(${NAV_GLYPH})` }}>
         {navSections.map((section) => (
           <>
             <div class="nav-section-title">{section.title}</div>
             {section.items.map((item) => {
-              const badge = badgeCountFor(item.path);
-              const pulse = pulseFor(item.path);
-              const danger = dangerFor(item.path);
+              // Accessors (not plain values): the Sidebar renders once and lives
+              // in the persistent layout, so these must stay reactive to reflect
+              // live state (a famine that starts while you're sitting on a page,
+              // new recipes, etc.). Read inside JSX below so Solid tracks them.
+              const badge = () => badgeCountFor(item.path);
+              const pulse = () => pulseFor(item.path);
+              const danger = () => dangerFor(item.path);
               if (isLinkDisabled(item.path)) {
                 return (
                   <Tooltip text="Build this first to use it" position="right" block>
@@ -360,7 +370,7 @@ export default function Sidebar(props: SidebarProps) {
                     class="nav-link"
                     style={{ opacity: "0.4", cursor: "default", "pointer-events": "none" }}
                   >
-                    <span class="nav-icon">{item.icon}</span>
+                    <span class="nav-icon nav-icon-spark" aria-hidden="true" />
                     {item.label}
                   </div>
                   </Tooltip>
@@ -374,26 +384,27 @@ export default function Sidebar(props: SidebarProps) {
                   data-nav-path={item.path}
                   data-no-click-sound={PATHS_WITH_MOUNT_SOUND.has(item.path) ? "" : undefined}
                 >
-                  <span class="nav-icon">{item.icon}</span>
+                  <span class="nav-icon nav-icon-spark" aria-hidden="true" />
+                  <span class="nav-arrow" aria-hidden="true" />
                   {item.label}
                   {item.path === "/leaderboard" && myRank() && (
                     <span style={{ "margin-left": "auto", "font-size": "0.7rem", color: "var(--accent-gold)" }}>
                       #{myRank()}
                     </span>
                   )}
-                  {danger && (
-                    <Tooltip text={danger} style={{ "margin-left": "auto" }}>
-                      <span class="danger-badge">!</span>
+                  {/* One spark for every "attention here" cue: red + fast for
+                      immediate danger, gold for new-content / nudges (plant!,
+                      new recipes, coop invite…). The old word keeps living in
+                      the hover tooltip so nothing is lost. */}
+                  {danger() ? (
+                    <Tooltip text={danger()!} style={{ "margin-left": "auto" }}>
+                      <NavSpark urgent />
                     </Tooltip>
-                  )}
-                  {!danger && badge > 0 && (
-                    <span class="notification-badge" style={{ "margin-left": "auto" }}>{badge}</span>
-                  )}
-                  {!danger && pulse && (
-                    <span class="nav-link-pulse" style={{ "margin-left": "auto", "font-size": "0.7rem", color: pulse.color }}>
-                      {pulse.text}
-                    </span>
-                  )}
+                  ) : (badge() > 0 || pulse()) ? (
+                    <Tooltip text={pulse()?.text ?? "Something new"} style={{ "margin-left": "auto" }}>
+                      <NavSpark />
+                    </Tooltip>
+                  ) : null}
                 </A>
               );
             })}
@@ -564,6 +575,8 @@ export default function Sidebar(props: SidebarProps) {
             New Game
           </button>
         </Show>
+      </div>
+
       </div>
 
       <div class="sidebar-account">

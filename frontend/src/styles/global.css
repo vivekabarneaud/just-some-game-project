@@ -1,15 +1,23 @@
 :root {
+  /* UX refont — one shared ornament band width + slice so every border-image
+     (cards, sidebar edge, top bar edge, later item frames) renders the gold
+     linework at the SAME weight. Tune here once. */
+  --ornament-w: 20px;
+  --ornament-slice: 55;
+  --ornament-src: url(/images/frames/item_frame_uncommon.png);
   /* Colors - dark medieval theme */
   --bg-primary: #1a1a2e;
   --bg-secondary: #16213e;
   --bg-panel: #1e2a45;
   --bg-hover: #253555;
   --bg-card: #1b2540;
-  /* Stable sidebar hover/active fill. Deliberately NOT --bg-hover: that one is
-     an @property-registered colour that tweens with the weather drift, so a
-     hovered nav-link's background kept shifting (read as a pulse). This one is
-     plain and weather-independent, so the sidebar stays still. */
+  /* Stable sidebar fills. Deliberately NOT the --bg-* @property colours: those
+     tween with the weather drift (fast at dev x50), so anything painted with
+     them shimmers — the hovered nav-link fill, and the sidebar's own base
+     behind the semi-transparent glyph/arrow. These plain twins keep the whole
+     sidebar still, weather-independent, as intended. */
   --nav-hover-bg: #253555;
+  --sidebar-bg: #16213e;
 
   --border-color: #2a3a5c;
   --border-highlight: #4a5a8c;
@@ -30,8 +38,28 @@
   --font-body: "Inter", sans-serif;
 
   /* Sizing */
-  --sidebar-width: 220px;
-  --topbar-height: 60px;
+  --sidebar-width: 248px;
+  /* The boldened ornament rule on the chrome edges is drawn as a transparent
+     border this wide (sidebar right + topbar bottom). Centralised so children
+     that must account for it (weather strip, event banner) stay in sync. */
+  --chrome-rule-w: 26px;
+  /* The frame PNG keeps ~11px of blank margin outside its drawn line (wanted
+     for the item frames). For the chrome rules we push the border image out by
+     that margin (scaled: 11px * 26/34 ≈ 8px) so the drawn pixels sit flush
+     against the sidebar/top-bar edge. Both flourishes shift by this too. */
+  --chrome-rule-outset: 8px;
+  /* Card ornament frame (.ornament-frame): the uncommon frame's corner knots +
+     plain double edges as a 9-slice border. Thinner than the chrome rule so
+     cards read as a lighter tier; flush to the card edge via its own outset
+     (11px margin * 20/34 ≈ 6px). */
+  --card-frame-w: 20px;
+  /* 0 = keep the frame's own ~6px blank margin (drawn line sits slightly inside
+     the card edge). Chrome rules use their own --chrome-rule-outset, unaffected. */
+  --card-frame-outset: 0px;
+  /* 66, not 60: the bottom ornament rule is a --chrome-rule-w border, so the
+     extra 6px keeps the resources row the same height it had at a 20px border.
+     Kept in sync with the sidebar's rule for a matched junction. */
+  --topbar-height: 66px;
 
   /* Dim for locked/undiscovered cards. Uses filter (not opacity) so the card
      stays OPAQUE and the weather backdrop can't show through it. Gentle — only
@@ -307,10 +335,36 @@ body {
   height: 100dvh;
 }
 
+/* UX refont: parchment-surfaced panel (aged paper + dark ink text, no gold
+   frame — the texture's own edges are the border). Add to a text panel to turn
+   it into a written page. Wide texture, stretched so its edges sit at the box
+   boundary. */
+.parchment-panel {
+  background: url(/images/parchment/parchment_wide.png) center / cover no-repeat !important;
+  border: none !important;
+  border-radius: 0 !important;
+  color: #2a2012 !important;
+}
+/* The parchment is light, and much of this text ships with a dark-theme grey
+   inline color — force a dark ink so it reads. !important beats the inline. */
+.parchment-panel h1, .parchment-panel h2, .parchment-panel h3, .parchment-panel h4,
+.parchment-panel .building-card-title {
+  color: #17100a !important;
+}
+.parchment-panel p, .parchment-panel .quest-narrative,
+.parchment-panel .quest-header h2 { color: #2a2012 !important; }
+
 .topbar {
   grid-area: topbar;
   background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-color);
+  /* UX refont: ornament the bottom edge only (width only on bottom). Local
+     26px/34 to match the sidebar rule exactly (see .sidebar): crisp ~1.5px
+     line, corner (to y~33) cleared by the 34 slice. --topbar-height carries
+     +6px to absorb this border. */
+  border-bottom: var(--chrome-rule-w) solid transparent;
+  border-image: var(--ornament-src) 34 stretch;
+  /* push the drawn line flush to the bar's bottom edge (out past the PNG margin) */
+  border-image-outset: 0 0 var(--chrome-rule-outset) 0;
   display: flex;
   align-items: center;
   padding: 0 24px;
@@ -319,13 +373,94 @@ body {
   z-index: 10;
 }
 
+/* UX refont: the epic frame's bottom-edge center flourish (the exact transpose
+   of the sidebar's crop — source 225,465 -> 288,489), centered on the top bar's
+   bottom rule and pointing up into it. Same --fl-scale 0.76 as the sidebar, so
+   both edges wear the same motif at the same weight. The top bar doesn't scroll,
+   so this is absolutely positioned (no fixed needed). --fl-y default -13px drops
+   the box so its bottom butts the rule's inner line. */
+.topbar::after {
+  --fl-scale: 0.76;
+  /* -13px butts the rule's inner line; - the outset follows the line as it's
+     pushed flush to the bottom edge */
+  --fl-y: calc(-13px - var(--chrome-rule-outset));
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: var(--fl-y);
+  width: calc(63px * var(--fl-scale));
+  height: calc(24px * var(--fl-scale));
+  transform: translateX(-50%);
+  background: url(/images/frames/item_frame_epic.png) no-repeat;
+  background-size: calc(512px * var(--fl-scale)) auto;
+  background-position: calc(-225px * var(--fl-scale)) calc(-465px * var(--fl-scale));
+  pointer-events: none;
+  z-index: 15;
+}
+@media (max-width: 768px) {
+  .topbar::after { display: none; }
+}
+
 .sidebar {
   grid-area: sidebar;
-  background: var(--bg-secondary);
-  border-right: 1px solid var(--border-color);
+  /* Static (not the weather-drifting --bg-secondary) so the sidebar stays still
+     while the content area keeps its weather ambience. */
+  background: var(--sidebar-bg);
+  /* UX refont: ornament the inner edge. Width only on the right → border-image
+     draws just that side (the frame's plain double-rule, stretched vertically).
+     Local slice 34 (not the shared 55): the frame corner runs to y~33, so 34
+     is the tightest slice that keeps the stretched middle a clean line — and a
+     tighter slice against a 26px border renders the rule at ~1.5px (crisp),
+     not the 0.7px hairline the 20/55 combo gave. This is the weight the
+     mid-edge flourish (below) is matched to. */
+  border-right: var(--chrome-rule-w) solid transparent;
+  border-image: var(--ornament-src) 34 stretch;
+  /* push the drawn line flush to the sidebar's right edge (out past the PNG margin) */
+  border-image-outset: 0 var(--chrome-rule-outset) 0 0;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  /* Scroll moved to .sidebar-nav (below): the header + account stay pinned, and
+     the scrollbar no longer sits ~26px inside the ornament border. */
+  overflow: visible;
+  position: relative;
+}
+
+/* UX refont: the epic frame's mid-edge SCROLLWORK (its running line cropped
+   OUT — source rect 465,225 → 489,288), centered on and butting against the
+   sidebar's existing right rule so it reads as one ornament growing off the
+   line. Cropping out the flourish's own line is deliberate: the rule is drawn
+   thin (border-image width/slice), so a second, heavier epic line would clash
+   — this way there's a single line (the rule) and the scroll just decorates
+   it. (The epic frame can't itself 9-slice as the rule: its corners are too
+   large, so any slice that clears them leaves a hairline edge.)
+   Fixed to the viewport (top:50%) so it holds while the sidebar scrolls.
+   --fl-scale 0.76 renders the epic scroll's 2px native strokes at ~1.5px,
+   matching the boldened rule above so ornament and line read as one weight.
+   Tunable knobs:
+     --fl-scale : overall size (source motif is 24x63px) — also sets stroke weight
+     --fl-x     : horizontal nudge; right edge lands at sidebar-width + this
+                  (default -13px butts it against the rule's inner line)
+   Hidden on mobile, where the sidebar becomes a drawer (see @media below). */
+.sidebar::after {
+  --fl-scale: 0.76;
+  /* -13px butts the rule's inner line; + the outset follows the line as it's
+     pushed flush to the edge */
+  --fl-x: calc(-13px + var(--chrome-rule-outset));
+  content: "";
+  position: fixed;
+  top: 50%;
+  left: calc(var(--sidebar-width) - 24px * var(--fl-scale) + var(--fl-x));
+  width: calc(24px * var(--fl-scale));
+  height: calc(63px * var(--fl-scale));
+  transform: translateY(-50%);
+  background: url(/images/frames/item_frame_epic.png) no-repeat;
+  background-size: calc(512px * var(--fl-scale)) auto;
+  background-position: calc(-465px * var(--fl-scale)) calc(-225px * var(--fl-scale));
+  pointer-events: none;
+  z-index: 20;
+}
+@media (max-width: 768px) {
+  .sidebar::after { display: none; }
 }
 
 .content {
@@ -370,6 +505,36 @@ body {
   flex: 1;
 }
 
+/* Scroll region: the nav list + the season/speed/dev controls scroll together,
+   while the header and the account block (settings/log out) stay pinned. This
+   keeps the (tall, in dev) controls from crushing the nav.
+   The wrapper reaches ~16px past the content box toward the sidebar's outer edge
+   (negative margin) so its scrollbar sits ~10px inside the ornament rule instead
+   of ~26px in; an equal padding-right cancels the shift so the CONTENT stays put
+   and still lines up with the pinned account block. The spark bloom clears both
+   the scrollbar and the clip. */
+.sidebar-scroll {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin-right: calc(10px - var(--chrome-rule-w));
+  padding-right: calc(var(--chrome-rule-w) - 10px);
+}
+.sidebar-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+/* Pinned top + bottom — don't let them shrink when the scroll area is tight. */
+.sidebar-header,
+.sidebar-account {
+  flex-shrink: 0;
+}
+
 .nav-section-title {
   padding: 8px 20px 4px;
   font-size: 0.65rem;
@@ -410,6 +575,25 @@ body {
   font-size: 1.1rem;
   width: 24px;
   text-align: center;
+}
+
+/* Interim nav glyph: the hand-painted quatrefoil star (--nav-icon-img, set on
+   .sidebar-nav) standing in for the old emoji until per-item symbols land. Same
+   painted gold as the arrow. Slightly dimmed at rest; hover/active lift it. */
+.nav-link .nav-icon-spark {
+  width: 24px; /* keep the old icon column so labels don't shift */
+  height: 16px;
+  flex: 0 0 auto;
+  background-image: var(--nav-icon-img);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 13px auto; /* small glyph centered in the column */
+  opacity: 0.8;
+  transition: opacity 0.15s ease;
+}
+.nav-link:hover .nav-icon-spark,
+.nav-link.active .nav-icon-spark {
+  opacity: 1;
 }
 
 /* Pulsing attention nudge on the small badge inside a nav-link (harvest!,
@@ -466,6 +650,94 @@ body {
   font-weight: 700;
   letter-spacing: 0.05em;
   box-shadow: none;
+}
+
+/* ── Sidebar notification spark (hand-drawn) ──────────────────────
+ * Replaces the numbered blue pill and the red "!" in the nav. A static
+ * gold core with two staggered "halo" ghosts that bloom outward and fade.
+ * `.urgent` swaps the art to red (via --spark-img on the element) and
+ * speeds the halo up. Sized with the dev at 28px; carries no count. */
+.nav-spark {
+  /* inline-block so its width/height apply even inside the inline-block Tooltip
+     wrapper (a bare inline <span> would collapse to 0 and render nothing). */
+  display: inline-block;
+  position: relative;
+  top: 2px; /* nudge down — reads a touch high against the label baseline */
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  overflow: visible;
+}
+.nav-spark-core,
+.nav-spark-halo {
+  position: absolute;
+  inset: 0;
+  background-image: var(--spark-img);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  transform-origin: center;
+}
+.nav-spark-halo {
+  animation: nav-spark-halo 2.2s ease-out infinite;
+  /* Composite the halo on its own GPU layer so its transform/opacity animation
+     doesn't dirty the whole nav row each frame — otherwise the semi-transparent
+     gold arrow/glyph get re-rasterized in sync and shimmer at the halo's rate. */
+  will-change: transform, opacity;
+}
+.nav-spark-halo.h2 {
+  animation-delay: 1.1s;
+}
+.nav-spark.urgent .nav-spark-halo {
+  animation-duration: 1.2s;
+}
+.nav-spark.urgent .nav-spark-halo.h2 {
+  animation-delay: 0.6s;
+}
+@keyframes nav-spark-halo {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.7;
+  }
+  70% {
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-spark-halo {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* Filigree arrow (--nav-arrow-img, set on .sidebar-nav) that slides in
+ * ahead of the label on hover/active. Width animates from 0 so it costs
+ * no space when idle; the negative margin cancels the extra flex gap. */
+.nav-link .nav-arrow {
+  width: 0;
+  height: 15px;
+  flex: 0 0 auto;
+  opacity: 0;
+  overflow: hidden;
+  margin-left: -8px;
+  background-image: var(--nav-arrow-img);
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: contain;
+  transition: width 0.2s ease, opacity 0.2s ease;
+}
+.nav-link:hover .nav-arrow {
+  width: 30px;
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-link .nav-arrow {
+    transition: opacity 0.2s ease;
+  }
 }
 
 /* Modal backdrop overlay — shared by LootModal, QuestClaimModal,
@@ -547,6 +819,12 @@ body {
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 16px;
 }
+/* Crafting recipe grids: give every card the tallest card's height so the
+   rarity frame renders uniformly instead of stretching taller on the longer
+   recipes. (Buildings scopes its equal-height inline; here it's page-wide.) */
+.crafting-layout .buildings-grid {
+  grid-auto-rows: 1fr;
+}
 
 .buildings-grid > a {
   display: flex;
@@ -555,7 +833,7 @@ body {
 .building-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: 0;
   padding: 16px;
   cursor: pointer;
   transition: all 0.15s;
@@ -578,7 +856,7 @@ body {
 .building-card-image {
   position: relative;
   margin: -16px -16px 10px -16px;
-  border-radius: 8px 8px 0 0;
+  border-radius: 0;
   overflow: hidden;
   height: 120px;
 }
@@ -1100,8 +1378,40 @@ body {
 .overview-panel {
   background: var(--bg-panel);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: 0;
   padding: 20px;
+}
+
+/* UX refont: reusable card frame. The uncommon frame's corner knots + plain
+   double-line edges as a 9-slice border-image; slice 34 matches the chrome
+   rules (clears the corner, clean stretched edge), pushed flush to the card
+   edge past the PNG margin. Square by design so it sits inside the frame.
+   Add this class to any image-less card; framed image cards come later. */
+.ornament-frame {
+  border: var(--card-frame-w) solid transparent;
+  border-image: var(--frame-src, var(--ornament-src)) 34 stretch;
+  border-image-outset: var(--card-frame-outset);
+  border-radius: 0;
+}
+/* Lower-rarity variant: the plain common frame (single line, small corners) so
+   e.g. undiscovered Chronicle pages read plainer than found (uncommon) ones. */
+.ornament-frame--common {
+  --frame-src: url(/images/frames/item_frame_common.png);
+}
+/* The frame ring already insets content ~20px; trim the panel's own padding so
+   framed cards don't double up on empty margin. */
+.overview-panel.ornament-frame {
+  padding: 12px 16px;
+}
+/* Same padding trim for framed building-cards (e.g. Chronicle entry cards). */
+.building-card.ornament-frame {
+  padding: 12px 14px;
+}
+/* The rain sheen (.building-card::after) uses inset:0 = the PADDING box, which
+   the frame's thick transparent border shrinks — so the gleam floated 20px
+   inside the frame. Push it back out to the border box for framed cards. */
+.building-card.ornament-frame::after {
+  inset: calc(-1 * var(--card-frame-w));
 }
 
 .overview-panel h2 {
@@ -1116,7 +1426,7 @@ body {
   background: linear-gradient(135deg, rgba(58, 44, 28, 0.95), rgba(42, 32, 18, 0.95));
   border: 1px solid rgba(180, 150, 100, 0.4);
   transition: border-color 2.5s ease; /* border eases with the weather mood */
-  border-radius: 10px;
+  border-radius: 0;
   padding: 20px 24px;
   margin-bottom: 20px;
   position: relative;
@@ -3151,7 +3461,7 @@ body {
 .field-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: 0;
   padding: 14px;
   position: relative;
 }
@@ -4516,7 +4826,13 @@ body {
    and components/WeatherAmbience.tsx. Keep the topbar's real controls above it. */
 .weather-ambience {
   position: absolute;
-  inset: 0;
+  /* Not inset:0 — an abs-positioned child fills the PADDING box, which now
+     stops --chrome-rule-w short of the top bar's visual bottom (the ornament
+     rule is a border). Extend past it so the strip fills the whole bar. */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: calc(-1 * var(--chrome-rule-w));
   overflow: hidden;
   pointer-events: none;
   z-index: 0;

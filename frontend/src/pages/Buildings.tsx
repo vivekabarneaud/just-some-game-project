@@ -102,10 +102,14 @@ export default function Buildings() {
 
       <For each={SECTIONS}>
         {(section) => (
-          <>
+          <div class="ornament-frame" style={{
+            background: "var(--bg-secondary)",
+            padding: "4px 16px 16px",
+            "margin-bottom": "16px",
+          }}>
             <h2 style={{
               "font-family": "var(--font-heading)",
-              "margin-top": "20px",
+              "margin-top": "8px",
               "margin-bottom": "10px",
               color: "var(--text-primary)",
               "font-size": "1rem",
@@ -114,7 +118,10 @@ export default function Buildings() {
             }}>
               {section.icon} {section.label}
             </h2>
-            <div class="buildings-grid">
+            {/* grid-auto-rows: 1fr → every card in the section shares the
+                tallest card's height (scoped inline so it doesn't touch the
+                crafting pages, which reuse .buildings-grid). */}
+            <div class="buildings-grid" style={{ "grid-auto-rows": "1fr" }}>
               <For each={buildingsInSection(section.key)}>
                 {(building) => {
                   const pb = () => getPlayerBuilding(building.id);
@@ -613,8 +620,8 @@ export default function Buildings() {
                         </div>
                       );
                       return (
-                        <Tooltip content={tooltipContent} position="cursor">
-                          <div class="building-card locked" id={`building-${building.id}`}>
+                        <Tooltip content={tooltipContent} position="cursor" block style={{ height: "100%" }}>
+                          <div class="building-card locked" id={`building-${building.id}`} style={{ height: "100%" }}>
                             <Show when={getBuildingImage(building, level())}>
                               <div class="building-card-image locked-image">
                                 <img src={getBuildingImage(building, level())!} alt={building.name} loading="lazy" />
@@ -646,7 +653,7 @@ export default function Buildings() {
                 }}
               </For>
             </div>
-          </>
+          </div>
         )}
       </For>
     </div>
