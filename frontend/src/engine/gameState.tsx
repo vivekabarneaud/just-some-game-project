@@ -142,6 +142,7 @@ import {
   getAnimalBuyCost,
   LIVESTOCK_STARVE_DEATH_PER_HOUR,
   LIVESTOCK_BREED_PER_HOUR,
+  LIVESTOCK_MIN_BREEDING_FLOCK,
   LIVESTOCK_BREEDING_SEASONS,
   PEN_MAX_LEVEL,
 } from "@medieval-realm/shared/data/livestock";
@@ -2270,8 +2271,9 @@ function applyFlockDynamics(s: GameState, fedRatios: Map<string, number>, elapse
       }
       continue; // a starving flock doesn't breed
     }
-    // Breeding — a fed pair grows the flock toward capacity in the warm seasons.
-    if (breeding && pen.count >= 2 && pen.count < capacity) {
+    // Breeding — a fed flock (not just a pair) grows toward capacity in the warm
+    // seasons. Two animals never breed alone (inbreeding optic + forces buying in).
+    if (breeding && pen.count >= LIVESTOCK_MIN_BREEDING_FLOCK && pen.count < capacity) {
       const births = Math.min(capacity - pen.count, Math.round(pen.count * LIVESTOCK_BREED_PER_HOUR * elapsedHours));
       if (births > 0) {
         pen.count += births;

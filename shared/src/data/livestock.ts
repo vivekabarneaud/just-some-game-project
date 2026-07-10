@@ -97,8 +97,13 @@ export function getAnimalBuyCost(animal: AnimalId): number {
 // ── Flock dynamics (slice 2) — births + starvation deaths per tick. Tune. ──
 /** Fraction of a fully-starved flock lost per game-hour (scaled by how unfed). */
 export const LIVESTOCK_STARVE_DEATH_PER_HOUR = 0.01;
-/** Fraction a fed flock grows per game-hour in a breeding season (needs a pair + room). */
+/** Fraction a fed flock grows per game-hour in a breeding season (needs room). */
 export const LIVESTOCK_BREED_PER_HOUR = 0.015;
+/** Minimum headcount before a flock breeds. >2 on purpose: two animals read as
+ *  a countable "pair" (an inbreeding optic at small scale), and gating births on
+ *  a real little flock means early growth comes from buying fresh stock, not a
+ *  closed line. Tune. */
+export const LIVESTOCK_MIN_BREEDING_FLOCK = 3;
 /** The warm seasons when a fed flock breeds (lambs in spring; growth into summer). */
 export const LIVESTOCK_BREEDING_SEASONS = ["spring", "summer"] as const;
 
