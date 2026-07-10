@@ -3,9 +3,14 @@
 // Journal page (click an entry card) and by post-mission / robin-event flows
 // that need to surface a narrative beat without taking the player off-page.
 //
-// Extracted from ChronicleJournal.tsx so it can be opened from anywhere.
+// The entry turns like a book: its authored slides (split on "---") are laid
+// out as a PageFlip book — the same 3D page-turn the intro cinematic uses —
+// on aged parchment. Single-slide entries render as one static page (with
+// internal scroll if long). Dismiss folds the whole thing into the sidebar
+// Chronicle link so the player sees where it "lives".
 
-import { For, Show, createSignal, onMount } from "solid-js";
+import { For, Show, createSignal, createMemo, onMount, onCleanup } from "solid-js";
+import { PageFlip } from "page-flip";
 import { type ChronicleEntry, splitChronicleSlides } from "~/data/chronicle_entries";
 import { useGame } from "~/engine/gameState";
 import { playSound } from "~/engine/sounds";
@@ -15,39 +20,78 @@ interface Props {
   onClose: () => void;
 }
 
+const INK = "#2a2012";
+const INK_STRONG = "#17100a";
+const INK_SOFT = "#6b5636";
+const parchmentSrc = "/images/parchment/parchment_square.png";
+
 export default function ChronicleEntryModal(props: Props) {
   const { actions } = useGame();
   // Authored slides: a paragraph that is just "---" marks a page-turn. Entries
-  // with no marker parse to a single slide (unchanged from the old scroll view);
-  // long, dramatic entries turn like journal pages, landing a beat per page.
-  const slides = () => splitChronicleSlides(props.entry.fullText);
-  const [slide, setSlide] = createSignal(0);
+  // with no marker parse to a single slide.
+  const slides = createMemo(() => splitChronicleSlides(props.entry.fullText));
   const slideCount = () => slides().length;
-  const current = () => slides()[Math.min(slide(), slideCount() - 1)] ?? [];
+  const [slide, setSlide] = createSignal(0);
   const isLast = () => slide() >= slideCount() - 1;
 
-  let cardRef: HTMLDivElement | undefined;
+  const [size, setSize] = createSignal(540);
+  let flipContainerRef: HTMLDivElement | undefined;
+  let foldRef: HTMLDivElement | undefined;
+  let pageFlip: PageFlip | undefined;
   const [folding, setFolding] = createSignal(false);
 
-  const turnTo = (i: number) => {
-    setSlide(i);
+  // One page per slide (no interleaved backs) so PageFlip's flipNext/flipPrev
+  // turn a single adjacent page in the natural direction — Back no longer flies
+  // the page in from off-screen.
+  const next = () => {
+    if (slide() >= slideCount() - 1) return;
     playSound("page_turn");
-    cardRef?.scrollTo({ top: 0, behavior: "smooth" });
+    setSlide(slide() + 1);
+    pageFlip?.flipNext();
   };
-  const next = () => { if (!isLast()) turnTo(slide() + 1); };
-  const back = () => { if (slide() > 0) turnTo(slide() - 1); };
+  const back = () => {
+    if (slide() <= 0) return;
+    // Jump instantly (no fold) — the backward flip read strangely, so Back just
+    // returns to the previous page while only Next plays the page-turn.
+    setSlide(slide() - 1);
+    (pageFlip as any)?.turnToPrevPage();
+  };
 
   onMount(() => {
     playSound("page_turn");
     actions.markChronicleEntrySeen(props.entry.id);
+    if (!flipContainerRef) return;
+    // Square page sized to fit the viewport (matches the square parchment).
+    const s = Math.floor(Math.min(window.innerWidth * 0.9, window.innerHeight * 0.78, 560));
+    setSize(s);
+    const pages = flipContainerRef.querySelectorAll(".chronicle-page") as NodeListOf<HTMLElement>;
+    pages.forEach((p) => { p.style.width = `${s}px`; p.style.height = `${s}px`; });
+    // Only build the flip book when there's more than one page to turn.
+    if (slideCount() > 1) {
+      pageFlip = new PageFlip(flipContainerRef, {
+        width: s,
+        height: s,
+        showCover: false,
+        maxShadowOpacity: 0.4,
+        mobileScrollSupport: false,
+        flippingTime: 900,
+        useMouseEvents: false,
+        drawShadow: true,
+        autoSize: false,
+        startZIndex: 10,
+      } as any);
+      pageFlip.loadFromHTML(Array.from(pages));
+    }
   });
 
-  // Dismiss = fold the card down into the sidebar Chronicle link, so the player
-  // sees where the entry "lives" and how to find it again. Falls back to a plain
-  // close if the sidebar link isn't on screen (e.g. a collapsed layout).
+  onCleanup(() => pageFlip?.destroy());
+
+  // Dismiss = fold the whole book down into the sidebar Chronicle link, so the
+  // player sees where the entry lives. Falls back to a plain close if the link
+  // isn't on screen.
   const handleDismiss = () => {
     if (folding()) return;
-    const card = cardRef;
+    const card = foldRef;
     const target = document.querySelector('[data-nav-path="/chronicle"]') as HTMLElement | null;
     if (!card || !target) {
       props.onClose();
@@ -59,30 +103,17 @@ export default function ChronicleEntryModal(props: Props) {
     const dy = t.top + t.height / 2 - (c.top + c.height / 2);
 
     setFolding(true);
-    playSound("nav"); // the finger-snap, as it tucks into the sidebar
-    // Clear the open-animation (fill: both) so it stops overriding our transform.
-    card.style.animation = "none";
+    playSound("nav");
     card.style.transition = "transform 0.5s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.5s ease-in";
     card.style.transformOrigin = "center center";
     requestAnimationFrame(() => {
       card.style.transform = `translate(${dx}px, ${dy}px) scale(0.06)`;
       card.style.opacity = "0";
     });
-    // Flash the sidebar icon as the entry "lands" there.
     window.setTimeout(() => target.classList.add("nav-fold-land"), 420);
     window.setTimeout(() => target.classList.remove("nav-fold-land"), 1000);
     window.setTimeout(() => props.onClose(), 500);
   };
-
-  // Parchment page look (UX refont): dark ink on aged paper, the texture's own
-  // edges ARE the border, so no gold frame here. The paged modal renders
-  // roughly square (short slides), so the SQUARE texture fits its aspect
-  // cleanly — a portrait texture cropped to a square box bled its darkened
-  // edges into view. Portrait variants are kept for a future tall layout.
-  const INK = "#2a2012";
-  const INK_STRONG = "#17100a";
-  const INK_SOFT = "#6b5636";
-  const parchmentSrc = "/images/parchment/parchment_square.png";
 
   return (
     <div
@@ -92,100 +123,96 @@ export default function ChronicleEntryModal(props: Props) {
       style={{ "z-index": "1100" }}
     >
       <div
-        ref={cardRef}
-        class="page-modal-card"
-        style={{
-          "max-width": "620px",
-          "max-height": "86vh",
-          overflow: "auto",
-          // Full texture, no crop (100% 100%) so the whole page shows for review.
-          background: `url(${parchmentSrc}) center / 100% 100% no-repeat`,
-          border: "none",
-          "border-radius": "0",
-          padding: "42px 46px",
-          "box-shadow": "0 6px 20px rgba(0,0,0,0.35)",
-          position: "relative",
-        }}
+        ref={foldRef}
         onClick={(e) => e.stopPropagation()}
-      >
-        <button
-          onClick={handleDismiss}
-          style={{
-            position: "absolute", top: "12px", right: "16px",
-            background: "transparent", border: "none",
-            color: INK_SOFT, "font-size": "1.4rem",
-            cursor: "pointer", "line-height": "1",
-          }}
-          aria-label="Close"
-        >
-          ×
-        </button>
-
-        <div class="section-label" style={{ "font-size": "0.7rem", color: INK_SOFT, "letter-spacing": "0.08em" }}>
-          Page {props.entry.order}
-        </div>
-        <h2 style={{
-          "font-size": "1.35rem",
-          color: INK_STRONG,
-          "margin-bottom": "18px",
-          "font-family": "var(--font-heading)",
-        }}>
-          {props.entry.title}
-        </h2>
-
-        <div style={{
-          "font-size": "0.95rem",
-          color: INK,
-          "font-style": "italic",
-          "line-height": "1.7",
-        }}>
-          <For each={current()}>
-            {(p) => <p style={{ "margin-bottom": "14px" }}>{p}</p>}
-          </For>
-        </div>
-
-        <div style={{
-          "margin-top": "20px",
-          "padding-top": "16px",
-          "border-top": "1px solid rgba(90, 74, 48, 0.3)",
+        style={{
           display: "flex",
+          "flex-direction": "column",
           "align-items": "center",
-          gap: "12px",
-        }}>
-          {/* Replay is hidden for now except for the arrival intro — other
-              cinematics are deferred (no art yet). */}
+          gap: "16px",
+        }}
+      >
+        {/* Book — a fixed square page (or a PageFlip book of several) on parchment. */}
+        <div style={{ position: "relative", width: `${size()}px`, height: `${size()}px` }}>
+          <button
+            onClick={handleDismiss}
+            style={{
+              position: "absolute", top: "12px", right: "16px", "z-index": 200,
+              background: "transparent", border: "none",
+              color: INK_SOFT, "font-size": "1.4rem",
+              cursor: "pointer", "line-height": "1",
+            }}
+            aria-label="Close"
+          >
+            ×
+          </button>
+          <div ref={flipContainerRef} style={{ position: "absolute", inset: 0 }}>
+            <For each={slides()}>
+              {(paras, i) => (
+                <div
+                  class="chronicle-page"
+                  style={{
+                    width: `${size()}px`, height: `${size()}px`,
+                    position: "relative", overflow: "hidden",
+                  }}
+                >
+                  {/* Parchment as an <img>, not a CSS background — PageFlip
+                      re-parents the page elements and drops background-image,
+                      so it must be a real child (same as the cinematic). */}
+                  <img src={parchmentSrc} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", "object-fit": "cover" }} />
+                  <div style={{
+                    position: "absolute", inset: 0,
+                    "z-index": 1,
+                    padding: "44px 48px",
+                    overflow: "auto",
+                    display: "flex", "flex-direction": "column",
+                  }}>
+                    <div class="section-label" style={{ "font-size": "0.7rem", color: INK_SOFT, "letter-spacing": "0.08em" }}>
+                      {slideCount() > 1 ? `Page ${i() + 1} of ${slideCount()}` : `Page ${props.entry.order}`}
+                    </div>
+                    <Show when={i() === 0}>
+                      <h2 style={{
+                        "font-size": "1.35rem", color: INK_STRONG,
+                        "margin-bottom": "18px", "font-family": "var(--font-heading)",
+                      }}>
+                        {props.entry.title}
+                      </h2>
+                    </Show>
+                    <div style={{ "font-size": "0.95rem", color: INK, "font-style": "italic", "line-height": "1.7" }}>
+                      <For each={paras}>
+                        {(p) => <p style={{ "margin-bottom": "14px" }}>{p}</p>}
+                      </For>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </For>
+          </div>
+        </div>
+
+        {/* Controls — below the book, on the backdrop (like the cinematic). */}
+        <div style={{ display: "flex", "align-items": "center", gap: "12px" }}>
           <Show when={props.entry.cinematicId === "intro"}>
             <button
               style={{
-                padding: "8px 14px",
-                background: "rgba(167, 139, 250, 0.15)",
-                border: "1px solid rgba(167, 139, 250, 0.4)",
-                color: "var(--text-primary)",
-                "border-radius": "6px",
-                cursor: "pointer",
-                "font-size": "0.85rem",
+                padding: "8px 14px", background: "rgba(167, 139, 250, 0.15)",
+                border: "1px solid rgba(167, 139, 250, 0.4)", color: "#e8dcc0",
+                "border-radius": "6px", cursor: "pointer", "font-size": "0.85rem",
               }}
-              onClick={() => {
-                alert("Replay cinematic: " + props.entry.cinematicId + " (not wired yet)");
-              }}
+              onClick={() => alert("Replay cinematic: " + props.entry.cinematicId + " (not wired yet)")}
             >
               ▶ Replay cinematic
             </button>
           </Show>
-          {/* Page-turn controls — only when the entry is authored into slides */}
           <Show when={slideCount() > 1}>
             <button
               onClick={back}
               disabled={slide() === 0}
               style={{
-                padding: "8px 14px",
-                background: "transparent",
-                border: `1px solid ${INK_SOFT}`,
-                color: INK,
-                "border-radius": "6px",
-                cursor: slide() === 0 ? "default" : "pointer",
-                opacity: slide() === 0 ? "0.35" : "1",
-                "font-size": "0.85rem",
+                padding: "8px 14px", background: "rgba(20, 14, 6, 0.5)",
+                border: `1px solid ${INK_SOFT}`, color: "#e8dcc0",
+                "border-radius": "6px", cursor: slide() === 0 ? "default" : "pointer",
+                opacity: slide() === 0 ? "0.35" : "1", "font-size": "0.85rem",
               }}
             >
               ← Back
@@ -195,7 +222,7 @@ export default function ChronicleEntryModal(props: Props) {
                 {(_, i) => (
                   <span style={{
                     width: "7px", height: "7px", "border-radius": "50%",
-                    background: i() === slide() ? INK_STRONG : "rgba(90, 74, 48, 0.35)",
+                    background: i() === slide() ? "#d8c79c" : "rgba(216, 199, 156, 0.35)",
                     transition: "background 0.2s ease",
                   }} />
                 )}
@@ -205,14 +232,11 @@ export default function ChronicleEntryModal(props: Props) {
           <button
             onClick={() => (isLast() ? handleDismiss() : next())}
             style={{
-              "margin-left": "auto",
-              padding: "8px 16px",
-              background: isLast() ? "transparent" : "#5f4a2a",
+              padding: "9px 18px",
+              background: isLast() ? "rgba(20, 14, 6, 0.5)" : "#5f4a2a",
               border: `1px solid ${isLast() ? INK_SOFT : "#5f4a2a"}`,
-              color: isLast() ? INK : "#f3ead4",
-              "border-radius": "6px",
-              cursor: "pointer",
-              "font-size": "0.85rem",
+              color: isLast() ? "#e8dcc0" : "#f3ead4",
+              "border-radius": "6px", cursor: "pointer", "font-size": "0.85rem",
               "font-weight": isLast() ? 400 : 600,
             }}
           >
