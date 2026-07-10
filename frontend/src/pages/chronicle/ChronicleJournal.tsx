@@ -126,8 +126,11 @@ export default function ChronicleJournal() {
                 </div>
               </div>
 
-              {/* Entry grid */}
-              <div style={{
+              {/* Entry grid — framed as one parent panel (the cards inside stay
+                  plain + square), rather than a frame per entry. */}
+              <div class="ornament-frame" style={{
+                background: "var(--bg-secondary)",
+                padding: "14px",
                 display: "grid",
                 "grid-template-columns": "repeat(auto-fill, minmax(260px, 1fr))",
                 // Equal-height cards across ALL rows (not just within a row):
@@ -160,7 +163,7 @@ export default function ChronicleJournal() {
                       <div
                         id={`chronicle-entry-${entry.id}`}
                         class="building-card"
-                        classList={{ "chronicle-entry-card": unlocked(), dimmed: !unlocked(), "ornament-frame": true, "ornament-frame--common": !unlocked() }}
+                        classList={{ "chronicle-entry-card": unlocked(), dimmed: !unlocked() }}
                         style={{
                           cursor: unlocked() ? "pointer" : "default",
                           transition: "transform 0.15s, filter 0.15s, border-color 0.25s, box-shadow 0.25s, background 0.25s",

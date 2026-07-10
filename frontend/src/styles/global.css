@@ -662,6 +662,7 @@ body {
      wrapper (a bare inline <span> would collapse to 0 and render nothing). */
   display: inline-block;
   position: relative;
+  top: 2px; /* nudge down — reads a touch high against the label baseline */
   width: 20px;
   height: 20px;
   flex: 0 0 auto;
