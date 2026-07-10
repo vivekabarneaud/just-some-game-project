@@ -557,7 +557,7 @@ export interface GameState {
   fiber: number;
   leather: number;
   /** Bone — from culling livestock + the hunting camp. Feeds bone broth (and,
-   *  later, fertilizer / bone tools). A crafting material like leather. */
+   *  later, fertilizer / bone tools like needles / buttons). A crafting material like leather. */
   bone: number;
   clothing: number;
   iron: number;

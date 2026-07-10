@@ -901,7 +901,12 @@ function PenCard(props: { pen: PlayerPen }) {
               </Show>
             </StatBox>
             <StatBox label="Produces">
-              +{prod().produced}/h {animal().foodLabel.toLowerCase()}
+              <Show
+                when={getPenProduction(animal(), 1).produced > 0}
+                fallback={<span style={{ color: "var(--text-muted)" }}>raised for meat · cull for the yield</span>}
+              >
+                +{prod().produced}/h {animal().foodLabel.toLowerCase()}
+              </Show>
               {secondaryDisplay()}
             </StatBox>
           </StatRow>
@@ -919,14 +924,15 @@ function PenCard(props: { pen: PlayerPen }) {
               >
                 Buy {animal().icon} 💰{getAnimalBuyCost(props.pen.animal)}
               </button>
-              <button
-                onClick={() => actions.cullLivestock(props.pen.id, 1)}
-                disabled={props.pen.count <= 0}
-                title={`Slaughter one for +${getCullYield(props.pen.animal).meat} meat${getCullYield(props.pen.animal).leather ? `, +${getCullYield(props.pen.animal).leather} leather` : ""}${getCullYield(props.pen.animal).bone ? `, +${getCullYield(props.pen.animal).bone} bone` : ""}`}
-                style={{ padding: "4px 10px", "font-size": "0.8rem", cursor: "pointer" }}
-              >
-                Cull 🥩
-              </button>
+              <Tooltip text={`Slaughter one for +${getCullYield(props.pen.animal).meat} meat${getCullYield(props.pen.animal).leather ? `, +${getCullYield(props.pen.animal).leather} leather` : ""}${getCullYield(props.pen.animal).bone ? `, +${getCullYield(props.pen.animal).bone} bone` : ""}`}>
+                <button
+                  onClick={() => actions.cullLivestock(props.pen.id, 1)}
+                  disabled={props.pen.count <= 0}
+                  style={{ padding: "4px 10px", "font-size": "0.8rem", cursor: "pointer" }}
+                >
+                  Cull 🥩
+                </button>
+              </Tooltip>
             </div>
           </div>
 
