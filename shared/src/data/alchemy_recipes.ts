@@ -74,7 +74,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
     description: "Cures the froth (rabid-boar bite-sickness) on a resting hero, and heals 30% HP. Ground boar tusk and mugwort — the bite's own cure.",
     tier: "novice",
     minLabLevel: 1,
-    costs: [{ resource: "tusk_shard", amount: 2 }, { resource: "mugwort", amount: 1 }],
+    costs: [{ resource: "tusk_shard", amount: 1 }, { resource: "mugwort", amount: 1 }],
     effect: "curefroth",
     craftTime: 300,
     starterRecipe: true,
