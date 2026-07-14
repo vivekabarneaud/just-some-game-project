@@ -512,7 +512,9 @@ export default function Overview() {
           <div class="stat-row">
             <span class="stat-label">Population</span>
             <span class="stat-value">
-              {totalPopulation(state.citizens)} / {actions.getMaxPopulation()}
+              {/* Occupancy = townsfolk + living adventurers, matching the top bar
+                  (both share the town's beds). Citizens-only read as too low. */}
+              {totalPopulation(state.citizens) + state.adventurers.filter((a) => a.alive).length} / {actions.getMaxPopulation()}
             </span>
           </div>
           {(() => {
