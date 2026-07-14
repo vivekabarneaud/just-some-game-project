@@ -239,8 +239,8 @@ export default function Tavern() {
                     )}
                   </For>
                   <button
-                    class="field-upgrade-btn"
-                    style={{ "font-size": "0.76rem", padding: "5px 10px", "align-self": "flex-start" }}
+                    class="btn-tertiary"
+                    style={{ "font-size": "0.76rem", "align-self": "flex-start" }}
                     onClick={() => openEditor(col.kind)}
                   >
                     ＋ Add {col.label.toLowerCase()}
@@ -306,8 +306,8 @@ export default function Tavern() {
                       <strong>{used()}</strong> / {cap()} menu slots{over() ? " — remove some to apply" : ""}
                     </div>
                     <div style={{ display: "flex", gap: "8px" }}>
-                      <button class="field-upgrade-btn" style={{ "font-size": "0.82rem", padding: "6px 14px", background: "var(--bg-card)" }} onClick={() => setEditKind(null)}>Cancel</button>
-                      <button class="field-upgrade-btn" disabled={over()} style={{ "font-size": "0.82rem", padding: "6px 16px", opacity: over() ? "0.5" : "1" }} onClick={() => applyEditor(kind())}>Apply</button>
+                      <button class="btn-secondary" style={{ "font-size": "0.82rem" }} onClick={() => setEditKind(null)}>Cancel</button>
+                      <button class="btn-primary" disabled={over()} style={{ "font-size": "0.82rem" }} onClick={() => applyEditor(kind())}>Apply</button>
                     </div>
                   </div>
                 </div>

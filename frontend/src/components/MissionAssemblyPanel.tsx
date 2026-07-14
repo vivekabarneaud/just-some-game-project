@@ -1297,11 +1297,8 @@ export default function MissionAssemblyPanel(props: Props) {
         </div>
 
         <button
-          style={{
-            "margin-top": "12px", padding: "6px 14px", background: "none",
-            border: "1px solid var(--border-color)", "border-radius": "4px",
-            color: "var(--text-muted)", cursor: "pointer", "font-size": "0.8rem",
-          }}
+          class="btn-secondary"
+          style={{ "margin-top": "12px" }}
           onClick={props.onCancel}
         >
           Cancel
@@ -1493,6 +1490,7 @@ export default function MissionAssemblyPanel(props: Props) {
             </Show>
           </div>
           <button
+            class="btn-secondary"
             onClick={async () => {
               if (!confirm("Cancel this co-op expedition?")) return;
               try {
@@ -1503,12 +1501,7 @@ export default function MissionAssemblyPanel(props: Props) {
             style={{
               width: "100%",
               "margin-top": "8px",
-              padding: "4px 12px",
-              background: "transparent",
-              border: "1px solid var(--accent-red)",
-              "border-radius": "4px",
-              color: "var(--accent-red)",
-              cursor: "pointer",
+              "justify-content": "center",
               "font-size": "0.8rem",
             }}
           >
@@ -1532,16 +1525,12 @@ export default function MissionAssemblyPanel(props: Props) {
         {/* Co-op invite button — expeditions only (hidden when already in coop) */}
         <Show when={isExpedition(freshMission()) && !isCoop()}>
           <button
+            class="btn-secondary"
             onClick={openCoopPicker}
             style={{
               width: "100%",
               "margin-top": "8px",
-              padding: "6px 12px",
-              background: "rgba(167, 139, 250, 0.12)",
-              border: "1px solid #a78bfa",
-              "border-radius": "4px",
-              color: "#a78bfa",
-              cursor: "pointer",
+              "justify-content": "center",
               "font-size": "0.85rem",
             }}
           >
@@ -1597,15 +1586,10 @@ export default function MissionAssemblyPanel(props: Props) {
               )}
             </For>
             <button
+              class="btn-tertiary"
               onClick={() => setShowCoopPicker(false)}
               style={{
                 "margin-top": "6px",
-                padding: "4px 10px",
-                background: "transparent",
-                border: "1px solid var(--border-color)",
-                "border-radius": "4px",
-                color: "var(--text-muted)",
-                cursor: "pointer",
                 "font-size": "0.75rem",
               }}
             >
@@ -1650,14 +1634,14 @@ export default function MissionAssemblyPanel(props: Props) {
               </ul>
               <div style={{ display: "flex", gap: "10px", "justify-content": "flex-end" }}>
                 <button
+                  class="btn-secondary"
                   onClick={() => setShowDeathWarning(false)}
-                  style={{ padding: "9px 18px", background: "transparent", border: "1px solid var(--border-color)", "border-radius": "6px", color: "var(--text-secondary)", cursor: "pointer", "font-family": "var(--font-heading)" }}
                 >
                   Keep them home
                 </button>
                 <button
+                  class="btn-primary"
                   onClick={() => { setShowDeathWarning(false); doDeploy(); }}
-                  style={{ padding: "9px 18px", background: "var(--accent-red)", border: "none", "border-radius": "6px", color: "#fff", cursor: "pointer", "font-weight": "bold", "font-family": "var(--font-heading)" }}
                 >
                   Send them anyway
                 </button>

@@ -458,16 +458,10 @@ export default function AdventurersGuild() {
                         )}
                       </span>
                       <button
+                        classList={{ "btn-primary": result.rewards.length > 0, "btn-tertiary": result.rewards.length === 0 }}
                         onClick={() => handleClaim(i())}
                         style={{
-                          padding: "4px 12px",
-                          background: result.rewards.length > 0 ? "var(--accent-gold)" : "transparent",
-                          color: result.rewards.length > 0 ? "#1a1a1a" : "var(--text-muted)",
-                          border: result.rewards.length > 0 ? "none" : "1px solid var(--border-color)",
-                          "border-radius": "4px",
-                          cursor: "pointer",
                           "font-size": "0.8rem",
-                          "font-weight": "600",
                           "white-space": "nowrap",
                         }}
                       >
@@ -594,12 +588,9 @@ export default function AdventurersGuild() {
                               Accept
                             </button>
                             <button
+                              class="btn-secondary"
                               onClick={() => handleRespondCoop(c.id, false)}
-                              style={{
-                                padding: "4px 12px", background: "transparent",
-                                border: "1px solid var(--border-color)", "border-radius": "4px",
-                                color: "var(--text-muted)", cursor: "pointer", "font-size": "0.8rem",
-                              }}
+                              style={{ "font-size": "0.8rem" }}
                             >
                               Decline
                             </button>
@@ -636,12 +627,9 @@ export default function AdventurersGuild() {
                           </Show>
                           <Show when={c.status === "pending" && !isIncoming}>
                             <button
+                              class="btn-secondary"
                               onClick={() => handleCancelCoop(c.id)}
-                              style={{
-                                padding: "4px 12px", background: "transparent",
-                                border: "1px solid var(--border-color)", "border-radius": "4px",
-                                color: "var(--text-muted)", cursor: "pointer", "font-size": "0.8rem",
-                              }}
+                              style={{ "font-size": "0.8rem" }}
                             >
                               Cancel
                             </button>
@@ -760,17 +748,9 @@ export default function AdventurersGuild() {
                       <Show when={phase() === "combat" && currentCombat()}>
                         <div style={{ "margin-top": "6px" }}>
                           <button
+                            class="btn-secondary"
                             onClick={(e) => { e.stopPropagation(); setPlaybackOpen(true); }}
-                            style={{
-                              background: "rgba(231, 76, 60, 0.15)",
-                              border: "1px solid var(--accent-red)",
-                              color: "var(--accent-red)",
-                              cursor: "pointer",
-                              padding: "4px 12px",
-                              "border-radius": "4px",
-                              "font-size": "0.82rem",
-                              "font-weight": "bold",
-                            }}
+                            style={{ "font-size": "0.82rem" }}
                           >
                             ▶ Watch combat
                           </button>
@@ -873,17 +853,10 @@ export default function AdventurersGuild() {
               const canAfford = state.astralShards >= cost;
               return (
             <button
+              class="btn-secondary"
               onClick={() => actions.rerollMissions()}
               disabled={!canAfford}
-              style={{
-                padding: "3px 10px",
-                background: canAfford ? "rgba(167, 139, 250, 0.2)" : "var(--bg-secondary)",
-                border: `1px solid ${canAfford ? "#a78bfa" : "var(--border-default)"}`,
-                color: canAfford ? "#a78bfa" : "var(--text-muted)",
-                "border-radius": "4px",
-                cursor: canAfford ? "pointer" : "default",
-                "font-size": "0.75rem",
-              }}
+              style={{ "font-size": "0.75rem" }}
             >
               Reroll ({cost} 💠)
             </button>

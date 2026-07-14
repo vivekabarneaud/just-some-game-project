@@ -102,7 +102,7 @@ export default function SettingsModal() {
           <Show
             when={confirmReset()}
             fallback={
-              <button class="settings-danger-btn" onClick={() => setConfirmReset(true)}>
+              <button class="btn-tertiary" style={{ width: "100%", "justify-content": "center" }} onClick={() => setConfirmReset(true)}>
                 🔥 Start a new game...
               </button>
             }

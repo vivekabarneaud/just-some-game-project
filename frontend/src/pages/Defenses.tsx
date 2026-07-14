@@ -177,6 +177,7 @@ function RepairButton(props: {
   return (
     <div class="upgrade-indicator" style={{ position: "relative", display: "inline-block" }}>
       <button
+        class="btn-secondary"
         disabled={!canRepair()}
         onClick={(e) => {
           if (canRepair()) {
@@ -185,16 +186,7 @@ function RepairButton(props: {
             props.onRepair();
           }
         }}
-        style={{
-          "font-size": "0.78rem",
-          padding: "5px 10px",
-          background: "transparent",
-          border: "1px solid var(--accent-gold)",
-          color: "var(--accent-gold)",
-          "border-radius": "4px",
-          cursor: canRepair() ? "pointer" : "not-allowed",
-          opacity: canRepair() ? 1 : 0.55,
-        }}
+        style={{ "font-size": "0.78rem" }}
       >
         🔨 {props.label ?? "Repair"}
       </button>
@@ -554,18 +546,10 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
               ? `Recruit archer — ${ARCHER_COST.gold}g, takes 1 citizen`
               : recruitBlocker()}>
             <button
+              class="btn-primary"
               disabled={!canRecruit()}
               onClick={() => actions.recruitArcher(props.ring)}
-              style={{
-                "font-size": "0.78rem",
-                padding: "5px 10px",
-                background: "rgba(218, 165, 32, 0.1)",
-                border: "1px solid var(--accent-gold)",
-                color: "var(--accent-gold)",
-                "border-radius": "4px",
-                cursor: canRecruit() ? "pointer" : "not-allowed",
-                opacity: canRecruit() ? 1 : 0.5,
-              }}
+              style={{ "font-size": "0.78rem" }}
             >
               +Archer ({ARCHER_COST.gold}g)
             </button>
@@ -578,14 +562,9 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
           </div>
           <Tooltip text="Open the watchtower garrison panel">
           <button
+            class="btn-tertiary"
             onClick={() => setOpenGarrison({ kind: "watchtower", ring: props.ring })}
-            style={{
-              "font-size": "0.78rem", padding: "5px 10px",
-              background: "transparent",
-              border: "1px solid var(--border-color)",
-              color: "var(--text-secondary)",
-              "border-radius": "4px", cursor: "pointer",
-            }}
+            style={{ "font-size": "0.78rem" }}
           >
             ⚙ Manage
           </button>
@@ -682,18 +661,10 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
               ? `Recruit soldier — ${SOLDIER_COST.gold}g, takes 1 citizen`
               : recruitBlocker()}>
             <button
+              class="btn-primary"
               disabled={!canRecruit()}
               onClick={() => actions.recruitSoldier(props.ring)}
-              style={{
-                "font-size": "0.78rem",
-                padding: "5px 10px",
-                background: "rgba(218, 165, 32, 0.1)",
-                border: "1px solid var(--accent-gold)",
-                color: "var(--accent-gold)",
-                "border-radius": "4px",
-                cursor: canRecruit() ? "pointer" : "not-allowed",
-                opacity: canRecruit() ? 1 : 0.5,
-              }}
+              style={{ "font-size": "0.78rem" }}
             >
               +Soldier ({SOLDIER_COST.gold}g)
             </button>
@@ -706,14 +677,9 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
           </div>
           <Tooltip text="Open the barracks garrison panel">
           <button
+            class="btn-tertiary"
             onClick={() => setOpenGarrison({ kind: "barracks", ring: props.ring })}
-            style={{
-              "font-size": "0.78rem", padding: "5px 10px",
-              background: "transparent",
-              border: "1px solid var(--border-color)",
-              color: "var(--text-secondary)",
-              "border-radius": "4px", cursor: "pointer",
-            }}
+            style={{ "font-size": "0.78rem" }}
           >
             ⚙ Manage
           </button>

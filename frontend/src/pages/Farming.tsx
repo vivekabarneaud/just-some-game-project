@@ -689,8 +689,8 @@ function GardenCard(props: { garden: PlayerGarden }) {
         <Show when={!props.garden.upgrading && props.garden.level > 0 && roomLeft() > 0}>
           <Tooltip block style={{ "margin-top": "8px" }} text={canPlant() ? "" : plantBlockedReason()}>
           <button
-            class="field-upgrade-btn"
-            style={{ width: "100%" }}
+            class="btn-primary"
+            style={{ width: "100%", "justify-content": "center" }}
             disabled={!canPlant()}
             onClick={() => actions.plantGarden(props.garden.id)}
           >
@@ -975,27 +975,19 @@ function PenCard(props: { pen: PlayerPen }) {
                 </div>
                 <div style={{ display: "flex", gap: "12px" }}>
                   <button
+                    class="btn-secondary"
                     onClick={() => actions.buyLivestock(props.pen.id, 1)}
                     disabled={buyDisabled()}
-                    style={{
-                      flex: "1", height: "40px", padding: "0 12px", "font-size": "0.9rem",
-                      cursor: buyDisabled() ? "default" : "pointer", "border-radius": "6px",
-                      border: "1px solid var(--accent-gold)", color: "var(--accent-gold)", background: "rgba(212, 175, 55, 0.12)",
-                      opacity: buyDisabled() ? 0.45 : 1,
-                    }}
+                    style={{ flex: "1", height: "40px", "font-size": "0.9rem", "justify-content": "center" }}
                   >
                     Buy {animal().icon} 💰{buyCost()}
                   </button>
                   <Tooltip block style={{ flex: "1" }} text={`Slaughter one for +${cy().meat} meat${cy().leather ? `, +${cy().leather} leather` : ""}${cy().bone ? `, +${cy().bone} bone` : ""}`}>
                     <button
+                      class="btn-secondary"
                       onClick={() => actions.cullLivestock(props.pen.id, 1)}
                       disabled={props.pen.count <= 0}
-                      style={{
-                        width: "100%", height: "40px", padding: "0 12px", "font-size": "0.9rem",
-                        cursor: props.pen.count <= 0 ? "default" : "pointer", "border-radius": "6px",
-                        border: "1px solid var(--accent-red)", color: "var(--accent-red)", background: "rgba(231, 76, 60, 0.10)",
-                        opacity: props.pen.count <= 0 ? 0.45 : 1,
-                      }}
+                      style={{ width: "100%", height: "40px", "font-size": "0.9rem", "justify-content": "center" }}
                     >
                       Cull 🥩
                     </button>
@@ -1015,9 +1007,10 @@ function PenCard(props: { pen: PlayerPen }) {
             </Show>
             <Show when={!props.pen.guardDog}>
               <button
+                class="btn-secondary"
                 onClick={() => actions.buyGuardDog(props.pen.id)}
                 disabled={state.resources.gold < GUARD_DOG_COST}
-                style={{ padding: "4px 10px", "font-size": "0.8rem", cursor: "pointer" }}
+                style={{ "font-size": "0.8rem" }}
               >
                 Guard dog 💰{GUARD_DOG_COST}
               </button>

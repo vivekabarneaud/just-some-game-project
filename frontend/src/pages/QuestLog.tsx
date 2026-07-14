@@ -494,18 +494,13 @@ function QuestCard(props: {
         <div style={{ "display": "flex", "flex-direction": "column", "gap": "6px", "align-items": "stretch" }}>
           <Show when={props.claimable && !isMemoryCheckin()}>
             <button
+              class="btn-primary"
               onClick={props.onClaim}
               style={{
                 "margin-top": "auto",
-                "padding": "6px 12px",
-                "background": "var(--accent-gold)",
-                "color": "#000",
-                "border": "none",
-                "border-radius": "4px",
-                "cursor": "pointer",
-                "font-weight": "bold",
                 "font-size": "0.85rem",
                 "white-space": "nowrap",
+                "justify-content": "center",
               }}
             >
               Claim

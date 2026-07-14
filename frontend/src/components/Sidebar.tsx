@@ -547,10 +547,10 @@ export default function Sidebar(props: SidebarProps) {
             ))}
           </div>
           <div class="nav-section-title" style={{ "margin-top": "12px" }}>Dev Tools</div>
-          <button class="skip-season-btn" onClick={() => actions.grantResources(100)}>
+          <button class="btn-tertiary" style={{ width: "100%", "justify-content": "center" }} onClick={() => actions.grantResources(100)}>
             +100 all resources
           </button>
-          <button class="skip-season-btn" onClick={() => actions.triggerRaid()}>
+          <button class="btn-tertiary" style={{ width: "100%", "justify-content": "center" }} onClick={() => actions.triggerRaid()}>
             Trigger raid (1min)
           </button>
           <div class="dev-weather-row">
@@ -570,7 +570,7 @@ export default function Sidebar(props: SidebarProps) {
             </select>
           </div>
           <div class="nav-section-title" style={{ "margin-top": "12px" }}>Test Snapshot</div>
-          <button class="skip-season-btn" onClick={() => {
+          <button class="btn-tertiary" style={{ width: "100%", "justify-content": "center" }} onClick={() => {
             actions.saveDevSnapshot();
             setHasSnap(true);
             setSnapSaved(true);
@@ -579,7 +579,7 @@ export default function Sidebar(props: SidebarProps) {
             {snapSaved() ? "✓ Snapshot saved" : "💾 Save snapshot"}
           </button>
           <Show when={hasSnap()}>
-            <button class="skip-season-btn" onClick={() => {
+            <button class="btn-tertiary" style={{ width: "100%", "justify-content": "center" }} onClick={() => {
               if (confirm("Restore the saved snapshot? Your current progress will be replaced by the snapshot and the page will reload.")) {
                 actions.restoreDevSnapshot();
               }
@@ -588,7 +588,7 @@ export default function Sidebar(props: SidebarProps) {
             </button>
           </Show>
 
-          <button class="reset-btn" onClick={() => {
+          <button class="btn-tertiary" style={{ width: "100%", "justify-content": "center" }} onClick={() => {
             if (confirm("Start a new game? All progress will be lost.")) {
               actions.resetGame();
               // Send the player to the Overview — that's where a real new
@@ -620,14 +620,16 @@ export default function Sidebar(props: SidebarProps) {
         </Show>
         <Tooltip text="Open settings" block style={{ "margin-bottom": "6px" }}>
         <button
-          class="account-btn"
+          class="btn-tertiary"
+          style={{ width: "100%", "justify-content": "center" }}
           onClick={() => setOpenSettings(true)}
         >
           <span style={{ "margin-right": "6px" }}>⚙</span> Settings
         </button>
         </Tooltip>
         <button
-          class="account-btn"
+          class="btn-tertiary"
+          style={{ width: "100%", "justify-content": "center" }}
           onClick={() => {
             if (confirm("Log out of your account?")) logout();
           }}

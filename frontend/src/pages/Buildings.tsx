@@ -521,11 +521,10 @@ export default function Buildings() {
                         )}
                         {building.id === "brewery" && level() > 0 && (
                           <button
+                            class="btn-tertiary"
                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setManageBrewery(true); }}
                             style={{
-                              "margin-top": "6px", padding: "5px 10px", "font-size": "0.78rem",
-                              background: "transparent", border: "1px solid var(--border-color)",
-                              color: "var(--text-secondary)", "border-radius": "4px", cursor: "pointer",
+                              "margin-top": "6px", "font-size": "0.78rem",
                               "align-self": "flex-start",
                             }}
                           >
@@ -537,13 +536,12 @@ export default function Buildings() {
                           const short = () => st().active < st().capacity;
                           return (
                             <button
+                              class="btn-tertiary"
                               onClick={(e) => { e.preventDefault(); e.stopPropagation(); setManageStaff(building.id); }}
                               style={{
-                                "margin-top": "6px", padding: "5px 10px", "font-size": "0.78rem",
-                                background: "transparent",
-                                border: `1px solid ${short() ? "var(--accent-red)" : "var(--border-color)"}`,
-                                color: short() ? "var(--accent-red)" : "var(--text-secondary)",
-                                "border-radius": "4px", cursor: "pointer", "align-self": "flex-start",
+                                "margin-top": "6px", "font-size": "0.78rem",
+                                color: short() ? "var(--accent-red)" : undefined,
+                                "align-self": "flex-start",
                               }}
                             >
                               ⚙ Manage staff · {st().active}/{st().capacity}
@@ -560,17 +558,11 @@ export default function Buildings() {
                               const canRepair = () => state.resources.wood >= cost.wood && state.resources.stone >= cost.stone;
                               return (
                                 <button
+                                  class="btn-primary"
                                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); actions.repairBuilding(building.id); }}
                                   disabled={!canRepair()}
                                   style={{
-                                    padding: "4px 10px",
-                                    background: canRepair() ? "var(--accent-gold)" : "rgba(255,255,255,0.1)",
-                                    color: canRepair() ? "#1a1a1a" : "var(--text-muted)",
-                                    border: "none",
-                                    "border-radius": "4px",
-                                    cursor: canRepair() ? "pointer" : "not-allowed",
                                     "font-size": "0.72rem",
-                                    "font-weight": "600",
                                     "white-space": "nowrap",
                                     "flex-shrink": 0,
                                   }}

@@ -1191,7 +1191,7 @@ body {
      and the thin border lets the shine sweep reach the button's edges). */
   background: linear-gradient(180deg, #dcc06a 0%, #c49c3e 55%, #b28a30 100%);
   border: 1px solid #9a7a2c;
-  border-radius: 4px;
+  border-radius: 2px;
   color: #3a2a0e; /* dark ink — reads on the gold */
   font-family: var(--font-heading);
   font-size: 1rem;
@@ -1261,6 +1261,49 @@ body {
   cursor: not-allowed;
   transform: none;
   filter: grayscale(0.5);
+}
+
+/* Tertiary — low-emphasis actions. The delicate common frame ties the button
+   tiers into the rarity system (common = lowest). Genuinely micro controls
+   (−/+ steppers, × closes, icon toggles) stay plain, no frame. */
+.btn-tertiary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  background: transparent;
+  border: 6px solid transparent;
+  border-image: url(/images/frames/item_frame_common.png) 40 stretch;
+  border-radius: 0;
+  color: var(--text-secondary);
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.15s;
+}
+.btn-tertiary:hover {
+  filter: brightness(1.25);
+  transform: translateY(-1px);
+}
+.btn-tertiary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  filter: grayscale(0.5);
+}
+
+/* Quantity input inside a ± stepper — no spinner arrows, no focus ring. */
+.qty-input::-webkit-outer-spin-button,
+.qty-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.qty-input {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.qty-input:focus {
+  outline: none;
 }
 
 .building-effect {
