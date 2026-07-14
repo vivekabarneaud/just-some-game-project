@@ -624,7 +624,7 @@ export default function Sidebar(props: SidebarProps) {
           style={{ width: "100%", "justify-content": "center" }}
           onClick={() => setOpenSettings(true)}
         >
-          <span style={{ "margin-right": "6px" }}>⚙</span> Settings
+          Settings
         </button>
         </Tooltip>
         <button
@@ -634,7 +634,7 @@ export default function Sidebar(props: SidebarProps) {
             if (confirm("Log out of your account?")) logout();
           }}
         >
-          <span style={{ "margin-right": "6px" }}>🚪</span> Log out
+          Log out
         </button>
       </div>
     </aside>

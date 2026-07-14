@@ -975,10 +975,10 @@ function PenCard(props: { pen: PlayerPen }) {
                 </div>
                 <div style={{ display: "flex", gap: "12px" }}>
                   <button
-                    class="btn-secondary"
+                    class="btn-primary"
                     onClick={() => actions.buyLivestock(props.pen.id, 1)}
                     disabled={buyDisabled()}
-                    style={{ flex: "1", height: "40px", "font-size": "0.9rem", "justify-content": "center" }}
+                    style={{ flex: "1", "font-size": "0.9rem" }}
                   >
                     Buy {animal().icon} 💰{buyCost()}
                   </button>

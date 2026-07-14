@@ -1185,8 +1185,11 @@ body {
   overflow: hidden; /* clip the shine sweep to the button */
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 10px 22px;
+  padding: 0 22px;
+  min-height: 40px; /* uniform height everywhere — inline padding/font can't change it */
+  box-sizing: border-box;
   /* CSS gold gradient (replaces the hand-drawn fill — lighter + more delicate,
      and the thin border lets the shine sweep reach the button's edges). */
   background: linear-gradient(180deg, #dcc06a 0%, #c49c3e 55%, #b28a30 100%);
@@ -1240,8 +1243,11 @@ body {
 .btn-secondary {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 9px 20px;
+  padding: 0 20px;
+  min-height: 40px; /* matches .btn-primary so the two tiers are always the same height */
+  box-sizing: border-box;
   background: transparent;
   border: 7px solid transparent;
   border-image: url(/images/ui/secondary_btn.png) 22 stretch;
@@ -1261,6 +1267,59 @@ body {
   cursor: not-allowed;
   transform: none;
   filter: grayscale(0.5);
+}
+
+/* Danger — the primary button in red, for destructive confirms (permadeath,
+   wipe save). Same shape/height/shine; red gradient + white text. */
+.btn-danger {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 22px;
+  min-height: 40px;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, #d5514c 0%, #b83c37 55%, #a4322e 100%);
+  border: 1px solid #8f2b28;
+  border-radius: 2px;
+  color: #fff;
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
+  transition: filter 0.15s, transform 0.15s;
+}
+.btn-danger::after {
+  content: "";
+  position: absolute;
+  top: -50px;
+  left: -80px;
+  width: 46px;
+  height: 160px;
+  background: #fff;
+  opacity: 0.22;
+  transform: rotate(35deg);
+  transition: left 550ms cubic-bezier(0.19, 1, 0.22, 1);
+  pointer-events: none;
+}
+.btn-danger:hover::after {
+  left: 130%;
+}
+.btn-danger:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+.btn-danger:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  filter: grayscale(0.4);
+}
+.btn-danger:disabled::after {
+  display: none;
 }
 
 /* Tertiary — low-emphasis actions. The delicate common frame ties the button

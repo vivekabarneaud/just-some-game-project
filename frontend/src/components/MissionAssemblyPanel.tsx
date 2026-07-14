@@ -1640,7 +1640,7 @@ export default function MissionAssemblyPanel(props: Props) {
                   Keep them home
                 </button>
                 <button
-                  class="btn-primary"
+                  class="btn-danger"
                   onClick={() => { setShowDeathWarning(false); doDeploy(); }}
                 >
                   Send them anyway

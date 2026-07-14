@@ -114,10 +114,10 @@ export default function SettingsModal() {
                 wiped, on this device and on the server. There is no way back.
               </p>
               <div class="settings-confirm-actions">
-                <button class="settings-confirm-keep" onClick={() => setConfirmReset(false)}>
+                <button class="btn-secondary" onClick={() => setConfirmReset(false)}>
                   Keep my settlement
                 </button>
-                <button class="settings-confirm-burn" onClick={handleNewGame} data-no-click-sound>
+                <button class="btn-danger" onClick={handleNewGame} data-no-click-sound>
                   Start anew
                 </button>
               </div>
