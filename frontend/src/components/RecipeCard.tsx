@@ -44,6 +44,10 @@ export interface RecipeCardProps {
   /** Optional control rendered in the action row, next to the craft button
    *  (e.g. the kitchen's "keep cooking" toggle). Wraps below on narrow cards. */
   extraAction?: JSX.Element;
+  /** Optional ornamental frame (URL) drawn around the item icon — a throwaway
+   *  preview of the hand-drawn rarity frames. Remove when the real item/rarity
+   *  rework lands. */
+  frameUrl?: string;
 }
 
 export default function RecipeCard(props: RecipeCardProps) {
@@ -61,20 +65,25 @@ export default function RecipeCard(props: RecipeCardProps) {
         filter: isLocked() ? "var(--locked-dim)" : "none",
         position: "relative",
         ...(highlight() ? {
-          border: "1px solid var(--accent-blue)",
           "box-shadow": "0 0 0 1px var(--accent-blue), 0 0 12px rgba(91, 155, 213, 0.35)",
           background: "linear-gradient(180deg, rgba(91, 155, 213, 0.08), transparent 70%), var(--bg-secondary)",
         } : {}),
+        // Rarity frame drawn around the whole CARD (the item icon stays
+        // frameless). Falls back to the uncommon ornament when no rarity URL is
+        // given. Same 9-slice (55) / 20px border as the other card frames.
+        border: "var(--ornament-w) solid transparent",
+        "border-image": `${props.frameUrl ? `url(${props.frameUrl})` : "var(--ornament-src)"} var(--ornament-slice) stretch`,
       }}
     >
       <Show when={highlight()}>
         <div class="notification-badge is-tag" style={{ position: "absolute", top: "6px", right: "6px" }}>NEW</div>
       </Show>
       <div class="building-card-header">
+        {/* Frameless icon — the rarity frame lives on the card now, so the image
+            fills its box instead of being shrunk inside an icon-sized frame. */}
         {props.image
           ? <img src={props.image} alt="" style={{ width: "40px", height: "40px", "object-fit": "cover", "border-radius": "6px", "flex-shrink": "0" }} />
-          : <div class="building-card-icon">{props.icon}</div>
-        }
+          : <div class="building-card-icon">{props.icon}</div>}
         <div>
           <div class="building-card-title">{props.title}</div>
           <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>

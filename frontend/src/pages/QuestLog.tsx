@@ -85,10 +85,8 @@ export default function QuestLog() {
 
     return (
       <Show when={active().length > 0 || completed().length > 0}>
-        <div style={{
+        <div class="ornament-frame" style={{
           "background": "var(--bg-secondary)",
-          "border": "1px solid var(--border-color)",
-          "border-radius": "8px",
           "margin-bottom": "16px",
           "overflow": "hidden",
         }}>
@@ -318,7 +316,8 @@ function QuestCard(props: {
         "border": (props.isUnseen || props.claimable)
           ? "1px solid var(--accent-blue)"
           : "1px solid var(--border-color)",
-        "border-radius": "6px",
+        // Square corners to sit consistently inside the squared chapter frame.
+        "border-radius": "0",
         "margin-bottom": "10px",
         "background": (props.isUnseen || props.claimable)
           ? "rgba(96, 165, 250, 0.06)"

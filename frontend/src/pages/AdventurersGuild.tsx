@@ -52,6 +52,11 @@ import type { CompletedMission } from "@medieval-realm/shared/data/missions";
 
 type Tab = "missions" | "roster";
 
+// Rank → rarity frame for the roster cards (rank 1..5). Same hand-drawn frames
+// the crafting cards use; drawn as the card's border-image.
+const RANK_FRAME = ["", "common", "uncommon", "rare", "epic", "legendary"];
+const rankFrameUrl = (rank: number) => `/images/frames/item_frame_${RANK_FRAME[rank] ?? "common"}.png`;
+
 
 
 /** Get the image for a mission from source data (avoids stale paths in saved state) */
@@ -1029,9 +1034,15 @@ export default function AdventurersGuild() {
                       width: "100%",
                       opacity: adv.onMission ? 0.7 : 1,
                       background: adv.onMission ? "var(--bg-secondary)" : "var(--bg-card)",
-                      "border-color": newlyArrivedIds().includes(adv.id) ? "var(--accent-blue)" : adv.onMission ? "var(--accent-blue)" : undefined,
                       "box-shadow": newlyArrivedIds().includes(adv.id) ? "0 0 0 1px var(--accent-blue), 0 0 12px rgba(96, 165, 250, 0.25)" : undefined,
                     }}>
+                      {/* Rarity frame drawn OVER the card (not as a border) so the
+                          portrait stays flush to the edge and the frame overlays it. */}
+                      <div aria-hidden="true" style={{
+                        position: "absolute", inset: 0, "pointer-events": "none", "z-index": 3,
+                        border: "var(--ornament-w) solid transparent",
+                        "border-image": `url(${rankFrameUrl(adv.rank)}) var(--ornament-slice) stretch`,
+                      }} />
                       <span class="building-card-category" style={{ color: RANK_COLORS[adv.rank] }}>
                         {RANK_NAMES[adv.rank]}
                       </span>

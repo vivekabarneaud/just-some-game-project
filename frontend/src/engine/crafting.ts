@@ -675,6 +675,9 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
   { id: "river_stew", name: "River Stew", icon: "🍲", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/river_stew.png", building: "kitchen", minLevel: 1, kind: "meal",
     description: "Fish and foraged berries in a thin, honest broth. A staple that stretches a lean larder to feed the settlement.",
     costs: [{ resource: "fish", amount: 2 }, { resource: "berries", amount: 1 }], produces: { resource: "river_stew", amount: 4 }, craftTime: 720 },
+  { id: "bone_broth", name: "Bone Broth", icon: "🍜", building: "kitchen", minLevel: 1, kind: "meal",
+    description: "Bones from the pens and the hunt, simmered long into a rich, marrowy broth. Nothing of the animal goes to waste, and a lean week goes further.",
+    costs: [{ resource: "bone", amount: 2 }], produces: { resource: "bone_broth", amount: 4 }, craftTime: 720 },
   // Ale is NOT a kitchen recipe — it's brewed at the Brewery and served from the
   // barrel as a stored-commodity menu drink (see TAVERN_COMMODITY_DRINKS + the
   // menu-driven ale draw in the tick). Re-brewing already-brewed ale as a

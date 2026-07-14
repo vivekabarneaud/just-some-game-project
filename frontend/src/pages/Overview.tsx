@@ -207,6 +207,11 @@ export default function Overview() {
             if (total < 1) {
               return { headline: "No food in the stores", detail: "Citizens are starving. Build a Forager's Hut, Hunting Camp, or Fishing Hut now." };
             }
+            // Stores ran empty at some point and morale is still crashing, even
+            // if a trickle has nudged the total back above one ration.
+            if (state.starvationPenalty > 0) {
+              return { headline: "Citizens are starving", detail: "The stores ran empty and morale is crashing. Get food production positive and keep a buffer to recover." };
+            }
             if (net < 0) {
               const hours = total / Math.abs(net);
               if (hours < 12) {
@@ -230,8 +235,18 @@ export default function Overview() {
               detail: `Beds are over capacity: happiness suffers and new folk won't settle until there's room${state.season === "winter" ? ", and a crowded camp is a cold one in winter" : ""}. Build or upgrade Houses.`,
             };
           };
+          // Livestock going hungry — unfed pens stop producing and lose head.
+          const livestockStarving = (): { headline: string; detail: string } | null => {
+            const starving = (state.pens ?? []).filter((p) => p.level > 0 && (p.count ?? 0) > 0 && p.starving);
+            if (starving.length === 0) return null;
+            const names = [...new Set(starving.map((p) => p.animal))].join(", ");
+            return {
+              headline: `Livestock going hungry (${names})`,
+              detail: "Unfed animals stop producing and begin to die. Stock their feed (grain or veggies) in the larder, or graze them on fallow fields before you lose the flock.",
+            };
+          };
           return (
-            <div class="quest-panel" style={{ "padding": "16px 20px" }}>
+            <div class="quest-panel parchment-panel" style={{ "padding": "20px 24px" }}>
               <div class="quest-panel-content">
                 <div class="quest-header" style={{ "align-items": "center" }}>
                   <span class="quest-icon" style={{ "font-size": "1.6rem" }}>📋</span>
@@ -249,15 +264,15 @@ export default function Overview() {
                         <div style={{
                           "margin": "14px 0 0",
                           padding: "10px 14px",
-                          background: "rgba(231, 76, 60, 0.10)",
-                          border: "1px solid var(--accent-red)",
+                          background: "rgba(231, 76, 60, 0.20)",
+                          border: "1px solid #8a2417",
                           "border-left-width": "4px",
                           "border-radius": "6px",
                           "max-width": "800px",
                         }}>
                           <div style={{
                             "font-weight": "700",
-                            color: "var(--accent-red)",
+                            color: "#8a2417",
                             "font-size": "0.9rem",
                             display: "flex",
                             "align-items": "center",
@@ -269,7 +284,7 @@ export default function Overview() {
                           <div style={{
                             "margin-top": "4px",
                             "font-size": "0.82rem",
-                            color: "var(--text-secondary)",
+                            color: "#3a2418",
                             "line-height": "1.5",
                           }}>
                             {d().detail}
@@ -282,15 +297,15 @@ export default function Overview() {
                         <div style={{
                           "margin": "14px 0 0",
                           padding: "10px 14px",
-                          background: "rgba(212, 175, 55, 0.10)",
-                          border: "1px solid var(--accent-gold)",
+                          background: "rgba(212, 175, 55, 0.22)",
+                          border: "1px solid #7a5713",
                           "border-left-width": "4px",
                           "border-radius": "6px",
                           "max-width": "800px",
                         }}>
                           <div style={{
                             "font-weight": "700",
-                            color: "var(--accent-gold)",
+                            color: "#6b4e10",
                             "font-size": "0.9rem",
                             display: "flex",
                             "align-items": "center",
@@ -302,9 +317,26 @@ export default function Overview() {
                           <div style={{
                             "margin-top": "4px",
                             "font-size": "0.82rem",
-                            color: "var(--text-secondary)",
+                            color: "#3a2418",
                             "line-height": "1.5",
                           }}>
+                            {d().detail}
+                          </div>
+                        </div>
+                      )}
+                    </Show>
+                    <Show when={livestockStarving()}>
+                      {(d) => (
+                        <div style={{
+                          "margin": "14px 0 0", padding: "10px 14px",
+                          background: "rgba(231, 76, 60, 0.10)", border: "1px solid var(--accent-red)",
+                          "border-left-width": "4px", "border-radius": "6px", "max-width": "800px",
+                        }}>
+                          <div style={{ "font-weight": "700", color: "var(--accent-red)", "font-size": "0.9rem", display: "flex", "align-items": "center", gap: "8px" }}>
+                            <span>🥀</span>
+                            <span>{d().headline}</span>
+                          </div>
+                          <div style={{ "margin-top": "4px", "font-size": "0.82rem", color: "var(--text-secondary)", "line-height": "1.5" }}>
                             {d().detail}
                           </div>
                         </div>
@@ -361,7 +393,7 @@ export default function Overview() {
       </Show>
 
       <div class="overview-grid">
-        <div class="overview-panel">
+        <div class="overview-panel ornament-frame">
           <h2>Production Overview</h2>
           <For each={RESOURCES}>
             {(res) => {
@@ -403,7 +435,7 @@ export default function Overview() {
           </div>
         </div>
 
-        <div class="overview-panel">
+        <div class="overview-panel ornament-frame">
           <h2>Building Activity</h2>
           <div class="stat-row" style={{ "margin-bottom": "8px" }}>
             <span class="stat-label">Queue</span>
@@ -437,7 +469,7 @@ export default function Overview() {
           </Show>
         </div>
 
-        <div class="overview-panel">
+        <div class="overview-panel ornament-frame">
           <h2>Top Buildings</h2>
           <For each={topBuildings()}>
             {(pb) => {
@@ -459,7 +491,7 @@ export default function Overview() {
           </div>
         </div>
 
-        <div class="overview-panel">
+        <div class="overview-panel ornament-frame">
           <h2>Settlement Status</h2>
           <div class="stat-row">
             <span class="stat-label">Settlement</span>
@@ -560,7 +592,7 @@ export default function Overview() {
         </div>
 
         {/* Threats & Defense — moves to top when raids incoming */}
-        <div class="overview-panel" style={{ order: hasThreats() ? -1 : 0 }}>
+        <div class="overview-panel ornament-frame" style={{ order: hasThreats() ? -1 : 0 }}>
           <h2>Threats & Defense</h2>
           <div class="stat-row">
             <span class="stat-label">Defense Score</span>
@@ -786,7 +818,7 @@ export default function Overview() {
 
         {/* Event Log */}
         <Show when={state.eventLog.length > 0}>
-          <div class="overview-panel">
+          <div class="overview-panel ornament-frame">
             <h2>Event Log</h2>
             <div style={{ "max-height": "300px", overflow: "auto" }}>
               <For each={state.eventLog.slice(0, 20)}>

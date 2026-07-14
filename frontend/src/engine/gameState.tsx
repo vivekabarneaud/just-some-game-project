@@ -110,6 +110,7 @@ import {
   getFieldBuildTime,
   getSeasonYield,
   getSoilMultiplier,
+  getHayFromHarvest,
   MAX_FIELDS,
   FIELD_MAX_LEVEL,
 } from "~/data/crops";
@@ -138,6 +139,18 @@ import {
   getPenCost,
   getPenBuildTime,
   getPenProduction,
+  getPenCapacity,
+  getAnimalBuyCost,
+  LIVESTOCK_STARVE_DEATH_HOURS,
+  LIVESTOCK_BREED_PER_HOUR,
+  LIVESTOCK_MIN_BREEDING_FLOCK,
+  LIVESTOCK_BREEDING_SEASONS,
+  PREDATION_PER_HOUR,
+  PREDATION_SEASON_MOD,
+  PREDATION_MAX_LOSS,
+  GUARD_DOG_COST,
+  getCullYield,
+  getWoolSeasonMod,
   PEN_MAX_LEVEL,
 } from "@medieval-realm/shared/data/livestock";
 import {
@@ -156,7 +169,6 @@ import {
   ANIMAL_FEED,
   isGrazer,
   consumeFromCategories,
-  calcGrazingCapacity,
 } from "~/data/animalFeed";
 import {
   getHiveCost,
@@ -307,7 +319,10 @@ export type GameEventType =
   | "winter_freezing"
   | "loot_drop"
   | "trade_accepted" | "trade_delivered"
-  | "pen_starving";
+  | "pen_starving"
+  | "pen_deaths"
+  | "pen_births"
+  | "pen_predation";
 
 export interface GameEvent {
   type: GameEventType;
@@ -356,6 +371,7 @@ export interface PlayerField {
   lastCrop: CropId | null;      // last crop planted — drives rotation tracking
   sameCropStreak: number;       // consecutive same-crop years (0 = fresh/rotated)
   restBonus: boolean;           // +15% yield next harvest (field was idle a year)
+  hay?: number;                 // straw rick left after harvest — winter grazer fodder; cleared at spring replant
   level: number;
   upgrading: boolean;
   upgradeRemaining?: number;
@@ -374,11 +390,19 @@ export interface PlayerGarden {
 export interface PlayerPen {
   id: string;
   animal: AnimalId;
+  /** Capacity tier (0 = not built). Sets how many animals fit, not production. */
   level: number;
+  /** Headcount — animals in the pen (0..capacity). Bought with gold; production scales with it. */
+  count: number;
   upgrading: boolean;
   upgradeRemaining?: number;
   /** True when the pen didn't cover its food need last tick. Production = 0 while starving. */
   starving?: boolean;
+  /** A guard dog is kept with this flock — stops wolf predation on it. */
+  guardDog?: boolean;
+  /** Accumulated game-hours of starvation; an animal dies each time it crosses
+   *  the death threshold, then it resets. Cleared once the flock is fed. */
+  starveHours?: number;
 }
 
 export interface PlayerHive {
@@ -536,6 +560,9 @@ export interface GameState {
   wool: number;
   fiber: number;
   leather: number;
+  /** Bone — from culling livestock + the hunting camp. Feeds bone broth (and,
+   *  later, fertilizer / bone tools like needles / buttons). A crafting material like leather. */
+  bone: number;
   clothing: number;
   iron: number;
   tools: number;
@@ -709,6 +736,12 @@ export interface GameActions {
   /** Pay seed gold to sow the garden for this cycle. Only valid during the veggie's plantSeasons. */
   plantGarden: (gardenId: string) => boolean;
   upgradePen: (penId: string) => boolean;
+  /** Buy `qty` animals for a built pen with gold, up to its capacity. */
+  buyLivestock: (penId: string, qty?: number) => boolean;
+  /** Keep a guard dog with a pen (gold, one-off) — stops wolf predation on it. */
+  buyGuardDog: (penId: string) => boolean;
+  /** Deliberately slaughter `qty` animals from a pen for meat + leather. */
+  cullLivestock: (penId: string, qty?: number) => boolean;
   upgradeHive: (hiveId: string) => boolean;
   upgradeOrchard: (orchardId: string) => boolean;
   setGameSpeed: (speed: number) => void;
@@ -1022,6 +1055,7 @@ export function createInitialState(): GameState {
       id: nextId("pen"),
       animal: a.id,
       level: 0,
+      count: 0,
       upgrading: false,
     })),
     // Pre-spawn apiary slots — all identical, no type variants.
@@ -1081,6 +1115,7 @@ export function createInitialState(): GameState {
     wool: 0,
     fiber: 0,
     leather: 0,
+    bone: 0,
     // Founders arrive with their own clothes (like later newcomers do) — enough
     // to cover the household so a fresh settlement doesn't open on a "poorly
     // clothed" debuff. Still decays, so the tailor loop matters later.
@@ -1371,6 +1406,8 @@ export function migrateSaveState(saved: GameState): GameState {
       (saved as any).seeds.lavender = 0;
     }
     if (!saved.pens) saved.pens = [];
+    // Population model: default a headcount on any pre-count pen (no NaN in food math).
+    for (const p of saved.pens) if (typeof (p as any).count !== "number") (p as any).count = 0;
     if (!saved.hives) saved.hives = [];
     if (!saved.orchards) saved.orchards = [];
     // Pens: ensure one pre-attributed slot per animal
@@ -1380,6 +1417,7 @@ export function migrateSaveState(saved: GameState): GameState {
           id: nextId("pen"),
           animal: a.id,
           level: 0,
+          count: 0,
           upgrading: false,
         });
       }
@@ -1460,6 +1498,7 @@ export function migrateSaveState(saved: GameState): GameState {
     // Materials migration
     if (saved.wool === undefined) saved.wool = 0;
     if (saved.leather === undefined) saved.leather = 0;
+    if (saved.bone === undefined) saved.bone = 0;
     if (saved.fiber === undefined) saved.fiber = 0;
     if (!saved.yearHarvest) saved.yearHarvest = {};
     for (const f of saved.fields) {
@@ -2157,7 +2196,7 @@ function calcProductionRates(state: GameState): { gold: number; wood: number; st
   for (const pen of pens) {
     if (pen.level === 0) continue;
     const animal = getAnimal(pen.animal);
-    const prod = getPenProduction(animal, pen.level);
+    const prod = getPenProduction(animal, pen.count);
     rates.food += prod.produced;
   }
 
@@ -2169,25 +2208,51 @@ function calcAnimalFoodConsumption(pens: PlayerPen[]): number {
   for (const pen of pens) {
     if (pen.level === 0) continue;
     const animal = getAnimal(pen.animal);
-    const prod = getPenProduction(animal, pen.level);
+    const prod = getPenProduction(animal, pen.count);
     total += prod.consumed;
   }
   return total;
 }
 
-/** Drain pantry for each pen, applying grazing + category preferences.
- *  Returns per-pen fedRatio (0-1). Mutates pen.starving. */
+/** Drain up to `amount` units of hay from the field ricks (mutating), taking
+ *  from the fullest rick first so a near-empty one isn't stranded with a scrap.
+ *  Returns how much hay was actually eaten. */
+function consumeHayFromFields(fields: PlayerField[], amount: number): number {
+  let need = amount;
+  let taken = 0;
+  const ricks = fields
+    .filter((f) => (f.hay ?? 0) > 0)
+    .sort((a, b) => (b.hay ?? 0) - (a.hay ?? 0));
+  for (const f of ricks) {
+    if (need <= 0) break;
+    const t = Math.min(f.hay ?? 0, need);
+    f.hay = (f.hay ?? 0) - t;
+    need -= t;
+    taken += t;
+  }
+  return taken;
+}
+
+/** Feed each pen and return its per-pen fedRatio (0-1). Grazers (sheep/goats)
+ *  live off free wild grass spring→autumn; in winter the grass is gone and they
+ *  eat the hay ricked on the fields at harvest, then fall back to larder
+ *  grain/veggies, then starve. Non-grazers always eat from the larder.
+ *  Mutates pen.starving and field.hay. */
 function applyAnimalFeed(s: GameState, elapsedHours: number): Map<string, number> {
   const fedRatios = new Map<string, number>();
   if (!s.pens.length || elapsedHours <= 0) return fedRatios;
 
-  const grazingPerHour = calcGrazingCapacity(s.fields);
+  const isWinter = s.season === "winter";
 
-  // Grazer demand weight (for splitting grazing proportionally)
+  // Winter only: split the finite hay stock across grazing flocks by consumption.
   let totalGrazerDemand = 0;
-  for (const pen of s.pens) {
-    if (pen.level === 0 || !isGrazer(pen.animal)) continue;
-    totalGrazerDemand += getPenProduction(getAnimal(pen.animal), pen.level).consumed;
+  let totalHay = 0;
+  if (isWinter) {
+    for (const pen of s.pens) {
+      if (pen.level === 0 || !isGrazer(pen.animal)) continue;
+      totalGrazerDemand += getPenProduction(getAnimal(pen.animal), pen.count).consumed;
+    }
+    for (const f of s.fields) totalHay += f.hay ?? 0;
   }
 
   for (const pen of s.pens) {
@@ -2197,7 +2262,7 @@ function applyAnimalFeed(s: GameState, elapsedHours: number): Map<string, number
       continue;
     }
     const animal = getAnimal(pen.animal);
-    const prod = getPenProduction(animal, pen.level);
+    const prod = getPenProduction(animal, pen.count);
     const baseNeed = prod.consumed * elapsedHours;
     if (baseNeed <= 0) {
       fedRatios.set(pen.id, 1);
@@ -2207,14 +2272,20 @@ function applyAnimalFeed(s: GameState, elapsedHours: number): Map<string, number
 
     let covered = 0;
 
-    // Grazing share for sheep/goats, proportional to their consumption
-    if (isGrazer(pen.animal) && totalGrazerDemand > 0) {
-      const share = prod.consumed / totalGrazerDemand;
-      const grazingForPen = grazingPerHour * share * elapsedHours;
-      covered += Math.min(baseNeed, grazingForPen);
+    if (isGrazer(pen.animal)) {
+      if (!isWinter) {
+        // Free wild grass covers the whole flock in the warm seasons.
+        covered = baseNeed;
+      } else if (totalGrazerDemand > 0 && totalHay > 0) {
+        // This flock's fair slice of the winter hay ricks.
+        const share = prod.consumed / totalGrazerDemand;
+        const want = Math.min(baseNeed, totalHay * share);
+        covered += consumeHayFromFields(s.fields, want);
+      }
     }
 
-    // Pantry consumption for the remainder (from preferred categories only)
+    // Larder covers any shortfall — all of it for non-grazers, and for grazers
+    // the winter gap once grass and hay run out.
     const remaining = Math.max(0, baseNeed - covered);
     if (remaining > 0 && s.foods) {
       covered += consumeFromCategories(s.foods, ANIMAL_FEED[pen.animal], remaining);
@@ -2226,11 +2297,68 @@ function applyAnimalFeed(s: GameState, elapsedHours: number): Map<string, number
     const wasStarving = pen.starving === true;
     pen.starving = ratio < 0.5;
     if (pen.starving && !wasStarving) {
-      pushEvent(s, "pen_starving", "🥀", `The ${animal.name.toLowerCase()} pen is starving — no food in its diet!`);
+      pushEvent(s, "pen_starving", "🥀", `The ${animal.name.toLowerCase()} pen is starving — no food to see it through.`);
     }
   }
 
   return fedRatios;
+}
+
+/** Flock population change each tick (livestock slice 2): a fed flock breeds in
+ *  the warm seasons (needs a pair + room, never past capacity); an unfed flock
+ *  loses head to hunger. Mutates pen.count. Never auto-culls — shrinkage is only
+ *  starvation; deliberate culling is a separate player action. See DESIGN_LIVESTOCK.md. */
+function applyFlockDynamics(s: GameState, fedRatios: Map<string, number>, elapsedHours: number): void {
+  if (elapsedHours <= 0) return;
+  const breeding = (LIVESTOCK_BREEDING_SEASONS as readonly string[]).includes(s.season);
+  for (const pen of s.pens) {
+    if (pen.level === 0 || pen.count <= 0) continue;
+    const capacity = getPenCapacity(pen.level);
+    const ratio = fedRatios.get(pen.id) ?? 1;
+
+    // Predation — wolves thin an UNDEFENDED fold (fed or not), worse in the lean
+    // seasons. A guard dog stops it entirely. At most one raid per tick; the
+    // chance compounds over elapsed hours so an offline stretch isn't a wipe.
+    if (!pen.guardDog) {
+      const mod = PREDATION_SEASON_MOD[s.season] ?? 1;
+      const raidChance = 1 - Math.pow(1 - PREDATION_PER_HOUR * mod, elapsedHours);
+      if (Math.random() < raidChance) {
+        const lost = Math.min(pen.count, 1 + Math.floor(Math.random() * PREDATION_MAX_LOSS));
+        pen.count -= lost;
+        pushEvent(s, "pen_predation", "🐺", `Wolves took ${lost} from the ${getAnimal(pen.animal).name.toLowerCase()} pen in the night.`);
+        if (pen.count <= 0) continue;
+      }
+    }
+
+    // Starvation deaths — accumulate game-hours of hunger (scaled by how unfed);
+    // each full threshold kills one animal. Accumulating (not per-tick rounding)
+    // so tiny ticks still add up over time. Reset once the flock is fed again.
+    if (ratio < 0.5) {
+      const severity = Math.min(1, (0.5 - ratio) / 0.5);
+      pen.starveHours = (pen.starveHours ?? 0) + severity * elapsedHours;
+      let deaths = 0;
+      while (pen.starveHours >= LIVESTOCK_STARVE_DEATH_HOURS && pen.count - deaths > 0) {
+        pen.starveHours -= LIVESTOCK_STARVE_DEATH_HOURS;
+        deaths++;
+      }
+      if (deaths > 0) {
+        pen.count -= deaths;
+        if (pen.count <= 0) pen.starveHours = 0;
+        pushEvent(s, "pen_deaths", "💀", `Hunger took ${deaths} from the ${getAnimal(pen.animal).name.toLowerCase()} pen.`);
+      }
+      continue; // a starving flock doesn't breed
+    }
+    if (pen.starveHours) pen.starveHours = 0; // fed again — the starvation clock resets
+    // Breeding — a fed flock (not just a pair) grows toward capacity in the warm
+    // seasons. Two animals never breed alone (inbreeding optic + forces buying in).
+    if (breeding && pen.count >= LIVESTOCK_MIN_BREEDING_FLOCK && pen.count < capacity) {
+      const births = Math.min(capacity - pen.count, Math.round(pen.count * LIVESTOCK_BREED_PER_HOUR * elapsedHours));
+      if (births > 0) {
+        pen.count += births;
+        pushEvent(s, "pen_births", "🐣", `${births} born in the ${getAnimal(pen.animal).name.toLowerCase()} pen.`);
+      }
+    }
+  }
 }
 
 /** Per-food-type production rates, used to add to the typed foods map each tick.
@@ -2282,7 +2410,7 @@ function calcFoodRates(state: GameState, fedRatios?: Map<string, number>): Recor
     const ratio = fedRatios ? (fedRatios.get(pen.id) ?? 0) : 1;
     if (ratio <= 0) continue;
     const animal = getAnimal(pen.animal);
-    const prod = getPenProduction(animal, pen.level);
+    const prod = getPenProduction(animal, pen.count);
     const type = animal.foodLabel.toLowerCase() as FoodItemType;
     if (type in rates) rates[type] += prod.produced * ratio;
   }
@@ -2367,7 +2495,7 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
   for (const pen of pens) {
     if (pen.level === 0) continue;
     const animal = getAnimal(pen.animal);
-    const prod = getPenProduction(animal, pen.level);
+    const prod = getPenProduction(animal, pen.count);
     sources.push({ type: animal.foodLabel.toLowerCase(), label: animal.foodLabel, icon: animal.icon, rate: prod.produced, building: `${animal.name} Pen Lv${pen.level}` });
   }
 
@@ -2531,6 +2659,7 @@ function getResourceQty(s: GameState, res: string): number {
   if (res === "wool") return s.wool;
   if (res === "fiber") return s.fiber;
   if (res === "leather") return s.leather;
+  if (res === "bone") return s.bone;
   if (res === "iron") return s.iron;
   if (res === "honey") return s.honey;
   if (res === "ale") return s.ale ?? 0;
@@ -2551,6 +2680,7 @@ function spendResource(s: GameState, res: string, amount: number): void {
   if (res === "wool") { s.wool = Math.max(0, s.wool - amount); return; }
   if (res === "fiber") { s.fiber = Math.max(0, s.fiber - amount); return; }
   if (res === "leather") { s.leather = Math.max(0, s.leather - amount); return; }
+  if (res === "bone") { s.bone = Math.max(0, s.bone - amount); return; }
   if (res === "iron") { s.iron = Math.max(0, s.iron - amount); return; }
   if (res === "honey") { s.honey = Math.max(0, s.honey - amount); return; }
   if (res === "ale") { s.ale = Math.max(0, s.ale - amount); return; }
@@ -3027,6 +3157,7 @@ export function GameProvider(props: ParentProps) {
               id: nextId("pen"),
               animal: a.id,
               level: 0,
+              count: 0,
               upgrading: false,
             });
           }
@@ -3335,6 +3466,9 @@ export function GameProvider(props: ParentProps) {
           field.crop = null;
           // Rest bonus is consumed by this harvest
           field.restBonus = false;
+          // Straw byproduct — a hay rick stays on the field for the flock to eat
+          // through winter (grain crops only; flax leaves nothing).
+          field.hay = getHayFromHarvest(crop, amount);
         } else if (field.level > 0 && field.lastCrop !== null) {
           // Field was left idle through this growing season — grant rest bonus
           // for the next harvest. Only applies if there's been a previous crop
@@ -3347,6 +3481,8 @@ export function GameProvider(props: ParentProps) {
     if (next === "spring") {
       for (const field of s.fields) {
         field.harvested = false;
+        // Any hay not eaten over winter rots off — fields start the year clean.
+        field.hay = 0;
       }
     }
     // A finished crop is cleared for replanting when its plant season comes
@@ -3472,6 +3608,7 @@ export function GameProvider(props: ParentProps) {
         // This drains the pantry in-place and returns a fedRatio per pen so
         // starving pens don't produce food/wool/leather this tick.
         const fedRatios = applyAnimalFeed(s, elapsedHours);
+        applyFlockDynamics(s, fedRatios, elapsedHours);
         const foodRates = calcFoodRates(s, fedRatios);
 
         // Lavender (a cultivated HERB, not food) yields to the herb stock — the
@@ -3509,32 +3646,25 @@ export function GameProvider(props: ParentProps) {
         if (foodToConsume > 0) consumeFood(s.foods, foodToConsume);
 
         // ── Wool from sheep pens (seasonal) ──
-        const woolSeasonMod = s.season === "spring" || s.season === "summer" ? 1.0
-          : s.season === "autumn" ? 0.5 : 0; // no wool in winter
+        const woolSeasonMod = getWoolSeasonMod(s.season);
         for (const pen of s.pens) {
           if (pen.level === 0) continue;
           const ratio = fedRatios.get(pen.id) ?? 1;
           if (ratio <= 0) continue;
           const animal = getAnimal(pen.animal);
-          const prod = getPenProduction(animal, pen.level);
+          const prod = getPenProduction(animal, pen.count);
           if (prod.secondary && prod.secondary.resource === "wool" && woolSeasonMod > 0) {
             s.wool = Math.min(craftingMaterialCap(s.buildings), s.wool + prod.secondary.amount * woolSeasonMod * ratio * elapsedHours);
           }
         }
 
-        // ── Leather from hunting camp and animal pens (except chickens) ──
+        // ── Leather + bone from the hunting camp ──
+        // Animal leather/bone otherwise comes only from CULLING now — a living
+        // flock sheds wool, not hides (hunters, by contrast, bring skins home).
         const huntingCampLvl = s.buildings.find((b) => b.buildingId === "hunting_camp")?.level ?? 0;
         if (huntingCampLvl > 0) {
           s.leather = Math.min(craftingMaterialCap(s.buildings), s.leather + huntingCampLvl * 1.0 * elapsedHours);
-        }
-        for (const pen of s.pens) {
-          if (pen.level === 0) continue;
-          if (pen.animal === "chickens") continue; // chickens don't produce leather
-          const ratio = fedRatios.get(pen.id) ?? 1;
-          if (ratio <= 0) continue;
-          // Pigs, goats, sheep produce small amounts of leather (hides)
-          const leatherRate = pen.animal === "goats" ? 1.2 : 0.8;
-          s.leather = Math.min(craftingMaterialCap(s.buildings), s.leather + leatherRate * pen.level * ratio * elapsedHours);
+          s.bone = Math.min(craftingMaterialCap(s.buildings), s.bone + huntingCampLvl * 0.6 * elapsedHours);
         }
 
         // ── Fiber from forager's hut (wild flax and plant fibers) ──
@@ -5209,6 +5339,60 @@ export function GameProvider(props: ParentProps) {
         const p = s.pens.find((p) => p.id === penId)!;
         p.upgrading = true;
         p.upgradeRemaining = getPenBuildTime(pen.level);
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    // Buy livestock (gold per head) to fill a built pen toward its capacity.
+    // The animals appear instantly — the pen must exist (level >= 1) and have room.
+    buyLivestock(penId, qty = 1) {
+      const pen = state.pens.find((p) => p.id === penId);
+      if (!pen || pen.level < 1) return false;
+      const room = getPenCapacity(pen.level) - pen.count;
+      const n = Math.min(qty, room);
+      if (n <= 0) return false;
+      const cost = getAnimalBuyCost(pen.animal) * n;
+      if (state.resources.gold < cost) return false;
+      setState(produce((s) => {
+        s.resources.gold -= cost;
+        const p = s.pens.find((p) => p.id === penId)!;
+        p.count += n;
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    // Keep a guard dog with a pen (one-off gold cost) — stops wolf predation there.
+    buyGuardDog(penId) {
+      const pen = state.pens.find((p) => p.id === penId);
+      if (!pen || pen.level < 1 || pen.guardDog) return false;
+      if (state.resources.gold < GUARD_DOG_COST) return false;
+      setState(produce((s) => {
+        s.resources.gold -= GUARD_DOG_COST;
+        const p = s.pens.find((p) => p.id === penId)!;
+        p.guardDog = true;
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    // Deliberate cull — the player's choice to slaughter for meat + leather.
+    // Never automatic (the flock only shrinks otherwise via hunger/predation).
+    cullLivestock(penId, qty = 1) {
+      const pen = state.pens.find((p) => p.id === penId);
+      if (!pen || pen.count <= 0) return false;
+      const n = Math.min(qty, pen.count);
+      if (n <= 0) return false;
+      const y = getCullYield(pen.animal);
+      setState(produce((s) => {
+        const p = s.pens.find((p) => p.id === penId)!;
+        p.count -= n;
+        const caps = calcStorageCaps(s.buildings);
+        if (!s.foods) s.foods = emptyFoods();
+        if (y.meat > 0) addFood(s.foods, "meat", y.meat * n, caps.food);
+        if (y.leather > 0) s.leather = Math.min(craftingMaterialCap(s.buildings), s.leather + y.leather * n);
+        if (y.bone > 0) s.bone = Math.min(craftingMaterialCap(s.buildings), s.bone + y.bone * n);
       }));
       scheduleSave();
       return true;

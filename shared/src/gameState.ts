@@ -57,6 +57,9 @@ export interface PlayerField {
   sameCropStreak: number;
   /** Next harvest receives a +15% bonus (field was left idle through a growing season). */
   restBonus: boolean;
+  /** Hay rick left on the field after the autumn grain harvest (straw byproduct).
+   *  Grazers eat it through winter; cleared at spring replant. Fiber crops leave none. */
+  hay?: number;
   level: number;
   upgrading: boolean;
   upgradeRemaining?: number;
@@ -80,11 +83,21 @@ export type AnimalId = "chickens" | "pigs" | "goats" | "sheep";
 export interface PlayerPen {
   id: string;
   animal: AnimalId;
+  /** Capacity tier. 0 = not built. Level sets how many animals the pen holds
+   *  (getPenCapacity); it no longer drives production directly. */
   level: number;
+  /** Headcount — animals actually in the pen (0..capacity). Bought with gold;
+   *  production/consumption scale with this. */
+  count: number;
   upgrading: boolean;
   upgradeRemaining?: number;
   /** True when the pen couldn't cover its food need last tick — production drops to 0 until fed. */
   starving?: boolean;
+  /** A guard dog is kept with this flock — stops wolf predation on it. */
+  guardDog?: boolean;
+  /** Accumulated game-hours of starvation; when it crosses the death threshold
+   *  an animal dies and it resets. Cleared when the flock is fed again. */
+  starveHours?: number;
 }
 
 export interface PlayerHive {
@@ -255,7 +268,10 @@ export type GameEventType =
   | "winter_freezing"
   | "loot_drop"
   | "trade_accepted" | "trade_delivered"
-  | "pen_starving";
+  | "pen_starving"
+  | "pen_deaths"
+  | "pen_births"
+  | "pen_predation";
 
 export interface GameEvent {
   type: GameEventType;
@@ -307,6 +323,8 @@ export interface GameState {
   wool: number;
   fiber: number;
   leather: number;
+  /** Bone — from culling + the hunting camp. Feeds bone broth (later fertilizer). */
+  bone: number;
   clothing: number;
   iron: number;
   tools: number;

@@ -1,9 +1,9 @@
 import { For, Show, onMount } from "solid-js";
 import { useGame, type GameState, type PlayerField, type PlayerGarden, type PlayerPen, type PlayerHive, type PlayerOrchard } from "~/engine/gameState";
-import { CROPS, type CropId, getCrop, getFieldCost, getFieldBuildTime, getSeasonYield, getSoilMultiplier, getSoilStatus, MAX_FIELDS, FIELD_MAX_LEVEL } from "~/data/crops";
+import { CROPS, type CropId, getCrop, getFieldCost, getFieldBuildTime, getSeasonYield, getSoilMultiplier, getSoilStatus, getHayFromHarvest, MAX_FIELDS, FIELD_MAX_LEVEL } from "~/data/crops";
 import { getVeggie, getGardenCost, getGardenBuildTime, getSeedCapacity, getEffectiveGardenRate, canPlantVeggie, isVeggieProducing, isSeedUnlocked, MAX_GARDENS, GARDEN_MAX_LEVEL } from "~/data/gardens";
-import { getAnimal, getPenCost, getPenBuildTime, getPenProduction, PEN_MAX_LEVEL } from "@medieval-realm/shared/data/livestock";
-import { ANIMAL_FEED, FEED_CATEGORY_ICON, FEED_CATEGORY_LABEL, FOOD_CATEGORY, isGrazer, calcGrazingCapacity, type FeedCategory } from "~/data/animalFeed";
+import { getAnimal, getPenCost, getPenBuildTime, getPenProduction, getPenCapacity, getAnimalBuyCost, getCullYield, getWoolSeasonMod, GUARD_DOG_COST, PEN_MAX_LEVEL } from "@medieval-realm/shared/data/livestock";
+import { ANIMAL_FEED, FEED_CATEGORY_ICON, FEED_CATEGORY_LABEL, FOOD_CATEGORY, isGrazer, type FeedCategory } from "~/data/animalFeed";
 import type { FoodItemType } from "~/data/foods";
 import { getHiveCost, getHiveBuildTime, getHoneyRate, HIVE_MAX_LEVEL, APIARY_IMAGE, APIARY } from "~/data/apiary";
 import SeedIcon from "~/components/SeedIcon";
@@ -35,8 +35,11 @@ function fieldSeasonStatus(season: string, level: number, isHarvesting: boolean)
 // instead of as a wall of stacked lines. `dim` greys a row for the
 // not-yet-built preview.
 const STAT_BOX: JSX.CSSProperties = {
-  flex: "1", padding: "10px 12px", background: "var(--bg-card)",
+  flex: "1", padding: "16px 12px", background: "var(--bg-card)",
   border: "1px solid var(--border-color)", "border-radius": "8px", "text-align": "center",
+  // Center content vertically so short + tall boxes in a row read balanced
+  // (the row stretches them to equal height).
+  display: "flex", "flex-direction": "column", "justify-content": "center",
 };
 const STAT_LABEL: JSX.CSSProperties = {
   "font-size": "0.66rem", color: "var(--text-muted)", "text-transform": "uppercase",
@@ -51,9 +54,12 @@ function StatRow(props: { dim?: boolean; children: JSX.Element }) {
     </div>
   );
 }
-function StatBox(props: { label: string; valColor?: string; children: JSX.Element }) {
+function StatBox(props: { label: string; valColor?: string; warn?: boolean; children: JSX.Element }) {
   return (
-    <div style={STAT_BOX}>
+    <div style={{
+      ...STAT_BOX,
+      ...(props.warn ? { border: "1px solid var(--accent-red)", background: "rgba(231, 76, 60, 0.12)" } : {}),
+    }}>
       <div style={STAT_LABEL}>{props.label}</div>
       <div style={{ ...STAT_VAL, ...(props.valColor ? { color: props.valColor } : {}) }}>{props.children}</div>
     </div>
@@ -64,7 +70,7 @@ function StatBox(props: { label: string; valColor?: string; children: JSX.Elemen
 function WideBox(props: { dim?: boolean; children: JSX.Element }) {
   return (
     <div style={{
-      ...STAT_BOX, "margin-top": "8px", display: "flex", "align-items": "center",
+      ...STAT_BOX, "margin-top": "8px", display: "flex", "flex-direction": "row", "align-items": "center",
       "justify-content": "center", gap: "6px", "flex-wrap": "wrap", opacity: props.dim ? "0.55" : "1",
     }}>
       {props.children}
@@ -100,6 +106,9 @@ function FieldCard(props: { field: PlayerField }) {
     const mult = getSoilMultiplier(nextStreak, props.field.restBonus);
     return Math.max(0, Math.floor(base * mult));
   };
+  /** Hay (winter fodder) this field's harvest is expected to leave behind. */
+  const harvestHay = () => crop() ? getHayFromHarvest(crop()!, harvestYield()) : 0;
+  const previewHay = (candidateCropId: CropId) => getHayFromHarvest(getCrop(candidateCropId), previewYield(candidateCropId));
   const soilStatus = () => getSoilStatus(props.field.sameCropStreak);
   /** Effective max level — gated by the Town Hall level just like buildings.
    *  FIELD_MAX_LEVEL remains the absolute ceiling. */
@@ -242,8 +251,23 @@ function FieldCard(props: { field: PlayerField }) {
             <StatBox label="Soil" valColor={soilStatus().color}>
               {soilStatus().label}{props.field.restBonus ? " · 🌿 +15%" : ""}
             </StatBox>
-            <StatBox label="Harvest">🍂 ~{harvestYield()} {crop()!.isFood ? "food" : "fiber"}</StatBox>
+            <StatBox label="Harvest">
+              <div>🍂 ~{harvestYield()} {crop()!.isFood ? "food" : "fiber"}</div>
+              <Show when={crop()!.isFood && harvestHay() > 0}>
+                <div style={{ "font-size": "0.72rem", color: "var(--accent-gold)", "margin-top": "2px", "font-weight": 400 }}>
+                  🌾 ~{harvestHay()} hay
+                </div>
+              </Show>
+            </StatBox>
           </StatRow>
+        </Show>
+        {/* Hay rick left on the field after harvest — the flock's winter fodder,
+            drawn down through winter and cleared at spring replant. */}
+        <Show when={!crop() && (props.field.hay ?? 0) > 0}>
+          <div style={{ "font-size": "0.72rem", color: "var(--accent-gold)", "margin-top": "4px", display: "flex", gap: "6px", "align-items": "center" }}>
+            <span>🌾 Hay stored: {Math.round(props.field.hay!)}</span>
+            <span style={{ color: "var(--text-muted)" }}>· winter fodder</span>
+          </div>
         </Show>
       </Show>
 
@@ -268,9 +292,10 @@ function FieldCard(props: { field: PlayerField }) {
               const wouldDeplete = () => props.field.lastCrop === c.id;
               const accent = () => wouldDeplete() ? "var(--accent-gold)" : "var(--accent-green)";
               return (
-                <Tooltip block text={wouldDeplete()
+                <Tooltip block text={(wouldDeplete()
                   ? `Same crop as last season — soil depletes. Yield: ${preview()} ${c.isFood ? "food" : "fiber"}.`
-                  : `Rotating to ${c.name} — fresh soil. Yield: ${preview()} ${c.isFood ? "food" : "fiber"}.`}>
+                  : `Rotating to ${c.name} — fresh soil. Yield: ${preview()} ${c.isFood ? "food" : "fiber"}.`)
+                  + (c.isFood && previewHay(c.id) > 0 ? ` Leaves ~${previewHay(c.id)} hay to fodder the flock through winter.` : "")}>
                 <button
                   class="crop-picker-tile"
                   onClick={() => actions.plantField(props.field.id, c.id)}
@@ -314,6 +339,9 @@ function FieldCard(props: { field: PlayerField }) {
                       "white-space": "nowrap",
                     }}>
                       → {preview()} {c.isFood ? "🍞" : "🧵"}
+                      <Show when={c.isFood && previewHay(c.id) > 0}>
+                        <span style={{ color: "var(--accent-gold)", "font-weight": 600 }}> · {previewHay(c.id)} 🌾</span>
+                      </Show>
                     </div>
                     <div style={{
                       "font-size": "0.68rem",
@@ -707,25 +735,28 @@ function PenCard(props: { pen: PlayerPen }) {
     return missing.length ? `Need ${missing.join(", ")}` : "";
   };
 
-  const prod = () => props.pen.level > 0 ? getPenProduction(animal(), props.pen.level) : { produced: 0, consumed: 0, secondary: undefined as any };
-
-  // Grazing — sheep and goats can feed off fallow fields before dipping into the pantry
-  const grazingPerHour = () => calcGrazingCapacity(state.fields);
-  const totalGrazerDemand = () => {
-    let d = 0;
-    for (const p of state.pens) {
-      if (p.level === 0 || !isGrazer(p.animal)) continue;
-      d += getPenProduction(getAnimal(p.animal), p.level).consumed;
+  const prod = () => props.pen.level > 0 ? getPenProduction(animal(), props.pen.count) : { produced: 0, consumed: 0, secondary: undefined as any };
+  // Secondary byproduct (wool) is seasonal: full spring/summer, half autumn,
+  // dormant winter. The primary product (milk/eggs/meat) is year-round.
+  // A byproduct line for the Produces column — full size, stacked under the
+  // primary (not an inline afterthought). Wool carries its seasonal state.
+  const secondaryDisplay = () => {
+    const sec = prod().secondary;
+    if (!sec) return null;
+    const mod = sec.resource === "wool" ? getWoolSeasonMod(state.season) : 1;
+    if (mod <= 0) {
+      return <div style={{ color: "var(--text-muted)" }}>{sec.resource}: dormant <span style={{ "font-size": "0.72rem" }}>(winter)</span></div>;
     }
-    return d;
+    return <div>+{Math.floor(sec.amount * mod)}/h {sec.resource}{mod < 1 ? <span style={{ color: "var(--text-muted)", "font-size": "0.72rem" }}> (autumn)</span> : null}</div>;
   };
-  const grazingForThisPen = () => {
-    if (!isGrazer(props.pen.animal) || totalGrazerDemand() === 0) return 0;
-    const share = prod().consumed / totalGrazerDemand();
-    return grazingPerHour() * share;
-  };
-  const grazingCovered = () => Math.min(prod().consumed, grazingForThisPen());
-  const pantryNeed = () => Math.max(0, prod().consumed - grazingCovered());
+
+  // Feed model: grazers (sheep/goats) live off free wild grass spring→autumn.
+  // In winter the grass is gone and they eat the hay ricked on the fields at
+  // harvest (then the larder, then starve). Non-grazers always eat the larder.
+  const grazes = () => isGrazer(props.pen.animal);
+  const isWinter = () => state.season === "winter";
+  const onPasture = () => grazes() && !isWinter();          // fully fed by wild grass
+  const hayStored = () => state.fields.reduce((sum, f) => sum + (f.hay ?? 0), 0);
 
   /** Does the pantry have any of this feed category in stock right now? */
   const categoryHasFood = (cat: FeedCategory): boolean => {
@@ -883,48 +914,128 @@ function PenCard(props: { pen: PlayerPen }) {
 
         <Show when={!props.pen.upgrading && props.pen.level > 0}>
           <StatRow>
-            <StatBox label="Eats" valColor={pantryNeed() > 0 ? undefined : "var(--accent-green)"}>
-              {prod().consumed.toFixed(0)}/h feed
-              <Show when={grazingCovered() > 0}>
-                <span style={{ color: "var(--accent-green)", "font-size": "0.78rem" }}> · 🌿 {grazingCovered().toFixed(0)} grazed</span>
-              </Show>
+            <StatBox label="Eats" warn={props.pen.starving}
+              valColor={props.pen.starving ? "var(--accent-red)" : (onPasture() ? "var(--accent-green)" : undefined)}>
+              {/* Big rate, with the feed source stacked smaller beneath it. */}
+              <div style={{ "font-size": "1.15rem" }}>{prod().consumed.toFixed(0)}/h</div>
+              <div style={{ "font-weight": 400, "font-size": "0.72rem", "margin-top": "2px", "line-height": 1.4 }}>
+                <Show when={onPasture()} fallback={
+                  <>
+                    {/* Winter grazer: hay first, then larder. Non-grazer: larder only. */}
+                    <Show when={grazes()}>
+                      <span style={{ color: hayStored() > 0 ? "var(--accent-green)" : "var(--accent-red)" }}>🌾 hay</span>
+                      <span style={{ color: "var(--text-muted)" }}> then </span>
+                    </Show>
+                    <For each={ANIMAL_FEED[props.pen.animal]}>
+                      {(cat, i) => (
+                        <>
+                          {i() > 0 ? <span style={{ color: "var(--text-muted)" }}> or </span> : null}
+                          <span style={{ color: categoryHasFood(cat) ? "var(--text-secondary)" : "var(--accent-red)" }}>
+                            {FEED_CATEGORY_ICON[cat]} {FEED_CATEGORY_LABEL[cat]}
+                          </span>
+                        </>
+                      )}
+                    </For>
+                  </>
+                }>
+                  <span style={{ color: "var(--accent-green)" }}>🌿 wild grass · free</span>
+                </Show>
+              </div>
             </StatBox>
             <StatBox label="Produces">
-              +{prod().produced}/h {animal().foodLabel.toLowerCase()}
-              <Show when={prod().secondary}>
-                <span style={{ color: "var(--text-secondary)", "font-size": "0.78rem" }}> · +{prod().secondary!.amount}/h {prod().secondary!.resource}</span>
+              <Show
+                when={getPenProduction(animal(), 1).produced > 0}
+                fallback={<div style={{ color: "var(--text-muted)", "font-size": "0.85rem" }}>raised for meat · cull for the yield</div>}
+              >
+                <div>+{prod().produced}/h {animal().foodLabel.toLowerCase()}</div>
               </Show>
+              {secondaryDisplay()}
             </StatBox>
           </StatRow>
 
+          {/* Starving warning — its own line beneath the boxes (the Eats box also
+              reddens); the flock stops producing and starts to lose head. */}
           <Show when={props.pen.starving}>
-            <div style={{ color: "var(--accent-red)", "font-size": "0.8rem", "font-weight": 600, "text-align": "center", "margin-top": "8px" }}>
-              ⚠️ Starving — not producing
+            <div style={{ color: "var(--accent-red)", "font-weight": 600, "font-size": "0.8rem", "text-align": "center", "margin-top": "8px" }}>
+              ⚠️ Starving — not producing, and losing animals
             </div>
           </Show>
 
-          {/* What they eat — flags red when the pantry's out of a feed category */}
-          <Show when={pantryNeed() > 0}>
-            <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "6px", "text-align": "center", "line-height": 1.5 }}>
-              Feeds on{" "}
-              <For each={ANIMAL_FEED[props.pen.animal]}>
-                {(cat, i) => (
-                  <>
-                    {i() > 0 ? " · " : null}
-                    <span style={{
-                      color: categoryHasFood(cat) ? "var(--text-secondary)" : "var(--accent-red)",
-                      "font-weight": categoryHasFood(cat) ? "normal" : 600,
-                    }}>
-                      {FEED_CATEGORY_ICON[cat]} {FEED_CATEGORY_LABEL[cat]}
-                    </span>
-                  </>
-                )}
-              </For>
+          {/* Flock card (full width): count centered on top, golden Buy on the
+              left, red Cull on the right. */}
+          {(() => {
+            const cap = () => getPenCapacity(props.pen.level);
+            const buyCost = () => getAnimalBuyCost(props.pen.animal);
+            const buyDisabled = () => props.pen.count >= cap() || state.resources.gold < buyCost();
+            const cy = () => getCullYield(props.pen.animal);
+            return (
+              <div style={{ ...STAT_BOX, "margin-top": "8px", "flex-direction": "column", "align-items": "stretch", gap: "12px" }}>
+                <div style={{ "font-size": "1rem", "font-weight": 600 }}>
+                  Flock <span style={{ color: "var(--text-primary)" }}>{props.pen.count}</span> / {cap()}
+                </div>
+                <div style={{ display: "flex", gap: "12px" }}>
+                  <button
+                    onClick={() => actions.buyLivestock(props.pen.id, 1)}
+                    disabled={buyDisabled()}
+                    style={{
+                      flex: "1", height: "40px", padding: "0 12px", "font-size": "0.9rem",
+                      cursor: buyDisabled() ? "default" : "pointer", "border-radius": "6px",
+                      border: "1px solid var(--accent-gold)", color: "var(--accent-gold)", background: "rgba(212, 175, 55, 0.12)",
+                      opacity: buyDisabled() ? 0.45 : 1,
+                    }}
+                  >
+                    Buy {animal().icon} 💰{buyCost()}
+                  </button>
+                  <Tooltip block style={{ flex: "1" }} text={`Slaughter one for +${cy().meat} meat${cy().leather ? `, +${cy().leather} leather` : ""}${cy().bone ? `, +${cy().bone} bone` : ""}`}>
+                    <button
+                      onClick={() => actions.cullLivestock(props.pen.id, 1)}
+                      disabled={props.pen.count <= 0}
+                      style={{
+                        width: "100%", height: "40px", padding: "0 12px", "font-size": "0.9rem",
+                        cursor: props.pen.count <= 0 ? "default" : "pointer", "border-radius": "6px",
+                        border: "1px solid var(--accent-red)", color: "var(--accent-red)", background: "rgba(231, 76, 60, 0.10)",
+                        opacity: props.pen.count <= 0 ? 0.45 : 1,
+                      }}
+                    >
+                      Cull 🥩
+                    </button>
+                  </Tooltip>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Guard dog — stops wolf predation on this fold */}
+          <div style={{ display: "flex", "align-items": "center", "justify-content": "space-between", gap: "8px", "margin-top": "6px" }}>
+            <Show
+              when={props.pen.guardDog}
+              fallback={<span style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>🐺 Unguarded fold</span>}
+            >
+              <span style={{ "font-size": "0.8rem", color: "var(--accent-green)" }}>🐕 Guarded by a dog</span>
+            </Show>
+            <Show when={!props.pen.guardDog}>
+              <button
+                onClick={() => actions.buyGuardDog(props.pen.id)}
+                disabled={state.resources.gold < GUARD_DOG_COST}
+                style={{ padding: "4px 10px", "font-size": "0.8rem", cursor: "pointer" }}
+              >
+                Guard dog 💰{GUARD_DOG_COST}
+              </button>
+            </Show>
+          </div>
+
+          {/* Feed source detail (grazers only) — grass in the warm seasons, the
+              field hayricks in winter. Non-grazers just show the Eats box above. */}
+          <Show when={onPasture()}>
+            <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "6px", "text-align": "center" }}>
+              🌿 Out on the wild pasture — no feed cost this season
             </div>
           </Show>
-          <Show when={pantryNeed() === 0 && grazingCovered() > 0 && grazingCovered() >= prod().consumed}>
-            <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "6px", "text-align": "center" }}>
-              Fully covered by grazing — no pantry cost
+          <Show when={grazes() && isWinter()}>
+            <div style={{ "font-size": "0.7rem", color: hayStored() > 0 ? "var(--text-muted)" : "var(--accent-red)", "margin-top": "6px", "text-align": "center" }}>
+              {hayStored() > 0
+                ? `🌾 ${Math.round(hayStored())} hay in store across your fields`
+                : "🌾 No hay left — the flock is on larder feed"}
             </div>
           </Show>
         </Show>
@@ -1406,11 +1517,13 @@ export default function Farming() {
           <span class="farming-stat-label">Animal Feed</span>
           <span class="farming-stat-value rate-negative">-{actions.getAnimalFoodConsumption()}/h</span>
         </div>
-        <Show when={state.fields.some((f) => f.level >= 1 && f.crop === null)}>
+        <Show when={state.pens.some((p) => p.level > 0 && isGrazer(p.animal))}>
           <div class="farming-stat">
-            <span class="farming-stat-label">Grazing</span>
-            <span class="farming-stat-value" style={{ color: "var(--accent-green)" }}>
-              +{calcGrazingCapacity(state.fields)}/h (sheep/goats)
+            <span class="farming-stat-label">{state.season === "winter" ? "Winter fodder" : "Grazing"}</span>
+            <span class="farming-stat-value" style={{ color: state.season === "winter" && state.fields.reduce((s, f) => s + (f.hay ?? 0), 0) === 0 ? "var(--accent-red)" : "var(--accent-green)" }}>
+              {state.season === "winter"
+                ? `🌾 ${Math.round(state.fields.reduce((s, f) => s + (f.hay ?? 0), 0))} hay stored`
+                : "🌿 Wild pasture (free)"}
             </span>
           </div>
         </Show>
