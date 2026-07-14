@@ -110,29 +110,32 @@ export default function RecipeCard(props: RecipeCardProps) {
           const verb = () => action.verb ?? "Craft";
           return (
             <div class="recipe-card-actions" style={{ "margin-top": "auto", "padding-top": "8px", display: "flex", "align-items": "center", gap: "6px", "flex-wrap": "wrap" }}>
-              <div style={{ display: "flex", "align-items": "center", gap: "2px", "border-radius": "4px", border: "1px solid var(--border-color)", overflow: "hidden" }}>
+              {/* Framed ± on a dark grouped pill, with an editable qty input. */}
+              <div style={{ display: "flex", "align-items": "center", gap: "2px", background: "var(--bg-primary)", padding: "3px 5px", "border-radius": "3px" }}>
                 <button
                   onClick={() => setQty((q) => Math.max(1, q - 1))}
-                  style={{ width: "24px", height: "28px", background: "var(--bg-primary)", border: "none", color: "var(--text-muted)", cursor: "pointer", "font-size": "0.85rem" }}
+                  style={{ width: "30px", height: "30px", background: "transparent", border: "3px solid transparent", "border-image": "url(/images/frames/item_frame_common.png) 40 stretch", "border-radius": "0", color: "var(--text-muted)", cursor: "pointer", "font-size": "0.85rem" }}
                 >−</button>
-                <span style={{ width: "28px", "text-align": "center", "font-size": "0.8rem", color: "var(--text-primary)" }}>{qty()}</span>
+                <input
+                  class="qty-input"
+                  type="number"
+                  min="1"
+                  value={qty()}
+                  onInput={(e) => {
+                    const v = parseInt(e.currentTarget.value, 10);
+                    setQty(Number.isNaN(v) ? 1 : Math.max(1, Math.min(max(), v)));
+                  }}
+                  style={{ width: "34px", "text-align": "center", background: "transparent", border: "none", color: "var(--text-primary)", "font-size": "0.85rem", "font-family": "inherit" }}
+                />
                 <button
                   onClick={() => setQty((q) => Math.min(max(), q + 1))}
-                  style={{ width: "24px", height: "28px", background: "var(--bg-primary)", border: "none", color: "var(--text-muted)", cursor: "pointer", "font-size": "0.85rem" }}
+                  style={{ width: "30px", height: "30px", background: "transparent", border: "3px solid transparent", "border-image": "url(/images/frames/item_frame_common.png) 40 stretch", "border-radius": "0", color: "var(--text-muted)", cursor: "pointer", "font-size": "0.85rem" }}
                 >+</button>
               </div>
               <button
+                class="btn-tertiary"
                 onClick={() => setQty(max())}
-                style={{
-                  padding: "4px 8px",
-                  background: "transparent",
-                  border: "1px solid var(--border-color)",
-                  color: "var(--text-muted)",
-                  "border-radius": "4px",
-                  cursor: "pointer",
-                  "font-size": "0.7rem",
-                  "white-space": "nowrap",
-                }}
+                style={{ padding: "4px 14px", "font-size": "0.72rem", "white-space": "nowrap" }}
               >Max</button>
               <Tooltip text={action.disabledReason(qty())} position="bottom">
                 <button

@@ -391,7 +391,7 @@ body {
   width: calc(63px * var(--fl-scale));
   height: calc(24px * var(--fl-scale));
   transform: translateX(-50%);
-  background: url(/images/frames/item_frame_epic.png) no-repeat;
+  background: url(/images/frames/item_frame_epic_full.png) no-repeat;
   background-size: calc(512px * var(--fl-scale)) auto;
   background-position: calc(-225px * var(--fl-scale)) calc(-465px * var(--fl-scale));
   pointer-events: none;
@@ -453,7 +453,7 @@ body {
   width: calc(24px * var(--fl-scale));
   height: calc(63px * var(--fl-scale));
   transform: translateY(-50%);
-  background: url(/images/frames/item_frame_epic.png) no-repeat;
+  background: url(/images/frames/item_frame_epic_full.png) no-repeat;
   background-size: calc(512px * var(--fl-scale)) auto;
   background-position: calc(-465px * var(--fl-scale)) calc(-225px * var(--fl-scale));
   pointer-events: none;
@@ -1024,6 +1024,15 @@ body {
   flex: 1;
 }
 
+/* A damaged building reads as inactive — dim the banner, blurb and output, but
+   NOT the repair row: CSS opacity applies to the whole subtree, so dimming the
+   card root made the (fully usable) Repair button look disabled. */
+.building-card.damaged .building-card-image,
+.building-card.damaged .building-card-desc,
+.building-card.damaged .building-card-production {
+  opacity: 0.5;
+}
+
 .building-card-production {
   font-size: 0.8rem;
   color: var(--accent-green);
@@ -1172,33 +1181,197 @@ body {
   text-transform: uppercase;
 }
 
-.upgrade-btn {
+/* ── Global button skins ──────────────────────────────────────────
+ * .btn-primary  — hand-painted FILLED gold button (border-image + `fill`
+ *                 keeps the rounded corners crisp at any width while the
+ *                 middle stretches to fill). Dark ink text.
+ * .btn-secondary — thin gold OUTLINE frame (transparent centre), gold text.
+ * .upgrade-btn is kept as an alias of .btn-primary so existing CTAs inherit
+ * the skin. Calibration knobs are the border-width + the slice. */
+.upgrade-btn,
+.btn-primary {
+  position: relative;
+  overflow: hidden; /* clip the shine sweep to the button */
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 10px 24px;
-  background: linear-gradient(135deg, #5a4a1e, #8a7a3e);
-  color: var(--accent-gold);
-  border: 1px solid var(--accent-gold);
-  border-radius: 6px;
+  padding: 0 22px;
+  min-height: 40px; /* uniform height everywhere — inline padding/font can't change it */
+  box-sizing: border-box;
+  /* CSS gold gradient (replaces the hand-drawn fill — lighter + more delicate,
+     and the thin border lets the shine sweep reach the button's edges). */
+  background: linear-gradient(180deg, #dcc06a 0%, #c49c3e 55%, #b28a30 100%);
+  border: 1px solid #9a7a2c;
+  border-radius: 2px;
+  color: #3a2a0e; /* dark ink — reads on the gold */
   font-family: var(--font-heading);
   font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
+  transition: filter 0.15s, transform 0.15s;
 }
-
-.upgrade-btn:hover {
-  background: linear-gradient(135deg, #6a5a2e, #9a8a4e);
+/* Shine sweep on hover — a rotated light bar parked off the left edge that
+   glides across (adapted from the Coanda primary button). */
+.upgrade-btn::after,
+.btn-primary::after {
+  content: "";
+  position: absolute;
+  top: -50px;
+  left: -80px;
+  width: 46px;
+  height: 160px;
+  background: #fff;
+  opacity: 0.18;
+  transform: rotate(35deg);
+  transition: left 550ms cubic-bezier(0.19, 1, 0.22, 1);
+  pointer-events: none;
+}
+.upgrade-btn:hover::after,
+.btn-primary:hover::after {
+  left: 130%;
+}
+.upgrade-btn:hover,
+.btn-primary:hover {
+  filter: brightness(1.05);
   transform: translateY(-1px);
 }
-
-.upgrade-btn:disabled {
+.upgrade-btn:disabled,
+.btn-primary:disabled {
   opacity: 0.4;
   cursor: not-allowed;
   transform: none;
-  background: var(--bg-secondary);
-  border-color: var(--border-color);
-  color: var(--text-muted);
+  filter: grayscale(0.5);
+}
+.upgrade-btn:disabled::after,
+.btn-primary:disabled::after {
+  display: none;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 20px;
+  min-height: 40px; /* matches .btn-primary so the two tiers are always the same height */
+  box-sizing: border-box;
+  background: transparent;
+  border: 7px solid transparent;
+  border-image: url(/images/ui/secondary_btn.png) 22 stretch;
+  border-radius: 0;
+  color: var(--accent-gold);
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.15s;
+}
+.btn-secondary:hover {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+}
+.btn-secondary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  filter: grayscale(0.5);
+}
+
+/* Danger — the primary button in red, for destructive confirms (permadeath,
+   wipe save). Same shape/height/shine; red gradient + white text. */
+.btn-danger {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 22px;
+  min-height: 40px;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, #d5514c 0%, #b83c37 55%, #a4322e 100%);
+  border: 1px solid #8f2b28;
+  border-radius: 2px;
+  color: #fff;
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
+  transition: filter 0.15s, transform 0.15s;
+}
+.btn-danger::after {
+  content: "";
+  position: absolute;
+  top: -50px;
+  left: -80px;
+  width: 46px;
+  height: 160px;
+  background: #fff;
+  opacity: 0.22;
+  transform: rotate(35deg);
+  transition: left 550ms cubic-bezier(0.19, 1, 0.22, 1);
+  pointer-events: none;
+}
+.btn-danger:hover::after {
+  left: 130%;
+}
+.btn-danger:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+.btn-danger:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  filter: grayscale(0.4);
+}
+.btn-danger:disabled::after {
+  display: none;
+}
+
+/* Tertiary — low-emphasis actions. The delicate common frame ties the button
+   tiers into the rarity system (common = lowest). Genuinely micro controls
+   (−/+ steppers, × closes, icon toggles) stay plain, no frame. */
+.btn-tertiary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  background: transparent;
+  border: 6px solid transparent;
+  border-image: url(/images/frames/item_frame_common.png) 40 stretch;
+  border-radius: 0;
+  color: var(--text-secondary);
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.15s;
+}
+.btn-tertiary:hover {
+  filter: brightness(1.25);
+  transform: translateY(-1px);
+}
+.btn-tertiary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  filter: grayscale(0.5);
+}
+
+/* Quantity input inside a ± stepper — no spinner arrows, no focus ring. */
+.qty-input::-webkit-outer-spin-button,
+.qty-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.qty-input {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.qty-input:focus {
+  outline: none;
 }
 
 .building-effect {

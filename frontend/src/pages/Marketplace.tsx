@@ -104,14 +104,6 @@ const confirmBoxStyle = {
   padding: "12px 14px", "margin-bottom": "12px", "border-radius": "8px",
   background: "rgba(245, 197, 66, 0.1)", border: "2px solid var(--accent-gold)", "text-align": "center" as const,
 };
-const goldBtnStyle = {
-  padding: "6px 16px", background: "var(--accent-gold)", color: "#1a1a1a",
-  border: "none", "border-radius": "4px", cursor: "pointer", "font-weight": "bold" as const,
-};
-const mutedBtnStyle = {
-  padding: "6px 16px", background: "none", color: "var(--text-muted)",
-  border: "1px solid var(--border-color)", "border-radius": "4px", cursor: "pointer",
-};
 const cardStyle = {
   padding: "10px 12px", background: "var(--bg-card)", border: "1px solid var(--border-color)",
   "border-radius": "6px", "margin-bottom": "8px",
@@ -308,8 +300,8 @@ export default function Marketplace() {
                             </div>
                           </div>
                           <button
-                            class="field-upgrade-btn"
-                            style={{ "font-size": "0.78rem", padding: "5px 12px" }}
+                            class="btn-primary"
+                            style={{ "font-size": "0.78rem" }}
                             disabled={taken() || !affordable()}
                             onClick={() => actions.takeMerchantStallOffer(o.id)}
                           >
@@ -379,8 +371,8 @@ export default function Marketplace() {
                   Trade {gi.icon} <strong style={{ color: "var(--accent-red)" }}>{m().giveAmount} {gi.name}</strong> for {ri.icon} <strong style={{ color: "var(--accent-green)" }}>{m().receiveAmount} {ri.name}</strong>?
                 </div>
                 <div style={{ display: "flex", gap: "8px", "justify-content": "center" }}>
-                  <button style={goldBtnStyle} onClick={confirmMerchant}>Confirm</button>
-                  <button style={mutedBtnStyle} onClick={() => setPendingMerchant(null)}>Cancel</button>
+                  <button class="btn-primary" onClick={confirmMerchant}>Confirm</button>
+                  <button class="btn-secondary" onClick={() => setPendingMerchant(null)}>Cancel</button>
                 </div>
               </div>
             );
@@ -399,8 +391,8 @@ export default function Marketplace() {
                   You send {ri.icon} <strong style={{ color: "var(--accent-red)" }}>{offer().receiveAmount} {ri.name}</strong>, receive {gi.icon} <strong style={{ color: "var(--accent-green)" }}>{offer().giveAmount} {gi.name}</strong> in {travelTimeStr(offer().travelMinutes)}
                 </div>
                 <div style={{ display: "flex", gap: "8px", "justify-content": "center" }}>
-                  <button style={goldBtnStyle} onClick={acceptOffer}>Accept</button>
-                  <button style={mutedBtnStyle} onClick={() => setPendingAccept(null)}>Cancel</button>
+                  <button class="btn-primary" onClick={acceptOffer}>Accept</button>
+                  <button class="btn-secondary" onClick={() => setPendingAccept(null)}>Cancel</button>
                 </div>
               </div>
             );
@@ -425,17 +417,10 @@ export default function Marketplace() {
                 const canAfford = state.astralShards >= cost;
                 return (
                   <button
+                    class="btn-secondary"
                     onClick={refreshMerchants}
                     disabled={!canAfford}
-                    style={{
-                      padding: "3px 10px",
-                      background: canAfford ? "rgba(167, 139, 250, 0.2)" : "var(--bg-secondary)",
-                      border: `1px solid ${canAfford ? "#a78bfa" : "var(--border-color)"}`,
-                      color: canAfford ? "#a78bfa" : "var(--text-muted)",
-                      "border-radius": "4px",
-                      cursor: canAfford ? "pointer" : "default",
-                      "font-size": "0.7rem",
-                    }}
+                    style={{ "font-size": "0.7rem" }}
                   >
                     Reroll ({cost} 💠)
                   </button>
@@ -461,8 +446,8 @@ export default function Marketplace() {
                       <span style={{ color: "var(--accent-green)" }}>{ri.icon} {offer.receiveAmount} {ri.name}</span>
                     </div>
                     <button
-                      class="trade-btn"
-                      style={{ width: "100%", padding: "5px" }}
+                      class="btn-primary"
+                      style={{ width: "100%" }}
                       onClick={() => setPendingMerchant(offer)}
                     >
                       Trade
@@ -515,8 +500,8 @@ export default function Marketplace() {
                       They offer {gi.name} · They want {ri.name}
                     </div>
                     <button
-                      class="trade-btn"
-                      style={{ width: "100%", padding: "5px" }}
+                      class="btn-primary"
+                      style={{ width: "100%" }}
                       onClick={() => setPendingAccept(offer)}
                     >
                       Accept Trade
@@ -588,7 +573,8 @@ export default function Marketplace() {
                         <span style={{ color: "var(--accent-green)" }}>{ri.icon} {offer.receiveAmount}</span>
                       </div>
                       <button
-                        style={{ ...mutedBtnStyle, padding: "2px 8px", "font-size": "0.7rem", "flex-shrink": "0" }}
+                        class="btn-tertiary"
+                        style={{ "font-size": "0.7rem", "flex-shrink": "0" }}
                         onClick={() => handleCancel(offer.id)}
                       >
                         Cancel

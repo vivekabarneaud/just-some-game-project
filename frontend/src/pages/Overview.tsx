@@ -382,7 +382,7 @@ export default function Overview() {
             <h2>All Quests Complete — For Now</h2>
             <p>You have proven yourself a worthy ruler. Your settlement thrives under your leadership. But the frontier is vast, and new challenges are on the horizon. Stay sharp — more quests will arrive soon.</p>
             <button
-              class="quest-claim-btn"
+              class="btn-primary"
               style={{ "margin-top": "10px" }}
               onClick={() => setDismissedCongrats(true)}
             >
@@ -722,17 +722,9 @@ export default function Overview() {
                               {ir.combatVictory ? "🛡️ Repelled" : "💔 Defeated"}
                             </div>
                             <button
+                              class="btn-secondary"
                               onClick={() => setPlayingRaid(ir)}
-                              style={{
-                                padding: "8px 18px",
-                                background: "rgba(180, 150, 100, 0.2)",
-                                border: "1px solid var(--accent-gold)",
-                                color: "var(--accent-gold)",
-                                "border-radius": "4px",
-                                cursor: "pointer",
-                                "font-size": "0.9rem",
-                                "font-weight": "bold",
-                              }}
+                              style={{ "font-size": "0.9rem", "font-weight": "bold" }}
                             >
                               ▶ Watch combat
                             </button>
@@ -779,6 +771,7 @@ export default function Overview() {
                           {/* Recall button */}
                           <Show when={onMissionCount() > 0}>
                             <button
+                              class="btn-secondary"
                               onClick={() => {
                                 const hasWiz = state.activeMissions.some((m) =>
                                   m.adventurerIds.some((id) => state.adventurers.find((a) => a.id === id)?.class === "wizard")
@@ -792,14 +785,9 @@ export default function Overview() {
                               }}
                               style={{
                                 "margin-top": "8px",
-                                padding: "6px 14px",
-                                background: "rgba(231, 76, 60, 0.2)",
-                                border: "1px solid var(--accent-red)",
-                                color: "var(--accent-red)",
-                                "border-radius": "4px",
-                                cursor: "pointer",
-                                "font-size": "0.85rem",
                                 width: "100%",
+                                "justify-content": "center",
+                                "font-size": "0.85rem",
                               }}
                             >
                               Recall Adventurers ({onMissionCount()})
