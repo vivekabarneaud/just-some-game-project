@@ -48,6 +48,7 @@ import { playSound, playPageMountSound } from "~/engine/sounds";
 import CombatPlayback from "~/components/CombatPlayback";
 import { fetchCoops, respondCoop, cancelCoop, fetchCoopDetail, claimCoop } from "~/api/coop";
 import { wsClient } from "~/api/ws";
+import { FrameOrnaments } from "~/components/FrameOrnaments";
 import type { CompletedMission } from "@medieval-realm/shared/data/missions";
 
 type Tab = "missions" | "roster";
@@ -56,6 +57,16 @@ type Tab = "missions" | "roster";
 // the crafting cards use; drawn as the card's border-image.
 const RANK_FRAME = ["", "common", "uncommon", "rare", "epic", "legendary"];
 const rankFrameUrl = (rank: number) => `/images/frames/item_frame_${RANK_FRAME[rank] ?? "common"}.png`;
+
+// Mid-edge flourishes (restored via CSS since the frame art is corner-only now).
+// Only the higher tiers carry them; common/uncommon stay plain. legendary reuses
+// the epic flourish for now.
+const RANK_ORNAMENT: Record<number, string | undefined> = {
+  3: "/images/frames/ornament_rare.png",
+  4: "/images/frames/ornament_epic.png",
+  5: "/images/frames/ornament_epic.png",
+};
+const rankOrnamentH = (v: string) => v.replace(".png", "_h.png");
 
 
 
@@ -1040,9 +1051,20 @@ export default function AdventurersGuild() {
                           portrait stays flush to the edge and the frame overlays it. */}
                       <div aria-hidden="true" style={{
                         position: "absolute", inset: 0, "pointer-events": "none", "z-index": 3,
-                        border: "var(--ornament-w) solid transparent",
-                        "border-image": `url(${rankFrameUrl(adv.rank)}) var(--ornament-slice) stretch`,
+                        /* border-width + slice tuned so the corner ornaments render
+                           at the same visual scale as the building/quest frames. */
+                        border: "24px solid transparent",
+                        "border-image": `url(${rankFrameUrl(adv.rank)}) 44 stretch`,
                       }} />
+                      {/* Mid-edge flourishes (higher tiers only). */}
+                      <Show when={RANK_ORNAMENT[adv.rank]}>
+                        <FrameOrnaments
+                          vUrl={RANK_ORNAMENT[adv.rank]!}
+                          hUrl={rankOrnamentH(RANK_ORNAMENT[adv.rank]!)}
+                          size={28}
+                          inset={8}
+                        />
+                      </Show>
                       <span class="building-card-category" style={{ color: RANK_COLORS[adv.rank] }}>
                         {RANK_NAMES[adv.rank]}
                       </span>

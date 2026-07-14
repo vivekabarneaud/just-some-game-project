@@ -1459,7 +1459,41 @@ export default function Farming() {
   const villageUnlocked = () => townHallLevel() >= 3;     // fields, livestock & bees, orchards
 
   return (
-    <div>
+    // z-index:0 makes this page its own stacking context, so the emblem's
+    // z-index:-1 sits behind the cards but ABOVE the weather backdrop (rain).
+    <div style={{ position: "relative", "z-index": "0" }}>
+      {/* Big season emblem watermark — bleeds off the top-left so the face + its
+          right/bottom edges show; behind the cards, above the weather. Autumn has
+          no art yet, so it borrows the summer emblem as a stand-in for now. */}
+      {(() => {
+        const EMBLEM: Record<string, string> = {
+          spring: "/images/seasons/season_spring.png",
+          summer: "/images/seasons/season_summer.png",
+          winter: "/images/seasons/season_winter.png",
+          autumn: "/images/seasons/season_summer.png", // TEMP stand-in until autumn art
+        };
+        const src = () => EMBLEM[state.season];
+        return (
+          <Show when={src()}>
+            <img
+              src={src()!}
+              alt=""
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                top: "-130px",
+                left: "-180px",
+                width: "640px",
+                height: "640px",
+                "object-fit": "contain",
+                opacity: "0.2",
+                "pointer-events": "none",
+                "z-index": "-1",
+              }}
+            />
+          </Show>
+        );
+      })()}
       <h1 class="page-title">Farming</h1>
 
       {/* Rotation tip — appears only until the player has actually planted, so

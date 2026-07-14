@@ -391,7 +391,7 @@ body {
   width: calc(63px * var(--fl-scale));
   height: calc(24px * var(--fl-scale));
   transform: translateX(-50%);
-  background: url(/images/frames/item_frame_epic.png) no-repeat;
+  background: url(/images/frames/item_frame_epic_full.png) no-repeat;
   background-size: calc(512px * var(--fl-scale)) auto;
   background-position: calc(-225px * var(--fl-scale)) calc(-465px * var(--fl-scale));
   pointer-events: none;
@@ -453,7 +453,7 @@ body {
   width: calc(24px * var(--fl-scale));
   height: calc(63px * var(--fl-scale));
   transform: translateY(-50%);
-  background: url(/images/frames/item_frame_epic.png) no-repeat;
+  background: url(/images/frames/item_frame_epic_full.png) no-repeat;
   background-size: calc(512px * var(--fl-scale)) auto;
   background-position: calc(-465px * var(--fl-scale)) calc(-225px * var(--fl-scale));
   pointer-events: none;
@@ -1172,33 +1172,95 @@ body {
   text-transform: uppercase;
 }
 
-.upgrade-btn {
+/* ── Global button skins ──────────────────────────────────────────
+ * .btn-primary  — hand-painted FILLED gold button (border-image + `fill`
+ *                 keeps the rounded corners crisp at any width while the
+ *                 middle stretches to fill). Dark ink text.
+ * .btn-secondary — thin gold OUTLINE frame (transparent centre), gold text.
+ * .upgrade-btn is kept as an alias of .btn-primary so existing CTAs inherit
+ * the skin. Calibration knobs are the border-width + the slice. */
+.upgrade-btn,
+.btn-primary {
+  position: relative;
+  overflow: hidden; /* clip the shine sweep to the button */
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 24px;
-  background: linear-gradient(135deg, #5a4a1e, #8a7a3e);
-  color: var(--accent-gold);
-  border: 1px solid var(--accent-gold);
-  border-radius: 6px;
+  padding: 10px 22px;
+  /* CSS gold gradient (replaces the hand-drawn fill — lighter + more delicate,
+     and the thin border lets the shine sweep reach the button's edges). */
+  background: linear-gradient(180deg, #dcc06a 0%, #c49c3e 55%, #b28a30 100%);
+  border: 1px solid #9a7a2c;
+  border-radius: 4px;
+  color: #3a2a0e; /* dark ink — reads on the gold */
   font-family: var(--font-heading);
   font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
+  transition: filter 0.15s, transform 0.15s;
 }
-
-.upgrade-btn:hover {
-  background: linear-gradient(135deg, #6a5a2e, #9a8a4e);
+/* Shine sweep on hover — a rotated light bar parked off the left edge that
+   glides across (adapted from the Coanda primary button). */
+.upgrade-btn::after,
+.btn-primary::after {
+  content: "";
+  position: absolute;
+  top: -50px;
+  left: -80px;
+  width: 46px;
+  height: 160px;
+  background: #fff;
+  opacity: 0.18;
+  transform: rotate(35deg);
+  transition: left 550ms cubic-bezier(0.19, 1, 0.22, 1);
+  pointer-events: none;
+}
+.upgrade-btn:hover::after,
+.btn-primary:hover::after {
+  left: 130%;
+}
+.upgrade-btn:hover,
+.btn-primary:hover {
+  filter: brightness(1.05);
   transform: translateY(-1px);
 }
-
-.upgrade-btn:disabled {
+.upgrade-btn:disabled,
+.btn-primary:disabled {
   opacity: 0.4;
   cursor: not-allowed;
   transform: none;
-  background: var(--bg-secondary);
-  border-color: var(--border-color);
-  color: var(--text-muted);
+  filter: grayscale(0.5);
+}
+.upgrade-btn:disabled::after,
+.btn-primary:disabled::after {
+  display: none;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 20px;
+  background: transparent;
+  border: 7px solid transparent;
+  border-image: url(/images/ui/secondary_btn.png) 22 stretch;
+  border-radius: 0;
+  color: var(--accent-gold);
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.15s;
+}
+.btn-secondary:hover {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+}
+.btn-secondary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  filter: grayscale(0.5);
 }
 
 .building-effect {
