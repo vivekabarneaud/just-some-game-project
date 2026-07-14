@@ -237,12 +237,11 @@ export default function Buildings() {
                     <A href={`/buildings/${building.id}`} id={`building-${building.id}`} style={{ "text-decoration": "none" }}>
                       <div
                         class="building-card"
-                        classList={{ upgrading: isUpgrading(), "quest-target": isQuestTarget() }}
+                        classList={{ upgrading: isUpgrading(), "quest-target": isQuestTarget(), damaged: !!pb()?.damaged }}
                         onMouseEnter={() => {
                           if (isNewlyUnlocked()) actions.markBuildingSeen(building.id);
                         }}
                         style={{
-                          opacity: pb()?.damaged ? 0.7 : 1,
                           position: "relative",
                           // Quest-target gold border takes priority over the
                           // newly-unlocked blue highlight when both apply.

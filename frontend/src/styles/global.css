@@ -1024,6 +1024,15 @@ body {
   flex: 1;
 }
 
+/* A damaged building reads as inactive — dim the banner, blurb and output, but
+   NOT the repair row: CSS opacity applies to the whole subtree, so dimming the
+   card root made the (fully usable) Repair button look disabled. */
+.building-card.damaged .building-card-image,
+.building-card.damaged .building-card-desc,
+.building-card.damaged .building-card-production {
+  opacity: 0.5;
+}
+
 .building-card-production {
   font-size: 0.8rem;
   color: var(--accent-green);
