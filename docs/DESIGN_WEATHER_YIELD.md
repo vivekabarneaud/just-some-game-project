@@ -59,6 +59,13 @@ A `water` resource, capped by storage, generated + spent through these:
 
 **The loop:** wet years fill your cistern; drought cuts the well and you draw down (or irrigate) the reserve. Bank in the good years, spend in the bad.
 
+**Open considerations (Phase 2, noted 2026-07-15):**
+- **Show water use per plot** — fields/gardens/orchards display their water consumption, like the Eats/feed rows on pens.
+- **No water use when it rains** — crops drink the rain; irrigation only draws stored water in dry conditions.
+- **Other consumers** — animals need water too; maybe the kitchens. Water isn't just for crops.
+- **One water item vs two?** — is rainwater potable? Option A: a single `water` resource (simplest). Option B: split **rainwater** (crops/livestock) vs **clean/well water** (drinking/kitchen) — more realism, more bookkeeping. Lean A unless drinking-water becomes a distinct need.
+- **Top bar** — water storage + current amount gets its own category in the resource bar (like food/wood/stone).
+
 ## 6. Water economy (trade)
 
 Stored water is a **holdable, tradeable resource**. A drought spikes demand → players who banked water in wet years profit selling it. Weather-driven trade with real value — the thing that was missing when the seed loop self-sustained. Ties into `DESIGN_TRAVELING_MERCHANTS.md` / player trade.

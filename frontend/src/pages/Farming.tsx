@@ -8,6 +8,7 @@ import type { FoodItemType } from "~/data/foods";
 import { getHiveCost, getHiveBuildTime, getHoneyRate, HIVE_MAX_LEVEL, APIARY_IMAGE, APIARY } from "~/data/apiary";
 import SeedIcon from "~/components/SeedIcon";
 import SeasonIcon from "~/components/SeasonIcon";
+import { CLIMATE_META } from "~/data/climate";
 import { getFruit, getOrchardCost, getOrchardBuildTime, getOrchardRate, getOrchardStatus, getOrchardTreeSlots, getFruitPerTreeRate, isFruitUnlocked, SAPLING_PLANT_SEASON, isOrchardActive, ORCHARD_MAX_LEVEL } from "~/data/orchards";
 import { SEASON_META, type Season } from "~/data/seasons";
 import { QUEST_DEFINITIONS, isQuestActive } from "~/data/quests";
@@ -1633,6 +1634,24 @@ export default function Farming() {
             <SeasonIcon season={state.season} size={20} /> {seasonMeta().name}, Year {state.year}
           </span>
         </div>
+        {/* This year's climate — a global modifier on crop yields. */}
+        {(() => {
+          const c = () => CLIMATE_META[actions.getClimateBand()];
+          const pct = () => Math.round((1 - c().yield) * 100);
+          return (
+            <div class="farming-stat">
+              <span class="farming-stat-label">Weather</span>
+              <Tooltip block text={c().blurb}>
+                <span class="farming-stat-value" style={{ color: c().color }}>
+                  {c().icon} {c().name}
+                  <Show when={c().yield !== 1}>
+                    <span style={{ "font-size": "0.72rem", color: "var(--accent-red)", "margin-left": "4px" }}>crops −{pct()}%</span>
+                  </Show>
+                </span>
+              </Tooltip>
+            </div>
+          );
+        })()}
         <Show when={state.season === "spring" || state.season === "summer"}>
           <div class="farming-stat">
             <span class="farming-stat-label">Expected Harvest</span>

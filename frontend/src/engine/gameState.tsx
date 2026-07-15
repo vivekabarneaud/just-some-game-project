@@ -195,6 +195,7 @@ import {
   isOrchardActive,
   ORCHARD_MAX_LEVEL,
 } from "~/data/orchards";
+import { getClimate, getClimateYield, type ClimateBand } from "~/data/climate";
 import {
   type Season,
   HOURS_PER_SEASON,
@@ -817,6 +818,8 @@ export interface GameActions {
   getStorageCaps: () => StorageCaps;
   getSettlementTier: () => SettlementTier;
   getTownHallLevel: () => number;
+  /** This year's climate band for the Farming readout (grace-aware: Year 1 = normal). */
+  getClimateBand: () => ClimateBand;
   isHarvesting: () => boolean;
   getMasonBonuses: () => MasonBonuses;
   getMasonLevel: () => number;
@@ -2179,6 +2182,18 @@ function getBuildingStaffing(s: GameState, buildingId: string, level: number): B
   return { staffable: true, capacity, named, kids: cfg.kids ?? [], citizens, active, multiplier };
 }
 
+/** This year's climate band (drought/dry/normal/wet/deluge). Keyed to the
+ *  settlement's own year (state.year) so it advances with play and is
+ *  deterministic/testable — first year is always fair (grace for newcomers). */
+function cropClimateBand(state: GameState): ClimateBand {
+  return getClimate(state.year);
+}
+/** Crop-yield multiplier from the climate. First settlement year = grace (1.0). */
+function cropYieldMult(state: GameState): number {
+  if (state.year <= 1) return 1;
+  return getClimateYield(getClimate(state.year));
+}
+
 function calcProductionRates(state: GameState): { gold: number; wood: number; stone: number; food: number } {
   const { buildings, fields, gardens, pens, citizens, season, seasonElapsed } = state;
   const rates = { gold: 0, wood: 0, stone: 0, food: 0 };
@@ -2220,13 +2235,16 @@ function calcProductionRates(state: GameState): { gold: number; wood: number; st
     }
   }
 
+  // Climate multiplier scales all crop yields (fields/gardens/orchards) this year.
+  const cm = cropYieldMult(state);
+
   // Fields — harvest burst in autumn
   if (isHarvestTime(season, seasonElapsed)) {
     for (const field of fields) {
       if (field.level === 0 || !field.crop) continue;
       const crop = getCrop(field.crop);
       if (crop.isFood) {
-        rates.food += getSeasonYield(crop, field.level) / HARVEST_DURATION_HOURS;
+        rates.food += (getSeasonYield(crop, field.level) / HARVEST_DURATION_HOURS) * cm;
       }
     }
   }
@@ -2237,7 +2255,7 @@ function calcProductionRates(state: GameState): { gold: number; wood: number; st
     if (garden.plantedYear == null) continue;
     const veggie = getVeggie(garden.veggie);
     if (isVeggieProducing(veggie, season)) {
-      rates.food += getEffectiveGardenRate(veggie, garden.level, garden.seedsPlanted);
+      rates.food += getEffectiveGardenRate(veggie, garden.level, garden.seedsPlanted) * cm;
     }
   }
 
@@ -2423,13 +2441,16 @@ function calcFoodRates(state: GameState, fedRatios?: Map<string, number>): Recor
     spring: 1.0, summer: 1.0, autumn: 0.75, winter: 0.25,
   };
 
+  // Climate multiplier scales all crop yields (fields/gardens/orchards).
+  const cm = cropYieldMult(state);
+
   // Fields — harvest season only
   if (isHarvestTime(season, seasonElapsed)) {
     for (const field of fields) {
       if (field.level === 0 || !field.crop) continue;
       const crop = getCrop(field.crop);
       if (!crop.isFood) continue;
-      const rate = getSeasonYield(crop, field.level) / HARVEST_DURATION_HOURS;
+      const rate = (getSeasonYield(crop, field.level) / HARVEST_DURATION_HOURS) * cm;
       if (crop.id in rates) rates[crop.id as FoodItemType] += rate;
     }
   }
@@ -2440,7 +2461,7 @@ function calcFoodRates(state: GameState, fedRatios?: Map<string, number>): Recor
     if (garden.plantedYear == null) continue;
     const veggie = getVeggie(garden.veggie);
     if (!isVeggieProducing(veggie, season)) continue;
-    const rate = getEffectiveGardenRate(veggie, garden.level, garden.seedsPlanted);
+    const rate = getEffectiveGardenRate(veggie, garden.level, garden.seedsPlanted) * cm;
     if (veggie.id in rates) rates[veggie.id as FoodItemType] += rate;
   }
 
@@ -2450,7 +2471,7 @@ function calcFoodRates(state: GameState, fedRatios?: Map<string, number>): Recor
     if (orchard.level === 0 || orchard.upgrading || (orchard.matureTrees ?? 0) <= 0) continue;
     const fruitDef = getFruit(orchard.fruit);
     if (!isOrchardActive(fruitDef, season)) continue;
-    const rate = getOrchardRate(fruitDef, orchard.matureTrees);
+    const rate = getOrchardRate(fruitDef, orchard.matureTrees) * cm;
     if (fruitDef.id in rates) rates[fruitDef.id as FoodItemType] += rate;
   }
 
@@ -2520,13 +2541,15 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
     spring: 1.0, summer: 1.0, autumn: 0.75, winter: 0.25,
   };
 
+  const cm = cropYieldMult(state);
+
   // Fields (harvest only) — use crop.id (wheat/barley) as the food type
   if (isHarvestTime(season, seasonElapsed)) {
     for (const field of fields) {
       if (field.level === 0 || !field.crop) continue;
       const crop = getCrop(field.crop);
       if (!crop.isFood) continue;
-      const rate = Math.round(getSeasonYield(crop, field.level) / HARVEST_DURATION_HOURS);
+      const rate = Math.round((getSeasonYield(crop, field.level) / HARVEST_DURATION_HOURS) * cm);
       sources.push({ type: crop.id, label: crop.name, icon: crop.icon, rate, building: `${crop.name} Field Lv${field.level}` });
     }
   }
@@ -2537,7 +2560,7 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
     if (garden.plantedYear == null) continue;
     const veggie = getVeggie(garden.veggie);
     if (!isVeggieProducing(veggie, season)) continue;
-    const rate = getEffectiveGardenRate(veggie, garden.level, garden.seedsPlanted);
+    const rate = getEffectiveGardenRate(veggie, garden.level, garden.seedsPlanted) * cm;
     sources.push({ type: veggie.id, label: veggie.name, icon: veggie.icon, rate, building: `${veggie.name} Garden Lv${garden.level}` });
   }
 
@@ -3526,11 +3549,11 @@ export function GameProvider(props: ParentProps) {
       s.yearHarvest = {};
       for (const field of s.fields) {
         if (field.crop && field.level > 0) {
-          // Planted this year — harvest with soil multiplier applied
+          // Planted this year — harvest with soil + climate multipliers applied
           const crop = getCrop(field.crop);
           const base = getSeasonYield(crop, field.level);
           const mult = getSoilMultiplier(field.sameCropStreak, field.restBonus);
-          const amount = Math.max(0, Math.floor(base * mult));
+          const amount = Math.max(0, Math.floor(base * mult * cropYieldMult(s)));
           s.yearHarvest[crop.name] = (s.yearHarvest[crop.name] ?? 0) + amount;
           field.harvested = true;
           field.crop = null;
@@ -5795,6 +5818,7 @@ export function GameProvider(props: ParentProps) {
     getStorageCaps() { return calcStorageCaps(state.buildings); },
     getSettlementTier() { return getSettlementTier(getTownHallLevel(state.buildings)); },
     getTownHallLevel() { return getTownHallLevel(state.buildings); },
+    getClimateBand() { return state.year <= 1 ? "normal" : cropClimateBand(state); },
     canAfford(cost) { return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone; },
     getBuildingEffect(buildingId, nextLevel) { return calcBuildingEffect(buildingId, nextLevel); },
     isHarvesting() { return isHarvestTime(state.season, state.seasonElapsed); },
