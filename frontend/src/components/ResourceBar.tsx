@@ -9,6 +9,14 @@ import { FOOD_ITEMS, FOOD_CATEGORIES, getTotalFood, getFoodCostAmount, type Food
 import { craftingMaterialCap } from "~/data/buildings";
 import { WEATHER_META } from "~/data/weather";
 import FoodIcon from "~/components/FoodIcon";
+import type { StreamStatus } from "~/data/water";
+
+const STREAM_STATUS_META: Record<StreamStatus, { icon: string; suffix: string; color: string }> = {
+  flowing: { icon: "🏞️", suffix: "", color: "var(--accent-green)" },
+  low: { icon: "🏞️", suffix: " (low)", color: "var(--accent-gold)" },
+  frozen: { icon: "🧊", suffix: " (frozen)", color: "var(--text-secondary)" },
+  dry: { icon: "🏜️", suffix: " (dry)", color: "var(--accent-red)" },
+};
 
 export default function ResourceBar() {
   const { state, actions } = useGame();
@@ -384,14 +392,19 @@ export default function ResourceBar() {
                 {(() => {
                   const b = actions.getWaterBreakdown();
                   const wm = WEATHER_META[b.weather];
+                  const sm = STREAM_STATUS_META[b.streamStatus];
                   return (
                     <>
+                      <div class="dropdown-row"><span style={{ color: sm.color }}>{sm.icon} Stream{sm.suffix}</span><span>+{w1(b.stream)}/h</span></div>
                       <Show when={b.well > 0}>
                         <div class="dropdown-row"><span>💧 Well</span><span>+{w1(b.well)}/h</span></div>
                       </Show>
                       <div class="dropdown-row"><span>{wm.icon} {wm.name}{b.rain > 0 ? " (rain)" : ""}</span><span>+{w1(b.rain)}/h</span></div>
                       <Show when={b.drainage > 0}>
                         <div class="dropdown-row"><span>🌊 Drainage runoff</span><span>+{w1(b.drainage)}/h</span></div>
+                      </Show>
+                      <Show when={b.citizens > 0}>
+                        <div class="dropdown-row" style={{ color: "var(--accent-red)" }}><span>🧑‍🌾 Folk</span><span>-{w1(b.citizens)}/h</span></div>
                       </Show>
                       <Show when={b.animals > 0}>
                         <div class="dropdown-row" style={{ color: "var(--accent-red)" }}><span>🐑 Livestock</span><span>-{w1(b.animals)}/h</span></div>

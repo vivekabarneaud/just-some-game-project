@@ -196,7 +196,8 @@ import {
   ORCHARD_MAX_LEVEL,
 } from "~/data/orchards";
 import { getClimate, getClimateYield, DROUGHT_PLANT_KILL, climateOverrideBand, isDryBand, isWetBand, climateRainFactor, type ClimateBand } from "~/data/climate";
-import { WELL_ID, CISTERN_ID, IRRIGATION_ID, DRAINAGE_ID, getWellOutput, wellDroughtFactor, getCisternRainCatch, getWaterCap, getDrainageBank, ambientRainFactor, gardenWaterDemand, fieldWaterDemand, orchardWaterDemand, penWaterDemand, naturalRainCoverage } from "~/data/water";
+import { WELL_ID, CISTERN_ID, IRRIGATION_ID, DRAINAGE_ID, getWellOutput, wellFactor, getCisternRainCatch, getWaterCap, getDrainageBank, ambientRainFactor, gardenWaterDemand, fieldWaterDemand, orchardWaterDemand, penWaterDemand, naturalRainCoverage, STREAM_YIELD, streamStatus, streamFactor, cropHeatFactor, citizenWaterDemand } from "~/data/water";
+import type { StreamStatus } from "~/data/water";
 import { resolveCurrentWeather, type WeatherType } from "~/data/weather";
 import {
   type Season,
@@ -831,10 +832,12 @@ export interface GameActions {
   getClimateBand: () => ClimateBand;
   /** Dev: apply a drought plant-kill right now (test tool). */
   forceDroughtKill: () => void;
-  /** Net water change per hour (well + rain caught − irrigation draw). */
+  /** Net water change per hour (stream + well + rain + runoff − draws). */
   getWaterRate: () => number;
+  /** The stream's status (drives its water yield + the fishing hut's catch). */
+  getStreamStatus: () => StreamStatus;
   /** Water sources/sinks per hour for the top-bar dropdown. */
-  getWaterBreakdown: () => { well: number; rain: number; drainage: number; animals: number; irrigation: number; crops: number; rainCoverage: number; dry: boolean; weather: WeatherType; net: number };
+  getWaterBreakdown: () => { stream: number; well: number; rain: number; drainage: number; citizens: number; animals: number; irrigation: number; crops: number; rainCoverage: number; dry: boolean; weather: WeatherType; streamStatus: StreamStatus; net: number };
   /** Effective crop-yield multiplier after irrigation/drainage offsets (1 = full). */
   getCropYieldMult: () => number;
   isHarvesting: () => boolean;
@@ -2236,6 +2239,47 @@ function animalWaterDemand(s: GameState): number {
   for (const p of s.pens) if (p.level > 0) d += penWaterDemand(p.count);
   return d;
 }
+/** Water the settlement's folk drink each hour (year-round, spikes in summer). */
+function citizenWaterDemand_(s: GameState): number {
+  const c = s.citizens;
+  const pop = c.toddlers + c.children + c.adults + c.elderly;
+  return citizenWaterDemand(pop, s.season);
+}
+/** The stream's status this tick — drives its water yield AND the fishing catch
+ *  (same low water, fewer fish): flowing / low (summer, dry) / frozen / dry. */
+function streamStatusOf(s: GameState): StreamStatus {
+  return streamStatus(cropClimateBand(s), s.season);
+}
+/** Multiplier the low stream puts on the fishing hut's catch. */
+function fishStreamFactor(s: GameState): number {
+  return streamFactor(streamStatusOf(s));
+}
+
+/** One place computing the water flows this tick (water/hour). The stream + well
+ *  + caught rain + drainage runoff FILL the reserve; citizens, livestock and the
+ *  crop irrigation deficit (heat-scaled in a dry year) DRAW it. */
+function waterBalance(s: GameState) {
+  const band = cropClimateBand(s);
+  const weather = currentWeatherOf(s);
+  const cisternLvl = buildingLevel(s, CISTERN_ID);
+  const stream = STREAM_YIELD * streamFactor(streamStatus(band, s.season));
+  const well = getWellOutput(buildingLevel(s, WELL_ID)) * wellFactor(band);
+  const rain = getCisternRainCatch(cisternLvl) * climateRainFactor(band) * ambientRainFactor(weather);
+  const drainage = isWetBand(band) ? getDrainageBank(buildingLevel(s, DRAINAGE_ID)) : 0;
+  const inflow = stream + well + rain + drainage;
+  const citizens = citizenWaterDemand_(s);
+  const animals = animalWaterDemand(s);
+  const crops = cropWaterDemand(s);
+  // The season's own rain waters crops for free; irrigation makes up the rest,
+  // and a dry/drought year's heat makes them thirstier still.
+  const cov = naturalRainCoverage(band);
+  const cropDeficit = cov < 1 ? crops * (1 - cov) * cropHeatFactor(band) : 0;
+  const irrigation = (cropDeficit > 0 && buildingLevel(s, IRRIGATION_ID) > 0) ? cropDeficit : 0;
+  const draw = citizens + animals + irrigation;
+  return { band, weather, cisternLvl, stream, well, rain, drainage, inflow,
+    citizens, animals, crops, cov, irrigation, streamStatus: streamStatus(band, s.season),
+    net: inflow - draw };
+}
 
 /** Is irrigation actively saving the crop this tick? (built, dry/drought year,
  *  and there's still water in the reserve). */
@@ -2591,7 +2635,7 @@ function calcFoodRates(state: GameState, fedRatios?: Map<string, number>): Recor
       // the seasonal gather.
       if (isForagerBlooming(state)) rates.mushrooms += Math.floor(base * RAIN_FORAGE_MUSHROOM_FRACTION);
     } else if (pb.buildingId === "fishing_hut") {
-      rate = Math.floor(rate * (foodSeasonMod[season] ?? 1));
+      rate = Math.floor(rate * (foodSeasonMod[season] ?? 1) * fishStreamFactor(state));
       target = "fish";
     }
     // Staff coverage — deploying the building's adventurer (or an empty slot)
@@ -2683,7 +2727,7 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
         sources.push({ type: "mushrooms", label: "Mushrooms", icon: "🍄", rate: rainBonus, building: `${def.name} · rain` });
       }
     } else if (pb.buildingId === "fishing_hut") {
-      rate = Math.floor(rate * (foodSeasonMod[season] ?? 1));
+      rate = Math.floor(rate * (foodSeasonMod[season] ?? 1) * fishStreamFactor(state));
       type = "fish"; icon = "🐟"; label = "Fish";
     }
     if (type && rate > 0) {
@@ -3863,23 +3907,9 @@ export function GameProvider(props: ParentProps) {
         // ── Water — wells + rain-catching cisterns fill the reserve; irrigation
         // spends it in dry/drought years; drainage banks runoff in wet years. ──
         {
-          const wBand = cropClimateBand(s);
-          const cisternLvl = buildingLevel(s, CISTERN_ID);
-          let water = s.resources.water ?? 0;
-          // Rain catch = cistern base × yearly climate × the current sky (fills
-          // fast while it's actually raining).
-          const rain = getCisternRainCatch(cisternLvl) * climateRainFactor(wBand) * ambientRainFactor(currentWeatherOf(s));
-          const supply = getWellOutput(buildingLevel(s, WELL_ID)) * wellDroughtFactor(wBand)
-            + rain
-            + (isWetBand(wBand) ? getDrainageBank(buildingLevel(s, DRAINAGE_ID)) : 0);
-          let draw = animalWaterDemand(s); // livestock drink year-round
-          // Irrigation only makes up the shortfall rain didn't cover.
-          if (buildingLevel(s, IRRIGATION_ID) > 0) {
-            const cov = naturalRainCoverage(wBand);
-            if (cov < 1) draw += cropWaterDemand(s) * (1 - cov);
-          }
-          water += (supply - draw) * elapsedHours;
-          s.resources.water = Math.min(getWaterCap(cisternLvl), Math.max(0, water));
+          const wb = waterBalance(s);
+          const water = (s.resources.water ?? 0) + wb.net * elapsedHours;
+          s.resources.water = Math.min(getWaterCap(wb.cisternLvl), Math.max(0, water));
         }
 
         // Food: add per-type production (capped at pantry total), then citizens eat proportionally.
@@ -5951,31 +5981,16 @@ export function GameProvider(props: ParentProps) {
       }));
       scheduleSave();
     },
-    getWaterRate() {
-      const band = cropClimateBand(state);
-      const cisternLvl = buildingLevel(state, CISTERN_ID);
-      const rain = getCisternRainCatch(cisternLvl) * climateRainFactor(band) * ambientRainFactor(currentWeatherOf(state));
-      const supply = getWellOutput(buildingLevel(state, WELL_ID)) * wellDroughtFactor(band)
-        + rain
-        + (isWetBand(band) ? getDrainageBank(buildingLevel(state, DRAINAGE_ID)) : 0);
-      let draw = animalWaterDemand(state);
-      if (isDryBand(band) && buildingLevel(state, IRRIGATION_ID) > 0) draw += cropWaterDemand(state);
-      return supply - draw;
-    },
+    getWaterRate() { return waterBalance(state).net; },
+    getStreamStatus() { return streamStatusOf(state); },
     getWaterBreakdown() {
-      const band = cropClimateBand(state);
-      const cisternLvl = buildingLevel(state, CISTERN_ID);
-      const weather = currentWeatherOf(state);
-      const well = getWellOutput(buildingLevel(state, WELL_ID)) * wellDroughtFactor(band);
-      const rain = getCisternRainCatch(cisternLvl) * climateRainFactor(band) * ambientRainFactor(weather);
-      const drainage = isWetBand(band) ? getDrainageBank(buildingLevel(state, DRAINAGE_ID)) : 0;
-      const animals = animalWaterDemand(state);
-      const crops = cropWaterDemand(state);
-      const cov = naturalRainCoverage(band);
-      const dry = isDryBand(band);
-      const deficit = crops * (1 - cov);
-      const irrigation = (deficit > 0 && buildingLevel(state, IRRIGATION_ID) > 0) ? deficit : 0;
-      return { well, rain, drainage, animals, irrigation, crops, rainCoverage: cov, dry, weather, net: well + rain + drainage - animals - irrigation };
+      const wb = waterBalance(state);
+      return {
+        stream: wb.stream, well: wb.well, rain: wb.rain, drainage: wb.drainage,
+        citizens: wb.citizens, animals: wb.animals, irrigation: wb.irrigation,
+        crops: wb.crops, rainCoverage: wb.cov, dry: isDryBand(wb.band),
+        weather: wb.weather, streamStatus: wb.streamStatus, net: wb.net,
+      };
     },
     canAfford(cost) { return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone; },
     getBuildingEffect(buildingId, nextLevel) { return calcBuildingEffect(buildingId, nextLevel); },

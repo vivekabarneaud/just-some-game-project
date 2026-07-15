@@ -1,10 +1,12 @@
 // ─── Water system (weather → yield, Layer 2) ────────────────────────────────
-// Wells + rain-catching cisterns fill a `water` reserve; irrigation spends it in
-// dry/drought years to keep crops alive; drainage sheds it in wet years. See
-// docs/DESIGN_WEATHER_YIELD.md §5.
+// A stream + wells + rain-catching cisterns fill a `water` reserve; crops draw
+// it continuously via irrigation (paused when it rains), livestock and citizens
+// drink from it. When it's short: citizens first, then livestock, then crops.
+// See docs/DESIGN_WEATHER_YIELD.md §5.
 
 import type { ClimateBand } from "./climate";
 import type { WeatherType } from "./weather";
+import type { Season } from "./seasons";
 
 // Building ids (defined in data/buildings.ts).
 export const WELL_ID = "well";
@@ -12,18 +14,39 @@ export const CISTERN_ID = "cistern";
 export const IRRIGATION_ID = "irrigation_works";
 export const DRAINAGE_ID = "drainage_works";
 
-/** A little water can be held even without a cistern (a few barrels). */
+/** A little water is held even without a cistern (a few barrels) — the stream
+ *  keeps it topped up, so a new settlement is never dry. */
 export const BASE_WATER_CAP = 40;
 
-/** Well groundwater output, water/hour, before the drought penalty. */
+// ── Passive sources (they FILL the reserve) ─────────────────────────────────
+
+/** The stream is abundant but fickle. Its status drives BOTH its water yield
+ *  and the fishing hut's catch (same low water, fewer fish). */
+export type StreamStatus = "flowing" | "low" | "frozen" | "dry";
+export const STREAM_YIELD = 20; // water/hour at full flow
+export function streamStatus(band: ClimateBand, season: Season): StreamStatus {
+  if (band === "drought") return "dry";       // drought stops it
+  if (season === "winter") return "frozen";   // winter freezes it
+  if (band === "dry" || season === "summer") return "low"; // summer/dry dip
+  return "flowing";
+}
+/** Multiplier on the stream's water yield AND the fishing hut's catch. */
+export function streamFactor(status: StreamStatus): number {
+  switch (status) {
+    case "flowing": return 1;
+    case "low": return 0.5;
+    case "frozen": return 0.2;
+    case "dry": return 0.05;
+  }
+}
+
+/** Well groundwater output, water/hour. Reliable — only a MILD drought dip, and
+ *  it never freezes (that's the point of digging one). */
 export function getWellOutput(level: number): number {
   return level <= 0 ? 0 : level * 12;
 }
-/** Wells run low in dry years and nearly dry up in a drought. */
-export function wellDroughtFactor(band: ClimateBand): number {
-  if (band === "drought") return 0.3;
-  if (band === "dry") return 0.6;
-  return 1;
+export function wellFactor(band: ClimateBand): number {
+  return band === "drought" ? 0.7 : band === "dry" ? 0.85 : 1;
 }
 
 /** Cistern storage capacity added per level. */
@@ -34,14 +57,16 @@ export function getCisternCap(level: number): number {
 export function getCisternRainCatch(level: number): number {
   return level <= 0 ? 0 : level * 9;
 }
-/** The cistern only catches water while it's ACTUALLY raining (or storming).
- *  Clear, overcast, fog and snow add nothing — 0. Multiplies the rain catch on
- *  top of the yearly climate factor, so a downpour in a wet year fills fast. */
+/** The cistern only catches water while it's ACTUALLY raining (or storming). */
 export function ambientRainFactor(weather: WeatherType): number {
   switch (weather) {
     case "rain": case "storm": case "unnatural_storm": return 2.5;
     default: return 0;
   }
+}
+/** Water a drainage works banks from runoff in a wet year, water/hour per level. */
+export function getDrainageBank(level: number): number {
+  return level <= 0 ? 0 : level * 5;
 }
 
 /** Total water the reserve can hold (base barrels + cisterns). */
@@ -49,14 +74,11 @@ export function getWaterCap(cisternLevel: number): number {
   return BASE_WATER_CAP + getCisternCap(cisternLevel);
 }
 
-// ── Per-crop water demand (water/hour, per active plot) under irrigation ──
-// Fields drink the most; gardens less; drought-loving lavender barely any.
-// ── Per-crop water DEMAND — scales with how much is actually growing. Crops
-// drink this much every hour; rain covers it in kind years, the reserve
-// (well + cistern) covers the shortfall in dry ones. Displayed as whole units.
-export const ANIMAL_WATER_PER_HEAD = 1;    // per head
+// ── Consumption (per hour) — scales with what's actually alive/growing ───────
+export const ANIMAL_WATER_PER_HEAD = 1;
 export const ORCHARD_WATER_PER_TREE = 2;   // per bearing tree/vine
 export const FIELD_WATER_PER_LEVEL = 4;    // a field is acreage — thirsty
+export const CITIZEN_WATER_PER_HEAD = 0.5;
 const GARDEN_WATER_PER_PLANT: Record<string, number> = {
   lavender: 0.5,     // likes it dry
   squash: 1.2,       // thirsty
@@ -77,19 +99,22 @@ export function orchardWaterDemand(matureTrees: number): number {
 export function penWaterDemand(count: number): number {
   return ANIMAL_WATER_PER_HEAD * Math.max(0, count);
 }
+/** Citizens drink year-round, more in the summer heat. */
+export function citizenWaterDemand(pop: number, season: Season): number {
+  return CITIZEN_WATER_PER_HEAD * Math.max(0, pop) * (season === "summer" ? 1.5 : 1);
+}
+/** Crops drink more in the heat of a dry/drought year. */
+export function cropHeatFactor(band: ClimateBand): number {
+  return band === "drought" ? 2 : band === "dry" ? 1.3 : 1;
+}
 
-/** Fraction of a crop's water need that natural rainfall covers this year. The
- *  rest is a deficit the reserve/irrigation must make up, or the crop goes
- *  thirsty and its yield drops to this fraction. Kind years = fully rain-fed. */
+/** How much of a crop's water the season's own rain covers for free — the rest
+ *  is a deficit irrigation must draw from the reserve, or the crop goes thirsty.
+ *  (Yearly baseline: un-irrigated crops rely on this; kind years = fully fed.) */
 export function naturalRainCoverage(band: ClimateBand): number {
   switch (band) {
     case "deluge": case "wet": case "normal": return 1;
     case "dry": return 0.5;
     case "drought": return 0.2;
   }
-}
-
-/** Water a drainage works banks from runoff in a wet year, water/hour per level. */
-export function getDrainageBank(level: number): number {
-  return level <= 0 ? 0 : level * 5;
 }
