@@ -3619,6 +3619,13 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.6px;
   color: var(--text-muted);
+  /* Reserve two lines so a wrapping label (e.g. "Harvested this year") doesn't
+     push its value down out of line with the single-line cards' values. */
+  min-height: 2.2em;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  text-align: center;
 }
 
 .farming-stat-value {

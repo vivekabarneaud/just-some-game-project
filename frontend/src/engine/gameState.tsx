@@ -195,7 +195,7 @@ import {
   isOrchardActive,
   ORCHARD_MAX_LEVEL,
 } from "~/data/orchards";
-import { getClimate, getClimateYield, DROUGHT_PLANT_KILL, climateOverrideBand, isDryBand, isWetBand, climateRainFactor, type ClimateBand } from "~/data/climate";
+import { getClimate, getClimateYield, DROUGHT_PLANT_KILL, climateOverrideBand, setClimateOverride, isDryBand, isWetBand, climateRainFactor, type ClimateBand } from "~/data/climate";
 import { WELL_ID, CISTERN_ID, IRRIGATION_ID, DRAINAGE_ID, getWellOutput, wellFactor, getCisternRainCatch, getWaterCap, getDrainageBank, ambientRainFactor, gardenWaterDemand, fieldWaterDemand, orchardWaterDemand, penWaterDemand, naturalRainCoverage, STREAM_YIELD, streamStatus, streamFactor, cropHeatFactor, citizenWaterDemand } from "~/data/water";
 import type { StreamStatus } from "~/data/water";
 import { resolveCurrentWeather, type WeatherType } from "~/data/weather";
@@ -832,6 +832,9 @@ export interface GameActions {
   getClimateBand: () => ClimateBand;
   /** Dev: apply a drought plant-kill right now (test tool). */
   forceDroughtKill: () => void;
+  /** Dev: run a full drought spell (forces the drought band + plant-kill) for a
+   *  few real seconds, then hands the climate back to the world year. */
+  triggerDrought: () => void;
   /** Net water change per hour (stream + well + rain + runoff − draws). */
   getWaterRate: () => number;
   /** The stream's status (drives its water yield + the fishing hut's catch). */
@@ -5980,6 +5983,18 @@ export function GameProvider(props: ParentProps) {
         pushEvent(s, "drought", "🥵", "Drought struck the land — crops withered and young saplings died in the dry.");
       }));
       scheduleSave();
+    },
+    triggerDrought() {
+      // Force the drought band so the whole system reacts (yields fall, the
+      // stream dries, wells dip, the reserve drains) and bite the plants once.
+      setClimateOverride("drought");
+      setState(produce((s) => {
+        applyDroughtKill(s);
+        pushEvent(s, "drought", "🥵", "A drought swept the land — the stream ran to a trickle, crops wilted and young saplings died in the heat.");
+      }));
+      scheduleSave();
+      // Let it pass after a few real seconds, like any weather event.
+      setTimeout(() => setClimateOverride(null), 20000);
     },
     getWaterRate() { return waterBalance(state).net; },
     getStreamStatus() { return streamStatusOf(state); },

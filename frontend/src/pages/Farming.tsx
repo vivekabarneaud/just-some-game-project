@@ -9,14 +9,7 @@ import { getHiveCost, getHiveBuildTime, getHoneyRate, HIVE_MAX_LEVEL, APIARY_IMA
 import SeedIcon from "~/components/SeedIcon";
 import SeasonIcon from "~/components/SeasonIcon";
 import { CLIMATE_META } from "~/data/climate";
-import { gardenWaterDemand, fieldWaterDemand, orchardWaterDemand, penWaterDemand, type StreamStatus } from "~/data/water";
-
-const STREAM_STATUS_META: Record<StreamStatus, { icon: string; name: string; color: string; blurb: string }> = {
-  flowing: { icon: "🏞️", name: "Flowing", color: "var(--accent-green)", blurb: "The stream runs full. Fresh water fills your reserve and the fishing hut lands a good catch." },
-  low: { icon: "🏞️", name: "Low", color: "var(--accent-gold)", blurb: "The stream is running low in the dry heat. Less water reaches your reserve, and the fishing hut catches fewer fish." },
-  frozen: { icon: "🧊", name: "Frozen", color: "var(--text-secondary)", blurb: "Winter has frozen the stream to a trickle. Little water reaches your reserve, and the fishing hut barely brings anything in." },
-  dry: { icon: "🏜️", name: "Dry", color: "var(--accent-red)", blurb: "The drought has all but dried the stream. Your reserve barely fills from it, and the fishing hut is nearly idle. Lean on your wells." },
-};
+import { gardenWaterDemand, fieldWaterDemand, orchardWaterDemand, penWaterDemand } from "~/data/water";
 
 /** True once the settlement has a well or cistern — gates the per-plot water
  *  need lines so they don't confuse players who haven't started on water yet. */
@@ -1697,25 +1690,6 @@ export default function Farming() {
             </div>
           );
         })()}
-        {/* The stream: free water that fills the reserve, and the fishing hut's
-            lifeline. It dips in summer, freezes in winter, dries in a drought. */}
-        {(() => {
-          const st = () => actions.getStreamStatus();
-          const sm = () => STREAM_STATUS_META[st()];
-          return (
-            <div class="farming-stat">
-              <span class="farming-stat-label">Stream</span>
-              <Tooltip block text={sm().blurb}>
-                <span class="farming-stat-value" style={{ color: sm().color }}>
-                  {sm().icon} {sm().name}
-                  <Show when={st() !== "flowing"}>
-                    <span style={{ "font-size": "0.72rem", color: "var(--accent-red)", "margin-left": "4px" }}>fewer fish</span>
-                  </Show>
-                </span>
-              </Tooltip>
-            </div>
-          );
-        })()}
         <Show when={state.season === "spring" || state.season === "summer"}>
           <div class="farming-stat">
             <span class="farming-stat-label">Expected Harvest</span>
@@ -1742,25 +1716,23 @@ export default function Farming() {
           <span class="farming-stat-label">Animal Feed</span>
           <span class="farming-stat-value rate-negative">-{actions.getAnimalFoodConsumption()}/h</span>
         </div>
-        {/* Water balance — net of wells + rain vs livestock + irrigation. Only
-            once there's a well or cistern; the top-bar dropdown has the full breakdown. */}
-        <Show when={state.buildings.some((b) => (b.buildingId === "well" || b.buildingId === "cistern") && b.level > 0)}>
-          {(() => {
-            const rate = () => actions.getWaterRate();
-            const b = () => actions.getWaterBreakdown();
-            const w1 = (n: number) => String(Math.round(n));
-            return (
+        {/* Farm water — what the fields, gardens, orchards and pens drink each
+            hour. The reserve level + net balance live in the top-bar dropdown. */}
+        {(() => {
+          const b = () => actions.getWaterBreakdown();
+          const w1 = (n: number) => String(Math.round(n));
+          const farm = () => b().crops + b().animals;
+          return (
+            <Show when={farm() > 0}>
               <div class="farming-stat">
-                <span class="farming-stat-label">Water</span>
-                <Tooltip block text={`Stream +${w1(b().stream)}${b().well > 0 ? ` · well +${w1(b().well)}` : ""} · rain +${w1(b().rain)}${b().drainage > 0 ? ` · drainage +${w1(b().drainage)}` : ""} · folk -${w1(b().citizens)}${b().animals > 0 ? ` · livestock -${w1(b().animals)}` : ""}${b().irrigation > 0 ? ` · irrigation -${w1(b().irrigation)}` : ""} (per hour)`}>
-                  <span class="farming-stat-value" classList={{ "rate-positive": rate() > 0.05, "rate-negative": rate() < -0.05 }}>
-                    💧 {rate() >= 0 ? "+" : ""}{w1(rate())}/h
-                  </span>
+                <span class="farming-stat-label">Farm Water</span>
+                <Tooltip block text={`Crops need ${w1(b().crops)}/h${b().animals > 0 ? `, livestock ${w1(b().animals)}/h` : ""}. Rain waters the crops for free in kind years; a dry year draws the shortfall from your reserve (irrigation) or the crops go thirsty.`}>
+                  <span class="farming-stat-value rate-negative">💧 -{w1(farm())}/h</span>
                 </Tooltip>
               </div>
-            );
-          })()}
-        </Show>
+            </Show>
+          );
+        })()}
         <Show when={state.pens.some((p) => p.level > 0 && isGrazer(p.animal))}>
           <div class="farming-stat">
             <span class="farming-stat-label">{state.season === "winter" ? "Winter fodder" : "Grazing"}</span>

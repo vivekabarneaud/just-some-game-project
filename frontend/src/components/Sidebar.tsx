@@ -574,8 +574,8 @@ export default function Sidebar(props: SidebarProps) {
               ))}
             </select>
           </div>
-          <button class="btn-tertiary" style={{ width: "100%", "justify-content": "center" }} onClick={() => actions.forceDroughtKill()}>
-            🥵 Trigger drought kill
+          <button class="btn-tertiary" style={{ width: "100%", "justify-content": "center" }} onClick={() => actions.triggerDrought()}>
+            🥵 Trigger drought (20s)
           </button>
           <div class="nav-section-title" style={{ "margin-top": "12px" }}>Test Snapshot</div>
           <button class="btn-tertiary" style={{ width: "100%", "justify-content": "center" }} onClick={() => {
