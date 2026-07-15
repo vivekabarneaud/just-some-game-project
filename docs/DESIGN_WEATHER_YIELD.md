@@ -30,9 +30,9 @@ One deterministic roll per year → a climate band:
 - Distribution stays close to the table above over a long run.
 - We can still **force a year to drought** for a scripted story beat (override seam).
 
-**Global + first-year grace (LOCKED direction).** The climate is a shared **world year** (wall-clock, like the ambient weather) — everyone gets the same "dry summer of year 9," which is the real-life shared feel. To protect newcomers, **a settlement's own first year (state.year 1) takes no climate penalty and no drought-kill**, whatever the world is doing. Shared world + gentle onboarding.
+**Year key + first-year grace.** A settlement's own **first year takes no climate penalty and no drought-kill** (grace for newcomers).
 
-*(Player-facing "Year N" is the settlement's age; the climate's year is the world/wall-clock year — two different numbers, as the weather code already notes.)*
+**IMPLEMENTED (Phase 1a) as PER-PLAYER** — the climate is keyed to `state.year` (the settlement's own year), NOT the world/wall-clock year. Reasons that surfaced in build: (1) crops run on the player's season clock (sped up to 50×), so a wall-clock world-year would freeze the climate across many in-game seasons; (2) `state.year` is deterministic + testable (no `Date.now()` in the food tick); (3) staggered per-player droughts arguably make the water *trade* healthier (someone always has surplus) than a synchronized global drought. This **supersedes the earlier "global/shared server year" lean** — it's a one-line flip (`state.year` → `getGlobalSeason().year`) if we later want the shared-world feel back. Open for the user to reconfirm.
 
 ## 3. Yield vs germination — separate levers
 
