@@ -195,7 +195,8 @@ import {
   isOrchardActive,
   ORCHARD_MAX_LEVEL,
 } from "~/data/orchards";
-import { getClimate, getClimateYield, DROUGHT_PLANT_KILL, climateOverrideBand, type ClimateBand } from "~/data/climate";
+import { getClimate, getClimateYield, DROUGHT_PLANT_KILL, climateOverrideBand, isDryBand, isWetBand, climateRainFactor, type ClimateBand } from "~/data/climate";
+import { WELL_ID, CISTERN_ID, IRRIGATION_ID, DRAINAGE_ID, getWellOutput, wellDroughtFactor, getCisternRainCatch, getWaterCap, getDrainageBank, FIELD_WATER_NEED, ORCHARD_WATER_NEED, gardenWaterNeed } from "~/data/water";
 import {
   type Season,
   HOURS_PER_SEASON,
@@ -364,6 +365,9 @@ export interface ResourceState {
   gold: number;
   wood: number;
   stone: number;
+  /** Stored water — filled by wells + rain-catching cisterns, spent on
+   *  irrigation in dry/drought years. Capped by cistern storage. */
+  water: number;
 }
 
 export interface StorageCaps {
@@ -371,6 +375,7 @@ export interface StorageCaps {
   wood: number;
   stone: number;
   food: number;
+  water: number;
 }
 
 export interface PlayerField {
@@ -825,6 +830,10 @@ export interface GameActions {
   getClimateBand: () => ClimateBand;
   /** Dev: apply a drought plant-kill right now (test tool). */
   forceDroughtKill: () => void;
+  /** Net water change per hour (well + rain caught − irrigation draw). */
+  getWaterRate: () => number;
+  /** Effective crop-yield multiplier after irrigation/drainage offsets (1 = full). */
+  getCropYieldMult: () => number;
   isHarvesting: () => boolean;
   getMasonBonuses: () => MasonBonuses;
   getMasonLevel: () => number;
@@ -1058,7 +1067,7 @@ export function createInitialState(): GameState {
   initialFoods.nuts = 10;
   initialFoods.berries = 8;
   return {
-    resources: { gold: 50, wood: 300, stone: 200 },
+    resources: { gold: 50, wood: 300, stone: 200, water: 0 },
     foods: initialFoods,
     buildings: BUILDINGS.map((b) => ({
       buildingId: b.id,
@@ -1279,6 +1288,7 @@ export function migrateSaveState(saved: GameState): GameState {
     }
     saved.buildings = saved.buildings.filter((b) => b.buildingId !== "farm");
     if ("mana" in saved.resources) delete (saved.resources as any)["mana"];
+    if (typeof (saved.resources as any).water !== "number") (saved.resources as any).water = 0;
     // Citizen-categories migration (Phase B). Old saves stored a scalar
     // `population: number`; new shape is `citizens: CitizenCounts`. Preserve
     // the total — exactly-5 starter saves get the founder slice, others get
@@ -2195,11 +2205,41 @@ function getBuildingStaffing(s: GameState, buildingId: string, level: number): B
 function cropClimateBand(_state: GameState): ClimateBand {
   return climateOverrideBand() ?? getClimate(getGlobalSeason().year);
 }
-/** Crop-yield multiplier from the climate. A settlement's first year is graced
- *  (×1) so newcomers who join mid-drought still get a fair start. */
+function buildingLevel(s: GameState, id: string): number {
+  return s.buildings.find((b) => b.buildingId === id)?.level ?? 0;
+}
+
+/** Total water the active crops want per hour under irrigation — fields drink
+ *  the most, gardens by crop (lavender least), bearing orchards a share. */
+function cropWaterDemand(s: GameState): number {
+  let d = 0;
+  for (const f of s.fields) if (f.level > 0 && f.crop) d += FIELD_WATER_NEED;
+  for (const g of s.gardens) if (g.level > 0 && g.plantedYear != null) d += gardenWaterNeed(g.veggie);
+  for (const o of s.orchards) if (o.level > 0 && (o.matureTrees ?? 0) > 0) d += ORCHARD_WATER_NEED;
+  return d;
+}
+
+/** Is irrigation actively saving the crop this tick? (built, dry/drought year,
+ *  and there's still water in the reserve). */
+function irrigationActive(s: GameState): boolean {
+  return isDryBand(cropClimateBand(s)) && buildingLevel(s, IRRIGATION_ID) > 0 && s.resources.water > 0;
+}
+/** Is drainage saving the crop this wet year? (built, wet/deluge). */
+function drainageActive(s: GameState): boolean {
+  return isWetBand(cropClimateBand(s)) && buildingLevel(s, DRAINAGE_ID) > 0;
+}
+
+/** Crop-yield multiplier from the climate. First year is graced (×1). Irrigation
+ *  cancels a dry/drought penalty while the reserve holds; drainage cancels a
+ *  wet/deluge penalty. */
 function cropYieldMult(state: GameState): number {
   if (state.year <= 1) return 1;
-  return getClimateYield(cropClimateBand(state));
+  const band = cropClimateBand(state);
+  const base = getClimateYield(band);
+  if (base >= 1) return base;
+  if (isDryBand(band) && irrigationActive(state)) return 1;
+  if (isWetBand(band) && drainageActive(state)) return 1;
+  return base;
 }
 
 /** Drought's discrete bite: a fraction of standing plants withers. Gardens lose
@@ -2838,11 +2878,13 @@ function calcStorageCaps(buildings: PlayerBuilding[]): StorageCaps {
   const pantry = buildings.find((b) => b.buildingId === "pantry");
   const th = buildings.find((b) => b.buildingId === "town_hall");
   const materialCap = BASE_MATERIAL_STORAGE + (warehouse?.level ?? 0) * MATERIAL_STORAGE_PER_WAREHOUSE_LEVEL;
+  const cistern = buildings.find((b) => b.buildingId === CISTERN_ID);
   return {
     gold: BASE_GOLD_STORAGE + (th?.level ?? 0) * GOLD_STORAGE_PER_TH_LEVEL,
     wood: materialCap,
     stone: materialCap,
     food: BASE_FOOD_STORAGE + (pantry?.level ?? 0) * FOOD_STORAGE_PER_PANTRY_LEVEL,
+    water: getWaterCap(cistern?.level ?? 0),
   };
 }
 
@@ -3796,6 +3838,22 @@ export function GameProvider(props: ParentProps) {
         s.resources.gold = Math.min(caps.gold, Math.max(0, s.resources.gold + rates.gold * happinessMod * elapsedHours));
         s.resources.wood = Math.min(caps.wood, Math.max(0, s.resources.wood + rates.wood * happinessMod * elapsedHours));
         s.resources.stone = Math.min(caps.stone, Math.max(0, s.resources.stone + rates.stone * happinessMod * elapsedHours));
+
+        // ── Water — wells + rain-catching cisterns fill the reserve; irrigation
+        // spends it in dry/drought years; drainage banks runoff in wet years. ──
+        {
+          const wBand = cropClimateBand(s);
+          const cisternLvl = buildingLevel(s, CISTERN_ID);
+          let water = s.resources.water ?? 0;
+          const supply = getWellOutput(buildingLevel(s, WELL_ID)) * wellDroughtFactor(wBand)
+            + getCisternRainCatch(cisternLvl) * climateRainFactor(wBand)
+            + (isWetBand(wBand) ? getDrainageBank(buildingLevel(s, DRAINAGE_ID)) : 0);
+          water += supply * elapsedHours;
+          if (isDryBand(wBand) && buildingLevel(s, IRRIGATION_ID) > 0) {
+            water -= cropWaterDemand(s) * elapsedHours;
+          }
+          s.resources.water = Math.min(getWaterCap(cisternLvl), Math.max(0, water));
+        }
 
         // Food: add per-type production (capped at pantry total), then citizens eat proportionally.
         // Animal consumption already happened above in applyAnimalFeed.
@@ -5858,12 +5916,22 @@ export function GameProvider(props: ParentProps) {
     getSettlementTier() { return getSettlementTier(getTownHallLevel(state.buildings)); },
     getTownHallLevel() { return getTownHallLevel(state.buildings); },
     getClimateBand() { return state.year <= 1 ? "normal" : cropClimateBand(state); },
+    getCropYieldMult() { return cropYieldMult(state); },
     forceDroughtKill() {
       setState(produce((s) => {
         applyDroughtKill(s);
         pushEvent(s, "drought", "🥵", "Drought struck the land — crops withered and young saplings died in the dry.");
       }));
       scheduleSave();
+    },
+    getWaterRate() {
+      const band = cropClimateBand(state);
+      const cisternLvl = buildingLevel(state, CISTERN_ID);
+      const supply = getWellOutput(buildingLevel(state, WELL_ID)) * wellDroughtFactor(band)
+        + getCisternRainCatch(cisternLvl) * climateRainFactor(band)
+        + (isWetBand(band) ? getDrainageBank(buildingLevel(state, DRAINAGE_ID)) : 0);
+      const draw = (isDryBand(band) && buildingLevel(state, IRRIGATION_ID) > 0) ? cropWaterDemand(state) : 0;
+      return supply - draw;
     },
     canAfford(cost) { return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone; },
     getBuildingEffect(buildingId, nextLevel) { return calcBuildingEffect(buildingId, nextLevel); },

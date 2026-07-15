@@ -111,7 +111,14 @@ export default function ResourceBar() {
     return c[id as keyof typeof c];
   };
 
+  // Water has its own net rate (well + rain − irrigation), not in the resource
+  // production rates. Only surfaced once the player has water infrastructure.
+  const hasWaterInfra = () =>
+    state.buildings.some((b) => (b.buildingId === "well" || b.buildingId === "cistern") && b.level > 0);
+  const visibleResources = () => RESOURCES.filter((r) => r.id !== "water" || hasWaterInfra());
+
   const getRate = (id: string) => {
+    if (id === "water") return actions.getWaterRate();
     const r = rates();
     const base = r[id as keyof typeof r] as number;
     // Fold passive cooking's NET (food produced minus food eaten as ingredients)
@@ -126,7 +133,7 @@ export default function ResourceBar() {
 
   return (
     <div class="resource-bar">
-      <For each={RESOURCES}>
+      <For each={visibleResources()}>
         {(res) => {
           const rate = () => getRate(res.id);
           // "Fragile" food surplus: positive ONLY because a pot is cooking. When

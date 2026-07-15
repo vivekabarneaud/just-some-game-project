@@ -1,0 +1,58 @@
+// ─── Water system (weather → yield, Layer 2) ────────────────────────────────
+// Wells + rain-catching cisterns fill a `water` reserve; irrigation spends it in
+// dry/drought years to keep crops alive; drainage sheds it in wet years. See
+// docs/DESIGN_WEATHER_YIELD.md §5.
+
+import type { ClimateBand } from "./climate";
+
+// Building ids (defined in data/buildings.ts).
+export const WELL_ID = "well";
+export const CISTERN_ID = "cistern";
+export const IRRIGATION_ID = "irrigation_works";
+export const DRAINAGE_ID = "drainage_works";
+
+/** A little water can be held even without a cistern (a few barrels). */
+export const BASE_WATER_CAP = 40;
+
+/** Well groundwater output, water/hour, before the drought penalty. */
+export function getWellOutput(level: number): number {
+  return level <= 0 ? 0 : level * 12;
+}
+/** Wells run low in dry years and nearly dry up in a drought. */
+export function wellDroughtFactor(band: ClimateBand): number {
+  if (band === "drought") return 0.3;
+  if (band === "dry") return 0.6;
+  return 1;
+}
+
+/** Cistern storage capacity added per level. */
+export function getCisternCap(level: number): number {
+  return level <= 0 ? 0 : level * 150;
+}
+/** Rain a cistern catches, water/hour, before the year's climate rain factor. */
+export function getCisternRainCatch(level: number): number {
+  return level <= 0 ? 0 : level * 9;
+}
+
+/** Total water the reserve can hold (base barrels + cisterns). */
+export function getWaterCap(cisternLevel: number): number {
+  return BASE_WATER_CAP + getCisternCap(cisternLevel);
+}
+
+// ── Per-crop water demand (water/hour, per active plot) under irrigation ──
+// Fields drink the most; gardens less; drought-loving lavender barely any.
+export const FIELD_WATER_NEED = 3;
+export const ORCHARD_WATER_NEED = 2;   // per bearing grove
+const GARDEN_WATER_NEED: Record<string, number> = {
+  lavender: 0.5,   // likes it dry
+  squash: 2,       // thirsty
+  strawberries: 2,
+};
+export function gardenWaterNeed(veggieId: string): number {
+  return GARDEN_WATER_NEED[veggieId] ?? 1.5;
+}
+
+/** Water a drainage works banks from runoff in a wet year, water/hour per level. */
+export function getDrainageBank(level: number): number {
+  return level <= 0 ? 0 : level * 5;
+}

@@ -1634,18 +1634,26 @@ export default function Farming() {
             <SeasonIcon season={state.season} size={20} /> {seasonMeta().name}, Year {state.year}
           </span>
         </div>
-        {/* This year's climate — a global modifier on crop yields. */}
+        {/* This year's climate — a global modifier on crop yields, softened by
+            irrigation (dry/drought) or drainage (wet/deluge) when built. */}
         {(() => {
-          const c = () => CLIMATE_META[actions.getClimateBand()];
-          const pct = () => Math.round((1 - c().yield) * 100);
+          const band = () => actions.getClimateBand();
+          const c = () => CLIMATE_META[band()];
+          const eff = () => actions.getCropYieldMult();
+          const protectedNow = () => c().yield < 1 && eff() >= 1;
+          const penaltyPct = () => Math.round((1 - eff()) * 100);
+          const guard = () => (band() === "dry" || band() === "drought") ? "💦 irrigated" : "🌊 drained";
           return (
             <div class="farming-stat">
               <span class="farming-stat-label">Weather</span>
               <Tooltip block text={c().blurb}>
                 <span class="farming-stat-value" style={{ color: c().color }}>
                   {c().icon} {c().name}
-                  <Show when={c().yield !== 1}>
-                    <span style={{ "font-size": "0.72rem", color: "var(--accent-red)", "margin-left": "4px" }}>crops −{pct()}%</span>
+                  <Show when={protectedNow()}>
+                    <span style={{ "font-size": "0.72rem", color: "var(--accent-green)", "margin-left": "4px" }}>{guard()}</span>
+                  </Show>
+                  <Show when={eff() < 1}>
+                    <span style={{ "font-size": "0.72rem", color: "var(--accent-red)", "margin-left": "4px" }}>crops −{penaltyPct()}%</span>
                   </Show>
                 </span>
               </Tooltip>

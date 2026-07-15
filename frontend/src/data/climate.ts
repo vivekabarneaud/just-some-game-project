@@ -74,3 +74,23 @@ export function getClimate(worldYear: number): ClimateBand {
 export function getClimateYield(band: ClimateBand): number {
   return CLIMATE_META[band].yield;
 }
+
+/** Dry bands (a water deficit — irrigation can offset the yield hit). */
+export function isDryBand(band: ClimateBand): boolean {
+  return band === "dry" || band === "drought";
+}
+/** Wet bands (a water surplus — drainage can offset the yield hit). */
+export function isWetBand(band: ClimateBand): boolean {
+  return band === "wet" || band === "deluge";
+}
+/** How much rain a cistern catches this year, relative to a normal year — wet
+ *  years fill it fast, drought barely at all. */
+export function climateRainFactor(band: ClimateBand): number {
+  switch (band) {
+    case "deluge": return 1.8;
+    case "wet": return 1.35;
+    case "normal": return 1.0;
+    case "dry": return 0.4;
+    case "drought": return 0.1;
+  }
+}

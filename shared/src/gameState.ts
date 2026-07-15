@@ -12,6 +12,9 @@ export interface ResourceState {
   gold: number;
   wood: number;
   stone: number;
+  /** Stored water — wells + rain-catching cisterns fill it; irrigation spends
+   *  it in dry/drought years. Capped by cistern storage. */
+  water: number;
 }
 
 export interface StorageCaps {
