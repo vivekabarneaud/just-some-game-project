@@ -51,18 +51,42 @@ export function getWaterCap(cisternLevel: number): number {
 
 // ── Per-crop water demand (water/hour, per active plot) under irrigation ──
 // Fields drink the most; gardens less; drought-loving lavender barely any.
-// Whole numbers per hour — no fractional water. Fields drink most, gardens by
-// crop (lavender least, it likes it dry), a grove a share, livestock per head.
-export const FIELD_WATER_NEED = 3;
-export const ORCHARD_WATER_NEED = 2;   // per bearing grove
-export const ANIMAL_WATER_PER_HEAD = 1;
-const GARDEN_WATER_NEED: Record<string, number> = {
-  lavender: 1,     // likes it dry
-  squash: 3,       // thirsty
-  strawberries: 3,
+// ── Per-crop water DEMAND — scales with how much is actually growing. Crops
+// drink this much every hour; rain covers it in kind years, the reserve
+// (well + cistern) covers the shortfall in dry ones. Displayed as whole units.
+export const ANIMAL_WATER_PER_HEAD = 1;    // per head
+export const ORCHARD_WATER_PER_TREE = 2;   // per bearing tree/vine
+export const FIELD_WATER_PER_LEVEL = 4;    // a field is acreage — thirsty
+const GARDEN_WATER_PER_PLANT: Record<string, number> = {
+  lavender: 0.5,     // likes it dry
+  squash: 1.2,       // thirsty
+  strawberries: 1.2,
 };
-export function gardenWaterNeed(veggieId: string): number {
-  return GARDEN_WATER_NEED[veggieId] ?? 2;
+export function gardenWaterPerPlant(veggieId: string): number {
+  return GARDEN_WATER_PER_PLANT[veggieId] ?? 1;
+}
+export function gardenWaterDemand(veggieId: string, plants: number): number {
+  return Math.round(gardenWaterPerPlant(veggieId) * Math.max(0, plants));
+}
+export function fieldWaterDemand(level: number): number {
+  return FIELD_WATER_PER_LEVEL * Math.max(0, level);
+}
+export function orchardWaterDemand(matureTrees: number): number {
+  return ORCHARD_WATER_PER_TREE * Math.max(0, matureTrees);
+}
+export function penWaterDemand(count: number): number {
+  return ANIMAL_WATER_PER_HEAD * Math.max(0, count);
+}
+
+/** Fraction of a crop's water need that natural rainfall covers this year. The
+ *  rest is a deficit the reserve/irrigation must make up, or the crop goes
+ *  thirsty and its yield drops to this fraction. Kind years = fully rain-fed. */
+export function naturalRainCoverage(band: ClimateBand): number {
+  switch (band) {
+    case "deluge": case "wet": case "normal": return 1;
+    case "dry": return 0.5;
+    case "drought": return 0.2;
+  }
 }
 
 /** Water a drainage works banks from runoff in a wet year, water/hour per level. */

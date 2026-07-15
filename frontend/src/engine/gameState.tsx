@@ -196,7 +196,7 @@ import {
   ORCHARD_MAX_LEVEL,
 } from "~/data/orchards";
 import { getClimate, getClimateYield, DROUGHT_PLANT_KILL, climateOverrideBand, isDryBand, isWetBand, climateRainFactor, type ClimateBand } from "~/data/climate";
-import { WELL_ID, CISTERN_ID, IRRIGATION_ID, DRAINAGE_ID, getWellOutput, wellDroughtFactor, getCisternRainCatch, getWaterCap, getDrainageBank, ambientRainFactor, FIELD_WATER_NEED, ORCHARD_WATER_NEED, ANIMAL_WATER_PER_HEAD, gardenWaterNeed } from "~/data/water";
+import { WELL_ID, CISTERN_ID, IRRIGATION_ID, DRAINAGE_ID, getWellOutput, wellDroughtFactor, getCisternRainCatch, getWaterCap, getDrainageBank, ambientRainFactor, gardenWaterDemand, fieldWaterDemand, orchardWaterDemand, penWaterDemand, naturalRainCoverage } from "~/data/water";
 import { resolveCurrentWeather, type WeatherType } from "~/data/weather";
 import {
   type Season,
@@ -834,7 +834,7 @@ export interface GameActions {
   /** Net water change per hour (well + rain caught − irrigation draw). */
   getWaterRate: () => number;
   /** Water sources/sinks per hour for the top-bar dropdown. */
-  getWaterBreakdown: () => { well: number; rain: number; drainage: number; animals: number; irrigation: number; crops: number; dry: boolean; weather: WeatherType; net: number };
+  getWaterBreakdown: () => { well: number; rain: number; drainage: number; animals: number; irrigation: number; crops: number; rainCoverage: number; dry: boolean; weather: WeatherType; net: number };
   /** Effective crop-yield multiplier after irrigation/drainage offsets (1 = full). */
   getCropYieldMult: () => number;
   isHarvesting: () => boolean;
@@ -2212,13 +2212,17 @@ function buildingLevel(s: GameState, id: string): number {
   return s.buildings.find((b) => b.buildingId === id)?.level ?? 0;
 }
 
-/** Total water the active crops want per hour under irrigation — fields drink
- *  the most, gardens by crop (lavender least), bearing orchards a share. */
+/** Total water the growing crops want per hour — scales with how much is
+ *  actually growing (field acreage, sprouted garden plants, bearing trees). */
 function cropWaterDemand(s: GameState): number {
   let d = 0;
-  for (const f of s.fields) if (f.level > 0 && f.crop) d += FIELD_WATER_NEED;
-  for (const g of s.gardens) if (g.level > 0 && g.plantedYear != null) d += gardenWaterNeed(g.veggie);
-  for (const o of s.orchards) if (o.level > 0 && (o.matureTrees ?? 0) > 0) d += ORCHARD_WATER_NEED;
+  for (const f of s.fields) if (f.level > 0 && f.crop) d += fieldWaterDemand(f.level);
+  for (const g of s.gardens) {
+    if (g.level > 0 && g.plantedYear != null) {
+      d += gardenWaterDemand(g.veggie, getSproutedPlants(getVeggie(g.veggie), g.seedsPlanted));
+    }
+  }
+  for (const o of s.orchards) if (o.level > 0 && (o.matureTrees ?? 0) > 0) d += orchardWaterDemand(o.matureTrees);
   return d;
 }
 
@@ -2229,7 +2233,7 @@ function currentWeatherOf(s: GameState) {
 /** Water the livestock drink each hour (year-round, per head). */
 function animalWaterDemand(s: GameState): number {
   let d = 0;
-  for (const p of s.pens) if (p.level > 0) d += p.count * ANIMAL_WATER_PER_HEAD;
+  for (const p of s.pens) if (p.level > 0) d += penWaterDemand(p.count);
   return d;
 }
 
@@ -2243,17 +2247,17 @@ function drainageActive(s: GameState): boolean {
   return isWetBand(cropClimateBand(s)) && buildingLevel(s, DRAINAGE_ID) > 0;
 }
 
-/** Crop-yield multiplier from the climate. First year is graced (×1). Irrigation
- *  cancels a dry/drought penalty while the reserve holds; drainage cancels a
- *  wet/deluge penalty. */
+/** Crop-yield multiplier. First year is graced (×1). Wet years are a
+ *  waterlogging penalty (drainage cancels it). Dry years are WATER-DRIVEN: rain
+ *  covers a fraction, irrigation (while the reserve holds) covers the rest, and
+ *  unwatered crops yield only the rain-fed fraction — thirst, not a flat hit. */
 function cropYieldMult(state: GameState): number {
   if (state.year <= 1) return 1;
   const band = cropClimateBand(state);
-  const base = getClimateYield(band);
-  if (base >= 1) return base;
-  if (isDryBand(band) && irrigationActive(state)) return 1;
-  if (isWetBand(band) && drainageActive(state)) return 1;
-  return base;
+  if (isWetBand(band)) return drainageActive(state) ? 1 : getClimateYield(band);
+  const cov = naturalRainCoverage(band);
+  if (cov >= 1) return 1;                      // normal — rain fully waters them
+  return irrigationActive(state) ? 1 : cov;    // dry/drought — irrigate or go thirsty
 }
 
 /** Drought's discrete bite: a fraction of standing plants withers. Gardens lose
@@ -3795,7 +3799,10 @@ export function GameProvider(props: ParentProps) {
           const climateYear = global.year;
           if (cropClimateBand(s) === "drought" && s.lastDroughtKillYear !== climateYear) {
             s.lastDroughtKillYear = climateYear;
-            if (s.year > 1) {
+            // Irrigation with water in the reserve keeps the crops alive; only an
+            // un-buffered settlement loses plants to the drought.
+            const buffered = buildingLevel(s, IRRIGATION_ID) > 0 && s.resources.water > 0;
+            if (s.year > 1 && !buffered) {
               applyDroughtKill(s);
               pushEvent(s, "drought", "🥵", "Drought struck the land — crops withered in the fields and young saplings died in the dry.");
             }
@@ -3866,7 +3873,11 @@ export function GameProvider(props: ParentProps) {
             + rain
             + (isWetBand(wBand) ? getDrainageBank(buildingLevel(s, DRAINAGE_ID)) : 0);
           let draw = animalWaterDemand(s); // livestock drink year-round
-          if (isDryBand(wBand) && buildingLevel(s, IRRIGATION_ID) > 0) draw += cropWaterDemand(s);
+          // Irrigation only makes up the shortfall rain didn't cover.
+          if (buildingLevel(s, IRRIGATION_ID) > 0) {
+            const cov = naturalRainCoverage(wBand);
+            if (cov < 1) draw += cropWaterDemand(s) * (1 - cov);
+          }
           water += (supply - draw) * elapsedHours;
           s.resources.water = Math.min(getWaterCap(cisternLvl), Math.max(0, water));
         }
@@ -5960,9 +5971,11 @@ export function GameProvider(props: ParentProps) {
       const drainage = isWetBand(band) ? getDrainageBank(buildingLevel(state, DRAINAGE_ID)) : 0;
       const animals = animalWaterDemand(state);
       const crops = cropWaterDemand(state);
+      const cov = naturalRainCoverage(band);
       const dry = isDryBand(band);
-      const irrigation = (dry && buildingLevel(state, IRRIGATION_ID) > 0) ? crops : 0;
-      return { well, rain, drainage, animals, irrigation, crops, dry, weather, net: well + rain + drainage - animals - irrigation };
+      const deficit = crops * (1 - cov);
+      const irrigation = (deficit > 0 && buildingLevel(state, IRRIGATION_ID) > 0) ? deficit : 0;
+      return { well, rain, drainage, animals, irrigation, crops, rainCoverage: cov, dry, weather, net: well + rain + drainage - animals - irrigation };
     },
     canAfford(cost) { return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone; },
     getBuildingEffect(buildingId, nextLevel) { return calcBuildingEffect(buildingId, nextLevel); },

@@ -9,7 +9,7 @@ import { getHiveCost, getHiveBuildTime, getHoneyRate, HIVE_MAX_LEVEL, APIARY_IMA
 import SeedIcon from "~/components/SeedIcon";
 import SeasonIcon from "~/components/SeasonIcon";
 import { CLIMATE_META } from "~/data/climate";
-import { FIELD_WATER_NEED, ORCHARD_WATER_NEED, ANIMAL_WATER_PER_HEAD, gardenWaterNeed } from "~/data/water";
+import { gardenWaterDemand, fieldWaterDemand, orchardWaterDemand, penWaterDemand } from "~/data/water";
 
 /** True once the settlement has a well or cistern — gates the per-plot water
  *  need lines so they don't confuse players who haven't started on water yet. */
@@ -322,7 +322,7 @@ function FieldCard(props: { field: PlayerField }) {
           </div>
         </Show>
         <Show when={hasWaterInfra(state.buildings)}>
-          <WaterNeed amount={FIELD_WATER_NEED} />
+          <WaterNeed amount={fieldWaterDemand(props.field.level)} />
         </Show>
       </Show>
 
@@ -603,7 +603,7 @@ function GardenCard(props: { garden: PlayerGarden }) {
           {seasonList(veggie().plantSeasons, true)}
         </StatBox>
       }>
-        <StatBox label="Water">💧 {gardenWaterNeed(veggie().id)}/h</StatBox>
+        <StatBox label="Water">💧 {gardenWaterDemand(veggie().id, sprouted())}/h</StatBox>
       </Show>
       <StatBox label="Produces">
         {seasonList(veggie().produceSeasons, false)}
@@ -1070,7 +1070,7 @@ function PenCard(props: { pen: PlayerPen }) {
             </StatBox>
           </StatRow>
           <Show when={hasWaterInfra(state.buildings)}>
-            <WaterNeed amount={props.pen.count * ANIMAL_WATER_PER_HEAD} />
+            <WaterNeed amount={penWaterDemand(props.pen.count)} />
           </Show>
 
           {/* Flock summary — the glance. Buying, culling and the guard dog all
@@ -1511,7 +1511,7 @@ function OrchardCard(props: { orchard: PlayerOrchard }) {
           </div>
         </Show>
         <Show when={hasWaterInfra(state.buildings)}>
-          <WaterNeed amount={ORCHARD_WATER_NEED} />
+          <WaterNeed amount={orchardWaterDemand(props.orchard.matureTrees)} />
         </Show>
       </div>
     </Show>

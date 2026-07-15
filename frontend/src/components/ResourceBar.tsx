@@ -396,14 +396,13 @@ export default function ResourceBar() {
                       <Show when={b.animals > 0}>
                         <div class="dropdown-row" style={{ color: "var(--accent-red)" }}><span>🐑 Livestock</span><span>-{w1(b.animals)}/h</span></div>
                       </Show>
-                      {/* Crops only draw the reserve when a dry year forces
-                          irrigation. In a kind year the season waters them; in a
-                          dry year with no irrigation they go thirsty (0 draw, but
-                          the yield suffers). */}
+                      {/* Crops drink b.crops/h. Rain covers it in kind years (no
+                          reserve draw); a dry year makes irrigation draw the
+                          shortfall, or the crops go thirsty and lose yield. */}
                       <Show when={b.crops > 0}>
                         <Show when={b.irrigation > 0} fallback={
                           <div class="dropdown-row" style={{ color: b.dry ? "var(--accent-gold)" : "var(--accent-green)" }}>
-                            <span>🌱 Crops · {b.dry ? "need irrigation" : "fed by the season"}</span><span>0/h</span>
+                            <span>🌱 Crops ({w1(b.crops)}/h) · {b.dry ? "thirsty!" : "rain-fed"}</span><span>0/h</span>
                           </div>
                         }>
                           <div class="dropdown-row" style={{ color: "var(--accent-red)" }}><span>💦 Crops (irrigated)</span><span>-{w1(b.irrigation)}/h</span></div>
