@@ -30,9 +30,11 @@ One deterministic roll per year → a climate band:
 - Distribution stays close to the table above over a long run.
 - We can still **force a year to drought** for a scripted story beat (override seam).
 
-**Year key + first-year grace.** A settlement's own **first year takes no climate penalty and no drought-kill** (grace for newcomers).
+**GLOBAL climate + per-player first-year grace (LOCKED, built Phase 1a).** The climate is keyed to the **world/wall-clock year** (`getGlobalSeason().year`) — so every player at the same real time gets the same good/bad year. This is the shared basis the water storage/**trade** economy needs (a drought hits everyone at once → those who banked water sell to those who didn't). **No backend required:** like the ambient weather, it's a pure function of the clock from a fixed epoch, identical for all clients.
 
-**IMPLEMENTED (Phase 1a) as PER-PLAYER** — the climate is keyed to `state.year` (the settlement's own year), NOT the world/wall-clock year. Reasons that surfaced in build: (1) crops run on the player's season clock (sped up to 50×), so a wall-clock world-year would freeze the climate across many in-game seasons; (2) `state.year` is deterministic + testable (no `Date.now()` in the food tick); (3) staggered per-player droughts arguably make the water *trade* healthier (someone always has surplus) than a synchronized global drought. This **supersedes the earlier "global/shared server year" lean** — it's a one-line flip (`state.year` → `getGlobalSeason().year`) if we later want the shared-world feel back. Open for the user to reconfirm.
+A settlement's own **first year (`state.year` 1) is graced** — no penalty, no drought-kill — so a newcomer who joins mid-drought still gets a fair start.
+
+*(Two clocks by design: the world climate year advances on wall-clock time and is shared; the player's "Year N" is their settlement's age on their own — possibly sped-up — season clock. Your farm is subject to the world's weather regardless of how fast you play it, which is realistic.)*
 
 ## 3. Yield vs germination — separate levers
 

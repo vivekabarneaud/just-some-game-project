@@ -2182,16 +2182,19 @@ function getBuildingStaffing(s: GameState, buildingId: string, level: number): B
   return { staffable: true, capacity, named, kids: cfg.kids ?? [], citizens, active, multiplier };
 }
 
-/** This year's climate band (drought/dry/normal/wet/deluge). Keyed to the
- *  settlement's own year (state.year) so it advances with play and is
- *  deterministic/testable — first year is always fair (grace for newcomers). */
-function cropClimateBand(state: GameState): ClimateBand {
-  return getClimate(state.year);
+/** This year's climate band (drought/dry/normal/wet/deluge). GLOBAL: keyed to
+ *  the world/wall-clock year (getGlobalSeason), so every player at the same real
+ *  time gets the same good/bad year — the shared basis the water storage/trade
+ *  economy needs. No backend: it's a pure function of the clock, like the
+ *  ambient weather. */
+function cropClimateBand(_state: GameState): ClimateBand {
+  return getClimate(getGlobalSeason().year);
 }
-/** Crop-yield multiplier from the climate. First settlement year = grace (1.0). */
+/** Crop-yield multiplier from the climate. A settlement's first year is graced
+ *  (×1) so newcomers who join mid-drought still get a fair start. */
 function cropYieldMult(state: GameState): number {
   if (state.year <= 1) return 1;
-  return getClimateYield(getClimate(state.year));
+  return getClimateYield(cropClimateBand(state));
 }
 
 function calcProductionRates(state: GameState): { gold: number; wood: number; stone: number; food: number } {
