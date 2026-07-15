@@ -34,15 +34,13 @@ export function getCisternCap(level: number): number {
 export function getCisternRainCatch(level: number): number {
   return level <= 0 ? 0 : level * 9;
 }
-/** Momentary boost from the CURRENT sky — cisterns fill fast while it's actually
- *  raining, barely at all under clear skies. Multiplies the rain catch on top of
- *  the yearly climate factor. */
+/** The cistern only catches water while it's ACTUALLY raining (or storming).
+ *  Clear, overcast, fog and snow add nothing — 0. Multiplies the rain catch on
+ *  top of the yearly climate factor, so a downpour in a wet year fills fast. */
 export function ambientRainFactor(weather: WeatherType): number {
   switch (weather) {
     case "rain": case "storm": case "unnatural_storm": return 2.5;
-    case "fog": return 1.3;
-    case "snow": case "overcast": return 1.0;
-    case "clear": return 0.4;
+    default: return 0;
   }
 }
 

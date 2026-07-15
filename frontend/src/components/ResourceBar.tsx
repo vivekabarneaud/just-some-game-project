@@ -367,6 +367,9 @@ export default function ResourceBar() {
         {(() => {
           const rate = () => actions.getWaterRate();
           const cap = () => caps().water;
+          // Water rates are small and often fractional (a sheep drinks 0.3/h) —
+          // show one decimal, dropping a trailing .0.
+          const w1 = (n: number) => { const r = Math.round(n * 10) / 10; return Number.isInteger(r) ? String(r) : r.toFixed(1); };
           return (
             <div class="resource-item has-dropdown">
               <span class="resource-icon">💧</span>
@@ -374,8 +377,8 @@ export default function ResourceBar() {
                 {Math.floor(state.resources.water)}
               </span>
               <span class="resource-cap">/ {Math.floor(cap())}</span>
-              <span class="resource-rate" classList={{ "rate-positive": rate() > 0.5, "rate-negative": rate() < -0.5 }}>
-                {rate() >= 0 ? "+" : ""}{Math.round(rate())}/h
+              <span class="resource-rate" classList={{ "rate-positive": rate() > 0.05, "rate-negative": rate() < -0.05 }}>
+                {rate() >= 0 ? "+" : ""}{w1(rate())}/h
               </span>
               <div class="resource-dropdown">
                 <div class="dropdown-title">Water</div>
@@ -385,19 +388,24 @@ export default function ResourceBar() {
                   return (
                     <>
                       <Show when={b.well > 0}>
-                        <div class="dropdown-row"><span>💧 Well</span><span>+{Math.round(b.well)}/h</span></div>
+                        <div class="dropdown-row"><span>💧 Well</span><span>+{w1(b.well)}/h</span></div>
                       </Show>
-                      <div class="dropdown-row"><span>{wm.icon} Rain · {wm.name}</span><span>+{Math.round(b.rain)}/h</span></div>
+                      <div class="dropdown-row"><span>{wm.icon} {wm.name}{b.rain > 0 ? " (rain)" : ""}</span><span>+{w1(b.rain)}/h</span></div>
                       <Show when={b.drainage > 0}>
-                        <div class="dropdown-row"><span>🌊 Drainage runoff</span><span>+{Math.round(b.drainage)}/h</span></div>
+                        <div class="dropdown-row"><span>🌊 Drainage runoff</span><span>+{w1(b.drainage)}/h</span></div>
                       </Show>
                       <Show when={b.animals > 0}>
-                        <div class="dropdown-row" style={{ color: "var(--accent-red)" }}><span>🐑 Livestock</span><span>-{Math.round(b.animals)}/h</span></div>
+                        <div class="dropdown-row" style={{ color: "var(--accent-red)" }}><span>🐑 Livestock</span><span>-{w1(b.animals)}/h</span></div>
                       </Show>
+                      {/* Crops draw the reserve only when irrigating (dry years);
+                          otherwise the rain waters them for free. */}
                       <Show when={b.irrigation > 0}>
-                        <div class="dropdown-row" style={{ color: "var(--accent-red)" }}><span>💦 Irrigation</span><span>-{Math.round(b.irrigation)}/h</span></div>
+                        <div class="dropdown-row" style={{ color: "var(--accent-red)" }}><span>💦 Crops (irrigated)</span><span>-{w1(b.irrigation)}/h</span></div>
                       </Show>
-                      <div class="dropdown-row dropdown-total"><span>Net</span><span>{b.net >= 0 ? "+" : ""}{Math.round(b.net)}/h</span></div>
+                      <Show when={b.irrigation === 0 && b.crops > 0}>
+                        <div class="dropdown-row" style={{ color: "var(--accent-green)" }}><span>🌱 Crops (rain-fed)</span><span>0/h</span></div>
+                      </Show>
+                      <div class="dropdown-row dropdown-total"><span>Net</span><span>{b.net >= 0 ? "+" : ""}{w1(b.net)}/h</span></div>
                     </>
                   );
                 })()}

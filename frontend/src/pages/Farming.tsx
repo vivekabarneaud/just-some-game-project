@@ -594,11 +594,17 @@ function GardenCard(props: { garden: PlayerGarden }) {
 
   // Season fact-boxes + seed-store box, shared by the built and unbuilt cards so
   // they can't drift. `dim` greys them out for the not-yet-built preview.
-  const seasonBoxes = (rate: number, dim: boolean) => (
+  const seasonBoxes = (rate: number, dim: boolean, planted = false) => (
     <StatRow dim={dim}>
-      <StatBox label="Sow in" valColor={!dim && inPlantSeason() ? "var(--accent-green)" : "var(--text-secondary)"}>
-        {seasonList(veggie().plantSeasons, true)}
-      </StatBox>
+      {/* Before planting: WHEN to sow (green in season, even on an unbuilt plot).
+          Once planted, the sow window is moot — swap in the crop's water need. */}
+      <Show when={planted} fallback={
+        <StatBox label="Sow in" valColor={inPlantSeason() ? "var(--accent-green)" : "var(--text-secondary)"}>
+          {seasonList(veggie().plantSeasons, true)}
+        </StatBox>
+      }>
+        <StatBox label="Water">💧 {gardenWaterNeed(veggie().id)}/h</StatBox>
+      </Show>
       <StatBox label="Produces">
         {seasonList(veggie().produceSeasons, false)}
         <span style={{ color: dim ? "var(--text-muted)" : "var(--accent-green)", "margin-left": "6px" }}>+{rate}/h</span>
@@ -726,7 +732,7 @@ function GardenCard(props: { garden: PlayerGarden }) {
 
         {/* ── The two season facts, each in its own box so they breathe ── */}
         <Show when={!props.garden.upgrading}>
-          {seasonBoxes(effRate(), false)}
+          {seasonBoxes(effRate(), false, planted())}
         </Show>
 
         {/* ── Seed store + Sow button in one framed box (echoes the pen's flock
@@ -776,9 +782,6 @@ function GardenCard(props: { garden: PlayerGarden }) {
               </Tooltip>
             </Show>
           </div>
-        </Show>
-        <Show when={hasWaterInfra(state.buildings)}>
-          <WaterNeed amount={gardenWaterNeed(props.garden.veggie)} />
         </Show>
       </div>
     </Show>
@@ -1719,12 +1722,13 @@ export default function Farming() {
           {(() => {
             const rate = () => actions.getWaterRate();
             const b = () => actions.getWaterBreakdown();
+            const w1 = (n: number) => { const r = Math.round(n * 10) / 10; return Number.isInteger(r) ? String(r) : r.toFixed(1); };
             return (
               <div class="farming-stat">
                 <span class="farming-stat-label">Water</span>
-                <Tooltip block text={`Well +${Math.round(b().well)} · rain +${Math.round(b().rain)}${b().drainage > 0 ? ` · drainage +${Math.round(b().drainage)}` : ""} · livestock -${Math.round(b().animals)}${b().irrigation > 0 ? ` · irrigation -${Math.round(b().irrigation)}` : ""} (per hour)`}>
-                  <span class="farming-stat-value" classList={{ "rate-positive": rate() > 0.5, "rate-negative": rate() < -0.5 }}>
-                    💧 {rate() >= 0 ? "+" : ""}{Math.round(rate())}/h
+                <Tooltip block text={`Well +${w1(b().well)} · rain +${w1(b().rain)}${b().drainage > 0 ? ` · drainage +${w1(b().drainage)}` : ""} · livestock -${w1(b().animals)}${b().irrigation > 0 ? ` · irrigation -${w1(b().irrigation)}` : ""} (per hour)`}>
+                  <span class="farming-stat-value" classList={{ "rate-positive": rate() > 0.05, "rate-negative": rate() < -0.05 }}>
+                    💧 {rate() >= 0 ? "+" : ""}{w1(rate())}/h
                   </span>
                 </Tooltip>
               </div>

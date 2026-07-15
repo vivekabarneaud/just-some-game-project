@@ -834,7 +834,7 @@ export interface GameActions {
   /** Net water change per hour (well + rain caught − irrigation draw). */
   getWaterRate: () => number;
   /** Water sources/sinks per hour for the top-bar dropdown. */
-  getWaterBreakdown: () => { well: number; rain: number; drainage: number; animals: number; irrigation: number; weather: WeatherType; net: number };
+  getWaterBreakdown: () => { well: number; rain: number; drainage: number; animals: number; irrigation: number; crops: number; weather: WeatherType; net: number };
   /** Effective crop-yield multiplier after irrigation/drainage offsets (1 = full). */
   getCropYieldMult: () => number;
   isHarvesting: () => boolean;
@@ -5959,8 +5959,9 @@ export function GameProvider(props: ParentProps) {
       const rain = getCisternRainCatch(cisternLvl) * climateRainFactor(band) * ambientRainFactor(weather);
       const drainage = isWetBand(band) ? getDrainageBank(buildingLevel(state, DRAINAGE_ID)) : 0;
       const animals = animalWaterDemand(state);
-      const irrigation = (isDryBand(band) && buildingLevel(state, IRRIGATION_ID) > 0) ? cropWaterDemand(state) : 0;
-      return { well, rain, drainage, animals, irrigation, weather, net: well + rain + drainage - animals - irrigation };
+      const crops = cropWaterDemand(state);
+      const irrigation = (isDryBand(band) && buildingLevel(state, IRRIGATION_ID) > 0) ? crops : 0;
+      return { well, rain, drainage, animals, irrigation, crops, weather, net: well + rain + drainage - animals - irrigation };
     },
     canAfford(cost) { return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone; },
     getBuildingEffect(buildingId, nextLevel) { return calcBuildingEffect(buildingId, nextLevel); },
