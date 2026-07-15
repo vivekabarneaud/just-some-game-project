@@ -3942,12 +3942,17 @@ export function GameProvider(props: ParentProps) {
         }
         const foodToConsume = citizenFood * elapsedHours;
         if (foodToConsume > 0) {
-          const eaten = consumeFood(s.foods, foodToConsume);
-          // Honey is the emergency ration: once the larder can't cover the meal,
-          // the folk eat into the honey jars (saved for recipes/mead otherwise).
-          const shortfall = foodToConsume - eaten;
-          if (shortfall > 0 && (s.honey ?? 0) > 0) {
-            s.honey = Math.max(0, s.honey - shortfall);
+          // Honey is eaten like any other food (in recipes, as a sweet with fruit
+          // or cheese), so it's drawn down alongside the larder in proportion to
+          // how much of the total stock it is.
+          const larder = getTotalFood(s.foods);
+          const honey = s.honey ?? 0;
+          const pool = larder + honey;
+          if (pool > 0) {
+            const toConsume = Math.min(foodToConsume, pool);
+            const honeyShare = (honey / pool) * toConsume;
+            if (honeyShare > 0) s.honey = Math.max(0, honey - honeyShare);
+            consumeFood(s.foods, toConsume - honeyShare);
           }
         }
 
