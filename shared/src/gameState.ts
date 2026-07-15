@@ -274,6 +274,7 @@ export type GameEventType =
   | "mission_success" | "mission_failed" | "adventurer_died" | "adventurer_levelup" | "adventurer_rankup" | "loyalty_rankup"
   | "raid_victory" | "raid_defeat" | "raid_incoming"
   | "winter_freezing"
+  | "drought"
   | "loot_drop"
   | "trade_accepted" | "trade_delivered"
   | "pen_starving"
@@ -303,6 +304,8 @@ export interface GameState {
   /** Fruits the player can plant (apple from the start; specialty fruits unlock
    *  when their seed/cutting is acquired). */
   fruitsUnlocked: FruitId[];
+  /** Last world-year a drought plant-kill was applied — so it fires once/year. */
+  lastDroughtKillYear?: number;
   honey: number;
   /** Per-type food stockpiles — total is capped by pantry.
    *  Orchard fruits (apples/pears/cherries) now live here as first-class foods. */

@@ -195,7 +195,7 @@ import {
   isOrchardActive,
   ORCHARD_MAX_LEVEL,
 } from "~/data/orchards";
-import { getClimate, getClimateYield, type ClimateBand } from "~/data/climate";
+import { getClimate, getClimateYield, DROUGHT_PLANT_KILL, climateOverrideBand, type ClimateBand } from "~/data/climate";
 import {
   type Season,
   HOURS_PER_SEASON,
@@ -325,6 +325,7 @@ export type GameEventType =
   | "mission_success" | "mission_failed" | "adventurer_died" | "adventurer_levelup" | "adventurer_rankup" | "loyalty_rankup"
   | "raid_victory" | "raid_defeat" | "raid_incoming"
   | "winter_freezing"
+  | "drought"
   | "loot_drop"
   | "trade_accepted" | "trade_delivered"
   | "pen_starving"
@@ -523,6 +524,8 @@ export interface GameState {
   /** Fruits the player can plant (apple from the start; specialty fruits unlock
    *  when their seed/cutting is acquired). */
   fruitsUnlocked: FruitId[];
+  /** Last world-year a drought plant-kill was applied — so it fires once/year. */
+  lastDroughtKillYear?: number;
   honey: number;
   /** Per-type food stockpiles — total capped by pantry */
   foods: Record<FoodItemType, number>;
@@ -820,6 +823,8 @@ export interface GameActions {
   getTownHallLevel: () => number;
   /** This year's climate band for the Farming readout (grace-aware: Year 1 = normal). */
   getClimateBand: () => ClimateBand;
+  /** Dev: apply a drought plant-kill right now (test tool). */
+  forceDroughtKill: () => void;
   isHarvesting: () => boolean;
   getMasonBonuses: () => MasonBonuses;
   getMasonLevel: () => number;
@@ -2188,13 +2193,32 @@ function getBuildingStaffing(s: GameState, buildingId: string, level: number): B
  *  economy needs. No backend: it's a pure function of the clock, like the
  *  ambient weather. */
 function cropClimateBand(_state: GameState): ClimateBand {
-  return getClimate(getGlobalSeason().year);
+  return climateOverrideBand() ?? getClimate(getGlobalSeason().year);
 }
 /** Crop-yield multiplier from the climate. A settlement's first year is graced
  *  (×1) so newcomers who join mid-drought still get a fair start. */
 function cropYieldMult(state: GameState): number {
   if (state.year <= 1) return 1;
   return getClimateYield(cropClimateBand(state));
+}
+
+/** Drought's discrete bite: a fraction of standing plants withers. Gardens lose
+ *  sown crop; young orchard saplings die; mature trees + field harvests just
+ *  yield less (the climate multiplier already handles those). Fires once per
+ *  drought world-year (see the tick). */
+function applyDroughtKill(s: GameState): void {
+  const survive = 1 - DROUGHT_PLANT_KILL;
+  for (const g of s.gardens) {
+    if (g.plantedYear != null && g.seedsPlanted > 0) {
+      g.seedsPlanted = Math.floor(g.seedsPlanted * survive);
+    }
+  }
+  for (const o of s.orchards) {
+    if (o.saplings?.length) {
+      for (const c of o.saplings) c.count = Math.floor(c.count * survive);
+      o.saplings = o.saplings.filter((c) => c.count > 0);
+    }
+  }
 }
 
 function calcProductionRates(state: GameState): { gold: number; wood: number; stone: number; food: number } {
@@ -3708,6 +3732,18 @@ export function GameProvider(props: ParentProps) {
           s.seasonElapsed = global.progress * HOURS_PER_SEASON;
           // Season is global/shared, but YEAR is local = settlement age.
           s.year = Math.max(1, global.year - (s.foundingYear ?? global.year) + 1);
+
+          // Drought plant-kill — once per (global) drought year: standing crops
+          // wither and young saplings die. Skipped in a settlement's graced
+          // first year. The climate is global so this lands for everyone at once.
+          const climateYear = global.year;
+          if (cropClimateBand(s) === "drought" && s.lastDroughtKillYear !== climateYear) {
+            s.lastDroughtKillYear = climateYear;
+            if (s.year > 1) {
+              applyDroughtKill(s);
+              pushEvent(s, "drought", "🥵", "Drought struck the land — crops withered in the fields and young saplings died in the dry.");
+            }
+          }
 
           // Clear blessing if the deity has rotated
           if (s.activeBlessing) {
@@ -5822,6 +5858,13 @@ export function GameProvider(props: ParentProps) {
     getSettlementTier() { return getSettlementTier(getTownHallLevel(state.buildings)); },
     getTownHallLevel() { return getTownHallLevel(state.buildings); },
     getClimateBand() { return state.year <= 1 ? "normal" : cropClimateBand(state); },
+    forceDroughtKill() {
+      setState(produce((s) => {
+        applyDroughtKill(s);
+        pushEvent(s, "drought", "🥵", "Drought struck the land — crops withered and young saplings died in the dry.");
+      }));
+      scheduleSave();
+    },
     canAfford(cost) { return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone; },
     getBuildingEffect(buildingId, nextLevel) { return calcBuildingEffect(buildingId, nextLevel); },
     isHarvesting() { return isHarvestTime(state.season, state.seasonElapsed); },

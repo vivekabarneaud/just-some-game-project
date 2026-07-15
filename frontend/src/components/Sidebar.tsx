@@ -4,6 +4,7 @@ import { useGame, CRAFTING_RECIPES, isRecipeDiscovered } from "~/engine/gameStat
 import { setOpenSettings } from "~/components/SettingsModal";
 import { SEASON_META, IS_DEV } from "~/data/seasons";
 import { WEATHER_META, WEATHER_TYPES, resolveWeather, currentWeatherInfo, weatherOverride, setWeatherOverride } from "~/data/weather";
+import { CLIMATE_META, climateOverrideBand, setClimateOverride, type ClimateBand } from "~/data/climate";
 import { logout, getUsername } from "~/api/auth";
 import { QUEST_DEFINITIONS, isQuestTriggered } from "~/data/quests";
 import { totalPopulation } from "~/data/citizens";
@@ -557,6 +558,25 @@ export default function Sidebar(props: SidebarProps) {
               ))}
             </select>
           </div>
+          <div class="dev-weather-row">
+            <span class="dev-weather-label">Climate</span>
+            <select
+              class="dev-weather-select"
+              value={climateOverrideBand() ?? "auto"}
+              onChange={(e) => {
+                const v = e.currentTarget.value;
+                setClimateOverride(v === "auto" ? null : (v as ClimateBand));
+              }}
+            >
+              <option value="auto">Auto (world year)</option>
+              {(Object.keys(CLIMATE_META) as ClimateBand[]).map((b) => (
+                <option value={b}>{CLIMATE_META[b].icon} {CLIMATE_META[b].name}</option>
+              ))}
+            </select>
+          </div>
+          <button class="btn-tertiary" style={{ width: "100%", "justify-content": "center" }} onClick={() => actions.forceDroughtKill()}>
+            🥵 Trigger drought kill
+          </button>
           <div class="nav-section-title" style={{ "margin-top": "12px" }}>Test Snapshot</div>
           <button class="btn-tertiary" style={{ width: "100%", "justify-content": "center" }} onClick={() => {
             actions.saveDevSnapshot();

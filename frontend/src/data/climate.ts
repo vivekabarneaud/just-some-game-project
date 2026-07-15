@@ -9,7 +9,16 @@
 // (no back-to-back droughts). A settlement's own first year gets a grace pass
 // (handled by the caller, using state.year — not here).
 
+import { createSignal } from "solid-js";
+
 export type ClimateBand = "drought" | "dry" | "normal" | "wet" | "deluge";
+
+// Dev-only override: force a climate band to test the yield swings / drought
+// kill without waiting for the world year to roll one. Null = real climate.
+// Nothing sets this in prod (only the dev-tools dropdown), so it's inert there.
+const [climateOverride, setClimateOverrideSig] = createSignal<ClimateBand | null>(null);
+export const climateOverrideBand = climateOverride;
+export function setClimateOverride(b: ClimateBand | null) { setClimateOverrideSig(b); }
 
 export const CLIMATE_META: Record<
   ClimateBand,
