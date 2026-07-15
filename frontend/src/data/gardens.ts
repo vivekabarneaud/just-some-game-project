@@ -140,8 +140,16 @@ export function getGardenBuildTime(level: number): number {
   return growth(GARDEN_BASE_BUILD_TIME, GARDEN_BUILD_TIME_MULTIPLIER, level);
 }
 
-export function getGardenRate(veggie: VeggieDefinition, level: number): number {
-  return Math.floor(veggie.baseRate * level * 1.1);
+/** Food per hour per bearing plant. Whole-number economy: every crop yields one
+ *  food/hour per sprouted plant, so a plot's output IS its living plant count
+ *  (like a pen's output is its head count). Crops differ by germination, season,
+ *  water need and food type — not by per-plant rate. (`baseRate` in the crop
+ *  data is legacy and no longer drives yield.) */
+export const GARDEN_YIELD_PER_PLANT = 1;
+
+/** The full-plot rate — every capacity slot a bearing plant. */
+export function getGardenRate(_veggie: VeggieDefinition, level: number): number {
+  return getSeedCapacity(level) * GARDEN_YIELD_PER_PLANT;
 }
 
 /** Scales seed cost lightly with level so bigger gardens cost a bit more to sow.
@@ -196,8 +204,10 @@ export function getEffectiveGardenRate(
 ): number {
   const cap = getSeedCapacity(level);
   if (cap <= 0) return 0;
-  const fill = Math.min(1, getSproutedPlants(veggie, seedsPlanted) / cap);
-  return Math.floor(getGardenRate(veggie, level) * fill);
+  // Output is simply the living plant count (capped at the plot's capacity),
+  // each plant worth GARDEN_YIELD_PER_PLANT food/hour.
+  const plants = Math.min(cap, getSproutedPlants(veggie, seedsPlanted));
+  return plants * GARDEN_YIELD_PER_PLANT;
 }
 
 /** Seed kept back from a season's crop, per sprouted plant. >1 so a steady plot
