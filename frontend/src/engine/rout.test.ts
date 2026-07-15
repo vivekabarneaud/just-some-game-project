@@ -11,10 +11,11 @@ const mission = NOVICE_MISSIONS[0];
 const warrior = buildRecruitFromPremadeId("test_warrior", "char_018", 1)!;
 
 describe("enemy rout — beasts break and run", () => {
-  it("beasts carry a routsAt; maddened beasts and undead fight to the end", () => {
+  it("beasts carry a routsAt; boss/maddened beasts and undead fight to the end", () => {
     expect(getEnemy("gaunt_wolf")?.routsAt).toBeGreaterThan(0);
     expect(getEnemy("wild_wolf")?.routsAt).toBeGreaterThan(0);
-    expect(getEnemy("alpha_wolf")?.routsAt).toBeGreaterThan(0);
+    // The alpha is the deliberate reckoning — it stands and fights, no rout.
+    expect(getEnemy("alpha_wolf")?.routsAt).toBeUndefined();
     // Maddened (rabid / tainted) and undead have no fear to break — no rout.
     expect(getEnemy("rabid_boar")?.routsAt).toBeUndefined();
     expect(getEnemy("tainted_patriarch_boar")?.routsAt).toBeUndefined();

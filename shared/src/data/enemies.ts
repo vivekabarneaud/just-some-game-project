@@ -1000,12 +1000,13 @@ export const ENEMIES: EnemyDefinition[] = [
       { id: "lunge", name: "Lunge", icon: "💨", cooldown: 2, trigger: "always", effect: { type: "damage_mult", mult: 1.8, targets: 1 } },
     ],
     loot: [
-      { type: "resource", resource: "alpha_fang", chance: 0.4, min: 1, max: 1, keepOnRout: true },
+      { type: "resource", resource: "alpha_fang", chance: 0.4, min: 1, max: 1 },
       { type: "resource", resource: "thick_pelt", chance: 0.6, min: 1, max: 2 },
       { type: "resource", resource: "sinew_cord", chance: 0.4, min: 1, max: 2 },
       { type: "resource", resource: "meat", chance: 0.8, min: 4, max: 10 },
     ],
-    routsAt: 0.25, // even the pack leader breaks eventually — set to omit if it should stand and die
+    // No routsAt: the pack leader stands and fights to the death — it's the
+    // deliberate reckoning the mission sends you for, not a beast to shoo off.
   },
   /* STASHED 2026-06-28 — Bog Witch enemy retired alongside the stale `bog_witch_lair`
      mission. Preserved for a future remake per the tragic Aldith/Ada design in
