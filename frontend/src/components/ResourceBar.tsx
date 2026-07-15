@@ -409,16 +409,24 @@ export default function ResourceBar() {
                       <Show when={b.animals > 0}>
                         <div class="dropdown-row" style={{ color: "var(--accent-red)" }}><span>🐑 Livestock</span><span>-{w1(b.animals)}/h</span></div>
                       </Show>
-                      {/* Crops drink b.crops/h. Rain covers it in kind years (no
-                          reserve draw); a dry year makes irrigation draw the
-                          shortfall, or the crops go thirsty and lose yield. */}
+                      {/* Crops drink the reserve continuously, EXCEPT while it's
+                          raining (the sky waters them then). Thirsty only once the
+                          reserve runs dry. */}
                       <Show when={b.crops > 0}>
-                        <Show when={b.irrigation > 0} fallback={
-                          <div class="dropdown-row" style={{ color: b.dry ? "var(--accent-gold)" : "var(--accent-green)" }}>
-                            <span>🌱 Crops ({w1(b.crops)}/h) · {b.dry ? "thirsty!" : "watered"}</span><span>0/h</span>
-                          </div>
+                        <Show when={b.raining} fallback={
+                          <Show when={b.coverage >= 0.999} fallback={
+                            <div class="dropdown-row" style={{ color: "var(--accent-red)" }}>
+                              <span>🥵 Crops · thirsty!</span><span>-{w1(b.cropDraw)}/h</span>
+                            </div>
+                          }>
+                            <div class="dropdown-row" style={{ color: "var(--accent-red)" }}>
+                              <span>🌱 Crops{b.irrigated ? " (irrigated)" : ""}</span><span>-{w1(b.cropDraw)}/h</span>
+                            </div>
+                          </Show>
                         }>
-                          <div class="dropdown-row" style={{ color: "var(--accent-red)" }}><span>💦 Crops (irrigated)</span><span>-{w1(b.irrigation)}/h</span></div>
+                          <div class="dropdown-row" style={{ color: "var(--accent-green)" }}>
+                            <span>🌱 Crops ({w1(b.crops)}/h) · rain-watered</span><span>0/h</span>
+                          </div>
                         </Show>
                       </Show>
                       <div class="dropdown-row dropdown-total"><span>Net</span><span>{b.net >= 0 ? "+" : ""}{w1(b.net)}/h</span></div>

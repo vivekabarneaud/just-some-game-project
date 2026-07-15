@@ -196,7 +196,7 @@ import {
   ORCHARD_MAX_LEVEL,
 } from "~/data/orchards";
 import { getClimate, getClimateYield, DROUGHT_PLANT_KILL, climateOverrideBand, setClimateOverride, isDryBand, isWetBand, climateRainFactor, type ClimateBand } from "~/data/climate";
-import { WELL_ID, CISTERN_ID, IRRIGATION_ID, DRAINAGE_ID, getWellOutput, wellFactor, getCisternRainCatch, getWaterCap, getDrainageBank, ambientRainFactor, gardenWaterDemand, fieldWaterDemand, orchardWaterDemand, penWaterDemand, naturalRainCoverage, STREAM_YIELD, streamStatus, streamFactor, cropHeatFactor, citizenWaterDemand } from "~/data/water";
+import { WELL_ID, CISTERN_ID, IRRIGATION_ID, DRAINAGE_ID, getWellOutput, wellFactor, getCisternRainCatch, getWaterCap, getDrainageBank, ambientRainFactor, gardenWaterDemand, fieldWaterDemand, orchardWaterDemand, penWaterDemand, IRRIGATION_EFFICIENCY, STREAM_YIELD, streamStatus, streamFactor, cropHeatFactor, citizenWaterDemand } from "~/data/water";
 import type { StreamStatus } from "~/data/water";
 import { resolveCurrentWeather, type WeatherType } from "~/data/weather";
 import {
@@ -840,7 +840,7 @@ export interface GameActions {
   /** The stream's status (drives its water yield + the fishing hut's catch). */
   getStreamStatus: () => StreamStatus;
   /** Water sources/sinks per hour for the top-bar dropdown. */
-  getWaterBreakdown: () => { stream: number; well: number; rain: number; drainage: number; citizens: number; animals: number; irrigation: number; crops: number; rainCoverage: number; dry: boolean; weather: WeatherType; streamStatus: StreamStatus; net: number };
+  getWaterBreakdown: () => { stream: number; well: number; rain: number; drainage: number; citizens: number; animals: number; crops: number; cropDraw: number; raining: boolean; coverage: number; irrigated: boolean; weather: WeatherType; streamStatus: StreamStatus; net: number };
   /** Effective crop-yield multiplier after irrigation/drainage offsets (1 = full). */
   getCropYieldMult: () => number;
   isHarvesting: () => boolean;
@@ -2260,34 +2260,48 @@ function fishStreamFactor(s: GameState): number {
 
 /** One place computing the water flows this tick (water/hour). The stream + well
  *  + caught rain + drainage runoff FILL the reserve; citizens, livestock and the
- *  crop irrigation deficit (heat-scaled in a dry year) DRAW it. */
+ *  crops DRAW it. Crops drink continuously EXCEPT while it's raining (the sky
+ *  waters them then), thirstier in a dry-year heat, and irrigation makes their
+ *  draw efficient. When the reserve runs dry the crops go short (citizens and
+ *  livestock have priority). */
 function waterBalance(s: GameState) {
   const band = cropClimateBand(s);
   const weather = currentWeatherOf(s);
+  const raining = isRainingNow(s);
   const cisternLvl = buildingLevel(s, CISTERN_ID);
   const stream = STREAM_YIELD * streamFactor(streamStatus(band, s.season));
   const well = getWellOutput(buildingLevel(s, WELL_ID)) * wellFactor(band);
   const rain = getCisternRainCatch(cisternLvl) * climateRainFactor(band) * ambientRainFactor(weather);
   const drainage = isWetBand(band) ? getDrainageBank(buildingLevel(s, DRAINAGE_ID)) : 0;
   const inflow = stream + well + rain + drainage;
+
   const citizens = citizenWaterDemand_(s);
   const animals = animalWaterDemand(s);
-  const crops = cropWaterDemand(s);
-  // The season's own rain waters crops for free; irrigation makes up the rest,
-  // and a dry/drought year's heat makes them thirstier still.
-  const cov = naturalRainCoverage(band);
-  const cropDeficit = cov < 1 ? crops * (1 - cov) * cropHeatFactor(band) : 0;
-  const irrigation = (cropDeficit > 0 && buildingLevel(s, IRRIGATION_ID) > 0) ? cropDeficit : 0;
-  const draw = citizens + animals + irrigation;
-  return { band, weather, cisternLvl, stream, well, rain, drainage, inflow,
-    citizens, animals, crops, cov, irrigation, streamStatus: streamStatus(band, s.season),
-    net: inflow - draw };
+  const hasIrrigation = buildingLevel(s, IRRIGATION_ID) > 0;
+  // What the crops want per hour (thirstier in the heat), and what they actually
+  // pull from the reserve now (nothing while it's raining; efficient if irrigated).
+  const cropNeed = cropWaterDemand(s) * cropHeatFactor(band);
+  const cropDraw = raining ? 0 : cropNeed * (hasIrrigation ? IRRIGATION_EFFICIENCY : 1);
+
+  // Coverage: crops are watered while the reserve holds water; once it's empty
+  // they get only the inflow left after citizens + livestock (who come first).
+  const reserve = s.resources.water ?? 0;
+  let cropCoverage: number;
+  if (raining || cropDraw <= 0) cropCoverage = 1;
+  else if (reserve > 0.0001) cropCoverage = 1;
+  else cropCoverage = Math.min(1, Math.max(0, inflow - citizens - animals) / cropDraw);
+
+  return { band, weather, raining, cisternLvl, stream, well, rain, drainage, inflow,
+    citizens, animals, cropNeed, cropDraw, hasIrrigation, cropCoverage,
+    streamStatus: streamStatus(band, s.season),
+    net: inflow - citizens - animals - cropDraw };
 }
 
-/** Is irrigation actively saving the crop this tick? (built, dry/drought year,
- *  and there's still water in the reserve). */
-function irrigationActive(s: GameState): boolean {
-  return isDryBand(cropClimateBand(s)) && buildingLevel(s, IRRIGATION_ID) > 0 && s.resources.water > 0;
+/** Is it actively raining right now? (Rain waters the crops directly, pausing
+ *  their draw on the reserve.) */
+function isRainingNow(s: GameState): boolean {
+  const w = currentWeatherOf(s);
+  return w === "rain" || w === "storm" || w === "unnatural_storm";
 }
 /** Is drainage saving the crop this wet year? (built, wet/deluge). */
 function drainageActive(s: GameState): boolean {
@@ -2295,16 +2309,14 @@ function drainageActive(s: GameState): boolean {
 }
 
 /** Crop-yield multiplier. First year is graced (×1). Wet years are a
- *  waterlogging penalty (drainage cancels it). Dry years are WATER-DRIVEN: rain
- *  covers a fraction, irrigation (while the reserve holds) covers the rest, and
- *  unwatered crops yield only the rain-fed fraction — thirst, not a flat hit. */
+ *  waterlogging penalty (drainage cancels it). The dry side is MOMENTARY: rain
+ *  waters the crops for free right now, and the rest of the time they drink the
+ *  reserve — full yield while it holds, thirsty once it runs dry. */
 function cropYieldMult(state: GameState): number {
   if (state.year <= 1) return 1;
   const band = cropClimateBand(state);
   if (isWetBand(band)) return drainageActive(state) ? 1 : getClimateYield(band);
-  const cov = naturalRainCoverage(band);
-  if (cov >= 1) return 1;                      // normal — rain fully waters them
-  return irrigationActive(state) ? 1 : cov;    // dry/drought — irrigate or go thirsty
+  return waterBalance(state).cropCoverage;
 }
 
 /** Drought's discrete bite: a fraction of standing plants withers. Gardens lose
@@ -6002,9 +6014,10 @@ export function GameProvider(props: ParentProps) {
       const wb = waterBalance(state);
       return {
         stream: wb.stream, well: wb.well, rain: wb.rain, drainage: wb.drainage,
-        citizens: wb.citizens, animals: wb.animals, irrigation: wb.irrigation,
-        crops: wb.crops, rainCoverage: wb.cov, dry: isDryBand(wb.band),
-        weather: wb.weather, streamStatus: wb.streamStatus, net: wb.net,
+        citizens: wb.citizens, animals: wb.animals, crops: wb.cropNeed,
+        cropDraw: wb.cropDraw, raining: wb.raining, coverage: wb.cropCoverage,
+        irrigated: wb.hasIrrigation, weather: wb.weather,
+        streamStatus: wb.streamStatus, net: wb.net,
       };
     },
     canAfford(cost) { return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone; },

@@ -111,13 +111,7 @@ export function cropHeatFactor(band: ClimateBand): number {
   return band === "drought" ? 2 : band === "dry" ? 1.3 : 1;
 }
 
-/** How much of a crop's water the season's own rain covers for free — the rest
- *  is a deficit irrigation must draw from the reserve, or the crop goes thirsty.
- *  (Yearly baseline: un-irrigated crops rely on this; kind years = fully fed.) */
-export function naturalRainCoverage(band: ClimateBand): number {
-  switch (band) {
-    case "deluge": case "wet": case "normal": return 1;
-    case "dry": return 0.5;
-    case "drought": return 0.2;
-  }
-}
+/** Crops drink from the reserve whenever it isn't raining. Irrigation channels
+ *  deliver it efficiently — the same crop spends less water — so an irrigated
+ *  farm's reserve lasts far longer through a dry spell. */
+export const IRRIGATION_EFFICIENCY = 0.6;
