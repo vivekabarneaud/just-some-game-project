@@ -19,7 +19,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
 {
     id: "quarry_expedition_first",
     name: "Quarry Expedition",
-    description: "Tomas has scouted a run of loose stone up in the hills, but the ridge isn't empty: something with too many legs has nested deep in the cracks. Clear it out before the haulers can work.",
+    description: "Tomas found a good run of loose stone up in the hills, enough to raise a wall in half the time, only the ridge is already taken. Something many-legged has nested deep in the cracks and does not mean to share the stone. There is no working round it and no reasoning with the like. Clear the seam so the haulers can get at it, and watch your footing in the dark of the rock.",
     icon: "🪨",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/quarry_expedition.png",
     slots: [{ class: "any" }, { class: "any" }],
@@ -35,7 +35,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
 {
     id: "quarry_expedition",
     name: "Quarry Expedition",
-    description: "The many-legged things have nested in the ridge cracks again, and the walls still need stone. Clear them out so the haulers can keep working the seam.",
+    description: "The many-legged things have crept back into the ridge cracks, the way they do, and the walls still want stone. Clear them out again so the haulers can keep at the seam. Dull, grim work, but the wall will not raise itself.",
     icon: "🪨",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/quarry_expedition.png",
     slots: [{ class: "any" }, { class: "any" }],
@@ -103,7 +103,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
 {
     id: "merchant_escort",
     name: "Merchant Escort",
-    description: "Guard a traveling merchant along the trade road for a share of their profits. The bandits hit in pairs, so should you. The merchant pays partly in coin, partly in spice.",
+    description: "Another trader willing to chance the road to us, if the road lets them. The men who work it are no beasts with a reason to them, only desperate and armed, and they come in pairs; ride out in pairs to match them. See the merchant through whole. They pay partly in coin, partly in spice, and every one that arrives safe tells the next that the way can be held.",
     icon: "💰",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/merchant_escort.png",
     slots: [{ class: "any" }, { class: "any" }],
@@ -168,6 +168,11 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     // priest's blessing lays them). Gate on actually having a priest so it
     // doesn't tease before your first one arrives (Stonebridge arc, etc.).
     requires: { story: "story_1_scouting", hasClass: "priest" },
+    // STAGED (July 2026): the restless dead are a LATER reveal — the world isn't
+    // meant to show ghosts in the novice tier (magic/undead open up further in).
+    // Kept off the board until it's re-gated to the magical layer's opening.
+    staged: true,
+    unique: true, // one-time: two spirits laid to rest at the old crossroads
   },
 {
     id: "bear_den",
@@ -249,7 +254,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   {
     id: "spider_hollow",
     name: "Spider Hollow",
-    description: "The women drawing water from the eastern well found silk strands on the bucket and something skittering in the dark below. Whatever nested in the hollow underneath needs to go before someone loses a hand.",
+    description: "The women drawing from the eastern well came up with silk on the bucket rope and something moving in the dark below. A nest has taken the hollow under the well, and the bite these carry swells a hand black and does not stop there. We would leave it be had it denned anywhere else, but not under the water the whole camp drinks. Go down, clear it out, and mind the venom; take an antidote along if Edda can spare one.",
     icon: "🕷️",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/spider_hollow.png",
     slots: [{ class: "any" }, { class: "any" }],
@@ -263,6 +268,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     // counters). 3 was unwinnable for an early team (0% in sim); 2 is a real
     // "gear up / bring an antidote" challenge.
     encounters: [{ enemyId: "cave_spider", count: 2 }],
+    unique: true, // one-time: a nest under the eastern well, cleared for good
   },
   {
     id: "night_howling",
@@ -282,7 +288,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   {
     id: "old_bridge",
     name: "The Old Bridge",
-    description: "A fallen oak and a season's worth of debris have blocked the river crossing south of camp, the only dry path to the hunting grounds. Clear it out, but watch for the boars that have been rooting in the wreckage.",
+    description: "A fallen oak and a season's debris have choked the river crossing south of camp, the only dry path to the hunting grounds, and it has to be cleared. Two boars have taken to the wreckage, and by the froth and the stagger of them the sickness is in both, the kind that turns a beast blind to all but the charge. There is no shooing a rabid animal off and no mending it. Clear the crossing, and if they come, put them down clean and quick, the way you would want it done. It is no cruelty to end a suffering that only ends the one way.",
     icon: "🌉",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/old_bridge.png",
     slots: [{ class: "any" }, { class: "any" }],
