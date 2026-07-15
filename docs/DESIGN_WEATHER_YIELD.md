@@ -64,12 +64,13 @@ A `water` resource, capped by storage, generated + spent through these:
 
 **The loop:** wet years fill your cistern; drought cuts the well and you draw down (or irrigate) the reserve. Bank in the good years, spend in the bad.
 
-**Open considerations (Phase 2, noted 2026-07-15):**
-- **Show water use per plot** — fields/gardens/orchards display their water consumption, like the Eats/feed rows on pens.
-- **No water use when it rains** — crops drink the rain; irrigation only draws stored water in dry conditions.
-- **Other consumers** — animals need water too; maybe the kitchens. Water isn't just for crops.
-- **One water item vs two?** — is rainwater potable? Option A: a single `water` resource (simplest). Option B: split **rainwater** (crops/livestock) vs **clean/well water** (drinking/kitchen) — more realism, more bookkeeping. Lean A unless drinking-water becomes a distinct need.
-- **Top bar** — water storage + current amount gets its own category in the resource bar (like food/wood/stone).
+**REVISED to water-driven yield (2026-07-15, BUILT):** the dry side of §3's yield is now water-mediated, not a flat climate multiplier. Crops carry a per-plant/per-acre/per-tree water DEMAND (scales with what's growing); `naturalRainCoverage(band)` says how much the season's rain covers (normal/wet 1.0, dry 0.5, drought 0.2); irrigation makes up the deficit from the reserve while it holds → full yield, else the crop yields only the rain-fed fraction (thirst). Wells/cisterns/irrigation genuinely buffer droughts. Livestock drink from the reserve year-round. Per-plot cards + the top-bar water dropdown show demand and whether it's rain-fed / irrigated / thirsty.
+
+**Open considerations:**
+- **Citizens drink water too (+ thirst death)** — noted 2026-07-15. Water should feed the settlement, not just the farm — a summer draw that spikes with heat, and citizens dying of thirst like they starve of hunger. CAREFUL: early game has no wells, so citizens must have a free natural source (a stream) by default, with the reserve/wells as buffer/growth — don't let a new player's folk die because they haven't built a well. Likely: a per-citizen water need met free up to a baseline, water infra needed only past a threshold or in drought/summer. Its own design pass.
+- **Kitchens** may want water too (cooking).
+- **One water item vs two?** — is rainwater potable? A: single `water` (current). B: split **rainwater** (crops/livestock) vs **clean/well water** (drinking/kitchen). Lean A unless drinking-water becomes a distinct need — but the citizen-thirst idea might push toward B.
+- **Per-plot vs settlement irrigation** — demand is per-crop, protection is settlement-wide (one Irrigation building). Per-plot toggles could come later.
 
 ## 6. Water economy (trade)
 
