@@ -78,7 +78,7 @@ export function getWaterCap(cisternLevel: number): number {
 export const ANIMAL_WATER_PER_HEAD = 1;
 export const ORCHARD_WATER_PER_TREE = 2;   // per bearing tree/vine
 export const FIELD_WATER_PER_LEVEL = 4;    // a field is acreage — thirsty
-export const CITIZEN_WATER_PER_HEAD = 0.5;
+export const CITIZEN_WATER_PER_HEAD = 1;
 const GARDEN_WATER_PER_PLANT: Record<string, number> = {
   lavender: 0.5,     // likes it dry
   squash: 1.2,       // thirsty
@@ -99,9 +99,12 @@ export function orchardWaterDemand(matureTrees: number): number {
 export function penWaterDemand(count: number): number {
   return ANIMAL_WATER_PER_HEAD * Math.max(0, count);
 }
-/** Citizens drink year-round, more in the summer heat. */
-export function citizenWaterDemand(pop: number, season: Season): number {
-  return CITIZEN_WATER_PER_HEAD * Math.max(0, pop) * (season === "summer" ? 1.5 : 1);
+/** Citizens drink year-round (a whole unit each), more in the summer heat and
+ *  more still in a dry/drought year. */
+export function citizenWaterDemand(pop: number, season: Season, band: ClimateBand): number {
+  const summer = season === "summer" ? 1.5 : 1;
+  const heat = band === "drought" ? 1.5 : band === "dry" ? 1.2 : 1;
+  return Math.round(CITIZEN_WATER_PER_HEAD * Math.max(0, pop) * summer * heat);
 }
 /** Crops drink more in the heat of a dry/drought year. */
 export function cropHeatFactor(band: ClimateBand): number {

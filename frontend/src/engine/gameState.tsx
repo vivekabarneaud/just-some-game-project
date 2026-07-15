@@ -2246,7 +2246,7 @@ function animalWaterDemand(s: GameState): number {
 function citizenWaterDemand_(s: GameState): number {
   const c = s.citizens;
   const pop = c.toddlers + c.children + c.adults + c.elderly;
-  return citizenWaterDemand(pop, s.season);
+  return citizenWaterDemand(pop, s.season, cropClimateBand(s));
 }
 /** The stream's status this tick — drives its water yield AND the fishing catch
  *  (same low water, fewer fish): flowing / low (summer, dry) / frozen / dry. */

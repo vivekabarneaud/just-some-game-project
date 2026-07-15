@@ -3596,7 +3596,9 @@ body {
 
 /* Framed like the Eats/Produces stat boxes on the cards below: common frame,
    uppercase label pinned to the top, value centred in the space beneath. */
-.farming-stat {
+/* Framed summary card (StatCard component) — label + value as a single group,
+   centered both axes so a row of them lines up regardless of content height. */
+.stat-card {
   flex: 1;
   background: var(--bg-card);
   /* 6px (not 5) so the stretched top/bottom hairline survives rasterisation on
@@ -3606,36 +3608,32 @@ body {
   border-radius: 0;
   padding: 10px 12px;
   box-sizing: border-box;
-  min-height: 76px;
+  min-height: 84px;
   text-align: center;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  align-items: center;
+  justify-content: center;
   gap: 6px;
 }
 
-.farming-stat-label {
+.stat-card-label {
   font-size: 0.66rem;
   text-transform: uppercase;
   letter-spacing: 0.6px;
   color: var(--text-muted);
-  /* Reserve two lines so a wrapping label (e.g. "Harvested this year") doesn't
-     push its value down out of line with the single-line cards' values. */
-  min-height: 2.2em;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
   text-align: center;
 }
 
-.farming-stat-value {
-  flex: 1;
+.stat-card-value {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 5px;
   font-size: 1rem;
   font-weight: 600;
   color: var(--text-primary);
+  text-align: center;
 }
 
 .farming-section-title {

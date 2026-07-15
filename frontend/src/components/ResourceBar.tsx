@@ -415,7 +415,7 @@ export default function ResourceBar() {
                       <Show when={b.crops > 0}>
                         <Show when={b.irrigation > 0} fallback={
                           <div class="dropdown-row" style={{ color: b.dry ? "var(--accent-gold)" : "var(--accent-green)" }}>
-                            <span>🌱 Crops ({w1(b.crops)}/h) · {b.dry ? "thirsty!" : "rain-fed"}</span><span>0/h</span>
+                            <span>🌱 Crops ({w1(b.crops)}/h) · {b.dry ? "thirsty!" : "watered"}</span><span>0/h</span>
                           </div>
                         }>
                           <div class="dropdown-row" style={{ color: "var(--accent-red)" }}><span>💦 Crops (irrigated)</span><span>-{w1(b.irrigation)}/h</span></div>

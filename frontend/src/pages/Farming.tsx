@@ -8,6 +8,7 @@ import type { FoodItemType } from "~/data/foods";
 import { getHiveCost, getHiveBuildTime, getHoneyRate, HIVE_MAX_LEVEL, APIARY_IMAGE, APIARY } from "~/data/apiary";
 import SeedIcon from "~/components/SeedIcon";
 import SeasonIcon from "~/components/SeasonIcon";
+import StatCard from "~/components/StatCard";
 import { CLIMATE_META } from "~/data/climate";
 import { gardenWaterDemand, fieldWaterDemand, orchardWaterDemand, penWaterDemand } from "~/data/water";
 
@@ -1658,12 +1659,9 @@ export default function Farming() {
       </Show>
 
       <div class="farming-summary">
-        <div class="farming-stat">
-          <span class="farming-stat-label">Season</span>
-          <span class="farming-stat-value" style={{ color: seasonMeta().color, display: "inline-flex", "align-items": "center", gap: "5px" }}>
-            <SeasonIcon season={state.season} size={20} /> {seasonMeta().name}, Year {state.year}
-          </span>
-        </div>
+        <StatCard label="Season" valueColor={seasonMeta().color}>
+          <SeasonIcon season={state.season} size={20} /> {seasonMeta().name}, Year {state.year}
+        </StatCard>
         {/* This year's climate — a global modifier on crop yields, softened by
             irrigation (dry/drought) or drainage (wet/deluge) when built. */}
         {(() => {
@@ -1674,48 +1672,37 @@ export default function Farming() {
           const penaltyPct = () => Math.round((1 - eff()) * 100);
           const guard = () => (band() === "dry" || band() === "drought") ? "💦 irrigated" : "🌊 drained";
           return (
-            <div class="farming-stat">
-              <span class="farming-stat-label">Weather</span>
+            <StatCard label="Weather" valueColor={c().color}>
               <Tooltip block text={c().blurb}>
-                <span class="farming-stat-value" style={{ color: c().color }}>
+                <span style={{ display: "inline-flex", "align-items": "center", gap: "5px" }}>
                   {c().icon} {c().name}
                   <Show when={protectedNow()}>
-                    <span style={{ "font-size": "0.72rem", color: "var(--accent-green)", "margin-left": "4px" }}>{guard()}</span>
+                    <span style={{ "font-size": "0.72rem", color: "var(--accent-green)" }}>{guard()}</span>
                   </Show>
                   <Show when={eff() < 1}>
-                    <span style={{ "font-size": "0.72rem", color: "var(--accent-red)", "margin-left": "4px" }}>crops −{penaltyPct()}%</span>
+                    <span style={{ "font-size": "0.72rem", color: "var(--accent-red)" }}>crops −{penaltyPct()}%</span>
                   </Show>
                 </span>
               </Tooltip>
-            </div>
+            </StatCard>
           );
         })()}
         <Show when={state.season === "spring" || state.season === "summer"}>
-          <div class="farming-stat">
-            <span class="farming-stat-label">Expected Harvest</span>
-            <span class="farming-stat-value">{totalExpectedHarvest()} food</span>
-          </div>
+          <StatCard label="Expected Harvest">{totalExpectedHarvest()} food</StatCard>
         </Show>
         <Show when={state.season === "autumn" && actions.isHarvesting()}>
-          <div class="farming-stat">
-            <span class="farming-stat-label">Harvesting</span>
-            <span class="farming-stat-value" style={{ color: "#d4831a" }}>{totalExpectedHarvest()} food incoming</span>
-          </div>
+          <StatCard label="Harvesting" valueColor="#d4831a">{totalExpectedHarvest()} food incoming</StatCard>
         </Show>
         <Show when={(state.season === "autumn" && !actions.isHarvesting()) || state.season === "winter"}>
-          <div class="farming-stat">
-            <span class="farming-stat-label">Harvested this year</span>
-            <span class="farming-stat-value" style={{ color: "var(--accent-green)" }}>
-              {Object.keys(state.yearHarvest).length > 0
-                ? Object.entries(state.yearHarvest).map(([name, amt]) => `${amt} ${name}`).join(", ")
-                : "Nothing"}
-            </span>
-          </div>
+          <StatCard label="Harvested this year" valueColor="var(--accent-green)">
+            {Object.keys(state.yearHarvest).length > 0
+              ? Object.entries(state.yearHarvest).map(([name, amt]) => `${amt} ${name}`).join(", ")
+              : "Nothing"}
+          </StatCard>
         </Show>
-        <div class="farming-stat">
-          <span class="farming-stat-label">Animal Feed</span>
-          <span class="farming-stat-value rate-negative">-{actions.getAnimalFoodConsumption()}/h</span>
-        </div>
+        <StatCard label="Animal Feed">
+          <span class="rate-negative">-{actions.getAnimalFoodConsumption()}/h</span>
+        </StatCard>
         {/* Farm water — what the fields, gardens, orchards and pens drink each
             hour. The reserve level + net balance live in the top-bar dropdown. */}
         {(() => {
@@ -1724,24 +1711,23 @@ export default function Farming() {
           const farm = () => b().crops + b().animals;
           return (
             <Show when={farm() > 0}>
-              <div class="farming-stat">
-                <span class="farming-stat-label">Farm Water</span>
+              <StatCard label="Farm Water">
                 <Tooltip block text={`Crops need ${w1(b().crops)}/h${b().animals > 0 ? `, livestock ${w1(b().animals)}/h` : ""}. Rain waters the crops for free in kind years; a dry year draws the shortfall from your reserve (irrigation) or the crops go thirsty.`}>
-                  <span class="farming-stat-value rate-negative">💧 -{w1(farm())}/h</span>
+                  <span class="rate-negative">💧 -{w1(farm())}/h</span>
                 </Tooltip>
-              </div>
+              </StatCard>
             </Show>
           );
         })()}
         <Show when={state.pens.some((p) => p.level > 0 && isGrazer(p.animal))}>
-          <div class="farming-stat">
-            <span class="farming-stat-label">{state.season === "winter" ? "Winter fodder" : "Grazing"}</span>
-            <span class="farming-stat-value" style={{ color: state.season === "winter" && state.fields.reduce((s, f) => s + (f.hay ?? 0), 0) === 0 ? "var(--accent-red)" : "var(--accent-green)" }}>
-              {state.season === "winter"
-                ? `🌾 ${Math.round(state.fields.reduce((s, f) => s + (f.hay ?? 0), 0))} hay stored`
-                : "🌿 Wild pasture (free)"}
-            </span>
-          </div>
+          <StatCard
+            label={state.season === "winter" ? "Winter fodder" : "Grazing"}
+            valueColor={state.season === "winter" && state.fields.reduce((s, f) => s + (f.hay ?? 0), 0) === 0 ? "var(--accent-red)" : "var(--accent-green)"}
+          >
+            {state.season === "winter"
+              ? `🌾 ${Math.round(state.fields.reduce((s, f) => s + (f.hay ?? 0), 0))} hay stored`
+              : "🌿 Wild pasture (free)"}
+          </StatCard>
         </Show>
       </div>
 
