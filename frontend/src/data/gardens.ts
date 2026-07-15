@@ -165,8 +165,30 @@ export function getSeedCapacity(level: number): number {
   return Math.max(0, level) * 10;
 }
 
-/** The food/hour a planted garden actually produces, scaled by how full it is
- *  sown. Fully seeded → the base getGardenRate; half-seeded → half. */
+/** Per-crop germination — the fraction of sown seed that actually sprouts into
+ *  a producing plant. Hardy legumes/squash come up well; the fiddly crops
+ *  (strawberries, lavender) are stubborn. Drives both yield and seed saved back,
+ *  so a plot never quite returns everything you sow. */
+const GERMINATION: Record<VeggieId, number> = {
+  peas: 0.9,
+  fava: 0.9,
+  squash: 0.85,
+  turnips: 0.8,
+  cabbages: 0.8,
+  strawberries: 0.7,
+  lavender: 0.6,
+};
+export function getGerminationRate(veggie: VeggieDefinition): number {
+  return GERMINATION[veggie.id] ?? 0.8;
+}
+/** How many of the sown seeds come up as producing plants. */
+export function getSproutedPlants(veggie: VeggieDefinition, seedsPlanted: number): number {
+  return Math.floor(Math.max(0, seedsPlanted) * getGerminationRate(veggie));
+}
+
+/** The food/hour a planted garden actually produces, scaled by how many sown
+ *  seeds SPROUTED (fill × germination). A fully-sown plot tops out a bit below
+ *  the theoretical base rate — not every seed takes. */
 export function getEffectiveGardenRate(
   veggie: VeggieDefinition,
   level: number,
@@ -174,15 +196,16 @@ export function getEffectiveGardenRate(
 ): number {
   const cap = getSeedCapacity(level);
   if (cap <= 0) return 0;
-  const fill = Math.min(1, Math.max(0, seedsPlanted) / cap);
+  const fill = Math.min(1, getSproutedPlants(veggie, seedsPlanted) / cap);
   return Math.floor(getGardenRate(veggie, level) * fill);
 }
 
-/** Seed kept back from a season's crop. >1 so a steady plot self-sustains and
- *  the surplus slowly funds expansion; big jumps still need the market. */
+/** Seed kept back from a season's crop, per sprouted plant. >1 so a steady plot
+ *  still nets a little (after germination losses) — but far less than the raw
+ *  sown count, so filling more plots leans on trade. */
 export const SEED_RETURN_FACTOR = 1.5;
-export function getSeedReturn(seedsPlanted: number): number {
-  return Math.floor(Math.max(0, seedsPlanted) * SEED_RETURN_FACTOR);
+export function getSeedReturn(sproutedPlants: number): number {
+  return Math.floor(Math.max(0, sproutedPlants) * SEED_RETURN_FACTOR);
 }
 
 /** Seeds the founding crew arrives with — enough to fully sow a first L1 plot

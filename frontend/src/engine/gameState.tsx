@@ -123,6 +123,7 @@ import {
   getSeedCapacity,
   getEffectiveGardenRate,
   getSeedReturn,
+  getSproutedPlants,
   makeStartingSeeds,
   startingUnlockedSeeds,
   isSeedUnlocked,
@@ -3563,7 +3564,9 @@ export function GameProvider(props: ParentProps) {
       const veggie = getVeggie(garden.veggie);
       if (veggie.plantSeasons.includes(next) && garden.plantedYear < s.year) {
         if (garden.seedsPlanted > 0) {
-          const returned = getSeedReturn(garden.seedsPlanted);
+          // Only the seeds that sprouted set new seed — germination losses carry
+          // through, so the plot returns less than the raw sown count.
+          const returned = getSeedReturn(getSproutedPlants(veggie, garden.seedsPlanted));
           s.seeds[garden.veggie] = (s.seeds[garden.veggie] ?? 0) + returned;
           if (returned > 0) {
             pushEvent(s, "building_completed", veggie.icon, `Saved ${returned} ${veggie.name.toLowerCase()} seed from the ${veggie.name.toLowerCase()} crop`);

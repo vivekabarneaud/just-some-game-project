@@ -1,7 +1,7 @@
 import { For, Show, onMount, createSignal } from "solid-js";
 import { useGame, type GameState, type PlayerField, type PlayerGarden, type PlayerPen, type PlayerHive, type PlayerOrchard } from "~/engine/gameState";
 import { CROPS, type CropId, getCrop, getFieldCost, getFieldBuildTime, getSeasonYield, getSoilMultiplier, getSoilStatus, getHayFromHarvest, MAX_FIELDS, FIELD_MAX_LEVEL } from "~/data/crops";
-import { getVeggie, getGardenCost, getGardenBuildTime, getSeedCapacity, getEffectiveGardenRate, canPlantVeggie, isVeggieProducing, isSeedUnlocked, MAX_GARDENS, GARDEN_MAX_LEVEL } from "~/data/gardens";
+import { getVeggie, getGardenCost, getGardenBuildTime, getSeedCapacity, getEffectiveGardenRate, getSproutedPlants, getGerminationRate, canPlantVeggie, isVeggieProducing, isSeedUnlocked, MAX_GARDENS, GARDEN_MAX_LEVEL } from "~/data/gardens";
 import { getAnimal, getPenCost, getPenBuildTime, getPenProduction, getPenCapacity, getAnimalBuyCost, getCullYield, getWoolSeasonMod, PEN_MAX_LEVEL, type AnimalId } from "@medieval-realm/shared/data/livestock";
 import { ANIMAL_FEED, FEED_CATEGORY_ICON, FEED_CATEGORY_LABEL, FOOD_CATEGORY, isGrazer, type FeedCategory } from "~/data/animalFeed";
 import type { FoodItemType } from "~/data/foods";
@@ -502,6 +502,8 @@ function GardenCard(props: { garden: PlayerGarden }) {
   // still left to fill — so the player can top up a partially-sown plot (e.g.
   // after an upgrade raised the capacity, or once more seed comes in).
   const sownThisYear = () => planted() ? props.garden.seedsPlanted : 0;
+  const sprouted = () => getSproutedPlants(veggie(), sownThisYear());
+  const germPct = () => Math.round(getGerminationRate(veggie()) * 100);
   const roomLeft = () => capacity() - sownThisYear();
   const sowAmount = () => Math.min(seedStock(), roomLeft()); // what we'd sow right now
   const effRate = () => getEffectiveGardenRate(veggie(), Math.max(1, props.garden.level), props.garden.seedsPlanted);
@@ -725,6 +727,13 @@ function GardenCard(props: { garden: PlayerGarden }) {
                 <b style={{ color: "var(--text-primary)" }}>{seedStock()}</b> seed in store
               </span>
             </div>
+            {/* Germination — how many of the sown seeds came up. Explains why the
+                yield/seed-back is a bit below the sown count. */}
+            <Show when={sownThisYear() > 0}>
+              <div style={{ "font-size": "0.72rem", color: "var(--text-muted)" }}>
+                🌱 {sprouted()} of {sownThisYear()} sprouted <span style={{ opacity: 0.7 }}>({germPct()}%)</span>
+              </div>
+            </Show>
             {/* Season nudge (e.g. "Time to plant — 10/10 seed ready", "Producing"). */}
             <Show when={statusLine()}>
               {(s) => <div style={{ color: s().color, "font-size": "0.78rem", "font-weight": 600 }}>{s().label}</div>}

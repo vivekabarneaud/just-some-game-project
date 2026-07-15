@@ -3,6 +3,8 @@ import {
   getSeedCapacity,
   getEffectiveGardenRate,
   getSeedReturn,
+  getSproutedPlants,
+  getGerminationRate,
   makeStartingSeeds,
   isSeedUnlocked,
   startingUnlockedSeeds,
@@ -13,9 +15,10 @@ import {
 
 // First unit test for the project. Targets the per-crop seed system (June 2026)
 // because it's pure, just shipped, and central to the early-game food loop.
-// The assertions lean on CONTRACTS (full sow = base rate, partial scales,
-// clamps at capacity) so they survive balance tweaks, plus pin the formulas
-// that ARE the spec (capacity = 10/level, return = 1.5x).
+// The assertions lean on CONTRACTS (partial scales down, clamps at capacity,
+// germination reduces a full sow below the theoretical base rate) so they
+// survive balance tweaks, plus pin the formulas that ARE the spec
+// (capacity = 10/level, return = 1.5x per sprouted plant).
 
 const turnips = getVeggie("turnips");
 
@@ -31,19 +34,22 @@ describe("getSeedCapacity", () => {
 });
 
 describe("getEffectiveGardenRate", () => {
-  it("a fully-sown plot produces the full base rate", () => {
+  it("a fully-sown plot produces the germinated fraction of the base rate", () => {
     const cap = getSeedCapacity(2);
-    expect(getEffectiveGardenRate(turnips, 2, cap)).toBe(getGardenRate(turnips, 2));
+    const sprouted = getSproutedPlants(turnips, cap);
+    expect(getEffectiveGardenRate(turnips, 2, cap))
+      .toBe(Math.floor(getGardenRate(turnips, 2) * (sprouted / cap)));
+    // ...and that's below the theoretical full rate (not every seed takes).
+    expect(getEffectiveGardenRate(turnips, 2, cap)).toBeLessThan(getGardenRate(turnips, 2));
   });
   it("scales down with a partial sow", () => {
-    const full = getGardenRate(turnips, 1);
+    const fullSown = getEffectiveGardenRate(turnips, 1, getSeedCapacity(1));
     const half = getEffectiveGardenRate(turnips, 1, getSeedCapacity(1) / 2);
-    expect(half).toBeLessThan(full);
-    expect(half).toBe(Math.floor(full * 0.5));
+    expect(half).toBeGreaterThan(0);
+    expect(half).toBeLessThan(fullSown);
   });
-  it("never exceeds the full rate, even when over-sown", () => {
-    const full = getGardenRate(turnips, 1);
-    expect(getEffectiveGardenRate(turnips, 1, getSeedCapacity(1) * 3)).toBe(full);
+  it("clamps at the base rate when heavily over-sown (extra seed offsets germination loss)", () => {
+    expect(getEffectiveGardenRate(turnips, 1, getSeedCapacity(1) * 3)).toBe(getGardenRate(turnips, 1));
   });
   it("produces nothing with no seeds sown", () => {
     expect(getEffectiveGardenRate(turnips, 1, 0)).toBe(0);
@@ -53,8 +59,22 @@ describe("getEffectiveGardenRate", () => {
   });
 });
 
+describe("getGerminationRate / getSproutedPlants", () => {
+  it("every crop germinates between 50% and 100%", () => {
+    for (const v of VEGGIES) {
+      const r = getGerminationRate(v);
+      expect(r).toBeGreaterThanOrEqual(0.5);
+      expect(r).toBeLessThanOrEqual(1);
+    }
+  });
+  it("sprouts the germinated fraction of sown seed, floored", () => {
+    expect(getSproutedPlants(turnips, 10)).toBe(Math.floor(10 * getGerminationRate(turnips)));
+    expect(getSproutedPlants(turnips, 0)).toBe(0);
+  });
+});
+
 describe("getSeedReturn", () => {
-  it("returns 1.5x the sown seed, floored", () => {
+  it("returns 1.5x the sprouted plants, floored", () => {
     expect(getSeedReturn(10)).toBe(15);
     expect(getSeedReturn(7)).toBe(10); // floor(10.5)
   });
