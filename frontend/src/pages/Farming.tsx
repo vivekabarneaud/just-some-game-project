@@ -1070,7 +1070,7 @@ function PenCard(props: { pen: PlayerPen }) {
             </StatBox>
           </StatRow>
           <Show when={hasWaterInfra(state.buildings)}>
-            <WaterNeed amount={Math.round(props.pen.count * ANIMAL_WATER_PER_HEAD * 10) / 10} />
+            <WaterNeed amount={props.pen.count * ANIMAL_WATER_PER_HEAD} />
           </Show>
 
           {/* Flock summary — the glance. Buying, culling and the guard dog all
@@ -1722,7 +1722,7 @@ export default function Farming() {
           {(() => {
             const rate = () => actions.getWaterRate();
             const b = () => actions.getWaterBreakdown();
-            const w1 = (n: number) => { const r = Math.round(n * 10) / 10; return Number.isInteger(r) ? String(r) : r.toFixed(1); };
+            const w1 = (n: number) => String(Math.round(n));
             return (
               <div class="farming-stat">
                 <span class="farming-stat-label">Water</span>

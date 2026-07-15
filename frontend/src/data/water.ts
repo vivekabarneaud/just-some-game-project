@@ -51,17 +51,18 @@ export function getWaterCap(cisternLevel: number): number {
 
 // ── Per-crop water demand (water/hour, per active plot) under irrigation ──
 // Fields drink the most; gardens less; drought-loving lavender barely any.
+// Whole numbers per hour — no fractional water. Fields drink most, gardens by
+// crop (lavender least, it likes it dry), a grove a share, livestock per head.
 export const FIELD_WATER_NEED = 3;
 export const ORCHARD_WATER_NEED = 2;   // per bearing grove
-/** Livestock drink year-round, per head. Modest — a well covers a small flock. */
-export const ANIMAL_WATER_PER_HEAD = 0.3;
+export const ANIMAL_WATER_PER_HEAD = 1;
 const GARDEN_WATER_NEED: Record<string, number> = {
-  lavender: 0.5,   // likes it dry
-  squash: 2,       // thirsty
-  strawberries: 2,
+  lavender: 1,     // likes it dry
+  squash: 3,       // thirsty
+  strawberries: 3,
 };
 export function gardenWaterNeed(veggieId: string): number {
-  return GARDEN_WATER_NEED[veggieId] ?? 1.5;
+  return GARDEN_WATER_NEED[veggieId] ?? 2;
 }
 
 /** Water a drainage works banks from runoff in a wet year, water/hour per level. */

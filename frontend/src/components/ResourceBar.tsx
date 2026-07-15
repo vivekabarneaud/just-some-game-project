@@ -367,9 +367,8 @@ export default function ResourceBar() {
         {(() => {
           const rate = () => actions.getWaterRate();
           const cap = () => caps().water;
-          // Water rates are small and often fractional (a sheep drinks 0.3/h) —
-          // show one decimal, dropping a trailing .0.
-          const w1 = (n: number) => { const r = Math.round(n * 10) / 10; return Number.isInteger(r) ? String(r) : r.toFixed(1); };
+          // Water is consumed in whole units, so rates read as integers.
+          const w1 = (n: number) => String(Math.round(n));
           return (
             <div class="resource-item has-dropdown">
               <span class="resource-icon">💧</span>
@@ -397,13 +396,18 @@ export default function ResourceBar() {
                       <Show when={b.animals > 0}>
                         <div class="dropdown-row" style={{ color: "var(--accent-red)" }}><span>🐑 Livestock</span><span>-{w1(b.animals)}/h</span></div>
                       </Show>
-                      {/* Crops draw the reserve only when irrigating (dry years);
-                          otherwise the rain waters them for free. */}
-                      <Show when={b.irrigation > 0}>
-                        <div class="dropdown-row" style={{ color: "var(--accent-red)" }}><span>💦 Crops (irrigated)</span><span>-{w1(b.irrigation)}/h</span></div>
-                      </Show>
-                      <Show when={b.irrigation === 0 && b.crops > 0}>
-                        <div class="dropdown-row" style={{ color: "var(--accent-green)" }}><span>🌱 Crops (rain-fed)</span><span>0/h</span></div>
+                      {/* Crops only draw the reserve when a dry year forces
+                          irrigation. In a kind year the season waters them; in a
+                          dry year with no irrigation they go thirsty (0 draw, but
+                          the yield suffers). */}
+                      <Show when={b.crops > 0}>
+                        <Show when={b.irrigation > 0} fallback={
+                          <div class="dropdown-row" style={{ color: b.dry ? "var(--accent-gold)" : "var(--accent-green)" }}>
+                            <span>🌱 Crops · {b.dry ? "need irrigation" : "fed by the season"}</span><span>0/h</span>
+                          </div>
+                        }>
+                          <div class="dropdown-row" style={{ color: "var(--accent-red)" }}><span>💦 Crops (irrigated)</span><span>-{w1(b.irrigation)}/h</span></div>
+                        </Show>
                       </Show>
                       <div class="dropdown-row dropdown-total"><span>Net</span><span>{b.net >= 0 ? "+" : ""}{w1(b.net)}/h</span></div>
                     </>
