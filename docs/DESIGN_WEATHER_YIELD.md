@@ -47,7 +47,10 @@ Keeping them separate avoids stacking two noisy multipliers.
 
 Drought is the one band that **removes standing plants** (a % of a plot's grown crop, maybe some sown seed too), on top of the yield −. It's the event you must actively survive — which is what the water system is for.
 
-## 5. Water system (the counters)
+## 5. Water system (the counters) — BUILT (Phase 2, 2026-07-15)
+
+Implemented: `water` resource + 4 village buildings (Well, Cistern, Irrigation Channels, Drainage Ditches) in `data/water.ts`. Well output is drought-scaled; cistern stores + rain-catches (climate-scaled); irrigation spends per-crop water demand (fields 3/h, orchards 2/h, gardens by crop — lavender 0.5, squash/strawberry 2, default 1.5) to cancel the dry/drought penalty *while water lasts*; drainage cancels the wet/deluge penalty + banks runoff. Water shows in the top bar (once a well/cistern exists) with a live net rate; the Farming Weather card shows irrigated/drained vs the raw penalty. Deferred: per-plot control granularity (demand is per-crop but protection is settlement-wide), stored-water TRADE (Phase 3), and animals/kitchen water use.
+
 
 A `water` resource, capped by storage, generated + spent through these:
 
