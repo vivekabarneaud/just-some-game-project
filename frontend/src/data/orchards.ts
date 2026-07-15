@@ -1,7 +1,7 @@
 import type { Season } from "./seasons";
 import { growth } from "@medieval-realm/shared/data/farmingMath";
 
-export type FruitId = "apples" | "pears" | "cherries";
+export type FruitId = "apples" | "pears" | "cherries" | "grapes";
 
 export interface FruitDefinition {
   id: FruitId;
@@ -9,9 +9,13 @@ export interface FruitDefinition {
   icon: string;
   description: string;
   harvestSeasons: Season[];
-  baseRate: number; // fruit per hour when active
-  maturationSeasons: number; // seasons until first harvest
+  baseRate: number; // fruit per hour, PER MATURE TREE, when in season
+  maturationSeasons: number; // seasons a sapling takes to bear
   image?: string;
+  /** Specialty fruit — its orchard shows as a "???" mystery slot and can't be
+   *  planted until the vine/sapling is brought home (a merchant or quest).
+   *  Mirrors the garden specialty-seed gate. */
+  specialty?: boolean;
 }
 
 export const FRUITS: FruitDefinition[] = [
@@ -45,6 +49,19 @@ export const FRUITS: FruitDefinition[] = [
     maturationSeasons: 4,
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/orchard_cherries.png",
   },
+  {
+    id: "grapes",
+    name: "Grape Vines",
+    icon: "🍇",
+    // Vines, not trees, but they belong with the orchard: planted once, trained
+    // over years, then cropped each autumn. A specialty — the cuttings must be
+    // brought home before they can be grown.
+    description: "Trained vines that take years to establish, then crop richly each autumn. Pressed for wine, or dried into raisins for the winter store.",
+    harvestSeasons: ["autumn"],
+    baseRate: 4,
+    maturationSeasons: 4,
+    specialty: true,
+  },
 ];
 
 export function getFruit(id: FruitId): FruitDefinition {
@@ -74,8 +91,27 @@ export function getOrchardBuildTime(level: number): number {
   return growth(ORCHARD_BASE_BUILD_TIME, ORCHARD_BUILD_TIME_MULTIPLIER, level);
 }
 
-export function getOrchardRate(fruit: FruitDefinition, level: number): number {
-  return Math.floor(fruit.baseRate * level * 1.1);
+/** Planting capacity: how many trees/vines an orchard of this level can hold.
+ *  Level 0 (unbuilt) holds none; each level adds two slots. Upgrading makes
+ *  ROOM — the player still plants saplings into the new slots themselves. */
+export function getOrchardTreeSlots(level: number): number {
+  return level <= 0 ? 0 : level * 2;
+}
+
+/** Gold to plant one sapling/cutting. Scales with the fruit's richness. */
+export function getSaplingCost(fruit: FruitDefinition): number {
+  return fruit.baseRate * 3;
+}
+
+/** Fruit per hour from a single MATURE tree, in season. Total orchard yield is
+ *  this times the number of mature trees. */
+export function getFruitPerTreeRate(fruit: FruitDefinition): number {
+  return fruit.baseRate;
+}
+
+/** Total in-season yield for an orchard with `matureTrees` bearing trees. */
+export function getOrchardRate(fruit: FruitDefinition, matureTrees: number): number {
+  return getFruitPerTreeRate(fruit) * matureTrees;
 }
 
 export function isOrchardActive(fruit: FruitDefinition, season: Season): boolean {
@@ -86,8 +122,12 @@ export function isOrchardBlossoming(fruit: FruitDefinition, season: Season): boo
   return season === "spring" && !fruit.harvestSeasons.includes("spring");
 }
 
-export function getOrchardStatus(fruit: FruitDefinition, season: Season, mature: boolean, seasonsGrown: number): string {
-  if (!mature) return `Sapling — ${seasonsGrown}/${fruit.maturationSeasons} seasons`;
+/** Card status line, driven by the tree counts. */
+export function getOrchardStatus(
+  fruit: FruitDefinition, season: Season, matureTrees: number, saplingsGrowing: number,
+): string {
+  if (matureTrees === 0 && saplingsGrowing === 0) return "No trees planted";
+  if (matureTrees === 0) return `${saplingsGrowing} ${saplingsGrowing === 1 ? "sapling" : "saplings"} growing`;
   if (isOrchardBlossoming(fruit, season)) return "Blossoming";
   if (isOrchardActive(fruit, season)) return "Harvesting";
   return "Dormant";

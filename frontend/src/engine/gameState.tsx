@@ -185,6 +185,8 @@ import {
   getOrchardCost,
   getOrchardBuildTime,
   getOrchardRate,
+  getOrchardTreeSlots,
+  getSaplingCost,
   isOrchardActive,
   ORCHARD_MAX_LEVEL,
 } from "~/data/orchards";
@@ -482,14 +484,22 @@ export interface PlayerMageTower {
   upgradeRemaining?: number;
 }
 
+/** A sapling cohort planted at the same time — ages together to maturity. */
+export interface OrchardCohort {
+  count: number;
+  seasonsGrown: number;
+}
+
 export interface PlayerOrchard {
   id: string;
   fruit: FruitId;
   level: number;
   upgrading: boolean;
   upgradeRemaining?: number;
-  seasonsGrown: number;
-  mature: boolean;
+  /** Trees/vines that are bearing fruit. */
+  matureTrees: number;
+  /** Planted-but-not-yet-bearing cohorts, ageing toward maturationSeasons. */
+  saplings: OrchardCohort[];
 }
 
 export interface GameState {
@@ -744,6 +754,8 @@ export interface GameActions {
   cullLivestock: (penId: string, qty?: number) => boolean;
   upgradeHive: (hiveId: string) => boolean;
   upgradeOrchard: (orchardId: string) => boolean;
+  /** Plant one sapling/vine into a free slot of an orchard (gold cost). */
+  plantSapling: (orchardId: string) => boolean;
   setGameSpeed: (speed: number) => void;
   renameVillage: (name: string) => void;
   resetGame: () => void;
@@ -1064,14 +1076,14 @@ export function createInitialState(): GameState {
       level: 0,
       upgrading: false,
     })),
-    // Pre-spawn one orchard per fruit (apples / pears / cherries).
+    // Pre-spawn one orchard per fruit (apples / pears / cherries / grapes).
     orchards: FRUITS.map((f) => ({
       id: nextId("orchard"),
       fruit: f.id,
       level: 0,
       upgrading: false,
-      seasonsGrown: 0,
-      mature: false,
+      matureTrees: 0,
+      saplings: [],
     })),
     honey: 0,
     // Bio-accurate founder mapping: Edda + Father Corin elderly,
@@ -1422,7 +1434,28 @@ export function migrateSaveState(saved: GameState): GameState {
         });
       }
     }
-    // Orchards: ensure one pre-attributed slot per fruit
+    // Orchards: migrate the old whole-orchard maturity (seasonsGrown/mature) to
+    // the tree-count model. A mature orchard becomes a full grove; a growing one
+    // becomes a sapling cohort at the same age.
+    for (const o of saved.orchards as any[]) {
+      if (o.matureTrees === undefined) {
+        const slots = getOrchardTreeSlots(o.level ?? 0);
+        if (o.mature) {
+          o.matureTrees = slots;
+          o.saplings = [];
+        } else if ((o.seasonsGrown ?? 0) > 0 && (o.level ?? 0) > 0) {
+          o.matureTrees = 0;
+          o.saplings = [{ count: Math.max(slots, 1), seasonsGrown: o.seasonsGrown }];
+        } else {
+          o.matureTrees = 0;
+          o.saplings = [];
+        }
+        delete o.seasonsGrown;
+        delete o.mature;
+      }
+      if (!Array.isArray(o.saplings)) o.saplings = [];
+    }
+    // Ensure one pre-attributed slot per fruit (adds grapes to old saves).
     for (const f of FRUITS) {
       if (!saved.orchards.some((o: any) => o.fruit === f.id)) {
         saved.orchards.push({
@@ -1430,8 +1463,8 @@ export function migrateSaveState(saved: GameState): GameState {
           fruit: f.id,
           level: 0,
           upgrading: false,
-          seasonsGrown: 0,
-          mature: false,
+          matureTrees: 0,
+          saplings: [],
         });
       }
     }
@@ -2395,12 +2428,13 @@ function calcFoodRates(state: GameState, fedRatios?: Map<string, number>): Recor
     if (veggie.id in rates) rates[veggie.id as FoodItemType] += rate;
   }
 
-  // Orchards — mature + harvest-season only, per-fruit
+  // Orchards — mature trees in their harvest season, per-fruit. Yield scales
+  // with the number of bearing trees (saplings don't count yet).
   for (const orchard of orchards ?? []) {
-    if (orchard.level === 0 || orchard.upgrading || !orchard.mature) continue;
+    if (orchard.level === 0 || orchard.upgrading || (orchard.matureTrees ?? 0) <= 0) continue;
     const fruitDef = getFruit(orchard.fruit);
     if (!isOrchardActive(fruitDef, season)) continue;
-    const rate = getOrchardRate(fruitDef, orchard.level);
+    const rate = getOrchardRate(fruitDef, orchard.matureTrees);
     if (fruitDef.id in rates) rates[fruitDef.id as FoodItemType] += rate;
   }
 
@@ -3162,8 +3196,26 @@ export function GameProvider(props: ParentProps) {
             });
           }
         }
-        // Orchards: ensure one pre-attributed slot per fruit
+        // Orchards: migrate old maturity shape, then ensure a slot per fruit.
         serverState.orchards = serverState.orchards ?? [];
+        for (const o of serverState.orchards as any[]) {
+          if (o.matureTrees === undefined) {
+            const slots = getOrchardTreeSlots(o.level ?? 0);
+            if (o.mature) {
+              o.matureTrees = slots;
+              o.saplings = [];
+            } else if ((o.seasonsGrown ?? 0) > 0 && (o.level ?? 0) > 0) {
+              o.matureTrees = 0;
+              o.saplings = [{ count: Math.max(slots, 1), seasonsGrown: o.seasonsGrown }];
+            } else {
+              o.matureTrees = 0;
+              o.saplings = [];
+            }
+            delete o.seasonsGrown;
+            delete o.mature;
+          }
+          if (!Array.isArray(o.saplings)) o.saplings = [];
+        }
         for (const f of FRUITS) {
           if (!serverState.orchards.some((o: any) => o.fruit === f.id)) {
             serverState.orchards.push({
@@ -3171,8 +3223,8 @@ export function GameProvider(props: ParentProps) {
               fruit: f.id,
               level: 0,
               upgrading: false,
-              seasonsGrown: 0,
-              mature: false,
+              matureTrees: 0,
+              saplings: [],
             });
           }
         }
@@ -3508,15 +3560,29 @@ export function GameProvider(props: ParentProps) {
       pushEvent(s, "building_completed", "🍂", "Autumn is here — harvest season begins!");
     }
 
-    // Orchard maturation — increment seasonsGrown each season
+    // Orchard maturation — age each sapling cohort a season; cohorts that reach
+    // maturity join the bearing trees.
     for (const orchard of s.orchards) {
-      if (orchard.level > 0 && !orchard.upgrading && !orchard.mature) {
-        orchard.seasonsGrown = (orchard.seasonsGrown ?? 0) + 1;
-        const fruitDef = getFruit(orchard.fruit);
-        if (orchard.seasonsGrown >= fruitDef.maturationSeasons) {
-          orchard.mature = true;
-          pushEvent(s, "building_completed", fruitDef.icon, `Your ${fruitDef.name} are now bearing fruit!`);
+      if (orchard.upgrading || !orchard.saplings || orchard.saplings.length === 0) continue;
+      const fruitDef = getFruit(orchard.fruit);
+      let matured = 0;
+      const stillGrowing: typeof orchard.saplings = [];
+      for (const cohort of orchard.saplings) {
+        const age = cohort.seasonsGrown + 1;
+        if (age >= fruitDef.maturationSeasons) {
+          matured += cohort.count;
+        } else {
+          stillGrowing.push({ count: cohort.count, seasonsGrown: age });
         }
+      }
+      orchard.saplings = stillGrowing;
+      if (matured > 0) {
+        const wasBearing = orchard.matureTrees > 0;
+        orchard.matureTrees += matured;
+        pushEvent(s, "building_completed", fruitDef.icon,
+          wasBearing
+            ? `${matured} more ${fruitDef.name} came into bearing.`
+            : `Your ${fruitDef.name} are now bearing fruit!`);
       }
     }
 
@@ -5437,6 +5503,27 @@ export function GameProvider(props: ParentProps) {
         const o = s.orchards.find((o) => o.id === orchardId)!;
         o.upgrading = true;
         o.upgradeRemaining = getOrchardBuildTime(orchard.level);
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    // Plant one sapling/vine into a free slot. It starts as a season-0 cohort
+    // and ages to a bearing tree over the fruit's maturation window.
+    plantSapling(orchardId) {
+      const orchard = state.orchards.find((o) => o.id === orchardId);
+      if (!orchard || orchard.level < 1 || orchard.upgrading) return false;
+      const planted = orchard.matureTrees + orchard.saplings.reduce((n, c) => n + c.count, 0);
+      if (planted >= getOrchardTreeSlots(orchard.level)) return false;
+      const cost = getSaplingCost(getFruit(orchard.fruit));
+      if (state.resources.gold < cost) return false;
+      setState(produce((s) => {
+        s.resources.gold -= cost;
+        const o = s.orchards.find((o) => o.id === orchardId)!;
+        // Merge into a just-planted (season-0) cohort so they mature together.
+        const fresh = o.saplings.find((c) => c.seasonsGrown === 0);
+        if (fresh) fresh.count += 1;
+        else o.saplings.push({ count: 1, seasonsGrown: 0 });
       }));
       scheduleSave();
       return true;

@@ -388,7 +388,7 @@ A garden flower that **sweetens the honey and stocks the tavern's tea and cake**
 
 ## Orchard Saplings — planting rework (spec, July 2026)
 
-**Status:** DESIGNED. Build **post-alpha** (engine + save-state work; alpha saves are disposable so no migration). Makes orchards *feel planted* and stops an upgrade from conjuring a full-grown grove. Mirrors the garden seed/capacity model, adapted for perennials.
+**Status:** ✅ BUILT (2026-07-14). Makes orchards *feel planted* and stops an upgrade from conjuring a full-grown grove. Mirrors the garden seed/capacity model, adapted for perennials. Shipped with a **light save migration** (old whole-orchard `seasonsGrown`/`mature` → `matureTrees`/`saplings[]` in both load paths) rather than a SAVE_VERSION reset, to preserve in-progress playtest saves. **Grapes** landed as the first specialty fruit, rendered as a locked "??? Orchard" mystery slot (no unlock path wired yet — teaser). Per-tree yield = `baseRate`, tree slots = `level × 2`, sapling cost = `baseRate × 3` gold.
 
 ### The problem
 Today an orchard is one abstract unit: `PlayerOrchard { level, seasonsGrown, mature }`. The whole orchard matures once (`seasonsGrown >= maturationSeasons → mature`), then produces at a level-scaled rate. There's **no planting act**, and **upgrading** just raises the rate as if new trees sprang up grown. Next to fields (sow in spring) and gardens (sow seeds into capacity), orchards read as strangely automatic.

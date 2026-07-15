@@ -7,7 +7,7 @@ import { ANIMAL_FEED, FEED_CATEGORY_ICON, FEED_CATEGORY_LABEL, FOOD_CATEGORY, is
 import type { FoodItemType } from "~/data/foods";
 import { getHiveCost, getHiveBuildTime, getHoneyRate, HIVE_MAX_LEVEL, APIARY_IMAGE, APIARY } from "~/data/apiary";
 import SeedIcon from "~/components/SeedIcon";
-import { getFruit, getOrchardCost, getOrchardBuildTime, getOrchardRate, getOrchardStatus, isOrchardActive, ORCHARD_MAX_LEVEL } from "~/data/orchards";
+import { getFruit, getOrchardCost, getOrchardBuildTime, getOrchardRate, getOrchardStatus, getOrchardTreeSlots, getSaplingCost, getFruitPerTreeRate, isOrchardActive, ORCHARD_MAX_LEVEL } from "~/data/orchards";
 import { SEASON_META, type Season } from "~/data/seasons";
 import { QUEST_DEFINITIONS, isQuestActive } from "~/data/quests";
 import Countdown from "~/components/Countdown";
@@ -1224,6 +1224,19 @@ function OrchardCard(props: { orchard: PlayerOrchard }) {
   const fruitDef = () => getFruit(props.orchard.fruit);
   const effectiveMax = () => Math.min(actions.getTownHallLevel(), ORCHARD_MAX_LEVEL);
 
+  // Specialty fruit (grapes) hides as a "???" mystery slot until the vine is
+  // brought home — mirrors the garden specialty-seed gate. No unlock path is
+  // wired yet, so it stays a teaser for now.
+  const locked = () => props.orchard.level === 0 && !props.orchard.upgrading && !!fruitDef().specialty;
+
+  // Tree bookkeeping.
+  const slots = () => getOrchardTreeSlots(props.orchard.level);
+  const saplingCount = () => props.orchard.saplings.reduce((n, c) => n + c.count, 0);
+  const planted = () => props.orchard.matureTrees + saplingCount();
+  const roomLeft = () => slots() - planted();
+  const saplingCost = () => getSaplingCost(fruitDef());
+  const canPlant = () => props.orchard.level > 0 && !props.orchard.upgrading && roomLeft() > 0 && state.resources.gold >= saplingCost();
+
   const isUnbuilt = () => props.orchard.level === 0 && !props.orchard.upgrading;
   const buildCost = () => getOrchardCost(0);
   const canBuild = () => {
@@ -1236,10 +1249,10 @@ function OrchardCard(props: { orchard: PlayerOrchard }) {
     return "";
   };
 
-  const rate = () => props.orchard.level > 0 && props.orchard.mature && isOrchardActive(fruitDef(), state.season)
-    ? getOrchardRate(fruitDef(), props.orchard.level) : 0;
+  const rate = () => props.orchard.level > 0 && props.orchard.matureTrees > 0 && isOrchardActive(fruitDef(), state.season)
+    ? getOrchardRate(fruitDef(), props.orchard.matureTrees) : 0;
   const status = () => props.orchard.level > 0 && !props.orchard.upgrading
-    ? getOrchardStatus(fruitDef(), state.season, props.orchard.mature, props.orchard.seasonsGrown) : "";
+    ? getOrchardStatus(fruitDef(), state.season, props.orchard.matureTrees, saplingCount()) : "";
 
   const upgradeCost = () => props.orchard.level < ORCHARD_MAX_LEVEL ? getOrchardCost(props.orchard.level) : null;
   const canUpgrade = () => {
@@ -1271,6 +1284,22 @@ function OrchardCard(props: { orchard: PlayerOrchard }) {
   const indicatorCanAct = () => props.orchard.level === 0 ? canBuild() : canUpgrade();
 
   return (
+    <Show when={!locked()} fallback={
+      <div class="building-card unbuilt-farm-card garden-locked-card" style={{ cursor: "default", position: "relative", "text-align": "center", opacity: 0.85 }}>
+        <div class="building-card-image">
+          <img
+            src="https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/empty_garden.png"
+            alt=""
+            loading="lazy"
+            style={{ filter: "grayscale(0.7) brightness(0.55)" }}
+          />
+        </div>
+        <div class="building-card-title" style={{ "letter-spacing": "0.15em" }}>??? Orchard</div>
+        <div class="building-card-desc" style={{ "margin-top": "6px", color: "var(--text-muted)", "font-style": "italic" }}>
+          Ground set aside for something not yet brought home. Some vines and trees must be found or traded for before they can be planted here.
+        </div>
+      </div>
+    }>
     <Show when={!isUnbuilt()} fallback={
       <div class="building-card unbuilt-farm-card" style={{ cursor: "default", position: "relative" }}>
         <Show when={fruitDef().image} fallback={
@@ -1307,13 +1336,16 @@ function OrchardCard(props: { orchard: PlayerOrchard }) {
           </div>
         </Show>
 
-        <div class="building-card-desc">{fruitDef().description}</div>
-        {/* Greyed preview of what a planted orchard would give */}
+        <div class="building-card-desc" style={{ flex: "0 0 auto", "min-height": "76px" }}>{fruitDef().description}</div>
+        {/* Greyed preview — build the orchard, then plant saplings into it. */}
         <StatRow dim>
           <StatBox label="Harvest in">{seasonList(fruitDef().harvestSeasons, false)}</StatBox>
           <StatBox label="Maturity">🌱 {fruitDef().maturationSeasons} seasons</StatBox>
-          <StatBox label="Yield">+{getOrchardRate(fruitDef(), 1)}/h fruit</StatBox>
+          <StatBox label="Yield / tree">+{getFruitPerTreeRate(fruitDef())}/h</StatBox>
         </StatRow>
+        <div style={{ "font-size": "0.68rem", color: "var(--text-muted)", "margin-top": "6px", "text-align": "center" }}>
+          Per tree — plant saplings once it's built.
+        </div>
       </div>
     }>
       <div class="building-card" classList={{ upgrading: props.orchard.upgrading }} style={{ cursor: "default", position: "relative" }}>
@@ -1355,7 +1387,7 @@ function OrchardCard(props: { orchard: PlayerOrchard }) {
           </div>
         </Show>
 
-        <div class="building-card-desc">{fruitDef().description}</div>
+        <div class="building-card-desc" style={{ flex: "0 0 auto", "min-height": "76px" }}>{fruitDef().description}</div>
 
         <Show when={props.orchard.upgrading && props.orchard.upgradeRemaining}>
           <div class="building-card-upgrading">
@@ -1366,19 +1398,51 @@ function OrchardCard(props: { orchard: PlayerOrchard }) {
         <Show when={!props.orchard.upgrading && props.orchard.level > 0}>
           <StatRow>
             <StatBox label="Harvest in">{seasonList(fruitDef().harvestSeasons, false)}</StatBox>
-            <StatBox label="Maturity">
-              {props.orchard.mature ? "🌳 Mature" : `🌱 ${props.orchard.seasonsGrown}/${fruitDef().maturationSeasons}`}
+            <StatBox label="Bearing">
+              <div style={{ "font-size": "1.15rem" }}>🌳 {props.orchard.matureTrees}</div>
+              <Show when={saplingCount() > 0}>
+                <div style={{ "font-weight": 400, "font-size": "0.72rem", "margin-top": "2px" }}>🌱 {saplingCount()} growing</div>
+              </Show>
             </StatBox>
-            <StatBox label="Yield">+{getOrchardRate(fruitDef(), props.orchard.level)}/h fruit</StatBox>
+            <StatBox label="Yield / tree">+{getFruitPerTreeRate(fruitDef())}/h</StatBox>
           </StatRow>
+
+          {/* Grove box — the glance (trees / room + status) with the Plant action
+              inside it, echoing the pen flock box and the garden seed box. */}
           <div style={{
-            "font-size": "0.8rem", "text-align": "center", "margin-top": "8px",
-            color: rate() > 0 ? "var(--accent-green)" : "var(--text-muted)",
+            ...STAT_BOX, "margin-top": "8px",
+            "flex-direction": "column", "align-items": "stretch", "justify-content": "flex-start",
+            "text-align": "center", gap: "10px", "min-height": "auto",
           }}>
-            {rate() > 0 ? `Producing +${rate()}/h now` : status()}
+            <div style={{ "font-size": "0.9rem", "font-weight": 600 }}>
+              Grove <span style={{ color: "var(--text-primary)" }}>{planted()}</span> / {slots()}
+              <span style={{ color: rate() > 0 ? "var(--accent-green)" : "var(--text-muted)", "font-weight": 400, "font-size": "0.78rem" }}>
+                {" · "}{rate() > 0 ? `+${rate()}/h now` : status()}
+              </span>
+            </div>
+            <Show when={roomLeft() > 0}>
+              <Tooltip block text={
+                state.resources.gold < saplingCost() ? `Need 🪙 ${saplingCost()} to plant a sapling` : ""
+              }>
+                <button
+                  class="btn-primary"
+                  style={{ width: "100%", "justify-content": "center" }}
+                  disabled={!canPlant()}
+                  onClick={() => actions.plantSapling(props.orchard.id)}
+                >
+                  Plant {fruitDef().icon} sapling 💰{saplingCost()}
+                </button>
+              </Tooltip>
+            </Show>
+            <Show when={roomLeft() <= 0}>
+              <div style={{ "font-size": "0.72rem", color: "var(--text-muted)" }}>
+                Grove is full — upgrade in winter for more room.
+              </div>
+            </Show>
           </div>
         </Show>
       </div>
+    </Show>
     </Show>
   );
 }

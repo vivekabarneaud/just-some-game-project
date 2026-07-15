@@ -107,7 +107,13 @@ export interface PlayerHive {
   upgradeRemaining?: number;
 }
 
-export type FruitId = "apples" | "pears" | "cherries";
+export type FruitId = "apples" | "pears" | "cherries" | "grapes";
+
+/** A sapling cohort planted at the same time — ages together to maturity. */
+export interface OrchardCohort {
+  count: number;
+  seasonsGrown: number;
+}
 
 export interface PlayerOrchard {
   id: string;
@@ -115,8 +121,10 @@ export interface PlayerOrchard {
   level: number;
   upgrading: boolean;
   upgradeRemaining?: number;
-  seasonsGrown: number;
-  mature: boolean;
+  /** Trees/vines that are bearing fruit. */
+  matureTrees: number;
+  /** Planted-but-not-yet-bearing cohorts, ageing toward maturationSeasons. */
+  saplings: OrchardCohort[];
 }
 
 // ─── Adventurers ────────────────────────────────────────────────
