@@ -9,6 +9,21 @@ import { getHiveCost, getHiveBuildTime, getHoneyRate, HIVE_MAX_LEVEL, APIARY_IMA
 import SeedIcon from "~/components/SeedIcon";
 import SeasonIcon from "~/components/SeasonIcon";
 import { CLIMATE_META } from "~/data/climate";
+import { FIELD_WATER_NEED, ORCHARD_WATER_NEED, ANIMAL_WATER_PER_HEAD, gardenWaterNeed } from "~/data/water";
+
+/** True once the settlement has a well or cistern — gates the per-plot water
+ *  need lines so they don't confuse players who haven't started on water yet. */
+function hasWaterInfra(buildings: { buildingId: string; level: number }[]): boolean {
+  return buildings.some((b) => (b.buildingId === "well" || b.buildingId === "cistern") && b.level > 0);
+}
+/** Small "needs X/h water" line for a plot card. */
+function WaterNeed(props: { amount: number }) {
+  return (
+    <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "6px", "text-align": "center" }}>
+      💧 needs {props.amount}/h water
+    </div>
+  );
+}
 import { getFruit, getOrchardCost, getOrchardBuildTime, getOrchardRate, getOrchardStatus, getOrchardTreeSlots, getFruitPerTreeRate, isFruitUnlocked, SAPLING_PLANT_SEASON, isOrchardActive, ORCHARD_MAX_LEVEL } from "~/data/orchards";
 import { SEASON_META, type Season } from "~/data/seasons";
 import { QUEST_DEFINITIONS, isQuestActive } from "~/data/quests";
@@ -305,6 +320,9 @@ function FieldCard(props: { field: PlayerField }) {
             <span>🌾 Hay stored: {Math.round(props.field.hay!)}</span>
             <span style={{ color: "var(--text-muted)" }}>· winter fodder</span>
           </div>
+        </Show>
+        <Show when={hasWaterInfra(state.buildings)}>
+          <WaterNeed amount={FIELD_WATER_NEED} />
         </Show>
       </Show>
 
@@ -759,6 +777,9 @@ function GardenCard(props: { garden: PlayerGarden }) {
             </Show>
           </div>
         </Show>
+        <Show when={hasWaterInfra(state.buildings)}>
+          <WaterNeed amount={gardenWaterNeed(props.garden.veggie)} />
+        </Show>
       </div>
     </Show>
     </Show>
@@ -1045,6 +1066,9 @@ function PenCard(props: { pen: PlayerPen }) {
               </Show>
             </StatBox>
           </StatRow>
+          <Show when={hasWaterInfra(state.buildings)}>
+            <WaterNeed amount={Math.round(props.pen.count * ANIMAL_WATER_PER_HEAD * 10) / 10} />
+          </Show>
 
           {/* Flock summary — the glance. Buying, culling and the guard dog all
               live in the Manage modal now (room there to assign a hand later). */}
@@ -1483,6 +1507,9 @@ function OrchardCard(props: { orchard: PlayerOrchard }) {
             </Show>
           </div>
         </Show>
+        <Show when={hasWaterInfra(state.buildings)}>
+          <WaterNeed amount={ORCHARD_WATER_NEED} />
+        </Show>
       </div>
     </Show>
     </Show>
@@ -1686,6 +1713,24 @@ export default function Farming() {
           <span class="farming-stat-label">Animal Feed</span>
           <span class="farming-stat-value rate-negative">-{actions.getAnimalFoodConsumption()}/h</span>
         </div>
+        {/* Water balance — net of wells + rain vs livestock + irrigation. Only
+            once there's a well or cistern; the top-bar dropdown has the full breakdown. */}
+        <Show when={state.buildings.some((b) => (b.buildingId === "well" || b.buildingId === "cistern") && b.level > 0)}>
+          {(() => {
+            const rate = () => actions.getWaterRate();
+            const b = () => actions.getWaterBreakdown();
+            return (
+              <div class="farming-stat">
+                <span class="farming-stat-label">Water</span>
+                <Tooltip block text={`Well +${Math.round(b().well)} · rain +${Math.round(b().rain)}${b().drainage > 0 ? ` · drainage +${Math.round(b().drainage)}` : ""} · livestock -${Math.round(b().animals)}${b().irrigation > 0 ? ` · irrigation -${Math.round(b().irrigation)}` : ""} (per hour)`}>
+                  <span class="farming-stat-value" classList={{ "rate-positive": rate() > 0.5, "rate-negative": rate() < -0.5 }}>
+                    💧 {rate() >= 0 ? "+" : ""}{Math.round(rate())}/h
+                  </span>
+                </Tooltip>
+              </div>
+            );
+          })()}
+        </Show>
         <Show when={state.pens.some((p) => p.level > 0 && isGrazer(p.animal))}>
           <div class="farming-stat">
             <span class="farming-stat-label">{state.season === "winter" ? "Winter fodder" : "Grazing"}</span>

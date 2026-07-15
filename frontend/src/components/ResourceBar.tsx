@@ -7,6 +7,7 @@ import { TAVERN_COMMODITY_DRINKS } from "~/data/tavern";
 import { totalPopulation } from "~/data/citizens";
 import { FOOD_ITEMS, FOOD_CATEGORIES, getTotalFood, getFoodCostAmount, type FoodItemType, type FoodCategoryId } from "~/data/foods";
 import { craftingMaterialCap } from "~/data/buildings";
+import { WEATHER_META } from "~/data/weather";
 import FoodIcon from "~/components/FoodIcon";
 
 export default function ResourceBar() {
@@ -115,10 +116,8 @@ export default function ResourceBar() {
   // production rates. Only surfaced once the player has water infrastructure.
   const hasWaterInfra = () =>
     state.buildings.some((b) => (b.buildingId === "well" || b.buildingId === "cistern") && b.level > 0);
-  const visibleResources = () => RESOURCES.filter((r) => r.id !== "water" || hasWaterInfra());
 
   const getRate = (id: string) => {
-    if (id === "water") return actions.getWaterRate();
     const r = rates();
     const base = r[id as keyof typeof r] as number;
     // Fold passive cooking's NET (food produced minus food eaten as ingredients)
@@ -133,7 +132,7 @@ export default function ResourceBar() {
 
   return (
     <div class="resource-bar">
-      <For each={visibleResources()}>
+      <For each={RESOURCES}>
         {(res) => {
           const rate = () => getRate(res.id);
           // "Fragile" food surplus: positive ONLY because a pot is cooking. When
@@ -360,6 +359,52 @@ export default function ResourceBar() {
             </Show>
           </div>
         </div>
+      </Show>
+
+      {/* Water — shown once there's a well or cistern; dropdown breaks down the
+          sources (well, rain, drainage) and draws (livestock, irrigation). */}
+      <Show when={hasWaterInfra()}>
+        {(() => {
+          const rate = () => actions.getWaterRate();
+          const cap = () => caps().water;
+          return (
+            <div class="resource-item has-dropdown">
+              <span class="resource-icon">💧</span>
+              <span class="resource-amount" classList={{ "near-cap": Math.floor(state.resources.water) >= cap() * 0.9 }}>
+                {Math.floor(state.resources.water)}
+              </span>
+              <span class="resource-cap">/ {Math.floor(cap())}</span>
+              <span class="resource-rate" classList={{ "rate-positive": rate() > 0.5, "rate-negative": rate() < -0.5 }}>
+                {rate() >= 0 ? "+" : ""}{Math.round(rate())}/h
+              </span>
+              <div class="resource-dropdown">
+                <div class="dropdown-title">Water</div>
+                {(() => {
+                  const b = actions.getWaterBreakdown();
+                  const wm = WEATHER_META[b.weather];
+                  return (
+                    <>
+                      <Show when={b.well > 0}>
+                        <div class="dropdown-row"><span>💧 Well</span><span>+{Math.round(b.well)}/h</span></div>
+                      </Show>
+                      <div class="dropdown-row"><span>{wm.icon} Rain · {wm.name}</span><span>+{Math.round(b.rain)}/h</span></div>
+                      <Show when={b.drainage > 0}>
+                        <div class="dropdown-row"><span>🌊 Drainage runoff</span><span>+{Math.round(b.drainage)}/h</span></div>
+                      </Show>
+                      <Show when={b.animals > 0}>
+                        <div class="dropdown-row" style={{ color: "var(--accent-red)" }}><span>🐑 Livestock</span><span>-{Math.round(b.animals)}/h</span></div>
+                      </Show>
+                      <Show when={b.irrigation > 0}>
+                        <div class="dropdown-row" style={{ color: "var(--accent-red)" }}><span>💦 Irrigation</span><span>-{Math.round(b.irrigation)}/h</span></div>
+                      </Show>
+                      <div class="dropdown-row dropdown-total"><span>Net</span><span>{b.net >= 0 ? "+" : ""}{Math.round(b.net)}/h</span></div>
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+          );
+        })()}
       </Show>
 
       {/* Exotic goods — caravan-only spices & tea */}

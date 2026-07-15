@@ -5060,7 +5060,10 @@ body {
    dropdowns aren't buried while a banner is showing. */
 .topbar .resource-bar {
   position: relative;
-  z-index: 12;
+  /* Above the topbar flourish (::after, z-index 15) so resource dropdowns —
+     which are z-100 scoped INSIDE this stacking context — don't get covered by
+     the flourish where they drop past the topbar's bottom edge. */
+  z-index: 20;
 }
 .topbar .hamburger-btn,
 .topbar .event-banner {

@@ -4,6 +4,7 @@
 // docs/DESIGN_WEATHER_YIELD.md §5.
 
 import type { ClimateBand } from "./climate";
+import type { WeatherType } from "./weather";
 
 // Building ids (defined in data/buildings.ts).
 export const WELL_ID = "well";
@@ -33,6 +34,17 @@ export function getCisternCap(level: number): number {
 export function getCisternRainCatch(level: number): number {
   return level <= 0 ? 0 : level * 9;
 }
+/** Momentary boost from the CURRENT sky — cisterns fill fast while it's actually
+ *  raining, barely at all under clear skies. Multiplies the rain catch on top of
+ *  the yearly climate factor. */
+export function ambientRainFactor(weather: WeatherType): number {
+  switch (weather) {
+    case "rain": case "storm": case "unnatural_storm": return 2.5;
+    case "fog": return 1.3;
+    case "snow": case "overcast": return 1.0;
+    case "clear": return 0.4;
+  }
+}
 
 /** Total water the reserve can hold (base barrels + cisterns). */
 export function getWaterCap(cisternLevel: number): number {
@@ -43,6 +55,8 @@ export function getWaterCap(cisternLevel: number): number {
 // Fields drink the most; gardens less; drought-loving lavender barely any.
 export const FIELD_WATER_NEED = 3;
 export const ORCHARD_WATER_NEED = 2;   // per bearing grove
+/** Livestock drink year-round, per head. Modest — a well covers a small flock. */
+export const ANIMAL_WATER_PER_HEAD = 0.3;
 const GARDEN_WATER_NEED: Record<string, number> = {
   lavender: 0.5,   // likes it dry
   squash: 2,       // thirsty
