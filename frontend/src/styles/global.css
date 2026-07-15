@@ -169,6 +169,24 @@
   /* Iced-window backdrop for snow. Unsplash (free, no attribution). On R2. */
   --weather-glass-url-snow: url("https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/weather/iced_window.jpg");
 }
+/* Farming season emblem watermark. Bounded to the content pane (like
+   .storm-lightning) and placed after the weather-glass in the DOM, so it paints
+   above the rain but below the content cards. Fixed → stays put on scroll; the
+   background bleeds off the pane's top-left corner to show the emblem's face. */
+.season-emblem-backdrop {
+  position: fixed;
+  top: var(--topbar-height);
+  left: var(--sidebar-width);
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.2;
+  background-repeat: no-repeat;
+  background-size: 640px 640px;
+  background-position: -180px -130px;
+}
+
 .weather-glass {
   position: fixed;
   inset: 0;
@@ -1022,6 +1040,20 @@ body {
   line-height: 1.4;
   margin-bottom: 10px;
   flex: 1;
+}
+
+/* The value block inside a farming stat box (Eats / Makes / Yield / etc.):
+   the stacked values sit in a flex column, centred vertically and horizontally
+   in the space beneath the label, so every produces/makes card reads the same. */
+.stat-values {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 600;
 }
 
 /* A damaged building reads as inactive — dim the banner, blurb and output, but
@@ -3567,7 +3599,9 @@ body {
 .farming-stat {
   flex: 1;
   background: var(--bg-card);
-  border: 5px solid transparent;
+  /* 6px (not 5) so the stretched top/bottom hairline survives rasterisation on
+     these wide boxes — matches the tertiary button's frame width. */
+  border: 6px solid transparent;
   border-image: url(/images/frames/item_frame_common.png) 40 stretch;
   border-radius: 0;
   padding: 10px 12px;
@@ -3618,7 +3652,7 @@ body {
   padding: 12px 16px;
   background: rgba(212, 131, 26, 0.1);
   border: 1px solid #d4831a;
-  border-radius: 8px;
+  border-radius: 0;
   color: #d4831a;
   font-size: 0.9rem;
   margin-bottom: 16px;
@@ -3628,7 +3662,7 @@ body {
   padding: 12px 16px;
   background: rgba(135, 206, 235, 0.08);
   border: 1px solid rgba(135, 206, 235, 0.3);
-  border-radius: 8px;
+  border-radius: 0;
   color: #87CEEB;
   font-size: 0.9rem;
   margin-bottom: 16px;

@@ -15,7 +15,8 @@ import type { JSX } from "solid-js";
 // output reads in the same visual language as the farm's harvests.
 const PRODUCE_BOX: JSX.CSSProperties = {
   padding: "10px 12px", background: "var(--bg-card)",
-  border: "5px solid transparent",
+  // 6px so the stretched top/bottom hairline doesn't drop out (see STAT_BOX).
+  border: "6px solid transparent",
   "border-image": "url(/images/frames/item_frame_common.png) 40 stretch",
   "box-sizing": "border-box", "margin-top": "8px", "text-align": "center",
 };

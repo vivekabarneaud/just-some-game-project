@@ -17,6 +17,7 @@ import { fetchCoops } from "~/api/coop";
 import { wsClient } from "~/api/ws";
 import { FIELD_MAX_LEVEL } from "~/data/crops";
 import Tooltip from "~/components/Tooltip";
+import SeasonIcon from "~/components/SeasonIcon";
 
 interface NavItem {
   path: string;
@@ -310,26 +311,13 @@ export default function Sidebar(props: SidebarProps) {
         <div style={{ display: "flex", "align-items": "center", "justify-content": "space-between", gap: "10px" }}>
           <h1>Valenheart</h1>
           {(() => {
-            // Season emblem, always-visible in the header. Autumn has no art yet
-            // → falls back to the emoji. Drought emblem (season_drought.png) is
-            // ready for when a drought weather event lands.
-            const EMBLEM: Record<string, string> = {
-              spring: "/images/seasons/season_spring.png",
-              summer: "/images/seasons/season_summer.png",
-              winter: "/images/seasons/season_winter.png",
-            };
+            // Season emblem, always-visible in the header (autumn falls back to
+            // its emoji inside SeasonIcon until the art lands).
             const season = () => currentWeatherInfo(state.season, state.seasonElapsed, state.year).season;
-            const src = () => EMBLEM[season()];
             return (
-              <Show when={src()} fallback={<span style={{ "font-size": "1.6rem" }}>{SEASON_META[season()].icon}</span>}>
-                <Tooltip text={SEASON_META[season()].name} position="bottom">
-                  <img
-                    src={src()!}
-                    alt={SEASON_META[season()].name}
-                    style={{ width: "48px", height: "48px", "object-fit": "contain", "flex-shrink": "0", display: "block" }}
-                  />
-                </Tooltip>
-              </Show>
+              <Tooltip text={SEASON_META[season()].name} position="bottom">
+                <SeasonIcon season={season()} size={48} />
+              </Tooltip>
             );
           })()}
         </div>
@@ -500,7 +488,7 @@ export default function Sidebar(props: SidebarProps) {
           return (
             <>
               <div class="season-display">
-                <span class="season-icon">{SEASON_META[seasonInfo().season].icon}</span>
+                <span class="season-icon"><SeasonIcon season={seasonInfo().season} size={18} /></span>
                 <span class="season-name" style={{ color: SEASON_META[seasonInfo().season].color }}>
                   {SEASON_META[seasonInfo().season].name}
                 </span>

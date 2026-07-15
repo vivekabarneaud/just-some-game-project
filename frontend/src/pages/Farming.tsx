@@ -7,6 +7,7 @@ import { ANIMAL_FEED, FEED_CATEGORY_ICON, FEED_CATEGORY_LABEL, FOOD_CATEGORY, is
 import type { FoodItemType } from "~/data/foods";
 import { getHiveCost, getHiveBuildTime, getHoneyRate, HIVE_MAX_LEVEL, APIARY_IMAGE, APIARY } from "~/data/apiary";
 import SeedIcon from "~/components/SeedIcon";
+import SeasonIcon from "~/components/SeasonIcon";
 import { getFruit, getOrchardCost, getOrchardBuildTime, getOrchardRate, getOrchardStatus, getOrchardTreeSlots, getSaplingCost, getFruitPerTreeRate, isOrchardActive, ORCHARD_MAX_LEVEL } from "~/data/orchards";
 import { SEASON_META, type Season } from "~/data/seasons";
 import { QUEST_DEFINITIONS, isQuestActive } from "~/data/quests";
@@ -41,7 +42,9 @@ function fieldSeasonStatus(season: string, level: number, isHarvesting: boolean)
 const STAT_BOX: JSX.CSSProperties = {
   flex: "1", padding: "10px 12px", background: "var(--bg-card)",
   // Square, framed with the delicate common frame (matches the button tiers).
-  border: "5px solid transparent",
+  // 6px (not 5) so the stretched top/bottom hairline doesn't fall sub-pixel and
+  // drop out on wide boxes — same width the tertiary button uses.
+  border: "6px solid transparent",
   "border-image": "url(/images/frames/item_frame_common.png) 40 stretch",
   "border-radius": "0", "text-align": "center",
   // Fixed height so every Eats/Produces box matches across cards (built,
@@ -54,7 +57,6 @@ const STAT_LABEL: JSX.CSSProperties = {
   "font-size": "0.66rem", color: "var(--text-muted)", "text-transform": "uppercase",
   "letter-spacing": "0.6px", "margin-bottom": "3px",
 };
-const STAT_VAL: JSX.CSSProperties = { "font-size": "0.95rem", "font-weight": 600 };
 
 function StatRow(props: { dim?: boolean; children: JSX.Element }) {
   return (
@@ -73,10 +75,7 @@ function StatBox(props: { label: string; valColor?: string; warn?: boolean; chil
       ...(props.warn ? { border: "1px solid var(--accent-red)", background: "rgba(231, 76, 60, 0.12)" } : {}),
     }}>
       <div style={STAT_LABEL}>{props.label}</div>
-      <div style={{
-        flex: "1", display: "flex", "flex-direction": "column", "justify-content": "center",
-        ...STAT_VAL, ...(props.valColor ? { color: props.valColor } : {}),
-      }}>
+      <div class="stat-values" style={props.valColor ? { color: props.valColor } : undefined}>
         {props.children}
       </div>
     </div>
@@ -112,10 +111,22 @@ function WideBox(props: { dim?: boolean; children: JSX.Element }) {
   );
 }
 /** Season icons, optionally with full names, joined for a stat-box value. */
-function seasonList(seasons: readonly Season[], withNames: boolean): string {
-  return seasons
-    .map((s) => (withNames ? `${SEASON_META[s].icon} ${SEASON_META[s].name}` : SEASON_META[s].icon))
-    .join(withNames ? " / " : " ");
+function seasonList(seasons: readonly Season[], withNames: boolean): JSX.Element {
+  return (
+    <span style={{ display: "inline-flex", "align-items": "center", "justify-content": "center", gap: "5px", "flex-wrap": "wrap" }}>
+      <For each={seasons}>
+        {(s, i) => (
+          <>
+            <Show when={withNames && i() > 0}><span style={{ color: "var(--text-muted)" }}>/</span></Show>
+            <span style={{ display: "inline-flex", "align-items": "center", gap: "3px" }}>
+              <SeasonIcon season={s} size={16} />
+              <Show when={withNames}>{SEASON_META[s].name}</Show>
+            </span>
+          </>
+        )}
+      </For>
+    </span>
+  );
 }
 
 // ─── Field Card ──────────────────────────────────────────────────
@@ -256,17 +267,21 @@ function FieldCard(props: { field: PlayerField }) {
             fields always plant in spring / harvest in autumn so a season box
             would say the same thing on every card). */}
         <Show when={crop()} fallback={
-          <Show when={props.field.lastCrop !== null}>
-            <div style={{
-              "font-size": "0.7rem", color: soilStatus().color, "margin-top": "2px",
-              display: "flex", gap: "6px", "align-items": "center", "flex-wrap": "wrap",
-            }}>
+          // Always show a soil line for empty fields — never-planted ground reads
+          // "Fresh soil" so the crop pickers below line up across every field.
+          <div style={{
+            "font-size": "0.7rem",
+            color: props.field.lastCrop !== null ? soilStatus().color : "var(--accent-green)",
+            "margin-top": "2px",
+            display: "flex", gap: "6px", "align-items": "center", "flex-wrap": "wrap",
+          }}>
+            <Show when={props.field.lastCrop !== null} fallback={<span>🌾 Fresh soil</span>}>
               <span>🌾 {soilStatus().label}</span>
               <Show when={props.field.restBonus}>
                 <span style={{ color: "var(--accent-green)" }}>· 🌿 Rested (+15% next harvest)</span>
               </Show>
-            </div>
-          </Show>
+            </Show>
+          </div>
         }>
           <StatRow>
             <StatBox label="Soil" valColor={soilStatus().color}>
@@ -769,20 +784,6 @@ function PenCard(props: { pen: PlayerPen }) {
   };
 
   const prod = () => props.pen.level > 0 ? getPenProduction(animal(), props.pen.count) : { produced: 0, consumed: 0, secondary: undefined as any };
-  // Secondary byproduct (wool) is seasonal: full spring/summer, half autumn,
-  // dormant winter. The primary product (milk/eggs/meat) is year-round.
-  // A byproduct line for the Produces column — full size, stacked under the
-  // primary (not an inline afterthought). Wool carries its seasonal state.
-  const secondaryDisplay = () => {
-    const sec = prod().secondary;
-    if (!sec) return null;
-    const mod = sec.resource === "wool" ? getWoolSeasonMod(state.season) : 1;
-    if (mod <= 0) {
-      return <div style={{ color: "var(--text-muted)" }}>{sec.resource}: dormant <span style={{ "font-size": "0.72rem" }}>(winter)</span></div>;
-    }
-    return <div>+{Math.floor(sec.amount * mod)}/h {sec.resource}{mod < 1 ? <span style={{ color: "var(--text-muted)", "font-size": "0.72rem" }}> (autumn)</span> : null}</div>;
-  };
-
   // Feed model: grazers (sheep/goats) live off free wild grass spring→autumn.
   // In winter the grass is gone and they eat the hay ricked on the fields at
   // harvest (then the larder, then starve). Non-grazers always eat the larder.
@@ -982,8 +983,12 @@ function PenCard(props: { pen: PlayerPen }) {
           <StatRow>
             <StatBox label="Eats" warn={props.pen.starving}
               valColor={props.pen.starving ? "var(--accent-red)" : (onPasture() ? "var(--accent-green)" : undefined)}>
-              {/* Big rate, with the feed source stacked smaller beneath it. */}
+              {/* Live flock total (big), the per-animal rate right beneath it (as
+                  in Makes), then the feed source. Feed source coloured live. */}
               <div style={{ "font-size": "1.15rem" }}>{prod().consumed.toFixed(0)}/h</div>
+              <div style={{ "font-weight": 400, "font-size": "0.68rem", color: "var(--text-muted)" }}>
+                {getPenProduction(animal(), 1).consumed}/h per animal
+              </div>
               <div style={{ "font-weight": 400, "font-size": "0.72rem", "margin-top": "2px", "line-height": 1.4, "min-height": "32px" }}>
                 <Show when={onPasture()} fallback={
                   <>
@@ -1008,14 +1013,26 @@ function PenCard(props: { pen: PlayerPen }) {
                 </Show>
               </div>
             </StatBox>
-            <StatBox label="Produces">
+            <StatBox label="Makes">
               <Show
                 when={getPenProduction(animal(), 1).produced > 0}
                 fallback={<MeatYield animal={props.pen.animal} />}
               >
+                {/* Live flock total (big), per-animal rate right beneath it, then
+                    any byproduct (wool) as the detail line. */}
                 <div>+{prod().produced}/h {animal().foodLabel.toLowerCase()}</div>
+                <div style={{ "font-weight": 400, "font-size": "0.68rem", color: "var(--text-muted)" }}>
+                  +{getPenProduction(animal(), 1).produced}/h per animal
+                </div>
+                {(() => {
+                  const sec = prod().secondary;
+                  if (!sec) return null;
+                  const mod = sec.resource === "wool" ? getWoolSeasonMod(state.season) : 1;
+                  return mod > 0
+                    ? <div style={{ "font-weight": 400, "font-size": "0.72rem", "margin-top": "2px", color: "var(--text-secondary)" }}>+{Math.floor(sec.amount * mod)}/h {sec.resource}</div>
+                    : null;
+                })()}
               </Show>
-              {secondaryDisplay()}
             </StatBox>
           </StatRow>
 
@@ -1404,7 +1421,13 @@ function OrchardCard(props: { orchard: PlayerOrchard }) {
                 <div style={{ "font-weight": 400, "font-size": "0.72rem", "margin-top": "2px" }}>🌱 {saplingCount()} growing</div>
               </Show>
             </StatBox>
-            <StatBox label="Yield / tree">+{getFruitPerTreeRate(fruitDef())}/h</StatBox>
+            <StatBox label="Yield">
+              {/* Current total (big) — 0 out of season — then the per-tree rate. */}
+              <div style={{ "font-size": "1.15rem", color: rate() > 0 ? "var(--accent-green)" : undefined }}>+{rate()}/h</div>
+              <div style={{ "font-weight": 400, "font-size": "0.68rem", "margin-top": "2px", color: "var(--text-muted)" }}>
+                +{getFruitPerTreeRate(fruitDef())}/h per tree
+              </div>
+            </StatBox>
           </StatRow>
 
           {/* Grove box — the glance (trees / room + status) with the Plant action
@@ -1416,8 +1439,8 @@ function OrchardCard(props: { orchard: PlayerOrchard }) {
           }}>
             <div style={{ "font-size": "0.9rem", "font-weight": 600 }}>
               Grove <span style={{ color: "var(--text-primary)" }}>{planted()}</span> / {slots()}
-              <span style={{ color: rate() > 0 ? "var(--accent-green)" : "var(--text-muted)", "font-weight": 400, "font-size": "0.78rem" }}>
-                {" · "}{rate() > 0 ? `+${rate()}/h now` : status()}
+              <span style={{ color: "var(--text-muted)", "font-weight": 400, "font-size": "0.78rem" }}>
+                {" · "}{status()}
               </span>
             </div>
             <Show when={roomLeft() > 0}>
@@ -1557,41 +1580,10 @@ export default function Farming() {
   const villageUnlocked = () => townHallLevel() >= 3;     // fields, livestock & bees, orchards
 
   return (
-    // z-index:0 makes this page its own stacking context, so the emblem's
-    // z-index:-1 sits behind the cards but ABOVE the weather backdrop (rain).
-    <div style={{ position: "relative", "z-index": "0" }}>
-      {/* Big season emblem watermark — bleeds off the top-left so the face + its
-          right/bottom edges show; behind the cards, above the weather. Autumn has
-          no art yet, so it borrows the summer emblem as a stand-in for now. */}
-      {(() => {
-        const EMBLEM: Record<string, string> = {
-          spring: "/images/seasons/season_spring.png",
-          summer: "/images/seasons/season_summer.png",
-          winter: "/images/seasons/season_winter.png",
-          autumn: "/images/seasons/season_summer.png", // TEMP stand-in until autumn art
-        };
-        const src = () => EMBLEM[state.season];
-        return (
-          <Show when={src()}>
-            <img
-              src={src()!}
-              alt=""
-              aria-hidden="true"
-              style={{
-                position: "absolute",
-                top: "-130px",
-                left: "-180px",
-                width: "640px",
-                height: "640px",
-                "object-fit": "contain",
-                opacity: "0.2",
-                "pointer-events": "none",
-                "z-index": "-1",
-              }}
-            />
-          </Show>
-        );
-      })()}
+    // The season emblem watermark is rendered at the app level (App.tsx) as a
+    // content-pane backdrop, so it layers correctly above the weather rain and
+    // stays fixed while this page scrolls.
+    <div>
       <h1 class="page-title">Farming</h1>
 
       {/* Rotation tip — appears only until the player has actually planted, so
@@ -1619,8 +1611,8 @@ export default function Farming() {
       <div class="farming-summary">
         <div class="farming-stat">
           <span class="farming-stat-label">Season</span>
-          <span class="farming-stat-value" style={{ color: seasonMeta().color }}>
-            {seasonMeta().icon} {seasonMeta().name}, Year {state.year}
+          <span class="farming-stat-value" style={{ color: seasonMeta().color, display: "inline-flex", "align-items": "center", gap: "5px" }}>
+            <SeasonIcon season={state.season} size={20} /> {seasonMeta().name}, Year {state.year}
           </span>
         </div>
         <Show when={state.season === "spring" || state.season === "summer"}>
@@ -1677,7 +1669,7 @@ export default function Farming() {
         <div style={{
           padding: "8px 12px",
           "margin-bottom": "10px",
-          "border-radius": "6px",
+          "border-radius": "0",
           background: "rgba(245, 197, 66, 0.1)",
           border: "1px solid rgba(245, 197, 66, 0.3)",
           "font-size": "0.8rem",
@@ -1690,7 +1682,7 @@ export default function Farming() {
         <div style={{
           padding: "8px 12px",
           "margin-bottom": "10px",
-          "border-radius": "6px",
+          "border-radius": "0",
           background: state.season === "spring" ? "rgba(124, 252, 0, 0.1)" :
             state.season === "winter" ? "rgba(135, 206, 235, 0.1)" : "rgba(212, 131, 26, 0.1)",
           border: `1px solid ${state.season === "spring" ? "#7CFC00" : state.season === "winter" ? "#87CEEB" : "#d4831a"}`,

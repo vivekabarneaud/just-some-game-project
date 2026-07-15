@@ -3,6 +3,7 @@ import { A } from "@solidjs/router";
 import { BUILDINGS, getSettlementName, SETTLEMENT_TIERS } from "~/data/buildings";
 import { RESOURCES } from "~/data/resources";
 import { SEASON_META } from "~/data/seasons";
+import SeasonIcon from "~/components/SeasonIcon";
 import { getRaid, getDefenseTips, type IncomingRaid } from "~/data/raids";
 import { militiaCount } from "~/data/defenses";
 import { getCurrentOverviewFlavors } from "~/data/overview_flavors";
@@ -587,8 +588,8 @@ export default function Overview() {
           </div>
           <div class="stat-row">
             <span class="stat-label">Season</span>
-            <span class="stat-value" style={{ color: SEASON_META[state.season].color }}>
-              {SEASON_META[state.season].icon} {SEASON_META[state.season].name}, Year {state.year}
+            <span class="stat-value" style={{ color: SEASON_META[state.season].color, display: "inline-flex", "align-items": "center", gap: "5px" }}>
+              <SeasonIcon season={state.season} size={18} /> {SEASON_META[state.season].name}, Year {state.year}
             </span>
           </div>
         </div>
