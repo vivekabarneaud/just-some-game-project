@@ -2338,6 +2338,13 @@ function applyDroughtKill(s: GameState): void {
   }
 }
 
+/** Are the people fed this tick? True while the larder holds real food OR there
+ *  is honey to fall back on — honey is the emergency ration, eaten only once the
+ *  larder is empty (see the tick's food consumption). */
+function peopleAreFed(s: GameState): boolean {
+  return getTotalFood(s.foods) > 0 || (s.honey ?? 0) > 0;
+}
+
 function calcProductionRates(state: GameState): { gold: number; wood: number; stone: number; food: number } {
   const { buildings, fields, gardens, pens, citizens, season, seasonElapsed } = state;
   const rates = { gold: 0, wood: 0, stone: 0, food: 0 };
@@ -3934,7 +3941,15 @@ export function GameProvider(props: ParentProps) {
           if (rate > 0) addFood(s.foods, type, rate * happinessMod * elapsedHours, caps.food);
         }
         const foodToConsume = citizenFood * elapsedHours;
-        if (foodToConsume > 0) consumeFood(s.foods, foodToConsume);
+        if (foodToConsume > 0) {
+          const eaten = consumeFood(s.foods, foodToConsume);
+          // Honey is the emergency ration: once the larder can't cover the meal,
+          // the folk eat into the honey jars (saved for recipes/mead otherwise).
+          const shortfall = foodToConsume - eaten;
+          if (shortfall > 0 && (s.honey ?? 0) > 0) {
+            s.honey = Math.max(0, s.honey - shortfall);
+          }
+        }
 
         // ── Wool from sheep pens (seasonal) ──
         const woolSeasonMod = getWoolSeasonMod(s.season);
@@ -4223,7 +4238,7 @@ export function GameProvider(props: ParentProps) {
         else if (netFoodRate < 0) happiness -= Math.min(40, Math.abs(netFoodRate) / 2);
 
         // Starvation penalty — resets to 75 when people starve, decays over 24h after food is restored
-        if (getTotalFood(s.foods) <= 0) {
+        if (!peopleAreFed(s)) {
           s.starvationPenalty = 75; // hold at max while starving
         } else if (s.starvationPenalty > 0) {
           // Decay: lose 75 points over 24 hours = ~3.125 per hour
@@ -4510,7 +4525,7 @@ export function GameProvider(props: ParentProps) {
           // binary "have food or don't" mechanic the player can directly act on.
           const currentTier = getSettlementTier(getTownHallLevel(s.buildings));
           let ratePct = 0;
-          if (getTotalFood(s.foods) <= 0) ratePct += 0.10; // 10%/hour — brutal, but self-correcting as pop drops
+          if (!peopleAreFed(s)) ratePct += 0.10; // 10%/hour — brutal, but self-correcting as pop drops
           if (s.happiness < 20 && currentTier !== "camp") ratePct += 0.02;      // 2%/hour fleeing (Village+)
           if (ratePct > 0) {
             // Exponential decay applied as a survival ratio across every
@@ -4546,7 +4561,7 @@ export function GameProvider(props: ParentProps) {
         const popAfter = totalPopulation(s.citizens);
         if (popAfter < popBefore) {
           const lost = popBefore - popAfter;
-          if (getTotalFood(s.foods) <= 0) {
+          if (!peopleAreFed(s)) {
             pushEvent(s, "citizen_died", "💀", `${lost} citizen${lost > 1 ? "s" : ""} starved to death`);
           } else if (s.happiness < 20) {
             pushEvent(s, "citizen_left", "🚶", `${lost} citizen${lost > 1 ? "s" : ""} left (unhappy)`);
@@ -6614,7 +6629,7 @@ export function GameProvider(props: ParentProps) {
       else if (netFood < 0) factors.push({ label: "Food deficit", value: -Math.min(40, Math.round(Math.abs(netFood) / 2)) });
       if (state.starvationPenalty > 0) {
         const val = -Math.round(state.starvationPenalty);
-        factors.push({ label: getTotalFood(state.foods) <= 0 ? "Starvation" : "Famine recovery (fading)", value: val });
+        factors.push({ label: !peopleAreFed(state) ? "Starvation" : "Famine recovery (fading)", value: val });
       }
       if (state.newbornGlow > 0) {
         factors.push({ label: "👶 Newborn glow (fading)", value: Math.round(state.newbornGlow) });

@@ -108,9 +108,12 @@ export default function ResourceBar() {
     foodBreakdown().filter((s) => s.type === id).reduce((sum, s) => sum + s.rate, 0);
 
   const getAmount = (id: string) => {
-    // For food, show the sum of per-type floors so the total always matches what's visible in the dropdown
+    // For food, show the sum of per-type floors so the total always matches
+    // what's visible in the dropdown, PLUS honey — the emergency ration counts
+    // as food the folk can fall back on (eaten last).
     if (id === "food") {
-      return FOOD_ITEMS.reduce((sum, fi) => sum + Math.floor(state.foods?.[fi.id] ?? 0), 0);
+      return FOOD_ITEMS.reduce((sum, fi) => sum + Math.floor(state.foods?.[fi.id] ?? 0), 0)
+        + Math.floor(state.honey ?? 0);
     }
     return Math.floor(state.resources[id as keyof typeof state.resources] as number);
   };
@@ -132,7 +135,7 @@ export default function ResourceBar() {
     // into the headline rate so the player sees -14/h climb when a pot is on.
     // The "how long until the larder runs dry" detail stays on the cooked-food
     // line only; here it'd be misleading (several pots, several timers).
-    if (id === "food") return base - foodCons() - animalCons() - tavernCons() + actions.getCookingFoodNet();
+    if (id === "food") return base - foodCons() - animalCons() - tavernCons() + actions.getCookingFoodNet() + honeyRate();
     return base;
   };
 
@@ -262,11 +265,12 @@ export default function ResourceBar() {
                       );
                     }}
                   </For>
-                  {/* Pantry: honey lives outside the typed foods map but belongs with food */}
+                  {/* Pantry: honey lives outside the typed foods map but counts as
+                      food — the emergency ration, eaten only when the larder is empty. */}
                   <Show when={state.honey > 0 || honeyRate() > 0}>
                     <div class="dropdown-category-header">🍯 Pantry</div>
                     <div class="dropdown-row">
-                      <span>🍯 Honey</span>
+                      <span>🍯 Honey <span style={{ color: "var(--text-muted)", "font-size": "0.72rem" }}>· emergency ration</span></span>
                       <span style={{ display: "flex", gap: "8px", "align-items": "center" }}>
                         <span style={{ color: "var(--text-primary)" }}>{Math.floor(state.honey)}</span>
                         <Show when={honeyRate() > 0} fallback={
