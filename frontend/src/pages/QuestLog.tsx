@@ -85,10 +85,8 @@ export default function QuestLog() {
 
     return (
       <Show when={active().length > 0 || completed().length > 0}>
-        <div style={{
+        <div class="ornament-frame" style={{
           "background": "var(--bg-secondary)",
-          "border": "1px solid var(--border-color)",
-          "border-radius": "8px",
           "margin-bottom": "16px",
           "overflow": "hidden",
         }}>
@@ -318,7 +316,8 @@ function QuestCard(props: {
         "border": (props.isUnseen || props.claimable)
           ? "1px solid var(--accent-blue)"
           : "1px solid var(--border-color)",
-        "border-radius": "6px",
+        // Square corners to sit consistently inside the squared chapter frame.
+        "border-radius": "0",
         "margin-bottom": "10px",
         "background": (props.isUnseen || props.claimable)
           ? "rgba(96, 165, 250, 0.06)"
@@ -495,18 +494,13 @@ function QuestCard(props: {
         <div style={{ "display": "flex", "flex-direction": "column", "gap": "6px", "align-items": "stretch" }}>
           <Show when={props.claimable && !isMemoryCheckin()}>
             <button
+              class="btn-primary"
               onClick={props.onClaim}
               style={{
                 "margin-top": "auto",
-                "padding": "6px 12px",
-                "background": "var(--accent-gold)",
-                "color": "#000",
-                "border": "none",
-                "border-radius": "4px",
-                "cursor": "pointer",
-                "font-weight": "bold",
                 "font-size": "0.85rem",
                 "white-space": "nowrap",
+                "justify-content": "center",
               }}
             >
               Claim

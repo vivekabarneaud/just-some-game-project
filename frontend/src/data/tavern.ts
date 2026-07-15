@@ -28,7 +28,7 @@ export function serversNeeded(level: number): number {
 
 /** Cooked staples featured on the menu by default. Phase 2+ adds adventurer
  *  /culture dishes as extra featured slots. */
-export const MENU_STAPLE_IDS = ["porridge", "hearth_stew", "river_stew"];
+export const MENU_STAPLE_IDS = ["porridge", "hearth_stew", "river_stew", "bone_broth"];
 
 /** Commodity drinks: NOT kitchen recipes. They're brewed/stored elsewhere (the
  *  Brewery's ale barrel; later wine/mead) and, when featured on the menu, poured

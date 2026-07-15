@@ -21,12 +21,14 @@ const prettyRes = (r: string) =>
  *  left, name + ingredients on the right, an outline when selected. Mirrors the
  *  mission-assembly card language (square art, gold/tinted selected state). */
 export default function MenuDishCard(props: MenuDishCardProps) {
+  // Parchment-toned (UX refont): dish cards sit on the aged-paper menu, so they
+  // read as ink-on-cream, not dark cards.
   const border = () =>
-    props.locked ? "rgba(150,150,150,0.3)"
-    : props.selected ? "var(--accent-green)"
-    : "var(--border-color)";
+    props.locked ? "rgba(120, 100, 70, 0.3)"
+    : props.selected ? "#4a7c3a"
+    : "rgba(120, 100, 70, 0.5)";
   const bg = () =>
-    props.selected ? "rgba(46, 204, 113, 0.10)" : "var(--bg-card)";
+    props.selected ? "rgba(74, 124, 58, 0.16)" : "rgba(255, 250, 235, 0.35)";
   return (
     <div
       onClick={() => !props.locked && props.onClick?.()}
@@ -42,7 +44,7 @@ export default function MenuDishCard(props: MenuDishCardProps) {
       {/* Square art */}
       <div style={{
         width: "48px", height: "48px", "flex-shrink": "0", "border-radius": "8px",
-        overflow: "hidden", background: "rgba(0,0,0,0.25)",
+        overflow: "hidden", background: "rgba(90, 74, 48, 0.18)",
         display: "flex", "align-items": "center", "justify-content": "center", "font-size": "1.7rem",
       }}>
         <Show when={props.image} fallback={<span>{props.icon}</span>}>
@@ -51,15 +53,15 @@ export default function MenuDishCard(props: MenuDishCardProps) {
       </div>
       {/* Name + ingredients */}
       <div style={{ flex: "1", "min-width": "0" }}>
-        <div style={{ color: "var(--text-primary)", "font-size": "0.88rem", "font-weight": "600", display: "flex", "align-items": "center", gap: "5px" }}>
+        <div style={{ color: "#241a0e", "font-size": "0.88rem", "font-weight": "600", display: "flex", "align-items": "center", gap: "5px" }}>
           <Show when={props.locked}><span style={{ "font-size": "0.75rem" }}>🔒</span></Show>
           <span style={{ overflow: "hidden", "text-overflow": "ellipsis", "white-space": "nowrap" }}>{props.name}</span>
         </div>
         <div style={{
           "font-size": "0.68rem", "line-height": "1.3", "margin-top": "2px",
-          color: props.locked ? "var(--text-muted)"
-            : props.available === false ? "var(--accent-red)"
-            : "var(--text-muted)",
+          color: props.locked ? "#8a7550"
+            : props.available === false ? "#a33"
+            : "#6b5636",
         }}>
           <Show when={props.costs.length > 0} fallback="no ingredients">
             <For each={props.costs}>

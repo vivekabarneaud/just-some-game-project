@@ -272,6 +272,26 @@ export default function App(props: ParentProps) {
       <div class="weather-glass weather-glass-snow" aria-hidden="true" />
       {/* Weather mood vignette — darkens the frame edges in wet weather. */}
       <div class="weather-vignette" aria-hidden="true" />
+      {/* Farming season emblem — a faint watermark on the content pane, layered
+          just above the weather rain but below the cards, and fixed so it stays
+          put while the page scrolls. Farming page only. Autumn borrows the
+          summer art until its own emblem is drawn. */}
+      <Show when={location.pathname.startsWith("/farming")}>
+        {(() => {
+          const EMBLEM: Record<string, string> = {
+            spring: "/images/seasons/season_spring.png",
+            summer: "/images/seasons/season_summer.png",
+            winter: "/images/seasons/season_winter.png",
+            autumn: "/images/seasons/season_summer.png", // TEMP stand-in until autumn art
+          };
+          const src = () => EMBLEM[state.season];
+          return (
+            <Show when={src()}>
+              <div class="season-emblem-backdrop" aria-hidden="true" style={{ "background-image": `url(${src()})` }} />
+            </Show>
+          );
+        })()}
+      </Show>
       {/* Rain ambience on the audio `ambient` channel (weather-driven loop). */}
       <AmbientRain />
       {/* Fair-weather ambience: wind bed + randomized bird chirps (clear/overcast). */}

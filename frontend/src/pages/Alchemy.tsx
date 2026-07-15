@@ -100,7 +100,7 @@ export default function Alchemy() {
   };
 
   return (
-    <div style={{ position: "relative", "min-height": "calc(100vh - 60px)", overflow: "hidden" }}>
+    <div style={{ position: "relative", "min-height": "calc(100vh - var(--topbar-height))", overflow: "hidden" }}>
       {/* Immersive background — absolute within page content, not fixed over sidebar */}
       <div style={{
         position: "absolute", top: 0, left: 0, right: 0, bottom: 0,

@@ -8,6 +8,22 @@ import { useGame, isForagerBlooming, RAIN_FORAGE_MUSHROOM_FRACTION } from "~/eng
 import { playSound } from "~/engine/sounds";
 import Countdown from "~/components/Countdown";
 import Tooltip from "~/components/Tooltip";
+import type { JSX } from "solid-js";
+
+// Framed "Produces" box for gathering buildings — mirrors the farming page's
+// stat boxes (common frame, uppercase label) so the settlement's raw-goods
+// output reads in the same visual language as the farm's harvests.
+const PRODUCE_BOX: JSX.CSSProperties = {
+  padding: "10px 12px", background: "var(--bg-card)",
+  // 6px so the stretched top/bottom hairline doesn't drop out (see STAT_BOX).
+  border: "6px solid transparent",
+  "border-image": "url(/images/frames/item_frame_common.png) 40 stretch",
+  "box-sizing": "border-box", "margin-top": "8px", "text-align": "center",
+};
+const PRODUCE_LABEL: JSX.CSSProperties = {
+  "font-size": "0.66rem", color: "var(--text-muted)", "text-transform": "uppercase",
+  "letter-spacing": "0.6px", "margin-bottom": "6px", "text-align": "center",
+};
 
 // Defense buildings (walls / watchtower / barracks / mage tower) live on the
 // dedicated /defenses page now, not as a section here.
@@ -102,10 +118,14 @@ export default function Buildings() {
 
       <For each={SECTIONS}>
         {(section) => (
-          <>
+          <div class="ornament-frame" style={{
+            background: "var(--bg-secondary)",
+            padding: "4px 16px 16px",
+            "margin-bottom": "16px",
+          }}>
             <h2 style={{
               "font-family": "var(--font-heading)",
-              "margin-top": "20px",
+              "margin-top": "8px",
               "margin-bottom": "10px",
               color: "var(--text-primary)",
               "font-size": "1rem",
@@ -114,7 +134,10 @@ export default function Buildings() {
             }}>
               {section.icon} {section.label}
             </h2>
-            <div class="buildings-grid">
+            {/* grid-auto-rows: 1fr → every card in the section shares the
+                tallest card's height (scoped inline so it doesn't touch the
+                crafting pages, which reuse .buildings-grid). */}
+            <div class="buildings-grid" style={{ "grid-auto-rows": "1fr" }}>
               <For each={buildingsInSection(section.key)}>
                 {(building) => {
                   const pb = () => getPlayerBuilding(building.id);
@@ -230,12 +253,11 @@ export default function Buildings() {
                     <A href={`/buildings/${building.id}`} id={`building-${building.id}`} style={{ "text-decoration": "none" }}>
                       <div
                         class="building-card"
-                        classList={{ upgrading: isUpgrading(), "quest-target": isQuestTarget() }}
+                        classList={{ upgrading: isUpgrading(), "quest-target": isQuestTarget(), damaged: !!pb()?.damaged }}
                         onMouseEnter={() => {
                           if (isNewlyUnlocked()) actions.markBuildingSeen(building.id);
                         }}
                         style={{
-                          opacity: pb()?.damaged ? 0.7 : 1,
                           position: "relative",
                           // Quest-target gold border takes priority over the
                           // newly-unlocked blue highlight when both apply.
@@ -468,57 +490,14 @@ export default function Buildings() {
                           </div>
                         </Show>
                         <div class="building-card-desc">{building.description}</div>
-                        {currentLevel()?.production && (() => {
-                          const FOOD_GATHERING: Record<string, Record<string, number>> = {
-                            hunting_camp: { spring: 1, summer: 1, autumn: 0.75, winter: 0.5 },
-                            fishing_hut: { spring: 1, summer: 1, autumn: 0.75, winter: 0.5 },
-                            forager_hut: { spring: 1, summer: 1, autumn: 0.75, winter: 0.25 },
-                          };
-                          const seasonMod = FOOD_GATHERING[building.id]?.[state.season];
-                          const baseRate = currentLevel()!.production!.rate;
-                          const effectiveRate = seasonMod != null ? Math.floor(baseRate * seasonMod) : baseRate;
-                          const isReduced = seasonMod != null && seasonMod < 1;
-                          const FORAGER_FOOD: Record<string, string> = { spring: "berries", summer: "berries", autumn: "mushrooms", winter: "nuts" };
-                          // Food-gathering buildings produce a generic "food" resource but yield a
-                          // specific type — label it so (meat/fish/seasonal forage), not "food".
-                          const GATHERED_FOOD: Record<string, string> = { hunting_camp: "meat", fishing_hut: "fish" };
-                          const foodLabel = building.id === "forager_hut"
-                            ? (FORAGER_FOOD[state.season] ?? "food")
-                            : (GATHERED_FOOD[building.id] ?? currentLevel()!.production!.resource);
-                          return (
-                            <div class="building-card-production">
-                              Producing: +{effectiveRate}/h{" "}
-                              {foodLabel}
-                              {isReduced && (
-                                <span style={{ color: "var(--accent-gold)", "font-size": "0.7rem", "margin-left": "4px" }}>
-                                  ({Math.round(seasonMod! * 100)}% — {state.season})
-                                </span>
-                              )}
-                            </div>
-                          );
-                        })()}
-                        {building.id === "forager_hut" && level() > 0 && currentLevel()?.production && isForagerBlooming(state) && (
-                          <div class="building-card-production" style={{ color: "#d4831a" }}>
-                            🍄 It rained, and your gatherers found bonus mushrooms! (+{Math.floor(currentLevel()!.production!.rate * RAIN_FORAGE_MUSHROOM_FRACTION)}/h)
-                          </div>
-                        )}
-                        {building.id === "forager_hut" && level() > 0 && (
-                          <div class="building-card-production">
-                            +{(level() * 1.5).toFixed(1)}/h fiber (wild flax)
-                          </div>
-                        )}
-                        {building.id === "hunting_camp" && level() > 0 && (
-                          <div class="building-card-production">
-                            +{(level() * 1.0).toFixed(1)}/h leather (hides)
-                          </div>
-                        )}
+                        {/* Manage buttons sit above the output box — the action the
+                            player takes, then the result it drives. */}
                         {building.id === "brewery" && level() > 0 && (
                           <button
+                            class="btn-secondary"
                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setManageBrewery(true); }}
                             style={{
-                              "margin-top": "6px", padding: "5px 10px", "font-size": "0.78rem",
-                              background: "transparent", border: "1px solid var(--border-color)",
-                              color: "var(--text-secondary)", "border-radius": "4px", cursor: "pointer",
+                              "margin-top": "6px", "font-size": "0.78rem",
                               "align-self": "flex-start",
                             }}
                           >
@@ -530,17 +509,102 @@ export default function Buildings() {
                           const short = () => st().active < st().capacity;
                           return (
                             <button
+                              class="btn-secondary"
                               onClick={(e) => { e.preventDefault(); e.stopPropagation(); setManageStaff(building.id); }}
                               style={{
-                                "margin-top": "6px", padding: "5px 10px", "font-size": "0.78rem",
-                                background: "transparent",
-                                border: `1px solid ${short() ? "var(--accent-red)" : "var(--border-color)"}`,
-                                color: short() ? "var(--accent-red)" : "var(--text-secondary)",
-                                "border-radius": "4px", cursor: "pointer", "align-self": "flex-start",
+                                "margin-top": "6px", "font-size": "0.78rem",
+                                color: short() ? "var(--accent-red)" : undefined,
+                                "align-self": "flex-start",
                               }}
                             >
                               ⚙ Manage staff · {st().active}/{st().capacity}
                             </button>
+                          );
+                        })()}
+                        {/* Gathering output, wrapped in a framed "Produces" box that
+                            mirrors the farming cards. Only gathering buildings carry a
+                            passive `production`, so non-gathering cards render nothing here. */}
+                        {(() => {
+                          // Preview at level 1 when unbuilt (mirrors the unbuilt pen preview).
+                          const prodLevel = () => (level() > 0 ? level() : 1);
+                          const built = () => level() > 0;
+                          // Production def for the current level, or level 1 as a preview.
+                          const prodDef = () => currentLevel()?.production ?? building.levels[0]?.production;
+                          // Iron mine has no `production` field — its ore is a hardcoded
+                          // 8/level tick, so it needs special handling to show at all.
+                          const isIron = () => building.id === "iron_mine";
+                          const showBox = () => building.category === "gathering" && (!!prodDef() || isIron());
+
+                          const mainLine = () => {
+                            if (isIron()) {
+                              return <div class="building-card-production">+{8 * prodLevel()}/h iron</div>;
+                            }
+                            const def = prodDef();
+                            if (!def) return null;
+                            const FOOD_GATHERING: Record<string, Record<string, number>> = {
+                              hunting_camp: { spring: 1, summer: 1, autumn: 0.75, winter: 0.5 },
+                              fishing_hut: { spring: 1, summer: 1, autumn: 0.75, winter: 0.5 },
+                              forager_hut: { spring: 1, summer: 1, autumn: 0.75, winter: 0.25 },
+                            };
+                            const seasonMod = FOOD_GATHERING[building.id]?.[state.season];
+                            const effectiveRate = seasonMod != null ? Math.floor(def.rate * seasonMod) : def.rate;
+                            const isReduced = seasonMod != null && seasonMod < 1;
+                            const FORAGER_FOOD: Record<string, string> = { spring: "berries", summer: "berries", autumn: "mushrooms", winter: "nuts" };
+                            // Food-gathering buildings produce a generic "food" resource but yield a
+                            // specific type — label it so (meat/fish/seasonal forage), not "food".
+                            const GATHERED_FOOD: Record<string, string> = { hunting_camp: "meat", fishing_hut: "fish" };
+                            const foodLabel = building.id === "forager_hut"
+                              ? (FORAGER_FOOD[state.season] ?? "food")
+                              : (GATHERED_FOOD[building.id] ?? def.resource);
+                            return (
+                              <div class="building-card-production">
+                                +{effectiveRate}/h {foodLabel}
+                                {isReduced && (
+                                  <span style={{ color: "var(--accent-gold)", "font-size": "0.7rem", "margin-left": "4px" }}>
+                                    ({Math.round(seasonMod! * 100)}% — {state.season})
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          };
+                          const extraLines = () => (
+                            <>
+                              {building.id === "forager_hut" && built() && currentLevel()?.production && isForagerBlooming(state) && (
+                                <div class="building-card-production" style={{ color: "#d4831a" }}>
+                                  🍄 It rained, and your gatherers found bonus mushrooms! (+{Math.floor(currentLevel()!.production!.rate * RAIN_FORAGE_MUSHROOM_FRACTION)}/h)
+                                </div>
+                              )}
+                              {building.id === "forager_hut" && (
+                                <div class="building-card-production">
+                                  +{(prodLevel() * 1.5).toFixed(1)}/h fiber (wild flax)
+                                </div>
+                              )}
+                              {building.id === "hunting_camp" && (
+                                <div class="building-card-production">
+                                  +{(prodLevel() * 1.0).toFixed(1)}/h leather (hides)
+                                </div>
+                              )}
+                              {isIron() && (
+                                <div class="building-card-production" style={{ color: "var(--text-muted)", "font-size": "0.72rem" }}>
+                                  · a chance of gems & shards
+                                </div>
+                              )}
+                            </>
+                          );
+
+                          return (
+                            <Show when={showBox()}>
+                              <div style={{ ...PRODUCE_BOX, ...(built() ? {} : { opacity: 0.55 }) }}>
+                                <div style={PRODUCE_LABEL}>Produces</div>
+                                {mainLine()}
+                                {extraLines()}
+                                <Show when={!built()}>
+                                  <div style={{ "font-size": "0.66rem", color: "var(--text-muted)", "margin-top": "6px" }}>
+                                    at level 1 — build to start
+                                  </div>
+                                </Show>
+                              </div>
+                            </Show>
                           );
                         })()}
                         {pb()?.damaged && (
@@ -553,17 +617,11 @@ export default function Buildings() {
                               const canRepair = () => state.resources.wood >= cost.wood && state.resources.stone >= cost.stone;
                               return (
                                 <button
+                                  class="btn-primary"
                                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); actions.repairBuilding(building.id); }}
                                   disabled={!canRepair()}
                                   style={{
-                                    padding: "4px 10px",
-                                    background: canRepair() ? "var(--accent-gold)" : "rgba(255,255,255,0.1)",
-                                    color: canRepair() ? "#1a1a1a" : "var(--text-muted)",
-                                    border: "none",
-                                    "border-radius": "4px",
-                                    cursor: canRepair() ? "pointer" : "not-allowed",
                                     "font-size": "0.72rem",
-                                    "font-weight": "600",
                                     "white-space": "nowrap",
                                     "flex-shrink": 0,
                                   }}
@@ -613,8 +671,8 @@ export default function Buildings() {
                         </div>
                       );
                       return (
-                        <Tooltip content={tooltipContent} position="cursor">
-                          <div class="building-card locked" id={`building-${building.id}`}>
+                        <Tooltip content={tooltipContent} position="cursor" block style={{ height: "100%" }}>
+                          <div class="building-card locked" id={`building-${building.id}`} style={{ height: "100%" }}>
                             <Show when={getBuildingImage(building, level())}>
                               <div class="building-card-image locked-image">
                                 <img src={getBuildingImage(building, level())!} alt={building.name} loading="lazy" />
@@ -646,7 +704,7 @@ export default function Buildings() {
                 }}
               </For>
             </div>
-          </>
+          </div>
         )}
       </For>
     </div>

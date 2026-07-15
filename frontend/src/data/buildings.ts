@@ -387,6 +387,51 @@ export const BUILDINGS: BuildingDefinition[] = [
     // and there's actual meat surplus to motivate a cellar.
     unlockedAt: { requiresBuildings: ["hunting_camp"] },
   },
+  // ── Water infrastructure (weather → yield, see DESIGN_WEATHER_YIELD.md) ──
+  {
+    id: "well",
+    name: "Well",
+    category: "settlement",
+    description:
+      "A dug well tapping the groundwater. Supplies water year-round, though the flow drops to a trickle in a drought.",
+    icon: "💧",
+    maxLevel: 5,
+    levels: generateLevels({ wood: 30, stone: 40 }, 8, undefined, 5),
+    requiredTier: "village",
+  },
+  {
+    id: "cistern",
+    name: "Cistern",
+    category: "settlement",
+    description:
+      "A great stone tank that stores water and catches the rain. It fills fast in wet years, so you can bank water against the dry ones.",
+    icon: "🛢️",
+    maxLevel: 5,
+    levels: generateLevels({ wood: 40, stone: 70 }, 10, undefined, 5),
+    requiredTier: "village",
+  },
+  {
+    id: "irrigation_works",
+    name: "Irrigation Channels",
+    category: "settlement",
+    description:
+      "Ditches and sluices that carry stored water to the fields. In dry and drought years they spend water to keep the crops from withering — as long as the cistern holds out.",
+    icon: "💦",
+    maxLevel: 3,
+    levels: generateLevels({ wood: 50, stone: 40 }, 10, undefined, 3),
+    requiredTier: "village",
+  },
+  {
+    id: "drainage_works",
+    name: "Drainage Ditches",
+    category: "settlement",
+    description:
+      "Channels that shed excess water in the wettest years, sparing the roots from rot — and banking some of the runoff back into the cistern.",
+    icon: "🌊",
+    maxLevel: 3,
+    levels: generateLevels({ wood: 45, stone: 35 }, 10, undefined, 3),
+    requiredTier: "village",
+  },
 
   // Camp tier — Woodworker (wood-based equipment)
   {

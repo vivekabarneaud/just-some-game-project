@@ -37,7 +37,7 @@ export default function RecoveryActions(props: { adventurer: Adventurer }) {
         <For each={options()}>
           {(o) => (
             <button
-              class="field-upgrade-btn"
+              class="btn-tertiary"
               style={{ "font-size": "0.72rem", padding: "3px 8px" }}
               onClick={(e) => {
                 e.preventDefault();

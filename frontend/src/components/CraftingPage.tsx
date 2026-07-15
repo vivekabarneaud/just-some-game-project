@@ -567,15 +567,11 @@ export default function CraftingPage(props: CraftingPageProps) {
                     return (
                       <Tooltip text={title()}>
                         <button
+                          class="btn-secondary"
                           disabled={disabled()}
                           onClick={() => { if (!disabled()) actions.setAutoCook(props.buildingId, recipe.id); }}
                           style={{
-                            padding: "6px 10px", "font-size": "0.72rem", "border-radius": "4px",
-                            cursor: disabled() ? "not-allowed" : "pointer",
-                            opacity: disabled() ? 0.5 : 1,
-                            border: `1px solid ${isOn() && !stalled() ? "var(--accent-gold)" : "var(--border-color)"}`,
-                            background: isOn() && !stalled() ? "rgba(212, 175, 55, 0.15)" : "transparent",
-                            color: isOn() && !stalled() ? "var(--accent-gold)" : "var(--text-muted)",
+                            "font-size": "0.72rem",
                             "white-space": "nowrap",
                           }}
                         >

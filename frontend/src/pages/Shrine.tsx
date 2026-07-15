@@ -3,6 +3,7 @@ import { useGame } from "~/engine/gameState";
 import { playPageMountSound } from "~/engine/sounds";
 import { getCurrentDeity, getSeasonDeities, getDeity } from "~/data/deities";
 import { IS_DEV, getGlobalSeason, SEASON_META } from "~/data/seasons";
+import SeasonIcon from "~/components/SeasonIcon";
 import { getTotalFood } from "~/data/foods";
 import Pantheon from "~/components/Pantheon";
 
@@ -144,8 +145,8 @@ export default function Shrine() {
               const isCurrent = seasonInfo().season === season;
               return (
                 <div class="shrine-calendar-season" classList={{ current: isCurrent }}>
-                  <div class="shrine-calendar-season-name" style={{ color: SEASON_META[season].color }}>
-                    {SEASON_META[season].icon} {SEASON_META[season].name}
+                  <div class="shrine-calendar-season-name" style={{ color: SEASON_META[season].color, display: "inline-flex", "align-items": "center", gap: "5px" }}>
+                    <SeasonIcon season={season} size={16} /> {SEASON_META[season].name}
                   </div>
                   <div class="shrine-calendar-deities">
                     <div class="shrine-calendar-deity" classList={{ active: isCurrent && seasonInfo().progress < 0.5 }}>

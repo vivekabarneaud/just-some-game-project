@@ -68,30 +68,22 @@ export default function RecipeCard(props: RecipeCardProps) {
           "box-shadow": "0 0 0 1px var(--accent-blue), 0 0 12px rgba(91, 155, 213, 0.35)",
           background: "linear-gradient(180deg, rgba(91, 155, 213, 0.08), transparent 70%), var(--bg-secondary)",
         } : {}),
-        // THROWAWAY 9-slice card-frame trial (uncommon ornament: plain edges,
-        // corner-only ornament). Tune the slice (55) / border-width (20px) once
-        // it's on screen. Remove with the rest of the frame preview.
-        border: "20px solid transparent",
-        "border-image": "url(/images/frames/item_frame_uncommon.png) 55 stretch",
+        // Rarity frame drawn around the whole CARD (the item icon stays
+        // frameless). Falls back to the uncommon ornament when no rarity URL is
+        // given. Same 9-slice (55) / 20px border as the other card frames.
+        border: "var(--ornament-w) solid transparent",
+        "border-image": `${props.frameUrl ? `url(${props.frameUrl})` : "var(--ornament-src)"} var(--ornament-slice) stretch`,
       }}
     >
       <Show when={highlight()}>
         <div class="notification-badge is-tag" style={{ position: "absolute", top: "6px", right: "6px" }}>NEW</div>
       </Show>
       <div class="building-card-header">
-        <Show when={props.frameUrl} fallback={
-          props.image
-            ? <img src={props.image} alt="" style={{ width: "40px", height: "40px", "object-fit": "cover", "border-radius": "6px", "flex-shrink": "0" }} />
-            : <div class="building-card-icon">{props.icon}</div>
-        }>
-          {/* Framed icon (throwaway rarity-frame preview) */}
-          <div style={{ position: "relative", width: "56px", height: "56px", "flex-shrink": "0", display: "grid", "place-items": "center" }}>
-            {props.image
-              ? <img src={props.image} alt="" style={{ width: "34px", height: "34px", "object-fit": "cover", "border-radius": "4px" }} />
-              : <span style={{ "font-size": "1.5rem", "line-height": "1" }}>{props.icon}</span>}
-            <img src={props.frameUrl} alt="" aria-hidden="true" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", "pointer-events": "none" }} />
-          </div>
-        </Show>
+        {/* Frameless icon — the rarity frame lives on the card now, so the image
+            fills its box instead of being shrunk inside an icon-sized frame. */}
+        {props.image
+          ? <img src={props.image} alt="" style={{ width: "40px", height: "40px", "object-fit": "cover", "border-radius": "6px", "flex-shrink": "0" }} />
+          : <div class="building-card-icon">{props.icon}</div>}
         <div>
           <div class="building-card-title">{props.title}</div>
           <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
@@ -118,29 +110,32 @@ export default function RecipeCard(props: RecipeCardProps) {
           const verb = () => action.verb ?? "Craft";
           return (
             <div class="recipe-card-actions" style={{ "margin-top": "auto", "padding-top": "8px", display: "flex", "align-items": "center", gap: "6px", "flex-wrap": "wrap" }}>
-              <div style={{ display: "flex", "align-items": "center", gap: "2px", "border-radius": "4px", border: "1px solid var(--border-color)", overflow: "hidden" }}>
+              {/* Framed ± on a dark grouped pill, with an editable qty input. */}
+              <div style={{ display: "flex", "align-items": "center", gap: "2px", background: "var(--bg-primary)", padding: "3px 5px", "border-radius": "3px" }}>
                 <button
                   onClick={() => setQty((q) => Math.max(1, q - 1))}
-                  style={{ width: "24px", height: "28px", background: "var(--bg-primary)", border: "none", color: "var(--text-muted)", cursor: "pointer", "font-size": "0.85rem" }}
+                  style={{ width: "30px", height: "30px", background: "transparent", border: "3px solid transparent", "border-image": "url(/images/frames/item_frame_common.png) 40 stretch", "border-radius": "0", color: "var(--text-muted)", cursor: "pointer", "font-size": "0.85rem" }}
                 >−</button>
-                <span style={{ width: "28px", "text-align": "center", "font-size": "0.8rem", color: "var(--text-primary)" }}>{qty()}</span>
+                <input
+                  class="qty-input"
+                  type="number"
+                  min="1"
+                  value={qty()}
+                  onInput={(e) => {
+                    const v = parseInt(e.currentTarget.value, 10);
+                    setQty(Number.isNaN(v) ? 1 : Math.max(1, Math.min(max(), v)));
+                  }}
+                  style={{ width: "34px", "text-align": "center", background: "transparent", border: "none", color: "var(--text-primary)", "font-size": "0.85rem", "font-family": "inherit" }}
+                />
                 <button
                   onClick={() => setQty((q) => Math.min(max(), q + 1))}
-                  style={{ width: "24px", height: "28px", background: "var(--bg-primary)", border: "none", color: "var(--text-muted)", cursor: "pointer", "font-size": "0.85rem" }}
+                  style={{ width: "30px", height: "30px", background: "transparent", border: "3px solid transparent", "border-image": "url(/images/frames/item_frame_common.png) 40 stretch", "border-radius": "0", color: "var(--text-muted)", cursor: "pointer", "font-size": "0.85rem" }}
                 >+</button>
               </div>
               <button
+                class="btn-tertiary"
                 onClick={() => setQty(max())}
-                style={{
-                  padding: "4px 8px",
-                  background: "transparent",
-                  border: "1px solid var(--border-color)",
-                  color: "var(--text-muted)",
-                  "border-radius": "4px",
-                  cursor: "pointer",
-                  "font-size": "0.7rem",
-                  "white-space": "nowrap",
-                }}
+                style={{ padding: "4px 14px", "font-size": "0.72rem", "white-space": "nowrap" }}
               >Max</button>
               <Tooltip text={action.disabledReason(qty())} position="bottom">
                 <button

@@ -2,11 +2,13 @@ export type Season = "spring" | "summer" | "autumn" | "winter";
 
 export const SEASON_ORDER: Season[] = ["spring", "summer", "autumn", "winter"];
 
-export const SEASON_META: Record<Season, { name: string; icon: string; color: string }> = {
-  spring: { name: "Spring", icon: "🌱", color: "#7CFC00" },
-  summer: { name: "Summer", icon: "☀️", color: "#f5c542" },
+// `icon` is the emoji fallback; `image` is the hand-drawn season icon (autumn
+// art is still to come, so it has no image and falls back to the emoji).
+export const SEASON_META: Record<Season, { name: string; icon: string; color: string; image?: string }> = {
+  spring: { name: "Spring", icon: "🌱", color: "#7CFC00", image: "/images/seasons/season_spring.png" },
+  summer: { name: "Summer", icon: "☀️", color: "#f5c542", image: "/images/seasons/season_summer.png" },
   autumn: { name: "Autumn", icon: "🍂", color: "#d4831a" },
-  winter: { name: "Winter", icon: "❄️", color: "#87CEEB" },
+  winter: { name: "Winter", icon: "❄️", color: "#87CEEB", image: "/images/seasons/season_winter.png" },
 };
 
 // ─── Dev vs Production mode ─────────────────────────────────────

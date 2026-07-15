@@ -89,7 +89,7 @@ export default function ChronicleJournal() {
                 padding: "14px 18px",
                 background: "rgba(212, 163, 115, 0.08)",
                 border: "1px solid rgba(212, 163, 115, 0.25)",
-                "border-radius": "8px",
+                "border-radius": "0",
                 "margin-bottom": "14px",
               }}>
                 <div style={{
@@ -126,10 +126,17 @@ export default function ChronicleJournal() {
                 </div>
               </div>
 
-              {/* Entry grid */}
-              <div style={{
+              {/* Entry grid — framed as one parent panel (the cards inside stay
+                  plain + square), rather than a frame per entry. */}
+              <div class="ornament-frame" style={{
+                background: "var(--bg-secondary)",
+                padding: "14px",
                 display: "grid",
                 "grid-template-columns": "repeat(auto-fill, minmax(260px, 1fr))",
+                // Equal-height cards across ALL rows (not just within a row):
+                // every implicit row is 1fr, and the content floor lifts them
+                // all to the tallest card's height.
+                "grid-auto-rows": "1fr",
                 gap: "12px",
               }}>
                 <For each={entries()}>
@@ -158,11 +165,17 @@ export default function ChronicleJournal() {
                         class="building-card"
                         classList={{ "chronicle-entry-card": unlocked(), dimmed: !unlocked() }}
                         style={{
+                          // Fill the equalized grid cell (grid-auto-rows:1fr) so
+                          // every card matches the tallest — the frame border used
+                          // to mask the gaps; bare cards need the explicit height.
+                          height: "100%",
                           cursor: unlocked() ? "pointer" : "default",
                           transition: "transform 0.15s, filter 0.15s, border-color 0.25s, box-shadow 0.25s, background 0.25s",
+                          // Fresh highlight uses box-shadow + tint only (no
+                          // `border`, which would override the ornament frame's
+                          // border-width and kill the frame).
                           ...(fresh()
                             ? {
-                                border: "1px solid var(--accent-blue)",
                                 "box-shadow": "0 0 0 1px var(--accent-blue), 0 0 12px rgba(96, 165, 250, 0.25)",
                                 background: "rgba(96, 165, 250, 0.06)",
                               }
@@ -222,7 +235,7 @@ export default function ChronicleJournal() {
                       </div>
                     );
                     return unlocked() ? (
-                      <Tooltip text="Click to read" position="cursor-top" block>
+                      <Tooltip text="Click to read" position="cursor-top" block style={{ height: "100%" }}>
                         {card}
                       </Tooltip>
                     ) : card;
