@@ -186,7 +186,11 @@ import {
   getOrchardBuildTime,
   getOrchardRate,
   getOrchardTreeSlots,
-  getSaplingCost,
+  getOrchardSeedReturn,
+  startingFruitSeeds,
+  startingUnlockedFruits,
+  isFruitUnlocked,
+  SAPLING_PLANT_SEASON,
   isOrchardActive,
   ORCHARD_MAX_LEVEL,
 } from "~/data/orchards";
@@ -512,6 +516,11 @@ export interface GameState {
   pens: PlayerPen[];
   hives: PlayerHive[];
   orchards: PlayerOrchard[];
+  /** Per-fruit sapling seed stock — spent to plant trees, saved back at harvest. */
+  fruitSeeds: Record<FruitId, number>;
+  /** Fruits the player can plant (apple from the start; specialty fruits unlock
+   *  when their seed/cutting is acquired). */
+  fruitsUnlocked: FruitId[];
   honey: number;
   /** Per-type food stockpiles — total capped by pantry */
   foods: Record<FoodItemType, number>;
@@ -1085,6 +1094,8 @@ export function createInitialState(): GameState {
       matureTrees: 0,
       saplings: [],
     })),
+    fruitSeeds: startingFruitSeeds(),
+    fruitsUnlocked: startingUnlockedFruits(),
     honey: 0,
     // Bio-accurate founder mapping: Edda + Father Corin elderly,
     // Jory + Tomas adults, Nell child. See docs/DESIGN_CITIZEN_CATEGORIES.md.
@@ -1411,6 +1422,10 @@ export function migrateSaveState(saved: GameState): GameState {
     if (!(saved as any).seedsUnlocked) {
       (saved as any).seedsUnlocked = startingUnlockedSeeds();
     }
+    // Fruit seeds + unlocked fruits (orchard seed model). Old saves get the
+    // founders' apple pack; apple is the only unlocked fruit until a seed stall.
+    if (!(saved as any).fruitSeeds) (saved as any).fruitSeeds = startingFruitSeeds();
+    if (!(saved as any).fruitsUnlocked) (saved as any).fruitsUnlocked = startingUnlockedFruits();
     // Lavender became a specialty (acquired) crop — clear any legacy free
     // starter stock from saves that got it before the flip, unless the player
     // has since unlocked it for real. Idempotent; safe to delete post-alpha.
@@ -3183,6 +3198,8 @@ export function GameProvider(props: ParentProps) {
         if (!(serverState as any).seedsUnlocked) {
           (serverState as any).seedsUnlocked = startingUnlockedSeeds();
         }
+        if (!(serverState as any).fruitSeeds) (serverState as any).fruitSeeds = startingFruitSeeds();
+        if (!(serverState as any).fruitsUnlocked) (serverState as any).fruitsUnlocked = startingUnlockedFruits();
         // Pens: ensure one pre-attributed slot per animal
         serverState.pens = serverState.pens ?? [];
         for (const a of ANIMALS) {
@@ -3554,6 +3571,19 @@ export function GameProvider(props: ParentProps) {
         }
         garden.plantedYear = null;
         garden.seedsPlanted = 0;
+      }
+    }
+    // Orchards save seed each spring — a bearing grove drops enough pips/cuttings
+    // to slowly fund its own expansion (one per mature tree), like the garden
+    // harvest surplus.
+    if (next === SAPLING_PLANT_SEASON && s.fruitSeeds) {
+      for (const orchard of s.orchards) {
+        const returned = getOrchardSeedReturn(orchard.matureTrees);
+        if (returned > 0) {
+          s.fruitSeeds[orchard.fruit] = (s.fruitSeeds[orchard.fruit] ?? 0) + returned;
+          const fruitDef = getFruit(orchard.fruit);
+          pushEvent(s, "building_completed", fruitDef.icon, `Saved ${returned} ${fruitDef.name.toLowerCase()} seed from the grove`);
+        }
       }
     }
     if (prev === "summer") {
@@ -5490,8 +5520,11 @@ export function GameProvider(props: ParentProps) {
     upgradeOrchard(orchardId) {
       const orchard = state.orchards.find((o) => o.id === orchardId);
       if (!orchard || orchard.upgrading || orchard.level >= ORCHARD_MAX_LEVEL) return false;
+      // Can't raise a plot for a fruit you haven't acquired yet (locked "???").
+      if (!isFruitUnlocked(getFruit(orchard.fruit), state.fruitsUnlocked)) return false;
+      // Expanding the grove (more tree slots) is allowed any season — it's
+      // groundwork, not planting. Planting saplings is what's gated to spring.
       if (orchard.level >= 1) {
-        if (state.season !== "winter") return false;
         if (orchard.level >= getTownHallLevel(state.buildings)) return false;
       }
       const cost = getOrchardCost(orchard.level);
@@ -5508,17 +5541,19 @@ export function GameProvider(props: ParentProps) {
       return true;
     },
 
-    // Plant one sapling/vine into a free slot. It starts as a season-0 cohort
-    // and ages to a bearing tree over the fruit's maturation window.
+    // Plant one sapling/vine into a free slot. Costs a fruit seed (like sowing a
+    // garden), spring only, and the fruit must be unlocked. Starts as a season-0
+    // cohort and ages to a bearing tree over the fruit's maturation window.
     plantSapling(orchardId) {
       const orchard = state.orchards.find((o) => o.id === orchardId);
       if (!orchard || orchard.level < 1 || orchard.upgrading) return false;
+      if (state.season !== SAPLING_PLANT_SEASON) return false;
+      if (!isFruitUnlocked(getFruit(orchard.fruit), state.fruitsUnlocked)) return false;
       const planted = orchard.matureTrees + orchard.saplings.reduce((n, c) => n + c.count, 0);
       if (planted >= getOrchardTreeSlots(orchard.level)) return false;
-      const cost = getSaplingCost(getFruit(orchard.fruit));
-      if (state.resources.gold < cost) return false;
+      if ((state.fruitSeeds?.[orchard.fruit] ?? 0) <= 0) return false;
       setState(produce((s) => {
-        s.resources.gold -= cost;
+        s.fruitSeeds[orchard.fruit] -= 1;
         const o = s.orchards.find((o) => o.id === orchardId)!;
         // Merge into a just-planted (season-0) cohort so they mature together.
         const fresh = o.saplings.find((c) => c.seasonsGrown === 0);

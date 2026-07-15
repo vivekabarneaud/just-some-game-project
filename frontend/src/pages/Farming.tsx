@@ -8,7 +8,7 @@ import type { FoodItemType } from "~/data/foods";
 import { getHiveCost, getHiveBuildTime, getHoneyRate, HIVE_MAX_LEVEL, APIARY_IMAGE, APIARY } from "~/data/apiary";
 import SeedIcon from "~/components/SeedIcon";
 import SeasonIcon from "~/components/SeasonIcon";
-import { getFruit, getOrchardCost, getOrchardBuildTime, getOrchardRate, getOrchardStatus, getOrchardTreeSlots, getSaplingCost, getFruitPerTreeRate, isOrchardActive, ORCHARD_MAX_LEVEL } from "~/data/orchards";
+import { getFruit, getOrchardCost, getOrchardBuildTime, getOrchardRate, getOrchardStatus, getOrchardTreeSlots, getFruitPerTreeRate, isFruitUnlocked, SAPLING_PLANT_SEASON, isOrchardActive, ORCHARD_MAX_LEVEL } from "~/data/orchards";
 import { SEASON_META, type Season } from "~/data/seasons";
 import { QUEST_DEFINITIONS, isQuestActive } from "~/data/quests";
 import Countdown from "~/components/Countdown";
@@ -1244,15 +1244,21 @@ function OrchardCard(props: { orchard: PlayerOrchard }) {
   // Specialty fruit (grapes) hides as a "???" mystery slot until the vine is
   // brought home — mirrors the garden specialty-seed gate. No unlock path is
   // wired yet, so it stays a teaser for now.
-  const locked = () => props.orchard.level === 0 && !props.orchard.upgrading && !!fruitDef().specialty;
+  const locked = () => props.orchard.level === 0 && !props.orchard.upgrading && !isFruitUnlocked(fruitDef(), state.fruitsUnlocked);
 
   // Tree bookkeeping.
   const slots = () => getOrchardTreeSlots(props.orchard.level);
   const saplingCount = () => props.orchard.saplings.reduce((n, c) => n + c.count, 0);
   const planted = () => props.orchard.matureTrees + saplingCount();
   const roomLeft = () => slots() - planted();
-  const saplingCost = () => getSaplingCost(fruitDef());
-  const canPlant = () => props.orchard.level > 0 && !props.orchard.upgrading && roomLeft() > 0 && state.resources.gold >= saplingCost();
+  const seedStock = () => state.fruitSeeds?.[props.orchard.fruit] ?? 0;
+  const isPlantSeason = () => state.season === SAPLING_PLANT_SEASON;
+  const canPlant = () => props.orchard.level > 0 && !props.orchard.upgrading && roomLeft() > 0 && isPlantSeason() && seedStock() > 0;
+  const plantBlockedReason = () => {
+    if (!isPlantSeason()) return "Saplings are planted in spring";
+    if (seedStock() <= 0) return `No ${fruitDef().name.toLowerCase()} seed in store`;
+    return "";
+  };
 
   const isUnbuilt = () => props.orchard.level === 0 && !props.orchard.upgrading;
   const buildCost = () => getOrchardCost(0);
@@ -1274,7 +1280,6 @@ function OrchardCard(props: { orchard: PlayerOrchard }) {
   const upgradeCost = () => props.orchard.level < ORCHARD_MAX_LEVEL ? getOrchardCost(props.orchard.level) : null;
   const canUpgrade = () => {
     if (props.orchard.upgrading || props.orchard.level >= ORCHARD_MAX_LEVEL) return false;
-    if (props.orchard.level >= 1 && state.season !== "winter") return false;
     if (props.orchard.level >= effectiveMax()) return false;
     const c = upgradeCost();
     return c ? state.resources.wood >= c.wood && state.resources.stone >= c.stone && state.resources.gold >= c.gold : false;
@@ -1283,7 +1288,6 @@ function OrchardCard(props: { orchard: PlayerOrchard }) {
     if (props.orchard.level >= ORCHARD_MAX_LEVEL) return "Max level reached";
     if (props.orchard.level >= effectiveMax()) return `Upgrade Town Hall to lvl ${actions.getTownHallLevel() + 1}`;
     if (props.orchard.upgrading) return "Already upgrading…";
-    if (props.orchard.level >= 1 && state.season !== "winter") return "Orchards can only be upgraded in winter";
     const c = upgradeCost();
     if (c && (state.resources.wood < c.wood || state.resources.stone < c.stone || state.resources.gold < c.gold)) return "Not enough resources";
     return "";
@@ -1291,8 +1295,7 @@ function OrchardCard(props: { orchard: PlayerOrchard }) {
 
   const showUpgradeIndicator = () =>
     !props.orchard.upgrading &&
-    props.orchard.level < ORCHARD_MAX_LEVEL &&
-    (props.orchard.level === 0 || state.season === "winter");
+    props.orchard.level < ORCHARD_MAX_LEVEL;
   const indicatorCostTip = () => {
     const c = props.orchard.level === 0 ? buildCost() : upgradeCost();
     return c ? `🪵 ${c.wood} 🪨 ${c.stone} 🪙 ${c.gold} · ${formatTime(getOrchardBuildTime(props.orchard.level))}` : "";
@@ -1443,23 +1446,29 @@ function OrchardCard(props: { orchard: PlayerOrchard }) {
                 {" · "}{status()}
               </span>
             </div>
+            {/* Seed store for this fruit — planting a sapling spends one. */}
+            <div style={{ "font-size": "0.72rem", color: "var(--text-secondary)" }}>
+              🌰 <b style={{ color: "var(--text-primary)" }}>{seedStock()}</b> {fruitDef().name.toLowerCase().replace(/ (trees|vines)$/, "")} seed{seedStock() === 1 ? "" : "s"} in store
+            </div>
             <Show when={roomLeft() > 0}>
-              <Tooltip block text={
-                state.resources.gold < saplingCost() ? `Need 🪙 ${saplingCost()} to plant a sapling` : ""
-              }>
+              <Tooltip block text={plantBlockedReason()}>
                 <button
                   class="btn-primary"
                   style={{ width: "100%", "justify-content": "center" }}
                   disabled={!canPlant()}
                   onClick={() => actions.plantSapling(props.orchard.id)}
                 >
-                  Plant {fruitDef().icon} sapling 💰{saplingCost()}
+                  {seedStock() <= 0
+                    ? "No seed to plant"
+                    : !isPlantSeason()
+                      ? `Plant ${fruitDef().icon} in spring`
+                      : `Plant ${fruitDef().icon} sapling (1 seed)`}
                 </button>
               </Tooltip>
             </Show>
             <Show when={roomLeft() <= 0}>
               <div style={{ "font-size": "0.72rem", color: "var(--text-muted)" }}>
-                Grove is full — upgrade in winter for more room.
+                Grove is full — upgrade for more room.
               </div>
             </Show>
           </div>

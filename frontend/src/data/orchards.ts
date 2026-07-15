@@ -38,6 +38,7 @@ export const FRUITS: FruitDefinition[] = [
     baseRate: 3,
     maturationSeasons: 4,
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/orchard_pears.png",
+    specialty: true,
   },
   {
     id: "cherries",
@@ -48,6 +49,7 @@ export const FRUITS: FruitDefinition[] = [
     baseRate: 3,
     maturationSeasons: 4,
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/orchard_cherries.png",
+    specialty: true,
   },
   {
     id: "grapes",
@@ -66,6 +68,34 @@ export const FRUITS: FruitDefinition[] = [
 
 export function getFruit(id: FruitId): FruitDefinition {
   return FRUITS.find((f) => f.id === id)!;
+}
+
+// ─── Seeds ───────────────────────────────────────────────────────
+// Saplings are planted from a fruit-seed stock (like sowing a garden), not
+// bought with gold. Apple is the founders' starter; the rest are specialty and
+// unlock once their seed/cutting is acquired (a market seed stall — later).
+
+/** Season saplings can be planted — like fields, trees go in in spring. */
+export const SAPLING_PLANT_SEASON: Season = "spring";
+
+/** The founders' pack: only apple survived the road, and only a few sprouted. */
+export function startingFruitSeeds(): Record<FruitId, number> {
+  return { apples: 3, pears: 0, cherries: 0, grapes: 0 };
+}
+
+/** Fruits the player can plant from the start (non-specialty). */
+export function startingUnlockedFruits(): FruitId[] {
+  return FRUITS.filter((f) => !f.specialty).map((f) => f.id);
+}
+
+export function isFruitUnlocked(fruit: FruitDefinition, unlocked: readonly FruitId[]): boolean {
+  return !fruit.specialty || unlocked.includes(fruit.id);
+}
+
+/** Seeds a bearing grove saves back each year — one per mature tree, so a grove
+ *  slowly funds its own expansion (mirrors the garden harvest surplus). */
+export function getOrchardSeedReturn(matureTrees: number): number {
+  return matureTrees;
 }
 
 // Costs

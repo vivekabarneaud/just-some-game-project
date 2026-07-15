@@ -188,7 +188,9 @@ export function getSeedReturn(seedsPlanted: number): number {
 /** Seeds the founding crew arrives with — enough to fully sow a first L1 plot
  *  of each crop (capacity 10) with a little buffer, so day-one planting needs
  *  no shopping. */
-export const STARTING_SEED_PER_CROP = 20;
+// One garden plot's worth (getSeedCapacity(1)). You start able to fill a single
+// plot per staple; expanding needs the harvest surplus or bought seed.
+export const STARTING_SEED_PER_CROP = 10;
 export function makeStartingSeeds(): Record<VeggieId, number> {
   return VEGGIES.reduce((acc, v) => {
     // Staples arrive stocked; specialty seeds start at 0 (unlocked via play).

@@ -298,6 +298,11 @@ export interface GameState {
   pens: PlayerPen[];
   hives: PlayerHive[];
   orchards: PlayerOrchard[];
+  /** Per-fruit sapling seed stock — spent to plant trees, saved back at harvest. */
+  fruitSeeds: Record<FruitId, number>;
+  /** Fruits the player can plant (apple from the start; specialty fruits unlock
+   *  when their seed/cutting is acquired). */
+  fruitsUnlocked: FruitId[];
   honey: number;
   /** Per-type food stockpiles — total is capped by pantry.
    *  Orchard fruits (apples/pears/cherries) now live here as first-class foods. */

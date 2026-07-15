@@ -64,10 +64,10 @@ describe("getSeedReturn", () => {
 });
 
 describe("makeStartingSeeds", () => {
-  it("gives the crew 20 of every staple, 0 of specialty crops", () => {
+  it("gives the crew one plot's worth (10) of every staple, 0 of specialty crops", () => {
     const seeds = makeStartingSeeds();
     expect(Object.keys(seeds).length).toBe(VEGGIES.length);
-    for (const v of VEGGIES) expect(seeds[v.id]).toBe(v.specialty ? 0 : 20);
+    for (const v of VEGGIES) expect(seeds[v.id]).toBe(v.specialty ? 0 : 10);
   });
 });
 
