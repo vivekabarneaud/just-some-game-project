@@ -134,11 +134,11 @@ export const WEAPONS: ItemDefinition[] = [
     recipeId: "great_axe", consumable: false,
   },
   {
-    id: "hesters_keepsake", rarity: "rare", name: "Hester's Axe", icon: "🪓", slot: "mainHand", weaponType: "axe", twoHanded: true,
+    id: "cleaving_greataxe", rarity: "rare", name: "Cleaving Greataxe", icon: "🪓", slot: "mainHand", weaponType: "axe", twoHanded: true,
     description: "+3 STR",
-    flavor: "The axe that did both jobs, kept sharp all these years. She does not talk about it, and she does not lend it out.",
+    flavor: "A master's battle-axe of tempered steel, the head broad as a spade and honed to split mail. Heavy, hungry, and final.",
     classes: [], stats: { str: 3 }, dmgMin: 11, dmgMax: 17, durationMod: 1, lootMod: 1,
-    recipeId: "", consumable: false,
+    recipeId: "cleaving_greataxe", consumable: false,
   },
   {
     id: "steel_sword", rarity: "uncommon", name: "Steel Sword", icon: "🗡️", slot: "mainHand", weaponType: "sword",
