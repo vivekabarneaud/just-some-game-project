@@ -109,7 +109,7 @@ PoE2/Diablo model: the staff/wand **carries a spell that replaces the auto-attac
 ## 7. Materials, steel, rares & binding (2026-07-16, building)
 
 **Intermediary principle** — an intermediate material earns its place only if it's a **hub** (feeds many downstream recipes) or a real progression gate. Single-use intermediates (bonemeal→gardens only, charcoal→steel only) are friction — use the raw material directly. So:
-- **Steel** (hub: feeds all uncommon+ blades and armor) = **real material**, crafted `iron + wood` at the blacksmith (the wood is the carbon; charring to charcoal is abstracted into the recipe's flavor). Historically correct — medieval steel used charcoal, not mined coal (coke-for-steel is Industrial-era).
+- **Steel** = **real material**, crafted `iron + wood` at the blacksmith (the wood is the carbon; charring to charcoal is abstracted into the recipe's flavor). Historically correct — medieval steel used charcoal, not mined coal (coke-for-steel is Industrial-era). **Slower progression (2026-07-16):** novice stays an **iron** economy — commons + uncommons are all iron. Steel is **gated to blacksmith L4** and debuts *only* in the rare pattern-welded blade — a "taste of the next tier." It becomes the norm beyond novice.
 - **Charcoal** = rejected (single-use). Parked to graduate IF a fuel system lands (see open-ideas).
 - A future charcoal potion just takes `wood`, same abstraction.
 

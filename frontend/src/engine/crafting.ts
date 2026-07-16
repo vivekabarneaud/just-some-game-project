@@ -282,30 +282,31 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
   // ── Steel — carburized iron, the backbone of the good blades. Charring the
   //    wood to charcoal is abstracted into the recipe (wood is the carbon). ──
   {
-    id: "steel", name: "Steel", icon: "⚙️", building: "blacksmith", minLevel: 2,
+    id: "steel", name: "Steel", icon: "⚙️", building: "blacksmith", minLevel: 4,
     description: "The smith beds iron in charcoal burned down from the wood and works it hot for hours, until the metal drinks in the carbon and comes out steel.",
     costs: [{ resource: "iron", amount: 3 }, { resource: "wood", amount: 2 }],
     produces: { resource: "steel", amount: 1 }, craftTime: 60,
   },
-  // ── Uncommon swords (rung 3, crafted) — steel blade + a component; first-pass costs ──
+  // ── Uncommon swords (rung 3, crafted) — IRON blade + a component. Novice stays
+  //    an iron economy; steel debuts only in the rare below. First-pass costs. ──
   {
     id: "broadsword", name: "Broadsword", icon: "⚔️", building: "blacksmith", minLevel: 2,
-    costs: [{ resource: "steel", amount: 5 }, { resource: "wood", amount: 2 }],
+    costs: [{ resource: "iron", amount: 20 }, { resource: "wood", amount: 2 }],
     produces: { resource: "weapons", amount: 1 }, craftTime: 180,
   },
   {
     id: "soldiers_sword", name: "Soldier's Sword", icon: "🗡️", building: "blacksmith", minLevel: 2,
-    costs: [{ resource: "steel", amount: 4 }, { resource: "leather", amount: 3 }],
+    costs: [{ resource: "iron", amount: 18 }, { resource: "leather", amount: 3 }],
     produces: { resource: "weapons", amount: 1 }, craftTime: 150,
   },
   {
     id: "watchmans_blade", name: "Watchman's Blade", icon: "🗡️", building: "blacksmith", minLevel: 2,
-    costs: [{ resource: "steel", amount: 3 }, { resource: "leather", amount: 3 }],
+    costs: [{ resource: "iron", amount: 16 }, { resource: "leather", amount: 3 }],
     produces: { resource: "weapons", amount: 1 }, craftTime: 150,
   },
   {
     id: "old_gladius", name: "Old Gladius", icon: "⚔️", building: "blacksmith", minLevel: 3,
-    costs: [{ resource: "steel", amount: 4 }, { resource: "bone", amount: 2 }],
+    costs: [{ resource: "iron", amount: 20 }, { resource: "bone", amount: 2 }],
     produces: { resource: "weapons", amount: 1 }, craftTime: 200,
   },
   // ── Rung-4 rare: a master smith's pattern-welded masterwork (no magic) ──
