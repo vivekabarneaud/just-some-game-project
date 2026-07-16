@@ -122,11 +122,6 @@ export default function ResourceBar() {
     return c[id as keyof typeof c];
   };
 
-  // Water has its own net rate (well + rain − irrigation), not in the resource
-  // production rates. Only surfaced once the player has water infrastructure.
-  const hasWaterInfra = () =>
-    state.buildings.some((b) => (b.buildingId === "well" || b.buildingId === "cistern") && b.level > 0);
-
   const getRate = (id: string) => {
     const r = rates();
     const base = r[id as keyof typeof r] as number;
@@ -372,10 +367,10 @@ export default function ResourceBar() {
         </div>
       </Show>
 
-      {/* Water — shown once there's a well or cistern; dropdown breaks down the
-          sources (well, rain, drainage) and draws (livestock, irrigation). */}
-      <Show when={hasWaterInfra()}>
-        {(() => {
+      {/* Water — always shown; a base reserve exists from the start (stream in,
+          folk / crops / livestock out). A well or cistern raises the cap and
+          inflow. Dropdown breaks down the sources and draws. */}
+      {(() => {
           const rate = () => actions.getWaterRate();
           const cap = () => caps().water;
           // Water is consumed in whole units, so rates read as integers.
@@ -440,7 +435,6 @@ export default function ResourceBar() {
             </div>
           );
         })()}
-      </Show>
 
       {/* Exotic goods — caravan-only spices & tea */}
       <Show when={state.exotics && Object.values(state.exotics).some((v) => (v as number) > 0)}>
