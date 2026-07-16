@@ -158,6 +158,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "item", itemId: "notched_hatchet", chance: 0.15 }, // brigands carry axes
       { type: "item", itemId: "fighting_knife", chance: 0.1 },   // and knives
       { type: "item", itemId: "poachers_bow", chance: 0.06 },    // some carry a poacher's bow
+      { type: "item", itemId: "scavenged_mail", chance: 0.05 },  // and the odd looted hauberk
     ],
   },
   {

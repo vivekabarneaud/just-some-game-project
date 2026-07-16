@@ -36,8 +36,8 @@ export const STARTER_GEAR: ItemDefinition[] = [
   },
   {
     id: "worn_chainmail", rarity: "common", name: "Worn Chainmail", icon: "⛓️", slot: "chest", armorType: "mail",
-    description: "+10 DEF", flavor: "An old coat of mail, rings gone dull. Heavier than it protects, but better than cloth.",
-    classes: [], stats: {}, defense: 10, durationMod: 1, lootMod: 1, recipeId: "", consumable: false,
+    description: "+35 DEF", flavor: "An old coat of mail, rings gone dull. Heavy and much-mended, but it has turned a blade before.",
+    classes: [], stats: {}, defense: 35, durationMod: 1, lootMod: 1, recipeId: "", consumable: false,
   },
   {
     id: "homespun_robe", rarity: "common", name: "Homespun Robe", icon: "🧶", slot: "chest", armorType: "cloth",

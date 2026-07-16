@@ -400,13 +400,24 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
   },
   {
     id: "chainmail",
-    name: "Chainmail Armor",
+    name: "Chainmail Hauberk",
     icon: "⛓️",
     building: "blacksmith",
-    minLevel: 4,
-    costs: [{ resource: "iron", amount: 35 }, { resource: "fiber", amount: 8 }, { resource: "gold", amount: 20 }],
+    minLevel: 3,
+    costs: [{ resource: "iron", amount: 30 }, { resource: "leather", amount: 4 }],
     produces: { resource: "armor", amount: 1 },
-    craftTime: 600, // 35 min
+    craftTime: 400,
+  },
+  // ── Mail chest line (iron rings + leather/fiber padding) ──
+  {
+    id: "chainmail_shirt", name: "Chainmail Shirt", icon: "⛓️", building: "blacksmith", minLevel: 2,
+    costs: [{ resource: "iron", amount: 22 }, { resource: "leather", amount: 3 }],
+    produces: { resource: "armor", amount: 1 }, craftTime: 200,
+  },
+  {
+    id: "riveted_hauberk", name: "Riveted Hauberk", icon: "⛓️", building: "blacksmith", minLevel: 3,
+    costs: [{ resource: "iron", amount: 28 }, { resource: "fiber", amount: 5 }],
+    produces: { resource: "armor", amount: 1 }, craftTime: 420,
   },
   {
     id: "steel_sword",
