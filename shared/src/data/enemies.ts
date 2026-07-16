@@ -1009,7 +1009,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { id: "lunge", name: "Lunge", icon: "💨", cooldown: 2, trigger: "always", effect: { type: "damage_mult", mult: 1.8, targets: 1 } },
     ],
     loot: [
-      { type: "resource", resource: "alpha_fang", chance: 0.4, min: 1, max: 1 },
+      { type: "resource", resource: "alpha_fang", chance: 1, min: 1, max: 1 }, // signature trophy: guaranteed on the kill
       { type: "resource", resource: "thick_pelt", chance: 0.6, min: 1, max: 2 },
       { type: "resource", resource: "sinew_cord", chance: 0.4, min: 1, max: 2 },
       { type: "resource", resource: "meat", chance: 0.8, min: 4, max: 10 },

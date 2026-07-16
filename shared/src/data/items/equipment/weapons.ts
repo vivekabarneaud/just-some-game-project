@@ -60,7 +60,7 @@ export const WEAPONS: ItemDefinition[] = [
   {
     id: "patternwelded_sword", rarity: "rare", name: "Pattern-Welded Blade", icon: "⚔️", slot: "mainHand", weaponType: "sword",
     description: "+2 STR",
-    flavor: "Steel folded on itself a hundred times, until the grain runs like water down the blade. The work of a master, and months of it.",
+    flavor: "Steel folded a hundred times until the grain runs like water, its pommel set with a pack alpha's fang. A master's work, and a hard-won trophy.",
     classes: [], stats: { str: 2 }, dmgMin: 7, dmgMax: 10, durationMod: 1, lootMod: 1,
     recipeId: "patternwelded_sword", consumable: false,
   },

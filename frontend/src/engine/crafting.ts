@@ -312,8 +312,8 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
   // ── Rung-4 rare: a master smith's pattern-welded masterwork (no magic) ──
   {
     id: "patternwelded_sword", name: "Pattern-Welded Blade", icon: "⚔️", building: "blacksmith", minLevel: 4,
-    description: "Folded and forge-welded again and again until the grain runs like water down the steel. Months of a master's work.",
-    costs: [{ resource: "steel", amount: 12 }, { resource: "leather", amount: 4 }],
+    description: "Folded and forge-welded until the grain runs like water down the steel, its pommel set with the fang of a pack alpha. Months of a master's work — and a hard kill.",
+    costs: [{ resource: "steel", amount: 12 }, { resource: "alpha_fang", amount: 1 }, { resource: "leather", amount: 3 }],
     produces: { resource: "weapons", amount: 1 }, craftTime: 1200,
   },
   {

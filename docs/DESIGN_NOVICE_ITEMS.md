@@ -118,7 +118,9 @@ PoE2/Diablo model: the staff/wand **carries a spell that replaces the auto-attac
 **Binding — NONE.** All gear, including rares, is freely tradeable/resellable (co-op economy; a hand-me-down rare is a feature). Rare "overflow" is managed by **scarcity**, not locks: rare ingredients from hard/rare sources + the marketplace's per-dupe price decay.
 
 **Rare tier — two sources:**
-1. **Craft-mastery** — e.g. the sword's rung-4 `patternwelded_sword` (+2 STR, 7–10): a master smith (blacksmith L4) + a large steel volume. Rare via cost/effort, no magic.
-2. **Unique-boss signature material (guaranteed drop)** — one kill → one precious material → the player **chooses the form** (rare sword / armor / trinket via different recipes). Plus repeatable missions rarely drop a finished rare or the material directly. Instantiated per boss on the category the boss fits (alpha **fang → dagger**, bear **hide → armor**, …).
+1. **Craft-mastery** — the master smith's steel work (blacksmith L4 + steel volume).
+2. **Unique-boss signature material (guaranteed drop)** — one kill → one precious material → the player **chooses the form**. Plus repeatable missions rarely drop a finished rare or the material directly.
+
+**These COMBINE on the rare (2026-07-16 insight):** a beast trophy can't *be* a forged blade, but it can be the **component** (the pommel/fitting). So the rung-4 `patternwelded_sword` (+2 STR, 7–10) = master-smith **steel blade** (craft-mastery) + a pack alpha's **fang pommel** (boss trophy: `alpha_fang`, now a **guaranteed** alpha-wolf drop). That's both sources in one item, and it delivers the flexible-material vision — the *same* `alpha_fang` becomes a rare **dagger** (as the blade) *or* a rare **sword** (as the pommel), player's choice. Bosses that don't suit a category feed the ones they do (bear hide → armor, boar tusk/skull → mace).
 
 **Swords status:** starter (plain 3–5) → common craft (iron 4–7, short/dagger analogues) → six uncommons (rung 3, mixed craft/loot) → **rare pattern-welded** (rung 4). Done bar art + the damage-display UI.
