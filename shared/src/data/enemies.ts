@@ -144,6 +144,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "item", itemId: "duelist_blade", chance: 0.08 },  // a fine stolen blade
       { type: "item", itemId: "reavers_blade", chance: 0.05 },  // a heavy raider's sword
       { type: "item", itemId: "reavers_greatsword", chance: 0.04 }, // a brute two-hander
+      { type: "item", itemId: "notched_hatchet", chance: 0.15 }, // brigands carry axes
     ],
   },
   {

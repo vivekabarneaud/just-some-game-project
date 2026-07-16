@@ -338,6 +338,23 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     costs: [{ resource: "steel", amount: 18 }, { resource: "alpha_fang", amount: 1 }, { resource: "leather", amount: 4 }],
     produces: { resource: "weapons", amount: 1 }, craftTime: 1500,
   },
+  // ── Axes — iron head + wood haft, cheap. (Notched Hatchet = bandit loot,
+  //    Hester's Axe = her side-chain reward; neither is craftable.) ──
+  {
+    id: "hand_axe", name: "Hand Axe", icon: "🪓", building: "blacksmith", minLevel: 1,
+    costs: [{ resource: "iron", amount: 8 }, { resource: "wood", amount: 6 }],
+    produces: { resource: "weapons", amount: 1 }, craftTime: 40,
+  },
+  {
+    id: "felling_axe", name: "Felling Axe", icon: "🪓", building: "blacksmith", minLevel: 1,
+    costs: [{ resource: "iron", amount: 12 }, { resource: "wood", amount: 10 }],
+    produces: { resource: "weapons", amount: 1 }, craftTime: 80,
+  },
+  {
+    id: "great_axe", name: "Great Axe", icon: "🪓", building: "blacksmith", minLevel: 3,
+    costs: [{ resource: "iron", amount: 26 }, { resource: "wood", amount: 6 }],
+    produces: { resource: "weapons", amount: 1 }, craftTime: 260,
+  },
   {
     id: "iron_shield",
     name: "Iron Shield",

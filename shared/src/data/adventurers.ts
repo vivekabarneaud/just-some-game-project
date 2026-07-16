@@ -887,6 +887,7 @@ function starterEquipment(premade: PremadeCharacter): Adventurer["equipment"] {
   // Per-character flavor (add specifics here as characters need them):
   if (premade.id === "char_005") eq.chest = "worn_chainmail"; // Gareth: mail, not leather
   if (premade.id === "char_000") eq.head = "cloth_hood";      // Brenna: a cloth hood
+  if (premade.id === "char_019") eq.mainHand = "felling_axe"; // Hester: her woodcutter's felling axe (axe_master)
   return eq;
 }
 

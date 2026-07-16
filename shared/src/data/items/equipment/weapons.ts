@@ -102,6 +102,44 @@ export const WEAPONS: ItemDefinition[] = [
     classes: [], stats: { str: 3 }, dmgMin: 11, dmgMax: 16, durationMod: 1, lootMod: 1,
     recipeId: "patternwelded_greatsword", consumable: false,
   },
+  // ── Axes — the frontier weapon (iron head + wood haft, cheap + brutal/wide).
+  //    Warrior-only. 1H = the cheap alternative to a forged sword; 2H = the
+  //    woodcutter's felling axe, Hester's whole identity (axe_master +12%). ──
+  {
+    id: "hand_axe", rarity: "common", name: "Hand Axe", icon: "🪓", slot: "mainHand", weaponType: "axe",
+    description: "",
+    flavor: "A one-handed work axe — splits kindling as happily as shields. Cheaper than a sword, and it bites deep when it lands.",
+    classes: [], stats: {}, dmgMin: 3, dmgMax: 7, durationMod: 1, lootMod: 1,
+    recipeId: "hand_axe", consumable: false,
+  },
+  {
+    id: "notched_hatchet", rarity: "common", name: "Notched Hatchet", icon: "🪓", slot: "mainHand", weaponType: "axe",
+    description: "",
+    flavor: "A crude, notched hatchet off a dead brigand. Ugly, chipped, and honestly no worse for it.",
+    classes: [], stats: {}, dmgMin: 3, dmgMax: 6, durationMod: 1, lootMod: 1,
+    recipeId: "", consumable: false,
+  },
+  {
+    id: "felling_axe", rarity: "common", name: "Felling Axe", icon: "🪓", slot: "mainHand", weaponType: "axe", twoHanded: true,
+    description: "",
+    flavor: "A long two-handed axe made to bring down ironbark. It brings down other things too, if it must.",
+    classes: [], stats: {}, dmgMin: 7, dmgMax: 13, durationMod: 1, lootMod: 1,
+    recipeId: "felling_axe", consumable: false,
+  },
+  {
+    id: "great_axe", rarity: "uncommon", name: "Great Axe", icon: "🪓", slot: "mainHand", weaponType: "axe", twoHanded: true,
+    description: "+2 STR",
+    flavor: "A broad-bladed battle axe, heavy at the head and hungry for the swing. Reliable it is not; frightening it is.",
+    classes: [], stats: { str: 2 }, dmgMin: 9, dmgMax: 16, durationMod: 1, lootMod: 1,
+    recipeId: "great_axe", consumable: false,
+  },
+  {
+    id: "hesters_keepsake", rarity: "rare", name: "Hester's Axe", icon: "🪓", slot: "mainHand", weaponType: "axe", twoHanded: true,
+    description: "+3 STR",
+    flavor: "The axe that did both jobs, kept sharp all these years. She does not talk about it, and she does not lend it out.",
+    classes: [], stats: { str: 3 }, dmgMin: 11, dmgMax: 17, durationMod: 1, lootMod: 1,
+    recipeId: "", consumable: false,
+  },
   {
     id: "steel_sword", rarity: "uncommon", name: "Steel Sword", icon: "🗡️", slot: "mainHand", weaponType: "sword",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/steel_sword.png",
