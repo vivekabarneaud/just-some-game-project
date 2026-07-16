@@ -77,6 +77,12 @@ export interface ItemDefinition {
   armorType?: ArmorType;
   /** Weapon family (mainHand only) — drives weapon-affinity traits. Optional. */
   weaponType?: WeaponType;
+  /** Physical auto-attack damage range (mainHand weapons). The combat sim rolls
+   *  within [dmgMin, dmgMax] as the base hit, then scales it by the wielder's
+   *  primary stat. If omitted, a rarity-default range is used (see combat units).
+   *  Casters (staves/wands) drive damage through their spell instead (Phase 2). */
+  dmgMin?: number;
+  dmgMax?: number;
   /** Stat bonuses provided by this item */
   stats: Partial<AdventurerStats>;
   /** Duration reduction multiplier (0.9 = 10% faster) */

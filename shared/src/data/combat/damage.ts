@@ -1,6 +1,6 @@
 import type { CombatUnit } from "./types.js";
 import { combatRandom } from "./prng.js";
-import { getAttackPower, getMagicPower, getCritChance, getDefenseReduction, getMagicResistReduction, dealsMagicalDamage } from "./stats.js";
+import { getAttackPower, getMagicPower, getCritChance, getDefenseReduction, getMagicResistReduction, dealsMagicalDamage, ATTACK_STAT_SCALE } from "./stats.js";
 import { getTraitDamageBonus, getTraitCritBonus, getWeaponTraitBonus } from "./traits.js";
 
 export interface DamageOptions {
@@ -64,12 +64,21 @@ export function calcDamageResult(attacker: CombatUnit, defender: CombatUnit, opt
     return { damage: 0, rawDamage: 0, crit: false };
   }
 
-  const power = magical ? getMagicPower(attacker) : getAttackPower(attacker);
   const reductionPct = opts?.ignorePhysicalDef
     ? getMagicResistReduction(defender)
     : (magical ? getMagicResistReduction(defender) : getDefenseReduction(defender));
 
-  let rawDamage = Math.max(1, Math.floor(power * (0.7 + combatRandom() * 0.6)));
+  // Physical: roll the weapon's own damage range, then scale by the primary stat
+  // (a better weapon AND a stronger fighter both matter). Magical is unchanged
+  // for now — INT-driven — until the caster spell-weapon pass (Phase 2).
+  let rawDamage: number;
+  if (magical) {
+    rawDamage = Math.max(1, Math.floor(getMagicPower(attacker) * (0.7 + combatRandom() * 0.6)));
+  } else {
+    const roll = attacker.dmgMin + Math.floor(combatRandom() * (attacker.dmgMax - attacker.dmgMin + 1));
+    const scale = 1 + getAttackPower(attacker) * ATTACK_STAT_SCALE;
+    rawDamage = Math.max(1, Math.floor(roll * scale));
+  }
 
   const crit = !!opts?.forceCrit || combatRandom() * 100 < (getCritChance(attacker) + getTraitCritBonus(attacker));
   if (crit) rawDamage = Math.floor(rawDamage * 1.5);

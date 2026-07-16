@@ -47,6 +47,11 @@ export interface CombatUnit {
   class?: AdventurerClass;
   isMagical: boolean;
   gearDefense: number;
+  /** This unit's physical auto-attack damage range (weapon for adventurers, the
+   *  creature's own bite/claw for enemies, fists as a fallback). The roll in
+   *  this range is the BASE, then scaled by the primary stat in calcDamageResult. */
+  dmgMin: number;
+  dmgMax: number;
   trait?: string;
   /** Adventurer talent ids (for combat hooks — e.g. the wounded-damage penalty
    *  can be bypassed by "unflinching" or inverted by "last_stand"). */

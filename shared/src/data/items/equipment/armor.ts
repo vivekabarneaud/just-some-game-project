@@ -232,8 +232,8 @@ export const ARMOR: ItemDefinition[] = [
   },
   {
     id: "goblin_crown", rarity: "rare", name: "Goblin Crown", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/goblin_crown.png", icon: "👑", slot: "head",
-    description: "+2 DEX, +1 STR, +10% loot. Bent copper and stolen gems. It's ugly. It's also lucky.",
-    classes: [], stats: { dex: 2, str: 1 }, durationMod: 1, lootMod: 1.10, recipeId: "", consumable: false,
+    description: "+2 DEX, +1 STR, 20 DEF, +10% loot. Bent copper and stolen gems. It's ugly. It's also lucky.",
+    classes: [], stats: { dex: 2, str: 1 }, durationMod: 1, lootMod: 1.10, recipeId: "", consumable: false, defense: 20,
   },
   {
     id: "necromancer_cowl", rarity: "epic", name: "Necromancer's Cowl", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/tailoring/necromancer_cowl.png", icon: "🧥", slot: "head",

@@ -4,7 +4,18 @@ import { getEquipmentStats, getEquipmentDefense, getItem } from "../items/index.
 import { getEnemy } from "../enemies.js";
 import type { MissionEncounter, MissionNpcAlly } from "../missions/index.js";
 import { getNpcAlly } from "../npcs.js";
+import { rarityWeaponRange, UNARMED_RANGE, derivedDamageRange } from "./stats.js";
 import type { CombatUnit } from "./types.js";
+
+/** The physical damage range a mainHand weapon confers: an authored range if it
+ *  has one, else a rarity default, else fists. Casters ignore this (magic path). */
+function weaponRange(mainHandId?: string | null): { min: number; max: number } {
+  if (!mainHandId) return UNARMED_RANGE;
+  const item = getItem(mainHandId);
+  if (!item) return UNARMED_RANGE;
+  if (item.dmgMin != null && item.dmgMax != null) return { min: item.dmgMin, max: item.dmgMax };
+  return rarityWeaponRange(item.rarity);
+}
 
 /** Premades who upgrade the team's retreat judgment (Model C commander system).
  *  Interim: recognized by premadeId until a "tactics"/commander talent exists —
@@ -16,6 +27,7 @@ export function buildAdventurerUnit(adv: Adventurer): CombatUnit {
   const equipStats = getEquipmentStats(adv.equipment);
   const stats = calcStats(adv, equipStats);
   const hp = stats.vit * 8;
+  const wr = weaponRange(adv.equipment.mainHand);
   const isCommander = (adv.premadeId ? COMMANDER_PREMADE_IDS.has(adv.premadeId) : false)
     || (adv.talents?.includes("commander_tactics") ?? false);
   return {
@@ -26,6 +38,7 @@ export function buildAdventurerUnit(adv: Adventurer): CombatUnit {
     talents: adv.talents,
     isMagical: adv.class === "wizard" || adv.class === "priest",
     gearDefense: getEquipmentDefense(adv.equipment),
+    dmgMin: wr.min, dmgMax: wr.max,
     trait: adv.trait,
     weaponType: adv.equipment.mainHand ? getItem(adv.equipment.mainHand)?.weaponType : undefined,
     canAct: true, canBeHealed: true, isTauntable: false,
@@ -48,6 +61,7 @@ export function buildNpcAllyUnit(missionNpc: MissionNpcAlly): CombatUnit | null 
   // Passive NPCs (ritualists, frail VIPs) take no turn — canAct=false skips
   // them in the action phase. Enemies still target them; priests still heal them.
   const passive = !!missionNpc.passive;
+  const npcRange = derivedDamageRange(Math.max(def.stats.str, def.stats.dex));
   return {
     id: `npc_${def.id}`,
     name: def.name,
@@ -59,6 +73,7 @@ export function buildNpcAllyUnit(missionNpc: MissionNpcAlly): CombatUnit | null 
     class: def.class,
     isMagical: def.class === "wizard" || def.class === "priest",
     gearDefense: 0,
+    dmgMin: npcRange.min, dmgMax: npcRange.max,
     npcId: def.id,
     canAct: !passive,
     canBeHealed: true,
@@ -76,6 +91,11 @@ export function buildEnemyUnits(encounters: MissionEncounter[]): CombatUnit[] {
     const def = getEnemy(enc.enemyId);
     if (!def) continue;
     const isMagical = def.tags.includes("magical") || def.tags.includes("demon");
+    // A creature's bite/claw range: authored if the def carries one, else derived
+    // from its offensive stat (behavior-preserving — hits exactly as before).
+    const eRange = (def.dmgMin != null && def.dmgMax != null)
+      ? { min: def.dmgMin, max: def.dmgMax }
+      : derivedDamageRange(Math.max(def.stats.str, def.stats.dex));
     for (let i = 0; i < enc.count; i++) {
       const hp = def.stats.vit * 10;
       units.push({
@@ -89,6 +109,7 @@ export function buildEnemyUnits(encounters: MissionEncounter[]): CombatUnit[] {
         vit: def.stats.vit,
         wis: def.stats.wis ?? 0,
         class: undefined, isMagical, gearDefense: 0,
+        dmgMin: eRange.min, dmgMax: eRange.max,
         enemyTags: def.tags,
         enemyDefId: def.id,
         routsAt: def.routsAt,

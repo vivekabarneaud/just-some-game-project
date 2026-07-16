@@ -18,7 +18,7 @@ import type { MissionEncounter } from "./missions/index.js";
 import type { CombatLogEntry, CombatUnit } from "./combat/types.js";
 import { setCombatSeed, combatRandom } from "./combat/prng.js";
 import { calcDamageResult } from "./combat/damage.js";
-import { getDodgeChance } from "./combat/stats.js";
+import { getDodgeChance, derivedDamageRange } from "./combat/stats.js";
 import { buildEnemyUnits } from "./combat/units.js";
 
 export type DefenseRing = "outer" | "middle" | "inner";
@@ -130,6 +130,7 @@ function buildWallUnit(ring: DefenseRing, level: number, currentHp: number): Com
     wis: 0,
     isMagical: false,
     gearDefense: 30 + 8 * level,
+    dmgMin: 1, dmgMax: 1, // a wall doesn't strike
     canAct: true, canBeHealed: false, isTauntable: false,
     threatMultiplier: 0,
     cooldowns: {}, slowed: 0, poisonTicks: [],
@@ -160,6 +161,7 @@ function buildArcherStack(ring: DefenseRing, count: number, trainedLevel: number
     class: "archer",
     isMagical: false,
     gearDefense: 8,
+    ...(() => { const r = derivedDamageRange(Math.floor(baseDex * atkMult)); return { dmgMin: r.min, dmgMax: r.max }; })(),
     canAct: true, canBeHealed: true, isTauntable: false,
     threatMultiplier: 1.0,
     headcount: count,
@@ -186,6 +188,7 @@ function buildMilitiaStack(count: number): CombatUnit | null {
     class: "warrior",
     isMagical: false,
     gearDefense: 4,
+    ...(() => { const r = derivedDamageRange(7); return { dmgMin: r.min, dmgMax: r.max }; })(),
     canAct: true, canBeHealed: true, isTauntable: false,
     threatMultiplier: 0.6,
     headcount: count,
@@ -213,6 +216,7 @@ function buildSoldierStack(ring: DefenseRing, count: number, trainedLevel: numbe
     class: "warrior",
     isMagical: false,
     gearDefense: 14,
+    ...(() => { const r = derivedDamageRange(Math.floor(baseStr * atkMult)); return { dmgMin: r.min, dmgMax: r.max }; })(),
     canAct: true, canBeHealed: true, isTauntable: false,
     threatMultiplier: 1.0,
     headcount: count,

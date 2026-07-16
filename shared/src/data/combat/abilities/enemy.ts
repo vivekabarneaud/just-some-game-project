@@ -1,6 +1,6 @@
 import { combatRandom } from "../prng.js";
 import { calcDamageResult } from "../damage.js";
-import { getAttackPower } from "../stats.js";
+import { getAttackPower, derivedDamageRange } from "../stats.js";
 import { getEnemy } from "../../enemies.js";
 import type { CombatContext, CombatUnit } from "../types.js";
 
@@ -210,6 +210,9 @@ export function tryEnemyAbility(unit: CombatUnit, ctx: CombatContext): boolean {
         if (!summonDef) continue;
         for (let s = 0; s < eff.count; s++) {
           const summonHp = summonDef.stats.vit * 10;
+          const summonRange = (summonDef.dmgMin != null && summonDef.dmgMax != null)
+            ? { min: summonDef.dmgMin, max: summonDef.dmgMax }
+            : derivedDamageRange(Math.max(summonDef.stats.str, summonDef.stats.dex));
           ctx.enemies.push({
             id: `${eff.enemyId}_summon_${ctx.round}_${s}`,
             name: summonDef.name,
@@ -223,6 +226,7 @@ export function tryEnemyAbility(unit: CombatUnit, ctx: CombatContext): boolean {
             class: undefined,
             isMagical: summonDef.tags.includes("magical") || summonDef.tags.includes("demon"),
             gearDefense: 0,
+            dmgMin: summonRange.min, dmgMax: summonRange.max,
             enemyTags: summonDef.tags,
             enemyDefId: summonDef.id,
             canAct: true, canBeHealed: true, isTauntable: true,

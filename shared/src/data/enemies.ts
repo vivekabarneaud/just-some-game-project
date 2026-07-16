@@ -98,6 +98,12 @@ export interface EnemyDefinition {
   tauntImmunity?: EnemyTauntImmunity;
   abilities?: EnemyAbility[];
   loot?: LootDrop[];   // drops on kill — empty/undefined means no drops
+  /** Physical auto-attack damage range (the creature's bite/claw/swing). The sim
+   *  rolls within [dmgMin, dmgMax] then scales by the creature's offensive stat.
+   *  If omitted, a behavior-preserving range is derived from that stat (so an
+   *  un-tuned enemy hits exactly as before) — set explicitly to hand-tune. */
+  dmgMin?: number;
+  dmgMax?: number;
   /** Beast rout: this creature BREAKS AND FLEES when its HP falls to/below this
    *  fraction of max (0-1), surviving instead of being killed. A fled enemy
    *  counts as defeated (field cleared = victory, full performance) but yields
