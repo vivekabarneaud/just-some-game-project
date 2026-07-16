@@ -31,8 +31,8 @@ export const STARTER_GEAR: ItemDefinition[] = [
   },
   {
     id: "patched_leather", rarity: "common", name: "Patched Leathers", icon: "🟫", slot: "chest", armorType: "leather",
-    description: "+6 DEF", flavor: "A patched leather jerkin, much mended. It has seen a few winters.",
-    classes: [], stats: {}, defense: 6, durationMod: 1, lootMod: 1, recipeId: "", consumable: false,
+    description: "+20 DEF", flavor: "A patched leather jerkin, much mended. It has seen a few winters, and turned a claw or two.",
+    classes: [], stats: {}, defense: 20, durationMod: 1, lootMod: 1, recipeId: "", consumable: false,
   },
   {
     id: "worn_chainmail", rarity: "common", name: "Worn Chainmail", icon: "⛓️", slot: "chest", armorType: "mail",

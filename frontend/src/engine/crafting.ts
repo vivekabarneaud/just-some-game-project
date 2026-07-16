@@ -440,13 +440,18 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
   // ── Leatherworking recipes ────────────────────────────────────
   {
     id: "leather_vest",
-    name: "Leather Vest",
+    name: "Leather Jerkin",
     icon: "🦺",
     building: "leatherworking",
     minLevel: 1,
     costs: [{ resource: "leather", amount: 12 }],
     produces: { resource: "armor", amount: 1 },
     craftTime: 30,
+  },
+  {
+    id: "studded_leather", name: "Studded Leather", icon: "🦺", building: "leatherworking", minLevel: 2,
+    costs: [{ resource: "leather", amount: 14 }, { resource: "iron", amount: 4 }],
+    produces: { resource: "armor", amount: 1 }, craftTime: 120,
   },
   {
     id: "leather_boots",
