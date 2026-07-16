@@ -172,26 +172,32 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     craftTime: 300, // 15 min
   },
 
-  // ── Tailoring — Robes ──────────────────────────────────────────
+  // ── Tailoring — Robes (cloth chest, open to casters; bone/leather on some) ──
   {
-    id: "priest_robes",
-    name: "Priest Robes",
-    icon: "🥋",
-    building: "tailoring_shop",
-    minLevel: 2,
-    costs: [{ resource: "fiber", amount: 12 }, { resource: "wool", amount: 6 }, { resource: "gold", amount: 15 }],
-    produces: { resource: "armor", amount: 1 },
-    craftTime: 120, // 20 min
+    id: "padded_robe", name: "Padded Robe", icon: "🧶", building: "tailoring_shop", minLevel: 2,
+    costs: [{ resource: "wool", amount: 6 }, { resource: "fiber", amount: 4 }],
+    produces: { resource: "armor", amount: 1 }, craftTime: 100,
   },
   {
-    id: "wizard_robes",
-    name: "Wizard Robes",
-    icon: "🧙",
-    building: "tailoring_shop",
-    minLevel: 3,
-    costs: [{ resource: "fiber", amount: 15 }, { resource: "wool", amount: 8 }, { resource: "gold", amount: 20 }],
-    produces: { resource: "armor", amount: 1 },
-    craftTime: 300, // 25 min
+    id: "wizard_robes", name: "Scholar's Robe", icon: "🧙", building: "tailoring_shop", minLevel: 2,
+    costs: [{ resource: "fiber", amount: 12 }, { resource: "bone", amount: 2 }],
+    produces: { resource: "armor", amount: 1 }, craftTime: 120,
+  },
+  {
+    id: "priest_robes", name: "Devout Robe", icon: "🥋", building: "tailoring_shop", minLevel: 2,
+    costs: [{ resource: "wool", amount: 8 }, { resource: "leather", amount: 2 }],
+    produces: { resource: "armor", amount: 1 }, craftTime: 120,
+  },
+  {
+    id: "warded_robe", name: "Warded Robe", icon: "🧶", building: "tailoring_shop", minLevel: 3,
+    costs: [{ resource: "wool", amount: 8 }, { resource: "fiber", amount: 6 }, { resource: "bone", amount: 2 }],
+    produces: { resource: "armor", amount: 1 }, craftTime: 200,
+  },
+  {
+    id: "sinew_corded_robe", name: "Sinew-Corded Robe", icon: "🧶", building: "tailoring_shop", minLevel: 3,
+    description: "A frontier mystic's robe laced with a pack alpha's sinew — tough as harness leather.",
+    costs: [{ resource: "alpha_sinew", amount: 1 }, { resource: "wool", amount: 8 }, { resource: "fiber", amount: 6 }],
+    produces: { resource: "armor", amount: 1 }, craftTime: 400,
   },
 
   // ── Woodworker — Building Tools ────────────────────────────────

@@ -41,7 +41,7 @@ export const STARTER_GEAR: ItemDefinition[] = [
   },
   {
     id: "homespun_robe", rarity: "common", name: "Homespun Robe", icon: "🧶", slot: "chest", armorType: "cloth",
-    description: "+4 DEF", flavor: "A plain homespun robe, warm enough and no more.",
-    classes: ["wizard", "priest"], stats: {}, defense: 4, durationMod: 1, lootMod: 1, recipeId: "", consumable: false,
+    description: "+8 DEF", flavor: "A plain homespun robe, warm enough and no more.",
+    classes: ["wizard", "priest"], stats: {}, defense: 8, durationMod: 1, lootMod: 1, recipeId: "", consumable: false,
   },
 ];
