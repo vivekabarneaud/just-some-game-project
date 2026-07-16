@@ -152,10 +152,35 @@ export const ARMOR: ItemDefinition[] = [
   {
     id: "leather_cloak", rarity: "common", name: "Leather Cloak", icon: "🧥", slot: "cloak",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/leather_cloak.png",
-    description: "+1 DEX, 12 DEF",
+    description: "12 DEF",
+    flavor: "A plain oiled-leather cloak, good against rain and road alike.",
     classes: [], armorType: "leather",
-    stats: { dex: 1 }, durationMod: 1, lootMod: 1,
+    stats: {}, durationMod: 1, lootMod: 1,
     recipeId: "leather_cloak", consumable: false, defense: 12,
+  },
+  {
+    id: "wool_cloak", rarity: "common", name: "Wool Cloak", icon: "🧣", slot: "cloak",
+    description: "8 DEF. A heavy travelling cloak of undyed wool. Warm, plain, and everywhere.",
+    classes: [], armorType: "cloth",
+    stats: {}, durationMod: 1, lootMod: 1, recipeId: "wool_cloak", consumable: false, defense: 8,
+  },
+  {
+    id: "furlined_cloak", rarity: "uncommon", name: "Fur-Lined Cloak", icon: "🧥", slot: "cloak",
+    description: "+1 VIT, 14 DEF. Leather lined with wolf fur — warm against the cold and tough at the shoulders.",
+    classes: [], armorType: "leather",
+    stats: { vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "furlined_cloak", consumable: false, defense: 14,
+  },
+  {
+    id: "rangers_cloak", rarity: "uncommon", name: "Ranger's Cloak", icon: "🧥", slot: "cloak",
+    description: "+1 DEX, 13 DEF. Light, hooded, and drab enough to disappear into a treeline.",
+    classes: [], armorType: "leather",
+    stats: { dex: 1 }, durationMod: 1, lootMod: 1, recipeId: "rangers_cloak", consumable: false, defense: 13,
+  },
+  {
+    id: "warded_cloak", rarity: "uncommon", name: "Warded Cloak", icon: "🧣", slot: "cloak",
+    description: "+1 WIS, 10 DEF. A wool cloak pinned with a bone clasp and a knot of warding thread.",
+    classes: [], armorType: "cloth",
+    stats: { wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "warded_cloak", consumable: false, defense: 10,
   },
   {
     id: "rangers_garb", rarity: "uncommon", name: "Ranger's Garb", icon: "🏹", slot: "chest",
