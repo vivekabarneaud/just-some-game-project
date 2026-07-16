@@ -10,7 +10,7 @@ export type ItemSlot = "head" | "chest" | "legs" | "boots" | "cloak" | "mainHand
 export type ArmorType = "cloth" | "leather" | "mail" | "plate";
 /** Weapon family for mainHand items. Drives weapon-affinity traits (e.g. Hester's
  *  axe mastery). Optional — untagged weapons simply match no affinity. */
-export type WeaponType = "sword" | "axe" | "dagger" | "mace" | "spear" | "staff" | "wand" | "bow";
+export type WeaponType = "sword" | "greatsword" | "axe" | "dagger" | "mace" | "spear" | "staff" | "wand" | "bow";
 
 /** Rarity tier — drives the ornament frame shown in the UI and roughly tracks
  *  power/source (common/uncommon crafted basics → rare/epic material & boss
@@ -49,7 +49,7 @@ export function getArmorAccess(cls: AdventurerClass, talents: string[] | undefin
 // Weapon families each class can wield. Mirrors CLASS_ARMOR_ACCESS: access is by
 // CATEGORY (weaponType), not per-item. Talents (e.g. shadowblade) extend it.
 export const CLASS_WEAPON_ACCESS: Record<AdventurerClass, WeaponType[]> = {
-  warrior: ["sword", "axe", "mace", "spear"],
+  warrior: ["sword", "greatsword", "axe", "mace", "spear"],
   archer:  ["bow", "dagger"],
   assassin: ["dagger"],
   wizard:  ["staff", "wand"],

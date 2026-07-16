@@ -316,6 +316,28 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     costs: [{ resource: "steel", amount: 12 }, { resource: "alpha_fang", amount: 1 }, { resource: "leather", amount: 3 }],
     produces: { resource: "weapons", amount: 1 }, craftTime: 1200,
   },
+  // ── Two-handed greatswords (iron; steel only for the rare) — first-pass costs ──
+  {
+    id: "greatsword", name: "Greatsword", icon: "⚔️", building: "blacksmith", minLevel: 2,
+    costs: [{ resource: "iron", amount: 28 }, { resource: "wood", amount: 3 }],
+    produces: { resource: "weapons", amount: 1 }, craftTime: 220,
+  },
+  {
+    id: "war_greatsword", name: "War Greatsword", icon: "⚔️", building: "blacksmith", minLevel: 3,
+    costs: [{ resource: "iron", amount: 32 }, { resource: "leather", amount: 4 }],
+    produces: { resource: "weapons", amount: 1 }, craftTime: 280,
+  },
+  {
+    id: "footmans_greatsword", name: "Footman's Greatsword", icon: "⚔️", building: "blacksmith", minLevel: 3,
+    costs: [{ resource: "iron", amount: 30 }, { resource: "bone", amount: 3 }],
+    produces: { resource: "weapons", amount: 1 }, craftTime: 280,
+  },
+  {
+    id: "patternwelded_greatsword", name: "Pattern-Welded Greatsword", icon: "⚔️", building: "blacksmith", minLevel: 4,
+    description: "Twice the steel of a one-handed blade, folded a hundred times, the alpha's fang in the crossguard. A giant among masterworks.",
+    costs: [{ resource: "steel", amount: 18 }, { resource: "alpha_fang", amount: 1 }, { resource: "leather", amount: 4 }],
+    produces: { resource: "weapons", amount: 1 }, craftTime: 1500,
+  },
   {
     id: "iron_shield",
     name: "Iron Shield",

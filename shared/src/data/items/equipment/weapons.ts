@@ -64,6 +64,44 @@ export const WEAPONS: ItemDefinition[] = [
     classes: [], stats: { str: 2 }, dmgMin: 7, dmgMax: 10, durationMod: 1, lootMod: 1,
     recipeId: "patternwelded_sword", consumable: false,
   },
+  // ── Two-handed greatswords — big swing, no off-hand (no shield). Warrior-only
+  //    (weaponType greatsword). Higher stat budget than 1H peers: they eat the
+  //    off-hand slot, but pay for it in lost shield defense. ──
+  {
+    id: "greatsword", rarity: "common", name: "Greatsword", icon: "⚔️", slot: "mainHand", weaponType: "greatsword", twoHanded: true,
+    description: "",
+    flavor: "A heavy two-handed blade. Slow to bring around, but there is no shield behind it and none needed in front.",
+    classes: [], stats: {}, dmgMin: 7, dmgMax: 12, durationMod: 1, lootMod: 1,
+    recipeId: "greatsword", consumable: false,
+  },
+  {
+    id: "war_greatsword", rarity: "uncommon", name: "War Greatsword", icon: "⚔️", slot: "mainHand", weaponType: "greatsword", twoHanded: true,
+    description: "+2 STR",
+    flavor: "A soldier's two-hander, balanced for the long swing. Takes both hands and all your weight.",
+    classes: [], stats: { str: 2 }, dmgMin: 9, dmgMax: 14, durationMod: 1, lootMod: 1,
+    recipeId: "war_greatsword", consumable: false,
+  },
+  {
+    id: "footmans_greatsword", rarity: "uncommon", name: "Footman's Greatsword", icon: "⚔️", slot: "mainHand", weaponType: "greatsword", twoHanded: true,
+    description: "+1 STR, +1 VIT",
+    flavor: "Thick through the spine and heavy at the guard. Built to stand in a line and not be moved.",
+    classes: [], stats: { str: 1, vit: 1 }, dmgMin: 8, dmgMax: 13, durationMod: 1, lootMod: 1,
+    recipeId: "footmans_greatsword", consumable: false,
+  },
+  {
+    id: "reavers_greatsword", rarity: "uncommon", name: "Reaver's Greatsword", icon: "⚔️", slot: "mainHand", weaponType: "greatsword", twoHanded: true,
+    description: "+2 STR",
+    flavor: "A brute of a blade, notched and ugly, swung by men who did not expect to need a second stroke.",
+    classes: [], stats: { str: 2 }, dmgMin: 8, dmgMax: 15, durationMod: 1, lootMod: 1,
+    recipeId: "", consumable: false,
+  },
+  {
+    id: "patternwelded_greatsword", rarity: "rare", name: "Pattern-Welded Greatsword", icon: "⚔️", slot: "mainHand", weaponType: "greatsword", twoHanded: true,
+    description: "+3 STR",
+    flavor: "Five feet of folded steel, the alpha's fang worked into the crossguard. A master's masterwork, and it takes a giant to swing it well.",
+    classes: [], stats: { str: 3 }, dmgMin: 11, dmgMax: 16, durationMod: 1, lootMod: 1,
+    recipeId: "patternwelded_greatsword", consumable: false,
+  },
   {
     id: "steel_sword", rarity: "uncommon", name: "Steel Sword", icon: "🗡️", slot: "mainHand", weaponType: "sword",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/steel_sword.png",

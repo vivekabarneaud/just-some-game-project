@@ -5,7 +5,7 @@ import type { ItemDefinition } from "@medieval-realm/shared/data/items";
 // Physical weapon families whose auto-attack rolls the weapon's damage range.
 // Staves/wands are magical (INT / spell-driven) — no physical range to show
 // until the Phase 2 caster spell-weapon pass.
-const PHYSICAL_WEAPONS = new Set(["sword", "axe", "dagger", "mace", "spear", "bow"]);
+const PHYSICAL_WEAPONS = new Set(["sword", "greatsword", "axe", "dagger", "mace", "spear", "bow"]);
 
 /** The physical damage range to display for a weapon, or null if it isn't a
  *  physical weapon. Mirrors the combat resolver: explicit range, else the
