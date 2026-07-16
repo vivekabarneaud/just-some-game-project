@@ -875,15 +875,15 @@ function starterEquipment(premade: PremadeCharacter): Adventurer["equipment"] {
     head: null, chest: null, legs: null, boots: null, cloak: null,
     mainHand: null, offHand: null, ring1: null, ring2: null, amulet: null, trinket: null,
   };
-  const BY_CLASS: Record<AdventurerClass, { mainHand: string; chest: string }> = {
-    warrior:  { mainHand: "plain_sword", chest: "worn_chainmail" },
-    archer:   { mainHand: "worn_bow",    chest: "patched_leather" },
-    assassin: { mainHand: "worn_dagger", chest: "patched_leather" },
-    wizard:   { mainHand: "plain_staff", chest: "homespun_robe" },
-    priest:   { mainHand: "plain_staff", chest: "homespun_robe" },
+  const BY_CLASS: Record<AdventurerClass, { mainHand: string; chest: string; boots: string }> = {
+    warrior:  { mainHand: "plain_sword", chest: "worn_chainmail",  boots: "leather_boots" },
+    archer:   { mainHand: "worn_bow",    chest: "patched_leather", boots: "leather_boots" },
+    assassin: { mainHand: "worn_dagger", chest: "patched_leather", boots: "leather_boots" },
+    wizard:   { mainHand: "plain_staff", chest: "homespun_robe",   boots: "soft_shoes" },
+    priest:   { mainHand: "plain_staff", chest: "homespun_robe",   boots: "soft_shoes" },
   };
   const kit = BY_CLASS[premade.class];
-  const eq: Adventurer["equipment"] = { ...empty, mainHand: kit.mainHand, chest: kit.chest };
+  const eq: Adventurer["equipment"] = { ...empty, mainHand: kit.mainHand, chest: kit.chest, boots: kit.boots };
   // Per-character flavor (add specifics here as characters need them):
   if (premade.id === "char_005") eq.chest = "worn_chainmail"; // Gareth: mail, not leather
   if (premade.id === "char_000") eq.head = "cloth_hood";      // Brenna: a cloth hood

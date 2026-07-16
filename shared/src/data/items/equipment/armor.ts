@@ -76,10 +76,29 @@ export const ARMOR: ItemDefinition[] = [
   {
     id: "leather_boots", rarity: "common", name: "Leather Boots", icon: "🥾", slot: "boots",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/leather_boots.png",
-    description: "+1 DEX, 15 DEF",
+    description: "15 DEF",
+    flavor: "Plain leather boots, cobbled for hard walking. What most everyone wears.",
     classes: [], armorType: "leather",
-    stats: { dex: 1 }, durationMod: 1, lootMod: 1,
+    stats: {}, durationMod: 1, lootMod: 1,
     recipeId: "leather_boots", consumable: false, defense: 15,
+  },
+  {
+    id: "marching_boots", rarity: "uncommon", name: "Marching Boots", icon: "🥾", slot: "boots",
+    description: "+1 VIT, 18 DEF. Thick-soled and reinforced at the ankle — built to stand a long line.",
+    classes: [], armorType: "leather",
+    stats: { vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "marching_boots", consumable: false, defense: 18,
+  },
+  {
+    id: "ironshod_boots", rarity: "uncommon", name: "Ironshod Boots", icon: "🥾", slot: "boots",
+    description: "+1 STR, 20 DEF. Iron-capped at the toe and heel. Heavy, sure-footed, and they kick like a mule.",
+    classes: [], armorType: "leather",
+    stats: { str: 1 }, durationMod: 1, lootMod: 1, recipeId: "ironshod_boots", consumable: false, defense: 20,
+  },
+  {
+    id: "trailblazer_boots", rarity: "uncommon", name: "Trailblazer's Boots", icon: "🥾", slot: "boots",
+    description: "+1 DEX, +1 VIT, 16 DEF. Supple but tough, made for long ground and rough country.",
+    classes: [], armorType: "leather",
+    stats: { dex: 1, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "trailblazer_boots", consumable: false, defense: 16,
   },
   {
     id: "leather_hood", rarity: "common", name: "Leather Hood", icon: "🪖", slot: "head",
@@ -238,9 +257,34 @@ export const ARMOR: ItemDefinition[] = [
   },
   {
     id: "soft_shoes", rarity: "common", name: "Soft Shoes", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/tailoring/pilgrim_sandals.png", icon: "👟", slot: "boots",
-    description: "+1 DEX, +1 WIS, 5 DEF. Cloth shoes with cork soles. Quiet, comfortable, terrible in mud.",
+    description: "5 DEF. Cloth shoes with cork soles. Quiet, comfortable, terrible in mud.",
     classes: [], armorType: "cloth",
-    stats: { dex: 1, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "soft_shoes", consumable: false, defense: 5,
+    stats: {}, durationMod: 1, lootMod: 1, recipeId: "soft_shoes", consumable: false, defense: 5,
+  },
+  // ── Cloth shoes (casters, cap uncommon) ──
+  {
+    id: "scholar_slippers", rarity: "uncommon", name: "Scholar's Slippers", icon: "🥿", slot: "boots",
+    description: "+1 INT, 6 DEF. Soft-soled and ink-stained. Made for pacing a study, not a battlefield.",
+    classes: [], armorType: "cloth",
+    stats: { int: 1 }, durationMod: 1, lootMod: 1, recipeId: "scholar_slippers", consumable: false, defense: 6,
+  },
+  {
+    id: "pilgrim_sandals", rarity: "uncommon", name: "Pilgrim's Sandals", icon: "🥿", slot: "boots",
+    description: "+1 WIS, 6 DEF. Worn thin on a thousand roads. The faith is in the walking.",
+    classes: [], armorType: "cloth",
+    stats: { wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "pilgrim_sandals", consumable: false, defense: 6,
+  },
+  {
+    id: "acolyte_shoes", rarity: "uncommon", name: "Acolyte's Shoes", icon: "🥿", slot: "boots",
+    description: "+1 INT, +1 WIS, 7 DEF. Plain temple shoes, blessed at the hem. Quiet on stone floors.",
+    classes: [], armorType: "cloth",
+    stats: { int: 1, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "acolyte_shoes", consumable: false, defense: 7,
+  },
+  {
+    id: "warded_slippers", rarity: "uncommon", name: "Warded Slippers", icon: "🥿", slot: "boots",
+    description: "+1 INT, +1 VIT, 7 DEF. Felt-lined and stitched with a small warding charm. For the caster who means to survive the day.",
+    classes: [], armorType: "cloth",
+    stats: { int: 1, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "warded_slippers", consumable: false, defense: 7,
   },
   {
     id: "scout_boots", rarity: "uncommon", name: "Scout's Boots", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/stalker_boots.png", icon: "🥾", slot: "boots",
