@@ -345,4 +345,67 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     unique: true,
     sideChain: { id: "the_strawberry_patch", name: "The Strawberry Patch" },
   },
+  // ── "The Tollman's Road" — the road turns organized, and we take it back ──
+  // Follows the merchant arc (gated on Cobb's first escort). Robbed → held → the
+  // nest broken. Merciful throughout: we drive off, we do not slaughter; the
+  // Tollman routs at 30% and his company scatters, and we bury no one. The camp
+  // hoard (kept on the captain's rout) yields captains_steel → the Roadwarden
+  // sword, and a lucky rare leather coat. Chronicle beats fire from the_tollmans_road.
+  {
+    id: "see_cobb_home",
+    name: "See Cobb Home",
+    description: "Cobb came in on foot, at dusk, with no wagon and no mules and no boots. They took the lot on the downriver road: the goods, the beasts, the coat off his back, and left him the walk. He is shaken more than hurt, and ashamed of the shaking. Walk him the rest of the way in, and go back down that road for whatever they dropped in their hurry. The men who did it are desperate, not cruel, but desperate men with a full haul do not scare easy. Go in pairs.",
+    icon: "👞",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/merchant_escort.png",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 720,
+    rewards: [{ resource: "gold", amount: 30 }, { resource: "pepper", amount: 2 }],
+    deployCost: 8,
+    difficulty: 2,
+    minGuildLevel: 1,
+    tags: ["outdoor", "combat", "escort"],
+    encounters: [{ enemyId: "bandit_thug", count: 2 }],
+    // Not the moment Cobb first arrives: let the road become a working thing first
+    // (his first caravan escorted, then at least one more trader run) so the
+    // robbery lands as an escalation, not an opening.
+    requires: { missionCount: { id: "merchant_escort", count: 1 } },
+    unique: true,
+    sideChain: { id: "tollmans_road", name: "The Tollman's Road" },
+  },
+  {
+    id: "hold_the_road",
+    name: "Hold the Road",
+    description: "Robbing Cobb taught them the road pays, and now they work it in earnest, turning back every trader who tries the downriver track to us. This does not mend by waiting. Ride down and meet them, and drive them off hard enough that the next wagon gets through, hard enough that they think twice before the one after. Driving off is the whole of it. We want the road open, not a pile of bodies at the boundary marker.",
+    icon: "🛡️",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/caravan_guard.png",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 900,
+    rewards: [{ resource: "gold", amount: 45 }],
+    deployCost: 10,
+    difficulty: 2,
+    minGuildLevel: 1,
+    tags: ["outdoor", "combat"],
+    encounters: [{ enemyId: "bandit_thug", count: 3 }],
+    requires: { missionDone: "see_cobb_home" },
+    unique: true,
+    sideChain: { id: "tollmans_road", name: "The Tollman's Road" },
+  },
+  {
+    id: "break_the_nest",
+    name: "Break the Nest",
+    description: "Driving them off the road only sends them home to whatever gully they hole up in, and they always come again. Brenna and the scouts followed the last lot back: a camp a half-day down, and a man at the head of it who set a price on our road and calls it a toll. Go and end the arrangement. Break the Tollman in front of his company and the company comes apart, for it is the toll they follow, not the man. Scare the rest off our country for good. What they stole is piled in that camp, ours and other folk's both, so bring it home. We would rather not bury any of them. We would rather they were simply gone.",
+    icon: "🪖",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/bandit_camp.png",
+    slots: [{ class: "any" }, { class: "any" }, { class: "any" }],
+    duration: 1500,
+    rewards: [{ resource: "gold", amount: 60 }, { resource: "pepper", amount: 3 }, { resource: "cinnamon", amount: 4 }],
+    deployCost: 15,
+    difficulty: 3,
+    minGuildLevel: 1,
+    tags: ["outdoor", "combat"],
+    encounters: [{ enemyId: "reaver_captain", count: 1 }, { enemyId: "bandit_thug", count: 2 }],
+    requires: { missionDone: "hold_the_road" },
+    unique: true,
+    sideChain: { id: "tollmans_road", name: "The Tollman's Road" },
+  },
 ];

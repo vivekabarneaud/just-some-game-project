@@ -60,7 +60,7 @@ export default function QuestClaimModal(props: Props) {
         style={{
           background: "var(--bg-secondary)",
           border: "2px solid var(--accent-gold)",
-          "border-radius": "10px",
+          "border-radius": "0",
           "max-width": "460px",
           width: "100%",
           "max-height": "85vh",

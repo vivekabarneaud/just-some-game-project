@@ -256,6 +256,7 @@ import {
   getMissionXp,
   applyXp,
   RANK_NAMES,
+  getZoomedPortraitUrl,
 } from "@medieval-realm/shared/data/adventurers";
 import {
   type InventoryItem,
@@ -4695,6 +4696,19 @@ export function GameProvider(props: ParentProps) {
               // because casualties stores names, not IDs.
               const deadIdsSet = new Set<string>();
 
+              // Snapshot each deployed hero's vitals BEFORE any mutation (deaths,
+              // XP, HP write-home all mutate the live adventurer in place). Powers
+              // the loot modal's team strip: hp/xp animate from these to the after
+              // values assembled at the result push below.
+              const rosterBefore = new Map<string, { hp: number; xp: number; level: number }>();
+              for (const adv of team) {
+                rosterBefore.set(adv.id, {
+                  hp: Math.round(adv.currentHp ?? calcAdventurerMaxHp(adv)),
+                  xp: adv.xp,
+                  level: adv.level,
+                });
+              }
+
               // Expeditions: compute fallen from HP at end of mission. Regular missions: use combat result.
               const expeditionFallenIds = isExped
                 ? new Set(team.filter((a) => (am.expeditionHp?.[a.id] ?? 0) <= 0).map((a) => a.id))
@@ -4958,6 +4972,30 @@ export function GameProvider(props: ParentProps) {
                 }
               }
 
+              // Per-adventurer before/after for the loot modal's team strip.
+              // team members are the live adventurers, now carrying their after
+              // values; rosterBefore holds the deploy-time snapshot.
+              const roster = team.map((adv) => {
+                const before = rosterBefore.get(adv.id);
+                const maxHp = calcAdventurerMaxHp(adv);
+                const died = deadIdsSet.has(adv.id);
+                return {
+                  id: adv.id,
+                  name: adv.name,
+                  portrait: getZoomedPortraitUrl(adv),
+                  advClass: adv.class,
+                  level: adv.level,
+                  hpMax: maxHp,
+                  hpBefore: before?.hp ?? maxHp,
+                  hpAfter: died ? 0 : Math.round(adv.currentHp ?? maxHp),
+                  xpBefore: before?.xp ?? adv.xp,
+                  xpAfter: adv.xp,
+                  leveledUp: (before?.level ?? adv.level) < adv.level,
+                  died,
+                  revived: revived.includes(adv.id),
+                };
+              });
+
               // Record result
               s.completedMissions.push({
                 missionId: am.missionId,
@@ -4968,6 +5006,7 @@ export function GameProvider(props: ParentProps) {
                 xpGained: baseXp,
                 levelUps,
                 rankUps,
+                roster,
                 ...(combatResult ? {
                   combatLog: combatResult.log,
                   combatRounds: combatResult.rounds,

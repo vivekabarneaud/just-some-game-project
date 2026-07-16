@@ -4175,6 +4175,191 @@ body {
   }
 }
 
+/* ─── Treasure chest (loot reveal) ────────────────────────────
+   Closed chest the player clicks to reveal already-rolled loot. Used by the
+   mission LootModal; reusable by expedition treasure later. Pure CSS drawing
+   so it needs no image asset for the first pass. */
+.treasure-chest {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0 2px;
+}
+.tc-stage {
+  position: relative;
+  width: 118px;
+  height: 96px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  perspective: 620px;
+  outline: none;
+}
+.tc-closed {
+  cursor: pointer;
+}
+.tc-closed:focus-visible .tc-figure {
+  filter: drop-shadow(0 0 5px var(--accent-gold));
+}
+.tc-closed .tc-figure {
+  animation: tc-wiggle 2.8s ease-in-out infinite;
+}
+.tc-closed:hover .tc-figure {
+  transform: translateY(-2px);
+}
+.tc-figure {
+  position: relative;
+  width: 108px;
+  transform-style: preserve-3d;
+  transition: transform 160ms ease-out;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));
+}
+.tc-body {
+  position: relative;
+  width: 108px;
+  height: 54px;
+  background:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.1) 0 1px, transparent 1px 9px),
+    linear-gradient(165deg, #764e2b, #452d10);
+  border: 2px solid #271707;
+  border-radius: 4px 4px 7px 7px;
+  box-shadow: inset 0 -7px 12px rgba(0, 0, 0, 0.5), inset 0 2px 3px rgba(255, 220, 150, 0.12);
+}
+/* Iron braces at the two front corners */
+.tc-body::before,
+.tc-body::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  width: 9px;
+  height: 100%;
+  box-sizing: border-box;
+  border: 2px solid #271707;
+  background: linear-gradient(180deg, rgba(60, 45, 25, 0.5), rgba(20, 12, 4, 0.6));
+}
+.tc-body::before { left: -2px; border-right: none; border-radius: 0 0 0 6px; }
+.tc-body::after { right: -2px; border-left: none; border-radius: 0 0 6px 0; }
+.tc-lid {
+  position: absolute;
+  left: -2px;
+  bottom: 100%;
+  width: 108px;
+  height: 32px;
+  margin-bottom: -2px;
+  background: linear-gradient(165deg, #8a5c35, #573a1a);
+  border: 2px solid #271707;
+  border-radius: 9px 9px 2px 2px;
+  box-shadow: inset 0 3px 4px rgba(255, 220, 150, 0.16);
+  transform-origin: center bottom;
+  transition: transform 600ms cubic-bezier(0.2, 0.8, 0.3, 1.15);
+  z-index: 2;
+}
+.tc-lid.opened {
+  transform: rotateX(116deg);
+}
+.tc-strap {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 100%;
+  background: linear-gradient(90deg, #9c7a19, #edc95a, #9c7a19);
+  border-left: 1px solid #5f480c;
+  border-right: 1px solid #5f480c;
+}
+/* Rivets top and bottom of each strap */
+.tc-strap::before,
+.tc-strap::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff1c0, #b8901f);
+}
+.tc-strap::before { top: 3px; }
+.tc-strap::after { bottom: 3px; }
+.tc-lock {
+  position: absolute;
+  bottom: 11px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  background: radial-gradient(circle at 35% 30%, #ffe9a3, #c9a233);
+  border: 2px solid #5f480c;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  z-index: 3;
+}
+/* Keyhole */
+.tc-lock::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 6px;
+  border-radius: 1px;
+  background: #5f480c;
+}
+.tc-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150px;
+  height: 150px;
+  margin: -75px 0 0 -75px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(230, 195, 77, 0.55), transparent 66%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+.tc-glow.opened {
+  animation: tc-burst 850ms ease-out forwards;
+}
+.tc-hint {
+  font-size: 0.8rem;
+  color: var(--accent-gold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  animation: tc-hint-pulse 1.8s ease-in-out infinite;
+}
+.tc-loot {
+  animation: loot-section-rise 300ms ease-out both;
+  width: 100%;
+}
+@keyframes tc-wiggle {
+  0%, 90%, 100% { transform: rotate(0deg); }
+  93% { transform: rotate(-3deg); }
+  96% { transform: rotate(3deg); }
+  98% { transform: rotate(-2deg); }
+}
+@keyframes tc-burst {
+  0% { opacity: 0; transform: scale(0.35); }
+  40% { opacity: 1; }
+  100% { opacity: 0.35; transform: scale(1.15); }
+}
+@keyframes tc-hint-pulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tc-closed .tc-figure,
+  .tc-glow.opened,
+  .tc-hint,
+  .tc-loot {
+    animation: none !important;
+  }
+  .tc-lid { transition: none !important; }
+}
+
 /* ─── Toast ───────────────────────────────────────────────── */
 
 /* Slide in from the top and fade */

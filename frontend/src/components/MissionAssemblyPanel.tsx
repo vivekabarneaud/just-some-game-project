@@ -623,7 +623,11 @@ export default function MissionAssemblyPanel(props: Props) {
         </p>
         <Show when={!freshMission().encounters?.length}>
           <div style={{ "font-size": "0.8rem", color: "var(--accent-blue)", "font-style": "italic", "margin-bottom": "8px" }}>
-            {getMissionStatHint(freshMission().tags)}
+            {/* Guaranteed missions are safe work (~98%), so a "requires X" demand
+                would be misleading — reassure instead. Others still lean on stats. */}
+            {freshMission().guaranteed
+              ? "Safe work. A careful hand should see it done without trouble."
+              : getMissionStatHint(freshMission().tags)}
           </div>
         </Show>
 

@@ -140,7 +140,8 @@ export function getMissionStatWeights(tags: MissionTag[]): Partial<Record<keyof 
 export function getMissionStatHint(tags: MissionTag[]): string {
   const hints: string[] = [];
   if (tags.some((t) => t === "combat" || t === "escort")) hints.push("strength and endurance");
-  if (tags.some((t) => t === "magical" || t === "exploration")) hints.push("intelligence and arcane knowledge");
+  if (tags.some((t) => t === "magical")) hints.push("intelligence and arcane knowledge");
+  if (tags.some((t) => t === "exploration")) hints.push("a sharp eye and clear wits");
   if (tags.some((t) => t === "stealth" || t === "spying" || t === "assassination")) hints.push("cunning and stealth");
   if (tags.some((t) => t === "outdoor")) hints.push("survival instincts");
   if (tags.some((t) => t === "survival" || t === "dungeon")) hints.push("toughness and resilience");

@@ -22,13 +22,13 @@ export const ARMOR: ItemDefinition[] = [
   },
   {
     id: "chainmail_shirt", rarity: "common", name: "Chainmail Shirt", icon: "⛓️", slot: "chest",
-    description: "42 DEF. A short new mail shirt — plain riveted iron, nothing dulled or mended.",
+    description: "42 DEF. A short new mail shirt, plain riveted iron, nothing dulled or mended.",
     classes: [], armorType: "mail",
     stats: {}, durationMod: 1, lootMod: 1, recipeId: "chainmail_shirt", consumable: false, defense: 42,
   },
   {
     id: "riveted_hauberk", rarity: "uncommon", name: "Riveted Hauberk", icon: "⛓️", slot: "chest",
-    description: "+1 VIT, +1 DEX, 50 DEF. Every ring riveted shut — stronger than butted mail, and it moves with you.",
+    description: "+1 VIT, +1 DEX, 50 DEF. Every ring riveted shut, stronger than butted mail, and it moves with you.",
     classes: [], armorType: "mail",
     stats: { vit: 1, dex: 1 }, durationMod: 1, lootMod: 1, recipeId: "riveted_hauberk", consumable: false, defense: 50,
   },
@@ -40,7 +40,7 @@ export const ARMOR: ItemDefinition[] = [
   },
   {
     id: "steel_hauberk", rarity: "rare", name: "Steel Hauberk", icon: "⛓️", slot: "chest",
-    description: "+2 VIT, +1 DEX, 55 DEF. Riveted steel rings over a wool gambeson — lighter than plate, and it turns near anything.",
+    description: "+2 VIT, +1 DEX, 55 DEF. Riveted steel rings over a wool gambeson, lighter than plate, and it turns near anything.",
     classes: [], armorType: "mail",
     stats: { vit: 2, dex: 1 }, durationMod: 1, lootMod: 1, recipeId: "steel_hauberk", consumable: false, defense: 55,
   },
@@ -55,7 +55,7 @@ export const ARMOR: ItemDefinition[] = [
   // ── Cloth chest uncommons (open to any caster; INT/WIS/VIT) ──
   {
     id: "padded_robe", rarity: "uncommon", name: "Padded Robe", icon: "🧶", slot: "chest",
-    description: "+1 VIT, 14 DEF. Quilted and layered — a caster's small concession to staying alive.",
+    description: "+1 VIT, 14 DEF. Quilted and layered, a caster's small concession to staying alive.",
     classes: [], armorType: "cloth",
     stats: { vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "padded_robe", consumable: false, defense: 14,
   },
@@ -81,7 +81,7 @@ export const ARMOR: ItemDefinition[] = [
   },
   {
     id: "sinew_corded_robe", rarity: "rare", name: "Sinew-Corded Robe", icon: "🧶", slot: "chest",
-    description: "+2 INT, +1 WIS, 20 DEF. A frontier mystic's robe, corded and laced with a pack alpha's sinew — tough as harness leather and quiet as smoke.",
+    description: "+2 INT, +1 WIS, 20 DEF. A frontier mystic's robe, corded and laced with a pack alpha's sinew, tough as harness leather and quiet as smoke.",
     classes: [], armorType: "cloth",
     stats: { int: 2, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "sinew_corded_robe", consumable: false, defense: 20,
   },
@@ -96,7 +96,7 @@ export const ARMOR: ItemDefinition[] = [
   },
   {
     id: "studded_leather", rarity: "uncommon", name: "Studded Leather", icon: "🦺", slot: "chest",
-    description: "+1 VIT, 34 DEF. Leather set with iron studs — a little heavier, a lot harder to cut through.",
+    description: "+1 VIT, 34 DEF. Leather set with iron studs, a little heavier, a lot harder to cut through.",
     classes: [], armorType: "leather",
     stats: { vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "studded_leather", consumable: false, defense: 34,
   },
@@ -105,6 +105,12 @@ export const ARMOR: ItemDefinition[] = [
     description: "+1 DEX, 32 DEF. Supple, road-worn leather off a dead brigand. Cut for moving quiet.",
     classes: [], armorType: "leather",
     stats: { dex: 1 }, durationMod: 1, lootMod: 1, recipeId: "", consumable: false, defense: 32,
+  },
+  {
+    id: "reavers_leathers", rarity: "rare", name: "Reaver's Leathers", icon: "🦺", slot: "chest",
+    description: "+2 DEX, +1 VIT, 42 DEF. A fine leather coat, plainly stolen off some traveller who could afford better. It was folded in the camp hoard, not on the captain's back.",
+    classes: [], armorType: "leather",
+    stats: { dex: 2, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "", consumable: false, defense: 42,
   },
   {
     id: "leather_boots", rarity: "common", name: "Leather Boots", icon: "🥾", slot: "boots",
@@ -117,7 +123,7 @@ export const ARMOR: ItemDefinition[] = [
   },
   {
     id: "marching_boots", rarity: "uncommon", name: "Marching Boots", icon: "🥾", slot: "boots",
-    description: "+1 VIT, 18 DEF. Thick-soled and reinforced at the ankle — built to stand a long line.",
+    description: "+1 VIT, 18 DEF. Thick-soled and reinforced at the ankle, built to stand a long line.",
     classes: [], armorType: "leather",
     stats: { vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "marching_boots", consumable: false, defense: 18,
   },
@@ -166,7 +172,7 @@ export const ARMOR: ItemDefinition[] = [
   },
   {
     id: "furlined_cloak", rarity: "uncommon", name: "Fur-Lined Cloak", icon: "🧥", slot: "cloak",
-    description: "+1 VIT, 14 DEF. Leather lined with wolf fur — warm against the cold and tough at the shoulders.",
+    description: "+1 VIT, 14 DEF. Leather lined with wolf fur, warm against the cold and tough at the shoulders.",
     classes: [], armorType: "leather",
     stats: { vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "furlined_cloak", consumable: false, defense: 14,
   },
@@ -185,7 +191,7 @@ export const ARMOR: ItemDefinition[] = [
   {
     id: "rangers_garb", rarity: "uncommon", name: "Ranger's Garb", icon: "🏹", slot: "chest",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/rangers_garb.png",
-    description: "+1 DEX, +1 VIT, 38 DEF. Layered leather cut for the treeline — quiet, weatherproof, made to move in.",
+    description: "+1 DEX, +1 VIT, 38 DEF. Layered leather cut for the treeline, quiet, weatherproof, made to move in.",
     classes: ["archer"], armorType: "leather",
     stats: { dex: 1, vit: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "rangers_garb", consumable: false, defense: 38,

@@ -195,7 +195,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
   },
   {
     id: "sinew_corded_robe", name: "Sinew-Corded Robe", icon: "🧶", building: "tailoring_shop", minLevel: 3,
-    description: "A frontier mystic's robe laced with a pack alpha's sinew — tough as harness leather.",
+    description: "A frontier mystic's robe laced with a pack alpha's sinew, tough as harness leather.",
     costs: [{ resource: "alpha_sinew", amount: 1 }, { resource: "wool", amount: 8 }, { resource: "fiber", amount: 6 }],
     produces: { resource: "armor", amount: 1 }, craftTime: 400,
   },
@@ -341,9 +341,15 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
   // ── Rung-4 rare: a master smith's pattern-welded masterwork (no magic) ──
   {
     id: "patternwelded_sword", name: "Pattern-Welded Blade", icon: "⚔️", building: "blacksmith", minLevel: 4,
-    description: "Folded and forge-welded until the grain runs like water down the steel, its pommel set with the fang of a pack alpha. Months of a master's work — and a hard kill.",
+    description: "Folded and forge-welded until the grain runs like water down the steel, its pommel set with the fang of a pack alpha. Months of a master's work, and a hard kill.",
     costs: [{ resource: "steel", amount: 12 }, { resource: "alpha_fang", amount: 1 }, { resource: "leather", amount: 3 }],
     produces: { resource: "weapons", amount: 1 }, craftTime: 1200,
+  },
+  {
+    id: "roadwarden", name: "Roadwarden", icon: "⚔️", building: "blacksmith", minLevel: 4,
+    description: "One bar of the Tollman's hoarded steel, drawn out and forged into a single fine blade. The road paid for it, so let it keep the road.",
+    costs: [{ resource: "captains_steel", amount: 1 }, { resource: "wood", amount: 6 }],
+    produces: { resource: "weapons", amount: 1 }, craftTime: 1000,
   },
   // ── Two-handed greatswords (iron; steel only for the rare) — first-pass costs ──
   {
@@ -428,7 +434,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
   },
   {
     id: "steel_hauberk", name: "Steel Hauberk", icon: "⛓️", building: "blacksmith", minLevel: 4,
-    description: "Riveted steel rings over a wool gambeson — a master armourer's mail, lighter than plate and near as proof.",
+    description: "Riveted steel rings over a wool gambeson, a master armourer's mail, lighter than plate and near as proof.",
     costs: [{ resource: "steel", amount: 12 }, { resource: "wool", amount: 4 }, { resource: "leather", amount: 3 }],
     produces: { resource: "armor", amount: 1 }, craftTime: 900,
   },
@@ -679,7 +685,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
   },
   {
     id: "alpha_warbow", name: "Alpha-Strung Warbow", icon: "🏹", building: "woodworker", minLevel: 3,
-    description: "A tall warbow strung with a pack alpha's sinew — the finest string the frontier has to offer.",
+    description: "A tall warbow strung with a pack alpha's sinew, the finest string the frontier has to offer.",
     costs: [{ resource: "alpha_sinew", amount: 1 }, { resource: "wood", amount: 18 }],
     produces: { resource: "weapons", amount: 1 }, craftTime: 400,
   },
@@ -827,10 +833,10 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
   // Slow simmers (10-15 game-min/batch) so passive cooking reads as a steady
   // trickle (~20/h) with multi-hour ingredient durations, not an absurd burst.
   { id: "porridge", name: "Porridge", icon: "🥣", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/porridge.png", building: "kitchen", minLevel: 1, kind: "meal",
-    description: "Plain boiled grain, warm and filling. A daily staple — keep a pot on and it feeds the settlement, stretching raw grain into more portions.",
+    description: "Plain boiled grain, warm and filling. A daily staple, keep a pot on and it feeds the settlement, stretching raw grain into more portions.",
     costs: [{ resource: "grain", amount: 2 }], produces: { resource: "porridge", amount: 4 }, craftTime: 600 },
   { id: "hearth_stew", name: "Hearth Stew", icon: "🍲", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/hearth_stew.png", building: "kitchen", minLevel: 1, kind: "meal",
-    description: "Meat and nuts simmered slow. A hearty staple that keeps the table full through a hard week — leave it on to feed the settlement.",
+    description: "Meat and nuts simmered slow. A hearty staple that keeps the table full through a hard week, leave it on to feed the settlement.",
     costs: [{ resource: "meat", amount: 2 }, { resource: "nuts", amount: 2 }], produces: { resource: "hearth_stew", amount: 5 }, craftTime: 900 },
   { id: "river_stew", name: "River Stew", icon: "🍲", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/river_stew.png", building: "kitchen", minLevel: 1, kind: "meal",
     description: "Fish and foraged berries in a thin, honest broth. A staple that stretches a lean larder to feed the settlement.",

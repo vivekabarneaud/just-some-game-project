@@ -8,7 +8,7 @@ export const WEAPONS: ItemDefinition[] = [
     id: "iron_sword", rarity: "common", name: "Iron Sword", icon: "⚔️", slot: "mainHand", weaponType: "sword",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/iron_sword.png",
     description: "",
-    flavor: "Honest smith's work — iron, balanced, and kept sharp.",
+    flavor: "Honest smith's work, iron, balanced, and kept sharp.",
     classes: ["warrior"],
     stats: {}, dmgMin: 4, dmgMax: 7, durationMod: 1, lootMod: 1,
     recipeId: "iron_sword", consumable: false,
@@ -64,6 +64,13 @@ export const WEAPONS: ItemDefinition[] = [
     classes: [], stats: { str: 2 }, dmgMin: 7, dmgMax: 10, durationMod: 1, lootMod: 1,
     recipeId: "patternwelded_sword", consumable: false,
   },
+  {
+    id: "roadwarden", rarity: "rare", name: "Roadwarden", icon: "⚔️", slot: "mainHand", weaponType: "sword",
+    description: "+2 STR, +1 VIT",
+    flavor: "Forged from the one bar of fine steel the Tollman hoarded for himself. It guards the road now, not the man who bled it.",
+    classes: [], stats: { str: 2, vit: 1 }, dmgMin: 7, dmgMax: 11, durationMod: 1, lootMod: 1,
+    recipeId: "roadwarden", consumable: false,
+  },
   // ── Two-handed greatswords — big swing, no off-hand (no shield). Warrior-only
   //    (weaponType greatsword). Higher stat budget than 1H peers: they eat the
   //    off-hand slot, but pay for it in lost shield defense. ──
@@ -108,7 +115,7 @@ export const WEAPONS: ItemDefinition[] = [
   {
     id: "hand_axe", rarity: "common", name: "Hand Axe", icon: "🪓", slot: "mainHand", weaponType: "axe",
     description: "",
-    flavor: "A one-handed work axe — splits kindling as happily as shields. Cheaper than a sword, and it bites deep when it lands.",
+    flavor: "A one-handed work axe, splits kindling as happily as shields. Cheaper than a sword, and it bites deep when it lands.",
     classes: [], stats: {}, dmgMin: 3, dmgMax: 7, durationMod: 1, lootMod: 1,
     recipeId: "hand_axe", consumable: false,
   },
@@ -239,7 +246,7 @@ export const WEAPONS: ItemDefinition[] = [
   {
     id: "dragonbone_sword", rarity: "epic", name: "Dragonbone Sword", icon: "🗡️", slot: "mainHand", weaponType: "sword",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/dragonbone_sword.png",
-    description: "+5 STR, +2 DEX. Forged with dragon fang — it cuts through armor like parchment.",
+    description: "+5 STR, +2 DEX. Forged with dragon fang, it cuts through armor like parchment.",
     classes: ["warrior", "assassin"],
     stats: { str: 5, dex: 2 }, durationMod: 1, lootMod: 1,
     recipeId: "dragonbone_sword", consumable: false,
@@ -270,14 +277,14 @@ export const WEAPONS: ItemDefinition[] = [
   {
     id: "poachers_bow", rarity: "uncommon", name: "Poacher's Bow", icon: "🏹", slot: "mainHand", weaponType: "bow", twoHanded: true,
     description: "+1 DEX",
-    flavor: "A plain, quiet bow off a brigand — the kind used on other men's deer, and other men.",
+    flavor: "A plain, quiet bow off a brigand, the kind used on other men's deer, and other men.",
     classes: [], stats: { dex: 1 }, dmgMin: 5, dmgMax: 8, durationMod: 1, lootMod: 1,
     recipeId: "", consumable: false,
   },
   {
     id: "alpha_warbow", rarity: "rare", name: "Alpha-Strung Warbow", icon: "🏹", slot: "mainHand", weaponType: "bow", twoHanded: true,
     description: "+2 DEX",
-    flavor: "A warbow strung with a pack alpha's sinew — it throws an arrow flat and far, with a snap you feel in your teeth. The bow's answer to the fang.",
+    flavor: "A warbow strung with a pack alpha's sinew, it throws an arrow flat and far, with a snap you feel in your teeth. The bow's answer to the fang.",
     classes: [], stats: { dex: 2 }, dmgMin: 7, dmgMax: 10, durationMod: 1, lootMod: 1,
     recipeId: "alpha_warbow", consumable: false,
   },

@@ -8,6 +8,7 @@ export type {
   MissionTemplate,
   ActiveMission,
   CompletedMission,
+  MissionRosterEntry,
   StoryMission,
   MissionRequirements,
   AdventurerMissionSupplies,

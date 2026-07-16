@@ -223,6 +223,26 @@ export interface ActiveMission {
   expeditionRewards?: MissionReward[];
 }
 
+/** Per-adventurer before/after outcome for one deployed hero. Drives the loot
+ *  modal's team strip: HP drains hpBefore → hpAfter, XP fills xpBefore → xpAfter,
+ *  with a level-up flash. Captured at resolution (the live adventurer is mutated
+ *  in place, so before-values are snapshotted first). */
+export interface MissionRosterEntry {
+  id: string;
+  name: string;
+  portrait?: string;
+  advClass: AdventurerClass;
+  level: number; // level after the mission
+  hpMax: number;
+  hpBefore: number;
+  hpAfter: number;
+  xpBefore: number; // xp within the level at deploy
+  xpAfter: number;  // xp within the (possibly new) level after
+  leveledUp: boolean;
+  died: boolean;
+  revived: boolean;
+}
+
 export interface CompletedMission {
   missionId: string;
   success: boolean;
@@ -245,6 +265,9 @@ export interface CompletedMission {
    *  (not `revealPortrait` foes the settlement already knew). Drives the loot
    *  modal's "New foes faced" reveal — the payoff for the "???" cards. */
   revealedEnemies?: string[];
+  /** Per-adventurer before/after vitals for the loot modal's team strip.
+   *  Optional: co-op claims and legacy results omit it (strip just hides). */
+  roster?: MissionRosterEntry[];
 }
 
 export interface StoryMission extends MissionTemplate {

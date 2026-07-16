@@ -108,7 +108,7 @@ export interface EnemyDefinition {
   /** Resistance to forced-target taunt effects. Default "none". */
   tauntImmunity?: EnemyTauntImmunity;
   abilities?: EnemyAbility[];
-  loot?: LootDrop[];   // drops on kill — empty/undefined means no drops
+  loot?: LootDrop[];   // drops on kill, empty/undefined means no drops
   /** Physical auto-attack damage range (the creature's bite/claw/swing). The sim
    *  rolls within [dmgMin, dmgMax] then scales by the creature's offensive stat.
    *  If omitted, a behavior-preserving range is derived from that stat (so an
@@ -132,7 +132,7 @@ export const ENEMIES: EnemyDefinition[] = [
     name: "Frontier Goblin",
     icon: "👺",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/goblin_scout.png",
-    description: "Small, sneaky, and cowardly alone — but they never come alone. The frontier breeds them like flies.",
+    description: "Small, sneaky, and cowardly alone, but they never come alone. The frontier breeds them like flies.",
     tier: 1,
     stats: { str: 4, dex: 6, int: 2, vit: 6, wis: 2 },
     tags: ["humanoid"],
@@ -160,6 +160,30 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "item", itemId: "poachers_bow", chance: 0.06 },    // some carry a poacher's bow
       { type: "item", itemId: "scavenged_mail", chance: 0.05 },  // and the odd looted hauberk
       { type: "item", itemId: "brigands_jerkin", chance: 0.08 }, // or a supple leather jerkin
+    ],
+  },
+  {
+    id: "reaver_captain",
+    name: "The Tollman",
+    icon: "🪖",
+    description: "The one who turned a scatter of desperate men into a company. He set a price on the road and calls it a toll. Better fed and better armed than his men, and smart enough to keep it that way.",
+    tier: 1,
+    stats: { str: 9, dex: 6, int: 3, vit: 15, wis: 4 },
+    tags: ["humanoid"],
+    boss: true,
+    dmgMin: 5, dmgMax: 9, // a captain's blade, kept sharp
+    abilities: [
+      { id: "rally", name: "Rally the Company", icon: "📣", cooldown: 4, trigger: "round_start", effect: { type: "buff_allies", stat: "str", pct: 20, rounds: 2 } },
+    ],
+    // Break him and the company scatters. What they took is piled in the camp, not
+    // carried on his back, so the hoard is recovered whether he falls or flees.
+    routsAt: 0.3,
+    loot: [
+      { type: "resource", resource: "gold", chance: 1, min: 20, max: 40, keepOnRout: true },
+      // Guaranteed signature: the fine steel he hoarded, the boss-earned sword's material. One bar, one blade.
+      { type: "resource", resource: "captains_steel", chance: 1, min: 1, max: 1, keepOnRout: true },
+      // Lucky (~12%): a fine leather coat, stashed in the camp, not on his back. Leather's rare.
+      { type: "item", itemId: "reavers_leathers", chance: 0.12, keepOnRout: true },
     ],
   },
   {
@@ -250,7 +274,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "meat", chance: 0.3, min: 1, max: 3 },
       { type: "resource", resource: "wolfhide_strip", chance: 0.15, min: 1, max: 1 },
     ],
-    routsAt: 0.35, // a nervous, starving yearling — breaks and runs easily
+    routsAt: 0.35, // a nervous, starving yearling, breaks and runs easily
     aiTier: "feral"
   },
   {
@@ -538,7 +562,7 @@ export const ENEMIES: EnemyDefinition[] = [
     name: "Sky-Thorn",
     icon: "⚡",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/storm_sprite.png",
-    description: "A crackling ball of wind and lightning. The Khor'vani call them sky-thorns — they swarm where Aether converges.",
+    description: "A crackling ball of wind and lightning. The Khor'vani call them sky-thorns, they swarm where Aether converges.",
     tier: 3,
     stats: { str: 6, dex: 24, int: 14, vit: 10, wis: 8 },
     tags: ["elemental_wind", "magical"],
@@ -567,7 +591,7 @@ export const ENEMIES: EnemyDefinition[] = [
     name: "Wastes Phantom",
     icon: "👻",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/wailing_phantom.png",
-    description: "The boundary between realms is thin near the Wastes. This one remembers how it died — and wants you to share the experience.",
+    description: "The boundary between realms is thin near the Wastes. This one remembers how it died, and wants you to share the experience.",
     tier: 3,
     stats: { str: 8, dex: 14, int: 22, vit: 12, wis: 16 },
     tags: ["ghost"],
@@ -597,7 +621,7 @@ export const ENEMIES: EnemyDefinition[] = [
     name: "Ley-Woken Hatchling",
     icon: "🐉",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/dragon_hatchling.png",
-    description: "A few months old. Already singes stone. The Silvaneth warned us — the dragons are waking with the ley lines.",
+    description: "A few months old. Already singes stone. The Silvaneth warned us, the dragons are waking with the ley lines.",
     tier: 3,
     stats: { str: 18, dex: 10, int: 12, vit: 22, wis: 6 },
     tags: ["dragon", "magical"],
@@ -657,7 +681,7 @@ export const ENEMIES: EnemyDefinition[] = [
     name: "Half-Lich",
     icon: "☠️",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/lich_apprentice.png",
-    description: "A Hauts-Cieux scholar who traded his life for power. Not yet a true lich — but Netheron's whisper grows louder in him.",
+    description: "A Hauts-Cieux scholar who traded his life for power. Not yet a true lich, but Netheron's whisper grows louder in him.",
     tier: 4,
     stats: { str: 8, dex: 8, int: 30, vit: 22, wis: 20 },
     tags: ["undead", "magical"],
@@ -716,7 +740,7 @@ export const ENEMIES: EnemyDefinition[] = [
     name: "Crystalline Revenant",
     icon: "✨",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/aether_wraith.png",
-    description: "Pure crystallized Aether given form. Spells dissolve on contact — it eats magic. Only steel and fists will do.",
+    description: "Pure crystallized Aether given form. Spells dissolve on contact, it eats magic. Only steel and fists will do.",
     tier: 4,
     stats: { str: 12, dex: 20, int: 28, vit: 20, wis: 18 },
     tags: ["elemental_aether", "magical"],
@@ -873,7 +897,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "thick_pelt", chance: 0.35, min: 1, max: 1 },
       { type: "resource", resource: "bear_claw", chance: 0.2, min: 1, max: 2, keepOnRout: true },
     ],
-    routsAt: 0.3, // a hurt bear disengages (mostly moot — bears are "wide berth" now)
+    routsAt: 0.3, // a hurt bear disengages (mostly moot, bears are "wide berth" now)
     aiTier: "feral"
   },
   {
@@ -1172,7 +1196,7 @@ export const ENEMIES: EnemyDefinition[] = [
     name: "Dire Bear",
     icon: "🐻",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/dire_bear.png",
-    description: "The old hunters call them 'mountain kings.' Twice the size of a forest bear, scarred from a lifetime of fighting everything — including other dire bears. This one has claimed your territory.",
+    description: "The old hunters call them 'mountain kings.' Twice the size of a forest bear, scarred from a lifetime of fighting everything, including other dire bears. This one has claimed your territory.",
     tier: 3,
     stats: { str: 24, dex: 8, int: 4, vit: 30, wis: 6 },
     tags: ["beast"],
@@ -1218,7 +1242,7 @@ export const ENEMIES: EnemyDefinition[] = [
     name: "Goblin Warchief",
     icon: "👑",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/goblin_warchief.png",
-    description: "A goblin who killed enough other goblins to call himself king. He wears a crown of bent copper and commands a warband of hundreds. Underestimate him at your peril — he didn't survive this long by being stupid.",
+    description: "A goblin who killed enough other goblins to call himself king. He wears a crown of bent copper and commands a warband of hundreds. Underestimate him at your peril, he didn't survive this long by being stupid.",
     tier: 4,
     stats: { str: 22, dex: 18, int: 12, vit: 26, wis: 10 },
     tags: ["humanoid"],
@@ -1241,7 +1265,7 @@ export const ENEMIES: EnemyDefinition[] = [
     name: "Arch-Necromancer",
     icon: "☠️",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/arch_necromancer.png",
-    description: "The acolyte's master. Decades of studying death magic have left them barely human — skin like parchment, eyes like candleflame, and a soul that's been dead longer than some of the things they raise.",
+    description: "The acolyte's master. Decades of studying death magic have left them barely human, skin like parchment, eyes like candleflame, and a soul that's been dead longer than some of the things they raise.",
     tier: 4,
     stats: { str: 10, dex: 12, int: 32, vit: 24, wis: 22 },
     tags: ["humanoid", "undead", "magical"],
@@ -1288,7 +1312,7 @@ export const ENEMIES: EnemyDefinition[] = [
     name: "Infernal Knight",
     icon: "🔥",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/infernal_knight.png",
-    description: "A demon in stolen plate armor, wreathed in hellfire. It walked through the boundary like a door and hasn't stopped killing since. The armor is fused to its body — or its body grew to fill the armor. Hard to tell.",
+    description: "A demon in stolen plate armor, wreathed in hellfire. It walked through the boundary like a door and hasn't stopped killing since. The armor is fused to its body, or its body grew to fill the armor. Hard to tell.",
     tier: 4,
     stats: { str: 28, dex: 14, int: 18, vit: 30, wis: 12 },
     tags: ["demon", "humanoid"],

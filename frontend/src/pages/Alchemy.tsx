@@ -4,6 +4,7 @@ import { useGame } from "~/engine/gameState";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { ALCHEMY_RECIPES, getAvailableAlchemyRecipes, getDiscoverableRecipes, RESEARCH_BASE_COST } from "@medieval-realm/shared/data/alchemy_recipes";
 import { getPotionInfo, getMaterial } from "@medieval-realm/shared/data/items";
+import { BUILDINGS, getRepairCost } from "~/data/buildings";
 import Countdown from "~/components/Countdown";
 import RecipeCard from "~/components/RecipeCard";
 import PotionEffects from "~/components/PotionEffects";
@@ -16,6 +17,11 @@ export default function Alchemy() {
 
   const labLevel = () => state.buildings.find((b) => b.buildingId === "alchemy_lab")?.level ?? 0;
   const labDamaged = () => state.buildings.find((b) => b.buildingId === "alchemy_lab")?.damaged ?? false;
+  const repairCost = () => {
+    const def = BUILDINGS.find((b) => b.id === "alchemy_lab");
+    return def ? getRepairCost(def, labLevel()) : { wood: 0, stone: 0 };
+  };
+  const canRepair = () => state.resources.wood >= repairCost().wood && state.resources.stone >= repairCost().stone;
 
   const availableRecipes = () => getAvailableAlchemyRecipes(labLevel(), state.discoveredRecipes ?? []);
 
@@ -67,7 +73,7 @@ export default function Alchemy() {
     const recipe = ALCHEMY_RECIPES.find((r) => r.id === recipeId);
     if (!recipe) return "Recipe not found";
     if (recipe.minLabLevel > labLevel()) return `Requires Lab Lv.${recipe.minLabLevel}`;
-    if (activeCrafts().length >= labLevel() + 1) return "Brewing queue full — upgrade the Lab";
+    if (activeCrafts().length >= labLevel() + 1) return "Brewing queue full. Upgrade the Lab to brew more.";
     for (const cost of recipe.costs) {
       if (have(cost.resource) < cost.amount * qty) {
         return `Not enough ${ingredientMeta(cost.resource).name}`;
@@ -164,9 +170,18 @@ export default function Alchemy() {
               background: "rgba(231, 76, 60, 0.1)",
               border: "1px solid var(--accent-red)",
               "border-radius": "6px", color: "var(--accent-red)", "font-size": "0.85rem",
+              display: "flex", "align-items": "center", "justify-content": "space-between", gap: "10px", "flex-wrap": "wrap",
             }}>
-              Lab is damaged — brewing disabled until repaired.{" "}
-              <A href="/buildings/alchemy_lab" style={{ color: "var(--accent-gold)" }}>Repair →</A>
+              <span>Lab is damaged. Brewing is disabled until it is repaired.</span>
+              <button
+                class="upgrade-btn"
+                disabled={!canRepair()}
+                onClick={() => { if (actions.repairBuilding("alchemy_lab")) playSound("build"); }}
+                title={canRepair() ? undefined : "Not enough wood or stone"}
+                style={{ "font-size": "0.8rem", padding: "4px 12px", "white-space": "nowrap", opacity: canRepair() ? "1" : "0.5", cursor: canRepair() ? "pointer" : "not-allowed" }}
+              >
+                🔧 Repair (🪵{repairCost().wood} 🪨{repairCost().stone})
+              </button>
             </div>
           </Show>
 

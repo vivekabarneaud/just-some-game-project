@@ -32,7 +32,7 @@ export const MATERIALS: MaterialDefinition[] = [
   },
   {
     id: "wyrmshell_plate", name: "Wyrmshell Plate", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/wyrmshell_plate.png", icon: "🐉",
-    description: "A dragon scale the size of a dinner plate. Forge-resistant — you'll need dragonfire to shape it.",
+    description: "A dragon scale the size of a dinner plate. Forge-resistant, you'll need dragonfire to shape it.",
     category: "hide", tier: 3,
   },
   {
@@ -64,20 +64,25 @@ export const MATERIALS: MaterialDefinition[] = [
   },
   {
     id: "dragon_fang", name: "Dragon Fang", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/dragon_fang.png", icon: "🦷",
-    description: "Hot to the touch even weeks after extraction. A Blacksmith's dream — and nightmare.",
+    description: "Hot to the touch even weeks after extraction. A Blacksmith's dream, and nightmare.",
     category: "bone", tier: 4,
   },
 
   // ── Metal & Salvage ──────────────────────────────────────────
   {
     id: "alpha_sinew", name: "Alpha's Sinew", icon: "🪢",
-    description: "Sinew from a pack leader — long, strong, and springy. Strung on a bow it throws an arrow like nothing else. The other half of the alpha's worth (see the fang).",
+    description: "Sinew from a pack leader, long, strong, and springy. Strung on a bow it throws an arrow like nothing else. The other half of the alpha's worth (see the fang).",
     category: "bone", tier: 1,
   },
   {
     id: "steel", name: "Steel", icon: "⚙️",
-    description: "Iron carburized in the forge — harder than plain iron, and it keeps an edge. The backbone of any decent blade.",
+    description: "Iron carburized in the forge, harder than plain iron, and it keeps an edge. The backbone of any decent blade.",
     category: "metal", tier: 1,
+  },
+  {
+    id: "captains_steel", name: "Captain's Steel", icon: "🗡️",
+    description: "Fine, close-grained steel the bandit captain had hoarded, worth more than the men he led. Enough to forge one exceptional blade.",
+    category: "metal", tier: 2,
   },
   {
     id: "highwaymans_steel", name: "Highwayman's Steel", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/highwaymans_steel.png", icon: "🔩",
@@ -103,7 +108,7 @@ export const MATERIALS: MaterialDefinition[] = [
   // ── Cloth & Thread ───────────────────────────────────────────
   {
     id: "torn_banner", name: "Torn Banner", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/torn_banner.png", icon: "🏴",
-    description: "Ripped from an orc warlord's standard. The dye is surprisingly fine — the Tailors can work with this.",
+    description: "Ripped from an orc warlord's standard. The dye is surprisingly fine, the Tailors can work with this.",
     category: "cloth", tier: 2,
   },
   {
@@ -130,7 +135,7 @@ export const MATERIALS: MaterialDefinition[] = [
   },
   {
     id: "war_paint", name: "War Paint", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/war_paint.png", icon: "🎨",
-    description: "Scraped from an orc's face. The pigment is mixed with something alchemical — it numbs the skin and dulls pain.",
+    description: "Scraped from an orc's face. The pigment is mixed with something alchemical, it numbs the skin and dulls pain.",
     category: "alchemy", tier: 2,
   },
   {
@@ -162,7 +167,7 @@ export const MATERIALS: MaterialDefinition[] = [
   },
   {
     id: "soul_shard", name: "Soul Shard", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/soul_shard.png", icon: "💎",
-    description: "A splinter of crystallized life-force. It pulses faintly. The Thornveil say it's not a thing — it's a person.",
+    description: "A splinter of crystallized life-force. It pulses faintly. The Thornveil say it's not a thing, it's a person.",
     category: "enchanting", tier: 2,
   },
   {

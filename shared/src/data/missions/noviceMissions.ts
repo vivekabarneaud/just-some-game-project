@@ -26,7 +26,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     duration: 600,
     rewards: [{ resource: "stone", amount: 60 }],
     deployCost: 5,
-    difficulty: 1,
+    difficulty: 2,
     minGuildLevel: 1,
     tags: ["outdoor", "exploration", "combat"],
     encounters: [{ enemyId: "rock_skitter", count: 4 }],
@@ -42,7 +42,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     duration: 600,
     rewards: [{ resource: "stone", amount: 60 }],
     deployCost: 5,
-    difficulty: 1,
+    difficulty: 2,
     minGuildLevel: 1,
     tags: ["outdoor", "exploration", "combat"],
     encounters: [{ enemyId: "rock_skitter", count: 4 }],
@@ -103,7 +103,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
 {
     id: "merchant_escort",
     name: "Merchant Escort",
-    description: "Another trader willing to chance the road to us, if the road lets them. The men who work it are no beasts with a reason to them, only desperate and armed, and they come in pairs; ride out in pairs to match them. See the merchant through whole. They pay partly in coin, partly in spice, and every one that arrives safe tells the next that the way can be held.",
+    description: "A merchant means to take the river road past us and would rather not chance the bad stretch alone, so word has gone round for hired swords to see the wagons through. The men who work that road are no beasts with a reason to them, only desperate and armed, and they go in pairs; send our people in pairs to match them. Bring the train through whole. They pay partly in coin and partly in spice, and a road we are seen to guard is a road that stays worth using.",
     icon: "💰",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/merchant_escort.png",
     slots: [{ class: "any" }, { class: "any" }],
@@ -144,7 +144,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     rewards: [{ resource: "berries", amount: 20 }, { resource: "chamomile", amount: 3 }, { resource: "mugwort", amount: 2 }],
     deployCost: 5,
     difficulty: 1,
-    deathRisk: 0, // a safe herb walk — never risk a permanent death
+    deathRisk: 0, // a safe herb walk, never risk a permanent death
     minGuildLevel: 1,
     tags: ["outdoor"],
     guaranteed: true,
@@ -281,7 +281,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     duration: 540,
     rewards: [{ resource: "meat", amount: 30 }, { resource: "wolfhide_strip", amount: 1 }, { resource: "gold", amount: 15 }],
     deployCost: 3,
-    difficulty: 1,
+    difficulty: 2,
     minGuildLevel: 1,
     tags: ["combat", "outdoor"],
     encounters: [{ enemyId: "wild_wolf", count: 3 }],
@@ -362,7 +362,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["outdoor", "survival"],
-    guaranteed: true, // a vigil, not a hunt — presence turns the pack, no fight
+    guaranteed: true, // a vigil, not a hunt, presence turns the pack, no fight
     requires: { pen: "sheep" },
   },
   {

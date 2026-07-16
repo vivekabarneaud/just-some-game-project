@@ -227,6 +227,23 @@ export const STORY_CHAINS: StoryChain[] = [
       api.fireChronicleModal("ch1_cobb_returns");
     },
   },
+  // ── The Tollman's Road — the road turns organized, and we take it back ──
+  // Follows the merchant arc. Cobb is robbed on the downriver road (see_cobb_home)
+  // → the road is worked in earnest by men taking orders (hold_the_road) → the
+  // scouts find the camp and the team breaks its captain (break_the_nest). Merciful
+  // throughout: we drive off, we do not slaughter; the Tollman routs, his company
+  // scatters, and we bury no one.
+  {
+    id: "the_tollmans_road",
+    run: (api) => {
+      api.awaitMissionDone("see_cobb_home");
+      api.fireChronicleModal("ch1_cobb_robbed");
+      api.awaitMissionDone("hold_the_road");
+      api.fireChronicleModal("ch1_road_organized");
+      api.awaitMissionDone("break_the_nest");
+      api.fireChronicleModal("ch1_road_ours");
+    },
+  },
   // ── The poisoner and the gambler — Elspeth & Edmund ──
   // They join together via "A Mother's Errand". Beat 1 lands the moment they're
   // on the roster (the fool at the fire, the watchful mother); Beat 2, a few

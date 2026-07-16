@@ -8,6 +8,8 @@ import { STORY_CINEMATICS } from "~/data/cinematics";
 import CombatLog from "~/components/CombatLog";
 import CombatPlayback from "~/components/CombatPlayback";
 import EnemyCard from "~/components/EnemyCard";
+import TreasureChest from "~/components/TreasureChest";
+import MissionRosterStrip from "~/components/MissionRosterStrip";
 
 interface Props {
   result: CompletedMission;
@@ -44,6 +46,10 @@ export default function LootModal(props: Props) {
 
   const [logExpanded, setLogExpanded] = createSignal(false);
   const [showPlayback, setShowPlayback] = createSignal(false);
+  // The loot arrives as a closed chest the player opens. The roll already
+  // happened at mission completion; this is just the reveal beat. Claim stays
+  // gated until it's open so the reward is always seen, never skipped.
+  const [chestOpened, setChestOpened] = createSignal(false);
   // Suppress the card's scrollbar during the entry animation — content briefly
   // reflows as sections/chips settle, which otherwise flashes a scrollbar on
   // the right even when final content fits. Enabled after the animation ends.
@@ -82,7 +88,7 @@ export default function LootModal(props: Props) {
         style={{
           background: "var(--bg-secondary)",
           border: `2px solid ${outcomeColor()}`,
-          "border-radius": "10px",
+          "border-radius": "0",
           "max-width": "560px",
           width: "100%",
           "max-height": "85vh",
@@ -133,29 +139,20 @@ export default function LootModal(props: Props) {
               <div class="section-label">
                 Loot
               </div>
-              <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
-                <For each={r().rewards}>
-                  {(reward, i) => (
-                    <span class="loot-chip" style={{
-                      padding: "6px 12px",
-                      background: "rgba(212, 175, 55, 0.12)",
-                      border: "1px solid var(--accent-gold)",
-                      "border-radius": "4px",
-                      color: "var(--accent-gold)",
-                      "font-size": "0.9rem",
-                      "font-weight": "600",
-                      "animation-delay": `${280 + i() * 55}ms`,
-                    }}>
-                      {formatReward(reward)}
-                    </span>
-                  )}
-                </For>
-                <Show when={!r().success && r().rewards.length > 0}>
-                  <span style={{ "font-size": "0.75rem", color: "var(--accent-purple)", "align-self": "center" }}>
-                    (assassin salvage)
-                  </span>
-                </Show>
-              </div>
+              <TreasureChest
+                labels={r().rewards.map(formatReward)}
+                note={!r().success && r().rewards.length > 0 ? "assassin salvage" : undefined}
+                onOpened={() => setChestOpened(true)}
+              />
+            </div>
+          </Show>
+
+          {/* The team — how they came home. Portrait + HP drain + XP fill,
+              below the chest per the reveal order (loot, then the people). */}
+          <Show when={r().roster?.length}>
+            <div class="loot-section" style={{ "animation-delay": "260ms" }}>
+              <div class="section-label">The team</div>
+              <MissionRosterStrip roster={r().roster!} />
             </div>
           </Show>
 
@@ -303,11 +300,19 @@ export default function LootModal(props: Props) {
           <button
             onClick={() => dismissWith("confirm")}
             class="upgrade-btn"
-            style={{ padding: "8px 20px", "font-size": "0.95rem" }}
+            disabled={hasRewards() && !chestOpened()}
+            style={{
+              padding: "8px 20px",
+              "font-size": "0.95rem",
+              opacity: hasRewards() && !chestOpened() ? 0.5 : 1,
+              cursor: hasRewards() && !chestOpened() ? "not-allowed" : "pointer",
+            }}
           >
-            {hasRewards()
-              ? (hasStoryCinematic() ? "Claim & Continue Story" : "Claim rewards")
-              : (r().casualties.length > 0 ? "Close" : "Dismiss")}
+            {!hasRewards()
+              ? (r().casualties.length > 0 ? "Close" : "Dismiss")
+              : !chestOpened()
+              ? "Open the chest first"
+              : (hasStoryCinematic() ? "Claim & Continue Story" : "Claim rewards")}
           </button>
         </div>
       </div>

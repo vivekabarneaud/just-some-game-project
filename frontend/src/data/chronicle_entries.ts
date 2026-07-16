@@ -81,7 +81,7 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
     teaser: "A schoolmaster opens a new book. The first night is colder than the map suggested.",
     fullText:
       "I brought this book because a schoolmaster brings books. I will use it now because I have nowhere else to put the weight.\n\n" +
-      "The map calls this Parcel 14. The clerk who drew the map never stood in it. It has a river bending east, a ridge of stone to the north, and a forest older than anything any of us has ever seen. The stumps in the clearing are fresh: someone was here before, and then was not. I will not ask why tonight.\n\n" +
+      "The map calls this Parcel 14. The clerk who drew the map never stood in it. It has a river bending east, a ridge of stone to the north, and a forest older than anything any of us has ever seen. There are old stumps in the clearing, grey and grown over: someone was here long before us, and then was not. I will not ask why tonight.\n\n" +
       "The others are sleeping. The fire is low. I am writing because I do not know what else a man does with the first night of the rest of his life.",
     cinematicId: "intro",
   },
@@ -95,11 +95,11 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "They came in from the north trees a little after midday: four of them. Three grown, walking with the easy quiet of people who have come a long way and learned not to spend breath on it, and a small boy who was not quiet in the least. Hunters, the elder three. They asked for less than I expected and offered more, fresh meat for the pot and their bows for whatever the camp needs hunted or watched. I said yes. We are a small handful against a forest older than any king who ever claimed it; I would have said yes to almost anyone. But I think I would have said yes to these in any case.\n\n" +
       "They are a family. Thornwood. The eldest is Brenna, and it took me about one breath to see that she is the one who decides things, for all three of them. She does not raise her voice. She does not need to. She looked the camp over once, the way Tomas looks at a stone he means to cut, and I had the sense she had already counted our stores and guessed to the day how long they would last. I would rather have her counting than not.\n\n" +
       "---\n\n" +
-      "The second is Gareth, who talks enough for all three and laughs before the joke is finished. Good company, the kind a camp wants by its fire. But I marked something under the ease. He keeps an eye on whoever is being treated badly, and the one time a voice rose in anger across the camp he was on his feet before he knew he had stood, ready to step in, then caught himself and turned it into a joke instead. The quickness to laugh and the quickness to defend someone seem to come from the same place in him. I do not yet know what that place is.\n\n" +
+      "The second is Gareth, who talks enough for all three and laughs before the joke is finished. Good company, the kind a camp wants by its fire. But I marked something under the ease: the laughter comes a beat too quickly, the way a man laughs who has found it safer than the alternative. I do not yet know what he is covering. I only know the covering is practiced.\n\n" +
       "The third is Godric, and you notice him the way you notice weather. He is the largest man I have ever stood beside and, so far, the gentlest. He carried half our firewood before anyone asked, and gave his share of the meat to the children before anyone could tell him to keep it. He has said perhaps ten words since midday. When Brenna speaks he listens as though it were scripture.\n\n" +
       "---\n\n" +
       "The boy is perhaps seven, and the loudest thing that has happened to this camp since we raised the first tent. He had told me his name, and a good deal of other business besides, before the grown three had finished saying good day. He is not theirs by blood, I think, though I would not swear to it and I did not ask; they keep him in the middle of them the way you keep the one thing you carried out of a burning house. Our Nell watched him the whole while from the tent flap and did not say a word. I do not know yet what to make of that. I made a note of it all the same.\n\n" +
-      "I have their names and almost nothing else, and that is right. People do not arrive at the edge of the world with their whole story written on them. But I have set the names down here, in this book, and that is the small thing that turns a stranger into one of us: that someone troubled to keep the record. The guild has its first hands. Tomorrow I will learn what they can do. The rest, who they were before the trees, I expect I will learn the way you learn anything true out here. Slowly. Usually by accident.",
+      "I have their names and almost nothing else, and that is right. People do not arrive at the edge of the world with their whole story written on them. But I have set the names down here, and that is the small thing that turns a stranger into one of us: that someone troubled to keep the record. The guild has its first hands. The rest, who they were before the trees, I will learn the way you learn anything true out here. Slowly, and usually by accident.",
   },
   {
     id: "ch1_first_scouts",
@@ -286,6 +286,39 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "Cobb came back. I had half thought the wagon was a boast, the kind a trader makes to be polite about a place he does not expect to see again. It was not a boast. The team met him at the boundary marker and brought him in whole, axle groaning, and he climbed down looking pleased with himself and the world.\n\n" +
       "He walked the market we built for him, and looked a long moment at the tavern, and said little, which for Cobb is a kind of ceremony. Then, climbing back up to his seat: \"You will see me again. I have told others.\"\n\n" +
       "That last part is what I keep turning over. Not the goods. The plain fact that a man weighed the road to us against the risk of it and decided we were worth the wheels, and then said so to other men. We are on someone's map now: a place people come to, and not only a clearing we are holding against the dark. I did not expect to feel it so much.",
+  },
+  {
+    id: "ch1_cobb_robbed",
+    chapterId: "ch1",
+    order: 8.6,
+    title: "The road turns",
+    teaser: "Cobb came in on foot, at dusk, with no wagon and no boots. They took the lot on the downriver road and left him the walk.",
+    fullText:
+      "Cobb came in on foot tonight, at dusk, and I did not know him at first. No wagon. No mules. No boots. They had taken the lot on the downriver road, the goods and the beasts and the coat off his back, and left him the long walk to think about it. We had known the road was souring; we had been sending our own out to walk merchants past the worst of it for weeks. But knowing a thing and seeing it done to a friend are two different animals.\n\n" +
+      "He was more shaken than hurt, and more ashamed of the shaking than of either. He kept saying he should have known, should have come armed, should have come in daylight, as though the fault were his for trusting a road we had told him was safe. I told him it was ours. We are the reason he came. We are the reason he will come again, if I have any say in it.\n\n" +
+      "It is a strange grief, this one. A season ago a hard road was only the world being the world. Now it is a thing done to one of ours, on the way to us, and I feel it as such. That is what it is to have a place people come to. You inherit the road that leads to it.",
+  },
+  {
+    id: "ch1_road_organized",
+    chapterId: "ch1",
+    order: 8.7,
+    title: "Someone is giving orders",
+    teaser: "This is not desperation anymore. They turn back every wagon, from the same ground, on the same plan. Someone is giving the orders.",
+    fullText:
+      "The team came back from the road saying what I did not want to hear. This is not a handful of hungry men chancing a wagon. They turn back every trader who tries the track, from the same ground, waiting the same way, breaking off the same way when it turns against them. That is not desperation. That is a plan. Someone is giving the orders.\n\n" +
+      "I keep coming back to that. A desperate man I can pity, and pity is an easy thing to act on gently. A man who has taken desperate men and made a company of them, who has learned that our road pays and set himself to milking it, that is another thing entirely. He is not hungry. He is in business, and we are the business.\n\n" +
+      "Brenna has asked to go and find where they hole up. I have said yes. I do not want a war on the road. I want the road, and I would like it without burying the men standing in the way of it. We will see whether the one giving the orders leaves me the choice.",
+  },
+  {
+    id: "ch1_road_ours",
+    chapterId: "ch1",
+    order: 8.8,
+    title: "The road is ours",
+    teaser: "We broke their captain in front of them and the company came apart. We brought home what they took. We buried none of them.",
+    fullText:
+      "Brenna found the camp, a gully a half-day down, and the team went in at first light. It went the way I had hoped and had not let myself expect. They broke the man they call the Tollman in front of his own company, and the moment he was down and running the rest of them went with him, because it was him they followed and not the road. A company is only a company while the man at its head is still standing.\n\n" +
+      "We brought home what was piled in that camp, Cobb's coat among it, and other folk's goods we will find the owners of where we can. We took a bar of fine steel the Tollman had kept back for himself, worth more than the men he spent. The Blacksmith turned it over a long while and said he could make one good blade of it. I told him to. A road paid for that steel. Let it keep the road.\n\n" +
+      "And here is the part I mean to hold onto: we buried none of them. We frightened them off their trade and out of our country, and every one of them walked away with the chance to be something other than a bandit somewhere else, if they have the sense for it. I did not want a pile of bodies at the boundary marker. I wanted the road. Tonight the road is ours, and the ledger is clean.",
   },
   {
     id: "ch2_mothers_errand",

@@ -4,7 +4,7 @@ import { useGame, CRAFTING_RECIPES, isRecipeDiscovered, getBuildingToolsForBuild
 import { playSound, type SoundId } from "~/engine/sounds";
 import { getItemByRecipe, ARMOR_TYPE_META, isFoodItem, getFoodEffect } from "@medieval-realm/shared/data/items";
 import { getTotalFood, isFoodItemType, getFoodCostAmount, getFoodMeta, type FoodItemType } from "~/data/foods";
-import { BUILDINGS } from "~/data/buildings";
+import { BUILDINGS, getRepairCost } from "~/data/buildings";
 import Countdown from "~/components/Countdown";
 import Tooltip from "~/components/Tooltip";
 import RecipeCard from "~/components/RecipeCard";
@@ -216,6 +216,11 @@ export default function CraftingPage(props: CraftingPageProps) {
 
   const building = () => state.buildings.find((b) => b.buildingId === props.buildingId);
   const buildingLevel = () => building()?.level ?? 0;
+  const repairCost = () => {
+    const def = BUILDINGS.find((b) => b.id === props.buildingId);
+    return def ? getRepairCost(def, buildingLevel()) : { wood: 0, stone: 0 };
+  };
+  const canRepair = () => state.resources.wood >= repairCost().wood && state.resources.stone >= repairCost().stone;
 
   // "You haven't built this yet" cue — fire the error SFX on mount when the
   // page lands in its empty state. Skipped if the player already has it built.
@@ -516,9 +521,18 @@ export default function CraftingPage(props: CraftingPageProps) {
             "border-radius": "6px",
             color: "var(--accent-red)",
             "font-size": "0.85rem",
+            display: "flex", "align-items": "center", "justify-content": "space-between", gap: "10px", "flex-wrap": "wrap",
           }}>
-            Building is damaged — crafting disabled until repaired.{" "}
-            <A href={`/buildings/${props.buildingId}`} style={{ color: "var(--accent-gold)" }}>Repair →</A>
+            <span>Building is damaged. Crafting is disabled until it is repaired.</span>
+            <button
+              class="upgrade-btn"
+              disabled={!canRepair()}
+              onClick={() => { if (actions.repairBuilding(props.buildingId)) playSound("build"); }}
+              title={canRepair() ? undefined : "Not enough wood or stone"}
+              style={{ "font-size": "0.8rem", padding: "4px 12px", "white-space": "nowrap", opacity: canRepair() ? "1" : "0.5", cursor: canRepair() ? "pointer" : "not-allowed" }}
+            >
+              🔧 Repair (🪵{repairCost().wood} 🪨{repairCost().stone})
+            </button>
           </div>
         </Show>
 
