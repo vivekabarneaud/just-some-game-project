@@ -2,6 +2,7 @@ import { For, Show } from "solid-js";
 import { useGame, BUILDING_TOOLS, getBuildingTool } from "~/engine/gameState";
 import { ITEMS, MATERIALS, getItem, getMaterial, getPotionInfo, isSupplyItem, isFoodItem, getFoodEffect, MATCHED_FOOD_HP_BONUS, ARMOR_TYPE_META } from "@medieval-realm/shared/data/items";
 import { ALCHEMY_RECIPES } from "@medieval-realm/shared/data/alchemy_recipes";
+import WeaponDamage from "~/components/WeaponDamage";
 import { BUILDINGS } from "~/data/buildings";
 import { VEGGIES } from "~/data/gardens";
 import SeedIcon from "~/components/SeedIcon";
@@ -412,6 +413,7 @@ export default function Inventory() {
                     <div style={{ "font-size": "0.8rem", color: "var(--accent-green)" }}>
                       {item.description}
                     </div>
+                    <WeaponDamage item={item} />
                   </div>
                 </div>
                 <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-top": "4px" }}>

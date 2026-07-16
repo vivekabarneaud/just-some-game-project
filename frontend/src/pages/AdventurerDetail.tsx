@@ -27,6 +27,7 @@ import { getItem, getItemsForSlot, getEquipmentStats, getEquipmentDefense, isSup
 import { getTalentsForClass, getTalentPoints, getUnspentTalentPoints, canUnlockTalent, getEarnedTitle, getTalent, type TalentNode } from "~/data/talents";
 import Tooltip from "~/components/Tooltip";
 import TraitBadge from "~/components/TraitBadge";
+import WeaponDamage from "~/components/WeaponDamage";
 import AdventurerVitals from "~/components/AdventurerVitals";
 import RecoveryActions from "~/components/RecoveryActions";
 
@@ -419,6 +420,7 @@ export default function AdventurerDetail() {
                             {equippedItem()?.name ?? slotDef.name}
                           </div>
                           <Show when={equippedItem()}>
+                            <WeaponDamage item={equippedItem()!} />
                             <Show when={equippedItem()!.description}>
                               <div class="gear-slot-stats">{equippedItem()!.description}</div>
                             </Show>
@@ -508,6 +510,7 @@ export default function AdventurerDetail() {
                                       <div>
                                         <div style={{ "font-weight": "bold", color: "var(--text-primary)" }}>{item.icon} {item.name}</div>
                                         <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "2px" }}>{slotLabel}</div>
+                                        <WeaponDamage item={item} style={{ "margin-top": "2px" }} />
                                         <Show when={item.description}>
                                           <div style={{ "font-size": "0.7rem", color: "var(--accent-green)", "margin-top": "2px" }}>{item.description}</div>
                                         </Show>
