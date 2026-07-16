@@ -69,6 +69,12 @@ export interface MissionTemplate {
   image?: string; // optional mission illustration
   encounters?: MissionEncounter[]; // enemies faced during the mission
   guaranteed?: boolean; // always ~98% success regardless of stats
+  /** Success scales with how full the team is: chance = filled slots / total
+   *  slots (e.g. 1 of 3 = 33%, 3 of 3 = 100%). For story beats where a full
+   *  team should be a guaranteed pass but under-staffing is a real gamble.
+   *  Combines with discoveryMission (unbeatable-fight scouts) so completion
+   *  rides on headcount, not on winning a fight the team cannot win yet. */
+  teamSizeSuccess?: boolean;
   /** Pin this mission to the board whenever eligible (like sideChain missions),
    *  but WITHOUT showing a chain banner — for one-off hooks that should reliably
    *  appear yet read as an ordinary errand (e.g. the bog-witch front). */

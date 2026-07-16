@@ -4681,7 +4681,10 @@ export function GameProvider(props: ParentProps) {
               // come home wounded via the HP block below, but the mission completes
               // and the death block is skipped (a scripted retreat, no permadeath).
               const success = template?.discoveryMission
-                ? true
+                // Discovery scouts can't win the fight; completion rides on the
+                // headcount success chance (teamSizeSuccess) rather than combat.
+                // Legacy discovery missions (no teamSizeSuccess) still auto-complete.
+                ? (template.teamSizeSuccess ? Math.random() * 100 < am.successChance : true)
                 : isExped
                 ? !isTeamWiped(team, am.expeditionHp ?? {})
                 : (combatResult ? combatResult.victory : Math.random() * 100 < am.successChance);
@@ -4714,7 +4717,10 @@ export function GameProvider(props: ParentProps) {
                 ? new Set(team.filter((a) => (am.expeditionHp?.[a.id] ?? 0) <= 0).map((a) => a.id))
                 : null;
 
-              if ((!success || (isExped && expeditionFallenIds && expeditionFallenIds.size > 0)) && template) {
+              // Discovery scouts never permadeath, even on a failed headcount
+              // roll: the fight is unwinnable by design, so a loss is a wounded
+              // retreat, never a grave.
+              if ((!success || (isExped && expeditionFallenIds && expeditionFallenIds.size > 0)) && template && !template.discoveryMission) {
                 // Prefer deploy-time prerolled deaths (regular missions ran
                 // rollPermanentDeaths at deploy and stamped log entries).
                 // For paths that don't preroll (expeditions, legacy saves)

@@ -47,7 +47,9 @@ export const STORY_MISSIONS: StoryMission[] = [
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["exploration"],
-    guaranteed: true,
+    // A full team walks the dead place and hauls the stone home; too few and they
+    // get spooked and come back with nothing. 1 of 2 slots = 50%, 2 of 2 = 100%.
+    teamSizeSuccess: true,
     chronicleEntryId: "ch1_garrison_ruins",
   },
   {
@@ -72,9 +74,12 @@ export const STORY_MISSIONS: StoryMission[] = [
     tags: ["exploration", "outdoor", "survival"],
     encounters: [{ enemyId: "wailing_phantom", count: 1 }, { enemyId: "cursed_spirit", count: 3 }],
     // The team can't hurt ghosts yet (no binding until Niamh, story_4). This is
-    // a DISCOVERY: they meet the dead, steel does nothing, and they barely get
-    // the knowledge home. A lost fight still completes it; they return wounded.
+    // a DISCOVERY: they meet the dead, steel does nothing. Completion rides on
+    // headcount, not on winning the fight (which is impossible): a full team of
+    // 3 gets the knowledge home (100%), too few and they scatter and return
+    // empty-handed and wounded. Discovery keeps it permadeath-free either way.
     discoveryMission: true,
+    teamSizeSuccess: true,
     chronicleEntryId: "ch1_warden",
   },
   {

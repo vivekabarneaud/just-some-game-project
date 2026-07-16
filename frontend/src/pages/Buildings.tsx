@@ -547,7 +547,13 @@ export default function Buildings() {
                               forager_hut: { spring: 1, summer: 1, autumn: 0.75, winter: 0.25 },
                             };
                             const seasonMod = FOOD_GATHERING[building.id]?.[state.season];
-                            const effectiveRate = seasonMod != null ? Math.floor(def.rate * seasonMod) : def.rate;
+                            const seasonRate = seasonMod != null ? Math.floor(def.rate * seasonMod) : def.rate;
+                            // Short-staffing (e.g. a founder away on a mission) scales output too,
+                            // the same way the tick does — reflect it so the card matches reality.
+                            const staff = isStaffable(building.id) && built() ? actions.getBuildingStaffing(building.id) : null;
+                            const staffMult = staff?.multiplier ?? 1;
+                            const shortStaffed = !!staff && staff.active < staff.capacity && staffMult < 1;
+                            const effectiveRate = Math.floor(seasonRate * staffMult);
                             const isReduced = seasonMod != null && seasonMod < 1;
                             const FORAGER_FOOD: Record<string, string> = { spring: "berries", summer: "berries", autumn: "mushrooms", winter: "nuts" };
                             // Food-gathering buildings produce a generic "food" resource but yield a
@@ -556,13 +562,26 @@ export default function Buildings() {
                             const foodLabel = building.id === "forager_hut"
                               ? (FORAGER_FOOD[state.season] ?? "food")
                               : (GATHERED_FOOD[building.id] ?? def.resource);
+                            const reduced = isReduced || shortStaffed;
                             return (
-                              <div class="building-card-production">
-                                +{effectiveRate}/h {foodLabel}
-                                {isReduced && (
-                                  <span style={{ color: "var(--accent-gold)", "font-size": "0.7rem", "margin-left": "4px" }}>
-                                    ({Math.round(seasonMod! * 100)}% — {state.season})
-                                  </span>
+                              <div style={{ display: "flex", "flex-direction": "column", "align-items": "center", gap: "2px" }}>
+                                <div class="building-card-production">
+                                  +{effectiveRate}/h {foodLabel}
+                                  {reduced && (
+                                    <span style={{ color: "var(--text-muted)", "font-size": "0.72rem", "font-weight": "normal", "margin-left": "6px" }}>
+                                      (full {def.rate}/h)
+                                    </span>
+                                  )}
+                                </div>
+                                {reduced && (
+                                  <ul style={{ "text-align": "left", margin: "2px 0 0", padding: "0 0 0 16px", "font-size": "0.72rem", "line-height": "1.55", "list-style": "disc" }}>
+                                    {isReduced && (
+                                      <li style={{ color: "var(--accent-gold)" }}>{Math.round(seasonMod! * 100)}% yield in {state.season}</li>
+                                    )}
+                                    {shortStaffed && (
+                                      <li style={{ color: "var(--accent-red)" }}>{Math.round(staffMult * 100)}% yield while short-staffed</li>
+                                    )}
+                                  </ul>
                                 )}
                               </div>
                             );

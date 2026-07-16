@@ -160,6 +160,12 @@ export function calcSuccessChance(
   adventurerSupplies?: Record<string, AdventurerMissionSupplies>,
 ): number {
   if (team.length === 0) return 0;
+  // Headcount model: a full team is a guaranteed pass, each empty slot is a real
+  // gap. filled/total, so 1 of 2 = 50%, 1 of 3 = 33%, 3 of 3 = 100%.
+  if (mission.teamSizeSuccess) {
+    const slots = Math.max(1, mission.slots.length);
+    return Math.round(100 * Math.min(1, team.length / slots));
+  }
   if (mission.guaranteed) return 98;
 
   const statWeights = getMissionStatWeights(mission.tags);
