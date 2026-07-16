@@ -269,6 +269,29 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     produces: { resource: "weapons", amount: 1 },
     craftTime: 20,
   },
+  // ── Uncommon daggers (Fighting Knife = bandit loot, no recipe) ──
+  {
+    id: "bone_dirk", name: "Bone Dirk", icon: "🦴", building: "blacksmith", minLevel: 2,
+    costs: [{ resource: "iron", amount: 8 }, { resource: "bone", amount: 2 }],
+    produces: { resource: "weapons", amount: 1 }, craftTime: 100,
+  },
+  {
+    id: "hunting_knife", name: "Hunting Knife", icon: "🔪", building: "blacksmith", minLevel: 2,
+    costs: [{ resource: "iron", amount: 12 }, { resource: "leather", amount: 3 }],
+    produces: { resource: "weapons", amount: 1 }, craftTime: 100,
+  },
+  {
+    id: "poachers_knife", name: "Poacher's Knife", icon: "🔪", building: "blacksmith", minLevel: 2,
+    costs: [{ resource: "iron", amount: 10 }, { resource: "bone", amount: 2 }, { resource: "leather", amount: 2 }],
+    produces: { resource: "weapons", amount: 1 }, craftTime: 120,
+  },
+  // Rare: the alpha's fang as the blade (the flexible-material alternative to the
+  // sword's fang pommel). Gated by the boss drop, not the smith level.
+  {
+    id: "fang_dagger", name: "Fang Dagger", icon: "🦷", building: "blacksmith", minLevel: 2,
+    costs: [{ resource: "alpha_fang", amount: 1 }, { resource: "leather", amount: 2 }],
+    produces: { resource: "weapons", amount: 1 }, craftTime: 200,
+  },
   {
     id: "iron_sword",
     name: "Iron Sword",

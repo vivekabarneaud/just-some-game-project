@@ -183,6 +183,43 @@ export const WEAPONS: ItemDefinition[] = [
     stats: {}, dmgMin: 3, dmgMax: 5, durationMod: 1, lootMod: 1,
     recipeId: "iron_dagger", consumable: false,
   },
+  // ── Uncommon daggers (rung 3) — DEX-leaning, tight/low; bone & leather line.
+  //    Assassin + archer via the dagger category. ──
+  {
+    id: "fighting_knife", rarity: "uncommon", name: "Fighting Knife", icon: "🔪", slot: "mainHand", weaponType: "dagger",
+    description: "+1 DEX",
+    flavor: "A plain double-edged fighting knife, taken off a brigand who had no more use for it.",
+    classes: [], stats: { dex: 1 }, dmgMin: 3, dmgMax: 6, durationMod: 1, lootMod: 1,
+    recipeId: "", consumable: false,
+  },
+  {
+    id: "bone_dirk", rarity: "uncommon", name: "Bone Dirk", icon: "🦴", slot: "mainHand", weaponType: "dagger",
+    description: "+1 DEX",
+    flavor: "A narrow dirk ground from bone and iron. Light, wickedly pointed, and quiet in the drawing.",
+    classes: [], stats: { dex: 1 }, dmgMin: 4, dmgMax: 6, durationMod: 1, lootMod: 1,
+    recipeId: "bone_dirk", consumable: false,
+  },
+  {
+    id: "hunting_knife", rarity: "uncommon", name: "Hunting Knife", icon: "🔪", slot: "mainHand", weaponType: "dagger",
+    description: "+1 DEX",
+    flavor: "A skinning knife with a leather-wrapped grip, worn smooth. Meant for game, honest about the rest.",
+    classes: [], stats: { dex: 1 }, dmgMin: 3, dmgMax: 6, durationMod: 1, lootMod: 1,
+    recipeId: "hunting_knife", consumable: false,
+  },
+  {
+    id: "poachers_knife", rarity: "uncommon", name: "Poacher's Knife", icon: "🔪", slot: "mainHand", weaponType: "dagger",
+    description: "+1 DEX, +1 VIT",
+    flavor: "Thick-spined and bone-handled, built to last a hard life in the treeline. Ugly, sturdy, quietly reliable.",
+    classes: [], stats: { dex: 1, vit: 1 }, dmgMin: 3, dmgMax: 6, durationMod: 1, lootMod: 1,
+    recipeId: "poachers_knife", consumable: false,
+  },
+  {
+    id: "fang_dagger", rarity: "rare", name: "Fang Dagger", icon: "🦷", slot: "mainHand", weaponType: "dagger",
+    description: "+2 DEX",
+    flavor: "A pack alpha's fang, ground to an edge and bound to a leather-wrapped hilt. It still looks like it wants to bite.",
+    classes: [], stats: { dex: 2 }, dmgMin: 5, dmgMax: 8, durationMod: 1, lootMod: 1,
+    recipeId: "fang_dagger", consumable: false,
+  },
   {
     id: "orc_cleaver", rarity: "uncommon", name: "Orc Cleaver", icon: "🪓", slot: "mainHand", weaponType: "axe",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/orc_cleaver.png",
