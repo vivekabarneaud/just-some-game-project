@@ -94,8 +94,10 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
     fullText:
       "They came in from the north trees a little after midday: four of them. Three grown, walking with the easy quiet of people who have come a long way and learned not to spend breath on it, and a small boy who was not quiet in the least. Hunters, the elder three. They asked for less than I expected and offered more, fresh meat for the pot and their bows for whatever the camp needs hunted or watched. I said yes. We are a small handful against a forest older than any king who ever claimed it; I would have said yes to almost anyone. But I think I would have said yes to these in any case.\n\n" +
       "They are a family. Thornwood. The eldest is Brenna, and it took me about one breath to see that she is the one who decides things, for all three of them. She does not raise her voice. She does not need to. She looked the camp over once, the way Tomas looks at a stone he means to cut, and I had the sense she had already counted our stores and guessed to the day how long they would last. I would rather have her counting than not.\n\n" +
+      "---\n\n" +
       "The second is Gareth, who talks enough for all three and laughs before the joke is finished. Good company, the kind a camp wants by its fire. But I marked something under the ease. He keeps an eye on whoever is being treated badly, and the one time a voice rose in anger across the camp he was on his feet before he knew he had stood, ready to step in, then caught himself and turned it into a joke instead. The quickness to laugh and the quickness to defend someone seem to come from the same place in him. I do not yet know what that place is.\n\n" +
       "The third is Godric, and you notice him the way you notice weather. He is the largest man I have ever stood beside and, so far, the gentlest. He carried half our firewood before anyone asked, and gave his share of the meat to the children before anyone could tell him to keep it. He has said perhaps ten words since midday. When Brenna speaks he listens as though it were scripture.\n\n" +
+      "---\n\n" +
       "The boy is perhaps seven, and the loudest thing that has happened to this camp since we raised the first tent. He had told me his name, and a good deal of other business besides, before the grown three had finished saying good day. He is not theirs by blood, I think, though I would not swear to it and I did not ask; they keep him in the middle of them the way you keep the one thing you carried out of a burning house. Our Nell watched him the whole while from the tent flap and did not say a word. I do not know yet what to make of that. I made a note of it all the same.\n\n" +
       "I have their names and almost nothing else, and that is right. People do not arrive at the edge of the world with their whole story written on them. But I have set the names down here, in this book, and that is the small thing that turns a stranger into one of us: that someone troubled to keep the record. The guild has its first hands. Tomorrow I will learn what they can do. The rest, who they were before the trees, I expect I will learn the way you learn anything true out here. Slowly. Usually by accident.",
   },
@@ -284,6 +286,28 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "Cobb came back. I had half thought the wagon was a boast, the kind a trader makes to be polite about a place he does not expect to see again. It was not a boast. The team met him at the boundary marker and brought him in whole, axle groaning, and he climbed down looking pleased with himself and the world.\n\n" +
       "He walked the market we built for him, and looked a long moment at the tavern, and said little, which for Cobb is a kind of ceremony. Then, climbing back up to his seat: \"You will see me again. I have told others.\"\n\n" +
       "That last part is what I keep turning over. Not the goods. The plain fact that a man weighed the road to us against the risk of it and decided we were worth the wheels, and then said so to other men. We are on someone's map now: a place people come to, and not only a clearing we are holding against the dark. I did not expect to feel it so much.",
+  },
+  {
+    id: "ch2_mothers_errand",
+    chapterId: "ch2",
+    order: 20,
+    title: "The gambler and his mother",
+    teaser: "The fool we pulled off the ford is already at our fire, telling the tale like a winning hand. The woman who begged for him sits apart, and her needles never stop.",
+    fullText:
+      "The men at the old ford wanted the boy dead over a hand of cards. We put them on the ground instead and brought him home, and by nightfall Edmund Blackwood was at our fire telling the whole thing like it was the best game he ever lost, grinning, doing the voices of the men who had meant to kill him. Good company. The kind a camp warms to fast.\n\n" +
+      "His mother is not like that. She gave no name at the gate, only that her son was cornered and she could not reach him. Elspeth, he calls her. She sat a little apart from the fire tonight, where she could see both doors, with yarn in her hands and the needles going the whole time, turning out some small soft thing for one of the children. She smiled when he did. But when he laughed at how close it had been, at the odds of it, something in her face did not smile.\n\n" +
+      "I do not know their story. I know she came to my gate before dawn with no name and begged for the boy, and I know she watches him the way you watch a spark that has landed near dry thatch. They will stay. We have room for the hunted, and it seems we are becoming the kind of place they come to.",
+  },
+  {
+    id: "ch2_whose_blood",
+    chapterId: "ch2",
+    order: 20.1,
+    title: "Whose blood",
+    teaser: "Edmund cannot sit still without a wager on it. His mother watches him do it, and I have stopped needing to ask why she is afraid.",
+    fullText:
+      "I have had some days to watch them now. Edmund cannot sit an hour without turning it into a wager: dice with the hunters, a bet on whose arrow flies truest, his own skin against a bad road when a safer one runs beside it. He wins more than he should. Whether the luck is real or he is the finest cheat I have met, I cannot say, and I have watched closely.\n\n" +
+      "Elspeth watches closer. She taught him what he knows, I think: the quiet way of moving, the patience, the blade held low. What she did not mean to teach him was the joy of it, and that is the thing she cannot take back. Her needles never stop. The little things she makes are gentle past anything in her eyes when she looks at her grown son laughing at a long odd.\n\n" +
+      "She has not told me what she fears, and she does not have to. It is not the frontier. It is him: what he loves, and where it will take him. There is a small pouch at her belt she never opens in company, and a stillness in her when a stranger stands too near a door. I have decided not to ask what she did before she came here. A man learns which questions to keep to himself, and I have kept harder ones than these.",
   },
   {
     id: "ch1_reeds_voice",

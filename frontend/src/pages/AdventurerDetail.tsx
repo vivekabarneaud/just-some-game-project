@@ -809,6 +809,7 @@ export default function AdventurerDetail() {
 
                   <Show when={adv().talents?.length > 0 && !adv().onMission}>
                     <button
+                      class="btn-tertiary"
                       onClick={() => {
                         if (confirm("Reset all talents? Points will be refunded.")) {
                           actions.resetTalents(params.id);
@@ -816,12 +817,6 @@ export default function AdventurerDetail() {
                       }}
                       style={{
                         "margin-top": "12px",
-                        padding: "4px 12px",
-                        background: "transparent",
-                        border: "1px solid var(--border-color)",
-                        color: "var(--text-muted)",
-                        "border-radius": "4px",
-                        cursor: "pointer",
                         "font-size": "0.75rem",
                       }}
                     >

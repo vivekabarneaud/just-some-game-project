@@ -206,7 +206,7 @@ export default function Tavern() {
         </div>
 
         {/* ── The menu ── */}
-        <div class="building-card parchment-card" style={{ "margin-bottom": "16px" }}>
+        <div class="building-card parchment-panel" style={{ "margin-bottom": "16px", padding: "18px 46px" }}>
           <div class="building-card-title" style={{ "margin-bottom": "4px" }}>The menu</div>
           <p style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "margin-bottom": "12px" }}>
             What the tavern sets on its tables. A varied menu cheers the settlement and draws more travelers.
@@ -239,8 +239,8 @@ export default function Tavern() {
                     )}
                   </For>
                   <button
-                    class="field-upgrade-btn"
-                    style={{ "font-size": "0.76rem", padding: "5px 10px", "align-self": "flex-start" }}
+                    class="btn-tertiary"
+                    style={{ "font-size": "0.76rem", "align-self": "flex-start" }}
                     onClick={() => openEditor(col.kind)}
                   >
                     ＋ Add {col.label.toLowerCase()}
@@ -265,7 +265,7 @@ export default function Tavern() {
             const over = () => used() > cap();
             return (
               <div onClick={() => setEditKind(null)} style={{ position: "fixed", inset: "0", background: "rgba(0,0,0,0.6)", display: "flex", "align-items": "center", "justify-content": "center", "z-index": "1000", padding: "16px" }}>
-                <div onClick={(e) => e.stopPropagation()} class="building-card parchment-card" style={{ "max-width": "760px", width: "100%", "max-height": "85vh", display: "flex", "flex-direction": "column" }}>
+                <div onClick={(e) => e.stopPropagation()} class="building-card parchment-panel" style={{ "max-width": "760px", width: "100%", "max-height": "85vh", display: "flex", "flex-direction": "column", padding: "22px 46px" }}>
                   <div class="building-card-title" style={{ "margin-bottom": "4px" }}>{label()} on the menu</div>
                   <p style={{ "font-size": "0.8rem", color: "var(--text-secondary)", "margin-bottom": "12px" }}>
                     Tap dishes to set the menu. Each is cooked to order from its ingredients.
@@ -306,8 +306,8 @@ export default function Tavern() {
                       <strong>{used()}</strong> / {cap()} menu slots{over() ? " — remove some to apply" : ""}
                     </div>
                     <div style={{ display: "flex", gap: "8px" }}>
-                      <button class="field-upgrade-btn" style={{ "font-size": "0.82rem", padding: "6px 14px", background: "var(--bg-card)" }} onClick={() => setEditKind(null)}>Cancel</button>
-                      <button class="field-upgrade-btn" disabled={over()} style={{ "font-size": "0.82rem", padding: "6px 16px", opacity: over() ? "0.5" : "1" }} onClick={() => applyEditor(kind())}>Apply</button>
+                      <button class="btn-secondary" style={{ "font-size": "0.82rem" }} onClick={() => setEditKind(null)}>Cancel</button>
+                      <button class="btn-primary" disabled={over()} style={{ "font-size": "0.82rem" }} onClick={() => applyEditor(kind())}>Apply</button>
                     </div>
                   </div>
                 </div>

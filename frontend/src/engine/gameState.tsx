@@ -110,6 +110,7 @@ import {
   getFieldBuildTime,
   getSeasonYield,
   getSoilMultiplier,
+  getHayFromHarvest,
   MAX_FIELDS,
   FIELD_MAX_LEVEL,
 } from "~/data/crops";
@@ -122,6 +123,7 @@ import {
   getSeedCapacity,
   getEffectiveGardenRate,
   getSeedReturn,
+  getSproutedPlants,
   makeStartingSeeds,
   startingUnlockedSeeds,
   isSeedUnlocked,
@@ -138,6 +140,18 @@ import {
   getPenCost,
   getPenBuildTime,
   getPenProduction,
+  getPenCapacity,
+  getAnimalBuyCost,
+  LIVESTOCK_STARVE_DEATH_HOURS,
+  LIVESTOCK_BREED_PER_HOUR,
+  LIVESTOCK_MIN_BREEDING_FLOCK,
+  LIVESTOCK_BREEDING_SEASONS,
+  PREDATION_PER_HOUR,
+  PREDATION_SEASON_MOD,
+  PREDATION_MAX_LOSS,
+  GUARD_DOG_COST,
+  getCullYield,
+  getWoolSeasonMod,
   PEN_MAX_LEVEL,
 } from "@medieval-realm/shared/data/livestock";
 import {
@@ -156,7 +170,6 @@ import {
   ANIMAL_FEED,
   isGrazer,
   consumeFromCategories,
-  calcGrazingCapacity,
 } from "~/data/animalFeed";
 import {
   getHiveCost,
@@ -173,9 +186,19 @@ import {
   getOrchardCost,
   getOrchardBuildTime,
   getOrchardRate,
+  getOrchardTreeSlots,
+  getOrchardSeedReturn,
+  startingFruitSeeds,
+  startingUnlockedFruits,
+  isFruitUnlocked,
+  SAPLING_PLANT_SEASON,
   isOrchardActive,
   ORCHARD_MAX_LEVEL,
 } from "~/data/orchards";
+import { getClimate, getClimateYield, DROUGHT_PLANT_KILL, climateOverrideBand, setClimateOverride, isDryBand, isWetBand, climateRainFactor, type ClimateBand } from "~/data/climate";
+import { WELL_ID, CISTERN_ID, IRRIGATION_ID, DRAINAGE_ID, getWellOutput, wellFactor, getCisternRainCatch, getWaterCap, getDrainageBank, ambientRainFactor, gardenWaterDemand, fieldWaterDemand, orchardWaterDemand, penWaterDemand, IRRIGATION_EFFICIENCY, STREAM_YIELD, streamStatus, streamFactor, cropHeatFactor, citizenWaterDemand } from "~/data/water";
+import type { StreamStatus } from "~/data/water";
+import { resolveCurrentWeather, type WeatherType } from "~/data/weather";
 import {
   type Season,
   HOURS_PER_SEASON,
@@ -305,9 +328,13 @@ export type GameEventType =
   | "mission_success" | "mission_failed" | "adventurer_died" | "adventurer_levelup" | "adventurer_rankup" | "loyalty_rankup"
   | "raid_victory" | "raid_defeat" | "raid_incoming"
   | "winter_freezing"
+  | "drought"
   | "loot_drop"
   | "trade_accepted" | "trade_delivered"
-  | "pen_starving";
+  | "pen_starving"
+  | "pen_deaths"
+  | "pen_births"
+  | "pen_predation";
 
 export interface GameEvent {
   type: GameEventType;
@@ -340,6 +367,9 @@ export interface ResourceState {
   gold: number;
   wood: number;
   stone: number;
+  /** Stored water — filled by wells + rain-catching cisterns, spent on
+   *  irrigation in dry/drought years. Capped by cistern storage. */
+  water: number;
 }
 
 export interface StorageCaps {
@@ -347,6 +377,7 @@ export interface StorageCaps {
   wood: number;
   stone: number;
   food: number;
+  water: number;
 }
 
 export interface PlayerField {
@@ -356,6 +387,7 @@ export interface PlayerField {
   lastCrop: CropId | null;      // last crop planted — drives rotation tracking
   sameCropStreak: number;       // consecutive same-crop years (0 = fresh/rotated)
   restBonus: boolean;           // +15% yield next harvest (field was idle a year)
+  hay?: number;                 // straw rick left after harvest — winter grazer fodder; cleared at spring replant
   level: number;
   upgrading: boolean;
   upgradeRemaining?: number;
@@ -374,11 +406,19 @@ export interface PlayerGarden {
 export interface PlayerPen {
   id: string;
   animal: AnimalId;
+  /** Capacity tier (0 = not built). Sets how many animals fit, not production. */
   level: number;
+  /** Headcount — animals in the pen (0..capacity). Bought with gold; production scales with it. */
+  count: number;
   upgrading: boolean;
   upgradeRemaining?: number;
   /** True when the pen didn't cover its food need last tick. Production = 0 while starving. */
   starving?: boolean;
+  /** A guard dog is kept with this flock — stops wolf predation on it. */
+  guardDog?: boolean;
+  /** Accumulated game-hours of starvation; an animal dies each time it crosses
+   *  the death threshold, then it resets. Cleared once the flock is fed. */
+  starveHours?: number;
 }
 
 export interface PlayerHive {
@@ -458,14 +498,22 @@ export interface PlayerMageTower {
   upgradeRemaining?: number;
 }
 
+/** A sapling cohort planted at the same time — ages together to maturity. */
+export interface OrchardCohort {
+  count: number;
+  seasonsGrown: number;
+}
+
 export interface PlayerOrchard {
   id: string;
   fruit: FruitId;
   level: number;
   upgrading: boolean;
   upgradeRemaining?: number;
-  seasonsGrown: number;
-  mature: boolean;
+  /** Trees/vines that are bearing fruit. */
+  matureTrees: number;
+  /** Planted-but-not-yet-bearing cohorts, ageing toward maturationSeasons. */
+  saplings: OrchardCohort[];
 }
 
 export interface GameState {
@@ -478,6 +526,13 @@ export interface GameState {
   pens: PlayerPen[];
   hives: PlayerHive[];
   orchards: PlayerOrchard[];
+  /** Per-fruit sapling seed stock — spent to plant trees, saved back at harvest. */
+  fruitSeeds: Record<FruitId, number>;
+  /** Fruits the player can plant (apple from the start; specialty fruits unlock
+   *  when their seed/cutting is acquired). */
+  fruitsUnlocked: FruitId[];
+  /** Last world-year a drought plant-kill was applied — so it fires once/year. */
+  lastDroughtKillYear?: number;
   honey: number;
   /** Per-type food stockpiles — total capped by pantry */
   foods: Record<FoodItemType, number>;
@@ -536,6 +591,9 @@ export interface GameState {
   wool: number;
   fiber: number;
   leather: number;
+  /** Bone — from culling livestock + the hunting camp. Feeds bone broth (and,
+   *  later, fertilizer / bone tools like needles / buttons). A crafting material like leather. */
+  bone: number;
   clothing: number;
   iron: number;
   tools: number;
@@ -709,8 +767,16 @@ export interface GameActions {
   /** Pay seed gold to sow the garden for this cycle. Only valid during the veggie's plantSeasons. */
   plantGarden: (gardenId: string) => boolean;
   upgradePen: (penId: string) => boolean;
+  /** Buy `qty` animals for a built pen with gold, up to its capacity. */
+  buyLivestock: (penId: string, qty?: number) => boolean;
+  /** Keep a guard dog with a pen (gold, one-off) — stops wolf predation on it. */
+  buyGuardDog: (penId: string) => boolean;
+  /** Deliberately slaughter `qty` animals from a pen for meat + leather. */
+  cullLivestock: (penId: string, qty?: number) => boolean;
   upgradeHive: (hiveId: string) => boolean;
   upgradeOrchard: (orchardId: string) => boolean;
+  /** Plant one sapling/vine into a free slot of an orchard (gold cost). */
+  plantSapling: (orchardId: string) => boolean;
   setGameSpeed: (speed: number) => void;
   renameVillage: (name: string) => void;
   resetGame: () => void;
@@ -762,6 +828,21 @@ export interface GameActions {
   getStorageCaps: () => StorageCaps;
   getSettlementTier: () => SettlementTier;
   getTownHallLevel: () => number;
+  /** This year's climate band for the Farming readout (grace-aware: Year 1 = normal). */
+  getClimateBand: () => ClimateBand;
+  /** Dev: apply a drought plant-kill right now (test tool). */
+  forceDroughtKill: () => void;
+  /** Dev: run a full drought spell (forces the drought band + plant-kill) for a
+   *  few real seconds, then hands the climate back to the world year. */
+  triggerDrought: () => void;
+  /** Net water change per hour (stream + well + rain + runoff − draws). */
+  getWaterRate: () => number;
+  /** The stream's status (drives its water yield + the fishing hut's catch). */
+  getStreamStatus: () => StreamStatus;
+  /** Water sources/sinks per hour for the top-bar dropdown. */
+  getWaterBreakdown: () => { stream: number; well: number; rain: number; drainage: number; citizens: number; animals: number; crops: number; cropDraw: number; raining: boolean; coverage: number; irrigated: boolean; weather: WeatherType; streamStatus: StreamStatus; net: number };
+  /** Effective crop-yield multiplier after irrigation/drainage offsets (1 = full). */
+  getCropYieldMult: () => number;
   isHarvesting: () => boolean;
   getMasonBonuses: () => MasonBonuses;
   getMasonLevel: () => number;
@@ -995,7 +1076,7 @@ export function createInitialState(): GameState {
   initialFoods.nuts = 10;
   initialFoods.berries = 8;
   return {
-    resources: { gold: 50, wood: 300, stone: 200 },
+    resources: { gold: 50, wood: 300, stone: 200, water: 0 },
     foods: initialFoods,
     buildings: BUILDINGS.map((b) => ({
       buildingId: b.id,
@@ -1022,6 +1103,7 @@ export function createInitialState(): GameState {
       id: nextId("pen"),
       animal: a.id,
       level: 0,
+      count: 0,
       upgrading: false,
     })),
     // Pre-spawn apiary slots — all identical, no type variants.
@@ -1030,15 +1112,17 @@ export function createInitialState(): GameState {
       level: 0,
       upgrading: false,
     })),
-    // Pre-spawn one orchard per fruit (apples / pears / cherries).
+    // Pre-spawn one orchard per fruit (apples / pears / cherries / grapes).
     orchards: FRUITS.map((f) => ({
       id: nextId("orchard"),
       fruit: f.id,
       level: 0,
       upgrading: false,
-      seasonsGrown: 0,
-      mature: false,
+      matureTrees: 0,
+      saplings: [],
     })),
+    fruitSeeds: startingFruitSeeds(),
+    fruitsUnlocked: startingUnlockedFruits(),
     honey: 0,
     // Bio-accurate founder mapping: Edda + Father Corin elderly,
     // Jory + Tomas adults, Nell child. See docs/DESIGN_CITIZEN_CATEGORIES.md.
@@ -1081,6 +1165,7 @@ export function createInitialState(): GameState {
     wool: 0,
     fiber: 0,
     leather: 0,
+    bone: 0,
     // Founders arrive with their own clothes (like later newcomers do) — enough
     // to cover the household so a fresh settlement doesn't open on a "poorly
     // clothed" debuff. Still decays, so the tailor loop matters later.
@@ -1212,6 +1297,7 @@ export function migrateSaveState(saved: GameState): GameState {
     }
     saved.buildings = saved.buildings.filter((b) => b.buildingId !== "farm");
     if ("mana" in saved.resources) delete (saved.resources as any)["mana"];
+    if (typeof (saved.resources as any).water !== "number") (saved.resources as any).water = 0;
     // Citizen-categories migration (Phase B). Old saves stored a scalar
     // `population: number`; new shape is `citizens: CitizenCounts`. Preserve
     // the total — exactly-5 starter saves get the founder slice, others get
@@ -1364,6 +1450,10 @@ export function migrateSaveState(saved: GameState): GameState {
     if (!(saved as any).seedsUnlocked) {
       (saved as any).seedsUnlocked = startingUnlockedSeeds();
     }
+    // Fruit seeds + unlocked fruits (orchard seed model). Old saves get the
+    // founders' apple pack; apple is the only unlocked fruit until a seed stall.
+    if (!(saved as any).fruitSeeds) (saved as any).fruitSeeds = startingFruitSeeds();
+    if (!(saved as any).fruitsUnlocked) (saved as any).fruitsUnlocked = startingUnlockedFruits();
     // Lavender became a specialty (acquired) crop — clear any legacy free
     // starter stock from saves that got it before the flip, unless the player
     // has since unlocked it for real. Idempotent; safe to delete post-alpha.
@@ -1371,6 +1461,8 @@ export function migrateSaveState(saved: GameState): GameState {
       (saved as any).seeds.lavender = 0;
     }
     if (!saved.pens) saved.pens = [];
+    // Population model: default a headcount on any pre-count pen (no NaN in food math).
+    for (const p of saved.pens) if (typeof (p as any).count !== "number") (p as any).count = 0;
     if (!saved.hives) saved.hives = [];
     if (!saved.orchards) saved.orchards = [];
     // Pens: ensure one pre-attributed slot per animal
@@ -1380,11 +1472,33 @@ export function migrateSaveState(saved: GameState): GameState {
           id: nextId("pen"),
           animal: a.id,
           level: 0,
+          count: 0,
           upgrading: false,
         });
       }
     }
-    // Orchards: ensure one pre-attributed slot per fruit
+    // Orchards: migrate the old whole-orchard maturity (seasonsGrown/mature) to
+    // the tree-count model. A mature orchard becomes a full grove; a growing one
+    // becomes a sapling cohort at the same age.
+    for (const o of saved.orchards as any[]) {
+      if (o.matureTrees === undefined) {
+        const slots = getOrchardTreeSlots(o.level ?? 0);
+        if (o.mature) {
+          o.matureTrees = slots;
+          o.saplings = [];
+        } else if ((o.seasonsGrown ?? 0) > 0 && (o.level ?? 0) > 0) {
+          o.matureTrees = 0;
+          o.saplings = [{ count: Math.max(slots, 1), seasonsGrown: o.seasonsGrown }];
+        } else {
+          o.matureTrees = 0;
+          o.saplings = [];
+        }
+        delete o.seasonsGrown;
+        delete o.mature;
+      }
+      if (!Array.isArray(o.saplings)) o.saplings = [];
+    }
+    // Ensure one pre-attributed slot per fruit (adds grapes to old saves).
     for (const f of FRUITS) {
       if (!saved.orchards.some((o: any) => o.fruit === f.id)) {
         saved.orchards.push({
@@ -1392,8 +1506,8 @@ export function migrateSaveState(saved: GameState): GameState {
           fruit: f.id,
           level: 0,
           upgrading: false,
-          seasonsGrown: 0,
-          mature: false,
+          matureTrees: 0,
+          saplings: [],
         });
       }
     }
@@ -1460,6 +1574,7 @@ export function migrateSaveState(saved: GameState): GameState {
     // Materials migration
     if (saved.wool === undefined) saved.wool = 0;
     if (saved.leather === undefined) saved.leather = 0;
+    if (saved.bone === undefined) saved.bone = 0;
     if (saved.fiber === undefined) saved.fiber = 0;
     if (!saved.yearHarvest) saved.yearHarvest = {};
     for (const f of saved.fields) {
@@ -2091,6 +2206,145 @@ function getBuildingStaffing(s: GameState, buildingId: string, level: number): B
   return { staffable: true, capacity, named, kids: cfg.kids ?? [], citizens, active, multiplier };
 }
 
+/** This year's climate band (drought/dry/normal/wet/deluge). GLOBAL: keyed to
+ *  the world/wall-clock year (getGlobalSeason), so every player at the same real
+ *  time gets the same good/bad year — the shared basis the water storage/trade
+ *  economy needs. No backend: it's a pure function of the clock, like the
+ *  ambient weather. */
+function cropClimateBand(_state: GameState): ClimateBand {
+  return climateOverrideBand() ?? getClimate(getGlobalSeason().year);
+}
+function buildingLevel(s: GameState, id: string): number {
+  return s.buildings.find((b) => b.buildingId === id)?.level ?? 0;
+}
+
+/** Total water the growing crops want per hour — scales with how much is
+ *  actually growing (field acreage, sprouted garden plants, bearing trees). */
+function cropWaterDemand(s: GameState): number {
+  let d = 0;
+  for (const f of s.fields) if (f.level > 0 && f.crop) d += fieldWaterDemand(f.level);
+  for (const g of s.gardens) {
+    if (g.level > 0 && g.plantedYear != null) {
+      d += gardenWaterDemand(g.veggie, getSproutedPlants(getVeggie(g.veggie), g.seedsPlanted));
+    }
+  }
+  for (const o of s.orchards) if (o.level > 0 && (o.matureTrees ?? 0) > 0) d += orchardWaterDemand(o.matureTrees);
+  return d;
+}
+
+/** The sky right now (drives the momentary rain boost on cistern catch). */
+function currentWeatherOf(s: GameState) {
+  return resolveCurrentWeather(s.season, s.seasonElapsed, getGlobalSeason().year);
+}
+/** Water the livestock drink each hour (year-round, per head). */
+function animalWaterDemand(s: GameState): number {
+  let d = 0;
+  for (const p of s.pens) if (p.level > 0) d += penWaterDemand(p.count);
+  return d;
+}
+/** Water the settlement's folk drink each hour (year-round, spikes in summer). */
+function citizenWaterDemand_(s: GameState): number {
+  const c = s.citizens;
+  const pop = c.toddlers + c.children + c.adults + c.elderly;
+  return citizenWaterDemand(pop, s.season, cropClimateBand(s));
+}
+/** The stream's status this tick — drives its water yield AND the fishing catch
+ *  (same low water, fewer fish): flowing / low (summer, dry) / frozen / dry. */
+function streamStatusOf(s: GameState): StreamStatus {
+  return streamStatus(cropClimateBand(s), s.season);
+}
+/** Multiplier the low stream puts on the fishing hut's catch. */
+function fishStreamFactor(s: GameState): number {
+  return streamFactor(streamStatusOf(s));
+}
+
+/** One place computing the water flows this tick (water/hour). The stream + well
+ *  + caught rain + drainage runoff FILL the reserve; citizens, livestock and the
+ *  crops DRAW it. Crops drink continuously EXCEPT while it's raining (the sky
+ *  waters them then), thirstier in a dry-year heat, and irrigation makes their
+ *  draw efficient. When the reserve runs dry the crops go short (citizens and
+ *  livestock have priority). */
+function waterBalance(s: GameState) {
+  const band = cropClimateBand(s);
+  const weather = currentWeatherOf(s);
+  const raining = isRainingNow(s);
+  const cisternLvl = buildingLevel(s, CISTERN_ID);
+  const stream = STREAM_YIELD * streamFactor(streamStatus(band, s.season));
+  const well = getWellOutput(buildingLevel(s, WELL_ID)) * wellFactor(band);
+  const rain = getCisternRainCatch(cisternLvl) * climateRainFactor(band) * ambientRainFactor(weather);
+  const drainage = isWetBand(band) ? getDrainageBank(buildingLevel(s, DRAINAGE_ID)) : 0;
+  const inflow = stream + well + rain + drainage;
+
+  const citizens = citizenWaterDemand_(s);
+  const animals = animalWaterDemand(s);
+  const hasIrrigation = buildingLevel(s, IRRIGATION_ID) > 0;
+  // What the crops want per hour (thirstier in the heat), and what they actually
+  // pull from the reserve now (nothing while it's raining; efficient if irrigated).
+  const cropNeed = cropWaterDemand(s) * cropHeatFactor(band);
+  const cropDraw = raining ? 0 : cropNeed * (hasIrrigation ? IRRIGATION_EFFICIENCY : 1);
+
+  // Coverage: crops are watered while the reserve holds water; once it's empty
+  // they get only the inflow left after citizens + livestock (who come first).
+  const reserve = s.resources.water ?? 0;
+  let cropCoverage: number;
+  if (raining || cropDraw <= 0) cropCoverage = 1;
+  else if (reserve > 0.0001) cropCoverage = 1;
+  else cropCoverage = Math.min(1, Math.max(0, inflow - citizens - animals) / cropDraw);
+
+  return { band, weather, raining, cisternLvl, stream, well, rain, drainage, inflow,
+    citizens, animals, cropNeed, cropDraw, hasIrrigation, cropCoverage,
+    streamStatus: streamStatus(band, s.season),
+    net: inflow - citizens - animals - cropDraw };
+}
+
+/** Is it actively raining right now? (Rain waters the crops directly, pausing
+ *  their draw on the reserve.) */
+function isRainingNow(s: GameState): boolean {
+  const w = currentWeatherOf(s);
+  return w === "rain" || w === "storm" || w === "unnatural_storm";
+}
+/** Is drainage saving the crop this wet year? (built, wet/deluge). */
+function drainageActive(s: GameState): boolean {
+  return isWetBand(cropClimateBand(s)) && buildingLevel(s, DRAINAGE_ID) > 0;
+}
+
+/** Crop-yield multiplier. First year is graced (×1). Wet years are a
+ *  waterlogging penalty (drainage cancels it). The dry side is MOMENTARY: rain
+ *  waters the crops for free right now, and the rest of the time they drink the
+ *  reserve — full yield while it holds, thirsty once it runs dry. */
+function cropYieldMult(state: GameState): number {
+  if (state.year <= 1) return 1;
+  const band = cropClimateBand(state);
+  if (isWetBand(band)) return drainageActive(state) ? 1 : getClimateYield(band);
+  return waterBalance(state).cropCoverage;
+}
+
+/** Drought's discrete bite: a fraction of standing plants withers. Gardens lose
+ *  sown crop; young orchard saplings die; mature trees + field harvests just
+ *  yield less (the climate multiplier already handles those). Fires once per
+ *  drought world-year (see the tick). */
+function applyDroughtKill(s: GameState): void {
+  const survive = 1 - DROUGHT_PLANT_KILL;
+  for (const g of s.gardens) {
+    if (g.plantedYear != null && g.seedsPlanted > 0) {
+      g.seedsPlanted = Math.floor(g.seedsPlanted * survive);
+    }
+  }
+  for (const o of s.orchards) {
+    if (o.saplings?.length) {
+      for (const c of o.saplings) c.count = Math.floor(c.count * survive);
+      o.saplings = o.saplings.filter((c) => c.count > 0);
+    }
+  }
+}
+
+/** Are the people fed this tick? True while the larder holds real food OR there
+ *  is honey to fall back on — honey is the emergency ration, eaten only once the
+ *  larder is empty (see the tick's food consumption). */
+function peopleAreFed(s: GameState): boolean {
+  return getTotalFood(s.foods) > 0 || (s.honey ?? 0) > 0;
+}
+
 function calcProductionRates(state: GameState): { gold: number; wood: number; stone: number; food: number } {
   const { buildings, fields, gardens, pens, citizens, season, seasonElapsed } = state;
   const rates = { gold: 0, wood: 0, stone: 0, food: 0 };
@@ -2132,13 +2386,16 @@ function calcProductionRates(state: GameState): { gold: number; wood: number; st
     }
   }
 
+  // Climate multiplier scales all crop yields (fields/gardens/orchards) this year.
+  const cm = cropYieldMult(state);
+
   // Fields — harvest burst in autumn
   if (isHarvestTime(season, seasonElapsed)) {
     for (const field of fields) {
       if (field.level === 0 || !field.crop) continue;
       const crop = getCrop(field.crop);
       if (crop.isFood) {
-        rates.food += getSeasonYield(crop, field.level) / HARVEST_DURATION_HOURS;
+        rates.food += (getSeasonYield(crop, field.level) / HARVEST_DURATION_HOURS) * cm;
       }
     }
   }
@@ -2149,7 +2406,7 @@ function calcProductionRates(state: GameState): { gold: number; wood: number; st
     if (garden.plantedYear == null) continue;
     const veggie = getVeggie(garden.veggie);
     if (isVeggieProducing(veggie, season)) {
-      rates.food += getEffectiveGardenRate(veggie, garden.level, garden.seedsPlanted);
+      rates.food += getEffectiveGardenRate(veggie, garden.level, garden.seedsPlanted) * cm;
     }
   }
 
@@ -2157,7 +2414,7 @@ function calcProductionRates(state: GameState): { gold: number; wood: number; st
   for (const pen of pens) {
     if (pen.level === 0) continue;
     const animal = getAnimal(pen.animal);
-    const prod = getPenProduction(animal, pen.level);
+    const prod = getPenProduction(animal, pen.count);
     rates.food += prod.produced;
   }
 
@@ -2169,25 +2426,51 @@ function calcAnimalFoodConsumption(pens: PlayerPen[]): number {
   for (const pen of pens) {
     if (pen.level === 0) continue;
     const animal = getAnimal(pen.animal);
-    const prod = getPenProduction(animal, pen.level);
+    const prod = getPenProduction(animal, pen.count);
     total += prod.consumed;
   }
   return total;
 }
 
-/** Drain pantry for each pen, applying grazing + category preferences.
- *  Returns per-pen fedRatio (0-1). Mutates pen.starving. */
+/** Drain up to `amount` units of hay from the field ricks (mutating), taking
+ *  from the fullest rick first so a near-empty one isn't stranded with a scrap.
+ *  Returns how much hay was actually eaten. */
+function consumeHayFromFields(fields: PlayerField[], amount: number): number {
+  let need = amount;
+  let taken = 0;
+  const ricks = fields
+    .filter((f) => (f.hay ?? 0) > 0)
+    .sort((a, b) => (b.hay ?? 0) - (a.hay ?? 0));
+  for (const f of ricks) {
+    if (need <= 0) break;
+    const t = Math.min(f.hay ?? 0, need);
+    f.hay = (f.hay ?? 0) - t;
+    need -= t;
+    taken += t;
+  }
+  return taken;
+}
+
+/** Feed each pen and return its per-pen fedRatio (0-1). Grazers (sheep/goats)
+ *  live off free wild grass spring→autumn; in winter the grass is gone and they
+ *  eat the hay ricked on the fields at harvest, then fall back to larder
+ *  grain/veggies, then starve. Non-grazers always eat from the larder.
+ *  Mutates pen.starving and field.hay. */
 function applyAnimalFeed(s: GameState, elapsedHours: number): Map<string, number> {
   const fedRatios = new Map<string, number>();
   if (!s.pens.length || elapsedHours <= 0) return fedRatios;
 
-  const grazingPerHour = calcGrazingCapacity(s.fields);
+  const isWinter = s.season === "winter";
 
-  // Grazer demand weight (for splitting grazing proportionally)
+  // Winter only: split the finite hay stock across grazing flocks by consumption.
   let totalGrazerDemand = 0;
-  for (const pen of s.pens) {
-    if (pen.level === 0 || !isGrazer(pen.animal)) continue;
-    totalGrazerDemand += getPenProduction(getAnimal(pen.animal), pen.level).consumed;
+  let totalHay = 0;
+  if (isWinter) {
+    for (const pen of s.pens) {
+      if (pen.level === 0 || !isGrazer(pen.animal)) continue;
+      totalGrazerDemand += getPenProduction(getAnimal(pen.animal), pen.count).consumed;
+    }
+    for (const f of s.fields) totalHay += f.hay ?? 0;
   }
 
   for (const pen of s.pens) {
@@ -2197,7 +2480,7 @@ function applyAnimalFeed(s: GameState, elapsedHours: number): Map<string, number
       continue;
     }
     const animal = getAnimal(pen.animal);
-    const prod = getPenProduction(animal, pen.level);
+    const prod = getPenProduction(animal, pen.count);
     const baseNeed = prod.consumed * elapsedHours;
     if (baseNeed <= 0) {
       fedRatios.set(pen.id, 1);
@@ -2207,14 +2490,20 @@ function applyAnimalFeed(s: GameState, elapsedHours: number): Map<string, number
 
     let covered = 0;
 
-    // Grazing share for sheep/goats, proportional to their consumption
-    if (isGrazer(pen.animal) && totalGrazerDemand > 0) {
-      const share = prod.consumed / totalGrazerDemand;
-      const grazingForPen = grazingPerHour * share * elapsedHours;
-      covered += Math.min(baseNeed, grazingForPen);
+    if (isGrazer(pen.animal)) {
+      if (!isWinter) {
+        // Free wild grass covers the whole flock in the warm seasons.
+        covered = baseNeed;
+      } else if (totalGrazerDemand > 0 && totalHay > 0) {
+        // This flock's fair slice of the winter hay ricks.
+        const share = prod.consumed / totalGrazerDemand;
+        const want = Math.min(baseNeed, totalHay * share);
+        covered += consumeHayFromFields(s.fields, want);
+      }
     }
 
-    // Pantry consumption for the remainder (from preferred categories only)
+    // Larder covers any shortfall — all of it for non-grazers, and for grazers
+    // the winter gap once grass and hay run out.
     const remaining = Math.max(0, baseNeed - covered);
     if (remaining > 0 && s.foods) {
       covered += consumeFromCategories(s.foods, ANIMAL_FEED[pen.animal], remaining);
@@ -2226,11 +2515,68 @@ function applyAnimalFeed(s: GameState, elapsedHours: number): Map<string, number
     const wasStarving = pen.starving === true;
     pen.starving = ratio < 0.5;
     if (pen.starving && !wasStarving) {
-      pushEvent(s, "pen_starving", "🥀", `The ${animal.name.toLowerCase()} pen is starving — no food in its diet!`);
+      pushEvent(s, "pen_starving", "🥀", `The ${animal.name.toLowerCase()} pen is starving — no food to see it through.`);
     }
   }
 
   return fedRatios;
+}
+
+/** Flock population change each tick (livestock slice 2): a fed flock breeds in
+ *  the warm seasons (needs a pair + room, never past capacity); an unfed flock
+ *  loses head to hunger. Mutates pen.count. Never auto-culls — shrinkage is only
+ *  starvation; deliberate culling is a separate player action. See DESIGN_LIVESTOCK.md. */
+function applyFlockDynamics(s: GameState, fedRatios: Map<string, number>, elapsedHours: number): void {
+  if (elapsedHours <= 0) return;
+  const breeding = (LIVESTOCK_BREEDING_SEASONS as readonly string[]).includes(s.season);
+  for (const pen of s.pens) {
+    if (pen.level === 0 || pen.count <= 0) continue;
+    const capacity = getPenCapacity(pen.level);
+    const ratio = fedRatios.get(pen.id) ?? 1;
+
+    // Predation — wolves thin an UNDEFENDED fold (fed or not), worse in the lean
+    // seasons. A guard dog stops it entirely. At most one raid per tick; the
+    // chance compounds over elapsed hours so an offline stretch isn't a wipe.
+    if (!pen.guardDog) {
+      const mod = PREDATION_SEASON_MOD[s.season] ?? 1;
+      const raidChance = 1 - Math.pow(1 - PREDATION_PER_HOUR * mod, elapsedHours);
+      if (Math.random() < raidChance) {
+        const lost = Math.min(pen.count, 1 + Math.floor(Math.random() * PREDATION_MAX_LOSS));
+        pen.count -= lost;
+        pushEvent(s, "pen_predation", "🐺", `Wolves took ${lost} from the ${getAnimal(pen.animal).name.toLowerCase()} pen in the night.`);
+        if (pen.count <= 0) continue;
+      }
+    }
+
+    // Starvation deaths — accumulate game-hours of hunger (scaled by how unfed);
+    // each full threshold kills one animal. Accumulating (not per-tick rounding)
+    // so tiny ticks still add up over time. Reset once the flock is fed again.
+    if (ratio < 0.5) {
+      const severity = Math.min(1, (0.5 - ratio) / 0.5);
+      pen.starveHours = (pen.starveHours ?? 0) + severity * elapsedHours;
+      let deaths = 0;
+      while (pen.starveHours >= LIVESTOCK_STARVE_DEATH_HOURS && pen.count - deaths > 0) {
+        pen.starveHours -= LIVESTOCK_STARVE_DEATH_HOURS;
+        deaths++;
+      }
+      if (deaths > 0) {
+        pen.count -= deaths;
+        if (pen.count <= 0) pen.starveHours = 0;
+        pushEvent(s, "pen_deaths", "💀", `Hunger took ${deaths} from the ${getAnimal(pen.animal).name.toLowerCase()} pen.`);
+      }
+      continue; // a starving flock doesn't breed
+    }
+    if (pen.starveHours) pen.starveHours = 0; // fed again — the starvation clock resets
+    // Breeding — a fed flock (not just a pair) grows toward capacity in the warm
+    // seasons. Two animals never breed alone (inbreeding optic + forces buying in).
+    if (breeding && pen.count >= LIVESTOCK_MIN_BREEDING_FLOCK && pen.count < capacity) {
+      const births = Math.min(capacity - pen.count, Math.round(pen.count * LIVESTOCK_BREED_PER_HOUR * elapsedHours));
+      if (births > 0) {
+        pen.count += births;
+        pushEvent(s, "pen_births", "🐣", `${births} born in the ${getAnimal(pen.animal).name.toLowerCase()} pen.`);
+      }
+    }
+  }
 }
 
 /** Per-food-type production rates, used to add to the typed foods map each tick.
@@ -2246,13 +2592,16 @@ function calcFoodRates(state: GameState, fedRatios?: Map<string, number>): Recor
     spring: 1.0, summer: 1.0, autumn: 0.75, winter: 0.25,
   };
 
+  // Climate multiplier scales all crop yields (fields/gardens/orchards).
+  const cm = cropYieldMult(state);
+
   // Fields — harvest season only
   if (isHarvestTime(season, seasonElapsed)) {
     for (const field of fields) {
       if (field.level === 0 || !field.crop) continue;
       const crop = getCrop(field.crop);
       if (!crop.isFood) continue;
-      const rate = getSeasonYield(crop, field.level) / HARVEST_DURATION_HOURS;
+      const rate = (getSeasonYield(crop, field.level) / HARVEST_DURATION_HOURS) * cm;
       if (crop.id in rates) rates[crop.id as FoodItemType] += rate;
     }
   }
@@ -2263,16 +2612,17 @@ function calcFoodRates(state: GameState, fedRatios?: Map<string, number>): Recor
     if (garden.plantedYear == null) continue;
     const veggie = getVeggie(garden.veggie);
     if (!isVeggieProducing(veggie, season)) continue;
-    const rate = getEffectiveGardenRate(veggie, garden.level, garden.seedsPlanted);
+    const rate = getEffectiveGardenRate(veggie, garden.level, garden.seedsPlanted) * cm;
     if (veggie.id in rates) rates[veggie.id as FoodItemType] += rate;
   }
 
-  // Orchards — mature + harvest-season only, per-fruit
+  // Orchards — mature trees in their harvest season, per-fruit. Yield scales
+  // with the number of bearing trees (saplings don't count yet).
   for (const orchard of orchards ?? []) {
-    if (orchard.level === 0 || orchard.upgrading || !orchard.mature) continue;
+    if (orchard.level === 0 || orchard.upgrading || (orchard.matureTrees ?? 0) <= 0) continue;
     const fruitDef = getFruit(orchard.fruit);
     if (!isOrchardActive(fruitDef, season)) continue;
-    const rate = getOrchardRate(fruitDef, orchard.level);
+    const rate = getOrchardRate(fruitDef, orchard.matureTrees) * cm;
     if (fruitDef.id in rates) rates[fruitDef.id as FoodItemType] += rate;
   }
 
@@ -2282,7 +2632,7 @@ function calcFoodRates(state: GameState, fedRatios?: Map<string, number>): Recor
     const ratio = fedRatios ? (fedRatios.get(pen.id) ?? 0) : 1;
     if (ratio <= 0) continue;
     const animal = getAnimal(pen.animal);
-    const prod = getPenProduction(animal, pen.level);
+    const prod = getPenProduction(animal, pen.count);
     const type = animal.foodLabel.toLowerCase() as FoodItemType;
     if (type in rates) rates[type] += prod.produced * ratio;
   }
@@ -2307,7 +2657,7 @@ function calcFoodRates(state: GameState, fedRatios?: Map<string, number>): Recor
       // the seasonal gather.
       if (isForagerBlooming(state)) rates.mushrooms += Math.floor(base * RAIN_FORAGE_MUSHROOM_FRACTION);
     } else if (pb.buildingId === "fishing_hut") {
-      rate = Math.floor(rate * (foodSeasonMod[season] ?? 1));
+      rate = Math.floor(rate * (foodSeasonMod[season] ?? 1) * fishStreamFactor(state));
       target = "fish";
     }
     // Staff coverage — deploying the building's adventurer (or an empty slot)
@@ -2342,13 +2692,15 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
     spring: 1.0, summer: 1.0, autumn: 0.75, winter: 0.25,
   };
 
+  const cm = cropYieldMult(state);
+
   // Fields (harvest only) — use crop.id (wheat/barley) as the food type
   if (isHarvestTime(season, seasonElapsed)) {
     for (const field of fields) {
       if (field.level === 0 || !field.crop) continue;
       const crop = getCrop(field.crop);
       if (!crop.isFood) continue;
-      const rate = Math.round(getSeasonYield(crop, field.level) / HARVEST_DURATION_HOURS);
+      const rate = Math.round((getSeasonYield(crop, field.level) / HARVEST_DURATION_HOURS) * cm);
       sources.push({ type: crop.id, label: crop.name, icon: crop.icon, rate, building: `${crop.name} Field Lv${field.level}` });
     }
   }
@@ -2359,7 +2711,7 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
     if (garden.plantedYear == null) continue;
     const veggie = getVeggie(garden.veggie);
     if (!isVeggieProducing(veggie, season)) continue;
-    const rate = getEffectiveGardenRate(veggie, garden.level, garden.seedsPlanted);
+    const rate = getEffectiveGardenRate(veggie, garden.level, garden.seedsPlanted) * cm;
     sources.push({ type: veggie.id, label: veggie.name, icon: veggie.icon, rate, building: `${veggie.name} Garden Lv${garden.level}` });
   }
 
@@ -2367,7 +2719,7 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
   for (const pen of pens) {
     if (pen.level === 0) continue;
     const animal = getAnimal(pen.animal);
-    const prod = getPenProduction(animal, pen.level);
+    const prod = getPenProduction(animal, pen.count);
     sources.push({ type: animal.foodLabel.toLowerCase(), label: animal.foodLabel, icon: animal.icon, rate: prod.produced, building: `${animal.name} Pen Lv${pen.level}` });
   }
 
@@ -2397,7 +2749,7 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
         sources.push({ type: "mushrooms", label: "Mushrooms", icon: "🍄", rate: rainBonus, building: `${def.name} · rain` });
       }
     } else if (pb.buildingId === "fishing_hut") {
-      rate = Math.floor(rate * (foodSeasonMod[season] ?? 1));
+      rate = Math.floor(rate * (foodSeasonMod[season] ?? 1) * fishStreamFactor(state));
       type = "fish"; icon = "🐟"; label = "Fish";
     }
     if (type && rate > 0) {
@@ -2531,6 +2883,7 @@ function getResourceQty(s: GameState, res: string): number {
   if (res === "wool") return s.wool;
   if (res === "fiber") return s.fiber;
   if (res === "leather") return s.leather;
+  if (res === "bone") return s.bone;
   if (res === "iron") return s.iron;
   if (res === "honey") return s.honey;
   if (res === "ale") return s.ale ?? 0;
@@ -2551,6 +2904,7 @@ function spendResource(s: GameState, res: string, amount: number): void {
   if (res === "wool") { s.wool = Math.max(0, s.wool - amount); return; }
   if (res === "fiber") { s.fiber = Math.max(0, s.fiber - amount); return; }
   if (res === "leather") { s.leather = Math.max(0, s.leather - amount); return; }
+  if (res === "bone") { s.bone = Math.max(0, s.bone - amount); return; }
   if (res === "iron") { s.iron = Math.max(0, s.iron - amount); return; }
   if (res === "honey") { s.honey = Math.max(0, s.honey - amount); return; }
   if (res === "ale") { s.ale = Math.max(0, s.ale - amount); return; }
@@ -2608,11 +2962,13 @@ function calcStorageCaps(buildings: PlayerBuilding[]): StorageCaps {
   const pantry = buildings.find((b) => b.buildingId === "pantry");
   const th = buildings.find((b) => b.buildingId === "town_hall");
   const materialCap = BASE_MATERIAL_STORAGE + (warehouse?.level ?? 0) * MATERIAL_STORAGE_PER_WAREHOUSE_LEVEL;
+  const cistern = buildings.find((b) => b.buildingId === CISTERN_ID);
   return {
     gold: BASE_GOLD_STORAGE + (th?.level ?? 0) * GOLD_STORAGE_PER_TH_LEVEL,
     wood: materialCap,
     stone: materialCap,
     food: BASE_FOOD_STORAGE + (pantry?.level ?? 0) * FOOD_STORAGE_PER_PANTRY_LEVEL,
+    water: getWaterCap(cistern?.level ?? 0),
   };
 }
 
@@ -3019,6 +3375,8 @@ export function GameProvider(props: ParentProps) {
         if (!(serverState as any).seedsUnlocked) {
           (serverState as any).seedsUnlocked = startingUnlockedSeeds();
         }
+        if (!(serverState as any).fruitSeeds) (serverState as any).fruitSeeds = startingFruitSeeds();
+        if (!(serverState as any).fruitsUnlocked) (serverState as any).fruitsUnlocked = startingUnlockedFruits();
         // Pens: ensure one pre-attributed slot per animal
         serverState.pens = serverState.pens ?? [];
         for (const a of ANIMALS) {
@@ -3027,12 +3385,31 @@ export function GameProvider(props: ParentProps) {
               id: nextId("pen"),
               animal: a.id,
               level: 0,
+              count: 0,
               upgrading: false,
             });
           }
         }
-        // Orchards: ensure one pre-attributed slot per fruit
+        // Orchards: migrate old maturity shape, then ensure a slot per fruit.
         serverState.orchards = serverState.orchards ?? [];
+        for (const o of serverState.orchards as any[]) {
+          if (o.matureTrees === undefined) {
+            const slots = getOrchardTreeSlots(o.level ?? 0);
+            if (o.mature) {
+              o.matureTrees = slots;
+              o.saplings = [];
+            } else if ((o.seasonsGrown ?? 0) > 0 && (o.level ?? 0) > 0) {
+              o.matureTrees = 0;
+              o.saplings = [{ count: Math.max(slots, 1), seasonsGrown: o.seasonsGrown }];
+            } else {
+              o.matureTrees = 0;
+              o.saplings = [];
+            }
+            delete o.seasonsGrown;
+            delete o.mature;
+          }
+          if (!Array.isArray(o.saplings)) o.saplings = [];
+        }
         for (const f of FRUITS) {
           if (!serverState.orchards.some((o: any) => o.fruit === f.id)) {
             serverState.orchards.push({
@@ -3040,8 +3417,8 @@ export function GameProvider(props: ParentProps) {
               fruit: f.id,
               level: 0,
               upgrading: false,
-              seasonsGrown: 0,
-              mature: false,
+              matureTrees: 0,
+              saplings: [],
             });
           }
         }
@@ -3325,16 +3702,19 @@ export function GameProvider(props: ParentProps) {
       s.yearHarvest = {};
       for (const field of s.fields) {
         if (field.crop && field.level > 0) {
-          // Planted this year — harvest with soil multiplier applied
+          // Planted this year — harvest with soil + climate multipliers applied
           const crop = getCrop(field.crop);
           const base = getSeasonYield(crop, field.level);
           const mult = getSoilMultiplier(field.sameCropStreak, field.restBonus);
-          const amount = Math.max(0, Math.floor(base * mult));
+          const amount = Math.max(0, Math.floor(base * mult * cropYieldMult(s)));
           s.yearHarvest[crop.name] = (s.yearHarvest[crop.name] ?? 0) + amount;
           field.harvested = true;
           field.crop = null;
           // Rest bonus is consumed by this harvest
           field.restBonus = false;
+          // Straw byproduct — a hay rick stays on the field for the flock to eat
+          // through winter (grain crops only; flax leaves nothing).
+          field.hay = getHayFromHarvest(crop, amount);
         } else if (field.level > 0 && field.lastCrop !== null) {
           // Field was left idle through this growing season — grant rest bonus
           // for the next harvest. Only applies if there's been a previous crop
@@ -3347,6 +3727,8 @@ export function GameProvider(props: ParentProps) {
     if (next === "spring") {
       for (const field of s.fields) {
         field.harvested = false;
+        // Any hay not eaten over winter rots off — fields start the year clean.
+        field.hay = 0;
       }
     }
     // A finished crop is cleared for replanting when its plant season comes
@@ -3358,7 +3740,9 @@ export function GameProvider(props: ParentProps) {
       const veggie = getVeggie(garden.veggie);
       if (veggie.plantSeasons.includes(next) && garden.plantedYear < s.year) {
         if (garden.seedsPlanted > 0) {
-          const returned = getSeedReturn(garden.seedsPlanted);
+          // Only the seeds that sprouted set new seed — germination losses carry
+          // through, so the plot returns less than the raw sown count.
+          const returned = getSeedReturn(getSproutedPlants(veggie, garden.seedsPlanted));
           s.seeds[garden.veggie] = (s.seeds[garden.veggie] ?? 0) + returned;
           if (returned > 0) {
             pushEvent(s, "building_completed", veggie.icon, `Saved ${returned} ${veggie.name.toLowerCase()} seed from the ${veggie.name.toLowerCase()} crop`);
@@ -3368,19 +3752,46 @@ export function GameProvider(props: ParentProps) {
         garden.seedsPlanted = 0;
       }
     }
+    // Orchards save seed each spring — a bearing grove drops enough pips/cuttings
+    // to slowly fund its own expansion (one per mature tree), like the garden
+    // harvest surplus.
+    if (next === SAPLING_PLANT_SEASON && s.fruitSeeds) {
+      for (const orchard of s.orchards) {
+        const returned = getOrchardSeedReturn(orchard.matureTrees);
+        if (returned > 0) {
+          s.fruitSeeds[orchard.fruit] = (s.fruitSeeds[orchard.fruit] ?? 0) + returned;
+          const fruitDef = getFruit(orchard.fruit);
+          pushEvent(s, "building_completed", fruitDef.icon, `Saved ${returned} ${fruitDef.name.toLowerCase()} seed from the grove`);
+        }
+      }
+    }
     if (prev === "summer") {
       pushEvent(s, "building_completed", "🍂", "Autumn is here — harvest season begins!");
     }
 
-    // Orchard maturation — increment seasonsGrown each season
+    // Orchard maturation — age each sapling cohort a season; cohorts that reach
+    // maturity join the bearing trees.
     for (const orchard of s.orchards) {
-      if (orchard.level > 0 && !orchard.upgrading && !orchard.mature) {
-        orchard.seasonsGrown = (orchard.seasonsGrown ?? 0) + 1;
-        const fruitDef = getFruit(orchard.fruit);
-        if (orchard.seasonsGrown >= fruitDef.maturationSeasons) {
-          orchard.mature = true;
-          pushEvent(s, "building_completed", fruitDef.icon, `Your ${fruitDef.name} are now bearing fruit!`);
+      if (orchard.upgrading || !orchard.saplings || orchard.saplings.length === 0) continue;
+      const fruitDef = getFruit(orchard.fruit);
+      let matured = 0;
+      const stillGrowing: typeof orchard.saplings = [];
+      for (const cohort of orchard.saplings) {
+        const age = cohort.seasonsGrown + 1;
+        if (age >= fruitDef.maturationSeasons) {
+          matured += cohort.count;
+        } else {
+          stillGrowing.push({ count: cohort.count, seasonsGrown: age });
         }
+      }
+      orchard.saplings = stillGrowing;
+      if (matured > 0) {
+        const wasBearing = orchard.matureTrees > 0;
+        orchard.matureTrees += matured;
+        pushEvent(s, "building_completed", fruitDef.icon,
+          wasBearing
+            ? `${matured} more ${fruitDef.name} came into bearing.`
+            : `Your ${fruitDef.name} are now bearing fruit!`);
       }
     }
 
@@ -3448,6 +3859,21 @@ export function GameProvider(props: ParentProps) {
           // Season is global/shared, but YEAR is local = settlement age.
           s.year = Math.max(1, global.year - (s.foundingYear ?? global.year) + 1);
 
+          // Drought plant-kill — once per (global) drought year: standing crops
+          // wither and young saplings die. Skipped in a settlement's graced
+          // first year. The climate is global so this lands for everyone at once.
+          const climateYear = global.year;
+          if (cropClimateBand(s) === "drought" && s.lastDroughtKillYear !== climateYear) {
+            s.lastDroughtKillYear = climateYear;
+            // Irrigation with water in the reserve keeps the crops alive; only an
+            // un-buffered settlement loses plants to the drought.
+            const buffered = buildingLevel(s, IRRIGATION_ID) > 0 && s.resources.water > 0;
+            if (s.year > 1 && !buffered) {
+              applyDroughtKill(s);
+              pushEvent(s, "drought", "🥵", "Drought struck the land — crops withered in the fields and young saplings died in the dry.");
+            }
+          }
+
           // Clear blessing if the deity has rotated
           if (s.activeBlessing) {
             const currentDeity = getCurrentDeity(s.season, global.progress);
@@ -3472,6 +3898,7 @@ export function GameProvider(props: ParentProps) {
         // This drains the pantry in-place and returns a fedRatio per pen so
         // starving pens don't produce food/wool/leather this tick.
         const fedRatios = applyAnimalFeed(s, elapsedHours);
+        applyFlockDynamics(s, fedRatios, elapsedHours);
         const foodRates = calcFoodRates(s, fedRatios);
 
         // Lavender (a cultivated HERB, not food) yields to the herb stock — the
@@ -3499,6 +3926,14 @@ export function GameProvider(props: ParentProps) {
         s.resources.wood = Math.min(caps.wood, Math.max(0, s.resources.wood + rates.wood * happinessMod * elapsedHours));
         s.resources.stone = Math.min(caps.stone, Math.max(0, s.resources.stone + rates.stone * happinessMod * elapsedHours));
 
+        // ── Water — wells + rain-catching cisterns fill the reserve; irrigation
+        // spends it in dry/drought years; drainage banks runoff in wet years. ──
+        {
+          const wb = waterBalance(s);
+          const water = (s.resources.water ?? 0) + wb.net * elapsedHours;
+          s.resources.water = Math.min(getWaterCap(wb.cisternLvl), Math.max(0, water));
+        }
+
         // Food: add per-type production (capped at pantry total), then citizens eat proportionally.
         // Animal consumption already happened above in applyAnimalFeed.
         if (!s.foods) s.foods = emptyFoods();
@@ -3506,35 +3941,41 @@ export function GameProvider(props: ParentProps) {
           if (rate > 0) addFood(s.foods, type, rate * happinessMod * elapsedHours, caps.food);
         }
         const foodToConsume = citizenFood * elapsedHours;
-        if (foodToConsume > 0) consumeFood(s.foods, foodToConsume);
+        if (foodToConsume > 0) {
+          // Honey is eaten like any other food (in recipes, as a sweet with fruit
+          // or cheese), so it's drawn down alongside the larder in proportion to
+          // how much of the total stock it is.
+          const larder = getTotalFood(s.foods);
+          const honey = s.honey ?? 0;
+          const pool = larder + honey;
+          if (pool > 0) {
+            const toConsume = Math.min(foodToConsume, pool);
+            const honeyShare = (honey / pool) * toConsume;
+            if (honeyShare > 0) s.honey = Math.max(0, honey - honeyShare);
+            consumeFood(s.foods, toConsume - honeyShare);
+          }
+        }
 
         // ── Wool from sheep pens (seasonal) ──
-        const woolSeasonMod = s.season === "spring" || s.season === "summer" ? 1.0
-          : s.season === "autumn" ? 0.5 : 0; // no wool in winter
+        const woolSeasonMod = getWoolSeasonMod(s.season);
         for (const pen of s.pens) {
           if (pen.level === 0) continue;
           const ratio = fedRatios.get(pen.id) ?? 1;
           if (ratio <= 0) continue;
           const animal = getAnimal(pen.animal);
-          const prod = getPenProduction(animal, pen.level);
+          const prod = getPenProduction(animal, pen.count);
           if (prod.secondary && prod.secondary.resource === "wool" && woolSeasonMod > 0) {
             s.wool = Math.min(craftingMaterialCap(s.buildings), s.wool + prod.secondary.amount * woolSeasonMod * ratio * elapsedHours);
           }
         }
 
-        // ── Leather from hunting camp and animal pens (except chickens) ──
+        // ── Leather + bone from the hunting camp ──
+        // Animal leather/bone otherwise comes only from CULLING now — a living
+        // flock sheds wool, not hides (hunters, by contrast, bring skins home).
         const huntingCampLvl = s.buildings.find((b) => b.buildingId === "hunting_camp")?.level ?? 0;
         if (huntingCampLvl > 0) {
           s.leather = Math.min(craftingMaterialCap(s.buildings), s.leather + huntingCampLvl * 1.0 * elapsedHours);
-        }
-        for (const pen of s.pens) {
-          if (pen.level === 0) continue;
-          if (pen.animal === "chickens") continue; // chickens don't produce leather
-          const ratio = fedRatios.get(pen.id) ?? 1;
-          if (ratio <= 0) continue;
-          // Pigs, goats, sheep produce small amounts of leather (hides)
-          const leatherRate = pen.animal === "goats" ? 1.2 : 0.8;
-          s.leather = Math.min(craftingMaterialCap(s.buildings), s.leather + leatherRate * pen.level * ratio * elapsedHours);
+          s.bone = Math.min(craftingMaterialCap(s.buildings), s.bone + huntingCampLvl * 0.6 * elapsedHours);
         }
 
         // ── Fiber from forager's hut (wild flax and plant fibers) ──
@@ -3802,7 +4243,7 @@ export function GameProvider(props: ParentProps) {
         else if (netFoodRate < 0) happiness -= Math.min(40, Math.abs(netFoodRate) / 2);
 
         // Starvation penalty — resets to 75 when people starve, decays over 24h after food is restored
-        if (getTotalFood(s.foods) <= 0) {
+        if (!peopleAreFed(s)) {
           s.starvationPenalty = 75; // hold at max while starving
         } else if (s.starvationPenalty > 0) {
           // Decay: lose 75 points over 24 hours = ~3.125 per hour
@@ -4089,7 +4530,7 @@ export function GameProvider(props: ParentProps) {
           // binary "have food or don't" mechanic the player can directly act on.
           const currentTier = getSettlementTier(getTownHallLevel(s.buildings));
           let ratePct = 0;
-          if (getTotalFood(s.foods) <= 0) ratePct += 0.10; // 10%/hour — brutal, but self-correcting as pop drops
+          if (!peopleAreFed(s)) ratePct += 0.10; // 10%/hour — brutal, but self-correcting as pop drops
           if (s.happiness < 20 && currentTier !== "camp") ratePct += 0.02;      // 2%/hour fleeing (Village+)
           if (ratePct > 0) {
             // Exponential decay applied as a survival ratio across every
@@ -4125,7 +4566,7 @@ export function GameProvider(props: ParentProps) {
         const popAfter = totalPopulation(s.citizens);
         if (popAfter < popBefore) {
           const lost = popBefore - popAfter;
-          if (getTotalFood(s.foods) <= 0) {
+          if (!peopleAreFed(s)) {
             pushEvent(s, "citizen_died", "💀", `${lost} citizen${lost > 1 ? "s" : ""} starved to death`);
           } else if (s.happiness < 20) {
             pushEvent(s, "citizen_left", "🚶", `${lost} citizen${lost > 1 ? "s" : ""} left (unhappy)`);
@@ -5214,6 +5655,60 @@ export function GameProvider(props: ParentProps) {
       return true;
     },
 
+    // Buy livestock (gold per head) to fill a built pen toward its capacity.
+    // The animals appear instantly — the pen must exist (level >= 1) and have room.
+    buyLivestock(penId, qty = 1) {
+      const pen = state.pens.find((p) => p.id === penId);
+      if (!pen || pen.level < 1) return false;
+      const room = getPenCapacity(pen.level) - pen.count;
+      const n = Math.min(qty, room);
+      if (n <= 0) return false;
+      const cost = getAnimalBuyCost(pen.animal) * n;
+      if (state.resources.gold < cost) return false;
+      setState(produce((s) => {
+        s.resources.gold -= cost;
+        const p = s.pens.find((p) => p.id === penId)!;
+        p.count += n;
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    // Keep a guard dog with a pen (one-off gold cost) — stops wolf predation there.
+    buyGuardDog(penId) {
+      const pen = state.pens.find((p) => p.id === penId);
+      if (!pen || pen.level < 1 || pen.guardDog) return false;
+      if (state.resources.gold < GUARD_DOG_COST) return false;
+      setState(produce((s) => {
+        s.resources.gold -= GUARD_DOG_COST;
+        const p = s.pens.find((p) => p.id === penId)!;
+        p.guardDog = true;
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    // Deliberate cull — the player's choice to slaughter for meat + leather.
+    // Never automatic (the flock only shrinks otherwise via hunger/predation).
+    cullLivestock(penId, qty = 1) {
+      const pen = state.pens.find((p) => p.id === penId);
+      if (!pen || pen.count <= 0) return false;
+      const n = Math.min(qty, pen.count);
+      if (n <= 0) return false;
+      const y = getCullYield(pen.animal);
+      setState(produce((s) => {
+        const p = s.pens.find((p) => p.id === penId)!;
+        p.count -= n;
+        const caps = calcStorageCaps(s.buildings);
+        if (!s.foods) s.foods = emptyFoods();
+        if (y.meat > 0) addFood(s.foods, "meat", y.meat * n, caps.food);
+        if (y.leather > 0) s.leather = Math.min(craftingMaterialCap(s.buildings), s.leather + y.leather * n);
+        if (y.bone > 0) s.bone = Math.min(craftingMaterialCap(s.buildings), s.bone + y.bone * n);
+      }));
+      scheduleSave();
+      return true;
+    },
+
     // ── Hives (Apiary) ──
     upgradeHive(hiveId) {
       const hive = state.hives.find((h) => h.id === hiveId);
@@ -5240,8 +5735,11 @@ export function GameProvider(props: ParentProps) {
     upgradeOrchard(orchardId) {
       const orchard = state.orchards.find((o) => o.id === orchardId);
       if (!orchard || orchard.upgrading || orchard.level >= ORCHARD_MAX_LEVEL) return false;
+      // Can't raise a plot for a fruit you haven't acquired yet (locked "???").
+      if (!isFruitUnlocked(getFruit(orchard.fruit), state.fruitsUnlocked)) return false;
+      // Expanding the grove (more tree slots) is allowed any season — it's
+      // groundwork, not planting. Planting saplings is what's gated to spring.
       if (orchard.level >= 1) {
-        if (state.season !== "winter") return false;
         if (orchard.level >= getTownHallLevel(state.buildings)) return false;
       }
       const cost = getOrchardCost(orchard.level);
@@ -5253,6 +5751,29 @@ export function GameProvider(props: ParentProps) {
         const o = s.orchards.find((o) => o.id === orchardId)!;
         o.upgrading = true;
         o.upgradeRemaining = getOrchardBuildTime(orchard.level);
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    // Plant one sapling/vine into a free slot. Costs a fruit seed (like sowing a
+    // garden), spring only, and the fruit must be unlocked. Starts as a season-0
+    // cohort and ages to a bearing tree over the fruit's maturation window.
+    plantSapling(orchardId) {
+      const orchard = state.orchards.find((o) => o.id === orchardId);
+      if (!orchard || orchard.level < 1 || orchard.upgrading) return false;
+      if (state.season !== SAPLING_PLANT_SEASON) return false;
+      if (!isFruitUnlocked(getFruit(orchard.fruit), state.fruitsUnlocked)) return false;
+      const planted = orchard.matureTrees + orchard.saplings.reduce((n, c) => n + c.count, 0);
+      if (planted >= getOrchardTreeSlots(orchard.level)) return false;
+      if ((state.fruitSeeds?.[orchard.fruit] ?? 0) <= 0) return false;
+      setState(produce((s) => {
+        s.fruitSeeds[orchard.fruit] -= 1;
+        const o = s.orchards.find((o) => o.id === orchardId)!;
+        // Merge into a just-planted (season-0) cohort so they mature together.
+        const fresh = o.saplings.find((c) => c.seasonsGrown === 0);
+        if (fresh) fresh.count += 1;
+        else o.saplings.push({ count: 1, seasonsGrown: 0 });
       }));
       scheduleSave();
       return true;
@@ -5486,6 +6007,39 @@ export function GameProvider(props: ParentProps) {
     getStorageCaps() { return calcStorageCaps(state.buildings); },
     getSettlementTier() { return getSettlementTier(getTownHallLevel(state.buildings)); },
     getTownHallLevel() { return getTownHallLevel(state.buildings); },
+    getClimateBand() { return state.year <= 1 ? "normal" : cropClimateBand(state); },
+    getCropYieldMult() { return cropYieldMult(state); },
+    forceDroughtKill() {
+      setState(produce((s) => {
+        applyDroughtKill(s);
+        pushEvent(s, "drought", "🥵", "Drought struck the land — crops withered and young saplings died in the dry.");
+      }));
+      scheduleSave();
+    },
+    triggerDrought() {
+      // Force the drought band so the whole system reacts (yields fall, the
+      // stream dries, wells dip, the reserve drains) and bite the plants once.
+      setClimateOverride("drought");
+      setState(produce((s) => {
+        applyDroughtKill(s);
+        pushEvent(s, "drought", "🥵", "A drought swept the land — the stream ran to a trickle, crops wilted and young saplings died in the heat.");
+      }));
+      scheduleSave();
+      // Let it pass after a few real seconds, like any weather event.
+      setTimeout(() => setClimateOverride(null), 20000);
+    },
+    getWaterRate() { return waterBalance(state).net; },
+    getStreamStatus() { return streamStatusOf(state); },
+    getWaterBreakdown() {
+      const wb = waterBalance(state);
+      return {
+        stream: wb.stream, well: wb.well, rain: wb.rain, drainage: wb.drainage,
+        citizens: wb.citizens, animals: wb.animals, crops: wb.cropNeed,
+        cropDraw: wb.cropDraw, raining: wb.raining, coverage: wb.cropCoverage,
+        irrigated: wb.hasIrrigation, weather: wb.weather,
+        streamStatus: wb.streamStatus, net: wb.net,
+      };
+    },
     canAfford(cost) { return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone; },
     getBuildingEffect(buildingId, nextLevel) { return calcBuildingEffect(buildingId, nextLevel); },
     isHarvesting() { return isHarvestTime(state.season, state.seasonElapsed); },
@@ -6080,7 +6634,7 @@ export function GameProvider(props: ParentProps) {
       else if (netFood < 0) factors.push({ label: "Food deficit", value: -Math.min(40, Math.round(Math.abs(netFood) / 2)) });
       if (state.starvationPenalty > 0) {
         const val = -Math.round(state.starvationPenalty);
-        factors.push({ label: getTotalFood(state.foods) <= 0 ? "Starvation" : "Famine recovery (fading)", value: val });
+        factors.push({ label: !peopleAreFed(state) ? "Starvation" : "Famine recovery (fading)", value: val });
       }
       if (state.newbornGlow > 0) {
         factors.push({ label: "👶 Newborn glow (fading)", value: Math.round(state.newbornGlow) });

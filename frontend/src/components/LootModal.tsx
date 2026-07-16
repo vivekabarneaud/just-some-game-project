@@ -252,12 +252,9 @@ export default function LootModal(props: Props) {
               <Show when={r().combatLog?.length}>
                 {" · "}
                 <button
+                  class="btn-secondary"
                   onClick={() => setShowPlayback(true)}
-                  style={{
-                    background: "none", border: "none", cursor: "pointer",
-                    color: "var(--accent-gold)", "font-size": "0.85rem",
-                    padding: 0, "text-decoration": "underline",
-                  }}
+                  style={{ "font-size": "0.85rem" }}
                 >
                   ▶ Watch combat
                 </button>

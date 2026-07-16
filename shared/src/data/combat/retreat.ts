@@ -40,7 +40,9 @@ function activeAdventurers(ctx: CombatContext): CombatUnit[] {
 }
 
 function aliveEnemies(ctx: CombatContext): CombatUnit[] {
-  return ctx.enemies.filter((u) => u.hp > 0);
+  // Fled enemies (routed beasts) have hp > 0 but have left the field — they no
+  // longer fight, threaten, or block victory.
+  return ctx.enemies.filter((u) => u.hp > 0 && !u.fled);
 }
 
 /** The player's side is gone (every adventurer is downed or fled). */

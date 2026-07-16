@@ -144,16 +144,9 @@ export default function FriendsPage() {
                   Accept
                 </button>
                 <button
+                  class="btn-secondary"
                   onClick={() => handleRespond(req.id, false)}
-                  style={{
-                    padding: "4px 12px",
-                    background: "transparent",
-                    border: "1px solid var(--border-color)",
-                    "border-radius": "4px",
-                    color: "var(--text-muted)",
-                    cursor: "pointer",
-                    "font-size": "0.8rem",
-                  }}
+                  style={{ "font-size": "0.8rem" }}
                 >
                   Decline
                 </button>
@@ -191,17 +184,9 @@ export default function FriendsPage() {
                 {friend.friendUsername}
               </span>
               <button
+                class="btn-tertiary"
                 onClick={() => handleRemove(friend.id)}
-                style={{
-                  padding: "4px 12px",
-                  background: "transparent",
-                  border: "1px solid var(--border-color)",
-                  "border-radius": "4px",
-                  color: "var(--text-muted)",
-                  cursor: "pointer",
-                  "font-size": "0.8rem",
-                  "margin-left": "auto",
-                }}
+                style={{ "font-size": "0.8rem", "margin-left": "auto" }}
               >
                 Remove
               </button>
@@ -234,16 +219,9 @@ export default function FriendsPage() {
                 waiting for response
               </span>
               <button
+                class="btn-tertiary"
                 onClick={() => handleCancelOutgoing(req.id)}
-                style={{
-                  padding: "4px 10px",
-                  background: "transparent",
-                  border: "1px solid var(--border-color)",
-                  "border-radius": "4px",
-                  color: "var(--text-muted)",
-                  cursor: "pointer",
-                  "font-size": "0.75rem",
-                }}
+                style={{ "font-size": "0.75rem" }}
               >
                 Cancel
               </button>

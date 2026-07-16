@@ -22,8 +22,10 @@ export function buildResult(
   const fallenObjective = adventurers.find((u) => u.isMissionObjective && u.hp <= 0);
 
   // Fled units left the field alive — they don't count toward "still fighting".
+  // A routed enemy (fled, hp > 0) is DEFEATED: the field is cleared, so it
+  // counts as a win and toward the performance ratio, not as a survivor.
   const aliveAdvs = adventurers.filter((u) => u.hp > 0 && !u.fled);
-  const aliveEnemies = enemies.filter((u) => u.hp > 0);
+  const aliveEnemies = enemies.filter((u) => u.hp > 0 && !u.fled);
   const survivingEnemies = aliveEnemies.length;
 
   let victory: boolean;
@@ -92,15 +94,20 @@ export function buildResult(
   };
 }
 
-/** Roll each killed enemy's drop table using the seeded PRNG. */
+/** Roll each defeated enemy's drop table using the seeded PRNG. Killed enemies
+ *  roll their whole table; a routed (fled, hp > 0) enemy only rolls sheddable
+ *  `keepOnRout` drops (a fang left behind, not the hide/carcass). */
 function rollLoot(enemies: CombatUnit[]): LootResult[] {
   const loot: LootResult[] = [];
   for (const unit of enemies) {
-    if (unit.hp > 0) continue;
+    const routed = unit.hp > 0 && unit.fled;
+    const killed = unit.hp <= 0;
+    if (!routed && !killed) continue; // still standing (shouldn't happen post-combat)
     if (!unit.enemyDefId) continue;
     const def = getEnemy(unit.enemyDefId);
     if (!def?.loot?.length) continue;
     for (const drop of def.loot) {
+      if (routed && !drop.keepOnRout) continue; // fled: carcass loot stays with the living beast
       if (combatRandom() > drop.chance) continue;
       if (drop.type === "resource") {
         const amount = drop.min + Math.floor(combatRandom() * (drop.max - drop.min + 1));

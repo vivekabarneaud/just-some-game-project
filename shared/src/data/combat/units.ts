@@ -91,6 +91,7 @@ export function buildEnemyUnits(encounters: MissionEncounter[]): CombatUnit[] {
         class: undefined, isMagical, gearDefense: 0,
         enemyTags: def.tags,
         enemyDefId: def.id,
+        routsAt: def.routsAt,
         enemyAbilities: def.abilities,
         canAct: true, canBeHealed: true, isTauntable: true,
         // Tactical = follow threat, scored pick. Designers explicitly tag

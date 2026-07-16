@@ -108,7 +108,10 @@ export default function EventBanner() {
             }}
             style={{
               position: "absolute",
-              top: "100%",
+              // Descend from the top bar's VISUAL bottom. top:100% only reaches
+              // the padding box, which stops --chrome-rule-w short (the ornament
+              // rule is a transparent border), so add it back.
+              top: "calc(100% + var(--chrome-rule-w))",
               left: 0,
               right: 0,
               height: "32px",

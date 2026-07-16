@@ -8,7 +8,7 @@ export type FoodItemType =
   | "apples" | "pears" | "cherries" | "strawberries"
   | "meat" | "eggs" | "milk" | "fish"
   | "berries" | "mushrooms" | "nuts"
-  | "porridge" | "hearth_stew" | "river_stew";
+  | "porridge" | "hearth_stew" | "river_stew" | "bone_broth";
 
 export type FoodCategoryId = "grain" | "veggie" | "fruit" | "animal" | "wild" | "cooked";
 
@@ -75,6 +75,7 @@ export const FOOD_ITEMS: FoodItemMeta[] = [
   { id: "porridge",    label: "Porridge",    icon: "🥣", iconImage: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/porridge.png",    order: 1, category: "cooked", kind: "meal" },
   { id: "hearth_stew", label: "Hearth Stew", icon: "🍲", iconImage: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/hearth_stew.png", order: 2, category: "cooked", kind: "meal" },
   { id: "river_stew",  label: "River Stew",  icon: "🍲", iconImage: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/river_stew.png",  order: 3, category: "cooked", kind: "meal" },
+  { id: "bone_broth",  label: "Bone Broth",  icon: "🍜", order: 4, category: "cooked", kind: "meal" },
 ];
 
 export const FOOD_ITEM_IDS: FoodItemType[] = FOOD_ITEMS.map((f) => f.id);

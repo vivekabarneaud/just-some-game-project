@@ -273,6 +273,31 @@ describe("real chains", () => {
     expect(s.pendingChronicleBeats).toEqual(["ch1_cobb_returns"]);
   });
 
+  it("the_poisoner_and_the_gambler: settle beat on join, reflection next morning", () => {
+    const chain = STORY_CHAINS.find((c) => c.id === "the_poisoner_and_the_gambler")!;
+    const s = makeState();
+    const now0 = Date.UTC(2026, 6, 6, 15, 0, 0);
+
+    // Not present yet.
+    runStoryChains(s, [chain], makeDeps(s, now0, []));
+    expect(s.chronicleEntriesFired).toEqual([]);
+
+    // Elspeth + Edmund join (together, via A Mother's Errand) — settle beat fires.
+    (s.adventurers as { premadeId?: string }[]).push({ premadeId: "char_007" }, { premadeId: "char_009" });
+    runStoryChains(s, [chain], makeDeps(s, now0, []));
+    expect(s.chronicleEntriesFired).toEqual(["ch2_mothers_errand"]);
+    const deadline = s.storyTimers!["the_poisoner_and_the_gambler:elspethReflect"];
+    expect(deadline).toBeGreaterThan(now0);
+
+    // Before morning — no second beat.
+    runStoryChains(s, [chain], makeDeps(s, deadline - 1, []));
+    expect(s.chronicleEntriesFired).toEqual(["ch2_mothers_errand"]);
+
+    // Next morning — the reflection lands.
+    runStoryChains(s, [chain], makeDeps(s, deadline, []));
+    expect(s.chronicleEntriesFired).toEqual(["ch2_mothers_errand", "ch2_whose_blood"]);
+  });
+
   it("the_bog_witch: bargain beat after clearing, price beat after the barter", () => {
     const chain = STORY_CHAINS.find((c) => c.id === "the_bog_witch")!;
     const s = makeState();

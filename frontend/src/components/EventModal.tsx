@@ -8,6 +8,13 @@ import { playSound } from "~/engine/sounds";
 export default function EventModal() {
   const { state, actions } = useGame();
 
+  // Parchment palette — a beat is the Lord's writing, so it gets the same
+  // page-from-the-book treatment as the Chronicle entries + memory check-ins.
+  const INK = "#2a2012";
+  const INK_STRONG = "#17100a";
+  const INK_SOFT = "#6b5636";
+  const parchmentSrc = "/images/parchment/parchment_square.png";
+
   const currentEventId = () => state.pendingEvents?.[0] ?? null;
   const currentEvent = () => {
     const id = currentEventId();
@@ -37,19 +44,19 @@ export default function EventModal() {
             <div
               class="page-modal-card"
               style={{
-                "background": "var(--bg-secondary)",
-                "border": "1px solid var(--accent-gold)",
-                "border-radius": "10px",
+                "background": `url(${parchmentSrc}) center / 100% 100% no-repeat`,
+                "border": "none",
+                "border-radius": "0",
                 "max-width": "560px",
-                "padding": "28px 32px",
-                "box-shadow": "0 8px 32px rgba(0,0,0,0.5)",
+                "padding": "42px 46px",
+                "box-shadow": "0 6px 20px rgba(0,0,0,0.35)",
                 "font-family": "var(--font-body)",
               }}
             >
               <div
                 style={{
                   "font-family": "var(--font-heading)",
-                  "color": "var(--accent-gold)",
+                  "color": INK_SOFT,
                   "font-size": "0.85rem",
                   "letter-spacing": "0.08em",
                   "text-transform": "uppercase",
@@ -59,7 +66,7 @@ export default function EventModal() {
                 A new beat
               </div>
               <div style={{
-                "color": "var(--text-secondary)",
+                "color": INK,
                 "font-size": "0.95rem",
                 "font-style": "italic",
                 "line-height": 1.7,
@@ -74,8 +81,8 @@ export default function EventModal() {
                   onClick={() => actions.dismissEvent(event.id)}
                   style={{
                     "padding": "10px 24px",
-                    "background": "var(--accent-gold)",
-                    "color": "#000",
+                    "background": INK_STRONG,
+                    "color": "#f4ecd8",
                     "border": "none",
                     "border-radius": "6px",
                     "cursor": "pointer",

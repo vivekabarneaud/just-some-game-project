@@ -18,12 +18,19 @@ export interface ResourceDrop {
   chance: number;      // 0-1 probability per kill
   min: number;
   max: number;
+  /** Survives a rout: a "sheddable" drop (a fang knocked loose, a tuft of fur,
+   *  a dropped coin pouch) that can still be found when the enemy FLED rather
+   *  than died. Default false = the drop needs the carcass (hides, sinew, meat,
+   *  skulls), so a routed enemy yields none of it. */
+  keepOnRout?: boolean;
 }
 
 export interface ItemDrop {
   type: "item";
   itemId: string;      // item ID from items.ts
   chance: number;      // 0-1 probability per kill (typically low for bosses)
+  /** See ResourceDrop.keepOnRout. */
+  keepOnRout?: boolean;
 }
 
 export type LootDrop = ResourceDrop | ItemDrop;
@@ -91,6 +98,13 @@ export interface EnemyDefinition {
   tauntImmunity?: EnemyTauntImmunity;
   abilities?: EnemyAbility[];
   loot?: LootDrop[];   // drops on kill — empty/undefined means no drops
+  /** Beast rout: this creature BREAKS AND FLEES when its HP falls to/below this
+   *  fraction of max (0-1), surviving instead of being killed. A fled enemy
+   *  counts as defeated (field cleared = victory, full performance) but yields
+   *  only keepOnRout loot. Omit for things that fight to the end: undead (no
+   *  fear to break), maddened/rabid beasts (the boars), swarms, and any boss
+   *  meant to make its death a deliberate choice. */
+  routsAt?: number;
 }
 
 export const ENEMIES: EnemyDefinition[] = [
@@ -142,7 +156,7 @@ export const ENEMIES: EnemyDefinition[] = [
     name: "Grey Wolf",
     icon: "🐺",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/wild_wolf.png",
-    description: "Lean, hungry, and hunting in packs. Since Le Declin, even the wolves have grown bolder.",
+    description: "Lean, hungry, and hunting in packs. A hard season has made them bold, and a bold wolf is a dangerous one.",
     tier: 1,
     stats: { str: 4, dex: 5, int: 1, vit: 5, wis: 1 },
     tags: ["beast"],
@@ -152,9 +166,10 @@ export const ENEMIES: EnemyDefinition[] = [
     ],
     loot: [
       { type: "resource", resource: "wolfhide_strip", chance: 0.3, min: 1, max: 1 },
-      { type: "resource", resource: "fang", chance: 0.5, min: 1, max: 2 },
+      { type: "resource", resource: "fang", chance: 0.5, min: 1, max: 2, keepOnRout: true },
       { type: "resource", resource: "sinew_cord", chance: 0.15, min: 1, max: 1 },
     ],
+    routsAt: 0.3, // a pack wolf breaks when the fight turns against it
     aiTier: "feral"
   },
   {
@@ -209,6 +224,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "meat", chance: 0.3, min: 1, max: 3 },
       { type: "resource", resource: "wolfhide_strip", chance: 0.15, min: 1, max: 1 },
     ],
+    routsAt: 0.35, // a nervous, starving yearling — breaks and runs easily
     aiTier: "feral"
   },
   {
@@ -829,8 +845,9 @@ export const ENEMIES: EnemyDefinition[] = [
     loot: [
       { type: "resource", resource: "meat", chance: 0.5, min: 3, max: 8 },
       { type: "resource", resource: "thick_pelt", chance: 0.35, min: 1, max: 1 },
-      { type: "resource", resource: "bear_claw", chance: 0.2, min: 1, max: 2 },
+      { type: "resource", resource: "bear_claw", chance: 0.2, min: 1, max: 2, keepOnRout: true },
     ],
+    routsAt: 0.3, // a hurt bear disengages (mostly moot — bears are "wide berth" now)
     aiTier: "feral"
   },
   {
@@ -867,7 +884,7 @@ export const ENEMIES: EnemyDefinition[] = [
     loot: [
       { type: "resource", resource: "meat", chance: 0.5, min: 2, max: 6 },
       { type: "resource", resource: "bristlehide", chance: 0.3, min: 1, max: 1 },
-      { type: "resource", resource: "tusk_shard", chance: 0.2, min: 1, max: 1 },
+      { type: "resource", resource: "tusk_shard", chance: 1, min: 1, max: 1 },
       { type: "resource", resource: "cloven_hoof", chance: 0.6, min: 1, max: 2 },
       { type: "resource", resource: "boar_skull", chance: 0.15, min: 1, max: 1 },
     ],
@@ -886,7 +903,7 @@ export const ENEMIES: EnemyDefinition[] = [
     abilities: [{ id: "charge", name: "Charge", icon: "💨", cooldown: 99, trigger: "round_start", effect: { type: "damage_mult", mult: 1.5, targets: 1 } }],
     loot: [
       { type: "resource", resource: "bristlehide", chance: 0.4, min: 1, max: 1 },
-      { type: "resource", resource: "tusk_shard", chance: 0.3, min: 1, max: 1 },
+      { type: "resource", resource: "tusk_shard", chance: 1, min: 1, max: 1 },
       { type: "resource", resource: "cloven_hoof", chance: 0.8, min: 1, max: 2 },
       { type: "resource", resource: "boar_skull", chance: 0.4, min: 1, max: 1 },
     ],
@@ -988,6 +1005,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "sinew_cord", chance: 0.4, min: 1, max: 2 },
       { type: "resource", resource: "meat", chance: 0.8, min: 4, max: 10 },
     ],
+    // No routsAt: the pack leader stands and fights to the death — it's the
+    // deliberate reckoning the mission sends you for, not a beast to shoo off.
   },
   /* STASHED 2026-06-28 — Bog Witch enemy retired alongside the stale `bog_witch_lair`
      mission. Preserved for a future remake per the tragic Aldith/Ada design in

@@ -227,6 +227,21 @@ export const STORY_CHAINS: StoryChain[] = [
       api.fireChronicleModal("ch1_cobb_returns");
     },
   },
+  // ── The poisoner and the gambler — Elspeth & Edmund ──
+  // They join together via "A Mother's Errand". Beat 1 lands the moment they're
+  // on the roster (the fool at the fire, the watchful mother); Beat 2, a few
+  // mornings later, is the Lord piecing together what she fears (his father's
+  // blood, the pouch at her belt) — kept as observation, not a confession, per
+  // their discovery-only canon. See docs/cast/elspeth-ravencroft.md + edmund.
+  {
+    id: "the_poisoner_and_the_gambler",
+    run: (api) => {
+      api.awaitPremadePresent(["char_007", "char_009"]);
+      api.fireChronicleModal("ch2_mothers_errand");
+      api.awaitNextMorning("elspethReflect");
+      api.fireChronicleModal("ch2_whose_blood");
+    },
+  },
   // ── The bog witch — opening drip (mystery only; the dark descent is deferred).
   // marsh_clearing (an ordinary herb-errand) → a voice in the reeds offers a
   // bargain; the barter (reeds_bargain) → the offering drifts + she mines the

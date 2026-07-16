@@ -218,17 +218,12 @@ export default function GarrisonDetailModal(props: Props) {
               <div style={{ display: "flex", gap: "8px" }}>
                 <Tooltip text={canHire() ? `Hire one ${unitWord()} for ${hireCost()} gold` : hireBlocker()} block style={{ flex: 1 }}>
                 <button
+                  class="btn-primary"
                   disabled={!canHire()}
                   onClick={onHire}
                   style={{
                     width: "100%",
-                    padding: "8px 12px",
-                    background: "rgba(218, 165, 32, 0.12)",
-                    border: "1px solid var(--accent-gold)",
-                    color: "var(--accent-gold)",
-                    "border-radius": "4px",
-                    cursor: canHire() ? "pointer" : "not-allowed",
-                    opacity: canHire() ? 1 : 0.5,
+                    "justify-content": "center",
                     "font-size": "0.85rem",
                   }}
                 >
@@ -237,16 +232,10 @@ export default function GarrisonDetailModal(props: Props) {
                 </Tooltip>
                 <Tooltip text={`Dismiss one ${unitWord()}`}>
                 <button
+                  class="btn-secondary"
                   disabled={(garrison()?.count ?? 0) <= 0}
                   onClick={onDismiss}
                   style={{
-                    padding: "8px 12px",
-                    background: "transparent",
-                    border: "1px solid var(--border-color)",
-                    color: "var(--text-muted)",
-                    "border-radius": "4px",
-                    cursor: (garrison()?.count ?? 0) > 0 ? "pointer" : "not-allowed",
-                    opacity: (garrison()?.count ?? 0) > 0 ? 1 : 0.4,
                     "font-size": "0.85rem",
                   }}
                 >
@@ -290,19 +279,13 @@ export default function GarrisonDetailModal(props: Props) {
                 ? `${trainerName()} drills the ${unitWord()}s to Lv.${nextUnitLevel()} (~${trainSeconds()}s)`
                 : trainBlocker()}>
               <button
+                class="btn-primary"
                 disabled={!canTrain()}
                 onClick={onTrain}
                 style={{
                   width: "100%",
-                  padding: "10px 12px",
-                  background: "rgba(167, 139, 250, 0.12)",
-                  border: "1px solid #a78bfa",
-                  color: "#a78bfa",
-                  "border-radius": "4px",
-                  cursor: canTrain() ? "pointer" : "not-allowed",
-                  opacity: canTrain() ? 1 : 0.5,
+                  "justify-content": "center",
                   "font-size": "0.9rem",
-                  "font-weight": "bold",
                 }}
               >
                 🎯 Have {trainerName()} drill to Lv.{nextUnitLevel()} (~{trainSeconds()}s)

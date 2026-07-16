@@ -4,7 +4,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
 {
     id: "gather_timber",
     name: "Gather Timber",
-    description: "Jory has marked a stand of pines on the southern tree line and wants a hand hauling them back. A couple of stray wolves have been sniffing around his tools, nothing a swung axe can't handle.",
+    description: "Jory has marked a stand of pines on the southern tree line and wants hands to haul them back. A lean young wolf has been nosing round the crew's kit, hungry more than dangerous; it keeps its distance while someone stands watch. Bring the timber home, and leave the wolf to its hunger.",
     icon: "🪵",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/gather_timber.png",
     slots: [{ class: "any" }],
@@ -13,13 +13,13 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     deployCost: 5,
     difficulty: 1,
     minGuildLevel: 1,
-    tags: ["outdoor"],
-    encounters: [{ enemyId: "gaunt_wolf", count: 2 }],
+    tags: ["outdoor", "peaceful"],
+    guaranteed: true, // a timber haul: the starving yearling only keeps its distance, no fight
   },
 {
     id: "quarry_expedition_first",
     name: "Quarry Expedition",
-    description: "Tomas has scouted a run of loose stone up in the hills, but the ridge isn't empty: something with too many legs has nested deep in the cracks. Clear it out before the haulers can work.",
+    description: "Tomas found a good run of loose stone up in the hills, enough to raise a wall in half the time, only the ridge is already taken. Something many-legged has nested deep in the cracks and does not mean to share the stone. There is no working round it and no reasoning with the like. Clear the seam so the haulers can get at it, and watch your footing in the dark of the rock.",
     icon: "🪨",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/quarry_expedition.png",
     slots: [{ class: "any" }, { class: "any" }],
@@ -35,7 +35,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
 {
     id: "quarry_expedition",
     name: "Quarry Expedition",
-    description: "The many-legged things have nested in the ridge cracks again, and the walls still need stone. Clear them out so the haulers can keep working the seam.",
+    description: "The many-legged things have crept back into the ridge cracks, the way they do, and the walls still want stone. Clear them out again so the haulers can keep at the seam. Dull, grim work, but the wall will not raise itself.",
     icon: "🪨",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/quarry_expedition.png",
     slots: [{ class: "any" }, { class: "any" }],
@@ -103,7 +103,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
 {
     id: "merchant_escort",
     name: "Merchant Escort",
-    description: "Guard a traveling merchant along the trade road for a share of their profits. The bandits hit in pairs, so should you. The merchant pays partly in coin, partly in spice.",
+    description: "Another trader willing to chance the road to us, if the road lets them. The men who work it are no beasts with a reason to them, only desperate and armed, and they come in pairs; ride out in pairs to match them. See the merchant through whole. They pay partly in coin, partly in spice, and every one that arrives safe tells the next that the way can be held.",
     icon: "💰",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/merchant_escort.png",
     slots: [{ class: "any" }, { class: "any" }],
@@ -168,6 +168,11 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     // priest's blessing lays them). Gate on actually having a priest so it
     // doesn't tease before your first one arrives (Stonebridge arc, etc.).
     requires: { story: "story_1_scouting", hasClass: "priest" },
+    // STAGED (July 2026): the restless dead are a LATER reveal — the world isn't
+    // meant to show ghosts in the novice tier (magic/undead open up further in).
+    // Kept off the board until it's re-gated to the magical layer's opening.
+    staged: true,
+    unique: true, // one-time: two spirits laid to rest at the old crossroads
   },
 {
     id: "bear_den",
@@ -188,7 +193,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
 {
     id: "alpha_wolf_hunt",
     name: "The Pack Leader",
-    description: "The alpha has organized the wolves into coordinated raids on your livestock. Kill the leader and the pack scatters. Miss, and next time they come for the children.",
+    description: "A big pale wolf has taken the pack in hand, and under it they hit the pens on the same nights, from the same wind. The mothers have started keeping the little ones in after dark. It is no fault of the wolves that the game is gone and the winter ran long, but a fed pack that has learned our fences will not unlearn them. Break the pack's hold, by its leader if there is no other way, and give the valley back its nights.",
     icon: "🐺",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/pack_leader.png",
     slots: [{ class: "any" }, { class: "any" }],
@@ -249,7 +254,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   {
     id: "spider_hollow",
     name: "Spider Hollow",
-    description: "The women drawing water from the eastern well found silk strands on the bucket and something skittering in the dark below. Whatever nested in the hollow underneath needs to go before someone loses a hand.",
+    description: "The women drawing from the eastern well came up with silk on the bucket rope and something moving in the dark below. A nest has taken the hollow under the well, and the bite these carry swells a hand black and does not stop there. We would leave it be had it denned anywhere else, but not under the water the whole camp drinks. Go down, clear it out, and mind the venom; take an antidote along if Edda can spare one.",
     icon: "🕷️",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/spider_hollow.png",
     slots: [{ class: "any" }, { class: "any" }],
@@ -263,11 +268,12 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     // counters). 3 was unwinnable for an early team (0% in sim); 2 is a real
     // "gear up / bring an antidote" challenge.
     encounters: [{ enemyId: "cave_spider", count: 2 }],
+    unique: true, // one-time: a nest under the eastern well, cleared for good
   },
   {
     id: "night_howling",
     name: "Night Howling",
-    description: "The wolves have been circling closer every night. Last night they came within a stone's throw of the campfires. Tomas wants a team to push the pack back before they get bold enough to come inside the perimeter.",
+    description: "The wolves have been circling closer every night; last night they came within a stone's throw of the campfires. Tomas wants them pushed back, no more than that. Hungry as they are, they will test a quiet camp, so make ours loud and watched until they think better of it.",
     icon: "🌙",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/night_howling.png",
     slots: [{ class: "any" }, { class: "any" }],
@@ -282,7 +288,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   {
     id: "old_bridge",
     name: "The Old Bridge",
-    description: "A fallen oak and a season's worth of debris have blocked the river crossing south of camp, the only dry path to the hunting grounds. Clear it out, but watch for the boars that have been rooting in the wreckage.",
+    description: "A fallen oak and a season's debris have choked the river crossing south of camp, the only dry path to the hunting grounds, and it has to be cleared. Two boars have taken to the wreckage, and by the froth and the stagger of them the sickness is in both, the kind that turns a beast blind to all but the charge. There is no shooing a rabid animal off and no mending it. Clear the crossing, and if they come, put them down clean and quick, the way you would want it done. It is no cruelty to end a suffering that only ends the one way.",
     icon: "🌉",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/old_bridge.png",
     slots: [{ class: "any" }, { class: "any" }],
@@ -298,22 +304,22 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   {
     id: "stranger_tracks",
     name: "Tracks at the Treeline",
-    description: "The woodcutters found deep claw marks gouged into the bark near their worksite, and something large bedded down in the undergrowth overnight. Investigate before someone stumbles into it.",
+    description: "The woodcutters found deep claw marks gouged into the bark near their worksite, and something large bedded down in the undergrowth overnight. Track it far enough to know what it is, no closer. It proves a bear's day-bed, not a hunt; mark the ground so the cutters swing wide, and move their work to fresh timber well clear of it. A lone wolf trails the treeline a while, then thinks better of it.",
     icon: "🐾",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/stranger_tracks.png",
     slots: [{ class: "any" }],
     duration: 540,
     rewards: [{ resource: "gold", amount: 30 }, { resource: "wood", amount: 30 }],
     deployCost: 3,
-    difficulty: 2,
+    difficulty: 1,
     minGuildLevel: 1,
-    tags: ["outdoor", "exploration"],
-    encounters: [{ enemyId: "forest_bear", count: 1 }, { enemyId: "wild_wolf", count: 1 }],
+    tags: ["outdoor", "exploration", "peaceful"],
+    guaranteed: true, // investigate + reroute: the bear gets a wide berth, not a fight
   },
   {
     id: "first_patrol",
     name: "Something to Prove",
-    description: "The northern perimeter hasn't been walked since we arrived. A pair of young wolves have been sniffing at the traps, nothing a steady hand can't handle.",
+    description: "The northern perimeter hasn't been walked since we came. A pair of young wolves have been worrying the trap line, thin-ribbed and skittish. No need for blood: walk the bounds, see them off, and come back having proven you can hold a line without drawing one.",
     icon: "🚩",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/first_patrol.png",
     slots: [{ class: "any" }],
@@ -330,7 +336,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   {
     id: "lost_flock",
     name: "The Wayward Flock",
-    description: "The sheep wandered past the tree line again. Last time this happened, two came back bloody and one didn't come back at all. Find the flock before the wolves do.",
+    description: "The sheep have drifted past the tree line again. Last time, two came back bloody and one not at all. The pack out there is gaunt this season and growing bold with it. Bring the flock in before the wolves do, and stand between them if it comes to that.",
     icon: "🐑",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/lost_flock.png",
     slots: [{ class: "any" }],
@@ -341,6 +347,21 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     minGuildLevel: 1,
     tags: ["outdoor"],
     encounters: [{ enemyId: "wild_wolf", count: 2 }],
+    requires: { pen: "sheep" },
+  },
+  {
+    id: "fold_vigil",
+    name: "A Wolf at the Fold",
+    description: "Every night now the pack drifts down to the pens, testing the fences, watching the sheep with a patient hunger. No blood is needed for this, only presence. Sit the night watch by the fold: keep the fires up, the dogs restless, a spear leaned close and unused. Let the wolves learn this fold is watched, and they will look elsewhere before hunger makes them bold.",
+    icon: "🔥",
+    slots: [{ class: "any" }],
+    duration: 540,
+    rewards: [{ resource: "gold", amount: 20 }, { resource: "milk", amount: 6 }],
+    deployCost: 3,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["outdoor", "survival"],
+    guaranteed: true, // a vigil, not a hunt — presence turns the pack, no fight
     requires: { pen: "sheep" },
   },
   {

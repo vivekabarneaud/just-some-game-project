@@ -35,6 +35,11 @@ export function runActions(ctx: CombatContext): void {
     // spend their turn trying to break contact instead of fighting.
     if (shouldFlee(unit, ctx)) { attemptFlee(unit, ctx); continue; }
 
+    // Beast rout: an enemy worn to/below its routsAt breaks and runs — it
+    // survives and leaves the field (mercy + realism; animals don't fight to
+    // the death). Counts as defeated for victory; yields only keepOnRout loot.
+    if (unit.isEnemy && enemyBreaksAndRuns(unit)) { routEnemy(unit, ctx); continue; }
+
     evaluateTransitions(unit, ctx);
     const { state } = getCurrentState(unit);
     if (state.onTurn?.(unit, ctx)) continue;
@@ -53,6 +58,24 @@ export function runActions(ctx: CombatContext): void {
  * Mind-controlled adventurers hit their own team and decrement the counter.
  * Returns true if the unit's turn was consumed here.
  */
+/** A beast at/below its rout threshold breaks off (already-fled units excluded). */
+function enemyBreaksAndRuns(unit: CombatUnit): boolean {
+  if (unit.routsAt == null || unit.fled || unit.hp <= 0) return false;
+  return unit.hp <= unit.routsAt * unit.maxHp;
+}
+
+/** The beast turns tail: mark it fled (survives, off the field) and log the break.
+ *  No escape roll — the settlement wants it gone, not run down. */
+function routEnemy(unit: CombatUnit, ctx: CombatContext): void {
+  unit.fled = true;
+  ctx.log.push({
+    round: ctx.round, attackerName: unit.name, attackerIcon: "🏃",
+    targetName: unit.name, damage: 0, dodged: false, crit: false, killed: false,
+    targetHp: Math.max(0, unit.hp), targetMaxHp: unit.maxHp, isEnemy: true,
+    beat: "flee_success", note: `${unit.name} breaks and runs`,
+  });
+}
+
 function mindControlAttack(unit: CombatUnit, ctx: CombatContext): boolean {
   if (unit.isEnemy || !unit.mindControlled || unit.mindControlled <= 0) return false;
   const allyTarget = ctx.adventurers.find((a) => a.hp > 0 && a.id !== unit.id);

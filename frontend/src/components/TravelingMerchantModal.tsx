@@ -87,9 +87,10 @@ export default function TravelingMerchantModal(props: { merchantId: string; onCl
                             </span>
                           </div>
                           <button
-                            class="merchant-offer-btn"
+                            class="btn-primary"
                             disabled={isTaken() || !affordable()}
                             onClick={() => accept(o.id, o.give, o.giveAmount, o.receive, o.receiveAmount)}
+                            style={{ width: "100%", "justify-content": "center" }}
                           >
                             {isTaken() ? "Traded" : affordable() ? "Trade" : `Need ${res(o.give).label.toLowerCase()}`}
                           </button>
@@ -98,7 +99,11 @@ export default function TravelingMerchantModal(props: { merchantId: string; onCl
                     }}
                   </For>
                 </div>
-                <button class="merchant-visit-close" onClick={() => props.onClose()}>
+                <button
+                  class="btn-secondary"
+                  onClick={() => props.onClose()}
+                  style={{ "margin-top": "16px", width: "100%", "justify-content": "center" }}
+                >
                   See him off
                 </button>
               </div>

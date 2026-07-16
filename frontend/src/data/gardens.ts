@@ -140,8 +140,16 @@ export function getGardenBuildTime(level: number): number {
   return growth(GARDEN_BASE_BUILD_TIME, GARDEN_BUILD_TIME_MULTIPLIER, level);
 }
 
-export function getGardenRate(veggie: VeggieDefinition, level: number): number {
-  return Math.floor(veggie.baseRate * level * 1.1);
+/** Food per hour per bearing plant. Whole-number economy: every crop yields one
+ *  food/hour per sprouted plant, so a plot's output IS its living plant count
+ *  (like a pen's output is its head count). Crops differ by germination, season,
+ *  water need and food type — not by per-plant rate. (`baseRate` in the crop
+ *  data is legacy and no longer drives yield.) */
+export const GARDEN_YIELD_PER_PLANT = 1;
+
+/** The full-plot rate — every capacity slot a bearing plant. */
+export function getGardenRate(_veggie: VeggieDefinition, level: number): number {
+  return getSeedCapacity(level) * GARDEN_YIELD_PER_PLANT;
 }
 
 /** Scales seed cost lightly with level so bigger gardens cost a bit more to sow.
@@ -165,8 +173,30 @@ export function getSeedCapacity(level: number): number {
   return Math.max(0, level) * 10;
 }
 
-/** The food/hour a planted garden actually produces, scaled by how full it is
- *  sown. Fully seeded → the base getGardenRate; half-seeded → half. */
+/** Per-crop germination — the fraction of sown seed that actually sprouts into
+ *  a producing plant. Hardy legumes/squash come up well; the fiddly crops
+ *  (strawberries, lavender) are stubborn. Drives both yield and seed saved back,
+ *  so a plot never quite returns everything you sow. */
+const GERMINATION: Record<VeggieId, number> = {
+  peas: 0.9,
+  fava: 0.9,
+  squash: 0.85,
+  turnips: 0.8,
+  cabbages: 0.8,
+  strawberries: 0.7,
+  lavender: 0.6,
+};
+export function getGerminationRate(veggie: VeggieDefinition): number {
+  return GERMINATION[veggie.id] ?? 0.8;
+}
+/** How many of the sown seeds come up as producing plants. */
+export function getSproutedPlants(veggie: VeggieDefinition, seedsPlanted: number): number {
+  return Math.floor(Math.max(0, seedsPlanted) * getGerminationRate(veggie));
+}
+
+/** The food/hour a planted garden actually produces, scaled by how many sown
+ *  seeds SPROUTED (fill × germination). A fully-sown plot tops out a bit below
+ *  the theoretical base rate — not every seed takes. */
 export function getEffectiveGardenRate(
   veggie: VeggieDefinition,
   level: number,
@@ -174,21 +204,26 @@ export function getEffectiveGardenRate(
 ): number {
   const cap = getSeedCapacity(level);
   if (cap <= 0) return 0;
-  const fill = Math.min(1, Math.max(0, seedsPlanted) / cap);
-  return Math.floor(getGardenRate(veggie, level) * fill);
+  // Output is simply the living plant count (capped at the plot's capacity),
+  // each plant worth GARDEN_YIELD_PER_PLANT food/hour.
+  const plants = Math.min(cap, getSproutedPlants(veggie, seedsPlanted));
+  return plants * GARDEN_YIELD_PER_PLANT;
 }
 
-/** Seed kept back from a season's crop. >1 so a steady plot self-sustains and
- *  the surplus slowly funds expansion; big jumps still need the market. */
+/** Seed kept back from a season's crop, per sprouted plant. >1 so a steady plot
+ *  still nets a little (after germination losses) — but far less than the raw
+ *  sown count, so filling more plots leans on trade. */
 export const SEED_RETURN_FACTOR = 1.5;
-export function getSeedReturn(seedsPlanted: number): number {
-  return Math.floor(Math.max(0, seedsPlanted) * SEED_RETURN_FACTOR);
+export function getSeedReturn(sproutedPlants: number): number {
+  return Math.floor(Math.max(0, sproutedPlants) * SEED_RETURN_FACTOR);
 }
 
 /** Seeds the founding crew arrives with — enough to fully sow a first L1 plot
  *  of each crop (capacity 10) with a little buffer, so day-one planting needs
  *  no shopping. */
-export const STARTING_SEED_PER_CROP = 20;
+// One garden plot's worth (getSeedCapacity(1)). You start able to fill a single
+// plot per staple; expanding needs the harvest surplus or bought seed.
+export const STARTING_SEED_PER_CROP = 10;
 export function makeStartingSeeds(): Record<VeggieId, number> {
   return VEGGIES.reduce((acc, v) => {
     // Staples arrive stocked; specialty seeds start at 0 (unlocked via play).
