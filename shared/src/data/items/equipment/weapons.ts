@@ -134,13 +134,6 @@ export const WEAPONS: ItemDefinition[] = [
     recipeId: "great_axe", consumable: false,
   },
   {
-    id: "cleaving_greataxe", rarity: "rare", name: "Cleaving Greataxe", icon: "🪓", slot: "mainHand", weaponType: "axe", twoHanded: true,
-    description: "+3 STR",
-    flavor: "A master's battle-axe of tempered steel, the head broad as a spade and honed to split mail. Heavy, hungry, and final.",
-    classes: [], stats: { str: 3 }, dmgMin: 11, dmgMax: 17, durationMod: 1, lootMod: 1,
-    recipeId: "cleaving_greataxe", consumable: false,
-  },
-  {
     id: "steel_sword", rarity: "uncommon", name: "Steel Sword", icon: "🗡️", slot: "mainHand", weaponType: "sword",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/steel_sword.png",
     description: "+3 STR, +1 DEX",

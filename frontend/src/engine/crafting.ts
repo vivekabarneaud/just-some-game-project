@@ -356,12 +356,6 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     produces: { resource: "weapons", amount: 1 }, craftTime: 260,
   },
   {
-    id: "cleaving_greataxe", name: "Cleaving Greataxe", icon: "🪓", building: "blacksmith", minLevel: 4,
-    description: "A broad steel head, tempered hard and edged fine enough to shear mail. A master's work.",
-    costs: [{ resource: "steel", amount: 14 }, { resource: "wood", amount: 8 }],
-    produces: { resource: "weapons", amount: 1 }, craftTime: 1300,
-  },
-  {
     id: "iron_shield",
     name: "Iron Shield",
     icon: "🛡️",
