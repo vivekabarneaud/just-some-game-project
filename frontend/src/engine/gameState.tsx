@@ -268,6 +268,7 @@ import {
   getPotionInfo,
   MATCHED_FOOD_LOYALTY_BONUS,
   getArmorAccess,
+  getWeaponAccess,
 } from "@medieval-realm/shared/data/items";
 import {
   calcStats as calcAdvStats,
@@ -6555,8 +6556,14 @@ export function GameProvider(props: ParentProps) {
       // supplies / inventory. Reject any attempt to equip them.
       if (!itemDef.slot) return false;
       const slot: ItemSlot = itemDef.slot;
-      // Class restriction (themed items like wizard_hat, priest_circlet)
-      if (itemDef.classes.length > 0 && !itemDef.classes.includes(adv.class)) return false;
+      // Weapons gate by weapon-family CATEGORY (+ talent grants), not per-item
+      // class — mirrors armor. A stale `classes` list on a weapon is ignored.
+      if (slot === "mainHand" && itemDef.weaponType) {
+        if (!getWeaponAccess(adv.class, adv.talents).has(itemDef.weaponType)) return false;
+      } else if (itemDef.classes.length > 0 && !itemDef.classes.includes(adv.class)) {
+        // Class restriction for themed non-weapons (wizard_hat, priest_circlet…).
+        return false;
+      }
       // Armor type restriction — check base class access + talent grants
       if (itemDef.armorType) {
         const access = getArmorAccess(adv.class, adv.talents);

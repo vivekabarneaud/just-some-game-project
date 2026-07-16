@@ -57,6 +57,11 @@ PoE2/Diablo model: the staff/wand **carries a spell that replaces the auto-attac
 - Reuses the existing `abilities/wizard.ts` / `priest.ts`.
 - Novice staves ship a single **placeholder spell** (a plain arcane bolt) in Phase 1, and become proper element spell-weapons here — no caster content wasted, just deepened.
 
+**Parked ideas for Phase 2 (2026-07-16):**
+- **Staff physical fallback range (WoW-like).** Give staves/wands a *small physical* damage range too, so a caster who can't cast still has a fallback — a Gandalf-style whack. Pairs with a **silence** status (below): silenced → the caster's auto-attack drops from its spell to the staff's physical range. Some wizards could have a **talent** that makes staff-melee genuinely viable (a battle-mage build).
+- **`silence` status** — target can't cast; casters fall back to the staff's physical range (needs the fallback above).
+- **`disarm` status** — target's weapon is knocked away; they fall back to the **unarmed fists range** (already built in Phase 1). A natural enemy-ability (a wrestler/ogre disarm) that makes the fists floor matter. Both silence + disarm are "strip your normal attack, force the fallback" statuses — design them together.
+
 ---
 
 ## 3. Weapons audit (novice)

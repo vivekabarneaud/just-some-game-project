@@ -5,15 +5,16 @@ import type { ItemDefinition } from "../types.js";
 
 export const WEAPONS: ItemDefinition[] = [
   {
-    id: "iron_sword", rarity: "common", name: "Iron Sword", icon: "⚔️", slot: "mainHand",
+    id: "iron_sword", rarity: "common", name: "Iron Sword", icon: "⚔️", slot: "mainHand", weaponType: "sword",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/iron_sword.png",
-    description: "+1 STR",
-    classes: ["warrior", "assassin"],
-    stats: { str: 1 }, durationMod: 1, lootMod: 1,
+    description: "",
+    flavor: "Honest smith's work — iron, balanced, and kept sharp.",
+    classes: ["warrior"],
+    stats: {}, dmgMin: 4, dmgMax: 7, durationMod: 1, lootMod: 1,
     recipeId: "iron_sword", consumable: false,
   },
   {
-    id: "steel_sword", rarity: "uncommon", name: "Steel Sword", icon: "🗡️", slot: "mainHand",
+    id: "steel_sword", rarity: "uncommon", name: "Steel Sword", icon: "🗡️", slot: "mainHand", weaponType: "sword",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/steel_sword.png",
     description: "+3 STR, +1 DEX",
     classes: ["warrior", "assassin"],
@@ -21,7 +22,7 @@ export const WEAPONS: ItemDefinition[] = [
     recipeId: "steel_sword", consumable: false,
   },
   {
-    id: "wooden_staff", rarity: "common", name: "Wooden Staff", icon: "🪄", slot: "mainHand",
+    id: "wooden_staff", rarity: "common", name: "Wooden Staff", icon: "🪄", slot: "mainHand", weaponType: "staff",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/woodworker/wooden_staff.png",
     description: "+1 INT",
     classes: ["wizard", "priest"],
@@ -29,7 +30,7 @@ export const WEAPONS: ItemDefinition[] = [
     recipeId: "wooden_staff", consumable: false, twoHanded: true,
   },
   {
-    id: "enchanted_staff", rarity: "rare", name: "Enchanted Staff", icon: "✨", slot: "mainHand",
+    id: "enchanted_staff", rarity: "rare", name: "Enchanted Staff", icon: "✨", slot: "mainHand", weaponType: "staff",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/woodworker/enchanted_staff.png",
     description: "+4 INT, +2 WIS, -15% duration", twoHanded: true,
     classes: ["wizard", "priest"],
@@ -37,7 +38,7 @@ export const WEAPONS: ItemDefinition[] = [
     recipeId: "enchanted_staff", consumable: false,
   },
   {
-    id: "short_bow", rarity: "common", name: "Short Bow", icon: "🏹", slot: "mainHand",
+    id: "short_bow", rarity: "common", name: "Short Bow", icon: "🏹", slot: "mainHand", weaponType: "bow",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/woodworker/short_bow.png",
     description: "+1 DEX (basic)",
     classes: ["archer"],
@@ -45,7 +46,7 @@ export const WEAPONS: ItemDefinition[] = [
     recipeId: "short_bow", consumable: false, twoHanded: true,
   },
   {
-    id: "hunting_bow", rarity: "common", name: "Hunting Bow", icon: "🏹", slot: "mainHand",
+    id: "hunting_bow", rarity: "common", name: "Hunting Bow", icon: "🏹", slot: "mainHand", weaponType: "bow",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/woodworker/hunting_bow.png",
     description: "+1 DEX",
     classes: ["archer"],
@@ -53,7 +54,7 @@ export const WEAPONS: ItemDefinition[] = [
     recipeId: "hunting_bow", consumable: false, twoHanded: true,
   },
   {
-    id: "longbow", rarity: "uncommon", name: "Longbow", icon: "🎯", slot: "mainHand",
+    id: "longbow", rarity: "uncommon", name: "Longbow", icon: "🎯", slot: "mainHand", weaponType: "bow",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/woodworker/longbow.png",
     description: "+3 DEX, +1 STR",
     classes: ["archer"],
@@ -61,7 +62,7 @@ export const WEAPONS: ItemDefinition[] = [
     recipeId: "longbow", consumable: false, twoHanded: true,
   },
   {
-    id: "iron_dagger_equip", rarity: "common", name: "Iron Dagger", icon: "🗡️", slot: "mainHand",
+    id: "iron_dagger_equip", rarity: "common", name: "Iron Dagger", icon: "🗡️", slot: "mainHand", weaponType: "dagger",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/iron_dagger.png",
     description: "+1 DEX. A simple but sharp blade — every adventurer's first real weapon.",
     classes: [],
@@ -69,7 +70,7 @@ export const WEAPONS: ItemDefinition[] = [
     recipeId: "iron_dagger", consumable: false,
   },
   {
-    id: "orc_cleaver", rarity: "uncommon", name: "Orc Cleaver", icon: "🪓", slot: "mainHand",
+    id: "orc_cleaver", rarity: "uncommon", name: "Orc Cleaver", icon: "🪓", slot: "mainHand", weaponType: "axe",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/orc_cleaver.png",
     description: "+3 STR. Crude but brutally effective.",
     classes: ["warrior"],
@@ -77,7 +78,7 @@ export const WEAPONS: ItemDefinition[] = [
     recipeId: "orc_cleaver", consumable: false,
   },
   {
-    id: "cursed_blade", rarity: "rare", name: "Cursed Blade", icon: "⚔️", slot: "mainHand",
+    id: "cursed_blade", rarity: "rare", name: "Cursed Blade", icon: "⚔️", slot: "mainHand", weaponType: "sword",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/cursed_blade.png",
     description: "+2 STR, +2 INT. The edge never dulls. It whispers when drawn.",
     classes: ["warrior", "assassin"],
@@ -85,7 +86,7 @@ export const WEAPONS: ItemDefinition[] = [
     recipeId: "cursed_blade", consumable: false,
   },
   {
-    id: "dragonbone_sword", rarity: "epic", name: "Dragonbone Sword", icon: "🗡️", slot: "mainHand",
+    id: "dragonbone_sword", rarity: "epic", name: "Dragonbone Sword", icon: "🗡️", slot: "mainHand", weaponType: "sword",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/dragonbone_sword.png",
     description: "+5 STR, +2 DEX. Forged with dragon fang — it cuts through armor like parchment.",
     classes: ["warrior", "assassin"],
@@ -93,7 +94,7 @@ export const WEAPONS: ItemDefinition[] = [
     recipeId: "dragonbone_sword", consumable: false,
   },
   {
-    id: "sinew_bow", rarity: "uncommon", name: "Sinew Bow", icon: "🏹", slot: "mainHand",
+    id: "sinew_bow", rarity: "uncommon", name: "Sinew Bow", icon: "🏹", slot: "mainHand", weaponType: "bow",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/woodworker/sinew_bow.png",
     description: "+2 DEX, +1 STR. Wolf-sinew string. Never snaps in the cold.",
     classes: ["archer"],
@@ -101,7 +102,7 @@ export const WEAPONS: ItemDefinition[] = [
     recipeId: "sinew_bow", consumable: false,
   },
   {
-    id: "dragonfire_staff", rarity: "epic", name: "Dragonfire Staff", icon: "🔥", slot: "mainHand",
+    id: "dragonfire_staff", rarity: "epic", name: "Dragonfire Staff", icon: "🔥", slot: "mainHand", weaponType: "staff",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/woodworker/dragonfire_staff.png",
     description: "+5 INT, +2 WIS. The tip smolders permanently. Ink evaporates near it.",
     classes: ["wizard"],
@@ -109,27 +110,27 @@ export const WEAPONS: ItemDefinition[] = [
     recipeId: "dragonfire_staff", consumable: false, twoHanded: true,
   },
   {
-    id: "stiletto", rarity: "uncommon", name: "Stiletto", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/stiletto.png", icon: "🗡️", slot: "mainHand",
+    id: "stiletto", rarity: "uncommon", name: "Stiletto", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/stiletto.png", icon: "🗡️", slot: "mainHand", weaponType: "dagger",
     description: "+2 DEX, +1 STR. Needle-thin, whisper-quiet. Made for gaps in armor, not fair fights.",
     classes: ["assassin"], stats: { dex: 2, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "stiletto", consumable: false,
   },
   {
-    id: "poisoned_blade", rarity: "rare", name: "Poisoned Blade", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/venom_blade.png", icon: "🗡️", slot: "mainHand",
+    id: "poisoned_blade", rarity: "rare", name: "Poisoned Blade", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/venom_blade.png", icon: "🗡️", slot: "mainHand", weaponType: "dagger",
     description: "+3 DEX, +2 STR. The groove along the blade holds venom. The nick is worse than the cut.",
     classes: ["assassin"], stats: { dex: 3, str: 2 }, durationMod: 1, lootMod: 1, recipeId: "poisoned_blade", consumable: false,
   },
   {
-    id: "shadow_dagger", rarity: "epic", name: "Shadow Dagger", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/void_dagger.png", icon: "🗡️", slot: "mainHand",
+    id: "shadow_dagger", rarity: "epic", name: "Shadow Dagger", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/void_dagger.png", icon: "🗡️", slot: "mainHand", weaponType: "dagger",
     description: "+4 DEX, +3 STR. Void-touched steel that drinks the light. The wound hurts before the blade arrives.",
     classes: ["assassin"], stats: { dex: 4, str: 3 }, durationMod: 1, lootMod: 1, recipeId: "shadow_dagger", consumable: false,
   },
   {
-    id: "iron_mace", rarity: "common", name: "Iron Mace", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/war_mace.png", icon: "🔨", slot: "mainHand",
+    id: "iron_mace", rarity: "common", name: "Iron Mace", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/war_mace.png", icon: "🔨", slot: "mainHand", weaponType: "mace",
     description: "+1 STR, +1 WIS. Heavy, blunt, and sanctioned by the Church. For when prayer isn't enough.",
     classes: ["priest", "warrior"], stats: { str: 1, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "iron_mace", consumable: false,
   },
   {
-    id: "blessed_mace", rarity: "rare", name: "Blessed Mace", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/holy_mace.png", icon: "🔨", slot: "mainHand",
+    id: "blessed_mace", rarity: "rare", name: "Blessed Mace", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/holy_mace.png", icon: "🔨", slot: "mainHand", weaponType: "mace",
     description: "+2 WIS, +2 STR, +1 VIT. Moonstone-capped and consecrated. The undead hate it. So does everything else you hit with it.",
     classes: ["priest"], stats: { wis: 2, str: 2, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "blessed_mace", consumable: false,
   },

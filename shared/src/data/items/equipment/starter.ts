@@ -5,19 +5,19 @@ import type { ItemDefinition } from "../types.js";
 
 export const STARTER_GEAR: ItemDefinition[] = [
   {
-    id: "worn_bow", rarity: "common", name: "Worn Bow", icon: "🏹", slot: "mainHand", weaponType: "bow",
-    description: "", flavor: "A well-worn hunting bow. It has kept crows off the barley and meat on the table.",
-    classes: ["archer"], stats: {}, durationMod: 1, lootMod: 1, recipeId: "", consumable: false,
+    id: "worn_bow", rarity: "common", name: "Worn Bow", icon: "🏹", slot: "mainHand", weaponType: "bow", twoHanded: true,
+    description: "", flavor: "A well-worn hunting bow. It has fed the table and kept the crows off the barley more winters than not.",
+    classes: ["archer"], stats: {}, dmgMin: 3, dmgMax: 5, durationMod: 1, lootMod: 1, recipeId: "", consumable: false,
   },
   {
     id: "plain_sword", rarity: "common", name: "Plain Sword", icon: "⚔️", slot: "mainHand", weaponType: "sword",
     description: "", flavor: "A plain, notched blade. Nothing fine about it, but it holds an edge.",
-    classes: ["warrior"], stats: {}, durationMod: 1, lootMod: 1, recipeId: "", consumable: false,
+    classes: ["warrior"], stats: {}, dmgMin: 3, dmgMax: 5, durationMod: 1, lootMod: 1, recipeId: "", consumable: false,
   },
   {
     id: "worn_dagger", rarity: "common", name: "Worn Dagger", icon: "🔪", slot: "mainHand", weaponType: "dagger",
     description: "", flavor: "A worn utility knife, kept sharp out of habit.",
-    classes: ["assassin"], stats: {}, durationMod: 1, lootMod: 1, recipeId: "", consumable: false,
+    classes: ["assassin"], stats: {}, dmgMin: 2, dmgMax: 4, durationMod: 1, lootMod: 1, recipeId: "", consumable: false,
   },
   {
     id: "plain_staff", rarity: "common", name: "Plain Staff", icon: "🪵", slot: "mainHand", weaponType: "staff", twoHanded: true,

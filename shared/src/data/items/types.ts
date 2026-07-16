@@ -45,6 +45,34 @@ export function getArmorAccess(cls: AdventurerClass, talents: string[] | undefin
   return set;
 }
 
+// ─── Weapon access by class ─────────────────────────────────────
+// Weapon families each class can wield. Mirrors CLASS_ARMOR_ACCESS: access is by
+// CATEGORY (weaponType), not per-item. Talents (e.g. shadowblade) extend it.
+export const CLASS_WEAPON_ACCESS: Record<AdventurerClass, WeaponType[]> = {
+  warrior: ["sword", "axe", "mace", "spear"],
+  archer:  ["bow", "dagger"],
+  assassin: ["dagger"],
+  wizard:  ["staff", "wand"],
+  priest:  ["mace", "staff"],
+};
+
+/** Talent IDs that grant an extra weapon family. */
+export const WEAPON_TALENTS: Record<string, WeaponType> = {
+  shadowblade: "sword", // Assassin: can wield swords (Shadowblade build)
+};
+
+/** The full set of weapon families an adventurer can wield, incl. talent grants. */
+export function getWeaponAccess(cls: AdventurerClass, talents: string[] | undefined): Set<WeaponType> {
+  const set = new Set(CLASS_WEAPON_ACCESS[cls]);
+  if (talents) {
+    for (const t of talents) {
+      const grant = WEAPON_TALENTS[t];
+      if (grant) set.add(grant);
+    }
+  }
+  return set;
+}
+
 /** Human-friendly labels + icons for armor types, used in UI badges. */
 export const ARMOR_TYPE_META: Record<ArmorType, { label: string; icon: string }> = {
   cloth:   { label: "Cloth",   icon: "🧵" },
