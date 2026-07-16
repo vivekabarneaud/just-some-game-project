@@ -130,6 +130,116 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     encounters: [{ enemyId: "marsh_adder", count: 3 }],
     requires: { story: "story_1_scouting" },
     unique: true,
+    // Pinned so the hook reliably appears, but WITHOUT a chain banner — it must
+    // read as an ordinary herb-errand. The_bog_witch chain fires the beat on it.
+    pinned: true,
+  },
+  // ── The bog-witch front, step 2: the bargain. After clearing the adders once,
+  //    a voice in the reeds offered terms. Bring the offering and the gatherers
+  //    walk safe — a non-combat barter. (The_bog_witch chain fires the beats.) ──
+  {
+    id: "reeds_bargain",
+    name: "The Reeds' Price",
+    description: "The old woman in the reeds kept her word before, so Edda says: leave what she asked at the flat stone by the water, and the adders will let the gatherers cut fenbalm in peace. A strange arrangement, and I do not much like owing a marsh. But it is cheaper than sending armed men every time the fevers come. Take her offering in, leave it where she said, and bring the herb home. No blades needed, if she is honest.",
+    icon: "🕯️",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/clear_marshes.png",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 600,
+    deployItems: [{ resource: "wheat", amount: 5 }],
+    rewards: [{ resource: "fenbalm", amount: 5 }, { resource: "nettle", amount: 3 }],
+    deployCost: 3,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["outdoor"],
+    guaranteed: true,
+    requires: { missionDone: "marsh_clearing" },
+    unique: true,
+    sideChain: { id: "the_bog_witch", name: "The Reeds" },
+  },
+  // ── The routine, once the bargain is proven. Repeatable, deliberately light:
+  //    no chronicle beat — it just establishes the pattern (a normal, safe trade)
+  //    so the drift, when it comes later, lands against something familiar. ──
+  {
+    id: "fen_barter",
+    name: "Tea at Aldith's",
+    description: "The old woman keeps her bargain, and Edda's fenbalm stores run low again. Leave the grain at the flat stone, cut the herb, and not a snake will stir. Aldith, the gatherers call her now, and she will have whoever we send in for tea and send them home with a full belly besides. Routine now. Send someone to make the trade.",
+    icon: "🍵",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/clear_marshes.png",
+    slots: [{ class: "any" }],
+    duration: 500,
+    deployItems: [{ resource: "wheat", amount: 3 }],
+    rewards: [{ resource: "fenbalm", amount: 4 }],
+    deployCost: 2,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["outdoor"],
+    guaranteed: true,
+    // Repeatable (not unique, no beat) — the safe recurring gather.
+    requires: { missionDone: "reeds_bargain" },
+  },
+  // ── The drift. After the tea (fen_barter ×3, where she learns of Nell), the
+  //    asking stops being grain and starts to read like a recipe: a precise,
+  //    symbolic COUNT of humble parts she could not take herself, the number
+  //    shrinking as the thing grows grimmer — three tusks, two hooves, one skull.
+  //    Each is compliable on its own; the pattern is the horror. The chain fires
+  //    ch1_reeds_tea before the tusks and ch1_reeds_doubt (the line drawn) after
+  //    the skull. The dark descent is still deferred. ──
+  {
+    id: "reeds_tusks",
+    name: "Three Tusks",
+    description: "The old woman sent her asking back with the last of the fenbalm, and it is not grain this time. Three boar tusks, she wants, no more and no fewer, left at the flat stone by dark. Edda says the old have their cures and their charms and it is not for us to know the reason of them, so do as she asks and think nothing of it. I will send them, and gladly: we grind boar tusk for the salve against the froth, and there are shards enough in the store to spare her three. It is only the exactness of it, three and not four, that sits oddly with me.",
+    icon: "🦷",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/clear_marshes.png",
+    slots: [{ class: "any" }],
+    duration: 500,
+    deployItems: [{ resource: "tusk_shard", amount: 3 }],
+    rewards: [{ resource: "fenbalm", amount: 5 }, { resource: "nettle", amount: 3 }],
+    deployCost: 2,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["outdoor"],
+    guaranteed: true,
+    requires: { missionCount: { id: "fen_barter", count: 3 } },
+    unique: true,
+    sideChain: { id: "the_bog_witch", name: "The Reeds" },
+  },
+  {
+    id: "reeds_hooves",
+    name: "Two Hooves",
+    description: "The tusks went to the stone and the herb came home, and I had half forgotten it when her next asking came back. Two cloven hooves this time, off a boar, left at the flat stone by dark. Fewer than the tusks, and stranger. Edda still says think nothing of it, an old woman's remedy, and I want to believe her. I will send them, because the fenbalm keeps my people through the winter. But a body does not put hooves in a poultice, and I have started to wonder what she does put them in.",
+    icon: "🐐",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/clear_marshes.png",
+    slots: [{ class: "any" }],
+    duration: 500,
+    deployItems: [{ resource: "cloven_hoof", amount: 2 }],
+    rewards: [{ resource: "fenbalm", amount: 5 }, { resource: "nettle", amount: 3 }],
+    deployCost: 2,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["outdoor"],
+    guaranteed: true,
+    requires: { missionDone: "reeds_tusks" },
+    unique: true,
+    sideChain: { id: "the_bog_witch", name: "The Reeds" },
+  },
+  {
+    id: "reeds_skull",
+    name: "One Skull",
+    description: "And now the last of it, or so I will make it the last. One boar's skull, she wants, picked clean, left at the flat stone by dark. Three, then two, then one, and each thing worse than the last. This is no longer a remedy and we both know it, whatever Edda says. I will send the skull, this once, because I will not break faith over a thing that costs us nothing and leave my people short of fenbalm on a suspicion. But I mean to send word with it: grain, from here, and only grain. One more asking like this and we are done with the reeds.",
+    icon: "💀",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/clear_marshes.png",
+    slots: [{ class: "any" }],
+    duration: 500,
+    deployItems: [{ resource: "boar_skull", amount: 1 }],
+    rewards: [{ resource: "fenbalm", amount: 5 }, { resource: "nettle", amount: 3 }],
+    deployCost: 2,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["outdoor"],
+    guaranteed: true,
+    requires: { missionDone: "reeds_hooves" },
+    unique: true,
+    sideChain: { id: "the_bog_witch", name: "The Reeds" },
   },
 
   // ── Recruitment quest: save the hunted gambler → Edmund + Elspeth join ──
@@ -147,8 +257,13 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 1,
     tags: ["combat", "escort"],
-    encounters: [{ enemyId: "bandit_thug", count: 3 }],
-    requires: { story: "story_1_scouting" },
+    // Hired toughs over a card debt (Dominion Toughs), not desperate displaced
+    // farmers — fits the fiction, and they're weaker in a pack.
+    encounters: [{ enemyId: "dominion_thug", count: 3 }],
+    // "The haven's name spreads." Gated on tavern reputation, not just a built
+    // tavern — the hunted only come once the settlement is genuinely running as a
+    // waystation (ale, staffing, a full house are what build reputation). Placeholder 40.
+    requires: { tavernReputation: 40 },
     unique: true,
   },
 
@@ -208,5 +323,26 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     unique: true,
     sideChain: { id: "the_woodcutter", name: "The Woodcutter" },
     chronicleEntryId: "ch1_woodcutter_ghost", // Beat 2a: the ghost puzzle
+  },
+  {
+    id: "find_nell",
+    name: "Where's Nell?",
+    description: "Nell slipped away from Edda's herb beds sometime after breakfast, and no one has seen her since. She does not answer when she is called, she never has, and the woods run a long way south. We would all rest easier with someone out there who can follow a small pair of footprints through the summer grass before the light goes.",
+    icon: "🧺",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/first_patrol.png",
+    slots: [{ class: "any" }],
+    duration: 120, // our own south woods — a search before dusk, not a trek
+    rewards: [{ resource: "berries", amount: 10 }], // the wild berries she'd gathered, brought home
+    deployCost: 3,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["exploration", "peaceful"],
+    guaranteed: true,
+    // Opened by the worry beat (fired by the_strawberry_patch chain in summer,
+    // year 2). The chain fires the "found" beat + the seed unlock on completion,
+    // so this mission carries no chronicleEntryId of its own.
+    requires: { chronicleFired: "ch2_nell_wandering" },
+    unique: true,
+    sideChain: { id: "the_strawberry_patch", name: "The Strawberry Patch" },
   },
 ];

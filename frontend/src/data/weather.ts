@@ -1,6 +1,6 @@
 import { createSignal } from "solid-js";
 import type { Season } from "./seasons";
-import { SEASON_ORDER } from "./seasons";
+import { SEASON_ORDER, HOURS_PER_SEASON, IS_DEV, getGlobalSeason } from "./seasons";
 
 // ─── Weather (ambient mood layer) ──────────────────────────────────────────
 //
@@ -43,16 +43,25 @@ export const WEATHER_META: Record<
 
 // Probability weights for the ambient drift, per season. Only the four "calm"
 // moods appear here; storms are events, not mood, so they carry no weight.
+// Wet weather pulled down a notch across the board (rain was reading as
+// "always raining" — see WEATHER_WINDOWS note). Dry moods bias longer.
 const WEATHER_WEIGHTS: Record<Season, Partial<Record<WeatherType, number>>> = {
-  spring: { rain: 35, overcast: 25, clear: 25, fog: 15 },
-  summer: { clear: 55, overcast: 20, rain: 15, fog: 10 },
-  autumn: { overcast: 35, rain: 30, fog: 20, clear: 15 },
-  winter: { snow: 45, overcast: 30, clear: 15, fog: 10 },
+  spring: { rain: 25, overcast: 25, clear: 35, fog: 15 },
+  summer: { clear: 62, overcast: 22, rain: 8, fog: 8 },
+  autumn: { overcast: 33, rain: 22, fog: 20, clear: 25 },
+  winter: { snow: 42, overcast: 30, clear: 20, fog: 8 },
 };
 
-// How many distinct weather "windows" a season is divided into. In dev a season
-// is 24 game-hours, so 6 windows ≈ a fresh mood every ~4 hours.
-const WEATHER_WINDOWS = 6;
+// How many distinct weather "windows" a season is divided into. Weather is
+// derived from the real wall-clock (prod: getGlobalSeason, a 3-day season), so
+// it evolves on its own whether or not the player is watching — good for an
+// idle game (you come back to a changed sky). 72 windows over a 3-day season =
+// a fresh roll every ~1 real hour (in dev, ~20 game-min). Short windows fix the
+// old "stuck in one 12h rain window all session" feel, and because each window
+// rolls independently, consecutive same-weather windows merge into naturally
+// variable-length spells (a passing shower vs a long grey afternoon) — no
+// separate duration machinery needed.
+const WEATHER_WINDOWS = 72;
 
 // Stable 0..1 hash so a given (season, year, window) always picks the same mood.
 function hash01(n: number): number {
@@ -98,6 +107,51 @@ export function setWeatherOverride(w: WeatherType | null) {
 /** The weather to actually render: override wins, else ambient drift. */
 export function resolveWeather(season: Season, progress: number, year: number): WeatherType {
   return override() ?? getAmbientWeather(season, progress, year);
+}
+
+/**
+ * THE single source of truth for what (season, progress, year) the weather is
+ * derived from. Every weather consumer (the sidebar chip, WeatherAmbience, the
+ * RainCanvas, the audio bed) MUST go through this so they can never disagree.
+ * In dev it follows the local game clock; in prod it follows the shared world
+ * clock (`getGlobalSeason`, incl. its year — the year seeds the roll).
+ *
+ * IMPORTANT: the year here is the *weather roll* year (world year in prod), NOT
+ * the settlement-age "Year N" shown in the UI (that's `state.year`, a separate
+ * display value). Feeding `state.year` in here is what desynced the chip from
+ * the rendered/audible weather.
+ */
+export function currentWeatherInfo(
+  season: Season,
+  seasonElapsed: number,
+  year: number,
+): { season: Season; progress: number; year: number } {
+  return IS_DEV
+    ? { season, progress: seasonElapsed / HOURS_PER_SEASON, year }
+    : getGlobalSeason();
+}
+
+/** Convenience: resolve the weather straight from the game clock inputs. */
+export function resolveCurrentWeather(season: Season, seasonElapsed: number, year: number): WeatherType {
+  const i = currentWeatherInfo(season, seasonElapsed, year);
+  return resolveWeather(i.season, i.progress, i.year);
+}
+
+const isWetWeather = (w: WeatherType) => w === "rain" || w === "storm" || w === "unnatural_storm";
+
+/**
+ * True during the first DRY window right after a wet one — the damp aftermath a
+ * forager's hut sprouts mushrooms in. Computed from the deterministic wall-clock
+ * weather (dry now AND wet in the previous ~1h window), so it needs no save
+ * state and lasts about one window before fading. Deliberately "after" the rain,
+ * not during. Skips the season-boundary lookback for simplicity.
+ */
+export function forageBloomNow(season: Season, seasonElapsed: number, year: number): boolean {
+  const info = currentWeatherInfo(season, seasonElapsed, year);
+  if (isWetWeather(resolveWeather(info.season, info.progress, info.year))) return false; // still raining
+  const prevProgress = info.progress - 1 / WEATHER_WINDOWS;
+  if (prevProgress < 0) return false; // start of the season — no prior window to read
+  return isWetWeather(resolveWeather(info.season, prevProgress, info.year));
 }
 
 /** Ordered list for menus/dropdowns. */

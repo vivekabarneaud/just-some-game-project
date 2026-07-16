@@ -35,6 +35,8 @@ function makeDeps(s: ChainState, now: number, log: string[]): ChainDeps {
       log.push(pid);
       (s.adventurers as { premadeId?: string }[]).push({ premadeId: pid });
     },
+    unlockSeed: (vid) => log.push(`seed:${vid}`),
+    unlockRecipe: (rid) => log.push(`recipe:${rid}`),
   };
 }
 
@@ -48,6 +50,37 @@ describe("runStoryChains — primitives", () => {
     s.completedUniqueMissionIds = ["m1"];
     runStoryChains(s, [chain], makeDeps(s, 0, []));
     expect(s.chronicleEntriesFired).toEqual(["c1"]);
+  });
+
+  it("awaitSeason halts until season AND year are both met", () => {
+    const chain: StoryChain = { id: "t", run: (a) => { a.awaitSeason("summer", 2); a.fireChronicle("c1"); } };
+    const s = makeState({ season: "spring", year: 1 });
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual([]); // wrong season + wrong year
+
+    s.season = "summer"; // right season, still year 1
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual([]); // year too early
+
+    s.year = 2; // summer, year 2 — fires
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual(["c1"]);
+  });
+
+  it("the strawberry patch: season gate → worry → mission → found → seed unlock", () => {
+    const log: string[] = [];
+    const chain = STORY_CHAINS.find((c) => c.id === "the_strawberry_patch")!;
+    const s = makeState({ season: "summer", year: 2 });
+
+    runStoryChains(s, [chain], makeDeps(s, 0, log));
+    expect(s.chronicleEntriesFired).toEqual(["ch2_nell_wandering"]); // worry fired, waiting on the mission
+    expect(log).not.toContain("seed:strawberries");
+
+    s.completedUniqueMissionIds = ["find_nell"];
+    runStoryChains(s, [chain], makeDeps(s, 0, log));
+    expect(s.chronicleEntriesFired).toContain("ch2_nell_found");
+    expect(log).toContain("seed:strawberries");
+    expect(log).toContain("recipe:strawberry_jam");
   });
 
   it("is idempotent under replay — no double-fire", () => {
@@ -72,6 +105,17 @@ describe("runStoryChains — primitives", () => {
 
     runStoryChains(s, [chain], makeDeps(s, 1000, []));    // at deadline
     expect(s.chronicleEntriesFired).toEqual(["done"]);
+  });
+
+  it("awaitMissionCount halts until the durable tally reaches the count", () => {
+    const chain: StoryChain = { id: "t", run: (a) => { a.awaitMissionCount("m1", 3); a.fireChronicle("c1"); } };
+    const s = makeState({ missionCompletions: { m1: 2 } });
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual([]);       // 2 < 3, still halted
+
+    s.missionCompletions = { m1: 3 };
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual(["c1"]);   // reached the count
   });
 
   it("awaitPremadePresent halts until one of the ids is on the roster", () => {
@@ -252,5 +296,99 @@ describe("real chains", () => {
     // Next morning — the reflection lands.
     runStoryChains(s, [chain], makeDeps(s, deadline, []));
     expect(s.chronicleEntriesFired).toEqual(["ch2_mothers_errand", "ch2_whose_blood"]);
+  });
+
+  it("the_bog_witch: bargain beat after clearing, price beat after the barter", () => {
+    const chain = STORY_CHAINS.find((c) => c.id === "the_bog_witch")!;
+    const s = makeState();
+
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual([]);
+
+    // Cleared the adders + got fenbalm — the bargaining voice beat lands.
+    s.completedUniqueMissionIds = ["marsh_clearing"];
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual(["ch1_reeds_voice"]);
+
+    // Paid the offering (the barter) — the "what it cost" beat lands.
+    s.completedUniqueMissionIds = ["marsh_clearing", "reeds_bargain"];
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual(["ch1_reeds_voice", "ch1_reeds_price"]);
+
+    // Two routine barters — not yet three, so the drift beat holds.
+    s.missionCompletions = { fen_barter: 2 };
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual(["ch1_reeds_voice", "ch1_reeds_price"]);
+
+    // Third routine barter — the tea beat lands (she learns of Nell); the drift
+    // asks (tusks → hooves → skull) hold until each is delivered in turn.
+    s.missionCompletions = { fen_barter: 3 };
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toContain("ch1_reeds_tea");
+    expect(s.chronicleEntriesFired).not.toContain("ch1_reeds_doubt");
+
+    // Fangs then hooves delivered — still no decision beat until the skull.
+    s.completedUniqueMissionIds = ["marsh_clearing", "reeds_bargain", "reeds_tusks", "reeds_hooves"];
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).not.toContain("ch1_reeds_doubt");
+
+    // Skull delivered — the line-drawing beat lands.
+    s.completedUniqueMissionIds = ["marsh_clearing", "reeds_bargain", "reeds_tusks", "reeds_hooves", "reeds_skull"];
+    runStoryChains(s, [chain], makeDeps(s, 0, []));
+    expect(s.chronicleEntriesFired).toEqual([
+      "ch1_reeds_voice", "ch1_reeds_price", "ch1_reeds_tea", "ch1_reeds_doubt",
+    ]);
+  });
+});
+
+describe("the_stonebridges — Aldwin arrives, Magnus unlocks by earning Aldwin's belonging", () => {
+  const chain = STORY_CHAINS.find((c) => c.id === "the_stonebridges")!;
+  const loyaltyOf = (s: ChainState, pid: string, v: number) => {
+    const a = (s.adventurers as { premadeId?: string; loyalty?: number }[]).find((x) => x.premadeId === pid);
+    if (a) a.loyalty = v;
+  };
+
+  it("gates on Ch1's close (Hale) AND Hester having come first", () => {
+    const s = makeState();
+    const log: string[] = [];
+    runStoryChains(s, [chain], makeDeps(s, 0, log));
+    expect(log).toEqual([]); // nothing yet
+
+    // Hale bound, but Hester hasn't arrived — still halted (the hunted come in order).
+    s.completedUniqueMissionIds = ["story_4_captains_rest"];
+    runStoryChains(s, [chain], makeDeps(s, 0, log));
+    expect(log).toEqual([]);
+  });
+
+  it("Aldwin flees in on arrival; Magnus stays hidden until Aldwin belongs", () => {
+    const s = makeState({
+      completedUniqueMissionIds: ["story_4_captains_rest"],
+      adventurers: [{ premadeId: "char_019" }], // Hester present
+    });
+    const log: string[] = [];
+
+    // Arrival: Aldwin recruited + the gate beat, nothing further (loyalty 0).
+    runStoryChains(s, [chain], makeDeps(s, 0, log));
+    expect(log).toEqual(["char_017"]);
+    expect(s.chronicleEntriesFired).toEqual(["ch2_stonebridge_arrival"]);
+
+    // A few missions in (loyalty 8): the Lord's hunch — still no confession.
+    loyaltyOf(s, "char_017", 8);
+    runStoryChains(s, [chain], makeDeps(s, 0, log));
+    expect(s.chronicleEntriesFired).toContain("ch2_stonebridge_hunch");
+    expect(s.chronicleEntriesFired).not.toContain("ch2_stonebridge_confession");
+    expect(log).toEqual(["char_017"]); // Magnus not yet unlocked
+
+    // Aldwin reaches Familiar (15): the confession, Magnus joins, plea + aftermath.
+    loyaltyOf(s, "char_017", 15);
+    runStoryChains(s, [chain], makeDeps(s, 0, log));
+    expect(log).toEqual(["char_017", "char_029"]); // Magnus unlocked
+    expect(s.chronicleEntriesFired).toEqual([
+      "ch2_stonebridge_arrival",
+      "ch2_stonebridge_hunch",
+      "ch2_stonebridge_confession",
+      "ch2_stonebridge_plea",
+      "ch2_stonebridge_aftermath",
+    ]);
   });
 });

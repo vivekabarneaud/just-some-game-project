@@ -7,6 +7,7 @@ import Tooltip from "./Tooltip";
 const CONDITION_META: Record<string, { icon: string; label: string }> = {
   bleed: { icon: "🩸", label: "Bleeding" },
   poison: { icon: "☣️", label: "Poisoned" },
+  froth: { icon: "🤢", label: "Frothing — worsens, can't deploy (cure: Boar's-Bane Salve)" },
 };
 
 // Mirrors of the recovery-tick constants in gameState. Heroes heal this fraction
@@ -45,10 +46,20 @@ export default function AdventurerVitals(props: Props) {
       {/* At full HP in the at-home (showRegen) view, a lingering condition only
           blocks regen you don't need — hide it so the card reads "healthy". It
           still shows everywhere else (assembly/combat) and whenever wounded. */}
-      <Show when={!props.showRegen || current() < maxHp()}>
+      <Show when={!props.showRegen || current() < maxHp() || conditions().some((c) => c.type === "froth")}>
         <For each={conditions()}>
           {(c) => {
             const meta = CONDITION_META[c.type] ?? { icon: "❓", label: c.type };
+            // The froth doesn't fade — it worsens until cured. Distinct chip.
+            if (c.type === "froth") {
+              return (
+                <Tooltip text="The froth — a rabid-boar bite-sickness. It worsens (drains HP) until treated with a 🐗 Boar's-Bane Salve, and the hero can't be deployed until then.">
+                  <span style={{ "font-size": "0.72rem", "line-height": 1, color: "var(--accent-red)", "white-space": "nowrap", cursor: "help" }}>
+                    {meta.icon} froth
+                  </span>
+                </Tooltip>
+              );
+            }
             const hrsLeft = () => Math.max(1, Math.round(c.remainingRounds * HOURS_PER_CONDITION_ROUND));
             return (
               <Tooltip text={`${meta.label} — fades on its own in about ${hrsLeft()}h (or use a Bandage). Blocks HP regen until it does.`}>

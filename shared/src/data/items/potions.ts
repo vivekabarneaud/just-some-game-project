@@ -49,7 +49,7 @@ export interface RecoveryEffect {
   /** Persistent conditions this item clears when used on a resting hero at home
    *  (e.g. a bandage dresses a wound → clears "bleed"; an antidote clears "poison").
    *  Omit for a heal-only item that cures nothing. */
-  cures?: ("bleed" | "poison")[];
+  cures?: ("bleed" | "poison" | "froth")[];
 }
 
 export interface PotionInfo {
@@ -110,6 +110,9 @@ export const POTION_REGISTRY: Record<string, PotionInfo> = {
   // ── Recovery items (between-event heal on expeditions, pre-combat heal on simple missions) ─
   "bandage":                { category: "recovery", recovery: { healPct: 25, cures: ["bleed"] } },
   "mending_potion":         { category: "recovery", recovery: { healPct: 50, cures: ["bleed"] } },
+  // The froth's only cure — ground boar tusk + mugwort. Heals a little and
+  // clears the bite-sickness so the hero can regen and deploy again.
+  "boars_bane_salve":       { category: "recovery", recovery: { healPct: 30, cures: ["froth"] } },
 };
 
 export function getPotionInfo(itemId: string): PotionInfo | undefined {

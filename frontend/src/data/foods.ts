@@ -5,12 +5,17 @@
 export type FoodItemType =
   | "wheat" | "barley"
   | "cabbages" | "turnips" | "peas" | "squash" | "fava"
-  | "apples" | "pears" | "cherries"
+  | "apples" | "pears" | "cherries" | "strawberries"
   | "meat" | "eggs" | "milk" | "fish"
   | "berries" | "mushrooms" | "nuts"
-  | "porridge" | "hearth_stew" | "river_stew";
+  | "porridge" | "hearth_stew" | "river_stew" | "bone_broth";
 
 export type FoodCategoryId = "grain" | "veggie" | "fruit" | "animal" | "wild" | "cooked";
+
+/** How a cooked dish is served at the tavern — drives the menu columns.
+ *  Added slowly: tag new dishes as drinks (teas, ale-based) or desserts as
+ *  they arrive; untagged cooked dishes read as meals. */
+export type DishKind = "meal" | "drink" | "dessert";
 
 export interface FoodItemMeta {
   id: FoodItemType;
@@ -21,6 +26,8 @@ export interface FoodItemMeta {
   /** Display order within its category */
   order: number;
   category: FoodCategoryId;
+  /** Tavern menu column (cooked dishes only). Defaults to "meal" when unset. */
+  kind?: DishKind;
 }
 
 export interface FoodCategoryMeta {
@@ -47,12 +54,13 @@ export const FOOD_ITEMS: FoodItemMeta[] = [
   { id: "cabbages",  label: "Cabbages",  icon: "🥬", order: 1, category: "veggie" },
   { id: "turnips",   label: "Turnips",   icon: "🥕", order: 2, category: "veggie" },
   { id: "peas",      label: "Peas",      icon: "🫛", order: 3, category: "veggie" },
-  { id: "squash",    label: "Squash",    icon: "🎃", order: 4, category: "veggie" },
+  { id: "squash",    label: "Gourd",     icon: "🎃", order: 4, category: "veggie" },
   { id: "fava",      label: "Fava Beans", icon: "🫘", order: 5, category: "veggie" },
   // Fruits
   { id: "apples",    label: "Apples",    icon: "🍎", iconImage: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/apple.png?v=2", order: 1, category: "fruit" },
   { id: "pears",     label: "Pears",     icon: "🍐", order: 2, category: "fruit" },
   { id: "cherries",  label: "Cherries",  icon: "🍒", order: 3, category: "fruit" },
+  { id: "strawberries", label: "Strawberries", icon: "🍓", order: 4, category: "fruit" },
   // Animal products
   { id: "meat",      label: "Meat",      icon: "🍖", order: 1, category: "animal" },
   { id: "eggs",      label: "Eggs",      icon: "🥚", order: 2, category: "animal" },
@@ -64,9 +72,10 @@ export const FOOD_ITEMS: FoodItemMeta[] = [
   { id: "nuts",      label: "Nuts",      icon: "🌰", order: 3, category: "wild" },
   // Cooked meals — made at the Kitchen; stretch raw food into more portions and
   // count toward food diversity (a hot meal). See crafting.ts kitchen recipes.
-  { id: "porridge",    label: "Porridge",    icon: "🥣", iconImage: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/porridge.png",    order: 1, category: "cooked" },
-  { id: "hearth_stew", label: "Hearth Stew", icon: "🍲", iconImage: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/hearth_stew.png", order: 2, category: "cooked" },
-  { id: "river_stew",  label: "River Stew",  icon: "🍲", iconImage: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/river_stew.png",  order: 3, category: "cooked" },
+  { id: "porridge",    label: "Porridge",    icon: "🥣", iconImage: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/porridge.png",    order: 1, category: "cooked", kind: "meal" },
+  { id: "hearth_stew", label: "Hearth Stew", icon: "🍲", iconImage: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/hearth_stew.png", order: 2, category: "cooked", kind: "meal" },
+  { id: "river_stew",  label: "River Stew",  icon: "🍲", iconImage: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/river_stew.png",  order: 3, category: "cooked", kind: "meal" },
+  { id: "bone_broth",  label: "Bone Broth",  icon: "🍜", order: 4, category: "cooked", kind: "meal" },
 ];
 
 export const FOOD_ITEM_IDS: FoodItemType[] = FOOD_ITEMS.map((f) => f.id);

@@ -3,9 +3,11 @@ import { A } from "@solidjs/router";
 import { playSound } from "~/engine/sounds";
 import type { CompletedMission } from "@medieval-realm/shared/data/missions";
 import { formatReward, getMission } from "@medieval-realm/shared/data/missions";
+import { getEnemy } from "@medieval-realm/shared/data/enemies";
 import { STORY_CINEMATICS } from "~/data/cinematics";
 import CombatLog from "~/components/CombatLog";
 import CombatPlayback from "~/components/CombatPlayback";
+import EnemyCard from "~/components/EnemyCard";
 
 interface Props {
   result: CompletedMission;
@@ -212,6 +214,35 @@ export default function LootModal(props: Props) {
             </div>
           </Show>
 
+          {/* New foes faced — the reveal payoff for the "???" cards. Only genuine
+              surprises land here (reputation-known foes were never hidden). */}
+          <Show when={r().revealedEnemies?.length}>
+            <div class="loot-section" style={{ "animation-delay": "700ms" }}>
+              <div class="section-label">New foes faced</div>
+              <div style={{ display: "flex", gap: "10px", "flex-wrap": "wrap", "align-items": "flex-start" }}>
+                <For each={r().revealedEnemies}>
+                  {(id) => {
+                    const enemy = getEnemy(id);
+                    return enemy ? (
+                      <div style={{ display: "flex", "flex-direction": "column", "align-items": "center", gap: "3px" }}>
+                        <EnemyCard enemy={enemy} reveal="full" />
+                        <div style={{
+                          "font-size": "0.62rem", "font-style": "italic", "text-align": "center",
+                          color: enemy.boss ? "var(--accent-gold)" : "var(--text-muted)",
+                        }}>
+                          {enemy.boss ? "A foe you won't forget" : "new · in the Bestiary"}
+                        </div>
+                      </div>
+                    ) : null;
+                  }}
+                </For>
+              </div>
+              <div style={{ "font-size": "0.72rem", "margin-top": "6px" }}>
+                <A href="/chronicle" style={{ color: "var(--accent-gold)" }}>Find them in the Chronicle's Bestiary →</A>
+              </div>
+            </div>
+          </Show>
+
           {/* Combat summary */}
           <Show when={r().combatRounds}>
             <div class="loot-section" style={{
@@ -221,12 +252,9 @@ export default function LootModal(props: Props) {
               <Show when={r().combatLog?.length}>
                 {" · "}
                 <button
+                  class="btn-secondary"
                   onClick={() => setShowPlayback(true)}
-                  style={{
-                    background: "none", border: "none", cursor: "pointer",
-                    color: "var(--accent-gold)", "font-size": "0.85rem",
-                    padding: 0, "text-decoration": "underline",
-                  }}
+                  style={{ "font-size": "0.85rem" }}
                 >
                   ▶ Watch combat
                 </button>

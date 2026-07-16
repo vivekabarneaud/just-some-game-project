@@ -18,12 +18,19 @@ export interface ResourceDrop {
   chance: number;      // 0-1 probability per kill
   min: number;
   max: number;
+  /** Survives a rout: a "sheddable" drop (a fang knocked loose, a tuft of fur,
+   *  a dropped coin pouch) that can still be found when the enemy FLED rather
+   *  than died. Default false = the drop needs the carcass (hides, sinew, meat,
+   *  skulls), so a routed enemy yields none of it. */
+  keepOnRout?: boolean;
 }
 
 export interface ItemDrop {
   type: "item";
   itemId: string;      // item ID from items.ts
   chance: number;      // 0-1 probability per kill (typically low for bosses)
+  /** See ResourceDrop.keepOnRout. */
+  keepOnRout?: boolean;
 }
 
 export type LootDrop = ResourceDrop | ItemDrop;
@@ -43,6 +50,10 @@ export interface EnemyAbility {
   effect:
     | { type: "bleed"; pctPerRound: number; rounds: number }
     | { type: "poison"; pctPerRound: number; rounds: number }
+    /** A bite that has a `chance` (0-1) to infect the target with a lingering
+     *  condition carried home (the rabid boar's "froth"). Deals a normal hit;
+     *  the infection is the payload, not an in-combat DoT. */
+    | { type: "infect"; condition: "froth"; chance: number }
     | { type: "heal_self"; pct: number }
     | { type: "heal_ally"; pct: number }
     | { type: "summon"; enemyId: string; count: number }
@@ -75,12 +86,25 @@ export interface EnemyDefinition {
   };
   tags: EnemyTag[];
   boss?: boolean;
+  /** The settlement already knows this foe by reputation before ever fighting it
+   *  (named in the journal, described by scouts, etc.). Its PORTRAIT + name show
+   *  on mission cards pre-encounter, but its combat measure (HP, abilities, stat
+   *  hints) stays hidden until actually fought. Contrast the default: unknown
+   *  creatures stay a "???" card until first encountered. */
+  revealPortrait?: boolean;
   /** Targeting style. Default "tactical" (threat-aware scored pick). Orthogonal to boss. */
   aiTier?: EnemyAITier;
   /** Resistance to forced-target taunt effects. Default "none". */
   tauntImmunity?: EnemyTauntImmunity;
   abilities?: EnemyAbility[];
   loot?: LootDrop[];   // drops on kill — empty/undefined means no drops
+  /** Beast rout: this creature BREAKS AND FLEES when its HP falls to/below this
+   *  fraction of max (0-1), surviving instead of being killed. A fled enemy
+   *  counts as defeated (field cleared = victory, full performance) but yields
+   *  only keepOnRout loot. Omit for things that fight to the end: undead (no
+   *  fear to break), maddened/rabid beasts (the boars), swarms, and any boss
+   *  meant to make its death a deliberate choice. */
+  routsAt?: number;
 }
 
 export const ENEMIES: EnemyDefinition[] = [
@@ -132,7 +156,7 @@ export const ENEMIES: EnemyDefinition[] = [
     name: "Grey Wolf",
     icon: "🐺",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/wild_wolf.png",
-    description: "Lean, hungry, and hunting in packs. Since Le Declin, even the wolves have grown bolder.",
+    description: "Lean, hungry, and hunting in packs. A hard season has made them bold, and a bold wolf is a dangerous one.",
     tier: 1,
     stats: { str: 4, dex: 5, int: 1, vit: 5, wis: 1 },
     tags: ["beast"],
@@ -141,11 +165,11 @@ export const ENEMIES: EnemyDefinition[] = [
         effect: { type: "bleed", pctPerRound: 20, rounds: 2 } },
     ],
     loot: [
-      { type: "resource", resource: "wheat", chance: 0.4, min: 2, max: 6 },
       { type: "resource", resource: "wolfhide_strip", chance: 0.3, min: 1, max: 1 },
-      { type: "resource", resource: "fang", chance: 0.2, min: 1, max: 2 },
+      { type: "resource", resource: "fang", chance: 0.5, min: 1, max: 2, keepOnRout: true },
       { type: "resource", resource: "sinew_cord", chance: 0.15, min: 1, max: 1 },
     ],
+    routsAt: 0.3, // a pack wolf breaks when the fight turns against it
     aiTier: "feral"
   },
   {
@@ -191,6 +215,7 @@ export const ENEMIES: EnemyDefinition[] = [
     id: "gaunt_wolf",
     name: "Gaunt Wolf",
     icon: "🐺",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/gaunt_wolf.png",
     description: "A lean yearling, kicked out of the pack too early. Hungry and nervous, but still a predator.",
     tier: 1,
     stats: { str: 3, dex: 4, int: 1, vit: 3, wis: 1 },
@@ -199,6 +224,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "meat", chance: 0.3, min: 1, max: 3 },
       { type: "resource", resource: "wolfhide_strip", chance: 0.15, min: 1, max: 1 },
     ],
+    routsAt: 0.35, // a nervous, starving yearling — breaks and runs easily
     aiTier: "feral"
   },
   {
@@ -409,6 +435,7 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "💀",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/captain_hale_ghost_portrait.png",
     description: "He held the post for forty-seven days after the order to fall back never came. The Wastes wore him down to grief and silence. Now he stands his line still, and the dead under him will not let go.",
+    revealPortrait: true, // his name + story are in the journal before we face him
     tier: 3,
     stats: { str: 14, dex: 14, int: 24, vit: 26, wis: 18 },
     tags: ["ghost", "magical"],
@@ -417,7 +444,7 @@ export const ENEMIES: EnemyDefinition[] = [
     tauntImmunity: "normal", // bosses don't fall for warrior taunt
     abilities: [
       { id: "spectral_lash", name: "Spectral Lash", icon: "💢", cooldown: 2, trigger: "always",
-        effect: { type: "damage_mult", mult: 2.0, targets: 1 } },
+        effect: { type: "damage_mult", mult: 1.75, targets: 1 } },
       { id: "captains_command", name: "Captain's Command", icon: "📣", cooldown: 4, trigger: "always",
         effect: { type: "buff_allies", stat: "str", pct: 25, rounds: 2 } },
     ],
@@ -818,8 +845,9 @@ export const ENEMIES: EnemyDefinition[] = [
     loot: [
       { type: "resource", resource: "meat", chance: 0.5, min: 3, max: 8 },
       { type: "resource", resource: "thick_pelt", chance: 0.35, min: 1, max: 1 },
-      { type: "resource", resource: "bear_claw", chance: 0.2, min: 1, max: 2 },
+      { type: "resource", resource: "bear_claw", chance: 0.2, min: 1, max: 2, keepOnRout: true },
     ],
+    routsAt: 0.3, // a hurt bear disengages (mostly moot — bears are "wide berth" now)
     aiTier: "feral"
   },
   {
@@ -847,11 +875,18 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 1,
     stats: { str: 7, dex: 5, int: 1, vit: 8, wis: 1 },
     tags: ["beast"],
-    abilities: [{ id: "charge", name: "Charge", icon: "💨", cooldown: 99, trigger: "round_start", effect: { type: "damage_mult", mult: 1.5, targets: 1 } }],
+    abilities: [
+      { id: "charge", name: "Charge", icon: "💨", cooldown: 99, trigger: "round_start", effect: { type: "damage_mult", mult: 1.5, targets: 1 } },
+      // The frothing bite: a normal hit that rarely (10%) infects with the froth,
+      // a bite-sickness carried home. Cured only by a Boar's-Bane Salve.
+      { id: "frothing_bite", name: "Frothing Bite", icon: "🤢", cooldown: 1, trigger: "always", effect: { type: "infect", condition: "froth", chance: 0.1 } },
+    ],
     loot: [
       { type: "resource", resource: "meat", chance: 0.5, min: 2, max: 6 },
       { type: "resource", resource: "bristlehide", chance: 0.3, min: 1, max: 1 },
-      { type: "resource", resource: "tusk_shard", chance: 0.2, min: 1, max: 1 },
+      { type: "resource", resource: "tusk_shard", chance: 1, min: 1, max: 1 },
+      { type: "resource", resource: "cloven_hoof", chance: 0.6, min: 1, max: 2 },
+      { type: "resource", resource: "boar_skull", chance: 0.15, min: 1, max: 1 },
     ],
     aiTier: "feral"
   },
@@ -859,6 +894,8 @@ export const ENEMIES: EnemyDefinition[] = [
     id: "tainted_boar",
     name: "Tainted Boar",
     icon: "🐗",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/tainted_boar.png",
+    revealPortrait: true, // the scouts came back describing them ("What the Scouts Saw")
     description: "Grey-mottled and weeping black, reeking of cold metal. A spear through the heart barely slows it; the body keeps moving long after it should have stopped, as if the death will not take. Whatever is in these beasts will not let them die easily.",
     tier: 2,
     stats: { str: 8, dex: 4, int: 1, vit: 13, wis: 1 },
@@ -866,7 +903,9 @@ export const ENEMIES: EnemyDefinition[] = [
     abilities: [{ id: "charge", name: "Charge", icon: "💨", cooldown: 99, trigger: "round_start", effect: { type: "damage_mult", mult: 1.5, targets: 1 } }],
     loot: [
       { type: "resource", resource: "bristlehide", chance: 0.4, min: 1, max: 1 },
-      { type: "resource", resource: "tusk_shard", chance: 0.3, min: 1, max: 1 },
+      { type: "resource", resource: "tusk_shard", chance: 1, min: 1, max: 1 },
+      { type: "resource", resource: "cloven_hoof", chance: 0.8, min: 1, max: 2 },
+      { type: "resource", resource: "boar_skull", chance: 0.4, min: 1, max: 1 },
     ],
     aiTier: "feral"
   },
@@ -874,6 +913,8 @@ export const ENEMIES: EnemyDefinition[] = [
     id: "tainted_patriarch_boar",
     name: "Tainted Patriarch",
     icon: "🐗",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/tainted_patriarch.png",
+    revealPortrait: true, // the mission fiction describes it before we reach the spring
     description: "The old father of the herd, and the most ruined of them. Grey to the bone, weeping black from a dozen wounds that never close. It should have died a season ago. It did not. It guards the bad water as though it were still its own.",
     tier: 3,
     stats: { str: 11, dex: 4, int: 1, vit: 18, wis: 1 },
@@ -883,6 +924,8 @@ export const ENEMIES: EnemyDefinition[] = [
     loot: [
       { type: "resource", resource: "tusk_shard", chance: 1, min: 2, max: 3 },
       { type: "resource", resource: "bristlehide", chance: 0.6, min: 1, max: 2 },
+      { type: "resource", resource: "cloven_hoof", chance: 1, min: 2, max: 3 },
+      { type: "resource", resource: "boar_skull", chance: 1, min: 1, max: 1 },
     ],
     aiTier: "feral"
   },
@@ -962,6 +1005,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "sinew_cord", chance: 0.4, min: 1, max: 2 },
       { type: "resource", resource: "meat", chance: 0.8, min: 4, max: 10 },
     ],
+    // No routsAt: the pack leader stands and fights to the death — it's the
+    // deliberate reckoning the mission sends you for, not a beast to shoo off.
   },
   /* STASHED 2026-06-28 — Bog Witch enemy retired alongside the stale `bog_witch_lair`
      mission. Preserved for a future remake per the tragic Aldith/Ada design in

@@ -20,6 +20,8 @@ And the **innocuous front** that hooks the chain, the `marsh_clearing` mission "
 
 **The tragedy.** Her granddaughter **Ada** died (ordinary death, away from the bad ground). Aldith could not let go. After Ada died she **withdrew deeper into the marsh** to be alone with the grief, and the thinning-edge was waiting where she went. Hearing what she thought was Ada's voice in the reeds, she slid grief-blind into a craft that, on canon, is **resurrection-via-sacrifice**: to bring Ada back she would need a **living child's body as a vessel** (Ada's spirit poured in, the host child *erased*). This is the exact sin Halldora refused and her circle took into the Cult (see `[[project_magic_rules]]`). Aldith reached it **independently**, not as Cult, which is *why* she foreshadows Story 14 and lands retroactively.
 
+**Widow (LOCKED 2026-07-06).** Aldith is a **widow of a roughly forty-year marriage** — the *"forty years feeding two"* in the bread letter is her and her **late husband**, NOT Ada. She is **doubly bereaved**: she lost her husband (the decades-long habit of cooking for two she cannot unlearn → the compulsive baking, loaves left for the birds), and then, more recently, her granddaughter Ada. This is *why* she is utterly alone in the fen and *why* the baking-for-two persists. On the surface the player reads only "a lonely widow who bakes too much"; the grief-engine underneath is the husband-habit turned toward a dead grandchild.
+
 **Why a child.** Hollowed and decaying, she needs *living* Aether to work, and a child has the most. Folk word: "pure." Truth: Aether. (Two-track.)
 
 **The ambiguity (KEEP).** The "Ada" she hears **may not be Ada at all** — it may be the bad ground *wearing the girl's voice*, feeding on her grief. She might erase a living child for a ghost that isn't even her granddaughter. Neither Aldith nor the player can ever be certain.
@@ -35,7 +37,7 @@ And the **innocuous front** that hooks the chain, the `marsh_clearing` mission "
 ## Personality & tells
 - **Register:** warm, hospitable, grandmotherly on the surface; the horror is *tenderness pointed wrong*. Every step of her descent is love, twisted.
 - **The "off" tell is doubled (keep both):**
-  1. **The offerings turn** — what she asks for drifts mundane → strange: herbs → grain → a coin → bone → grave-dust → *a thing with a name on it.* Spent from real inventory, so each leaving-the-hand *feels* like a small wrongness.
+  1. **The offerings turn** — what she asks for drifts mundane → strange: herbs → grain → a coin → bone → grave-dust → *a thing with a name on it.* Spent from real inventory, so each leaving-the-hand *feels* like a small wrongness. **The full drift (coin / grave-dust / a named thing) is the DEFERRED deep version** — it belongs to the descent, when the Lord's alarm is high enough to carry it and the eerier sources (grave-dust from the restless dead, a shard of a grief-bound soul) are reliably available. The mid-descent eerie ask to bank: the **`cursed_spirit` ("a restless soul bound to this place by old grief") drops a `soul_shard`** — a grief-bound witch asking for a shard of a grief-bound soul.
   2. **The gatherers come back having said too much** — her **tea** softly charms the team into talking, and she mines them for the settlement's secrets, including the children.
   - Plus, in the deep marsh, **the drowned dead rising** (revenants).
 - **The turn:** at tea she notices / shows the portrait → the "she looks like Nell" beat → she begins asking about Nell → the demand surfaces: Nell's **body as a vessel** (erased). The Lord's flat refusal is the mask slipping. **Nell never goes to the marsh — the asking is the horror, not the act.**
@@ -90,10 +92,19 @@ Not a recruit, so no talent tree. Combat is the existing `bog_witch` boss kit: *
 - **The portrait** of her and Ada — the turn pivots on it.
 - **Bread on the sill / the blue flowers by the door** — small domestic motifs from the letters the marsh later weaponizes as "proof."
 
+## Opening arc — BUILT (alpha, 2026-07-06)
+The `the_bog_witch` story-chain (`frontend/src/engine/story/chains.ts`) + missions (`sideChainMissions.ts`) + chronicle beats now ship the **whole opening drip**, mystery-only, dark descent still deferred:
+1. `marsh_clearing` ("Clear the Marshes") → beat **ch1_reeds_voice** (a voice offers a bargain; settlers don't know her).
+2. `reeds_bargain` ("The Reeds' Price", **5** wheat) → beat **ch1_reeds_price** (the easy trade; she stays distant).
+3. `fen_barter` ("Tea at Aldith's", **3** wheat, repeatable) → after **×3**, beat **ch1_reeds_tea**: the tea softly mines the gatherers, Bett names her **Aldith**, the **widow** who bakes too much; the Lord offers to bring her behind the walls and she **refuses** (rooted to the fen); Bett blurts the **painting → "she's the image of our Nell"** and tells her everything. Cozy on the surface; dread is all the player's.
+4. **The drift as a descending-count recipe** (each a light `deployItems` card, guaranteed, `unique`, teal `sideChain` "The Reeds"): `reeds_fangs` (**3** `fang`) → `reeds_hooves` (**2** `cloven_hoof`) → `reeds_skull` (**1** `boar_skull`). Numbers shrink, grimness rises; each is compliable alone, the *pattern* is the horror.
+5. On the skull → beat **ch1_reeds_doubt** ("Grain, and only grain"): the Lord recaps the shape (3→2→1), notes he knows her name and *"nothing else true… not who it is she has lost,"* and **draws a line — grain only from here, one more such ask and we are done** — and does not tell Edda. **The cozy grain `fen_barter` stays live** (he capped the escalation, not the relationship), so no orphaned mission, and the line is the exact hook the deferred descent crosses.
+
+Supporting build: durable `missionCompletions` tally + `MissionRequirements.missionCount` + `awaitMissionCount` chain primitive; new materials `cloven_hoof` / `boar_skull` (drop from boars; `fang` bumped to 0.5 and wolf grain-drop removed); chain + primitive tests.
+
 ## Open threads / TBD
-- **Whole chain is design-locked but UNBUILT** beyond the front. Banked 2026-06-22, post-prune / likely post-alpha.
-- **BUILT today:** only the front, `marsh_clearing` ("Clear the Marshes") — `unique`, *untagged* (reads as an ordinary errand), requires `story_1_scouting`, rewards fenbalm + nettle + gold, encounters `marsh_adder` ×3, `deployCost: 5`, `difficulty: 2`. Its completion is the **hook** that later opens **"The Cabin in the Reeds."**
-- **NOT yet built:** the discovery/scout-report epilogue on `marsh_clearing`; the **"The Cabin in the Reeds"** follow-up mission; the side-chronicle vignettes + the **letter-quoting** in the journal; the **founder-memory vignette** system (Edda's prayer); the **offering→peaceful** tradeoff beat (mechanic B, post-reveal); the final kill mission; the later **ally-return** beat.
+- **The dark descent is design-locked but UNBUILT.** Banked 2026-06-22, post-alpha.
+- **NOT yet built:** the discovery/scout-report epilogue on `marsh_clearing`; the **"The Cabin in the Reeds"** follow-up mission; the deeper offering drift (coin / grave-dust / `soul_shard` / a named thing); the side-chronicle vignettes + the **letter-quoting** in the journal; the **founder-memory vignette** system (Edda's prayer); the **offering→peaceful** tradeoff beat (mechanic B, post-reveal); the final kill mission; the later **ally-return** beat.
 - **Stale placeholder to reconcile:** the existing apprentice mission **`bog_witch_lair` ("The Bog Witch's Lair")** is a generic "end this" kill quest that **predates** the Aldith/Ada narrative and contradicts its tone (linear-merciful, name-the-grief). Flag: when the chain is built, either retire/rework `bog_witch_lair` or fold it in, so there is one canonical Bog Witch, not two.
 - **Fenbalm PAIR (banked):** a recurring "gather at the fen" chore (unlocks via `missionDone: marsh_clearing`) **and** a Fenbalm remedy recipe (winter-fever / deep-cough) — build together when alchemy is touched. **Post-chain, the fen-gather is adders only** (revenants gone with her).
 - **Reward TBD:** recipe vs Greymantle vs small boon for completing the chain.

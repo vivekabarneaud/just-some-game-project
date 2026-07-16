@@ -25,7 +25,9 @@ export const HIVE_COST_MULTIPLIER = 1.3;
 export const HIVE_GOLD_PER_LEVEL = 20;
 export const HIVE_BASE_BUILD_TIME = 5; // seconds
 export const HIVE_BUILD_TIME_MULTIPLIER = 1.4;
-export const MAX_HIVES = 4;
+// A single apiary the settlement upgrades as it grows (upgrades are capped by
+// Town Hall level, like every other building). Not a multi-slot yard.
+export const MAX_HIVES = 1;
 export const HIVE_MAX_LEVEL = 5;
 export const HONEY_BASE_STORAGE = 30;
 export const HONEY_STORAGE_PER_LEVEL = 15;

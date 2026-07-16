@@ -387,6 +387,51 @@ export const BUILDINGS: BuildingDefinition[] = [
     // and there's actual meat surplus to motivate a cellar.
     unlockedAt: { requiresBuildings: ["hunting_camp"] },
   },
+  // ── Water infrastructure (weather → yield, see DESIGN_WEATHER_YIELD.md) ──
+  {
+    id: "well",
+    name: "Well",
+    category: "settlement",
+    description:
+      "A dug well tapping the groundwater. Supplies water year-round, though the flow drops to a trickle in a drought.",
+    icon: "💧",
+    maxLevel: 5,
+    levels: generateLevels({ wood: 30, stone: 40 }, 8, undefined, 5),
+    requiredTier: "village",
+  },
+  {
+    id: "cistern",
+    name: "Cistern",
+    category: "settlement",
+    description:
+      "A great stone tank that stores water and catches the rain. It fills fast in wet years, so you can bank water against the dry ones.",
+    icon: "🛢️",
+    maxLevel: 5,
+    levels: generateLevels({ wood: 40, stone: 70 }, 10, undefined, 5),
+    requiredTier: "village",
+  },
+  {
+    id: "irrigation_works",
+    name: "Irrigation Channels",
+    category: "settlement",
+    description:
+      "Ditches and sluices that carry stored water to the fields. In dry and drought years they spend water to keep the crops from withering — as long as the cistern holds out.",
+    icon: "💦",
+    maxLevel: 3,
+    levels: generateLevels({ wood: 50, stone: 40 }, 10, undefined, 3),
+    requiredTier: "village",
+  },
+  {
+    id: "drainage_works",
+    name: "Drainage Ditches",
+    category: "settlement",
+    description:
+      "Channels that shed excess water in the wettest years, sparing the roots from rot — and banking some of the runoff back into the cistern.",
+    icon: "🌊",
+    maxLevel: 3,
+    levels: generateLevels({ wood: 45, stone: 35 }, 10, undefined, 3),
+    requiredTier: "village",
+  },
 
   // Camp tier — Woodworker (wood-based equipment)
   {
@@ -474,7 +519,11 @@ export const BUILDINGS: BuildingDefinition[] = [
     icon: "🫐",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/forager_hut.png",
     maxLevel: 10,
-    levels: generateLevels({ wood: 30, stone: 5 }, 6, { resource: "food", baseRate: 8, foodType: "berries" }, 10),
+    // baseRate 10 (was 8): a modest bump to help cover the Lord now counting as
+    // a mouth (the founding household is six, not five). Partial offset by
+    // design — the Lord adds ~5 food/h of demand; this returns ~2/h at Lv.1,
+    // more as it levels.
+    levels: generateLevels({ wood: 30, stone: 5 }, 6, { resource: "food", baseRate: 10, foodType: "berries" }, 10),
     requiredTier: "camp",
   },
 
@@ -783,7 +832,7 @@ export function applyMasonTimeReduction(buildTime: number, masonLevel: number): 
 export const HOUSES_POP_PER_LEVEL = 8;
 
 // Base population (you always have some citizens even without houses)
-export const BASE_POPULATION = 5;
+export const BASE_POPULATION = 6;
 
 // Food consumed per citizen per hour
 export const FOOD_PER_CITIZEN_PER_HOUR = 5;
@@ -849,6 +898,21 @@ export const ALE_FOOD_COST_PER_BREWERY_LEVEL = 3; // food consumed/hour to make 
 export const ALE_CONSUMED_PER_TAVERN_LEVEL = 4; // ale consumed/hour
 export const ALE_STORAGE_BASE = 50;
 export const ALE_STORAGE_PER_BREWERY_LEVEL = 30;
+
+// Mead system — brewed from honey at the Brewery. Deliberately GENTLE: mead is a
+// treat, not a honey sink that starves the honey-cake/porridge recipes.
+export const MEAD_PRODUCTION_PER_BREWERY_LEVEL = 2; // mead/hour
+export const MEAD_HONEY_COST_PER_BREWERY_LEVEL = 2; // honey consumed/hour to make mead
+export const MEAD_CONSUMED_PER_TAVERN_LEVEL = 2; // mead consumed/hour
+export const MEAD_STORAGE_BASE = 30;
+export const MEAD_STORAGE_PER_BREWERY_LEVEL = 20;
+
+// Cider system — pressed from orchard apples at the Brewery (Lv.3). Gentle, like mead.
+export const CIDER_PRODUCTION_PER_BREWERY_LEVEL = 3; // cider/hour
+export const CIDER_APPLE_COST_PER_BREWERY_LEVEL = 2; // apples consumed/hour to press cider
+export const CIDER_CONSUMED_PER_TAVERN_LEVEL = 3; // cider consumed/hour
+export const CIDER_STORAGE_BASE = 40;
+export const CIDER_STORAGE_PER_BREWERY_LEVEL = 25;
 
 // Happiness
 export const SHRINE_HAPPINESS_PER_LEVEL = 3;
@@ -921,4 +985,40 @@ export function getBuildingImageById(id: string, level: number): string | undefi
     if (file) return `${CDN}/${file}.png`;
   }
   return undefined;
+}
+
+// ─── Building staffing (Phase 1) ───────────────────────────────────
+// Coverage model: a building runs at full yield when its worker slots are
+// filled. Named staff fill slots — founders never leave; adventurers leave
+// when deployed. Kids are FLAVOR (0 slots). The player benches citizens to
+// cover gaps. Output FLOORS at the previous level's full yield, so leveling
+// never nerfs — it opens capacity you realize by staffing. See
+// getBuildingStaffing() in gameState. Only buildings in BUILDING_STAFF are
+// affected; everything else stays at 100% untouched.
+export const STAFF_CAPACITY_BY_LEVEL = [1, 1, 2, 3, 5, 10] as const;
+export function staffCapacity(level: number): number {
+  if (level <= 0) return 0;
+  return STAFF_CAPACITY_BY_LEVEL[Math.min(level, STAFF_CAPACITY_BY_LEVEL.length) - 1];
+}
+
+/** An unstaffed level-1 building still limps along at this fraction (there's no
+ *  prior level to floor at). "The folk pitch in." */
+export const STAFF_LVL1_FLOOR = 0.5;
+
+export interface BuildingStaffConfig {
+  founders?: string[];    // founding_characters ids — always present
+  adventurers?: string[]; // premade ids — present unless deployed
+  kids?: string[];        // flavor labels only (0 slots)
+}
+
+export const BUILDING_STAFF: Record<string, BuildingStaffConfig> = {
+  lumber_mill: { founders: ["jory"] },
+  quarry: { founders: ["tomas"] },
+  forager_hut: { founders: ["edda"], kids: ["Nell"] },
+  hunting_camp: { adventurers: ["char_000"] },                              // Brenna
+  fishing_hut: { adventurers: ["char_021"], kids: ["the Thornwood boy"] },  // Godric
+};
+
+export function isStaffable(buildingId: string): boolean {
+  return buildingId in BUILDING_STAFF;
 }

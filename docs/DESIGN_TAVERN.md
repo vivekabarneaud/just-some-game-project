@@ -182,3 +182,26 @@ Playtest raised two coupled questions about how occupancy reads and behaves:
 
 These interlock (guests eat what's served), so build them as one pass once the
 model (average-with-better-UI vs discrete guests) is chosen.
+
+---
+
+## Tavern v2 — brainstorm (July 2026, from playtest)
+
+A batch of UX + mechanic ideas. Grouped by how deep they cut. NOT locked; a phased plan.
+
+**Phase 1 — display / UX (shallow, no model change):**
+- **Consolidate the "Rooms & travelers" stats.** The 4 boxes (Rooms / Occupancy% / Beds filled / Gold-per-day) are noisy. Collapse toward one clear line, e.g. **"1 / 1 beds filled"** (+ keep gold/day). NOTE: occupancy is currently the *abstract average-fill* model, so "beds filled" = round(occupancy × rooms); a truly discrete "N/M beds" wants the discrete-guests model (Phase 3).
+- **Menu in two columns: Dishes | Drinks.** Drinks column shows **"Build a brewery first"** when there's no brewery; otherwise ale/drinks.
+- **Menu management:** replace the per-row "On the menu / Serve" toggle with a **remove (🗑) affordance** (row stays, disabled) + an **"＋ Add a dish"** row that opens a modal to pick several dishes at once, capped by a **tavern-level limit**. Same pattern for drinks.
+
+**Phase 2 — auto-cook + ingredient-based availability (mechanic change):**
+- Today the player manually cooks dishes at the kitchen to build stock, and the tavern serves from that cooked stock. Proposal: **auto-cook** — the kitchen continuously turns raw ingredients into its dishes, and the tavern menu offers a dish **if its ingredients are in stock** (not if a cooked unit sits in inventory). Serving consumes ingredients.
+- CAVEAT: cooked meals (porridge/stew/…) are *real food types in the larder* (citizens eat them) and feed the crop→recipe→loyalty gifting loop (Edda). So auto-cook automates the existing kitchen loop; it must not break cooked meals as citizen food / gifts. Ties to `[[project_worker_assignment]]` (Lord cooks by default; assigned staff buff, e.g. Elspeth → bonus potions).
+
+**Phase 3 — the guest list (new system, biggest):**
+- Show **who is here right now**: named + typed guests, e.g. *"Cobb · 2 travelers · 1 homeless citizen."* Requires **discrete guest modelling**, which the original design deferred (abstract occupancy). Lovely flavor payoff; the most infra. Merchants-in-residence (Cobb) tie to the traveling-merchant system.
+
+**Recommended order:** Phase 1 (fast, visible), then Phase 2 (the satisfying idle loop), then Phase 3 (flavor). Each is a self-contained pass.
+
+**Phase 4 — the ledger (stats / monitoring, requested July 2026):**
+A little tavern-keeping dashboard so the player can *read* how the house is doing over time, not just the current snapshot: **gold earned** (per day / running total), **most-eaten dish**, **ingredients consumed** (what the kitchen is burning through), busiest pricing, guests served, etc. Pairs naturally with Phase 2 (auto-cook makes ingredient consumption a real, trackable flow) and Phase 3 (guests served by type). Keep it cozy/legible, not a spreadsheet — a few headline numbers + a "what sold best" line. Needs lightweight running counters in tavern state (gold_earned_total, dish_served_counts, ingredient_consumed_counts).

@@ -1,46 +1,54 @@
 // ─── Overview flavor entries ────────────────────────────────────
-// One-or-two-sentence Lord-voice lines that surface on the Overview
-// page's "Matters to attend to today" card. Unlike chronicle entries
-// (which are *reflective* — looking back at moments that have passed),
-// these are *agenda-shaped*: the Lord narrating what feels pressing
-// right now. Adds a layer of "where am I in the story" mood to the
-// otherwise mechanical quest-count card.
+// Short Lord-voice lines on the Overview page's "Matters to attend to
+// today" card. Agenda-shaped reminders — "here's where we are, here's
+// what's next" — with the Lord's poetry kept, but brief. The full flavor
+// lives in the Chronicle; this is the sticky-note, in his hand.
 //
-// Authoring: each entry has a category (settlement / adventurers /
-// defense) and a trigger. Within a category, the latest matching
-// flavor wins. Across categories, every active flavor renders as its
-// own paragraph — so the player sees parallel priorities (e.g. "scout
-// the south" AND "raise a hall") at the same time. Keep entries
-// sparse: one per real mood shift, not one per quest.
+// AUTHORING RULE: one or two SHORT sentences. Keep the cadence, cut the
+// length; if it wants a third sentence, that belongs in the chronicle.
+//
+// The card is a BOARD OF LIVE CONCERNS, and it changes shape as you play:
+//  • settlement / defense are TEACHING tracks — they narrate the early
+//    loops, then GRADUATE (go silent) once mastered (see CATEGORY_GRADUATION),
+//    freeing the card. Within a category the latest match wins.
+//  • adventurers is the STORY spine — it never graduates; it follows the
+//    story missions onward.
+//  • chain threads (category "chain") are the secondary quest chains — each
+//    shows a one-line reminder WHILE it's open and disappears when resolved.
+//    Multiple can show at once (they're a to-do list of open threads).
 
 import type { GameState } from "~/engine/gameState";
 import { evalTrigger, type QuestTrigger } from "./quests";
 
-/** Top-level concerns the Lord narrates about. Each category tracks its own
- *  latest-matching flavor independently, so the Overview card can surface
- *  parallel priorities — "we need to scout the south" AND "we need a proper
- *  hall" at the same time. Mirrors the storyline split on the quest log. */
-export type FlavorCategory = "settlement" | "adventurers" | "defense";
+export type FlavorCategory = "settlement" | "adventurers" | "defense" | "chain";
 
 export interface OverviewFlavor {
   id: string;
-  /** Which concern this flavor belongs to. Flavors within a category
-   *  supersede each other; flavors across categories coexist. */
   category: FlavorCategory;
   triggers: QuestTrigger[];
   /** Default OR — set true to require every trigger satisfied. */
   requiresAll?: boolean;
-  /** 1-2 short sentences in the Lord's voice. Italic-muted on the card. */
+  /** ONE or TWO short sentences in the Lord's voice. Italic-muted on the card. */
   text: string;
 }
 
+/** A teaching track goes silent once ANY of its graduation triggers fire —
+ *  the player has clearly mastered it, so the card stops nagging and makes
+ *  room for live threads. Story + chains never graduate. */
+const CATEGORY_GRADUATION: Partial<Record<FlavorCategory, QuestTrigger[]>> = {
+  // Reaching Town: the player knows how to grow, and how to hold a wall.
+  // (Incoming raids still surface in the raids panel + the sidebar badge.)
+  settlement: [{ type: "th_level", level: 5 }],
+  defense: [{ type: "th_level", level: 5 }],
+};
+
 export const OVERVIEW_FLAVORS: OverviewFlavor[] = [
+  // ── Settlement (teaching track — graduates at Town) ──
   {
     id: "fresh_start",
     category: "settlement",
     triggers: [{ type: "game_start" }],
-    text:
-      "Edda counted the rations again this morning. Jory is at the tree line, Tomas at the ridge. The work is plain enough: timber, stone, food before the frost. The rest will come.",
+    text: "The work is plain: timber, stone, and food before the frost. The rest will keep until we are ready for it.",
   },
   {
     id: "foundations_set",
@@ -51,15 +59,13 @@ export const OVERVIEW_FLAVORS: OverviewFlavor[] = [
       { type: "building_built", buildingId: "forager_hut" },
     ],
     requiresAll: true,
-    text:
-      "The mill hums, the quarry knocks, the forest gives more than we expected. Edda has herbs to crush but no fire to cook them on, and the piles outside Jory's shop grow faster than the shelves inside.",
+    text: "The mill hums and the quarry knocks. Now for a hearth to cook on, and shelves for the plenty piling up at Jory's door.",
   },
   {
     id: "hunters_arriving",
     category: "settlement",
     triggers: [{ type: "chapter_unlocked", storyline: "settlement", chapter: 2 }],
-    text:
-      "A family of hunters walked in from the wilds, road-worn and asking for shelter. Edda walked the tents this morning, counting heads against bedrolls, and shook her head. The shape is set. What comes next is making room.",
+    text: "A family of hunters walked in from the wilds, road-worn and asking shelter. The work now is making room.",
   },
   {
     id: "hunters_settling",
@@ -69,101 +75,24 @@ export const OVERVIEW_FLAVORS: OverviewFlavor[] = [
       { type: "building_built", buildingId: "houses" },
     ],
     requiresAll: true,
-    text:
-      "The new family has settled in. The hunters bring meat enough to salt twice over. A new child runs the camp, smaller than Nell and louder; Nell barely looks up from Edda's herbs. The ration count is heavier by four. We will need more, faster.",
+    text: "The hunters have settled, and their meat salts twice over. But four more mouths at the table means we must find more, and faster.",
   },
   {
-    // Single merged flavor covering the guild-built / scouts-needed arc.
-    // Forward-looking and explicit about what scouting is for, so the player
-    // doesn't just see "we need scouts" without knowing why.
-    id: "guild_open_scouts_needed",
-    category: "adventurers",
-    triggers: [{ type: "quest_completed", questId: "heroes_wanted" }],
-    text:
-      "The guild hall is up. The country around us is still unknown. We will need to send scouts: to see what lives in the forest, where food can be gathered, and where the south might hold a threat we have not yet met.",
-  },
-  {
-    // Fires when the first scouting mission completes — the three-reports
-    // event banner has just played. Defense track points the player at
-    // walls; adventurers track shifts to "more recruits, longer missions"
-    // (supersedes guild_open_scouts_needed, which would otherwise sit
-    // stale saying "we need scouts" after the scouts have returned).
-    id: "scouts_returned_defense",
-    category: "defense",
-    triggers: [{ type: "story_mission_completed", missionId: "story_1_scouting" }],
-    text:
-      "The scouts have returned. The south is not empty, and what is in it is not friendly. Nothing is moving on us yet, but a holding without walls is an invitation. We will raise them while the quiet holds.",
-  },
-  {
-    id: "scouts_returned_adventurers",
-    category: "adventurers",
-    triggers: [{ type: "story_mission_completed", missionId: "story_1_scouting" }],
-    text:
-      "The first scouts proved themselves and came home. The next expedition will need more hands. We will keep recruiting, and we will send them further.",
-  },
-  {
-    // After the Old Watch (story_2): the guild is finding real things, and the
-    // map grows darker at its edges.
-    id: "old_watch_returned_adventurers",
-    category: "adventurers",
-    triggers: [{ type: "story_mission_completed", missionId: "story_2_ruins" }],
-    text:
-      "The team walked the old watch and came back with a tin chest and a colder story: the trees go wrong a few days further south than they went, and they felt it before they saw it. The guild is earning its keep, and the map grows bigger and darker at its edges. We will need more hands, and steadier ones.",
-  },
-  {
-    // After Past the Ruins (story_3): the team counted the days into the wastes
-    // and met the dead that do not bleed. Supersedes old_watch_returned_adventurers
-    // (later in the array, same category). Foreshadows the binding mechanic
-    // (story_4, Niamh) without naming her — steel is not enough down there.
-    id: "past_ruins_returned_adventurers",
-    category: "adventurers",
-    triggers: [{ type: "story_mission_completed", missionId: "story_3_dark_treeline" }],
-    text:
-      "The team went past the ruins and counted the days the way I asked. They came back changed. What walks the deep south does not bleed and does not tire, and good steel passed through it like smoke. We cannot hold a line against a thing we cannot touch. Whatever we send next, it will not be more of the same.",
-  },
-  {
-    // After the Old Watch (story_2): the ruin that was built to last, and failed.
-    id: "old_watch_returned_defense",
-    category: "defense",
-    triggers: [{ type: "story_mission_completed", missionId: "story_2_ruins" }],
-    text:
-      "Whoever raised the old watch built to last, and it failed all the same. That is a thing a wall ought to remember. The south is not merely unfriendly; it is old, and something was kept out here once. We raise our own walls higher, and we do not laugh at the people who came before.",
-  },
-  {
-    id: "more_raids_coming",
-    category: "defense",
-    triggers: [{ type: "quest_completed", questId: "baptism_of_fire" }],
-    text:
-      "The walls held. Tomas walked the perimeter twice before sleep, then twice more before dawn. That was the lightest thing the south can send. It will come back, angrier, and not alone next time. The walls will need to be higher, and we will need more hands on them.",
-  },
-  {
-    // Reaching Village tier (TH3) — the camp has become a village. Superseded
-    // by village_in_the_making once settlement Ch.4 opens (it's later in the
-    // array, so it wins when both fire).
+    // Village tier (TH3). Superseded by village_in_the_making at settlement Ch4.
     id: "village_tier_reached",
     category: "settlement",
     triggers: [{ type: "th_level", level: 3 }],
-    text:
-      "The camp is a village now, in the way it holds together as much as in name. More roofs than tents, more names than I can carry in my head, a market's worth of coming and going. It is the good kind of problem, the kind we came out here hoping to have. The work now is keeping every one of them fed through the next winter.",
+    text: "The camp holds together as a village now, not just in name. The work is keeping every mouth fed through the winter.",
   },
   {
-    // Fires the moment settlement Ch4 opens (the canvas-outgrowing event
-    // banner just played). Forward-looking: the hall is the next big
-    // settlement project, and the mill/quarry/market will need to grow
-    // alongside it. Stays active through the Ambition Rises and Road to
-    // Greatness chain — no later settlement flavor supersedes it yet.
     id: "village_in_the_making",
     category: "settlement",
     triggers: [{ type: "chapter_unlocked", storyline: "settlement", chapter: 4 }],
-    text:
-      "The camp has outgrown its tents. Edda calls the Town Hall 'the cupboard' and she is not joking. A proper hall is the next thing we need: somewhere indoors to decide things, somewhere the records keep. After that, the mill, the quarry, and the market will all need to grow with us.",
+    text: "We have outgrown our tents. A proper hall comes next, and the mill, the quarry, the market must all rise with it.",
   },
   {
-    // Population nudge. Placed LAST so it supersedes the other settlement lines
-    // whenever the settlement is genuinely short-handed (few adults) and has
-    // established itself enough to notice (guild built). Steers toward building
-    // houses to make room, and keeping the place healthy so newcomers come.
-    // Stops matching once the settlement grows, and the prior line returns.
+    // Population nudge — LAST so it supersedes when genuinely short-handed
+    // (few adults, guild built). Falls quiet once the settlement grows.
     id: "too_few_hands",
     category: "settlement",
     triggers: [
@@ -174,25 +103,122 @@ export const OVERVIEW_FLAVORS: OverviewFlavor[] = [
           s.citizens.adults < 4,
       },
     ],
-    text:
-      "We are still too few for the work in front of us, and the way to grow is to make room to grow. More houses, first: word travels that there is a bed and a warm hearth out here, and a settlement that keeps its larder full and its people content is one that folk walk toward. Build, and they will come.",
+    text: "We are still too few for the work ahead. Raise more roofs and keep the larder full, and folk will find their way to us.",
+  },
+
+  // ── Adventurers (the story spine — never graduates) ──
+  {
+    id: "guild_open_scouts_needed",
+    category: "adventurers",
+    triggers: [{ type: "quest_completed", questId: "heroes_wanted" }],
+    text: "The guild hall stands. Send scouts to learn what lives in the forest, and what waits in the south.",
+  },
+  {
+    id: "scouts_returned_adventurers",
+    category: "adventurers",
+    triggers: [{ type: "story_mission_completed", missionId: "story_1_scouting" }],
+    text: "The first scouts came home proven. Gather more hands, and send them further out.",
+  },
+  {
+    id: "old_watch_returned_adventurers",
+    category: "adventurers",
+    triggers: [{ type: "story_mission_completed", missionId: "story_2_ruins" }],
+    text: "The old watch gave up a chest, and a colder story with it. We will want more hands, and steadier ones.",
+  },
+  {
+    // Foreshadows the binding (story_4). Superseded by hale_bound below.
+    id: "past_ruins_returned_adventurers",
+    category: "adventurers",
+    triggers: [{ type: "story_mission_completed", missionId: "story_3_dark_treeline" }],
+    text: "What walks the deep south does not bleed; good steel passed through it like smoke. Whatever we send next cannot be more of the same.",
+  },
+  {
+    id: "hale_bound",
+    category: "adventurers",
+    triggers: [{ type: "story_mission_completed", missionId: "story_4_captains_rest" }],
+    text: "We laid Captain Hale to his rest at last. Niamh's binding lets our steel bite the dead, but only while she stands.",
+  },
+  {
+    id: "feldgrund_road",
+    category: "adventurers",
+    triggers: [{ type: "story_mission_completed", missionId: "story_5_old_tongue" }],
+    text: "The road north runs up to Feldgrund and its close, private folk. We go carefully, and we keep our word.",
+  },
+
+  // ── Defense (teaching track — graduates at Town) ──
+  {
+    id: "scouts_returned_defense",
+    category: "defense",
+    triggers: [{ type: "story_mission_completed", missionId: "story_1_scouting" }],
+    text: "The scouts found the south neither empty nor kind. We raise walls while the quiet holds.",
+  },
+  {
+    id: "old_watch_returned_defense",
+    category: "defense",
+    triggers: [{ type: "story_mission_completed", missionId: "story_2_ruins" }],
+    text: "The old watch was built to last, and failed all the same. We raise ours higher, and keep the better watch.",
+  },
+  {
+    id: "more_raids_coming",
+    category: "defense",
+    triggers: [{ type: "quest_completed", questId: "baptism_of_fire" }],
+    text: "The walls held, and that was the lightest thing the south can send. It will come again angrier; we build them higher.",
+  },
+
+  // ── Chain threads (secondary quest chains — show while open, vanish when
+  //    resolved; multiple can be live at once). One per chain with lore depth. ──
+  {
+    id: "thread_bog_witch",
+    category: "chain",
+    triggers: [{ type: "custom", check: (s) => s.completedUniqueMissionIds.includes("reeds_bargain") }],
+    text: "The old woman in the fen still sends her askings across the reeds. Grain, and only grain.",
+  },
+  {
+    id: "thread_tainted_spring",
+    category: "chain",
+    triggers: [{
+      type: "custom",
+      check: (s) =>
+        s.completedUniqueMissionIds.includes("bad_blood") &&
+        !s.completedUniqueMissionIds.includes("tainted_spring"),
+    }],
+    text: "Something in the bad water is turning the boars, and we have not yet found its source.",
+  },
+  {
+    id: "thread_woodcutter",
+    category: "chain",
+    triggers: [{
+      type: "custom",
+      check: (s) =>
+        s.completedUniqueMissionIds.includes("hester_rescue") &&
+        !s.completedUniqueMissionIds.includes("quiet_the_woods"),
+    }],
+    text: "Hester keeps to the tree line and her own silence. The woods past her are not yet quiet.",
   },
 ];
 
-/** Returns the latest matching flavor per category. Categories with no
- *  matching flavor return undefined for that key. The UI iterates the
- *  result in a fixed display order. */
-export function getCurrentOverviewFlavors(state: GameState): Partial<Record<FlavorCategory, OverviewFlavor>> {
-  const result: Partial<Record<FlavorCategory, OverviewFlavor>> = {};
+/** The card's live concerns, in display order: settlement → adventurers →
+ *  defense (each the latest match, unless the track has graduated), then every
+ *  open chain thread. Graduated teaching tracks and resolved chains drop out. */
+export function getCurrentOverviewFlavors(state: GameState): OverviewFlavor[] {
+  const perCat: Partial<Record<FlavorCategory, OverviewFlavor>> = {};
+  const chains: OverviewFlavor[] = [];
   for (const f of OVERVIEW_FLAVORS) {
     const fired = f.requiresAll
       ? f.triggers.every((t) => evalTrigger(t, state))
       : f.triggers.some((t) => evalTrigger(t, state));
-    if (fired) result[f.category] = f;
+    if (!fired) continue;
+    if (f.category === "chain") { chains.push(f); continue; }
+    const grad = CATEGORY_GRADUATION[f.category];
+    if (grad?.some((t) => evalTrigger(t, state))) continue; // track graduated → silent
+    perCat[f.category] = f; // latest match within a category wins
   }
-  return result;
+  const out: OverviewFlavor[] = [];
+  for (const cat of FLAVOR_CATEGORY_ORDER) if (perCat[cat]) out.push(perCat[cat]!);
+  out.push(...chains);
+  return out;
 }
 
-/** Display order on the Overview card. Settlement first because it's the
- *  primary loop; adventurers and defense come after as side concerns. */
+/** Display order for the fixed teaching/story tracks. Settlement first (the
+ *  primary loop); chain threads append after these. */
 export const FLAVOR_CATEGORY_ORDER: FlavorCategory[] = ["settlement", "adventurers", "defense"];

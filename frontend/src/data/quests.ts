@@ -307,28 +307,12 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     // edda_forager_hut memory is parked for now (no longer fires on the build);
     // it can be re-homed to a later check-in round when those land.
   },
-  {
-    id: "the_growing_pile",
-    storyline: "settlement",
-    chapter: 1,
-    title: "The Growing Pile",
-    narrative:
-      "Jory is laughing about it, mostly. He says the wood pile in front of his shop has its own opinions now, and it tripped him yesterday when he was carrying a saw. Tomas does not laugh. He has been stacking quarry stone behind the workshop, neat as a wall, and waiting for me to notice. They are both right. We need a roof over the surplus before the rain teaches us a lesson.",
-    objective: "Build a Warehouse",
-    icon: "🏚️",
-    triggers: [
-      { type: "building_built", buildingId: "lumber_mill" },
-      { type: "building_built", buildingId: "quarry" },
-    ],
-    requiresAll: true,
-    condition: (s) => (bldg(s, "warehouse")?.level ?? 0) >= 1,
-    rewards: [
-      { resource: "wood", amount: 50, label: "Wood" },
-      { resource: "stone", amount: 30, label: "Stone" },
-    ],
-    targetBuildingId: "warehouse",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/warehouse.png",
-  },
+  // NOTE: "The Growing Pile" (Warehouse) was cut here (2026-07-09). It was the
+  // 5th consecutive "build a thing" quest gating Ch1 → the hunters, and a
+  // storage optimization doesn't belong in the founding beat. The Warehouse is
+  // still freely buildable; overflow self-teaches via the cap warning. Recover
+  // the full quest from git history if we want it back (as a Ch2 or
+  // near-overflow-triggered nudge).
 
   // ╔══════════════════════════════════════════════════════════════╗
   // ║ SETTLEMENT — Chapter 2: The Hunters                         ║
@@ -341,7 +325,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     chapter: 2,
     title: "A Roof Over Their Heads",
     narrative:
-      "A family of hunters walked in from the wilds yesterday, lean and asking for shelter; no one sent them, they simply found us. The tents we have will not hold them. Edda has been saying for weeks that a settlement of six is a picnic, not a village; she will now say it with more conviction.",
+      "A family of hunters walked in from the wilds yesterday, lean and asking for shelter; no one sent them, they simply found us. The tents we have will not hold them. Edda has been saying for weeks that a settlement of six is a supper table, not a village; she will now say it with more conviction.",
     objective: "Build Houses",
     icon: "🏠",
     triggers: [{ type: "chapter_unlocked", storyline: "settlement", chapter: 2 }],

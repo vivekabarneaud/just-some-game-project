@@ -34,7 +34,7 @@ export const STORY_MISSIONS: StoryMission[] = [
     chapter: "Chapter 1: Ashes and Dust",
     name: "The Old Watch",
     description:
-      "The old watch your scouts mapped. Stone foundations, a half-standing tower, a collapsed well: the work of someone who built to last. They still failed. Send a team in. Bring someone who can hold a line if the place is not as empty as it looks.",
+      "The old watch your scouts mapped. Stone foundations, a half-standing tower, a collapsed well: the work of someone who built to last. They still failed. Send a team in to walk it and haul back what stone is worth carrying. No enemy that we know of, only whatever a dead place keeps. Tell them to note anything they cannot explain, and not to linger past dark.",
     icon: "🏚️",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/hilltop_ruins.png",
     slots: [{ class: "any" }, { class: "any" }],
@@ -46,8 +46,8 @@ export const STORY_MISSIONS: StoryMission[] = [
     deployCost: 10,
     difficulty: 1,
     minGuildLevel: 1,
-    tags: ["exploration", "combat"],
-    encounters: [{ enemyId: "giant_rat", count: 3 }, { enemyId: "wild_wolf", count: 1 }],
+    tags: ["exploration"],
+    guaranteed: true,
     chronicleEntryId: "ch1_garrison_ruins",
   },
   {
@@ -102,10 +102,14 @@ export const STORY_MISSIONS: StoryMission[] = [
     difficulty: 2,
     minGuildLevel: 1,
     tags: ["combat", "magical", "escort"],
+    // Interim alpha tuning: trimmed from boss + 3 wraiths + 5 spirits (an
+    // untuned engine-test load) down to boss + 1 wraith + 3 spirits, so a
+    // leveled team can win by protecting Niamh. Real Hale tuning comes when the
+    // story thread authors him (captain_hale_stub is still a stub).
     encounters: [
       { enemyId: "captain_hale_stub", count: 1 },
-      { enemyId: "wraith", count: 3 },
-      { enemyId: "cursed_spirit", count: 5 },
+      { enemyId: "wraith", count: 1 },
+      { enemyId: "cursed_spirit", count: 3 },
     ],
     npcAlly: {
       npcId: "niamh",

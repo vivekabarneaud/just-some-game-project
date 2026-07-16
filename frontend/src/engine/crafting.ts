@@ -1,9 +1,15 @@
 // ─── Crafting ───────────────────────────────────────────────────
 
+import type { DishKind } from "~/data/foods";
+
 export interface CraftingRecipe {
   id: string;
   name: string;
   icon: string;
+  /** For kitchen recipes: which tavern menu column this dish belongs to
+   *  (meal/drink/dessert). Every kitchen recipe is menu-eligible; an untagged
+   *  one defaults to "meal". The tavern cooks it to order from its `costs`. */
+  kind?: DishKind;
   /** Optional sprite. Used for bulk-resource recipes (clothing, potions) that
    *  don't have a corresponding ITEM entry. Equipment recipes fall back to
    *  the matching ItemDefinition.image via getItemByRecipe. */
@@ -13,8 +19,21 @@ export interface CraftingRecipe {
   costs: { resource: string; amount: number }[];
   produces: { resource: string; amount: number };
   craftTime: number; // game-seconds
+  /** Short flavor line shown on the recipe card (kitchen dishes especially, so
+   *  staples read as "food for the settlement" rather than a bare cost/output). */
+  description?: string;
   /** Explicit per-recipe tool requirement (overrides level-based gating) */
   requiredTool?: string;
+  /** Hidden at its building until unlocked (pushed into state.discoveredRecipes,
+   *  e.g. by a mission via the story-director's unlockRecipe). Undiscovered
+   *  discovery-recipes don't show and don't badge. */
+  requiresDiscovery?: boolean;
+}
+
+/** Is a discovery-gated recipe unlocked yet? Non-discovery recipes are always
+ *  "discovered". `discovered` is state.discoveredRecipes. */
+export function isRecipeDiscovered(r: CraftingRecipe, discovered: readonly string[]): boolean {
+  return !r.requiresDiscovery || discovered.includes(r.id);
 }
 
 // ─── Building Tools ─────────────────────────────────────────────
@@ -82,6 +101,20 @@ export interface ActiveCraft {
    *  Pending crafts do not tick. Promoted when a peer in the same building
    *  finishes (and that was the last copy of its recipe). */
   pending?: boolean;
+}
+
+/** Passive "keep cooking" runs much slower than a hand-cranked one-shot craft.
+ *  The active "Cook!" stays quick (a burst of food on demand); the kept-lit pot
+ *  is a slow, sustainable trickle so it doesn't shred the larder's raw
+ *  ingredients in a few minutes. At 4×, porridge (4 per 600s active) settles to
+ *  4 per 2400s = 1 porridge per 10 game-minutes. Bump this to make passive
+ *  cooking even gentler. */
+export const PASSIVE_COOK_TIME_MULT = 6;
+
+/** Per-batch timer for a recipe cooked passively (autoCook), vs its snappy
+ *  active craftTime. Kitchen-staple pots only ever use this path. */
+export function passiveCookTime(recipe: CraftingRecipe): number {
+  return recipe.craftTime * PASSIVE_COOK_TIME_MULT;
 }
 
 export const CRAFTING_RECIPES: CraftingRecipe[] = [
@@ -633,12 +666,27 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
   //    the auto-cook tick). "grain"/"wild" are aliases (any grain / any foraged). ──
   // Slow simmers (10-15 game-min/batch) so passive cooking reads as a steady
   // trickle (~20/h) with multi-hour ingredient durations, not an absurd burst.
-  { id: "porridge", name: "Porridge", icon: "🥣", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/porridge.png", building: "kitchen", minLevel: 1,
+  { id: "porridge", name: "Porridge", icon: "🥣", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/porridge.png", building: "kitchen", minLevel: 1, kind: "meal",
+    description: "Plain boiled grain, warm and filling. A daily staple — keep a pot on and it feeds the settlement, stretching raw grain into more portions.",
     costs: [{ resource: "grain", amount: 2 }], produces: { resource: "porridge", amount: 4 }, craftTime: 600 },
-  { id: "hearth_stew", name: "Hearth Stew", icon: "🍲", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/hearth_stew.png", building: "kitchen", minLevel: 1,
+  { id: "hearth_stew", name: "Hearth Stew", icon: "🍲", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/hearth_stew.png", building: "kitchen", minLevel: 1, kind: "meal",
+    description: "Meat and nuts simmered slow. A hearty staple that keeps the table full through a hard week — leave it on to feed the settlement.",
     costs: [{ resource: "meat", amount: 2 }, { resource: "nuts", amount: 2 }], produces: { resource: "hearth_stew", amount: 5 }, craftTime: 900 },
-  { id: "river_stew", name: "River Stew", icon: "🍲", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/river_stew.png", building: "kitchen", minLevel: 1,
+  { id: "river_stew", name: "River Stew", icon: "🍲", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/river_stew.png", building: "kitchen", minLevel: 1, kind: "meal",
+    description: "Fish and foraged berries in a thin, honest broth. A staple that stretches a lean larder to feed the settlement.",
     costs: [{ resource: "fish", amount: 2 }, { resource: "berries", amount: 1 }], produces: { resource: "river_stew", amount: 4 }, craftTime: 720 },
+  { id: "bone_broth", name: "Bone Broth", icon: "🍜", building: "kitchen", minLevel: 1, kind: "meal",
+    description: "Bones from the pens and the hunt, simmered long into a rich, marrowy broth. Nothing of the animal goes to waste, and a lean week goes further.",
+    costs: [{ resource: "bone", amount: 2 }], produces: { resource: "bone_broth", amount: 4 }, craftTime: 720 },
+  // Ale is NOT a kitchen recipe — it's brewed at the Brewery and served from the
+  // barrel as a stored-commodity menu drink (see TAVERN_COMMODITY_DRINKS + the
+  // menu-driven ale draw in the tick). Re-brewing already-brewed ale as a
+  // cook-to-order dish was nonsense; removed.
+  // Lavender dishes (grown at a lavender garden — see gardens.ts / herbs.ts).
+  { id: "lavender_tea", name: "Lavender Tea", icon: "🍵", building: "kitchen", minLevel: 2, kind: "drink",
+    costs: [{ resource: "lavender", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 30 },
+  { id: "lavender_honey_cake", name: "Lavender Honey Cake", icon: "🧁", building: "kitchen", minLevel: 3, kind: "dessert",
+    costs: [{ resource: "lavender", amount: 1 }, { resource: "honey", amount: 1 }, { resource: "grain", amount: 2 }], produces: { resource: "food", amount: 1 }, craftTime: 45 },
 
   // Village kitchen recipes (Lv 3-4) — proper cooking with ovens and prep tables
   { id: "cheese", name: "Cheese", icon: "🧀", building: "kitchen", minLevel: 3,
@@ -647,21 +695,27 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     costs: [{ resource: "meat", amount: 3 }, { resource: "grain", amount: 2 }], produces: { resource: "food", amount: 1 }, craftTime: 45 },
   { id: "cheese_bread", name: "Cheese Bread", icon: "🧀", building: "kitchen", minLevel: 3,
     costs: [{ resource: "milk", amount: 2 }, { resource: "grain", amount: 2 }], produces: { resource: "food", amount: 1 }, craftTime: 30 },
-  { id: "honeycake", name: "Honeycake", icon: "🍯", building: "kitchen", minLevel: 3,
+  { id: "honeycake", name: "Honeycake", icon: "🍯", building: "kitchen", minLevel: 3, kind: "dessert",
     costs: [{ resource: "grain", amount: 2 }, { resource: "honey", amount: 2 }, { resource: "eggs", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 30 },
-  { id: "fruit_tart", name: "Fruit Tart", icon: "🍎", building: "kitchen", minLevel: 4,
+  { id: "fruit_tart", name: "Fruit Tart", icon: "🍎", building: "kitchen", minLevel: 4, kind: "dessert",
     costs: [{ resource: "grain", amount: 2 }, { resource: "apples", amount: 1 }, { resource: "pears", amount: 1 }, { resource: "honey", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 45 },
+  // Strawberry jam — unlocked by the "Where's Nell?" beat (the_strawberry_patch
+  // chain calls unlockRecipe). Cultivated strawberries + honey; low level so the
+  // reward is usable the moment it's earned. Hidden until discovered.
+  { id: "strawberry_jam", name: "Strawberry Jam", icon: "🍓", building: "kitchen", minLevel: 1, kind: "dessert", requiresDiscovery: true,
+    description: "Cultivated strawberries preserved with honey. Not a staple, a small sweetness: a treat for the table that lifts the settlement's spirits.",
+    costs: [{ resource: "strawberries", amount: 3 }, { resource: "honey", amount: 1 }], produces: { resource: "food", amount: 2 }, craftTime: 30 },
 
   // Town kitchen recipes (Lv 5-6) — complex multi-ingredient dishes
   { id: "hunters_stew", name: "Hunter's Stew", icon: "🍲", building: "kitchen", minLevel: 5,
     costs: [{ resource: "meat", amount: 4 }, { resource: "turnips", amount: 2 }, { resource: "mushrooms", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
-  { id: "spiced_honeycake", name: "Spiced Honeycake", icon: "🍰", building: "kitchen", minLevel: 5,
+  { id: "spiced_honeycake", name: "Spiced Honeycake", icon: "🍰", building: "kitchen", minLevel: 5, kind: "dessert",
     costs: [{ resource: "grain", amount: 2 }, { resource: "honey", amount: 3 }, { resource: "eggs", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
   { id: "pea_mint_bowl", name: "Pea & Mint Bowl", icon: "🫛", building: "kitchen", minLevel: 5,
     costs: [{ resource: "peas", amount: 4 }, { resource: "milk", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 45 },
 
   // City kitchen recipes (Lv 7-8) — refined cuisine
-  { id: "cherry_cheese_plate", name: "Cherry Cheese Plate", icon: "🍒", building: "kitchen", minLevel: 7,
+  { id: "cherry_cheese_plate", name: "Cherry Cheese Plate", icon: "🍒", building: "kitchen", minLevel: 7, kind: "dessert",
     costs: [{ resource: "cherries", amount: 2 }, { resource: "milk", amount: 2 }, { resource: "nuts", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
   { id: "smoked_pork_roast", name: "Smoked Pork Roast", icon: "🍖", building: "kitchen", minLevel: 7,
     costs: [{ resource: "meat", amount: 5 }, { resource: "squash", amount: 1 }, { resource: "wood", amount: 2 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
@@ -674,11 +728,11 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
 
   { id: "spiced_stew", name: "Spiced Stew", icon: "🌶️", building: "kitchen", minLevel: 3,
     costs: [{ resource: "meat", amount: 3 }, { resource: "turnips", amount: 1 }, { resource: "pepper", amount: 1 }], produces: { resource: "food", amount: 2 }, craftTime: 45 },
-  { id: "cinnamon_honey_cake", name: "Cinnamon Honey Cake", icon: "🍰", building: "kitchen", minLevel: 4,
+  { id: "cinnamon_honey_cake", name: "Cinnamon Honey Cake", icon: "🍰", building: "kitchen", minLevel: 4, kind: "dessert",
     costs: [{ resource: "grain", amount: 2 }, { resource: "honey", amount: 2 }, { resource: "eggs", amount: 1 }, { resource: "cinnamon", amount: 1 }], produces: { resource: "food", amount: 2 }, craftTime: 45 },
   { id: "fiery_broth", name: "Fiery Broth", icon: "🥵", building: "kitchen", minLevel: 5,
     costs: [{ resource: "meat", amount: 2 }, { resource: "cabbages", amount: 2 }, { resource: "chili", amount: 1 }], produces: { resource: "food", amount: 2 }, craftTime: 45 },
-  { id: "steeped_tea_leaves", name: "Steeped Tea Leaves", icon: "🍵", building: "kitchen", minLevel: 3,
+  { id: "steeped_tea_leaves", name: "Steeped Tea Leaves", icon: "🍵", building: "kitchen", minLevel: 3, kind: "drink",
     costs: [{ resource: "tea", amount: 1 }, { resource: "honey", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 30 },
   { id: "royal_feast", name: "Royal Feast", icon: "👑", building: "kitchen", minLevel: 7,
     costs: [{ resource: "meat", amount: 4 }, { resource: "grain", amount: 3 }, { resource: "milk", amount: 2 }, { resource: "saffron", amount: 1 }], produces: { resource: "food", amount: 4 }, craftTime: 90 },
@@ -691,7 +745,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     costs: [{ resource: "meat", amount: 3 }, { resource: "turnips", amount: 2 }, { resource: "grain", amount: 2 }], produces: { resource: "food", amount: 1 }, craftTime: 45 },
   { id: "ashwick_ale_stew", name: "Ashwick Ale Stew", icon: "🍺", building: "kitchen", minLevel: 5,
     costs: [{ resource: "meat", amount: 3 }, { resource: "cabbages", amount: 2 }, { resource: "grain", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
-  { id: "blackberry_crumble", name: "Blackberry Crumble", icon: "🫐", building: "kitchen", minLevel: 5,
+  { id: "blackberry_crumble", name: "Blackberry Crumble", icon: "🫐", building: "kitchen", minLevel: 5, kind: "dessert",
     costs: [{ resource: "berries", amount: 3 }, { resource: "grain", amount: 2 }, { resource: "honey", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
 
   // Nordveld — smoky, preserved, harsh-winter food
@@ -707,7 +761,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     costs: [{ resource: "fish", amount: 3 }, { resource: "turnips", amount: 1 }, { resource: "squash", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
   { id: "grilled_octopus", name: "Grilled Octopus", icon: "🐙", building: "kitchen", minLevel: 5,
     costs: [{ resource: "fish", amount: 4 }, { resource: "wood", amount: 2 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
-  { id: "fig_honey_toast", name: "Fig & Honey Toast", icon: "🍯", building: "kitchen", minLevel: 5,
+  { id: "fig_honey_toast", name: "Fig & Honey Toast", icon: "🍯", building: "kitchen", minLevel: 5, kind: "dessert",
     costs: [{ resource: "grain", amount: 2 }, { resource: "pears", amount: 1 }, { resource: "honey", amount: 3 }], produces: { resource: "food", amount: 1 }, craftTime: 45 },
 
   // Zah'kari — bold spiced dishes, communal portions
@@ -731,11 +785,11 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     costs: [{ resource: "meat", amount: 4 }, { resource: "squash", amount: 2 }, { resource: "nuts", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
   { id: "saffron_rice_pilaf", name: "Saffron Rice Pilaf", icon: "🍚", building: "kitchen", minLevel: 5,
     costs: [{ resource: "grain", amount: 4 }, { resource: "peas", amount: 1 }, { resource: "nuts", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
-  { id: "rosewater_pastries", name: "Rosewater Pastries", icon: "🌹", building: "kitchen", minLevel: 5,
+  { id: "rosewater_pastries", name: "Rosewater Pastries", icon: "🌹", building: "kitchen", minLevel: 5, kind: "dessert",
     costs: [{ resource: "grain", amount: 2 }, { resource: "honey", amount: 3 }, { resource: "eggs", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
 
   // Silvaneth — wild, foraged, living-forest cuisine
-  { id: "honeyed_acorn_bread", name: "Honeyed Acorn Bread", icon: "🌰", building: "kitchen", minLevel: 3,
+  { id: "honeyed_acorn_bread", name: "Honeyed Acorn Bread", icon: "🌰", building: "kitchen", minLevel: 3, kind: "dessert",
     costs: [{ resource: "nuts", amount: 2 }, { resource: "grain", amount: 2 }, { resource: "honey", amount: 2 }], produces: { resource: "food", amount: 1 }, craftTime: 45 },
   { id: "elderflower_broth", name: "Elderflower Broth", icon: "🌸", building: "kitchen", minLevel: 5,
     costs: [{ resource: "mushrooms", amount: 2 }, { resource: "berries", amount: 2 }, { resource: "peas", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 45 },
@@ -743,11 +797,11 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     costs: [{ resource: "fish", amount: 3 }, { resource: "mushrooms", amount: 2 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
 
   // Hauts-Cieux — refined, delicate, almost too elegant for the frontier
-  { id: "starfruit_meringue", name: "Starfruit Meringue", icon: "⭐", building: "kitchen", minLevel: 3,
+  { id: "starfruit_meringue", name: "Starfruit Meringue", icon: "⭐", building: "kitchen", minLevel: 3, kind: "dessert",
     costs: [{ resource: "eggs", amount: 3 }, { resource: "cherries", amount: 2 }, { resource: "honey", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
   { id: "crystal_consomme", name: "Crystal Consommé", icon: "🥣", building: "kitchen", minLevel: 5,
     costs: [{ resource: "fish", amount: 2 }, { resource: "eggs", amount: 2 }, { resource: "turnips", amount: 1 }], produces: { resource: "food", amount: 1 }, craftTime: 60 },
-  { id: "moonpetal_sorbet", name: "Moonpetal Sorbet", icon: "🍨", building: "kitchen", minLevel: 7,
+  { id: "moonpetal_sorbet", name: "Moonpetal Sorbet", icon: "🍨", building: "kitchen", minLevel: 7, kind: "dessert",
     costs: [{ resource: "cherries", amount: 2 }, { resource: "pears", amount: 1 }, { resource: "apples", amount: 1 }, { resource: "honey", amount: 2 }], produces: { resource: "food", amount: 1 }, craftTime: 90 },
 
   // Khazdurim — heavy, hearty, forge-cooked

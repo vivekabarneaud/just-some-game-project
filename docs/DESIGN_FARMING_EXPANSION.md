@@ -359,3 +359,71 @@ With ale/beer/wine + dish diversity, give the tavern an *economic* role: travele
 
 ### Gifting is EDDA's domain (not the Lord's)
 Cozy gifting (Animal-Crossing/Hello-Kitty inspiration): a cooked dish gifted for a small **loyalty** bump, ~once a day. The LORD handing out cakes reads wrong — but **Edda** (midwife, cellarer, keeper of the hearth) is exactly who does this. So the player grows the crop → cooks the dish → **Edda carries it round** → loyalty. This finally gives Edda a *mechanical verb* (she's currently all lore), and it anchors the whole crop→recipe→loyalty loop in the right character. Ties to [[project_tavern_conversations]] + her cast file.
+
+---
+
+## Lavender — cultivated flower (spec, July 2026)
+
+A garden flower that **sweetens the honey and stocks the tavern's tea and cake**. Reuses the existing garden/seed system — NO new garden type, just a new **specialty crop** the player sows in any empty plot.
+
+- **Grown, not foraged.** Foraged herbs (chamomile, dandelion, nettle…) stay at the Forager's Hut. Lavender is *cultivated*; its harvest is a **grown herb ingredient** (lands in the herb stock, usable by both alchemy and the kitchen — the craft cost path already handles herbs). It must NOT appear in the forager's gather pool.
+- **Seed source: the marketplace board**, as a **Meridian** specialty good (lavender = Mediterranean). Buying the seed **unlocks** the crop (specialty-seed flow: `specialty: true`, starts locked/0 seed, `seedsUnlocked.push` on purchase). A Meridian traveling merchant could carry it later.
+- **Seasons:** sow spring, bloom summer/autumn — lines up with when bees are active.
+- **Two payoffs from one plot:**
+  1. **Living blooms boost the apiary** — a passive honey multiplier while a lavender garden is *producing* (bees forage the blooms). Hook into the honey tick: `rate ×= (1 + bonus × #producing lavender gardens)`. No consumption.
+  2. **Harvest = dried lavender** — the ingredient for the recipes below.
+- **Recipes (the fun part):**
+  - **Kitchen → Lavender Tea** (a **Drink** on the tavern menu) + **Lavender Honey Cake** (a **Dessert**; lavender + honey + grain) — fills the thin Drinks/Desserts columns.
+  - **Alchemy → Calming Draught** — increases an adventurer's **hourly HP regen** (a recovery accelerant), NOT a flat %HP heal. Needs a **new alchemy effect type** (e.g. `regenBoost:X`) wired into potion consumption + the recovery/regen tick (`REGEN_PCT_PER_HOUR`).
+- **Art (user provides, like the portraits):** `garden_lavender.png` (planted plot) + `lavender_seed.png`. Placeholder/emoji until then.
+- **Systems touched:** gardens (specialty crop + non-food produce routing to herbs), herbs (new grown herb, excluded from foraging), marketplace (seed offer + unlock), apiary (honey multiplier), alchemy (new regen effect), kitchen (2 recipes), tavern (dishes flow in via existing `kind` tagging). A focused multi-step build, not a one-shot.
+
+**STATUS (2026-07-07):**
+- ✅ **Slice 1 BUILT** (commit `0fe8eee`): lavender crop reusing the garden system; a *grown herb* (`dropRate: 0` in HERBS, never foraged; added to VeggieId in both frontend + shared); garden produce routed to `herbs.lavender`; **apiary +15% honey per producing lavender garden**; kitchen recipes **Lavender Tea (drink)** + **Lavender Honey Cake (dessert)**, which auto-appear on the tavern menu via the Phase-2b `kind` tag. Art falls back to 🪻 until `garden_lavender.png` / `lavender_seed.png` are dropped in. **Lavender is NON-`specialty` for now** (sowable from the start).
+- ⏸️ **Slice 2 PARKED (likely post-alpha):**
+  1. **Market "buy seed" gate** — make lavender `specialty: true` and acquired by *buying the seed*. Seeds today only unlock via `quest.unlocksSeeds`; there's **no market buy-seed mechanism yet**, and the intended flavor source is a **Meridian merchant, which doesn't exist yet** (traveling-merchant roster is Dominion/Greyford only). So this waits on either a Meridian merchant or a generic marketplace-board seed offer. Until then, lavender stays sowable from the start.
+  2. **Calming Draught (alchemy)** — a **new `regenBoost` effect type** (speeds hourly HP regen; current alchemy effects are strings like `healPct:25`). Needs the effect wired into potion consumption + the recovery/regen tick. Ties to [[project_adventurer_recovery]].
+
+---
+
+## Orchard Saplings — planting rework (spec, July 2026)
+
+**Status:** ✅ BUILT (2026-07-14). Makes orchards *feel planted* and stops an upgrade from conjuring a full-grown grove. Mirrors the garden seed/capacity model, adapted for perennials. Shipped with a **light save migration** (old whole-orchard `seasonsGrown`/`mature` → `matureTrees`/`saplings[]` in both load paths) rather than a SAVE_VERSION reset, to preserve in-progress playtest saves. **Grapes** landed as the first specialty fruit, rendered as a locked "??? Orchard" mystery slot (no unlock path wired yet — teaser). Per-tree yield = `baseRate`, tree slots = `level × 2`, sapling cost = `baseRate × 3` gold.
+
+### The problem
+Today an orchard is one abstract unit: `PlayerOrchard { level, seasonsGrown, mature }`. The whole orchard matures once (`seasonsGrown >= maturationSeasons → mature`), then produces at a level-scaled rate. There's **no planting act**, and **upgrading** just raises the rate as if new trees sprang up grown. Next to fields (sow in spring) and gardens (sow seeds into capacity), orchards read as strangely automatic.
+
+### The model (saplings = seeds, tree-slots = capacity)
+- **Level → tree slots.** `treeSlots(level)` is the orchard's capacity, exactly like a garden's seed capacity. Levelling up **adds empty slots**, it does not add grown trees.
+- **Plant saplings into slots.** The player buys saplings (gold) and plants them into free slots — the orchard's equivalent of sowing. A sapling occupies a slot immediately but bears nothing yet.
+- **Per-cohort maturation** (avoids per-tree records). Track sapling cohorts by plant time; reuse the existing `maturationSeasons`. Each season tick ages every cohort; a cohort that reaches `maturationSeasons` **converts to mature trees**. Because you plant at different times, groves mature in waves ("the cherries I planted last year are finally bearing").
+- **Yield scales with mature trees**, not level. `fruitRate = matureTrees × perTreeRate(level)` during the fruit's `harvestSeasons`. Level can still buff `perTreeRate` (better husbandry) but **an unplanted orchard produces nothing**.
+- **Perennial, not annual.** Unlike gardens (replant each spring), a mature tree keeps bearing every year — plant once, harvest for the settlement's life. Trees are self-maintaining (no upkeep, consistent with today).
+
+### State shape (proposed)
+```
+interface OrchardCohort { count: number; seasonsGrown: number; }   // saplings still maturing
+interface PlayerOrchard {
+  id; fruit; level; upgrading; upgradeRemaining?;
+  matureTrees: number;          // bearing trees
+  saplings: OrchardCohort[];    // not yet bearing
+  // (drop the old whole-orchard `seasonsGrown` / `mature`)
+}
+```
+`treesPlanted = matureTrees + sum(saplings.count)`; free slots = `treeSlots(level) - treesPlanted`.
+
+### Sapling acquisition
+- **Buy on the orchard card** for gold (like `buyLivestock`), simplest first cut: "Plant sapling 💰X".
+- **Later:** rare/culture saplings via the **marketplace board / traveling merchants** (e.g. a Meridian olive, a Zah'kari fig) — the same specialty-unlock flow the lavender seed wants. Ties to [[project_traveling_merchants]] and the seed-system design.
+
+### UI (build alongside the mechanic)
+Mirror the pen flock box / garden seed box that already exist:
+- A framed **Grove box**: `Trees {matureTrees}/{treeSlots} · {saplingCount} growing`, a season/status nudge ("2 saplings — 3 seasons to bear" / "Blossoming" / "Harvesting"), and a **Plant sapling 💰X** button inside it (disabled when slots are full).
+- Optionally a **Manage grove** modal (like `PenManageModal`) once bulk-plant or per-cohort detail is wanted.
+
+### Build checklist (post-alpha)
+1. `src/data/orchards.ts`: `treeSlots(level)`, `saplingCost(fruit)`, `perTreeRate(level)`.
+2. State: `matureTrees` + `saplings[]` on `PlayerOrchard` (both shared + frontend copies); drop `seasonsGrown`/`mature`.
+3. Actions: `plantSapling(orchardId)`, season-tick maturation (age cohorts → mature), fruit tick from `matureTrees`.
+4. UI: orchard card Grove box + Plant button; "sapling/blossoming/harvesting" statuses from the new counts.
+5. Migration: none — reset via SAVE_VERSION bump (alpha saves disposable, per [[feedback_alpha_no_save_preservation]]).

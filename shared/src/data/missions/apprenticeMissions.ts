@@ -75,6 +75,8 @@ export const APPRENTICE_MISSIONS: MissionTemplate[] = [
     minGuildLevel: 2,
     tags: ["magical", "exploration"],
     encounters: [{ enemyId: "cave_spider", count: 2 }, { enemyId: "giant_rat", count: 3 }],
+    // Required wizard slot — don't surface before wizards exist (Magnus/Stonebridge).
+    requires: { hasClass: "wizard" },
   },
 {
     id: "refugee_convoy",

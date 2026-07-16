@@ -20,12 +20,18 @@
 export interface StoryChainApi {
   /** Suspend until a unique/side-chain mission has been completed. */
   awaitMissionDone(missionId: string): void;
+  /** Suspend until a mission has been completed at least `count` times (uses the
+   *  durable per-mission tally, so it works for repeatable missions). */
+  awaitMissionCount(missionId: string, count: number): void;
   /** Suspend until at least one of these premade characters is on the roster. */
   awaitPremadePresent(premadeId: string | string[]): void;
   /** Suspend until the player has CLAIMED the given quest's reward. */
   awaitQuestClaimed(questId: string): void;
   /** Suspend until the given building is built to at least `minLevel` (default 1). */
   awaitBuilding(buildingId: string, minLevel?: number): void;
+  /** Suspend until a recruited character's loyalty reaches `threshold`. Used to
+   *  gate a beat on a bond deepening (e.g. Magnus unlocks once Aldwin belongs). */
+  awaitLoyalty(premadeId: string, threshold: number): void;
   /** Suspend until `ms` real-world time has passed since the script first
    *  reached this step. `key` disambiguates multiple delays within one chain. */
   awaitDelay(key: string, ms: number): void;
@@ -33,6 +39,10 @@ export interface StoryChainApi {
    *  first reached this step (the same daily clock the mission board uses). A
    *  clean "come back tomorrow" beat. `key` disambiguates within one chain. */
   awaitNextMorning(key: string): void;
+  /** Suspend until it's the given season AND at least `minYear`. Fires on the
+   *  first matching season at or after that year (e.g. the first summer once
+   *  year 2 has come). */
+  awaitSeason(season: string, minYear: number): void;
   /** Fire a chronicle entry into the archive (once). */
   fireChronicle(entryId: string): void;
   /** Fire a chronicle entry AND surface it as a beat modal the moment it
@@ -41,6 +51,12 @@ export interface StoryChainApi {
   fireChronicleModal(entryId: string): void;
   /** Recruit a premade to the roster (once; no-op if already present). */
   recruit(premadeId: string): void;
+  /** Unlock a specialty crop's seed (idempotent): its garden becomes buildable
+   *  and a starter stock is granted, like the quest `unlocksSeeds` path. */
+  unlockSeed(veggieId: string): void;
+  /** Unlock a discovery-gated recipe (idempotent): pushes it into
+   *  discoveredRecipes so it appears at its building (and badges the sidebar). */
+  unlockRecipe(recipeId: string): void;
 }
 
 export interface StoryChain {
@@ -52,9 +68,12 @@ export interface StoryChain {
  *  the full GameState, keeping this module engine-dependency-free). */
 export interface ChainState {
   completedUniqueMissionIds?: string[];
-  adventurers: ReadonlyArray<{ premadeId?: string }>;
+  missionCompletions?: Record<string, number>;
+  adventurers: ReadonlyArray<{ premadeId?: string; loyalty?: number }>;
   buildings: ReadonlyArray<{ buildingId: string; level: number }>;
   questRewardsClaimed?: string[];
+  season?: string;
+  year?: number;
   chronicleEntriesFired: string[];
   /** Queue of chronicle entries waiting to pop as a beat modal (drained by the
    *  UI). Distinct from `chronicleEntriesFired` (the permanent archive). */
@@ -69,6 +88,10 @@ export interface ChainDeps {
   /** Build + push the premade onto the roster (+ any arrival side effects).
    *  Only called when the character isn't already present. */
   recruit: (premadeId: string) => void;
+  /** Unlock a specialty crop seed (idempotent — engine owns starter-stock size). */
+  unlockSeed: (veggieId: string) => void;
+  /** Unlock a discovery-gated recipe (idempotent). */
+  unlockRecipe: (recipeId: string) => void;
 }
 
 /** Thrown by `await*` to stop a script at its first unmet step. Caught by the
@@ -92,6 +115,9 @@ export function runStoryChains(s: ChainState, chains: StoryChain[], deps: ChainD
       awaitMissionDone(id) {
         if (!(s.completedUniqueMissionIds ?? []).includes(id)) throw HALT;
       },
+      awaitMissionCount(id, count) {
+        if ((s.missionCompletions?.[id] ?? 0) < count) throw HALT;
+      },
       awaitPremadePresent(pid) {
         const ids = Array.isArray(pid) ? pid : [pid];
         if (!s.adventurers.some((a) => !!a.premadeId && ids.includes(a.premadeId))) throw HALT;
@@ -102,6 +128,10 @@ export function runStoryChains(s: ChainState, chains: StoryChain[], deps: ChainD
       awaitBuilding(buildingId, minLevel = 1) {
         const b = s.buildings.find((bb) => bb.buildingId === buildingId);
         if (!b || b.level < minLevel) throw HALT;
+      },
+      awaitLoyalty(premadeId, threshold) {
+        const a = s.adventurers.find((x) => x.premadeId === premadeId);
+        if (!a || (a.loyalty ?? 0) < threshold) throw HALT;
       },
       awaitDelay(key, ms) {
         const k = `${chain.id}:${key}`;
@@ -121,6 +151,9 @@ export function runStoryChains(s: ChainState, chains: StoryChain[], deps: ChainD
         }
         if (deps.now < s.storyTimers[k]) throw HALT;
       },
+      awaitSeason(season, minYear) {
+        if ((s.year ?? 1) < minYear || s.season !== season) throw HALT;
+      },
       fireChronicle(entryId) {
         if (!s.chronicleEntriesFired.includes(entryId)) s.chronicleEntriesFired.push(entryId);
       },
@@ -133,6 +166,12 @@ export function runStoryChains(s: ChainState, chains: StoryChain[], deps: ChainD
       recruit(premadeId) {
         if (s.adventurers.some((a) => a.premadeId === premadeId)) return;
         deps.recruit(premadeId);
+      },
+      unlockSeed(veggieId) {
+        deps.unlockSeed(veggieId);
+      },
+      unlockRecipe(recipeId) {
+        deps.unlockRecipe(recipeId);
       },
     };
     try {
@@ -201,6 +240,74 @@ export const STORY_CHAINS: StoryChain[] = [
       api.fireChronicleModal("ch2_mothers_errand");
       api.awaitNextMorning("elspethReflect");
       api.fireChronicleModal("ch2_whose_blood");
+    },
+  },
+  // ── The bog witch — opening drip (mystery only; the dark descent is deferred).
+  // marsh_clearing (an ordinary herb-errand) → a voice in the reeds offers a
+  // bargain; the barter (reeds_bargain) → the offering drifts + she mines the
+  // gatherers for the settlement's secrets. Folk voice, two-track; the horror
+  // (the Cabin, the letters, the child) comes later. See cast/aldith-the-bog-witch.md.
+  {
+    id: "the_bog_witch",
+    run: (api) => {
+      api.awaitMissionDone("marsh_clearing");
+      api.fireChronicleModal("ch1_reeds_voice");
+      api.awaitMissionDone("reeds_bargain");
+      api.fireChronicleModal("ch1_reeds_price");
+      // The barter becomes routine (fen_barter ×3) → the tea beat (she learns of
+      // Nell, cozy on the surface). Then the asking drifts into a recipe: a
+      // symbolic count of parts, shrinking in number and worsening in kind —
+      // three tusks, two hooves, one skull. Each is a light card; the pattern is
+      // the horror. At the skull the Lord draws a line (grain only), and the
+      // decision beat fires. The dark descent stays deferred.
+      api.awaitMissionCount("fen_barter", 3);
+      api.fireChronicleModal("ch1_reeds_tea");
+      api.awaitMissionDone("reeds_tusks");
+      api.awaitMissionDone("reeds_hooves");
+      api.awaitMissionDone("reeds_skull");
+      api.fireChronicleModal("ch1_reeds_doubt");
+    },
+  },
+  // ── The Stonebridges — the first magic the Lord knowingly HARBORS ──
+  // Aldwin (priest) flees in early Ch2, once the world has clearly turned
+  // strange (Hale bound) and Hester — the first of the hunted — has come. He's
+  // chain-only (no auto-arrival), so recruit() brings him in; he offers his
+  // hands at once (a healer earning the shelter). As his belonging deepens, his
+  // hidden brother Magnus can't watch him pull back from home for the secret's
+  // sake, and confesses ALONE to free him — which unlocks Magnus and cracks the
+  // Lord's faith. Magnus's gate is modest (Familiar) so it never soft-locks;
+  // and the boar chain needs a PRIEST, not a wizard, so there's nothing to race.
+  {
+    id: "the_stonebridges",
+    run: (api) => {
+      api.awaitMissionDone("story_4_captains_rest"); // Ch1's ghosts/Hale close out
+      api.awaitPremadePresent("char_019");           // Hester came first (the hunted find us)
+      api.recruit("char_017");                        // Aldwin flees in, offers his hands
+      api.fireChronicleModal("ch2_stonebridge_arrival");
+      api.awaitLoyalty("char_017", 8);               // a few missions in — the Lord notices
+      api.fireChronicleModal("ch2_stonebridge_hunch");
+      api.awaitLoyalty("char_017", 15);              // Familiar — he clearly belongs now
+      api.fireChronicleModal("ch2_stonebridge_confession");
+      api.recruit("char_029");                        // Magnus, freed by his own courage
+      api.fireChronicleModal("ch2_stonebridge_plea");
+      api.fireChronicleModal("ch2_stonebridge_aftermath");
+    },
+  },
+
+  // ── The Strawberry Patch — Nell wanders off; the team brings her home ──
+  // A warm summer lull beat (year 2+). The worry beat pops, which opens the
+  // "Where's Nell?" search mission (gated on that chronicle firing). Running it
+  // brings her back, asleep in a wild strawberry hollow — and Edda's cutting
+  // becomes the settlement's first cultivated strawberry bed (seed unlock).
+  {
+    id: "the_strawberry_patch",
+    run: (api) => {
+      api.awaitSeason("summer", 2);
+      api.fireChronicleModal("ch2_nell_wandering");   // worry — opens the search mission
+      api.awaitMissionDone("find_nell");              // the team goes and finds her
+      api.fireChronicleModal("ch2_nell_found");       // relief + the strawberry hollow
+      api.unlockSeed("strawberries");                 // Edda's cutting → a cultivated bed
+      api.unlockRecipe("strawberry_jam");             // and Edda's jam from Nell's berries
     },
   },
 ];

@@ -12,6 +12,9 @@ export interface ResourceState {
   gold: number;
   wood: number;
   stone: number;
+  /** Stored water — wells + rain-catching cisterns fill it; irrigation spends
+   *  it in dry/drought years. Capped by cistern storage. */
+  water: number;
 }
 
 export interface StorageCaps {
@@ -57,12 +60,15 @@ export interface PlayerField {
   sameCropStreak: number;
   /** Next harvest receives a +15% bonus (field was left idle through a growing season). */
   restBonus: boolean;
+  /** Hay rick left on the field after the autumn grain harvest (straw byproduct).
+   *  Grazers eat it through winter; cleared at spring replant. Fiber crops leave none. */
+  hay?: number;
   level: number;
   upgrading: boolean;
   upgradeRemaining?: number;
 }
 
-export type VeggieId = "cabbages" | "turnips" | "peas" | "squash" | "fava" | "strawberries";
+export type VeggieId = "cabbages" | "turnips" | "peas" | "squash" | "fava" | "strawberries" | "lavender";
 
 export interface PlayerGarden {
   id: string;
@@ -80,11 +86,21 @@ export type AnimalId = "chickens" | "pigs" | "goats" | "sheep";
 export interface PlayerPen {
   id: string;
   animal: AnimalId;
+  /** Capacity tier. 0 = not built. Level sets how many animals the pen holds
+   *  (getPenCapacity); it no longer drives production directly. */
   level: number;
+  /** Headcount — animals actually in the pen (0..capacity). Bought with gold;
+   *  production/consumption scale with this. */
+  count: number;
   upgrading: boolean;
   upgradeRemaining?: number;
   /** True when the pen couldn't cover its food need last tick — production drops to 0 until fed. */
   starving?: boolean;
+  /** A guard dog is kept with this flock — stops wolf predation on it. */
+  guardDog?: boolean;
+  /** Accumulated game-hours of starvation; when it crosses the death threshold
+   *  an animal dies and it resets. Cleared when the flock is fed again. */
+  starveHours?: number;
 }
 
 export interface PlayerHive {
@@ -94,7 +110,13 @@ export interface PlayerHive {
   upgradeRemaining?: number;
 }
 
-export type FruitId = "apples" | "pears" | "cherries";
+export type FruitId = "apples" | "pears" | "cherries" | "grapes";
+
+/** A sapling cohort planted at the same time — ages together to maturity. */
+export interface OrchardCohort {
+  count: number;
+  seasonsGrown: number;
+}
 
 export interface PlayerOrchard {
   id: string;
@@ -102,8 +124,10 @@ export interface PlayerOrchard {
   level: number;
   upgrading: boolean;
   upgradeRemaining?: number;
-  seasonsGrown: number;
-  mature: boolean;
+  /** Trees/vines that are bearing fruit. */
+  matureTrees: number;
+  /** Planted-but-not-yet-bearing cohorts, ageing toward maturationSeasons. */
+  saplings: OrchardCohort[];
 }
 
 // ─── Adventurers ────────────────────────────────────────────────
@@ -171,7 +195,7 @@ export type RewardType = "gold" | "wood" | "stone" | "food" | "astralShards"
   // Crafting materials (also drop via combat loot; can be guaranteed mission rewards too)
   | "wolfhide_strip" | "fang" | "sinew_cord"
   | "thick_pelt" | "bear_claw"
-  | "bristlehide" | "tusk_shard"
+  | "bristlehide" | "tusk_shard" | "cloven_hoof" | "boar_skull"
   | "chitin_plate" | "spinners_bile"
   | "serpent_fang" | "snake_oil"
   | "gnawed_marrow" | "bonewalk_shard";
@@ -253,9 +277,13 @@ export type GameEventType =
   | "mission_success" | "mission_failed" | "adventurer_died" | "adventurer_levelup" | "adventurer_rankup" | "loyalty_rankup"
   | "raid_victory" | "raid_defeat" | "raid_incoming"
   | "winter_freezing"
+  | "drought"
   | "loot_drop"
   | "trade_accepted" | "trade_delivered"
-  | "pen_starving";
+  | "pen_starving"
+  | "pen_deaths"
+  | "pen_births"
+  | "pen_predation";
 
 export interface GameEvent {
   type: GameEventType;
@@ -274,12 +302,22 @@ export interface GameState {
   pens: PlayerPen[];
   hives: PlayerHive[];
   orchards: PlayerOrchard[];
+  /** Per-fruit sapling seed stock — spent to plant trees, saved back at harvest. */
+  fruitSeeds: Record<FruitId, number>;
+  /** Fruits the player can plant (apple from the start; specialty fruits unlock
+   *  when their seed/cutting is acquired). */
+  fruitsUnlocked: FruitId[];
+  /** Last world-year a drought plant-kill was applied — so it fires once/year. */
+  lastDroughtKillYear?: number;
   honey: number;
   /** Per-type food stockpiles — total is capped by pantry.
    *  Orchard fruits (apples/pears/cherries) now live here as first-class foods. */
   foods: Record<string, number>;
   /** Per-category population breakdown. Total via the citizens helper in
    *  frontend/src/data/citizens.ts. Replaces the old scalar `population`. */
+  /** Citizens assigned to work each production building (by buildingId), incl.
+   *  bench beyond capacity. Drawn from the shared adult pool. */
+  buildingWorkers?: Record<string, number>;
   citizens: {
     toddlers: number;
     children: number;
@@ -304,6 +342,8 @@ export interface GameState {
   wool: number;
   fiber: number;
   leather: number;
+  /** Bone — from culling + the hunting camp. Feeds bone broth (later fertilizer). */
+  bone: number;
   clothing: number;
   iron: number;
   tools: number;
@@ -328,6 +368,13 @@ export interface GameState {
   eventLog: GameEvent[];
   // Ale & Happiness
   ale: number;
+  /** Mead — brewed from honey at the Brewery, served at the tavern like ale. */
+  mead?: number;
+  /** Cider — pressed from orchard apples at the Brewery. */
+  cider?: number;
+  /** Per-drink brewery pause switches, keyed by drink id ("ale", "mead", later
+   *  "beer"/"wine"). Missing/false = brewing; true = paused. */
+  brewingPaused?: Record<string, boolean>;
   happiness: number;
   lastRaidOutcome: "none" | "victory" | "defeat";
   lastRaidTime: number;

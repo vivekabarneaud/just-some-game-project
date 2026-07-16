@@ -27,6 +27,19 @@ export interface ChronicleEntry {
   cinematicId?: string;
 }
 
+/** Split an entry's fullText into authored slides for the paged modal. A
+ *  paragraph consisting only of "---" is a page-turn; everything between markers
+ *  is one slide (an array of paragraphs). Entries with no marker return a single
+ *  slide (the whole entry), so the view is unchanged for short entries. */
+export function splitChronicleSlides(fullText: string): string[][] {
+  const groups: string[][] = [[]];
+  for (const p of fullText.split("\n\n")) {
+    if (p.trim() === "---") { groups.push([]); continue; }
+    groups[groups.length - 1].push(p);
+  }
+  return groups.filter((g) => g.length > 0);
+}
+
 // ─── Chapters ────────────────────────────────────────────────────
 
 export const CHRONICLE_CHAPTERS: ChronicleChapter[] = [
@@ -81,8 +94,10 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
     fullText:
       "They came in from the north trees a little after midday: four of them. Three grown, walking with the easy quiet of people who have come a long way and learned not to spend breath on it, and a small boy who was not quiet in the least. Hunters, the elder three. They asked for less than I expected and offered more, fresh meat for the pot and their bows for whatever the camp needs hunted or watched. I said yes. We are a small handful against a forest older than any king who ever claimed it; I would have said yes to almost anyone. But I think I would have said yes to these in any case.\n\n" +
       "They are a family. Thornwood. The eldest is Brenna, and it took me about one breath to see that she is the one who decides things, for all three of them. She does not raise her voice. She does not need to. She looked the camp over once, the way Tomas looks at a stone he means to cut, and I had the sense she had already counted our stores and guessed to the day how long they would last. I would rather have her counting than not.\n\n" +
+      "---\n\n" +
       "The second is Gareth, who talks enough for all three and laughs before the joke is finished. Good company, the kind a camp wants by its fire. But I marked something under the ease. He keeps an eye on whoever is being treated badly, and the one time a voice rose in anger across the camp he was on his feet before he knew he had stood, ready to step in, then caught himself and turned it into a joke instead. The quickness to laugh and the quickness to defend someone seem to come from the same place in him. I do not yet know what that place is.\n\n" +
       "The third is Godric, and you notice him the way you notice weather. He is the largest man I have ever stood beside and, so far, the gentlest. He carried half our firewood before anyone asked, and gave his share of the meat to the children before anyone could tell him to keep it. He has said perhaps ten words since midday. When Brenna speaks he listens as though it were scripture.\n\n" +
+      "---\n\n" +
       "The boy is perhaps seven, and the loudest thing that has happened to this camp since we raised the first tent. He had told me his name, and a good deal of other business besides, before the grown three had finished saying good day. He is not theirs by blood, I think, though I would not swear to it and I did not ask; they keep him in the middle of them the way you keep the one thing you carried out of a burning house. Our Nell watched him the whole while from the tent flap and did not say a word. I do not know yet what to make of that. I made a note of it all the same.\n\n" +
       "I have their names and almost nothing else, and that is right. People do not arrive at the edge of the world with their whole story written on them. But I have set the names down here, in this book, and that is the small thing that turns a stranger into one of us: that someone troubled to keep the record. The guild has its first hands. Tomorrow I will learn what they can do. The rest, who they were before the trees, I expect I will learn the way you learn anything true out here. Slowly. Usually by accident.",
   },
@@ -110,6 +125,7 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "The team came back from the old watch with a tin chest. They were tired but unhurt. Tomas walked them up to my tent himself and stayed while they set the chest on the long table. They told me they had pushed a little further south while they had the daylight: the trees go strange about three days down, they said. They had not walked that far. They felt it from a ridge.\n\n" +
       "The chest held a journal. The name on the cover is Captain Vardin Hale, of a Crown garrison whose seal I cannot place. Folded beneath it was something else: a small square of cloth, a child's first try at stitching, a few uneven flowers, no name. I set it aside before I began to read.\n\n" +
       "I read it alone, by candle, after the others had gone to bed.\n\n" +
+      "---\n\n" +
       "The first entries are clean. Day one: posting accepted. Three sections of the southern barracks need re-roofing before winter. Hale wrote in a clean clerical hand. He was not a soldier who had given up on writing.\n\n" +
       "Day thirteen, his first strange entry. Sergeant Marrick reported on south-watch that he had heard his brother calling him from the tree-line. Marrick's brother died at sea fifteen years ago. Hale recorded the report and told Marrick to drink less.\n\n" +
       "Day fifteen, Marrick is gone. Bunk cold. Boots gone.\n\n" +
@@ -122,11 +138,13 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "Day forty-five. Two lines.\n\n" +
       "'I heard Ennara again today. I am going to her.'\n\n" +
       "Then nothing. The journal stops.\n\n" +
+      "---\n\n" +
       "I sat with the page open for a long time. I do not know what I have just read.\n\n" +
       "The men heard the dead. The voices called by name. They walked through barred gates at midnight. They walked at noon in plain daylight, calmly, where the others could see them go. Hale records all of this with the patience of a man who hopes the next page will explain. The next page never does.\n\n" +
       "What kind of plague does this? What kind of madness travels through walls and calls a man's brother by name? I do not know. I do not think Hale knew either. He kept writing because writing was what he could still do.\n\n" +
       "There is one more thing I cannot place. Hale wrote his garrison stood seven days' march from the Hollow Wastes. His gate is the old watch. My team felt the wrongness three days south of it.\n\n" +
       "A captain does not miscount a march. My team are not soldiers but they have eyes. I will send them back tomorrow to count the days honestly.\n\n" +
+      "---\n\n" +
       "I went back to the folded cloth before I closed the chest. It was hers. Of course it was hers.\n\n" +
       "The rest I cannot place. I will sleep on it, if I manage to sleep at all.",
     cinematicId: "story_2_ruins",
@@ -142,6 +160,7 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "She had walked them home from a fight they should not have survived. Two of them are bandaged tonight. They came up to the gate at dusk, and behind them was a woman in dark green, a bow across her back, the long ears and moss-grey hair of the Silvaneth. I had not stood near an elf before.\n\n" +
       "She introduced herself as Niamh, Warden of the Thornveil Rangers. She said she had business to discuss. She said it the way a stonemason says the wall needs a new course before winter. No warmth. No apology. Just the fact.\n\n" +
       "I sat her down at the long table. Edda put a cup of chamomile in front of her. Niamh wrapped her hands around it and drank slowly.\n\n" +
+      "---\n\n" +
       "The team told me what happened. They had walked past the old watch, south, counting their steps the way I had asked them to. The trees went quiet a little less than three days down. They felt it before they heard it. Then they heard a man's voice in the trees, calling a name they did not know.\n\n" +
       "'Ennara,' they said.\n\n" +
       "I put my hand on the journal that was still open on the desk where I had left it last night. I did not need to move it.\n\n" +
@@ -157,6 +176,7 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "I told her I wished I could carry it myself, but the village needs me here.\n\n" +
       "'And you cannot fight,' she said. 'You would be a liability.'\n\n" +
       "I think she meant it kindly.\n\n" +
+      "---\n\n" +
       "I asked her how far the Wastes really were. She said she did not know. Her work is at the edge, she said. The edge is where the dead are still close enough to be heard. The Wastes lie further. She does not go there.\n\n" +
       "I asked her another thing. The captain heard the voices at his garrison. We have walked his ground twice now and not heard them. She was quiet for a moment, looking into her cup.\n\n" +
       "'There are two wards near the old watch,' she said. 'Standing stones, older than us, set into the land where you would not see them. One north of the tower, one south. Together they hold the edge back from where you live, and from the road between.'\n\n" +
@@ -164,6 +184,7 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "Then she said the captain had camped in the gap between them. 'The south stone broke around the time his company came. The line of women who kept it had thinned to nothing, and an unkept ward cracks like an unkept roof. The north stone held, but one stone keeps one circle, and his walls stood past the reach of it. He felt what a broken ward fails to keep.'\n\n" +
       "She set down her cup. 'My grandmother's teacher reset the south stone after he fell. We have kept the pair since. Old things end.'\n\n" +
       "She drank her tea.\n\n" +
+      "---\n\n" +
       "When she stood to leave I asked where she was sleeping. She said the trees were fine.\n\n" +
       "'Three days,' she said again, and was gone.\n\n" +
       "I do not know what I am dealing with. I know she did not have to walk my team home. I know she did not have to tell me what she told me tonight. I know she could have left me to read Hale's journal alone for the rest of my life and never appeared at my gate.\n\n" +
@@ -289,6 +310,51 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "She has not told me what she fears, and she does not have to. It is not the frontier. It is him: what he loves, and where it will take him. There is a small pouch at her belt she never opens in company, and a stillness in her when a stranger stands too near a door. I have decided not to ask what she did before she came here. A man learns which questions to keep to himself, and I have kept harder ones than these.",
   },
   {
+    id: "ch1_reeds_voice",
+    chapterId: "ch1",
+    order: 9,
+    title: "The voice in the reeds",
+    teaser: "The gatherers brought back the fenbalm and a strange tale: an old woman at the water's edge who did not run from armed men, and offered a bargain.",
+    fullText:
+      "The gatherers came back from the fen whole, the fenbalm cut and the adders turned away, and one of them with a story I have turned over since. There is an old woman living out past the reeds. None of us knew she was there. She did not run from armed men; she came to the edge of the firm ground and offered a bargain, plain as a market-wife: leave a little something for her at the flat stone by the water, and the snakes will let my people cut in peace.\n\n" +
+      "We are new to this country and do not know its people, if she is to be counted one of them, alone as she is out there in the wet. I do not much like owing a marsh. But sending armed men every time the winter fevers come is a dearer price than a handful of grain left on a stone, and Edda wants her fenbalm. We will try the old woman's terms. I will keep my eyes open.",
+  },
+  {
+    id: "ch1_reeds_price",
+    chapterId: "ch1",
+    order: 9.1,
+    title: "What the reeds cost",
+    teaser: "We left the offering and the gatherers walked safe. A fair trade, and an easy one.",
+    fullText:
+      "We left what she asked at the flat stone, a measure of grain and nothing stranger, and it was as she promised: the gatherers walked the fen and cut their fenbalm, and not one adder rose at them. A fair trade, and an easy one.\n\n" +
+      "They say she watched them from the reeds the whole while and did not come near, and that when they turned for home she raised a hand, almost friendly. An old woman living alone in a marsh, glad of a little grain and a little company kept at a distance. Stranger folk than that keep to themselves out here, I am sure.\n\n" +
+      "Edda has her fenbalm for the winter, and the snakes kept their peace. I will take the easy bargain while it stays easy.",
+  },
+  {
+    id: "ch1_reeds_tea",
+    chapterId: "ch1",
+    order: 9.2,
+    title: "The old woman's tea",
+    teaser: "The gatherers stay for tea now, out at the fen. Bett came home full of Aldith's kindness, and a small, funny thing about the little painting by her stove.",
+    fullText:
+      "The gatherers have stopped hurrying home from the fen. Aldith has them in for tea now, that is her name, sits them down by the stove and talks their ears off, and sends them back with the fenbalm and half a loaf besides. Bett came home this evening still laughing about it. Talked half to death, she said, and worth every minute. A widow, Bett reckons, forty years someone's wife and no one's now, and she bakes as though she still had a full table to feed. There is always bread, more than one old woman could eat in a week.\n\n" +
+      "I sent word through the gatherers that she would be welcome behind our walls, that no one should winter alone in a marsh. She would not hear of it. The fen is her home, she told them, and she will not leave it now. I can respect that in a soul, even while I wish she would not.\n\n" +
+      "And there is a small thing Bett told me, the way you would mention the weather. Aldith keeps a little painting by the stove, of herself and her granddaughter, and Bett swears the girl is the spitting image of our Nell. The same face, she says. You would take them for sisters. Aldith was delighted to hear it and wanted to know all about our Nell, and Bett, who has never once in her life left a question unanswered, told her the lot.\n\n" +
+      "It is a good thing to have a kindly neighbour in a country this hard, even a strange one alone in a marsh. I am glad the trade turned out to be more than a trade.",
+  },
+  {
+    id: "ch1_reeds_doubt",
+    chapterId: "ch1",
+    order: 9.3,
+    title: "Grain, and only grain",
+    teaser: "Three tusks, then two hooves, then a skull. I sent the skull. And then I drew a line, and did not tell Edda that I had drawn it.",
+    fullText:
+      "It went as I feared it would, and I am not easy about how easily it went. The skull to the flat stone by dark, the fenbalm home by morning, the adders still, Aldith raising her hand from the reeds as the gatherers turned for home. Nothing happened. Same as ever. I am tired of writing that down.\n\n" +
+      "It is the shape of it that troubles me. Three tusks. Then two hooves. Then one skull. The asking growing smaller in number and worse in kind, as though she needed less of a thing the nearer it came to whatever she is truly after. I know her name now, and I find that is very near all I know true of her: not where she came from, not who it is she has lost, not what an old woman alone in a fen means to do with the picked skull of a boar. A remedy, Edda says. I have stopped believing it is a remedy.\n\n" +
+      "So I sent the skull, but I sent word with it, plain: grain, from here, and grain only. We will trade her the herb for our bread as we always have, and gladly. But no more teeth, no more hooves, no more bone. One more asking like the last three and we are done with the reeds, fenbalm or no.\n\n" +
+      "I have not told Edda I drew the line, nor why. She is fond of the old woman, and the fondness is a good thing, and I have no cause yet to spoil it. Only a shape, and a count I keep, and this page.",
+  },
+  {
     id: "ch2_old_tongue",
     chapterId: "ch2",
     order: 1,
@@ -310,6 +376,62 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "Edda took the bundle and breathed it in. She nodded once, very small. She said: *They have it good up there.* And she did not say more.\n\n" +
       "I have the seeds in a small jar on my desk. We will sow them in autumn, the way the elder said. We have enough Greymantle for a few jars of salve. The next time someone is wounded by a thing that does not bleed, we will be ready.\n\n" +
       "I had hoped, going in, that we would find more than a plant. I think we did and we did not. The Feldgrund are people. They have their land, their winters, their small good things. They will not help us with what is coming for us, because they do not know it is coming and they would not believe it if we told them. That is theirs to keep. I am glad it is still there to keep.",
+  },
+  // ── The Stonebridge arrival (early Ch2) — the magic the Lord HARBORS ──
+  {
+    id: "ch2_stonebridge_arrival",
+    chapterId: "ch2",
+    order: 1.2,
+    title: "The priest at the gate",
+    teaser: "A wandering priest and his quiet brother came up the south road. Before he had eaten, he asked how he could be of use.",
+    fullText:
+      "A wandering priest came to the gate today, worn from a long road south, and a younger brother at his shoulder so quiet I twice forgot he was standing there. Aldwin, he calls himself. He is the kind of man you are glad to see on a frontier: he has kept chapels that took in the hungry and the hunted, sat with the dying, asked no questions of anyone. A real priest is a godsend out here, and I welcomed them both easily.\n\n" +
+      "What stayed with me was that he would not be idle. Before he had eaten, before he had slept a night under a roof he could trust, he asked how he could be of use. I told him the truth: our teams come back from the south hurt more often than I like. He said then that is where he would go. Not to fight, he has no stomach for the blade, but to keep them whole, so that fewer come home broken. A man given shelter for nothing, he said, ought to earn it. I did not argue. We can use the hands, and I think he needs the earning more than we need the help.\n\n" +
+      "The brother said almost nothing. He kept to the priest's shadow and watched the door more than a man with nothing to mind. When I asked after him, Aldwin answered a half-beat too carefully, and then found somewhere else to look. There is more to these two than a priest and his kin on the road. But a man who took in five strangers can spare two their secrets a while longer.",
+  },
+  {
+    id: "ch2_stonebridge_hunch",
+    chapterId: "ch2",
+    order: 1.4,
+    title: "What I have decided not to ask",
+    teaser: "Edda dotes on the silent boy. Corin keeps low company with the priest and goes quiet when I come near.",
+    fullText:
+      "Edda has taken to the priest's quiet brother in a way I cannot account for. The boy says ten words a day, and she treats him as though he were made of glass and gold both, saving him the softest bread, finding reasons to keep him near the stove where it is warm.\n\n" +
+      "And Father Corin, who I have never known to keep a thing from me, keeps long low company with Aldwin down by the chapel, and goes quiet the moment I come near, the way men do when the talk was not meant for you.\n\n" +
+      "I have not asked. Whatever it is, it is theirs, and they carry it carefully, and no harm has come of it. A man who took in five strangers off the road can let two more keep their own counsel a while longer. If it wants telling, it will be told.",
+  },
+  {
+    id: "ch2_stonebridge_confession",
+    chapterId: "ch2",
+    order: 1.6,
+    title: "The word the Order burns men for",
+    teaser: "The quiet one came to me alone tonight. He said the word himself, with his hands shaking.",
+    fullText:
+      "The quiet one came to me alone tonight, and I will not soon forget the sound of a voice I had barely heard. He told me, plainly, that he is a wizard. He said the word himself, the word the Order burns men for, the word I was raised to cross myself against, and he said it with his hands shaking, because his brother would sooner die than say it and someone had to.\n\n" +
+      "I know what he set in my hands. Shelter a wizard and you are a heretic; they burn the village that hides one. He knows that better than I do. He told me anyway. Not to save himself, but because he could not stand to watch his brother give up one more home for his sake.\n\n" +
+      "I made my choice before he had finished speaking. The courage of it decided me, more than any argument for or against: a boy that frightened, telling me the one thing that could get him killed, to buy his brother a life with him no longer in the shadows. I told him he and Aldwin were both staying. He looked at me as though I had spoken in a language he did not know.",
+  },
+  {
+    id: "ch2_stonebridge_plea",
+    chapterId: "ch2",
+    order: 1.7,
+    title: "A hand held out",
+    teaser: "Aldwin came at a dead run, grey as ash, to beg for a life I had already spared.",
+    fullText:
+      "Aldwin came an hour later at a dead run, grey as ash; he had learned where his brother had gone. He did not ask what I meant to do. He begged. For the boy's life, offering me his own, offering to leave, offering anything, the words falling over each other faster than I could answer them.\n\n" +
+      "I let him get most of the way through before I told him to stop. I told him his brother had already come to me, that I had made my choice before the boy finished speaking, and that they were both staying. He looked at me the way a man looks who has braced against a blow his whole life and felt, instead, a hand held out.\n\n" +
+      "Twenty years, I think, he has carried this alone. I do not believe he knew how to set it down. I told him, gently, because he needed to hear it: that he had raised a brave one, braver than himself maybe, a boy who did not wait to be sure of me.",
+  },
+  {
+    id: "ch2_stonebridge_aftermath",
+    chapterId: "ch2",
+    order: 1.8,
+    title: "God forgive me if I am wrong",
+    teaser: "I have done a thing the Doctrine has one word for, and the word is damnable. I keep waiting to feel damned.",
+    fullText:
+      "I have done a thing tonight the Doctrine has only one word for, and the word is damnable. I keep waiting to feel damned. Instead I feel afraid, which is a different thing, and beneath the fear something I have no name for, that might be the first honest feeling I have had about my faith in years.\n\n" +
+      "I have set every soul here at risk for two men I have known a season. If the Order ever comes, what I decided tonight is the rope they hang us with. And I would decide it again.\n\n" +
+      "I told the brothers what I will tell no one beyond these walls: the boy stays a shadow when strangers are near. Not for shame, never that, but because the world past our fields would burn him for being born, and I will not give it the chance. God forgive me if I am wrong. I find, to my own surprise, that I do not think I am.",
   },
   {
     id: "ch2_broken_stone",
@@ -418,6 +540,26 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "I have been at my desk all morning looking at the parchment. The west stone, deep in country none of us had walked before the team rode out, is the next one we can reach. It is broken in the way that suggests new work, not old work. Niamh said the marks there were fresher. She said when she comes back we will mend that one too, and then we will see what we can see.\n\n" +
       "The two stones flanking the old watch are both standing today, and I know now that this was not always true. The south stone broke around the time Hale's company came, and a ranger reset it long after he was past saving. A mended stone, and a garrison that needed the mending a hundred and fifty years before it came. I did not know any of this until last month, and now I owe those stones more than I have. The line does not end with them. There are more stones further south, two days into country we cannot ride to, and the team's parchment says some of them are down. The stones south of those are in the Wastes proper, and have been for a long time. We will not mend any of these. I have written this out to myself in the parchment's margin, in small letters, and then I have written under it: *not yet, not now, possibly not ever, but I want to remember to remember.*\n\n" +
       "There is good ground east of here that there was not a season ago. That is enough for tonight.",
+  },
+  {
+    id: "ch2_nell_wandering",
+    chapterId: "ch2",
+    order: 7,
+    title: "Gone from the beds",
+    teaser: "Nell was gone from Edda's herb beds by midday. Edda stands at the treeline and will not come in.",
+    fullText:
+      "Nell was gone from Edda's beds by midday, and the whole camp felt it before anyone could say why. She keeps her own hours and her own silence, and most days that is no trouble at all. But the woods to the south run further than a small girl should walk alone, and if she is lost out there she cannot call for us, or she will not.\n\n" +
+      "Edda has said nothing either. She only stands at the treeline, watching the green, the way she does when she is most afraid. I have sent word to the guild. Someone who can read a small pair of footprints through summer grass will find her faster than the rest of us tramping about and calling a name she has never once answered to.",
+  },
+  {
+    id: "ch2_nell_found",
+    chapterId: "ch2",
+    order: 8,
+    title: "Red to the wrists",
+    teaser: "They found her past the treeline, asleep in a hollow of wild strawberries, and not the least bit sorry.",
+    fullText:
+      "They found her near dusk, past the treeline, asleep in a hollow full of wild strawberries. Stained red to the wrists, curled up like a fox in the last of the sun, and not the least bit sorry to be found. Edda laughed and wept at the same time and insisted it was only the weeping.\n\n" +
+      "Nell had filled her apron with the little berries and would not give them up, not even sleeping. Edda says the wild ones bruise and will not keep a season, but a cutting will take to a tended bed if we mind it through the summer. So we will. Nell decided it, the way she decides everything, without a word.",
   },
   {
     id: "ch3_post_the_line",

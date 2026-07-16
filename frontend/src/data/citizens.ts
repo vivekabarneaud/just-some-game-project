@@ -39,22 +39,24 @@ export function emptyCitizens(): CitizenCounts {
   return { toddlers: 0, children: 0, adults: 0, elderly: 0 };
 }
 
-/** Founder mapping — bio-accurate slice of the 5 starting characters.
- *  Edda (71) + Father Corin (68) elderly. Jory (36) + Tomas (48) adults.
- *  Nell (11) child. */
+/** Founder mapping — bio-accurate slice of the 6 starting characters.
+ *  Edda (71) + Father Corin (68) elderly. The Lord (~37) + Jory (36) +
+ *  Tomas (48) adults. Nell (11) child. The Lord is a real resident (a mouth,
+ *  a bed, "a settlement of six"), just never a drafted worker — namedResidents
+ *  keeps him out of the assignable pool. */
 export function founderCitizens(): CitizenCounts {
-  return { toddlers: 0, children: 1, adults: 2, elderly: 2 };
+  return { toddlers: 0, children: 1, adults: 3, elderly: 2 };
 }
 
 /** Per-category floor that protects the founding cast from ever being
  *  silently killed by starvation, freezing, raids, or unhappiness-departure.
- *  Same shape as founderCitizens — Nell, Jory, Tomas, Edda, Corin will
- *  always survive until the named-founder rework lets them die for real
+ *  Same shape as founderCitizens — the Lord, Nell, Jory, Tomas, Edda, Corin
+ *  will always survive until the named-founder rework lets them die for real
  *  story reasons. Passed to reduceByPriority as the `floor` argument. */
 export const FOUNDER_FLOOR: Partial<CitizenCounts> = {
   toddlers: 0,
   children: 1,
-  adults: 2,
+  adults: 3,
   elderly: 2,
 };
 

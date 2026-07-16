@@ -105,3 +105,15 @@ recruitment" (→ roster tab) — reword to match the acquisition model when con
   adding a *health* floor on top, not re-gating growth on story.
 - Duration fixes: Bad Blood 60s, Run Down 180s.
 - Greyford trade reversed (bring stone → get grain) so it fits the early economy.
+
+---
+
+## Playtest signals — economy feels too loose (2026-07-07, dev self-play)
+
+⚠️ **Caveat first (see this doc's top rule):** these are from dev self-play — idle-accelerated, invested, game-literate, dev-inflated saves. Treat as *hypotheses to verify with a fresh player*, not settled tuning. But two of them are **structural**, not just numbers, so they're worth designing around:
+
+1. **Healing is trivially cheap.** Fiber → bandages and potions in large amounts, early. Wounds don't sting because you can top an adventurer to full from home for almost nothing. The new **wounded-damage penalty** (below-40%-HP softens output) makes wounds *matter* more in combat, but the *recovery* side is still too frictionless. Levers to consider: bandages heal less / cost more or gate behind a building; potions require brewed inputs (tie to the alchemy chain); a per-day heal cap or Infirmary throughput (see [[project_adventurer_recovery]] — Model C Infirmary was deferred). Don't nuke healing — make full-topping a *choice*, not a reflex.
+
+2. **Gold is too abundant, and from the wrong source.** Quests/missions hand out too much gold. **Design principle the user wants:** gold should come from **outsiders — trade, merchants, the tavern, caravans** — NOT from the settlement's own missions/quests (except ones that explicitly involve outsiders: escorts, deliveries, bounties paid by a named party). Rationale: it makes the *tavern and merchants matter* (right now the player is so rich the tavern's gold is irrelevant), and it fits the fiction (your own folk clearing wolves don't mint coin; a Dominion trader does). Action when verified: strip/shrink flat `gold` rewards on non-outsider missions; lean gold income onto tavern gold/day + merchant trades + escort/delivery missions. Ties to [[project_traveling_merchants]] + [[project_tavern_system]].
+
+**How to apply:** capture now, verify with a fresh-player session before re-tuning numbers. The *gold-source principle* (2) is safe to adopt as a design rule regardless; the *magnitudes* (1 & 2) wait for non-dev signal.

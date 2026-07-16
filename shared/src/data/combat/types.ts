@@ -48,6 +48,9 @@ export interface CombatUnit {
   isMagical: boolean;
   gearDefense: number;
   trait?: string;
+  /** Adventurer talent ids (for combat hooks — e.g. the wounded-damage penalty
+   *  can be bypassed by "unflinching" or inverted by "last_stand"). */
+  talents?: string[];
   /** Equipped mainHand weapon family (for weapon-affinity traits like axe mastery). */
   weaponType?: string;
   enemyTags?: EnemyTag[];
@@ -103,6 +106,10 @@ export interface CombatUnit {
   /** Escaped the field alive — removed from targeting + the action order, comes
    *  home wounded. */
   fled?: boolean;
+  /** Enemy rout threshold (0-1 of maxHp). When an enemy at/below this breaks and
+   *  flees on its turn — set `fled` (survives, off the field) instead of fighting
+   *  on. Carried from EnemyDefinition.routsAt. Undefined = fights to the end. */
+  routsAt?: number;
   /** This unit's presence upgrades the team's retreat judgment (Morgause). Set at
    *  unit-build time. Command is lost if they fall/flee/break. */
   isCommander?: boolean;
@@ -111,6 +118,9 @@ export interface CombatUnit {
   tauntedBy?: string;
   slowed: number;
   poisonTicks: { damage: number; rounds: number; sourceName?: string; sourceIcon?: string; type?: "bleed" | "poison" }[];
+  /** Infected with the froth (rabid-boar bite-sickness) this fight. Not a combat
+   *  DoT — it's carried home as an Adventurer condition if the unit survives. */
+  frothed?: boolean;
   shieldWallUsed?: boolean;
   enemyAbilities?: EnemyAbility[];
   combatPotion?: CombatPotionEffect;
@@ -206,7 +216,7 @@ export interface CombatResult {
   /** Lingering DoTs (bleed/poison) still active on SURVIVING adventurers when
    *  combat ended. Written home as Adventurer.conditions — they block passive
    *  regen until they decay/are treated. Keyed by adventurer id. */
-  finalConditions?: Record<string, { type: "bleed" | "poison"; remainingRounds: number; perRound?: number; icon?: string }[]>;
+  finalConditions?: Record<string, { type: "bleed" | "poison" | "froth"; remainingRounds: number; perRound?: number; icon?: string }[]>;
   /** Set to the NPC ally id when an isMissionObjective ally fell during combat.
    *  Mission completion treats this as a distinct failure — no rewards, no team
    *  XP, but surviving adventurers still go home (no team-wipe permadeath cascade). */

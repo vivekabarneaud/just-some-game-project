@@ -1,6 +1,6 @@
 import { For, Show, onMount, type JSX } from "solid-js";
 import { A } from "@solidjs/router";
-import { useGame, CRAFTING_RECIPES, getBuildingToolsForBuilding, getRequiredTool, type CraftingRecipe } from "~/engine/gameState";
+import { useGame, CRAFTING_RECIPES, isRecipeDiscovered, getBuildingToolsForBuilding, getRequiredTool, type CraftingRecipe } from "~/engine/gameState";
 import { playSound, type SoundId } from "~/engine/sounds";
 import { getItemByRecipe, ARMOR_TYPE_META, isFoodItem, getFoodEffect } from "@medieval-realm/shared/data/items";
 import { getTotalFood, isFoodItemType, getFoodCostAmount, getFoodMeta, type FoodItemType } from "~/data/foods";
@@ -10,6 +10,17 @@ import Tooltip from "~/components/Tooltip";
 import RecipeCard from "~/components/RecipeCard";
 import FoodIcon from "~/components/FoodIcon";
 import { formatTimeShort } from "~/utils/format";
+
+// THROWAWAY PREVIEW: hand-drawn ornament frames, cycled across crafted gear
+// icons so the look can be judged in context. To be replaced by a real
+// per-item rarity system when the items list is reworked. Safe to delete.
+const PREVIEW_EQUIP_FRAMES = [
+  "/images/frames/item_frame_common.png",
+  "/images/frames/item_frame_uncommon.png",
+  "/images/frames/item_frame_rare.png",
+  "/images/frames/item_frame_epic.png",
+  "/images/frames/item_frame_legendary.png",
+];
 
 /** Split item description into stats and flavor text */
 function splitDescription(desc: string): { stats: string; flavor: string | null } {
@@ -221,7 +232,8 @@ export default function CraftingPage(props: CraftingPageProps) {
   const recipes = () => {
     const ids = installedToolIds();
     return CRAFTING_RECIPES
-      .filter((r) => r.building === props.buildingId && buildingLevel() >= r.minLevel)
+      .filter((r) => r.building === props.buildingId && buildingLevel() >= r.minLevel
+        && isRecipeDiscovered(r, state.discoveredRecipes ?? []))
       .sort((a, b) => {
         const aLocked = getRequiredTool(a, ids) ? 1 : 0;
         const bLocked = getRequiredTool(b, ids) ? 1 : 0;
@@ -230,7 +242,10 @@ export default function CraftingPage(props: CraftingPageProps) {
   };
 
   const lockedRecipes = () => CRAFTING_RECIPES.filter((r) => {
-    return r.building === props.buildingId && buildingLevel() < r.minLevel;
+    // Level-locked recipes still show (as a teaser), but an undiscovered
+    // discovery-recipe stays fully hidden until it's unlocked.
+    return r.building === props.buildingId && buildingLevel() < r.minLevel
+      && isRecipeDiscovered(r, state.discoveredRecipes ?? []);
   });
 
   /** All entries in this building's queue — active and pending. */
@@ -310,6 +325,31 @@ export default function CraftingPage(props: CraftingPageProps) {
   };
   const recipeProduces = (recipe: CraftingRecipe) =>
     `+${recipe.produces.amount}x ${formatResource(recipe.produces.resource, props.buildingId)}`;
+  // Kitchen dishes aren't ITEMs, so itemInfoPanel returns null for them. Give
+  // them their own panel: a "Staple" badge for the food-that-feeds-citizens
+  // dishes (the keep-cookable ones), plus the recipe's flavor description.
+  const dishInfoPanel = (recipe: CraftingRecipe) => {
+    const isStaple = props.buildingId === "kitchen" && isFoodItemType(recipe.produces.resource);
+    if (!recipe.description && !isStaple) return null;
+    return (
+      <div style={{ "margin-top": "4px", padding: "4px 8px", background: "var(--bg-primary)", "border-radius": "4px", "font-size": "0.75rem" }}>
+        <Show when={isStaple}>
+          <div style={{
+            display: "inline-block", "font-size": "0.65rem", padding: "1px 6px", "margin-bottom": "4px",
+            background: "rgba(212, 175, 55, 0.15)", border: "1px solid var(--accent-gold)",
+            "border-radius": "3px", color: "var(--accent-gold)",
+          }}>🍲 Staple · feeds the settlement</div>
+        </Show>
+        <Show when={recipe.description}>
+          <div style={{ color: "var(--text-muted)", "font-style": "italic", "font-size": "0.7rem" }}>{recipe.description}</div>
+        </Show>
+      </div>
+    );
+  };
+  /** Info panel for a recipe: the item stats panel if it maps to an item,
+   *  otherwise the dish panel (staple badge + flavor). */
+  const recipeInfoPanel = (recipe: CraftingRecipe, hideConsumable: boolean) =>
+    itemInfoPanel(recipe.id, hideConsumable) ?? dishInfoPanel(recipe);
   const toolLockedBadge = (icon: string, name: string) => (
     <div style={{
       padding: "4px 8px",
@@ -490,17 +530,65 @@ export default function CraftingPage(props: CraftingPageProps) {
             </h3>
             <div class="buildings-grid">
               <For each={recipes()}>
-                {(recipe) => {
+                {(recipe, i) => {
                   const missingTool = () => getRequiredTool(recipe, installedToolIds());
                   const isToolLocked = () => !!missingTool();
+                  // Preview frame: only on crafted GEAR (recipe → item with an
+                  // equipment slot), cycling the three ornament tiers by index.
+                  const previewFrame = () => {
+                    const it = getItemByRecipe(recipe.id);
+                    return it?.slot ? PREVIEW_EQUIP_FRAMES[i() % PREVIEW_EQUIP_FRAMES.length] : undefined;
+                  };
+                  // Passive "keep cooking" toggle — kitchen staples that feed
+                  // citizens (food-type produce). Sits next to Cook (extraAction);
+                  // burns ~1 wood/hr while lit. Null for non-staple / other buildings.
+                  const keepCookingBtn = (): JSX.Element => {
+                    if (!(props.buildingId === "kitchen" && isFoodItemType(recipe.produces.resource) && !isToolLocked())) return null;
+                    const active = () => state.autoCook?.[props.buildingId] ?? [];
+                    const isOn = () => active().includes(recipe.id);
+                    const slots = () => actions.getAutoCookSlots(props.buildingId);
+                    const slotsFull = () => !isOn() && active().length >= slots();
+                    const startBlocked = () => craftDisabledReason(recipe.id, 1);
+                    const stallReason = (): string => {
+                      if (state.resources.wood <= 0) return "no wood to burn";
+                      const r = craftDisabledReason(recipe.id, 1);
+                      return r ? r.toLowerCase() : "";
+                    };
+                    const disabled = () => !isOn() && (!!startBlocked() || slotsFull());
+                    const stalled = () => isOn() && !!stallReason();
+                    const label = () =>
+                      !isOn() ? (slotsFull() ? `🔥 Kitchen full (${active().length}/${slots()})` : "🔥 Keep cooking")
+                      : stalled() ? `⏸ Paused — ${stallReason()}`
+                      : "🔥 Cooking — tap to stop";
+                    const title = () =>
+                      slotsFull() ? "All cook slots are in use — upgrade the Kitchen to keep more dishes going at once."
+                      : disabled() ? startBlocked()!
+                      : "Keep cooking this while there are ingredients and wood to burn";
+                    return (
+                      <Tooltip text={title()}>
+                        <button
+                          class="btn-secondary"
+                          disabled={disabled()}
+                          onClick={() => { if (!disabled()) actions.setAutoCook(props.buildingId, recipe.id); }}
+                          style={{
+                            "font-size": "0.72rem",
+                            "white-space": "nowrap",
+                          }}
+                        >
+                          {label()}
+                        </button>
+                      </Tooltip>
+                    );
+                  };
                   return (
-                    <div style={{ display: "flex", "flex-direction": "column", gap: "3px" }}>
                     <RecipeCard
                       {...recipeDisplayProps(recipe)}
                       subtitle={`${formatTimeShort(recipe.craftTime)} · ${recipeProduces(recipe)}`}
-                      info={itemInfoPanel(recipe.id, isToolLocked())}
+                      info={recipeInfoPanel(recipe, isToolLocked())}
                       isUnseen={!(state.recipesSeen ?? []).includes(recipe.id)}
                       onSeen={() => actions.markRecipeSeen(recipe.id)}
+                      frameUrl={previewFrame()}
+                      extraAction={keepCookingBtn()}
                       action={
                         isToolLocked()
                           ? { type: "locked", badge: toolLockedBadge(missingTool()!.icon, missingTool()!.name) }
@@ -518,56 +606,6 @@ export default function CraftingPage(props: CraftingPageProps) {
                             }
                       }
                     />
-                    {/* Passive "keep cooking" toggle — kitchen staples that feed
-                        citizens (food-type produce). Burns ~1 wood/hr while lit. */}
-                    <Show when={props.buildingId === "kitchen" && isFoodItemType(recipe.produces.resource) && !isToolLocked()}>
-                      {(() => {
-                        const active = () => state.autoCook?.[props.buildingId] ?? [];
-                        const isOn = () => active().includes(recipe.id);
-                        const slots = () => actions.getAutoCookSlots(props.buildingId);
-                        // Kitchen can keep N dishes going at once (one per level).
-                        const slotsFull = () => !isOn() && active().length >= slots();
-                        // Same gate as the "cook!" button — you can't set a
-                        // standing order for a dish you can't even make once.
-                        const startBlocked = () => craftDisabledReason(recipe.id, 1);
-                        // Once a pot IS lit, it stays assigned and just pauses;
-                        // wood is the cooking-only fuel craftDisabledReason ignores.
-                        const stallReason = (): string => {
-                          if (state.resources.wood <= 0) return "no wood to burn";
-                          const r = craftDisabledReason(recipe.id, 1);
-                          return r ? r.toLowerCase() : "";
-                        };
-                        const disabled = () => !isOn() && (!!startBlocked() || slotsFull());
-                        const stalled = () => isOn() && !!stallReason();
-                        const label = () =>
-                          !isOn() ? (slotsFull() ? `🔥 Kitchen full (${active().length}/${slots()})` : "🔥 Keep cooking")
-                          : stalled() ? `⏸ Paused — ${stallReason()}`
-                          : "🔥 Cooking — tap to stop";
-                        const title = () =>
-                          slotsFull() ? "All cook slots are in use — upgrade the Kitchen to keep more dishes going at once."
-                          : disabled() ? startBlocked()!
-                          : "Keep cooking this while there are ingredients and wood to burn";
-                        return (
-                          <Tooltip text={title()}>
-                          <button
-                            disabled={disabled()}
-                            onClick={() => { if (!disabled()) actions.setAutoCook(props.buildingId, recipe.id); }}
-                            style={{
-                              padding: "4px 8px", "font-size": "0.72rem", "border-radius": "4px",
-                              cursor: disabled() ? "not-allowed" : "pointer",
-                              opacity: disabled() ? 0.5 : 1,
-                              border: `1px solid ${isOn() && !stalled() ? "var(--accent-gold)" : "var(--border-color)"}`,
-                              background: isOn() && !stalled() ? "rgba(212, 175, 55, 0.15)" : "transparent",
-                              color: isOn() && !stalled() ? "var(--accent-gold)" : "var(--text-muted)",
-                            }}
-                          >
-                            {label()}
-                          </button>
-                          </Tooltip>
-                        );
-                      })()}
-                    </Show>
-                    </div>
                   );
                 }}
               </For>
@@ -589,7 +627,7 @@ export default function CraftingPage(props: CraftingPageProps) {
                     <RecipeCard
                       {...recipeDisplayProps(recipe)}
                       subtitle={recipeProduces(recipe)}
-                      info={itemInfoPanel(recipe.id, true)}
+                      info={recipeInfoPanel(recipe, true)}
                       action={{
                         type: "locked",
                         badge: levelLockedBadge(recipe.minLevel, props.buildingName, buildingLevel()),

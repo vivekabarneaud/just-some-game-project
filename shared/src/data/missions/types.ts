@@ -17,7 +17,7 @@ export type RewardType = "gold" | "wood" | "stone" | "food" | "astralShards"
   // Crafting materials (also drop via combat loot; can be guaranteed mission rewards too)
   | "wolfhide_strip" | "fang" | "sinew_cord"
   | "thick_pelt" | "bear_claw"
-  | "bristlehide" | "tusk_shard"
+  | "bristlehide" | "tusk_shard" | "cloven_hoof" | "boar_skull"
   | "chitin_plate" | "spinners_bile"
   | "serpent_fang" | "snake_oil"
   | "gnawed_marrow" | "bonewalk_shard";
@@ -69,6 +69,10 @@ export interface MissionTemplate {
   image?: string; // optional mission illustration
   encounters?: MissionEncounter[]; // enemies faced during the mission
   guaranteed?: boolean; // always ~98% success regardless of stats
+  /** Pin this mission to the board whenever eligible (like sideChain missions),
+   *  but WITHOUT showing a chain banner — for one-off hooks that should reliably
+   *  appear yet read as an ordinary errand (e.g. the bog-witch front). */
+  pinned?: boolean;
   /** Discovery mission: the objective is what the team LEARNS, not winning the
    *  fight. The combat still runs (they come home wounded), but a lost fight
    *  still completes the mission, and no one dies (a scripted retreat). Used for
@@ -157,11 +161,18 @@ export interface MissionRequirements {
   story?: string;       // story mission ID that must be completed
   building?: string;    // building ID that must be built (level > 0)
   buildings?: string[]; // ALL of these building IDs must be built (level > 0)
+  tavernReputation?: number; // tavern reputation (0-100) must be at least this — "the haven's name has spread"
+  missionCount?: { id: string; count: number }; // a mission must have been completed at least `count` times
+  hasClass?: AdventurerClass; // at least one alive adventurer of this class must be on the roster — for missions that NEED a class to be doable (e.g. a priest for ghosts), so they don't tease before that class exists
   pen?: import("../livestock").AnimalId; // pen animal type that must exist (level > 0)
   /** Id of a `unique` mission that must be completed first. Powers the
    *  discovery→routine pattern: a one-time "first" mission unlocks the
    *  recurring "chore" version (checked against completedUniqueMissionIds). */
   missionDone?: string;
+  /** A chronicle entry that must have fired. Lets a story-director beat surface
+   *  a mission only after its setup has played (e.g. the "Nell's gone
+   *  wandering" worry beat opens the search mission). */
+  chronicleFired?: string;
 }
 
 /** Per-adventurer mission supplies: potion (combat), food (mission start buff), recovery (between-event heal). */
@@ -230,6 +241,10 @@ export interface CompletedMission {
   /** Set to the NPC ally id when an isMissionObjective ally fell during combat —
    *  drives the distinct "Warden Niamh fell, the binding could not complete" UI. */
   vipFallen?: string;
+  /** Enemy ids first encountered on THIS mission that were genuine surprises
+   *  (not `revealPortrait` foes the settlement already knew). Drives the loot
+   *  modal's "New foes faced" reveal — the payoff for the "???" cards. */
+  revealedEnemies?: string[];
 }
 
 export interface StoryMission extends MissionTemplate {

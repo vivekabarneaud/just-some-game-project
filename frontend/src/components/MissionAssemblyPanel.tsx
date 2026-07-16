@@ -199,9 +199,10 @@ export default function MissionAssemblyPanel(props: Props) {
 
   // ─── Available adventurers ────────────────────────────────────
   const CLASS_ORDER: Record<string, number> = { warrior: 0, priest: 1, wizard: 2, archer: 3, assassin: 4 };
+  const hasFroth = (a: { conditions?: { type: string }[] }) => a.conditions?.some((c) => c.type === "froth") ?? false;
   const availableAdvs = createMemo(() =>
     state.adventurers
-      .filter((a) => a.alive && !a.onMission && !(props.coopLockedAdvIds?.has(a.id) ?? false))
+      .filter((a) => a.alive && !a.onMission && !hasFroth(a) && !(props.coopLockedAdvIds?.has(a.id) ?? false))
       .sort((a, b) => (CLASS_ORDER[a.class] ?? 9) - (CLASS_ORDER[b.class] ?? 9) || b.level - a.level)
   );
   // Counts of alive-but-hidden adventurers, broken down by reason. Surfaced
@@ -209,12 +210,14 @@ export default function MissionAssemblyPanel(props: Props) {
   const hiddenBreakdown = createMemo(() => {
     let onMission = 0;
     let coopLocked = 0;
+    let frothing = 0;
     for (const a of state.adventurers) {
       if (!a.alive) continue;
       if (a.onMission) onMission++;
+      else if (hasFroth(a)) frothing++;
       else if (props.coopLockedAdvIds?.has(a.id)) coopLocked++;
     }
-    return { onMission, coopLocked, total: onMission + coopLocked };
+    return { onMission, coopLocked, frothing, total: onMission + coopLocked + frothing };
   });
 
   // ─── Team management ──────────────────────────────────────────
@@ -630,8 +633,10 @@ export default function MissionAssemblyPanel(props: Props) {
             <div class="assembly-card-row" style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
               {freshMission().encounters!.map((enc) => {
                 const enemy = getEnemy(enc.enemyId);
+                if (!enemy) return null;
                 const discovered = (state.discoveredEnemies ?? []).includes(enc.enemyId);
-                return enemy ? <MissionEnemyCard enemy={enemy} count={enc.count} hidden={!discovered} /> : null;
+                const reveal = discovered ? "full" : enemy.revealPortrait ? "portrait" : "none";
+                return <MissionEnemyCard enemy={enemy} count={enc.count} reveal={reveal} />;
               })}
             </div>
           </div>
@@ -1282,7 +1287,7 @@ export default function MissionAssemblyPanel(props: Props) {
               <For each={freshMission().deployItems!}>
                 {(c, i) => (
                   <span style={{ color: actions.resourceQty(c.resource) < c.amount ? "var(--accent-red, #e05a5a)" : undefined }}>
-                    {i() > 0 ? ", " : ""}{formatReward(c)} ({actions.resourceQty(c.resource)} on hand)
+                    {i() > 0 ? ", " : ""}{formatReward(c)} ({Math.floor(actions.resourceQty(c.resource))} on hand)
                   </span>
                 )}
               </For>
@@ -1292,11 +1297,8 @@ export default function MissionAssemblyPanel(props: Props) {
         </div>
 
         <button
-          style={{
-            "margin-top": "12px", padding: "6px 14px", background: "none",
-            border: "1px solid var(--border-color)", "border-radius": "4px",
-            color: "var(--text-muted)", cursor: "pointer", "font-size": "0.8rem",
-          }}
+          class="btn-secondary"
+          style={{ "margin-top": "12px" }}
           onClick={props.onCancel}
         >
           Cancel
@@ -1343,6 +1345,7 @@ export default function MissionAssemblyPanel(props: Props) {
             <p style={{ color: "var(--text-muted)", "font-size": "0.85rem", "line-height": "1.5" }}>
               Everyone is out.
               {hiddenBreakdown().onMission > 0 && ` ${hiddenBreakdown().onMission} on missions.`}
+              {hiddenBreakdown().frothing > 0 && ` ${hiddenBreakdown().frothing} laid up with the froth (cure with a Boar's-Bane Salve).`}
               {hiddenBreakdown().coopLocked > 0 && ` ${hiddenBreakdown().coopLocked} pledged to a co-op expedition.`}
               {" "}They will return. More hands find their way here as you take on adventures and quests.
             </p>
@@ -1381,7 +1384,7 @@ export default function MissionAssemblyPanel(props: Props) {
           }}>
             {hiddenBreakdown().total} hidden:
             {hiddenBreakdown().onMission > 0 && ` ${hiddenBreakdown().onMission} on a mission`}
-            {hiddenBreakdown().onMission > 0 && hiddenBreakdown().coopLocked > 0 && ","}
+            {hiddenBreakdown().frothing > 0 && ` ${hiddenBreakdown().frothing} down with the froth`}
             {hiddenBreakdown().coopLocked > 0 && ` ${hiddenBreakdown().coopLocked} reserved for a co-op`}
           </div>
         </Show>
@@ -1487,6 +1490,7 @@ export default function MissionAssemblyPanel(props: Props) {
             </Show>
           </div>
           <button
+            class="btn-secondary"
             onClick={async () => {
               if (!confirm("Cancel this co-op expedition?")) return;
               try {
@@ -1497,12 +1501,7 @@ export default function MissionAssemblyPanel(props: Props) {
             style={{
               width: "100%",
               "margin-top": "8px",
-              padding: "4px 12px",
-              background: "transparent",
-              border: "1px solid var(--accent-red)",
-              "border-radius": "4px",
-              color: "var(--accent-red)",
-              cursor: "pointer",
+              "justify-content": "center",
               "font-size": "0.8rem",
             }}
           >
@@ -1526,16 +1525,12 @@ export default function MissionAssemblyPanel(props: Props) {
         {/* Co-op invite button — expeditions only (hidden when already in coop) */}
         <Show when={isExpedition(freshMission()) && !isCoop()}>
           <button
+            class="btn-secondary"
             onClick={openCoopPicker}
             style={{
               width: "100%",
               "margin-top": "8px",
-              padding: "6px 12px",
-              background: "rgba(167, 139, 250, 0.12)",
-              border: "1px solid #a78bfa",
-              "border-radius": "4px",
-              color: "#a78bfa",
-              cursor: "pointer",
+              "justify-content": "center",
               "font-size": "0.85rem",
             }}
           >
@@ -1591,15 +1586,10 @@ export default function MissionAssemblyPanel(props: Props) {
               )}
             </For>
             <button
+              class="btn-tertiary"
               onClick={() => setShowCoopPicker(false)}
               style={{
                 "margin-top": "6px",
-                padding: "4px 10px",
-                background: "transparent",
-                border: "1px solid var(--border-color)",
-                "border-radius": "4px",
-                color: "var(--text-muted)",
-                cursor: "pointer",
                 "font-size": "0.75rem",
               }}
             >
@@ -1644,14 +1634,14 @@ export default function MissionAssemblyPanel(props: Props) {
               </ul>
               <div style={{ display: "flex", gap: "10px", "justify-content": "flex-end" }}>
                 <button
+                  class="btn-secondary"
                   onClick={() => setShowDeathWarning(false)}
-                  style={{ padding: "9px 18px", background: "transparent", border: "1px solid var(--border-color)", "border-radius": "6px", color: "var(--text-secondary)", cursor: "pointer", "font-family": "var(--font-heading)" }}
                 >
                   Keep them home
                 </button>
                 <button
+                  class="btn-danger"
                   onClick={() => { setShowDeathWarning(false); doDeploy(); }}
-                  style={{ padding: "9px 18px", background: "var(--accent-red)", border: "none", "border-radius": "6px", color: "#fff", cursor: "pointer", "font-weight": "bold", "font-family": "var(--font-heading)" }}
                 >
                   Send them anyway
                 </button>

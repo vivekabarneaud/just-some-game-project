@@ -3,9 +3,10 @@ import { A } from "@solidjs/router";
 import { BUILDINGS, getSettlementName, SETTLEMENT_TIERS } from "~/data/buildings";
 import { RESOURCES } from "~/data/resources";
 import { SEASON_META } from "~/data/seasons";
+import SeasonIcon from "~/components/SeasonIcon";
 import { getRaid, getDefenseTips, type IncomingRaid } from "~/data/raids";
 import { militiaCount } from "~/data/defenses";
-import { getCurrentOverviewFlavors, FLAVOR_CATEGORY_ORDER } from "~/data/overview_flavors";
+import { getCurrentOverviewFlavors } from "~/data/overview_flavors";
 import { QUEST_DEFINITIONS, isQuestActive, isQuestClaimable, isQuestClaimed } from "~/data/quests";
 import { useGame, WALL_BASE_HP } from "~/engine/gameState";
 import { totalPopulation } from "~/data/citizens";
@@ -187,10 +188,9 @@ export default function Overview() {
           // data/overview_flavors.ts. One paragraph per category (settlement,
           // adventurers, defense), each tracking its own latest match. Lets
           // the player see parallel priorities at the same time.
-          const flavors = () => getCurrentOverviewFlavors(state);
-          const activeFlavors = () => FLAVOR_CATEGORY_ORDER
-            .map((cat) => flavors()[cat])
-            .filter((f): f is NonNullable<typeof f> => !!f);
+          // Ordered live concerns: settlement/adventurers/defense (teaching +
+          // story tracks) then any open chain threads. Already filtered + ordered.
+          const activeFlavors = () => getCurrentOverviewFlavors(state);
 
           // Immediate-danger banner inside the Matters card. Matches the
           // red "!" badge in the sidebar — surfaces when food is running
@@ -207,6 +207,11 @@ export default function Overview() {
             // near zero from float-point tick math.
             if (total < 1) {
               return { headline: "No food in the stores", detail: "Citizens are starving. Build a Forager's Hut, Hunting Camp, or Fishing Hut now." };
+            }
+            // Stores ran empty at some point and morale is still crashing, even
+            // if a trickle has nudged the total back above one ration.
+            if (state.starvationPenalty > 0) {
+              return { headline: "Citizens are starving", detail: "The stores ran empty and morale is crashing. Get food production positive and keep a buffer to recover." };
             }
             if (net < 0) {
               const hours = total / Math.abs(net);
@@ -231,8 +236,18 @@ export default function Overview() {
               detail: `Beds are over capacity: happiness suffers and new folk won't settle until there's room${state.season === "winter" ? ", and a crowded camp is a cold one in winter" : ""}. Build or upgrade Houses.`,
             };
           };
+          // Livestock going hungry — unfed pens stop producing and lose head.
+          const livestockStarving = (): { headline: string; detail: string } | null => {
+            const starving = (state.pens ?? []).filter((p) => p.level > 0 && (p.count ?? 0) > 0 && p.starving);
+            if (starving.length === 0) return null;
+            const names = [...new Set(starving.map((p) => p.animal))].join(", ");
+            return {
+              headline: `Livestock going hungry (${names})`,
+              detail: "Unfed animals stop producing and begin to die. Stock their feed (grain or veggies) in the larder, or graze them on fallow fields before you lose the flock.",
+            };
+          };
           return (
-            <div class="quest-panel" style={{ "padding": "16px 20px" }}>
+            <div class="quest-panel parchment-panel" style={{ "padding": "20px 24px" }}>
               <div class="quest-panel-content">
                 <div class="quest-header" style={{ "align-items": "center" }}>
                   <span class="quest-icon" style={{ "font-size": "1.6rem" }}>📋</span>
@@ -250,15 +265,15 @@ export default function Overview() {
                         <div style={{
                           "margin": "14px 0 0",
                           padding: "10px 14px",
-                          background: "rgba(231, 76, 60, 0.10)",
-                          border: "1px solid var(--accent-red)",
+                          background: "rgba(231, 76, 60, 0.20)",
+                          border: "1px solid #8a2417",
                           "border-left-width": "4px",
                           "border-radius": "6px",
                           "max-width": "800px",
                         }}>
                           <div style={{
                             "font-weight": "700",
-                            color: "var(--accent-red)",
+                            color: "#8a2417",
                             "font-size": "0.9rem",
                             display: "flex",
                             "align-items": "center",
@@ -270,7 +285,7 @@ export default function Overview() {
                           <div style={{
                             "margin-top": "4px",
                             "font-size": "0.82rem",
-                            color: "var(--text-secondary)",
+                            color: "#3a2418",
                             "line-height": "1.5",
                           }}>
                             {d().detail}
@@ -283,15 +298,15 @@ export default function Overview() {
                         <div style={{
                           "margin": "14px 0 0",
                           padding: "10px 14px",
-                          background: "rgba(212, 175, 55, 0.10)",
-                          border: "1px solid var(--accent-gold)",
+                          background: "rgba(212, 175, 55, 0.22)",
+                          border: "1px solid #7a5713",
                           "border-left-width": "4px",
                           "border-radius": "6px",
                           "max-width": "800px",
                         }}>
                           <div style={{
                             "font-weight": "700",
-                            color: "var(--accent-gold)",
+                            color: "#6b4e10",
                             "font-size": "0.9rem",
                             display: "flex",
                             "align-items": "center",
@@ -303,9 +318,26 @@ export default function Overview() {
                           <div style={{
                             "margin-top": "4px",
                             "font-size": "0.82rem",
-                            color: "var(--text-secondary)",
+                            color: "#3a2418",
                             "line-height": "1.5",
                           }}>
+                            {d().detail}
+                          </div>
+                        </div>
+                      )}
+                    </Show>
+                    <Show when={livestockStarving()}>
+                      {(d) => (
+                        <div style={{
+                          "margin": "14px 0 0", padding: "10px 14px",
+                          background: "rgba(231, 76, 60, 0.10)", border: "1px solid var(--accent-red)",
+                          "border-left-width": "4px", "border-radius": "6px", "max-width": "800px",
+                        }}>
+                          <div style={{ "font-weight": "700", color: "var(--accent-red)", "font-size": "0.9rem", display: "flex", "align-items": "center", gap: "8px" }}>
+                            <span>🥀</span>
+                            <span>{d().headline}</span>
+                          </div>
+                          <div style={{ "margin-top": "4px", "font-size": "0.82rem", color: "var(--text-secondary)", "line-height": "1.5" }}>
                             {d().detail}
                           </div>
                         </div>
@@ -351,7 +383,7 @@ export default function Overview() {
             <h2>All Quests Complete — For Now</h2>
             <p>You have proven yourself a worthy ruler. Your settlement thrives under your leadership. But the frontier is vast, and new challenges are on the horizon. Stay sharp — more quests will arrive soon.</p>
             <button
-              class="quest-claim-btn"
+              class="btn-primary"
               style={{ "margin-top": "10px" }}
               onClick={() => setDismissedCongrats(true)}
             >
@@ -362,7 +394,7 @@ export default function Overview() {
       </Show>
 
       <div class="overview-grid">
-        <div class="overview-panel">
+        <div class="overview-panel ornament-frame">
           <h2>Production Overview</h2>
           <For each={RESOURCES}>
             {(res) => {
@@ -404,7 +436,7 @@ export default function Overview() {
           </div>
         </div>
 
-        <div class="overview-panel">
+        <div class="overview-panel ornament-frame">
           <h2>Building Activity</h2>
           <div class="stat-row" style={{ "margin-bottom": "8px" }}>
             <span class="stat-label">Queue</span>
@@ -438,7 +470,7 @@ export default function Overview() {
           </Show>
         </div>
 
-        <div class="overview-panel">
+        <div class="overview-panel ornament-frame">
           <h2>Top Buildings</h2>
           <For each={topBuildings()}>
             {(pb) => {
@@ -460,7 +492,7 @@ export default function Overview() {
           </div>
         </div>
 
-        <div class="overview-panel">
+        <div class="overview-panel ornament-frame">
           <h2>Settlement Status</h2>
           <div class="stat-row">
             <span class="stat-label">Settlement</span>
@@ -481,7 +513,9 @@ export default function Overview() {
           <div class="stat-row">
             <span class="stat-label">Population</span>
             <span class="stat-value">
-              {totalPopulation(state.citizens)} / {actions.getMaxPopulation()}
+              {/* Occupancy = townsfolk + living adventurers, matching the top bar
+                  (both share the town's beds). Citizens-only read as too low. */}
+              {totalPopulation(state.citizens) + state.adventurers.filter((a) => a.alive).length} / {actions.getMaxPopulation()}
             </span>
           </div>
           {(() => {
@@ -554,14 +588,14 @@ export default function Overview() {
           </div>
           <div class="stat-row">
             <span class="stat-label">Season</span>
-            <span class="stat-value" style={{ color: SEASON_META[state.season].color }}>
-              {SEASON_META[state.season].icon} {SEASON_META[state.season].name}, Year {state.year}
+            <span class="stat-value" style={{ color: SEASON_META[state.season].color, display: "inline-flex", "align-items": "center", gap: "5px" }}>
+              <SeasonIcon season={state.season} size={18} /> {SEASON_META[state.season].name}, Year {state.year}
             </span>
           </div>
         </div>
 
         {/* Threats & Defense — moves to top when raids incoming */}
-        <div class="overview-panel" style={{ order: hasThreats() ? -1 : 0 }}>
+        <div class="overview-panel ornament-frame" style={{ order: hasThreats() ? -1 : 0 }}>
           <h2>Threats & Defense</h2>
           <div class="stat-row">
             <span class="stat-label">Defense Score</span>
@@ -691,17 +725,9 @@ export default function Overview() {
                               {ir.combatVictory ? "🛡️ Repelled" : "💔 Defeated"}
                             </div>
                             <button
+                              class="btn-secondary"
                               onClick={() => setPlayingRaid(ir)}
-                              style={{
-                                padding: "8px 18px",
-                                background: "rgba(180, 150, 100, 0.2)",
-                                border: "1px solid var(--accent-gold)",
-                                color: "var(--accent-gold)",
-                                "border-radius": "4px",
-                                cursor: "pointer",
-                                "font-size": "0.9rem",
-                                "font-weight": "bold",
-                              }}
+                              style={{ "font-size": "0.9rem", "font-weight": "bold" }}
                             >
                               ▶ Watch combat
                             </button>
@@ -748,6 +774,7 @@ export default function Overview() {
                           {/* Recall button */}
                           <Show when={onMissionCount() > 0}>
                             <button
+                              class="btn-secondary"
                               onClick={() => {
                                 const hasWiz = state.activeMissions.some((m) =>
                                   m.adventurerIds.some((id) => state.adventurers.find((a) => a.id === id)?.class === "wizard")
@@ -761,14 +788,9 @@ export default function Overview() {
                               }}
                               style={{
                                 "margin-top": "8px",
-                                padding: "6px 14px",
-                                background: "rgba(231, 76, 60, 0.2)",
-                                border: "1px solid var(--accent-red)",
-                                color: "var(--accent-red)",
-                                "border-radius": "4px",
-                                cursor: "pointer",
-                                "font-size": "0.85rem",
                                 width: "100%",
+                                "justify-content": "center",
+                                "font-size": "0.85rem",
                               }}
                             >
                               Recall Adventurers ({onMissionCount()})
@@ -787,7 +809,7 @@ export default function Overview() {
 
         {/* Event Log */}
         <Show when={state.eventLog.length > 0}>
-          <div class="overview-panel">
+          <div class="overview-panel ornament-frame">
             <h2>Event Log</h2>
             <div style={{ "max-height": "300px", overflow: "auto" }}>
               <For each={state.eventLog.slice(0, 20)}>

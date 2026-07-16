@@ -1,7 +1,6 @@
 import { createSignal, onCleanup, onMount } from "solid-js";
 import { useGame } from "~/engine/gameState";
-import { HOURS_PER_SEASON, IS_DEV, getGlobalSeason } from "~/data/seasons";
-import { resolveWeather } from "~/data/weather";
+import { resolveCurrentWeather } from "~/data/weather";
 import { ambientVolume, masterVolume, isMuted } from "~/engine/sounds";
 
 /**
@@ -30,12 +29,7 @@ export default function Lightning() {
   const { state } = useGame();
   const [flash, setFlash] = createSignal(0);
 
-  const weather = () => {
-    const info = IS_DEV
-      ? { season: state.season, progress: state.seasonElapsed / HOURS_PER_SEASON, year: state.year }
-      : getGlobalSeason();
-    return resolveWeather(info.season, info.progress, info.year);
-  };
+  const weather = () => resolveCurrentWeather(state.season, state.seasonElapsed, state.year);
   const stormKind = (): "storm" | "aether" | null => {
     const w = weather();
     if (w === "storm") return "storm";

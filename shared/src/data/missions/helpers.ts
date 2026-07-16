@@ -50,7 +50,7 @@ const FOOD_ITEM_LABELS: Record<string, { icon: string; name: string }> = {
   cabbages: { icon: "🥬", name: "Cabbages" },
   turnips: { icon: "🥕", name: "Turnips" },
   peas: { icon: "🫛", name: "Peas" },
-  squash: { icon: "🎃", name: "Squash" },
+  squash: { icon: "🎃", name: "Gourd" },
   apples: { icon: "🍎", name: "Apples" },
   pears: { icon: "🍐", name: "Pears" },
   cherries: { icon: "🍒", name: "Cherries" },
@@ -385,10 +385,24 @@ export interface MissionBoardContext {
   /** Ids of one-time (`unique`) missions already completed. They're filtered
    *  out so a resolved personal/narrative beat never returns to the board. */
   completedUniqueMissionIds?: string[];
+  /** Current tavern reputation (0-100). Gates "the haven draws the hunted"
+   *  arrivals (e.g. A Mother's Errand) behind a settlement that's become known. */
+  tavernReputation?: number;
+  /** Durable per-mission success counts (never cleared). Gates count-based
+   *  requirements, e.g. "appears after 3 fen barters." */
+  missionCompletions?: Record<string, number>;
+  /** Classes of alive adventurers on the roster. Gates `hasClass` requirements
+   *  so a mission that NEEDS a class (e.g. a priest for ghosts) doesn't surface
+   *  before that class exists. */
+  rosterClasses?: string[];
+  /** Chronicle entries that have fired. Gates `chronicleFired` requirements so a
+   *  mission only appears after its story-director setup beat has played. */
+  chronicleEntriesFired?: string[];
 }
 
-/** Check whether a mission's requirements are met */
-function meetsRequirements(
+/** Check whether a mission's requirements are met. Exported for unit tests;
+ *  also the gate behind generateMissionBoard / eligiblePinnedMissions. */
+export function meetsRequirements(
   req: MissionRequirements | undefined,
   ctx: MissionBoardContext,
 ): boolean {
@@ -413,6 +427,10 @@ function meetsRequirements(
     const done = new Set(ctx.completedUniqueMissionIds ?? []);
     if (!done.has(req.missionDone)) return false;
   }
+  if (req.tavernReputation && (ctx.tavernReputation ?? 0) < req.tavernReputation) return false;
+  if (req.missionCount && (ctx.missionCompletions?.[req.missionCount.id] ?? 0) < req.missionCount.count) return false;
+  if (req.hasClass && !(ctx.rosterClasses ?? []).includes(req.hasClass)) return false;
+  if (req.chronicleFired && !(ctx.chronicleEntriesFired ?? []).includes(req.chronicleFired)) return false;
   return true;
 }
 
@@ -452,7 +470,7 @@ export function eligiblePinnedMissions(ctx: MissionBoardContext): MissionTemplat
   const { guildLevel, maxDifficulty = 5 } = ctx;
   const completedUnique = new Set(ctx.completedUniqueMissionIds ?? []);
   return ALL_MISSIONS.filter((m) =>
-    m.unique && !!m.sideChain &&
+    m.unique && (!!m.sideChain || !!m.pinned) &&
     !m.staged &&
     m.minGuildLevel <= guildLevel &&
     m.difficulty <= maxDifficulty &&

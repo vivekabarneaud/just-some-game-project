@@ -113,9 +113,10 @@ export function maxArchers(state: GameState): number {
  *  into a watchtower. Reads the live `namedResidents.adults` floor so it
  *  grows as named adults arrive. */
 export function availableCitizens(state: GameState): number {
-  // Tavern servers are committed to the tavern — they can't also be drafted to a
-  // watchtower/garrison (and vice-versa). Shared adult pool.
-  return Math.max(0, state.citizens.adults - state.soldiers - state.archers - state.namedResidents.adults - (state.tavernServers ?? 0));
+  // One shared adult pool: tavern servers, watchtower/garrison, AND building
+  // workers all draw from it — an adult can only be in one place.
+  const buildingWorkers = Object.values(state.buildingWorkers ?? {}).reduce((sum, n) => sum + (n ?? 0), 0);
+  return Math.max(0, state.citizens.adults - state.soldiers - state.archers - state.namedResidents.adults - (state.tavernServers ?? 0) - buildingWorkers);
 }
 
 /** Uncommitted adults who grab pitchforks when a raid lands. Same headcount

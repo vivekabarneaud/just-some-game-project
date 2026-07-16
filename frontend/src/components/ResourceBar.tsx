@@ -2,11 +2,21 @@ import { For, Show } from "solid-js";
 import { RESOURCES } from "~/data/resources";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { EXOTICS } from "@medieval-realm/shared/data/exotics";
-import { useGame, CRAFTING_RECIPES } from "~/engine/gameState";
+import { useGame, CRAFTING_RECIPES, passiveCookTime, isForagerBlooming } from "~/engine/gameState";
+import { TAVERN_COMMODITY_DRINKS } from "~/data/tavern";
 import { totalPopulation } from "~/data/citizens";
 import { FOOD_ITEMS, FOOD_CATEGORIES, getTotalFood, getFoodCostAmount, type FoodItemType, type FoodCategoryId } from "~/data/foods";
 import { craftingMaterialCap } from "~/data/buildings";
+import { WEATHER_META } from "~/data/weather";
 import FoodIcon from "~/components/FoodIcon";
+import type { StreamStatus } from "~/data/water";
+
+const STREAM_STATUS_META: Record<StreamStatus, { icon: string; suffix: string; color: string }> = {
+  flowing: { icon: "🏞️", suffix: "", color: "var(--accent-green)" },
+  low: { icon: "🏞️", suffix: " (low)", color: "var(--accent-gold)" },
+  frozen: { icon: "🧊", suffix: " (frozen)", color: "var(--text-secondary)" },
+  dry: { icon: "🏜️", suffix: " (dry)", color: "var(--accent-red)" },
+};
 
 export default function ResourceBar() {
   const { state, actions } = useGame();
@@ -39,7 +49,9 @@ export default function ResourceBar() {
       const inputsOk = r.costs.every((c) => getFoodCostAmount(state.foods, c.resource) >= c.amount);
       const woodOk = state.resources.wood > 0; // the fire needs fuel
       if (!inputsOk || !woodOk) continue; // stalled → no contribution
-      const perHour = 3600 / r.craftTime;
+      // Passive pots run on the slow sustainable cadence, not the snappy active
+      // craftTime — the readout must match, or it overstates the pot's output.
+      const perHour = 3600 / passiveCookTime(r);
       const outType = r.produces.resource;
       produce[outType] = (produce[outType] ?? 0) + r.produces.amount * perHour;
       let netBatch = r.produces.amount;
@@ -80,11 +92,25 @@ export default function ResourceBar() {
   const rates = () => actions.getProductionRates();
   const foodCons = () => actions.getFoodConsumption();
   const animalCons = () => actions.getAnimalFoodConsumption();
+  const tavernCons = () => actions.getTavernFoodConsumption();
+  const honeyRate = () => actions.getHoneyProduction();
+  // Unlocked tavern drinks (ale/mead/cider/…) + their barrel readouts.
+  const drinks = () =>
+    TAVERN_COMMODITY_DRINKS
+      .map((d) => ({ ...d, info: actions.getDrinkInfo(d.id) }))
+      .filter((d) => d.info.cap > 0);
   const caps = () => actions.getStorageCaps();
   const foodBreakdown = () => actions.getFoodBreakdown();
+  // Sum ALL production sources of a food type — there can be several (e.g. a
+  // sheep pen AND the hunting camp both make "meat"). A prior `.find` showed
+  // only the first source, hiding the rest (the hunting camp's meat vanished).
+  const rateForType = (id: string) =>
+    foodBreakdown().filter((s) => s.type === id).reduce((sum, s) => sum + s.rate, 0);
 
   const getAmount = (id: string) => {
-    // For food, show the sum of per-type floors so the total always matches what's visible in the dropdown
+    // For food, show the sum of per-type floors so the total always matches what's
+    // visible in the dropdown. Honey is edible but kept on its own line (and its
+    // own storage), so it's not folded into this pantry total.
     if (id === "food") {
       return FOOD_ITEMS.reduce((sum, fi) => sum + Math.floor(state.foods?.[fi.id] ?? 0), 0);
     }
@@ -96,6 +122,11 @@ export default function ResourceBar() {
     return c[id as keyof typeof c];
   };
 
+  // Water has its own net rate (well + rain − irrigation), not in the resource
+  // production rates. Only surfaced once the player has water infrastructure.
+  const hasWaterInfra = () =>
+    state.buildings.some((b) => (b.buildingId === "well" || b.buildingId === "cistern") && b.level > 0);
+
   const getRate = (id: string) => {
     const r = rates();
     const base = r[id as keyof typeof r] as number;
@@ -103,7 +134,7 @@ export default function ResourceBar() {
     // into the headline rate so the player sees -14/h climb when a pot is on.
     // The "how long until the larder runs dry" detail stays on the cooked-food
     // line only; here it'd be misleading (several pots, several timers).
-    if (id === "food") return base - foodCons() - animalCons() + actions.getCookingFoodNet();
+    if (id === "food") return base - foodCons() - animalCons() - tavernCons() + actions.getCookingFoodNet();
     return base;
   };
 
@@ -184,7 +215,7 @@ export default function ResourceBar() {
                         .sort((a, b) => a.order - b.order);
                       const visibleItems = () => itemsInCat().filter((fi) => {
                         const stock = Math.floor(state.foods?.[fi.id] ?? 0);
-                        const rate = foodBreakdown().find((s) => s.type === fi.id)?.rate ?? 0;
+                        const rate = rateForType(fi.id);
                         // A pot currently simmering this dish counts, even from an empty larder.
                         return stock > 0 || rate > 0 || (cookingRates().produce[fi.id] ?? 0) > 0 || isCooking(fi.id);
                       });
@@ -194,7 +225,7 @@ export default function ResourceBar() {
                           <For each={visibleItems()}>
                             {(fi) => {
                               const stock = () => Math.floor(state.foods?.[fi.id] ?? 0);
-                              const rate = () => foodBreakdown().find((s) => s.type === fi.id)?.rate ?? 0;
+                              const rate = () => rateForType(fi.id);
                               const cookRate = () => cookingRates().produce[fi.id] ?? 0;
                               const totalRate = () => rate() + cookRate();
                               return (
@@ -210,7 +241,12 @@ export default function ResourceBar() {
                                           {isCooking(fi.id) ? `⏸ ${cookStallReason(fi.id) || "paused"}` : (fi.category === "cooked" ? "(not cooking)" : "(dormant)")}
                                         </span>
                                       }>
-                                        <span class="rate-positive" style={{ "min-width": "64px", "text-align": "right" }}>+{rate()}/h</span>
+                                        <span class="rate-positive" style={{ "min-width": "64px", "text-align": "right", "white-space": "nowrap" }}>
+                                          +{rate()}/h
+                                          <Show when={fi.id === "mushrooms" && isForagerBlooming(state)}>
+                                            <span style={{ color: "#7BA05B", "font-size": "0.62rem" }}> (after rain)</span>
+                                          </Show>
+                                        </span>
                                       </Show>
                                     }>
                                       {/* Simmering: show the production rate and how long the
@@ -228,12 +264,20 @@ export default function ResourceBar() {
                       );
                     }}
                   </For>
-                  {/* Pantry: honey lives outside the typed foods map but belongs with food */}
-                  <Show when={state.honey > 0}>
+                  {/* Pantry: honey lives outside the typed foods map (its own
+                      resource + storage) but is eaten like any other food. */}
+                  <Show when={state.honey > 0 || honeyRate() > 0}>
                     <div class="dropdown-category-header">🍯 Pantry</div>
                     <div class="dropdown-row">
                       <span>🍯 Honey</span>
-                      <span style={{ color: "var(--text-primary)" }}>{Math.floor(state.honey)}</span>
+                      <span style={{ display: "flex", gap: "8px", "align-items": "center" }}>
+                        <span style={{ color: "var(--text-primary)" }}>{Math.floor(state.honey)}</span>
+                        <Show when={honeyRate() > 0} fallback={
+                          <span style={{ "min-width": "64px", "text-align": "right", color: "var(--text-muted)", "font-size": "0.72rem" }}>(dormant)</span>
+                        }>
+                          <span class="rate-positive" style={{ "min-width": "64px", "text-align": "right" }}>+{honeyRate()}/h</span>
+                        </Show>
+                      </span>
                     </div>
                   </Show>
                   <Show when={foodBreakdown().length === 0 && getTotalFood(state.foods) === 0 && state.honey === 0}>
@@ -247,6 +291,12 @@ export default function ResourceBar() {
                     <div class="dropdown-row">
                       <span>🐄 Animal feed</span>
                       <span class="rate-negative">-{Math.round(animalCons())}/h</span>
+                    </div>
+                  </Show>
+                  <Show when={tavernCons() > 0}>
+                    <div class="dropdown-row">
+                      <span>🍺 Tavern</span>
+                      <span class="rate-negative">-{tavernCons() < 1 ? tavernCons().toFixed(1) : Math.round(tavernCons())}/h</span>
                     </div>
                   </Show>
                 </div>
@@ -264,12 +314,12 @@ export default function ResourceBar() {
         }}
       </For>
       <Show when={
-        state.wool > 0 || state.fiber > 0 || state.leather > 0 || state.iron > 0 || state.gems > 0
+        state.wool > 0 || state.fiber > 0 || state.leather > 0 || (state.bone ?? 0) > 0 || state.iron > 0 || state.gems > 0
         || (state.herbs && Object.values(state.herbs).some((v) => (v as number) > 0))
       }>
         <div class="resource-item has-dropdown">
           <span class="resource-icon">🧵</span>
-          <span class="resource-amount">{Math.floor(state.wool) + Math.floor(state.fiber) + Math.floor(state.leather ?? 0) + Math.floor(state.iron)}</span>
+          <span class="resource-amount">{Math.floor(state.wool) + Math.floor(state.fiber) + Math.floor(state.leather ?? 0) + Math.floor(state.bone ?? 0) + Math.floor(state.iron)}</span>
           <div class="resource-dropdown">
             <div class="dropdown-title">Crafting Materials</div>
             {(() => {
@@ -287,6 +337,10 @@ export default function ResourceBar() {
                   <div class="dropdown-row">
                     <span>🐄 Leather</span>
                     <span>{Math.floor(state.leather ?? 0)}/{cap}</span>
+                  </div>
+                  <div class="dropdown-row">
+                    <span>🦴 Bone</span>
+                    <span>{Math.floor(state.bone ?? 0)}/{cap}</span>
                   </div>
                   <div class="dropdown-row">
                     <span>⚒️ Iron</span>
@@ -318,6 +372,76 @@ export default function ResourceBar() {
         </div>
       </Show>
 
+      {/* Water — shown once there's a well or cistern; dropdown breaks down the
+          sources (well, rain, drainage) and draws (livestock, irrigation). */}
+      <Show when={hasWaterInfra()}>
+        {(() => {
+          const rate = () => actions.getWaterRate();
+          const cap = () => caps().water;
+          // Water is consumed in whole units, so rates read as integers.
+          const w1 = (n: number) => String(Math.round(n));
+          return (
+            <div class="resource-item has-dropdown">
+              <span class="resource-icon">💧</span>
+              <span class="resource-amount" classList={{ "near-cap": Math.floor(state.resources.water) >= cap() * 0.9 }}>
+                {Math.floor(state.resources.water)}
+              </span>
+              <span class="resource-cap">/ {Math.floor(cap())}</span>
+              <span class="resource-rate" classList={{ "rate-positive": rate() > 0.05, "rate-negative": rate() < -0.05 }}>
+                {rate() >= 0 ? "+" : ""}{w1(rate())}/h
+              </span>
+              <div class="resource-dropdown">
+                <div class="dropdown-title">Water</div>
+                {(() => {
+                  const b = actions.getWaterBreakdown();
+                  const wm = WEATHER_META[b.weather];
+                  const sm = STREAM_STATUS_META[b.streamStatus];
+                  return (
+                    <>
+                      <div class="dropdown-row"><span style={{ color: sm.color }}>{sm.icon} Stream{sm.suffix}</span><span>+{w1(b.stream)}/h</span></div>
+                      <Show when={b.well > 0}>
+                        <div class="dropdown-row"><span>💧 Well</span><span>+{w1(b.well)}/h</span></div>
+                      </Show>
+                      <div class="dropdown-row"><span>{wm.icon} {wm.name}{b.rain > 0 ? " (rain)" : ""}</span><span>+{w1(b.rain)}/h</span></div>
+                      <Show when={b.drainage > 0}>
+                        <div class="dropdown-row"><span>🌊 Drainage runoff</span><span>+{w1(b.drainage)}/h</span></div>
+                      </Show>
+                      <Show when={b.citizens > 0}>
+                        <div class="dropdown-row" style={{ color: "var(--accent-red)" }}><span>🧑‍🌾 Folk</span><span>-{w1(b.citizens)}/h</span></div>
+                      </Show>
+                      <Show when={b.animals > 0}>
+                        <div class="dropdown-row" style={{ color: "var(--accent-red)" }}><span>🐑 Livestock</span><span>-{w1(b.animals)}/h</span></div>
+                      </Show>
+                      {/* Crops drink the reserve continuously, EXCEPT while it's
+                          raining (the sky waters them then). Thirsty only once the
+                          reserve runs dry. */}
+                      <Show when={b.crops > 0}>
+                        <Show when={b.raining} fallback={
+                          <Show when={b.coverage >= 0.999} fallback={
+                            <div class="dropdown-row" style={{ color: "var(--accent-red)" }}>
+                              <span>🥵 Crops · thirsty!</span><span>-{w1(b.cropDraw)}/h</span>
+                            </div>
+                          }>
+                            <div class="dropdown-row" style={{ color: "var(--accent-red)" }}>
+                              <span>🌱 Crops{b.irrigated ? " (irrigated)" : ""}</span><span>-{w1(b.cropDraw)}/h</span>
+                            </div>
+                          </Show>
+                        }>
+                          <div class="dropdown-row" style={{ color: "var(--accent-green)" }}>
+                            <span>🌱 Crops ({w1(b.crops)}/h) · rain-watered</span><span>0/h</span>
+                          </div>
+                        </Show>
+                      </Show>
+                      <div class="dropdown-row dropdown-total"><span>Net</span><span>{b.net >= 0 ? "+" : ""}{w1(b.net)}/h</span></div>
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+          );
+        })()}
+      </Show>
+
       {/* Exotic goods — caravan-only spices & tea */}
       <Show when={state.exotics && Object.values(state.exotics).some((v) => (v as number) > 0)}>
         <div class="resource-item has-dropdown">
@@ -342,62 +466,54 @@ export default function ResourceBar() {
         </div>
       </Show>
 
-      <Show when={state.clothing > 0 || actions.getClothingInfo().needed > 0 || actions.getAleInfo().cap > 0}>
+      <Show when={state.clothing > 0 || actions.getClothingInfo().needed > 0 || drinks().length > 0}>
         {(() => {
           const clothing = () => actions.getClothingInfo();
-          const ale = () => actions.getAleInfo();
           const hasClothing = () => clothing().needed > 0 || clothing().current > 0;
-          const hasAle = () => ale().cap > 0;
-          const aleNet = () => {
-            const a = ale();
-            const eff = (a.current <= 0 && a.production <= 0) ? 0 : a.consumption;
-            return a.production - eff;
-          };
-          // Red only when something *vital* is unmet. Clothing is vital
-          // (citizens need to stay warm / survive winter). Ale is a happiness
-          // luxury — its rate indicator inside the dropdown is enough; not
-          // having any ale shouldn't flag the comforts pill as a warning.
-          const allMet = () =>
-            (!hasClothing() || clothing().current >= clothing().needed);
+          // Red only when something *vital* is unmet. Clothing is vital (warmth /
+          // surviving winter). Drinks are a happiness luxury — their rate inside
+          // the dropdown is enough; being out shouldn't flag the pill.
+          const allMet = () => (!hasClothing() || clothing().current >= clothing().needed);
+          const drinkTotal = () => drinks().reduce((sum, d) => sum + d.info.current, 0);
           return (
             <div class="resource-item has-dropdown" tabIndex={0}>
               <span class="resource-icon">🛍️</span>
-              {/* Total stockpile (clothing + ale units). Red when something
-                  isn't met — matches the at-a-glance pattern of every other
-                  resource pill, with the warning preserved as colour. */}
-              <span class="resource-amount" style={{
-                color: allMet() ? undefined : "var(--accent-red)",
-              }}>
-                {(clothing().current + ale().current).toLocaleString()}
+              <span class="resource-amount" style={{ color: allMet() ? undefined : "var(--accent-red)" }}>
+                {(clothing().current + drinkTotal()).toLocaleString()}
               </span>
               <div class="resource-dropdown">
                 <div class="dropdown-title">Comforts</div>
                 <Show when={hasClothing()}>
                   <div class="dropdown-row">
                     <span>👕 Clothing</span>
-                    <span style={{
-                      color: clothing().current >= clothing().needed ? "var(--accent-green)" : "var(--accent-red)",
-                    }}>
+                    <span style={{ color: clothing().current >= clothing().needed ? "var(--accent-green)" : "var(--accent-red)" }}>
                       {clothing().current}/{clothing().needed}
                     </span>
                   </div>
                 </Show>
-                <Show when={hasAle()}>
-                  <div class="dropdown-row">
-                    <span>🍺 Ale</span>
-                    <span>
-                      {ale().current}/{ale().cap}
-                      <Show when={aleNet() !== 0}>
-                        <span classList={{
-                          "rate-positive": aleNet() > 0,
-                          "rate-negative": aleNet() < 0,
-                        }} style={{ "margin-left": "6px", "font-size": "0.72rem" }}>
-                          {aleNet() >= 0 ? "+" : ""}{aleNet()}/h
+                <For each={drinks()}>
+                  {(d) => {
+                    const net = () => {
+                      const i = d.info;
+                      const eff = (i.current <= 0 && i.production <= 0) ? 0 : i.consumption;
+                      return i.production - eff;
+                    };
+                    return (
+                      <div class="dropdown-row">
+                        <span>{d.icon} {d.name}</span>
+                        <span>
+                          {d.info.current}/{d.info.cap}
+                          <Show when={net() !== 0}>
+                            <span classList={{ "rate-positive": net() > 0, "rate-negative": net() < 0 }}
+                              style={{ "margin-left": "6px", "font-size": "0.72rem" }}>
+                              {net() >= 0 ? "+" : ""}{net()}/h
+                            </span>
+                          </Show>
                         </span>
-                      </Show>
-                    </span>
-                  </div>
-                </Show>
+                      </div>
+                    );
+                  }}
+                </For>
               </div>
             </div>
           );

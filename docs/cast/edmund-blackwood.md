@@ -38,6 +38,13 @@
 - **BANKED, NOT BUILT — momentum / luck system.** Design seed for his bespoke tree: a **momentum** resource that swings between **lucky and unlucky streaks**, with a **momentum-based talent branch** unique to Edmund. Mechanically this would make his combat output volatile and self-reinforcing (winning builds momentum toward bigger payoffs; losing drags into an unlucky streak). This is **unbuilt** — no implementation exists yet. Treat as a future direction only.
 - Class chassis is assassin (blades, patience, quiet, per the bio); the momentum branch would sit on top of that as his signature.
 
+## Arrival arc — DEEPENED 2026-07-08 (design locked, not yet wired)
+See [elspeth-ravencroft.md](elspeth-ravencroft.md) for the full arc; Edmund's side:
+- **The rescue is a stall, not an execution.** He is cornered/held over a card debt but NOT seconds from death — the toughs want their money or to make an example, and he is buying minutes the only way he knows (a grin, a promise of coin he can't make). Peak Edmund: talking his way along the cliff-edge, one bad beat from the drop. This gives the team a believable window to ride out. Reframe `a_mothers_errand`'s setup accordingly (currently reads "beaten to death").
+- **His mother does NOT adventure with him** — she's lab-bound (see her file), so the bond is expressed at home + in his kit, not as a deploy-together pair.
+- **"Mom's Poisons" — a path in his (future) talent tree.** His tree is the "whose blood is doing it" question made mechanical: a **gambler's luck / momentum** branch (his father's blood?) beside a **Mom's Poisons** branch (her survival craft she taught him), keystoned by **Dead Man's Draught (cheat-death-once)**. Not a packed consumable — a permanent part of who he is. Banks until the talent-tree system is built.
+- **The payoff is emergent:** the day his luck runs thin, her poison (the Mom's-Poisons keystone) either pulls him back or it doesn't. No scripted death; the dread is player-authored. (The momentum/luck combat mechanic remains banked-not-built.)
+
 ## Open threads / TBD
 - **Momentum/luck combat mechanic is unbuilt** (see Talent ideas). Flagged here so it is not mistaken for shipped canon.
 - Specific carried object / table-tells — TBD.

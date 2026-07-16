@@ -876,7 +876,8 @@ update the character's `portrait` field to match — don't overwrite the old key
 **Gareth Thornwood — mail archer rework** (differentiate from Brenna's leather + hood)
 Save to `frontend/public/images/characters/ashwick/gareth_thornwood_v2.png`, then set
 `portrait: "gareth_thornwood_v2"` for char_005 in shared/src/data/premade-characters.ts.
-Uses the current portrait as omni-reference to keep his face (tune `--ow` up for a
-stronger face-lock, e.g. 200-400).
+Uses the current portrait as omni-reference to keep his FACE — but keep `--ow` LOW
+(~40-60). High `--ow` copies his whole current look (leather, cloth, grin) and
+overrides the chainmail; that was the bug. Low ow = same face, new armour.
 
-Half-body portrait of a fair-skinned human male archer in his thirties, the same warm easy-grinning face, wearing a riveted chainmail hauberk over a padded gambeson with hardened leather archer's bracers on his forearms, a longbow in one hand and a quiver of arrows at his hip, short-cropped brown hair and no hood, the easy confidence of a former soldier with a ready smile, a small dull tin company badge pinned at his collar, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1 --oref https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/ashwick/gareth_thornwood.png --ow 250
+Half-body portrait of a fair-skinned human male archer in his early thirties wearing a hauberk of riveted steel chainmail, fine interlocking metal rings with a cold metallic sheen, worn over a padded gambeson, hardened leather archer's bracers on his forearms, a longbow in one hand and a quiver of arrows at his hip, short-cropped brown hair, no hood, a calm steady easy-tempered expression, a small dull tin company badge pinned at his collar, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1 --oref https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/characters/ashwick/gareth_thornwood.png --ow 60 --no leather jerkin, cloth tunic, bare arms, hood, wide grin, teeth

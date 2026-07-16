@@ -3,6 +3,7 @@ import { A, useParams } from "@solidjs/router";
 import {
   BUILDINGS,
   isBuildingUnlocked,
+  isBuildingChapterUnlocked,
   getTierPrerequisitesMet,
   type SettlementTier,
   getUnlockRequirement,
@@ -31,7 +32,12 @@ export default function BuildingDetail() {
   const playerBuilding = () => state.buildings.find((b) => b.buildingId === params.id);
   const unlocked = () => {
     const b = building();
-    return b ? isBuildingUnlocked(b, actions.getTownHallLevel()) : false;
+    // Must match the Buildings list: a building is only truly buildable when
+    // BOTH its tier/TH gate AND its chapter/story gate are open. Missing the
+    // chapter check here showed a live "Build" button on chapter-locked
+    // buildings (e.g. the guild before its storyline activates) that played the
+    // sound but no-op'd, since upgradeBuilding enforces the chapter gate.
+    return b ? isBuildingUnlocked(b, actions.getTownHallLevel()) && isBuildingChapterUnlocked(b, state) : false;
   };
 
   const currentLevel = () => {
@@ -245,16 +251,9 @@ export default function BuildingDetail() {
                     <Countdown remainingSeconds={playerBuilding()!.upgradeRemaining!} /> remaining
                   </span>
                   <button
+                    class="btn-secondary"
                     onClick={handleCancel}
-                    style={{
-                      background: "rgba(231, 76, 60, 0.2)",
-                      border: "1px solid var(--accent-red)",
-                      color: "var(--accent-red)",
-                      padding: "4px 10px",
-                      "border-radius": "4px",
-                      cursor: "pointer",
-                      "font-size": "0.8rem",
-                    }}
+                    style={{ "font-size": "0.8rem" }}
                   >
                     Cancel
                   </button>
@@ -397,18 +396,10 @@ export default function BuildingDetail() {
                         ? `Soft-lock recovery: spend ${PANIC_BUILD_SHARD_COST} astral shards to build instantly`
                         : `Need ${PANIC_BUILD_SHARD_COST - state.astralShards} more astral shards`}>
                       <button
+                        class="btn-secondary"
                         disabled={!canPanicBuild()}
                         onClick={handlePanicBuild}
-                        style={{
-                          padding: "10px 16px",
-                          background: canPanicBuild() ? "rgba(167, 139, 250, 0.15)" : "rgba(106, 100, 88, 0.15)",
-                          border: `1px solid ${canPanicBuild() ? "#a78bfa" : "var(--text-muted)"}`,
-                          color: canPanicBuild() ? "#a78bfa" : "var(--text-muted)",
-                          "border-radius": "6px",
-                          cursor: canPanicBuild() ? "pointer" : "not-allowed",
-                          "font-weight": "bold",
-                          width: "100%",
-                        }}
+                        style={{ width: "100%", "justify-content": "center" }}
                       >
                         ✨ Use {PANIC_BUILD_SHARD_COST} Astral Shards to build instantly
                       </button>

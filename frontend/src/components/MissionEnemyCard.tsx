@@ -5,9 +5,10 @@ import Tooltip from "./Tooltip";
 interface MissionEnemyCardProps {
   enemy: EnemyDefinition;
   count?: number;
-  /** True when the enemy hasn't been encountered yet — render as ??? portrait
-   *  with hidden abilities. Same gating as the small EnemyCard. */
-  hidden?: boolean;
+  /** How much to reveal (same three rungs as the small EnemyCard):
+   *  "full" (fought — portrait + name + abilities), "portrait" (known by
+   *  reputation — portrait + name, abilities withheld), "none" (??? unknown). */
+  reveal?: "full" | "portrait" | "none";
 }
 
 /** Bigger enemy card used inside the Mission Assembly Panel only.
@@ -16,16 +17,19 @@ interface MissionEnemyCardProps {
  *  single visual language. The smaller EnemyCard is still used elsewhere
  *  (mission preview lists, loot modal, combat playback). */
 export default function MissionEnemyCard(props: MissionEnemyCardProps) {
+  const reveal = () => props.reveal ?? "full";
+  const known = () => reveal() !== "none";      // portrait + name visible
+  const showAbilities = () => reveal() === "full"; // combat measure — only after fought
   const borderColor = () =>
-    props.hidden ? "rgba(150, 150, 150, 0.35)"
+    !known() ? "rgba(150, 150, 150, 0.35)"
     : props.enemy.boss ? "var(--accent-gold)"
     : "rgba(231, 76, 60, 0.45)";
   const bg = () =>
-    props.hidden ? "rgba(60, 60, 70, 0.2)"
+    !known() ? "rgba(60, 60, 70, 0.2)"
     : props.enemy.boss ? "rgba(245, 197, 66, 0.08)"
     : "rgba(231, 76, 60, 0.06)";
   const nameColor = () =>
-    props.hidden ? "var(--text-muted)"
+    !known() ? "var(--text-muted)"
     : props.enemy.boss ? "var(--accent-gold)"
     : "#f5b8b0";
 
@@ -44,17 +48,17 @@ export default function MissionEnemyCard(props: MissionEnemyCardProps) {
         "border-radius": "10px 10px 0 0",
       }}>
         <Show
-          when={!props.hidden && props.enemy.image}
+          when={known() && props.enemy.image}
           fallback={
             <div style={{
               width: "100%", height: "100%",
               display: "flex", "align-items": "center", "justify-content": "center",
               "font-size": "2.4rem",
-              color: props.hidden ? "var(--text-muted)" : "var(--text-secondary)",
-              opacity: props.hidden ? "0.5" : "1",
+              color: !known() ? "var(--text-muted)" : "var(--text-secondary)",
+              opacity: !known() ? "0.5" : "1",
               background: "rgba(0, 0, 0, 0.25)",
             }}>
-              {props.hidden ? "?" : props.enemy.icon}
+              {!known() ? "?" : props.enemy.icon}
             </div>
           }
         >
@@ -86,7 +90,7 @@ export default function MissionEnemyCard(props: MissionEnemyCardProps) {
             "text-align": "left",
             "text-shadow": "0 1px 2px rgba(0,0,0,0.8)",
           }}>
-            {props.hidden ? "Unknown Creature" : props.enemy.name}
+            {known() ? props.enemy.name : "Unknown Creature"}
           </div>
         </div>
       </div>
@@ -100,10 +104,10 @@ export default function MissionEnemyCard(props: MissionEnemyCardProps) {
         "min-height": "44px",
       }}>
         <Show
-          when={!props.hidden && props.enemy.abilities?.length}
+          when={showAbilities() && props.enemy.abilities?.length}
           fallback={
             <Show
-              when={props.hidden}
+              when={!showAbilities()}
               fallback={
                 <span style={{ "font-size": "0.65rem", color: "var(--text-muted)", "align-self": "center", "font-style": "italic" }}>
                   no special attacks
@@ -208,6 +212,7 @@ function describeAbility(a: EnemyAbility): string {
   switch (e.type) {
     case "bleed":   return `Inflicts bleed: ${e.pctPerRound}% max HP per round for ${e.rounds} rounds.`;
     case "poison":  return `Inflicts poison: ${e.pctPerRound}% max HP per round for ${e.rounds} rounds.`;
+    case "infect":  return `${Math.round(e.chance * 100)}% chance on a bite to infect with the ${e.condition} — a sickness carried home that worsens until cured.`;
     case "heal_self": return `Heals self for ${e.pct}% of max HP.`;
     case "heal_ally": return `Heals an ally for ${e.pct}% of their max HP.`;
     case "summon":  return `Summons ${e.count}× reinforcements.`;

@@ -23,6 +23,7 @@ export function buildAdventurerUnit(adv: Adventurer): CombatUnit {
     hp, maxHp: hp,
     str: stats.str, dex: stats.dex, int: stats.int, vit: stats.vit, wis: stats.wis,
     class: adv.class,
+    talents: adv.talents,
     isMagical: adv.class === "wizard" || adv.class === "priest",
     gearDefense: getEquipmentDefense(adv.equipment),
     trait: adv.trait,
@@ -90,6 +91,7 @@ export function buildEnemyUnits(encounters: MissionEncounter[]): CombatUnit[] {
         class: undefined, isMagical, gearDefense: 0,
         enemyTags: def.tags,
         enemyDefId: def.id,
+        routsAt: def.routsAt,
         enemyAbilities: def.abilities,
         canAct: true, canBeHealed: true, isTauntable: true,
         // Tactical = follow threat, scored pick. Designers explicitly tag

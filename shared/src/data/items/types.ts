@@ -56,7 +56,12 @@ export interface ItemDefinition {
    *  instead of the slot field to route through mission-supplies rather than
    *  the persistent equipment object. */
   slot?: ItemSlot;
+  /** The green stat/effect line (e.g. "+1 STR", "+6 DEF"). By convention this is
+   *  the mechanical summary, shown in the stat colour. */
   description: string;
+  /** Optional italic flavour prose, shown under the stat line. Use for worn/
+   *  starter gear whose "stat" is nil or just defense but which has a story. */
+  flavor?: string;
   /** Which classes can equip this item. Empty array = any class (armorType check still applies). */
   classes: AdventurerClass[];
   /** Armor tier — if set, adventurer must have access to this type. Not used for weapons/jewelry. */
