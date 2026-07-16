@@ -70,6 +70,11 @@ export const MATERIALS: MaterialDefinition[] = [
 
   // ── Metal & Salvage ──────────────────────────────────────────
   {
+    id: "alpha_sinew", name: "Alpha's Sinew", icon: "🪢",
+    description: "Sinew from a pack leader — long, strong, and springy. Strung on a bow it throws an arrow like nothing else. The other half of the alpha's worth (see the fang).",
+    category: "bone", tier: 1,
+  },
+  {
     id: "steel", name: "Steel", icon: "⚙️",
     description: "Iron carburized in the forge — harder than plain iron, and it keeps an edge. The backbone of any decent blade.",
     category: "metal", tier: 1,

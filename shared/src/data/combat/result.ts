@@ -114,6 +114,16 @@ function rollLoot(enemies: CombatUnit[]): LootResult[] {
         if (amount > 0) {
           loot.push({ type: "resource", resource: drop.resource, amount, fromEnemy: unit.name });
         }
+      } else if (drop.type === "oneOf") {
+        // Pick exactly one option by weight (default weight 1 = even odds).
+        const total = drop.options.reduce((s, o) => s + (o.weight ?? 1), 0);
+        let r = combatRandom() * total;
+        let chosen = drop.options[0];
+        for (const o of drop.options) { r -= o.weight ?? 1; if (r <= 0) { chosen = o; break; } }
+        const amount = chosen.min + Math.floor(combatRandom() * (chosen.max - chosen.min + 1));
+        if (amount > 0) {
+          loot.push({ type: "resource", resource: chosen.resource, amount, fromEnemy: unit.name });
+        }
       } else {
         loot.push({ type: "item", itemId: drop.itemId, amount: 1, fromEnemy: unit.name });
       }

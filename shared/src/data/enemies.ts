@@ -33,7 +33,18 @@ export interface ItemDrop {
   keepOnRout?: boolean;
 }
 
-export type LootDrop = ResourceDrop | ItemDrop;
+/** Guaranteed pick-ONE-of-a-group drop. For a unique boss's signature material
+ *  where the player gets exactly one of several (e.g. the alpha's fang OR its
+ *  sinew, 50/50) and trades for the rest — not two independent rolls that could
+ *  leave you with nothing. `chance` gates the whole group (usually 1). */
+export interface OneOfDrop {
+  type: "oneOf";
+  chance: number;
+  options: { resource: string; min: number; max: number; weight?: number }[];
+  keepOnRout?: boolean;
+}
+
+export type LootDrop = ResourceDrop | ItemDrop | OneOfDrop;
 
 // ─── Enemy Definitions ─────────────────────────────────────────
 
@@ -146,6 +157,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "item", itemId: "reavers_greatsword", chance: 0.04 }, // a brute two-hander
       { type: "item", itemId: "notched_hatchet", chance: 0.15 }, // brigands carry axes
       { type: "item", itemId: "fighting_knife", chance: 0.1 },   // and knives
+      { type: "item", itemId: "poachers_bow", chance: 0.06 },    // some carry a poacher's bow
     ],
   },
   {
@@ -1012,7 +1024,12 @@ export const ENEMIES: EnemyDefinition[] = [
       { id: "lunge", name: "Lunge", icon: "💨", cooldown: 2, trigger: "always", effect: { type: "damage_mult", mult: 1.8, targets: 1 } },
     ],
     loot: [
-      { type: "resource", resource: "alpha_fang", chance: 1, min: 1, max: 1 }, // signature trophy: guaranteed on the kill
+      // Signature trophy: exactly ONE of fang/sinew per kill (50/50). The alpha
+      // hunt is one-time, so you get one and TRADE for the other.
+      { type: "oneOf", chance: 1, options: [
+        { resource: "alpha_fang", min: 1, max: 1 },
+        { resource: "alpha_sinew", min: 1, max: 1 },
+      ] },
       { type: "resource", resource: "thick_pelt", chance: 0.6, min: 1, max: 2 },
       { type: "resource", resource: "sinew_cord", chance: 0.4, min: 1, max: 2 },
       { type: "resource", resource: "meat", chance: 0.8, min: 4, max: 10 },

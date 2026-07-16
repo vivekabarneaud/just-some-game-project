@@ -623,10 +623,27 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     name: "Sinew Bow",
     icon: "🏹",
     building: "woodworker",
-    minLevel: 3,
-    costs: [{ resource: "sinew_cord", amount: 3 }, { resource: "wood", amount: 15 }, { resource: "wolfhide_strip", amount: 2 }],
+    minLevel: 2,
+    costs: [{ resource: "sinew_cord", amount: 2 }, { resource: "wood", amount: 12 }],
     produces: { resource: "weapons", amount: 1 },
-    craftTime: 300,
+    craftTime: 200,
+  },
+  // ── Novice uncommon bows + the alpha-sinew rare (Poacher's Bow = bandit loot) ──
+  {
+    id: "recurve_bow", name: "Recurve Bow", icon: "🏹", building: "woodworker", minLevel: 2,
+    costs: [{ resource: "wood", amount: 14 }, { resource: "fiber", amount: 4 }],
+    produces: { resource: "weapons", amount: 1 }, craftTime: 150,
+  },
+  {
+    id: "yew_warbow", name: "Yew Warbow", icon: "🏹", building: "woodworker", minLevel: 3,
+    costs: [{ resource: "wood", amount: 18 }, { resource: "iron", amount: 4 }, { resource: "fiber", amount: 4 }],
+    produces: { resource: "weapons", amount: 1 }, craftTime: 240,
+  },
+  {
+    id: "alpha_warbow", name: "Alpha-Strung Warbow", icon: "🏹", building: "woodworker", minLevel: 3,
+    description: "A tall warbow strung with a pack alpha's sinew — the finest string the frontier has to offer.",
+    costs: [{ resource: "alpha_sinew", amount: 1 }, { resource: "wood", amount: 18 }],
+    produces: { resource: "weapons", amount: 1 }, craftTime: 400,
   },
   {
     id: "dragonfire_staff",

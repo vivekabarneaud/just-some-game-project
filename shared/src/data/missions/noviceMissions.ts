@@ -204,6 +204,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     minGuildLevel: 1,
     tags: ["combat", "outdoor"],
     encounters: [{ enemyId: "alpha_wolf", count: 1 }, { enemyId: "wild_wolf", count: 4 }],
+    unique: true, // one-time: the pack leader dies once, dropping ONE of fang/sinew
   },
 
   // ── Pre-scouting village missions (no story gate) ─────────────
