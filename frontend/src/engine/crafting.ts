@@ -404,20 +404,26 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     icon: "⛓️",
     building: "blacksmith",
     minLevel: 3,
-    costs: [{ resource: "iron", amount: 30 }, { resource: "leather", amount: 4 }],
+    costs: [{ resource: "iron", amount: 30 }, { resource: "wool", amount: 4 }],
     produces: { resource: "armor", amount: 1 },
     craftTime: 400,
   },
-  // ── Mail chest line (iron rings + leather/fiber padding) ──
+  // ── Mail chest line (iron rings + a fiber/wool gambeson; steel for the rare) ──
   {
     id: "chainmail_shirt", name: "Chainmail Shirt", icon: "⛓️", building: "blacksmith", minLevel: 2,
-    costs: [{ resource: "iron", amount: 22 }, { resource: "leather", amount: 3 }],
+    costs: [{ resource: "iron", amount: 22 }, { resource: "fiber", amount: 4 }],
     produces: { resource: "armor", amount: 1 }, craftTime: 200,
   },
   {
     id: "riveted_hauberk", name: "Riveted Hauberk", icon: "⛓️", building: "blacksmith", minLevel: 3,
     costs: [{ resource: "iron", amount: 28 }, { resource: "fiber", amount: 5 }],
     produces: { resource: "armor", amount: 1 }, craftTime: 420,
+  },
+  {
+    id: "steel_hauberk", name: "Steel Hauberk", icon: "⛓️", building: "blacksmith", minLevel: 4,
+    description: "Riveted steel rings over a wool gambeson — a master armourer's mail, lighter than plate and near as proof.",
+    costs: [{ resource: "steel", amount: 12 }, { resource: "wool", amount: 4 }, { resource: "leather", amount: 3 }],
+    produces: { resource: "armor", amount: 1 }, craftTime: 900,
   },
   {
     id: "steel_sword",

@@ -39,6 +39,12 @@ export const ARMOR: ItemDefinition[] = [
     stats: { vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "", consumable: false, defense: 46,
   },
   {
+    id: "steel_hauberk", rarity: "rare", name: "Steel Hauberk", icon: "⛓️", slot: "chest",
+    description: "+2 VIT, +1 DEX, 55 DEF. Riveted steel rings over a wool gambeson — lighter than plate, and it turns near anything.",
+    classes: [], armorType: "mail",
+    stats: { vit: 2, dex: 1 }, durationMod: 1, lootMod: 1, recipeId: "steel_hauberk", consumable: false, defense: 55,
+  },
+  {
     id: "woolen_robe", rarity: "common", name: "Woolen Robe", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/tailoring/woolen_robe.png", icon: "🧶", slot: "chest",
     description: "+1 VIT, +1 WIS, 10 DEF",
     classes: [], armorType: "cloth",
