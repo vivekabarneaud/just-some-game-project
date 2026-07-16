@@ -103,3 +103,22 @@ PoE2/Diablo model: the staff/wand **carries a spell that replaces the auto-attac
 1. **Phase 1 combat** — schema (`dmgMin/dmgMax` on weapons + enemies, `defense` on all armor, unarmed fallback), `calcDamageResult` rework, rebalance, re-verify sims.
 2. **Novice item pass** — apply §3–5 against the new schema (fill weapon ranges, strip/re-tier stats, merge dupes, add 1–2 rare boss weapons).
 3. **Phase 2 caster spell-weapons** — element layer, spell defs, staff `spellId`, talent element scaling.
+
+---
+
+## 7. Materials, steel, rares & binding (2026-07-16, building)
+
+**Intermediary principle** — an intermediate material earns its place only if it's a **hub** (feeds many downstream recipes) or a real progression gate. Single-use intermediates (bonemeal→gardens only, charcoal→steel only) are friction — use the raw material directly. So:
+- **Steel** (hub: feeds all uncommon+ blades and armor) = **real material**, crafted `iron + wood` at the blacksmith (the wood is the carbon; charring to charcoal is abstracted into the recipe's flavor). Historically correct — medieval steel used charcoal, not mined coal (coke-for-steel is Industrial-era).
+- **Charcoal** = rejected (single-use). Parked to graduate IF a fuel system lands (see open-ideas).
+- A future charcoal potion just takes `wood`, same abstraction.
+
+**Weapon material spine + components** — each category has a metal/material identity (swords: iron→steel→pattern-welded; maces: stone→iron→bone; daggers: bone/fang→iron; bows: wood→sinew). Recipes use **blade metal + a component** (leather grip / wood / **bone pommel** / sinew) so weapons differ and hides/bone/wood stay useful. Novice mats on hand: wood, stone, iron, fiber, wool, leather, gold; beast/bone tier-1: fang, tusk_shard, boar_skull, bear_claw, thick_pelt, wolfhide, sinew_cord, chitin, bristlehide.
+
+**Binding — NONE.** All gear, including rares, is freely tradeable/resellable (co-op economy; a hand-me-down rare is a feature). Rare "overflow" is managed by **scarcity**, not locks: rare ingredients from hard/rare sources + the marketplace's per-dupe price decay.
+
+**Rare tier — two sources:**
+1. **Craft-mastery** — e.g. the sword's rung-4 `patternwelded_sword` (+2 STR, 7–10): a master smith (blacksmith L4) + a large steel volume. Rare via cost/effort, no magic.
+2. **Unique-boss signature material (guaranteed drop)** — one kill → one precious material → the player **chooses the form** (rare sword / armor / trinket via different recipes). Plus repeatable missions rarely drop a finished rare or the material directly. Instantiated per boss on the category the boss fits (alpha **fang → dagger**, bear **hide → armor**, …).
+
+**Swords status:** starter (plain 3–5) → common craft (iron 4–7, short/dagger analogues) → six uncommons (rung 3, mixed craft/loot) → **rare pattern-welded** (rung 4). Done bar art + the damage-display UI.

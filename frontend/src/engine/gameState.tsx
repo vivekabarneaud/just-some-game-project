@@ -4107,6 +4107,13 @@ export function GameProvider(props: ParentProps) {
               // Legacy generic "food" recipes land in inventory as mission supplies
               // (handled by getItemByRecipe below).
               else if (res === "food") { /* no-op */ }
+              // Raw crafting materials (e.g. steel) — no category counter, no
+              // equippable item; they live in the generic inventory.
+              else {
+                const existing = s.inventory.find((i) => i.itemId === res);
+                if (existing) existing.quantity += amt;
+                else s.inventory.push({ itemId: res, quantity: amt });
+              }
               // Also add equippable item or building tool to inventory
               const itemDef = getItemByRecipe(recipe.id);
               if (itemDef) {

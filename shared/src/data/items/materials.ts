@@ -70,6 +70,11 @@ export const MATERIALS: MaterialDefinition[] = [
 
   // ── Metal & Salvage ──────────────────────────────────────────
   {
+    id: "steel", name: "Steel", icon: "⚙️",
+    description: "Iron carburized in the forge — harder than plain iron, and it keeps an edge. The backbone of any decent blade.",
+    category: "metal", tier: 1,
+  },
+  {
     id: "highwaymans_steel", name: "Highwayman's Steel", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/highwaymans_steel.png", icon: "🔩",
     description: "Rusty, chipped, but serviceable. Melt it down and the iron remembers its shape.",
     category: "metal", tier: 1,

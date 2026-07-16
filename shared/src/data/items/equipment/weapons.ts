@@ -56,6 +56,14 @@ export const WEAPONS: ItemDefinition[] = [
     classes: [], stats: { str: 1, vit: 1 }, dmgMin: 5, dmgMax: 8, durationMod: 1, lootMod: 1,
     recipeId: "", consumable: false,
   },
+  // ── Rung 4 rare: pattern-welded masterwork (craft-mastery path) ──
+  {
+    id: "patternwelded_sword", rarity: "rare", name: "Pattern-Welded Blade", icon: "⚔️", slot: "mainHand", weaponType: "sword",
+    description: "+2 STR",
+    flavor: "Steel folded on itself a hundred times, until the grain runs like water down the blade. The work of a master, and months of it.",
+    classes: [], stats: { str: 2 }, dmgMin: 7, dmgMax: 10, durationMod: 1, lootMod: 1,
+    recipeId: "patternwelded_sword", consumable: false,
+  },
   {
     id: "steel_sword", rarity: "uncommon", name: "Steel Sword", icon: "🗡️", slot: "mainHand", weaponType: "sword",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/steel_sword.png",
