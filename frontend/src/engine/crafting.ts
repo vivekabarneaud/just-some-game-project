@@ -228,16 +228,6 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     craftTime: 30, // 5 min
   },
   {
-    id: "hunting_bow",
-    name: "Hunting Bow",
-    icon: "🏹",
-    building: "woodworker",
-    minLevel: 2,
-    costs: [{ resource: "wood", amount: 12 }, { resource: "fiber", amount: 5 }],
-    produces: { resource: "weapons", amount: 1 },
-    craftTime: 120, // 10 min
-  },
-  {
     id: "wooden_shield",
     name: "Wooden Shield",
     icon: "🪵",
@@ -288,6 +278,27 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     costs: [{ resource: "iron", amount: 15 }, { resource: "wood", amount: 5 }],
     produces: { resource: "weapons", amount: 1 },
     craftTime: 30, // 15 min
+  },
+  // ── Uncommon swords (rung 3, crafted) — first-pass costs, tune later ──
+  {
+    id: "broadsword", name: "Broadsword", icon: "⚔️", building: "blacksmith", minLevel: 2,
+    costs: [{ resource: "iron", amount: 22 }, { resource: "wood", amount: 5 }],
+    produces: { resource: "weapons", amount: 1 }, craftTime: 180,
+  },
+  {
+    id: "soldiers_sword", name: "Soldier's Sword", icon: "🗡️", building: "blacksmith", minLevel: 2,
+    costs: [{ resource: "iron", amount: 20 }, { resource: "wood", amount: 4 }],
+    produces: { resource: "weapons", amount: 1 }, craftTime: 150,
+  },
+  {
+    id: "watchmans_blade", name: "Watchman's Blade", icon: "🗡️", building: "blacksmith", minLevel: 2,
+    costs: [{ resource: "iron", amount: 18 }, { resource: "leather", amount: 4 }],
+    produces: { resource: "weapons", amount: 1 }, craftTime: 150,
+  },
+  {
+    id: "old_gladius", name: "Old Gladius", icon: "⚔️", building: "blacksmith", minLevel: 3,
+    costs: [{ resource: "iron", amount: 22 }, { resource: "leather", amount: 3 }],
+    produces: { resource: "weapons", amount: 1 }, craftTime: 200,
   },
   {
     id: "iron_shield",

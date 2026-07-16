@@ -140,6 +140,9 @@ export const ENEMIES: EnemyDefinition[] = [
     tags: ["humanoid"],
     loot: [
       { type: "resource", resource: "gold", chance: 0.5, min: 3, max: 10 },
+      { type: "resource", resource: "highwaymans_steel", chance: 0.25, min: 1, max: 2 },
+      { type: "item", itemId: "duelist_blade", chance: 0.08 },  // a fine stolen blade
+      { type: "item", itemId: "reavers_blade", chance: 0.05 },  // a heavy raider's sword
     ],
   },
   {
