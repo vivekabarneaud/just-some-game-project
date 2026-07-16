@@ -408,15 +408,16 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     produces: { resource: "armor", amount: 1 },
     craftTime: 400,
   },
-  // ── Mail chest line (iron rings + a fiber/wool gambeson; steel for the rare) ──
+  // ── Mail chest line — plain pieces are just iron rings; the gambeson (wool)
+  //    is a differentiator on the Hauberk + Steel only. ──
   {
     id: "chainmail_shirt", name: "Chainmail Shirt", icon: "⛓️", building: "blacksmith", minLevel: 2,
-    costs: [{ resource: "iron", amount: 22 }, { resource: "fiber", amount: 4 }],
+    costs: [{ resource: "iron", amount: 24 }],
     produces: { resource: "armor", amount: 1 }, craftTime: 200,
   },
   {
     id: "riveted_hauberk", name: "Riveted Hauberk", icon: "⛓️", building: "blacksmith", minLevel: 3,
-    costs: [{ resource: "iron", amount: 28 }, { resource: "fiber", amount: 5 }],
+    costs: [{ resource: "iron", amount: 30 }],
     produces: { resource: "armor", amount: 1 }, craftTime: 420,
   },
   {
