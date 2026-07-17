@@ -55,6 +55,7 @@ export const FRUITS: FruitDefinition[] = [
     id: "grapes",
     name: "Grape Vines",
     icon: "🍇",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/orchard_grapes.png",
     // Vines, not trees, but they belong with the orchard: planted once, trained
     // over years, then cropped each autumn. A specialty — the cuttings must be
     // brought home before they can be grown.

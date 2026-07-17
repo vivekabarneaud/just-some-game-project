@@ -104,6 +104,7 @@ export const VEGGIES: VeggieDefinition[] = [
     id: "lavender",
     name: "Lavender",
     icon: "🪻",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/garden_lavender.png",
     description: "Fragrant purple spikes — cultivated, not foraged. The bees can't resist it, so a lavender plot sweetens the whole apiary's yield, and its dried blooms make soothing teas, honey-cakes, and calming draughts. Sown in spring, cut through summer and autumn.",
     plantSeasons: ["spring"],
     produceSeasons: ["summer", "autumn"],

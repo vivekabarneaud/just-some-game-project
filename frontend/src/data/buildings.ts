@@ -395,6 +395,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     description:
       "A dug well tapping the groundwater. Supplies water year-round, though the flow drops to a trickle in a drought.",
     icon: "💧",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/well_village.png",
     maxLevel: 5,
     levels: generateLevels({ wood: 30, stone: 40 }, 8, undefined, 5),
     requiredTier: "village",
@@ -406,6 +407,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     description:
       "A great stone tank that stores water and catches the rain. It fills fast in wet years, so you can bank water against the dry ones.",
     icon: "🛢️",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/cistern_camp.png",
     maxLevel: 5,
     levels: generateLevels({ wood: 40, stone: 70 }, 10, undefined, 5),
     // Camp-scale: settlers catch rainwater from the start. A dug well (reliable
