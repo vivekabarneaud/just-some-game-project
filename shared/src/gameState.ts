@@ -326,7 +326,10 @@ export type GameEventType =
   | "pen_starving"
   | "pen_deaths"
   | "pen_births"
-  | "pen_predation";
+  | "pen_predation"
+  | "animal_born"
+  | "animal_stray"
+  | "animal_grown";
 
 export interface GameEvent {
   type: GameEventType;

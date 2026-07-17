@@ -133,17 +133,22 @@ export default function Kennel() {
                     </div>
                   </div>
 
-                  {/* Assignment dropdown. */}
+                  {/* Assignment dropdown — or a "growing up" note for pups. */}
                   <div style={{ "margin-top": "8px" }}>
-                    <Select
-                      value={assignValue(dog)}
-                      onChange={(v) => onAssign(dog, v)}
-                      options={[
-                        { value: "idle", label: "At the fire" },
-                        ...(hasHuntingCamp() ? [{ value: "hunt", label: "Hunting camp" }] : []),
-                        ...builtPens().map((pen) => ({ value: `guard:${pen.id}`, label: `Guard the ${getAnimal(pen.animal).name.toLowerCase()}` })),
-                      ]}
-                    />
+                    <Show
+                      when={!dog.isPuppy}
+                      fallback={<div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "font-style": "italic" }}>🐶 Still growing, too young to work.</div>}
+                    >
+                      <Select
+                        value={assignValue(dog)}
+                        onChange={(v) => onAssign(dog, v)}
+                        options={[
+                          { value: "idle", label: "At the fire" },
+                          ...(hasHuntingCamp() ? [{ value: "hunt", label: "Hunting camp" }] : []),
+                          ...builtPens().map((pen) => ({ value: `guard:${pen.id}`, label: `Guard the ${getAnimal(pen.animal).name.toLowerCase()}` })),
+                        ]}
+                      />
+                    </Show>
                   </div>
                 </div>
               </div>

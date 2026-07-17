@@ -73,6 +73,14 @@ export function breedAptitude(breed: string): BreedAptitude {
   return DOG_BREEDS[breed as DogBreed]?.aptitude ?? "either";
 }
 
+// Rustic dog names for strays and pups (avoids founder/adventurer names).
+export const DOG_NAMES = [
+  "Bracken", "Fen", "Scout", "Nib", "Tansy", "Rook", "Bramble", "Juno",
+  "Barley", "Comet", "Fern", "Gorse", "Hazel", "Ash", "Willow", "Flint",
+  "Moss", "Pepper", "Reed", "Thistle", "Vesper", "Wren", "Yarrow", "Bodkin",
+  "Clover", "Gale", "Hob", "Rue", "Marrow", "Cinder",
+];
+
 /** Pick an adult portrait for a new dog of `breed`, preferring one not already
  *  worn by another dog (so faces stay unique until a breed's pool is exhausted). */
 export function pickAdultPortrait(breed: string, used: Set<string>): string {

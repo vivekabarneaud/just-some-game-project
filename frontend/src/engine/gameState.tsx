@@ -252,7 +252,7 @@ import {
 } from "@medieval-realm/shared/data/missions";
 import { getEnemy } from "@medieval-realm/shared/data/enemies";
 import { forageBloomNow } from "~/data/weather";
-import { pickAdultPortrait, DOG_BREED_KEYS, type DogBreed } from "~/data/dogBreeds";
+import { pickAdultPortrait, pickPuppyPortrait, breedAptitude, DOG_BREED_KEYS, DOG_NAMES, type DogBreed } from "~/data/dogBreeds";
 import {
   getMissionXp,
   applyXp,
@@ -337,7 +337,10 @@ export type GameEventType =
   | "pen_starving"
   | "pen_deaths"
   | "pen_births"
-  | "pen_predation";
+  | "pen_predation"
+  | "animal_born"
+  | "animal_stray"
+  | "animal_grown";
 
 export interface GameEvent {
   type: GameEventType;
@@ -2630,6 +2633,112 @@ function applyAnimalFeed(s: GameState, elapsedHours: number): Map<string, number
  *  the warm seasons (needs a pair + room, never past capacity); an unfed flock
  *  loses head to hunger. Mutates pen.count. Never auto-culls — shrinkage is only
  *  starvation; deliberate culling is a separate player action. See DESIGN_LIVESTOCK.md. */
+// ── Kept animals: the living layer (leveling, growth, happiness, breeding, strays) ──
+const MAX_DOGS = 8;
+const PUPPY_GROW_HOURS = 48;      // ~2 growing seasons to grow up
+const SKILL_LEVEL_HOURS = 24;     // ~a season on the job per skill level
+const APTITUDE_SPEEDUP = 1.6;     // a breed levels its favored skill this much faster
+const DOG_HAPPY_THRESHOLD = 60;   // a dog must be this happy to breed
+const BREED_CHANCE_PER_HOUR = 0.012;
+const STRAY_CHANCE_PER_HOUR = 0.005;
+
+/** Parent-child or shared-parent (siblings) — the pairs breeding must avoid. */
+function keptAnimalsRelated(a: KeptAnimal, b: KeptAnimal): boolean {
+  if (a.sireId === b.id || a.damId === b.id) return true;
+  if (b.sireId === a.id || b.damId === a.id) return true;
+  if (a.sireId && (a.sireId === b.sireId || a.sireId === b.damId)) return true;
+  if (a.damId && (a.damId === b.sireId || a.damId === b.damId)) return true;
+  return false;
+}
+
+/** Starting skills for a newly-arrived adult, biased by its breed's aptitude. */
+function aptitudeStartSkills(breed: string): { guardLevel: number; huntLevel: number } {
+  const apt = breedAptitude(breed);
+  if (apt === "guard") return { guardLevel: 1 + Math.floor(Math.random() * 2), huntLevel: 0 };
+  if (apt === "hunt") return { guardLevel: 0, huntLevel: 1 + Math.floor(Math.random() * 2) };
+  return Math.random() < 0.5 ? { guardLevel: 1, huntLevel: 0 } : { guardLevel: 0, huntLevel: 1 };
+}
+
+const usedDogPortraits = (s: GameState) => new Set(s.keptAnimals.map((a) => a.portrait));
+function pickDogName(s: GameState): string {
+  const used = new Set(s.keptAnimals.map((a) => a.name));
+  const free = DOG_NAMES.filter((n) => !used.has(n));
+  const pool = free.length ? free : DOG_NAMES;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+/** Per-tick: puppies grow, working dogs level their skill, happiness drifts, and
+ *  two happy unrelated adults may have a pup / a stray may wander in (both capped). */
+function applyKeptAnimalTick(s: GameState, elapsedHours: number): void {
+  if (elapsedHours <= 0 || !s.keptAnimals) return;
+  const dogs = s.keptAnimals.filter((a) => a.species === "dog");
+
+  for (const d of dogs) {
+    const apt = breedAptitude(d.breed ?? "");
+    // Happiness drifts toward a target set by the dog's situation.
+    let target: number;
+    if (d.isPuppy) target = 78;
+    else if (d.job === "idle") target = 55;
+    else if ((d.job === "guard" && apt === "guard") || (d.job === "hunt" && apt === "hunt")) target = 92;
+    else target = 74;
+    d.happiness = Math.max(0, Math.min(100, d.happiness + (target - d.happiness) * Math.min(1, 0.08 * elapsedHours)));
+
+    if (d.isPuppy) {
+      d.jobHours += elapsedHours;
+      if (d.jobHours >= PUPPY_GROW_HOURS) {
+        d.isPuppy = false;
+        d.jobHours = 0;
+        d.portrait = pickAdultPortrait(d.breed ?? "mongrel", usedDogPortraits(s));
+        pushEvent(s, "animal_grown", "🐕", `${d.name} has grown into a fine dog.`);
+      }
+      continue; // pups don't work, so they don't level
+    }
+    // Passive leveling on the current job (favored breed levels faster).
+    if (d.job === "guard" && d.guardLevel < 5) {
+      d.jobHours += elapsedHours;
+      const need = SKILL_LEVEL_HOURS / (apt === "guard" ? APTITUDE_SPEEDUP : 1);
+      if (d.jobHours >= need) { d.guardLevel++; d.jobHours -= need; }
+    } else if (d.job === "hunt" && d.huntLevel < 5) {
+      d.jobHours += elapsedHours;
+      const need = SKILL_LEVEL_HOURS / (apt === "hunt" ? APTITUDE_SPEEDUP : 1);
+      if (d.jobHours >= need) { d.huntLevel++; d.jobHours -= need; }
+    }
+  }
+
+  // Breeding — a happy, unrelated adult pair may have a litter.
+  if (s.keptAnimals.length < MAX_DOGS) {
+    const adults = dogs.filter((d) => !d.isPuppy && d.happiness >= DOG_HAPPY_THRESHOLD);
+    const pairs: [KeptAnimal, KeptAnimal][] = [];
+    for (let i = 0; i < adults.length; i++)
+      for (let j = i + 1; j < adults.length; j++)
+        if (!keptAnimalsRelated(adults[i], adults[j])) pairs.push([adults[i], adults[j]]);
+    if (pairs.length > 0 && Math.random() < 1 - Math.pow(1 - BREED_CHANCE_PER_HOUR, elapsedHours)) {
+      const [sire, dam] = pairs[Math.floor(Math.random() * pairs.length)];
+      const breed = (Math.random() < 0.5 ? sire.breed : dam.breed) ?? "mongrel";
+      const name = pickDogName(s);
+      s.keptAnimals.push({
+        id: nextId("animal"), name, species: "dog", breed: breed as DogBreed,
+        portrait: pickPuppyPortrait(breed, usedDogPortraits(s)),
+        isPuppy: true, origin: "bred", sireId: sire.id, damId: dam.id,
+        job: "idle", guardLevel: 0, huntLevel: 0, jobHours: 0, happiness: 78,
+      });
+      pushEvent(s, "animal_born", "🐶", `A litter! ${name} was born to ${sire.name} and ${dam.name}.`);
+    }
+  }
+
+  // Strays — the odd dog wanders in and stays.
+  if (s.keptAnimals.length < MAX_DOGS && Math.random() < 1 - Math.pow(1 - STRAY_CHANCE_PER_HOUR, elapsedHours)) {
+    const breed = DOG_BREED_KEYS[Math.floor(Math.random() * DOG_BREED_KEYS.length)];
+    const name = pickDogName(s);
+    s.keptAnimals.push({
+      id: nextId("animal"), name, species: "dog", breed,
+      portrait: pickAdultPortrait(breed, usedDogPortraits(s)),
+      origin: "stray", job: "idle", ...aptitudeStartSkills(breed), jobHours: 0, happiness: 62,
+    });
+    pushEvent(s, "animal_stray", "🐕", `A stray dog wandered in. ${name} has stayed.`);
+  }
+}
+
 function applyFlockDynamics(s: GameState, fedRatios: Map<string, number>, elapsedHours: number): void {
   if (elapsedHours <= 0) return;
   const breeding = (LIVESTOCK_BREEDING_SEASONS as readonly string[]).includes(s.season);
@@ -3995,6 +4104,7 @@ export function GameProvider(props: ParentProps) {
         // starving pens don't produce food/wool/leather this tick.
         const fedRatios = applyAnimalFeed(s, elapsedHours);
         applyFlockDynamics(s, fedRatios, elapsedHours);
+        applyKeptAnimalTick(s, elapsedHours);
         const foodRates = calcFoodRates(s, fedRatios);
 
         // Lavender (a cultivated HERB, not food) yields to the herb stock — the
@@ -5864,6 +5974,7 @@ export function GameProvider(props: ParentProps) {
     assignAnimal(animalId, job, penId) {
       const animal = state.keptAnimals.find((a) => a.id === animalId);
       if (!animal) return false;
+      if (animal.isPuppy && job !== "idle") return false; // pups can't work until grown
       // v1: dogs take idle/guard/hunt; cats idle/mouse. Guard needs a real pen.
       const dogJobs: AnimalJob[] = ["idle", "guard", "hunt"];
       const catJobs: AnimalJob[] = ["idle", "mouse"];
