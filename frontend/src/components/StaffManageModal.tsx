@@ -36,6 +36,9 @@ export default function StaffManageModal(props: Props) {
   const free = () => availableCitizens(state);
   const coverage = () => Math.round(staffing().multiplier * 100);
   const understaffed = () => staffing().active < staffing().capacity;
+  // Hunting camp can also be worked by kept dogs (mirror of the Kennel roster).
+  const dogs = () => state.keptAnimals.filter((a) => a.species === "dog");
+  const stars = (l: number) => "★".repeat(Math.max(0, l)) + "☆".repeat(Math.max(0, 5 - l));
 
   return (
     <Portal>
@@ -50,7 +53,7 @@ export default function StaffManageModal(props: Props) {
         <div
           style={{
             "max-width": "440px", width: "100%", background: "var(--bg-secondary)",
-            border: "1px solid var(--border-color)", "border-radius": "8px", padding: "20px",
+            border: "1px solid var(--border-color)", "border-radius": "0", padding: "20px",
             color: "var(--text-primary)", "max-height": "88vh", overflow: "auto",
           }}
           onClick={(e) => e.stopPropagation()}
@@ -66,7 +69,7 @@ export default function StaffManageModal(props: Props) {
           <div style={{
             display: "flex", "align-items": "baseline", gap: "12px", "flex-wrap": "wrap",
             padding: "10px 12px", background: "var(--bg-card)", border: "1px solid var(--border-color)",
-            "border-radius": "8px", "margin-bottom": "14px",
+            "border-radius": "0", "margin-bottom": "14px",
           }}>
             <span style={{ "font-size": "1.05rem", "font-weight": 600 }}>
               {staffing().active} / {staffing().capacity} <span style={{ "font-size": "0.8rem", color: "var(--text-muted)", "font-weight": 400 }}>staffed</span>
@@ -81,7 +84,7 @@ export default function StaffManageModal(props: Props) {
             {(m) => (
               <div style={{
                 display: "flex", "align-items": "center", gap: "10px", padding: "8px 10px",
-                background: "var(--bg-card)", border: "1px solid var(--border-color)", "border-radius": "8px",
+                background: "var(--bg-card)", border: "1px solid var(--border-color)", "border-radius": "0",
                 "margin-bottom": "8px", opacity: m.present ? "1" : "0.55",
               }}>
                 <Show when={m.portrait} fallback={<span style={{ "font-size": "1.6rem" }}>{m.kind === "founder" ? "🧑‍🌾" : "🗡️"}</span>}>
@@ -110,7 +113,7 @@ export default function StaffManageModal(props: Props) {
           {/* Townsfolk assignment */}
           <div style={{
             padding: "12px", background: "var(--bg-card)", border: "1px solid var(--border-color)",
-            "border-radius": "8px",
+            "border-radius": "0",
           }}>
             <div style={{ display: "flex", "align-items": "center", "justify-content": "space-between", gap: "10px" }}>
               <div>
@@ -123,7 +126,7 @@ export default function StaffManageModal(props: Props) {
                   disabled={staffing().citizens <= 0}
                   style={{
                     width: "30px", height: "30px", "font-size": "1.1rem", "line-height": 1,
-                    border: "1px solid var(--border-color)", "border-radius": "6px",
+                    border: "1px solid var(--border-color)", "border-radius": "0",
                     background: "transparent", color: "var(--text-secondary)",
                     cursor: staffing().citizens <= 0 ? "default" : "pointer", opacity: staffing().citizens <= 0 ? "0.4" : "1",
                   }}
@@ -134,7 +137,7 @@ export default function StaffManageModal(props: Props) {
                   disabled={free() <= 0}
                   style={{
                     width: "30px", height: "30px", "font-size": "1.1rem", "line-height": 1,
-                    border: "1px solid var(--border-color)", "border-radius": "6px",
+                    border: "1px solid var(--border-color)", "border-radius": "0",
                     background: "transparent", color: "var(--text-secondary)",
                     cursor: free() <= 0 ? "default" : "pointer", opacity: free() <= 0 ? "0.4" : "1",
                   }}
@@ -147,6 +150,43 @@ export default function StaffManageModal(props: Props) {
                 : "Fully covered. Extra hands sit ready in case someone falls ill or ships out."}
             </p>
           </div>
+
+          {/* Hunting dogs — post kept dogs here to boost the catch (mirrors the Kennel). */}
+          <Show when={props.buildingId === "hunting_camp"}>
+            <div style={{ "margin-top": "14px", padding: "12px", background: "var(--bg-card)", border: "1px solid var(--border-color)", "border-radius": "0" }}>
+              <div style={{ "font-size": "0.9rem", "margin-bottom": "8px" }}>🐕 Hunting dogs</div>
+              <Show
+                when={dogs().length > 0}
+                fallback={<div style={{ "font-size": "0.74rem", color: "var(--text-muted)", "font-style": "italic" }}>No dogs to send. Take one in or raise one at the Kennel first.</div>}
+              >
+                <For each={dogs()}>
+                  {(d) => (
+                    <div style={{ display: "flex", "align-items": "center", gap: "10px", padding: "5px 0" }}>
+                      <div style={{ flex: "1", "min-width": "0" }}>
+                        <div style={{ "font-size": "0.85rem" }}>{d.name}</div>
+                        <div style={{ "font-size": "0.72rem", color: "var(--accent-gold)" }}>🏹 {stars(d.huntLevel)}</div>
+                      </div>
+                      <button
+                        onClick={() => actions.assignAnimal(d.id, d.job === "hunt" ? "idle" : "hunt")}
+                        style={{
+                          "font-size": "0.76rem", padding: "5px 10px", cursor: "pointer",
+                          border: d.job === "hunt" ? "1px solid var(--accent-gold)" : "1px solid var(--border-color)",
+                          color: d.job === "hunt" ? "var(--accent-gold)" : "var(--text-secondary)",
+                          background: d.job === "hunt" ? "rgba(212, 175, 55, 0.1)" : "transparent",
+                          "border-radius": "0", "white-space": "nowrap",
+                        }}
+                      >
+                        {d.job === "hunt" ? "On the hunt" : "Send"}
+                      </button>
+                    </div>
+                  )}
+                </For>
+              </Show>
+              <p style={{ "font-size": "0.72rem", color: "var(--text-muted)", margin: "8px 0 0" }}>
+                Each hunting dog adds to the camp's catch, more with experience.
+              </p>
+            </div>
+          </Show>
         </div>
       </div>
     </Portal>

@@ -135,6 +135,7 @@ const Overview = lazy(() => import("./pages/Overview"));
 const Buildings = lazy(() => import("./pages/Buildings"));
 const BuildingDetail = lazy(() => import("./pages/BuildingDetail"));
 const Farming = lazy(() => import("./pages/Farming"));
+const Kennel = lazy(() => import("./pages/Kennel"));
 const AdventurersGuild = lazy(() => import("./pages/AdventurersGuild"));
 const Inventory = lazy(() => import("./pages/Inventory"));
 const AdventurerDetail = lazy(() => import("./pages/AdventurerDetail"));
@@ -176,6 +177,7 @@ render(
         <Route path="/buildings" component={Buildings} />
         <Route path="/buildings/:id" component={BuildingDetail} />
         <Route path="/farming" component={Farming} />
+        <Route path="/kennel" component={Kennel} />
         <Route path="/guild" component={AdventurersGuild} />
         <Route path="/guild/:id" component={AdventurerDetail} />
         <Route path="/inventory" component={Inventory} />

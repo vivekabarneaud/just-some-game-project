@@ -107,6 +107,39 @@ export interface PlayerPen {
   starveHours?: number;
 }
 
+export type AnimalSpecies = "dog" | "cat";
+export type AnimalJob = "idle" | "guard" | "hunt" | "mouse";
+
+/** A named working animal the settlement keeps (see docs/DESIGN_KEPT_ANIMALS.md).
+ *  Dogs guard flocks / work the hunting camp; cats (later) keep vermin down.
+ *  Cozy + attachment-driven: named companions posted to useful work. */
+export type AnimalOrigin = "stray" | "thornwoods" | "bred";
+
+export interface KeptAnimal {
+  id: string;
+  name: string;
+  species: AnimalSpecies;
+  /** Some animals have a fixed name (the Thornwoods' dog) — no rename pen. */
+  nameFixed?: boolean;
+  /** Where it came from — drives the card's little description. */
+  origin: AnimalOrigin;
+  /** For `origin === "bred"`: the parents (by id, since names can change). */
+  sireId?: string;
+  damId?: string;
+  /** Current posting. `idle` = "at the fire" (pet/charm, no effect). */
+  job: AnimalJob;
+  /** When `job === "guard"`, the pen this dog is posted to. */
+  penId?: string;
+  /** Two independent skill tracks, 0..5 (0 = untrained). Each rises from time
+   *  spent on that job. The card's frame tier is the higher of the two. */
+  guardLevel: number;
+  huntLevel: number;
+  /** Game-hours accumulated on the current job (drives leveling). */
+  jobHours: number;
+  /** 0..100, light and mostly automatic (fed + fitting job = content). */
+  happiness: number;
+}
+
 export interface PlayerHive {
   id: string;
   level: number;
@@ -304,6 +337,7 @@ export interface GameState {
   fields: PlayerField[];
   gardens: PlayerGarden[];
   pens: PlayerPen[];
+  keptAnimals: KeptAnimal[];
   hives: PlayerHive[];
   orchards: PlayerOrchard[];
   /** Per-fruit sapling seed stock — spent to plant trees, saved back at harvest. */

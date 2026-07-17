@@ -424,6 +424,27 @@ export interface PlayerPen {
   starveHours?: number;
 }
 
+export type AnimalSpecies = "dog" | "cat";
+export type AnimalJob = "idle" | "guard" | "hunt" | "mouse";
+export type AnimalOrigin = "stray" | "thornwoods" | "bred";
+/** A named working animal the settlement keeps (dogs now, cats later). See
+ *  docs/DESIGN_KEPT_ANIMALS.md. `idle` = at the fire (pet/charm, no effect). */
+export interface KeptAnimal {
+  id: string;
+  name: string;
+  species: AnimalSpecies;
+  nameFixed?: boolean;   // the Thornwoods' dog can't be renamed
+  origin: AnimalOrigin;  // drives the card description
+  sireId?: string;       // parents (by id) when origin === "bred"
+  damId?: string;
+  job: AnimalJob;
+  penId?: string;        // when job === "guard"
+  guardLevel: number;    // 0..5 skill at guarding (0 = untrained)
+  huntLevel: number;     // 0..5 skill at hunting
+  jobHours: number;      // game-hours on the current job
+  happiness: number;     // 0..100
+}
+
 export interface PlayerHive {
   id: string;
   level: number;
@@ -527,6 +548,7 @@ export interface GameState {
   seeds: Record<VeggieId, number>; // per-crop seed stock for sowing gardens
   seedsUnlocked: VeggieId[]; // crops the player can grow (staples always; specialty crops unlock on seed acquisition)
   pens: PlayerPen[];
+  keptAnimals: KeptAnimal[];
   hives: PlayerHive[];
   orchards: PlayerOrchard[];
   /** Per-fruit sapling seed stock — spent to plant trees, saved back at harvest. */
@@ -776,6 +798,10 @@ export interface GameActions {
   buyGuardDog: (penId: string) => boolean;
   /** Deliberately slaughter `qty` animals from a pen for meat + leather. */
   cullLivestock: (penId: string, qty?: number) => boolean;
+  /** Post a kept animal to a job (guard a pen, work the hunting camp, or idle). */
+  assignAnimal: (animalId: string, job: AnimalJob, penId?: string) => boolean;
+  /** Rename a kept animal (rejected for name-fixed ones like the Thornwoods' dog). */
+  renameAnimal: (animalId: string, name: string) => boolean;
   upgradeHive: (hiveId: string) => boolean;
   upgradeOrchard: (orchardId: string) => boolean;
   /** Plant one sapling/vine into a free slot of an orchard (gold cost). */
@@ -1109,6 +1135,12 @@ export function createInitialState(): GameState {
       count: 0,
       upgrading: false,
     })),
+    // Seed dogs — TEMPORARY placeholder so the Kennel has something to show.
+    // Real acquisition (the Thornwoods' dog + strays) is the next increment.
+    keptAnimals: [
+      { id: nextId("animal"), name: "Bess", species: "dog", nameFixed: true, origin: "thornwoods", job: "idle", guardLevel: 2, huntLevel: 1, jobHours: 0, happiness: 82 },
+      { id: nextId("animal"), name: "Pip", species: "dog", origin: "stray", job: "idle", guardLevel: 0, huntLevel: 2, jobHours: 0, happiness: 68 },
+    ],
     // Pre-spawn apiary slots — all identical, no type variants.
     hives: Array.from({ length: MAX_HIVES }, () => ({
       id: nextId("hive"),
@@ -1464,6 +1496,20 @@ export function migrateSaveState(saved: GameState): GameState {
       (saved as any).seeds.lavender = 0;
     }
     if (!saved.pens) saved.pens = [];
+    // Seed dogs into existing saves too (temporary placeholder, see createDefaultState).
+    if (!saved.keptAnimals) saved.keptAnimals = [
+      { id: nextId("animal"), name: "Bess", species: "dog", nameFixed: true, origin: "thornwoods", job: "idle", guardLevel: 2, huntLevel: 1, jobHours: 0, happiness: 82 },
+      { id: nextId("animal"), name: "Pip", species: "dog", origin: "stray", job: "idle", guardLevel: 0, huntLevel: 2, jobHours: 0, happiness: 68 },
+    ];
+    // Backfill kept animals from the first increment (single `level`, no origin)
+    // to the two-skill shape, so their stars render.
+    for (const a of saved.keptAnimals as any[]) {
+      if (typeof a.guardLevel !== "number") a.guardLevel = typeof a.level === "number" ? a.level : 0;
+      if (typeof a.huntLevel !== "number") a.huntLevel = 0;
+      if (!a.origin) a.origin = "stray";
+      if (typeof a.happiness !== "number") a.happiness = 70;
+      if (typeof a.jobHours !== "number") a.jobHours = 0;
+    }
     // Population model: default a headcount on any pre-count pen (no NaN in food math).
     for (const p of saved.pens) if (typeof (p as any).count !== "number") (p as any).count = 0;
     if (!saved.hives) saved.hives = [];
@@ -2427,6 +2473,11 @@ function calcProductionRates(state: GameState): { gold: number; wood: number; st
       if (isStaffable(pb.buildingId)) {
         rate = Math.floor(rate * getBuildingStaffing(state, pb.buildingId, pb.level).multiplier);
       }
+      // Kept dogs posted to the hunting camp boost its catch (+8%/level, capped).
+      if (pb.buildingId === "hunting_camp") {
+        const huntBoost = Math.min(0.5, state.keptAnimals.reduce((b, a) => a.job === "hunt" ? b + 0.08 * Math.max(1, a.huntLevel) : b, 0));
+        if (huntBoost > 0) rate = Math.floor(rate * (1 + huntBoost));
+      }
       if (res in rates) rates[res] += rate;
     }
   }
@@ -2574,6 +2625,8 @@ function applyAnimalFeed(s: GameState, elapsedHours: number): Map<string, number
 function applyFlockDynamics(s: GameState, fedRatios: Map<string, number>, elapsedHours: number): void {
   if (elapsedHours <= 0) return;
   const breeding = (LIVESTOCK_BREEDING_SEASONS as readonly string[]).includes(s.season);
+  // Pens a kept dog is posted to guard (on top of the legacy gold-bought dog).
+  const dogGuarded = new Set(s.keptAnimals.filter((a) => a.job === "guard" && a.penId).map((a) => a.penId!));
   for (const pen of s.pens) {
     if (pen.level === 0 || pen.count <= 0) continue;
     const capacity = getPenCapacity(pen.level);
@@ -2582,7 +2635,7 @@ function applyFlockDynamics(s: GameState, fedRatios: Map<string, number>, elapse
     // Predation — wolves thin an UNDEFENDED fold (fed or not), worse in the lean
     // seasons. A guard dog stops it entirely. At most one raid per tick; the
     // chance compounds over elapsed hours so an offline stretch isn't a wipe.
-    if (!pen.guardDog) {
+    if (!pen.guardDog && !dogGuarded.has(pen.id)) {
       const mod = PREDATION_SEASON_MOD[s.season] ?? 1;
       const raidChance = 1 - Math.pow(1 - PREDATION_PER_HOUR * mod, elapsedHours);
       if (Math.random() < raidChance) {
@@ -5795,6 +5848,41 @@ export function GameProvider(props: ParentProps) {
         if (y.meat > 0) addFood(s.foods, "meat", y.meat * n, caps.food);
         if (y.leather > 0) s.leather = Math.min(craftingMaterialCap(s.buildings), s.leather + y.leather * n);
         if (y.bone > 0) s.bone = Math.min(craftingMaterialCap(s.buildings), s.bone + y.bone * n);
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    assignAnimal(animalId, job, penId) {
+      const animal = state.keptAnimals.find((a) => a.id === animalId);
+      if (!animal) return false;
+      // v1: dogs take idle/guard/hunt; cats idle/mouse. Guard needs a real pen.
+      const dogJobs: AnimalJob[] = ["idle", "guard", "hunt"];
+      const catJobs: AnimalJob[] = ["idle", "mouse"];
+      const allowed = animal.species === "dog" ? dogJobs : catJobs;
+      if (!allowed.includes(job)) return false;
+      if (job === "guard") {
+        const pen = state.pens.find((p) => p.id === penId);
+        if (!pen || pen.level < 1) return false;
+      }
+      setState(produce((s) => {
+        const a = s.keptAnimals.find((x) => x.id === animalId)!;
+        a.job = job;
+        a.penId = job === "guard" ? penId : undefined;
+        a.jobHours = 0; // a new posting builds its efficiency from scratch
+      }));
+      scheduleSave();
+      return true;
+    },
+
+    renameAnimal(animalId, name) {
+      const animal = state.keptAnimals.find((a) => a.id === animalId);
+      if (!animal || animal.nameFixed) return false;
+      const clean = name.trim().slice(0, 24);
+      if (!clean) return false;
+      setState(produce((s) => {
+        const a = s.keptAnimals.find((x) => x.id === animalId)!;
+        a.name = clean;
       }));
       scheduleSave();
       return true;
