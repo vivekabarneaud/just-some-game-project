@@ -1627,7 +1627,8 @@ export default function Farming() {
   const townHallLevel = () =>
     state.buildings.find((b) => b.buildingId === "town_hall")?.level ?? 0;
   const gardensUnlocked = () => settlementChapter() >= 2; // kitchen gardens — camp-scale
-  const villageUnlocked = () => townHallLevel() >= 3;     // fields, livestock & bees, orchards
+  const apiaryUnlocked = () => townHallLevel() >= 2;      // a few hives — camp-scale, ahead of livestock
+  const villageUnlocked = () => townHallLevel() >= 3;     // fields, livestock, orchards
 
   return (
     // The season emblem watermark is rendered at the app level (App.tsx) as a
@@ -1801,16 +1802,25 @@ export default function Farming() {
       </LockedShell>
       </div>
 
-      {/* ── Livestock & Bees ── Deferred to Village (Town Hall Lv.3). A shepherd,
-          a flock, and a settled apiary are all settled-life, not camp survival;
-          this matches the "Woolly Friends" quest, which also waits for Village.
-          The single apiary lives here now rather than in a section of its own. */}
+      {/* ── Bees ── A few hives are camp-scale work: they open a step ahead of
+          the flocks, once the Town Hall reaches Lv.2. */}
       <div class="ornament-frame" style={{ background: "var(--bg-secondary)", padding: "4px 16px 16px", "margin-bottom": "16px" }}>
-      <h2 class="farming-section-title">🐄 Livestock & Bees</h2>
+      <h2 class="farming-section-title">🐝 Bees</h2>
+      <LockedShell locked={!apiaryUnlocked()} reason="Locked until your Town Hall reaches Level 2">
+        <div class="fields-grid">
+          <For each={state.hives}>{(h) => <HiveCard hive={h} />}</For>
+        </div>
+      </LockedShell>
+      </div>
+
+      {/* ── Livestock ── Deferred to Village (Town Hall Lv.3). A shepherd and a
+          flock are settled-life, not camp survival; matches the "Woolly Friends"
+          quest, which also waits for Village. */}
+      <div class="ornament-frame" style={{ background: "var(--bg-secondary)", padding: "4px 16px 16px", "margin-bottom": "16px" }}>
+      <h2 class="farming-section-title">🐄 Livestock</h2>
       <LockedShell locked={!villageUnlocked()} reason="Locked until your settlement becomes a Village (Town Hall Lv.3)">
         <div class="fields-grid">
           <For each={state.pens}>{(p) => <PenCard pen={p} />}</For>
-          <For each={state.hives}>{(h) => <HiveCard hive={h} />}</For>
         </div>
       </LockedShell>
       </div>
