@@ -252,6 +252,7 @@ import {
 } from "@medieval-realm/shared/data/missions";
 import { getEnemy } from "@medieval-realm/shared/data/enemies";
 import { forageBloomNow } from "~/data/weather";
+import { pickAdultPortrait, DOG_BREED_KEYS, type DogBreed } from "~/data/dogBreeds";
 import {
   getMissionXp,
   applyXp,
@@ -433,6 +434,9 @@ export interface KeptAnimal {
   id: string;
   name: string;
   species: AnimalSpecies;
+  breed: DogBreed;       // drives portrait + aptitude; inherited from a parent when bred
+  portrait: string;      // the specific adult portrait assigned to this dog
+  isPuppy?: boolean;     // a young dog: shows the puppy portrait, can't work until grown
   nameFixed?: boolean;   // the Thornwoods' dog can't be renamed
   origin: AnimalOrigin;  // drives the card description
   sireId?: string;       // parents (by id) when origin === "bred"
@@ -1138,8 +1142,8 @@ export function createInitialState(): GameState {
     // Seed dogs — TEMPORARY placeholder so the Kennel has something to show.
     // Real acquisition (the Thornwoods' dog + strays) is the next increment.
     keptAnimals: [
-      { id: nextId("animal"), name: "Bess", species: "dog", nameFixed: true, origin: "thornwoods", job: "idle", guardLevel: 2, huntLevel: 1, jobHours: 0, happiness: 82 },
-      { id: nextId("animal"), name: "Pip", species: "dog", origin: "stray", job: "idle", guardLevel: 0, huntLevel: 2, jobHours: 0, happiness: 68 },
+      { id: nextId("animal"), name: "Bess", species: "dog", breed: "herding_collie", portrait: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/dogs/herding_collie.png", nameFixed: true, origin: "thornwoods", job: "idle", guardLevel: 2, huntLevel: 1, jobHours: 0, happiness: 82 },
+      { id: nextId("animal"), name: "Pip", species: "dog", breed: "mongrel", portrait: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/dogs/mongrel.png", origin: "stray", job: "idle", guardLevel: 0, huntLevel: 2, jobHours: 0, happiness: 68 },
     ],
     // Pre-spawn apiary slots — all identical, no type variants.
     hives: Array.from({ length: MAX_HIVES }, () => ({
@@ -1498,17 +1502,21 @@ export function migrateSaveState(saved: GameState): GameState {
     if (!saved.pens) saved.pens = [];
     // Seed dogs into existing saves too (temporary placeholder, see createDefaultState).
     if (!saved.keptAnimals) saved.keptAnimals = [
-      { id: nextId("animal"), name: "Bess", species: "dog", nameFixed: true, origin: "thornwoods", job: "idle", guardLevel: 2, huntLevel: 1, jobHours: 0, happiness: 82 },
-      { id: nextId("animal"), name: "Pip", species: "dog", origin: "stray", job: "idle", guardLevel: 0, huntLevel: 2, jobHours: 0, happiness: 68 },
+      { id: nextId("animal"), name: "Bess", species: "dog", breed: "herding_collie", portrait: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/dogs/herding_collie.png", nameFixed: true, origin: "thornwoods", job: "idle", guardLevel: 2, huntLevel: 1, jobHours: 0, happiness: 82 },
+      { id: nextId("animal"), name: "Pip", species: "dog", breed: "mongrel", portrait: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/dogs/mongrel.png", origin: "stray", job: "idle", guardLevel: 0, huntLevel: 2, jobHours: 0, happiness: 68 },
     ];
-    // Backfill kept animals from the first increment (single `level`, no origin)
-    // to the two-skill shape, so their stars render.
+    // Backfill kept animals from earlier increments (single `level`, no origin/
+    // breed) so their stars and portraits render.
+    const usedPortraits = new Set<string>();
     for (const a of saved.keptAnimals as any[]) {
       if (typeof a.guardLevel !== "number") a.guardLevel = typeof a.level === "number" ? a.level : 0;
       if (typeof a.huntLevel !== "number") a.huntLevel = 0;
       if (!a.origin) a.origin = "stray";
       if (typeof a.happiness !== "number") a.happiness = 70;
       if (typeof a.jobHours !== "number") a.jobHours = 0;
+      if (!a.breed) a.breed = DOG_BREED_KEYS[Math.floor(Math.random() * DOG_BREED_KEYS.length)];
+      if (!a.portrait) a.portrait = pickAdultPortrait(a.breed, usedPortraits);
+      usedPortraits.add(a.portrait);
     }
     // Population model: default a headcount on any pre-count pen (no NaN in food math).
     for (const p of saved.pens) if (typeof (p as any).count !== "number") (p as any).count = 0;

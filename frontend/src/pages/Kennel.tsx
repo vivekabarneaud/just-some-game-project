@@ -4,9 +4,7 @@ import { getAnimal } from "@medieval-realm/shared/data/livestock";
 import { FrameOrnaments } from "~/components/FrameOrnaments";
 import Select from "~/components/Select";
 import { SPARK_GOLD } from "~/data/navWidgets";
-
-// Placeholder dog art (Midjourney) — TEMP; move to R2 with the other assets.
-const DOG_IMG = "https://cdn.midjourney.com/0ec39921-80b5-4aa3-84be-2fbe1d36fe2e/0_2.png";
+import { breedName } from "~/data/dogBreeds";
 
 // Frame by experience — same hand-drawn frames as the adventurer roster.
 // Tier = the higher of the dog's two skills (1..5).
@@ -85,7 +83,7 @@ export default function Kennel() {
                 </Show>
 
                 <div class="adv-card-portrait">
-                  <img src={DOG_IMG} alt={dog.name} loading="lazy" />
+                  <img src={dog.portrait} alt={dog.name} loading="lazy" />
                 </div>
                 <div class="adv-card-content" style={{ "padding-right": "24px" }}>
                   {/* Name + rename pen (fixed-name dogs show no pen). */}
@@ -118,7 +116,7 @@ export default function Kennel() {
                   </div>
 
                   <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "font-style": "italic", "margin-top": "1px" }}>
-                    {description(dog)} <span title={`Happiness ${Math.round(dog.happiness)}`}>{moodFace(dog.happiness)}</span>
+                    {breedName(dog.breed)}{dog.isPuppy ? " pup" : ""} · {description(dog)} <span title={`Happiness ${Math.round(dog.happiness)}`}>{moodFace(dog.happiness)}</span>
                   </div>
 
                   {/* Two skill tracks — fixed-width labels so the stars line up. */}

@@ -119,6 +119,12 @@ export interface KeptAnimal {
   id: string;
   name: string;
   species: AnimalSpecies;
+  /** Breed key (dogs) — drives portrait + aptitude; the frontend has the enum. */
+  breed?: string;
+  /** The specific adult portrait assigned to this animal. */
+  portrait?: string;
+  /** A young dog: shows the puppy portrait and can't work until grown. */
+  isPuppy?: boolean;
   /** Some animals have a fixed name (the Thornwoods' dog) — no rename pen. */
   nameFixed?: boolean;
   /** Where it came from — drives the card's little description. */
