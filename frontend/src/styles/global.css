@@ -137,6 +137,27 @@
   --border-color: #43597f;
 }
 
+/* Heat wave: the one "hot" weather — a dry, hazy warmth, backgrounds pulled
+   toward warm amber-brown and a touch drier than the calm look. */
+:root[data-weather="heat_wave"] {
+  --bg-primary: #241d16;
+  --bg-secondary: #241c12;
+  --bg-panel: #322618;
+  --bg-card: #281f13;
+  --bg-hover: #3d2f1c;
+  --border-color: #574227;
+}
+
+/* Downpour: a heavier rain, pulled down closer to the storm gloom. */
+:root[data-weather="heavy_rain"] {
+  --bg-primary: #12151f;
+  --bg-secondary: #101827;
+  --bg-panel: #172138;
+  --bg-card: #131b2e;
+  --bg-hover: #1f2d49;
+  --border-color: #273954;
+}
+
 /* The gold "Matters to attend" card (.quest-panel) is hardcoded warm. In wet
    weather it STAYS golden but banks darker — a warm hearth low in the gloom.
    We darken it by fading a dark overlay over the gradient (::after) rather than

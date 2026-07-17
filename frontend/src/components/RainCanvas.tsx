@@ -45,6 +45,7 @@ type Intensity = { active: false } | { active: true; heavy: boolean; rgb: string
 
 function intensityFor(weather: string): Intensity {
   if (weather === "rain") return { active: true, heavy: false, rgb: RAIN_RGB };
+  if (weather === "heavy_rain") return { active: true, heavy: true, rgb: RAIN_RGB };
   if (weather === "storm") return { active: true, heavy: true, rgb: RAIN_RGB };
   if (weather === "unnatural_storm") return { active: true, heavy: true, rgb: AETHER_RGB };
   return { active: false };

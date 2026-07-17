@@ -60,6 +60,7 @@ export function getCisternRainCatch(level: number): number {
 /** The cistern only catches water while it's ACTUALLY raining (or storming). */
 export function ambientRainFactor(weather: WeatherType): number {
   switch (weather) {
+    case "heavy_rain": return 4;
     case "rain": case "storm": case "unnatural_storm": return 2.5;
     default: return 0;
   }

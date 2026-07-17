@@ -19,7 +19,7 @@ export default function AmbientRain() {
   const weather = () => resolveCurrentWeather(state.season, state.seasonElapsed, state.year);
   const isWet = () => {
     const w = weather();
-    return w === "rain" || w === "storm" || w === "unnatural_storm";
+    return w === "rain" || w === "heavy_rain" || w === "storm" || w === "unnatural_storm";
   };
 
   onMount(() => {

@@ -33,23 +33,11 @@ export const CLIMATE_META: Record<
   deluge:  { name: "Deluge",    icon: "🌊", color: "#4a90d9", blurb: "Relentless rain. Waterlogged roots drag the harvest down.", yield: 0.65 },
 };
 
-// Fraction of standing garden/field plants a drought kills (on top of the low
-// yield multiplier). Orchards' mature trees survive — perennials weather it.
-// Kept for the dev "apply kill now" tool; the live tick uses the gradual,
-// water-tied attrition below instead.
+// Fraction of standing garden/field plants a drought kills. Kept only for the
+// dev "apply kill now" test tool. The year-type climate band is yield-only now
+// (getClimateYield); the killing is done by momentary WEATHER events (heat wave
+// / downpour) in weather.ts, not by the year.
 export const DROUGHT_PLANT_KILL = 0.4;
-
-// Gradual drought attrition, applied per GAME-HOUR to standing crops during a
-// drought year. A season is a fixed HOURS_PER_SEASON game-hours, so the total
-// loss over a drought is the same for every player (all run at 1x) regardless
-// of the dev speed used to test it. Two parts:
-//   - Heat: unavoidable, even watered — a drought is punishing.
-//   - Thirst: only when the reserve can't keep up, scaled by the shortfall
-//     (1 - cropCoverage). Full cistern/well/irrigation coverage avoids it.
-// Compounded over ~72 growing game-hours (3 seasons): watered ~19% lost,
-// a fully un-watered plot ~51%. Tune here.
-export const DROUGHT_HEAT_KILL_PER_HOUR = 0.003;
-export const DROUGHT_THIRST_KILL_PER_HOUR = 0.007;
 
 // mulberry32 core — a good 0..1 hash for sequential integer seeds (the sin-based
 // ambient hash clusters badly one-roll-per-year; this doesn't).

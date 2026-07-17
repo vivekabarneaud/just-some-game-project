@@ -157,9 +157,10 @@ function FieldCard(props: { field: PlayerField }) {
     if (!crop() || props.field.level === 0) return 0;
     const base = getSeasonYield(crop()!, props.field.level);
     const mult = getSoilMultiplier(props.field.sameCropStreak, props.field.restBonus);
-    // A drought thins the standing crop; the accrued loss scales the harvest down.
-    const drought = 1 - (props.field.droughtLoss ?? 0);
-    return Math.max(0, Math.floor(base * mult * drought));
+    // Harsh weather (heat waves, downpours) thins the standing crop; the accrued
+    // loss scales the harvest down.
+    const weather = 1 - (props.field.weatherLoss ?? 0);
+    return Math.max(0, Math.floor(base * mult * weather));
   };
   /** Preview yield for a candidate crop, applied via what the streak WOULD become. */
   const previewYield = (candidateCropId: CropId) => {
@@ -337,11 +338,11 @@ function FieldCard(props: { field: PlayerField }) {
             </StatBox>
           </StatRow>
         </Show>
-        {/* Drought is thinning the crop — surfaced so the falling expected
-            harvest reads as the weather, not a bug. Keep the reserve up to slow it. */}
-        <Show when={crop() && (props.field.droughtLoss ?? 0) > 0.005}>
+        {/* Harsh weather is thinning the crop — surfaced so the falling expected
+            harvest reads as the weather, not a bug. */}
+        <Show when={crop() && (props.field.weatherLoss ?? 0) > 0.005}>
           <div style={{ "font-size": "0.72rem", color: "var(--accent-red)", "margin-top": "4px", "text-align": "center" }}>
-            🥵 Drought: {Math.round((props.field.droughtLoss ?? 0) * 100)}% of the crop lost
+            🌦️ {Math.round((props.field.weatherLoss ?? 0) * 100)}% of the crop lost to harsh weather
           </div>
         </Show>
         {/* Hay rick left on the field after harvest — the flock's winter fodder,

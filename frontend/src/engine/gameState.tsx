@@ -195,10 +195,10 @@ import {
   isOrchardActive,
   ORCHARD_MAX_LEVEL,
 } from "~/data/orchards";
-import { getClimate, getClimateYield, DROUGHT_PLANT_KILL, DROUGHT_HEAT_KILL_PER_HOUR, DROUGHT_THIRST_KILL_PER_HOUR, climateOverrideBand, setClimateOverride, isDryBand, isWetBand, climateRainFactor, type ClimateBand } from "~/data/climate";
+import { getClimate, getClimateYield, DROUGHT_PLANT_KILL, climateOverrideBand, setClimateOverride, isDryBand, isWetBand, climateRainFactor, type ClimateBand } from "~/data/climate";
 import { WELL_ID, CISTERN_ID, IRRIGATION_ID, DRAINAGE_ID, getWellOutput, wellFactor, getCisternRainCatch, getWaterCap, getDrainageBank, ambientRainFactor, gardenWaterDemand, fieldWaterDemand, orchardWaterDemand, penWaterDemand, IRRIGATION_EFFICIENCY, STREAM_YIELD, streamStatus, streamFactor, cropHeatFactor, citizenWaterDemand } from "~/data/water";
 import type { StreamStatus } from "~/data/water";
-import { resolveCurrentWeather, type WeatherType } from "~/data/weather";
+import { resolveCurrentWeather, HEATWAVE_HEAT_KILL_PER_HOUR, HEATWAVE_THIRST_KILL_PER_HOUR, DELUGE_DROWN_KILL_PER_HOUR, DELUGE_DRAINAGE_RELIEF, type WeatherType } from "~/data/weather";
 import {
   type Season,
   HOURS_PER_SEASON,
@@ -390,7 +390,7 @@ export interface PlayerField {
   sameCropStreak: number;       // consecutive same-crop years (0 = fresh/rotated)
   restBonus: boolean;           // +15% yield next harvest (field was idle a year)
   hay?: number;                 // straw rick left after harvest — winter grazer fodder; cleared at spring replant
-  droughtLoss?: number;         // 0-1 fraction of this planting's crop lost to drought so far; scales the harvest, cleared at replant
+  weatherLoss?: number;         // 0-1 fraction of this planting's crop lost to harsh weather (heat waves / downpours); scales the harvest, cleared at replant
   level: number;
   upgrading: boolean;
   upgradeRemaining?: number;
@@ -2304,7 +2304,7 @@ function waterBalance(s: GameState) {
  *  their draw on the reserve.) */
 function isRainingNow(s: GameState): boolean {
   const w = currentWeatherOf(s);
-  return w === "rain" || w === "storm" || w === "unnatural_storm";
+  return w === "rain" || w === "heavy_rain" || w === "storm" || w === "unnatural_storm";
 }
 /** Is drainage saving the crop this wet year? (built, wet/deluge). */
 function drainageActive(s: GameState): boolean {
@@ -2341,18 +2341,27 @@ function applyDroughtKill(s: GameState): void {
   }
 }
 
-/** Gradual drought attrition, applied per game-hour to standing crops during a
- *  drought year. Heat kills a little even when watered; thirst adds more only
- *  when the reserve can't keep up (scaled by 1 - coverage), so keeping the
- *  cistern/well/irrigation topped up limits the loss to the heat toll. Gardens
- *  and orchard saplings lose living plants; fields (acreage, no plant count)
- *  accrue a harvest-loss fraction. Mature orchard trees weather it untouched. */
-function applyDroughtAttrition(s: GameState, coverage: number, elapsedHours: number): void {
+/** Momentary crop damage from a harsh WEATHER event (heat wave / downpour),
+ *  applied per game-hour while the event is active. Heat withers even when
+ *  watered; thirst adds more when the reserve is dry (× shortfall), so keeping
+ *  the cistern/well/irrigation topped up limits a heat wave to the heat toll. A
+ *  downpour drowns the roots; drainage channels cut it down. Gardens and orchard
+ *  saplings lose living plants; fields (acreage, no plant count) accrue a
+ *  harvest-loss fraction. Mature orchard trees weather it untouched. The year
+ *  type (fair/dry/wet/hot) is separate and only scales yield, never kills. */
+function applyWeatherCropDamage(s: GameState, weather: WeatherType, coverage: number, elapsedHours: number): void {
   if (elapsedHours <= 0 || s.year <= 1) return;
   if (s.season === "winter") return; // nothing standing to lose
-  if (cropClimateBand(s) !== "drought") return;
-  const shortfall = 1 - Math.min(1, Math.max(0, coverage));
-  const rate = DROUGHT_HEAT_KILL_PER_HOUR + DROUGHT_THIRST_KILL_PER_HOUR * shortfall;
+  let rate = 0;
+  if (weather === "heat_wave") {
+    const shortfall = 1 - Math.min(1, Math.max(0, coverage));
+    rate = HEATWAVE_HEAT_KILL_PER_HOUR + HEATWAVE_THIRST_KILL_PER_HOUR * shortfall;
+  } else if (weather === "heavy_rain") {
+    const drained = buildingLevel(s, DRAINAGE_ID) > 0;
+    rate = DELUGE_DROWN_KILL_PER_HOUR * (drained ? DELUGE_DRAINAGE_RELIEF : 1);
+  } else {
+    return;
+  }
   const survive = Math.pow(1 - rate, elapsedHours);
   if (survive >= 1) return;
   for (const g of s.gardens) {
@@ -2368,8 +2377,8 @@ function applyDroughtAttrition(s: GameState, coverage: number, elapsedHours: num
   }
   for (const f of s.fields) {
     if (f.level > 0 && f.crop) {
-      const prev = f.droughtLoss ?? 0;
-      f.droughtLoss = Math.min(1, 1 - (1 - prev) * survive);
+      const prev = f.weatherLoss ?? 0;
+      f.weatherLoss = Math.min(1, 1 - (1 - prev) * survive);
     }
   }
 }
@@ -3895,15 +3904,19 @@ export function GameProvider(props: ParentProps) {
           // Season is global/shared, but YEAR is local = settlement age.
           s.year = Math.max(1, global.year - (s.foundingYear ?? global.year) + 1);
 
-          // Drought warning — fires once per (global) drought year so the player
-          // knows to keep the cisterns full. The crop loss itself is applied
-          // gradually through the year by applyDroughtAttrition (scaled by water
-          // coverage), not as a single flat kill. Skipped in the graced first year.
+          // Year-type heads-up — fires once per (global) climate year when the
+          // year runs lean or wet, so a lighter harvest reads as the weather and
+          // the player braces for the events. The year only scales YIELD; the
+          // killing is done by momentary heat waves / downpours. Graced year one.
           const climateYear = global.year;
-          if (cropClimateBand(s) === "drought" && s.lastDroughtKillYear !== climateYear) {
-            s.lastDroughtKillYear = climateYear;
-            if (s.year > 1) {
-              pushEvent(s, "drought", "🥵", "A drought has come. Keep the cisterns full and the channels open, or the crops will wither in the heat.");
+          if (s.lastDroughtKillYear !== climateYear && s.year > 1) {
+            const band = cropClimateBand(s);
+            if (band === "drought" || band === "dry") {
+              s.lastDroughtKillYear = climateYear;
+              pushEvent(s, "drought", "🥵", "A dry year. The harvest will come in lighter, and heat waves will bite, so keep the cisterns full.");
+            } else if (band === "deluge") {
+              s.lastDroughtKillYear = climateYear;
+              pushEvent(s, "drought", "🌊", "A wet year. Expect a lighter harvest, and watch for downpours that can drown the fields.");
             }
           }
 
@@ -3965,9 +3978,10 @@ export function GameProvider(props: ParentProps) {
           const wb = waterBalance(s);
           const water = (s.resources.water ?? 0) + wb.net * elapsedHours;
           s.resources.water = Math.min(getWaterCap(wb.cisternLvl), Math.max(0, water));
-          // A drought year grinds down standing crops, gentler while the reserve
-          // still covers them (coverage 1 = heat only), harsher once it runs dry.
-          applyDroughtAttrition(s, wb.cropCoverage, elapsedHours);
+          // A harsh weather event (heat wave / downpour) damages standing crops
+          // while it lasts. The year type only scales yield (getClimateYield);
+          // the killing lives here, on the momentary weather.
+          applyWeatherCropDamage(s, wb.weather, wb.cropCoverage, elapsedHours);
         }
 
         // Food: add per-type production (capped at pantry total), then citizens eat proportionally.
@@ -5608,7 +5622,7 @@ export function GameProvider(props: ParentProps) {
         const f = s.fields.find((f) => f.id === fieldId)!;
         f.crop = crop;
         f.harvested = false;
-        f.droughtLoss = 0; // a fresh planting starts undamaged
+        f.weatherLoss = 0; // a fresh planting starts undamaged
         // Update rotation tracking: same crop in a row = depleted streak grows,
         // different crop = streak resets. This determines yield at harvest.
         if (f.lastCrop === crop) {
