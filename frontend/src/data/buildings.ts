@@ -408,7 +408,9 @@ export const BUILDINGS: BuildingDefinition[] = [
     icon: "🛢️",
     maxLevel: 5,
     levels: generateLevels({ wood: 40, stone: 70 }, 10, undefined, 5),
-    requiredTier: "village",
+    // Camp-scale: settlers catch rainwater from the start. A dug well (reliable
+    // inflow) is settled-village work and stays at Village; this just banks rain.
+    requiredTier: "camp",
   },
   {
     id: "irrigation_works",
