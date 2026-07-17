@@ -9,7 +9,7 @@ import { getHiveCost, getHiveBuildTime, getHoneyRate, HIVE_MAX_LEVEL, APIARY_IMA
 import SeedIcon from "~/components/SeedIcon";
 import SeasonIcon from "~/components/SeasonIcon";
 import StatCard from "~/components/StatCard";
-import { CLIMATE_META } from "~/data/climate";
+import { resolveCurrentWeather, WEATHER_META } from "~/data/weather";
 import { gardenWaterDemand, fieldWaterDemand, orchardWaterDemand, penWaterDemand } from "~/data/water";
 
 /** True once the settlement has a well or cistern — gates the per-plot water
@@ -1715,26 +1715,18 @@ export default function Farming() {
         <StatCard label="Season" valueColor={seasonMeta().color}>
           <SeasonIcon season={state.season} size={20} /> {seasonMeta().name}, Year {state.year}
         </StatCard>
-        {/* This year's climate — a global modifier on crop yields, softened by
-            irrigation (dry/drought) or drainage (wet/deluge) when built. */}
+        {/* Current weather — what the sky is doing right now. The year's
+            character (a dry year bakes, a wet one floods) is read from the
+            weather it keeps throwing, not forecast as a verdict, so a hard or
+            easy year stays a thing you live through rather than a label. */}
         {(() => {
-          const band = () => actions.getClimateBand();
-          const c = () => CLIMATE_META[band()];
-          const eff = () => actions.getCropYieldMult();
-          const protectedNow = () => c().yield < 1 && eff() >= 1;
-          const penaltyPct = () => Math.round((1 - eff()) * 100);
-          const guard = () => (band() === "dry" || band() === "drought") ? "💦 irrigated" : "🌊 drained";
+          const w = () => resolveCurrentWeather(state.season, state.seasonElapsed, state.year);
+          const m = () => WEATHER_META[w()];
           return (
-            <StatCard label="Weather" valueColor={c().color}>
-              <Tooltip block text={c().blurb}>
+            <StatCard label="Weather">
+              <Tooltip block text={m().blurb}>
                 <span style={{ display: "inline-flex", "align-items": "center", gap: "5px" }}>
-                  {c().icon} {c().name}
-                  <Show when={protectedNow()}>
-                    <span style={{ "font-size": "0.72rem", color: "var(--accent-green)" }}>{guard()}</span>
-                  </Show>
-                  <Show when={eff() < 1}>
-                    <span style={{ "font-size": "0.72rem", color: "var(--accent-red)" }}>crops −{penaltyPct()}%</span>
-                  </Show>
+                  {m().icon} {m().name}
                 </span>
               </Tooltip>
             </StatCard>

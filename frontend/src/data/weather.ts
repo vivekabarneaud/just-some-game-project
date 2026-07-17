@@ -1,6 +1,7 @@
 import { createSignal } from "solid-js";
 import type { Season } from "./seasons";
 import { SEASON_ORDER, HOURS_PER_SEASON, IS_DEV, getGlobalSeason } from "./seasons";
+import { getClimate, climateOverrideBand, type ClimateBand } from "./climate";
 
 // ─── Weather (ambient mood layer) ──────────────────────────────────────────
 //
@@ -89,12 +90,31 @@ function hash01(n: number): number {
  * @param progress fraction through the season, 0..1
  * @param year    calendar year (so the same window in different years differs)
  */
+// How the year band tilts the harsh-event frequency. A dry/hot year throws more
+// heat waves and fewer downpours; a wet year the reverse. So the year type is
+// FELT in the sky (and read from it) rather than announced. 1 = unchanged.
+const BAND_EVENT_BIAS: Record<ClimateBand, { heat_wave: number; heavy_rain: number }> = {
+  drought: { heat_wave: 3,   heavy_rain: 0.2 },
+  dry:     { heat_wave: 2,   heavy_rain: 0.5 },
+  normal:  { heat_wave: 1,   heavy_rain: 1 },
+  wet:     { heat_wave: 0.4, heavy_rain: 2 },
+  deluge:  { heat_wave: 0.1, heavy_rain: 3 },
+};
+
 export function getAmbientWeather(season: Season, progress: number, year: number): WeatherType {
   const window = Math.min(WEATHER_WINDOWS - 1, Math.floor(progress * WEATHER_WINDOWS));
   const seed = SEASON_ORDER.indexOf(season) * 1000 + year * 37 + window * 7.3;
   const roll = hash01(seed);
 
-  const weights = WEATHER_WEIGHTS[season];
+  // The deterministic year band tilts how often heat waves / downpours roll, so
+  // a drought year genuinely bakes and a wet year genuinely floods.
+  const band = climateOverrideBand() ?? getClimate(year);
+  const bias = BAND_EVENT_BIAS[band];
+  const base = WEATHER_WEIGHTS[season];
+  const weights: Partial<Record<WeatherType, number>> = { ...base };
+  if (weights.heat_wave != null) weights.heat_wave *= bias.heat_wave;
+  if (weights.heavy_rain != null) weights.heavy_rain *= bias.heavy_rain;
+
   const total = Object.values(weights).reduce((a, b) => a + (b ?? 0), 0);
   let target = roll * total;
   for (const [type, w] of Object.entries(weights)) {

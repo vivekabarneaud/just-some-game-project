@@ -3904,21 +3904,10 @@ export function GameProvider(props: ParentProps) {
           // Season is global/shared, but YEAR is local = settlement age.
           s.year = Math.max(1, global.year - (s.foundingYear ?? global.year) + 1);
 
-          // Year-type heads-up — fires once per (global) climate year when the
-          // year runs lean or wet, so a lighter harvest reads as the weather and
-          // the player braces for the events. The year only scales YIELD; the
-          // killing is done by momentary heat waves / downpours. Graced year one.
-          const climateYear = global.year;
-          if (s.lastDroughtKillYear !== climateYear && s.year > 1) {
-            const band = cropClimateBand(s);
-            if (band === "drought" || band === "dry") {
-              s.lastDroughtKillYear = climateYear;
-              pushEvent(s, "drought", "🥵", "A dry year. The harvest will come in lighter, and heat waves will bite, so keep the cisterns full.");
-            } else if (band === "deluge") {
-              s.lastDroughtKillYear = climateYear;
-              pushEvent(s, "drought", "🌊", "A wet year. Expect a lighter harvest, and watch for downpours that can drown the fields.");
-            }
-          }
+          // No year-type forecast: the year is unpredictable, discovered as it's
+          // lived. Its character comes through the weather it throws (a dry year
+          // bakes with heat waves, a wet one floods) and the harvest that comes
+          // in, not an announcement. The band still scales yield under the hood.
 
           // Clear blessing if the deity has rotated
           if (s.activeBlessing) {
