@@ -26,7 +26,7 @@ function WaterNeed(props: { amount: number }) {
   );
 }
 import { getFruit, getOrchardCost, getOrchardBuildTime, getOrchardRate, getOrchardStatus, getOrchardTreeSlots, getFruitPerTreeRate, isFruitUnlocked, SAPLING_PLANT_SEASON, isOrchardActive, ORCHARD_MAX_LEVEL } from "~/data/orchards";
-import { SEASON_META, type Season } from "~/data/seasons";
+import { SEASON_META, HARVEST_DURATION_HOURS, type Season } from "~/data/seasons";
 import { QUEST_DEFINITIONS, isQuestActive } from "~/data/quests";
 import Countdown from "~/components/Countdown";
 import PenManageModal from "~/components/PenManageModal";
@@ -41,7 +41,7 @@ const EMPTY_FIELD_IMAGE = "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/i
 function fieldSeasonStatus(season: string, level: number, isHarvesting: boolean): { label: string; color: string } {
   if (level === 0) return { label: "Under construction", color: "var(--accent-blue)" };
   switch (season) {
-    case "spring": return { label: "🌱 Planted — growing", color: "var(--accent-green)" };
+    case "spring": return { label: "🌱 Planted, growing", color: "var(--accent-green)" };
     case "summer": return { label: "☀️ Growing", color: "var(--accent-green)" };
     case "autumn":
       if (isHarvesting) return { label: "🌾 Harvesting!", color: "#d4831a" };
@@ -170,6 +170,12 @@ function FieldCard(props: { field: PlayerField }) {
   };
   /** Hay (winter fodder) this field's harvest is expected to leave behind. */
   const harvestHay = () => crop() ? getHayFromHarvest(crop()!, harvestYield()) : 0;
+  // Harvest arrives as a burst over the first HARVEST_DURATION_HOURS of autumn.
+  // These drive the "currently harvesting" readout: the per-hour rate and how
+  // much of the expected total has come in so far.
+  const harvestFrac = () => Math.min(1, Math.max(0, state.seasonElapsed / HARVEST_DURATION_HOURS));
+  const harvestRate = () => harvestYield() > 0 ? Math.max(1, Math.round(harvestYield() / HARVEST_DURATION_HOURS)) : 0;
+  const harvested = () => Math.min(harvestYield(), Math.round(harvestYield() * harvestFrac()));
   const previewHay = (candidateCropId: CropId) => getHayFromHarvest(getCrop(candidateCropId), previewYield(candidateCropId));
   const soilStatus = () => getSoilStatus(props.field.sameCropStreak);
   /** Effective max level — gated by the Town Hall level just like buildings.
@@ -200,8 +206,8 @@ function FieldCard(props: { field: PlayerField }) {
     if (isEmpty()) {
       // In spring the crop picker replaces the status line — no need to also say "Ready to plant".
       if (state.season === "spring") return null;
-      if (state.season === "winter") return { label: "❄️ Dormant — time to upgrade", color: "#a5d8ff" };
-      return { label: "Resting — ready for next spring", color: "#9b59b6" };
+      if (state.season === "winter") return { label: "❄️ Dormant, time to upgrade", color: "#a5d8ff" };
+      return { label: "Resting, ready for next spring", color: "#9b59b6" };
     }
     return fieldSeasonStatus(state.season, props.field.level, isCurrentlyHarvesting());
   };
@@ -260,7 +266,7 @@ function FieldCard(props: { field: PlayerField }) {
       </Show>
       <Show when={props.field.upgrading && props.field.upgradeRemaining}>
         <div class="field-card-status upgrading-status">
-          {props.field.level === 0 ? "Preparing field" : "Upgrading"} — <Countdown remainingSeconds={props.field.upgradeRemaining!} />
+          {props.field.level === 0 ? "Preparing field" : "Upgrading"}: <Countdown remainingSeconds={props.field.upgradeRemaining!} />
         </div>
       </Show>
       <Show when={!props.field.upgrading && props.field.level > 0}>
@@ -301,14 +307,29 @@ function FieldCard(props: { field: PlayerField }) {
           </div>
         }>
           <StatRow>
-            <StatBox label="Soil" valColor={soilStatus().color}>
-              {soilStatus().label}{props.field.restBonus ? " · 🌿 +15%" : ""}
-            </StatBox>
-            <StatBox label="Harvest">
-              <div>🍂 ~{harvestYield()} {crop()!.isFood ? "food" : "fiber"}</div>
-              <Show when={crop()!.isFood && harvestHay() > 0}>
-                <div style={{ "font-size": "0.72rem", color: "var(--accent-gold)", "margin-top": "2px", "font-weight": 400 }}>
-                  🌾 ~{harvestHay()} hay
+            {/* Once planted, the soil call is made — what matters now is the
+                water the crop draws. Soil status still drives the empty-field
+                line and the crop picker before sowing. */}
+            <StatBox label="Water">💧 {fieldWaterDemand(props.field.level)}/h</StatBox>
+            <StatBox label={isCurrentlyHarvesting() ? "Harvesting" : "Expected harvest"}>
+              <Show
+                when={isCurrentlyHarvesting()}
+                fallback={
+                  <>
+                    <div>🍂 ~{harvestYield()} {crop()!.isFood ? "food" : "fiber"}</div>
+                    <Show when={crop()!.isFood && harvestHay() > 0}>
+                      <div style={{ "font-size": "0.72rem", color: "var(--accent-gold)", "margin-top": "2px", "font-weight": 400 }}>
+                        🌾 ~{harvestHay()} hay
+                      </div>
+                    </Show>
+                  </>
+                }
+              >
+                {/* Harvest is coming in now: the live per-hour rate, with how much
+                    of the expected total is already gathered. */}
+                <div style={{ "font-size": "1.15rem", color: "var(--accent-green)" }}>+{harvestRate()}/h {crop()!.isFood ? "food" : "fiber"}</div>
+                <div style={{ "font-weight": 400, "font-size": "0.68rem", "margin-top": "2px", color: "var(--text-muted)" }}>
+                  {harvested()} / {harvestYield()} gathered
                 </div>
               </Show>
             </StatBox>
@@ -321,9 +342,6 @@ function FieldCard(props: { field: PlayerField }) {
             <span>🌾 Hay stored: {Math.round(props.field.hay!)}</span>
             <span style={{ color: "var(--text-muted)" }}>· winter fodder</span>
           </div>
-        </Show>
-        <Show when={hasWaterInfra(state.buildings)}>
-          <WaterNeed amount={fieldWaterDemand(props.field.level)} />
         </Show>
       </Show>
 
@@ -349,8 +367,8 @@ function FieldCard(props: { field: PlayerField }) {
               const accent = () => wouldDeplete() ? "var(--accent-gold)" : "var(--accent-green)";
               return (
                 <Tooltip block text={(wouldDeplete()
-                  ? `Same crop as last season — soil depletes. Yield: ${preview()} ${c.isFood ? "food" : "fiber"}.`
-                  : `Rotating to ${c.name} — fresh soil. Yield: ${preview()} ${c.isFood ? "food" : "fiber"}.`)
+                  ? `Same crop as last season, soil depletes. Yield: ${preview()} ${c.isFood ? "food" : "fiber"}.`
+                  : `Rotating to ${c.name}, fresh soil. Yield: ${preview()} ${c.isFood ? "food" : "fiber"}.`)
                   + (c.isFood && previewHay(c.id) > 0 ? ` Leaves ~${previewHay(c.id)} hay to fodder the flock through winter.` : "")}>
                 <button
                   class="crop-picker-tile"
@@ -409,7 +427,7 @@ function FieldCard(props: { field: PlayerField }) {
                       // with ellipsis (as the yield line does) cut off meaningful words.
                       "line-height": "1.3",
                     }}>
-                      {wouldDeplete() ? "Same as last — depletes" : "Rotation — fresh soil"}
+                      {wouldDeplete() ? "Same as last, depletes" : "Rotation, fresh soil"}
                     </div>
                   </div>
                 </button>
@@ -476,7 +494,7 @@ function EmptyFieldSlot(props: { canBuild: boolean; isWinter: boolean; onBuild: 
       <div class="building-card-desc">
         A fresh plot, waiting for a crop.{" "}
         <span style={{ color: isSpring() ? "var(--accent-green)" : "var(--accent-red)", "font-weight": 600 }}>
-          {isSpring() ? "🌱 Fields are planted in spring — plant now!" : "Fields are planted in spring."}
+          {isSpring() ? "🌱 Fields are planted in spring, plant now!" : "Fields are planted in spring."}
         </span>
       </div>
     </div>
@@ -539,7 +557,7 @@ function GardenCard(props: { garden: PlayerGarden }) {
     if (props.garden.upgrading) return "Garden is being built";
     if (!inPlantSeason()) return `${veggie().name} are planted in ${veggie().plantSeasons.join(", ")}`;
     if (roomLeft() <= 0) return "Sown to capacity this cycle";
-    if (seedStock() <= 0) return `No ${veggie().name.toLowerCase()} seed in store — a harvested plot saves seed for next year`;
+    if (seedStock() <= 0) return `No ${veggie().name.toLowerCase()} seed in store. A harvested plot saves seed for next year`;
     return "";
   };
 
@@ -568,12 +586,12 @@ function GardenCard(props: { garden: PlayerGarden }) {
       return { label: `Producing: +${effRate()}/h ${veggie().name.toLowerCase()}${partial}`, color: "var(--accent-green)" };
     }
     if (planted() && !isVeggieProducing(veggie(), state.season)) {
-      return { label: "Planted — waiting to produce", color: "var(--text-secondary)" };
+      return { label: "Planted, waiting to produce", color: "var(--text-secondary)" };
     }
     if (props.garden.level > 0 && inPlantSeason() && !planted()) {
-      return { label: `Time to plant — ${sowAmount()}/${capacity()} seed ready`, color: "var(--accent-gold)" };
+      return { label: `Time to plant: ${sowAmount()}/${capacity()} seed ready`, color: "var(--accent-gold)" };
     }
-    if (props.garden.level > 0) return { label: `Not planted — sow in ${veggie().plantSeasons.join(", ")}`, color: "var(--text-muted)" };
+    if (props.garden.level > 0) return { label: `Not planted, sow in ${veggie().plantSeasons.join(", ")}`, color: "var(--text-muted)" };
     return null;
   };
 
@@ -588,7 +606,7 @@ function GardenCard(props: { garden: PlayerGarden }) {
   };
   const indicatorBlockedReason = () => props.garden.level === 0
     ? (!inPlantSeason()
-        ? `Can't sow ${veggie().name.toLowerCase()} this season — build when it's ${veggie().plantSeasons.join(" or ")}`
+        ? `Can't sow ${veggie().name.toLowerCase()} this season, build when it's ${veggie().plantSeasons.join(" or ")}`
         : (canBuild() ? "" : "Not enough resources"))
     : upgradeBlockedReason();
   const indicatorCanAct = () => props.garden.level === 0 ? canBuild() : canUpgrade();
@@ -608,7 +626,22 @@ function GardenCard(props: { garden: PlayerGarden }) {
       </Show>
       <StatBox label="Produces">
         {seasonList(veggie().produceSeasons, false)}
-        <span style={{ color: dim ? "var(--text-muted)" : "var(--accent-green)", "margin-left": "6px" }}>+{rate}/h</span>
+        {(() => {
+          // Built card: the current rate leads (green only while actually
+          // producing), with the in-season potential as a muted reference so an
+          // out-of-season or still-sprouting plot reads "0 now, 9 in season".
+          // Unbuilt preview (dim): just the potential, greyed.
+          const cur = dim ? rate : (producing() ? effRate() : 0);
+          const potential = dim ? rate : effRate();
+          return (
+            <>
+              <span style={{ color: cur > 0 && !dim ? "var(--accent-green)" : "var(--text-muted)", "margin-left": "6px" }}>+{cur}/h</span>
+              <Show when={!dim && cur < potential && potential > 0}>
+                <div style={{ "font-weight": 400, "font-size": "0.68rem", "margin-top": "2px", color: "var(--text-muted)" }}>+{potential}/h in season</div>
+              </Show>
+            </>
+          );
+        })()}
       </StatBox>
     </StatRow>
   );
@@ -727,7 +760,7 @@ function GardenCard(props: { garden: PlayerGarden }) {
 
         <Show when={props.garden.upgrading && props.garden.upgradeRemaining}>
           <div class="building-card-upgrading">
-            {props.garden.level === 0 ? "Preparing garden" : "Upgrading"} — <Countdown remainingSeconds={props.garden.upgradeRemaining!} />
+            {props.garden.level === 0 ? "Preparing garden" : "Upgrading"}: <Countdown remainingSeconds={props.garden.upgradeRemaining!} />
           </div>
         </Show>
 
@@ -958,7 +991,7 @@ function PenCard(props: { pen: PlayerPen }) {
           </StatBox>
         </StatRow>
         <div style={{ "font-size": "0.68rem", color: "var(--text-muted)", "margin-top": "6px", "text-align": "center" }}>
-          Per animal — stock the pen once it's built.
+          Per animal, stock the pen once it's built.
         </div>
       </div>
     }>
@@ -1010,7 +1043,7 @@ function PenCard(props: { pen: PlayerPen }) {
 
         <Show when={props.pen.upgrading && props.pen.upgradeRemaining}>
           <div class="building-card-upgrading">
-            {props.pen.level === 0 ? "Building pen" : "Upgrading"} — <Countdown remainingSeconds={props.pen.upgradeRemaining!} />
+            {props.pen.level === 0 ? "Building pen" : "Upgrading"}: <Countdown remainingSeconds={props.pen.upgradeRemaining!} />
           </div>
         </Show>
 
@@ -1078,10 +1111,10 @@ function PenCard(props: { pen: PlayerPen }) {
               live in the Manage modal now (room there to assign a hand later). */}
           {(() => {
             const statusText = () => props.pen.starving
-              ? "⚠️ Starving — losing head"
+              ? "⚠️ Starving, losing head"
               : [
                   props.pen.guardDog ? "🐕 Guarded" : "🐺 Unguarded",
-                  onPasture() ? "🌿 On pasture" : (grazes() && isWinter() ? (hayStored() > 0 ? "🌾 On hay" : "🌾 No hay — larder feed") : null),
+                  onPasture() ? "🌿 On pasture" : (grazes() && isWinter() ? (hayStored() > 0 ? "🌾 On hay" : "🌾 No hay, larder feed") : null),
                 ].filter(Boolean).join(" · ");
             const statusColor = () => props.pen.starving
               ? "var(--accent-red)"
@@ -1247,21 +1280,30 @@ function HiveCard(props: { hive: PlayerHive }) {
 
         <Show when={props.hive.upgrading && props.hive.upgradeRemaining}>
           <div class="building-card-upgrading">
-            {props.hive.level === 0 ? "Building hive" : "Upgrading"} — <Countdown remainingSeconds={props.hive.upgradeRemaining!} />
+            {props.hive.level === 0 ? "Building hive" : "Upgrading"}: <Countdown remainingSeconds={props.hive.upgradeRemaining!} />
           </div>
         </Show>
 
         <Show when={!props.hive.upgrading && props.hive.level > 0}>
           <StatRow>
             <StatBox label="Active in">{seasonList(activeSeasons(), false)}</StatBox>
-            <StatBox label="Produces">+{honeyPeak(props.hive.level)}/h honey</StatBox>
+            <StatBox label="Produces">
+              {/* Current rate leads (green only when flowing); peak as a muted
+                  reference so a dormant hive reads "0 now, 2 at its peak". */}
+              <div style={{ "font-size": "1.15rem", color: honeyRate() > 0 ? "var(--accent-green)" : undefined }}>+{honeyRate()}/h honey</div>
+              <Show when={honeyRate() < honeyPeak(props.hive.level)}>
+                <div style={{ "font-weight": 400, "font-size": "0.68rem", "margin-top": "2px", color: "var(--text-muted)" }}>
+                  +{honeyPeak(props.hive.level)}/h in warm months
+                </div>
+              </Show>
+            </StatBox>
           </StatRow>
           <div style={{
             "font-size": "0.8rem", "text-align": "center", "margin-top": "8px",
             color: isDormant() ? "var(--text-muted)" : "var(--accent-gold)",
           }}>
             {isDormant()
-              ? "❄️ Dormant — no honey until spring"
+              ? "❄️ Dormant, no honey until spring"
               : seasonMod() < 1
                 ? `Producing +${honeyRate()}/h now (${Math.round(seasonMod() * 100)}% ${state.season})`
                 : `Producing +${honeyRate()}/h now`}
@@ -1402,7 +1444,7 @@ function OrchardCard(props: { orchard: PlayerOrchard }) {
           <StatBox label="Yield / tree">+{getFruitPerTreeRate(fruitDef())}/h</StatBox>
         </StatRow>
         <div style={{ "font-size": "0.68rem", color: "var(--text-muted)", "margin-top": "6px", "text-align": "center" }}>
-          Per tree — plant saplings once it's built.
+          Per tree, plant saplings once it's built.
         </div>
       </div>
     }>
@@ -1449,7 +1491,7 @@ function OrchardCard(props: { orchard: PlayerOrchard }) {
 
         <Show when={props.orchard.upgrading && props.orchard.upgradeRemaining}>
           <div class="building-card-upgrading">
-            {props.orchard.level === 0 ? "Planting" : "Upgrading"} — <Countdown remainingSeconds={props.orchard.upgradeRemaining!} />
+            {props.orchard.level === 0 ? "Planting" : "Upgrading"}: <Countdown remainingSeconds={props.orchard.upgradeRemaining!} />
           </div>
         </Show>
 
@@ -1506,7 +1548,7 @@ function OrchardCard(props: { orchard: PlayerOrchard }) {
             </Show>
             <Show when={roomLeft() <= 0}>
               <div style={{ "font-size": "0.72rem", color: "var(--text-muted)" }}>
-                Grove is full — upgrade for more room.
+                Grove is full. Upgrade for more room.
               </div>
             </Show>
           </div>
@@ -1651,7 +1693,7 @@ export default function Farming() {
           color: "var(--text-secondary)",
           "line-height": "1.5",
         }}>
-          🌾 <strong>Tip — rotate your crops.</strong> Planting the same crop
+          🌾 <strong>Tip: rotate your crops.</strong> Planting the same crop
           in the same field year after year depletes the soil and cuts yield.
           Rotating between wheat, barley, and flax keeps fields healthy.
           Leaving a field empty through a season grants a <em>+15% rested</em>
@@ -1736,7 +1778,7 @@ export default function Farming() {
         <div class="harvest-banner">🍂 Harvest in progress! Your fields are yielding grain.</div>
       </Show>
       <Show when={state.season === "winter"}>
-        <div class="winter-banner">❄️ Winter — fields and gardens are dormant. Survive on stored food, hunting, fishing, and livestock.</div>
+        <div class="winter-banner">❄️ Winter. Fields and gardens are dormant. Survive on stored food, hunting, fishing, and livestock.</div>
       </Show>
 
       {/* ── Fields ── Village-scale: acreage, ploughing, draft animals. Not a
