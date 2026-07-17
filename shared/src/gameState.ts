@@ -63,6 +63,10 @@ export interface PlayerField {
   /** Hay rick left on the field after the autumn grain harvest (straw byproduct).
    *  Grazers eat it through winter; cleared at spring replant. Fiber crops leave none. */
   hay?: number;
+  /** Fraction (0-1) of this planting's crop lost to a drought so far. Accrues
+   *  gradually through a drought year (heat + thirst), scales down the expected
+   *  harvest, and is cleared at spring replant. */
+  droughtLoss?: number;
   level: number;
   upgrading: boolean;
   upgradeRemaining?: number;

@@ -195,7 +195,7 @@ import {
   isOrchardActive,
   ORCHARD_MAX_LEVEL,
 } from "~/data/orchards";
-import { getClimate, getClimateYield, DROUGHT_PLANT_KILL, climateOverrideBand, setClimateOverride, isDryBand, isWetBand, climateRainFactor, type ClimateBand } from "~/data/climate";
+import { getClimate, getClimateYield, DROUGHT_PLANT_KILL, DROUGHT_HEAT_KILL_PER_HOUR, DROUGHT_THIRST_KILL_PER_HOUR, climateOverrideBand, setClimateOverride, isDryBand, isWetBand, climateRainFactor, type ClimateBand } from "~/data/climate";
 import { WELL_ID, CISTERN_ID, IRRIGATION_ID, DRAINAGE_ID, getWellOutput, wellFactor, getCisternRainCatch, getWaterCap, getDrainageBank, ambientRainFactor, gardenWaterDemand, fieldWaterDemand, orchardWaterDemand, penWaterDemand, IRRIGATION_EFFICIENCY, STREAM_YIELD, streamStatus, streamFactor, cropHeatFactor, citizenWaterDemand } from "~/data/water";
 import type { StreamStatus } from "~/data/water";
 import { resolveCurrentWeather, type WeatherType } from "~/data/weather";
@@ -390,6 +390,7 @@ export interface PlayerField {
   sameCropStreak: number;       // consecutive same-crop years (0 = fresh/rotated)
   restBonus: boolean;           // +15% yield next harvest (field was idle a year)
   hay?: number;                 // straw rick left after harvest — winter grazer fodder; cleared at spring replant
+  droughtLoss?: number;         // 0-1 fraction of this planting's crop lost to drought so far; scales the harvest, cleared at replant
   level: number;
   upgrading: boolean;
   upgradeRemaining?: number;
@@ -2340,6 +2341,39 @@ function applyDroughtKill(s: GameState): void {
   }
 }
 
+/** Gradual drought attrition, applied per game-hour to standing crops during a
+ *  drought year. Heat kills a little even when watered; thirst adds more only
+ *  when the reserve can't keep up (scaled by 1 - coverage), so keeping the
+ *  cistern/well/irrigation topped up limits the loss to the heat toll. Gardens
+ *  and orchard saplings lose living plants; fields (acreage, no plant count)
+ *  accrue a harvest-loss fraction. Mature orchard trees weather it untouched. */
+function applyDroughtAttrition(s: GameState, coverage: number, elapsedHours: number): void {
+  if (elapsedHours <= 0 || s.year <= 1) return;
+  if (s.season === "winter") return; // nothing standing to lose
+  if (cropClimateBand(s) !== "drought") return;
+  const shortfall = 1 - Math.min(1, Math.max(0, coverage));
+  const rate = DROUGHT_HEAT_KILL_PER_HOUR + DROUGHT_THIRST_KILL_PER_HOUR * shortfall;
+  const survive = Math.pow(1 - rate, elapsedHours);
+  if (survive >= 1) return;
+  for (const g of s.gardens) {
+    if (g.plantedYear != null && g.seedsPlanted > 0) {
+      g.seedsPlanted = Math.floor(g.seedsPlanted * survive);
+    }
+  }
+  for (const o of s.orchards) {
+    if (o.saplings?.length) {
+      for (const c of o.saplings) c.count = Math.floor(c.count * survive);
+      o.saplings = o.saplings.filter((c) => c.count > 0);
+    }
+  }
+  for (const f of s.fields) {
+    if (f.level > 0 && f.crop) {
+      const prev = f.droughtLoss ?? 0;
+      f.droughtLoss = Math.min(1, 1 - (1 - prev) * survive);
+    }
+  }
+}
+
 /** Are the people fed this tick? True while the larder holds real food OR there
  *  is honey to fall back on — honey is the emergency ration, eaten only once the
  *  larder is empty (see the tick's food consumption). */
@@ -3861,18 +3895,15 @@ export function GameProvider(props: ParentProps) {
           // Season is global/shared, but YEAR is local = settlement age.
           s.year = Math.max(1, global.year - (s.foundingYear ?? global.year) + 1);
 
-          // Drought plant-kill — once per (global) drought year: standing crops
-          // wither and young saplings die. Skipped in a settlement's graced
-          // first year. The climate is global so this lands for everyone at once.
+          // Drought warning — fires once per (global) drought year so the player
+          // knows to keep the cisterns full. The crop loss itself is applied
+          // gradually through the year by applyDroughtAttrition (scaled by water
+          // coverage), not as a single flat kill. Skipped in the graced first year.
           const climateYear = global.year;
           if (cropClimateBand(s) === "drought" && s.lastDroughtKillYear !== climateYear) {
             s.lastDroughtKillYear = climateYear;
-            // Irrigation with water in the reserve keeps the crops alive; only an
-            // un-buffered settlement loses plants to the drought.
-            const buffered = buildingLevel(s, IRRIGATION_ID) > 0 && s.resources.water > 0;
-            if (s.year > 1 && !buffered) {
-              applyDroughtKill(s);
-              pushEvent(s, "drought", "🥵", "Drought struck the land — crops withered in the fields and young saplings died in the dry.");
+            if (s.year > 1) {
+              pushEvent(s, "drought", "🥵", "A drought has come. Keep the cisterns full and the channels open, or the crops will wither in the heat.");
             }
           }
 
@@ -3934,6 +3965,9 @@ export function GameProvider(props: ParentProps) {
           const wb = waterBalance(s);
           const water = (s.resources.water ?? 0) + wb.net * elapsedHours;
           s.resources.water = Math.min(getWaterCap(wb.cisternLvl), Math.max(0, water));
+          // A drought year grinds down standing crops, gentler while the reserve
+          // still covers them (coverage 1 = heat only), harsher once it runs dry.
+          applyDroughtAttrition(s, wb.cropCoverage, elapsedHours);
         }
 
         // Food: add per-type production (capped at pantry total), then citizens eat proportionally.
@@ -5574,6 +5608,7 @@ export function GameProvider(props: ParentProps) {
         const f = s.fields.find((f) => f.id === fieldId)!;
         f.crop = crop;
         f.harvested = false;
+        f.droughtLoss = 0; // a fresh planting starts undamaged
         // Update rotation tracking: same crop in a row = depleted streak grows,
         // different crop = streak resets. This determines yield at harvest.
         if (f.lastCrop === crop) {
