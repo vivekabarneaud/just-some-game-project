@@ -62,6 +62,7 @@ import {
   staffCapacity,
   STAFF_LVL1_FLOOR,
   isStaffable,
+  animalSlots,
   gatheringSeasonMod,
 } from "~/data/buildings";
 import { FOUNDING_CHARACTERS } from "~/data/founding_characters";
@@ -6093,6 +6094,12 @@ export function GameProvider(props: ParentProps) {
       if (job === "guard") {
         const pen = state.pens.find((p) => p.id === penId);
         if (!pen || pen.level < 1) return false;
+      }
+      if (job === "hunt") {
+        // The hunting camp holds only so many dogs (one slot per level).
+        const campLvl = state.buildings.find((b) => b.buildingId === "hunting_camp")?.level ?? 0;
+        const posted = state.keptAnimals.filter((a) => a.species === "dog" && a.job === "hunt" && a.id !== animalId).length;
+        if (posted >= animalSlots("hunting_camp", campLvl)) return false;
       }
       setState(produce((s) => {
         const a = s.keptAnimals.find((x) => x.id === animalId)!;

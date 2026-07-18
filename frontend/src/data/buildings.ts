@@ -1043,6 +1043,14 @@ export function isStaffable(buildingId: string): boolean {
   return buildingId in BUILDING_STAFF;
 }
 
+/** How many WORKING ANIMALS a building can host at a given level — hunting dogs
+ *  at the camp for now (extend to pens/pantry for guard dogs/cats later). One
+ *  slot per level; a bigger camp can post more dogs to the hunt. */
+export function animalSlots(buildingId: string, level: number): number {
+  if (buildingId === "hunting_camp") return Math.max(0, level);
+  return 0;
+}
+
 /** Buildings that own a dedicated workspace page. The building modal shows a
  *  short summary + an "Open ..." link to it rather than duplicating the page
  *  (dense recipe/queue UIs don't belong in a modal). Everything else is managed

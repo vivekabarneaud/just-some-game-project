@@ -277,14 +277,11 @@ export default function BuildingModal(props: Props) {
                   onClick={close}
                   title="Close"
                   style={{
-                    position: "absolute", top: "26px", right: "26px", background: "rgba(0,0,0,0.45)",
-                    border: "none", padding: "0", cursor: "pointer", "border-radius": "0", "z-index": "6",
-                    display: "flex", "align-items": "center", "justify-content": "center",
-                    width: "30px", height: "30px",
+                    position: "absolute", top: "26px", right: "26px", background: "rgba(0,0,0,0.4)",
+                    border: "none", color: "var(--text-secondary)", "font-size": "1.2rem", cursor: "pointer",
+                    "line-height": 1, width: "28px", height: "28px", "border-radius": "0", "z-index": "6",
                   }}
-                >
-                  <img src="/images/ui/close_2_t.png" alt="Close" style={{ width: "22px", height: "22px", display: "block" }} />
-                </button>
+                >✕</button>
                 <div style={{
                   display: "flex", "align-items": "center", gap: "12px", padding: "14px 28px",
                   ...(image() ? { position: "absolute", bottom: 0, left: 0, right: 0 } : {}),
