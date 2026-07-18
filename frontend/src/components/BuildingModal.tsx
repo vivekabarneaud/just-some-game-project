@@ -191,6 +191,8 @@ export default function BuildingModal(props: Props) {
   const huntLeatherRate = () => level() * 1.0 * gatherMult();
   const huntBoneRate = () => level() * 0.6 * gatherMult();
   const foragerFiberRate = () => level() * 1.5 * gatherMult();
+  // Iron mine has no `production` field (hardcoded 8/level); staff-adjusted here.
+  const ironRate = () => Math.floor(8 * level() * (prodStaff()?.multiplier ?? 1));
   const prodStatus = (): string[] => {
     const parts: string[] = [];
     const st = prodStaff();
@@ -310,6 +312,9 @@ export default function BuildingModal(props: Props) {
                 </Show>
 
                 <Show when={unlocked()}>
+                  {/* A damaged building isn't operating — hide its working sections
+                      (staff, production, management) and show only the repair below. */}
+                  <Show when={!playerBuilding()?.damaged}>
                   {/* Houses — the settlement's living headroom (why you build them). */}
                   <Show when={id() === "houses"}>
                     {(() => {
@@ -588,6 +593,20 @@ export default function BuildingModal(props: Props) {
                     )}
                   </Show>
 
+                  {/* Iron mine — hardcoded output (no production field), so its own card. */}
+                  <Show when={id() === "iron_mine" && level() > 0}>
+                    <div style={{ "margin-bottom": "18px", padding: "10px 12px", background: "var(--bg-card)" }}>
+                      <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>Current Production</div>
+                      <div style={{ "font-size": "1.1rem", color: "var(--accent-green)" }}>+{ironRate()}/h iron</div>
+                      <div style={{ "font-size": "0.82rem", color: "var(--text-muted)", "margin-top": "2px" }}>· a chance of gems &amp; astral shards in the deep veins</div>
+                      <div style={{ "font-size": "0.78rem", "margin-top": "6px", color: prodStatus().length ? "var(--accent-gold)" : "var(--accent-green, #4a9)" }}>
+                        {prodStatus().length
+                          ? prodStatus().map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join(" · ")
+                          : "Steady — fully staffed, full output."}
+                      </div>
+                    </div>
+                  </Show>
+
                   {/* Yield by season — the wild larder thins toward winter. */}
                   <Show when={isGathering() && level() > 0}>
                     <div style={{ "margin-bottom": "18px" }}>
@@ -629,6 +648,7 @@ export default function BuildingModal(props: Props) {
                       <button class="btn-secondary" onClick={() => actions.cancelBuild(id())} style={{ "font-size": "0.8rem" }}>Cancel</button>
                     </div>
                   </Show>
+                  </Show>{/* end operational sections (hidden while damaged) */}
 
                   {/* Action area — repair takes over entirely while damaged; the
                       upgrade flow only shows on a whole building. */}

@@ -3327,7 +3327,13 @@ function calcBuildingEffect(buildingId: string, nextLevel: number): string | nul
     case "iron_mine": {
       const cur = Math.max(0, currentLevel) * 8;
       const next = nextLevel * 8;
-      return `Iron: +${cur}/h → +${next}/h`;
+      return `Iron: +${cur}/h → +${next}/h\nMore ore worked turns up gems & astral shards more often`;
+    }
+    case "forager_hut": {
+      const b = BUILDINGS.find((x) => x.id === "forager_hut");
+      const cur = currentLevel >= 1 ? (b?.levels[currentLevel - 1]?.production?.rate ?? 0) : 0;
+      const next = b?.levels[nextLevel - 1]?.production?.rate ?? 0;
+      return `Foraged food: +${cur}/h → +${next}/h\nMore foraging turns up more fiber and medicinal herbs`;
     }
     case "tailoring_shop": {
       return `Crafting slots: ${Math.max(0, currentLevel)} → ${nextLevel} (1 per level)`;
@@ -4357,7 +4363,7 @@ export function GameProvider(props: ParentProps) {
         const ironMineLvl = s.buildings.find((b) => b.buildingId === "iron_mine")?.level ?? 0;
         const ironMineDamaged = s.buildings.find((b) => b.buildingId === "iron_mine")?.damaged ?? false;
         if (ironMineLvl > 0 && !ironMineDamaged) {
-          const ironRate = 8 * ironMineLvl;
+          const ironRate = 8 * ironMineLvl * getBuildingStaffing(s, "iron_mine", ironMineLvl).multiplier;
           const ironMined = ironRate * elapsedHours;
           s.iron = Math.min(craftingMaterialCap(s.buildings), s.iron + ironMined);
 

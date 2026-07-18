@@ -561,7 +561,7 @@ export const BUILDINGS: BuildingDefinition[] = [
   {
     id: "brewery",
     name: "Brewery",
-    category: "gathering",
+    category: "crafting",
     description:
       "Converts grain into ale. A vital supply for the Tavern and a happy settlement.",
     icon: "🍺",
@@ -1033,6 +1033,10 @@ export const BUILDING_STAFF: Record<string, BuildingStaffConfig> = {
   forager_hut: { founders: ["edda"], kids: ["Nell"] },
   hunting_camp: { adventurers: ["char_000"] },                              // Brenna
   fishing_hut: { adventurers: ["char_021"], kids: ["the Thornwood boy"] },  // Godric
+  // Mines are worked by townsfolk (no founder yet — a Khazdurim miner may take
+  // the post later). Empty config = citizen-only staffing.
+  iron_mine: {},
+  gold_mine: {},
 };
 
 export function isStaffable(buildingId: string): boolean {
