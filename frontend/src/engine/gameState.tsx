@@ -2340,13 +2340,18 @@ function waterBalance(s: GameState) {
   const band = cropClimateBand(s);
   const weather = currentWeatherOf(s);
   const raining = isRainingNow(s);
-  const cisternLvl = buildingLevel(s, CISTERN_ID);
-  const sluiceOpen = (s.cisternSluiceOpen ?? false) && cisternLvl > 0;
+  // A damaged cistern holds/catches as if a level lower, and its sluice can't be
+  // worked until repaired; a damaged well gives no water at all.
+  const cisternBldg = s.buildings.find((b) => b.buildingId === CISTERN_ID);
+  const cisternDamaged = cisternBldg?.damaged ?? false;
+  const cisternLvl = Math.max(0, (cisternBldg?.level ?? 0) - (cisternDamaged ? 1 : 0));
+  const sluiceOpen = (s.cisternSluiceOpen ?? false) && cisternLvl > 0 && !cisternDamaged;
 
   // Live sources. Shut, they fill the reserve; open, they flow straight past it
   // (still there to drink, just not banked — shown as "paused" in the breakdown).
   const stream = STREAM_YIELD * streamFactor(streamStatus(band, s.season));
-  const well = getWellOutput(buildingLevel(s, WELL_ID)) * wellFactor(band);
+  const wellBldg = s.buildings.find((b) => b.buildingId === WELL_ID);
+  const well = wellBldg?.damaged ? 0 : getWellOutput(wellBldg?.level ?? 0) * wellFactor(band);
   const rain = getCisternRainCatch(cisternLvl) * climateRainFactor(band) * ambientRainFactor(weather);
   const liveInflow = stream + well + rain;
   const banked = sluiceOpen ? 0 : liveInflow; // what actually enters the reserve
@@ -2372,7 +2377,7 @@ function waterBalance(s: GameState) {
   // the sluice bleeding it down (draws are met by the live flow, not the store).
   const net = sluiceOpen ? -sluiceDrain : banked - citizens - animals - cropDraw;
 
-  return { band, weather, raining, cisternLvl, sluiceOpen, sluiceDrain,
+  return { band, weather, raining, cisternLvl, cisternDamaged, sluiceOpen, sluiceDrain,
     stream, well, rain, inflow: liveInflow,
     citizens, animals, cropNeed, cropDraw, cropCoverage,
     streamStatus: streamStatus(band, s.season), net };
@@ -2435,7 +2440,8 @@ function applyWeatherCropDamage(s: GameState, weather: WeatherType, coverage: nu
     // Drowning scales with how full the reserve is: a full cistern backs up onto
     // the fields, a low one (sluice open) sheds the flood harmlessly. Keeping the
     // cistern low in a wet year is the whole defence.
-    const cap = getWaterCap(buildingLevel(s, CISTERN_ID));
+    const cb = s.buildings.find((x) => x.buildingId === CISTERN_ID);
+    const cap = getWaterCap(Math.max(0, (cb?.level ?? 0) - (cb?.damaged ? 1 : 0)));
     const fill = cap > 0 ? (s.resources.water ?? 0) / cap : 0;
     rate = DELUGE_DROWN_KILL_PER_HOUR * delugeDrownFactor(fill);
     if (rate <= 0) return;
@@ -3210,12 +3216,13 @@ function calcStorageCaps(buildings: PlayerBuilding[]): StorageCaps {
   // over that spoils away.
   const pantryLevel = pantry?.damaged ? Math.max(0, (pantry.level ?? 0) - 1) : (pantry?.level ?? 0);
   const cistern = buildings.find((b) => b.buildingId === CISTERN_ID);
+  const cisternLevel = cistern?.damaged ? Math.max(0, (cistern.level ?? 0) - 1) : (cistern?.level ?? 0);
   return {
     gold: BASE_GOLD_STORAGE + (th?.level ?? 0) * GOLD_STORAGE_PER_TH_LEVEL,
     wood: materialCap,
     stone: materialCap,
     food: BASE_FOOD_STORAGE + pantryLevel * FOOD_STORAGE_PER_PANTRY_LEVEL,
-    water: getWaterCap(cistern?.level ?? 0),
+    water: getWaterCap(cisternLevel),
   };
 }
 
@@ -3294,6 +3301,16 @@ function calcBuildingEffect(buildingId: string, nextLevel: number): string | nul
       const curBonuses = getMasonBonuses(Math.max(0, currentLevel));
       const nextBonuses = getMasonBonuses(nextLevel);
       return `Queue slots: ${curBonuses.queueSlots} → ${nextBonuses.queueSlots} · Cost/time reduction: ${Math.round(curBonuses.costReduction * 100)}% → ${Math.round(nextBonuses.costReduction * 100)}%`;
+    }
+    case "well": {
+      const cur = getWellOutput(Math.max(0, currentLevel));
+      const next = getWellOutput(nextLevel);
+      return `Water supply: +${cur}/h → +${next}/h`;
+    }
+    case "cistern": {
+      const cur = getWaterCap(Math.max(0, currentLevel));
+      const next = getWaterCap(nextLevel);
+      return `Water storage: ${cur} → ${next}\nRain caught: +${getCisternRainCatch(Math.max(0, currentLevel))}/h → +${getCisternRainCatch(nextLevel)}/h (while it rains)`;
     }
     case "woodworker":
     case "blacksmith":
@@ -6405,7 +6422,7 @@ export function GameProvider(props: ParentProps) {
         citizens: wb.citizens, animals: wb.animals, crops: wb.cropNeed,
         cropDraw: wb.cropDraw, raining: wb.raining, coverage: wb.cropCoverage,
         sluiceOpen: wb.sluiceOpen, sluiceDrain: wb.sluiceDrain,
-        hasCistern: wb.cisternLvl > 0, reserve: state.resources.water ?? 0,
+        hasCistern: wb.cisternLvl > 0 && !wb.cisternDamaged, reserve: state.resources.water ?? 0,
         weather: wb.weather, streamStatus: wb.streamStatus, net: wb.net,
       };
     },

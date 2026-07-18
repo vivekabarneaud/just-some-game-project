@@ -396,8 +396,9 @@ export default function BuildingModal(props: Props) {
                     </div>
                   </Show>
 
-                  {/* Cistern sluice — the one live control on a built cistern. */}
-                  <Show when={id() === "cistern" && level() > 0}>
+                  {/* Cistern sluice — the one live control on a WHOLE cistern
+                      (hidden while damaged; you can't work a cracked one). */}
+                  <Show when={id() === "cistern" && level() > 0 && !playerBuilding()?.damaged}>
                     <div style={{
                       "margin-bottom": "18px", padding: "14px", background: "var(--bg-card)",
                       border: `1px solid ${sluiceOpen() ? "var(--accent-blue)" : "var(--accent-gold)"}`,
@@ -640,7 +641,11 @@ export default function BuildingModal(props: Props) {
                           ? "The stores are breached — they hold as if a level lower, and anything over that spills and is lost until you repair the roof and walls."
                           : id() === "pantry"
                             ? "The cellar is broken open — it keeps a level less, and food above that spoils away until you repair it."
-                            : "This building is damaged and inactive. Repair it to restore function."}
+                            : id() === "cistern"
+                              ? "The cistern is cracked — it holds a level less and its sluice can't be worked, the overflow draining away until you repair it."
+                              : id() === "well"
+                                ? "The well has caved in and fouled — it gives no water at all until you clear and repair it."
+                                : "This building is damaged and inactive. Repair it to restore function."}
                     </div>
 
                     <Show
