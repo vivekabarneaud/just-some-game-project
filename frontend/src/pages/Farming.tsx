@@ -1120,16 +1120,18 @@ function PenCard(props: { pen: PlayerPen }) {
           {/* Flock summary — the glance. Buying, culling and the guard dog all
               live in the Manage modal now (room there to assign a hand later). */}
           {(() => {
+            // Guarded = a kept dog is posted to this fold (the bought flag is legacy).
+            const guarded = () => state.keptAnimals.some((a) => a.species === "dog" && a.job === "guard" && a.penId === props.pen.id);
             const statusText = () => props.pen.starving
               ? "⚠️ Starving, losing head"
               : [
-                  props.pen.guardDog ? "🐕 Guarded" : "🐺 Unguarded",
+                  guarded() ? "🐕 Guarded" : "🐺 Unguarded",
                   onPasture() ? "🌿 On pasture" : (grazes() && isWinter() ? (hayStored() > 0 ? "🌾 On hay" : "🌾 No hay, larder feed") : null),
                 ].filter(Boolean).join(" · ");
             const statusColor = () => props.pen.starving
               ? "var(--accent-red)"
               : (grazes() && isWinter() && hayStored() <= 0 ? "var(--accent-red)"
-                : (props.pen.guardDog ? "var(--accent-green)" : "var(--text-muted)"));
+                : (guarded() ? "var(--accent-green)" : "var(--text-muted)"));
             const cap = () => getPenCapacity(props.pen.level);
             const buyCost = () => getAnimalBuyCost(props.pen.animal);
             const buyDisabled = () => props.pen.count >= cap() || state.resources.gold < buyCost();

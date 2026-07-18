@@ -1,5 +1,4 @@
-import { createSignal, createEffect, onCleanup, For, Show } from "solid-js";
-import { Portal } from "solid-js/web";
+import { For, Show } from "solid-js";
 import { useGame, type PlayerPen } from "~/engine/gameState";
 import {
   getAnimal, getPenCapacity, getAnimalBuyCost, getCullYield,
@@ -8,6 +7,7 @@ import {
 import { ANIMAL_FEED, FEED_CATEGORY_ICON, FEED_CATEGORY_LABEL, isGrazer } from "~/data/animalFeed";
 import Tooltip from "~/components/Tooltip";
 import DogAssignSection from "~/components/DogAssignSection";
+import FramedModal from "~/components/FramedModal";
 
 interface Props {
   pen: PlayerPen;
@@ -26,18 +26,6 @@ interface Props {
  */
 export default function PenManageModal(props: Props) {
   const { state, actions } = useGame();
-  const [exiting, setExiting] = createSignal(false);
-
-  const close = () => {
-    setExiting(true);
-    setTimeout(() => props.onClose(), 200);
-  };
-
-  createEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") close(); };
-    window.addEventListener("keydown", handler);
-    onCleanup(() => window.removeEventListener("keydown", handler));
-  });
 
   const animal = () => getAnimal(props.pen.animal);
   const cap = () => getPenCapacity(props.pen.level);
@@ -50,30 +38,14 @@ export default function PenManageModal(props: Props) {
   const hayStored = () => state.fields.reduce((sum, f) => sum + (f.hay ?? 0), 0);
 
   return (
-    <Portal>
-      <div
-        style={{
-          position: "fixed", inset: 0, background: "rgba(0, 0, 0, 0.78)", "z-index": 1100,
-          display: "flex", "align-items": "center", "justify-content": "center", padding: "24px",
-          opacity: exiting() ? 0 : 1, transition: "opacity 0.2s ease",
-        }}
-        onClick={close}
-      >
-        <div
-          style={{
-            "max-width": "440px", width: "100%", background: "var(--bg-secondary)",
-            border: "1px solid var(--border-color)", "border-radius": "8px", padding: "20px",
-            color: "var(--text-primary)", "max-height": "88vh", overflow: "auto",
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div style={{ display: "flex", "align-items": "center", "justify-content": "space-between", "margin-bottom": "6px" }}>
-            <h3 style={{ margin: 0, "font-family": "var(--font-heading)", color: "var(--accent-gold)" }}>
-              {animal().icon} {animal().name} Pen — Flock
-            </h3>
-            <button onClick={close} style={{ background: "none", border: "none", color: "var(--text-muted)", "font-size": "1.2rem", cursor: "pointer", "line-height": 1 }}>✕</button>
-          </div>
-
+    <FramedModal
+      image={animal().image}
+      icon={animal().icon}
+      title={`${animal().name} Pen`}
+      subtitle={`Level ${props.pen.level}`}
+      onClose={props.onClose}
+      maxWidth="560px"
+    >
           {/* Flock summary */}
           <div style={{
             display: "flex", "align-items": "baseline", gap: "12px", "flex-wrap": "wrap",
@@ -171,8 +143,6 @@ export default function PenManageModal(props: Props) {
               🌿 Out on the wild pasture — no feed cost this season.
             </Show>
           </div>
-        </div>
-      </div>
-    </Portal>
+    </FramedModal>
   );
 }
