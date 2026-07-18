@@ -23,6 +23,7 @@ import {
   PANIC_BUILD_SHARD_COST,
 } from "~/data/buildings";
 import type { Season } from "~/data/seasons";
+import { totalPopulation } from "~/data/citizens";
 import { RESOURCES } from "~/data/resources";
 import { useGame, CRAFTING_RECIPES, getBuildingToolsForBuilding } from "~/engine/gameState";
 
@@ -173,6 +174,12 @@ export default function BuildingModal(props: Props) {
   const currentTier = () => getSettlementTier(level());
   const nextTier = () => getSettlementTier(level() + 1);
   const tierAdvances = () => nextTier() !== currentTier();
+
+  // Houses raise the population cap. Occupancy = townsfolk + living adventurers
+  // (both take a bed); growth stalls near the cap and overcrowding saps happiness.
+  const occupancy = () => totalPopulation(state.citizens) + state.adventurers.filter((a) => a.alive).length;
+  const popCap = () => actions.getMaxPopulation();
+  const housingRatio = () => { const c = popCap(); return c > 0 ? occupancy() / c : 1; };
   // Buildings the next tier opens up (tier-gated AND past their story gate, so we
   // only promise ones that will actually appear). Empty unless the level advances.
   const unlockedNextTier = () => tierAdvances()
@@ -252,6 +259,34 @@ export default function BuildingModal(props: Props) {
                 </Show>
 
                 <Show when={unlocked()}>
+                  {/* Houses — the settlement's living headroom (why you build them). */}
+                  <Show when={id() === "houses"}>
+                    {(() => {
+                      const over = () => occupancy() > popCap();
+                      const near = () => !over() && housingRatio() >= 0.9;
+                      const accent = () => over() ? "var(--accent-red)" : near() ? "var(--accent-gold)" : "var(--accent-green)";
+                      return (
+                        <div style={{ "margin-bottom": "18px", padding: "12px 14px", background: "var(--bg-card)", border: "1px solid var(--border-color)" }}>
+                          <div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "0.6px", "margin-bottom": "8px" }}>Housing</div>
+                          <div style={{ display: "flex", "align-items": "baseline", gap: "8px" }}>
+                            <span style={{ "font-size": "1.15rem" }}>🏠 <b>{occupancy()}</b> / {popCap()}</span>
+                            <span style={{ "font-size": "0.78rem", color: "var(--text-muted)" }}>sheltered</span>
+                          </div>
+                          <div style={{ "margin-top": "8px", height: "6px", background: "var(--bg-primary)", "border-radius": "3px", overflow: "hidden" }}>
+                            <div style={{ width: `${Math.min(100, housingRatio() * 100)}%`, height: "100%", background: accent(), transition: "width 0.3s" }} />
+                          </div>
+                          <div style={{ "font-size": "0.8rem", color: accent(), "margin-top": "8px", "line-height": 1.45 }}>
+                            {over()
+                              ? "Overcrowded — beds are short, and the crush is costing happiness. Build to make room."
+                              : near()
+                                ? "Nearly full — new folk will stop arriving until there's more shelter."
+                                : "Room to grow. Folk arrive while there's shelter, food, and good cheer."}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </Show>
+
                   {/* Live crafting status — what's on the bench right now. */}
                   <Show when={isCraftingBuilding() && level() > 0}>
                     <div style={{
@@ -458,26 +493,6 @@ export default function BuildingModal(props: Props) {
                                 {level() === 0 ? "Build Cost" : `Upgrade to Level ${level() + 1}`}
                               </h3>
 
-                              <div class="cost-grid cost-grid-2">
-                                {COST_RESOURCES.map((res) => {
-                                  const resId = res.id as "wood" | "stone";
-                                  return (
-                                    <div class="cost-item">
-                                      <div class="cost-item-icon">{res.icon}</div>
-                                      <div class="cost-item-amount" classList={{ affordable: canAffordRes(res.id), "too-expensive": !canAffordRes(res.id) }}>
-                                        {adjustedCost()![resId] < next().cost[resId] && (
-                                          <span style={{ "text-decoration": "line-through", opacity: 0.5, "margin-right": "4px", "font-size": "0.8em" }}>
-                                            {next().cost[resId].toLocaleString()}
-                                          </span>
-                                        )}
-                                        {adjustedCost()![resId].toLocaleString()}
-                                      </div>
-                                      <div class="cost-item-label">{res.name}</div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-
                               <Show when={next().production && !currentLevel()?.production}>
                                 <div class="stat-row">
                                   <span class="stat-label">Production</span>
@@ -490,14 +505,6 @@ export default function BuildingModal(props: Props) {
                               <Show when={actions.getBuildingEffect(id(), level() + 1)}>
                                 {(effect) => <div class="building-effect">{effect()}</div>}
                               </Show>
-
-                              <div class="build-time">
-                                Build time:{" "}
-                                {adjustedTime()! < next().buildTime && (
-                                  <span style={{ "text-decoration": "line-through", opacity: 0.5, "margin-right": "4px" }}>{formatTime(next().buildTime)}</span>
-                                )}
-                                {formatTime(adjustedTime()!)}
-                              </div>
                             </>
                           }
                         >
@@ -535,17 +542,18 @@ export default function BuildingModal(props: Props) {
                               </Show>
                             </div>
                           </div>
-                          {/* Compact cost + build time. */}
-                          <div style={{ display: "flex", "align-items": "center", "flex-wrap": "wrap", gap: "14px", margin: "14px 0 0", "font-size": "0.9rem" }}>
-                            <span style={{ color: "var(--text-muted)" }}>Cost</span>
-                            {COST_RESOURCES.map((res) => (
-                              <span style={{ display: "inline-flex", "align-items": "center", gap: "4px", color: canAffordRes(res.id) ? "var(--text-primary)" : "var(--accent-red)" }}>
-                                <span>{res.icon}</span>{adjustedCost()![res.id as "wood" | "stone"].toLocaleString()}
-                              </span>
-                            ))}
-                            <span style={{ color: "var(--text-muted)" }}>· ⏱ {formatTime(adjustedTime()!)}</span>
-                          </div>
                         </Show>
+
+                        {/* Shared compact cost + build time — same on every building modal. */}
+                        <div style={{ display: "flex", "align-items": "center", "flex-wrap": "wrap", gap: "14px", margin: "16px 0 0", "font-size": "0.9rem" }}>
+                          <span style={{ color: "var(--text-muted)" }}>Cost</span>
+                          {COST_RESOURCES.map((res) => (
+                            <span style={{ display: "inline-flex", "align-items": "center", gap: "4px", color: canAffordRes(res.id) ? "var(--text-primary)" : "var(--accent-red)" }}>
+                              <span>{res.icon}</span>{adjustedCost()![res.id as "wood" | "stone"].toLocaleString()}
+                            </span>
+                          ))}
+                          <span style={{ color: "var(--text-muted)" }}>· ⏱ {formatTime(adjustedTime()!)}</span>
+                        </div>
 
                         {/* Shared: prereqs + upgrade + panic. */}
                         <div style={{ "margin-top": "18px" }}>
