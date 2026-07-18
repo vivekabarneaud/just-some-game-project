@@ -75,8 +75,11 @@ const WEATHER_WINDOWS = 72;
 // Tune here. Applied only to standing crops in growing seasons.
 export const HEATWAVE_HEAT_KILL_PER_HOUR = 0.02;   // withering even if watered
 export const HEATWAVE_THIRST_KILL_PER_HOUR = 0.06; // extra when the reserve is dry (× shortfall)
-export const DELUGE_DROWN_KILL_PER_HOUR = 0.05;    // roots drown in the flood
-export const DELUGE_DRAINAGE_RELIEF = 0.35;        // drainage channels cut drowning to this fraction
+// Deluge drowning is deliberately GENTLER than a heat wave's worst case (0.08):
+// drought is the deadlier threat, a flood the milder one, so a misjudged sluice
+// in a wet year stings less than getting caught dry. Scaled by how full the
+// reserve is (delugeDrownFactor) — a low reserve drowns nothing.
+export const DELUGE_DROWN_KILL_PER_HOUR = 0.04;    // roots drown in the flood (× fill)
 
 // Stable 0..1 hash so a given (season, year, window) always picks the same mood.
 function hash01(n: number): number {

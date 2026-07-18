@@ -196,9 +196,9 @@ import {
   ORCHARD_MAX_LEVEL,
 } from "~/data/orchards";
 import { getClimate, getClimateYield, DROUGHT_PLANT_KILL, climateOverrideBand, setClimateOverride, isDryBand, isWetBand, climateRainFactor, type ClimateBand } from "~/data/climate";
-import { WELL_ID, CISTERN_ID, IRRIGATION_ID, DRAINAGE_ID, getWellOutput, wellFactor, getCisternRainCatch, getWaterCap, getDrainageBank, ambientRainFactor, gardenWaterDemand, fieldWaterDemand, orchardWaterDemand, penWaterDemand, IRRIGATION_EFFICIENCY, STREAM_YIELD, streamStatus, streamFactor, cropHeatFactor, citizenWaterDemand } from "~/data/water";
+import { WELL_ID, CISTERN_ID, getWellOutput, wellFactor, getCisternRainCatch, getWaterCap, ambientRainFactor, gardenWaterDemand, fieldWaterDemand, orchardWaterDemand, penWaterDemand, getSluiceDrain, delugeDrownFactor, STREAM_YIELD, streamStatus, streamFactor, cropHeatFactor, citizenWaterDemand } from "~/data/water";
 import type { StreamStatus } from "~/data/water";
-import { resolveCurrentWeather, HEATWAVE_HEAT_KILL_PER_HOUR, HEATWAVE_THIRST_KILL_PER_HOUR, DELUGE_DROWN_KILL_PER_HOUR, DELUGE_DRAINAGE_RELIEF, type WeatherType } from "~/data/weather";
+import { resolveCurrentWeather, HEATWAVE_HEAT_KILL_PER_HOUR, HEATWAVE_THIRST_KILL_PER_HOUR, DELUGE_DROWN_KILL_PER_HOUR, type WeatherType } from "~/data/weather";
 import {
   type Season,
   HOURS_PER_SEASON,
@@ -373,8 +373,8 @@ export interface ResourceState {
   gold: number;
   wood: number;
   stone: number;
-  /** Stored water — filled by wells + rain-catching cisterns, spent on
-   *  irrigation in dry/drought years. Capped by cistern storage. */
+  /** Stored water — filled by the stream + wells + rain-catching cisterns, drunk
+   *  by folk/livestock/crops. Capped by cistern storage; drained by the sluice. */
   water: number;
 }
 
@@ -603,6 +603,9 @@ export interface GameState {
   foundingWinterGrace?: boolean;
   lastTick: number;
   gameSpeed: number;
+  /** Cistern sluice gate: open = stop banking water and drain the reserve low
+   *  (flood-safe in a wet year); shut/undefined = bank a buffer (drought-safe). */
+  cisternSluiceOpen?: boolean;
   villageName: string;
   // Adventurer's Guild
   adventurers: Adventurer[];
@@ -809,6 +812,9 @@ export interface GameActions {
   assignAnimal: (animalId: string, job: AnimalJob, penId?: string) => boolean;
   /** Rename a kept animal (rejected for name-fixed ones like the Thornwoods' dog). */
   renameAnimal: (animalId: string, name: string) => boolean;
+  /** Open/shut the cistern sluice. Open = stop banking + drain low (flood-safe);
+   *  shut = bank a buffer (drought-safe). Pass a value or omit to toggle. */
+  toggleSluice: (open?: boolean) => void;
   upgradeHive: (hiveId: string) => boolean;
   upgradeOrchard: (orchardId: string) => boolean;
   /** Plant one sapling/vine into a free slot of an orchard (gold cost). */
@@ -876,8 +882,9 @@ export interface GameActions {
   /** The stream's status (drives its water yield + the fishing hut's catch). */
   getStreamStatus: () => StreamStatus;
   /** Water sources/sinks per hour for the top-bar dropdown. */
-  getWaterBreakdown: () => { stream: number; well: number; rain: number; drainage: number; citizens: number; animals: number; crops: number; cropDraw: number; raining: boolean; coverage: number; irrigated: boolean; weather: WeatherType; streamStatus: StreamStatus; net: number };
-  /** Effective crop-yield multiplier after irrigation/drainage offsets (1 = full). */
+  getWaterBreakdown: () => { stream: number; well: number; rain: number; citizens: number; animals: number; crops: number; cropDraw: number; raining: boolean; coverage: number; sluiceOpen: boolean; sluiceDrain: number; hasCistern: boolean; reserve: number; weather: WeatherType; streamStatus: StreamStatus; net: number };
+  /** Effective crop-yield multiplier (1 = full): dry years thirst once the
+   *  reserve runs dry, wet years carry a waterlogging penalty. */
   getCropYieldMult: () => number;
   isHarvesting: () => boolean;
   getMasonBonuses: () => MasonBonuses;
@@ -2319,42 +2326,55 @@ function fishStreamFactor(s: GameState): number {
 }
 
 /** One place computing the water flows this tick (water/hour). The stream + well
- *  + caught rain + drainage runoff FILL the reserve; citizens, livestock and the
- *  crops DRAW it. Crops drink continuously EXCEPT while it's raining (the sky
- *  waters them then), thirstier in a dry-year heat, and irrigation makes their
- *  draw efficient. When the reserve runs dry the crops go short (citizens and
- *  livestock have priority). */
+ *  + caught rain FILL the reserve; citizens, livestock and the crops DRAW it.
+ *  Crops drink continuously EXCEPT while it's raining (the sky waters them then),
+ *  thirstier in a dry-year heat. When the reserve runs dry the crops go short
+ *  (citizens and livestock have priority).
+ *
+ *  The cistern's SLUICE flips the whole model: open, intake to the reserve is
+ *  paused and it drains out (the settlement drinks from the live flow instead of
+ *  the store), so the reserve runs low and a downpour can't back up and drown
+ *  the fields. Shut (default) it banks a buffer for the dry years. */
 function waterBalance(s: GameState) {
   const band = cropClimateBand(s);
   const weather = currentWeatherOf(s);
   const raining = isRainingNow(s);
   const cisternLvl = buildingLevel(s, CISTERN_ID);
+  const sluiceOpen = (s.cisternSluiceOpen ?? false) && cisternLvl > 0;
+
+  // Live sources. Shut, they fill the reserve; open, they flow straight past it
+  // (still there to drink, just not banked — shown as "paused" in the breakdown).
   const stream = STREAM_YIELD * streamFactor(streamStatus(band, s.season));
   const well = getWellOutput(buildingLevel(s, WELL_ID)) * wellFactor(band);
   const rain = getCisternRainCatch(cisternLvl) * climateRainFactor(band) * ambientRainFactor(weather);
-  const drainage = isWetBand(band) ? getDrainageBank(buildingLevel(s, DRAINAGE_ID)) : 0;
-  const inflow = stream + well + rain + drainage;
+  const liveInflow = stream + well + rain;
+  const banked = sluiceOpen ? 0 : liveInflow; // what actually enters the reserve
+  const sluiceDrain = sluiceOpen ? getSluiceDrain(cisternLvl) : 0;
 
   const citizens = citizenWaterDemand_(s);
   const animals = animalWaterDemand(s);
-  const hasIrrigation = buildingLevel(s, IRRIGATION_ID) > 0;
-  // What the crops want per hour (thirstier in the heat), and what they actually
-  // pull from the reserve now (nothing while it's raining; efficient if irrigated).
+  // What the crops want per hour (thirstier in the heat), and what they draw now
+  // (nothing while it's raining — the sky waters them).
   const cropNeed = cropWaterDemand(s) * cropHeatFactor(band);
-  const cropDraw = raining ? 0 : cropNeed * (hasIrrigation ? IRRIGATION_EFFICIENCY : 1);
+  const cropDraw = raining ? 0 : cropNeed;
 
-  // Coverage: crops are watered while the reserve holds water; once it's empty
-  // they get only the inflow left after citizens + livestock (who come first).
+  // Coverage: shut, crops are watered while the reserve holds; once empty they
+  // get only the inflow left after citizens + livestock. Open, there IS no store
+  // to fall back on, so the live flow covers folk/livestock first, then crops.
   const reserve = s.resources.water ?? 0;
   let cropCoverage: number;
   if (raining || cropDraw <= 0) cropCoverage = 1;
-  else if (reserve > 0.0001) cropCoverage = 1;
-  else cropCoverage = Math.min(1, Math.max(0, inflow - citizens - animals) / cropDraw);
+  else if (!sluiceOpen && reserve > 0.0001) cropCoverage = 1;
+  else cropCoverage = Math.min(1, Math.max(0, liveInflow - citizens - animals) / cropDraw);
 
-  return { band, weather, raining, cisternLvl, stream, well, rain, drainage, inflow,
-    citizens, animals, cropNeed, cropDraw, hasIrrigation, cropCoverage,
-    streamStatus: streamStatus(band, s.season),
-    net: inflow - citizens - animals - cropDraw };
+  // Net change to the STORED reserve: shut, inflow minus the draws; open, just
+  // the sluice bleeding it down (draws are met by the live flow, not the store).
+  const net = sluiceOpen ? -sluiceDrain : banked - citizens - animals - cropDraw;
+
+  return { band, weather, raining, cisternLvl, sluiceOpen, sluiceDrain,
+    stream, well, rain, inflow: liveInflow,
+    citizens, animals, cropNeed, cropDraw, cropCoverage,
+    streamStatus: streamStatus(band, s.season), net };
 }
 
 /** Is it actively raining right now? (Rain waters the crops directly, pausing
@@ -2363,19 +2383,15 @@ function isRainingNow(s: GameState): boolean {
   const w = currentWeatherOf(s);
   return w === "rain" || w === "heavy_rain" || w === "storm" || w === "unnatural_storm";
 }
-/** Is drainage saving the crop this wet year? (built, wet/deluge). */
-function drainageActive(s: GameState): boolean {
-  return isWetBand(cropClimateBand(s)) && buildingLevel(s, DRAINAGE_ID) > 0;
-}
-
-/** Crop-yield multiplier. First year is graced (×1). Wet years are a
- *  waterlogging penalty (drainage cancels it). The dry side is MOMENTARY: rain
- *  waters the crops for free right now, and the rest of the time they drink the
- *  reserve — full yield while it holds, thirsty once it runs dry. */
+/** Crop-yield multiplier. First year is graced (×1). Wet years carry a
+ *  waterlogging penalty on the whole year's yield (the cistern sluice handles
+ *  the momentary DROWNING of a downpour, not this baseline). The dry side is
+ *  MOMENTARY: rain waters the crops for free right now, and the rest of the time
+ *  they drink the reserve — full yield while it holds, thirsty once it runs dry. */
 function cropYieldMult(state: GameState): number {
   if (state.year <= 1) return 1;
   const band = cropClimateBand(state);
-  if (isWetBand(band)) return drainageActive(state) ? 1 : getClimateYield(band);
+  if (isWetBand(band)) return getClimateYield(band);
   return waterBalance(state).cropCoverage;
 }
 
@@ -2401,8 +2417,9 @@ function applyDroughtKill(s: GameState): void {
 /** Momentary crop damage from a harsh WEATHER event (heat wave / downpour),
  *  applied per game-hour while the event is active. Heat withers even when
  *  watered; thirst adds more when the reserve is dry (× shortfall), so keeping
- *  the cistern/well/irrigation topped up limits a heat wave to the heat toll. A
- *  downpour drowns the roots; drainage channels cut it down. Gardens and orchard
+ *  the cistern/well topped up limits a heat wave to the heat toll. A downpour
+ *  drowns the roots in proportion to how full the reserve is (an open sluice /
+ *  low reserve sheds the flood). Gardens and orchard
  *  saplings lose living plants; fields (acreage, no plant count) accrue a
  *  harvest-loss fraction. Mature orchard trees weather it untouched. The year
  *  type (fair/dry/wet/hot) is separate and only scales yield, never kills. */
@@ -2414,8 +2431,13 @@ function applyWeatherCropDamage(s: GameState, weather: WeatherType, coverage: nu
     const shortfall = 1 - Math.min(1, Math.max(0, coverage));
     rate = HEATWAVE_HEAT_KILL_PER_HOUR + HEATWAVE_THIRST_KILL_PER_HOUR * shortfall;
   } else if (weather === "heavy_rain") {
-    const drained = buildingLevel(s, DRAINAGE_ID) > 0;
-    rate = DELUGE_DROWN_KILL_PER_HOUR * (drained ? DELUGE_DRAINAGE_RELIEF : 1);
+    // Drowning scales with how full the reserve is: a full cistern backs up onto
+    // the fields, a low one (sluice open) sheds the flood harmlessly. Keeping the
+    // cistern low in a wet year is the whole defence.
+    const cap = getWaterCap(buildingLevel(s, CISTERN_ID));
+    const fill = cap > 0 ? (s.resources.water ?? 0) / cap : 0;
+    rate = DELUGE_DROWN_KILL_PER_HOUR * delugeDrownFactor(fill);
+    if (rate <= 0) return;
   } else {
     return;
   }
@@ -4132,8 +4154,9 @@ export function GameProvider(props: ParentProps) {
         s.resources.wood = Math.min(caps.wood, Math.max(0, s.resources.wood + rates.wood * happinessMod * elapsedHours));
         s.resources.stone = Math.min(caps.stone, Math.max(0, s.resources.stone + rates.stone * happinessMod * elapsedHours));
 
-        // ── Water — wells + rain-catching cisterns fill the reserve; irrigation
-        // spends it in dry/drought years; drainage banks runoff in wet years. ──
+        // ── Water — stream + wells + rain-catching cisterns fill the reserve
+        // (unless the sluice is open, when it drains instead). A harsh weather
+        // event then damages standing crops for as long as it lasts. ──
         {
           const wb = waterBalance(s);
           const water = (s.resources.water ?? 0) + wb.net * elapsedHours;
@@ -6007,6 +6030,13 @@ export function GameProvider(props: ParentProps) {
       return true;
     },
 
+    toggleSluice(open) {
+      setState(produce((s) => {
+        s.cisternSluiceOpen = open ?? !(s.cisternSluiceOpen ?? false);
+      }));
+      scheduleSave();
+    },
+
     // ── Hives (Apiary) ──
     upgradeHive(hiveId) {
       const hive = state.hives.find((h) => h.id === hiveId);
@@ -6331,11 +6361,12 @@ export function GameProvider(props: ParentProps) {
     getWaterBreakdown() {
       const wb = waterBalance(state);
       return {
-        stream: wb.stream, well: wb.well, rain: wb.rain, drainage: wb.drainage,
+        stream: wb.stream, well: wb.well, rain: wb.rain,
         citizens: wb.citizens, animals: wb.animals, crops: wb.cropNeed,
         cropDraw: wb.cropDraw, raining: wb.raining, coverage: wb.cropCoverage,
-        irrigated: wb.hasIrrigation, weather: wb.weather,
-        streamStatus: wb.streamStatus, net: wb.net,
+        sluiceOpen: wb.sluiceOpen, sluiceDrain: wb.sluiceDrain,
+        hasCistern: wb.cisternLvl > 0, reserve: state.resources.water ?? 0,
+        weather: wb.weather, streamStatus: wb.streamStatus, net: wb.net,
       };
     },
     canAfford(cost) { return state.resources.wood >= cost.wood && state.resources.stone >= cost.stone; },

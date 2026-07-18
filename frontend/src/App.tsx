@@ -60,10 +60,16 @@ export default function App(props: ParentProps) {
       if (!isQuestClaimable(quest, state)) continue;
       if (announcedQuests.has(quest.id)) continue;
       announcedQuests.add(quest.id);
+      // Memory check-ins (reward-less, surface a cast memory) are personal beats,
+      // not achievements — soften the banner to match the claim modal's "quiet
+      // moment" framing, and drop the "claim your reward" (there is none).
+      const isMemoryOnly = quest.rewards.length === 0 && (quest.unlocksBioFragments?.length ?? 0) > 0;
       showEvent({
         type: "quest",
         icon: quest.icon,
-        message: `Quest complete — ${quest.title}. Visit the Quest Log to claim your reward!`,
+        message: isMemoryOnly
+          ? `A quiet moment — ${quest.title}. Someone could use a word with you.`
+          : `Quest complete — ${quest.title}. Visit the Quest Log to claim your reward!`,
         onClick: () => navigate("/quests"),
       });
     }

@@ -393,13 +393,27 @@ export default function ResourceBar() {
                   const sm = STREAM_STATUS_META[b.streamStatus];
                   return (
                     <>
-                      <div class="dropdown-row"><span style={{ color: sm.color }}>{sm.icon} Stream{sm.suffix}</span><span>+{w1(b.stream)}/h</span></div>
+                      {/* Fill sources. With the sluice OPEN they still flow (folk
+                          and crops drink from them), but nothing is BANKED, so
+                          they read as paused. */}
+                      <div class="dropdown-row" classList={{ "dropdown-row--muted": b.sluiceOpen }}>
+                        <span style={{ color: b.sluiceOpen ? undefined : sm.color }}>{sm.icon} Stream{b.sluiceOpen ? " · paused" : sm.suffix}</span>
+                        <span>+{w1(b.sluiceOpen ? 0 : b.stream)}/h</span>
+                      </div>
                       <Show when={b.well > 0}>
-                        <div class="dropdown-row"><span>💧 Well</span><span>+{w1(b.well)}/h</span></div>
+                        <div class="dropdown-row" classList={{ "dropdown-row--muted": b.sluiceOpen }}>
+                          <span>💧 Well{b.sluiceOpen ? " · paused" : ""}</span><span>+{w1(b.sluiceOpen ? 0 : b.well)}/h</span>
+                        </div>
                       </Show>
-                      <div class="dropdown-row"><span>{wm.icon} {wm.name}{b.rain > 0 ? " (rain)" : ""}</span><span>+{w1(b.rain)}/h</span></div>
-                      <Show when={b.drainage > 0}>
-                        <div class="dropdown-row"><span>🌊 Drainage runoff</span><span>+{w1(b.drainage)}/h</span></div>
+                      <Show when={b.rain > 0 || !b.sluiceOpen}>
+                        <div class="dropdown-row" classList={{ "dropdown-row--muted": b.sluiceOpen }}>
+                          <span>{wm.icon} {wm.name}{b.rain > 0 && !b.sluiceOpen ? " (rain)" : ""}{b.sluiceOpen && b.rain > 0 ? " · paused" : ""}</span>
+                          <span>+{w1(b.sluiceOpen ? 0 : b.rain)}/h</span>
+                        </div>
+                      </Show>
+                      {/* Sluice open — the gate bleeds the reserve down. */}
+                      <Show when={b.sluiceOpen && b.reserve > 0.5}>
+                        <div class="dropdown-row" style={{ color: "var(--accent-red)" }}><span>🚪 Sluice · draining</span><span>-{w1(b.sluiceDrain)}/h</span></div>
                       </Show>
                       <Show when={b.citizens > 0}>
                         <div class="dropdown-row" style={{ color: "var(--accent-red)" }}><span>🧑‍🌾 Folk</span><span>-{w1(b.citizens)}/h</span></div>
@@ -418,7 +432,7 @@ export default function ResourceBar() {
                             </div>
                           }>
                             <div class="dropdown-row" style={{ color: "var(--accent-red)" }}>
-                              <span>🌱 Crops{b.irrigated ? " (irrigated)" : ""}</span><span>-{w1(b.cropDraw)}/h</span>
+                              <span>🌱 Crops</span><span>-{w1(b.cropDraw)}/h</span>
                             </div>
                           </Show>
                         }>
@@ -428,6 +442,21 @@ export default function ResourceBar() {
                         </Show>
                       </Show>
                       <div class="dropdown-row dropdown-total"><span>Net</span><span>{b.net >= 0 ? "+" : ""}{w1(b.net)}/h</span></div>
+                      {/* The sluice gate — read the year, then bank or run low. */}
+                      <Show when={b.hasCistern}>
+                        <button
+                          class="sluice-toggle"
+                          classList={{ "sluice-toggle--open": b.sluiceOpen }}
+                          onClick={() => actions.toggleSluice()}
+                        >
+                          {b.sluiceOpen ? "🚪 Shut the sluice — bank water" : "🚪 Open the sluice — run low"}
+                        </button>
+                        <div class="sluice-hint">
+                          {b.sluiceOpen
+                            ? "Draining low: safe from downpours, no drought buffer."
+                            : "Banking a buffer: safe in drought, floods if a downpour hits it full."}
+                        </div>
+                      </Show>
                     </>
                   );
                 })()}

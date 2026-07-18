@@ -1,7 +1,9 @@
 // ─── Water system (weather → yield, Layer 2) ────────────────────────────────
 // A stream + wells + rain-catching cisterns fill a `water` reserve; crops draw
-// it continuously via irrigation (paused when it rains), livestock and citizens
-// drink from it. When it's short: citizens first, then livestock, then crops.
+// it continuously (paused when it rains), livestock and citizens drink from it.
+// When it's short: citizens first, then livestock, then crops. The cistern has a
+// sluice: shut, it banks water (a drought buffer); open, it stops banking and
+// runs the reserve low so a downpour can't back up and drown the fields.
 // See docs/DESIGN_WEATHER_YIELD.md §5.
 
 import type { ClimateBand } from "./climate";
@@ -11,8 +13,6 @@ import type { Season } from "./seasons";
 // Building ids (defined in data/buildings.ts).
 export const WELL_ID = "well";
 export const CISTERN_ID = "cistern";
-export const IRRIGATION_ID = "irrigation_works";
-export const DRAINAGE_ID = "drainage_works";
 
 /** A little water is held even without a cistern (a few barrels) — the stream
  *  keeps it topped up, so a new settlement is never dry. */
@@ -65,11 +65,6 @@ export function ambientRainFactor(weather: WeatherType): number {
     default: return 0;
   }
 }
-/** Water a drainage works banks from runoff in a wet year, water/hour per level. */
-export function getDrainageBank(level: number): number {
-  return level <= 0 ? 0 : level * 5;
-}
-
 /** Total water the reserve can hold (base barrels + cisterns). */
 export function getWaterCap(cisternLevel: number): number {
   return BASE_WATER_CAP + getCisternCap(cisternLevel);
@@ -112,7 +107,29 @@ export function cropHeatFactor(band: ClimateBand): number {
   return band === "drought" ? 2 : band === "dry" ? 1.3 : 1;
 }
 
-/** Crops drink from the reserve whenever it isn't raining. Irrigation channels
- *  deliver it efficiently — the same crop spends less water — so an irrigated
- *  farm's reserve lasts far longer through a dry spell. */
-export const IRRIGATION_EFFICIENCY = 0.6;
+// ── The cistern sluice ───────────────────────────────────────────────────────
+// Shut (default): the stream/well/rain fill the reserve — a drought buffer.
+// Open: intake to the reserve is paused and it drains out, so it runs low. The
+// point is flood safety — a downpour drowns crops only when the reserve is full
+// enough to back up onto the fields (see delugeDrownFactor). Reading the year is
+// the lever: shut it in a dry year (bank against heat waves), open it in a wet
+// one (stay low against downpours; the rain waters the crops for free anyway).
+
+/** How much of the reserve's capacity the open sluice spills per hour — enough
+ *  to run a full cistern low over most of a game-day. */
+export const SLUICE_DRAIN_FRACTION = 0.12;
+export function getSluiceDrain(cisternLevel: number): number {
+  return Math.round(getWaterCap(cisternLevel) * SLUICE_DRAIN_FRACTION);
+}
+
+/** At or below this fill fraction, a downpour's runoff sheds harmlessly — the
+ *  reserve has room and the fields drain. Above it, the reserve backs up and the
+ *  roots start to drown, ramping to full drowning at capacity. */
+export const DELUGE_SAFE_FILL = 0.25;
+/** Deluge drowning severity from how full the reserve is (0 = safe, 1 = full).
+ *  This is the whole point of the sluice: run low → floods can't hurt you. */
+export function delugeDrownFactor(fillRatio: number): number {
+  const f = Math.max(0, Math.min(1, fillRatio));
+  if (f <= DELUGE_SAFE_FILL) return 0;
+  return (f - DELUGE_SAFE_FILL) / (1 - DELUGE_SAFE_FILL);
+}

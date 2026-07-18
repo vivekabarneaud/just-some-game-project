@@ -405,7 +405,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     name: "Cistern",
     category: "settlement",
     description:
-      "A great stone tank that stores water and catches the rain. It fills fast in wet years, so you can bank water against the dry ones.",
+      "A great stone tank that stores water and catches the rain, so you can bank a buffer against the dry years. Its sluice gate lets you run it low instead: shut it to hoard water against a heat wave, open it in a wet year so a downpour can't back up and drown the fields.",
     icon: "🛢️",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/cistern_camp.png",
     maxLevel: 5,
@@ -413,28 +413,6 @@ export const BUILDINGS: BuildingDefinition[] = [
     // Camp-scale: settlers catch rainwater from the start. A dug well (reliable
     // inflow) is settled-village work and stays at Village; this just banks rain.
     requiredTier: "camp",
-  },
-  {
-    id: "irrigation_works",
-    name: "Irrigation Channels",
-    category: "settlement",
-    description:
-      "Ditches and sluices that carry stored water to the fields. In dry and drought years they spend water to keep the crops from withering — as long as the cistern holds out.",
-    icon: "💦",
-    maxLevel: 3,
-    levels: generateLevels({ wood: 50, stone: 40 }, 10, undefined, 3),
-    requiredTier: "village",
-  },
-  {
-    id: "drainage_works",
-    name: "Drainage Ditches",
-    category: "settlement",
-    description:
-      "Channels that shed excess water in the wettest years, sparing the roots from rot — and banking some of the runoff back into the cistern.",
-    icon: "🌊",
-    maxLevel: 3,
-    levels: generateLevels({ wood: 45, stone: 35 }, 10, undefined, 3),
-    requiredTier: "village",
   },
 
   // Camp tier — Woodworker (wood-based equipment)

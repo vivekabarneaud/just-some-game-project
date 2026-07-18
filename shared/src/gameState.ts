@@ -376,6 +376,8 @@ export interface GameState {
   year: number;
   lastTick: number;
   gameSpeed: number;
+  /** Cistern sluice gate: open = drain the reserve low (flood-safe), shut = bank it. */
+  cisternSluiceOpen?: boolean;
   villageName: string;
   // Adventurer's Guild
   adventurers: Adventurer[];

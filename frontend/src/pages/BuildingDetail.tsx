@@ -186,6 +186,42 @@ export default function BuildingDetail() {
             </Show>
 
             <Show when={unlocked()}>
+              {/* Cistern sluice gate — the built cistern's one live control. */}
+              <Show when={params.id === "cistern" && (playerBuilding()?.level ?? 0) > 0}>
+                {(() => {
+                  const open = () => state.cisternSluiceOpen ?? false;
+                  return (
+                    <div style={{
+                      "margin-bottom": "20px",
+                      padding: "14px",
+                      background: "var(--bg-secondary)",
+                      border: `1px solid ${open() ? "var(--accent-blue)" : "var(--accent-gold)"}`,
+                      "border-radius": "6px",
+                    }}>
+                      <div style={{ display: "flex", "justify-content": "space-between", "align-items": "center", gap: "12px", "flex-wrap": "wrap" }}>
+                        <div>
+                          <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>🚪 The Sluice Gate</div>
+                          <div style={{ "font-size": "1.05rem", color: open() ? "var(--accent-blue)" : "var(--accent-gold)" }}>
+                            {open() ? "Open — running the reserve low" : "Shut — banking water"}
+                          </div>
+                        </div>
+                        <button class="upgrade-btn" onClick={() => actions.toggleSluice()} style={{ "font-size": "0.85rem", padding: "8px 16px" }}>
+                          {open() ? "Shut the sluice" : "Open the sluice"}
+                        </button>
+                      </div>
+                      <div style={{ "font-size": "0.82rem", color: "var(--text-secondary)", "margin-top": "10px", "font-style": "italic", "line-height": "1.4" }}>
+                        {open()
+                          ? "The stream and rain flow past instead of banking, and the reserve drains low. A downpour can't back up and drown the fields, but you hold no buffer against a heat wave."
+                          : "The stream and rain fill the reserve, a buffer to see the crops through dry spells and heat waves. But a downpour landing on a full cistern backs up and drowns the fields."}
+                      </div>
+                      <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-top": "6px" }}>
+                        Read the year: shut it against a dry year's heat, open it in a wet year's downpours.
+                      </div>
+                    </div>
+                  );
+                })()}
+              </Show>
+
               <Show when={currentLevel()?.production}>
                 {(prod) => (
                   <div

@@ -1757,7 +1757,7 @@ export default function Farming() {
           return (
             <Show when={farm() > 0}>
               <StatCard label="Farm Water">
-                <Tooltip block text={`Crops need ${w1(b().crops)}/h${b().animals > 0 ? `, livestock ${w1(b().animals)}/h` : ""}. Rain waters the crops for free in kind years; a dry year draws the shortfall from your reserve (irrigation) or the crops go thirsty.`}>
+                <Tooltip block text={`Crops need ${w1(b().crops)}/h${b().animals > 0 ? `, livestock ${w1(b().animals)}/h` : ""}. Rain waters the crops for free in kind years; a dry year draws the shortfall from your water reserve, or the crops go thirsty once it runs dry.`}>
                   <span class="rate-negative">💧 -{w1(farm())}/h</span>
                 </Tooltip>
               </StatCard>

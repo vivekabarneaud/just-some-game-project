@@ -77,11 +77,11 @@ export function getClimateYield(band: ClimateBand): number {
   return CLIMATE_META[band].yield;
 }
 
-/** Dry bands (a water deficit — irrigation can offset the yield hit). */
+/** Dry bands (a water deficit — a full reserve buffers the heat-wave thirst). */
 export function isDryBand(band: ClimateBand): boolean {
   return band === "dry" || band === "drought";
 }
-/** Wet bands (a water surplus — drainage can offset the yield hit). */
+/** Wet bands (a water surplus — a low reserve / open sluice avoids drowning). */
 export function isWetBand(band: ClimateBand): boolean {
   return band === "wet" || band === "deluge";
 }
