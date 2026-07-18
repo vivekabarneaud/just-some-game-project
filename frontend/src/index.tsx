@@ -133,7 +133,6 @@ function CrashFallback(props: { err: unknown; reset: () => void }) {
 
 const Overview = lazy(() => import("./pages/Overview"));
 const Buildings = lazy(() => import("./pages/Buildings"));
-const BuildingDetail = lazy(() => import("./pages/BuildingDetail"));
 const Farming = lazy(() => import("./pages/Farming"));
 const Kennel = lazy(() => import("./pages/Kennel"));
 const AdventurersGuild = lazy(() => import("./pages/AdventurersGuild"));
@@ -175,7 +174,6 @@ render(
       <Route path="/" component={(p) => <AuthGuard><App {...p} /></AuthGuard>}>
         <Route path="/" component={Overview} />
         <Route path="/buildings" component={Buildings} />
-        <Route path="/buildings/:id" component={BuildingDetail} />
         <Route path="/farming" component={Farming} />
         <Route path="/kennel" component={Kennel} />
         <Route path="/guild" component={AdventurersGuild} />

@@ -386,8 +386,8 @@ export default function AdventurersGuild() {
         }}>
           <div style={{ "font-size": "2rem", "margin-bottom": "8px" }}>🏰</div>
           <p>Build the Adventurer's Guild to recruit heroes and send them on missions.</p>
-          <A href="/buildings/adventurers_guild" style={{ color: "var(--accent-gold)" }}>
-            Go to building →
+          <A href="/buildings#building-adventurers_guild" style={{ color: "var(--accent-gold)" }}>
+            Go to Buildings →
           </A>
         </div>
       </Show>

@@ -399,8 +399,8 @@ export default function CraftingPage(props: CraftingPageProps) {
         }}>
           <div style={{ "font-size": "2rem", "margin-bottom": "8px" }}>{props.icon}</div>
           <p>Build the {props.buildingName} to unlock crafting recipes.</p>
-          <A href={`/buildings/${props.buildingId}`} style={{ color: "var(--accent-gold)" }}>
-            Go to building →
+          <A href={`/buildings#building-${props.buildingId}`} style={{ color: "var(--accent-gold)" }}>
+            Go to Buildings →
           </A>
         </div>
       </Show>

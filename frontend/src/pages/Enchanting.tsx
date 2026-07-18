@@ -158,8 +158,8 @@ export default function Enchanting() {
         }}>
           <div style={{ "font-size": "2rem", "margin-bottom": "8px" }}>✨</div>
           <p>Build an Enchanting Shop to unlock enchanting.</p>
-          <A href="/buildings/enchanting_shop" style={{ color: "var(--accent-gold)" }}>
-            Go to building →
+          <A href="/buildings#building-enchanting_shop" style={{ color: "var(--accent-gold)" }}>
+            Go to Buildings →
           </A>
         </div>
       </Show>

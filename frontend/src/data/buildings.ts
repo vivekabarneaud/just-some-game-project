@@ -1004,3 +1004,23 @@ export const BUILDING_STAFF: Record<string, BuildingStaffConfig> = {
 export function isStaffable(buildingId: string): boolean {
   return buildingId in BUILDING_STAFF;
 }
+
+/** Buildings that own a dedicated workspace page. The building modal shows a
+ *  short summary + an "Open ..." link to it rather than duplicating the page
+ *  (dense recipe/queue UIs don't belong in a modal). Everything else is managed
+ *  entirely from the modal. */
+export const BUILDING_WORKSPACE: Record<string, { route: string; label: string }> = {
+  alchemy_lab:       { route: "/alchemy",        label: "Open the alchemy lab" },
+  blacksmith:        { route: "/blacksmith",     label: "Open the smithy" },
+  tailoring_shop:    { route: "/tailoring",      label: "Open the tailor's shop" },
+  leatherworking:    { route: "/leatherworking", label: "Open the tannery" },
+  enchanting_shop:   { route: "/enchanting",     label: "Open the enchanter's shop" },
+  woodworker:        { route: "/woodworker",     label: "Open the woodworker's bench" },
+  kitchen:           { route: "/kitchen",        label: "Open the kitchen" },
+  tavern:            { route: "/tavern",         label: "Open the tavern" },
+  marketplace:       { route: "/marketplace",    label: "Open the marketplace" },
+  adventurers_guild: { route: "/guild",          label: "Open the Adventurer's Guild" },
+};
+export function buildingWorkspace(buildingId: string): { route: string; label: string } | null {
+  return BUILDING_WORKSPACE[buildingId] ?? null;
+}

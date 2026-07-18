@@ -136,8 +136,8 @@ export default function Alchemy() {
           }}>
             <div style={{ "font-size": "2rem", "margin-bottom": "8px" }}>🧪</div>
             <p>Build the Alchemy Lab to unlock potion brewing.</p>
-            <A href="/buildings/alchemy_lab" style={{ color: "var(--accent-gold)" }}>
-              Go to building →
+            <A href="/buildings#building-alchemy_lab" style={{ color: "var(--accent-gold)" }}>
+              Go to Buildings →
             </A>
           </div>
         </Show>

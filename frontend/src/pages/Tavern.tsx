@@ -92,7 +92,7 @@ export default function Tavern() {
           <div style={{ padding: "24px", background: "var(--bg-secondary)", "border-radius": "8px", "text-align": "center", color: "var(--text-muted)" }}>
             <div style={{ "font-size": "2rem", "margin-bottom": "8px" }}>🍻</div>
             <p>Build the Tavern to open its doors to travelers.</p>
-            <A href="/buildings/tavern" style={{ color: "var(--accent-gold)" }}>Go to building →</A>
+            <A href="/buildings#building-tavern" style={{ color: "var(--accent-gold)" }}>Go to Buildings →</A>
           </div>
         }
       >

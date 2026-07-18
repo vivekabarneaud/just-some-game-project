@@ -1,7 +1,5 @@
 import { For, Show, onMount, createSignal } from "solid-js";
-import { A } from "@solidjs/router";
-import BreweryManageModal from "~/components/BreweryManageModal";
-import StaffManageModal from "~/components/StaffManageModal";
+import BuildingModal from "~/components/BuildingModal";
 import { BUILDINGS, isBuildingUnlocked, isBuildingChapterUnlocked, getUnlockRequirement, getUnlockReasons, getUnlockConditions, getNextLevelRequirement, applyMasonCostReduction, applyMasonTimeReduction, getTierPrerequisitesMet, getRepairCost, getBuildingImage, isStaffable, PANIC_BUILD_IDS, PANIC_BUILD_SHARD_COST, type BuildingDefinition } from "~/data/buildings";
 import { QUEST_DEFINITIONS, isQuestActive } from "~/data/quests";
 import { useGame, isForagerBlooming, RAIN_FORAGE_MUSHROOM_FRACTION } from "~/engine/gameState";
@@ -39,8 +37,7 @@ const SECTIONS: { key: BuildingDefinition["category"]; label: string; icon: stri
 export default function Buildings() {
   const { state, actions } = useGame();
   const thLevel = () => actions.getTownHallLevel();
-  const [manageBrewery, setManageBrewery] = createSignal(false);
-  const [manageStaff, setManageStaff] = createSignal<string | null>(null);
+  const [selectedBuilding, setSelectedBuilding] = createSignal<string | null>(null);
 
   onMount(() => {
     const hash = window.location.hash;
@@ -82,11 +79,8 @@ export default function Buildings() {
 
   return (
     <div>
-      <Show when={manageBrewery()}>
-        <BreweryManageModal onClose={() => setManageBrewery(false)} />
-      </Show>
-      <Show when={manageStaff()}>
-        {(id) => <StaffManageModal buildingId={id()} onClose={() => setManageStaff(null)} />}
+      <Show when={selectedBuilding()}>
+        {(id) => <BuildingModal buildingId={id()} onClose={() => setSelectedBuilding(null)} />}
       </Show>
       <h1 class="page-title">Buildings</h1>
       <div style={{
@@ -250,15 +244,17 @@ export default function Buildings() {
                     return !seen.includes(building.id);
                   };
                   return unlocked() ? (
-                    <A href={`/buildings/${building.id}`} id={`building-${building.id}`} style={{ "text-decoration": "none" }}>
-                      <div
+                    <div
                         class="building-card"
+                        id={`building-${building.id}`}
                         classList={{ upgrading: isUpgrading(), "quest-target": isQuestTarget(), damaged: !!pb()?.damaged }}
+                        onClick={() => setSelectedBuilding(building.id)}
                         onMouseEnter={() => {
                           if (isNewlyUnlocked()) actions.markBuildingSeen(building.id);
                         }}
                         style={{
                           position: "relative",
+                          cursor: "pointer",
                           // Quest-target gold border takes priority over the
                           // newly-unlocked blue highlight when both apply.
                           ...(isNewlyUnlocked() && !isQuestTarget()
@@ -490,35 +486,18 @@ export default function Buildings() {
                           </div>
                         </Show>
                         <div class="building-card-desc">{building.description}</div>
-                        {/* Manage buttons sit above the output box — the action the
-                            player takes, then the result it drives. */}
-                        {building.id === "brewery" && level() > 0 && (
-                          <button
-                            class="btn-secondary"
-                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setManageBrewery(true); }}
-                            style={{
-                              "margin-top": "6px", "font-size": "0.78rem",
-                              "align-self": "flex-start",
-                            }}
-                          >
-                            ⚙ Manage brewing
-                          </button>
-                        )}
+                        {/* A short staff-coverage line stays on the card (managed
+                            in the building modal now, not a separate button). */}
                         {isStaffable(building.id) && level() > 0 && (() => {
                           const st = () => actions.getBuildingStaffing(building.id);
                           const short = () => st().active < st().capacity;
                           return (
-                            <button
-                              class="btn-secondary"
-                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setManageStaff(building.id); }}
-                              style={{
-                                "margin-top": "6px", "font-size": "0.78rem",
-                                color: short() ? "var(--accent-red)" : undefined,
-                                "align-self": "flex-start",
-                              }}
-                            >
-                              ⚙ Manage staff · {st().active}/{st().capacity}
-                            </button>
+                            <div style={{
+                              "margin-top": "6px", "font-size": "0.75rem",
+                              color: short() ? "var(--accent-red)" : "var(--text-muted)",
+                            }}>
+                              👤 Staff {st().active}/{st().capacity}{short() ? " · short-handed" : ""}
+                            </div>
                           );
                         })()}
                         {/* Gathering output, wrapped in a framed "Produces" box that
@@ -658,7 +637,6 @@ export default function Buildings() {
                           </div>
                         )}
                       </div>
-                    </A>
                   ) : (
                     (() => {
                       const reasons = getUnlockReasons(building, state);
