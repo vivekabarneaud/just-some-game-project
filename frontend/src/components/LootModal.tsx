@@ -4,6 +4,8 @@ import { playSound } from "~/engine/sounds";
 import type { CompletedMission } from "@medieval-realm/shared/data/missions";
 import { formatReward, getMission } from "@medieval-realm/shared/data/missions";
 import { getEnemy } from "@medieval-realm/shared/data/enemies";
+import { getItem } from "@medieval-realm/shared/data/items";
+import type { LootResult } from "@medieval-realm/shared/data/combat";
 import { STORY_CINEMATICS } from "~/data/cinematics";
 import CombatLog from "~/components/CombatLog";
 import CombatPlayback from "~/components/CombatPlayback";
@@ -34,6 +36,15 @@ export default function LootModal(props: Props) {
   // a deliberate "continue" step rather than popping over the unclaimed loot.
   const template = () => getMission(props.result.missionId) ?? { name: props.result.missionId, icon: "📜" };
   const hasRewards = () => props.result.rewards.length > 0;
+  // Enemy loot (the chest's surprise) is separate from the known mission pay.
+  const hasLoot = () => (props.result.loot?.length ?? 0) > 0;
+  const formatLoot = (l: LootResult): string => {
+    if (l.type === "item" && l.itemId) {
+      const it = getItem(l.itemId);
+      return it ? `${it.icon} ${l.amount} ${it.name}` : `${l.amount} ${l.itemId}`;
+    }
+    return formatReward({ resource: l.resource as any, amount: l.amount });
+  };
   // Outcome is three-way under Model C: success / retreated (broke off, came
   // home wounded) / failed (wiped). Retreat reads amber, not the wipe red.
   const retreated = () => !props.result.success && !!props.result.retreated;
@@ -126,24 +137,39 @@ export default function LootModal(props: Props) {
 
         {/* Body */}
         <div style={{ padding: "16px 20px", display: "flex", "flex-direction": "column", gap: "14px" }}>
-          {/* Rewards */}
-          <Show when={hasRewards()} fallback={
+          {/* Rewards — the known, upfront mission pay. Shown plainly (the player
+              already knew these going in, so they aren't the chest's surprise). */}
+          <Show when={hasRewards()}>
+            <div class="loot-section" style={{ "animation-delay": "180ms" }}>
+              <div class="section-label">
+                Rewards{!r().success ? " · assassin salvage" : ""}
+              </div>
+              <div style={{ display: "flex", "flex-wrap": "wrap", gap: "10px 16px", "font-size": "0.95rem", color: "var(--text-primary)" }}>
+                <For each={r().rewards}>
+                  {(rw) => <span>{formatReward(rw)}</span>}
+                </For>
+              </div>
+            </div>
+          </Show>
+
+          {/* Loot — the surprise: what the team pulled off the enemies. This is
+              the chest, and claim stays gated until it's opened. */}
+          <Show when={hasLoot()}>
+            <div class="loot-section" style={{ "animation-delay": "220ms" }}>
+              <div class="section-label">Your team brought back extra loot!</div>
+              <TreasureChest
+                labels={r().loot!.map(formatLoot)}
+                onOpened={() => setChestOpened(true)}
+              />
+            </div>
+          </Show>
+
+          <Show when={!hasRewards() && !hasLoot()}>
             <div class="loot-section" style={{
               color: "var(--text-muted)", "font-style": "italic", "font-size": "0.9rem",
               "animation-delay": "180ms",
             }}>
               No loot recovered.
-            </div>
-          }>
-            <div class="loot-section" style={{ "animation-delay": "180ms" }}>
-              <div class="section-label">
-                Loot
-              </div>
-              <TreasureChest
-                labels={r().rewards.map(formatReward)}
-                note={!r().success && r().rewards.length > 0 ? "assassin salvage" : undefined}
-                onOpened={() => setChestOpened(true)}
-              />
             </div>
           </Show>
 
@@ -300,17 +326,17 @@ export default function LootModal(props: Props) {
           <button
             onClick={() => dismissWith("confirm")}
             class="upgrade-btn"
-            disabled={hasRewards() && !chestOpened()}
+            disabled={hasLoot() && !chestOpened()}
             style={{
               padding: "8px 20px",
               "font-size": "0.95rem",
-              opacity: hasRewards() && !chestOpened() ? 0.5 : 1,
-              cursor: hasRewards() && !chestOpened() ? "not-allowed" : "pointer",
+              opacity: hasLoot() && !chestOpened() ? 0.5 : 1,
+              cursor: hasLoot() && !chestOpened() ? "not-allowed" : "pointer",
             }}
           >
-            {!hasRewards()
+            {!hasRewards() && !hasLoot()
               ? (r().casualties.length > 0 ? "Close" : "Dismiss")
-              : !chestOpened()
+              : hasLoot() && !chestOpened()
               ? "Open the chest first"
               : (hasStoryCinematic() ? "Claim & Continue Story" : "Claim rewards")}
           </button>

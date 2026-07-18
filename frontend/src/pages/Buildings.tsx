@@ -1,6 +1,6 @@
 import { For, Show, onMount, createSignal } from "solid-js";
 import BuildingModal from "~/components/BuildingModal";
-import { BUILDINGS, isBuildingUnlocked, isBuildingChapterUnlocked, getUnlockRequirement, getUnlockReasons, getUnlockConditions, getNextLevelRequirement, applyMasonCostReduction, applyMasonTimeReduction, getTierPrerequisitesMet, getRepairCost, getBuildingImage, isStaffable, gatheringSeasonMod, PANIC_BUILD_IDS, PANIC_BUILD_SHARD_COST, type BuildingDefinition } from "~/data/buildings";
+import { BUILDINGS, isBuildingUnlocked, isBuildingChapterUnlocked, getUnlockRequirement, getUnlockReasons, getUnlockConditions, getNextLevelRequirement, applyMasonCostReduction, applyMasonTimeReduction, getTierPrerequisitesMet, getRepairCost, getBuildingImage, isStaffable, gatheringSeasonMod, animalSlots, PANIC_BUILD_IDS, PANIC_BUILD_SHARD_COST, type BuildingDefinition } from "~/data/buildings";
 import { QUEST_DEFINITIONS, isQuestActive } from "~/data/quests";
 import { useGame, isForagerBlooming, RAIN_FORAGE_MUSHROOM_FRACTION } from "~/engine/gameState";
 import { playSound } from "~/engine/sounds";
@@ -244,6 +244,7 @@ export default function Buildings() {
                     return !seen.includes(building.id);
                   };
                   return unlocked() ? (
+                    <Tooltip text="Click to manage" position="cursor" block style={{ height: "100%" }}>
                     <div
                         class="building-card"
                         id={`building-${building.id}`}
@@ -255,6 +256,7 @@ export default function Buildings() {
                         style={{
                           position: "relative",
                           cursor: "pointer",
+                          height: "100%",
                           // Quest-target gold border takes priority over the
                           // newly-unlocked blue highlight when both apply.
                           ...(isNewlyUnlocked() && !isQuestTarget()
@@ -500,6 +502,21 @@ export default function Buildings() {
                             </div>
                           );
                         })()}
+                        {/* Hunting camp: a dog boosts the catch. Nudge that the
+                            slot exists (assigned in the building modal on click). */}
+                        {building.id === "hunting_camp" && level() > 0 && (() => {
+                          const slots = () => animalSlots(building.id, level());
+                          const posted = () => state.keptAnimals.filter((a) => a.job === "hunt").length;
+                          const free = () => posted() < slots();
+                          return (
+                            <div style={{
+                              "margin-top": "4px", "font-size": "0.75rem",
+                              color: free() ? "var(--accent-gold)" : "var(--text-muted)",
+                            }}>
+                              🐕 Dogs {posted()}/{slots()}{free() ? " · click to assign one and boost the catch" : ""}
+                            </div>
+                          );
+                        })()}
                         {/* Gathering output, wrapped in a framed "Produces" box that
                             mirrors the farming cards. Only gathering buildings carry a
                             passive `production`, so non-gathering cards render nothing here. */}
@@ -637,6 +654,7 @@ export default function Buildings() {
                           </div>
                         )}
                       </div>
+                    </Tooltip>
                   ) : (
                     (() => {
                       const reasons = getUnlockReasons(building, state);

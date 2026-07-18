@@ -274,6 +274,10 @@ export interface CompletedMission {
   /** Per-adventurer before/after vitals for the loot modal's team strip.
    *  Optional: co-op claims and legacy results omit it (strip just hides). */
   roster?: MissionRosterEntry[];
+  /** Enemy drops (resources + items) from combat, kept SEPARATE from `rewards`
+   *  (the known, upfront mission pay). These are the surprise the loot chest
+   *  reveals, and they're applied on claim, not at mission end. */
+  loot?: import("../combat").LootResult[];
 }
 
 export interface StoryMission extends MissionTemplate {

@@ -63,6 +63,7 @@ import {
   STAFF_LVL1_FLOOR,
   isStaffable,
   animalSlots,
+  kennelDogCapacity,
   gatheringSeasonMod,
 } from "~/data/buildings";
 import { FOUNDING_CHARACTERS } from "~/data/founding_characters";
@@ -310,7 +311,7 @@ import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { EXOTIC_IDS } from "@medieval-realm/shared/data/exotics";
 import { ALCHEMY_RECIPES, getDiscoverableRecipes, getAvailableAlchemyRecipes, RESEARCH_BASE_COST } from "@medieval-realm/shared/data/alchemy_recipes";
 import { getDeity, getCurrentDeity } from "~/data/deities";
-import { simulateCombat } from "@medieval-realm/shared/data/combat";
+import { simulateCombat, type LootResult } from "@medieval-realm/shared/data/combat";
 import { simulateRaidCombat } from "@medieval-realm/shared/data/raidCombat";
 import { canUnlockTalent } from "~/data/talents";
 import { getEnchantment } from "~/data/enchantments";
@@ -1155,12 +1156,9 @@ export function createInitialState(): GameState {
       count: 0,
       upgrading: false,
     })),
-    // Seed dogs — TEMPORARY placeholder so the Kennel has something to show.
-    // Real acquisition (the Thornwoods' dog + strays) is the next increment.
-    keptAnimals: [
-      { id: nextId("animal"), name: "Bess", species: "dog", breed: "herding_collie", portrait: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/dogs/herding_collie.png", nameFixed: true, origin: "thornwoods", job: "idle", guardLevel: 2, huntLevel: 1, jobHours: 0, happiness: 82 },
-      { id: nextId("animal"), name: "Pip", species: "dog", breed: "mongrel", portrait: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/dogs/mongrel.png", origin: "stray", job: "idle", guardLevel: 0, huntLevel: 2, jobHours: 0, happiness: 68 },
-    ],
+    // No dogs to start. The Thornwoods' hound (Rowan) arrives the moment the
+    // player builds a Kennel to house her; strays/pups follow once there's room.
+    keptAnimals: [],
     // Pre-spawn apiary slots — all identical, no type variants.
     hives: Array.from({ length: MAX_HIVES }, () => ({
       id: nextId("hive"),
@@ -1516,11 +1514,8 @@ export function migrateSaveState(saved: GameState): GameState {
       (saved as any).seeds.lavender = 0;
     }
     if (!saved.pens) saved.pens = [];
-    // Seed dogs into existing saves too (temporary placeholder, see createDefaultState).
-    if (!saved.keptAnimals) saved.keptAnimals = [
-      { id: nextId("animal"), name: "Bess", species: "dog", breed: "herding_collie", portrait: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/dogs/herding_collie.png", nameFixed: true, origin: "thornwoods", job: "idle", guardLevel: 2, huntLevel: 1, jobHours: 0, happiness: 82 },
-      { id: nextId("animal"), name: "Pip", species: "dog", breed: "mongrel", portrait: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/dogs/mongrel.png", origin: "stray", job: "idle", guardLevel: 0, huntLevel: 2, jobHours: 0, happiness: 68 },
-    ];
+    // Dogs are earned now (built the Kennel), not seeded — see createDefaultState.
+    if (!saved.keptAnimals) saved.keptAnimals = [];
     // Backfill kept animals from earlier increments (single `level`, no origin/
     // breed) so their stars and portraits render.
     const usedPortraits = new Set<string>();
@@ -2328,11 +2323,19 @@ function animalWaterDemand(s: GameState): number {
   for (const p of s.pens) if (p.level > 0) d += penWaterDemand(p.count);
   return d;
 }
+// Founding-year water grace (year 1): the folk drink less and the stream runs
+// fuller, so a summer start has breathing room before a well/cistern exists.
+const FOUNDING_WATER_DEMAND_GRACE = 0.6;
+const FOUNDING_WATER_STREAM_GRACE = 1.4;
 /** Water the settlement's folk drink each hour (year-round, spikes in summer). */
 function citizenWaterDemand_(s: GameState): number {
   const c = s.citizens;
   const pop = c.toddlers + c.children + c.adults + c.elderly;
-  return citizenWaterDemand(pop, s.season, cropClimateBand(s));
+  // Founding-year grace: the folk are few and frugal while the settlement finds
+  // its feet (mirrors the year-1 crop grace), so a summer start isn't instantly
+  // in the red before there's a well or cistern to dig.
+  const grace = s.year <= 1 ? FOUNDING_WATER_DEMAND_GRACE : 1;
+  return Math.round(citizenWaterDemand(pop, s.season, cropClimateBand(s)) * grace);
 }
 /** The stream's status this tick — drives its water yield AND the fishing catch
  *  (same low water, fewer fish): flowing / low (summer, dry) / frozen / dry. */
@@ -2367,7 +2370,10 @@ function waterBalance(s: GameState) {
 
   // Live sources. Shut, they fill the reserve; open, they flow straight past it
   // (still there to drink, just not banked — shown as "paused" in the breakdown).
-  const stream = STREAM_YIELD * streamFactor(streamStatus(band, s.season));
+  // Founding-year grace: the springs run a touch fuller the first year (see
+  // citizenWaterDemand_ for the paired demand grace).
+  const streamGrace = s.year <= 1 ? FOUNDING_WATER_STREAM_GRACE : 1;
+  const stream = STREAM_YIELD * streamFactor(streamStatus(band, s.season)) * streamGrace;
   const wellBldg = s.buildings.find((b) => b.buildingId === WELL_ID);
   const well = wellBldg?.damaged ? 0 : getWellOutput(wellBldg?.level ?? 0) * wellFactor(band);
   const rain = getCisternRainCatch(cisternLvl) * climateRainFactor(band) * ambientRainFactor(weather);
@@ -2681,7 +2687,24 @@ function applyAnimalFeed(s: GameState, elapsedHours: number): Map<string, number
  *  loses head to hunger. Mutates pen.count. Never auto-culls — shrinkage is only
  *  starvation; deliberate culling is a separate player action. See DESIGN_LIVESTOCK.md. */
 // ── Kept animals: the living layer (leveling, growth, happiness, breeding, strays) ──
-const MAX_DOGS = 8;
+/** Room for dogs is set by the Kennel (none without one). */
+function dogCapacity(s: GameState): number {
+  return kennelDogCapacity(buildingLevel(s, "kennel"));
+}
+/** The Thornwoods' gift hound — Rowan, a seasoned scent-tracker — comes to stay
+ *  the first time a Kennel is raised to house her. Idempotent (one thornwoods
+ *  dog ever), so it's safe to call on every Kennel completion. */
+function grantThornwoodsDog(s: GameState): void {
+  if (s.keptAnimals.some((a) => a.origin === "thornwoods")) return;
+  s.keptAnimals.push({
+    id: nextId("animal"), name: "Truffle", species: "dog", breed: "scent_hound",
+    portrait: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/dogs/scent_hound.png",
+    nameFixed: true, origin: "thornwoods", job: "idle", guardLevel: 0, huntLevel: 2, jobHours: 0, happiness: 82,
+  });
+  pushEvent(s, "animal_stray", "🐕", "The Thornwoods kept their word: Truffle, a seasoned tracking hound, has come to the new kennel.");
+}
+/** A posted houndsman speeds the dogs' training by this factor. */
+const HOUNDSMAN_TRAIN_SPEEDUP = 1.5;
 const PUPPY_GROW_HOURS = 48;      // ~2 growing seasons to grow up
 const SKILL_LEVEL_HOURS = 24;     // ~a season on the job per skill level
 const APTITUDE_SPEEDUP = 1.6;     // a breed levels its favored skill this much faster
@@ -2719,6 +2742,10 @@ function pickDogName(s: GameState): string {
 function applyKeptAnimalTick(s: GameState, elapsedHours: number): void {
   if (elapsedHours <= 0 || !s.keptAnimals) return;
   const dogs = s.keptAnimals.filter((a) => a.species === "dog");
+  // A houndsman posted at the Kennel trains the pack faster.
+  const kennelLvl = buildingLevel(s, "kennel");
+  const houndsman = getBuildingStaffing(s, "kennel", kennelLvl).active > 0;
+  const trainSpeed = houndsman ? HOUNDSMAN_TRAIN_SPEEDUP : 1;
 
   for (const d of dogs) {
     const apt = breedAptitude(d.breed ?? "");
@@ -2740,20 +2767,21 @@ function applyKeptAnimalTick(s: GameState, elapsedHours: number): void {
       }
       continue; // pups don't work, so they don't level
     }
-    // Passive leveling on the current job (favored breed levels faster).
+    // Passive leveling on the current job (favored breed levels faster, and a
+    // houndsman at the Kennel speeds it further).
     if (d.job === "guard" && d.guardLevel < 5) {
       d.jobHours += elapsedHours;
-      const need = SKILL_LEVEL_HOURS / (apt === "guard" ? APTITUDE_SPEEDUP : 1);
+      const need = SKILL_LEVEL_HOURS / (apt === "guard" ? APTITUDE_SPEEDUP : 1) / trainSpeed;
       if (d.jobHours >= need) { d.guardLevel++; d.jobHours -= need; }
     } else if (d.job === "hunt" && d.huntLevel < 5) {
       d.jobHours += elapsedHours;
-      const need = SKILL_LEVEL_HOURS / (apt === "hunt" ? APTITUDE_SPEEDUP : 1);
+      const need = SKILL_LEVEL_HOURS / (apt === "hunt" ? APTITUDE_SPEEDUP : 1) / trainSpeed;
       if (d.jobHours >= need) { d.huntLevel++; d.jobHours -= need; }
     }
   }
 
-  // Breeding — a happy, unrelated adult pair may have a litter.
-  if (s.keptAnimals.length < MAX_DOGS) {
+  // Breeding — a happy, unrelated adult pair may have a litter (needs Kennel room).
+  if (s.keptAnimals.length < dogCapacity(s)) {
     const adults = dogs.filter((d) => !d.isPuppy && d.happiness >= DOG_HAPPY_THRESHOLD);
     const pairs: [KeptAnimal, KeptAnimal][] = [];
     for (let i = 0; i < adults.length; i++)
@@ -2773,8 +2801,9 @@ function applyKeptAnimalTick(s: GameState, elapsedHours: number): void {
     }
   }
 
-  // Strays — the odd dog wanders in and stays.
-  if (s.keptAnimals.length < MAX_DOGS && Math.random() < 1 - Math.pow(1 - STRAY_CHANCE_PER_HOUR, elapsedHours)) {
+  // Strays — the odd dog wanders in and stays (only where there's a Kennel with
+  // room; no home, no strays).
+  if (s.keptAnimals.length < dogCapacity(s) && Math.random() < 1 - Math.pow(1 - STRAY_CHANCE_PER_HOUR, elapsedHours)) {
     const breed = DOG_BREED_KEYS[Math.floor(Math.random() * DOG_BREED_KEYS.length)];
     const name = pickDogName(s);
     s.keptAnimals.push({
@@ -4731,6 +4760,8 @@ export function GameProvider(props: ParentProps) {
                 if ("buildingId" in item) {
                   const def = BUILDINGS.find((b) => b.id === (item as any).buildingId);
                   if (def) pushEvent(s, "building_completed", def.icon, `${def.name} upgraded to level ${item.level}`);
+                  // A freshly-raised Kennel draws the Thornwoods' gift hound.
+                  if ((item as any).buildingId === "kennel" && item.level === 1) grantThornwoodsDog(s);
                 }
                 if (live) playSound("plop");
               }
@@ -5123,27 +5154,18 @@ export function GameProvider(props: ParentProps) {
                 }
               }
 
-              // Add combat loot from killed enemies (skipped on VIP-fallen — no loot)
+              // Combat loot from killed enemies (resources AND items) is kept
+              // SEPARATE from the base rewards and NOT applied here — it's held
+              // on the completed mission and revealed/granted when the player
+              // opens the loot chest and claims. Duplicate drops are merged so
+              // the chest reads clean. Skipped on VIP-fallen (no loot).
+              const loot: LootResult[] = [];
               if (!vipFallen && combatResult?.loot?.length) {
                 for (const drop of combatResult.loot) {
-                  if (drop.type === "resource" && drop.resource) {
-                    // Merge resource loot into mission rewards
-                    const existing = rewards.find((r) => r.resource === drop.resource);
-                    if (existing) {
-                      existing.amount += drop.amount;
-                    } else {
-                      rewards.push({ resource: drop.resource as any, amount: drop.amount });
-                    }
-                  } else if (drop.type === "item" && drop.itemId) {
-                    // Add item to inventory directly
-                    const inv = s.inventory.find((i) => i.itemId === drop.itemId);
-                    if (inv) {
-                      inv.quantity += drop.amount;
-                    } else {
-                      s.inventory.push({ itemId: drop.itemId!, quantity: drop.amount });
-                    }
-                    pushEvent(s, "loot_drop", "🎁", `${drop.fromEnemy} dropped ${drop.itemId}!`);
-                  }
+                  const same = loot.find((x) => x.type === drop.type &&
+                    (drop.type === "item" ? x.itemId === drop.itemId : x.resource === drop.resource));
+                  if (same) same.amount += drop.amount;
+                  else loot.push({ ...drop });
                 }
               }
 
@@ -5357,6 +5379,7 @@ export function GameProvider(props: ParentProps) {
                 } : {}),
                 ...(vipFallen ? { vipFallen } : {}),
                 ...(revealedEnemies.length ? { revealedEnemies } : {}),
+                ...(loot.length ? { loot } : {}),
               });
 
               // Durable per-mission success tally (completedMissions is cleared on
@@ -7888,6 +7911,17 @@ export function GameProvider(props: ParentProps) {
         const caps = calcStorageCaps(s.buildings);
         for (const reward of mission.rewards) {
           grantReward(s, reward as { resource: string; amount: number }, caps);
+        }
+        // Enemy loot is granted here, on claim (resources to stores, items to
+        // the pack), so the chest reveal actually hands over the drops.
+        for (const l of mission.loot ?? []) {
+          if (l.type === "item" && l.itemId) {
+            const inv = s.inventory.find((i) => i.itemId === l.itemId);
+            if (inv) inv.quantity += l.amount;
+            else s.inventory.push({ itemId: l.itemId, quantity: l.amount });
+          } else if (l.resource) {
+            grantReward(s, { resource: l.resource, amount: l.amount }, caps);
+          }
         }
         s.completedMissions.splice(index, 1);
       }));

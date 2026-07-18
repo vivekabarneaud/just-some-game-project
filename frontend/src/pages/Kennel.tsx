@@ -5,6 +5,7 @@ import { FrameOrnaments } from "~/components/FrameOrnaments";
 import Select from "~/components/Select";
 import { SPARK_GOLD } from "~/data/navWidgets";
 import { breedName } from "~/data/dogBreeds";
+import { kennelDogCapacity } from "~/data/buildings";
 
 // Frame by experience — same hand-drawn frames as the adventurer roster.
 // Tier = the higher of the dog's two skills (1..5).
@@ -30,6 +31,8 @@ export default function Kennel() {
   const dogs = () => state.keptAnimals.filter((a) => a.species === "dog");
   const builtPens = () => state.pens.filter((p) => p.level > 0);
   const hasHuntingCamp = () => (state.buildings.find((b) => b.buildingId === "hunting_camp")?.level ?? 0) > 0;
+  const kennelLevel = () => state.buildings.find((b) => b.buildingId === "kennel")?.level ?? 0;
+  const capacity = () => kennelDogCapacity(kennelLevel());
 
   const [editingId, setEditingId] = createSignal<string | null>(null);
   const [draft, setDraft] = createSignal("");
@@ -60,13 +63,25 @@ export default function Kennel() {
   return (
     <div style={{ padding: "20px", "max-width": "1080px" }}>
       <h1 style={{ "font-family": "var(--font-heading)", color: "var(--accent-gold)", "margin-bottom": "4px" }}>🐕 The Kennel</h1>
-      <p style={{ color: "var(--text-secondary)", "font-style": "italic", "margin-bottom": "18px" }}>
+      <p style={{ color: "var(--text-secondary)", "font-style": "italic", "margin-bottom": "10px" }}>
         The working dogs of the settlement. Post one to guard a flock or work the hunting camp, or let it rest at the fire.
       </p>
 
+      <Show when={kennelLevel() > 0}>
+        <p style={{ color: "var(--text-muted)", "font-size": "0.82rem", "margin-bottom": "18px" }}>
+          🏠 {dogs().length} / {capacity()} dogs kept · a bigger kennel makes room for more, and lets strays and litters join the pack.
+        </p>
+      </Show>
+
       <Show
         when={dogs().length > 0}
-        fallback={<div style={{ color: "var(--text-muted)", "font-style": "italic" }}>No dogs yet. One will find its way to you soon enough.</div>}
+        fallback={
+          <div style={{ color: "var(--text-muted)", "font-style": "italic" }}>
+            {kennelLevel() > 0
+              ? "The kennel stands empty for now."
+              : "No kennel yet. Raise one and the Thornwoods will send a dog to fill it."}
+          </div>
+        }
       >
         <div style={{ display: "grid", "grid-template-columns": "repeat(auto-fill, 320px)", "justify-content": "start", gap: "16px" }}>
           <For each={dogs()}>

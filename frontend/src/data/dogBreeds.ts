@@ -73,6 +73,14 @@ export function breedAptitude(breed: string): BreedAptitude {
   return DOG_BREEDS[breed as DogBreed]?.aptitude ?? "either";
 }
 
+// Parked name ideas (not in rotation yet — the pool below stays rustic/serious
+// so random strays don't break the tone). Promote any of these when we want a
+// funnier or cuter batch, or reuse them for special/gift dogs:
+//   Cute:  Biscuit, Barley, Pudding, Clover, Turnip, Noodle, Marrow, Nutmeg
+//   Funny: Sir Sniffsalot, Barkimedes, Houndini, Lord Waggington, Chaucer,
+//          Duke, Baron, Beowoof
+// (Truffle was pulled from this batch for the Thornwoods' gift hound.)
+
 // Rustic dog names for strays and pups (avoids founder/adventurer names).
 export const DOG_NAMES = [
   "Bracken", "Fen", "Scout", "Nib", "Tansy", "Rook", "Bramble", "Juno",

@@ -245,9 +245,11 @@ export default function AdventurersGuild() {
   const handleClaim = (index: number) => {
     const result = state.completedMissions[index];
     if (!result) return;
-    if (result.rewards.length === 0) {
-      // Snapshot the result for the modal, then immediately dismiss the card.
-      // The modal renders from `lootResult` (snapshot), not from the index.
+    // Nothing to hand over (no pay, no loot) → snapshot for the modal (casualties
+    // etc.) and dismiss the card immediately. Otherwise keep it and let the modal
+    // gate the claim (opening the chest for any loot).
+    const hasClaim = result.rewards.length > 0 || (result.loot?.length ?? 0) > 0;
+    if (!hasClaim) {
       setLootResult({ ...result });
       setLootModalIndex(null);
       actions.claimMissionReward(index);
@@ -450,36 +452,24 @@ export default function AdventurersGuild() {
                     <div style={{ display: "flex", "justify-content": "space-between", "align-items": "center" }}>
                       <span>
                         {result.success ? "Success" : "Failed"}: {template().name}
-                        {result.rewards.length > 0 && (
-                          <span style={{ color: "var(--text-secondary)", "margin-left": "8px" }}>
-                            {result.rewards.map((r) => formatReward(r)).join(", ")}
-                            {!result.success && <span style={{ color: "var(--accent-purple)", "margin-left": "4px" }}>(assassin salvage)</span>}
-                          </span>
-                        )}
                       </span>
-                      <button
-                        classList={{ "btn-primary": result.rewards.length > 0, "btn-tertiary": result.rewards.length === 0 }}
-                        onClick={() => handleClaim(i())}
-                        style={{
-                          "font-size": "0.8rem",
-                          "white-space": "nowrap",
-                        }}
-                      >
-                        {result.rewards.length > 0
-                          ? (STORY_CINEMATICS[result.missionId] ? "Claim & Continue Story" : "Claim")
-                          : "Dismiss"}
-                      </button>
-                    </div>
-                    {/* XP, level ups, rank ups, casualties, revives */}
-                    <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-top": "2px" }}>
-                      {[
-                        result.combatRounds ? <span>{result.combatVictory ? "Victory" : "Defeated"} in {result.combatRounds} rounds</span> : null,
-                        result.xpGained > 0 ? <span>+{result.xpGained} XP</span> : null,
-                        result.levelUps.length > 0 ? <span style={{ color: "var(--accent-blue)" }}>Level up: {result.levelUps.join(", ")}</span> : null,
-                        result.rankUps.length > 0 ? <span style={{ color: "var(--accent-gold)" }}>Rank up: {result.rankUps.map((r) => `${r.name} → ${r.newRank}`).join(", ")}</span> : null,
-                        result.casualties.length > 0 ? <span style={{ color: "var(--accent-red)" }}>Fallen: {result.casualties.join(", ")}</span> : null,
-                        result.revived.length > 0 ? <span style={{ color: "#9b59b6" }}>Revived: {result.revived.length}</span> : null,
-                      ].filter(Boolean).map((el, idx, arr) => <>{el}{idx < arr.length - 1 ? " · " : ""}</>)}
+                      {(() => {
+                        // The rewards, XP, level-ups and casualties are deliberately
+                        // NOT spoiled here — claiming opens the loot modal, which is
+                        // the reveal (base pay shown, enemy loot in the chest).
+                        const hasClaim = result.rewards.length > 0 || (result.loot?.length ?? 0) > 0;
+                        return (
+                          <button
+                            classList={{ "btn-primary": hasClaim, "btn-tertiary": !hasClaim }}
+                            onClick={() => handleClaim(i())}
+                            style={{ "font-size": "0.8rem", "white-space": "nowrap" }}
+                          >
+                            {hasClaim
+                              ? (STORY_CINEMATICS[result.missionId] ? "Claim & Continue Story" : "Claim rewards")
+                              : "Dismiss"}
+                          </button>
+                        );
+                      })()}
                     </div>
                     {/* Combat log — collapsible + playback */}
                     <Show when={result.combatLog?.length}>

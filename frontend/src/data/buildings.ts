@@ -443,6 +443,23 @@ export const BUILDINGS: BuildingDefinition[] = [
     requiredTier: "camp",
   },
 
+  {
+    id: "kennel",
+    name: "Kennel",
+    category: "settlement",
+    description:
+      "A home for the settlement's dogs. It's where a working pack is kept, pups are raised, and the odd stray takes up a warm corner. A houndsman posted here trains the dogs faster. Each level makes room for more dogs.",
+    icon: "🐕",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/kennel_camp.png",
+    maxLevel: 5,
+    levels: generateLevels({ wood: 40, stone: 20 }, 10, undefined, 5),
+    requiredTier: "camp",
+    tierLevelCaps: { camp: 2, village: 3, town: 4, city: 5 },
+    // Opens with the Thornwoods' arrival (same beat as Houses + the Hunting
+    // Camp) — that's when they offer the settlement a hound to house.
+    unlockedAt: { storyline: "settlement", chapter: 2 },
+  },
+
   // Camp tier — Woodworker (wood-based equipment)
   {
     id: "woodworker",
@@ -949,6 +966,7 @@ const BUILDING_TIER_IMAGES: Record<string, Partial<Record<SettlementTier, string
   lumber_mill:      { camp: "lumber_mill_camp", village: "lumber_mill_village", town: "lumber_mill_town", city: "lumber_mill_city" },
   quarry:           { camp: "quarry_camp", village: "quarry_village", town: "quarry_town", city: "quarry_city" },
   hunting_camp:     { camp: "hunting_camp_camp", village: "hunting_camp_village", town: "hunting_camp_town", city: "hunting_camp_city" },
+  kennel:           { camp: "kennel_camp" },
   forager_hut:      { camp: "forager_hut_camp", village: "forager_hut_village", town: "forager_hut_town", city: "forager_hut_city" },
   fishing_hut:      { camp: "fishing_hut_camp", village: "fishing_hut_village", town: "fishing_hut_town", city: "fishing_hut_city" },
   kitchen:          { camp: "kitchen_camp", village: "kitchen_village", town: "kitchen_town", city: "kitchen_city" },
@@ -1037,6 +1055,9 @@ export const BUILDING_STAFF: Record<string, BuildingStaffConfig> = {
   // the post later). Empty config = citizen-only staffing.
   iron_mine: {},
   gold_mine: {},
+  // The Kennel's staff is a houndsman (a townsfolk for now) — posting one speeds
+  // the dogs' training. Empty config = citizen-only staffing.
+  kennel: {},
 };
 
 export function isStaffable(buildingId: string): boolean {
@@ -1049,6 +1070,14 @@ export function isStaffable(buildingId: string): boolean {
 export function animalSlots(buildingId: string, level: number): number {
   if (buildingId === "hunting_camp") return Math.max(0, level);
   return 0;
+}
+
+/** How many dogs the settlement can keep, driven by the Kennel's level: no
+ *  Kennel, no room for a pack (your working dogs need a home). L1 keeps 1, and
+ *  each further level makes room for two more (L2=3, L3=5, …) — space to breed
+ *  and take in strays. */
+export function kennelDogCapacity(kennelLevel: number): number {
+  return kennelLevel <= 0 ? 0 : 2 * kennelLevel - 1;
 }
 
 /** Buildings that own a dedicated workspace page. The building modal shows a
@@ -1067,6 +1096,7 @@ export const BUILDING_WORKSPACE: Record<string, { route: string; label: string }
   marketplace:       { route: "/marketplace",    label: "Open the marketplace" },
   adventurers_guild: { route: "/guild",          label: "Open the Adventurer's Guild" },
   shrine:            { route: "/shrine",         label: "Open the Shrine" },
+  kennel:            { route: "/kennel",         label: "Open the Kennel" },
 };
 export function buildingWorkspace(buildingId: string): { route: string; label: string } | null {
   return BUILDING_WORKSPACE[buildingId] ?? null;

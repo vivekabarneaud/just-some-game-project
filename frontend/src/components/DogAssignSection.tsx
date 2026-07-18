@@ -28,6 +28,7 @@ export default function DogAssignSection(props: Props) {
   const [pickerOpen, setPickerOpen] = createSignal(false);
 
   const dogs = () => state.keptAnimals.filter((a) => a.species === "dog");
+  const hasKennel = () => (state.buildings.find((b) => b.buildingId === "kennel")?.level ?? 0) > 0;
   const onThisPost = (d: { job: string; penId?: string }) =>
     d.job === props.job && (props.job !== "guard" || d.penId === props.penId);
   const assigned = () => dogs().filter(onThisPost);
@@ -75,7 +76,13 @@ export default function DogAssignSection(props: Props) {
       <Show when={assigned().length < props.slots}>
         <Show
           when={pickerDogs().some((d) => d.job === "idle")}
-          fallback={<div style={{ "font-size": "0.74rem", color: "var(--text-muted)", "font-style": "italic", "margin-top": "8px" }}>No idle dogs to post — raise or free one at the Kennel.</div>}
+          fallback={
+            <div style={{ "font-size": "0.74rem", color: "var(--text-muted)", "font-style": "italic", "margin-top": "8px" }}>
+              {!hasKennel() && dogs().length === 0
+                ? "The Thornwoods came with a hound, but she needs a Kennel before she can be put to work here. Build one to take her in."
+                : "No idle dogs to post. Raise or free one at the Kennel."}
+            </div>
+          }
         >
           <button
             onClick={() => setPickerOpen(true)}

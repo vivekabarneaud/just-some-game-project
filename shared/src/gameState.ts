@@ -293,6 +293,9 @@ export interface CompletedMission {
   xpGained: number;
   levelUps: string[];
   rankUps: { name: string; newRank: string }[];
+  /** Enemy drops surfaced in the loot chest, applied on claim (see the richer
+   *  CompletedMission in data/missions/types.ts). */
+  loot?: import("./data/combat").LootResult[];
 }
 
 // ─── Raids ──────────────────────────────────────────────────────
