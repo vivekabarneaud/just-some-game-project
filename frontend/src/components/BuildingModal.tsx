@@ -253,14 +253,18 @@ export default function BuildingModal(props: Props) {
           {(b) => (
             <div
               style={{
-                "max-width": "560px", width: "100%", background: "var(--bg-secondary)",
-                border: "2px solid var(--accent-gold)", "border-radius": "0",
-                color: "var(--text-primary)", "max-height": "88vh", overflow: "auto",
+                position: "relative", "max-width": "640px", width: "100%",
                 "box-shadow": "0 10px 40px rgba(0, 0, 0, 0.6)",
                 transform: exiting() ? "scale(0.98)" : "scale(1)", transition: "transform 0.18s ease",
               }}
               onClick={(e) => e.stopPropagation()}
             >
+              {/* Scrollable content — the banner bleeds to the wrapper edges; the
+                  gold frame is an overlay drawn ON TOP (below), so it never insets. */}
+              <div style={{
+                background: "var(--bg-secondary)", color: "var(--text-primary)",
+                "max-height": "88vh", overflow: "auto",
+              }}>
               {/* Header — image banner when we have art, else icon. */}
               <div style={{ position: "relative" }}>
                 <Show when={image()}>
@@ -271,14 +275,18 @@ export default function BuildingModal(props: Props) {
                 </Show>
                 <button
                   onClick={close}
+                  title="Close"
                   style={{
-                    position: "absolute", top: "8px", right: "10px", background: "rgba(0,0,0,0.4)",
-                    border: "none", color: "var(--text-secondary)", "font-size": "1.2rem", cursor: "pointer",
-                    "line-height": 1, width: "28px", height: "28px", "border-radius": "0",
+                    position: "absolute", top: "26px", right: "26px", background: "rgba(0,0,0,0.45)",
+                    border: "none", padding: "0", cursor: "pointer", "border-radius": "0", "z-index": "6",
+                    display: "flex", "align-items": "center", "justify-content": "center",
+                    width: "30px", height: "30px",
                   }}
-                >✕</button>
+                >
+                  <img src="/images/ui/close_2_t.png" alt="Close" style={{ width: "22px", height: "22px", display: "block" }} />
+                </button>
                 <div style={{
-                  display: "flex", "align-items": "center", gap: "12px", padding: "14px 20px",
+                  display: "flex", "align-items": "center", gap: "12px", padding: "14px 28px",
                   ...(image() ? { position: "absolute", bottom: 0, left: 0, right: 0 } : {}),
                 }}>
                   <Show when={!image()}>
@@ -297,8 +305,8 @@ export default function BuildingModal(props: Props) {
                 </div>
               </div>
 
-              <div style={{ padding: "18px 24px 24px" }}>
-                <p style={{ color: "var(--text-secondary)", "font-size": "0.88rem", "line-height": 1.5, "margin-bottom": "18px" }}>
+              <div style={{ padding: "24px 32px 28px" }}>
+                <p style={{ color: "var(--text-secondary)", "font-size": "0.88rem", "line-height": 1.5, "margin-bottom": "22px" }}>
                   {b().description}
                 </p>
 
@@ -322,7 +330,7 @@ export default function BuildingModal(props: Props) {
                       const near = () => !over() && housingRatio() >= 0.9;
                       const accent = () => over() ? "var(--accent-red)" : near() ? "var(--accent-gold)" : "var(--accent-green)";
                       return (
-                        <div style={{ "margin-bottom": "18px", padding: "12px 14px", background: "var(--bg-card)", border: "1px solid var(--border-color)" }}>
+                        <div style={{ "margin-bottom": "22px", padding: "12px 14px", background: "var(--bg-card)", border: "1px solid var(--border-color)" }}>
                           <div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "0.6px", "margin-bottom": "8px" }}>Housing</div>
                           <div style={{ display: "flex", "align-items": "baseline", gap: "8px" }}>
                             <span style={{ "font-size": "1.15rem" }}>🏠 <b>{occupancy()}</b> / {popCap()}</span>
@@ -350,7 +358,7 @@ export default function BuildingModal(props: Props) {
                       const near = () => !over() && foodRatio() >= 0.9;
                       const accent = () => over() ? "var(--accent-red)" : near() ? "var(--accent-gold)" : "var(--accent-green)";
                       return (
-                        <div style={{ "margin-bottom": "18px", padding: "12px 14px", background: "var(--bg-card)", border: "1px solid var(--border-color)" }}>
+                        <div style={{ "margin-bottom": "22px", padding: "12px 14px", background: "var(--bg-card)", border: "1px solid var(--border-color)" }}>
                           <div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "0.6px", "margin-bottom": "8px" }}>Food stores</div>
                           <div style={{ display: "flex", "align-items": "baseline", gap: "8px" }}>
                             <span style={{ "font-size": "1.15rem" }}>🍞 <b>{Math.floor(foodStored())}</b> / {foodCap()}</span>
@@ -373,7 +381,7 @@ export default function BuildingModal(props: Props) {
 
                   {/* Shrine — today's deity + offering status (rotation lives on the page). */}
                   <Show when={id() === "shrine" && level() > 0 && !playerBuilding()?.damaged}>
-                    <div style={{ "margin-bottom": "18px", padding: "12px 14px", background: "var(--bg-card)", border: "1px solid var(--border-color)" }}>
+                    <div style={{ "margin-bottom": "22px", padding: "12px 14px", background: "var(--bg-card)", border: "1px solid var(--border-color)" }}>
                       <div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "0.6px", "margin-bottom": "8px" }}>Today at the shrine</div>
                       <div style={{ display: "flex", "align-items": "center", gap: "8px", "font-size": "1.05rem" }}>
                         <span style={{ "font-size": "1.3rem" }}>{shrineDeity().icon}</span>
@@ -396,7 +404,7 @@ export default function BuildingModal(props: Props) {
                         </div>
                       );
                       return (
-                        <div style={{ "margin-bottom": "18px", padding: "12px 14px", background: "var(--bg-card)", border: "1px solid var(--border-color)" }}>
+                        <div style={{ "margin-bottom": "22px", padding: "12px 14px", background: "var(--bg-card)", border: "1px solid var(--border-color)" }}>
                           <div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "0.6px", "margin-bottom": "8px" }}>The house tonight</div>
                           {row("🛏️ Beds filled", `${rd.occupiedRooms} / ${rd.rooms}`)}
                           {row("👤 Servers", `${rd.servers} / ${rd.serversNeeded}`, short ? "var(--accent-red)" : undefined)}
@@ -440,7 +448,7 @@ export default function BuildingModal(props: Props) {
                       href={workspace()!.route}
                       style={{
                         display: "flex", "align-items": "center", "justify-content": "center", gap: "6px",
-                        "margin-bottom": "18px", padding: "10px", "text-decoration": "none",
+                        "margin-bottom": "22px", padding: "10px", "text-decoration": "none",
                         background: "rgba(212, 175, 55, 0.12)", border: "1px solid var(--accent-gold)",
                         color: "var(--accent-gold)", "font-size": "0.9rem",
                       }}
@@ -451,7 +459,7 @@ export default function BuildingModal(props: Props) {
 
                   {/* Tools — installed gear that unlocks/boosts this building's work. */}
                   <Show when={tools().length > 0 && level() > 0}>
-                    <div style={{ "margin-bottom": "18px" }}>
+                    <div style={{ "margin-bottom": "22px" }}>
                       <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "0.6px", "margin-bottom": "8px" }}>Tools</div>
                       <For each={tools()}>
                         {(t) => {
@@ -481,7 +489,7 @@ export default function BuildingModal(props: Props) {
                       (hidden while damaged; you can't work a cracked one). */}
                   <Show when={id() === "cistern" && level() > 0 && !playerBuilding()?.damaged}>
                     <div style={{
-                      "margin-bottom": "18px", padding: "14px", background: "var(--bg-card)",
+                      "margin-bottom": "22px", padding: "14px", background: "var(--bg-card)",
                       border: `1px solid ${sluiceOpen() ? "var(--accent-blue)" : "var(--accent-gold)"}`,
                     }}>
                       <div style={{ display: "flex", "justify-content": "space-between", "align-items": "center", gap: "12px", "flex-wrap": "wrap" }}>
@@ -509,7 +517,7 @@ export default function BuildingModal(props: Props) {
                   {/* Brewery — brewing management, inline (pause a drink to stop it
                       drawing from your stores; the tavern only pours what's on its menu). */}
                   <Show when={id() === "brewery" && level() > 0 && !playerBuilding()?.damaged}>
-                    <div style={{ "margin-bottom": "18px" }}>
+                    <div style={{ "margin-bottom": "22px" }}>
                       <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "0.6px", "margin-bottom": "8px" }}>Brewing</div>
                       <For each={TAVERN_COMMODITY_DRINKS.filter((d) => d.requiresBuilding === "brewery")}>
                         {(d) => {
@@ -563,7 +571,7 @@ export default function BuildingModal(props: Props) {
                   {/* Current production — the ACTUAL rate (season/staff-adjusted) + why. */}
                   <Show when={currentLevel()?.production}>
                     {(prod) => (
-                      <div style={{ "margin-bottom": "18px", padding: "10px 12px", background: "var(--bg-card)" }}>
+                      <div style={{ "margin-bottom": "22px", padding: "10px 12px", background: "var(--bg-card)" }}>
                         <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>Current Production</div>
                         <div style={{ "font-size": "1.1rem", color: "var(--accent-green)" }}>
                           +{currentProdRate()}/h {prod().resource}
@@ -595,7 +603,7 @@ export default function BuildingModal(props: Props) {
 
                   {/* Iron mine — hardcoded output (no production field), so its own card. */}
                   <Show when={id() === "iron_mine" && level() > 0}>
-                    <div style={{ "margin-bottom": "18px", padding: "10px 12px", background: "var(--bg-card)" }}>
+                    <div style={{ "margin-bottom": "22px", padding: "10px 12px", background: "var(--bg-card)" }}>
                       <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>Current Production</div>
                       <div style={{ "font-size": "1.1rem", color: "var(--accent-green)" }}>+{ironRate()}/h iron</div>
                       <div style={{ "font-size": "0.82rem", color: "var(--text-muted)", "margin-top": "2px" }}>· a chance of gems &amp; astral shards in the deep veins</div>
@@ -609,7 +617,7 @@ export default function BuildingModal(props: Props) {
 
                   {/* Yield by season — the wild larder thins toward winter. */}
                   <Show when={isGathering() && level() > 0}>
-                    <div style={{ "margin-bottom": "18px" }}>
+                    <div style={{ "margin-bottom": "22px" }}>
                       <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "0.6px", "margin-bottom": "8px" }}>Yield by season</div>
                       <div style={{ display: "flex", gap: "6px" }}>
                         <For each={SEASONS}>
@@ -638,7 +646,7 @@ export default function BuildingModal(props: Props) {
                   {/* Active upgrade with cancel. */}
                   <Show when={playerBuilding()?.upgrading && playerBuilding()?.upgradeRemaining}>
                     <div style={{
-                      "margin-bottom": "18px", padding: "12px", background: "rgba(52, 152, 219, 0.1)",
+                      "margin-bottom": "22px", padding: "12px", background: "rgba(52, 152, 219, 0.1)",
                       border: "1px solid var(--accent-blue)", color: "var(--accent-blue)",
                       display: "flex", "justify-content": "space-between", "align-items": "center",
                     }}>
@@ -659,7 +667,7 @@ export default function BuildingModal(props: Props) {
                         {/* Queue full note. */}
                         <Show when={queueFull() && !playerBuilding()?.upgrading}>
                           <div style={{
-                            "margin-bottom": "18px", padding: "10px", background: "rgba(245, 197, 66, 0.1)",
+                            "margin-bottom": "22px", padding: "10px", background: "rgba(245, 197, 66, 0.1)",
                             border: "1px solid var(--accent-gold)", color: "var(--accent-gold)", "font-size": "0.85rem",
                           }}>
                             Build queue full ({actions.getActiveQueueCount()}/{actions.getMasonBonuses().queueSlots})
@@ -849,6 +857,14 @@ export default function BuildingModal(props: Props) {
                   </Show>
                 </Show>
               </div>
+              </div>{/* end scrollable content */}
+              {/* Gold ornament frame — drawn OVER the edges so the banner bleeds
+                  to the modal's edge underneath it (never insets the content). */}
+              <div aria-hidden="true" style={{
+                position: "absolute", inset: "0", "pointer-events": "none", "z-index": "5",
+                border: "20px solid transparent",
+                "border-image": "url(/images/frames/item_frame_uncommon.png) 34 stretch",
+              }} />
             </div>
           )}
         </Show>

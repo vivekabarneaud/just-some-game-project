@@ -336,6 +336,16 @@ body {
   font-family: var(--font-body);
   color: var(--text-primary);
   line-height: 1.5;
+  /* PREVIEW: hand-drawn gold dagger cursor. Hotspot near the tip (top-left). */
+  cursor: url("/images/ui/cursor_32.png") 3 3, auto;
+}
+/* Keep the dagger on clickables too (else they'd fall back to the system hand). */
+button, a, [role="button"], .building-card, .resource-item.has-dropdown, .upgrade-btn, .btn-secondary {
+  cursor: url("/images/ui/cursor_32.png") 3 3, pointer;
+}
+/* Text fields keep the I-beam so typing still reads right. */
+input, textarea, select {
+  cursor: text;
 }
 
 ::-webkit-scrollbar {

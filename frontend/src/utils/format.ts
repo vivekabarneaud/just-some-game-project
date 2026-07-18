@@ -13,6 +13,7 @@ export function formatTimeShort(seconds: number): string {
  *  remainder in the minute range. Use for live timers / countdowns where the
  *  player wants to see progress every tick. */
 export function formatTimeLong(seconds: number): string {
+  seconds = Math.round(seconds); // avoid float tails (e.g. repair time = build × 0.3)
   if (seconds < 60) return `${seconds}s`;
   if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
   const h = Math.floor(seconds / 3600);
