@@ -1435,6 +1435,10 @@ body {
   border-radius: 6px;
   font-size: 0.85rem;
   color: var(--accent-green);
+  /* Effects may carry explicit line breaks (e.g. the Warehouse's two caps) —
+     honour them, but still wrap long single-line effects normally. */
+  white-space: pre-line;
+  line-height: 1.5;
 }
 
 .build-time {

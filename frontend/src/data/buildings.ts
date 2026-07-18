@@ -85,18 +85,33 @@ export interface PlayerBuilding {
   upgrading: boolean;
   upgradeRemaining?: number; // seconds remaining (game-time)
   damaged: boolean;
+  /** Seconds left on an in-progress repair (game-time). Set while repairing a
+   *  damaged building; the building stays `damaged` until it hits 0. */
+  repairRemaining?: number;
 }
 
-/** Repair cost: 30% of current level's build cost */
+/** A repair costs (and takes) 30% of the current level's build — it's mending,
+ *  not rebuilding. Same fraction on both axes so the rule reads cleanly. */
+export const REPAIR_FRACTION = 0.3;
 export function getRepairCost(building: BuildingDefinition, level: number): BuildingCost {
   if (level <= 0) return { wood: 0, stone: 0 };
   const levelDef = building.levels[level - 1];
   if (!levelDef) return { wood: 0, stone: 0 };
   return {
-    wood: Math.floor(levelDef.cost.wood * 0.3),
-    stone: Math.floor(levelDef.cost.stone * 0.3),
+    wood: Math.floor(levelDef.cost.wood * REPAIR_FRACTION),
+    stone: Math.floor(levelDef.cost.stone * REPAIR_FRACTION),
   };
 }
+/** Repair time in seconds (game-time) — 30% of the current level's build time. */
+export function getRepairTime(building: BuildingDefinition, level: number): number {
+  if (level <= 0) return 0;
+  return (building.levels[level - 1]?.buildTime ?? 0) * REPAIR_FRACTION;
+}
+
+/** Buildings that, when damaged, work as if a LEVEL LOWER (reduced capacity)
+ *  rather than going fully inactive — so a repair restores that level's worth of
+ *  capacity, and the modal can preview the restoration (damaged caps → full). */
+export const DAMAGE_LOWERS_LEVEL = new Set(["warehouse", "houses"]);
 
 // ─── Settlement tiers ────────────────────────────────────────────
 
@@ -857,7 +872,9 @@ export const CRAFTING_STORAGE_PER_WAREHOUSE_LEVEL = 100;
  *  `Math.min(300, ...)` magic numbers. */
 export function craftingMaterialCap(buildings: PlayerBuilding[]): number {
   const warehouse = buildings.find((b) => b.buildingId === "warehouse");
-  return BASE_CRAFTING_STORAGE + (warehouse?.level ?? 0) * CRAFTING_STORAGE_PER_WAREHOUSE_LEVEL;
+  // Damaged warehouse holds as if a level lower (mirrors calcStorageCaps).
+  const level = warehouse?.damaged ? Math.max(0, (warehouse.level ?? 0) - 1) : (warehouse?.level ?? 0);
+  return BASE_CRAFTING_STORAGE + level * CRAFTING_STORAGE_PER_WAREHOUSE_LEVEL;
 }
 
 // Food storage — Pantry

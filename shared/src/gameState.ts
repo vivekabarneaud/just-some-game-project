@@ -42,6 +42,8 @@ export interface PlayerBuilding {
   upgrading: boolean;
   upgradeRemaining?: number;
   damaged: boolean;
+  /** Seconds left on an in-progress repair; stays `damaged` until it hits 0. */
+  repairRemaining?: number;
 }
 
 // ─── Farming ────────────────────────────────────────────────────

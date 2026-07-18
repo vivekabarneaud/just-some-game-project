@@ -11,6 +11,8 @@ import {
   applyMasonCostReduction,
   applyMasonTimeReduction,
   getRepairCost,
+  getRepairTime,
+  DAMAGE_LOWERS_LEVEL,
   getBuildingImage,
   isStaffable,
   buildingWorkspace,
@@ -180,6 +182,13 @@ export default function BuildingModal(props: Props) {
   const occupancy = () => totalPopulation(state.citizens) + state.adventurers.filter((a) => a.alive).length;
   const popCap = () => actions.getMaxPopulation();
   const housingRatio = () => { const c = popCap(); return c > 0 ? occupancy() / c : 1; };
+
+  // Repair — a mending job (30% of the level's build cost + time). The building
+  // stays damaged while it runs, so repair is the ONLY action shown when broken.
+  const repairCost = () => getRepairCost(building()!, level());
+  const repairTime = () => getRepairTime(building()!, level());
+  const isRepairing = () => playerBuilding()?.repairRemaining != null;
+  const canRepairNow = () => state.resources.wood >= repairCost().wood && state.resources.stone >= repairCost().stone;
   // Buildings the next tier opens up (tier-gated AND past their story gate, so we
   // only promise ones that will actually appear). Empty unless the level advances.
   const unlockedNextTier = () => tierAdvances()
@@ -450,157 +459,197 @@ export default function BuildingModal(props: Props) {
                     </div>
                   </Show>
 
-                  {/* Damaged → repair. */}
-                  <Show when={playerBuilding()?.damaged}>
-                    <div style={{ "margin-bottom": "18px", padding: "12px", background: "rgba(231, 76, 60, 0.1)", border: "1px solid var(--accent-red)" }}>
-                      <div style={{ color: "var(--accent-red)", "margin-bottom": "8px" }}>
-                        {id() === "houses"
-                          ? "Homes lie in ruins — the settlement shelters a level fewer, and folk crowd the streets until you rebuild them."
-                          : "This building is damaged and inactive. Repair it to restore function."}
-                      </div>
-                      <button
-                        class="upgrade-btn"
-                        disabled={
-                          state.resources.wood < getRepairCost(building()!, level()).wood ||
-                          state.resources.stone < getRepairCost(building()!, level()).stone
-                        }
-                        onClick={() => actions.repairBuilding(id())}
-                        style={{ "font-size": "0.85rem", padding: "6px 14px" }}
-                      >
-                        Repair ({getRepairCost(building()!, level()).wood} wood, {getRepairCost(building()!, level()).stone} stone)
-                      </button>
-                    </div>
-                  </Show>
-
-                  {/* Queue full note. */}
-                  <Show when={queueFull() && !playerBuilding()?.upgrading}>
-                    <div style={{
-                      "margin-bottom": "18px", padding: "10px", background: "rgba(245, 197, 66, 0.1)",
-                      border: "1px solid var(--accent-gold)", color: "var(--accent-gold)", "font-size": "0.85rem",
-                    }}>
-                      Build queue full ({actions.getActiveQueueCount()}/{actions.getMasonBonuses().queueSlots})
-                      {masonLevel() === 0 ? " — Build a Mason's Guild to unlock more slots" : " — Upgrade Mason's Guild for more slots"}
-                    </div>
-                  </Show>
-
-                  {/* Build / upgrade. */}
-                  <Show when={nextLevel()}>
-                    {(next) => (
+                  {/* Action area — repair takes over entirely while damaged; the
+                      upgrade flow only shows on a whole building. */}
+                  <Show
+                    when={playerBuilding()?.damaged}
+                    fallback={
                       <>
-                        <Show
-                          when={id() === "town_hall"}
-                          fallback={
-                            <>
-                              <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "12px", color: "var(--text-primary)" }}>
-                                {level() === 0 ? "Build Cost" : `Upgrade to Level ${level() + 1}`}
-                              </h3>
-
-                              <Show when={next().production && !currentLevel()?.production}>
-                                <div class="stat-row">
-                                  <span class="stat-label">Production</span>
-                                  <span class="stat-value" style={{ color: "var(--accent-green)" }}>
-                                    +{next().production!.rate}/h {next().production!.resource}
-                                  </span>
-                                </div>
-                              </Show>
-
-                              <Show when={actions.getBuildingEffect(id(), level() + 1)}>
-                                {(effect) => <div class="building-effect">{effect()}</div>}
-                              </Show>
-                            </>
-                          }
-                        >
-                          {/* Town Hall — a before → after of what this upgrade changes. */}
-                          <p style={{ "font-size": "0.82rem", color: "var(--text-secondary)", "margin-bottom": "12px", "line-height": 1.45 }}>
-                            The Town Hall caps every other building at its own level, and its rank unlocks new ones.
-                          </p>
-                          <div style={{ display: "flex", "flex-wrap": "wrap", gap: "10px", "align-items": "stretch" }}>
-                            {/* NOW */}
-                            <div style={{ flex: "1 1 44%", "min-width": "150px", padding: "10px 12px", background: "var(--bg-card)", border: "1px solid var(--border-color)" }}>
-                              <div style={{ "font-size": "0.66rem", "text-transform": "uppercase", "letter-spacing": "0.6px", color: "var(--text-muted)", "margin-bottom": "8px" }}>Now · Level {level()}</div>
-                              <div style={{ display: "flex", "justify-content": "space-between", gap: "8px", "font-size": "0.82rem", padding: "3px 0" }}><span style={{ color: "var(--text-muted)" }}>Rank</span><b>{getSettlementName(currentTier())}</b></div>
-                              <div style={{ display: "flex", "justify-content": "space-between", gap: "8px", "font-size": "0.82rem", padding: "3px 0" }}><span style={{ color: "var(--text-muted)" }}>Build cap</span><b>Lv.{level()}</b></div>
-                              <div style={{ display: "flex", "justify-content": "space-between", gap: "8px", "font-size": "0.82rem", padding: "3px 0" }}><span style={{ color: "var(--text-muted)" }}>Treasury</span><b>{townHallTreasury(level()).toLocaleString()}</b></div>
-                            </div>
-                            {/* NEXT */}
-                            <div style={{ flex: "1 1 44%", "min-width": "150px", padding: "10px 12px", background: "rgba(46, 204, 113, 0.08)", border: "1px solid var(--accent-green)" }}>
-                              <div style={{ "font-size": "0.66rem", "text-transform": "uppercase", "letter-spacing": "0.6px", color: "var(--accent-green)", "margin-bottom": "8px" }}>Level {level() + 1}</div>
-                              <div style={{ display: "flex", "justify-content": "space-between", gap: "8px", "font-size": "0.82rem", padding: "3px 0" }}><span style={{ color: "var(--text-muted)" }}>Rank</span><b>{getSettlementName(nextTier())}{tierAdvances() ? " ▲" : ""}</b></div>
-                              <div style={{ display: "flex", "justify-content": "space-between", gap: "8px", "font-size": "0.82rem", padding: "3px 0" }}><span style={{ color: "var(--text-muted)" }}>Build cap</span><b>Lv.{level() + 1}</b></div>
-                              <div style={{ display: "flex", "justify-content": "space-between", gap: "8px", "font-size": "0.82rem", padding: "3px 0" }}><span style={{ color: "var(--text-muted)" }}>Treasury</span><b>{townHallTreasury(level() + 1).toLocaleString()}</b></div>
-                              <Show when={unlockedNextTier().length > 0}>
-                                <div style={{ "margin-top": "8px", "padding-top": "8px", "border-top": "1px solid var(--border-color)" }}>
-                                  <div style={{ "font-size": "0.66rem", "text-transform": "uppercase", "letter-spacing": "0.6px", color: "var(--text-muted)", "margin-bottom": "6px" }}>Unlocks</div>
-                                  <div style={{ display: "flex", "flex-wrap": "wrap", gap: "5px" }}>
-                                    <For each={unlockedNextTier()}>
-                                      {(bd) => (
-                                        <span style={{ display: "inline-flex", "align-items": "center", gap: "4px", padding: "3px 7px", background: "var(--bg-secondary)", border: "1px solid var(--border-color)", "font-size": "0.74rem" }}>
-                                          <span>{bd.icon}</span>{bd.name}
-                                        </span>
-                                      )}
-                                    </For>
-                                  </div>
-                                </div>
-                              </Show>
-                            </div>
+                        {/* Queue full note. */}
+                        <Show when={queueFull() && !playerBuilding()?.upgrading}>
+                          <div style={{
+                            "margin-bottom": "18px", padding: "10px", background: "rgba(245, 197, 66, 0.1)",
+                            border: "1px solid var(--accent-gold)", color: "var(--accent-gold)", "font-size": "0.85rem",
+                          }}>
+                            Build queue full ({actions.getActiveQueueCount()}/{actions.getMasonBonuses().queueSlots})
+                            {masonLevel() === 0 ? " — Build a Mason's Guild to unlock more slots" : " — Upgrade Mason's Guild for more slots"}
                           </div>
                         </Show>
 
-                        {/* Shared compact cost + build time — same on every building modal. */}
-                        <div style={{ display: "flex", "align-items": "center", "flex-wrap": "wrap", gap: "14px", margin: "16px 0 0", "font-size": "0.9rem" }}>
-                          <span style={{ color: "var(--text-muted)" }}>Cost</span>
-                          {COST_RESOURCES.map((res) => (
-                            <span style={{ display: "inline-flex", "align-items": "center", gap: "4px", color: canAffordRes(res.id) ? "var(--text-primary)" : "var(--accent-red)" }}>
-                              <span>{res.icon}</span>{adjustedCost()![res.id as "wood" | "stone"].toLocaleString()}
-                            </span>
-                          ))}
-                          <span style={{ color: "var(--text-muted)" }}>· ⏱ {formatTime(adjustedTime()!)}</span>
-                        </div>
+                        {/* Build / upgrade. */}
+                        <Show when={nextLevel()}>
+                          {(next) => (
+                            <>
+                              <Show
+                                when={id() === "town_hall"}
+                                fallback={
+                                  <>
+                                    <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "12px", color: "var(--text-primary)" }}>
+                                      {level() === 0 ? "Build Cost" : `Upgrade to Level ${level() + 1}`}
+                                    </h3>
 
-                        {/* Shared: prereqs + upgrade + panic. */}
-                        <div style={{ "margin-top": "18px" }}>
-                          <Show when={!tierPrereqs().met}>
-                            <div style={{
-                              "margin-bottom": "10px", padding: "10px", background: "rgba(245, 197, 66, 0.1)",
-                              border: "1px solid var(--accent-gold)", color: "var(--accent-gold)", "font-size": "0.85rem",
-                            }}>
-                              🔒 Requires: {tierPrereqs().missing.join(", ")}
-                            </div>
-                          </Show>
-                          <button class="upgrade-btn" disabled={!canUpgrade()} onClick={() => actions.upgradeBuilding(id())}>
-                            {level() === 0 ? `Build ${b().name}` : `Upgrade to Level ${level() + 1}`}
-                          </button>
-                          <Show when={panicEligible()}>
-                            <Tooltip block style={{ "margin-top": "8px" }} text={canPanicBuild()
-                              ? `Soft-lock recovery: spend ${PANIC_BUILD_SHARD_COST} astral shards to build instantly`
-                              : `Need ${PANIC_BUILD_SHARD_COST - state.astralShards} more astral shards`}>
-                              <button
-                                class="btn-secondary"
-                                disabled={!canPanicBuild()}
-                                onClick={() => actions.panicBuildBuilding(id())}
-                                style={{ width: "100%", "justify-content": "center" }}
+                                    <Show when={next().production && !currentLevel()?.production}>
+                                      <div class="stat-row">
+                                        <span class="stat-label">Production</span>
+                                        <span class="stat-value" style={{ color: "var(--accent-green)" }}>
+                                          +{next().production!.rate}/h {next().production!.resource}
+                                        </span>
+                                      </div>
+                                    </Show>
+
+                                    <Show when={actions.getBuildingEffect(id(), level() + 1)}>
+                                      {(effect) => <div class="building-effect">{effect()}</div>}
+                                    </Show>
+                                  </>
+                                }
                               >
-                                ✨ Use {PANIC_BUILD_SHARD_COST} Astral Shards to build instantly
-                              </button>
-                            </Tooltip>
-                            <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-top": "4px", "text-align": "center" }}>
-                              Stuck? This skips the resource cost.
-                            </div>
-                          </Show>
-                        </div>
-                      </>
-                    )}
-                  </Show>
+                                {/* Town Hall — a before → after of what this upgrade changes. */}
+                                <p style={{ "font-size": "0.82rem", color: "var(--text-secondary)", "margin-bottom": "12px", "line-height": 1.45 }}>
+                                  The Town Hall caps every other building at its own level, and its rank unlocks new ones.
+                                </p>
+                                <div style={{ display: "flex", "flex-wrap": "wrap", gap: "10px", "align-items": "stretch" }}>
+                                  {/* NOW */}
+                                  <div style={{ flex: "1 1 44%", "min-width": "150px", padding: "10px 12px", background: "var(--bg-card)", border: "1px solid var(--border-color)" }}>
+                                    <div style={{ "font-size": "0.66rem", "text-transform": "uppercase", "letter-spacing": "0.6px", color: "var(--text-muted)", "margin-bottom": "8px" }}>Now · Level {level()}</div>
+                                    <div style={{ display: "flex", "justify-content": "space-between", gap: "8px", "font-size": "0.82rem", padding: "3px 0" }}><span style={{ color: "var(--text-muted)" }}>Rank</span><b>{getSettlementName(currentTier())}</b></div>
+                                    <div style={{ display: "flex", "justify-content": "space-between", gap: "8px", "font-size": "0.82rem", padding: "3px 0" }}><span style={{ color: "var(--text-muted)" }}>Build cap</span><b>Lv.{level()}</b></div>
+                                    <div style={{ display: "flex", "justify-content": "space-between", gap: "8px", "font-size": "0.82rem", padding: "3px 0" }}><span style={{ color: "var(--text-muted)" }}>Treasury</span><b>{townHallTreasury(level()).toLocaleString()}</b></div>
+                                  </div>
+                                  {/* NEXT */}
+                                  <div style={{ flex: "1 1 44%", "min-width": "150px", padding: "10px 12px", background: "rgba(46, 204, 113, 0.08)", border: "1px solid var(--accent-green)" }}>
+                                    <div style={{ "font-size": "0.66rem", "text-transform": "uppercase", "letter-spacing": "0.6px", color: "var(--accent-green)", "margin-bottom": "8px" }}>Level {level() + 1}</div>
+                                    <div style={{ display: "flex", "justify-content": "space-between", gap: "8px", "font-size": "0.82rem", padding: "3px 0" }}><span style={{ color: "var(--text-muted)" }}>Rank</span><b>{getSettlementName(nextTier())}{tierAdvances() ? " ▲" : ""}</b></div>
+                                    <div style={{ display: "flex", "justify-content": "space-between", gap: "8px", "font-size": "0.82rem", padding: "3px 0" }}><span style={{ color: "var(--text-muted)" }}>Build cap</span><b>Lv.{level() + 1}</b></div>
+                                    <div style={{ display: "flex", "justify-content": "space-between", gap: "8px", "font-size": "0.82rem", padding: "3px 0" }}><span style={{ color: "var(--text-muted)" }}>Treasury</span><b>{townHallTreasury(level() + 1).toLocaleString()}</b></div>
+                                    <Show when={unlockedNextTier().length > 0}>
+                                      <div style={{ "margin-top": "8px", "padding-top": "8px", "border-top": "1px solid var(--border-color)" }}>
+                                        <div style={{ "font-size": "0.66rem", "text-transform": "uppercase", "letter-spacing": "0.6px", color: "var(--text-muted)", "margin-bottom": "6px" }}>Unlocks</div>
+                                        <div style={{ display: "flex", "flex-wrap": "wrap", gap: "5px" }}>
+                                          <For each={unlockedNextTier()}>
+                                            {(bd) => (
+                                              <span style={{ display: "inline-flex", "align-items": "center", gap: "4px", padding: "3px 7px", background: "var(--bg-secondary)", border: "1px solid var(--border-color)", "font-size": "0.74rem" }}>
+                                                <span>{bd.icon}</span>{bd.name}
+                                              </span>
+                                            )}
+                                          </For>
+                                        </div>
+                                      </div>
+                                    </Show>
+                                  </div>
+                                </div>
+                              </Show>
 
-                  <Show when={level() >= effectiveMax() && !nextLevel()}>
-                    <div style={{
-                      padding: "12px", background: "rgba(245, 197, 66, 0.1)", border: "1px solid var(--accent-gold)",
-                      color: "var(--accent-gold)", "text-align": "center", "font-family": "var(--font-heading)",
-                    }}>
-                      {level() >= b().maxLevel
-                        ? "Maximum Level Reached"
-                        : `Capped by Town Hall — upgrade Town Hall to lvl ${nextLevelReq()?.requiredTownHallLevel} to raise this cap`}
+                              {/* Compact cost + build time. */}
+                              <div style={{ display: "flex", "align-items": "center", "flex-wrap": "wrap", gap: "14px", margin: "16px 0 0", "font-size": "0.9rem" }}>
+                                <span style={{ color: "var(--text-muted)" }}>Cost</span>
+                                {COST_RESOURCES.map((res) => (
+                                  <span style={{ display: "inline-flex", "align-items": "center", gap: "4px", color: canAffordRes(res.id) ? "var(--text-primary)" : "var(--accent-red)" }}>
+                                    <span>{res.icon}</span>{adjustedCost()![res.id as "wood" | "stone"].toLocaleString()}
+                                  </span>
+                                ))}
+                                <span style={{ color: "var(--text-muted)" }}>· ⏱ {formatTime(adjustedTime()!)}</span>
+                              </div>
+
+                              {/* Prereqs + upgrade + panic. */}
+                              <div style={{ "margin-top": "18px" }}>
+                                <Show when={!tierPrereqs().met}>
+                                  <div style={{
+                                    "margin-bottom": "10px", padding: "10px", background: "rgba(245, 197, 66, 0.1)",
+                                    border: "1px solid var(--accent-gold)", color: "var(--accent-gold)", "font-size": "0.85rem",
+                                  }}>
+                                    🔒 Requires: {tierPrereqs().missing.join(", ")}
+                                  </div>
+                                </Show>
+                                <button class="upgrade-btn" disabled={!canUpgrade()} onClick={() => actions.upgradeBuilding(id())}>
+                                  {level() === 0 ? `Build ${b().name}` : `Upgrade to Level ${level() + 1}`}
+                                </button>
+                                <Show when={panicEligible()}>
+                                  <Tooltip block style={{ "margin-top": "8px" }} text={canPanicBuild()
+                                    ? `Soft-lock recovery: spend ${PANIC_BUILD_SHARD_COST} astral shards to build instantly`
+                                    : `Need ${PANIC_BUILD_SHARD_COST - state.astralShards} more astral shards`}>
+                                    <button
+                                      class="btn-secondary"
+                                      disabled={!canPanicBuild()}
+                                      onClick={() => actions.panicBuildBuilding(id())}
+                                      style={{ width: "100%", "justify-content": "center" }}
+                                    >
+                                      ✨ Use {PANIC_BUILD_SHARD_COST} Astral Shards to build instantly
+                                    </button>
+                                  </Tooltip>
+                                  <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-top": "4px", "text-align": "center" }}>
+                                    Stuck? This skips the resource cost.
+                                  </div>
+                                </Show>
+                              </div>
+                            </>
+                          )}
+                        </Show>
+
+                        <Show when={level() >= effectiveMax() && !nextLevel()}>
+                          <div style={{
+                            padding: "12px", background: "rgba(245, 197, 66, 0.1)", border: "1px solid var(--accent-gold)",
+                            color: "var(--accent-gold)", "text-align": "center", "font-family": "var(--font-heading)",
+                          }}>
+                            {level() >= b().maxLevel
+                              ? "Maximum Level Reached"
+                              : `Capped by Town Hall — upgrade Town Hall to lvl ${nextLevelReq()?.requiredTownHallLevel} to raise this cap`}
+                          </div>
+                        </Show>
+                      </>
+                    }
+                  >
+                    {/* DAMAGED — repair is the only action. */}
+                    <div style={{ "margin-bottom": "16px", padding: "12px", background: "rgba(231, 76, 60, 0.1)", border: "1px solid var(--accent-red)", color: "var(--accent-red)", "line-height": 1.45 }}>
+                      {id() === "houses"
+                        ? "Homes lie in ruins — the settlement shelters a level fewer, and folk crowd the streets until you rebuild them."
+                        : id() === "warehouse"
+                          ? "The stores are breached — they hold as if a level lower, and anything over that spills and is lost until you repair the roof and walls."
+                          : "This building is damaged and inactive. Repair it to restore function."}
                     </div>
+
+                    <Show
+                      when={isRepairing()}
+                      fallback={
+                        <>
+                          {/* What repairing restores — for buildings that lose a
+                              level's worth of capacity while damaged. The effect at
+                              THIS level is exactly "one level lower → full". */}
+                          <Show when={DAMAGE_LOWERS_LEVEL.has(id()) && actions.getBuildingEffect(id(), level())}>
+                            {(effect) => (
+                              <div style={{ "margin-bottom": "16px" }}>
+                                <div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "0.6px", "margin-bottom": "6px" }}>Restored on repair</div>
+                                <div class="building-effect" style={{ "margin-bottom": 0 }}>{effect()}</div>
+                              </div>
+                            )}
+                          </Show>
+
+                          {/* Repair cost + time (mirrors the upgrade cost row). */}
+                          <div style={{ display: "flex", "align-items": "center", "flex-wrap": "wrap", gap: "14px", margin: "0 0 18px", "font-size": "0.9rem" }}>
+                            <span style={{ color: "var(--text-muted)" }}>Cost</span>
+                            {COST_RESOURCES.map((res) => {
+                              const resId = res.id as "wood" | "stone";
+                              const afford = (state.resources[resId] as number) >= repairCost()[resId];
+                              return (
+                                <span style={{ display: "inline-flex", "align-items": "center", gap: "4px", color: afford ? "var(--text-primary)" : "var(--accent-red)" }}>
+                                  <span>{res.icon}</span>{repairCost()[resId].toLocaleString()}
+                                </span>
+                              );
+                            })}
+                            <span style={{ color: "var(--text-muted)" }}>· ⏱ {formatTime(repairTime())}</span>
+                          </div>
+                          <button class="upgrade-btn" disabled={!canRepairNow()} onClick={() => actions.repairBuilding(id())}>
+                            Repair
+                          </button>
+                        </>
+                      }
+                    >
+                      <div style={{
+                        padding: "12px", background: "rgba(52, 152, 219, 0.1)", border: "1px solid var(--accent-blue)",
+                        color: "var(--accent-blue)", display: "flex", "align-items": "center", gap: "8px",
+                      }}>
+                        🔨 Repairing — <Countdown remainingSeconds={playerBuilding()!.repairRemaining!} /> remaining
+                      </div>
+                    </Show>
                   </Show>
                 </Show>
               </div>

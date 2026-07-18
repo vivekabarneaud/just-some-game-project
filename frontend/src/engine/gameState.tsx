@@ -47,6 +47,7 @@ import {
   WINTER_NO_WOOD_HAPPINESS,
   WINTER_NO_WOOD_DEATH_RATE,
   getRepairCost,
+  getRepairTime,
   getSettlementTier,
   getSettlementName,
   isBuildingUnlocked,
@@ -3201,7 +3202,10 @@ function calcStorageCaps(buildings: PlayerBuilding[]): StorageCaps {
   const warehouse = buildings.find((b) => b.buildingId === "warehouse");
   const pantry = buildings.find((b) => b.buildingId === "pantry");
   const th = buildings.find((b) => b.buildingId === "town_hall");
-  const materialCap = BASE_MATERIAL_STORAGE + (warehouse?.level ?? 0) * MATERIAL_STORAGE_PER_WAREHOUSE_LEVEL;
+  // A damaged warehouse holds as if a level lower — the overflow above the
+  // lowered cap spills and is lost (raiders scatter/burn the exposed stores).
+  const whLevel = warehouse?.damaged ? Math.max(0, (warehouse.level ?? 0) - 1) : (warehouse?.level ?? 0);
+  const materialCap = BASE_MATERIAL_STORAGE + whLevel * MATERIAL_STORAGE_PER_WAREHOUSE_LEVEL;
   const cistern = buildings.find((b) => b.buildingId === CISTERN_ID);
   return {
     gold: BASE_GOLD_STORAGE + (th?.level ?? 0) * GOLD_STORAGE_PER_TH_LEVEL,
@@ -3263,7 +3267,7 @@ function calcBuildingEffect(buildingId: string, nextLevel: number): string | nul
       const next = BASE_MATERIAL_STORAGE + nextLevel * MATERIAL_STORAGE_PER_WAREHOUSE_LEVEL;
       const curCraft = BASE_CRAFTING_STORAGE + Math.max(0, currentLevel) * CRAFTING_STORAGE_PER_WAREHOUSE_LEVEL;
       const nextCraft = BASE_CRAFTING_STORAGE + nextLevel * CRAFTING_STORAGE_PER_WAREHOUSE_LEVEL;
-      return `Wood & Stone: ${cur.toLocaleString()} → ${next.toLocaleString()} · Crafting materials: ${curCraft.toLocaleString()} → ${nextCraft.toLocaleString()}`;
+      return `Wood & Stone: ${cur.toLocaleString()} → ${next.toLocaleString()}\nCrafting materials: ${curCraft.toLocaleString()} → ${nextCraft.toLocaleString()}`;
     }
     case "pantry": {
       const cur = BASE_FOOD_STORAGE + Math.max(0, currentLevel) * FOOD_STORAGE_PER_PANTRY_LEVEL;
@@ -4157,6 +4161,18 @@ export function GameProvider(props: ParentProps) {
         s.resources.wood = Math.min(caps.wood, Math.max(0, s.resources.wood + rates.wood * happinessMod * elapsedHours));
         s.resources.stone = Math.min(caps.stone, Math.max(0, s.resources.stone + rates.stone * happinessMod * elapsedHours));
 
+        // Enforce the crafting-material cap every tick (not just on production),
+        // so a lowered cap — e.g. a damaged warehouse holding a level less —
+        // spills the overflow instead of silently keeping over-cap stock.
+        {
+          const ccap = craftingMaterialCap(s.buildings);
+          s.wool = Math.min(ccap, s.wool);
+          s.fiber = Math.min(ccap, s.fiber);
+          s.leather = Math.min(ccap, s.leather);
+          s.iron = Math.min(ccap, s.iron);
+          s.bone = Math.min(ccap, s.bone);
+        }
+
         // ── Water — stream + wells + rain-catching cisterns fill the reserve
         // (unless the sluice is open, when it drains instead). A harsh weather
         // event then damages standing crops for as long as it lasts. ──
@@ -4647,6 +4663,20 @@ export function GameProvider(props: ParentProps) {
                 if (live) playSound("plop");
               }
             }
+          }
+        }
+
+        // Tick in-progress building repairs — mending keeps the building
+        // `damaged` (reduced function) until the timer runs out, then restores it.
+        for (const b of s.buildings) {
+          if (b.repairRemaining == null) continue;
+          b.repairRemaining -= elapsedSeconds;
+          if (b.repairRemaining <= 0) {
+            b.repairRemaining = undefined;
+            b.damaged = false;
+            const def = BUILDINGS.find((d) => d.id === b.buildingId);
+            if (def) pushEvent(s, "building_repaired", "🔨", `${def.name} repaired`);
+            if (live) playSound("plop");
           }
         }
 
@@ -7054,7 +7084,7 @@ export function GameProvider(props: ParentProps) {
     },
     repairBuilding(buildingId) {
       const pb = state.buildings.find((b) => b.buildingId === buildingId);
-      if (!pb || !pb.damaged) return false;
+      if (!pb || !pb.damaged || pb.repairRemaining != null) return false; // not damaged, or already under repair
       const def = BUILDINGS.find((b) => b.id === buildingId);
       if (!def) return false;
       const cost = getRepairCost(def, pb.level);
@@ -7063,8 +7093,10 @@ export function GameProvider(props: ParentProps) {
         s.resources.wood -= cost.wood;
         s.resources.stone -= cost.stone;
         const b = s.buildings.find((b) => b.buildingId === buildingId)!;
-        b.damaged = false;
-        pushEvent(s, "building_repaired", "🔨", `${def.name} repaired`);
+        // Stays damaged (reduced function) while the mending is underway; the
+        // tick clears `damaged` when repairRemaining hits 0.
+        b.repairRemaining = getRepairTime(def, pb.level);
+        pushEvent(s, "building_repaired", "🔨", `Repairs begun on the ${def.name}`);
       }));
       scheduleSave();
       return true;
