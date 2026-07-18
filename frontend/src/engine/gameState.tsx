@@ -303,7 +303,7 @@ import {
 } from "~/data/quests";
 import { getReadyEvents } from "~/data/events";
 import { TRAVELING_MERCHANTS, getMerchant, merchantIntervalDays } from "~/data/merchants";
-import { calcTavern, REPUTATION_DRIFT_PER_HOUR, TAVERN_FOOD_PER_ROOM_PER_HOUR, MENU_STAPLE_IDS, serversNeeded, menuCapacity, TAVERN_COMMODITY_DRINKS, getCommodityDrink, type TavernCommodityDrink } from "~/data/tavern";
+import { calcTavern, tavernRooms, REPUTATION_DRIFT_PER_HOUR, TAVERN_FOOD_PER_ROOM_PER_HOUR, MENU_STAPLE_IDS, serversNeeded, menuCapacity, TAVERN_COMMODITY_DRINKS, getCommodityDrink, type TavernCommodityDrink } from "~/data/tavern";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { EXOTIC_IDS } from "@medieval-realm/shared/data/exotics";
 import { ALCHEMY_RECIPES, getDiscoverableRecipes, getAvailableAlchemyRecipes, RESEARCH_BASE_COST } from "@medieval-realm/shared/data/alchemy_recipes";
@@ -858,6 +858,9 @@ export interface GameActions {
   /** Food-value per hour the tavern burns cooking dishes to order (0 if no
    *  tavern or nothing servable). Competes with feeding the settlement. */
   getTavernFoodConsumption: () => number;
+  /** At-a-glance tavern readout for the building modal (beds filled, reputation,
+   *  gold/day, food burn). 0s when the tavern is unbuilt or damaged. */
+  getTavernReadout: () => { rooms: number; occupiedRooms: number; occupancy: number; goldPerDay: number; serversNeeded: number; servers: number; reputation: number; foodPerHour: number; damaged: boolean };
   /** Honey gathered per hour across all active hives (seasonal — 0 in winter). */
   getHoneyProduction: () => number;
   /** Net food/h added by passive cooking (produced minus ingredients eaten),
@@ -3172,7 +3175,9 @@ function tickDrink(
   hours: number,
 ): { onMenu: boolean; needed: number; consumed: number } {
   const buildingLvl = s.buildings.find((b) => b.buildingId === cfg.requiresBuilding)?.level ?? 0;
-  const tavernLvl = s.buildings.find((b) => b.buildingId === "tavern")?.level ?? 0;
+  const tavernBldg = s.buildings.find((b) => b.buildingId === "tavern");
+  // A damaged tavern pours nothing (it serves no one until repaired).
+  const tavernLvl = tavernBldg?.damaged ? 0 : (tavernBldg?.level ?? 0);
   const cap = cfg.storageBase + buildingLvl * cfg.storagePerBuildingLevel;
   const stock = () => ((s as unknown as Record<string, number>)[cfg.resource] ?? 0);
   const setStock = (v: number) => { (s as unknown as Record<string, number>)[cfg.resource] = v; };
@@ -3345,9 +3350,7 @@ function calcBuildingEffect(buildingId: string, nextLevel: number): string | nul
     case "tavern": {
       const cur = Math.max(0, currentLevel) * TAVERN_HAPPINESS_PER_LEVEL;
       const next = nextLevel * TAVERN_HAPPINESS_PER_LEVEL;
-      const curAle = Math.max(0, currentLevel) * ALE_CONSUMED_PER_TAVERN_LEVEL;
-      const nextAle = nextLevel * ALE_CONSUMED_PER_TAVERN_LEVEL;
-      return `Happiness: +${cur} → +${next} · Ale cost: ${curAle}/h → ${nextAle}/h`;
+      return `Happiness: +${cur} → +${next} · Beds: ${tavernRooms(Math.max(0, currentLevel))} → ${tavernRooms(nextLevel)} · ${serversNeeded(nextLevel)} servers`;
     }
     case "adventurers_guild": {
       const curRoster = getMaxRoster(Math.max(0, currentLevel));
@@ -4490,7 +4493,9 @@ export function GameProvider(props: ParentProps) {
         //    pour it menu-driven — all generic over TAVERN_COMMODITY_DRINKS (see
         //    tickDrink). Off the menu the barrel fills to cap and rests, so the
         //    brewery stops drawing its input (the runaway-drain fix).
-        const tavernLvl = s.buildings.find((b) => b.buildingId === "tavern")?.level ?? 0;
+        const tavernBldg = s.buildings.find((b) => b.buildingId === "tavern");
+        const tavernLvl = tavernBldg?.level ?? 0;
+        const tavernDamaged = tavernBldg?.damaged ?? false;
         const drinkResults = TAVERN_COMMODITY_DRINKS.map((cfg) => tickDrink(s, cfg, elapsedHours));
 
         // ── Winter cold (clothing reduces wood needed) ──
@@ -4558,8 +4563,10 @@ export function GameProvider(props: ParentProps) {
         // Tavern happiness. Drinks are opt-in: if any drink is on the menu, at
         // least one flowing barrel cheers the settlement and an all-dry board
         // disappoints; feature no drinks and there's no drink-driven swing.
-        if (tavernLvl > 0 && drinkResults.some((r) => r.onMenu)) {
-          const anyFlowing = drinkResults.some((r) => r.onMenu && r.consumed / (r.needed || 1) > 0.5);
+        if (tavernLvl > 0 && (tavernDamaged || drinkResults.some((r) => r.onMenu))) {
+          // Damaged → the dry floor (folk barely gather at a broken tavern);
+          // otherwise the usual swing (a flowing barrel cheers, all-dry disappoints).
+          const anyFlowing = !tavernDamaged && drinkResults.some((r) => r.onMenu && r.consumed / (r.needed || 1) > 0.5);
           happiness += anyFlowing ? tavernLvl * TAVERN_HAPPINESS_PER_LEVEL : tavernLvl * TAVERN_HAPPINESS_DRY;
         }
 
@@ -4623,7 +4630,7 @@ export function GameProvider(props: ParentProps) {
         // Staffing gates whether beds can be served, pricing trades crowd for
         // margin, reputation raises the ceiling. Uses the finalized happiness so
         // occupancy tracks the real mood. calcTavern is the shared source of truth.
-        if (tavernLvl > 0) {
+        if (tavernLvl > 0 && !tavernDamaged) {
           // Cook-to-order: a featured dish is served only if its recipe is
           // unlocked AND its ingredients are in stock. Serving consumes those
           // ingredients (no pre-cooked stock). Unavailable dishes drop off and
@@ -6307,6 +6314,25 @@ export function GameProvider(props: ParentProps) {
         pricing: state.tavernPricing ?? "fair", reputation: state.tavernReputation ?? 0,
       });
       return t.rooms * t.occupancy * TAVERN_FOOD_PER_ROOM_PER_HOUR;
+    },
+    getTavernReadout() {
+      const tavern = state.buildings.find((b) => b.buildingId === "tavern");
+      const lvl = tavern?.level ?? 0;
+      const damaged = tavern?.damaged ?? false;
+      const rooms = tavernRooms(lvl);
+      const servers = state.tavernServers ?? 0;
+      const reputation = state.tavernReputation ?? 0;
+      if (lvl <= 0 || damaged) {
+        return { rooms, occupiedRooms: 0, occupancy: 0, goldPerDay: 0, serversNeeded: serversNeeded(lvl), servers, reputation, foodPerHour: 0, damaged };
+      }
+      const servable = (state.tavernMenu ?? [])
+        .map((id) => KITCHEN_DISH_BY_ID.get(id))
+        .filter((r): r is CraftingRecipe => !!r && dishUnlocked(state, r) && dishAvailable(state, r));
+      const t = calcTavern({
+        level: lvl, happiness: state.happiness, townHallLevel: getTownHallLevel(state.buildings),
+        menuVariety: servable.length, servers, pricing: state.tavernPricing ?? "fair", reputation,
+      });
+      return { rooms: t.rooms, occupiedRooms: t.occupiedRooms, occupancy: t.occupancy, goldPerDay: t.goldPerDay, serversNeeded: t.serversNeeded, servers, reputation, foodPerHour: t.rooms * t.occupancy * TAVERN_FOOD_PER_ROOM_PER_HOUR, damaged };
     },
     getHoneyProduction() {
       return state.hives.reduce(

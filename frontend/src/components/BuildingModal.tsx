@@ -37,6 +37,10 @@ const SEASONS: { key: Season; icon: string; label: string }[] = [
   { key: "autumn", icon: "🍂", label: "Autumn" },
   { key: "winter", icon: "❄️", label: "Winter" },
 ];
+
+/** A building-effect string is several bonuses joined by " · " or newlines;
+ *  split them so the green box can list one per row. */
+const effectRows = (text: string): string[] => text.split(/ · |\n/).map((s) => s.trim()).filter(Boolean);
 import Countdown from "~/components/Countdown";
 import Tooltip from "~/components/Tooltip";
 import BuildingStaffSection from "~/components/BuildingStaffSection";
@@ -353,6 +357,32 @@ export default function BuildingModal(props: Props) {
                     </div>
                   </Show>
 
+                  {/* Tavern — the house at a glance (full management on the page). */}
+                  <Show when={id() === "tavern" && level() > 0 && !playerBuilding()?.damaged}>
+                    {(() => {
+                      const rd = actions.getTavernReadout();
+                      const short = rd.servers < rd.serversNeeded;
+                      const row = (label: string, value: string, color?: string) => (
+                        <div style={{ display: "flex", "justify-content": "space-between", gap: "8px", "font-size": "0.82rem", padding: "3px 0" }}>
+                          <span style={{ color: "var(--text-muted)" }}>{label}</span><b style={{ color }}>{value}</b>
+                        </div>
+                      );
+                      return (
+                        <div style={{ "margin-bottom": "18px", padding: "12px 14px", background: "var(--bg-card)", border: "1px solid var(--border-color)" }}>
+                          <div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "0.6px", "margin-bottom": "8px" }}>The house tonight</div>
+                          {row("🛏️ Beds filled", `${rd.occupiedRooms} / ${rd.rooms}`)}
+                          {row("👤 Servers", `${rd.servers} / ${rd.serversNeeded}`, short ? "var(--accent-red)" : undefined)}
+                          {row("⭐ Reputation", `${Math.round(rd.reputation)} / 100`)}
+                          {row("🪙 Traveler coin", `+${Math.round(rd.goldPerDay)}/day`, "var(--accent-green)")}
+                          {row("🍲 Food served", `−${rd.foodPerHour.toFixed(1)}/h`)}
+                          <Show when={short}>
+                            <div style={{ "font-size": "0.75rem", color: "var(--accent-red)", "margin-top": "6px" }}>Short-staffed — beds sit empty for want of servers.</div>
+                          </Show>
+                        </div>
+                      );
+                    })()}
+                  </Show>
+
                   {/* Live crafting status — what's on the bench right now. */}
                   <Show when={isCraftingBuilding() && level() > 0}>
                     <div style={{
@@ -542,10 +572,6 @@ export default function BuildingModal(props: Props) {
                                 when={id() === "town_hall"}
                                 fallback={
                                   <>
-                                    <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "12px", color: "var(--text-primary)" }}>
-                                      {level() === 0 ? "Build Cost" : `Upgrade to Level ${level() + 1}`}
-                                    </h3>
-
                                     <Show when={next().production && !currentLevel()?.production}>
                                       <div class="stat-row">
                                         <span class="stat-label">Production</span>
@@ -556,7 +582,11 @@ export default function BuildingModal(props: Props) {
                                     </Show>
 
                                     <Show when={actions.getBuildingEffect(id(), level() + 1)}>
-                                      {(effect) => <div class="building-effect">{effect()}</div>}
+                                      {(effect) => (
+                                        <div class="building-effect">
+                                          <For each={effectRows(effect())}>{(line) => <div style={{ padding: "1px 0" }}>{line}</div>}</For>
+                                        </div>
+                                      )}
                                     </Show>
                                   </>
                                 }
@@ -670,7 +700,9 @@ export default function BuildingModal(props: Props) {
                                 ? "The well has caved in and fouled — it gives no water at all until you clear and repair it."
                                 : id() === "shrine"
                                   ? "The shrine is desecrated — no offerings can be made and it gives no comfort until you cleanse and repair it."
-                                  : "This building is damaged and inactive. Repair it to restore function."}
+                                  : id() === "tavern"
+                                    ? "The tavern is wrecked — no travelers are served and the common room offers only the faintest cheer until you repair it."
+                                    : "This building is damaged and inactive. Repair it to restore function."}
                     </div>
 
                     <Show
@@ -684,7 +716,9 @@ export default function BuildingModal(props: Props) {
                             {(effect) => (
                               <div style={{ "margin-bottom": "16px" }}>
                                 <div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "0.6px", "margin-bottom": "6px" }}>Restored on repair</div>
-                                <div class="building-effect" style={{ "margin-bottom": 0 }}>{effect()}</div>
+                                <div class="building-effect" style={{ "margin-bottom": 0 }}>
+                                  <For each={effectRows(effect())}>{(line) => <div style={{ padding: "1px 0" }}>{line}</div>}</For>
+                                </div>
                               </div>
                             )}
                           </Show>
