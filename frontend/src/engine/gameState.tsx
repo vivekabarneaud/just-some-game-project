@@ -3206,12 +3206,15 @@ function calcStorageCaps(buildings: PlayerBuilding[]): StorageCaps {
   // lowered cap spills and is lost (raiders scatter/burn the exposed stores).
   const whLevel = warehouse?.damaged ? Math.max(0, (warehouse.level ?? 0) - 1) : (warehouse?.level ?? 0);
   const materialCap = BASE_MATERIAL_STORAGE + whLevel * MATERIAL_STORAGE_PER_WAREHOUSE_LEVEL;
+  // Same for a damaged pantry — the broken cellar keeps a level less, and food
+  // over that spoils away.
+  const pantryLevel = pantry?.damaged ? Math.max(0, (pantry.level ?? 0) - 1) : (pantry?.level ?? 0);
   const cistern = buildings.find((b) => b.buildingId === CISTERN_ID);
   return {
     gold: BASE_GOLD_STORAGE + (th?.level ?? 0) * GOLD_STORAGE_PER_TH_LEVEL,
     wood: materialCap,
     stone: materialCap,
-    food: BASE_FOOD_STORAGE + (pantry?.level ?? 0) * FOOD_STORAGE_PER_PANTRY_LEVEL,
+    food: BASE_FOOD_STORAGE + pantryLevel * FOOD_STORAGE_PER_PANTRY_LEVEL,
     water: getWaterCap(cistern?.level ?? 0),
   };
 }
@@ -4171,6 +4174,10 @@ export function GameProvider(props: ParentProps) {
           s.leather = Math.min(ccap, s.leather);
           s.iron = Math.min(ccap, s.iron);
           s.bone = Math.min(ccap, s.bone);
+          // Same for food — a damaged pantry spoils the overflow (spilled
+          // proportionally across the food types).
+          const foodOver = getTotalFood(s.foods) - caps.food;
+          if (foodOver > 0) consumeFood(s.foods, foodOver);
         }
 
         // ── Water — stream + wells + rain-catching cisterns fill the reserve

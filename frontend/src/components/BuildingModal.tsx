@@ -26,6 +26,7 @@ import {
 } from "~/data/buildings";
 import type { Season } from "~/data/seasons";
 import { totalPopulation } from "~/data/citizens";
+import { getTotalFood } from "~/data/foods";
 import { RESOURCES } from "~/data/resources";
 import { useGame, CRAFTING_RECIPES, getBuildingToolsForBuilding } from "~/engine/gameState";
 
@@ -183,6 +184,11 @@ export default function BuildingModal(props: Props) {
   const popCap = () => actions.getMaxPopulation();
   const housingRatio = () => { const c = popCap(); return c > 0 ? occupancy() / c : 1; };
 
+  // Pantry — food headroom. At/over the cap, surplus food spoils before it's eaten.
+  const foodStored = () => getTotalFood(state.foods);
+  const foodCap = () => actions.getStorageCaps().food;
+  const foodRatio = () => { const c = foodCap(); return c > 0 ? foodStored() / c : 1; };
+
   // Repair — a mending job (30% of the level's build cost + time). The building
   // stays damaged while it runs, so repair is the ONLY action shown when broken.
   const repairCost = () => getRepairCost(building()!, level());
@@ -290,6 +296,34 @@ export default function BuildingModal(props: Props) {
                               : near()
                                 ? "Nearly full — new folk will stop arriving until there's more shelter."
                                 : "Room to grow. Folk arrive while there's shelter, food, and good cheer."}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </Show>
+
+                  {/* Pantry — food headroom (surplus spoils once the cellar is full). */}
+                  <Show when={id() === "pantry"}>
+                    {(() => {
+                      const over = () => foodStored() >= foodCap();
+                      const near = () => !over() && foodRatio() >= 0.9;
+                      const accent = () => over() ? "var(--accent-red)" : near() ? "var(--accent-gold)" : "var(--accent-green)";
+                      return (
+                        <div style={{ "margin-bottom": "18px", padding: "12px 14px", background: "var(--bg-card)", border: "1px solid var(--border-color)" }}>
+                          <div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "0.6px", "margin-bottom": "8px" }}>Food stores</div>
+                          <div style={{ display: "flex", "align-items": "baseline", gap: "8px" }}>
+                            <span style={{ "font-size": "1.15rem" }}>🍞 <b>{Math.floor(foodStored())}</b> / {foodCap()}</span>
+                            <span style={{ "font-size": "0.78rem", color: "var(--text-muted)" }}>stored</span>
+                          </div>
+                          <div style={{ "margin-top": "8px", height: "6px", background: "var(--bg-primary)", "border-radius": "3px", overflow: "hidden" }}>
+                            <div style={{ width: `${Math.min(100, foodRatio() * 100)}%`, height: "100%", background: accent(), transition: "width 0.3s" }} />
+                          </div>
+                          <div style={{ "font-size": "0.8rem", color: accent(), "margin-top": "8px", "line-height": 1.45 }}>
+                            {over()
+                              ? "The cellar is full — any more food spoils before it can be eaten. Upgrade to keep more against the winter."
+                              : near()
+                                ? "Nearly full — surplus will start spoiling soon."
+                                : "Room to spare. A deep larder carries the settlement through the lean months."}
                           </div>
                         </div>
                       );
@@ -604,7 +638,9 @@ export default function BuildingModal(props: Props) {
                         ? "Homes lie in ruins — the settlement shelters a level fewer, and folk crowd the streets until you rebuild them."
                         : id() === "warehouse"
                           ? "The stores are breached — they hold as if a level lower, and anything over that spills and is lost until you repair the roof and walls."
-                          : "This building is damaged and inactive. Repair it to restore function."}
+                          : id() === "pantry"
+                            ? "The cellar is broken open — it keeps a level less, and food above that spoils away until you repair it."
+                            : "This building is damaged and inactive. Repair it to restore function."}
                     </div>
 
                     <Show

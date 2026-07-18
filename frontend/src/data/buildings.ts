@@ -111,7 +111,7 @@ export function getRepairTime(building: BuildingDefinition, level: number): numb
 /** Buildings that, when damaged, work as if a LEVEL LOWER (reduced capacity)
  *  rather than going fully inactive — so a repair restores that level's worth of
  *  capacity, and the modal can preview the restoration (damaged caps → full). */
-export const DAMAGE_LOWERS_LEVEL = new Set(["warehouse", "houses"]);
+export const DAMAGE_LOWERS_LEVEL = new Set(["warehouse", "houses", "pantry"]);
 
 // ─── Settlement tiers ────────────────────────────────────────────
 
