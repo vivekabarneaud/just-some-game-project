@@ -1965,14 +1965,27 @@ export function migrateSaveState(saved: GameState): GameState {
         delete (pb as any).upgradeFinishTime;
       }
     }
-    // Restore ID counter
+    // Restore the ID counter past EVERY id-bearing collection. keptAnimals (+
+    // hives/orchards) were missing, and seed dogs are created LAST (highest ids),
+    // so the counter reset too low and a new stray collided with a seed dog.
     let maxId = 0;
-    const allIds: { id: string }[] = [...saved.fields, ...saved.gardens, ...saved.pens, ...saved.adventurers];
-    for (const item of allIds) {
-      const num = parseInt(item.id.replace(/^[a-z]+_/, ""), 10);
-      if (num > maxId) maxId = num;
+    const idColls: ({ id: string }[] | undefined)[] = [saved.fields, saved.gardens, saved.pens, saved.hives, saved.orchards, saved.keptAnimals, saved.adventurers];
+    for (const coll of idColls) {
+      for (const item of coll ?? []) {
+        const num = parseInt(item.id.replace(/^[a-z]+_/, ""), 10);
+        if (!Number.isNaN(num) && num > maxId) maxId = num;
+      }
     }
     idCounter = maxId + 1;
+    // Repair any pre-existing duplicate ids (legacy saves): keep the first, give
+    // later collisions a fresh id so lookups (e.g. assignAnimal) hit the right one.
+    const seenIds = new Set<string>();
+    for (const coll of idColls) {
+      for (const item of coll ?? []) {
+        if (seenIds.has(item.id)) item.id = nextId(item.id.replace(/_\d+$/, ""));
+        seenIds.add(item.id);
+      }
+    }
     return saved;
 }
 
@@ -3613,19 +3626,23 @@ export function GameProvider(props: ParentProps) {
             adv.onMission = false;
           }
         }
-        // Restore ID counter from server state and fix any duplicate IDs
+        // Restore ID counter past EVERY id-bearing collection + fix duplicates.
         let maxId = 0;
-        const allIds = [
-          ...(serverState.fields ?? []),
-          ...(serverState.gardens ?? []),
-          ...(serverState.pens ?? []),
-          ...(serverState.adventurers ?? []),
-        ];
-        for (const item of allIds) {
-          const num = parseInt(item.id.replace(/^[a-z]+_/, ""), 10);
-          if (num > maxId) maxId = num;
+        const idColls: ({ id: string }[] | undefined)[] = [serverState.fields, serverState.gardens, serverState.pens, serverState.hives, serverState.orchards, serverState.keptAnimals, serverState.adventurers];
+        for (const coll of idColls) {
+          for (const item of coll ?? []) {
+            const num = parseInt(item.id.replace(/^[a-z]+_/, ""), 10);
+            if (!Number.isNaN(num) && num > maxId) maxId = num;
+          }
         }
         idCounter = maxId + 1;
+        const dupSeen = new Set<string>();
+        for (const coll of idColls) {
+          for (const item of coll ?? []) {
+            if (dupSeen.has(item.id)) item.id = nextId(item.id.replace(/_\d+$/, ""));
+            dupSeen.add(item.id);
+          }
+        }
         // Gardens: add plantedYear + ensure one pre-attributed slot per veggie
         serverState.gardens = serverState.gardens ?? [];
         for (const g of serverState.gardens) {
@@ -6094,6 +6111,9 @@ export function GameProvider(props: ParentProps) {
       if (job === "guard") {
         const pen = state.pens.find((p) => p.id === penId);
         if (!pen || pen.level < 1) return false;
+        // One guard dog watches a fold.
+        const guarding = state.keptAnimals.filter((a) => a.species === "dog" && a.job === "guard" && a.penId === penId && a.id !== animalId).length;
+        if (guarding >= 1) return false;
       }
       if (job === "hunt") {
         // The hunting camp holds only so many dogs (one slot per level).

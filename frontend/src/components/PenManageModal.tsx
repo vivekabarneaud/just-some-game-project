@@ -3,10 +3,11 @@ import { Portal } from "solid-js/web";
 import { useGame, type PlayerPen } from "~/engine/gameState";
 import {
   getAnimal, getPenCapacity, getAnimalBuyCost, getCullYield,
-  getPenProduction, GUARD_DOG_COST,
+  getPenProduction,
 } from "@medieval-realm/shared/data/livestock";
 import { ANIMAL_FEED, FEED_CATEGORY_ICON, FEED_CATEGORY_LABEL, isGrazer } from "~/data/animalFeed";
 import Tooltip from "~/components/Tooltip";
+import DogAssignSection from "~/components/DogAssignSection";
 
 interface Props {
   pen: PlayerPen;
@@ -132,33 +133,15 @@ export default function PenManageModal(props: Props) {
             </p>
           </div>
 
-          {/* Guard dog */}
+          {/* Guard dog — assign a kept dog (from the Kennel) to keep wolves off. */}
           <div style={{
             padding: "12px", background: "var(--bg-card)", border: "1px solid var(--border-color)",
             "border-radius": "8px", "margin-bottom": "10px",
-            display: "flex", "align-items": "center", "justify-content": "space-between", gap: "10px",
           }}>
-            <div>
-              <Show
-                when={props.pen.guardDog}
-                fallback={<div style={{ "font-size": "0.9rem", color: "var(--text-secondary)" }}>🐺 Unguarded fold</div>}
-              >
-                <div style={{ "font-size": "0.9rem", color: "var(--accent-green)" }}>🐕 Guarded by a dog</div>
-              </Show>
-              <div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "margin-top": "2px" }}>
-                A dog turns wolves off this fold for good.
-              </div>
+            <DogAssignSection job="guard" penId={props.pen.id} slots={1} label="Guard dogs" sendLabel="Assign a guard dog" />
+            <div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "margin-top": "8px" }}>
+              A good dog turns wolves off this fold.
             </div>
-            <Show when={!props.pen.guardDog}>
-              <button
-                class="btn-secondary"
-                onClick={() => actions.buyGuardDog(props.pen.id)}
-                disabled={state.resources.gold < GUARD_DOG_COST}
-                style={{ "font-size": "0.8rem", "white-space": "nowrap" }}
-              >
-                Guard dog 💰{GUARD_DOG_COST}
-              </button>
-            </Show>
           </div>
 
           {/* Feed detail */}
