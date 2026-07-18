@@ -118,6 +118,9 @@ export default function BuildingStaffSection(props: Props) {
               <For each={dogs()}>
                 {(d) => (
                   <div style={{ display: "flex", "align-items": "center", gap: "10px", padding: "4px 0" }}>
+                    <Show when={d.portrait} fallback={<span style={{ "font-size": "1.4rem" }}>🐕</span>}>
+                      <img src={d.portrait} alt={d.name} style={{ width: "34px", height: "34px", "border-radius": "50%", "object-fit": "cover" }} />
+                    </Show>
                     <div style={{ flex: "1", "min-width": "0" }}>
                       <div style={{ "font-size": "0.85rem" }}>{d.name}</div>
                       <div style={{ "font-size": "0.72rem", color: "var(--accent-gold)" }}>🏹 {stars(d.huntLevel)}</div>

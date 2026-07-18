@@ -527,7 +527,11 @@ export default function Buildings() {
                             const staff = isStaffable(building.id) && built() ? actions.getBuildingStaffing(building.id) : null;
                             const staffMult = staff?.multiplier ?? 1;
                             const shortStaffed = !!staff && staff.active < staff.capacity && staffMult < 1;
-                            const effectiveRate = Math.floor(seasonRate * staffMult);
+                            // Hunting dogs posted to the camp boost its whole catch (matches the tick + modal).
+                            const huntDogBoost = building.id === "hunting_camp"
+                              ? Math.min(0.5, state.keptAnimals.reduce((b, a) => a.job === "hunt" ? b + 0.08 * Math.max(1, a.huntLevel) : b, 0))
+                              : 0;
+                            const effectiveRate = Math.floor(seasonRate * staffMult * (1 + huntDogBoost));
                             const isReduced = seasonMod != null && seasonMod < 1;
                             const FORAGER_FOOD: Record<string, string> = { spring: "berries", summer: "berries", autumn: "mushrooms", winter: "nuts" };
                             // Food-gathering buildings produce a generic "food" resource but yield a
@@ -547,15 +551,26 @@ export default function Buildings() {
                                     </span>
                                   )}
                                 </div>
+                                {building.id === "hunting_camp" && (
+                                  <div class="building-card-production">
+                                    +{(prodLevel() * 1.0 * (seasonMod ?? 1) * staffMult * (1 + huntDogBoost)).toFixed(1)}/h leather · +{(prodLevel() * 0.6 * (seasonMod ?? 1) * staffMult * (1 + huntDogBoost)).toFixed(1)}/h bone
+                                  </div>
+                                )}
+                                {building.id === "forager_hut" && (
+                                  <>
+                                    <div class="building-card-production">
+                                      +{(prodLevel() * 1.5 * (seasonMod ?? 1) * staffMult).toFixed(1)}/h fiber (wild flax)
+                                    </div>
+                                    <div style={{ "font-size": "0.72rem", color: "var(--text-muted)" }}>· sometimes turns up medicinal herbs</div>
+                                  </>
+                                )}
                                 {reduced && (
-                                  <ul style={{ "text-align": "left", margin: "2px 0 0", padding: "0 0 0 16px", "font-size": "0.72rem", "line-height": "1.55", "list-style": "disc" }}>
-                                    {isReduced && (
-                                      <li style={{ color: "var(--accent-gold)" }}>{Math.round(seasonMod! * 100)}% yield in {state.season}</li>
-                                    )}
-                                    {shortStaffed && (
-                                      <li style={{ color: "var(--accent-red)" }}>{Math.round(staffMult * 100)}% yield while short-staffed</li>
-                                    )}
-                                  </ul>
+                                  <div style={{ "font-size": "0.72rem", "margin-top": "2px", color: shortStaffed ? "var(--accent-red)" : "var(--accent-gold)" }}>
+                                    {[
+                                      isReduced ? `${Math.round(seasonMod! * 100)}% yield in ${state.season}` : null,
+                                      shortStaffed ? `short-handed (${Math.round(staffMult * 100)}%)` : null,
+                                    ].filter(Boolean).join(" · ")}
+                                  </div>
                                 )}
                               </div>
                             );
@@ -565,16 +580,6 @@ export default function Buildings() {
                               {building.id === "forager_hut" && built() && currentLevel()?.production && isForagerBlooming(state) && (
                                 <div class="building-card-production" style={{ color: "#d4831a" }}>
                                   🍄 It rained, and your gatherers found bonus mushrooms! (+{Math.floor(currentLevel()!.production!.rate * RAIN_FORAGE_MUSHROOM_FRACTION)}/h)
-                                </div>
-                              )}
-                              {building.id === "forager_hut" && (
-                                <div class="building-card-production">
-                                  +{(prodLevel() * 1.5).toFixed(1)}/h fiber (wild flax)
-                                </div>
-                              )}
-                              {building.id === "hunting_camp" && (
-                                <div class="building-card-production">
-                                  +{(prodLevel() * 1.0).toFixed(1)}/h leather (hides)
                                 </div>
                               )}
                               {isIron() && (

@@ -62,6 +62,7 @@ import {
   staffCapacity,
   STAFF_LVL1_FLOOR,
   isStaffable,
+  gatheringSeasonMod,
 } from "~/data/buildings";
 import { FOUNDING_CHARACTERS } from "~/data/founding_characters";
 import {
@@ -4258,19 +4259,29 @@ export function GameProvider(props: ParentProps) {
         // ── Leather + bone from the hunting camp ──
         // Animal leather/bone otherwise comes only from CULLING now — a living
         // flock sheds wool, not hides (hunters, by contrast, bring skins home).
-        const huntingCampLvl = s.buildings.find((b) => b.buildingId === "hunting_camp")?.level ?? 0;
+        const huntCampBldg = s.buildings.find((b) => b.buildingId === "hunting_camp");
+        const huntingCampLvl = huntCampBldg?.damaged ? 0 : (huntCampBldg?.level ?? 0);
         if (huntingCampLvl > 0) {
-          s.leather = Math.min(craftingMaterialCap(s.buildings), s.leather + huntingCampLvl * 1.0 * elapsedHours);
-          s.bone = Math.min(craftingMaterialCap(s.buildings), s.bone + huntingCampLvl * 0.6 * elapsedHours);
+          // Leather + bone track the food catch — scaled by season, staffing and
+          // any hunting dogs posted (a damaged camp brings nothing home).
+          const huntSeason = gatheringSeasonMod("hunting_camp", s.season) ?? 1;
+          const huntStaff = getBuildingStaffing(s, "hunting_camp", huntingCampLvl).multiplier;
+          const huntBoost = Math.min(0.5, s.keptAnimals.reduce((b, a) => a.job === "hunt" ? b + 0.08 * Math.max(1, a.huntLevel) : b, 0));
+          const huntMult = huntSeason * huntStaff * (1 + huntBoost);
+          s.leather = Math.min(craftingMaterialCap(s.buildings), s.leather + huntingCampLvl * 1.0 * huntMult * elapsedHours);
+          s.bone = Math.min(craftingMaterialCap(s.buildings), s.bone + huntingCampLvl * 0.6 * huntMult * elapsedHours);
         }
 
         // ── Fiber from forager's hut (wild flax and plant fibers) ──
-        const foragerLvl = s.buildings.find((b) => b.buildingId === "forager_hut")?.level ?? 0;
+        const foragerBldg = s.buildings.find((b) => b.buildingId === "forager_hut");
+        const foragerLvl = foragerBldg?.damaged ? 0 : (foragerBldg?.level ?? 0);
         if (foragerLvl > 0) {
-          s.fiber = Math.min(craftingMaterialCap(s.buildings), s.fiber + foragerLvl * 1.5 * elapsedHours);
+          // Fiber + herb finds scale with season and staffing, like the catch.
+          const foragerMult = (gatheringSeasonMod("forager_hut", s.season) ?? 1) * getBuildingStaffing(s, "forager_hut", foragerLvl).multiplier;
+          s.fiber = Math.min(craftingMaterialCap(s.buildings), s.fiber + foragerLvl * 1.5 * foragerMult * elapsedHours);
 
           // ── Herb procs from foraging ──
-          const foodForaged = foragerLvl * 8 * elapsedHours; // approximate food gathered
+          const foodForaged = foragerLvl * 8 * foragerMult * elapsedHours; // approximate food gathered
           s.foragedTotal = (s.foragedTotal ?? 0) + foodForaged;
           for (const herb of HERBS) {
             const herbChance = foodForaged * herb.dropRate;

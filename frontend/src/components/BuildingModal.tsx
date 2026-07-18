@@ -181,7 +181,17 @@ export default function BuildingModal(props: Props) {
   // preview (which shows base rates).
   const prodSeasonMod = () => gatheringSeasonMod(id(), state.season) ?? 1;
   const prodStaff = () => isStaffable(id()) ? actions.getBuildingStaffing(id()) : null;
-  const currentProdRate = () => Math.floor((currentLevel()?.production?.rate ?? 0) * prodSeasonMod() * (prodStaff()?.multiplier ?? 1));
+  // Hunting dogs posted to the camp boost its whole catch (+8%/hunt level, capped).
+  const huntDogBoost = () => id() === "hunting_camp"
+    ? Math.min(0.5, state.keptAnimals.reduce((b, a) => a.job === "hunt" ? b + 0.08 * Math.max(1, a.huntLevel) : b, 0))
+    : 0;
+  const gatherMult = () => prodSeasonMod() * (prodStaff()?.multiplier ?? 1) * (1 + huntDogBoost());
+  const currentProdRate = () => Math.floor((currentLevel()?.production?.rate ?? 0) * gatherMult());
+  // Hunting camp secondary yields (leather ×1.0, bone ×0.6 per level), same
+  // modifiers. Kept fractional (they accrue slowly) so small rates still read.
+  const huntLeatherRate = () => level() * 1.0 * gatherMult();
+  const huntBoneRate = () => level() * 0.6 * gatherMult();
+  const foragerFiberRate = () => level() * 1.5 * gatherMult();
   const prodStatus = (): string[] => {
     const parts: string[] = [];
     const st = prodStaff();
@@ -516,8 +526,16 @@ export default function BuildingModal(props: Props) {
                           </Show>
                         </div>
                         <Show when={id() === "forager_hut"}>
-                          <div style={{ "font-size": "0.9rem", color: "var(--accent-green)", "margin-top": "4px" }}>
-                            +{(level() * 1.5).toFixed(1)}/h fiber (wild flax)
+                          <div style={{ "font-size": "0.9rem", color: "var(--accent-green)", "margin-top": "2px" }}>
+                            +{foragerFiberRate().toFixed(1)}/h fiber (wild flax)
+                          </div>
+                          <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-top": "2px" }}>
+                            · sometimes turns up medicinal herbs
+                          </div>
+                        </Show>
+                        <Show when={id() === "hunting_camp"}>
+                          <div style={{ "font-size": "0.9rem", color: "var(--accent-green)", "margin-top": "2px" }}>
+                            +{huntLeatherRate().toFixed(1)}/h leather · +{huntBoneRate().toFixed(1)}/h bone
                           </div>
                         </Show>
                         <div style={{ "font-size": "0.78rem", "margin-top": "6px", color: prodStatus().length ? "var(--accent-gold)" : "var(--accent-green, #4a9)" }}>
