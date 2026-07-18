@@ -1054,6 +1054,7 @@ export const BUILDING_WORKSPACE: Record<string, { route: string; label: string }
   tavern:            { route: "/tavern",         label: "Open the tavern" },
   marketplace:       { route: "/marketplace",    label: "Open the marketplace" },
   adventurers_guild: { route: "/guild",          label: "Open the Adventurer's Guild" },
+  shrine:            { route: "/shrine",         label: "Open the Shrine" },
 };
 export function buildingWorkspace(buildingId: string): { route: string; label: string } | null {
   return BUILDING_WORKSPACE[buildingId] ?? null;

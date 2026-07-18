@@ -24,9 +24,10 @@ import {
   PANIC_BUILD_IDS,
   PANIC_BUILD_SHARD_COST,
 } from "~/data/buildings";
-import type { Season } from "~/data/seasons";
+import { type Season, IS_DEV, getGlobalSeason, HOURS_PER_SEASON } from "~/data/seasons";
 import { totalPopulation } from "~/data/citizens";
 import { getTotalFood } from "~/data/foods";
+import { getCurrentDeity } from "~/data/deities";
 import { RESOURCES } from "~/data/resources";
 import { useGame, CRAFTING_RECIPES, getBuildingToolsForBuilding } from "~/engine/gameState";
 
@@ -195,6 +196,14 @@ export default function BuildingModal(props: Props) {
   const repairTime = () => getRepairTime(building()!, level());
   const isRepairing = () => playerBuilding()?.repairRemaining != null;
   const canRepairNow = () => state.resources.wood >= repairCost().wood && state.resources.stone >= repairCost().stone;
+
+  // Shrine — today's rotating deity + whether an offering's been made (full
+  // rotation stays on the Shrine page; this is just the at-a-glance status).
+  const shrineDeity = () => {
+    const info = IS_DEV ? { season: state.season, progress: state.seasonElapsed / HOURS_PER_SEASON } : getGlobalSeason();
+    return getCurrentDeity(info.season, info.progress);
+  };
+  const offeringGiven = () => state.activeBlessing?.deityId === shrineDeity().id;
   // Buildings the next tier opens up (tier-gated AND past their story gate, so we
   // only promise ones that will actually appear). Empty unless the level advances.
   const unlockedNextTier = () => tierAdvances()
@@ -328,6 +337,20 @@ export default function BuildingModal(props: Props) {
                         </div>
                       );
                     })()}
+                  </Show>
+
+                  {/* Shrine — today's deity + offering status (rotation lives on the page). */}
+                  <Show when={id() === "shrine" && level() > 0 && !playerBuilding()?.damaged}>
+                    <div style={{ "margin-bottom": "18px", padding: "12px 14px", background: "var(--bg-card)", border: "1px solid var(--border-color)" }}>
+                      <div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "0.6px", "margin-bottom": "8px" }}>Today at the shrine</div>
+                      <div style={{ display: "flex", "align-items": "center", gap: "8px", "font-size": "1.05rem" }}>
+                        <span style={{ "font-size": "1.3rem" }}>{shrineDeity().icon}</span>
+                        <b>{shrineDeity().name}</b>
+                      </div>
+                      <div style={{ "font-size": "0.82rem", "margin-top": "8px", color: offeringGiven() ? "var(--accent-green)" : "var(--text-muted)" }}>
+                        {offeringGiven() ? "✓ Offering made — the blessing is upon you today." : "No offering made yet today."}
+                      </div>
+                    </div>
                   </Show>
 
                   {/* Live crafting status — what's on the bench right now. */}
@@ -645,7 +668,9 @@ export default function BuildingModal(props: Props) {
                               ? "The cistern is cracked — it holds a level less and its sluice can't be worked, the overflow draining away until you repair it."
                               : id() === "well"
                                 ? "The well has caved in and fouled — it gives no water at all until you clear and repair it."
-                                : "This building is damaged and inactive. Repair it to restore function."}
+                                : id() === "shrine"
+                                  ? "The shrine is desecrated — no offerings can be made and it gives no comfort until you cleanse and repair it."
+                                  : "This building is damaged and inactive. Repair it to restore function."}
                     </div>
 
                     <Show

@@ -4551,9 +4551,9 @@ export function GameProvider(props: ParentProps) {
         const occupancy = totalPopulation(s.citizens) + countLivingAdventurers(s.adventurers);
         happiness -= overcrowdingPenalty(occupancy, maxPop);
 
-        // Chapel
-        const shrineLvl = s.buildings.find((b) => b.buildingId === "shrine")?.level ?? 0;
-        happiness += shrineLvl * SHRINE_HAPPINESS_PER_LEVEL;
+        // Shrine — a desecrated (damaged) shrine gives no comfort until restored.
+        const shrineB = s.buildings.find((b) => b.buildingId === "shrine");
+        if (shrineB && shrineB.level > 0 && !shrineB.damaged) happiness += shrineB.level * SHRINE_HAPPINESS_PER_LEVEL;
 
         // Tavern happiness. Drinks are opt-in: if any drink is on the menu, at
         // least one flowing barrel cheers the settlement and an all-dry board
@@ -7037,8 +7037,8 @@ export function GameProvider(props: ParentProps) {
       const overcrowd = overcrowdingPenalty(occupancy, maxPop);
       if (overcrowd > 0) factors.push({ label: "Overcrowded", value: -overcrowd });
 
-      const shrineLvl = state.buildings.find((b) => b.buildingId === "shrine")?.level ?? 0;
-      if (shrineLvl > 0) factors.push({ label: `Shrine Lv.${shrineLvl}`, value: shrineLvl * SHRINE_HAPPINESS_PER_LEVEL });
+      const shrineHB = state.buildings.find((b) => b.buildingId === "shrine");
+      if (shrineHB && shrineHB.level > 0 && !shrineHB.damaged) factors.push({ label: `Shrine Lv.${shrineHB.level}`, value: shrineHB.level * SHRINE_HAPPINESS_PER_LEVEL });
 
       // Solara's blessing
       if (state.activeBlessing?.effect?.startsWith("happiness:")) {
@@ -7704,8 +7704,8 @@ export function GameProvider(props: ParentProps) {
     makeOffering(deityId) {
       const deity = getDeity(deityId);
       if (!deity) return false;
-      const shrineLvl = state.buildings.find((b) => b.buildingId === "shrine")?.level ?? 0;
-      if (shrineLvl === 0) return false;
+      const shrineB = state.buildings.find((b) => b.buildingId === "shrine");
+      if (!shrineB || shrineB.level === 0 || shrineB.damaged) return false; // no shrine, or desecrated
 
       // Check if player can afford offering
       for (const cost of deity.offeringCost) {
