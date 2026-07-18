@@ -1,6 +1,6 @@
 import { For, Show, onMount, createSignal } from "solid-js";
 import BuildingModal from "~/components/BuildingModal";
-import { BUILDINGS, isBuildingUnlocked, isBuildingChapterUnlocked, getUnlockRequirement, getUnlockReasons, getUnlockConditions, getNextLevelRequirement, applyMasonCostReduction, applyMasonTimeReduction, getTierPrerequisitesMet, getRepairCost, getBuildingImage, isStaffable, PANIC_BUILD_IDS, PANIC_BUILD_SHARD_COST, type BuildingDefinition } from "~/data/buildings";
+import { BUILDINGS, isBuildingUnlocked, isBuildingChapterUnlocked, getUnlockRequirement, getUnlockReasons, getUnlockConditions, getNextLevelRequirement, applyMasonCostReduction, applyMasonTimeReduction, getTierPrerequisitesMet, getRepairCost, getBuildingImage, isStaffable, gatheringSeasonMod, PANIC_BUILD_IDS, PANIC_BUILD_SHARD_COST, type BuildingDefinition } from "~/data/buildings";
 import { QUEST_DEFINITIONS, isQuestActive } from "~/data/quests";
 import { useGame, isForagerBlooming, RAIN_FORAGE_MUSHROOM_FRACTION } from "~/engine/gameState";
 import { playSound } from "~/engine/sounds";
@@ -520,12 +520,7 @@ export default function Buildings() {
                             }
                             const def = prodDef();
                             if (!def) return null;
-                            const FOOD_GATHERING: Record<string, Record<string, number>> = {
-                              hunting_camp: { spring: 1, summer: 1, autumn: 0.75, winter: 0.5 },
-                              fishing_hut: { spring: 1, summer: 1, autumn: 0.75, winter: 0.5 },
-                              forager_hut: { spring: 1, summer: 1, autumn: 0.75, winter: 0.25 },
-                            };
-                            const seasonMod = FOOD_GATHERING[building.id]?.[state.season];
+                            const seasonMod = gatheringSeasonMod(building.id, state.season);
                             const seasonRate = seasonMod != null ? Math.floor(def.rate * seasonMod) : def.rate;
                             // Short-staffing (e.g. a founder away on a mission) scales output too,
                             // the same way the tick does — reflect it so the card matches reality.

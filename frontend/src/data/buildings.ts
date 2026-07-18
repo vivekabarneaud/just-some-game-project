@@ -1,4 +1,17 @@
 import { QUEST_DEFINITIONS, isQuestTriggered } from "./quests";
+import type { Season } from "./seasons";
+
+/** Seasonal yield multiplier for the food-gathering buildings — the wild larder
+ *  thins toward winter. Shared by the buildings list and the building modal so
+ *  both read the same numbers. */
+export const GATHERING_SEASON_MOD: Record<string, Record<Season, number>> = {
+  hunting_camp: { spring: 1, summer: 1, autumn: 0.75, winter: 0.5 },
+  fishing_hut:  { spring: 1, summer: 1, autumn: 0.75, winter: 0.5 },
+  forager_hut:  { spring: 1, summer: 1, autumn: 0.75, winter: 0.25 },
+};
+export function gatheringSeasonMod(buildingId: string, season: Season): number | null {
+  return GATHERING_SEASON_MOD[buildingId]?.[season] ?? null;
+}
 
 export interface BuildingCost {
   wood: number;
@@ -854,6 +867,10 @@ export const FOOD_STORAGE_PER_PANTRY_LEVEL = 300;
 // Gold storage — Town Hall treasury
 export const BASE_GOLD_STORAGE = 200;
 export const GOLD_STORAGE_PER_TH_LEVEL = 300;
+/** The gold cap (treasury) a Town Hall of the given level provides. */
+export function townHallTreasury(level: number): number {
+  return BASE_GOLD_STORAGE + Math.max(0, level) * GOLD_STORAGE_PER_TH_LEVEL;
+}
 
 // Villager growth: 1 new villager per this many game-hours, when conditions are met
 export const VILLAGER_GROWTH_INTERVAL_HOURS = 0.083; // ~1 villager every 5 min

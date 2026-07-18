@@ -1,4 +1,4 @@
-import { Show, createSignal, createEffect, onCleanup } from "solid-js";
+import { Show, For, createSignal, createEffect, onCleanup } from "solid-js";
 import { Portal } from "solid-js/web";
 import { A } from "@solidjs/router";
 import {
@@ -14,11 +14,24 @@ import {
   getBuildingImage,
   isStaffable,
   buildingWorkspace,
+  gatheringSeasonMod,
+  GATHERING_SEASON_MOD,
+  getSettlementTier,
+  getSettlementName,
+  townHallTreasury,
   PANIC_BUILD_IDS,
   PANIC_BUILD_SHARD_COST,
 } from "~/data/buildings";
+import type { Season } from "~/data/seasons";
 import { RESOURCES } from "~/data/resources";
-import { useGame } from "~/engine/gameState";
+import { useGame, CRAFTING_RECIPES, getBuildingToolsForBuilding } from "~/engine/gameState";
+
+const SEASONS: { key: Season; icon: string; label: string }[] = [
+  { key: "spring", icon: "🌱", label: "Spring" },
+  { key: "summer", icon: "☀️", label: "Summer" },
+  { key: "autumn", icon: "🍂", label: "Autumn" },
+  { key: "winter", icon: "❄️", label: "Winter" },
+];
 import Countdown from "~/components/Countdown";
 import Tooltip from "~/components/Tooltip";
 import BuildingStaffSection from "~/components/BuildingStaffSection";
@@ -137,6 +150,35 @@ export default function BuildingModal(props: Props) {
   const workspace = () => buildingWorkspace(id());
   const sluiceOpen = () => state.cisternSluiceOpen ?? false;
 
+  // Live crafting status — what's on the bench + what's queued behind it.
+  const isCraftingBuilding = () => CRAFTING_RECIPES.some((r) => r.building === id());
+  const buildingCrafts = () => state.craftingQueue.filter(
+    (c) => CRAFTING_RECIPES.find((r) => r.id === c.recipeId)?.building === id(),
+  );
+  const activeCraft = () => buildingCrafts().find((c) => !c.pending);
+  const queuedCount = () => buildingCrafts().filter((c) => c.pending).length;
+  const recipeOf = (recipeId: string) => CRAFTING_RECIPES.find((r) => r.id === recipeId);
+
+  // Tools installable at this building (the system currently has the Kitchen's
+  // cutting board; more later). Read-only here — you craft/install at the bench.
+  const tools = () => getBuildingToolsForBuilding(id());
+  const installedTools = () => state.buildingTools?.[id()] ?? [];
+
+  // Food-gathering buildings thin toward winter — show the whole year at a glance.
+  const isGathering = () => GATHERING_SEASON_MOD[id()] != null;
+
+  // Town Hall gates everything: its level is the cap on every other building's
+  // level (getEffectiveMaxLevel = min(TH, maxLevel)), and it advances the
+  // settlement tier (Camp→Village→Town→City), which unlocks new buildings.
+  const currentTier = () => getSettlementTier(level());
+  const nextTier = () => getSettlementTier(level() + 1);
+  const tierAdvances = () => nextTier() !== currentTier();
+  // Buildings the next tier opens up (tier-gated AND past their story gate, so we
+  // only promise ones that will actually appear). Empty unless the level advances.
+  const unlockedNextTier = () => tierAdvances()
+    ? BUILDINGS.filter((b) => b.requiredTier === nextTier() && isBuildingChapterUnlocked(b, state))
+    : [];
+
   return (
     <Portal>
       <div
@@ -151,7 +193,7 @@ export default function BuildingModal(props: Props) {
           {(b) => (
             <div
               style={{
-                "max-width": "480px", width: "100%", background: "var(--bg-secondary)",
+                "max-width": "560px", width: "100%", background: "var(--bg-secondary)",
                 border: "2px solid var(--accent-gold)", "border-radius": "0",
                 color: "var(--text-primary)", "max-height": "88vh", overflow: "auto",
                 "box-shadow": "0 10px 40px rgba(0, 0, 0, 0.6)",
@@ -195,7 +237,7 @@ export default function BuildingModal(props: Props) {
                 </div>
               </div>
 
-              <div style={{ padding: "16px 20px 20px" }}>
+              <div style={{ padding: "18px 24px 24px" }}>
                 <p style={{ color: "var(--text-secondary)", "font-size": "0.88rem", "line-height": 1.5, "margin-bottom": "18px" }}>
                   {b().description}
                 </p>
@@ -210,6 +252,29 @@ export default function BuildingModal(props: Props) {
                 </Show>
 
                 <Show when={unlocked()}>
+                  {/* Live crafting status — what's on the bench right now. */}
+                  <Show when={isCraftingBuilding() && level() > 0}>
+                    <div style={{
+                      "margin-bottom": "12px", padding: "10px 12px", background: "var(--bg-card)",
+                      border: "1px solid var(--border-color)", "font-size": "0.85rem",
+                    }}>
+                      <Show
+                        when={activeCraft()}
+                        fallback={<span style={{ color: "var(--text-muted)", "font-style": "italic" }}>Idle — nothing on the bench.</span>}
+                      >
+                        {(c) => (
+                          <span>
+                            <span style={{ color: "var(--accent-green)" }}>{recipeOf(c().recipeId)?.icon} Crafting {recipeOf(c().recipeId)?.name}</span>
+                            <Show when={(c().quantity ?? 1) > 1}><span style={{ color: "var(--text-muted)" }}> ×{c().quantity}</span></Show>
+                            <Show when={queuedCount() > 0}>
+                              <span style={{ color: "var(--text-muted)" }}> · {queuedCount()} more queued</span>
+                            </Show>
+                          </span>
+                        )}
+                      </Show>
+                    </div>
+                  </Show>
+
                   {/* Workspace link — dense pages stay pages; the modal just points there. */}
                   <Show when={workspace() && level() > 0}>
                     <A
@@ -223,6 +288,34 @@ export default function BuildingModal(props: Props) {
                     >
                       {workspace()!.label} →
                     </A>
+                  </Show>
+
+                  {/* Tools — installed gear that unlocks/boosts this building's work. */}
+                  <Show when={tools().length > 0 && level() > 0}>
+                    <div style={{ "margin-bottom": "18px" }}>
+                      <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "0.6px", "margin-bottom": "8px" }}>Tools</div>
+                      <For each={tools()}>
+                        {(t) => {
+                          const installed = () => installedTools().includes(t.id);
+                          return (
+                            <div style={{
+                              display: "flex", "align-items": "center", gap: "10px", padding: "8px 10px",
+                              background: "var(--bg-card)", border: "1px solid var(--border-color)", "margin-bottom": "6px",
+                              opacity: installed() ? "1" : "0.7",
+                            }}>
+                              <span style={{ "font-size": "1.2rem" }}>{t.icon}</span>
+                              <div style={{ flex: "1", "min-width": 0 }}>
+                                <div style={{ "font-size": "0.85rem" }}>{t.name}</div>
+                                <div style={{ "font-size": "0.72rem", color: "var(--text-muted)" }}>{t.description}</div>
+                              </div>
+                              <span style={{ "font-size": "0.74rem", "white-space": "nowrap", color: installed() ? "var(--accent-green, #4a9)" : "var(--text-muted)" }}>
+                                {installed() ? "✓ installed" : "craft to install"}
+                              </span>
+                            </div>
+                          );
+                        }}
+                      </For>
+                    </div>
                   </Show>
 
                   {/* Cistern sluice — the one live control on a built cistern. */}
@@ -280,6 +373,34 @@ export default function BuildingModal(props: Props) {
                     )}
                   </Show>
 
+                  {/* Yield by season — the wild larder thins toward winter. */}
+                  <Show when={isGathering() && level() > 0}>
+                    <div style={{ "margin-bottom": "18px" }}>
+                      <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "0.6px", "margin-bottom": "8px" }}>Yield by season</div>
+                      <div style={{ display: "flex", gap: "6px" }}>
+                        <For each={SEASONS}>
+                          {(s) => {
+                            const mod = () => gatheringSeasonMod(id(), s.key) ?? 1;
+                            const now = () => s.key === state.season;
+                            return (
+                              <div style={{
+                                flex: "1", "text-align": "center", padding: "8px 4px",
+                                background: now() ? "rgba(212, 175, 55, 0.12)" : "var(--bg-card)",
+                                border: `1px solid ${now() ? "var(--accent-gold)" : "var(--border-color)"}`,
+                              }}>
+                                <div style={{ "font-size": "1rem" }}>{s.icon}</div>
+                                <div style={{ "font-size": "0.66rem", color: "var(--text-muted)" }}>{s.label}</div>
+                                <div style={{ "font-size": "0.82rem", color: mod() >= 1 ? "var(--accent-green)" : "var(--accent-gold)" }}>
+                                  {Math.round(mod() * 100)}%
+                                </div>
+                              </div>
+                            );
+                          }}
+                        </For>
+                      </div>
+                    </div>
+                  </Show>
+
                   {/* Active upgrade with cancel. */}
                   <Show when={playerBuilding()?.upgrading && playerBuilding()?.upgradeRemaining}>
                     <div style={{
@@ -329,51 +450,104 @@ export default function BuildingModal(props: Props) {
                   <Show when={nextLevel()}>
                     {(next) => (
                       <>
-                        <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "12px", color: "var(--text-primary)" }}>
-                          {level() === 0 ? "Build Cost" : `Upgrade to Level ${level() + 1}`}
-                        </h3>
+                        <Show
+                          when={id() === "town_hall"}
+                          fallback={
+                            <>
+                              <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "12px", color: "var(--text-primary)" }}>
+                                {level() === 0 ? "Build Cost" : `Upgrade to Level ${level() + 1}`}
+                              </h3>
 
-                        <div class="cost-grid cost-grid-2">
-                          {COST_RESOURCES.map((res) => {
-                            const resId = res.id as "wood" | "stone";
-                            return (
-                              <div class="cost-item">
-                                <div class="cost-item-icon">{res.icon}</div>
-                                <div class="cost-item-amount" classList={{ affordable: canAffordRes(res.id), "too-expensive": !canAffordRes(res.id) }}>
-                                  {adjustedCost()![resId] < next().cost[resId] && (
-                                    <span style={{ "text-decoration": "line-through", opacity: 0.5, "margin-right": "4px", "font-size": "0.8em" }}>
-                                      {next().cost[resId].toLocaleString()}
-                                    </span>
-                                  )}
-                                  {adjustedCost()![resId].toLocaleString()}
-                                </div>
-                                <div class="cost-item-label">{res.name}</div>
+                              <div class="cost-grid cost-grid-2">
+                                {COST_RESOURCES.map((res) => {
+                                  const resId = res.id as "wood" | "stone";
+                                  return (
+                                    <div class="cost-item">
+                                      <div class="cost-item-icon">{res.icon}</div>
+                                      <div class="cost-item-amount" classList={{ affordable: canAffordRes(res.id), "too-expensive": !canAffordRes(res.id) }}>
+                                        {adjustedCost()![resId] < next().cost[resId] && (
+                                          <span style={{ "text-decoration": "line-through", opacity: 0.5, "margin-right": "4px", "font-size": "0.8em" }}>
+                                            {next().cost[resId].toLocaleString()}
+                                          </span>
+                                        )}
+                                        {adjustedCost()![resId].toLocaleString()}
+                                      </div>
+                                      <div class="cost-item-label">{res.name}</div>
+                                    </div>
+                                  );
+                                })}
                               </div>
-                            );
-                          })}
-                        </div>
 
-                        <Show when={next().production && !currentLevel()?.production}>
-                          <div class="stat-row">
-                            <span class="stat-label">Production</span>
-                            <span class="stat-value" style={{ color: "var(--accent-green)" }}>
-                              +{next().production!.rate}/h {next().production!.resource}
-                            </span>
+                              <Show when={next().production && !currentLevel()?.production}>
+                                <div class="stat-row">
+                                  <span class="stat-label">Production</span>
+                                  <span class="stat-value" style={{ color: "var(--accent-green)" }}>
+                                    +{next().production!.rate}/h {next().production!.resource}
+                                  </span>
+                                </div>
+                              </Show>
+
+                              <Show when={actions.getBuildingEffect(id(), level() + 1)}>
+                                {(effect) => <div class="building-effect">{effect()}</div>}
+                              </Show>
+
+                              <div class="build-time">
+                                Build time:{" "}
+                                {adjustedTime()! < next().buildTime && (
+                                  <span style={{ "text-decoration": "line-through", opacity: 0.5, "margin-right": "4px" }}>{formatTime(next().buildTime)}</span>
+                                )}
+                                {formatTime(adjustedTime()!)}
+                              </div>
+                            </>
+                          }
+                        >
+                          {/* Town Hall — a before → after of what this upgrade changes. */}
+                          <p style={{ "font-size": "0.82rem", color: "var(--text-secondary)", "margin-bottom": "12px", "line-height": 1.45 }}>
+                            The Town Hall caps every other building at its own level, and its rank unlocks new ones.
+                          </p>
+                          <div style={{ display: "flex", "flex-wrap": "wrap", gap: "10px", "align-items": "stretch" }}>
+                            {/* NOW */}
+                            <div style={{ flex: "1 1 44%", "min-width": "150px", padding: "10px 12px", background: "var(--bg-card)", border: "1px solid var(--border-color)" }}>
+                              <div style={{ "font-size": "0.66rem", "text-transform": "uppercase", "letter-spacing": "0.6px", color: "var(--text-muted)", "margin-bottom": "8px" }}>Now · Level {level()}</div>
+                              <div style={{ display: "flex", "justify-content": "space-between", gap: "8px", "font-size": "0.82rem", padding: "3px 0" }}><span style={{ color: "var(--text-muted)" }}>Rank</span><b>{getSettlementName(currentTier())}</b></div>
+                              <div style={{ display: "flex", "justify-content": "space-between", gap: "8px", "font-size": "0.82rem", padding: "3px 0" }}><span style={{ color: "var(--text-muted)" }}>Build cap</span><b>Lv.{level()}</b></div>
+                              <div style={{ display: "flex", "justify-content": "space-between", gap: "8px", "font-size": "0.82rem", padding: "3px 0" }}><span style={{ color: "var(--text-muted)" }}>Treasury</span><b>{townHallTreasury(level()).toLocaleString()}</b></div>
+                            </div>
+                            {/* NEXT */}
+                            <div style={{ flex: "1 1 44%", "min-width": "150px", padding: "10px 12px", background: "rgba(46, 204, 113, 0.08)", border: "1px solid var(--accent-green)" }}>
+                              <div style={{ "font-size": "0.66rem", "text-transform": "uppercase", "letter-spacing": "0.6px", color: "var(--accent-green)", "margin-bottom": "8px" }}>Level {level() + 1}</div>
+                              <div style={{ display: "flex", "justify-content": "space-between", gap: "8px", "font-size": "0.82rem", padding: "3px 0" }}><span style={{ color: "var(--text-muted)" }}>Rank</span><b>{getSettlementName(nextTier())}{tierAdvances() ? " ▲" : ""}</b></div>
+                              <div style={{ display: "flex", "justify-content": "space-between", gap: "8px", "font-size": "0.82rem", padding: "3px 0" }}><span style={{ color: "var(--text-muted)" }}>Build cap</span><b>Lv.{level() + 1}</b></div>
+                              <div style={{ display: "flex", "justify-content": "space-between", gap: "8px", "font-size": "0.82rem", padding: "3px 0" }}><span style={{ color: "var(--text-muted)" }}>Treasury</span><b>{townHallTreasury(level() + 1).toLocaleString()}</b></div>
+                              <Show when={unlockedNextTier().length > 0}>
+                                <div style={{ "margin-top": "8px", "padding-top": "8px", "border-top": "1px solid var(--border-color)" }}>
+                                  <div style={{ "font-size": "0.66rem", "text-transform": "uppercase", "letter-spacing": "0.6px", color: "var(--text-muted)", "margin-bottom": "6px" }}>Unlocks</div>
+                                  <div style={{ display: "flex", "flex-wrap": "wrap", gap: "5px" }}>
+                                    <For each={unlockedNextTier()}>
+                                      {(bd) => (
+                                        <span style={{ display: "inline-flex", "align-items": "center", gap: "4px", padding: "3px 7px", background: "var(--bg-secondary)", border: "1px solid var(--border-color)", "font-size": "0.74rem" }}>
+                                          <span>{bd.icon}</span>{bd.name}
+                                        </span>
+                                      )}
+                                    </For>
+                                  </div>
+                                </div>
+                              </Show>
+                            </div>
+                          </div>
+                          {/* Compact cost + build time. */}
+                          <div style={{ display: "flex", "align-items": "center", "flex-wrap": "wrap", gap: "14px", margin: "14px 0 0", "font-size": "0.9rem" }}>
+                            <span style={{ color: "var(--text-muted)" }}>Cost</span>
+                            {COST_RESOURCES.map((res) => (
+                              <span style={{ display: "inline-flex", "align-items": "center", gap: "4px", color: canAffordRes(res.id) ? "var(--text-primary)" : "var(--accent-red)" }}>
+                                <span>{res.icon}</span>{adjustedCost()![res.id as "wood" | "stone"].toLocaleString()}
+                              </span>
+                            ))}
+                            <span style={{ color: "var(--text-muted)" }}>· ⏱ {formatTime(adjustedTime()!)}</span>
                           </div>
                         </Show>
 
-                        <Show when={actions.getBuildingEffect(id(), level() + 1)}>
-                          {(effect) => <div class="building-effect">{effect()}</div>}
-                        </Show>
-
-                        <div class="build-time">
-                          Build time:{" "}
-                          {adjustedTime()! < next().buildTime && (
-                            <span style={{ "text-decoration": "line-through", opacity: 0.5, "margin-right": "4px" }}>{formatTime(next().buildTime)}</span>
-                          )}
-                          {formatTime(adjustedTime()!)}
-                        </div>
-
+                        {/* Shared: prereqs + upgrade + panic. */}
                         <div style={{ "margin-top": "18px" }}>
                           <Show when={!tierPrereqs().met}>
                             <div style={{
