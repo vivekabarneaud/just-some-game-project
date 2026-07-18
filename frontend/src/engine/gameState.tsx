@@ -3175,7 +3175,8 @@ function tickDrink(
   cfg: TavernCommodityDrink,
   hours: number,
 ): { onMenu: boolean; needed: number; consumed: number } {
-  const buildingLvl = s.buildings.find((b) => b.buildingId === cfg.requiresBuilding)?.level ?? 0;
+  const brewBldg = s.buildings.find((b) => b.buildingId === cfg.requiresBuilding);
+  const buildingLvl = brewBldg?.damaged ? 0 : (brewBldg?.level ?? 0); // a damaged brewery brews nothing
   const tavernBldg = s.buildings.find((b) => b.buildingId === "tavern");
   // A damaged tavern pours nothing (it serves no one until repaired).
   const tavernLvl = tavernBldg?.damaged ? 0 : (tavernBldg?.level ?? 0);
@@ -3337,16 +3338,14 @@ function calcBuildingEffect(buildingId: string, nextLevel: number): string | nul
       return `Happiness: +${cur} → +${next}`;
     }
     case "brewery": {
-      const curAle = Math.max(0, currentLevel) * ALE_PRODUCTION_PER_BREWERY_LEVEL;
-      const nextAle = nextLevel * ALE_PRODUCTION_PER_BREWERY_LEVEL;
-      const curFood = Math.max(0, currentLevel) * ALE_FOOD_COST_PER_BREWERY_LEVEL;
-      const nextFood = nextLevel * ALE_FOOD_COST_PER_BREWERY_LEVEL;
-      // Hint any commodity drink that unlocks at the level we're upgrading INTO.
+      // Output/consumption depend on WHICH drink is brewing (grain→ale, honey→mead,
+      // apples→cider), so the per-drink numbers live in the brewing panel. Here we
+      // just note the level payoff: faster brewing, bigger barrels, and any unlock.
       const unlocking = TAVERN_COMMODITY_DRINKS.find(
         (d) => d.requiresBuilding === "brewery" && (d.minBuildingLevel ?? 1) === nextLevel,
       );
-      const unlockNote = unlocking ? ` · Unlocks ${unlocking.icon} ${unlocking.name.toLowerCase()} (from ${unlocking.brewedFrom})` : "";
-      return `Ale: +${curAle}/h → +${nextAle}/h · Food cost: ${curFood}/h → ${nextFood}/h${unlockNote}`;
+      const unlockNote = unlocking ? `Unlocks ${unlocking.icon} ${unlocking.name.toLowerCase()} (from ${unlocking.brewedFrom})\n` : "";
+      return `${unlockNote}Every drink brews faster and its barrel holds more`;
     }
     case "tavern": {
       const cur = Math.max(0, currentLevel) * TAVERN_HAPPINESS_PER_LEVEL;

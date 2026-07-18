@@ -44,7 +44,7 @@ const effectRows = (text: string): string[] => text.split(/ · |\n/).map((s) => 
 import Countdown from "~/components/Countdown";
 import Tooltip from "~/components/Tooltip";
 import BuildingStaffSection from "~/components/BuildingStaffSection";
-import BreweryManageModal from "~/components/BreweryManageModal";
+import { TAVERN_COMMODITY_DRINKS } from "~/data/tavern";
 import { formatTimeLong as formatTime } from "~/utils/format";
 
 const COST_RESOURCES = RESOURCES.filter((r) => r.id === "wood" || r.id === "stone");
@@ -64,7 +64,6 @@ interface Props {
 export default function BuildingModal(props: Props) {
   const { state, actions } = useGame();
   const [exiting, setExiting] = createSignal(false);
-  const [breweryOpen, setBreweryOpen] = createSignal(false);
 
   const close = () => { setExiting(true); setTimeout(() => props.onClose(), 180); };
   createEffect(() => {
@@ -502,11 +501,53 @@ export default function BuildingModal(props: Props) {
                     </div>
                   </Show>
 
-                  {/* Brewery — its own manager (stacked modal). */}
-                  <Show when={id() === "brewery" && level() > 0}>
-                    <button class="btn-secondary" onClick={() => setBreweryOpen(true)} style={{ "margin-bottom": "18px" }}>
-                      ⚙ Manage brewing
-                    </button>
+                  {/* Brewery — brewing management, inline (pause a drink to stop it
+                      drawing from your stores; the tavern only pours what's on its menu). */}
+                  <Show when={id() === "brewery" && level() > 0 && !playerBuilding()?.damaged}>
+                    <div style={{ "margin-bottom": "18px" }}>
+                      <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "0.6px", "margin-bottom": "8px" }}>Brewing</div>
+                      <For each={TAVERN_COMMODITY_DRINKS.filter((d) => d.requiresBuilding === "brewery")}>
+                        {(d) => {
+                          const minLvl = d.minBuildingLevel ?? 1;
+                          const unlocked = () => level() >= minLvl;
+                          const paused = () => actions.isBrewingPaused(d.id);
+                          const onMenu = () => (state.tavernMenu ?? []).includes(d.id);
+                          return (
+                            <div style={{
+                              display: "flex", "align-items": "center", gap: "10px", padding: "8px 10px",
+                              background: "var(--bg-card)", border: "1px solid var(--border-color)",
+                              "margin-bottom": "6px", opacity: unlocked() ? "1" : "0.6",
+                            }}>
+                              <span style={{ "font-size": "1.3rem", filter: unlocked() ? undefined : "grayscale(0.6)" }}>{d.icon}</span>
+                              <div style={{ flex: "1", "min-width": "0" }}>
+                                <div style={{ "font-size": "0.88rem" }}>{d.name}</div>
+                                <Show
+                                  when={unlocked()}
+                                  fallback={<div style={{ "font-size": "0.72rem", color: "var(--text-muted)" }}>🔒 Unlocks at Brewery Lv.{minLvl}</div>}
+                                >
+                                  <div style={{ "font-size": "0.72rem", color: "var(--text-muted)" }}>
+                                    +{d.producePerBuildingLevel * level()}/h from {d.brewedFrom} (−{d.inputPerBuildingLevel * level()}/h) · barrel {Math.floor(actions.resourceQty(d.resource))}/{d.storageBase + level() * d.storagePerBuildingLevel} · {onMenu() ? "on the menu" : "off the menu"}
+                                  </div>
+                                </Show>
+                              </div>
+                              <Show when={unlocked()}>
+                                <button
+                                  onClick={() => actions.toggleBrewingPaused(d.id)}
+                                  style={{
+                                    padding: "5px 10px", "font-size": "0.78rem", cursor: "pointer", "white-space": "nowrap",
+                                    border: `1px solid ${paused() ? "var(--accent-gold)" : "var(--border-color)"}`,
+                                    background: paused() ? "rgba(212, 175, 55, 0.1)" : "transparent",
+                                    color: paused() ? "var(--accent-gold)" : "var(--text-secondary)", "border-radius": "0",
+                                  }}
+                                >
+                                  {paused() ? "▶ Resume" : "⏸ Pause"}
+                                </button>
+                              </Show>
+                            </div>
+                          );
+                        }}
+                      </For>
+                    </div>
                   </Show>
 
                   {/* Staff section (folded in from the old StaffManageModal). */}
@@ -735,7 +776,9 @@ export default function BuildingModal(props: Props) {
                                   ? "The shrine is desecrated — no offerings can be made and it gives no comfort until you cleanse and repair it."
                                   : id() === "tavern"
                                     ? "The tavern is wrecked — no travelers are served and the common room offers only the faintest cheer until you repair it."
-                                    : "This building is damaged and inactive. Repair it to restore function."}
+                                    : id() === "brewery"
+                                      ? "The brewery is smashed — nothing brews and the barrels run dry until you repair it."
+                                      : "This building is damaged and inactive. Repair it to restore function."}
                     </div>
 
                     <Show
@@ -790,9 +833,6 @@ export default function BuildingModal(props: Props) {
           )}
         </Show>
       </div>
-      <Show when={breweryOpen()}>
-        <BreweryManageModal onClose={() => setBreweryOpen(false)} />
-      </Show>
     </Portal>
   );
 }
