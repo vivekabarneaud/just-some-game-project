@@ -176,6 +176,20 @@ export default function BuildingModal(props: Props) {
   // Food-gathering buildings thin toward winter — show the whole year at a glance.
   const isGathering = () => GATHERING_SEASON_MOD[id()] != null;
 
+  // Current-output card: the ACTUAL rate (base × season × staff coverage) plus a
+  // status line explaining any shortfall — so it reads distinct from the upgrade
+  // preview (which shows base rates).
+  const prodSeasonMod = () => gatheringSeasonMod(id(), state.season) ?? 1;
+  const prodStaff = () => isStaffable(id()) ? actions.getBuildingStaffing(id()) : null;
+  const currentProdRate = () => Math.floor((currentLevel()?.production?.rate ?? 0) * prodSeasonMod() * (prodStaff()?.multiplier ?? 1));
+  const prodStatus = (): string[] => {
+    const parts: string[] = [];
+    const st = prodStaff();
+    if (st && st.active < st.capacity) parts.push(`short-handed (${Math.round(st.multiplier * 100)}% output)`);
+    if (prodSeasonMod() < 1) parts.push(`${state.season} lull (${Math.round(prodSeasonMod() * 100)}% yield)`);
+    return parts;
+  };
+
   // Town Hall gates everything: its level is the cap on every other building's
   // level (getEffectiveMaxLevel = min(TH, maxLevel)), and it advances the
   // settlement tier (Camp→Village→Town→City), which unlocks new buildings.
@@ -490,17 +504,27 @@ export default function BuildingModal(props: Props) {
                     <BuildingStaffSection buildingId={id()} />
                   </Show>
 
-                  {/* Current production. */}
+                  {/* Current production — the ACTUAL rate (season/staff-adjusted) + why. */}
                   <Show when={currentLevel()?.production}>
                     {(prod) => (
-                      <div style={{ "margin-bottom": "18px", padding: "10px", background: "var(--bg-card)" }}>
+                      <div style={{ "margin-bottom": "18px", padding: "10px 12px", background: "var(--bg-card)" }}>
                         <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>Current Production</div>
-                        <div style={{ "font-size": "1.1rem", color: "var(--accent-green)" }}>+{prod().rate}/h {prod().resource}</div>
+                        <div style={{ "font-size": "1.1rem", color: "var(--accent-green)" }}>
+                          +{currentProdRate()}/h {prod().resource}
+                          <Show when={currentProdRate() < prod().rate}>
+                            <span style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-left": "6px" }}>(full {prod().rate}/h)</span>
+                          </Show>
+                        </div>
                         <Show when={id() === "forager_hut"}>
                           <div style={{ "font-size": "0.9rem", color: "var(--accent-green)", "margin-top": "4px" }}>
                             +{(level() * 1.5).toFixed(1)}/h fiber (wild flax)
                           </div>
                         </Show>
+                        <div style={{ "font-size": "0.78rem", "margin-top": "6px", color: prodStatus().length ? "var(--accent-gold)" : "var(--accent-green, #4a9)" }}>
+                          {prodStatus().length
+                            ? prodStatus().map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join(" · ")
+                            : "Steady — staffed and in season, full output."}
+                        </div>
                       </div>
                     )}
                   </Show>
@@ -572,15 +596,6 @@ export default function BuildingModal(props: Props) {
                                 when={id() === "town_hall"}
                                 fallback={
                                   <>
-                                    <Show when={next().production && !currentLevel()?.production}>
-                                      <div class="stat-row">
-                                        <span class="stat-label">Production</span>
-                                        <span class="stat-value" style={{ color: "var(--accent-green)" }}>
-                                          +{next().production!.rate}/h {next().production!.resource}
-                                        </span>
-                                      </div>
-                                    </Show>
-
                                     <Show when={actions.getBuildingEffect(id(), level() + 1)}>
                                       {(effect) => (
                                         <div class="building-effect">

@@ -3357,8 +3357,15 @@ function calcBuildingEffect(buildingId: string, nextLevel: number): string | nul
       const nextRoster = getMaxRoster(nextLevel);
       return `Max roster: ${curRoster} → ${nextRoster}`;
     }
-    default:
-      return null;
+    default: {
+      // Generic producer (lumber mill, quarry, gathering huts): show output climbing
+      // in the same green box every other building uses.
+      const b = BUILDINGS.find((x) => x.id === buildingId);
+      const nextP = b?.levels[nextLevel - 1]?.production;
+      if (!nextP) return null;
+      const curP = currentLevel >= 1 ? b?.levels[currentLevel - 1]?.production : undefined;
+      return `Production: +${curP?.rate ?? 0}/h → +${nextP.rate}/h ${nextP.resource}`;
+    }
   }
 }
 
