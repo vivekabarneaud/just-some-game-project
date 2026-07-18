@@ -454,7 +454,9 @@ export default function BuildingModal(props: Props) {
                   <Show when={playerBuilding()?.damaged}>
                     <div style={{ "margin-bottom": "18px", padding: "12px", background: "rgba(231, 76, 60, 0.1)", border: "1px solid var(--accent-red)" }}>
                       <div style={{ color: "var(--accent-red)", "margin-bottom": "8px" }}>
-                        This building is damaged and inactive. Repair it to restore function.
+                        {id() === "houses"
+                          ? "Homes lie in ruins — the settlement shelters a level fewer, and folk crowd the streets until you rebuild them."
+                          : "This building is damaged and inactive. Repair it to restore function."}
                       </div>
                       <button
                         class="upgrade-btn"

@@ -3025,7 +3025,10 @@ const HOUSING_POP: number[] = [
 function calcMaxPopulation(buildings: PlayerBuilding[]): number {
   const houses = buildings.find((b) => b.buildingId === "houses");
   const level = houses?.level ?? 0;
-  return BASE_POPULATION + (HOUSING_POP[level] ?? 0);
+  // Damaged houses shelter as if a level lower — a raid puts some folk in the
+  // streets (overcrowding, and cold deaths once that lands) until repaired.
+  const effLevel = houses?.damaged ? Math.max(0, level - 1) : level;
+  return BASE_POPULATION + (HOUSING_POP[effLevel] ?? 0);
 }
 
 /** Adventurers eat less than a townsfolk — they're hardy and forage/provision on
