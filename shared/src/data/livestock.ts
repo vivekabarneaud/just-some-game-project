@@ -134,8 +134,6 @@ export const PREDATION_SEASON_MOD: Record<string, number> = {
 };
 /** Most animals a single raid takes. */
 export const PREDATION_MAX_LOSS = 2;
-/** Gold to keep a guard dog with a pen — stops predation on that fold. */
-export const GUARD_DOG_COST = 60;
 
 // ── Culling (slice 4): the player's DELIBERATE choice to slaughter one animal.
 // Yields meat (food) + leather (feeds leatherworking). Bone deferred until a

@@ -6,8 +6,6 @@ interface Props {
    *  mission system on purpose, so expedition treasure can reuse it verbatim
    *  with its own labels (and, later, per-item colours). */
   labels: string[];
-  /** Optional note under the chips (e.g. the assassin's partial-salvage tag). */
-  note?: string;
   /** Fired once, the moment the player opens the chest. */
   onOpened?: () => void;
 }
@@ -78,11 +76,6 @@ export default function TreasureChest(props: Props) {
               )}
             </For>
           </div>
-          <Show when={props.note}>
-            <div style={{ "font-size": "0.75rem", color: "var(--accent-purple)", "text-align": "center", "margin-top": "6px" }}>
-              {props.note}
-            </div>
-          </Show>
         </div>
       </Show>
     </div>

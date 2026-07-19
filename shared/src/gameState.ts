@@ -102,8 +102,6 @@ export interface PlayerPen {
   upgradeRemaining?: number;
   /** True when the pen couldn't cover its food need last tick — production drops to 0 until fed. */
   starving?: boolean;
-  /** A guard dog is kept with this flock — stops wolf predation on it. */
-  guardDog?: boolean;
   /** Accumulated game-hours of starvation; when it crosses the death threshold
    *  an animal dies and it resets. Cleared when the flock is fed again. */
   starveHours?: number;

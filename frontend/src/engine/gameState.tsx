@@ -153,7 +153,6 @@ import {
   PREDATION_PER_HOUR,
   PREDATION_SEASON_MOD,
   PREDATION_MAX_LOSS,
-  GUARD_DOG_COST,
   getCullYield,
   getWoolSeasonMod,
   PEN_MAX_LEVEL,
@@ -425,8 +424,6 @@ export interface PlayerPen {
   upgradeRemaining?: number;
   /** True when the pen didn't cover its food need last tick. Production = 0 while starving. */
   starving?: boolean;
-  /** A guard dog is kept with this flock — stops wolf predation on it. */
-  guardDog?: boolean;
   /** Accumulated game-hours of starvation; an animal dies each time it crosses
    *  the death threshold, then it resets. Cleared once the flock is fed. */
   starveHours?: number;
@@ -808,8 +805,6 @@ export interface GameActions {
   upgradePen: (penId: string) => boolean;
   /** Buy `qty` animals for a built pen with gold, up to its capacity. */
   buyLivestock: (penId: string, qty?: number) => boolean;
-  /** Keep a guard dog with a pen (gold, one-off) — stops wolf predation on it. */
-  buyGuardDog: (penId: string) => boolean;
   /** Deliberately slaughter `qty` animals from a pen for meat + leather. */
   cullLivestock: (penId: string, qty?: number) => boolean;
   /** Post a kept animal to a job (guard a pen, work the hunting camp, or idle). */
@@ -2826,9 +2821,9 @@ function applyFlockDynamics(s: GameState, fedRatios: Map<string, number>, elapse
     const ratio = fedRatios.get(pen.id) ?? 1;
 
     // Predation — wolves thin an UNDEFENDED fold (fed or not), worse in the lean
-    // seasons. A guard dog stops it entirely. At most one raid per tick; the
-    // chance compounds over elapsed hours so an offline stretch isn't a wipe.
-    if (!pen.guardDog && !dogGuarded.has(pen.id)) {
+    // seasons. A posted guard dog stops it entirely. At most one raid per tick;
+    // the chance compounds over elapsed hours so an offline stretch isn't a wipe.
+    if (!dogGuarded.has(pen.id)) {
       const mod = PREDATION_SEASON_MOD[s.season] ?? 1;
       const raidChance = 1 - Math.pow(1 - PREDATION_PER_HOUR * mod, elapsedHours);
       if (Math.random() < raidChance) {
@@ -6088,18 +6083,6 @@ export function GameProvider(props: ParentProps) {
     },
 
     // Keep a guard dog with a pen (one-off gold cost) — stops wolf predation there.
-    buyGuardDog(penId) {
-      const pen = state.pens.find((p) => p.id === penId);
-      if (!pen || pen.level < 1 || pen.guardDog) return false;
-      if (state.resources.gold < GUARD_DOG_COST) return false;
-      setState(produce((s) => {
-        s.resources.gold -= GUARD_DOG_COST;
-        const p = s.pens.find((p) => p.id === penId)!;
-        p.guardDog = true;
-      }));
-      scheduleSave();
-      return true;
-    },
 
     // Deliberate cull — the player's choice to slaughter for meat + leather.
     // Never automatic (the flock only shrinks otherwise via hunger/predation).
