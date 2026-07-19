@@ -11,22 +11,16 @@ import {
   getPortraitUrl,
   getOrigin,
   RACE_NAMES,
-  type Adventurer,
-  type AdventurerRank,
-  getRelationship,
   getCharacterSummary,
-  getFoodPref,
 } from "@medieval-realm/shared/data/adventurers";
 import { getUnspentTalentPoints } from "~/data/talents";
 import { getItem } from "@medieval-realm/shared/data/items";
 import {
   type MissionTemplate,
-  type MissionSlot,
   getMission,
   formatReward,
   getCurrentStoryMission,
   getLockedStoryMission,
-  STORY_MISSIONS,
   isExpedition,
   getMissionPhase,
 } from "@medieval-realm/shared/data/missions";
@@ -70,19 +64,6 @@ const rankOrnamentH = (v: string) => v.replace(".png", "_h.png");
 
 
 
-/** Get the image for a mission from source data (avoids stale paths in saved state) */
-function getMissionImage(missionId: string): string | undefined {
-  return getMission(missionId)?.image;
-}
-
-function formatDuration(seconds: number): string {
-  if (seconds < 60) return `${seconds}s`;
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  return m > 0 ? `${h}h ${m}m` : `${h}h`;
-}
-
 function XpBar(props: { xp: number; level: number }) {
   const needed = () => getXpForLevel(props.level);
   const pct = () => Math.min(100, (props.xp / needed()) * 100);
@@ -99,10 +80,6 @@ function XpBar(props: { xp: number; level: number }) {
   );
 }
 
-function DeathRisk(props: { chance: number }) {
-  const color = () => props.chance <= 5 ? "var(--accent-green)" : props.chance <= 15 ? "var(--accent-gold)" : "var(--accent-red)";
-  return <span style={{ color: color(), "font-size": "0.75rem" }}>({props.chance}% death risk on failure)</span>;
-}
 
 export default function AdventurersGuild() {
   const { state, actions } = useGame();
@@ -287,14 +264,6 @@ export default function AdventurersGuild() {
   const guildLevel = () => actions.getGuildLevel();
   const storyMission = () => getCurrentStoryMission(guildLevel(), state.completedStoryMissions ?? [], state.questRewardsClaimed ?? []);
   const lockedStoryMission = () => getLockedStoryMission(guildLevel(), state.completedStoryMissions ?? [], state.questRewardsClaimed ?? []);
-  const CLASS_ORDER: Record<string, number> = { warrior: 0, priest: 1, wizard: 2, archer: 3, assassin: 4 };
-  const availableIds = createMemo(() =>
-    state.adventurers
-      .filter((a) => a.alive && !a.onMission)
-      .sort((a, b) => (CLASS_ORDER[a.class] ?? 9) - (CLASS_ORDER[b.class] ?? 9) || b.level - a.level)
-      .map((a) => a.id)
-  );
-  const available = () => availableIds().map((id) => state.adventurers.find((a) => a.id === id)!);
   // Roster tab shows only living adventurers; the fallen live on the
   // Pantheon memorial inside the Shrine (frontend/src/components/Pantheon.tsx).
   const roster = () => state.adventurers.filter((a) => a.alive);
@@ -313,18 +282,6 @@ export default function AdventurersGuild() {
     }
   };
 
-
-  /** Assign team members to mission slots optimally — class matches first, then "any" slots */
-
-  const slotIcon = (slot: MissionSlot) => {
-    if (slot.class === "any") return "👤";
-    return getClassMeta(slot.class).icon;
-  };
-
-  const slotLabel = (slot: MissionSlot) => {
-    if (slot.class === "any") return "Any";
-    return getClassMeta(slot.class).name;
-  };
 
   return (
     <>

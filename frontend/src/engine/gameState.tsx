@@ -29,9 +29,6 @@ import {
   GOLD_STORAGE_PER_TH_LEVEL,
   VILLAGER_GROWTH_INTERVAL_HOURS,
   GOLD_TAX_PER_CITIZEN_PER_HOUR,
-  ALE_PRODUCTION_PER_BREWERY_LEVEL,
-  ALE_FOOD_COST_PER_BREWERY_LEVEL,
-  ALE_CONSUMED_PER_TAVERN_LEVEL,
   ALE_STORAGE_BASE,
   ALE_STORAGE_PER_BREWERY_LEVEL,
   SHRINE_HAPPINESS_PER_LEVEL,
@@ -41,7 +38,6 @@ import {
   CLOTHING_DEGRADE_PER_DAY,
   CLOTHING_WINTER_WOOD_REDUCTION,
   CLOTHING_HAPPINESS_BONUS,
-  CLOTHING_HAPPINESS_PENALTY,
   WINTER_WOOD_PER_CITIZEN_PER_HOUR,
   WINTER_HAPPINESS_PENALTY,
   WINTER_NO_WOOD_HAPPINESS,
@@ -80,8 +76,6 @@ import {
   getMageTowerBuildTime,
   SOLDIER_COST,
   ARCHER_COST,
-  maxSoldiers,
-  maxArchers,
   availableCitizens,
   militiaCount,
   TRAINER_ID,
@@ -90,7 +84,6 @@ import {
   getWatchtowerArcherCap,
   getBarracksSoldierCap,
   distributeLegacyGarrison,
-  getTrainCost,
   getTrainTime,
 } from "~/data/defenses";
 import {
@@ -134,7 +127,6 @@ import {
   STARTING_SEED_PER_CROP,
   canPlantVeggie,
   isVeggieProducing,
-  MAX_GARDENS,
   GARDEN_MAX_LEVEL,
 } from "~/data/gardens";
 import {
@@ -198,7 +190,7 @@ import {
   isOrchardActive,
   ORCHARD_MAX_LEVEL,
 } from "~/data/orchards";
-import { getClimate, getClimateYield, DROUGHT_PLANT_KILL, climateOverrideBand, setClimateOverride, isDryBand, isWetBand, climateRainFactor, type ClimateBand } from "~/data/climate";
+import { getClimate, getClimateYield, DROUGHT_PLANT_KILL, climateOverrideBand, setClimateOverride, isWetBand, climateRainFactor, type ClimateBand } from "~/data/climate";
 import { WELL_ID, CISTERN_ID, getWellOutput, wellFactor, getCisternRainCatch, getWaterCap, ambientRainFactor, gardenWaterDemand, fieldWaterDemand, orchardWaterDemand, penWaterDemand, getSluiceDrain, delugeDrownFactor, STREAM_YIELD, streamStatus, streamFactor, cropHeatFactor, citizenWaterDemand } from "~/data/water";
 import type { StreamStatus } from "~/data/water";
 import { resolveCurrentWeather, HEATWAVE_HEAT_KILL_PER_HOUR, HEATWAVE_THIRST_KILL_PER_HOUR, DELUGE_DROWN_KILL_PER_HOUR, type WeatherType } from "~/data/weather";
@@ -213,19 +205,13 @@ import {
 import { STORY_CHAINS, runStoryChains, next3amUTC } from "~/engine/story/chains";
 import {
   type Adventurer,
-  type AdventurerRank,
   type Race,
   buildRecruitFromPremadeId,
   getArrivedPremades,
   getDeployCost,
   getMaxRoster,
-  RECRUIT_REFRESH_HOURS,
-  MISSION_REFRESH_HOURS,
   RACE_WEIGHTS,
-  ORIGINS,
   getOriginsForRace,
-  getOrigin,
-  getOriginsForGuildLevel,
   BACKSTORY_TRAITS,
   PERSONALITY_QUIRKS,
   getPortraitUrl,
@@ -268,8 +254,6 @@ import {
   getItem,
   getItemByRecipe,
   getEquipmentStats,
-  ITEMS,
-  getSupplyEffect,
   getPotionInfo,
   MATCHED_FOOD_LOYALTY_BONUS,
   getArmorAccess,
@@ -281,7 +265,6 @@ import {
   type AdventurerStats,
   STAT_KEYS,
   getLoyaltyRank,
-  LOYALTY_RANKS,
   FOOD_PREFERENCES,
   ORIGIN_RECIPES,
 } from "@medieval-realm/shared/data/adventurers";
@@ -300,15 +283,13 @@ import {
   QUEST_DEFINITIONS,
   isQuestTriggered,
   isChapterComplete,
-  type StorylineId,
-  type ChapterState,
 } from "~/data/quests";
 import { getReadyEvents } from "~/data/events";
 import { TRAVELING_MERCHANTS, getMerchant, merchantIntervalDays } from "~/data/merchants";
 import { calcTavern, tavernRooms, REPUTATION_DRIFT_PER_HOUR, TAVERN_FOOD_PER_ROOM_PER_HOUR, MENU_STAPLE_IDS, serversNeeded, menuCapacity, TAVERN_COMMODITY_DRINKS, getCommodityDrink, type TavernCommodityDrink } from "~/data/tavern";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { EXOTIC_IDS } from "@medieval-realm/shared/data/exotics";
-import { ALCHEMY_RECIPES, getDiscoverableRecipes, getAvailableAlchemyRecipes, RESEARCH_BASE_COST } from "@medieval-realm/shared/data/alchemy_recipes";
+import { ALCHEMY_RECIPES, getDiscoverableRecipes, RESEARCH_BASE_COST } from "@medieval-realm/shared/data/alchemy_recipes";
 import { getDeity, getCurrentDeity } from "~/data/deities";
 import { simulateCombat, type LootResult } from "@medieval-realm/shared/data/combat";
 import { simulateRaidCombat } from "@medieval-realm/shared/data/raidCombat";
@@ -2956,16 +2937,6 @@ function calcFoodRates(state: GameState, fedRatios?: Map<string, number>): Recor
 
   return rates;
 }
-
-const FOOD_TYPE_META: Record<string, { label: string; icon: string }> = {
-  grain: { label: "Grain", icon: "🌾" },
-  meat: { label: "Meat", icon: "🥩" },
-  berries: { label: "Berries", icon: "🫐" },
-  fish: { label: "Fish", icon: "🐟" },
-  eggs: { label: "Eggs", icon: "🥚" },
-  milk: { label: "Milk", icon: "🥛" },
-  veggies: { label: "Vegetables", icon: "🥬" },
-};
 
 function calcFoodBreakdown(state: GameState): FoodSource[] {
   const { buildings, fields, gardens, pens, season, seasonElapsed } = state;

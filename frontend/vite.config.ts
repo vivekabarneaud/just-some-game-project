@@ -23,7 +23,7 @@ export default defineConfig({
     exclude: ["@medieval-realm/shared"],
   },
   server: {
-    port: 3000,
+    port: 3001,
     proxy: {
       "/api": {
         target: "http://localhost:4000",

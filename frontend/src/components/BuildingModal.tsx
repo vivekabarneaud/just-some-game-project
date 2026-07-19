@@ -1,5 +1,4 @@
-import { Show, For, createSignal, createEffect, onCleanup } from "solid-js";
-import { Portal } from "solid-js/web";
+import { Show, For } from "solid-js";
 import { A } from "@solidjs/router";
 import {
   BUILDINGS,
@@ -43,6 +42,7 @@ const SEASONS: { key: Season; icon: string; label: string }[] = [
 const effectRows = (text: string): string[] => text.split(/ · |\n/).map((s) => s.trim()).filter(Boolean);
 import Countdown from "~/components/Countdown";
 import Tooltip from "~/components/Tooltip";
+import FramedModal from "~/components/FramedModal";
 import BuildingStaffSection from "~/components/BuildingStaffSection";
 import { TAVERN_COMMODITY_DRINKS } from "~/data/tavern";
 import { formatTimeLong as formatTime } from "~/utils/format";
@@ -63,14 +63,6 @@ interface Props {
  */
 export default function BuildingModal(props: Props) {
   const { state, actions } = useGame();
-  const [exiting, setExiting] = createSignal(false);
-
-  const close = () => { setExiting(true); setTimeout(() => props.onClose(), 180); };
-  createEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") close(); };
-    window.addEventListener("keydown", handler);
-    onCleanup(() => window.removeEventListener("keydown", handler));
-  });
 
   const id = () => props.buildingId;
   const building = () => BUILDINGS.find((b) => b.id === id());
@@ -240,69 +232,22 @@ export default function BuildingModal(props: Props) {
     : [];
 
   return (
-    <Portal>
-      <div
-        style={{
-          position: "fixed", inset: 0, background: "rgba(0, 0, 0, 0.78)", "z-index": 1050,
-          display: "flex", "align-items": "center", "justify-content": "center", padding: "24px",
-          opacity: exiting() ? 0 : 1, transition: "opacity 0.18s ease",
-        }}
-        onClick={close}
-      >
-        <Show when={building()}>
-          {(b) => (
-            <div
-              style={{
-                position: "relative", "max-width": "640px", width: "100%",
-                "box-shadow": "0 10px 40px rgba(0, 0, 0, 0.6)",
-                transform: exiting() ? "scale(0.98)" : "scale(1)", transition: "transform 0.18s ease",
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Scrollable content — the banner bleeds to the wrapper edges; the
-                  gold frame is an overlay drawn ON TOP (below), so it never insets. */}
-              <div style={{
-                background: "var(--bg-secondary)", color: "var(--text-primary)",
-                "max-height": "88vh", overflow: "auto",
-              }}>
-              {/* Header — image banner when we have art, else icon. */}
-              <div style={{ position: "relative" }}>
-                <Show when={image()}>
-                  <div style={{ position: "relative", height: "128px", overflow: "hidden", "border-bottom": "1px solid var(--accent-gold)" }}>
-                    <img src={image()!} alt="" style={{ width: "100%", height: "100%", "object-fit": "cover" }} />
-                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.1))" }} />
-                  </div>
-                </Show>
-                <button
-                  onClick={close}
-                  title="Close"
-                  style={{
-                    position: "absolute", top: "26px", right: "26px", background: "rgba(0,0,0,0.4)",
-                    border: "none", color: "var(--text-secondary)", "font-size": "1.2rem", cursor: "pointer",
-                    "line-height": 1, width: "28px", height: "28px", "border-radius": "0", "z-index": "6",
-                  }}
-                >✕</button>
-                <div style={{
-                  display: "flex", "align-items": "center", gap: "12px", padding: "14px 28px",
-                  ...(image() ? { position: "absolute", bottom: 0, left: 0, right: 0 } : {}),
-                }}>
-                  <Show when={!image()}>
-                    <div style={{ "font-size": "2rem" }}>{b().icon}</div>
-                  </Show>
-                  <div>
-                    <div style={{ "font-family": "var(--font-heading)", "font-size": "1.3rem", color: "var(--text-primary)" }}>{b().name}</div>
-                    <div style={{ color: "var(--text-secondary)", "font-size": "0.8rem" }}>
-                      {!unlocked()
-                        ? getUnlockRequirement(b())
-                        : level() === 0
-                          ? "Not yet built"
-                          : `Level ${level()} / ${effectiveMax()}${effectiveMax() < b().maxLevel ? ` (max ${b().maxLevel})` : ""}`}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ padding: "24px 32px 28px" }}>
+    <Show when={building()}>
+      {(b) => (
+        <FramedModal
+          image={image()}
+          icon={b().icon}
+          title={b().name}
+          subtitle={
+            !unlocked()
+              ? getUnlockRequirement(b())
+              : level() === 0
+                ? "Not yet built"
+                : `Level ${level()} / ${effectiveMax()}${effectiveMax() < b().maxLevel ? ` (max ${b().maxLevel})` : ""}`
+          }
+          onClose={props.onClose}
+          maxWidth="640px"
+        >
                 <p style={{ color: "var(--text-secondary)", "font-size": "0.88rem", "line-height": 1.5, "margin-bottom": "22px" }}>
                   {b().description}
                 </p>
@@ -853,19 +798,8 @@ export default function BuildingModal(props: Props) {
                     </Show>
                   </Show>
                 </Show>
-              </div>
-              </div>{/* end scrollable content */}
-              {/* Gold ornament frame — drawn OVER the edges so the banner bleeds
-                  to the modal's edge underneath it (never insets the content). */}
-              <div aria-hidden="true" style={{
-                position: "absolute", inset: "0", "pointer-events": "none", "z-index": "5",
-                border: "20px solid transparent",
-                "border-image": "url(/images/frames/item_frame_uncommon.png) 34 stretch",
-              }} />
-            </div>
-          )}
-        </Show>
-      </div>
-    </Portal>
+        </FramedModal>
+      )}
+    </Show>
   );
 }
