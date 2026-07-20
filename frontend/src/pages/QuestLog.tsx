@@ -82,9 +82,34 @@ export default function QuestLog() {
     const isCollapsed = () => collapsed()[storylineId];
     const chapterState = () =>
       state.chapters?.find((c) => c.storyline === storylineId);
+    // The storyline's standing goal: shown pinned even before its own triggers
+    // fire, so the player always has a direction. Secondary = the active steps.
+    const main = () => questsByStoryline(storylineId).find((q) => q.main && !isQuestClaimed(q, state));
+    const secondary = () => active().filter((q) => !q.main);
+
+    const renderCard = (quest: QuestDefinition, isMain: boolean) => {
+      const seen = () => state.questsClaimableSeen ?? [];
+      return (
+        <QuestCard
+          quest={quest}
+          main={isMain}
+          claimable={isQuestClaimable(quest, state)}
+          isUnseen={!isMain && !seen().includes(quest.id)}
+          onClaim={() => {
+            const noReward = quest.rewards.length === 0;
+            const hasMemory = (quest.unlocksBioFragments?.length ?? 0) > 0;
+            const hasChronicle = !!quest.chronicleEntryId;
+            if (noReward && hasMemory) openCheckinMemory(quest);
+            else if (noReward && !hasChronicle) actions.claimQuestReward(quest.id);
+            else setClaimingQuest(quest);
+          }}
+          onSeen={() => actions.markQuestClaimableSeen(quest.id)}
+        />
+      );
+    };
 
     return (
-      <Show when={active().length > 0 || completed().length > 0}>
+      <Show when={active().length > 0 || completed().length > 0 || !!main()}>
         <div class="ornament-frame" style={{
           "background": "var(--bg-secondary)",
           "margin-bottom": "16px",
@@ -138,36 +163,29 @@ export default function QuestLog() {
 
           <Show when={!isCollapsed()}>
             <div style={{ "padding": "12px 16px" }}>
-              <Show when={active().length === 0}>
+              {/* Pinned main quest — the standing goal for this storyline. */}
+              <Show when={main()}>
+                {(mq) => renderCard(mq(), true)}
+              </Show>
+              <Show when={secondary().length === 0 && !main()}>
                 <p style={{ "color": "var(--text-muted)", "font-style": "italic" }}>
                   No active quests in this storyline.
                 </p>
               </Show>
-              <For each={active()}>
-                {(quest) => {
-                  const seen = () => state.questsClaimableSeen ?? [];
-                  return (
-                    <QuestCard
-                      quest={quest}
-                      claimable={isQuestClaimable(quest, state)}
-                      isUnseen={!seen().includes(quest.id)}
-                      onClaim={() => {
-                        const noReward = quest.rewards.length === 0;
-                        const hasMemory = (quest.unlocksBioFragments?.length ?? 0) > 0;
-                        const hasChronicle = !!quest.chronicleEntryId;
-                        // Memory check-in → the memory modal. Bare guide quest
-                        // (no reward/memory/chronicle) → claim silently, no modal
-                        // (its narrative was the active-card breadcrumb; replaying
-                        // it as a "completion" reads as stale instructions). Else
-                        // → the normal reward modal.
-                        if (noReward && hasMemory) openCheckinMemory(quest);
-                        else if (noReward && !hasChronicle) actions.claimQuestReward(quest.id);
-                        else setClaimingQuest(quest);
-                      }}
-                      onSeen={() => actions.markQuestClaimableSeen(quest.id)}
-                    />
-                  );
-                }}
+              {/* Secondary quests — the steps along the way. */}
+              <Show when={main() && secondary().length > 0}>
+                <div style={{
+                  "font-size": "0.68rem",
+                  "letter-spacing": "0.08em",
+                  "text-transform": "uppercase",
+                  "color": "var(--text-muted)",
+                  "margin": "14px 0 6px",
+                }}>
+                  Along the way
+                </div>
+              </Show>
+              <For each={secondary()}>
+                {(quest) => renderCard(quest, false)}
               </For>
             </div>
           </Show>
@@ -295,6 +313,7 @@ function QuestCard(props: {
   quest: QuestDefinition;
   claimable: boolean;
   isUnseen?: boolean;
+  main?: boolean;
   onClaim: () => void;
   onSeen?: () => void;
 }) {
@@ -310,19 +329,25 @@ function QuestCard(props: {
       onMouseEnter={() => props.onSeen?.()}
       style={{
         "position": "relative",
-        // Highlight when the card is freshly active (not yet hovered) OR ready
-        // to claim. Unseen-only highlights fade on hover; claimable highlights
-        // stay until the player actually claims the reward.
-        "border": (props.isUnseen || props.claimable)
+        // The pinned main quest wears a gold frame (the standing goal); other
+        // cards highlight blue when freshly active (not yet hovered) OR ready to
+        // claim. Unseen-only highlights fade on hover; claimable ones stay.
+        "border": props.main
+          ? "1px solid var(--accent-gold)"
+          : (props.isUnseen || props.claimable)
           ? "1px solid var(--accent-blue)"
           : "1px solid var(--border-color)",
         // Square corners to sit consistently inside the squared chapter frame.
         "border-radius": "0",
         "margin-bottom": "10px",
-        "background": (props.isUnseen || props.claimable)
+        "background": props.main
+          ? "rgba(212, 175, 55, 0.05)"
+          : (props.isUnseen || props.claimable)
           ? "rgba(96, 165, 250, 0.06)"
           : "var(--bg-primary)",
-        "box-shadow": (props.isUnseen || props.claimable)
+        "box-shadow": props.main
+          ? "0 0 0 1px var(--accent-gold), 0 0 14px rgba(212, 175, 55, 0.22)"
+          : (props.isUnseen || props.claimable)
           ? "0 0 0 1px var(--accent-blue), 0 0 12px rgba(96, 165, 250, 0.25)"
           : "none",
         "transition": "background 0.25s, border-color 0.25s, box-shadow 0.25s",
@@ -386,10 +411,22 @@ function QuestCard(props: {
           "linear-gradient(to right, rgba(0,0,0,0.25), rgba(0,0,0,0.10) 60%, rgba(0,0,0,0))",
       }}>
         <div style={{ "flex": 1 }}>
+          <Show when={props.main}>
+            <div style={{
+              "font-size": "0.62rem",
+              "letter-spacing": "0.1em",
+              "text-transform": "uppercase",
+              "color": "var(--accent-gold)",
+              "font-weight": "bold",
+              "margin-bottom": "4px",
+            }}>
+              ★ Main quest
+            </div>
+          </Show>
           <h3 style={{
             "margin": "0 0 6px",
             "font-family": "var(--font-heading)",
-            "font-size": "1.05rem",
+            "font-size": props.main ? "1.15rem" : "1.05rem",
             "color": "var(--text-primary)",
           }}>
             {props.quest.icon} {props.quest.title}

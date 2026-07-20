@@ -63,6 +63,10 @@ export interface QuestDefinition {
   id: string;
   storyline: StorylineId;
   chapter: number;
+  /** The storyline's pinned "main quest" — the standing goal shown at the top of
+   *  its category (there should be at most one un-claimed main per storyline).
+   *  Secondary quests are the steps toward it. */
+  main?: boolean;
   title: string;
   narrative: string;
   /** Short vignette shown while the quest is active. Preferred over `narrative` when present. */
@@ -564,20 +568,16 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     id: "the_road_to_greatness",
     storyline: "settlement",
     chapter: 4,
+    main: true,
     title: "The Road to Greatness",
     narrative:
-      "The Town Hall is too small now. Edda has taken to calling it \"the cupboard.\" We have outgrown this camp: tents on every level stretch of ground, two wells, a mission board, and more names on the roster than I can list from memory. The canvas leaks when it rains hard. The firepit is the only place we gather, and decisions made standing in the wet do not hold long. It is time to raise a proper hall, and then to trade tents for walls.",
-    objective: "Upgrade Town Hall to level 3",
+      "We came to this valley with a wagon and a hope, and hope alone does not weather a winter. What we raise here, we raise to last: a village worth the name first, then a town, then a place travellers speak of by name at far-off fires. This is the whole of it, the reason behind every roof and furrow and late night at the wall. One step at a time, and we get there.",
+    objective: "Grow into a village (raise the Town Hall to level 3)",
     icon: "⭐",
-    // Gated on the three Ch.4 prereq quests rather than firing the instant
-    // Town Hall hits Lv.2 — gives the player room to actually upgrade the
-    // mill, quarry, and marketplace before the next milestone surfaces.
-    triggers: [
-      { type: "quest_completed", questId: "sharper_axes" },
-      { type: "quest_completed", questId: "deeper_veins" },
-      { type: "quest_completed", questId: "merchants_welcome" },
-    ],
-    requiresAll: true,
+    // The standing goal — no gates. It's pinned as the settlement's main quest
+    // and shown from the start (empty triggers = always active), so the player
+    // always has a direction; it simply completes when the village is reached.
+    triggers: [],
     condition: (s) => (bldg(s, "town_hall")?.level ?? 0) >= 3,
     rewards: [
       { resource: "wood", amount: 167, label: "Wood" },
