@@ -132,6 +132,10 @@ export interface KeptAnimal {
   /** For `origin === "bred"`: the parents (by id, since names can change). */
   sireId?: string;
   damId?: string;
+  /** Owner-bound: belongs to a named character (e.g. Brenna's hound), not the
+   *  settlement's managed pack. Excluded from Kennel capacity; not player-
+   *  reassignable. Holds the owner's name. */
+  keeper?: string;
   /** Current posting. `idle` = "at the fire" (pet/charm, no effect). */
   job: AnimalJob;
   /** When `job === "guard"`, the pen this dog is posted to. */

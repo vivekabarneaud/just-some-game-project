@@ -356,6 +356,26 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_4.png",
   },
   {
+    id: "a_dog_without_a_home",
+    storyline: "settlement",
+    chapter: 2,
+    title: "A Dog Without a Home",
+    narrative:
+      "A stray dog wandered in out of the wet and would not be shooed off. He has slept by our fire twice now and trailed Nell to the well and back, and she has named him Truffle, which rather settles whether he stays. We have not the coin to keep the idle fed, dog or man, so he had best earn his bread. Raise a kennel and we can give him a proper place, and a job of his own.",
+    objective: "Build a Kennel",
+    icon: "🐕",
+    // Fires once the hunting camp is up (Brenna's own hound is already working
+    // it, so dogs are a known thing by now) — staggered after the hunter quest.
+    triggers: [{ type: "building_built", buildingId: "hunting_camp" }],
+    condition: (s) => (bldg(s, "kennel")?.level ?? 0) >= 1,
+    rewards: [
+      { resource: "wood", amount: 30, label: "Wood" },
+      { resource: "stone", amount: 15, label: "Stone" },
+    ],
+    targetBuildingId: "kennel",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/kennel_camp.png",
+  },
+  {
     id: "stockpile_for_winter",
     storyline: "settlement",
     chapter: 2,

@@ -41,6 +41,7 @@ export default function Kennel() {
   const moodFace = (h: number) => (h >= 70 ? "😊" : h >= 40 ? "🙂" : "😕");
 
   const description = (d: KeptAnimal): string => {
+    if (d.keeper) return `${d.keeper}'s hound, works the hunting camp.`;
     if (d.origin === "thornwoods") return "The Thornwoods' dog.";
     if (d.origin === "bred") {
       const sire = state.keptAnimals.find((a) => a.id === d.sireId);
@@ -69,7 +70,7 @@ export default function Kennel() {
 
       <Show when={kennelLevel() > 0}>
         <p style={{ color: "var(--text-muted)", "font-size": "0.82rem", "margin-bottom": "18px" }}>
-          🏠 {dogs().length} / {capacity()} dogs kept · a bigger kennel makes room for more, and lets strays and litters join the pack.
+          🏠 {dogs().filter((d) => !d.keeper).length} / {capacity()} dogs kept · a bigger kennel makes room for more, and lets strays and litters join the pack.
         </p>
       </Show>
 
@@ -79,7 +80,7 @@ export default function Kennel() {
           <div style={{ color: "var(--text-muted)", "font-style": "italic" }}>
             {kennelLevel() > 0
               ? "The kennel stands empty for now."
-              : "No kennel yet. Raise one and the Thornwoods will send a dog to fill it."}
+              : "No kennel yet. Build one to take in Truffle, the stray who keeps sleeping by the fire."}
           </div>
         }
       >
@@ -148,21 +149,27 @@ export default function Kennel() {
                     </div>
                   </div>
 
-                  {/* Assignment dropdown — or a "growing up" note for pups. */}
+                  {/* Assignment dropdown — a "growing up" note for pups, or a
+                      static note for an owner-bound hound (not ours to move). */}
                   <div style={{ "margin-top": "8px" }}>
                     <Show
-                      when={!dog.isPuppy}
-                      fallback={<div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "font-style": "italic" }}>🐶 Still growing, too young to work.</div>}
+                      when={!dog.keeper}
+                      fallback={<div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "font-style": "italic" }}>🏹 Posted to the hunt with {dog.keeper}.</div>}
                     >
-                      <Select
-                        value={assignValue(dog)}
-                        onChange={(v) => onAssign(dog, v)}
-                        options={[
-                          { value: "idle", label: "At the fire" },
-                          ...(hasHuntingCamp() ? [{ value: "hunt", label: "Hunting camp" }] : []),
-                          ...builtPens().map((pen) => ({ value: `guard:${pen.id}`, label: `Guard the ${getAnimal(pen.animal).name.toLowerCase()}` })),
-                        ]}
-                      />
+                      <Show
+                        when={!dog.isPuppy}
+                        fallback={<div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "font-style": "italic" }}>🐶 Still growing, too young to work.</div>}
+                      >
+                        <Select
+                          value={assignValue(dog)}
+                          onChange={(v) => onAssign(dog, v)}
+                          options={[
+                            { value: "idle", label: "At the fire" },
+                            ...(hasHuntingCamp() ? [{ value: "hunt", label: "Hunting camp" }] : []),
+                            ...builtPens().map((pen) => ({ value: `guard:${pen.id}`, label: `Guard the ${getAnimal(pen.animal).name.toLowerCase()}` })),
+                          ]}
+                        />
+                      </Show>
                     </Show>
                   </div>
                 </div>

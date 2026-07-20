@@ -3,6 +3,7 @@ import { useGame } from "~/engine/gameState";
 import { getMerchant } from "~/data/merchants";
 import { getTotalFood } from "~/data/foods";
 import { playSound } from "~/engine/sounds";
+import FramedModal from "~/components/FramedModal";
 
 // Icons/labels for the resources a first-visit merchant deals in. Kept local and
 // small; extend as culture shelves add goods.
@@ -42,74 +43,63 @@ export default function TravelingMerchantModal(props: { merchantId: string; onCl
   return (
     <Show when={merchant()}>
       {(m) => (
-        <div
-          class="modal-overlay page-modal-backdrop"
-          onClick={(e) => { if (e.target === e.currentTarget) props.onClose(); }}
-        >
-          <div class="merchant-visit-card">
-            <div class="merchant-visit-grid">
-              {/* ── Left: the visit ── */}
-              <div class="merchant-visit-scene">
-                <div class="merchant-visit-head">
-                  <Show
-                    when={m().portrait}
-                    fallback={<span class="merchant-visit-avatar">{m().icon}</span>}
-                  >
-                    <img class="merchant-visit-portrait" src={m().portrait} alt={m().name} />
-                  </Show>
-                  <div>
-                    <div class="merchant-visit-name">{m().name}</div>
-                    <div class="merchant-visit-culture">{m().culture}</div>
-                  </div>
-                </div>
-                <p class="merchant-visit-text">{m().narrative}</p>
-                <p class="merchant-visit-parting">{m().parting}</p>
-              </div>
+        <FramedModal title={m().name} subtitle={m().culture} onClose={props.onClose} maxWidth="760px">
+          <div class="merchant-visit-grid">
+            {/* ── Left: the visit ── */}
+            <div class="merchant-visit-scene">
+              <Show
+                when={m().portrait}
+                fallback={<span class="merchant-visit-avatar">{m().icon}</span>}
+              >
+                <img class="merchant-visit-portrait" src={m().portrait} alt={m().name} />
+              </Show>
+              <p class="merchant-visit-text">{m().narrative}</p>
+              <p class="merchant-visit-parting">{m().parting}</p>
+            </div>
 
-              {/* ── Right: his wares ── */}
-              <div class="merchant-visit-wares">
-                <div class="merchant-visit-wares-title">His wares</div>
-                <div class="merchant-visit-offers">
-                  <For each={m().offers}>
-                    {(o) => {
-                      const isTaken = () => taken().has(o.id);
-                      const affordable = () => stockOf(o.give) >= o.giveAmount;
-                      return (
-                        <div class="merchant-offer" classList={{ "is-taken": isTaken() }}>
-                          <div class="merchant-offer-label">{o.label}</div>
-                          <div class="merchant-offer-trade">
-                            <span class="merchant-offer-side">
-                              {res(o.give).icon} {o.giveAmount} {res(o.give).label}
-                            </span>
-                            <span class="merchant-offer-arrow">→</span>
-                            <span class="merchant-offer-side merchant-offer-get">
-                              {res(o.receive).icon} {o.receiveAmount} {res(o.receive).label}
-                            </span>
-                          </div>
-                          <button
-                            class="btn-primary"
-                            disabled={isTaken() || !affordable()}
-                            onClick={() => accept(o.id, o.give, o.giveAmount, o.receive, o.receiveAmount)}
-                            style={{ width: "100%", "justify-content": "center" }}
-                          >
-                            {isTaken() ? "Traded" : affordable() ? "Trade" : `Need ${res(o.give).label.toLowerCase()}`}
-                          </button>
+            {/* ── Right: his wares ── */}
+            <div class="merchant-visit-wares">
+              <div class="merchant-visit-wares-title">His wares</div>
+              <div class="merchant-visit-offers">
+                <For each={m().offers}>
+                  {(o) => {
+                    const isTaken = () => taken().has(o.id);
+                    const affordable = () => stockOf(o.give) >= o.giveAmount;
+                    return (
+                      <div class="merchant-offer" classList={{ "is-taken": isTaken() }}>
+                        <div class="merchant-offer-label">{o.label}</div>
+                        <div class="merchant-offer-trade">
+                          <span class="merchant-offer-side">
+                            {res(o.give).icon} {o.giveAmount} {res(o.give).label}
+                          </span>
+                          <span class="merchant-offer-arrow">→</span>
+                          <span class="merchant-offer-side merchant-offer-get">
+                            {res(o.receive).icon} {o.receiveAmount} {res(o.receive).label}
+                          </span>
                         </div>
-                      );
-                    }}
-                  </For>
-                </div>
-                <button
-                  class="btn-secondary"
-                  onClick={() => props.onClose()}
-                  style={{ "margin-top": "16px", width: "100%", "justify-content": "center" }}
-                >
-                  See him off
-                </button>
+                        <button
+                          class="btn-primary"
+                          disabled={isTaken() || !affordable()}
+                          onClick={() => accept(o.id, o.give, o.giveAmount, o.receive, o.receiveAmount)}
+                          style={{ width: "100%", "justify-content": "center" }}
+                        >
+                          {isTaken() ? "Traded" : affordable() ? "Trade" : `Need ${res(o.give).label.toLowerCase()}`}
+                        </button>
+                      </div>
+                    );
+                  }}
+                </For>
               </div>
+              <button
+                class="btn-secondary"
+                onClick={() => props.onClose()}
+                style={{ "margin-top": "16px", width: "100%", "justify-content": "center" }}
+              >
+                See him off
+              </button>
             </div>
           </div>
-        </div>
+        </FramedModal>
       )}
     </Show>
   );

@@ -422,10 +422,14 @@ export interface KeptAnimal {
   breed: DogBreed;       // drives portrait + aptitude; inherited from a parent when bred
   portrait: string;      // the specific adult portrait assigned to this dog
   isPuppy?: boolean;     // a young dog: shows the puppy portrait, can't work until grown
-  nameFixed?: boolean;   // the Thornwoods' dog can't be renamed
+  nameFixed?: boolean;   // a fixed-name dog (gift/companion) can't be renamed
   origin: AnimalOrigin;  // drives the card description
   sireId?: string;       // parents (by id) when origin === "bred"
   damId?: string;
+  /** Owner-bound: this dog belongs to a named character (e.g. Brenna's hound),
+   *  not the settlement's managed pack. Excluded from Kennel capacity and can't
+   *  be reassigned or recalled by the player. Holds the owner's name. */
+  keeper?: string;
   job: AnimalJob;
   penId?: string;        // when job === "guard"
   guardLevel: number;    // 0..5 skill at guarding (0 = untrained)
@@ -2663,21 +2667,40 @@ function applyAnimalFeed(s: GameState, elapsedHours: number): Map<string, number
  *  loses head to hunger. Mutates pen.count. Never auto-culls — shrinkage is only
  *  starvation; deliberate culling is a separate player action. See DESIGN_LIVESTOCK.md. */
 // ── Kept animals: the living layer (leveling, growth, happiness, breeding, strays) ──
-/** Room for dogs is set by the Kennel (none without one). */
+/** Room for dogs is set by the Kennel (none without one). Owner-bound dogs (a
+ *  character's own hound, e.g. Brenna's) don't live in the kennel and so don't
+ *  count against it. */
 function dogCapacity(s: GameState): number {
   return kennelDogCapacity(buildingLevel(s, "kennel"));
 }
-/** The Thornwoods' gift hound — Rowan, a seasoned scent-tracker — comes to stay
- *  the first time a Kennel is raised to house her. Idempotent (one thornwoods
- *  dog ever), so it's safe to call on every Kennel completion. */
-function grantThornwoodsDog(s: GameState): void {
-  if (s.keptAnimals.some((a) => a.origin === "thornwoods")) return;
+/** Dogs in the settlement's OWN managed pack (excludes owner-bound hounds). */
+function packDogCount(s: GameState): number {
+  return s.keptAnimals.filter((a) => a.species === "dog" && !a.keeper).length;
+}
+const DOG_IMG = "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/dogs";
+/** Brenna's own hunting hound — Ser Sniffsalot, a scent-tracker — arrives with
+ *  the Hunting Camp, auto-posted to the hunt. Owner-bound (Brenna's), so he's
+ *  outside the Kennel and can't be reassigned. Idempotent by name. */
+function grantHuntingCampDog(s: GameState): void {
+  if (s.keptAnimals.some((a) => a.name === "Ser Sniffsalot")) return;
   s.keptAnimals.push({
-    id: nextId("animal"), name: "Truffle", species: "dog", breed: "scent_hound",
-    portrait: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/dogs/scent_hound.png",
-    nameFixed: true, origin: "thornwoods", job: "idle", guardLevel: 0, huntLevel: 2, jobHours: 0, happiness: 82,
+    id: nextId("animal"), name: "Ser Sniffsalot", species: "dog", breed: "scent_hound",
+    portrait: `${DOG_IMG}/scent_hound.png`,
+    nameFixed: true, keeper: "Brenna", origin: "thornwoods", job: "hunt",
+    guardLevel: 0, huntLevel: 3, jobHours: 0, happiness: 88,
   });
-  pushEvent(s, "animal_stray", "🐕", "The Thornwoods kept their word: Truffle, a seasoned tracking hound, has come to the new kennel.");
+  pushEvent(s, "animal_stray", "🐕", "Brenna's hound, Ser Sniffsalot, has taken up at the hunting camp and works the hunt at her heel.");
+}
+/** Truffle, a mongrel stray Nell took in, gets a proper home the first time a
+ *  Kennel is raised. He arrives idle so the player picks his job. Idempotent by name. */
+function grantStrayTruffle(s: GameState): void {
+  if (s.keptAnimals.some((a) => a.name === "Truffle")) return;
+  s.keptAnimals.push({
+    id: nextId("animal"), name: "Truffle", species: "dog", breed: "mongrel",
+    portrait: pickAdultPortrait("mongrel", usedDogPortraits(s)),
+    nameFixed: true, origin: "stray", job: "idle", guardLevel: 0, huntLevel: 1, jobHours: 0, happiness: 74,
+  });
+  pushEvent(s, "animal_stray", "🐕", "Truffle has a proper place at last. The stray is yours to put to work now, on the hunt or guarding a fold.");
 }
 /** A posted houndsman speeds the dogs' training by this factor. */
 const HOUNDSMAN_TRAIN_SPEEDUP = 1.5;
@@ -2756,9 +2779,10 @@ function applyKeptAnimalTick(s: GameState, elapsedHours: number): void {
     }
   }
 
-  // Breeding — a happy, unrelated adult pair may have a litter (needs Kennel room).
-  if (s.keptAnimals.length < dogCapacity(s)) {
-    const adults = dogs.filter((d) => !d.isPuppy && d.happiness >= DOG_HAPPY_THRESHOLD);
+  // Breeding — a happy, unrelated adult pair may have a litter (needs Kennel
+  // room; owner-bound hounds aren't the settlement's to breed).
+  if (packDogCount(s) < dogCapacity(s)) {
+    const adults = dogs.filter((d) => !d.isPuppy && !d.keeper && d.happiness >= DOG_HAPPY_THRESHOLD);
     const pairs: [KeptAnimal, KeptAnimal][] = [];
     for (let i = 0; i < adults.length; i++)
       for (let j = i + 1; j < adults.length; j++)
@@ -2779,7 +2803,7 @@ function applyKeptAnimalTick(s: GameState, elapsedHours: number): void {
 
   // Strays — the odd dog wanders in and stays (only where there's a Kennel with
   // room; no home, no strays).
-  if (s.keptAnimals.length < dogCapacity(s) && Math.random() < 1 - Math.pow(1 - STRAY_CHANCE_PER_HOUR, elapsedHours)) {
+  if (packDogCount(s) < dogCapacity(s) && Math.random() < 1 - Math.pow(1 - STRAY_CHANCE_PER_HOUR, elapsedHours)) {
     const breed = DOG_BREED_KEYS[Math.floor(Math.random() * DOG_BREED_KEYS.length)];
     const name = pickDogName(s);
     s.keptAnimals.push({
@@ -4726,8 +4750,11 @@ export function GameProvider(props: ParentProps) {
                 if ("buildingId" in item) {
                   const def = BUILDINGS.find((b) => b.id === (item as any).buildingId);
                   if (def) pushEvent(s, "building_completed", def.icon, `${def.name} upgraded to level ${item.level}`);
-                  // A freshly-raised Kennel draws the Thornwoods' gift hound.
-                  if ((item as any).buildingId === "kennel" && item.level === 1) grantThornwoodsDog(s);
+                  const doneId = (item as any).buildingId;
+                  // The Hunting Camp comes with Brenna's hound; a raised Kennel
+                  // takes in Truffle the stray.
+                  if (doneId === "hunting_camp" && item.level === 1) grantHuntingCampDog(s);
+                  if (doneId === "kennel" && item.level === 1) grantStrayTruffle(s);
                 }
                 if (live) playSound("plop");
               }
@@ -6079,6 +6106,7 @@ export function GameProvider(props: ParentProps) {
     assignAnimal(animalId, job, penId) {
       const animal = state.keptAnimals.find((a) => a.id === animalId);
       if (!animal) return false;
+      if (animal.keeper) return false; // owner-bound hound (e.g. Brenna's) isn't the player's to move
       if (animal.isPuppy && job !== "idle") return false; // pups can't work until grown
       // v1: dogs take idle/guard/hunt; cats idle/mouse. Guard needs a real pen.
       const dogJobs: AnimalJob[] = ["idle", "guard", "hunt"];

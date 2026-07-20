@@ -67,7 +67,9 @@ export const TRAVELING_MERCHANTS: TravelingMerchant[] = [
       { id: "buy_stone_big", label: "He buys cut stone", give: "stone", giveAmount: 60, receive: "gold", receiveAmount: 45 },
       { id: "buy_grain", label: "He'll take surplus grain for the road", give: "food", giveAmount: 40, receive: "gold", receiveAmount: 25 },
     ],
-    requires: { thLevel: 2 },
+    // First pass comes once the settlement reaches Village tier (Town Hall 3) —
+    // grown into a real village, "worth the wagon", not just a settled camp.
+    requires: { thLevel: 3 },
     // His recurring stall begins once you've escorted his first real caravan in.
     returnUnlock: { missionDone: "merchant_escort_first" },
   },

@@ -35,7 +35,9 @@ export default function DogAssignSection(props: Props) {
   const skill = (d: { guardLevel: number; huntLevel: number }) => props.job === "guard" ? d.guardLevel : d.huntLevel;
   const skillIcon = props.job === "guard" ? "🛡️" : "🏹";
   // Everything not already on this post (idle = sendable; the rest shown dimmed).
-  const pickerDogs = () => dogs().filter((d) => !d.isPuppy && !onThisPost(d));
+  // Owner-bound hounds (e.g. Brenna's) aren't the player's to post, so they
+  // never show in the picker.
+  const pickerDogs = () => dogs().filter((d) => !d.isPuppy && !d.keeper && !onThisPost(d));
   const post = (job: string) => job === "hunt" ? "on the hunt" : job === "guard" ? "guarding a flock" : job === "mouse" ? "on the prowl" : "resting";
 
   const recall = (id: string) => actions.assignAnimal(id, "idle");
@@ -57,14 +59,19 @@ export default function DogAssignSection(props: Props) {
               <div style={{ "font-size": "0.85rem" }}>{d.name}</div>
               <div style={{ "font-size": "0.72rem", color: "var(--accent-gold)" }}>{skillIcon} {stars(skill(d))}</div>
             </div>
-            <button
-              onClick={() => recall(d.id)}
-              style={{
-                "font-size": "0.76rem", padding: "5px 10px", cursor: "pointer",
-                border: "1px solid var(--border-color)", color: "var(--text-secondary)",
-                background: "transparent", "border-radius": "0", "white-space": "nowrap",
-              }}
-            >Recall</button>
+            <Show
+              when={!d.keeper}
+              fallback={<span style={{ "font-size": "0.72rem", color: "var(--text-muted)", "font-style": "italic", "white-space": "nowrap" }}>{d.keeper}'s hound</span>}
+            >
+              <button
+                onClick={() => recall(d.id)}
+                style={{
+                  "font-size": "0.76rem", padding: "5px 10px", cursor: "pointer",
+                  border: "1px solid var(--border-color)", color: "var(--text-secondary)",
+                  background: "transparent", "border-radius": "0", "white-space": "nowrap",
+                }}
+              >Recall</button>
+            </Show>
           </div>
         )}
       </For>
@@ -78,8 +85,8 @@ export default function DogAssignSection(props: Props) {
           when={pickerDogs().some((d) => d.job === "idle")}
           fallback={
             <div style={{ "font-size": "0.74rem", color: "var(--text-muted)", "font-style": "italic", "margin-top": "8px" }}>
-              {!hasKennel() && dogs().length === 0
-                ? "The Thornwoods came with a hound, but she needs a Kennel before she can be put to work here. Build one to take her in."
+              {!hasKennel()
+                ? "Build a Kennel to take in a dog you can post here."
                 : "No idle dogs to post. Raise or free one at the Kennel."}
             </div>
           }

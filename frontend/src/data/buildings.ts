@@ -352,6 +352,12 @@ function generateLevels(
 
 // ─── Building definitions ────────────────────────────────────────
 
+// Town Hall levels, with the first upgrade (L1 -> L2) kept short so the early
+// game isn't blocked waiting on it (e.g. to raise the forager's food cap). The
+// rest of the curve is left to ramp normally.
+const TOWN_HALL_LEVELS = generateLevels({ wood: 80, stone: 80 }, 60, undefined, 25);
+TOWN_HALL_LEVELS[1].buildTime = 30;
+
 export const BUILDINGS: BuildingDefinition[] = [
   // Town Hall growth is NOT story-gated. It used to be locked behind a
   // settlement chapter (which repeatedly deadlocked, since later chapters
@@ -370,7 +376,7 @@ export const BUILDINGS: BuildingDefinition[] = [
       "The heart of your settlement. Upgrading the Town Hall unlocks new buildings and evolves your settlement.",
     icon: "🏛️",
     maxLevel: 25,
-    levels: generateLevels({ wood: 80, stone: 80 }, 60, undefined, 25),
+    levels: TOWN_HALL_LEVELS,
     requiredTier: "camp",
     defaultLevel: 1,
   },
