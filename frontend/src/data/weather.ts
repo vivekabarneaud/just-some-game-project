@@ -1,6 +1,6 @@
 import { createSignal } from "solid-js";
 import type { Season } from "./seasons";
-import { SEASON_ORDER, HOURS_PER_SEASON, IS_DEV, getGlobalSeason } from "./seasons";
+import { SEASON_ORDER, SEASON_ELAPSED_SPAN, IS_DEV, getGlobalSeason } from "./seasons";
 import { getClimate, climateOverrideBand, type ClimateBand } from "./climate";
 
 // ─── Weather (ambient mood layer) ──────────────────────────────────────────
@@ -164,7 +164,7 @@ export function currentWeatherInfo(
   year: number,
 ): { season: Season; progress: number; year: number } {
   return IS_DEV
-    ? { season, progress: seasonElapsed / HOURS_PER_SEASON, year }
+    ? { season, progress: seasonElapsed / SEASON_ELAPSED_SPAN, year }
     : getGlobalSeason();
 }
 

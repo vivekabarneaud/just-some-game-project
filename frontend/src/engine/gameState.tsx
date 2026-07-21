@@ -196,7 +196,7 @@ import type { StreamStatus } from "~/data/water";
 import { resolveCurrentWeather, HEATWAVE_HEAT_KILL_PER_HOUR, HEATWAVE_THIRST_KILL_PER_HOUR, DELUGE_DROWN_KILL_PER_HOUR, type WeatherType } from "~/data/weather";
 import {
   type Season,
-  HOURS_PER_SEASON,
+  SEASON_ELAPSED_SPAN,
   HARVEST_DURATION_HOURS,
   nextSeason,
   IS_DEV,
@@ -1190,7 +1190,7 @@ export function createInitialState(): GameState {
     // first tick doesn't fast-forward spring -> now and fire a burst of stale
     // season banners ("Spring has arrived" followed instantly by summer).
     season: IS_DEV ? "spring" : getGlobalSeason().season,
-    seasonElapsed: IS_DEV ? 0 : getGlobalSeason().progress * HOURS_PER_SEASON,
+    seasonElapsed: IS_DEV ? 0 : getGlobalSeason().progress * SEASON_ELAPSED_SPAN,
     year: 1,
     foundingYear: getGlobalSeason().year,
     // foundingWinterGrace left undefined — latched on the first tick.
@@ -3935,7 +3935,7 @@ export function GameProvider(props: ParentProps) {
         const offlineMs = Date.now() - serverState.lastTick;
         if (offlineMs > 2000) {
           try {
-            applyTicks(offlineMs);
+            offlineCatchUp(offlineMs, "server-load");
           } catch (err) {
             console.error("Offline catch-up error:", err);
             setState("lastTick", Date.now());
@@ -4162,8 +4162,8 @@ export function GameProvider(props: ParentProps) {
         if (IS_DEV) {
           // Dev mode: season driven by game ticks (affected by speed)
           s.seasonElapsed += elapsedHours;
-          while (s.seasonElapsed >= HOURS_PER_SEASON) {
-            s.seasonElapsed -= HOURS_PER_SEASON;
+          while (s.seasonElapsed >= SEASON_ELAPSED_SPAN) {
+            s.seasonElapsed -= SEASON_ELAPSED_SPAN;
             advanceSeason(s);
           }
         } else {
@@ -4175,7 +4175,7 @@ export function GameProvider(props: ParentProps) {
               advanceSeason(s);
             }
           }
-          s.seasonElapsed = global.progress * HOURS_PER_SEASON;
+          s.seasonElapsed = global.progress * SEASON_ELAPSED_SPAN;
           // Season is global/shared, but YEAR is local = settlement age.
           s.year = Math.max(1, global.year - (s.foundingYear ?? global.year) + 1);
 
@@ -5678,11 +5678,56 @@ export function GameProvider(props: ParentProps) {
     );
   }
 
+  // Snapshot the handful of numbers that matter for understanding what an
+  // offline stretch did to the settlement. Cheap; only called around catch-ups.
+  function catchUpSnapshot() {
+    const rates = calcProductionRates(state);
+    return {
+      season: state.season,
+      year: state.year,
+      pop: totalPopulation(state.citizens),
+      advs: state.adventurers.filter((a) => a.alive).length,
+      food: Math.round(getTotalFood(state.foods)),
+      foodProd: Math.round(rates.food * 10) / 10,
+      water: Math.round(state.resources.water ?? 0),
+      wood: Math.round(state.resources.wood),
+      happiness: state.happiness,
+    };
+  }
+
+  // Diagnostic wrapper around every offline catch-up. Snapshots before/after and
+  // prints one grouped report so we can see exactly what a night (or a phone
+  // asleep) did: elapsed time, season flips, settler losses, food/water drain.
+  // Purely observational — the actual simulation is untouched. Remove once the
+  // while-you-were-away digest UI lands.
+  function offlineCatchUp(offlineMs: number, source: string) {
+    const before = catchUpSnapshot();
+    const leftAt = state.lastTick;
+    applyTicks(offlineMs);
+    const after = catchUpSnapshot();
+    const hrs = offlineMs / 3_600_000;
+    const dPop = after.pop - before.pop;
+    /* eslint-disable no-console */
+    console.group(`🌙 Offline catch-up [${source}] — ${hrs.toFixed(2)}h away`);
+    console.log(`Left:    ${new Date(leftAt).toLocaleString()}`);
+    console.log(`Back:    ${new Date().toLocaleString()}`);
+    console.log(`Season:  ${before.season} (y${before.year}) → ${after.season} (y${after.year})${before.season !== after.season ? "   ❄️ SEASON CHANGED" : ""}`);
+    console.log(`Pop:     ${before.pop} → ${after.pop}   (${dPop >= 0 ? "+" : ""}${dPop})${dPop < 0 ? `   💀 ${-dPop} lost` : ""}`);
+    console.log(`Advs:    ${before.advs} → ${after.advs}`);
+    console.log(`Food:    ${before.food} → ${after.food}   (production now ${after.foodProd}/h)${after.food <= 0 ? "   ⚠️ EMPTY" : ""}`);
+    console.log(`Water:   ${before.water} → ${after.water}${after.water <= 0 ? "   ⚠️ EMPTY" : ""}`);
+    console.log(`Wood:    ${before.wood} → ${after.wood}${after.wood <= 0 ? "   ⚠️ EMPTY (no heating)" : ""}`);
+    console.log(`Happy:   ${before.happiness}% → ${after.happiness}%`);
+    console.table({ before, after });
+    console.groupEnd();
+    /* eslint-enable no-console */
+  }
+
   // Offline catch-up: in dev mode, run immediately.
   // In production, this runs after server state loads (see onMount above).
   if (IS_DEV) {
     const offlineMs = Date.now() - state.lastTick;
-    if (offlineMs > 2000) applyTicks(offlineMs);
+    if (offlineMs > 2000) offlineCatchUp(offlineMs, "dev-load");
   }
 
   // In production, speed is always 1. In dev, player can adjust.
@@ -5770,7 +5815,7 @@ export function GameProvider(props: ParentProps) {
     }
     if (offlineMs > 2000) {
       try {
-        applyTicks(offlineMs);
+        offlineCatchUp(offlineMs, "visibility-resume");
       } catch (err) {
         console.error("Visibility catch-up error:", err);
         setState("lastTick", Date.now());

@@ -14,9 +14,18 @@ export const SEASON_META: Record<Season, { name: string; icon: string; color: st
 // ─── Dev vs Production mode ─────────────────────────────────────
 export const IS_DEV = import.meta.env.VITE_DEV_MODE === "true";
 
-// In dev: 24 game-hours per season (fast, for testing)
-// In prod: seasons are derived from real-world time (3 real days per season)
-export const HOURS_PER_SEASON = 24;
+// ─── Two season systems — do not confuse them ───────────────────
+// PROD: a season lasts 3 REAL-WORLD days, off the fixed global calendar
+//   (SEASON_DURATION_MS below). Every player flips season on the same real
+//   date. That is the real season length in production.
+// DEV:  seasons advance from game ticks instead, one every SEASON_ELAPSED_SPAN
+//   "game-hours" (fast, so a full year doesn't take 12 real days to test).
+//
+// SEASON_ELAPSED_SPAN is ALSO the scale of the `seasonElapsed` counter in BOTH
+// modes: seasonElapsed runs 0 → SEASON_ELAPSED_SPAN. In dev it ticks up as real
+// game-hours; in prod it's the 3-day progress (0..1) projected onto that same
+// 0..SPAN range. So it is NOT a dev-only number — hence no DEV_ prefix.
+export const SEASON_ELAPSED_SPAN = 24;
 
 // During autumn, fields yield their harvest over this many game-hours
 export const HARVEST_DURATION_HOURS = IS_DEV ? 6 : 12;
@@ -47,5 +56,5 @@ export function nextSeason(current: Season): Season {
 }
 
 export function getSeasonProgress(elapsed: number): number {
-  return Math.min(1, elapsed / HOURS_PER_SEASON);
+  return Math.min(1, elapsed / SEASON_ELAPSED_SPAN);
 }

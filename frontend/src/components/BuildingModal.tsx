@@ -23,7 +23,7 @@ import {
   PANIC_BUILD_IDS,
   PANIC_BUILD_SHARD_COST,
 } from "~/data/buildings";
-import { type Season, IS_DEV, getGlobalSeason, HOURS_PER_SEASON } from "~/data/seasons";
+import { type Season, IS_DEV, getGlobalSeason, SEASON_ELAPSED_SPAN } from "~/data/seasons";
 import { totalPopulation } from "~/data/citizens";
 import { getTotalFood } from "~/data/foods";
 import { getCurrentDeity } from "~/data/deities";
@@ -222,7 +222,7 @@ export default function BuildingModal(props: Props) {
   // Shrine — today's rotating deity + whether an offering's been made (full
   // rotation stays on the Shrine page; this is just the at-a-glance status).
   const shrineDeity = () => {
-    const info = IS_DEV ? { season: state.season, progress: state.seasonElapsed / HOURS_PER_SEASON } : getGlobalSeason();
+    const info = IS_DEV ? { season: state.season, progress: state.seasonElapsed / SEASON_ELAPSED_SPAN } : getGlobalSeason();
     return getCurrentDeity(info.season, info.progress);
   };
   const offeringGiven = () => state.activeBlessing?.deityId === shrineDeity().id;
