@@ -35,7 +35,8 @@ import { getEnemy } from "@medieval-realm/shared/data/enemies";
 import { getNpcAlly } from "@medieval-realm/shared/data/npcs";
 import { simulateCombat } from "@medieval-realm/shared/data/combat";
 import { resolveFullExpedition, calcAdventurerMaxHp } from "@medieval-realm/shared/data/expeditionEngine";
-import { MISSION_RANK_LABELS, MISSION_RANK_COLORS } from "~/data/constants";
+import { MISSION_RANK_LABELS, MISSION_RANK_COLORS, missionFrameAssets, tierFrame } from "~/data/constants";
+import { CardFrame } from "~/components/CardFrame";
 import MissionEnemyCard from "./MissionEnemyCard";
 import TeamSlot from "./TeamSlot";
 import AdventurerPickerCard from "./AdventurerPickerCard";
@@ -81,6 +82,9 @@ export default function MissionAssemblyPanel(props: Props) {
   const [adventurerSupplies, setAdventurerSupplies] = createSignal<Record<string, AdventurerMissionSupplies>>({});
   const mission = () => props.mission;
   const freshMission = () => getMission(mission().id) ?? mission();
+  // The whole panel wears a frame keyed to the mission's RANK (novice=common …
+  // veteran=epic, story=legendary), signalling the stakes of the mission.
+  const frame = () => missionFrameAssets(freshMission());
   const isCoop = () => !!props.coopId;
   // Barter/offering cost (deployItems): the ones the player can't currently afford.
   const deployItemsShort = () =>
@@ -584,6 +588,9 @@ export default function MissionAssemblyPanel(props: Props) {
       }}
       style={{ position: "relative", overflow: "hidden" }}
     >
+      {/* Container frame keyed to the mission's rank — the corner art changes per
+          rarity (legendary reads more golden), with flourishes on the higher ranks. */}
+      <CardFrame rarity={frame().rarity} border={24} ornamentSize={44} ornamentInset={8} />
       {/* Background image */}
       <Show when={getMissionImage(mission().id)}>
         <div style={{
@@ -697,14 +704,14 @@ export default function MissionAssemblyPanel(props: Props) {
                     display: "flex", "flex-direction": "column",
                     background: "var(--bg-secondary)",
                     border: "1px dashed var(--border-color)",
-                    "border-radius": "10px",
+                    "border-radius": "0",
                     opacity: 0.55,
                     width: "var(--assembly-card-width, 140px)",
                   }}>
                     <div style={{
                       position: "relative", width: "100%", height: "140px",
                       overflow: "hidden",
-                      "border-radius": "10px 10px 0 0",
+                      "border-radius": "0",
                     }}>
                       <div style={{
                         width: "100%", height: "100%",
@@ -835,19 +842,22 @@ export default function MissionAssemblyPanel(props: Props) {
                         return (
                           <div
                             style={{
+                              position: "relative",
                               display: "flex", "flex-direction": "column",
                               background: "var(--bg-secondary)",
                               border: `1px solid ${CLASS_COLORS[adv()!.class] ?? "var(--border-color)"}`,
-                              "border-radius": "10px",
+                              "border-radius": "0",
                               width: "var(--assembly-card-width, 140px)",
                             }}
                           >
+                            {/* Rarity frame by the adventurer's rank (roster-style, scaled to the small card). */}
+                            <CardFrame rarity={tierFrame(adv()!.rank).rarity} border={14} ornamentSize={18} ornamentInset={2} z={6} />
                             <Tooltip text={`Click to remove ${adv()!.name}`} block>
                             <div
                               style={{
                                 position: "relative", width: "100%", height: "140px",
                                 overflow: "hidden",
-                                "border-radius": "10px 10px 0 0",
+                                "border-radius": "0",
                                 cursor: "pointer",
                               }}
                               onClick={() => toggleTeam(advId)}
@@ -934,14 +944,14 @@ export default function MissionAssemblyPanel(props: Props) {
                     display: "flex", "flex-direction": "column",
                     background: "var(--bg-secondary)",
                     border: "1px dashed var(--border-color)",
-                    "border-radius": "10px",
+                    "border-radius": "0",
                     opacity: 0.55,
                     width: "var(--assembly-card-width, 140px)",
                   }}>
                     <div style={{
                       position: "relative", width: "100%", height: "140px",
                       overflow: "hidden",
-                      "border-radius": "10px 10px 0 0",
+                      "border-radius": "0",
                     }}>
                       <div style={{
                         width: "100%", height: "100%",
@@ -1134,7 +1144,7 @@ export default function MissionAssemblyPanel(props: Props) {
                     display: "flex", "flex-direction": "column",
                     background: "var(--bg-secondary)",
                     border: cardBorder(),
-                    "border-radius": "10px",
+                    "border-radius": "0",
                     /* overflow stays visible so SupplySlot dropdowns and
                      * tooltips can extend past the card edges. The portrait
                      * div below carries its own overflow:hidden + rounded
@@ -1146,7 +1156,7 @@ export default function MissionAssemblyPanel(props: Props) {
                       style={{
                         position: "relative", width: "100%", height: "140px",
                         overflow: "hidden",
-                        "border-radius": "10px 10px 0 0",
+                        "border-radius": "0",
                         cursor: adv() ? "pointer" : "default",
                       }}
                       onClick={() => { const a = adv(); if (a) toggleTeam(a.id); }}
@@ -1612,7 +1622,7 @@ export default function MissionAssemblyPanel(props: Props) {
               style={{
                 background: "var(--bg-secondary)",
                 border: "1px solid var(--accent-red)",
-                "border-radius": "10px",
+                "border-radius": "0",
                 "max-width": "440px",
                 padding: "24px 28px",
                 "box-shadow": "0 8px 32px rgba(0,0,0,0.5)",

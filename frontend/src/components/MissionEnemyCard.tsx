@@ -1,6 +1,8 @@
 import { For, Show } from "solid-js";
 import type { EnemyDefinition, EnemyAbility } from "@medieval-realm/shared/data/enemies";
 import Tooltip from "./Tooltip";
+import { tierFrame, bossFrameAssets } from "~/data/constants";
+import { CardFrame } from "./CardFrame";
 
 interface MissionEnemyCardProps {
   enemy: EnemyDefinition;
@@ -35,17 +37,26 @@ export default function MissionEnemyCard(props: MissionEnemyCardProps) {
 
   return (
     <div style={{
+      position: "relative",
       display: "flex", "flex-direction": "column",
       background: bg(),
       border: `1px solid ${borderColor()}`,
-      "border-radius": "10px",
+      "border-radius": "0",
       width: "var(--assembly-card-width, 140px)",
     }}>
+      {/* Frame by enemy tier — a dedicated boss frame when one exists, else the
+          plain rarity frame. */}
+      {(() => {
+        const bf = props.enemy.boss ? bossFrameAssets(props.enemy.tier) : null;
+        return bf
+          ? <CardFrame frameSrc={bf.frameUrl} slice={bf.slice} ornamentSrc={bf.ornament} border={14} ornamentSize={18} ornamentInset={2} z={6} />
+          : <CardFrame rarity={tierFrame(props.enemy.tier).rarity} border={14} ornamentSize={18} ornamentInset={2} z={6} />;
+      })()}
       {/* Portrait area + name overlay. Same shape as the team card. */}
       <div style={{
         position: "relative", width: "100%", height: "140px",
         overflow: "hidden",
-        "border-radius": "10px 10px 0 0",
+        "border-radius": "0",
       }}>
         <Show
           when={known() && props.enemy.image}

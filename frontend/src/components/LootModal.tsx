@@ -11,6 +11,8 @@ import CombatLog from "~/components/CombatLog";
 import CombatPlayback from "~/components/CombatPlayback";
 import EnemyCard from "~/components/EnemyCard";
 import TreasureChest from "~/components/TreasureChest";
+import { CardFrame } from "~/components/CardFrame";
+import { missionFrameAssets } from "~/data/constants";
 import MissionRosterStrip from "~/components/MissionRosterStrip";
 
 interface Props {
@@ -83,6 +85,13 @@ export default function LootModal(props: Props) {
   };
 
   const r = () => props.result;
+  // The modal wears the mission's RANK frame (matching the team-assembly panel):
+  // novice=common … veteran=epic, story=legendary, with flourishes on the higher
+  // ranks. Falls back to common for an unknown mission.
+  const frame = () => {
+    const m = getMission(props.result.missionId);
+    return m ? missionFrameAssets(m) : { rarity: "common", frameUrl: "/images/frames/item_frame_common.png", slice: 34, ornamentV: undefined, ornamentH: undefined };
+  };
 
   return (
     <>
@@ -92,20 +101,26 @@ export default function LootModal(props: Props) {
       onClick={() => dismissWith("close")}
       style={{ overflow: "hidden" }}
     >
+      {/* Non-scrolling wrapper carries the difficulty frame overlay; the card
+          inside scrolls beneath it (an inset frame would otherwise scroll away). */}
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          position: "relative",
+          "max-width": "560px",
+          width: "100%",
+          "box-shadow": "0 10px 40px rgba(0, 0, 0, 0.6)",
+        }}
+      >
       <div
         class="loot-card"
         classList={{ exiting: exiting() }}
-        onClick={(e) => e.stopPropagation()}
         style={{
           background: "var(--bg-secondary)",
-          border: `2px solid ${outcomeColor()}`,
           "border-radius": "0",
-          "max-width": "560px",
-          width: "100%",
           "max-height": "85vh",
           "overflow-y": settled() ? "auto" : "hidden",
           "overflow-x": "hidden",
-          "box-shadow": "0 10px 40px rgba(0, 0, 0, 0.6)",
         }}
       >
         {/* Header */}
@@ -341,6 +356,9 @@ export default function LootModal(props: Props) {
               : (hasStoryCinematic() ? "Claim & Continue Story" : "Claim rewards")}
           </button>
         </div>
+      </div>
+      {/* Rank frame — drawn over the card edges; flourishes on higher ranks. */}
+      <CardFrame rarity={frame().rarity} border={20} />
       </div>
     </div>
     </>

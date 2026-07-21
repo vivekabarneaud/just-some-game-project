@@ -82,9 +82,11 @@ export default function QuestLog() {
     const isCollapsed = () => collapsed()[storylineId];
     const chapterState = () =>
       state.chapters?.find((c) => c.storyline === storylineId);
-    // The storyline's standing goal: shown pinned even before its own triggers
-    // fire, so the player always has a direction. Secondary = the active steps.
-    const main = () => questsByStoryline(storylineId).find((q) => q.main && !isQuestClaimed(q, state));
+    // The storyline's standing goal, pinned at the top. Prefer the currently
+    // ACTIVE main-flagged quest, so a spine that advances beat by beat (the
+    // guild's story breadcrumbs) evolves as each one completes. A single always-
+    // active main (settlement's Road to Greatness, empty triggers) just stays.
+    const main = () => questsByStoryline(storylineId).find((q) => q.main && isQuestActive(q, state));
     const secondary = () => active().filter((q) => !q.main);
 
     const renderCard = (quest: QuestDefinition, isMain: boolean) => {

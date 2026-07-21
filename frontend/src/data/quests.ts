@@ -597,6 +597,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     id: "heroes_wanted",
     storyline: "guild",
     chapter: 1,
+    main: true,
     title: "Heroes Wanted",
     narrative:
       "A family of hunters walked in from the wilds and stayed: two good bows and a big quiet one who carries half the camp without being asked.\n\nThey have been pacing the edge of the camp like dogs that need walking, and there will be more drifting in after them. A proper guild hall would give them somewhere to gather, and us a way to ask what they can do and send them out to do it.",
@@ -616,6 +617,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     id: "into_the_unknown",
     storyline: "guild",
     chapter: 1,
+    main: true,
     title: "Into the Unknown",
     narrative:
       "The mission board is nailed to the wall, ink still wet. The southern frontier is full of ruins, rumours, and things that the Dominion's maps don't show. Time to find out what's really out here.",
@@ -634,6 +636,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     id: "investigate_old_watch",
     storyline: "guild",
     chapter: 1,
+    main: true,
     title: "The Old Watch",
     narrative:
       "The scouts came back with a map and a knot in their story: an old watchtower to the south, stone that has outlived whoever raised it. Worth walking its halls, if the place is as empty as it looks. Send a team, and send someone who can hold a line, just in case it is not.",
@@ -650,6 +653,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     id: "count_the_days",
     storyline: "guild",
     chapter: 1,
+    main: true,
     title: "Past the Ruins",
     narrative:
       "The old watch is behind us, and the story it told is not finished. The team came back saying the trees go wrong a few days further south than they walked, and that they felt it before they saw it. I need to know how far, and what walks there. So I am sending them south again, past the ruins, to count the days honestly this time, and I will send someone with them who can deal with what does not bleed.",

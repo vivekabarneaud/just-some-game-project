@@ -76,7 +76,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
     minLabLevel: 1,
     costs: [{ resource: "tusk_shard", amount: 1 }, { resource: "mugwort", amount: 1 }],
     effect: "curefroth",
-    craftTime: 300,
+    craftTime: 15,
     starterRecipe: true,
     discoveryChance: 0,
   },

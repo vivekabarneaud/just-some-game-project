@@ -1,22 +1,15 @@
 import { For, Show, createSignal } from "solid-js";
 import { useGame, type KeptAnimal } from "~/engine/gameState";
 import { getAnimal } from "@medieval-realm/shared/data/livestock";
-import { FrameOrnaments } from "~/components/FrameOrnaments";
+import { CardFrame } from "~/components/CardFrame";
 import Select from "~/components/Select";
 import { SPARK_GOLD } from "~/data/navWidgets";
 import { breedName } from "~/data/dogBreeds";
 import { kennelDogCapacity } from "~/data/buildings";
 
 // Frame by experience — same hand-drawn frames as the adventurer roster.
-// Tier = the higher of the dog's two skills (1..5).
+// Tier = the higher of the dog's two skills (1..5); CardFrame does the drawing.
 const TIER_FRAME = ["", "common", "uncommon", "rare", "epic", "legendary"];
-const frameUrl = (tier: number) => `/images/frames/item_frame_${TIER_FRAME[tier] ?? "common"}.png`;
-const TIER_ORNAMENT: Record<number, string | undefined> = {
-  3: "/images/frames/ornament_rare.png",
-  4: "/images/frames/ornament_epic.png",
-  5: "/images/frames/ornament_epic.png",
-};
-const ornamentH = (v: string) => v.replace(".png", "_h.png");
 
 const stars = (level: number) => {
   const n = Math.max(0, Math.min(5, Math.round(level || 0)));
@@ -89,14 +82,7 @@ export default function Kennel() {
             {(dog) => (
               <div class="building-card adv-card" style={{ position: "relative", width: "100%" }}>
                 {/* Rarity frame + mid-edge flourishes, drawn over the card. */}
-                <div aria-hidden="true" style={{
-                  position: "absolute", inset: "0", "pointer-events": "none", "z-index": "3",
-                  border: "24px solid transparent",
-                  "border-image": `url(${frameUrl(tierOf(dog))}) 44 stretch`,
-                }} />
-                <Show when={TIER_ORNAMENT[tierOf(dog)]}>
-                  <FrameOrnaments vUrl={TIER_ORNAMENT[tierOf(dog)]!} hUrl={ornamentH(TIER_ORNAMENT[tierOf(dog)]!)} size={28} inset={8} />
-                </Show>
+                <CardFrame rarity={TIER_FRAME[tierOf(dog)] ?? "common"} border={24} ornamentSize={28} ornamentInset={8} z={3} />
 
                 <div class="adv-card-portrait">
                   <img src={dog.portrait} alt={dog.name} loading="lazy" />

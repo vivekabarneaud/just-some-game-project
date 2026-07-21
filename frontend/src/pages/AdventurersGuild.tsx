@@ -42,25 +42,13 @@ import { playSound, playPageMountSound } from "~/engine/sounds";
 import CombatPlayback from "~/components/CombatPlayback";
 import { fetchCoops, respondCoop, cancelCoop, fetchCoopDetail, claimCoop } from "~/api/coop";
 import { wsClient } from "~/api/ws";
-import { FrameOrnaments } from "~/components/FrameOrnaments";
+import { CardFrame } from "~/components/CardFrame";
 import type { CompletedMission } from "@medieval-realm/shared/data/missions";
 
 type Tab = "missions" | "roster";
 
-// Rank → rarity frame for the roster cards (rank 1..5). Same hand-drawn frames
-// the crafting cards use; drawn as the card's border-image.
+// Rank (1..5) → rarity name for the roster card frame; CardFrame does the rest.
 const RANK_FRAME = ["", "common", "uncommon", "rare", "epic", "legendary"];
-const rankFrameUrl = (rank: number) => `/images/frames/item_frame_${RANK_FRAME[rank] ?? "common"}.png`;
-
-// Mid-edge flourishes (restored via CSS since the frame art is corner-only now).
-// Only the higher tiers carry them; common/uncommon stay plain. legendary reuses
-// the epic flourish for now.
-const RANK_ORNAMENT: Record<number, string | undefined> = {
-  3: "/images/frames/ornament_rare.png",
-  4: "/images/frames/ornament_epic.png",
-  5: "/images/frames/ornament_epic.png",
-};
-const rankOrnamentH = (v: string) => v.replace(".png", "_h.png");
 
 
 
@@ -817,6 +805,13 @@ export default function AdventurersGuild() {
               >
                 Spawn all novice
               </button>
+              <button
+                onClick={() => actions.devSpawnVeteranMissions()}
+                class="skip-season-btn"
+                style={{ "font-size": "0.7rem", padding: "3px 10px" }}
+              >
+                Spawn veteran
+              </button>
               <Tooltip text="Queue a placeholder robin to test the banner/sidebar/Overview flow">
               <button
                 onClick={() => actions.devTriggerRobin()}
@@ -967,24 +962,9 @@ export default function AdventurersGuild() {
                       background: adv.onMission ? "var(--bg-secondary)" : "var(--bg-card)",
                       "box-shadow": newlyArrivedIds().includes(adv.id) ? "0 0 0 1px var(--accent-blue), 0 0 12px rgba(96, 165, 250, 0.25)" : undefined,
                     }}>
-                      {/* Rarity frame drawn OVER the card (not as a border) so the
-                          portrait stays flush to the edge and the frame overlays it. */}
-                      <div aria-hidden="true" style={{
-                        position: "absolute", inset: 0, "pointer-events": "none", "z-index": 3,
-                        /* border-width + slice tuned so the corner ornaments render
-                           at the same visual scale as the building/quest frames. */
-                        border: "24px solid transparent",
-                        "border-image": `url(${rankFrameUrl(adv.rank)}) 44 stretch`,
-                      }} />
-                      {/* Mid-edge flourishes (higher tiers only). */}
-                      <Show when={RANK_ORNAMENT[adv.rank]}>
-                        <FrameOrnaments
-                          vUrl={RANK_ORNAMENT[adv.rank]!}
-                          hUrl={rankOrnamentH(RANK_ORNAMENT[adv.rank]!)}
-                          size={28}
-                          inset={8}
-                        />
-                      </Show>
+                      {/* Rarity frame + flourishes, drawn OVER the card so the
+                          portrait stays flush to the edge. */}
+                      <CardFrame rarity={RANK_FRAME[adv.rank] ?? "common"} border={24} ornamentSize={28} ornamentInset={8} z={3} />
                       <span class="building-card-category" style={{ color: RANK_COLORS[adv.rank] }}>
                         {RANK_NAMES[adv.rank]}
                       </span>

@@ -2296,13 +2296,14 @@ input, textarea, select {
 /* Mission Assembly - Two Column */
 .mission-assembly {
   display: grid;
-  grid-template-columns: 1fr 1.2fr;
+  /* Even halves: the left (mission + enemies + allies) carries more, and a 50/50
+     split lands the frame's centered flourish on the real column separator. */
+  grid-template-columns: 1fr 1fr;
   gap: 16px;
   margin-top: 20px;
   background: var(--bg-secondary);
-  border: 2px solid var(--accent-blue);
-  border-radius: 10px;
-  padding: 20px;
+  border-radius: 0;
+  padding: 26px;
 }
 
 .mission-assembly.has-bg {

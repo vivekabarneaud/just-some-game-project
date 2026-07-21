@@ -228,6 +228,7 @@ import {
   eligiblePinnedMissions,
   MISSION_POOL,
   NOVICE_MISSIONS,
+  EXPERT_MISSIONS,
   getMissionBoardSize,
   calcSuccessChance,
   rollPermanentDeaths,
@@ -965,6 +966,8 @@ export interface GameActions {
   rerollMissions: () => boolean;
   /** Dev-only: replace the mission board with every novice mission, ignoring prerequisites. */
   devSpawnAllNoviceMissions: () => void;
+  /** Dev-only: replace the board with the veteran (expert-pool) missions — for previewing high-rank frames. */
+  devSpawnVeteranMissions: () => void;
   claimQuestReward: (questId: string) => boolean;
   startAlchemyResearch: () => boolean;
   startAlchemyCraft: (recipeId: string, quantity?: number) => boolean;
@@ -7644,6 +7647,12 @@ export function GameProvider(props: ParentProps) {
     devSpawnAllNoviceMissions() {
       setState(produce((s) => {
         s.missionBoard = [...NOVICE_MISSIONS];
+      }));
+      scheduleSave();
+    },
+    devSpawnVeteranMissions() {
+      setState(produce((s) => {
+        s.missionBoard = [...EXPERT_MISSIONS];
       }));
       scheduleSave();
     },
