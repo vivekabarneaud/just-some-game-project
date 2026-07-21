@@ -367,12 +367,16 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     title: "A Dog Without a Home",
     narrative:
       "A stray dog wandered in out of the wet and would not be shooed off. He has slept by our fire twice now and trailed Nell to the well and back, and she has named him Truffle, which rather settles whether he stays. We have not the coin to keep the idle fed, dog or man, so he had best earn his bread. Raise a kennel and we can give him a proper place, and a job of his own.",
-    objective: "Build a Kennel",
+    objective: "Build a Kennel and give the dog a job",
     icon: "🐕",
     // Fires once the first flock is bought — a guard dog earns its keep when
     // there are animals to guard, and it gives Truffle a real job (the fold).
     triggers: [{ type: "custom", check: (s) => (s.pens ?? []).some((p) => p.count > 0) }],
-    condition: (s) => (bldg(s, "kennel")?.level ?? 0) >= 1,
+    // Not just built — the player must also post the dog (teaches assignment
+    // without spelling out where the control is).
+    condition: (s) =>
+      (bldg(s, "kennel")?.level ?? 0) >= 1 &&
+      s.keptAnimals.some((a) => a.species === "dog" && !a.keeper && a.job !== "idle"),
     rewards: [
       { resource: "wood", amount: 30, label: "Wood" },
       { resource: "stone", amount: 15, label: "Stone" },
@@ -509,51 +513,13 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/settlement_camp.png",
   },
   {
-    id: "sharper_axes",
-    storyline: "settlement",
-    chapter: 4,
-    title: "Sharper Axes",
-    narrative:
-      "Jory has stopped tapping trunks with the back of his axe and started marking them with chalk: a sign he has learned which pines here are worth felling and which are not. He says the mill needs a proper pit-saw and a second horse, and he announces it over breakfast in front of everyone, which is how Jory gets things done.",
-    objective: "Upgrade Lumber Mill to level 2",
-    icon: "🪓",
-    triggers: [{ type: "th_level", level: 2 }],
-    condition: (s) => (bldg(s, "lumber_mill")?.level ?? 0) >= 2,
-    rewards: [
-      { resource: "wood", amount: 40, label: "Wood" },
-      { resource: "stone", amount: 54, label: "Stone" },
-    ],
-    targetBuildingId: "lumber_mill",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_5.png",
-    unlocksBioFragments: ["jory_old_songs"],
-  },
-  {
-    id: "deeper_veins",
-    storyline: "settlement",
-    chapter: 4,
-    title: "Deeper Veins",
-    narrative:
-      "Tomas has been sleeping at the quarry two nights a week, coming back with dust in his beard and a list of what the surface ledge cannot give us. He wants to cut down: proper steps, a winch, maybe a second face. He says the good stone is just below, and he says it like a man who can already hear it.",
-    objective: "Upgrade Stone Quarry to level 2",
-    icon: "⛏️",
-    triggers: [{ type: "th_level", level: 2 }],
-    condition: (s) => (bldg(s, "quarry")?.level ?? 0) >= 2,
-    rewards: [
-      { resource: "wood", amount: 81, label: "Wood" },
-      { resource: "stone", amount: 13, label: "Stone" },
-    ],
-    targetBuildingId: "quarry",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_6.png",
-    unlocksBioFragments: ["tomas_quarry_shack"],
-  },
-  {
     id: "merchants_welcome",
     storyline: "settlement",
     chapter: 4,
     title: "Merchants Welcome",
     narrative:
       "The Dominion trader left us a challenge on his way south: build a proper market and he'll bring a wagon next time, not a mule. \"No one unloads in the mud,\" he said. He may be right. Coin spends the same wherever it comes from.",
-    objective: "Build a Marketplace",
+    objective: "Give the road-traders somewhere to unload",
     icon: "🏪",
     // After Cobb's first visit (the trader who dares us to build a market). His
     // pass now comes at Village tier, so this lands later than the old TH2 gate.
