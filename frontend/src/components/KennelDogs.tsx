@@ -5,7 +5,7 @@ import { CardFrame } from "~/components/CardFrame";
 import Select from "~/components/Select";
 import { SPARK_GOLD } from "~/data/navWidgets";
 import { breedName } from "~/data/dogBreeds";
-import { kennelDogCapacity } from "~/data/buildings";
+import { kennelDogCapacity, animalSlots } from "~/data/buildings";
 
 // Tier (higher of the dog's two skills, 1..5) → rarity frame name.
 const TIER_FRAME = ["", "common", "uncommon", "rare", "epic", "legendary"];
@@ -22,9 +22,16 @@ export default function KennelDogs() {
   const { state, actions } = useGame();
   const dogs = () => state.keptAnimals.filter((a) => a.species === "dog");
   const builtPens = () => state.pens.filter((p) => p.level > 0);
-  const hasHuntingCamp = () => (state.buildings.find((b) => b.buildingId === "hunting_camp")?.level ?? 0) > 0;
+  const huntingCampLvl = () => state.buildings.find((b) => b.buildingId === "hunting_camp")?.level ?? 0;
   const kennelLevel = () => state.buildings.find((b) => b.buildingId === "kennel")?.level ?? 0;
   const capacity = () => kennelDogCapacity(kennelLevel());
+  // Hunting camp: one dog slot per level. A dog can be posted there only if
+  // there's a free slot (Ser Sniffsalot occupies one at L1) or it's already on
+  // the hunt. Likewise a pen holds one guard dog.
+  const huntPosted = () => state.keptAnimals.filter((a) => a.species === "dog" && a.job === "hunt").length;
+  const huntSlotFree = (d: KeptAnimal) => d.job === "hunt" || huntPosted() < animalSlots("hunting_camp", huntingCampLvl());
+  const penFreeFor = (penId: string, dogId: string) =>
+    !state.keptAnimals.some((a) => a.species === "dog" && a.job === "guard" && a.penId === penId && a.id !== dogId);
 
   const [editingId, setEditingId] = createSignal<string | null>(null);
   const [draft, setDraft] = createSignal("");
@@ -141,8 +148,10 @@ export default function KennelDogs() {
                           onChange={(v) => onAssign(dog, v)}
                           options={[
                             { value: "idle", label: "At the fire" },
-                            ...(hasHuntingCamp() ? [{ value: "hunt", label: "Hunting camp" }] : []),
-                            ...builtPens().map((pen) => ({ value: `guard:${pen.id}`, label: `Guard the ${getAnimal(pen.animal).name.toLowerCase()}` })),
+                            ...(huntingCampLvl() > 0 && huntSlotFree(dog) ? [{ value: "hunt", label: "Hunting camp" }] : []),
+                            ...builtPens()
+                              .filter((pen) => penFreeFor(pen.id, dog.id))
+                              .map((pen) => ({ value: `guard:${pen.id}`, label: `Guard the ${getAnimal(pen.animal).name.toLowerCase()}` })),
                           ]}
                         />
                       </Show>
