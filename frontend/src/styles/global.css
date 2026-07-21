@@ -2303,7 +2303,8 @@ input, textarea, select {
   margin-top: 20px;
   background: var(--bg-secondary);
   border-radius: 0;
-  padding: 26px;
+  /* Clears the frame ring (thickest at legendary ≈ slice 95 × 0.55 ≈ 52px). */
+  padding: 52px;
 }
 
 .mission-assembly.has-bg {

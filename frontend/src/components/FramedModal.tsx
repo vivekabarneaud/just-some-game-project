@@ -1,5 +1,6 @@
 import { Show, createSignal, createEffect, onCleanup, type JSX } from "solid-js";
 import { Portal } from "solid-js/web";
+import { CardFrame } from "~/components/CardFrame";
 
 /**
  * The shared framed modal shell — a gold ornament frame drawn as an overlay over
@@ -66,7 +67,7 @@ export default function FramedModal(props: {
           </div>
 
           {/* Gold ornament frame, drawn OVER the edges (banner bleeds underneath). */}
-          <div aria-hidden="true" style={{ position: "absolute", inset: "0", "pointer-events": "none", "z-index": "5", border: "20px solid transparent", "border-image": "url(/images/frames/item_frame_uncommon.png) 34 stretch" }} />
+          <CardFrame rarity="uncommon" border={20} />
         </div>
       </div>
     </Portal>

@@ -588,9 +588,10 @@ export default function MissionAssemblyPanel(props: Props) {
       }}
       style={{ position: "relative", overflow: "hidden" }}
     >
-      {/* Container frame keyed to the mission's rank — the corner art changes per
-          rarity (legendary reads more golden), with flourishes on the higher ranks. */}
-      <CardFrame rarity={frame().rarity} border={24} ornamentSize={44} ornamentInset={8} />
+      {/* Rank-keyed frame. Border is derived from the slice (scale), so every
+          rarity renders at the same visual scale — the ornate higher-rarity
+          frames just get a proportionally thicker ring. */}
+      <CardFrame rarity={frame().rarity} scale={0.6} ornamentSize={48} />
       {/* Background image */}
       <Show when={getMissionImage(mission().id)}>
         <div style={{

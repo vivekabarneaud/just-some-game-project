@@ -30,6 +30,11 @@ export function CardFrame(props: {
   ornamentSrc?: string;
   /** border-image width in px — scale to the card (roster ~24, small cards ~13). */
   border?: number;
+  /** Alternative to `border`: derive the border from the slice (border = slice ×
+   *  scale). Because CSS border-image scales each corner into the border-width,
+   *  a border proportional to the slice renders every rarity at the SAME visual
+   *  scale (ornate frames just get a proportionally thicker ring). */
+  scale?: number;
   ornamentSize?: number;
   ornamentInset?: number;
   /** Stacking order over the card content (default 5). */
@@ -37,13 +42,15 @@ export function CardFrame(props: {
 }) {
   const frameUrl = () => props.frameSrc ?? `/images/frames/item_frame_${props.rarity ?? "common"}.png`;
   const slice = () => props.slice ?? RARITY_SLICE[props.rarity ?? ""] ?? 34;
+  const border = () => props.border ?? (props.scale != null ? Math.round(slice() * props.scale) : 20);
+  const inset = () => props.ornamentInset ?? Math.round(border() * 0.16); // default: near the rule, not the inner edge
   const ornament = () => props.ornamentSrc ?? RARITY_ORNAMENT[props.ornamentRarity ?? props.rarity ?? ""];
   return (
     <>
       <div aria-hidden="true" style={{
         position: "absolute", inset: "0", "pointer-events": "none",
         "z-index": `${props.z ?? 5}`,
-        border: `${props.border ?? 20}px solid transparent`,
+        border: `${border()}px solid transparent`,
         "border-image": `url(${frameUrl()}) ${slice()} stretch`,
       }} />
       <Show when={ornament()}>
@@ -51,7 +58,7 @@ export function CardFrame(props: {
           vUrl={ornament()!}
           hUrl={ornament()!.replace(".png", "_h.png")}
           size={props.ornamentSize ?? 44}
-          inset={props.ornamentInset ?? 17}
+          inset={inset()}
         />
       </Show>
     </>
