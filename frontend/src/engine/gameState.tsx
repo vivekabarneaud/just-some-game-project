@@ -3947,6 +3947,7 @@ export function GameProvider(props: ParentProps) {
         if (hasUnresolved) {
           try { applyTicks(1000); } catch { /* already logged above */ }
         }
+        logWinterOutlook();
       } else {
         // New settlement — start with a fresh initial state, not localStorage
         const fresh = createInitialState();
@@ -5723,11 +5724,39 @@ export function GameProvider(props: ParentProps) {
     /* eslint-enable no-console */
   }
 
+  // One-shot forward look: if winter fell right now, at the current buildings +
+  // population, would the settlement run a food deficit, and how long until the
+  // stores empty? Printed on load so tomorrow we can check the estimate against
+  // what the night actually did. Winter is a global real-date event in prod, so
+  // this is the *next* winter, same for everyone. Read-only; a shallow copy of
+  // state with season overridden feeds the same production math the tick uses.
+  function logWinterOutlook() {
+    const winterProd = calcProductionRates({ ...state, season: "winter", seasonElapsed: 0 } as GameState).food;
+    const rationMult = state.foundingWinterGrace ? FOUNDING_WINTER_RATION : 1;
+    const citizenFood = calcFoodConsumption(state.citizens, countLivingAdventurers(state.adventurers), rationMult);
+    const animalFood = calcAnimalFoodConsumption(state.pens);
+    const winterNet = winterProd - citizenFood - animalFood;
+    const food = getTotalFood(state.foods);
+    /* eslint-disable no-console */
+    console.group(`❄️ Winter outlook (projected from ${state.season} y${state.year})`);
+    console.log(`Winter food production: ${winterProd.toFixed(1)}/h  (harvest stops, forage/hunt/fish drop)`);
+    console.log(`Eaters: citizens ${citizenFood.toFixed(1)}/h + animals ${animalFood.toFixed(1)}/h`);
+    if (winterNet >= 0) {
+      console.log(`✅ Winter net: +${winterNet.toFixed(1)}/h — stores hold, no deficit.`);
+    } else {
+      const hrs = food / -winterNet;
+      console.log(`⚠️ Winter net: ${winterNet.toFixed(1)}/h DEFICIT — current stores ${food.toFixed(0)} food would empty in ~${hrs.toFixed(1)}h once winter hits.`);
+    }
+    console.groupEnd();
+    /* eslint-enable no-console */
+  }
+
   // Offline catch-up: in dev mode, run immediately.
   // In production, this runs after server state loads (see onMount above).
   if (IS_DEV) {
     const offlineMs = Date.now() - state.lastTick;
     if (offlineMs > 2000) offlineCatchUp(offlineMs, "dev-load");
+    logWinterOutlook();
   }
 
   // In production, speed is always 1. In dev, player can adjust.
