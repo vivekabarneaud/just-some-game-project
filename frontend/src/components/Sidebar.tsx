@@ -35,7 +35,6 @@ const navSections: { title: string; items: NavItem[] }[] = [
       { path: "/quests", icon: "📋", label: "Quests" },
       { path: "/buildings", icon: "🏗️", label: "Buildings" },
       { path: "/farming", icon: "🌾", label: "Farming" },
-      { path: "/kennel", icon: "🐕", label: "Kennel" },
       { path: "/guild", icon: "🏰", label: "Adventurers" },
     ],
   },
@@ -85,7 +84,6 @@ const SPEEDS = [1, 2, 5, 10, 50];
  *  this first" message on click. Keeps the early-game sidebar legible. Keyed by
  *  nav path → the building that page needs (greyed until that building exists). */
 const LINK_REQUIRED_BUILDING: Record<string, string> = {
-  "/kennel": "kennel",
   "/kitchen": "kitchen",
   "/tailoring": "tailoring_shop",
   "/woodworker": "woodworker",

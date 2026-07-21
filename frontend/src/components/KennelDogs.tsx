@@ -7,8 +7,7 @@ import { SPARK_GOLD } from "~/data/navWidgets";
 import { breedName } from "~/data/dogBreeds";
 import { kennelDogCapacity } from "~/data/buildings";
 
-// Frame by experience — same hand-drawn frames as the adventurer roster.
-// Tier = the higher of the dog's two skills (1..5); CardFrame does the drawing.
+// Tier (higher of the dog's two skills, 1..5) → rarity frame name.
 const TIER_FRAME = ["", "common", "uncommon", "rare", "epic", "legendary"];
 
 const stars = (level: number) => {
@@ -16,10 +15,10 @@ const stars = (level: number) => {
   return "★".repeat(n) + "☆".repeat(5 - n);
 };
 
-/** The Kennel — the settlement's working dogs, one card each (mirrors the
- *  adventurer roster). Post each to guard a flock or work the hunting camp.
- *  Skills, happiness and real acquisition come in the next increment. */
-export default function Kennel() {
+/** The settlement's working dogs — one card each (mirrors the adventurer
+ *  roster). Post each to guard a flock or work the hunting camp. Rendered inside
+ *  the Kennel's building modal (no page chrome of its own). */
+export default function KennelDogs() {
   const { state, actions } = useGame();
   const dogs = () => state.keptAnimals.filter((a) => a.species === "dog");
   const builtPens = () => state.pens.filter((p) => p.level > 0);
@@ -55,34 +54,25 @@ export default function Kennel() {
   const commitEdit = (d: KeptAnimal) => { const v = draft(); if (v.trim()) actions.renameAnimal(d.id, v); setEditingId(null); };
 
   return (
-    <div style={{ padding: "20px", "max-width": "1080px" }}>
-      <h1 style={{ "font-family": "var(--font-heading)", color: "var(--accent-gold)", "margin-bottom": "4px" }}>🐕 The Kennel</h1>
-      <p style={{ color: "var(--text-secondary)", "font-style": "italic", "margin-bottom": "10px" }}>
-        The working dogs of the settlement. Post one to guard a flock or work the hunting camp, or let it rest at the fire.
+    <div>
+      <p style={{ color: "var(--text-muted)", "font-size": "0.82rem", "margin-bottom": "14px" }}>
+        🏠 {dogs().filter((d) => !d.keeper).length} / {capacity()} dogs kept · a bigger kennel makes room for more, and lets strays and litters join the pack.
       </p>
-
-      <Show when={kennelLevel() > 0}>
-        <p style={{ color: "var(--text-muted)", "font-size": "0.82rem", "margin-bottom": "18px" }}>
-          🏠 {dogs().filter((d) => !d.keeper).length} / {capacity()} dogs kept · a bigger kennel makes room for more, and lets strays and litters join the pack.
-        </p>
-      </Show>
 
       <Show
         when={dogs().length > 0}
         fallback={
-          <div style={{ color: "var(--text-muted)", "font-style": "italic" }}>
-            {kennelLevel() > 0
-              ? "The kennel stands empty for now."
-              : "No kennel yet. Build one to take in Truffle, the stray who keeps sleeping by the fire."}
+          <div style={{ color: "var(--text-muted)", "font-style": "italic", "font-size": "0.85rem" }}>
+            The kennel stands empty for now.
           </div>
         }
       >
-        <div style={{ display: "grid", "grid-template-columns": "repeat(auto-fill, 320px)", "justify-content": "start", gap: "16px" }}>
+        <div style={{ display: "grid", "grid-template-columns": "repeat(auto-fill, minmax(240px, 1fr))", gap: "14px" }}>
           <For each={dogs()}>
             {(dog) => (
               <div class="building-card adv-card" style={{ position: "relative", width: "100%" }}>
                 {/* Rarity frame + mid-edge flourishes, drawn over the card. */}
-                <CardFrame rarity={TIER_FRAME[tierOf(dog)] ?? "common"} border={24} ornamentSize={28} ornamentInset={8} z={3} />
+                <CardFrame rarity={TIER_FRAME[tierOf(dog)] ?? "common"} border={24} ornamentSize={28} ornamentInset={4} z={3} />
 
                 <div class="adv-card-portrait">
                   <img src={dog.portrait} alt={dog.name} loading="lazy" />

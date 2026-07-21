@@ -44,6 +44,7 @@ import Countdown from "~/components/Countdown";
 import Tooltip from "~/components/Tooltip";
 import FramedModal from "~/components/FramedModal";
 import BuildingStaffSection from "~/components/BuildingStaffSection";
+import KennelDogs from "~/components/KennelDogs";
 import { TAVERN_COMMODITY_DRINKS } from "~/data/tavern";
 import { formatTimeLong as formatTime } from "~/utils/format";
 
@@ -381,6 +382,13 @@ export default function BuildingModal(props: Props) {
                           </span>
                         )}
                       </Show>
+                    </div>
+                  </Show>
+
+                  {/* Kennel: the dog roster lives right here in the modal. */}
+                  <Show when={id() === "kennel" && level() > 0 && !playerBuilding()?.damaged}>
+                    <div style={{ "margin-bottom": "22px" }}>
+                      <KennelDogs />
                     </div>
                   </Show>
 

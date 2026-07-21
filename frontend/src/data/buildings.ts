@@ -454,7 +454,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     name: "Kennel",
     category: "settlement",
     description:
-      "A home for the settlement's dogs. It's where a working pack is kept, pups are raised, and the odd stray takes up a warm corner. A houndsman posted here trains the dogs faster. Each level makes room for more dogs.",
+      "A home for the settlement's dogs. It's where a working pack is kept, pups are raised, and the odd stray takes up a warm corner. Each level makes room for more dogs.",
     icon: "🐕",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/kennel_camp.png",
     maxLevel: 5,
@@ -1061,9 +1061,8 @@ export const BUILDING_STAFF: Record<string, BuildingStaffConfig> = {
   // the post later). Empty config = citizen-only staffing.
   iron_mine: {},
   gold_mine: {},
-  // The Kennel's staff is a houndsman (a townsfolk for now) — posting one speeds
-  // the dogs' training. Empty config = citizen-only staffing.
-  kennel: {},
+  // (Kennel: no staff slot for now — a houndsman who speeds dog training is a
+  // future nice-to-have; the buff code stays dormant until re-added here.)
 };
 
 export function isStaffable(buildingId: string): boolean {
@@ -1102,7 +1101,6 @@ export const BUILDING_WORKSPACE: Record<string, { route: string; label: string }
   marketplace:       { route: "/marketplace",    label: "Open the marketplace" },
   adventurers_guild: { route: "/guild",          label: "Open the Adventurer's Guild" },
   shrine:            { route: "/shrine",         label: "Open the Shrine" },
-  kennel:            { route: "/kennel",         label: "Open the Kennel" },
 };
 export function buildingWorkspace(buildingId: string): { route: string; label: string } | null {
   return BUILDING_WORKSPACE[buildingId] ?? null;
