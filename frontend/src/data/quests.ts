@@ -1,5 +1,6 @@
 import type { GameState } from "~/engine/gameState";
 import { getItem } from "@medieval-realm/shared/data/items";
+import { getTotalFood } from "~/data/foods";
 import type { VeggieId } from "./gardens";
 
 // ─── Storyline / chapter taxonomy ────────────────────────────────
@@ -368,9 +369,9 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
       "A stray dog wandered in out of the wet and would not be shooed off. He has slept by our fire twice now and trailed Nell to the well and back, and she has named him Truffle, which rather settles whether he stays. We have not the coin to keep the idle fed, dog or man, so he had best earn his bread. Raise a kennel and we can give him a proper place, and a job of his own.",
     objective: "Build a Kennel",
     icon: "🐕",
-    // Fires once the hunting camp is up (Brenna's own hound is already working
-    // it, so dogs are a known thing by now) — staggered after the hunter quest.
-    triggers: [{ type: "building_built", buildingId: "hunting_camp" }],
+    // Fires once the first flock is bought — a guard dog earns its keep when
+    // there are animals to guard, and it gives Truffle a real job (the fold).
+    triggers: [{ type: "custom", check: (s) => (s.pens ?? []).some((p) => p.count > 0) }],
     condition: (s) => (bldg(s, "kennel")?.level ?? 0) >= 1,
     rewards: [
       { resource: "wood", amount: 30, label: "Wood" },
@@ -388,10 +389,9 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
       "Edda has taken to hanging onions from a tent pole and calling it a pantry. It is not a pantry. The one in Ashwick was a stone room that smelled of root vegetables and salt; ours will be wood-floored and smell of nothing yet. Tomas says the cellar can go down four feet before we hit the water table. That will do.",
     objective: "Build a Pantry",
     icon: "🥫",
-    // Gated on the Hunter Camp so meat surplus is actually a felt problem
-    // when Edda complains about storage — not just an abstract worry on the
-    // first morning of Ch2 alongside Houses + Hunter.
-    triggers: [{ type: "building_built", buildingId: "hunting_camp" }],
+    // Fires once food is actually piling up (not during the early deficit) —
+    // asking for storage only lands once there's a surplus worth storing.
+    triggers: [{ type: "custom", check: (s) => getTotalFood(s.foods) >= 60 }],
     condition: (s) => (bldg(s, "pantry")?.level ?? 0) >= 1,
     rewards: [
       { resource: "wood", amount: 50, label: "Wood" },
@@ -555,7 +555,9 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
       "The Dominion trader left us a challenge on his way south: build a proper market and he'll bring a wagon next time, not a mule. \"No one unloads in the mud,\" he said. He may be right. Coin spends the same wherever it comes from.",
     objective: "Build a Marketplace",
     icon: "🏪",
-    triggers: [{ type: "th_level", level: 2 }],
+    // After Cobb's first visit (the trader who dares us to build a market). His
+    // pass now comes at Village tier, so this lands later than the old TH2 gate.
+    triggers: [{ type: "custom", check: (s) => (s.merchantVisitsFired ?? []).includes("dominion_peddler_first") }],
     condition: (s) => (bldg(s, "marketplace")?.level ?? 0) >= 1,
     rewards: [
       { resource: "wood", amount: 60, label: "Wood" },

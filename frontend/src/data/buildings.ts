@@ -461,9 +461,9 @@ export const BUILDINGS: BuildingDefinition[] = [
     levels: generateLevels({ wood: 40, stone: 20 }, 10, undefined, 5),
     requiredTier: "camp",
     tierLevelCaps: { camp: 2, village: 3, town: 4, city: 5 },
-    // Opens with the Thornwoods' arrival (same beat as Houses + the Hunting
-    // Camp) — that's when they offer the settlement a hound to house.
-    unlockedAt: { storyline: "settlement", chapter: 2 },
+    // Opens exactly when the stray-dog quest fires (the first flock is bought),
+    // so the Kennel appears right as the quest tells you to raise it.
+    unlockedAt: { requiresQuestTriggered: "a_dog_without_a_home" },
   },
 
   // Camp tier — Woodworker (wood-based equipment)
