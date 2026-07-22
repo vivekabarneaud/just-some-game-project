@@ -2,7 +2,7 @@ import { createSignal, createMemo, For, Show } from "solid-js";
 import { A } from "@solidjs/router";
 import { BUILDINGS, getSettlementName, SETTLEMENT_TIERS } from "~/data/buildings";
 import { RESOURCES } from "~/data/resources";
-import { SEASON_META } from "~/data/seasons";
+import { SEASON_META, IS_DEV, SEASON_ELAPSED_SPAN } from "~/data/seasons";
 import SeasonIcon from "~/components/SeasonIcon";
 import { getRaid, getDefenseTips, type IncomingRaid } from "~/data/raids";
 import { militiaCount } from "~/data/defenses";
@@ -53,6 +53,27 @@ export default function Overview() {
 
   const hasThreats = () => state.incomingRaids.length > 0;
 
+  // Pre-winter outlook: project the food balance at winter rates and, while it's
+  // still autumn, judge whether the stores actually see us through to spring. The
+  // seasonElapsed counter (0..SEASON_ELAPSED_SPAN) is maintained in both modes;
+  // each unit is 1 game-hour in dev, 3 real hours in prod (3-day seasons). Winter
+  // itself is one full season: SEASON_ELAPSED_SPAN game-hours in dev, 72h in prod.
+  const WINTER_DURATION_HOURS = IS_DEV ? SEASON_ELAPSED_SPAN : 72;
+  const winterOutlook = createMemo(() => actions.getWinterFoodOutlook());
+  const hoursToWinter = () =>
+    state.season === "autumn"
+      ? Math.max(0, SEASON_ELAPSED_SPAN - state.seasonElapsed) * (IS_DEV ? 1 : 3)
+      : 0;
+  // "danger" = stores run dry before winter ends. "ok" = a winter deficit the
+  // stores can outlast (a reassurance, not an alarm). "none" = not autumn, or
+  // winter holds a surplus so there's nothing to say.
+  const winterStatus = (): "danger" | "ok" | "none" => {
+    if (state.season !== "autumn") return "none";
+    const o = winterOutlook();
+    if (o.winterNet >= 0) return "none";
+    return o.hoursToEmpty <= WINTER_DURATION_HOURS ? "danger" : "ok";
+  };
+
   // Quest system — Overview now shows a single summary card linking to the
   // Quest Log. Detail / claim flows live on /quests. Helpers below drive the
   // summary card text and the "all done" congratulations panel.
@@ -98,6 +119,57 @@ export default function Overview() {
           </h1>
         </div>
       </div>
+
+      {/* While-you-were-away digest — a return greeting summarizing the last
+          offline stretch. Kept in sessionStorage so a refresh doesn't lose it;
+          the ✕ dismisses it. Colour tracks severity: green calm, amber warning,
+          red a real loss. */}
+      <Show when={actions.getAwayReport()}>
+        {(r) => {
+          const palette = () =>
+            r().severity === "loss"
+              ? { bg: "rgba(231, 76, 60, 0.10)", border: "var(--accent-red)", accent: "var(--accent-red)" }
+              : r().severity === "warn"
+                ? { bg: "rgba(212, 131, 26, 0.10)", border: "var(--accent-gold)", accent: "var(--accent-gold)" }
+                : { bg: "rgba(46, 204, 113, 0.10)", border: "var(--accent-green)", accent: "var(--accent-green)" };
+          const dPop = () => r().popAfter - r().popBefore;
+          const duration = (h: number) =>
+            h < 1.5 ? "less than an hour" : h < 36 ? `about ${Math.round(h)} hours` : `about ${Math.round(h / 24)} days`;
+          return (
+            <div style={{
+              position: "relative", "margin-bottom": "16px", padding: "14px 40px 14px 16px",
+              background: palette().bg, border: `1px solid ${palette().border}`, "border-radius": "8px",
+            }}>
+              <button
+                onClick={() => actions.dismissAwayReport()}
+                title="Dismiss"
+                style={{
+                  position: "absolute", top: "8px", right: "10px", background: "none", border: "none",
+                  color: "var(--text-muted)", cursor: "pointer", "font-size": "1rem", "line-height": 1,
+                }}
+              >✕</button>
+              <div style={{ "font-weight": 600, color: palette().accent, "margin-bottom": "6px" }}>
+                🌙 While you were away
+              </div>
+              <div style={{ "font-size": "0.85rem", color: "var(--text-primary)", "line-height": 1.5 }}>
+                We held the camp for {duration(r().hoursAway)}.
+                <Show when={r().seasonAfter !== r().seasonBefore}>
+                  {" "}{SEASON_META[r().seasonAfter].icon} {SEASON_META[r().seasonAfter].name} set in.
+                </Show>
+                <Show when={dPop() < 0}>
+                  {" "}<span style={{ color: "var(--accent-red)" }}>We lost {-dPop()} to the season.</span>
+                </Show>
+                <Show when={dPop() > 0}>
+                  {" "}<span style={{ color: "var(--accent-green)" }}>{dPop()} newcomer{dPop() > 1 ? "s" : ""} joined us.</span>
+                </Show>
+                <Show when={r().foodAfter <= 0} fallback={<>{" "}Stores hold {r().foodAfter} food.</>}>
+                  {" "}<span style={{ color: "var(--accent-red)" }}>The food stores ran dry.</span>
+                </Show>
+              </div>
+            </div>
+          );
+        }}
+      </Show>
 
 
       {/* Robin delivery — surfaces a pending robin (event-driven story beat).
@@ -208,9 +280,11 @@ export default function Overview() {
             if (total < 1) {
               return { headline: "No food in the stores", detail: "Citizens are starving. Build a Forager's Hut, Hunting Camp, or Fishing Hut now." };
             }
-            // Stores ran empty at some point and morale is still crashing, even
-            // if a trickle has nudged the total back above one ration.
-            if (state.starvationPenalty > 0) {
+            // Stores ran empty and food is STILL bleeding — an active famine, not
+            // a fading one. Once production turns positive the crisis is over
+            // (morale climbs back on its own, shown as "Famine recovery" in the
+            // happiness panel), so don't keep sounding the alarm while recovering.
+            if (state.starvationPenalty > 0 && net < 0) {
               return { headline: "Citizens are starving", detail: "The stores ran empty and morale is crashing. Get food production positive and keep a buffer to recover." };
             }
             if (net < 0) {
@@ -234,6 +308,29 @@ export default function Overview() {
             return {
               headline: `Overcrowded — ${occupancy}/${cap} under too few roofs`,
               detail: `Beds are over capacity: happiness suffers and new folk won't settle until there's room${state.season === "winter" ? ", and a crowded camp is a cold one in winter" : ""}. Build or upgrade Houses.`,
+            };
+          };
+          // Pre-winter note — while it's still autumn, either warn that the
+          // stores won't outlast winter (amber, actionable) or reassure that they
+          // will (green). Suppressed in a live food crisis (foodDanger covers it).
+          const preWinter = (): { tone: "danger" | "ok"; headline: string; detail: string } | null => {
+            const status = winterStatus();
+            if (status === "none") return null;
+            if (foodDanger()) return null;
+            const eta = hoursToWinter() > 0 ? ` (in about ${Math.round(hoursToWinter())}h)` : "";
+            if (status === "ok") {
+              return {
+                tone: "ok",
+                headline: `Winter is coming${eta}`,
+                detail: "Foraging and the hunt will thin, but our stores should see us through to spring. Keep the larder topped up and we will be fine.",
+              };
+            }
+            const o = winterOutlook();
+            const empty = Number.isFinite(o.hoursToEmpty) ? `about ${Math.round(o.hoursToEmpty)}h` : "a while";
+            return {
+              tone: "danger",
+              headline: `Winter is coming${eta}`,
+              detail: `Foraging and the hunt thin out in winter, and at those rates our stores would run dry in ${empty} — before spring. Stock up while the harvest holds.`,
             };
           };
           // Livestock going hungry — unfed pens stop producing and lose head.
@@ -338,6 +435,24 @@ export default function Overview() {
                             <span>{d().headline}</span>
                           </div>
                           <div style={{ "margin-top": "4px", "font-size": "0.82rem", color: "var(--text-secondary)", "line-height": "1.5" }}>
+                            {d().detail}
+                          </div>
+                        </div>
+                      )}
+                    </Show>
+                    <Show when={preWinter()}>
+                      {(d) => (
+                        <div style={{
+                          "margin": "14px 0 0", padding: "10px 14px",
+                          background: d().tone === "ok" ? "rgba(120, 170, 90, 0.20)" : "rgba(212, 175, 55, 0.22)",
+                          border: `1px solid ${d().tone === "ok" ? "#4a6b1e" : "#7a5713"}`,
+                          "border-left-width": "4px", "border-radius": "6px", "max-width": "800px",
+                        }}>
+                          <div style={{ "font-weight": "700", color: d().tone === "ok" ? "#3a5410" : "#6b4e10", "font-size": "0.9rem", display: "flex", "align-items": "center", gap: "8px" }}>
+                            <span>❄️</span>
+                            <span>{d().headline}</span>
+                          </div>
+                          <div style={{ "margin-top": "4px", "font-size": "0.82rem", color: "#3a2418", "line-height": "1.5" }}>
                             {d().detail}
                           </div>
                         </div>

@@ -290,9 +290,11 @@ export default function Sidebar(props: SidebarProps) {
       // doesn't bounce between "Out of food" and "Food running out" while
       // the stockpile oscillates near zero from float-point tick math.
       if (total < 1) return "Out of food";
-      // Actively starving (or still recovering) — stores hit zero at some point
-      // and morale is crashing, even if a trickle has since nudged total above 1.
-      if (state.starvationPenalty > 0) return "Citizens starving";
+      // Actively starving — stores hit zero AND food is still bleeding. Once
+      // production turns positive the famine is over (morale recovers on its
+      // own), so the red badge clears even while the penalty is still fading —
+      // matches the Overview's foodDanger() exactly.
+      if (state.starvationPenalty > 0 && net < 0) return "Citizens starving";
       if (net < 0 && total / Math.abs(net) < 12) return "Food running out";
       return null;
     }
@@ -541,6 +543,9 @@ export default function Sidebar(props: SidebarProps) {
           </button>
           <button class="btn-tertiary" style={{ width: "100%", "justify-content": "center" }} onClick={() => actions.triggerRaid()}>
             Trigger raid (1min)
+          </button>
+          <button class="btn-tertiary" style={{ width: "100%", "justify-content": "center" }} onClick={() => actions.devPreviewAwayReport()}>
+            Preview away digest
           </button>
           <div class="dev-weather-row">
             <span class="dev-weather-label">Weather</span>

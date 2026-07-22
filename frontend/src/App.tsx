@@ -19,7 +19,7 @@ import SettingsModal from "./components/SettingsModal";
 import { installGlobalClickSound } from "./engine/sounds";
 import { INTRO_CINEMATIC } from "./data/cinematics";
 import { QUEST_DEFINITIONS, isQuestClaimable } from "./data/quests";
-import { SEASON_META } from "./data/seasons";
+import { SEASON_META, SEASON_ELAPSED_SPAN, IS_DEV } from "./data/seasons";
 import { getMission } from "@medieval-realm/shared/data/missions";
 import { useGame } from "./engine/gameState";
 import { wsClient } from "./api/ws";
@@ -60,16 +60,16 @@ export default function App(props: ParentProps) {
       if (!isQuestClaimable(quest, state)) continue;
       if (announcedQuests.has(quest.id)) continue;
       announcedQuests.add(quest.id);
-      // Memory check-ins (reward-less, surface a cast memory) are personal beats,
-      // not achievements — soften the banner to match the claim modal's "quiet
-      // moment" framing, and drop the "claim your reward" (there is none).
+      // Memory check-ins (reward-less, surface a cast memory) are quiet personal
+      // beats, not urgent matters — skip the top-of-screen banner entirely. They
+      // still show in the Quest Log and pulse the sidebar; the banner is reserved
+      // for things worth interrupting the player for.
       const isMemoryOnly = quest.rewards.length === 0 && (quest.unlocksBioFragments?.length ?? 0) > 0;
+      if (isMemoryOnly) continue;
       showEvent({
         type: "quest",
         icon: quest.icon,
-        message: isMemoryOnly
-          ? `A quiet moment — ${quest.title}. Someone could use a word with you.`
-          : `Quest complete — ${quest.title}. Visit the Quest Log to claim your reward!`,
+        message: `Quest complete — ${quest.title}. Visit the Quest Log to claim your reward!`,
         onClick: () => navigate("/quests"),
       });
     }
@@ -147,6 +147,30 @@ export default function App(props: ParentProps) {
       icon: meta?.icon,
       message: `${meta?.name ?? s} has arrived. The wheel of the year turns.`,
       accent: SEASON_ACCENT[s],
+    });
+  });
+
+  // Pre-winter watcher: once per autumn, fire a top-of-screen banner ONLY when
+  // the stores wouldn't outlast winter (a deficit the harvest surplus can absorb
+  // isn't worth interrupting for). Fires in the last third of autumn (actionable,
+  // not a whole season early) and is deduped per year. Winter is one full season:
+  // SEASON_ELAPSED_SPAN game-hours in dev, 72h in prod.
+  const WINTER_DURATION_HOURS = IS_DEV ? SEASON_ELAPSED_SPAN : 72;
+  let lastWinterWarnYear: number | null = null;
+  createEffect(() => {
+    if (state.season !== "autumn") return;
+    if (state.seasonElapsed < SEASON_ELAPSED_SPAN * 0.66) return;
+    if (lastWinterWarnYear === state.year) return;
+    const outlook = actions.getWinterFoodOutlook();
+    if (outlook.winterNet >= 0 || outlook.hoursToEmpty > WINTER_DURATION_HOURS) return;
+    lastWinterWarnYear = state.year;
+    const empty = Number.isFinite(outlook.hoursToEmpty) ? `about ${Math.round(outlook.hoursToEmpty)}h` : "a while";
+    showEvent({
+      type: "season",
+      icon: "❄️",
+      message: `Winter is coming, and our stores won't last it. Foraging and the hunt thin out, and at those rates the larder runs dry in ${empty} — before spring. Stock up while the harvest holds.`,
+      accent: "var(--accent-gold)",
+      onClick: () => navigate("/"),
     });
   });
 

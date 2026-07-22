@@ -837,6 +837,15 @@ export interface GameActions {
   skipSeason: () => void;
   getProductionRates: () => { gold: number; wood: number; stone: number; food: number };
   getMaxPopulation: () => number;
+  /** The "while you were away" digest, or null if there's nothing to show. */
+  getAwayReport: () => AwayReport | null;
+  dismissAwayReport: () => void;
+  /** Winter food projection at current buildings + population, for the
+   *  pre-winter warning. Net < 0 means a deficit; hoursToEmpty is how long
+   *  current stores would last once winter hits (Infinity if no deficit). */
+  getWinterFoodOutlook: () => { winterNet: number; hoursToEmpty: number; winterProd: number };
+  /** Dev-only: inject a sample away report so the digest card can be eyeballed. */
+  devPreviewAwayReport: () => void;
   getFoodConsumption: () => number;
   getAnimalFoodConsumption: () => number;
   /** Food-value per hour the tavern burns cooking dishes to order (0 if no
@@ -3423,6 +3432,45 @@ export function useGame() {
 
 // ─── Provider ────────────────────────────────────────────────────
 
+/** A "while you were away" summary of what an offline stretch did to the
+ *  settlement. Built during catch-up, stashed in sessionStorage so an accidental
+ *  refresh (which has nothing left to catch up) still shows it, and surfaced as a
+ *  dismissible card on the Overview. Session-scoped by design: it's a return
+ *  greeting, not save data. */
+export interface AwayReport {
+  hoursAway: number;
+  seasonBefore: Season;
+  seasonAfter: Season;
+  yearBefore: number;
+  yearAfter: number;
+  popBefore: number;
+  popAfter: number;
+  foodBefore: number;
+  foodAfter: number;
+  foodProdAfter: number;
+  waterAfter: number;
+  woodAfter: number;
+  happinessBefore: number;
+  happinessAfter: number;
+  severity: "calm" | "warn" | "loss";
+}
+
+const AWAY_REPORT_KEY = "valenheart.awayReport";
+
+/** Project the food balance as if it were winter right now, at the current
+ *  buildings + population: harvest stops, forage/hunt/fish drop (same
+ *  calcProductionRates the tick uses, on a season-overridden copy). Drives both
+ *  the winter-outlook log and the in-game pre-winter warning. */
+function computeWinterFoodOutlook(s: GameState) {
+  const winterProd = calcProductionRates({ ...s, season: "winter", seasonElapsed: 0 } as GameState).food;
+  const rationMult = s.foundingWinterGrace ? FOUNDING_WINTER_RATION : 1;
+  const citizenFood = calcFoodConsumption(s.citizens, countLivingAdventurers(s.adventurers), rationMult);
+  const animalFood = calcAnimalFoodConsumption(s.pens);
+  const winterNet = winterProd - citizenFood - animalFood;
+  const food = getTotalFood(s.foods);
+  return { winterProd, citizenFood, animalFood, winterNet, food, hoursToEmpty: winterNet < 0 ? food / -winterNet : Infinity };
+}
+
 export function GameProvider(props: ParentProps) {
   const [loaded, setLoaded] = createSignal(false);
   // Set after auto-retry exhausts, so the UI can show a real error screen
@@ -3434,6 +3482,25 @@ export function GameProvider(props: ParentProps) {
   const initial = IS_DEV ? (loadGame() ?? createInitialState()) : createInitialState();
   const [state, setState] = createStore<GameState>(initial);
   _latestStateGetter = () => state;
+
+  // While-you-were-away digest. Seeded from sessionStorage so it survives a
+  // refresh (a second page load has no offline time left to recompute it).
+  const readAwayReport = (): AwayReport | null => {
+    try {
+      const raw = sessionStorage.getItem(AWAY_REPORT_KEY);
+      return raw ? (JSON.parse(raw) as AwayReport) : null;
+    } catch {
+      return null;
+    }
+  };
+  const [awayReport, setAwayReport] = createSignal<AwayReport | null>(readAwayReport());
+  const storeAwayReport = (r: AwayReport | null) => {
+    try {
+      if (r) sessionStorage.setItem(AWAY_REPORT_KEY, JSON.stringify(r));
+      else sessionStorage.removeItem(AWAY_REPORT_KEY);
+    } catch { /* private mode / disabled storage — signal still works in-session */ }
+    setAwayReport(r);
+  };
 
   // Load state from server on mount
   onMount(async () => {
@@ -5722,6 +5789,37 @@ export function GameProvider(props: ParentProps) {
     console.table({ before, after });
     console.groupEnd();
     /* eslint-enable no-console */
+
+    // Turn the snapshot diff into a return greeting. Only stash it when the
+    // stretch is worth mentioning (long enough, or something actually changed),
+    // so a quick reload doesn't nag with an empty "nothing happened" card.
+    const emptied =
+      (after.food <= 0 && before.food > 0) ||
+      (after.water <= 0 && before.water > 0) ||
+      (after.wood <= 0 && before.wood > 0);
+    const seasonFlipped = before.season !== after.season;
+    const notable = hrs >= 1 || dPop !== 0 || seasonFlipped || emptied;
+    if (notable) {
+      const severity: AwayReport["severity"] =
+        dPop < 0 ? "loss" : emptied || (seasonFlipped && after.season === "winter") ? "warn" : "calm";
+      storeAwayReport({
+        hoursAway: hrs,
+        seasonBefore: before.season,
+        seasonAfter: after.season,
+        yearBefore: before.year,
+        yearAfter: after.year,
+        popBefore: before.pop,
+        popAfter: after.pop,
+        foodBefore: before.food,
+        foodAfter: after.food,
+        foodProdAfter: after.foodProd,
+        waterAfter: after.water,
+        woodAfter: after.wood,
+        happinessBefore: before.happiness,
+        happinessAfter: after.happiness,
+        severity,
+      });
+    }
   }
 
   // One-shot forward look: if winter fell right now, at the current buildings +
@@ -5731,12 +5829,7 @@ export function GameProvider(props: ParentProps) {
   // this is the *next* winter, same for everyone. Read-only; a shallow copy of
   // state with season overridden feeds the same production math the tick uses.
   function logWinterOutlook() {
-    const winterProd = calcProductionRates({ ...state, season: "winter", seasonElapsed: 0 } as GameState).food;
-    const rationMult = state.foundingWinterGrace ? FOUNDING_WINTER_RATION : 1;
-    const citizenFood = calcFoodConsumption(state.citizens, countLivingAdventurers(state.adventurers), rationMult);
-    const animalFood = calcAnimalFoodConsumption(state.pens);
-    const winterNet = winterProd - citizenFood - animalFood;
-    const food = getTotalFood(state.foods);
+    const { winterProd, citizenFood, animalFood, winterNet, food } = computeWinterFoodOutlook(state);
     /* eslint-disable no-console */
     console.group(`❄️ Winter outlook (projected from ${state.season} y${state.year})`);
     console.log(`Winter food production: ${winterProd.toFixed(1)}/h  (harvest stops, forage/hunt/fish drop)`);
@@ -6431,6 +6524,27 @@ export function GameProvider(props: ParentProps) {
 
     getProductionRates() { return calcProductionRates(state); },
     getMaxPopulation() { return calcMaxPopulation(state.buildings); },
+    getAwayReport() { return awayReport(); },
+    dismissAwayReport() { storeAwayReport(null); },
+    getWinterFoodOutlook() {
+      const { winterNet, winterProd, hoursToEmpty } = computeWinterFoodOutlook(state);
+      return { winterNet, winterProd, hoursToEmpty };
+    },
+    devPreviewAwayReport() {
+      const pop = totalPopulation(state.citizens);
+      storeAwayReport({
+        hoursAway: 8.3,
+        seasonBefore: "autumn", seasonAfter: "winter",
+        yearBefore: state.year, yearAfter: state.year,
+        popBefore: pop + 2, popAfter: pop,
+        foodBefore: 260, foodAfter: 34,
+        foodProdAfter: Math.round(calcProductionRates(state).food * 10) / 10,
+        waterAfter: Math.round(state.resources.water ?? 0),
+        woodAfter: Math.round(state.resources.wood),
+        happinessBefore: 82, happinessAfter: 47,
+        severity: "loss",
+      });
+    },
     getFoodConsumption() { return calcFoodConsumption(state.citizens, countLivingAdventurers(state.adventurers), state.foundingWinterGrace ? FOUNDING_WINTER_RATION : 1); },
     getAnimalFoodConsumption() { return calcAnimalFoodConsumption(state.pens); },
     getTavernFoodConsumption() {
