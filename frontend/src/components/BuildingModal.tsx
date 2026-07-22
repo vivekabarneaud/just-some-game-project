@@ -6,6 +6,7 @@ import {
   isBuildingChapterUnlocked,
   getTierPrerequisitesMet,
   getUnlockRequirement,
+  getUnlockReasons,
   getNextLevelRequirement,
   applyMasonCostReduction,
   applyMasonTimeReduction,
@@ -73,6 +74,16 @@ export default function BuildingModal(props: Props) {
   const unlocked = () => {
     const b = building();
     return b ? isBuildingUnlocked(b, actions.getTownHallLevel()) && isBuildingChapterUnlocked(b, state) : false;
+  };
+
+  // The specific conditions this building is still waiting on (quest, chapter,
+  // prereq building, or tier). Falls back to the tier requirement so we never
+  // show an empty locked banner.
+  const unlockReasons = () => {
+    const b = building();
+    if (!b) return [] as string[];
+    const reasons = getUnlockReasons(b, state);
+    return reasons.length > 0 ? reasons : [getUnlockRequirement(b)];
   };
 
   const currentLevel = () => {
@@ -241,7 +252,7 @@ export default function BuildingModal(props: Props) {
           title={b().name}
           subtitle={
             !unlocked()
-              ? getUnlockRequirement(b())
+              ? unlockReasons().join(" · ")
               : level() === 0
                 ? "Not yet built"
                 : `Level ${level()} / ${effectiveMax()}${effectiveMax() < b().maxLevel ? ` (max ${b().maxLevel})` : ""}`
@@ -257,8 +268,11 @@ export default function BuildingModal(props: Props) {
                   <div style={{
                     padding: "12px", background: "rgba(106, 100, 88, 0.1)", border: "1px solid var(--text-muted)",
                     color: "var(--text-muted)", "text-align": "center", "font-size": "0.85rem",
+                    display: "flex", "flex-direction": "column", gap: "4px",
                   }}>
-                    {getUnlockRequirement(b())}
+                    <For each={unlockReasons()}>
+                      {(reason) => <div>{reason}</div>}
+                    </For>
                   </div>
                 </Show>
 
