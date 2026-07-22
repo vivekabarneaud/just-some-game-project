@@ -2,8 +2,9 @@ import { createSignal, createMemo, For, Show } from "solid-js";
 import { A } from "@solidjs/router";
 import { BUILDINGS, getSettlementName, SETTLEMENT_TIERS } from "~/data/buildings";
 import { RESOURCES } from "~/data/resources";
-import { SEASON_META, IS_DEV, SEASON_ELAPSED_SPAN } from "~/data/seasons";
+import { SEASON_META, IS_DEV, SEASON_ELAPSED_SPAN, nextSeason, seasonFoodOutlookNote } from "~/data/seasons";
 import SeasonIcon from "~/components/SeasonIcon";
+import { playSound } from "~/engine/sounds";
 import { getRaid, getDefenseTips, type IncomingRaid } from "~/data/raids";
 import { militiaCount } from "~/data/defenses";
 import { getCurrentOverviewFlavors } from "~/data/overview_flavors";
@@ -53,26 +54,15 @@ export default function Overview() {
 
   const hasThreats = () => state.incomingRaids.length > 0;
 
-  // Pre-winter outlook: project the food balance at winter rates and, while it's
-  // still autumn, judge whether the stores actually see us through to spring. The
-  // seasonElapsed counter (0..SEASON_ELAPSED_SPAN) is maintained in both modes;
-  // each unit is 1 game-hour in dev, 3 real hours in prod (3-day seasons). Winter
-  // itself is one full season: SEASON_ELAPSED_SPAN game-hours in dev, 72h in prod.
-  const WINTER_DURATION_HOURS = IS_DEV ? SEASON_ELAPSED_SPAN : 72;
-  const winterOutlook = createMemo(() => actions.getWinterFoodOutlook());
-  const hoursToWinter = () =>
-    state.season === "autumn"
-      ? Math.max(0, SEASON_ELAPSED_SPAN - state.seasonElapsed) * (IS_DEV ? 1 : 3)
-      : 0;
-  // "danger" = stores run dry before winter ends. "ok" = a winter deficit the
-  // stores can outlast (a reassurance, not an alarm). "none" = not autumn, or
-  // winter holds a surplus so there's nothing to say.
-  const winterStatus = (): "danger" | "ok" | "none" => {
-    if (state.season !== "autumn") return "none";
-    const o = winterOutlook();
-    if (o.winterNet >= 0) return "none";
-    return o.hoursToEmpty <= WINTER_DURATION_HOURS ? "danger" : "ok";
-  };
+  // Next-season food outlook: project the balance at the NEXT season's rates and
+  // judge whether the stores see us through it. The seasonElapsed counter
+  // (0..SEASON_ELAPSED_SPAN) is maintained in both modes; each unit is 1 game-hour
+  // in dev, 3 real hours in prod (3-day seasons). One season is SEASON_ELAPSED_SPAN
+  // game-hours in dev, 72h in prod. seasonFoodOutlookNote turns this into copy.
+  const SEASON_DURATION_HOURS = IS_DEV ? SEASON_ELAPSED_SPAN : 72;
+  const nextSeasonName = () => nextSeason(state.season);
+  const nextSeasonOutlook = createMemo(() => actions.getSeasonFoodOutlook(nextSeasonName()));
+  const hoursToNextSeason = () => Math.max(0, SEASON_ELAPSED_SPAN - state.seasonElapsed) * (IS_DEV ? 1 : 3);
 
   // Quest system — Overview now shows a single summary card linking to the
   // Quest Log. Detail / claim flows live on /quests. Helpers below drive the
@@ -310,28 +300,19 @@ export default function Overview() {
               detail: `Beds are over capacity: happiness suffers and new folk won't settle until there's room${state.season === "winter" ? ", and a crowded camp is a cold one in winter" : ""}. Build or upgrade Houses.`,
             };
           };
-          // Pre-winter note — while it's still autumn, either warn that the
-          // stores won't outlast winter (amber, actionable) or reassure that they
+          // Season-change food note — heading into a leaner season, either warn
+          // the stores won't outlast it (amber, actionable) or reassure that they
           // will (green). Suppressed in a live food crisis (foodDanger covers it).
-          const preWinter = (): { tone: "danger" | "ok"; headline: string; detail: string } | null => {
-            const status = winterStatus();
-            if (status === "none") return null;
+          // Returns null on a surplus, so spring/summer (production rises) stay quiet.
+          const seasonNote = () => {
             if (foodDanger()) return null;
-            const eta = hoursToWinter() > 0 ? ` (in about ${Math.round(hoursToWinter())}h)` : "";
-            if (status === "ok") {
-              return {
-                tone: "ok",
-                headline: `Winter is coming${eta}`,
-                detail: "Foraging and the hunt will thin, but our stores should see us through to spring. Keep the larder topped up and we will be fine.",
-              };
-            }
-            const o = winterOutlook();
-            const empty = Number.isFinite(o.hoursToEmpty) ? `about ${Math.round(o.hoursToEmpty)}h` : "a while";
-            return {
-              tone: "danger",
-              headline: `Winter is coming${eta}`,
-              detail: `Foraging and the hunt thin out in winter, and at those rates our stores would run dry in ${empty} — before spring. Stock up while the harvest holds.`,
-            };
+            const o = nextSeasonOutlook();
+            return seasonFoodOutlookNote(nextSeasonName(), {
+              net: o.net,
+              hoursToEmpty: o.hoursToEmpty,
+              hoursToNext: hoursToNextSeason(),
+              seasonHours: SEASON_DURATION_HOURS,
+            });
           };
           // Livestock going hungry — unfed pens stop producing and lose head.
           const livestockStarving = (): { headline: string; detail: string } | null => {
@@ -440,7 +421,7 @@ export default function Overview() {
                         </div>
                       )}
                     </Show>
-                    <Show when={preWinter()}>
+                    <Show when={seasonNote()}>
                       {(d) => (
                         <div style={{
                           "margin": "14px 0 0", padding: "10px 14px",
@@ -841,7 +822,7 @@ export default function Overview() {
                             </div>
                             <button
                               class="btn-secondary"
-                              onClick={() => setPlayingRaid(ir)}
+                              onClick={() => { playSound("raid_trumpet"); setPlayingRaid(ir); }}
                               style={{ "font-size": "0.9rem", "font-weight": "bold" }}
                             >
                               ▶ Watch combat

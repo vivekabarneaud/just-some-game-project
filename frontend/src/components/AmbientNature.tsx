@@ -1,7 +1,7 @@
 import { onCleanup, onMount } from "solid-js";
 import { useGame } from "~/engine/gameState";
 import { resolveCurrentWeather } from "~/data/weather";
-import { ambientVolume, masterVolume, isMuted } from "~/engine/sounds";
+import { ambientVolume, masterVolume, isMuted, loopAmbient, AMBIENT_ONESHOT_WINDOW_MS } from "~/engine/sounds";
 
 /**
  * Weather-driven nature ambience on the `ambient` mixer channel, layered so it
@@ -27,6 +27,7 @@ interface Bed {
   volume: number;
   active: () => boolean;
   level: number;
+  activeSince: number | null; // rising edge, for the play-a-window-then-fade mode
 }
 
 export default function AmbientNature() {
@@ -49,7 +50,7 @@ export default function AmbientNature() {
       audio.loop = true;
       audio.preload = "auto";
       audio.volume = 0;
-      return { audio, volume, active, level: 0 };
+      return { audio, volume, active, level: 0, activeSince: null };
     };
     // Only the storm wind is a constant bed. The gentle clear-weather wind is
     // played as occasional gusts (below), not a steady loop.
@@ -59,20 +60,34 @@ export default function AmbientNature() {
 
     let raf = 0;
     let last = 0;
+    // Rising edge of clear weather, so birdsong also honours the play-a-window
+    // -then-fade mode. `birdWindowOpen` is recomputed each tick and read by the
+    // bird scheduler below.
+    let clearSince: number | null = null;
+    let birdWindowOpen = true;
     const tick = (t: number) => {
       const dt = Math.min(0.1, (t - last) / 1000 || 0);
       last = t;
       const step = dt / FADE_SECONDS;
       for (const b of beds) {
         const on = b.active();
-        const goal = on ? 1 : 0;
+        if (on && b.activeSince === null) b.activeSince = t;
+        else if (!on) b.activeSince = null;
+        // Loop on → hold the whole spell. Loop off → only within the window
+        // after it turned on, then fade even though the weather still holds.
+        const windowOpen = loopAmbient() || (b.activeSince !== null && t - b.activeSince < AMBIENT_ONESHOT_WINDOW_MS);
+        const goal = on && windowOpen ? 1 : 0;
         if (b.level < goal) b.level = Math.min(goal, b.level + step);
         else if (b.level > goal) b.level = Math.max(goal, b.level - step);
         const target = isMuted() ? 0 : b.volume * ambientVolume() * masterVolume();
         b.audio.volume = b.level * target;
-        if (on && b.audio.paused) b.audio.play().catch(() => {});
-        else if (!on && b.level <= 0.001 && !b.audio.paused) b.audio.pause();
+        if (goal === 1 && b.audio.paused) b.audio.play().catch(() => {});
+        else if (goal === 0 && b.level <= 0.001 && !b.audio.paused) b.audio.pause();
       }
+      const clear = isClear();
+      if (clear && clearSince === null) clearSince = t;
+      else if (!clear) clearSince = null;
+      birdWindowOpen = loopAmbient() || (clearSince !== null && t - clearSince < AMBIENT_ONESHOT_WINDOW_MS);
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -92,7 +107,7 @@ export default function AmbientNature() {
     const scheduleBird = () => {
       const delay = BIRD_MIN_GAP_MS + Math.random() * BIRD_EXTRA_GAP_MS;
       birdTimer = window.setTimeout(() => {
-        if (isClear() && audible()) playBird();
+        if (isClear() && audible() && birdWindowOpen) playBird();
         scheduleBird();
       }, delay);
     };

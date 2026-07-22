@@ -1,7 +1,7 @@
 import { onCleanup, onMount } from "solid-js";
 import { useGame } from "~/engine/gameState";
 import { resolveCurrentWeather } from "~/data/weather";
-import { ambientVolume, masterVolume, isMuted } from "~/engine/sounds";
+import { ambientVolume, masterVolume, isMuted, loopAmbient, AMBIENT_ONESHOT_WINDOW_MS } from "~/engine/sounds";
 
 /**
  * Weather-driven rain ambience on the `ambient` mixer channel. Loops a rain bed
@@ -39,18 +39,27 @@ export default function AmbientRain() {
     let level = 0;
     let raf = 0;
     let last = 0;
+    // Rising edge of wet weather, for the "play a window then fade" mode. Reset
+    // when it dries, so the next wet spell opens a fresh window.
+    let wetSince: number | null = null;
     const tick = (t: number) => {
       const dt = Math.min(0.1, (t - last) / 1000 || 0);
       last = t;
-      const goal = isWet() ? 1 : 0;
+      const wet = isWet();
+      if (wet && wetSince === null) wetSince = t;
+      else if (!wet) wetSince = null;
+      // Loop on → play the whole wet spell. Loop off → only within the window
+      // after it turned wet, then fade even though it's still raining.
+      const windowOpen = loopAmbient() || (wetSince !== null && t - wetSince < AMBIENT_ONESHOT_WINDOW_MS);
+      const goal = wet && windowOpen ? 1 : 0;
       const step = dt / FADE_SECONDS;
       if (level < goal) level = Math.min(goal, level + step);
       else if (level > goal) level = Math.max(goal, level - step);
       audio.volume = level * target();
       // play() may reject before the first user gesture (autoplay policy) —
       // harmless; it starts on the next tick after any click.
-      if (isWet() && audio.paused) audio.play().catch(() => {});
-      else if (!isWet() && level <= 0.001 && !audio.paused) audio.pause();
+      if (goal === 1 && audio.paused) audio.play().catch(() => {});
+      else if (goal === 0 && level <= 0.001 && !audio.paused) audio.pause();
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);

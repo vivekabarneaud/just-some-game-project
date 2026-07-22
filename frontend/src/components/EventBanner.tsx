@@ -1,4 +1,5 @@
 import { Show, createSignal, createEffect, onCleanup, untrack } from "solid-js";
+import { playSound } from "~/engine/sounds";
 
 /**
  * Announcement banner — a marquee that slides down from the topbar and scrolls
@@ -83,6 +84,9 @@ export default function EventBanner() {
     const c = current();
     if (!c) return;
     untrack(() => setExiting(false));
+    // Audible cue on appearance. Raids get the dramatic stinger; everything else
+    // uses the soft neutral chime.
+    playSound(c.type === "raid" ? "raid_stinger" : "notify_soft");
     const fallback = setTimeout(() => startExit(c.id), FALLBACK_MAX_MS);
     onCleanup(() => clearTimeout(fallback));
   });
@@ -114,7 +118,7 @@ export default function EventBanner() {
               top: "calc(100% + var(--chrome-rule-w))",
               left: 0,
               right: 0,
-              height: "32px",
+              height: "48px",
               background: `linear-gradient(90deg, color-mix(in srgb, ${accent()} 20%, var(--bg-secondary)) 0%, color-mix(in srgb, ${accent()} 35%, var(--bg-secondary)) 50%, color-mix(in srgb, ${accent()} 20%, var(--bg-secondary)) 100%)`,
               "border-bottom": `2px solid ${accent()}`,
               overflow: "hidden",
@@ -151,7 +155,7 @@ export default function EventBanner() {
                   gap: "10px",
                   height: "100%",
                   "font-family": "var(--font-heading)",
-                  "font-size": "0.95rem",
+                  "font-size": "1.15rem",
                   color: accent(),
                   "text-shadow": "0 1px 2px rgba(0, 0, 0, 0.5)",
                   "white-space": "nowrap",
@@ -165,7 +169,7 @@ export default function EventBanner() {
                 }}
               >
                 <Show when={item.icon}>
-                  <span style={{ "font-size": "1.1rem" }}>{item.icon}</span>
+                  <span style={{ "font-size": "1.35rem" }}>{item.icon}</span>
                 </Show>
                 <span>{item.message}</span>
               </div>

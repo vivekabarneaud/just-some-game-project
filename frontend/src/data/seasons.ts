@@ -58,3 +58,42 @@ export function nextSeason(current: Season): Season {
 export function getSeasonProgress(elapsed: number): number {
   return Math.min(1, elapsed / SEASON_ELAPSED_SPAN);
 }
+
+/** Shared copy for the season-change food warning (Overview card + top banner),
+ *  so the two surfaces never drift. Returns null when the next season holds a
+ *  surplus (nothing to say). tone "danger" = stores run dry before the season
+ *  ends; "ok" = a deficit the stores outlast, so it reassures rather than alarms.
+ *  Framing shifts by season: winter reads as survival, autumn as the harvest's
+ *  end, spring/summer stay generic (they almost never trip, production rises). */
+export function seasonFoodOutlookNote(
+  next: Season,
+  opts: { net: number; hoursToEmpty: number; hoursToNext: number; seasonHours: number },
+): { tone: "danger" | "ok"; headline: string; detail: string } | null {
+  if (opts.net >= 0) return null;
+  const tone: "danger" | "ok" = opts.hoursToEmpty <= opts.seasonHours ? "danger" : "ok";
+  const eta = opts.hoursToNext > 0 ? ` (in about ${Math.round(opts.hoursToNext)}h)` : "";
+  const empty = Number.isFinite(opts.hoursToEmpty) ? `about ${Math.round(opts.hoursToEmpty)}h` : "a while";
+  const headline = `${SEASON_META[next].name} is coming${eta}`;
+  if (next === "winter") {
+    return {
+      tone, headline,
+      detail: tone === "danger"
+        ? `Foraging and the hunt thin out in winter, and at those rates our stores would run dry in ${empty} — before spring. Stock up while the harvest holds.`
+        : `Foraging and the hunt will thin, but our stores should see us through to spring. Keep the larder topped up and we will be fine.`,
+    };
+  }
+  if (next === "autumn") {
+    return {
+      tone, headline,
+      detail: tone === "danger"
+        ? `Summer crops stop yielding and foraging thins, and our stores would run dry in ${empty}. Plant autumn crops (turnips, cabbage, gourds) or stock up now.`
+        : `Summer crops give out and foraging thins, but our stores should carry us through.`,
+    };
+  }
+  return {
+    tone, headline,
+    detail: tone === "danger"
+      ? `Our food is set to fall short — stores would run dry in ${empty}. Plant crops for the season or stock up now.`
+      : `Our food dips next season, but the stores should cover the gap.`,
+  };
+}

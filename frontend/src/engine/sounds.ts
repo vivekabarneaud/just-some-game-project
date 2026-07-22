@@ -22,7 +22,11 @@ export type SoundId =
   | "nav"
   | "confirm"
   | "error"
-  | "notify";
+  | "notify"
+  | "notify_soft"
+  | "metal"
+  | "raid_stinger"
+  | "raid_trumpet";
 
 /** Mixer channels. Each has its own player-set volume (see settings). `ui`
  *  is the default for one-shot interface SFX; `ambient` is for looping weather
@@ -73,6 +77,17 @@ const SOUNDS: Record<SoundId, SoundDef> = {
   // roomier 330ms windows + 120ms fades (v1 trims chopped the ring). Previous
   // candidates kept on R2: ui_tap_1/2/3, ui_tick_1/2/3, ui_nav_misc_1/2, ui_nav_1/2/3.
   nav:     { url: [`${R2_BASE}/ui_snap_1.wav?v=2`, `${R2_BASE}/ui_snap_2.wav?v=2`, `${R2_BASE}/ui_snap_3.wav?v=2`], volume: 0.15 },
+  // Raid sounds (UMF pack): `raid_stinger` (Stinger 10, dramatic hit) fires on
+  // the raid-INCOMING banner; `raid_trumpet` (Stinger 14, war horn) fires when
+  // the player watches the battle play out.
+  raid_stinger: { url: `${R2_BASE}/raid_stinger.wav`, volume: 0.7 },
+  raid_trumpet: { url: `${R2_BASE}/raid_trumpet.wav`, volume: 0.7 },
+  // Soft neutral chime for non-raid banners (UMF Magic_and_Processed 2) — a
+  // cleaner "something happened" than the old `notify` reward jingle.
+  notify_soft: { url: `${R2_BASE}/notify_soft.wav`, volume: 0.55 },
+  // Martial clank (UMF Metal 6/25/26/27, random variant per play) — mission
+  // deploy + opening the Adventurer's Guild.
+  metal: { url: [`${R2_BASE}/metal_1.wav`, `${R2_BASE}/metal_2.wav`, `${R2_BASE}/metal_3.wav`, `${R2_BASE}/metal_4.wav`], volume: 0.6 },
 };
 
 const MUTE_KEY = "valenheart.sfx.muted";
@@ -99,6 +114,25 @@ export function setMuted(value: boolean) {
 export function toggleMuted() {
   setMuted(!muted());
 }
+
+// ─── Ambient loop mode ──────────────────────────────────────────
+// When OFF (the default), weather ambience (rain, storm wind, birdsong) plays
+// for a short window after the weather changes, then fades — long sessions don't
+// drone under a constant loop. When ON, the beds loop the whole time the weather
+// holds. Read reactively by AmbientRain / AmbientNature.
+const LOOP_AMBIENT_KEY = "valenheart.sfx.loopAmbient";
+const initialLoopAmbient = (() => {
+  try { return localStorage.getItem(LOOP_AMBIENT_KEY) === "1"; } catch { return false; }
+})();
+const [loopAmbientState, setLoopAmbientSignal] = createSignal(initialLoopAmbient);
+export const loopAmbient = loopAmbientState;
+export function setLoopAmbient(value: boolean) {
+  setLoopAmbientSignal(value);
+  try { localStorage.setItem(LOOP_AMBIENT_KEY, value ? "1" : "0"); } catch { /* private mode */ }
+}
+/** How long an ambient bed plays after a weather change before it fades out,
+ *  when looping is off. "A minute or two." */
+export const AMBIENT_ONESHOT_WINDOW_MS = 90_000;
 
 // ─── Mixer channel volumes ──────────────────────────────────────
 // Player-set gains in [0, 1], persisted. Final play volume is:

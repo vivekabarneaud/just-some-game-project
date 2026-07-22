@@ -435,6 +435,7 @@ export interface GameState {
   lastRaidOutcome: "none" | "victory" | "defeat";
   lastRaidTime: number;
   starvationPenalty: number;
+  starvationHours: number;
   // Raids
   incomingRaids: IncomingRaid[];
   hoursSinceLastRaid: number;

@@ -7,6 +7,7 @@ import {
   uiVolume, setUiVolume,
   ambientVolume, setAmbientVolume,
   musicVolume, setMusicVolume,
+  loopAmbient, setLoopAmbient,
 } from "~/engine/sounds";
 
 // Module-level open state so any component (e.g. the sidebar gear) can pop it.
@@ -41,7 +42,7 @@ export default function SettingsModal() {
   const channels = (): Channel[] => [
     { label: "Master", icon: "🎚️", get: masterVolume, set: setMasterVolume, preview: true },
     { label: "UI & effects", icon: "🖱️", get: uiVolume, set: setUiVolume, preview: true },
-    { label: "Ambient", icon: "🌧️", get: ambientVolume, set: setAmbientVolume, hint: "No ambient sounds yet — ready for weather beds." },
+    { label: "Ambient", icon: "🌧️", get: ambientVolume, set: setAmbientVolume, hint: "Weather beds: rain, wind, birdsong." },
     { label: "Music", icon: "🎵", get: musicVolume, set: setMusicVolume, hint: "No music yet — reserved for a future score." },
   ];
 
@@ -96,6 +97,26 @@ export default function SettingsModal() {
               </div>
             )}
           </For>
+
+          <label
+            class="settings-slider-row"
+            classList={{ disabled: isMuted() }}
+            style={{ display: "flex", "align-items": "flex-start", gap: "10px", cursor: isMuted() ? "default" : "pointer" }}
+          >
+            <input
+              type="checkbox"
+              checked={loopAmbient()}
+              disabled={isMuted()}
+              onChange={(e) => setLoopAmbient(e.currentTarget.checked)}
+              style={{ "margin-top": "3px" }}
+            />
+            <span class="settings-slider-label" style={{ display: "block" }}>
+              🔁 Loop ambient sounds
+              <span class="settings-slider-hint" style={{ display: "block", "margin-top": "2px" }}>
+                Off: rain, wind, and birdsong play for a minute or so when the weather turns, then fade. On: they play the whole time.
+              </span>
+            </span>
+          </label>
 
           <div class="settings-section-title" style={{ "margin-top": "18px" }}>The settlement</div>
 

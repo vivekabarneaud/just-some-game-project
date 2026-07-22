@@ -18,8 +18,9 @@ import EventModal from "./components/EventModal";
 import SettingsModal from "./components/SettingsModal";
 import { installGlobalClickSound } from "./engine/sounds";
 import { INTRO_CINEMATIC } from "./data/cinematics";
-import { QUEST_DEFINITIONS, isQuestClaimable } from "./data/quests";
-import { SEASON_META, SEASON_ELAPSED_SPAN, IS_DEV } from "./data/seasons";
+import { STORY_MISSIONS } from "@medieval-realm/shared/data/missions";
+import { SEASON_META, SEASON_ELAPSED_SPAN, IS_DEV, nextSeason, seasonFoodOutlookNote, getGlobalSeason } from "./data/seasons";
+import { resolveCurrentWeather, type WeatherType } from "./data/weather";
 import { getMission } from "@medieval-realm/shared/data/missions";
 import { useGame } from "./engine/gameState";
 import { wsClient } from "./api/ws";
@@ -50,30 +51,9 @@ export default function App(props: ParentProps) {
     setSidebarOpen(false);
   });
 
-  // Quest-completion watcher: whenever any active quest transitions to a
-  // claimable state, broadcast a one-shot toast. Deduped by id so each quest
-  // fires at most once per session even if its condition briefly toggles.
-  // Multiple concurrent quests are handled — one toast per newly-claimable id.
-  const announcedQuests = new Set<string>();
-  createEffect(() => {
-    for (const quest of QUEST_DEFINITIONS) {
-      if (!isQuestClaimable(quest, state)) continue;
-      if (announcedQuests.has(quest.id)) continue;
-      announcedQuests.add(quest.id);
-      // Memory check-ins (reward-less, surface a cast memory) are quiet personal
-      // beats, not urgent matters — skip the top-of-screen banner entirely. They
-      // still show in the Quest Log and pulse the sidebar; the banner is reserved
-      // for things worth interrupting the player for.
-      const isMemoryOnly = quest.rewards.length === 0 && (quest.unlocksBioFragments?.length ?? 0) > 0;
-      if (isMemoryOnly) continue;
-      showEvent({
-        type: "quest",
-        icon: quest.icon,
-        message: `Quest complete — ${quest.title}. Visit the Quest Log to claim your reward!`,
-        onClick: () => navigate("/quests"),
-      });
-    }
-  });
+  // (Quest-completion banners removed — too frequent to be worth interrupting
+  // for. Claimable quests already pulse the sidebar spark and list in the Quest
+  // Log, which carry the signal without a center-screen banner.)
 
   // Robin-arrival watcher: surface a one-shot toast whenever a new robin lands
   // (state.pendingRobins gains an entry that wasn't there last tick). Deduped
@@ -150,28 +130,67 @@ export default function App(props: ParentProps) {
     });
   });
 
-  // Pre-winter watcher: once per autumn, fire a top-of-screen banner ONLY when
-  // the stores wouldn't outlast winter (a deficit the harvest surplus can absorb
-  // isn't worth interrupting for). Fires in the last third of autumn (actionable,
-  // not a whole season early) and is deduped per year. Winter is one full season:
+  // Season-change food watcher: in the last third of a season, if the NEXT
+  // season's rates would run the stores dry before it ends, fire a top-of-screen
+  // banner (a deficit the stores can outlast reassures on the Overview card, but
+  // isn't worth interrupting for). Deduped per year+next-season so autumn's and
+  // winter's warnings can each fire once a year. A season is one full span:
   // SEASON_ELAPSED_SPAN game-hours in dev, 72h in prod.
-  const WINTER_DURATION_HOURS = IS_DEV ? SEASON_ELAPSED_SPAN : 72;
-  let lastWinterWarnYear: number | null = null;
+  const SEASON_DURATION_HOURS = IS_DEV ? SEASON_ELAPSED_SPAN : 72;
+  let lastSeasonWarnKey: string | null = null;
   createEffect(() => {
-    if (state.season !== "autumn") return;
     if (state.seasonElapsed < SEASON_ELAPSED_SPAN * 0.66) return;
-    if (lastWinterWarnYear === state.year) return;
-    const outlook = actions.getWinterFoodOutlook();
-    if (outlook.winterNet >= 0 || outlook.hoursToEmpty > WINTER_DURATION_HOURS) return;
-    lastWinterWarnYear = state.year;
-    const empty = Number.isFinite(outlook.hoursToEmpty) ? `about ${Math.round(outlook.hoursToEmpty)}h` : "a while";
+    const next = nextSeason(state.season);
+    const key = `${state.year}:${next}`;
+    if (lastSeasonWarnKey === key) return;
+    const outlook = actions.getSeasonFoodOutlook(next);
+    const hoursToNext = Math.max(0, SEASON_ELAPSED_SPAN - state.seasonElapsed) * (IS_DEV ? 1 : 3);
+    const note = seasonFoodOutlookNote(next, {
+      net: outlook.net,
+      hoursToEmpty: outlook.hoursToEmpty,
+      hoursToNext,
+      seasonHours: SEASON_DURATION_HOURS,
+    });
+    if (!note || note.tone !== "danger") return;
+    lastSeasonWarnKey = key;
     showEvent({
       type: "season",
-      icon: "❄️",
-      message: `Winter is coming, and our stores won't last it. Foraging and the hunt thin out, and at those rates the larder runs dry in ${empty} — before spring. Stock up while the harvest holds.`,
+      icon: SEASON_META[next].icon,
+      message: `${note.headline}. ${note.detail}`,
       accent: "var(--accent-gold)",
       onClick: () => navigate("/"),
     });
+  });
+
+  // Harsh-weather watcher: heat waves and heavy rain damage standing crops
+  // (applyWeatherCropDamage), so fire a banner when the weather turns into one,
+  // deduped by only firing on the transition INTO it (not every window while it
+  // lasts). Skipped in year 1, when crop damage doesn't apply yet. Uses the same
+  // weather resolution the chip/ambience do, so it can't disagree with them.
+  let lastHarshWeather: WeatherType | null = null;
+  createEffect(() => {
+    const w = resolveCurrentWeather(state.season, state.seasonElapsed, getGlobalSeason().year);
+    if (lastHarshWeather === null) { lastHarshWeather = w; return; }
+    if (w === lastHarshWeather) return;
+    lastHarshWeather = w;
+    if (state.year <= 1) return;
+    if (w === "heat_wave") {
+      showEvent({
+        type: "season",
+        icon: "🥵",
+        message: "A heat wave settles over the valley. Crops wilt in the dry heat — see to your water while it lasts.",
+        accent: "#e67e22",
+        onClick: () => navigate("/farming"),
+      });
+    } else if (w === "heavy_rain") {
+      showEvent({
+        type: "season",
+        icon: "🌧️",
+        message: "Heavy rain batters the fields. A brimming cistern backs up onto the crops — keep the reserve low until it passes.",
+        accent: "var(--accent-blue)",
+        onClick: () => navigate("/farming"),
+      });
+    }
   });
 
   // Raid-incoming watcher: when a new raid is added to the queue, warn loudly.
@@ -191,9 +210,11 @@ export default function App(props: ParentProps) {
     });
   });
 
-  // Mission-return watcher: announce each freshly-completed mission that
-  // landed on the claim pile. Track the length of completedMissions; when it
-  // grows, the new entries are at the end.
+  // Mission-return watcher: banner only for STORY missions — rare, narratively
+  // weighty, and the moment a new player most needs to know their team is back.
+  // Regular missions are too frequent to interrupt for; the sidebar Guild spark +
+  // the claim pile already signal them. Track completedMissions length; new
+  // entries are at the end.
   let lastCompletedLen: number | null = null;
   createEffect(() => {
     const completed = state.completedMissions ?? [];
@@ -202,6 +223,7 @@ export default function App(props: ParentProps) {
     const newEntries = completed.slice(lastCompletedLen);
     lastCompletedLen = completed.length;
     for (const entry of newEntries) {
+      if (!STORY_MISSIONS.some((sm) => sm.id === entry.missionId)) continue;
       const tpl = getMission(entry.missionId);
       const name = tpl?.name ?? entry.missionId;
       showEvent({

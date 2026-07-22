@@ -73,7 +73,7 @@ export default function AdventurersGuild() {
   const { state, actions } = useGame();
   actions.visitGuild();
   onMount(() => {
-    playPageMountSound("dagger");
+    playPageMountSound("metal");
     // Deep-linked straight to the Roster: snapshot new arrivals, then mark seen.
     if (tab() === "roster") {
       const seen = new Set(state.adventurersSeen ?? []);
@@ -899,7 +899,7 @@ export default function AdventurersGuild() {
                 }}
                 onDeploy={(missionId, teamIds, adventurerSupplies, successPct) => {
                   if (actions.deployMission(missionId, teamIds, adventurerSupplies, successPct)) {
-                    playSound("deploy");
+                    playSound("metal");
                     setSelectedMission(null);
                     setSelectedTeam([]);
                     setSelectedSupplies([]);

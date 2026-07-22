@@ -664,6 +664,7 @@ export interface GameState {
   lastRaidOutcome: "none" | "victory" | "defeat";
   lastRaidTime: number; // game-hours elapsed since last raid outcome
   starvationPenalty: number; // 0-75, decays over 24h after food is restored
+  starvationHours: number; // game-hours of continuous starvation; ramps the famine work penalty, recovers 2x speed once fed
   /** Settlement morale bump after a newborn — 0-10, decays linearly over 24
    *  game-hours (a full season). Stacked births don't compound past the cap. */
   newbornGlow: number;
@@ -840,10 +841,11 @@ export interface GameActions {
   /** The "while you were away" digest, or null if there's nothing to show. */
   getAwayReport: () => AwayReport | null;
   dismissAwayReport: () => void;
-  /** Winter food projection at current buildings + population, for the
-   *  pre-winter warning. Net < 0 means a deficit; hoursToEmpty is how long
-   *  current stores would last once winter hits (Infinity if no deficit). */
-  getWinterFoodOutlook: () => { winterNet: number; hoursToEmpty: number; winterProd: number };
+  /** Food projection at current buildings + population as if `season` were in
+   *  effect, for the season-change warning. net < 0 means a deficit; hoursToEmpty
+   *  is how long current stores would last at that season's rates (Infinity if
+   *  no deficit). */
+  getSeasonFoodOutlook: (season: Season) => { net: number; hoursToEmpty: number; prod: number };
   /** Dev-only: inject a sample away report so the digest card can be eyeballed. */
   devPreviewAwayReport: () => void;
   getFoodConsumption: () => number;
@@ -1244,6 +1246,7 @@ export function createInitialState(): GameState {
     lastRaidOutcome: "none",
     lastRaidTime: 0,
     starvationPenalty: 0,
+    starvationHours: 0,
     newbornGlow: 0,
     lastBirthYear: 0,
     adventurers: [],
@@ -1726,6 +1729,7 @@ export function migrateSaveState(saved: GameState): GameState {
       saved.raidsResolvedCount = priorRaids;
     }
     if (saved.starvationPenalty === undefined) saved.starvationPenalty = 0;
+    if (saved.starvationHours === undefined) saved.starvationHours = 0;
     if (saved.newbornGlow === undefined) saved.newbornGlow = 0;
     // Initialize birth-roll tracker to current year so existing saves don't
     // immediately fire a make-up birth roll on first tick after upgrade.
@@ -3095,6 +3099,20 @@ export const ADVENTURER_FOOD_MULTIPLIER = 0.5;
  *  a settlement founded in winter tightens its belts through that first winter. */
 export const FOUNDING_WINTER_RATION = 0.7;
 
+// ── Famine mechanics ──────────────────────────────────────────────
+// When the larder runs low the settlement tightens its belts (eats less, so a
+// thin store stretches further), and starving folk can't do heavy work. Neither
+// touches food GATHERING — hungry people still forage/hunt/fish, so recovery is
+// always possible and a famine never becomes an inescapable death spiral.
+/** Rations tighten to this fraction once the larder holds under
+ *  FAMINE_RATION_THRESHOLD_HOURS of food — buys recovery time before it hits 0. */
+export const FAMINE_RATION = 0.6;
+export const FAMINE_RATION_THRESHOLD_HOURS = 6;
+/** Hours of continuous starvation for the work penalty to reach its floor, and
+ *  the floor itself (10% = a 90% cut to wood/stone/gold production). */
+export const FAMINE_WORK_RAMP_HOURS = 12;
+export const FAMINE_WORK_FLOOR = 0.1;
+
 export function calcFoodConsumption(citizens: CitizenCounts, adventurerMouths = 0, rationMult = 1): number {
   // Per-category multipliers: toddlers 0.5×, children 0.75×, adults 1.0×, elderly 0.75×.
   // Adventurers eat at ADVENTURER_FOOD_MULTIPLIER of an adult, home or away — away
@@ -3457,18 +3475,20 @@ export interface AwayReport {
 
 const AWAY_REPORT_KEY = "valenheart.awayReport";
 
-/** Project the food balance as if it were winter right now, at the current
- *  buildings + population: harvest stops, forage/hunt/fish drop (same
- *  calcProductionRates the tick uses, on a season-overridden copy). Drives both
- *  the winter-outlook log and the in-game pre-winter warning. */
-function computeWinterFoodOutlook(s: GameState) {
-  const winterProd = calcProductionRates({ ...s, season: "winter", seasonElapsed: 0 } as GameState).food;
+/** Project the food balance as if a given season were in effect right now, at
+ *  the current buildings + population (same calcProductionRates the tick uses, on
+ *  a season-overridden copy): harvest only in autumn, forage/hunt/fish scale by
+ *  season, gardens/orchards yield only in their seasons. Drives the season-change
+ *  food warning. Consumption uses full rations (the scarcity ration only kicks in
+ *  once stores are actually low, which a forward projection shouldn't assume). */
+function computeSeasonFoodOutlook(s: GameState, season: Season) {
+  const prod = calcProductionRates({ ...s, season, seasonElapsed: 0 } as GameState).food;
   const rationMult = s.foundingWinterGrace ? FOUNDING_WINTER_RATION : 1;
   const citizenFood = calcFoodConsumption(s.citizens, countLivingAdventurers(s.adventurers), rationMult);
   const animalFood = calcAnimalFoodConsumption(s.pens);
-  const winterNet = winterProd - citizenFood - animalFood;
+  const net = prod - citizenFood - animalFood;
   const food = getTotalFood(s.foods);
-  return { winterProd, citizenFood, animalFood, winterNet, food, hoursToEmpty: winterNet < 0 ? food / -winterNet : Infinity };
+  return { prod, citizenFood, animalFood, net, food, hoursToEmpty: net < 0 ? food / -net : Infinity };
 }
 
 export function GameProvider(props: ParentProps) {
@@ -3545,6 +3565,7 @@ export function GameProvider(props: ParentProps) {
         if (serverState.foragedTotal === undefined) serverState.foragedTotal = 0;
         if (!serverState.exotics) serverState.exotics = {};
         if (serverState.starvationPenalty === undefined) serverState.starvationPenalty = 0;
+        if (serverState.starvationHours === undefined) serverState.starvationHours = 0;
         if ((serverState as any).newbornGlow === undefined) (serverState as any).newbornGlow = 0;
         if ((serverState as any).lastBirthYear === undefined) (serverState as any).lastBirthYear = serverState.year ?? 0;
         // raidsResolvedCount: durable raid counter for quest progress.
@@ -4290,7 +4311,17 @@ export function GameProvider(props: ParentProps) {
           const rate = getEffectiveGardenRate(veg, g.level, g.seedsPlanted);
           s.herbs.lavender = (s.herbs.lavender ?? 0) + rate * elapsedHours;
         }
-        const citizenFood = calcFoodConsumption(s.citizens, countLivingAdventurers(s.adventurers), s.foundingWinterGrace ? FOUNDING_WINTER_RATION : 1);
+        // Rationing: the founding-winter grace, plus a general belt-tightening
+        // once the larder holds less than FAMINE_RATION_THRESHOLD_HOURS of food
+        // (people eat less in a shortage, so a thin store stretches further and
+        // buys recovery time before it hits zero). Take the more generous of the
+        // two so they don't compound into an unintended deep cut.
+        const advMouths = countLivingAdventurers(s.adventurers);
+        const fullConsumption = calcFoodConsumption(s.citizens, advMouths, 1);
+        const foodHoursLeft = fullConsumption > 0 ? getTotalFood(s.foods) / fullConsumption : Infinity;
+        const scarcityRation = foodHoursLeft < FAMINE_RATION_THRESHOLD_HOURS ? FAMINE_RATION : 1;
+        const rationMult = Math.min(s.foundingWinterGrace ? FOUNDING_WINTER_RATION : 1, scarcityRation);
+        const citizenFood = calcFoodConsumption(s.citizens, advMouths, rationMult);
         const animalFood = calcAnimalFoodConsumption(s.pens);
         const caps = calcStorageCaps(s.buildings);
         const maxPop = calcMaxPopulation(s.buildings);
@@ -4301,9 +4332,18 @@ export function GameProvider(props: ParentProps) {
           : s.happiness >= 50 ? 1.0  // 50-79 = normal
           : 0.6 + (s.happiness / 50) * 0.4; // 0-49 = 0.6→1.0
 
-        s.resources.gold = Math.min(caps.gold, Math.max(0, s.resources.gold + rates.gold * happinessMod * elapsedHours));
-        s.resources.wood = Math.min(caps.wood, Math.max(0, s.resources.wood + rates.wood * happinessMod * elapsedHours));
-        s.resources.stone = Math.min(caps.stone, Math.max(0, s.resources.stone + rates.stone * happinessMod * elapsedHours));
+        // Famine work penalty: starving folk can't do heavy labour. Ramps from
+        // full to FAMINE_WORK_FLOOR over FAMINE_WORK_RAMP_HOURS of continuous
+        // starvation (updated in the happiness block below), so wood/stone/gold
+        // grind to a near-halt — you can't build your way through a famine, you
+        // have to fix food first. NOT applied to food gathering (rates.food),
+        // so foragers keep working and recovery stays possible.
+        const famineFrac = Math.min(1, s.starvationHours / FAMINE_WORK_RAMP_HOURS);
+        const famineMod = 1 - (1 - FAMINE_WORK_FLOOR) * famineFrac;
+
+        s.resources.gold = Math.min(caps.gold, Math.max(0, s.resources.gold + rates.gold * happinessMod * famineMod * elapsedHours));
+        s.resources.wood = Math.min(caps.wood, Math.max(0, s.resources.wood + rates.wood * happinessMod * famineMod * elapsedHours));
+        s.resources.stone = Math.min(caps.stone, Math.max(0, s.resources.stone + rates.stone * happinessMod * famineMod * elapsedHours));
 
         // Enforce the crafting-material cap every tick (not just on production),
         // so a lowered cap — e.g. a damaged warehouse holding a level less —
@@ -4664,9 +4704,15 @@ export function GameProvider(props: ParentProps) {
         // Starvation penalty — resets to 75 when people starve, decays over 24h after food is restored
         if (!peopleAreFed(s)) {
           s.starvationPenalty = 75; // hold at max while starving
+          // Hunger deepens with time — drives the famine work penalty above.
+          s.starvationHours += elapsedHours;
         } else if (s.starvationPenalty > 0) {
           // Decay: lose 75 points over 24 hours = ~3.125 per hour
           s.starvationPenalty = Math.max(0, s.starvationPenalty - (75 / 24) * elapsedHours);
+          // Strength returns roughly twice as fast as it drained once fed.
+          s.starvationHours = Math.max(0, s.starvationHours - elapsedHours * 2);
+        } else {
+          s.starvationHours = 0;
         }
         if (s.starvationPenalty > 0) happiness -= Math.round(s.starvationPenalty);
 
@@ -5829,16 +5875,16 @@ export function GameProvider(props: ParentProps) {
   // this is the *next* winter, same for everyone. Read-only; a shallow copy of
   // state with season overridden feeds the same production math the tick uses.
   function logWinterOutlook() {
-    const { winterProd, citizenFood, animalFood, winterNet, food } = computeWinterFoodOutlook(state);
+    const { prod, citizenFood, animalFood, net, food } = computeSeasonFoodOutlook(state, "winter");
     /* eslint-disable no-console */
     console.group(`❄️ Winter outlook (projected from ${state.season} y${state.year})`);
-    console.log(`Winter food production: ${winterProd.toFixed(1)}/h  (harvest stops, forage/hunt/fish drop)`);
+    console.log(`Winter food production: ${prod.toFixed(1)}/h  (harvest stops, forage/hunt/fish drop)`);
     console.log(`Eaters: citizens ${citizenFood.toFixed(1)}/h + animals ${animalFood.toFixed(1)}/h`);
-    if (winterNet >= 0) {
-      console.log(`✅ Winter net: +${winterNet.toFixed(1)}/h — stores hold, no deficit.`);
+    if (net >= 0) {
+      console.log(`✅ Winter net: +${net.toFixed(1)}/h — stores hold, no deficit.`);
     } else {
-      const hrs = food / -winterNet;
-      console.log(`⚠️ Winter net: ${winterNet.toFixed(1)}/h DEFICIT — current stores ${food.toFixed(0)} food would empty in ~${hrs.toFixed(1)}h once winter hits.`);
+      const hrs = food / -net;
+      console.log(`⚠️ Winter net: ${net.toFixed(1)}/h DEFICIT — current stores ${food.toFixed(0)} food would empty in ~${hrs.toFixed(1)}h once winter hits.`);
     }
     console.groupEnd();
     /* eslint-enable no-console */
@@ -6526,9 +6572,9 @@ export function GameProvider(props: ParentProps) {
     getMaxPopulation() { return calcMaxPopulation(state.buildings); },
     getAwayReport() { return awayReport(); },
     dismissAwayReport() { storeAwayReport(null); },
-    getWinterFoodOutlook() {
-      const { winterNet, winterProd, hoursToEmpty } = computeWinterFoodOutlook(state);
-      return { winterNet, winterProd, hoursToEmpty };
+    getSeasonFoodOutlook(season) {
+      const { net, prod, hoursToEmpty } = computeSeasonFoodOutlook(state, season);
+      return { net, prod, hoursToEmpty };
     },
     devPreviewAwayReport() {
       const pop = totalPopulation(state.citizens);
