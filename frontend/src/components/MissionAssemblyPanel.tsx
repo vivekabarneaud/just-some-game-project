@@ -204,9 +204,15 @@ export default function MissionAssemblyPanel(props: Props) {
   // ─── Available adventurers ────────────────────────────────────
   const CLASS_ORDER: Record<string, number> = { warrior: 0, priest: 1, wizard: 2, archer: 3, assassin: 4 };
   const hasFroth = (a: { conditions?: { type: string }[] }) => a.conditions?.some((c) => c.type === "froth") ?? false;
+  // Too wounded to march: an adventurer below a quarter of their max HP can't be
+  // deployed at all — they need to recover (or be healed) first. Applies to
+  // everyone, captains included (a raid-mauled Gareth sits out until he mends).
+  const WOUNDED_FLOOR = 0.25;
+  const tooWounded = (a: typeof state.adventurers[number]) =>
+    (a.currentHp ?? calcAdventurerMaxHp(a)) < WOUNDED_FLOOR * calcAdventurerMaxHp(a);
   const availableAdvs = createMemo(() =>
     state.adventurers
-      .filter((a) => a.alive && !a.onMission && !hasFroth(a) && !(props.coopLockedAdvIds?.has(a.id) ?? false))
+      .filter((a) => a.alive && !a.onMission && !hasFroth(a) && !tooWounded(a) && !(props.coopLockedAdvIds?.has(a.id) ?? false))
       .sort((a, b) => (CLASS_ORDER[a.class] ?? 9) - (CLASS_ORDER[b.class] ?? 9) || b.level - a.level)
   );
   // Counts of alive-but-hidden adventurers, broken down by reason. Surfaced
@@ -215,13 +221,15 @@ export default function MissionAssemblyPanel(props: Props) {
     let onMission = 0;
     let coopLocked = 0;
     let frothing = 0;
+    let wounded = 0;
     for (const a of state.adventurers) {
       if (!a.alive) continue;
       if (a.onMission) onMission++;
       else if (hasFroth(a)) frothing++;
+      else if (tooWounded(a)) wounded++;
       else if (props.coopLockedAdvIds?.has(a.id)) coopLocked++;
     }
-    return { onMission, coopLocked, frothing, total: onMission + coopLocked + frothing };
+    return { onMission, coopLocked, frothing, wounded, total: onMission + coopLocked + frothing + wounded };
   });
 
   // ─── Team management ──────────────────────────────────────────
@@ -1363,6 +1371,7 @@ export default function MissionAssemblyPanel(props: Props) {
               Everyone is out.
               {hiddenBreakdown().onMission > 0 && ` ${hiddenBreakdown().onMission} on missions.`}
               {hiddenBreakdown().frothing > 0 && ` ${hiddenBreakdown().frothing} laid up with the froth (cure with a Boar's-Bane Salve).`}
+              {hiddenBreakdown().wounded > 0 && ` ${hiddenBreakdown().wounded} too wounded to march (heal them or let them recover past a quarter HP).`}
               {hiddenBreakdown().coopLocked > 0 && ` ${hiddenBreakdown().coopLocked} pledged to a co-op expedition.`}
               {" "}They will return. More hands find their way here as you take on adventures and quests.
             </p>
@@ -1402,6 +1411,7 @@ export default function MissionAssemblyPanel(props: Props) {
             {hiddenBreakdown().total} hidden:
             {hiddenBreakdown().onMission > 0 && ` ${hiddenBreakdown().onMission} on a mission`}
             {hiddenBreakdown().frothing > 0 && ` ${hiddenBreakdown().frothing} down with the froth`}
+            {hiddenBreakdown().wounded > 0 && ` ${hiddenBreakdown().wounded} too wounded to march`}
             {hiddenBreakdown().coopLocked > 0 && ` ${hiddenBreakdown().coopLocked} reserved for a co-op`}
           </div>
         </Show>

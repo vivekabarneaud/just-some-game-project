@@ -278,6 +278,27 @@ export const ENEMIES: EnemyDefinition[] = [
     aiTier: "feral"
   },
   {
+    // The runt of the pack — half-starved, barely more than skin and ribs. Weak
+    // enough that a trained watchtower archer two-shots it, so a lean pack of
+    // these is the intended "Hold the Treeline" first-defense fight, winnable by
+    // the captain (+ a Lv1 wall) alone. Distinct from gaunt_wolf so the bigger
+    // wolf packs keep their bite.
+    id: "starving_wolf",
+    name: "Starving Wolf",
+    icon: "🐺",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/gaunt_wolf.png",
+    description: "Skin stretched over ribs, driven to the wall by pure hunger. Little fight left in it, but a cornered starving thing still bites.",
+    tier: 1,
+    stats: { str: 2, dex: 3, int: 1, vit: 2, wis: 1 },
+    tags: ["beast"],
+    loot: [
+      { type: "resource", resource: "meat", chance: 0.25, min: 1, max: 2 },
+      { type: "resource", resource: "wolfhide_strip", chance: 0.1, min: 1, max: 1 },
+    ],
+    routsAt: 0.45, // barely holding together; breaks the moment it's hurt
+    aiTier: "feral"
+  },
+  {
     id: "wild_boar",
     name: "Wild Boar",
     icon: "🐗",

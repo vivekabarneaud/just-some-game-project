@@ -142,7 +142,7 @@ export default function QuestLog() {
               "filter": MAIN_STORY_FRAME_TINT,
               "pointer-events": "none", "z-index": 5,
             }}>
-              <CardFrame rarity="uncommon" border={16} ornamentRarity="common" />
+              <CardFrame rarity="uncommon" slice={34} border={20} ornamentRarity="common" />
             </div>
           </Show>
           <div style={mainStory ? { "position": "relative", "z-index": 1, "padding": "16px" } : {}}>
@@ -615,7 +615,10 @@ function QuestCard(props: {
                 "justify-content": "center",
               }}
             >
-              Claim
+              {/* Reward-less quests (e.g. the storage/infra nudges) are dismissed,
+                  not "claimed" — a Done button reads right and avoids implying a
+                  reward that isn't there. */}
+              {props.quest.rewards.length === 0 ? "Done" : "Claim"}
             </button>
           </Show>
         </div>

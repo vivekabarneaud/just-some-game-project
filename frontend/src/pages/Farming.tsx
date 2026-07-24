@@ -551,6 +551,9 @@ function GardenCard(props: { garden: PlayerGarden }) {
   // after an upgrade raised the capacity, or once more seed comes in).
   const sownThisYear = () => planted() ? props.garden.seedsPlanted : 0;
   const sprouted = () => getSproutedPlants(veggie(), sownThisYear());
+  // Plants at a full sow — used to preview the water draw before anything is
+  // sown (an unplanted/unbuilt plot has 0 sprouted, which would read "0/h").
+  const fullSprouted = () => getSproutedPlants(veggie(), capacity());
   const germPct = () => Math.round(getGerminationRate(veggie()) * 100);
   const roomLeft = () => capacity() - sownThisYear();
   const sowAmount = () => Math.min(seedStock(), roomLeft()); // what we'd sow right now
@@ -625,15 +628,10 @@ function GardenCard(props: { garden: PlayerGarden }) {
   // they can't drift. `dim` greys them out for the not-yet-built preview.
   const seasonBoxes = (rate: number, dim: boolean, planted = false) => (
     <StatRow dim={dim}>
-      {/* Before planting: WHEN to sow (green in season, even on an unbuilt plot).
-          Once planted, the sow window is moot — swap in the crop's water need. */}
-      <Show when={planted} fallback={
-        <StatBox label="Sow in" valColor={inPlantSeason() ? "var(--accent-green)" : "var(--text-secondary)"}>
-          {seasonList(veggie().plantSeasons, true)}
-        </StatBox>
-      }>
-        <StatBox label="Water">💧 {gardenWaterDemand(veggie().id, sprouted())}/h</StatBox>
-      </Show>
+      {/* Water draw — always shown so the cost is visible BEFORE sowing: the
+          current draw once planted, else the draw at a full sow. (The "when to
+          sow" nudge lives in the sow box / the unbuilt preview line below.) */}
+      <StatBox label="Water">💧 {gardenWaterDemand(veggie().id, planted ? sprouted() : fullSprouted())}/h</StatBox>
       <StatBox label="Produces">
         {seasonList(veggie().produceSeasons, false)}
         {(() => {
@@ -725,6 +723,15 @@ function GardenCard(props: { garden: PlayerGarden }) {
             seasons and the yield-and-capacity you'd get once it's raised. */}
         {seasonBoxes(getEffectiveGardenRate(veggie(), 1, getSeedCapacity(1)), true)}
         {seedBoxEl(getSeedCapacity(1), true)}
+        {/* When to sow — kept on the unbuilt preview (the built card carries this
+            in its sow box). Green when it's the season to build and sow. */}
+        <div style={{
+          display: "flex", "align-items": "center", "justify-content": "center", gap: "5px",
+          "font-size": "0.78rem", "font-weight": 600, "margin-top": "8px",
+          color: inPlantSeason() ? "var(--accent-green)" : "var(--text-muted)",
+        }}>
+          <span>Sow in</span>{seasonList(veggie().plantSeasons, true)}
+        </div>
       </div>
     }>
       <div class="building-card" classList={{ upgrading: props.garden.upgrading }} style={{ cursor: "default", position: "relative" }}>

@@ -88,6 +88,28 @@ export const RAID_POOL: RaidTemplate[] = [
     victoryLoot: [{ resource: "meat", amount: 40 }],
   },
   {
+    // The "Hold the Treeline" payoff — a lean pack of half-starved wolves testing
+    // the new wall. starving_wolf is weak enough that a trained archer two-shots
+    // it, so five still read as a pack yet stay winnable by Gareth (+ a Lv1 wall)
+    // alone, no hired archers needed. The full wolf_pack (wild + gaunt) stays the
+    // bigger later threat.
+    id: "gaunt_wolf_pack",
+    name: "A Lean Pack",
+    description: "A pack of starving wolves has crept up to the treeline, testing the new wall. Thin and wary — but there are several of them, and they are hungry.",
+    icon: "🐺",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/wolf_pack.png",
+    tags: ["monsters"],
+    strength: 12,
+    encounters: [{ enemyId: "starving_wolf", count: 5 }],
+    stealsResources: false,
+    resourceStealPercent: 0,
+    killsCitizens: false,
+    maxCitizenLoss: 0,
+    minTier: "camp",
+    baseWarning: 3,
+    victoryLoot: [{ resource: "meat", amount: 12 }],
+  },
+  {
     id: "petty_thieves",
     name: "Petty Thieves",
     description: "Sneaky pickpockets try to raid your supply carts under cover of night.",
@@ -442,12 +464,16 @@ export function getDefenseTips(
     tips.push({ icon: "🧱", text: `Reinforce your Walls (Lv.${wallsLvl} total) for more HP under siege.`, actionLink: "/defenses" });
   }
 
-  // Barracks — total level across all rings. Damaged excluded.
+  // Barracks — total level across all rings. Damaged excluded. Only nudged when
+  // the odds are actually shaky: the watchtower captain + archers already fight,
+  // so a barracks is reinforcement, not a prerequisite.
   const barracksLvl = barracks.filter((b) => !b.damaged).reduce((s, b) => s + b.level, 0);
-  if (barracksLvl === 0) {
-    tips.push({ icon: "⚔️", text: "Build a Barracks and recruit Soldiers — walls alone don't fight back.", actionLink: "/defenses" });
-  } else if (successPct < 85) {
-    tips.push({ icon: "⚔️", text: `Recruit more Soldiers at the Barracks (Lv.${barracksLvl} total).`, actionLink: "/defenses" });
+  if (successPct < 60) {
+    if (barracksLvl === 0) {
+      tips.push({ icon: "⚔️", text: "Build a Barracks — soldiers hold the line when the wall breaks.", actionLink: "/defenses" });
+    } else {
+      tips.push({ icon: "⚔️", text: `Recruit more Soldiers at the Barracks (Lv.${barracksLvl} total).`, actionLink: "/defenses" });
+    }
   }
 
   // Watchtower — any tower at all gives early warnings.

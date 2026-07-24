@@ -9,7 +9,7 @@ import { getRaid, getDefenseTips, type IncomingRaid } from "~/data/raids";
 import { militiaCount } from "~/data/defenses";
 import { getCurrentOverviewFlavors } from "~/data/overview_flavors";
 import { QUEST_DEFINITIONS, isQuestActive, isQuestClaimable, isQuestClaimed } from "~/data/quests";
-import { useGame, WALL_BASE_HP } from "~/engine/gameState";
+import { useGame, WALL_BASE_HP, buildRaidCaptainUnit } from "~/engine/gameState";
 import { totalPopulation } from "~/data/citizens";
 import { getRobinEvent, setOpenChronicleEntry } from "~/data/robins";
 import { getChronicleEntry } from "~/data/chronicle_entries";
@@ -723,9 +723,16 @@ export default function Overview() {
                 const successPct = createMemo(() => {
                   const tmpl = raid();
                   if (!tmpl?.encounters?.length) return 0;
+                  // Captains fight (Gareth / Morgause) when home — mirror the real
+                  // tick: their presence adds the +1 command buff to the hired
+                  // stack, and they join as their own units. Presence is stable
+                  // across sims; the units are rebuilt fresh each run (the sim
+                  // mutates HP), so the estimate matches what actually resolves.
+                  const watchCaptainHome = buildRaidCaptainUnit(state.adventurers, "watchtower") != null;
+                  const barracksCaptainHome = buildRaidCaptainUnit(state.adventurers, "barracks") != null;
                   const wallsSnap = state.walls.map((w) => ({ ring: w.ring, level: w.level, hp: w.hp, maxHp: w.level * WALL_BASE_HP }));
-                  const towersSnap = state.watchtowers.map((t) => ({ ring: t.ring, level: t.level, damaged: t.damaged, archerCount: t.garrison.count, trainedLevel: t.garrison.trainedLevel }));
-                  const barracksSnap = state.barracks.map((b) => ({ ring: b.ring, level: b.level, damaged: b.damaged, soldierCount: b.garrison.count, trainedLevel: b.garrison.trainedLevel }));
+                  const towersSnap = state.watchtowers.map((t) => ({ ring: t.ring, level: t.level, damaged: t.damaged, archerCount: t.garrison.count, trainedLevel: t.garrison.trainedLevel + (watchCaptainHome ? 1 : 0) }));
+                  const barracksSnap = state.barracks.map((b) => ({ ring: b.ring, level: b.level, damaged: b.damaged, soldierCount: b.garrison.count, trainedLevel: b.garrison.trainedLevel + (barracksCaptainHome ? 1 : 0) }));
                   let seed = 0;
                   for (let i = 0; i < ir.raidId.length; i++) {
                     seed = ((seed << 5) - seed + ir.raidId.charCodeAt(i)) | 0;
@@ -739,6 +746,8 @@ export default function Overview() {
                       watchtowers: towersSnap,
                       barracks: barracksSnap,
                       militiaCount: militiaCount(state),
+                      watchtowerCaptain: buildRaidCaptainUnit(state.adventurers, "watchtower"),
+                      barracksCaptain: buildRaidCaptainUnit(state.adventurers, "barracks"),
                       seed: seed + i,
                     });
                     if (result.victory) wins++;

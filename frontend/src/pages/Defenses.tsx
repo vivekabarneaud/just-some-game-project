@@ -1,10 +1,19 @@
 import { For, Show, createSignal, onMount } from "solid-js";
 import { useGame } from "~/engine/gameState";
-import { playPageMountSound } from "~/engine/sounds";
+import { playPageMountSound, playSound } from "~/engine/sounds";
 import type { DefenseRing, PlayerWall, PlayerWatchtower, PlayerBarracks } from "~/engine/gameState";
 import { WALL_BASE_HP } from "~/engine/gameState";
 import GarrisonDetailModal from "~/components/GarrisonDetailModal";
 import Tooltip from "~/components/Tooltip";
+import { CardFrame } from "~/components/CardFrame";
+
+/** Each ring wears a richer frame the deeper (and more valuable) it is:
+ *  outer=uncommon, middle=rare, inner=epic — mirroring the item rarity ladder. */
+const RING_FRAME_RARITY: Record<DefenseRing, string> = {
+  outer: "uncommon",
+  middle: "rare",
+  inner: "epic",
+};
 
 // Module-scoped signal so any card can pop the manager modal without
 // prop-drilling. One modal at a time — re-clicking another building swaps it.
@@ -31,6 +40,7 @@ import {
   RING_DESCRIPTIONS,
   getWatchtowerArcherCap,
   getBarracksSoldierCap,
+  TRAINER_ID,
 } from "~/data/defenses";
 import { getBuildingImageById, applyMasonCostReduction, applyMasonTimeReduction } from "~/data/buildings";
 import HpBar from "~/components/HpBar";
@@ -109,6 +119,7 @@ function UpgradeIndicator(props: {
         if (canUpgrade()) {
           e.preventDefault();
           e.stopPropagation();
+          playSound("build");
           props.onUpgrade();
         }
       }}
@@ -357,7 +368,10 @@ function RingSection(props: { ring: DefenseRing; unlocked: boolean }) {
   const barracks = () => state.barracks.find((b) => b.ring === props.ring)!;
 
   return (
-    <section style={{ "margin-bottom": "20px" }}>
+    <section style={{ position: "relative", background: "var(--bg-secondary)", padding: "28px 30px", "margin-bottom": "20px" }}>
+      {/* Per-ring rarity frame (uncommon/rare/epic) — drawn as an overlay so it
+          rings the whole section like the building-category panels do. */}
+      <CardFrame rarity={RING_FRAME_RARITY[props.ring]} scale={0.5} />
       <header style={{ "margin-bottom": "8px" }}>
         <h2 style={{
           "font-family": "var(--font-heading)",
@@ -421,7 +435,7 @@ function WallCard(props: { wall: PlayerWall; ring: DefenseRing; disabled: boolea
   };
 
   return (
-    <div class="building-card" style={{ position: "relative" }}>
+    <div class="building-card" style={{ position: "relative", height: "100%" }}>
       <DefenseCardHeader
         buildingId="walls"
         icon="🧱"
@@ -490,18 +504,28 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
 
   // Per-tower archer recruitment — each tower has its own roster + cap.
   const towerCap = () => getWatchtowerArcherCap(props.tower.level);
+  // Gareth holds slot 1 whenever he's on the roster, so the card matches the
+  // manage modal (1/4 with him alone) and hiring stops one short of the cap.
+  const captainSlots = () => (state.adventurers.some((a) => a.premadeId === TRAINER_ID.watchtower && a.alive) ? 1 : 0);
   const recruitBlocker = () => {
     if (!built()) return "Build or repair a watchtower first";
     if (props.tower.damaged) return "Repair the watchtower first";
-    if (props.tower.garrison.count >= towerCap()) return "This tower is full";
+    if (props.tower.garrison.count >= towerCap() - captainSlots()) return "This tower is full";
     if (availableCitizens(state) <= 0) return "No spare townsfolk — the household stays out of the muster. Grow your population first";
     if (state.resources.gold < ARCHER_COST.gold) return `Need ${ARCHER_COST.gold} gold`;
     return "";
   };
   const canRecruit = () => recruitBlocker() === "";
+  // Whole card is click-to-manage once built (mirrors the building cards).
+  const manageable = () => built() && !props.disabled;
 
   return (
-    <div class="building-card" style={{ position: "relative" }}>
+    <Tooltip text={manageable() ? "Click to manage" : ""} position="cursor" block style={{ height: "100%" }}>
+    <div
+      class="building-card"
+      style={{ position: "relative", height: "100%", cursor: manageable() ? "pointer" : "default" }}
+      onClick={() => { if (manageable()) setOpenGarrison({ kind: "watchtower", ring: props.ring }); }}
+    >
       <DefenseCardHeader
         buildingId="watchtower"
         icon="🏰"
@@ -525,7 +549,7 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
       </div>
       <Show when={built()}>
         <div style={{ "margin-top": "4px", "font-size": "0.78rem", color: "var(--text-muted)" }}>
-          Archers: {props.tower.garrison.count} / {towerCap()}
+          Archers: {props.tower.garrison.count + captainSlots()} / {towerCap()}
         </div>
       </Show>
       <Show when={props.tower.upgrading && props.tower.upgradeRemaining !== undefined}>
@@ -550,7 +574,7 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
             <button
               class="btn-primary"
               disabled={!canRecruit()}
-              onClick={() => actions.recruitArcher(props.ring)}
+              onClick={(e) => { e.stopPropagation(); actions.recruitArcher(props.ring); }}
               style={{ "font-size": "0.78rem" }}
             >
               +Archer ({ARCHER_COST.gold}g)
@@ -562,18 +586,10 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
               </span>
             </Show>
           </div>
-          <Tooltip text="Open the watchtower garrison panel">
-          <button
-            class="btn-tertiary"
-            onClick={() => setOpenGarrison({ kind: "watchtower", ring: props.ring })}
-            style={{ "font-size": "0.78rem" }}
-          >
-            ⚙ Manage
-          </button>
-          </Tooltip>
         </Show>
       </div>
     </div>
+    </Tooltip>
   );
 }
 
@@ -607,18 +623,27 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
 
   // Per-barracks soldier recruitment — each barracks has its own roster + cap.
   const barracksCap = () => getBarracksSoldierCap(props.barracks.level);
+  // Morgause holds slot 1 whenever she's on the roster (mirrors Gareth's tower).
+  const captainSlots = () => (state.adventurers.some((a) => a.premadeId === TRAINER_ID.barracks && a.alive) ? 1 : 0);
   const recruitBlocker = () => {
     if (!built()) return "Build or repair a barracks first";
     if (props.barracks.damaged) return "Repair the barracks first";
-    if (props.barracks.garrison.count >= barracksCap()) return "This barracks is full";
+    if (props.barracks.garrison.count >= barracksCap() - captainSlots()) return "This barracks is full";
     if (availableCitizens(state) <= 0) return "No spare townsfolk — the household stays out of the muster. Grow your population first";
     if (state.resources.gold < SOLDIER_COST.gold) return `Need ${SOLDIER_COST.gold} gold`;
     return "";
   };
   const canRecruit = () => recruitBlocker() === "";
+  // Whole card is click-to-manage once built (mirrors the building cards).
+  const manageable = () => built() && !props.disabled;
 
   return (
-    <div class="building-card" style={{ position: "relative" }}>
+    <Tooltip text={manageable() ? "Click to manage" : ""} position="cursor" block style={{ height: "100%" }}>
+    <div
+      class="building-card"
+      style={{ position: "relative", height: "100%", cursor: manageable() ? "pointer" : "default" }}
+      onClick={() => { if (manageable()) setOpenGarrison({ kind: "barracks", ring: props.ring }); }}
+    >
       <DefenseCardHeader
         buildingId="barracks"
         icon="⚔️"
@@ -642,7 +667,7 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
       </div>
       <Show when={built()}>
         <div style={{ "margin-top": "4px", "font-size": "0.78rem", color: "var(--text-muted)" }}>
-          Soldiers: {props.barracks.garrison.count} / {barracksCap()}
+          Soldiers: {props.barracks.garrison.count + captainSlots()} / {barracksCap()}
         </div>
       </Show>
       <Show when={props.barracks.upgrading && props.barracks.upgradeRemaining !== undefined}>
@@ -666,7 +691,7 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
             <button
               class="btn-primary"
               disabled={!canRecruit()}
-              onClick={() => actions.recruitSoldier(props.ring)}
+              onClick={(e) => { e.stopPropagation(); actions.recruitSoldier(props.ring); }}
               style={{ "font-size": "0.78rem" }}
             >
               +Soldier ({SOLDIER_COST.gold}g)
@@ -678,18 +703,10 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
               </span>
             </Show>
           </div>
-          <Tooltip text="Open the barracks garrison panel">
-          <button
-            class="btn-tertiary"
-            onClick={() => setOpenGarrison({ kind: "barracks", ring: props.ring })}
-            style={{ "font-size": "0.78rem" }}
-          >
-            ⚙ Manage
-          </button>
-          </Tooltip>
         </Show>
       </div>
     </div>
+    </Tooltip>
   );
 }
 
@@ -716,7 +733,7 @@ function MageTowerCard(props: { disabled: boolean }) {
   };
 
   return (
-    <div class="building-card" style={{ position: "relative" }}>
+    <div class="building-card" style={{ position: "relative", height: "100%" }}>
       <DefenseCardHeader
         buildingId="mage_tower"
         icon="🗼"

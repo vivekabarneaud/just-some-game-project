@@ -13,6 +13,16 @@ import type { Adventurer } from "@medieval-realm/shared/data/adventurers";
 export default function RecoveryActions(props: { adventurer: Adventurer }) {
   const { state, actions } = useGame();
 
+  // Does this hero actually need patching up (hurt, or carrying a lingering
+  // wound)? Drives whether an empty-supplies state is worth nudging about.
+  const needsCare = () => {
+    const adv = props.adventurer;
+    if (!adv.alive || adv.onMission) return false;
+    const maxHp = calcAdventurerMaxHp(adv);
+    const wounded = (adv.currentHp ?? maxHp) < maxHp;
+    return wounded || (adv.conditions ?? []).length > 0;
+  };
+
   const options = () => {
     const adv = props.adventurer;
     if (!adv.alive || adv.onMission) return [];
@@ -32,7 +42,19 @@ export default function RecoveryActions(props: { adventurer: Adventurer }) {
   };
 
   return (
-    <Show when={options().length > 0}>
+    <Show
+      when={options().length > 0}
+      fallback={
+        // Hurt, but nothing on hand to mend them with — point the player at
+        // where healing supplies come from. Matters more now that a hero below
+        // a quarter HP can't be sent out at all.
+        <Show when={needsCare()}>
+          <div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "font-style": "italic", "margin-top": "6px", "line-height": 1.5 }}>
+            🩹 No healing on hand. Craft <strong>bandages</strong> at the Tailoring Shop or <strong>potions</strong> at the Alchemy Lab, or let them rest to recover.
+          </div>
+        </Show>
+      }
+    >
       <div style={{ display: "flex", "flex-wrap": "wrap", gap: "4px", "margin-top": "6px" }}>
         <For each={options()}>
           {(o) => (

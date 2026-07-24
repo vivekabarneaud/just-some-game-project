@@ -28,7 +28,7 @@ interface NavItem {
 
 const navSections: { title: string; items: NavItem[] }[] = [
   {
-    title: "Village",
+    title: "Settlement",
     items: [
       { path: "/", icon: "🏘️", label: "Overview" },
       { path: "/chronicle", icon: "📖", label: "Chronicle" },
@@ -36,6 +36,12 @@ const navSections: { title: string; items: NavItem[] }[] = [
       { path: "/buildings", icon: "🏗️", label: "Buildings" },
       { path: "/farming", icon: "🌾", label: "Farming" },
       { path: "/guild", icon: "🏰", label: "Adventurers" },
+    ],
+  },
+  {
+    title: "Military",
+    items: [
+      { path: "/defenses", icon: "🛡️", label: "Defenses" },
     ],
   },
   {
@@ -56,12 +62,6 @@ const navSections: { title: string; items: NavItem[] }[] = [
       { path: "/leatherworking", icon: "🪡", label: "Leatherworking" },
       { path: "/enchanting", icon: "✨", label: "Enchanting" },
       { path: "/jewelcrafting", icon: "💎", label: "Jewelcrafting" },
-    ],
-  },
-  {
-    title: "Military",
-    items: [
-      { path: "/defenses", icon: "🛡️", label: "Defenses" },
     ],
   },
   {
@@ -280,6 +280,10 @@ export default function Sidebar(props: SidebarProps) {
    *  null when no danger applies to this nav item. */
   const dangerFor = (path: string): string | null => {
     if (path === "/") {
+      // An incoming raid is the most acute thing on the Overview — surface it as
+      // the red spark so the player doesn't have to scroll to the threat pill.
+      const pendingRaids = state.incomingRaids.filter((r) => !r.combatLog).length;
+      if (pendingRaids > 0) return pendingRaids > 1 ? `${pendingRaids} incoming threats` : "Incoming threat";
       const foods = state.foods;
       if (!foods) return null;
       const total = (Object.values(foods) as number[]).reduce((s, v) => s + v, 0);
@@ -300,6 +304,14 @@ export default function Sidebar(props: SidebarProps) {
       // matches the Overview's foodDanger() exactly.
       if (state.starvationPenalty > 0 && net < 0) return "Citizens starving";
       if (net < 0 && total / Math.abs(net) < 12) return "Food running out";
+      return null;
+    }
+    if (path === "/buildings") {
+      // Raid damage is easy to miss — a destroyed building just goes inactive.
+      // Surface the same red spark the Overview link uses so the player knows
+      // there's a repair waiting.
+      const n = state.buildings.filter((b) => b.damaged).length;
+      if (n > 0) return n > 1 ? `${n} buildings damaged` : "Building damaged";
       return null;
     }
     return null;

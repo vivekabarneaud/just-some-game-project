@@ -292,7 +292,8 @@ import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { EXOTIC_IDS } from "@medieval-realm/shared/data/exotics";
 import { ALCHEMY_RECIPES, getDiscoverableRecipes, RESEARCH_BASE_COST } from "@medieval-realm/shared/data/alchemy_recipes";
 import { getDeity, getCurrentDeity } from "~/data/deities";
-import { simulateCombat, type LootResult } from "@medieval-realm/shared/data/combat";
+import { simulateCombat, buildAdventurerUnit, type LootResult } from "@medieval-realm/shared/data/combat";
+import type { CombatUnit } from "@medieval-realm/shared/data/combat";
 import { simulateRaidCombat } from "@medieval-realm/shared/data/raidCombat";
 import { canUnlockTalent } from "~/data/talents";
 import { getEnchantment } from "~/data/enchantments";
@@ -310,10 +311,20 @@ import { isLoggedIn } from "~/api/auth";
 
 // ─── Event Log ──────────────────────────────────────────────────
 
+/** Build the captain (Gareth at the watchtower, Morgause at the barracks) as a
+ *  raid combat unit — but ONLY when they're home (alive, not on a mission). A
+ *  captain away on a mission simply isn't in the fight, so takes no wound. Their
+ *  presence also lends the hired stack a +1-trained-level command buff, applied
+ *  separately at the call site. */
+export function buildRaidCaptainUnit(advs: Adventurer[], kind: "watchtower" | "barracks"): CombatUnit | null {
+  const adv = advs.find((a) => a.premadeId === TRAINER_ID[kind] && a.alive && !a.onMission);
+  return adv ? buildAdventurerUnit(adv) : null;
+}
+
 export type GameEventType =
   | "citizen_born" | "citizen_died" | "citizen_left"
   | "building_completed" | "building_damaged" | "building_repaired"
-  | "mission_success" | "mission_failed" | "adventurer_died" | "adventurer_levelup" | "adventurer_rankup" | "loyalty_rankup"
+  | "mission_success" | "mission_failed" | "adventurer_died" | "adventurer_wounded" | "adventurer_levelup" | "adventurer_rankup" | "loyalty_rankup"
   | "raid_victory" | "raid_defeat" | "raid_incoming"
   | "winter_freezing"
   | "drought"
@@ -540,6 +551,13 @@ export interface GameState {
    *  animal consumption). Derived/transient — surfaced so quest triggers and UI
    *  can gate on a genuine food surplus/deficit rather than raw stock. */
   netFoodPerHour?: number;
+  /** Net water change per hour from the last tick (waterBalance().net). Derived;
+   *  surfaced so the cistern nudge can fire on a genuine water DEFICIT. */
+  netWaterPerHour?: number;
+  /** Storage caps from the last tick. Derived; surfaced so the pantry/warehouse
+   *  nudges can fire when a resource is near its cap (overflow) without
+   *  reimplementing calcStorageCaps in the quest layer. */
+  storageCaps?: StorageCaps;
   buildings: PlayerBuilding[];
   fields: PlayerField[];
   gardens: PlayerGarden[];
@@ -3904,6 +3922,8 @@ export function GameProvider(props: ParentProps) {
                   watchtowers: (serverState.watchtowers ?? []).map((t: any) => ({ ring: t.ring, level: t.level, damaged: t.damaged, archerCount: t.garrison?.count ?? 0, trainedLevel: (t.garrison?.trainedLevel ?? 0) + (trainerHome(serverState.adventurers ?? [], "watchtower") ? 1 : 0) })),
                   barracks: (serverState.barracks ?? []).map((b: any) => ({ ring: b.ring, level: b.level, damaged: b.damaged, soldierCount: b.garrison?.count ?? 0, trainedLevel: (b.garrison?.trainedLevel ?? 0) + (trainerHome(serverState.adventurers ?? [], "barracks") ? 1 : 0) })),
                   militiaCount: militiaCount(serverState as GameState),
+                  watchtowerCaptain: buildRaidCaptainUnit(serverState.adventurers ?? [], "watchtower"),
+                  barracksCaptain: buildRaidCaptainUnit(serverState.adventurers ?? [], "barracks"),
                 });
 
                 // Apply sim after-state
@@ -3930,6 +3950,12 @@ export function GameProvider(props: ParentProps) {
                 }
                 serverState.archers = Math.max(0, (serverState.archers ?? 0) - sim.archersLost);
                 serverState.soldiers = Math.max(0, (serverState.soldiers ?? 0) - sim.soldiersLost);
+                // Captain wounds — same as the live path, floored at 1.
+                for (const oc of [sim.watchtowerCaptainOutcome, sim.barracksCaptainOutcome]) {
+                  if (!oc) continue;
+                  const adv = (serverState.adventurers ?? []).find((a: any) => a.id === oc.advId);
+                  if (adv) adv.currentHp = Math.max(1, Math.round(oc.hp));
+                }
                 // Soldier/archer casualties = adult deaths. Reduce adults by the
                 // exact loss count, clamped so total never drops below BASE.
                 const totalAdultLoss = sim.archersLost + sim.soldiersLost;
@@ -4328,6 +4354,7 @@ export function GameProvider(props: ParentProps) {
         const citizenFood = calcFoodConsumption(s.citizens, advMouths, rationMult);
         const animalFood = calcAnimalFoodConsumption(s.pens);
         const caps = calcStorageCaps(s.buildings);
+        s.storageCaps = caps; // surfaced for near-cap storage nudges (pantry/warehouse)
         const maxPop = calcMaxPopulation(s.buildings);
         const netFoodRate = rates.food - citizenFood - animalFood;
         s.netFoodPerHour = netFoodRate; // surfaced for surplus-gated quests + UI
@@ -4371,6 +4398,7 @@ export function GameProvider(props: ParentProps) {
         // event then damages standing crops for as long as it lasts. ──
         {
           const wb = waterBalance(s);
+          s.netWaterPerHour = wb.net; // surfaced for the deficit-gated cistern nudge
           const water = (s.resources.water ?? 0) + wb.net * elapsedHours;
           s.resources.water = Math.min(getWaterCap(wb.cisternLvl), Math.max(0, water));
           // A harsh weather event (heat wave / downpour) damages standing crops
@@ -4911,6 +4939,7 @@ export function GameProvider(props: ParentProps) {
               w.upgradeRemaining = undefined;
               buildingFinishedThisTick = true;
               pushEvent(s, "building_completed", "🧱", `${w.ring} wall raised to level ${w.level}`);
+              if (live) playSound("plop");
             }
           }
         }
@@ -4923,6 +4952,7 @@ export function GameProvider(props: ParentProps) {
               t.upgradeRemaining = undefined;
               buildingFinishedThisTick = true;
               pushEvent(s, "building_completed", "🏰", `${t.ring} watchtower raised to level ${t.level}`);
+              if (live) playSound("plop");
             }
           }
         }
@@ -4935,6 +4965,7 @@ export function GameProvider(props: ParentProps) {
               b.upgradeRemaining = undefined;
               buildingFinishedThisTick = true;
               pushEvent(s, "building_completed", "⚔️", `${b.ring} barracks raised to level ${b.level}`);
+              if (live) playSound("plop");
             }
           }
         }
@@ -4946,6 +4977,7 @@ export function GameProvider(props: ParentProps) {
             s.mageTower.upgradeRemaining = undefined;
             buildingFinishedThisTick = true;
             pushEvent(s, "building_completed", "🗼", `Mage Tower raised to level ${s.mageTower.level}`);
+            if (live) playSound("plop");
           }
         }
 
@@ -5393,6 +5425,10 @@ export function GameProvider(props: ParentProps) {
                 const sm = STORY_MISSIONS.find((m) => m.id === am.missionId);
                 if (sm?.chronicleEntryId && !s.chronicleEntriesFired.includes(sm.chronicleEntryId)) {
                   s.chronicleEntriesFired.push(sm.chronicleEntryId);
+                  // Surface it as a beat modal so the player actually reads the
+                  // entry on completion, not just finds it later in the archive.
+                  s.pendingChronicleBeats = s.pendingChronicleBeats ?? [];
+                  s.pendingChronicleBeats.push(sm.chronicleEntryId);
                 }
                 // Bridge chronicles that follow this mission's completion
                 // (breath beats, narrative follow-ups). Fired all at once for
@@ -5616,6 +5652,8 @@ export function GameProvider(props: ParentProps) {
                 watchtowers: s.watchtowers.map((t) => ({ ring: t.ring, level: t.level, damaged: t.damaged, archerCount: t.garrison.count, trainedLevel: t.garrison.trainedLevel + (trainerHome(s.adventurers, "watchtower") ? 1 : 0) })),
                 barracks: s.barracks.map((b) => ({ ring: b.ring, level: b.level, damaged: b.damaged, soldierCount: b.garrison.count, trainedLevel: b.garrison.trainedLevel + (trainerHome(s.adventurers, "barracks") ? 1 : 0) })),
                 militiaCount: militiaCount(s),
+                watchtowerCaptain: buildRaidCaptainUnit(s.adventurers, "watchtower"),
+                barracksCaptain: buildRaidCaptainUnit(s.adventurers, "barracks"),
               });
 
               // ── Apply sim after-state ────────────────────────────
@@ -5643,6 +5681,19 @@ export function GameProvider(props: ParentProps) {
               }
               s.archers = Math.max(0, s.archers - sim.archersLost);
               s.soldiers = Math.max(0, s.soldiers - sim.soldiersLost);
+              // Captain wounds — Gareth / Morgause come home at their own final
+              // HP, floored at 1. They never die at the wall (the roster and
+              // townsfolk take the deaths); the captain carries the wound. Only
+              // set when they actually fought (were home + held a ring).
+              for (const oc of [sim.watchtowerCaptainOutcome, sim.barracksCaptainOutcome]) {
+                if (!oc) continue;
+                const adv = s.adventurers.find((a) => a.id === oc.advId);
+                if (!adv) continue;
+                adv.currentHp = Math.max(1, Math.round(oc.hp));
+                if (oc.fell) {
+                  pushEvent(s, "adventurer_wounded", "🩸", `${adv.name} was dragged from the wall, gravely wounded`);
+                }
+              }
               // Soldier + archer + militia casualties = adult deaths. Total
               // clamped so we never drop below the BASE_POPULATION floor.
               // The household (founders + named) is protected by the

@@ -324,7 +324,7 @@ export interface ActiveCraft {
 export type GameEventType =
   | "citizen_born" | "citizen_died" | "citizen_left"
   | "building_completed" | "building_damaged" | "building_repaired"
-  | "mission_success" | "mission_failed" | "adventurer_died" | "adventurer_levelup" | "adventurer_rankup" | "loyalty_rankup"
+  | "mission_success" | "mission_failed" | "adventurer_died" | "adventurer_wounded" | "adventurer_levelup" | "adventurer_rankup" | "loyalty_rankup"
   | "raid_victory" | "raid_defeat" | "raid_incoming"
   | "winter_freezing"
   | "drought"

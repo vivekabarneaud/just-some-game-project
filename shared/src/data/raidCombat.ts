@@ -83,6 +83,15 @@ export interface RaidCombatInput {
    *  effectiveness, no training), but enough to make the early-game
    *  walls-only player not completely defenseless. */
   militiaCount?: number;
+  /** The watchtower captain (Gareth) as a combat-ready unit, or null when he's
+   *  away on a mission / not yet arrived. Deployed to the outermost built,
+   *  undamaged watchtower ring, where he fights with his own leveled stats. His
+   *  "command" still buffs the hired archer stack (applied upstream as a +1
+   *  trained level). He never truly dies here — the engine floors his post-raid
+   *  HP at 1 — but he CAN be downed in the sim so a ring can still breach. */
+  watchtowerCaptain?: CombatUnit | null;
+  /** The barracks captain (Morgause), same model on the melee side. */
+  barracksCaptain?: CombatUnit | null;
   seed?: number;
 }
 
@@ -110,6 +119,13 @@ export interface RaidCombatResult {
   militiaLost: number;
   raidersKilled: number;
   raidersAlive: number;
+  /** Post-raid outcome for a captain who actually fought (was deployed to a
+   *  ring). advId keys the HP writeback; the engine floors currentHp at 1 so a
+   *  captain survives no matter what. `fell` = downed during the fight (dragged
+   *  home gravely wounded). Undefined when the captain was away or had no ring
+   *  to hold. */
+  watchtowerCaptainOutcome?: { advId: string; hp: number; maxHp: number; fell: boolean };
+  barracksCaptainOutcome?: { advId: string; hp: number; maxHp: number; fell: boolean };
 }
 
 // ─── Defender unit construction ─────────────────────────────────
@@ -349,6 +365,25 @@ export function simulateRaidCombat(input: RaidCombatInput): RaidCombatResult {
     }
   }
 
+  // ── Deploy captains (Gareth / Morgause) ──────────────────────
+  // One person, one ring: each captain holds the outermost built, undamaged
+  // building of their kind — the first line they'd man. They fight with their
+  // own leveled stats (built upstream from the adventurer record), on top of
+  // the command buff their presence already lends the hired stack.
+  const watchtowerCaptain = input.watchtowerCaptain ?? null;
+  const barracksCaptain = input.barracksCaptain ?? null;
+  const captainsByRing: Record<DefenseRing, CombatUnit[]> = { outer: [], middle: [], inner: [] };
+  let watchCaptainDeployed = false;
+  let barracksCaptainDeployed = false;
+  if (watchtowerCaptain) {
+    const ring = RING_ORDER.find((r) => { const t = towerByRing[r]; return !!t && !t.damaged && t.level > 0; });
+    if (ring) { captainsByRing[ring].push(watchtowerCaptain); watchCaptainDeployed = true; }
+  }
+  if (barracksCaptain) {
+    const ring = RING_ORDER.find((r) => { const b = barracksByRing[r]; return !!b && !b.damaged && b.level > 0; });
+    if (ring) { captainsByRing[ring].push(barracksCaptain); barracksCaptainDeployed = true; }
+  }
+
   // ── Run the siege, ring by ring ──────────────────────────────
   const log: CombatLogEntry[] = [];
   let round = 0;
@@ -364,9 +399,11 @@ export function simulateRaidCombat(input: RaidCombatInput): RaidCombatResult {
     const soldiers = soldierStackByRing[ring];
     // Militia spawns only at the outer ring.
     const militia = ring === "outer" ? militiaStack : null;
+    // Captains holding this ring (Gareth / Morgause). Units mutated in place.
+    const ringCaptains = captainsByRing[ring];
 
     // Ring with no defenders at all? Skip — raid walks through.
-    if (!wall && !archers && !soldiers && !militia) continue;
+    if (!wall && !archers && !soldiers && !militia && ringCaptains.length === 0) continue;
 
     let ringRound = 0;
     while (ringRound < MAX_ROUNDS_PER_RING) {
@@ -379,6 +416,16 @@ export function simulateRaidCombat(input: RaidCombatInput): RaidCombatResult {
       if (archers && archers.hp > 0) {
         const target = pickRandom(aliveTargets(raiders));
         if (target) attack(archers, target, round, log);
+      }
+      if (raiders.every((r) => r.hp <= 0)) break;
+
+      // 1b. Captains loose their own shots / swings — their own leveled stats,
+      //     separate from the hired stack. The best marksman on the wall.
+      for (const cap of ringCaptains) {
+        if (cap.hp > 0) {
+          const target = pickRandom(aliveTargets(raiders));
+          if (target) attack(cap, target, round, log);
+        }
       }
       if (raiders.every((r) => r.hp <= 0)) break;
 
@@ -397,7 +444,11 @@ export function simulateRaidCombat(input: RaidCombatInput): RaidCombatResult {
           const meleeAlive = soldiers && soldiers.hp > 0 ? soldiers : null;
           const militiaAlive = militia && militia.hp > 0 ? militia : null;
           const archerAlive = archers && archers.hp > 0 ? archers : null;
-          const target = meleeAlive ?? militiaAlive ?? archerAlive;
+          // Captains are targeted LAST — nimble, behind cover — so the captain
+          // only takes hits once the line around him has fallen. That's when a
+          // true overrun wounds him (and lets the ring finally breach).
+          const captainAlive = ringCaptains.find((c) => c.hp > 0) ?? null;
+          const target = meleeAlive ?? militiaAlive ?? archerAlive ?? captainAlive;
           if (!target) break;
           attack(raider, target, round, log);
         }
@@ -421,9 +472,11 @@ export function simulateRaidCombat(input: RaidCombatInput): RaidCombatResult {
       const archersGone = !archers || archers.hp <= 0;
       const soldiersGone = !soldiers || soldiers.hp <= 0;
       const militiaGone = !militia || militia.hp <= 0;
+      const captainsGone = ringCaptains.every((c) => c.hp <= 0);
       // Ring breached only when nothing remains to defend it. Archers keep
-      // firing from a fallen wall as long as the squad still has HP.
-      if (wallDown && soldiersGone && archersGone && militiaGone) break;
+      // firing from a fallen wall as long as the squad still has HP; the
+      // captain holds until he too is downed.
+      if (wallDown && soldiersGone && archersGone && militiaGone && captainsGone) break;
     }
 
     // Record final wall HP for this ring (if it had a wall)
@@ -470,6 +523,15 @@ export function simulateRaidCombat(input: RaidCombatInput): RaidCombatResult {
   const militiaSurvivors = surviversOfStack(militiaStack);
   const militiaLost = Math.max(0, militiaStartCount - militiaSurvivors);
 
+  // Captain outcomes — only for a captain who actually held a ring. HP is his
+  // own final sim HP; the engine floors it at 1 (he survives no matter what).
+  const watchtowerCaptainOutcome = watchtowerCaptain && watchCaptainDeployed
+    ? { advId: watchtowerCaptain.id, hp: watchtowerCaptain.hp, maxHp: watchtowerCaptain.maxHp, fell: watchtowerCaptain.hp <= 0 }
+    : undefined;
+  const barracksCaptainOutcome = barracksCaptain && barracksCaptainDeployed
+    ? { advId: barracksCaptain.id, hp: barracksCaptain.hp, maxHp: barracksCaptain.maxHp, fell: barracksCaptain.hp <= 0 }
+    : undefined;
+
   return {
     victory,
     rounds: round,
@@ -484,5 +546,7 @@ export function simulateRaidCombat(input: RaidCombatInput): RaidCombatResult {
     militiaLost,
     raidersKilled,
     raidersAlive,
+    watchtowerCaptainOutcome,
+    barracksCaptainOutcome,
   };
 }

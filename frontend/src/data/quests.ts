@@ -303,12 +303,12 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     targetPage: "/buildings",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/the_sawhorse.png",
   },
-  // NOTE: "The Growing Pile" (Warehouse) was cut here (2026-07-09). It was the
-  // 5th consecutive "build a thing" quest gating Ch1 → the hunters, and a
-  // storage optimization doesn't belong in the founding beat. The Warehouse is
-  // still freely buildable; overflow self-teaches via the cap warning. Recover
-  // the full quest from git history if we want it back (as a Ch2 or
-  // near-overflow-triggered nudge).
+  // NOTE: "The Growing Pile" (Warehouse) used to gate Ch1 here as the 5th
+  // consecutive "build a thing" quest — cut 2026-07-09 (a storage chore doesn't
+  // belong in the founding beat). It has since been RE-ADDED (2026-07) further
+  // down as a reward-less, need-fired nudge (`growing_pile`) that appears only
+  // when wood/stone overflow — the "near-overflow-triggered nudge" that cut
+  // envisioned. It no longer gates Ch1 or the hunters.
 
   // ╔══════════════════════════════════════════════════════════════╗
   // ║ SETTLEMENT — Chapter 2: The Hunters                         ║
@@ -378,27 +378,68 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
   {
     id: "stockpile_for_winter",
     storyline: "settlement",
-    chapter: 2,
+    // Chapter 4 (terminal, non-gating): a NEED-fired nudge must never sit in a
+    // chapter whose completion gates progression, or it deadlocks it (the
+    // fishing-quest lesson). Only settlement ch1 & ch3 completions are gated.
+    chapter: 4,
     title: "A Proper Pantry",
     narrative:
       "Edda has taken to hanging onions from a tent pole and calling it a pantry. It is not a pantry. The one in Ashwick was a stone room that smelled of root vegetables and salt; ours will be wood-floored and smell of nothing yet. Tomas says the cellar can go down four feet before we hit the water table. That will do.",
     objective: "Build a Pantry",
     icon: "🥫",
-    // Fires once there's a real stockpile worth storing — a STABLE stock check,
-    // not a per-hour rate. (The rate flaps in and out as population/season
-    // shift, and the stored net-rate isn't the same number the resource bar
-    // shows, so gating on it made the quest blink in during a visible deficit.)
-    // The starting larder is well under 100, so this no longer fires during the
-    // early deficit; it appears once food production has built an actual surplus.
-    triggers: [{ type: "custom", check: (s) => getTotalFood(s.foods) >= 100 }],
+    // Need-fired nudge: appears ONLY when the larder is brimming (food near its
+    // cap, about to spoil). Reward-less. It clears when the need is addressed —
+    // building the pantry raises the cap, so "near cap" goes false — which reads
+    // as "done" because it happens right as you build it, and it re-appears if
+    // the need recurs. It never shows for a player who built a pantry before ever
+    // overflowing (no need = no nudge).
+    triggers: [{ type: "custom", check: (s) => getTotalFood(s.foods) >= (s.storageCaps?.food ?? Infinity) * 0.9 }],
     condition: (s) => (bldg(s, "pantry")?.level ?? 0) >= 1,
-    rewards: [
-      { resource: "wood", amount: 50, label: "Wood" },
-      { resource: "stone", amount: 30, label: "Stone" },
-    ],
+    rewards: [],
     targetBuildingId: "pantry",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/pantry.png",
-    unlocksBioFragments: ["edda_pantry"],
+    // edda_pantry memory parked — re-home to a "See to Edda" check-in round
+    // (same as edda_forager_hut), so this stays a reward/ceremony-free nudge.
+  },
+  {
+    id: "growing_pile",
+    storyline: "settlement",
+    chapter: 4, // terminal, non-gating (need-fired nudge — see the pantry note)
+    title: "The Growing Pile",
+    narrative:
+      "Wood and stone are stacking up faster than we can shelter them, and what sits out in the weather is half-spoiled by the next rain. A proper warehouse would keep it dry and let us bank more against all the building still to come.",
+    objective: "Build a Warehouse",
+    icon: "📦",
+    // Need-fired ONLY: wood or stone brimming at its cap (overflow being wasted).
+    // Reward-less; clears when you build the warehouse (cap rises), re-appears if
+    // it overflows again, and never shows just because a warehouse exists. This
+    // is the exact revival the earlier cut left open: "a near-overflow nudge."
+    triggers: [{ type: "custom", check: (s) =>
+      s.resources.wood >= (s.storageCaps?.wood ?? Infinity) * 0.9 ||
+      s.resources.stone >= (s.storageCaps?.stone ?? Infinity) * 0.9 }],
+    condition: (s) => (bldg(s, "warehouse")?.level ?? 0) >= 1,
+    rewards: [],
+    targetBuildingId: "warehouse",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/warehouse.png",
+  },
+  {
+    id: "catch_the_rain",
+    storyline: "settlement",
+    chapter: 4, // terminal, non-gating (need-fired nudge — see the pantry note)
+    title: "A Cistern for the Dry Days",
+    narrative:
+      "The gardens drink more than the stream gives back, and the reserve drops a little each day. A stone cistern would bank the rain when it falls and carry us through the dry stretches, instead of watching the level fall and hoping for a cloud.",
+    objective: "Build a Cistern",
+    icon: "💧",
+    // Need-fired ONLY: net water in DEFICIT (draws outpace inflow — the "just
+    // planted and the reserve is draining" moment, matching the resource bar's
+    // water/h). Reward-less; clears when the deficit is resolved (a cistern's
+    // capacity + rain-catch), and never shows just because a cistern exists.
+    triggers: [{ type: "custom", check: (s) => (s.netWaterPerHour ?? 0) < 0 }],
+    condition: (s) => (bldg(s, "cistern")?.level ?? 0) >= 1,
+    rewards: [],
+    targetBuildingId: "cistern",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/cistern_camp.png",
   },
   {
     id: "eddas_garden",
@@ -576,25 +617,9 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
       { resource: "stone", amount: 25, label: "Stone" },
     ],
   },
-  {
-    id: "into_the_unknown",
-    storyline: "guild",
-    chapter: 1,
-    main: true,
-    title: "Into the Unknown",
-    narrative:
-      "The mission board is nailed to the wall, ink still wet. The southern frontier is full of ruins, rumours, and things that the Dominion's maps don't show. Time to find out what's really out here.",
-    objective: "Send your first mission",
-    icon: "🗺️",
-    triggers: [{ type: "quest_completed", questId: "heroes_wanted" }],
-    condition: (s) => s.firstMissionSent === true,
-    rewards: [
-      { resource: "astralShards", amount: 10, label: "Astral Shards" },
-      { resource: "wood", amount: 25, label: "Wood" },
-    ],
-    targetPage: "/guild",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_12.png",
-  },
+  // "Into the Unknown" (send your first mission) removed 2026-07 — the Main Story
+  // panel's Scouting beat now drives the first scouting mission, so this guild
+  // breadcrumb was pure duplication.
   {
     id: "investigate_old_watch",
     storyline: "guild",
@@ -659,10 +684,10 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
 
   // ╔══════════════════════════════════════════════════════════════╗
   // ║ THE MAIN STORY — the narrative spine (its own panel)         ║
-  // ║ NOTE (WIP): during the Ch1 restructure the rest of the spine ║
-  // ║ moves here from the guild storyline. For now this seeds the  ║
-  // ║ Main Story panel with its shown-but-locked opener; it        ║
-  // ║ overlaps `into_the_unknown` until that reconciliation.       ║
+  // ║ Beat 1: Scouting (below). Beat 2: "Hold the Treeline" (the    ║
+  // ║ wolf defense) lives further down, tagged storyline "story".   ║
+  // ║ Later beats (the Old Watch, Past the Ruins) still live under  ║
+  // ║ "guild" for now and move here when their chapter is authored. ║
   // ╚══════════════════════════════════════════════════════════════╝
   {
     id: "spine_scouting",
@@ -761,21 +786,23 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
   // ║ Triggered by event_three_reports (after story_1_scouting)   ║
   // ╚══════════════════════════════════════════════════════════════╝
 
+  // The Main Story's second beat: the wolf-defense. Lives in the "story"
+  // storyline (Main Story panel), main-flagged so it becomes the pinned beat
+  // once Scouting is done. Merges the old walls + watchtower defense pair into
+  // one "build both" beat; its narrative IS the wolf warning (no separate banner
+  // needed). "Man the Wall" (Gareth drilling the watch) follows off this.
   {
     id: "the_first_threat",
-    storyline: "defense",
+    storyline: "story",
     chapter: 1,
-    title: "The First Threat",
+    main: true,
+    title: "Hold the Treeline",
     narrative:
-      "Your scouts spotted a band of armed men two ridges east, watching the settlement. Poorly equipped, desperate, not organized, and not moving on us yet. But a frontier holding without walls is an invitation. Raise walls while the quiet holds.",
-    objective: "Build Walls",
+      "The pack the scouts drove off has not gone far; it circles the camp after dark, bolder each night, and hunger will make it bolder still. A fence and a wall turn a hungry wolf where an open camp only invites it, and a tower gives us eyes on the dark before it reaches the gate. Raise both while the nights are still quiet — Gareth will take the watch himself, and a hired bow or two beside him would not go amiss.",
+    objective: "Build Walls and a Watchtower",
     icon: "🧱",
-    triggers: [
-      { type: "chapter_unlocked", storyline: "defense", chapter: 1 },
-      { type: "story_mission_completed", missionId: "story_1_scouting" },
-    ],
-    requiresAll: true,
-    condition: (s) => s.walls.some((w) => w.level > 0),
+    triggers: [{ type: "story_mission_completed", missionId: "story_1_scouting" }],
+    condition: (s) => s.walls.some((w) => w.level > 0) && s.watchtowers.some((t) => t.level > 0),
     rewards: [
       { resource: "wood", amount: 40, label: "Wood" },
       { resource: "stone", amount: 120, label: "Stone" },
@@ -808,28 +835,9 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
       { resource: "astralShards", amount: 3, label: "Astral Shards" },
     ],
   },
-  {
-    id: "eyes_on_the_horizon",
-    storyline: "defense",
-    chapter: 1,
-    title: "Eyes on the Horizon",
-    narrative:
-      "The walls are up, but a wall is only as good as the eyes above it. As things stand, the first we would know of trouble is trouble already at the gate. A proper watchtower would give us the horizon: hours of warning instead of a shout in the dark. Let us raise one while the country is quiet.",
-    objective: "Build a Watchtower",
-    icon: "🏰",
-    // Follows walls directly (the_first_threat), NOT surviving a raid. The
-    // scripted early raid is deferred, so gating the watchtower behind a raid
-    // stalled the whole lane. baptism_of_fire stays as a parallel optional beat
-    // that completes whenever a raid does resolve.
-    triggers: [{ type: "quest_completed", questId: "the_first_threat" }],
-    condition: (s) => s.watchtowers.some((t) => t.level > 0),
-    rewards: [
-      { resource: "wood", amount: 60, label: "Wood" },
-      { resource: "stone", amount: 120, label: "Stone" },
-    ],
-    targetPage: "/defenses",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/watchtower.png",
-  },
+  // "Eyes on the Horizon" (build a watchtower) removed 2026-07 — folded into the
+  // "Hold the Treeline" main-story beat above (which now asks for walls AND the
+  // watchtower). "Man the Wall" below re-gates onto that.
   {
     id: "man_the_wall",
     storyline: "defense",
@@ -839,12 +847,12 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
       "Stone and a tower keep nothing out on their own. They want people on them who know the horizon and will not sleep through it. Gareth soldiered before he ever felled a tree, and he can drill a proper watch if we give him a tower worth standing on. Raise the watchtower another level and let him train the ones who will hold it.",
     objective: "Raise a watchtower to level 2 and train its watch",
     icon: "🏹",
-    // Chained by quest (not chapter) so it flows straight off the watchtower
-    // without waiting on the deferred raid / chapter-2 pointer. Teaches the
-    // startTraining garrison drill: drilling needs a level-2 watchtower (level-1
-    // units can't drill) plus Gareth (the watchtower trainer, present from
-    // guild_open). trainedLevel >= 1 is only reachable once both hold.
-    triggers: [{ type: "quest_completed", questId: "eyes_on_the_horizon" }],
+    // Chained by quest off the main-story defense beat (Hold the Treeline, which
+    // builds the walls + the watchtower), NOT chapter — flows straight into
+    // Gareth drilling the watch. Teaches the startTraining garrison drill:
+    // drilling needs a level-2 watchtower (level-1 units can't drill) plus Gareth
+    // (the watchtower trainer, present from guild_open). trainedLevel >= 1 needs both.
+    triggers: [{ type: "quest_completed", questId: "the_first_threat" }],
     condition: (s) => s.watchtowers.some((t) => (t.garrison?.trainedLevel ?? 0) >= 1),
     rewards: [
       { resource: "gold", amount: 40, label: "Gold" },

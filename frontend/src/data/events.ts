@@ -170,10 +170,28 @@ export const NARRATIVE_EVENTS: NarrativeEvent[] = [
   {
     id: "event_three_reports",
     triggers: [{ type: "story_mission_completed", missionId: "story_1_scouting" }],
+    // The detailed wolf warning now lives in the "Hold the Treeline" quest and
+    // the scouting chronicle, so this is just a short "scouts are back" beat that
+    // points at the work and the southern mystery, without repeating it.
     banner:
-      "The scouts came back with three reports. A wolf pack on the ridge. A band of brigands camped two ridges east, watching us. And an abandoned watchtower, a day's march south, that nobody can explain.",
+      "The scouts are back, and their full account is in the book. It leaves us plain work to do before the season turns — and something two days south that nobody can explain.",
     unlocks: {
       activateStoryline: { storyline: "defense", chapter: 1 },
+    },
+  },
+
+  // ── "Hold the Treeline" claimed → the wolves come to test the wall ──
+  // The small gaunt_wolf_pack (2 gaunt wolves) is the deliberate payoff for
+  // raising walls + a watchtower: winnable by Gareth at the tower alone, no
+  // hired archers required. Its warning timer (raid baseWarning, adjusted by
+  // watchtower level) gives the player a beat to hire or drill if they want.
+  {
+    id: "event_treeline_wolves",
+    triggers: [{ type: "quest_completed", questId: "the_first_threat" }],
+    banner:
+      "The wall is barely settled on its footings when the first of them slips out of the trees — a lean grey shape, then more behind it, noses to the wind. The treeline has teeth after all. Gareth is already climbing to the watch.",
+    unlocks: {
+      raidSpawn: { raidId: "gaunt_wolf_pack" },
     },
   },
 
