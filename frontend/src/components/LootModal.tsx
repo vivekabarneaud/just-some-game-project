@@ -14,6 +14,7 @@ import TreasureChest from "~/components/TreasureChest";
 import { CardFrame } from "~/components/CardFrame";
 import { missionFrameAssets } from "~/data/constants";
 import MissionRosterStrip from "~/components/MissionRosterStrip";
+import { CONDITION_META } from "~/components/AdventurerVitals";
 
 interface Props {
   result: CompletedMission;
@@ -85,6 +86,11 @@ export default function LootModal(props: Props) {
   };
 
   const r = () => props.result;
+  // Heroes who came home carrying a lingering wound (the survivors — the dead are
+  // handled under Casualties). Froth is the dangerous one: it blocks natural HP
+  // regen and worsens until cured, so it's easy to miss without this callout.
+  const afflicted = () => (r().roster ?? []).filter((e) => !e.died && (e.conditions?.length ?? 0) > 0);
+  const anyFroth = () => afflicted().some((e) => e.conditions!.some((c) => c.type === "froth"));
   // The modal wears the mission's RANK frame (matching the team-assembly panel):
   // novice=common … veteran=epic, story=legendary, with flourishes on the higher
   // ranks. Falls back to common for an unknown mission.
@@ -194,6 +200,49 @@ export default function LootModal(props: Props) {
             <div class="loot-section" style={{ "animation-delay": "260ms" }}>
               <div class="section-label">The team</div>
               <MissionRosterStrip roster={r().roster!} />
+            </div>
+          </Show>
+
+          {/* Afflictions — lingering wounds the survivors came home with. Called
+              out on its own (not just as a chip) because a regen-blocking wound
+              like the froth is otherwise only visible on the roster card. */}
+          <Show when={afflicted().length > 0}>
+            <div class="loot-section" style={{
+              "animation-delay": "300ms",
+              border: `1px solid ${anyFroth() ? "var(--accent-red)" : "#d4831a"}`,
+              background: anyFroth() ? "rgba(231, 76, 60, 0.08)" : "rgba(212, 131, 26, 0.08)",
+              padding: "10px 12px",
+            }}>
+              <div class="section-label" style={{ color: anyFroth() ? "var(--accent-red)" : "#d4831a" }}>
+                Came home wounded
+              </div>
+              <div style={{ display: "flex", "flex-direction": "column", gap: "4px", "font-size": "0.88rem" }}>
+                <For each={afflicted()}>
+                  {(e) => (
+                    <div style={{ display: "flex", "align-items": "center", gap: "8px", "flex-wrap": "wrap" }}>
+                      <strong style={{ color: "var(--text-primary)" }}>{e.name}</strong>
+                      <For each={e.conditions!}>
+                        {(c) => {
+                          const meta = CONDITION_META[c.type] ?? { icon: "❓", label: c.type };
+                          return (
+                            <span style={{ color: c.type === "froth" ? "var(--accent-red)" : "#d4831a", "white-space": "nowrap" }}>
+                              {meta.icon} {c.type === "froth" ? "the froth" : meta.label}
+                            </span>
+                          );
+                        }}
+                      </For>
+                    </div>
+                  )}
+                </For>
+              </div>
+              <div style={{ "font-size": "0.8rem", "font-style": "italic", "margin-top": "6px", color: "var(--text-muted)" }}>
+                <Show
+                  when={anyFroth()}
+                  fallback={<>Lingering wounds block natural healing until they fade. A 🩹 Bandage speeds recovery.</>}
+                >
+                  The froth blocks natural healing and worsens until treated with a 🐗 Boar's-Bane Salve. Afflicted heroes can't be deployed until cured.
+                </Show>
+              </div>
             </div>
           </Show>
 

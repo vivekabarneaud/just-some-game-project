@@ -1566,7 +1566,8 @@ input, textarea, select {
 .enemy-card {
   width: 80px;
   height: 110px;
-  border-radius: 6px;
+  /* Square corners to sit under the rarity/boss frame overlay (CardFrame). */
+  border-radius: 0;
   overflow: hidden;
   cursor: default;
   display: flex;
@@ -4510,17 +4511,21 @@ input, textarea, select {
   );
 }
 
-/* 7s scroll — brisk enough to feel announcement-y without being ticker-tape. */
+/* LOOPS at a constant speed. The 7s here is a baseline; the component overrides
+   `animation-duration` per banner (scaled to length) so every banner scrolls at
+   the same pace, and the banner's on-screen time is a separate JS timer
+   (durationMs). Looping lets a long message get more than one pass to be read
+   without speeding up or cutting off. */
 .event-banner-marquee {
-  animation: event-banner-scroll 7s linear forwards;
+  animation: event-banner-scroll 7s linear infinite;
 }
 
-/* Reduced-motion: slow the scroll way down and drop the slide animations.
-   Keeps the feature usable without rapid motion. */
+/* Reduced-motion: a single slow pass instead of a loop, and drop the slide
+   animations. Keeps the feature usable without repeated motion. */
 @media (prefers-reduced-motion: reduce) {
   .event-banner { animation: none; }
   .event-banner.exiting { animation: none; opacity: 0; }
-  .event-banner-marquee { animation-duration: 25s; }
+  .event-banner-marquee { animation-duration: 25s; animation-iteration-count: 1; }
 }
 
 /* ─── Talent Tree ──────────────────────────────────────────── */

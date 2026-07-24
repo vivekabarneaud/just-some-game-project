@@ -4,7 +4,7 @@ import { calcAdventurerMaxHp } from "@medieval-realm/shared/data/expeditionEngin
 import HpBar from "./HpBar";
 import Tooltip from "./Tooltip";
 
-const CONDITION_META: Record<string, { icon: string; label: string }> = {
+export const CONDITION_META: Record<string, { icon: string; label: string }> = {
   bleed: { icon: "🩸", label: "Bleeding" },
   poison: { icon: "☣️", label: "Poisoned" },
   froth: { icon: "🤢", label: "Frothing — worsens, can't deploy (cure: Boar's-Bane Salve)" },

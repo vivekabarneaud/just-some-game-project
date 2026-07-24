@@ -80,11 +80,13 @@ const SOUNDS: Record<SoundId, SoundDef> = {
   // Raid sounds (UMF pack): `raid_stinger` (Stinger 10, dramatic hit) fires on
   // the raid-INCOMING banner; `raid_trumpet` (Stinger 14, war horn) fires when
   // the player watches the battle play out.
-  raid_stinger: { url: `${R2_BASE}/raid_stinger.wav`, volume: 0.7 },
+  // Raid drums bumped up (playtest, sister 2026-07 — read as too quiet for the moment).
+  raid_stinger: { url: `${R2_BASE}/raid_stinger.wav`, volume: 0.9 },
   raid_trumpet: { url: `${R2_BASE}/raid_trumpet.wav`, volume: 0.7 },
   // Soft neutral chime for non-raid banners (UMF Magic_and_Processed 2) — a
-  // cleaner "something happened" than the old `notify` reward jingle.
-  notify_soft: { url: `${R2_BASE}/notify_soft.wav`, volume: 0.55 },
+  // cleaner "something happened" than the old `notify` reward jingle. Bumped up
+  // (same playtest) — was getting lost.
+  notify_soft: { url: `${R2_BASE}/notify_soft.wav`, volume: 0.75 },
   // Martial clank (UMF Metal 6/25/26/27, random variant per play) — mission
   // deploy + opening the Adventurer's Guild.
   metal: { url: [`${R2_BASE}/metal_1.wav`, `${R2_BASE}/metal_2.wav`, `${R2_BASE}/metal_3.wav`, `${R2_BASE}/metal_4.wav`], volume: 0.6 },

@@ -9,19 +9,29 @@ import {
   isQuestActive,
   isQuestClaimed,
   isQuestClaimable,
+  questPrerequisitesMet,
+  unmetPrerequisiteLabels,
   type QuestDefinition,
   type StorylineId,
 } from "~/data/quests";
 import QuestClaimModal from "~/components/QuestClaimModal";
 import MemoryPreviewModal from "~/components/MemoryPreviewModal";
+import { CardFrame } from "~/components/CardFrame";
+import Tooltip from "~/components/Tooltip";
 import { resolveFragments } from "~/data/founding_characters";
 
+/** Gold-C tint for the Main Story panel frame (chosen on /dev-frames): the
+ *  uncommon frame nudged warmer/brighter so the spine reads as "this matters"
+ *  without the full legendary treatment. Applied to the frame layer only. */
+const MAIN_STORY_FRAME_TINT = "saturate(1.5) brightness(1.08) hue-rotate(-4deg)";
+
 const STORYLINE_ORDER: StorylineId[] = ["settlement", "guild", "story", "defense", "social"];
-// Two-column desk layout: domestic (settlement + defense) on the left,
-// outward + personal (guild + story + the folk) on the right. Lets the player
-// see all storylines at a glance without giant card widths.
+// "story" (the main-story spine) is hoisted OUT of the columns into its own
+// full-width panel at the top. The rest sit in a two-column desk layout:
+// domestic (settlement + defense) on the left, outward + personal (guild + the
+// folk) on the right.
 const LEFT_COLUMN: StorylineId[] = ["settlement", "defense"];
-const RIGHT_COLUMN: StorylineId[] = ["guild", "story", "social"];
+const RIGHT_COLUMN: StorylineId[] = ["guild", "social"];
 
 export default function QuestLog() {
   const { state, actions } = useGame();
@@ -76,7 +86,8 @@ export default function QuestLog() {
   // the component so it closes over state, actions, and the collapse signal.
   // Solid handles closures over reactive signals fine; just make sure the
   // signal accesses happen *inside* the returned JSX, not at function-call time.
-  const renderStorylinePane = (storylineId: StorylineId) => {
+  const renderStorylinePane = (storylineId: StorylineId, opts?: { mainStory?: boolean }) => {
+    const mainStory = !!opts?.mainStory;
     const active = () => activeQuests(storylineId);
     const completed = () => completedQuests(storylineId);
     const isCollapsed = () => collapsed()[storylineId];
@@ -95,7 +106,9 @@ export default function QuestLog() {
         <QuestCard
           quest={quest}
           main={isMain}
-          claimable={isQuestClaimable(quest, state)}
+          claimable={isQuestClaimable(quest, state) && questPrerequisitesMet(quest, state)}
+          locked={!questPrerequisitesMet(quest, state)}
+          lockReasons={unmetPrerequisiteLabels(quest, state)}
           isUnseen={!isMain && !seen().includes(quest.id)}
           onClaim={() => {
             const noReward = quest.rewards.length === 0;
@@ -112,11 +125,27 @@ export default function QuestLog() {
 
     return (
       <Show when={active().length > 0 || completed().length > 0 || !!main()}>
-        <div class="ornament-frame" style={{
-          "background": "var(--bg-secondary)",
-          "margin-bottom": "16px",
-          "overflow": "hidden",
-        }}>
+        <div
+          classList={{ "ornament-frame": !mainStory }}
+          style={{
+            "background": "var(--bg-secondary)",
+            "margin-bottom": "16px",
+            "overflow": "hidden",
+            ...(mainStory ? { "position": "relative" } : {}),
+          }}
+        >
+          {/* Main Story panel wears the uncommon frame tinted gold-C, drawn on
+              its own layer so only the frame is tinted, not the text. */}
+          <Show when={mainStory}>
+            <div style={{
+              "position": "absolute", "inset": "0",
+              "filter": MAIN_STORY_FRAME_TINT,
+              "pointer-events": "none", "z-index": 5,
+            }}>
+              <CardFrame rarity="uncommon" border={16} ornamentRarity="common" />
+            </div>
+          </Show>
+          <div style={mainStory ? { "position": "relative", "z-index": 1, "padding": "16px" } : {}}>
           <button
             onClick={() => toggle(storylineId)}
             style={{
@@ -166,8 +195,13 @@ export default function QuestLog() {
           <Show when={!isCollapsed()}>
             <div style={{ "padding": "12px 16px" }}>
               {/* Pinned main quest — the standing goal for this storyline. */}
-              <Show when={main()}>
-                {(mq) => renderCard(mq(), true)}
+              {/* keyed: the pinned main quest changes value as the spine
+                  advances (e.g. Heroes Wanted → Into the Unknown on claim). A
+                  non-keyed Show wouldn't re-render on a truthy→truthy value
+                  change, leaving the just-claimed quest stuck on screen until a
+                  page refresh. keyed re-renders when the quest identity changes. */}
+              <Show when={main()} keyed>
+                {(mq) => renderCard(mq, true)}
               </Show>
               <Show when={secondary().length === 0 && !main()}>
                 <p style={{ "color": "var(--text-muted)", "font-style": "italic" }}>
@@ -191,6 +225,7 @@ export default function QuestLog() {
               </For>
             </div>
           </Show>
+          </div>
         </div>
       </Show>
     );
@@ -232,6 +267,10 @@ export default function QuestLog() {
           ? "All caught up. Nothing waiting for you."
           : `${totalActive()} quest${totalActive() === 1 ? "" : "s"} active across your storylines.`}
       </p>
+
+      {/* The main-story spine — full parent width, its own gold-tinted frame,
+          pinned above the rest so it always reads as the throughline. */}
+      {renderStorylinePane("story", { mainStory: true })}
 
       {/* Two-column desk layout. Each side stacks its storylines vertically.
           Falls back to a single column on narrow viewports via auto-fit. */}
@@ -316,6 +355,10 @@ function QuestCard(props: {
   claimable: boolean;
   isUnseen?: boolean;
   main?: boolean;
+  /** Shown but not yet actionable — prerequisites unmet. Renders dimmed with the
+   *  requirements listed instead of a clickable objective. */
+  locked?: boolean;
+  lockReasons?: string[];
   onClaim: () => void;
   onSeen?: () => void;
 }) {
@@ -326,17 +369,26 @@ function QuestCard(props: {
   // is not a check-in and behaves like a normal quest.
   const isMemoryCheckin = () =>
     props.quest.rewards.length === 0 && (props.quest.unlocksBioFragments?.length ?? 0) > 0;
+  // Blue highlight = freshly active (not yet hovered) OR ready to claim. Memory
+  // check-ins are permanently "claimable" but have nothing to claim, so their
+  // claim half is dropped (matching the corner badge) — otherwise the outline
+  // would never fade after hover. Unseen-only highlights fade on hover.
+  const locked = () => !!props.locked;
+  // A locked card never glows — it's a preview of a beat that isn't live yet.
+  const highlight = () => !locked() && (props.isUnseen || (props.claimable && !isMemoryCheckin()));
   return (
     <div
       onMouseEnter={() => props.onSeen?.()}
       style={{
         "position": "relative",
+        // Dim when locked (prerequisites unmet), same treatment as locked cards
+        // elsewhere.
+        "filter": locked() ? "var(--locked-dim)" : "none",
         // The pinned main quest wears a gold frame (the standing goal); other
-        // cards highlight blue when freshly active (not yet hovered) OR ready to
-        // claim. Unseen-only highlights fade on hover; claimable ones stay.
+        // cards highlight blue via highlight().
         "border": props.main
           ? "1px solid var(--accent-gold)"
-          : (props.isUnseen || props.claimable)
+          : highlight()
           ? "1px solid var(--accent-blue)"
           : "1px solid var(--border-color)",
         // Square corners to sit consistently inside the squared chapter frame.
@@ -344,12 +396,12 @@ function QuestCard(props: {
         "margin-bottom": "10px",
         "background": props.main
           ? "rgba(212, 175, 55, 0.05)"
-          : (props.isUnseen || props.claimable)
+          : highlight()
           ? "rgba(96, 165, 250, 0.06)"
           : "var(--bg-primary)",
         "box-shadow": props.main
           ? "0 0 0 1px var(--accent-gold), 0 0 14px rgba(212, 175, 55, 0.22)"
-          : (props.isUnseen || props.claimable)
+          : highlight()
           ? "0 0 0 1px var(--accent-blue), 0 0 12px rgba(96, 165, 250, 0.25)"
           : "none",
         "transition": "background 0.25s, border-color 0.25s, box-shadow 0.25s",
@@ -382,7 +434,7 @@ function QuestCard(props: {
         </div>
       </Show>
 
-      <Show when={props.isUnseen || (props.claimable && !isMemoryCheckin())}>
+      <Show when={highlight()}>
         <div style={{
           "position": "absolute",
           "top": "8px",
@@ -445,6 +497,27 @@ function QuestCard(props: {
               hover underline + pointer cursor signal it's a link, replacing
               the previous "Go →" button. */}
           {(() => {
+            // Locked: the beat is visible but not yet actionable. Show the
+            // objective greyed with a lock icon; the requirement lives in a
+            // hover tooltip rather than a nagging inline line.
+            if (locked()) {
+              const lockText = () =>
+                props.lockReasons && props.lockReasons.length > 0
+                  ? `🔒 Locked — requires ${props.lockReasons.join(", ")}`
+                  : "🔒 Locked";
+              return (
+                <Tooltip text={lockText()}>
+                  <p style={{
+                    "margin": "8px 0 4px",
+                    "color": "var(--text-muted)",
+                    "font-size": "0.9rem",
+                    "cursor": "help",
+                  }}>
+                    🔒 {props.quest.objective}
+                  </p>
+                </Tooltip>
+              );
+            }
             // Memory-only check-ins: the objective IS the action. Clicking it
             // opens the memory modal (no separate Claim button on the card).
             if (isMemoryCheckin() && props.claimable) {

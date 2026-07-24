@@ -100,9 +100,13 @@ export function bossFrameAssets(tier: number): { frameUrl: string; slice: number
 export function missionFrameAssets(mission: MissionTemplate): {
   rarity: string; frameUrl: string; slice: number; ornamentV?: string; ornamentH?: string;
 } {
-  const rank = getMissionRank(mission.id)
-    ?? DIFFICULTY_TO_RANK[Math.max(1, Math.min(5, mission.difficulty))]
-    ?? "novice";
+  const poolRank = getMissionRank(mission.id);
+  // Story missions frame by their DIFFICULTY, not a flat legendary — a legendary
+  // frame on an easy story beat (e.g. a difficulty-2 "Past the Ruins") overstates
+  // the challenge and reads as misleading. Other pools keep their rank frame.
+  const rank = (!poolRank || poolRank === "story")
+    ? (DIFFICULTY_TO_RANK[Math.max(1, Math.min(5, mission.difficulty))] ?? "novice")
+    : poolRank;
   const rarity = RANK_FRAME_RARITY[rank] ?? "common";
   const orn = RARITY_ORNAMENT[rarity];
   return {

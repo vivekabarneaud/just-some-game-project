@@ -24,6 +24,10 @@ export interface EventBannerItem {
   onClick?: () => void;
   /** Optional color override — lets callers pick e.g. a season-specific accent. */
   accent?: string;
+  /** How long the banner STAYS on screen (ms) — independent of scroll speed; the
+   *  marquee loops at a constant pace during this window. Omit for
+   *  DEFAULT_SHOW_MS (12s); the season "… is coming" warnings pass 18s. */
+  durationMs?: number;
 }
 
 /** Default accents per event type. Callers can override via `accent`. */
@@ -55,9 +59,18 @@ export function dismissEvent(id: number): void {
  *  sync with the CSS keyframe duration on `.event-banner.exiting`. */
 const EXIT_ANIMATION_MS = 500;
 
-/** Safety fallback — if the marquee's animationend never fires (backgrounded
- *  tab, browser quirk), force-dismiss after this long. */
-const FALLBACK_MAX_MS = 20000;
+/** How long a banner STAYS on screen (ms) — independent of scroll speed. The
+ *  marquee scrolls at a fixed CSS speed and LOOPS; this timer governs when the
+ *  banner leaves, so a long message simply gets more passes to be read.
+ *  Overridable per banner via `durationMs` (season "… is coming" warnings: 18s). */
+const DEFAULT_SHOW_MS = 12000;
+
+/** Whether the viewer prefers reduced motion. When true the marquee does a
+ *  single slow pass (CSS) instead of looping. */
+const REDUCED_MOTION =
+  typeof window !== "undefined" &&
+  !!window.matchMedia &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /** Mount once near the topbar. Renders the currently-active banner if any. */
 export default function EventBanner() {
@@ -87,8 +100,12 @@ export default function EventBanner() {
     // Audible cue on appearance. Raids get the dramatic stinger; everything else
     // uses the soft neutral chime.
     playSound(c.type === "raid" ? "raid_stinger" : "notify_soft");
-    const fallback = setTimeout(() => startExit(c.id), FALLBACK_MAX_MS);
-    onCleanup(() => clearTimeout(fallback));
+    // Show time is decoupled from scroll speed: the marquee loops at a constant
+    // pace and the banner dismisses on this timer. Reduced motion does a single
+    // slow ~25s pass instead of looping.
+    const showMs = REDUCED_MOTION ? 25000 : (c.durationMs ?? DEFAULT_SHOW_MS);
+    const timer = setTimeout(() => startExit(c.id), showMs);
+    onCleanup(() => clearTimeout(timer));
   });
 
   // Keyed Show: when the queue advances, the DOM is rebuilt rather than
@@ -143,12 +160,6 @@ export default function EventBanner() {
             >
               <div
                 class="event-banner-marquee"
-                onAnimationEnd={(e) => {
-                  // Several animations fire animationend — only the scroll one
-                  // marks the banner as "done". Ignore entrance/exit frames.
-                  if (e.animationName !== "event-banner-scroll") return;
-                  startExit(item.id);
-                }}
                 style={{
                   display: "flex",
                   "align-items": "center",

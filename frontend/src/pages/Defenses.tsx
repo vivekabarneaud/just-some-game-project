@@ -416,6 +416,7 @@ function WallCard(props: { wall: PlayerWall; ring: DefenseRing; disabled: boolea
   const softBlocker = () => {
     if (props.disabled) return "Ring locked at this tier";
     if (props.wall.upgrading) return "Already upgrading";
+    if (damaged()) return "Damaged — repair first";
     return "";
   };
 
@@ -483,6 +484,7 @@ function WatchtowerCard(props: { tower: PlayerWatchtower; ring: DefenseRing; dis
   const softBlocker = () => {
     if (props.disabled) return "Ring locked at this tier";
     if (props.tower.upgrading) return "Already upgrading";
+    if (props.tower.damaged) return "Damaged — repair first";
     return "";
   };
 
@@ -599,6 +601,7 @@ function BarracksCard(props: { barracks: PlayerBarracks; ring: DefenseRing; disa
   const softBlocker = () => {
     if (props.disabled) return "Ring locked at this tier";
     if (props.barracks.upgrading) return "Already upgrading";
+    if (props.barracks.damaged) return "Damaged — repair first";
     return "";
   };
 
@@ -708,6 +711,7 @@ function MageTowerCard(props: { disabled: boolean }) {
   const softBlocker = () => {
     if (props.disabled) return "Inner ring locks the Mage Tower until Town tier";
     if (state.mageTower.upgrading) return "Already upgrading";
+    if (state.mageTower.damaged) return "Damaged — repair first";
     return "";
   };
 

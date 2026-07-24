@@ -107,6 +107,10 @@ export default function RecipeCard(props: RecipeCardProps) {
           const action = props.action as Extract<RecipeCardAction, { type: "craft" }>;
           const [qty, setQty] = createSignal(1);
           const max = () => action.maxQty();
+          // True craftable count: maxQty() floors to 1, so fall back to 0 when the
+          // player can't even afford one. Drives the Max button's label + disabled
+          // state (and reuses the craft button's own reason for the tooltip).
+          const realMax = () => (action.canCraft(1) ? max() : 0);
           const verb = () => action.verb ?? "Craft";
           return (
             <div class="recipe-card-actions" style={{ "margin-top": "auto", "padding-top": "8px", display: "flex", "align-items": "center", gap: "6px", "flex-wrap": "wrap" }}>
@@ -132,11 +136,14 @@ export default function RecipeCard(props: RecipeCardProps) {
                   style={{ width: "30px", height: "30px", background: "transparent", border: "3px solid transparent", "border-image": "url(/images/frames/item_frame_common.png) 40 stretch", "border-radius": "0", color: "var(--text-muted)", cursor: "pointer", "font-size": "0.85rem" }}
                 >+</button>
               </div>
-              <button
-                class="btn-tertiary"
-                onClick={() => setQty(max())}
-                style={{ padding: "4px 14px", "font-size": "0.72rem", "white-space": "nowrap" }}
-              >Max</button>
+              <Tooltip text={action.disabledReason(1)} position="bottom">
+                <button
+                  class="btn-tertiary"
+                  disabled={realMax() === 0}
+                  onClick={() => setQty(max())}
+                  style={{ padding: "4px 14px", "font-size": "0.72rem", "white-space": "nowrap" }}
+                >Max ({realMax()})</button>
+              </Tooltip>
               <Tooltip text={action.disabledReason(qty())} position="bottom">
                 <button
                   class="upgrade-btn"

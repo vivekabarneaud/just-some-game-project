@@ -2,6 +2,7 @@ import { createSignal, onMount, For, Show } from "solid-js";
 import { getXpForLevel, CLASS_COLORS } from "@medieval-realm/shared/data/adventurers";
 import type { MissionRosterEntry } from "@medieval-realm/shared/data/missions";
 import HpBar from "./HpBar";
+import { CONDITION_META } from "./AdventurerVitals";
 
 interface Props {
   roster: MissionRosterEntry[];
@@ -50,6 +51,15 @@ export default function MissionRosterStrip(props: Props) {
                 />
                 <Show when={e.died}>
                   <div style={{ position: "absolute", inset: "0", display: "flex", "align-items": "center", "justify-content": "center", "font-size": "1.6rem" }}>🪦</div>
+                </Show>
+                {/* Lingering-wound icons — at-a-glance flag on the portrait; the
+                    full explanation lives in the "Came home wounded" section. */}
+                <Show when={!e.died && (e.conditions?.length ?? 0) > 0}>
+                  <div style={{ position: "absolute", top: "2px", left: "2px", display: "flex", gap: "1px", "font-size": "0.8rem", "text-shadow": "0 1px 2px #000, 0 0 3px #000" }}>
+                    <For each={e.conditions!}>
+                      {(c) => <span title={CONDITION_META[c.type]?.label ?? c.type}>{CONDITION_META[c.type]?.icon ?? "❓"}</span>}
+                    </For>
+                  </div>
                 </Show>
               </div>
 

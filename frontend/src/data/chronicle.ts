@@ -65,7 +65,7 @@ export const QUEST_ENTRIES: ChronicleEntry[] = [
     title: "Sylvana's Blessing",
     category: "history",
     text: "One of your settlers mentioned that the old folk attributed the thickness of these forests to Sylvana's blessing — one of the old gods of the Eternal Court, associated with nature and growth. Whether it's true or just superstition, the forest IS unusually generous.",
-    unlockedBy: "the_foragers_path",
+    unlockedBy: "settlement_base_needs",
   },
   {
     id: "empty_woods",

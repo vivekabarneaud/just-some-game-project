@@ -622,31 +622,39 @@ export default function Buildings() {
                             </Show>
                           );
                         })()}
-                        {pb()?.damaged && (
-                          <div style={{ display: "flex", "align-items": "center", "justify-content": "space-between", gap: "8px" }}>
-                            <div class="building-card-upgrading" style={{ color: "var(--accent-red)" }}>
-                              Damaged — Inactive
+                        {pb()?.damaged && (() => {
+                          const cost = getRepairCost(building, level());
+                          const canRepair = () => state.resources.wood >= cost.wood && state.resources.stone >= cost.stone;
+                          const repairing = () => pb()?.repairRemaining != null;
+                          return (
+                            <div style={{ display: "flex", "align-items": "center", "justify-content": "space-between", gap: "8px" }}>
+                              <div class="building-card-upgrading" style={{ color: repairing() ? "var(--text-secondary)" : "var(--accent-red)" }}>
+                                {repairing() ? "Repairing" : "Damaged — Inactive"}
+                              </div>
+                              <Show
+                                when={repairing()}
+                                fallback={
+                                  <button
+                                    class="btn-primary"
+                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); actions.repairBuilding(building.id); }}
+                                    disabled={!canRepair()}
+                                    style={{
+                                      "font-size": "0.72rem",
+                                      "white-space": "nowrap",
+                                      "flex-shrink": 0,
+                                    }}
+                                  >
+                                    🔧 Repair (🪵{cost.wood} 🪨{cost.stone})
+                                  </button>
+                                }
+                              >
+                                <div class="building-card-upgrading" style={{ "flex-shrink": 0, "white-space": "nowrap" }}>
+                                  🔨 <Countdown remainingSeconds={pb()!.repairRemaining!} /> left
+                                </div>
+                              </Show>
                             </div>
-                            {(() => {
-                              const cost = getRepairCost(building, level());
-                              const canRepair = () => state.resources.wood >= cost.wood && state.resources.stone >= cost.stone;
-                              return (
-                                <button
-                                  class="btn-primary"
-                                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); actions.repairBuilding(building.id); }}
-                                  disabled={!canRepair()}
-                                  style={{
-                                    "font-size": "0.72rem",
-                                    "white-space": "nowrap",
-                                    "flex-shrink": 0,
-                                  }}
-                                >
-                                  🔧 Repair (🪵{cost.wood} 🪨{cost.stone})
-                                </button>
-                              );
-                            })()}
-                          </div>
-                        )}
+                          );
+                        })()}
                         {isUpgrading() && pb()?.upgradeRemaining && (
                           <div class="building-card-upgrading">
                             Upgrading to Lv. {level() + 1} —{" "}

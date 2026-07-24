@@ -104,7 +104,10 @@ export const STORY_MISSIONS: StoryMission[] = [
       { resource: "astralShards", amount: 1 },
     ],
     deployCost: 10,
-    difficulty: 2,
+    // Honest rating: this is the first fight you must actually WIN (a boss
+    // escort), unlike the guaranteed/discovery beats before it — so it reads a
+    // step harder than them (3 vs their 1-2).
+    difficulty: 3,
     minGuildLevel: 1,
     tags: ["combat", "magical", "escort"],
     // Interim alpha tuning: trimmed from boss + 3 wraiths + 5 spirits (an

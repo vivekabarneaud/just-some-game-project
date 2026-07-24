@@ -1,6 +1,8 @@
 import { Show, For, createSignal } from "solid-js";
 import Tooltip from "./Tooltip";
 import type { EnemyDefinition } from "@medieval-realm/shared/data/enemies";
+import { CardFrame } from "./CardFrame";
+import { tierFrame, bossFrameAssets } from "~/data/constants";
 
 // ─── Stat hints ─────────────────────────────────────────────────
 
@@ -119,14 +121,18 @@ function ReputationTooltipContent(props: { enemy: EnemyDefinition }) {
 export default function EnemyCard(props: EnemyCardProps) {
   const reveal = () => props.reveal ?? "full";
   const known = () => reveal() !== "none"; // portrait + name visible
-  const borderColor = () =>
-    !known() ? "rgba(150, 150, 150, 0.35)"
-    : props.enemy.boss ? "var(--accent-gold)"
-    : "rgba(231, 76, 60, 0.3)";
   const bg = () =>
     !known() ? "rgba(60, 60, 70, 0.2)"
     : props.enemy.boss ? "rgba(245, 197, 66, 0.08)"
     : "rgba(231, 76, 60, 0.06)";
+  // Rarity frame keyed to the enemy's tier (bosses get their bespoke frame where
+  // the art exists), matching the mission-panel / loot-modal frame language.
+  // Undiscovered foes always use the plain common frame so the frame can't leak
+  // how dangerous the hidden creature is. Ornament flourishes are suppressed
+  // (ornamentRarity "common") — they'd swamp a card this small.
+  const tier = () => props.enemy.tier ?? 1;
+  const bossFrame = () => (known() && props.enemy.boss ? bossFrameAssets(tier()) : null);
+  const rarityFrame = () => tierFrame(known() ? tier() : 1);
   const tooltip = () =>
     reveal() === "none" ? <HiddenEnemyTooltipContent />
     : reveal() === "portrait" ? <ReputationTooltipContent enemy={props.enemy} />
@@ -135,14 +141,11 @@ export default function EnemyCard(props: EnemyCardProps) {
     <Tooltip content={tooltip}>
       <div
         class="enemy-card"
-        style={{
-          background: bg(),
-          border: `1px solid ${borderColor()}`,
-        }}
+        style={{ background: bg() }}
       >
         <Show when={props.count != null}>
           <div style={{
-            position: "absolute", top: "3px", left: "3px", "z-index": 1,
+            position: "absolute", top: "3px", left: "3px", "z-index": 6,
             background: "rgba(0, 0, 0, 0.7)", color: "var(--text-primary)",
             "font-size": "0.75rem", "font-weight": "bold",
             padding: "1px 5px", "border-radius": "4px",
@@ -174,6 +177,14 @@ export default function EnemyCard(props: EnemyCardProps) {
         }}>
           {known() ? props.enemy.name : "???"}
         </div>
+        {/* Rarity/boss frame overlay — the same visual language as the mission
+            panel and loot modal, scaled down (thin border, no flourishes). */}
+        <Show
+          when={bossFrame()}
+          fallback={<CardFrame rarity={rarityFrame().rarity} slice={rarityFrame().slice} ornamentRarity="common" border={9} />}
+        >
+          <CardFrame frameSrc={bossFrame()!.frameUrl} slice={bossFrame()!.slice} ornamentRarity="common" border={9} />
+        </Show>
       </div>
     </Tooltip>
   );

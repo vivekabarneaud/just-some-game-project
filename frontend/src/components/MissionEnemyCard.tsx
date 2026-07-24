@@ -22,10 +22,6 @@ export default function MissionEnemyCard(props: MissionEnemyCardProps) {
   const reveal = () => props.reveal ?? "full";
   const known = () => reveal() !== "none";      // portrait + name visible
   const showAbilities = () => reveal() === "full"; // combat measure — only after fought
-  const borderColor = () =>
-    !known() ? "rgba(150, 150, 150, 0.35)"
-    : props.enemy.boss ? "var(--accent-gold)"
-    : "rgba(231, 76, 60, 0.45)";
   const bg = () =>
     !known() ? "rgba(60, 60, 70, 0.2)"
     : props.enemy.boss ? "rgba(245, 197, 66, 0.08)"
@@ -40,7 +36,6 @@ export default function MissionEnemyCard(props: MissionEnemyCardProps) {
       position: "relative",
       display: "flex", "flex-direction": "column",
       background: bg(),
-      border: `1px solid ${borderColor()}`,
       "border-radius": "0",
       width: "var(--assembly-card-width, 140px)",
     }}>
@@ -48,8 +43,10 @@ export default function MissionEnemyCard(props: MissionEnemyCardProps) {
           plain rarity frame. */}
       {(() => {
         const bf = props.enemy.boss ? bossFrameAssets(props.enemy.tier) : null;
+        // Boss flourish leaks a little OUTSIDE the frame (negative inset) so it
+        // straddles the band instead of being pushed onto the inner content.
         return bf
-          ? <CardFrame frameSrc={bf.frameUrl} slice={bf.slice} ornamentSrc={bf.ornament} border={14} ornamentSize={18} ornamentInset={2} z={6} />
+          ? <CardFrame frameSrc={bf.frameUrl} slice={bf.slice} ornamentSrc={bf.ornament} border={14} ornamentSize={18} ornamentInset={-4} z={6} />
           : <CardFrame rarity={tierFrame(props.enemy.tier).rarity} border={14} ornamentSize={18} ornamentInset={2} z={6} />;
       })()}
       {/* Portrait area + name overlay. Same shape as the team card. */}

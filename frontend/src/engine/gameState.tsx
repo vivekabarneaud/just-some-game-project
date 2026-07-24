@@ -536,6 +536,10 @@ export interface PlayerOrchard {
 
 export interface GameState {
   resources: ResourceState;
+  /** Net food change per hour from the last tick (production minus citizen +
+   *  animal consumption). Derived/transient — surfaced so quest triggers and UI
+   *  can gate on a genuine food surplus/deficit rather than raw stock. */
+  netFoodPerHour?: number;
   buildings: PlayerBuilding[];
   fields: PlayerField[];
   gardens: PlayerGarden[];
@@ -4326,6 +4330,7 @@ export function GameProvider(props: ParentProps) {
         const caps = calcStorageCaps(s.buildings);
         const maxPop = calcMaxPopulation(s.buildings);
         const netFoodRate = rates.food - citizenFood - animalFood;
+        s.netFoodPerHour = netFoodRate; // surfaced for surplus-gated quests + UI
 
         // Happiness production modifier: 100% baseline, drops below 50 happiness, bonus above 80
         const happinessMod = s.happiness >= 80 ? 1 + (s.happiness - 80) / 100  // 80→100% = 1.0→1.2
@@ -5467,6 +5472,9 @@ export function GameProvider(props: ParentProps) {
                   leveledUp: (before?.level ?? adv.level) < adv.level,
                   died,
                   revived: revived.includes(adv.id),
+                  // Lingering wounds applied just above (adv.conditions) — pass a
+                  // copy so the loot modal can warn about e.g. the froth.
+                  conditions: adv.conditions?.map((c) => ({ ...c })),
                 };
               });
 
@@ -5520,6 +5528,36 @@ export function GameProvider(props: ParentProps) {
             const active = new Set(s.activeMissions.map((m) => m.missionId));
             for (const m of eligiblePinnedMissions(boardCtx)) {
               if (!onBoard.has(m.id) && !active.has(m.id)) s.missionBoard.push(m);
+            }
+          }
+          // Soft-lock recovery: if the player has no working way to PRODUCE a core
+          // building resource (mill/quarry unbuilt or damaged) AND no way to BUY it
+          // (no working marketplace) AND is effectively out of it, force the relevant
+          // gathering mission onto the board so they can dig themselves out (e.g. a
+          // raid rubbles the lumber mill and steals all the wood, no marketplace yet —
+          // 0 wood means the repair is unaffordable). Injected immediately like the
+          // pinned beats above, bypassing the daily 3AM reroll.
+          {
+            const onBoard = new Set(s.missionBoard.map((m) => m.id));
+            const active = new Set(s.activeMissions.map((m) => m.missionId));
+            const doneUnique = new Set(s.completedUniqueMissionIds ?? []);
+            const producing = (id: string) =>
+              s.buildings.some((b) => b.buildingId === id && b.level > 0 && !b.damaged);
+            const marketOk = producing("marketplace");
+            const forceMission = (id: string) => {
+              if (onBoard.has(id) || active.has(id)) return;
+              const m = MISSION_POOL.find((mm) => mm.id === id);
+              if (!m || m.staged) return;
+              if (guildLvl < (m.minGuildLevel ?? 1)) return; // no guild, no injection
+              if (m.unique && doneUnique.has(id)) return;
+              s.missionBoard.push(m);
+              onBoard.add(id);
+            };
+            if (!marketOk && !producing("lumber_mill") && s.resources.wood < 40) {
+              forceMission("gather_timber");
+            }
+            if (!marketOk && !producing("quarry") && s.resources.stone < 40) {
+              forceMission(doneUnique.has("quarry_expedition_first") ? "quarry_expedition" : "quarry_expedition_first");
             }
           }
           if (lastRefresh < today3am.getTime()) {
@@ -7455,6 +7493,8 @@ export function GameProvider(props: ParentProps) {
     buildOrUpgradeWall(ring) {
       const slot = state.walls.find((w) => w.ring === ring);
       if (!slot || slot.upgrading) return false;
+      // Damaged (hp below full for its level) must be repaired before upgrading.
+      if (slot.level > 0 && slot.hp < slot.level * WALL_BASE_HP) return false;
       const tier = this.getSettlementTier();
       if (!ringUnlocked(ring, tier)) return false;
       const masonLvl = state.buildings.find((b) => b.buildingId === "masons_guild")?.level ?? 0;
@@ -7475,6 +7515,7 @@ export function GameProvider(props: ParentProps) {
     buildOrUpgradeWatchtower(ring) {
       const slot = state.watchtowers.find((t) => t.ring === ring);
       if (!slot || slot.upgrading) return false;
+      if (slot.damaged) return false; // repair before upgrading
       const tier = this.getSettlementTier();
       if (!ringUnlocked(ring, tier)) return false;
       const masonLvl = state.buildings.find((b) => b.buildingId === "masons_guild")?.level ?? 0;
@@ -7495,6 +7536,7 @@ export function GameProvider(props: ParentProps) {
     buildOrUpgradeBarracks(ring) {
       const slot = state.barracks.find((b) => b.ring === ring);
       if (!slot || slot.upgrading) return false;
+      if (slot.damaged) return false; // repair before upgrading
       const tier = this.getSettlementTier();
       if (!ringUnlocked(ring, tier)) return false;
       const masonLvl = state.buildings.find((b) => b.buildingId === "masons_guild")?.level ?? 0;
@@ -7522,6 +7564,7 @@ export function GameProvider(props: ParentProps) {
       // Inner-ring-locked: only buildable once the Inner ring itself is
       // unlocked (Town tier per ringUnlocked). Single instance.
       if (state.mageTower.upgrading) return false;
+      if (state.mageTower.damaged) return false; // repair before upgrading
       const tier = this.getSettlementTier();
       if (!ringUnlocked("inner", tier)) return false;
       const masonLvl = state.buildings.find((b) => b.buildingId === "masons_guild")?.level ?? 0;

@@ -486,12 +486,16 @@ export const ENEMIES: EnemyDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/captain_hale_ghost_portrait.png",
     description: "He held the post for forty-seven days after the order to fall back never came. The Wastes wore him down to grief and silence. Now he stands his line still, and the dead under him will not let go.",
     revealPortrait: true, // his name + story are in the journal before we face him
-    tier: 3,
+    tier: 2, // cosmetic (frame only) — an early Chapter-1 boss, not a mid-tier one
     stats: { str: 14, dex: 14, int: 24, vit: 26, wis: 18 },
     tags: ["ghost", "magical"],
     boss: true,
-    aiTier: "cunning",       // ignores threat, hunts priest/wizard backline
-    tauntImmunity: "normal", // bosses don't fall for warrior taunt
+    // A tired, anguished soul who "stands his line" — not a scheming elite. He
+    // fights whoever presses him (threat-aware) and CAN be goaded by a warrior's
+    // taunt, rather than coldly hunting the backline. Makes the first real fight
+    // winnable by peeling him onto the tank.
+    aiTier: "tactical",
+    tauntImmunity: "none",
     abilities: [
       { id: "spectral_lash", name: "Spectral Lash", icon: "💢", cooldown: 2, trigger: "always",
         effect: { type: "damage_mult", mult: 1.75, targets: 1 } },
@@ -592,7 +596,9 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "👻",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/wailing_phantom.png",
     description: "The boundary between realms is thin near the Wastes. This one remembers how it died, and wants you to share the experience.",
-    tier: 3,
+    // Cosmetic only (tier drives the card frame, not combat). Kept at tier 2 so
+    // an early Chapter-1 foe doesn't wear the tier-3 "rare" frame.
+    tier: 2,
     stats: { str: 8, dex: 14, int: 22, vit: 12, wis: 16 },
     tags: ["ghost"],
     loot: [

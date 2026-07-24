@@ -1,4 +1,4 @@
-import type { AdventurerClass } from "../adventurers.js";
+import type { AdventurerClass, AdventurerCondition } from "../adventurers.js";
 import type { EnemyTag } from "../enemies.js";
 
 // ─── Mission types ──────────────────────────────────────────────
@@ -247,6 +247,9 @@ export interface MissionRosterEntry {
   leveledUp: boolean;
   died: boolean;
   revived: boolean;
+  /** Lingering conditions the hero came home with (bleed/poison/froth). Surfaced
+   *  in the loot modal so a regen-blocking wound like the froth isn't missed. */
+  conditions?: AdventurerCondition[];
 }
 
 export interface CompletedMission {

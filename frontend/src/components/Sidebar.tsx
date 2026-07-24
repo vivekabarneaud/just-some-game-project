@@ -49,14 +49,13 @@ const navSections: { title: string; items: NavItem[] }[] = [
     title: "Crafting",
     items: [
       { path: "/kitchen", icon: "🍳", label: "The Kitchens" },
+      { path: "/alchemy", icon: "🧪", label: "Alchemy" },
       { path: "/tailoring", icon: "🧵", label: "Tailoring" },
       { path: "/woodworker", icon: "🪚", label: "Woodworker" },
       { path: "/blacksmith", icon: "🔨", label: "Blacksmith" },
       { path: "/leatherworking", icon: "🪡", label: "Leatherworking" },
-      { path: "/alchemy", icon: "🧪", label: "Alchemy" },
       { path: "/enchanting", icon: "✨", label: "Enchanting" },
       { path: "/jewelcrafting", icon: "💎", label: "Jewelcrafting" },
-      { path: "/inventory", icon: "🎒", label: "Inventory" },
     ],
   },
   {
@@ -68,6 +67,7 @@ const navSections: { title: string; items: NavItem[] }[] = [
   {
     title: "World",
     items: [
+      { path: "/inventory", icon: "🎒", label: "Inventory" },
       { path: "/map", icon: "🗺️", label: "World Map" },
       { path: "/leaderboard", icon: "🏆", label: "Leaderboard" },
       { path: "/shrine", icon: "🔮", label: "Shrine" },
@@ -189,13 +189,17 @@ export default function Sidebar(props: SidebarProps) {
   const unseenQuestCount = () => {
     // Count of active quests that are either un-hovered or claim-ready.
     // Hovering only dismisses "new"; a claimable quest keeps signaling
-    // until the player claims it.
+    // until the player claims it — EXCEPT reward-less quests (e.g. the "social"
+    // memory check-ins like "See to Edda"), which have no Claim action to ever
+    // clear them and are permanently `condition: () => true`. For those, hover
+    // is the only dismissal, so seen-is-enough — otherwise the badge nags forever.
     const seen = state.questsClaimableSeen ?? [];
     let n = 0;
     for (const q of QUEST_DEFINITIONS) {
       if (state.questRewardsClaimed?.includes(q.id)) continue;
       if (!isQuestTriggered(q, state)) continue;
-      if (!seen.includes(q.id) || q.condition(state)) n++;
+      const claimable = q.rewards.length > 0 && q.condition(state);
+      if (!seen.includes(q.id) || claimable) n++;
     }
     return n;
   };

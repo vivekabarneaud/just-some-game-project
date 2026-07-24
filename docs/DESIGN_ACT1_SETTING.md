@@ -14,6 +14,18 @@ The Crown reopened the southern frontier with **land grants**, then largely **fo
 - **ALL AROUND — the wild** (forest / meadow / river / hills): beasts (wolves, boars, bears, spiders), goblins (hills, deferred), bandits (the lawless frontier), and the restless dead **out there** (per the home-is-safe rule).
 - **THE WOODS — the Thornveil** (Niamh, Rowena, the Silvaneth, the ward-stones). Future allies; keepers of the line.
 
+## Geography (from the hand-drawn map, 2026-07)
+A sketched reference map exists (settlement + surroundings, drawn by the designer). The canonical layout:
+- **The river runs down from the north** — past **Tessoria** (the Crown seat, far north) and **Hometown** (the settlers' origin, up-river) to the settlement, where it **bends** (the fishing-hut bend) and branches. The river is the lifeline north: supplies, news, the tithe, and — later — the Inquisition all come *down* it.
+- **The settlement sits in forest, just NORTH of the thinning** — close to the wrong side without knowing it. That closeness is the "Crown forgot" ignorance made spatial (below); it's the quiet dread Chapter 1 builds on.
+- **The thinning is a roughly east–west boundary**, marked by the **ward-stone belt** (Thornveil work; the Crown neither knows of it nor would tolerate it). The belt is a **retreating line**: the deeper *southern* stones were overrun long ago as the thinning crept north; the stones near the watch are part of the current *held* edge, not a continuous wall.
+- **The Old Watch (Hale's ruin) sits ~2 days south, on the held line, between its two flanking stones (east & west).** Both stand whole today (one re-set after the garrison fell), so the watch ground is quiet to the scouts. Its position relative to the stones is **incidental** — Hale's was a forward recon post, not a ward-guard (see below).
+- **Aldith's marsh (the reeds) is at the WESTERN edge of the thinning** — the bad ground bleeds up into her water, which is why the taint / maddened-animals arc originates there. (This present-day taint comes from the overrun southern belt, not the mended watch stones.)
+- **The Wastes proper are far south.** Hale's journal names **seven days' march** to the Wastes — a *stale historical* figure. Today the wrongness is felt about **three days south of the old watch** (the "count the days honestly" reveal in *Past the Ruins*): the edge has crept ~4 days closer in 150 years. On the map, draw the deep Wastes far south (the dread), with the thinning edge crept close to home.
+
+### Why the settlement is here — Crown-forgot, not deliberate `[LOCKED]`
+The grant was **ignorant frontier expansion for tithe revenue**, not a knowing placement near danger: *"the Crown forgot, didn't lie"* — the Tessoria land office hasn't looked at this frontier in ~150 years ("settlers take the risk; the Crown takes the tax"). The Crown fears/suppresses **all** magic (the Doctrine of Silence, the Inquisition) and does **not** monitor the Wastes. **Hale's garrison** was a forward recon post whose 47-day fall was institutionally **buried** — "no one was ever sent to find out why." Its nearness to the ward stones is coincidence: his men suffered because they stood *beyond* the intact stone's reach, not because they guarded a line. (Refs: `LORE_TIMELINE` "the Crown forgets" / Hale's posting; `LORE_AUDIT_2026-06-11` "Crown-forgot-not-lied" + "ward canon LOCKED"; the earlier "posted to guard the ward line" reading is retconned.)
+
 ## Trade = thin & dangerous, not bustling
 Frontier-grade: a lone peddler daring the road, a rare Dominion supply wagon, barter with a neighbouring grant. The road's danger comes FROM the thinness — a single wagon is a target. The **Marketplace** = frontier barter / scarcity, not a market square.
 

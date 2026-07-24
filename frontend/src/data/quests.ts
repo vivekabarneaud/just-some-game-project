@@ -10,7 +10,7 @@ export type StorylineId = "settlement" | "guild" | "story" | "defense" | "social
 export const STORYLINE_LABELS: Record<StorylineId, string> = {
   settlement: "Settlement",
   guild: "Adventurer's Guild",
-  story: "The Lord's Journal",
+  story: "The Main Story",
   defense: "Defense",
   social: "The Folk",
 };
@@ -55,8 +55,15 @@ export type QuestTrigger =
 // ─── Quest definition ────────────────────────────────────────────
 
 export interface QuestReward {
-  resource: "gold" | "wood" | "stone" | "wheat" | "wool" | "astralShards";
+  resource: "gold" | "wood" | "stone" | "wheat" | "fish" | "wool" | "astralShards";
   amount: number;
+  label: string;
+}
+
+export interface QuestPrerequisite {
+  /** True when this prerequisite is satisfied. */
+  met: (state: GameState) => boolean;
+  /** Short label shown on the locked card, e.g. "an Adventurer's Guild". */
   label: string;
 }
 
@@ -78,6 +85,13 @@ export interface QuestDefinition {
   /** Activates when ANY trigger fires (OR semantics). For AND, set `requiresAll`. */
   triggers: QuestTrigger[];
   requiresAll?: boolean;
+
+  /** Optional "shown but locked" gate. An active quest whose prerequisites are
+   *  not all met is displayed (so the player sees the beat is coming) but
+   *  rendered LOCKED — greyed, its requirements listed, not yet actionable.
+   *  Used for the main-story opener (Scouting, visible from the start, locked
+   *  until there's a guild to send scouts from). */
+  prerequisites?: QuestPrerequisite[];
 
   /** Completion condition. */
   condition: (state: GameState) => boolean;
@@ -129,6 +143,16 @@ const chapterUnlocked = (
   // legacy save backfills).
   return cs.current >= chapter || cs.completedChapters.includes(chapter);
 };
+
+/** All of a quest's prerequisites satisfied? Quests with none are always "met". */
+export function questPrerequisitesMet(quest: QuestDefinition, state: GameState): boolean {
+  return (quest.prerequisites ?? []).every((p) => p.met(state));
+}
+
+/** Labels of the prerequisites NOT yet satisfied — shown on the locked card. */
+export function unmetPrerequisiteLabels(quest: QuestDefinition, state: GameState): string[] {
+  return (quest.prerequisites ?? []).filter((p) => !p.met(state)).map((p) => p.label);
+}
 
 export const evalTrigger = (trigger: QuestTrigger, state: GameState): boolean => {
   switch (trigger.type) {
@@ -255,62 +279,29 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     // edda_first_fire memory deferred to the "See to Edda" social check-in.
   },
   {
-    id: "the_sawhorse",
+    id: "settlement_base_needs",
     storyline: "settlement",
     chapter: 1,
-    title: "The Sawhorse",
+    title: "Putting Down Roots",
     narrative:
-      "Jory walked the tree line this morning with the back of his axe, tapping trunks and listening. He has returned with a list of three good pines and a muttered opinion about the others. I promised him a proper mill before the week is out.",
-    objective: "Build a Lumber Mill",
-    icon: "🪓",
+      "Tents and a wagon are not a home. Before this camp is anything, it has to work: timber to build with, stone to build from, and, above all, food we are not chasing down every morning. Get a mill, a quarry, and a forager's hut standing, and we have a footing. Everything else grows from there.",
+    objective: "Build a Lumber Mill, a Stone Quarry, and a Forager's Hut",
+    icon: "🏕️",
+    // Merged (2026-07) from the old three build quests (The Sawhorse / The First
+    // Cut / The Forager's Path). Their founder-memory beats now live in the
+    // "See to X" social check-ins, so the opener is one line, not three nagging
+    // build cards, at the very start.
     triggers: [{ type: "game_start" }],
-    condition: (s) => (bldg(s, "lumber_mill")?.level ?? 0) >= 1,
-    rewards: [
-      { resource: "wood", amount: 30, label: "Wood" },
-      { resource: "stone", amount: 40, label: "Stone" },
-    ],
-    targetBuildingId: "lumber_mill",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/the_sawhorse.png",
-    // jory_sawhorse memory deferred to the "See to Jory" social check-in.
-  },
-  {
-    id: "the_first_cut",
-    storyline: "settlement",
-    chapter: 1,
-    title: "The First Cut",
-    narrative:
-      "Tomas sharpened his chisel twice before lunch and asked me nothing. That is how he asks for a proper quarry: quietly, and without waiting for permission. The ridge of stone to the north will do.",
-    objective: "Open the Stone Quarry",
-    icon: "⛏️",
-    triggers: [{ type: "game_start" }],
-    condition: (s) => (bldg(s, "quarry")?.level ?? 0) >= 1,
+    condition: (s) =>
+      (bldg(s, "lumber_mill")?.level ?? 0) >= 1 &&
+      (bldg(s, "quarry")?.level ?? 0) >= 1 &&
+      (bldg(s, "forager_hut")?.level ?? 0) >= 1,
     rewards: [
       { resource: "wood", amount: 60, label: "Wood" },
-      { resource: "stone", amount: 10, label: "Stone" },
+      { resource: "stone", amount: 40, label: "Stone" },
     ],
-    targetBuildingId: "quarry",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/the_first_cut.png",
-    // tomas_quarry memory deferred to the "See to Tomas" social check-in.
-  },
-  {
-    id: "the_foragers_path",
-    storyline: "settlement",
-    chapter: 1,
-    title: "The Forager's Path",
-    narrative:
-      "The forest gives more than we can carry. Edda brings back mushrooms; Nell brings back everything she finds, including the things Edda tells her to put back. We need a hut. A roof and a table and a door that closes. Things spoil, and we are not yet wealthy enough to waste anything.",
-    objective: "Build a Forager's Hut",
-    icon: "🫐",
-    triggers: [{ type: "game_start" }],
-    condition: (s) => (bldg(s, "forager_hut")?.level ?? 0) >= 1,
-    rewards: [
-      { resource: "wood", amount: 30, label: "Wood" },
-      { resource: "stone", amount: 5, label: "Stone" },
-    ],
-    targetBuildingId: "forager_hut",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/the_foragers_path.png",
-    // edda_forager_hut memory is parked for now (no longer fires on the build);
-    // it can be re-homed to a later check-in round when those land.
+    targetPage: "/buildings",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/the_sawhorse.png",
   },
   // NOTE: "The Growing Pile" (Warehouse) was cut here (2026-07-09). It was the
   // 5th consecutive "build a thing" quest gating Ch1 → the hunters, and a
@@ -393,9 +384,13 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
       "Edda has taken to hanging onions from a tent pole and calling it a pantry. It is not a pantry. The one in Ashwick was a stone room that smelled of root vegetables and salt; ours will be wood-floored and smell of nothing yet. Tomas says the cellar can go down four feet before we hit the water table. That will do.",
     objective: "Build a Pantry",
     icon: "🥫",
-    // Fires once food is actually piling up (not during the early deficit) —
-    // asking for storage only lands once there's a surplus worth storing.
-    triggers: [{ type: "custom", check: (s) => getTotalFood(s.foods) >= 60 }],
+    // Fires once there's a real stockpile worth storing — a STABLE stock check,
+    // not a per-hour rate. (The rate flaps in and out as population/season
+    // shift, and the stored net-rate isn't the same number the resource bar
+    // shows, so gating on it made the quest blink in during a visible deficit.)
+    // The starting larder is well under 100, so this no longer fires during the
+    // early deficit; it appears once food production has built an actual surplus.
+    triggers: [{ type: "custom", check: (s) => getTotalFood(s.foods) >= 100 }],
     condition: (s) => (bldg(s, "pantry")?.level ?? 0) >= 1,
     rewards: [
       { resource: "wood", amount: 50, label: "Wood" },
@@ -632,6 +627,61 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     // investigate_old_watch (which pointed at story_2).
     triggers: [{ type: "story_mission_completed", missionId: "story_2_ruins" }],
     condition: (s) => (s.completedStoryMissions ?? []).includes("story_3_dark_treeline"),
+    rewards: [],
+    targetPage: "/guild",
+  },
+  {
+    id: "good_fishing_water",
+    storyline: "settlement",
+    // Chapter 4 (terminal), NOT 1 — deliberately. This quest can't fire until
+    // AFTER Scouting (which needs the guild, which comes after the Thornwoods),
+    // and `isChapterComplete` counts every quest in a chapter (even untriggered
+    // ones) + claiming auto-advances. Parking it in ch1 made ch1 permanently
+    // incompletable → the hunters, gated on ch1-done, never arrived. Only ch1 &
+    // ch3 completions are gated by events, and ch4 is terminal, so a late nudge
+    // here blocks no progression. (The Fishing Hut unlock keys off this quest
+    // being *triggered*, not claimed, so the chapter is irrelevant to that.)
+    chapter: 4,
+    title: "A Bend in the River",
+    narrative:
+      "The scouts marked a slow bend where the river pools deep and the fish all but crowd the shallows. A dock and a few nets there, and we would not go hungry through the cold, when the game thins and the ground gives nothing. Worth the wood.",
+    objective: "Build a Fishing Hut",
+    icon: "🐟",
+    // Fires off the first scouting run (the river-bend find) and gates the
+    // Fishing Hut, so the hut surfaces as a consequence of the discovery rather
+    // than of the Kitchen going up.
+    triggers: [{ type: "story_mission_completed", missionId: "story_1_scouting" }],
+    condition: (s) => (bldg(s, "fishing_hut")?.level ?? 0) >= 1,
+    rewards: [{ resource: "fish", amount: 20, label: "Fish" }],
+    targetBuildingId: "fishing_hut",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/fishing_hut.png",
+  },
+
+  // ╔══════════════════════════════════════════════════════════════╗
+  // ║ THE MAIN STORY — the narrative spine (its own panel)         ║
+  // ║ NOTE (WIP): during the Ch1 restructure the rest of the spine ║
+  // ║ moves here from the guild storyline. For now this seeds the  ║
+  // ║ Main Story panel with its shown-but-locked opener; it        ║
+  // ║ overlaps `into_the_unknown` until that reconciliation.       ║
+  // ╚══════════════════════════════════════════════════════════════╝
+  {
+    id: "spine_scouting",
+    storyline: "story",
+    chapter: 1,
+    main: true,
+    title: "Scouting the Surroundings",
+    narrative:
+      "We came here half-blind, on a clerk's map that never felt this ground. The camp has its first roofs up now, and before we push out any further I want to know what is truly around us: water, game, stone, and whatever is out there that would rather we had not come. The moment the guild can spare a team, we send them.",
+    objective: "Send scouts to map the surroundings",
+    icon: "🗺️",
+    // The spine's opener. Visible from the very start so the player always sees
+    // where the story begins, but LOCKED until there is a guild to send scouts
+    // from (which itself opens once the Thornwoods arrive).
+    triggers: [{ type: "game_start" }],
+    prerequisites: [
+      { met: (s) => (bldg(s, "adventurers_guild")?.level ?? 0) >= 1, label: "an Adventurer's Guild" },
+    ],
+    condition: (s) => (s.completedStoryMissions ?? []).includes("story_1_scouting"),
     rewards: [],
     targetPage: "/guild",
   },

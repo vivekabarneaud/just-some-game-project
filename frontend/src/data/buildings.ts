@@ -571,13 +571,12 @@ export const BUILDINGS: BuildingDefinition[] = [
     maxLevel: 10,
     levels: generateLevels({ wood: 35, stone: 10 }, 6, { resource: "food", baseRate: 12, foodType: "fish" }, 10),
     requiredTier: "camp",
-    // No dedicated quest — surfaces once the Kitchen is up. The player has
-    // just had their first cooking experience (grilled_mushrooms) and is
-    // looking at the smoked_fish recipe wondering where the fish come from;
-    // the locked card flipping to buildable answers the question without
-    // a quest. Fishing drops to 50% in winter, so picking it up early is
-    // also a strategic hedge before the cold.
-    unlockedAt: { requiresBuildings: ["kitchen"] },
+    // Surfaces off the first scouting run: the scouts find the river bend good
+    // for fishing (the "good_fishing_water" quest), which is the causal reason
+    // to build here, rather than the hut appearing when the Kitchen goes up.
+    // Fishing drops to 50% in winter, so picking it up early is a strategic
+    // hedge before the cold.
+    unlockedAt: { requiresQuestTriggered: "good_fishing_water" },
   },
 
   // Village tier — Brewery & Tavern (ale chain + happiness)

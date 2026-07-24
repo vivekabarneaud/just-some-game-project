@@ -74,11 +74,13 @@ export default function Alchemy() {
     if (!recipe) return "Recipe not found";
     if (recipe.minLabLevel > labLevel()) return `Requires Lab Lv.${recipe.minLabLevel}`;
     if (activeCrafts().length >= labLevel() + 1) return "Brewing queue full. Upgrade the Lab to brew more.";
+    // Name the material when exactly one is short; generic note when several.
+    const missing: string[] = [];
     for (const cost of recipe.costs) {
-      if (have(cost.resource) < cost.amount * qty) {
-        return `Not enough ${ingredientMeta(cost.resource).name}`;
-      }
+      if (have(cost.resource) < cost.amount * qty) missing.push(ingredientMeta(cost.resource).name);
     }
+    if (missing.length === 1) return `Not enough ${missing[0]}`;
+    if (missing.length > 1) return "Not enough materials";
     return null;
   };
 

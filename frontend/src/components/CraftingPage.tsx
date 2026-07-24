@@ -290,18 +290,20 @@ export default function CraftingPage(props: CraftingPageProps) {
     if (missingTool) return `Requires ${missingTool.name}`;
     // No queue limit — any overflow just enters as pending and picks up when
     // a slot frees. Slot count still informs display ("active vs. pending").
+    // Name the material when exactly one is short; a generic note when several
+    // are, so the tooltip stays readable instead of listing every shortfall.
+    const missing: string[] = [];
     for (const cost of recipe.costs) {
       const have = getResourceAmount(cost.resource);
       if (have < cost.amount * qty) {
-        if (cost.resource === "grain") return "Not enough grain (wheat or barley)";
-        if (cost.resource === "wild") return "Not enough foraged food (berries, mushrooms, or nuts)";
-        if (isFoodItemType(cost.resource)) {
-          const meta = getFoodMeta(cost.resource as FoodItemType);
-          return `Not enough ${meta.label.toLowerCase()}`;
-        }
-        return `Not enough ${cost.resource.replace(/_/g, " ")}`;
+        if (cost.resource === "grain") missing.push("grain (wheat or barley)");
+        else if (cost.resource === "wild") missing.push("foraged food (berries, mushrooms, or nuts)");
+        else if (isFoodItemType(cost.resource)) missing.push(getFoodMeta(cost.resource as FoodItemType).label.toLowerCase());
+        else missing.push(cost.resource.replace(/_/g, " "));
       }
     }
+    if (missing.length === 1) return `Not enough ${missing[0]}`;
+    if (missing.length > 1) return "Not enough materials";
     return null;
   };
 

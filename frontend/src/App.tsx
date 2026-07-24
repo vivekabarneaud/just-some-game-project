@@ -153,11 +153,14 @@ export default function App(props: ParentProps) {
     });
     if (!note || note.tone !== "danger") return;
     lastSeasonWarnKey = key;
+    // A long "… is coming" warning — keep it on screen longer (18s vs the 12s
+    // default) so it can be read comfortably across a couple of scroll passes.
     showEvent({
       type: "season",
       icon: SEASON_META[next].icon,
       message: `${note.headline}. ${note.detail}`,
       accent: "var(--accent-gold)",
+      durationMs: 18000,
       onClick: () => navigate("/"),
     });
   });
