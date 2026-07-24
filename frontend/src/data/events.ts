@@ -20,7 +20,14 @@ export interface EventUnlocks {
    *  scripted story raids land deterministically instead of relying on the
    *  probabilistic spawner. The raid uses its template baseWarning (adjusted
    *  by current watchtower level) for its warning timer. */
-  raidSpawn?: { raidId: string };
+  raidSpawn?: {
+    raidId: string;
+    /** Override the warning countdown (in real seconds at 1x) instead of the
+     *  raid's baseWarning formula. For scripted story raids that should land
+     *  quickly — e.g. the treeline wolves, already at the wall — rather than the
+     *  hours a normal warning gives. */
+    warningSeconds?: number;
+  };
   /** Add citizens to the settlement when the event fires. Used to make story
    *  arrivals (families arriving, refugees joining, etc.) actually materialize
    *  on the population counter instead of staying purely narrative. */
@@ -189,9 +196,11 @@ export const NARRATIVE_EVENTS: NarrativeEvent[] = [
     id: "event_treeline_wolves",
     triggers: [{ type: "quest_completed", questId: "the_first_threat" }],
     banner:
-      "The wall is barely settled on its footings when the first of them slips out of the trees — a lean grey shape, then more behind it, noses to the wind. The treeline has teeth after all. Gareth is already climbing to the watch.",
+      "The wall is barely settled on its footings when the first of them slips out of the trees — a lean grey shape, then more behind it, noses to the wind. The treeline has teeth after all. Gareth is already climbing to the watch. Watch them come from the Overview.",
     unlocks: {
-      raidSpawn: { raidId: "gaunt_wolf_pack" },
+      // Already at the treeline — a short, visible warning (~2.5 min), not the
+      // hours the baseWarning formula would give.
+      raidSpawn: { raidId: "gaunt_wolf_pack", warningSeconds: 150 },
     },
   },
 

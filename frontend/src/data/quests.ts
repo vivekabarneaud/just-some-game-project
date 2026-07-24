@@ -630,9 +630,11 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
       "The scouts came back with a map and a knot in their story: an old watchtower to the south, stone that has outlived whoever raised it. Worth walking its halls, if the place is as empty as it looks. Send a team, and send someone who can hold a line, just in case it is not.",
     objective: "Send a team to investigate the Old Watch",
     icon: "🏚️",
-    // Pure guide quest — no reward, just a breadcrumb so the quest log points at
-    // the story_2 mission during the lull after the first scouting run.
-    triggers: [{ type: "story_mission_completed", missionId: "story_1_scouting" }],
+    // Pure guide breadcrumb for the Old Watch (story_2). DEFERRED to Chapter 2
+    // along with that mission (see storyMissions.ts CH2_GATE): triggers on the
+    // ch2_gate sentinel, which never completes in the current build, so it stays
+    // dormant instead of dangling as an uncompletable Chapter-1 quest.
+    triggers: [{ type: "story_mission_completed", missionId: "ch2_gate" }],
     condition: (s) => (s.completedStoryMissions ?? []).includes("story_2_ruins"),
     rewards: [],
     targetPage: "/guild",
@@ -811,29 +813,48 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/walls.png",
   },
   {
+    // Main-story beat 3: the payoff of Hold the Treeline. Appears the moment the
+    // treeline wolves are dispatched (the_first_threat claimed → the raid spawns
+    // with a short warning), points the player at the Overview threats panel to
+    // watch it land, and becomes claimable once the raid has resolved.
     id: "baptism_of_fire",
-    storyline: "defense",
+    storyline: "story",
     chapter: 1,
+    main: true,
     title: "Baptism of Fire",
     narrative:
-      "They're here. The first raiders have found the fence, drawn by a lonely holding that looks like easy pickings on the edge of nowhere. Whoever they are, they mean to take what we have. Your walls will be tested for the first time.",
-    objective: "Survive the raid",
+      "They are coming out of the trees now, low and fast, and the wall we raised is about to earn its keep. Gareth has the watch and the first arrow nocked; the others are ready behind him. There is nothing left to build and nowhere better to be than steady. Watch it unfold from the Overview — the threats panel counts them down and shows how the walls hold.",
+    objective: "Weather the wolves at the wall",
     icon: "⚔️",
-    // The scripted brigand raid is deferred (July 2026), so this fires on the
-    // first resolved raid of ANY kind once walls are up — hence the neutral,
-    // raid-type-agnostic narrative above.
-    triggers: [
-      {
-        type: "custom",
-        check: (s) =>
-          s.walls.some((w) => w.level > 0) && (s.raidsResolvedCount ?? 0) > 0,
-      },
-    ],
+    targetPage: "/",
+    // Fires when Hold the Treeline is claimed (the wolves are now inbound), and
+    // becomes claimable once that first raid has resolved.
+    triggers: [{ type: "quest_completed", questId: "the_first_threat" }],
     condition: (s) => (s.raidsResolvedCount ?? 0) > 0,
+    chronicleEntryId: "ch1_the_wall_held",
     rewards: [
       { resource: "gold", amount: 60, label: "Gold" },
       { resource: "astralShards", amount: 3, label: "Astral Shards" },
     ],
+  },
+  {
+    // Main-story beat 4: the payoff for holding the wall points Gareth's eyes
+    // outward, and the first thing the watch turns up is a woman being run down.
+    // Breadcrumb into the Hester side-chain's opening mission (hester_rescue),
+    // which is now gated on the wall-held chronicle so it lands right here.
+    id: "spine_run_down",
+    storyline: "story",
+    chapter: 1,
+    main: true,
+    title: "Run Down",
+    narrative:
+      "The wall bought us a quiet week, and Gareth has spent most of it on the watch, learning the shape of our own horizon. This morning it gave him something to see: a woman, alone, run down through the scrub to the north the way you course a deer, a knot of men closing on her. We do not know her and we do not know her crime, but we know what many-against-one looks like, and we did not come this far to watch it from a tower. Send a team out before they take her.",
+    objective: "Send a team to drive off the men",
+    icon: "🪓",
+    triggers: [{ type: "quest_completed", questId: "baptism_of_fire" }],
+    condition: (s) => (s.completedUniqueMissionIds ?? []).includes("hester_rescue"),
+    rewards: [],
+    targetPage: "/guild",
   },
   // "Eyes on the Horizon" (build a watchtower) removed 2026-07 — folded into the
   // "Hold the Treeline" main-story beat above (which now asks for walls AND the

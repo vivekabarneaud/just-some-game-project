@@ -1,5 +1,11 @@
 import type { StoryMission } from "./types.js";
 
+/** Sentinel prerequisite for Chapter 2+ story missions: a story-mission id that
+ *  is never completed in the current build, so any mission that requires it is
+ *  filtered off the board. Marks the Chapter 1 → Chapter 2 boundary until the
+ *  later chapters are re-authored. See the "CHAPTER 2 AND BEYOND" note below. */
+export const CH2_GATE = "ch2_gate";
+
 export const STORY_MISSIONS: StoryMission[] = [
   {
     id: "story_1_scouting",
@@ -27,10 +33,22 @@ export const STORY_MISSIONS: StoryMission[] = [
     encounters: [{ enemyId: "wild_wolf", count: 3 }],
     chronicleEntryId: "ch1_first_scouts",
   },
+  // ─── CHAPTER 2 AND BEYOND — DEFERRED ─────────────────────────────
+  // The Chapter 1 restructure (2026-07) ends the spine at survival: scouting →
+  // the wolves (Hold the Treeline / Baptism) → Run Down (Hester). Everything
+  // below — the Old Watch, the ghosts, Niamh, the ward-stones — is Chapter 2+
+  // material (confirmed witchcraft, confirmed maddened animals, the Old Watch as
+  // the Ch2 climax) and is NOT yet re-authored into a chapter structure.
+  //
+  // To keep it dormant without deleting the content, story_2_ruins now depends
+  // on the sentinel prerequisite CH2_GATE, which is never completed. Because the
+  // whole chain links off story_2_ruins, gating this one entry hides all of it.
+  // When Chapter 2 is authored, restore prerequisites and wire CH2_GATE to a
+  // real Chapter-2 opener.
   {
     id: "story_2_ruins",
     storyOrder: 2,
-    prerequisite: "story_1_scouting",
+    prerequisite: CH2_GATE,
     chapter: "Chapter 1: Ashes and Dust",
     name: "The Old Watch",
     description:

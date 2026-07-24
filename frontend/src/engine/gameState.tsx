@@ -2216,9 +2216,10 @@ function applyEventEvaluation(s: GameState): void {
             .filter((t) => !t.damaged)
             .reduce((max, t) => Math.max(max, t.level), 0);
           const warningHours = calcWarningTime(raid.baseWarning, wtLevel);
+          const scriptedWarning = event.unlocks!.raidSpawn!.warningSeconds;
           s.incomingRaids.push({
             raidId: raid.id,
-            remaining: warningHours * 3600,
+            remaining: scriptedWarning ?? warningHours * 3600,
             strength,
             warned: true,
           });

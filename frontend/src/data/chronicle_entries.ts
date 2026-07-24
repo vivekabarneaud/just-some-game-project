@@ -117,6 +117,18 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
     cinematicId: "story_1_scouting",
   },
   {
+    id: "ch1_the_wall_held",
+    chapterId: "ch1",
+    order: 3.5,
+    title: "The wall held",
+    teaser: "The wolves came, as we knew they would. The wall held. But they should not have been so thin.",
+    fullText:
+      "They came at the wall an hour after dusk, the way the scouts said they would. I counted them from the firepit: a lean grey line sliding out of the trees, no barking, no bluster, just hunger walking on four legs. Gareth was up on the watch before I had my boots laced, and I will say this for the man we barely know: he does not waste an arrow. The wall took the worst of it, the way a wall is meant to, and the pack broke itself against timber and never laid a tooth on anyone who mattered.\n\n" +
+      "It was over quickly. That is what a wall buys you: not a fair fight, but a short one. We lost nothing we cannot mend by morning. The folk who stood behind the palisade with whatever they could grab went to their beds shaking and proud, which is the right order for those two feelings. I let them have the pride tonight. I will save the rest of it for the book.\n\n" +
+      "Because here is the thing I cannot put down. Those wolves were starving. Not lean the way a winter wolf is lean, ribs like barrel-staves, coats gone to patches, mad enough to charge a lit wall full of standing men. A healthy pack does not do that. A healthy pack takes one look at a fence and a bowman and goes to find something easier. These had nothing easier left to find. Something has emptied the woods to our south of whatever wolves eat, and driven what remains right up onto our spears.\n\n" +
+      "I told the folk it was a hard season and left it there. It is not only a hard season. But that is a worry for a page I have not had to write yet. Tonight the wall held, and Gareth held the wall, and that is enough to close the book on.",
+  },
+  {
     id: "ch1_garrison_ruins",
     chapterId: "ch1",
     order: 4,
