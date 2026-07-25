@@ -36,12 +36,11 @@ export function derivedDamageRange(power: number): { min: number; max: number } 
   return { min, max };
 }
 
-/** Attack power — scales from the unit's primary combat stat. */
+/** Physical attack power — ALL physical power is STR now (melee AND ranged;
+ *  Combat Foundation). DEX is precision/agility (crit/dodge/accuracy/mobility),
+ *  no longer raw damage. Magical attackers use getMagicPower (INT) instead. */
 export function getAttackPower(unit: CombatUnit): number {
-  if (!unit.class) return Math.max(unit.str, unit.dex);
-  if (unit.class === "warrior") return unit.str;
-  if (unit.class === "archer" || unit.class === "assassin") return unit.dex;
-  return unit.int;
+  return unit.str;
 }
 
 /** Magical damage scales from INT. */

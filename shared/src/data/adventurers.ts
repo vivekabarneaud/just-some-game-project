@@ -676,8 +676,10 @@ export const CLASS_BASE_STATS: Record<AdventurerClass, AdventurerStats> = {
   warrior: { str: 9, int: 3, dex: 5, vit: 8, wis: 2 },
   wizard:  { str: 3, int: 10, dex: 3, vit: 5, wis: 7 },
   priest:  { str: 3, int: 7, dex: 3, vit: 7, wis: 8 },
-  archer:  { str: 5, int: 3, dex: 10, vit: 5, wis: 3 },
-  assassin:{ str: 6, int: 4, dex: 9, vit: 5, wis: 2 },
+  // STR-power rebalance (Combat Foundation): archers/assassins draw real strength
+  // for shot/strike power; DEX now buys crit/dodge/accuracy/mobility, not damage.
+  archer:  { str: 8, int: 3, dex: 10, vit: 5, wis: 3 },
+  assassin:{ str: 8, int: 4, dex: 9, vit: 5, wis: 2 },
 };
 
 export const CLASS_STAT_GROWTH: Record<AdventurerClass, AdventurerStats> = {
