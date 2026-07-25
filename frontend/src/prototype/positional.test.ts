@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { runPositional, unit, DEFAULT_TUNE, type PUnit, type PResult } from "./positionalCombat";
 
+declare const require: (m: string) => any; // node runtime (vitest); avoids @types/node dep
+
 const OUT = "/private/tmp/claude-502/-Users-vivekabarneaud-IdeaProjects-just-some-game-project/c872adf8-bbf4-4e4a-ad11-aa762ee2ea65/scratchpad/positional.txt";
 
 function report(title: string, units: PUnit[], r: PResult): string {

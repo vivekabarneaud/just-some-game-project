@@ -165,13 +165,13 @@ export function runPositional(units: PUnit[], t: PTune = DEFAULT_TUNE): PResult 
 // ── Unit factory (rough archetypes to tune) ──────────────────────────────────
 export function unit(p: Partial<PUnit> & Pick<PUnit, "id" | "name" | "side" | "role">): PUnit {
   const ranged = p.role === "ranged";
-  return {
-    hp: 40, maxHp: 40, dmg: 8,
+  const hp = p.hp ?? 40;
+  const base = {
+    hp, maxHp: hp, dmg: 8,
     reach: ranged ? 100 : 4,
     mobility: ranged ? 6 : 10,
-    threatMul: 1, aiTier: "tactical", bypass: false,
+    threatMul: 1, aiTier: "tactical" as AiTier, bypass: false,
     x: 0, threat: 0, fallen: false,
-    ...p,
-    maxHp: p.hp ?? 40,
   };
+  return { ...base, ...p, hp, maxHp: hp };
 }
