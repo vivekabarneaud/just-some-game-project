@@ -16,6 +16,11 @@ import { statusLabel } from "./CombatLog";
 const FIELD_PACES = 100;          // x axis domain
 const EDGE_PCT = 7;               // horizontal padding so edge cards stay on-field
 const CARD_ASPECT = 422 / 992;
+// How long a unit slides to a new pace (the `left` transition). A charge's gore
+// lunge is delayed to fire just as the slide lands, so the two never overlap —
+// derive the delay from this so they can't drift apart.
+const SLIDE_SEC = 0.5;
+const CHARGE_LUNGE_DELAY_SEC = SLIDE_SEC - 0.05; // jab lands right as the rush arrives
 
 const RANGED_CLASSES = new Set(["archer", "wizard", "priest"]);
 const isRangedSnap = (c: CombatantSnapshot) =>
@@ -115,7 +120,7 @@ export default function CombatBattlefield(props: {
   const actDelayOf = (c: CombatantSnapshot): number => {
     if (actingId() !== c.id) return 0;
     const last = revealed()[revealed().length - 1];
-    return last?.moves?.some((m) => m.id === c.id) ? 0.45 : 0;
+    return last?.moves?.some((m) => m.id === c.id) ? CHARGE_LUNGE_DELAY_SEC : 0;
   };
 
   const cardFallen = (c: CombatantSnapshot) => derived().fallen.has(c.id) || (derived().hp.get(c.id) ?? c.hp) <= 0;
@@ -128,7 +133,7 @@ export default function CombatBattlefield(props: {
             position: "absolute",
             left: `${leftPct(c)}%`, top: `${topPx(c)}px`,
             transform: "translateX(-50%)",
-            transition: "left 0.5s ease",
+            transition: `left ${SLIDE_SEC}s ease`,
           }}>
             <CombatantCard
               snapshot={c}
