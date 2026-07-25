@@ -24,7 +24,8 @@ export const POS = {
 const RANGED_CLASSES = new Set(["archer", "wizard", "priest"]);
 
 export function isRanged(u: CombatUnit): boolean {
-  return !!u.class && RANGED_CLASSES.has(u.class);
+  if (u.class) return RANGED_CLASSES.has(u.class);   // adventurers/allies: by class
+  return u.combatRole === "back";                     // enemies: by authored formation row
 }
 export function reachOf(u: CombatUnit): number {
   return isRanged(u) ? POS.fieldMax : POS.contact; // melee connects at contact distance
