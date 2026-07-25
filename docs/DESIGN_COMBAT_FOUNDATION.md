@@ -22,11 +22,14 @@ Related: [[DESIGN_POSITIONAL_COMBAT.md]] (the 1D layer that consumes these), the
 
 | Attribute | Governs |
 |---|---|
-| **STR** | melee physical power · **Parry** |
-| **DEX** | ranged/finesse power · Crit · Dodge · Mobility · Initiative |
+| **STR** | **physical attack power — melee AND ranged** (draw the bow, drive the blade) · **Parry** |
+| **DEX** | **Crit · Dodge · Mobility** (precision & agility, *not* raw power) |
 | **INT** | *(magic power — DEFERRED, see §5)* |
 | **VIT** | Max HP |
-| **WIS** | magic resistance · part of Initiative · *(healing power — DEFERRED)* |
+| **WIS** | magic resistance · **Initiative (equal weight with DEX)** · *(healing power — DEFERRED)* |
+
+**Rebalance (2026-07-25):** DEX was doing too much. Physical power (melee *and* ranged) moves to **STR**; DEX keeps precision/agility (crit/dodge/mobility). So an archer wants STR for shot power and DEX to crit + kite; a pure-DEX archer is a nimble crit-fisher with softer base shots, a STR archer hits like a truck — real build diversity.
+**OPEN:** should DEX retain a *small* finesse-damage contribution for daggers/rapiers (assassins), or is power cleanly STR-only? (Lean: STR-only, let assassins lean on crit; revisit if assassins feel weak.)
 
 ### Secondary stats — `derived floor + raw bonus`
 
@@ -36,13 +39,28 @@ Related: [[DESIGN_POSITIONAL_COMBAT.md]] (the 1D layer that consumes these), the
 | **Crit %** | DEX | chance to crit; raw crit on gear/talents |
 | **Dodge %** | DEX | evade an attack entirely (get out of the way) |
 | **Parry %** | STR | *(new)* deflect an incoming **physical** attack with your weapon; STR's defensive identity. Distinct from Dodge (DEX). Resolution order + whether it fully negates or reduces/counters → decide on build. |
-| **Mobility** | DEX / class | paces moved per turn (positional). Raw mobility = "fast" without "critty" (wolves). |
-| **Initiative** | DEX + WIS/2 | turn order |
+| **Mobility** | DEX / class | paces moved per turn (positional). Raw mobility = "fast" without "critty" (wolves). **Separate from Initiative** — a wizard is slow to move but quick to act. |
+| **Initiative** | **DEX + WIS (equal weight)** | turn order. WIS no longer halved: an old wise wizard barely moves but casts the fastest spell and acts first. |
 | **Armor** | gear | physical mitigation. Raw armor on gear/talents. |
 
-### Resistances (default 0, authored where they matter)
+### Damage types & resistances
 
-`physical · magic · fire · frost · poison · …` — extensible. Not the wolves; but the schema carries them so the skeleton resists physical, a fire creature resists fire, etc., at higher tiers.
+**Physical is NOT a resistance** — it's mitigated by **Armor + Parry**. A stone golem just has huge armor; it needs no separate "physical resist." Resistances cover the magical/elemental schools only.
+
+**Damage schools** (each has a matching resistance, default 0):
+
+| School | Covers |
+|---|---|
+| **Aether** | raw/arcane magic (the ward-stones hold back "aether"; wizards' formless force) |
+| **Fire** | burning — magical *or* real (a torch reads the same as a firebolt) |
+| **Frost** | cold — magical or real |
+| **Light** | holy / radiant (priests, the Light — lore-locked force) |
+| **Hollow** | death / void / decay (undead, Netheron's death-magic, the Malice/8th god — lore-locked force) |
+| **Nature** | poison, venom, blight, disease (the froth, adder venom, rot) — the "green" school, à la WoW's Nature |
+
+Not the wolves (bites are Physical). But the schema carries these so the skeleton resists Hollow, a fire elemental resists Fire, a plague-thing resists Nature, etc.
+
+**OPEN for you:** (a) is **Aether** the *raw/arcane* school sitting alongside the others (my read), or the umbrella term for all magic? (b) **Nature = poison** as one school — good, or split poison out? (c) anything missing — lightning/storm? sonic? (Light + Hollow are lore-locked; the rest are ours to shape.)
 
 ---
 
@@ -68,9 +86,16 @@ Reference bands (tune on build):
 A **secondary weapon** (usually a dagger or throwing knife) that everyone can carry. **The fallback when the primary's band doesn't fit the range.**
 
 ### Attack resolution (per swing)
-1. Target within the **primary** weapon's `[minRange, maxRange]` → use primary.
-2. Else, if a **sidearm** exists and the target is within *its* band → use sidearm.
-3. Else → no attack this turn; the unit closes/repositions instead.
+Use the **best weapon whose band fits** the target's distance, in preference order:
+1. **Primary** (in its band).
+2. **Sidearm** (in its band).
+3. **Fists** — unarmed, always available, weak. *No sidearm + pinned = a fist fight*, not "nothing happens."
+
+**But attacking isn't always the play.** The movement/AI may instead **reposition to restore a better weapon's range** rather than settle for a feeble poke:
+- An archer pinned with only a 1-damage dagger is often better off **backing away to get the bow into range** than trading knife-jabs.
+- A grappled Godric might **shove/step back** to swing the longsword instead of dagger-poking.
+
+So: the swing uses the best in-range weapon (primary → sidearm → fists), while movement weighs *"reposition for my real weapon"* vs *"attack now with the fallback."* That per-situation call is an AI/talent nuance (e.g. a "Kiting Shot" or "Disengage" talent tips it toward repositioning); the baseline is "attack with what's in range."
 
 This **replaces two current hacks**:
 - The hardcoded "pinned ranged → dagger" (exposure) → now just "below the bow's minRange → sidearm."
