@@ -62,22 +62,35 @@ export function getMagicResistReduction(unit: CombatUnit): number {
   return mr / (mr + 150);
 }
 
-/** Turn order tiebreaker — higher goes first. Halved while slowed. */
+/** Turn order — higher goes first. DEX + WIS (equal weight); halved while slowed.
+ *  (Combat Foundation: WIS no longer halved — a wise wizard acts first.) */
 export function getInitiative(unit: CombatUnit): number {
-  const base = unit.dex + Math.floor(unit.wis / 2);
+  const base = unit.dex + unit.wis + (unit.raw?.initiative ?? 0);
   return unit.slowed > 0 ? Math.floor(base / 2) : base;
 }
 
-/** Crit chance 0-50. Assassins get +10 class bonus. */
+/** Crit chance — DEX-derived floor (cap 50) + raw crit. Assassins +10. */
 export function getCritChance(unit: CombatUnit): number {
   const base = 5 + unit.dex * 0.5;
   const classBonus = unit.class === "assassin" ? 10 : 0;
-  return Math.min(50, base + classBonus);
+  return Math.min(50, base + classBonus) + (unit.raw?.crit ?? 0);
 }
 
-/** Flat dodge chance 0-20, driven by DEX. */
+/** Dodge % — evade entirely. DEX-derived floor (cap 20) + raw dodge. */
 export function getDodgeChance(unit: CombatUnit): number {
-  return Math.min(20, unit.dex * 1.0);
+  return Math.min(20, unit.dex * 1.0) + (unit.raw?.dodge ?? 0);
+}
+
+/** Accuracy % — chance to LAND a hit, counters the defender's Dodge/Parry.
+ *  DEX-derived floor + raw accuracy. (Consumed by the hit-resolution step.) */
+export function getAccuracy(unit: CombatUnit): number {
+  return Math.min(20, unit.dex * 1.0) + (unit.raw?.accuracy ?? 0);
+}
+
+/** Parry % — deflect an incoming PHYSICAL attack. STR-derived floor + raw parry.
+ *  STR's defensive identity, distinct from DEX-dodge. */
+export function getParry(unit: CombatUnit): number {
+  return Math.min(20, unit.str * 0.7) + (unit.raw?.parry ?? 0);
 }
 
 /** Whether the unit deals magical damage (wizards, priests, magical enemies). */

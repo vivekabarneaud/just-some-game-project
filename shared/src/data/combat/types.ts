@@ -30,6 +30,23 @@ export type TauntImmunity = "none" | "normal" | "all";
  */
 export type CombatKind = "adventurer" | "ally" | "entity" | "enemy";
 
+/** Damage schools (Combat Foundation — docs/DESIGN_COMBAT_FOUNDATION.md). Physical
+ *  is handled by Armor + Parry, NOT a resistance. Light + Hollow are lore-locked. */
+export type DamageSchool =
+  | "physical" | "aether" | "fire" | "frost" | "lightning" | "light" | "hollow" | "nature";
+
+/** Raw secondary-stat bonuses (from gear/talents), added ON TOP of the
+ *  attribute-derived floor. The "raw" half of "derived floor + raw bonus". */
+export interface RawSubStats {
+  crit?: number;       // + Crit %
+  accuracy?: number;   // + Accuracy % (hit chance)
+  dodge?: number;      // + Dodge %
+  parry?: number;      // + Parry %
+  mobility?: number;   // + paces/turn
+  initiative?: number; // + turn order
+  armor?: number;      // + physical mitigation
+}
+
 /** An in-combat actor. Adventurer, NPC ally, entity, or enemy. Mutated during the simulation. */
 export interface CombatUnit {
   id: string;
@@ -45,6 +62,12 @@ export interface CombatUnit {
   vit: number;
   wis: number;
   class?: AdventurerClass;
+  /** Raw secondary-stat bonuses (gear/talents), on top of the attribute floor. */
+  raw?: RawSubStats;
+  /** Resistance % per damage school (0-100). Physical → Armor+Parry, not here. */
+  resist?: Partial<Record<DamageSchool, number>>;
+  /** Damage school of this unit's basic attack. Default "physical". */
+  attackSchool?: DamageSchool;
   /** Display metadata for the combat stage — stamped when the unit is built from
    *  an adventurer (buildAdventurerUnit). Portrait is the full URL; level is the
    *  adventurer's level. Absent for enemies / entities / anonymous stacks. */
