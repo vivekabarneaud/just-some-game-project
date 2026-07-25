@@ -5529,6 +5529,7 @@ export function GameProvider(props: ParentProps) {
                 ...(combatResult ? {
                   combatLog: combatResult.log,
                   combatRoster: combatResult.roster,
+                  combatPositions: combatResult.positions,
                   combatRounds: combatResult.rounds,
                   combatVictory: combatResult.victory,
                   ...(combatResult.retreated ? { retreated: true } : {}),

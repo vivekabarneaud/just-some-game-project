@@ -264,6 +264,8 @@ export interface CompletedMission {
   combatLog?: import("../combat").CombatLogEntry[];
   /** Starting-state roster for the combat stage (allies + enemies at t0). */
   combatRoster?: import("../combat").CombatantSnapshot[];
+  /** Per-round battlefield positions (unit id → x), for the battlefield stage. */
+  combatPositions?: Record<string, number>[];
   combatRounds?: number;
   combatVictory?: boolean; // distinct from success — success is the overall mission outcome
   /** The team broke off and retreated (Model C) rather than being wiped — the
@@ -384,6 +386,8 @@ export interface ResolvedExpeditionEvent {
   combatLog?: import("../combat/types.js").CombatLogEntry[];
   /** Starting-state roster for the combat stage on this expedition fight. */
   combatRoster?: import("../combat/types.js").CombatantSnapshot[];
+  /** Per-round battlefield positions for the battlefield stage. */
+  combatPositions?: Record<string, number>[];
   /** Combat victory flag — distinct from `success` (treasure/encounter events
    *  use `success` differently). Used by the playback modal banner. */
   combatVictory?: boolean;

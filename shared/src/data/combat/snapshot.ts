@@ -21,6 +21,7 @@ export function snapshotRoster(units: CombatUnit[]): CombatantSnapshot[] {
     hp: u.hp,
     maxHp: u.maxHp,
     portrait: u.portrait,
+    x: u.x,
     scale: u.scale,
     enemyDefId: u.enemyDefId,
     combatRole: u.combatRole,

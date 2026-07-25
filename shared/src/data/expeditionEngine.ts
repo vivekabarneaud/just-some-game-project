@@ -170,6 +170,7 @@ export function resolveExpeditionEvent(
         // starts false and flips when the player watches.
         combatLog: combatResult.log,
         combatRoster: combatResult.roster,
+        combatPositions: combatResult.positions,
         combatVictory: combatResult.victory,
         combatViewed: false,
       });

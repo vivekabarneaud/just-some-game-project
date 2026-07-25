@@ -91,14 +91,22 @@ export function simulateCombat(
   // Roster snapshot at t0 — before any HP is spent — for the combat stage.
   const roster = snapshotRoster([...adventurers, ...enemies]);
 
+  // Per-round battlefield positions (index 0 = start). Actions don't move units,
+  // so the post-round snapshot equals that round's post-move positions.
+  const snapX = () => Object.fromEntries([...adventurers, ...enemies].map((u) => [u.id, Math.round(u.x ?? 0)]));
+  const positions: Record<string, number>[] = [snapX()];
+
   while (ctx.round < MAX_ROUNDS) {
     ctx.round++;
-    if (!runRound(ctx)) break;
+    const cont = runRound(ctx);
+    positions.push(snapX());
+    if (!cont) break;
   }
 
   stampLogIds(ctx.log, roster);
   const result = buildResult(adventurers, enemies, totalEnemies, ctx.log, ctx.round);
   result.roster = roster;
+  result.positions = positions;
   setCombatSeed(undefined); // restore Math.random for non-preview combat
   return result;
 }

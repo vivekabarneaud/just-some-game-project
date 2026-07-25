@@ -232,6 +232,8 @@ export interface CombatantSnapshot {
   maxHp: number;
   /** Full portrait URL for adventurer-kind combatants; absent otherwise. */
   portrait?: string;
+  /** Starting position on the 1D battlefield (paces). Absent = position-less. */
+  x?: number;
   /** Authored display-size multiplier (boss → 1.2). Undefined = 1. */
   scale?: number;
   /** Enemy catalog id (for grouping swarms of the same type on the stage). */
@@ -247,6 +249,9 @@ export interface CombatResult {
   log: CombatLogEntry[];
   /** Starting-state roster for the combat stage. Absent on legacy results. */
   roster?: CombatantSnapshot[];
+  /** Per-round battlefield positions (unit id → x paces), index 0 = start,
+   *  index R = after round R's movement. Drives the battlefield stage. */
+  positions?: Record<string, number>[];
   performanceRatio: number;
   survivingEnemies: number;
   fallenAdventurerIds: string[];

@@ -3,6 +3,7 @@ import { Portal } from "solid-js/web";
 import type { CombatLogEntry, CombatantSnapshot } from "@medieval-realm/shared/data/combat";
 import CombatLog from "./CombatLog";
 import CombatStage from "./CombatStage";
+import CombatBattlefield from "./CombatBattlefield";
 
 interface CombatPlaybackProps {
   log: CombatLogEntry[];
@@ -17,6 +18,9 @@ interface CombatPlaybackProps {
   /** Starting-state roster — when present, the animated combat stage renders
    *  sticky above the scrolling text log. Absent → text log only (legacy). */
   roster?: CombatantSnapshot[];
+  /** Per-round battlefield positions — when present (with roster), the wide
+   *  positional battlefield renders instead of the two-column stage. */
+  positions?: Record<string, number>[];
   /** Combat outcome — when set and playback is finished, a Victory/Defeat
    *  banner appears in the footer. */
   victory?: boolean;
@@ -151,10 +155,17 @@ export default function CombatPlayback(props: CombatPlaybackProps) {
           </button>
         </div>
 
-        {/* Animated combat stage — sticky above the scrolling log. */}
+        {/* Animated combat stage — sticky above the scrolling log. The wide
+            positional battlefield when the fight carries positions; the
+            two-column stage otherwise (raids, legacy). */}
         <Show when={props.roster && props.roster.length > 0}>
           <div style={{ "border-bottom": "1px solid var(--border-color)", background: "rgba(0,0,0,0.15)" }}>
-            <CombatStage roster={props.roster!} log={props.log} shownCount={shownCount()} maxHeight={300} />
+            <Show
+              when={props.positions && props.positions.length > 0}
+              fallback={<CombatStage roster={props.roster!} log={props.log} shownCount={shownCount()} maxHeight={300} />}
+            >
+              <CombatBattlefield roster={props.roster!} log={props.log} positions={props.positions!} shownCount={shownCount()} maxHeight={300} />
+            </Show>
           </div>
         </Show>
 
