@@ -1,9 +1,18 @@
+// ─── Positional combat BALANCE WORKBENCH ────────────────────────────────────
+// The permanent sandbox for tuning the 1D positional model + (eventually) real
+// encounters as gear/talents/enemies land. See docs/DESIGN_POSITIONAL_COMBAT.md.
+//
+//   run : cd frontend && npx vitest run src/prototype/positional.test.ts
+//   view: cat "$(node -e 'console.log(require("os").tmpdir())')/positional_sandbox.txt"
+//
+// Add scenarios below; tweak DEFAULT_TUNE / unit() stats to feel out balance.
+
 import { describe, it, expect } from "vitest";
 import { runPositional, unit, DEFAULT_TUNE, type PUnit, type PResult } from "./positionalCombat";
 
 declare const require: (m: string) => any; // node runtime (vitest); avoids @types/node dep
 
-const OUT = "/private/tmp/claude-502/-Users-vivekabarneaud-IdeaProjects-just-some-game-project/c872adf8-bbf4-4e4a-ad11-aa762ee2ea65/scratchpad/positional.txt";
+const OUT = `${require("os").tmpdir()}/positional_sandbox.txt`;
 
 function report(title: string, units: PUnit[], r: PResult): string {
   return [
