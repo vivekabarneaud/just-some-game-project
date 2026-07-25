@@ -2,7 +2,12 @@ import { combatRandom } from "../prng.js";
 import { calcDamageResult } from "../damage.js";
 import { getAttackPower, derivedDamageRange } from "../stats.js";
 import { getEnemy } from "../../enemies.js";
+import { reachOf, paceGap } from "../positional.js";
 import type { CombatContext, CombatUnit } from "../types.js";
+
+/** Damage-ability effect types that must respect reach (a bite/spit can't cross
+ *  the field). Utility/ally effects (heals, buffs, summons, mind-control) don't. */
+const RANGE_GATED = new Set(["bleed", "poison", "infect", "damage_mult", "aoe_damage"]);
 
 /**
  * Try each of the enemy unit's special abilities in registration order.
@@ -29,12 +34,23 @@ export function tryEnemyAbility(unit: CombatUnit, ctx: CombatContext): boolean {
     }
 
     const eff = ability.effect;
+    // Range gate (Foundation): a damage ability reaches only `ability.range` paces
+    // (default = the creature's basic reach — melee = contact). No target in range
+    // → hold the ability (don't fire, don't burn the cooldown) so the creature
+    // moves or basic-attacks instead. This is what stops a wolf biting the far
+    // backline archer, and an adder striking from across the field.
+    const abilityRange = ability.range ?? reachOf(unit);
+    const reachTargets = RANGE_GATED.has(eff.type)
+      ? aliveTargets.filter((t) => paceGap(unit, t) <= abilityRange + 1e-6)
+      : aliveTargets;
+    if (RANGE_GATED.has(eff.type) && reachTargets.length === 0) continue;
+
     unit.cooldowns[ability.id] = ability.cooldown;
 
     switch (eff.type) {
       case "bleed":
       case "poison": {
-        const target = aliveTargets[Math.floor(combatRandom() * aliveTargets.length)];
+        const target = reachTargets[Math.floor(combatRandom() * reachTargets.length)];
         if (!target) return false;
         const hit = calcDamageResult(unit, target);
         target.hp -= hit.damage;
@@ -54,7 +70,7 @@ export function tryEnemyAbility(unit: CombatUnit, ctx: CombatContext): boolean {
       case "infect": {
         // A normal bite that rarely infects. Deal the hit, then roll the chance;
         // on a hit the target is marked (carried home as a condition if it lives).
-        const target = aliveTargets[Math.floor(combatRandom() * aliveTargets.length)];
+        const target = reachTargets[Math.floor(combatRandom() * reachTargets.length)];
         if (!target) return false;
         const hit = calcDamageResult(unit, target);
         target.hp -= hit.damage;
@@ -103,7 +119,7 @@ export function tryEnemyAbility(unit: CombatUnit, ctx: CombatContext): boolean {
       case "aoe_damage": {
         const power = eff.magical ? unit.int : unit.str;
         const baseDmg = Math.floor(power * eff.pct / 100);
-        const hits = aliveTargets.map((t) => {
+        const hits = reachTargets.map((t) => {
           const def = eff.magical ? t.wis * 3 : (t.isEnemy ? t.vit * 3 : t.gearDefense);
           const reduction = def / (def + 150);
           const dmg = Math.max(1, Math.floor(baseDmg * (1 - reduction)));
@@ -120,7 +136,7 @@ export function tryEnemyAbility(unit: CombatUnit, ctx: CombatContext): boolean {
       }
 
       case "damage_mult": {
-        const tgts = [...aliveTargets].sort(() => combatRandom() - 0.5).slice(0, eff.targets);
+        const tgts = [...reachTargets].sort(() => combatRandom() - 0.5).slice(0, eff.targets);
         const hits = tgts.map((t) => {
           const { damage } = calcDamageResult(unit, t, { damageMult: eff.mult, ignoreArmor: eff.ignoreArmor });
           t.hp -= damage;

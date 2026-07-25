@@ -7,7 +7,7 @@ import { tryClassAbility, tryEnemyAbility } from "../abilities/index.js";
 import { evaluateTransitions, getCurrentState } from "../ai/index.js";
 import { addDamageThreat } from "../threat.js";
 import { shouldFlee, attemptFlee } from "../retreat.js";
-import { POS, pinningFoe, inReach, isBehind, hasPackmateOn, PACK_TACTICS_BONUS } from "../positional.js";
+import { POS, CHARGE, pinningFoe, inReach, isBehind, hasPackmateOn, PACK_TACTICS_BONUS } from "../positional.js";
 
 /**
  * The main action phase of a round.
@@ -49,7 +49,9 @@ export function runActions(ctx: CombatContext): void {
     if (unit.mindControlled && unit.mindControlled > 0) continue;
 
     if (!unit.isEnemy && tryClassAbility(unit, ctx)) continue;
-    if (unit.isEnemy && tryEnemyAbility(unit, ctx)) continue;
+    // A unit that charged this round drives home a goring basic attack (the
+    // charge bonus + knockback ride the swing) rather than using another ability.
+    if (unit.isEnemy && !unit.chargedThisRound && tryEnemyAbility(unit, ctx)) continue;
 
     basicAttack(unit, ctx);
   }
@@ -127,6 +129,20 @@ function basicAttack(unit: CombatUnit, ctx: CombatContext): void {
   // also on the target — the whole reason a lone wolf is weak and a pack lethal.
   if (unit.pack && hasPackmateOn(unit, target, ctx)) damage = Math.round(damage * (1 + PACK_TACTICS_BONUS));
 
+  // Charge (Charger archetype): the gore lands. Bonus damage + a small, capped
+  // knockback both scale with the distance the unit charged this round. Shoving
+  // the target back opens the gap for a possible re-charge — the cooldown + cap
+  // keep that from spiraling.
+  const charged = !!(unit.chargedThisRound && unit.chargedThisRound.targetId === target.id);
+  if (charged) {
+    const dist = unit.chargedThisRound!.distance;
+    damage = Math.round(damage * (1 + Math.min(CHARGE.dmgCap, dist * CHARGE.dmgPerPace)));
+    const dir = (target.x ?? 0) >= (unit.x ?? 0) ? 1 : -1;
+    const knock = Math.min(CHARGE.knockCap, dist * CHARGE.knockPerPace);
+    target.x = Math.max(POS.fieldMin, Math.min(POS.fieldMax, (target.x ?? 0) + dir * knock));
+    unit.chargedThisRound = undefined;
+  }
+
   // Shield Wall: a warrior absorbs a killing blow meant for an ally (once per combat, 50% chance).
   if (unit.isEnemy && !target.isEnemy && target.hp - damage <= 0) {
     const protector = ctx.adventurers.find((a) =>
@@ -154,10 +170,11 @@ function basicAttack(unit: CombatUnit, ctx: CombatContext): void {
   if (!unit.isEnemy) addDamageThreat(target, unit, damage);
   ctx.log.push({
     round: ctx.round, attackerName: unit.name,
-    attackerIcon: unit.isEnemy ? unit.icon : (unit.isMagical ? "🔮" : "⚔️"),
+    attackerIcon: charged ? "💨" : (unit.isEnemy ? unit.icon : (unit.isMagical ? "🔮" : "⚔️")),
     targetName: target.name, damage, rawDamage,
     dodged: false, crit, killed: target.hp <= 0,
     targetHp: Math.max(0, target.hp), targetMaxHp: target.maxHp,
     isEnemy: unit.isEnemy,
+    ...(charged ? { abilityName: "Goring Charge", abilityIcon: "💨" } : {}),
   });
 }

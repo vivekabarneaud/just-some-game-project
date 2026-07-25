@@ -22,6 +22,17 @@ export const POS = {
   holdPer: 2,          // attackers ONE frontliner pins; the rest overflow to the backline
 };
 
+/** Charge tuning (Charger archetype). A charge covers ground in the Move phase;
+ *  the gore's bonus + knockback scale with the distance actually charged. Small,
+ *  capped knockback keeps it loop-safe (no charge->shove->charge spiral). */
+export const CHARGE = {
+  minRunup: 10,       // need this much gap BEYOND contact to bother charging
+  dmgPerPace: 0.025,  // +2.5% gore damage per pace charged...
+  dmgCap: 1.0,        // ...up to +100% on a long run
+  knockPerPace: 0.12, // shove the target back this many paces per pace charged...
+  knockCap: 6,        // ...capped low — a stumble, not a launch
+};
+
 const RANGED_CLASSES = new Set(["archer", "wizard", "priest"]);
 
 export function isRanged(u: CombatUnit): boolean {
@@ -48,6 +59,8 @@ const allySide = (u: CombatUnit) => !u.isEnemy;
 const clamp = (x: number) => Math.max(POS.fieldMin, Math.min(POS.fieldMax, x));
 const px = (u: CombatUnit) => u.x ?? 0;
 const gap = (a: CombatUnit, b: CombatUnit) => Math.abs(px(a) - px(b));
+/** Distance in paces between two units (exported for the ability range gate). */
+export function paceGap(a: CombatUnit, b: CombatUnit): number { return gap(a, b); }
 const nearest = (u: CombatUnit, pool: CombatUnit[]) => pool.slice().sort((a, b) => gap(u, a) - gap(u, b))[0];
 // Higher = deeper into the enemy's own back territory (where casters sit).
 const backlineScore = (e: CombatUnit, u: CombatUnit) => (allySide(u) ? px(e) : -px(e));
@@ -92,15 +105,45 @@ function logMove(ctx: CombatContext, u: CombatUnit, target: CombatUnit, paces: n
   ctx.log.push(entry);
 }
 
+/** A charge covers ground toward the target; logged as a move so it animates. */
+function logCharge(ctx: CombatContext, u: CombatUnit, target: CombatUnit, paces: number): void {
+  ctx.log.push({
+    round: ctx.round, attackerName: u.name, attackerIcon: "💨",
+    targetName: target.name, damage: 0, dodged: false, crit: false, killed: false,
+    isEnemy: u.isEnemy, beat: "move",
+    note: `${u.name} charges ${paces} pace${paces === 1 ? "" : "s"} at ${target.name}`,
+  });
+}
+
 /** Reposition everyone: melee advance (stopped by engagement), ranged kite. */
 export function movePhase(ctx: CombatContext): void {
   const units = living(ctx);
   const held = computeHolds(ctx);
   for (const u of units) {
+    u.chargedThisRound = undefined; // transient — set only if this unit charges now
     if (u.canAct === false) continue; // walls / ritualists hold position
     const foes = foesOf(u, ctx);
     if (!foes.length) continue;
     const mob = mobilityOf(u);
+
+    // Charge (Charger archetype): with a cooldown ready and ROOM (a big enough
+    // gap), a charger spends its move to barrel up to `charge.range` paces to
+    // contact — the gore + knockback (applied in the action phase) scale with the
+    // distance covered. Held/engaged units have no run-up, so the gap check
+    // naturally defuses the charge.
+    if (u.charge && !isRanged(u) && (u.cooldowns.charge ?? 0) <= 0) {
+      const target = nearest(u, foes);
+      const g = gap(u, target);
+      if (g > POS.contact + CHARGE.minRunup) {
+        const dir = px(target) > px(u) ? 1 : -1;
+        const dist = Math.min(u.charge.range, g - POS.contact);
+        u.x = clamp(px(u) + dir * dist);
+        u.chargedThisRound = { distance: dist, targetId: target.id };
+        u.cooldowns.charge = u.charge.cooldown;
+        logCharge(ctx, u, target, Math.round(dist));
+        continue; // the charge IS this unit's move
+      }
+    }
 
     if (isRanged(u)) {
       const pinned = foes.some((f) => !isRanged(f) && gap(u, f) <= POS.contact);

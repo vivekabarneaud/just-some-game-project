@@ -55,6 +55,13 @@ export interface EnemyAbility {
   name: string;
   icon: string;
   cooldown: number;
+  /** Reach in paces (Combat Foundation: abilities carry their own range). A
+   *  DAMAGE ability can only strike a target within this many paces; if none is
+   *  in range the ability is held and the creature acts otherwise. Omit → the
+   *  creature's basic reach (melee = contact), so a bite can't cross the field.
+   *  Author a big value (e.g. a spitting adder's 20, a caster's whole field) for
+   *  ranged abilities. */
+  range?: number;
   /** When to use this ability */
   trigger: "always" | "hp_below_50" | "ally_dead" | "round_start" | "any_ally_below_30";
   /** What the ability does */
@@ -134,6 +141,13 @@ export interface EnemyDefinition {
    *  with the same target. Lone pack-hunters are weak; a pack ganging up is
    *  lethal. Reusable (wolves now; goblins/raptors later). */
   pack?: string;
+  /** Charge (Combat Foundation, Charger archetype): when this creature has room
+   *  (a big enough gap to a foe), it spends its move to barrel up to `range`
+   *  paces to contact and gores on arrival for bonus damage that SCALES with the
+   *  distance covered, plus a small knockback. Cooldown-gated (rounds); defused
+   *  by holding it in melee (no run-up = no charge). Boars now; a warrior Charge
+   *  talent later. */
+  charge?: { range: number; cooldown: number };
   loot?: LootDrop[];   // drops on kill, empty/undefined means no drops
   /** Physical auto-attack damage range (the creature's bite/claw/swing). The sim
    *  rolls within [dmgMin, dmgMax] then scales by the creature's offensive stat.
@@ -350,6 +364,7 @@ export const ENEMIES: EnemyDefinition[] = [
     loot: [
       { type: "resource", resource: "meat", chance: 0.4, min: 2, max: 4 },
     ],
+    charge: { range: 40, cooldown: 99 }, // one devastating charge, then it fights or flees
     routsAt: 0.3, // a wild animal — breaks and flees when the fight turns against it
     aiTier: "feral"
   },
@@ -997,11 +1012,11 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 7, dex: 4, int: 1, vit: 8, wis: 1 }, // clumsy but brutal — low DEX, rides its charge + bulk
     tags: ["beast"],
     abilities: [
-      { id: "charge", name: "Charge", icon: "💨", cooldown: 99, trigger: "round_start", effect: { type: "damage_mult", mult: 1.5, targets: 1 } },
       // The frothing bite: a normal hit that rarely (10%) infects with the froth,
       // a bite-sickness carried home. Cured only by a Boar's-Bane Salve.
       { id: "frothing_bite", name: "Frothing Bite", icon: "🤢", cooldown: 1, trigger: "always", effect: { type: "infect", condition: "froth", chance: 0.1 } },
     ],
+    charge: { range: 40, cooldown: 2 }, // frenzied — charges every couple of rounds
     loot: [
       { type: "resource", resource: "meat", chance: 0.5, min: 2, max: 6 },
       { type: "resource", resource: "bristlehide", chance: 0.3, min: 1, max: 1 },
@@ -1021,7 +1036,7 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 2,
     stats: { str: 8, dex: 4, int: 1, vit: 13, wis: 1 },
     tags: ["beast"],
-    abilities: [{ id: "charge", name: "Charge", icon: "💨", cooldown: 99, trigger: "round_start", effect: { type: "damage_mult", mult: 1.5, targets: 1 } }],
+    charge: { range: 40, cooldown: 2 }, // TODO Hollow beat: + Hollow bite, knockback-immune, breakthrough
     loot: [
       { type: "resource", resource: "bristlehide", chance: 0.4, min: 1, max: 1 },
       { type: "resource", resource: "tusk_shard", chance: 1, min: 1, max: 1 },
@@ -1041,7 +1056,7 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 11, dex: 4, int: 1, vit: 18, wis: 1 },
     tags: ["beast"],
     boss: true,
-    abilities: [{ id: "charge", name: "Goring Charge", icon: "💨", cooldown: 3, trigger: "round_start", effect: { type: "damage_mult", mult: 1.8, targets: 1 } }],
+    charge: { range: 40, cooldown: 3 }, // TODO Hollow beat: + Hollow bite, death-vomit zone, breakthrough
     loot: [
       { type: "resource", resource: "tusk_shard", chance: 1, min: 2, max: 3 },
       { type: "resource", resource: "bristlehide", chance: 0.6, min: 1, max: 2 },

@@ -93,6 +93,12 @@ export interface CombatUnit {
   enemyDefId?: string;
   /** Pack tag — shared-target Pack Tactics bonus (Flanker archetype). From EnemyDefinition.pack. */
   pack?: string;
+  /** Charge config (Charger archetype). From EnemyDefinition.charge. Cooldown is
+   *  tracked in `cooldowns.charge` (ticks with everything else). */
+  charge?: { range: number; cooldown: number };
+  /** Set by the Move phase on the round this unit charged; consumed by the
+   *  action phase to add distance-scaled gore damage + knockback. Transient. */
+  chargedThisRound?: { distance: number; targetId: string };
   /** Combat-stage formation row ("back" for ranged/casters). Presentational. */
   combatRole?: "front" | "back";
   /** 1D position on the battlefield axis (paces). Set at combat start by the
