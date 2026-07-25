@@ -204,7 +204,7 @@ export interface CombatLogEntry {
   /** Retreat/recovery narrative beat (Model C). Interim flat-schema marker until
    *  the combat-log discriminated-union refactor lands; the renderer can special-
    *  case these as highlighted lines. */
-  beat?: "broken" | "flee_success" | "flee_fail" | "order_hold" | "order_fallback" | "abandoned";
+  beat?: "broken" | "flee_success" | "flee_fail" | "order_hold" | "order_fallback" | "abandoned" | "move";
   /** Human-readable narrative line for a `beat` entry. */
   note?: string;
 }

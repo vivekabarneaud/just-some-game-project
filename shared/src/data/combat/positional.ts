@@ -10,6 +10,7 @@
 // and isPinned/inReach/isBehind inside basicAttack + a reach-aware pickTarget.
 
 import type { CombatContext, CombatUnit } from "./types.js";
+import type { CombatLogEntry } from "./types.js";
 
 export const POS = {
   fieldMin: 0, fieldMax: 100,
@@ -75,6 +76,20 @@ export function computeHolds(ctx: CombatContext): Set<string> {
   return held;
 }
 
+function logMove(ctx: CombatContext, u: CombatUnit, target: CombatUnit, paces: number): void {
+  const entry: CombatLogEntry = {
+    round: ctx.round,
+    attackerName: u.name,
+    attackerIcon: u.icon || "👣",
+    targetName: target.name,
+    damage: 0, dodged: false, crit: false, killed: false,
+    isEnemy: u.isEnemy,
+    beat: "move",
+    note: `${u.name} advances ${paces} pace${paces === 1 ? "" : "s"} toward ${target.name}`,
+  };
+  ctx.log.push(entry);
+}
+
 /** Reposition everyone: melee advance (stopped by engagement), ranged kite. */
 export function movePhase(ctx: CombatContext): void {
   const units = living(ctx);
@@ -96,12 +111,14 @@ export function movePhase(ctx: CombatContext): void {
     // overflow (beyond the front's hold capacity) BREAK THROUGH to the backline;
     // everyone else holds the FRONT line.
     if (u.breakthrough === undefined) u.breakthrough = canBypass(u) || !held.has(u.id);
+    const fromX = px(u);
+    let intent: CombatUnit | undefined;
 
     if (u.breakthrough) {
       // Push toward the enemy backline and stay committed; flank just past.
-      const target = foes.slice().sort((a, b) => backlineScore(b, u) - backlineScore(a, u))[0];
-      const dir = px(target) > px(u) ? 1 : -1;
-      const stop = px(target) + dir * 2;
+      intent = foes.slice().sort((a, b) => backlineScore(b, u) - backlineScore(a, u))[0];
+      const dir = px(intent) > px(u) ? 1 : -1;
+      const stop = px(intent) + dir * 2;
       let destX = px(u) + dir * mob;
       destX = dir > 0 ? Math.min(destX, stop) : Math.max(destX, stop);
       u.x = clamp(destX);
@@ -111,13 +128,18 @@ export function movePhase(ctx: CombatContext): void {
       const engaged = foes.some((f) => !isRanged(f) && gap(u, f) <= POS.contact);
       if (!engaged) {
         const ahead = foes.filter((f) => (allySide(u) ? px(f) >= px(u) : px(f) <= px(u)));
-        const target = nearest(u, ahead.length ? ahead : foes);
-        const dir = px(target) > px(u) ? 1 : -1;
-        const stopX = px(target) - dir * POS.contact;
+        intent = nearest(u, ahead.length ? ahead : foes);
+        const dir = px(intent) > px(u) ? 1 : -1;
+        const stopX = px(intent) - dir * POS.contact;
         let destX = px(u) + dir * mob;
         destX = dir > 0 ? Math.min(destX, stopX) : Math.max(destX, stopX);
         u.x = clamp(destX);
       }
+    }
+    // Narrate a meaningful advance that hasn't yet reached striking range, so the
+    // approach reads in the log (and the battlefield animates it).
+    if (intent && Math.abs(px(u) - fromX) >= 3 && gap(u, intent) > POS.contact) {
+      logMove(ctx, u, intent, Math.round(Math.abs(px(u) - fromX)));
     }
   }
 }

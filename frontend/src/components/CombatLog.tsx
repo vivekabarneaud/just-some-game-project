@@ -117,6 +117,15 @@ const BEAT_STYLE: Record<string, { color: string; bg: string; weight: string }> 
 /** A retreat/recovery narrative beat — highlighted, centered, set apart. */
 function BeatLine(props: { entry: CombatLogEntry }) {
   const e = props.entry;
+  // Movement is a quiet, left-aligned aside — not a dramatic centered beat.
+  if (e.beat === "move") {
+    return (
+      <div style={{ color: "var(--text-muted)", "font-style": "italic", "font-size": "0.92em", display: "flex", "align-items": "center", gap: "5px" }}>
+        <span style={{ "font-style": "normal", opacity: 0.7 }}>{e.attackerIcon}</span>
+        <span>{e.note}</span>
+      </div>
+    );
+  }
   const s = BEAT_STYLE[e.beat ?? ""] ?? { color: "var(--text-secondary)", bg: "rgba(255,255,255,0.04)", weight: "600" };
   return (
     <div style={{
