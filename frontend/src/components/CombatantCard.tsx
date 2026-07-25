@@ -55,6 +55,9 @@ export default function CombatantCard(props: {
    *  when the same unit acts on consecutive steps. */
   acting?: boolean;
   actKey?: number;
+  /** Vertical component of the lunge (px) — nudges the jab toward the target's
+   *  row on the battlefield. Defaults to 0 (pure horizontal jab). */
+  lungeY?: number;
   /** Fled the field — slide off-side and fade. */
   fleeing?: boolean;
   /** Down (hp<=0) — dim and desaturate. */
@@ -96,6 +99,7 @@ export default function CombatantCard(props: {
       <div
         style={{
           position: "absolute", inset: "0",
+          "--lunge-y": `${props.lungeY ?? 0}px`,
           transform: props.fleeing ? "translateX(-120%)" : undefined,
           transition: "transform 0.35s ease-in, opacity 0.35s ease",
           opacity: props.fleeing ? 0 : props.fallen ? 0.4 : 1,

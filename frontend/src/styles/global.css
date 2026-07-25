@@ -4157,11 +4157,11 @@ input, textarea, select {
    +translateX reads as "toward center" for both sides — enemy cards are already
    mirrored by their outer box, so a positive local X points inward for both. */
 @keyframes combat-lunge {
-  0%, 100% { transform: translateX(0); }
-  45% { transform: translateX(9%); }
+  0%, 100% { transform: translateX(0) translateY(0); }
+  45% { transform: translateX(9%) translateY(var(--lunge-y, 0px)); }
 }
 @media (prefers-reduced-motion: reduce) {
-  @keyframes combat-lunge { 0%, 100% { transform: translateX(0); } }
+  @keyframes combat-lunge { 0%, 100% { transform: translateX(0) translateY(0); } }
 }
 
 /* ─── Loot modal animations ───────────────────────────────── */

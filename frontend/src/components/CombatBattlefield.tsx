@@ -15,9 +15,11 @@ import { statusLabel } from "./CombatLog";
 
 const FIELD_PACES = 100;          // x axis domain
 const EDGE_PCT = 7;               // horizontal padding so edge cards stay on-field
-const BAND = 7;                   // paces per vertical-stack band (pooling)
+const CARD_ASPECT = 422 / 992;
 
-const ALLY_KIND_RANK: Record<string, number> = { adventurer: 0, ally: 1, entity: 2, enemy: 3 };
+const RANGED_CLASSES = new Set(["archer", "wizard", "priest"]);
+const isRangedSnap = (c: CombatantSnapshot) =>
+  c.class ? RANGED_CLASSES.has(c.class) : c.combatRole === "back"; // enemies: authored row
 
 export default function CombatBattlefield(props: {
   roster: CombatantSnapshot[];
@@ -64,35 +66,40 @@ export default function CombatBattlefield(props: {
   const posNow = () => props.positions[Math.min(roundNow(), props.positions.length - 1)] ?? props.positions[0] ?? {};
   const xOf = (c: CombatantSnapshot) => posNow()[c.id] ?? c.x ?? (c.side === "ally" ? 25 : 75);
 
-  const cardW = () => {
-    const n = Math.max(props.roster.length, 1);
-    return Math.max(84, Math.min(150, 900 / n)); // shrink as the cast grows
-  };
-
-  // Vertical slot for a card: stack same-side cards that share an X band so a
-  // pile-up reads as a pool rather than an overlap.
-  const slotOf = createMemo(() => {
-    const slot = new Map<string, number>();
-    for (const side of ["ally", "enemy"] as const) {
-      const bands = new Map<number, CombatantSnapshot[]>();
-      for (const c of props.roster.filter((r) => r.side === side)) {
-        const b = Math.round(xOf(c) / BAND);
-        const arr = bands.get(b) ?? [];
-        arr.push(c); bands.set(b, arr);
-      }
-      for (const arr of bands.values()) {
-        arr.sort((a, z) => (ALLY_KIND_RANK[a.kind] ?? 9) - (ALLY_KIND_RANK[z.kind] ?? 9));
-        arr.forEach((c, i) => slot.set(c.id, i));
-      }
-    }
-    return slot;
+  // ── Fixed formation rows (assigned once, never re-stacked) ──
+  // Top → bottom: ally ranged (outer) · ally melee · [clash] · enemy melee · enemy
+  // ranged (outer). Melee meet in the vertical middle; ranged fire from the edges.
+  const rows = createMemo(() => {
+    const allies = props.roster.filter((r) => r.side === "ally");
+    const enemies = props.roster.filter((r) => r.side === "enemy");
+    const order = [
+      ...allies.filter(isRangedSnap), ...allies.filter((c) => !isRangedSnap(c)),
+      ...enemies.filter((c) => !isRangedSnap(c)), ...enemies.filter(isRangedSnap),
+    ];
+    const m = new Map<string, number>();
+    order.forEach((c, i) => m.set(c.id, i));
+    return { m, count: Math.max(order.length, 1) };
   });
 
+  // Size cards to fit one row each within the field height.
+  const cardW = () => {
+    const gap = 6;
+    const rowH = (H() - gap) / rows().count - gap;
+    return Math.max(72, Math.min(150, rowH / CARD_ASPECT));
+  };
+  const rowStep = () => cardW() * CARD_ASPECT + 6;
+
   const leftPct = (c: CombatantSnapshot) => EDGE_PCT + (xOf(c) / FIELD_PACES) * (100 - 2 * EDGE_PCT);
-  const topPx = (c: CombatantSnapshot) => {
-    const ch = cardW() * (422 / 992);
-    const base = c.side === "ally" ? H() * 0.06 : H() * 0.52;
-    return base + (slotOf().get(c.id) ?? 0) * (ch * 0.5);
+  const topPx = (c: CombatantSnapshot) => 6 + (rows().m.get(c.id) ?? 0) * rowStep();
+
+  // Directional lunge: on top of the horizontal jab, add a vertical nudge toward
+  // the target's row so the attacker visibly leans at whom it's hitting.
+  const lungeYOf = (c: CombatantSnapshot): number => {
+    if (actingId() !== c.id) return 0;
+    const tid = revealed()[revealed().length - 1]?.targetId;
+    if (!tid || tid === c.id) return 0;
+    const dr = (rows().m.get(tid) ?? 0) - (rows().m.get(c.id) ?? 0);
+    return Math.max(-14, Math.min(14, dr * 6));
   };
 
   const cardFallen = (c: CombatantSnapshot) => derived().fallen.has(c.id) || (derived().hp.get(c.id) ?? c.hp) <= 0;
@@ -105,7 +112,7 @@ export default function CombatBattlefield(props: {
             position: "absolute",
             left: `${leftPct(c)}%`, top: `${topPx(c)}px`,
             transform: "translateX(-50%)",
-            transition: "left 0.5s ease, top 0.4s ease",
+            transition: "left 0.5s ease",
           }}>
             <CombatantCard
               snapshot={c}
@@ -113,6 +120,7 @@ export default function CombatBattlefield(props: {
               statuses={cardFallen(c) ? [] : Array.from(derived().statuses.get(c.id)?.values() ?? [])}
               acting={actingId() === c.id}
               actKey={props.shownCount}
+              lungeY={lungeYOf(c)}
               fleeing={derived().fled.has(c.id)}
               fallen={cardFallen(c)}
               width={cardW()}
