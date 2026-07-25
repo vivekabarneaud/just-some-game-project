@@ -120,6 +120,17 @@ This is where the "character-specific combat style within a class" philosophy li
 
 ---
 
+### Talent-tree presentation (design captured 2026-07-25)
+
+Godric's tree is a hand-drawn **heraldic crest** (gold filigree, sword down the spine; art in the frames folder — `IMG_0140` lit / `IMG_0141` base). Illumination is an **overlay on the art**, driven by talent state — **one reusable component, per-tree data**:
+- **Nodes** — a positioned glow per node: **locked** = dim (base gold shows) · **available** (adjacent to a taken node + affordable) = soft pulsing bloom · **selected** = bright white/gold bloom.
+- **Paths** — each connection is an authored **bezier** tracing the filigree, rendered as a **glowing beaded line** when both ends are selected (a fainter dotted version toward an available node). Matches the luminance-pen look exactly; no need to slice the art or make a second "lit" image.
+- **Authoring** — node positions + connections + path curves are per-tree DATA, placed in a small **in-browser node/path editor** (like the combat-card slot tuner), so the art is matched visually.
+
+**Godric's semantic zones** (the crest's shape = the meaning): **sword spine (center) = pure offense**; **core/middle = aggro & taunt** (threat control); **shield wings = defense split two ways** — one **toughness** (VIT + STR; Parry lives here) and one **evasion** (DEX; Dodge/footwork); plus a **mobility path** (for peeling / repositioning). When we build it: reference the existing `talents.ts` (Godric's old warrior kit) and reconcile with this shape.
+
+Sits downstream of the ability/effect system + combat foundation; build the node editor when we reach talents.
+
 ## 7. Display: stage v2
 
 The combat stage becomes a **wide battlefield** instead of two edge-hugging columns. Units are placed by their **X** (absolute positioning along the field), and a rank of same-X units pools together vertically (the swarm pool).
