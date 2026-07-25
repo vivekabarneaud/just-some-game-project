@@ -23,6 +23,7 @@ export function snapshotRoster(units: CombatUnit[]): CombatantSnapshot[] {
     portrait: u.portrait,
     scale: u.scale,
     enemyDefId: u.enemyDefId,
+    combatRole: u.combatRole,
   }));
 }
 

@@ -68,6 +68,8 @@ export interface CombatUnit {
   weaponType?: string;
   enemyTags?: EnemyTag[];
   enemyDefId?: string;
+  /** Combat-stage formation row ("back" for ranged/casters). Presentational. */
+  combatRole?: "front" | "back";
   /** Backref to NPC_ALLIES catalog when kind === "ally". */
   npcId?: string;
   // ── Capabilities (mostly defaults; entities flip these off) ──
@@ -231,6 +233,9 @@ export interface CombatantSnapshot {
   scale?: number;
   /** Enemy catalog id (for grouping swarms of the same type on the stage). */
   enemyDefId?: string;
+  /** Formation row for enemies ("back" = ranged/caster). Allies derive theirs
+   *  from class on the stage. */
+  combatRole?: "front" | "back";
 }
 
 export interface CombatResult {

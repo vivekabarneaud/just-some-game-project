@@ -68,10 +68,14 @@ export default function CombatStage(props: {
   };
 
   // ── Per-card size: authored scale (boss 1.2) × swarm-shrink (many of a type) ──
+  // Group by enemyDefId when present, else by the name with its trailing number
+  // stripped ("Dominion Tough 3" → "Dominion Tough") so it works on any roster.
+  const groupKey = (c: CombatantSnapshot) => c.enemyDefId ?? c.name.replace(/\s+\d+$/, "");
   const swarmScaleOf = (c: CombatantSnapshot) => {
-    if (c.side !== "enemy" || !c.enemyDefId) return 1;
-    const k = enemies().filter((e) => e.enemyDefId === c.enemyDefId).length;
-    return k >= 6 ? 0.72 : k >= 4 ? 0.82 : 1;
+    if (c.side !== "enemy") return 1;
+    const key = groupKey(c);
+    const k = enemies().filter((e) => groupKey(e) === key).length;
+    return k >= 6 ? 0.68 : k >= 4 ? 0.78 : k >= 3 ? 0.88 : 1;
   };
   const baseScaleOf = (c: CombatantSnapshot) => (c.scale ?? 1) * swarmScaleOf(c);
   const sumScale = (list: CombatantSnapshot[]) => list.reduce((s, c) => s + baseScaleOf(c), 0);
@@ -92,10 +96,11 @@ export default function CombatStage(props: {
   const FRONT_CLASSES = new Set(["warrior", "assassin"]);
   const BACK_CLASSES = new Set(["archer", "wizard", "priest"]);
   const isFront = (c: CombatantSnapshot) => {
-    if (c.kind === "entity") return true;             // walls soak up front
+    if (c.side === "enemy") return c.combatRole !== "back"; // authored role; default melee/front
+    if (c.kind === "entity") return true;                   // walls soak up front
     if (c.class && FRONT_CLASSES.has(c.class)) return true;
     if (c.class && BACK_CLASSES.has(c.class)) return false;
-    return c.side === "enemy";                          // classless enemies default to melee/front
+    return false;
   };
   const indent = () => baseW() * 0.28;
 

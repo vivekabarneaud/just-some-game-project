@@ -97,6 +97,11 @@ export interface EnemyDefinition {
   };
   tags: EnemyTag[];
   boss?: boolean;
+  /** Combat-stage row: "back" for ranged/casters (they set up behind the line),
+   *  "front" (default) for melee. Purely presentational — where the card sits in
+   *  the formation. Distinct from aiTier (targeting), which "cunning" enemies use
+   *  to hunt the player's own backline. */
+  combatRole?: "front" | "back";
   /** The settlement already knows this foe by reputation before ever fighting it
    *  (named in the journal, described by scouts, etc.). Its PORTRAIT + name show
    *  on mission cards pre-encounter, but its combat measure (HP, abilities, stat
@@ -355,6 +360,7 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 2,
     stats: { str: 6, dex: 16, int: 3, vit: 12, wis: 2 },
     tags: ["undead"],
+    combatRole: "back",
     loot: [
       { type: "resource", resource: "cursed_iron", chance: 0.2, min: 1, max: 1 },
       { type: "resource", resource: "bonewalk_shard", chance: 0.3, min: 1, max: 2 },
@@ -461,6 +467,7 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 3,
     stats: { str: 4, dex: 7, int: 26, vit: 14, wis: 18 },
     tags: ["humanoid", "magical"],
+    combatRole: "back",
     boss: true,
     abilities: [
       { id: "mind_control", name: "Dominate Mind", icon: "🧠", cooldown: 5, trigger: "always",
@@ -1034,6 +1041,7 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 2,
     stats: { str: 6, dex: 8, int: 16, vit: 12, wis: 10 },
     tags: ["humanoid", "magical"],
+    combatRole: "back",
     abilities: [
       { id: "hex_bolt", name: "Hex Bolt", icon: "🔮", cooldown: 1, trigger: "always", effect: { type: "damage_mult", mult: 1.3, targets: 1 } },
       { id: "heal_ally_shaman", name: "Mend Flesh", icon: "💚", cooldown: 3, trigger: "any_ally_below_30", effect: { type: "heal_ally", pct: 25 } },
@@ -1102,6 +1110,7 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 2,
     stats: { str: 6, dex: 8, int: 18, vit: 14, wis: 14 },
     tags: ["humanoid", "magical"],
+    combatRole: "back",
     boss: true,
     abilities: [
       { id: "curse_weakness", name: "Curse of Weakness", icon: "💀", cooldown: 3, trigger: "always", effect: { type: "debuff_target", stat: "str", pct: 25, rounds: 2 } },
@@ -1167,6 +1176,7 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 3,
     stats: { str: 8, dex: 10, int: 22, vit: 16, wis: 16 },
     tags: ["humanoid", "undead", "magical"],
+    combatRole: "back",
     boss: true,
     abilities: [
       { id: "raise_dead_acolyte", name: "Raise Dead", icon: "💀", cooldown: 5, trigger: "always", effect: { type: "summon", enemyId: "skeleton", count: 2 } },
