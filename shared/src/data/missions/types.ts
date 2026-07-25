@@ -262,6 +262,8 @@ export interface CompletedMission {
   levelUps: string[]; // adventurer names that leveled up
   rankUps: { name: string; newRank: string }[]; // adventurers that ranked up
   combatLog?: import("../combat").CombatLogEntry[];
+  /** Starting-state roster for the combat stage (allies + enemies at t0). */
+  combatRoster?: import("../combat").CombatantSnapshot[];
   combatRounds?: number;
   combatVictory?: boolean; // distinct from success — success is the overall mission outcome
   /** The team broke off and retreated (Model C) rather than being wiped — the

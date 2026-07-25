@@ -45,6 +45,11 @@ export interface CombatUnit {
   vit: number;
   wis: number;
   class?: AdventurerClass;
+  /** Display metadata for the combat stage — stamped when the unit is built from
+   *  an adventurer (buildAdventurerUnit). Portrait is the full URL; level is the
+   *  adventurer's level. Absent for enemies / entities / anonymous stacks. */
+  portrait?: string;
+  level?: number;
   isMagical: boolean;
   gearDefense: number;
   /** This unit's physical auto-attack damage range (weapon for adventurers, the
@@ -141,6 +146,11 @@ export interface CombatLogEntry {
   attackerName: string;
   attackerIcon: string;
   targetName: string;
+  /** Stable combatant ids, stamped in a post-pass from the roster snapshot
+   *  (names are unique per fight, so the name→id map is 1:1). Let the combat
+   *  stage match a log line to its roster bar by id rather than by name. */
+  attackerId?: string;
+  targetId?: string;
   damage: number;
   rawDamage?: number;
   dodged: boolean;
@@ -159,6 +169,8 @@ export interface CombatLogEntry {
   abilityIcon?: string;
   targets?: {
     name: string;
+    /** Stable id, stamped in the same post-pass as attackerId/targetId. */
+    id?: string;
     damage: number;
     killed: boolean;
     hp: number;
@@ -194,10 +206,32 @@ export interface LootResult {
   fromEnemy: string;
 }
 
+/** A combatant's state at the START of the fight — the roster the combat-stage
+ *  UI lays out (allies left, enemies right) and animates from. Captured before
+ *  the sim mutates anyone, so `hp` reflects the true starting HP (a wounded
+ *  adventurer opens below maxHp). Log lines drive the HP changes from here. */
+export interface CombatantSnapshot {
+  id: string;
+  name: string;
+  icon: string;
+  side: "ally" | "enemy";
+  /** Finer role than side — for positioning (entities/walls back, heroes front). */
+  kind: CombatKind;
+  class?: AdventurerClass;
+  level?: number;
+  /** Starting HP (may be below maxHp for a wounded hero). */
+  hp: number;
+  maxHp: number;
+  /** Full portrait URL for adventurer-kind combatants; absent otherwise. */
+  portrait?: string;
+}
+
 export interface CombatResult {
   victory: boolean;
   rounds: number;
   log: CombatLogEntry[];
+  /** Starting-state roster for the combat stage. Absent on legacy results. */
+  roster?: CombatantSnapshot[];
   performanceRatio: number;
   survivingEnemies: number;
   fallenAdventurerIds: string[];

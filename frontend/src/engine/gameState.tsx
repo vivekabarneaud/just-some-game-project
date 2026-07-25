@@ -5528,6 +5528,7 @@ export function GameProvider(props: ParentProps) {
                 roster,
                 ...(combatResult ? {
                   combatLog: combatResult.log,
+                  combatRoster: combatResult.roster,
                   combatRounds: combatResult.rounds,
                   combatVictory: combatResult.victory,
                   ...(combatResult.retreated ? { retreated: true } : {}),
@@ -5801,6 +5802,7 @@ export function GameProvider(props: ParentProps) {
               // Stash combat log on the raid for playback. Card stays in the
               // panel until acknowledgeRaidCombat() splices it.
               ir.combatLog = sim.log;
+              ir.combatRoster = sim.roster;
               ir.combatVictory = sim.victory;
               ir.combatViewed = false;
               s.lastRaidOutcome = sim.victory ? "victory" : "defeat";

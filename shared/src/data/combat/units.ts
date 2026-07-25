@@ -1,5 +1,5 @@
 import type { Adventurer } from "../adventurers.js";
-import { calcStats } from "../adventurers.js";
+import { calcStats, getPortraitUrl } from "../adventurers.js";
 import { getEquipmentStats, getEquipmentDefense, getItem } from "../items/index.js";
 import { getEnemy } from "../enemies.js";
 import type { MissionEncounter, MissionNpcAlly } from "../missions/index.js";
@@ -35,6 +35,8 @@ export function buildAdventurerUnit(adv: Adventurer): CombatUnit {
     hp, maxHp: hp,
     str: stats.str, dex: stats.dex, int: stats.int, vit: stats.vit, wis: stats.wis,
     class: adv.class,
+    portrait: getPortraitUrl(adv),
+    level: adv.level,
     talents: adv.talents,
     isMagical: adv.class === "wizard" || adv.class === "priest",
     gearDefense: getEquipmentDefense(adv.equipment),

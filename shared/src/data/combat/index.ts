@@ -3,6 +3,7 @@ import type { MissionTemplate, MissionEncounter, AdventurerMissionSupplies } fro
 import type { CombatContext, CombatResult } from "./types.js";
 import { setCombatSeed } from "./prng.js";
 import { buildAdventurerUnit, buildEnemyUnits, buildNpcAllyUnit } from "./units.js";
+import { snapshotRoster, stampLogIds } from "./snapshot.js";
 import { applySupplies, applyHpOverride, applyPassives } from "./setup.js";
 import { applyMissionAllyBaselineThreat } from "./threat.js";
 import { applyMissionModifiers } from "./modifiers.js";
@@ -10,7 +11,7 @@ import { runRound } from "./round/index.js";
 import { buildResult } from "./result.js";
 
 // ─── Public types re-exported for consumers ─────────────────────
-export type { CombatUnit, CombatLogEntry, CombatResult, LootResult, CombatContext, AITier, TauntImmunity, CombatKind } from "./types.js";
+export type { CombatUnit, CombatLogEntry, CombatResult, CombatantSnapshot, LootResult, CombatContext, AITier, TauntImmunity, CombatKind } from "./types.js";
 export { setCombatSeed, combatRandom } from "./prng.js";
 export { calcDamageResult, woundedDamageMult } from "./damage.js";
 export { getAttackPower, getMagicPower, getCritChance, getDodgeChance, getInitiative, getDefenseReduction, getMagicResistReduction, dealsMagicalDamage, ATTACK_STAT_SCALE, UNARMED_RANGE, rarityWeaponRange, derivedDamageRange } from "./stats.js";
@@ -82,12 +83,17 @@ export function simulateCombat(
   // immunity returns to ghosts).
   applyMissionModifiers(ctx);
 
+  // Roster snapshot at t0 — before any HP is spent — for the combat stage.
+  const roster = snapshotRoster([...adventurers, ...enemies]);
+
   while (ctx.round < MAX_ROUNDS) {
     ctx.round++;
     if (!runRound(ctx)) break;
   }
 
+  stampLogIds(ctx.log, roster);
   const result = buildResult(adventurers, enemies, totalEnemies, ctx.log, ctx.round);
+  result.roster = roster;
   setCombatSeed(undefined); // restore Math.random for non-preview combat
   return result;
 }

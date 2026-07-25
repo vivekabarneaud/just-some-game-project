@@ -15,7 +15,8 @@
 // renders raid combat without modification.
 
 import type { MissionEncounter } from "./missions/index.js";
-import type { CombatLogEntry, CombatUnit } from "./combat/types.js";
+import type { CombatLogEntry, CombatUnit, CombatantSnapshot } from "./combat/types.js";
+import { snapshotRoster, stampLogIds } from "./combat/snapshot.js";
 import { setCombatSeed, combatRandom } from "./combat/prng.js";
 import { calcDamageResult } from "./combat/damage.js";
 import { getDodgeChance, derivedDamageRange } from "./combat/stats.js";
@@ -119,6 +120,8 @@ export interface RaidCombatResult {
   militiaLost: number;
   raidersKilled: number;
   raidersAlive: number;
+  /** Starting-state roster for the combat stage (defenders + raiders at t0). */
+  roster: CombatantSnapshot[];
   /** Post-raid outcome for a captain who actually fought (was deployed to a
    *  ring). advId keys the HP writeback; the engine floors currentHp at 1 so a
    *  captain survives no matter what. `fell` = downed during the fight (dragged
@@ -384,6 +387,18 @@ export function simulateRaidCombat(input: RaidCombatInput): RaidCombatResult {
     if (ring) { captainsByRing[ring].push(barracksCaptain); barracksCaptainDeployed = true; }
   }
 
+  // ── Roster snapshot at t0 (defenders + raiders, before any HP is spent) ──
+  const defenderUnits: CombatUnit[] = [];
+  for (const ring of RING_ORDER) {
+    if (wallByRing[ring]) defenderUnits.push(wallByRing[ring]!);
+    if (archerStackByRing[ring]) defenderUnits.push(archerStackByRing[ring]!);
+    if (soldierStackByRing[ring]) defenderUnits.push(soldierStackByRing[ring]!);
+  }
+  if (militiaStack) defenderUnits.push(militiaStack);
+  if (watchtowerCaptain && watchCaptainDeployed) defenderUnits.push(watchtowerCaptain);
+  if (barracksCaptain && barracksCaptainDeployed) defenderUnits.push(barracksCaptain);
+  const roster = snapshotRoster([...defenderUnits, ...raiders]);
+
   // ── Run the siege, ring by ring ──────────────────────────────
   const log: CombatLogEntry[] = [];
   let round = 0;
@@ -485,6 +500,8 @@ export function simulateRaidCombat(input: RaidCombatInput): RaidCombatResult {
 
   setCombatSeed(undefined);
 
+  stampLogIds(log, roster);
+
   // ── Assemble result ──────────────────────────────────────────
   const raidersAlive = raiders.filter((r) => r.hp > 0).length;
   const raidersKilled = raiders.length - raidersAlive;
@@ -546,6 +563,7 @@ export function simulateRaidCombat(input: RaidCombatInput): RaidCombatResult {
     militiaLost,
     raidersKilled,
     raidersAlive,
+    roster,
     watchtowerCaptainOutcome,
     barracksCaptainOutcome,
   };

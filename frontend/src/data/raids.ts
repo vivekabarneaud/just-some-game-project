@@ -1,6 +1,6 @@
 import type { Adventurer } from "@medieval-realm/shared/data/adventurers";
 import type { MissionEncounter } from "@medieval-realm/shared/data/missions";
-import type { CombatLogEntry } from "@medieval-realm/shared/data/combat";
+import type { CombatLogEntry, CombatantSnapshot } from "@medieval-realm/shared/data/combat";
 import type { SettlementTier } from "./buildings";
 import type { PlayerWall, PlayerWatchtower, PlayerBarracks } from "~/engine/gameState";
 
@@ -43,6 +43,8 @@ export interface IncomingRaid {
   /** Combat log emitted by simulateRaidCombat once the timer hits 0.
    *  Present → raid resolved, "Watch combat" CTA appears on the threats card. */
   combatLog?: CombatLogEntry[];
+  /** Starting-state roster for the combat stage (defenders + raiders at t0). */
+  combatRoster?: CombatantSnapshot[];
   /** Sim outcome — true when defenders held. */
   combatVictory?: boolean;
   /** Once the player has watched / dismissed playback, the raid card clears. */
