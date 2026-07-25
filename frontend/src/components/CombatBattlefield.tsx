@@ -109,6 +109,15 @@ export default function CombatBattlefield(props: {
     return Math.max(-30, Math.min(30, dr * 10)); // reach further when the target is rows away
   };
 
+  // When the acting unit ALSO slid on this same entry (a charge), delay its lunge
+  // until the slide (0.5s `left` transition) has landed — so it reads "arrive,
+  // THEN gore" instead of striking mid-slide (which looked like a jump).
+  const actDelayOf = (c: CombatantSnapshot): number => {
+    if (actingId() !== c.id) return 0;
+    const last = revealed()[revealed().length - 1];
+    return last?.moves?.some((m) => m.id === c.id) ? 0.45 : 0;
+  };
+
   const cardFallen = (c: CombatantSnapshot) => derived().fallen.has(c.id) || (derived().hp.get(c.id) ?? c.hp) <= 0;
 
   return (
@@ -128,6 +137,7 @@ export default function CombatBattlefield(props: {
               acting={actingId() === c.id}
               actKey={props.shownCount}
               lungeY={lungeYOf(c)}
+              actDelay={actDelayOf(c)}
               fleeing={derived().fled.has(c.id)}
               fallen={cardFallen(c)}
               width={cardW()}

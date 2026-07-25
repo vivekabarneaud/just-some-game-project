@@ -58,6 +58,10 @@ export default function CombatantCard(props: {
   /** Vertical component of the lunge (px) — nudges the jab toward the target's
    *  row on the battlefield. Defaults to 0 (pure horizontal jab). */
   lungeY?: number;
+  /** Seconds to delay the lunge — used so a CHARGE reads as "arrive, THEN gore"
+   *  (the jab waits for the slide to finish) instead of striking mid-slide. 0 for
+   *  a normal in-place attack. */
+  actDelay?: number;
   /** Fled the field — slide off-side and fade. */
   fleeing?: boolean;
   /** Down (hp<=0) — dim and desaturate. */
@@ -104,7 +108,7 @@ export default function CombatantCard(props: {
           transition: "transform 0.35s ease-in, opacity 0.35s ease",
           opacity: props.fleeing ? 0 : props.fallen ? 0.4 : 1,
           filter: props.fallen ? "grayscale(0.8)" : undefined,
-          animation: props.acting && !props.fleeing ? "combat-lunge 0.32s ease-out" : undefined,
+          animation: props.acting && !props.fleeing ? `combat-lunge 0.32s ease-out ${props.actDelay ?? 0}s` : undefined,
         }}
         // Key on actKey so a repeat act on the same unit replays the jab.
         data-act={props.actKey ?? 0}
