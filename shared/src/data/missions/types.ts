@@ -382,6 +382,8 @@ export interface ResolvedExpeditionEvent {
    *  expedition fight via the same playback modal used for regular missions.
    *  Empty/missing for non-combat events. */
   combatLog?: import("../combat/types.js").CombatLogEntry[];
+  /** Starting-state roster for the combat stage on this expedition fight. */
+  combatRoster?: import("../combat/types.js").CombatantSnapshot[];
   /** Combat victory flag — distinct from `success` (treasure/encounter events
    *  use `success` differently). Used by the playback modal banner. */
   combatVictory?: boolean;

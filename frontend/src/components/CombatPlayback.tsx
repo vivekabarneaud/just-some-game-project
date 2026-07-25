@@ -1,7 +1,8 @@
 import { createSignal, createEffect, onCleanup, Show } from "solid-js";
 import { Portal } from "solid-js/web";
-import type { CombatLogEntry } from "@medieval-realm/shared/data/combat";
+import type { CombatLogEntry, CombatantSnapshot } from "@medieval-realm/shared/data/combat";
 import CombatLog from "./CombatLog";
+import CombatStage from "./CombatStage";
 
 interface CombatPlaybackProps {
   log: CombatLogEntry[];
@@ -13,6 +14,9 @@ interface CombatPlaybackProps {
   onFinished?: () => void;
   /** Title shown at the top of the playback (e.g., mission name). Optional. */
   title?: string;
+  /** Starting-state roster — when present, the animated combat stage renders
+   *  sticky above the scrolling text log. Absent → text log only (legacy). */
+  roster?: CombatantSnapshot[];
   /** Combat outcome — when set and playback is finished, a Victory/Defeat
    *  banner appears in the footer. */
   victory?: boolean;
@@ -94,7 +98,7 @@ export default function CombatPlayback(props: CombatPlaybackProps) {
     >
       <div
         style={{
-          "max-width": "560px",
+          "max-width": props.roster && props.roster.length > 0 ? "720px" : "560px",
           width: "100%",
           "max-height": "82vh",
           background: "var(--bg-secondary)",
@@ -146,6 +150,13 @@ export default function CombatPlayback(props: CombatPlaybackProps) {
             ×
           </button>
         </div>
+
+        {/* Animated combat stage — sticky above the scrolling log. */}
+        <Show when={props.roster && props.roster.length > 0}>
+          <div style={{ "border-bottom": "1px solid var(--border-color)", background: "rgba(0,0,0,0.15)" }}>
+            <CombatStage roster={props.roster!} log={props.log} shownCount={shownCount()} maxHeight={300} />
+          </div>
+        </Show>
 
         {/* Log scroll area */}
         <div

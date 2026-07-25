@@ -64,7 +64,7 @@ function FallenTag(props: { permanent?: boolean }) {
 }
 
 /** Friendly label + icon for a status effect type. */
-function statusLabel(type: string): { text: string; icon: string } {
+export function statusLabel(type: string): { text: string; icon: string } {
   if (type === "bleed") return { text: "bleeding", icon: "🩸" };
   if (type === "poison") return { text: "poisoned", icon: "☠️" };
   if (type === "froth") return { text: "infected with the froth", icon: "🤢" };

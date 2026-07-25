@@ -372,6 +372,7 @@ export default function LootModal(props: Props) {
             <Show when={showPlayback() && r().combatLog?.length}>
               <CombatPlayback
                 log={r().combatLog!}
+                roster={r().combatRoster}
                 title={template().name}
                 victory={r().combatVictory}
                 onClose={() => setShowPlayback(false)}

@@ -457,6 +457,7 @@ export default function AdventurersGuild() {
                             <Show when={playbackOpen()}>
                               <CombatPlayback
                                 log={result.combatLog!}
+                                roster={result.combatRoster}
                                 title={missionTpl?.name}
                                 onClose={() => setPlaybackOpen(false)}
                               />
@@ -627,13 +628,13 @@ export default function AdventurersGuild() {
                       for (let i = am.expeditionLog.length - 1; i >= 0; i--) {
                         const ev = am.expeditionLog[i];
                         if (ev.kind === "combat" && ev.combatLog?.length) {
-                          return { log: ev.combatLog, victory: !!ev.combatVictory };
+                          return { log: ev.combatLog, victory: !!ev.combatVictory, roster: ev.combatRoster };
                         }
                       }
                       return null;
                     }
                     if (am.prerolledCombat?.log?.length) {
-                      return { log: am.prerolledCombat.log, victory: am.prerolledCombat.victory };
+                      return { log: am.prerolledCombat.log, victory: am.prerolledCombat.victory, roster: am.prerolledCombat.roster };
                     }
                     return null;
                   };
@@ -698,6 +699,7 @@ export default function AdventurersGuild() {
                         {(combat) => (
                           <CombatPlayback
                             log={combat().log}
+                            roster={combat().roster}
                             title={template().name}
                             victory={combat().victory}
                             onFinished={() => actions.markCombatViewed(am.missionId)}

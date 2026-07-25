@@ -169,6 +169,7 @@ export function resolveExpeditionEvent(
         // through the same modal used for regular missions. combatViewed
         // starts false and flips when the player watches.
         combatLog: combatResult.log,
+        combatRoster: combatResult.roster,
         combatVictory: combatResult.victory,
         combatViewed: false,
       });

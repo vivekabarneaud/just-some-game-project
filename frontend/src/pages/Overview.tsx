@@ -91,6 +91,7 @@ export default function Overview() {
         {(ir) => (
           <CombatPlayback
             log={ir().combatLog ?? []}
+            roster={ir().combatRoster}
             title={getRaid(ir().raidId)?.name ?? ir().raidId}
             victory={ir().combatVictory}
             onClose={() => {
