@@ -2,6 +2,16 @@ import type { CombatUnit } from "./types.js";
 import { combatRandom } from "./prng.js";
 import { getDefenseReduction, getMagicResistReduction, dealsMagicalDamage } from "./stats.js";
 import { getThreat } from "./threat.js";
+import { inReach } from "./positional.js";
+
+/** Prefer targets the attacker can actually reach this turn; if none are in
+ *  reach (still closing), fall back to all so a movement intent still resolves
+ *  (basicAttack gates the actual swing on reach). Position-less units (x unset)
+ *  read as all-reachable. */
+function reachable(attacker: CombatUnit, alive: CombatUnit[]): CombatUnit[] {
+  const r = alive.filter((t) => inReach(attacker, t));
+  return r.length ? r : alive;
+}
 
 /**
  * Enemy targeting — driven by aiTier (set per enemy, defaults from WIS):
@@ -25,23 +35,25 @@ export function pickTarget(attacker: CombatUnit, targets: CombatUnit[]): CombatU
   if (alive.length === 1) return alive[0];
 
   const tier = attacker.aiTier ?? "tactical";
+  // Positional gate: an enemy hits the highest-threat target it can REACH.
+  const pool = reachable(attacker, alive);
 
   if (tier === "feral") {
-    return alive[Math.floor(combatRandom() * alive.length)];
+    return pool[Math.floor(combatRandom() * pool.length)];
   }
 
   if (tier === "cunning") {
     // Smart enemies hunt the backline first, threat only breaks ties within a class.
-    const priests = alive.filter((t) => t.class === "priest");
+    const priests = pool.filter((t) => t.class === "priest");
     if (priests.length > 0) return priests.length === 1 ? priests[0] : highestThreat(attacker, priests) ?? priests[0];
-    const wizards = alive.filter((t) => t.class === "wizard");
+    const wizards = pool.filter((t) => t.class === "wizard");
     if (wizards.length > 0) return wizards.length === 1 ? wizards[0] : highestThreat(attacker, wizards) ?? wizards[0];
     // Fall back to a scored pick where threat barely matters (small weight).
-    return scoredPick(attacker, alive, 10, 0, 0.3);
+    return scoredPick(attacker, pool, 10, 0, 0.3);
   }
 
   // tactical — full threat weighting
-  return scoredPick(attacker, alive, 20, 0.15, 1.0);
+  return scoredPick(attacker, pool, 20, 0.15, 1.0);
 }
 
 /**
@@ -53,7 +65,7 @@ export function pickTargetForAdventurer(attacker: CombatUnit, targets: CombatUni
   const alive = targets.filter((u) => u.hp > 0 && !u.fled);
   if (alive.length === 0) return null;
   if (alive.length === 1) return alive[0];
-  return scoredPick(attacker, alive, 20, 0.15, 0);
+  return scoredPick(attacker, reachable(attacker, alive), 20, 0.15, 0);
 }
 
 /**

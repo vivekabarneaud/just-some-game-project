@@ -4,6 +4,7 @@ import type { CombatContext, CombatResult } from "./types.js";
 import { setCombatSeed } from "./prng.js";
 import { buildAdventurerUnit, buildEnemyUnits, buildNpcAllyUnit } from "./units.js";
 import { snapshotRoster, stampLogIds } from "./snapshot.js";
+import { placeUnits } from "./positional.js";
 import { applySupplies, applyHpOverride, applyPassives } from "./setup.js";
 import { applyMissionAllyBaselineThreat } from "./threat.js";
 import { applyMissionModifiers } from "./modifiers.js";
@@ -82,6 +83,10 @@ export function simulateCombat(
   // conditions (whileAllyAlive) flip mid-combat (e.g. Niamh dies → physical
   // immunity returns to ghosts).
   applyMissionModifiers(ctx);
+
+  // Place everyone on the 1D battlefield (melee front, ranged back) before the
+  // first move/act. The roster snapshot below captures these starting positions.
+  placeUnits(ctx);
 
   // Roster snapshot at t0 — before any HP is spent — for the combat stage.
   const roster = snapshotRoster([...adventurers, ...enemies]);

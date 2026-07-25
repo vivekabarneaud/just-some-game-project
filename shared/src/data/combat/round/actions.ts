@@ -7,6 +7,7 @@ import { tryClassAbility, tryEnemyAbility } from "../abilities/index.js";
 import { evaluateTransitions, getCurrentState } from "../ai/index.js";
 import { addDamageThreat } from "../threat.js";
 import { shouldFlee, attemptFlee } from "../retreat.js";
+import { POS, pinningFoe, inReach, isBehind } from "../positional.js";
 
 /**
  * The main action phase of a round.
@@ -96,8 +97,13 @@ function mindControlAttack(unit: CombatUnit, ctx: CombatContext): boolean {
 
 function basicAttack(unit: CombatUnit, ctx: CombatContext): void {
   const targetPool = unit.isEnemy ? ctx.adventurers : ctx.enemies;
-  const target = unit.isEnemy ? pickTarget(unit, targetPool) : pickTargetForAdventurer(unit, targetPool);
+  // Pinned ranged unit drops its bow and stabs the melee foe on top of it.
+  const pin = pinningFoe(unit, ctx);
+  const target = pin ?? (unit.isEnemy ? pickTarget(unit, targetPool) : pickTargetForAdventurer(unit, targetPool));
   if (!target || target.hp <= 0) return;
+  // Reach gate: if the chosen target isn't in reach (unit is still closing this
+  // round), there's no swing — the Move phase already spent the turn advancing.
+  if (!pin && !inReach(unit, target)) return;
 
   if (combatRandom() * 100 < getDodgeChance(target)) {
     ctx.log.push({
@@ -109,7 +115,14 @@ function basicAttack(unit: CombatUnit, ctx: CombatContext): void {
     return;
   }
 
-  const { damage, rawDamage, crit } = calcDamageResult(unit, target);
+  const dr = calcDamageResult(unit, target);
+  const rawDamage = dr.rawDamage;
+  const crit = dr.crit;
+  // Positional modifiers: a pinned archer's dagger does a fraction; a flank from
+  // behind does bonus damage. (Baseline; talents scale these later.)
+  let damage = dr.damage;
+  if (pin) damage = Math.max(1, Math.round(damage * POS.exposureMult));
+  if (isBehind(unit, target)) damage = Math.round(damage * POS.backstabMult);
 
   // Shield Wall: a warrior absorbs a killing blow meant for an ally (once per combat, 50% chance).
   if (unit.isEnemy && !target.isEnemy && target.hp - damage <= 0) {

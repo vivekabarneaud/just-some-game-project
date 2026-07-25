@@ -27,7 +27,7 @@ export function isRanged(u: CombatUnit): boolean {
   return !!u.class && RANGED_CLASSES.has(u.class);
 }
 export function reachOf(u: CombatUnit): number {
-  return isRanged(u) ? POS.fieldMax : POS.contact - 1; // melee must be in contact
+  return isRanged(u) ? POS.fieldMax : POS.contact; // melee connects at contact distance
 }
 export function mobilityOf(u: CombatUnit): number {
   const base = u.class === "assassin" ? 22
@@ -118,6 +118,12 @@ export function movePhase(ctx: CombatContext): void {
 export function isPinned(u: CombatUnit, ctx: CombatContext): boolean {
   if (!isRanged(u)) return false;
   return foesOf(u, ctx).some((f) => !isRanged(f) && gap(u, f) <= POS.contact);
+}
+/** The melee foe pinning this ranged unit (the one it stabs), or null. */
+export function pinningFoe(u: CombatUnit, ctx: CombatContext): CombatUnit | null {
+  if (!isRanged(u)) return null;
+  const pinners = foesOf(u, ctx).filter((f) => !isRanged(f) && gap(u, f) <= POS.contact);
+  return pinners.length ? nearest(u, pinners) : null;
 }
 /** Can this unit's attack reach the target right now? */
 export function inReach(u: CombatUnit, target: CombatUnit): boolean {
