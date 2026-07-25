@@ -92,24 +92,33 @@ export function movePhase(ctx: CombatContext): void {
       continue;
     }
 
-    // melee: overflow/bypass/cunning push to the backline; held units fight the front.
-    const overflow = !held.has(u.id);
-    const huntBack = canBypass(u) || u.aiTier === "cunning" || overflow;
-    const target = huntBack
-      ? foes.slice().sort((a, b) => backlineScore(b, u) - backlineScore(a, u))[0]
-      : nearest(u, foes);
-    const dir = px(target) > px(u) ? 1 : -1;
-    let destX = px(u) + dir * mob;
-    if (held.has(u.id)) {
-      const front = nearest(u, foes.filter((f) => !isRanged(f)));
-      if (front) {
-        const stopX = px(front) - dir * POS.contact;
+    // Melee. Commit an intent ONCE (no per-round flip-flop): bypassers and
+    // overflow (beyond the front's hold capacity) BREAK THROUGH to the backline;
+    // everyone else holds the FRONT line.
+    if (u.breakthrough === undefined) u.breakthrough = canBypass(u) || !held.has(u.id);
+
+    if (u.breakthrough) {
+      // Push toward the enemy backline and stay committed; flank just past.
+      const target = foes.slice().sort((a, b) => backlineScore(b, u) - backlineScore(a, u))[0];
+      const dir = px(target) > px(u) ? 1 : -1;
+      const stop = px(target) + dir * 2;
+      let destX = px(u) + dir * mob;
+      destX = dir > 0 ? Math.min(destX, stop) : Math.max(destX, stop);
+      u.x = clamp(destX);
+    } else {
+      // Frontline: hold the moment an enemy is in contact — never chase a foe
+      // that has slipped past. Otherwise close to the line.
+      const engaged = foes.some((f) => !isRanged(f) && gap(u, f) <= POS.contact);
+      if (!engaged) {
+        const ahead = foes.filter((f) => (allySide(u) ? px(f) >= px(u) : px(f) <= px(u)));
+        const target = nearest(u, ahead.length ? ahead : foes);
+        const dir = px(target) > px(u) ? 1 : -1;
+        const stopX = px(target) - dir * POS.contact;
+        let destX = px(u) + dir * mob;
         destX = dir > 0 ? Math.min(destX, stopX) : Math.max(destX, stopX);
+        u.x = clamp(destX);
       }
     }
-    const stop = canBypass(u) ? px(target) + dir * 2 : px(target); // bypassers flank just past
-    destX = dir > 0 ? Math.min(destX, stop) : Math.max(destX, stop);
-    u.x = clamp(destX);
   }
 }
 

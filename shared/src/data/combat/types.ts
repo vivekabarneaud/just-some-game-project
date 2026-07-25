@@ -124,6 +124,9 @@ export interface CombatUnit {
   /** Escaped the field alive — removed from targeting + the action order, comes
    *  home wounded. */
   fled?: boolean;
+  /** Positional movement intent, committed once: true = pushed past the front to
+   *  hunt the backline; false = holds the front line. Undefined until decided. */
+  breakthrough?: boolean;
   /** Enemy rout threshold (0-1 of maxHp). When an enemy at/below this breaks and
    *  flees on its turn — set `fled` (survives, off the field) instead of fighting
    *  on. Carried from EnemyDefinition.routsAt. Undefined = fights to the end. */
