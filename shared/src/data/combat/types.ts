@@ -70,6 +70,9 @@ export interface CombatUnit {
   enemyDefId?: string;
   /** Combat-stage formation row ("back" for ranged/casters). Presentational. */
   combatRole?: "front" | "back";
+  /** 1D position on the battlefield axis (paces). Set at combat start by the
+   *  positional layer; undefined in position-less contexts. */
+  x?: number;
   /** Backref to NPC_ALLIES catalog when kind === "ally". */
   npcId?: string;
   // ── Capabilities (mostly defaults; entities flip these off) ──
