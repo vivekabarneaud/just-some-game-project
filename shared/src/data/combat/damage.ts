@@ -10,6 +10,11 @@ export interface DamageOptions {
   damageMult?: number;
   /** When true, uses magic resistance for the reduction curve even for physical attacks (Smite). */
   ignorePhysicalDef?: boolean;
+  /** When true, a PHYSICAL attack bypasses armor entirely (no reduction) — the
+   *  wolf's Throat Tear goes for the neck; chainmail is no help. Foundation
+   *  `ignoreArmor` primitive; reusable by any armor-piercing attack. Only affects
+   *  physical hits (magical already routes through magic-resist). */
+  ignoreArmor?: boolean;
 }
 
 export interface DamageResult {
@@ -66,7 +71,8 @@ export function calcDamageResult(attacker: CombatUnit, defender: CombatUnit, opt
 
   const reductionPct = opts?.ignorePhysicalDef
     ? getMagicResistReduction(defender)
-    : (magical ? getMagicResistReduction(defender) : getDefenseReduction(defender));
+    : (magical ? getMagicResistReduction(defender)
+      : (opts?.ignoreArmor ? 0 : getDefenseReduction(defender))); // Throat Tear: armor no help
 
   // Physical: roll the weapon's own damage range, then scale by the primary stat
   // (a better weapon AND a stronger fighter both matter). Magical is unchanged

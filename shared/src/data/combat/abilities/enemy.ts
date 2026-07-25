@@ -122,7 +122,7 @@ export function tryEnemyAbility(unit: CombatUnit, ctx: CombatContext): boolean {
       case "damage_mult": {
         const tgts = [...aliveTargets].sort(() => combatRandom() - 0.5).slice(0, eff.targets);
         const hits = tgts.map((t) => {
-          const { damage } = calcDamageResult(unit, t, { damageMult: eff.mult });
+          const { damage } = calcDamageResult(unit, t, { damageMult: eff.mult, ignoreArmor: eff.ignoreArmor });
           t.hp -= damage;
           return { name: t.name, damage, killed: t.hp <= 0, hp: Math.max(0, t.hp), maxHp: t.maxHp };
         });

@@ -7,7 +7,7 @@ import { tryClassAbility, tryEnemyAbility } from "../abilities/index.js";
 import { evaluateTransitions, getCurrentState } from "../ai/index.js";
 import { addDamageThreat } from "../threat.js";
 import { shouldFlee, attemptFlee } from "../retreat.js";
-import { POS, pinningFoe, inReach, isBehind } from "../positional.js";
+import { POS, pinningFoe, inReach, isBehind, hasPackmateOn, PACK_TACTICS_BONUS } from "../positional.js";
 
 /**
  * The main action phase of a round.
@@ -123,6 +123,9 @@ function basicAttack(unit: CombatUnit, ctx: CombatContext): void {
   let damage = dr.damage;
   if (pin) damage = Math.max(1, Math.round(damage * POS.exposureMult));
   if (isBehind(unit, target)) damage = Math.round(damage * POS.backstabMult);
+  // Pack Tactics: wolves (and any packed foe) bite harder when a packmate is
+  // also on the target — the whole reason a lone wolf is weak and a pack lethal.
+  if (unit.pack && hasPackmateOn(unit, target, ctx)) damage = Math.round(damage * (1 + PACK_TACTICS_BONUS));
 
   // Shield Wall: a warrior absorbs a killing blow meant for an ally (once per combat, 50% chance).
   if (unit.isEnemy && !target.isEnemy && target.hp - damage <= 0) {

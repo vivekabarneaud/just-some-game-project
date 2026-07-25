@@ -115,6 +115,7 @@ export function buildEnemyUnits(encounters: MissionEncounter[]): CombatUnit[] {
         dmgMin: eRange.min, dmgMax: eRange.max,
         enemyTags: def.tags,
         enemyDefId: def.id,
+        pack: def.pack,
         combatRole: def.combatRole,
         scale: def.boss ? 1.2 : undefined,
         routsAt: def.routsAt,

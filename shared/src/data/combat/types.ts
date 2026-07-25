@@ -91,6 +91,8 @@ export interface CombatUnit {
   weaponType?: string;
   enemyTags?: EnemyTag[];
   enemyDefId?: string;
+  /** Pack tag — shared-target Pack Tactics bonus (Flanker archetype). From EnemyDefinition.pack. */
+  pack?: string;
   /** Combat-stage formation row ("back" for ranged/casters). Presentational. */
   combatRole?: "front" | "back";
   /** 1D position on the battlefield axis (paces). Set at combat start by the

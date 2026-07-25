@@ -73,7 +73,10 @@ export interface EnemyAbility {
     | { type: "buff_allies"; stat: "str" | "dex" | "int"; pct: number; rounds: number }
     | { type: "debuff_target"; stat: "str" | "dex" | "int"; pct: number; rounds: number }
     | { type: "revive_ally"; hpPct: number }
-    | { type: "damage_mult"; mult: number; targets: number };
+    /** A single/multi-target hit for `mult`× damage. `ignoreArmor` makes it a
+     *  physical armor-piercer (the wolf's Throat Tear — a normal-ish bite the
+     *  neck, no armor help). */
+    | { type: "damage_mult"; mult: number; targets: number; ignoreArmor?: boolean };
 }
 
 /** See combat/types.ts for the canonical definition. Re-declared here as a type
@@ -126,6 +129,11 @@ export interface EnemyDefinition {
   /** Resistance to forced-target taunt effects. Default "none". */
   tauntImmunity?: EnemyTauntImmunity;
   abilities?: EnemyAbility[];
+  /** Pack tag (Combat Foundation, Flanker archetype): creatures sharing a `pack`
+   *  string get **Pack Tactics** — a damage bonus when a packmate is also engaged
+   *  with the same target. Lone pack-hunters are weak; a pack ganging up is
+   *  lethal. Reusable (wolves now; goblins/raptors later). */
+  pack?: string;
   loot?: LootDrop[];   // drops on kill, empty/undefined means no drops
   /** Physical auto-attack damage range (the creature's bite/claw/swing). The sim
    *  rolls within [dmgMin, dmgMax] then scales by the creature's offensive stat.
@@ -231,7 +239,12 @@ export const ENEMIES: EnemyDefinition[] = [
     abilities: [
       { id: "wolf_bite", name: "Rending Bite", icon: "🩸", cooldown: 4, trigger: "always",
         effect: { type: "bleed", pctPerRound: 20, rounds: 2 } },
+      // Throat Tear: lunges for the neck — armor is no help (ignoreArmor). Mild at
+      // Tier 1 (little armor to bypass), keeps wolves relevant as armor grows.
+      { id: "throat_tear", name: "Throat Tear", icon: "🦷", cooldown: 3, trigger: "always",
+        effect: { type: "damage_mult", mult: 1.2, targets: 1, ignoreArmor: true } },
     ],
+    pack: "wolves",
     loot: [
       { type: "resource", resource: "wolfhide_strip", chance: 0.3, min: 1, max: 1 },
       { type: "resource", resource: "fang", chance: 0.5, min: 1, max: 2, keepOnRout: true },
@@ -293,6 +306,12 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "meat", chance: 0.3, min: 1, max: 3 },
       { type: "resource", resource: "wolfhide_strip", chance: 0.15, min: 1, max: 1 },
     ],
+    abilities: [
+      // A weaker Rending Bite than the Grey Wolf's — half the bleed.
+      { id: "wolf_bite", name: "Rending Bite", icon: "🩸", cooldown: 4, trigger: "always",
+        effect: { type: "bleed", pctPerRound: 10, rounds: 2 } },
+    ],
+    pack: "wolves",
     raw: { mobility: 2, dodge: 3 }, // lean yearling — quick and jumpy
     routsAt: 0.35, // a nervous, starving yearling, breaks and runs easily
     aiTier: "feral"
@@ -315,6 +334,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "meat", chance: 0.25, min: 1, max: 2 },
       { type: "resource", resource: "wolfhide_strip", chance: 0.1, min: 1, max: 1 },
     ],
+    pack: "wolves",
     raw: { mobility: 1 }, // spent and slow, but still quicker than a boar
     routsAt: 0.45, // barely holding together; breaks the moment it's hurt
     aiTier: "feral"
@@ -1101,7 +1121,9 @@ export const ENEMIES: EnemyDefinition[] = [
     abilities: [
       { id: "pack_howl", name: "Pack Howl", icon: "🌕", cooldown: 4, trigger: "round_start", effect: { type: "buff_allies", stat: "str", pct: 20, rounds: 2 } },
       { id: "lunge", name: "Lunge", icon: "💨", cooldown: 2, trigger: "always", effect: { type: "damage_mult", mult: 1.8, targets: 1 } },
+      { id: "throat_tear", name: "Throat Tear", icon: "🦷", cooldown: 3, trigger: "always", effect: { type: "damage_mult", mult: 1.4, targets: 1, ignoreArmor: true } },
     ],
+    pack: "wolves",
     loot: [
       // Signature trophy: exactly ONE of fang/sinew per kill (50/50). The alpha
       // hunt is one-time, so you get one and TRADE for the other.

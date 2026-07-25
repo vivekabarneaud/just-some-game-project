@@ -113,7 +113,7 @@ Author the rest one by one on the foundation (stats + band + only the distinct e
 Rather than build the whole abstract foundation first, we're doing **both families end-to-end**, adding only the mechanics they need (these are contact biters — no weapon-band/hit-resolution refactor required yet):
 
 1. **Stats + `routsAt` + raw mobility** — the low-risk base. ✅ **DONE** (see §6).
-2. **Throat Tear (`ignoreArmor`) + Pack Tactics** (shared-target passive).
+2. **Throat Tear (`ignoreArmor`) + Pack Tactics** (shared-target passive). ✅ **DONE** (see §6).
 3. **Position-aware Charge** (gap-close + distance-scaled damage) **+ Knockback** (small, capped).
 4. **Alpha focus-fire** (Pack Howl targeting override) — first user of the composable-AI targeting knob.
 
@@ -121,4 +121,5 @@ Sandbox-tune after each. Undead boars + patriarch (Hollow bite, breakthrough, de
 
 ## 6. Build status
 
-- **2026-07-25 — Step ① shipped.** Added `raw` sub-stats to `EnemyDefinition` (mirrors `RawSubStats`); flows into `CombatUnit` via `buildEnemyUnits`; `mobilityOf` now consumes `raw.mobility`. Tuned the six: wolves got raw mobility (+1/+2/+2/+3) + raw dodge; Wild Boar → `str5 vit6` + `routsAt 0.30`; Rabid Boar → `dex4`. `shared` typechecks clean, 110/110 tests green. Abilities (Throat Tear / Pack Tactics / Charge / Knockback / focus-fire) still pending — steps ②-④.
+- **2026-07-25 — Step ① shipped.** Added `raw` sub-stats to `EnemyDefinition` (mirrors `RawSubStats`); flows into `CombatUnit` via `buildEnemyUnits`; `mobilityOf` now consumes `raw.mobility`. Tuned the six: wolves got raw mobility (+1/+2/+2/+3) + raw dodge; Wild Boar → `str5 vit6` + `routsAt 0.30`; Rabid Boar → `dex4`. `shared` typechecks clean, 110/110 tests green.
+- **2026-07-25 — Step ② shipped.** `ignoreArmor` primitive on `DamageOptions` (physical hit skips armor reduction). **Throat Tear** = a `damage_mult` ability with `ignoreArmor: true` — on Grey Wolf (1.2×) + Alpha (1.4×). Gaunt Wolf gained its weak Rending Bite (10%/2rd) to complete the gradient. **Pack Tactics**: new `pack?` tag on `EnemyDefinition`/`CombatUnit` (wolves all `pack: "wolves"`); `hasPackmateOn()` in positional.ts; `basicAttack` adds `PACK_TACTICS_BONUS` (+15%) when a living packmate is in reach of the same target. Verified in-sim (Throat Tear fires in 3-wolf fights). tsc clean both packages, 110/110 tests green. **Known gap:** Pack Tactics currently boosts *basic attacks* only, not ability-bites — a later refinement.

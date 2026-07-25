@@ -167,3 +167,13 @@ export function inReach(u: CombatUnit, target: CombatUnit): boolean {
 export function isBehind(u: CombatUnit, target: CombatUnit): boolean {
   return allySide(u) ? px(u) > px(target) : px(u) < px(target);
 }
+/** + damage when a packmate shares your target (Pack Tactics). */
+export const PACK_TACTICS_BONUS = 0.15;
+/** Pack Tactics (Flanker archetype): is a living packmate (same `pack` tag) ALSO
+ *  in reach of this target? If so the pack is ganging up and every bite bites
+ *  harder. A lone pack-hunter gets nothing — wolves are dangerous in numbers. */
+export function hasPackmateOn(u: CombatUnit, target: CombatUnit, ctx: CombatContext): boolean {
+  if (!u.pack) return false;
+  const mates = u.isEnemy ? ctx.enemies : ctx.adventurers;
+  return mates.some((m) => m.id !== u.id && m.hp > 0 && !m.fled && m.pack === u.pack && inReach(m, target));
+}
