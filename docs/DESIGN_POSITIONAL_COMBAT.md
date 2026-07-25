@@ -113,6 +113,7 @@ Positions turn the ability list from stat-mods into tactics. A non-exhaustive me
 - **Leap / shadowstep**: gap-close or bypass; the assassin's signature.
 - **Bodyguard / intercept**: a unit that steps in front to hold an extra attacker (raises how many the front can hold).
 - **Formation buffs**: bonuses for staying back / holding the line / being flanked.
+- **Traps / terrain (Brenna the survival hunter):** place an entity at an X that triggers on the first enemy to cross it — a **wolf trap** immobilizes (mobility→0 / root) the first overflow runner; **caltrops** slow a lane; a **snare** holds a bypasser off your backline. Lets a hunter *shape where the line forms*, not just react to it. Strong class identity and a natural talent branch.
 
 This is where the "character-specific combat style within a class" philosophy lives: two archers can play completely differently depending on mobility and which of these they have.
 
