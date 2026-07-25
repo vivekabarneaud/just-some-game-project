@@ -157,6 +157,7 @@ const QuestLog = lazy(() => import("./pages/QuestLog"));
 const CharacterEncyclopedia = lazy(() => import("./pages/CharacterEncyclopedia"));
 const ComingSoon = lazy(() => import("./pages/ComingSoon"));
 const FramePreview = lazy(() => import("./pages/FramePreview")); // TEMP dev-only, remove after frame tuning
+const CombatCardPreview = lazy(() => import("./pages/CombatCardPreview")); // TEMP dev-only, remove after card tuning
 const Login = lazy(() => import("./pages/Login"));
 
 function AuthGuard(props: ParentProps) {
@@ -197,6 +198,7 @@ render(
         <Route path="/defenses" component={Defenses} />
         <Route path="/quests" component={QuestLog} />
         <Route path="/dev-frames" component={FramePreview} />{/* TEMP dev-only, remove after frame tuning */}
+        <Route path="/dev-combat-card" component={CombatCardPreview} />{/* TEMP dev-only, remove after card tuning */}
         <Route path="*" component={ComingSoon} />
       </Route>
     </Router>

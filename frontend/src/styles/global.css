@@ -4152,6 +4152,18 @@ input, textarea, select {
   50% { opacity: 0.6; }
 }
 
+/* Combat-stage lunge: the acting combatant jabs toward center and returns.
+   One-shot (ends at rest) so it self-returns even while `acting` stays true.
+   +translateX reads as "toward center" for both sides — enemy cards are already
+   mirrored by their outer box, so a positive local X points inward for both. */
+@keyframes combat-lunge {
+  0%, 100% { transform: translateX(0); }
+  45% { transform: translateX(9%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  @keyframes combat-lunge { 0%, 100% { transform: translateX(0); } }
+}
+
 /* ─── Loot modal animations ───────────────────────────────── */
 
 @keyframes loot-backdrop-fade {
