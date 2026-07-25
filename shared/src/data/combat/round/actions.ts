@@ -7,7 +7,7 @@ import { tryClassAbility, tryEnemyAbility } from "../abilities/index.js";
 import { evaluateTransitions, getCurrentState } from "../ai/index.js";
 import { addDamageThreat } from "../threat.js";
 import { shouldFlee, attemptFlee } from "../retreat.js";
-import { POS, CHARGE, pinningFoe, inReach, isBehind, hasPackmateOn, PACK_TACTICS_BONUS } from "../positional.js";
+import { POS, CHARGE, moveUnit, computeHolds, pinningFoe, inReach, isBehind, hasPackmateOn, PACK_TACTICS_BONUS } from "../positional.js";
 
 /**
  * The main action phase of a round.
@@ -25,6 +25,9 @@ import { POS, CHARGE, pinningFoe, inReach, isBehind, hasPackmateOn, PACK_TACTICS
 export function runActions(ctx: CombatContext): void {
   const alive = [...ctx.adventurers.filter((u) => u.hp > 0), ...ctx.enemies.filter((u) => u.hp > 0)]
     .sort((a, b) => getInitiative(b) - getInitiative(a));
+  // Front-line holds for this round (breakthrough vs. hold is committed once);
+  // computed at round start, consulted as each unit takes its move.
+  const held = computeHolds(ctx);
 
   for (const unit of alive) {
     if (unit.hp <= 0 || unit.fled) continue;
@@ -40,6 +43,9 @@ export function runActions(ctx: CombatContext): void {
     // survives and leaves the field (mercy + realism; animals don't fight to
     // the death). Counts as defeated for victory; yields only keepOnRout loot.
     if (unit.isEnemy && enemyBreaksAndRuns(unit)) { routEnemy(unit, ctx); continue; }
+
+    // Move on this unit's own turn (charge/advance/kite), THEN act below.
+    moveUnit(unit, ctx, held);
 
     evaluateTransitions(unit, ctx);
     const { state } = getCurrentState(unit);
@@ -134,12 +140,14 @@ function basicAttack(unit: CombatUnit, ctx: CombatContext): void {
   // the target back opens the gap for a possible re-charge — the cooldown + cap
   // keep that from spiraling.
   const charged = !!(unit.chargedThisRound && unit.chargedThisRound.targetId === target.id);
+  let knockedTo: number | undefined;
   if (charged) {
     const dist = unit.chargedThisRound!.distance;
     damage = Math.round(damage * (1 + Math.min(CHARGE.dmgCap, dist * CHARGE.dmgPerPace)));
     const dir = (target.x ?? 0) >= (unit.x ?? 0) ? 1 : -1;
     const knock = Math.min(CHARGE.knockCap, dist * CHARGE.knockPerPace);
     target.x = Math.max(POS.fieldMin, Math.min(POS.fieldMax, (target.x ?? 0) + dir * knock));
+    knockedTo = Math.round(target.x);
     unit.chargedThisRound = undefined;
   }
 
@@ -176,5 +184,6 @@ function basicAttack(unit: CombatUnit, ctx: CombatContext): void {
     targetHp: Math.max(0, target.hp), targetMaxHp: target.maxHp,
     isEnemy: unit.isEnemy,
     ...(charged ? { abilityName: "Goring Charge", abilityIcon: "💨" } : {}),
+    ...(knockedTo !== undefined ? { moves: [{ id: target.id, x: knockedTo }] } : {}),
   });
 }

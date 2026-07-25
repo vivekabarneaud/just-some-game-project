@@ -60,10 +60,17 @@ export default function CombatBattlefield(props: {
     return last && !last.isPoisonTick && !last.beat ? last.attackerId : undefined;
   };
 
-  // Current round = the last revealed entry's round; positions[round] holds the
-  // post-move layout for it (index 0 = start, clamped to what we recorded).
-  const roundNow = () => revealed()[revealed().length - 1]?.round ?? 0;
-  const posNow = () => props.positions[Math.min(roundNow(), props.positions.length - 1)] ?? props.positions[0] ?? {};
+  // Positions fold from the START layout (positions[0]): each revealed entry may
+  // carry `moves` (a unit's new pace — a move, charge, or knockback), applied in
+  // order. So a unit slides on its OWN turn as its line reveals, instead of the
+  // whole army snapping at round start.
+  const posNow = () => {
+    const pos: Record<string, number> = { ...(props.positions[0] ?? {}) };
+    for (const e of revealed()) {
+      if (e.moves) for (const m of e.moves) pos[m.id] = m.x;
+    }
+    return pos;
+  };
   const xOf = (c: CombatantSnapshot) => posNow()[c.id] ?? c.x ?? (c.side === "ally" ? 25 : 75);
 
   // ── Fixed formation rows (assigned once, never re-stacked) ──

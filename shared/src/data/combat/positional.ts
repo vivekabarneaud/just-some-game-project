@@ -101,8 +101,19 @@ function logMove(ctx: CombatContext, u: CombatUnit, target: CombatUnit, paces: n
     isEnemy: u.isEnemy,
     beat: "move",
     note: `${u.name} advances ${paces} pace${paces === 1 ? "" : "s"} toward ${target.name}`,
+    moves: [{ id: u.id, x: Math.round(px(u)) }],
   };
   ctx.log.push(entry);
+}
+
+/** A ranged unit giving ground (kite); stamped so the retreat animates. */
+function logKite(ctx: CombatContext, u: CombatUnit): void {
+  ctx.log.push({
+    round: ctx.round, attackerName: u.name, attackerIcon: u.icon || "🏹",
+    targetName: u.name, damage: 0, dodged: false, crit: false, killed: false,
+    isEnemy: u.isEnemy, beat: "move", note: `${u.name} gives ground`,
+    moves: [{ id: u.id, x: Math.round(px(u)) }],
+  });
 }
 
 /** A charge covers ground toward the target; logged as a move so it animates. */
@@ -112,81 +123,92 @@ function logCharge(ctx: CombatContext, u: CombatUnit, target: CombatUnit, paces:
     targetName: target.name, damage: 0, dodged: false, crit: false, killed: false,
     isEnemy: u.isEnemy, beat: "move",
     note: `${u.name} charges ${paces} pace${paces === 1 ? "" : "s"} at ${target.name}`,
+    moves: [{ id: u.id, x: Math.round(px(u)) }],
   });
 }
 
-/** Reposition everyone: melee advance (stopped by engagement), ranged kite. */
-export function movePhase(ctx: CombatContext): void {
-  const units = living(ctx);
-  const held = computeHolds(ctx);
-  for (const u of units) {
-    u.chargedThisRound = undefined; // transient — set only if this unit charges now
-    if (u.canAct === false) continue; // walls / ritualists hold position
-    const foes = foesOf(u, ctx);
-    if (!foes.length) continue;
-    const mob = mobilityOf(u);
+/** Move ONE unit on its turn: charge if it can, else melee-advance (stopped by
+ *  engagement) or ranged-kite. Called by the interleaved turn loop so a unit's
+ *  move and its action are one continuous beat (a boar's charge flows straight
+ *  into its gore, instead of every unit sliding at once at round start). */
+export function moveUnit(u: CombatUnit, ctx: CombatContext, held: Set<string>): void {
+  u.chargedThisRound = undefined; // transient — set only if this unit charges now
+  if (u.canAct === false) return; // walls / ritualists hold position
+  const foes = foesOf(u, ctx);
+  if (!foes.length) return;
+  const mob = mobilityOf(u);
 
-    // Charge (Charger archetype): with a cooldown ready and ROOM (a big enough
-    // gap), a charger spends its move to barrel up to `charge.range` paces to
-    // contact — the gore + knockback (applied in the action phase) scale with the
-    // distance covered. Held/engaged units have no run-up, so the gap check
-    // naturally defuses the charge.
-    if (u.charge && !isRanged(u) && (u.cooldowns.charge ?? 0) <= 0) {
-      const target = nearest(u, foes);
-      const g = gap(u, target);
-      if (g > POS.contact + CHARGE.minRunup) {
-        const dir = px(target) > px(u) ? 1 : -1;
-        const dist = Math.min(u.charge.range, g - POS.contact);
-        u.x = clamp(px(u) + dir * dist);
-        u.chargedThisRound = { distance: dist, targetId: target.id };
-        u.cooldowns.charge = u.charge.cooldown;
-        logCharge(ctx, u, target, Math.round(dist));
-        continue; // the charge IS this unit's move
-      }
-    }
-
-    if (isRanged(u)) {
-      const pinned = foes.some((f) => !isRanged(f) && gap(u, f) <= POS.contact);
-      const pressed = foes.some((f) => !isRanged(f) && gap(u, f) <= POS.contact * 1.4);
-      if (pressed && !pinned) u.x = clamp(px(u) + (allySide(u) ? -1 : 1) * mob); // kite (pinned = locked)
-      continue;
-    }
-
-    // Melee. Commit an intent ONCE (no per-round flip-flop): bypassers and
-    // overflow (beyond the front's hold capacity) BREAK THROUGH to the backline;
-    // everyone else holds the FRONT line.
-    if (u.breakthrough === undefined) u.breakthrough = canBypass(u) || !held.has(u.id);
-    const fromX = px(u);
-    let intent: CombatUnit | undefined;
-
-    if (u.breakthrough) {
-      // Push toward the enemy backline and stay committed; flank just past.
-      intent = foes.slice().sort((a, b) => backlineScore(b, u) - backlineScore(a, u))[0];
-      const dir = px(intent) > px(u) ? 1 : -1;
-      const stop = px(intent) + dir * 2;
-      let destX = px(u) + dir * mob;
-      destX = dir > 0 ? Math.min(destX, stop) : Math.max(destX, stop);
-      u.x = clamp(destX);
-    } else {
-      // Frontline: hold the moment an enemy is in contact — never chase a foe
-      // that has slipped past. Otherwise close to the line.
-      const engaged = foes.some((f) => !isRanged(f) && gap(u, f) <= POS.contact);
-      if (!engaged) {
-        const ahead = foes.filter((f) => (allySide(u) ? px(f) >= px(u) : px(f) <= px(u)));
-        intent = nearest(u, ahead.length ? ahead : foes);
-        const dir = px(intent) > px(u) ? 1 : -1;
-        const stopX = px(intent) - dir * POS.contact;
-        let destX = px(u) + dir * mob;
-        destX = dir > 0 ? Math.min(destX, stopX) : Math.max(destX, stopX);
-        u.x = clamp(destX);
-      }
-    }
-    // Narrate a meaningful advance that hasn't yet reached striking range, so the
-    // approach reads in the log (and the battlefield animates it).
-    if (intent && Math.abs(px(u) - fromX) >= 3 && gap(u, intent) > POS.contact) {
-      logMove(ctx, u, intent, Math.round(Math.abs(px(u) - fromX)));
+  // Charge (Charger archetype): with a cooldown ready and ROOM (a big enough
+  // gap), a charger spends its move to barrel up to `charge.range` paces to
+  // contact — the gore + knockback (applied in the action phase) scale with the
+  // distance covered. Held/engaged units have no run-up, so the gap check
+  // naturally defuses the charge.
+  if (u.charge && !isRanged(u) && (u.cooldowns.charge ?? 0) <= 0) {
+    const target = nearest(u, foes);
+    const g = gap(u, target);
+    if (g > POS.contact + CHARGE.minRunup) {
+      const dir = px(target) > px(u) ? 1 : -1;
+      const dist = Math.min(u.charge.range, g - POS.contact);
+      u.x = clamp(px(u) + dir * dist);
+      u.chargedThisRound = { distance: dist, targetId: target.id };
+      u.cooldowns.charge = u.charge.cooldown;
+      logCharge(ctx, u, target, Math.round(dist));
+      return; // the charge IS this unit's move
     }
   }
+
+  if (isRanged(u)) {
+    const pinned = foes.some((f) => !isRanged(f) && gap(u, f) <= POS.contact);
+    const pressed = foes.some((f) => !isRanged(f) && gap(u, f) <= POS.contact * 1.4);
+    if (pressed && !pinned) {
+      const before = px(u);
+      u.x = clamp(px(u) + (allySide(u) ? -1 : 1) * mob); // kite (pinned = locked)
+      if (Math.abs(px(u) - before) >= 2) logKite(ctx, u);
+    }
+    return;
+  }
+
+  // Melee. Commit an intent ONCE (no per-round flip-flop): bypassers and
+  // overflow (beyond the front's hold capacity) BREAK THROUGH to the backline;
+  // everyone else holds the FRONT line.
+  if (u.breakthrough === undefined) u.breakthrough = canBypass(u) || !held.has(u.id);
+  const fromX = px(u);
+  let intent: CombatUnit | undefined;
+
+  if (u.breakthrough) {
+    // Push toward the enemy backline and stay committed; flank just past.
+    intent = foes.slice().sort((a, b) => backlineScore(b, u) - backlineScore(a, u))[0];
+    const dir = px(intent) > px(u) ? 1 : -1;
+    const stop = px(intent) + dir * 2;
+    let destX = px(u) + dir * mob;
+    destX = dir > 0 ? Math.min(destX, stop) : Math.max(destX, stop);
+    u.x = clamp(destX);
+  } else {
+    // Frontline: hold the moment an enemy is in contact — never chase a foe
+    // that has slipped past. Otherwise close to the line.
+    const engaged = foes.some((f) => !isRanged(f) && gap(u, f) <= POS.contact);
+    if (!engaged) {
+      const ahead = foes.filter((f) => (allySide(u) ? px(f) >= px(u) : px(f) <= px(u)));
+      intent = nearest(u, ahead.length ? ahead : foes);
+      const dir = px(intent) > px(u) ? 1 : -1;
+      const stopX = px(intent) - dir * POS.contact;
+      let destX = px(u) + dir * mob;
+      destX = dir > 0 ? Math.min(destX, stopX) : Math.max(destX, stopX);
+      u.x = clamp(destX);
+    }
+  }
+  // Stamp any real advance (>=2 paces) — including the final close to contact — so
+  // the approach both reads in the log AND animates on this unit's own turn.
+  if (intent && Math.abs(px(u) - fromX) >= 2) {
+    logMove(ctx, u, intent, Math.round(Math.abs(px(u) - fromX)));
+  }
+}
+
+/** Legacy whole-army move phase (kept for the standalone prototype/tests). The
+ *  live round instead moves each unit on its own turn — see runActions. */
+export function movePhase(ctx: CombatContext): void {
+  const held = computeHolds(ctx);
+  for (const u of living(ctx)) moveUnit(u, ctx, held);
 }
 
 // ── Predicates the attack layer consults ────────────────────────────────────

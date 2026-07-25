@@ -238,6 +238,11 @@ export interface CombatLogEntry {
   beat?: "broken" | "flee_success" | "flee_fail" | "order_hold" | "order_fallback" | "abandoned" | "move";
   /** Human-readable narrative line for a `beat` entry. */
   note?: string;
+  /** Battlefield position updates applied WHEN this entry plays (id → new pace on
+   *  the X axis). Lets the playback slide each unit on its own turn (a move, a
+   *  charge, a knockback) in sync with the log, instead of snapping everyone at
+   *  round start. Folded over the initial positions by CombatBattlefield. */
+  moves?: { id: string; x: number }[];
 }
 
 export interface LootResult {

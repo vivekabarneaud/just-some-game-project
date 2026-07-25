@@ -4,7 +4,6 @@ import { drinkCombatPotions } from "./potions.js";
 import { runActions } from "./actions.js";
 import { applyMissionModifiers } from "../modifiers.js";
 import { applySurvivalReflex, evaluateRetreat, playerGone, enemiesGone } from "../retreat.js";
-import { movePhase } from "../positional.js";
 
 /**
  * One combat round. Returns true if combat should continue, false to break.
@@ -41,9 +40,10 @@ export function runRound(ctx: CombatContext): boolean {
 
   drinkCombatPotions(ctx);
   tickPotionBuffs(ctx);
-  // Positional Move phase: units reposition (melee advance w/ engagement, ranged
-  // kite) before they act, so reach/exposure/flank gate the action phase.
-  movePhase(ctx);
+  // Interleaved turns: each unit, in initiative order, first repositions (melee
+  // advance w/ engagement, ranged kite, or a charge) THEN acts — so a move and
+  // its action are one continuous beat (charge flows into gore), instead of the
+  // whole army sliding at once before anyone acts.
   runActions(ctx);
   // Reflex again after the action phase (most lethal blows land here).
   applySurvivalReflex(ctx);
