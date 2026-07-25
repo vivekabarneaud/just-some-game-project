@@ -99,7 +99,7 @@ export default function CombatBattlefield(props: {
     const tid = revealed()[revealed().length - 1]?.targetId;
     if (!tid || tid === c.id) return 0;
     const dr = (rows().m.get(tid) ?? 0) - (rows().m.get(c.id) ?? 0);
-    return Math.max(-14, Math.min(14, dr * 6));
+    return Math.max(-30, Math.min(30, dr * 10)); // reach further when the target is rows away
   };
 
   const cardFallen = (c: CombatantSnapshot) => derived().fallen.has(c.id) || (derived().hp.get(c.id) ?? c.hp) <= 0;

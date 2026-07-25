@@ -4,6 +4,7 @@ import type { CombatLogEntry, CombatantSnapshot } from "@medieval-realm/shared/d
 import CombatLog from "./CombatLog";
 import CombatStage from "./CombatStage";
 import CombatBattlefield from "./CombatBattlefield";
+import { IS_DEV } from "~/data/seasons";
 
 interface CombatPlaybackProps {
   log: CombatLogEntry[];
@@ -37,13 +38,14 @@ interface CombatPlaybackProps {
 export default function CombatPlayback(props: CombatPlaybackProps) {
   const [shownCount, setShownCount] = createSignal(0);
   const [exiting, setExiting] = createSignal(false);
+  const [paused, setPaused] = createSignal(false);
   let scrollRef: HTMLDivElement | undefined;
 
   const PLAYBACK_INTERVAL_MS = 1800;
 
   // Reveal next entry on a tick
   createEffect(() => {
-    if (exiting()) return;
+    if (exiting() || paused()) return;
     const total = props.log.length;
     const current = shownCount();
     if (current >= total) return;
@@ -81,6 +83,46 @@ export default function CombatPlayback(props: CombatPlaybackProps) {
   const close = () => {
     setExiting(true);
     setTimeout(() => props.onClose(), 200);
+  };
+
+  // ── Turn transport ──
+  const roundNow = () => (shownCount() > 0 ? (props.log[shownCount() - 1]?.round ?? 0) : 0);
+  // Entries revealed through the end of round r (log is round-ordered).
+  const throughRound = (r: number) => {
+    let n = 0;
+    for (const e of props.log) { if (e.round <= r) n++; else break; }
+    return n;
+  };
+  // Step to the end of the round the NEXT unrevealed entry belongs to (skips
+  // entry-less approach rounds so it never stalls).
+  const nextTurn = () => {
+    setPaused(true);
+    const c = shownCount();
+    if (c >= props.log.length) return;
+    setShownCount(throughRound(props.log[c].round));
+  };
+  // Rewind to just before the current round (undo this turn).
+  const prevTurn = () => {
+    setPaused(true);
+    const c = shownCount();
+    if (c <= 0) return;
+    setShownCount(throughRound(props.log[c - 1].round - 1));
+  };
+
+  // Dev: dump the whole fight (per-round positions + every action) to the console.
+  const dumpTrace = () => {
+    const roster = props.roster ?? [];
+    const lines: string[] = [`=== ${props.title ?? "Combat"} — ${props.victory ? "VICTORY" : props.victory === false ? "DEFEAT" : "?"} · ${props.log.length} actions ===`];
+    const maxRound = props.log.length ? props.log[props.log.length - 1].round : 0;
+    for (let r = 0; r <= maxRound; r++) {
+      const pos = props.positions?.[r];
+      if (pos) lines.push(`— after round ${r} positions: ` + roster.map((c) => `${c.name.split(" ")[0]}@${pos[c.id] ?? "?"}`).join("  "));
+      for (const e of props.log.filter((x) => x.round === r)) {
+        lines.push(`   r${e.round} ${e.attackerName} → ${e.targetName} ${e.dodged ? "dodged" : e.damage + "dmg"}${e.killed ? " KILL" : ""}${e.beat ? " [" + e.beat + "]" : ""}`);
+      }
+    }
+    // eslint-disable-next-line no-console
+    console.log(lines.join("\n"));
   };
 
   return (
@@ -134,8 +176,8 @@ export default function CombatPlayback(props: CombatPlaybackProps) {
             </div>
             <div style={{ "font-size": "0.75rem", color: "var(--text-muted)" }}>
               {finished()
-                ? `${props.log.length} actions · complete`
-                : `${shownCount()} / ${props.log.length}`}
+                ? `Round ${roundNow()} · complete`
+                : `Round ${roundNow()} · ${shownCount()} / ${props.log.length}${paused() ? " · paused" : ""}`}
             </div>
           </div>
           <button
@@ -211,30 +253,32 @@ export default function CombatPlayback(props: CombatPlaybackProps) {
             </span>
           </Show>
 
-          <Show when={!finished()} fallback={
-            <button
-              onClick={close}
-              class="upgrade-btn"
-              style={{ padding: "6px 16px", "font-size": "0.85rem" }}
-            >
-              Close
-            </button>
-          }>
-            <button
-              onClick={skip}
-              style={{
-                padding: "6px 14px",
-                background: "transparent",
-                border: "1px solid var(--border-color)",
-                color: "var(--text-secondary)",
-                "border-radius": "4px",
-                cursor: "pointer",
-                "font-size": "0.82rem",
-              }}
-            >
-              Skip
-            </button>
-          </Show>
+          {/* Transport: step by turn, pause/resume, skip, close. */}
+          <div style={{ display: "flex", gap: "6px", "align-items": "center" }}>
+            <Show when={IS_DEV}>
+              <button onClick={dumpTrace} title="Log fight to console (dev)" class="cp-transport">🐞</button>
+            </Show>
+            <button onClick={prevTurn} disabled={shownCount() <= 0} title="Previous turn" class="cp-transport">⏮</button>
+            <Show when={!finished()}>
+              <button onClick={() => setPaused((p) => !p)} title={paused() ? "Resume" : "Pause"} class="cp-transport">{paused() ? "▶" : "⏸"}</button>
+            </Show>
+            <button onClick={nextTurn} disabled={shownCount() >= props.log.length} title="Next turn" class="cp-transport">⏭</button>
+            <Show when={!finished()} fallback={
+              <button onClick={close} class="upgrade-btn" style={{ padding: "6px 16px", "font-size": "0.85rem", "margin-left": "4px" }}>Close</button>
+            }>
+              <button
+                onClick={skip}
+                style={{
+                  padding: "6px 14px", "margin-left": "4px",
+                  background: "transparent", border: "1px solid var(--border-color)",
+                  color: "var(--text-secondary)", "border-radius": "4px",
+                  cursor: "pointer", "font-size": "0.82rem",
+                }}
+              >
+                Skip
+              </button>
+            </Show>
+          </div>
         </div>
       </div>
     </div>

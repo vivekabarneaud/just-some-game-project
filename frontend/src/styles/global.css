@@ -4164,6 +4164,21 @@ input, textarea, select {
   @keyframes combat-lunge { 0%, 100% { transform: translateX(0) translateY(0); } }
 }
 
+/* Combat-playback transport buttons (prev turn / pause / next turn / debug). */
+.cp-transport {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 5px 9px;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.cp-transport:hover:not(:disabled) { background: rgba(255, 255, 255, 0.06); color: var(--text-primary); }
+.cp-transport:disabled { opacity: 0.35; cursor: default; }
+
 /* ─── Loot modal animations ───────────────────────────────── */
 
 @keyframes loot-backdrop-fade {
