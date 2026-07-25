@@ -250,7 +250,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "fang", chance: 0.5, min: 1, max: 2, keepOnRout: true },
       { type: "resource", resource: "sinew_cord", chance: 0.15, min: 1, max: 1 },
     ],
-    raw: { mobility: 2, dodge: 5 }, // pack hunter — fast and nimble (Flanker archetype)
+    raw: { mobility: 9, dodge: 5 }, // pack hunter — fast and nimble (clearly out-paces a warrior)
     routsAt: 0.3, // a pack wolf breaks when the fight turns against it
     aiTier: "feral"
   },
@@ -312,7 +312,7 @@ export const ENEMIES: EnemyDefinition[] = [
         effect: { type: "bleed", pctPerRound: 10, rounds: 2 } },
     ],
     pack: "wolves",
-    raw: { mobility: 2, dodge: 3 }, // lean yearling — quick and jumpy
+    raw: { mobility: 6, dodge: 3 }, // lean yearling — quick and jumpy
     routsAt: 0.35, // a nervous, starving yearling, breaks and runs easily
     aiTier: "feral"
   },
@@ -335,7 +335,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "wolfhide_strip", chance: 0.1, min: 1, max: 1 },
     ],
     pack: "wolves",
-    raw: { mobility: 1 }, // spent and slow, but still quicker than a boar
+    raw: { mobility: 3 }, // spent and slow for a wolf, but still quicker than a boar
     routsAt: 0.45, // barely holding together; breaks the moment it's hurt
     aiTier: "feral"
   },
@@ -1115,7 +1115,7 @@ export const ENEMIES: EnemyDefinition[] = [
     description: "Twice the size of a grey wolf, with scars from a dozen challengers. The pack follows where it leads, and it leads toward your livestock.",
     tier: 2,
     stats: { str: 16, dex: 14, int: 4, vit: 18, wis: 4 },
-    raw: { mobility: 3, dodge: 5 }, // the pack's fastest — leads the charge
+    raw: { mobility: 10, dodge: 5 }, // the pack's fastest — leads the charge
     tags: ["beast"],
     boss: true,
     abilities: [
