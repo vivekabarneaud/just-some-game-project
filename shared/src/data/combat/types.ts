@@ -50,6 +50,9 @@ export interface CombatUnit {
    *  adventurer's level. Absent for enemies / entities / anonymous stacks. */
   portrait?: string;
   level?: number;
+  /** Authored display-size multiplier for the combat stage (boss → 1.2, a future
+   *  pet → <1). Undefined = 1. The stage layers swarm-shrink on top. */
+  scale?: number;
   isMagical: boolean;
   gearDefense: number;
   /** This unit's physical auto-attack damage range (weapon for adventurers, the
@@ -224,6 +227,10 @@ export interface CombatantSnapshot {
   maxHp: number;
   /** Full portrait URL for adventurer-kind combatants; absent otherwise. */
   portrait?: string;
+  /** Authored display-size multiplier (boss → 1.2). Undefined = 1. */
+  scale?: number;
+  /** Enemy catalog id (for grouping swarms of the same type on the stage). */
+  enemyDefId?: string;
 }
 
 export interface CombatResult {

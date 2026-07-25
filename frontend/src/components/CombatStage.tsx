@@ -67,30 +67,53 @@ export default function CombatStage(props: {
     return last && !last.isPoisonTick && !last.beat ? last.attackerId : undefined;
   };
 
-  const maxCount = () => Math.max(allies().length, enemies().length, 1);
-  const cardWidth = () => {
+  // ── Per-card size: authored scale (boss 1.2) × swarm-shrink (many of a type) ──
+  const swarmScaleOf = (c: CombatantSnapshot) => {
+    if (c.side !== "enemy" || !c.enemyDefId) return 1;
+    const k = enemies().filter((e) => e.enemyDefId === c.enemyDefId).length;
+    return k >= 6 ? 0.72 : k >= 4 ? 0.82 : 1;
+  };
+  const baseScaleOf = (c: CombatantSnapshot) => (c.scale ?? 1) * swarmScaleOf(c);
+  const sumScale = (list: CombatantSnapshot[]) => list.reduce((s, c) => s + baseScaleOf(c), 0);
+
+  // Fit width for a scale-1 card: the taller side's summed card-heights (which
+  // vary by scale) plus gaps must fit maxHeight.
+  const baseW = () => {
     const maxH = props.maxHeight ?? 340;
     const gap = 8;
-    const perCardH = (maxH - (maxCount() - 1) * gap) / maxCount();
-    return Math.max(96, Math.min(180, perCardH / CARD_ASPECT));
+    const maxCount = Math.max(allies().length, enemies().length, 1);
+    const maxSum = Math.max(sumScale(allies()), sumScale(enemies()), 0.001);
+    const avail = maxH - (maxCount - 1) * gap;
+    return avail / (CARD_ASPECT * maxSum);
   };
+  const cardWidthFor = (c: CombatantSnapshot) => Math.max(80, Math.min(200, baseW() * baseScaleOf(c)));
 
-  const cardFor = (c: CombatantSnapshot) => {
-    const d = derived();
-    const fallen = () => d.fallen.has(c.id) || (d.hp.get(c.id) ?? c.hp) <= 0;
-    return (
-      <CombatantCard
-        snapshot={c}
-        hp={d.hp.get(c.id) ?? c.hp}
-        statuses={fallen() ? [] : Array.from(d.statuses.get(c.id)?.values() ?? [])}
-        acting={actingId() === c.id}
-        actKey={props.shownCount}
-        fleeing={d.fled.has(c.id)}
-        fallen={fallen()}
-        width={cardWidth()}
-      />
-    );
+  // ── Depth: melee/entities front (toward center), ranged/casters back ──
+  const FRONT_CLASSES = new Set(["warrior", "assassin"]);
+  const BACK_CLASSES = new Set(["archer", "wizard", "priest"]);
+  const isFront = (c: CombatantSnapshot) => {
+    if (c.kind === "entity") return true;             // walls soak up front
+    if (c.class && FRONT_CLASSES.has(c.class)) return true;
+    if (c.class && BACK_CLASSES.has(c.class)) return false;
+    return c.side === "enemy";                          // classless enemies default to melee/front
   };
+  const indent = () => baseW() * 0.28;
+
+  // Each prop reads derived() INLINE so Solid re-tracks it as shownCount advances
+  // (capturing `const d = derived()` once would freeze the bars at t0).
+  const cardFallen = (c: CombatantSnapshot) => derived().fallen.has(c.id) || (derived().hp.get(c.id) ?? c.hp) <= 0;
+  const cardFor = (c: CombatantSnapshot) => (
+    <CombatantCard
+      snapshot={c}
+      hp={derived().hp.get(c.id) ?? c.hp}
+      statuses={cardFallen(c) ? [] : Array.from(derived().statuses.get(c.id)?.values() ?? [])}
+      acting={actingId() === c.id}
+      actKey={props.shownCount}
+      fleeing={derived().fled.has(c.id)}
+      fallen={cardFallen(c)}
+      width={cardWidthFor(c)}
+    />
+  );
 
   return (
     <div style={{
@@ -98,10 +121,14 @@ export default function CombatStage(props: {
       gap: "12px", padding: "10px 4px",
     }}>
       <div style={{ display: "flex", "flex-direction": "column", gap: "8px", "align-items": "flex-start" }}>
-        <For each={allies()}>{(c) => cardFor(c)}</For>
+        <For each={allies()}>{(c) => (
+          <div style={{ "margin-left": `${isFront(c) ? indent() : 0}px` }}>{cardFor(c)}</div>
+        )}</For>
       </div>
       <div style={{ display: "flex", "flex-direction": "column", gap: "8px", "align-items": "flex-end" }}>
-        <For each={enemies()}>{(c) => cardFor(c)}</For>
+        <For each={enemies()}>{(c) => (
+          <div style={{ "margin-right": `${isFront(c) ? indent() : 0}px` }}>{cardFor(c)}</div>
+        )}</For>
       </div>
     </div>
   );
