@@ -110,6 +110,7 @@ export function buildEnemyUnits(encounters: MissionEncounter[]): CombatUnit[] {
         int: def.stats.int,
         vit: def.stats.vit,
         wis: def.stats.wis ?? 0,
+        raw: def.raw,
         class: undefined, isMagical, gearDefense: 0,
         dmgMin: eRange.min, dmgMax: eRange.max,
         enemyTags: def.tags,

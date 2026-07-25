@@ -95,6 +95,19 @@ export interface EnemyDefinition {
     vit: number;
     wis: number;
   };
+  /** Authored raw sub-stat bonuses (Combat Foundation §2): flat additions on top
+   *  of the STR/DEX-derived floors. Lets a creature be "fast" (raw mobility) or
+   *  "nimble" (raw dodge) WITHOUT inflating DEX and thus its crit/accuracy. Mirror
+   *  of CombatUnit.raw (RawSubStats). Omit for a plain creature. */
+  raw?: {
+    crit?: number;
+    accuracy?: number;
+    dodge?: number;
+    parry?: number;
+    mobility?: number;
+    initiative?: number;
+    armor?: number;
+  };
   tags: EnemyTag[];
   boss?: boolean;
   /** Combat-stage row: "back" for ranged/casters (they set up behind the line),
@@ -224,6 +237,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "fang", chance: 0.5, min: 1, max: 2, keepOnRout: true },
       { type: "resource", resource: "sinew_cord", chance: 0.15, min: 1, max: 1 },
     ],
+    raw: { mobility: 2, dodge: 5 }, // pack hunter — fast and nimble (Flanker archetype)
     routsAt: 0.3, // a pack wolf breaks when the fight turns against it
     aiTier: "feral"
   },
@@ -279,6 +293,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "meat", chance: 0.3, min: 1, max: 3 },
       { type: "resource", resource: "wolfhide_strip", chance: 0.15, min: 1, max: 1 },
     ],
+    raw: { mobility: 2, dodge: 3 }, // lean yearling — quick and jumpy
     routsAt: 0.35, // a nervous, starving yearling, breaks and runs easily
     aiTier: "feral"
   },
@@ -300,6 +315,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "meat", chance: 0.25, min: 1, max: 2 },
       { type: "resource", resource: "wolfhide_strip", chance: 0.1, min: 1, max: 1 },
     ],
+    raw: { mobility: 1 }, // spent and slow, but still quicker than a boar
     routsAt: 0.45, // barely holding together; breaks the moment it's hurt
     aiTier: "feral"
   },
@@ -309,11 +325,12 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "🐗",
     description: "All muscle and bad temper, and quick for its size. Those tusks are not for show.",
     tier: 1,
-    stats: { str: 4, dex: 3, int: 1, vit: 4, wis: 1 },
+    stats: { str: 5, dex: 3, int: 1, vit: 6, wis: 1 }, // out-muscles + out-tanks a lone wolf
     tags: ["beast"],
     loot: [
       { type: "resource", resource: "meat", chance: 0.4, min: 2, max: 4 },
     ],
+    routsAt: 0.3, // a wild animal — breaks and flees when the fight turns against it
     aiTier: "feral"
   },
   {
@@ -957,7 +974,7 @@ export const ENEMIES: EnemyDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/rabid_boar.png",
     description: "Red-eyed and frothing. Something in the bad water drives them mad. They charge anything that moves.",
     tier: 1,
-    stats: { str: 7, dex: 5, int: 1, vit: 8, wis: 1 },
+    stats: { str: 7, dex: 4, int: 1, vit: 8, wis: 1 }, // clumsy but brutal — low DEX, rides its charge + bulk
     tags: ["beast"],
     abilities: [
       { id: "charge", name: "Charge", icon: "💨", cooldown: 99, trigger: "round_start", effect: { type: "damage_mult", mult: 1.5, targets: 1 } },
@@ -1078,6 +1095,7 @@ export const ENEMIES: EnemyDefinition[] = [
     description: "Twice the size of a grey wolf, with scars from a dozen challengers. The pack follows where it leads, and it leads toward your livestock.",
     tier: 2,
     stats: { str: 16, dex: 14, int: 4, vit: 18, wis: 4 },
+    raw: { mobility: 3, dodge: 5 }, // the pack's fastest — leads the charge
     tags: ["beast"],
     boss: true,
     abilities: [

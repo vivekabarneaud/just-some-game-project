@@ -36,7 +36,9 @@ export function mobilityOf(u: CombatUnit): number {
     : u.class === "warrior" ? 12
     : isRanged(u) ? 7
     : 10;
-  return Math.max(4, Math.round(base + (u.dex - 10) * 0.3)); // raw mobility stat comes later
+  // Raw mobility (Combat Foundation): flat paces/turn a creature gets without
+  // inflating DEX. Wolves are "fast" this way; boars carry none and rely on Charge.
+  return Math.max(4, Math.round(base + (u.dex - 10) * 0.3 + (u.raw?.mobility ?? 0)));
 }
 export function canBypass(u: CombatUnit): boolean {
   return u.class === "assassin"; // + Slip Away / flanker talents later

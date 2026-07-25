@@ -55,14 +55,16 @@ Where wolves are flankers, boars are **momentum**. The whole family is charge + 
 
 ### Tier 1 — ship on the foundation
 
-**Wild Boar** — `str4 dex3 vit4`, beast, meat loot.
+**Wild Boar** — `str5 dex3 vit6` (out-muscles + out-tanks a lone Grey Wolf), beast, meat loot. **`routsAt 0.30`** (was missing — now flees like an animal).
 - **Goring Charge** (once, or long ~5-round cd). Tiny/no knockback. Plain tusks otherwise (contact band).
-- AI: `targeting: nearest · fear: routs (~0.3) · movement: charger`. A wild animal — charges in, but breaks and runs when the fight turns (per the "animals aren't kill-on-sight" ethos).
+- AI: `targeting: nearest · fear: routs (0.3) · movement: charger`. A wild animal — charges in, but breaks and runs when the fight turns (per the "animals aren't kill-on-sight" ethos).
 
-**Rabid Boar** — `str7 dex5 vit8`, beast. The bad-water bruiser (**alive**, maddened).
+**Rabid Boar** — `str7 dex4 vit8` (clumsy but brutal — low DEX, rides its charge + bulk), beast. The bad-water bruiser (**alive**, maddened).
 - **Frenzied Charge** (short cd, ~every 2-3 rounds — *not* every turn). Small knockback.
 - **Frothing Bite** — the froth is a **living** affliction (Nature/disease, carried home, cured by Boar's-Bane Salve). Keep the ~10% infect.
 - AI: `targeting: nearest · fear: fearless · movement: charger`. Red-eyed, charges anything, fights to the death.
+
+*(Base primary stats, raw mobility, and `routsAt` are BUILT — see §6. Charge/knockback abilities are still the placeholder `damage_mult`; the position-aware version is pending.)*
 
 ### Later tier — parked until Hollow/undeath enters the story
 
@@ -78,9 +80,25 @@ Reframe: a boar that charges *with a spear through its skull* isn't "tainted," i
 
 ---
 
-## 3. Wolves — the Flanker archetype (Tier 1)
+## 3. Wolves — the Flanker archetype
 
-Designed in-session; **transcribe the full kit here** (throat-tear/`ignoreArmor` new effect flag, Grey keeps Rending Bite, Gaunt weaker Rending Bite, Starving plain, all fast via raw mobility, pack tactics). Identity vs boars: wolves **slip your armor** (throat), boars **bowl you over** (momentum). TODO: fill from session notes before building.
+Fast, nimble, fragile, and deadly **in numbers**. Identity vs boars: wolves **slip your armor** (throat), boars **bowl you over** (momentum). All wolves get **raw mobility** (fast without being critty) and share the **Pack Tactics** passive.
+
+| Wolf | STR | DEX | VIT | raw mob | raw dodge | routsAt | abilities | tier |
+|---|---|---|---|---|---|---|---|---|
+| **Starving** | 2 | 3 | 2 | +1 | — | 0.45 | plain bite + Pack Tactics | 1 |
+| **Gaunt** | 3 | 4 | 3 | +2 | +3 | 0.35 | Rending Bite (weak 10%/2rd) + Pack Tactics | 1 |
+| **Grey** (`wild_wolf`) | 4 | 5 | 5 | +2 | +5 | 0.30 | Rending Bite (20%/2rd) + **Throat Tear** + Pack Tactics | 1 |
+| **Alpha** (boss) | 16 | 14 | 18 | +3 | +5 | — | Throat Tear + **Pack Howl** + Pack Tactics | 2 |
+
+**Gradient:** Starving (plain) → Gaunt (weak bleed) → Grey (bleed + throat) → Alpha (boss + coordinator).
+
+- **Rending Bite** — a bleed DoT. *(already in-engine.)*
+- **Throat Tear** *(new: `ignoreArmor`)* — goes for the neck; armor is no help. On Grey + Alpha. Barely matters at Tier 1 (adventurers wear little armor) but keeps wolves relevant as armor grows — it *ages well* instead of being a Tier-1 spike.
+- **Pack Tactics** *(new: family passive)* — a wolf hits ~+15% harder when **another wolf shares its target**. Lone wolves are weak; a pack ganging up is lethal. Rewards flanking/surrounding.
+- **Pack Howl** *(Alpha, new: focus-fire)* — marks one prey; the whole pack **focus-fires** it for a few rounds **and** gains a damage buff. Combos viciously with Pack Tactics (all wolves on one target → every bite amplified). Counter = body-block + peel. The Alpha is "a bigger Grey Wolf that runs the pack."
+
+*(Base primary stats + raw mobility + raw dodge + `routsAt` are BUILT — see §6. Throat Tear, Pack Tactics, and Pack Howl focus-fire are pending engine work.)*
 
 ---
 
@@ -90,9 +108,17 @@ Author the rest one by one on the foundation (stats + band + only the distinct e
 
 ---
 
-## 5. Build order (honest)
+## 5. Build order — the wolves + boars vertical slice
 
-1. Foundation §4 steps 2-3 — weapon bands + sidearm, then hit-resolution + **range-gated abilities** (the thing that stops range-cheating and lets charge/knockback/zone have real reach).
-2. The **effect-schema extensions** these enemies need: `ignoreArmor` (wolf), charge (move+hit+distance-scaling), knockback (shove X, capped), zone hazard (interval DoT), Hollow/Nature schools in damage resolution.
-3. The **composable-AI knobs** (§1) — replace the single `aiTier` field with the four-knob brain + presets.
-4. Author **wolves → boars (wild, rabid)** on top. Undead boars + patriarch wait for the Hollow story beat.
+Rather than build the whole abstract foundation first, we're doing **both families end-to-end**, adding only the mechanics they need (these are contact biters — no weapon-band/hit-resolution refactor required yet):
+
+1. **Stats + `routsAt` + raw mobility** — the low-risk base. ✅ **DONE** (see §6).
+2. **Throat Tear (`ignoreArmor`) + Pack Tactics** (shared-target passive).
+3. **Position-aware Charge** (gap-close + distance-scaled damage) **+ Knockback** (small, capped).
+4. **Alpha focus-fire** (Pack Howl targeting override) — first user of the composable-AI targeting knob.
+
+Sandbox-tune after each. Undead boars + patriarch (Hollow bite, breakthrough, death-vomit zone) wait for the Hollow story beat.
+
+## 6. Build status
+
+- **2026-07-25 — Step ① shipped.** Added `raw` sub-stats to `EnemyDefinition` (mirrors `RawSubStats`); flows into `CombatUnit` via `buildEnemyUnits`; `mobilityOf` now consumes `raw.mobility`. Tuned the six: wolves got raw mobility (+1/+2/+2/+3) + raw dodge; Wild Boar → `str5 vit6` + `routsAt 0.30`; Rabid Boar → `dex4`. `shared` typechecks clean, 110/110 tests green. Abilities (Throat Tear / Pack Tactics / Charge / Knockback / focus-fire) still pending — steps ②-④.
