@@ -116,15 +116,18 @@ function logKite(ctx: CombatContext, u: CombatUnit): void {
   });
 }
 
-/** A charge covers ground toward the target; logged as a move so it animates. */
-function logCharge(ctx: CombatContext, u: CombatUnit, target: CombatUnit, paces: number): void {
-  ctx.log.push({
-    round: ctx.round, attackerName: u.name, attackerIcon: "💨",
-    targetName: target.name, damage: 0, dodged: false, crit: false, killed: false,
-    isEnemy: u.isEnemy, beat: "move",
-    note: `${u.name} charges ${paces} pace${paces === 1 ? "" : "s"} at ${target.name}`,
-    moves: [{ id: u.id, x: Math.round(px(u)) }],
-  });
+/** If this unit can charge right now, at whom and how far. Shared by the mover
+ *  (to execute) and the turn order (chargers act FIRST — a charge is a burst of
+ *  aggression that beats initiative). Returns null when held/engaged (no run-up
+ *  — gap too small), on cooldown, ranged, or with no chargeable foe. */
+export function chargePlan(u: CombatUnit, ctx: CombatContext): { target: CombatUnit; dist: number } | null {
+  if (!u.charge || isRanged(u) || (u.cooldowns.charge ?? 0) > 0) return null;
+  const foes = foesOf(u, ctx);
+  if (!foes.length) return null;
+  const target = nearest(u, foes);
+  const g = gap(u, target);
+  if (g <= POS.contact + CHARGE.minRunup) return null;
+  return { target, dist: Math.min(u.charge.range, g - POS.contact) };
 }
 
 /** Move ONE unit on its turn: charge if it can, else melee-advance (stopped by
@@ -138,23 +141,17 @@ export function moveUnit(u: CombatUnit, ctx: CombatContext, held: Set<string>): 
   if (!foes.length) return;
   const mob = mobilityOf(u);
 
-  // Charge (Charger archetype): with a cooldown ready and ROOM (a big enough
-  // gap), a charger spends its move to barrel up to `charge.range` paces to
-  // contact — the gore + knockback (applied in the action phase) scale with the
-  // distance covered. Held/engaged units have no run-up, so the gap check
-  // naturally defuses the charge.
-  if (u.charge && !isRanged(u) && (u.cooldowns.charge ?? 0) <= 0) {
-    const target = nearest(u, foes);
-    const g = gap(u, target);
-    if (g > POS.contact + CHARGE.minRunup) {
-      const dir = px(target) > px(u) ? 1 : -1;
-      const dist = Math.min(u.charge.range, g - POS.contact);
-      u.x = clamp(px(u) + dir * dist);
-      u.chargedThisRound = { distance: dist, targetId: target.id };
-      u.cooldowns.charge = u.charge.cooldown;
-      logCharge(ctx, u, target, Math.round(dist));
-      return; // the charge IS this unit's move
-    }
+  // Charge (Charger archetype): barrel to contact if there's room + the cooldown
+  // is ready. No separate move entry — the run-up's slide + narration ride the
+  // gore entry (one line: "charges N paces at Y and gores for D"). Held/engaged
+  // units have no run-up (chargePlan returns null), so engagement defuses it.
+  const plan = chargePlan(u, ctx);
+  if (plan) {
+    const dir = px(plan.target) > px(u) ? 1 : -1;
+    u.x = clamp(px(u) + dir * plan.dist);
+    u.chargedThisRound = { distance: plan.dist, targetId: plan.target.id };
+    u.cooldowns.charge = u.charge!.cooldown;
+    return; // the charge IS this unit's move
   }
 
   if (isRanged(u)) {

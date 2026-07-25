@@ -7,7 +7,7 @@ import { tryClassAbility, tryEnemyAbility } from "../abilities/index.js";
 import { evaluateTransitions, getCurrentState } from "../ai/index.js";
 import { addDamageThreat } from "../threat.js";
 import { shouldFlee, attemptFlee } from "../retreat.js";
-import { POS, CHARGE, moveUnit, computeHolds, pinningFoe, inReach, isBehind, hasPackmateOn, PACK_TACTICS_BONUS } from "../positional.js";
+import { POS, CHARGE, moveUnit, computeHolds, chargePlan, pinningFoe, inReach, isBehind, hasPackmateOn, PACK_TACTICS_BONUS } from "../positional.js";
 
 /**
  * The main action phase of a round.
@@ -23,8 +23,18 @@ import { POS, CHARGE, moveUnit, computeHolds, pinningFoe, inReach, isBehind, has
  * absorbs killing blows for allies, once per combat).
  */
 export function runActions(ctx: CombatContext): void {
+  // Chargers act FIRST — a charge is a burst of aggression that beats initiative,
+  // so a boar barrels across the field before the slower tank walks up (evaluated
+  // at round start, before anyone has moved). Within each group, initiative order.
+  const chargers = new Set(
+    [...ctx.adventurers, ...ctx.enemies].filter((u) => u.hp > 0 && chargePlan(u, ctx)).map((u) => u.id),
+  );
   const alive = [...ctx.adventurers.filter((u) => u.hp > 0), ...ctx.enemies.filter((u) => u.hp > 0)]
-    .sort((a, b) => getInitiative(b) - getInitiative(a));
+    .sort((a, b) => {
+      const ca = chargers.has(a.id) ? 1 : 0, cb = chargers.has(b.id) ? 1 : 0;
+      if (ca !== cb) return cb - ca;
+      return getInitiative(b) - getInitiative(a);
+    });
   // Front-line holds for this round (breakthrough vs. hold is committed once);
   // computed at round start, consulted as each unit takes its move.
   const held = computeHolds(ctx);
@@ -107,18 +117,31 @@ function basicAttack(unit: CombatUnit, ctx: CombatContext): void {
   const targetPool = unit.isEnemy ? ctx.adventurers : ctx.enemies;
   // Pinned ranged unit drops its bow and stabs the melee foe on top of it.
   const pin = pinningFoe(unit, ctx);
-  const target = pin ?? (unit.isEnemy ? pickTarget(unit, targetPool) : pickTargetForAdventurer(unit, targetPool));
+  // A charging unit drives at the foe it charged; consume the charge either way.
+  const chargeInfo = unit.chargedThisRound;
+  unit.chargedThisRound = undefined;
+  const chargeTarget = chargeInfo
+    ? targetPool.find((t) => t.id === chargeInfo.targetId && t.hp > 0)
+    : undefined;
+  const target = chargeTarget ?? pin ?? (unit.isEnemy ? pickTarget(unit, targetPool) : pickTargetForAdventurer(unit, targetPool));
   if (!target || target.hp <= 0) return;
-  // Reach gate: if the chosen target isn't in reach (unit is still closing this
-  // round), there's no swing — the Move phase already spent the turn advancing.
-  if (!pin && !inReach(unit, target)) return;
+  const charged = !!chargeTarget && target.id === chargeTarget.id;
+  // Reach gate: still-closing units don't swing. A charger just reached contact,
+  // so it always connects.
+  if (!pin && !charged && !inReach(unit, target)) return;
+
+  // The charge's run-up + gore render as ONE line; its slide animates on this entry.
+  const chargePaces = charged ? Math.round(chargeInfo!.distance) : 0;
+  const chargeSlide = charged ? { id: unit.id, x: Math.round(unit.x ?? 0) } : undefined;
+  const icon = charged ? "💨" : (unit.isEnemy ? unit.icon : (unit.isMagical ? "🔮" : "⚔️"));
 
   if (combatRandom() * 100 < getDodgeChance(target)) {
     ctx.log.push({
-      round: ctx.round, attackerName: unit.name,
-      attackerIcon: unit.isEnemy ? unit.icon : (unit.isMagical ? "🔮" : "⚔️"),
+      round: ctx.round, attackerName: unit.name, attackerIcon: icon,
       targetName: target.name, damage: 0, dodged: true, crit: false, killed: false,
       targetHp: target.hp, targetMaxHp: target.maxHp, isEnemy: unit.isEnemy,
+      ...(charged ? { abilityName: "Goring Charge", note: `${unit.name} charges ${chargePaces} paces at ${target.name}, who dodges` } : {}),
+      ...(chargeSlide ? { moves: [chargeSlide] } : {}),
     });
     return;
   }
@@ -135,20 +158,16 @@ function basicAttack(unit: CombatUnit, ctx: CombatContext): void {
   // also on the target — the whole reason a lone wolf is weak and a pack lethal.
   if (unit.pack && hasPackmateOn(unit, target, ctx)) damage = Math.round(damage * (1 + PACK_TACTICS_BONUS));
 
-  // Charge (Charger archetype): the gore lands. Bonus damage + a small, capped
-  // knockback both scale with the distance the unit charged this round. Shoving
-  // the target back opens the gap for a possible re-charge — the cooldown + cap
-  // keep that from spiraling.
-  const charged = !!(unit.chargedThisRound && unit.chargedThisRound.targetId === target.id);
-  let knockedTo: number | undefined;
+  // Charge gore: bonus damage + a small capped knockback, both scaling with the
+  // distance charged (the shove opens a re-charge gap; cooldown + cap keep it
+  // from spiraling).
+  let knockMove: { id: string; x: number } | undefined;
   if (charged) {
-    const dist = unit.chargedThisRound!.distance;
-    damage = Math.round(damage * (1 + Math.min(CHARGE.dmgCap, dist * CHARGE.dmgPerPace)));
+    damage = Math.round(damage * (1 + Math.min(CHARGE.dmgCap, chargeInfo!.distance * CHARGE.dmgPerPace)));
     const dir = (target.x ?? 0) >= (unit.x ?? 0) ? 1 : -1;
-    const knock = Math.min(CHARGE.knockCap, dist * CHARGE.knockPerPace);
+    const knock = Math.min(CHARGE.knockCap, chargeInfo!.distance * CHARGE.knockPerPace);
     target.x = Math.max(POS.fieldMin, Math.min(POS.fieldMax, (target.x ?? 0) + dir * knock));
-    knockedTo = Math.round(target.x);
-    unit.chargedThisRound = undefined;
+    knockMove = { id: target.id, x: Math.round(target.x) };
   }
 
   // Shield Wall: a warrior absorbs a killing blow meant for an ally (once per combat, 50% chance).
@@ -169,6 +188,7 @@ function basicAttack(unit: CombatUnit, ctx: CombatContext): void {
         targetHp: Math.max(0, protector.hp), targetMaxHp: protector.maxHp,
         isEnemy: false, isShieldWall: true,
         abilityName: "Shield Wall", abilityIcon: "🛡️",
+        ...(charged ? { moves: [chargeSlide, knockMove].filter(Boolean) as { id: string; x: number }[] } : {}),
       });
       return;
     }
@@ -176,14 +196,14 @@ function basicAttack(unit: CombatUnit, ctx: CombatContext): void {
 
   target.hp -= damage;
   if (!unit.isEnemy) addDamageThreat(target, unit, damage);
+  const chargeMoves = [chargeSlide, knockMove].filter(Boolean) as { id: string; x: number }[];
   ctx.log.push({
-    round: ctx.round, attackerName: unit.name,
-    attackerIcon: charged ? "💨" : (unit.isEnemy ? unit.icon : (unit.isMagical ? "🔮" : "⚔️")),
+    round: ctx.round, attackerName: unit.name, attackerIcon: icon,
     targetName: target.name, damage, rawDamage,
     dodged: false, crit, killed: target.hp <= 0,
     targetHp: Math.max(0, target.hp), targetMaxHp: target.maxHp,
     isEnemy: unit.isEnemy,
-    ...(charged ? { abilityName: "Goring Charge", abilityIcon: "💨" } : {}),
-    ...(knockedTo !== undefined ? { moves: [{ id: target.id, x: knockedTo }] } : {}),
+    ...(charged ? { abilityName: "Goring Charge", note: `${unit.name} charges ${chargePaces} paces at ${target.name} and gores for ${damage} damage` } : {}),
+    ...(chargeMoves.length ? { moves: chargeMoves } : {}),
   });
 }

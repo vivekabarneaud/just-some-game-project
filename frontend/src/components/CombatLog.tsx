@@ -157,8 +157,9 @@ function CombatLogLine(props: { entry: CombatLogEntry }) {
     <div style={{ color: lineColor, display: "flex", "align-items": "center", "flex-wrap": "wrap", gap: "4px" }}>
       <span>{e.attackerIcon}</span>
 
-      {/* Ability label — bracketed before the action */}
-      <Show when={e.abilityName && !e.isPoisonTick}>
+      {/* Ability label — bracketed before the action (the charge carries its own
+          full-sentence note instead, so no bracket for it). */}
+      <Show when={e.abilityName && e.abilityName !== "Goring Charge" && !e.isPoisonTick}>
         <span style={{ color: "var(--accent-gold)" }}>[{e.abilityName}]</span>
       </Show>
 
@@ -186,6 +187,22 @@ function CombatLogLine(props: { entry: CombatLogEntry }) {
 /** Everything except the dot-tick branch — keeping the JSX flatter than a giant ternary. */
 function NonTickContent(props: { entry: CombatLogEntry }) {
   const e = props.entry;
+
+  // Goring Charge — the run-up + gore as ONE sentence (the note), with the hit's
+  // hp bar / fallen tag appended. Reads "X charges N paces at Y and gores for D".
+  if (e.abilityName === "Goring Charge" && e.note) {
+    return (
+      <>
+        <span>{e.note}</span>
+        <Show when={e.killed}>
+          <FallenTag permanent={e.permanentDeath} />
+        </Show>
+        <Show when={e.targetHp != null && !e.killed && !e.dodged}>
+          <HpBar current={e.targetHp!} max={e.targetMaxHp ?? e.targetHp!} width="46px" />
+        </Show>
+      </>
+    );
+  }
 
   // Group buff (e.g. Captain's Command). Targets all allies, deals no damage,
   // status-applied tag describes the buff. Render without the misleading
