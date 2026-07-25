@@ -14,8 +14,9 @@ export interface PUnit {
   role: Role;
   hp: number;
   maxHp: number;
-  dmg: number;        // damage per hit
-  reach: number;      // attack range in X units (melee small, ranged large)
+  dmg: number;        // ranged/primary damage per hit
+  meleeDmg: number;   // fallback damage when pinned (drew a dagger); melee units == dmg
+  reach: number;      // attack range in paces (melee small, ranged large)
   mobility: number;   // max move per turn
   threatMul: number;  // aggro generated per point of damage
   aiTier: AiTier;
@@ -30,7 +31,7 @@ export interface PTune {
   allyFrontX: number;  allyBackX: number;
   enemyFrontX: number; enemyBackX: number;
   contact: number;     // melee contact distance
-  exposureMult: number;// ranged damage mult when pressured (melee foe in contact at turn start)
+  backstabMult: number;// bonus when striking a target from behind (baseline; talents scale)
   holdPer: number;     // how many attackers ONE frontliner pins; the rest overflow
   maxRounds: number;
 }
@@ -40,8 +41,8 @@ export const DEFAULT_TUNE: PTune = {
   allyFrontX: 32, allyBackX: 18,
   enemyFrontX: 68, enemyBackX: 82,
   contact: 5,
-  exposureMult: 0.45,
-  holdPer: 1,
+  backstabMult: 1.5,
+  holdPer: 2,
   maxRounds: 30,
 };
 
@@ -88,9 +89,10 @@ function pickTarget(u: PUnit, enemies: PUnit[], held: boolean): PUnit {
 
 const clampField = (x: number, t: PTune) => Math.max(t.fieldMin, Math.min(t.fieldMax, x));
 
-function move(u: PUnit, target: PUnit, units: PUnit[], held: Set<string>, t: PTune) {
+function move(u: PUnit, target: PUnit, units: PUnit[], held: Set<string>, pinned: boolean, t: PTune) {
   const foes = alive(units).filter((x) => x.side !== u.side);
   if (u.role === "ranged") {
+    if (pinned) return; // locked in melee — stand and stab, cannot kite this turn
     // kite: back off if a melee foe is (nearly) in contact — but the field edge
     // is a wall, so you eventually get pinned.
     const pressed = foes.some((e) => e.role === "melee" && Math.abs(e.x - u.x) <= t.contact * 1.4);
@@ -110,7 +112,10 @@ function move(u: PUnit, target: PUnit, units: PUnit[], held: Set<string>, t: PTu
       destX = dir > 0 ? Math.min(destX, stopX) : Math.max(destX, stopX);
     }
   }
-  destX = dir > 0 ? Math.min(destX, target.x) : Math.max(destX, target.x); // don't overshoot
+  // Bypassers flank to just PAST the target (the far side) to strike from behind;
+  // everyone else stops in front of it.
+  const stop = u.bypass ? target.x + dir * 2 : target.x;
+  destX = dir > 0 ? Math.min(destX, stop) : Math.max(destX, stop);
   u.x = clampField(destX, t);
 }
 
@@ -134,18 +139,23 @@ export function runPositional(units: PUnit[], t: PTune = DEFAULT_TUNE): PResult 
       if (u.fallen || u.hp <= 0) continue;
       const foes = alive(units).filter((x) => x.side !== u.side);
       if (!foes.length) break;
-      // Exposure is judged at the START of the turn: if a melee foe is on you
-      // now, your shot is rushed even if you scramble back before firing.
-      const exposed = u.role === "ranged" && foes.some((e) => e.role === "melee" && Math.abs(e.x - u.x) <= t.contact);
-      const target = pickTarget(u, foes, held.has(u.id));
-      move(u, target, units, held, t);
+      // Pinned = a melee foe is in contact at the start of the turn. A pinned
+      // ranged unit drops its bow, draws a dagger, and fights the foe on top of
+      // it (meleeDmg) instead of firing across the field.
+      const meleeFoes = foes.filter((e) => e.role === "melee");
+      const pinned = u.role === "ranged" && meleeFoes.some((e) => Math.abs(e.x - u.x) <= t.contact);
+      const target = pinned ? nearest(u, meleeFoes) : pickTarget(u, foes, held.has(u.id));
+      move(u, target, units, held, pinned, t);
       const dist = Math.abs(u.x - target.x);
-      if (dist <= u.reach + 1e-6) {
-        let dmg = u.dmg;
-        if (exposed) dmg *= t.exposureMult;
+      const inReach = dist <= (pinned ? t.contact : u.reach) + 1e-6;
+      if (inReach) {
+        let dmg = pinned ? u.meleeDmg : u.dmg;
+        const behind = u.side === "ally" ? u.x > target.x : u.x < target.x;
+        if (behind) dmg *= t.backstabMult;
         target.hp -= dmg;
         u.threat += dmg * u.threatMul;
-        log.push(`r${round} ${u.name}@${u.x.toFixed(0)} → ${target.name}@${target.x.toFixed(0)} (Δ${dist.toFixed(0)}) ${dmg.toFixed(1)}dmg → ${Math.max(0, target.hp).toFixed(0)}/${target.maxHp}${exposed ? " [EXPOSED]" : ""}`);
+        const tag = `${pinned ? " [dagger]" : ""}${behind ? " [BACKSTAB]" : ""}`;
+        log.push(`r${round} ${u.name}@${u.x.toFixed(0)} → ${target.name}@${target.x.toFixed(0)} (Δ${dist.toFixed(0)}) ${dmg.toFixed(1)}dmg → ${Math.max(0, target.hp).toFixed(0)}/${target.maxHp}${tag}`);
         if (target.hp <= 0) { target.fallen = true; log.push(`   ✝ ${target.name} falls`); }
       } else {
         log.push(`r${round} ${u.name}@${u.x.toFixed(0)} advances toward ${target.name}@${target.x.toFixed(0)} (Δ${dist.toFixed(0)} > reach ${u.reach})`);
@@ -166,12 +176,14 @@ export function runPositional(units: PUnit[], t: PTune = DEFAULT_TUNE): PResult 
 export function unit(p: Partial<PUnit> & Pick<PUnit, "id" | "name" | "side" | "role">): PUnit {
   const ranged = p.role === "ranged";
   const hp = p.hp ?? 40;
+  const dmg = p.dmg ?? 8;
   const base = {
-    hp, maxHp: hp, dmg: 8,
+    hp, maxHp: hp, dmg,
+    meleeDmg: ranged ? Math.round(dmg * 0.4) : dmg, // bow-users stab weakly by default
     reach: ranged ? 100 : 4,
     mobility: ranged ? 6 : 10,
     threatMul: 1, aiTier: "tactical" as AiTier, bypass: false,
     x: 0, threat: 0, fallen: false,
   };
-  return { ...base, ...p, hp, maxHp: hp };
+  return { ...base, ...p, hp, maxHp: hp, dmg };
 }

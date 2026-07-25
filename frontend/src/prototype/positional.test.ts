@@ -23,8 +23,8 @@ describe("positional sandbox v0.1", () => {
     // 1) THE PROBLEM CASE: two archers, no frontline, vs five weak melee.
     {
       const u: PUnit[] = [
-        unit({ id: "a1", name: "Brenna(arch)", side: "ally", role: "ranged", hp: 40, dmg: 9 }),
-        unit({ id: "a2", name: "Gareth(arch)", side: "ally", role: "ranged", hp: 40, dmg: 9 }),
+        unit({ id: "a1", name: "Brenna(arch)", side: "ally", role: "ranged", hp: 40, dmg: 9, meleeDmg: 6 }),
+        unit({ id: "a2", name: "Gareth(arch)", side: "ally", role: "ranged", hp: 48, dmg: 9, meleeDmg: 3 }),
         ...[1, 2, 3, 4, 5].map((n) => unit({ id: `e${n}`, name: `Tough${n}`, side: "enemy", role: "melee", hp: 20, dmg: 4, aiTier: "tactical" })),
       ];
       out.push(report("1) 2 archers, NO frontline, vs 5 melee", u, runPositional(u)));
@@ -34,8 +34,8 @@ describe("positional sandbox v0.1", () => {
     {
       const u: PUnit[] = [
         unit({ id: "w", name: "Godric(war)", side: "ally", role: "melee", hp: 70, dmg: 8, threatMul: 2 }),
-        unit({ id: "a1", name: "Brenna(arch)", side: "ally", role: "ranged", hp: 40, dmg: 9 }),
-        unit({ id: "a2", name: "Gareth(arch)", side: "ally", role: "ranged", hp: 40, dmg: 9 }),
+        unit({ id: "a1", name: "Brenna(arch)", side: "ally", role: "ranged", hp: 40, dmg: 9, meleeDmg: 6 }),
+        unit({ id: "a2", name: "Gareth(arch)", side: "ally", role: "ranged", hp: 48, dmg: 9, meleeDmg: 3 }),
         ...[1, 2, 3, 4, 5].map((n) => unit({ id: `e${n}`, name: `Tough${n}`, side: "enemy", role: "melee", hp: 20, dmg: 4, aiTier: "tactical" })),
       ];
       out.push(report("2) warrior + 2 archers vs 5 melee (holdPer=1)", u, runPositional(u)));
@@ -46,7 +46,7 @@ describe("positional sandbox v0.1", () => {
       const u: PUnit[] = [
         unit({ id: "w", name: "Godric(war)", side: "ally", role: "melee", hp: 70, dmg: 8, threatMul: 2 }),
         unit({ id: "as", name: "Sable(assn)", side: "ally", role: "melee", hp: 45, dmg: 12, mobility: 22, bypass: true }),
-        unit({ id: "a1", name: "Brenna(arch)", side: "ally", role: "ranged", hp: 40, dmg: 9 }),
+        unit({ id: "a1", name: "Brenna(arch)", side: "ally", role: "ranged", hp: 40, dmg: 9, meleeDmg: 6 }),
         unit({ id: "m1", name: "Brute1", side: "enemy", role: "melee", hp: 40, dmg: 6 }),
         unit({ id: "m2", name: "Brute2", side: "enemy", role: "melee", hp: 40, dmg: 6 }),
         unit({ id: "c1", name: "Caster1", side: "enemy", role: "ranged", hp: 22, dmg: 11, aiTier: "cunning" }),
