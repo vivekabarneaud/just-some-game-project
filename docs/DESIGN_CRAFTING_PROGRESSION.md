@@ -30,7 +30,9 @@ The player still fills the kit *gradually* — crude hide → mail → plate —
 
 - **Day one:** a few **weapons + chest + cloak**. Head / legs / boots arrive **guild L2–3, not day-one** (soft pacing via recipe requirements — you need the shop + hunted mats).
 - **Rarity = stat budget:** **common = 0 stat bonus** (function only — a weapon's damage, an armour's DEF); stats (a +1 primary, a raw sub-stat) require **uncommon+**.
-- **Rarity = stat *power*, NOT material *cost*.** A rare *drop* gates how *often* you can make something; it does **not** make the item a higher rarity. An **uncommon item can require rare materials** (e.g. the boar's Tusked Hood needs 2 whole tusks but is uncommon-budget) — that just makes it scarce, precious, and worth trading, without inflating its stats. If you want a genuinely stronger capstone, that's a *rare-budget* design with its own mats — not "uncommon item, bumped to rare because the mats were fancy."
+- **Rarity, two honest meanings:**
+  - **Crafted gear → rarity = stat *power* (budget), NOT material *cost*.** A rare *material* gates how *often* you can craft something; it does **not** bump the item's rarity. An **uncommon item can require rare mats** (the boar's Tusked Hood eats 2 whole tusks but stays uncommon-budget) — scarce and precious to make, without inflating its stats. A stronger capstone is a *rare-budget* design with its own mats, not "uncommon bumped to rare because the mats were fancy."
+  - **A unique, non-craftable *find* → rarity = its *specialness/scarcity*.** A **rare-but-modest** dropped curio is legitimate — "rare" honours how special and hard to find it is (a 1%-drop stolen signet with a story), not a power claim. You treasure it and trade it; you don't min-max it.
 
 ## Applied
 

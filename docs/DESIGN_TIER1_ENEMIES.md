@@ -126,6 +126,22 @@ Constants in `retreat.ts` (`MORALE = {leader:40, loss:70, outnum:12, press:45}`)
 
 Reusable mechanics this pass added: **`stun`** (skip-turn CC — also the Pack-Howl counter), **`slow`** (halved initiative as an ability), tighter **range-gating** (`stun`/`slow`/`debuff_target` now reach-gated). Deferred: a true **flanking Cutthroat** (needs an enemy bypass flag) and **STR-parry** on the Deserter (waits on hit-resolution — raw dodge stands in).
 
+### Outlaw missions, loot & the luck ring (the "place & loop" steps)
+
+**Missions** (the mid-tier bandit missions above novice are **placeholder** — don't trust them). Real coverage: **Run Down** (Toughs — a moral, non-lethal rescue) + **The Tollman's Road** side-chain (drive them off the road → break the Tollman's camp → recover the stolen hoard). Add **one more: a recurring Greyford escort** — the discovery→routine follow-up to the existing *"The Road to Greyford"* (the first trade). Ride shotgun on **Maren's grain-carter / Cobb** on the river-road runs and break the bandits working it. **This homes the new Poacher + Cutthroat** — add them to the road-bandit encounters *and* to the Tollman's camp (an organized company has a sniper + a knife-man). The far-capital **Tessoria** escort is a *later, rep-gated* tier.
+
+**Loot loop — humans drop STOLEN GOODS, not crafting mats:**
+- **Gold** — robbed from outsiders (economy-consistent), but kept **scarce**.
+- **Stolen gear** — tidy the Brigand's 8-item piñata *by type*: Brigand keeps swords/axe/armour, **knife → Cutthroat**, **bow → Poacher**. Bandits stay the early gear source without one enemy dropping everything.
+- **A Stranger's Signet** *(new)* — the thrill jackpot: **rare** (a rare *find*, not a power tier — see [[DESIGN_CRAFTING_PROGRESSION]]), a **+luck** charm (lootMod), **~1% off any bandit**, non-craftable, tradeable. *"A traveller's signet, taken off them on the road north. It fit someone once, and they had a name. Now it just fits you."*
+
+**Greyford escort rewards** — they're poor (a year ahead of us, not rich): ~**5 gold** + **grain** (they pay in kind — farmers) + **the bandit loot** (the real payoff — you get rich off the *bandits*, not off poor neighbours). Reinforces scarce gold; builds **Greyford rapport**.
+
+**New systems this needs (not built):**
+- **Luck stat** — lootMod for everyone; **Edmund alone** turns luck into **combat** luck (his gambler's luck is *real* — a luck-scaled chance to shrug a killing blow / a lucky crit). Characterful: the ring's worth depends on *who* wears it.
+- **Greyford reputation** — designed-only (Greyford is narrative-only; a Tessoria rep-gate is planned). Add a light rapport counter, or ship the escort's gold/grain/loot first and defer rep.
+- **Discovery→routine wiring** off "The Road to Greyford" for the recurring escort.
+
 ## 4. Remaining Tier-1 roster — TODO
 
 Author the rest one by one on the foundation (stats + band + only the distinct exceptions): the other Tier-1 beasts/vermin, then Brenna / Gareth / Godric as the uniform-schema reference builds. Track against the enemy list in `shared/src/data/enemies.ts`.
