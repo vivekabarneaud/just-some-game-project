@@ -1,0 +1,84 @@
+# DESIGN: Tier-1 Gear & Materials (wolf + boar loot loops)
+
+**Status:** Designed 2026-07-26, NOT yet built. The spec for the "make the wolf/boar gear live" build session. Follows [[DESIGN_ENEMY_AUDIT_METHOD]] (the loop step), [[DESIGN_CRAFTING_PROGRESSION]] (leather tier, rarity=power), [[DESIGN_NOVICE_ITEMS]] (day-one loadout).
+
+**One-line:** Each Tier-1 family's drops craft gear that *is its identity*. **Wolves = agility** (dodge / mobility / crit / accuracy + −Presence), **boars = toughness** (armour / STR / VIT + +Presence). Hunt the beast → become the beast.
+
+---
+
+## Systems this needs (the build checklist)
+
+1. **gear → raw sub-stats.** Equipment can carry a `raw` block (`RawSubStats`); `buildAdventurerUnit` sums it across equipped items. *This is the unlock — everything below with an "annotated" sub-stat is inert until this lands.* An item may carry **several** raw sub-stats.
+2. **Presence stat.** Its own stat: **floor from CLASS** (warrior high, assassin deep-negative, archer/caster negative), **+ raw** from gear/talents. Signed; crosses zero. Scales **threat generation** (the existing threat system): high Presence draws aggro (tanks), negative sheds it (assassin "deadly ghost"). NOT attribute-derived (would re-couple aggro to power). Counter to enemy focus effects is CC/burst.
+3. **Gloves slot** (new) — home for the Fang-Studded Gauntlets.
+4. **Daggers equippable in off-hand** — any `weaponType: "dagger"` allowed in `offHand` (precedent: `parrying_dagger`). Gives Brenna a sidearm + assassins an off-hand, no new slot.
+5. **New material `boar_tusk`** (whole tusk) — see ladder below.
+6. **Loot fixes** — see §Loot.
+
+Deferred: **weapon-band auto-swap** (the "true sidearm" behaviour), **set bonuses** (Pack Hunter / boar tank), **tainted/Hollow crafting** (the Patriarch's corrupted mats — unresolved worldbuilding), plate/mail lines.
+
+## Material → sub-stat identity
+
+| Wolf (agility) | | Boar (toughness) | |
+|---|---|---|---|
+| wolfhide | dodge / mobility | bristlehide | armour (DEF) / VIT / STR |
+| fang | crit | tusk_shard | (accents, alchemy) |
+| sinew | accuracy | boar_tusk | STR (a heavy blade) |
+
+Presence sits at the two poles: the wolf **Hunter's Cloak = −Presence** (vanish), the boar **Hauberk + Hood = +Presence** (loom).
+
+---
+
+## Wolf gear — the "Pack Hunter" set (agility)
+
+All Leatherworking unless noted, uncommon, guild L2–3, +1 primary. "Annotated" = raw sub-stat, pending gear→raw.
+
+| Item | Slot | Recipe | Live | Annotated |
+|---|---|---|---|---|
+| **Greypelt Jerkin** | chest | wolfhide ×2 + leather ×2 + sinew_cord ×1 | 26 DEF, +1 DEX | +2 Dodge |
+| **Wolfhide Treads** | boots | leather ×2 + wolfhide ×1 + sinew_cord ×1 | 12 DEF, +1 DEX | +2 Mobility |
+| **Hunter's Cloak** | cloak | wolfhide ×2 + leather ×1 + sinew_cord ×1 | 10 DEF, +1 DEX | **−Presence** |
+| **Fang-Studded Gauntlets** | gloves *(new slot)* | fang ×3 + wolfhide ×1 + leather ×1 + sinew_cord ×1 | 10 DEF, +1 DEX | +3 Crit |
+| **Crude Fang Dagger** | main/off-hand · Blacksmith | fang ×1 + wood ×1 + fiber ×1 | dmg 2–5 | +Crit |
+| **Fang Dagger** | main/off-hand · Blacksmith | fang ×1 + wood ×1 + sinew_cord ×1 | dmg 3–6 | +Crit (a touch more) |
+
+**Ranged piece already exists:** `sinew_bow` (Sinew Bow, woodworker, +1 DEX +1 STR draw, dmg 5–8) — **annotate +Accuracy**. Prestige `alpha_warbow` exists ("the bow's answer to the fang"). Alpha-fang masterwork sword exists. Set bonus concept: **2pc +Mobility, 4pc "Pack Hunter"** (bonus crit vs a target an ally is also engaging — the wolves' own Pack Tactics turned on them).
+
+## Boar gear — the tank set (toughness)
+
+Leatherworking, uncommon, guild L2–3. **Presence only on the two signature pieces**; the rest are honest toughness anyone (assassin/archer) can wear for STR/durability without pulling aggro.
+
+| Item | Slot | Recipe | Live | Annotated |
+|---|---|---|---|---|
+| **Bristlehide Hauberk** | chest | bristlehide ×3 + leather ×2 | **38 DEF**, +1 STR | **+Presence** |
+| **Bristlehide Greaves** | legs | bristlehide ×2 + leather ×2 | 24 DEF, +1 STR | none (broad-appeal) |
+| **Tusked Boar-Hood** | head | **boar_tusk ×2** + bristlehide ×2 | 18 DEF, +1 VIT | **+Presence** |
+| **Bristlehide Shoes** | feet | bristlehide ×1 + leather ×2 | 13 DEF, +1 VIT | none · pointedly **no mobility** ("planted") |
+| **Tusk Dagger** | main/off-hand · Blacksmith | boar_tusk ×1 + wood ×1 + leather ×1 | dmg 3–6, **+1 STR** *(live!)* | — |
+
+Fang = crit (finesse), Tusk = STR (raw power): two daggers, pick your build or dual-wield.
+
+---
+
+## Loot fixes & the material ladders
+
+**Wolves** — fix the inverted meat + unify the drop set, condition-scaled; **`keepOnRout` on fang for ALL wolves**:
+
+| | meat | wolfhide | fang (keepOnRout) | sinew |
+|---|---|---|---|---|
+| Grey (fed) | 0.5 (2–4) | 0.4 (1–2) | 0.5 (1–2) | 0.2 |
+| Gaunt | 0.3 (1–2) | 0.25 | 0.35 | 0.12 |
+| Starving | 0.15 | 0.12 | 0.3 | 0.1 |
+Alpha: prestige oneOf alpha_fang / alpha_sinew (existing).
+
+**Boars** — give Wild its materials, Rabid drops **no meat** (diseased), + the new tusk ladder:
+
+| | meat | bristlehide | tusk_shard | **boar_tusk (new)** | cloven_hoof | boar_skull |
+|---|---|---|---|---|---|---|
+| **Wild** | 0.5 (2–4) | 0.35 | 0.8 | **0.08** | — | — |
+| **Rabid** | — | 0.3 | 1.0 | **0.10** | — | — |
+| **Tainted** *(parked)* | — | tainted | tainted | — | **1.0** (source) | — |
+| **Patriarch** *(parked)* | — | tainted | tainted | — | — | **1.0** (source) |
+
+- **`boar_tusk`** (whole, curved, dense) — the blade material. Rare drop (~8–10%) on **living** boars only; the tainted prestige tusk is **parked with Hollow crafting**.
+- **Loot hygiene:** `cloven_hoof` (the witch's "useless" oddity) and `boar_skull` (bog-witch trophy) drop **only from their quest source at 100%** (tainted boars / Patriarch), removed from the low-% scatter on wild/rabid — no clutter. `tusk_shard` keeps a broad drop (alchemy sink). `bristlehide` now has a sink (the armour).
