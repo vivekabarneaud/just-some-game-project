@@ -42,6 +42,13 @@ Fast, fragile, strike-and-**linger**: the danger is venom that **stacks per-bite
 
 **Escalation ties to world-state:** `marsh_clearing` stays light early (compassion front, ~a lone Spitter); after Aldith it reverts to calm (adders only, per canon); *later*, as the taint spreads, the fen-gather scales to the full hostile family — **our hard snakes' home.** Need and danger rise **in lockstep**, so the risk/reward holds all the way up.
 
+## Sibling biomes / families deferred out of the marsh
+
+Keep the marsh **pure venom/snakes** (+ the witch, + Fenbalm). Two families felt homeless here and belong elsewhere — each gets its own coherent slice later:
+
+- **Fungal → a greying-forest / blight biome.** Their lore home is *"the heartwood is going grey"* — the Thornveil rotting from the inside as the ward-line recedes. A **thinning-edge sibling** to the marsh (the marsh = the water/witch corrupted; the forest = the woods rotting). Archetype: **spore-hazard + cordyceps infection** (fungus puppets hosts; kill one, it bursts spores, the rot jumps on) + hallucination/blur. Loot = **alchemy** (glowcap/luminous spores, hallucinogens, blight-samples) — *not* a gear family, which is why they felt homeless in a gear biome. Tainted fungi doing the cordyceps thing.
+- **Spiders → caves / quarries / ruins** (the existing `cave_spider` home). The marsh is already *complete* (full venom family + a grapple CC in the Constrictor + the Fenbalm reason), so a spider's **web/root** would be a **redundant** second immobilise here, *and* there's no separate reason to enter the marsh for them (Fenbalm = the snakes). Underground, though, **web/root is the star** (webbed tunnels in the dark) and the reason to fight them is built in (you go down for stone / expeditions / dungeons). Web/root travels *with* the spider family to that biome.
+
 ## Fenbalm's uses (multiplying the essentialness) — it's the whole medicine chest
 - **Deep-cough / winter-fever remedy** *(established)*.
 - **Antivenom base** (+ snake_oil) — cures *envenomed*.
