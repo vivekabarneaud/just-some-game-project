@@ -42,7 +42,11 @@ Fast, fragile, strike-and-**linger**: the danger is venom that **stacks per-bite
 
 **Escalation ties to world-state:** `marsh_clearing` stays light early (compassion front, ~a lone Spitter); after Aldith it reverts to calm (adders only, per canon); *later*, as the taint spreads, the fen-gather scales to the full hostile family — **our hard snakes' home.** Need and danger rise **in lockstep**, so the risk/reward holds all the way up.
 
-## Fenbalm's uses (multiplying the essentialness)
+## Fenbalm's uses (multiplying the essentialness) — it's the whole medicine chest
 - **Deep-cough / winter-fever remedy** *(established)*.
 - **Antivenom base** (+ snake_oil) — cures *envenomed*.
-- **_(open — TBD)_** more uses so it's the settlement's whole medicine chest, not a one-trick herb (the more it does, the more "we must gather it" holds). Candidates: a **wound-salve** (speeds adventurer recovery), **midwifery** (Edda — births/citizen-growth), a taint-sickness treatment (late).
+- **Wound-salve / poultice** — speeds adventurer **recovery** (KO/bleed/wounds). The constant-demand use: every mission comes home hurt, so you're *always* burning it — running out is scary.
+- **Midwifery** — **Edda's** herb; keeps mothers + newborns alive through a hard frontier birth (ties to citizen-growth). Deeply cast-tied and the rawest stakes (the settlement's *future*).
+- *(late)* a **taint-borne sickness** treatment the garden crop can't touch — a reason to gather *wild* Fenbalm once cultivation exists.
+
+*(Detailed recipes/values TBD — design with the alchemy/recovery touch, per the "don't add a mat's source without its use" rule.)*
