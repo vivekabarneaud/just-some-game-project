@@ -179,7 +179,7 @@ export function tryEnemyAbility(unit: CombatUnit, ctx: CombatContext): boolean {
           abilityName: ability.name,
           targetName: prey.name, damage: 0, dodged: false, crit: false, killed: false,
           targetHp: prey.hp, targetMaxHp: prey.maxHp, isEnemy: true,
-          note: `${unit.name} howls — the pack turns on ${prey.name}`,
+          note: `${unit.name} howls — the pack locks onto ${prey.name}, beyond any call to heel`,
         });
         return true;
       }
