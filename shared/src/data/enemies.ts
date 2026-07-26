@@ -79,6 +79,9 @@ export interface EnemyAbility {
     | { type: "mind_control"; rounds: number }
     | { type: "buff_allies"; stat: "str" | "dex" | "int"; pct: number; rounds: number }
     | { type: "debuff_target"; stat: "str" | "dex" | "int"; pct: number; rounds: number }
+    /** A strike that also STUNS the target for `rounds` of its own turns (skips
+     *  them). The cutthroat's garrote; fights dirty. Range-gated like any strike. */
+    | { type: "stun"; rounds: number }
     | { type: "revive_ally"; hpPct: number }
     /** Pack Howl (Flanker archetype, alpha): mark the weakest prey (lowest current
      *  HP — the pack smells blood) and lock the whole pack onto it for `rounds`,

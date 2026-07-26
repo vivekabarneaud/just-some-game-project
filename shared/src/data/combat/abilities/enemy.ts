@@ -7,7 +7,7 @@ import type { CombatContext, CombatUnit } from "../types.js";
 
 /** Damage-ability effect types that must respect reach (a bite/spit can't cross
  *  the field). Utility/ally effects (heals, buffs, summons, mind-control) don't. */
-const RANGE_GATED = new Set(["bleed", "poison", "infect", "damage_mult", "aoe_damage"]);
+const RANGE_GATED = new Set(["bleed", "poison", "infect", "damage_mult", "aoe_damage", "stun"]);
 
 /**
  * Try each of the enemy unit's special abilities in registration order.
@@ -157,6 +157,26 @@ export function tryEnemyAbility(unit: CombatUnit, ctx: CombatContext): boolean {
             killed: hits.some((h) => h.killed), isEnemy: true, targets: hits,
           });
         }
+        return true;
+      }
+
+      case "stun": {
+        // A dirty strike that lands a hit AND stuns — the target skips `rounds`
+        // of its own turns. Only affects the player side (enemies don't stun each
+        // other here); still deals the hit regardless.
+        const target = reachTargets[Math.floor(combatRandom() * reachTargets.length)];
+        if (!target) return false;
+        const hit = calcDamageResult(unit, target);
+        target.hp -= hit.damage;
+        if (target.hp > 0) target.stunned = Math.max(target.stunned ?? 0, eff.rounds);
+        ctx.log.push({
+          round: ctx.round, attackerName: unit.name, attackerIcon: ability.icon,
+          abilityName: ability.name,
+          targetName: target.name, damage: hit.damage, dodged: false, crit: hit.crit, killed: target.hp <= 0,
+          targetHp: Math.max(0, target.hp), targetMaxHp: target.maxHp, isEnemy: true,
+          ...(target.hp > 0 ? { statusApplied: { type: "stun", rounds: eff.rounds } } : {}),
+        });
+        if (target.hp <= 0) target.hp = 0;
         return true;
       }
 

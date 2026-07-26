@@ -175,6 +175,10 @@ export interface CombatUnit {
   cooldowns: Record<string, number>;
   tauntedBy?: string;
   slowed: number;
+  /** Stunned for this many of its OWN turns — it skips (no move, no act), one
+   *  turn per point, decremented as each is skipped. A garrote / cutthroat, and
+   *  the answer to a wolf pack's howl. Reusable CC. */
+  stunned?: number;
   poisonTicks: { damage: number; rounds: number; sourceName?: string; sourceIcon?: string; type?: "bleed" | "poison" }[];
   /** Infected with the froth (rabid-boar bite-sickness) this fight. Not a combat
    *  DoT — it's carried home as an Adventurer condition if the unit survives. */
@@ -241,7 +245,7 @@ export interface CombatLogEntry {
   /** Retreat/recovery narrative beat (Model C). Interim flat-schema marker until
    *  the combat-log discriminated-union refactor lands; the renderer can special-
    *  case these as highlighted lines. */
-  beat?: "broken" | "flee_success" | "flee_fail" | "order_hold" | "order_fallback" | "abandoned" | "move";
+  beat?: "broken" | "flee_success" | "flee_fail" | "order_hold" | "order_fallback" | "abandoned" | "move" | "stunned";
   /** Human-readable narrative line for a `beat` entry. */
   note?: string;
   /** Battlefield position updates applied WHEN this entry plays (id → new pace on

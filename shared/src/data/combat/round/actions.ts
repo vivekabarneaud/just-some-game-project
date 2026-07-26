@@ -45,6 +45,17 @@ export function runActions(ctx: CombatContext): void {
     // Still take damage, still healable, just skip the turn.
     if (unit.canAct === false) continue;
 
+    // Stunned: skip the whole turn (no move, no act), burning one stun point.
+    if (unit.stunned && unit.stunned > 0) {
+      unit.stunned--;
+      ctx.log.push({
+        round: ctx.round, attackerName: unit.name, attackerIcon: "💫",
+        targetName: unit.name, damage: 0, dodged: false, crit: false, killed: false,
+        isEnemy: unit.isEnemy, beat: "stunned", note: `${unit.name} is stunned and can't act`,
+      });
+      continue;
+    }
+
     // Retreat (Model C): broken heroes, and everyone once the team is routing,
     // spend their turn trying to break contact instead of fighting.
     if (shouldFlee(unit, ctx)) { attemptFlee(unit, ctx); continue; }
