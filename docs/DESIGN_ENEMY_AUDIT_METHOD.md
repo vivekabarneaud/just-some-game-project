@@ -23,7 +23,9 @@ Work a family top to bottom. Don't move on until each step is answered.
 1. **Place & missions.** Where do they live (biome)? What missions feature them *today* — across tiers? Is that coverage *enough*, or should we invent a unique one-off and/or a good repeatable? A family with no missions has no reason to exist.
 2. **Kit.** Abilities + stats + AI. (Done for the built families; from-scratch for the rest — pick/extend an archetype: Flanker, Charger, Morale, …)
 3. **Loot.** What drops, and does it make *sense*? Scale to the body/condition (a starving beast drops less; a healthy one more). Set `keepOnRout` on what a fleeing creature would leave behind (shed teeth, dropped gear) vs. carry off.
-4. **The loop.** What is each drop *for* — which recipe or quest consumes it? **If a drop feeds nothing, add a sink (new recipe/quest) or cut it.** This is the step that turns loot from noise into economy. New gear should exploit the current stat system (e.g. the raw sub-stats: crit / accuracy / dodge / parry / mobility) so drops map to an identity — the predator's fang → crit, the fast beast's hide → mobility, etc.
+4. **The loop.** What is each drop *for* — which recipe or quest consumes it? **If a drop feeds nothing, add a sink (new recipe/quest) or cut it.** This is the step that turns loot from noise into economy. New gear should exploit the current stat system (e.g. the raw sub-stats: crit / accuracy / dodge / parry / mobility / **Presence**) so drops map to an identity — the predator's fang → crit, the fast beast's hide → mobility, the bruiser's hide → armor + Presence, etc.
+
+   **Loot-hygiene rule:** a material earns a *random* drop only if it has a **repeatable sink** (a craft or an alchemy recipe). A **quest-only oddity** (a witch's strange request, a one-off trophy) drops from **one specific source at 100%, once** — never scattered at low % across a family — so it doesn't pile up uselessly in an infinite inventory. And don't invent a craft use just to justify a drop if the flavour *is* "useless" (e.g. the boar's cloven hoof — "of no use to anyone" is the joke; keep it, just control the drop).
 
 ---
 
