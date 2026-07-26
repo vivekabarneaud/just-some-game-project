@@ -25,6 +25,8 @@ Work a family top to bottom. Don't move on until each step is answered.
 3. **Loot.** What drops, and does it make *sense*? Scale to the body/condition (a starving beast drops less; a healthy one more). Set `keepOnRout` on what a fleeing creature would leave behind (shed teeth, dropped gear) vs. carry off.
 4. **The loop.** What is each drop *for* — which recipe or quest consumes it? **If a drop feeds nothing, add a sink (new recipe/quest) or cut it.** This is the step that turns loot from noise into economy. New gear should exploit the current stat system (e.g. the raw sub-stats: crit / accuracy / dodge / parry / mobility / **Presence**) so drops map to an identity — the predator's fang → crit, the fast beast's hide → mobility, the bruiser's hide → armor + Presence, etc.
 
+   **Gold rule:** gold is **external** income (trade, outsiders' bounties) — the settlement never pays *itself*. An **internal** defense/survival mission (cull your own maddened boars, clear the pest) rewards **XP + whatever you salvage from the encounter loot**, not a gold "bounty." Reserve gold rewards for missions where an *outsider* is paying.
+
    **Loot-hygiene rule:** a material earns a *random* drop only if it has a **repeatable sink** (a craft or an alchemy recipe). A **quest-only oddity** (a witch's strange request, a one-off trophy) drops from **one specific source at 100%, once** — never scattered at low % across a family — so it doesn't pile up uselessly in an infinite inventory. And don't invent a craft use just to justify a drop if the flavour *is* "useless" (e.g. the boar's cloven hoof — "of no use to anyone" is the joke; keep it, just control the drop).
 
 ---

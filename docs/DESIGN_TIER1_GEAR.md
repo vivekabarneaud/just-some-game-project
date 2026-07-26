@@ -82,3 +82,17 @@ Alpha: prestige oneOf alpha_fang / alpha_sinew (existing).
 
 - **`boar_tusk`** (whole, curved, dense) — the blade material. Rare drop (~8–10%) on **living** boars only; the tainted prestige tusk is **parked with Hollow crafting**.
 - **Loot hygiene:** `cloven_hoof` (the witch's "useless" oddity) and `boar_skull` (bog-witch trophy) drop **only from their quest source at 100%** (tainted boars / Patriarch), removed from the low-% scatter on wild/rabid — no clutter. `tusk_shard` keeps a broad drop (alchemy sink). `bristlehide` now has a sink (the armour).
+
+---
+
+## Boar missions (the "place & missions" step)
+
+Current coverage: the **Maddened Herd** side-chain (Bad Blood → A Bad Season for Boars → What the Scouts Saw → Reading the Carcass → **The Tainted Spring**, Patriarch climax) + two novice one-offs (The Miller's Boy, The Old Bridge) + a **staged** "Rabid Boar Hunt" (off-board). Wild boars had **no** mission at all. Two changes:
+
+1. **Wild Boar Hunt (recurring · survival).** *New.* Wild boars, **meat** reward, triggered by **low food** — gives wild boars a home and ties them to the survival loop. Draft narration ("Lean Times"): *"The larder's down to scrapings and nothing's coming in. But Gareth came down off the watchtower swearing he'd glassed a sounder of wild boar rooting the thornbrake past the old field — meat on four legs, enough to carry us a while yet."* **Needs a new `MissionRequirements` field** (resource-below / food-low) wired to the existing famine signal (`foodHoursLeft < FAMINE_RATION_THRESHOLD_HOURS`) — the scarcity trigger is NOT yet implemented (quarry/timber gathers exist but are unlock-then-repeatable, not scarcity-gated).
+
+2. **Rabid Boar Hunt → the chain's opening beat.** *Un-stage* it (its narration is already "something in the water… before the herd follows") as the **first mission of the Maddened Herd chain**, NOT a separate recurring mission. So **all rabid/tainted content lives in the one escalating chain** (rabid → tainted → Patriarch) and there's never two look-alike boar-threat missions side by side. **No separate recurring rabid/tainted hunt** (add a light gap-filler later *only* if playtesting shows dead air).
+
+**Reward rule (applies broadly):** gold is **external** income (trade, outsiders' bounties) — the settlement doesn't pay *itself*. So an **internal defense/survival** mission (culling maddened boars) rewards **XP only**; materials come from the encounter loot (skin what you kill). And you **can't eat diseased/tainted boars** → no meat from the threat hunt (consistent with rabid dropping no meat). The Wild Boar Hunt is the only boar mission that rewards meat.
+
+**Taint pacing:** the Tainted Spring is the **contained first taste** of the taint. It blooms later (Wastes/Thinning expand, the bog witch, more tainted/revenant enemies) — so tainted boars + the parked undead-tier + tainted-crafting get their real payoff *then*. Introduce small now, escalate later.
