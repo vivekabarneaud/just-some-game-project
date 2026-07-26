@@ -25,6 +25,14 @@ const PRESETS: { label: string; encounters: Enc[] }[] = [
   { label: "— boars (for later) —", encounters: [] },
   { label: "Lone Wild Boar", encounters: [{ enemyId: "wild_boar", count: 1 }] },
   { label: "Rabid Boar ×2", encounters: [{ enemyId: "rabid_boar", count: 2 }] },
+  { label: "— outlaws (morale) —", encounters: [] },
+  { label: "Leaderless mob (5 Toughs)", encounters: [{ enemyId: "dominion_thug", count: 5 }] },
+  { label: "Led mob (Tollman + 3 Toughs + Brigand)", encounters: [
+    { enemyId: "reaver_captain", count: 1 }, { enemyId: "dominion_thug", count: 3 }, { enemyId: "bandit_thug", count: 1 },
+  ] },
+  { label: "Dirty crew (Brigand, Poacher, Cutthroat)", encounters: [
+    { enemyId: "bandit_thug", count: 1 }, { enemyId: "bandit_poacher", count: 1 }, { enemyId: "bandit_cutthroat", count: 1 },
+  ] },
 ];
 
 const TRIO = [

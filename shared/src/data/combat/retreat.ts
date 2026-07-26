@@ -249,3 +249,32 @@ export function shouldFlee(unit: CombatUnit, ctx: CombatContext): boolean {
   if (unit.isEnemy || unit.kind !== "adventurer") return false;
   return !!unit.broken || !!ctx.retreating;
 }
+
+// ─── Outlaw morale (Outlaw archetype) ────────────────────────────────────────
+// A morale enemy routs on COURAGE, not just HP. Each round it weighs:
+//   morale = courage + (leader alive ? LEADER : 0)
+//          − LOSS × (their fallen ÷ their starting number)   ← mates dropping
+//          − OUTNUM × (your living − their living, if > 0)    ← being outnumbered
+//          + PRESS × (1 − your side's HP fraction)            ← smelling the kill
+// …and breaks when it drops below zero. Every constant is a tuning knob.
+const MORALE = { leader: 40, loss: 70, outnum: 12, press: 45 };
+
+/** Does this humanoid's nerve break THIS round? Leaders and non-morale units never do. */
+export function moraleBreaks(unit: CombatUnit, ctx: CombatContext): boolean {
+  if (!unit.morale || unit.fled || unit.hp <= 0) return false;
+  const side = ctx.enemies;
+  const livingSide = side.filter((e) => e.hp > 0 && !e.fled);
+  const foes = ctx.adventurers.filter((a) => a.hp > 0 && !a.fled);
+  if (foes.length === 0) return false; // no one left to fear
+  const fallenFrac = side.length > 0 ? (side.length - livingSide.length) / side.length : 0;
+  const leaderAlive = livingSide.some((e) => e.leader);
+  const outnumberedBy = Math.max(0, foes.length - livingSide.length);
+  const foeMaxHp = foes.reduce((s, a) => s + a.maxHp, 0);
+  const foeHpFrac = foeMaxHp > 0 ? foes.reduce((s, a) => s + a.hp, 0) / foeMaxHp : 1;
+  const morale = unit.morale.courage
+    + (leaderAlive ? MORALE.leader : 0)
+    - MORALE.loss * fallenFrac
+    - MORALE.outnum * outnumberedBy
+    + MORALE.press * (1 - foeHpFrac);
+  return morale < 0;
+}

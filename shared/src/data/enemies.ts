@@ -82,6 +82,9 @@ export interface EnemyAbility {
     /** A strike that also STUNS the target for `rounds` of its own turns (skips
      *  them). The cutthroat's garrote; fights dirty. Range-gated like any strike. */
     | { type: "stun"; rounds: number }
+    /** A strike that also SLOWS the target for `rounds` (halved initiative). The
+     *  poacher's hamstring shot. Range-gated. */
+    | { type: "slow"; rounds: number }
     | { type: "revive_ally"; hpPct: number }
     /** Pack Howl (Flanker archetype, alpha): mark the weakest prey (lowest current
      *  HP — the pack smells blood) and lock the whole pack onto it for `rounds`,
@@ -149,6 +152,16 @@ export interface EnemyDefinition {
    *  with the same target. Lone pack-hunters are weak; a pack ganging up is
    *  lethal. Reusable (wolves now; goblins/raptors later). */
   pack?: string;
+  /** Morale (Outlaw archetype): this humanoid routs on COURAGE, not just HP. Each
+   *  round it weighs a morale score — base `courage`, plus a big cushion while a
+   *  leader stands, minus its side's casualties and being outnumbered, plus a
+   *  "smell blood" bonus as the enemy nears death — and breaks when it drops below
+   *  zero. Omit for things that fight to the death (beasts use routsAt; leaders,
+   *  undead, bosses fight on). See [[DESIGN_TIER1_ENEMIES]]. */
+  morale?: { courage: number };
+  /** A leader: its living presence steadies allied morale (a big cushion); drop it
+   *  and the rabble's nerve collapses. Leaders don't rout themselves. */
+  leader?: boolean;
   /** Charge (Combat Foundation, Charger archetype): when this creature has room
    *  (a big enough gap to a foe), it spends its move to barrel up to `range`
    *  paces to contact and gores on arrival for bonus damage that SCALES with the
@@ -197,6 +210,12 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 1,
     stats: { str: 6, dex: 4, int: 2, vit: 7, wis: 2 },
     tags: ["humanoid"],
+    abilities: [
+      // Fights dirty: a rusty blade to the belly that leaves you bleeding.
+      { id: "gutting_strike", name: "Gutting Strike", icon: "🩸", cooldown: 3, trigger: "always", effect: { type: "bleed", pctPerRound: 15, rounds: 2 } },
+    ],
+    morale: { courage: 45 }, // desperate — nothing to lose; holds longer than the rabble
+    routsAt: 0.3,
     loot: [
       { type: "resource", resource: "gold", chance: 0.5, min: 3, max: 10 },
       { type: "resource", resource: "highwaymans_steel", chance: 0.25, min: 1, max: 2 },
@@ -219,6 +238,7 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 9, dex: 6, int: 3, vit: 15, wis: 4 },
     tags: ["humanoid"],
     boss: true,
+    leader: true, // his presence steadies the company; break him and they scatter (morale)
     dmgMin: 5, dmgMax: 9, // a captain's blade, kept sharp
     abilities: [
       { id: "rally", name: "Rally the Company", icon: "📣", cooldown: 4, trigger: "round_start", effect: { type: "buff_allies", stat: "str", pct: 20, rounds: 2 } },
@@ -245,8 +265,54 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 1,
     stats: { str: 3, dex: 3, int: 1, vit: 4, wis: 1 },
     tags: ["humanoid"],
+    abilities: [
+      // Dirty and cowardly: a thrown handful of grit — you fight clumsy for a bit.
+      { id: "sucker_punch", name: "Sucker Punch", icon: "👊", cooldown: 3, trigger: "always", effect: { type: "debuff_target", stat: "dex", pct: 25, rounds: 2 } },
+    ],
+    morale: { courage: 16 }, // glass nerve — brave in a pack, useless out of one
+    routsAt: 0.5,            // and folds early when its own skin is at stake
     loot: [
       { type: "resource", resource: "gold", chance: 0.35, min: 2, max: 6 },
+    ],
+  },
+  {
+    id: "bandit_poacher",
+    name: "Poacher",
+    icon: "🏹",
+    description: "An outlaw who learned his aim keeping crows off someone else's barley. Hangs back and picks you off from the treeline.",
+    tier: 1,
+    stats: { str: 5, dex: 6, int: 2, vit: 5, wis: 2 },
+    tags: ["humanoid"],
+    combatRole: "back", // hangs back with a bow — fights from range
+    abilities: [
+      // Hamstring shot: an arrow to the leg — you move and act slow after.
+      { id: "hamstring_shot", name: "Hamstring Shot", icon: "🏹", cooldown: 3, trigger: "always", effect: { type: "slow", rounds: 2 } },
+    ],
+    morale: { courage: 35 }, // steadier than the rabble, but no hero
+    routsAt: 0.4,
+    loot: [
+      { type: "resource", resource: "gold", chance: 0.4, min: 2, max: 8 },
+      { type: "item", itemId: "poachers_bow", chance: 0.12 },
+    ],
+  },
+  {
+    id: "bandit_cutthroat",
+    name: "Cutthroat",
+    icon: "🔪",
+    description: "A killer for hire with a length of wire and a fast knife. Goes for whoever looks softest.",
+    tier: 1,
+    stats: { str: 6, dex: 7, int: 2, vit: 5, wis: 2 },
+    tags: ["humanoid"],
+    aiTier: "cunning", // hunts the softest target it can reach
+    abilities: [
+      // Garrote: a strangling wire — a hit that leaves the victim choking, stunned.
+      { id: "garrote", name: "Garrote", icon: "🪢", cooldown: 4, trigger: "always", effect: { type: "stun", rounds: 1 } },
+    ],
+    morale: { courage: 40 },
+    routsAt: 0.35,
+    loot: [
+      { type: "resource", resource: "gold", chance: 0.5, min: 3, max: 10 },
+      { type: "item", itemId: "fighting_knife", chance: 0.12 },
     ],
   },
   {
@@ -437,6 +503,13 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 16, dex: 11, int: 5, vit: 18, wis: 5 },
     tags: ["humanoid"],
     boss: true,
+    leader: true, // a living anchor — the rabble holds while he stands, breaks when he falls
+    raw: { dodge: 12 }, // disciplined footwork, deflects blows (STR-parry proper lands with hit-resolution)
+    dmgMin: 6, dmgMax: 11, // a soldier's blade, wielded like one
+    abilities: [
+      // Steadies and stiffens the men — a veteran's command in the thick of it.
+      { id: "hold_line", name: "Hold the Line", icon: "🛡️", cooldown: 4, trigger: "round_start", effect: { type: "buff_allies", stat: "str", pct: 15, rounds: 2 } },
+    ],
     loot: [
       { type: "resource", resource: "gold", chance: 0.8, min: 15, max: 40 },
       { type: "item", itemId: "iron_sword", chance: 0.10 },

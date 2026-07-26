@@ -102,6 +102,30 @@ Fast, nimble, fragile, and deadly **in numbers**. Identity vs boars: wolves **sl
 
 ---
 
+## 3b. Outlaws — the Morale archetype
+
+Humans (bandits / the Dominion's hired muscle). Where beasts rout on **HP** (fear of pain), men rout on **courage** — and *that* is the whole faction. They also **fight dirty** (bleed / slow / stun / debuff, not clean beast bites).
+
+**Morale** (per morale-unit, each round; breaks when it drops below 0):
+```
+morale = courage + (leader alive ? LEADER : 0)
+       − LOSS × (their fallen ÷ starting number)   ← mates dropping
+       − OUTNUM × (your living − their living, >0)   ← outnumbered
+       + PRESS × (1 − your side's HP fraction)       ← smelling the kill
+```
+Constants in `retreat.ts` (`MORALE = {leader:40, loss:70, outnum:12, press:45}`). The **"kill the leader"** tactic falls out of it: a living leader adds a big cushion, so dropping the captain collapses the rabble. And they *press on* despite losses if you're near death. Units may ALSO carry `routsAt` (HP self-preservation) on top.
+
+| Enemy | id | Role | Dirty trick | Morale |
+|---|---|---|---|---|
+| **Dominion Tough** | `dominion_thug` | rabble, melee | **Sucker Punch** (dex debuff) | courage 16, routsAt 0.5 — glass nerve |
+| **Displaced Brigand** | `bandit_thug` | fighter, melee | **Gutting Strike** (bleed) | courage 45, routsAt 0.3 — desperate |
+| **Poacher** *(new)* | `bandit_poacher` | archer (`combatRole: back`) | **Hamstring Shot** (slow) | courage 35, routsAt 0.4 |
+| **Cutthroat** *(new)* | `bandit_cutthroat` | melee, `cunning` | **Garrote** (stun) | courage 40, routsAt 0.35 |
+| **The Tollman** | `reaver_captain` | T1 leader | Rally (buff) | `leader` — anchors, no morale rout |
+| **Dominion Deserter** | `bandit_captain` | T2 boss, ex-soldier | Hold the Line (buff) + raw dodge | `leader`, boss |
+
+Reusable mechanics this pass added: **`stun`** (skip-turn CC — also the Pack-Howl counter), **`slow`** (halved initiative as an ability), tighter **range-gating** (`stun`/`slow`/`debuff_target` now reach-gated). Deferred: a true **flanking Cutthroat** (needs an enemy bypass flag) and **STR-parry** on the Deserter (waits on hit-resolution — raw dodge stands in).
+
 ## 4. Remaining Tier-1 roster — TODO
 
 Author the rest one by one on the foundation (stats + band + only the distinct exceptions): the other Tier-1 beasts/vermin, then Brenna / Gareth / Godric as the uniform-schema reference builds. Track against the enemy list in `shared/src/data/enemies.ts`.
@@ -123,6 +147,7 @@ Sandbox-tune after each. Undead boars + patriarch (Hollow bite, breakthrough, de
 
 - **2026-07-25 — Step ① shipped.** Added `raw` sub-stats to `EnemyDefinition` (mirrors `RawSubStats`); flows into `CombatUnit` via `buildEnemyUnits`; `mobilityOf` now consumes `raw.mobility`. Tuned the six: wolves got raw mobility (+1/+2/+2/+3) + raw dodge; Wild Boar → `str5 vit6` + `routsAt 0.30`; Rabid Boar → `dex4`. `shared` typechecks clean, 110/110 tests green.
 - **2026-07-25 — Wolf mobility re-tune.** A warrior's base mobility (12) out-ran the wolf's +2 raw. Bumped raw mobility so wolves clearly out-pace: Grey +9 (~18 paces/rd vs Godric's ~14), Alpha +10, Gaunt +6, Starving +3 (still > a boar's ~8). Added `/dev-battle` dev page — runs the real engine on picked encounters (wolf/boar presets, the Godric/Brenna/Gareth trio) into the actual CombatPlayback stage, for eyeballing without grinding a mission.
+- **2026-07-26 — Outlaw faction (Morale archetype).** New `morale` model (`moraleBreaks` in retreat.ts: courage + leader − losses − outnumbered + smell-blood, wired into the break-and-run check alongside beast `routsAt`) + `leader` flag. New CC: **`stun`** (skip-turn — `stunned` on CombatUnit, burned at turn start; 💫) and **`slow`** ability (halved initiative). Range-gating tightened (`stun`/`slow`/`debuff_target`). Wired the six outlaws + 2 new units (Poacher archer, Cutthroat garrote); `/dev-battle` got outlaw presets. Verified in-sim: leaderless mobs break and run; bleed/slow/stun/debuff all fire. Deferred: flanking Cutthroat (needs enemy bypass), STR-parry (hit-resolution).
 - **2026-07-26 — Step ④ shipped: Alpha Pack Howl (focus-fire).** New `pack_howl` ability effect: the alpha marks the **weakest prey** (lowest *current* HP — the pack smells blood: frail archer/mage early, the wounded hero as the fight wears on) and locks the whole pack (self + allies) onto it for 2 rounds with +20% damage. **Temporary taunt-immunity:** while `focusRounds > 0` the pack ignores taunts (new `focusTarget`/`focusRounds` on `CombatUnit`; checked BEFORE taunt in `pickTarget`, only when the prey is in reach). The pack obeys the alpha — counter with **CC/stuns (Brenna's traps) or burst**, not taunt. Combos with Pack Tactics (all on one target → +15% each). Ticks down in `tickStatusEffects`. Rendered as a narration line ("Alpha Wolf howls — the pack turns on Brenna"). This is the first use of the composable-AI **targeting override** knob + the reusable **duration-based taunt-immunity** the roster audit will lean on. Verified in-sim: fires, marks a frail archer, pack piles on. **Wolf family now complete.**
 - **2026-07-25 — Round model + charge presentation.** (1) **Interleaved turns:** each unit moves+acts on its own turn (initiative order) instead of two global phases, so a charge flows straight into its gore; the playback folds per-entry `moves` so each unit slides on its own beat. (2) **Chargers act FIRST** (`chargePlan` at round start) — a boar barrels across the field before the slower tank walks up, instead of the tank closing the gap and the boar charging from near-melee. (3) **Charge = one line:** dropped the separate move entry; the gore/dodge entry carries the full sentence ("X charges N paces at Y and gores for D damage") + the run-up slide + the knockback shove, rendered as a single narration line. Knockback confirmed landing (was only ever dodged/defused before).
 - **2026-07-25 — Step ③ shipped.**

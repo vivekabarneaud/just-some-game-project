@@ -7,7 +7,7 @@ import type { CombatContext, CombatUnit } from "../types.js";
 
 /** Damage-ability effect types that must respect reach (a bite/spit can't cross
  *  the field). Utility/ally effects (heals, buffs, summons, mind-control) don't. */
-const RANGE_GATED = new Set(["bleed", "poison", "infect", "damage_mult", "aoe_damage", "stun"]);
+const RANGE_GATED = new Set(["bleed", "poison", "infect", "damage_mult", "aoe_damage", "stun", "slow", "debuff_target"]);
 
 /**
  * Try each of the enemy unit's special abilities in registration order.
@@ -180,6 +180,24 @@ export function tryEnemyAbility(unit: CombatUnit, ctx: CombatContext): boolean {
         return true;
       }
 
+      case "slow": {
+        // A crippling hit that lands damage AND slows (halved initiative).
+        const target = reachTargets[Math.floor(combatRandom() * reachTargets.length)];
+        if (!target) return false;
+        const hit = calcDamageResult(unit, target);
+        target.hp -= hit.damage;
+        if (target.hp > 0) target.slowed = Math.max(target.slowed ?? 0, eff.rounds);
+        ctx.log.push({
+          round: ctx.round, attackerName: unit.name, attackerIcon: ability.icon,
+          abilityName: ability.name,
+          targetName: target.name, damage: hit.damage, dodged: false, crit: hit.crit, killed: target.hp <= 0,
+          targetHp: Math.max(0, target.hp), targetMaxHp: target.maxHp, isEnemy: true,
+          ...(target.hp > 0 ? { statusApplied: { type: "slow", rounds: eff.rounds } } : {}),
+        });
+        if (target.hp <= 0) target.hp = 0;
+        return true;
+      }
+
       case "pack_howl": {
         // Mark the weakest prey — lowest CURRENT hp (the pack smells blood: the
         // frail mage early, the wounded hero as the fight wears on). Lock the whole
@@ -221,7 +239,7 @@ export function tryEnemyAbility(unit: CombatUnit, ctx: CombatContext): boolean {
       }
 
       case "debuff_target": {
-        const target = aliveTargets[Math.floor(combatRandom() * aliveTargets.length)];
+        const target = reachTargets[Math.floor(combatRandom() * reachTargets.length)];
         if (!target) continue;
         const reduction = Math.floor((target as any)[eff.stat] * eff.pct / 100);
         (target as any)[eff.stat] = Math.max(1, (target as any)[eff.stat] - reduction);

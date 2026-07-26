@@ -6,7 +6,7 @@ import { pickTarget, pickTargetForAdventurer } from "../targeting.js";
 import { tryClassAbility, tryEnemyAbility } from "../abilities/index.js";
 import { evaluateTransitions, getCurrentState } from "../ai/index.js";
 import { addDamageThreat } from "../threat.js";
-import { shouldFlee, attemptFlee } from "../retreat.js";
+import { shouldFlee, attemptFlee, moraleBreaks } from "../retreat.js";
 import { POS, CHARGE, moveUnit, computeHolds, chargePlan, pinningFoe, inReach, isBehind, hasPackmateOn, PACK_TACTICS_BONUS } from "../positional.js";
 
 /**
@@ -60,10 +60,11 @@ export function runActions(ctx: CombatContext): void {
     // spend their turn trying to break contact instead of fighting.
     if (shouldFlee(unit, ctx)) { attemptFlee(unit, ctx); continue; }
 
-    // Beast rout: an enemy worn to/below its routsAt breaks and runs — it
-    // survives and leaves the field (mercy + realism; animals don't fight to
-    // the death). Counts as defeated for victory; yields only keepOnRout loot.
-    if (unit.isEnemy && enemyBreaksAndRuns(unit)) { routEnemy(unit, ctx); continue; }
+    // Break-and-run: a beast worn to/below its routsAt (fear of pain), OR a
+    // human whose morale snaps (mates fallen, leader down, outnumbered — see
+    // moraleBreaks). It survives and leaves the field; counts as defeated for
+    // victory, yields only keepOnRout loot.
+    if (unit.isEnemy && (enemyBreaksAndRuns(unit) || moraleBreaks(unit, ctx))) { routEnemy(unit, ctx); continue; }
 
     // Move on this unit's own turn (charge/advance/kite), THEN act below.
     moveUnit(unit, ctx, held);

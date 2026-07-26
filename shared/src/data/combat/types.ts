@@ -93,6 +93,14 @@ export interface CombatUnit {
   enemyDefId?: string;
   /** Pack tag — shared-target Pack Tactics bonus (Flanker archetype). From EnemyDefinition.pack. */
   pack?: string;
+  /** Morale (Outlaw archetype): this unit routs on COURAGE, not just HP — it
+   *  breaks when its mates fall, when a leader dies, or when outnumbered, and
+   *  holds (or presses) when the enemy is near death. `courage` = base bravery.
+   *  From EnemyDefinition.morale. Leaders carry none (they don't rout). */
+  morale?: { courage: number };
+  /** A leader — its living presence steadies allies' morale; killing it collapses
+   *  the rabble. From EnemyDefinition.leader. */
+  leader?: boolean;
   /** Charge config (Charger archetype). From EnemyDefinition.charge. Cooldown is
    *  tracked in `cooldowns.charge` (ticks with everything else). */
   charge?: { range: number; cooldown: number };

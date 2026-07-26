@@ -230,6 +230,7 @@ function describeAbility(a: EnemyAbility): string {
     case "pack_howl": return `Marks the weakest prey — the whole pack locks onto it for ${e.rounds} rounds, ignoring taunts, with +${e.buffPct}% damage. Counter with stuns or burst.`;
     case "debuff_target": return `Debuffs target's ${e.stat.toUpperCase()} by ${e.pct}% for ${e.rounds} rounds.`;
     case "stun": return `A dirty strike that stuns — the target skips ${e.rounds === 1 ? "its next turn" : `${e.rounds} turns`}.`;
+    case "slow": return `A crippling hit that slows the target for ${e.rounds} round${e.rounds === 1 ? "" : "s"}.`;
     case "revive_ally": return `Revives a fallen ally at ${e.hpPct}% HP.`;
     case "damage_mult": return `Hits ${e.targets} target${e.targets === 1 ? "" : "s"} for ${Math.round(e.mult * 100)}% damage.`;
   }
