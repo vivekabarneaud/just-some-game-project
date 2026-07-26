@@ -99,6 +99,12 @@ export interface CombatUnit {
   /** Set by the Move phase on the round this unit charged; consumed by the
    *  action phase to add distance-scaled gore damage + knockback. Transient. */
   chargedThisRound?: { distance: number; targetId: string };
+  /** Pack Howl focus lock: while `focusRounds > 0`, this unit hunts `focusTarget`
+   *  (the alpha's marked prey) and IGNORES taunts — the pack obeys the alpha. A
+   *  temporary taunt-immunity; counter it with CC/burst, not taunt. Ticks down in
+   *  tickStatusEffects. */
+  focusTarget?: string;
+  focusRounds?: number;
   /** Combat-stage formation row ("back" for ranged/casters). Presentational. */
   combatRole?: "front" | "back";
   /** 1D position on the battlefield axis (paces). Set at combat start by the

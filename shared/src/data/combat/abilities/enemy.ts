@@ -160,6 +160,30 @@ export function tryEnemyAbility(unit: CombatUnit, ctx: CombatContext): boolean {
         return true;
       }
 
+      case "pack_howl": {
+        // Mark the weakest prey — lowest CURRENT hp (the pack smells blood: the
+        // frail mage early, the wounded hero as the fight wears on). Lock the whole
+        // pack (self + allies) onto it for `rounds`, ignoring taunts, + a damage buff.
+        const prey = [...aliveTargets].sort((a, b) => a.hp - b.hp)[0];
+        if (!prey) continue;
+        for (const w of [unit, ...aliveAllies]) {
+          w.focusTarget = prey.id;
+          w.focusRounds = eff.rounds;
+          const bonus = Math.floor((w as any)[eff.buffStat] * eff.buffPct / 100);
+          (w as any)[eff.buffStat] += bonus;
+          if (!w.statDebuffs) w.statDebuffs = [];
+          w.statDebuffs.push({ stat: eff.buffStat, pct: -bonus, rounds: eff.rounds });
+        }
+        ctx.log.push({
+          round: ctx.round, attackerName: unit.name, attackerIcon: ability.icon,
+          abilityName: ability.name,
+          targetName: prey.name, damage: 0, dodged: false, crit: false, killed: false,
+          targetHp: prey.hp, targetMaxHp: prey.maxHp, isEnemy: true,
+          note: `${unit.name} howls — the pack turns on ${prey.name}`,
+        });
+        return true;
+      }
+
       case "buff_allies": {
         for (const ally of aliveAllies) {
           const bonus = Math.floor((ally as any)[eff.stat] * eff.pct / 100);

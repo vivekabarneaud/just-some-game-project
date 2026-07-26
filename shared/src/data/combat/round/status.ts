@@ -14,6 +14,10 @@ export function tickStatusEffects(ctx: CombatContext): void {
     if (unit.hp <= 0) continue;
     tickCooldowns(unit);
     if (unit.slowed > 0) unit.slowed--;
+    if (unit.focusRounds && unit.focusRounds > 0) {
+      unit.focusRounds--;
+      if (unit.focusRounds <= 0) unit.focusTarget = undefined;
+    }
     tickStatDebuffs(unit);
     tickPoison(unit, ctx);
   }

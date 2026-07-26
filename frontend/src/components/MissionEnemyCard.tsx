@@ -227,6 +227,7 @@ function describeAbility(a: EnemyAbility): string {
     case "aoe_damage": return `${e.magical ? "Magical" : "Physical"} area attack — ${e.pct}% damage to the whole team.`;
     case "mind_control": return `Mind-controls a target for ${e.rounds} round${e.rounds === 1 ? "" : "s"}.`;
     case "buff_allies": return `Buffs allies' ${e.stat.toUpperCase()} by ${e.pct}% for ${e.rounds} rounds.`;
+    case "pack_howl": return `Marks the weakest prey — the whole pack locks onto it for ${e.rounds} rounds, ignoring taunts, with +${e.buffPct}% damage. Counter with stuns or burst.`;
     case "debuff_target": return `Debuffs target's ${e.stat.toUpperCase()} by ${e.pct}% for ${e.rounds} rounds.`;
     case "revive_ally": return `Revives a fallen ally at ${e.hpPct}% HP.`;
     case "damage_mult": return `Hits ${e.targets} target${e.targets === 1 ? "" : "s"} for ${Math.round(e.mult * 100)}% damage.`;

@@ -27,6 +27,15 @@ export function pickTarget(attacker: CombatUnit, targets: CombatUnit[]): CombatU
   const alive = targets.filter((u) => u.hp > 0 && !u.fled);
   if (alive.length === 0) return null;
 
+  // Pack Howl focus: locked on the alpha's marked prey, IGNORING taunts (the pack
+  // obeys the alpha). Only when the prey is in reach — a wolf that can't get to it
+  // fights through whatever's in front. This is what makes taunt fail to peel the
+  // pack off the prey during the howl.
+  if (attacker.focusRounds && attacker.focusRounds > 0 && attacker.focusTarget) {
+    const prey = alive.find((u) => u.id === attacker.focusTarget);
+    if (prey && inReach(attacker, prey)) return prey;
+  }
+
   if (attacker.tauntedBy) {
     const taunter = alive.find((u) => u.id === attacker.tauntedBy);
     if (taunter) return taunter;

@@ -102,6 +102,10 @@ function StatusAppliedNote(props: { applied: NonNullable<CombatLogEntry["statusA
   );
 }
 
+/** Abilities that read as a full sentence (their `note`) instead of the templated
+ *  "[Ability] hits X for N damage" line — the charge and the pack's howl. */
+const NARRATION_ABILITIES = new Set(["Goring Charge", "Pack Howl"]);
+
 /** Visual treatment for a Model-C retreat beat (commander orders, broken, flee,
  *  abandonment). These are narrative moments, not attacks, so they render as
  *  centered highlighted lines that stand out from the damage chatter. */
@@ -157,9 +161,9 @@ function CombatLogLine(props: { entry: CombatLogEntry }) {
     <div style={{ color: lineColor, display: "flex", "align-items": "center", "flex-wrap": "wrap", gap: "4px" }}>
       <span>{e.attackerIcon}</span>
 
-      {/* Ability label — bracketed before the action (the charge carries its own
-          full-sentence note instead, so no bracket for it). */}
-      <Show when={e.abilityName && e.abilityName !== "Goring Charge" && !e.isPoisonTick}>
+      {/* Ability label — bracketed before the action. Narration abilities (charge,
+          pack howl) carry their own full-sentence note instead, so no bracket. */}
+      <Show when={e.abilityName && !NARRATION_ABILITIES.has(e.abilityName) && !e.isPoisonTick}>
         <span style={{ color: "var(--accent-gold)" }}>[{e.abilityName}]</span>
       </Show>
 
@@ -188,16 +192,17 @@ function CombatLogLine(props: { entry: CombatLogEntry }) {
 function NonTickContent(props: { entry: CombatLogEntry }) {
   const e = props.entry;
 
-  // Goring Charge — the run-up + gore as ONE sentence (the note), with the hit's
-  // hp bar / fallen tag appended. Reads "X charges N paces at Y and gores for D".
-  if (e.abilityName === "Goring Charge" && e.note) {
+  // Narration abilities (Goring Charge, Pack Howl) render their full-sentence note
+  // in place of the templated "hits X for N" line, with the hit's hp bar / fallen
+  // tag appended when it dealt damage.
+  if (e.abilityName && NARRATION_ABILITIES.has(e.abilityName) && e.note) {
     return (
       <>
         <span>{e.note}</span>
         <Show when={e.killed}>
           <FallenTag permanent={e.permanentDeath} />
         </Show>
-        <Show when={e.targetHp != null && !e.killed && !e.dodged}>
+        <Show when={e.targetHp != null && !e.killed && !e.dodged && e.damage > 0}>
           <HpBar current={e.targetHp!} max={e.targetMaxHp ?? e.targetHp!} width="46px" />
         </Show>
       </>

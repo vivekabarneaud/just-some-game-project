@@ -80,6 +80,11 @@ export interface EnemyAbility {
     | { type: "buff_allies"; stat: "str" | "dex" | "int"; pct: number; rounds: number }
     | { type: "debuff_target"; stat: "str" | "dex" | "int"; pct: number; rounds: number }
     | { type: "revive_ally"; hpPct: number }
+    /** Pack Howl (Flanker archetype, alpha): mark the weakest prey (lowest current
+     *  HP — the pack smells blood) and lock the whole pack onto it for `rounds`,
+     *  ignoring taunts, with a `buffStat` +`buffPct`% damage buff. Counter: CC or
+     *  burst, not taunt. */
+    | { type: "pack_howl"; buffStat: "str" | "dex" | "int"; buffPct: number; rounds: number }
     /** A single/multi-target hit for `mult`× damage. `ignoreArmor` makes it a
      *  physical armor-piercer (the wolf's Throat Tear — a normal-ish bite the
      *  neck, no armor help). */
@@ -1134,7 +1139,7 @@ export const ENEMIES: EnemyDefinition[] = [
     tags: ["beast"],
     boss: true,
     abilities: [
-      { id: "pack_howl", name: "Pack Howl", icon: "🌕", cooldown: 4, trigger: "round_start", effect: { type: "buff_allies", stat: "str", pct: 20, rounds: 2 } },
+      { id: "pack_howl", name: "Pack Howl", icon: "🌕", cooldown: 4, trigger: "round_start", effect: { type: "pack_howl", buffStat: "str", buffPct: 20, rounds: 2 } },
       { id: "lunge", name: "Lunge", icon: "💨", cooldown: 2, trigger: "always", effect: { type: "damage_mult", mult: 1.8, targets: 1 } },
       { id: "throat_tear", name: "Throat Tear", icon: "🦷", cooldown: 3, trigger: "always", effect: { type: "damage_mult", mult: 1.4, targets: 1, ignoreArmor: true } },
     ],
