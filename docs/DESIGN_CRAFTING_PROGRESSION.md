@@ -30,6 +30,7 @@ The player still fills the kit *gradually* — crude hide → mail → plate —
 
 - **Day one:** a few **weapons + chest + cloak**. Head / legs / boots arrive **guild L2–3, not day-one** (soft pacing via recipe requirements — you need the shop + hunted mats).
 - **Rarity = stat budget:** **common = 0 stat bonus** (function only — a weapon's damage, an armour's DEF); stats (a +1 primary, a raw sub-stat) require **uncommon+**.
+- **Rarity = stat *power*, NOT material *cost*.** A rare *drop* gates how *often* you can make something; it does **not** make the item a higher rarity. An **uncommon item can require rare materials** (e.g. the boar's Tusked Hood needs 2 whole tusks but is uncommon-budget) — that just makes it scarce, precious, and worth trading, without inflating its stats. If you want a genuinely stronger capstone, that's a *rare-budget* design with its own mats — not "uncommon item, bumped to rare because the mats were fancy."
 
 ## Applied
 
