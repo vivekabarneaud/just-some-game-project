@@ -55,6 +55,44 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     guaranteed: true, // the arrangement holds — no fight, just the share left on the stump
     requires: { season: "spring", missionDone: "bee_tree_first" },
   },
+  // ── The Old Apple Tree (autumn seasonal gather) — the "unconditional provider"
+  //    that the player is meant to grow fond of over years. Pure peaceful both
+  //    states (the one mission that's a genuine exhale). A (first): the discovery,
+  //    a mercy before winter. B (routine): the yearly return. Deferred payoff (see
+  //    DESIGN_SEASONAL_GATHERS): it goes tainted → sick windfall → put-it-down. ──
+  {
+    id: "apple_tree_first",
+    name: "The Old Apple Tree",
+    description: "The scouts came back from the far south hollow talking about an old apple tree standing alone in a clearing, wild and untended and so heavy with fruit its branches near touch the ground. Edda says a tree that old and that laden is a small mercy, and mercies are not to be wasted with winter coming. Take a team down with baskets and bring back all the fruit they can carry. Mind the walk; it is a fair way out.",
+    icon: "🍎",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/gather_timber.png",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 400, // a fair way south — a longer haul than the near gathers
+    rewards: [{ resource: "apples", amount: 8 }], // the discovery haul, a good first pick
+    deployCost: 5,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["outdoor", "peaceful"],
+    guaranteed: true,
+    unique: true,
+    requires: { season: "autumn" },
+  },
+  {
+    id: "apple_tree",
+    name: "The Old Apple Tree",
+    description: "Autumn again, and the old tree in the south hollow will be heavy with fruit as it always is. It has carried us through more than one lean winter now, and the folk speak of it almost fondly, the way you would an old neighbour who never asks for anything. Send the baskets down and bring the harvest home before the frost takes it.",
+    icon: "🍎",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/gather_timber.png",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 350,
+    rewards: [{ resource: "apples", amount: 6 }], // modest yearly return
+    deployCost: 4,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["outdoor", "peaceful"],
+    guaranteed: true,
+    requires: { season: "autumn", missionDone: "apple_tree_first" },
+  },
 {
     id: "quarry_expedition_first",
     name: "Quarry Expedition",

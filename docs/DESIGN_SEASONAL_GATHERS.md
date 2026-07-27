@@ -30,10 +30,13 @@ An **evolving relationship**, built as the codebase's discovery→routine patter
 
 **Deferred payoff:** one spring Honeypaw is *tainted* — he won't take his share and **won't rout**. You have to put the old bear down. (Parallels the apple tree; both keyed off *years* of familiarity, so defer the turn.)
 
-## The Old Apple Tree (designed, not built)
+## The Old Apple Tree (A/B BUILT 2026-07-27)
 
-Honeypaw's sibling and opposite temperament: an **unconditional provider** — a lone wild apple far south, heavy every autumn, no bargain, no danger. Peaceful autumn gather in the normal pool, a first-find chronicle to plant it, years of quiet return to bond.
-- **Open questions:** pure-peace vs an occasional "wolves at the windfall" variant; who finds/names it (Edda?); **what the apples become** (cider for the brewery / winter stores you eat through the cold — makes the tree *present* all year, so losing it costs something you can taste).
+Honeypaw's sibling and opposite temperament: an **unconditional provider** — a lone wild apple far south, heavy every autumn, no bargain, no danger.
+- **A · `apple_tree_first`** (autumn, unique, peaceful/`guaranteed`): the discovery — scouts find the laden old tree, a mercy before winter; a good first haul (8 apples).
+- **B · `apple_tree`** (autumn, recurring, peaceful/`guaranteed`, gated on A): the yearly return, modest (6 apples); flavor notes the folk speak of it fondly, "like an old neighbour who never asks for anything."
+- Kept **pure peaceful** both states (no wolves) — the one mission that's a genuine exhale. Reward is plain **apples** for now.
+- **Still open (deepeners, deferred):** a first-find/naming chronicle; **what the apples become** (cider for the brewery / winter stores you eat through the cold — makes the tree *present* all year, so losing it costs something you can taste); the optional "wolves at the windfall" variant.
 - **Deferred payoff:** the tree goes black and weeping, sick dead things in the windfall → a tainted-creatures mission → the tragic *put-it-down* choice. Strong Ch2 taint material (NOT the Ch1→Ch2 bridge — deferred so the bond sets over multiple autumns).
 
 ## The roster (brainstorm — to design one by one)
@@ -42,7 +45,7 @@ Honeypaw's sibling and opposite temperament: an **unconditional provider** — a
 |---|---|---|
 | Spring (the hungry gap) | **Bee-Tree** ✅ · Fish Run · First Greens | — |
 | Summer | Berry Thickets (a bear wants them too) · Wild Honey | — |
-| Autumn | **Apple Tree** ⭐ · Mushroom Foraging | — |
+| Autumn | **Apple Tree** ✅⭐ · Mushroom Foraging | — |
 | Winter | — | **Wild Boar Hunt** ✅ · The Deer Yard |
 
 **Specials (not season-locked):** Greyford Shares (neighbour sends food — peaceful, builds rapport); Follow the Wolves (take a starving pack's kill — grim, the mercy tension); The Larder Thief (scarcity by *leak* not lack — vermin raiding stores).

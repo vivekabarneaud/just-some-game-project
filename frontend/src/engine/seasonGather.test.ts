@@ -36,3 +36,23 @@ describe("The Bee-Tree (Old Honeypaw) — two-state arc", () => {
     expect(meetsRequirements(b.requires, ctx({ season: "summer", completedUniqueMissionIds: ["bee_tree_first"] }))).toBe(false);
   });
 });
+
+describe("The Old Apple Tree — autumn gather, discovery → routine", () => {
+  it("A is a unique, peaceful autumn discovery rewarding apples", () => {
+    const a = byId("apple_tree_first")!;
+    expect(a.unique).toBe(true);
+    expect(a.guaranteed).toBe(true);
+    expect(a.requires?.season).toBe("autumn");
+    expect(a.encounters ?? []).toHaveLength(0); // pure peace — the exhale mission
+    expect(a.rewards?.some((r) => r.resource === "apples")).toBe(true);
+    expect(meetsRequirements(a.requires, ctx({ season: "winter" }))).toBe(false);
+  });
+
+  it("B is the recurring autumn return, gated on A", () => {
+    const b = byId("apple_tree")!;
+    expect(b.unique).toBeFalsy();
+    expect(b.guaranteed).toBe(true);
+    expect(meetsRequirements(b.requires, ctx({ season: "autumn", completedUniqueMissionIds: [] }))).toBe(false);
+    expect(meetsRequirements(b.requires, ctx({ season: "autumn", completedUniqueMissionIds: ["apple_tree_first"] }))).toBe(true);
+  });
+});
