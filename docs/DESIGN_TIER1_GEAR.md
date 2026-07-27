@@ -13,7 +13,7 @@
 3. **Gloves slot** (new). ✅ **BUILT** (2026-07-27). Added to `ItemSlot`, `ALL_GEAR_SLOTS`, both `equipment` type defs + every init, and the AdventurerDetail doll/labels. Home for the Fang-Studded Gauntlets.
 4. **Daggers equippable in off-hand** — **DEFERRED to the weapon-band/sidearm work.** Turned out NOT small: the equip layer keys off a single `item.slot`, so "any dagger in either slot" is a semantics change across `getItemsForSlot` + `equipItem` + UI. The daggers work as **main-hand** now; the off-hand/sidearm use belongs with the weapon-band build.
 5. **New material `boar_tusk`** (whole tusk). ✅ **BUILT** (2026-07-27). Material def + resource unions; drops on living boars only (wild 8%, rabid 10%) — tainted prestige stays parked.
-6. **Loot fixes** — see §Loot. (Still TODO: wolf meat inversion, keepOnRout, boar rate rewrite.)
+6. **Loot fixes** — ✅ **mostly BUILT** (2026-07-27). Wolf meat inversion fixed (Grey now drops the best meat/hide; condition-scaled down through Gaunt→Starving), `keepOnRout` fang on all three wolves, Wild Boar given its materials (bristlehide + tusk_shard), Rabid drops **no meat** (diseased). **DEFERRED:** the `cloven_hoof`/`boar_skull` hygiene rewrite (§Loot) — turns out wild boars appear in NO mission, so rabid is the only early boar fought, and the L1 Reeds chain needs those parts early. Sourcing decided during the **ch2 pacing pass** (tainted boars + bog witch both turn at ch2). Rabid keeps cloven/skull for now so nothing's stranded.
 
 Deferred: **weapon-band auto-swap** (the "true sidearm" behaviour, incl. daggers-in-offhand), **set bonuses** (Pack Hunter / boar tank), **tainted/Hollow crafting** (the Patriarch's corrupted mats — unresolved worldbuilding), plate/mail lines.
 

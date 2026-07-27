@@ -334,9 +334,11 @@ export const ENEMIES: EnemyDefinition[] = [
     ],
     pack: "wolves",
     loot: [
-      { type: "resource", resource: "wolfhide_strip", chance: 0.3, min: 1, max: 1 },
+      // Grey = the fed, full-grown wolf: the best meat + hide of the three.
+      { type: "resource", resource: "meat", chance: 0.5, min: 2, max: 4 },
+      { type: "resource", resource: "wolfhide_strip", chance: 0.4, min: 1, max: 2 },
       { type: "resource", resource: "fang", chance: 0.5, min: 1, max: 2, keepOnRout: true },
-      { type: "resource", resource: "sinew_cord", chance: 0.15, min: 1, max: 1 },
+      { type: "resource", resource: "sinew_cord", chance: 0.2, min: 1, max: 1 },
     ],
     raw: { mobility: 9, dodge: 5 }, // pack hunter — fast and nimble (clearly out-paces a warrior)
     routsAt: 0.3, // a pack wolf breaks when the fight turns against it
@@ -391,8 +393,11 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 3, dex: 4, int: 1, vit: 3, wis: 1 },
     tags: ["beast"],
     loot: [
-      { type: "resource", resource: "meat", chance: 0.3, min: 1, max: 3 },
-      { type: "resource", resource: "wolfhide_strip", chance: 0.15, min: 1, max: 1 },
+      // Gaunt yearling: leaner meat + hide than a Grey, but the fang still bites.
+      { type: "resource", resource: "meat", chance: 0.3, min: 1, max: 2 },
+      { type: "resource", resource: "wolfhide_strip", chance: 0.25, min: 1, max: 1 },
+      { type: "resource", resource: "fang", chance: 0.35, min: 1, max: 1, keepOnRout: true },
+      { type: "resource", resource: "sinew_cord", chance: 0.12, min: 1, max: 1 },
     ],
     abilities: [
       // A weaker Rending Bite than the Grey Wolf's — half the bleed.
@@ -419,8 +424,11 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 2, dex: 3, int: 1, vit: 2, wis: 1 },
     tags: ["beast"],
     loot: [
-      { type: "resource", resource: "meat", chance: 0.25, min: 1, max: 2 },
-      { type: "resource", resource: "wolfhide_strip", chance: 0.1, min: 1, max: 1 },
+      // Starving runt: skin and ribs — scraps of meat/hide, but the fang keeps its worth.
+      { type: "resource", resource: "meat", chance: 0.15, min: 1, max: 1 },
+      { type: "resource", resource: "wolfhide_strip", chance: 0.12, min: 1, max: 1 },
+      { type: "resource", resource: "fang", chance: 0.3, min: 1, max: 1, keepOnRout: true },
+      { type: "resource", resource: "sinew_cord", chance: 0.1, min: 1, max: 1 },
     ],
     pack: "wolves",
     raw: { mobility: 3 }, // spent and slow for a wolf, but still quicker than a boar
@@ -436,7 +444,10 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 5, dex: 3, int: 1, vit: 6, wis: 1 }, // out-muscles + out-tanks a lone wolf
     tags: ["beast"],
     loot: [
-      { type: "resource", resource: "meat", chance: 0.4, min: 2, max: 4 },
+      // The clean, healthy boar: good meat + its full materials (hide, tusk-shards).
+      { type: "resource", resource: "meat", chance: 0.5, min: 2, max: 4 },
+      { type: "resource", resource: "bristlehide", chance: 0.35, min: 1, max: 2 },
+      { type: "resource", resource: "tusk_shard", chance: 0.8, min: 1, max: 2 },
       { type: "resource", resource: "boar_tusk", chance: 0.08, min: 1, max: 1 }, // rare: a tusk out clean
     ],
     charge: { range: 40, cooldown: 99 }, // one devastating charge, then it fights or flees
@@ -1100,7 +1111,7 @@ export const ENEMIES: EnemyDefinition[] = [
     ],
     charge: { range: 40, cooldown: 2 }, // frenzied — charges every couple of rounds
     loot: [
-      { type: "resource", resource: "meat", chance: 0.5, min: 2, max: 6 },
+      // Diseased — no edible meat. Bone + hide still harvest clean.
       { type: "resource", resource: "bristlehide", chance: 0.3, min: 1, max: 1 },
       { type: "resource", resource: "tusk_shard", chance: 1, min: 1, max: 1 },
       { type: "resource", resource: "boar_tusk", chance: 0.10, min: 1, max: 1 }, // rare: a tusk out clean (bigger boar, better odds)
