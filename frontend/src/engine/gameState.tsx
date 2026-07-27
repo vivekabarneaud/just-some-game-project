@@ -6628,6 +6628,10 @@ export function GameProvider(props: ParentProps) {
       idCounter = 1;
       const fresh = createInitialState();
       setState(reconcile(fresh));
+      // A brand-new game has no "while you were away" — drop any digest stashed
+      // from the previous session's offline catch-up (else it shows the old
+      // game's stores over the fresh camp).
+      storeAwayReport(null);
       saveGame(fresh);
     },
 
