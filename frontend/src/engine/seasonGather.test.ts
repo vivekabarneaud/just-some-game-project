@@ -37,6 +37,18 @@ describe("The Bee-Tree (Old Honeypaw) — two-state arc", () => {
   });
 });
 
+describe("The Fish Run — simple recurring spring gather (no arc)", () => {
+  it("is a peaceful spring-gated recurring gather rewarding fish", () => {
+    const f = byId("fish_run")!;
+    expect(f.unique).toBeFalsy(); // recurring, no discovery arc
+    expect(f.guaranteed).toBe(true);
+    expect(f.encounters ?? []).toHaveLength(0);
+    expect(f.rewards?.some((r) => r.resource === "fish")).toBe(true);
+    expect(meetsRequirements(f.requires, ctx({ season: "spring" }))).toBe(true);
+    expect(meetsRequirements(f.requires, ctx({ season: "autumn" }))).toBe(false);
+  });
+});
+
 describe("The Old Apple Tree — autumn gather, discovery → routine", () => {
   it("A is a unique, peaceful autumn discovery rewarding apples", () => {
     const a = byId("apple_tree_first")!;

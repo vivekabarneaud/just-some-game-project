@@ -93,6 +93,24 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     guaranteed: true,
     requires: { season: "autumn", missionDone: "apple_tree_first" },
   },
+  // ── The Fish Run (spring seasonal gather) — a simple recurring gather, no
+  //    attachment arc. The spring spawning run: a bit of relief in the hungry gap. ──
+  {
+    id: "fish_run",
+    name: "The Fish Run",
+    description: "The winter stores are down to scrapings and the fields are still bare mud, but the stream past the north bend has come alive. The spring run is on, the water thick and silver with fish shouldering upstream to spawn, and it will not hold more than a few days. Send hands down with baskets and spears while it lasts. We take what we can carry and salt the rest against the lean weeks still to come.",
+    icon: "🐟",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/clear_marshes.png",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 300,
+    rewards: [{ resource: "fish", amount: 14 }],
+    deployCost: 4,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["outdoor", "peaceful"],
+    guaranteed: true,
+    requires: { season: "spring" },
+  },
 {
     id: "quarry_expedition_first",
     name: "Quarry Expedition",
