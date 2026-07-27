@@ -128,11 +128,14 @@ export default function CombatBattlefield(props: {
   // ── Floating combat text (WoW-style pops that rise + fade over a combatant) ──
   // Both sides, all events. Damage SIZE reflects the weapon-roll quality
   // (rollFactor, normalized per weapon) with crit stacking extra size + gold.
-  type Floater = { key: number; xPct: number; yPx: number; text: string; color: string; sizeRem: number };
+  type Floater = { key: number; xPct: number; yPx: number; text: string; color: string; sizeRem: number; durationMs: number };
   const [floaters, setFloaters] = createSignal<Floater[]>([]);
   let floaterKey = 0;
   const pendingTimeouts: ReturnType<typeof setTimeout>[] = [];
   onCleanup(() => pendingTimeouts.forEach(clearTimeout));
+
+  const QUICK = 950;   // damage / avoid / heal / rout
+  const LINGER = 1800; // status pops — dwell longer so they're readable
 
   const damageSizeRem = (rollFactor: number | undefined, crit: boolean) => {
     const t = rollFactor ?? 0.5;      // undefined (magic/no-range) → mid size
@@ -143,11 +146,12 @@ export default function CombatBattlefield(props: {
 
   const spawnFloaters = (e: CombatLogEntry) => {
     const batch: Floater[] = [];
-    const push = (targetId: string | undefined, text: string, color: string, sizeRem: number, stack = 0) => {
+    const push = (targetId: string | undefined, text: string, color: string, sizeRem: number, durationMs = QUICK, stack = 0) => {
       if (!targetId) return;
       const c = props.roster.find((r) => r.id === targetId);
       if (!c) return;
-      batch.push({ key: floaterKey++, xPct: leftPct(c), yPx: topPx(c) + stack * 15, text, color, sizeRem });
+      // Above the unit's head (topPx is the frame top), stacking downward for co-occurring pops.
+      batch.push({ key: floaterKey++, xPct: leftPct(c), yPx: topPx(c) - cardW() * 0.3 + stack * 16, text, color, sizeRem, durationMs });
     };
     // Rout / flee — the unit breaks off the fight (enemy routs, ally retreats).
     if (e.beat === "flee_success" || e.beat === "broken") {
@@ -157,10 +161,10 @@ export default function CombatBattlefield(props: {
     else if (e.dodged) push(e.targetId, e.parried ? "Parry" : "Dodge", "#cbd5e1", 1.0);
     else if (e.damage > 0) push(e.targetId, `−${e.damage}`, e.crit ? "#fbbf24" : "#f87171", damageSizeRem(e.rollFactor, e.crit));
     // Heal + status can co-occur with damage (an ability that hits AND poisons).
-    if (e.healed && e.healAmount) push(e.targetId, `+${e.healAmount}`, "#4ade80", 1.05, 1);
+    if (e.healed && e.healAmount) push(e.targetId, `+${e.healAmount}`, "#4ade80", 1.05, QUICK, 1);
     if (e.statusApplied && !e.statusApplied.type.startsWith("buff:")) {
       const s = statusLabel(e.statusApplied.type);
-      push(e.targetId, `${s.icon} ${s.text}`, "#c084fc", 0.85, 2);
+      push(e.targetId, `${s.icon} ${s.text}`, "#c084fc", 0.95, LINGER, 2);
     }
     // AoE casualties get their own damage pop.
     if (e.targets) for (const t of e.targets) {
@@ -168,8 +172,9 @@ export default function CombatBattlefield(props: {
     }
     if (!batch.length) return;
     setFloaters((f) => [...f, ...batch]);
-    const keys = new Set(batch.map((b) => b.key));
-    pendingTimeouts.push(setTimeout(() => setFloaters((f) => f.filter((x) => !keys.has(x.key))), 900));
+    for (const b of batch) {
+      pendingTimeouts.push(setTimeout(() => setFloaters((f) => f.filter((x) => x.key !== b.key)), b.durationMs));
+    }
   };
 
   // Spawn on each single-step reveal (skip/jump → no floater spam).
@@ -186,9 +191,10 @@ export default function CombatBattlefield(props: {
   return (
     <div style={{ position: "relative", height: `${H()}px`, overflow: "hidden" }}>
       <style>{`@keyframes floatUp {
-        0%   { opacity: 0; transform: translate(-50%, 2px) scale(0.8); }
-        15%  { opacity: 1; transform: translate(-50%, -6px) scale(1); }
-        100% { opacity: 0; transform: translate(-50%, -46px) scale(1); }
+        0%   { opacity: 0; transform: translate(-50%, 6px) scale(0.85); }
+        10%  { opacity: 1; transform: translate(-50%, -2px) scale(1); }
+        65%  { opacity: 1; transform: translate(-50%, -22px) scale(1); }
+        100% { opacity: 0; transform: translate(-50%, -38px) scale(1); }
       }`}</style>
       <For each={floaters()}>
         {(f) => (
@@ -198,7 +204,7 @@ export default function CombatBattlefield(props: {
             "font-size": `${f.sizeRem}rem`, "font-weight": "bold",
             color: f.color, "text-shadow": "0 1px 3px rgba(0,0,0,0.9)",
             "white-space": "nowrap", "pointer-events": "none", "z-index": "5",
-            animation: "floatUp 0.9s ease-out forwards",
+            animation: `floatUp ${f.durationMs}ms ease-out forwards`,
           }}>{f.text}</div>
         )}
       </For>
