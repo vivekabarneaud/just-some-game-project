@@ -113,6 +113,21 @@ export interface ItemDefinition {
   dmgMax?: number;
   /** Stat bonuses provided by this item */
   stats: Partial<AdventurerStats>;
+  /** Raw sub-stat bonuses (Combat Foundation): flat additions on top of the
+   *  DEX/STR-derived floors — crit / accuracy / dodge / parry / mobility /
+   *  initiative / armor. Lets gear grant e.g. +crit without inflating DEX.
+   *  Summed across equipped items by getEquipmentRaw and applied in
+   *  buildAdventurerUnit. Mirror of CombatUnit.raw. (accuracy/parry are inert
+   *  until the hit-resolution step; crit/dodge/mobility work now.) */
+  raw?: {
+    crit?: number;
+    accuracy?: number;
+    dodge?: number;
+    parry?: number;
+    mobility?: number;
+    initiative?: number;
+    armor?: number;
+  };
   /** Duration reduction multiplier (0.9 = 10% faster) */
   durationMod: number;
   /** Bonus loot multiplier (1.1 = 10% more) */

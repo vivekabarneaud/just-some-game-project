@@ -5,6 +5,7 @@
 // from "@medieval-realm/shared/data/items".
 
 import type { AdventurerClass, AdventurerStats } from "../adventurers.js";
+import type { RawSubStats } from "../combat/types.js";
 import type { ItemDefinition, ItemSlot } from "./types.js";
 import { CLASS_WEAPON_ACCESS } from "./types.js";
 import { EQUIPMENT_ITEMS } from "./equipment/index.js";
@@ -49,6 +50,23 @@ export function getEquipmentDefense(equipment: Record<string, string | null>): n
     }
   }
   return defense;
+}
+
+/** Sum the raw sub-stat bonuses across all equipped items (Combat Foundation).
+ *  Fed into CombatUnit.raw so gear can grant crit/dodge/mobility/etc. without
+ *  inflating primary stats. */
+export function getEquipmentRaw(equipment: Record<string, string | null>): RawSubStats {
+  const raw: Record<string, number> = {};
+  for (const slot of ALL_GEAR_SLOTS) {
+    const itemId = equipment[slot];
+    if (!itemId) continue;
+    const item = getItem(itemId);
+    if (!item?.raw) continue;
+    for (const [key, val] of Object.entries(item.raw)) {
+      if (val) raw[key] = (raw[key] ?? 0) + val;
+    }
+  }
+  return raw as RawSubStats;
 }
 
 export function getItemsForSlot(slot: ItemSlot, adventurerClass?: AdventurerClass): ItemDefinition[] {
