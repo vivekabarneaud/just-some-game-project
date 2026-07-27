@@ -1,6 +1,8 @@
 # DESIGN: Spiders — the Cave/Quarry family (Web & Ambush)
 
-**Status:** Designing 2026-07-26, not built. Deferred *out of the marsh* (see [[DESIGN_MARSH]]) — spiders' web/root shines underground, not as a redundant second immobilise next to the Constrictor's grapple. Their home is **quarry / mines / the Spider Hollow.** Follows [[DESIGN_ENEMY_AUDIT_METHOD]].
+**Status:** Designed 2026-07-26. **Quarry-gating loop BUILT 2026-07-27** (Phase 1: the system + L2/L3 gate). Spider *family* (Web-spinner/web-root, Ambush, Brood Mother, silk gear) still to come. Deferred *out of the marsh* (see [[DESIGN_MARSH]]) — spiders' web/root shines underground, not as a redundant second immobilise next to the Constrictor's grapple. Their home is **quarry / mines / the Spider Hollow.** Follows [[DESIGN_ENEMY_AUDIT_METHOD]].
+
+**BUILT (Phase 1, quarry-gating):** `quarrySpidersClearedLevel` state (starts 1); the quarry yields at `min(quarry.level, cleared)` so digging past the spiders holds output at the previous level until cleared; a forced-only `clear_diggings_${N}` mission (short, in-pit, XP-only, Tomas-framed) injected via the existing `forceMission` path while `quarry.level > cleared`; completing it advances `cleared` and unlocks the new yield. **L2** = `rock_skitter` swarm (reused the existing tiny-spider swarm rather than authoring a redundant "Rock Spider"; it can be differentiated later), **L3** = `rock_skitter` + venomous `cave_spider` (Cave Spinner). Guarded by `quarrySpiders.test.ts`. Materials come off the spiders' own loot, not the mission. Not a director chain — the director is one-way narrative and can't place missions or gate yields.
 
 **One-line:** Underground control-and-attrition. **Web = a ranged *root*** (pins you where you stand — a rooted archer can't kite, a rooted melee can't close), over **venom, ambush, and brood-spawn.** Compassion-framed: it's *their* rock; we dug into it.
 

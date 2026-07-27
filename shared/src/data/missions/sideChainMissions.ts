@@ -18,6 +18,46 @@ import type { MissionTemplate } from "./types.js";
  * Add new chains here. See docs/DESIGN_ACT1_SETTING.md + docs/DESIGN_SIDE_STORIES.md.
  */
 export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
+  // ── Quarry-spider gate (the "dig deeper, wake worse things" loop). These are
+  //    FORCED-ONLY: the unsatisfiable `requires` keeps them off the random board
+  //    and the pinned pool; the engine's forceMission injects `clear_diggings_${N}`
+  //    while quarry.level > quarrySpidersClearedLevel, and the quarry yields at the
+  //    previous level until it's cleared. Short duration — it's right in the pit.
+  //    XP-only (internal settlement defence; materials come off the spiders). Each
+  //    higher level fields worse spiders. See docs/DESIGN_SPIDERS.md. ──
+  {
+    id: "clear_diggings_2",
+    name: "Clear the Diggings",
+    description: "The deeper cut woke something. Tomas came up white to the elbows saying the fresh face of the pit is boiling with spiders, hand-sized and legion, pouring out of a crack the picks opened. Nobody wants the stone badly enough to lose a hand for it. Send a couple down to stand with the crew and drive the things back into the dark. It is their rock; we only want the seam. Make it safe and the cutters can work the new depth.",
+    icon: "🕷️",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/clear_marshes.png",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 90, // right in the settlement's own pit — a quick response, not a trek
+    rewards: [], // XP only; the yield unlock is the reward, materials come off the spiders
+    deployCost: 3,
+    difficulty: 2,
+    minGuildLevel: 1,
+    tags: ["combat", "survival"],
+    encounters: [{ enemyId: "rock_skitter", count: 5 }],
+    requires: { missionDone: "__quarry_spider_gate__" }, // sentinel: never met → forced-only
+  },
+  {
+    id: "clear_diggings_3",
+    name: "The Deeper Cut",
+    description: "Deeper again, and the spiders came bigger. Tomas says the skittering ones still boil up in their tide, but among them now are the dog-sized spinners, slow and venomous, the kind that do not run. The crew have pulled back to the second gallery and will not go down until it is done. Send a team to hold the crew and clear the dark ahead of the picks. Same as before, only meaner: drive them down, do not chase them into their holes, and make the new seam safe to work.",
+    icon: "🕷️",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/clear_marshes.png",
+    slots: [{ class: "any" }, { class: "any" }, { class: "any" }],
+    duration: 120,
+    rewards: [],
+    deployCost: 4,
+    difficulty: 3,
+    minGuildLevel: 1,
+    tags: ["combat", "survival"],
+    encounters: [{ enemyId: "rock_skitter", count: 3 }, { enemyId: "cave_spider", count: 2 }],
+    requires: { missionDone: "__quarry_spider_gate__" }, // sentinel: never met → forced-only
+  },
+
   // ── "The Maddened Herd" — rabid boars → the Tainted Spring ──
   {
     id: "bad_blood",

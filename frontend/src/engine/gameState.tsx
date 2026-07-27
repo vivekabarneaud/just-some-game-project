@@ -704,6 +704,11 @@ export interface GameState {
    *  used by quests like Baptism of Fire that need to fire on first encounter
    *  regardless of outcome and survive the lastRaidOutcome decay window. */
   raidsResolvedCount: number;
+  /** Deepest quarry level whose spiders have been cleared. The quarry yields at
+   *  min(quarry.level, this) — dig past the spiders and output stays at the
+   *  previous level until the "Clear the Diggings" mission is done. Starts at 1
+   *  (the surface quarry has no dig-in). See the quarry-spider gate. */
+  quarrySpidersClearedLevel: number;
   // Astral Shards (premium currency)
   astralShards: number;
   lastDailyLogin: number; // real-world timestamp of last daily reward claim
@@ -1284,6 +1289,7 @@ export function createInitialState(): GameState {
     incomingRaids: [],
     hoursSinceLastRaid: 48, // start with 48h of calm
     raidsResolvedCount: 0,
+    quarrySpidersClearedLevel: 1,
     astralShards: 0,
     lastDailyLogin: 0,
     lastGuildVisit: 0,
@@ -1753,6 +1759,12 @@ export function migrateSaveState(saved: GameState): GameState {
         (e: any) => e?.type === "raid_victory" || e?.type === "raid_defeat",
       ).length;
       saved.raidsResolvedCount = priorRaids;
+    }
+    // Backfill the quarry-spider gate to the CURRENT quarry level so existing
+    // saves aren't retro-infested (they'd otherwise show a spider mission and
+    // drop to previous-level yield on load).
+    if (saved.quarrySpidersClearedLevel === undefined) {
+      saved.quarrySpidersClearedLevel = saved.buildings?.find((b: any) => b.buildingId === "quarry")?.level ?? 1;
     }
     if (saved.starvationPenalty === undefined) saved.starvationPenalty = 0;
     if (saved.starvationHours === undefined) saved.starvationHours = 0;
@@ -2545,7 +2557,14 @@ function calcProductionRates(state: GameState): { gold: number; wood: number; st
     if (pb.level === 0 || pb.damaged) continue;
     const def = BUILDINGS.find((b) => b.id === pb.buildingId);
     if (!def) continue;
-    const levelDef = def.levels[pb.level - 1];
+    let levelDef = def.levels[pb.level - 1];
+    // Quarry-spider gate: the quarry yields at its deepest SPIDER-CLEARED level.
+    // Upgrading past the spiders gives the new building level, but stone output
+    // holds at the previous level's rate until "Clear the Diggings" is done.
+    if (pb.buildingId === "quarry") {
+      const eff = Math.min(pb.level, state.quarrySpidersClearedLevel ?? pb.level);
+      levelDef = def.levels[eff - 1] ?? levelDef;
+    }
     if (levelDef?.production) {
       const res = levelDef.production.resource as keyof typeof rates;
       let rate = levelDef.production.rate;
@@ -5470,6 +5489,17 @@ export function GameProvider(props: ParentProps) {
                 s.completedUniqueMissionIds.push(am.missionId);
               }
 
+              // Quarry-spider gate cleared: advance quarrySpidersClearedLevel to
+              // the mission's target depth (the number in "clear_diggings_${N}"),
+              // so the quarry now yields at that level and the mission stops being
+              // forced onto the board.
+              if (success && am.missionId.startsWith("clear_diggings_")) {
+                const target = parseInt(am.missionId.slice("clear_diggings_".length), 10);
+                if (!Number.isNaN(target)) {
+                  s.quarrySpidersClearedLevel = Math.max(s.quarrySpidersClearedLevel ?? 1, target);
+                }
+              }
+
               // Recruitment quests: on success the named premades JOIN the roster
               // (earned — bypasses the browse cap; skips any already recruited).
               if (success && template?.recruitsOnSuccess?.length) {
@@ -5609,6 +5639,16 @@ export function GameProvider(props: ParentProps) {
             }
             if (!marketOk && !producing("quarry") && s.resources.stone < 40) {
               forceMission(doneUnique.has("quarry_expedition_first") ? "quarry_expedition" : "quarry_expedition_first");
+            }
+            // Quarry-spider gate: while we've dug deeper than the spiders are
+            // cleared, keep the level-scaled "Clear the Diggings" mission on the
+            // board (forced past its sentinel requires). The quarry yields at the
+            // previous level until it's done. Re-forced each tick if wiped.
+            {
+              const quarry = s.buildings.find((b) => b.buildingId === "quarry" && b.level > 0);
+              if (quarry && quarry.level > (s.quarrySpidersClearedLevel ?? 1)) {
+                forceMission(`clear_diggings_${quarry.level}`);
+              }
             }
           }
           if (lastRefresh < today3am.getTime()) {
