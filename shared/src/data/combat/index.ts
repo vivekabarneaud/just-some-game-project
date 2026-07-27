@@ -6,7 +6,7 @@ import { buildAdventurerUnit, buildEnemyUnits, buildNpcAllyUnit } from "./units.
 import { snapshotRoster, stampLogIds } from "./snapshot.js";
 import { placeUnits } from "./positional.js";
 import { applySupplies, applyHpOverride, applyPassives } from "./setup.js";
-import { applyMissionAllyBaselineThreat } from "./threat.js";
+import { applyMissionAllyBaselineThreat, applyPresenceBaselineThreat } from "./threat.js";
 import { applyMissionModifiers } from "./modifiers.js";
 import { runRound } from "./round/index.js";
 import { buildResult } from "./result.js";
@@ -73,6 +73,9 @@ export function simulateCombat(
   if (npcAllyUnit && mission.npcAlly) {
     applyMissionAllyBaselineThreat(enemies, npcAllyUnit, mission.npcAlly);
   }
+  // Presence: seed each enemy's threat with the adventurers' Presence, so tanks
+  // draw aggro from round 1 (not after threat accumulates).
+  applyPresenceBaselineThreat(enemies, adventurers);
 
   const ctx: CombatContext = {
     round: 0, adventurers, enemies, log: [],

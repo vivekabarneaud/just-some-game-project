@@ -45,6 +45,7 @@ export interface RawSubStats {
   mobility?: number;   // + paces/turn
   initiative?: number; // + turn order
   armor?: number;      // + physical mitigation
+  presence?: number;   // + aggro drawn (signed; tanks stack it, dps go negative)
 }
 
 /** An in-combat actor. Adventurer, NPC ally, entity, or enemy. Mutated during the simulation. */
@@ -145,6 +146,11 @@ export interface CombatUnit {
   /** For allies: how much threat they generate per point of damage/heal. Default 1.0.
    *  Mission-side (npcAlly.threatMultiplier) overrides per encounter. */
   threatMultiplier?: number;
+  /** Presence (Combat Foundation): signed aggro stat (class floor + gear/talent
+   *  raw). Positive draws threat, negative sheds it. Drives BOTH the
+   *  threatMultiplier (ongoing) AND a starting-threat seed (immediate — the tank
+   *  is the target from round 1). Adventurer-side. */
+  presence?: number;
   // ── Mission-modifier flags (set at setup, refreshed each round start) ──
   /** When true, this enemy's tag-based physical immunity (e.g. ghost) is bypassed
    *  for the duration of a mission modifier. Cleared when the gate condition

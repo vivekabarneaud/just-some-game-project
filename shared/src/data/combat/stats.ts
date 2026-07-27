@@ -92,6 +92,29 @@ export function getParry(unit: CombatUnit): number {
   return Math.min(20, unit.str * 0.7) + (unit.raw?.parry ?? 0);
 }
 
+/** Base Presence by class (Combat Foundation) — how much aggro/attention the
+ *  ROLE commands. Positive draws threat (the tank wants to be hit); negative
+ *  sheds it (the dps/ghost). Deliberately NOT attribute-derived — aggro is a
+ *  property of the role, not of STR/DEX — so a strong assassin still vanishes.
+ *  Gear/talents add raw presence on top (raw.presence). */
+export function classPresenceFloor(cls?: string): number {
+  switch (cls) {
+    case "warrior": return 10;    // the wall — holds the line, wants the blows
+    case "assassin": return -15;  // the ghost — never registers
+    case "archer": return -8;     // backline, picks you off unseen
+    case "wizard": return -6;     // squishy, wants to be left alone
+    case "priest": return -6;     // (healing already pulls aggro; this offsets)
+    default: return 0;            // enemies / NPC allies: neutral
+  }
+}
+
+/** Presence → threat-generation multiplier. 0 Presence = 1.0 (baseline); high
+ *  Presence amplifies the threat you build, deep-negative sheds it toward a
+ *  floor (never fully zero — a determined dps can still pull if they must). */
+export function presenceToThreatMult(presence: number): number {
+  return Math.max(0.15, 1 + presence * 0.05);
+}
+
 /** Whether the unit deals magical damage (wizards, priests, magical enemies). */
 export function dealsMagicalDamage(unit: CombatUnit): boolean {
   if (unit.isMagical) return true;

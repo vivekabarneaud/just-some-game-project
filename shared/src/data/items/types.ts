@@ -127,6 +127,7 @@ export interface ItemDefinition {
     mobility?: number;
     initiative?: number;
     armor?: number;
+    presence?: number;
   };
   /** Duration reduction multiplier (0.9 = 10% faster) */
   durationMod: number;

@@ -85,6 +85,24 @@ export function applyMissionAllyBaselineThreat(
   }
 }
 
+/** Presence baseline (Combat Foundation): starting threat a positive-Presence
+ *  ally lands on every enemy at combat start, so a **tank is the target from
+ *  round 1** — before threat has a chance to accumulate, and enough to overcome
+ *  the "hit the squishy" defence-pull. Negative Presence = no starting draw
+ *  (the low threatMultiplier already sheds their ongoing threat). */
+const PRESENCE_BASELINE_K = 10;
+
+export function applyPresenceBaselineThreat(enemies: CombatUnit[], adventurers: CombatUnit[]): void {
+  for (const adv of adventurers) {
+    const seed = Math.max(0, (adv.presence ?? 0) * PRESENCE_BASELINE_K);
+    if (seed <= 0) continue;
+    for (const e of enemies) {
+      if (!e.threatTable) e.threatTable = {};
+      e.threatTable[adv.id] = (e.threatTable[adv.id] ?? 0) + seed;
+    }
+  }
+}
+
 /** Look up an enemy's current threat for an ally. Zero if the enemy has no entry. */
 export function getThreat(enemy: CombatUnit, allyId: string): number {
   return enemy.threatTable?.[allyId] ?? 0;

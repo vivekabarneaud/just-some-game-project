@@ -4,7 +4,7 @@ import { getEquipmentStats, getEquipmentDefense, getEquipmentRaw, getItem } from
 import { getEnemy } from "../enemies.js";
 import type { MissionEncounter, MissionNpcAlly } from "../missions/index.js";
 import { getNpcAlly } from "../npcs.js";
-import { rarityWeaponRange, UNARMED_RANGE, derivedDamageRange } from "./stats.js";
+import { rarityWeaponRange, UNARMED_RANGE, derivedDamageRange, classPresenceFloor, presenceToThreatMult } from "./stats.js";
 import type { CombatUnit } from "./types.js";
 
 /** The physical damage range a mainHand weapon confers: an authored range if it
@@ -25,8 +25,12 @@ const COMMANDER_PREMADE_IDS = new Set(["char_020"]); // Morgause Dunwall
 /** Convert an Adventurer into a combat-ready unit. HP = VIT × 8. */
 export function buildAdventurerUnit(adv: Adventurer): CombatUnit {
   const equipStats = getEquipmentStats(adv.equipment);
+  const equipRaw = getEquipmentRaw(adv.equipment);
   const stats = calcStats(adv, equipStats);
   const hp = stats.vit * 8;
+  // Presence = class floor + gear/talent raw presence → the threat-generation
+  // multiplier the aggro system already consumes (tanks draw, dps shed).
+  const presence = classPresenceFloor(adv.class) + (equipRaw.presence ?? 0);
   const wr = weaponRange(adv.equipment.mainHand);
   const isCommander = (adv.premadeId ? COMMANDER_PREMADE_IDS.has(adv.premadeId) : false)
     || (adv.talents?.includes("commander_tactics") ?? false);
@@ -35,7 +39,7 @@ export function buildAdventurerUnit(adv: Adventurer): CombatUnit {
     hp, maxHp: hp,
     str: stats.str, dex: stats.dex, int: stats.int, vit: stats.vit, wis: stats.wis,
     class: adv.class,
-    raw: getEquipmentRaw(adv.equipment),
+    raw: equipRaw,
     portrait: getPortraitUrl(adv),
     level: adv.level,
     talents: adv.talents,
@@ -46,7 +50,8 @@ export function buildAdventurerUnit(adv: Adventurer): CombatUnit {
     weaponType: adv.equipment.mainHand ? getItem(adv.equipment.mainHand)?.weaponType : undefined,
     canAct: true, canBeHealed: true, isTauntable: false,
     isCommander,
-    threatMultiplier: 1.0,
+    presence,
+    threatMultiplier: presenceToThreatMult(presence),
     cooldowns: {}, slowed: 0, poisonTicks: [],
   };
 }

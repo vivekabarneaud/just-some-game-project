@@ -8,8 +8,8 @@
 
 ## Systems this needs (the build checklist)
 
-1. **gear → raw sub-stats.** Equipment can carry a `raw` block (`RawSubStats`); `buildAdventurerUnit` sums it across equipped items. *This is the unlock — everything below with an "annotated" sub-stat is inert until this lands.* An item may carry **several** raw sub-stats.
-2. **Presence stat.** Its own stat: **floor from CLASS** (warrior high, assassin deep-negative, archer/caster negative), **+ raw** from gear/talents. Signed; crosses zero. Scales **threat generation** (the existing threat system): high Presence draws aggro (tanks), negative sheds it (assassin "deadly ghost"). NOT attribute-derived (would re-couple aggro to power). Counter to enemy focus effects is CC/burst.
+1. **gear → raw sub-stats.** ✅ **BUILT** (2026-07-27). Items carry a `raw` block; `getEquipmentRaw` sums it; `buildAdventurerUnit` stamps `CombatUnit.raw`. crit/dodge/mobility work now; accuracy/parry inert until hit-resolution.
+2. **Presence stat.** ✅ **BUILT** (2026-07-27). `classPresenceFloor` (warrior +10 · assassin −15 · archer −8 · wizard/priest −6) + gear `raw.presence`; `presenceToThreatMult` (0-presence → 1.0×, warrior → 1.5×, assassin → 0.25×) drives the ongoing threat multiplier, AND `applyPresenceBaselineThreat` seeds each enemy's threat at combat start (`K=10`) so the tank is the target from round 1 — overcoming the "hit the squishy" defence-pull. NOT attribute-derived. Verified: a tactical foe focuses the warrior over the assassin. (`K` + floors are tuning knobs.)
 3. **Gloves slot** (new) — home for the Fang-Studded Gauntlets.
 4. **Daggers equippable in off-hand** — any `weaponType: "dagger"` allowed in `offHand` (precedent: `parrying_dagger`). Gives Brenna a sidearm + assassins an off-hand, no new slot.
 5. **New material `boar_tusk`** (whole tusk) — see ladder below.
