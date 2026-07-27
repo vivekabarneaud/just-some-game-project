@@ -30,7 +30,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/bears_den.png",
     slots: [{ class: "any" }, { class: "any" }],
     duration: 240,
-    rewards: [{ resource: "honey", amount: 4 }],
+    rewards: [{ resource: "honey", amount: 14 }],
     deployCost: 4,
     difficulty: 2,
     minGuildLevel: 1,
@@ -47,7 +47,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/bears_den.png",
     slots: [{ class: "any" }, { class: "any" }],
     duration: 200,
-    rewards: [{ resource: "honey", amount: 3 }],
+    rewards: [{ resource: "honey", amount: 12 }],
     deployCost: 3,
     difficulty: 1,
     minGuildLevel: 1,
@@ -68,7 +68,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/gather_timber.png",
     slots: [{ class: "any" }, { class: "any" }],
     duration: 400, // a fair way south — a longer haul than the near gathers
-    rewards: [{ resource: "apples", amount: 20 }], // a big, generous tree — the pristine first pick, worth the trip
+    rewards: [{ resource: "apples", amount: 26 }], // a big, generous tree — the pristine first pick, worth the trip
     deployCost: 5,
     difficulty: 1,
     minGuildLevel: 1,
@@ -85,7 +85,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/gather_timber.png",
     slots: [{ class: "any" }, { class: "any" }],
     duration: 350,
-    rewards: [{ resource: "apples", amount: 16 }], // still a generous yearly haul — worth the walk south every autumn
+    rewards: [{ resource: "apples", amount: 22 }], // still a generous yearly haul — worth the walk south every autumn
     deployCost: 4,
     difficulty: 1,
     minGuildLevel: 1,
@@ -103,7 +103,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/clear_marshes.png",
     slots: [{ class: "any" }, { class: "any" }],
     duration: 300,
-    rewards: [{ resource: "fish", amount: 14 }],
+    rewards: [{ resource: "fish", amount: 22 }],
     deployCost: 4,
     difficulty: 1,
     minGuildLevel: 1,

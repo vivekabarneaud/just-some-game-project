@@ -2530,8 +2530,8 @@ function applyWeatherCropDamage(s: GameState, weather: WeatherType, coverage: nu
 }
 
 /** Are the people fed this tick? True while the larder holds real food OR there
- *  is honey to fall back on — honey is the emergency ration, eaten only once the
- *  larder is empty (see the tick's food consumption). */
+ *  is honey — honey is eaten like any other food, drawn down alongside the larder
+ *  in proportion to the stock (see the tick's food consumption). */
 function peopleAreFed(s: GameState): boolean {
   return getTotalFood(s.foods) > 0 || (s.honey ?? 0) > 0;
 }

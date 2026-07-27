@@ -33,8 +33,8 @@ An **evolving relationship**, built as the codebase's discovery→routine patter
 ## The Old Apple Tree (A/B BUILT 2026-07-27)
 
 Honeypaw's sibling and opposite temperament: an **unconditional provider** — a lone wild apple far south, heavy every autumn, no bargain, no danger.
-- **A · `apple_tree_first`** (autumn, unique, peaceful/`guaranteed`): the discovery — scouts find the laden old tree, a mercy before winter; a big generous first pick (**20 apples**), worth the long trip south.
-- **B · `apple_tree`** (autumn, recurring, peaceful/`guaranteed`, gated on A): the yearly return, still generous (**16 apples**); flavor notes the folk speak of it fondly, "like an old neighbour who never asks for anything."
+- **A · `apple_tree_first`** (autumn, unique, peaceful/`guaranteed`): the discovery — scouts find the laden old tree, a mercy before winter; a big generous first pick (**26 apples**), worth the long trip south.
+- **B · `apple_tree`** (autumn, recurring, peaceful/`guaranteed`, gated on A): the yearly return, still generous (**22 apples**); flavor notes the folk speak of it fondly, "like an old neighbour who never asks for anything."
 - Kept **pure peaceful** both states (no wolves) — the one mission that's a genuine exhale. Reward is plain **apples** for now.
 - **Still open (deepeners, deferred):** a first-find/naming chronicle; **what the apples become** (cider for the brewery / winter stores you eat through the cold — makes the tree *present* all year, so losing it costs something you can taste); the optional "wolves at the windfall" variant.
 - **Deferred payoff:** the tree goes black and weeping, sick dead things in the windfall → a tainted-creatures mission → the tragic *put-it-down* choice. Strong Ch2 taint material (NOT the Ch1→Ch2 bridge — deferred so the bond sets over multiple autumns).
@@ -44,7 +44,7 @@ Honeypaw's sibling and opposite temperament: an **unconditional provider** — a
 | Season | Gather (peaceful, pool) | Hunt (combat, scarcity) |
 |---|---|---|
 | Spring (the hungry gap) | **Bee-Tree** ✅ · **Fish Run** ✅ · First Greens | — |
-| Summer | Berry Thickets (a bear wants them too) · Wild Honey | — |
+| Summer | Berry Thickets | — |
 | Autumn | **Apple Tree** ✅⭐ · Mushroom Foraging | — |
 | Winter | — | **Wild Boar Hunt** ✅ · The Deer Yard |
 
@@ -52,4 +52,4 @@ Honeypaw's sibling and opposite temperament: an **unconditional provider** — a
 
 **Arc-seeds (recurring → story):** Apple Tree → the taint; Honeypaw → the taint; Mushroom Foraging → a poisoning / the deferred fungal thread; First Greens → a wrong-greens scare (Edda's lore); Follow the Wolves → the pack's fate.
 
-**Reward rule:** modest — a *few* apples/fish/honey. Enough to ease a lean spell, never to end scarcity, or the bond (and the tension) goes slack.
+**Reward rule:** a *meaningful* haul, sized against the settlers' ~13 food/hr — a gather trip should be worth a couple hours of food, not minutes (bulk foods ~22–26; honey a touch under, as it also feeds mead). Still a *supplement* to farming's main supply, not the whole economy, and the scarcity *hunts* stay the emergency.
