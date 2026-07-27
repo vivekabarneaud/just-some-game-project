@@ -227,6 +227,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "item", itemId: "poachers_bow", chance: 0.06 },    // some carry a poacher's bow
       { type: "item", itemId: "scavenged_mail", chance: 0.05 },  // and the odd looted hauberk
       { type: "item", itemId: "brigands_jerkin", chance: 0.08 }, // or a supple leather jerkin
+      { type: "item", itemId: "stranger_signet", chance: 0.01 }, // the thrill jackpot: a dead traveller's luck-charm
     ],
   },
   {
@@ -293,6 +294,7 @@ export const ENEMIES: EnemyDefinition[] = [
     loot: [
       { type: "resource", resource: "gold", chance: 0.4, min: 2, max: 8 },
       { type: "item", itemId: "poachers_bow", chance: 0.12 },
+      { type: "item", itemId: "stranger_signet", chance: 0.01 }, // the thrill jackpot
     ],
   },
   {
@@ -313,6 +315,7 @@ export const ENEMIES: EnemyDefinition[] = [
     loot: [
       { type: "resource", resource: "gold", chance: 0.5, min: 3, max: 10 },
       { type: "item", itemId: "fighting_knife", chance: 0.12 },
+      { type: "item", itemId: "stranger_signet", chance: 0.01 }, // the thrill jackpot
     ],
   },
   {
@@ -525,6 +528,7 @@ export const ENEMIES: EnemyDefinition[] = [
     loot: [
       { type: "resource", resource: "gold", chance: 0.8, min: 15, max: 40 },
       { type: "item", itemId: "iron_sword", chance: 0.10 },
+      { type: "item", itemId: "stranger_signet", chance: 0.01 }, // the thrill jackpot
     ],
   },
   {

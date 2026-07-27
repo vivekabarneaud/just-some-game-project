@@ -128,10 +128,13 @@ export interface ItemDefinition {
     initiative?: number;
     armor?: number;
     presence?: number;
+    luck?: number;
   };
   /** Duration reduction multiplier (0.9 = 10% faster) */
   durationMod: number;
-  /** Bonus loot multiplier (1.1 = 10% more) */
+  /** Legacy: bonus loot multiplier. Currently UNUSED/vestigial (every item = 1,
+   *  nothing reads it). Superseded by the luck stat (raw.luck → party loot-chance
+   *  in rollLoot). Left in place to avoid churning every item def. */
   lootMod: number;
   /** Which crafting recipe produces this item */
   recipeId: string;
@@ -141,6 +144,10 @@ export interface ItemDefinition {
    *  accumulate (quest oddities, curios); overflow on acquisition is discarded.
    *  Enforced at inventory-add points (loot / craft output / mission loot). */
   maxStack?: number;
+  /** Can't be worn twice by the same adventurer — a second copy in another slot
+   *  (e.g. a second Stranger's Signet across ring1/ring2) is blocked at equip.
+   *  Looting/holding extras is fine; sell or trade them. */
+  uniqueEquip?: boolean;
   /** Item sprite image path */
   image?: string;
   /** Two-handed weapon — equipping clears offHand */

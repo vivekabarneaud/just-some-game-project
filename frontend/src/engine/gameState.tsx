@@ -7375,6 +7375,11 @@ export function GameProvider(props: ParentProps) {
         const access = getArmorAccess(adv.class, adv.talents);
         if (!access.has(itemDef.armorType)) return false;
       }
+      // Unique-equip: can't wear a second copy (e.g. two Stranger's Signets
+      // across ring1/ring2). Holding extras is fine — they sell/trade.
+      if (itemDef.uniqueEquip && Object.entries(adv.equipment).some(([sl, id]) => sl !== slot && id === itemId)) {
+        return false;
+      }
       const inv = state.inventory.find((i) => i.itemId === itemId);
       if (!inv || inv.quantity <= 0) return false;
       setState(produce((s) => {

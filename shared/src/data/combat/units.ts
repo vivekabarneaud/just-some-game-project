@@ -52,6 +52,7 @@ export function buildAdventurerUnit(adv: Adventurer): CombatUnit {
     isCommander,
     presence,
     threatMultiplier: presenceToThreatMult(presence),
+    luck: equipRaw.luck ?? 0,
     cooldowns: {}, slowed: 0, poisonTicks: [],
   };
 }

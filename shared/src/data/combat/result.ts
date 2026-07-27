@@ -54,7 +54,10 @@ export function buildResult(
   // The team broke off rather than winning or being wiped.
   const retreated = !victory && fledAdventurerIds.length > 0;
 
-  const loot = rollLoot(enemies);
+  // Luck (Combat Foundation): the party's summed luck lifts every drop's chance.
+  // Gear-granted (e.g. the Stranger's Signet). Subtle by default — tune LUCK_*.
+  const partyLuck = adventurers.reduce((sum, u) => sum + (u.luck ?? 0), 0);
+  const loot = rollLoot(enemies, partyLuck);
 
   const finalHp: Record<string, number> = {};
   const finalMaxHp: Record<string, number> = {};
@@ -94,10 +97,17 @@ export function buildResult(
   };
 }
 
+/** + drop-chance per point of party luck (relative). +10 luck → a 1% drop
+ *  becomes 1.1%. Deliberately gentle; the flagship source (Stranger's Signet)
+ *  is a modest charm. Tune here once we can eyeball hauls in /dev-battle. */
+const LUCK_CHANCE_PER_POINT = 0.01;
+
 /** Roll each defeated enemy's drop table using the seeded PRNG. Killed enemies
  *  roll their whole table; a routed (fled, hp > 0) enemy only rolls sheddable
- *  `keepOnRout` drops (a fang left behind, not the hide/carcass). */
-function rollLoot(enemies: CombatUnit[]): LootResult[] {
+ *  `keepOnRout` drops (a fang left behind, not the hide/carcass). `partyLuck`
+ *  (summed across the team) lifts every drop's chance uniformly. */
+function rollLoot(enemies: CombatUnit[], partyLuck = 0): LootResult[] {
+  const luckMult = 1 + partyLuck * LUCK_CHANCE_PER_POINT;
   const loot: LootResult[] = [];
   for (const unit of enemies) {
     const routed = unit.hp > 0 && unit.fled;
@@ -108,7 +118,7 @@ function rollLoot(enemies: CombatUnit[]): LootResult[] {
     if (!def?.loot?.length) continue;
     for (const drop of def.loot) {
       if (routed && !drop.keepOnRout) continue; // fled: carcass loot stays with the living beast
-      if (combatRandom() > drop.chance) continue;
+      if (combatRandom() > drop.chance * luckMult) continue;
       if (drop.type === "resource") {
         const amount = drop.min + Math.floor(combatRandom() * (drop.max - drop.min + 1));
         if (amount > 0) {

@@ -46,6 +46,7 @@ export interface RawSubStats {
   initiative?: number; // + turn order
   armor?: number;      // + physical mitigation
   presence?: number;   // + aggro drawn (signed; tanks stack it, dps go negative)
+  luck?: number;       // + loot-drop chance (party-summed); also live on the unit for combat use (Edmund)
 }
 
 /** An in-combat actor. Adventurer, NPC ally, entity, or enemy. Mutated during the simulation. */
@@ -151,6 +152,10 @@ export interface CombatUnit {
    *  threatMultiplier (ongoing) AND a starting-threat seed (immediate — the tank
    *  is the target from round 1). Adventurer-side. */
   presence?: number;
+  /** Luck (Combat Foundation): gear-granted `raw.luck`, stamped here so it's
+   *  live during combat (a hook for Edmund the gambler) as well as summed across
+   *  the party to lift loot-drop chance post-fight. 0 for most units. */
+  luck?: number;
   // ── Mission-modifier flags (set at setup, refreshed each round start) ──
   /** When true, this enemy's tag-based physical immunity (e.g. ghost) is bypassed
    *  for the duration of a mission modifier. Cleared when the gate condition

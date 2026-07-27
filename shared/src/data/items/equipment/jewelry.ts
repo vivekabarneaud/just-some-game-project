@@ -64,6 +64,14 @@ export const JEWELRY: ItemDefinition[] = [
     classes: ["assassin"], stats: { dex: 3, str: 2 }, durationMod: 1, lootMod: 1, recipeId: "void_band", consumable: false,
   },
   {
+    // The thrill jackpot: a rare FIND (rarity = scarcity, not power), not craftable.
+    // +Luck lifts the party's loot-drop chance; ~1% off any bandit. uniqueEquip
+    // so you can't stack two. Luck value is a starting knob — tune with LUCK_*.
+    id: "stranger_signet", rarity: "rare", name: "Stranger's Signet", icon: "💍", slot: "ring1",
+    description: "+5 Luck. A traveller's signet, taken off them on the road north. It fit someone once, and they had a name. Now it just fits you.",
+    classes: [], stats: {}, raw: { luck: 5 }, uniqueEquip: true, durationMod: 1, lootMod: 1, recipeId: "stranger_signet", consumable: false,
+  },
+  {
     id: "dragonfire_ring", rarity: "rare", name: "Dragonfire Ring", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/dragonscale_ring.png", icon: "💍", slot: "ring1",
     description: "+3 STR, +2 VIT. Dragon blood fused with ruby. It pulses like a second heartbeat.",
     classes: ["warrior"], stats: { str: 3, vit: 2 }, durationMod: 1, lootMod: 1, recipeId: "dragonfire_ring", consumable: false,
