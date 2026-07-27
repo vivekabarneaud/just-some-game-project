@@ -294,9 +294,25 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
   // Rare: the alpha's fang as the blade (the flexible-material alternative to the
   // sword's fang pommel). Gated by the boss drop, not the smith level.
   {
-    id: "fang_dagger", name: "Fang Dagger", icon: "🦷", building: "blacksmith", minLevel: 2,
+    id: "alpha_fang_dagger", name: "Alpha Fang Dagger", icon: "🦷", building: "blacksmith", minLevel: 2,
     costs: [{ resource: "alpha_fang", amount: 1 }, { resource: "leather", amount: 2 }],
     produces: { resource: "weapons", amount: 1 }, craftTime: 200,
+  },
+  // ── Beast-bone daggers: wolf fang (crit) → boar tusk (STR). Early, cheap. ──
+  {
+    id: "crude_fang_dagger", name: "Crude Fang Dagger", icon: "🦷", building: "blacksmith", minLevel: 1,
+    costs: [{ resource: "fang", amount: 1 }, { resource: "wood", amount: 1 }, { resource: "fiber", amount: 1 }],
+    produces: { resource: "weapons", amount: 1 }, craftTime: 60,
+  },
+  {
+    id: "fang_dagger", name: "Fang Dagger", icon: "🗡️", building: "blacksmith", minLevel: 1,
+    costs: [{ resource: "fang", amount: 1 }, { resource: "wood", amount: 1 }, { resource: "sinew_cord", amount: 1 }],
+    produces: { resource: "weapons", amount: 1 }, craftTime: 90,
+  },
+  {
+    id: "tusk_dagger", name: "Tusk Dagger", icon: "🦷", building: "blacksmith", minLevel: 1,
+    costs: [{ resource: "boar_tusk", amount: 1 }, { resource: "wood", amount: 1 }, { resource: "leather", amount: 1 }],
+    produces: { resource: "weapons", amount: 1 }, craftTime: 90,
   },
   {
     id: "iron_sword",
@@ -598,6 +614,32 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     produces: { resource: "armor", amount: 1 },
     craftTime: 120,
   },
+  // ── Wolf "Pack Hunter" set (agility) ──
+  { id: "greypelt_jerkin", name: "Greypelt Jerkin", icon: "🐺", building: "leatherworking", minLevel: 2,
+    costs: [{ resource: "wolfhide_strip", amount: 2 }, { resource: "leather", amount: 2 }, { resource: "sinew_cord", amount: 1 }],
+    produces: { resource: "armor", amount: 1 }, craftTime: 120 },
+  { id: "wolfhide_treads", name: "Wolfhide Treads", icon: "🥾", building: "leatherworking", minLevel: 2,
+    costs: [{ resource: "leather", amount: 2 }, { resource: "wolfhide_strip", amount: 1 }, { resource: "sinew_cord", amount: 1 }],
+    produces: { resource: "armor", amount: 1 }, craftTime: 90 },
+  { id: "hunters_cloak", name: "Hunter's Cloak", icon: "🧣", building: "leatherworking", minLevel: 2,
+    costs: [{ resource: "wolfhide_strip", amount: 2 }, { resource: "leather", amount: 1 }, { resource: "sinew_cord", amount: 1 }],
+    produces: { resource: "armor", amount: 1 }, craftTime: 90 },
+  { id: "fang_gauntlets", name: "Fang-Studded Gauntlets", icon: "🧤", building: "leatherworking", minLevel: 2,
+    costs: [{ resource: "fang", amount: 3 }, { resource: "wolfhide_strip", amount: 1 }, { resource: "leather", amount: 1 }, { resource: "sinew_cord", amount: 1 }],
+    produces: { resource: "armor", amount: 1 }, craftTime: 100 },
+  // ── Boar tank set (toughness) ──
+  { id: "bristlehide_hauberk", name: "Bristlehide Hauberk", icon: "🐗", building: "leatherworking", minLevel: 2,
+    costs: [{ resource: "bristlehide", amount: 3 }, { resource: "leather", amount: 2 }],
+    produces: { resource: "armor", amount: 1 }, craftTime: 150 },
+  { id: "bristlehide_greaves", name: "Bristlehide Greaves", icon: "👖", building: "leatherworking", minLevel: 2,
+    costs: [{ resource: "bristlehide", amount: 2 }, { resource: "leather", amount: 2 }],
+    produces: { resource: "armor", amount: 1 }, craftTime: 110 },
+  { id: "tusked_boar_hood", name: "Tusked Boar-Hood", icon: "🪖", building: "leatherworking", minLevel: 2,
+    costs: [{ resource: "boar_tusk", amount: 2 }, { resource: "bristlehide", amount: 2 }],
+    produces: { resource: "armor", amount: 1 }, craftTime: 130 },
+  { id: "bristlehide_shoes", name: "Bristlehide Shoes", icon: "🥾", building: "leatherworking", minLevel: 2,
+    costs: [{ resource: "bristlehide", amount: 1 }, { resource: "leather", amount: 2 }],
+    produces: { resource: "armor", amount: 1 }, craftTime: 90 },
   {
     id: "chitin_vest",
     name: "Chitin Vest",

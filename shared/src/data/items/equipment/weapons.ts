@@ -190,6 +190,31 @@ export const WEAPONS: ItemDefinition[] = [
     stats: {}, dmgMin: 3, dmgMax: 5, durationMod: 1, lootMod: 1,
     recipeId: "iron_dagger", consumable: false,
   },
+  // ── Beast-bone daggers (wolf fang = crit finesse, boar tusk = STR power) ──
+  {
+    id: "crude_fang_dagger", rarity: "common", name: "Crude Fang Dagger", icon: "🦷", slot: "mainHand", weaponType: "dagger",
+    description: "",
+    flavor: "A single wolf-fang lashed to a whittled haft with wild flax. Barely a weapon, but it goes in easy and comes out mean.",
+    classes: [],
+    stats: {}, dmgMin: 2, dmgMax: 5, durationMod: 1, lootMod: 1,
+    recipeId: "crude_fang_dagger", consumable: false,
+  },
+  {
+    id: "fang_dagger", rarity: "uncommon", name: "Fang Dagger", icon: "🗡️", slot: "mainHand", weaponType: "dagger",
+    description: "+3 Crit",
+    flavor: "The same fang, bound with pack-sinew instead of flax. It won't work loose mid-fight, and it bites for the soft place.",
+    classes: [],
+    stats: {}, raw: { crit: 3 }, dmgMin: 3, dmgMax: 6, durationMod: 1, lootMod: 1,
+    recipeId: "fang_dagger", consumable: false,
+  },
+  {
+    id: "tusk_dagger", rarity: "uncommon", name: "Tusk Dagger", icon: "🦷", slot: "mainHand", weaponType: "dagger",
+    description: "+1 STR",
+    flavor: "A whole boar-tusk ground to an edge and socketed in a bone haft. Heavy, curved, and it hits like the animal did.",
+    classes: [],
+    stats: { str: 1 }, dmgMin: 3, dmgMax: 6, durationMod: 1, lootMod: 1,
+    recipeId: "tusk_dagger", consumable: false,
+  },
   // ── Uncommon daggers (rung 3) — DEX-leaning, tight/low; bone & leather line.
   //    Assassin + archer via the dagger category. ──
   {
@@ -221,11 +246,11 @@ export const WEAPONS: ItemDefinition[] = [
     recipeId: "poachers_knife", consumable: false,
   },
   {
-    id: "fang_dagger", rarity: "rare", name: "Fang Dagger", icon: "🦷", slot: "mainHand", weaponType: "dagger",
+    id: "alpha_fang_dagger", rarity: "rare", name: "Alpha Fang Dagger", icon: "🦷", slot: "mainHand", weaponType: "dagger",
     description: "+2 DEX",
     flavor: "A pack alpha's fang, ground to an edge and bound to a leather-wrapped hilt. It still looks like it wants to bite.",
     classes: [], stats: { dex: 2 }, dmgMin: 5, dmgMax: 8, durationMod: 1, lootMod: 1,
-    recipeId: "fang_dagger", consumable: false,
+    recipeId: "alpha_fang_dagger", consumable: false,
   },
   {
     id: "orc_cleaver", rarity: "uncommon", name: "Orc Cleaver", icon: "🪓", slot: "mainHand", weaponType: "axe",
@@ -254,9 +279,9 @@ export const WEAPONS: ItemDefinition[] = [
   {
     id: "sinew_bow", rarity: "uncommon", name: "Sinew Bow", icon: "🏹", slot: "mainHand", weaponType: "bow", twoHanded: true,
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/woodworker/sinew_bow.png",
-    description: "+1 DEX, +1 STR",
+    description: "+1 DEX, +1 STR, +3 Accuracy",
     flavor: "Wolf-sinew string, springy and strong. Never snaps in the cold, and it takes a good arm to draw.",
-    classes: [], stats: { dex: 1, str: 1 }, dmgMin: 5, dmgMax: 8, durationMod: 1, lootMod: 1,
+    classes: [], stats: { dex: 1, str: 1 }, raw: { accuracy: 3 }, dmgMin: 5, dmgMax: 8, durationMod: 1, lootMod: 1,
     recipeId: "sinew_bow", consumable: false,
   },
   // ── Uncommon bows (rung 3) — archer-only, DEX + a STR "draw" on warbows. ──

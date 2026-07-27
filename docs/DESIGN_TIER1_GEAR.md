@@ -1,6 +1,6 @@
 # DESIGN: Tier-1 Gear & Materials (wolf + boar loot loops)
 
-**Status:** Designed 2026-07-26, NOT yet built. The spec for the "make the wolf/boar gear live" build session. Follows [[DESIGN_ENEMY_AUDIT_METHOD]] (the loop step), [[DESIGN_CRAFTING_PROGRESSION]] (leather tier, rarity=power), [[DESIGN_NOVICE_ITEMS]] (day-one loadout).
+**Status:** Designed 2026-07-26. **Gear BUILT 2026-07-27** (all 11 items + recipes + Sinew Bow accuracy live; guarded by `beastGear.test.ts`). Loot fixes (§Loot) still TODO. The spec for the "make the wolf/boar gear live" build session. Follows [[DESIGN_ENEMY_AUDIT_METHOD]] (the loop step), [[DESIGN_CRAFTING_PROGRESSION]] (leather tier, rarity=power), [[DESIGN_NOVICE_ITEMS]] (day-one loadout).
 
 **One-line:** Each Tier-1 family's drops craft gear that *is its identity*. **Wolves = agility** (dodge / mobility / crit / accuracy + −Presence), **boars = toughness** (armour / STR / VIT + +Presence). Hunt the beast → become the beast.
 
@@ -39,8 +39,10 @@ All Leatherworking unless noted, uncommon, guild L2–3, +1 primary. "Annotated"
 | **Wolfhide Treads** | boots | leather ×2 + wolfhide ×1 + sinew_cord ×1 | 12 DEF, +1 DEX | +2 Mobility |
 | **Hunter's Cloak** | cloak | wolfhide ×2 + leather ×1 + sinew_cord ×1 | 10 DEF, +1 DEX | **−Presence** |
 | **Fang-Studded Gauntlets** | gloves *(new slot)* | fang ×3 + wolfhide ×1 + leather ×1 + sinew_cord ×1 | 10 DEF, +1 DEX | +3 Crit |
-| **Crude Fang Dagger** | main/off-hand · Blacksmith | fang ×1 + wood ×1 + fiber ×1 | dmg 2–5 | +Crit |
-| **Fang Dagger** | main/off-hand · Blacksmith | fang ×1 + wood ×1 + sinew_cord ×1 | dmg 3–6 | +Crit (a touch more) |
+| **Crude Fang Dagger** | main-hand · Blacksmith | fang ×1 + wood ×1 + fiber ×1 | dmg 2–5, **common** (rarity-rule: 0 sub-stat, the crude is cheap-damage-only) | — |
+| **Fang Dagger** | main-hand · Blacksmith | fang ×1 + wood ×1 + sinew_cord ×1 | dmg 3–6 | +3 Crit |
+
+*Naming note (build):* a pre-existing **rare** alpha-fang dagger already held the `fang_dagger` id — renamed to **Alpha Fang Dagger** (`alpha_fang_dagger`) to free the id for this regular one. Off-hand/dual-wield deferred with the weapon-band work; all three daggers are main-hand (archer/assassin) for now.
 
 **Ranged piece already exists:** `sinew_bow` (Sinew Bow, woodworker, +1 DEX +1 STR draw, dmg 5–8) — **annotate +Accuracy**. Prestige `alpha_warbow` exists ("the bow's answer to the fang"). Alpha-fang masterwork sword exists. Set bonus concept: **2pc +Mobility, 4pc "Pack Hunter"** (bonus crit vs a target an ally is also engaging — the wolves' own Pack Tactics turned on them).
 
