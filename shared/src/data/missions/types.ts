@@ -1,5 +1,6 @@
 import type { AdventurerClass, AdventurerCondition } from "../adventurers.js";
 import type { EnemyTag } from "../enemies.js";
+import type { Season } from "../../gameState.js";
 
 // ─── Mission types ──────────────────────────────────────────────
 
@@ -9,7 +10,7 @@ export type RewardType = "gold" | "wood" | "stone" | "food" | "astralShards"
   | "cabbages" | "turnips" | "peas" | "squash" | "fava"
   | "apples" | "pears" | "cherries"
   | "meat" | "eggs" | "milk" | "fish"
-  | "berries" | "mushrooms" | "nuts"
+  | "berries" | "mushrooms" | "nuts" | "honey"
   // Herbs
   | "chamomile" | "mugwort" | "nettle" | "nightbloom" | "moonpetal" | "greymantle" | "fenbalm"
   // Exotic goods (caravan/escort drops only, non-growable)
@@ -184,6 +185,10 @@ export interface MissionRequirements {
    *  a mission only after its setup has played (e.g. the "Nell's gone
    *  wandering" worry beat opens the search mission). */
   chronicleFired?: string;
+  /** Only appears in this season. For seasonal gathers (the spring bee-tree, the
+   *  autumn apple tree) that belong to the rhythm of the year rather than a
+   *  crisis. Checked against the board context's current season. */
+  season?: Season;
 }
 
 /** Per-adventurer mission supplies: potion (combat), food (mission start buff), recovery (between-event heal). */

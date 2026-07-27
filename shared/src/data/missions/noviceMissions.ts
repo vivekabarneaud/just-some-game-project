@@ -16,6 +16,45 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     tags: ["outdoor", "peaceful"],
     guaranteed: true, // a timber haul: the starving yearling only keeps its distance, no fight
   },
+  // ── The Bee-Tree (spring seasonal gather) — Old Honeypaw's two-state arc.
+  //    A (first): the bear comes at the gatherers; self-defence, he ROUTS
+  //    (forest_bear routsAt 0.3) wounded but alive, may shed a bear_claw
+  //    (keepOnRout). B (routine): gated on A, peaceful — they leave him his
+  //    share. season-gated to spring so it's part of the year's rhythm, not a
+  //    crisis. Deferred payoff: one spring he's tainted and won't rout. ──
+  {
+    id: "bee_tree_first",
+    name: "The Bee-Tree",
+    description: "The old bee-tree in the south hollow is heavy with the last of winter's honey, and Edda wants it smoked out before the swarm scatters it. A quiet job, or it should have been. A bear came out of the spring-thin woods straight at the gatherers, all hunger and no fear, and there was no time to give it a wide berth. Drive it off and bring home what comb you can. We will not put it in the ground if it will only run.",
+    icon: "🍯",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/bears_den.png",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 240,
+    rewards: [{ resource: "honey", amount: 4 }],
+    deployCost: 4,
+    difficulty: 2,
+    minGuildLevel: 1,
+    tags: ["combat", "outdoor"],
+    encounters: [{ enemyId: "forest_bear", count: 1 }],
+    unique: true,
+    requires: { season: "spring" },
+  },
+  {
+    id: "bee_tree",
+    name: "The Bee-Tree",
+    description: "Spring again, and the south hollow's bee-tree is heavy with comb. The bear is there too, the big one the gatherers drove off last year, watching from the far bank. He has learned, and so have we. Nell took to calling him Old Honeypaw, and the name stuck. Smoke the hive, cut what the settlement needs, and leave the rest on the stump for him. No trouble, so long as everyone keeps to the arrangement.",
+    icon: "🍯",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/bears_den.png",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 200,
+    rewards: [{ resource: "honey", amount: 3 }],
+    deployCost: 3,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["outdoor", "peaceful"],
+    guaranteed: true, // the arrangement holds — no fight, just the share left on the stump
+    requires: { season: "spring", missionDone: "bee_tree_first" },
+  },
 {
     id: "quarry_expedition_first",
     name: "Quarry Expedition",

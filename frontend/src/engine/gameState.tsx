@@ -2051,6 +2051,7 @@ function buildMissionBoardContext(s: GameState, guildLevel: number, seed: number
     missionCompletions: s.missionCompletions ?? {},
     rosterClasses: [...new Set(s.adventurers.filter((a) => a.alive).map((a) => a.class))],
     chronicleEntriesFired: s.chronicleEntriesFired,
+    season: s.season,
   };
 }
 

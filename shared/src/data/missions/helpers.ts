@@ -3,6 +3,7 @@ import { calcStats } from "../adventurers.js";
 import { getEquipmentStats, getSupplyEffect, getFoodEffect, MATCHED_FOOD_HP_BONUS, getMaterial, getItem } from "../items/index.js";
 import { getHerb } from "../herbs.js";
 import type { MissionReward, MissionTemplate, MissionTag, MissionRequirements, AdventurerMissionSupplies } from "./types.js";
+import type { Season } from "../../gameState.js";
 import { NOVICE_MISSIONS } from "./noviceMissions.js";
 import { APPRENTICE_MISSIONS } from "./apprenticeMissions.js";
 import { JOURNEYMAN_MISSIONS } from "./journeymanMissions.js";
@@ -405,6 +406,8 @@ export interface MissionBoardContext {
   /** Chronicle entries that have fired. Gates `chronicleFired` requirements so a
    *  mission only appears after its story-director setup beat has played. */
   chronicleEntriesFired?: string[];
+  /** Current season — gates `season` requirements (seasonal gathers). */
+  season?: Season;
 }
 
 /** Check whether a mission's requirements are met. Exported for unit tests;
@@ -438,6 +441,7 @@ export function meetsRequirements(
   if (req.missionCount && (ctx.missionCompletions?.[req.missionCount.id] ?? 0) < req.missionCount.count) return false;
   if (req.hasClass && !(ctx.rosterClasses ?? []).includes(req.hasClass)) return false;
   if (req.chronicleFired && !(ctx.chronicleEntriesFired ?? []).includes(req.chronicleFired)) return false;
+  if (req.season && ctx.season && ctx.season !== req.season) return false;
   return true;
 }
 

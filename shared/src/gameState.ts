@@ -235,7 +235,7 @@ export type RewardType = "gold" | "wood" | "stone" | "food" | "astralShards"
   | "cabbages" | "turnips" | "peas" | "squash" | "fava"
   | "apples" | "pears" | "cherries"
   | "meat" | "eggs" | "milk" | "fish"
-  | "berries" | "mushrooms" | "nuts"
+  | "berries" | "mushrooms" | "nuts" | "honey"
   // Herbs
   | "chamomile" | "mugwort" | "nettle" | "nightbloom" | "moonpetal" | "greymantle" | "fenbalm"
   // Exotic goods (caravan/escort drops only, non-growable)
