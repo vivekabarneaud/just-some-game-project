@@ -53,8 +53,24 @@
 - **Aldwin alive + near → Magnus dares to unleash** (he feels safe). **Aldwin falls → Magnus breaks**: a wild uncontrolled surge, or he panics and shuts down. Losing the brother unmakes him.
 - Aldwin shields/heals Magnus **first**, so the firestorm survives to fire. They are only whole together. See [aldwin-stonebridge.md](aldwin-stonebridge.md), [stonebridge-arrival.md](stonebridge-arrival.md).
 
+## Who he'll travel with — the secrecy constraint (mechanic, 2026-07-27)
+A mission-team restriction that makes his hunted-ness *tangible* and turns loyalty into a real lever. **Magnus will not go out alongside an untrusted Ashwick companion** — Ashwick is the witch-fearing, Inquisition-reached culture he fled (common Ashwick are raised on witch-dread; the Inquisition's reach is strongest there). Outing him to a stranger from *that* stock could get him burned like Bede. It's a mechanical echo of "be a sparrow."
+
+**The rule — Ashwick-only, trust-gated:**
+- **Blocked:** a companion whose origin is `ashwick` AND whose loyalty is below **[Trusted]** (exact rank pinned at build).
+- **Always safe — Aldwin** (char_017), his brother, exempt regardless (even though Aldwin is Ashwick too).
+- **No trust needed — non-Ashwick origins.** Thornveil, Feldgrund, etc. don't fear magic (the Thornveil *harbors* the hunted; only Ashwick carries the dread), so they can travel with him from the start.
+- **Opens up:** an Ashwick recruit who reaches [Trusted] becomes a confidant and can go.
+
+So early game (roster mostly untrusted Ashwick) he's **alone or with Aldwin** — exactly right — and every Ashwick bond you deepen or non-Ashwick ally you recruit widens his safe circle. Dovetails with the existing `awaitLoyalty(Aldwin)` gate.
+
+**UI (assembly panel):** bidirectional lock. Pick Magnus → incompatible Ashwick-untrusted grey out; pick an incompatible one → Magnus greys out. Tooltip in the Lord's protective voice: *"I'll not put Magnus in front of someone who hasn't earned his trust. Not with what they could do to him."*
+
+**Build as a reusable system**, not Magnus-special — a `companionConstraint` a premade can declare (blocked origins/people, an "unless loyalty ≥ N" clearance, an except-list) — so future characters can carry rivalries or their own secrets. Magnus is the flagship. See [[project_companion_constraints]].
+
 ## Open threads / TBD
 - Assign a trait / build the prodigy mechanic.
+- Build the **companion-constraint** system (above) — reusable; Magnus + Aldwin the first users.
 - **Portrait asset** still `alaric_stonebridge` — rename or accept.
 - **Bede's lost pupils** — a future-character / story thread.
 - A **control arc** (wild → disciplined) tied to loyalty/leveling.
