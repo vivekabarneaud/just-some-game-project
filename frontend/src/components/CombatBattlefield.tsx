@@ -149,12 +149,18 @@ export default function CombatBattlefield(props: {
       if (!c) return;
       batch.push({ key: floaterKey++, xPct: leftPct(c), yPx: topPx(c) + stack * 15, text, color, sizeRem });
     };
-    // Primary target: avoid → damage → heal → status.
-    if (e.dodged) push(e.targetId, e.parried ? "Parry" : "Dodge", "#cbd5e1", 1.0);
+    // Rout / flee — the unit breaks off the fight (enemy routs, ally retreats).
+    if (e.beat === "flee_success" || e.beat === "broken") {
+      push(e.attackerId, e.isEnemy ? "Routs!" : "Flees!", "#fb923c", 1.05);
+    }
+    // Primary target: avoid → damage.
+    else if (e.dodged) push(e.targetId, e.parried ? "Parry" : "Dodge", "#cbd5e1", 1.0);
     else if (e.damage > 0) push(e.targetId, `−${e.damage}`, e.crit ? "#fbbf24" : "#f87171", damageSizeRem(e.rollFactor, e.crit));
+    // Heal + status can co-occur with damage (an ability that hits AND poisons).
     if (e.healed && e.healAmount) push(e.targetId, `+${e.healAmount}`, "#4ade80", 1.05, 1);
     if (e.statusApplied && !e.statusApplied.type.startsWith("buff:")) {
-      push(e.targetId, statusLabel(e.statusApplied.type).text, "#c084fc", 0.9, 2);
+      const s = statusLabel(e.statusApplied.type);
+      push(e.targetId, `${s.icon} ${s.text}`, "#c084fc", 0.85, 2);
     }
     // AoE casualties get their own damage pop.
     if (e.targets) for (const t of e.targets) {
