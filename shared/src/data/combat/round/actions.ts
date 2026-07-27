@@ -215,7 +215,7 @@ function basicAttack(unit: CombatUnit, ctx: CombatContext): void {
   const chargeMoves = [chargeSlide, knockMove].filter(Boolean) as { id: string; x: number }[];
   ctx.log.push({
     round: ctx.round, attackerName: unit.name, attackerIcon: icon,
-    targetName: target.name, damage, rawDamage,
+    targetName: target.name, damage, rawDamage, rollFactor: dr.rollFactor,
     dodged: false, crit, killed: target.hp <= 0,
     targetHp: Math.max(0, target.hp), targetMaxHp: target.maxHp,
     isEnemy: unit.isEnemy,

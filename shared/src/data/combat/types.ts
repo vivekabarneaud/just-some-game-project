@@ -224,6 +224,9 @@ export interface CombatLogEntry {
   targetId?: string;
   damage: number;
   rawDamage?: number;
+  /** Weapon-roll quality 0–1 (see DamageResult.rollFactor) — sizes the floating
+   *  damage number. Undefined → default size. */
+  rollFactor?: number;
   dodged: boolean;
   /** The avoid was specifically a Parry (STR deflect) rather than a Dodge — set
    *  alongside `dodged` so existing "avoided" rendering still works, and the

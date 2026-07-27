@@ -21,6 +21,11 @@ export interface DamageResult {
   damage: number;
   rawDamage: number;
   crit: boolean;
+  /** Where the weapon roll landed in its own [dmgMin, dmgMax] range: 0 = low
+   *  end, 1 = high end. Drives the floating-damage-text SIZE (a low roll shows
+   *  small, a high roll big — normalized per weapon, so a 3 from a 3–7 sword and
+   *  a 27 from a 27–32 sword are the same size). Undefined for magical hits. */
+  rollFactor?: number;
 }
 
 // ── Wounded penalty ──────────────────────────────────────────────
@@ -78,10 +83,13 @@ export function calcDamageResult(attacker: CombatUnit, defender: CombatUnit, opt
   // (a better weapon AND a stronger fighter both matter). Magical is unchanged
   // for now — INT-driven — until the caster spell-weapon pass (Phase 2).
   let rawDamage: number;
+  let rollFactor: number | undefined;
   if (magical) {
     rawDamage = Math.max(1, Math.floor(getMagicPower(attacker) * (0.7 + combatRandom() * 0.6)));
   } else {
-    const roll = attacker.dmgMin + Math.floor(combatRandom() * (attacker.dmgMax - attacker.dmgMin + 1));
+    const span = attacker.dmgMax - attacker.dmgMin;
+    const roll = attacker.dmgMin + Math.floor(combatRandom() * (span + 1));
+    rollFactor = span > 0 ? (roll - attacker.dmgMin) / span : 1; // 0 = low end, 1 = high end of the weapon's range
     const scale = 1 + getAttackPower(attacker) * ATTACK_STAT_SCALE;
     rawDamage = Math.max(1, Math.floor(roll * scale));
   }
@@ -113,5 +121,5 @@ export function calcDamageResult(attacker: CombatUnit, defender: CombatUnit, opt
   if (weaponBonus > 0) rawDamage = Math.floor(rawDamage * (1 + weaponBonus));
 
   const damage = Math.max(1, Math.floor(rawDamage * (1 - reductionPct)));
-  return { damage, rawDamage, crit };
+  return { damage, rawDamage, crit, rollFactor };
 }

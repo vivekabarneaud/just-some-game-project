@@ -1,4 +1,4 @@
-import { createMemo, For } from "solid-js";
+import { createMemo, createEffect, createSignal, onCleanup, untrack, For } from "solid-js";
 import type { CombatantSnapshot, CombatLogEntry } from "@medieval-realm/shared/data/combat";
 import CombatantCard, { type CombatStatus } from "./CombatantCard";
 import { statusLabel } from "./CombatLog";
@@ -125,8 +125,77 @@ export default function CombatBattlefield(props: {
 
   const cardFallen = (c: CombatantSnapshot) => derived().fallen.has(c.id) || (derived().hp.get(c.id) ?? c.hp) <= 0;
 
+  // ── Floating combat text (WoW-style pops that rise + fade over a combatant) ──
+  // Both sides, all events. Damage SIZE reflects the weapon-roll quality
+  // (rollFactor, normalized per weapon) with crit stacking extra size + gold.
+  type Floater = { key: number; xPct: number; yPx: number; text: string; color: string; sizeRem: number };
+  const [floaters, setFloaters] = createSignal<Floater[]>([]);
+  let floaterKey = 0;
+  const pendingTimeouts: ReturnType<typeof setTimeout>[] = [];
+  onCleanup(() => pendingTimeouts.forEach(clearTimeout));
+
+  const damageSizeRem = (rollFactor: number | undefined, crit: boolean) => {
+    const t = rollFactor ?? 0.5;      // undefined (magic/no-range) → mid size
+    let rem = 0.85 + t * 0.65;        // low roll ~0.85rem → high roll ~1.5rem
+    if (crit) rem *= 1.4;             // crit emphasis on top
+    return rem;
+  };
+
+  const spawnFloaters = (e: CombatLogEntry) => {
+    const batch: Floater[] = [];
+    const push = (targetId: string | undefined, text: string, color: string, sizeRem: number, stack = 0) => {
+      if (!targetId) return;
+      const c = props.roster.find((r) => r.id === targetId);
+      if (!c) return;
+      batch.push({ key: floaterKey++, xPct: leftPct(c), yPx: topPx(c) + stack * 15, text, color, sizeRem });
+    };
+    // Primary target: avoid → damage → heal → status.
+    if (e.dodged) push(e.targetId, e.parried ? "Parry" : "Dodge", "#cbd5e1", 1.0);
+    else if (e.damage > 0) push(e.targetId, `−${e.damage}`, e.crit ? "#fbbf24" : "#f87171", damageSizeRem(e.rollFactor, e.crit));
+    if (e.healed && e.healAmount) push(e.targetId, `+${e.healAmount}`, "#4ade80", 1.05, 1);
+    if (e.statusApplied && !e.statusApplied.type.startsWith("buff:")) {
+      push(e.targetId, statusLabel(e.statusApplied.type).text, "#c084fc", 0.9, 2);
+    }
+    // AoE casualties get their own damage pop.
+    if (e.targets) for (const t of e.targets) {
+      if (t.damage > 0) push(t.id, `−${t.damage}`, e.crit ? "#fbbf24" : "#f87171", damageSizeRem(e.rollFactor, e.crit));
+    }
+    if (!batch.length) return;
+    setFloaters((f) => [...f, ...batch]);
+    const keys = new Set(batch.map((b) => b.key));
+    pendingTimeouts.push(setTimeout(() => setFloaters((f) => f.filter((x) => !keys.has(x.key))), 900));
+  };
+
+  // Spawn on each single-step reveal (skip/jump → no floater spam).
+  let prevCount = props.shownCount;
+  createEffect(() => {
+    const c = props.shownCount;
+    if (c === prevCount + 1) {
+      const e = props.log[c - 1];
+      if (e) untrack(() => spawnFloaters(e));
+    }
+    prevCount = c;
+  });
+
   return (
     <div style={{ position: "relative", height: `${H()}px`, overflow: "hidden" }}>
+      <style>{`@keyframes floatUp {
+        0%   { opacity: 0; transform: translate(-50%, 2px) scale(0.8); }
+        15%  { opacity: 1; transform: translate(-50%, -6px) scale(1); }
+        100% { opacity: 0; transform: translate(-50%, -46px) scale(1); }
+      }`}</style>
+      <For each={floaters()}>
+        {(f) => (
+          <div style={{
+            position: "absolute",
+            left: `${f.xPct}%`, top: `${f.yPx}px`,
+            "font-size": `${f.sizeRem}rem`, "font-weight": "bold",
+            color: f.color, "text-shadow": "0 1px 3px rgba(0,0,0,0.9)",
+            "white-space": "nowrap", "pointer-events": "none", "z-index": "5",
+            animation: "floatUp 0.9s ease-out forwards",
+          }}>{f.text}</div>
+        )}
+      </For>
       <For each={props.roster}>
         {(c) => (
           <div style={{
