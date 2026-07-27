@@ -68,7 +68,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/gather_timber.png",
     slots: [{ class: "any" }, { class: "any" }],
     duration: 400, // a fair way south — a longer haul than the near gathers
-    rewards: [{ resource: "apples", amount: 8 }], // the discovery haul, a good first pick
+    rewards: [{ resource: "apples", amount: 20 }], // a big, generous tree — the pristine first pick, worth the trip
     deployCost: 5,
     difficulty: 1,
     minGuildLevel: 1,
@@ -85,7 +85,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/gather_timber.png",
     slots: [{ class: "any" }, { class: "any" }],
     duration: 350,
-    rewards: [{ resource: "apples", amount: 6 }], // modest yearly return
+    rewards: [{ resource: "apples", amount: 16 }], // still a generous yearly haul — worth the walk south every autumn
     deployCost: 4,
     difficulty: 1,
     minGuildLevel: 1,
