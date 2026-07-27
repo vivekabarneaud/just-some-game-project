@@ -39,6 +39,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     minGuildLevel: 1,
     tags: ["combat", "survival"],
     encounters: [{ enemyId: "rock_skitter", count: 5 }],
+    urgent: true, // distinct outline — it's blocking the quarry
     requires: { missionDone: "__quarry_spider_gate__" }, // sentinel: never met → forced-only
   },
   {
@@ -55,7 +56,30 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     minGuildLevel: 1,
     tags: ["combat", "survival"],
     encounters: [{ enemyId: "rock_skitter", count: 3 }, { enemyId: "cave_spider", count: 2 }],
+    urgent: true,
     requires: { missionDone: "__quarry_spider_gate__" }, // sentinel: never met → forced-only
+  },
+  // ── Wild Boar Hunt — FORCED on food scarcity (larder in deficit + nearly
+  //    empty). The survival loop's answer to a food crisis: meat on four legs.
+  //    Forced-only (sentinel requires); recurring (NOT unique) so it can return
+  //    each time the food runs low. Rewards meat (a hunt legitimately does), plus
+  //    the wild boar's own loot. See docs/DESIGN_TIER1_GEAR.md §Boar missions. ──
+  {
+    id: "wild_boar_hunt",
+    name: "Lean Times",
+    description: "The larder is down to scrapings and nothing is coming in. But Gareth came down off the watchtower swearing he had glassed a sounder of wild boar rooting the thornbrake past the old field: meat on four legs, enough to carry us a while yet. Send a team to bring some down before they move on. It is a fair hunt, not a cull. Take what the larder needs and let the rest run.",
+    icon: "🐗",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/boar_hunt.png",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 300, // a hunt out past the old field — quick, the larder can't wait
+    rewards: [{ resource: "meat", amount: 20 }],
+    deployCost: 5,
+    difficulty: 2,
+    minGuildLevel: 1,
+    tags: ["combat", "outdoor", "survival"],
+    encounters: [{ enemyId: "wild_boar", count: 2 }],
+    urgent: true, // distinct outline — the food crisis needs an answer now
+    requires: { missionDone: "__forced_only__" }, // sentinel: never met → forced-only
   },
 
   // ── "The Maddened Herd" — rabid boars → the Tainted Spring ──

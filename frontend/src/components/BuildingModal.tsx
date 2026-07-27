@@ -189,7 +189,21 @@ export default function BuildingModal(props: Props) {
     ? Math.min(0.5, state.keptAnimals.reduce((b, a) => a.job === "hunt" ? b + 0.08 * Math.max(1, a.huntLevel) : b, 0))
     : 0;
   const gatherMult = () => prodSeasonMod() * (prodStaff()?.multiplier ?? 1) * (1 + huntDogBoost());
-  const currentProdRate = () => Math.floor((currentLevel()?.production?.rate ?? 0) * gatherMult());
+  // Quarry-spider gate: while the quarry is dug deeper than the spiders are
+  // cleared, it yields at the PREVIOUS level's rate until "Clear the Diggings"
+  // is done. Mirrors the engine's yield-gate so the modal shows the true rate.
+  const quarrySpiderGate = () => {
+    if (id() !== "quarry" || level() === 0) return null;
+    const cleared = state.quarrySpidersClearedLevel ?? level();
+    if (level() <= cleared) return null;
+    const gatedRate = building()?.levels[Math.max(0, cleared - 1)]?.production?.rate ?? 0;
+    return { cleared, gatedRate };
+  };
+  const currentProdRate = () => {
+    const gate = quarrySpiderGate();
+    const baseRate = gate ? gate.gatedRate : (currentLevel()?.production?.rate ?? 0);
+    return Math.floor(baseRate * gatherMult());
+  };
   // Hunting camp secondary yields (leather ×1.0, bone ×0.6 per level), same
   // modifiers. Kept fractional (they accrue slowly) so small rates still read.
   const huntLeatherRate = () => level() * 1.0 * gatherMult();
@@ -561,6 +575,18 @@ export default function BuildingModal(props: Props) {
                             ? prodStatus().map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join(" · ")
                             : "Steady — staffed and in season, full output."}
                         </div>
+                        {/* Quarry-spider gate: yield held at the previous level until
+                            the diggings are cleared. Point the player at the mission. */}
+                        <Show when={quarrySpiderGate()}>
+                          <div style={{ "margin-top": "8px", padding: "8px 10px", background: "rgba(251, 146, 60, 0.12)", border: "1px solid #fb923c", "border-radius": "6px" }}>
+                            <div style={{ "font-size": "0.82rem", color: "#fb923c", "font-weight": "bold" }}>
+                              🕷️ Spiders in the new diggings
+                            </div>
+                            <div style={{ "font-size": "0.78rem", color: "var(--text-muted)", "margin-top": "3px" }}>
+                              The deeper cut woke a nest. Stone holds at the Level {quarrySpiderGate()!.cleared} rate until the crew can work safely. Send adventurers on <b>Clear the Diggings</b> (Adventurer's Guild) to drive them back and reach full output.
+                            </div>
+                          </div>
+                        </Show>
                       </div>
                     )}
                   </Show>

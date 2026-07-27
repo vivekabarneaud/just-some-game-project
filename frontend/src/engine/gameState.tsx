@@ -3154,6 +3154,10 @@ export const FOUNDING_WINTER_RATION = 0.7;
  *  FAMINE_RATION_THRESHOLD_HOURS of food — buys recovery time before it hits 0. */
 export const FAMINE_RATION = 0.6;
 export const FAMINE_RATION_THRESHOLD_HOURS = 6;
+/** Larder is in deficit AND under this many game-hours from empty → the Wild
+ *  Boar Hunt is forced onto the board (meat on four legs). Tunable; a touch
+ *  tighter than the famine-ration threshold so it reads as the emergency. */
+export const WILD_BOAR_HUNT_FOOD_HOURS = 3;
 /** Hours of continuous starvation for the work penalty to reach its floor, and
  *  the floor itself (10% = a 90% cut to wood/stone/gold production). */
 export const FAMINE_WORK_RAMP_HOURS = 12;
@@ -5648,6 +5652,16 @@ export function GameProvider(props: ParentProps) {
               const quarry = s.buildings.find((b) => b.buildingId === "quarry" && b.level > 0);
               if (quarry && quarry.level > (s.quarrySpidersClearedLevel ?? 1)) {
                 forceMission(`clear_diggings_${quarry.level}`);
+              }
+            }
+            // Food crisis: larder in deficit AND running out within
+            // WILD_BOAR_HUNT_FOOD_HOURS → surface the Wild Boar Hunt (meat on
+            // four legs) so the survival loop has an active answer.
+            {
+              const net = s.netFoodPerHour ?? 0;
+              const hoursLeft = net < 0 ? getTotalFood(s.foods) / -net : Infinity;
+              if (hoursLeft < WILD_BOAR_HUNT_FOOD_HOURS) {
+                forceMission("wild_boar_hunt");
               }
             }
           }

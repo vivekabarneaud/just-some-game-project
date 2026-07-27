@@ -67,7 +67,8 @@ export default function MissionCard(props: MissionCardProps) {
   const fresh = () => getMission(mission().id) ?? mission();
   const isStory = () => !!props.storyChapter;
   const isExped = () => isExpedition(fresh());
-  const isSideChain = () => !isStory() && !isExped() && !!fresh().sideChain;
+  const isUrgent = () => !isStory() && !isExped() && !!(fresh() as any).urgent;
+  const isSideChain = () => !isStory() && !isExped() && !isUrgent() && !!fresh().sideChain;
   const sideChainName = () => fresh().sideChain?.name;
   const guildLevel = () => actions.getGuildLevel();
   const isLocked = () => isExped() && guildLevel() < fresh().minGuildLevel;
@@ -85,6 +86,7 @@ export default function MissionCard(props: MissionCardProps) {
         ...(image() ? { padding: "0", overflow: "hidden" } : {}),
         ...(isStory() ? { border: "2px solid var(--accent-gold)" } : {}),
         ...(isExped() && !isStory() ? { border: "2px solid #a78bfa" } : {}),
+        ...(isUrgent() ? { border: "2px solid #fb923c" } : {}),
         ...(isSideChain() ? { border: "2px solid #2dd4bf" } : {}),
       }}
     >
@@ -135,12 +137,17 @@ export default function MissionCard(props: MissionCardProps) {
                 ⚔️ Expedition{(fresh() as any).biome ? ` · ${(fresh() as any).biome}` : ""}
               </div>
             </Show>
+            <Show when={isUrgent()}>
+              <div style={{ "font-size": "0.6rem", color: "#fb923c", "margin-bottom": "2px", "text-transform": "uppercase", "letter-spacing": "0.5px", opacity: "0.9" }}>
+                ⚠ At the settlement
+              </div>
+            </Show>
             <Show when={isSideChain()}>
               <div style={{ "font-size": "0.6rem", color: "#2dd4bf", "margin-bottom": "2px", "text-transform": "uppercase", "letter-spacing": "0.5px", opacity: "0.9" }}>
                 ✦ {sideChainName()}
               </div>
             </Show>
-            <div class="building-card-title" style={{ color: isStory() ? "var(--accent-gold)" : isExped() ? "#a78bfa" : isSideChain() ? "#2dd4bf" : undefined }}>
+            <div class="building-card-title" style={{ color: isStory() ? "var(--accent-gold)" : isExped() ? "#a78bfa" : isUrgent() ? "#fb923c" : isSideChain() ? "#2dd4bf" : undefined }}>
               {mission().name}
             </div>
           </div>
@@ -161,6 +168,11 @@ export default function MissionCard(props: MissionCardProps) {
               ⚔️ Expedition{(fresh() as any).biome ? ` · ${(fresh() as any).biome}` : ""}
             </div>
           </Show>
+          <Show when={isUrgent()}>
+            <div style={{ "font-size": "0.6rem", color: "#fb923c", "text-transform": "uppercase", "letter-spacing": "0.5px", "margin-bottom": "4px" }}>
+              ⚠ At the settlement
+            </div>
+          </Show>
           <Show when={isSideChain()}>
             <div style={{ "font-size": "0.6rem", color: "#2dd4bf", "text-transform": "uppercase", "letter-spacing": "0.5px", "margin-bottom": "4px" }}>
               ✦ {sideChainName()}
@@ -173,7 +185,7 @@ export default function MissionCard(props: MissionCardProps) {
           <div class="building-card-header" style={{ "margin-top": "14px" }}>
             <div class="building-card-icon">{mission().icon}</div>
             <div>
-              <div class="building-card-title" style={{ color: isStory() ? "var(--accent-gold)" : isSideChain() ? "#2dd4bf" : undefined }}>
+              <div class="building-card-title" style={{ color: isStory() ? "var(--accent-gold)" : isUrgent() ? "#fb923c" : isSideChain() ? "#2dd4bf" : undefined }}>
                 {mission().name}
               </div>
               <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>

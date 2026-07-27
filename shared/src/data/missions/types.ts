@@ -102,6 +102,11 @@ export interface MissionTemplate {
    *  STAGED_MISSIONS — the holding pen we pull from and rework. Un-stage by
    *  moving it back into its tier array and dropping this flag. */
   staged?: boolean;
+  /** Urgent settlement-side response (a spider infestation in the quarry, a
+   *  food crisis) — usually forced onto the board from game state. Drives the
+   *  card's distinct orange outline + "⚠ At the settlement" banner so the player
+   *  can't miss it, and reads apart from story (gold) / side-chain (teal). */
+  urgent?: boolean;
   requires?: MissionRequirements; // conditions for this mission to appear on the board
   /** Chronicle entry surfaced when this mission is claimed (on success). Story
    *  missions have always had this; side-chain beats can carry one too. */

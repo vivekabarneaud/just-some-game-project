@@ -18,7 +18,7 @@ describe("Quarry-spider gate missions", () => {
     expect(l3.encounters?.some((e) => e.enemyId === "cave_spider")).toBe(true);
   });
 
-  it("are FORCED-ONLY: never surface on the random board, even with a deep quarry", () => {
+  it("are FORCED-ONLY and flagged urgent (distinct outline)", () => {
     const ctx: any = {
       guildLevel: 5,
       seed: 12345,
@@ -29,5 +29,22 @@ describe("Quarry-spider gate missions", () => {
     const boardIds = new Set(generateMissionBoard(ctx).map((m) => m.id));
     expect(boardIds.has("clear_diggings_2")).toBe(false);
     expect(boardIds.has("clear_diggings_3")).toBe(false);
+    expect((byId("clear_diggings_2") as any).urgent).toBe(true);
+    expect((byId("clear_diggings_3") as any).urgent).toBe(true);
+  });
+});
+
+describe("Wild Boar Hunt (food-scarcity mission)", () => {
+  it("rewards meat, is urgent, and is forced-only (off the random board)", () => {
+    const hunt = byId("wild_boar_hunt")!;
+    expect(hunt).toBeTruthy();
+    expect(hunt.rewards?.some((r) => r.resource === "meat")).toBe(true);
+    expect((hunt as any).urgent).toBe(true);
+    expect(hunt.encounters?.some((e) => e.enemyId === "wild_boar")).toBe(true);
+    const ctx: any = {
+      guildLevel: 5, seed: 999, completedStoryMissions: [], completedUniqueMissionIds: [],
+      buildings: [{ buildingId: "adventurers_guild", level: 3, damaged: false }],
+    };
+    expect(new Set(generateMissionBoard(ctx).map((m) => m.id)).has("wild_boar_hunt")).toBe(false);
   });
 });
