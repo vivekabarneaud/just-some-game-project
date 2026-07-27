@@ -50,9 +50,27 @@ export function getMagicPower(unit: CombatUnit): number {
 
 /** Fraction of incoming physical damage absorbed by defense. Diminishing returns curve. */
 export function getDefenseReduction(unit: CombatUnit): number {
-  let def = unit.isEnemy ? unit.vit * 3 : unit.gearDefense;
+  // Physical mitigation pool: base (enemy VIT×3 / adventurer gearDefense) + any
+  // raw.armor from gear/talents. def/(def+150) → % reduction.
+  let def = (unit.isEnemy ? unit.vit * 3 : unit.gearDefense) + (unit.raw?.armor ?? 0);
   if (unit.defenseBoost) def = Math.floor(def * (1 + unit.defenseBoost.pct / 100));
   return def / (def + 150);
+}
+
+/** Avoidance cap — even a stacked dodge+parry tank can't become unhittable. */
+export const MAX_AVOIDANCE = 75;
+
+/** Hit resolution (Combat Foundation §46): one avoidance roll. The defender's
+ *  Dodge (evade) plus Parry (deflect — PHYSICAL attacks only, you can't parry a
+ *  fireball) minus the attacker's Accuracy, clamped to [0, MAX_AVOIDANCE]. On a
+ *  successful roll the attack is negated (0 damage). `parried` picks the flavor
+ *  when parry was the larger contributor. */
+export function getAvoidance(attacker: CombatUnit, target: CombatUnit): { chance: number; parried: boolean } {
+  const physical = !dealsMagicalDamage(attacker);
+  const dodge = getDodgeChance(target);
+  const parry = physical ? getParry(target) : 0;
+  const chance = Math.max(0, Math.min(MAX_AVOIDANCE, dodge + parry - getAccuracy(attacker)));
+  return { chance, parried: physical && parry > dodge };
 }
 
 /** Fraction of incoming magical damage absorbed by wisdom-driven magic resistance. */

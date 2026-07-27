@@ -225,6 +225,10 @@ export interface CombatLogEntry {
   damage: number;
   rawDamage?: number;
   dodged: boolean;
+  /** The avoid was specifically a Parry (STR deflect) rather than a Dodge — set
+   *  alongside `dodged` so existing "avoided" rendering still works, and the
+   *  playback/floating-text can label it "Parry!" vs "Dodge!". */
+  parried?: boolean;
   crit: boolean;
   killed: boolean;
   /** Set on the killing-blow entry once death rolls have been applied:

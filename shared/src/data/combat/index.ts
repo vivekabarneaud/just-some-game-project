@@ -15,7 +15,7 @@ import { buildResult } from "./result.js";
 export type { CombatUnit, CombatLogEntry, CombatResult, CombatantSnapshot, LootResult, CombatContext, AITier, TauntImmunity, CombatKind } from "./types.js";
 export { setCombatSeed, combatRandom } from "./prng.js";
 export { calcDamageResult, woundedDamageMult } from "./damage.js";
-export { getAttackPower, getMagicPower, getCritChance, getDodgeChance, getInitiative, getDefenseReduction, getMagicResistReduction, dealsMagicalDamage, ATTACK_STAT_SCALE, UNARMED_RANGE, rarityWeaponRange, derivedDamageRange } from "./stats.js";
+export { getAttackPower, getMagicPower, getCritChance, getDodgeChance, getAccuracy, getParry, getAvoidance, MAX_AVOIDANCE, getInitiative, getDefenseReduction, getMagicResistReduction, dealsMagicalDamage, ATTACK_STAT_SCALE, UNARMED_RANGE, rarityWeaponRange, derivedDamageRange } from "./stats.js";
 export { pickTarget, pickTargetForAdventurer } from "./targeting.js";
 export { buildAdventurerUnit, buildEnemyUnits, buildNpcAllyUnit, calcFamilyBonuses } from "./units.js";
 export type { AIBehavior, AIState, AITransition } from "./ai/index.js";

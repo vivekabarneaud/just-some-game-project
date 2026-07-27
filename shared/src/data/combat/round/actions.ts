@@ -1,6 +1,6 @@
 import type { CombatContext, CombatUnit } from "../types.js";
 import { combatRandom } from "../prng.js";
-import { getDodgeChance, getInitiative } from "../stats.js";
+import { getAvoidance, getInitiative } from "../stats.js";
 import { calcDamageResult } from "../damage.js";
 import { pickTarget, pickTargetForAdventurer } from "../targeting.js";
 import { tryClassAbility, tryEnemyAbility } from "../abilities/index.js";
@@ -147,12 +147,16 @@ function basicAttack(unit: CombatUnit, ctx: CombatContext): void {
   const chargeSlide = charged ? { id: unit.id, x: Math.round(unit.x ?? 0) } : undefined;
   const icon = charged ? "💨" : (unit.isEnemy ? unit.icon : (unit.isMagical ? "🔮" : "⚔️"));
 
-  if (combatRandom() * 100 < getDodgeChance(target)) {
+  // Hit resolution: one avoidance roll (Dodge + Parry − Accuracy, capped). On a
+  // successful roll the attack is negated; `parried` picks the flavor.
+  const avoid = getAvoidance(unit, target);
+  if (combatRandom() * 100 < avoid.chance) {
+    const verb = avoid.parried ? "parries" : "dodges";
     ctx.log.push({
       round: ctx.round, attackerName: unit.name, attackerIcon: icon,
-      targetName: target.name, damage: 0, dodged: true, crit: false, killed: false,
+      targetName: target.name, damage: 0, dodged: true, parried: avoid.parried, crit: false, killed: false,
       targetHp: target.hp, targetMaxHp: target.maxHp, isEnemy: unit.isEnemy,
-      ...(charged ? { abilityName: "Goring Charge", note: `${unit.name} charges ${chargePaces} paces at ${target.name}, who dodges` } : {}),
+      ...(charged ? { abilityName: "Goring Charge", note: `${unit.name} charges ${chargePaces} paces at ${target.name}, who ${verb}` } : {}),
       ...(chargeSlide ? { moves: [chargeSlide] } : {}),
     });
     return;
