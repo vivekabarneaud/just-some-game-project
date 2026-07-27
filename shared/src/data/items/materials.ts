@@ -11,6 +11,10 @@ export interface MaterialDefinition {
   description: string;   // flavor text
   category: MaterialCategory;
   tier: 1 | 2 | 3 | 4 | 5;  // rarity tier, matches enemy tiers
+  /** Per-stack inventory cap. Unset = uncapped. Set on curios that shouldn't
+   *  pile up (e.g. the bog-witch's hooves/skull); overflow on acquisition is
+   *  discarded. Value TBD for cloven_hoof/boar_skull during the ch2 pacing pass. */
+  maxStack?: number;
 }
 
 export const MATERIALS: MaterialDefinition[] = [

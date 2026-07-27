@@ -137,6 +137,10 @@ export interface ItemDefinition {
   recipeId: string;
   /** Consumable = destroyed after one mission (potions) */
   consumable: boolean;
+  /** Per-stack inventory cap. Unset = uncapped. Set on things that shouldn't
+   *  accumulate (quest oddities, curios); overflow on acquisition is discarded.
+   *  Enforced at inventory-add points (loot / craft output / mission loot). */
+  maxStack?: number;
   /** Item sprite image path */
   image?: string;
   /** Two-handed weapon — equipping clears offHand */

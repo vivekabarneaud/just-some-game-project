@@ -254,6 +254,8 @@ import {
   type ItemSlot,
   getItem,
   getItemByRecipe,
+  getMaxStack,
+  clampStackAdd,
   getEquipmentStats,
   getPotionInfo,
   MATCHED_FOOD_LOYALTY_BONUS,
@@ -3164,6 +3166,21 @@ function overcrowdingPenalty(occupancy: number, maxPop: number): number {
 const _HERB_IDS = new Set(HERBS.map((h) => h.id));
 const _EXOTIC_IDS = new Set(EXOTIC_IDS);
 
+/** Add `amount` of an item/material to inventory, respecting its per-stack cap
+ *  (getMaxStack; Infinity when uncapped, the common case). Overflow beyond the
+ *  cap is discarded, mirroring how settlement storage caps clamp wood/food.
+ *  Use for ACQUISITION only (loot, craft output, mission loot) — never for
+ *  equip/unequip round-trips, which must never lose the player's own gear.
+ *  Returns the amount actually added. */
+function addInventoryItem(s: GameState, itemId: string, amount: number): number {
+  const existing = s.inventory.find((i) => i.itemId === itemId);
+  const added = clampStackAdd(existing?.quantity ?? 0, amount, getMaxStack(itemId));
+  if (added <= 0) return 0;
+  if (existing) existing.quantity += added;
+  else s.inventory.push({ itemId, quantity: added });
+  return added;
+}
+
 /** Grant a single reward to the state, dispatching by resource type. Shared
  *  by quest-claim and mission-claim paths so they stay in sync (previously
  *  the quest path only handled gold/wood/stone/wool/astralShards and
@@ -3200,10 +3217,9 @@ function grantReward(
   } else if (res === "honey") {
     s.honey = s.honey + reward.amount;
   } else {
-    // Unknown to the resource counters — treat as a material/item entry.
-    const existing = s.inventory.find((i) => i.itemId === res);
-    if (existing) existing.quantity += reward.amount;
-    else s.inventory.push({ itemId: res, quantity: reward.amount });
+    // Unknown to the resource counters — treat as a material/item entry
+    // (monster-drop materials, gear). Respects the item's maxStack.
+    addInventoryItem(s, res, reward.amount);
   }
 }
 
@@ -4593,22 +4609,16 @@ export function GameProvider(props: ParentProps) {
               // Raw crafting materials (e.g. steel) — no category counter, no
               // equippable item; they live in the generic inventory.
               else {
-                const existing = s.inventory.find((i) => i.itemId === res);
-                if (existing) existing.quantity += amt;
-                else s.inventory.push({ itemId: res, quantity: amt });
+                addInventoryItem(s, res, amt);
               }
               // Also add equippable item or building tool to inventory
               const itemDef = getItemByRecipe(recipe.id);
               if (itemDef) {
-                const existing = s.inventory.find((i) => i.itemId === itemDef.id);
-                if (existing) existing.quantity += amt;
-                else s.inventory.push({ itemId: itemDef.id, quantity: amt });
+                addInventoryItem(s, itemDef.id, amt);
               }
               const toolDef = getBuildingToolByRecipe(recipe.id);
               if (toolDef) {
-                const existing = s.inventory.find((i) => i.itemId === toolDef.id);
-                if (existing) existing.quantity += amt;
-                else s.inventory.push({ itemId: toolDef.id, quantity: amt });
+                addInventoryItem(s, toolDef.id, amt);
               }
               const remaining = (craft.quantity ?? 1) - 1;
               pushEvent(s, "building_completed", recipe.icon, `Crafted ${recipe.name}${remaining > 0 ? ` (${remaining} remaining)` : ""}`);
@@ -8239,9 +8249,7 @@ export function GameProvider(props: ParentProps) {
         // the pack), so the chest reveal actually hands over the drops.
         for (const l of mission.loot ?? []) {
           if (l.type === "item" && l.itemId) {
-            const inv = s.inventory.find((i) => i.itemId === l.itemId);
-            if (inv) inv.quantity += l.amount;
-            else s.inventory.push({ itemId: l.itemId, quantity: l.amount });
+            addInventoryItem(s, l.itemId, l.amount);
           } else if (l.resource) {
             grantReward(s, { resource: l.resource, amount: l.amount }, caps);
           }

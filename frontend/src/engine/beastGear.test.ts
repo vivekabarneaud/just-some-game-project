@@ -33,13 +33,13 @@ describe("wolf/boar gear — craftable and wired", () => {
     expect(unit.raw?.presence).toBe(5);
     expect(unit.raw?.crit).toBe(3);
     // +5 Presence lifts the tank's threat pull above a bare warrior.
-    expect(unit.threatMultiplier).toBeGreaterThan(buildAdventurerUnit(warrior("t2")).threatMultiplier);
+    expect(unit.threatMultiplier ?? 0).toBeGreaterThan(buildAdventurerUnit(warrior("t2")).threatMultiplier ?? 0);
   });
 
   it("the Hunter's Cloak -5 Presence sheds threat", () => {
     const a = warrior("c");
     a.equipment.cloak = "hunters_cloak";
-    expect(buildAdventurerUnit(a).threatMultiplier)
-      .toBeLessThan(buildAdventurerUnit(warrior("c2")).threatMultiplier);
+    expect(buildAdventurerUnit(a).threatMultiplier ?? 0)
+      .toBeLessThan(buildAdventurerUnit(warrior("c2")).threatMultiplier ?? 0);
   });
 });

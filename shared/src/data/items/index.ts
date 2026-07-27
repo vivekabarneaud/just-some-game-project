@@ -11,6 +11,7 @@ import { CLASS_WEAPON_ACCESS } from "./types.js";
 import { EQUIPMENT_ITEMS } from "./equipment/index.js";
 import { POTION_ITEMS } from "./potions.js";
 import { FOOD_ITEMS } from "./foods.js";
+import { getMaterial } from "./materials.js";
 
 export const ITEMS: ItemDefinition[] = [...EQUIPMENT_ITEMS, ...POTION_ITEMS, ...FOOD_ITEMS];
 
@@ -20,6 +21,21 @@ export function getItem(id: string): ItemDefinition | undefined {
 
 export function getItemByRecipe(recipeId: string): ItemDefinition | undefined {
   return ITEMS.find((i) => i.recipeId === recipeId);
+}
+
+/** Per-stack inventory cap for an item/material id (equipment + consumables via
+ *  ITEMS, monster-drop materials via MATERIALS). Infinity when unset — the
+ *  common case. Enforced by the engine's inventory-add helper. */
+export function getMaxStack(id: string): number {
+  return getItem(id)?.maxStack ?? getMaterial(id)?.maxStack ?? Infinity;
+}
+
+/** How much can actually be added to a stack holding `current`, given a `cap`.
+ *  Overflow beyond the cap is dropped (mirrors settlement storage clamps).
+ *  Pure so both the engine's inventory-add and its tests share one rule. */
+export function clampStackAdd(current: number, incoming: number, cap: number): number {
+  if (incoming <= 0) return 0;
+  return Math.max(0, Math.min(incoming, cap - current));
 }
 
 const ALL_GEAR_SLOTS = ["head", "chest", "legs", "boots", "gloves", "cloak", "mainHand", "offHand", "ring1", "ring2", "amulet", "trinket"] as const;
