@@ -39,6 +39,10 @@ export function CardFrame(props: {
   ornamentInset?: number;
   /** Stacking order over the card content (default 5). */
   z?: number;
+  /** Soft gradient fade along the bottom edge — so content dissolves into the
+   *  lower frame rule instead of ending abruptly in the exposed strip below it.
+   *  Opt-in (modals want it; small cards don't). */
+  bottomFade?: boolean;
 }) {
   const frameUrl = () => props.frameSrc ?? `/images/frames/item_frame_${props.rarity ?? "common"}.png`;
   const slice = () => props.slice ?? RARITY_SLICE[props.rarity ?? ""] ?? 34;
@@ -53,6 +57,15 @@ export function CardFrame(props: {
         border: `${border()}px solid transparent`,
         "border-image": `url(${frameUrl()}) ${slice()} stretch`,
       }} />
+      <Show when={props.bottomFade}>
+        <div aria-hidden="true" style={{
+          position: "absolute", left: "0", right: "0", bottom: "0",
+          height: `${Math.round(border() * 2.4)}px`,
+          background: "linear-gradient(to bottom, transparent, rgba(0,0,0,0.42))",
+          "pointer-events": "none",
+          "z-index": `${(props.z ?? 5) - 1}`,
+        }} />
+      </Show>
       <Show when={ornament()}>
         <FrameOrnaments
           vUrl={ornament()!}

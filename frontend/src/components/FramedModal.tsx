@@ -67,7 +67,7 @@ export default function FramedModal(props: {
           </div>
 
           {/* Gold ornament frame, drawn OVER the edges (banner bleeds underneath). */}
-          <CardFrame rarity="uncommon" border={20} />
+          <CardFrame rarity="uncommon" border={20} bottomFade />
         </div>
       </div>
     </Portal>

@@ -409,7 +409,7 @@ export default function LootModal(props: Props) {
         </div>
       </div>
       {/* Rank frame — drawn over the card edges; flourishes on higher ranks. */}
-      <CardFrame rarity={frame().rarity} border={20} />
+      <CardFrame rarity={frame().rarity} border={20} bottomFade />
       </div>
     </div>
     </>
