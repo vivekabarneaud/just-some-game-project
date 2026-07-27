@@ -43,7 +43,7 @@ Related: [[DESIGN_POSITIONAL_COMBAT.md]] (the 1D layer that consumes these), the
 | **Initiative** | **DEX + WIS (equal weight)** | turn order. WIS no longer halved: an old wise wizard barely moves but casts the fastest spell and acts first. |
 | **Armor** | gear | physical mitigation. Raw armor on gear/talents. |
 
-### Hit resolution (attacker vs. defender)
+### Hit resolution (attacker vs. defender) — ✅ BUILT 2026-07-27
 
 Everyone attacks and defends with the same knobs (uniform schema — enemies dodge and parry too):
 
@@ -51,7 +51,7 @@ Everyone attacks and defends with the same knobs (uniform schema — enemies dod
 2. **Crit?** on a landed hit, roll the attacker's **Crit**.
 3. **Damage** = STR-scaled weapon damage − Armor (physical) / Resistance (by school), × crit.
 
-Exact formulas + whether Parry fully negates vs. reduces/counters → pinned at build time.
+**Pinned at build (2026-07-27):** `getAvoidance = clamp(Dodge + Parry(physical only) − Accuracy, 0, 75)`; one roll, on avoid the attack **fully negates** (reduce/counter deferred, e.g. a future riposte talent). Parry gated on physical via `dealsMagicalDamage`. `raw.armor` now joins the physical mitigation pool in `getDefenseReduction`. Combat events carry a `parried` flag (alongside `dodged`) for "Parry!" vs "Dodge!" flavor. No separate miss — non-landing is always the defender's dodge/parry. `getAvoidance`/`MAX_AVOIDANCE` in combat/stats.ts; guarded by `hitResolution.test.ts`. Still inert: `accuracy`/`parry`/`armor` are now LIVE; magic power (INT) + resistances remain deferred (§5, no casters at novice tier).
 
 ### Damage types & resistances
 
