@@ -44,7 +44,7 @@ Honeypaw's sibling and opposite temperament: an **unconditional provider** — a
 | Season | Gather (peaceful, pool) | Hunt (combat, scarcity) |
 |---|---|---|
 | Spring (the hungry gap) | **Bee-Tree** ✅ · **Fish Run** ✅ · First Greens | — |
-| Summer | Berry Thickets | — |
+| Summer | **Berry Thickets** ✅ | — |
 | Autumn | **Apple Tree** ✅⭐ · Mushroom Foraging | — |
 | Winter | — | **Wild Boar Hunt** ✅ · The Deer Yard |
 

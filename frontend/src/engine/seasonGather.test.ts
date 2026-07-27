@@ -49,6 +49,18 @@ describe("The Fish Run — simple recurring spring gather (no arc)", () => {
   });
 });
 
+describe("The Berry Thickets — simple recurring summer gather (no arc)", () => {
+  it("is a peaceful summer-gated recurring gather rewarding berries", () => {
+    const b = byId("berry_thickets")!;
+    expect(b.unique).toBeFalsy();
+    expect(b.guaranteed).toBe(true);
+    expect(b.encounters ?? []).toHaveLength(0);
+    expect(b.rewards?.some((r) => r.resource === "berries")).toBe(true);
+    expect(meetsRequirements(b.requires, ctx({ season: "summer" }))).toBe(true);
+    expect(meetsRequirements(b.requires, ctx({ season: "spring" }))).toBe(false);
+  });
+});
+
 describe("The Old Apple Tree — autumn gather, discovery → routine", () => {
   it("A is a unique, peaceful autumn discovery rewarding apples", () => {
     const a = byId("apple_tree_first")!;

@@ -111,6 +111,24 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     guaranteed: true,
     requires: { season: "spring" },
   },
+  // ── The Berry Thickets (summer seasonal gather) — a simple recurring gather,
+  //    no arc. High-summer plenty: easy pickings before they spoil. ──
+  {
+    id: "berry_thickets",
+    name: "The Berry Thickets",
+    description: "High summer, and the bramble thickets along the east ridge are hanging heavy: blackberries, bilberries, whatever the birds have not already stripped. It is easy work and good eating, but the fruit does not keep and the birds are quicker than we are, so it wants doing now, all hands and every basket we own. Send a party up to pick the ridge clean before the season turns.",
+    icon: "🫐",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/gather_timber.png",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 250, // close, easy summer picking — a shorter trip than the far gathers
+    rewards: [{ resource: "berries", amount: 20 }],
+    deployCost: 3,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["outdoor", "peaceful"],
+    guaranteed: true,
+    requires: { season: "summer" },
+  },
 {
     id: "quarry_expedition_first",
     name: "Quarry Expedition",
