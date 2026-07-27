@@ -60,8 +60,8 @@ export function CardFrame(props: {
       <Show when={props.bottomFade}>
         <div aria-hidden="true" style={{
           position: "absolute", left: "0", right: "0", bottom: "0",
-          height: `${Math.round(border() * 2.4)}px`,
-          background: "linear-gradient(to bottom, transparent, rgba(0,0,0,0.42))",
+          height: `${Math.round(border() * 1.5)}px`,
+          background: "linear-gradient(to bottom, transparent, rgba(0,0,0,0.6))",
           "pointer-events": "none",
           "z-index": `${(props.z ?? 5) - 1}`,
         }} />
