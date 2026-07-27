@@ -21,6 +21,7 @@ export { buildAdventurerUnit, buildEnemyUnits, buildNpcAllyUnit, calcFamilyBonus
 export type { AIBehavior, AIState, AITransition } from "./ai/index.js";
 export { DEFAULT_BEHAVIOR } from "./ai/index.js";
 export { addDamageThreat, addHealThreat, decayAllThreat, applyMissionAllyBaselineThreat, getThreat } from "./threat.js";
+export { luckLootMultiplier, LUCK_CHANCE_PER_POINT } from "./result.js";
 
 const MAX_ROUNDS = 20;
 

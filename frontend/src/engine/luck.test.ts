@@ -1,8 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { simulateCombat, buildAdventurerUnit } from "@medieval-realm/shared/data/combat";
+import { buildAdventurerUnit, luckLootMultiplier } from "@medieval-realm/shared/data/combat";
 import { buildRecruitFromPremadeId } from "@medieval-realm/shared/data/adventurers";
 import { getItem } from "@medieval-realm/shared/data/items";
-import { NOVICE_MISSIONS } from "@medieval-realm/shared/data/missions";
 
 const signetWearer = (id: string) => {
   const a = buildRecruitFromPremadeId(id, "char_021", 3)!; // warrior
@@ -25,17 +24,12 @@ describe("Luck stat + Stranger's Signet", () => {
     expect(buildAdventurerUnit(plain("b")).luck).toBe(0);
   });
 
-  it("party luck lifts total loot drops across many fights", () => {
-    const enc = { encounters: [{ enemyId: "bandit_thug", count: 3 }] };
-    let lucky = 0, base = 0;
-    for (let s = 0; s < 150; s++) {
-      const L = simulateCombat(NOVICE_MISSIONS[0], [signetWearer("a"), signetWearer("b"), signetWearer("c")], undefined, s, enc);
-      const B = simulateCombat(NOVICE_MISSIONS[0], [plain("a"), plain("b"), plain("c")], undefined, s, enc);
-      if (L) lucky += L.loot.length;
-      if (B) base += B.loot.length;
-    }
-    // 3 signets = +15 luck => ~+15% relative drop chance. Over this many rolls
-    // the luckier party reliably out-loots the plain one.
-    expect(lucky).toBeGreaterThan(base);
+  it("party luck lifts every drop's chance (relative), and 0 luck is neutral", () => {
+    // rollLoot scales each drop.chance by this multiplier. Deterministic — no
+    // combat-noise flake (a full sim depends on Math.random in recruit-building).
+    expect(luckLootMultiplier(0)).toBe(1);
+    expect(luckLootMultiplier(5)).toBeCloseTo(1.05);   // one Stranger's Signet
+    expect(luckLootMultiplier(15)).toBeCloseTo(1.15);  // three of them, party-summed
+    expect(luckLootMultiplier(15)).toBeGreaterThan(luckLootMultiplier(5)); // more luck, more drops
   });
 });

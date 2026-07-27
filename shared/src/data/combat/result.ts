@@ -100,14 +100,21 @@ export function buildResult(
 /** + drop-chance per point of party luck (relative). +10 luck → a 1% drop
  *  becomes 1.1%. Deliberately gentle; the flagship source (Stranger's Signet)
  *  is a modest charm. Tune here once we can eyeball hauls in /dev-battle. */
-const LUCK_CHANCE_PER_POINT = 0.01;
+export const LUCK_CHANCE_PER_POINT = 0.01;
+
+/** Relative drop-chance multiplier for a given summed party luck (1.0 = no luck).
+ *  Every drop's chance is scaled by this in rollLoot. Exported so it's testable
+ *  without the noise of a full combat sim. */
+export function luckLootMultiplier(partyLuck: number): number {
+  return 1 + partyLuck * LUCK_CHANCE_PER_POINT;
+}
 
 /** Roll each defeated enemy's drop table using the seeded PRNG. Killed enemies
  *  roll their whole table; a routed (fled, hp > 0) enemy only rolls sheddable
  *  `keepOnRout` drops (a fang left behind, not the hide/carcass). `partyLuck`
  *  (summed across the team) lifts every drop's chance uniformly. */
 function rollLoot(enemies: CombatUnit[], partyLuck = 0): LootResult[] {
-  const luckMult = 1 + partyLuck * LUCK_CHANCE_PER_POINT;
+  const luckMult = luckLootMultiplier(partyLuck);
   const loot: LootResult[] = [];
   for (const unit of enemies) {
     const routed = unit.hp > 0 && unit.fled;
