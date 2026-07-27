@@ -261,6 +261,8 @@ import {
   MATCHED_FOOD_LOYALTY_BONUS,
   getArmorAccess,
   getWeaponAccess,
+  slotAccepts,
+  isRingSlot,
 } from "@medieval-realm/shared/data/items";
 import {
   calcStats as calcAdvStats,
@@ -954,7 +956,7 @@ export interface GameActions {
   allocateStat: (adventurerId: string, stat: keyof AdventurerStats) => boolean;
   unlockTalent: (adventurerId: string, talentId: string) => boolean;
   resetTalents: (adventurerId: string) => boolean;
-  equipItem: (adventurerId: string, itemId: string) => boolean;
+  equipItem: (adventurerId: string, itemId: string, targetSlot?: ItemSlot) => boolean;
   unequipItem: (adventurerId: string, slot: ItemSlot) => boolean;
   getInventoryCount: (itemId: string) => number;
   getHappinessModifier: () => number;
@@ -7352,7 +7354,7 @@ export function GameProvider(props: ParentProps) {
       scheduleSave();
       return true;
     },
-    equipItem(adventurerId, itemId) {
+    equipItem(adventurerId, itemId, targetSlot) {
       const adv = state.adventurers.find((a) => a.id === adventurerId);
       if (!adv || adv.onMission) return false;
       const itemDef = getItem(itemId);
@@ -7361,7 +7363,15 @@ export function GameProvider(props: ParentProps) {
       // materials — they don't go through equipment, they route via mission
       // supplies / inventory. Reject any attempt to equip them.
       if (!itemDef.slot) return false;
-      const slot: ItemSlot = itemDef.slot;
+      // Rings fit either ring slot: honour the clicked slot if valid, else drop
+      // into the first free ring slot (ring1, then ring2). Everything else uses
+      // its own defined slot.
+      let slot: ItemSlot = itemDef.slot;
+      if (targetSlot && slotAccepts(itemDef.slot, targetSlot)) {
+        slot = targetSlot;
+      } else if (isRingSlot(itemDef.slot)) {
+        slot = !adv.equipment.ring1 ? "ring1" : !adv.equipment.ring2 ? "ring2" : "ring1";
+      }
       // Weapons gate by weapon-family CATEGORY (+ talent grants), not per-item
       // class — mirrors armor. A stale `classes` list on a weapon is ignored.
       if (slot === "mainHand" && itemDef.weaponType) {

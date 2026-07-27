@@ -445,7 +445,7 @@ export default function AdventurerDetail() {
                                     <Tooltip text={`${item.name}: ${item.description}`}>
                                     <button
                                       class="gear-slot-option"
-                                      onClick={() => actions.equipItem(params.id, item.id)}
+                                      onClick={() => actions.equipItem(params.id, item.id, slotId as ItemSlot)}
                                     >
                                       {item.icon}
                                     </button>

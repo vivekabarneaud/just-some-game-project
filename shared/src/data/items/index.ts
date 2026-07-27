@@ -85,9 +85,22 @@ export function getEquipmentRaw(equipment: Record<string, string | null>): RawSu
   return raw as RawSubStats;
 }
 
+/** The two interchangeable ring slots. A ring (defined slot "ring1") fits
+ *  either; the equip layer honours whichever the player clicked. */
+export function isRingSlot(slot: ItemSlot | undefined): boolean {
+  return slot === "ring1" || slot === "ring2";
+}
+
+/** Can an item whose defined slot is `itemSlot` go into `targetSlot`? Same slot,
+ *  or both are ring slots (rings are interchangeable). */
+export function slotAccepts(itemSlot: ItemSlot | undefined, targetSlot: ItemSlot): boolean {
+  if (!itemSlot) return false;
+  return itemSlot === targetSlot || (isRingSlot(itemSlot) && isRingSlot(targetSlot));
+}
+
 export function getItemsForSlot(slot: ItemSlot, adventurerClass?: AdventurerClass): ItemDefinition[] {
   return ITEMS.filter((i) => {
-    if (i.slot !== slot) return false;
+    if (!slotAccepts(i.slot, slot)) return false;
     if (adventurerClass) {
       // Weapons filter by weapon-family category (base access; talent grants are
       // an equip-time concern); everything else by the per-item class list.
