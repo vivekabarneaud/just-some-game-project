@@ -47,4 +47,14 @@ describe("Wild Boar Hunt (food-scarcity mission)", () => {
     };
     expect(new Set(generateMissionBoard(ctx).map((m) => m.id)).has("wild_boar_hunt")).toBe(false);
   });
+
+  it("the Deer Yard is the winter alternate: meat, urgent, forced-only, vs wolves", () => {
+    const d = byId("deer_yard")!;
+    expect(d).toBeTruthy();
+    expect(d.rewards?.some((r) => r.resource === "meat")).toBe(true);
+    expect((d as any).urgent).toBe(true);
+    expect(d.encounters?.some((e) => e.enemyId === "gaunt_wolf" || e.enemyId === "starving_wolf")).toBe(true);
+    const ctx: any = { guildLevel: 5, seed: 7, completedStoryMissions: [], completedUniqueMissionIds: [], buildings: [] };
+    expect(new Set(generateMissionBoard(ctx).map((m) => m.id)).has("deer_yard")).toBe(false);
+  });
 });

@@ -9,7 +9,7 @@
 ## The two lanes
 
 1. **Seasonal gathers** — peaceful foraging, live in the **normal board pool**, gated to a season (`requires.season`). They're the rhythm of the year, crisis or not. This is what guarantees the player *meets the recurring ones often* → attachment. (Fish run, berries, the bee-tree, the apple tree, mushrooms…)
-2. **Scarcity hunts** — combat, **forced onto the board only when food is running out** (`forceMission`, see [[project_forced_missions]]). The emergency. (Wild Boar Hunt built; Deer Yard designed.)
+2. **Scarcity hunts** — combat, **forced onto the board only when food is running out** (`forceMission`, see [[project_forced_missions]]). The emergency. Forced from a small **season-aware pool** (one at a time) so a recurring crisis varies instead of repeating. Built: **Wild Boar Hunt** (any season) + **The Deer Yard** (winter only — a starving wolf pack contests the yarded deer).
 
 Thematically: gathers = *the comfort of the seasons turning*; hunts = *the emergency*.
 
@@ -46,7 +46,7 @@ Honeypaw's sibling and opposite temperament: an **unconditional provider** — a
 | Spring (the hungry gap) | **Bee-Tree** ✅ · **Fish Run** ✅ · First Greens | — |
 | Summer | **Berry Thickets** ✅ | — |
 | Autumn | **Apple Tree** ✅⭐ · Mushroom Foraging | — |
-| Winter | — | **Wild Boar Hunt** ✅ · The Deer Yard |
+| Winter | — | **Wild Boar Hunt** ✅ · **The Deer Yard** ✅ |
 
 **Specials (not season-locked):** Greyford Shares (neighbour sends food — peaceful, builds rapport); Follow the Wolves (take a starving pack's kill — grim, the mercy tension); The Larder Thief (scarcity by *leak* not lack — vermin raiding stores).
 

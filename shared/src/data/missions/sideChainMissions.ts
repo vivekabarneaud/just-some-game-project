@@ -81,6 +81,29 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     urgent: true, // distinct outline — the food crisis needs an answer now
     requires: { missionDone: "__forced_only__" }, // sentinel: never met → forced-only
   },
+  // ── The Deer Yard — the WINTER scarcity hunt (the boar hunt's alternate, so a
+  //    winter food crisis isn't always "Gareth saw boars"). Deep-winter deer yard
+  //    up in a hollow; a starving wolf pack has it staked out — drive them off,
+  //    take the venison. Forced-only + winter-gated by the scarcity-hunt pool
+  //    logic (engine). Reuses the gaunt/starving wolves. Mercy note: everything's
+  //    starving, wolves included. ──
+  {
+    id: "deer_yard",
+    name: "The Deer Yard",
+    description: "Deep winter, the larder near empty, and the deer have yarded up: a whole herd packed into a sheltered cedar hollow, treading the snow to reach the browse, too many in too small a place to run well. It is the surest meat of the cold months. But we are not the only ones who found them. A wolf pack, gaunt as we are and twice as desperate, has the hollow staked out. Drive them off and take what the settlement needs, and leave the rest to the herd and the wolves both. A lean winter is hard on everything that breathes.",
+    icon: "🦌",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/first_patrol.png",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 300,
+    rewards: [{ resource: "meat", amount: 22 }],
+    deployCost: 5,
+    difficulty: 2,
+    minGuildLevel: 1,
+    tags: ["combat", "outdoor", "survival"],
+    encounters: [{ enemyId: "gaunt_wolf", count: 2 }, { enemyId: "starving_wolf", count: 2 }],
+    urgent: true,
+    requires: { missionDone: "__forced_only__" }, // sentinel: never met → forced-only (winter via the pool)
+  },
 
   // ── "The Maddened Herd" — rabid boars → the Tainted Spring ──
   {

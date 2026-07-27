@@ -5656,13 +5656,23 @@ export function GameProvider(props: ParentProps) {
               }
             }
             // Food crisis: larder in deficit AND running out within
-            // WILD_BOAR_HUNT_FOOD_HOURS → surface the Wild Boar Hunt (meat on
-            // four legs) so the survival loop has an active answer.
+            // WILD_BOAR_HUNT_FOOD_HOURS → surface a scarcity HUNT so the survival
+            // loop has an active answer. Pick from a small pool (boar any season,
+            // the deer yard only in winter) so a recurring crisis varies instead
+            // of always being the same hunt. One at a time.
             {
               const net = s.netFoodPerHour ?? 0;
               const hoursLeft = net < 0 ? getTotalFood(s.foods) / -net : Infinity;
               if (hoursLeft < WILD_BOAR_HUNT_FOOD_HOURS) {
-                forceMission("wild_boar_hunt");
+                const HUNTS: { id: string; season: string | null }[] = [
+                  { id: "wild_boar_hunt", season: null },
+                  { id: "deer_yard", season: "winter" },
+                ];
+                const anyUp = HUNTS.some((h) => onBoard.has(h.id) || active.has(h.id));
+                const eligible = HUNTS.filter((h) => !h.season || h.season === s.season);
+                if (!anyUp && eligible.length > 0) {
+                  forceMission(eligible[Math.floor(Math.random() * eligible.length)].id);
+                }
               }
             }
           }
