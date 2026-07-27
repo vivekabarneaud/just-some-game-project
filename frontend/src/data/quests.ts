@@ -856,6 +856,43 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     rewards: [],
     targetPage: "/guild",
   },
+  {
+    // Main-story beat 5: the rescue leaves the camp rattled — armed men in our
+    // woods, a branded stranger loose. We walk our own approaches to be sure
+    // nothing followed us home. Completing the mission fires the ghost-in-the-
+    // woodpile beat and starts Hester's quiet return (the_woodcutter director).
+    id: "spine_no_one_followed",
+    storyline: "story",
+    chapter: 1,
+    main: true,
+    title: "No One Followed",
+    narrative:
+      "The chase left us uneasy. We put those men on their knees and let them walk, but they were armed and in our woods, and the woman went into the trees without a word — a price on her we cannot guess, and that one word hanging off her we cannot unhear. Nobody sleeps easy. Walk the approaches, make sure that crew kept moving and nothing followed us home, and come back able to tell the camp the woods are quiet.",
+    objective: "Walk the approaches and quiet the woods",
+    icon: "🌲",
+    triggers: [{ type: "quest_completed", questId: "spine_run_down" }],
+    condition: (s) => (s.completedUniqueMissionIds ?? []).includes("quiet_the_woods"),
+    rewards: [],
+    targetPage: "/guild",
+  },
+  {
+    // Main-story beat 6: the woods quiet, the season turns toward winter and Edda
+    // needs fenbalm before the fevers. A quiet gathering past the reeds — and,
+    // unremarked, the first thread of the bog-witch's long, slow bargain.
+    id: "spine_clear_marshes",
+    storyline: "story",
+    chapter: 1,
+    main: true,
+    title: "Clear the Marshes",
+    narrative:
+      "The woods are quiet again, and the season is turning. Edda needs fenbalm before the winter fevers come, and it grows nowhere but the wet ground past the reeds, where the adders have made themselves at home. We will not put a marsh to the sword for being a marsh. Walk her gatherers in along the firm ground, keep them whole while they cut what they need, turn back the snakes that come at you, and leave the fen to its keepers.",
+    objective: "Escort Edda's gatherers for fenbalm",
+    icon: "🐍",
+    triggers: [{ type: "quest_completed", questId: "spine_no_one_followed" }],
+    condition: (s) => (s.completedUniqueMissionIds ?? []).includes("marsh_clearing"),
+    rewards: [],
+    targetPage: "/guild",
+  },
   // "Eyes on the Horizon" (build a watchtower) removed 2026-07 — folded into the
   // "Hold the Treeline" main-story beat above (which now asks for walls AND the
   // watchtower). "Man the Wall" below re-gates onto that.

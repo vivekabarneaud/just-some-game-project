@@ -33,6 +33,84 @@ export const STORY_MISSIONS: StoryMission[] = [
     encounters: [{ enemyId: "wild_wolf", count: 3 }],
     chronicleEntryId: "ch1_first_scouts",
   },
+  // ─── Chapter 1 spine, beats 2–4 (promoted from side-chains 2026-07-27) ──
+  // Run Down → No One Followed → Clear the Marshes. Moved into the golden story
+  // spine so they read as the main questline. `unique: true` is PRESERVED on all
+  // three because every dependency keys off completedUniqueMissionIds, not this
+  // array: the Hester director chain (awaitMissionDone), the Woodworker unlock,
+  // the spine quest-panel beats, and the Reeds side-chain (reeds_bargain requires
+  // marsh_clearing). Gating is translated to prerequisite / prerequisiteQuest.
+  {
+    // Beat 2 — "Run Down" (Hester, beat 1 of the quiet Woodcutter arc). Gated on
+    // the Baptism quest (which fires ch1_the_wall_held) so the watchtower Gareth
+    // spots her from already stands. She is NOT recruited here — she flees; the
+    // "the_woodcutter" director chain handles her return + the Woodworker unlock.
+    id: "hester_rescue",
+    storyOrder: 2,
+    prerequisite: "story_1_scouting",
+    prerequisiteQuest: "baptism_of_fire",
+    chapter: "Chapter 1: Ashes and Dust",
+    name: "Run Down",
+    description: "Gareth caught it from the watchtower at first light: a woman, alone, run down through the scrub to the north the way you would course a deer, a knot of men closing on her heels. She is no one we know, come down the road from Ashwick's direction, and we do not know what she did to set a mob after her. But we know what many-against-one looks like, and we did not come to the edge of the world to watch it from a tower. Get out there before they take her. Put the men on their knees, not in the ground, and send them off with nothing but a story to tell. Let the woman go where she will.",
+    icon: "🪓",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/hester_rescue.png",
+    slots: [{ class: "any" }, { class: "any" }, { class: "any" }],
+    duration: 180,
+    rewards: [{ resource: "gold", amount: 45 }],
+    deployCost: 6,
+    difficulty: 2,
+    minGuildLevel: 1,
+    tags: ["combat", "outdoor"],
+    encounters: [{ enemyId: "dominion_thug", count: 5 }],
+    unique: true,
+    chronicleEntryId: "ch1_hester_rescue", // Beat 1: she flees, "murderer" hangs
+  },
+  {
+    // Beat 3 — "No One Followed". A low-threat patrol of our own approaches after
+    // the rescue; completing it fires the ghost-puzzle chronicle and starts
+    // Hester's timed return (handled by the_woodcutter director chain).
+    id: "quiet_the_woods",
+    storyOrder: 3,
+    prerequisite: "hester_rescue",
+    chapter: "Chapter 1: Ashes and Dust",
+    name: "No One Followed",
+    description: "The chase left us uneasy. We put those men on their knees and let them walk, but they were armed and in our woods, and the woman we pulled out of it went into the trees without a word, a price on her we cannot guess and one word hanging off her we cannot unhear. Nobody says it plainly. Nobody sleeps easy either. Walk the approaches. Make sure that crew kept moving, that nothing and no one followed us home, and come back able to tell the camp the woods are quiet. That is all we want to hear.",
+    icon: "🌲",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/first_patrol.png",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 180,
+    rewards: [{ resource: "wood", amount: 20 }, { resource: "meat", amount: 10 }],
+    deployCost: 4,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["outdoor", "survival"],
+    encounters: [{ enemyId: "wild_wolf", count: 1 }],
+    unique: true,
+    chronicleEntryId: "ch1_woodcutter_ghost", // Beat 2a: the ghost puzzle
+  },
+  {
+    // Beat 4 — "Clear the Marshes", the first fenbalm gathering. A quiet survival
+    // errand that innocuously opens the slow-burn Reeds/bog-witch side-chain
+    // (reeds_bargain gates on this via completedUniqueMissionIds). Gated behind
+    // No One Followed so it lands in sequence, not early.
+    id: "marsh_clearing",
+    storyOrder: 4,
+    prerequisite: "quiet_the_woods",
+    chapter: "Chapter 1: Ashes and Dust",
+    name: "Clear the Marshes",
+    description: "Edda needs fenbalm before the winter fevers come, and it grows nowhere but the wet ground past the reeds. The trouble is the adders, long as a man and quick to strike, that have made the fen their own. We will not put a marsh to the sword for being a marsh. Walk Edda's gatherers in along the firm ground, keep them whole while they cut what they need, turn back the snakes that come at you, and leave the fen to its keepers.",
+    icon: "🐍",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/clear_marshes.png",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 700,
+    rewards: [{ resource: "fenbalm", amount: 4 }, { resource: "nettle", amount: 4 }, { resource: "gold", amount: 40 }],
+    deployCost: 5,
+    difficulty: 2,
+    minGuildLevel: 1,
+    tags: ["combat", "outdoor", "escort"],
+    encounters: [{ enemyId: "marsh_adder", count: 3 }],
+    unique: true,
+  },
   // ─── CHAPTER 2 AND BEYOND — DEFERRED ─────────────────────────────
   // The Chapter 1 restructure (2026-07) ends the spine at survival: scouting →
   // the wolves (Hold the Treeline / Baptism) → Run Down (Hester). Everything
@@ -47,7 +125,7 @@ export const STORY_MISSIONS: StoryMission[] = [
   // real Chapter-2 opener.
   {
     id: "story_2_ruins",
-    storyOrder: 2,
+    storyOrder: 5,
     prerequisite: CH2_GATE,
     chapter: "Chapter 1: Ashes and Dust",
     name: "The Old Watch",
@@ -72,7 +150,7 @@ export const STORY_MISSIONS: StoryMission[] = [
   },
   {
     id: "story_3_dark_treeline",
-    storyOrder: 3,
+    storyOrder: 6,
     prerequisite: "story_2_ruins",
     chapter: "Chapter 1: Ashes and Dust",
     name: "Past the Ruins",
@@ -102,7 +180,7 @@ export const STORY_MISSIONS: StoryMission[] = [
   },
   {
     id: "story_4_captains_rest",
-    storyOrder: 4,
+    storyOrder: 7,
     prerequisite: "story_3_dark_treeline",
     chapter: "Chapter 1: Ashes and Dust",
     name: "The Captain's Rest",
@@ -154,7 +232,7 @@ export const STORY_MISSIONS: StoryMission[] = [
   },
   {
     id: "story_5_old_tongue",
-    storyOrder: 5,
+    storyOrder: 8,
     prerequisite: "story_4_captains_rest",
     chapter: "Chapter 2: Our Own Hands",
     name: "North of the Road",
@@ -197,7 +275,7 @@ export const STORY_MISSIONS: StoryMission[] = [
   },
   {
     id: "story_6_broken_stone",
-    storyOrder: 6,
+    storyOrder: 9,
     prerequisite: "story_5_old_tongue",
     chapter: "Chapter 2: Our Own Hands",
     name: "The Broken Stone",
@@ -224,7 +302,7 @@ export const STORY_MISSIONS: StoryMission[] = [
   },
   {
     id: "story_7_walking_the_line",
-    storyOrder: 7,
+    storyOrder: 10,
     prerequisite: "story_6_broken_stone",
     chapter: "Chapter 2: Our Own Hands",
     name: "Walking the Line",
@@ -271,7 +349,7 @@ export const STORY_MISSIONS: StoryMission[] = [
   },
   {
     id: "story_8_silver_birches",
-    storyOrder: 8,
+    storyOrder: 11,
     prerequisite: "story_7_walking_the_line",
     chapter: "Chapter 2: Our Own Hands",
     name: "The Silver Birches",
@@ -296,7 +374,7 @@ export const STORY_MISSIONS: StoryMission[] = [
   },
   {
     id: "story_9_first_inch",
-    storyOrder: 9,
+    storyOrder: 12,
     prerequisite: "story_8_silver_birches",
     chapter: "Chapter 2: Our Own Hands",
     name: "The First Inch",
@@ -332,7 +410,7 @@ export const STORY_MISSIONS: StoryMission[] = [
   },
   {
     id: "story_10_post_the_line",
-    storyOrder: 10,
+    storyOrder: 13,
     prerequisite: "story_9_first_inch",
     chapter: "Chapter 3: Hands Beside Ours",
     name: "Post the Line",
@@ -376,7 +454,7 @@ export const STORY_MISSIONS: StoryMission[] = [
   },
   {
     id: "story_11_second_inch",
-    storyOrder: 11,
+    storyOrder: 14,
     prerequisite: "story_10_post_the_line",
     chapter: "Chapter 3: Hands Beside Ours",
     name: "The Second Inch",
@@ -412,7 +490,7 @@ export const STORY_MISSIONS: StoryMission[] = [
   },
   {
     id: "story_13_hand_that_broke_it",
-    storyOrder: 13,
+    storyOrder: 16,
     prerequisite: "story_11_second_inch",
     prerequisiteQuest: "watch_the_walls",
     chapter: "Chapter 4: The Hand That Broke It",

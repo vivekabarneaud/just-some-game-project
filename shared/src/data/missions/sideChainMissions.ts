@@ -111,29 +111,11 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     sideChain: { id: "maddened_herd", name: "The Maddened Herd" },
   },
 
-  // ── "The Bog Witch" front — UNTAGGED on purpose (no sideChain banner): reads
-  //    as an ordinary errand. Its completion is the hook that later opens
-  //    "The Cabin in the Reeds." Full chain design in docs/DESIGN_SIDE_STORIES.md. ──
-  {
-    id: "marsh_clearing",
-    name: "Clear the Marshes",
-    description: "Edda needs fenbalm before the winter fevers come, and it grows nowhere but the wet ground past the reeds. The trouble is the adders, long as a man and quick to strike, that have made the fen their own. We will not put a marsh to the sword for being a marsh. Walk Edda's gatherers in along the firm ground, keep them whole while they cut what they need, turn back the snakes that come at you, and leave the fen to its keepers.",
-    icon: "🐍",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/clear_marshes.png",
-    slots: [{ class: "any" }, { class: "any" }],
-    duration: 700,
-    rewards: [{ resource: "fenbalm", amount: 4 }, { resource: "nettle", amount: 4 }, { resource: "gold", amount: 40 }],
-    deployCost: 5,
-    difficulty: 2,
-    minGuildLevel: 1,
-    tags: ["combat", "outdoor", "escort"],
-    encounters: [{ enemyId: "marsh_adder", count: 3 }],
-    requires: { story: "story_1_scouting" },
-    unique: true,
-    // Pinned so the hook reliably appears, but WITHOUT a chain banner — it must
-    // read as an ordinary herb-errand. The_bog_witch chain fires the beat on it.
-    pinned: true,
-  },
+  // ── "The Bog Witch" front. Its opener, "Clear the Marshes" (marsh_clearing),
+  //    was PROMOTED into the golden story spine (STORY_MISSIONS, Chapter 1 beat 4)
+  //    on 2026-07-27 — it reads as the main questline now, not a side errand. It
+  //    still opens this front: reeds_bargain gates on missionDone "marsh_clearing"
+  //    (completedUniqueMissionIds), which the story mission still populates. ──
   // ── The bog-witch front, step 2: the bargain. After clearing the adders once,
   //    a voice in the reeds offered terms. Bring the offering and the gatherers
   //    walk safe — a non-combat barter. (The_bog_witch chain fires the beats.) ──
@@ -267,68 +249,14 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     unique: true,
   },
 
-  // ── "The Woodcutter" — Hester Ironbark's arrival, Beat 1 (the rescue) ──
-  //    Gareth spots her from the watchtower — she comes down the north road from
-  //    Ashwick, close to home, not from the ruined south. He drives a field
-  //    rescue of a woman run down by the foreman's crew. She is deliberately NOT
-  //    recruited here (no recruitsOnSuccess): she flees the moment she's free.
-  //    Completing this records missionDone "hester_rescue", which later gates
-  //    Beat 2 — her peaceful return + recruitment + the Woodworker unlock (see
-  //    docs/cast/hester-ironbark.md). The crew reuse the bandit enemies; the team
-  //    subdues them (drive-off-don't-slaughter ethic) and lets them go. ──
-  {
-    id: "hester_rescue",
-    name: "Run Down",
-    description: "Gareth caught it from the watchtower at first light: a woman, alone, run down through the scrub to the north the way you would course a deer, a knot of men closing on her heels. She is no one we know, come down the road from Ashwick's direction, and we do not know what she did to set a mob after her. But we know what many-against-one looks like, and we did not come to the edge of the world to watch it from a tower. Get out there before they take her. Put the men on their knees, not in the ground, and send them off with nothing but a story to tell. Let the woman go where she will.",
-    icon: "🪓",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/hester_rescue.png",
-    slots: [{ class: "any" }, { class: "any" }, { class: "any" }],
-    duration: 180, // a rescue just north of the wall, close to home — not a trek
-    rewards: [{ resource: "gold", amount: 45 }],
-    deployCost: 6,
-    difficulty: 2,
-    // Guild Lv.1 (was 2): the story gate (Old Watch done) is the real pacing
-    // lever — a guild-2 requirement on top was silently withholding the whole
-    // Hester → Woodworker chain from players who hadn't upgraded the guild yet.
-    minGuildLevel: 1,
-    tags: ["combat", "outdoor"],
-    // A mob of hired toughs, not organized bandits — many but weak, so it reads
-    // as a novice-tier fight (2 stars) rather than a real brigand engagement.
-    encounters: [{ enemyId: "dominion_thug", count: 5 }],
-    // Beat 4 of the Chapter 1 spine — right after the wolves. Gated on the
-    // wall-held chronicle (fires when Baptism of Fire is claimed), so the
-    // watchtower Gareth spots her from already exists. (Was story_2_ruins, the
-    // Old Watch, which is deferred to Chapter 2.)
-    requires: { story: "story_1_scouting", chronicleFired: "ch1_the_wall_held" },
-    unique: true,
-    sideChain: { id: "the_woodcutter", name: "The Woodcutter" },
-    chronicleEntryId: "ch1_hester_rescue", // Beat 1: she flees, "murderer" hangs
-  },
-  // ── "The Woodcutter" Beat 1.5 — the uneasy patrol (paces Beat 2) ──
-  //    Only appears AFTER the rescue (requires hester_rescue), so it guarantees
-  //    a gap. The camp is rattled — armed men in their woods, a hunted stranger
-  //    loose — so the team walks the approaches. No real threat (the relief of
-  //    a quiet wood; one lone wolf so combat still resolves). Its completion
-  //    fires the ghost-puzzle chronicle (Beat 2a) and starts the timed return.
-  {
-    id: "quiet_the_woods",
-    name: "No One Followed",
-    description: "The chase left us uneasy. We put those men on their knees and let them walk, but they were armed and in our woods, and the woman we pulled out of it went into the trees without a word, a price on her we cannot guess and one word hanging off her we cannot unhear. Nobody says it plainly. Nobody sleeps easy either. Walk the approaches. Make sure that crew kept moving, that nothing and no one followed us home, and come back able to tell the camp the woods are quiet. That is all we want to hear.",
-    icon: "🌲",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/first_patrol.png",
-    slots: [{ class: "any" }, { class: "any" }],
-    duration: 180, // our own approaches — a short walk, not a trek
-    rewards: [{ resource: "wood", amount: 20 }, { resource: "meat", amount: 10 }],
-    deployCost: 4,
-    difficulty: 1,
-    minGuildLevel: 1,
-    tags: ["outdoor", "survival"],
-    encounters: [{ enemyId: "wild_wolf", count: 1 }],
-    requires: { missionDone: "hester_rescue" },
-    unique: true,
-    sideChain: { id: "the_woodcutter", name: "The Woodcutter" },
-    chronicleEntryId: "ch1_woodcutter_ghost", // Beat 2a: the ghost puzzle
-  },
+  // ── "The Woodcutter" — Hester Ironbark's arrival. Its first two beats,
+  //    "Run Down" (hester_rescue) and "No One Followed" (quiet_the_woods), were
+  //    PROMOTED into the golden story spine (STORY_MISSIONS, Chapter 1 beats 2–3)
+  //    on 2026-07-27, so they read as the main questline. Her quiet return +
+  //    recruitment + the Woodworker unlock are handled by the "the_woodcutter"
+  //    director chain (engine/story/chains.ts), which awaits those missions via
+  //    completedUniqueMissionIds — still populated because both keep
+  //    `unique: true`. See docs/cast/hester-ironbark.md. ──
   {
     id: "find_nell",
     name: "Where's Nell?",
