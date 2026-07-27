@@ -68,7 +68,12 @@ export default function LootModal(props: Props) {
   // reflows as sections/chips settle, which otherwise flashes a scrollbar on
   // the right even when final content fits. Enabled after the animation ends.
   const [settled, setSettled] = createSignal(false);
-  setTimeout(() => setSettled(true), 1200);
+  // Only fade the bottom edge when the card actually scrolls.
+  let cardEl: HTMLDivElement | undefined;
+  const [scrollable, setScrollable] = createSignal(false);
+  const checkScroll = () => setScrollable(!!cardEl && cardEl.scrollHeight > cardEl.clientHeight + 2);
+  onMount(checkScroll);
+  setTimeout(() => { setSettled(true); checkScroll(); }, 1200);
 
   // Exit animation state. When set, the backdrop/card play their reverse
   // animations; once that finishes we call the parent's close handler.
@@ -119,6 +124,7 @@ export default function LootModal(props: Props) {
         }}
       >
       <div
+        ref={cardEl}
         class="loot-card"
         classList={{ exiting: exiting() }}
         style={{
@@ -409,7 +415,7 @@ export default function LootModal(props: Props) {
         </div>
       </div>
       {/* Rank frame — drawn over the card edges; flourishes on higher ranks. */}
-      <CardFrame rarity={frame().rarity} border={20} bottomFade />
+      <CardFrame rarity={frame().rarity} border={20} bottomFade={scrollable()} />
       </div>
     </div>
     </>
