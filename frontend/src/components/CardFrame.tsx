@@ -61,7 +61,12 @@ export function CardFrame(props: {
         <div aria-hidden="true" style={{
           position: "absolute", left: "0", right: "0", bottom: "0",
           height: `${Math.round(border() * 1.5)}px`,
-          background: "linear-gradient(to bottom, transparent, rgba(0,0,0,0.6))",
+          background: "rgba(10, 20, 50, 0.62)",           // deep blue tint
+          "backdrop-filter": "blur(3px)",
+          "-webkit-backdrop-filter": "blur(3px)",
+          // Fade the whole effect (tint + blur) in from the top so there's no hard line.
+          "mask-image": "linear-gradient(to bottom, transparent, #000)",
+          "-webkit-mask-image": "linear-gradient(to bottom, transparent, #000)",
           "pointer-events": "none",
           "z-index": `${(props.z ?? 5) - 1}`,
         }} />
