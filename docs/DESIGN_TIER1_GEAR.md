@@ -10,12 +10,12 @@
 
 1. **gear → raw sub-stats.** ✅ **BUILT** (2026-07-27). Items carry a `raw` block; `getEquipmentRaw` sums it; `buildAdventurerUnit` stamps `CombatUnit.raw`. crit/dodge/mobility work now; accuracy/parry inert until hit-resolution.
 2. **Presence stat.** ✅ **BUILT** (2026-07-27). `classPresenceFloor` (warrior +10 · assassin −15 · archer −8 · wizard/priest −6) + gear `raw.presence`; `presenceToThreatMult` (0-presence → 1.0×, warrior → 1.5×, assassin → 0.25×) drives the ongoing threat multiplier, AND `applyPresenceBaselineThreat` seeds each enemy's threat at combat start (`K=10`) so the tank is the target from round 1 — overcoming the "hit the squishy" defence-pull. NOT attribute-derived. Verified: a tactical foe focuses the warrior over the assassin. (`K` + floors are tuning knobs.)
-3. **Gloves slot** (new) — home for the Fang-Studded Gauntlets.
-4. **Daggers equippable in off-hand** — any `weaponType: "dagger"` allowed in `offHand` (precedent: `parrying_dagger`). Gives Brenna a sidearm + assassins an off-hand, no new slot.
-5. **New material `boar_tusk`** (whole tusk) — see ladder below.
-6. **Loot fixes** — see §Loot.
+3. **Gloves slot** (new). ✅ **BUILT** (2026-07-27). Added to `ItemSlot`, `ALL_GEAR_SLOTS`, both `equipment` type defs + every init, and the AdventurerDetail doll/labels. Home for the Fang-Studded Gauntlets.
+4. **Daggers equippable in off-hand** — **DEFERRED to the weapon-band/sidearm work.** Turned out NOT small: the equip layer keys off a single `item.slot`, so "any dagger in either slot" is a semantics change across `getItemsForSlot` + `equipItem` + UI. The daggers work as **main-hand** now; the off-hand/sidearm use belongs with the weapon-band build.
+5. **New material `boar_tusk`** (whole tusk). ✅ **BUILT** (2026-07-27). Material def + resource unions; drops on living boars only (wild 8%, rabid 10%) — tainted prestige stays parked.
+6. **Loot fixes** — see §Loot. (Still TODO: wolf meat inversion, keepOnRout, boar rate rewrite.)
 
-Deferred: **weapon-band auto-swap** (the "true sidearm" behaviour), **set bonuses** (Pack Hunter / boar tank), **tainted/Hollow crafting** (the Patriarch's corrupted mats — unresolved worldbuilding), plate/mail lines.
+Deferred: **weapon-band auto-swap** (the "true sidearm" behaviour, incl. daggers-in-offhand), **set bonuses** (Pack Hunter / boar tank), **tainted/Hollow crafting** (the Patriarch's corrupted mats — unresolved worldbuilding), plate/mail lines.
 
 ## Material → sub-stat identity
 

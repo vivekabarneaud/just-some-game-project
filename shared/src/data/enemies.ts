@@ -437,6 +437,7 @@ export const ENEMIES: EnemyDefinition[] = [
     tags: ["beast"],
     loot: [
       { type: "resource", resource: "meat", chance: 0.4, min: 2, max: 4 },
+      { type: "resource", resource: "boar_tusk", chance: 0.08, min: 1, max: 1 }, // rare: a tusk out clean
     ],
     charge: { range: 40, cooldown: 99 }, // one devastating charge, then it fights or flees
     routsAt: 0.3, // a wild animal — breaks and flees when the fight turns against it
@@ -1102,6 +1103,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "meat", chance: 0.5, min: 2, max: 6 },
       { type: "resource", resource: "bristlehide", chance: 0.3, min: 1, max: 1 },
       { type: "resource", resource: "tusk_shard", chance: 1, min: 1, max: 1 },
+      { type: "resource", resource: "boar_tusk", chance: 0.10, min: 1, max: 1 }, // rare: a tusk out clean (bigger boar, better odds)
       { type: "resource", resource: "cloven_hoof", chance: 0.6, min: 1, max: 2 },
       { type: "resource", resource: "boar_skull", chance: 0.15, min: 1, max: 1 },
     ],

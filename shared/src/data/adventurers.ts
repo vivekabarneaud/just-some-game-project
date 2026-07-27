@@ -626,6 +626,7 @@ export interface Adventurer {
     chest: string | null;
     legs: string | null;
     boots: string | null;
+    gloves: string | null;
     cloak: string | null;
     mainHand: string | null;
     offHand: string | null;
@@ -874,7 +875,7 @@ export function getDeployCost(team: Adventurer[]): number {
  *  gear. See shared/data/items/equipment.ts "Starter / worn gear". */
 function starterEquipment(premade: PremadeCharacter): Adventurer["equipment"] {
   const empty: Adventurer["equipment"] = {
-    head: null, chest: null, legs: null, boots: null, cloak: null,
+    head: null, chest: null, legs: null, boots: null, gloves: null, cloak: null,
     mainHand: null, offHand: null, ring1: null, ring2: null, amulet: null, trinket: null,
   };
   const BY_CLASS: Record<AdventurerClass, { mainHand: string; chest: string; boots: string }> = {

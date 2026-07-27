@@ -38,6 +38,7 @@ const EQUIPMENT_SLOTS = [
   { id: "chest", name: "Chest", icon: "🦺" },
   { id: "legs", name: "Legs", icon: "👖" },
   { id: "boots", name: "Boots", icon: "🥾" },
+  { id: "gloves", name: "Gloves", icon: "🧤" },
   { id: "cloak", name: "Cloak", icon: "🧣" },
   { id: "mainHand", name: "Main Hand", icon: "⚔️" },
   { id: "offHand", name: "Off Hand", icon: "🛡️" },
@@ -51,7 +52,7 @@ const EQUIPMENT_SLOTS = [
 const GEAR_GRID = [
   //         left        center      right
   /* row1 */ [null,       "head",     null],
-  /* row2 */ ["cloak",    "amulet",   null],
+  /* row2 */ ["cloak",    "amulet",   "gloves"],
   /* row3 */ ["ring1",    "chest",    "ring2"],
   /* row4 */ [null,       "legs",     null],
   /* row5 */ [null,       "boots",    null],
@@ -65,7 +66,7 @@ const SIDE_SLOTS = [
 ];
 
 const SLOT_NAMES: Record<string, string> = {
-  head: "Head", chest: "Chest", legs: "Legs", boots: "Boots", cloak: "Cloak",
+  head: "Head", chest: "Chest", legs: "Legs", boots: "Boots", gloves: "Gloves", cloak: "Cloak",
   mainHand: "Main Hand", offHand: "Off Hand", ring1: "Ring", ring2: "Ring",
   amulet: "Amulet", trinket: "Trinket",
 };

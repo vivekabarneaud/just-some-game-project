@@ -355,7 +355,7 @@ export default function MissionAssemblyPanel(props: Props) {
         wis: s.wis - derived.wis,
       },
       equipment: {
-        head: null, chest: null, legs: null, boots: null, cloak: null,
+        head: null, chest: null, legs: null, boots: null, gloves: null, cloak: null,
         mainHand: null, offHand: null, ring1: null, ring2: null, amulet: null, trinket: null,
       },
       talents: [],

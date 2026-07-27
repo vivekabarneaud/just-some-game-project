@@ -22,7 +22,7 @@ export function getItemByRecipe(recipeId: string): ItemDefinition | undefined {
   return ITEMS.find((i) => i.recipeId === recipeId);
 }
 
-const ALL_GEAR_SLOTS = ["head", "chest", "legs", "boots", "cloak", "mainHand", "offHand", "ring1", "ring2", "amulet", "trinket"] as const;
+const ALL_GEAR_SLOTS = ["head", "chest", "legs", "boots", "gloves", "cloak", "mainHand", "offHand", "ring1", "ring2", "amulet", "trinket"] as const;
 
 export function getEquipmentStats(equipment: Record<string, string | null>): Partial<AdventurerStats> {
   const stats: Partial<AdventurerStats> = {};

@@ -4,7 +4,7 @@
 
 import type { AdventurerClass, AdventurerStats } from "../adventurers.js";
 
-export type ItemSlot = "head" | "chest" | "legs" | "boots" | "cloak" | "mainHand" | "offHand" | "ring1" | "ring2" | "amulet" | "trinket";
+export type ItemSlot = "head" | "chest" | "legs" | "boots" | "gloves" | "cloak" | "mainHand" | "offHand" | "ring1" | "ring2" | "amulet" | "trinket";
 
 /** Armor tier — gates equipment by class + talents. Weapons/rings/trinkets have no armorType. */
 export type ArmorType = "cloth" | "leather" | "mail" | "plate";

@@ -1697,7 +1697,7 @@ export function migrateSaveState(saved: GameState): GameState {
     // Equipment migration: old 3-slot → new 11-slot
     const migrateEquipment = (adv: any) => {
       if (!adv.equipment) {
-        adv.equipment = { head: null, chest: null, legs: null, boots: null, cloak: null, mainHand: null, offHand: null, ring1: null, ring2: null, amulet: null, trinket: null };
+        adv.equipment = { head: null, chest: null, legs: null, boots: null, gloves: null, cloak: null, mainHand: null, offHand: null, ring1: null, ring2: null, amulet: null, trinket: null };
       } else if (adv.equipment.weapon !== undefined || adv.equipment.armor !== undefined) {
         // Old format — migrate
         adv.equipment = {
@@ -3885,7 +3885,7 @@ export function GameProvider(props: ParentProps) {
               ring1: null, ring2: null, amulet: null, trinket: adv.equipment.trinket ?? null,
             };
           } else if (!adv.equipment?.head && adv.equipment?.head !== null) {
-            adv.equipment = { head: null, chest: null, legs: null, boots: null, cloak: null, mainHand: null, offHand: null, ring1: null, ring2: null, amulet: null, trinket: null };
+            adv.equipment = { head: null, chest: null, legs: null, boots: null, gloves: null, cloak: null, mainHand: null, offHand: null, ring1: null, ring2: null, amulet: null, trinket: null };
           }
         };
         for (const adv of serverState.adventurers ?? []) migrateEq(adv);
@@ -5273,7 +5273,7 @@ export function GameProvider(props: ParentProps) {
                       };
                     }
                     // Equipment lost on death
-                    advInState.equipment = { head: null, chest: null, legs: null, boots: null, cloak: null, mainHand: null, offHand: null, ring1: null, ring2: null, amulet: null, trinket: null };
+                    advInState.equipment = { head: null, chest: null, legs: null, boots: null, gloves: null, cloak: null, mainHand: null, offHand: null, ring1: null, ring2: null, amulet: null, trinket: null };
                   }
                 }
               }
