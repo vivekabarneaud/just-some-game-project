@@ -191,10 +191,10 @@ export default function CombatBattlefield(props: {
   return (
     <div style={{ position: "relative", height: `${H()}px`, overflow: "hidden" }}>
       <style>{`@keyframes floatUp {
-        0%   { opacity: 0; transform: translate(-50%, 6px) scale(0.85); }
-        10%  { opacity: 1; transform: translate(-50%, -2px) scale(1); }
-        65%  { opacity: 1; transform: translate(-50%, -22px) scale(1); }
-        100% { opacity: 0; transform: translate(-50%, -38px) scale(1); }
+        0%   { opacity: 0; transform: translate(-50%, 0) scale(0.85); }
+        12%  { opacity: 1; transform: translate(-50%, -5px) scale(1); }
+        70%  { opacity: 1; transform: translate(-50%, -28px) scale(1); }
+        100% { opacity: 0; transform: translate(-50%, -40px) scale(1); }
       }`}</style>
       <For each={floaters()}>
         {(f) => (
@@ -204,7 +204,7 @@ export default function CombatBattlefield(props: {
             "font-size": `${f.sizeRem}rem`, "font-weight": "bold",
             color: f.color, "text-shadow": "0 1px 3px rgba(0,0,0,0.9)",
             "white-space": "nowrap", "pointer-events": "none", "z-index": "5",
-            animation: `floatUp ${f.durationMs}ms ease-out forwards`,
+            animation: `floatUp ${f.durationMs}ms linear forwards`,
           }}>{f.text}</div>
         )}
       </For>
