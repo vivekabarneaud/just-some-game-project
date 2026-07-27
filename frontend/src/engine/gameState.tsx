@@ -5464,11 +5464,14 @@ export function GameProvider(props: ParentProps) {
                 }
                 const sm = STORY_MISSIONS.find((m) => m.id === am.missionId);
                 if (sm?.chronicleEntryId && !s.chronicleEntriesFired.includes(sm.chronicleEntryId)) {
+                  // Record it in the archive on completion, but do NOT pop the
+                  // beat modal here: the story chronicle opens when the player
+                  // clicks "Claim & Continue Story" (the AdventurersGuild claim
+                  // handler, gated on chronicleEntriesSeen). Queuing it on
+                  // completion fired it early — e.g. right when a mid-mission
+                  // "watch combat" resolved the fight, before the loot/claim —
+                  // which spoiled the beat.
                   s.chronicleEntriesFired.push(sm.chronicleEntryId);
-                  // Surface it as a beat modal so the player actually reads the
-                  // entry on completion, not just finds it later in the archive.
-                  s.pendingChronicleBeats = s.pendingChronicleBeats ?? [];
-                  s.pendingChronicleBeats.push(sm.chronicleEntryId);
                 }
                 // Bridge chronicles that follow this mission's completion
                 // (breath beats, narrative follow-ups). Fired all at once for
