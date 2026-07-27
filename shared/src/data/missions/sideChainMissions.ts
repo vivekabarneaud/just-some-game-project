@@ -40,7 +40,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     tags: ["combat", "survival"],
     encounters: [{ enemyId: "rock_skitter", count: 5 }],
     urgent: true, // distinct outline — it's blocking the quarry
-    requires: { missionDone: "__quarry_spider_gate__" }, // sentinel: never met → forced-only
+    requires: { missionDone: "__forced_only__" }, // sentinel: never met → forced-only
   },
   {
     id: "clear_diggings_3",
@@ -57,7 +57,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     tags: ["combat", "survival"],
     encounters: [{ enemyId: "rock_skitter", count: 3 }, { enemyId: "cave_spider", count: 2 }],
     urgent: true,
-    requires: { missionDone: "__quarry_spider_gate__" }, // sentinel: never met → forced-only
+    requires: { missionDone: "__forced_only__" }, // sentinel: never met → forced-only
   },
   // ── Wild Boar Hunt — FORCED on food scarcity (larder in deficit + nearly
   //    empty). The survival loop's answer to a food crisis: meat on four legs.

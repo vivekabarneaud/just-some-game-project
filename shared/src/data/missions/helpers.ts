@@ -441,7 +441,9 @@ export function meetsRequirements(
   if (req.missionCount && (ctx.missionCompletions?.[req.missionCount.id] ?? 0) < req.missionCount.count) return false;
   if (req.hasClass && !(ctx.rosterClasses ?? []).includes(req.hasClass)) return false;
   if (req.chronicleFired && !(ctx.chronicleEntriesFired ?? []).includes(req.chronicleFired)) return false;
-  if (req.season && ctx.season && ctx.season !== req.season) return false;
+  // Fail-closed: a season-gated mission is hidden when the context has no season
+  // (a caller that forgot to pass it), rather than leaking into every season.
+  if (req.season && ctx.season !== req.season) return false;
   return true;
 }
 

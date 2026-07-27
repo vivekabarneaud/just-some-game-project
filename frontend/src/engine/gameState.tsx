@@ -2562,6 +2562,9 @@ function calcProductionRates(state: GameState): { gold: number; wood: number; st
     // Quarry-spider gate: the quarry yields at its deepest SPIDER-CLEARED level.
     // Upgrading past the spiders gives the new building level, but stone output
     // holds at the previous level's rate until "Clear the Diggings" is done.
+    // NOTE: clear_diggings missions exist for L2-L3 only, which matches Ch1's
+    // tier cap (buildings max L3 before Village). Deeper levels (L4+) don't
+    // unlock in the alpha; wire their spider content when higher tiers ship.
     if (pb.buildingId === "quarry") {
       const eff = Math.min(pb.level, state.quarrySpidersClearedLevel ?? pb.level);
       levelDef = def.levels[eff - 1] ?? levelDef;
