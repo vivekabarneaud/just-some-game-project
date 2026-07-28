@@ -173,13 +173,20 @@ export function moveUnit(u: CombatUnit, ctx: CombatContext, held: Set<string>): 
   let intent: CombatUnit | undefined;
 
   if (u.breakthrough) {
-    // Push toward the enemy backline and stay committed; flank just past.
+    // Push toward the enemy backline and stay committed; flank just past. But
+    // once already in contact with the target, HOLD (and attack) instead of
+    // re-shuffling around it every round — otherwise a lone breakthrough unit
+    // (e.g. one wolf vs a lone archer, with no front to hold it) oscillates from
+    // one side of its prey to the other: the "runs behind, then adjusts" jitter.
+    // Staying put keeps the flank it already won.
     intent = foes.slice().sort((a, b) => backlineScore(b, u) - backlineScore(a, u))[0];
-    const dir = px(intent) > px(u) ? 1 : -1;
-    const stop = px(intent) + dir * 2;
-    let destX = px(u) + dir * mob;
-    destX = dir > 0 ? Math.min(destX, stop) : Math.max(destX, stop);
-    u.x = clamp(destX);
+    if (gap(u, intent) > POS.contact) {
+      const dir = px(intent) > px(u) ? 1 : -1;
+      const stop = px(intent) + dir * 2;
+      let destX = px(u) + dir * mob;
+      destX = dir > 0 ? Math.min(destX, stop) : Math.max(destX, stop);
+      u.x = clamp(destX);
+    }
   } else {
     // Frontline: hold the moment an enemy is in contact — never chase a foe
     // that has slipped past. Otherwise close to the line.

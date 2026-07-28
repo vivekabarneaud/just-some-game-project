@@ -339,11 +339,19 @@ export default function App(props: ParentProps) {
             winter: "/images/seasons/season_winter.png",
             autumn: "/images/seasons/season_summer.png", // TEMP stand-in until autumn art
           };
-          const src = () => EMBLEM[state.season];
+          const seasonSrc = () => EMBLEM[state.season];
+          // A heat wave morphs the watermark to the angry-sun ("drought") art — a
+          // page-filling signal the crops are under a weather emergency. Both
+          // backdrops are mounted, stacked; a pure opacity crossfade in place makes
+          // the season sun *become* angry rather than swap.
+          const heat = () => resolveCurrentWeather(state.season, state.seasonElapsed, state.year) === "heat_wave";
           return (
-            <Show when={src()}>
-              <div class="season-emblem-backdrop" aria-hidden="true" style={{ "background-image": `url(${src()})` }} />
-            </Show>
+            <>
+              <Show when={seasonSrc()}>
+                <div class="season-emblem-backdrop" classList={{ "emblem-hidden": heat() }} aria-hidden="true" style={{ "background-image": `url(${seasonSrc()})` }} />
+              </Show>
+              <div class="season-emblem-backdrop" classList={{ "emblem-hidden": !heat() }} aria-hidden="true" style={{ "background-image": "url(/images/seasons/season_drought.png)" }} />
+            </>
           );
         })()}
       </Show>

@@ -215,22 +215,22 @@ export default function MissionAssemblyPanel(props: Props) {
       .filter((a) => a.alive && !a.onMission && !hasFroth(a) && !tooWounded(a) && !(props.coopLockedAdvIds?.has(a.id) ?? false))
       .sort((a, b) => (CLASS_ORDER[a.class] ?? 9) - (CLASS_ORDER[b.class] ?? 9) || b.level - a.level)
   );
-  // Counts of alive-but-hidden adventurers, broken down by reason. Surfaced
-  // below the picker so a missing recruit isn't a mystery — used to be silent.
-  const hiddenBreakdown = createMemo(() => {
-    let onMission = 0;
-    let coopLocked = 0;
-    let frothing = 0;
-    let wounded = 0;
-    for (const a of state.adventurers) {
-      if (!a.alive) continue;
-      if (a.onMission) onMission++;
-      else if (hasFroth(a)) frothing++;
-      else if (tooWounded(a)) wounded++;
-      else if (props.coopLockedAdvIds?.has(a.id)) coopLocked++;
-    }
-    return { onMission, coopLocked, frothing, wounded, total: onMission + coopLocked + frothing + wounded };
-  });
+  // Why an adventurer can't be sent right now. Returns null when deployable.
+  // We show everyone (greyed + this reason as a tooltip) instead of silently
+  // hiding the unavailable, so a missing recruit is never a mystery.
+  const unavailableReason = (a: typeof state.adventurers[number]): string | null => {
+    if (a.onMission) return "Away on a mission";
+    if (hasFroth(a)) return "In bed with the froth";
+    if (tooWounded(a)) return "Recovering from injuries";
+    if (props.coopLockedAdvIds?.has(a.id)) return "Pledged to a co-op expedition";
+    return null;
+  };
+  // Every living adventurer of a class, available ones first (then by level) —
+  // the picker greys out the rest rather than dropping them.
+  const aliveByClass = (classId: string) =>
+    state.adventurers
+      .filter((a) => a.alive && a.class === classId)
+      .sort((a, b) => (unavailableReason(a) ? 1 : 0) - (unavailableReason(b) ? 1 : 0) || b.level - a.level);
 
   // ─── Team management ──────────────────────────────────────────
   const canFitInSlots = (advIds: string[]): boolean => {
@@ -1336,51 +1336,45 @@ export default function MissionAssemblyPanel(props: Props) {
           Assemble Your Team
         </h3>
 
-        <Show when={availableAdvs().length === 0}>
-          <Show
-            when={state.adventurers.some((a) => a.alive)}
-            fallback={
-              /* First visit: the guild stands, but nobody has been hired yet. */
-              <div style={{
-                border: "1px dashed var(--border-highlight)",
-                "border-radius": "8px",
-                padding: "18px 16px",
-                "text-align": "center",
-                "margin-bottom": "12px",
-              }}>
-                <div style={{ "font-size": "1.6rem", "margin-bottom": "6px" }}>🪶</div>
-                <p style={{ color: "var(--text-primary)", "font-size": "0.9rem", margin: "0 0 4px" }}>
-                  The guild roster is empty.
-                </p>
-                <p style={{ color: "var(--text-muted)", "font-size": "0.8rem", margin: "0 0 12px", "line-height": "1.5" }}>
-                  Missions need a team. Hire your first adventurers at the recruitment board.
-                </p>
-                <Show when={props.onGoRecruit}>
-                  <button
-                    class="upgrade-btn"
-                    style={{ padding: "8px 18px", "font-size": "0.85rem" }}
-                    onClick={props.onGoRecruit}
-                  >
-                    Go to recruitment
-                  </button>
-                </Show>
-              </div>
-            }
-          >
-            <p style={{ color: "var(--text-muted)", "font-size": "0.85rem", "line-height": "1.5" }}>
-              Everyone is out.
-              {hiddenBreakdown().onMission > 0 && ` ${hiddenBreakdown().onMission} on missions.`}
-              {hiddenBreakdown().frothing > 0 && ` ${hiddenBreakdown().frothing} laid up with the froth (cure with a Boar's-Bane Salve).`}
-              {hiddenBreakdown().wounded > 0 && ` ${hiddenBreakdown().wounded} too wounded to march (heal them or let them recover past a quarter HP).`}
-              {hiddenBreakdown().coopLocked > 0 && ` ${hiddenBreakdown().coopLocked} pledged to a co-op expedition.`}
-              {" "}They will return. More hands find their way here as you take on adventures and quests.
+        {/* First visit: the guild stands, but nobody has been hired yet. */}
+        <Show when={!state.adventurers.some((a) => a.alive)}>
+          <div style={{
+            border: "1px dashed var(--border-highlight)",
+            "border-radius": "8px",
+            padding: "18px 16px",
+            "text-align": "center",
+            "margin-bottom": "12px",
+          }}>
+            <div style={{ "font-size": "1.6rem", "margin-bottom": "6px" }}>🪶</div>
+            <p style={{ color: "var(--text-primary)", "font-size": "0.9rem", margin: "0 0 4px" }}>
+              The guild roster is empty.
             </p>
-          </Show>
+            <p style={{ color: "var(--text-muted)", "font-size": "0.8rem", margin: "0 0 12px", "line-height": "1.5" }}>
+              Missions need a team. Hire your first adventurers at the recruitment board.
+            </p>
+            <Show when={props.onGoRecruit}>
+              <button
+                class="upgrade-btn"
+                style={{ padding: "8px 18px", "font-size": "0.85rem" }}
+                onClick={props.onGoRecruit}
+              >
+                Go to recruitment
+              </button>
+            </Show>
+          </div>
         </Show>
 
-        <For each={ADVENTURER_CLASSES.filter((cls) => availableAdvs().some((a) => a.class === cls.id))}>
+        {/* Everyone hired is out right now — the greyed cards below say who and
+            why, this is just the reassurance. */}
+        <Show when={availableAdvs().length === 0 && state.adventurers.some((a) => a.alive)}>
+          <p style={{ color: "var(--text-muted)", "font-size": "0.85rem", "line-height": "1.5", "margin-bottom": "10px" }}>
+            Everyone is out right now. They will return. More hands find their way here as you take on adventures and quests.
+          </p>
+        </Show>
+
+        <For each={ADVENTURER_CLASSES.filter((cls) => state.adventurers.some((a) => a.alive && a.class === cls.id))}>
           {(classInfo) => {
-            const classAdvs = () => availableAdvs().filter((a) => a.class === classInfo.id);
+            const classAdvs = () => aliveByClass(classInfo.id);
             return (
               <div style={{ "margin-bottom": "10px" }}>
                 <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-bottom": "4px", "text-transform": "uppercase", "letter-spacing": "1px" }}>
@@ -1388,33 +1382,24 @@ export default function MissionAssemblyPanel(props: Props) {
                 </div>
                 <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
                   <For each={classAdvs()}>
-                    {(adv) => (
-                      <AdventurerPickerCard
-                        adventurer={adv}
-                        selected={teamIds().includes(adv.id)}
-                        onClick={() => toggleTeam(adv.id)}
-                      />
-                    )}
+                    {(adv) => {
+                      const reason = () => unavailableReason(adv);
+                      return (
+                        <AdventurerPickerCard
+                          adventurer={adv}
+                          selected={teamIds().includes(adv.id)}
+                          onClick={() => toggleTeam(adv.id)}
+                          disabled={!!reason()}
+                          disabledReason={reason() ?? undefined}
+                        />
+                      );
+                    }}
                   </For>
                 </div>
               </div>
             );
           }}
         </For>
-
-        <Show when={hiddenBreakdown().total > 0}>
-          <div style={{
-            "font-size": "0.7rem", color: "var(--text-muted)",
-            "margin-top": "8px", "padding-top": "8px",
-            "border-top": "1px dashed var(--border-default)",
-          }}>
-            {hiddenBreakdown().total} hidden:
-            {hiddenBreakdown().onMission > 0 && ` ${hiddenBreakdown().onMission} on a mission`}
-            {hiddenBreakdown().frothing > 0 && ` ${hiddenBreakdown().frothing} down with the froth`}
-            {hiddenBreakdown().wounded > 0 && ` ${hiddenBreakdown().wounded} too wounded to march`}
-            {hiddenBreakdown().coopLocked > 0 && ` ${hiddenBreakdown().coopLocked} reserved for a co-op`}
-          </div>
-        </Show>
 
         {/* Success summary */}
         <div class="team-summary">

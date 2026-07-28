@@ -106,6 +106,10 @@ export interface CombatUnit {
   /** Charge config (Charger archetype). From EnemyDefinition.charge. Cooldown is
    *  tracked in `cooldowns.charge` (ticks with everything else). */
   charge?: { range: number; cooldown: number };
+  /** Elusive-at-range peak Dodge % bonus (Skirmisher archetype). From
+   *  EnemyDefinition.elusiveAtRange. Applied by getAvoidance, scaled by the gap
+   *  to the attacker: full at range, 0 at melee contact. */
+  elusiveAtRange?: number;
   /** Set by the Move phase on the round this unit charged; consumed by the
    *  action phase to add distance-scaled gore damage + knockback. Transient. */
   chargedThisRound?: { distance: number; targetId: string };

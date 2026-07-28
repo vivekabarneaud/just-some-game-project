@@ -114,6 +114,11 @@ export interface QuestDefinition {
   unlocksSeeds?: VeggieId[];
   /** Narrative event banner ID fired on completion. */
   triggersEvent?: string;
+  /** Story-spine "tracker" beats (rewards:[] + no chronicle) whose completion IS
+   *  a story mission: naming the mission here lets the mission's loot-claim
+   *  auto-complete this quest (no redundant second "done" click in the log) and
+   *  surface a "Quest accomplished" line in that mission's LootModal. */
+  completedByMission?: string;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────
@@ -709,6 +714,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
       { met: (s) => (bldg(s, "adventurers_guild")?.level ?? 0) >= 1, label: "an Adventurer's Guild" },
     ],
     condition: (s) => (s.completedStoryMissions ?? []).includes("story_1_scouting"),
+    completedByMission: "story_1_scouting",
     rewards: [],
     targetPage: "/guild",
   },
@@ -853,6 +859,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     icon: "🪓",
     triggers: [{ type: "quest_completed", questId: "baptism_of_fire" }],
     condition: (s) => (s.completedUniqueMissionIds ?? []).includes("hester_rescue"),
+    completedByMission: "hester_rescue",
     rewards: [],
     targetPage: "/guild",
   },
@@ -872,6 +879,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     icon: "🌲",
     triggers: [{ type: "quest_completed", questId: "spine_run_down" }],
     condition: (s) => (s.completedUniqueMissionIds ?? []).includes("quiet_the_woods"),
+    completedByMission: "quiet_the_woods",
     rewards: [],
     targetPage: "/guild",
   },
@@ -890,6 +898,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     icon: "🐍",
     triggers: [{ type: "quest_completed", questId: "spine_no_one_followed" }],
     condition: (s) => (s.completedUniqueMissionIds ?? []).includes("marsh_clearing"),
+    completedByMission: "marsh_clearing",
     rewards: [],
     targetPage: "/guild",
   },

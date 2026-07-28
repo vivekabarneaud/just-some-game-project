@@ -126,6 +126,7 @@ export function buildEnemyUnits(encounters: MissionEncounter[]): CombatUnit[] {
         morale: def.morale,
         leader: def.leader,
         charge: def.charge,
+        elusiveAtRange: def.elusiveAtRange,
         combatRole: def.combatRole,
         scale: def.boss ? 1.2 : undefined,
         routsAt: def.routsAt,

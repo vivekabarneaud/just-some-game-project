@@ -291,6 +291,10 @@ export interface CompletedMission {
   /** Per-adventurer before/after vitals for the loot modal's team strip.
    *  Optional: co-op claims and legacy results omit it (strip just hides). */
   roster?: MissionRosterEntry[];
+  /** Title of the pure-tracker story quest this mission completes (if any) —
+   *  drives the LootModal's "Quest accomplished" acknowledgment. The quest is
+   *  auto-completed on claim, so it never shows a "done" click in the log. */
+  storyQuestAccomplished?: string;
   /** Enemy drops (resources + items) from combat, kept SEPARATE from `rewards`
    *  (the known, upfront mission pay). These are the surprise the loot chest
    *  reveals, and they're applied on claim, not at mission end. */

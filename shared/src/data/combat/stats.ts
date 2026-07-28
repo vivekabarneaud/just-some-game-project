@@ -67,10 +67,27 @@ export const MAX_AVOIDANCE = 75;
  *  when parry was the larger contributor. */
 export function getAvoidance(attacker: CombatUnit, target: CombatUnit): { chance: number; parried: boolean } {
   const physical = !dealsMagicalDamage(attacker);
-  const dodge = getDodgeChance(target);
+  const dodge = getDodgeChance(target) + getRangedElusion(attacker, target);
   const parry = physical ? getParry(target) : 0;
   const chance = Math.max(0, Math.min(MAX_AVOIDANCE, dodge + parry - getAccuracy(attacker)));
   return { chance, parried: physical && parry > dodge };
+}
+
+// "Elusive at range" (Skirmisher archetype): a weaving creature (a charging wolf)
+// is hard to hit while still closing, and commits — becoming hittable — at melee
+// contact. The dodge bonus scales from full at/beyond ELUSION_FULL paces down to
+// 0 at ELUSION_CONTACT. Only a distant (ranged) attacker ever sees it, so it is a
+// clean anti-kite tool: a meleer at contact reads 0. Numbers mirror the positional
+// layer's contact (~5) and a typical closing gap (~45+).
+const ELUSION_CONTACT = 5;
+const ELUSION_FULL = 45;
+/** Distance-scaled bonus Dodge % a target's `elusiveAtRange` grants vs this attacker. */
+export function getRangedElusion(attacker: CombatUnit, target: CombatUnit): number {
+  const peak = target.elusiveAtRange ?? 0;
+  if (!peak || attacker.x == null || target.x == null) return 0;
+  const gap = Math.abs(attacker.x - target.x);
+  const t = Math.min(1, Math.max(0, (gap - ELUSION_CONTACT) / (ELUSION_FULL - ELUSION_CONTACT)));
+  return peak * t;
 }
 
 /** Fraction of incoming magical damage absorbed by wisdom-driven magic resistance. */

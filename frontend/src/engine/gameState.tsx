@@ -118,9 +118,10 @@ import {
   getGardenCost,
   getGardenBuildTime,
   getSeedCapacity,
-  getEffectiveGardenRate,
+  getLiveGardenRate,
   getSeedReturn,
   getSproutedPlants,
+  getGerminationRate,
   makeStartingSeeds,
   startingUnlockedSeeds,
   isSeedUnlocked,
@@ -190,10 +191,10 @@ import {
   isOrchardActive,
   ORCHARD_MAX_LEVEL,
 } from "~/data/orchards";
-import { getClimate, getClimateYield, DROUGHT_PLANT_KILL, climateOverrideBand, setClimateOverride, isWetBand, climateRainFactor, type ClimateBand } from "~/data/climate";
+import { getClimate, getClimateYield, climateOverrideBand, setClimateOverride, isWetBand, climateRainFactor, type ClimateBand } from "~/data/climate";
 import { WELL_ID, CISTERN_ID, getWellOutput, wellFactor, getCisternRainCatch, getWaterCap, ambientRainFactor, gardenWaterDemand, fieldWaterDemand, orchardWaterDemand, penWaterDemand, getSluiceDrain, delugeDrownFactor, STREAM_YIELD, streamStatus, streamFactor, cropHeatFactor, citizenWaterDemand } from "~/data/water";
 import type { StreamStatus } from "~/data/water";
-import { resolveCurrentWeather, HEATWAVE_HEAT_KILL_PER_HOUR, HEATWAVE_THIRST_KILL_PER_HOUR, DELUGE_DROWN_KILL_PER_HOUR, type WeatherType } from "~/data/weather";
+import { resolveCurrentWeather, HEATWAVE_HEAT_KILL_PER_HOUR, DELUGE_DROWN_KILL_PER_HOUR, CHRONIC_WILT_PER_HOUR, type WeatherType } from "~/data/weather";
 import {
   type Season,
   SEASON_ELAPSED_SPAN,
@@ -407,7 +408,15 @@ export interface PlayerGarden {
   upgrading: boolean;
   upgradeRemaining?: number;
   plantedYear: number | null; // null = needs replanting; else the year we sowed
-  seedsPlanted: number;       // seeds sown this cycle; scales the yield rate (0 when unplanted)
+  seedsPlanted: number;       // seeds committed this cycle (the "sown" tally; grows on re-sow)
+  /** Seeds that germinated into standing plants this cycle (per-seed roll at sow).
+   *  The denominator for "alive"; distinguishes a seed that never came up from a
+   *  plant that later died. */
+  sprouted: number;
+  /** Currently-living plants — germination successes minus any lost to weather or
+   *  a sustained water deficit. Drives yield + water draw; empty slots (failed to
+   *  germinate OR died) can be re-sown during the plant season. */
+  plantsAlive: number;
 }
 
 export interface PlayerPen {
@@ -903,7 +912,6 @@ export interface GameActions {
   /** This year's climate band for the Farming readout (grace-aware: Year 1 = normal). */
   getClimateBand: () => ClimateBand;
   /** Dev: apply a drought plant-kill right now (test tool). */
-  forceDroughtKill: () => void;
   /** Dev: run a full drought spell (forces the drought band + plant-kill) for a
    *  few real seconds, then hands the climate back to the world year. */
   triggerDrought: () => void;
@@ -1169,6 +1177,8 @@ export function createInitialState(): GameState {
       upgrading: false,
       plantedYear: null,
       seedsPlanted: 0,
+      sprouted: 0,
+      plantsAlive: 0,
     })),
     // The crew arrived with seed — enough to sow a first plot of each crop.
     seeds: makeStartingSeeds(),
@@ -1503,6 +1513,16 @@ export function migrateSaveState(saved: GameState): GameState {
       if ((g as any).seedsPlanted === undefined) {
         (g as any).seedsPlanted = (g as any).plantedYear != null ? getSeedCapacity((g as any).level ?? 0) : 0;
       }
+      // Living-plant model: older saves derived the plant count from seedsPlanted
+      // on the fly — seed plantsAlive/sprouted once from that so a standing crop
+      // survives the load with the same count + yield (and can then die/re-sow).
+      if ((g as any).plantsAlive === undefined || (g as any).sprouted === undefined) {
+        const s0 = (g as any).plantedYear != null
+          ? getSproutedPlants(getVeggie((g as any).veggie), (g as any).seedsPlanted ?? 0)
+          : 0;
+        (g as any).sprouted = s0;
+        (g as any).plantsAlive = s0;
+      }
     }
     for (const v of VEGGIES) {
       if (!saved.gardens.some((g: any) => g.veggie === v.id)) {
@@ -1513,6 +1533,8 @@ export function migrateSaveState(saved: GameState): GameState {
           upgrading: false,
           plantedYear: null,
           seedsPlanted: 0,
+          sprouted: 0,
+          plantsAlive: 0,
         });
       }
     }
@@ -2342,7 +2364,7 @@ function cropWaterDemand(s: GameState): number {
   for (const f of s.fields) if (f.level > 0 && f.crop) d += fieldWaterDemand(f.level);
   for (const g of s.gardens) {
     if (g.level > 0 && g.plantedYear != null) {
-      d += gardenWaterDemand(g.veggie, getSproutedPlants(getVeggie(g.veggie), g.seedsPlanted));
+      d += gardenWaterDemand(g.veggie, g.plantsAlive ?? 0);
     }
   }
   for (const o of s.orchards) if (o.level > 0 && (o.matureTrees ?? 0) > 0) d += orchardWaterDemand(o.matureTrees);
@@ -2461,45 +2483,32 @@ function cropYieldMult(state: GameState): number {
   return waterBalance(state).cropCoverage;
 }
 
-/** Drought's discrete bite: a fraction of standing plants withers. Gardens lose
- *  sown crop; young orchard saplings die; mature trees + field harvests just
- *  yield less (the climate multiplier already handles those). Fires once per
- *  drought world-year (see the tick). */
-function applyDroughtKill(s: GameState): void {
-  const survive = 1 - DROUGHT_PLANT_KILL;
-  for (const g of s.gardens) {
-    if (g.plantedYear != null && g.seedsPlanted > 0) {
-      g.seedsPlanted = Math.floor(g.seedsPlanted * survive);
-    }
-  }
-  for (const o of s.orchards) {
-    if (o.saplings?.length) {
-      for (const c of o.saplings) c.count = Math.floor(c.count * survive);
-      o.saplings = o.saplings.filter((c) => c.count > 0);
-    }
-  }
+/** Apply a survival fraction to a garden's living plants, never taking the LAST
+ *  one from environmental death: a hardy plant always pulls through, so an away
+ *  player returns to a thinned plot they can re-sow, never a graveyard. */
+function wiltGardenPlants(g: PlayerGarden, survive: number): void {
+  const alive = g.plantsAlive ?? 0;
+  if (alive <= 1) return;
+  g.plantsAlive = Math.max(1, Math.floor(alive * survive));
 }
 
 /** Momentary crop damage from a harsh WEATHER event (heat wave / downpour),
- *  applied per game-hour while the event is active. Heat withers even when
- *  watered; thirst adds more when the reserve is dry (× shortfall), so keeping
- *  the cistern/well topped up limits a heat wave to the heat toll. A downpour
- *  drowns the roots in proportion to how full the reserve is (an open sluice /
- *  low reserve sheds the flood). Gardens and orchard
- *  saplings lose living plants; fields (acreage, no plant count) accrue a
- *  harvest-loss fraction. Mature orchard trees weather it untouched. The year
- *  type (fair/dry/wet/hot) is separate and only scales yield, never kills. */
-function applyWeatherCropDamage(s: GameState, weather: WeatherType, coverage: number, elapsedHours: number): void {
+ *  per game-hour while the event lasts. A heat wave carries a small heat toll
+ *  even when watered (the deficit half is handled by applyDeficitWilt). A
+ *  downpour drowns the roots in proportion to how full the reserve is (a low
+ *  cistern / open sluice sheds the flood). Gardens + orchard saplings lose living
+ *  plants (a garden never below its last plant); fields accrue a harvest-loss
+ *  fraction. Mature orchard trees weather it untouched. */
+function applyWeatherCropDamage(s: GameState, weather: WeatherType, elapsedHours: number): void {
   if (elapsedHours <= 0 || s.year <= 1) return;
   if (s.season === "winter") return; // nothing standing to lose
   let rate = 0;
   if (weather === "heat_wave") {
-    const shortfall = 1 - Math.min(1, Math.max(0, coverage));
-    rate = HEATWAVE_HEAT_KILL_PER_HOUR + HEATWAVE_THIRST_KILL_PER_HOUR * shortfall;
+    rate = HEATWAVE_HEAT_KILL_PER_HOUR; // heat toll only — thirst is applyDeficitWilt
   } else if (weather === "heavy_rain") {
     // Drowning scales with how full the reserve is: a full cistern backs up onto
     // the fields, a low one (sluice open) sheds the flood harmlessly. Keeping the
-    // cistern low in a wet year is the whole defence.
+    // cistern low in a wet spell is the whole defence.
     const cb = s.buildings.find((x) => x.buildingId === CISTERN_ID);
     const cap = getWaterCap(Math.max(0, (cb?.level ?? 0) - (cb?.damaged ? 1 : 0)));
     const fill = cap > 0 ? (s.resources.water ?? 0) / cap : 0;
@@ -2511,9 +2520,7 @@ function applyWeatherCropDamage(s: GameState, weather: WeatherType, coverage: nu
   const survive = Math.pow(1 - rate, elapsedHours);
   if (survive >= 1) return;
   for (const g of s.gardens) {
-    if (g.plantedYear != null && g.seedsPlanted > 0) {
-      g.seedsPlanted = Math.floor(g.seedsPlanted * survive);
-    }
+    if (g.plantedYear != null) wiltGardenPlants(g, survive);
   }
   for (const o of s.orchards) {
     if (o.saplings?.length) {
@@ -2525,6 +2532,30 @@ function applyWeatherCropDamage(s: GameState, weather: WeatherType, coverage: nu
     if (f.level > 0 && f.crop) {
       const prev = f.weatherLoss ?? 0;
       f.weatherLoss = Math.min(1, 1 - (1 - prev) * survive);
+    }
+  }
+}
+
+/** A SUSTAINED water deficit slowly wilts standing crops, whatever the weather —
+ *  the deficit half of crop stress (what the old heat-wave "thirst" term did),
+ *  generalised to any time coverage < 1. Rate scales with how far below full
+ *  coverage you are, so covering crop demand (cistern/well/water runs) is the
+ *  whole defence; a bone-dry plot in a dry summer thins over many hours, slow
+ *  enough to answer with a water run and never a wipe (the last plant holds).
+ *  Yield already falls with coverage; this is the death half. */
+function applyDeficitWilt(s: GameState, coverage: number, elapsedHours: number): void {
+  if (elapsedHours <= 0 || s.year <= 1 || s.season === "winter") return;
+  const shortfall = 1 - Math.min(1, Math.max(0, coverage));
+  if (shortfall <= 0) return;
+  const survive = Math.pow(1 - CHRONIC_WILT_PER_HOUR * shortfall, elapsedHours);
+  if (survive >= 1) return;
+  for (const g of s.gardens) {
+    if (g.plantedYear != null) wiltGardenPlants(g, survive);
+  }
+  for (const o of s.orchards) {
+    if (o.saplings?.length) {
+      for (const c of o.saplings) c.count = Math.floor(c.count * survive);
+      o.saplings = o.saplings.filter((c) => c.count > 0);
     }
   }
 }
@@ -2612,7 +2643,7 @@ function calcProductionRates(state: GameState): { gold: number; wood: number; st
     if (garden.plantedYear == null) continue;
     const veggie = getVeggie(garden.veggie);
     if (isVeggieProducing(veggie, season)) {
-      rates.food += getEffectiveGardenRate(veggie, garden.level, garden.seedsPlanted) * cm;
+      rates.food += getLiveGardenRate(garden.level, garden.plantsAlive ?? 0) * cm;
     }
   }
 
@@ -2969,7 +3000,7 @@ function calcFoodRates(state: GameState, fedRatios?: Map<string, number>): Recor
     if (garden.plantedYear == null) continue;
     const veggie = getVeggie(garden.veggie);
     if (!isVeggieProducing(veggie, season)) continue;
-    const rate = getEffectiveGardenRate(veggie, garden.level, garden.seedsPlanted) * cm;
+    const rate = getLiveGardenRate(garden.level, garden.plantsAlive ?? 0) * cm;
     if (veggie.id in rates) rates[veggie.id as FoodItemType] += rate;
   }
 
@@ -3058,7 +3089,7 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
     if (garden.plantedYear == null) continue;
     const veggie = getVeggie(garden.veggie);
     if (!isVeggieProducing(veggie, season)) continue;
-    const rate = getEffectiveGardenRate(veggie, garden.level, garden.seedsPlanted) * cm;
+    const rate = getLiveGardenRate(garden.level, garden.plantsAlive ?? 0) * cm;
     sources.push({ type: veggie.id, label: veggie.name, icon: veggie.icon, rate, building: `${veggie.name} Garden Lv${garden.level}` });
   }
 
@@ -3828,6 +3859,13 @@ export function GameProvider(props: ParentProps) {
           if ((g as any).seedsPlanted === undefined) {
             (g as any).seedsPlanted = (g as any).plantedYear != null ? getSeedCapacity((g as any).level ?? 0) : 0;
           }
+          if ((g as any).plantsAlive === undefined || (g as any).sprouted === undefined) {
+            const s0 = (g as any).plantedYear != null
+              ? getSproutedPlants(getVeggie((g as any).veggie), (g as any).seedsPlanted ?? 0)
+              : 0;
+            (g as any).sprouted = s0;
+            (g as any).plantsAlive = s0;
+          }
         }
         for (const v of VEGGIES) {
           if (!serverState.gardens.some((g: any) => g.veggie === v.id)) {
@@ -3838,6 +3876,8 @@ export function GameProvider(props: ParentProps) {
               upgrading: false,
               plantedYear: null,
               seedsPlanted: 0,
+              sprouted: 0,
+              plantsAlive: 0,
             });
           }
         }
@@ -4227,7 +4267,7 @@ export function GameProvider(props: ParentProps) {
         if (garden.seedsPlanted > 0) {
           // Only the seeds that sprouted set new seed — germination losses carry
           // through, so the plot returns less than the raw sown count.
-          const returned = getSeedReturn(getSproutedPlants(veggie, garden.seedsPlanted));
+          const returned = getSeedReturn(garden.plantsAlive ?? 0);
           s.seeds[garden.veggie] = (s.seeds[garden.veggie] ?? 0) + returned;
           if (returned > 0) {
             pushEvent(s, "building_completed", veggie.icon, `Saved ${returned} ${veggie.name.toLowerCase()} seed from the ${veggie.name.toLowerCase()} crop`);
@@ -4235,6 +4275,8 @@ export function GameProvider(props: ParentProps) {
         }
         garden.plantedYear = null;
         garden.seedsPlanted = 0;
+        garden.sprouted = 0;
+        garden.plantsAlive = 0;
       }
     }
     // Orchards save seed each spring — a bearing grove drops enough pips/cuttings
@@ -4384,7 +4426,7 @@ export function GameProvider(props: ParentProps) {
           if (g.level === 0 || g.plantedYear == null || g.veggie !== "lavender") continue;
           const veg = getVeggie(g.veggie);
           if (!isVeggieProducing(veg, s.season)) continue;
-          const rate = getEffectiveGardenRate(veg, g.level, g.seedsPlanted);
+          const rate = getLiveGardenRate(g.level, g.plantsAlive ?? 0);
           s.herbs.lavender = (s.herbs.lavender ?? 0) + rate * elapsedHours;
         }
         // Rationing: the founding-winter grace, plus a general belt-tightening
@@ -4450,7 +4492,8 @@ export function GameProvider(props: ParentProps) {
           // A harsh weather event (heat wave / downpour) damages standing crops
           // while it lasts. The year type only scales yield (getClimateYield);
           // the killing lives here, on the momentary weather.
-          applyWeatherCropDamage(s, wb.weather, wb.cropCoverage, elapsedHours);
+          applyWeatherCropDamage(s, wb.weather, elapsedHours);
+          applyDeficitWilt(s, wb.cropCoverage, elapsedHours);
         }
 
         // Food: add per-type production (capped at pantry total), then citizens eat proportionally.
@@ -5569,6 +5612,15 @@ export function GameProvider(props: ParentProps) {
               });
 
               // Record result
+              // A pure-tracker story quest (rewards:[] + no chronicle) this
+              // mission completes: surface it as a "Quest accomplished" line in
+              // the LootModal. It auto-completes on claim (claimMissionReward),
+              // so it never lingers as a "done" click in the quest log.
+              const trackerQuest = success
+                ? QUEST_DEFINITIONS.find(
+                    (q) => q.completedByMission === am.missionId && q.rewards.length === 0 && !q.chronicleEntryId,
+                  )
+                : undefined;
               s.completedMissions.push({
                 missionId: am.missionId,
                 success,
@@ -5590,6 +5642,7 @@ export function GameProvider(props: ParentProps) {
                 ...(vipFallen ? { vipFallen } : {}),
                 ...(revealedEnemies.length ? { revealedEnemies } : {}),
                 ...(loot.length ? { loot } : {}),
+                ...(trackerQuest ? { storyQuestAccomplished: trackerQuest.title } : {}),
               });
 
               // Durable per-mission success tally (completedMissions is cleared on
@@ -6402,26 +6455,33 @@ export function GameProvider(props: ParentProps) {
       const veggie = getVeggie(garden.veggie);
       if (!isSeedUnlocked(veggie, state.seedsUnlocked)) return false;
       if (!canPlantVeggie(veggie, state.season)) return false;
-      // Sow from the per-crop seed stock, up to the plot's capacity. A partial
-      // fill is allowed — the yield just scales down (getEffectiveGardenRate) —
-      // and the player can top up later in the same season (e.g. after an
-      // upgrade raised the capacity, or once more seed is in store).
+      // Sow from the per-crop seed stock into the plot's EMPTY slots. "Empty" =
+      // capacity minus LIVING plants, so both a seed that never germinated AND a
+      // plant that later died open room to re-sow (during the plant season). Each
+      // seed makes its own germination roll, so a sow lands in a natural range,
+      // not a flat fraction.
       const cap = getSeedCapacity(garden.level);
-      const already = garden.plantedYear === state.year ? (garden.seedsPlanted ?? 0) : 0;
-      const room = cap - already;
-      if (room <= 0) return false; // already sown to capacity this cycle
+      const fresh = garden.plantedYear !== state.year;
+      const alive = fresh ? 0 : (garden.plantsAlive ?? 0);
+      const room = cap - alive;
+      if (room <= 0) return false; // plot already full of living plants
       const stock = state.seeds?.[garden.veggie] ?? 0;
-      if (stock <= 0) return false;
       const sow = Math.min(stock, room);
       if (sow <= 0) return false;
+      const germRate = getGerminationRate(veggie);
+      // Per-seed germination roll at sow time (a player action, not a replayed
+      // tick — Math.random is fine; the outcome is stored in sprouted/plantsAlive).
+      let sprouts = 0;
+      for (let i = 0; i < sow; i++) if (Math.random() < germRate) sprouts++;
       setState(produce((s) => {
         s.seeds[garden.veggie] -= sow;
         const g = s.gardens.find((g) => g.id === gardenId)!;
         g.plantedYear = s.year;
-        g.seedsPlanted = already + sow;
-        const total = already + sow;
-        const partial = total < cap ? ` (${total}/${cap} — short on seed)` : "";
-        const verb = already > 0 ? `Sowed ${sow} more` : `Sowed ${sow}`;
+        g.seedsPlanted = (fresh ? 0 : (g.seedsPlanted ?? 0)) + sow;
+        g.sprouted = (fresh ? 0 : (g.sprouted ?? 0)) + sprouts;
+        g.plantsAlive = (fresh ? 0 : (g.plantsAlive ?? 0)) + sprouts;
+        const partial = sprouts < sow ? ` (${sprouts} of ${sow} seeds took)` : "";
+        const verb = fresh ? `Sowed ${sow}` : `Sowed ${sow} more`;
         pushEvent(s, "building_completed", veggie.icon, `${verb} ${veggie.name.toLowerCase()} seed${partial}`);
       }));
       scheduleSave();
@@ -6892,20 +6952,14 @@ export function GameProvider(props: ParentProps) {
     getTownHallLevel() { return getTownHallLevel(state.buildings); },
     getClimateBand() { return state.year <= 1 ? "normal" : cropClimateBand(state); },
     getCropYieldMult() { return cropYieldMult(state); },
-    forceDroughtKill() {
-      setState(produce((s) => {
-        applyDroughtKill(s);
-        pushEvent(s, "drought", "🥵", "Drought struck the land — crops withered and young saplings died in the dry.");
-      }));
-      scheduleSave();
-    },
     triggerDrought() {
       // Force the drought band so the whole system reacts (yields fall, the
-      // stream dries, wells dip, the reserve drains) and bite the plants once.
+      // stream dries, wells dip, the reserve drains). No one-shot plant kill: a
+      // dry year cuts yield, and the sustained water deficit wilts crops slowly
+      // (applyDeficitWilt) with heat-wave spikes on top — all via the live tick.
       setClimateOverride("drought");
       setState(produce((s) => {
-        applyDroughtKill(s);
-        pushEvent(s, "drought", "🥵", "A drought swept the land — the stream ran to a trickle, crops wilted and young saplings died in the heat.");
+        pushEvent(s, "drought", "🥵", "A drought swept the land — the stream runs to a trickle and the crops thirst.");
       }));
       scheduleSave();
       // Let it pass after a few real seconds, like any weather event.
@@ -8345,6 +8399,33 @@ export function GameProvider(props: ParentProps) {
           }
         }
         s.completedMissions.splice(index, 1);
+
+        // Auto-complete the paired pure-tracker story quest (rewards:[] + no
+        // chronicle). Finishing the mission IS its completion, so we don't make
+        // the player click a redundant second "done" in the quest log — the next
+        // beat appears on its own. The LootModal already surfaced "Quest
+        // accomplished". Reward/chronicle story beats keep their normal claim.
+        const tracker = QUEST_DEFINITIONS.find(
+          (q) => q.completedByMission === mission.missionId && q.rewards.length === 0 && !q.chronicleEntryId,
+        );
+        if (
+          tracker &&
+          !s.questRewardsClaimed.includes(tracker.id) &&
+          isQuestTriggered(tracker, s) &&
+          tracker.condition(s)
+        ) {
+          s.questRewardsClaimed.push(tracker.id);
+          // Mirror claimQuestReward's chapter-advancement so the storyline
+          // pointer keeps up when a tracker beat closes out a chapter.
+          if (s.chapters) {
+            const cs = s.chapters.find((c) => c.storyline === tracker.storyline);
+            if (cs && !cs.completedChapters.includes(tracker.chapter) && isChapterComplete(s, tracker.storyline, tracker.chapter)) {
+              cs.completedChapters.push(tracker.chapter);
+              cs.current = tracker.chapter + 1;
+            }
+          }
+          applyEventEvaluation(s);
+        }
       }));
       scheduleSave();
     },

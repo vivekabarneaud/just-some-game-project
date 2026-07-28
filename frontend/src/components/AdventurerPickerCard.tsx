@@ -15,6 +15,11 @@ interface AdventurerPickerCardProps {
   adventurer: Adventurer;
   selected: boolean;
   onClick: () => void;
+  /** When set, the card is shown greyed + non-selectable (e.g. away on a
+   *  mission, laid up with the froth, too wounded to march). The reason is
+   *  surfaced as a hover tooltip so a missing recruit is never a mystery. */
+  disabled?: boolean;
+  disabledReason?: string;
 }
 
 export default function AdventurerPickerCard(props: AdventurerPickerCardProps) {
@@ -26,20 +31,22 @@ export default function AdventurerPickerCard(props: AdventurerPickerCardProps) {
   const hasConditions = () => (adv().conditions?.length ?? 0) > 0;
 
   return (
+    <Tooltip text={props.disabled ? props.disabledReason : undefined} position="top">
     <div
-      onClick={props.onClick}
+      onClick={() => { if (!props.disabled) props.onClick(); }}
       style={{
         display: "flex",
         gap: "8px",
         width: "200px",
         height: "74px",
         background: props.selected ? `${classColor()}18` : "rgba(255, 255, 255, 0.03)",
-        border: `1px solid ${classColor()}`,
+        border: `1px solid ${props.disabled ? "var(--border-default)" : classColor()}`,
         "border-radius": "0",
         overflow: "hidden",
-        cursor: "pointer",
+        cursor: props.disabled ? "not-allowed" : "pointer",
         transition: "all 0.15s",
-        opacity: props.selected ? "1" : "0.75",
+        opacity: props.disabled ? "0.4" : props.selected ? "1" : "0.75",
+        filter: props.disabled ? "grayscale(0.7)" : "none",
         position: "relative",
       }}
     >
@@ -86,5 +93,6 @@ export default function AdventurerPickerCard(props: AdventurerPickerCardProps) {
         </div>
       </div>
     </div>
+    </Tooltip>
   );
 }

@@ -299,6 +299,8 @@ export interface CompletedMission {
   /** Enemy drops surfaced in the loot chest, applied on claim (see the richer
    *  CompletedMission in data/missions/types.ts). */
   loot?: import("./data/combat").LootResult[];
+  /** Title of the pure-tracker story quest this mission completes (see richer def). */
+  storyQuestAccomplished?: string;
 }
 
 // ─── Raids ──────────────────────────────────────────────────────

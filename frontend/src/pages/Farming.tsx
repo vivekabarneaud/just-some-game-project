@@ -1,13 +1,14 @@
 import { For, Show, onMount, createSignal } from "solid-js";
 import { useGame, type GameState, type PlayerField, type PlayerGarden, type PlayerPen, type PlayerHive, type PlayerOrchard } from "~/engine/gameState";
 import { CROPS, type CropId, getCrop, getFieldCost, getFieldBuildTime, getSeasonYield, getSoilMultiplier, getSoilStatus, getHayFromHarvest, MAX_FIELDS, FIELD_MAX_LEVEL } from "~/data/crops";
-import { getVeggie, getGardenCost, getGardenBuildTime, getSeedCapacity, getEffectiveGardenRate, getSproutedPlants, getGerminationRate, canPlantVeggie, isVeggieProducing, isSeedUnlocked, MAX_GARDENS, GARDEN_MAX_LEVEL } from "~/data/gardens";
+import { getVeggie, getGardenCost, getGardenBuildTime, getSeedCapacity, getEffectiveGardenRate, getLiveGardenRate, getSproutedPlants, getGerminationRate, canPlantVeggie, isVeggieProducing, isSeedUnlocked, MAX_GARDENS, GARDEN_MAX_LEVEL } from "~/data/gardens";
 import { getAnimal, getPenCost, getPenBuildTime, getPenProduction, getPenCapacity, getAnimalBuyCost, getCullYield, getWoolSeasonMod, PEN_MAX_LEVEL, type AnimalId } from "@medieval-realm/shared/data/livestock";
 import { ANIMAL_FEED, FEED_CATEGORY_ICON, FEED_CATEGORY_LABEL, FOOD_CATEGORY, isGrazer, type FeedCategory } from "~/data/animalFeed";
 import type { FoodItemType } from "~/data/foods";
 import { getHiveCost, getHiveBuildTime, getHoneyRate, HIVE_MAX_LEVEL, APIARY_IMAGE, APIARY } from "~/data/apiary";
 import SeedIcon from "~/components/SeedIcon";
 import SeasonIcon from "~/components/SeasonIcon";
+import WeatherIcon from "~/components/WeatherIcon";
 import StatCard from "~/components/StatCard";
 import { resolveCurrentWeather, WEATHER_META } from "~/data/weather";
 import { gardenWaterDemand, fieldWaterDemand, orchardWaterDemand, penWaterDemand } from "~/data/water";
@@ -539,7 +540,14 @@ function GardenCard(props: { garden: PlayerGarden }) {
   };
 
   // ── Built path: level >= 1. Plant/produce cycle driven by the veggie. ──
-  const planted = () => props.garden.plantedYear === state.year;
+  // "Planted" = the same source of truth the SIM uses (production + water draw
+  // both key off `plantedYear != null`; the annual reset in advanceSeason is what
+  // clears it when a new cycle is due). We deliberately do NOT compare to
+  // state.year here: in a save that syncs the server's global year on top of
+  // dev's local season ticks, state.year can drift from the year stamped at sow
+  // time, which made the card read "not planted" while the plot was still
+  // producing. Trusting plantedYear keeps the card and the sim in lockstep.
+  const planted = () => props.garden.plantedYear != null;
   const inPlantSeason = () => canPlantVeggie(veggie(), state.season);
   const producing = () => planted() && isVeggieProducing(veggie(), state.season);
   // Seed-driven sowing: the plot holds `capacity` seeds; sow up to that from
@@ -549,16 +557,21 @@ function GardenCard(props: { garden: PlayerGarden }) {
   // Seeds already sown this cycle (0 if not planted this year), and the room
   // still left to fill — so the player can top up a partially-sown plot (e.g.
   // after an upgrade raised the capacity, or once more seed comes in).
+  // Living-plant model: seedsPlanted = seeds committed this cycle; sprouted = how
+  // many came up (germination); plantsAlive = how many still stand (weather /
+  // deficit deaths decrement it). Empty slots (never sprouted OR died) =
+  // capacity − plantsAlive, re-sowable during the plant season.
   const sownThisYear = () => planted() ? props.garden.seedsPlanted : 0;
-  const sprouted = () => getSproutedPlants(veggie(), sownThisYear());
-  // Plants at a full sow — used to preview the water draw before anything is
-  // sown (an unplanted/unbuilt plot has 0 sprouted, which would read "0/h").
+  const sprouted = () => planted() ? (props.garden.sprouted ?? 0) : 0;
+  const alivePlants = () => planted() ? (props.garden.plantsAlive ?? 0) : 0;
+  // Plants at a full sow — previews the water draw before anything is sown.
   const fullSprouted = () => getSproutedPlants(veggie(), capacity());
   const germPct = () => Math.round(getGerminationRate(veggie()) * 100);
-  const roomLeft = () => capacity() - sownThisYear();
+  const roomLeft = () => capacity() - alivePlants();
   const sowAmount = () => Math.min(seedStock(), roomLeft()); // what we'd sow right now
-  const effRate = () => getEffectiveGardenRate(veggie(), Math.max(1, props.garden.level), props.garden.seedsPlanted);
-  const partialSow = () => planted() && props.garden.seedsPlanted < capacity();
+  // Current /h from the living plants; the in-season reference is a full plot.
+  const liveRate = () => getLiveGardenRate(Math.max(1, props.garden.level), alivePlants());
+  const fullRate = () => getLiveGardenRate(Math.max(1, props.garden.level), capacity());
   const canPlant = () =>
     props.garden.level > 0 &&
     !props.garden.upgrading &&
@@ -594,9 +607,15 @@ function GardenCard(props: { garden: PlayerGarden }) {
 
   // ── Status line ─────────────────────────────────────────────────────
   const statusLine = (): { label: string; color: string } | null => {
+    // Sown, but nothing is standing — never germinated, or the crop was lost to
+    // weather/deficit. A clear amber warning, not a green "Producing +0/h".
+    if (planted() && alivePlants() === 0) {
+      return inPlantSeason()
+        ? { label: "Nothing came up — sow again", color: "#d4831a" }
+        : { label: `No crop this season — sow in ${veggie().plantSeasons.join(", ")}`, color: "#d4831a" };
+    }
     if (producing()) {
-      const partial = partialSow() ? ` (${props.garden.seedsPlanted}/${capacity()} sown)` : "";
-      return { label: `Producing: +${effRate()}/h ${veggie().name.toLowerCase()}${partial}`, color: "var(--accent-green)" };
+      return { label: `Producing: +${liveRate()}/h ${veggie().name.toLowerCase()}`, color: "var(--accent-green)" };
     }
     if (planted() && !isVeggieProducing(veggie(), state.season)) {
       return { label: "Planted, waiting to produce", color: "var(--text-secondary)" };
@@ -631,16 +650,16 @@ function GardenCard(props: { garden: PlayerGarden }) {
       {/* Water draw — always shown so the cost is visible BEFORE sowing: the
           current draw once planted, else the draw at a full sow. (The "when to
           sow" nudge lives in the sow box / the unbuilt preview line below.) */}
-      <StatBox label="Water">💧 {gardenWaterDemand(veggie().id, planted ? sprouted() : fullSprouted())}/h</StatBox>
+      <StatBox label="Water">💧 {gardenWaterDemand(veggie().id, planted ? alivePlants() : fullSprouted())}/h</StatBox>
       <StatBox label="Produces">
         {seasonList(veggie().produceSeasons, false)}
         {(() => {
           // Built card: the current rate leads (green only while actually
-          // producing), with the in-season potential as a muted reference so an
-          // out-of-season or still-sprouting plot reads "0 now, 9 in season".
+          // producing), with the full-plot in-season potential as a muted
+          // reference so an out-of-season / thinned plot reads "0 now, 9 in season".
           // Unbuilt preview (dim): just the potential, greyed.
-          const cur = dim ? rate : (producing() ? effRate() : 0);
-          const potential = dim ? rate : effRate();
+          const cur = dim ? rate : (producing() ? liveRate() : 0);
+          const potential = dim ? rate : fullRate();
           return (
             <>
               <span style={{ color: cur > 0 && !dim ? "var(--accent-green)" : "var(--text-muted)", "margin-left": "6px" }}>+{cur}/h</span>
@@ -783,7 +802,7 @@ function GardenCard(props: { garden: PlayerGarden }) {
 
         {/* ── The two season facts, each in its own box so they breathe ── */}
         <Show when={!props.garden.upgrading}>
-          {seasonBoxes(effRate(), false, planted())}
+          {seasonBoxes(fullRate(), false, planted())}
         </Show>
 
         {/* ── Seed store + Sow button in one framed box (echoes the pen's flock
@@ -795,42 +814,59 @@ function GardenCard(props: { garden: PlayerGarden }) {
             "flex-direction": "column", "align-items": "stretch", "justify-content": "flex-start",
             "text-align": "center", gap: "10px", "min-height": "auto",
           }}>
-            <div style={{ display: "flex", "align-items": "center", "justify-content": "center", gap: "6px" }}>
-              <SeedIcon id={veggie().id} size={16} />
-              <span style={{ "font-size": "0.8rem", color: "var(--text-secondary)" }}>
-                <b style={{ color: "var(--text-primary)" }}>{sownThisYear()}/{capacity()}</b> sown
-                {" · "}
-                <b style={{ color: "var(--text-primary)" }}>{seedStock()}</b> seed in store
-              </span>
-            </div>
-            {/* Germination — how many of the sown seeds came up. Explains why the
-                yield/seed-back is a bit below the sown count. */}
-            <Show when={sownThisYear() > 0}>
-              <div style={{ "font-size": "0.72rem", color: "var(--text-muted)" }}>
-                🌱 {sprouted()} of {sownThisYear()} sprouted <span style={{ opacity: 0.7 }}>({germPct()}%)</span>
+            {/* Plant tally — how many sown seeds came up (germination), and how
+                many are still alive. A death drops the "alive" count (and turns it
+                amber), distinct from a seed that never sprouted. Only while a crop
+                stands this cycle. */}
+            <Show when={planted() && sprouted() > 0}>
+              <div style={{ display: "flex", "align-items": "center", "justify-content": "center", gap: "6px", "font-size": "0.8rem", color: "var(--text-secondary)" }}>
+                <SeedIcon id={veggie().id} size={16} />
+                <span>
+                  <b style={{ color: "var(--text-primary)" }}>{sprouted()}/{sownThisYear()}</b> sprouted
+                  {" · "}
+                  <b style={{ color: alivePlants() < sprouted() ? "#d4831a" : "var(--text-primary)" }}>{alivePlants()}/{sprouted()}</b> alive
+                </span>
               </div>
             </Show>
-            {/* Season nudge (e.g. "Time to plant — 10/10 seed ready", "Producing"). */}
+            {/* Season nudge (e.g. "Time to plant", "Producing +N/h"). */}
             <Show when={statusLine()}>
               {(s) => <div style={{ color: s().color, "font-size": "0.78rem", "font-weight": 600 }}>{s().label}</div>}
             </Show>
-            {/* Sow — shown while the plot has room this cycle (also lets a
-                partially-sown plot be topped up after an upgrade). */}
-            <Show when={roomLeft() > 0}>
-              <Tooltip block text={canPlant() ? "" : plantBlockedReason()}>
-                <button
-                  class="btn-primary"
-                  style={{ width: "100%", "justify-content": "center" }}
-                  disabled={!canPlant()}
-                  onClick={() => actions.plantGarden(props.garden.id)}
-                >
-                  {seedStock() <= 0
-                    ? "No seed to sow"
-                    : sownThisYear() > 0
-                      ? `Sow ${sowAmount()} more ${veggie().name.toLowerCase()} seed (${sownThisYear() + sowAmount()}/${capacity()})`
+            {/* Out of the sow season: tell the player WHEN to sow instead of a
+                dead button (mirrors the unbuilt card's nudge). */}
+            <Show when={!inPlantSeason()}>
+              <div style={{ display: "flex", "align-items": "center", "justify-content": "center", gap: "5px", "font-size": "0.78rem", color: "var(--text-muted)" }}>
+                <span>Sow in</span>{seasonList(veggie().plantSeasons, true)}
+              </div>
+            </Show>
+            {/* In the sow season with empty slots to fill (never-sprouted or died):
+                an active Sow button when you have seed, else a "get seed" hint —
+                never a dead "No seed to sow" button. */}
+            <Show when={inPlantSeason() && roomLeft() > 0}>
+              <Show
+                when={seedStock() > 0}
+                fallback={
+                  <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "font-style": "italic" }}>
+                    No {veggie().name.toLowerCase()} seed in store — a harvested plot saves seed for next year.
+                  </div>
+                }
+              >
+                <div style={{ "font-size": "0.72rem", color: "var(--text-muted)" }}>
+                  <b style={{ color: "var(--text-primary)" }}>{seedStock()}</b> {veggie().name.toLowerCase()} seed in store · {germPct()}% take
+                </div>
+                <Tooltip block text={canPlant() ? "" : plantBlockedReason()}>
+                  <button
+                    class="btn-primary"
+                    style={{ width: "100%", "justify-content": "center" }}
+                    disabled={!canPlant()}
+                    onClick={() => actions.plantGarden(props.garden.id)}
+                  >
+                    {alivePlants() > 0
+                      ? `Sow ${sowAmount()} more into the empty rows`
                       : `Sow ${sowAmount()} ${veggie().name.toLowerCase()} seed${sowAmount() < capacity() ? ` (plot holds ${capacity()})` : ""}`}
-                </button>
-              </Tooltip>
+                  </button>
+                </Tooltip>
+              </Show>
             </Show>
           </div>
         </Show>
@@ -1735,7 +1771,7 @@ export default function Farming() {
             <StatCard label="Weather">
               <Tooltip block text={m().blurb}>
                 <span style={{ display: "inline-flex", "align-items": "center", gap: "5px" }}>
-                  {m().icon} {m().name}
+                  <WeatherIcon weather={w()} size={18} /> {m().name}
                 </span>
               </Tooltip>
             </StatCard>

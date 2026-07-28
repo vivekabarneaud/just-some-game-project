@@ -74,6 +74,12 @@ export default function WeatherAmbience() {
           <span class="wx-overcast" />
         </Match>
 
+        <Match when={weather() === "heat_wave"}>
+          {/* A blazing amber glare + slow rising heat-haze shimmer. */}
+          <span class="wx-heat-glow" />
+          <span class="wx-heat-haze" />
+        </Match>
+
         <Match when={weather() === "clear"}>
           <span class="wx-sun-glow" />
           <For each={MOTES}>

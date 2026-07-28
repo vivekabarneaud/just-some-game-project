@@ -164,6 +164,25 @@ export default function LootModal(props: Props) {
 
         {/* Body */}
         <div style={{ padding: "16px 20px", display: "flex", "flex-direction": "column", gap: "14px" }}>
+          {/* Story beat accomplished — a pure-tracker main-story quest this
+              mission closes out. Auto-completes on claim; this is where the
+              acknowledgment lands (the quest log never shows a "done" click). */}
+          <Show when={r().storyQuestAccomplished}>
+            <div class="loot-section" style={{
+              "animation-delay": "150ms",
+              display: "flex", "align-items": "center", gap: "10px",
+              padding: "9px 13px",
+              border: "1px solid var(--accent-gold)",
+              background: "rgba(212, 175, 55, 0.09)",
+            }}>
+              <span style={{ "font-size": "1.15rem", "line-height": 1 }}>📖</span>
+              <span style={{ "font-size": "0.9rem", color: "var(--text-secondary)" }}>
+                Quest accomplished ·{" "}
+                <strong style={{ color: "var(--accent-gold)", "font-family": "var(--font-heading)" }}>{r().storyQuestAccomplished}</strong>
+              </span>
+            </div>
+          </Show>
+
           {/* Rewards — the known, upfront mission pay. Shown plainly (the player
               already knew these going in, so they aren't the chest's surprise). */}
           <Show when={hasRewards()}>

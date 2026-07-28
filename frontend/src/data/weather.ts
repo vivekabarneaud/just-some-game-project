@@ -29,7 +29,7 @@ export type WeatherType =
 
 export const WEATHER_META: Record<
   WeatherType,
-  { name: string; icon: string; blurb: string }
+  { name: string; icon: string; blurb: string; image?: string }
 > = {
   clear:     { name: "Clear",      icon: "☀️", blurb: "Open skies. A calm day over the settlement." },
   overcast:  { name: "Overcast",   icon: "☁️", blurb: "A grey lid of cloud. Nothing stirring yet." },
@@ -37,7 +37,7 @@ export const WEATHER_META: Record<
   heavy_rain:{ name: "Downpour",   icon: "🌊", blurb: "A hammering downpour. The fields flood and the roots drown if the water can't run off." },
   snow:      { name: "Snowfall",   icon: "🌨️", blurb: "Snow drifts down. The cold keeps its own counsel." },
   fog:       { name: "Fog",        icon: "🌫️", blurb: "A low fog clings to the ground. Hard to see the line." },
-  heat_wave: { name: "Heat wave",  icon: "🥵", blurb: "A blistering, windless heat. The crops wilt, and a dry reserve means worse." },
+  heat_wave: { name: "Heat wave",  icon: "🥵", blurb: "A blistering, windless heat. The crops wilt, and a dry reserve means worse.", image: "/images/seasons/season_drought.png" },
   storm:     { name: "Storm",      icon: "⛈️", blurb: "Wind and lightning. Keep the watch and the roofs sound." },
   unnatural_storm: {
     name: "Unnatural Storm",
@@ -80,6 +80,11 @@ export const HEATWAVE_THIRST_KILL_PER_HOUR = 0.06; // extra when the reserve is 
 // in a wet year stings less than getting caught dry. Scaled by how full the
 // reserve is (delugeDrownFactor) — a low reserve drowns nothing.
 export const DELUGE_DROWN_KILL_PER_HOUR = 0.04;    // roots drown in the flood (× fill)
+// Sustained water DEFICIT slowly wilts crops any weather (applyDeficitWilt),
+// scaled by 1−cropCoverage. Gentle: a bone-dry plot (coverage 0) loses ~5%/h, so
+// a full plot thins over many hours — time to run a water mission — and never
+// wipes (the last plant holds). Keeping crop demand covered is the defence.
+export const CHRONIC_WILT_PER_HOUR = 0.05;
 
 // Stable 0..1 hash so a given (season, year, window) always picks the same mood.
 function hash01(n: number): number {
@@ -194,4 +199,7 @@ export function forageBloomNow(season: Season, seasonElapsed: number, year: numb
 /** Ordered list for menus/dropdowns. */
 export const WEATHER_TYPES: WeatherType[] = [
   "clear", "overcast", "rain", "snow", "fog", "storm", "unnatural_storm",
+  // Crop-damaging events — rare in ambient drift, listed here so the dev weather
+  // dropdown can force one on demand to test heat-wave / downpour crop loss.
+  "heat_wave", "heavy_rain",
 ];

@@ -169,6 +169,14 @@ export interface EnemyDefinition {
    *  by holding it in melee (no run-up = no charge). Boars now; a warrior Charge
    *  talent later. */
   charge?: { range: number; cooldown: number };
+  /** Elusive at range (Skirmisher archetype): a weaving, hard-to-pin creature is
+   *  much harder to HIT while it is still closing the gap, and commits — becoming
+   *  normally hittable — as it reaches melee contact. This number is the peak
+   *  bonus Dodge % it gets at full distance, fading linearly to 0 at contact.
+   *  Only a ranged attacker across the gap ever triggers it — a pure anti-kite
+   *  tool. Wolves now (they close weaving through the arrows); skirmishing
+   *  raiders/rats later. */
+  elusiveAtRange?: number;
   loot?: LootDrop[];   // drops on kill, empty/undefined means no drops
   /** Physical auto-attack damage range (the creature's bite/claw/swing). The sim
    *  rolls within [dmgMin, dmgMax] then scales by the creature's offensive stat.
@@ -343,7 +351,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "fang", chance: 0.5, min: 1, max: 2, keepOnRout: true },
       { type: "resource", resource: "sinew_cord", chance: 0.2, min: 1, max: 1 },
     ],
-    raw: { mobility: 9, dodge: 5 }, // pack hunter — fast and nimble (clearly out-paces a warrior)
+    raw: { mobility: 27, dodge: 5 }, // pack hunter — fast (~36 paces/turn, closes the field in ~1.5 rounds)
+    elusiveAtRange: 25, // weaves through the arrows while it closes; commits at contact
     routsAt: 0.3, // a pack wolf breaks when the fight turns against it
     aiTier: "feral"
   },
@@ -408,7 +417,8 @@ export const ENEMIES: EnemyDefinition[] = [
         effect: { type: "bleed", pctPerRound: 10, rounds: 2 } },
     ],
     pack: "wolves",
-    raw: { mobility: 6, dodge: 3 }, // lean yearling — quick and jumpy
+    raw: { mobility: 20, dodge: 3 }, // lean yearling — quick and jumpy (~28 paces/turn)
+    elusiveAtRange: 25, // jumpy and hard to pin while it closes
     routsAt: 0.35, // a nervous, starving yearling, breaks and runs easily
     aiTier: "feral"
   },
@@ -434,7 +444,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "sinew_cord", chance: 0.1, min: 1, max: 1 },
     ],
     pack: "wolves",
-    raw: { mobility: 3 }, // spent and slow for a wolf, but still quicker than a boar
+    raw: { mobility: 8 }, // spent and slow for a wolf, but still quicker than a boar (~16 paces/turn)
+    elusiveAtRange: 15, // still weaves, but half-starved and easier to catch
     routsAt: 0.45, // barely holding together; breaks the moment it's hurt
     aiTier: "feral"
   },

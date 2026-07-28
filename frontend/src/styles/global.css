@@ -206,7 +206,11 @@
   background-repeat: no-repeat;
   background-size: 640px 640px;
   background-position: -180px -130px;
+  /* Two backdrops (season + angry-sun) stack in the same spot and crossfade in
+     place — the season sun "becomes angry" when a heat wave lands, no movement. */
+  transition: opacity 0.9s ease;
 }
+.season-emblem-backdrop.emblem-hidden { opacity: 0; }
 
 .weather-glass {
   position: fixed;
@@ -452,9 +456,14 @@ input, textarea, select {
 
 .sidebar {
   grid-area: sidebar;
-  /* Static (not the weather-drifting --bg-secondary) so the sidebar stays still
-     while the content area keeps its weather ambience. */
+  /* A shade darker than the weather-drifting --bg-secondary so the sidebar JOINS
+     the weather mood (warm-brown in a heat wave, cool in rain) instead of staying
+     a fixed blue against a tinted content area — while still reading as the darker
+     "frame". Eases with the palette (--bg-secondary is @property-animated, so the
+     color-mix recomputes across the 2.5s transition). Falls back to --sidebar-bg
+     where color-mix is unsupported. */
   background: var(--sidebar-bg);
+  background: color-mix(in srgb, var(--bg-secondary) 78%, #06080f 22%);
   /* UX refont: ornament the inner edge. Width only on the right → border-image
      draws just that side (the frame's plain double-rule, stretched vertically).
      Local slice 34 (not the shared 55): the frame corner runs to y~33, so 34
@@ -5435,6 +5444,52 @@ input, textarea, select {
   20%  { opacity: 0.8; }
   80%  { opacity: 0.55; }
   100% { transform: translateY(-54px); opacity: 0; }
+}
+
+/* Heat wave: a blazing amber glare (hotter + more orange than the clear sun) and
+   a slow rising heat-haze shimmer along the strip. */
+.wx-heat-glow {
+  position: absolute;
+  top: -85%;
+  right: 7%;
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle, rgba(255,150,50,0.24), rgba(245,120,40,0.09) 45%, transparent 68%);
+  animation: wx-heat-pulse 5s ease-in-out infinite;
+}
+@keyframes wx-heat-pulse {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%      { opacity: 0.9;  transform: scale(1.06); }
+}
+.wx-heat-haze {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(255,160,70,0.12) 0%, rgba(255,185,95,0.05) 45%, transparent 78%);
+  animation: wx-heat-shimmer 4.5s ease-in-out infinite;
+}
+@keyframes wx-heat-shimmer {
+  0%, 100% { transform: translateY(0)    scaleY(1);    opacity: 0.5; }
+  50%      { transform: translateY(-5px) scaleY(1.05); opacity: 0.85; }
+}
+
+/* Sidebar-header emblem crossfade — season emblem ⇄ angry-sun heat-wave emblem.
+   Both layers are always mounted, stacked in the SAME spot; a pure opacity
+   crossfade (no movement) so the sun looks like it's *becoming* angry rather
+   than sliding in — a soft morph as a heat wave arrives / passes. */
+.header-emblem-xfade { position: relative; width: 48px; height: 48px; flex-shrink: 0; }
+.header-emblem-xfade .emblem-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+  pointer-events: none;
+}
+.header-emblem-xfade .emblem-layer.visible {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 /* Storm lightning flash (ready for the future event layer) */

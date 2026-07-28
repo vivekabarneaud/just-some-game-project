@@ -258,7 +258,7 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
     title: "A murderer, they said",
     teaser: "The team came back from a chase with a rescue that thanked no one, and a word I cannot put down.",
     fullText:
-      "Gareth would not ride past it. A woman, alone, run down through the brush the way you course a deer, and Gareth has never once in his life been able to watch that and keep walking. The team put the men on their knees, not in the ground, and let them go: nothing else to do with them, no one to hold them, and the woman already gone.\n\n" +
+      "Gareth would not ride past it. A woman, alone, run down through the brush the way you course a deer, and he would not leave her to it. The team put the men on their knees, not in the ground, and let them go: nothing else to do with them, no one to hold them, and the woman already gone.\n\n" +
       "One of them spat as he went. \"Why would you save this murderer?\" And then, bitter, that she had not even stayed to say thank you, she was into the trees the moment the hands came off her.\n\n" +
       "So I have a rescue that thanked no one, a woman with a price on her head and no name to me, and a word left lying in the dirt where the men dropped it. Murderer. I was not there; I have only the team's telling of it. I do not know what she did. I know what many-against-one looks like, and we did not come to the edge of the world to look away from it. The rest will keep, or it will not.",
   },
@@ -272,7 +272,7 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
     title: "The ghost in the woodpile",
     teaser: "Clean-cut timber keeps appearing at the mill overnight, and no one will own to it. I called it a ghost. We laughed.",
     fullText:
-      "Jory came to me with a puzzle and a grin. Wood has been turning up on the mill stack overnight, more each morning, clean-felled and squared better than any hand we have can manage, and no one will own to it. We agreed it must be a ghost, then, and had a laugh about it. It is easy to laugh at a ghost you have not yet been given a reason to fear.\n\n" +
+      "Jory came to me with a puzzle and a grin. Wood has been turning up on the mill stack overnight, more each morning, clean-felled and squared better than any hand we have can manage, and no one will own to it. We agreed it must be a ghost, then, and had a laugh about it.\n\n" +
       "It has gone on for days now. The mill-hands leave the pile half-watched, half-hoping. Whoever it is wants nothing for the work, and does not want to be seen wanting nothing. Jory has stopped asking who and started just being glad of the timber. A ghost, then. Ours. I can think of stranger things to be haunted by than good clean wood.",
   },
   {

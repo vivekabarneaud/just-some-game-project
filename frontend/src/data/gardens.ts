@@ -211,6 +211,15 @@ export function getEffectiveGardenRate(
   return plants * GARDEN_YIELD_PER_PLANT;
 }
 
+/** Food/hour from a garden's CURRENT living plants — the live counterpart to
+ *  getEffectiveGardenRate (which previews yield from a seed count). Production
+ *  and water draw read this so the rate falls as plants die and rises as empty
+ *  slots are re-sown. */
+export function getLiveGardenRate(level: number, plantsAlive: number): number {
+  const cap = getSeedCapacity(level);
+  return Math.min(cap, Math.max(0, plantsAlive)) * GARDEN_YIELD_PER_PLANT;
+}
+
 /** Seed kept back from a season's crop, per sprouted plant. >1 so a steady plot
  *  still nets a little (after germination losses) — but far less than the raw
  *  sown count, so filling more plots leans on trade. */

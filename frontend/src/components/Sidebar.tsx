@@ -19,6 +19,7 @@ import { wsClient } from "~/api/ws";
 import { FIELD_MAX_LEVEL } from "~/data/crops";
 import Tooltip from "~/components/Tooltip";
 import SeasonIcon from "~/components/SeasonIcon";
+import WeatherIcon from "~/components/WeatherIcon";
 
 interface NavItem {
   path: string;
@@ -279,6 +280,19 @@ export default function Sidebar(props: SidebarProps) {
    *  will die". Returns a one-word reason for the tooltip when active, or
    *  null when no danger applies to this nav item. */
   const dangerFor = (path: string): string | null => {
+    if (path === "/farming") {
+      // A heat wave with a standing crop = the food supply is actively dying —
+      // an act-now threat, so it gets the red urgent spark (run water / let it
+      // pass is the answer). No crop standing → nothing to lose, no spark.
+      const info = currentWeatherInfo(state.season, state.seasonElapsed, state.year);
+      if (resolveWeather(info.season, info.progress, info.year) === "heat_wave") {
+        const hasStandingCrop =
+          state.gardens.some((g) => g.plantedYear != null && (g.plantsAlive ?? 0) > 0) ||
+          state.fields.some((f) => !!f.crop && f.level > 0);
+        if (hasStandingCrop) return "Crops wilting in the heat";
+      }
+      return null;
+    }
     if (path === "/") {
       // An incoming raid is the most acute thing on the Overview — surface it as
       // the red spark so the player doesn't have to scroll to the threat pill.
@@ -330,12 +344,25 @@ export default function Sidebar(props: SidebarProps) {
         <div style={{ display: "flex", "align-items": "center", "justify-content": "space-between", gap: "10px" }}>
           <h1>Valenheart</h1>
           {(() => {
-            // Season emblem, always-visible in the header (autumn falls back to
-            // its emoji inside SeasonIcon until the art lands).
-            const season = () => currentWeatherInfo(state.season, state.seasonElapsed, state.year).season;
+            // Season emblem in the header — but during a HEAT WAVE, swap in the
+            // angry-sun emblem so the player instantly reads the warm/brown UI as a
+            // real weather emergency (crops wilting), not a theme change.
+            const info = () => currentWeatherInfo(state.season, state.seasonElapsed, state.year);
+            const wx = () => resolveWeather(info().season, info().progress, info().year);
+            const heat = () => wx() === "heat_wave";
             return (
-              <Tooltip text={SEASON_META[season()].name} position="bottom">
-                <SeasonIcon season={season()} size={48} />
+              <Tooltip text={heat() ? "Heat wave — crops are wilting" : SEASON_META[info().season].name} position="bottom">
+                {/* Both emblems stacked and crossfaded: on a heat wave the angry
+                    sun rises in from below as the season emblem fades out (and
+                    back when it passes). */}
+                <div class="header-emblem-xfade">
+                  <div class="emblem-layer" classList={{ visible: !heat() }}>
+                    <SeasonIcon season={info().season} size={48} />
+                  </div>
+                  <div class="emblem-layer" classList={{ visible: heat() }}>
+                    <WeatherIcon weather="heat_wave" size={48} />
+                  </div>
+                </div>
               </Tooltip>
             );
           })()}
@@ -515,7 +542,7 @@ export default function Sidebar(props: SidebarProps) {
                   const wx = () => resolveWeather(seasonInfo().season, seasonInfo().progress, seasonInfo().year);
                   return (
                     <span class="weather-chip" tabindex="0">
-                      <span class="wx-chip-icon">{WEATHER_META[wx()].icon}</span>
+                      <span class="wx-chip-icon"><WeatherIcon weather={wx()} size={15} /></span>
                       <span class="wx-chip-name">{WEATHER_META[wx()].name}</span>
                       <span class="weather-tip">{WEATHER_META[wx()].blurb}</span>
                     </span>
@@ -595,9 +622,6 @@ export default function Sidebar(props: SidebarProps) {
               ))}
             </select>
           </div>
-          <button class="btn-tertiary" style={{ width: "100%", "justify-content": "center" }} onClick={() => actions.triggerDrought()}>
-            🥵 Trigger drought (20s)
-          </button>
           <div class="nav-section-title" style={{ "margin-top": "12px" }}>Test Snapshot</div>
           <button class="btn-tertiary" style={{ width: "100%", "justify-content": "center" }} onClick={() => {
             actions.saveDevSnapshot();
