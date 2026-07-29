@@ -423,22 +423,22 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "I have the seeds in a small jar on my desk. We will sow them in autumn, the way the elder said. We have enough Greymantle for a few jars of salve. The next time someone is wounded by a thing that does not bleed, we will be ready.\n\n" +
       "I had hoped, going in, that we would find more than a plant. I think we did and we did not. The Feldgrund are people. They have their land, their winters, their small good things. They will not help us with what is coming for us, because they do not know it is coming and they would not believe it if we told them. That is theirs to keep. I am glad it is still there to keep.",
   },
-  // ── The Stonebridge arrival (early Ch2) — the magic the Lord HARBORS ──
+  // ── The Stonebridge arrival (late Ch1) — the magic the Lord HARBORS ──
   {
-    id: "ch2_stonebridge_arrival",
-    chapterId: "ch2",
-    order: 1.2,
+    id: "ch1_stonebridge_arrival",
+    chapterId: "ch1",
+    order: 9.4,
     title: "The priest at the gate",
-    teaser: "A wandering priest and his quiet brother came up the south road. Before he had eaten, he asked how he could be of use.",
+    teaser: "A priest and his silent younger brother came to the gate, worn from a long road. Before he asked for a bed, he asked how he could be of use.",
     fullText:
-      "A wandering priest came to the gate today, worn from a long road south, and a younger brother at his shoulder so quiet I twice forgot he was standing there. Aldwin, he calls himself. He is the kind of man you are glad to see on a frontier: he has kept chapels that took in the hungry and the hunted, sat with the dying, asked no questions of anyone. A real priest is a godsend out here, and I welcomed them both easily.\n\n" +
-      "What stayed with me was that he would not be idle. Before he had eaten, before he had slept a night under a roof he could trust, he asked how he could be of use. I told him the truth: our teams come back from the south hurt more often than I like. He said then that is where he would go. Not to fight, he has no stomach for the blade, but to keep them whole, so that fewer come home broken. A man given shelter for nothing, he said, ought to earn it. I did not argue. We can use the hands, and I think he needs the earning more than we need the help.\n\n" +
-      "The brother said almost nothing. He kept to the priest's shadow and watched the door more than a man with nothing to mind. When I asked after him, Aldwin answered a half-beat too carefully, and then found somewhere else to look. There is more to these two than a priest and his kin on the road. But a man who took in five strangers can spare two their secrets a while longer.",
+      "Two came to the gate this morning, worn to the bone from a long road. A priest, he said, of no parish he can name any more, and with him a younger brother who has not spoken a word I have heard. He asked for nothing but a chance to be useful: he can set a bone, sit with the sick and the dying, keep a chapel if we ever raise one.\n\n" +
+      "Father Corin was at the gate before I was, and the two of them fell to talking low and easy the way churchmen do, and when Corin caught my eye it was plain he wanted them kept. I did not need much asking. This far out you do not turn away a healer, and a man who has walked this long keeping a silent brother close has earned a roof over both their heads.\n\n" +
+      "There is something he holds back, I think. He watches the road more than a man at rest, and when I asked after his brother he answered a half beat too careful. But every soul here came carrying something. He can carry his a while yet.",
   },
   {
-    id: "ch2_stonebridge_hunch",
-    chapterId: "ch2",
-    order: 1.4,
+    id: "ch1_stonebridge_hunch",
+    chapterId: "ch1",
+    order: 9.5,
     title: "What I have decided not to ask",
     teaser: "Edda dotes on the silent boy. Corin keeps low company with the priest and goes quiet when I come near.",
     fullText:
@@ -447,9 +447,9 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "I have not asked. Whatever it is, it is theirs, and they carry it carefully, and no harm has come of it. A man who took in five strangers off the road can let two more keep their own counsel a while longer. If it wants telling, it will be told.",
   },
   {
-    id: "ch2_stonebridge_confession",
-    chapterId: "ch2",
-    order: 1.6,
+    id: "ch1_stonebridge_confession",
+    chapterId: "ch1",
+    order: 9.6,
     title: "The word the Order burns men for",
     teaser: "The quiet one came to me alone tonight. He said the word himself, with his hands shaking.",
     fullText:
@@ -458,9 +458,9 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "I made my choice before he had finished speaking. The courage of it decided me, more than any argument for or against: a boy that frightened, telling me the one thing that could get him killed, to buy his brother a life with him no longer in the shadows. I told him he and Aldwin were both staying. He looked at me as though I had spoken in a language he did not know.",
   },
   {
-    id: "ch2_stonebridge_plea",
-    chapterId: "ch2",
-    order: 1.7,
+    id: "ch1_stonebridge_plea",
+    chapterId: "ch1",
+    order: 9.7,
     title: "A hand held out",
     teaser: "Aldwin came at a dead run, grey as ash, to beg for a life I had already spared.",
     fullText:
@@ -469,9 +469,9 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "Twenty years, I think, he has carried this alone. I do not believe he knew how to set it down. I told him, gently, because he needed to hear it: that he had raised a brave one, braver than himself maybe, a boy who did not wait to be sure of me.",
   },
   {
-    id: "ch2_stonebridge_aftermath",
-    chapterId: "ch2",
-    order: 1.8,
+    id: "ch1_stonebridge_aftermath",
+    chapterId: "ch1",
+    order: 9.8,
     title: "God forgive me if I am wrong",
     teaser: "I have done a thing the Doctrine has one word for, and the word is damnable. I keep waiting to feel damned.",
     fullText:

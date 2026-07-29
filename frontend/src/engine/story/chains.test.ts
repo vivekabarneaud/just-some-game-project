@@ -341,54 +341,53 @@ describe("real chains", () => {
   });
 });
 
-describe("the_stonebridges — Aldwin arrives, Magnus unlocks by earning Aldwin's belonging", () => {
+describe("the_stonebridges — Aldwin arrives after Slow Venom; Magnus unlocks later", () => {
   const chain = STORY_CHAINS.find((c) => c.id === "the_stonebridges")!;
   const loyaltyOf = (s: ChainState, pid: string, v: number) => {
     const a = (s.adventurers as { premadeId?: string; loyalty?: number }[]).find((x) => x.premadeId === pid);
     if (a) a.loyalty = v;
   };
 
-  it("gates on Ch1's close (Hale) AND Hester having come first", () => {
+  it("halts until slow_venom is claimed", () => {
     const s = makeState();
     const log: string[] = [];
     runStoryChains(s, [chain], makeDeps(s, 0, log));
     expect(log).toEqual([]); // nothing yet
-
-    // Hale bound, but Hester hasn't arrived — still halted (the hunted come in order).
-    s.completedUniqueMissionIds = ["story_4_captains_rest"];
-    runStoryChains(s, [chain], makeDeps(s, 0, log));
-    expect(log).toEqual([]);
+    expect(s.chronicleEntriesFired).toEqual([]);
   });
 
-  it("Aldwin flees in on arrival; Magnus stays hidden until Aldwin belongs", () => {
-    const s = makeState({
-      completedUniqueMissionIds: ["story_4_captains_rest"],
-      adventurers: [{ premadeId: "char_019" }], // Hester present
-    });
+  it("Aldwin arrives on slow_venom; Magnus stays hidden behind the Bad Blood gate", () => {
+    const s = makeState({ questRewardsClaimed: ["slow_venom"] });
     const log: string[] = [];
 
     // Arrival: Aldwin recruited + the gate beat, nothing further (loyalty 0).
     runStoryChains(s, [chain], makeDeps(s, 0, log));
     expect(log).toEqual(["char_017"]);
-    expect(s.chronicleEntriesFired).toEqual(["ch2_stonebridge_arrival"]);
+    expect(s.chronicleEntriesFired).toEqual(["ch1_stonebridge_arrival"]);
 
-    // A few missions in (loyalty 8): the Lord's hunch — still no confession.
+    // A few missions in (loyalty 8): the Lord's hunch fires.
     loyaltyOf(s, "char_017", 8);
     runStoryChains(s, [chain], makeDeps(s, 0, log));
-    expect(s.chronicleEntriesFired).toContain("ch2_stonebridge_hunch");
-    expect(s.chronicleEntriesFired).not.toContain("ch2_stonebridge_confession");
+    expect(s.chronicleEntriesFired).toContain("ch1_stonebridge_hunch");
+
+    // Even at Familiar (15) the confession is HELD behind the Bad Blood
+    // sentinel — Magnus does not unlock yet.
+    loyaltyOf(s, "char_017", 15);
+    runStoryChains(s, [chain], makeDeps(s, 0, log));
+    expect(s.chronicleEntriesFired).not.toContain("ch1_stonebridge_confession");
     expect(log).toEqual(["char_017"]); // Magnus not yet unlocked
 
-    // Aldwin reaches Familiar (15): the confession, Magnus joins, plea + aftermath.
-    loyaltyOf(s, "char_017", 15);
+    // Once the (placeholder) Bad Blood gate clears, the tail runs: confession,
+    // Magnus joins, plea + aftermath.
+    s.completedUniqueMissionIds = ["__stonebridge_bad_blood_gate__"];
     runStoryChains(s, [chain], makeDeps(s, 0, log));
     expect(log).toEqual(["char_017", "char_029"]); // Magnus unlocked
     expect(s.chronicleEntriesFired).toEqual([
-      "ch2_stonebridge_arrival",
-      "ch2_stonebridge_hunch",
-      "ch2_stonebridge_confession",
-      "ch2_stonebridge_plea",
-      "ch2_stonebridge_aftermath",
+      "ch1_stonebridge_arrival",
+      "ch1_stonebridge_hunch",
+      "ch1_stonebridge_confession",
+      "ch1_stonebridge_plea",
+      "ch1_stonebridge_aftermath",
     ]);
   });
 });

@@ -5796,6 +5796,27 @@ export function GameProvider(props: ParentProps) {
           }
           // Newly-arrived curated characters join the roster automatically.
           syncArrivals(s);
+          // Auto-settle opt-in objective beats (autoComplete: reward-less +
+          // chronicle-less + memory-less) the instant their condition is met, so a
+          // chain gated on the beat's completion (the Stonebridges wait on
+          // slow_venom) fires without the player clicking a redundant "done".
+          // Mirrors the mission-tied tracker auto-advance in claimMissionReward,
+          // but for condition-based beats. Runs before the chains so it lands the
+          // same tick.
+          for (const q of QUEST_DEFINITIONS) {
+            if (!q.autoComplete) continue;
+            if (q.rewards.length > 0 || q.chronicleEntryId || (q.unlocksBioFragments?.length ?? 0) > 0) continue;
+            if (s.questRewardsClaimed.includes(q.id)) continue;
+            if (!isQuestTriggered(q, s) || !q.condition(s)) continue;
+            s.questRewardsClaimed.push(q.id);
+            if (s.chapters) {
+              const cs = s.chapters.find((c) => c.storyline === q.storyline);
+              if (cs && !cs.completedChapters.includes(q.chapter) && isChapterComplete(s, q.storyline, q.chapter)) {
+                cs.completedChapters.push(q.chapter);
+                cs.current = q.chapter + 1;
+              }
+            }
+          }
           // Story "director" layer: run the scripted narrative chains (fires
           // chronicle beats, recruits scripted arrivals like Hester on their
           // timed return). Re-entrant + idempotent; safe to run every tick.

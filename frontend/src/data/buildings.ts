@@ -506,7 +506,10 @@ export const BUILDINGS: BuildingDefinition[] = [
     levels: generateLevels({ wood: 40, stone: 60 }, 18, undefined, 10),
     requiredTier: "camp",
     tierLevelCaps: { camp: 2, village: 5, town: 8, city: 10 },
-    unlockedAt: { storyline: "settlement", chapter: 3 },
+    // Unlocks when Aldwin the priest joins (the Stonebridge arrival). A bare
+    // survival camp has no one to tend a shrine; an active priest gives it
+    // meaning. The "raise_the_shrine" quest nudges the build alongside.
+    unlockedAt: { requiresPremade: "char_017" },
   },
 
   // Camp tier — production basics

@@ -123,6 +123,13 @@ export interface QuestDefinition {
    *  auto-complete this quest (no redundant second "done" click in the log) and
    *  surface a "Quest accomplished" line in that mission's LootModal. */
   completedByMission?: string;
+  /** Opt-in auto-settle for a reward-less, chronicle-less, memory-less OBJECTIVE
+   *  beat whose completion isn't tied to a single mission (so completedByMission
+   *  can't cover it). When set, the tick claims it the moment its condition is
+   *  met, with no redundant "done" click, and any chain gated on its completion
+   *  fires reliably. Requires rewards:[] + no chronicleEntryId + no
+   *  unlocksBioFragments (there is genuinely nothing to hand over on claim). */
+  autoComplete?: boolean;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────
@@ -930,9 +937,33 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     triggers: [{ type: "quest_completed", questId: "spine_clear_marshes" }],
     condition: (s) => !s.adventurers.some((a) => a.alive && (a.conditions?.some((c) => c.type === "venom") ?? false)),
     // No reward: the payoff is the cured adventurer + the antidote recipe (unlocked
-    // by the marsh script). Reward-less + no chronicle, so it settles quietly on
-    // cure rather than popping a claim modal.
+    // by the marsh script). Reward-less + no chronicle, and autoComplete so it
+    // settles the instant the venom clears (by cure OR by the hero dying) with no
+    // claim click. The Stonebridge chain gates on this quest being claimed, so the
+    // auto-settle is what makes that arrival fire reliably.
     rewards: [],
+    autoComplete: true,
+  },
+  {
+    // Settlement beat unlocked by the Stonebridge arrival: with a true priest
+    // (Aldwin) among us, the settlement can finally raise a proper shrine. The
+    // shrine building is gated on the same signal (requiresPremade char_017), so
+    // it becomes buildable exactly as this nudge appears. Reward-less +
+    // autoComplete: raising the shrine is its own payoff (happiness + the daily
+    // saint's blessing), and it settles the moment the shrine stands.
+    id: "raise_the_shrine",
+    storyline: "settlement",
+    chapter: 1,
+    main: false,
+    title: "A Place to Kneel",
+    narrative:
+      "Aldwin has stirred something in Father Corin that I had not seen in years. The two of them keep low, eager company by the chapel fire, circling the same idea: that the settlement should have a proper shrine, a place for the folk to kneel and the saints to be honored. Give them the timber and the stone, and they will tend the rest.",
+    objective: "Raise the shrine",
+    icon: "🔮",
+    triggers: [{ type: "custom", check: (s) => s.adventurers.some((a) => a.premadeId === "char_017" && a.alive !== false) }],
+    condition: (s) => (bldg(s, "shrine")?.level ?? 0) >= 1,
+    rewards: [],
+    autoComplete: true,
   },
   // "Eyes on the Horizon" (build a watchtower) removed 2026-07 — folded into the
   // "Hold the Treeline" main-story beat above (which now asks for walls AND the

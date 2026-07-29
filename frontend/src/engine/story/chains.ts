@@ -286,28 +286,35 @@ export const STORY_CHAINS: StoryChain[] = [
     },
   },
   // ── The Stonebridges — the first magic the Lord knowingly HARBORS ──
-  // Aldwin (priest) flees in early Ch2, once the world has clearly turned
-  // strange (Hale bound) and Hester — the first of the hunted — has come. He's
-  // chain-only (no auto-arrival), so recruit() brings him in; he offers his
-  // hands at once (a healer earning the shelter). As his belonging deepens, his
-  // hidden brother Magnus can't watch him pull back from home for the secret's
-  // sake, and confesses ALONE to free him — which unlocks Magnus and cracks the
-  // Lord's faith. Magnus's gate is modest (Familiar) so it never soft-locks;
-  // and the boar chain needs a PRIEST, not a wizard, so there's nothing to race.
+  // A Chapter 1 arc. Aldwin (a priest) and his silent brother Magnus present
+  // themselves at the gate a few days after the marsh (the Slow Venom beat
+  // spans those days, so no extra delay is needed). The Lord welcomes a healer
+  // easily; Father Corin vouches priest-to-priest. Aldwin joins at once (a
+  // healer earning his shelter); Magnus stays a shadow. As Aldwin's belonging
+  // deepens, the Lord's hunch grows. The confession is gated on the Bad Blood
+  // miracle beat (Aldwin's Light drives back a taint wound, and suspicion falls
+  // on Magnus); Magnus then confesses ALONE to free his brother, which unlocks
+  // him and cracks the Lord's faith. Chain-only recruits (no auto-arrival), so
+  // recruit() brings each one in.
   {
     id: "the_stonebridges",
     run: (api) => {
-      api.awaitMissionDone("story_4_captains_rest"); // Ch1's ghosts/Hale close out
-      api.awaitPremadePresent("char_019");           // Hester came first (the hunted find us)
-      api.recruit("char_017");                        // Aldwin flees in, offers his hands
-      api.fireChronicleModal("ch2_stonebridge_arrival");
-      api.awaitLoyalty("char_017", 8);               // a few missions in — the Lord notices
-      api.fireChronicleModal("ch2_stonebridge_hunch");
-      api.awaitLoyalty("char_017", 15);              // Familiar — he clearly belongs now
-      api.fireChronicleModal("ch2_stonebridge_confession");
+      api.awaitQuestClaimed("slow_venom");            // the venom dealt with; days have passed
+      api.recruit("char_017");                        // Aldwin presents at the gate, offers his hands
+      api.fireChronicleModal("ch1_stonebridge_arrival");
+      api.awaitLoyalty("char_017", 8);                // a few missions in, the Lord notices
+      api.fireChronicleModal("ch1_stonebridge_hunch");
+      // ── HELD until the Bad Blood miracle beat is built ──────────────
+      // The confession must land AFTER Aldwin's Light miracle and the suspicion
+      // it throws onto Magnus. That beat does not exist yet, so this sentinel
+      // (a mission id that is never completed) parks the tail. Replace it with
+      // the real miracle gate when Bad Blood ships.
+      api.awaitMissionDone("__stonebridge_bad_blood_gate__");
+      api.awaitLoyalty("char_017", 15);               // Familiar, he clearly belongs now
+      api.fireChronicleModal("ch1_stonebridge_confession");
       api.recruit("char_029");                        // Magnus, freed by his own courage
-      api.fireChronicleModal("ch2_stonebridge_plea");
-      api.fireChronicleModal("ch2_stonebridge_aftermath");
+      api.fireChronicleModal("ch1_stonebridge_plea");
+      api.fireChronicleModal("ch1_stonebridge_aftermath");
     },
   },
 
