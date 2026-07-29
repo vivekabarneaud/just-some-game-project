@@ -129,6 +129,21 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "I told the folk it was a hard season and left it there. It is not only a hard season. But that is a worry for a page I have not had to write yet. Tonight the wall held, and Gareth held the wall, and that is enough to close the book on.",
   },
   {
+    // Lammast, the farming neighbour a day east, makes contact. The watchtower's
+    // second payoff: it spots their approach, not wolves. Fired by the `lammast`
+    // director chain on baptism_of_fire cleared. We built up, became visible on
+    // the frontier, and an established neighbour came to see who took the grant.
+    id: "ch1_lammast_arrival",
+    chapterId: "ch1",
+    order: 3.6,
+    title: "The east track",
+    teaser: "Gareth's tower called down strangers this time, not wolves: farmers, up the east track from a village a year older than ours. We are on the map now.",
+    fullText:
+      "We were so busy staying alive it never struck me we might be seen. Gareth's tower put that right. This morning he called down not about wolves but about strangers: three of them, coming slow and open-handed up the east track, the better part of a day's country behind them. They farm a place called Lammast, and they have worked that ground a year longer than we have worked ours. Their headman's man said it plainly: our smoke and our new wall had told the whole frontier that the empty grant beside theirs had finally been taken, and they had come to see who by.\n\n" +
+      "I think we passed. They walked our rows and our half-built pens with the frank, measuring look of people who know exactly how hard the first year is, and said little that was not kind. They left a sack of good grain at the gate as a welcome, would not take a copper for it, and allowed as how two settlements this far past the Crown's reach had no business being strangers.\n\n" +
+      "We are not alone out here. I did not know how badly I needed to hear that until a stranger said it at my own gate. There is a road east now, in my head, where this morning there were only trees.",
+  },
+  {
     id: "ch1_garrison_ruins",
     chapterId: "ch1",
     order: 4,

@@ -186,18 +186,17 @@ export function runStoryChains(s: ChainState, chains: StoryChain[], deps: ChainD
 
 export const STORY_CHAINS: StoryChain[] = [
   // ── The guild's first hands: the Thornwoods (simple, very early) ──
-  // They join via the normal arrival system (guild_open). The Chronicle beat
-  // ("Two bows, a strong back, and a loud boy") lands once the settlement has
-  // taken shape around them: the surplus roofed (a_roof_over_their_heads) AND
-  // the hunting camp raised (where the two archers put down roots). Surfaced as
-  // a beat modal so the player meets it, rather than only finding it later in
-  // the journal.
+  // They join via the arrival system. The Chronicle beat ("Two bows, a strong
+  // back, and a loud boy") lands once the settlement has taken shape around them:
+  // the family housed and their hunting camp raised. Both are now the single
+  // "A Home for the Hunters" quest (a_roof_over_their_heads, whose condition
+  // requires houses AND the hunting camp), so awaiting that one claim covers it.
+  // Surfaced as a beat modal so the player meets it, not only in the journal.
   {
     id: "the_thornwoods",
     run: (api) => {
       api.awaitPremadePresent(["char_000", "char_005", "char_021"]);
-      api.awaitQuestClaimed("a_roof_over_their_heads");
-      api.awaitBuilding("hunting_camp");
+      api.awaitQuestClaimed("a_roof_over_their_heads"); // merged: houses + hunting camp both up
       api.fireChronicleModal("ch1_thornwoods");
     },
   },
@@ -318,6 +317,21 @@ export const STORY_CHAINS: StoryChain[] = [
       api.recruit("char_029");                        // Magnus, freed by his own courage
       api.fireChronicleModal("ch1_stonebridge_plea");
       api.fireChronicleModal("ch1_stonebridge_aftermath");
+    },
+  },
+  // ── Lammast — the farming neighbour to the east makes contact ──
+  // Early Ch1. Surviving the wolves and building up (walls + watchtower + hearth-
+  // smoke) makes the settlement visible on the frontier; Lammast, established a
+  // year longer and watchful, sends a party to see who took the neighbouring
+  // grant. The watchtower spots their approach (Gareth calls down strangers, not
+  // wolves). This arrival beat opens the Lammast side-chain missions (a barter
+  // return-visit east, and grain-escort runs north). The pigeon-exchange trust
+  // milestone will be added as a later rung.
+  {
+    id: "lammast",
+    run: (api) => {
+      api.awaitQuestClaimed("baptism_of_fire"); // wolves weathered, walls + tower up and proven
+      api.fireChronicleModal("ch1_lammast_arrival");
     },
   },
 

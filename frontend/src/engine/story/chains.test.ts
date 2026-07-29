@@ -188,7 +188,7 @@ describe("runStoryChains — primitives", () => {
 });
 
 describe("real chains", () => {
-  it("the_thornwoods fires ch1_thornwoods (as a beat modal) once the Thornwoods are present, the roof quest is claimed, and the hunting camp is built", () => {
+  it("the_thornwoods fires ch1_thornwoods (as a beat modal) once the Thornwoods are present and the merged 'A Home for the Hunters' quest is claimed", () => {
     const chain = STORY_CHAINS.find((c) => c.id === "the_thornwoods")!;
     const s = makeState();
 
@@ -196,18 +196,14 @@ describe("real chains", () => {
     runStoryChains(s, [chain], makeDeps(s, 0, []));
     expect(s.chronicleEntriesFired).toEqual([]);
 
-    // Thornwoods arrive — still awaiting the settlement to take shape.
+    // Thornwoods arrive — still awaiting the family to be settled.
     (s.adventurers as { premadeId?: string }[]).push({ premadeId: "char_005" });
     runStoryChains(s, [chain], makeDeps(s, 0, []));
     expect(s.chronicleEntriesFired).toEqual([]);
 
-    // Roof quest claimed — still awaiting the hunting camp.
+    // The merged settle-the-family quest is claimed (its own condition already
+    // required houses AND the hunting camp) — the beat lands, archived AND queued.
     s.questRewardsClaimed = ["a_roof_over_their_heads"];
-    runStoryChains(s, [chain], makeDeps(s, 0, []));
-    expect(s.chronicleEntriesFired).toEqual([]);
-
-    // Hunting camp raised — the beat lands, archived AND queued as a modal.
-    (s.buildings as { buildingId: string; level: number }[]).push({ buildingId: "hunting_camp", level: 1 });
     runStoryChains(s, [chain], makeDeps(s, 0, []));
     expect(s.chronicleEntriesFired).toEqual(["ch1_thornwoods"]);
     expect(s.pendingChronicleBeats).toEqual(["ch1_thornwoods"]);

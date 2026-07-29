@@ -332,40 +332,27 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
   // ╚══════════════════════════════════════════════════════════════╝
 
   {
+    // Merged 2026-07-29 (was "A Roof Over Their Heads" + "The New Hunters", two
+    // parallel build-tasks that fired together): the Thornwoods arrived over-cap,
+    // so settling them is ONE beat with two parts, a roof and a place to work.
+    // Kept this id so the Thornwoods chronicle gate (the_thornwoods chain), its
+    // test, and the dominion_refugees codex unlock all still resolve unchanged.
     id: "a_roof_over_their_heads",
     storyline: "settlement",
     chapter: 2,
-    title: "A Roof Over Their Heads",
+    title: "A Home for the Hunters",
     narrative:
-      "A family of hunters walked in from the wilds yesterday, lean and asking for shelter; no one sent them, they simply found us. The tents we have will not hold them. Edda has been saying for weeks that a settlement of six is a supper table, not a village; she will now say it with more conviction.",
-    objective: "Build Houses",
+      "The family of hunters who walked in off the road are still living out of the tents, and the tents will not stretch to hold three more. A family like this needs two things to put down roots: a roof they can call their own, and a reason to be up before the light. Raise them houses and a hunting camp both, and they will bring in more meat than Edda can salt, and more than earn the room.",
+    objective: "Build houses and a hunting camp",
     icon: "🏠",
     triggers: [{ type: "chapter_unlocked", storyline: "settlement", chapter: 2 }],
-    condition: (s) => (bldg(s, "houses")?.level ?? 0) >= 1,
+    condition: (s) => (bldg(s, "houses")?.level ?? 0) >= 1 && (bldg(s, "hunting_camp")?.level ?? 0) >= 1,
     rewards: [
-      { resource: "wood", amount: 60, label: "Wood" },
+      { resource: "wood", amount: 80, label: "Wood" },
       { resource: "stone", amount: 40, label: "Stone" },
     ],
     targetBuildingId: "houses",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/houses_camp.png",
-  },
-  {
-    id: "the_new_hunter",
-    storyline: "settlement",
-    chapter: 2,
-    title: "The New Hunters",
-    narrative:
-      "A family arrived this week, hunters by trade, with two good bows between them, and they have already brought in more meat than Edda can salt. We need a hunting camp, if only to keep the smoke out of our sleeping tents.",
-    objective: "Build a Hunting Camp",
-    icon: "🏹",
-    triggers: [{ type: "chapter_unlocked", storyline: "settlement", chapter: 2 }],
-    condition: (s) => (bldg(s, "hunting_camp")?.level ?? 0) >= 1,
-    rewards: [
-      { resource: "wood", amount: 40, label: "Wood" },
-      { resource: "stone", amount: 10, label: "Stone" },
-    ],
-    targetBuildingId: "hunting_camp",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/quest_4.png",
   },
   {
     id: "a_dog_without_a_home",
@@ -818,7 +805,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     title: "Hold the Treeline",
     narrative:
       "The pack the scouts drove off has not gone far; it circles the camp after dark, bolder each night, and hunger will make it bolder still. A fence and a wall turn a hungry wolf where an open camp only invites it, and a tower gives us eyes on the dark before it reaches the gate. Raise both while the nights are still quiet — Gareth will take the watch himself, and a hired bow or two beside him would not go amiss.",
-    objective: "Build Walls and a Watchtower",
+    objective: "Raise the wall and the watchtower before the pack returns",
     icon: "🧱",
     triggers: [{ type: "story_mission_completed", missionId: "story_1_scouting" }],
     condition: (s) => s.walls.some((w) => w.level > 0) && s.watchtowers.some((t) => t.level > 0),
@@ -953,7 +940,13 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     // saint's blessing), and it settles the moment the shrine stands.
     id: "raise_the_shrine",
     storyline: "settlement",
-    chapter: 1,
+    // Chapter 4 (terminal, non-gating): an optional nudge must never sit in a
+    // GATING chapter (only settlement ch1 & ch3 completions gate progression) or
+    // it deadlocks it. In ch1 this blocked settlement Ch1 from ever completing —
+    // and with it the Thornwoods' arrival (event_hunters_arriving) and all
+    // settlement progression past ch1 — because it can't be claimed until Aldwin
+    // arrives to unlock the shrine. Same "fishing-quest lesson" as the pantry.
+    chapter: 4,
     main: false,
     title: "A Place to Kneel",
     narrative:

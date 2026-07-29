@@ -397,6 +397,55 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     unique: true,
     sideChain: { id: "the_strawberry_patch", name: "The Strawberry Patch" },
   },
+  // ── "Lammast" — the farming neighbour a day east (barter + grain-escort) ──
+  // Opened by the arrival beat (ch1_lammast_arrival, the `lammast` director chain).
+  // We are fighters, they are farmers: they feed us (barter), we protect their
+  // grain (escort). The east road is quiet; the danger lives on the NORTH road,
+  // where the grain-escort runs and, later, the Tollman's Road arc both play out.
+  {
+    // The reciprocal first visit: they left us grain, so we return meat (a wood's
+    // larder for a farm's). Peaceful, guaranteed — the east track is safe ground.
+    id: "lammast_first_trade",
+    name: "The Boundary Stone",
+    description: "Lammast left us grain and asked nothing for it, and we do not answer a welcome with empty hands. We have no grain to spare, but the hunters have meat, and game for grain is a fair trade between a wood and a farm. Walk the east track to the old boundary stone, make the exchange, and take the measure of these people while we are about it. The road east is quiet ground, for now.",
+    icon: "🤝",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/merchant_escort.png",
+    slots: [{ class: "any" }],
+    duration: 480,
+    deployItems: [{ resource: "meat", amount: 15 }],
+    rewards: [{ resource: "wheat", amount: 40 }],
+    deployCost: 3,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["outdoor"],
+    guaranteed: true,
+    requires: { chronicleFired: "ch1_lammast_arrival" },
+    unique: true,
+    sideChain: { id: "lammast", name: "Lammast" },
+  },
+  {
+    // The core ongoing trade: we guard their grain up the north road to the Crown
+    // and the richer cities. Pays gold (+ a little grain in thanks). Repeatable.
+    // The north road is the Tollman's ground — these thugs (dominion_thug) are his
+    // rank-and-file, though we do not know it yet; the Tollman's Road arc later
+    // reveals the hand behind them. "A toll to be had" quietly seeds it.
+    id: "lammast_grain_north",
+    name: "Grain for the North",
+    description: "Lammast grows more grain than it can eat and has no fighters to move it. They mean to sell the surplus north, to the Crown's men and the fat cities up the Tessoria road, and they have asked us to see it there whole. It pays, and pays well, for the north road is not the east: settlers come down it heavy with all they own, and the men who work it have learned there is a toll to be had for the taking. Ride with the wagons, keep them to the waystation, and come home paid.",
+    icon: "🌾",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/caravan_guard.png",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 720,
+    rewards: [{ resource: "gold", amount: 45 }, { resource: "wheat", amount: 15 }],
+    deployCost: 8,
+    difficulty: 2,
+    minGuildLevel: 1,
+    tags: ["outdoor", "combat", "escort"],
+    encounters: [{ enemyId: "dominion_thug", count: 2 }],
+    requires: { missionDone: "lammast_first_trade" },
+    unique: false,
+    sideChain: { id: "lammast", name: "Lammast" },
+  },
   // ── "The Tollman's Road" — the road turns organized, and we take it back ──
   // Follows the merchant arc (gated on Cobb's first escort). Robbed → held → the
   // nest broken. Merciful throughout: we drive off, we do not slaughter; the
