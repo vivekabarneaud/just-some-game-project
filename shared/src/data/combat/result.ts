@@ -61,7 +61,7 @@ export function buildResult(
 
   const finalHp: Record<string, number> = {};
   const finalMaxHp: Record<string, number> = {};
-  const finalConditions: Record<string, { type: "bleed" | "poison" | "froth"; remainingRounds: number; perRound?: number; icon?: string }[]> = {};
+  const finalConditions: Record<string, { type: "bleed" | "poison" | "froth" | "venom"; remainingRounds: number; perRound?: number; icon?: string }[]> = {};
   for (const unit of adventurers) {
     finalHp[unit.id] = Math.max(0, unit.hp);
     finalMaxHp[unit.id] = unit.maxHp;

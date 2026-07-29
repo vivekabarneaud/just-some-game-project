@@ -4,7 +4,7 @@ import type { Season } from "../../gameState.js";
 
 // ─── Mission types ──────────────────────────────────────────────
 
-export type RewardType = "gold" | "wood" | "stone" | "food" | "astralShards"
+export type RewardType = "gold" | "wood" | "stone" | "water" | "food" | "astralShards"
   // Typed foods (post-food-refactor missions reward specific items)
   | "wheat" | "barley"
   | "cabbages" | "turnips" | "peas" | "squash" | "fava"

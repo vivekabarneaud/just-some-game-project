@@ -6,7 +6,12 @@ import type { Season } from "./seasons";
  *  both read the same numbers. */
 export const GATHERING_SEASON_MOD: Record<string, Record<Season, number>> = {
   hunting_camp: { spring: 1, summer: 1, autumn: 0.75, winter: 0.5 },
-  fishing_hut:  { spring: 1, summer: 1, autumn: 0.75, winter: 0.5 },
+  // Fishing tracks the STREAM (its single source of truth): full in spring and
+  // autumn, halved in the low, warm summer stream, and near-stopped by winter
+  // ice. Same shape the stream's water yield follows (water.ts streamStatus), so
+  // low water means fewer fish. THE one place the fishing hut's seasonal yield
+  // is defined — the tick reads this too (no separate stream factor).
+  fishing_hut:  { spring: 1, summer: 0.5, autumn: 1, winter: 0.2 },
   forager_hut:  { spring: 1, summer: 1, autumn: 0.75, winter: 0.25 },
 };
 export function gatheringSeasonMod(buildingId: string, season: Season): number | null {
@@ -565,7 +570,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     name: "Fishing Hut",
     category: "gathering",
     description:
-      "A small dock on the river where fishermen cast their nets. Production is reduced in autumn (75%) and winter (50%) when rivers run cold.",
+      "A small dock on the river where fishermen cast their nets. The catch runs best in spring and autumn; the summer stream is too low and warm to fish well, and winter ice all but stops it.",
     icon: "🐟",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/fishing_hut.png",
     maxLevel: 10,

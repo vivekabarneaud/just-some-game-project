@@ -79,6 +79,10 @@ export interface QuestDefinition {
   narrative: string;
   /** Short vignette shown while the quest is active. Preferred over `narrative` when present. */
   startNarrative?: string;
+  /** Dynamic narrative built from live state (e.g. to name the venomed adventurer
+   *  in Slow Venom). Wins over startNarrative/narrative when present. Mirrors the
+   *  `condition` fn — quests already carry state-reading functions. */
+  narrativeFn?: (state: GameState) => string;
   objective: string;
   icon: string;
 
@@ -893,14 +897,42 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     main: true,
     title: "Clear the Marshes",
     narrative:
-      "The woods are quiet again, and the season is turning. Edda needs fenbalm before the winter fevers come, and it grows nowhere but the wet ground past the reeds, where the adders have made themselves at home. We will not put a marsh to the sword for being a marsh. Walk her gatherers in along the firm ground, keep them whole while they cut what they need, turn back the snakes that come at you, and leave the fen to its keepers.",
-    objective: "Escort Edda's gatherers for fenbalm",
+      "The woods are quiet again, and the season is turning. Edda needs fenbalm before the winter fevers come, and it grows nowhere but the wet ground past the reeds, where the adders have made themselves at home. She is too old for the fen herself, and we will not put a marsh to the sword for being a marsh. Go in along the firm ground, cut what she needs, turn back the snakes that come at you, and leave the fen to its keepers.",
+    objective: "Cut fenbalm from the marsh",
     icon: "🐍",
     triggers: [{ type: "quest_completed", questId: "spine_no_one_followed" }],
     condition: (s) => (s.completedUniqueMissionIds ?? []).includes("marsh_clearing"),
     completedByMission: "marsh_clearing",
     rewards: [],
     targetPage: "/guild",
+  },
+  {
+    // Ch1 BREATHER beat between the marsh (Aldith) and the next arrival. Whoever
+    // took the worst adder-bite on Clear the Marshes comes home with a lingering
+    // venom that won't fade (applied by the marsh_clearing success script in
+    // gameState, which also unlocks the Herbal Antidote recipe). Cure them by
+    // brewing + applying the antidote. narrativeFn names the venomed hero live
+    // (pronoun-free; no gender field exists on the cast).
+    id: "slow_venom",
+    storyline: "story",
+    chapter: 1,
+    main: true,
+    title: "Slow Venom",
+    narrative:
+      "One of the team came back from the reeds with an adder's bite that won't close. Edda needs a proper antidote brewed to draw the venom before it takes more than a leg.",
+    narrativeFn: (s) => {
+      const v = s.adventurers.find((a) => a.alive && (a.conditions?.some((c) => c.type === "venom") ?? false));
+      const name = v?.name ?? "One of the team";
+      return `${name} came back from the reeds with an adder's bite that won't close. The fever's climbing, the swelling's gone black, and this is not the kind of venom that sweats out in a night. Edda's fenbalm dulls the pain but won't draw poison this deep; there's a proper antidote for it, she says, and now she has the herbs to brew one. Get it made and into ${name} before the fen takes more than a leg.`;
+    },
+    objective: "Brew a Herbal Antidote and cure the venom",
+    icon: "🐍",
+    triggers: [{ type: "quest_completed", questId: "spine_clear_marshes" }],
+    condition: (s) => !s.adventurers.some((a) => a.alive && (a.conditions?.some((c) => c.type === "venom") ?? false)),
+    // No reward: the payoff is the cured adventurer + the antidote recipe (unlocked
+    // by the marsh script). Reward-less + no chronicle, so it settles quietly on
+    // cure rather than popping a claim modal.
+    rewards: [],
   },
   // "Eyes on the Horizon" (build a watchtower) removed 2026-07 — folded into the
   // "Hold the Treeline" main-story beat above (which now asks for walls AND the

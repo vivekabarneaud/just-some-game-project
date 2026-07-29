@@ -354,7 +354,7 @@ export interface CombatResult {
   /** Lingering DoTs (bleed/poison) still active on SURVIVING adventurers when
    *  combat ended. Written home as Adventurer.conditions — they block passive
    *  regen until they decay/are treated. Keyed by adventurer id. */
-  finalConditions?: Record<string, { type: "bleed" | "poison" | "froth"; remainingRounds: number; perRound?: number; icon?: string }[]>;
+  finalConditions?: Record<string, { type: "bleed" | "poison" | "froth" | "venom"; remainingRounds: number; perRound?: number; icon?: string }[]>;
   /** Set to the NPC ally id when an isMissionObjective ally fell during combat.
    *  Mission completion treats this as a distinct failure — no rewards, no team
    *  XP, but surviving adventurers still go home (no team-wipe permadeath cascade). */

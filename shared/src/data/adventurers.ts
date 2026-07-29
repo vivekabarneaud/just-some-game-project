@@ -596,7 +596,7 @@ export interface AdventurerCondition {
   /** "froth" is the rabid-boar bite-sickness: unlike the bleed/poison DoTs it
    *  does NOT fade on its own — it worsens (drains HP toward a KO floor) and
    *  blocks deployment until cured with a Boar's-Bane Salve. */
-  type: "bleed" | "poison" | "froth";
+  type: "bleed" | "poison" | "froth" | "venom";
   remainingRounds: number;
   /** Per-round damage the DoT was dealing in combat (display only for now). */
   perRound?: number;

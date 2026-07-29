@@ -105,6 +105,52 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     requires: { missionDone: "__forced_only__" }, // sentinel: never met → forced-only (winter via the pool)
   },
 
+  // ── The North Stream — FORCED on WATER scarcity (reserve in deficit + nearly
+  //    dry). The water counterpart to the boar hunt: our own stream runs shallow
+  //    in the heat (and the cistern with it), so we haul from a fuller stream to
+  //    the north. A PEACEFUL haul (no encounters) — early-game safe counterplay,
+  //    available from the first dry spell. Forced-only, recurring (NOT unique) so
+  //    it returns whenever the reserve runs low. Rewards WATER (tops the reserve).
+  {
+    id: "north_stream",
+    name: "The North Stream",
+    description: "Our stream has run shallow and the cistern with it, and the fields are beginning to thirst. But the water still runs strong to the north — colder and fuller than our east bend. Load the barrels onto the yoke-poles and send a team up to haul back what the settlement needs before the ground cracks.",
+    icon: "💧",
+    // TODO: placeholder art (generic outdoor) — swap in a water-haul image.
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/first_patrol.png",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 240, // a haul up north and back — quick, the crops can't wait
+    rewards: [{ resource: "water", amount: 45 }],
+    deployCost: 3, // a haul, not a fight
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["outdoor", "survival"], // no "combat" — a peaceful haul (no encounters)
+    urgent: true, // distinct outline — the dry spell needs an answer now
+    requires: { missionDone: "__forced_only__" }, // sentinel: never met → forced-only
+  },
+  // ── Fill the Barrels — the GENERAL water haul (The North Stream's off-season
+  //    counterpart). Source-agnostic: the cistern's simply run low, so fetch from
+  //    wherever water still stands. Fired by the scarcity trigger in any season
+  //    that isn't summer (winter's frozen stream, a dry year, any dip). Peaceful,
+  //    recurring, forced-only. Rewards water. ──
+  {
+    id: "fill_barrels",
+    name: "Fill the Barrels",
+    description: "The cistern's run low, and there's not enough coming in to cover the fields and the folk both. Send a team out with the barrels to fill up wherever the water still stands, and haul it back before we're rationing every cup.",
+    icon: "🪣",
+    // TODO: placeholder art (generic outdoor) — swap in a water-haul image.
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/first_patrol.png",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 240, // a haul out to fill the barrels and back — quick, the crops can't wait
+    rewards: [{ resource: "water", amount: 45 }],
+    deployCost: 3, // a haul, not a fight
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["outdoor", "survival"], // no "combat" — a peaceful haul (no encounters)
+    urgent: true,
+    requires: { missionDone: "__forced_only__" }, // sentinel: never met → forced-only
+  },
+
   // ── "The Maddened Herd" — rabid boars → the Tainted Spring ──
   {
     id: "bad_blood",

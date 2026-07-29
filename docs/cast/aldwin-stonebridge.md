@@ -42,6 +42,7 @@
 - **T5 — capstones:** **Brother's Keeper** ⭐ (Sanctuary on Magnus auto + huge; while Aldwin lives Magnus can't be one-shot; Aldwin will Last-Stand for him) and **The Unasked Gift** ⭐ (loyalty — his unwitting magic surges into a true cleanse/ward on the corruption itself; the player sees the truth he never will).
 - *Minors:* +heal power, +ward strength, +WIS.
 - *Lore call RESOLVED 2026-06-30: priestly magic is **Light / Solara** (not Primal) — see [[project_magic_rules]] + LORE_TIMELINE. Aldwin's whole kit reads as light (warmth that heals, radiance that comforts the dead and drives back the dark). Tree structure unchanged.*
+- *Light-vs-Hollow (locked 2026-07-28):* Aldwin's Light is the **direct counter to Hollow** — he can drive a **small, fresh hollow-taint wound out of a LIVING body** (effortful; reads as a miracle / answered prayer, never as magic, so it doesn't blow his or Magnus's cover). NOT the Wastes, deep/established corruption, or the dead — those are beyond any priest. This is his **Chapter 1 arrival hook**: he drives back a tainted-boar (Bad Blood) hollow wound that **Edda can't touch**, marking him precious + uncanny. See [[LORE_FINAL]] "Light is the direct counter to Hollow" + [stonebridge-arrival.md](stonebridge-arrival.md).
 
 ## Open threads / TBD
 - Assign a trait.

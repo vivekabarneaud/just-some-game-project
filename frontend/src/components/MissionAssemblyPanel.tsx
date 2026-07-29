@@ -204,6 +204,7 @@ export default function MissionAssemblyPanel(props: Props) {
   // ─── Available adventurers ────────────────────────────────────
   const CLASS_ORDER: Record<string, number> = { warrior: 0, priest: 1, wizard: 2, archer: 3, assassin: 4 };
   const hasFroth = (a: { conditions?: { type: string }[] }) => a.conditions?.some((c) => c.type === "froth") ?? false;
+  const hasVenom = (a: { conditions?: { type: string }[] }) => a.conditions?.some((c) => c.type === "venom") ?? false;
   // Too wounded to march: an adventurer below a quarter of their max HP can't be
   // deployed at all — they need to recover (or be healed) first. Applies to
   // everyone, captains included (a raid-mauled Gareth sits out until he mends).
@@ -212,7 +213,7 @@ export default function MissionAssemblyPanel(props: Props) {
     (a.currentHp ?? calcAdventurerMaxHp(a)) < WOUNDED_FLOOR * calcAdventurerMaxHp(a);
   const availableAdvs = createMemo(() =>
     state.adventurers
-      .filter((a) => a.alive && !a.onMission && !hasFroth(a) && !tooWounded(a) && !(props.coopLockedAdvIds?.has(a.id) ?? false))
+      .filter((a) => a.alive && !a.onMission && !hasFroth(a) && !hasVenom(a) && !tooWounded(a) && !(props.coopLockedAdvIds?.has(a.id) ?? false))
       .sort((a, b) => (CLASS_ORDER[a.class] ?? 9) - (CLASS_ORDER[b.class] ?? 9) || b.level - a.level)
   );
   // Why an adventurer can't be sent right now. Returns null when deployable.
@@ -221,6 +222,7 @@ export default function MissionAssemblyPanel(props: Props) {
   const unavailableReason = (a: typeof state.adventurers[number]): string | null => {
     if (a.onMission) return "Away on a mission";
     if (hasFroth(a)) return "In bed with the froth";
+    if (hasVenom(a)) return "Laid up with adder-venom";
     if (tooWounded(a)) return "Recovering from injuries";
     if (props.coopLockedAdvIds?.has(a.id)) return "Pledged to a co-op expedition";
     return null;

@@ -49,7 +49,7 @@ export interface RecoveryEffect {
   /** Persistent conditions this item clears when used on a resting hero at home
    *  (e.g. a bandage dresses a wound → clears "bleed"; an antidote clears "poison").
    *  Omit for a heal-only item that cures nothing. */
-  cures?: ("bleed" | "poison" | "froth")[];
+  cures?: ("bleed" | "poison" | "froth" | "venom")[];
 }
 
 export interface PotionInfo {
@@ -88,7 +88,7 @@ export const POTION_REGISTRY: Record<string, PotionInfo> = {
                               // DoT lands) with a small bonus heal, and clears poison on a
                               // resting hero at home.
                               combat:   { type: "cleanse", value: 20, trigger: "when_poisoned" },
-                              recovery: { healPct: 20, cures: ["poison"] } },
+                              recovery: { healPct: 20, cures: ["poison", "venom"] } },
   "swiftfoot_brew":         { category: "mission",
                               mission: { successBonus: 3,  deathReduction: 1.0 },
                               combat:  { type: "damage_boost", value: 20, duration: 2, trigger: "before_first_attack" } },

@@ -8,6 +8,7 @@ export const CONDITION_META: Record<string, { icon: string; label: string }> = {
   bleed: { icon: "🩸", label: "Bleeding" },
   poison: { icon: "☣️", label: "Poisoned" },
   froth: { icon: "🤢", label: "Frothing — worsens, can't deploy (cure: Boar's-Bane Salve)" },
+  venom: { icon: "🐍", label: "Venomed — worsens, can't deploy (cure: Herbal Antidote)" },
 };
 
 // Mirrors of the recovery-tick constants in gameState. Heroes heal this fraction

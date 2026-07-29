@@ -362,6 +362,7 @@ function QuestCard(props: {
   onClaim: () => void;
   onSeen?: () => void;
 }) {
+  const { state } = useGame();
   // Memory check-ins (the "The Folk" quests) are personal beats, not
   // transactions: no reward, but they surface a cast memory. The objective line
   // itself becomes the button that opens the memory, and we drop the standalone
@@ -491,7 +492,7 @@ function QuestCard(props: {
             "margin": "0 0 8px",
             "font-style": "italic",
           }}>
-            {props.quest.startNarrative ?? props.quest.narrative}
+            {props.quest.narrativeFn ? props.quest.narrativeFn(state) : (props.quest.startNarrative ?? props.quest.narrative)}
           </p>
           {/* Objective line — clickable when the quest has a target. The
               hover underline + pointer cursor signal it's a link, replacing

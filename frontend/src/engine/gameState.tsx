@@ -2400,10 +2400,6 @@ function citizenWaterDemand_(s: GameState): number {
 function streamStatusOf(s: GameState): StreamStatus {
   return streamStatus(cropClimateBand(s), s.season);
 }
-/** Multiplier the low stream puts on the fishing hut's catch. */
-function fishStreamFactor(s: GameState): number {
-  return streamFactor(streamStatusOf(s));
-}
 
 /** One place computing the water flows this tick (water/hour). The stream + well
  *  + caught rain FILL the reserve; citizens, livestock and the crops DRAW it.
@@ -3045,7 +3041,11 @@ function calcFoodRates(state: GameState, fedRatios?: Map<string, number>): Recor
       // the seasonal gather.
       if (isForagerBlooming(state)) rates.mushrooms += Math.floor(base * RAIN_FORAGE_MUSHROOM_FRACTION);
     } else if (pb.buildingId === "fishing_hut") {
-      rate = Math.floor(rate * (foodSeasonMod[season] ?? 1) * fishStreamFactor(state));
+      // Single source of truth for the fishing hut's seasonal yield: the shared
+      // GATHERING_SEASON_MOD table (via gatheringSeasonMod), which the modal reads
+      // too — so display and sim always agree. Its curve already mirrors the
+      // stream (summer low, winter frozen); no separate stream factor stacked on.
+      rate = Math.floor(rate * (gatheringSeasonMod("fishing_hut", season) ?? 1));
       target = "fish";
     }
     // Staff coverage — deploying the building's adventurer (or an empty slot)
@@ -3127,7 +3127,11 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
         sources.push({ type: "mushrooms", label: "Mushrooms", icon: "🍄", rate: rainBonus, building: `${def.name} · rain` });
       }
     } else if (pb.buildingId === "fishing_hut") {
-      rate = Math.floor(rate * (foodSeasonMod[season] ?? 1) * fishStreamFactor(state));
+      // Single source of truth for the fishing hut's seasonal yield: the shared
+      // GATHERING_SEASON_MOD table (via gatheringSeasonMod), which the modal reads
+      // too — so display and sim always agree. Its curve already mirrors the
+      // stream (summer low, winter frozen); no separate stream factor stacked on.
+      rate = Math.floor(rate * (gatheringSeasonMod("fishing_hut", season) ?? 1));
       type = "fish"; icon = "🐟"; label = "Fish";
     }
     if (type && rate > 0) {
@@ -3193,6 +3197,10 @@ export const FAMINE_RATION_THRESHOLD_HOURS = 6;
  *  Boar Hunt is forced onto the board (meat on four legs). Tunable; a touch
  *  tighter than the famine-ration threshold so it reads as the emergency. */
 export const WILD_BOAR_HUNT_FOOD_HOURS = 3;
+/** Water reserve running out within this many hours (and in deficit) surfaces the
+ *  North Stream haul — a touch more lead time than the food hunt, since a dry
+ *  spell wilts crops gradually rather than starving folk outright. */
+export const WATER_FETCH_HOURS = 8;
 /** Hours of continuous starvation for the work penalty to reach its floor, and
  *  the floor itself (10% = a 90% cut to wood/stone/gold production). */
 export const FAMINE_WORK_RAMP_HOURS = 12;
@@ -3262,6 +3270,12 @@ function grantReward(
   } else if (res === "gold" || res === "wood" || res === "stone") {
     const key = res as keyof typeof s.resources;
     s.resources[key] = Math.min(caps[key], s.resources[key] + reward.amount);
+  } else if (res === "water") {
+    // Hauled water tops up the reserve, capped by the cistern (or the base
+    // barrels without one) — overflow spills, like any full store.
+    const cb = s.buildings.find((x) => x.buildingId === CISTERN_ID);
+    const cap = getWaterCap(Math.max(0, (cb?.level ?? 0) - (cb?.damaged ? 1 : 0)));
+    s.resources.water = Math.min(cap, (s.resources.water ?? 0) + reward.amount);
   } else if (res === "food") {
     addFood(s.foods, "wheat", reward.amount, caps.food);
   } else if (isFoodItemType(res)) {
@@ -4588,23 +4602,30 @@ export function GameProvider(props: ParentProps) {
         const REGEN_PCT_PER_HOUR = 0.12;       // full from empty in ~8 game-hours
         const HOURS_PER_CONDITION_ROUND = 1.5; // a 3-round wound lingers ~4.5 game-hours
         const FROTH_DRAIN_PCT_PER_HOUR = 0.08; // the froth worsens — ~12h from full to KO
+        const VENOM_DRAIN_PCT_PER_HOUR = 0.05; // the fen's venom worsens SLOWER — ~20h to KO (time to brew a cure)
         for (const adv of s.adventurers) {
           if (!adv.alive || adv.onMission) continue;
           const advMaxHp = calcAdventurerMaxHp(adv);
           if (adv.currentHp == null) adv.currentHp = advMaxHp;
           if (adv.conditions?.length) {
-            // The froth never fades on its own — only a Boar's-Bane Salve clears it.
-            // The DoT wounds (bleed/poison) decay over time as before.
+            // The froth AND the fen's venom never fade on their own — only their
+            // cures clear them (Boar's-Bane Salve / Herbal Antidote). The DoT
+            // wounds (bleed/poison) decay over time as before.
             for (const c of adv.conditions) {
-              if (c.type !== "froth") c.remainingRounds -= elapsedHours / HOURS_PER_CONDITION_ROUND;
+              if (c.type !== "froth" && c.type !== "venom") c.remainingRounds -= elapsedHours / HOURS_PER_CONDITION_ROUND;
             }
-            const live = adv.conditions.filter((c) => c.type === "froth" || c.remainingRounds > 0);
+            const live = adv.conditions.filter((c) => c.type === "froth" || c.type === "venom" || c.remainingRounds > 0);
             adv.conditions = live.length ? live : undefined;
           }
           const hasFroth = adv.conditions?.some((c) => c.type === "froth");
+          const hasVenom = adv.conditions?.some((c) => c.type === "venom");
           if (hasFroth) {
             // The froth worsens: it drains HP toward a KO floor (1) until treated.
             adv.currentHp = Math.max(1, adv.currentHp - advMaxHp * FROTH_DRAIN_PCT_PER_HOUR * elapsedHours);
+          } else if (hasVenom) {
+            // The fen's venom worsens too, but slower — time to brew and get an
+            // antidote into them before it takes them to the KO floor.
+            adv.currentHp = Math.max(1, adv.currentHp - advMaxHp * VENOM_DRAIN_PCT_PER_HOUR * elapsedHours);
           } else if (!adv.conditions?.length && adv.currentHp < advMaxHp) {
             adv.currentHp = Math.min(advMaxHp, adv.currentHp + advMaxHp * REGEN_PCT_PER_HOUR * elapsedHours);
           }
@@ -5475,6 +5496,23 @@ export function GameProvider(props: ParentProps) {
                 // No-encounter missions don't damage HP — leave currentHp as-is.
               }
 
+              // Slow Venom (Ch1 beat): the marsh adders leave the survivor who took
+              // the worst of the fen with a lingering venom that won't fade on its
+              // own — it needs a brewed Herbal Antidote (recipe unlocked here so the
+              // cure is reachable). The Slow Venom quest keys off the venom condition
+              // existing; the beat text names whoever's bitten.
+              if (success && am.missionId === "marsh_clearing") {
+                const bitten = am.adventurerIds
+                  .map((id) => s.adventurers.find((a) => a.id === id))
+                  .filter((a): a is Adventurer => !!a && a.alive && !a.conditions?.some((c) => c.type === "venom"))
+                  .sort((a, b) => (a.currentHp ?? calcAdventurerMaxHp(a)) - (b.currentHp ?? calcAdventurerMaxHp(b)))[0];
+                if (bitten) {
+                  bitten.conditions = [...(bitten.conditions ?? []), { type: "venom", remainingRounds: 99 }];
+                  if (!s.discoveredRecipes.includes("herbal_antidote")) s.discoveredRecipes.push("herbal_antidote");
+                  pushEvent(s, "adventurer_wounded", "🐍", `${bitten.name} came home from the fen with an adder-bite that will not close. Edda needs a Herbal Antidote brewed to draw the venom.`);
+                }
+              }
+
               // Rewards are NOT auto-granted — player claims them via the Guild page
 
               // Log events
@@ -5732,6 +5770,22 @@ export function GameProvider(props: ParentProps) {
                 if (!anyUp && eligible.length > 0) {
                   forceMission(eligible[Math.floor(Math.random() * eligible.length)].id);
                 }
+              }
+            }
+            // Water crisis: reserve in deficit AND running out within
+            // WATER_FETCH_HOURS → surface a water haul so a dry spell has an active
+            // answer. In SUMMER it's The North Stream (our stream runs shallow in
+            // the heat → haul from the fuller northern one); any other season
+            // (winter's frozen stream, a dry year, any dip) it's the source-
+            // agnostic Fill the Barrels. The real fix is a well/cistern; this is
+            // the tide-over. One at a time (neither fires while the other is up).
+            {
+              const net = s.netWaterPerHour ?? 0;
+              const hoursLeft = net < 0 ? (s.resources.water ?? 0) / -net : Infinity;
+              const anyUp = onBoard.has("north_stream") || active.has("north_stream")
+                || onBoard.has("fill_barrels") || active.has("fill_barrels");
+              if (hoursLeft < WATER_FETCH_HOURS && !anyUp) {
+                forceMission(s.season === "summer" ? "north_stream" : "fill_barrels");
               }
             }
           }
@@ -7023,8 +7077,8 @@ export function GameProvider(props: ParentProps) {
       for (const id of adventurerIds) {
         const adv = state.adventurers.find((a) => a.id === id && a.alive && !a.onMission);
         if (!adv) return false;
-        // The froth is a KO condition — too sick to deploy until cured.
-        if (adv.conditions?.some((c) => c.type === "froth")) return false;
+        // Froth and the fen's venom are KO conditions — too sick to deploy until cured.
+        if (adv.conditions?.some((c) => c.type === "froth" || c.type === "venom")) return false;
         team.push(adv);
       }
 

@@ -229,7 +229,7 @@ export interface InventoryItem {
 
 // ─── Missions ───────────────────────────────────────────────────
 
-export type RewardType = "gold" | "wood" | "stone" | "food" | "astralShards"
+export type RewardType = "gold" | "wood" | "stone" | "water" | "food" | "astralShards"
   // Typed foods (post-food-refactor missions use these directly)
   | "wheat" | "barley"
   | "cabbages" | "turnips" | "peas" | "squash" | "fava"
