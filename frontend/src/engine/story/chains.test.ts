@@ -370,16 +370,16 @@ describe("the_stonebridges — Aldwin arrives after Slow Venom; Magnus unlocks l
     runStoryChains(s, [chain], makeDeps(s, 0, log));
     expect(s.chronicleEntriesFired).toContain("ch1_stonebridge_hunch");
 
-    // Even at Familiar (15) the confession is HELD behind the Bad Blood
-    // sentinel — Magnus does not unlock yet.
+    // Even at Familiar (15) the confession is HELD behind the Ch2 miracle
+    // sentinel, so Magnus does not unlock yet.
     loyaltyOf(s, "char_017", 15);
     runStoryChains(s, [chain], makeDeps(s, 0, log));
     expect(s.chronicleEntriesFired).not.toContain("ch1_stonebridge_confession");
     expect(log).toEqual(["char_017"]); // Magnus not yet unlocked
 
-    // Once the (placeholder) Bad Blood gate clears, the tail runs: confession,
+    // Once the (placeholder) Ch2 miracle gate clears, the tail runs: confession,
     // Magnus joins, plea + aftermath.
-    s.completedUniqueMissionIds = ["__stonebridge_bad_blood_gate__"];
+    s.completedUniqueMissionIds = ["__aldwin_ch2_miracle_gate__"];
     runStoryChains(s, [chain], makeDeps(s, 0, log));
     expect(log).toEqual(["char_017", "char_029"]); // Magnus unlocked
     expect(s.chronicleEntriesFired).toEqual([

@@ -447,9 +447,13 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
       "I have not asked. Whatever it is, it is theirs, and they carry it carefully, and no harm has come of it. A man who took in five strangers off the road can let two more keep their own counsel a while longer. If it wants telling, it will be told.",
   },
   {
+    // Confession + fallout are Ch2-END beats (held behind the Aldwin Ch2 miracle
+    // gate). The ch1_ id stem is legacy from when they briefly sat in Ch1; kept to
+    // avoid churn while dormant. chapterId files them under Ch2; final order is TBD
+    // when the Ch2 confession sequence is built.
     id: "ch1_stonebridge_confession",
-    chapterId: "ch1",
-    order: 9.6,
+    chapterId: "ch2",
+    order: 8.6,
     title: "The word the Order burns men for",
     teaser: "The quiet one came to me alone tonight. He said the word himself, with his hands shaking.",
     fullText:
@@ -459,8 +463,8 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
   },
   {
     id: "ch1_stonebridge_plea",
-    chapterId: "ch1",
-    order: 9.7,
+    chapterId: "ch2",
+    order: 8.7,
     title: "A hand held out",
     teaser: "Aldwin came at a dead run, grey as ash, to beg for a life I had already spared.",
     fullText:
@@ -470,8 +474,8 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
   },
   {
     id: "ch1_stonebridge_aftermath",
-    chapterId: "ch1",
-    order: 9.8,
+    chapterId: "ch2",
+    order: 8.8,
     title: "God forgive me if I am wrong",
     teaser: "I have done a thing the Doctrine has one word for, and the word is damnable. I keep waiting to feel damned.",
     fullText:

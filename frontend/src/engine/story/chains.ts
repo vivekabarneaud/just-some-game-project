@@ -304,12 +304,15 @@ export const STORY_CHAINS: StoryChain[] = [
       api.fireChronicleModal("ch1_stonebridge_arrival");
       api.awaitLoyalty("char_017", 8);                // a few missions in, the Lord notices
       api.fireChronicleModal("ch1_stonebridge_hunch");
-      // ── HELD until the Bad Blood miracle beat is built ──────────────
-      // The confession must land AFTER Aldwin's Light miracle and the suspicion
-      // it throws onto Magnus. That beat does not exist yet, so this sentinel
-      // (a mission id that is never completed) parks the tail. Replace it with
-      // the real miracle gate when Bad Blood ships.
-      api.awaitMissionDone("__stonebridge_bad_blood_gate__");
+      // ── HELD until Aldwin's Ch2 miracle beat is built ───────────────
+      // The confession is a Ch2-END beat. It must land AFTER Aldwin's Light
+      // miracle in Ch2 (he drives back a TAINTED-boar Hollow wound that Edda
+      // cannot touch) and the suspicion that throws onto Magnus. That beat does
+      // not exist yet, and it belongs with the tainted turn of the Maddened Herd,
+      // NOT the Ch1 "bad_blood" opener (which is now its own main-story beat). So
+      // this sentinel (a mission id never completed) parks the tail. Replace it
+      // with the real Ch2 miracle gate when that beat is built.
+      api.awaitMissionDone("__aldwin_ch2_miracle_gate__");
       api.awaitLoyalty("char_017", 15);               // Familiar, he clearly belongs now
       api.fireChronicleModal("ch1_stonebridge_confession");
       api.recruit("char_029");                        // Magnus, freed by his own courage

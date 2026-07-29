@@ -111,6 +111,32 @@ export const STORY_MISSIONS: StoryMission[] = [
     encounters: [{ enemyId: "marsh_adder", count: 3 }],
     unique: true,
   },
+  {
+    // The Maddened Herd OPENER, promoted from the side-chain onto the golden
+    // spine (2026-07-29). Gated on the slow_venom cure (which also triggers the
+    // Stonebridge arrival), so it lands right as the Stonebridges settle in and
+    // reads as the next main beat. The herd's escalation continues as the
+    // "Maddened Herd" side-chain (bad_season_boars requires this done). Living
+    // rabid boar only; the taint turn is Ch2. Quest-panel tracker: spine_bad_blood.
+    id: "bad_blood",
+    storyOrder: 4.5,
+    prerequisite: "marsh_clearing",
+    prerequisiteQuest: "slow_venom",
+    chapter: "Chapter 1: Ashes and Dust",
+    name: "Bad Blood",
+    description: "A boar came out of the tree line at dusk, foaming and wild, and tore through the vegetable rows before anyone could turn it. A sick beast, nothing more, but a sick beast with tusks. Put it down before it gores someone, and let the poor thing rest.",
+    icon: "🐗",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/rabid_boar_hunt.png",
+    slots: [{ class: "any" }],
+    duration: 60,
+    rewards: [{ resource: "gold", amount: 20 }, { resource: "meat", amount: 20 }],
+    deployCost: 3,
+    difficulty: 1,
+    minGuildLevel: 1,
+    tags: ["combat", "outdoor"],
+    encounters: [{ enemyId: "rabid_boar", count: 1 }],
+    unique: true,
+  },
   // ─── CHAPTER 2 AND BEYOND — DEFERRED ─────────────────────────────
   // The Chapter 1 restructure (2026-07) ends the spine at survival: scouting →
   // the wolves (Hold the Treeline / Baptism) → Run Down (Hester). Everything

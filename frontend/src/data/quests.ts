@@ -965,6 +965,28 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     rewards: [],
     autoComplete: true,
   },
+  {
+    // Main-story beat: the beasts to the south start to sicken. The quest-panel
+    // tracker for the golden `bad_blood` story mission (storyMissions.ts). Gated
+    // on the slow_venom cure, exactly like the mission, so the two surface
+    // together right as the Stonebridge arrival fires (slow_venom triggers it).
+    // The herd's escalation continues as the "Maddened Herd" side-chain until it
+    // turns tainted in Ch2.
+    id: "spine_bad_blood",
+    storyline: "story",
+    chapter: 1,
+    main: true,
+    title: "Bad Blood",
+    narrative:
+      "Something is wrong with the beasts to the south. A boar came out of the treeline at dusk, red-eyed and foaming, and threw itself at the first thing that moved. A sick animal is little danger to armed folk, but beasts do not turn like this for no reason. Put it down, and let us hope it is the only one.",
+    objective: "Put down the sick boar",
+    icon: "🐗",
+    triggers: [{ type: "quest_completed", questId: "slow_venom" }],
+    condition: (s) => (s.completedUniqueMissionIds ?? []).includes("bad_blood"),
+    completedByMission: "bad_blood",
+    rewards: [],
+    targetPage: "/guild",
+  },
   // "Eyes on the Horizon" (build a watchtower) removed 2026-07 — folded into the
   // "Hold the Treeline" main-story beat above (which now asks for walls AND the
   // watchtower). "Man the Wall" below re-gates onto that.

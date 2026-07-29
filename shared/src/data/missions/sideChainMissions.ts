@@ -152,24 +152,10 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   },
 
   // ── "The Maddened Herd" — rabid boars → the Tainted Spring ──
-  {
-    id: "bad_blood",
-    name: "Bad Blood",
-    description: "A boar came out of the tree line at dusk, foaming and wild, and tore through the vegetable rows before anyone could turn it. A sick beast, nothing more, but a sick beast with tusks. Put it down before it gores someone, and let the poor thing rest.",
-    icon: "🐗",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/rabid_boar_hunt.png",
-    slots: [{ class: "any" }],
-    duration: 60, // a boar in the vegetable rows — it's right here, not a trek
-    rewards: [{ resource: "gold", amount: 20 }, { resource: "meat", amount: 20 }],
-    deployCost: 3,
-    difficulty: 1,
-    minGuildLevel: 1,
-    tags: ["combat", "outdoor"],
-    encounters: [{ enemyId: "rabid_boar", count: 1 }],
-    requires: { story: "story_1_scouting" },
-    unique: true,
-    sideChain: { id: "maddened_herd", name: "The Maddened Herd" },
-  },
+  // The OPENER (bad_blood, one sick boar) was promoted to a GOLDEN story mission
+  // (see storyMissions.ts + the spine_bad_blood quest); it kicks the arc off on
+  // the main thread. The side-chain proper begins here, with the herd worsening,
+  // and gates on bad_blood being done.
   {
     id: "bad_season_boars",
     name: "A Bad Season for Boars",
