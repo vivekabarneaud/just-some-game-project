@@ -290,7 +290,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
 {
     id: "bear_den",
     name: "A Wide Berth",
-    description: "The cutters came back from the southern stand white-faced over a forest bear that has denned by the lumber road, and they want it dead. As neighbours go, the bear has declared no war, levied no tax, and laid claim to nothing but the few trees it sleeps under, which is more courtesy than we get from most lords. We will not march on it for that. Mark the bounds of its little realm so no one wanders into its court uninvited, then find the cutters a fresh stand of timber well clear of it. There is no shortage of trees.",
+    description: "Word came back from the southern stand, white-faced, of a forest bear that has denned by the timber road, and there is talk of having it killed. As neighbours go, the bear has declared no war, levied no tax, and laid claim to nothing but the few trees it sleeps under, which is more courtesy than we get from most lords. We will not march on it for that. Mark the bounds of its little realm so no one wanders into its court uninvited, then steer our timber-cutting to a fresh stand well clear of it. There is no shortage of trees.",
     icon: "🐻",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/bears_den.png",
     slots: [{ class: "any" }, { class: "any" }],
@@ -306,7 +306,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
 {
     id: "alpha_wolf_hunt",
     name: "The Pack Leader",
-    description: "A big pale wolf has taken the pack in hand, and under it they hit the pens on the same nights, from the same wind. The mothers have started keeping the little ones in after dark. It is no fault of the wolves that the game is gone and the winter ran long, but a fed pack that has learned our fences will not unlearn them. Break the pack's hold, by its leader if there is no other way, and give the valley back its nights.",
+    description: "A big pale wolf has taken the pack in hand, and under it they hit the pens on the same nights, from the same wind, until the flock is half-wild with fear by morning. It is no fault of the wolves that the game is gone and the winter ran long, but a fed pack that has learned our fences will not unlearn them. Break the pack's hold, by its leader if there is no other way, and give the valley back its nights.",
     icon: "🐺",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/pack_leader.png",
     slots: [{ class: "any" }, { class: "any" }],
@@ -317,6 +317,9 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     minGuildLevel: 1,
     tags: ["combat", "outdoor"],
     encounters: [{ enemyId: "alpha_wolf", count: 1 }, { enemyId: "wild_wolf", count: 4 }],
+    // Gated on a flock existing: a pack "raiding the pens" only makes sense once
+    // there's livestock to raid (and citizens/pens to threaten). No pen = no beat.
+    requires: { pen: "sheep" },
     unique: true, // one-time: the pack leader dies once, dropping ONE of fang/sinew
   },
 

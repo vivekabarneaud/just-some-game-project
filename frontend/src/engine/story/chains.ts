@@ -343,6 +343,11 @@ export const STORY_CHAINS: StoryChain[] = [
   {
     id: "the_strawberry_patch",
     run: (api) => {
+      // Gate on the settlement being ESTABLISHED (Village = Town Hall 3), not just
+      // old: dev seasons are short, so year-2-summer alone can arrive while the
+      // camp is still tiny, making a warm summer-lull "Nell wanders off" beat land
+      // far too early. Require growth AND the season AND year 2.
+      api.awaitBuilding("town_hall", 3);
       api.awaitSeason("summer", 2);
       api.fireChronicleModal("ch2_nell_wandering");   // worry — opens the search mission
       api.awaitMissionDone("find_nell");              // the team goes and finds her

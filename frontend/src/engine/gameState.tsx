@@ -2156,7 +2156,7 @@ function applyEventEvaluation(s: GameState): void {
     if (ready.length === 0) return;
     for (const event of ready) {
       s.firedEvents.push(event.id);
-      s.pendingEvents.push(event.id);
+      if (!event.silent) s.pendingEvents.push(event.id);
       if (event.unlocks?.activateStoryline) {
         const { storyline, chapter } = event.unlocks.activateStoryline;
         const cs = s.chapters.find((c) => c.storyline === storyline);

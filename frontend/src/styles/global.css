@@ -4534,7 +4534,7 @@ input, textarea, select {
     transparent 0,
     transparent 15%,
     black 20%,
-    black calc(100% - 24px),
+    black 80%,
     transparent 100%
   );
   mask-image: linear-gradient(
@@ -4542,7 +4542,7 @@ input, textarea, select {
     transparent 0,
     transparent 15%,
     black 20%,
-    black calc(100% - 24px),
+    black 80%,
     transparent 100%
   );
 }
@@ -4553,7 +4553,10 @@ input, textarea, select {
    (durationMs). Looping lets a long message get more than one pass to be read
    without speeding up or cutting off. */
 .event-banner-marquee {
-  animation: event-banner-scroll 7s linear infinite;
+  /* The animation is applied INLINE per banner (its scrollMs = the pass speed).
+     Every message does one SINGLE pass: a full-width lead-in slides the text in
+     from the right, it crosses once (0 to -100%), and holds off-screen (forwards)
+     until the banner dismisses. No loop. (Reduced motion skips it — see below.) */
 }
 
 /* Reduced-motion: a single slow pass instead of a loop, and drop the slide
@@ -4561,7 +4564,8 @@ input, textarea, select {
 @media (prefers-reduced-motion: reduce) {
   .event-banner { animation: none; }
   .event-banner.exiting { animation: none; opacity: 0; }
-  .event-banner-marquee { animation-duration: 25s; animation-iteration-count: 1; }
+  /* The marquee never scrolls under reduced motion — the JS keeps every banner
+     static + centered (REDUCED_MOTION short-circuits the overflow check). */
 }
 
 /* ─── Talent Tree ──────────────────────────────────────────── */

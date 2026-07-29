@@ -24,9 +24,14 @@ export interface EventBannerItem {
   onClick?: () => void;
   /** Optional color override — lets callers pick e.g. a season-specific accent. */
   accent?: string;
-  /** How long the banner STAYS on screen (ms) — independent of scroll speed; the
-   *  marquee loops at a constant pace during this window. Omit for
-   *  DEFAULT_SHOW_MS (12s); the season "… is coming" warnings pass 18s. */
+  /** Scroll SPEED = the duration of the single scroll pass (ms). Every message
+   *  scrolls once, sliding in from the right and out the left. Bigger = slower.
+   *  Omit for DEFAULT_SCROLL_MS. */
+  scrollMs?: number;
+  /** How long the banner STAYS on screen (ms), independent of scroll speed.
+   *  DEFAULTS to `scrollMs`, so the banner dismisses exactly as the pass finishes
+   *  (no empty gap). Set LARGER to hold after the text scrolls off, SMALLER to
+   *  cut the pass short. */
   durationMs?: number;
 }
 
@@ -59,11 +64,10 @@ export function dismissEvent(id: number): void {
  *  sync with the CSS keyframe duration on `.event-banner.exiting`. */
 const EXIT_ANIMATION_MS = 500;
 
-/** How long a banner STAYS on screen (ms) — independent of scroll speed. The
- *  marquee scrolls at a fixed CSS speed and LOOPS; this timer governs when the
- *  banner leaves, so a long message simply gets more passes to be read.
- *  Overridable per banner via `durationMs` (season "… is coming" warnings: 18s). */
-const DEFAULT_SHOW_MS = 12000;
+/** Default scroll-pass duration (ms) = the scroll SPEED. Every banner scrolls
+ *  once at this pace unless a per-banner `scrollMs` overrides it. On-screen time
+ *  (`durationMs`) defaults to this, so by default there's no gap after the pass. */
+const DEFAULT_SCROLL_MS = 7000;
 
 /** Whether the viewer prefers reduced motion. When true the marquee does a
  *  single slow pass (CSS) instead of looping. */
@@ -100,10 +104,10 @@ export default function EventBanner() {
     // Audible cue on appearance. Raids get the dramatic stinger; everything else
     // uses the soft neutral chime.
     playSound(c.type === "raid" ? "raid_stinger" : "notify_soft");
-    // Show time is decoupled from scroll speed: the marquee loops at a constant
-    // pace and the banner dismisses on this timer. Reduced motion does a single
-    // slow ~25s pass instead of looping.
-    const showMs = REDUCED_MOTION ? 25000 : (c.durationMs ?? DEFAULT_SHOW_MS);
+    // On-screen time, defaulting to the scroll-pass duration so the banner leaves
+    // exactly as the single pass finishes (no gap). A larger durationMs holds it
+    // after the text scrolls off; a smaller one cuts the pass short.
+    const showMs = c.durationMs ?? c.scrollMs ?? DEFAULT_SCROLL_MS;
     const timer = setTimeout(() => startExit(c.id), showMs);
     onCleanup(() => clearTimeout(timer));
   });
@@ -116,6 +120,8 @@ export default function EventBanner() {
     <Show when={current()} keyed>
       {(item) => {
         const accent = () => item.accent ?? DEFAULT_ACCENTS[item.type];
+        // Every message scrolls once at this pace, sliding in from the right.
+        const scrollMs = item.scrollMs ?? DEFAULT_SCROLL_MS;
         return (
           <div
             class="event-banner"
@@ -145,19 +151,27 @@ export default function EventBanner() {
               "box-shadow": "0 2px 8px rgba(0, 0, 0, 0.3)",
             }}
           >
-            {/* Asymmetric padding: margin only on the right so text appears to
-                enter from mid-banner, but can scroll all the way to the
-                banner's left edge before disappearing. The CSS mask softens
-                both the entry (right fade-in) and exit (left fade-out). */}
+            {/* The CSS mask fades both edges as text passes. If the message FITS
+                it holds static + centered; if it OVERFLOWS it becomes a seamless
+                loop (message rendered twice, the track scrolls exactly one copy). */}
             <div
               class="event-banner-mask"
               style={{
                 height: "100%",
-                "margin-right": "20%",
                 overflow: "hidden",
                 position: "relative",
+                display: "flex",
+                "align-items": "center",
+                "justify-content": REDUCED_MOTION ? "center" : "flex-start",
+                // Real empty space on the right so text enters/exits inset from
+                // the screen edge (the fade alone doesn't hold it back). Tune %.
+                "margin-right": "8%",
               }}
             >
+              {/* One pass, no loop, no differentiation by length. A full-width
+                  lead-in (padding-left) slides the text in from an empty right;
+                  it crosses once (0 to -100%), exits left, and holds off (forwards)
+                  until the banner dismisses. Reduced motion shows it static. */}
               <div
                 class="event-banner-marquee"
                 style={{
@@ -170,13 +184,11 @@ export default function EventBanner() {
                   color: accent(),
                   "text-shadow": "0 1px 2px rgba(0, 0, 0, 0.5)",
                   "white-space": "nowrap",
-                  "padding-left": "100%",
-                  // Trailing padding extends the marquee past the wrapper's left
-                  // edge as translateX(-100%) moves the element by its full
-                  // rendered width — text continues sliding through the left
-                  // fade zone rather than stopping inside it.
-                  "padding-right": "60px",
                   "letter-spacing": "0.5px",
+                  "max-width": REDUCED_MOTION ? "100%" : "none",
+                  "padding-left": REDUCED_MOTION ? "0" : "100%",
+                  "padding-right": REDUCED_MOTION ? "0" : "60px",
+                  animation: REDUCED_MOTION ? "none" : `event-banner-scroll ${scrollMs}ms linear 1 forwards`,
                 }}
               >
                 <Show when={item.icon}>

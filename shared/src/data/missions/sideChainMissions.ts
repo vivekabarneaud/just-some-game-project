@@ -114,7 +114,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   {
     id: "north_stream",
     name: "The North Stream",
-    description: "Our stream has run shallow and the cistern with it, and the fields are beginning to thirst. But the water still runs strong to the north — colder and fuller than our east bend. Load the barrels onto the yoke-poles and send a team up to haul back what the settlement needs before the ground cracks.",
+    description: "Our stream has run shallow, and we are drawing off it faster than it gives back. The water still runs strong to the north, colder and fuller than our east bend. Load the barrels onto the yoke-poles and send a team up to haul back what the settlement needs before the reserve runs dry.",
     icon: "💧",
     // TODO: placeholder art (generic outdoor) — swap in a water-haul image.
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/first_patrol.png",

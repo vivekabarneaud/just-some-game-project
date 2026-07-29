@@ -67,11 +67,17 @@ describe("runStoryChains — primitives", () => {
     expect(s.chronicleEntriesFired).toEqual(["c1"]);
   });
 
-  it("the strawberry patch: season gate → worry → mission → found → seed unlock", () => {
+  it("the strawberry patch: village + season gate → worry → mission → found → seed unlock", () => {
     const log: string[] = [];
     const chain = STORY_CHAINS.find((c) => c.id === "the_strawberry_patch")!;
     const s = makeState({ season: "summer", year: 2 });
 
+    // Summer + year 2, but still a tiny camp (no Village) — held on the Town Hall gate.
+    runStoryChains(s, [chain], makeDeps(s, 0, log));
+    expect(s.chronicleEntriesFired).toEqual([]);
+
+    // Grown to a Village (Town Hall 3) — now the worry beat fires.
+    (s.buildings as { buildingId: string; level: number }[]).push({ buildingId: "town_hall", level: 3 });
     runStoryChains(s, [chain], makeDeps(s, 0, log));
     expect(s.chronicleEntriesFired).toEqual(["ch2_nell_wandering"]); // worry fired, waiting on the mission
     expect(log).not.toContain("seed:strawberries");

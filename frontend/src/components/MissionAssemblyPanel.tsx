@@ -26,7 +26,6 @@ import {
   getMission,
   getMissionRank,
   getMissionStatWeights,
-  getMissionStatHint,
   formatReward,
   areRequiredSlotsFilled,
   isExpedition,
@@ -641,13 +640,12 @@ export default function MissionAssemblyPanel(props: Props) {
         <p style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "font-style": "italic", margin: "10px 0" }}>
           {freshMission().description}
         </p>
-        <Show when={!freshMission().encounters?.length}>
+        {/* Guaranteed (non-combat) missions get a short reassurance. The old
+            "This mission requires X" stat hint was removed as outdated — other
+            missions just show their description + encounters. */}
+        <Show when={!freshMission().encounters?.length && freshMission().guaranteed}>
           <div style={{ "font-size": "0.8rem", color: "var(--accent-blue)", "font-style": "italic", "margin-bottom": "8px" }}>
-            {/* Guaranteed missions are safe work (~98%), so a "requires X" demand
-                would be misleading — reassure instead. Others still lean on stats. */}
-            {freshMission().guaranteed
-              ? "Safe work. A careful hand should see it done without trouble."
-              : getMissionStatHint(freshMission().tags)}
+            Safe work. A careful hand should see it done without trouble.
           </div>
         </Show>
 

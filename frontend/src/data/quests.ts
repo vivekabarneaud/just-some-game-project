@@ -431,7 +431,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     chapter: 4, // terminal, non-gating (need-fired nudge — see the pantry note)
     title: "A Cistern for the Dry Days",
     narrative:
-      "The gardens drink more than the stream gives back, and the reserve drops a little each day. A stone cistern would bank the rain when it falls and carry us through the dry stretches, instead of watching the level fall and hoping for a cloud.",
+      "We are drawing more water than the stream gives back, and the reserve drops a little each day. A stone cistern would bank the rain when it falls and carry us through the dry stretches, instead of watching the level fall and hoping for a cloud.",
     objective: "Build a Cistern",
     icon: "💧",
     // Need-fired ONLY: net water in DEFICIT (draws outpace inflow — the "just

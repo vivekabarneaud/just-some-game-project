@@ -64,6 +64,11 @@ export interface NarrativeEvent {
   requiresAll?: boolean;
   /** Sentence-or-two banner shown to the player on fire. */
   banner: string;
+  /** When true, the event fires its unlocks but shows NO banner modal. Use when
+   *  the real narrative already lands elsewhere (e.g. a mission's chronicleEntryId)
+   *  and the event exists only to apply an unlock. `banner` is kept (required) but
+   *  never displayed. */
+  silent?: boolean;
   unlocks?: EventUnlocks;
 }
 
@@ -177,11 +182,13 @@ export const NARRATIVE_EVENTS: NarrativeEvent[] = [
   {
     id: "event_three_reports",
     triggers: [{ type: "story_mission_completed", missionId: "story_1_scouting" }],
-    // The detailed wolf warning now lives in the "Hold the Treeline" quest and
-    // the scouting chronicle, so this is just a short "scouts are back" beat that
-    // points at the work and the southern mystery, without repeating it.
+    // SILENT: the scouts' full account already lands as the real chronicle entry
+    // (ch1_first_scouts) on the scouting mission's claim, so a second banner here
+    // just repeats it. This event exists only to open the defense storyline; it
+    // fires no modal. Banner kept (field is required) but never shown.
+    silent: true,
     banner:
-      "The scouts are back, and their full account is in the book. It leaves us plain work to do before the season turns — and something two days south that nobody can explain.",
+      "The scouts are back, with a map and plain work to do before the season turns, and word of something two days south that no one can explain.",
     unlocks: {
       activateStoryline: { storyline: "defense", chapter: 1 },
     },
@@ -196,7 +203,7 @@ export const NARRATIVE_EVENTS: NarrativeEvent[] = [
     id: "event_treeline_wolves",
     triggers: [{ type: "quest_completed", questId: "the_first_threat" }],
     banner:
-      "The wall is barely settled on its footings when the first of them slips out of the trees — a lean grey shape, then more behind it, noses to the wind. The treeline has teeth after all. Gareth is already climbing to the watch. Watch them come from the Overview.",
+      "The wall is barely settled on its footings when the first of them slips out of the trees: a lean grey shape, then more behind it, noses to the wind. The treeline has teeth after all. Gareth is already climbing to the watch. We will see now what the wall is worth.",
     unlocks: {
       // Already at the treeline — a short, visible warning (~2.5 min), not the
       // hours the baseWarning formula would give.

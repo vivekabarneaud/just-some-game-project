@@ -153,14 +153,17 @@ export default function App(props: ParentProps) {
     });
     if (!note || note.tone !== "danger") return;
     lastSeasonWarnKey = key;
-    // A long "… is coming" warning — keep it on screen longer (18s vs the 12s
-    // default) so it can be read comfortably across a couple of scroll passes.
+    // A long "… is coming" warning: a slow single scroll pass so it reads
+    // comfortably. scrollMs = the pass speed; durationMs matches it so the banner
+    // leaves exactly as the text finishes (no gap). Bump durationMs above scrollMs
+    // if you want it to hold after scrolling off.
     showEvent({
       type: "season",
       icon: SEASON_META[next].icon,
       message: `${note.headline}. ${note.detail}`,
       accent: "var(--accent-gold)",
-      durationMs: 18000,
+      scrollMs: 16000,
+      durationMs: 14000,
       onClick: () => navigate("/"),
     });
   });
