@@ -533,39 +533,38 @@ export default function Overview() {
           </div>
         </div>
 
-        <div class="overview-panel ornament-frame">
-          <h2>Building Activity</h2>
-          <div class="stat-row" style={{ "margin-bottom": "8px" }}>
-            <span class="stat-label">Queue</span>
-            <span class="stat-value">
-              {actions.getActiveQueueCount()} / {actions.getMasonBonuses().queueSlots}
-            </span>
+        {/* Event Log */}
+        <Show when={state.eventLog.length > 0}>
+          <div class="overview-panel ornament-frame">
+            <h2>Event Log</h2>
+            <div style={{ "max-height": "300px", overflow: "auto" }}>
+              <For each={state.eventLog.slice(0, 20)}>
+                {(event) => {
+                  const color = () => {
+                    if (event.type.includes("died") || event.type.includes("defeat") || event.type.includes("failed") || event.type.includes("left") || event.type.includes("damaged") || event.type.includes("freezing")) return "var(--accent-red)";
+                    if (event.type.includes("victory") || event.type.includes("success") || event.type.includes("born") || event.type.includes("completed") || event.type.includes("repaired")) return "var(--accent-green)";
+                    if (event.type.includes("levelup") || event.type.includes("rankup")) return "var(--accent-blue)";
+                    if (event.type.includes("incoming")) return "var(--accent-gold)";
+                    return "var(--text-secondary)";
+                  };
+                  return (
+                    <div style={{
+                      padding: "4px 0",
+                      "border-bottom": "1px solid var(--border-default)",
+                      "font-size": "0.8rem",
+                      display: "flex",
+                      gap: "6px",
+                      "align-items": "flex-start",
+                    }}>
+                      <span>{event.icon}</span>
+                      <span style={{ color: color() }}>{event.message}</span>
+                    </div>
+                  );
+                }}
+              </For>
+            </div>
           </div>
-          <Show
-            when={upgradingBuildings().length > 0}
-            fallback={
-              <p style={{ color: "var(--text-muted)", "font-size": "0.85rem" }}>
-                No construction in progress
-              </p>
-            }
-          >
-            <For each={upgradingBuildings()}>
-              {(pb) => {
-                const def = BUILDINGS.find((b) => b.id === pb.buildingId)!;
-                return (
-                  <div class="stat-row">
-                    <span class="stat-label">
-                      {def.icon} {def.name} → Lv. {pb.level + 1}
-                    </span>
-                    <span class="stat-value" style={{ color: "var(--accent-blue)" }}>
-                      <Countdown remainingSeconds={pb.upgradeRemaining!} />
-                    </span>
-                  </div>
-                );
-              }}
-            </For>
-          </Show>
-        </div>
+        </Show>
 
         <div class="overview-panel ornament-frame">
           <h2>Top Buildings</h2>
@@ -913,38 +912,40 @@ export default function Overview() {
           </Show>
         </div>
 
-        {/* Event Log */}
-        <Show when={state.eventLog.length > 0}>
-          <div class="overview-panel ornament-frame">
-            <h2>Event Log</h2>
-            <div style={{ "max-height": "300px", overflow: "auto" }}>
-              <For each={state.eventLog.slice(0, 20)}>
-                {(event) => {
-                  const color = () => {
-                    if (event.type.includes("died") || event.type.includes("defeat") || event.type.includes("failed") || event.type.includes("left") || event.type.includes("damaged") || event.type.includes("freezing")) return "var(--accent-red)";
-                    if (event.type.includes("victory") || event.type.includes("success") || event.type.includes("born") || event.type.includes("completed") || event.type.includes("repaired")) return "var(--accent-green)";
-                    if (event.type.includes("levelup") || event.type.includes("rankup")) return "var(--accent-blue)";
-                    if (event.type.includes("incoming")) return "var(--accent-gold)";
-                    return "var(--text-secondary)";
-                  };
-                  return (
-                    <div style={{
-                      padding: "4px 0",
-                      "border-bottom": "1px solid var(--border-default)",
-                      "font-size": "0.8rem",
-                      display: "flex",
-                      gap: "6px",
-                      "align-items": "flex-start",
-                    }}>
-                      <span>{event.icon}</span>
-                      <span style={{ color: color() }}>{event.message}</span>
-                    </div>
-                  );
-                }}
-              </For>
-            </div>
+        {/* Building Activity */}
+        <div class="overview-panel ornament-frame">
+          <h2>Building Activity</h2>
+          <div class="stat-row" style={{ "margin-bottom": "8px" }}>
+            <span class="stat-label">Queue</span>
+            <span class="stat-value">
+              {actions.getActiveQueueCount()} / {actions.getMasonBonuses().queueSlots}
+            </span>
           </div>
-        </Show>
+          <Show
+            when={upgradingBuildings().length > 0}
+            fallback={
+              <p style={{ color: "var(--text-muted)", "font-size": "0.85rem" }}>
+                No construction in progress
+              </p>
+            }
+          >
+            <For each={upgradingBuildings()}>
+              {(pb) => {
+                const def = BUILDINGS.find((b) => b.id === pb.buildingId)!;
+                return (
+                  <div class="stat-row">
+                    <span class="stat-label">
+                      {def.icon} {def.name} → Lv. {pb.level + 1}
+                    </span>
+                    <span class="stat-value" style={{ color: "var(--accent-blue)" }}>
+                      <Countdown remainingSeconds={pb.upgradeRemaining!} />
+                    </span>
+                  </div>
+                );
+              }}
+            </For>
+          </Show>
+        </div>
       </div>
     </div>
   );

@@ -494,6 +494,14 @@ export function eligiblePinnedMissions(ctx: MissionBoardContext): MissionTemplat
 
 export function generateMissionBoard(ctx: MissionBoardContext): MissionTemplate[] {
   const { guildLevel, count = 4, seed = Date.now(), maxDifficulty = 5 } = ctx;
+  // The world opens up once the scouts come back. Until the first scouting beat
+  // (story_1_scouting) is done, the rotating board stays empty: the only work
+  // is the golden scouting mission (surfaced on its own, not from this pool) and
+  // any forced survival hauls the tick loop injects (timber/stone/food/water).
+  // This keeps the opening focused on one thing at a time, and lets later
+  // missions honestly name places the scouts have found (the south-hollow bee-
+  // tree, the southern stand) instead of the settlement knowing them already.
+  if (!(ctx.completedStoryMissions ?? []).includes("story_1_scouting")) return [];
   const completedUnique = new Set(ctx.completedUniqueMissionIds ?? []);
   const available = ALL_MISSIONS.filter((m) =>
     !m.staged &&

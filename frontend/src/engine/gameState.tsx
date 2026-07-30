@@ -725,6 +725,8 @@ export interface GameState {
   lastRerollReset: number; // real-world timestamp of last reroll reset (daily)
   lastGuildVisit: number; // timestamp of last guild page visit
   lastMissionRefresh: number; // timestamp when missions last refreshed
+  scoutingBoardSeeded?: boolean; // true once the board has been opened by completing scouting
+
   // Quest system
   questRewardsClaimed: string[];
   /** Per-storyline chapter state. Drives chapter unlocks and the quest log. */
@@ -1304,6 +1306,7 @@ export function createInitialState(): GameState {
     lastDailyLogin: 0,
     lastGuildVisit: 0,
     lastMissionRefresh: 0,
+    scoutingBoardSeeded: false,
     missionRerollToday: 0,
     lastRerollReset: Date.now(),
     questRewardsClaimed: [],
@@ -2563,6 +2566,74 @@ function peopleAreFed(s: GameState): boolean {
   return getTotalFood(s.foods) > 0 || (s.honey ?? 0) > 0;
 }
 
+/** What a food-gathering building brings home per hour, broken into its parts. */
+export interface GatheredFood {
+  /** Which pantry item it fills (meat/fish/berries/mushrooms/nuts). */
+  type: FoodItemType;
+  label: string;
+  icon: string;
+  /** Base level rate before any modifier — the "full N/h" hint. */
+  full: number;
+  seasonMod: number;
+  staffMult: number;
+  /** Hunting-dog boost fraction (camp only; 0 elsewhere). */
+  huntBoost: number;
+  /** THE effective rate: season -> staffing -> dogs, floored stepwise the way
+   *  the tick applies them. Every surface reads this so nothing can drift. */
+  rate: number;
+  /** Forager-only: extra mushrooms after rain, off the full (unstaffed) rate. */
+  rainMushrooms: number;
+}
+
+/** Single source of truth for a food-gathering building's yield — the hunting
+ *  camp, forager's hut, and fishing hut. The tick, the netFoodPerHour
+ *  projection, the Overview food dropdown, and the building card all read this,
+ *  so a short-handed or dog-boosted camp reads the same number everywhere.
+ *  Returns null for anything that isn't one of the three gatherers; callers skip
+ *  damaged buildings (a wrecked camp brings nothing home). */
+export function gatheredFoodRate(state: GameState, pb: PlayerBuilding): GatheredFood | null {
+  const def = BUILDINGS.find((b) => b.id === pb.buildingId);
+  const levelDef = def?.levels[pb.level - 1];
+  if (!def || !levelDef?.production || levelDef.production.resource !== "food") return null;
+  const { season } = state;
+  const full = levelDef.production.rate;
+  // The seasonal curve lives in ONE place (GATHERING_SEASON_MOD via
+  // gatheringSeasonMod) instead of tables re-typed in each caller.
+  const seasonMod = gatheringSeasonMod(pb.buildingId, season) ?? 1;
+
+  let type: FoodItemType;
+  let icon: string;
+  let label: string;
+  let rainMushrooms = 0;
+  if (pb.buildingId === "hunting_camp") {
+    type = "meat"; icon = "🍖"; label = "Meat";
+  } else if (pb.buildingId === "forager_hut") {
+    if (season === "autumn") { type = "mushrooms"; icon = "🍄"; label = "Mushrooms"; }
+    else if (season === "winter") { type = "nuts"; icon = "🌰"; label = "Nuts"; }
+    else { type = "berries"; icon = "🫐"; label = "Berries"; }
+    // Rain sprouts a mushroom bonus in any season, off the FULL (unstaffed) rate,
+    // exactly as the tick adds it.
+    if (isForagerBlooming(state)) rainMushrooms = Math.floor(full * RAIN_FORAGE_MUSHROOM_FRACTION);
+  } else if (pb.buildingId === "fishing_hut") {
+    type = "fish"; icon = "🐟"; label = "Fish";
+  } else {
+    return null;
+  }
+
+  const staffMult = isStaffable(pb.buildingId)
+    ? getBuildingStaffing(state, pb.buildingId, pb.level).multiplier
+    : 1;
+  const huntBoost = pb.buildingId === "hunting_camp"
+    ? Math.min(0.5, state.keptAnimals.reduce((b, a) => a.job === "hunt" ? b + 0.08 * Math.max(1, a.huntLevel) : b, 0))
+    : 0;
+
+  let rate = Math.floor(full * seasonMod);
+  rate = Math.floor(rate * staffMult);
+  if (huntBoost > 0) rate = Math.floor(rate * (1 + huntBoost));
+
+  return { type, label, icon, full, seasonMod, staffMult, huntBoost, rate, rainMushrooms };
+}
+
 function calcProductionRates(state: GameState): { gold: number; wood: number; stone: number; food: number } {
   const { buildings, fields, gardens, pens, citizens, season, seasonElapsed } = state;
   const rates = { gold: 0, wood: 0, stone: 0, food: 0 };
@@ -2571,16 +2642,8 @@ function calcProductionRates(state: GameState): { gold: number; wood: number; st
   // same tax base; toddlers obviously not).
   rates.gold += citizens.adults * GOLD_TAX_PER_CITIZEN_PER_HOUR;
 
-  // Building production — damaged buildings don't produce
-  // Food gathering buildings have seasonal modifiers
-  const FOOD_GATHERING = new Set(["hunting_camp", "forager_hut", "fishing_hut"]);
-  const foodSeasonMod: Record<string, number> = {
-    spring: 1.0, summer: 1.0, autumn: 0.75, winter: 0.5,
-  };
-  const foragerSeasonMod: Record<string, number> = {
-    spring: 1.0, summer: 1.0, autumn: 0.75, winter: 0.25,
-  };
-
+  // Building production — damaged buildings don't produce. Food-gathering
+  // buildings carry seasonal + staffing + dog modifiers via gatheredFoodRate().
   for (const pb of buildings) {
     if (pb.level === 0 || pb.damaged) continue;
     const def = BUILDINGS.find((b) => b.id === pb.buildingId);
@@ -2598,24 +2661,19 @@ function calcProductionRates(state: GameState): { gold: number; wood: number; st
     }
     if (levelDef?.production) {
       const res = levelDef.production.resource as keyof typeof rates;
-      let rate = levelDef.production.rate;
-      // Apply seasonal modifier for food gathering buildings
-      if (FOOD_GATHERING.has(pb.buildingId)) {
-        const mod = pb.buildingId === "forager_hut"
-          ? (foragerSeasonMod[season] ?? 1)
-          : (foodSeasonMod[season] ?? 1);
-        rate = Math.floor(rate * mod);
+      // Food gatherers (hunting/forager/fishing) get season + staffing + dogs
+      // from the shared gatheredFoodRate() helper — the one source of truth.
+      const gathered = gatheredFoodRate(state, pb);
+      if (gathered) {
+        rates.food += gathered.rate;
+      } else {
+        let rate = levelDef.production.rate;
+        // Staff coverage — non-gathering staffable buildings still scale by staffing.
+        if (isStaffable(pb.buildingId)) {
+          rate = Math.floor(rate * getBuildingStaffing(state, pb.buildingId, pb.level).multiplier);
+        }
+        if (res in rates) rates[res] += rate;
       }
-      // Staff coverage — 1 for non-staffable buildings, floored for staffed ones.
-      if (isStaffable(pb.buildingId)) {
-        rate = Math.floor(rate * getBuildingStaffing(state, pb.buildingId, pb.level).multiplier);
-      }
-      // Kept dogs posted to the hunting camp boost its catch (+8%/level, capped).
-      if (pb.buildingId === "hunting_camp") {
-        const huntBoost = Math.min(0.5, state.keptAnimals.reduce((b, a) => a.job === "hunt" ? b + 0.08 * Math.max(1, a.huntLevel) : b, 0));
-        if (huntBoost > 0) rate = Math.floor(rate * (1 + huntBoost));
-      }
-      if (res in rates) rates[res] += rate;
     }
   }
 
@@ -2969,13 +3027,6 @@ function calcFoodRates(state: GameState, fedRatios?: Map<string, number>): Recor
   const rates = emptyFoods();
   const { buildings, fields, gardens, pens, orchards, season, seasonElapsed } = state;
 
-  const foodSeasonMod: Record<string, number> = {
-    spring: 1.0, summer: 1.0, autumn: 0.75, winter: 0.5,
-  };
-  const foragerSeasonMod: Record<string, number> = {
-    spring: 1.0, summer: 1.0, autumn: 0.75, winter: 0.25,
-  };
-
   // Climate multiplier scales all crop yields (fields/gardens/orchards).
   const cm = cropYieldMult(state);
 
@@ -3021,39 +3072,14 @@ function calcFoodRates(state: GameState, fedRatios?: Map<string, number>): Recor
     if (type in rates) rates[type] += prod.produced * ratio;
   }
 
-  // Buildings — hunting, forager, fishing
+  // Buildings — hunting, forager, fishing (season + staffing + dogs via helper)
   for (const pb of buildings) {
     if (pb.level === 0 || pb.damaged) continue;
-    const def = BUILDINGS.find((b) => b.id === pb.buildingId);
-    if (!def) continue;
-    const levelDef = def.levels[pb.level - 1];
-    if (!levelDef?.production || levelDef.production.resource !== "food") continue;
-    let rate = levelDef.production.rate;
-    let target: FoodItemType | null = null;
-    if (pb.buildingId === "hunting_camp") {
-      rate = Math.floor(rate * (foodSeasonMod[season] ?? 1));
-      target = "meat";
-    } else if (pb.buildingId === "forager_hut") {
-      const base = rate;
-      rate = Math.floor(rate * (foragerSeasonMod[season] ?? 1));
-      target = season === "autumn" ? "mushrooms" : season === "winter" ? "nuts" : "berries";
-      // The aftermath of rain sprouts a mushroom bonus in any season, on top of
-      // the seasonal gather.
-      if (isForagerBlooming(state)) rates.mushrooms += Math.floor(base * RAIN_FORAGE_MUSHROOM_FRACTION);
-    } else if (pb.buildingId === "fishing_hut") {
-      // Single source of truth for the fishing hut's seasonal yield: the shared
-      // GATHERING_SEASON_MOD table (via gatheringSeasonMod), which the modal reads
-      // too — so display and sim always agree. Its curve already mirrors the
-      // stream (summer low, winter frozen); no separate stream factor stacked on.
-      rate = Math.floor(rate * (gatheringSeasonMod("fishing_hut", season) ?? 1));
-      target = "fish";
-    }
-    // Staff coverage — deploying the building's adventurer (or an empty slot)
-    // dips output toward the floor; a benched citizen restores it.
-    if (target && isStaffable(pb.buildingId)) {
-      rate = Math.floor(rate * getBuildingStaffing(state, pb.buildingId, pb.level).multiplier);
-    }
-    if (target) rates[target] += rate;
+    const gathered = gatheredFoodRate(state, pb);
+    if (!gathered) continue;
+    rates[gathered.type] += gathered.rate;
+    // Rain's mushroom bonus rides on top of the seasonal gather.
+    if (gathered.rainMushrooms > 0) rates.mushrooms += gathered.rainMushrooms;
   }
 
   return rates;
@@ -3062,13 +3088,6 @@ function calcFoodRates(state: GameState, fedRatios?: Map<string, number>): Recor
 function calcFoodBreakdown(state: GameState): FoodSource[] {
   const { buildings, fields, gardens, pens, season, seasonElapsed } = state;
   const sources: FoodSource[] = [];
-
-  const foodSeasonMod: Record<string, number> = {
-    spring: 1.0, summer: 1.0, autumn: 0.75, winter: 0.5,
-  };
-  const foragerSeasonMod: Record<string, number> = {
-    spring: 1.0, summer: 1.0, autumn: 0.75, winter: 0.25,
-  };
 
   const cm = cropYieldMult(state);
 
@@ -3101,41 +3120,20 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
     sources.push({ type: animal.foodLabel.toLowerCase(), label: animal.foodLabel, icon: animal.icon, rate: prod.produced, building: `${animal.name} Pen Lv${pen.level}` });
   }
 
-  // Buildings — hunting (meat), forager (seasonal berries/mushrooms/nuts), fishing (fish)
+  // Buildings — hunting (meat), forager (seasonal berries/mushrooms/nuts),
+  // fishing (fish). All numbers come from the shared gatheredFoodRate() helper,
+  // so this dropdown always agrees with the tick and the building card.
   for (const pb of buildings) {
-    if (pb.level === 0) continue;
-    const def = BUILDINGS.find((b) => b.id === pb.buildingId);
-    if (!def) continue;
-    const levelDef = def.levels[pb.level - 1];
-    if (levelDef?.production?.resource !== "food") continue;
-    let rate = levelDef.production.rate;
-    let type = "";
-    let icon = "";
-    let label = "";
-    if (pb.buildingId === "hunting_camp") {
-      rate = Math.floor(rate * (foodSeasonMod[season] ?? 1));
-      type = "meat"; icon = "🍖"; label = "Meat";
-    } else if (pb.buildingId === "forager_hut") {
-      const rainBonus = isForagerBlooming(state) ? Math.floor(rate * RAIN_FORAGE_MUSHROOM_FRACTION) : 0;
-      rate = Math.floor(rate * (foragerSeasonMod[season] ?? 1));
-      if (season === "autumn") { type = "mushrooms"; icon = "🍄"; label = "Mushrooms"; }
-      else if (season === "winter") { type = "nuts"; icon = "🌰"; label = "Nuts"; }
-      else { type = "berries"; icon = "🫐"; label = "Berries"; }
-      // Rain sprouts extra mushrooms in any season — a separate source (summed
-      // with the seasonal one in the dropdown). In autumn it stacks onto mushrooms.
-      if (rainBonus > 0) {
-        sources.push({ type: "mushrooms", label: "Mushrooms", icon: "🍄", rate: rainBonus, building: `${def.name} · rain` });
-      }
-    } else if (pb.buildingId === "fishing_hut") {
-      // Single source of truth for the fishing hut's seasonal yield: the shared
-      // GATHERING_SEASON_MOD table (via gatheringSeasonMod), which the modal reads
-      // too — so display and sim always agree. Its curve already mirrors the
-      // stream (summer low, winter frozen); no separate stream factor stacked on.
-      rate = Math.floor(rate * (gatheringSeasonMod("fishing_hut", season) ?? 1));
-      type = "fish"; icon = "🐟"; label = "Fish";
+    if (pb.level === 0 || pb.damaged) continue;
+    const gathered = gatheredFoodRate(state, pb);
+    if (!gathered) continue;
+    const def = BUILDINGS.find((b) => b.id === pb.buildingId)!;
+    if (gathered.rate > 0) {
+      sources.push({ type: gathered.type, label: gathered.label, icon: gathered.icon, rate: gathered.rate, building: def.name });
     }
-    if (type && rate > 0) {
-      sources.push({ type, label, icon, rate, building: def.name });
+    // Rain's mushroom bonus is a separate line (summed with the seasonal one).
+    if (gathered.rainMushrooms > 0) {
+      sources.push({ type: "mushrooms", label: "Mushrooms", icon: "🍄", rate: gathered.rainMushrooms, building: `${def.name} · rain` });
     }
   }
 
@@ -5701,6 +5699,16 @@ export function GameProvider(props: ParentProps) {
           const today3am = new Date();
           today3am.setUTCHours(3, 0, 0, 0);
           if (today3am.getTime() > now) today3am.setUTCDate(today3am.getUTCDate() - 1);
+          // The rotating board opens the moment the scouts return. Pre-scouting
+          // generateMissionBoard yields nothing (the world isn't charted yet), so
+          // the first time scouting is done we force a one-off reroll — otherwise
+          // a mid-day completion would leave the board empty until the next 3AM.
+          // The flag makes it fire exactly once (also covers saves that scouted
+          // before this gate existed).
+          if (!s.scoutingBoardSeeded && (s.completedStoryMissions ?? []).includes("story_1_scouting")) {
+            s.lastMissionRefresh = 0;
+            s.scoutingBoardSeeded = true;
+          }
           const lastRefresh = s.lastMissionRefresh;
           // A newly-eligible pinned chain beat (e.g. Hester's Run Down the moment
           // the Old Watch is done) shouldn't wait for the daily 3AM reroll — inject

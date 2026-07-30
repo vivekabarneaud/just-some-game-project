@@ -2,7 +2,7 @@ import { For, Show, onMount, createSignal } from "solid-js";
 import BuildingModal from "~/components/BuildingModal";
 import { BUILDINGS, isBuildingUnlocked, isBuildingChapterUnlocked, getUnlockRequirement, getUnlockReasons, getUnlockConditions, getNextLevelRequirement, applyMasonCostReduction, applyMasonTimeReduction, getTierPrerequisitesMet, getRepairCost, getBuildingImage, isStaffable, gatheringSeasonMod, animalSlots, PANIC_BUILD_IDS, PANIC_BUILD_SHARD_COST, type BuildingDefinition } from "~/data/buildings";
 import { QUEST_DEFINITIONS, isQuestActive } from "~/data/quests";
-import { useGame, isForagerBlooming, RAIN_FORAGE_MUSHROOM_FRACTION } from "~/engine/gameState";
+import { useGame, isForagerBlooming, RAIN_FORAGE_MUSHROOM_FRACTION, gatheredFoodRate } from "~/engine/gameState";
 import { playSound } from "~/engine/sounds";
 import Countdown from "~/components/Countdown";
 import Tooltip from "~/components/Tooltip";
@@ -539,16 +539,23 @@ export default function Buildings() {
                             if (!def) return null;
                             const seasonMod = gatheringSeasonMod(building.id, state.season);
                             const seasonRate = seasonMod != null ? Math.floor(def.rate * seasonMod) : def.rate;
+                            // A BUILT food gatherer reads its numbers straight from the shared
+                            // gatheredFoodRate() helper — the same one the tick, the net-food
+                            // projection and the Overview dropdown use — so the card can't drift.
+                            // An unbuilt preview has no staffing yet, so it keeps the full-rate path.
+                            const pb = built() ? state.buildings.find((b) => b.buildingId === building.id) : undefined;
+                            const gathered = pb ? gatheredFoodRate(state, pb) : null;
                             // Short-staffing (e.g. a founder away on a mission) scales output too,
                             // the same way the tick does — reflect it so the card matches reality.
                             const staff = isStaffable(building.id) && built() ? actions.getBuildingStaffing(building.id) : null;
-                            const staffMult = staff?.multiplier ?? 1;
+                            const staffMult = gathered ? gathered.staffMult : (staff?.multiplier ?? 1);
                             const shortStaffed = !!staff && staff.active < staff.capacity && staffMult < 1;
                             // Hunting dogs posted to the camp boost its whole catch (matches the tick + modal).
-                            const huntDogBoost = building.id === "hunting_camp"
-                              ? Math.min(0.5, state.keptAnimals.reduce((b, a) => a.job === "hunt" ? b + 0.08 * Math.max(1, a.huntLevel) : b, 0))
-                              : 0;
-                            const effectiveRate = Math.floor(seasonRate * staffMult * (1 + huntDogBoost));
+                            const huntDogBoost = gathered ? gathered.huntBoost
+                              : (building.id === "hunting_camp"
+                                  ? Math.min(0.5, state.keptAnimals.reduce((b, a) => a.job === "hunt" ? b + 0.08 * Math.max(1, a.huntLevel) : b, 0))
+                                  : 0);
+                            const effectiveRate = gathered ? gathered.rate : Math.floor(seasonRate * staffMult * (1 + huntDogBoost));
                             const isReduced = seasonMod != null && seasonMod < 1;
                             const FORAGER_FOOD: Record<string, string> = { spring: "berries", summer: "berries", autumn: "mushrooms", winter: "nuts" };
                             // Food-gathering buildings produce a generic "food" resource but yield a

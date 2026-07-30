@@ -25,7 +25,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   {
     id: "bee_tree_first",
     name: "The Bee-Tree",
-    description: "The old bee-tree in the south hollow is heavy with the last of winter's honey, and Edda wants it smoked out before the swarm scatters it. A quiet job, or it should have been. A bear came out of the spring-thin woods straight at the gatherers, all hunger and no fear, and there was no time to give it a wide berth. Drive it off and bring home what comb you can. We will not put it in the ground if it will only run.",
+    description: "The scouts marked an old bee-tree in the south hollow, heavy with the last of winter's honey, and Edda wants it smoked out before the swarm scatters it. It should be a quiet job. But it is spring, and the bears are coming off their long sleep hungry and bold, so send folk who can stand their ground if one comes down to the hollow. Smoke the hive, bring home what comb you can, and give any bear a wide berth if you can.",
     icon: "🍯",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/bears_den.png",
     slots: [{ class: "any" }, { class: "any" }],

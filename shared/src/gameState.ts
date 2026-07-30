@@ -449,6 +449,7 @@ export interface GameState {
   lastRerollReset: number;
   lastGuildVisit: number;
   lastMissionRefresh: number;
+  scoutingBoardSeeded?: boolean;
   // Quest system
   questRewardsClaimed: string[];
   firstMissionSent: boolean;
