@@ -338,6 +338,21 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
     starterRecipe: true,
     discoveryChance: 0,
   },
+  {
+    id: "deep_cough_draught",
+    name: "Deep-Cough Draught",
+    icon: "🫖",
+    description: "Edda's remedy for a cough gone to the chest: fenbalm from the fen, steeped strong with feverfew and warmed with honey. The one thing that reaches the deep-cough — and the fenbalm only comes from the marsh.",
+    tier: "apprentice",
+    minLabLevel: 1,
+    // Gated by FENBALM, not the lab — the marsh-only herb is the real scarcity,
+    // won from the fen (never foraged at the hut). Keeps the fen missions worth it.
+    costs: [{ resource: "fenbalm", amount: 1 }, { resource: "feverfew", amount: 1 }, { resource: "honey", amount: 2 }],
+    effect: "cureAilment:pneumonia",
+    craftTime: 400,
+    starterRecipe: true,
+    discoveryChance: 0,
+  },
 ];
 
 // ─── Helpers ────────────────────────────────────────────────────

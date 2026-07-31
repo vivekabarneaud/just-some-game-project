@@ -77,4 +77,11 @@ describe("getBuildingStaffing — a founder ailment dips the building", () => {
     expect(m).toBeLessThan(1);
     expect(m).toBeCloseTo(0.65); // 1 − bad_cut workPenalty (0.35)
   });
+
+  it("the serious deep-cough drops the quarry to the understaffed floor", () => {
+    // pneumonia's heavy penalty (0.65 → share 0.35) falls below the floor, so
+    // the building sits at the floor — bad, but never zero (the folk pitch in).
+    const m = qmult({ quarry: { ailmentId: "pneumonia", founderId: "tomas", hoursRemaining: 36 } });
+    expect(m).toBe(0.5);
+  });
 });

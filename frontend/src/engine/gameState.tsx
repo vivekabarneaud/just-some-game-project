@@ -4739,14 +4739,31 @@ export function GameProvider(props: ParentProps) {
         // SPARE citizens — no ailments while the founders are the only workforce
         // (no answer yet); seasonal; contagious illnesses raise the next's odds.
         {
-          // Recover: rest ticks the countdown down; at zero it clears itself.
+          // Escalate + recover each active ailment.
           if (s.buildingAilments) {
             for (const [bid, ail] of Object.entries(s.buildingAilments)) {
+              const def = getAilment(ail.ailmentId);
+              const who = () => FOUNDING_CHARACTERS.find((f) => f.id === ail.founderId)?.name ?? ail.founderId;
+              // Worsen: an untreated illness can settle deeper (a chill into the
+              // chest → the deep-cough), likelier in the cold. Only while active,
+              // so the player always had a window to treat it first.
+              if (def?.escalatesTo) {
+                const eh = (def.escalateHourly ?? 0) * (def.escalateSeasonWeight?.[s.season] ?? 1);
+                if (eh > 0 && Math.random() < 1 - Math.pow(1 - eh, elapsedHours)) {
+                  const worse = getAilment(def.escalatesTo);
+                  if (worse) {
+                    ail.ailmentId = worse.id;
+                    ail.hoursRemaining = worse.restHours;
+                    const from = def.name.toLowerCase().replace(/^(a|the) /, "");
+                    pushEvent(s, "adventurer_wounded", worse.icon, `${who()}'s ${from} has settled into the chest — it is the deep-cough now.`);
+                    continue; // worsened this tick; don't also tick recovery
+                  }
+                }
+              }
+              // Recover: rest ticks the countdown down; at zero it clears itself.
               ail.hoursRemaining -= elapsedHours;
               if (ail.hoursRemaining <= 0) {
-                const def = getAilment(ail.ailmentId);
-                const who = FOUNDING_CHARACTERS.find((f) => f.id === ail.founderId)?.name ?? ail.founderId;
-                if (def) pushEvent(s, "building_completed", "💪", def.recovered(who));
+                if (def) pushEvent(s, "building_completed", "💪", def.recovered(who()));
                 delete s.buildingAilments[bid];
               }
             }
@@ -4767,7 +4784,7 @@ export function GameProvider(props: ParentProps) {
               if (!fid) continue;                                  // adventurer-staffed → HP system, not this
               if (s.buildingAilments[bid]) continue;               // already ailing
               if ((s.buildings.find((b) => b.buildingId === bid)?.level ?? 0) <= 0) continue; // not built
-              for (const a of AILMENTS.filter((x) => x.buildings.includes(bid))) {
+              for (const a of AILMENTS.filter((x) => x.buildings.includes(bid) && x.catchable !== false)) {
                 let hourly = AILMENT_BASE_HOURLY * (a.seasonWeight?.[s.season] ?? 1);
                 if (a.contagious) hourly *= 1 + CONTAGION_K * activeIllnesses;
                 const p = 1 - Math.pow(1 - hourly, elapsedHours);

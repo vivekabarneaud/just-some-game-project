@@ -25,6 +25,16 @@ export interface AilmentDef {
   restHours: number;
   /** Item ids that cure it on application (a bandage, a salve, a tonic). */
   cures: string[];
+  /** Can this be CAUGHT fresh? Default true. False = only reached by escalation
+   *  (e.g. pneumonia never lands out of nowhere — it's a neglected chill gone
+   *  to the chest, so the player always had a chance to treat it first). */
+  catchable?: boolean;
+  /** If left untreated, a per-game-hour chance to WORSEN into this ailment id (a
+   *  chill settling into the chest → pneumonia). Undefined = never worsens. */
+  escalatesTo?: string;
+  escalateHourly?: number;
+  /** Season weighting for escalation — cold deepens a cough. */
+  escalateSeasonWeight?: Record<string, number>;
   /** Event-log line when it strikes. */
   onset: (who: string, where: string) => string;
   /** Event-log line when they recover (rest or cure). */
@@ -77,6 +87,9 @@ export const AILMENTS: AilmentDef[] = [
     workPenalty: 0.4,
     restHours: 16,
     cures: ["fever_tonic", "healing_salve"],
+    escalatesTo: "pneumonia",
+    escalateHourly: 0.004,
+    escalateSeasonWeight: { winter: 3, autumn: 1.5, spring: 1, summer: 0.3 },
     onset: (who, where) => `${who} has taken a chill, feverish and coughing at the ${where}.`,
     recovered: (who) => `${who} has shaken the chill and is sound again.`,
   },
@@ -105,8 +118,30 @@ export const AILMENTS: AilmentDef[] = [
     workPenalty: 0.45,
     restHours: 18,
     cures: ["bitterroot_tonic", "fever_tonic"],
+    escalatesTo: "pneumonia",
+    escalateHourly: 0.003,
+    escalateSeasonWeight: { winter: 2, spring: 1.2, autumn: 1, summer: 0.5 },
     onset: (who, where) => `${who} has the fen-ague — shivering and sweating by turns at the ${where}. It came up off the wet ground.`,
     recovered: (who) => `${who}'s fever has broken and the ague has passed.`,
+  },
+  {
+    // Pneumonia — the serious one. Never caught fresh (catchable: false); it is
+    // what an untreated Winter Chill or Fen-Ague BECOMES when it settles into the
+    // chest, so the player always had a window to prevent it. Big work drop and a
+    // long haul, but no death (founders), and rest still clears it — the fast
+    // cure is Edda's fenbalm draught (the scarce marsh herb).
+    id: "pneumonia",
+    name: "The Deep-Cough",
+    kind: "illness",
+    icon: "🫁",
+    buildings: ["quarry", "lumber_mill", "forager_hut"],
+    contagious: true,
+    catchable: false,
+    workPenalty: 0.65,
+    restHours: 36,
+    cures: ["deep_cough_draught"],
+    onset: (who) => `${who} is laid low with the deep-cough, struggling for breath and fit for little.`,
+    recovered: (who) => `${who}'s chest has cleared at last. The deep-cough has passed.`,
   },
 ];
 
