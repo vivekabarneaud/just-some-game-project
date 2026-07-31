@@ -208,3 +208,32 @@ Fleshes out the staffing UX on top of the worker system above. Two flavors of st
 | Kitchens / Alchemy Lab | none by default — **the Lord cooks and brews a little himself**; assigned staff then give a buff (see Elspeth above) |
 
 **Scope guard (load-bearing):** early food must NOT be gated behind staffing. Early game there are no spare citizens and food is the growth bottleneck (it's what unlocks the Fishing Hut → population). So the shape is: founders pre-assigned + *optional* extra workers as an accelerator, never a requirement. Ship on 2-3 buildings first; don't wire the whole map at once. See memory `project_worker_assignment`.
+
+---
+
+## Illness & injury — the character-driven rework (2026-07-31)
+
+> **§2's abstract "% of workers sick" plague model predates the staff system and is superseded by this.** The staff system means we can do something better and more *felt*: a named worker who's ill/hurt idles **their** building. Abstract population-plague can still come later at city scale, but the early, personal layer is this.
+
+### Step 1 — Staffing respects HP + serious conditions ✅ BUILT
+`getBuildingStaffing` used to treat a present adventurer as a full worker unless *deployed*. Now a present worker's share scales with their HP (`workEffectiveness`: full at ≥50% HP, ramping to 0 at death's door) and a serious cure-only condition (venom/froth) benches them entirely. This is the reusable lever the whole illness/injury system pulls: **a sick founder = a worker at reduced effectiveness → their building dips.** (Multiplier still floors at the understaffed floor, so a benched worker is no worse than an empty slot — the settlement pitches in.) *(NB: the watchtower/archer defenses are a separate system — fix there separately if wanted.)*
+
+### Agreed design (Option A)
+- **Illness/injury lives on the building** (keyed to its named founder via `BUILDING_STAFF`), NOT on full founder entities (founders aren't modeled as entities yet). "Tomas is abed; the quarry sits idle." Graduate to real founder entities later without wasting this.
+- **Injury vs illness by building type:** heavy-labor buildings (**Quarry, Lumber Mill → injuries**: a cut, a wrenched back, cured by **bandage/salve** or rest); **Forager / others → illnesses** (fever, chill, gripe, cured by **alchemy tonics** or rest). Both reduce output through the HP/effectiveness lever.
+- **Named vs unnamed cure differently:** founders / Nessa / Godric are cured **individually** (give them the item, like adventurers today). **Unnamed citizens = an abstract sick-pool** ("3 townsfolk abed") cured **in bulk** — self-recovery over time, sped by a "distribute medicine" action and eventually an **Apothecary/Infirmary** building.
+- **No founder death** (unless story-tied). **Citizens CAN die** from a bad, long-neglected illness (the population-plague layer).
+- **Pacing — gate severity on spare citizens:** while founders are the *only* workforce, illness/injury stays mild + rare (no management answer yet). Once there's a citizen bench, it can bite harder (swap a citizen in, brew medicine). Scales with the player's ability to respond.
+- **Dogs (later slice):** a hunting hound gored on the hunt comes home limping → its bonus dips until tended. Fits the kept-animal system + shelter ethos. Follow-on, not first.
+
+### Build order
+1. **Staffing respects HP/conditions** ✅ (the foundation, done).
+2. **Founder injuries/illness (Option A)** — attach a cut/fever to a founder-staffed building; cured by item or rest; gated on spare citizens; add the cure recipes.
+3. **Citizen sick-pool** — abstract count, distribute-medicine + Apothecary, citizen deaths.
+4. **Dogs** — injured hounds, cozy tend-to-heal.
+
+### OPEN — step 2 design questions (discuss before building)
+- **Perfect the pool:** the exact injuries/illnesses, which building each attaches to, flavor + cure.
+- **Risk / occurrence:** base rate + modifiers (season-weighted — winter chills, summer gripe; cold/no-heating; poor food diversity / dirty water; later vermin pressure). Preparation lowers it (the "manageable, not punishing" ethos).
+- **Epidemics / contagion:** one sick person **raises the chance of more → exponential spread** if unchecked. How steep, and what caps it (isolation? the cure? the Apothecary?).
+- **Recovery time when the player has NO cure** — and the **deadlock guards** (load-bearing): if *all* the forager's-hut staff are ill you can't gather herbs to brew medicine; if you're still a **Camp** you can't make bandages at the Tailoring Shop yet. So illness must **always be survivable without a cure** (self-recovery floor / rest), and early/camp-tier illness must never hard-lock. The cure *accelerates*; it is never the only exit.

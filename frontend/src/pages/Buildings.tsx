@@ -493,12 +493,16 @@ export default function Buildings() {
                         {isStaffable(building.id) && level() > 0 && (() => {
                           const st = () => actions.getBuildingStaffing(building.id);
                           const short = () => st().active < st().capacity;
+                          // Present but reduced (a wounded/ill worker still shows up,
+                          // just slower) — distinct from an empty slot.
+                          const hurt = () => !short() && st().multiplier < 1;
+                          const hurtReason = () => st().named.find((n) => n.present && n.effectiveness < 1)?.reason;
                           return (
                             <div style={{
                               "margin-top": "6px", "font-size": "0.75rem",
-                              color: short() ? "var(--accent-red)" : "var(--text-muted)",
+                              color: short() || hurt() ? "var(--accent-red)" : "var(--text-muted)",
                             }}>
-                              👤 Staff {st().active}/{st().capacity}{short() ? " · short-handed" : ""}
+                              👤 Staff {st().active}/{st().capacity}{short() ? " · short-handed" : hurt() ? ` · ${hurtReason() ?? "working hurt"}` : ""}
                             </div>
                           );
                         })()}
@@ -550,6 +554,9 @@ export default function Buildings() {
                             const staff = isStaffable(building.id) && built() ? actions.getBuildingStaffing(building.id) : null;
                             const staffMult = gathered ? gathered.staffMult : (staff?.multiplier ?? 1);
                             const shortStaffed = !!staff && staff.active < staff.capacity && staffMult < 1;
+                            // Present but reduced — a wounded/ill worker still shows up, just slower.
+                            const hurtStaffed = !!staff && !shortStaffed && staffMult < 1;
+                            const hurtLabel = staff?.named.find((n) => n.present && n.effectiveness < 1)?.reason ?? "worker hurt";
                             // Hunting dogs posted to the camp boost its whole catch (matches the tick + modal).
                             const huntDogBoost = gathered ? gathered.huntBoost
                               : (building.id === "hunting_camp"
@@ -564,7 +571,7 @@ export default function Buildings() {
                             const foodLabel = building.id === "forager_hut"
                               ? (FORAGER_FOOD[state.season] ?? "food")
                               : (GATHERED_FOOD[building.id] ?? def.resource);
-                            const reduced = isReduced || shortStaffed;
+                            const reduced = isReduced || shortStaffed || hurtStaffed;
                             return (
                               <div style={{ display: "flex", "flex-direction": "column", "align-items": "center", gap: "2px" }}>
                                 <div class="building-card-production">
@@ -589,10 +596,11 @@ export default function Buildings() {
                                   </>
                                 )}
                                 {reduced && (
-                                  <div style={{ "font-size": "0.72rem", "margin-top": "2px", color: shortStaffed ? "var(--accent-red)" : "var(--accent-gold)" }}>
+                                  <div style={{ "font-size": "0.72rem", "margin-top": "2px", color: shortStaffed || hurtStaffed ? "var(--accent-red)" : "var(--accent-gold)" }}>
                                     {[
                                       isReduced ? `${Math.round(seasonMod! * 100)}% yield in ${state.season}` : null,
                                       shortStaffed ? `short-handed (${Math.round(staffMult * 100)}%)` : null,
+                                      hurtStaffed ? `${hurtLabel} (${Math.round(staffMult * 100)}%)` : null,
                                     ].filter(Boolean).join(" · ")}
                                   </div>
                                 )}

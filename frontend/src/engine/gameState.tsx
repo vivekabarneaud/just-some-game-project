@@ -2312,8 +2312,22 @@ export interface BuildingStaffMember {
   name: string;
   kind: "founder" | "adventurer";
   present: boolean;
-  reason?: string;      // why absent (e.g. "away on a mission")
+  reason?: string;      // why absent OR working reduced (e.g. "away on a mission", "hurt")
   portrait?: string;
+  /** How much of a full worker's pace this member is pulling right now, 0..1.
+   *  A healthy present worker is 1; a wounded one scales down with HP; one
+   *  carrying a serious cure-only condition (venom/froth) is bedridden → 0. */
+  effectiveness: number;
+}
+
+/** A present worker's pace as a function of their HP fraction: full while
+ *  healthy (a scratch doesn't slow the work), then ramping down once genuinely
+ *  wounded, to 0 at death's door. The knee lets minor wounds pass while a badly
+ *  hurt worker clearly drags their building. Tunable. */
+const HEALTHY_WORK_HP = 0.5;
+export function workEffectiveness(hpFrac: number): number {
+  if (hpFrac >= HEALTHY_WORK_HP) return 1;
+  return Math.max(0, hpFrac / HEALTHY_WORK_HP);
 }
 export interface BuildingStaffing {
   staffable: boolean;
@@ -2329,7 +2343,7 @@ export interface BuildingStaffing {
  *  present; adventurers are present unless deployed. Output floors at the
  *  previous level's full yield, so leveling never nerfs. Non-staffable
  *  buildings return multiplier 1 (untouched). */
-function getBuildingStaffing(s: GameState, buildingId: string, level: number): BuildingStaffing {
+export function getBuildingStaffing(s: GameState, buildingId: string, level: number): BuildingStaffing {
   const cfg = BUILDING_STAFF[buildingId];
   if (!cfg || level <= 0) {
     return { staffable: false, capacity: 0, named: [], kids: [], citizens: 0, active: 0, multiplier: 1 };
@@ -2338,21 +2352,43 @@ function getBuildingStaffing(s: GameState, buildingId: string, level: number): B
   const named: BuildingStaffMember[] = [];
   for (const fid of cfg.founders ?? []) {
     const f = FOUNDING_CHARACTERS.find((x) => x.id === fid);
-    named.push({ id: fid, name: f?.name ?? fid, kind: "founder", present: true, portrait: f?.portrait });
+    // Founders have no HP/condition model yet, so they pull a full share for now.
+    // (When founder injuries/illness land, this is where their effectiveness dips.)
+    named.push({ id: fid, name: f?.name ?? fid, kind: "founder", present: true, portrait: f?.portrait, effectiveness: 1 });
   }
   for (const aid of cfg.adventurers ?? []) {
     const adv = s.adventurers.find((a) => a.premadeId === aid && a.alive);
     const present = !!adv && !adv.onMission;
+    // A present adventurer still works, but not at full pace if they're hurt: a
+    // serious cure-only wound (venom/froth) benches them entirely, otherwise
+    // their HP scales the share. So a wounded hunter brings home less.
+    let effectiveness = 0;
+    let reason: string | undefined;
+    if (!adv) {
+      reason = "not yet arrived";
+    } else if (adv.onMission) {
+      reason = `${adv.name} is away on a mission`;
+    } else if (adv.conditions?.some((c) => c.type === "venom" || c.type === "froth")) {
+      reason = `${adv.name} is too ill to work`;
+    } else {
+      const maxHp = calcAdventurerMaxHp(adv);
+      const hpFrac = maxHp > 0 ? (adv.currentHp ?? maxHp) / maxHp : 1;
+      effectiveness = workEffectiveness(hpFrac);
+      if (effectiveness < 1) reason = `${adv.name} is hurt and working slow`;
+    }
     named.push({
-      id: aid, name: adv?.name ?? aid, kind: "adventurer", present,
-      reason: !adv ? "not yet arrived" : adv.onMission ? `${adv.name} is away on a mission` : undefined,
-      portrait: adv ? getPortraitUrl(adv) : undefined,
+      id: aid, name: adv?.name ?? aid, kind: "adventurer", present, reason,
+      portrait: adv ? getPortraitUrl(adv) : undefined, effectiveness,
     });
   }
   const presentNamed = named.filter((n) => n.present).length;
   const citizens = s.buildingWorkers?.[buildingId] ?? 0;
+  // Bodies present (integer) drive the "Staff X/Y" display; effective share (a
+  // hurt worker counts as a fraction) drives the production multiplier.
   const active = Math.min(presentNamed + citizens, capacity);
-  const raw = capacity > 0 ? active / capacity : 1;
+  const namedEffective = named.reduce((sum, n) => sum + n.effectiveness, 0);
+  const effectiveStaff = Math.min(namedEffective + citizens, capacity);
+  const raw = capacity > 0 ? effectiveStaff / capacity : 1;
   // Floor at the previous level's full yield (or the lvl-1 "folk pitch in" floor).
   let floor = STAFF_LVL1_FLOOR;
   if (level > 1) {
