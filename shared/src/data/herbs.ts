@@ -103,6 +103,24 @@ export const HERBS: HerbDefinition[] = [
       "Small white daisies with a bitter bite. Steeped hot, it breaks a fever and settles a pounding head — the cottage answer to a winter chill before it takes hold.",
     dropRate: 0.04,
   },
+  {
+    id: "wildmint",
+    name: "Wildmint",
+    icon: "🌱",
+    rarity: "common",
+    description:
+      "Cool, sharp-scented leaves that spread along every damp ditch and streambank. Chewed or steeped, it settles a turned stomach and the summer gripe — a mercy in the hot months.",
+    dropRate: 0.045,
+  },
+  {
+    id: "willowbark",
+    name: "Willowbark",
+    icon: "🪵",
+    rarity: "uncommon",
+    description:
+      "Bitter grey bark peeled from the willows down by the water. Boiled to a dark tea, it dulls an ache and cools a fever — the old folk chewed it for aches long before anyone knew why it worked.",
+    dropRate: 0.03,
+  },
 ];
 
 export function getHerb(id: string): HerbDefinition | undefined {

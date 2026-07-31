@@ -312,6 +312,32 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
     starterRecipe: true,
     discoveryChance: 0,
   },
+  {
+    id: "settling_draught",
+    name: "Settling Draught",
+    icon: "🥤",
+    description: "Wildmint and mugwort steeped cool — settles a turned stomach and the summer gripe within the hour.",
+    tier: "novice",
+    minLabLevel: 1,
+    costs: [{ resource: "wildmint", amount: 2 }, { resource: "mugwort", amount: 1 }],
+    effect: "cureAilment:summer_gripe",
+    craftTime: 180,
+    starterRecipe: true,
+    discoveryChance: 0,
+  },
+  {
+    id: "bitterroot_tonic",
+    name: "Bitterroot Tonic",
+    icon: "🍶",
+    description: "A dark, bitter willowbark tea — cools the marsh fever and draws the fen-ague out of aching bones.",
+    tier: "novice",
+    minLabLevel: 1,
+    costs: [{ resource: "willowbark", amount: 2 }, { resource: "mugwort", amount: 1 }],
+    effect: "cureAilment:fen_ague",
+    craftTime: 220,
+    starterRecipe: true,
+    discoveryChance: 0,
+  },
 ];
 
 // ─── Helpers ────────────────────────────────────────────────────
