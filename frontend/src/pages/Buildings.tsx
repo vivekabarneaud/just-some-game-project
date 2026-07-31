@@ -506,6 +506,50 @@ export default function Buildings() {
                             </div>
                           );
                         })()}
+                        {/* Founder ailment — a hurt/sick founder mends on their own;
+                            a dressing/remedy speeds it. Cure buttons for owned items. */}
+                        {level() > 0 && (() => {
+                          const ail = () => actions.getBuildingAilment(building.id);
+                          return (
+                            <Show when={ail()}>
+                              {(a) => (
+                                <div style={{
+                                  "margin-top": "6px", padding: "6px 8px", "border-radius": "4px",
+                                  background: "rgba(231, 76, 60, 0.08)", border: "1px solid var(--accent-red)",
+                                }}>
+                                  <div style={{ "font-size": "0.78rem", color: "var(--accent-red)" }}>
+                                    {a().icon} {a().who} has {a().name.toLowerCase()}
+                                  </div>
+                                  <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "2px" }}>
+                                    Mending on their own (~{Math.max(1, Math.round(a().hoursRemaining))}h). {a().kind === "injury" ? "A dressing" : "A remedy"} sets it right sooner.
+                                  </div>
+                                  <Show
+                                    when={a().cures.length > 0}
+                                    fallback={
+                                      <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "font-style": "italic", "margin-top": "4px" }}>
+                                        Nothing on hand to treat it — they'll rest it off.
+                                      </div>
+                                    }
+                                  >
+                                    <div style={{ display: "flex", "flex-wrap": "wrap", gap: "4px", "margin-top": "5px" }}>
+                                      <For each={a().cures}>
+                                        {(c) => (
+                                          <button
+                                            class="btn-tertiary"
+                                            style={{ "font-size": "0.7rem", padding: "3px 8px" }}
+                                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); actions.cureBuildingAilment(building.id, c.id); }}
+                                          >
+                                            {c.icon} {c.name} ({c.qty})
+                                          </button>
+                                        )}
+                                      </For>
+                                    </div>
+                                  </Show>
+                                </div>
+                              )}
+                            </Show>
+                          );
+                        })()}
                         {/* Hunting camp: a dog boosts the catch. Nudge that the
                             slot exists (assigned in the building modal on click). */}
                         {building.id === "hunting_camp" && level() > 0 && (() => {

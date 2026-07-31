@@ -60,3 +60,21 @@ describe("getBuildingStaffing — a hurt worker produces less", () => {
     expect(mult(a)).toBe(0.5);
   });
 });
+
+describe("getBuildingStaffing — a founder ailment dips the building", () => {
+  // The quarry is staffed by the founder Tomas; an ailment on it reduces his
+  // share (the same lever a wounded adventurer pulls).
+  const quarry = (ailments?: GameState["buildingAilments"]): GameState =>
+    ({ adventurers: [], buildingWorkers: {}, buildingAilments: ailments } as unknown as GameState);
+  const qmult = (a?: GameState["buildingAilments"]) => getBuildingStaffing(quarry(a), "quarry", 1).multiplier;
+
+  it("a well founder staffs at full", () => {
+    expect(qmult()).toBe(1);
+  });
+
+  it("an injured founder drags the quarry below full", () => {
+    const m = qmult({ quarry: { ailmentId: "bad_cut", founderId: "tomas", hoursRemaining: 12 } });
+    expect(m).toBeLessThan(1);
+    expect(m).toBeCloseTo(0.65); // 1 − bad_cut workPenalty (0.35)
+  });
+});

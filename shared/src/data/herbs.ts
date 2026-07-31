@@ -29,9 +29,9 @@ export const HERBS: HerbDefinition[] = [
     id: "nettle",
     name: "Nettle",
     icon: "🍃",
-    rarity: "uncommon",
-    description: "A stinging plant with powerful medicinal properties. Handle with care.",
-    dropRate: 0.025, // ~1 per 40 food foraged
+    rarity: "common",
+    description: "A stinging roadside weed that grows anywhere the ground is disturbed — and for all its sting, a powerful medicinal. Common, not precious.",
+    dropRate: 0.045, // ~1 per 22 food foraged — as common as it is underfoot
   },
   {
     id: "nightbloom",
@@ -75,6 +75,33 @@ export const HERBS: HerbDefinition[] = [
     description:
       "Fragrant purple blooms, cultivated in the settlement's gardens rather than foraged. Dried for soothing teas, honey-cakes, and calming draughts — and while it flowers, the bees work it hard.",
     dropRate: 0, // cultivated only — grown in a garden, never foraged at the hut
+  },
+  {
+    id: "yarrow",
+    name: "Yarrow",
+    icon: "🌾",
+    rarity: "common",
+    description:
+      "A feathery-leafed roadside weed the old folk call woundwort. Packed into a cut it staunches the bleeding and knits the skin — the first thing a working camp reaches for when a blade slips.",
+    dropRate: 0.045, // as common as the ditches it grows in
+  },
+  {
+    id: "comfrey",
+    name: "Comfrey",
+    icon: "🌿",
+    rarity: "uncommon",
+    description:
+      "Broad-leafed and sticky, known to every herbwife as knitbone. Mashed into a poultice it eases a wrenched back or a bad sprain — the labourer's mercy after a hard day at the stone.",
+    dropRate: 0.03,
+  },
+  {
+    id: "feverfew",
+    name: "Feverfew",
+    icon: "🌼",
+    rarity: "common",
+    description:
+      "Small white daisies with a bitter bite. Steeped hot, it breaks a fever and settles a pounding head — the cottage answer to a winter chill before it takes hold.",
+    dropRate: 0.04,
   },
 ];
 

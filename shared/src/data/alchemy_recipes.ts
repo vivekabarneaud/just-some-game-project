@@ -269,6 +269,49 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
     craftTime: 480,
     discoveryChance: 0,
   },
+
+  // ── Everyday remedies for the settlement's own (founder injuries/illness).
+  // Mild, cheap, camp-accessible; they SPEED a recovery that rest would reach
+  // anyway (see DESIGN_WORKERS_PLAGUES §illness — no cure is ever mandatory).
+  {
+    id: "woundwort_salve",
+    name: "Woundwort Salve",
+    icon: "🩹",
+    description: "Yarrow packed into a cut — staunches the bleeding and closes it fast. Sets a worker's bad cut right.",
+    tier: "novice",
+    minLabLevel: 1,
+    costs: [{ resource: "yarrow", amount: 2 }, { resource: "chamomile", amount: 1 }],
+    effect: "cureAilment:bad_cut",
+    craftTime: 180,
+    starterRecipe: true,
+    discoveryChance: 0,
+  },
+  {
+    id: "knitbone_poultice",
+    name: "Knitbone Poultice",
+    icon: "🌿",
+    description: "A comfrey poultice for a wrenched back or a bad sprain — eases the ache so a labourer can stand to the work again.",
+    tier: "novice",
+    minLabLevel: 1,
+    costs: [{ resource: "comfrey", amount: 2 }, { resource: "nettle", amount: 1 }],
+    effect: "cureAilment:wrenched_back",
+    craftTime: 220,
+    starterRecipe: true,
+    discoveryChance: 0,
+  },
+  {
+    id: "fever_tonic",
+    name: "Fever Tonic",
+    icon: "🍵",
+    description: "Feverfew steeped hot with chamomile — breaks a winter chill and settles the head before it spreads.",
+    tier: "novice",
+    minLabLevel: 1,
+    costs: [{ resource: "feverfew", amount: 2 }, { resource: "chamomile", amount: 1 }],
+    effect: "cureAilment:winter_chill",
+    craftTime: 200,
+    starterRecipe: true,
+    discoveryChance: 0,
+  },
 ];
 
 // ─── Helpers ────────────────────────────────────────────────────

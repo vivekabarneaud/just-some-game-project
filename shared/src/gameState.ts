@@ -381,6 +381,9 @@ export interface GameState {
   /** Citizens assigned to work each production building (by buildingId), incl.
    *  bench beyond capacity. Drawn from the shared adult pool. */
   buildingWorkers?: Record<string, number>;
+  /** Live founder ailments (injury/illness) keyed by building id. See
+   *  shared/data/ailments + DESIGN_WORKERS_PLAGUES §illness. */
+  buildingAilments?: Record<string, { ailmentId: string; founderId: string; hoursRemaining: number }>;
   citizens: {
     toddlers: number;
     children: number;

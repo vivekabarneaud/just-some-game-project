@@ -294,6 +294,7 @@ import { getReadyEvents } from "~/data/events";
 import { TRAVELING_MERCHANTS, getMerchant, merchantIntervalDays } from "~/data/merchants";
 import { calcTavern, tavernRooms, REPUTATION_DRIFT_PER_HOUR, TAVERN_FOOD_PER_ROOM_PER_HOUR, MENU_STAPLE_IDS, serversNeeded, menuCapacity, TAVERN_COMMODITY_DRINKS, getCommodityDrink, type TavernCommodityDrink } from "~/data/tavern";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
+import { AILMENTS, getAilment, type BuildingAilment } from "@medieval-realm/shared/data/ailments";
 import { EXOTIC_IDS } from "@medieval-realm/shared/data/exotics";
 import { ALCHEMY_RECIPES, getDiscoverableRecipes, RESEARCH_BASE_COST } from "@medieval-realm/shared/data/alchemy_recipes";
 import { getDeity, getCurrentDeity } from "~/data/deities";
@@ -604,6 +605,10 @@ export interface GameState {
   /** Citizens assigned to work each production building (by buildingId), incl.
    *  bench beyond capacity. Drawn from the shared adult pool. */
   buildingWorkers?: Record<string, number>;
+  /** Live founder ailments (injury/illness) keyed by building id — a hurt/sick
+   *  founder works their building at reduced pace until they recover. See
+   *  DESIGN_WORKERS_PLAGUES §illness and shared/data/ailments. */
+  buildingAilments?: Record<string, BuildingAilment>;
   /** "The household" — named, protected residents (founders + named arrivals
    *  like the Thornwood boy), by age. A subset of `citizens`: it's the death
    *  floor (RNG never kills named folk) and the reserve that stays out of the
@@ -950,6 +955,15 @@ export interface GameActions {
    *  one from inventory and heals its healPct of max HP. No-op if the hero is
    *  away, already full, or there's none in stock. */
   useRecoveryItem: (adventurerId: string, itemId: string) => boolean;
+  /** The founder ailment sitting on a building (if any), plus the owned cure
+   *  items that can clear it — drives the building-card cure UI. Null if well. */
+  getBuildingAilment: (buildingId: string) => {
+    name: string; icon: string; kind: "injury" | "illness"; who: string; hoursRemaining: number;
+    cures: { id: string; name: string; icon: string; qty: number }[];
+  } | null;
+  /** Apply an owned cure item to a building's founder ailment. Clears it and
+   *  consumes one. No-op if there's no ailment or the item doesn't cure it. */
+  cureBuildingAilment: (buildingId: string, itemId: string) => boolean;
   deployMission: (missionId: string, adventurerIds: string[], adventurerSupplies?: Record<string, { potion?: string; food?: string; recovery?: string }>, precomputedSuccess?: number) => boolean;
   /** Current quantity of any resource/item/herb/material (for deploy-item costs). */
   resourceQty: (res: string) => number;
@@ -2352,9 +2366,13 @@ export function getBuildingStaffing(s: GameState, buildingId: string, level: num
   const named: BuildingStaffMember[] = [];
   for (const fid of cfg.founders ?? []) {
     const f = FOUNDING_CHARACTERS.find((x) => x.id === fid);
-    // Founders have no HP/condition model yet, so they pull a full share for now.
-    // (When founder injuries/illness land, this is where their effectiveness dips.)
-    named.push({ id: fid, name: f?.name ?? fid, kind: "founder", present: true, portrait: f?.portrait, effectiveness: 1 });
+    // A hurt/sick founder still shows up but works reduced — the same lever a
+    // wounded adventurer pulls, driven here by a building ailment.
+    const ail = s.buildingAilments?.[buildingId];
+    const ailDef = ail && ail.founderId === fid ? getAilment(ail.ailmentId) : undefined;
+    const effectiveness = ailDef ? Math.max(0, 1 - ailDef.workPenalty) : 1;
+    const reason = ailDef ? `${f?.name ?? fid} has ${ailDef.name.toLowerCase()}` : undefined;
+    named.push({ id: fid, name: f?.name ?? fid, kind: "founder", present: true, portrait: f?.portrait, effectiveness, reason });
   }
   for (const aid of cfg.adventurers ?? []) {
     const adv = s.adventurers.find((a) => a.premadeId === aid && a.alive);
@@ -4711,6 +4729,57 @@ export function GameProvider(props: ParentProps) {
             adv.currentHp = Math.max(1, adv.currentHp - advMaxHp * VENOM_DRAIN_PCT_PER_HOUR * elapsedHours);
           } else if (!adv.conditions?.length && adv.currentHp < advMaxHp) {
             adv.currentHp = Math.min(advMaxHp, adv.currentHp + advMaxHp * REGEN_PCT_PER_HOUR * elapsedHours);
+          }
+        }
+
+        // ── Founder ailments (injury / illness) ────────────────────
+        // A named founder can be hurt or fall sick, working their building at
+        // reduced pace (via the staffing lever) until they recover. ALWAYS heals
+        // by rest (restHours); a cure item just clears it early. Gated on having
+        // SPARE citizens — no ailments while the founders are the only workforce
+        // (no answer yet); seasonal; contagious illnesses raise the next's odds.
+        {
+          // Recover: rest ticks the countdown down; at zero it clears itself.
+          if (s.buildingAilments) {
+            for (const [bid, ail] of Object.entries(s.buildingAilments)) {
+              ail.hoursRemaining -= elapsedHours;
+              if (ail.hoursRemaining <= 0) {
+                const def = getAilment(ail.ailmentId);
+                const who = FOUNDING_CHARACTERS.find((f) => f.id === ail.founderId)?.name ?? ail.founderId;
+                if (def) pushEvent(s, "building_completed", "💪", def.recovered(who));
+                delete s.buildingAilments[bid];
+              }
+            }
+          }
+          // Catch: only once there are spare (unassigned generic) adults — the
+          // player has hands to shuffle and a way to brew medicine, so it's fair.
+          const genericAdults = Math.max(0, s.citizens.adults - (s.namedResidents?.adults ?? 0));
+          const assigned = Object.values(s.buildingWorkers ?? {}).reduce((a, b) => a + b, 0);
+          const spareCitizens = genericAdults - assigned;
+          if (spareCitizens > 0) {
+            s.buildingAilments ??= {};
+            const AILMENT_BASE_HOURLY = 0.0015; // mild — a few % per building per game-day
+            const CONTAGION_K = 0.8;            // each active illness makes the next likelier
+            const activeIllnesses = Object.values(s.buildingAilments)
+              .filter((a) => getAilment(a.ailmentId)?.contagious).length;
+            for (const [bid, cfg] of Object.entries(BUILDING_STAFF)) {
+              const fid = cfg.founders?.[0];
+              if (!fid) continue;                                  // adventurer-staffed → HP system, not this
+              if (s.buildingAilments[bid]) continue;               // already ailing
+              if ((s.buildings.find((b) => b.buildingId === bid)?.level ?? 0) <= 0) continue; // not built
+              for (const a of AILMENTS.filter((x) => x.buildings.includes(bid))) {
+                let hourly = AILMENT_BASE_HOURLY * (a.seasonWeight?.[s.season] ?? 1);
+                if (a.contagious) hourly *= 1 + CONTAGION_K * activeIllnesses;
+                const p = 1 - Math.pow(1 - hourly, elapsedHours);
+                if (Math.random() < p) {
+                  const who = FOUNDING_CHARACTERS.find((f) => f.id === fid)?.name ?? fid;
+                  const where = BUILDINGS.find((b) => b.id === bid)?.name ?? bid;
+                  s.buildingAilments[bid] = { ailmentId: a.id, founderId: fid, hoursRemaining: a.restHours };
+                  pushEvent(s, "adventurer_wounded", a.icon, a.onset(who, where));
+                  break; // one ailment per building per tick
+                }
+              }
+            }
           }
         }
 
@@ -7089,6 +7158,45 @@ export function GameProvider(props: ParentProps) {
         }
         const it = s.inventory.find((i) => i.itemId === itemId)!;
         it.quantity -= 1;
+      }));
+      scheduleSave();
+      return true;
+    },
+    getBuildingAilment(buildingId) {
+      const ail = state.buildingAilments?.[buildingId];
+      if (!ail) return null;
+      const def = getAilment(ail.ailmentId);
+      if (!def) return null;
+      const who = FOUNDING_CHARACTERS.find((f) => f.id === ail.founderId)?.name ?? ail.founderId;
+      // Resolve a cure item's display across the registries it might live in.
+      const display = (id: string): { name: string; icon: string } => {
+        const it = getItem(id);
+        if (it) return { name: it.name, icon: it.icon };
+        const alch = ALCHEMY_RECIPES.find((r) => r.id === id);
+        if (alch) return { name: alch.name, icon: alch.icon };
+        const craft = CRAFTING_RECIPES.find((r) => r.id === id);
+        if (craft) return { name: craft.name, icon: craft.icon };
+        return { name: id, icon: "❓" };
+      };
+      const cures = def.cures
+        .map((id) => ({ id, qty: state.inventory.find((i) => i.itemId === id)?.quantity ?? 0 }))
+        .filter((c) => c.qty > 0)
+        .map((c) => ({ id: c.id, qty: c.qty, ...display(c.id) }));
+      return { name: def.name, icon: def.icon, kind: def.kind, who, hoursRemaining: ail.hoursRemaining, cures };
+    },
+    cureBuildingAilment(buildingId, itemId) {
+      const ail = state.buildingAilments?.[buildingId];
+      if (!ail) return false;
+      const def = getAilment(ail.ailmentId);
+      if (!def || !def.cures.includes(itemId)) return false;
+      const inv = state.inventory.find((i) => i.itemId === itemId);
+      if (!inv || inv.quantity <= 0) return false;
+      const who = FOUNDING_CHARACTERS.find((f) => f.id === ail.founderId)?.name ?? ail.founderId;
+      setState(produce((s) => {
+        if (s.buildingAilments) delete s.buildingAilments[buildingId];
+        const it = s.inventory.find((i) => i.itemId === itemId)!;
+        it.quantity -= 1;
+        pushEvent(s, "building_completed", "💪", def.recovered(who));
       }));
       scheduleSave();
       return true;

@@ -228,9 +228,24 @@ Fleshes out the staffing UX on top of the worker system above. Two flavors of st
 
 ### Build order
 1. **Staffing respects HP/conditions** ✅ (the foundation, done).
-2. **Founder injuries/illness (Option A)** — attach a cut/fever to a founder-staffed building; cured by item or rest; gated on spare citizens; add the cure recipes.
+2. **Founder injuries/illness (Option A)** ✅ FIRST SLICE BUILT (2026-07-31).
 3. **Citizen sick-pool** — abstract count, distribute-medicine + Apothecary, citizen deaths.
 4. **Dogs** — injured hounds, cozy tend-to-heal.
+
+#### Step 2 — what shipped (first slice)
+- **Data:** `shared/data/ailments.ts` — `AilmentDef` + `AILMENTS` pool + `BuildingAilment`. Started with **3 ailments**: *A Bad Cut* & *A Wrenched Back* (injuries, Quarry/Lumber Mill) and *A Winter Chill* (illness, all three founder buildings, contagious, winter-weighted).
+- **Herbs:** yarrow, comfrey, feverfew added to `HERBS` (foraged). Nettle bumped to **common**.
+- **Cures:** `woundwort_salve`, `knitbone_poultice`, `fever_tonic` alchemy recipes (starter tier). Injuries also cured by bandage/salve/mending potion.
+- **State:** `buildingAilments: Record<buildingId, BuildingAilment>` (frontend + shared, optional → no save migration).
+- **Effectiveness:** `getBuildingStaffing` drops the afflicted founder's share by the ailment's `workPenalty` (mild 0.35–0.5) → building dips, floored at the understaffed floor (never zero).
+- **Tick:** recover (rest countdown → self-clear) + catch (gated on **spare citizens** — none while founders are the only workforce; season-weighted; **contagion** raises the odds of the next illness). Onset/recovery events in the log.
+- **Cure UX:** building-card ailment banner + cure buttons for owned items (`getBuildingAilment` / `cureBuildingAilment`); "they'll rest it off" when nothing's on hand (the deadlock guard is live — rest always works).
+- **Tests:** `staffing.test.ts` covers the ailment → reduced-multiplier path.
+
+#### Step 2 — deferred (next slices)
+- **More ailments** (Summer Gripe → Settling Draught/wildmint, Fen-Ague → Bitterroot Tonic/willowbark) — herbs/recipes designed, not yet authored.
+- **Restorative meals** as recovery items (bone broth / herb porridge / honey-cake), given like a bandage (no Lord-narration). MILD effects (see memory `feedback_mild_food_effects`).
+- **Contagion tuning** + **citizen sick-pool** (step 3) + **dogs** (step 4).
 
 ### OPEN — step 2 design questions (discuss before building)
 - **Perfect the pool:** the exact injuries/illnesses, which building each attaches to, flavor + cure.
