@@ -5,10 +5,10 @@
 - **Class / Race / Origin:** Warrior / Human / Ashwick
 - **Food preference:** spicy *(notably **not** sweet — he never knew his mother, never tasted her honey)*
 - **Trait(s):** none assigned yet (TBD)
-- **Family:** Youngest of the three Thornwoods; brother of Brenna and Gareth; Brenna raised him. See [thornwood-family.md](thornwood-family.md).
+- **Family:** Youngest of the three Thornwoods; brother of Nessa and Gareth; Nessa raised him. See [thornwood-family.md](thornwood-family.md).
 
 ## Recruit-card bio (public surface)
-> Godric never knew his mother. She died bringing him into the world, and he has only the stories Brenna tells, which are kind, and the way his father could never quite hold his eye, which was not. He grew up knowing without being told that he was the reason for a grief the family carried, and he grew huge as if to be worth it, taking the blows so the others would not have to and giving his food away before anyone could offer him theirs. When the levy took him for the northern war they put him at the front, big as he was, and he killed more than he will ever say and hated it every time, telling himself each time that he was only protecting the boys beside him. He never struck first, and gave any man the chance to run before he made him fight. Then came the day the killing stopped being protection and turned to something else, men who threatened no one put down because the war wanted it, and the one lie that held him together came apart in his hands. He laid down his spear and walked. Brenna raised him and her word is still law to him; he will tell you he is the least of the three Thornwoods, and not one of them will let that stand.
+> Godric never knew his mother. She died bringing him into the world, and he has only the stories Nessa tells, which are kind, and the way his father could never quite hold his eye, which was not. He grew up knowing without being told that he was the reason for a grief the family carried, and he grew huge as if to be worth it, taking the blows so the others would not have to and giving his food away before anyone could offer him theirs. When the levy took him for the northern war they put him at the front, big as he was, and he killed more than he will ever say and hated it every time, telling himself each time that he was only protecting the boys beside him. He never struck first, and gave any man the chance to run before he made him fight. Then came the day the killing stopped being protection and turned to something else, men who threatened no one put down because the war wanted it, and the one lie that held him together came apart in his hands. He laid down his spear and walked. Nessa raised him and her word is still law to him; he will tell you he is the least of the three Thornwoods, and not one of them will let that stand.
 
 ## Deep lore (discovery-only)
 - **Born into grief.** His birth killed his mother; his father could never quite look at him. He grew up sensing he was the cause of a sorrow no one named, and **grew huge as if to be worth the cost of himself.**
@@ -21,14 +21,14 @@
 - **Restraint in violence:** never strikes first, gives any man the chance to run before he makes him fight. (This is the grounded version of an earlier "knock them out instead of killing" idea — kept as discipline, not a non-lethal gimmick. It also echoes the settlement's own ethos: drive off, don't slaughter.)
 
 ## Relationships
-- **Brenna** — his real mother; her word is law to him.
+- **Nessa** — his real mother; her word is law to him.
 - **Gareth** — older brother, fellow deserter.
 
 ## Preferences & specificities
 - Spicy food (no sweet-tooth — no memory of the mother's honey). Self-denying to a fault.
 
 ## Combat identity & talents (design, 2026-06-29)
-**Archetype: the Wall (warrior tank) — locked.** Takes the hits so others don't; **high aggro** (the biggest thing on the field); **high VIT/survivability**; shield-bearer; signature **Last Stand**; and crucially **he doesn't finish people** — the killing is *Brenna's* job. They complement exactly: Godric softens + pins enemies on himself, Brenna executes the low-HP ones he leaves. His combat role **is his wound**: worth = protecting others; the player slowly discovers the man who calls himself "the least of the three" is the reason the team comes home.
+**Archetype: the Wall (warrior tank) — locked.** Takes the hits so others don't; **high aggro** (the biggest thing on the field); **high VIT/survivability**; shield-bearer; signature **Last Stand**; and crucially **he doesn't finish people** — the killing is *Nessa's* job. They complement exactly: Godric softens + pins enemies on himself, Nessa executes the low-HP ones he leaves. His combat role **is his wound**: worth = protecting others; the player slowly discovers the man who calls himself "the least of the three" is the reason the team comes home.
 
 **Talent system (simplified, project-wide — supersedes the pentagon):** the old 5-class-pentagon 3-column trees are **dropped**. Each character gets **one** vanilla-WoW-style tree, **archetype-locked** (talents *tune* the identity, never redefine it): a few tiers, mostly **ranked passives** (+X%/point, including the raw-stat minors), a couple of **keystone abilities**, and a few real **either/or choices**. Spend points as you level; the choice is mostly *what to prioritize*. Uses the existing `talents` + talent-point system.
 

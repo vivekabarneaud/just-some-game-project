@@ -123,6 +123,7 @@ export function buildEnemyUnits(encounters: MissionEncounter[]): CombatUnit[] {
         enemyTags: def.tags,
         enemyDefId: def.id,
         pack: def.pack,
+        packNerve: def.packNerve,
         morale: def.morale,
         leader: def.leader,
         charge: def.charge,

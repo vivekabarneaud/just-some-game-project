@@ -11,6 +11,20 @@ export const CONDITION_META: Record<string, { icon: string; label: string }> = {
   venom: { icon: "🐍", label: "Venomed — worsens, can't deploy (cure: Herbal Antidote)" },
 };
 
+// Conditions that DON'T fade on their own — they worsen (drain HP) until the
+// right cure is applied; a bandage does nothing for them. Each gets a distinct
+// red "cure-only" chip instead of the generic fading-wound countdown.
+const WORSENING: Record<string, { chip: string; tip: string }> = {
+  froth: {
+    chip: "froth",
+    tip: "The froth — a rabid-boar bite-sickness. It worsens (drains HP) until treated with a 🐗 Boar's-Bane Salve, and the hero can't be deployed until then.",
+  },
+  venom: {
+    chip: "venomed",
+    tip: "The slow venom — an adder-bite from the fen that won't close. It worsens (drains HP, blocks regen) until drawn out with a 🧪 Herbal Antidote. A bandage won't touch it, and the hero can't be deployed until it's cured.",
+  },
+};
+
 // Mirrors of the recovery-tick constants in gameState. Heroes heal this fraction
 // of max HP per game-hour while resting at home; a condition blocks regen and
 // decays over ~this many game-hours per remaining round.
@@ -51,12 +65,14 @@ export default function AdventurerVitals(props: Props) {
         <For each={conditions()}>
           {(c) => {
             const meta = CONDITION_META[c.type] ?? { icon: "❓", label: c.type };
-            // The froth doesn't fade — it worsens until cured. Distinct chip.
-            if (c.type === "froth") {
+            // Worsening cure-only wounds (froth, the fen's venom) never fade —
+            // distinct red chip with the real cure, not the "fades / bandage" path.
+            const worse = WORSENING[c.type];
+            if (worse) {
               return (
-                <Tooltip text="The froth — a rabid-boar bite-sickness. It worsens (drains HP) until treated with a 🐗 Boar's-Bane Salve, and the hero can't be deployed until then.">
+                <Tooltip text={worse.tip}>
                   <span style={{ "font-size": "0.72rem", "line-height": 1, color: "var(--accent-red)", "white-space": "nowrap", cursor: "help" }}>
-                    {meta.icon} froth
+                    {meta.icon} {worse.chip}
                   </span>
                 </Tooltip>
               );

@@ -72,7 +72,7 @@ export default function AdventurerPickerCard(props: AdventurerPickerCardProps) {
           <span>{RANK_NAMES[adv().rank]} · Lv.{adv().level}</span>
           <Show when={hasConditions()}>
             <For each={adv().conditions ?? []}>
-              {(c) => <Tooltip text={c.type === "bleed" ? "Bleeding — won't heal until it fades" : c.type === "poison" ? "Poisoned — won't heal until it fades" : "Frothing — worsens until cured with a Boar's-Bane Salve"}><span>{c.type === "bleed" ? "🩸" : c.type === "poison" ? "☣️" : "🤢"}</span></Tooltip>}
+              {(c) => <Tooltip text={c.type === "bleed" ? "Bleeding — won't heal until it fades" : c.type === "poison" ? "Poisoned — won't heal until it fades" : c.type === "venom" ? "Venomed — worsens until cured with a Herbal Antidote (a bandage won't touch it)" : "Frothing — worsens until cured with a Boar's-Bane Salve"}><span>{c.type === "bleed" ? "🩸" : c.type === "poison" ? "☣️" : c.type === "venom" ? "🐍" : "🤢"}</span></Tooltip>}
             </For>
           </Show>
         </div>

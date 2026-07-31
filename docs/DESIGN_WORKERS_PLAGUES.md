@@ -201,7 +201,7 @@ Fleshes out the staffing UX on top of the worker system above. Two flavors of st
 | Building | Founder(s) |
 | --- | --- |
 | Forager's Hut | Edda + Nell |
-| Hunting Camp | Brenna + Gareth |
+| Hunting Camp | Nessa + Gareth |
 | Fishing Hut | Godric + the kid *(Godric fishes at first — crews the early hut without spending a scarce citizen)* |
 | Lumber Mill → Woodcutting Shop | Jory *(follow him to the shop when he moves; he can work alone)* |
 | Quarry | Tomas |

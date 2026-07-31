@@ -873,7 +873,7 @@ Alternate portraits for existing cast. Because the R2 upload skips existing keys
 serves an immutable 1-year cache, save a rework under a NEW filename (e.g. `_v2`) and
 update the character's `portrait` field to match — don't overwrite the old key.
 
-**Gareth Thornwood — mail archer rework** (differentiate from Brenna's leather + hood)
+**Gareth Thornwood — mail archer rework** (differentiate from Nessa's leather + hood)
 Save to `frontend/public/images/characters/ashwick/gareth_thornwood_v2.png`, then set
 `portrait: "gareth_thornwood_v2"` for char_005 in shared/src/data/premade-characters.ts.
 Uses the current portrait as omni-reference to keep his FACE — but keep `--ow` LOW

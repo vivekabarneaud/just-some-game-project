@@ -152,6 +152,10 @@ export interface EnemyDefinition {
    *  with the same target. Lone pack-hunters are weak; a pack ganging up is
    *  lethal. Reusable (wolves now; goblins/raptors later). */
   pack?: string;
+  /** Pack nerve: this creature's aim AND courage scale with living packmates
+   *  (same `pack` tag) — brave and accurate in a pack, feeble and skittish alone.
+   *  Pairs with `pack`; delivers "useless out of one" mechanically. */
+  packNerve?: boolean;
   /** Morale (Outlaw archetype): this humanoid routs on COURAGE, not just HP. Each
    *  round it weighs a morale score — base `courage`, plus a big cushion while a
    *  leader stands, minus its side's casualties and being outnumbered, plus a
@@ -278,8 +282,11 @@ export const ENEMIES: EnemyDefinition[] = [
       // Dirty and cowardly: a thrown handful of grit — you fight clumsy for a bit.
       { id: "sucker_punch", name: "Sucker Punch", icon: "👊", cooldown: 3, trigger: "always", effect: { type: "debuff_target", stat: "dex", pct: 25, rounds: 2 } },
     ],
+    pack: "dominion",        // gangs up — a shared-target bite bonus with its mates
+    packNerve: true,         // and its aim + nerve swell with numbers, collapse alone
     morale: { courage: 16 }, // glass nerve — brave in a pack, useless out of one
-    routsAt: 0.5,            // and folds early when its own skin is at stake
+    routsAt: 0.35,           // folds when its own skin is at stake (lowered so the
+                             //   pack-morale, not a lone half-HP panic, governs it)
     loot: [
       { type: "resource", resource: "gold", chance: 0.35, min: 2, max: 6 },
     ],

@@ -143,7 +143,7 @@ export const NARRATIVE_EVENTS: NarrativeEvent[] = [
     banner:
       "A family walked out of the trees this morning, hunters by their gear, road-worn and asking for nothing but a place to stand. No one sent them, and no one knew they were coming. The tents we have will not hold them, and I will not turn them back into the wild.",
     unlocks: {
-      // Brenna, Gareth, Godric — rostered here, not at guild_open, so their
+      // Nessa, Gareth, Godric — rostered here, not at guild_open, so their
       // hunting camp / fishing hut read as staffed the moment they're built.
       recruitPremadeIds: ["char_000", "char_005", "char_021"],
       // The adopted boy runs the camp, loud where Nell is silent; Nell barely

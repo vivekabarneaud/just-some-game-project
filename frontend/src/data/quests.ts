@@ -916,7 +916,8 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
       "One of the team came back from the reeds with an adder's bite that won't close. Edda needs a proper antidote brewed to draw the venom before it takes more than a leg.",
     narrativeFn: (s) => {
       const v = s.adventurers.find((a) => a.alive && (a.conditions?.some((c) => c.type === "venom") ?? false));
-      const name = v?.name ?? "One of the team";
+      // First name only — the settlement speaks of its own by their given name.
+      const name = v?.name?.split(" ")[0] ?? "One of the team";
       return `${name} came back from the reeds with an adder's bite that won't close. The fever's climbing, the swelling's gone black, and this is not the kind of venom that sweats out in a night. Edda's fenbalm dulls the pain but won't draw poison this deep; there's a proper antidote for it, she says, and now she has the herbs to brew one. Get it made and into ${name} before the fen takes more than a leg.`;
     },
     objective: "Brew a Herbal Antidote and cure the venom",

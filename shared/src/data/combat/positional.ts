@@ -246,3 +246,15 @@ export function hasPackmateOn(u: CombatUnit, target: CombatUnit, ctx: CombatCont
   const mates = u.isEnemy ? ctx.enemies : ctx.adventurers;
   return mates.some((m) => m.id !== u.id && m.hp > 0 && !m.fled && m.pack === u.pack && inReach(m, target));
 }
+
+/** Living, un-fled packmates sharing this unit's `pack` tag (excludes itself).
+ *  Drives Pack Nerve — aim and courage that swell in numbers and collapse as the
+ *  pack is thinned. Zero for a unit with no pack, or the last one standing. */
+export function livingPackmates(u: CombatUnit, ctx: CombatContext): number {
+  if (!u.pack) return 0;
+  const mates = u.isEnemy ? ctx.enemies : ctx.adventurers;
+  return mates.filter((m) => m.id !== u.id && m.hp > 0 && !m.fled && m.pack === u.pack).length;
+}
+/** Pack Nerve tuning: +Accuracy% and +courage granted PER living packmate. */
+export const PACK_NERVE_ACCURACY = 6;
+export const PACK_NERVE_COURAGE = 15;

@@ -3705,6 +3705,20 @@ input, textarea, select {
   gap: 6px;
 }
 
+/* At-risk state (e.g. weather actively killing crops): pulse a red glow ring.
+   Uses box-shadow rather than border-color so it layers over the ornate
+   border-image frame instead of fighting it. */
+.stat-card.stat-card-danger {
+  animation: stat-card-danger-pulse 1.3s ease-in-out infinite;
+}
+@keyframes stat-card-danger-pulse {
+  0%, 100% { box-shadow: 0 0 3px 0 rgba(231, 76, 60, 0.35); }
+  50% { box-shadow: 0 0 11px 2px rgba(231, 76, 60, 0.85); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stat-card.stat-card-danger { animation: none; box-shadow: 0 0 8px 1px rgba(231, 76, 60, 0.6); }
+}
+
 .stat-card-label {
   font-size: 0.66rem;
   text-transform: uppercase;
@@ -4171,6 +4185,14 @@ input, textarea, select {
 }
 @media (prefers-reduced-motion: reduce) {
   @keyframes combat-lunge { 0%, 100% { transform: translateX(0) translateY(0); } }
+}
+/* Rout flash — fades a "Routs!" badge in then out as a unit breaks off. Animates
+   only opacity so the card's counter-mirror transform on the same node survives. */
+@keyframes combat-rout-flash {
+  0% { opacity: 0; }
+  15% { opacity: 1; }
+  65% { opacity: 1; }
+  100% { opacity: 0; }
 }
 
 /* Combat-playback transport buttons (prev turn / pause / next turn / debug). */

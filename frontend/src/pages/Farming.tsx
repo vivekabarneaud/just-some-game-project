@@ -11,7 +11,7 @@ import SeasonIcon from "~/components/SeasonIcon";
 import WeatherIcon from "~/components/WeatherIcon";
 import StatCard from "~/components/StatCard";
 import { resolveCurrentWeather, WEATHER_META } from "~/data/weather";
-import { gardenWaterDemand, fieldWaterDemand, orchardWaterDemand, penWaterDemand } from "~/data/water";
+import { gardenWaterDemand, fieldWaterDemand, orchardWaterDemand, penWaterDemand, getWaterCap, CISTERN_ID, DELUGE_SAFE_FILL } from "~/data/water";
 
 /** True once the settlement has a well or cistern — gates the per-plot water
  *  need lines so they don't confuse players who haven't started on water yet. */
@@ -819,14 +819,21 @@ function GardenCard(props: { garden: PlayerGarden }) {
                 amber), distinct from a seed that never sprouted. Only while a crop
                 stands this cycle. */}
             <Show when={planted() && sprouted() > 0}>
-              <div style={{ display: "flex", "align-items": "center", "justify-content": "center", gap: "6px", "font-size": "0.8rem", color: "var(--text-secondary)" }}>
-                <SeedIcon id={veggie().id} size={16} />
-                <span>
-                  <b style={{ color: "var(--text-primary)" }}>{sprouted()}/{sownThisYear()}</b> sprouted
-                  {" · "}
-                  <b style={{ color: alivePlants() < sprouted() ? "#d4831a" : "var(--text-primary)" }}>{alivePlants()}/{sprouted()}</b> alive
-                </span>
-              </div>
+              <Tooltip block text={
+                "Of the seed you sowed, some came up ('sprouted'); of those, some still stand ('alive'). "
+                + "Plants can die between waterings: a heat wave scorches them even in watered beds, a downpour "
+                + "drowns them when the cistern backs up, and a long dry spell wilts them once the reserve runs low. "
+                + "The hardiest plant always pulls through, so you can re-sow the empty slots when the sow season comes round."
+              }>
+                <div style={{ display: "flex", "align-items": "center", "justify-content": "center", gap: "6px", "font-size": "0.8rem", color: "var(--text-secondary)" }}>
+                  <SeedIcon id={veggie().id} size={16} />
+                  <span>
+                    <b style={{ color: "var(--text-primary)" }}>{sprouted()}/{sownThisYear()}</b> sprouted
+                    {" · "}
+                    <b style={{ color: alivePlants() < sprouted() ? "#d4831a" : "var(--text-primary)" }}>{alivePlants()}/{sprouted()}</b> alive
+                  </span>
+                </div>
+              </Tooltip>
             </Show>
             {/* Season nudge (e.g. "Time to plant", "Producing +N/h"). */}
             <Show when={statusLine()}>
@@ -1251,7 +1258,6 @@ function HiveCard(props: { hive: PlayerHive }) {
   const upgradeCost = () => props.hive.level < HIVE_MAX_LEVEL ? getHiveCost(props.hive.level) : null;
   const canUpgrade = () => {
     if (props.hive.upgrading || props.hive.level >= HIVE_MAX_LEVEL) return false;
-    if (props.hive.level >= 1 && state.season !== "winter") return false;
     if (props.hive.level >= effectiveMax()) return false;
     const c = upgradeCost();
     return c ? state.resources.wood >= c.wood && state.resources.stone >= c.stone && state.resources.gold >= c.gold : false;
@@ -1260,16 +1266,16 @@ function HiveCard(props: { hive: PlayerHive }) {
     if (props.hive.level >= HIVE_MAX_LEVEL) return "Max level reached";
     if (props.hive.level >= effectiveMax()) return `Upgrade Town Hall to lvl ${actions.getTownHallLevel() + 1}`;
     if (props.hive.upgrading) return "Already upgrading…";
-    if (props.hive.level >= 1 && state.season !== "winter") return "Hives can only be upgraded in winter";
     const c = upgradeCost();
     if (c && (state.resources.wood < c.wood || state.resources.stone < c.stone || state.resources.gold < c.gold)) return "Not enough resources";
     return "";
   };
 
+  // Show the indicator whenever the hive is below its current cap (any season —
+  // hives upgrade year-round now; only resources / Town-Hall level gate it).
   const showUpgradeIndicator = () =>
     !props.hive.upgrading &&
-    props.hive.level < HIVE_MAX_LEVEL &&
-    (props.hive.level === 0 || state.season === "winter");
+    props.hive.level < effectiveMax();
   const indicatorCostTip = () => {
     const c = props.hive.level === 0 ? buildCost() : upgradeCost();
     return c ? `🪵 ${c.wood} 🪨 ${c.stone} 🪙 ${c.gold} · ${formatTime(getHiveBuildTime(props.hive.level))}` : "";
@@ -1767,22 +1773,49 @@ export default function Farming() {
         {(() => {
           const w = () => resolveCurrentWeather(state.season, state.seasonElapsed, state.year);
           const m = () => WEATHER_META[w()];
+          const hasStandingCrop = () =>
+            state.gardens.some((g) => g.plantedYear != null && (g.plantsAlive ?? 0) > 0) ||
+            state.fields.some((f) => !!f.crop && f.level > 0);
+          // Is the weather actively killing crops right now? Heat wilts anything
+          // standing; a downpour only drowns when the cistern has backed up.
+          const cisternFill = () => {
+            const cb = state.buildings.find((b) => b.buildingId === CISTERN_ID);
+            const cap = getWaterCap(Math.max(0, (cb?.level ?? 0) - (cb?.damaged ? 1 : 0)));
+            return cap > 0 ? (state.resources.water ?? 0) / cap : 0;
+          };
+          const harming = () => hasStandingCrop() && (
+            w() === "heat_wave" || (w() === "heavy_rain" && cisternFill() > DELUGE_SAFE_FILL)
+          );
+          const warnText = () => w() === "heat_wave"
+            ? "The heat is wilting your crops right now, even watered beds. Run a water mission or wait it out."
+            : "The downpour is drowning your crops. Open the cistern sluice to run the reserve low so the flood sheds off.";
           return (
-            <StatCard label="Weather">
-              <Tooltip block text={m().blurb}>
-                <span style={{ display: "inline-flex", "align-items": "center", gap: "5px" }}>
+            <Tooltip block text={harming() ? warnText() : m().blurb} style={{ flex: "1", display: "flex" }}>
+              <StatCard label="Weather" danger={harming()}>
+                <span style={{ display: "inline-flex", "align-items": "center", gap: "5px", color: harming() ? "var(--accent-red)" : undefined }}>
                   <WeatherIcon weather={w()} size={18} /> {m().name}
                 </span>
-              </Tooltip>
-            </StatCard>
+              </StatCard>
+            </Tooltip>
           );
         })()}
-        <Show when={state.season === "spring" || state.season === "summer"}>
+        <Show when={(state.season === "spring" || state.season === "summer") && totalExpectedHarvest() > 0}>
           <StatCard label="Expected Harvest">{totalExpectedHarvest()} food</StatCard>
         </Show>
-        <Show when={state.season === "autumn" && actions.isHarvesting()}>
+        <Show when={state.season === "autumn" && actions.isHarvesting() && totalExpectedHarvest() > 0}>
           <StatCard label="Harvesting" valueColor="#d4831a">{totalExpectedHarvest()} food incoming</StatCard>
         </Show>
+        {/* Current farm output per hour — gardens, orchards, pens and any active
+            field harvest. Shown whenever the farm is producing, so a page with
+            thriving gardens never reads a misleading grain-only "0 incoming". */}
+        {(() => {
+          const farmFood = () => actions.getFoodBreakdown().filter((src) => !src.wild).reduce((t, src) => t + src.rate, 0);
+          return (
+            <Show when={farmFood() > 0}>
+              <StatCard label="Producing" valueColor="var(--accent-green)">+{Math.round(farmFood())}/h food</StatCard>
+            </Show>
+          );
+        })()}
         <Show when={(state.season === "autumn" && !actions.isHarvesting()) || state.season === "winter"}>
           <StatCard label="Harvested this year" valueColor="var(--accent-green)">
             {Object.keys(state.yearHarvest).length > 0

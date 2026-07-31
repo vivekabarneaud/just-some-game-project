@@ -1,5 +1,6 @@
 # Aldwin Stonebridge
-- **Status:** locked 2026-06-29
+- **⚠ Arc is provisional (user 2026-07-30):** what's written here (the arrival flow, the secret drip, the confession timing, the friendship beats) is a **v1 of ideas, not a locked plan.** The user expects to **rework the whole Stonebridge arc later and advance it by feel** rather than executing this to the letter. Treat these notes as raw material and inspiration, not a spec — check in on the current feeling before building any of it.
+- **Status:** character locked 2026-06-29; arc provisional
 - **Recruit ID:** char_017
 - **Portrait file:** aldwin_stonebridge
 - **Class / Race / Origin:** Priest / Human / Ashwick
@@ -30,6 +31,8 @@
 - **Old Bede** — Aldwin found him to teach Magnus; his public burning is the loss that drove the brothers onto the road (see Magnus's file).
 - **Bridge to the Lord:** a believer whose faith already cracked under love — a mirror/guide for the Lord's own coming reckoning with magic. (Alongside **Edda**'s Old-Faith folk-ritual and **Corin**'s secret study — the settlement's built-in bridges to accepting magic.)
 - **Aldwin ↔ the Lord — a deep friendship, bounded (FUTURE arc, user 2026-07-29):** the intent is for Aldwin to grow into one of the Lord's closest friends, a near-confidant of the same age. But the friendship is always **limited by the secret.** Before the confession, by what Aldwin cannot say — the wall Magnus's nature puts between two men who would otherwise be fully open. After the Lord chooses to harbor them, the bond deepens (cemented by shared risk and trust), yet stays shadowed: a closeness neither can ever speak of beyond the walls. Not implementable now (no friendship/relationship system yet); banked as a slow relationship arc to grow across the chapters, likely surfaced through Tavern conversations ([[project_tavern_conversations]]) and dynamic chronicle beats.
+  - **Shared values are the root of it (user 2026-07-30):** the friendship isn't just proximity — the two men *think alike*. The Lord chooses to shelter the brothers no-questions-asked, which is **exactly what Aldwin did his whole life** (open the door to every hunted soul, ask nothing). They recognize each other. That mutual "you'd have done the same" is the seed of the bond. Keep the **arrival beat warm and clean** — Aldwin reads as simply *kind*, no secret-tipping (the "there is something he holds back" line was cut from `ch1_stonebridge_arrival` for this reason). The wall/secret drips in later (the `ch1_stonebridge_hunch` beat and the Ch2 confession), not at the gate.
+  - **"Medieval bromance" cutscenes (user idea 2026-07-30):** picture short **cutscenes/cinematics that show the friendship *growing*** across the game — the two of them at ease, working shoulder to shoulder, a warmth deepening — a genuine bromance the player watches bloom, always with the quiet shadow of what Aldwin can't say. Ties into [[project_cinematics]] (post-story cinematics) as the delivery vehicle. Future, banked.
 
 ## Combat identity & talents (parked 2026-06-29)
 **Archetype: pure healer + protector (priest).** Heals, shields, wards — straight support, no offense to speak of; his power is keeping others alive, and keeping **Magnus** alive above all. Talent model = Godric's template (see [godric-thornwood.md](godric-thornwood.md)).

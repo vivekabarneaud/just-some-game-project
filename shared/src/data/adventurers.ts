@@ -45,7 +45,7 @@ export const ORIGINS: OriginDef[] = [
     // Note: Ashwick was formerly "Dunhollow" — renamed to avoid collision with Hollow Wastes/Hollow Magic
     statMods: {},
     firstNamesMale: ["Aldric", "Cedric", "Elwin", "Gareth", "Kael", "Osric", "Quinlan", "Dorian", "Finn", "Henrik", "Nolan", "Pavel", "Wren", "Edmund", "Jareth", "Corin", "Bram", "Roderick", "Ansel", "Callum", "Duncan", "Emory", "Godric", "Hadrian", "Kendrick", "Leland"],
-    firstNamesFemale: ["Brenna", "Daria", "Hilda", "Lyra", "Petra", "Rowena", "Gwen", "Isla", "Kira", "Mira", "Oona", "Rhea", "Talia", "Cora", "Elara", "Ysolde", "Maren", "Isolde", "Winifred", "Enid", "Bethan", "Lenora", "Seren", "Tamsin", "Ailis", "Cordelia"],
+    firstNamesFemale: ["Elin", "Daria", "Hilda", "Lyra", "Petra", "Rowena", "Gwen", "Isla", "Kira", "Mira", "Oona", "Rhea", "Talia", "Cora", "Elara", "Ysolde", "Maren", "Isolde", "Winifred", "Enid", "Bethan", "Lenora", "Seren", "Tamsin", "Ailis", "Cordelia"],
     lastNames: ["Ashford", "Blackwood", "Coldwell", "Dawnforge", "Emberheart", "Foxglove", "Greystone", "Hawkwind", "Ironbark", "Thornwood", "Underhill", "Valeheart", "Wintermere", "Brightwater", "Copperfield", "Eldergrove"],
     backstories: {
       fighter: "A former soldier of the Dominion, discharged after questioning an order. Came south to find a war worth fighting.",
@@ -889,7 +889,7 @@ function starterEquipment(premade: PremadeCharacter): Adventurer["equipment"] {
   const eq: Adventurer["equipment"] = { ...empty, mainHand: kit.mainHand, chest: kit.chest, boots: kit.boots };
   // Per-character flavor (add specifics here as characters need them):
   if (premade.id === "char_005") eq.chest = "worn_chainmail"; // Gareth: mail, not leather
-  if (premade.id === "char_000") eq.head = "cloth_hood";      // Brenna: a cloth hood
+  if (premade.id === "char_000") eq.head = "cloth_hood";      // Nessa: a cloth hood
   if (premade.id === "char_019") eq.mainHand = "felling_axe"; // Hester: her woodcutter's felling axe (axe_master)
   return eq;
 }

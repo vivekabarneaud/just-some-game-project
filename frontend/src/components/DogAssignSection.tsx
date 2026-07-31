@@ -35,7 +35,7 @@ export default function DogAssignSection(props: Props) {
   const skill = (d: { guardLevel: number; huntLevel: number }) => props.job === "guard" ? d.guardLevel : d.huntLevel;
   const skillIcon = props.job === "guard" ? "🛡️" : "🏹";
   // Everything not already on this post (idle = sendable; the rest shown dimmed).
-  // Owner-bound hounds (e.g. Brenna's) aren't the player's to post, so they
+  // Owner-bound hounds (e.g. Nessa's) aren't the player's to post, so they
   // never show in the picker.
   const pickerDogs = () => dogs().filter((d) => !d.isPuppy && !d.keeper && !onThisPost(d));
   const post = (job: string) => job === "hunt" ? "on the hunt" : job === "guard" ? "guarding a flock" : job === "mouse" ? "on the prowl" : "resting";

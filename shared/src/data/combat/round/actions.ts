@@ -7,7 +7,7 @@ import { tryClassAbility, tryEnemyAbility } from "../abilities/index.js";
 import { evaluateTransitions, getCurrentState } from "../ai/index.js";
 import { addDamageThreat } from "../threat.js";
 import { shouldFlee, attemptFlee, moraleBreaks } from "../retreat.js";
-import { POS, CHARGE, moveUnit, computeHolds, chargePlan, pinningFoe, inReach, isBehind, hasPackmateOn, PACK_TACTICS_BONUS } from "../positional.js";
+import { POS, CHARGE, moveUnit, computeHolds, chargePlan, pinningFoe, inReach, isBehind, hasPackmateOn, PACK_TACTICS_BONUS, livingPackmates, PACK_NERVE_ACCURACY } from "../positional.js";
 
 /**
  * The main action phase of a round.
@@ -150,6 +150,12 @@ function basicAttack(unit: CombatUnit, ctx: CombatContext): void {
   // Hit resolution: one avoidance roll (Dodge + Parry − Accuracy, capped). On a
   // successful roll the attack is negated; `parried` picks the flavor.
   const avoid = getAvoidance(unit, target);
+  // Pack Nerve: a packed attacker's aim firms up with each living packmate, so a
+  // mob lands hits a lone skirmisher never would. Lowers the target's avoidance.
+  if (unit.packNerve) {
+    const mates = livingPackmates(unit, ctx);
+    if (mates > 0) avoid.chance = Math.max(0, avoid.chance - PACK_NERVE_ACCURACY * mates);
+  }
   if (combatRandom() * 100 < avoid.chance) {
     const verb = avoid.parried ? "parries" : "dodges";
     ctx.log.push({

@@ -132,7 +132,7 @@ export interface KeptAnimal {
   /** For `origin === "bred"`: the parents (by id, since names can change). */
   sireId?: string;
   damId?: string;
-  /** Owner-bound: belongs to a named character (e.g. Brenna's hound), not the
+  /** Owner-bound: belongs to a named character (e.g. Nessa's hound), not the
    *  settlement's managed pack. Excluded from Kennel capacity; not player-
    *  reassignable. Holds the owner's name. */
   keeper?: string;
@@ -366,6 +366,12 @@ export interface GameState {
   fruitsUnlocked: FruitId[];
   /** Last world-year a drought plant-kill was applied — so it fires once/year. */
   lastDroughtKillYear?: number;
+  /** Cumulative garden plants killed by environmental stress (heat/drown/thirst),
+   *  and the most recent cause; the away digest diffs the count. */
+  plantsWiltedEnv?: number;
+  lastWiltCause?: "heat" | "drown" | "thirst";
+  /** High-water mark of plantsWiltedEnv already surfaced in the event log. */
+  plantsWiltedLogged?: number;
   honey: number;
   /** Per-type food stockpiles — total is capped by pantry.
    *  Orchard fruits (apples/pears/cherries) now live here as first-class foods. */

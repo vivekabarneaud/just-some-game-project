@@ -115,7 +115,7 @@ export default function GarrisonDetailModal(props: Props) {
   };
   const onTrain = () => actions.startTraining(props.kind, props.ring);
 
-  // ── Assigned-staff row (Gareth / Morgause), modeled like Brenna at the camp ──
+  // ── Assigned-staff row (Gareth / Morgause), modeled like Nessa at the camp ──
   // The captain is permanently posted here: present while home (steadying the
   // watch, or drilling), dimmed and away while on a mission — still deployable
   // through the guild, exactly like a hunting-camp hand.

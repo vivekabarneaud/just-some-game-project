@@ -96,6 +96,18 @@ export default function LootModal(props: Props) {
   // regen and worsens until cured, so it's easy to miss without this callout.
   const afflicted = () => (r().roster ?? []).filter((e) => !e.died && (e.conditions?.length ?? 0) > 0);
   const anyFroth = () => afflicted().some((e) => e.conditions!.some((c) => c.type === "froth"));
+  const anyVenom = () => afflicted().some((e) => e.conditions!.some((c) => c.type === "venom"));
+  // "Serious" = a worsening, cure-only wound (froth / the fen's venom) that never
+  // fades and a bandage can't touch — distinct from the fading bleed/poison.
+  const anySerious = () => anyFroth() || anyVenom();
+  // The accurate footer note when a serious wound is present (names each cure).
+  const seriousNote = () => {
+    const parts: string[] = [];
+    if (anyFroth()) parts.push("The froth worsens until treated with a 🐗 Boar's-Bane Salve.");
+    if (anyVenom()) parts.push("The slow venom worsens until drawn out with a 🧪 Herbal Antidote (a bandage won't touch it).");
+    parts.push("Afflicted heroes block healing and can't be deployed until cured.");
+    return parts.join(" ");
+  };
   // The modal wears the mission's RANK frame (matching the team-assembly panel):
   // novice=common … veteran=epic, story=legendary, with flourishes on the higher
   // ranks. Falls back to common for an unknown mission.
@@ -234,11 +246,11 @@ export default function LootModal(props: Props) {
           <Show when={afflicted().length > 0}>
             <div class="loot-section" style={{
               "animation-delay": "300ms",
-              border: `1px solid ${anyFroth() ? "var(--accent-red)" : "#d4831a"}`,
-              background: anyFroth() ? "rgba(231, 76, 60, 0.08)" : "rgba(212, 131, 26, 0.08)",
+              border: `1px solid ${anySerious() ? "var(--accent-red)" : "#d4831a"}`,
+              background: anySerious() ? "rgba(231, 76, 60, 0.08)" : "rgba(212, 131, 26, 0.08)",
               padding: "10px 12px",
             }}>
-              <div class="section-label" style={{ color: anyFroth() ? "var(--accent-red)" : "#d4831a" }}>
+              <div class="section-label" style={{ color: anySerious() ? "var(--accent-red)" : "#d4831a" }}>
                 Came home wounded
               </div>
               <div style={{ display: "flex", "flex-direction": "column", gap: "4px", "font-size": "0.88rem" }}>
@@ -249,9 +261,11 @@ export default function LootModal(props: Props) {
                       <For each={e.conditions!}>
                         {(c) => {
                           const meta = CONDITION_META[c.type] ?? { icon: "❓", label: c.type };
+                          const serious = c.type === "froth" || c.type === "venom";
+                          const shortLabel = c.type === "froth" ? "the froth" : c.type === "venom" ? "the venom" : meta.label;
                           return (
-                            <span style={{ color: c.type === "froth" ? "var(--accent-red)" : "#d4831a", "white-space": "nowrap" }}>
-                              {meta.icon} {c.type === "froth" ? "the froth" : meta.label}
+                            <span style={{ color: serious ? "var(--accent-red)" : "#d4831a", "white-space": "nowrap" }}>
+                              {meta.icon} {shortLabel}
                             </span>
                           );
                         }}
@@ -262,10 +276,10 @@ export default function LootModal(props: Props) {
               </div>
               <div style={{ "font-size": "0.8rem", "font-style": "italic", "margin-top": "6px", color: "var(--text-muted)" }}>
                 <Show
-                  when={anyFroth()}
+                  when={anySerious()}
                   fallback={<>Lingering wounds block natural healing until they fade. A 🩹 Bandage speeds recovery.</>}
                 >
-                  The froth blocks natural healing and worsens until treated with a 🐗 Boar's-Bane Salve. Afflicted heroes can't be deployed until cured.
+                  {seriousNote()}
                 </Show>
               </div>
             </div>

@@ -80,8 +80,6 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
     starterRecipe: true,
     discoveryChance: 0,
   },
-
-  // ── Novice (discoverable) ─────────────────────────────────────
   {
     id: "herbal_antidote",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/alchemy_lab/herbal_antidote.png",
@@ -90,11 +88,13 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
     description: "Cures poison. In combat: drunk the moment poison lands, curing it and healing 20% HP. At home: clears poison from a resting hero.",
     tier: "novice",
     minLabLevel: 1,
-    costs: [{ resource: "nettle", amount: 2 }],
+    costs: [{ resource: "nettle", amount: 2 }, {resource: "fenbalm", amount: 1}],
     effect: "curePoison",
-    craftTime: 420,
-    discoveryChance: 0.4,
+    craftTime: 10,
+    discoveryChance: 0,
   },
+
+  // ── Novice (discoverable) ─────────────────────────────────────
 
   // ── Apprentice (Lab lvl 3-4) ──────────────────────────────────
   {

@@ -99,6 +99,24 @@ export default function CombatantCard(props: {
       transform: mirror() ? "scaleX(-1)" : undefined,
       "flex-shrink": 0,
     }}>
+      {/* Rout flash — a brief "Routs!" over the card as it breaks off, so a morale
+          break reads as a decision, not a card vanishing "for no reason". Sits
+          outside the sliding motion layer so it stays put, and fades itself out. */}
+      <Show when={props.fleeing}>
+        <div style={{
+          position: "absolute", inset: "0", "z-index": 6,
+          display: "flex", "align-items": "center", "justify-content": "center",
+          "pointer-events": "none", transform: counterFlip(),
+          animation: "combat-rout-flash 1.6s ease-out forwards",
+        }}>
+          <span style={{
+            background: "rgba(20,20,35,0.92)", color: "#e74c3c",
+            "font-size": `${H() * 0.13}px`, "font-weight": 700,
+            padding: "2px 8px", "border-radius": "4px",
+            border: "1px solid rgba(231,76,60,0.6)", "white-space": "nowrap",
+          }}>🏃 Routs!</span>
+        </div>
+      </Show>
       {/* Motion layer — lunge (one-shot keyframe) + flee (slide off) + fade. */}
       <div
         style={{

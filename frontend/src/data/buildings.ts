@@ -363,6 +363,12 @@ function generateLevels(
 const TOWN_HALL_LEVELS = generateLevels({ wood: 80, stone: 80 }, 60, undefined, 25);
 TOWN_HALL_LEVELS[1].buildTime = 30;
 
+// The Alchemy Lab's level 1 is just a fire under a cauldron — near-instant to set
+// up, so the venom-antidote quest isn't blocked on a long build. Higher levels
+// (the real lab, research) keep the normal ramp.
+const ALCHEMY_LAB_LEVELS = generateLevels({ wood: 15, stone: 10 }, 45, undefined, 15);
+ALCHEMY_LAB_LEVELS[0].buildTime = 6;
+
 export const BUILDINGS: BuildingDefinition[] = [
   // Town Hall growth is NOT story-gated. It used to be locked behind a
   // settlement chapter (which repeatedly deadlocked, since later chapters
@@ -783,7 +789,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     icon: "🧪",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/alchemy_lab.png",
     maxLevel: 15,
-    levels: generateLevels({ wood: 15, stone: 10 }, 45, undefined, 15),
+    levels: ALCHEMY_LAB_LEVELS,
     requiredTier: "camp",
     unlockedAt: { storyline: "settlement", chapter: 4 },
   },
@@ -1062,7 +1068,7 @@ export const BUILDING_STAFF: Record<string, BuildingStaffConfig> = {
   lumber_mill: { founders: ["jory"] },
   quarry: { founders: ["tomas"] },
   forager_hut: { founders: ["edda"], kids: ["Nell"] },
-  hunting_camp: { adventurers: ["char_000"] },                              // Brenna
+  hunting_camp: { adventurers: ["char_000"] },                              // Nessa
   fishing_hut: { adventurers: ["char_021"], kids: ["the Thornwood boy"] },  // Godric
   // Mines are worked by townsfolk (no founder yet — a Khazdurim miner may take
   // the post later). Empty config = citizen-only staffing.

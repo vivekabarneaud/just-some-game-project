@@ -8,7 +8,7 @@ The Act-1 throughline is the **ward-stone / Thornveil arc**: the settlement disc
 ## Chapter 1: Ashes and Dust — **CAMP**
 *Settlement: a brand-new camp. The Lord + 5 founders (Edda, Nell, Jory, Tomas, Corin).*
 - **Banner — Two more families on the road** (a raven; arrivals incoming).
-- **Banner — The hunters volunteer** → **the Adventurer's Guild opens.** **ARRIVAL: the Thornwoods** (Brenna, Gareth, Godric + the boy), the hunters. *[Engine 1 — the displaced who found it.]*
+- **Banner — The hunters volunteer** → **the Adventurer's Guild opens.** **ARRIVAL: the Thornwoods** (Nessa, Gareth, Godric + the boy), the hunters. *[Engine 1 — the displaced who found it.]*
 - **Story 1 — Scouting the Surroundings** (wolves).
 - **Story 2 — The Hilltop Ruins** (Hale's garrison; the journal; the child's-stitching cloth).
 - **Story 3 — Past the Ruins** (the **first ghosts**). **ALLY: Niamh, Warden of the Thornveil** walks the team home — *the first magic-user the Lord works with* (protective Primal ward-craft; an external ally, **not a recruit**).

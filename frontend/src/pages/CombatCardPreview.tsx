@@ -26,11 +26,11 @@ export default function CombatCardPreview() {
   const [fleeing, setFleeing] = createSignal(false);
   const [slots, setSlots] = createStore<CardSlots>(structuredClone(DEFAULT_SLOTS));
 
-  const brenna = buildRecruitFromPremadeId("prev_brenna", "char_000", 1);
+  const nessa = buildRecruitFromPremadeId("prev_nessa", "char_000", 1);
   const ally: CombatantSnapshot = {
-    id: "a1", name: brenna?.name ?? "Brenna Thornwood", icon: "🏹",
+    id: "a1", name: nessa?.name ?? "Nessa Thornwood", icon: "🏹",
     side: "ally", kind: "adventurer", class: "archer", level: 4,
-    hp: 40, maxHp: 40, portrait: brenna ? getPortraitUrl(brenna) : undefined,
+    hp: 40, maxHp: 40, portrait: nessa ? getPortraitUrl(nessa) : undefined,
   };
   const enemy: CombatantSnapshot = {
     id: "e1", name: "Starving Wolf 1", icon: "🐺", side: "enemy", kind: "enemy", hp: 20, maxHp: 20,

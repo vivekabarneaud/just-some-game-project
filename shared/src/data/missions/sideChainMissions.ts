@@ -494,7 +494,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   {
     id: "break_the_nest",
     name: "Break the Nest",
-    description: "Driving them off the road only sends them home to whatever gully they hole up in, and they always come again. Brenna and the scouts followed the last lot back: a camp a half-day down, and a man at the head of it who set a price on our road and calls it a toll. Go and end the arrangement. Break the Tollman in front of his company and the company comes apart, for it is the toll they follow, not the man. Scare the rest off our country for good. What they stole is piled in that camp, ours and other folk's both, so bring it home. We would rather not bury any of them. We would rather they were simply gone.",
+    description: "Driving them off the road only sends them home to whatever gully they hole up in, and they always come again. Nessa and the scouts followed the last lot back: a camp a half-day down, and a man at the head of it who set a price on our road and calls it a toll. Go and end the arrangement. Break the Tollman in front of his company and the company comes apart, for it is the toll they follow, not the man. Scare the rest off our country for good. What they stole is piled in that camp, ours and other folk's both, so bring it home. We would rather not bury any of them. We would rather they were simply gone.",
     icon: "🪖",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/bandit_camp.png",
     slots: [{ class: "any" }, { class: "any" }, { class: "any" }],

@@ -4,6 +4,7 @@ import { useGame, CRAFTING_RECIPES, isRecipeDiscovered } from "~/engine/gameStat
 import { setOpenSettings } from "~/components/SettingsModal";
 import { SEASON_META, IS_DEV } from "~/data/seasons";
 import { WEATHER_META, WEATHER_TYPES, resolveWeather, currentWeatherInfo, weatherOverride, setWeatherOverride } from "~/data/weather";
+import { getWaterCap, CISTERN_ID, DELUGE_SAFE_FILL } from "~/data/water";
 import { CLIMATE_META, climateOverrideBand, setClimateOverride, type ClimateBand } from "~/data/climate";
 import { logout, getUsername } from "~/api/auth";
 import { QUEST_DEFINITIONS, isQuestTriggered } from "~/data/quests";
@@ -242,8 +243,11 @@ export default function Sidebar(props: SidebarProps) {
     if (path === "/farming") {
       const hasEmptyFields = state.fields.some((f) => !f.crop && f.level > 0 && !f.upgrading);
       const hasUpgradableFields = state.fields.some((f) => f.level > 0 && f.level < FIELD_MAX_LEVEL && !f.upgrading);
+      // Only nudge "harvest!" when there's an actual standing field crop to bring
+      // in — a farm of gardens only (no grain fields) shouldn't ping every autumn.
+      const hasStandingFieldCrop = state.fields.some((f) => f.level > 0 && !!f.crop);
       if (state.season === "spring" && hasEmptyFields) return { color: "#7CFC00", text: "plant!" };
-      if (state.season === "autumn" && state.seasonElapsed < 6) return { color: "#d4831a", text: "harvest!" };
+      if (state.season === "autumn" && state.seasonElapsed < 6 && hasStandingFieldCrop) return { color: "#d4831a", text: "harvest!" };
       if (state.season === "winter" && hasUpgradableFields) return { color: "#a5d8ff", text: "upgrade!" };
       return null;
     }
@@ -285,11 +289,19 @@ export default function Sidebar(props: SidebarProps) {
       // an act-now threat, so it gets the red urgent spark (run water / let it
       // pass is the answer). No crop standing → nothing to lose, no spark.
       const info = currentWeatherInfo(state.season, state.seasonElapsed, state.year);
-      if (resolveWeather(info.season, info.progress, info.year) === "heat_wave") {
-        const hasStandingCrop =
-          state.gardens.some((g) => g.plantedYear != null && (g.plantsAlive ?? 0) > 0) ||
-          state.fields.some((f) => !!f.crop && f.level > 0);
-        if (hasStandingCrop) return "Crops wilting in the heat";
+      const wx = resolveWeather(info.season, info.progress, info.year);
+      const hasStandingCrop =
+        state.gardens.some((g) => g.plantedYear != null && (g.plantsAlive ?? 0) > 0) ||
+        state.fields.some((f) => !!f.crop && f.level > 0);
+      if (!hasStandingCrop) return null;
+      if (wx === "heat_wave") return "Crops wilting in the heat";
+      // A downpour only drowns crops when the cistern backs up (fill above the
+      // safe line); open the sluice / run it low and the flood sheds harmlessly.
+      if (wx === "heavy_rain") {
+        const cb = state.buildings.find((b) => b.buildingId === CISTERN_ID);
+        const cap = getWaterCap(Math.max(0, (cb?.level ?? 0) - (cb?.damaged ? 1 : 0)));
+        const fill = cap > 0 ? (state.resources.water ?? 0) / cap : 0;
+        if (fill > DELUGE_SAFE_FILL) return "Crops drowning in the downpour";
       }
       return null;
     }

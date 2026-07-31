@@ -95,6 +95,10 @@ export interface CombatUnit {
   enemyDefId?: string;
   /** Pack tag — shared-target Pack Tactics bonus (Flanker archetype). From EnemyDefinition.pack. */
   pack?: string;
+  /** Pack nerve — this unit's aim AND courage firm up with each living packmate
+   *  (same `pack` tag) and collapse as they fall: brave in a pack, feeble alone.
+   *  From EnemyDefinition.packNerve. */
+  packNerve?: boolean;
   /** Morale (Outlaw archetype): this unit routs on COURAGE, not just HP — it
    *  breaks when its mates fall, when a leader dies, or when outnumbered, and
    *  holds (or presses) when the enemy is near death. `courage` = base bravery.

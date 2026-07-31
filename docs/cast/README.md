@@ -6,12 +6,12 @@ One file per character. This is the **deep canon** for each member of the cast: 
 - **`LORE_TIMELINE.md` always wins** on world facts (Crown, Church, Varek, the Wastes, magic). If a character file disagrees with the timeline, the timeline is right.
 - **No invention without a flag.** If something isn't decided yet, write it under **Open threads / TBD** rather than inventing canon.
 - **Player-facing prose has no em dashes** (the recruit-card bio especially). Design notes in these files can use them freely.
-- Filenames are kebab-case: `brenna-thornwood.md`. Families get a shared context file too (e.g. `thornwood-family.md`) so the common backstory lives in one place and the sibling files cross-reference it.
+- Filenames are kebab-case: `nessa-thornwood.md`. Families get a shared context file too (e.g. `thornwood-family.md`) so the common backstory lives in one place and the sibling files cross-reference it.
 
 ## Index
 ### The Thornwoods (the "hunters family" — unlocks the Adventurer's Guild)
 - [thornwood-family.md](thornwood-family.md) — shared family canon (parents, the winter, the boy, the reunion)
-- [brenna-thornwood.md](brenna-thornwood.md) — char_000, archer, the lifelong mother
+- [nessa-thornwood.md](nessa-thornwood.md) — char_000, archer, the lifelong mother
 - [gareth-thornwood.md](gareth-thornwood.md) — char_005, archer, the limits of conscience
 - [godric-thornwood.md](godric-thornwood.md) — char_021, warrior, the wall born of grief
 - [thornwood-boy.md](thornwood-boy.md) — the adopted child (settlement NPC, name TBD)

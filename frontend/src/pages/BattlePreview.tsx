@@ -37,7 +37,7 @@ const PRESETS: { label: string; encounters: Enc[] }[] = [
 
 const TRIO = [
   { instance: "prev_godric", premade: "char_021", note: "Godric (warrior, front)" },
-  { instance: "prev_brenna", premade: "char_000", note: "Brenna (archer, back)" },
+  { instance: "prev_nessa", premade: "char_000", note: "Nessa (archer, back)" },
   { instance: "prev_gareth", premade: "char_005", note: "Gareth (archer, back)" },
 ];
 
@@ -65,7 +65,7 @@ export default function BattlePreview() {
       <h1 style={{ "font-size": "20px", "margin-bottom": "4px" }}>Battle Preview <span style={{ opacity: 0.6, "font-size": "13px" }}>/dev-battle</span></h1>
       <p style={{ opacity: 0.7, "font-size": "13px", "margin-bottom": "16px" }}>
         Runs the real combat engine on a picked encounter and plays it in the actual stage.
-        Party: Godric + Brenna + Gareth. Change the seed for a different fight.
+        Party: Godric + Nessa + Gareth. Change the seed for a different fight.
       </p>
 
       <div style={{ display: "flex", gap: "16px", "align-items": "center", "margin-bottom": "16px" }}>

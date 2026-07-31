@@ -114,7 +114,7 @@ Positions turn the ability list from stat-mods into tactics. A non-exhaustive me
 - **Peel (Godric)**: stun / pull an enemy that has overflowed onto a backline ally — the sanctioned override to "overflow commits." The tank's answer to a broken-through attacker; pairs with taunt.
 - **Bodyguard / intercept**: a unit that steps in front to hold an extra attacker (raises how many the front can hold).
 - **Formation buffs**: bonuses for staying back / holding the line / being flanked.
-- **Traps / terrain (Brenna the survival hunter):** place an entity at an X that triggers on the first enemy to cross it — a **wolf trap** immobilizes (mobility→0 / root) the first overflow runner; **caltrops** slow a lane; a **snare** holds a bypasser off your backline. Lets a hunter *shape where the line forms*, not just react to it. Strong class identity and a natural talent branch.
+- **Traps / terrain (Nessa the survival hunter):** place an entity at an X that triggers on the first enemy to cross it — a **wolf trap** immobilizes (mobility→0 / root) the first overflow runner; **caltrops** slow a lane; a **snare** holds a bypasser off your backline. Lets a hunter *shape where the line forms*, not just react to it. Strong class identity and a natural talent branch.
 
 This is where the "character-specific combat style within a class" philosophy lives: two archers can play completely differently depending on mobility and which of these they have.
 
@@ -197,7 +197,7 @@ Re-balance runs continuously alongside each phase.
 Built a headless sandbox (`frontend/src/prototype/positionalCombat.ts`) and validated every core dynamic. Refinements that came out of watching it:
 
 - **Distance unit = "paces"; stat = "Mobility."** ("Sable covers 22 paces to the casters.") Period-appropriate, not gamey.
-- **Exposure is a melee FALLBACK, not a shot penalty.** A pinned ranged unit drops the bow, draws a dagger, and fights the foe on top of it (low `meleeDmg`). Character identity falls straight out: **Brenna** (hunter, leather) has a strong fallback — she *deals*; **Gareth** (sniper, chainmail) has a weak fallback but more HP — he *endures*. Armor = durability, not offense, so the two never conflict. Talents: Kiting Shot, Leap Back, Survival Knife.
+- **Exposure is a melee FALLBACK, not a shot penalty.** A pinned ranged unit drops the bow, draws a dagger, and fights the foe on top of it (low `meleeDmg`). Character identity falls straight out: **Nessa** (hunter, leather) has a strong fallback — she *deals*; **Gareth** (sniper, chainmail) has a weak fallback but more HP — he *endures*. Armor = durability, not offense, so the two never conflict. Talents: Kiting Shot, Leap Back, Survival Knife.
 - **Cornered = stuck by default; escape is a talent.** A ranger pinned against their own back wall cannot flee (running "out" means going *through* enemies, which only bypassers can do). A **"Slip Away / Disengage"** talent grants *temporary bypass* — roll past the pinning foe into the gap behind the enemy front, regaining range at the cost of being deep/surrounded. Same bypass code path.
 - **Backstab is baseline + talent.** Bypassers flank to the far side of the target (past it) and strike from behind for a baseline bonus (~1.5×), scaled by talents. Emergent check: a cornered enemy caster with an assassin behind it drew a knife and backstabbed *her* — two-way interactions work unscripted.
 - **holdPer default 2, raised by talents** (shield wall / heavy). Confirmed as the #1 feel knob.
@@ -205,7 +205,7 @@ Built a headless sandbox (`frontend/src/prototype/positionalCombat.ts`) and vali
 - **Balance is a separate layer.** The model is sound; "everyone wins" in the sandbox is only because the test enemies are fodder. Real enemy HP/damage tuning is the long-tail pass, and the sandbox is the workbench for it.
 
 ## 12c. Ability ideas surfaced during design
-Wolf trap / caltrops / snare (Brenna — shape where the line forms), Slip Away (ranger disengage), plus the §6 list.
+Wolf trap / caltrops / snare (Nessa — shape where the line forms), Slip Away (ranger disengage), plus the §6 list.
 
 ## 13. Risks
 

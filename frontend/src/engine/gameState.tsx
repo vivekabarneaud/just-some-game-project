@@ -451,7 +451,7 @@ export interface KeptAnimal {
   origin: AnimalOrigin;  // drives the card description
   sireId?: string;       // parents (by id) when origin === "bred"
   damId?: string;
-  /** Owner-bound: this dog belongs to a named character (e.g. Brenna's hound),
+  /** Owner-bound: this dog belongs to a named character (e.g. Nessa's hound),
    *  not the settlement's managed pack. Excluded from Kennel capacity and can't
    *  be reassigned or recalled by the player. Holds the owner's name. */
   keeper?: string;
@@ -587,6 +587,14 @@ export interface GameState {
   fruitsUnlocked: FruitId[];
   /** Last world-year a drought plant-kill was applied — so it fires once/year. */
   lastDroughtKillYear?: number;
+  /** Cumulative garden plants killed by environmental stress (heat / drowning /
+   *  thirst). The away digest diffs this to report how many wilted offline. */
+  plantsWiltedEnv?: number;
+  /** Most recent environmental cause of a garden wilt, for the digest wording. */
+  lastWiltCause?: "heat" | "drown" | "thirst";
+  /** High-water mark of plantsWiltedEnv already surfaced in the event log, so a
+   *  long dry/hot stretch logs one throttled line per few losses, not per tick. */
+  plantsWiltedLogged?: number;
   honey: number;
   /** Per-type food stockpiles — total capped by pantry */
   foods: Record<FoodItemType, number>;
@@ -801,6 +809,9 @@ export interface FoodSource {
   icon: string;
   rate: number;
   building: string;
+  /** True for foraged/hunted/fished food (not farmed) — lets the Farming page
+   *  sum only the farm's own output. */
+  wild?: boolean;
 }
 
 export interface TavernDish {
@@ -2080,6 +2091,12 @@ function buildMissionBoardContext(s: GameState, guildLevel: number, seed: number
   };
 }
 
+/** Capitalize the first letter (ring names like "outer"/"inner" read as sentence
+ *  starts in event-log lines). */
+function capitalize(s: string): string {
+  return s.length ? s[0].toUpperCase() + s.slice(1) : s;
+}
+
 function pushEvent(s: GameState, type: GameEventType, icon: string, message: string) {
   s.eventLog.unshift({ type, icon, message, timestamp: Date.now() });
   if (s.eventLog.length > MAX_EVENT_LOG) s.eventLog.length = MAX_EVENT_LOG;
@@ -2485,10 +2502,12 @@ function cropYieldMult(state: GameState): number {
 /** Apply a survival fraction to a garden's living plants, never taking the LAST
  *  one from environmental death: a hardy plant always pulls through, so an away
  *  player returns to a thinned plot they can re-sow, never a graveyard. */
-function wiltGardenPlants(g: PlayerGarden, survive: number): void {
+function wiltGardenPlants(g: PlayerGarden, survive: number): number {
   const alive = g.plantsAlive ?? 0;
-  if (alive <= 1) return;
-  g.plantsAlive = Math.max(1, Math.floor(alive * survive));
+  if (alive <= 1) return 0;
+  const next = Math.max(1, Math.floor(alive * survive));
+  g.plantsAlive = next;
+  return alive - next;
 }
 
 /** Momentary crop damage from a harsh WEATHER event (heat wave / downpour),
@@ -2518,8 +2537,13 @@ function applyWeatherCropDamage(s: GameState, weather: WeatherType, elapsedHours
   }
   const survive = Math.pow(1 - rate, elapsedHours);
   if (survive >= 1) return;
+  let lost = 0;
   for (const g of s.gardens) {
-    if (g.plantedYear != null) wiltGardenPlants(g, survive);
+    if (g.plantedYear != null) lost += wiltGardenPlants(g, survive);
+  }
+  if (lost > 0) {
+    s.plantsWiltedEnv = (s.plantsWiltedEnv ?? 0) + lost;
+    s.lastWiltCause = weather === "heat_wave" ? "heat" : "drown";
   }
   for (const o of s.orchards) {
     if (o.saplings?.length) {
@@ -2548,8 +2572,13 @@ function applyDeficitWilt(s: GameState, coverage: number, elapsedHours: number):
   if (shortfall <= 0) return;
   const survive = Math.pow(1 - CHRONIC_WILT_PER_HOUR * shortfall, elapsedHours);
   if (survive >= 1) return;
+  let lost = 0;
   for (const g of s.gardens) {
-    if (g.plantedYear != null) wiltGardenPlants(g, survive);
+    if (g.plantedYear != null) lost += wiltGardenPlants(g, survive);
+  }
+  if (lost > 0) {
+    s.plantsWiltedEnv = (s.plantsWiltedEnv ?? 0) + lost;
+    s.lastWiltCause = "thirst";
   }
   for (const o of s.orchards) {
     if (o.saplings?.length) {
@@ -2819,7 +2848,7 @@ function applyAnimalFeed(s: GameState, elapsedHours: number): Map<string, number
  *  starvation; deliberate culling is a separate player action. See DESIGN_LIVESTOCK.md. */
 // ── Kept animals: the living layer (leveling, growth, happiness, breeding, strays) ──
 /** Room for dogs is set by the Kennel (none without one). Owner-bound dogs (a
- *  character's own hound, e.g. Brenna's) don't live in the kennel and so don't
+ *  character's own hound, e.g. Nessa's) don't live in the kennel and so don't
  *  count against it. */
 function dogCapacity(s: GameState): number {
   return kennelDogCapacity(buildingLevel(s, "kennel"));
@@ -2829,18 +2858,18 @@ function packDogCount(s: GameState): number {
   return s.keptAnimals.filter((a) => a.species === "dog" && !a.keeper).length;
 }
 const DOG_IMG = "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/dogs";
-/** Brenna's own hunting hound — Ser Sniffsalot, a scent-tracker — arrives with
- *  the Hunting Camp, auto-posted to the hunt. Owner-bound (Brenna's), so he's
+/** Nessa's own hunting hound — Ser Sniffsalot, a scent-tracker — arrives with
+ *  the Hunting Camp, auto-posted to the hunt. Owner-bound (Nessa's), so he's
  *  outside the Kennel and can't be reassigned. Idempotent by name. */
 function grantHuntingCampDog(s: GameState): void {
   if (s.keptAnimals.some((a) => a.name === "Ser Sniffsalot")) return;
   s.keptAnimals.push({
     id: nextId("animal"), name: "Ser Sniffsalot", species: "dog", breed: "scent_hound",
     portrait: `${DOG_IMG}/scent_hound.png`,
-    nameFixed: true, keeper: "Brenna", origin: "thornwoods", job: "hunt",
+    nameFixed: true, keeper: "Nessa", origin: "thornwoods", job: "hunt",
     guardLevel: 0, huntLevel: 3, jobHours: 0, happiness: 88,
   });
-  pushEvent(s, "animal_stray", "🐕", "Brenna's hound, Ser Sniffsalot, has taken up at the hunting camp and works the hunt at her heel.");
+  pushEvent(s, "animal_stray", "🐕", "Nessa's hound, Ser Sniffsalot, has taken up at the hunting camp and works the hunt at her heel.");
 }
 /** Truffle, a mongrel stray Nell took in, gets a proper home the first time a
  *  Kennel is raised. He arrives idle so the player picks his job. Idempotent by name. */
@@ -3129,11 +3158,11 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
     if (!gathered) continue;
     const def = BUILDINGS.find((b) => b.id === pb.buildingId)!;
     if (gathered.rate > 0) {
-      sources.push({ type: gathered.type, label: gathered.label, icon: gathered.icon, rate: gathered.rate, building: def.name });
+      sources.push({ type: gathered.type, label: gathered.label, icon: gathered.icon, rate: gathered.rate, building: def.name, wild: true });
     }
     // Rain's mushroom bonus is a separate line (summed with the seasonal one).
     if (gathered.rainMushrooms > 0) {
-      sources.push({ type: "mushrooms", label: "Mushrooms", icon: "🍄", rate: gathered.rainMushrooms, building: `${def.name} · rain` });
+      sources.push({ type: "mushrooms", label: "Mushrooms", icon: "🍄", rate: gathered.rainMushrooms, building: `${def.name} · rain`, wild: true });
     }
   }
 
@@ -3581,6 +3610,9 @@ export interface AwayReport {
   woodAfter: number;
   happinessBefore: number;
   happinessAfter: number;
+  /** Garden plants that withered to weather/thirst while away, and why. */
+  plantsWilted: number;
+  wiltCause?: "heat" | "drown" | "thirst";
   severity: "calm" | "warn" | "loss";
 }
 
@@ -4506,6 +4538,23 @@ export function GameProvider(props: ParentProps) {
           // the killing lives here, on the momentary weather.
           applyWeatherCropDamage(s, wb.weather, elapsedHours);
           applyDeficitWilt(s, wb.cropCoverage, elapsedHours);
+          // Surface sustained crop losses in the event log. This is the surface
+          // that covers the tab-left-open case (a background catch-up applies
+          // the wilt but builds no "while you were away" digest). Throttled to
+          // one line per few plants lost, tagged with the cause, so a long heat
+          // wave or dry spell doesn't spam a line every tick/chunk.
+          const wilted = s.plantsWiltedEnv ?? 0;
+          if (wilted - (s.plantsWiltedLogged ?? 0) >= 3) {
+            const n = wilted - (s.plantsWiltedLogged ?? 0);
+            const plural = n > 1 ? "s" : "";
+            const [icon, msg] = s.lastWiltCause === "drown"
+              ? ["🌊", `A downpour drowned ${n} garden plant${plural} in the sodden beds.`]
+              : s.lastWiltCause === "thirst"
+                ? ["🥀", `${n} garden plant${plural} wilted from thirst while the reserve ran low.`]
+                : ["🥵", `The heat withered ${n} garden plant${plural}, even the watered beds.`];
+            pushEvent(s, "drought", icon, msg);
+            s.plantsWiltedLogged = wilted;
+          }
         }
 
         // Food: add per-type production (capped at pantry total), then citizens eat proportionally.
@@ -5003,7 +5052,7 @@ export function GameProvider(props: ParentProps) {
                   const def = BUILDINGS.find((b) => b.id === (item as any).buildingId);
                   if (def) pushEvent(s, "building_completed", def.icon, `${def.name} upgraded to level ${item.level}`);
                   const doneId = (item as any).buildingId;
-                  // The Hunting Camp comes with Brenna's hound; a raised Kennel
+                  // The Hunting Camp comes with Nessa's hound; a raised Kennel
                   // takes in Truffle the stray.
                   if (doneId === "hunting_camp" && item.level === 1) grantHuntingCampDog(s);
                   if (doneId === "kennel" && item.level === 1) grantStrayTruffle(s);
@@ -5040,7 +5089,7 @@ export function GameProvider(props: ParentProps) {
               w.upgrading = false;
               w.upgradeRemaining = undefined;
               buildingFinishedThisTick = true;
-              pushEvent(s, "building_completed", "🧱", `${w.ring} wall raised to level ${w.level}`);
+              pushEvent(s, "building_completed", "🧱", `${capitalize(w.ring)} wall raised to level ${w.level}`);
               if (live) playSound("plop");
             }
           }
@@ -5053,7 +5102,7 @@ export function GameProvider(props: ParentProps) {
               t.upgrading = false;
               t.upgradeRemaining = undefined;
               buildingFinishedThisTick = true;
-              pushEvent(s, "building_completed", "🏰", `${t.ring} watchtower raised to level ${t.level}`);
+              pushEvent(s, "building_completed", "🏰", `${capitalize(t.ring)} watchtower raised to level ${t.level}`);
               if (live) playSound("plop");
             }
           }
@@ -5066,7 +5115,7 @@ export function GameProvider(props: ParentProps) {
               b.upgrading = false;
               b.upgradeRemaining = undefined;
               buildingFinishedThisTick = true;
-              pushEvent(s, "building_completed", "⚔️", `${b.ring} barracks raised to level ${b.level}`);
+              pushEvent(s, "building_completed", "⚔️", `${capitalize(b.ring)} barracks raised to level ${b.level}`);
               if (live) playSound("plop");
             }
           }
@@ -5507,7 +5556,7 @@ export function GameProvider(props: ParentProps) {
                 if (bitten) {
                   bitten.conditions = [...(bitten.conditions ?? []), { type: "venom", remainingRounds: 99 }];
                   if (!s.discoveredRecipes.includes("herbal_antidote")) s.discoveredRecipes.push("herbal_antidote");
-                  pushEvent(s, "adventurer_wounded", "🐍", `${bitten.name} came home from the fen with an adder-bite that will not close. Edda needs a Herbal Antidote brewed to draw the venom.`);
+                  pushEvent(s, "adventurer_wounded", "🐍", `${bitten.name.split(" ")[0]} came home from the fen with an adder-bite that will not close. Edda needs a Herbal Antidote brewed to draw the venom.`);
                 }
               }
 
@@ -6118,6 +6167,8 @@ export function GameProvider(props: ParentProps) {
       water: Math.round(state.resources.water ?? 0),
       wood: Math.round(state.resources.wood),
       happiness: state.happiness,
+      plantsWilted: state.plantsWiltedEnv ?? 0,
+      wiltCause: state.lastWiltCause,
     };
   }
 
@@ -6156,10 +6207,11 @@ export function GameProvider(props: ParentProps) {
       (after.water <= 0 && before.water > 0) ||
       (after.wood <= 0 && before.wood > 0);
     const seasonFlipped = before.season !== after.season;
-    const notable = hrs >= 1 || dPop !== 0 || seasonFlipped || emptied;
+    const plantsWilted = Math.max(0, after.plantsWilted - before.plantsWilted);
+    const notable = hrs >= 1 || dPop !== 0 || seasonFlipped || emptied || plantsWilted > 0;
     if (notable) {
       const severity: AwayReport["severity"] =
-        dPop < 0 ? "loss" : emptied || (seasonFlipped && after.season === "winter") ? "warn" : "calm";
+        dPop < 0 ? "loss" : emptied || plantsWilted > 0 || (seasonFlipped && after.season === "winter") ? "warn" : "calm";
       storeAwayReport({
         hoursAway: hrs,
         seasonBefore: before.season,
@@ -6175,6 +6227,8 @@ export function GameProvider(props: ParentProps) {
         woodAfter: after.wood,
         happinessBefore: before.happiness,
         happinessAfter: after.happiness,
+        plantsWilted,
+        wiltCause: after.wiltCause,
         severity,
       });
     }
@@ -6641,7 +6695,7 @@ export function GameProvider(props: ParentProps) {
     assignAnimal(animalId, job, penId) {
       const animal = state.keptAnimals.find((a) => a.id === animalId);
       if (!animal) return false;
-      if (animal.keeper) return false; // owner-bound hound (e.g. Brenna's) isn't the player's to move
+      if (animal.keeper) return false; // owner-bound hound (e.g. Nessa's) isn't the player's to move
       if (animal.isPuppy && job !== "idle") return false; // pups can't work until grown
       // v1: dogs take idle/guard/hunt; cats idle/mouse. Guard needs a real pen.
       const dogJobs: AnimalJob[] = ["idle", "guard", "hunt"];
@@ -6695,10 +6749,9 @@ export function GameProvider(props: ParentProps) {
     upgradeHive(hiveId) {
       const hive = state.hives.find((h) => h.id === hiveId);
       if (!hive || hive.upgrading || hive.level >= HIVE_MAX_LEVEL) return false;
-      if (hive.level >= 1) {
-        if (state.season !== "winter") return false;
-        if (hive.level >= getTownHallLevel(state.buildings)) return false;
-      }
+      // Town-Hall cap only — a hive can be worked up any season (expanding one is
+      // groundwork, not planting; no need to wait for the winter cluster).
+      if (hive.level >= 1 && hive.level >= getTownHallLevel(state.buildings)) return false;
       const cost = getHiveCost(hive.level);
       if (state.resources.wood < cost.wood || state.resources.stone < cost.stone || state.resources.gold < cost.gold) return false;
       setState(produce((s) => {
@@ -6911,6 +6964,7 @@ export function GameProvider(props: ParentProps) {
         waterAfter: Math.round(state.resources.water ?? 0),
         woodAfter: Math.round(state.resources.wood),
         happinessBefore: 82, happinessAfter: 47,
+        plantsWilted: 6, wiltCause: "heat",
         severity: "loss",
       });
     },

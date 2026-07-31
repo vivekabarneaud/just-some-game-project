@@ -156,6 +156,15 @@ export default function Overview() {
                 <Show when={r().foodAfter <= 0} fallback={<>{" "}Stores hold {r().foodAfter} food.</>}>
                   {" "}<span style={{ color: "var(--accent-red)" }}>The food stores ran dry.</span>
                 </Show>
+                <Show when={r().plantsWilted > 0}>
+                  {" "}<span style={{ color: "var(--accent-gold)" }}>
+                    {r().wiltCause === "heat"
+                      ? `The heat withered ${r().plantsWilted} garden plant${r().plantsWilted > 1 ? "s" : ""}, even the watered beds.`
+                      : r().wiltCause === "drown"
+                        ? `A downpour drowned ${r().plantsWilted} garden plant${r().plantsWilted > 1 ? "s" : ""} in the sodden beds.`
+                        : `${r().plantsWilted} garden plant${r().plantsWilted > 1 ? "s" : ""} wilted from thirst while the reserve ran low.`}
+                  </span>
+                </Show>
               </div>
             </div>
           );

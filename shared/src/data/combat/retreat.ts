@@ -1,6 +1,7 @@
 import type { CombatContext, CombatUnit } from "./types.js";
 import { combatRandom } from "./prng.js";
 import { getAttackPower, getInitiative, getDefenseReduction, getMagicResistReduction, dealsMagicalDamage } from "./stats.js";
+import { livingPackmates, PACK_NERVE_COURAGE } from "./positional.js";
 
 // ─── Tunables (Model C — see docs/DESIGN_RECOVERY_AND_RETREAT.md) ───────────────
 
@@ -273,6 +274,7 @@ export function moraleBreaks(unit: CombatUnit, ctx: CombatContext): boolean {
   const foeHpFrac = foeMaxHp > 0 ? foes.reduce((s, a) => s + a.hp, 0) / foeMaxHp : 1;
   const morale = unit.morale.courage
     + (leaderAlive ? MORALE.leader : 0)
+    + (unit.packNerve ? PACK_NERVE_COURAGE * livingPackmates(unit, ctx) : 0)
     - MORALE.loss * fallenFrac
     - MORALE.outnum * outnumberedBy
     + MORALE.press * (1 - foeHpFrac);

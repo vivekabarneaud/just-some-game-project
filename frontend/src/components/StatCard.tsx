@@ -6,10 +6,13 @@ import type { JSX } from "solid-js";
 export default function StatCard(props: {
   label: JSX.Element;
   valueColor?: string;
+  /** Flag an at-risk state (e.g. weather actively damaging crops) — pulses a
+   *  red border to draw the eye. */
+  danger?: boolean;
   children: JSX.Element;
 }) {
   return (
-    <div class="stat-card">
+    <div class="stat-card" classList={{ "stat-card-danger": props.danger }}>
       <div class="stat-card-label">{props.label}</div>
       <div class="stat-card-value" style={props.valueColor ? { color: props.valueColor } : undefined}>
         {props.children}

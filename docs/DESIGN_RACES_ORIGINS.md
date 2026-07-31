@@ -70,7 +70,7 @@ The common folk AND the displaced elite of the Ashenmark Dominion. Farmers, sold
 
 **Names:**
 - *First (male):* Aldric, Cedric, Elwin, Gareth, Kael, Osric, Quinlan, Dorian, Finn, Henrik, Nolan, Pavel, Wren, Leif, Jareth, Ivar
-- *First (female):* Brenna, Daria, Hilda, Lyra, Petra, Rowena, Gwen, Isla, Kira, Mira, Oona, Rhea, Talia, Cora, Elara, Ysolde
+- *First (female):* Elin, Daria, Hilda, Lyra, Petra, Rowena, Gwen, Isla, Kira, Mira, Oona, Rhea, Talia, Cora, Elara, Ysolde
 - *Last:* Ashford, Blackwood, Coldwell, Dawnforge, Emberheart, Foxglove, Greystone, Hawkwind, Ironbark, Thornwood, Underhill, Valeheart, Wintermere, Brightwater, Copperfield, Eldergrove
 
 #### Nordveld (Nordic) — The Thornveil Borderlands
