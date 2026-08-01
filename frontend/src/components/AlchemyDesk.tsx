@@ -2,7 +2,8 @@ import { createSignal, createMemo, For, Show } from "solid-js";
 import { useGame } from "~/engine/gameState";
 import { brew, recipeIdFor } from "@medieval-realm/shared/data/alchemy/brew";
 import { INGREDIENTS, getIngredient } from "@medieval-realm/shared/data/alchemy/ingredients";
-import type { Technique, Role, EffectChannel, Placement } from "@medieval-realm/shared/data/alchemy/types";
+import { describeEffect, effectKind } from "@medieval-realm/shared/data/alchemy/describe";
+import type { Technique, Role, Placement } from "@medieval-realm/shared/data/alchemy/types";
 import { playSound } from "~/engine/sounds";
 
 /** The free-form brewing lab (docs/DESIGN_APOTHECARY.md — user sketch layout):
@@ -24,25 +25,9 @@ const ROLE_SHELVES: { role: Role; label: string }[] = [
   { role: "base", label: "Base" }, { role: "hero", label: "Hero ⭐" },
   { role: "catalyst", label: "Catalyst" }, { role: "toxin", label: "Toxin" }, { role: "wildcard", label: "Wildcard" },
 ];
-const CHANNEL_LABEL: Partial<Record<EffectChannel, string>> = {
-  str: "+STR", dex: "+DEX", int: "+INT", vit: "+VIT", wis: "+WIS",
-  crit: "+Crit%", accuracy: "+Accuracy%", dodge: "+Dodge%", parry: "+Parry%",
-  initiative: "+Initiative", mobility: "+Mobility", presence: "+Presence", luck: "+Luck%",
-  damage_pct: "+Damage%", defense_pct: "+Defense%",
-  heal_hp: "Heal HP", ease_fever: "Eases Fever", ease_gut: "Settles Gut", ease_wound: "Mends Wound",
-  general_recovery: "General recovery", happiness: "+Happiness",
-  resist_undead: "Ward vs Undead", resist_confuse: "Resist Confusion",
-  poison: "Poison (DoT)", weaken: "Weaken", slow: "Slow", confuse: "Confuse", aoe_fire: "AoE Fire", aoe_frost: "AoE Frost",
-};
 const QUALITY_COLOR = { fine: "var(--accent-green)", rough: "var(--accent-gold)", dubious: "var(--accent-red)" };
-const OFFENSIVE = new Set(["poison", "weaken", "slow", "confuse", "aoe_fire", "aoe_frost"]);
-
-function fmtEffect(e: { channel: EffectChannel; amount: number; shape?: string; rounds?: number }) {
-  const label = CHANNEL_LABEL[e.channel] ?? e.channel;
-  const dur = e.shape === "burst" ? ` for ${e.rounds ?? 2} turns`
-    : e.shape === "instant" ? " (instant)" : e.shape === "topical" ? " (applied)" : " (whole fight)";
-  return `${label} ${e.amount}${dur}`;
-}
+// Recovery = green, combat buff = blue, offensive = red.
+const KIND_COLOR = { recovery: "var(--accent-green)", combat: "var(--accent-blue)", offensive: "var(--accent-red)" };
 
 export default function AlchemyDesk() {
   const { state, actions } = useGame();
@@ -185,7 +170,7 @@ export default function AlchemyDesk() {
                 <div style={{ "font-size": "1.1rem", "font-weight": 600, color: QUALITY_COLOR[result().quality] }}>{result().name}</div>
                 <div style={{ "font-size": "0.68rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "1px", "margin-bottom": "6px" }}>{result().quality}{alreadyKnown() ? " · known" : ""}</div>
                 <Show when={result().effects.length > 0} fallback={<div style={{ color: "var(--text-muted)", "font-style": "italic", "font-size": "0.82rem" }}>Nothing worth drinking yet.</div>}>
-                  <For each={result().effects}>{(e) => <div style={{ "font-size": "0.82rem", color: OFFENSIVE.has(e.channel) ? "var(--accent-red)" : "var(--accent-green)", padding: "1px 0" }}>{fmtEffect(e)}</div>}</For>
+                  <For each={result().effects}>{(e) => <div style={{ "font-size": "0.82rem", color: KIND_COLOR[effectKind(e.channel)], padding: "1px 0" }}>{describeEffect(e)}</div>}</For>
                 </Show>
                 <Show when={result().notes.length > 0}>
                   <div style={{ "margin-top": "8px", "border-top": "1px solid var(--border-default)", "padding-top": "6px" }}>

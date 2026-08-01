@@ -1,7 +1,8 @@
 import { createSignal, createMemo, For, Show } from "solid-js";
 import { brew } from "@medieval-realm/shared/data/alchemy/brew";
 import { INGREDIENTS, getIngredient } from "@medieval-realm/shared/data/alchemy/ingredients";
-import type { Technique, Role, EffectChannel, Placement } from "@medieval-realm/shared/data/alchemy/types";
+import { describeEffect, effectKind } from "@medieval-realm/shared/data/alchemy/describe";
+import type { Technique, Role, Placement } from "@medieval-realm/shared/data/alchemy/types";
 
 /** TEMP dev page (/dev-alchemy) — the free-form alchemy SANDBOX. No art, no
  *  inventory wiring: pick a plant from each ROLE shelf, choose how to PREPARE it
@@ -25,22 +26,8 @@ const TECHNIQUES: { technique: Technique; label: string }[] = [
   { technique: "char", label: "🕯️ Char" },
 ];
 
-// Human labels for effect channels (display only).
-const CHANNEL_LABEL: Partial<Record<EffectChannel, string>> = {
-  str: "+STR", dex: "+DEX", int: "+INT", vit: "+VIT", wis: "+WIS",
-  crit: "+Crit%", accuracy: "+Accuracy%", dodge: "+Dodge%", parry: "+Parry%",
-  initiative: "+Initiative", mobility: "+Mobility", presence: "+Presence", luck: "+Luck%",
-  damage_pct: "+Damage%", defense_pct: "+Defense%",
-  heal_hp: "Heal HP", ease_fever: "Eases Fever", ease_gut: "Settles Gut", ease_wound: "Mends Wound",
-  general_recovery: "General recovery", happiness: "+Happiness",
-  resist_fire: "Resist Fire", resist_frost: "Resist Frost", resist_lightning: "Resist Lightning",
-  resist_aether: "Resist Aether", resist_light: "Resist Light", resist_hollow: "Resist Hollow",
-  resist_nature: "Resist Nature", resist_undead: "Ward vs Undead", resist_confuse: "Resist Confusion",
-  poison: "Poison (DoT)", weaken: "Weaken", slow: "Slow", confuse: "Confuse",
-  aoe_fire: "AoE Fire", aoe_frost: "AoE Frost",
-};
-
 const QUALITY_COLOR = { fine: "var(--accent-green)", rough: "var(--accent-gold)", dubious: "var(--accent-red)" };
+const KIND_COLOR = { recovery: "var(--accent-green)", combat: "var(--accent-blue)", offensive: "var(--accent-red)" };
 
 type Slot = { ingredientId: string; technique: Technique };
 
@@ -63,15 +50,6 @@ export default function AlchemyLabDev() {
       .map((s) => ({ ingredientId: slots()[s.role].ingredientId, technique: slots()[s.role].technique })),
   );
   const result = createMemo(() => brew(placements()));
-
-  const fmtEffect = (e: { channel: EffectChannel; amount: number; shape?: string; rounds?: number }) => {
-    const label = CHANNEL_LABEL[e.channel] ?? e.channel;
-    const dur = e.shape === "burst" ? ` for ${e.rounds ?? 2} turns`
-      : e.shape === "instant" ? " (instant)"
-      : e.shape === "topical" ? " (applied)"
-      : " (whole fight)";
-    return `${label} ${e.amount}${dur}`;
-  };
 
   return (
     <div style={{ padding: "20px", "max-width": "1000px", margin: "0 auto" }}>
@@ -142,10 +120,9 @@ export default function AlchemyLabDev() {
             <Show when={result().effects.length > 0} fallback={<div style={{ color: "var(--text-muted)", "font-style": "italic" }}>Nothing worth drinking yet.</div>}>
               <For each={result().effects}>
                 {(e) => {
-                  const offensive = ["poison", "weaken", "slow", "confuse", "aoe_fire", "aoe_frost"].includes(e.channel);
                   return (
-                    <div style={{ "font-size": "0.85rem", color: offensive ? "var(--accent-red)" : "var(--accent-green)", padding: "2px 0" }}>
-                      {fmtEffect(e)}
+                    <div style={{ "font-size": "0.85rem", color: KIND_COLOR[effectKind(e.channel)], padding: "2px 0" }}>
+                      {describeEffect(e)}
                     </div>
                   );
                 }}
