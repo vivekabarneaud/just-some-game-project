@@ -10,6 +10,7 @@ import RecipeCard from "~/components/RecipeCard";
 import PotionEffects from "~/components/PotionEffects";
 import { formatTimeShort as formatTime } from "~/utils/format";
 import { playSound } from "~/engine/sounds";
+import AlchemyDesk from "~/components/AlchemyDesk";
 
 export default function Alchemy() {
   const { state, actions } = useGame();
@@ -185,6 +186,12 @@ export default function Alchemy() {
                 🔧 Repair (🪵{repairCost().wood} 🪨{repairCost().stone})
               </button>
             </div>
+          </Show>
+
+          {/* Free-form brewing desk — the real apothecary. Fixed recipes +
+              research remain below for now (to be unified visually later). */}
+          <Show when={labLevel() > 0}>
+            <AlchemyDesk />
           </Show>
 
           {/* Research panel — prominent, full-width */}
