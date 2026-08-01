@@ -73,6 +73,16 @@ Food → meals leaning **HP, morale/happiness, warmth, recovery-speed**, mild "w
 Each plant a **hand-drawn herbalist illustration** + properties / effects / source / rarity, filling in as you find & study plants (partial knowledge until used). A diegetic home for the game's own artwork. See also the recipe book (cards).
 - **Home = a "Herbs / Plants" tab in the encyclopedia** (user 2026-08-01): alongside the character/monster encyclopedia. Each plant = a card with its herbalist drawing + **discovery slots** (properties/techniques filled in as you learn them — ties to the knowledge-layer open decision). Structure can ship with placeholder art; drawings drop in later.
 
+## The unified lab — screen layout (user sketch 2026-08-01)
+A vertical divider splits the page:
+- **LEFT = the recipe book** — a grid of recipe cards (known/discovered). Click one to load it onto the stations.
+- **RIGHT = the working lab**, three zones:
+  - **Lab drawing (top):** the hand-drawn lab; the **technique STATIONS live inside the illustration** (cauldron = boil, mortar = crush, still = distil, brazier = char, …). You place ingredients onto them.
+  - **Shelves (below):** your owned ingredients, **organized by ROLE** shelf — where you grab from.
+  - **Output box (bottom-right):** an arrow; the finished brew flows here (name/effects + Brew).
+- **The insight:** this expresses BOTH axes spatially — **shelf = role (grab), station = technique (place)** — so technique is chosen by *which station you drop onto*, not a dropdown. Matches the engine's placement list (ingredient+technique) exactly. Skeuomorphic, art-forward, cozy. Interaction: drag ingredient shelf→station (or click-select-then-click-station). Needs the lab art to shine; a functional labelled-drop-zone version ships first, art drops in later.
+- **Open:** stations one ingredient each or a few? Total capacity gated by Alchemy Lab level (more stations/slots as it upgrades). Base-lever still balances "5 heroes."
+
 ## Inventory: plants as a category (user 2026-08-01)
 Currently herbs live in a separate `state.herbs: Record<id, qty>` store (NOT `state.inventory`). The Inventory page already renders sectioned categories (tools / supplies / food / equipment / seeds / materials). **Add a "Herbs & Plants" section** there — simplest first step is display-only (read `state.herbs`), no risky migration of the herb store. Splitting inventory into clearer categories/tabs is a welcome tidy-up alongside it.
 
