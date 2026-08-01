@@ -4,25 +4,25 @@ import { INGREDIENTS, getIngredient } from "@medieval-realm/shared/data/alchemy/
 import type { Technique, Role, EffectChannel, Placement } from "@medieval-realm/shared/data/alchemy/types";
 
 /** TEMP dev page (/dev-alchemy) — the free-form alchemy SANDBOX. No art, no
- *  inventory wiring: pick plants (grouped by ROLE shelf) into TECHNIQUE slots and
- *  watch the computed brew update live, so we can feel combinations + tune the
- *  effect-vector engine. See docs/DESIGN_APOTHECARY.md. */
+ *  inventory wiring: pick a plant from each ROLE shelf, choose how to PREPARE it
+ *  (technique), and watch the computed brew update live — so we can feel
+ *  combinations + tune the effect-vector engine. See docs/DESIGN_APOTHECARY.md. */
 
-// The 5 stations we surface first (the design's L1→ progression; dry/ferment omitted here).
-const STATIONS: { technique: Technique; label: string; blurb: string }[] = [
-  { technique: "crush", label: "🪨 Mortar — Crush", blurb: "poultices, wound-work" },
-  { technique: "boil", label: "🔥 Cauldron — Boil", blurb: "strong decoctions (sustained)" },
-  { technique: "steep", label: "🫖 Steep / Infuse", blurb: "gentle teas (sustained)" },
-  { technique: "distil", label: "⚗️ Still — Distil", blurb: "potent essences (burst)" },
-  { technique: "char", label: "🕯️ Burn — Char", blurb: "incense, warding, smoke" },
+const ROLE_SHELVES: { role: Role; label: string; hint: string }[] = [
+  { role: "base", label: "Base", hint: "the carrier — a brew wants one" },
+  { role: "hero", label: "Hero ⭐", hint: "the star effect" },
+  { role: "catalyst", label: "Catalyst", hint: "amplify / extend the rest" },
+  { role: "toxin", label: "Toxin", hint: "poisons & offensive" },
+  { role: "wildcard", label: "Wildcard", hint: "potent, and its own risk" },
 ];
 
-const ROLE_META: { role: Role; label: string }[] = [
-  { role: "base", label: "Base" },
-  { role: "hero", label: "Hero ⭐" },
-  { role: "catalyst", label: "Catalyst" },
-  { role: "toxin", label: "Toxin" },
-  { role: "wildcard", label: "Wildcard" },
+// The techniques a plant can be prepared with (the 5 we surface first).
+const TECHNIQUES: { technique: Technique; label: string }[] = [
+  { technique: "crush", label: "🪨 Crush" },
+  { technique: "boil", label: "🔥 Boil" },
+  { technique: "steep", label: "🫖 Steep" },
+  { technique: "distil", label: "⚗️ Distil" },
+  { technique: "char", label: "🕯️ Char" },
 ];
 
 // Human labels for effect channels (display only).
@@ -42,17 +42,25 @@ const CHANNEL_LABEL: Partial<Record<EffectChannel, string>> = {
 
 const QUALITY_COLOR = { fine: "var(--accent-green)", rough: "var(--accent-gold)", dubious: "var(--accent-red)" };
 
+type Slot = { ingredientId: string; technique: Technique };
+
 export default function AlchemyLabDev() {
-  // technique → ingredientId ("" = empty)
-  const [slots, setSlots] = createSignal<Record<string, string>>(
-    Object.fromEntries(STATIONS.map((s) => [s.technique, ""])),
+  // One slot per role shelf: the chosen plant + how it's prepared.
+  const [slots, setSlots] = createSignal<Record<string, Slot>>(
+    Object.fromEntries(ROLE_SHELVES.map((s) => [s.role, { ingredientId: "", technique: "steep" as Technique }])),
   );
-  const setSlot = (t: Technique, id: string) => setSlots({ ...slots(), [t]: id });
-  const clear = () => setSlots(Object.fromEntries(STATIONS.map((s) => [s.technique, ""])));
+  // Picking a plant defaults its technique to that plant's signature prep.
+  const pickPlant = (role: Role, id: string) => {
+    const sig = id ? getIngredient(id)?.signature ?? "steep" : "steep";
+    setSlots({ ...slots(), [role]: { ingredientId: id, technique: sig } });
+  };
+  const pickTechnique = (role: Role, t: Technique) =>
+    setSlots({ ...slots(), [role]: { ...slots()[role], technique: t } });
+  const clear = () => setSlots(Object.fromEntries(ROLE_SHELVES.map((s) => [s.role, { ingredientId: "", technique: "steep" as Technique }])));
 
   const placements = createMemo<Placement[]>(() =>
-    STATIONS.filter((s) => slots()[s.technique])
-      .map((s) => ({ ingredientId: slots()[s.technique], technique: s.technique })),
+    ROLE_SHELVES.filter((s) => slots()[s.role].ingredientId)
+      .map((s) => ({ ingredientId: slots()[s.role].ingredientId, technique: slots()[s.role].technique })),
   );
   const result = createMemo(() => brew(placements()));
 
@@ -69,41 +77,49 @@ export default function AlchemyLabDev() {
     <div style={{ padding: "20px", "max-width": "1000px", margin: "0 auto" }}>
       <h1 style={{ color: "var(--accent-gold)" }}>🧪 Alchemy Lab — sandbox</h1>
       <p style={{ color: "var(--text-secondary)", "font-size": "0.9rem" }}>
-        Pick a plant into a technique slot and watch the brew. Same plant, different technique = different effect.
-        This is a tuning sandbox — no ingredients are consumed. <em>(dev page /dev-alchemy)</em>
+        Pick a plant from each shelf, then choose how to prepare it. Same plant, different technique = different effect.
+        A tuning sandbox — no ingredients are consumed. <em>(dev page /dev-alchemy)</em>
       </p>
 
       <div style={{ display: "flex", gap: "20px", "flex-wrap": "wrap", "margin-top": "16px" }}>
-        {/* ── Stations ── */}
-        <div style={{ flex: "1 1 420px" }}>
-          <h2 style={{ "font-size": "1rem", color: "var(--text-primary)" }}>The lab</h2>
-          <For each={STATIONS}>
-            {(st) => {
-              const picked = () => (slots()[st.technique] ? getIngredient(slots()[st.technique]) : undefined);
+        {/* ── Shelves (one row per role: plant + technique) ── */}
+        <div style={{ flex: "1 1 460px" }}>
+          <h2 style={{ "font-size": "1rem", color: "var(--text-primary)" }}>The shelves</h2>
+          <For each={ROLE_SHELVES}>
+            {(shelf) => {
+              const slot = () => slots()[shelf.role];
+              const picked = () => (slot().ingredientId ? getIngredient(slot().ingredientId) : undefined);
               return (
                 <div style={{
-                  display: "flex", "align-items": "center", gap: "10px", padding: "8px 10px",
+                  display: "flex", "align-items": "center", gap: "8px", padding: "8px 10px",
                   "margin-bottom": "8px", border: "1px solid var(--border-default)", "border-radius": "6px",
                   background: picked() ? "rgba(212,131,26,0.06)" : undefined,
                 }}>
-                  <div style={{ "min-width": "160px" }}>
-                    <div style={{ "font-size": "0.85rem", color: "var(--text-primary)" }}>{st.label}</div>
-                    <div style={{ "font-size": "0.68rem", color: "var(--text-muted)" }}>{st.blurb}</div>
+                  <div style={{ "min-width": "92px" }}>
+                    <div style={{ "font-size": "0.85rem", color: "var(--text-primary)" }}>{shelf.label}</div>
+                    <div style={{ "font-size": "0.65rem", color: "var(--text-muted)" }}>{shelf.hint}</div>
                   </div>
+                  {/* Plant picker for this shelf */}
                   <select
-                    value={slots()[st.technique]}
-                    onChange={(e) => setSlot(st.technique, e.currentTarget.value)}
+                    value={slot().ingredientId}
+                    onChange={(e) => pickPlant(shelf.role, e.currentTarget.value)}
                     style={{ flex: 1, padding: "5px", background: "var(--bg-card)", color: "var(--text-primary)", border: "1px solid var(--border-default)", "border-radius": "4px" }}
                   >
-                    <option value="">— empty —</option>
-                    <For each={ROLE_META}>
-                      {(rm) => (
-                        <optgroup label={rm.label}>
-                          <For each={INGREDIENTS.filter((i) => i.role === rm.role)}>
-                            {(ing) => <option value={ing.id}>{ing.icon} {ing.name}{ing.signature === st.technique ? " ⭐" : ""}</option>}
-                          </For>
-                        </optgroup>
-                      )}
+                    <option value="">— none —</option>
+                    <For each={INGREDIENTS.filter((i) => i.role === shelf.role)}>
+                      {(ing) => <option value={ing.id}>{ing.icon} {ing.name}</option>}
+                    </For>
+                  </select>
+                  {/* Technique picker (how to prepare it) — enabled once a plant is chosen */}
+                  <select
+                    value={slot().technique}
+                    disabled={!picked()}
+                    onChange={(e) => pickTechnique(shelf.role, e.currentTarget.value as Technique)}
+                    title={picked() ? "How to prepare it" : "Pick a plant first"}
+                    style={{ width: "112px", padding: "5px", background: "var(--bg-card)", color: picked() ? "var(--text-primary)" : "var(--text-muted)", border: "1px solid var(--border-default)", "border-radius": "4px", opacity: picked() ? 1 : 0.5 }}
+                  >
+                    <For each={TECHNIQUES}>
+                      {(t) => <option value={t.technique}>{t.label}{picked()?.signature === t.technique ? " ⭐" : ""}</option>}
                     </For>
                   </select>
                 </div>
@@ -150,7 +166,7 @@ export default function AlchemyLabDev() {
               <For each={placements()}>
                 {(pl) => {
                   const ing = getIngredient(pl.ingredientId);
-                  return <div style={{ padding: "2px 0" }}>{ing?.icon} <b>{ing?.name}</b> ({ing?.role}) — {ing?.note}</div>;
+                  return <div style={{ padding: "2px 0" }}>{ing?.icon} <b>{ing?.name}</b> — {ing?.note}</div>;
                 }}
               </For>
             </div>
