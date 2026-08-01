@@ -2,6 +2,7 @@ import { For, Show } from "solid-js";
 import { useGame, BUILDING_TOOLS, getBuildingTool } from "~/engine/gameState";
 import { ITEMS, MATERIALS, getItem, getMaterial, getPotionInfo, isSupplyItem, isFoodItem, getFoodEffect, MATCHED_FOOD_HP_BONUS, ARMOR_TYPE_META } from "@medieval-realm/shared/data/items";
 import { ALCHEMY_RECIPES } from "@medieval-realm/shared/data/alchemy_recipes";
+import { HERBS } from "@medieval-realm/shared/data/herbs";
 import WeaponDamage from "~/components/WeaponDamage";
 import { BUILDINGS } from "~/data/buildings";
 import { VEGGIES } from "~/data/gardens";
@@ -377,6 +378,47 @@ export default function Inventory() {
                         <div class="building-card-title">{mat.name} <span style={{ color: "var(--accent-gold)", "font-weight": 600 }}>×{inv.quantity}</span></div>
                         <div style={{ "font-size": "0.8rem", color: "var(--text-secondary)", "font-style": "italic" }}>
                           {mat.description}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </For>
+            </div>
+          </Show>
+        );
+      })()}
+
+      {/* Herbs & Plants — foraged / mission-won, brewed at the Alchemy Lab.
+          Read from state.herbs (their own store), shown here as a category. */}
+      {(() => {
+        const RARITY_COLOR: Record<string, string> = {
+          common: "var(--text-secondary)", uncommon: "var(--accent-green)",
+          rare: "var(--accent-blue)", legendary: "var(--accent-gold)",
+        };
+        const owned = () => HERBS
+          .map((h) => ({ h, n: state.herbs?.[h.id] ?? 0 }))
+          .filter((x) => x.n > 0)
+          .sort((a, b) => a.h.name.localeCompare(b.h.name));
+        return (
+          <Show when={owned().length > 0}>
+            <h3 style={{ "font-family": "var(--font-heading)", "margin-top": "24px", "margin-bottom": "10px", color: "var(--text-primary)" }}>
+              Herbs & Plants
+            </h3>
+            <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-bottom": "10px" }}>
+              Foraged and won from the wilds. Brewed into remedies and draughts at the Alchemy Lab.
+            </div>
+            <div class="buildings-grid">
+              <For each={owned()}>
+                {({ h, n }) => (
+                  <div class="building-card">
+                    <span class="building-card-category" style={{ color: RARITY_COLOR[h.rarity] }}>{h.rarity}</span>
+                    <div class="building-card-header" style={{ "margin-top": "4px" }}>
+                      <div class="building-card-icon">{h.icon}</div>
+                      <div>
+                        <div class="building-card-title">{h.name} <span style={{ color: "var(--accent-gold)", "font-weight": 600 }}>×{n}</span></div>
+                        <div style={{ "font-size": "0.8rem", color: "var(--text-secondary)", "font-style": "italic" }}>
+                          {h.description}
                         </div>
                       </div>
                     </div>

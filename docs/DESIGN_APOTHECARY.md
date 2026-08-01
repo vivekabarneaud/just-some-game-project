@@ -71,6 +71,10 @@ Food → meals leaning **HP, morale/happiness, warmth, recovery-speed**, mild "w
 
 ## The plant catalog (a herbalist's book)
 Each plant a **hand-drawn herbalist illustration** + properties / effects / source / rarity, filling in as you find & study plants (partial knowledge until used). A diegetic home for the game's own artwork. See also the recipe book (cards).
+- **Home = a "Herbs / Plants" tab in the encyclopedia** (user 2026-08-01): alongside the character/monster encyclopedia. Each plant = a card with its herbalist drawing + **discovery slots** (properties/techniques filled in as you learn them — ties to the knowledge-layer open decision). Structure can ship with placeholder art; drawings drop in later.
+
+## Inventory: plants as a category (user 2026-08-01)
+Currently herbs live in a separate `state.herbs: Record<id, qty>` store (NOT `state.inventory`). The Inventory page already renders sectioned categories (tools / supplies / food / equipment / seeds / materials). **Add a "Herbs & Plants" section** there — simplest first step is display-only (read `state.herbs`), no risky migration of the herb store. Splitting inventory into clearer categories/tabs is a welcome tidy-up alongside it.
 
 ## Open decisions
 - Offensive branch **punchier-but-capped** vs uniformly mild? (lean: punchier)
