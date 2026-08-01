@@ -77,6 +77,7 @@ Each plant a **hand-drawn herbalist illustration** + properties / effects / sour
 - **Calm** doubling combat + cozy, or split channels?
 - **Wrong technique** *wastes* an ingredient (rewards herblore) vs always gives *something* (forgiving)?
 - **Preview vs surprise:** show ingredient HINTS (from catalog), reveal the exact combined result on first brew, then save the card. (lean: hint + reveal-on-first-brew)
+- **Herbalist knowledge / ⭐ discovery (user 2026-08-01):** should a plant's best technique (⭐) + full effect table be shown from the start, or **DISCOVERED**? A plant could start "unstudied" (properties hidden / fuzzy) and get filled in as you experiment with it or study it — the catalog fills in through play, like a real herbal. Ties the ⭐, the preview-vs-surprise question, and the plant catalog into one **knowledge layer**. Adds discovery/RPG-progression texture but more UI/state. Deferred; strong candidate for its own slice. (Sandbox currently shows ⭐ + all effects — a tuning aid, not the final player-facing reveal.)
 - Recipes personal for now; **shareable** later?
 
 ---
