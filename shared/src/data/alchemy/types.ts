@@ -76,3 +76,17 @@ export interface BrewResult {
   quality: "fine" | "rough" | "dubious";  // dubious = heroes with no base, etc.
   notes: string[];          // human hints ("harsh — needs a base", "honey amplified…")
 }
+
+/** A discovered recipe saved to the player's book. Its `id` is the deterministic
+ *  recipeIdFor(placements), so re-brewing the same combo re-finds the same card
+ *  and stacks in the inventory. Stored in state.alchemyRecipes; a brewed potion
+ *  in inventory uses this id as its itemId. */
+export interface StoredAlchemyRecipe {
+  id: string;
+  name: string;
+  placements: Placement[];
+  effects: Effect[];
+  quality: BrewResult["quality"];
+  /** World-day the player first brewed it (for the book; set by the caller). */
+  discoveredDay?: number;
+}

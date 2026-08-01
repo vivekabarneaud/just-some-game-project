@@ -7,6 +7,17 @@
 import type { Effect, EffectChannel, Placement, BrewResult, Technique } from "./types.js";
 import { getIngredient } from "./ingredients.js";
 
+/** Deterministic id for a set of placements — order-independent, so the same
+ *  combo always yields the same recipe card / stacks in inventory. */
+export function recipeIdFor(placements: Placement[]): string {
+  const key = placements
+    .filter((p) => p.ingredientId)
+    .map((p) => `${p.ingredientId}:${p.technique}`)
+    .sort()
+    .join("+");
+  return `brew_${key}`;
+}
+
 /** A technique an ingredient doesn't define still yields a faint something. */
 const GENERIC_WASTE: Effect = { channel: "general_recovery", amount: 1 };
 

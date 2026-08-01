@@ -423,6 +423,9 @@ export interface GameState {
   herbs: Record<string, number>;
   foragedTotal: number;
   discoveredRecipes: string[];
+  /** Free-form alchemy recipe cards, keyed by the deterministic recipe id.
+   *  See shared/data/alchemy + docs/DESIGN_APOTHECARY.md. */
+  alchemyRecipes?: Record<string, import("./data/alchemy/types.js").StoredAlchemyRecipe>;
   activeBlessing: { deityId: string; effect: string } | null;
   lastTradeAt: number;
   alchemyResearchAvailable: boolean;

@@ -295,6 +295,9 @@ import { TRAVELING_MERCHANTS, getMerchant, merchantIntervalDays } from "~/data/m
 import { calcTavern, tavernRooms, REPUTATION_DRIFT_PER_HOUR, TAVERN_FOOD_PER_ROOM_PER_HOUR, MENU_STAPLE_IDS, serversNeeded, menuCapacity, TAVERN_COMMODITY_DRINKS, getCommodityDrink, type TavernCommodityDrink } from "~/data/tavern";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { AILMENTS, getAilment, type BuildingAilment } from "@medieval-realm/shared/data/ailments";
+import { brew as brewAlchemy, recipeIdFor } from "@medieval-realm/shared/data/alchemy/brew";
+import { getIngredient as getAlchemyIngredient } from "@medieval-realm/shared/data/alchemy/ingredients";
+import type { Placement as AlchemyPlacement, StoredAlchemyRecipe } from "@medieval-realm/shared/data/alchemy/types";
 import { EXOTIC_IDS } from "@medieval-realm/shared/data/exotics";
 import { ALCHEMY_RECIPES, getDiscoverableRecipes, RESEARCH_BASE_COST } from "@medieval-realm/shared/data/alchemy_recipes";
 import { getDeity, getCurrentDeity } from "~/data/deities";
@@ -679,6 +682,10 @@ export interface GameState {
   exotics: Record<string, number>; // { pepper: 5, cinnamon: 2, tea: 1, ... }
   // Alchemy research
   discoveredRecipes: string[]; // recipe IDs discovered through research
+  /** Free-form alchemy: recipe cards the player has brewed (keyed by the
+   *  deterministic recipeIdFor). A brewed potion in inventory uses this id as
+   *  its itemId; this store is what the potion DOES. See DESIGN_APOTHECARY. */
+  alchemyRecipes?: Record<string, StoredAlchemyRecipe>;
   alchemyResearchAvailable: boolean; // resets daily
   // Shrine blessing
   activeBlessing: { deityId: string; effect: string } | null;
@@ -964,6 +971,15 @@ export interface GameActions {
   /** Apply an owned cure item to a building's founder ailment. Clears it and
    *  consumes one. No-op if there's no ailment or the item doesn't cure it. */
   cureBuildingAilment: (buildingId: string, itemId: string) => boolean;
+  /** How many of a free-form alchemy ingredient the player owns (herb / honey /
+   *  inventory item). Drives the lab's availability + brew gating. */
+  getBrewIngredientQty: (ingredientId: string) => number;
+  /** Brew a free-form combo: consumes 1 of each ingredient, computes the result,
+   *  saves the recipe card (state.alchemyRecipes), and adds the brewed potion to
+   *  inventory. Returns false if any ingredient is short. */
+  brewPotion: (placements: AlchemyPlacement[]) => boolean;
+  /** A saved recipe card (what a brewed-potion inventory item does), or undefined. */
+  getAlchemyRecipe: (recipeId: string) => StoredAlchemyRecipe | undefined;
   deployMission: (missionId: string, adventurerIds: string[], adventurerSupplies?: Record<string, { potion?: string; food?: string; recovery?: string }>, precomputedSuccess?: number) => boolean;
   /** Current quantity of any resource/item/herb/material (for deploy-item costs). */
   resourceQty: (res: string) => number;
@@ -7214,6 +7230,40 @@ export function GameProvider(props: ParentProps) {
         const it = s.inventory.find((i) => i.itemId === itemId)!;
         it.quantity -= 1;
         pushEvent(s, "building_completed", "💪", def.recovered(who));
+      }));
+      scheduleSave();
+      return true;
+    },
+    getBrewIngredientQty(ingredientId) {
+      return getResourceQty(state, ingredientId);
+    },
+    getAlchemyRecipe(recipeId) {
+      return state.alchemyRecipes?.[recipeId];
+    },
+    brewPotion(placements) {
+      const filled = placements.filter((p) => p.ingredientId && getAlchemyIngredient(p.ingredientId));
+      if (filled.length === 0) return false;
+      // Cost = 1 of each ingredient (sum duplicates just in case).
+      const cost = new Map<string, number>();
+      for (const p of filled) cost.set(p.ingredientId, (cost.get(p.ingredientId) ?? 0) + 1);
+      for (const [id, n] of cost) if (getResourceQty(state, id) < n) return false;
+      const result = brewAlchemy(filled);
+      const id = recipeIdFor(filled);
+      setState(produce((s) => {
+        for (const [ingId, n] of cost) spendResource(s, ingId, n);
+        s.alchemyRecipes ??= {};
+        if (!s.alchemyRecipes[id]) {
+          s.alchemyRecipes[id] = {
+            id, name: result.name, placements: filled, effects: result.effects,
+            quality: result.quality, discoveredDay: s.year,
+          };
+          pushEvent(s, "building_completed", "📖", `New recipe discovered: ${result.name}.`);
+        }
+        const inv = s.inventory.find((i) => i.itemId === id);
+        if (inv) inv.quantity += 1;
+        else s.inventory.push({ itemId: id, quantity: 1 });
+        s.potions += 1;
+        pushEvent(s, "building_completed", "🧪", `Brewed ${result.name}.`);
       }));
       scheduleSave();
       return true;
