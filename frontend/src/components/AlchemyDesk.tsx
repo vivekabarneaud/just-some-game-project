@@ -5,24 +5,24 @@ import { INGREDIENTS, getIngredient } from "@medieval-realm/shared/data/alchemy/
 import type { Technique, Role, EffectChannel, Placement } from "@medieval-realm/shared/data/alchemy/types";
 import { playSound } from "~/engine/sounds";
 
-/** The free-form brewing desk — the real, playable version of the /dev-alchemy
- *  sandbox: pick a plant from each ROLE shelf, choose how to prepare it
- *  (technique), see the live brew, and BREW it (consumes your herbs → a potion
- *  in your inventory + a saved recipe card). See docs/DESIGN_APOTHECARY.md. */
+/** The free-form brewing lab (docs/DESIGN_APOTHECARY.md — user sketch layout):
+ *  recipe book on the LEFT, the working lab on the RIGHT. In the lab you take an
+ *  ingredient off a ROLE shelf (click to pick up) and set it on a TECHNIQUE
+ *  station (click to place) — station = how it's prepared. The brew flows to the
+ *  output box, where Brew spends the herbs → a potion + a saved recipe card.
+ *  Functional/placeholder art; the hand-drawn lab drops in later. */
 
-const ROLE_SHELVES: { role: Role; label: string; hint: string }[] = [
-  { role: "base", label: "Base", hint: "the carrier — a brew wants one" },
-  { role: "hero", label: "Hero ⭐", hint: "the star effect" },
-  { role: "catalyst", label: "Catalyst", hint: "amplify / extend" },
-  { role: "toxin", label: "Toxin", hint: "poisons & offensive" },
-  { role: "wildcard", label: "Wildcard", hint: "potent, and its own risk" },
+// Technique stations — unlock as the Alchemy Lab levels up.
+const STATIONS: { technique: Technique; place: string; icon: string; verb: string; level: number }[] = [
+  { technique: "crush", place: "Mortar", icon: "🪨", verb: "Crush", level: 1 },
+  { technique: "boil", place: "Cauldron", icon: "🔥", verb: "Boil", level: 1 },
+  { technique: "steep", place: "Steeping Pot", icon: "🫖", verb: "Steep", level: 1 },
+  { technique: "distil", place: "Still", icon: "⚗️", verb: "Distil", level: 2 },
+  { technique: "char", place: "Brazier", icon: "🕯️", verb: "Char", level: 3 },
 ];
-const TECHNIQUES: { technique: Technique; label: string }[] = [
-  { technique: "crush", label: "🪨 Crush" },
-  { technique: "boil", label: "🔥 Boil" },
-  { technique: "steep", label: "🫖 Steep" },
-  { technique: "distil", label: "⚗️ Distil" },
-  { technique: "char", label: "🕯️ Char" },
+const ROLE_SHELVES: { role: Role; label: string }[] = [
+  { role: "base", label: "Base" }, { role: "hero", label: "Hero ⭐" },
+  { role: "catalyst", label: "Catalyst" }, { role: "toxin", label: "Toxin" }, { role: "wildcard", label: "Wildcard" },
 ];
 const CHANNEL_LABEL: Partial<Record<EffectChannel, string>> = {
   str: "+STR", dex: "+DEX", int: "+INT", vit: "+VIT", wis: "+WIS",
@@ -32,14 +32,10 @@ const CHANNEL_LABEL: Partial<Record<EffectChannel, string>> = {
   heal_hp: "Heal HP", ease_fever: "Eases Fever", ease_gut: "Settles Gut", ease_wound: "Mends Wound",
   general_recovery: "General recovery", happiness: "+Happiness",
   resist_undead: "Ward vs Undead", resist_confuse: "Resist Confusion",
-  poison: "Poison (DoT)", weaken: "Weaken", slow: "Slow", confuse: "Confuse",
-  aoe_fire: "AoE Fire", aoe_frost: "AoE Frost",
+  poison: "Poison (DoT)", weaken: "Weaken", slow: "Slow", confuse: "Confuse", aoe_fire: "AoE Fire", aoe_frost: "AoE Frost",
 };
 const QUALITY_COLOR = { fine: "var(--accent-green)", rough: "var(--accent-gold)", dubious: "var(--accent-red)" };
 const OFFENSIVE = new Set(["poison", "weaken", "slow", "confuse", "aoe_fire", "aoe_frost"]);
-type Slot = { ingredientId: string; technique: Technique };
-const emptySlots = (): Record<string, Slot> =>
-  Object.fromEntries(ROLE_SHELVES.map((s) => [s.role, { ingredientId: "", technique: "steep" as Technique }]));
 
 function fmtEffect(e: { channel: EffectChannel; amount: number; shape?: string; rounds?: number }) {
   const label = CHANNEL_LABEL[e.channel] ?? e.channel;
@@ -50,68 +46,67 @@ function fmtEffect(e: { channel: EffectChannel; amount: number; shape?: string; 
 
 export default function AlchemyDesk() {
   const { state, actions } = useGame();
-  const [slots, setSlots] = createSignal<Record<string, Slot>>(emptySlots());
+  const labLevel = () => state.buildings.find((b) => b.buildingId === "alchemy_lab")?.level ?? 0;
 
-  const pickPlant = (role: Role, id: string) => {
-    const sig = id ? getIngredient(id)?.signature ?? "steep" : "steep";
-    setSlots({ ...slots(), [role]: { ingredientId: id, technique: sig } });
+  // What's "in hand" (picked off a shelf), and what sits on each station.
+  const [held, setHeld] = createSignal<string | null>(null);
+  const [stations, setStations] = createSignal<Partial<Record<Technique, string>>>({});
+
+  const clear = () => { setStations({}); setHeld(null); };
+
+  const clickStation = (t: Technique, unlocked: boolean) => {
+    if (!unlocked) return;
+    const h = held();
+    if (h) { setStations({ ...stations(), [t]: h }); setHeld(null); playSound("nav"); }
+    else if (stations()[t]) { const next = { ...stations() }; delete next[t]; setStations(next); } // clear the station
   };
-  const pickTechnique = (role: Role, t: Technique) => setSlots({ ...slots(), [role]: { ...slots()[role], technique: t } });
-  const clear = () => setSlots(emptySlots());
+  const clickShelf = (id: string) => setHeld(held() === id ? null : id);
 
   const placements = createMemo<Placement[]>(() =>
-    ROLE_SHELVES.filter((s) => slots()[s.role].ingredientId)
-      .map((s) => ({ ingredientId: slots()[s.role].ingredientId, technique: slots()[s.role].technique })),
+    STATIONS.filter((s) => stations()[s.technique])
+      .map((s) => ({ ingredientId: stations()[s.technique]!, technique: s.technique })),
   );
   const result = createMemo(() => brew(placements()));
 
-  // Availability: 1 of each ingredient. Short if any owned count < needed.
   const short = createMemo(() => {
     const need = new Map<string, number>();
     for (const pl of placements()) need.set(pl.ingredientId, (need.get(pl.ingredientId) ?? 0) + 1);
     return [...need].filter(([id, n]) => actions.getBrewIngredientQty(id) < n).map(([id]) => getIngredient(id)?.name ?? id);
   });
   const alreadyKnown = createMemo(() => !!state.alchemyRecipes?.[recipeIdFor(placements())]);
-
-  const doBrew = () => {
-    if (actions.brewPotion(placements())) { playSound("build"); }
-  };
-  const loadRecipe = (r: { placements: Placement[] }) => {
-    const next = emptySlots();
-    for (const pl of r.placements) {
-      const role = getIngredient(pl.ingredientId)?.role;
-      if (role) next[role] = { ingredientId: pl.ingredientId, technique: pl.technique };
-    }
-    setSlots(next);
-  };
-
   const recipeBook = createMemo(() => Object.values(state.alchemyRecipes ?? {}));
+
+  const doBrew = () => { if (actions.brewPotion(placements())) playSound("build"); };
+  const loadRecipe = (r: { placements: Placement[] }) => {
+    const next: Partial<Record<Technique, string>> = {};
+    for (const pl of r.placements) next[pl.technique] = pl.ingredientId;
+    setStations(next); setHeld(null);
+  };
+
+  // The player's OWN shelves — only ingredients they actually hold.
+  const shelfPlants = (role: Role) =>
+    INGREDIENTS.filter((i) => i.role === role && actions.getBrewIngredientQty(i.id) > 0);
 
   return (
     <div style={{ margin: "8px 0 24px" }}>
-      <h3 style={{ "font-family": "var(--font-heading)", color: "var(--text-primary)", "margin-bottom": "4px" }}>
-        The Lab — free-form brewing
-      </h3>
+      <h3 style={{ "font-family": "var(--font-heading)", color: "var(--text-primary)", "margin-bottom": "4px" }}>The Lab</h3>
       <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-bottom": "12px" }}>
-        Pick a plant from each shelf and choose how to prepare it. Brewing spends your herbs and remembers the recipe.
+        Take a plant off a shelf, set it on a station to prepare it. Brewing spends your herbs and remembers the recipe.
       </div>
 
-      <div style={{ display: "flex", gap: "18px", "flex-wrap": "wrap" }}>
-        {/* Recipe book (known) */}
+      <div style={{ display: "flex", gap: "20px", "flex-wrap": "wrap", "align-items": "flex-start" }}>
+        {/* ── LEFT: recipe book ── */}
         <div style={{ flex: "1 1 240px", "max-width": "300px" }}>
           <div style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "margin-bottom": "6px" }}>📖 Recipe book</div>
           <Show when={recipeBook().length > 0} fallback={<div style={{ "font-size": "0.78rem", color: "var(--text-muted)", "font-style": "italic" }}>No recipes yet — brew something to start your book.</div>}>
-            <div style={{ display: "flex", "flex-direction": "column", gap: "5px", "max-height": "320px", overflow: "auto" }}>
+            <div style={{ display: "grid", "grid-template-columns": "1fr 1fr", gap: "6px", "max-height": "360px", overflow: "auto" }}>
               <For each={recipeBook()}>
                 {(r) => (
-                  <button
-                    onClick={() => loadRecipe(r)}
-                    title="Load into the desk"
-                    style={{ "text-align": "left", padding: "6px 9px", background: "var(--bg-card)", border: `1px solid ${QUALITY_COLOR[r.quality]}`, "border-radius": "5px", cursor: "pointer", color: "var(--text-primary)" }}
-                  >
-                    <div style={{ "font-size": "0.82rem", color: QUALITY_COLOR[r.quality], "font-weight": 600 }}>{r.name}</div>
-                    <div style={{ "font-size": "0.68rem", color: "var(--text-muted)" }}>
-                      {r.placements.map((pl) => getIngredient(pl.ingredientId)?.icon).join(" ")} · owned ×{state.inventory.find((i) => i.itemId === r.id)?.quantity ?? 0}
+                  <button onClick={() => loadRecipe(r)} title="Load onto the stations"
+                    style={{ "text-align": "left", padding: "6px 8px", background: "var(--bg-card)", border: `1px solid ${QUALITY_COLOR[r.quality]}`, "border-radius": "5px", cursor: "pointer", color: "var(--text-primary)" }}>
+                    <div style={{ "font-size": "0.78rem", color: QUALITY_COLOR[r.quality], "font-weight": 600, "line-height": 1.2 }}>{r.name}</div>
+                    <div style={{ "font-size": "0.66rem", color: "var(--text-muted)", "margin-top": "2px" }}>
+                      {r.placements.map((pl) => getIngredient(pl.ingredientId)?.icon).join(" ")} ×{state.inventory.find((i) => i.itemId === r.id)?.quantity ?? 0}
                     </div>
                   </button>
                 )}
@@ -120,68 +115,94 @@ export default function AlchemyDesk() {
           </Show>
         </div>
 
-        {/* The desk (shelves → slots) */}
-        <div style={{ flex: "2 1 380px" }}>
-          <For each={ROLE_SHELVES}>
-            {(shelf) => {
-              const slot = () => slots()[shelf.role];
-              const picked = () => (slot().ingredientId ? getIngredient(slot().ingredientId) : undefined);
-              return (
-                <div style={{ display: "flex", "align-items": "center", gap: "7px", padding: "6px 8px", "margin-bottom": "6px", border: "1px solid var(--border-default)", "border-radius": "6px", background: picked() ? "rgba(212,131,26,0.06)" : undefined }}>
-                  <div style={{ "min-width": "86px" }}>
-                    <div style={{ "font-size": "0.82rem", color: "var(--text-primary)" }}>{shelf.label}</div>
-                    <div style={{ "font-size": "0.62rem", color: "var(--text-muted)" }}>{shelf.hint}</div>
+        {/* ── RIGHT: the working lab (divider) ── */}
+        <div style={{ flex: "2 1 460px", "border-left": "1px solid var(--border-default)", "padding-left": "20px" }}>
+          {/* Stations (the lab) */}
+          <div style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "margin-bottom": "6px" }}>⚗️ Alchemy lab</div>
+          <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap", "margin-bottom": "16px" }}>
+            <For each={STATIONS}>
+              {(st) => {
+                const unlocked = () => labLevel() >= st.level;
+                const on = () => stations()[st.technique];
+                const plant = () => (on() ? getIngredient(on()!) : undefined);
+                const isSig = () => plant()?.signature === st.technique;
+                return (
+                  <div
+                    onClick={() => clickStation(st.technique, unlocked())}
+                    title={unlocked() ? (held() ? `Set on the ${st.place}` : plant() ? "Click to clear" : `Empty ${st.place}`) : `Unlocks at Alchemy Lab Lv.${st.level}`}
+                    style={{
+                      width: "104px", "min-height": "88px", padding: "8px 6px", "border-radius": "8px", "text-align": "center",
+                      border: `1px solid ${on() ? QUALITY_COLOR.fine : "var(--border-default)"}`,
+                      background: unlocked() ? (held() ? "rgba(212,131,26,0.10)" : "var(--bg-card)") : "rgba(0,0,0,0.25)",
+                      opacity: unlocked() ? 1 : 0.5, cursor: unlocked() ? "pointer" : "not-allowed",
+                      display: "flex", "flex-direction": "column", "align-items": "center", "justify-content": "center", gap: "3px",
+                    }}
+                  >
+                    <div style={{ "font-size": "1.4rem" }}>{st.icon}</div>
+                    <div style={{ "font-size": "0.7rem", color: "var(--text-secondary)" }}>{st.verb}</div>
+                    <Show when={unlocked()} fallback={<div style={{ "font-size": "0.62rem", color: "var(--text-muted)" }}>🔒 Lv.{st.level}</div>}>
+                      <Show when={plant()} fallback={<div style={{ "font-size": "0.62rem", color: "var(--text-muted)" }}>empty</div>}>
+                        <div style={{ "font-size": "0.72rem", color: "var(--text-primary)" }}>{plant()!.icon} {plant()!.name}{isSig() ? " ⭐" : ""}</div>
+                      </Show>
+                    </Show>
                   </div>
-                  <select value={slot().ingredientId} onChange={(e) => pickPlant(shelf.role, e.currentTarget.value)}
-                    style={{ flex: 1, padding: "4px", background: "var(--bg-card)", color: "var(--text-primary)", border: "1px solid var(--border-default)", "border-radius": "4px" }}>
-                    <option value="">— none —</option>
-                    <For each={INGREDIENTS.filter((i) => i.role === shelf.role)}>
-                      {(ing) => {
-                        const owned = actions.getBrewIngredientQty(ing.id);
-                        return <option value={ing.id}>{ing.icon} {ing.name} (×{owned})</option>;
-                      }}
-                    </For>
-                  </select>
-                  <select value={slot().technique} disabled={!picked()} onChange={(e) => pickTechnique(shelf.role, e.currentTarget.value as Technique)}
-                    style={{ width: "104px", padding: "4px", background: "var(--bg-card)", color: picked() ? "var(--text-primary)" : "var(--text-muted)", border: "1px solid var(--border-default)", "border-radius": "4px", opacity: picked() ? 1 : 0.5 }}>
-                    <For each={TECHNIQUES}>
-                      {(t) => <option value={t.technique}>{t.label}{picked()?.signature === t.technique ? " ⭐" : ""}</option>}
-                    </For>
-                  </select>
-                </div>
-              );
-            }}
-          </For>
-          <button class="btn-tertiary" style={{ "font-size": "0.78rem" }} onClick={clear}>Clear the pot</button>
-        </div>
-
-        {/* Output */}
-        <div style={{ flex: "1 1 240px", "max-width": "300px" }}>
-          <div style={{ padding: "12px", border: `1px solid ${QUALITY_COLOR[result().quality]}`, "border-radius": "8px", background: "rgba(0,0,0,0.15)" }}>
-            <div style={{ "font-size": "1.1rem", "font-weight": 600, color: QUALITY_COLOR[result().quality] }}>{result().name}</div>
-            <div style={{ "font-size": "0.68rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "1px", "margin-bottom": "6px" }}>{result().quality}{alreadyKnown() ? " · known" : ""}</div>
-            <Show when={result().effects.length > 0} fallback={<div style={{ color: "var(--text-muted)", "font-style": "italic", "font-size": "0.82rem" }}>Nothing worth drinking yet.</div>}>
-              <For each={result().effects}>
-                {(e) => <div style={{ "font-size": "0.82rem", color: OFFENSIVE.has(e.channel) ? "var(--accent-red)" : "var(--accent-green)", padding: "1px 0" }}>{fmtEffect(e)}</div>}
-              </For>
-            </Show>
-            <Show when={result().notes.length > 0}>
-              <div style={{ "margin-top": "8px", "border-top": "1px solid var(--border-default)", "padding-top": "6px" }}>
-                <For each={result().notes}>{(n) => <div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "font-style": "italic" }}>· {n}</div>}</For>
-              </div>
-            </Show>
+                );
+              }}
+            </For>
           </div>
-          <Show when={short().length > 0}>
-            <div style={{ "font-size": "0.72rem", color: "var(--accent-red)", "margin-top": "6px" }}>Short of: {short().join(", ")}</div>
-          </Show>
-          <button
-            class="btn-primary"
-            style={{ "margin-top": "8px", width: "100%", opacity: placements().length === 0 || short().length > 0 ? 0.5 : 1 }}
-            disabled={placements().length === 0 || short().length > 0}
-            onClick={doBrew}
-          >
-            🧪 Brew{alreadyKnown() ? "" : " (new recipe)"}
-          </button>
+
+          {/* Shelves (your owned ingredients, by role) */}
+          <div style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "margin-bottom": "6px" }}>
+            🧺 Shelves {held() ? <span style={{ color: "var(--accent-gold)" }}>· holding {getIngredient(held()!)?.icon} {getIngredient(held()!)?.name} (click a station)</span> : ""}
+          </div>
+          <For each={ROLE_SHELVES}>
+            {(shelf) => (
+              <div style={{ display: "flex", "align-items": "center", gap: "8px", "margin-bottom": "5px" }}>
+                <div style={{ "min-width": "72px", "font-size": "0.72rem", color: "var(--text-muted)" }}>{shelf.label}</div>
+                <div style={{ display: "flex", gap: "5px", "flex-wrap": "wrap" }}>
+                  <Show when={shelfPlants(shelf.role).length > 0} fallback={<span style={{ "font-size": "0.7rem", color: "var(--text-muted)", "font-style": "italic" }}>—</span>}>
+                    <For each={shelfPlants(shelf.role)}>
+                      {(ing) => (
+                        <button onClick={() => clickShelf(ing.id)}
+                          style={{ padding: "3px 8px", "border-radius": "12px", "font-size": "0.74rem", cursor: "pointer",
+                            border: `1px solid ${held() === ing.id ? "var(--accent-gold)" : "var(--border-default)"}`,
+                            background: held() === ing.id ? "rgba(212,131,26,0.18)" : "var(--bg-card)", color: "var(--text-primary)" }}>
+                          {ing.icon} {ing.name} <span style={{ color: "var(--text-muted)" }}>×{actions.getBrewIngredientQty(ing.id)}</span>
+                        </button>
+                      )}
+                    </For>
+                  </Show>
+                </div>
+              </div>
+            )}
+          </For>
+
+          {/* Output */}
+          <div style={{ display: "flex", "align-items": "flex-start", gap: "12px", "margin-top": "16px" }}>
+            <div style={{ "font-size": "1.6rem", color: "var(--text-muted)", "padding-top": "18px" }}>⤵</div>
+            <div style={{ flex: 1, "max-width": "320px" }}>
+              <div style={{ padding: "12px", border: `1px solid ${QUALITY_COLOR[result().quality]}`, "border-radius": "8px", background: "rgba(0,0,0,0.15)" }}>
+                <div style={{ "font-size": "1.1rem", "font-weight": 600, color: QUALITY_COLOR[result().quality] }}>{result().name}</div>
+                <div style={{ "font-size": "0.68rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "1px", "margin-bottom": "6px" }}>{result().quality}{alreadyKnown() ? " · known" : ""}</div>
+                <Show when={result().effects.length > 0} fallback={<div style={{ color: "var(--text-muted)", "font-style": "italic", "font-size": "0.82rem" }}>Nothing worth drinking yet.</div>}>
+                  <For each={result().effects}>{(e) => <div style={{ "font-size": "0.82rem", color: OFFENSIVE.has(e.channel) ? "var(--accent-red)" : "var(--accent-green)", padding: "1px 0" }}>{fmtEffect(e)}</div>}</For>
+                </Show>
+                <Show when={result().notes.length > 0}>
+                  <div style={{ "margin-top": "8px", "border-top": "1px solid var(--border-default)", "padding-top": "6px" }}>
+                    <For each={result().notes}>{(n) => <div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "font-style": "italic" }}>· {n}</div>}</For>
+                  </div>
+                </Show>
+              </div>
+              <Show when={short().length > 0}><div style={{ "font-size": "0.72rem", color: "var(--accent-red)", "margin-top": "6px" }}>Short of: {short().join(", ")}</div></Show>
+              <div style={{ display: "flex", gap: "8px", "margin-top": "8px" }}>
+                <button class="btn-primary" style={{ flex: 1, opacity: placements().length === 0 || short().length > 0 ? 0.5 : 1 }}
+                  disabled={placements().length === 0 || short().length > 0} onClick={doBrew}>
+                  🧪 Brew{alreadyKnown() ? "" : placements().length > 0 ? " (new)" : ""}
+                </button>
+                <button class="btn-tertiary" style={{ "font-size": "0.78rem" }} onClick={clear}>Clear</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
