@@ -174,6 +174,9 @@ render(
     <ErrorBoundary fallback={(err, reset) => <CrashFallback err={err} reset={reset} />}>
     <Router>
       <Route path="/login" component={Login} />
+      {/* Standalone (outside App/GameProvider): a pure tuning tool with no game
+          state, so the settlement save-loop can't reload it mid-experiment. */}
+      <Route path="/dev-alchemy" component={AlchemyLabDev} />
       <Route path="/" component={(p) => <AuthGuard><App {...p} /></AuthGuard>}>
         <Route path="/" component={Overview} />
         <Route path="/buildings" component={Buildings} />
@@ -202,7 +205,6 @@ render(
         <Route path="/dev-frames" component={FramePreview} />{/* TEMP dev-only, remove after frame tuning */}
         <Route path="/dev-combat-card" component={CombatCardPreview} />{/* TEMP dev-only, remove after card tuning */}
         <Route path="/dev-battle" component={BattlePreview} />{/* TEMP dev-only, remove after Tier-1 enemy pass */}
-        <Route path="/dev-alchemy" component={AlchemyLabDev} />{/* TEMP dev-only — free-form alchemy sandbox */}
         <Route path="*" component={ComingSoon} />
       </Route>
     </Router>
