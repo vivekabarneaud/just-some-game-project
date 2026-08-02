@@ -7312,6 +7312,18 @@ export function GameProvider(props: ParentProps) {
             quality, rarity: brewRarity(filled), discoveredDay: s.year,
           };
           pushEvent(s, "building_completed", "📖", `New recipe discovered: ${name}.`);
+        } else {
+          // Re-brewing a known recipe: take the STRONGER of the two per effect,
+          // so a bigger batch upgrades the stored potency and a smaller one never
+          // downgrades it (quantity = potency, and the stack is fungible).
+          const prev = s.alchemyRecipes[id];
+          const byKey = new Map(prev.effects.map((e) => [`${e.channel}|${e.shape ?? "sustained"}`, e]));
+          for (const e of result.effects) {
+            const k = `${e.channel}|${e.shape ?? "sustained"}`;
+            const cur = byKey.get(k);
+            if (!cur || Math.abs(e.amount) > Math.abs(cur.amount)) byKey.set(k, e);
+          }
+          prev.effects = [...byKey.values()].sort((a, b) => b.amount - a.amount);
         }
         const inv = s.inventory.find((i) => i.itemId === id);
         if (inv) inv.quantity += 1;

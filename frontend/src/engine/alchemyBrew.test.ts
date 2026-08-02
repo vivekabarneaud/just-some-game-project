@@ -71,6 +71,14 @@ describe("brew — the free-form alchemy engine", () => {
     const r = brew([p("chamomile", "boil")]); // chamomile isn't for boiling
     expect(r.notes.some((n) => n.toLowerCase().includes("wasn't made for"))).toBe(true);
   });
+
+  it("quantity is potency: more of the same plant heals more (diminishing, capped)", () => {
+    const one = brew([p("chamomile", "crush")]);
+    const five = brew(Array.from({ length: 5 }, () => p("chamomile", "crush")));
+    expect(amt(five, "heal_hp")).toBeGreaterThan(amt(one, "heal_hp"));
+    // Diminishing returns: five doses are worth well under 5x a single dose.
+    expect(amt(five, "heal_hp")).toBeLessThan(amt(one, "heal_hp") * 5);
+  });
 });
 
 describe("named recipes — curated combos the settlement knows", () => {
@@ -93,6 +101,14 @@ describe("named recipes — curated combos the settlement knows", () => {
   it("each named recipe's ids are unique (no two combos collide)", () => {
     const ids = NAMED_RECIPES.map((r) => recipeIdFor(r.placements));
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("identity ignores quantity: extra plant still matches the same recipe + id", () => {
+    const salve = NAMED_RECIPES.find((r) => r.name === "Woundwort Salve")!;
+    // Double every ingredient — a stronger batch, but the SAME recipe.
+    const doubled = salve.placements.flatMap((pl) => [pl, pl]);
+    expect(matchNamedRecipe(doubled)?.name).toBe("Woundwort Salve");
+    expect(recipeIdFor(doubled)).toBe(recipeIdFor(salve.placements));
   });
 
   it("brewing a named recipe's placements yields real effects (a Fever Tonic eases fever)", () => {

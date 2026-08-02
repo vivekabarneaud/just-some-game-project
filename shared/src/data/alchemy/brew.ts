@@ -19,14 +19,16 @@ export function brewRarity(placements: Placement[]): IngredientRarity {
   return best;
 }
 
-/** Deterministic id for a set of placements — order-independent, so the same
- *  combo always yields the same recipe card / stacks in inventory. */
+/** Deterministic id for a set of placements — order- AND quantity-independent,
+ *  so a combo is one recipe whatever the counts (quantity = potency, not
+ *  identity). The same combo always yields the same recipe card / inventory
+ *  stack / named-recipe match; brewing more of a plant just makes it stronger. */
 export function recipeIdFor(placements: Placement[]): string {
-  const key = placements
-    .filter((p) => p.ingredientId)
-    .map((p) => `${p.ingredientId}:${p.technique}`)
-    .sort()
-    .join("+");
+  const key = [...new Set(
+    placements
+      .filter((p) => p.ingredientId)
+      .map((p) => `${p.ingredientId}:${p.technique}`),
+  )].sort().join("+");
   return `brew_${key}`;
 }
 

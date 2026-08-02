@@ -84,10 +84,26 @@ export default function AlchemyDesk() {
     const h = held();
     if (h) { setStations({ ...stations(), [t]: [...stationOf(t), h] }); setHeld(null); playSound("nav"); }
   };
-  const removeFromStation = (t: Technique, idx: number) => {
-    const arr = stationOf(t).filter((_, i) => i !== idx);
-    setStations({ ...stations(), [t]: arr });
+  // Quantity of a plant = how many copies sit in a station (each adds a
+  // diminishing dose). Grouped into one chip per plant with a −/+ stepper.
+  const countsOf = (t: Technique) => {
+    const order: string[] = []; const n = new Map<string, number>();
+    for (const id of stationOf(t)) { if (!n.has(id)) order.push(id); n.set(id, (n.get(id) ?? 0) + 1); }
+    return order.map((id) => ({ id, n: n.get(id)! }));
   };
+  // How many of this plant are placed across ALL stations (for the stock cap).
+  const placedTotal = (id: string) => STATIONS.reduce((sum, s) => sum + stationOf(s.technique).filter((x) => x === id).length, 0);
+  const canAddMore = (id: string) => placedTotal(id) < actions.getBrewIngredientQty(id);
+  const addToStation = (t: Technique, id: string) => {
+    if (!canAddMore(id)) return;
+    setStations({ ...stations(), [t]: [...stationOf(t), id] }); playSound("nav");
+  };
+  const removeOneFromStation = (t: Technique, id: string) => {
+    const arr = stationOf(t); const i = arr.indexOf(id);
+    if (i >= 0) setStations({ ...stations(), [t]: arr.filter((_, j) => j !== i) });
+  };
+  const removeAllFromStation = (t: Technique, id: string) =>
+    setStations({ ...stations(), [t]: stationOf(t).filter((x) => x !== id) });
 
   const effectRow = (e: Effect) => {
     const p = describeEffectParts(e);
@@ -99,6 +115,7 @@ export default function AlchemyDesk() {
     .filter(Boolean).join(" · ");
 
   const PAGE_BTN = { background: "rgba(42,32,18,0.08)", border: "1px solid #2a2012", "border-radius": "4px", color: "#2a2012", padding: "2px 12px", cursor: "pointer", "font-size": "0.9rem" } as const;
+  const STEP_BTN = { background: "rgba(255,255,255,0.1)", border: "1px solid var(--border-default)", "border-radius": "4px", color: "var(--text-primary)", width: "16px", height: "16px", "line-height": 1, padding: 0, cursor: "pointer", "font-size": "0.8rem", display: "inline-flex", "align-items": "center", "justify-content": "center" } as const;
 
   return (
     <div style={{ margin: "8px 0 24px", display: "flex", gap: "20px", "flex-wrap": "wrap", "align-items": "flex-start" }}>
@@ -152,13 +169,19 @@ export default function AlchemyDesk() {
                   <div style={{ "font-size": "1.2rem" }}>{st.icon}</div>
                   <div style={{ "font-size": "0.7rem", color: "var(--text-secondary)" }}>{st.verb}</div>
                   <Show when={arr().length > 0} fallback={<div style={{ "font-size": "0.64rem", color: "var(--text-muted)" }}>empty</div>}>
-                    <div style={{ display: "flex", "flex-wrap": "wrap", gap: "3px", "justify-content": "center" }}>
-                      <For each={arr()}>
-                        {(id, i) => (
-                          <span onClick={(e) => { e.stopPropagation(); removeFromStation(st.technique, i()); }}
-                            title={`Remove ${getIngredient(id)?.name}`}
-                            style={{ "font-size": "0.66rem", padding: "1px 6px", "border-radius": "10px", background: "rgba(255,255,255,0.08)", border: "1px solid var(--border-default)", cursor: "pointer" }}>
-                            {getIngredient(id)?.icon} {getIngredient(id)?.name} ✕
+                    <div style={{ display: "flex", "flex-wrap": "wrap", gap: "4px", "justify-content": "center" }}>
+                      <For each={countsOf(st.technique)}>
+                        {(c) => (
+                          <span style={{ display: "inline-flex", "align-items": "center", gap: "4px", "font-size": "0.66rem", padding: "1px 3px 1px 7px", "border-radius": "12px", background: "rgba(255,255,255,0.08)", border: "1px solid var(--border-default)" }}>
+                            <span>{getIngredient(c.id)?.icon} {getIngredient(c.id)?.name}</span>
+                            <button onClick={(e) => { e.stopPropagation(); removeOneFromStation(st.technique, c.id); }}
+                              title="One less" style={STEP_BTN}>−</button>
+                            <span style={{ "min-width": "0.8em", "text-align": "center", "font-weight": 600 }}>{c.n}</span>
+                            <button onClick={(e) => { e.stopPropagation(); addToStation(st.technique, c.id); }}
+                              disabled={!canAddMore(c.id)} title={canAddMore(c.id) ? "One more" : "None left in stock"}
+                              style={{ ...STEP_BTN, opacity: canAddMore(c.id) ? 1 : 0.35, cursor: canAddMore(c.id) ? "pointer" : "default" }}>+</button>
+                            <button onClick={(e) => { e.stopPropagation(); removeAllFromStation(st.technique, c.id); }}
+                              title={`Remove ${getIngredient(c.id)?.name}`} style={{ ...STEP_BTN, "margin-left": "1px" }}>✕</button>
                           </span>
                         )}
                       </For>
