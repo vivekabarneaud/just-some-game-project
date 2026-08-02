@@ -298,6 +298,7 @@ import { AILMENTS, getAilment, type BuildingAilment } from "@medieval-realm/shar
 import { brew as brewAlchemy, recipeIdFor } from "@medieval-realm/shared/data/alchemy/brew";
 import { getIngredient as getAlchemyIngredient } from "@medieval-realm/shared/data/alchemy/ingredients";
 import { matchNamedRecipe } from "@medieval-realm/shared/data/alchemy/named_recipes";
+import { summarizeRecovery, easeHoursFor } from "@medieval-realm/shared/data/alchemy/apply";
 import type { Placement as AlchemyPlacement, StoredAlchemyRecipe } from "@medieval-realm/shared/data/alchemy/types";
 import { EXOTIC_IDS } from "@medieval-realm/shared/data/exotics";
 import { ALCHEMY_RECIPES, getDiscoverableRecipes, RESEARCH_BASE_COST } from "@medieval-realm/shared/data/alchemy_recipes";
@@ -7169,6 +7170,22 @@ export function GameProvider(props: ParentProps) {
     useRecoveryItem(adventurerId, itemId) {
       const adv = state.adventurers.find((a) => a.id === adventurerId);
       if (!adv || !adv.alive || adv.onMission) return false;
+      // A brewed potion heals flat HP (its heal_hp). Conditions (venom/froth/
+      // bleed) still need their dedicated cures — brews don't clear them yet.
+      const brewed = state.alchemyRecipes?.[itemId];
+      if (brewed) {
+        const heal = summarizeRecovery(brewed.effects).healHp;
+        const inv0 = state.inventory.find((i) => i.itemId === itemId);
+        const maxHp0 = calcAdventurerMaxHp(adv);
+        if (heal <= 0 || !inv0 || inv0.quantity <= 0 || (adv.currentHp ?? maxHp0) >= maxHp0) return false;
+        setState(produce((s) => {
+          const a = s.adventurers.find((x) => x.id === adventurerId)!;
+          a.currentHp = Math.min(calcAdventurerMaxHp(a), (a.currentHp ?? calcAdventurerMaxHp(a)) + heal);
+          s.inventory.find((i) => i.itemId === itemId)!.quantity -= 1;
+        }));
+        scheduleSave();
+        return true;
+      }
       const recovery = getPotionInfo(itemId)?.recovery;
       if (!recovery) return false; // not an at-home recovery item
       const inv = state.inventory.find((i) => i.itemId === itemId);
@@ -7210,27 +7227,51 @@ export function GameProvider(props: ParentProps) {
         if (alch) return { name: alch.name, icon: alch.icon };
         const craft = CRAFTING_RECIPES.find((r) => r.id === id);
         if (craft) return { name: craft.name, icon: craft.icon };
+        const brewed = state.alchemyRecipes?.[id];
+        if (brewed) return { name: brewed.name, icon: "🧪" };
         return { name: id, icon: "❓" };
       };
+      const owned = (id: string) => state.inventory.find((i) => i.itemId === id)?.quantity ?? 0;
       const cures = def.cures
-        .map((id) => ({ id, qty: state.inventory.find((i) => i.itemId === id)?.quantity ?? 0 }))
+        .map((id) => ({ id, qty: owned(id) }))
         .filter((c) => c.qty > 0)
         .map((c) => ({ id: c.id, qty: c.qty, ...display(c.id) }));
+      // Brewed potions that ease this ailment's line also cure/speed it — list any owned.
+      for (const r of Object.values(state.alchemyRecipes ?? {})) {
+        if (owned(r.id) <= 0) continue;
+        if (cures.some((c) => c.id === r.id)) continue;
+        if (easeHoursFor(summarizeRecovery(r.effects), def.line) > 0) {
+          cures.push({ id: r.id, qty: owned(r.id), ...display(r.id) });
+        }
+      }
       return { name: def.name, icon: def.icon, kind: def.kind, who, hoursRemaining: ail.hoursRemaining, cures };
     },
     cureBuildingAilment(buildingId, itemId) {
       const ail = state.buildingAilments?.[buildingId];
       if (!ail) return false;
       const def = getAilment(ail.ailmentId);
-      if (!def || !def.cures.includes(itemId)) return false;
+      if (!def) return false;
       const inv = state.inventory.find((i) => i.itemId === itemId);
       if (!inv || inv.quantity <= 0) return false;
+      // A fixed cure item (def.cures) clears it outright. A brewed potion instead
+      // eases the line by its ease-hours: enough → cured, otherwise accelerated.
+      const isFixedCure = def.cures.includes(itemId);
+      const brewed = state.alchemyRecipes?.[itemId];
+      const easeHours = brewed ? easeHoursFor(summarizeRecovery(brewed.effects), def.line) : 0;
+      if (!isFixedCure && easeHours <= 0) return false;
       const who = FOUNDING_CHARACTERS.find((f) => f.id === ail.founderId)?.name ?? ail.founderId;
       setState(produce((s) => {
-        if (s.buildingAilments) delete s.buildingAilments[buildingId];
         const it = s.inventory.find((i) => i.itemId === itemId)!;
         it.quantity -= 1;
-        pushEvent(s, "building_completed", "💪", def.recovered(who));
+        const live = s.buildingAilments?.[buildingId];
+        if (!live) return;
+        if (isFixedCure || easeHours >= live.hoursRemaining) {
+          delete s.buildingAilments![buildingId];
+          pushEvent(s, "building_completed", "💪", def.recovered(who));
+        } else {
+          live.hoursRemaining -= easeHours;
+          pushEvent(s, "building_completed", "🧪", `${who} is on the mend — the ${def.name.toLowerCase().replace(/^(a|the) /, "")} should pass sooner now.`);
+        }
       }));
       scheduleSave();
       return true;

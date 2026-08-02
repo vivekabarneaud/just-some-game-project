@@ -13,6 +13,9 @@ export interface AilmentDef {
   icon: string;
   /** Which founder-staffed buildings this can strike (by building id). */
   buildings: string[];
+  /** Recovery "line" — lets a brewed potion's ease_<line> effect treat it.
+   *  fever = chills/agues/deep-cough; gut = the gripe; wound = cuts/wrenches. */
+  line: "fever" | "gut" | "wound";
   /** Illnesses spread (contagion raises the odds of the next one); injuries are
    *  individual bad luck and never catching. */
   contagious: boolean;
@@ -52,6 +55,7 @@ export interface BuildingAilment {
 export const AILMENTS: AilmentDef[] = [
   {
     id: "bad_cut",
+    line: "wound",
     name: "A Bad Cut",
     kind: "injury",
     icon: "🩸",
@@ -65,6 +69,7 @@ export const AILMENTS: AilmentDef[] = [
   },
   {
     id: "wrenched_back",
+    line: "wound",
     name: "A Wrenched Back",
     kind: "injury",
     icon: "😣",
@@ -78,6 +83,7 @@ export const AILMENTS: AilmentDef[] = [
   },
   {
     id: "winter_chill",
+    line: "fever",
     name: "A Winter Chill",
     kind: "illness",
     icon: "🤧",
@@ -95,6 +101,7 @@ export const AILMENTS: AilmentDef[] = [
   },
   {
     id: "summer_gripe",
+    line: "gut",
     name: "The Summer Gripe",
     kind: "illness",
     icon: "🤢",
@@ -109,6 +116,7 @@ export const AILMENTS: AilmentDef[] = [
   },
   {
     id: "fen_ague",
+    line: "fever",
     name: "The Fen-Ague",
     kind: "illness",
     icon: "🥵",
@@ -131,6 +139,7 @@ export const AILMENTS: AilmentDef[] = [
     // long haul, but no death (founders), and rest still clears it — the fast
     // cure is Edda's fenbalm draught (the scarce marsh herb).
     id: "pneumonia",
+    line: "fever",
     name: "The Deep-Cough",
     kind: "illness",
     icon: "🫁",

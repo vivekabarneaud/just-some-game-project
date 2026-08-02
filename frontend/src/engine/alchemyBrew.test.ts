@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { brew, recipeIdFor } from "@medieval-realm/shared/data/alchemy/brew";
 import { NAMED_RECIPES, matchNamedRecipe } from "@medieval-realm/shared/data/alchemy/named_recipes";
 import { getIngredient } from "@medieval-realm/shared/data/alchemy/ingredients";
+import { summarizeRecovery, easeHoursFor } from "@medieval-realm/shared/data/alchemy/apply";
 import type { Placement } from "@medieval-realm/shared/data/alchemy/types";
 
 const p = (ingredientId: string, technique: Placement["technique"]): Placement => ({ ingredientId, technique });
@@ -100,5 +101,23 @@ describe("named recipes — curated combos the settlement knows", () => {
     const fever = NAMED_RECIPES.find((r) => r.name === "Fever Tonic")!;
     const r = brew(fever.placements);
     expect(r.effects.some((e) => e.channel === "ease_fever")).toBe(true);
+  });
+});
+
+describe("recovery application — what a brew does at home", () => {
+  it("a Fever Tonic eases the fever line most, and nothing for wounds beyond the general part", () => {
+    const fever = NAMED_RECIPES.find((r) => r.name === "Fever Tonic")!;
+    const sum = summarizeRecovery(brew(fever.placements).effects);
+    // Fever is its point; it beats the gut easing chamomile brings along.
+    expect(easeHoursFor(sum, "fever")).toBeGreaterThan(easeHoursFor(sum, "gut"));
+    // No wound easing beyond the line-agnostic general recovery.
+    expect(easeHoursFor(sum, "wound")).toBe(sum.general);
+  });
+
+  it("a Woundwort Salve heals HP and eases the wound line", () => {
+    const salve = NAMED_RECIPES.find((r) => r.name === "Woundwort Salve")!;
+    const sum = summarizeRecovery(brew(salve.placements).effects);
+    expect(sum.healHp).toBeGreaterThan(0);
+    expect(easeHoursFor(sum, "wound")).toBeGreaterThan(0);
   });
 });
