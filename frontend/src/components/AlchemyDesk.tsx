@@ -113,7 +113,7 @@ export default function AlchemyDesk() {
                     style={{ "text-align": "left", padding: "10px", cursor: "pointer", color: "#2a2012", "min-height": "78px",
                       background: "rgba(255,255,255,0.14)", border: "14px solid transparent",
                       "border-image": `url(${frameUrl(r.rarity)}) 34 stretch`, filter: gradeFilter(r.quality),
-                      display: "flex", gap: "10px", "align-items": "center" }}>
+                      display: "flex", gap: "10px", "align-items": "flex-start" }}>
                     <div style={{ ...ICON_BOX, background: "rgba(42,32,18,0.12)" }}>{r.icon}</div>
                     <div>
                       <div style={{ "font-size": "0.82rem", "font-weight": 700, "line-height": 1.15 }}>{r.name}</div>
@@ -220,15 +220,16 @@ export default function AlchemyDesk() {
             title={`${ROLE_SHELVES.find((s) => s.role === role())!.label} shelf`}
             subtitle="Pick a plant, then click a station to prepare it."
             onClose={() => setShelfModal(null)}
-            maxWidth="440px"
+            maxWidth="720px"
           >
             <Show when={shelfPlants(role()).length > 0} fallback={<div style={{ padding: "12px", "font-size": "0.85rem", color: "var(--text-muted)", "font-style": "italic" }}>Nothing on this shelf yet — forage or bring some back.</div>}>
               <div style={{ display: "grid", "grid-template-columns": "1fr 1fr", gap: "8px", padding: "4px 2px" }}>
                 <For each={shelfPlants(role())}>
                   {(ing) => (
                     <button onClick={() => pickFromShelf(ing.id)} title={`Pick ${ing.name}`}
-                      style={{ "text-align": "left", padding: "10px", cursor: "pointer", color: "var(--text-primary)", "min-height": "150px",
-                        background: "var(--bg-card)", border: "12px solid transparent", "border-image": `url(${frameUrl(ing.rarity)}) 34 stretch` }}>
+                      style={{ "text-align": "left", padding: "12px", cursor: "pointer", color: "var(--text-primary)", "min-height": "150px",
+                        background: "var(--bg-card)", border: "12px solid transparent", "border-image": `url(${frameUrl(ing.rarity)}) 34 stretch`,
+                        display: "flex", "flex-direction": "column", "align-items": "flex-start", "justify-content": "flex-start" }}>
                       <div style={{ display: "flex", gap: "8px", "align-items": "center", "margin-bottom": "6px" }}>
                         <div style={ICON_BOX}>{ing.icon}</div>
                         <div>
