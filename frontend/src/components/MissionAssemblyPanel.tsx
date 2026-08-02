@@ -49,6 +49,7 @@ import Tooltip from "./Tooltip";
 import { fetchFriends } from "~/api/friends";
 import { inviteCoop, fetchCoopDetail, updateCoopRoster, setCoopReady, cancelCoop } from "~/api/coop";
 import { wsClient } from "~/api/ws";
+import { playSound } from "~/engine/sounds";
 import type { CoopAdventurerSummary } from "@medieval-realm/shared";
 
 function getMissionImage(missionId: string): string | undefined {
@@ -190,6 +191,7 @@ export default function MissionAssemblyPanel(props: Props) {
       else updated[kind] = itemId;
       return { ...prev, [advId]: updated };
     });
+    if (itemId !== null && kind === "potion") playSound("potion"); // bottle clink when a potion is handed to an adventurer
     schedulePushToCoop();
   };
 
