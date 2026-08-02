@@ -29,6 +29,11 @@ const frameUrl = (rarity?: string) => `/images/frames/item_frame_${rarity ?? "co
 const gradeFilter = (q: string) => q === "dubious" ? "grayscale(0.7) brightness(0.82)" : q === "rough" ? "saturate(0.65)" : "none";
 const PER_PAGE = 6;
 
+// Shared item-card icon box — square, no radius, a touch bigger (used by recipe
+// cards and plant cards so every card reads the same).
+const ICON_BOX = { width: "54px", height: "54px", "flex-shrink": 0, background: "rgba(0,0,0,0.25)", display: "flex", "align-items": "center", "justify-content": "center", "font-size": "1.9rem" } as const;
+const r0 = (n: number) => Math.floor(n); // quantities are whole on the shelf
+
 export default function AlchemyDesk() {
   const { state, actions } = useGame();
   const [stations, setStations] = createSignal<Partial<Record<Technique, string>>>({});
@@ -105,13 +110,15 @@ export default function AlchemyDesk() {
                 const owned = () => invQty(r.id);
                 return (
                   <button onClick={() => loadRecipe(r)} title="Load onto the stations"
-                    style={{ "text-align": "center", padding: "12px 8px 10px", cursor: "pointer", color: "#2a2012",
+                    style={{ "text-align": "left", padding: "10px", cursor: "pointer", color: "#2a2012", "min-height": "78px",
                       background: "rgba(255,255,255,0.14)", border: "14px solid transparent",
-                      "border-image": `url(${frameUrl(r.rarity)}) 34 stretch`, filter: gradeFilter(r.quality) }}>
-                    {/* Icon in a square, like any item card */}
-                    <div style={{ width: "48px", height: "48px", margin: "0 auto", "border-radius": "8px", background: "rgba(42,32,18,0.10)", border: "1px solid rgba(42,32,18,0.25)", display: "flex", "align-items": "center", "justify-content": "center", "font-size": "1.7rem" }}>{r.icon}</div>
-                    <div style={{ "font-size": "0.78rem", "font-weight": 700, "margin-top": "6px", "line-height": 1.15 }}>{r.name}</div>
-                    <div style={{ "font-size": "0.66rem", opacity: 0.75, "margin-top": "2px" }}>{owned() > 0 ? `×${owned()}` : "not brewed"}</div>
+                      "border-image": `url(${frameUrl(r.rarity)}) 34 stretch`, filter: gradeFilter(r.quality),
+                      display: "flex", gap: "10px", "align-items": "center" }}>
+                    <div style={{ ...ICON_BOX, background: "rgba(42,32,18,0.12)" }}>{r.icon}</div>
+                    <div>
+                      <div style={{ "font-size": "0.82rem", "font-weight": 700, "line-height": 1.15 }}>{r.name}</div>
+                      <div style={{ "font-size": "0.66rem", opacity: 0.75, "margin-top": "3px" }}>{owned() > 0 ? `×${owned()}` : "not brewed"}</div>
+                    </div>
                   </button>
                 );
               }}
@@ -220,13 +227,13 @@ export default function AlchemyDesk() {
                 <For each={shelfPlants(role())}>
                   {(ing) => (
                     <button onClick={() => pickFromShelf(ing.id)} title={`Pick ${ing.name}`}
-                      style={{ "text-align": "left", padding: "10px", cursor: "pointer", color: "var(--text-primary)",
+                      style={{ "text-align": "left", padding: "10px", cursor: "pointer", color: "var(--text-primary)", "min-height": "150px",
                         background: "var(--bg-card)", border: "12px solid transparent", "border-image": `url(${frameUrl(ing.rarity)}) 34 stretch` }}>
-                      <div style={{ display: "flex", gap: "8px", "align-items": "center", "margin-bottom": "5px" }}>
-                        <div style={{ width: "38px", height: "38px", "border-radius": "6px", background: "rgba(0,0,0,0.25)", display: "flex", "align-items": "center", "justify-content": "center", "font-size": "1.4rem", "flex-shrink": 0 }}>{ing.icon}</div>
+                      <div style={{ display: "flex", gap: "8px", "align-items": "center", "margin-bottom": "6px" }}>
+                        <div style={ICON_BOX}>{ing.icon}</div>
                         <div>
                           <div style={{ "font-size": "0.84rem", "font-weight": 600 }}>{ing.name}</div>
-                          <div style={{ "font-size": "0.66rem", color: "var(--text-muted)", "text-transform": "capitalize" }}>{ing.rarity} {ing.role} · ×{actions.getBrewIngredientQty(ing.id)}</div>
+                          <div style={{ "font-size": "0.66rem", color: "var(--text-muted)", "text-transform": "capitalize" }}>{ing.rarity} {ing.role} · ×{r0(actions.getBrewIngredientQty(ing.id))}</div>
                         </div>
                       </div>
                       <div style={{ "font-size": "0.72rem", color: "var(--text-secondary)", "font-style": "italic", "line-height": 1.3, "margin-bottom": "4px" }}>{ing.note}</div>
