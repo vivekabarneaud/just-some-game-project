@@ -4,6 +4,10 @@
 
 A BOTW-meets-KCD2 emergent crafting system: the player assembles ingredients whose effects **cumulate** into a potion/dish. Two twin stations sharing one engine — the **Alchemy Lab** (herbs → potions/salves/poisons) and the **Kitchen** (food → meals). It exists to make the game a *little universe*: cozy, mystery, emotion, a bit of min-maxing, loot & rarity — and to give the huge plant diversity a payoff.
 
+## Build status (2026-08-02)
+BUILT: the desk (role shelves × technique stations, click-to-place), real brewing (consume herbs → potion + recipe card), the recipe book (named + discovered), at-home use (heal/cure a hero, treat founder ailments), combat BUFFS (potion in the combat slot applies stats/dmg%/def%/heal at fight start). **Rework (2026-08-02):** ONE effect per (plant, technique); catalysts modify only; materials as role-ingredients (tier-1: tusk→froth cure, serpent fang, bone, snake oil); stations unlock by SETTLEMENT TIER (camp: crush+boil; village: steep; town: distil; city: char); **old fixed-recipe crafting section retired** (free-form is the whole apothecary).
+STILL TODO: (C) deliberate plant gating (introduce the roster incrementally via foraging/tier). (E) rarity frames + grade tint on cards (rarity from rarest ingredient; grade sheen: fine=gold, rough=silver, dubious=grey). Offensive combat slice (poison coatings + throwables). Materials shelf expansion (more monster parts).
+
 ## Pillars (load-bearing rules)
 1. **Opt-in, never mandatory.** Fixed recipes cover "a bit of everything." A player who never invents is completely fine. See `feedback_mild_food_effects`.
 2. **Invention is only SLIGHTLY better / more tailored.** The power gap is marginal, so no one is *forced* to grind alchemy. Its real value is **tailoring** (a potion fit to your exact need — "+2 STR *and* +10% dmg/2t"), **discovery/joy**, and **flexibility** (improvise with what's on hand) — NOT raw power.
