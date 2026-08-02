@@ -28,7 +28,12 @@ export type SoundId =
   | "notify_soft"
   | "metal"
   | "raid_stinger"
-  | "raid_trumpet";
+  | "raid_trumpet"
+  | "shelf_open"
+  | "jars"
+  | "winter_is_coming"
+  | "alert2"
+  | "alert3";
 
 /** Mixer channels. Each has its own player-set volume (see settings). `ui`
  *  is the default for one-shot interface SFX; `ambient` is for looping weather
@@ -94,6 +99,16 @@ const SOUNDS: Record<SoundId, SoundDef> = {
   // Martial clank (UMF Metal 6/25/26/27, random variant per play) — mission
   // deploy + opening the Adventurer's Guild.
   metal: { url: [`${R2_BASE}/metal_1.wav`, `${R2_BASE}/metal_2.wav`, `${R2_BASE}/metal_3.wav`, `${R2_BASE}/metal_4.wav`], volume: 0.6 },
+  // Alchemy lab: `shelf_open` (a shelf button opening the ingredient picker),
+  // `jars` (selecting an ingredient in the picker).
+  shelf_open: { url: `${R2_BASE}/ui_shelf_open.wav`, volume: 0.6 },
+  jars:       { url: `${R2_BASE}/ui_jars.wav`, volume: 0.6 },
+  // Banner stingers. `winter_is_coming` is the dedicated cue for the
+  // winter-approaching season banner; `alert2`/`alert3` are spare banner
+  // stingers for other notable events (see BANNER_SOUND map in gameState).
+  winter_is_coming: { url: `${R2_BASE}/ui_winter_is_coming.wav`, volume: 0.7 },
+  alert2:     { url: `${R2_BASE}/ui_alert2.wav`, volume: 0.7 },
+  alert3:     { url: `${R2_BASE}/ui_alert3.wav`, volume: 0.7 },
 };
 
 const MUTE_KEY = "valenheart.sfx.muted";

@@ -79,7 +79,7 @@ export default function AlchemyDesk() {
 
   // Picking off a shelf → "hold" the plant; clicking a station adds it (append).
   const shelfPlants = (role: Role) => INGREDIENTS.filter((i) => i.role === role && actions.getBrewIngredientQty(i.id) > 0);
-  const pickFromShelf = (id: string) => { setHeld(id); setShelfModal(null); };
+  const pickFromShelf = (id: string) => { setHeld(id); setShelfModal(null); playSound("jars"); };
   const clickStation = (t: Technique) => {
     const h = held();
     if (h) { setStations({ ...stations(), [t]: [...stationOf(t), h] }); setHeld(null); playSound("nav"); }
@@ -178,7 +178,7 @@ export default function AlchemyDesk() {
             {(sh) => {
               const count = () => shelfPlants(sh.role).length;
               return (
-                <button onClick={() => setShelfModal(sh.role)}
+                <button onClick={() => { setShelfModal(sh.role); playSound("shelf_open"); }}
                   style={{ flex: "0 0 46%", padding: "5px 8px", "border-radius": "8px", cursor: "pointer",
                     border: "1px solid var(--border-default)", background: "var(--bg-card)", color: "var(--text-primary)",
                     display: "flex", "align-items": "baseline", "justify-content": "center", gap: "6px", opacity: count() > 0 ? 1 : 0.5 }}>

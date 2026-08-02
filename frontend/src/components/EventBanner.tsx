@@ -1,5 +1,5 @@
 import { Show, createSignal, createEffect, onCleanup, untrack } from "solid-js";
-import { playSound } from "~/engine/sounds";
+import { playSound, type SoundId } from "~/engine/sounds";
 
 /**
  * Announcement banner — a marquee that slides down from the topbar and scrolls
@@ -24,6 +24,9 @@ export interface EventBannerItem {
   onClick?: () => void;
   /** Optional color override — lets callers pick e.g. a season-specific accent. */
   accent?: string;
+  /** Optional stinger override. Defaults to raid_stinger for raids, notify_soft
+   *  for everything else. Set for special beats (e.g. winter_is_coming). */
+  sound?: SoundId;
   /** Scroll SPEED = the duration of the single scroll pass (ms). Every message
    *  scrolls once, sliding in from the right and out the left. Bigger = slower.
    *  Omit for DEFAULT_SCROLL_MS. */
@@ -101,9 +104,9 @@ export default function EventBanner() {
     const c = current();
     if (!c) return;
     untrack(() => setExiting(false));
-    // Audible cue on appearance. Raids get the dramatic stinger; everything else
-    // uses the soft neutral chime.
-    playSound(c.type === "raid" ? "raid_stinger" : "notify_soft");
+    // Audible cue on appearance. An explicit `sound` wins; otherwise raids get
+    // the dramatic stinger and everything else the soft neutral chime.
+    playSound(c.sound ?? (c.type === "raid" ? "raid_stinger" : "notify_soft"));
     // On-screen time, defaulting to the scroll-pass duration so the banner leaves
     // exactly as the single pass finishes (no gap). A larger durationMs holds it
     // after the text scrolls off; a smaller one cuts the pass short.

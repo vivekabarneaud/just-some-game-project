@@ -127,6 +127,8 @@ export default function App(props: ParentProps) {
       icon: meta?.icon,
       message: `${meta?.name ?? s} has arrived. The wheel of the year turns.`,
       accent: SEASON_ACCENT[s],
+      // Winter gets its own cold stinger; the other seasons keep the soft chime.
+      sound: s === "winter" ? "winter_is_coming" : undefined,
     });
   });
 
@@ -164,6 +166,8 @@ export default function App(props: ParentProps) {
       accent: "var(--accent-gold)",
       scrollMs: 16000,
       durationMs: 14000,
+      // A winter shortfall gets the cold stinger; other seasons a general alert.
+      sound: next === "winter" ? "winter_is_coming" : "alert2",
       onClick: () => navigate("/"),
     });
   });
@@ -186,6 +190,7 @@ export default function App(props: ParentProps) {
         icon: "🥵",
         message: "A heat wave settles over the valley. Crops wilt in the dry heat — see to your water while it lasts.",
         accent: "#e67e22",
+        sound: "alert2",
         onClick: () => navigate("/farming"),
       });
     } else if (w === "heavy_rain") {
@@ -194,6 +199,7 @@ export default function App(props: ParentProps) {
         icon: "🌧️",
         message: "Heavy rain batters the fields. A brimming cistern backs up onto the crops — keep the reserve low until it passes.",
         accent: "var(--accent-blue)",
+        sound: "alert2",
         onClick: () => navigate("/farming"),
       });
     }
@@ -238,6 +244,8 @@ export default function App(props: ParentProps) {
         message: entry.success
           ? `Your adventurers have returned victorious from ${name}! Rewards await at the Guild.`
           : `Grim news — the mission "${name}" has failed. Your adventurers return wounded.`,
+        // A failed story mission gets a heavier stinger than the reward chime.
+        sound: entry.success ? undefined : "alert3",
         onClick: () => navigate("/guild"),
       });
     }
