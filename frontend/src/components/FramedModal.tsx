@@ -61,7 +61,7 @@ export default function FramedModal(props: {
                 title="Close"
                 style={{ position: "absolute", top: "26px", right: "26px", background: "rgba(0,0,0,0.4)", border: "none", color: "var(--text-secondary)", "font-size": "1.2rem", cursor: "pointer", "line-height": 1, width: "28px", height: "28px", "border-radius": "0", "z-index": "6" }}
               >✕</button>
-              <div style={{ display: "flex", "align-items": "center", gap: "12px", padding: "14px 28px", ...(props.image ? { position: "absolute", bottom: "0", left: "0", right: "0" } : {}) }}>
+              <div style={{ display: "flex", "align-items": "center", gap: "12px", padding: props.image ? "14px 28px" : "24px 28px 14px", ...(props.image ? { position: "absolute", bottom: "0", left: "0", right: "0" } : {}) }}>
                 <Show when={!props.image && props.icon}>
                   <div style={{ "font-size": "2rem" }}>{props.icon}</div>
                 </Show>

@@ -24,6 +24,8 @@ export default function FramedItemCard(props: {
   tooltip?: string;
   /** Parchment variant — dark ink text + light icon backing. */
   dark?: boolean;
+  /** Dimmed (e.g. can't be made yet — missing ingredients). */
+  dim?: boolean;
   minHeight?: string;
   iconSize?: number;
   /** Extra content BELOW the header (full width). */
@@ -37,7 +39,7 @@ export default function FramedItemCard(props: {
         color: props.dark ? "#2a2012" : "var(--text-primary)", "min-height": props.minHeight,
         background: props.dark ? "rgba(255,255,255,0.14)" : "var(--bg-card)",
         border: "12px solid transparent", "border-image": `url(${itemFrameUrl(props.rarity)}) 34 stretch`,
-        filter: gradeFilter(props.quality),
+        filter: gradeFilter(props.quality), opacity: props.dim ? 0.5 : 1,
         display: "flex", "flex-direction": "column", "align-items": "flex-start", "justify-content": "flex-start", gap: "4px",
       }}>
       <div style={{ display: "flex", gap: "8px", "align-items": "flex-start", width: "100%" }}>

@@ -2,7 +2,7 @@ import { createSignal, createMemo, For, Show } from "solid-js";
 import { useGame } from "~/engine/gameState";
 import { brew, recipeIdFor, brewRarity } from "@medieval-realm/shared/data/alchemy/brew";
 import { INGREDIENTS, getIngredient } from "@medieval-realm/shared/data/alchemy/ingredients";
-import { describeEffectParts, effectKind } from "@medieval-realm/shared/data/alchemy/describe";
+import { describeEffectParts } from "@medieval-realm/shared/data/alchemy/describe";
 import { NAMED_RECIPES, matchNamedRecipe, namedRecipeId } from "@medieval-realm/shared/data/alchemy/named_recipes";
 import type { Technique, Role, Placement, Effect } from "@medieval-realm/shared/data/alchemy/types";
 import { playSound } from "~/engine/sounds";
@@ -25,37 +25,41 @@ const ROLE_SHELVES: { role: Role; label: string; icon: string }[] = [
   { role: "wildcard", label: "Wildcard", icon: "🍄" },
 ];
 const QUALITY_COLOR = { fine: "var(--accent-green)", rough: "var(--accent-gold)", dubious: "var(--accent-red)" };
-const KIND_COLOR = { recovery: "var(--accent-green)", combat: "var(--accent-blue)", offensive: "var(--accent-red)" };
-const PER_PAGE = 6;
+const PER_PAGE = 8;
 const r0 = (n: number) => Math.floor(n); // quantities are whole on the shelf
+const EFFECT_COLOR = "var(--accent-green)"; // all effects read as the potion's boons
 
 export default function AlchemyDesk() {
   const { state, actions } = useGame();
-  const [stations, setStations] = createSignal<Partial<Record<Technique, string>>>({});
+  // Each station holds an ARRAY — a mortar can crush several things at once.
+  const [stations, setStations] = createSignal<Partial<Record<Technique, string[]>>>({});
   const [held, setHeld] = createSignal<string | null>(null);   // plant picked off a shelf
   const [shelfModal, setShelfModal] = createSignal<Role | null>(null);
   const [page, setPage] = createSignal(0);
 
   const clear = () => { setStations({}); setHeld(null); };
+  const stationOf = (t: Technique) => stations()[t] ?? [];
 
   const placements = createMemo<Placement[]>(() =>
-    STATIONS.filter((s) => stations()[s.technique]).map((s) => ({ ingredientId: stations()[s.technique]!, technique: s.technique })),
+    STATIONS.flatMap((s) => stationOf(s.technique).map((id) => ({ ingredientId: id, technique: s.technique }))),
   );
   const result = createMemo(() => brew(placements()));
   const matchedName = createMemo(() => matchNamedRecipe(placements())?.name);
   const alreadyKnown = createMemo(() => !!state.alchemyRecipes?.[recipeIdFor(placements())]);
   const invQty = (id: string) => state.inventory.find((i) => i.itemId === id)?.quantity ?? 0;
 
-  const short = createMemo(() => {
+  // Ingredients a recipe/brew needs that the player is short of (by name).
+  const missingOf = (pls: Placement[]) => {
     const need = new Map<string, number>();
-    for (const pl of placements()) need.set(pl.ingredientId, (need.get(pl.ingredientId) ?? 0) + 1);
+    for (const pl of pls) need.set(pl.ingredientId, (need.get(pl.ingredientId) ?? 0) + 1);
     return [...need].filter(([id, n]) => actions.getBrewIngredientQty(id) < n).map(([id]) => getIngredient(id)?.name ?? id);
-  });
+  };
+  const short = createMemo(() => missingOf(placements()));
 
   const doBrew = () => { if (actions.brewPotion(placements())) playSound("build"); };
   const loadRecipe = (r: { placements: Placement[] }) => {
-    const next: Partial<Record<Technique, string>> = {};
-    for (const pl of r.placements) if (STATIONS.some((s) => s.technique === pl.technique)) next[pl.technique] = pl.ingredientId;
+    const next: Partial<Record<Technique, string[]>> = {};
+    for (const pl of r.placements) if (STATIONS.some((s) => s.technique === pl.technique)) (next[pl.technique] ??= []).push(pl.ingredientId);
     setStations(next); setHeld(null);
   };
 
@@ -73,18 +77,21 @@ export default function AlchemyDesk() {
   const pageCount = () => Math.max(1, Math.ceil(book().length / PER_PAGE));
   const pageItems = () => book().slice(page() * PER_PAGE, page() * PER_PAGE + PER_PAGE);
 
-  // Picking off a shelf → "hold" the plant; clicking a station sets it down.
+  // Picking off a shelf → "hold" the plant; clicking a station adds it (append).
   const shelfPlants = (role: Role) => INGREDIENTS.filter((i) => i.role === role && actions.getBrewIngredientQty(i.id) > 0);
   const pickFromShelf = (id: string) => { setHeld(id); setShelfModal(null); };
   const clickStation = (t: Technique) => {
     const h = held();
-    if (h) { setStations({ ...stations(), [t]: h }); setHeld(null); playSound("nav"); }
-    else if (stations()[t]) { const n = { ...stations() }; delete n[t]; setStations(n); }
+    if (h) { setStations({ ...stations(), [t]: [...stationOf(t), h] }); setHeld(null); playSound("nav"); }
+  };
+  const removeFromStation = (t: Technique, idx: number) => {
+    const arr = stationOf(t).filter((_, i) => i !== idx);
+    setStations({ ...stations(), [t]: arr });
   };
 
   const effectRow = (e: Effect) => {
     const p = describeEffectParts(e);
-    return <div style={{ "font-size": "0.82rem", color: KIND_COLOR[effectKind(e.channel)], padding: "1px 0" }}><b>{p.label}</b>{p.detail ? `: ${p.detail}` : ""}</div>;
+    return <div style={{ "font-size": "0.82rem", color: EFFECT_COLOR, padding: "1px 0" }}><b>{p.label}</b>{p.detail ? `: ${p.detail}` : ""}</div>;
   };
   // Compact effect hint for a plant across the visible techniques (for the picker).
   const plantHint = (id: string) => STATIONS
@@ -101,14 +108,18 @@ export default function AlchemyDesk() {
         <Show when={book().length > 0} fallback={<div style={{ "font-size": "0.8rem", "font-style": "italic", opacity: 0.7 }}>No recipes yet.</div>}>
           <div style={{ display: "grid", "grid-template-columns": "1fr 1fr", gap: "12px" }}>
             <For each={pageItems()}>
-              {(r) => (
-                <FramedItemCard rarity={r.rarity} quality={r.quality} icon={r.icon}
-                  title={<>{r.name}{invQty(r.id) > 0 ? <span style={{ opacity: 0.65, "font-weight": 400 }}> ×{invQty(r.id)}</span> : ""}</>}
-                  tooltip="Load onto the stations" onClick={() => loadRecipe(r)} minHeight="96px"
-                  body={<For each={r.effects}>
-                    {(e) => <div style={{ "font-size": "0.68rem", color: KIND_COLOR[effectKind(e.channel)], "line-height": 1.3 }}>{describeEffectParts(e).label}</div>}
-                  </For>} />
-              )}
+              {(r) => {
+                const missing = () => missingOf(r.placements);
+                return (
+                  <FramedItemCard rarity={r.rarity} quality={r.quality} icon={r.icon} dim={missing().length > 0}
+                    title={<>{r.name}{invQty(r.id) > 0 ? <span style={{ opacity: 0.65, "font-weight": 400 }}> ×{invQty(r.id)}</span> : ""}</>}
+                    tooltip={missing().length > 0 ? `Missing: ${missing().join(", ")}` : "Load onto the stations"}
+                    onClick={() => loadRecipe(r)} minHeight="96px"
+                    body={<For each={r.effects}>
+                      {(e) => <div style={{ "font-size": "0.68rem", color: EFFECT_COLOR, "line-height": 1.3 }}>{describeEffectParts(e).label}</div>}
+                    </For>} />
+                );
+              }}
             </For>
           </div>
           <Show when={pageCount() > 1}>
@@ -127,22 +138,31 @@ export default function AlchemyDesk() {
         <div style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "margin-bottom": "8px" }}>
           ⚗️ Alchemy lab {held() ? <span style={{ color: "var(--accent-gold)" }}>· holding {getIngredient(held()!)?.icon} {getIngredient(held()!)?.name} — click a station</span> : ""}
         </div>
-        <div style={{ display: "flex", gap: "8px", "margin-bottom": "16px" }}>
+        <div style={{ display: "flex", gap: "8px", "margin-bottom": "16px", "align-items": "stretch" }}>
           <For each={STATIONS}>
             {(st) => {
-              const on = () => stations()[st.technique];
-              const plant = () => (on() ? getIngredient(on()!) : undefined);
+              const arr = () => stationOf(st.technique);
               return (
-                <div style={{ flex: 1, "min-height": "58px", padding: "6px", "border-radius": "8px", "text-align": "center", cursor: "pointer",
-                  border: `2px solid ${held() ? "var(--accent-gold)" : on() ? QUALITY_COLOR.fine : "var(--border-default)"}`,
+                <div style={{ flex: 1, "min-height": "58px", padding: "6px", "border-radius": "8px", "text-align": "center", cursor: held() ? "pointer" : "default",
+                  border: `2px solid ${held() ? "var(--accent-gold)" : arr().length ? QUALITY_COLOR.fine : "var(--border-default)"}`,
                   background: held() ? "rgba(212,131,26,0.08)" : "var(--bg-card)",
-                  display: "flex", "flex-direction": "column", "align-items": "center", "justify-content": "center", gap: "1px" }}
+                  display: "flex", "flex-direction": "column", "align-items": "center", "justify-content": "center", gap: "3px" }}
                   onClick={() => clickStation(st.technique)}
-                  title={held() ? `Set on the ${st.place}` : on() ? "Click to clear" : `Empty ${st.place}`}>
+                  title={held() ? `Add to the ${st.place}` : `${st.place}`}>
                   <div style={{ "font-size": "1.2rem" }}>{st.icon}</div>
                   <div style={{ "font-size": "0.7rem", color: "var(--text-secondary)" }}>{st.verb}</div>
-                  <Show when={plant()} fallback={<div style={{ "font-size": "0.64rem", color: "var(--text-muted)" }}>empty</div>}>
-                    <div style={{ "font-size": "0.68rem", color: "var(--text-primary)" }}>{plant()!.icon} {plant()!.name}</div>
+                  <Show when={arr().length > 0} fallback={<div style={{ "font-size": "0.64rem", color: "var(--text-muted)" }}>empty</div>}>
+                    <div style={{ display: "flex", "flex-wrap": "wrap", gap: "3px", "justify-content": "center" }}>
+                      <For each={arr()}>
+                        {(id, i) => (
+                          <span onClick={(e) => { e.stopPropagation(); removeFromStation(st.technique, i()); }}
+                            title={`Remove ${getIngredient(id)?.name}`}
+                            style={{ "font-size": "0.66rem", padding: "1px 6px", "border-radius": "10px", background: "rgba(255,255,255,0.08)", border: "1px solid var(--border-default)", cursor: "pointer" }}>
+                            {getIngredient(id)?.icon} {getIngredient(id)?.name} ✕
+                          </span>
+                        )}
+                      </For>
+                    </div>
                   </Show>
                 </div>
               );
