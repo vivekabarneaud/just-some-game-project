@@ -17,8 +17,7 @@ describe("brew — the free-form alchemy engine", () => {
   it("chamomile steeped alone is a fine, gentle recovery tonic (a base needs no base)", () => {
     const r = brew([p("chamomile", "steep")]);
     expect(r.quality).toBe("fine");
-    expect(amt(r, "ease_gut")).toBeGreaterThan(0);
-    expect(amt(r, "happiness")).toBeGreaterThan(0);
+    expect(amt(r, "general_recovery")).toBeGreaterThan(0); // one effect per technique now
   });
 
   it("a hero with no base carries thin and harsh (the anti-'5 heroes' lever)", () => {
@@ -53,14 +52,13 @@ describe("brew — the free-form alchemy engine", () => {
     const boiled = brew([p("nettle", "boil")]);
     const crushed = brew([p("nettle", "crush")]);
     expect(amt(boiled, "poison")).toBe(0);
-    expect(amt(boiled, "general_recovery")).toBeGreaterThan(0);
+    expect(amt(boiled, "vit")).toBeGreaterThan(0); // boiled → a nourishing tonic
     expect(amt(crushed, "poison")).toBeGreaterThan(0);
   });
 
-  it("a wildcard rides its own risk along (potency laced with a downside)", () => {
+  it("a wildcard's potent effect + the wildcard note", () => {
     const r = brew([p("chamomile", "steep"), p("witchs_cap", "boil")]);
     expect(amt(r, "int")).toBeGreaterThan(0);
-    expect(amt(r, "poison")).toBeGreaterThan(0); // the risk is baked in
     expect(r.notes.some((n) => n.toLowerCase().includes("wildcard"))).toBe(true);
   });
 

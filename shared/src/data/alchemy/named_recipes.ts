@@ -19,17 +19,10 @@ export interface NamedRecipe {
 const P = (ingredientId: string, technique: Placement["technique"]): Placement => ({ ingredientId, technique });
 
 export const NAMED_RECIPES: NamedRecipe[] = [
+  // Camp-tier (boil + crush only) — the early cures.
   {
-    name: "Fever Tonic", icon: "🍵", note: "Breaks a winter chill or a fen-ague.",
-    placements: [P("feverfew", "steep"), P("chamomile", "steep")],
-  },
-  {
-    name: "Settling Draught", icon: "🥤", note: "Settles the summer gripe.",
-    placements: [P("wildmint", "steep"), P("chamomile", "steep")],
-  },
-  {
-    name: "Bitterroot Tonic", icon: "🍶", note: "Cools the fen-ague from aching bones.",
-    placements: [P("willowbark", "boil"), P("chamomile", "steep")],
+    name: "Bitterroot Tonic", icon: "🍶", note: "Cools a fever from aching bones.",
+    placements: [P("willowbark", "boil"), P("chamomile", "crush")],
   },
   {
     name: "Woundwort Salve", icon: "🩹", note: "Staunches a bad cut.",
@@ -40,20 +33,33 @@ export const NAMED_RECIPES: NamedRecipe[] = [
     placements: [P("comfrey", "crush"), P("chamomile", "crush")],
   },
   {
-    name: "Deep-Cough Draught", icon: "🫖", note: "Edda's remedy for a cough gone to the chest.",
-    placements: [P("fenbalm", "boil"), P("feverfew", "steep"), P("honey", "steep")],
+    name: "Sharp-Mind Tonic", icon: "🧠", note: "Whets a caster's wits.",
+    placements: [P("mugwort", "boil"), P("chamomile", "crush")],
   },
   {
-    name: "Herbal Antidote", icon: "🧪", note: "Draws out the fen-venom or a poison.",
-    placements: [P("fenbalm", "steep"), P("chamomile", "steep")],
+    name: "Herbal Antidote", icon: "🧪", note: "Draws out the fen's slow venom or a poison.",
+    placements: [P("fenbalm", "crush"), P("chamomile", "crush")],
   },
   {
-    name: "Calming Draught", icon: "🌙", note: "Steadies the nerves and lifts the heart.",
+    name: "Boar's-Bane Salve", icon: "🐗", note: "Crushed tusk draws the froth out of a rabid bite.",
+    placements: [P("tusk_shard", "crush"), P("chamomile", "crush")],
+  },
+  // Village-tier and beyond (the steeping pot / still unlock the finer medicine).
+  {
+    name: "Fever Tonic", icon: "🍵", note: "Breaks a winter chill or a fen-ague.",
+    placements: [P("feverfew", "steep"), P("chamomile", "steep")],
+  },
+  {
+    name: "Settling Draught", icon: "🥤", note: "Settles the summer gripe.",
+    placements: [P("wildmint", "steep"), P("chamomile", "steep")],
+  },
+  {
+    name: "Calming Draught", icon: "🌙", note: "Steadies the nerves and clears the mind.",
     placements: [P("lavender", "steep"), P("chamomile", "steep")],
   },
   {
-    name: "Sharp-Mind Tonic", icon: "🧠", note: "Whets a caster's wits.",
-    placements: [P("mugwort", "boil"), P("chamomile", "steep")],
+    name: "Deep-Cough Draught", icon: "🫖", note: "Edda's remedy for a cough gone to the chest.",
+    placements: [P("fenbalm", "boil"), P("feverfew", "steep"), P("honey", "steep")],
   },
 ];
 
