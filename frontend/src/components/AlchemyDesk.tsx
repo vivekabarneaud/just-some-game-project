@@ -14,13 +14,15 @@ import { playSound } from "~/engine/sounds";
  *  output box, where Brew spends the herbs → a potion + a saved recipe card.
  *  Functional/placeholder art; the hand-drawn lab drops in later. */
 
-// Technique stations — unlock as the Alchemy Lab levels up.
-const STATIONS: { technique: Technique; place: string; icon: string; verb: string; level: number }[] = [
-  { technique: "crush", place: "Mortar", icon: "🪨", verb: "Crush", level: 1 },
-  { technique: "boil", place: "Cauldron", icon: "🔥", verb: "Boil", level: 1 },
-  { technique: "steep", place: "Steeping Pot", icon: "🫖", verb: "Steep", level: 1 },
-  { technique: "distil", place: "Still", icon: "⚗️", verb: "Distil", level: 2 },
-  { technique: "char", place: "Brazier", icon: "🕯️", verb: "Char", level: 3 },
+// Technique stations — unlock as the SETTLEMENT grows. Camp: mortar + cauldron;
+// the finer preparations arrive with Village / Town / City.
+const TIER_ORDER: Record<string, number> = { camp: 0, village: 1, town: 2, city: 3 };
+const STATIONS: { technique: Technique; place: string; icon: string; verb: string; tier: string; tierName: string }[] = [
+  { technique: "crush", place: "Mortar", icon: "🪨", verb: "Crush", tier: "camp", tierName: "Camp" },
+  { technique: "boil", place: "Cauldron", icon: "🔥", verb: "Boil", tier: "camp", tierName: "Camp" },
+  { technique: "steep", place: "Steeping Pot", icon: "🫖", verb: "Steep", tier: "village", tierName: "Village" },
+  { technique: "distil", place: "Still", icon: "⚗️", verb: "Distil", tier: "town", tierName: "Town" },
+  { technique: "char", place: "Brazier", icon: "🕯️", verb: "Char", tier: "city", tierName: "City" },
 ];
 const ROLE_SHELVES: { role: Role; label: string }[] = [
   { role: "base", label: "Base" }, { role: "hero", label: "Hero ⭐" },
@@ -32,7 +34,8 @@ const KIND_COLOR = { recovery: "var(--accent-green)", combat: "var(--accent-blue
 
 export default function AlchemyDesk() {
   const { state, actions } = useGame();
-  const labLevel = () => state.buildings.find((b) => b.buildingId === "alchemy_lab")?.level ?? 0;
+  const tierRank = () => TIER_ORDER[actions.getSettlementTier()] ?? 0;
+  const stationUnlocked = (st: { tier: string }) => tierRank() >= (TIER_ORDER[st.tier] ?? 0);
 
   // What's "in hand" (picked off a shelf), and what sits on each station.
   const [held, setHeld] = createSignal<string | null>(null);
@@ -132,14 +135,14 @@ export default function AlchemyDesk() {
           <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap", "margin-bottom": "16px" }}>
             <For each={STATIONS}>
               {(st) => {
-                const unlocked = () => labLevel() >= st.level;
+                const unlocked = () => stationUnlocked(st);
                 const on = () => stations()[st.technique];
                 const plant = () => (on() ? getIngredient(on()!) : undefined);
                 const isSig = () => plant()?.signature === st.technique;
                 return (
                   <div
                     onClick={() => clickStation(st.technique, unlocked())}
-                    title={unlocked() ? (held() ? `Set on the ${st.place}` : plant() ? "Click to clear" : `Empty ${st.place}`) : `Unlocks at Alchemy Lab Lv.${st.level}`}
+                    title={unlocked() ? (held() ? `Set on the ${st.place}` : plant() ? "Click to clear" : `Empty ${st.place}`) : `Unlocks at ${st.tierName} tier`}
                     style={{
                       width: "104px", "min-height": "88px", padding: "8px 6px", "border-radius": "8px", "text-align": "center",
                       border: `1px solid ${on() ? QUALITY_COLOR.fine : "var(--border-default)"}`,
@@ -150,7 +153,7 @@ export default function AlchemyDesk() {
                   >
                     <div style={{ "font-size": "1.4rem" }}>{st.icon}</div>
                     <div style={{ "font-size": "0.7rem", color: "var(--text-secondary)" }}>{st.verb}</div>
-                    <Show when={unlocked()} fallback={<div style={{ "font-size": "0.62rem", color: "var(--text-muted)" }}>🔒 Lv.{st.level}</div>}>
+                    <Show when={unlocked()} fallback={<div style={{ "font-size": "0.62rem", color: "var(--text-muted)" }}>🔒 {st.tierName}</div>}>
                       <Show when={plant()} fallback={<div style={{ "font-size": "0.62rem", color: "var(--text-muted)" }}>empty</div>}>
                         <div style={{ "font-size": "0.72rem", color: "var(--text-primary)" }}>{plant()!.icon} {plant()!.name}{isSig() ? " ⭐" : ""}</div>
                       </Show>
