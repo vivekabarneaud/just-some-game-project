@@ -52,11 +52,15 @@ export interface Effect {
   rounds?: number;       // for burst/timed effects
 }
 
+export type IngredientRarity = "common" | "uncommon" | "rare" | "legendary";
+
 export interface Ingredient {
   id: string;            // matches a herb/resource id where possible (chamomile, honey…)
   name: string;
   icon: string;
   role: Role;
+  /** Preciousness — the brew's rarity (frame) is its rarest ingredient. */
+  rarity: IngredientRarity;
   /** Effects produced under each technique. A technique absent here yields only a
    *  faint generic effect (see brew.ts) — "you wasted it, but not entirely". */
   techniques: Partial<Record<Technique, Effect[]>>;
@@ -89,6 +93,8 @@ export interface StoredAlchemyRecipe {
   placements: Placement[];
   effects: Effect[];
   quality: BrewResult["quality"];
+  /** Frame rarity — the rarest ingredient. Optional (older cards default common). */
+  rarity?: IngredientRarity;
   /** World-day the player first brewed it (for the book; set by the caller). */
   discoveredDay?: number;
 }

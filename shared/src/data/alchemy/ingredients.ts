@@ -11,7 +11,7 @@ import type { Ingredient } from "./types.js";
 export const INGREDIENTS: Ingredient[] = [
   // ── BASE — gentle carriers; a brew wants one ────────────────────────────────
   {
-    id: "chamomile", name: "Chamomile", icon: "🌼", role: "base", signature: "steep",
+    id: "chamomile", name: "Chamomile", icon: "🌼", role: "base", rarity: "common", signature: "steep",
     note: "The gentle rounder — softens harsh combos.",
     techniques: {
       crush: [{ channel: "heal_hp", amount: 6, shape: "topical" }],
@@ -19,7 +19,7 @@ export const INGREDIENTS: Ingredient[] = [
     },
   },
   {
-    id: "lavender", name: "Lavender", icon: "🪻", role: "base", signature: "steep",
+    id: "lavender", name: "Lavender", icon: "🪻", role: "base", rarity: "uncommon", signature: "steep",
     note: "A calming base — steadies and clears the mind.",
     techniques: {
       steep: [{ channel: "wis", amount: 1 }],
@@ -27,7 +27,7 @@ export const INGREDIENTS: Ingredient[] = [
     },
   },
   {
-    id: "bone", name: "Bone", icon: "🦴", role: "base", signature: "boil",
+    id: "bone", name: "Bone", icon: "🦴", role: "base", rarity: "common", signature: "boil",
     note: "Boiled to a broth, it nourishes; ground, it fortifies.",
     techniques: {
       boil: [{ channel: "general_recovery", amount: 2 }],
@@ -35,7 +35,7 @@ export const INGREDIENTS: Ingredient[] = [
     },
   },
   {
-    id: "snake_oil", name: "Snake Oil", icon: "🧪", role: "base", signature: "boil",
+    id: "snake_oil", name: "Snake Oil", icon: "🧪", role: "base", rarity: "uncommon", signature: "boil",
     note: "The alchemist's universal solvent — a ready liquid to carry a brew.",
     techniques: {
       boil: [{ channel: "general_recovery", amount: 1 }],
@@ -44,7 +44,7 @@ export const INGREDIENTS: Ingredient[] = [
 
   // ── HERO — the star effect you build around ────────────────────────────────
   {
-    id: "mugwort", name: "Mugwort", icon: "🌿", role: "hero", signature: "boil",
+    id: "mugwort", name: "Mugwort", icon: "🌿", role: "hero", rarity: "common", signature: "boil",
     note: "The witch's herb — mind, magic, and warding smoke.",
     techniques: {
       boil: [{ channel: "int", amount: 2 }],
@@ -54,7 +54,7 @@ export const INGREDIENTS: Ingredient[] = [
     },
   },
   {
-    id: "feverfew", name: "Feverfew", icon: "🌼", role: "hero", signature: "steep",
+    id: "feverfew", name: "Feverfew", icon: "🌼", role: "hero", rarity: "common", signature: "steep",
     note: "The fever-breaker.",
     techniques: {
       boil: [{ channel: "ease_fever", amount: 2 }],
@@ -63,7 +63,7 @@ export const INGREDIENTS: Ingredient[] = [
     },
   },
   {
-    id: "yarrow", name: "Yarrow", icon: "🌾", role: "hero", signature: "crush",
+    id: "yarrow", name: "Yarrow", icon: "🌾", role: "hero", rarity: "common", signature: "crush",
     note: "Woundwort — mends a cut; steeped, it staunches bleeding.",
     techniques: {
       crush: [{ channel: "ease_wound", amount: 3 }],
@@ -72,7 +72,7 @@ export const INGREDIENTS: Ingredient[] = [
     },
   },
   {
-    id: "comfrey", name: "Comfrey", icon: "🌿", role: "hero", signature: "crush",
+    id: "comfrey", name: "Comfrey", icon: "🌿", role: "hero", rarity: "uncommon", signature: "crush",
     note: "Knitbone — mends sprains and bones.",
     techniques: {
       crush: [{ channel: "ease_wound", amount: 3 }],
@@ -80,7 +80,7 @@ export const INGREDIENTS: Ingredient[] = [
     },
   },
   {
-    id: "wildmint", name: "Wildmint", icon: "🌱", role: "hero", signature: "steep",
+    id: "wildmint", name: "Wildmint", icon: "🌱", role: "hero", rarity: "common", signature: "steep",
     note: "Settles a turned stomach.",
     techniques: {
       steep: [{ channel: "ease_gut", amount: 3 }],
@@ -88,7 +88,7 @@ export const INGREDIENTS: Ingredient[] = [
     },
   },
   {
-    id: "willowbark", name: "Willowbark", icon: "🪵", role: "hero", signature: "boil",
+    id: "willowbark", name: "Willowbark", icon: "🪵", role: "hero", rarity: "uncommon", signature: "boil",
     note: "Bitter bark — cools a fever; a poultice dulls an ache.",
     techniques: {
       boil: [{ channel: "ease_fever", amount: 3 }],
@@ -97,7 +97,7 @@ export const INGREDIENTS: Ingredient[] = [
     },
   },
   {
-    id: "nightbloom", name: "Nightbloom", icon: "🌺", role: "hero", signature: "distil",
+    id: "nightbloom", name: "Nightbloom", icon: "🌺", role: "hero", rarity: "rare", signature: "distil",
     note: "A moonlit flower — potent for the caster.",
     techniques: {
       steep: [{ channel: "int", amount: 3 }],
@@ -105,7 +105,7 @@ export const INGREDIENTS: Ingredient[] = [
     },
   },
   {
-    id: "fenbalm", name: "Fenbalm", icon: "🌾", role: "hero", signature: "boil",
+    id: "fenbalm", name: "Fenbalm", icon: "🌾", role: "hero", rarity: "uncommon", signature: "boil",
     note: "Edda's marsh cure-all — the deep-cough (boiled), the fen's slow venom (a crushed poultice).",
     techniques: {
       boil: [{ channel: "ease_fever", amount: 5 }],
@@ -115,7 +115,7 @@ export const INGREDIENTS: Ingredient[] = [
 
   // ── CATALYST — no effect of its own; boosts/extends the rest ────────────────
   {
-    id: "honey", name: "Honey", icon: "🍯", role: "catalyst", signature: "steep",
+    id: "honey", name: "Honey", icon: "🍯", role: "catalyst", rarity: "common", signature: "steep",
     note: "Stir in (steep) to AMPLIFY the brew; boil to syrup to EXTEND it.",
     techniques: {
       steep: [{ channel: "amplify", amount: 0.25 }],
@@ -125,7 +125,7 @@ export const INGREDIENTS: Ingredient[] = [
 
   // ── TOXIN — offensive on purpose (poisons, coatings) ───────────────────────
   {
-    id: "nettle", name: "Nettle", icon: "🍃", role: "toxin", signature: "boil",
+    id: "nettle", name: "Nettle", icon: "🍃", role: "toxin", rarity: "common", signature: "boil",
     note: "Boil it and the sting cooks out to a nourishing tonic; crush the raw sting and it bites.",
     techniques: {
       boil: [{ channel: "vit", amount: 2 }],
@@ -134,7 +134,7 @@ export const INGREDIENTS: Ingredient[] = [
     },
   },
   {
-    id: "nightshade", name: "Nightshade", icon: "🖤", role: "toxin", signature: "crush",
+    id: "nightshade", name: "Nightshade", icon: "🖤", role: "toxin", rarity: "rare", signature: "crush",
     note: "Deadly — a potent poison and the assassin's friend.",
     techniques: {
       crush: [{ channel: "poison", amount: 3, shape: "sustained", rounds: 3 }],
@@ -143,7 +143,7 @@ export const INGREDIENTS: Ingredient[] = [
     },
   },
   {
-    id: "serpent_fang", name: "Serpent Fang", icon: "🐍", role: "toxin", signature: "crush",
+    id: "serpent_fang", name: "Serpent Fang", icon: "🐍", role: "toxin", rarity: "uncommon", signature: "crush",
     note: "Still glistening with venom — crushed, it makes a wicked coating.",
     techniques: {
       crush: [{ channel: "poison", amount: 3, shape: "sustained", rounds: 3 }],
@@ -153,7 +153,7 @@ export const INGREDIENTS: Ingredient[] = [
 
   // ── WILDCARD — potent, a little unruly ─────────────────────────────────────
   {
-    id: "witchs_cap", name: "Witch's-Cap", icon: "🍄", role: "wildcard", signature: "boil",
+    id: "witchs_cap", name: "Witch's-Cap", icon: "🍄", role: "wildcard", rarity: "rare", signature: "boil",
     note: "An odd mushroom — a lot of power, a little unruly.",
     techniques: {
       boil: [{ channel: "int", amount: 3 }],
@@ -161,7 +161,7 @@ export const INGREDIENTS: Ingredient[] = [
     },
   },
   {
-    id: "moonpetal", name: "Moonpetal", icon: "🪷", role: "wildcard", signature: "distil",
+    id: "moonpetal", name: "Moonpetal", icon: "🪷", role: "wildcard", rarity: "legendary", signature: "distil",
     note: "Legendary aether-petal — rare and unpredictably strong.",
     techniques: {
       steep: [{ channel: "heal_hp", amount: 6 }],
@@ -171,7 +171,7 @@ export const INGREDIENTS: Ingredient[] = [
 
   // ── MATERIALS (tier-1 monster parts as role-ingredients) ───────────────────
   {
-    id: "tusk_shard", name: "Tusk Shard", icon: "🦷", role: "hero", signature: "crush",
+    id: "tusk_shard", name: "Tusk Shard", icon: "🦷", role: "hero", rarity: "common", signature: "crush",
     note: "A broken boar tusk. Crushed to powder, it draws the froth out of a rabid bite.",
     techniques: {
       crush: [{ channel: "cure_froth", amount: 1 }],

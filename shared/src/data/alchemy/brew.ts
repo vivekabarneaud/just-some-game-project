@@ -4,8 +4,20 @@
 // into the ingredient data (a wildcard contributes its own downside), so the
 // engine stays deterministic while combos still surprise.
 
-import type { Effect, EffectChannel, Placement, BrewResult, Technique } from "./types.js";
+import type { Effect, EffectChannel, Placement, BrewResult, Technique, IngredientRarity } from "./types.js";
 import { getIngredient } from "./ingredients.js";
+
+const RARITY_RANK: Record<IngredientRarity, number> = { common: 0, uncommon: 1, rare: 2, legendary: 3 };
+
+/** A brew's rarity = its rarest ingredient (drives the card frame). */
+export function brewRarity(placements: Placement[]): IngredientRarity {
+  let best: IngredientRarity = "common";
+  for (const p of placements) {
+    const r = getIngredient(p.ingredientId)?.rarity;
+    if (r && RARITY_RANK[r] > RARITY_RANK[best]) best = r;
+  }
+  return best;
+}
 
 /** Deterministic id for a set of placements — order-independent, so the same
  *  combo always yields the same recipe card / stacks in inventory. */
