@@ -123,18 +123,24 @@ export default function Inventory() {
         );
       })()}
 
-      {/* Potions (combat + mission supplies) */}
+      {/* Potions — supply items (fixed) AND brewed free-form potions. */}
       {(() => {
-        const potionItems = () => state.inventory
-          .filter((inv) => inv.quantity > 0 && isSupplyItem(inv.itemId))
-          .map((inv) => {
+        const KIND_COLOR: Record<string, string> = { recovery: "var(--accent-green)", combat: "var(--accent-blue)", offensive: "var(--accent-red)" };
+        type Row = { inv: { itemId: string; quantity: number }; name: string; icon: string; image?: string; description: string; brewed?: { effects: { channel: string; amount: number; shape?: string; rounds?: number }[]; quality: string } };
+        const potionItems = (): Row[] => {
+          const rows: Row[] = [];
+          for (const inv of state.inventory) {
+            if (inv.quantity <= 0) continue;
+            const brewed = state.alchemyRecipes?.[inv.itemId];
+            if (brewed) { rows.push({ inv, name: brewed.name, icon: "🧪", description: "", brewed }); continue; }
+            if (!isSupplyItem(inv.itemId)) continue;
             const item = getItem(inv.itemId);
-            if (item) return { inv, name: item.name, icon: item.icon, image: item.image, description: item.description };
+            if (item) { rows.push({ inv, name: item.name, icon: item.icon, image: item.image, description: item.description }); continue; }
             const alch = ALCHEMY_RECIPES.find((r) => r.id === inv.itemId);
-            if (alch) return { inv, name: alch.name, icon: alch.icon, image: alch.image, description: alch.description };
-            return null;
-          })
-          .filter(Boolean) as { inv: { itemId: string; quantity: number }; name: string; icon: string; image?: string; description: string }[];
+            if (alch) rows.push({ inv, name: alch.name, icon: alch.icon, image: alch.image, description: alch.description });
+          }
+          return rows;
+        };
         return (
           <Show when={potionItems().length > 0}>
             <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "10px", color: "var(--text-primary)" }}>
@@ -147,8 +153,8 @@ export default function Inventory() {
                   const hasMission = !!info?.mission;
                   const hasCombat = !!info?.combat;
                   const hasRecovery = !!info?.recovery;
-                  const categoryLabel = hasRecovery ? "recovery" : (hasMission && hasCombat) ? "any" : hasCombat ? "combat" : "mission";
-                  const usageHint = hasRecovery ? "Heals between encounters" : (hasMission && hasCombat) ? "Any mission" : hasCombat ? "Used during combat" : "Non-combat missions";
+                  const categoryLabel = p.brewed ? `brewed · ${p.brewed.quality}` : hasRecovery ? "recovery" : (hasMission && hasCombat) ? "any" : hasCombat ? "combat" : "mission";
+                  const usageHint = p.brewed ? "Brewed at the Alchemy Lab" : hasRecovery ? "Heals between encounters" : (hasMission && hasCombat) ? "Any mission" : hasCombat ? "Used during combat" : "Non-combat missions";
                   return (
                     <div class="building-card">
                       <span class="building-card-category">{categoryLabel}</span>
@@ -164,8 +170,12 @@ export default function Inventory() {
                           </div>
                         </div>
                       </div>
-                      <div style={{ "font-size": "0.8rem", color: "var(--accent-green)", "margin-top": "4px" }}>
-                        <PotionEffects itemId={p.inv.itemId} fallback={p.description} />
+                      <div style={{ "font-size": "0.8rem", "margin-top": "4px" }}>
+                        <Show when={p.brewed} fallback={<span style={{ color: "var(--accent-green)" }}><PotionEffects itemId={p.inv.itemId} fallback={p.description} /></span>}>
+                          <For each={p.brewed!.effects as any[]}>
+                            {(e) => <div style={{ color: KIND_COLOR[effectKind(e.channel)] }}>{describeEffect(e)}</div>}
+                          </For>
+                        </Show>
                       </div>
                       <div style={{ "margin-top": "6px", "font-size": "0.85rem", color: "var(--text-secondary)" }}>
                         In stock: <strong>{p.inv.quantity}</strong>
@@ -385,46 +395,6 @@ export default function Inventory() {
                         <div class="building-card-title">{mat.name} <span style={{ color: "var(--accent-gold)", "font-weight": 600 }}>×{inv.quantity}</span></div>
                         <div style={{ "font-size": "0.8rem", color: "var(--text-secondary)", "font-style": "italic" }}>
                           {mat.description}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </For>
-            </div>
-          </Show>
-        );
-      })()}
-
-      {/* Brewed Potions — from the free-form Alchemy Lab. They live in their own
-          store (state.alchemyRecipes = what they do; inventory = how many). */}
-      {(() => {
-        const KIND_COLOR: Record<string, string> = { recovery: "var(--accent-green)", combat: "var(--accent-blue)", offensive: "var(--accent-red)" };
-        const owned = () => Object.values(state.alchemyRecipes ?? {})
-          .map((r) => ({ r, n: state.inventory.find((i) => i.itemId === r.id)?.quantity ?? 0 }))
-          .filter((x) => x.n > 0)
-          .sort((a, b) => a.r.name.localeCompare(b.r.name));
-        return (
-          <Show when={owned().length > 0}>
-            <h3 style={{ "font-family": "var(--font-heading)", "margin-top": "24px", "margin-bottom": "10px", color: "var(--text-primary)" }}>
-              Brewed Potions
-            </h3>
-            <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-bottom": "10px" }}>
-              Brewed at the Alchemy Lab. Use them on a resting hero or an ailing founder.
-            </div>
-            <div class="buildings-grid">
-              <For each={owned()}>
-                {({ r, n }) => (
-                  <div class="building-card">
-                    <span class="building-card-category">brewed · {r.quality}</span>
-                    <div class="building-card-header" style={{ "margin-top": "4px" }}>
-                      <div class="building-card-icon">🧪</div>
-                      <div>
-                        <div class="building-card-title">{r.name} <span style={{ color: "var(--accent-gold)", "font-weight": 600 }}>×{n}</span></div>
-                        <div style={{ "font-size": "0.78rem", "margin-top": "2px" }}>
-                          <For each={r.effects}>
-                            {(e) => <div style={{ color: KIND_COLOR[effectKind(e.channel)] }}>{describeEffect(e)}</div>}
-                          </For>
                         </div>
                       </div>
                     </div>
