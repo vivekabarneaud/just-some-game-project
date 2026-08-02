@@ -196,6 +196,10 @@ export interface AdventurerMissionSupplies {
   potion?: string;    // item ID — combat use
   food?: string;      // item ID — mission start buff
   recovery?: string;  // item ID — bandage / mending potion
+  /** When `potion` is a brewed free-form potion, its effect vector is resolved
+   *  here at deploy time so the pure combat sim can apply it (buffs/heal at
+   *  combat start). See applySupplies + docs/DESIGN_APOTHECARY. */
+  brewEffects?: import("../alchemy/types.js").Effect[];
 }
 
 export interface ActiveMission {

@@ -240,6 +240,7 @@ import {
   STORY_MISSIONS,
   isExpedition,
   getMissionPhase,
+  type AdventurerMissionSupplies,
 } from "@medieval-realm/shared/data/missions";
 import { getEnemy } from "@medieval-realm/shared/data/enemies";
 import { forageBloomNow } from "~/data/weather";
@@ -7476,6 +7477,10 @@ export function GameProvider(props: ParentProps) {
             const inv = s.inventory.find((i) => i.itemId === itemId);
             if (inv && inv.quantity > 0) inv.quantity -= 1;
           }
+          // A brewed potion in the potion slot: resolve its effect vector so the
+          // combat sim can apply its buffs at combat start.
+          const brewed = sup.potion ? s.alchemyRecipes?.[sup.potion] : undefined;
+          if (brewed) (sup as AdventurerMissionSupplies).brewEffects = brewed.effects;
         }
         const activeMission: any = {
           missionId: template.id,

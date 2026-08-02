@@ -16,6 +16,11 @@ import {
   getDeployCost,
 } from "@medieval-realm/shared/data/adventurers";
 import { getItem, getAvailableSupplies, getAvailableFood, getSupplyEffect, getCombatPotionEffect, getFoodEffect, getRecoveryEffect, MATCHED_FOOD_HP_BONUS } from "@medieval-realm/shared/data/items";
+import { describeEffect } from "@medieval-realm/shared/data/alchemy/describe";
+
+// Channels a brewed potion applies as a COMBAT buff (see setup.applyBrewBuffs).
+const BREW_COMBAT_CHANNELS = new Set(["str", "dex", "int", "vit", "wis", "crit", "accuracy", "dodge", "parry", "initiative", "mobility", "presence", "luck", "damage_pct", "defense_pct", "heal_hp"]);
+const isBrewCombatUseful = (effects: { channel: string }[]) => effects.some((e) => BREW_COMBAT_CHANNELS.has(e.channel) || e.channel.startsWith("resist_"));
 import type { AdventurerMissionSupplies } from "@medieval-realm/shared/data/missions";
 import SupplySlot from "./SupplySlot";
 import {
@@ -797,7 +802,7 @@ export default function MissionAssemblyPanel(props: Props) {
                         const isCombat = () => !!freshMission().encounters?.length || isExpedition(freshMission());
                         const potionOptions = () => {
                           const cat = isCombat() ? "combat" as const : "mission" as const;
-                          return getAvailableSupplies(state.inventory, cat)
+                          const opts = getAvailableSupplies(state.inventory, cat)
                             .map((s) => {
                               const current = adventurerSupplies()[advId]?.potion === s.item.id ? 1 : 0;
                               const remainingQty = s.qty - assignedCount(s.item.id) + current;
@@ -818,6 +823,18 @@ export default function MissionAssemblyPanel(props: Props) {
                               return { id: s.item.id, name: s.item.name, icon: s.item.icon, qty: remainingQty, hint };
                             })
                             .filter(Boolean) as { id: string; name: string; icon: string; qty: number; hint: string }[];
+                          // Brewed potions with a combat buff (applied at fight start).
+                          if (isCombat()) {
+                            for (const r of Object.values(state.alchemyRecipes ?? {})) {
+                              if (!isBrewCombatUseful(r.effects)) continue;
+                              const current = adventurerSupplies()[advId]?.potion === r.id ? 1 : 0;
+                              const remainingQty = (state.inventory.find((i) => i.itemId === r.id)?.quantity ?? 0) - assignedCount(r.id) + current;
+                              if (remainingQty <= 0) continue;
+                              const hint = r.effects.filter((e) => BREW_COMBAT_CHANNELS.has(e.channel) || e.channel.startsWith("resist_")).map((e) => describeEffect(e)).join(" · ");
+                              opts.push({ id: r.id, name: r.name, icon: "🧪", qty: remainingQty, hint });
+                            }
+                          }
+                          return opts;
                         };
                         const foodOptions = () => getAvailableFood(state.inventory)
                           .map((s) => {

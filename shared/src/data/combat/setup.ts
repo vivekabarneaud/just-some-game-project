@@ -26,6 +26,11 @@ export function applySupplies(
       if (potionEff) unit.combatPotion = potionEff;
     }
 
+    // Brewed free-form potion: apply its buffs at combat start. First slice —
+    // stat/sub-stat buffs, +damage%/+defense%, resists, and a pre-combat heal.
+    // (Poison coatings + throwables are a later slice.)
+    if (sup.brewEffects) applyBrewBuffs(unit, sup.brewEffects);
+
     if (sup.food) applyFood(unit, team, sup.food);
 
     if (sup.recovery && !skipRecoveryHeal) {
@@ -35,6 +40,40 @@ export function applySupplies(
         unit.hp = Math.min(unit.maxHp, unit.hp + healAmount);
       }
     }
+  }
+}
+
+const PRIMARY = new Set(["str", "dex", "int", "vit", "wis"]);
+const SUBSTAT = new Set(["crit", "accuracy", "dodge", "parry", "initiative", "mobility", "presence", "luck"]);
+const WHOLE_FIGHT = 999;
+
+/** Apply a brewed potion's buff effects to a unit at combat start. Sustained
+ *  effects last the fight; a burst effect keeps its `rounds`. Offensive channels
+ *  (poison/aoe/confuse/weaken/slow) are ignored here — a later slice. */
+function applyBrewBuffs(unit: CombatUnit, effects: import("../missions/types.js").AdventurerMissionSupplies["brewEffects"]): void {
+  if (!effects) return;
+  for (const e of effects) {
+    const ch = e.channel;
+    const rounds = e.shape === "burst" ? (e.rounds ?? 2) : WHOLE_FIGHT;
+    if (PRIMARY.has(ch)) {
+      (unit as any)[ch] = ((unit as any)[ch] ?? 0) + e.amount;
+    } else if (SUBSTAT.has(ch)) {
+      unit.raw = unit.raw ?? {};
+      (unit.raw as any)[ch] = ((unit.raw as any)[ch] ?? 0) + e.amount;
+    } else if (ch === "damage_pct") {
+      unit.damageBoost = { pct: (unit.damageBoost?.pct ?? 0) + e.amount, rounds };
+    } else if (ch === "defense_pct") {
+      unit.defenseBoost = { pct: (unit.defenseBoost?.pct ?? 0) + e.amount, rounds };
+    } else if (ch === "heal_hp") {
+      unit.hp = Math.min(unit.maxHp, unit.hp + e.amount);
+    } else if (ch.startsWith("resist_")) {
+      const school = ch.replace("resist_", "");
+      if (school !== "confuse" && school !== "undead") {
+        unit.resist = unit.resist ?? {};
+        (unit.resist as any)[school] = ((unit.resist as any)[school] ?? 0) + e.amount;
+      }
+    }
+    // poison / weaken / slow / confuse / aoe_* → later slice (coatings + throwables)
   }
 }
 
