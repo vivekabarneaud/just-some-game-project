@@ -98,6 +98,14 @@ export const INGREDIENTS: Ingredient[] = [
       distil: [{ channel: "int", amount: 6, shape: "burst", rounds: 2 }, { channel: "wis", amount: 2, shape: "burst", rounds: 2 }],
     },
   },
+  {
+    id: "fenbalm", name: "Fenbalm", icon: "🌾", role: "hero", signature: "boil",
+    note: "Edda's marsh herb — the one thing that reaches the deep-cough.",
+    techniques: {
+      boil: [{ channel: "ease_fever", amount: 5 }, { channel: "general_recovery", amount: 1 }],
+      steep: [{ channel: "ease_fever", amount: 3 }],
+    },
+  },
 
   // ── CATALYST — little of its own; boosts/extends the rest ───────────────────
   {

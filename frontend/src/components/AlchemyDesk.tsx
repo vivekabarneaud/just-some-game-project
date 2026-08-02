@@ -3,6 +3,7 @@ import { useGame } from "~/engine/gameState";
 import { brew, recipeIdFor } from "@medieval-realm/shared/data/alchemy/brew";
 import { INGREDIENTS, getIngredient } from "@medieval-realm/shared/data/alchemy/ingredients";
 import { describeEffect, effectKind } from "@medieval-realm/shared/data/alchemy/describe";
+import { NAMED_RECIPES, matchNamedRecipe, namedRecipeId } from "@medieval-realm/shared/data/alchemy/named_recipes";
 import type { Technique, Role, Placement } from "@medieval-realm/shared/data/alchemy/types";
 import { playSound } from "~/engine/sounds";
 
@@ -58,8 +59,14 @@ export default function AlchemyDesk() {
     for (const pl of placements()) need.set(pl.ingredientId, (need.get(pl.ingredientId) ?? 0) + 1);
     return [...need].filter(([id, n]) => actions.getBrewIngredientQty(id) < n).map(([id]) => getIngredient(id)?.name ?? id);
   });
+  const matchedName = createMemo(() => matchNamedRecipe(placements())?.name);
   const alreadyKnown = createMemo(() => !!state.alchemyRecipes?.[recipeIdFor(placements())]);
-  const recipeBook = createMemo(() => Object.values(state.alchemyRecipes ?? {}));
+  const invQty = (id: string) => state.inventory.find((i) => i.itemId === id)?.quantity ?? 0;
+
+  // Known recipes (curated, always in the book) + the player's own discoveries.
+  const knownCards = NAMED_RECIPES.map((r) => ({ id: namedRecipeId(r), name: r.name, icon: r.icon, note: r.note, placements: r.placements }));
+  const namedIds = new Set(knownCards.map((c) => c.id));
+  const discoveredCards = createMemo(() => Object.values(state.alchemyRecipes ?? {}).filter((r) => !namedIds.has(r.id)));
 
   const doBrew = () => { if (actions.brewPotion(placements())) playSound("build"); };
   const loadRecipe = (r: { placements: Placement[] }) => {
@@ -80,18 +87,36 @@ export default function AlchemyDesk() {
       </div>
 
       <div style={{ display: "flex", gap: "20px", "flex-wrap": "wrap", "align-items": "flex-start" }}>
-        {/* ── LEFT: recipe book ── */}
-        <div style={{ flex: "1 1 240px", "max-width": "300px" }}>
+        {/* ── LEFT: recipe book — known (curated) + your discoveries ── */}
+        <div style={{ flex: "1 1 240px", "max-width": "300px", "max-height": "420px", overflow: "auto" }}>
           <div style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "margin-bottom": "6px" }}>📖 Recipe book</div>
-          <Show when={recipeBook().length > 0} fallback={<div style={{ "font-size": "0.78rem", color: "var(--text-muted)", "font-style": "italic" }}>No recipes yet — brew something to start your book.</div>}>
-            <div style={{ display: "grid", "grid-template-columns": "1fr 1fr", gap: "6px", "max-height": "360px", overflow: "auto" }}>
-              <For each={recipeBook()}>
+          <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "1px", "margin-bottom": "4px" }}>Known</div>
+          <div style={{ display: "grid", "grid-template-columns": "1fr 1fr", gap: "6px" }}>
+            <For each={knownCards}>
+              {(r) => {
+                const owned = () => invQty(r.id);
+                return (
+                  <button onClick={() => loadRecipe(r)} title={`${r.note} — load onto the stations`}
+                    style={{ "text-align": "left", padding: "6px 8px", background: "var(--bg-card)", border: `1px solid ${owned() > 0 ? "var(--accent-green)" : "var(--border-default)"}`, "border-radius": "5px", cursor: "pointer", color: "var(--text-primary)" }}>
+                    <div style={{ "font-size": "0.78rem", "font-weight": 600, "line-height": 1.2 }}>{r.icon} {r.name}</div>
+                    <div style={{ "font-size": "0.66rem", color: "var(--text-muted)", "margin-top": "2px" }}>
+                      {r.placements.map((pl) => getIngredient(pl.ingredientId)?.icon).join(" ")}{owned() > 0 ? ` ×${owned()}` : ""}
+                    </div>
+                  </button>
+                );
+              }}
+            </For>
+          </div>
+          <Show when={discoveredCards().length > 0}>
+            <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "1px", "margin": "10px 0 4px" }}>Your discoveries</div>
+            <div style={{ display: "grid", "grid-template-columns": "1fr 1fr", gap: "6px" }}>
+              <For each={discoveredCards()}>
                 {(r) => (
                   <button onClick={() => loadRecipe(r)} title="Load onto the stations"
                     style={{ "text-align": "left", padding: "6px 8px", background: "var(--bg-card)", border: `1px solid ${QUALITY_COLOR[r.quality]}`, "border-radius": "5px", cursor: "pointer", color: "var(--text-primary)" }}>
                     <div style={{ "font-size": "0.78rem", color: QUALITY_COLOR[r.quality], "font-weight": 600, "line-height": 1.2 }}>{r.name}</div>
                     <div style={{ "font-size": "0.66rem", color: "var(--text-muted)", "margin-top": "2px" }}>
-                      {r.placements.map((pl) => getIngredient(pl.ingredientId)?.icon).join(" ")} ×{state.inventory.find((i) => i.itemId === r.id)?.quantity ?? 0}
+                      {r.placements.map((pl) => getIngredient(pl.ingredientId)?.icon).join(" ")} ×{invQty(r.id)}
                     </div>
                   </button>
                 )}
@@ -167,8 +192,8 @@ export default function AlchemyDesk() {
             <div style={{ "font-size": "1.6rem", color: "var(--text-muted)", "padding-top": "18px" }}>⤵</div>
             <div style={{ flex: 1, "max-width": "320px" }}>
               <div style={{ padding: "12px", border: `1px solid ${QUALITY_COLOR[result().quality]}`, "border-radius": "8px", background: "rgba(0,0,0,0.15)" }}>
-                <div style={{ "font-size": "1.1rem", "font-weight": 600, color: QUALITY_COLOR[result().quality] }}>{result().name}</div>
-                <div style={{ "font-size": "0.68rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "1px", "margin-bottom": "6px" }}>{result().quality}{alreadyKnown() ? " · known" : ""}</div>
+                <div style={{ "font-size": "1.1rem", "font-weight": 600, color: matchedName() ? "var(--accent-green)" : QUALITY_COLOR[result().quality] }}>{matchedName() ?? result().name}</div>
+                <div style={{ "font-size": "0.68rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "1px", "margin-bottom": "6px" }}>{matchedName() ? "known recipe" : result().quality}{!matchedName() && alreadyKnown() ? " · known" : ""}</div>
                 <Show when={result().effects.length > 0} fallback={<div style={{ color: "var(--text-muted)", "font-style": "italic", "font-size": "0.82rem" }}>Nothing worth drinking yet.</div>}>
                   <For each={result().effects}>{(e) => <div style={{ "font-size": "0.82rem", color: KIND_COLOR[effectKind(e.channel)], padding: "1px 0" }}>{describeEffect(e)}</div>}</For>
                 </Show>

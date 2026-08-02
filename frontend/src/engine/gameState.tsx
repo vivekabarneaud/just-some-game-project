@@ -297,6 +297,7 @@ import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { AILMENTS, getAilment, type BuildingAilment } from "@medieval-realm/shared/data/ailments";
 import { brew as brewAlchemy, recipeIdFor } from "@medieval-realm/shared/data/alchemy/brew";
 import { getIngredient as getAlchemyIngredient } from "@medieval-realm/shared/data/alchemy/ingredients";
+import { matchNamedRecipe } from "@medieval-realm/shared/data/alchemy/named_recipes";
 import type { Placement as AlchemyPlacement, StoredAlchemyRecipe } from "@medieval-realm/shared/data/alchemy/types";
 import { EXOTIC_IDS } from "@medieval-realm/shared/data/exotics";
 import { ALCHEMY_RECIPES, getDiscoverableRecipes, RESEARCH_BASE_COST } from "@medieval-realm/shared/data/alchemy_recipes";
@@ -7248,22 +7249,26 @@ export function GameProvider(props: ParentProps) {
       for (const p of filled) cost.set(p.ingredientId, (cost.get(p.ingredientId) ?? 0) + 1);
       for (const [id, n] of cost) if (getResourceQty(state, id) < n) return false;
       const result = brewAlchemy(filled);
+      // A curated combo takes its lore name (a known recipe is always "fine").
+      const named = matchNamedRecipe(filled);
+      const name = named?.name ?? result.name;
+      const quality = named ? "fine" as const : result.quality;
       const id = recipeIdFor(filled);
       setState(produce((s) => {
         for (const [ingId, n] of cost) spendResource(s, ingId, n);
         s.alchemyRecipes ??= {};
         if (!s.alchemyRecipes[id]) {
           s.alchemyRecipes[id] = {
-            id, name: result.name, placements: filled, effects: result.effects,
-            quality: result.quality, discoveredDay: s.year,
+            id, name, placements: filled, effects: result.effects,
+            quality, discoveredDay: s.year,
           };
-          pushEvent(s, "building_completed", "📖", `New recipe discovered: ${result.name}.`);
+          pushEvent(s, "building_completed", "📖", `New recipe discovered: ${name}.`);
         }
         const inv = s.inventory.find((i) => i.itemId === id);
         if (inv) inv.quantity += 1;
         else s.inventory.push({ itemId: id, quantity: 1 });
         s.potions += 1;
-        pushEvent(s, "building_completed", "🧪", `Brewed ${result.name}.`);
+        pushEvent(s, "building_completed", "🧪", `Brewed ${name}.`);
       }));
       scheduleSave();
       return true;

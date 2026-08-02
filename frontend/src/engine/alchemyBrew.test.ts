@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { brew } from "@medieval-realm/shared/data/alchemy/brew";
+import { brew, recipeIdFor } from "@medieval-realm/shared/data/alchemy/brew";
+import { NAMED_RECIPES, matchNamedRecipe } from "@medieval-realm/shared/data/alchemy/named_recipes";
+import { getIngredient } from "@medieval-realm/shared/data/alchemy/ingredients";
 import type { Placement } from "@medieval-realm/shared/data/alchemy/types";
 
 const p = (ingredientId: string, technique: Placement["technique"]): Placement => ({ ingredientId, technique });
@@ -69,5 +71,34 @@ describe("brew — the free-form alchemy engine", () => {
   it("a wrong technique is mostly wasted (faint generic only) and says so", () => {
     const r = brew([p("chamomile", "boil")]); // chamomile isn't for boiling
     expect(r.notes.some((n) => n.toLowerCase().includes("wasn't made for"))).toBe(true);
+  });
+});
+
+describe("named recipes — curated combos the settlement knows", () => {
+  it("every named recipe uses real ingredients", () => {
+    for (const r of NAMED_RECIPES) {
+      for (const pl of r.placements) {
+        expect(getIngredient(pl.ingredientId), `${r.name} → ${pl.ingredientId}`).toBeTruthy();
+      }
+    }
+  });
+
+  it("matches a combo order-independently and returns its lore name", () => {
+    const fever = NAMED_RECIPES.find((r) => r.name === "Fever Tonic")!;
+    const reversed = [...fever.placements].reverse();
+    expect(matchNamedRecipe(reversed)?.name).toBe("Fever Tonic");
+    // A different combo isn't the Fever Tonic.
+    expect(matchNamedRecipe([p("nightshade", "distil")])).toBeUndefined();
+  });
+
+  it("each named recipe's ids are unique (no two combos collide)", () => {
+    const ids = NAMED_RECIPES.map((r) => recipeIdFor(r.placements));
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("brewing a named recipe's placements yields real effects (a Fever Tonic eases fever)", () => {
+    const fever = NAMED_RECIPES.find((r) => r.name === "Fever Tonic")!;
+    const r = brew(fever.placements);
+    expect(r.effects.some((e) => e.channel === "ease_fever")).toBe(true);
   });
 });
