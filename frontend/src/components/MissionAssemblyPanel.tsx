@@ -1097,7 +1097,7 @@ export default function MissionAssemblyPanel(props: Props) {
                 const adv = () => slotAssignments()[i()];
                 const potionOptions = () => {
                   const cat = isCombat() ? "combat" as const : "mission" as const;
-                  return getAvailableSupplies(state.inventory, cat)
+                  const opts = getAvailableSupplies(state.inventory, cat)
                     .map((s) => {
                       const remainingQty = s.qty - assignedCount(s.item.id) + (adv() && adventurerSupplies()[adv()!.id]?.potion === s.item.id ? 1 : 0);
                       if (remainingQty <= 0) return null;
@@ -1117,6 +1117,18 @@ export default function MissionAssemblyPanel(props: Props) {
                       return { id: s.item.id, name: s.item.name, icon: s.item.icon, qty: remainingQty, hint };
                     })
                     .filter(Boolean) as { id: string; name: string; icon: string; qty: number; hint: string }[];
+                  // Brewed potions with a combat buff (applied at fight start).
+                  if (isCombat()) {
+                    for (const r of Object.values(state.alchemyRecipes ?? {})) {
+                      if (!isBrewCombatUseful(r.effects)) continue;
+                      const cur = adv() && adventurerSupplies()[adv()!.id]?.potion === r.id ? 1 : 0;
+                      const remainingQty = (state.inventory.find((i) => i.itemId === r.id)?.quantity ?? 0) - assignedCount(r.id) + cur;
+                      if (remainingQty <= 0) continue;
+                      const hint = r.effects.filter((e) => BREW_COMBAT_CHANNELS.has(e.channel) || e.channel.startsWith("resist_")).map((e) => describeEffect(e)).join(" · ");
+                      opts.push({ id: r.id, name: r.name, icon: "🧪", qty: remainingQty, hint });
+                    }
+                  }
+                  return opts;
                 };
                 const foodOptions = () => {
                   return getAvailableFood(state.inventory)

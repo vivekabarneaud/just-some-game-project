@@ -2,7 +2,7 @@ import { createSignal, createMemo, For, Show } from "solid-js";
 import { useGame } from "~/engine/gameState";
 import { brew, recipeIdFor } from "@medieval-realm/shared/data/alchemy/brew";
 import { INGREDIENTS, getIngredient } from "@medieval-realm/shared/data/alchemy/ingredients";
-import { describeEffect, effectKind } from "@medieval-realm/shared/data/alchemy/describe";
+import { describeEffectParts, effectKind } from "@medieval-realm/shared/data/alchemy/describe";
 import { NAMED_RECIPES, matchNamedRecipe, namedRecipeId } from "@medieval-realm/shared/data/alchemy/named_recipes";
 import type { Technique, Role, Placement } from "@medieval-realm/shared/data/alchemy/types";
 import { playSound } from "~/engine/sounds";
@@ -195,7 +195,10 @@ export default function AlchemyDesk() {
                 <div style={{ "font-size": "1.1rem", "font-weight": 600, color: matchedName() ? "var(--accent-green)" : QUALITY_COLOR[result().quality] }}>{matchedName() ?? result().name}</div>
                 <div style={{ "font-size": "0.68rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "1px", "margin-bottom": "6px" }}>{matchedName() ? "known recipe" : result().quality}{!matchedName() && alreadyKnown() ? " · known" : ""}</div>
                 <Show when={result().effects.length > 0} fallback={<div style={{ color: "var(--text-muted)", "font-style": "italic", "font-size": "0.82rem" }}>Nothing worth drinking yet.</div>}>
-                  <For each={result().effects}>{(e) => <div style={{ "font-size": "0.82rem", color: KIND_COLOR[effectKind(e.channel)], padding: "1px 0" }}>{describeEffect(e)}</div>}</For>
+                  <For each={result().effects}>{(e) => {
+                    const p = describeEffectParts(e);
+                    return <div style={{ "font-size": "0.82rem", color: KIND_COLOR[effectKind(e.channel)], padding: "1px 0" }}><b>{p.label}</b>{p.detail ? `: ${p.detail}` : ""}</div>;
+                  }}</For>
                 </Show>
                 <Show when={result().notes.length > 0}>
                   <div style={{ "margin-top": "8px", "border-top": "1px solid var(--border-default)", "padding-top": "6px" }}>

@@ -3,7 +3,7 @@ import { useGame, BUILDING_TOOLS, getBuildingTool } from "~/engine/gameState";
 import { ITEMS, MATERIALS, getItem, getMaterial, getPotionInfo, isSupplyItem, isFoodItem, getFoodEffect, MATCHED_FOOD_HP_BONUS, ARMOR_TYPE_META } from "@medieval-realm/shared/data/items";
 import { ALCHEMY_RECIPES } from "@medieval-realm/shared/data/alchemy_recipes";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
-import { describeEffect, effectKind } from "@medieval-realm/shared/data/alchemy/describe";
+import { describeEffectParts, effectKind } from "@medieval-realm/shared/data/alchemy/describe";
 import WeaponDamage from "~/components/WeaponDamage";
 import { BUILDINGS } from "~/data/buildings";
 import { VEGGIES } from "~/data/gardens";
@@ -173,7 +173,10 @@ export default function Inventory() {
                       <div style={{ "font-size": "0.8rem", "margin-top": "4px" }}>
                         <Show when={p.brewed} fallback={<span style={{ color: "var(--accent-green)" }}><PotionEffects itemId={p.inv.itemId} fallback={p.description} /></span>}>
                           <For each={p.brewed!.effects as any[]}>
-                            {(e) => <div style={{ color: KIND_COLOR[effectKind(e.channel)] }}>{describeEffect(e)}</div>}
+                            {(e) => {
+                              const pt = describeEffectParts(e);
+                              return <div style={{ color: KIND_COLOR[effectKind(e.channel)] }}><b>{pt.label}</b>{pt.detail ? `: ${pt.detail}` : ""}</div>;
+                            }}
                           </For>
                         </Show>
                       </div>
