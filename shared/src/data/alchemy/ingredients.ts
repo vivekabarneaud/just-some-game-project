@@ -59,9 +59,9 @@ export const INGREDIENTS: Ingredient[] = [
   },
   {
     id: "yarrow", name: "Yarrow", icon: "🌾", role: "hero", signature: "crush",
-    note: "Woundwort — staunches a cut.",
+    note: "Woundwort — staunches a cut and stops bleeding.",
     techniques: {
-      crush: [{ channel: "ease_wound", amount: 3 }, { channel: "heal_hp", amount: 8, shape: "topical" }],
+      crush: [{ channel: "ease_wound", amount: 3 }, { channel: "heal_hp", amount: 8, shape: "topical" }, { channel: "cure_bleed", amount: 1 }],
       steep: [{ channel: "general_recovery", amount: 1 }, { channel: "ease_fever", amount: 1 }],
       distil: [{ channel: "heal_hp", amount: 20, shape: "burst" }],
     },
@@ -100,10 +100,10 @@ export const INGREDIENTS: Ingredient[] = [
   },
   {
     id: "fenbalm", name: "Fenbalm", icon: "🌾", role: "hero", signature: "boil",
-    note: "Edda's marsh herb — the one thing that reaches the deep-cough.",
+    note: "Edda's marsh cure-all — the deep-cough, and the fen's own venom.",
     techniques: {
       boil: [{ channel: "ease_fever", amount: 5 }, { channel: "general_recovery", amount: 1 }],
-      steep: [{ channel: "ease_fever", amount: 3 }],
+      steep: [{ channel: "ease_fever", amount: 3 }, { channel: "cure_venom", amount: 1 }, { channel: "cure_poison", amount: 1 }],
     },
   },
 

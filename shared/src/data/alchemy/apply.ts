@@ -15,10 +15,12 @@ export interface RecoverySummary {
   /** Applies to any ailment line. */
   general: number;
   happiness: number;
+  /** Adventurer condition types this brew clears outright (bleed/poison/venom/froth). */
+  cures: string[];
 }
 
 export function summarizeRecovery(effects: Effect[]): RecoverySummary {
-  const s: RecoverySummary = { healHp: 0, easeFever: 0, easeGut: 0, easeWound: 0, general: 0, happiness: 0 };
+  const s: RecoverySummary = { healHp: 0, easeFever: 0, easeGut: 0, easeWound: 0, general: 0, happiness: 0, cures: [] };
   for (const e of effects) {
     switch (e.channel) {
       case "heal_hp": s.healHp += e.amount; break;
@@ -27,6 +29,10 @@ export function summarizeRecovery(effects: Effect[]): RecoverySummary {
       case "ease_wound": s.easeWound += e.amount; break;
       case "general_recovery": s.general += e.amount; break;
       case "happiness": s.happiness += e.amount; break;
+      case "cure_bleed": s.cures.push("bleed"); break;
+      case "cure_poison": s.cures.push("poison"); break;
+      case "cure_venom": s.cures.push("venom"); break;
+      case "cure_froth": s.cures.push("froth"); break;
     }
   }
   return s;

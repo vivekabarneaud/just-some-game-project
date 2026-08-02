@@ -7170,17 +7170,24 @@ export function GameProvider(props: ParentProps) {
     useRecoveryItem(adventurerId, itemId) {
       const adv = state.adventurers.find((a) => a.id === adventurerId);
       if (!adv || !adv.alive || adv.onMission) return false;
-      // A brewed potion heals flat HP (its heal_hp). Conditions (venom/froth/
-      // bleed) still need their dedicated cures — brews don't clear them yet.
+      // A brewed potion heals flat HP (its heal_hp) and/or clears the adventurer
+      // conditions its cure_* effects name (bleed / poison / venom).
       const brewed = state.alchemyRecipes?.[itemId];
       if (brewed) {
-        const heal = summarizeRecovery(brewed.effects).healHp;
+        const sum = summarizeRecovery(brewed.effects);
         const inv0 = state.inventory.find((i) => i.itemId === itemId);
         const maxHp0 = calcAdventurerMaxHp(adv);
-        if (heal <= 0 || !inv0 || inv0.quantity <= 0 || (adv.currentHp ?? maxHp0) >= maxHp0) return false;
+        const wounded = (adv.currentHp ?? maxHp0) < maxHp0;
+        const healUseful = sum.healHp > 0 && wounded;
+        const cureUseful = (adv.conditions ?? []).some((c) => sum.cures.includes(c.type));
+        if ((!healUseful && !cureUseful) || !inv0 || inv0.quantity <= 0) return false;
         setState(produce((s) => {
           const a = s.adventurers.find((x) => x.id === adventurerId)!;
-          a.currentHp = Math.min(calcAdventurerMaxHp(a), (a.currentHp ?? calcAdventurerMaxHp(a)) + heal);
+          if (sum.healHp > 0) a.currentHp = Math.min(calcAdventurerMaxHp(a), (a.currentHp ?? calcAdventurerMaxHp(a)) + sum.healHp);
+          if (sum.cures.length) {
+            const rest = (a.conditions ?? []).filter((c) => !sum.cures.includes(c.type));
+            a.conditions = rest.length ? rest : undefined;
+          }
           s.inventory.find((i) => i.itemId === itemId)!.quantity -= 1;
         }));
         scheduleSave();

@@ -8,7 +8,7 @@ import type { Effect, EffectChannel } from "./types.js";
 
 export type EffectKind = "recovery" | "combat" | "offensive";
 
-const RECOVERY = new Set<EffectChannel>(["heal_hp", "ease_fever", "ease_gut", "ease_wound", "general_recovery", "happiness"]);
+const RECOVERY = new Set<EffectChannel>(["heal_hp", "ease_fever", "ease_gut", "ease_wound", "general_recovery", "happiness", "cure_bleed", "cure_poison", "cure_venom", "cure_froth"]);
 const OFFENSIVE = new Set<EffectChannel>(["poison", "weaken", "slow", "confuse", "aoe_fire", "aoe_frost"]);
 
 export function effectKind(ch: EffectChannel): EffectKind {
@@ -43,6 +43,10 @@ export function describeEffect(e: Effect): string {
     case "ease_wound": return `Mends wounds — about ${n}h off the recovery (cures if it's enough)`;
     case "general_recovery": return `Speeds recovery — about ${n}h`;
     case "happiness": return `+${n} happiness`;
+    case "cure_bleed": return `Stops bleeding`;
+    case "cure_poison": return `Cures poison`;
+    case "cure_venom": return `Cures the fen-venom`;
+    case "cure_froth": return `Cures the froth`;
     // ── Offensive ──
     case "poison": return `Poison — ${n} damage a turn for ${e.rounds ?? 3} turns`;
     case "weaken": return `Weakens the foe (−${n}% their damage)`;

@@ -39,14 +39,15 @@ export default function RecoveryActions(props: { adventurer: Adventurer }) {
       if (!healUseful && !cureUseful) continue;
       result.push({ id: s.item.id, icon: s.item.icon, name: s.item.name, qty: s.qty });
     }
-    // Brewed healing potions (heal_hp) also patch a wounded hero.
-    if (wounded) {
-      for (const r of Object.values(state.alchemyRecipes ?? {})) {
-        const qty = state.inventory.find((i) => i.itemId === r.id)?.quantity ?? 0;
-        if (qty <= 0) continue;
-        if (summarizeRecovery(r.effects).healHp <= 0) continue;
-        result.push({ id: r.id, icon: "🧪", name: r.name, qty });
-      }
+    // Brewed potions: heal a wounded hero and/or cure a condition they carry.
+    for (const r of Object.values(state.alchemyRecipes ?? {})) {
+      const qty = state.inventory.find((i) => i.itemId === r.id)?.quantity ?? 0;
+      if (qty <= 0) continue;
+      const sum = summarizeRecovery(r.effects);
+      const healUseful = sum.healHp > 0 && wounded;
+      const cureUseful = (adv.conditions ?? []).some((c) => sum.cures.includes(c.type));
+      if (!healUseful && !cureUseful) continue;
+      result.push({ id: r.id, icon: "🧪", name: r.name, qty });
     }
     return result;
   };

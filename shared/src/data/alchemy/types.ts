@@ -28,6 +28,8 @@ export type EffectChannel =
   | "ease_wound"         // cut / wrenched back / bleed
   | "general_recovery"   // a little off any ailment / +regen
   | "happiness"          // settlement morale
+  // Condition cures — clear a lingering adventurer condition outright
+  | "cure_bleed" | "cure_poison" | "cure_venom" | "cure_froth"
   // Resistances (per damage school; "undead" = vs hollow/undead damage)
   | "resist_fire" | "resist_frost" | "resist_lightning" | "resist_aether"
   | "resist_light" | "resist_hollow" | "resist_nature" | "resist_undead"

@@ -3,6 +3,7 @@ import { useGame, BUILDING_TOOLS, getBuildingTool } from "~/engine/gameState";
 import { ITEMS, MATERIALS, getItem, getMaterial, getPotionInfo, isSupplyItem, isFoodItem, getFoodEffect, MATCHED_FOOD_HP_BONUS, ARMOR_TYPE_META } from "@medieval-realm/shared/data/items";
 import { ALCHEMY_RECIPES } from "@medieval-realm/shared/data/alchemy_recipes";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
+import { describeEffect, effectKind } from "@medieval-realm/shared/data/alchemy/describe";
 import WeaponDamage from "~/components/WeaponDamage";
 import { BUILDINGS } from "~/data/buildings";
 import { VEGGIES } from "~/data/gardens";
@@ -47,7 +48,13 @@ export default function Inventory() {
         <span>🪻 Fiber: {Math.floor(state.fiber)}</span>
         <span>⚒️ Iron: {Math.floor(state.iron)}</span>
         <span>👕 Clothing: {Math.floor(state.clothing)}</span>
-        <span>🧪 Potions: {state.potions}</span>
+        <span>🧪 Potions: {(() => {
+          let n = 0;
+          for (const inv of state.inventory) {
+            if (inv.quantity > 0 && (isSupplyItem(inv.itemId) || state.alchemyRecipes?.[inv.itemId])) n += inv.quantity;
+          }
+          return n;
+        })()}</span>
         <span>💎 Gems: {state.gems}</span>
       </div>
 
@@ -378,6 +385,46 @@ export default function Inventory() {
                         <div class="building-card-title">{mat.name} <span style={{ color: "var(--accent-gold)", "font-weight": 600 }}>×{inv.quantity}</span></div>
                         <div style={{ "font-size": "0.8rem", color: "var(--text-secondary)", "font-style": "italic" }}>
                           {mat.description}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </For>
+            </div>
+          </Show>
+        );
+      })()}
+
+      {/* Brewed Potions — from the free-form Alchemy Lab. They live in their own
+          store (state.alchemyRecipes = what they do; inventory = how many). */}
+      {(() => {
+        const KIND_COLOR: Record<string, string> = { recovery: "var(--accent-green)", combat: "var(--accent-blue)", offensive: "var(--accent-red)" };
+        const owned = () => Object.values(state.alchemyRecipes ?? {})
+          .map((r) => ({ r, n: state.inventory.find((i) => i.itemId === r.id)?.quantity ?? 0 }))
+          .filter((x) => x.n > 0)
+          .sort((a, b) => a.r.name.localeCompare(b.r.name));
+        return (
+          <Show when={owned().length > 0}>
+            <h3 style={{ "font-family": "var(--font-heading)", "margin-top": "24px", "margin-bottom": "10px", color: "var(--text-primary)" }}>
+              Brewed Potions
+            </h3>
+            <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-bottom": "10px" }}>
+              Brewed at the Alchemy Lab. Use them on a resting hero or an ailing founder.
+            </div>
+            <div class="buildings-grid">
+              <For each={owned()}>
+                {({ r, n }) => (
+                  <div class="building-card">
+                    <span class="building-card-category">brewed · {r.quality}</span>
+                    <div class="building-card-header" style={{ "margin-top": "4px" }}>
+                      <div class="building-card-icon">🧪</div>
+                      <div>
+                        <div class="building-card-title">{r.name} <span style={{ color: "var(--accent-gold)", "font-weight": 600 }}>×{n}</span></div>
+                        <div style={{ "font-size": "0.78rem", "margin-top": "2px" }}>
+                          <For each={r.effects}>
+                            {(e) => <div style={{ color: KIND_COLOR[effectKind(e.channel)] }}>{describeEffect(e)}</div>}
+                          </For>
                         </div>
                       </div>
                     </div>

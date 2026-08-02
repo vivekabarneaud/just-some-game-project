@@ -44,6 +44,10 @@ export const NAMED_RECIPES: NamedRecipe[] = [
     placements: [P("fenbalm", "boil"), P("feverfew", "steep"), P("honey", "steep")],
   },
   {
+    name: "Herbal Antidote", icon: "🧪", note: "Draws out the fen-venom or a poison.",
+    placements: [P("fenbalm", "steep"), P("chamomile", "steep")],
+  },
+  {
     name: "Calming Draught", icon: "🌙", note: "Steadies the nerves and lifts the heart.",
     placements: [P("lavender", "steep"), P("chamomile", "steep")],
   },
