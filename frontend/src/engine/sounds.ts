@@ -17,6 +17,7 @@ export type SoundId =
   | "build"
   | "coins"
   | "bubbles"
+  | "brew"
   | "kitchen"
   | "bell"
   | "nav"
@@ -62,6 +63,7 @@ const SOUNDS: Record<SoundId, SoundDef> = {
   // Coin pouch for paid actions (recruiting). Distinct from `notify`'s reward jingle.
   coins:     { url: [`${R2_BASE}/ui_coins_1.wav`, `${R2_BASE}/ui_coins_2.wav`], volume: 0.6 },
   bubbles:   { url: `${R2_BASE}/ui_bubbles.wav`, volume: 0.6 },
+  brew:      { url: `${R2_BASE}/ui_brew.wav`, volume: 0.7 },
   kitchen:   { url: `${R2_BASE}/kitchen.wav`,   volume: 0.7 },
   bell:      { url: `${R2_BASE}/ui_bell.wav`,   volume: 0.5 },
   // Semantic UI sounds:

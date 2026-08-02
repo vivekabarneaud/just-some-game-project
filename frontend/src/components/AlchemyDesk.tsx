@@ -56,7 +56,7 @@ export default function AlchemyDesk() {
   };
   const short = createMemo(() => missingOf(placements()));
 
-  const doBrew = () => { if (actions.brewPotion(placements())) playSound("bubbles"); };
+  const doBrew = () => { if (actions.brewPotion(placements())) playSound("brew"); };
   const loadRecipe = (r: { placements: Placement[] }) => {
     const next: Partial<Record<Technique, string[]>> = {};
     for (const pl of r.placements) if (STATIONS.some((s) => s.technique === pl.technique)) (next[pl.technique] ??= []).push(pl.ingredientId);
