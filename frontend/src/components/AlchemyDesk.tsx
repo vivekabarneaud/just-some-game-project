@@ -62,12 +62,12 @@ export default function AlchemyDesk() {
   // Recipe book — only recipes makeable with the current stations.
   const makeable = (pl: Placement[]) => pl.every((p) => STATIONS.some((s) => s.technique === p.technique));
   const knownCards = NAMED_RECIPES.filter((r) => makeable(r.placements))
-    .map((r) => ({ id: namedRecipeId(r), name: r.name, icon: r.icon, placements: r.placements, quality: "fine" as const, rarity: brewRarity(r.placements) }));
+    .map((r) => ({ id: namedRecipeId(r), name: r.name, icon: r.icon, placements: r.placements, quality: "fine" as const, rarity: brewRarity(r.placements), effects: brew(r.placements).effects }));
   const namedIds = new Set(NAMED_RECIPES.map((r) => namedRecipeId(r)));
   const book = createMemo(() => {
     const discovered = Object.values(state.alchemyRecipes ?? {})
       .filter((r) => !namedIds.has(r.id) && makeable(r.placements))
-      .map((r) => ({ id: r.id, name: r.name, icon: getIngredient(r.placements[0]?.ingredientId)?.icon ?? "🧪", placements: r.placements, quality: r.quality, rarity: r.rarity ?? brewRarity(r.placements) }));
+      .map((r) => ({ id: r.id, name: r.name, icon: getIngredient(r.placements[0]?.ingredientId)?.icon ?? "🧪", placements: r.placements, quality: r.quality, rarity: r.rarity ?? brewRarity(r.placements), effects: r.effects }));
     return [...knownCards, ...discovered];
   });
   const pageCount = () => Math.max(1, Math.ceil(book().length / PER_PAGE));
@@ -96,15 +96,21 @@ export default function AlchemyDesk() {
   return (
     <div style={{ margin: "8px 0 24px", display: "flex", gap: "20px", "flex-wrap": "wrap", "align-items": "flex-start" }}>
       {/* ── LEFT: recipe book on parchment (paginated, item-style cards) ── */}
-      <div class="parchment-panel" style={{ flex: "1.4 1 480px", "max-width": "660px", padding: "18px 20px", "border-radius": "8px", "align-self": "stretch" }}>
+      <div class="parchment-panel" style={{ flex: "1.4 1 460px", "max-width": "610px", "min-height": "560px", padding: "18px 20px", "border-radius": "8px", "align-self": "stretch" }}>
         <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "12px" }}>📖 Recipe Book</h3>
         <Show when={book().length > 0} fallback={<div style={{ "font-size": "0.8rem", "font-style": "italic", opacity: 0.7 }}>No recipes yet.</div>}>
           <div style={{ display: "grid", "grid-template-columns": "1fr 1fr", gap: "12px" }}>
             <For each={pageItems()}>
               {(r) => (
                 <FramedItemCard dark rarity={r.rarity} quality={r.quality} icon={r.icon}
-                  title={r.name} subtitle={invQty(r.id) > 0 ? `×${invQty(r.id)}` : "not brewed"}
-                  hoverTitle="Load onto the stations" onClick={() => loadRecipe(r)} minHeight="88px" />
+                  title={<>{r.name}{invQty(r.id) > 0 ? <span style={{ opacity: 0.7, "font-weight": 400 }}> ×{invQty(r.id)}</span> : ""}</>}
+                  hoverTitle="Load onto the stations" onClick={() => loadRecipe(r)} minHeight="116px">
+                  <div style={{ "margin-top": "2px" }}>
+                    <For each={r.effects}>
+                      {(e) => <div style={{ "font-size": "0.68rem", color: KIND_COLOR[effectKind(e.channel)], "line-height": 1.3 }}>{describeEffectParts(e).label}</div>}
+                    </For>
+                  </div>
+                </FramedItemCard>
               )}
             </For>
           </div>
@@ -147,21 +153,20 @@ export default function AlchemyDesk() {
           </For>
         </div>
 
-        {/* Shelves — one button per role, opens a picker modal. Stacked into a
-            compact grid so they don't eat horizontal room. */}
+        {/* Shelves — one button per role, opens a picker modal. Stacked 2-2-1,
+            centered, compact (no icon). */}
         <div style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "margin-bottom": "6px" }}>🧺 Shelves</div>
-        <div style={{ display: "grid", "grid-template-columns": "repeat(auto-fill, minmax(84px, 1fr))", gap: "6px", "margin-bottom": "16px" }}>
+        <div style={{ display: "flex", "flex-wrap": "wrap", "justify-content": "center", gap: "6px", "margin-bottom": "16px" }}>
           <For each={ROLE_SHELVES}>
             {(sh) => {
               const count = () => shelfPlants(sh.role).length;
               return (
                 <button onClick={() => setShelfModal(sh.role)}
-                  style={{ padding: "6px 4px", "border-radius": "8px", cursor: "pointer",
+                  style={{ flex: "0 0 46%", padding: "5px 8px", "border-radius": "8px", cursor: "pointer",
                     border: "1px solid var(--border-default)", background: "var(--bg-card)", color: "var(--text-primary)",
-                    display: "flex", "flex-direction": "column", "align-items": "center", gap: "1px", opacity: count() > 0 ? 1 : 0.5 }}>
-                  <div style={{ "font-size": "1.15rem" }}>{sh.icon}</div>
-                  <div style={{ "font-size": "0.72rem" }}>{sh.label}</div>
-                  <div style={{ "font-size": "0.62rem", color: "var(--text-muted)" }}>{count()} on hand</div>
+                    display: "flex", "align-items": "baseline", "justify-content": "center", gap: "6px", opacity: count() > 0 ? 1 : 0.5 }}>
+                  <span style={{ "font-size": "0.8rem" }}>{sh.label}</span>
+                  <span style={{ "font-size": "0.64rem", color: "var(--text-muted)" }}>{count()} on hand</span>
                 </button>
               );
             }}
