@@ -7,6 +7,7 @@ import { NAMED_RECIPES, matchNamedRecipe, namedRecipeId } from "@medieval-realm/
 import type { Technique, Role, Placement, Effect } from "@medieval-realm/shared/data/alchemy/types";
 import { playSound } from "~/engine/sounds";
 import FramedModal from "~/components/FramedModal";
+import FramedItemCard, { itemFrameUrl as frameUrl, gradeFilter } from "~/components/FramedItemCard";
 
 /** The free-form brewing lab. Left: the recipe book on parchment (paginated,
  *  framed item-style cards). Right: the lab — technique STATIONS up top, ROLE
@@ -25,13 +26,7 @@ const ROLE_SHELVES: { role: Role; label: string; icon: string }[] = [
 ];
 const QUALITY_COLOR = { fine: "var(--accent-green)", rough: "var(--accent-gold)", dubious: "var(--accent-red)" };
 const KIND_COLOR = { recovery: "var(--accent-green)", combat: "var(--accent-blue)", offensive: "var(--accent-red)" };
-const frameUrl = (rarity?: string) => `/images/frames/item_frame_${rarity ?? "common"}.png`;
-const gradeFilter = (q: string) => q === "dubious" ? "grayscale(0.7) brightness(0.82)" : q === "rough" ? "saturate(0.65)" : "none";
 const PER_PAGE = 6;
-
-// Shared item-card icon box — square, no radius, a touch bigger (used by recipe
-// cards and plant cards so every card reads the same).
-const ICON_BOX = { width: "54px", height: "54px", "flex-shrink": 0, background: "rgba(0,0,0,0.25)", display: "flex", "align-items": "center", "justify-content": "center", "font-size": "1.9rem" } as const;
 const r0 = (n: number) => Math.floor(n); // quantities are whole on the shelf
 
 export default function AlchemyDesk() {
@@ -106,22 +101,11 @@ export default function AlchemyDesk() {
         <Show when={book().length > 0} fallback={<div style={{ "font-size": "0.8rem", "font-style": "italic", opacity: 0.7 }}>No recipes yet.</div>}>
           <div style={{ display: "grid", "grid-template-columns": "1fr 1fr", gap: "10px" }}>
             <For each={pageItems()}>
-              {(r) => {
-                const owned = () => invQty(r.id);
-                return (
-                  <button onClick={() => loadRecipe(r)} title="Load onto the stations"
-                    style={{ "text-align": "left", padding: "10px", cursor: "pointer", color: "#2a2012", "min-height": "78px",
-                      background: "rgba(255,255,255,0.14)", border: "14px solid transparent",
-                      "border-image": `url(${frameUrl(r.rarity)}) 34 stretch`, filter: gradeFilter(r.quality),
-                      display: "flex", gap: "10px", "align-items": "flex-start" }}>
-                    <div style={{ ...ICON_BOX, background: "rgba(42,32,18,0.12)" }}>{r.icon}</div>
-                    <div>
-                      <div style={{ "font-size": "0.82rem", "font-weight": 700, "line-height": 1.15 }}>{r.name}</div>
-                      <div style={{ "font-size": "0.66rem", opacity: 0.75, "margin-top": "3px" }}>{owned() > 0 ? `×${owned()}` : "not brewed"}</div>
-                    </div>
-                  </button>
-                );
-              }}
+              {(r) => (
+                <FramedItemCard dark rarity={r.rarity} quality={r.quality} icon={r.icon}
+                  title={r.name} subtitle={invQty(r.id) > 0 ? `×${invQty(r.id)}` : "not brewed"}
+                  hoverTitle="Load onto the stations" onClick={() => loadRecipe(r)} minHeight="70px" />
+              )}
             </For>
           </div>
           <Show when={pageCount() > 1}>
@@ -226,22 +210,14 @@ export default function AlchemyDesk() {
               <div style={{ display: "grid", "grid-template-columns": "1fr 1fr", gap: "8px", padding: "4px 2px" }}>
                 <For each={shelfPlants(role())}>
                   {(ing) => (
-                    <button onClick={() => pickFromShelf(ing.id)} title={`Pick ${ing.name}`}
-                      style={{ "text-align": "left", padding: "12px", cursor: "pointer", color: "var(--text-primary)", "min-height": "150px",
-                        background: "var(--bg-card)", border: "12px solid transparent", "border-image": `url(${frameUrl(ing.rarity)}) 34 stretch`,
-                        display: "flex", "flex-direction": "column", "align-items": "flex-start", "justify-content": "flex-start" }}>
-                      <div style={{ display: "flex", gap: "8px", "align-items": "center", "margin-bottom": "6px" }}>
-                        <div style={ICON_BOX}>{ing.icon}</div>
-                        <div>
-                          <div style={{ "font-size": "0.84rem", "font-weight": 600 }}>{ing.name}</div>
-                          <div style={{ "font-size": "0.66rem", color: "var(--text-muted)", "text-transform": "capitalize" }}>{ing.rarity} {ing.role} · ×{r0(actions.getBrewIngredientQty(ing.id))}</div>
-                        </div>
-                      </div>
-                      <div style={{ "font-size": "0.72rem", color: "var(--text-secondary)", "font-style": "italic", "line-height": 1.3, "margin-bottom": "4px" }}>{ing.note}</div>
+                    <FramedItemCard rarity={ing.rarity} icon={ing.icon} title={ing.name}
+                      subtitle={<span style={{ "text-transform": "capitalize" }}>{ing.rarity} {ing.role} · ×{r0(actions.getBrewIngredientQty(ing.id))}</span>}
+                      hoverTitle={`Pick ${ing.name}`} onClick={() => pickFromShelf(ing.id)} minHeight="138px">
+                      <div style={{ "font-size": "0.72rem", color: "var(--text-secondary)", "font-style": "italic", "line-height": 1.3 }}>{ing.note}</div>
                       <Show when={plantHint(ing.id)}>
                         <div style={{ "font-size": "0.68rem", color: "var(--accent-green)" }}>{plantHint(ing.id)}</div>
                       </Show>
-                    </button>
+                    </FramedItemCard>
                   )}
                 </For>
               </div>
