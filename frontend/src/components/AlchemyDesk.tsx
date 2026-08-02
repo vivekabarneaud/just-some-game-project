@@ -102,15 +102,12 @@ export default function AlchemyDesk() {
           <div style={{ display: "grid", "grid-template-columns": "1fr 1fr", gap: "12px" }}>
             <For each={pageItems()}>
               {(r) => (
-                <FramedItemCard dark rarity={r.rarity} quality={r.quality} icon={r.icon}
-                  title={<>{r.name}{invQty(r.id) > 0 ? <span style={{ opacity: 0.7, "font-weight": 400 }}> ×{invQty(r.id)}</span> : ""}</>}
-                  hoverTitle="Load onto the stations" onClick={() => loadRecipe(r)} minHeight="116px">
-                  <div style={{ "margin-top": "2px" }}>
-                    <For each={r.effects}>
-                      {(e) => <div style={{ "font-size": "0.68rem", color: KIND_COLOR[effectKind(e.channel)], "line-height": 1.3 }}>{describeEffectParts(e).label}</div>}
-                    </For>
-                  </div>
-                </FramedItemCard>
+                <FramedItemCard rarity={r.rarity} quality={r.quality} icon={r.icon}
+                  title={<>{r.name}{invQty(r.id) > 0 ? <span style={{ opacity: 0.65, "font-weight": 400 }}> ×{invQty(r.id)}</span> : ""}</>}
+                  tooltip="Load onto the stations" onClick={() => loadRecipe(r)} minHeight="96px"
+                  body={<For each={r.effects}>
+                    {(e) => <div style={{ "font-size": "0.68rem", color: KIND_COLOR[effectKind(e.channel)], "line-height": 1.3 }}>{describeEffectParts(e).label}</div>}
+                  </For>} />
               )}
             </For>
           </div>
@@ -218,7 +215,7 @@ export default function AlchemyDesk() {
                   {(ing) => (
                     <FramedItemCard rarity={ing.rarity} icon={ing.icon} title={ing.name}
                       subtitle={<span style={{ "text-transform": "capitalize" }}>{ing.rarity} {ing.role} · ×{r0(actions.getBrewIngredientQty(ing.id))}</span>}
-                      hoverTitle={`Pick ${ing.name}`} onClick={() => pickFromShelf(ing.id)} minHeight="138px">
+                      tooltip={`Pick ${ing.name}`} onClick={() => pickFromShelf(ing.id)} minHeight="138px">
                       <div style={{ "font-size": "0.72rem", color: "var(--text-secondary)", "font-style": "italic", "line-height": 1.3 }}>{ing.note}</div>
                       <Show when={plantHint(ing.id)}>
                         <div style={{ "font-size": "0.68rem", color: "var(--accent-green)" }}>{plantHint(ing.id)}</div>

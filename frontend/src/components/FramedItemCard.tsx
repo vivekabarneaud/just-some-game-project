@@ -1,9 +1,9 @@
 import { Show, type JSX } from "solid-js";
+import Tooltip from "~/components/Tooltip";
 
 /** A reusable item card: a hand-drawn rarity frame around a square icon box,
- *  a title + optional subtitle, and optional extra content below — content laid
- *  out top-left. Used by the alchemy recipe book + plant picker; meant to be the
- *  standard card look for items/recipes across the game. */
+ *  a title + optional subtitle/body (in the text column, beside the icon), and
+ *  optional extra content below — all top-left. The standard item/recipe card. */
 
 export const itemFrameUrl = (rarity?: string) => `/images/frames/item_frame_${rarity ?? "common"}.png`;
 /** Grade sheen over the frame (brew quality): fine bright, rough dulled, dubious grey. */
@@ -17,21 +17,23 @@ export default function FramedItemCard(props: {
   icon: JSX.Element;
   title: JSX.Element;
   subtitle?: JSX.Element;
+  /** Content in the text column, under the title (beside the icon). */
+  body?: JSX.Element;
   onClick?: () => void;
-  /** Native tooltip. */
-  hoverTitle?: string;
+  /** Hover tooltip (uses the shared Tooltip component). */
+  tooltip?: string;
   /** Parchment variant — dark ink text + light icon backing. */
   dark?: boolean;
   minHeight?: string;
   iconSize?: number;
-  /** Extra content below the header (description, effect lines…). */
+  /** Extra content BELOW the header (full width). */
   children?: JSX.Element;
 }) {
   const size = () => props.iconSize ?? 52;
-  return (
-    <button onClick={props.onClick} title={props.hoverTitle}
+  const card = (
+    <button onClick={props.onClick}
       style={{
-        "text-align": "left", padding: "6px", cursor: props.onClick ? "pointer" : "default",
+        width: "100%", "text-align": "left", padding: "6px", cursor: props.onClick ? "pointer" : "default",
         color: props.dark ? "#2a2012" : "var(--text-primary)", "min-height": props.minHeight,
         background: props.dark ? "rgba(255,255,255,0.14)" : "var(--bg-card)",
         border: "12px solid transparent", "border-image": `url(${itemFrameUrl(props.rarity)}) 34 stretch`,
@@ -49,9 +51,11 @@ export default function FramedItemCard(props: {
           <Show when={props.subtitle}>
             <div style={{ "font-size": "0.66rem", opacity: 0.78, "margin-top": "2px" }}>{props.subtitle}</div>
           </Show>
+          <Show when={props.body}><div style={{ "margin-top": "4px" }}>{props.body}</div></Show>
         </div>
       </div>
       {props.children}
     </button>
   );
+  return props.tooltip ? <Tooltip text={props.tooltip} block>{card}</Tooltip> : card;
 }
