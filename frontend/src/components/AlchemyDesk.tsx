@@ -96,15 +96,15 @@ export default function AlchemyDesk() {
   return (
     <div style={{ margin: "8px 0 24px", display: "flex", gap: "20px", "flex-wrap": "wrap", "align-items": "flex-start" }}>
       {/* ── LEFT: recipe book on parchment (paginated, item-style cards) ── */}
-      <div class="parchment-panel" style={{ flex: "1 1 380px", "max-width": "440px", padding: "16px", "border-radius": "8px" }}>
-        <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "10px" }}>📖 Recipe Book</h3>
+      <div class="parchment-panel" style={{ flex: "1.4 1 480px", "max-width": "660px", padding: "18px 20px", "border-radius": "8px", "align-self": "stretch" }}>
+        <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "12px" }}>📖 Recipe Book</h3>
         <Show when={book().length > 0} fallback={<div style={{ "font-size": "0.8rem", "font-style": "italic", opacity: 0.7 }}>No recipes yet.</div>}>
-          <div style={{ display: "grid", "grid-template-columns": "1fr 1fr", gap: "10px" }}>
+          <div style={{ display: "grid", "grid-template-columns": "1fr 1fr", gap: "12px" }}>
             <For each={pageItems()}>
               {(r) => (
                 <FramedItemCard dark rarity={r.rarity} quality={r.quality} icon={r.icon}
                   title={r.name} subtitle={invQty(r.id) > 0 ? `×${invQty(r.id)}` : "not brewed"}
-                  hoverTitle="Load onto the stations" onClick={() => loadRecipe(r)} minHeight="70px" />
+                  hoverTitle="Load onto the stations" onClick={() => loadRecipe(r)} minHeight="88px" />
               )}
             </For>
           </div>
@@ -119,27 +119,27 @@ export default function AlchemyDesk() {
       </div>
 
       {/* ── RIGHT: the working lab ── */}
-      <div style={{ flex: "2 1 420px" }}>
-        {/* Stations (highlight when a plant is held) */}
+      <div style={{ flex: "1 1 340px" }}>
+        {/* Stations (small, highlight when a plant is held) */}
         <div style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "margin-bottom": "8px" }}>
           ⚗️ Alchemy lab {held() ? <span style={{ color: "var(--accent-gold)" }}>· holding {getIngredient(held()!)?.icon} {getIngredient(held()!)?.name} — click a station</span> : ""}
         </div>
-        <div style={{ display: "flex", gap: "10px", "margin-bottom": "18px" }}>
+        <div style={{ display: "flex", gap: "8px", "margin-bottom": "16px" }}>
           <For each={STATIONS}>
             {(st) => {
               const on = () => stations()[st.technique];
               const plant = () => (on() ? getIngredient(on()!) : undefined);
               return (
-                <div style={{ flex: 1, "min-height": "96px", padding: "10px", "border-radius": "8px", "text-align": "center", cursor: "pointer",
+                <div style={{ flex: 1, "min-height": "58px", padding: "6px", "border-radius": "8px", "text-align": "center", cursor: "pointer",
                   border: `2px solid ${held() ? "var(--accent-gold)" : on() ? QUALITY_COLOR.fine : "var(--border-default)"}`,
                   background: held() ? "rgba(212,131,26,0.08)" : "var(--bg-card)",
-                  display: "flex", "flex-direction": "column", "align-items": "center", "justify-content": "center", gap: "4px" }}
+                  display: "flex", "flex-direction": "column", "align-items": "center", "justify-content": "center", gap: "1px" }}
                   onClick={() => clickStation(st.technique)}
                   title={held() ? `Set on the ${st.place}` : on() ? "Click to clear" : `Empty ${st.place}`}>
-                  <div style={{ "font-size": "1.5rem" }}>{st.icon}</div>
-                  <div style={{ "font-size": "0.72rem", color: "var(--text-secondary)" }}>{st.verb}</div>
-                  <Show when={plant()} fallback={<div style={{ "font-size": "0.66rem", color: "var(--text-muted)" }}>empty</div>}>
-                    <div style={{ "font-size": "0.76rem", color: "var(--text-primary)" }}>{plant()!.icon} {plant()!.name}</div>
+                  <div style={{ "font-size": "1.2rem" }}>{st.icon}</div>
+                  <div style={{ "font-size": "0.7rem", color: "var(--text-secondary)" }}>{st.verb}</div>
+                  <Show when={plant()} fallback={<div style={{ "font-size": "0.64rem", color: "var(--text-muted)" }}>empty</div>}>
+                    <div style={{ "font-size": "0.68rem", color: "var(--text-primary)" }}>{plant()!.icon} {plant()!.name}</div>
                   </Show>
                 </div>
               );
@@ -147,20 +147,21 @@ export default function AlchemyDesk() {
           </For>
         </div>
 
-        {/* Shelves — one button per role, opens a picker modal */}
+        {/* Shelves — one button per role, opens a picker modal. Stacked into a
+            compact grid so they don't eat horizontal room. */}
         <div style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "margin-bottom": "6px" }}>🧺 Shelves</div>
-        <div style={{ display: "flex", "flex-wrap": "wrap", gap: "8px", "margin-bottom": "18px" }}>
+        <div style={{ display: "grid", "grid-template-columns": "repeat(auto-fill, minmax(84px, 1fr))", gap: "6px", "margin-bottom": "16px" }}>
           <For each={ROLE_SHELVES}>
             {(sh) => {
               const count = () => shelfPlants(sh.role).length;
               return (
                 <button onClick={() => setShelfModal(sh.role)}
-                  style={{ padding: "8px 12px", "border-radius": "8px", cursor: "pointer", "min-width": "104px",
+                  style={{ padding: "6px 4px", "border-radius": "8px", cursor: "pointer",
                     border: "1px solid var(--border-default)", background: "var(--bg-card)", color: "var(--text-primary)",
-                    display: "flex", "flex-direction": "column", "align-items": "center", gap: "2px", opacity: count() > 0 ? 1 : 0.5 }}>
-                  <div style={{ "font-size": "1.3rem" }}>{sh.icon}</div>
-                  <div style={{ "font-size": "0.78rem" }}>{sh.label}</div>
-                  <div style={{ "font-size": "0.66rem", color: "var(--text-muted)" }}>{count()} on hand</div>
+                    display: "flex", "flex-direction": "column", "align-items": "center", gap: "1px", opacity: count() > 0 ? 1 : 0.5 }}>
+                  <div style={{ "font-size": "1.15rem" }}>{sh.icon}</div>
+                  <div style={{ "font-size": "0.72rem" }}>{sh.label}</div>
+                  <div style={{ "font-size": "0.62rem", color: "var(--text-muted)" }}>{count()} on hand</div>
                 </button>
               );
             }}
