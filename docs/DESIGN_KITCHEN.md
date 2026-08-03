@@ -225,3 +225,35 @@ Fun ideas to draw from later. NB: cherries/fava/strawberries already exist
 - **Garden expansion** for cooking: a culinary **herb garden** (thyme/sage/dill
   — feeds kitchen seasoning AND alchemy), a bean field, a berry patch, a saffron
   crocus specialty crop. Ties `project_garden_expansion`.
+- **Aromatics** juniper + laurel (bay): bay in any stew, juniper with game and
+  kraut; juniper crosses into alchemy (medicinal). Park with the herb/spice pass.
+
+---
+
+## 10. Locked cultural recipes — "discover vs learn" (design agreed 2026-08-03)
+
+A dish has two separable parts: its **boons** (engine-computed from
+ingredients + prep) and its **identity** (name, card, the culture behind it).
+Cultural/gated recipes lock only the IDENTITY.
+
+- **Common dishes** name-match on cook (as today). **Locked dishes** (e.g.
+  **skyr**) do NOT name-match until *learned* (Nordveld merchant / Edda / story).
+- Experiment into a locked combo → the **generic emergent dish + its boons**
+  (e.g. "Soured Curds"), optionally a **teaser** line ("tangy and foreign… a
+  knack you haven't learned"). You get the food, never the identity. So a player
+  cannot self-discover a cultural dish's name.
+- Learn the recipe → the SAME combo now resolves to the named dish (blessed
+  "fine", proper card, flavour, cookbook entry). Framing: "you'd been making a
+  rough version all along; now you know its name and its people."
+- **No chooser needed:** a pot resolves to the best name the player is ENTITLED
+  to (learned-cultural > common > generic; ties broken by specificity, as
+  already). A prior generic entry is superseded. A chooser is only warranted if
+  one combo makes two genuinely different real dishes (rare; add narrowly if so).
+- The purchase is never wasted: the reward is the name + connection (recognise,
+  repeat, teach), not the calories.
+- Impl later: `locked?: boolean` + `learnedVia` on a NamedDish, a
+  `state.knownDishes` set, and `matchNamedDish` skips locked-unless-known.
+
+Related: the Preserve technique is effectively **blocked on a food-spoilage /
+expiration mechanic** (preserves only matter if other food spoils) — the owner
+wants that discussion later, so Preserve stays defined-but-dark for now.
