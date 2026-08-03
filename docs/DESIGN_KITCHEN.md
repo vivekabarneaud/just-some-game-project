@@ -190,6 +190,13 @@ economy phase — the sandbox (Phase A) doesn't touch it.
    turned out" read? (Lean: quality yes, rarity maybe not — food isn't loot.)
 4. Cast ties (e.g. a Nell / Edda signature dish) — draft in chat when Phase B
    flavor is written.
+5. **Named dishes and the base lever:** a canonical staple with no grain (Hearth
+   Stew = meat + nuts) currently reads "thin/rough" from the base lever. Like
+   alchemy forces a named recipe to "fine", a MATCHED named dish should probably
+   floor at fine (it's a known proper dish). Decide in Phase B.
+6. **Milestones/achievements** (see `project_achievements_milestones`): reward
+   demonstrated love (discover N recipes → a cook's side-quest recipe), never
+   power. Game-wide, cozy. Park until there's real progression to count.
 
 ---
 
