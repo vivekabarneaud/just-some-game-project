@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { cook, clampPlacements, MAX_PER_INGREDIENT } from "@medieval-realm/shared/data/kitchen/cook";
 import { NAMED_DISHES, matchNamedDish, resolveDish } from "@medieval-realm/shared/data/kitchen/named_dishes";
 import { getFoodIngredient } from "@medieval-realm/shared/data/kitchen/ingredients";
+import { dishMissionBoons } from "@medieval-realm/shared/data/kitchen/mission";
 import type { DishChannel, CookPlacement, CookTechnique } from "@medieval-realm/shared/data/kitchen/types";
 
 const p = (id: string, t: CookTechnique): CookPlacement => ({ ingredientId: id, technique: t });
@@ -139,6 +140,15 @@ describe("named dishes — curated combos (real pantry)", () => {
   it("each named dish has a unique id", () => {
     const ids = NAMED_DISHES.map((d) => d.id);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("a packed dish gives mission boons: nourishment→HP, comfort→loyalty", () => {
+    const roast = resolveDish([p("meat", "roast"), p("barley", "boil")]); // hearty + comforting
+    const b = dishMissionBoons(roast.effects);
+    expect(b.hpBonus).toBeGreaterThan(0);
+    expect(b.loyalty).toBeGreaterThan(0);
+    // A watery nothing gives nothing.
+    expect(dishMissionBoons([]).hpBonus).toBe(0);
   });
 
   it("a recognised named dish never reads thin (resolveDish floors it to fine)", () => {

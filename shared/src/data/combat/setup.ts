@@ -33,6 +33,9 @@ export function applySupplies(
 
     if (sup.food) applyFood(unit, team, sup.food);
 
+    // A packed cooked dish: a well-fed HP bonus at combat start (nourishment).
+    if (sup.dishBoons?.hpBonus) { unit.maxHp += sup.dishBoons.hpBonus; unit.hp += sup.dishBoons.hpBonus; }
+
     if (sup.recovery && !skipRecoveryHeal) {
       const rec = getRecoveryEffect(sup.recovery);
       if (rec) {

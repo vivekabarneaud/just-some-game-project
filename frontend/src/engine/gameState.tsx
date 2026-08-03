@@ -304,6 +304,7 @@ import type { Placement as AlchemyPlacement, StoredAlchemyRecipe } from "@mediev
 import { resolveDish, matchNamedDish } from "@medieval-realm/shared/data/kitchen/named_dishes";
 import { clampPlacements as clampCookPlacements, dishIdFor } from "@medieval-realm/shared/data/kitchen/cook";
 import { getFoodIngredient } from "@medieval-realm/shared/data/kitchen/ingredients";
+import { dishMissionBoons } from "@medieval-realm/shared/data/kitchen/mission";
 import type { CookPlacement, StoredDish } from "@medieval-realm/shared/data/kitchen/types";
 import { EXOTIC_IDS } from "@medieval-realm/shared/data/exotics";
 import { ALCHEMY_RECIPES, getDiscoverableRecipes, RESEARCH_BASE_COST } from "@medieval-realm/shared/data/alchemy_recipes";
@@ -7537,6 +7538,14 @@ export function GameProvider(props: ParentProps) {
           // combat sim can apply its buffs at combat start.
           const brewed = sup.potion ? s.alchemyRecipes?.[sup.potion] : undefined;
           if (brewed) (sup as AdventurerMissionSupplies).brewEffects = brewed.effects;
+          // A cooked dish in the food slot: resolve its mission boons and consume
+          // one from the prepared-dish stock (dishes live in cookedDishes, not
+          // inventory, so the inventory decrement above was a no-op for them).
+          const dish = sup.food ? s.kitchenDishes?.[sup.food] : undefined;
+          if (dish) {
+            (sup as AdventurerMissionSupplies).dishBoons = dishMissionBoons(dish.effects);
+            if (s.cookedDishes) s.cookedDishes[sup.food!] = Math.max(0, (s.cookedDishes[sup.food!] ?? 0) - 1);
+          }
         }
         const activeMission: any = {
           missionId: template.id,

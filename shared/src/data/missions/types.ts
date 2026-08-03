@@ -200,6 +200,10 @@ export interface AdventurerMissionSupplies {
    *  here at deploy time so the pure combat sim can apply it (buffs/heal at
    *  combat start). See applySupplies + docs/DESIGN_APOTHECARY. */
   brewEffects?: import("../alchemy/types.js").Effect[];
+  /** When `food` is a cooked free-form dish, its mission boons are resolved here
+   *  at deploy (a well-fed HP bonus applied at combat start; loyalty on return).
+   *  See docs/DESIGN_KITCHEN.md + kitchen/mission.ts. */
+  dishBoons?: import("../kitchen/mission.js").DishMissionBoons;
 }
 
 export interface ActiveMission {
