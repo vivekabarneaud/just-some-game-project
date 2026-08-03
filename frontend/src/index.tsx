@@ -156,8 +156,6 @@ const Defenses = lazy(() => import("./pages/Defenses"));
 const QuestLog = lazy(() => import("./pages/QuestLog"));
 const CharacterEncyclopedia = lazy(() => import("./pages/CharacterEncyclopedia"));
 const ComingSoon = lazy(() => import("./pages/ComingSoon"));
-const FramePreview = lazy(() => import("./pages/FramePreview")); // TEMP dev-only, remove after frame tuning
-const CombatCardPreview = lazy(() => import("./pages/CombatCardPreview")); // TEMP dev-only, remove after card tuning
 const BattlePreview = lazy(() => import("./pages/BattlePreview")); // TEMP dev-only, remove after Tier-1 enemy pass
 const AlchemyLabDev = lazy(() => import("./pages/AlchemyLabDev")); // TEMP dev-only — free-form alchemy sandbox
 const KitchenDev = lazy(() => import("./pages/KitchenDev")); // TEMP dev-only — free-form cooking sandbox
@@ -204,8 +202,6 @@ render(
         <Route path="/shrine" component={Shrine} />
         <Route path="/defenses" component={Defenses} />
         <Route path="/quests" component={QuestLog} />
-        <Route path="/dev-frames" component={FramePreview} />{/* TEMP dev-only, remove after frame tuning */}
-        <Route path="/dev-combat-card" component={CombatCardPreview} />{/* TEMP dev-only, remove after card tuning */}
         <Route path="/dev-battle" component={BattlePreview} />{/* TEMP dev-only, remove after Tier-1 enemy pass */}
         <Route path="*" component={ComingSoon} />
       </Route>
