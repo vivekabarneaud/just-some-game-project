@@ -1,12 +1,13 @@
-- "Open the sluice" button in the topbar dropdown is never reachable with the cursor
-- Opening the sluice actually should not stop rainwater from being stored (stop only stream and well)
-- I can't upgrade my animal pens even though I see 1/3 (no upgrade button) / it's autumn
-- Remove the /13 number on the watchtower "available adults"
-- Boss ornaments in the team assembly panel are too big
-- Short bow card at the woodworker shows an empty effect div
+Playtest TODOs (status as of this pass):
 
+[x] "Open the sluice" button unreachable — CSS hover-gap bridged (.resource-dropdown::before)
+[x] Opening the sluice should NOT stop rainwater storage — fixed (only stream + well pause now; rain still banks). Dropdown display updated too.
+[x] Can't upgrade animal pens (1/3, no button) in autumn — upgrades are no longer winter-only; fields/gardens/pens upgrade year-round (verified no free yield)
+[x] Remove the /13 number on the watchtower "available adults"
+[~] Boss ornaments in the team assembly panel are too big — PARKED (needs a closer look at which ornament; see project_raid_aftermath memo)
+[x] Short bow card at the woodworker shows an empty effect div — guarded
+[~] "Repelled AND Defeated by Petty Thieves" in the same away-digest — PARKED (two real random raids worded by two different resolvers; fix = the raid-aftermath package: unify resolvers + expandable/stacked event log so away-raids are consistent + watchable). See project_raid_aftermath memo.
 
-
-
-
-
+Notes:
+- Petty Thieves is a RANDOM camp-tier raid, kept on purpose. The scripted brigand
+  raid was already disabled (commented out in events.ts).

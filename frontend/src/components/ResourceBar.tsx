@@ -406,9 +406,10 @@ export default function ResourceBar() {
                         </div>
                       </Show>
                       <Show when={b.rain > 0 || !b.sluiceOpen}>
-                        <div class="dropdown-row" classList={{ "dropdown-row--muted": b.sluiceOpen }}>
-                          <span>{wm.icon} {wm.name}{b.rain > 0 && !b.sluiceOpen ? " (rain)" : ""}{b.sluiceOpen && b.rain > 0 ? " · paused" : ""}</span>
-                          <span>+{w1(b.sluiceOpen ? 0 : b.rain)}/h</span>
+                        {/* Rain banks regardless of the sluice (only stream + well pause). */}
+                        <div class="dropdown-row">
+                          <span>{wm.icon} {wm.name}{b.rain > 0 ? " (rain)" : ""}</span>
+                          <span>+{w1(b.rain)}/h</span>
                         </div>
                       </Show>
                       {/* Sluice open — the gate bleeds the reserve down. */}

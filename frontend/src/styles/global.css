@@ -2050,6 +2050,19 @@ input, textarea, select {
   left: 0;
   margin-top: 8px;
   min-width: 200px;
+}
+/* Bridge the 8px margin gap so the cursor can travel from the chip onto the
+   panel without :hover flicking off (else interactive controls like the sluice
+   toggle are unreachable). Invisible, part of the dropdown's hover region. */
+.resource-dropdown::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 0;
+  right: 0;
+  height: 8px;
+}
+.resource-dropdown {
   background: var(--bg-panel);
   border: 1px solid var(--border-highlight);
   border-radius: 6px;

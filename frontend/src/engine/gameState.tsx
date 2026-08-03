@@ -2525,7 +2525,9 @@ function waterBalance(s: GameState) {
   const well = wellBldg?.damaged ? 0 : getWellOutput(wellBldg?.level ?? 0) * wellFactor(band);
   const rain = getCisternRainCatch(cisternLvl) * climateRainFactor(band) * ambientRainFactor(weather);
   const liveInflow = stream + well + rain;
-  const banked = sluiceOpen ? 0 : liveInflow; // what actually enters the reserve
+  // Open sluice pauses only the STREAM + WELL from banking; rain still fills the
+  // reserve (the sky doesn't care about the sluice).
+  const banked = sluiceOpen ? rain : liveInflow; // what actually enters the reserve
   const sluiceDrain = sluiceOpen ? getSluiceDrain(cisternLvl) : 0;
 
   const citizens = citizenWaterDemand_(s);
@@ -2546,7 +2548,7 @@ function waterBalance(s: GameState) {
 
   // Net change to the STORED reserve: shut, inflow minus the draws; open, just
   // the sluice bleeding it down (draws are met by the live flow, not the store).
-  const net = sluiceOpen ? -sluiceDrain : banked - citizens - animals - cropDraw;
+  const net = sluiceOpen ? banked - sluiceDrain : banked - citizens - animals - cropDraw;
 
   return { band, weather, raining, cisternLvl, cisternDamaged, sluiceOpen, sluiceDrain,
     stream, well, rain, inflow: liveInflow,
