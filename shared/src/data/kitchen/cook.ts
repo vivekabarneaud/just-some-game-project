@@ -21,8 +21,12 @@ function diminish(amounts: number[]): number {
 
 /** Per-channel mild cap (cozy by design). */
 const CAP: Record<DishChannel, number> = {
-  nourishment: 12, comfort: 12, warmth: 10, freshness: 10, diversity: 4,
+  nourishment: 12, comfort: 12, warmth: 10, freshness: 10,
 };
+
+/** Variety catalyst: each distinct BODY shelf beyond the first lifts every boon
+ *  a little (spices amplify separately). Unlabelled — the numbers just grow. */
+const VARIETY_PER_SHELF = 0.05;
 
 /** How each PREP turns an ingredient's raw properties into boons. Warmth is a
  *  fraction of that ingredient's nourishment (only HOT food warms); fresh only
@@ -95,13 +99,16 @@ export function cook(placements: CookPlacement[]): DishResult {
   if (thin) notes.push("A snack, not a proper meal — it wants some grain or bread.");
   if (amplify > 0) notes.push(`Spices lift it (+${Math.round(amplify * 100)}%).`);
 
-  const boost = mealScale * (1 + amplify);
+  // Variety acts like a hidden catalyst: a spread of DIFFERENT body ingredients
+  // lifts every boon a little (no line — the player just sees the numbers grow).
+  const bodyRoles = [...roles].filter((r) => r !== "spice").length;
+  const variety = VARIETY_PER_SHELF * Math.max(0, bodyRoles - 1);
+  const boost = mealScale * (1 + amplify + variety);
   const raw: Record<DishChannel, number> = {
     nourishment: diminish(nourishParts) * boost,
     comfort: diminish(comfortParts) * boost,
     warmth: diminish(warmthParts) * boost,
     freshness: diminish(freshParts) * boost,
-    diversity: Math.max(0, roles.size - 2), // breadth across shelves is its own delight
   };
   const effects: DishEffect[] = [];
   for (const ch of Object.keys(raw) as DishChannel[]) {

@@ -29,10 +29,9 @@ const TECHNIQUES: { technique: CookTechnique; label: string; gate: string }[] = 
 
 const CHANNEL_LABEL: Record<DishChannel, string> = {
   nourishment: "Nourishment (well-fed)",
-  comfort: "Comfort (a small happiness lift)",
+  comfort: "Comfort (reputation / loyalty)",
   warmth: "Warmth (eases winter cold)",
   freshness: "Freshness (eases summer heat)",
-  diversity: "Variety delight",
 };
 
 const QUALITY_COLOR: Record<string, string> = { seasoned: "var(--accent-green)", fine: "var(--accent-green)", rough: "var(--accent-gold)", plain: "var(--text-muted)" };

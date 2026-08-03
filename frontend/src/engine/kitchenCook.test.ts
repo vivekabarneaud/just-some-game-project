@@ -75,6 +75,16 @@ describe("cook — the free-form cooking engine", () => {
     expect(matchNamedDish([p("venison", "boil"), p("nuts", "boil"), p("turnip", "boil")])?.name).not.toBe("Hearth Stew");
   });
 
+  it("variety is a hidden catalyst: a broader spread lifts boons, with no 'diversity' line", () => {
+    // Same headline ingredient (barley) both times; the varied dish adds a
+    // second BODY shelf, which lifts nourishment beyond barley alone.
+    const narrow = cook([p("barley", "boil")]);
+    const varied = cook([p("barley", "boil"), p("turnip", "boil")]);
+    expect(amt(varied, "nourishment")).toBeGreaterThan(amt(narrow, "nourishment"));
+    // No output line is ever labelled "diversity".
+    expect(varied.effects.some((e) => (e.channel as string) === "diversity")).toBe(false);
+  });
+
   it("a prestige spice (saffron) tips an invented dish into a 'Golden ___'", () => {
     const golden = cook([p("venison", "roast"), p("barley", "boil"), p("saffron", "boil")]);
     expect(golden.name).toMatch(/^Golden /);

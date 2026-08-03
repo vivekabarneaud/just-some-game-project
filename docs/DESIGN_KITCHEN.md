@@ -90,7 +90,10 @@ mission food slot), never combat stats.
 | `comfort` | the joy of a good meal → a small happiness lift | roast, bake, fry |
 | `warmth` | eases winter cold for a while (hot food only) | simmer, roast |
 | `freshness` | eases summer heat (a cold board on a hot day) | assemble |
-| `diversity` | feeds the existing food-variety delight | breadth of shelves used |
+
+**Variety is a hidden catalyst, not a channel.** A spread of different body
+ingredients lifts every boon a little (like spices' amplify) — the player sees
+the numbers grow, with no "diversity" line. Built.
 
 ### Channel → real system — the TWO-FACET model (playtest 2026-08-03)
 Make the food channels REAL (don't revert to combat stats — that would duplicate
@@ -103,8 +106,10 @@ mission face; a channel resolves by WHERE the dish is used:
 | Nourishment | — (tavern doesn't feed) | packed-meal **hpBonus** (hardier) |
 | Comfort | **reputation** | **loyalty** |
 | Warmth / Freshness | **seasonal-fit reputation** (hot stew in winter, cold board in summer) | **mission climate** mitigation (`project_mission_climate`) |
-| Diversity | varied menu → small **reputation** | — |
 | *(gold value)* | sells/serves for **gold** | — |
+
+Variety is a hidden catalyst (lifts every boon; no line), not a facet. Comfort→
+loyalty stays simple: the daily mission cap already limits any farming.
 
 Wins: warmth/freshness are NOT parked — they pay off at the tavern now via
 emergent seasonality (much cheaper than mission climate, which is the later big

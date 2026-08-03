@@ -18,8 +18,11 @@ export interface CookPlacement {
   technique: CookTechnique;
 }
 
-/** Mild, cozy boon channels — never combat stats (house rule: mild food). */
-export type DishChannel = "nourishment" | "comfort" | "warmth" | "freshness" | "diversity";
+/** Mild, cozy boon channels — never combat stats (house rule: mild food).
+ *  Variety is NOT a channel: a spread of different ingredients acts like a hidden
+ *  catalyst that lifts every boon (see cook()), so the player sees the numbers
+ *  grow without a "diversity" line. */
+export type DishChannel = "nourishment" | "comfort" | "warmth" | "freshness";
 
 export interface DishEffect {
   channel: DishChannel;
