@@ -210,7 +210,10 @@ export default function MissionAssemblyPanel(props: Props) {
         if (remaining <= 0) return null;
         const b = dishMissionBoons(d.effects);
         const icon = getFoodIngredient(d.placements[0]?.ingredientId)?.icon ?? "🍲";
-        return { id, name: d.name, icon, qty: remaining, hint: b.hpBonus ? `+${b.hpBonus} HP` : "a good meal" };
+        const parts: string[] = [];
+        if (b.hpBonus) parts.push(`+${b.hpBonus} HP`);
+        if (b.loyalty) parts.push(`❤ +${b.loyalty} loyalty`);
+        return { id, name: d.name, icon, qty: remaining, hint: parts.join(" · ") || "a good meal" };
       })
       .filter(Boolean) as { id: string; name: string; icon: string; qty: number; hint: string }[];
 

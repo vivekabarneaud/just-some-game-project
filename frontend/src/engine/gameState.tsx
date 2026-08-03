@@ -5668,6 +5668,10 @@ export function GameProvider(props: ParentProps) {
                         }
                       }
                     }
+                    // A comforting cooked dish, packed for the road, deepens loyalty
+                    // on a safe return (survival) — you looked after them.
+                    const dishLoyalty = am.adventurerSupplies?.[adv.id]?.dishBoons?.loyalty;
+                    if (dishLoyalty) gain += dishLoyalty;
                     advInState.loyalty = Math.min(100, oldLoyalty + gain);
                     const newRank = getLoyaltyRank(advInState.loyalty);
                     if (newRank.rank > oldRank.rank) {
