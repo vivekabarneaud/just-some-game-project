@@ -189,8 +189,6 @@ function FieldCard(props: { field: PlayerField }) {
   const canUpgrade = () => {
     if (props.field.crop !== null) return false; // can only upgrade empty/fallow fields
     if (props.field.upgrading || props.field.level >= effectiveMax()) return false;
-    // Fields can only be worked in winter while the ground is dormant.
-    if (state.season !== "winter") return false;
     const cost = upgradeCost();
     return cost ? state.resources.wood >= cost.wood && state.resources.stone >= cost.stone : false;
   };
@@ -200,7 +198,6 @@ function FieldCard(props: { field: PlayerField }) {
     if (props.field.level >= effectiveMax()) return `Upgrade Town Hall to lvl ${actions.getTownHallLevel() + 1} to raise this cap`;
     if (props.field.upgrading) return "Already upgrading…";
     if (props.field.crop !== null) return "Can't upgrade a planted field";
-    if (state.season !== "winter") return "Fields can only be upgraded in winter";
     const cost = upgradeCost();
     if (cost && (state.resources.wood < cost.wood || state.resources.stone < cost.stone)) return "Not enough resources";
     return "";
@@ -255,7 +252,7 @@ function FieldCard(props: { field: PlayerField }) {
                 {props.field.level === 0 ? "Building..." : `Level ${props.field.level} / ${effectiveMax()}`}
               </div>
             </div>
-            <Show when={isEmpty() && !props.field.upgrading && state.season === "winter" && props.field.level < FIELD_MAX_LEVEL && upgradeCost()}>
+            <Show when={isEmpty() && !props.field.upgrading && props.field.level < FIELD_MAX_LEVEL && upgradeCost()}>
               <UpgradeIndicator
                 level={props.field.level}
                 canAct={canUpgrade()}
@@ -590,7 +587,6 @@ function GardenCard(props: { garden: PlayerGarden }) {
   const upgradeCost = () => props.garden.level < GARDEN_MAX_LEVEL ? getGardenCost(props.garden.level) : null;
   const canUpgrade = () => {
     if (props.garden.upgrading || props.garden.level >= GARDEN_MAX_LEVEL) return false;
-    if (props.garden.level >= 1 && state.season !== "winter") return false;
     if (props.garden.level >= effectiveMax()) return false;
     const c = upgradeCost();
     return c ? state.resources.wood >= c.wood && state.resources.stone >= c.stone : false;
@@ -599,7 +595,6 @@ function GardenCard(props: { garden: PlayerGarden }) {
     if (props.garden.level >= GARDEN_MAX_LEVEL) return "Max level reached";
     if (props.garden.level >= effectiveMax()) return `Upgrade Town Hall to lvl ${actions.getTownHallLevel() + 1}`;
     if (props.garden.upgrading) return "Already upgrading…";
-    if (props.garden.level >= 1 && state.season !== "winter") return "Gardens can only be upgraded in winter";
     const c = upgradeCost();
     if (c && (state.resources.wood < c.wood || state.resources.stone < c.stone)) return "Not enough resources";
     return "";
@@ -630,8 +625,7 @@ function GardenCard(props: { garden: PlayerGarden }) {
 
   const showUpgradeIndicator = () =>
     !props.garden.upgrading &&
-    props.garden.level < GARDEN_MAX_LEVEL &&
-    (props.garden.level === 0 || state.season === "winter");
+    props.garden.level < GARDEN_MAX_LEVEL;
   const indicatorCostTip = () => {
     const c = props.garden.level === 0 ? buildCost() : upgradeCost();
     return c ? `🪵 ${c.wood} 🪨 ${c.stone} · ${formatTime(getGardenBuildTime(props.garden.level))}` : "";
@@ -932,7 +926,6 @@ function PenCard(props: { pen: PlayerPen }) {
   const upgradeCost = () => props.pen.level < PEN_MAX_LEVEL ? getPenCost(props.pen.level) : null;
   const canUpgrade = () => {
     if (props.pen.upgrading || props.pen.level >= PEN_MAX_LEVEL) return false;
-    if (props.pen.level >= 1 && state.season !== "winter") return false;
     if (props.pen.level >= effectiveMax()) return false;
     const c = upgradeCost();
     return c ? state.resources.wood >= c.wood && state.resources.stone >= c.stone && state.resources.gold >= c.gold : false;
@@ -941,7 +934,6 @@ function PenCard(props: { pen: PlayerPen }) {
     if (props.pen.level >= PEN_MAX_LEVEL) return "Max level reached";
     if (props.pen.level >= effectiveMax()) return `Upgrade Town Hall to lvl ${actions.getTownHallLevel() + 1}`;
     if (props.pen.upgrading) return "Already upgrading…";
-    if (props.pen.level >= 1 && state.season !== "winter") return "Pens can only be upgraded in winter";
     const c = upgradeCost();
     if (!c) return "";
     const missing: string[] = [];
@@ -953,8 +945,7 @@ function PenCard(props: { pen: PlayerPen }) {
 
   const showUpgradeIndicator = () =>
     !props.pen.upgrading &&
-    props.pen.level < PEN_MAX_LEVEL &&
-    (props.pen.level === 0 || state.season === "winter");
+    props.pen.level < PEN_MAX_LEVEL;
   const indicatorCostTip = () => {
     const c = props.pen.level === 0 ? buildCost() : upgradeCost();
     if (!c) return "";

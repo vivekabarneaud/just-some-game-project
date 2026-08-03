@@ -352,7 +352,7 @@ function Summary() {
       >
         <span>
           <span style={{ color: "var(--text-muted)" }}>🧑 Adults available: </span>
-          <strong style={{ color: free() > 0 ? "var(--accent-green)" : "var(--accent-red)" }}>{free()} / {state.citizens.adults}</strong>
+          <strong style={{ color: free() > 0 ? "var(--accent-green)" : "var(--accent-red)" }}>{free()}</strong>
         </span>
       </Tooltip>
     </div>
