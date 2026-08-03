@@ -16,7 +16,7 @@ import { getFoodIngredient } from "./ingredients.js";
 export const FOOD_GROUPS = {
   redMeat: ["venison", "pork"],
   anyMeat: ["venison", "pork", "chicken"],
-  grain: ["wheat", "barley", "oats", "rye", "bread"],
+  grain: ["wheat", "barley", "oats", "rye"], // raw grains only — bread is baked, not a grain
   berry: ["berries"],
 } as const;
 
