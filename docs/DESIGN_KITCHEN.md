@@ -199,11 +199,19 @@ economy phase — the sandbox (Phase A) doesn't touch it.
 - **Phase A — design doc + `/dev-kitchen` sandbox (NOW).** Placeholder
   ingredients, Simmer + Fry stations, the assemble→dish→effects interaction, the
   cookbook on the left. Pure feel; no economy, no save. Same as `/dev-alchemy`.
-- **Phase B — real content.** Map real `FoodItemType`s onto shelves, author the
-  effect values, wire the tier-1 known cards.
-- **Phase C — economy refont.** Move the real Kitchen/Tavern page onto the desk,
-  fold in the staple auto-cook toggle (§5), stock the larder + tavern menu,
-  retire the old fixed recipe-crafting UI.
+- **Phase B — real content. DONE.** Real pantry (foods/herbs/trade spices), the
+  cooking desk on the Kitchen page (`KitchenDesk`) reading the larder, `cookDish`
+  (consume stock → cookbook + prepared-dish stock).
+- **Phase C — economy (make dishes MATTER). In progress:**
+  - ✅ C1 — mission pack: nourishment → well-fed HP (combat start); comfort →
+    loyalty on a safe return. Dishes packable in the mission food slot.
+  - ✅ C2a — tavern: featured dishes served from prepared stock (like ale),
+    counting toward menu variety → reputation → occupancy → gold.
+  - ✅ C2b — seasonal-fit reputation (warm dish in winter / fresh in summer).
+  - ⏳ C2c — explicit per-dish **gold value** (needs a sell hook + tuning; gold
+    already flows indirectly via reputation). Best tuned against playtest.
+  - ⏳ C3 — fold-in & cleanup: confirm staple auto-cook, retire the old fixed
+    recipe-crafting UI. Touches survival — validate by playtest first.
 - **Phase D — polish.** Rarity/quality on dish cards, seasonal fit, cast-tie
   dishes, mission packed-meal boons.
 
