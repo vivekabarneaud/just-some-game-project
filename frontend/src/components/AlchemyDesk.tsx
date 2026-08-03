@@ -79,13 +79,26 @@ export default function AlchemyDesk() {
 
   // Picking off a shelf → "hold" the plant; clicking a station adds it (append).
   const shelfPlants = (role: Role) => INGREDIENTS.filter((i) => i.role === role && actions.getBrewIngredientQty(i.id) > 0);
-  const pickFromShelf = (id: string) => { setHeld(id); setShelfModal(null); playSound("jars"); };
+  // One distinct ingredient per ROLE (a brew is base + hero + catalyst + toxin +
+  // wildcard). You can still crush several things together and stack quantity;
+  // you just can't pick two bases. Roles in MULTI_ROLES may repeat — none for
+  // now; loosening a role later is a one-line change here.
+  const MULTI_ROLES = new Set<Role>();
+  const brewPlantIds = () => { const s = new Set<string>(); STATIONS.forEach((st) => stationOf(st.technique).forEach((id) => s.add(id))); return s; };
+  const roleOccupant = (role: Role) => [...brewPlantIds()].find((id) => getIngredient(id)?.role === role);
+  const roleFreeFor = (id: string) => {
+    const role = getIngredient(id)?.role;
+    if (!role || MULTI_ROLES.has(role)) return true;
+    const occ = roleOccupant(role);
+    return !occ || occ === id; // free, or already this same plant (quantity is fine)
+  };
+  const pickFromShelf = (id: string) => { if (!roleFreeFor(id)) return; setHeld(id); setShelfModal(null); playSound("jars"); };
   const countInStation = (t: Technique, id: string) => stationOf(t).filter((x) => x === id).length;
   const clickStation = (t: Technique) => {
     const h = held();
     if (!h) return;
-    // Respect both the stock and the per-plant cap when dropping the held plant.
-    if (countInStation(t, h) < MAX_PER_PLANT && canAddMore(h)) {
+    // Respect the role cap, the stock, and the per-plant cap when dropping it.
+    if (roleFreeFor(h) && countInStation(t, h) < MAX_PER_PLANT && canAddMore(h)) {
       setStations({ ...stations(), [t]: [...stationOf(t), h] }); setHeld(null); playSound("nav");
     }
   };
@@ -265,8 +278,10 @@ export default function AlchemyDesk() {
                 <For each={shelfPlants(role())}>
                   {(ing) => (
                     <FramedItemCard rarity={ing.rarity} icon={ing.icon} title={ing.name}
+                      dim={!roleFreeFor(ing.id)}
                       subtitle={<span style={{ "text-transform": "capitalize" }}>{ing.rarity} {ing.role} · ×{r0(actions.getBrewIngredientQty(ing.id))}</span>}
-                      tooltip={`Pick ${ing.name}`} onClick={() => pickFromShelf(ing.id)} minHeight="138px">
+                      tooltip={roleFreeFor(ing.id) ? `Pick ${ing.name}` : `Already have a ${ing.role} — clear it first`}
+                      onClick={() => pickFromShelf(ing.id)} minHeight="138px">
                       <div style={{ "font-size": "0.72rem", color: "var(--text-secondary)", "font-style": "italic", "line-height": 1.3 }}>{ing.note}</div>
                       <Show when={plantHint(ing.id)}>
                         <div style={{ "font-size": "0.68rem", color: "var(--accent-green)" }}>{plantHint(ing.id)}</div>
