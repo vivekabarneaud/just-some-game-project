@@ -35,7 +35,8 @@ const CHANNEL_LABEL: Record<DishChannel, string> = {
   diversity: "Variety delight",
 };
 
-const QUALITY_COLOR = { fine: "var(--accent-green)", rough: "var(--accent-gold)", plain: "var(--text-muted)" };
+const QUALITY_COLOR: Record<string, string> = { seasoned: "var(--accent-green)", fine: "var(--accent-green)", rough: "var(--accent-gold)", plain: "var(--text-muted)" };
+const QUALITY_LABEL: Record<string, string> = { seasoned: "well-seasoned", fine: "fine", rough: "thin", plain: "plain" };
 
 type Slot = { ingredientId: string; technique: CookTechnique; qty: number };
 
@@ -134,7 +135,7 @@ export default function KitchenDev() {
               {matched() ?? result().name}
             </div>
             <div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "1px", "margin-bottom": "8px" }}>
-              {matched() ? "known dish" : result().quality}
+              {matched() ? `known dish · ${QUALITY_LABEL[result().quality]}` : QUALITY_LABEL[result().quality]}
             </div>
             <Show when={result().effects.length > 0} fallback={<div style={{ color: "var(--text-muted)", "font-style": "italic" }}>Nothing worth serving yet.</div>}>
               <For each={result().effects}>

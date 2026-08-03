@@ -50,6 +50,31 @@ describe("cook — the free-form cooking engine", () => {
     expect(spiced.effects.some((e) => (e.channel as string) === "spice")).toBe(false);
   });
 
+  it("a seasoning lifts a proper meal to 'seasoned' quality", () => {
+    expect(cook([p("barley", "boil")]).quality).toBe("fine");
+    expect(cook([p("barley", "boil"), p("bay", "boil")]).quality).toBe("seasoned");
+  });
+
+  it("a garnish enhances a named dish without breaking its identity", () => {
+    const broth = [p("venison", "boil"), p("turnip", "boil"), p("barley", "boil")];
+    const plain = cook(broth);
+    const seasoned = cook([...broth, p("bay", "boil")]);
+    // Still Ploughman's Broth (bay is a garnish, not a new ingredient), but finer + a touch stronger.
+    expect(matchNamedDish([...broth, p("bay", "boil")])?.name).toBe("Ploughman's Broth");
+    expect(plain.quality).toBe("fine");
+    expect(seasoned.quality).toBe("seasoned");
+    expect(amt(seasoned, "nourishment")).toBeGreaterThan(amt(plain, "nourishment"));
+  });
+
+  it("the right spice UPGRADES a plain dish into a named one (chicken + saffron → Golden Fowl)", () => {
+    expect(matchNamedDish([p("chicken", "roast")])).toBeUndefined();
+    expect(matchNamedDish([p("chicken", "roast"), p("saffron", "boil")])?.name).toBe("Golden Fowl");
+  });
+
+  it("an extra BODY ingredient does break identity (that's a different dish)", () => {
+    expect(matchNamedDish([p("venison", "boil"), p("nuts", "boil"), p("turnip", "boil")])?.name).not.toBe("Hearth Stew");
+  });
+
   it("a prestige spice (saffron) tips an invented dish into a 'Golden ___'", () => {
     const golden = cook([p("venison", "roast"), p("barley", "boil"), p("saffron", "boil")]);
     expect(golden.name).toMatch(/^Golden /);

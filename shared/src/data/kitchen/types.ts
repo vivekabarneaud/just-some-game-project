@@ -51,6 +51,9 @@ export interface FoodIngredient {
 export interface DishResult {
   name: string;
   effects: DishEffect[];
-  quality: "fine" | "rough" | "plain";
+  /** plain (nothing), rough (thin — no staple), fine (a proper meal), seasoned
+   *  (fine + a seasoning/aromatic — a notch better). Cosmetic + a small boon via
+   *  the spice's amplify; never a min-max obligation. */
+  quality: "plain" | "rough" | "fine" | "seasoned";
   notes: string[];
 }

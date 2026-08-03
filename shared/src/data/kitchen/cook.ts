@@ -110,8 +110,11 @@ export function cook(placements: CookPlacement[]): DishResult {
   }
   effects.sort((a, b) => b.amount - a.amount);
 
-  const quality: DishResult["quality"] = effects.length === 0 ? "plain" : thin ? "rough" : "fine";
-  const golden = quality === "fine" && filled.some((p) => PRESTIGE_SPICES.has(p.ingredientId));
+  // A seasoning/aromatic lifts a proper meal to "seasoned" (the amplify already
+  // nudged the boons; this is the read that says "you cooked it well").
+  let quality: DishResult["quality"] = effects.length === 0 ? "plain" : thin ? "rough" : "fine";
+  if (quality === "fine" && roles.has("spice")) quality = "seasoned";
+  const golden = (quality === "fine" || quality === "seasoned") && filled.some((p) => PRESTIGE_SPICES.has(p.ingredientId));
   return { name: nameDish(techniques, effects, quality, golden), effects, quality, notes };
 }
 

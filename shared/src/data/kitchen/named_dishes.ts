@@ -10,6 +10,7 @@
 // truth); the name is a blessed label on a matching pot.
 
 import type { CookPlacement, CookTechnique } from "./types.js";
+import { getFoodIngredient } from "./ingredients.js";
 
 /** Ingredient groups, so a slot can say "any red meat" without repetition. */
 export const FOOD_GROUPS = {
@@ -134,18 +135,24 @@ function distinctPairs(placements: CookPlacement[]): CookPlacement[] {
   return out;
 }
 
-/** Can these pot pairs fill exactly these slots (a one-to-one matching)? */
-function fills(pairs: CookPlacement[], slots: DishSlot[]): boolean {
-  if (pairs.length !== slots.length) return false;
-  const used = new Array(slots.length).fill(false);
-  const assign = (i: number): boolean => {
-    if (i === pairs.length) return true;
-    for (let s = 0; s < slots.length; s++) {
-      if (used[s]) continue;
+const isSpice = (id: string) => getFoodIngredient(id)?.role === "spice";
+const slotIsSpice = (slot: DishSlot) => isSpice(slot.anyOf[0]);
+
+/** Can EVERY slot be matched to a DISTINCT pair (each pair used at most once)?
+ *  `exact` requires the counts to be equal (the body must be filled precisely);
+ *  otherwise extra pairs are allowed (garnishes beyond required seasonings). */
+function matchSlots(pairs: CookPlacement[], slots: DishSlot[], exact: boolean): boolean {
+  if (exact && pairs.length !== slots.length) return false;
+  if (pairs.length < slots.length) return false;
+  const used = new Array(pairs.length).fill(false);
+  const assign = (s: number): boolean => {
+    if (s === slots.length) return true;
+    for (let i = 0; i < pairs.length; i++) {
+      if (used[i]) continue;
       if (slots[s].technique === pairs[i].technique && slots[s].anyOf.includes(pairs[i].ingredientId)) {
-        used[s] = true;
-        if (assign(i + 1)) return true;
-        used[s] = false;
+        used[i] = true;
+        if (assign(s + 1)) return true;
+        used[i] = false;
       }
     }
     return false;
@@ -153,18 +160,30 @@ function fills(pairs: CookPlacement[], slots: DishSlot[]): boolean {
   return assign(0);
 }
 
-/** How specific a dish is (fewer accepted ingredients = more specific). Used to
- *  prefer a signature match over a generic one when a pot fits both. */
-const specificity = (d: NamedDish) => d.slots.reduce((n, s) => n + s.anyOf.length, 0);
+/** How specific a dish's ingredients are (fewer accepted = more specific). */
+const breadth = (d: NamedDish) => d.slots.reduce((n, s) => n + s.anyOf.length, 0);
 
-/** The named dish a pot matches (order/quantity independent, slots filled). When
- *  a pot fits more than one, the MORE SPECIFIC dish wins (a ham over a roast). */
+/** The named dish a pot matches. Body ingredients (non-spice) must fill the
+ *  dish's body slots EXACTLY; required seasoning slots must be present; EXTRA
+ *  seasonings are garnishes (they don't break the identity). When several match,
+ *  the dish that claims the MOST ingredients as identity wins (so adding the
+ *  right spice upgrades a plain roast into Golden Fowl), then the most specific. */
 export function matchNamedDish(placements: CookPlacement[]): NamedDish | undefined {
   const pairs = distinctPairs(placements);
   if (pairs.length === 0) return undefined;
+  const bodyPairs = pairs.filter((p) => !isSpice(p.ingredientId));
+  const spicePairs = pairs.filter((p) => isSpice(p.ingredientId));
   let best: NamedDish | undefined;
   for (const d of NAMED_DISHES) {
-    if (fills(pairs, d.slots) && (!best || specificity(d) < specificity(best))) best = d;
+    const bodySlots = d.slots.filter((s) => !slotIsSpice(s));
+    const spiceSlots = d.slots.filter((s) => slotIsSpice(s));
+    if (!matchSlots(bodyPairs, bodySlots, true)) continue;      // body must be exact
+    if (!matchSlots(spicePairs, spiceSlots, false)) continue;   // required spices present, extras ok
+    if (!best
+      || d.slots.length > best.slots.length                    // claims more of the pot as identity
+      || (d.slots.length === best.slots.length && breadth(d) < breadth(best))) {
+      best = d;
+    }
   }
   return best;
 }

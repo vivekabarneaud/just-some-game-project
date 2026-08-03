@@ -45,6 +45,8 @@ export const FOOD_INGREDIENTS: FoodIngredient[] = [
   { id: "long_pepper", name: "Long Pepper", icon: "🌶️", role: "spice", signature: "boil", amplify: 0.2, note: "A warming bite — lifts a dish." },
   { id: "saffron", name: "Saffron", icon: "🧡", role: "spice", signature: "boil", amplify: 0.3, note: "Precious threads, a golden luxury (a trade spice)." },
   { id: "cinnamon", name: "Cinnamon", icon: "🟤", role: "spice", signature: "boil", amplify: 0.2, comfort: 1, note: "A far-traded bark, sweet and warming (a trade spice)." },
+  { id: "bay", name: "Bay Leaf", icon: "🍃", role: "spice", signature: "boil", amplify: 0.12, note: "Laurel, a quiet backbone to a stew." },
+  { id: "juniper", name: "Juniper", icon: "🫐", role: "spice", signature: "boil", amplify: 0.15, note: "Resinous and sharp, loves game (and physic)." },
   { id: "wildmint", name: "Wild Mint", icon: "🌿", role: "spice", signature: "chop", amplify: 0.15, fresh: 1, note: "Cooling green, brightens the plate." },
   { id: "salt", name: "Salt", icon: "🧂", role: "spice", signature: "boil", amplify: 0.15, note: "The oldest seasoning." },
   { id: "honey", name: "Honey", icon: "🍯", role: "spice", signature: "chop", amplify: 0.2, comfort: 1, note: "Sweetens and rounds it out." },
