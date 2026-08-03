@@ -6,9 +6,17 @@
 /** The pantry shelf an ingredient sits on (its cooking role). */
 export type FoodRole = "staple" | "protein" | "veg" | "fruit" | "dairy" | "spice";
 
-/** How the dish is cooked — the station. Camp: simmer + fry. Village: roast +
- *  assemble. Town: preserve (later). The technique picks the dish's character. */
-export type CookTechnique = "simmer" | "fry" | "roast" | "assemble" | "preserve";
+/** How an ingredient is PREPARED (per-ingredient, like alchemy: roast the meat,
+ *  boil the staple, combine). Heat methods gate by kitchen LEVEL — boil (Lv1) →
+ *  fry (Lv2) → roast (Lv3); chop gates on the cutting-board TOOL (raw prep, no
+ *  heat); preserve is a later town method. */
+export type CookTechnique = "boil" | "fry" | "roast" | "chop" | "preserve";
+
+/** One prepared ingredient going into the dish. */
+export interface CookPlacement {
+  ingredientId: string;
+  technique: CookTechnique;
+}
 
 /** Mild, cozy boon channels — never combat stats (house rule: mild food). */
 export type DishChannel = "nourishment" | "comfort" | "warmth" | "freshness" | "diversity";
@@ -26,6 +34,8 @@ export interface FoodIngredient {
   name: string;
   icon: string;
   role: FoodRole;
+  /** The natural way to prepare it (defaults the technique when picked). */
+  signature?: CookTechnique;
   /** How filling. */
   nourish?: number;
   /** How pleasurable a mouthful. */

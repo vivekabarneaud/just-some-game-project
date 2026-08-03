@@ -14,9 +14,9 @@ gets approved in chat before it goes in-game (house rule: approve flavor first).
 ## 1. Pillars
 
 1. **Same engine as alchemy.** ROLE (a pantry shelf you grab from) × TECHNIQUE
-   (a cooking station you place onto) → a dish with effects. Assemble
-   ingredients, the technique shapes the result, discover recipes, known dishes
-   are pre-filled cards in the cookbook.
+   (how you PREPARE each ingredient — per-ingredient, like alchemy: roast the
+   meat, boil the staple, combine) → a dish with effects. Discover recipes;
+   known dishes are pre-filled cards in the cookbook.
 2. **Effects stay MILD.** Cooking is comfort, warmth, and discovery, never a
    min-max obligation (house rule: mild food effects). A good meal is cozy and
    immersive; it never becomes a stat you're forced to grind.
@@ -32,19 +32,24 @@ gets approved in chat before it goes in-game (house rule: approve flavor first).
 
 ## 2. The two axes
 
-### Stations (cooking method → the dish's *character*)
+### Preps (how each ingredient is prepared → what it contributes)
 
-| Station | Feel | Boon shape | Unlock |
+Per-ingredient, like alchemy (you can roast the meat and boil the staple in one
+dish). Heat methods gate by **kitchen building LEVEL**; chop gates on a **tool**.
+
+| Prep | Feel | Boon lean | Unlock |
 |---|---|---|---|
-| 🍲 **Simmer** (pot) | hearty, warming, sustaining | long **nourishment** + **warmth** | camp |
-| 🍳 **Fry / Griddle** (pan) | quick, savory | fast, modest **nourishment** + **comfort** | camp |
-| 🔥 **Roast / Bake** (oven) | rich, celebratory | **comfort** spike (a small feast) | village |
-| 🥗 **Assemble** (board) | fresh, light | **freshness** (eases summer heat) | village |
+| 🍲 **Boil** (pot over the fire) | hearty, warming | **nourishment** + **warmth** | Kitchen **Lv1** |
+| 🍳 **Fry / Griddle** (pan) | quick, savoury | modest **nourishment** + **comfort** | Kitchen **Lv2** |
+| 🔥 **Roast / Bake** (oven) | rich, celebratory | **comfort** spike | Kitchen **Lv3** |
+| 🔪 **Chop** (raw prep) | fresh, cold, light | **freshness** (eases summer heat) | **cutting board** (woodworker tool) |
 | 🥓 **Preserve / Smoke** | travel rations | keeps long → **mission food** slot | town (later) |
 
-Start the sandbox with **Simmer + Fry** shown; Roast/Assemble/Preserve are
-defined but hidden, unlocked by settlement tier later (same "reveal by tier"
-plan as alchemy's steep/distil/char).
+Two gating axes: kitchen level unlocks the heat methods (better fire/equipment),
+while the **cutting board** — a crafted tool from the woodworker — unlocks Chop.
+This keeps the tool-making concept meaningful and ties woodworker → kitchen. The
+sandbox exposes Boil/Fry/Roast/Chop all at once for tuning; gating lands in
+Phase C.
 
 ### Shelves (ingredient role → what it contributes)
 
@@ -100,10 +105,10 @@ free-form combo:
 
 | Dish | Combo | Notes |
 |---|---|---|
-| 🥣 Porridge | Simmer(grain) | the daily staple |
-| 🍲 Hearth Stew | Simmer(meat + nuts) | hearty week-keeper |
-| 🍲 River Stew | Simmer(fish + berries) | lean-larder stretcher |
-| 🍜 Bone Broth | Simmer(bone) | nothing wasted |
+| 🥣 Porridge | Boil(grain) | the daily staple |
+| 🍲 Hearth Stew | Boil(meat + nuts) | hearty week-keeper |
+| 🍲 River Stew | Boil(fish + berries) | lean-larder stretcher |
+| 🍜 Bone Broth | Boil(bone) | nothing wasted |
 
 These are the survival **food multiplier** — see §5.
 
