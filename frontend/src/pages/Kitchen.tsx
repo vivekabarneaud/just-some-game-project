@@ -1,10 +1,18 @@
 import { useGame } from "~/engine/gameState";
 import CraftingPage from "~/components/CraftingPage";
+import KitchenDesk from "~/components/KitchenDesk";
 
 export default function Kitchen() {
   const { state } = useGame();
   const f = () => state.foods ?? {} as any;
   return (
+    <>
+    {/* Free-form cooking desk (Phase B). Sits above the classic recipe crafting;
+        the staple auto-cook / food loop below is untouched. */}
+    <div style={{ padding: "0 16px", "max-width": "1080px", margin: "0 auto" }}>
+      <h2 style={{ "font-family": "var(--font-heading)", "margin": "8px 0 0" }}>🍳 The Kitchens — Cooking Desk</h2>
+      <KitchenDesk />
+    </div>
     <CraftingPage
       title="The Kitchens"
       buildingId="kitchen"
@@ -24,5 +32,6 @@ export default function Kitchen() {
         { icon: "🍯", label: "Honey",   value: () => Math.floor(state.honey) },
       ]}
     />
+    </>
   );
 }
