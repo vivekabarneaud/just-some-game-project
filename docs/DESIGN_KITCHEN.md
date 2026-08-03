@@ -292,3 +292,37 @@ Cultural/gated recipes lock only the IDENTITY.
 Related: the Preserve technique is effectively **blocked on a food-spoilage /
 expiration mechanic** (preserves only matter if other food spoils) — the owner
 wants that discussion later, so Preserve stays defined-but-dark for now.
+
+---
+
+## 11. Diversity as progression — cultural imports (design 2026-08-03)
+
+**The principle (a keeper, applies beyond the kitchen):** the base pantry is
+what you grow / raise / hunt / forage locally; the *richness* comes from **trade
+reach + exploration**. A big pantry is a **map of who you've befriended and how
+far you've sailed**, not clutter. Going deep in an optional system rewards you
+with **more content** (ingredients + recipes), never power — the same spirit as
+`project_achievements_milestones`: reward demonstrated love.
+
+**The guardrail** that keeps diversity from becoming noise: every ingredient
+earns its slot with a **SOURCE + a SEASON**. Rare imports feel special *because*
+they're gated behind rapport and reach.
+
+Culture → signature imports (ingredients **and** a wave of recipes), delivered
+via `project_traveling_merchants` + rapport; recipes arrive locked (§10) so the
+name + the ingredient both gate behind reach:
+
+| Culture | Brings |
+|---|---|
+| **Nordveld** | cloudberry, cranberry, skyr, smoked fish, north game (elk) |
+| **Tianzhou** | rice, jujube, **tea leaves**, a wave of eastern recipes |
+| **Meridian** | sea fish (daurade/sea bream, herring, cod), cocoa, exotic trade |
+| **Zah'kari** | spices (saffron, cinnamon), sweets, cocoa origin |
+| **Khor'vani** | dates, desert/southern goods |
+
+Cross-system: **tea leaves** feed tavern drinks AND alchemy (steep); dates &
+cocoa are luxury sweets; sea fish widen the fish shelf without local water.
+
+**Nuts:** keep generic for now (curation — not every forage needs a split).
+Chestnut is the only nut with a distinct culinary identity (winter roasting +
+flour); add it only when a dish wants it.
