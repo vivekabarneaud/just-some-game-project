@@ -852,6 +852,8 @@ export interface TavernDish {
   /** True for stored-commodity drinks (ale, later wine/mead) poured from stock
    *  rather than cooked to order — drives "from the barrel" labelling. */
   commodity?: boolean;
+  /** True for a free-form cooked dish, served from the prepared-dish stock. */
+  cooked?: boolean;
 }
 
 export interface GameActions {
@@ -5155,11 +5157,16 @@ export function GameProvider(props: ParentProps) {
           const servable = (s.tavernMenu ?? [])
             .map((id) => KITCHEN_DISH_BY_ID.get(id))
             .filter((r): r is CraftingRecipe => !!r && dishUnlocked(s, r) && dishAvailable(s, r));
+          // Free-form cooked dishes on the menu are served from prepared stock
+          // (like the ale barrel), available while there's stock to pour.
+          const servableCooked = (s.tavernMenu ?? [])
+            .filter((id) => (s.cookedDishes?.[id] ?? 0) > 0 && !!s.kitchenDishes?.[id]);
+          const totalVariety = servable.length + servableCooked.length;
           const t = calcTavern({
             level: tavernLvl,
             happiness: s.happiness,
             townHallLevel: getTownHallLevel(s.buildings),
-            menuVariety: servable.length,
+            menuVariety: totalVariety,
             servers: s.tavernServers ?? 0,
             pricing: s.tavernPricing ?? "fair",
             reputation: s.tavernReputation ?? 0,
@@ -5179,12 +5186,16 @@ export function GameProvider(props: ParentProps) {
           // Guests are fed by cooking the featured dishes to order — the total
           // "food eaten" is split across what's servable, and each dish's share
           // is turned into ingredient consumption via its recipe (cost ÷ yield).
-          if (servable.length > 0) {
+          if (totalVariety > 0) {
             const eaten = t.rooms * t.occupancy * TAVERN_FOOD_PER_ROOM_PER_HOUR * elapsedHours;
-            const perDish = eaten / servable.length;
+            const perDish = eaten / totalVariety;
             for (const r of servable) {
               const batches = perDish / (r.produces.amount || 1);
               for (const c of r.costs) spendDishCost(s, c.resource, c.amount * batches);
+            }
+            // Free-form dishes: each serving draws down its prepared stock.
+            for (const id of servableCooked) {
+              s.cookedDishes![id] = Math.max(0, (s.cookedDishes![id] ?? 0) - perDish);
             }
           }
         }
@@ -7408,7 +7419,19 @@ export function GameProvider(props: ParentProps) {
           costs: [], commodity: true,
         };
       });
-      return [...kitchen, ...commodity];
+      // Free-form cooked dishes — served from the prepared-dish stock (like a
+      // commodity), menu-able once discovered, available while there's stock.
+      const cooked: TavernDish[] = Object.values(state.kitchenDishes ?? {}).map((d) => {
+        const stk = Math.floor(state.cookedDishes?.[d.id] ?? 0);
+        return {
+          id: d.id, name: d.name, icon: getFoodIngredient(d.placements[0]?.ingredientId)?.icon ?? "🍲",
+          kind: "meal" as DishKind, unlocked: true,
+          onMenu: (state.tavernMenu ?? []).includes(d.id),
+          available: stk > 0, missing: stk > 0 ? [] : ["prepared stock"],
+          costs: [], cooked: true,
+        };
+      });
+      return [...kitchen, ...commodity, ...cooked];
     },
     getStorageCaps() { return calcStorageCaps(state.buildings); },
     getSettlementTier() { return getSettlementTier(getTownHallLevel(state.buildings)); },
