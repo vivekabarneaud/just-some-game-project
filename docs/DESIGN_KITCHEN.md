@@ -51,10 +51,20 @@ plan as alchemy's steep/distil/char).
 | Shelf | Role parallel | Example ingredients |
 |---|---|---|
 | 🌾 **Staple** | *base* — a meal wants one | wheat, barley, (bread) |
-| 🍖 **Protein** | *hero* — the substance | meat, fish, eggs, fava/peas |
+| 🍖 **Protein** | *hero* — the substance | game/venison, pork, chicken, fish, eggs, fava/peas |
 | 🥬 **Veg** | body | cabbage, turnips, gourd, mushrooms |
 | 🍎 **Fruit** | sweet | apples, pears, cherries, berries |
-| 🍯 **Seasoning & Dairy** | *catalyst* — amplifies, no line of its own | honey, milk, cheese, herbs |
+| 🧀 **Dairy** | body — enriches, great for baking | milk, cheese, butter |
+| 🌶️ **Spices** | *catalyst* — amplifies, no line of its own | long pepper, saffron, wildmint, salt, honey |
+
+Six shelves (a kitchen is a bigger pantry than an alchemist's bench). **Spices**
+is the catalyst — split out from dairy, which was awkward together. If Dairy
+feels like one shelf too many early, it can fold back under Protein/animal.
+
+**Food subcategories:** the Protein shelf above already shows the planned split
+(meat → game/pork/chicken…). That's an economy-wide change (each meat needs a
+source: pens, coop, hunt), so it's a **Phase-B pass**; the sandbox uses split
+*placeholders* to feel it out. See the `project_food_subcategories` memo.
 
 **The base lever (straight from alchemy):** protein/veg with **no staple** =
 "a snack, not a proper meal" — thin nourishment + a note ("wants some grain or

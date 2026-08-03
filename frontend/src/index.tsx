@@ -160,6 +160,7 @@ const FramePreview = lazy(() => import("./pages/FramePreview")); // TEMP dev-onl
 const CombatCardPreview = lazy(() => import("./pages/CombatCardPreview")); // TEMP dev-only, remove after card tuning
 const BattlePreview = lazy(() => import("./pages/BattlePreview")); // TEMP dev-only, remove after Tier-1 enemy pass
 const AlchemyLabDev = lazy(() => import("./pages/AlchemyLabDev")); // TEMP dev-only — free-form alchemy sandbox
+const KitchenDev = lazy(() => import("./pages/KitchenDev")); // TEMP dev-only — free-form cooking sandbox
 const Login = lazy(() => import("./pages/Login"));
 
 function AuthGuard(props: ParentProps) {
@@ -177,6 +178,7 @@ render(
       {/* Standalone (outside App/GameProvider): a pure tuning tool with no game
           state, so the settlement save-loop can't reload it mid-experiment. */}
       <Route path="/dev-alchemy" component={AlchemyLabDev} />
+      <Route path="/dev-kitchen" component={KitchenDev} />
       <Route path="/" component={(p) => <AuthGuard><App {...p} /></AuthGuard>}>
         <Route path="/" component={Overview} />
         <Route path="/buildings" component={Buildings} />

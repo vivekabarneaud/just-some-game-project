@@ -1,0 +1,50 @@
+// ─── Free-form cooking — the placeholder pantry ────────────────────────────
+// SANDBOX values (for /dev-kitchen). Not the real economy yet: the split meats
+// (venison/pork/chicken) are here so we can FEEL whether food subcategories make
+// cooking fun before we map their real sources (pens/coop/hunt). See
+// docs/DESIGN_KITCHEN.md + the project_food_subcategories memo.
+
+import type { FoodIngredient } from "./types.js";
+
+export const FOOD_INGREDIENTS: FoodIngredient[] = [
+  // ── Staple (the base — a proper meal wants one) ──
+  { id: "barley", name: "Barley", icon: "🌾", role: "staple", nourish: 4, comfort: 1, note: "Plain grain — filling and humble." },
+  { id: "oats", name: "Oats", icon: "🥣", role: "staple", nourish: 3, comfort: 2, note: "Soft grain, kind to a cold morning." },
+  { id: "bread", name: "Bread", icon: "🍞", role: "staple", nourish: 5, comfort: 2, note: "A loaf makes anything a meal." },
+
+  // ── Protein (the substance — the split-meat idea, as placeholders) ──
+  { id: "venison", name: "Venison", icon: "🦌", role: "protein", nourish: 5, comfort: 3, note: "Lean game from the hunt." },
+  { id: "pork", name: "Pork", icon: "🐖", role: "protein", nourish: 5, comfort: 4, note: "Rich and fatty — a treat." },
+  { id: "chicken", name: "Chicken", icon: "🐔", role: "protein", nourish: 4, comfort: 3, note: "Gentle, everyday meat." },
+  { id: "fish", name: "Fish", icon: "🐟", role: "protein", nourish: 3, comfort: 2, fresh: 1, note: "From the river — light." },
+  { id: "eggs", name: "Eggs", icon: "🥚", role: "protein", nourish: 3, comfort: 2, note: "Binds and enriches a dish." },
+  { id: "nuts", name: "Nuts", icon: "🌰", role: "protein", nourish: 3, comfort: 1, note: "Foraged — fat and keeping." },
+  { id: "bone", name: "Bone", icon: "🦴", role: "protein", nourish: 3, comfort: 1, note: "Marrow for a long broth." },
+
+  // ── Veg (body) ──
+  { id: "cabbage", name: "Cabbage", icon: "🥬", role: "veg", nourish: 2, comfort: 1, fresh: 2, note: "Hardy leaf, good raw or cooked." },
+  { id: "turnip", name: "Turnip", icon: "🥕", role: "veg", nourish: 3, comfort: 1, note: "Earthy root, keeps the pot honest." },
+  { id: "gourd", name: "Gourd", icon: "🎃", role: "veg", nourish: 3, comfort: 2, note: "Sweetens as it cooks down." },
+  { id: "mushroom", name: "Mushrooms", icon: "🍄", role: "veg", nourish: 2, comfort: 2, note: "Foraged — savoury depth." },
+
+  // ── Fruit (sweet) ──
+  { id: "apple", name: "Apples", icon: "🍎", role: "fruit", nourish: 1, comfort: 3, fresh: 3, note: "Crisp and cheering." },
+  { id: "berries", name: "Berries", icon: "🫐", role: "fruit", nourish: 1, comfort: 3, fresh: 3, note: "Foraged sweetness." },
+  { id: "pear", name: "Pears", icon: "🍐", role: "fruit", nourish: 1, comfort: 3, fresh: 2, note: "Soft, honeyed." },
+
+  // ── Dairy (body — enriches, bakes) ──
+  { id: "milk", name: "Milk", icon: "🥛", role: "dairy", nourish: 2, comfort: 3, note: "Enriches and softens." },
+  { id: "cheese", name: "Cheese", icon: "🧀", role: "dairy", nourish: 3, comfort: 4, note: "Rich — a little goes far." },
+  { id: "butter", name: "Butter", icon: "🧈", role: "dairy", nourish: 2, comfort: 3, note: "Makes everything better." },
+
+  // ── Spice (catalyst — amplifies, no line of its own) ──
+  { id: "long_pepper", name: "Long Pepper", icon: "🌶️", role: "spice", amplify: 0.2, note: "A warming bite — lifts a dish." },
+  { id: "saffron", name: "Saffron", icon: "🧡", role: "spice", amplify: 0.3, note: "Precious threads — a golden luxury." },
+  { id: "wildmint", name: "Wild Mint", icon: "🌿", role: "spice", amplify: 0.15, fresh: 1, note: "Cooling green — brightens the plate." },
+  { id: "salt", name: "Salt", icon: "🧂", role: "spice", amplify: 0.15, note: "The oldest seasoning." },
+  { id: "honey", name: "Honey", icon: "🍯", role: "spice", amplify: 0.2, comfort: 1, note: "Sweetens and rounds it out." },
+];
+
+const BY_ID = new Map(FOOD_INGREDIENTS.map((i) => [i.id, i]));
+export const getFoodIngredient = (id: string): FoodIngredient | undefined => BY_ID.get(id);
+export const foodByRole = (role: FoodIngredient["role"]) => FOOD_INGREDIENTS.filter((i) => i.role === role);
