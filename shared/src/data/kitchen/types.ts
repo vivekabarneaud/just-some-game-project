@@ -51,6 +51,16 @@ export interface FoodIngredient {
   note: string;
 }
 
+/** A discovered dish, stored in the cookbook (mirrors StoredAlchemyRecipe). */
+export interface StoredDish {
+  id: string;
+  name: string;
+  placements: CookPlacement[];
+  effects: DishEffect[];
+  quality: "plain" | "rough" | "fine" | "seasoned";
+  discoveredDay: number;
+}
+
 export interface DishResult {
   name: string;
   effects: DishEffect[];

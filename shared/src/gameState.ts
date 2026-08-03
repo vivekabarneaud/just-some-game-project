@@ -426,6 +426,8 @@ export interface GameState {
   /** Free-form alchemy recipe cards, keyed by the deterministic recipe id.
    *  See shared/data/alchemy + docs/DESIGN_APOTHECARY.md. */
   alchemyRecipes?: Record<string, import("./data/alchemy/types.js").StoredAlchemyRecipe>;
+  kitchenDishes?: Record<string, import("./data/kitchen/types.js").StoredDish>;
+  cookedDishes?: Record<string, number>;
   activeBlessing: { deityId: string; effect: string } | null;
   lastTradeAt: number;
   alchemyResearchAvailable: boolean;

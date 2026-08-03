@@ -301,6 +301,10 @@ import { getIngredient as getAlchemyIngredient } from "@medieval-realm/shared/da
 import { matchNamedRecipe } from "@medieval-realm/shared/data/alchemy/named_recipes";
 import { summarizeRecovery, easeHoursFor } from "@medieval-realm/shared/data/alchemy/apply";
 import type { Placement as AlchemyPlacement, StoredAlchemyRecipe } from "@medieval-realm/shared/data/alchemy/types";
+import { resolveDish, matchNamedDish } from "@medieval-realm/shared/data/kitchen/named_dishes";
+import { clampPlacements as clampCookPlacements, dishIdFor } from "@medieval-realm/shared/data/kitchen/cook";
+import { getFoodIngredient } from "@medieval-realm/shared/data/kitchen/ingredients";
+import type { CookPlacement, StoredDish } from "@medieval-realm/shared/data/kitchen/types";
 import { EXOTIC_IDS } from "@medieval-realm/shared/data/exotics";
 import { ALCHEMY_RECIPES, getDiscoverableRecipes, RESEARCH_BASE_COST } from "@medieval-realm/shared/data/alchemy_recipes";
 import { getDeity, getCurrentDeity } from "~/data/deities";
@@ -689,6 +693,10 @@ export interface GameState {
    *  deterministic recipeIdFor). A brewed potion in inventory uses this id as
    *  its itemId; this store is what the potion DOES. See DESIGN_APOTHECARY. */
   alchemyRecipes?: Record<string, StoredAlchemyRecipe>;
+  /** Free-form cooking: discovered dishes (the cookbook) + how many of each the
+   *  player has prepared (the pantry stock a later economy pass will draw on). */
+  kitchenDishes?: Record<string, StoredDish>;
+  cookedDishes?: Record<string, number>;
   alchemyResearchAvailable: boolean; // resets daily
   // Shrine blessing
   activeBlessing: { deityId: string; effect: string } | null;
@@ -983,6 +991,12 @@ export interface GameActions {
   brewPotion: (placements: AlchemyPlacement[]) => boolean;
   /** A saved recipe card (what a brewed-potion inventory item does), or undefined. */
   getAlchemyRecipe: (recipeId: string) => StoredAlchemyRecipe | undefined;
+  /** How many of a cooking ingredient the player owns (food / herb / resource). */
+  getCookIngredientQty: (ingredientId: string) => number;
+  /** Cook a free-form dish: consumes 1 of each ingredient, records the dish in
+   *  the cookbook (state.kitchenDishes) + the prepared-dish stock, and discovers
+   *  it if new. Returns false if any ingredient is short. */
+  cookDish: (placements: CookPlacement[]) => boolean;
   deployMission: (missionId: string, adventurerIds: string[], adventurerSupplies?: Record<string, { potion?: string; food?: string; recovery?: string }>, precomputedSuccess?: number) => boolean;
   /** Current quantity of any resource/item/herb/material (for deploy-item costs). */
   resourceQty: (res: string) => number;
@@ -7289,6 +7303,34 @@ export function GameProvider(props: ParentProps) {
     },
     getAlchemyRecipe(recipeId) {
       return state.alchemyRecipes?.[recipeId];
+    },
+    getCookIngredientQty(ingredientId) {
+      return getResourceQty(state, ingredientId);
+    },
+    cookDish(placements) {
+      const filled = clampCookPlacements(placements).filter((p) => getFoodIngredient(p.ingredientId));
+      if (filled.length === 0) return false;
+      const cost = new Map<string, number>();
+      for (const p of filled) cost.set(p.ingredientId, (cost.get(p.ingredientId) ?? 0) + 1);
+      for (const [id, n] of cost) if (getResourceQty(state, id) < n) return false;
+      const dish = resolveDish(filled);
+      const id = matchNamedDish(filled)?.id ?? dishIdFor(filled);
+      setState(produce((s) => {
+        for (const [ingId, n] of cost) spendResource(s, ingId, n);
+        s.kitchenDishes ??= {};
+        if (!s.kitchenDishes[id]) {
+          s.kitchenDishes[id] = {
+            id, name: dish.name, placements: filled, effects: dish.effects,
+            quality: dish.quality, discoveredDay: s.year,
+          };
+          pushEvent(s, "building_completed", "📖", `New dish discovered: ${dish.name}.`);
+        }
+        s.cookedDishes ??= {};
+        s.cookedDishes[id] = (s.cookedDishes[id] ?? 0) + 1;
+        pushEvent(s, "building_completed", "🍲", `Cooked ${dish.name}.`);
+      }));
+      scheduleSave();
+      return true;
     },
     brewPotion(placements) {
       // Clamp to the per-plant cap first, so we never charge for (or count)
