@@ -68,7 +68,56 @@ export const NAMED_DISHES: NamedDish[] = [
   // ── A signature that demands its meat (the "only one type" case) ──
   { id: "dish_honeyed_ham", name: "Honeyed Ham", icon: "🍖",
     slots: [one("pork", "roast"), one("honey", "boil")],
-    note: "Pork roasted and glazed with honey — a feast-day joint, and only pork will do." },
+    note: "Pork roasted and glazed with honey, a feast-day joint, and only pork will do." },
+
+  // ── Cold-weather comfort ──
+  { id: "dish_ploughmans_broth", name: "Ploughman's Broth", icon: "🍲",
+    slots: [any(FOOD_GROUPS.redMeat, "boil"), one("turnip", "boil"), any(FOOD_GROUPS.grain, "boil")],
+    note: "Meat, root and grain in one honest pot. A humble winter keeper." },
+  { id: "dish_marrow_rye", name: "Marrow & Rye", icon: "🍜",
+    slots: [one("bone", "boil"), one("rye", "boil")],
+    note: "Marrow broth and dark bread. A woodcutter's meal against the cold." },
+  { id: "dish_shepherds_roast", name: "Shepherd's Roast", icon: "🍖",
+    slots: [any(FOOD_GROUPS.redMeat, "roast"), one("turnip", "roast"), one("gourd", "roast")],
+    note: "Roast meat and roots, the 'we survived the week' dinner." },
+
+  // ── High summer (cold, fresh boards) ──
+  { id: "dish_orchard_board", name: "Orchard Board", icon: "🍐",
+    slots: [one("apple", "chop"), one("pear", "chop"), one("cheese", "chop")],
+    note: "Crisp fruit and cheese, cool and light on a hot day." },
+  { id: "dish_green_table", name: "Green Table", icon: "🥬",
+    slots: [one("cabbage", "chop"), one("wildmint", "chop"), one("cheese", "chop")],
+    note: "Bright leaf and herb with a little cheese, barely cooked at all." },
+
+  // ── Feast / luxury (saffron reads precious) ──
+  { id: "dish_golden_fowl", name: "Golden Fowl", icon: "🍗",
+    slots: [one("chicken", "roast"), one("saffron", "boil")],
+    note: "Fowl roasted golden with saffron, a table set for a guest." },
+
+  // ── Everyday & foraged ──
+  { id: "dish_mushroom_omelet", name: "Mushroom Omelet", icon: "🍳",
+    slots: [one("eggs", "fry"), one("mushroom", "fry")],
+    note: "Eggs and mushrooms quick in the pan, a good morning." },
+  { id: "dish_foragers_pot", name: "Forager's Pot", icon: "🍄",
+    slots: [one("mushroom", "boil"), one("nuts", "boil"), any(FOOD_GROUPS.grain, "boil")],
+    note: "Mushroom, nuts and grain, a quiet-day meal from the woods." },
+
+  // ── Sweet things ──
+  { id: "dish_wildberry_porridge", name: "Wildberry Porridge", icon: "🥣",
+    slots: [any(FOOD_GROUPS.grain, "boil"), one("berries", "boil"), one("nuts", "boil"), one("honey", "boil")],
+    note: "Grain simmered with wild berries, nuts and honey. A treat of a breakfast." },
+  { id: "dish_baked_apples", name: "Baked Apples", icon: "🍎",
+    slots: [one("apple", "roast"), one("honey", "boil")],
+    note: "Apples baked soft and honeyed, cozy on an autumn night." },
+  { id: "dish_honey_oats", name: "Honey Oats", icon: "🥣",
+    slots: [one("oats", "boil"), one("honey", "boil")],
+    note: "Oats and honey, a gentle start to the day." },
+  { id: "dish_apple_pie", name: "Apple Pie", icon: "🥧",
+    slots: [one("apple", "roast"), one("wheat", "roast"), one("honey", "boil")],
+    note: "Apples baked in a wheat crust, sweet with honey." },
+  { id: "dish_cherry_cobbler", name: "Cherry Cobbler", icon: "🥧",
+    slots: [one("cherries", "roast"), one("oats", "roast"), one("honey", "boil")],
+    note: "Tart cherries under a sweet oat crust." },
 ];
 
 /** The distinct (ingredient, technique) pairs in a pot — quantity-independent. */

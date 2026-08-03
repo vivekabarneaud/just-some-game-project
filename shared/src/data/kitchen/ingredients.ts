@@ -34,6 +34,7 @@ export const FOOD_INGREDIENTS: FoodIngredient[] = [
   { id: "apple", name: "Apples", icon: "🍎", role: "fruit", signature: "chop", nourish: 1, comfort: 3, fresh: 3, note: "Crisp and cheering." },
   { id: "berries", name: "Berries", icon: "🫐", role: "fruit", signature: "chop", nourish: 1, comfort: 3, fresh: 3, note: "Foraged sweetness." },
   { id: "pear", name: "Pears", icon: "🍐", role: "fruit", signature: "chop", nourish: 1, comfort: 3, fresh: 2, note: "Soft, honeyed." },
+  { id: "cherries", name: "Cherries", icon: "🍒", role: "fruit", signature: "chop", nourish: 1, comfort: 4, fresh: 2, note: "Bright and tart, a summer joy." },
 
   // ── Dairy (body — enriches, bakes) ──
   { id: "milk", name: "Milk", icon: "🥛", role: "dairy", signature: "boil", nourish: 2, comfort: 3, note: "Enriches and softens." },
@@ -42,8 +43,9 @@ export const FOOD_INGREDIENTS: FoodIngredient[] = [
 
   // ── Spice (catalyst — amplifies, no line of its own) ──
   { id: "long_pepper", name: "Long Pepper", icon: "🌶️", role: "spice", signature: "boil", amplify: 0.2, note: "A warming bite — lifts a dish." },
-  { id: "saffron", name: "Saffron", icon: "🧡", role: "spice", signature: "boil", amplify: 0.3, note: "Precious threads — a golden luxury." },
-  { id: "wildmint", name: "Wild Mint", icon: "🌿", role: "spice", signature: "chop", amplify: 0.15, fresh: 1, note: "Cooling green — brightens the plate." },
+  { id: "saffron", name: "Saffron", icon: "🧡", role: "spice", signature: "boil", amplify: 0.3, note: "Precious threads, a golden luxury (a trade spice)." },
+  { id: "cinnamon", name: "Cinnamon", icon: "🟤", role: "spice", signature: "boil", amplify: 0.2, comfort: 1, note: "A far-traded bark, sweet and warming (a trade spice)." },
+  { id: "wildmint", name: "Wild Mint", icon: "🌿", role: "spice", signature: "chop", amplify: 0.15, fresh: 1, note: "Cooling green, brightens the plate." },
   { id: "salt", name: "Salt", icon: "🧂", role: "spice", signature: "boil", amplify: 0.15, note: "The oldest seasoning." },
   { id: "honey", name: "Honey", icon: "🍯", role: "spice", signature: "chop", amplify: 0.2, comfort: 1, note: "Sweetens and rounds it out." },
 ];

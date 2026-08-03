@@ -63,6 +63,10 @@ const ADJ: Partial<Record<DishChannel, string>> = {
   nourishment: "Hearty", comfort: "Comforting", warmth: "Warming", freshness: "Fresh",
 };
 
+/** Prestige spices tip an invented dish into a "Golden ___" — a flavour-AND-
+ *  status flourish (a named dish keeps its own name). */
+const PRESTIGE_SPICES = new Set(["saffron"]);
+
 export function cook(placements: CookPlacement[]): DishResult {
   const notes: string[] = [];
   const filled = clampPlacements(placements);
@@ -107,18 +111,21 @@ export function cook(placements: CookPlacement[]): DishResult {
   effects.sort((a, b) => b.amount - a.amount);
 
   const quality: DishResult["quality"] = effects.length === 0 ? "plain" : thin ? "rough" : "fine";
-  return { name: nameDish(techniques, effects, quality), effects, quality, notes };
+  const golden = quality === "fine" && filled.some((p) => PRESTIGE_SPICES.has(p.ingredientId));
+  return { name: nameDish(techniques, effects, quality, golden), effects, quality, notes };
 }
 
-function nameDish(techniques: Set<CookTechnique>, effects: DishEffect[], quality: DishResult["quality"]): string {
+function nameDish(techniques: Set<CookTechnique>, effects: DishEffect[], quality: DishResult["quality"], golden: boolean): string {
   if (effects.length === 0) return "Watery Pot";
-  const dominant = effects.find((e) => ADJ[e.channel]) ?? effects[0];
-  const adj = ADJ[dominant.channel] ?? "Curious";
   // Form from the "headline" prep (roast > fry > chop > boil).
   const form = techniques.has("roast") ? "Roast"
     : techniques.has("fry") ? "Fry"
     : techniques.size === 1 && techniques.has("chop") ? "Board"
     : "Pot";
+  // A prestige spice makes it "Golden ___" — the flourish replaces the adjective.
+  if (golden) return `Golden ${form}`;
+  const dominant = effects.find((e) => ADJ[e.channel]) ?? effects[0];
+  const adj = ADJ[dominant.channel] ?? "Curious";
   const roughPrefix = quality === "rough" ? "Thin " : "";
   return `${roughPrefix}${adj} ${form}`;
 }

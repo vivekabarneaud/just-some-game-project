@@ -50,6 +50,13 @@ describe("cook — the free-form cooking engine", () => {
     expect(spiced.effects.some((e) => (e.channel as string) === "spice")).toBe(false);
   });
 
+  it("a prestige spice (saffron) tips an invented dish into a 'Golden ___'", () => {
+    const golden = cook([p("venison", "roast"), p("barley", "boil"), p("saffron", "boil")]);
+    expect(golden.name).toMatch(/^Golden /);
+    const plain = cook([p("venison", "roast"), p("barley", "boil"), p("salt", "boil")]);
+    expect(plain.name).not.toMatch(/^Golden /);
+  });
+
   it("quantity is potency but capped: 20 barley cooks like 5 (no larder dump)", () => {
     const five = cook(Array.from({ length: MAX_PER_INGREDIENT }, () => p("barley", "boil")));
     const twenty = cook(Array.from({ length: 20 }, () => p("barley", "boil")));

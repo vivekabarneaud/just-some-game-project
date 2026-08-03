@@ -148,8 +148,21 @@ economy phase — the sandbox (Phase A) doesn't touch it.
   adventurer **mission food slot** (a packed meal), a settlement-wide comfort/
   warmth nudge when it's on the menu, seasonal fit (a cold board reads better in
   summer; a hot stew in winter).
+- **Effect model (agreed):** same opt-in shape as alchemy. A cooked/invented
+  dish packed for an adventure gives mild boons and can be **slightly better
+  than the fixed staple recipes** (reward for cooking well), never mandatory.
+  **Diversity** is mostly for fun/immersion, with a minor effect at most.
+- **Seasonality is emergent:** the boons don't change, but their VALUE does
+  (freshness matters in a summer heat wave, warmth in winter). No extra data.
 - Ingredient shelves read from the existing **`FoodItemType` larder stocks** +
   herbs/honey/dairy — no new stockpile system.
+
+### Naming flourishes
+- **Golden ___:** a prestige spice (saffron) tips an INVENTED dish's name to
+  "Golden Roast", etc. (a named dish keeps its own name). Flavour + status in one
+  lever. Built.
+- **Trade spices:** saffron + cinnamon are "trade spices" (arrive via
+  travelling merchants, not grown) — a natural rapport/economy hook later.
 
 ---
 
