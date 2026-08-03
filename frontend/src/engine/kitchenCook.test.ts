@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { cook, clampPlacements, MAX_PER_INGREDIENT, dishIdFor } from "@medieval-realm/shared/data/kitchen/cook";
+import { cook, clampPlacements, MAX_PER_INGREDIENT } from "@medieval-realm/shared/data/kitchen/cook";
 import { NAMED_DISHES, matchNamedDish } from "@medieval-realm/shared/data/kitchen/named_dishes";
 import { getFoodIngredient } from "@medieval-realm/shared/data/kitchen/ingredients";
 import type { DishChannel, CookPlacement, CookTechnique } from "@medieval-realm/shared/data/kitchen/types";
@@ -58,25 +58,39 @@ describe("cook — the free-form cooking engine", () => {
   });
 });
 
-describe("named dishes — the tier-1 staples", () => {
-  it("every named dish uses real ingredients", () => {
+describe("named dishes — curated combos (with meat-split slots)", () => {
+  it("every named dish slot uses real ingredients", () => {
     for (const d of NAMED_DISHES) {
-      for (const pl of d.placements) {
-        expect(getFoodIngredient(pl.ingredientId), `${d.name} → ${pl.ingredientId}`).toBeTruthy();
+      for (const slot of d.slots) {
+        for (const id of slot.anyOf) {
+          expect(getFoodIngredient(id), `${d.name} → ${id}`).toBeTruthy();
+        }
       }
     }
   });
 
-  it("matches a staple by ingredients + preps, order/quantity independent", () => {
-    // Hearth Stew = boil(venison) + boil(nuts); reversed + doubled still matches.
+  it("matches order/quantity independently", () => {
+    // Hearth Stew = boil(red meat) + boil(nuts); reversed + doubled still matches.
     expect(matchNamedDish([p("nuts", "boil"), p("venison", "boil")])?.name).toBe("Hearth Stew");
     expect(matchNamedDish([p("venison", "boil"), p("venison", "boil"), p("nuts", "boil")])?.name).toBe("Hearth Stew");
     // The same ingredients prepared differently is not the Hearth Stew.
     expect(matchNamedDish([p("venison", "roast"), p("nuts", "boil")])).toBeUndefined();
   });
 
+  it("an anyOf slot substitutes freely: pork OR venison both make Hearth Stew", () => {
+    expect(matchNamedDish([p("pork", "boil"), p("nuts", "boil")])?.name).toBe("Hearth Stew");
+    expect(matchNamedDish([p("venison", "boil"), p("nuts", "boil")])?.name).toBe("Hearth Stew");
+    // But chicken isn't a "red meat" — no Hearth Stew.
+    expect(matchNamedDish([p("chicken", "boil"), p("nuts", "boil")])).toBeUndefined();
+  });
+
+  it("a signature dish demands its meat: Honeyed Ham needs pork, not just any meat", () => {
+    expect(matchNamedDish([p("pork", "roast"), p("honey", "boil")])?.name).toBe("Honeyed Ham");
+    expect(matchNamedDish([p("venison", "roast"), p("honey", "boil")])).toBeUndefined();
+  });
+
   it("each named dish has a unique id", () => {
-    const ids = NAMED_DISHES.map((d) => dishIdFor(d.placements));
+    const ids = NAMED_DISHES.map((d) => d.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
 });
