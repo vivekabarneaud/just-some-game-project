@@ -13,10 +13,13 @@ import type { CookPlacement, CookTechnique } from "./types.js";
 import { getFoodIngredient } from "./ingredients.js";
 
 /** Ingredient groups, so a slot can say "any red meat" without repetition. */
+// Groups the meat-split is split-READY through: today they resolve to the single
+// real "meat"; when the food-subcategory pass lands, expand these to venison/
+// pork/… and every dish using them accepts the splits with no rewrite.
 export const FOOD_GROUPS = {
-  redMeat: ["venison", "pork"],
-  anyMeat: ["venison", "pork", "chicken"],
-  grain: ["wheat", "barley", "oats", "rye"], // raw grains only — bread is baked, not a grain
+  redMeat: ["meat"],
+  anyMeat: ["meat"],
+  grain: ["wheat", "barley"], // the real grains today (oats/rye come later)
   berry: ["berries"],
 } as const;
 
@@ -41,10 +44,10 @@ export const NAMED_DISHES: NamedDish[] = [
   // ── Tier-1 staples (forgiving where it makes sense) ──
   { id: "dish_porridge", name: "Porridge", icon: "🥣",
     slots: [any(FOOD_GROUPS.grain, "boil")],
-    note: "Plain boiled grain, warm and filling — the daily staple." },
+    note: "Plain boiled grain, warm and filling. The daily staple." },
   { id: "dish_hearth_stew", name: "Hearth Stew", icon: "🍲",
     slots: [any(FOOD_GROUPS.redMeat, "boil"), one("nuts", "boil")],
-    note: "Red meat and nuts simmered slow — keeps the table full through a hard week." },
+    note: "Meat and nuts simmered slow. Keeps the table full through a hard week." },
   { id: "dish_river_stew", name: "River Stew", icon: "🍲",
     slots: [one("fish", "boil"), any(FOOD_GROUPS.berry, "boil")],
     note: "Fish and foraged berries in a thin, honest broth." },
@@ -52,73 +55,60 @@ export const NAMED_DISHES: NamedDish[] = [
     slots: [one("bone", "boil")],
     note: "Bones simmered long into a rich, marrowy broth. Nothing goes to waste." },
 
-  // ── Discoverable dishes ──
-  { id: "dish_harvest_roast", name: "Harvest Roast", icon: "🍖",
-    slots: [any(FOOD_GROUPS.redMeat, "roast"), one("gourd", "roast"), any(FOOD_GROUPS.grain, "boil")],
-    note: "Roast meat and sweet gourd with a grain on the side — a small feast." },
-  { id: "dish_summer_board", name: "Summer Board", icon: "🧀",
-    slots: [one("cheese", "chop"), one("apple", "chop"), one("cabbage", "chop")],
-    note: "A cold board of cheese, crisp apple and leaf — welcome on a hot day." },
-  { id: "dish_berry_pottage", name: "Berry Pottage", icon: "🥣",
-    slots: [any(FOOD_GROUPS.grain, "boil"), one("berries", "boil"), one("honey", "boil")],
-    note: "Grain and foraged berries simmered sweet — a warming breakfast." },
-  { id: "dish_fishermans_fry", name: "Fisherman's Fry", icon: "🍳",
-    slots: [one("fish", "fry"), one("eggs", "fry")],
-    note: "Fish and eggs quick in the pan — humble and filling." },
-
-  // ── A signature that demands its meat (the "only one type" case) ──
-  { id: "dish_honeyed_ham", name: "Honeyed Ham", icon: "🍖",
-    slots: [one("pork", "roast"), one("honey", "boil")],
-    note: "Pork roasted and glazed with honey, a feast-day joint, and only pork will do." },
-
   // ── Cold-weather comfort ──
+  { id: "dish_harvest_roast", name: "Harvest Roast", icon: "🍖",
+    slots: [any(FOOD_GROUPS.redMeat, "roast"), one("squash", "roast"), any(FOOD_GROUPS.grain, "boil")],
+    note: "Roast meat and sweet gourd with a grain on the side. A small feast." },
   { id: "dish_ploughmans_broth", name: "Ploughman's Broth", icon: "🍲",
-    slots: [any(FOOD_GROUPS.redMeat, "boil"), one("turnip", "boil"), any(FOOD_GROUPS.grain, "boil")],
+    slots: [any(FOOD_GROUPS.redMeat, "boil"), one("turnips", "boil"), any(FOOD_GROUPS.grain, "boil")],
     note: "Meat, root and grain in one honest pot. A humble winter keeper." },
-  { id: "dish_marrow_rye", name: "Marrow & Rye", icon: "🍜",
-    slots: [one("bone", "boil"), one("rye", "boil")],
-    note: "Marrow broth and dark bread. A woodcutter's meal against the cold." },
   { id: "dish_shepherds_roast", name: "Shepherd's Roast", icon: "🍖",
-    slots: [any(FOOD_GROUPS.redMeat, "roast"), one("turnip", "roast"), one("gourd", "roast")],
+    slots: [any(FOOD_GROUPS.redMeat, "roast"), one("turnips", "roast"), one("squash", "roast")],
     note: "Roast meat and roots, the 'we survived the week' dinner." },
 
-  // ── High summer (cold, fresh boards) ──
-  { id: "dish_orchard_board", name: "Orchard Board", icon: "🍐",
-    slots: [one("apple", "chop"), one("pear", "chop"), one("cheese", "chop")],
-    note: "Crisp fruit and cheese, cool and light on a hot day." },
-  { id: "dish_green_table", name: "Green Table", icon: "🥬",
-    slots: [one("cabbage", "chop"), one("wildmint", "chop"), one("cheese", "chop")],
-    note: "Bright leaf and herb with a little cheese, barely cooked at all." },
-
-  // ── Feast / luxury (saffron reads precious) ──
-  { id: "dish_golden_fowl", name: "Golden Fowl", icon: "🍗",
-    slots: [one("chicken", "roast"), one("saffron", "boil")],
-    note: "Fowl roasted golden with saffron, a table set for a guest." },
-
   // ── Everyday & foraged ──
+  { id: "dish_fishermans_fry", name: "Fisherman's Fry", icon: "🍳",
+    slots: [one("fish", "fry"), one("eggs", "fry")],
+    note: "Fish and eggs quick in the pan. Humble and filling." },
   { id: "dish_mushroom_omelet", name: "Mushroom Omelet", icon: "🍳",
-    slots: [one("eggs", "fry"), one("mushroom", "fry")],
+    slots: [one("eggs", "fry"), one("mushrooms", "fry")],
     note: "Eggs and mushrooms quick in the pan, a good morning." },
   { id: "dish_foragers_pot", name: "Forager's Pot", icon: "🍄",
-    slots: [one("mushroom", "boil"), one("nuts", "boil"), any(FOOD_GROUPS.grain, "boil")],
+    slots: [one("mushrooms", "boil"), one("nuts", "boil"), any(FOOD_GROUPS.grain, "boil")],
     note: "Mushroom, nuts and grain, a quiet-day meal from the woods." },
+  { id: "dish_pease_porridge", name: "Pease Porridge", icon: "🥣",
+    slots: [one("peas", "boil")],
+    note: "Pease porridge hot, pease porridge cold. Humble and old." },
+  { id: "dish_fava_mash", name: "Fava Mash", icon: "🫘",
+    slots: [one("fava", "boil")],
+    note: "Broad beans mashed soft. Peasant fare, before the herd." },
 
   // ── Sweet things ──
+  { id: "dish_berry_pottage", name: "Berry Pottage", icon: "🥣",
+    slots: [any(FOOD_GROUPS.grain, "boil"), one("berries", "boil"), one("honey", "boil")],
+    note: "Grain and foraged berries simmered sweet. A warming breakfast." },
   { id: "dish_wildberry_porridge", name: "Wildberry Porridge", icon: "🥣",
     slots: [any(FOOD_GROUPS.grain, "boil"), one("berries", "boil"), one("nuts", "boil"), one("honey", "boil")],
     note: "Grain simmered with wild berries, nuts and honey. A treat of a breakfast." },
+  { id: "dish_summer_fool", name: "Summer Fool", icon: "🍓",
+    slots: [one("strawberries", "chop"), one("milk", "boil"), one("honey", "boil")],
+    note: "Crushed strawberries folded through sweet cream. A fleeting summer joy." },
   { id: "dish_baked_apples", name: "Baked Apples", icon: "🍎",
-    slots: [one("apple", "roast"), one("honey", "boil")],
+    slots: [one("apples", "roast"), one("honey", "boil")],
     note: "Apples baked soft and honeyed, cozy on an autumn night." },
-  { id: "dish_honey_oats", name: "Honey Oats", icon: "🥣",
-    slots: [one("oats", "boil"), one("honey", "boil")],
-    note: "Oats and honey, a gentle start to the day." },
   { id: "dish_apple_pie", name: "Apple Pie", icon: "🥧",
-    slots: [one("apple", "roast"), one("wheat", "roast"), one("honey", "boil")],
+    slots: [one("apples", "roast"), one("wheat", "roast"), one("honey", "boil")],
     note: "Apples baked in a wheat crust, sweet with honey." },
   { id: "dish_cherry_cobbler", name: "Cherry Cobbler", icon: "🥧",
-    slots: [one("cherries", "roast"), one("oats", "roast"), one("honey", "boil")],
-    note: "Tart cherries under a sweet oat crust." },
+    slots: [one("cherries", "roast"), one("wheat", "roast"), one("honey", "boil")],
+    note: "Tart cherries under a sweet wheat crust." },
+
+  // FUTURE (return when the ingredients exist — recorded in DESIGN_KITCHEN §9):
+  //   Honeyed Ham   → needs the pork split
+  //   Golden Fowl   → needs poultry (chicken) + saffron
+  //   Marrow & Rye  → needs the rye grain
+  //   Honey Oats    → needs the oats grain
+  //   Summer/Orchard/Green boards → need cheese as a cook-with ingredient + wild mint
 ];
 
 /** The distinct (ingredient, technique) pairs in a pot — quantity-independent. */

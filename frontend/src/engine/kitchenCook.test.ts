@@ -21,30 +21,30 @@ describe("cook — the free-form cooking engine", () => {
   });
 
   it("a dish with substance but no staple comes out thin (the base lever)", () => {
-    const withStaple = cook([p("venison", "roast"), p("barley", "boil")]);
-    const noStaple = cook([p("venison", "roast")]);
+    const withStaple = cook([p("meat", "roast"), p("barley", "boil")]);
+    const noStaple = cook([p("meat", "roast")]);
     expect(noStaple.quality).toBe("rough");
     expect(noStaple.notes.some((n) => n.toLowerCase().includes("staple") || n.toLowerCase().includes("grain"))).toBe(true);
     expect(amt(noStaple, "nourishment")).toBeLessThan(amt(withStaple, "nourishment"));
   });
 
   it("prep is per-ingredient: roast the meat AND boil the staple in one dish", () => {
-    const r = cook([p("venison", "roast"), p("barley", "boil")]);
+    const r = cook([p("meat", "roast"), p("barley", "boil")]);
     expect(amt(r, "comfort")).toBeGreaterThan(0); // roast leans comfort
     expect(amt(r, "warmth")).toBeGreaterThan(0);  // boiled grain warms
     expect(r.quality).toBe("fine");
   });
 
   it("technique changes what an ingredient gives: chopped is fresh + cold, boiled warms", () => {
-    const chopped = cook([p("apple", "chop"), p("barley", "boil")]);
-    const boiled = cook([p("apple", "boil"), p("barley", "boil")]);
+    const chopped = cook([p("apples", "chop"), p("barley", "boil")]);
+    const boiled = cook([p("apples", "boil"), p("barley", "boil")]);
     expect(amt(chopped, "freshness")).toBeGreaterThan(amt(boiled, "freshness"));
     expect(amt(boiled, "warmth")).toBeGreaterThan(0);
   });
 
   it("spices amplify the dish (catalyst, no line of its own)", () => {
-    const plain = cook([p("pork", "roast"), p("barley", "boil")]);
-    const spiced = cook([p("pork", "roast"), p("barley", "boil"), p("long_pepper", "boil")]);
+    const plain = cook([p("meat", "roast"), p("barley", "boil")]);
+    const spiced = cook([p("meat", "roast"), p("barley", "boil"), p("long_pepper", "boil")]);
     expect(spiced.notes.some((n) => n.toLowerCase().includes("spice"))).toBe(true);
     expect(amt(spiced, "comfort")).toBeGreaterThan(amt(plain, "comfort"));
     expect(spiced.effects.some((e) => (e.channel as string) === "spice")).toBe(false);
@@ -52,44 +52,41 @@ describe("cook — the free-form cooking engine", () => {
 
   it("a seasoning lifts a proper meal to 'seasoned' quality", () => {
     expect(cook([p("barley", "boil")]).quality).toBe("fine");
-    expect(cook([p("barley", "boil"), p("bay", "boil")]).quality).toBe("seasoned");
+    expect(cook([p("barley", "boil"), p("honey", "boil")]).quality).toBe("seasoned");
   });
 
   it("a garnish enhances a named dish without breaking its identity", () => {
-    const broth = [p("venison", "boil"), p("turnip", "boil"), p("barley", "boil")];
+    const broth = [p("meat", "boil"), p("turnips", "boil"), p("barley", "boil")];
     const plain = cook(broth);
-    const seasoned = cook([...broth, p("bay", "boil")]);
-    // Still Ploughman's Broth (bay is a garnish, not a new ingredient), but finer + a touch stronger.
-    expect(matchNamedDish([...broth, p("bay", "boil")])?.name).toBe("Ploughman's Broth");
+    const seasoned = cook([...broth, p("honey", "boil")]);
+    // Still Ploughman's Broth (honey is a garnish here, not a new body ingredient).
+    expect(matchNamedDish([...broth, p("honey", "boil")])?.name).toBe("Ploughman's Broth");
     expect(plain.quality).toBe("fine");
     expect(seasoned.quality).toBe("seasoned");
     expect(amt(seasoned, "nourishment")).toBeGreaterThan(amt(plain, "nourishment"));
   });
 
-  it("the right spice UPGRADES a plain dish into a named one (chicken + saffron → Golden Fowl)", () => {
-    expect(matchNamedDish([p("chicken", "roast")])).toBeUndefined();
-    expect(matchNamedDish([p("chicken", "roast"), p("saffron", "boil")])?.name).toBe("Golden Fowl");
+  it("a required seasoning slot must be present: grain+berries only becomes Berry Pottage with honey", () => {
+    expect(matchNamedDish([p("barley", "boil"), p("berries", "boil")])).toBeUndefined();
+    expect(matchNamedDish([p("barley", "boil"), p("berries", "boil"), p("honey", "boil")])?.name).toBe("Berry Pottage");
   });
 
-  it("an extra BODY ingredient does break identity (that's a different dish)", () => {
-    expect(matchNamedDish([p("venison", "boil"), p("nuts", "boil"), p("turnip", "boil")])?.name).not.toBe("Hearth Stew");
-  });
-
-  it("variety is a hidden catalyst: a broader spread lifts boons, with no 'diversity' line", () => {
-    // Same headline ingredient (barley) both times; the varied dish adds a
-    // second BODY shelf, which lifts nourishment beyond barley alone.
-    const narrow = cook([p("barley", "boil")]);
-    const varied = cook([p("barley", "boil"), p("turnip", "boil")]);
-    expect(amt(varied, "nourishment")).toBeGreaterThan(amt(narrow, "nourishment"));
-    // No output line is ever labelled "diversity".
-    expect(varied.effects.some((e) => (e.channel as string) === "diversity")).toBe(false);
+  it("an extra BODY ingredient breaks identity (that's a different dish)", () => {
+    expect(matchNamedDish([p("meat", "boil"), p("nuts", "boil"), p("turnips", "boil")])?.name).not.toBe("Hearth Stew");
   });
 
   it("a prestige spice (saffron) tips an invented dish into a 'Golden ___'", () => {
-    const golden = cook([p("venison", "roast"), p("barley", "boil"), p("saffron", "boil")]);
+    const golden = cook([p("meat", "roast"), p("barley", "boil"), p("saffron", "boil")]);
     expect(golden.name).toMatch(/^Golden /);
-    const plain = cook([p("venison", "roast"), p("barley", "boil"), p("salt", "boil")]);
+    const plain = cook([p("meat", "roast"), p("barley", "boil"), p("honey", "boil")]);
     expect(plain.name).not.toMatch(/^Golden /);
+  });
+
+  it("variety is a hidden catalyst: a broader spread lifts boons, with no 'diversity' line", () => {
+    const narrow = cook([p("barley", "boil")]);
+    const varied = cook([p("barley", "boil"), p("turnips", "boil")]);
+    expect(amt(varied, "nourishment")).toBeGreaterThan(amt(narrow, "nourishment"));
+    expect(varied.effects.some((e) => (e.channel as string) === "diversity")).toBe(false);
   });
 
   it("quantity is potency but capped: 20 barley cooks like 5 (no larder dump)", () => {
@@ -100,7 +97,7 @@ describe("cook — the free-form cooking engine", () => {
   });
 });
 
-describe("named dishes — curated combos (with meat-split slots)", () => {
+describe("named dishes — curated combos (real pantry)", () => {
   it("every named dish slot uses real ingredients", () => {
     for (const d of NAMED_DISHES) {
       for (const slot of d.slots) {
@@ -112,23 +109,17 @@ describe("named dishes — curated combos (with meat-split slots)", () => {
   });
 
   it("matches order/quantity independently", () => {
-    // Hearth Stew = boil(red meat) + boil(nuts); reversed + doubled still matches.
-    expect(matchNamedDish([p("nuts", "boil"), p("venison", "boil")])?.name).toBe("Hearth Stew");
-    expect(matchNamedDish([p("venison", "boil"), p("venison", "boil"), p("nuts", "boil")])?.name).toBe("Hearth Stew");
+    expect(matchNamedDish([p("nuts", "boil"), p("meat", "boil")])?.name).toBe("Hearth Stew");
+    expect(matchNamedDish([p("meat", "boil"), p("meat", "boil"), p("nuts", "boil")])?.name).toBe("Hearth Stew");
     // The same ingredients prepared differently is not the Hearth Stew.
-    expect(matchNamedDish([p("venison", "roast"), p("nuts", "boil")])).toBeUndefined();
+    expect(matchNamedDish([p("meat", "roast"), p("nuts", "boil")])).toBeUndefined();
   });
 
-  it("an anyOf slot substitutes freely: pork OR venison both make Hearth Stew", () => {
-    expect(matchNamedDish([p("pork", "boil"), p("nuts", "boil")])?.name).toBe("Hearth Stew");
-    expect(matchNamedDish([p("venison", "boil"), p("nuts", "boil")])?.name).toBe("Hearth Stew");
-    // But chicken isn't a "red meat" — no Hearth Stew.
-    expect(matchNamedDish([p("chicken", "boil"), p("nuts", "boil")])).toBeUndefined();
-  });
-
-  it("a signature dish demands its meat: Honeyed Ham needs pork, not just any meat", () => {
-    expect(matchNamedDish([p("pork", "roast"), p("honey", "boil")])?.name).toBe("Honeyed Ham");
-    expect(matchNamedDish([p("venison", "roast"), p("honey", "boil")])).toBeUndefined();
+  it("the redMeat group is the split-ready seam: meat makes Hearth Stew, fish does not", () => {
+    // Today redMeat = [meat]; when the split lands it becomes [venison, pork, …]
+    // and this dish accepts them all with no change here.
+    expect(matchNamedDish([p("meat", "boil"), p("nuts", "boil")])?.name).toBe("Hearth Stew");
+    expect(matchNamedDish([p("fish", "boil"), p("nuts", "boil")])).toBeUndefined();
   });
 
   it("each named dish has a unique id", () => {
