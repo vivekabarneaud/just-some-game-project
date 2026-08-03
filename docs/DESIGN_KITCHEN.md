@@ -190,3 +190,38 @@ economy phase — the sandbox (Phase A) doesn't touch it.
    turned out" read? (Lean: quality yes, rarity maybe not — food isn't loot.)
 4. Cast ties (e.g. a Nell / Edda signature dish) — draft in chat when Phase B
    flavor is written.
+
+---
+
+## 9. Future flavours & hooks (brainstorm 2026-08-03, not scheduled)
+
+Fun ideas to draw from later. NB: cherries/fava/strawberries already exist
+(cherry orchard, fava + strawberry gardens), so they map straight through.
+
+- **Legumes as early protein.** Fava + peas feed you before livestock. Dishes:
+  Fava Mash (ful), Bean Pottage (fava + barley), **Pease Porridge** (and the
+  "hot / cold" rhyme rides the emergent seasonality — warmth dish hot, fresh
+  dish cold).
+- **Subcategory splits** (Phase-B, per `project_food_subcategories`). Priority:
+  **mushrooms first** — they span kitchen (chanterelle/morel/field) AND alchemy
+  (witch's cap, puffball/vesse de loup), so one split feeds two systems. Then
+  berries (bilberry/blackberry/wild strawberry/**elderberry** → alchemy cordial
+  crossover), meat (add **mutton** → bouzelouf, rabbit, fowl), dairy (cream,
+  curds, skyr).
+- **Preserves** (the Preserve technique): jams (strawberry, apple butter w/
+  cinnamon), pickles/kraut, smoked fish, jerky, aged cheese. Serve three needs
+  at once — winter stores, mission rations, trade goods.
+- **Cultural cuisine.** Each culture a signature dish/ingredient, learned via
+  rapport/recipe. **Nordveld** = skyr + smoked fish + rye (an **Edda** thread);
+  Zah'kari = spices + sweets; Meridian = imports; Ashwick/Feldgrund = the
+  stew/pie/porridge baseline. Ties `project_races_origins`.
+- **Merchants sell recipes** — the "buy" path (alchemy has brew/invent/buy).
+  Recipe cards as merchant goods makes culture rapport *taste* like something.
+  Ties `project_traveling_merchants` + `project_loot_recipes`.
+- **Exotic imports / cocoa.** Late-game luxury tier above the trade spices
+  (saffron/cinnamon already seed it). **Meridian** sails cocoa in (sourced
+  Zah'kari / far south) → Spiced Cocoa (cocoa + cinnamon + honey + milk),
+  Chocolate Tart.
+- **Garden expansion** for cooking: a culinary **herb garden** (thyme/sage/dill
+  — feeds kitchen seasoning AND alchemy), a bean field, a berry patch, a saffron
+  crocus specialty crop. Ties `project_garden_expansion`.
