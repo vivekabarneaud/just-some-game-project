@@ -21,10 +21,10 @@ const SHELVES: { role: FoodRole; label: string; hint: string }[] = [
 // Preps + which kitchen level / tool gates each (shown here for reference; the
 // sandbox exposes them all for tuning).
 const TECHNIQUES: { technique: CookTechnique; label: string; gate: string }[] = [
-  { technique: "boil", label: "🍲 Boil", gate: "Kitchen Lv1" },
-  { technique: "fry", label: "🍳 Fry", gate: "Kitchen Lv2" },
-  { technique: "roast", label: "🔥 Roast", gate: "Kitchen Lv3" },
-  { technique: "chop", label: "🔪 Chop", gate: "cutting board" },
+  { technique: "boil", label: "🍲 Boil", gate: "camp" },
+  { technique: "chop", label: "🔪 Chop", gate: "camp" },
+  { technique: "fry", label: "🍳 Fry", gate: "village · pan" },
+  { technique: "roast", label: "🔥 Roast", gate: "town · oven" },
 ];
 
 const CHANNEL_LABEL: Record<DishChannel, string> = {

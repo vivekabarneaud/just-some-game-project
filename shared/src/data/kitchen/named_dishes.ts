@@ -26,6 +26,17 @@ export const NAMED_DISHES: NamedDish[] = [
     note: "Fish and foraged berries in a thin, honest broth." },
   { name: "Bone Broth", icon: "🍜", placements: [P("bone", "boil")],
     note: "Bones simmered long into a rich, marrowy broth. Nothing goes to waste." },
+
+  // Discoverable dishes beyond the daily staples — a first spread to play with.
+  // (Generic names; cast-tie / lore dishes come in the Phase-B flavor pass.)
+  { name: "Harvest Roast", icon: "🍖", placements: [P("pork", "roast"), P("gourd", "roast"), P("barley", "boil")],
+    note: "Roast meat and sweet gourd with a grain on the side — a small feast." },
+  { name: "Summer Board", icon: "🧀", placements: [P("cheese", "chop"), P("apple", "chop"), P("cabbage", "chop")],
+    note: "A cold board of cheese, crisp apple and leaf — welcome on a hot day." },
+  { name: "Berry Pottage", icon: "🥣", placements: [P("oats", "boil"), P("berries", "boil"), P("honey", "boil")],
+    note: "Oats and foraged berries simmered sweet — a warming breakfast." },
+  { name: "Fisherman's Fry", icon: "🍳", placements: [P("fish", "fry"), P("eggs", "fry")],
+    note: "Fish and eggs quick in the pan — humble and filling." },
 ];
 
 const BY_ID = new Map(NAMED_DISHES.map((d) => [dishIdFor(d.placements), d]));

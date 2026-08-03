@@ -35,21 +35,22 @@ gets approved in chat before it goes in-game (house rule: approve flavor first).
 ### Preps (how each ingredient is prepared → what it contributes)
 
 Per-ingredient, like alchemy (you can roast the meat and boil the staple in one
-dish). Heat methods gate by **kitchen building LEVEL**; chop gates on a **tool**.
+dish). Gated by **settlement tier**, same as alchemy's crush/boil → steep →
+distil → char reveal, with a crafted tool as the in-world reason.
 
-| Prep | Feel | Boon lean | Unlock |
-|---|---|---|---|
-| 🍲 **Boil** (pot over the fire) | hearty, warming | **nourishment** + **warmth** | Kitchen **Lv1** |
-| 🍳 **Fry / Griddle** (pan) | quick, savoury | modest **nourishment** + **comfort** | Kitchen **Lv2** |
-| 🔥 **Roast / Bake** (oven) | rich, celebratory | **comfort** spike | Kitchen **Lv3** |
-| 🔪 **Chop** (raw prep) | fresh, cold, light | **freshness** (eases summer heat) | **cutting board** (woodworker tool) |
-| 🥓 **Preserve / Smoke** | travel rations | keeps long → **mission food** slot | town (later) |
+| Prep | Feel | Boon lean | Unlock | Tool |
+|---|---|---|---|---|
+| 🍲 **Boil** (pot over the fire) | hearty, warming | **nourishment** + **warmth** | **camp** (start) | a pot |
+| 🔪 **Chop** (raw prep) | fresh, cold, light | **freshness** (eases summer heat) | **camp** (start) | knife; cutting board later *boosts* it |
+| 🍳 **Fry / Griddle** | quick, savoury | modest **nourishment** + **comfort** | **village** | **frying pan @ blacksmith** |
+| 🔥 **Roast / Bake** (oven) | rich, celebratory | **comfort** spike | **town** | oven |
+| 🥓 **Preserve / Smoke** | travel rations | keeps long → **mission food** slot | city (later) | — |
 
-Two gating axes: kitchen level unlocks the heat methods (better fire/equipment),
-while the **cutting board** — a crafted tool from the woodworker — unlocks Chop.
-This keeps the tool-making concept meaningful and ties woodworker → kitchen. The
-sandbox exposes Boil/Fry/Roast/Chop all at once for tuning; gating lands in
-Phase C.
+Boil + Chop are there from day one (a pot and a knife); the equipment methods
+open with the tier AND the crafted tool (frying pan at the blacksmith → the
+woodworker's **cutting board** becomes a Chop *boost*, not a gate). This keeps
+the tool-making concept meaningful and ties blacksmith/woodworker → kitchen. The
+sandbox exposes all preps for tuning; gating lands in Phase C.
 
 ### Shelves (ingredient role → what it contributes)
 

@@ -7,9 +7,12 @@
 import type { FoodIngredient } from "./types.js";
 
 export const FOOD_INGREDIENTS: FoodIngredient[] = [
-  // ── Staple (the base — a proper meal wants one) ──
-  { id: "barley", name: "Barley", icon: "🌾", role: "staple", signature: "boil", nourish: 4, comfort: 1, note: "Plain grain — filling and humble." },
+  // ── Staple (the base — a proper meal wants one). Grain split: wheat/barley
+  //    are the real economy today; oats/rye are the additions to feel out. ──
+  { id: "wheat", name: "Wheat", icon: "🌾", role: "staple", signature: "boil", nourish: 4, comfort: 2, note: "The fine grain — bread and refinement." },
+  { id: "barley", name: "Barley", icon: "🌿", role: "staple", signature: "boil", nourish: 4, comfort: 1, note: "Plain grain — filling and humble." },
   { id: "oats", name: "Oats", icon: "🥣", role: "staple", signature: "boil", nourish: 3, comfort: 2, note: "Soft grain, kind to a cold morning." },
+  { id: "rye", name: "Rye", icon: "🌾", role: "staple", signature: "boil", nourish: 5, comfort: 1, note: "Dark, hearty grain — keeps a body going." },
   { id: "bread", name: "Bread", icon: "🍞", role: "staple", signature: "boil", nourish: 5, comfort: 2, note: "A loaf makes anything a meal." },
 
   // ── Protein (the substance — the split-meat idea, as placeholders) ──
