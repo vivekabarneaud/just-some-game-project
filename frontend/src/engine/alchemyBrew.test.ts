@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { brew, recipeIdFor } from "@medieval-realm/shared/data/alchemy/brew";
+import { brew, recipeIdFor, clampPlacements, MAX_PER_PLANT } from "@medieval-realm/shared/data/alchemy/brew";
 import { NAMED_RECIPES, matchNamedRecipe } from "@medieval-realm/shared/data/alchemy/named_recipes";
 import { getIngredient } from "@medieval-realm/shared/data/alchemy/ingredients";
 import { summarizeRecovery, easeHoursFor } from "@medieval-realm/shared/data/alchemy/apply";
@@ -78,6 +78,14 @@ describe("brew — the free-form alchemy engine", () => {
     expect(amt(five, "heal_hp")).toBeGreaterThan(amt(one, "heal_hp"));
     // Diminishing returns: five doses are worth well under 5x a single dose.
     expect(amt(five, "heal_hp")).toBeLessThan(amt(one, "heal_hp") * 5);
+  });
+
+  it("caps a single plant at MAX_PER_PLANT: 20 chamomile brews like 5 (no pantry dump)", () => {
+    const five = brew(Array.from({ length: MAX_PER_PLANT }, () => p("chamomile", "crush")));
+    const twenty = brew(Array.from({ length: 20 }, () => p("chamomile", "crush")));
+    expect(amt(twenty, "heal_hp")).toBe(amt(five, "heal_hp"));
+    // The cap is per (plant, technique) — a different technique isn't capped with it.
+    expect(clampPlacements(Array.from({ length: 20 }, () => p("chamomile", "crush"))).length).toBe(MAX_PER_PLANT);
   });
 });
 

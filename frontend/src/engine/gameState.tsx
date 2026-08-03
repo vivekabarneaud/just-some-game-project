@@ -296,7 +296,7 @@ import { TRAVELING_MERCHANTS, getMerchant, merchantIntervalDays } from "~/data/m
 import { calcTavern, tavernRooms, REPUTATION_DRIFT_PER_HOUR, TAVERN_FOOD_PER_ROOM_PER_HOUR, MENU_STAPLE_IDS, serversNeeded, menuCapacity, TAVERN_COMMODITY_DRINKS, getCommodityDrink, type TavernCommodityDrink } from "~/data/tavern";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { AILMENTS, getAilment, type BuildingAilment } from "@medieval-realm/shared/data/ailments";
-import { brew as brewAlchemy, recipeIdFor, brewRarity } from "@medieval-realm/shared/data/alchemy/brew";
+import { brew as brewAlchemy, recipeIdFor, brewRarity, clampPlacements } from "@medieval-realm/shared/data/alchemy/brew";
 import { getIngredient as getAlchemyIngredient } from "@medieval-realm/shared/data/alchemy/ingredients";
 import { matchNamedRecipe } from "@medieval-realm/shared/data/alchemy/named_recipes";
 import { summarizeRecovery, easeHoursFor } from "@medieval-realm/shared/data/alchemy/apply";
@@ -7291,7 +7291,9 @@ export function GameProvider(props: ParentProps) {
       return state.alchemyRecipes?.[recipeId];
     },
     brewPotion(placements) {
-      const filled = placements.filter((p) => p.ingredientId && getAlchemyIngredient(p.ingredientId));
+      // Clamp to the per-plant cap first, so we never charge for (or count)
+      // more of a plant than actually helps the brew.
+      const filled = clampPlacements(placements).filter((p) => getAlchemyIngredient(p.ingredientId));
       if (filled.length === 0) return false;
       // Cost = 1 of each ingredient (sum duplicates just in case).
       const cost = new Map<string, number>();

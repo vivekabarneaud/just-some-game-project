@@ -1,6 +1,6 @@
 import { createSignal, createMemo, For, Show } from "solid-js";
 import { useGame } from "~/engine/gameState";
-import { brew, recipeIdFor, brewRarity } from "@medieval-realm/shared/data/alchemy/brew";
+import { brew, recipeIdFor, brewRarity, MAX_PER_PLANT } from "@medieval-realm/shared/data/alchemy/brew";
 import { INGREDIENTS, getIngredient } from "@medieval-realm/shared/data/alchemy/ingredients";
 import { describeEffectParts } from "@medieval-realm/shared/data/alchemy/describe";
 import { NAMED_RECIPES, matchNamedRecipe, namedRecipeId } from "@medieval-realm/shared/data/alchemy/named_recipes";
@@ -80,9 +80,14 @@ export default function AlchemyDesk() {
   // Picking off a shelf → "hold" the plant; clicking a station adds it (append).
   const shelfPlants = (role: Role) => INGREDIENTS.filter((i) => i.role === role && actions.getBrewIngredientQty(i.id) > 0);
   const pickFromShelf = (id: string) => { setHeld(id); setShelfModal(null); playSound("jars"); };
+  const countInStation = (t: Technique, id: string) => stationOf(t).filter((x) => x === id).length;
   const clickStation = (t: Technique) => {
     const h = held();
-    if (h) { setStations({ ...stations(), [t]: [...stationOf(t), h] }); setHeld(null); playSound("nav"); }
+    if (!h) return;
+    // Respect both the stock and the per-plant cap when dropping the held plant.
+    if (countInStation(t, h) < MAX_PER_PLANT && canAddMore(h)) {
+      setStations({ ...stations(), [t]: [...stationOf(t), h] }); setHeld(null); playSound("nav");
+    }
   };
   // Quantity of a plant = how many copies sit in a station (each adds a
   // diminishing dose). Grouped into one chip per plant with a −/+ stepper.
@@ -94,8 +99,10 @@ export default function AlchemyDesk() {
   // How many of this plant are placed across ALL stations (for the stock cap).
   const placedTotal = (id: string) => STATIONS.reduce((sum, s) => sum + stationOf(s.technique).filter((x) => x === id).length, 0);
   const canAddMore = (id: string) => placedTotal(id) < actions.getBrewIngredientQty(id);
+  // A chip's + is live while it's under the per-plant cap AND stock remains.
+  const canStepUp = (t: Technique, id: string) => stationOf(t).filter((x) => x === id).length < MAX_PER_PLANT && canAddMore(id);
   const addToStation = (t: Technique, id: string) => {
-    if (!canAddMore(id)) return;
+    if (!canStepUp(t, id)) return;
     setStations({ ...stations(), [t]: [...stationOf(t), id] }); playSound("nav");
   };
   const removeOneFromStation = (t: Technique, id: string) => {
@@ -178,8 +185,9 @@ export default function AlchemyDesk() {
                               title="One less" style={STEP_BTN}>−</button>
                             <span style={{ "min-width": "0.8em", "text-align": "center", "font-weight": 600 }}>{c.n}</span>
                             <button onClick={(e) => { e.stopPropagation(); addToStation(st.technique, c.id); }}
-                              disabled={!canAddMore(c.id)} title={canAddMore(c.id) ? "One more" : "None left in stock"}
-                              style={{ ...STEP_BTN, opacity: canAddMore(c.id) ? 1 : 0.35, cursor: canAddMore(c.id) ? "pointer" : "default" }}>+</button>
+                              disabled={!canStepUp(st.technique, c.id)}
+                              title={c.n >= MAX_PER_PLANT ? `Up to ${MAX_PER_PLANT} — more won't help` : canAddMore(c.id) ? "One more" : "None left in stock"}
+                              style={{ ...STEP_BTN, opacity: canStepUp(st.technique, c.id) ? 1 : 0.35, cursor: canStepUp(st.technique, c.id) ? "pointer" : "default" }}>+</button>
                             <button onClick={(e) => { e.stopPropagation(); removeAllFromStation(st.technique, c.id); }}
                               title={`Remove ${getIngredient(c.id)?.name}`} style={{ ...STEP_BTN, "margin-left": "1px" }}>✕</button>
                           </span>
