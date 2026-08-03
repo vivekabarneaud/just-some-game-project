@@ -9,8 +9,9 @@
 // stacks under the one name. Effects still come from cook() (single source of
 // truth); the name is a blessed label on a matching pot.
 
-import type { CookPlacement, CookTechnique } from "./types.js";
+import type { CookPlacement, CookTechnique, DishResult } from "./types.js";
 import { getFoodIngredient } from "./ingredients.js";
+import { cook } from "./cook.js";
 
 /** Ingredient groups, so a slot can say "any red meat" without repetition. */
 // Groups the meat-split is split-READY through: today they resolve to the single
@@ -179,3 +180,14 @@ export function matchNamedDish(placements: CookPlacement[]): NamedDish | undefin
 }
 
 export const namedDishId = (d: NamedDish): string => d.id;
+
+/** The dish a pot resolves to for DISPLAY / use: cook() for the boons, the named
+ *  dish's name when it matches, and a quality FLOOR — a recognised named dish is
+ *  a proper dish, so it never reads "thin/plain" (only unnamed experiments do). */
+export function resolveDish(placements: CookPlacement[]): DishResult & { named: boolean } {
+  const result = cook(placements);
+  const named = matchNamedDish(placements);
+  const quality: DishResult["quality"] =
+    named && (result.quality === "rough" || result.quality === "plain") ? "fine" : result.quality;
+  return { ...result, name: named?.name ?? result.name, quality, named: !!named };
+}

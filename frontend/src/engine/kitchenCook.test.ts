@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { cook, clampPlacements, MAX_PER_INGREDIENT } from "@medieval-realm/shared/data/kitchen/cook";
-import { NAMED_DISHES, matchNamedDish } from "@medieval-realm/shared/data/kitchen/named_dishes";
+import { NAMED_DISHES, matchNamedDish, resolveDish } from "@medieval-realm/shared/data/kitchen/named_dishes";
 import { getFoodIngredient } from "@medieval-realm/shared/data/kitchen/ingredients";
 import type { DishChannel, CookPlacement, CookTechnique } from "@medieval-realm/shared/data/kitchen/types";
 
@@ -26,6 +26,20 @@ describe("cook — the free-form cooking engine", () => {
     expect(noStaple.quality).toBe("rough");
     expect(noStaple.notes.some((n) => n.toLowerCase().includes("staple") || n.toLowerCase().includes("grain"))).toBe(true);
     expect(amt(noStaple, "nourishment")).toBeLessThan(amt(withStaple, "nourishment"));
+  });
+
+  it("a legume dish is NOT thin — beans are a base in their own right", () => {
+    expect(cook([p("fava", "boil")]).quality).toBe("fine");
+    expect(cook([p("peas", "boil")]).quality).toBe("fine");
+  });
+
+  it("multiple spices stack with diminishing amplify", () => {
+    const a = amt(cook([p("barley", "boil")]), "nourishment");
+    const b = amt(cook([p("barley", "boil"), p("honey", "boil")]), "nourishment");
+    const c = amt(cook([p("barley", "boil"), p("honey", "boil"), p("cinnamon", "boil"), p("long_pepper", "boil")]), "nourishment");
+    expect(b).toBeGreaterThan(a);          // a spice helps
+    expect(c).toBeGreaterThan(b);          // more spice helps more
+    expect(c - a).toBeLessThan(3 * (b - a)); // ...but three spices are worth well under 3x one
   });
 
   it("prep is per-ingredient: roast the meat AND boil the staple in one dish", () => {
@@ -125,5 +139,17 @@ describe("named dishes — curated combos (real pantry)", () => {
   it("each named dish has a unique id", () => {
     const ids = NAMED_DISHES.map((d) => d.id);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("a recognised named dish never reads thin (resolveDish floors it to fine)", () => {
+    // Hearth Stew (meat + nuts, no staple/legume) is 'rough' from the raw engine,
+    // but it's a known dish, so its resolved quality floors at 'fine'.
+    const stew = [p("meat", "boil"), p("nuts", "boil")];
+    expect(cook(stew).quality).toBe("rough");
+    const resolved = resolveDish(stew);
+    expect(resolved.name).toBe("Hearth Stew");
+    expect(resolved.quality).toBe("fine");
+    // An unnamed no-staple experiment still reads thin (fair feedback).
+    expect(resolveDish([p("meat", "roast")]).quality).toBe("rough");
   });
 });

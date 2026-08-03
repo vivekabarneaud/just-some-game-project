@@ -71,6 +71,13 @@ const ADJ: Partial<Record<DishChannel, string>> = {
  *  status flourish (a named dish keeps its own name). */
 const PRESTIGE_SPICES = new Set(["saffron"]);
 
+/** Legumes are a filling staple in their own right ("poor man's meat"), so a
+ *  bean/pea dish counts as having a base — it isn't "thin". */
+const LEGUMES = new Set(["fava", "peas"]);
+
+/** Ceiling on the total spice amplify, so stacking many spices can't balloon. */
+const AMPLIFY_CAP = 0.6;
+
 export function cook(placements: CookPlacement[]): DishResult {
   const notes: string[] = [];
   const filled = clampPlacements(placements);
@@ -79,22 +86,27 @@ export function cook(placements: CookPlacement[]): DishResult {
   const roles = new Set<string>();
   const techniques = new Set<CookTechnique>();
   const nourishParts: number[] = [], comfortParts: number[] = [], warmthParts: number[] = [], freshParts: number[] = [];
-  let amplify = 0;
+  const amplifyParts: number[] = [];
+  let hasLegume = false;
   for (const p of filled) {
     const ing = getFoodIngredient(p.ingredientId);
     if (!ing) continue;
     roles.add(ing.role);
     techniques.add(p.technique);
-    if (ing.amplify) amplify += ing.amplify;
+    if (LEGUMES.has(p.ingredientId)) hasLegume = true;
+    if (ing.amplify) amplifyParts.push(ing.amplify);
     const t = TECH[p.technique];
     if (ing.nourish) { nourishParts.push(ing.nourish * t.nourish); warmthParts.push(ing.nourish * t.warmth); }
     if (ing.comfort) comfortParts.push(ing.comfort * t.comfort);
     if (ing.fresh) freshParts.push(ing.fresh * t.fresh);
   }
+  // Multiple spices stack with diminishing returns (like the boons), then cap.
+  const amplify = Math.min(AMPLIFY_CAP, diminish(amplifyParts));
 
-  // The base lever: substance (protein/veg/fruit/dairy) but no staple → thin.
+  // The base lever: substance (protein/veg/fruit/dairy) but no base → thin.
+  // A staple OR a legume counts as the base (beans are filling in their own right).
   const wantsMeal = roles.has("protein") || roles.has("veg") || roles.has("fruit") || roles.has("dairy");
-  const thin = wantsMeal && !roles.has("staple");
+  const thin = wantsMeal && !roles.has("staple") && !hasLegume;
   const mealScale = thin ? 0.7 : 1;
   if (thin) notes.push("A snack, not a proper meal — it wants some grain or bread.");
   if (amplify > 0) notes.push(`Spices lift it (+${Math.round(amplify * 100)}%).`);

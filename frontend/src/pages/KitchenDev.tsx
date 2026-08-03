@@ -1,7 +1,6 @@
 import { createSignal, createMemo, For, Show } from "solid-js";
-import { cook } from "@medieval-realm/shared/data/kitchen/cook";
 import { getFoodIngredient, foodByRole } from "@medieval-realm/shared/data/kitchen/ingredients";
-import { matchNamedDish } from "@medieval-realm/shared/data/kitchen/named_dishes";
+import { resolveDish } from "@medieval-realm/shared/data/kitchen/named_dishes";
 import type { CookTechnique, FoodRole, DishChannel, CookPlacement } from "@medieval-realm/shared/data/kitchen/types";
 
 /** TEMP dev page (/dev-kitchen) — the free-form COOKING sandbox. No art, no
@@ -64,8 +63,8 @@ export default function KitchenDev() {
         : [];
     }),
   );
-  const result = createMemo(() => cook(placements()));
-  const matched = createMemo(() => matchNamedDish(placements())?.name);
+  const result = createMemo(() => resolveDish(placements()));
+  const matched = createMemo(() => (result().named ? result().name : undefined));
 
   return (
     <div style={{ padding: "20px", "max-width": "1000px", margin: "0 auto" }}>
