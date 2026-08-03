@@ -92,20 +92,28 @@ mission food slot), never combat stats.
 | `freshness` | eases summer heat (a cold board on a hot day) | assemble |
 | `diversity` | feeds the existing food-variety delight | breadth of shelves used |
 
-### Channel → real system (verdicts, playtest 2026-08-03)
+### Channel → real system — the TWO-FACET model (playtest 2026-08-03)
 Make the food channels REAL (don't revert to combat stats — that would duplicate
-potions and lose the cozy identity). Each maps to a different system:
-- **Nourishment → the packed-meal `hpBonus`** (a well-fed adventurer is hardier).
-  Wire now — plumbing exists (FOOD_EFFECTS / applyFood).
-- **Warmth / Freshness → mission climate** (cold north / hot south expeditions);
-  the food offsets the climate debuff. The big, exciting feature — see
-  `project_mission_climate`. Keep the channels; park the payoff behind it.
-- **Comfort → tavern happiness** when a dish is on the menu (mild).
-- **Diversity → flavour** + a light nudge to the existing food-variety system.
+potions and lose the cozy identity). NB: tavern does **reputation**, missions do
+**loyalty** — neither does "happiness". Every dish has a tavern face and a
+mission face; a channel resolves by WHERE the dish is used:
+
+| Channel | Tavern (on the menu) | Adventurer pack (mission) |
+|---|---|---|
+| Nourishment | — (tavern doesn't feed) | packed-meal **hpBonus** (hardier) |
+| Comfort | **reputation** | **loyalty** |
+| Warmth / Freshness | **seasonal-fit reputation** (hot stew in winter, cold board in summer) | **mission climate** mitigation (`project_mission_climate`) |
+| Diversity | varied menu → small **reputation** | — |
+| *(gold value)* | sells/serves for **gold** | — |
+
+Wins: warmth/freshness are NOT parked — they pay off at the tavern now via
+emergent seasonality (much cheaper than mission climate, which is the later big
+feature). A fancy packed meal does double duty: nourishment (hardier) + comfort
+→ loyalty (fonder).
 
 **Feeding rule:** staples feed CALORIES (the auto-cook multiplier); non-staple
-dishes feed MORALE (tavern menu → happiness) + ADVENTURERS (packs), NOT bulk
-citizen food. Keeps the staple loop meaningful.
+dishes feed the tavern (reputation/gold) + ADVENTURERS (packs), NOT bulk citizen
+food. Keeps the staple loop meaningful.
 
 Same math as the brew engine: sum per channel, **diminishing returns**, a mild
 **per-channel cap**, and the **per-plant cap (5)** carries over as a per-
