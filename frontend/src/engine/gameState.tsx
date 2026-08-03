@@ -293,7 +293,7 @@ import {
 } from "~/data/quests";
 import { getReadyEvents } from "~/data/events";
 import { TRAVELING_MERCHANTS, getMerchant, merchantIntervalDays } from "~/data/merchants";
-import { calcTavern, tavernRooms, REPUTATION_DRIFT_PER_HOUR, TAVERN_FOOD_PER_ROOM_PER_HOUR, MENU_STAPLE_IDS, serversNeeded, menuCapacity, TAVERN_COMMODITY_DRINKS, getCommodityDrink, type TavernCommodityDrink } from "~/data/tavern";
+import { calcTavern, tavernRooms, REPUTATION_DRIFT_PER_HOUR, SEASONAL_REP_PER_DISH, SEASONAL_REP_CAP, TAVERN_FOOD_PER_ROOM_PER_HOUR, MENU_STAPLE_IDS, serversNeeded, menuCapacity, TAVERN_COMMODITY_DRINKS, getCommodityDrink, type TavernCommodityDrink } from "~/data/tavern";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { AILMENTS, getAilment, type BuildingAilment } from "@medieval-realm/shared/data/ailments";
 import { brew as brewAlchemy, recipeIdFor, brewRarity, clampPlacements } from "@medieval-realm/shared/data/alchemy/brew";
@@ -5176,8 +5176,20 @@ export function GameProvider(props: ParentProps) {
             const goldCap = calcStorageCaps(s.buildings).gold;
             s.resources.gold = Math.min(goldCap, s.resources.gold + travelerGold);
           }
+          // Seasonal fit: a warming dish delights winter patrons, a fresh one
+          // summer patrons — a small lift for featuring what the season craves.
+          let seasonalFit = 0;
+          const wantsWarmth = s.season === "winter", wantsFresh = s.season === "summer";
+          if (wantsWarmth || wantsFresh) {
+            for (const id of servableCooked) {
+              const eff = s.kitchenDishes?.[id]?.effects ?? [];
+              if (wantsWarmth && (eff.find((e) => e.channel === "warmth")?.amount ?? 0) > 0) seasonalFit++;
+              if (wantsFresh && (eff.find((e) => e.channel === "freshness")?.amount ?? 0) > 0) seasonalFit++;
+            }
+          }
+          const seasonalBonus = Math.min(SEASONAL_REP_CAP, seasonalFit * SEASONAL_REP_PER_DISH);
           // Reputation eases toward the current service quality (bounded step).
-          const target = t.serviceQuality * 100;
+          const target = Math.min(100, t.serviceQuality * 100 + seasonalBonus);
           const step = REPUTATION_DRIFT_PER_HOUR * elapsedHours;
           const rep = s.tavernReputation ?? 0;
           s.tavernReputation = Math.max(0, Math.min(100,

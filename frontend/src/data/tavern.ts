@@ -99,6 +99,13 @@ export const TAVERN_GOLD_PER_ROOM_PER_DAY = 5;
 /** How fast reputation eases toward the current service quality (points/game-hour). */
 export const REPUTATION_DRIFT_PER_HOUR = 1.5;
 
+/** Seasonal fit: featuring a dish the season craves (a warming dish in winter, a
+ *  fresh one in summer) lifts the reputation target a little — emergent
+ *  seasonality rewarding a menu that reads the weather. Points per fitting dish,
+ *  and the cap on the total lift. */
+export const SEASONAL_REP_PER_DISH = 4;
+export const SEASONAL_REP_CAP = 12;
+
 /** Cooked food a full room's worth of guests eats per game-hour. Served dishes
  *  are drawn from the kitchen's cooked-meal stock (competing with feeding the
  *  settlement); a dish that runs out drops off the menu. Placeholder. */
