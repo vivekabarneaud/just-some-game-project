@@ -72,7 +72,11 @@ const DEFAULT_CAP = 50;
 const MODIFIER_CHANNELS = new Set<EffectChannel>(["amplify", "extend"]);
 
 /** Diminishing returns on stacking the SAME channel: the biggest contribution
- *  counts full, each further one counts less. Rewards breadth over spamming. */
+ *  counts full, each further one counts less. Rewards breadth over spamming.
+ *  The 5 weights line up with MAX_PER_PLANT (5): a single plant can't reach the
+ *  flat 0.1 tail, so its contribution always truly diminishes. (A brew CAN pass
+ *  5 of a channel via several DIFFERENT plants sharing it — that's breadth, and
+ *  the per-channel CAP still bounds the total.) */
 function diminish(amounts: number[]): number {
   const sorted = [...amounts].sort((a, b) => Math.abs(b) - Math.abs(a));
   const weights = [1, 0.6, 0.4, 0.25, 0.15];
