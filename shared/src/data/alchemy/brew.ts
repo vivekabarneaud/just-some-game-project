@@ -6,30 +6,21 @@
 
 import type { Effect, EffectChannel, Placement, BrewResult, Technique, IngredientRarity } from "./types.js";
 import { getIngredient } from "./ingredients.js";
+import { diminish, clampPlacements as clampCraftPlacements, MAX_PER_PLACEMENT } from "../craft/placements.js";
 
 const RARITY_RANK: Record<IngredientRarity, number> = { common: 0, uncommon: 1, rare: 2, legendary: 3 };
 
 /** Most of a single plant that counts in one brew (per plant + technique).
- *  The diminishing weights below run out at 5, so a 6th dose adds almost
- *  nothing — this caps the "dump the whole pantry" brew and stops it burning
- *  the herbs. Breadth (several DIFFERENT plants) stays unbounded by design. */
-export const MAX_PER_PLANT = 5;
+ *  The shared diminish weights run out at 5, so a 6th dose adds almost nothing —
+ *  this caps the "dump the whole pantry" brew and stops it burning the herbs.
+ *  Breadth (several DIFFERENT plants) stays unbounded by design. */
+export const MAX_PER_PLANT = MAX_PER_PLACEMENT;
 
 /** Trim a placement list to at most MAX_PER_PLANT of each (plant, technique),
  *  dropping empties. Authoritative: brew() and brewPotion() both run through it,
  *  so no path (lab, combat, co-op) can over-stack a single plant. */
 export function clampPlacements(placements: Placement[]): Placement[] {
-  const seen = new Map<string, number>();
-  const out: Placement[] = [];
-  for (const p of placements) {
-    if (!p.ingredientId) continue;
-    const k = `${p.ingredientId}:${p.technique}`;
-    const n = seen.get(k) ?? 0;
-    if (n >= MAX_PER_PLANT) continue;
-    seen.set(k, n + 1);
-    out.push(p);
-  }
-  return out;
+  return clampCraftPlacements(placements, MAX_PER_PLANT);
 }
 
 /** A brew's rarity = its rarest ingredient (drives the card frame). */
@@ -71,17 +62,11 @@ const DEFAULT_CAP = 50;
 /** Channels the engine treats as catalyst MODIFIERS, not summed output. */
 const MODIFIER_CHANNELS = new Set<EffectChannel>(["amplify", "extend"]);
 
-/** Diminishing returns on stacking the SAME channel: the biggest contribution
- *  counts full, each further one counts less. Rewards breadth over spamming.
- *  The 5 weights line up with MAX_PER_PLANT (5): a single plant can't reach the
- *  flat 0.1 tail, so its contribution always truly diminishes. (A brew CAN pass
- *  5 of a channel via several DIFFERENT plants sharing it — that's breadth, and
- *  the per-channel CAP still bounds the total.) */
-function diminish(amounts: number[]): number {
-  const sorted = [...amounts].sort((a, b) => Math.abs(b) - Math.abs(a));
-  const weights = [1, 0.6, 0.4, 0.25, 0.15];
-  return sorted.reduce((sum, a, i) => sum + a * (weights[i] ?? 0.1), 0);
-}
+// diminish() lives in ../craft/placements.js (shared with the kitchen cook
+// engine): the biggest contribution counts full, each further one counts less.
+// The 5 weights line up with MAX_PER_PLANT (5) so a single plant can't reach the
+// flat 0.1 tail — its contribution always truly diminishes, while breadth
+// (several DIFFERENT plants) stays free and the per-channel CAP bounds the total.
 
 const HARSH_PENALTY = 0.6; // a brew of heroes/toxins with no base carries thin
 

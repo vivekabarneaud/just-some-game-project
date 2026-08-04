@@ -6,18 +6,11 @@
 
 import type { CookTechnique, DishChannel, DishEffect, DishResult, CookPlacement, FoodFlavor } from "./types.js";
 import { getFoodIngredient } from "./ingredients.js";
+import { diminish, clampPlacements as clampCraftPlacements, MAX_PER_PLACEMENT } from "../craft/placements.js";
 
 /** Most of one (ingredient, technique) that counts (matches the alchemy per-plant
- *  cap): the diminish weights run out at 5, so a 6th adds ~nothing. */
-export const MAX_PER_INGREDIENT = 5;
-
-/** Diminishing returns on stacking the same channel — biggest counts full, each
- *  further one counts less. Same curve as the brew engine. */
-function diminish(amounts: number[]): number {
-  const sorted = [...amounts].sort((a, b) => b - a);
-  const weights = [1, 0.6, 0.4, 0.25, 0.15];
-  return sorted.reduce((sum, a, i) => sum + a * (weights[i] ?? 0.1), 0);
-}
+ *  cap): the shared diminish weights run out at 5, so a 6th adds ~nothing. */
+export const MAX_PER_INGREDIENT = MAX_PER_PLACEMENT;
 
 /** Per-channel mild cap (cozy by design). */
 const CAP: Record<DishChannel, number> = {
@@ -72,17 +65,7 @@ export function dishIdFor(placements: CookPlacement[]): string {
 
 /** Trim to at most MAX_PER_INGREDIENT of each (ingredient, technique). */
 export function clampPlacements(placements: CookPlacement[]): CookPlacement[] {
-  const seen = new Map<string, number>();
-  const out: CookPlacement[] = [];
-  for (const p of placements) {
-    if (!p.ingredientId) continue;
-    const k = `${p.ingredientId}:${p.technique}`;
-    const n = seen.get(k) ?? 0;
-    if (n >= MAX_PER_INGREDIENT) continue;
-    seen.set(k, n + 1);
-    out.push(p);
-  }
-  return out;
+  return clampCraftPlacements(placements, MAX_PER_INGREDIENT);
 }
 
 const ADJ: Partial<Record<DishChannel, string>> = {
