@@ -210,8 +210,13 @@ economy phase — the sandbox (Phase A) doesn't touch it.
   - ✅ C2b — seasonal-fit reputation (warm dish in winter / fresh in summer).
   - ⏳ C2c — explicit per-dish **gold value** (needs a sell hook + tuning; gold
     already flows indirectly via reputation). Best tuned against playtest.
-  - ⏳ C3 — fold-in & cleanup: confirm staple auto-cook, retire the old fixed
-    recipe-crafting UI. Touches survival — validate by playtest first.
+  - ✅ C3 — fold-in & cleanup: staple auto-cook ("keep a pot on") toggle lives on
+    the desk staple cards (drives the same state.autoCook engine); the old fixed
+    recipe-crafting UI is retired — the desk IS the kitchen. Recipe DATA stays
+    (auto-cook + tavern cook-to-order still use it). Kitchen.tsx renders the desk
+    + a larder summary; unbuilt shows a build prompt.
+  - Still open: C2c explicit per-dish gold value; food-subcategory splits;
+    mission-climate (warmth/freshness payoff). All post-merge.
 - **Phase D — polish.** Rarity/quality on dish cards, seasonal fit, cast-tie
   dishes, mission packed-meal boons.
 
