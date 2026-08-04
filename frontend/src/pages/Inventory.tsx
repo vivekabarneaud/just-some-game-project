@@ -1,4 +1,5 @@
-import { For, Show } from "solid-js";
+import { For, Show, type JSX } from "solid-js";
+import FramedItemCard from "~/components/FramedItemCard";
 import { useGame, BUILDING_TOOLS, getBuildingTool } from "~/engine/gameState";
 import { ITEMS, MATERIALS, getItem, getMaterial, getPotionInfo, isSupplyItem, isFoodItem, getFoodEffect, MATCHED_FOOD_HP_BONUS, ARMOR_TYPE_META } from "@medieval-realm/shared/data/items";
 import { ALCHEMY_RECIPES } from "@medieval-realm/shared/data/alchemy_recipes";
@@ -11,6 +12,23 @@ import { BUILDINGS } from "~/data/buildings";
 import { VEGGIES } from "~/data/gardens";
 import SeedIcon from "~/components/SeedIcon";
 import PotionEffects from "~/components/PotionEffects";
+
+/** Every inventory item as a framed card (matches the alchemy/kitchen cards).
+ *  Pass an emoji `icon` or an `image` URL; `count` shows as ×N; `category` is the
+ *  little badge line; `children` is the per-item body (effects, flavour, etc.). */
+function InvCard(props: { rarity?: string; icon?: string; image?: string; iconNode?: JSX.Element; name: JSX.Element; count?: number; category?: string; dim?: boolean; children?: JSX.Element }) {
+  return (
+    <FramedItemCard rarity={props.rarity ?? "common"} dim={props.dim} minHeight="118px"
+      icon={props.iconNode
+        ? props.iconNode
+        : props.image
+        ? <img src={props.image} alt="" style={{ width: "44px", height: "44px", "object-fit": "cover" }} />
+        : <span style={{ "font-size": "1.5rem" }}>{props.icon}</span>}
+      title={<>{props.name}{props.count != null ? <span style={{ color: "var(--accent-gold)", "font-weight": 400 }}> ×{props.count}</span> : null}</>}
+      subtitle={props.category}
+    >{props.children}</FramedItemCard>
+  );
+}
 
 export default function Inventory() {
   const { state } = useGame();
@@ -84,40 +102,17 @@ export default function Inventory() {
             <div class="buildings-grid" style={{ "margin-bottom": "20px" }}>
               <For each={toolsInInventory()}>
                 {({ inv, tool }) => (
-                  <div class="building-card">
-                    <span class="building-card-category">tool</span>
-                    <div class="building-card-header" style={{ "margin-top": "4px" }}>
-                      <div class="building-card-icon">{tool.icon}</div>
-                      <div>
-                        <div class="building-card-title">{tool.name}</div>
-                        <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
-                          For: {BUILDINGS.find((b) => b.id === tool.targetBuilding)?.name ?? tool.targetBuilding}
-                        </div>
-                      </div>
-                    </div>
-                    <div style={{ "font-size": "0.8rem", color: "var(--text-secondary)", "margin-top": "4px" }}>
-                      {tool.description}
-                    </div>
-                    <div style={{ "margin-top": "6px", "font-size": "0.85rem", color: "var(--text-secondary)" }}>
-                      In stock: <strong>{inv.quantity}</strong>
-                    </div>
-                  </div>
+                  <InvCard icon={tool.icon} name={tool.name} count={inv.quantity} category="tool">
+                    <div style={{ "font-size": "0.72rem", color: "var(--text-muted)" }}>For: {BUILDINGS.find((b) => b.id === tool.targetBuilding)?.name ?? tool.targetBuilding}</div>
+                    <div style={{ "font-size": "0.74rem", color: "var(--text-secondary)", "margin-top": "2px" }}>{tool.description}</div>
+                  </InvCard>
                 )}
               </For>
               <For each={installedTools()}>
                 {({ buildingId, tool }) => (
-                  <div class="building-card dimmed">
-                    <span class="building-card-category">installed</span>
-                    <div class="building-card-header" style={{ "margin-top": "4px" }}>
-                      <div class="building-card-icon">{tool.icon}</div>
-                      <div>
-                        <div class="building-card-title">{tool.name}</div>
-                        <div style={{ "font-size": "0.8rem", color: "var(--accent-green)" }}>
-                          Installed at {BUILDINGS.find((b) => b.id === buildingId)?.name ?? buildingId}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <InvCard icon={tool.icon} name={tool.name} category="installed" dim>
+                    <div style={{ "font-size": "0.72rem", color: "var(--accent-green)" }}>Installed at {BUILDINGS.find((b) => b.id === buildingId)?.name ?? buildingId}</div>
+                  </InvCard>
                 )}
               </For>
             </div>
@@ -158,21 +153,9 @@ export default function Inventory() {
                   const categoryLabel = p.brewed ? `brewed · ${p.brewed.quality}` : hasRecovery ? "recovery" : (hasMission && hasCombat) ? "any" : hasCombat ? "combat" : "mission";
                   const usageHint = p.brewed ? "Brewed at the Alchemy Lab" : hasRecovery ? "Heals between encounters" : (hasMission && hasCombat) ? "Any mission" : hasCombat ? "Used during combat" : "Non-combat missions";
                   return (
-                    <div class="building-card">
-                      <span class="building-card-category">{categoryLabel}</span>
-                      <div class="building-card-header" style={{ "margin-top": "4px" }}>
-                        {p.image
-                          ? <img src={p.image} alt="" style={{ width: "40px", height: "40px", "object-fit": "cover", "border-radius": "6px", "flex-shrink": "0" }} />
-                          : <div class="building-card-icon">{p.icon}</div>
-                        }
-                        <div>
-                          <div class="building-card-title">{p.name}</div>
-                          <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
-                            {usageHint}
-                          </div>
-                        </div>
-                      </div>
-                      <div style={{ "font-size": "0.8rem", "margin-top": "4px" }}>
+                    <InvCard icon={p.icon} image={p.image} name={p.name} count={p.inv.quantity} category={categoryLabel}>
+                      <div style={{ "font-size": "0.7rem", color: "var(--text-muted)" }}>{usageHint}</div>
+                      <div style={{ "font-size": "0.76rem", "margin-top": "2px" }}>
                         <Show when={p.brewed} fallback={<span style={{ color: "var(--accent-green)" }}><PotionEffects itemId={p.inv.itemId} fallback={p.description} /></span>}>
                           <For each={p.brewed!.effects as any[]}>
                             {(e) => {
@@ -182,10 +165,7 @@ export default function Inventory() {
                           </For>
                         </Show>
                       </div>
-                      <div style={{ "margin-top": "6px", "font-size": "0.85rem", color: "var(--text-secondary)" }}>
-                        In stock: <strong>{p.inv.quantity}</strong>
-                      </div>
-                    </div>
+                    </InvCard>
                   );
                 }}
               </For>
@@ -221,32 +201,12 @@ export default function Inventory() {
                   const buffs = foodBuffParts(item.id);
                   const flavors = item.foodFlavors ?? [];
                   return (
-                    <div class="building-card">
-                      <span class="building-card-category">food</span>
-                      <div class="building-card-header" style={{ "margin-top": "4px" }}>
-                        {item.image
-                          ? <img src={item.image} alt="" style={{ width: "40px", height: "40px", "object-fit": "cover", "border-radius": "6px", "flex-shrink": "0" }} />
-                          : <div class="building-card-icon">{item.icon}</div>
-                        }
-                        <div>
-                          <div class="building-card-title">{item.name}</div>
-                          <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
-                            {flavors.join(", ") || "food"}
-                          </div>
-                        </div>
-                      </div>
-                      <div style={{ "font-size": "0.8rem", color: "var(--text-secondary)", "font-style": "italic", "margin-top": "4px" }}>
-                        {item.description}
-                      </div>
+                    <InvCard icon={item.icon} image={item.image} name={item.name} count={inv.quantity} category={flavors.join(", ") || "food"}>
+                      <div style={{ "font-size": "0.74rem", color: "var(--text-secondary)", "font-style": "italic" }}>{item.description}</div>
                       <Show when={buffs.length > 0}>
-                        <div style={{ "font-size": "0.8rem", color: "var(--accent-green)", "margin-top": "4px" }}>
-                          {buffs.join(" · ")}
-                        </div>
+                        <div style={{ "font-size": "0.76rem", color: "var(--accent-green)", "margin-top": "2px" }}>{buffs.join(" · ")}</div>
                       </Show>
-                      <div style={{ "margin-top": "6px", "font-size": "0.85rem", color: "var(--text-secondary)" }}>
-                        In stock: <strong>{inv.quantity}</strong>
-                      </div>
-                    </div>
+                    </InvCard>
                   );
                 }}
               </For>
@@ -274,23 +234,8 @@ export default function Inventory() {
                 {(it) => {
                   const armorMeta = () => it().armorType ? ARMOR_TYPE_META[it().armorType!] : null;
                   return (
-                  <div class="building-card">
-                    <span class="building-card-category">{it().slot}</span>
-                    <div class="building-card-header" style={{ "margin-top": "4px" }}>
-                      {it().image
-                        ? <img src={it().image} alt="" style={{ width: "40px", height: "40px", "object-fit": "cover", "border-radius": "6px", "flex-shrink": "0" }} />
-                        : <div class="building-card-icon">{it().icon}</div>
-                      }
-                      <div>
-                        <div class="building-card-title">{it().name}</div>
-                        <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
-                          {it().slot} {it().consumable && "· consumable"}
-                        </div>
-                      </div>
-                    </div>
-                    <div style={{ "font-size": "0.8rem", color: "var(--accent-green)", "margin-top": "4px" }}>
-                      {it().description}
-                    </div>
+                  <InvCard rarity={(it() as any).rarity} icon={it().icon} image={it().image} name={it().name} count={inv.quantity} category={`${it().slot}${it().consumable ? " · consumable" : ""}`}>
+                    <div style={{ "font-size": "0.74rem", color: "var(--accent-green)" }}>{it().description}</div>
                     <Show when={armorMeta() || it().classes.length > 0}>
                       <div style={{ display: "flex", gap: "6px", "margin-top": "4px", "flex-wrap": "wrap" }}>
                         <Show when={armorMeta()}>
@@ -317,17 +262,10 @@ export default function Inventory() {
                         </Show>
                       </div>
                     </Show>
-                    <div style={{ "margin-top": "6px", "font-size": "0.85rem", display: "flex", gap: "12px" }}>
-                      <span style={{ color: "var(--text-secondary)" }}>
-                        In stock: <strong>{inv.quantity}</strong>
-                      </span>
-                      <Show when={equipped() > 0}>
-                        <span style={{ color: "var(--accent-blue)" }}>
-                          Equipped: {equipped()}
-                        </span>
-                      </Show>
-                    </div>
-                  </div>
+                    <Show when={equipped() > 0}>
+                      <div style={{ "font-size": "0.74rem", color: "var(--accent-blue)", "margin-top": "3px" }}>Equipped: {equipped()}</div>
+                    </Show>
+                  </InvCard>
                   );
                 }}
               </Show>
@@ -353,18 +291,9 @@ export default function Inventory() {
             <div class="buildings-grid">
               <For each={ownedSeeds()}>
                 {({ v, n }) => (
-                  <div class="building-card">
-                    <span class="building-card-category">seed</span>
-                    <div class="building-card-header" style={{ "margin-top": "4px" }}>
-                      <div class="building-card-icon"><SeedIcon id={v.id} size={40} /></div>
-                      <div>
-                        <div class="building-card-title">{v.name} Seed <span style={{ color: "var(--accent-gold)", "font-weight": 600 }}>×{n}</span></div>
-                        <div style={{ "font-size": "0.8rem", color: "var(--text-secondary)", "font-style": "italic" }}>
-                          Sow in {v.plantSeasons.join(", ")}.
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <InvCard iconNode={<SeedIcon id={v.id} size={44} />} name={`${v.name} Seed`} count={n} category="seed">
+                    <div style={{ "font-size": "0.74rem", color: "var(--text-secondary)", "font-style": "italic" }}>Sow in {v.plantSeasons.join(", ")}.</div>
+                  </InvCard>
                 )}
               </For>
             </div>
@@ -389,21 +318,9 @@ export default function Inventory() {
             <div class="buildings-grid">
               <For each={ownedMaterials()}>
                 {({ inv, mat }) => (
-                  <div class="building-card">
-                    <span class="building-card-category">{mat.category} · tier {mat.tier}</span>
-                    <div class="building-card-header" style={{ "margin-top": "4px" }}>
-                      {mat.image
-                        ? <img src={mat.image} alt="" style={{ width: "40px", height: "40px", "object-fit": "cover", "border-radius": "6px", "flex-shrink": "0" }} />
-                        : <div class="building-card-icon">{mat.icon}</div>
-                      }
-                      <div>
-                        <div class="building-card-title">{mat.name} <span style={{ color: "var(--accent-gold)", "font-weight": 600 }}>×{inv.quantity}</span></div>
-                        <div style={{ "font-size": "0.8rem", color: "var(--text-secondary)", "font-style": "italic" }}>
-                          {mat.description}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <InvCard icon={mat.icon} image={mat.image} name={mat.name} count={inv.quantity} category={`${mat.category} · tier ${mat.tier}`}>
+                    <div style={{ "font-size": "0.74rem", color: "var(--text-secondary)", "font-style": "italic" }}>{mat.description}</div>
+                  </InvCard>
                 )}
               </For>
             </div>
@@ -414,10 +331,6 @@ export default function Inventory() {
       {/* Herbs & Plants — foraged / mission-won, brewed at the Alchemy Lab.
           Read from state.herbs (their own store), shown here as a category. */}
       {(() => {
-        const RARITY_COLOR: Record<string, string> = {
-          common: "var(--text-secondary)", uncommon: "var(--accent-green)",
-          rare: "var(--accent-blue)", legendary: "var(--accent-gold)",
-        };
         const owned = () => HERBS
           .map((h) => ({ h, n: state.herbs?.[h.id] ?? 0 }))
           .filter((x) => x.n > 0)
@@ -433,18 +346,9 @@ export default function Inventory() {
             <div class="buildings-grid">
               <For each={owned()}>
                 {({ h, n }) => (
-                  <div class="building-card">
-                    <span class="building-card-category" style={{ color: RARITY_COLOR[h.rarity] }}>{h.rarity}</span>
-                    <div class="building-card-header" style={{ "margin-top": "4px" }}>
-                      <div class="building-card-icon">{h.icon}</div>
-                      <div>
-                        <div class="building-card-title">{h.name} <span style={{ color: "var(--accent-gold)", "font-weight": 600 }}>×{n}</span></div>
-                        <div style={{ "font-size": "0.8rem", color: "var(--text-secondary)", "font-style": "italic" }}>
-                          {h.description}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <InvCard rarity={h.rarity} icon={h.icon} name={h.name} count={n} category={h.rarity}>
+                    <div style={{ "font-size": "0.76rem", color: "var(--text-secondary)", "font-style": "italic" }}>{h.description}</div>
+                  </InvCard>
                 )}
               </For>
             </div>
@@ -477,16 +381,9 @@ export default function Inventory() {
                   if (b.hpBonus) parts.push(`+${b.hpBonus} HP`);
                   if (b.loyalty) parts.push(`❤ +${b.loyalty} loyalty`);
                   return (
-                    <div class="building-card">
-                      <span class="building-card-category" style={{ color: "var(--accent-green)" }}>meal</span>
-                      <div class="building-card-header" style={{ "margin-top": "4px" }}>
-                        <div class="building-card-icon">{icon}</div>
-                        <div>
-                          <div class="building-card-title">{d.name} <span style={{ color: "var(--accent-gold)", "font-weight": 600 }}>×{x.n}</span></div>
-                          <div style={{ "font-size": "0.8rem", color: "var(--accent-green)" }}>{parts.join(" · ") || "a good meal"}</div>
-                        </div>
-                      </div>
-                    </div>
+                    <InvCard icon={icon} name={d.name} count={x.n} category="meal">
+                      <div style={{ "font-size": "0.76rem", color: "var(--accent-green)" }}>{parts.join(" · ") || "a good meal"}</div>
+                    </InvCard>
                   );
                 }}
               </For>
@@ -508,25 +405,13 @@ export default function Inventory() {
           {(item) => {
             const owned = () => state.inventory.find((i) => i.itemId === item.id)?.quantity ?? 0;
             return (
-              <div class="building-card" classList={{ dimmed: owned() === 0 }}>
-                <span class="building-card-category">{item.slot}</span>
-                <div class="building-card-header" style={{ "margin-top": "4px" }}>
-                  {item.image
-                    ? <img src={item.image} alt="" style={{ width: "40px", height: "40px", "object-fit": "cover", "border-radius": "6px", "flex-shrink": "0" }} />
-                    : <div class="building-card-icon">{item.icon}</div>
-                  }
-                  <div>
-                    <div class="building-card-title">{item.name}</div>
-                    <div style={{ "font-size": "0.8rem", color: "var(--accent-green)" }}>
-                      {item.description}
-                    </div>
-                    <WeaponDamage item={item} />
-                  </div>
+              <InvCard rarity={(item as any).rarity} icon={item.icon} image={item.image} name={item.name} category={item.slot} dim={owned() === 0}>
+                <div style={{ "font-size": "0.74rem", color: "var(--accent-green)" }}>{item.description}</div>
+                <WeaponDamage item={item} />
+                <div style={{ "font-size": "0.7rem", color: "var(--text-muted)", "margin-top": "3px" }}>
+                  {owned() > 0 ? `Owned: ${owned()}` : "Not crafted yet"}
                 </div>
-                <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-top": "4px" }}>
-                  {item.consumable ? "Consumable · " : ""}{owned() > 0 ? `Owned: ${owned()}` : "Not crafted yet"}
-                </div>
-              </div>
+              </InvCard>
             );
           }}
         </For>
