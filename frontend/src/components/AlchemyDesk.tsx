@@ -92,7 +92,7 @@ export default function AlchemyDesk() {
     const occ = roleOccupant(role);
     return !occ || occ === id; // free, or already this same plant (quantity is fine)
   };
-  const pickFromShelf = (id: string) => { if (!roleFreeFor(id)) return; setHeld(id); setShelfModal(null); playSound("jars"); };
+  const pickFromShelf = (id: string) => { if (!roleFreeFor(id) || !canAddMore(id)) return; setHeld(id); setShelfModal(null); playSound("jars"); };
   const countInStation = (t: Technique, id: string) => stationOf(t).filter((x) => x === id).length;
   const clickStation = (t: Technique) => {
     const h = held();
@@ -278,9 +278,9 @@ export default function AlchemyDesk() {
                 <For each={shelfPlants(role())}>
                   {(ing) => (
                     <FramedItemCard rarity={ing.rarity} icon={ing.icon} title={ing.name}
-                      dim={!roleFreeFor(ing.id)}
+                      dim={!roleFreeFor(ing.id) || !canAddMore(ing.id)}
                       subtitle={<span style={{ "text-transform": "capitalize" }}>{ing.rarity} {ing.role} · ×{r0(actions.getBrewIngredientQty(ing.id))}</span>}
-                      tooltip={roleFreeFor(ing.id) ? `Pick ${ing.name}` : `Already have a ${ing.role} — clear it first`}
+                      tooltip={!roleFreeFor(ing.id) ? `Already have a ${ing.role} — clear it first` : !canAddMore(ing.id) ? "It's all in the pot already" : `Pick ${ing.name}`}
                       onClick={() => pickFromShelf(ing.id)} minHeight="138px">
                       <div style={{ "font-size": "0.72rem", color: "var(--text-secondary)", "font-style": "italic", "line-height": 1.3 }}>{ing.note}</div>
                       <Show when={plantHint(ing.id)}>

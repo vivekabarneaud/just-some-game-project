@@ -72,7 +72,7 @@ export default function KitchenDesk() {
 
   // Pick off a shelf → "hold" it; click a station to prepare it that way.
   const shelfStock = (role: FoodRole) => foodByRole(role).filter((i) => stock(i.id) > 0);
-  const pickFromShelf = (id: string) => { setHeld(id); setShelfModal(null); playSound("jars"); };
+  const pickFromShelf = (id: string) => { if (!canAddMore(id)) return; setHeld(id); setShelfModal(null); playSound("jars"); };
   const countsOf = (t: CookTechnique) => {
     const order: string[] = []; const n = new Map<string, number>();
     for (const id of stationOf(t)) { if (!n.has(id)) order.push(id); n.set(id, (n.get(id) ?? 0) + 1); }
@@ -280,9 +280,9 @@ export default function KitchenDesk() {
               <div style={{ display: "grid", "grid-template-columns": "1fr 1fr", gap: "8px", padding: "4px 2px" }}>
                 <For each={shelfStock(role())}>
                   {(ing) => (
-                    <FramedItemCard rarity="common" icon={ing.icon} title={ing.name}
+                    <FramedItemCard rarity="common" icon={ing.icon} title={ing.name} dim={!canAddMore(ing.id)}
                       subtitle={<span>in larder · ×{stock(ing.id)}{placedTotal(ing.id) > 0 ? ` · ${placedTotal(ing.id)} in the pot` : ""}</span>}
-                      tooltip={`Pick ${ing.name}`} onClick={() => pickFromShelf(ing.id)} minHeight="120px">
+                      tooltip={canAddMore(ing.id) ? `Pick ${ing.name}` : "It's all in the pot already"} onClick={() => pickFromShelf(ing.id)} minHeight="120px">
                       <div style={{ "font-size": "0.72rem", color: "var(--text-secondary)", "font-style": "italic", "line-height": 1.3 }}>{ing.note}</div>
                     </FramedItemCard>
                   )}
