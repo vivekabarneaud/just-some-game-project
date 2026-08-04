@@ -107,6 +107,39 @@ export const NAMED_DISHES: NamedDish[] = [
     slots: [one("cherries", "roast"), one("wheat", "roast"), one("honey", "boil")],
     note: "Tart cherries under a sweet wheat crust." },
 
+  // ── The grill (camp skewer — smoky) ──
+  { id: "dish_skewered_game", name: "Skewered Game", icon: "🍢", preknown: true,
+    slots: [any(FOOD_GROUPS.redMeat, "skewer")],
+    note: "Meat grilled on a stick over the fire. The hunter's supper." },
+  { id: "dish_grilled_catch", name: "Grilled Catch", icon: "🐟",
+    slots: [one("fish", "skewer")],
+    note: "The day's catch charred over the coals, smoky and quick." },
+  { id: "dish_charred_mushrooms", name: "Fire-Charred Mushrooms", icon: "🍄", preknown: true,
+    slots: [one("mushrooms", "skewer")],
+    note: "Mushrooms blistered on the fire. Humble, earthy, smoky." },
+  { id: "dish_hunters_skewer", name: "Hunter's Skewer", icon: "🍢",
+    slots: [any(FOOD_GROUPS.redMeat, "skewer"), one("mushrooms", "skewer"), one("turnips", "skewer")],
+    note: "Meat, mushroom and root threaded on a stick and grilled. A real meal off the fire." },
+  { id: "dish_honey_glazed_skewer", name: "Honey-Glazed Skewer", icon: "🍢",
+    slots: [any(FOOD_GROUPS.redMeat, "skewer"), one("honey", "boil")],
+    note: "Grilled meat brushed with warm honey. Sweet, smoky, a little indulgent." },
+
+  // ── More boils ──
+  { id: "dish_frumenty", name: "Frumenty", icon: "🥣",
+    slots: [one("wheat", "boil"), one("milk", "boil"), one("honey", "boil")],
+    note: "Wheat simmered soft in sweet milk. A creamy, comforting old dish." },
+  { id: "dish_root_barley_pottage", name: "Root & Barley Pottage", icon: "🍲",
+    slots: [one("turnips", "boil"), one("barley", "boil")],
+    note: "Root and grain in an honest pot. Humble and warming." },
+  { id: "dish_egg_broth", name: "Egg Broth", icon: "🍜",
+    slots: [one("bone", "boil"), one("eggs", "boil")],
+    note: "Egg stirred through a marrow broth. Restorative and rich." },
+
+  // ── A cold board (chop — fresh) ──
+  { id: "dish_foragers_board", name: "Forager's Board", icon: "🥬",
+    slots: [one("cabbages", "chop"), one("apples", "chop"), one("nuts", "chop")],
+    note: "Crisp leaf, apple and nuts, no fire needed. Cool and fresh." },
+
   // FUTURE (return when the ingredients exist — recorded in DESIGN_KITCHEN §9):
   //   Honeyed Ham   → needs the pork split
   //   Golden Fowl   → needs poultry (chicken) + saffron
