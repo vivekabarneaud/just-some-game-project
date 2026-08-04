@@ -103,16 +103,20 @@ export default function KitchenDesk() {
     slots.map((s) => ({ ingredientId: anyOfInStock(s.anyOf) ?? s.anyOf[0], technique: s.technique }));
   const missingSlots = (slots: { anyOf: readonly string[] }[]) =>
     slots.filter((s) => !s.anyOf.some((id) => stock(id) > 0)).map((s) => getFoodIngredient(s.anyOf[0])?.name ?? s.anyOf[0]);
-  const knownIds = new Set(NAMED_DISHES.map((d) => d.id));
+  // Only the pre-known dishes (the staples) show from the start; the rest are
+  // hidden until the player cooks the combo once (they land in state.kitchenDishes).
+  const preknownDishes = NAMED_DISHES.filter((d) => d.preknown);
+  const preknownIds = new Set(preknownDishes.map((d) => d.id));
+  const namedById = new Map(NAMED_DISHES.map((d) => [d.id, d]));
   const book = createMemo(() => {
-    const known = NAMED_DISHES.map((d) => ({
+    const known = preknownDishes.map((d) => ({
       id: d.id, name: d.name, icon: d.icon, placements: repPlacements(d.slots),
       effects: resolveDish(repPlacements(d.slots)).effects, missing: missingSlots(d.slots),
     }));
     const discovered = Object.values(state.kitchenDishes ?? {})
-      .filter((d) => !knownIds.has(d.id))
+      .filter((d) => !preknownIds.has(d.id)) // a cooked pre-known dish stays in the pre-known list
       .map((d) => ({
-        id: d.id, name: d.name, icon: getFoodIngredient(d.placements[0]?.ingredientId)?.icon ?? "🍲",
+        id: d.id, name: d.name, icon: namedById.get(d.id)?.icon ?? getFoodIngredient(d.placements[0]?.ingredientId)?.icon ?? "🍲",
         placements: d.placements, effects: d.effects,
         missing: [...new Set(d.placements.map((p) => p.ingredientId))].filter((id) => stock(id) <= 0).map((id) => getFoodIngredient(id)?.name ?? id),
       }));

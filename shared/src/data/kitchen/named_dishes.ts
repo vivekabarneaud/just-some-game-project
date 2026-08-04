@@ -36,6 +36,9 @@ export interface NamedDish {
   icon: string;
   slots: DishSlot[];
   note: string;
+  /** Shown in the cookbook from the start (the settlement already knows it).
+   *  Others stay hidden until the player cooks the combo once (discovery). */
+  preknown?: boolean;
 }
 
 const one = (ingredientId: string, technique: CookTechnique): DishSlot => ({ anyOf: [ingredientId], technique });
@@ -43,16 +46,16 @@ const any = (anyOf: readonly string[], technique: CookTechnique): DishSlot => ({
 
 export const NAMED_DISHES: NamedDish[] = [
   // ── Tier-1 staples (forgiving where it makes sense) ──
-  { id: "dish_porridge", name: "Porridge", icon: "🥣",
+  { id: "dish_porridge", name: "Porridge", icon: "🥣", preknown: true,
     slots: [any(FOOD_GROUPS.grain, "boil")],
     note: "Plain boiled grain, warm and filling. The daily staple." },
-  { id: "dish_hearth_stew", name: "Hearth Stew", icon: "🍲",
+  { id: "dish_hearth_stew", name: "Hearth Stew", icon: "🍲", preknown: true,
     slots: [any(FOOD_GROUPS.redMeat, "boil"), one("nuts", "boil")],
     note: "Meat and nuts simmered slow. Keeps the table full through a hard week." },
-  { id: "dish_river_stew", name: "River Stew", icon: "🍲",
+  { id: "dish_river_stew", name: "River Stew", icon: "🍲", preknown: true,
     slots: [one("fish", "boil"), any(FOOD_GROUPS.berry, "boil")],
     note: "Fish and foraged berries in a thin, honest broth." },
-  { id: "dish_bone_broth", name: "Bone Broth", icon: "🍜",
+  { id: "dish_bone_broth", name: "Bone Broth", icon: "🍜", preknown: true,
     slots: [one("bone", "boil")],
     note: "Bones simmered long into a rich, marrowy broth. Nothing goes to waste." },
 
