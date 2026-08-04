@@ -135,7 +135,7 @@ export default function KitchenDesk() {
           <div style={{ display: "grid", "grid-template-columns": "1fr 1fr", gap: "12px" }}>
             <For each={pageItems()}>
               {(r) => (
-                <FramedItemCard rarity="common" icon={r.icon} dark dim={r.missing.length > 0}
+                <FramedItemCard rarity="common" icon={r.icon} dim={r.missing.length > 0}
                   title={r.name}
                   tooltip={r.missing.length > 0 ? `Missing: ${r.missing.join(", ")}` : "Load into the stations"}
                   onClick={() => loadDish(r.placements)} minHeight="92px"
@@ -150,8 +150,9 @@ export default function KitchenDesk() {
                           : "Keep a pot on: stretches raw food into portions for the settlement"}
                         style={{ display: "inline-block", "margin-top": "6px", "font-size": "0.62rem", padding: "2px 7px", "border-radius": "10px",
                           cursor: cookSlotsFull(rid()) ? "default" : "pointer", "font-weight": 600,
-                          background: keepCookingOn(rid()) ? "rgba(212,131,26,0.3)" : "rgba(42,32,18,0.1)",
-                          border: "1px solid #2a2012", color: "#2a2012", opacity: cookSlotsFull(rid()) ? 0.5 : 1 }}>
+                          background: keepCookingOn(rid()) ? "rgba(212,131,26,0.28)" : "rgba(255,255,255,0.08)",
+                          border: `1px solid ${keepCookingOn(rid()) ? "var(--accent-gold)" : "var(--border-default)"}`,
+                          color: "var(--text-primary)", opacity: cookSlotsFull(rid()) ? 0.5 : 1 }}>
                         {keepCookingOn(rid()) ? "🔥 Cooking — tap to stop" : cookSlotsFull(rid()) ? "🔥 Kitchen full" : "🔥 Keep a pot on"}
                       </span>
                     )}
