@@ -3,6 +3,7 @@ import type { MissionTemplate } from "./types.js";
 export const NOVICE_MISSIONS: MissionTemplate[] = [
 {
     id: "gather_timber",
+    map: { x: 0.40, y: 0.505 }, // the south-west tree line
     name: "Gather Timber",
     description: "Jory has marked a stand of pines on the southern tree line and wants hands to haul them back. A lean young wolf has been nosing round the crew's kit, hungry more than dangerous; it keeps its distance while someone stands watch. Bring the timber home, and leave the wolf to its hunger.",
     icon: "🪵",
@@ -24,6 +25,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   //    crisis. Deferred payoff: one spring he's tainted and won't rout. ──
   {
     id: "bee_tree_first",
+    map: { x: 0.40, y: 0.585 }, // the south hollow (Old Honeypaw's bank)
     name: "The Bee-Tree",
     description: "The scouts marked an old bee-tree in the south hollow, heavy with the last of winter's honey, and Edda wants it smoked out before the swarm scatters it. It should be a quiet job. But it is spring, and the bears are coming off their long sleep hungry and bold, so send folk who can stand their ground if one comes down to the hollow. Smoke the hive, bring home what comb you can, and give any bear a wide berth if you can.",
     icon: "🍯",
@@ -62,6 +64,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   //    DESIGN_SEASONAL_GATHERS): it goes tainted → sick windfall → put-it-down. ──
   {
     id: "apple_tree_first",
+    map: { x: 0.47, y: 0.635 }, // far south hollow, past the Old Watch
     name: "The Old Apple Tree",
     description: "The scouts came back from the far south hollow talking about an old apple tree standing alone in a clearing, wild and untended and so heavy with fruit its branches near touch the ground. Edda says a tree that old and that laden is a small mercy, and mercies are not to be wasted with winter coming. Take a team down with baskets and bring back all the fruit they can carry. Mind the walk; it is a fair way out.",
     icon: "🍎",
@@ -97,6 +100,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   //    attachment arc. The spring spawning run: a bit of relief in the hungry gap. ──
   {
     id: "fish_run",
+    map: { x: 0.535, y: 0.44 }, // the north bend of the river
     name: "The Fish Run",
     description: "The winter stores are down to scrapings and the fields are still bare mud, but the stream past the north bend has come alive. The spring run is on, the water thick and silver with fish shouldering upstream to spawn, and it will not hold more than a few days. Send hands down with baskets and spears while it lasts. We take what we can carry and salt the rest against the lean weeks still to come.",
     icon: "🐟",
@@ -115,6 +119,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   //    no arc. High-summer plenty: easy pickings before they spoil. ──
   {
     id: "berry_thickets",
+    map: { x: 0.605, y: 0.565 }, // the east ridge brambles
     name: "The Berry Thickets",
     description: "High summer, and the bramble thickets along the east ridge are hanging heavy: blackberries, bilberries, whatever the birds have not already stripped. It is easy work and good eating, but the fruit does not keep and the birds are quicker than we are, so it wants doing now, all hands and every basket we own. Send a party up to pick the ridge clean before the season turns.",
     icon: "🫐",
@@ -131,6 +136,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   },
 {
     id: "quarry_expedition_first",
+    map: { x: 0.37, y: 0.55 }, // the loose-stone ridge up in the western hills
     name: "Quarry Expedition",
     description: "Tomas found a good run of loose stone up in the hills, enough to raise a wall in half the time, only the ridge is already taken. Something many-legged has nested deep in the cracks and does not mean to share the stone. There is no working round it and no reasoning with the like. Clear the seam so the haulers can get at it, and watch your footing in the dark of the rock.",
     icon: "🪨",
@@ -195,6 +201,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   },
 {
     id: "merchant_escort_first",
+    map: { x: 0.55, y: 0.46 }, // the boundary marker up the Lammast road
     name: "The First Merchant",
     description: "Cobb kept his word. He is coming back up the road, and not with two mules this time: a wagon, a real load, the first merchant to judge the way to us worth the risk. Meet him at the boundary marker and bring him in whole. The cargo matters less than what it means. We are on someone's map now.",
     icon: "💰",
@@ -231,6 +238,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   },
 {
     id: "caravan_guard",
+    map: { x: 0.565, y: 0.625 }, // the river ford, a half-day downriver
     name: "The Road to Greyford",
     description: "We are not the only grant out here. Greyford sits a half-day downriver, founded a year before we came, so where our first fields have yet to come in, theirs are long since established. They have grain to spare; we struck good stone they can build with. Load a wagon with stone and meet theirs at the river ford to make the first trade between us, if it lives past the bandits working that road. See the exchange done and bring our people and theirs home whole. Good neighbours outlast good walls.",
     icon: "🐴",

@@ -108,6 +108,15 @@ export interface MissionTemplate {
    *  card's distinct orange outline + "⚠ At the settlement" banner so the player
    *  can't miss it, and reads apart from story (gold) / side-chain (teal). */
   urgent?: boolean;
+  /** Where this mission pins on the world map (the mission board IS the map).
+   *  Normalized 0..1 of the full map image, so the pin survives pan/zoom.
+   *  Authored by hand per mission (see docs/DESIGN_MISSION_MAP.md). A mission
+   *  with no `map` falls to the "Close to home" list beside the map until a
+   *  pin is authored. */
+  map?: { x: number; y: number };
+  /** The mission site's climate, authored (NOT derived from position). Drives
+   *  the seasonal debuff that warm/fresh food mitigates. Omit = temperate. */
+  climate?: "cold" | "temperate" | "hot";
   requires?: MissionRequirements; // conditions for this mission to appear on the board
   /** Chronicle entry surfaced when this mission is claimed (on success). Story
    *  missions have always had this; side-chain beats can carry one too. */

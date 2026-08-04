@@ -6,3 +6,6 @@ dist/
 .env
 .env.*
 frontend/public/images/
+
+# Source map sketch (heavy); web version lives in frontend/public/images/map/
+/IMG_0142.png

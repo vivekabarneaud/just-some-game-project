@@ -10,6 +10,7 @@ export const STORY_MISSIONS: StoryMission[] = [
   {
     id: "story_1_scouting",
     storyOrder: 1,
+    map: { x: 0.50, y: 0.565 }, // the near woods, just south of the settlement
     chapter: "Chapter 1: Ashes and Dust",
     name: "Scouting the Surroundings",
     description:

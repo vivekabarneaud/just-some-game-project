@@ -1,0 +1,118 @@
+# DESIGN — The Mission Map
+
+> Status: design (not built). Supersedes the "someday interactive fogged map"
+> note in project memory. The map REPLACES the mission board.
+
+## Intent
+
+The list-of-cards mission board becomes a **world map of our valley**, zoomed in
+on the settlement to start (pannable, zoom-out later). Every field mission is a
+**circle pin** at an authored spot on the map, framed by its type (main story,
+side-chain, urgent, ordinary). Clicking a pin opens the **team assembly panel**
+directly. Think WoW world-quests: the geography IS the menu.
+
+This also unlocks **mission climate** (cold / hot), which is what finally makes
+the kitchen's warm & fresh food channels matter (see DESIGN_KITCHEN.md and the
+mission-climate note).
+
+## The model (everything authored by hand)
+
+Two new optional fields on `MissionTemplate` (shared/src/data/missions/types.ts):
+
+```ts
+/** Where this mission pins on the world map. Normalized 0..1 of the full map
+ *  image (so the pin survives pan/zoom). Authored per mission. Missions with no
+ *  `map` fall to the "close to home" list until a pin is authored (see below). */
+map?: { x: number; y: number };
+
+/** The mission site's climate, authored (NOT derived from y). Drives the
+ *  seasonal debuff that warm/fresh food mitigates. Omit = temperate. */
+climate?: "cold" | "temperate" | "hot";
+```
+
+Deliberately NOT doing: regions, or computing climate from position. Both `x, y`
+and `climate` are set by hand on each mission, exactly like `difficulty` or
+`deathRisk` already are. Full authorial control; a "hot" mission can sit wherever
+the story wants it.
+
+### Pin frames (reuse existing card styling signals)
+
+No new data needed. The pin reads the same flags the card already styles from:
+
+| Mission kind          | Signal on the template     | Frame                  |
+|-----------------------|----------------------------|------------------------|
+| Main story            | `StoryMission` (storyOrder)| ornate gold            |
+| Side-chain            | `sideChain`                | teal                   |
+| Urgent (settlement)   | `urgent`                   | orange, pulsing        |
+| Ordinary / gather     | (none)                     | plain / bronze         |
+
+The pin shows the mission icon inside its frame; a small ❄/☀ badge marks
+`climate` when set. Difficulty stars can ride the pin as a tiny row beneath.
+
+### Non-geographic "missions"
+
+Folk social check-ins and tavern conversations **are not missions** and don't go
+on the map. If any ever become map-worthy, they pin on or beside the settlement.
+Everything currently in the board that is a genuine field mission gets a pin;
+anything internal stays in its building.
+
+## The viewport
+
+- One large map image (your painted valley). The visible area is a CSS
+  transform (translate + scale) over it.
+- **Initial view:** zoomed on the settlement (the crop you sketched). Drag to
+  pan. Zoom-out comes later; the transform is built for it from day one.
+- Pins are positioned by `map.{x,y} * imageSize`, so they stay glued to the
+  terrain through pan/zoom.
+- Pan is clamped to the image bounds (no panning off into the void).
+
+## Migration safety (so nothing disappears)
+
+The ~45 existing missions won't have `map` coords on day one. Rule: **a mission
+with no `map` field falls to a small "Close to home" list** docked beside/under
+the map. As we author each pin the mission leaves the list and appears on the
+terrain. This lets us ship the map immediately and place pins incrementally,
+with zero risk of a mission going unreachable mid-migration.
+
+## Dev authoring helper
+
+Hand-placing ~45 coordinates is the only real cost of per-mission `x, y`. Kill it
+with a **dev-only click-to-place overlay**: click anywhere on the map, it prints
+the normalized `{ x, y }` to copy into the mission. (Same spirit as the old
+/dev pages, gated to dev.) Makes authoring a copy-paste job, not guess-and-check.
+
+## Fog (later phase — how to split art vs code)
+
+Static hand-painted fog (Procreate) looks great but can't hide/reveal by
+discovery, so on its own it's a decorative vignette, not fog-of-war. The split:
+
+- **You paint** the fog TEXTURE (cloudy parchment, soft edges) as an overlay
+  image.
+- **Code controls** where it's drawn and peels it back per discovered area via a
+  reveal mask driven by game state (scouting).
+
+The first version has **no fog** (everything visible, zoomed on the settlement),
+so this is safely deferred and never blocks the pin work.
+
+## Phasing
+
+1. **Prototype** — sketch as background, pins for current available missions at
+   authored (or fallback-list) positions, click → team assembly panel. Fixed
+   zoom on the settlement, drag-pan. Dev click-to-place helper. The board list
+   becomes the "Close to home" fallback dock.
+2. **Author pins** — add `map.{x,y}` to the real missions, one by one, until the
+   fallback list is empty.
+3. **Climate** — add `climate` to missions; wire the seasonal debuff + warm/fresh
+   food mitigation (DESIGN_KITCHEN warmth/freshness channels earn their keep).
+4. **Zoom-out + decor** — expose zoom controls; swap the sketch for the painted
+   map with per-site decor (trees, mountains).
+5. **Fog + scouting** — painted fog texture + programmatic reveal mask; a scout
+   action uncovers areas.
+
+## Open (park until we get there)
+
+- Do multiple pins on the same spot need a fan-out / cluster expander? (Only if
+  the valley gets crowded; unlikely at ~45 missions across the map.)
+- Active/deployed missions: show a moving token along the road, or just mark the
+  pin "in progress"? (Ties to the existing outbound/combat/homeward phase.)
+- Zoom levels: free pinch-zoom vs a couple of fixed steps (settlement / valley).

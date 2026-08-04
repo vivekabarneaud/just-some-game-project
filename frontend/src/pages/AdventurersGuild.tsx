@@ -34,6 +34,7 @@ import TraitBadge from "~/components/TraitBadge";
 import AdventurerVitals from "~/components/AdventurerVitals";
 import RecoveryActions from "~/components/RecoveryActions";
 import MissionAssemblyPanel from "~/components/MissionAssemblyPanel";
+import MissionMap from "~/components/MissionMap";
 import LootModal from "~/components/LootModal";
 import ChronicleEntryModal from "~/components/ChronicleEntryModal";
 import { getChronicleEntry, type ChronicleEntry } from "~/data/chronicle_entries";
@@ -252,6 +253,20 @@ export default function AdventurersGuild() {
   const guildLevel = () => actions.getGuildLevel();
   const storyMission = () => getCurrentStoryMission(guildLevel(), state.completedStoryMissions ?? [], state.questRewardsClaimed ?? []);
   const lockedStoryMission = () => getLockedStoryMission(guildLevel(), state.completedStoryMissions ?? [], state.questRewardsClaimed ?? []);
+  // The set of missions the map shows: the current story mission (if not already
+  // out) + the daily board, minus any expedition that's live as a coop. Missions
+  // with authored `map` coords pin on the terrain; the rest fall to the map's
+  // "Close to home" dock. (The "???" locked-story placeholder stays separate.)
+  const boardMissions = createMemo(() => {
+    const list: MissionTemplate[] = [];
+    const sm = storyMission();
+    if (sm && !state.activeMissions.some((am) => am.missionId === sm.id)) list.push(sm);
+    for (const saved of state.missionBoard) {
+      if (coopActiveExpeditionIds().has(saved.id)) continue;
+      list.push((getMission(saved.id) ?? saved) as MissionTemplate);
+    }
+    return list;
+  });
   // Roster tab shows only living adventurers; the fallen live on the
   // Pantheon memorial inside the Shrine (frontend/src/components/Pantheon.tsx).
   const roster = () => state.adventurers.filter((a) => a.alive);
@@ -832,54 +847,32 @@ export default function AdventurersGuild() {
               No missions available. The board refreshes daily.
             </p>
           </Show>
-          <div class="buildings-grid">
-            {/* Story mission — pinned at top */}
-            <Show when={(() => {
-              const sm = storyMission();
-              return sm && !state.activeMissions.some((am) => am.missionId === sm.id) ? sm : null;
-            })()}>
-              {(story) => (
-                <MissionCard
-                  mission={story()}
-                  selected={selectedMission()?.id === story().id}
-                  storyChapter={(story() as any).chapter}
-                  onClick={() => toggleMissionSelect(story())}
-                />
-              )}
-            </Show>
-            {/* Locked story mission placeholder: shown when the next story
-                mission is gated by a parallel quest that hasn't completed
-                yet. Renders as a "???" card with the unlock hint, similar
-                to the bestiary's "???" enemy cards. */}
-            <Show when={lockedStoryMission()}>
-              {(locked) => (
-                <div class="building-card dimmed" style={{ cursor: "default" }}>
-                  <span class="building-card-category">{(locked().mission as any).chapter}</span>
-                  <div class="building-card-header" style={{ "margin-top": "4px" }}>
-                    <div class="building-card-icon" style={{ "font-size": "2rem" }}>❓</div>
-                    <div>
-                      <div class="building-card-title">???</div>
-                      <div style={{ "font-size": "0.85rem", color: "var(--text-muted)" }}>
-                        Complete the active quest to unlock the next story mission.
-                      </div>
+          {/* Locked story mission placeholder: shown when the next story
+              mission is gated by a parallel quest that hasn't completed yet.
+              A "???" card above the map, similar to the bestiary's "???" cards. */}
+          <Show when={lockedStoryMission()}>
+            {(locked) => (
+              <div class="building-card dimmed" style={{ cursor: "default", "margin-bottom": "12px", "max-width": "420px" }}>
+                <span class="building-card-category">{(locked().mission as any).chapter}</span>
+                <div class="building-card-header" style={{ "margin-top": "4px" }}>
+                  <div class="building-card-icon" style={{ "font-size": "2rem" }}>❓</div>
+                  <div>
+                    <div class="building-card-title">???</div>
+                    <div style={{ "font-size": "0.85rem", color: "var(--text-muted)" }}>
+                      Complete the active quest to unlock the next story mission.
                     </div>
                   </div>
                 </div>
-              )}
-            </Show>
-            <For each={state.missionBoard.filter((m) => !coopActiveExpeditionIds().has(m.id))}>
-              {(saved) => {
-                const mission = getMission(saved.id) ?? saved;
-                return (
-                  <MissionCard
-                    mission={mission}
-                    selected={selectedMission()?.id === mission.id}
-                    onClick={() => toggleMissionSelect(mission)}
-                  />
-                );
-              }}
-            </For>
-          </div>
+              </div>
+            )}
+          </Show>
+
+          {/* The mission board IS the map — pins on the terrain, click to assemble. */}
+          <MissionMap
+            missions={boardMissions()}
+            selectedId={selectedMission()?.id}
+            onSelect={(m) => toggleMissionSelect(m)}
+          />
 
           {/* Mission assembly panel */}
           <Show when={selectedMission()}>
