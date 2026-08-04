@@ -3,6 +3,8 @@ import { useGame, BUILDING_TOOLS, getBuildingTool } from "~/engine/gameState";
 import { ITEMS, MATERIALS, getItem, getMaterial, getPotionInfo, isSupplyItem, isFoodItem, getFoodEffect, MATCHED_FOOD_HP_BONUS, ARMOR_TYPE_META } from "@medieval-realm/shared/data/items";
 import { ALCHEMY_RECIPES } from "@medieval-realm/shared/data/alchemy_recipes";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
+import { getFoodIngredient } from "@medieval-realm/shared/data/kitchen/ingredients";
+import { dishMissionBoons } from "@medieval-realm/shared/data/kitchen/mission";
 import { describeEffectParts, effectKind } from "@medieval-realm/shared/data/alchemy/describe";
 import WeaponDamage from "~/components/WeaponDamage";
 import { BUILDINGS } from "~/data/buildings";
@@ -444,6 +446,49 @@ export default function Inventory() {
                     </div>
                   </div>
                 )}
+              </For>
+            </div>
+          </Show>
+        );
+      })()}
+
+      {/* Prepared Dishes — cooked at the Kitchen desk; pack them for an adventure
+          or feature them at the tavern. Read from state.cookedDishes (own store). */}
+      {(() => {
+        const dishes = () => Object.entries(state.cookedDishes ?? {})
+          .map(([id, n]) => ({ d: state.kitchenDishes?.[id], n: Math.floor(Number(n)) }))
+          .filter((x) => !!x.d && x.n > 0)
+          .sort((a, b) => a.d!.name.localeCompare(b.d!.name));
+        return (
+          <Show when={dishes().length > 0}>
+            <h3 style={{ "font-family": "var(--font-heading)", "margin-top": "24px", "margin-bottom": "10px", color: "var(--text-primary)" }}>
+              Prepared Dishes
+            </h3>
+            <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-bottom": "10px" }}>
+              Cooked at the Kitchen. Pack one for an adventure (a well-fed bonus) or feature it at the tavern.
+            </div>
+            <div class="buildings-grid">
+              <For each={dishes()}>
+                {(x) => {
+                  const d = x.d!;
+                  const b = dishMissionBoons(d.effects);
+                  const icon = getFoodIngredient(d.placements[0]?.ingredientId)?.icon ?? "🍲";
+                  const parts: string[] = [];
+                  if (b.hpBonus) parts.push(`+${b.hpBonus} HP`);
+                  if (b.loyalty) parts.push(`❤ +${b.loyalty} loyalty`);
+                  return (
+                    <div class="building-card">
+                      <span class="building-card-category" style={{ color: "var(--accent-green)" }}>meal</span>
+                      <div class="building-card-header" style={{ "margin-top": "4px" }}>
+                        <div class="building-card-icon">{icon}</div>
+                        <div>
+                          <div class="building-card-title">{d.name} <span style={{ color: "var(--accent-gold)", "font-weight": 600 }}>×{x.n}</span></div>
+                          <div style={{ "font-size": "0.8rem", color: "var(--accent-green)" }}>{parts.join(" · ") || "a good meal"}</div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }}
               </For>
             </div>
           </Show>
