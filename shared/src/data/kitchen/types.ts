@@ -7,10 +7,14 @@
 export type FoodRole = "staple" | "protein" | "veg" | "fruit" | "dairy" | "spice";
 
 /** How an ingredient is PREPARED (per-ingredient, like alchemy: roast the meat,
- *  boil the staple, combine). Heat methods gate by kitchen LEVEL — boil (Lv1) →
- *  fry (Lv2) → roast (Lv3); chop gates on the cutting-board TOOL (raw prep, no
- *  heat); preserve is a later town method. */
-export type CookTechnique = "boil" | "fry" | "roast" | "chop" | "preserve";
+ *  boil the staple, combine). Gated by settlement tier: boil + chop + skewer at
+ *  camp, fry at village, roast at town; preserve is a later town method. */
+export type CookTechnique = "boil" | "skewer" | "fry" | "roast" | "chop" | "preserve";
+
+/** Taste tags — a dish's taste emerges from its ingredients (weighted by amount)
+ *  + its prep (skewer→smoky, chop→fresh). Matches an adventurer's foodPreference
+ *  for the "❤ favourite" bonus, same as the fixed foods. */
+export type FoodFlavor = "sweet" | "spicy" | "fresh" | "smoky" | "hearty";
 
 /** One prepared ingredient going into the dish. */
 export interface CookPlacement {
@@ -39,6 +43,8 @@ export interface FoodIngredient {
   role: FoodRole;
   /** The natural way to prepare it (defaults the technique when picked). */
   signature?: CookTechnique;
+  /** Taste tags this ingredient carries (weighted by amount into the dish). */
+  flavors?: FoodFlavor[];
   /** How filling. */
   nourish?: number;
   /** How pleasurable a mouthful. */

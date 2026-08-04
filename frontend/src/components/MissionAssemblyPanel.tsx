@@ -51,6 +51,7 @@ import { inviteCoop, fetchCoopDetail, updateCoopRoster, setCoopReady, cancelCoop
 import { wsClient } from "~/api/ws";
 import { playSound } from "~/engine/sounds";
 import { dishMissionBoons } from "@medieval-realm/shared/data/kitchen/mission";
+import { dishFlavors } from "@medieval-realm/shared/data/kitchen/cook";
 import { getFoodIngredient } from "@medieval-realm/shared/data/kitchen/ingredients";
 import type { CoopAdventurerSummary } from "@medieval-realm/shared";
 
@@ -200,7 +201,7 @@ export default function MissionAssemblyPanel(props: Props) {
   // Cooked free-form dishes as packable food (they live in state.cookedDishes,
   // not inventory). A well-fed HP bonus from nourishment; shown alongside the
   // fixed foods in the food slot.
-  const cookedDishOptions = (currentFoodId: string | undefined) =>
+  const cookedDishOptions = (currentFoodId: string | undefined, foodPreference?: string) =>
     Object.entries(state.cookedDishes ?? {})
       .filter(([, n]) => (n ?? 0) > 0)
       .map(([id, n]) => {
@@ -209,10 +210,12 @@ export default function MissionAssemblyPanel(props: Props) {
         const remaining = (n ?? 0) - assignedCount(id) + (currentFoodId === id ? 1 : 0);
         if (remaining <= 0) return null;
         const b = dishMissionBoons(d.effects);
+        const matched = !!foodPreference && dishFlavors(d.placements).includes(foodPreference as any);
         const icon = getFoodIngredient(d.placements[0]?.ingredientId)?.icon ?? "🍲";
         const parts: string[] = [];
         if (b.hpBonus) parts.push(`+${b.hpBonus} HP`);
         if (b.loyalty) parts.push(`❤ +${b.loyalty} loyalty`);
+        if (matched) parts.push(`❤ favourite +${MATCHED_FOOD_HP_BONUS} HP`);
         return { id, name: d.name, icon, qty: remaining, hint: parts.join(" · ") || "a good meal" };
       })
       .filter(Boolean) as { id: string; name: string; icon: string; qty: number; hint: string }[];
@@ -1169,7 +1172,7 @@ export default function MissionAssemblyPanel(props: Props) {
                       return { id: s.item.id, name: s.item.name, icon: s.item.icon, qty: remainingQty, hint: parts.join(" · ") };
                     })
                     .filter(Boolean)
-                    .concat(cookedDishOptions(adv() ? adventurerSupplies()[adv()!.id]?.food : undefined)) as { id: string; name: string; icon: string; qty: number; hint: string }[];
+                    .concat(cookedDishOptions(adv() ? adventurerSupplies()[adv()!.id]?.food : undefined, adv()?.foodPreference)) as { id: string; name: string; icon: string; qty: number; hint: string }[];
                 };
                 const recoveryOptions = () => {
                   return getAvailableSupplies(state.inventory, "recovery")

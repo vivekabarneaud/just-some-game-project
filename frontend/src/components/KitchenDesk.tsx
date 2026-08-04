@@ -1,6 +1,7 @@
 import { createSignal, createMemo, For, Show } from "solid-js";
 import { useGame } from "~/engine/gameState";
 import { resolveDish, NAMED_DISHES } from "@medieval-realm/shared/data/kitchen/named_dishes";
+import { dishFlavors } from "@medieval-realm/shared/data/kitchen/cook";
 import { getFoodIngredient, foodByRole } from "@medieval-realm/shared/data/kitchen/ingredients";
 import type { CookTechnique, FoodRole, CookPlacement, DishChannel } from "@medieval-realm/shared/data/kitchen/types";
 import { playSound } from "~/engine/sounds";
@@ -16,6 +17,7 @@ import FramedItemCard, { itemFrameUrl as frameUrl, gradeFilter } from "~/compone
 const STATIONS: { technique: CookTechnique; place: string; icon: string; verb: string }[] = [
   { technique: "boil", place: "Pot", icon: "🍲", verb: "Boil" },
   { technique: "chop", place: "Board", icon: "🔪", verb: "Chop" },
+  { technique: "skewer", place: "Fire", icon: "🍢", verb: "Skewer" },
   { technique: "fry", place: "Pan", icon: "🍳", verb: "Fry" },
   { technique: "roast", place: "Oven", icon: "🔥", verb: "Roast" },
 ];
@@ -60,6 +62,7 @@ export default function KitchenDesk() {
     STATIONS.flatMap((s) => stationOf(s.technique).map((id) => ({ ingredientId: id, technique: s.technique }))),
   );
   const dish = createMemo(() => resolveDish(placements()));
+  const taste = createMemo(() => dishFlavors(placements()));
   const short = createMemo(() => {
     const need = new Map<string, number>();
     for (const p of placements()) need.set(p.ingredientId, (need.get(p.ingredientId) ?? 0) + 1);
@@ -242,6 +245,9 @@ export default function KitchenDesk() {
               <div style={{ "font-size": "0.66rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "1px", "margin-bottom": "6px" }}>{dish().named ? "known dish · " : ""}{QUALITY_LABEL[dish().quality]}</div>
               <Show when={dish().effects.length > 0} fallback={<div style={{ color: "var(--text-muted)", "font-style": "italic", "font-size": "0.82rem" }}>Nothing worth serving yet.</div>}>
                 <For each={dish().effects}>{(e) => <div style={{ "font-size": "0.82rem", color: EFFECT_COLOR, padding: "1px 0" }}><b>{e.amount}</b> {CH_SHORT[e.channel]}</div>}</For>
+              </Show>
+              <Show when={taste().length > 0}>
+                <div style={{ "font-size": "0.72rem", color: "var(--accent-gold)", "margin-top": "4px", "text-transform": "capitalize" }}>👅 Taste: {taste().join(", ")}</div>
               </Show>
               <Show when={dish().notes.length > 0}>
                 <div style={{ "margin-top": "8px", "border-top": "1px solid var(--border-default)", "padding-top": "6px" }}>

@@ -261,6 +261,7 @@ import {
   getEquipmentStats,
   getPotionInfo,
   MATCHED_FOOD_LOYALTY_BONUS,
+  MATCHED_FOOD_HP_BONUS,
   getArmorAccess,
   getWeaponAccess,
   slotAccepts,
@@ -302,7 +303,7 @@ import { matchNamedRecipe } from "@medieval-realm/shared/data/alchemy/named_reci
 import { summarizeRecovery, easeHoursFor } from "@medieval-realm/shared/data/alchemy/apply";
 import type { Placement as AlchemyPlacement, StoredAlchemyRecipe } from "@medieval-realm/shared/data/alchemy/types";
 import { resolveDish, matchNamedDish } from "@medieval-realm/shared/data/kitchen/named_dishes";
-import { clampPlacements as clampCookPlacements, dishIdFor } from "@medieval-realm/shared/data/kitchen/cook";
+import { clampPlacements as clampCookPlacements, dishIdFor, dishFlavors } from "@medieval-realm/shared/data/kitchen/cook";
 import { getFoodIngredient } from "@medieval-realm/shared/data/kitchen/ingredients";
 import { dishMissionBoons } from "@medieval-realm/shared/data/kitchen/mission";
 import type { CookPlacement, StoredDish } from "@medieval-realm/shared/data/kitchen/types";
@@ -7582,7 +7583,15 @@ export function GameProvider(props: ParentProps) {
           // inventory, so the inventory decrement above was a no-op for them).
           const dish = sup.food ? s.kitchenDishes?.[sup.food] : undefined;
           if (dish) {
-            (sup as AdventurerMissionSupplies).dishBoons = dishMissionBoons(dish.effects);
+            const boons = dishMissionBoons(dish.effects);
+            // ❤ favourite: a dish whose taste matches this adventurer's preference
+            // gives the extra HP + loyalty, same as a matched fixed food.
+            const eater = s.adventurers.find((a) => a.id === advId);
+            if (eater?.foodPreference && dishFlavors(dish.placements).includes(eater.foodPreference as any)) {
+              boons.hpBonus += MATCHED_FOOD_HP_BONUS;
+              boons.loyalty += MATCHED_FOOD_LOYALTY_BONUS;
+            }
+            (sup as AdventurerMissionSupplies).dishBoons = boons;
             if (s.cookedDishes) s.cookedDishes[sup.food!] = Math.max(0, (s.cookedDishes[sup.food!] ?? 0) - 1);
           }
         }

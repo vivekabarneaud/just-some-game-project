@@ -4,7 +4,7 @@
 // brew engine — the technique shapes what that ingredient contributes. Spices
 // amplify; a meal wants a staple or it comes out thin. See docs/DESIGN_KITCHEN.md.
 
-import type { CookTechnique, DishChannel, DishEffect, DishResult, CookPlacement } from "./types.js";
+import type { CookTechnique, DishChannel, DishEffect, DishResult, CookPlacement, FoodFlavor } from "./types.js";
 import { getFoodIngredient } from "./ingredients.js";
 
 /** Most of one (ingredient, technique) that counts (matches the alchemy per-plant
@@ -33,11 +33,33 @@ const VARIETY_PER_SHELF = 0.05;
  *  pays off raw (chop). */
 const TECH: Record<CookTechnique, { nourish: number; comfort: number; warmth: number; fresh: number }> = {
   boil:     { nourish: 1.2, comfort: 0.8, warmth: 0.6, fresh: 0 },
+  skewer:   { nourish: 1.0, comfort: 1.1, warmth: 0.5, fresh: 0 }, // grilled over the fire — smoky (see TECH_FLAVOR)
   fry:      { nourish: 1.0, comfort: 1.1, warmth: 0.2, fresh: 0 },
   roast:    { nourish: 1.0, comfort: 1.4, warmth: 0.4, fresh: 0 },
   chop:     { nourish: 0.6, comfort: 1.0, warmth: 0,   fresh: 1.2 },
   preserve: { nourish: 1.0, comfort: 0.6, warmth: 0,   fresh: 0 },
 };
+
+/** Flavour a PREP adds to the dish's taste (on top of the ingredients'). */
+const TECH_FLAVOR: Partial<Record<CookTechnique, FoodFlavor>> = { skewer: "smoky", chop: "fresh" };
+
+/** A dish's taste: the flavours its ingredients carry (each unit = one vote) plus
+ *  the flavour of its preps. Keeps the top 1-2 (any flavour at least half the
+ *  leader). Empty for an empty pot. Matched against an adventurer's foodPreference
+ *  for the "❤ favourite" bonus, like the fixed foods. */
+export function dishFlavors(placements: CookPlacement[]): FoodFlavor[] {
+  const tally = new Map<FoodFlavor, number>();
+  const bump = (f: FoodFlavor) => tally.set(f, (tally.get(f) ?? 0) + 1);
+  for (const p of clampPlacements(placements)) {
+    for (const f of getFoodIngredient(p.ingredientId)?.flavors ?? []) bump(f);
+    const tf = TECH_FLAVOR[p.technique];
+    if (tf) bump(tf);
+  }
+  const sorted = [...tally.entries()].sort((a, b) => b[1] - a[1]);
+  if (sorted.length === 0) return [];
+  const top = sorted[0][1];
+  return sorted.filter(([, w]) => w >= top * 0.5).slice(0, 2).map(([f]) => f);
+}
 
 /** An order- AND quantity-independent id for a dish (which ingredients, prepared
  *  which way), so a dish is one recipe whatever the amounts. */
@@ -141,6 +163,7 @@ function nameDish(techniques: Set<CookTechnique>, effects: DishEffect[], quality
   if (effects.length === 0) return "Watery Pot";
   // Form from the "headline" prep (roast > fry > chop > boil).
   const form = techniques.has("roast") ? "Roast"
+    : techniques.has("skewer") ? "Skewer"
     : techniques.has("fry") ? "Fry"
     : techniques.size === 1 && techniques.has("chop") ? "Board"
     : "Pot";

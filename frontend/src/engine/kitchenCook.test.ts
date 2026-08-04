@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { cook, clampPlacements, MAX_PER_INGREDIENT } from "@medieval-realm/shared/data/kitchen/cook";
+import { cook, clampPlacements, MAX_PER_INGREDIENT, dishFlavors } from "@medieval-realm/shared/data/kitchen/cook";
 import { NAMED_DISHES, matchNamedDish, resolveDish } from "@medieval-realm/shared/data/kitchen/named_dishes";
 import { getFoodIngredient } from "@medieval-realm/shared/data/kitchen/ingredients";
 import { dishMissionBoons } from "@medieval-realm/shared/data/kitchen/mission";
@@ -102,6 +102,18 @@ describe("cook — the free-form cooking engine", () => {
     const varied = cook([p("barley", "boil"), p("turnips", "boil")]);
     expect(amt(varied, "nourishment")).toBeGreaterThan(amt(narrow, "nourishment"));
     expect(varied.effects.some((e) => (e.channel as string) === "diversity")).toBe(false);
+  });
+
+  it("a dish's taste emerges from its ingredients (honey-heavy → sweet)", () => {
+    const porridge = [p("wheat", "boil"), p("berries", "boil"), p("nuts", "boil"),
+      ...Array.from({ length: 5 }, () => p("honey", "boil"))];
+    expect(dishFlavors(porridge)).toContain("sweet"); // honey ×5 + berries dominate
+    expect(dishFlavors(porridge)).not.toContain("hearty"); // wheat/nuts are outvoted
+  });
+
+  it("skewering over the fire makes it smoky (the camp smoky method)", () => {
+    expect(dishFlavors([p("meat", "skewer")])).toContain("smoky");
+    expect(dishFlavors([p("meat", "boil")])).not.toContain("smoky"); // boiling doesn't
   });
 
   it("quantity is potency but capped: 20 barley cooks like 5 (no larder dump)", () => {
