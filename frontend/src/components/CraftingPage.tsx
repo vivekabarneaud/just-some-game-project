@@ -37,6 +37,9 @@ interface CraftingPageProps {
   buildingId: string;
   buildingName: string;
   icon: string;
+  /** Optional content rendered just under the page title (e.g. the free-form
+   *  cooking desk), before the crafting materials bar + recipes. */
+  topContent?: JSX.Element;
   /** Extra materials to show in the header */
   materials: { icon: string; label: string; value: () => number }[];
   /** Verb for the craft button (default: "Craft") */
@@ -390,6 +393,7 @@ export default function CraftingPage(props: CraftingPageProps) {
   return (
     <div>
       <h1 class="page-title">{props.icon} {props.title}</h1>
+      {props.topContent}
 
       <Show when={buildingLevel() === 0}>
         <div style={{

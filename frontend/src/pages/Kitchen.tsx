@@ -6,13 +6,6 @@ export default function Kitchen() {
   const { state } = useGame();
   const f = () => state.foods ?? {} as any;
   return (
-    <>
-    {/* Free-form cooking desk (Phase B). Sits above the classic recipe crafting;
-        the staple auto-cook / food loop below is untouched. */}
-    <div style={{ padding: "0 16px", "max-width": "1080px", margin: "0 auto" }}>
-      <h2 style={{ "font-family": "var(--font-heading)", "margin": "8px 0 0" }}>🍳 The Kitchens — Cooking Desk</h2>
-      <KitchenDesk />
-    </div>
     <CraftingPage
       title="The Kitchens"
       buildingId="kitchen"
@@ -20,6 +13,9 @@ export default function Kitchen() {
       icon="🍳"
       craftVerb="Cook!"
       craftSound="kitchen"
+      // Free-form cooking desk (Phase B), under the title; the classic recipe
+      // crafting + staple auto-cook / food loop stays below, untouched.
+      topContent={<KitchenDesk />}
       materials={[
         { icon: "🌾", label: "Grain",   value: () => Math.floor((f().wheat ?? 0) + (f().barley ?? 0)) },
         { icon: "🍖", label: "Meat",    value: () => Math.floor(f().meat ?? 0) },
@@ -32,6 +28,5 @@ export default function Kitchen() {
         { icon: "🍯", label: "Honey",   value: () => Math.floor(state.honey) },
       ]}
     />
-    </>
   );
 }
