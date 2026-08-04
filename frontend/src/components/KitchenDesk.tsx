@@ -31,6 +31,14 @@ const MAX_PER_INGREDIENT = 5;
 const PER_PAGE = 8;
 const EFFECT_COLOR = "var(--accent-green)";
 
+/** Staple dishes that double as the passive "keep a pot on" food multiplier
+ *  (feeds citizens). Maps the cookbook dish id → the CraftingRecipe the auto-cook
+ *  engine runs. The engine is unchanged; the desk just drives state.autoCook. */
+const STAPLE_RECIPE: Record<string, string> = {
+  dish_porridge: "porridge", dish_hearth_stew: "hearth_stew",
+  dish_river_stew: "river_stew", dish_bone_broth: "bone_broth",
+};
+
 export default function KitchenDesk() {
   const { state, actions } = useGame();
   const [stations, setStations] = createSignal<Partial<Record<CookTechnique, string[]>>>({});
@@ -41,6 +49,12 @@ export default function KitchenDesk() {
   const clear = () => { setStations({}); setHeld(null); };
   const stationOf = (t: CookTechnique) => stations()[t] ?? [];
   const stock = (id: string) => Math.floor(actions.getCookIngredientQty(id));
+
+  // Staple auto-cook ("keep a pot on") — feeds the settlement via the engine tick.
+  const autoCook = () => state.autoCook?.["kitchen"] ?? [];
+  const keepCookingOn = (recipeId: string) => autoCook().includes(recipeId);
+  const cookSlotsFull = (recipeId: string) => !keepCookingOn(recipeId) && autoCook().length >= actions.getAutoCookSlots("kitchen");
+  const toggleKeepCooking = (recipeId: string) => { if (!cookSlotsFull(recipeId)) { actions.setAutoCook("kitchen", recipeId); playSound("nav"); } };
 
   const placements = createMemo<CookPlacement[]>(() =>
     STATIONS.flatMap((s) => stationOf(s.technique).map((id) => ({ ingredientId: id, technique: s.technique }))),
@@ -127,7 +141,22 @@ export default function KitchenDesk() {
                   onClick={() => loadDish(r.placements)} minHeight="92px"
                   body={<For each={r.effects}>
                     {(e) => <div style={{ "font-size": "0.66rem", color: EFFECT_COLOR, "line-height": 1.3 }}>{e.amount} {CH_SHORT[e.channel]}</div>}
-                  </For>} />
+                  </For>}>
+                  <Show when={STAPLE_RECIPE[r.id]}>
+                    {(rid) => (
+                      <span onClick={(e) => { e.stopPropagation(); toggleKeepCooking(rid()); }}
+                        title={keepCookingOn(rid()) ? "Keeping a pot on to feed the settlement — tap to stop"
+                          : cookSlotsFull(rid()) ? "All cook slots busy — upgrade the Kitchen for more pots"
+                          : "Keep a pot on: stretches raw food into portions for the settlement"}
+                        style={{ display: "inline-block", "margin-top": "6px", "font-size": "0.62rem", padding: "2px 7px", "border-radius": "10px",
+                          cursor: cookSlotsFull(rid()) ? "default" : "pointer", "font-weight": 600,
+                          background: keepCookingOn(rid()) ? "rgba(212,131,26,0.3)" : "rgba(42,32,18,0.1)",
+                          border: "1px solid #2a2012", color: "#2a2012", opacity: cookSlotsFull(rid()) ? 0.5 : 1 }}>
+                        {keepCookingOn(rid()) ? "🔥 Cooking — tap to stop" : cookSlotsFull(rid()) ? "🔥 Kitchen full" : "🔥 Keep a pot on"}
+                      </span>
+                    )}
+                  </Show>
+                </FramedItemCard>
               )}
             </For>
           </div>
