@@ -11,3 +11,6 @@ Playtest TODOs (status as of this pass):
 Notes:
 - Petty Thieves is a RANDOM camp-tier raid, kept on purpose. The scripted brigand
   raid was already disabled (commented out in events.ts).
+
+NEW:
+    - Arm the brave was already claimable even though I didn't arm anyone (probably because they came with weapons already?)
