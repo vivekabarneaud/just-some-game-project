@@ -2543,7 +2543,9 @@ function waterBalance(s: GameState) {
   const well = wellBldg?.damaged ? 0 : getWellOutput(wellBldg?.level ?? 0) * wellFactor(band);
   const rain = getCisternRainCatch(cisternLvl) * climateRainFactor(band) * ambientRainFactor(weather);
   const liveInflow = stream + well + rain;
-  const banked = sluiceOpen ? 0 : liveInflow; // what actually enters the reserve
+  // Open sluice pauses only the STREAM + WELL from banking; rain still fills the
+  // reserve (the sky doesn't care about the sluice).
+  const banked = sluiceOpen ? rain : liveInflow; // what actually enters the reserve
   const sluiceDrain = sluiceOpen ? getSluiceDrain(cisternLvl) : 0;
 
   const citizens = citizenWaterDemand_(s);
@@ -2564,7 +2566,7 @@ function waterBalance(s: GameState) {
 
   // Net change to the STORED reserve: shut, inflow minus the draws; open, just
   // the sluice bleeding it down (draws are met by the live flow, not the store).
-  const net = sluiceOpen ? -sluiceDrain : banked - citizens - animals - cropDraw;
+  const net = sluiceOpen ? banked - sluiceDrain : banked - citizens - animals - cropDraw;
 
   return { band, weather, raining, cisternLvl, cisternDamaged, sluiceOpen, sluiceDrain,
     stream, well, rain, inflow: liveInflow,
@@ -6709,11 +6711,9 @@ export function GameProvider(props: ParentProps) {
     upgradeField(fieldId) {
       const field = state.fields.find((f) => f.id === fieldId);
       if (!field || field.upgrading || field.level >= FIELD_MAX_LEVEL) return false;
-      // Can only upgrade empty or fallow fields (not planted ones)
+      // Can only upgrade empty or fallow fields (not planted ones) — which also
+      // means no crop is ever growing when you upgrade, so no free yield.
       if (field.crop !== null) return false;
-      // Winter-only: fields can only be worked when the ground is dormant.
-      // Creates a yearly cycle — winter upgrades, spring plants, etc.
-      if (state.season !== "winter") return false;
       // TH-gated: fields can't exceed the current Town Hall level, same rule as buildings.
       if (field.level >= getTownHallLevel(state.buildings)) return false;
       const cost = getFieldCost(field.level);
@@ -6752,11 +6752,8 @@ export function GameProvider(props: ParentProps) {
         if (!isSeedUnlocked(v, state.seedsUnlocked)) return false;
         if (!canPlantVeggie(v, state.season)) return false;
       }
-      // Level 1+ upgrades mirror the field rules: winter only, TH-capped.
-      if (garden.level >= 1) {
-        if (state.season !== "winter") return false;
-        if (garden.level >= getTownHallLevel(state.buildings)) return false;
-      }
+      // Level 1+ upgrades are TH-capped (mirrors buildings). Year-round now.
+      if (garden.level >= 1 && garden.level >= getTownHallLevel(state.buildings)) return false;
       const cost = getGardenCost(garden.level);
       if (state.resources.wood < cost.wood || state.resources.stone < cost.stone) return false;
       setState(produce((s) => {
@@ -6814,10 +6811,7 @@ export function GameProvider(props: ParentProps) {
     upgradePen(penId) {
       const pen = state.pens.find((p) => p.id === penId);
       if (!pen || pen.upgrading || pen.level >= PEN_MAX_LEVEL) return false;
-      if (pen.level >= 1) {
-        if (state.season !== "winter") return false;
-        if (pen.level >= getTownHallLevel(state.buildings)) return false;
-      }
+      if (pen.level >= 1 && pen.level >= getTownHallLevel(state.buildings)) return false;
       const base = getPenCost(pen.level);
       // Shepherd brings her own flock — first sheep pen doesn't cost gold.
       const goldCost = pen.animal === "sheep" && pen.level === 0 ? 0 : base.gold;

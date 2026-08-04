@@ -173,11 +173,13 @@ function itemInfoPanel(recipeId: string, hideConsumableTag: boolean = false) {
   const armorMeta = item.armorType ? ARMOR_TYPE_META[item.armorType] : null;
   return (
     <div style={{ "margin-top": "4px", padding: "4px 8px", background: "var(--bg-primary)", "border-radius": "4px", "font-size": "0.75rem" }}>
-      <div style={{ display: "flex", "flex-direction": "column", gap: "2px" }}>
-        {stats.split(", ").map((s) => (
-          <span style={{ color: "var(--accent-green)" }}>{s.trim()}</span>
-        ))}
-      </div>
+      {stats.trim() && (
+        <div style={{ display: "flex", "flex-direction": "column", gap: "2px" }}>
+          {stats.split(", ").filter((s) => s.trim()).map((s) => (
+            <span style={{ color: "var(--accent-green)" }}>{s.trim()}</span>
+          ))}
+        </div>
+      )}
       {(armorMeta || item.classes.length > 0) && (
         <div style={{ display: "flex", gap: "6px", "margin-top": "3px", "flex-wrap": "wrap" }}>
           {armorMeta && (
