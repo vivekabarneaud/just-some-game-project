@@ -148,6 +148,11 @@ export interface KeptAnimal {
   jobHours: number;
   /** 0..100, light and mostly automatic (fed + fitting job = content). */
   happiness: number;
+  /** A live injury (e.g. savaged by the pack). A wounded dog keeps to the fire
+   *  and can't work its post until it mends — rest ALWAYS heals it, a cure item
+   *  just speeds it (mirrors founder ailments). See shared/data/ailments
+   *  (ANIMAL_AILMENTS). Set by story beats, not the random illness roll. */
+  ailment?: { ailmentId: string; hoursRemaining: number };
 }
 
 export interface PlayerHive {

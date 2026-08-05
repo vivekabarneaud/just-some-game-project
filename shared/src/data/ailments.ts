@@ -157,3 +157,31 @@ export const AILMENTS: AilmentDef[] = [
 export function getAilment(id: string): AilmentDef | undefined {
   return AILMENTS.find((a) => a.id === id);
 }
+
+// ─── Animal ailments ─────────────────────────────────────────────────────────
+// Same engine as the founder ailments (rest ALWAYS heals, a cure item just
+// speeds it, mild by design) but they sit on a KeptAnimal instead of a building,
+// and the penalty is on the animal's POST — a wounded guard dog can't watch the
+// fold, so predation returns until he mends. Applied by story beats (the pack's
+// alpha mauls the good boy), not the random illness roll. `buildings` is unused
+// here; kept for the shared AilmentDef shape.
+export const ANIMAL_AILMENTS: AilmentDef[] = [
+  {
+    id: "savaged",
+    line: "wound",
+    name: "Savaged",
+    kind: "injury",
+    icon: "🩹",
+    buildings: [],
+    contagious: false,
+    workPenalty: 1, // off his post entirely while he mends
+    restHours: 48,  // a couple of game-days on rest alone
+    cures: ["bandage", "woundwort_salve", "healing_salve", "knitbone_poultice", "mending_potion"],
+    onset: (who) => `${who} was badly mauled and keeps to the fire now. He can't watch the fold until he mends — rest will do it, a poultice sooner.`,
+    recovered: (who) => `${who} is up on his paws again, scarred but sound, and back at the fold.`,
+  },
+];
+
+export function getAnimalAilment(id: string): AilmentDef | undefined {
+  return ANIMAL_AILMENTS.find((a) => a.id === id);
+}

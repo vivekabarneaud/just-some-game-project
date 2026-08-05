@@ -296,7 +296,7 @@ import { getReadyEvents } from "~/data/events";
 import { TRAVELING_MERCHANTS, getMerchant, merchantIntervalDays } from "~/data/merchants";
 import { calcTavern, tavernRooms, REPUTATION_DRIFT_PER_HOUR, SEASONAL_REP_PER_DISH, SEASONAL_REP_CAP, TAVERN_FOOD_PER_ROOM_PER_HOUR, MENU_STAPLE_IDS, serversNeeded, menuCapacity, TAVERN_COMMODITY_DRINKS, getCommodityDrink, type TavernCommodityDrink } from "~/data/tavern";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
-import { AILMENTS, getAilment, type BuildingAilment } from "@medieval-realm/shared/data/ailments";
+import { AILMENTS, getAilment, getAnimalAilment, type BuildingAilment } from "@medieval-realm/shared/data/ailments";
 import { brew as brewAlchemy, recipeIdFor, brewRarity, clampPlacements } from "@medieval-realm/shared/data/alchemy/brew";
 import { getIngredient as getAlchemyIngredient } from "@medieval-realm/shared/data/alchemy/ingredients";
 import { matchNamedRecipe } from "@medieval-realm/shared/data/alchemy/named_recipes";
@@ -474,6 +474,11 @@ export interface KeptAnimal {
   huntLevel: number;     // 0..5 skill at hunting
   jobHours: number;      // game-hours on the current job
   happiness: number;     // 0..100
+  /** A live injury (savaged by the pack). A wounded dog keeps to the fire and
+   *  can't work its post until it mends — rest ALWAYS heals it, a cure item just
+   *  speeds it (mirrors founder ailments). See shared/data/ailments
+   *  (ANIMAL_AILMENTS). Set by story beats, not the random illness roll. */
+  ailment?: { ailmentId: string; hoursRemaining: number };
 }
 
 export interface PlayerHive {
@@ -3027,6 +3032,16 @@ function applyKeptAnimalTick(s: GameState, elapsedHours: number): void {
   const trainSpeed = houndsman ? HOUNDSMAN_TRAIN_SPEEDUP : 1;
 
   for (const d of dogs) {
+    // Injury recovery: a wounded dog mends on rest alone (a cure item speeds it
+    // via tendAnimal). At zero he's healed and back to his post.
+    if (d.ailment) {
+      d.ailment.hoursRemaining -= elapsedHours;
+      if (d.ailment.hoursRemaining <= 0) {
+        const adef = getAnimalAilment(d.ailment.ailmentId);
+        if (adef) pushEvent(s, "animal_grown", adef.icon, adef.recovered(d.name));
+        d.ailment = undefined;
+      }
+    }
     const apt = breedAptitude(d.breed ?? "");
     // Happiness drifts toward a target set by the dog's situation.
     let target: number;
@@ -3099,7 +3114,9 @@ function applyFlockDynamics(s: GameState, fedRatios: Map<string, number>, elapse
   if (elapsedHours <= 0) return;
   const breeding = (LIVESTOCK_BREEDING_SEASONS as readonly string[]).includes(s.season);
   // Pens a kept dog is posted to guard (on top of the legacy gold-bought dog).
-  const dogGuarded = new Set(s.keptAnimals.filter((a) => a.job === "guard" && a.penId).map((a) => a.penId!));
+  // A wounded guard dog is off his post (keeping to the fire), so the fold he
+  // watched is undefended again until he mends — predation returns.
+  const dogGuarded = new Set(s.keptAnimals.filter((a) => a.job === "guard" && a.penId && !a.ailment).map((a) => a.penId!));
   for (const pen of s.pens) {
     if (pen.level === 0 || pen.count <= 0) continue;
     const capacity = getPenCapacity(pen.level);
