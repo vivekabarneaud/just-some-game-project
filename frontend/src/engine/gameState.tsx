@@ -1195,7 +1195,7 @@ const NAME_SUFFIXES = [
  *  these, so generateSettlementName() re-rolls on a hit. Lowercased for
  *  case-insensitive comparison. None are currently producible by the
  *  prefix+suffix generator, but this guards against future pool drift. */
-const CANON_NEIGHBOUR_NAMES = new Set(["greyford"]);
+const CANON_NEIGHBOUR_NAMES = new Set(["lammast"]);
 
 function generateSettlementName(): string {
   for (let attempt = 0; attempt < 20; attempt++) {
@@ -2177,10 +2177,17 @@ function checkMerchantVisits(s: GameState): void {
  *  in dev fast-mode and prod alike. Mutates the draft; call once per tick. */
 function updateMerchantRecurrence(s: GameState): void {
   // Each recurring merchant's visits begin once their unlock mission is done
-  // (Cobb: the escort; Maren: the Road to Greyford). They return every 2-3 days
+  // (Cobb: the escort; Wilda & Merrild: the Lammast boundary-stone trade). They return every 2-3 days
   // (reputation shortens it), keying off the daily 3AM-UTC boundary. One stall
   // at a time — a second due merchant queues until the first leaves, which
   // naturally offsets them so visits fill the gaps between each other.
+  // A recurring stall stands in the MARKETPLACE and its trader sleeps over at the
+  // tavern, so no one recurs until both exist. (Cobb enforced this transitively —
+  // his unlock mission needs both — but Lammast's wagon unlocks off an early story
+  // beat, so make the market/tavern gate explicit here where it belongs.)
+  const built = (id: string) => (s.buildings.find((b) => b.buildingId === id)?.level ?? 0) > 0;
+  if (!built("marketplace") || !built("tavern")) return;
+
   const done = new Set(s.completedUniqueMissionIds ?? []);
   const active = TRAVELING_MERCHANTS.filter((m) => m.returnUnlock && done.has(m.returnUnlock.missionDone));
   if (active.length === 0) return;

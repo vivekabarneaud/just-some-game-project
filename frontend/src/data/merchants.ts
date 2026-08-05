@@ -74,22 +74,26 @@ export const TRAVELING_MERCHANTS: TravelingMerchant[] = [
     returnUnlock: { missionDone: "merchant_escort_first" },
   },
   {
-    // Greyford's grain-carter. No first-passing-visit: the Road to Greyford
-    // (caravan_guard) IS the introduction, and completing it opens a regular
-    // downriver grain run that fills the gap between Cobb's visits. Grain to
-    // spare, wants our stone (per the mission fiction).
-    id: "greyford_grain_carter",
-    name: "Maren",
-    culture: "Greyford grain-carter",
+    // The Lammast wagon: a mother-and-daughter carter pair from the farming
+    // neighbour a day east. No first-passing-visit as strangers — we met them at
+    // the boundary stone (lammast_first_trade), so the acquaintance is already
+    // made and their recurring grain stall opens off that beat. The market/tavern
+    // gate lives in updateMerchantRecurrence (a stall needs a market to stand in).
+    // Grain to spare; they barter for and buy our timber, as a farm trades with a
+    // wood (complementary economies). (Trade keys are economy-bar resources —
+    // grain reads as "food"; "meat" isn't a tradeable key, it's a larder item.)
+    id: "lammast_wagon",
+    name: "Wilda and Merrild",
+    culture: "Lammast grain-carters",
     icon: "🌾",
     stallGreeting:
-      "Maren has brought the Greyford wagon up the river road, its bed heavy with grain. Neighbours now, not strangers, and her prices say so.",
+      "The Lammast wagon is in the market again, Wilda at the reins and Merrild already halfway to the tavern with the news. New-milled grain, and a welcome warmer than the coin it costs.",
     returnOffers: [
-      { id: "grain_sacks", label: "Sacks of Greyford grain", give: "gold", giveAmount: 20, receive: "food", receiveAmount: 55 },
-      { id: "grain_for_stone", label: "Grain traded for our cut stone", give: "stone", giveAmount: 30, receive: "food", receiveAmount: 65 },
-      { id: "greyford_buys_stone", label: "She'll take stone back for Greyford's walls", give: "stone", giveAmount: 40, receive: "gold", receiveAmount: 35 },
+      { id: "grain_sacks", label: "Sacks of new-milled Lammast grain", give: "gold", giveAmount: 20, receive: "food", receiveAmount: 55 },
+      { id: "grain_for_timber", label: "Grain bartered for our timber", give: "wood", giveAmount: 30, receive: "food", receiveAmount: 60 },
+      { id: "lammast_buys_timber", label: "They'll take cut timber for Lammast's barns", give: "wood", giveAmount: 40, receive: "gold", receiveAmount: 30 },
     ],
-    returnUnlock: { missionDone: "caravan_guard" },
+    returnUnlock: { missionDone: "lammast_first_trade" },
   },
 ];
 

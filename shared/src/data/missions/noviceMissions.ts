@@ -25,7 +25,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   //    crisis. Deferred payoff: one spring he's tainted and won't rout. ──
   {
     id: "bee_tree_first",
-    map: { x: 0.40, y: 0.585 }, // the south hollow (Old Honeypaw's bank)
+    map: { x: 0.466, y: 0.595 }, // the bear mark, by the Old Watch (Old Honeypaw)
     name: "The Bee-Tree",
     description: "The scouts marked an old bee-tree in the south hollow, heavy with the last of winter's honey, and Edda wants it smoked out before the swarm scatters it. It should be a quiet job. But it is spring, and the bears are coming off their long sleep hungry and bold, so send folk who can stand their ground if one comes down to the hollow. Smoke the hive, bring home what comb you can, and give any bear a wide berth if you can.",
     icon: "🍯",
@@ -43,6 +43,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   },
   {
     id: "bee_tree",
+    map: { x: 0.466, y: 0.595 }, // same bear mark (routine version)
     name: "The Bee-Tree",
     description: "Spring again, and the south hollow's bee-tree is heavy with comb. The bear is there too, the big one the gatherers drove off last year, watching from the far bank. He has learned, and so have we. Nell took to calling him Old Honeypaw, and the name stuck. Smoke the hive, cut what the settlement needs, and leave the rest on the stump for him. No trouble, so long as everyone keeps to the arrangement.",
     icon: "🍯",
@@ -64,7 +65,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   //    DESIGN_SEASONAL_GATHERS): it goes tainted → sick windfall → put-it-down. ──
   {
     id: "apple_tree_first",
-    map: { x: 0.47, y: 0.635 }, // far south hollow, past the Old Watch
+    map: { x: 0.486, y: 0.601 }, // the apple mark, by the Old Watch
     name: "The Old Apple Tree",
     description: "The scouts came back from the far south hollow talking about an old apple tree standing alone in a clearing, wild and untended and so heavy with fruit its branches near touch the ground. Edda says a tree that old and that laden is a small mercy, and mercies are not to be wasted with winter coming. Take a team down with baskets and bring back all the fruit they can carry. Mind the walk; it is a fair way out.",
     icon: "🍎",
@@ -82,6 +83,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   },
   {
     id: "apple_tree",
+    map: { x: 0.486, y: 0.601 }, // same apple mark (routine version)
     name: "The Old Apple Tree",
     description: "Autumn again, and the old tree in the south hollow will be heavy with fruit as it always is. It has carried us through more than one lean winter now, and the folk speak of it almost fondly, the way you would an old neighbour who never asks for anything. Send the baskets down and bring the harvest home before the frost takes it.",
     icon: "🍎",
@@ -235,25 +237,6 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     tags: ["outdoor", "combat"],
     encounters: [{ enemyId: "bandit_thug", count: 2 }],
     requires: { missionDone: "merchant_escort_first" },
-  },
-{
-    id: "caravan_guard",
-    map: { x: 0.565, y: 0.625 }, // the river ford, a half-day downriver
-    name: "The Road to Greyford",
-    description: "We are not the only grant out here. Greyford sits a half-day downriver, founded a year before we came, so where our first fields have yet to come in, theirs are long since established. They have grain to spare; we struck good stone they can build with. Load a wagon with stone and meet theirs at the river ford to make the first trade between us, if it lives past the bandits working that road. See the exchange done and bring our people and theirs home whole. Good neighbours outlast good walls.",
-    icon: "🐴",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/caravan_guard.png",
-    slots: [{ class: "warrior" }, { class: "any" }],
-    duration: 900,
-    deployItems: [{ resource: "stone", amount: 60 }],
-    rewards: [{ resource: "wheat", amount: 40 }],
-    deployCost: 10,
-    difficulty: 2,
-    minGuildLevel: 1,
-    tags: ["escort", "combat"],
-    encounters: [{ enemyId: "bandit_thug", count: 2 }],
-    requires: { story: "story_1_scouting" },
-    unique: true,
   },
 {
     id: "herb_gathering",
