@@ -45,6 +45,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   },
   {
     id: "clear_diggings_3",
+    map: { x: 0.492, y: 0.546 }, // routine twin of the -first mission
     name: "The Deeper Cut",
     description: "Deeper again, and the spiders came bigger. Tomas says the skittering ones still boil up in their tide, but among them now are the dog-sized spinners, slow and venomous, the kind that do not run. The crew have pulled back to the second gallery and will not go down until it is done. Send a team to hold the crew and clear the dark ahead of the picks. Same as before, only meaner: drive them down, do not chase them into their holes, and make the new seam safe to work.",
     icon: "🕷️",

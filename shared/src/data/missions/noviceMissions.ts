@@ -155,6 +155,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   },
 {
     id: "quarry_expedition",
+    map: { x: 0.536, y: 0.572 }, // routine twin of the -first mission
     name: "Quarry Expedition",
     description: "The many-legged things have crept back into the ridge cracks, the way they do, and the walls still want stone. Clear them out again so the haulers can keep at the seam. Dull, grim work, but the wall will not raise itself.",
     icon: "🪨",
@@ -188,6 +189,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   },
 {
     id: "foraging_run",
+    map: { x: 0.477, y: 0.573 }, // routine twin of the -first mission
     name: "Foraging Run",
     description: "Back to Nell's hollow. It still gives up more berries and herbs than the kitchen can keep up with, but the tree line out there is no safer than it was. Hands to gather, eyes to watch.",
     icon: "🍖",
@@ -225,6 +227,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   },
 {
     id: "merchant_escort",
+    map: { x: 0.55, y: 0.46 }, // routine twin of the -first mission
     name: "Merchant Escort",
     description: "A merchant means to take the river road past us and would rather not chance the bad stretch alone, so word has gone round for hired swords to see the wagons through. The men who work that road are no beasts with a reason to them, only desperate and armed, and they go in pairs; send our people in pairs to match them. Bring the train through whole. They pay partly in coin and partly in spice, and a road we are seen to guard is a road that stays worth using.",
     icon: "💰",
