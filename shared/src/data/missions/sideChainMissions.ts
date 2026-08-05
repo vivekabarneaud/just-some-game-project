@@ -27,6 +27,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   //    higher level fields worse spiders. See docs/DESIGN_SPIDERS.md. ──
   {
     id: "clear_diggings_2",
+    map: { x: 0.492, y: 0.546 },
     name: "Clear the Diggings",
     description: "The deeper cut woke something. Tomas came up white to the elbows saying the fresh face of the pit is boiling with spiders, hand-sized and legion, pouring out of a crack the picks opened. Nobody wants the stone badly enough to lose a hand for it. Send a couple down to stand with the crew and drive the things back into the dark. It is their rock; we only want the seam. Make it safe and the cutters can work the new depth.",
     icon: "🕷️",
@@ -66,6 +67,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   //    the wild boar's own loot. See docs/DESIGN_TIER1_GEAR.md §Boar missions. ──
   {
     id: "wild_boar_hunt",
+    map: { x: 0.458, y: 0.55 },
     name: "Lean Times",
     description: "The larder is down to scrapings and nothing is coming in. But Gareth came down off the watchtower swearing he had glassed a sounder of wild boar rooting the thornbrake past the old field: meat on four legs, enough to carry us a while yet. Send a team to bring some down before they move on. It is a fair hunt, not a cull. Take what the larder needs and let the rest run.",
     icon: "🐗",
@@ -89,6 +91,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   //    starving, wolves included. ──
   {
     id: "deer_yard",
+    map: { x: 0.49, y: 0.523 },
     name: "The Deer Yard",
     description: "Deep winter, the larder near empty, and the deer have yarded up: a whole herd packed into a sheltered cedar hollow, treading the snow to reach the browse, too many in too small a place to run well. It is the surest meat of the cold months. But we are not the only ones who found them. A wolf pack, gaunt as we are and twice as desperate, has the hollow staked out. Drive them off and take what the settlement needs, and leave the rest to the herd and the wolves both. A lean winter is hard on everything that breathes.",
     icon: "🦌",
@@ -160,6 +163,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   // and gates on bad_blood being done.
   {
     id: "bad_season_boars",
+    map: { x: 0.485, y: 0.56 },
     name: "A Bad Season for Boars",
     description: "That makes the fourth this month, all of them frothing, all of them charging the fields instead of fleeing them. Boars do not sicken in numbers like this. Clear the ones that have come down from the tree line, and have someone keep a tally, because this is starting to feel like more than a bad season.",
     icon: "🐗",
@@ -178,6 +182,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   },
   {
     id: "what_scouts_saw",
+    map: { x: 0.495, y: 0.6 },
     name: "What the Scouts Saw",
     description: "The scouts who walked the deep tree line came back short on nerve. The boars out there are worse: grey-mottled, weeping black, reeking of cold metal, and one took a spear clean through and kept coming as if it had not noticed dying. Whatever has taken them, they are past saving and in pain. Go and give them a clean end, before they wander down onto the trails where our people walk.",
     icon: "🐗",
@@ -196,6 +201,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   },
   {
     id: "reading_the_carcass",
+    map: { x: 0.483, y: 0.553 },
     name: "Reading the Carcass",
     description: "We hauled one of the wrong ones back so it could be studied. The priest turns it with a rod and will not touch it bare: the rot, they say, is not rot, it is the ground gone wrong, something pulled up from underneath. Father Corin stands a long while over the thing and says only that the beast did not rest easy. Both of them look the same way when they say it, upriver, to the old spring. Send them to be sure.",
     icon: "🕯️",
@@ -215,6 +221,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   },
   {
     id: "tainted_spring",
+    map: { x: 0.51, y: 0.614 },
     name: "The Tainted Spring",
     description: "The trail the priest and Father Corin pointed to ends at a spring in the deep wood, glowing faint and wrong, the water tasting of cold metal, the ground around it grey and dead. This is where the boars drank. The worst of them has denned by the water, a great patriarch more than half turned, and it will not let anyone near. We cannot make the water clean again, not with what we have. Put down what the spring has ruined, then cap the spring and mark it wide, so nothing drinks here again. We hold this; we do not win it.",
     icon: "💧",
@@ -354,6 +361,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   //    (recruitsOnSuccess; Elspeth gives the plea, both join on the win.) ──
   {
     id: "a_mothers_errand",
+    map: { x: 0.485, y: 0.547 },
     name: "A Mother's Errand",
     description: "A woman came to the gate before dawn, grey-faced and giving no name, only this: her son is cornered at the old ford, a pack of men closing in over money he won that he maybe should not have. She cannot reach him in time, and she is begging. Whatever he did or did not do at the table, no one deserves to be beaten to death over a hand of cards. Get there, drive them off, and bring the fool home. His mother will not leave the gate until you do.",
     icon: "🃏",
@@ -385,6 +393,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   //    `unique: true`. See docs/cast/hester-ironbark.md. ──
   {
     id: "find_nell",
+    map: { x: 0.495, y: 0.571 },
     name: "Where's Nell?",
     description: "Nell slipped away from Edda's herb beds sometime after breakfast, and no one has seen her since. She does not answer when she is called, she never has, and the woods run a long way south. We would all rest easier with someone out there who can follow a small pair of footprints through the summer grass before the light goes.",
     icon: "🧺",
@@ -413,6 +422,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     // The reciprocal first visit: they left us grain, so we return meat (a wood's
     // larder for a farm's). Peaceful, guaranteed — the east track is safe ground.
     id: "lammast_first_trade",
+    map: { x: 0.553, y: 0.51 },
     name: "The Boundary Stone",
     description: "Lammast left us grain and asked nothing for it, and we do not answer a welcome with empty hands. We have no grain to spare, but the hunters have meat, and game for grain is a fair trade between a wood and a farm. Walk the east track to the old boundary stone, make the exchange, and take the measure of these people while we are about it. The road east is quiet ground, for now.",
     icon: "🤝",
@@ -437,6 +447,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     // rank-and-file, though we do not know it yet; the Tollman's Road arc later
     // reveals the hand behind them. "A toll to be had" quietly seeds it.
     id: "lammast_grain_north",
+    map: { x: 0.601, y: 0.346 },
     name: "Grain for the North",
     description: "Lammast grows more grain than it can eat and has no fighters to move it. They mean to sell the surplus north, to the Crown's men and the fat cities up the Tessoria road, and they have asked us to see it there whole. It pays, and pays well, for the north road is not the east: settlers come down it heavy with all they own, and the men who work it have learned there is a toll to be had for the taking. Ride with the wagons, keep them to the waystation, and come home paid.",
     icon: "🌾",
@@ -461,6 +472,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   // sword, and a lucky rare leather coat. Chronicle beats fire from the_tollmans_road.
   {
     id: "see_cobb_home",
+    map: { x: 0.608, y: 0.386 },
     name: "See Cobb Home",
     description: "Cobb came in on foot, at dusk, with no wagon and no mules and no boots. They took the lot on the downriver road: the goods, the beasts, the coat off his back, and left him the walk. He is shaken more than hurt, and ashamed of the shaking. Walk him the rest of the way in, and go back down that road for whatever they dropped in their hurry. The men who did it are desperate, not cruel, but desperate men with a full haul do not scare easy. Go in pairs.",
     icon: "👞",
@@ -482,6 +494,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   },
   {
     id: "hold_the_road",
+    map: { x: 0.499, y: 0.511 },
     name: "Hold the Road",
     description: "Robbing Cobb taught them the road pays, and now they work it in earnest, turning back every trader who tries the downriver track to us. This does not mend by waiting. Ride down and meet them, and drive them off hard enough that the next wagon gets through, hard enough that they think twice before the one after. Driving off is the whole of it. We want the road open, not a pile of bodies at the boundary marker.",
     icon: "🛡️",
@@ -500,6 +513,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   },
   {
     id: "break_the_nest",
+    map: { x: 0.513, y: 0.495 },
     name: "Break the Nest",
     description: "Driving them off the road only sends them home to whatever gully they hole up in, and they always come again. Nessa and the scouts followed the last lot back: a camp a half-day down, and a man at the head of it who set a price on our road and calls it a toll. Go and end the arrangement. Break the Tollman in front of his company and the company comes apart, for it is the toll they follow, not the man. Scare the rest off our country for good. What they stole is piled in that camp, ours and other folk's both, so bring it home. We would rather not bury any of them. We would rather they were simply gone.",
     icon: "🪖",

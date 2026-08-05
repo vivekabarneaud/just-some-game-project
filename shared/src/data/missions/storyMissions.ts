@@ -10,7 +10,7 @@ export const STORY_MISSIONS: StoryMission[] = [
   {
     id: "story_1_scouting",
     storyOrder: 1,
-    map: { x: 0.50, y: 0.565 }, // the near woods, just south of the settlement
+    map: { x: 0.488, y: 0.626 },
     chapter: "Chapter 1: Ashes and Dust",
     name: "Scouting the Surroundings",
     description:
@@ -47,6 +47,7 @@ export const STORY_MISSIONS: StoryMission[] = [
     // spots her from already stands. She is NOT recruited here — she flees; the
     // "the_woodcutter" director chain handles her return + the Woodworker unlock.
     id: "hester_rescue",
+    map: { x: 0.475, y: 0.541 },
     storyOrder: 2,
     prerequisite: "story_1_scouting",
     prerequisiteQuest: "baptism_of_fire",
@@ -71,6 +72,7 @@ export const STORY_MISSIONS: StoryMission[] = [
     // the rescue; completing it fires the ghost-puzzle chronicle and starts
     // Hester's timed return (handled by the_woodcutter director chain).
     id: "quiet_the_woods",
+    map: { x: 0.48, y: 0.538 },
     storyOrder: 3,
     prerequisite: "hester_rescue",
     chapter: "Chapter 1: Ashes and Dust",
@@ -95,6 +97,7 @@ export const STORY_MISSIONS: StoryMission[] = [
     // (reeds_bargain gates on this via completedUniqueMissionIds). Gated behind
     // No One Followed so it lands in sequence, not early.
     id: "marsh_clearing",
+    map: { x: 0.424, y: 0.604 },
     storyOrder: 4,
     prerequisite: "quiet_the_woods",
     chapter: "Chapter 1: Ashes and Dust",
@@ -120,6 +123,7 @@ export const STORY_MISSIONS: StoryMission[] = [
     // "Maddened Herd" side-chain (bad_season_boars requires this done). Living
     // rabid boar only; the taint turn is Ch2. Quest-panel tracker: spine_bad_blood.
     id: "bad_blood",
+    map: { x: 0.49, y: 0.561 },
     storyOrder: 4.5,
     prerequisite: "marsh_clearing",
     prerequisiteQuest: "slow_venom",
@@ -152,6 +156,7 @@ export const STORY_MISSIONS: StoryMission[] = [
   // real Chapter-2 opener.
   {
     id: "story_2_ruins",
+    map: { x: 0.488, y: 0.62 },
     storyOrder: 5,
     prerequisite: CH2_GATE,
     chapter: "Chapter 1: Ashes and Dust",
@@ -177,6 +182,7 @@ export const STORY_MISSIONS: StoryMission[] = [
   },
   {
     id: "story_3_dark_treeline",
+    map: { x: 0.487, y: 0.638 },
     storyOrder: 6,
     prerequisite: "story_2_ruins",
     chapter: "Chapter 1: Ashes and Dust",
@@ -207,6 +213,7 @@ export const STORY_MISSIONS: StoryMission[] = [
   },
   {
     id: "story_4_captains_rest",
+    map: { x: 0.491, y: 0.634 },
     storyOrder: 7,
     prerequisite: "story_3_dark_treeline",
     chapter: "Chapter 1: Ashes and Dust",
@@ -259,6 +266,7 @@ export const STORY_MISSIONS: StoryMission[] = [
   },
   {
     id: "story_5_old_tongue",
+    map: { x: 0.692, y: 0.343 },
     storyOrder: 8,
     prerequisite: "story_4_captains_rest",
     chapter: "Chapter 2: Our Own Hands",
@@ -302,6 +310,7 @@ export const STORY_MISSIONS: StoryMission[] = [
   },
   {
     id: "story_6_broken_stone",
+    map: { x: 0.556, y: 0.622 },
     storyOrder: 9,
     prerequisite: "story_5_old_tongue",
     chapter: "Chapter 2: Our Own Hands",
@@ -329,6 +338,7 @@ export const STORY_MISSIONS: StoryMission[] = [
   },
   {
     id: "story_7_walking_the_line",
+    map: { x: 0.579, y: 0.633 },
     storyOrder: 10,
     prerequisite: "story_6_broken_stone",
     chapter: "Chapter 2: Our Own Hands",
@@ -376,6 +386,7 @@ export const STORY_MISSIONS: StoryMission[] = [
   },
   {
     id: "story_8_silver_birches",
+    map: { x: 0.622, y: 0.526 },
     storyOrder: 11,
     prerequisite: "story_7_walking_the_line",
     chapter: "Chapter 2: Our Own Hands",
@@ -401,6 +412,7 @@ export const STORY_MISSIONS: StoryMission[] = [
   },
   {
     id: "story_9_first_inch",
+    map: { x: 0.562, y: 0.616 },
     storyOrder: 12,
     prerequisite: "story_8_silver_birches",
     chapter: "Chapter 2: Our Own Hands",
@@ -437,6 +449,7 @@ export const STORY_MISSIONS: StoryMission[] = [
   },
   {
     id: "story_10_post_the_line",
+    map: { x: 0.603, y: 0.611 },
     storyOrder: 13,
     prerequisite: "story_9_first_inch",
     chapter: "Chapter 3: Hands Beside Ours",
@@ -481,6 +494,7 @@ export const STORY_MISSIONS: StoryMission[] = [
   },
   {
     id: "story_11_second_inch",
+    map: { x: 0.419, y: 0.619 },
     storyOrder: 14,
     prerequisite: "story_10_post_the_line",
     chapter: "Chapter 3: Hands Beside Ours",
@@ -517,6 +531,7 @@ export const STORY_MISSIONS: StoryMission[] = [
   },
   {
     id: "story_13_hand_that_broke_it",
+    map: { x: 0.647, y: 0.587 },
     storyOrder: 16,
     prerequisite: "story_11_second_inch",
     prerequisiteQuest: "watch_the_walls",
