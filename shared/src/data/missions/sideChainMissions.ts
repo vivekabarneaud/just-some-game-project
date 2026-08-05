@@ -113,6 +113,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   //    it returns whenever the reserve runs low. Rewards WATER (tops the reserve).
   {
     id: "north_stream",
+    map: { x: 0.474, y: 0.492 }, // the water-source drop on the north river bend
     name: "The North Stream",
     description: "Our stream has run shallow, and we are drawing off it faster than it gives back. The water still runs strong to the north, colder and fuller than our east bend. Load the barrels onto the yoke-poles and send a team up to haul back what the settlement needs before the reserve runs dry.",
     icon: "💧",
@@ -135,6 +136,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   //    recurring, forced-only. Rewards water. ──
   {
     id: "fill_barrels",
+    map: { x: 0.474, y: 0.492 }, // the same water-source drop on the river
     name: "Fill the Barrels",
     description: "The cistern's run low, and there's not enough coming in to cover the fields and the folk both. Send a team out with the barrels to fill up wherever the water still stands, and haul it back before we're rationing every cup.",
     icon: "🪣",
@@ -240,6 +242,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   //    walk safe — a non-combat barter. (The_bog_witch chain fires the beats.) ──
   {
     id: "reeds_bargain",
+    map: { x: 0.437, y: 0.610 }, // Aldith's hut, the flat stone by the water
     name: "The Reeds' Price",
     description: "The old woman in the reeds kept her word before, so Edda says: leave what she asked at the flat stone by the water, and the adders will let the gatherers cut fenbalm in peace. A strange arrangement, and I do not much like owing a marsh. But it is cheaper than sending armed men every time the fevers come. Take her offering in, leave it where she said, and bring the herb home. No blades needed, if she is honest.",
     icon: "🕯️",
@@ -262,6 +265,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   //    so the drift, when it comes later, lands against something familiar. ──
   {
     id: "fen_barter",
+    map: { x: 0.437, y: 0.610 }, // Aldith's hut (the little house drawn on the map)
     name: "Tea at Aldith's",
     description: "The old woman keeps her bargain, and Edda's fenbalm stores run low again. Leave the grain at the flat stone, cut the herb, and not a snake will stir. Aldith, the gatherers call her now, and she will have whoever we send in for tea and send them home with a full belly besides. Routine now. Send someone to make the trade.",
     icon: "🍵",
@@ -287,6 +291,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   //    the skull. The dark descent is still deferred. ──
   {
     id: "reeds_tusks",
+    map: { x: 0.437, y: 0.610 }, // Aldith's hut (same flat stone)
     name: "Three Tusks",
     description: "The old woman sent her asking back with the last of the fenbalm, and it is not grain this time. Three boar tusks, she wants, no more and no fewer, left at the flat stone by dark. Edda says the old have their cures and their charms and it is not for us to know the reason of them, so do as she asks and think nothing of it. I will send them, and gladly: we grind boar tusk for the salve against the froth, and there are shards enough in the store to spare her three. It is only the exactness of it, three and not four, that sits oddly with me.",
     icon: "🦷",
@@ -306,6 +311,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   },
   {
     id: "reeds_hooves",
+    map: { x: 0.437, y: 0.610 }, // Aldith's hut (same flat stone)
     name: "Two Hooves",
     description: "The tusks went to the stone and the herb came home, and I had half forgotten it when her next asking came back. Two cloven hooves this time, off a boar, left at the flat stone by dark. Fewer than the tusks, and stranger. Edda still says think nothing of it, an old woman's remedy, and I want to believe her. I will send them, because the fenbalm keeps my people through the winter. But a body does not put hooves in a poultice, and I have started to wonder what she does put them in.",
     icon: "🐐",
@@ -325,6 +331,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   },
   {
     id: "reeds_skull",
+    map: { x: 0.437, y: 0.610 }, // Aldith's hut (same flat stone)
     name: "One Skull",
     description: "And now the last of it, or so I will make it the last. One boar's skull, she wants, picked clean, left at the flat stone by dark. Three, then two, then one, and each thing worse than the last. This is no longer a remedy and we both know it, whatever Edda says. I will send the skull, this once, because I will not break faith over a thing that costs us nothing and leave my people short of fenbalm on a suspicion. But I mean to send word with it: grain, from here, and only grain. One more asking like this and we are done with the reeds.",
     icon: "💀",

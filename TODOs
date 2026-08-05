@@ -14,3 +14,20 @@ Notes:
 
 NEW:
     - Arm the brave was already claimable even though I didn't arm anyone (probably because they came with weapons already?)
+    - [~] Season/crops/water inconsistency (dev, investigating). Symptoms: (1) season
+      jumped further than 1x game-time should allow between logins (autumn→spring→winter
+      in ~a day at 1x); (2) fields still hold live crops in WINTER showing "dormant"
+      (they should be harvested + cleared at winter by advanceSeason line ~4370); (3)
+      water drained to 0 — BECAUSE those phantom winter crops keep drawing water
+      (cropWaterDemand counts any field with field.crop set, regardless of season), so
+      farm water reads -39/h in winter with no orchard. Root suspicion: the state
+      reached winter WITHOUT running advanceSeason's winter branch — only possible by
+      LOADING a saved winter-with-crops state. Points at the dual load path (dev
+      localStorage catch-up THEN server `reconcile` overwrite + its own catch-up, no
+      recency guard — a stale server lastTick over-advances the calendar). forceSpring
+      is a red herring (new-game only; the Year-8 settlement is intact, so
+      createInitialState never fired). NEXT: capture a REAL close→reopen console log
+      (both catch-ups showed 0.00h when the tab was merely left open overnight — the
+      live tick was running, not offline). Candidate fixes: (a) self-healing winter
+      guard — if winter && field.crop, run the missed harvest/clear (fixes ghost crops
+      + water now); (b) harden dual-load to reconcile by recency, not blind server-wins.
