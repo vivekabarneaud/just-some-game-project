@@ -256,6 +256,10 @@ export default function MissionAssemblyPanel(props: Props) {
     if (hasVenom(a)) return "Laid up with adder-venom";
     if (tooWounded(a)) return "Recovering from injuries";
     if (props.coopLockedAdvIds?.has(a.id)) return "Pledged to a co-op expedition";
+    const excluded = a.premadeId
+      ? freshMission().excludeCharacters?.find((e) => e.premadeId === a.premadeId)
+      : undefined;
+    if (excluded) return excluded.reason;
     return null;
   };
   // Every living adventurer of a class, available ones first (then by level) —

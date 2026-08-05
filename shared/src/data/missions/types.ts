@@ -117,6 +117,11 @@ export interface MissionTemplate {
   /** The mission site's climate, authored (NOT derived from position). Drives
    *  the seasonal debuff that warm/fresh food mitigates. Omit = temperate. */
   climate?: "cold" | "temperate" | "hot";
+  /** Named cast who can't be sent on this mission because the fiction has them
+   *  elsewhere (e.g. Gareth is at the watchtower sounding the alarm during the
+   *  fold raids). Keyed by premadeId; the reason shows greyed in the assembly
+   *  panel, so the absence is never a mystery. */
+  excludeCharacters?: { premadeId: string; reason: string }[];
   requires?: MissionRequirements; // conditions for this mission to appear on the board
   /** Chronicle entry surfaced when this mission is claimed (on success). Story
    *  missions have always had this; side-chain beats can carry one too. */

@@ -401,6 +401,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     encounters: [{ enemyId: "wild_wolf", count: 3 }],
     // Beat 2 of the Greyfang arc (unique). TODO(#2): npcAlly Truffle (cannotFall).
     sideChain: { id: "greyfang", name: "The Fold" },
+    excludeCharacters: [{ premadeId: "char_005", reason: "At the watchtower, sounding the alarm" }],
     unique: true,
     requires: { pen: "sheep", missionCount: { id: "fold_vigil", count: 2 } },
   },
@@ -470,6 +471,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     // director applies `savaged` to Truffle when this completes.
     encounters: [{ enemyId: "wild_wolf", count: 5 }],
     sideChain: { id: "greyfang", name: "The Fold" },
+    excludeCharacters: [{ premadeId: "char_005", reason: "At the watchtower, sounding the alarm" }],
     unique: true,
     requires: { pen: "sheep", missionDone: "night_howling" },
     chronicleEntryId: "ch1_truffle_mauled",
@@ -490,6 +492,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     // Beat 1 of the Greyfang arc (repeatable — the grind that earns the turn).
     // TODO(#2): npcAlly Truffle (cannotFall) once the combat flag lands.
     sideChain: { id: "greyfang", name: "The Fold" },
+    excludeCharacters: [{ premadeId: "char_005", reason: "Posted to the watchtower, watching the dark" }],
     requires: { pen: "sheep", chronicleFired: "ch1_truffle_takes_fold" },
   },
   {
