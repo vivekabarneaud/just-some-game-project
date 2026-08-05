@@ -256,7 +256,7 @@ export default function MissionMap(props: {
         </div>
 
         {/* Zoom controls */}
-        <div style={{ position: "absolute", right: "10px", bottom: "10px", display: "flex", "flex-direction": "column", gap: "4px" }}>
+        <div onPointerDown={(e) => e.stopPropagation()} style={{ position: "absolute", right: "10px", bottom: "10px", display: "flex", "flex-direction": "column", gap: "4px" }}>
           <button class="btn-secondary" style={{ width: "34px", "font-size": "1.1rem", padding: "2px 0" }} onClick={() => zoomStep(1.3)}>+</button>
           <button class="btn-secondary" style={{ width: "34px", "font-size": "1.1rem", padding: "2px 0" }} onClick={() => zoomStep(1 / 1.3)}>−</button>
           <button class="btn-secondary" style={{ width: "34px", "font-size": "0.7rem", padding: "4px 0" }} title="Reset view"
@@ -278,7 +278,7 @@ export default function MissionMap(props: {
 
         {/* Dev place mode */}
         <Show when={IS_DEV}>
-          <div style={{
+          <div onPointerDown={(e) => e.stopPropagation()} style={{
             position: "absolute", left: "10px", bottom: "10px",
             display: "flex", "align-items": "center", gap: "8px", "flex-wrap": "wrap",
             "max-width": "calc(100% - 70px)",
