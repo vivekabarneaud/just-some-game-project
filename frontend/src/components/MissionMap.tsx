@@ -1,6 +1,6 @@
 import { createSignal, createMemo, createEffect, For, Show, onMount, onCleanup } from "solid-js";
 import type { MissionTemplate } from "@medieval-realm/shared/data/missions";
-import { MISSION_POOL, STORY_MISSIONS, EXPEDITION_POOL } from "@medieval-realm/shared/data/missions";
+import { MISSION_POOL, STORY_MISSIONS, EXPEDITION_POOL, getMission, getMissionPhase, SETTLEMENT_MAP_POS } from "@medieval-realm/shared/data/missions";
 import MissionCard from "./MissionCard";
 import { IS_DEV } from "~/data/seasons";
 import { useGame } from "~/engine/gameState";
@@ -166,6 +166,25 @@ export default function MissionMap(props: {
   const source = () => (IS_DEV && showAll() ? ALL_AUTHORED : props.missions);
   const pinned = createMemo(() => source().filter((m) => effMap(m)));
   const unplaced = createMemo(() => source().filter((m) => !effMap(m)));
+
+  // Active-mission team tokens: interpolate settlement→mission→home by phase, so
+  // you watch your teams march out, fight, and come home along the real map.
+  const lerp = (a: XY, b: XY, t: number): XY => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
+  const activeTokens = createMemo(() =>
+    (game.state.activeMissions ?? []).map((am) => {
+      const m = getMission(am.missionId);
+      if (!m?.map) return null;
+      const init = am.initialDuration || m.duration || 1;
+      const f = Math.min(1, Math.max(0, (init - am.remaining) / init));
+      const phase = getMissionPhase(am);
+      let pos: XY, icon: string, color: string;
+      if (phase === "combat") { pos = m.map; icon = "⚔️"; color = "var(--accent-red)"; }
+      else if (phase === "homeward") { pos = lerp(m.map, SETTLEMENT_MAP_POS, Math.min(1, Math.max(0, (f - 0.5) / 0.5))); icon = "🏡"; color = "var(--accent-green)"; }
+      else { pos = lerp(SETTLEMENT_MAP_POS, m.map, Math.min(1, f / 0.5)); icon = "🚶"; color = "var(--accent-blue)"; }
+      const team = am.adventurerIds.map((id) => game.state.adventurers.find((a) => a.id === id)?.name).filter(Boolean) as string[];
+      return { id: am.missionId, x: pos.x, y: pos.y, icon, color, name: m.name, phase, team };
+    }).filter(Boolean) as { id: string; x: number; y: number; icon: string; color: string; name: string; phase: string | null; team: string[] }[],
+  );
 
   const [containerW, setContainerW] = createSignal(800);
   const [containerH, setContainerH] = createSignal(480);
@@ -394,6 +413,33 @@ export default function MissionMap(props: {
                 </Show>
               );
             }}
+          </For>
+
+          {/* Active-mission team tokens — march out, fight, and return, gliding
+              between tick updates. Shown even in unrevealed land (it's your team). */}
+          <For each={activeTokens()}>
+            {(tok) => (
+              <div
+                title={`${tok.name} — ${tok.phase === "combat" ? "in combat" : tok.phase === "homeward" ? "returning home" : "on the road"}${tok.team.length ? ` · ${tok.team.join(", ")}` : ""}`}
+                style={{
+                  position: "absolute",
+                  left: `${tok.x * 100}%`,
+                  top: `${tok.y * 100}%`,
+                  transform: "translate(-50%, -50%)",
+                  width: "30px", height: "30px", "border-radius": "50%",
+                  display: "flex", "align-items": "center", "justify-content": "center",
+                  "font-size": "0.85rem",
+                  background: "rgba(20, 18, 14, 0.9)",
+                  border: `2px solid ${tok.color}`,
+                  "box-shadow": tok.phase === "combat" ? `0 0 12px ${tok.color}` : "0 2px 6px rgba(0,0,0,0.55)",
+                  animation: tok.phase === "combat" ? "pulse 1.2s infinite" : undefined,
+                  transition: "left 0.9s linear, top 0.9s linear", // glide between ticks
+                  "z-index": 5,
+                }}
+              >
+                {tok.icon}
+              </div>
+            )}
           </For>
         </div>
 
