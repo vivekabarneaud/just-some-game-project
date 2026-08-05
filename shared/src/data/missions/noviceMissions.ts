@@ -3,7 +3,7 @@ import type { MissionTemplate } from "./types.js";
 export const NOVICE_MISSIONS: MissionTemplate[] = [
 {
     id: "gather_timber",
-    map: { x: 0.40, y: 0.505 }, // the south-west tree line
+    map: { x: 0.458, y: 0.567 }, // placed on the map
     name: "Gather Timber",
     description: "Jory has marked a stand of pines on the southern tree line and wants hands to haul them back. A lean young wolf has been nosing round the crew's kit, hungry more than dangerous; it keeps its distance while someone stands watch. Bring the timber home, and leave the wolf to its hunger.",
     icon: "🪵",
@@ -102,7 +102,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   //    attachment arc. The spring spawning run: a bit of relief in the hungry gap. ──
   {
     id: "fish_run",
-    map: { x: 0.535, y: 0.44 }, // the north bend of the river
+    map: { x: 0.496, y: 0.489 }, // placed on the map
     name: "The Fish Run",
     description: "The winter stores are down to scrapings and the fields are still bare mud, but the stream past the north bend has come alive. The spring run is on, the water thick and silver with fish shouldering upstream to spawn, and it will not hold more than a few days. Send hands down with baskets and spears while it lasts. We take what we can carry and salt the rest against the lean weeks still to come.",
     icon: "🐟",
@@ -121,7 +121,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   //    no arc. High-summer plenty: easy pickings before they spoil. ──
   {
     id: "berry_thickets",
-    map: { x: 0.605, y: 0.565 }, // the east ridge brambles
+    map: { x: 0.499, y: 0.58 }, // placed on the map
     name: "The Berry Thickets",
     description: "High summer, and the bramble thickets along the east ridge are hanging heavy: blackberries, bilberries, whatever the birds have not already stripped. It is easy work and good eating, but the fruit does not keep and the birds are quicker than we are, so it wants doing now, all hands and every basket we own. Send a party up to pick the ridge clean before the season turns.",
     icon: "🫐",
@@ -138,7 +138,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   },
 {
     id: "quarry_expedition_first",
-    map: { x: 0.37, y: 0.55 }, // the loose-stone ridge up in the western hills
+    map: { x: 0.536, y: 0.572 }, // placed on the map
     name: "Quarry Expedition",
     description: "Tomas found a good run of loose stone up in the hills, enough to raise a wall in half the time, only the ridge is already taken. Something many-legged has nested deep in the cracks and does not mean to share the stone. There is no working round it and no reasoning with the like. Clear the seam so the haulers can get at it, and watch your footing in the dark of the rock.",
     icon: "🪨",
@@ -171,6 +171,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   },
 {
     id: "foraging_run_first",
+    map: { x: 0.477, y: 0.573 }, // placed on the map
     name: "Foraging Run",
     description: "Nell led Edda to a hollow past the usual range, thicker with berries, mushrooms, and good herbs than either of them has seen in a season. It is more than the two of them can carry, and the tree line out there is not as safe. Send hands to help gather it, and eyes to watch while they work.",
     icon: "🍖",
@@ -240,6 +241,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   },
 {
     id: "herb_gathering",
+    map: { x: 0.523, y: 0.565 }, // placed on the map
     name: "Herb Gathering",
     description: "Edda has a list. Chamomile for the sleepless, mugwort for the fevered, and berries for the children who keep finding her pockets. The meadows beyond the tree line have all three if someone walks them carefully.",
     icon: "🌿",
@@ -280,6 +282,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   },
 {
     id: "bear_den",
+    map: { x: 0.462, y: 0.583 }, // placed on the map
     name: "A Wide Berth",
     description: "Word came back from the southern stand, white-faced, of a forest bear that has denned by the timber road, and there is talk of having it killed. As neighbours go, the bear has declared no war, levied no tax, and laid claim to nothing but the few trees it sleeps under, which is more courtesy than we get from most lords. We will not march on it for that. Mark the bounds of its little realm so no one wanders into its court uninvited, then steer our timber-cutting to a fresh stand well clear of it. There is no shortage of trees.",
     icon: "🐻",

@@ -1,5 +1,6 @@
 import { createSignal, createMemo, For, Show, onMount, onCleanup } from "solid-js";
 import type { MissionTemplate } from "@medieval-realm/shared/data/missions";
+import { MISSION_POOL, STORY_MISSIONS, EXPEDITION_POOL } from "@medieval-realm/shared/data/missions";
 import MissionCard from "./MissionCard";
 import { IS_DEV } from "~/data/seasons";
 
@@ -34,6 +35,17 @@ function loadOverrides(): Record<string, XY> {
   try { return JSON.parse(localStorage.getItem(OVERRIDES_KEY) || "{}"); } catch { return {}; }
 }
 
+// Dev "show all": every authored mission (story + pool + expeditions), deduped
+// by id, so ALL coords can be placed in one pass instead of only today's board.
+const ALL_AUTHORED: MissionTemplate[] = (() => {
+  const seen = new Set<string>();
+  const out: MissionTemplate[] = [];
+  for (const m of [...STORY_MISSIONS, ...MISSION_POOL, ...EXPEDITION_POOL]) {
+    if (!seen.has(m.id)) { seen.add(m.id); out.push(m); }
+  }
+  return out;
+})();
+
 /** Pin frame + label by mission kind — mirrors the MissionCard styling signals
  *  (story = gold, side-chain = teal, urgent = orange, ordinary = bronze). */
 function pinKind(m: MissionTemplate): { color: string; label: string } {
@@ -64,8 +76,12 @@ export default function MissionMap(props: {
     try { localStorage.removeItem(OVERRIDES_KEY); } catch { /* private mode */ }
   };
 
-  const pinned = createMemo(() => props.missions.filter((m) => effMap(m)));
-  const unplaced = createMemo(() => props.missions.filter((m) => !effMap(m)));
+  // Dev "show all" swaps today's board for every authored mission, so they can
+  // all be placed in one pass. Off = the normal live board.
+  const [showAll, setShowAll] = createSignal(false);
+  const source = () => (IS_DEV && showAll() ? ALL_AUTHORED : props.missions);
+  const pinned = createMemo(() => source().filter((m) => effMap(m)));
+  const unplaced = createMemo(() => source().filter((m) => !effMap(m)));
 
   const [containerW, setContainerW] = createSignal(800);
   const [containerH, setContainerH] = createSignal(480);
@@ -289,6 +305,14 @@ export default function MissionMap(props: {
               onClick={(e) => { e.stopPropagation(); setPlaceMode(!placeMode()); setPlaceTarget(null); setNote(placeMode() ? null : "Click a mission (pin or card), then click the map"); }}
             >
               📍 {placeMode() ? "Placing on" : "Place mode"}
+            </button>
+            <button
+              classList={{ "btn-secondary": !showAll(), "btn-primary": showAll() }}
+              style={{ "font-size": "0.72rem" }}
+              title="Show every authored mission (dev view — doesn't touch the live board)"
+              onClick={(e) => { e.stopPropagation(); setShowAll(!showAll()); setNote(showAll() ? null : `Showing all ${ALL_AUTHORED.length} missions — place away`); }}
+            >
+              📋 {showAll() ? "All on" : "All missions"}
             </button>
             <Show when={placeMode()}>
               <button class="btn-secondary" style={{ "font-size": "0.72rem" }} onClick={(e) => { e.stopPropagation(); copyPlacements(); }}>Copy placements</button>
