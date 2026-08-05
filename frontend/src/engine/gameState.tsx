@@ -991,6 +991,15 @@ export interface GameActions {
   /** Apply an owned cure item to a building's founder ailment. Clears it and
    *  consumes one. No-op if there's no ailment or the item doesn't cure it. */
   cureBuildingAilment: (buildingId: string, itemId: string) => boolean;
+  /** The injury on a kept animal (if any) + owned cure items — drives the dog
+   *  card's "tend him" UI. Null if the animal is sound. */
+  getAnimalWound: (animalId: string) => {
+    name: string; icon: string; hoursRemaining: number;
+    cures: { id: string; name: string; icon: string; qty: number }[];
+  } | null;
+  /** Apply an owned cure item to a wounded animal — clears it (or a brewed potion
+   *  speeds it) and consumes one. No-op if sound or the item doesn't cure it. */
+  tendAnimal: (animalId: string, itemId: string) => boolean;
   /** How many of a free-form alchemy ingredient the player owns (herb / honey /
    *  inventory item). Drives the lab's availability + brew gating. */
   getBrewIngredientQty: (ingredientId: string) => number;
@@ -7340,6 +7349,59 @@ export function GameProvider(props: ParentProps) {
         } else {
           live.hoursRemaining -= easeHours;
           pushEvent(s, "building_completed", "🧪", `${who} is on the mend — the ${def.name.toLowerCase().replace(/^(a|the) /, "")} should pass sooner now.`);
+        }
+      }));
+      scheduleSave();
+      return true;
+    },
+    getAnimalWound(animalId) {
+      const a = state.keptAnimals.find((x) => x.id === animalId);
+      if (!a?.ailment) return null;
+      const def = getAnimalAilment(a.ailment.ailmentId);
+      if (!def) return null;
+      const display = (id: string): { name: string; icon: string } => {
+        const it = getItem(id);
+        if (it) return { name: it.name, icon: it.icon };
+        const brewed = state.alchemyRecipes?.[id];
+        if (brewed) return { name: brewed.name, icon: "🧪" };
+        return { name: id, icon: "❓" };
+      };
+      const owned = (id: string) => state.inventory.find((i) => i.itemId === id)?.quantity ?? 0;
+      const cures = def.cures
+        .map((id) => ({ id, qty: owned(id) }))
+        .filter((c) => c.qty > 0)
+        .map((c) => ({ id: c.id, qty: c.qty, ...display(c.id) }));
+      // Brewed potions that ease this ailment's line also speed it — list any owned.
+      for (const r of Object.values(state.alchemyRecipes ?? {})) {
+        if (owned(r.id) <= 0 || cures.some((c) => c.id === r.id)) continue;
+        if (easeHoursFor(summarizeRecovery(r.effects), def.line) > 0) {
+          cures.push({ id: r.id, qty: owned(r.id), ...display(r.id) });
+        }
+      }
+      return { name: def.name, icon: def.icon, hoursRemaining: a.ailment.hoursRemaining, cures };
+    },
+    tendAnimal(animalId, itemId) {
+      const a = state.keptAnimals.find((x) => x.id === animalId);
+      if (!a?.ailment) return false;
+      const def = getAnimalAilment(a.ailment.ailmentId);
+      if (!def) return false;
+      const inv = state.inventory.find((i) => i.itemId === itemId);
+      if (!inv || inv.quantity <= 0) return false;
+      const isFixedCure = def.cures.includes(itemId);
+      const brewed = state.alchemyRecipes?.[itemId];
+      const easeHours = brewed ? easeHoursFor(summarizeRecovery(brewed.effects), def.line) : 0;
+      if (!isFixedCure && easeHours <= 0) return false;
+      setState(produce((s) => {
+        const it = s.inventory.find((i) => i.itemId === itemId)!;
+        it.quantity -= 1;
+        const animal = s.keptAnimals.find((x) => x.id === animalId);
+        if (!animal?.ailment) return;
+        if (isFixedCure || easeHours >= animal.ailment.hoursRemaining) {
+          pushEvent(s, "animal_grown", def.icon, def.recovered(animal.name));
+          animal.ailment = undefined;
+        } else {
+          animal.ailment.hoursRemaining -= easeHours;
+          pushEvent(s, "animal_grown", "🧪", `${animal.name} is on the mend — a poultice will have him back at the fold sooner.`);
         }
       }));
       scheduleSave();

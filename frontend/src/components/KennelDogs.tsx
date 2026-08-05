@@ -157,6 +157,32 @@ export default function KennelDogs() {
                       </Show>
                     </Show>
                   </div>
+
+                  {/* Wounded — he's off his post by the fire; rest heals him, a
+                      poultice/salve speeds it. */}
+                  <Show when={actions.getAnimalWound(dog.id)}>
+                    {(w) => (
+                      <div style={{ "margin-top": "8px", padding: "6px 8px", "border-radius": "6px", background: "rgba(231,76,60,0.1)", border: "1px solid var(--accent-red)" }}>
+                        <div style={{ "font-size": "0.75rem", color: "var(--accent-red)" }}>
+                          {w().icon} {w().name} — by the fire, {Math.ceil(w().hoursRemaining)}h to mend
+                        </div>
+                        <Show
+                          when={w().cures.length > 0}
+                          fallback={<div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "margin-top": "3px" }}>Rest will heal him; a poultice or salve would speed it.</div>}
+                        >
+                          <div style={{ display: "flex", "flex-wrap": "wrap", gap: "4px", "margin-top": "4px" }}>
+                            <For each={w().cures}>
+                              {(c) => (
+                                <button class="btn-secondary" style={{ "font-size": "0.72rem" }} onClick={() => actions.tendAnimal(dog.id, c.id)}>
+                                  {c.icon} Tend with {c.name} ({c.qty})
+                                </button>
+                              )}
+                            </For>
+                          </div>
+                        </Show>
+                      </div>
+                    )}
+                  </Show>
                 </div>
               </div>
             )}
