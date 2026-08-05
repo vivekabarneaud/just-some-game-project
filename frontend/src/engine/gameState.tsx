@@ -6112,6 +6112,22 @@ export function GameProvider(props: ParentProps) {
             unlockRecipe: (rid) => {
               if (!s.discoveredRecipes.includes(rid)) s.discoveredRecipes.push(rid);
             },
+            assignDogToFold: (dogName) => {
+              const dog = s.keptAnimals.find((a) => a.species === "dog" && a.name === dogName);
+              if (!dog) return;
+              const fold = s.pens.find((p) => p.level > 0 && p.animal === "sheep" && p.count > 0)
+                ?? s.pens.find((p) => p.level > 0 && p.count > 0);
+              if (!fold) return;
+              dog.job = "guard";
+              dog.penId = fold.id;
+            },
+            woundDog: (dogName, ailmentId, hours) => {
+              const dog = s.keptAnimals.find((a) => a.species === "dog" && a.name === dogName);
+              if (!dog) return;
+              dog.ailment = { ailmentId, hoursRemaining: hours };
+              const def = getAnimalAilment(ailmentId);
+              if (def) pushEvent(s, "adventurer_wounded", def.icon, def.onset(dog.name, ""));
+            },
           });
         }
 

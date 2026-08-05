@@ -37,6 +37,8 @@ function makeDeps(s: ChainState, now: number, log: string[]): ChainDeps {
     },
     unlockSeed: (vid) => log.push(`seed:${vid}`),
     unlockRecipe: (rid) => log.push(`recipe:${rid}`),
+    assignDogToFold: (name) => log.push(`fold:${name}`),
+    woundDog: (name, ailmentId) => log.push(`wound:${name}:${ailmentId}`),
   };
 }
 

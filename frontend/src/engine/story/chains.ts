@@ -57,6 +57,14 @@ export interface StoryChainApi {
   /** Unlock a discovery-gated recipe (idempotent): pushes it into
    *  discoveredRecipes so it appears at its building (and badges the sidebar). */
   unlockRecipe(recipeId: string): void;
+  /** Post a named kept dog to guard the fold (the first sheep pen), ONCE — the
+   *  scripted "he took the fold himself" placement (Truffle won't stay where you
+   *  put him, he goes to the sheep). One-time; the player may reassign after. */
+  assignDogToFold(dogName: string): void;
+  /** Wound a named kept dog with an animal ailment, ONCE (rest heals it, a cure
+   *  speeds it — see ANIMAL_AILMENTS). One-time, so a healed dog is never
+   *  re-wounded by the re-running script. */
+  woundDog(dogName: string, ailmentId: string, hours: number): void;
 }
 
 export interface StoryChain {
@@ -92,6 +100,11 @@ export interface ChainDeps {
   unlockSeed: (veggieId: string) => void;
   /** Unlock a discovery-gated recipe (idempotent). */
   unlockRecipe: (recipeId: string) => void;
+  /** Post the named kept dog to guard the first sheep fold (engine owns the pen
+   *  lookup). Called at most once; no-op if the dog isn't in the kennel. */
+  assignDogToFold: (dogName: string) => void;
+  /** Apply an animal ailment to the named kept dog. Called at most once. */
+  woundDog: (dogName: string, ailmentId: string, hours: number) => void;
 }
 
 /** Thrown by `await*` to stop a script at its first unmet step. Caught by the
@@ -172,6 +185,20 @@ export function runStoryChains(s: ChainState, chains: StoryChain[], deps: ChainD
       },
       unlockRecipe(recipeId) {
         deps.unlockRecipe(recipeId);
+      },
+      assignDogToFold(dogName) {
+        const k = `${chain.id}:assignFold:${dogName}`;
+        s.storyTimers = s.storyTimers ?? {};
+        if (s.storyTimers[k] !== undefined) return; // placed once already
+        s.storyTimers[k] = deps.now;
+        deps.assignDogToFold(dogName);
+      },
+      woundDog(dogName, ailmentId, hours) {
+        const k = `${chain.id}:wound:${dogName}`;
+        s.storyTimers = s.storyTimers ?? {};
+        if (s.storyTimers[k] !== undefined) return; // wounded once — never re-apply
+        s.storyTimers[k] = deps.now;
+        deps.woundDog(dogName, ailmentId, hours);
       },
     };
     try {
@@ -354,6 +381,26 @@ export const STORY_CHAINS: StoryChain[] = [
       api.fireChronicleModal("ch2_nell_found");       // relief + the strawberry hollow
       api.unlockSeed("strawberries");                 // Edda's cutting → a cultivated bed
       api.unlockRecipe("strawberry_jam");             // and Edda's jam from Nell's berries
+    },
+  },
+
+  // ── The Fold: Truffle takes his post → the pack learns → Greyfang mauls him → the hunt ──
+  // He self-takes the fold when the kennel quest is claimed (he won't stay where
+  // you post him). The drive-offs (fold_vigil, repeatable) pile up; Nell keeps
+  // seeing the pale one at dusk and names him; the hunters confirm (night_howling,
+  // gated on 2 fold_vigils); the diversion maul (lost_flock) leaves Truffle
+  // savaged — off his post, so the fold bleeds sheep until he mends. The hunt
+  // (alpha_wolf_hunt) fires its own aftermath chronicle on claim.
+  {
+    id: "the_fold",
+    run: (api) => {
+      api.awaitQuestClaimed("a_dog_without_a_home");
+      api.assignDogToFold("Truffle");                  // he takes the fold himself
+      api.fireChronicleModal("ch1_truffle_takes_fold");
+      api.awaitMissionCount("fold_vigil", 2);           // the drive-offs pile up
+      api.fireChronicleModal("ch1_greyfang");           // Nell's sightings, the name
+      api.awaitMissionDone("lost_flock");               // the maul (fires ch1_truffle_mauled)
+      api.woundDog("Truffle", "savaged", 48);           // savaged → off the fold → predation
     },
   },
 ];
