@@ -1,4 +1,4 @@
-import { createSignal, createMemo, For, Show, onMount, onCleanup } from "solid-js";
+import { createSignal, createMemo, createEffect, For, Show, onMount, onCleanup } from "solid-js";
 import type { MissionTemplate } from "@medieval-realm/shared/data/missions";
 import { MISSION_POOL, STORY_MISSIONS, EXPEDITION_POOL } from "@medieval-realm/shared/data/missions";
 import MissionCard from "./MissionCard";
@@ -20,6 +20,19 @@ import { IS_DEV } from "~/data/seasons";
 const MAP_SRC = "/images/map/valley.jpg";
 const MAP_W = 2400, MAP_H = 2243;         // the downscaled sketch
 const ASPECT = MAP_H / MAP_W;             // world height / world width
+
+// The "undrawn map": blank parchment covers the full map; each explored area is
+// scratched away (soft-edged) to let the charted map show through beneath. The
+// map draws itself in as the scouts range. Replace parchment.jpg / valley.jpg
+// with the final paintings when they land; the reveal logic is unchanged.
+const PARCHMENT_SRC = "/images/map/parchment.jpg";
+// Canvas resolution for the parchment mask (CSS scales it with pan/zoom).
+const REVEAL_W = 1200, REVEAL_H = Math.round(REVEAL_W * ASPECT);
+/** Normalized reveal windows known from the start (Settlement + Hometown). */
+const INITIAL_REVEALED: { x: number; y: number; r: number }[] = [
+  { x: 0.492, y: 0.535, r: 0.085 }, // the settlement
+  { x: 0.492, y: 0.21, r: 0.075 },  // hometown
+];
 
 const MIN_ZOOM = 1;                        // map width == container width
 const MAX_ZOOM = 4.5;
@@ -62,6 +75,36 @@ export default function MissionMap(props: {
 }) {
   let containerRef!: HTMLDivElement;
   let worldRef!: HTMLDivElement;
+  let canvasRef!: HTMLCanvasElement;
+
+  // Explored windows (normalized). The parchment is scratched away here so the
+  // charted map shows through. Prototype: in-memory + settlement/hometown known;
+  // wiring to real scouting (persisted reveal state) comes next.
+  const [revealed, setRevealed] = createSignal(INITIAL_REVEALED);
+  let parchmentImg: HTMLImageElement | null = null;
+  const drawParchment = () => {
+    const cv = canvasRef;
+    if (!cv || !parchmentImg) return;
+    const ctx = cv.getContext("2d");
+    if (!ctx) return;
+    const w = cv.width, h = cv.height;
+    ctx.globalCompositeOperation = "source-over";
+    ctx.clearRect(0, 0, w, h);
+    ctx.drawImage(parchmentImg, 0, 0, w, h);
+    // Scratch away the parchment over explored windows, soft-edged.
+    ctx.globalCompositeOperation = "destination-out";
+    for (const rg of revealed()) {
+      const cx = rg.x * w, cy = rg.y * h, rad = rg.r * w;
+      const grad = ctx.createRadialGradient(cx, cy, rad * 0.35, cx, cy, rad);
+      grad.addColorStop(0, "rgba(0,0,0,1)");
+      grad.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = grad;
+      ctx.beginPath(); ctx.arc(cx, cy, rad, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalCompositeOperation = "source-over";
+  };
+  // Redraw whenever the explored set changes.
+  createEffect(() => { revealed(); drawParchment(); });
 
   // Dev placement overrides preview live over the authored coords.
   const [overrides, setOverrides] = createSignal<Record<string, XY>>(IS_DEV ? loadOverrides() : {});
@@ -124,6 +167,10 @@ export default function MissionMap(props: {
     measure();
     setZoom(INITIAL_ZOOM);
     centerOn(INITIAL_CENTER.x, INITIAL_CENTER.y);
+    // Load the parchment overlay, then draw the mask once it's ready.
+    const img = new Image();
+    img.onload = () => { parchmentImg = img; drawParchment(); };
+    img.src = PARCHMENT_SRC;
     const ro = new ResizeObserver(measure);
     ro.observe(containerRef);
     onCleanup(() => ro.disconnect());
@@ -180,6 +227,14 @@ export default function MissionMap(props: {
     navigator.clipboard?.writeText(JSON.stringify(o, null, 0)).catch(() => {});
     setNote(`Copied ${n} placement${n > 1 ? "s" : ""} to clipboard`);
   };
+  // Dev: scratch away the parchment at the current view centre, to eyeball the
+  // "map draws itself in" effect before it's wired to real scouting.
+  const revealHere = () => {
+    const nx = (containerW() / 2 - pan().x) / worldW();
+    const ny = (containerH() / 2 - pan().y) / worldH();
+    setRevealed([...revealed(), { x: Math.round(nx * 1000) / 1000, y: Math.round(ny * 1000) / 1000, r: 0.07 }]);
+    setNote("Revealed a patch of the map");
+  };
 
   return (
     <div>
@@ -220,6 +275,14 @@ export default function MissionMap(props: {
             alt="Map of the valley"
             draggable={false}
             style={{ display: "block", width: "100%", height: "100%", "pointer-events": "none" }}
+          />
+          {/* Undrawn-map parchment: covers the map, scratched away over explored
+              windows so the chart shows through. Sits over the map, under the pins. */}
+          <canvas
+            ref={canvasRef}
+            width={REVEAL_W}
+            height={REVEAL_H}
+            style={{ position: "absolute", left: "0", top: "0", width: "100%", height: "100%", "pointer-events": "none" }}
           />
           <For each={pinned()}>
             {(m) => {
@@ -313,6 +376,21 @@ export default function MissionMap(props: {
               onClick={(e) => { e.stopPropagation(); setShowAll(!showAll()); setNote(showAll() ? null : `Showing all ${ALL_AUTHORED.length} missions — place away`); }}
             >
               📋 {showAll() ? "All on" : "All missions"}
+            </button>
+            <button
+              class="btn-secondary"
+              style={{ "font-size": "0.72rem" }}
+              title="Scratch the parchment away at the view centre (preview the reveal)"
+              onClick={(e) => { e.stopPropagation(); revealHere(); }}
+            >
+              🗺️ Reveal here
+            </button>
+            <button
+              class="btn-secondary"
+              style={{ "font-size": "0.72rem" }}
+              onClick={(e) => { e.stopPropagation(); setRevealed(INITIAL_REVEALED); setNote("Reset the map to Settlement + Hometown"); }}
+            >
+              Reset map
             </button>
             <Show when={placeMode()}>
               <button class="btn-secondary" style={{ "font-size": "0.72rem" }} onClick={(e) => { e.stopPropagation(); copyPlacements(); }}>Copy placements</button>
