@@ -28,6 +28,7 @@ import {
   calcSuccessChance,
   rollPermanentDeaths,
   calcEffectiveDuration,
+  missionTravelSeconds,
   getMission,
   getMissionRank,
   getMissionStatWeights,
@@ -553,6 +554,10 @@ export default function MissionAssemblyPanel(props: Props) {
   };
 
   // ─── Duration ─────────────────────────────────────────────────
+  // Total = on-site task time (authored `duration`) + round-trip travel from the
+  // settlement (distance-based). Wizards then shave a % off the whole thing.
+  const travelSec = () => missionTravelSeconds(freshMission());
+  const baseTotal = () => freshMission().duration + travelSec();
   const effectiveDuration = () => calcEffectiveDuration(freshMission(), team());
 
   // ─── Deploy ───────────────────────────────────────────────────
@@ -1366,7 +1371,14 @@ export default function MissionAssemblyPanel(props: Props) {
         </div>
 
         <div class="mission-detail-stats">
-          <div><span class="mission-detail-label">Duration</span> {formatDuration(freshMission().duration)}</div>
+          <div>
+            <span class="mission-detail-label">Duration</span> {formatDuration(baseTotal())}
+            <Show when={travelSec() > 0}>
+              <span style={{ color: "var(--text-muted)", "font-size": "0.85em" }}>
+                {" "}({formatDuration(freshMission().duration)} on site + {formatDuration(travelSec())} travel)
+              </span>
+            </Show>
+          </div>
           <div><span class="mission-detail-label">Deploy cost</span> {deployCost()}g</div>
           <Show when={freshMission().deployItems?.length}>
             <div>
@@ -1473,9 +1485,9 @@ export default function MissionAssemblyPanel(props: Props) {
           </div>
           <div style={{ "font-size": "0.85rem", color: "var(--text-secondary)" }}>
             Duration: {formatDuration(effectiveDuration())}
-            {effectiveDuration() < freshMission().duration && (
+            {effectiveDuration() < baseTotal() && (
               <span style={{ color: "var(--accent-blue)", "margin-left": "4px" }}>
-                (Wizard -{Math.round((1 - effectiveDuration() / freshMission().duration) * 100)}%)
+                (Wizard -{Math.round((1 - effectiveDuration() / baseTotal()) * 100)}%)
               </span>
             )}
           </div>

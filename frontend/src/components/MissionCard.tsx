@@ -1,6 +1,6 @@
 import { Show } from "solid-js";
 import type { MissionTemplate } from "@medieval-realm/shared/data/missions";
-import { getMission, getMissionRank, formatReward, isExpedition } from "@medieval-realm/shared/data/missions";
+import { getMission, getMissionRank, formatReward, isExpedition, missionTravelSeconds } from "@medieval-realm/shared/data/missions";
 import { getMissionXp } from "@medieval-realm/shared/data/adventurers";
 import { getEnemy } from "@medieval-realm/shared/data/enemies";
 import { MISSION_RANK_LABELS, MISSION_RANK_COLORS } from "~/data/constants";
@@ -189,7 +189,7 @@ export default function MissionCard(props: MissionCardProps) {
                 {mission().name}
               </div>
               <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
-                {formatDuration(mission().duration)} · {mission().deployCost}g deploy cost
+                {formatDuration(mission().duration + missionTravelSeconds(mission()))} · {mission().deployCost}g deploy cost
               </div>
             </div>
           </div>

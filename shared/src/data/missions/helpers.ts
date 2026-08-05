@@ -218,10 +218,28 @@ export function calcSuccessChance(
 /**
  * Calculate effective mission duration after wizard speed bonus.
  */
+/** The settlement's spot on the mission map (normalized). Travel time is the
+ *  round trip from here to a mission's pin. See docs/DESIGN_MISSION_MAP.md. */
+export const SETTLEMENT_MAP_POS = { x: 0.492, y: 0.535 };
+/** Seconds of travel per unit of normalized map distance (one way). Round trip
+ *  doubles it: a near errand adds a minute or so, a far march several. */
+const TRAVEL_SECONDS_PER_UNIT = 700;
+
+/** Round-trip travel time to a mission's pin, from the settlement. Missions with
+ *  no map coordinate (the "Close to home" dock) add no travel. The authored
+ *  `duration` is the ON-SITE task time; this is added on top for the total. */
+export function missionTravelSeconds(mission: MissionTemplate): number {
+  if (!mission.map) return 0;
+  const dx = mission.map.x - SETTLEMENT_MAP_POS.x;
+  const dy = mission.map.y - SETTLEMENT_MAP_POS.y;
+  return Math.round(Math.hypot(dx, dy) * 2 * TRAVEL_SECONDS_PER_UNIT);
+}
+
 export function calcEffectiveDuration(mission: MissionTemplate, team: Adventurer[]): number {
   const wizardCount = team.filter((a) => a.class === "wizard").length;
   const reduction = Math.min(0.45, wizardCount * WIZARD_DURATION_REDUCTION); // cap at 45%
-  return Math.floor(mission.duration * (1 - reduction));
+  const total = mission.duration + missionTravelSeconds(mission); // task + travel
+  return Math.floor(total * (1 - reduction));
 }
 
 /** Check if all required slots are satisfied by the team */

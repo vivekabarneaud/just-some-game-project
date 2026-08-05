@@ -70,6 +70,8 @@ export {
   getMissionStatHint,
   calcSuccessChance,
   calcEffectiveDuration,
+  missionTravelSeconds,
+  SETTLEMENT_MAP_POS,
   areRequiredSlotsFilled,
   calcAssassinBonusRewards,
   calcAssassinFailRewards,
