@@ -10,3 +10,6 @@ frontend/public/images/
 # Source map sketch (heavy); web version lives in frontend/public/images/map/
 /IMG_0142.png
 /IMG_0143.png
+
+# Source map art (working files); processed web assets live in frontend/public/images/map/
+/IMG_01*.png

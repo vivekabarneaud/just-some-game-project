@@ -33,6 +33,13 @@ const INITIAL_REVEALED: { x: number; y: number; r: number }[] = [
   { x: 0.492, y: 0.535, r: 0.085 }, // the settlement
   { x: 0.492, y: 0.21, r: 0.075 },  // hometown
 ];
+// Authored reveal-region masks (hand-drawn soft-edged shapes that hug the
+// terrain). Each is a full-map-aligned PNG; revealing one scratches the
+// parchment away in exactly its painted shape. Placeholder set from IMG_0144–48.
+const REGION_MASKS = [
+  "/images/map/region_1.png", "/images/map/region_2.png", "/images/map/region_3.png",
+  "/images/map/region_4.png", "/images/map/region_5.png",
+];
 
 const MIN_ZOOM = 1;                        // map width == container width
 const MAX_ZOOM = 4.5;
@@ -81,7 +88,9 @@ export default function MissionMap(props: {
   // charted map shows through. Prototype: in-memory + settlement/hometown known;
   // wiring to real scouting (persisted reveal state) comes next.
   const [revealed, setRevealed] = createSignal(INITIAL_REVEALED);
+  const [revealedRegions, setRevealedRegions] = createSignal<number[]>([]);
   let parchmentImg: HTMLImageElement | null = null;
+  const regionImgs: (HTMLImageElement | null)[] = REGION_MASKS.map(() => null);
   const drawParchment = () => {
     const cv = canvasRef;
     if (!cv || !parchmentImg) return;
@@ -91,8 +100,9 @@ export default function MissionMap(props: {
     ctx.globalCompositeOperation = "source-over";
     ctx.clearRect(0, 0, w, h);
     ctx.drawImage(parchmentImg, 0, 0, w, h);
-    // Scratch away the parchment over explored windows, soft-edged.
+    // Scratch away the parchment over explored areas, soft-edged.
     ctx.globalCompositeOperation = "destination-out";
+    // Circular windows (the initial Settlement + Hometown / dev preview blobs).
     for (const rg of revealed()) {
       const cx = rg.x * w, cy = rg.y * h, rad = rg.r * w;
       const grad = ctx.createRadialGradient(cx, cy, rad * 0.35, cx, cy, rad);
@@ -101,10 +111,15 @@ export default function MissionMap(props: {
       ctx.fillStyle = grad;
       ctx.beginPath(); ctx.arc(cx, cy, rad, 0, Math.PI * 2); ctx.fill();
     }
+    // Authored region masks (hand-drawn terrain shapes) — erase in their shape.
+    for (const i of revealedRegions()) {
+      const rimg = regionImgs[i];
+      if (rimg) ctx.drawImage(rimg, 0, 0, w, h);
+    }
     ctx.globalCompositeOperation = "source-over";
   };
   // Redraw whenever the explored set changes.
-  createEffect(() => { revealed(); drawParchment(); });
+  createEffect(() => { revealed(); revealedRegions(); drawParchment(); });
 
   // Dev placement overrides preview live over the authored coords.
   const [overrides, setOverrides] = createSignal<Record<string, XY>>(IS_DEV ? loadOverrides() : {});
@@ -171,6 +186,12 @@ export default function MissionMap(props: {
     const img = new Image();
     img.onload = () => { parchmentImg = img; drawParchment(); };
     img.src = PARCHMENT_SRC;
+    // Load the authored region masks.
+    REGION_MASKS.forEach((src, i) => {
+      const rimg = new Image();
+      rimg.onload = () => { regionImgs[i] = rimg; drawParchment(); };
+      rimg.src = src;
+    });
     const ro = new ResizeObserver(measure);
     ro.observe(containerRef);
     onCleanup(() => ro.disconnect());
@@ -388,10 +409,27 @@ export default function MissionMap(props: {
             <button
               class="btn-secondary"
               style={{ "font-size": "0.72rem" }}
-              onClick={(e) => { e.stopPropagation(); setRevealed(INITIAL_REVEALED); setNote("Reset the map to Settlement + Hometown"); }}
+              onClick={(e) => { e.stopPropagation(); setRevealed(INITIAL_REVEALED); setRevealedRegions([]); setNote("Reset the map to Settlement + Hometown"); }}
             >
               Reset map
             </button>
+            <For each={REGION_MASKS}>
+              {(_, i) => (
+                <button
+                  classList={{ "btn-secondary": !revealedRegions().includes(i()), "btn-primary": revealedRegions().includes(i()) }}
+                  style={{ "font-size": "0.72rem", padding: "2px 7px" }}
+                  title={`Toggle region ${i() + 1} (authored shape)`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setRevealedRegions(revealedRegions().includes(i())
+                      ? revealedRegions().filter((n) => n !== i())
+                      : [...revealedRegions(), i()]);
+                  }}
+                >
+                  R{i() + 1}
+                </button>
+              )}
+            </For>
             <Show when={placeMode()}>
               <button class="btn-secondary" style={{ "font-size": "0.72rem" }} onClick={(e) => { e.stopPropagation(); copyPlacements(); }}>Copy placements</button>
               <button class="btn-secondary" style={{ "font-size": "0.72rem" }} onClick={(e) => { e.stopPropagation(); clearOverrides(); setNote("Cleared local placements (source unchanged)"); }}>Clear</button>
