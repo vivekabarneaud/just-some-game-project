@@ -9,6 +9,11 @@ import { IS_DEV } from "~/data/seasons";
 // team assembly panel (the parent owns selection, same as the old card grid).
 // Missions with no coords fall to the "Close to home" dock below the map, so
 // nothing goes unreachable while pins are authored one at a time.
+//
+// DEV "Place mode": pick a mission (click its pin or its dock card), then click
+// the map to drop it there. Placements are stored in localStorage as an override
+// layer so they preview live over the authored coords; "Copy placements" dumps
+// them as JSON to paste back for baking into the mission source.
 // See docs/DESIGN_MISSION_MAP.md.
 
 const MAP_SRC = "/images/map/valley.jpg";
@@ -21,6 +26,13 @@ const INITIAL_ZOOM = 2.6;                  // the settlement crop
 const INITIAL_CENTER = { x: 0.5, y: 0.55 };
 
 const CLIMATE_ICON: Record<string, string> = { cold: "❄", hot: "☀", temperate: "" };
+
+// Dev-only placement override layer (localStorage). Keyed by mission id.
+const OVERRIDES_KEY = "mm_dev_placements";
+type XY = { x: number; y: number };
+function loadOverrides(): Record<string, XY> {
+  try { return JSON.parse(localStorage.getItem(OVERRIDES_KEY) || "{}"); } catch { return {}; }
+}
 
 /** Pin frame + label by mission kind — mirrors the MissionCard styling signals
  *  (story = gold, side-chain = teal, urgent = orange, ordinary = bronze). */
@@ -39,8 +51,21 @@ export default function MissionMap(props: {
   let containerRef!: HTMLDivElement;
   let worldRef!: HTMLDivElement;
 
-  const pinned = createMemo(() => props.missions.filter((m) => m.map));
-  const unplaced = createMemo(() => props.missions.filter((m) => !m.map));
+  // Dev placement overrides preview live over the authored coords.
+  const [overrides, setOverrides] = createSignal<Record<string, XY>>(IS_DEV ? loadOverrides() : {});
+  const effMap = (m: MissionTemplate): XY | undefined => overrides()[m.id] ?? m.map;
+  const saveOverride = (id: string, xy: XY) => {
+    const next = { ...overrides(), [id]: xy };
+    setOverrides(next);
+    try { localStorage.setItem(OVERRIDES_KEY, JSON.stringify(next)); } catch { /* private mode */ }
+  };
+  const clearOverrides = () => {
+    setOverrides({});
+    try { localStorage.removeItem(OVERRIDES_KEY); } catch { /* private mode */ }
+  };
+
+  const pinned = createMemo(() => props.missions.filter((m) => effMap(m)));
+  const unplaced = createMemo(() => props.missions.filter((m) => !effMap(m)));
 
   const [containerW, setContainerW] = createSignal(800);
   const [containerH, setContainerH] = createSignal(480);
@@ -112,17 +137,32 @@ export default function MissionMap(props: {
     zoomAt(zoom() * (e.deltaY < 0 ? 1.15 : 1 / 1.15), e.clientX - rect.left, e.clientY - rect.top);
   };
 
-  // ── Dev click-to-place: click the terrain, copy the normalized coords ──
+  // ── Dev place mode: pick a mission, click the map to drop it there ──
   const [placeMode, setPlaceMode] = createSignal(false);
-  const [lastPlaced, setLastPlaced] = createSignal<string | null>(null);
+  const [placeTarget, setPlaceTarget] = createSignal<MissionTemplate | null>(null);
+  const [note, setNote] = createSignal<string | null>(null);
+  // In place mode, clicking a pin/card selects it as the drop target instead of
+  // opening the assembly panel.
+  const pickOrSelect = (m: MissionTemplate) => {
+    if (placeMode()) { setPlaceTarget(m); setNote(`Placing “${m.name}” — click the map`); }
+    else props.onSelect(m);
+  };
   const onMapClick = (e: MouseEvent) => {
     if (moved || !placeMode()) return; // a drag, or not placing
+    const t = placeTarget();
+    if (!t) { setNote("Pick a mission first (click a pin or a “Close to home” card)"); return; }
     const r = worldRef.getBoundingClientRect();
     const x = Math.round(((e.clientX - r.left) / r.width) * 1000) / 1000;
     const y = Math.round(((e.clientY - r.top) / r.height) * 1000) / 1000;
-    const snippet = `map: { x: ${x}, y: ${y} },`;
-    setLastPlaced(snippet);
-    navigator.clipboard?.writeText(snippet).catch(() => {});
+    saveOverride(t.id, { x, y });
+    setNote(`${t.id}: { x: ${x}, y: ${y} }  ✓`);
+  };
+  const copyPlacements = () => {
+    const o = overrides();
+    const n = Object.keys(o).length;
+    if (!n) { setNote("No placements yet — drop some pins first"); return; }
+    navigator.clipboard?.writeText(JSON.stringify(o, null, 0)).catch(() => {});
+    setNote(`Copied ${n} placement${n > 1 ? "s" : ""} to clipboard`);
   };
 
   return (
@@ -168,18 +208,19 @@ export default function MissionMap(props: {
           <For each={pinned()}>
             {(m) => {
               const kind = pinKind(m);
-              const selected = () => props.selectedId === m.id;
+              const em = () => effMap(m)!;
+              const highlighted = () => placeMode() ? placeTarget()?.id === m.id : props.selectedId === m.id;
               const climate = () => CLIMATE_ICON[m.climate ?? "temperate"] ?? "";
               return (
                 <button
                   onPointerDown={(e) => e.stopPropagation()}
-                  onClick={(e) => { e.stopPropagation(); props.onSelect(m); }}
+                  onClick={(e) => { e.stopPropagation(); pickOrSelect(m); }}
                   title={`${m.name}  ${"★".repeat(m.difficulty)}${m.climate && m.climate !== "temperate" ? `  ${climate()} ${m.climate}` : ""}`}
                   style={{
                     position: "absolute",
-                    left: `${m.map!.x * 100}%`,
-                    top: `${m.map!.y * 100}%`,
-                    transform: `translate(-50%, -50%) scale(${selected() ? 1.15 : 1})`,
+                    left: `${em().x * 100}%`,
+                    top: `${em().y * 100}%`,
+                    transform: `translate(-50%, -50%) scale(${highlighted() ? 1.15 : 1})`,
                     width: "42px",
                     height: "42px",
                     "border-radius": "50%",
@@ -191,7 +232,7 @@ export default function MissionMap(props: {
                     cursor: "pointer",
                     background: "rgba(20, 18, 14, 0.82)",
                     border: `2px solid ${kind.color}`,
-                    "box-shadow": selected()
+                    "box-shadow": highlighted()
                       ? `0 0 0 3px ${kind.color}, 0 0 14px ${kind.color}`
                       : "0 2px 6px rgba(0,0,0,0.5)",
                     transition: "transform 0.12s, box-shadow 0.12s",
@@ -235,21 +276,29 @@ export default function MissionMap(props: {
           <span><span style={{ color: "#b9a06a" }}>●</span> Errand</span>
         </div>
 
-        {/* Dev click-to-place */}
+        {/* Dev place mode */}
         <Show when={IS_DEV}>
-          <div style={{ position: "absolute", left: "10px", bottom: "10px", display: "flex", "align-items": "center", gap: "8px" }}>
+          <div style={{
+            position: "absolute", left: "10px", bottom: "10px",
+            display: "flex", "align-items": "center", gap: "8px", "flex-wrap": "wrap",
+            "max-width": "calc(100% - 70px)",
+          }}>
             <button
               classList={{ "btn-secondary": !placeMode(), "btn-primary": placeMode() }}
               style={{ "font-size": "0.72rem" }}
-              onClick={(e) => { e.stopPropagation(); setPlaceMode(!placeMode()); }}
+              onClick={(e) => { e.stopPropagation(); setPlaceMode(!placeMode()); setPlaceTarget(null); setNote(placeMode() ? null : "Click a mission (pin or card), then click the map"); }}
             >
-              📍 {placeMode() ? "Placing… (click terrain)" : "Place mode"}
+              📍 {placeMode() ? "Placing on" : "Place mode"}
             </button>
-            <Show when={lastPlaced()}>
+            <Show when={placeMode()}>
+              <button class="btn-secondary" style={{ "font-size": "0.72rem" }} onClick={(e) => { e.stopPropagation(); copyPlacements(); }}>Copy placements</button>
+              <button class="btn-secondary" style={{ "font-size": "0.72rem" }} onClick={(e) => { e.stopPropagation(); clearOverrides(); setNote("Cleared local placements (source unchanged)"); }}>Clear</button>
+            </Show>
+            <Show when={note()}>
               <span style={{
                 "font-family": "monospace", "font-size": "0.72rem", color: "var(--accent-gold)",
-                background: "rgba(20,18,14,0.85)", padding: "3px 6px", "border-radius": "4px",
-              }}>{lastPlaced()} (copied)</span>
+                background: "rgba(20,18,14,0.88)", padding: "3px 6px", "border-radius": "4px",
+              }}>{note()}</span>
             </Show>
           </div>
         </Show>
@@ -259,15 +308,18 @@ export default function MissionMap(props: {
       <Show when={unplaced().length > 0}>
         <h3 style={{ "font-family": "var(--font-heading)", color: "var(--text-secondary)", "font-size": "0.9rem", margin: "18px 0 8px" }}>
           Close to home
+          <Show when={placeMode()}>
+            <span style={{ "font-weight": 400, color: "var(--text-muted)", "font-size": "0.8rem" }}> — click one, then click the map to place it</span>
+          </Show>
         </h3>
         <div class="buildings-grid">
           <For each={unplaced()}>
             {(m) => (
               <MissionCard
                 mission={m}
-                selected={props.selectedId === m.id}
+                selected={placeMode() ? placeTarget()?.id === m.id : props.selectedId === m.id}
                 storyChapter={(m as any).chapter}
-                onClick={() => props.onSelect(m)}
+                onClick={() => pickOrSelect(m)}
               />
             )}
           </For>
