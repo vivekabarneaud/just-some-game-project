@@ -302,6 +302,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   },
 {
     id: "alpha_wolf_hunt",
+    map: { x: 0.53, y: 0.44 }, // Greyfang's den, up past the north gullies
     name: "Run to Ground",
     description: "Truffle will keep no watch for weeks, and the pale one is counting on it. He blinded us on purpose and drew off to wait, and when he comes again there will be no dog at the gate and no cry to wake the camp. We are not going to sit and wait for that. The scouts have marked his den up past the north gullies. Take the team and go to him before he comes to us. Cornered, he will not slink off as he has before; a wolf run to ground fights to the last, so go ready for a hard fight. Put an end to the pale one, and to the danger to the fold, so our people and our flock can sleep again. Bring everyone home.",
     icon: "🐺",
@@ -383,10 +384,17 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     // counters). 3 was unwinnable for an early team (0% in sim); 2 is a real
     // "gear up / bring an antidote" challenge.
     encounters: [{ enemyId: "cave_spider", count: 2 }],
-    unique: true, // one-time: a nest under the eastern well, cleared for good
+    unique: true,
+    // PARKED 2026-08-05: the premise hinges on a WELL, but the well is Village-tier
+    // gated — a novice mission can't assume one exists (and "the women at the well"
+    // assumes townsfolk we don't model early). Kept for future inspiration (spiders
+    // fouling the drinking water is a strong hook); re-home to a real early water
+    // source + reword before un-staging.
+    staged: true,
   },
   {
     id: "night_howling",
+    map: { x: 0.492, y: 0.542 }, // the fold at night, at the settlement
     name: "Night Howling",
     description: "Truffle is howling. He has planted himself at the fold, giving voice into the dark the way he does when the pack is on us, and he will not stop. They are bolder tonight, closer than they have come, and the hunters saw what Nell has been telling us for days: a great pale wolf at the back of them, running the rest and never closing, the one she calls Greyfang. Go out beside Truffle and turn them back again. But we all feel it now, the pale one is not testing the fences. He is taking our measure.",
     icon: "🌙",
@@ -421,6 +429,12 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     tags: ["outdoor", "exploration"],
     encounters: [{ enemyId: "rabid_boar", count: 2 }],
     unique: true,
+    // PARKED 2026-08-05: no clean fight justification. Rabid boars belong to the
+    // maddened-herd / taint arc (keep them special); non-rabid animals on the
+    // hunting road would just be hunted or rerouted, not a mission. Bank the
+    // "blocked ford to the hunting grounds" idea; rework the threat/name (it's a
+    // fallen-oak ford, not a bridge) before un-staging.
+    staged: true,
   },
   {
     id: "stranger_tracks",
@@ -436,6 +450,12 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     minGuildLevel: 1,
     tags: ["outdoor", "exploration", "peaceful"],
     guaranteed: true, // investigate + reroute: the bear gets a wide berth, not a fight
+    // PARKED 2026-08-05: the "give a bear a wide berth" beat is already the
+    // bee-tree / Old Honeypaw arc's job (done better, with a named bear + a
+    // relationship), so this reads as a weaker duplicate. Bank the good shape
+    // (investigate → it's harmless → work around it) for reuse with a NON-bear
+    // subject before un-staging.
+    staged: true,
   },
   {
     id: "first_patrol",
@@ -456,6 +476,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   // ── Pre-scouting missions gated behind livestock pens ─────────
   {
     id: "lost_flock",
+    map: { x: 0.505, y: 0.522 }, // the north wall of the settlement
     name: "Wolves at the Wall",
     description: "Gareth's horn is going: wolves at the north wall, a whole knot of them rushing the palisade bold as you please. It is not like them, they have been all patience and shadows until now, but there is no time to wonder at it with the pack at the gate. Rouse the team and get to the wall. Drive them back into the dark and let the camp get its breath.",
     icon: "🐺",
@@ -479,6 +500,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   },
   {
     id: "fold_vigil",
+    map: { x: 0.475, y: 0.55 }, // the fold, at the settlement
     name: "A Wolf at the Fold",
     description: "Truffle has made the fold his own, and it is well he did. There have been wolves at the pens these last nights, coming together and coming back, the same hour and the same wind each time, testing the fences and slinking off the moment he throws up his racket. He has held them alone so far, one dog facing the tree line, but that is a wager we will not leave him to make twice. Walk out with him after dark and put the pack back into the trees, while it still costs us nothing but sleep.",
     icon: "🔥",
