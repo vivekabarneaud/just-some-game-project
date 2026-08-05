@@ -292,6 +292,7 @@ import {
   isQuestTriggered,
   isChapterComplete,
 } from "~/data/quests";
+import { MAP_REGIONS } from "~/data/mapRegions";
 import { getReadyEvents } from "~/data/events";
 import { TRAVELING_MERCHANTS, getMerchant, merchantIntervalDays } from "~/data/merchants";
 import { calcTavern, tavernRooms, REPUTATION_DRIFT_PER_HOUR, SEASONAL_REP_PER_DISH, SEASONAL_REP_CAP, TAVERN_FOOD_PER_ROOM_PER_HOUR, MENU_STAPLE_IDS, serversNeeded, menuCapacity, TAVERN_COMMODITY_DRINKS, getCommodityDrink, type TavernCommodityDrink } from "~/data/tavern";
@@ -821,6 +822,9 @@ export interface GameState {
   /** Robin events the player has already acknowledged. Prevents re-fire and
    *  re-applying unlocks if the same trigger conditions hold again. */
   firedRobins: string[];
+  /** Mission-map reveal regions that have been charted (undrawn-parchment peels
+   *  back here). Ids into MAP_REGIONS; revealed for good once their trigger fires. */
+  revealedRegions?: string[];
   // Chronicle (Lord's journal) — entries that have fired and bio fragments unlocked
   chronicleEntriesFired: string[];
   /** Chronicle entries a story chain wants surfaced as a beat modal, waiting to
@@ -1411,6 +1415,7 @@ export function createInitialState(): GameState {
     pendingRobins: [],
     firedRobins: [],
     chronicleEntriesFired: [],
+    revealedRegions: [],
     pendingChronicleBeats: [],
     chronicleEntriesSeen: [],
     unlockedBioFragments: [],
@@ -2019,6 +2024,7 @@ export function migrateSaveState(saved: GameState): GameState {
     }
     // Chronicle migration — entries fired and bio fragments unlocked
     if (!saved.chronicleEntriesFired) saved.chronicleEntriesFired = [];
+    if (!saved.revealedRegions) saved.revealedRegions = [];
     if (!saved.pendingChronicleBeats) saved.pendingChronicleBeats = [];
     if (!saved.chronicleEntriesSeen) saved.chronicleEntriesSeen = [];
     if (!saved.unlockedBioFragments) saved.unlockedBioFragments = [];
@@ -2189,6 +2195,19 @@ function checkMerchantVisits(s: GameState): void {
  *  sets up a stall at the marketplace that lingers ~until morning. A better
  *  tavern (reputation) brings him sooner. Game-hour countdowns, so it behaves
  *  in dev fast-mode and prod alike. Mutates the draft; call once per tick. */
+/** Chart the mission map: reveal a region for good once its trigger fires (a
+ *  scout/story mission completed, or a chronicle beat). The undrawn parchment
+ *  peels back over its painted shape, and any missions under it become visible. */
+function updateRevealedRegions(s: GameState): void {
+  s.revealedRegions = s.revealedRegions ?? [];
+  for (const r of MAP_REGIONS) {
+    if (s.revealedRegions.includes(r.id)) continue;
+    const byMission = r.revealedBy.missionDone && (s.missionCompletions?.[r.revealedBy.missionDone] ?? 0) > 0;
+    const byChronicle = r.revealedBy.chronicleFired && s.chronicleEntriesFired.includes(r.revealedBy.chronicleFired);
+    if (byMission || byChronicle) s.revealedRegions.push(r.id);
+  }
+}
+
 function updateMerchantRecurrence(s: GameState): void {
   // Each recurring merchant's visits begin once their unlock mission is done
   // (Cobb: the escort; Wilda & Merrild: the Lammast boundary-stone trade). They return every 2-3 days
@@ -4573,6 +4592,7 @@ export function GameProvider(props: ParentProps) {
         // A traveling merchant may arrive once the settlement is worth the trip.
         checkMerchantVisits(s);
         updateMerchantRecurrence(s);
+        updateRevealedRegions(s);
 
         // Founding-winter grace: latch on the first tick whether the settlement
         // began in winter, then lift it the moment it leaves that first winter,

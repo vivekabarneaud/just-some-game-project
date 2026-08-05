@@ -478,4 +478,6 @@ export interface GameState {
   pendingRobins: string[];
   /** Robin events already acknowledged (one-shot per save). */
   firedRobins: string[];
+  /** Mission-map reveal regions charted so far (undrawn parchment peels back). */
+  revealedRegions?: string[];
 }

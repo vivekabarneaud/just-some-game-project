@@ -3,6 +3,8 @@ import type { MissionTemplate } from "@medieval-realm/shared/data/missions";
 import { MISSION_POOL, STORY_MISSIONS, EXPEDITION_POOL } from "@medieval-realm/shared/data/missions";
 import MissionCard from "./MissionCard";
 import { IS_DEV } from "~/data/seasons";
+import { useGame } from "~/engine/gameState";
+import { MAP_REGIONS } from "~/data/mapRegions";
 
 // ─── The Mission Map (Phase 1 prototype) ────────────────────────────────────
 // The mission board IS a map of the valley. Field missions with authored map
@@ -34,12 +36,9 @@ const INITIAL_REVEALED: { x: number; y: number; r: number }[] = [
   { x: 0.492, y: 0.21, r: 0.075 },  // hometown
 ];
 // Authored reveal-region masks (hand-drawn soft-edged shapes that hug the
-// terrain). Each is a full-map-aligned PNG; revealing one scratches the
-// parchment away in exactly its painted shape. Placeholder set from IMG_0144–48.
-const REGION_MASKS = [
-  "/images/map/region_1.png", "/images/map/region_2.png", "/images/map/region_3.png",
-  "/images/map/region_4.png", "/images/map/region_5.png",
-];
+// terrain), from the region data. Revealing one scratches the parchment away in
+// exactly its painted shape. Which are revealed is persisted game state.
+const REGION_MASKS = MAP_REGIONS.map((r) => r.mask);
 
 const MIN_ZOOM = 1;                        // map width == container width
 const MAX_ZOOM = 4.5;
@@ -87,10 +86,21 @@ export default function MissionMap(props: {
   // Explored windows (normalized). The parchment is scratched away here so the
   // charted map shows through. Prototype: in-memory + settlement/hometown known;
   // wiring to real scouting (persisted reveal state) comes next.
-  const [revealed, setRevealed] = createSignal(INITIAL_REVEALED);
-  const [revealedRegions, setRevealedRegions] = createSignal<number[]>([]);
+  const game = useGame();
+  const [revealed, setRevealed] = createSignal(INITIAL_REVEALED); // fixed windows + dev blobs
+  const [devRegions, setDevRegions] = createSignal<number[]>([]); // dev preview override
+  const [revealTick, setRevealTick] = createSignal(0);            // bumps to re-gate pins
   let parchmentImg: HTMLImageElement | null = null;
   const regionImgs: (HTMLImageElement | null)[] = REGION_MASKS.map(() => null);
+  const SAMPLE_W = 240, SAMPLE_H = Math.round(SAMPLE_W * ASPECT);
+  const regionAlpha: (Uint8ClampedArray | null)[] = REGION_MASKS.map(() => null);
+  // Region indices drawn this frame: revealed in the save ∪ dev-toggled.
+  const activeRegions = (): number[] => {
+    const on = new Set<number>(devRegions());
+    const saved = game.state.revealedRegions ?? [];
+    MAP_REGIONS.forEach((r, i) => { if (saved.includes(r.id)) on.add(i); });
+    return [...on];
+  };
   const drawParchment = () => {
     const cv = canvasRef;
     if (!cv || !parchmentImg) return;
@@ -100,9 +110,8 @@ export default function MissionMap(props: {
     ctx.globalCompositeOperation = "source-over";
     ctx.clearRect(0, 0, w, h);
     ctx.drawImage(parchmentImg, 0, 0, w, h);
-    // Scratch away the parchment over explored areas, soft-edged.
     ctx.globalCompositeOperation = "destination-out";
-    // Circular windows (the initial Settlement + Hometown / dev preview blobs).
+    // Circular windows (Settlement + Hometown, and dev "reveal here" blobs).
     for (const rg of revealed()) {
       const cx = rg.x * w, cy = rg.y * h, rad = rg.r * w;
       const grad = ctx.createRadialGradient(cx, cy, rad * 0.35, cx, cy, rad);
@@ -111,15 +120,32 @@ export default function MissionMap(props: {
       ctx.fillStyle = grad;
       ctx.beginPath(); ctx.arc(cx, cy, rad, 0, Math.PI * 2); ctx.fill();
     }
-    // Authored region masks (hand-drawn terrain shapes) — erase in their shape.
-    for (const i of revealedRegions()) {
+    // Authored region masks (charted terrain shapes) — erase in their shape.
+    for (const i of activeRegions()) {
       const rimg = regionImgs[i];
       if (rimg) ctx.drawImage(rimg, 0, 0, w, h);
     }
     ctx.globalCompositeOperation = "source-over";
   };
-  // Redraw whenever the explored set changes.
-  createEffect(() => { revealed(); revealedRegions(); drawParchment(); });
+  // Redraw + re-gate whenever the explored set changes.
+  createEffect(() => { revealed(); activeRegions(); drawParchment(); setRevealTick((n) => n + 1); });
+  // Is a normalized point charted (under a revealed window/region)? Drives pin
+  // gating — a mission stays hidden until the map is drawn where it sits.
+  const isRevealedAt = (nx: number, ny: number): boolean => {
+    for (const c of revealed()) {
+      const dx = nx - c.x, dy = ny - c.y;
+      if (dx * dx + dy * dy < c.r * c.r) return true;
+    }
+    for (const i of activeRegions()) {
+      const a = regionAlpha[i];
+      if (!a) continue;
+      const px = Math.floor(nx * SAMPLE_W), py = Math.floor(ny * SAMPLE_H);
+      if (px < 0 || py < 0 || px >= SAMPLE_W || py >= SAMPLE_H) continue;
+      if (a[(py * SAMPLE_W + px) * 4 + 3] > 100) return true;
+    }
+    return false;
+  };
+  const isStoryMission = (m: MissionTemplate) => (m as any).storyOrder != null || (m as any).chapter != null;
 
   // Dev placement overrides preview live over the authored coords.
   const [overrides, setOverrides] = createSignal<Record<string, XY>>(IS_DEV ? loadOverrides() : {});
@@ -186,10 +212,21 @@ export default function MissionMap(props: {
     const img = new Image();
     img.onload = () => { parchmentImg = img; drawParchment(); };
     img.src = PARCHMENT_SRC;
-    // Load the authored region masks.
+    // Load the authored region masks + sample their alpha (for pin-gating).
     REGION_MASKS.forEach((src, i) => {
       const rimg = new Image();
-      rimg.onload = () => { regionImgs[i] = rimg; drawParchment(); };
+      rimg.onload = () => {
+        regionImgs[i] = rimg;
+        const oc = document.createElement("canvas");
+        oc.width = SAMPLE_W; oc.height = SAMPLE_H;
+        const octx = oc.getContext("2d");
+        if (octx) {
+          octx.drawImage(rimg, 0, 0, SAMPLE_W, SAMPLE_H);
+          regionAlpha[i] = octx.getImageData(0, 0, SAMPLE_W, SAMPLE_H).data;
+        }
+        drawParchment();
+        setRevealTick((n) => n + 1);
+      };
       rimg.src = src;
     });
     const ro = new ResizeObserver(measure);
@@ -311,7 +348,11 @@ export default function MissionMap(props: {
               const em = () => effMap(m)!;
               const highlighted = () => placeMode() ? placeTarget()?.id === m.id : props.selectedId === m.id;
               const climate = () => CLIMATE_ICON[m.climate ?? "temperate"] ?? "";
+              // Hidden until the map is charted where it sits (story missions and
+              // the dev place/all views are exempt). revealTick re-runs it on change.
+              const shown = () => { revealTick(); return placeMode() || showAll() || isStoryMission(m) || isRevealedAt(em().x, em().y); };
               return (
+                <Show when={shown()}>
                 <button
                   onPointerDown={(e) => e.stopPropagation()}
                   onClick={(e) => { e.stopPropagation(); pickOrSelect(m); }}
@@ -350,6 +391,7 @@ export default function MissionMap(props: {
                     }}>{climate()}</span>
                   </Show>
                 </button>
+                </Show>
               );
             }}
           </For>
@@ -409,21 +451,21 @@ export default function MissionMap(props: {
             <button
               class="btn-secondary"
               style={{ "font-size": "0.72rem" }}
-              onClick={(e) => { e.stopPropagation(); setRevealed(INITIAL_REVEALED); setRevealedRegions([]); setNote("Reset the map to Settlement + Hometown"); }}
+              onClick={(e) => { e.stopPropagation(); setRevealed(INITIAL_REVEALED); setDevRegions([]); setNote("Reset dev preview (save's real reveals still apply)"); }}
             >
-              Reset map
+              Reset preview
             </button>
             <For each={REGION_MASKS}>
               {(_, i) => (
                 <button
-                  classList={{ "btn-secondary": !revealedRegions().includes(i()), "btn-primary": revealedRegions().includes(i()) }}
+                  classList={{ "btn-secondary": !devRegions().includes(i()), "btn-primary": devRegions().includes(i()) }}
                   style={{ "font-size": "0.72rem", padding: "2px 7px" }}
-                  title={`Toggle region ${i() + 1} (authored shape)`}
+                  title={`Dev-preview region ${i() + 1} (${MAP_REGIONS[i()].id})`}
                   onClick={(e) => {
                     e.stopPropagation();
-                    setRevealedRegions(revealedRegions().includes(i())
-                      ? revealedRegions().filter((n) => n !== i())
-                      : [...revealedRegions(), i()]);
+                    setDevRegions(devRegions().includes(i())
+                      ? devRegions().filter((n) => n !== i())
+                      : [...devRegions(), i()]);
                   }}
                 >
                   R{i() + 1}
