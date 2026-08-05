@@ -139,6 +139,11 @@ export interface CombatUnit {
   isTauntable: boolean;
   /** When true, this unit's death immediately fails the mission. */
   isMissionObjective?: boolean;
+  /** When true, this unit can never be downed — its HP is clamped at 1 every
+   *  reflex pass, unconditionally (unlike the one-shot adventurer reflex). Used
+   *  for beloved companions whose fall is reserved for a scripted beat (Truffle
+   *  in the fold escorts; the pack can never actually kill the good boy). */
+  cannotFall?: boolean;
   // ── AI state ──
   /** Per-unit AI behavior id (resolved to a state machine in ai/registry). Defaults apply when absent. */
   aiBehavior?: string;

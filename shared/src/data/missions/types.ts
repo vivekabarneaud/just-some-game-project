@@ -150,6 +150,10 @@ export interface MissionNpcAlly {
    *  ritualists / frail VIPs / bound captives. The team's job is to keep her
    *  alive while the rest of the encounter resolves. */
   passive?: boolean;
+  /** When true, this ally can never be downed in THIS mission — clamped at 1 HP.
+   *  For beloved companions whose fall is reserved for a scripted beat elsewhere
+   *  (Truffle fights the fold escorts but only Greyfang's beat can maul him). */
+  cannotFall?: boolean;
   /** How much threat this NPC generates per point of damage/heal in combat.
    *  1.0 = same as a regular adventurer. 1.5 = pulls aggro harder. Irrelevant
    *  when passive=true (she doesn't generate damage threat anyway). */

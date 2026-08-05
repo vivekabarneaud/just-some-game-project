@@ -74,6 +74,16 @@ function hasActiveCommander(ctx: CombatContext): boolean {
  * that overshoots 0 hard) downs them outright. Disabled when ctx.disableRetreat.
  */
 export function applySurvivalReflex(ctx: CombatContext): void {
+  // cannotFall units (Truffle at the fold) never go down — clamp at 1 HP,
+  // unconditionally and every pass (no reflexUsed one-shot, no overkill escape).
+  // He keeps fighting, not broken: the good boy holds his post. Runs even when
+  // retreat is disabled, since it's a hard guarantee, not a morale reflex.
+  for (const u of ctx.adventurers) {
+    if (u.cannotFall && u.hp <= 0) {
+      u.hp = 1;
+      unmarkStaleKill(ctx, u.name);
+    }
+  }
   if (ctx.disableRetreat) return;
   for (const u of ctx.adventurers) {
     if (u.kind !== "adventurer") continue;

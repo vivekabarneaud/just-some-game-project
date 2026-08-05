@@ -399,7 +399,8 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     minGuildLevel: 1,
     tags: ["combat", "outdoor"],
     encounters: [{ enemyId: "wild_wolf", count: 3 }],
-    // Beat 2 of the Greyfang arc (unique). TODO(#2): npcAlly Truffle (cannotFall).
+    // Beat 2 of the Greyfang arc (unique). Truffle fights beside the team.
+    npcAlly: { npcId: "truffle", threatMultiplier: 0.4, cannotFall: true, deathFailsMission: false },
     sideChain: { id: "greyfang", name: "The Fold" },
     excludeCharacters: [{ premadeId: "char_005", reason: "At the watchtower, sounding the alarm" }],
     unique: true,
@@ -490,7 +491,9 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     tags: ["outdoor", "combat"],
     encounters: [{ enemyId: "wild_wolf", count: 2 }],
     // Beat 1 of the Greyfang arc (repeatable — the grind that earns the turn).
-    // TODO(#2): npcAlly Truffle (cannotFall) once the combat flag lands.
+    // Truffle fights beside the team: low threat (the pack peels onto the team),
+    // and cannotFall — the escorts can never put the good boy down.
+    npcAlly: { npcId: "truffle", threatMultiplier: 0.4, cannotFall: true, deathFailsMission: false },
     sideChain: { id: "greyfang", name: "The Fold" },
     excludeCharacters: [{ premadeId: "char_005", reason: "Posted to the watchtower, watching the dark" }],
     requires: { pen: "sheep", chronicleFired: "ch1_truffle_takes_fold" },

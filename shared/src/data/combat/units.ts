@@ -88,6 +88,7 @@ export function buildNpcAllyUnit(missionNpc: MissionNpcAlly): CombatUnit | null 
     canBeHealed: true,
     isTauntable: false,
     isMissionObjective: missionNpc.deathFailsMission ?? true,
+    cannotFall: missionNpc.cannotFall,
     threatMultiplier: missionNpc.threatMultiplier ?? 1.0,
     cooldowns: {}, slowed: 0, poisonTicks: [],
   };

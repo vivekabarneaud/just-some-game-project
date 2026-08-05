@@ -58,7 +58,23 @@ export const CORIN: NPCAlly = {
     "A retired village priest who reads scripture for its mercy, between the lines. Forty years quietly fascinated by the old rites, though he has never dared practice them.",
 };
 
-export const NPC_ALLIES: NPCAlly[] = [NIAMH, CORIN];
+export const TRUFFLE: NPCAlly = {
+  id: "truffle",
+  name: "Truffle",
+  title: "The Fold's Own",
+  icon: "🐕",
+  // Quick and scrappy, not a wall: high dex to dodge, modest str for the bite,
+  // vit 12 → 96 HP so he looks healthy through a drive-off. No class = a plain
+  // bite, no taunt or flank, "he fights like the wolves he faces." Low threat
+  // (set per-mission) peels the pack onto the team; cannotFall (per-mission)
+  // means the escorts can never actually put the good boy down.
+  stats: { str: 8, dex: 14, int: 2, vit: 12, wis: 6 },
+  class: undefined,
+  description:
+    "The stray Nell named, who took the fold for his own. He fights like the wolves he faces, all teeth and speed, and will not leave the gate while there is breath in him.",
+};
+
+export const NPC_ALLIES: NPCAlly[] = [NIAMH, CORIN, TRUFFLE];
 
 export function getNpcAlly(id: string): NPCAlly | undefined {
   return NPC_ALLIES.find((n) => n.id === id);
