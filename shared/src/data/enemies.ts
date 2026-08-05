@@ -1240,10 +1240,10 @@ export const ENEMIES: EnemyDefinition[] = [
   },
   {
     id: "alpha_wolf",
-    name: "Alpha Wolf",
+    name: "Greyfang",
     icon: "🐺",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/alpha_wolf.png",
-    description: "Twice the size of a grey wolf, with scars from a dozen challengers. The pack follows where it leads, and it leads toward your livestock.",
+    description: "A great pale wolf, half again the size of the pack he leads and cleverer than a beast has any right to be. He watches a defense before he breaks it, and spends his own pack freely to reach what he truly wants. The one Nell named, and would not say above a whisper.",
     tier: 2,
     stats: { str: 16, dex: 14, int: 4, vit: 18, wis: 4 },
     raw: { mobility: 10, dodge: 5 }, // the pack's fastest — leads the charge

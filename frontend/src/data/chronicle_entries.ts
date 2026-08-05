@@ -810,6 +810,44 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
   //     "We are not safe. I do not pretend we are safe. There are nights I lie awake listening for something I cannot name, and mornings I count the six of us before I do anything else.\n\n" +
   //     "But we are stable. That is a word for this week. Next week will have its own.",
   // },
+
+  // ─── The Greyfang / Truffle arc (Ch1 side-chain) ───────────────
+  {
+    id: "ch1_truffle_takes_fold",
+    chapterId: "ch1",
+    order: 9.6,
+    title: "He Understood the Assignment",
+    teaser: "The stray finds his own post at the fold.",
+    fullText:
+      "Nell came pelting up before the kennel's last post was set. \"Uncle, uncle, come and see.\" She had walked Truffle down to meet the sheep, and something in him woke. He went round them, low and wide and quiet, circling, until the flock drew in close, and then he sat himself in the gap where the fence runs low, facing the trees, and would not be moved. Nobody taught him that. He had found his post before we thought to give him one, and by the look on Nell's face, more than that.",
+  },
+  {
+    id: "ch1_greyfang",
+    chapterId: "ch1",
+    order: 9.7,
+    title: "Greyfang",
+    teaser: "A pale wolf watches the flock. Nell has a name for him.",
+    fullText:
+      "Nell has seen the pale wolf three nights running, at the tree line at dusk, watching the flock and nothing more. She calls him Greyfang and will not say it above a whisper. I believe her, she sees what the rest of us miss, and the pack has moved too cleverly of late for there to be no head on it. Gareth keeps the tower and sounds the horn when they come; we turn them back; Truffle holds the gate as if he were born to it. I asked could Gareth not put an arrow in the pale one where he sits. A shadow at the tree line in the dark is no shot for any bow, he said, and the beast is gone the instant a man steps toward it. So we watch him watching us. What I will not do is loose a hunting party after a thing that has only looked at our sheep. That is not how we came to keep this place. I have told Nell to bide clear of the pens at dusk. She does not listen, and each night I like it less.",
+  },
+  {
+    id: "ch1_truffle_mauled",
+    chapterId: "ch1",
+    order: 9.8,
+    title: "Bait",
+    teaser: "The wall was a blind. Greyfang came for the dog.",
+    fullText:
+      "We were still at the wall, still trading blows in the dark, when the sound came from the fold. Not a howl. I had never heard Truffle make that sound, and I hope never to again. The wolves we were fighting broke off in the same breath, every one turning tail at once, as though they had only been waiting for it. Because they had. Gareth called down that he saw the pale one slip into the trees, quick as a thought, already gone. We ran, and found our dog down in the gap of the gate where he had put himself between the wolves and the sheep and would not give ground. He is alive; Edda says he will live. The wall was never the raid. It was bait, and we took it whole, while the pale one did what he came for. Nell has not said a word. She sat down in the mud beside him with her hand on his side, to feel him breathing.",
+  },
+  {
+    id: "ch1_greyfang_ended",
+    chapterId: "ch1",
+    order: 9.9,
+    title: "The Next One",
+    teaser: "Greyfang is finished. Truffle mends by the fire.",
+    fullText:
+      "It is done. The pale one lies up past the north gullies, and he did not die easy, nor did we take him without hurts of our own. I feel no triumph in it, only tiredness, and a thing I keep turning over. The watch was set, the fold guarded and the walls manned, and still it was not enough, because I never dreamed a wolf could plan like a man. He showed us a fight at the wall, we answered it as we should have, and in the few breaths our backs were turned he took what he truly came for. Seconds were all he needed. A wolf has taught me to fear a clever enemy more than a strong one. Truffle mends slowly by the fire, and Nell has scarcely left his side; he thumps his tail when she reads to him. He will hold the gate again before long, Edda says. We are poorer by a few of the flock this morning, but we are all of us still here, the good boy most of all. I will not underestimate the next one.",
+  },
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────────

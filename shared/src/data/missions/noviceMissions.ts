@@ -302,22 +302,23 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   },
 {
     id: "alpha_wolf_hunt",
-    name: "The Pack Leader",
-    description: "A big pale wolf has taken the pack in hand, and under it they hit the pens on the same nights, from the same wind, until the flock is half-wild with fear by morning. It is no fault of the wolves that the game is gone and the winter ran long, but a fed pack that has learned our fences will not unlearn them. Break the pack's hold, by its leader if there is no other way, and give the valley back its nights.",
+    name: "Run to Ground",
+    description: "Truffle will keep no watch for weeks, and the pale one is counting on it. He blinded us on purpose and drew off to wait, and when he comes again there will be no dog at the gate and no cry to wake the camp. We are not going to sit and wait for that. The scouts have marked his den up past the north gullies. Take the team and go to him before he comes to us. Cornered, he will not slink off as he has before; a wolf run to ground fights to the last, so go ready for a hard fight. Put an end to the pale one, and to the danger to the fold, so our people and our flock can sleep again. Bring everyone home.",
     icon: "🐺",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/pack_leader.png",
-    slots: [{ class: "any" }, { class: "any" }],
+    slots: [{ class: "any" }, { class: "any" }, { class: "any" }],
     duration: 1500,
     rewards: [{ resource: "gold", amount: 80 }, { resource: "meat", amount: 50 }, { resource: "wolfhide_strip", amount: 1 }, { resource: "fang", amount: 1 }],
     deployCost: 15,
-    difficulty: 2,
+    difficulty: 3,
     minGuildLevel: 1,
     tags: ["combat", "outdoor"],
     encounters: [{ enemyId: "alpha_wolf", count: 1 }, { enemyId: "wild_wolf", count: 4 }],
-    // Gated on a flock existing: a pack "raiding the pens" only makes sense once
-    // there's livestock to raid (and citizens/pens to threaten). No pen = no beat.
-    requires: { pen: "sheep" },
+    // Beat 4 — the hunt. Greyfang (alpha_wolf) fights to the death (no routsAt).
+    sideChain: { id: "greyfang", name: "The Fold" },
+    requires: { pen: "sheep", missionDone: "lost_flock" },
     unique: true, // one-time: the pack leader dies once, dropping ONE of fang/sinew
+    chronicleEntryId: "ch1_greyfang_ended",
   },
 
   // ── Pre-scouting village missions (no story gate) ─────────────
@@ -387,7 +388,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   {
     id: "night_howling",
     name: "Night Howling",
-    description: "The wolves have been circling closer every night; last night they came within a stone's throw of the campfires. Tomas wants them pushed back, no more than that. Hungry as they are, they will test a quiet camp, so make ours loud and watched until they think better of it.",
+    description: "Truffle is howling. He has planted himself at the fold, giving voice into the dark the way he does when the pack is on us, and he will not stop. They are bolder tonight, closer than they have come, and the hunters saw what Nell has been telling us for days: a great pale wolf at the back of them, running the rest and never closing, the one she calls Greyfang. Go out beside Truffle and turn them back again. But we all feel it now, the pale one is not testing the fences. He is taking our measure.",
     icon: "🌙",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/night_howling.png",
     slots: [{ class: "any" }, { class: "any" }],
@@ -398,6 +399,10 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     minGuildLevel: 1,
     tags: ["combat", "outdoor"],
     encounters: [{ enemyId: "wild_wolf", count: 3 }],
+    // Beat 2 of the Greyfang arc (unique). TODO(#2): npcAlly Truffle (cannotFall).
+    sideChain: { id: "greyfang", name: "The Fold" },
+    unique: true,
+    requires: { pen: "sheep", missionCount: { id: "fold_vigil", count: 2 } },
   },
   {
     id: "old_bridge",
@@ -449,34 +454,43 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   // ── Pre-scouting missions gated behind livestock pens ─────────
   {
     id: "lost_flock",
-    name: "The Wayward Flock",
-    description: "The sheep have drifted past the tree line again. Last time, two came back bloody and one not at all. The pack out there is gaunt this season and growing bold with it. Bring the flock in before the wolves do, and stand between them if it comes to that.",
-    icon: "🐑",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/lost_flock.png",
-    slots: [{ class: "any" }],
-    duration: 420,
-    rewards: [{ resource: "meat", amount: 60 }, { resource: "gold", amount: 10 }],
-    deployCost: 3,
-    difficulty: 1,
+    name: "Wolves at the Wall",
+    description: "Gareth's horn is going: wolves at the north wall, a whole knot of them rushing the palisade bold as you please. It is not like them, they have been all patience and shadows until now, but there is no time to wonder at it with the pack at the gate. Rouse the team and get to the wall. Drive them back into the dark and let the camp get its breath.",
+    icon: "🐺",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/night_howling.png",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 480,
+    rewards: [{ resource: "meat", amount: 40 }, { resource: "wolfhide_strip", amount: 1 }, { resource: "gold", amount: 15 }],
+    deployCost: 4,
+    difficulty: 2,
     minGuildLevel: 1,
-    tags: ["outdoor"],
-    encounters: [{ enemyId: "wild_wolf", count: 2 }],
-    requires: { pen: "sheep" },
+    tags: ["combat", "outdoor"],
+    // Beat 3 — the diversion. The player fights the feint at the wall (Truffle is
+    // NOT here — he's at the fold); the maul is the reveal on claim. TODO(#3): the
+    // director applies `savaged` to Truffle when this completes.
+    encounters: [{ enemyId: "wild_wolf", count: 5 }],
+    sideChain: { id: "greyfang", name: "The Fold" },
+    unique: true,
+    requires: { pen: "sheep", missionDone: "night_howling" },
+    chronicleEntryId: "ch1_truffle_mauled",
   },
   {
     id: "fold_vigil",
     name: "A Wolf at the Fold",
-    description: "Every night now the pack drifts down to the pens, testing the fences, watching the sheep with a patient hunger. No blood is needed for this, only presence. Sit the night watch by the fold: keep the fires up, the dogs restless, a spear leaned close and unused. Let the wolves learn this fold is watched, and they will look elsewhere before hunger makes them bold.",
+    description: "Truffle has made the fold his own, and it is well he did. There have been wolves at the pens these last nights, coming together and coming back, the same hour and the same wind each time, testing the fences and slinking off the moment he throws up his racket. He has held them alone so far, one dog facing the tree line, but that is a wager we will not leave him to make twice. Walk out with him after dark and put the pack back into the trees, while it still costs us nothing but sleep.",
     icon: "🔥",
-    slots: [{ class: "any" }],
+    slots: [{ class: "any" }, { class: "any" }],
     duration: 540,
     rewards: [{ resource: "gold", amount: 20 }, { resource: "milk", amount: 6 }],
     deployCost: 3,
     difficulty: 1,
     minGuildLevel: 1,
-    tags: ["outdoor", "survival"],
-    guaranteed: true, // a vigil, not a hunt, presence turns the pack, no fight
-    requires: { pen: "sheep" },
+    tags: ["outdoor", "combat"],
+    encounters: [{ enemyId: "wild_wolf", count: 2 }],
+    // Beat 1 of the Greyfang arc (repeatable — the grind that earns the turn).
+    // TODO(#2): npcAlly Truffle (cannotFall) once the combat flag lands.
+    sideChain: { id: "greyfang", name: "The Fold" },
+    requires: { pen: "sheep", chronicleFired: "ch1_truffle_takes_fold" },
   },
   {
     id: "chicken_coop_raiders",
