@@ -83,7 +83,6 @@ import {
   ringUnlocked,
   getWatchtowerArcherCap,
   getBarracksSoldierCap,
-  distributeLegacyGarrison,
   getTrainTime,
 } from "~/data/defenses";
 import {
@@ -94,7 +93,6 @@ import {
   effectiveFoodMouths,
   applySurvivalRatio,
   reduceByPriority,
-  migrateLegacyPopulation,
   ageStep,
   rollArrival,
   addCitizens,
@@ -157,7 +155,6 @@ import {
   getTotalFood,
   consumeFood,
   addFood,
-  migrateFoodsFromLegacy,
   isFoodItemType,
   getFoodCostAmount,
   consumeFoodCost,
@@ -3377,144 +3374,9 @@ export function GameProvider(props: ParentProps) {
       // (and overwrites the server on the next save). Reset over migrations.
       const serverState = settlement.gameState as GameState;
       if (serverState && serverState.resources && serverState.saveVersion === SAVE_VERSION) {
-        // Canonical backfill — the single source of truth shared with the local
-        // load path. Runs FIRST so every field added since this save was written
-        // exists before the tick (or anything else) reads it. This is the P0 fix:
-        // the server path used to backfill only a subset, leaving fields like
-        // craftingQueue/autoCook/discoveredEnemies undefined → the tick threw
-        // every frame and the game silently froze. The inline migration below
-        // predates this call and is now largely redundant (every step is guarded
-        // or idempotent); it's slated for removal in a separate dedup pass.
+        // The version guard above guarantees the schema is current, so no field
+        // backfills are needed — migrateSaveState just restores the id counter.
         migrateSaveState(serverState as GameState);
-        // Migrate missing fields for old saves
-        if (!serverState.questRewardsClaimed) serverState.questRewardsClaimed = [];
-        if (serverState.firstMissionSent === undefined) serverState.firstMissionSent = false;
-        if (!serverState.completedStoryMissions) serverState.completedStoryMissions = [];
-        if (!(serverState as any).pendingRobins) (serverState as any).pendingRobins = [];
-        if (!(serverState as any).firedRobins) (serverState as any).firedRobins = [];
-        if (!serverState.herbs) serverState.herbs = {};
-        if (serverState.foragedTotal === undefined) serverState.foragedTotal = 0;
-        if (!serverState.exotics) serverState.exotics = {};
-        if (serverState.starvationPenalty === undefined) serverState.starvationPenalty = 0;
-        if (serverState.starvationHours === undefined) serverState.starvationHours = 0;
-        if ((serverState as any).newbornGlow === undefined) (serverState as any).newbornGlow = 0;
-        if ((serverState as any).lastBirthYear === undefined) (serverState as any).lastBirthYear = serverState.year ?? 0;
-        // raidsResolvedCount: durable raid counter for quest progress.
-        // Backfill from event log so already-stuck cloud saves unstick on
-        // next load (Baptism of Fire was checking lastRaidOutcome which decays).
-        if ((serverState as any).raidsResolvedCount === undefined) {
-          const priorRaids = (serverState.eventLog ?? []).filter(
-            (e: any) => e?.type === "raid_victory" || e?.type === "raid_defeat",
-          ).length;
-          (serverState as any).raidsResolvedCount = priorRaids;
-        }
-        // Defenses rework: migrate legacy single-instance defense buildings
-        // (walls / watchtower / barracks / mage_tower) into the new ring-keyed
-        // state slots. Cloud saves that pre-date the rework keep their progress.
-        if (!(serverState as any).walls) {
-          const oldWalls = serverState.buildings?.find((b: any) => b.buildingId === "walls");
-          const lvl = oldWalls?.level ?? 0;
-          (serverState as any).walls = [
-            { ring: "outer", level: lvl, hp: lvl > 0 ? (oldWalls?.damaged ? Math.floor(lvl * WALL_BASE_HP / 2) : lvl * WALL_BASE_HP) : 0, upgrading: oldWalls?.upgrading ?? false, upgradeRemaining: oldWalls?.upgradeRemaining },
-            { ring: "middle", level: 0, hp: 0, upgrading: false },
-            { ring: "inner", level: 0, hp: 0, upgrading: false },
-          ];
-        }
-        if (!(serverState as any).watchtowers) {
-          const oldTower = serverState.buildings?.find((b: any) => b.buildingId === "watchtower");
-          (serverState as any).watchtowers = [
-            { ring: "outer", level: oldTower?.level ?? 0, damaged: oldTower?.damaged ?? false, upgrading: oldTower?.upgrading ?? false, upgradeRemaining: oldTower?.upgradeRemaining, garrison: { count: 0, trainedLevel: 0 } },
-            { ring: "middle", level: 0, damaged: false, upgrading: false, garrison: { count: 0, trainedLevel: 0 } },
-            { ring: "inner", level: 0, damaged: false, upgrading: false, garrison: { count: 0, trainedLevel: 0 } },
-          ];
-        }
-        if (!(serverState as any).barracks || !Array.isArray((serverState as any).barracks)) {
-          const oldBarracks = serverState.buildings?.find((b: any) => b.buildingId === "barracks");
-          (serverState as any).barracks = [
-            { ring: "outer", level: oldBarracks?.level ?? 0, damaged: oldBarracks?.damaged ?? false, upgrading: oldBarracks?.upgrading ?? false, upgradeRemaining: oldBarracks?.upgradeRemaining, garrison: { count: 0, trainedLevel: 0 } },
-            { ring: "middle", level: 0, damaged: false, upgrading: false, garrison: { count: 0, trainedLevel: 0 } },
-            { ring: "inner", level: 0, damaged: false, upgrading: false, garrison: { count: 0, trainedLevel: 0 } },
-          ];
-        }
-        if ((serverState as any).soldiers === undefined) (serverState as any).soldiers = 0;
-        if ((serverState as any).archers === undefined) (serverState as any).archers = 0;
-        // Garrison rework: backfill the per-building roster on saves loaded
-        // from the server, then redistribute the legacy global totals across
-        // the rings (outer first). Mirrors the local-save migration earlier.
-        for (const t of (serverState as any).watchtowers) if (!t.garrison) t.garrison = { count: 0, trainedLevel: 0 };
-        for (const b of (serverState as any).barracks) if (!b.garrison) b.garrison = { count: 0, trainedLevel: 0 };
-        distributeLegacyGarrison((serverState as any).watchtowers, (serverState as any).archers, getWatchtowerArcherCap);
-        distributeLegacyGarrison((serverState as any).barracks, (serverState as any).soldiers, getBarracksSoldierCap);
-        if (!(serverState as any).mageTower) {
-          const oldMage = serverState.buildings?.find((b: any) => b.buildingId === "mage_tower");
-          (serverState as any).mageTower = {
-            level: oldMage?.level ?? 0,
-            damaged: oldMage?.damaged ?? false,
-            upgrading: oldMage?.upgrading ?? false,
-            upgradeRemaining: oldMage?.upgradeRemaining,
-          };
-        }
-        // Backfill any new buildings that were added since this save was created.
-        // Skip the now-removed defense category — those live on the Defenses page.
-        const REMOVED_BUILDING_IDS = new Set(["walls", "watchtower", "barracks", "mage_tower"]);
-        for (const def of BUILDINGS) {
-          if (!serverState.buildings.find((b: any) => b.buildingId === def.id)) {
-            serverState.buildings.push({ buildingId: def.id, level: 0, upgrading: false, damaged: false });
-          }
-        }
-        // Strip removed defense buildings from saves that still have them so
-        // they stop appearing in any iteration over state.buildings. Runs
-        // AFTER the per-ring migration so the lookups above still find them.
-        serverState.buildings = serverState.buildings.filter((b: any) => !REMOVED_BUILDING_IDS.has(b.buildingId));
-        // Citizen-categories migration (Phase B). Convert legacy scalar
-        // population to per-category breakdown — same as the local-save path.
-        if (!(serverState as any).citizens) {
-          const legacy = (serverState as any).population;
-          (serverState as any).citizens = migrateLegacyPopulation(legacy ?? BASE_POPULATION);
-          delete (serverState as any).population;
-        }
-        // Chapter system migration — same logic as loadGame (localStorage path).
-        // Cloud-loaded saves bypassed this entirely, so a player whose cloud
-        // save predates the chapter rework would land here without a chapters
-        // field; farming and other chapter-gated content stayed locked even
-        // after they'd claimed every chapter quest.
-        if (!(serverState as any).chapters) {
-          (serverState as any).chapters = [
-            { storyline: "settlement", current: 1, completedChapters: [] },
-            { storyline: "guild", current: 0, completedChapters: [] },
-            { storyline: "story", current: 1, completedChapters: [] },
-            { storyline: "defense", current: 0, completedChapters: [] },
-            { storyline: "social", current: 1, completedChapters: [] },
-          ];
-          for (const cs of (serverState as any).chapters) {
-            const chaptersInStoryline = new Set(
-              QUEST_DEFINITIONS
-                .filter((q) => q.storyline === cs.storyline)
-                .map((q) => q.chapter),
-            );
-            for (const chapter of [...chaptersInStoryline].sort((a, b) => a - b)) {
-              const allClaimed = QUEST_DEFINITIONS
-                .filter((q) => q.storyline === cs.storyline && q.chapter === chapter)
-                .every((q) => (serverState.questRewardsClaimed ?? []).includes(q.id));
-              if (allClaimed) {
-                cs.completedChapters.push(chapter);
-                cs.current = chapter + 1;
-              } else if (cs.current === 0 && (serverState.questRewardsClaimed ?? []).some((id: string) =>
-                QUEST_DEFINITIONS.find((q) => q.id === id)?.storyline === cs.storyline)) {
-                cs.current = chapter;
-                break;
-              } else {
-                break;
-              }
-            }
-          }
-        }
-        // Backfill the "social" storyline for cloud saves made before it existed.
-        if ((serverState as any).chapters && !(serverState as any).chapters.some((c: any) => c.storyline === "social")) {
-          (serverState as any).chapters.push({ storyline: "social", current: 1, completedChapters: [] });
-        }
-        if (!(serverState as any).firedEvents) (serverState as any).firedEvents = [];
-        if (!(serverState as any).pendingEvents) (serverState as any).pendingEvents = [];
         // Idempotent chapter pointer recompute — same as loadGame. Bumps
         // `current` forward based on state evidence for legacy linear-quest
         // saves whose chapter pointers don't match what they've actually built.
