@@ -1738,40 +1738,6 @@ export function migrateSaveState(saved: GameState): GameState {
       });
     }
     if (saved.honey === undefined) saved.honey = 0;
-    // Migrate legacy `fruit` bucket → split evenly across apples/pears/cherries in the typed pantry
-    if ((saved as any).fruit !== undefined && (saved as any).fruit > 0) {
-      const legacy = (saved as any).fruit;
-      if (!saved.foods) (saved as any).foods = {};
-      const each = legacy / 3;
-      (saved.foods as any).apples = ((saved.foods as any).apples ?? 0) + each;
-      (saved.foods as any).pears = ((saved.foods as any).pears ?? 0) + each;
-      (saved.foods as any).cherries = ((saved.foods as any).cherries ?? 0) + each;
-    }
-    delete (saved as any).fruit;
-    // Migrate legacy single `meat` stockpile → venison (the default wild meat)
-    // after the meat split (venison/boar/pork/mutton/goat/chicken/wild_fowl/rabbit).
-    if ((saved as any).foods && (saved.foods as any).meat > 0) {
-      (saved.foods as any).venison = ((saved.foods as any).venison ?? 0) + (saved.foods as any).meat;
-    }
-    if ((saved as any).foods) delete (saved.foods as any).meat;
-    // Likewise the single `fish` stockpile → trout (default catch) after the fish
-    // split (trout/pike/eel/salmon).
-    if ((saved as any).foods && (saved.foods as any).fish > 0) {
-      (saved.foods as any).trout = ((saved.foods as any).trout ?? 0) + (saved.foods as any).fish;
-    }
-    if ((saved as any).foods) delete (saved.foods as any).fish;
-    // And the single `mushrooms` stockpile → field mushroom (the common one) after
-    // the mushroom split (field/morel/chanterelle/cèpe).
-    if ((saved as any).foods && (saved.foods as any).mushrooms > 0) {
-      (saved.foods as any).field_mushroom = ((saved.foods as any).field_mushroom ?? 0) + (saved.foods as any).mushrooms;
-    }
-    if ((saved as any).foods) delete (saved.foods as any).mushrooms;
-    // And the single `berries` stockpile → blueberry (the default wild berry) after
-    // the berry split (blackberry/blueberry/raspberry).
-    if ((saved as any).foods && (saved.foods as any).berries > 0) {
-      (saved.foods as any).blueberry = ((saved.foods as any).blueberry ?? 0) + (saved.foods as any).berries;
-    }
-    if ((saved as any).foods) delete (saved.foods as any).berries;
     if (!saved.season) { saved.season = "spring"; saved.seasonElapsed = 0; saved.year = 1; }
     // Adventurer's Guild migration
     if (!saved.adventurers) saved.adventurers = [];
