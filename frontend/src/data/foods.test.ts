@@ -24,10 +24,15 @@ describe("getFoodCostAmount", () => {
     f.wheat = 5; f.barley = 3;
     expect(getFoodCostAmount(f, "grain")).toBe(8);
   });
-  it("sums the wild alias (berries + mushrooms + nuts)", () => {
+  it("sums the wild alias (berries + the mushrooms + nuts)", () => {
     const f = emptyFoods();
-    f.berries = 2; f.mushrooms = 1; f.nuts = 4;
-    expect(getFoodCostAmount(f, "wild")).toBe(7);
+    f.berries = 2; f.field_mushroom = 1; f.chanterelle = 2; f.nuts = 4;
+    expect(getFoodCostAmount(f, "wild")).toBe(9);
+  });
+  it("sums the mushrooms alias across every mushroom", () => {
+    const f = emptyFoods();
+    f.field_mushroom = 3; f.morel = 1; f.chanterelle = 2; f.cepe = 1;
+    expect(getFoodCostAmount(f, "mushrooms")).toBe(7);
   });
   it("sums the meat alias across every specific meat", () => {
     const f = emptyFoods();

@@ -9,7 +9,8 @@ export type FoodItemType =
   | "venison" | "boar" | "wisent" | "pork" | "mutton" | "goat" | "chicken" | "wild_fowl" | "rabbit"
   | "eggs" | "milk"
   | "trout" | "pike" | "eel" | "salmon"
-  | "berries" | "mushrooms" | "nuts"
+  | "berries" | "nuts"
+  | "field_mushroom" | "morel" | "chanterelle" | "cepe"
   | "porridge" | "hearth_stew" | "river_stew" | "bone_broth";
 
 export type FoodCategoryId = "grain" | "veggie" | "fruit" | "animal" | "wild" | "cooked";
@@ -81,9 +82,13 @@ export const FOOD_ITEMS: FoodItemMeta[] = [
   { id: "eel",       label: "Eel",       icon: "🐍", order: 14, category: "animal" },
   { id: "salmon",    label: "Salmon",    icon: "🍥", order: 15, category: "animal" },
   // Wild foods
-  { id: "berries",   label: "Berries",   icon: "🫐", order: 1, category: "wild" },
-  { id: "mushrooms", label: "Mushrooms", icon: "🍄", order: 2, category: "wild" },
-  { id: "nuts",      label: "Nuts",      icon: "🌰", order: 3, category: "wild" },
+  { id: "berries",       label: "Berries",     icon: "🫐", order: 1, category: "wild" },
+  // Mushrooms (all share the "mushrooms" alias; also fold into the "wild" alias)
+  { id: "field_mushroom", label: "Field Mushroom", icon: "🍄", order: 2, category: "wild" },
+  { id: "morel",         label: "Morel",       icon: "🍄", order: 3, category: "wild" },
+  { id: "chanterelle",   label: "Chanterelle", icon: "🍄", order: 4, category: "wild" },
+  { id: "cepe",          label: "Cèpe",        icon: "🍄", order: 5, category: "wild" },
+  { id: "nuts",          label: "Nuts",        icon: "🌰", order: 6, category: "wild" },
   // Cooked meals — made at the Kitchen; stretch raw food into more portions and
   // count toward food diversity (a hot meal). See crafting.ts kitchen recipes.
   { id: "porridge",    label: "Porridge",    icon: "🥣", iconImage: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/porridge.png",    order: 1, category: "cooked", kind: "meal" },
@@ -104,6 +109,10 @@ export const MEAT_TYPES: FoodItemType[] = ["venison", "boar", "wisent", "pork", 
  *  Grant sites pick a specific fish (hut → trout/pike, eel event, salmon mission). */
 export const FISH_TYPES: FoodItemType[] = ["trout", "pike", "eel", "salmon"];
 
+/** The specific mushrooms behind the "mushrooms" alias. Also folded into the
+ *  "wild" alias (berries + mushrooms + nuts) below. */
+export const MUSHROOM_TYPES: FoodItemType[] = ["field_mushroom", "morel", "chanterelle", "cepe"];
+
 export function getFoodMeta(id: FoodItemType): FoodItemMeta {
   return FOOD_ITEMS.find((f) => f.id === id)!;
 }
@@ -119,7 +128,8 @@ export function isFoodItemType(id: string): id is FoodItemType {
 export function getFoodCostAmount(foods: Record<FoodItemType, number> | undefined, resource: string): number {
   if (!foods) return 0;
   if (resource === "grain") return (foods.wheat ?? 0) + (foods.barley ?? 0);
-  if (resource === "wild") return (foods.berries ?? 0) + (foods.mushrooms ?? 0) + (foods.nuts ?? 0);
+  if (resource === "mushrooms") return MUSHROOM_TYPES.reduce((sum, t) => sum + (foods[t] ?? 0), 0);
+  if (resource === "wild") return (foods.berries ?? 0) + (foods.nuts ?? 0) + MUSHROOM_TYPES.reduce((sum, t) => sum + (foods[t] ?? 0), 0);
   if (resource === "meat") return MEAT_TYPES.reduce((sum, t) => sum + (foods[t] ?? 0), 0);
   if (resource === "fish") return FISH_TYPES.reduce((sum, t) => sum + (foods[t] ?? 0), 0);
   if (isFoodItemType(resource)) return foods[resource] ?? 0;
@@ -146,9 +156,9 @@ export function consumeFoodCost(foods: Record<FoodItemType, number>, resource: s
     return;
   }
   if (resource === "wild") {
-    // Take foraged foods most-abundant-first (berries / mushrooms / nuts).
+    // Take foraged foods most-abundant-first (berries / the mushrooms / nuts).
     let remaining = amount;
-    const order = ([ "berries", "mushrooms", "nuts" ] as FoodItemType[])
+    const order = ([ "berries", "nuts", ...MUSHROOM_TYPES ] as FoodItemType[])
       .sort((a, b) => (foods[b] ?? 0) - (foods[a] ?? 0));
     for (const t of order) {
       const take = Math.min(foods[t] ?? 0, remaining);
@@ -158,11 +168,11 @@ export function consumeFoodCost(foods: Record<FoodItemType, number>, resource: s
     }
     return;
   }
-  if (resource === "meat" || resource === "fish") {
+  if (resource === "meat" || resource === "fish" || resource === "mushrooms") {
     // Take the alias's members most-abundant-first so a stew doesn't zero out the
     // venison while the larder is full of pork (or the trout while it has pike).
     let remaining = amount;
-    const pool = resource === "meat" ? MEAT_TYPES : FISH_TYPES;
+    const pool = resource === "meat" ? MEAT_TYPES : resource === "fish" ? FISH_TYPES : MUSHROOM_TYPES;
     const order = [...pool].sort((a, b) => (foods[b] ?? 0) - (foods[a] ?? 0));
     for (const t of order) {
       const take = Math.min(foods[t] ?? 0, remaining);

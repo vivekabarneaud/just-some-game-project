@@ -163,6 +163,7 @@ import {
   consumeFoodCost,
   MEAT_TYPES,
   FISH_TYPES,
+  MUSHROOM_TYPES,
   type DishKind,
 } from "~/data/foods";
 import {
@@ -1756,6 +1757,12 @@ export function migrateSaveState(saved: GameState): GameState {
       (saved.foods as any).trout = ((saved.foods as any).trout ?? 0) + (saved.foods as any).fish;
     }
     if ((saved as any).foods) delete (saved.foods as any).fish;
+    // And the single `mushrooms` stockpile → field mushroom (the common one) after
+    // the mushroom split (field/morel/chanterelle/cèpe).
+    if ((saved as any).foods && (saved.foods as any).mushrooms > 0) {
+      (saved.foods as any).field_mushroom = ((saved.foods as any).field_mushroom ?? 0) + (saved.foods as any).mushrooms;
+    }
+    if ((saved as any).foods) delete (saved.foods as any).mushrooms;
     if (!saved.season) { saved.season = "spring"; saved.seasonElapsed = 0; saved.year = 1; }
     // Adventurer's Guild migration
     if (!saved.adventurers) saved.adventurers = [];
@@ -2762,8 +2769,10 @@ export interface GatheredFood {
   /** THE effective rate: season -> staffing -> dogs, floored stepwise the way
    *  the tick applies them. Every surface reads this so nothing can drift. */
   rate: number;
-  /** Forager-only: extra mushrooms after rain, off the full (unstaffed) rate. */
+  /** Forager-only: extra CHANTERELLES after rain, off the full (unstaffed) rate. */
   rainMushrooms: number;
+  /** Forager-only: a few rare CÈPE among the autumn rain-flush chanterelles. */
+  rainCepe: number;
   /** Secondary catches deposited alongside the primary — the Hunting Camp's basket
    *  splits its output into venison (the primary `type`/`rate`) + rabbit + wild
    *  fowl here. Empty for the forager/fishing. Reusable for future splits. */
@@ -2803,6 +2812,9 @@ const FISHING_CATCH_MIX: Record<Season, { trout: number; pike: number }> = {
  *  interval, a small prized haul. Tunable. */
 const EEL_INTERVAL_HOURS = 24 * 3; // ~3 game-days of autumn fishing per eel
 const EEL_HAUL = 4;                // a delicacy, not a feast
+/** Fraction of the forager's autumn rain-flush that comes up as rare cèpe, mixed
+ *  in among the chanterelles. Tunable. */
+const FORAGE_CEPE_FRACTION = 0.12;
 
 /** Single source of truth for a food-gathering building's yield — the hunting
  *  camp, forager's hut, and fishing hut. The tick, the netFoodPerHour
@@ -2824,18 +2836,24 @@ export function gatheredFoodRate(state: GameState, pb: PlayerBuilding): Gathered
   let icon: string;
   let label: string;
   let rainMushrooms = 0;
+  let rainCepe = 0;
   if (pb.buildingId === "hunting_camp") {
     // Venison is the primary catch; rabbit + the seasonal fowl ride as `extras`
     // (computed below once the total rate is known). Rare wisent is a separate
     // big-kill event in the tick.
     type = "venison"; icon = "🦌"; label = "Venison";
   } else if (pb.buildingId === "forager_hut") {
-    if (season === "autumn") { type = "mushrooms"; icon = "🍄"; label = "Mushrooms"; }
+    // Seasonal primary: berries in spring/summer, chanterelle in autumn, nuts in
+    // winter. Secondary forage (morel/field mushroom/nuts) rides as `extras`.
+    if (season === "autumn") { type = "chanterelle"; icon = "🍄"; label = "Chanterelle"; }
     else if (season === "winter") { type = "nuts"; icon = "🌰"; label = "Nuts"; }
     else { type = "berries"; icon = "🫐"; label = "Berries"; }
-    // Rain sprouts a mushroom bonus in any season, off the FULL (unstaffed) rate,
-    // exactly as the tick adds it.
-    if (isForagerBlooming(state)) rainMushrooms = Math.floor(full * RAIN_FORAGE_MUSHROOM_FRACTION);
+    // Rain flushes chanterelles off the FULL (unstaffed) rate; in autumn a few rare
+    // cèpe come up among them (the forager's treasure, like the wisent/eel).
+    if (isForagerBlooming(state)) {
+      rainMushrooms = Math.floor(full * RAIN_FORAGE_MUSHROOM_FRACTION);
+      if (season === "autumn") rainCepe = Math.floor(rainMushrooms * FORAGE_CEPE_FRACTION);
+    }
   } else if (pb.buildingId === "fishing_hut") {
     // Primary is the season's dominant catch: trout in spring/summer, pike in
     // autumn/winter. The other rides as an `extra` (computed below).
@@ -2878,9 +2896,26 @@ export function gatheredFoodRate(state: GameState, pb: PlayerBuilding): Gathered
       rate = Math.floor(total * mix.pike);
       extras = [{ type: "trout" as FoodItemType, label: "Trout", icon: "🐟", rate: Math.floor(total * mix.trout) }].filter((e) => e.rate > 0);
     }
+  } else if (pb.buildingId === "forager_hut") {
+    // Basket: the seasonal primary (berries/chanterelle/nuts) + a secondary forage.
+    const total = rate;
+    if (season === "spring") {
+      rate = Math.floor(total * 0.8);
+      extras = [{ type: "morel" as FoodItemType, label: "Morel", icon: "🍄", rate: Math.floor(total * 0.2) }];
+    } else if (season === "summer") {
+      rate = Math.floor(total * 0.8);
+      extras = [{ type: "field_mushroom" as FoodItemType, label: "Field Mushroom", icon: "🍄", rate: Math.floor(total * 0.2) }];
+    } else if (season === "autumn") {
+      rate = Math.floor(total * 0.6);
+      extras = [
+        { type: "field_mushroom" as FoodItemType, label: "Field Mushroom", icon: "🍄", rate: Math.floor(total * 0.25) },
+        { type: "nuts" as FoodItemType, label: "Nuts", icon: "🌰", rate: Math.floor(total * 0.15) },
+      ];
+    }
+    extras = extras.filter((e) => e.rate > 0);
   }
 
-  return { type, label, icon, full, seasonMod, staffMult, huntBoost, rate, rainMushrooms, extras };
+  return { type, label, icon, full, seasonMod, staffMult, huntBoost, rate, rainMushrooms, rainCepe, extras };
 }
 
 function calcProductionRates(state: GameState): { gold: number; wood: number; stone: number; food: number } {
@@ -3342,7 +3377,8 @@ function calcFoodRates(state: GameState, fedRatios?: Map<string, number>): Recor
     // Secondary catches (the hunting basket's rabbit + fowl) land in their types.
     for (const e of gathered.extras) rates[e.type] += e.rate;
     // Rain's mushroom bonus rides on top of the seasonal gather.
-    if (gathered.rainMushrooms > 0) rates.mushrooms += gathered.rainMushrooms;
+    if (gathered.rainMushrooms > 0) rates.chanterelle += gathered.rainMushrooms;
+    if (gathered.rainCepe > 0) rates.cepe += gathered.rainCepe;
   }
 
   return rates;
@@ -3398,9 +3434,12 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
     for (const e of gathered.extras) {
       if (e.rate > 0) sources.push({ type: e.type, label: e.label, icon: e.icon, rate: e.rate, building: def.name, wild: true });
     }
-    // Rain's mushroom bonus is a separate line (summed with the seasonal one).
+    // Rain's flush — chanterelles (+ a few rare cèpe in autumn), separate lines.
     if (gathered.rainMushrooms > 0) {
-      sources.push({ type: "mushrooms", label: "Mushrooms", icon: "🍄", rate: gathered.rainMushrooms, building: `${def.name} · rain`, wild: true });
+      sources.push({ type: "chanterelle", label: "Chanterelle", icon: "🍄", rate: gathered.rainMushrooms, building: `${def.name} · rain`, wild: true });
+    }
+    if (gathered.rainCepe > 0) {
+      sources.push({ type: "cepe", label: "Cèpe", icon: "🍄", rate: gathered.rainCepe, building: `${def.name} · rain`, wild: true });
     }
   }
 
@@ -3552,6 +3591,9 @@ function grantReward(
     // Generic "fish" reward deposits trout (the default catch); specific fish come
     // from their own sources (hut → trout/pike, eel event, salmon Run mission).
     addFood(s.foods, "trout", reward.amount, caps.food);
+  } else if (res === "mushrooms") {
+    // Generic "mushrooms" reward deposits the common field mushroom.
+    addFood(s.foods, "field_mushroom", reward.amount, caps.food);
   } else if (isFoodItemType(res)) {
     addFood(s.foods, res, reward.amount, caps.food);
   } else if (res === "wool") {
@@ -3582,6 +3624,7 @@ function getResourceQty(s: GameState, res: string): number {
   if (res === "food") return s.foods.wheat ?? 0;
   if (res === "meat") return MEAT_TYPES.reduce((sum, t) => sum + (s.foods[t] ?? 0), 0);
   if (res === "fish") return FISH_TYPES.reduce((sum, t) => sum + (s.foods[t] ?? 0), 0);
+  if (res === "mushrooms") return MUSHROOM_TYPES.reduce((sum, t) => sum + (s.foods[t] ?? 0), 0);
   if (isFoodItemType(res)) return s.foods[res] ?? 0;
   if (res === "wool") return s.wool;
   if (res === "fiber") return s.fiber;
@@ -3603,7 +3646,7 @@ function spendResource(s: GameState, res: string, amount: number): void {
   if (_EXOTIC_IDS.has(res)) { if (!s.exotics) s.exotics = {}; s.exotics[res] = Math.max(0, (s.exotics[res] ?? 0) - amount); return; }
   if (res === "gold" || res === "wood" || res === "stone") { const k = res as keyof typeof s.resources; s.resources[k] = Math.max(0, s.resources[k] - amount); return; }
   if (res === "food") { s.foods.wheat = Math.max(0, (s.foods.wheat ?? 0) - amount); return; }
-  if (res === "meat" || res === "fish") { consumeFoodCost(s.foods, res, amount); return; }
+  if (res === "meat" || res === "fish" || res === "mushrooms") { consumeFoodCost(s.foods, res, amount); return; }
   if (isFoodItemType(res)) { s.foods[res] = Math.max(0, (s.foods[res] ?? 0) - amount); return; }
   if (res === "wool") { s.wool = Math.max(0, s.wool - amount); return; }
   if (res === "fiber") { s.fiber = Math.max(0, s.fiber - amount); return; }
@@ -3698,7 +3741,7 @@ const KITCHEN_DISH_BY_ID = new Map(KITCHEN_DISHES.map((r) => [r.id, r]));
 /** A recipe cost that comes out of the food larder (a food item, or the grain/
  *  wild aliases) — as opposed to a crafting material (bone, leather, …). */
 export function isFoodCost(res: string): boolean {
-  return res === "grain" || res === "wild" || res === "meat" || res === "fish" || isFoodItemType(res);
+  return res === "grain" || res === "wild" || res === "meat" || res === "fish" || res === "mushrooms" || isFoodItemType(res);
 }
 /** How much of a recipe cost the player holds — larder food OR materials, so
  *  dishes with material ingredients (e.g. bone broth's bone) resolve correctly.

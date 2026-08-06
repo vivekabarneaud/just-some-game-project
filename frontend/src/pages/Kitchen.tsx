@@ -19,7 +19,7 @@ export default function Kitchen() {
     { icon: "🥛", label: "Milk", v: Math.floor(f().milk ?? 0) },
     { icon: "🥬", label: "Veg", v: Math.floor((f().cabbages ?? 0) + (f().turnips ?? 0) + (f().peas ?? 0) + (f().squash ?? 0) + (f().fava ?? 0)) },
     { icon: "🍎", label: "Fruit", v: Math.floor((f().apples ?? 0) + (f().pears ?? 0) + (f().cherries ?? 0) + (f().strawberries ?? 0)) },
-    { icon: "🍄", label: "Wild", v: Math.floor((f().berries ?? 0) + (f().mushrooms ?? 0) + (f().nuts ?? 0)) },
+    { icon: "🍄", label: "Wild", v: Math.floor(getFoodCostAmount(f(), "wild")) },
     { icon: "🍯", label: "Honey", v: Math.floor(state.honey) },
   ];
   return (
