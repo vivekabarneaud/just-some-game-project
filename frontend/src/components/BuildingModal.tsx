@@ -587,6 +587,11 @@ export default function BuildingModal(props: Props) {
                             🦬 a rare wisent now and then — a big haul
                           </div>
                         </Show>
+                        <Show when={id() === "fishing_hut"}>
+                          <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-top": "2px" }}>
+                            🐍 a prized eel turns up in the autumn traps
+                          </div>
+                        </Show>
                         <Show when={id() === "forager_hut"}>
                           <div style={{ "font-size": "0.9rem", color: "var(--accent-green)", "margin-top": "2px" }}>
                             +{foragerFiberRate().toFixed(1)}/h fiber (wild flax)

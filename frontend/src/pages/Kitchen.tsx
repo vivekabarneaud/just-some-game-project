@@ -14,7 +14,7 @@ export default function Kitchen() {
   const summary = () => [
     { icon: "🌾", label: "Grain", v: Math.floor((f().wheat ?? 0) + (f().barley ?? 0)) },
     { icon: "🍖", label: "Meat", v: Math.floor(getFoodCostAmount(f(), "meat")) },
-    { icon: "🐟", label: "Fish", v: Math.floor(f().fish ?? 0) },
+    { icon: "🐟", label: "Fish", v: Math.floor(getFoodCostAmount(f(), "fish")) },
     { icon: "🥚", label: "Eggs", v: Math.floor(f().eggs ?? 0) },
     { icon: "🥛", label: "Milk", v: Math.floor(f().milk ?? 0) },
     { icon: "🥬", label: "Veg", v: Math.floor((f().cabbages ?? 0) + (f().turnips ?? 0) + (f().peas ?? 0) + (f().squash ?? 0) + (f().fava ?? 0)) },

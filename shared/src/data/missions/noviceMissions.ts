@@ -136,6 +136,29 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     guaranteed: true,
     requires: { season: "summer" },
   },
+  // ── The Salmon Run (autumn seasonal gather + a fight) — the marquee fish beat
+  //    and the ONLY source of salmon. Bears come down to fatten at the falls and
+  //    do not care to share; the team stands their ground and the bears rout.
+  //    Frame it as competition, not slaughter (a bear only drops a hide if the
+  //    team actually kills one; routed bears leave nothing). ──
+  {
+    id: "salmon_run",
+    map: { x: 0.532, y: 0.44 },
+    name: "The Salmon Run",
+    description: "The river is boiling with salmon driving upstream to spawn, a bounty that comes once and is gone in days. But we are not the only ones who know it. The bears have come down to the falls to fatten before the snow, and they do not care to share the water. Send a team to work the run and carry back all they can, and be ready to hold their ground at the falls.",
+    icon: "🐟",
+    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/clear_marshes.png",
+    slots: [{ class: "any" }, { class: "any" }],
+    duration: 360,
+    rewards: [{ resource: "salmon", amount: 35 }],
+    deployCost: 5,
+    difficulty: 2,
+    minGuildLevel: 1,
+    tags: ["outdoor", "combat"],
+    encounters: [{ enemyId: "forest_bear", count: 2 }],
+    guaranteed: true,
+    requires: { season: "autumn" },
+  },
 {
     id: "quarry_expedition_first",
     map: { x: 0.536, y: 0.572 },

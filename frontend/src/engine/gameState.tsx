@@ -162,6 +162,7 @@ import {
   getFoodCostAmount,
   consumeFoodCost,
   MEAT_TYPES,
+  FISH_TYPES,
   type DishKind,
 } from "~/data/foods";
 import {
@@ -590,6 +591,8 @@ export interface GameState {
   netWaterPerHour?: number;
   /** Hunting-time accumulated toward the next rare wisent kill (game-hours). */
   huntWisentProgress?: number;
+  /** Autumn fishing-time accumulated toward the next rare eel (game-hours). */
+  fishEelProgress?: number;
   /** Storage caps from the last tick. Derived; surfaced so the pantry/warehouse
    *  nudges can fire when a resource is near its cap (overflow) without
    *  reimplementing calcStorageCaps in the quest layer. */
@@ -1241,7 +1244,7 @@ export function createInitialState(): GameState {
   const initialFoods = emptyFoods();
   initialFoods.wheat = 30;
   initialFoods.venison = 15;
-  initialFoods.fish = 10;
+  initialFoods.trout = 10;
   initialFoods.nuts = 10;
   initialFoods.berries = 8;
   return {
@@ -1747,6 +1750,12 @@ export function migrateSaveState(saved: GameState): GameState {
       (saved.foods as any).venison = ((saved.foods as any).venison ?? 0) + (saved.foods as any).meat;
     }
     if ((saved as any).foods) delete (saved.foods as any).meat;
+    // Likewise the single `fish` stockpile → trout (default catch) after the fish
+    // split (trout/pike/eel/salmon).
+    if ((saved as any).foods && (saved.foods as any).fish > 0) {
+      (saved.foods as any).trout = ((saved.foods as any).trout ?? 0) + (saved.foods as any).fish;
+    }
+    if ((saved as any).foods) delete (saved.foods as any).fish;
     if (!saved.season) { saved.season = "spring"; saved.seasonElapsed = 0; saved.year = 1; }
     // Adventurer's Guild migration
     if (!saved.adventurers) saved.adventurers = [];
@@ -2780,6 +2789,21 @@ const WISENT_HAUL_MEAT = 30;
 const WISENT_HAUL_BONE = 10;
 const WISENT_HAUL_LEATHER = 6;
 
+/** How the Fishing Hut's steady catch splits between trout and pike, per season.
+ *  Trout in the cold active water of spring/summer; pike (predator, works under
+ *  ice) takes over in autumn/winter. Each column sums to 1. Eel = the autumn rare
+ *  delicacy (a separate accumulator); salmon = the autumn Run mission. */
+const FISHING_CATCH_MIX: Record<Season, { trout: number; pike: number }> = {
+  spring: { trout: 0.8, pike: 0.2 },
+  summer: { trout: 0.7, pike: 0.3 },
+  autumn: { trout: 0.3, pike: 0.7 },
+  winter: { trout: 0.2, pike: 0.8 },
+};
+/** Eel: the Fishing Hut's rare autumn delicacy. Accumulates only in autumn; every
+ *  interval, a small prized haul. Tunable. */
+const EEL_INTERVAL_HOURS = 24 * 3; // ~3 game-days of autumn fishing per eel
+const EEL_HAUL = 4;                // a delicacy, not a feast
+
 /** Single source of truth for a food-gathering building's yield — the hunting
  *  camp, forager's hut, and fishing hut. The tick, the netFoodPerHour
  *  projection, the Overview food dropdown, and the building card all read this,
@@ -2813,7 +2837,10 @@ export function gatheredFoodRate(state: GameState, pb: PlayerBuilding): Gathered
     // exactly as the tick adds it.
     if (isForagerBlooming(state)) rainMushrooms = Math.floor(full * RAIN_FORAGE_MUSHROOM_FRACTION);
   } else if (pb.buildingId === "fishing_hut") {
-    type = "fish"; icon = "🐟"; label = "Fish";
+    // Primary is the season's dominant catch: trout in spring/summer, pike in
+    // autumn/winter. The other rides as an `extra` (computed below).
+    if (season === "spring" || season === "summer") { type = "trout"; icon = "🐟"; label = "Trout"; }
+    else { type = "pike"; icon = "🐠"; label = "Pike"; }
   } else {
     return null;
   }
@@ -2839,6 +2866,18 @@ export function gatheredFoodRate(state: GameState, pb: PlayerBuilding): Gathered
       { type: "rabbit" as FoodItemType, label: "Rabbit", icon: "🐰", rate: Math.floor(total * mix.rabbit) },
       { type: "wild_fowl" as FoodItemType, label: "Wild Fowl", icon: "🦆", rate: Math.floor(total * mix.wild_fowl) },
     ].filter((e) => e.rate > 0);
+  } else if (pb.buildingId === "fishing_hut") {
+    // Trout + pike basket; the season's dominant fish (set as `type` above) is the
+    // primary, the other rides as the extra.
+    const mix = FISHING_CATCH_MIX[season];
+    const total = rate;
+    if (type === "trout") {
+      rate = Math.floor(total * mix.trout);
+      extras = [{ type: "pike" as FoodItemType, label: "Pike", icon: "🐠", rate: Math.floor(total * mix.pike) }].filter((e) => e.rate > 0);
+    } else {
+      rate = Math.floor(total * mix.pike);
+      extras = [{ type: "trout" as FoodItemType, label: "Trout", icon: "🐟", rate: Math.floor(total * mix.trout) }].filter((e) => e.rate > 0);
+    }
   }
 
   return { type, label, icon, full, seasonMod, staffMult, huntBoost, rate, rainMushrooms, extras };
@@ -3509,6 +3548,10 @@ function grantReward(
     // many existing "meat" rewards keep working after the split. Specific meats
     // come from their own sources (cull → per animal, seasonal hunt, boar hunt).
     addFood(s.foods, "venison", reward.amount, caps.food);
+  } else if (res === "fish") {
+    // Generic "fish" reward deposits trout (the default catch); specific fish come
+    // from their own sources (hut → trout/pike, eel event, salmon Run mission).
+    addFood(s.foods, "trout", reward.amount, caps.food);
   } else if (isFoodItemType(res)) {
     addFood(s.foods, res, reward.amount, caps.food);
   } else if (res === "wool") {
@@ -3538,6 +3581,7 @@ function getResourceQty(s: GameState, res: string): number {
   if (res === "gold" || res === "wood" || res === "stone") return s.resources[res as keyof typeof s.resources];
   if (res === "food") return s.foods.wheat ?? 0;
   if (res === "meat") return MEAT_TYPES.reduce((sum, t) => sum + (s.foods[t] ?? 0), 0);
+  if (res === "fish") return FISH_TYPES.reduce((sum, t) => sum + (s.foods[t] ?? 0), 0);
   if (isFoodItemType(res)) return s.foods[res] ?? 0;
   if (res === "wool") return s.wool;
   if (res === "fiber") return s.fiber;
@@ -3559,7 +3603,7 @@ function spendResource(s: GameState, res: string, amount: number): void {
   if (_EXOTIC_IDS.has(res)) { if (!s.exotics) s.exotics = {}; s.exotics[res] = Math.max(0, (s.exotics[res] ?? 0) - amount); return; }
   if (res === "gold" || res === "wood" || res === "stone") { const k = res as keyof typeof s.resources; s.resources[k] = Math.max(0, s.resources[k] - amount); return; }
   if (res === "food") { s.foods.wheat = Math.max(0, (s.foods.wheat ?? 0) - amount); return; }
-  if (res === "meat") { consumeFoodCost(s.foods, "meat", amount); return; }
+  if (res === "meat" || res === "fish") { consumeFoodCost(s.foods, res, amount); return; }
   if (isFoodItemType(res)) { s.foods[res] = Math.max(0, (s.foods[res] ?? 0) - amount); return; }
   if (res === "wool") { s.wool = Math.max(0, s.wool - amount); return; }
   if (res === "fiber") { s.fiber = Math.max(0, s.fiber - amount); return; }
@@ -3654,7 +3698,7 @@ const KITCHEN_DISH_BY_ID = new Map(KITCHEN_DISHES.map((r) => [r.id, r]));
 /** A recipe cost that comes out of the food larder (a food item, or the grain/
  *  wild aliases) — as opposed to a crafting material (bone, leather, …). */
 export function isFoodCost(res: string): boolean {
-  return res === "grain" || res === "wild" || res === "meat" || isFoodItemType(res);
+  return res === "grain" || res === "wild" || res === "meat" || res === "fish" || isFoodItemType(res);
 }
 /** How much of a recipe cost the player holds — larder food OR materials, so
  *  dishes with material ingredients (e.g. bone broth's bone) resolve correctly.
@@ -4793,6 +4837,21 @@ export function GameProvider(props: ParentProps) {
             }
           } else {
             s.huntWisentProgress = 0;
+          }
+        }
+        // Eel: the Fishing Hut's rare autumn delicacy. Accumulates only in autumn;
+        // every ~few days of it, a small prized haul turns up in the traps.
+        {
+          const hut = s.season === "autumn"
+            ? s.buildings.find((b) => b.buildingId === "fishing_hut" && b.level > 0 && !b.damaged)
+            : undefined;
+          if (hut) {
+            s.fishEelProgress = (s.fishEelProgress ?? 0) + elapsedHours;
+            while (s.fishEelProgress >= EEL_INTERVAL_HOURS) {
+              s.fishEelProgress -= EEL_INTERVAL_HOURS;
+              addFood(s.foods, "eel", EEL_HAUL, caps.food);
+              pushEvent(s, "loot_drop", "🐍", `An eel came up in the autumn traps — a prized ${EEL_HAUL} for the pot.`);
+            }
           }
         }
         const foodToConsume = citizenFood * elapsedHours;

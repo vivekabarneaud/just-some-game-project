@@ -7,7 +7,8 @@ export type FoodItemType =
   | "cabbages" | "turnips" | "peas" | "squash" | "fava"
   | "apples" | "pears" | "cherries" | "strawberries"
   | "venison" | "boar" | "wisent" | "pork" | "mutton" | "goat" | "chicken" | "wild_fowl" | "rabbit"
-  | "eggs" | "milk" | "fish"
+  | "eggs" | "milk"
+  | "trout" | "pike" | "eel" | "salmon"
   | "berries" | "mushrooms" | "nuts"
   | "porridge" | "hearth_stew" | "river_stew" | "bone_broth";
 
@@ -74,7 +75,11 @@ export const FOOD_ITEMS: FoodItemMeta[] = [
   { id: "rabbit",    label: "Rabbit",    icon: "🐰", order: 9, category: "animal" },
   { id: "eggs",      label: "Eggs",      icon: "🥚", order: 10, category: "animal" },
   { id: "milk",      label: "Milk",      icon: "🥛", order: 11, category: "animal" },
-  { id: "fish",      label: "Fish",      icon: "🐟", order: 12, category: "animal" },
+  // Fish (all share the "fish" recipe/feed alias below)
+  { id: "trout",     label: "Trout",     icon: "🐟", order: 12, category: "animal" },
+  { id: "pike",      label: "Pike",      icon: "🐠", order: 13, category: "animal" },
+  { id: "eel",       label: "Eel",       icon: "🐍", order: 14, category: "animal" },
+  { id: "salmon",    label: "Salmon",    icon: "🍥", order: 15, category: "animal" },
   // Wild foods
   { id: "berries",   label: "Berries",   icon: "🫐", order: 1, category: "wild" },
   { id: "mushrooms", label: "Mushrooms", icon: "🍄", order: 2, category: "wild" },
@@ -95,6 +100,10 @@ export const FOOD_ITEM_IDS: FoodItemType[] = FOOD_ITEMS.map((f) => f.id);
  *  per animal, hunting camp → seasonal catch, boar hunt → boar). */
 export const MEAT_TYPES: FoodItemType[] = ["venison", "boar", "wisent", "pork", "mutton", "goat", "chicken", "wild_fowl", "rabbit"];
 
+/** The specific fish behind the "fish" cost/feed alias (same pattern as MEAT_TYPES).
+ *  Grant sites pick a specific fish (hut → trout/pike, eel event, salmon mission). */
+export const FISH_TYPES: FoodItemType[] = ["trout", "pike", "eel", "salmon"];
+
 export function getFoodMeta(id: FoodItemType): FoodItemMeta {
   return FOOD_ITEMS.find((f) => f.id === id)!;
 }
@@ -112,6 +121,7 @@ export function getFoodCostAmount(foods: Record<FoodItemType, number> | undefine
   if (resource === "grain") return (foods.wheat ?? 0) + (foods.barley ?? 0);
   if (resource === "wild") return (foods.berries ?? 0) + (foods.mushrooms ?? 0) + (foods.nuts ?? 0);
   if (resource === "meat") return MEAT_TYPES.reduce((sum, t) => sum + (foods[t] ?? 0), 0);
+  if (resource === "fish") return FISH_TYPES.reduce((sum, t) => sum + (foods[t] ?? 0), 0);
   if (isFoodItemType(resource)) return foods[resource] ?? 0;
   return 0;
 }
@@ -148,11 +158,12 @@ export function consumeFoodCost(foods: Record<FoodItemType, number>, resource: s
     }
     return;
   }
-  if (resource === "meat") {
-    // Take meats most-abundant-first so a stew doesn't zero out the venison while
-    // the larder is full of pork.
+  if (resource === "meat" || resource === "fish") {
+    // Take the alias's members most-abundant-first so a stew doesn't zero out the
+    // venison while the larder is full of pork (or the trout while it has pike).
     let remaining = amount;
-    const order = [...MEAT_TYPES].sort((a, b) => (foods[b] ?? 0) - (foods[a] ?? 0));
+    const pool = resource === "meat" ? MEAT_TYPES : FISH_TYPES;
+    const order = [...pool].sort((a, b) => (foods[b] ?? 0) - (foods[a] ?? 0));
     for (const t of order) {
       const take = Math.min(foods[t] ?? 0, remaining);
       foods[t] = (foods[t] ?? 0) - take;

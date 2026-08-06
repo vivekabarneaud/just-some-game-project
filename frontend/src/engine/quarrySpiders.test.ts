@@ -35,10 +35,10 @@ describe("Quarry-spider gate missions", () => {
 });
 
 describe("Wild Boar Hunt (food-scarcity mission)", () => {
-  it("rewards meat, is urgent, and is forced-only (off the random board)", () => {
+  it("rewards boar, is urgent, and is forced-only (off the random board)", () => {
     const hunt = byId("wild_boar_hunt")!;
     expect(hunt).toBeTruthy();
-    expect(hunt.rewards?.some((r) => r.resource === "meat")).toBe(true);
+    expect(hunt.rewards?.some((r) => r.resource === "boar")).toBe(true);
     expect((hunt as any).urgent).toBe(true);
     expect(hunt.encounters?.some((e) => e.enemyId === "wild_boar")).toBe(true);
     const ctx: any = {

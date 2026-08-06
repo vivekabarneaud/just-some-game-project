@@ -9,7 +9,11 @@ export type RewardType = "gold" | "wood" | "stone" | "water" | "food" | "astralS
   | "wheat" | "barley"
   | "cabbages" | "turnips" | "peas" | "squash" | "fava"
   | "apples" | "pears" | "cherries"
-  | "meat" | "eggs" | "milk" | "fish"
+  // "meat"/"fish" are aliases (grant the default cut); the specific cuts let a
+  // mission reward exactly its quarry (boar hunt → boar, salmon run → salmon).
+  | "meat" | "venison" | "boar" | "wisent" | "pork" | "mutton" | "goat" | "chicken" | "wild_fowl" | "rabbit"
+  | "eggs" | "milk"
+  | "fish" | "trout" | "pike" | "eel" | "salmon"
   | "berries" | "mushrooms" | "nuts" | "honey"
   // Herbs
   | "chamomile" | "mugwort" | "nettle" | "nightbloom" | "moonpetal" | "greymantle" | "fenbalm"

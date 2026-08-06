@@ -11,7 +11,7 @@ export const GATHERING_SEASON_MOD: Record<string, Record<Season, number>> = {
   // ice. Same shape the stream's water yield follows (water.ts streamStatus), so
   // low water means fewer fish. THE one place the fishing hut's seasonal yield
   // is defined — the tick reads this too (no separate stream factor).
-  fishing_hut:  { spring: 1, summer: 0.5, autumn: 1, winter: 0.2 },
+  fishing_hut:  { spring: 1, summer: 0.6, autumn: 0.8, winter: 0.35 }, // salmon Run mission owns autumn's spotlight
   forager_hut:  { spring: 1, summer: 1, autumn: 0.75, winter: 0.25 },
 };
 export function gatheringSeasonMod(buildingId: string, season: Season): number | null {
