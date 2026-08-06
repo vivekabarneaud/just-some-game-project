@@ -2,10 +2,10 @@ import { For, Show } from "solid-js";
 import { RESOURCES } from "~/data/resources";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { EXOTICS } from "@medieval-realm/shared/data/exotics";
-import { useGame, CRAFTING_RECIPES, passiveCookTime, isForagerBlooming, readDishCost, isFoodCost } from "~/engine/gameState";
+import { useGame, CRAFTING_RECIPES, passiveCookTime, readDishCost, isFoodCost } from "~/engine/gameState";
 import { TAVERN_COMMODITY_DRINKS } from "~/data/tavern";
 import { totalPopulation } from "~/data/citizens";
-import { FOOD_ITEMS, FOOD_CATEGORIES, getTotalFood, type FoodItemType, type FoodCategoryId } from "~/data/foods";
+import { FOOD_ITEMS, getTotalFood, MEAT_TYPES, type FoodItemType, type FoodCategoryId } from "~/data/foods";
 import { craftingMaterialCap } from "~/data/buildings";
 import { WEATHER_META } from "~/data/weather";
 import FoodIcon from "~/components/FoodIcon";
@@ -17,6 +17,27 @@ const STREAM_STATUS_META: Record<StreamStatus, { icon: string; suffix: string; c
   frozen: { icon: "🧊", suffix: " (frozen)", color: "var(--text-secondary)" },
   dry: { icon: "🏜️", suffix: " (dry)", color: "var(--accent-red)" },
 };
+
+const _DAIRY_ITEMS: FoodItemType[] = ["eggs", "milk"];
+const _catItems = (cat: FoodCategoryId): FoodItemType[] =>
+  FOOD_ITEMS.filter((f) => f.category === cat).sort((a, b) => a.order - b.order).map((f) => f.id);
+// Fish = the animal category minus the meats and the eggs/dairy — so the coming
+// fish split (trout/pike/eel/salmon) folds into the Fish total automatically.
+const _FISH_ITEMS: FoodItemType[] = FOOD_ITEMS
+  .filter((f) => f.category === "animal" && !MEAT_TYPES.includes(f.id) && !_DAIRY_ITEMS.includes(f.id))
+  .map((f) => f.id);
+/** How the topbar food dropdown groups stockpiles into readable totals — the many
+ *  split cuts collapse under Meat / Fish so the bar never floods; per-cut detail
+ *  lives in the Kitchen. Cooked meals are listed separately (per-dish pot status). */
+const FOOD_DISPLAY_GROUPS: { icon: string; label: string; items: FoodItemType[] }[] = [
+  { icon: "🌾", label: "Grain", items: _catItems("grain") },
+  { icon: "🥬", label: "Vegetables", items: _catItems("veggie") },
+  { icon: "🍎", label: "Fruits", items: _catItems("fruit") },
+  { icon: "🍖", label: "Meat", items: MEAT_TYPES },
+  { icon: "🐟", label: "Fish", items: _FISH_ITEMS },
+  { icon: "🥚", label: "Eggs & Dairy", items: _DAIRY_ITEMS },
+  { icon: "🍄", label: "Wild Foods", items: _catItems("wild") },
+];
 
 export default function ResourceBar() {
   const { state, actions } = useGame();
@@ -203,63 +224,76 @@ export default function ResourceBar() {
                       ⏳ You're only in surplus because a pot is cooking. It reverts to a deficit once the ingredients run out.
                     </div>
                   </Show>
-                  {/* Per-type stocks grouped by category — only categories with any stock/production show up */}
-                  <For each={FOOD_CATEGORIES}>
-                    {(cat) => {
-                      const itemsInCat = () => FOOD_ITEMS
-                        .filter((fi) => fi.category === cat.id)
-                        .sort((a, b) => a.order - b.order);
-                      const visibleItems = () => itemsInCat().filter((fi) => {
-                        const stock = Math.floor(state.foods?.[fi.id] ?? 0);
-                        const rate = rateForType(fi.id);
-                        // A pot currently simmering this dish counts, even from an empty larder.
-                        return stock > 0 || rate > 0 || (cookingRates().produce[fi.id] ?? 0) > 0 || isCooking(fi.id);
-                      });
+                  {/* Food stocks — the many split cuts collapse into Meat / Fish / etc.
+                      totals so the bar stays clean; cooked meals list per-dish below. */}
+                  <For each={FOOD_DISPLAY_GROUPS}>
+                    {(grp) => {
+                      const totalStock = () => grp.items.reduce((sum, id) => sum + Math.floor(state.foods?.[id] ?? 0), 0);
+                      const totalRate = () => grp.items.reduce((sum, id) => sum + rateForType(id), 0);
                       return (
-                        <Show when={visibleItems().length > 0}>
-                          <div class="dropdown-category-header">{cat.icon} {cat.label}</div>
-                          <For each={visibleItems()}>
-                            {(fi) => {
-                              const stock = () => Math.floor(state.foods?.[fi.id] ?? 0);
-                              const rate = () => rateForType(fi.id);
-                              const cookRate = () => cookingRates().produce[fi.id] ?? 0;
-                              const totalRate = () => rate() + cookRate();
-                              return (
-                                <div class="dropdown-row">
-                                  <span style={{ display: "flex", "align-items": "center", gap: "6px" }}>
-                                    <FoodIcon id={fi.id} size={16} /> {fi.label}
-                                  </span>
-                                  <span style={{ display: "flex", gap: "8px", "align-items": "center" }}>
-                                    <span style={{ color: "var(--text-primary)" }}>{stock()}</span>
-                                    <Show when={cookRate() > 0} fallback={
-                                      <Show when={rate() > 0} fallback={
-                                        <span style={{ "min-width": "64px", "text-align": "right", color: "var(--text-muted)", "font-size": "0.72rem", "white-space": "nowrap" }}>
-                                          {isCooking(fi.id) ? `⏸ ${cookStallReason(fi.id) || "paused"}` : (fi.category === "cooked" ? "(not cooking)" : "(dormant)")}
-                                        </span>
-                                      }>
-                                        <span class="rate-positive" style={{ "min-width": "64px", "text-align": "right", "white-space": "nowrap" }}>
-                                          +{rate()}/h
-                                          <Show when={fi.id === "mushrooms" && isForagerBlooming(state)}>
-                                            <span style={{ color: "#7BA05B", "font-size": "0.62rem" }}> (after rain)</span>
-                                          </Show>
-                                        </span>
-                                      </Show>
-                                    }>
-                                      {/* Simmering: show the production rate and how long the
-                                          larder will keep the fire fed (this line only). */}
-                                      <span class="rate-positive" style={{ "text-align": "right", color: "var(--accent-gold)", "white-space": "nowrap" }}>
-                                        🔥 +{Math.round(totalRate())}/h{cookLeftLabel(cookingRates().hoursLeft[fi.id] ?? Infinity)}
-                                      </span>
-                                    </Show>
-                                  </span>
-                                </div>
-                              );
-                            }}
-                          </For>
+                        <Show when={totalStock() > 0 || totalRate() > 0}>
+                          <div class="dropdown-row">
+                            <span style={{ display: "flex", "align-items": "center", gap: "6px" }}>
+                              {grp.icon} {grp.label}
+                            </span>
+                            <span style={{ display: "flex", gap: "8px", "align-items": "center" }}>
+                              <span style={{ color: "var(--text-primary)" }}>{totalStock()}</span>
+                              <Show when={totalRate() > 0} fallback={
+                                <span style={{ "min-width": "64px", "text-align": "right", color: "var(--text-muted)", "font-size": "0.72rem" }}>(dormant)</span>
+                              }>
+                                <span class="rate-positive" style={{ "min-width": "64px", "text-align": "right", "white-space": "nowrap" }}>+{Math.round(totalRate())}/h</span>
+                              </Show>
+                            </span>
+                          </div>
                         </Show>
                       );
                     }}
                   </For>
+                  {/* Cooked meals — per dish, so the pot status ("out of X", stalled) stays visible. */}
+                  {(() => {
+                    const cookedItems = () => FOOD_ITEMS.filter((fi) => fi.category === "cooked").sort((a, b) => a.order - b.order);
+                    const visibleItems = () => cookedItems().filter((fi) => {
+                      const stock = Math.floor(state.foods?.[fi.id] ?? 0);
+                      const rate = rateForType(fi.id);
+                      return stock > 0 || rate > 0 || (cookingRates().produce[fi.id] ?? 0) > 0 || isCooking(fi.id);
+                    });
+                    return (
+                      <Show when={visibleItems().length > 0}>
+                        <div class="dropdown-category-header">🍲 Cooked Meals</div>
+                        <For each={visibleItems()}>
+                          {(fi) => {
+                            const stock = () => Math.floor(state.foods?.[fi.id] ?? 0);
+                            const rate = () => rateForType(fi.id);
+                            const cookRate = () => cookingRates().produce[fi.id] ?? 0;
+                            const totalRate = () => rate() + cookRate();
+                            return (
+                              <div class="dropdown-row">
+                                <span style={{ display: "flex", "align-items": "center", gap: "6px" }}>
+                                  <FoodIcon id={fi.id} size={16} /> {fi.label}
+                                </span>
+                                <span style={{ display: "flex", gap: "8px", "align-items": "center" }}>
+                                  <span style={{ color: "var(--text-primary)" }}>{stock()}</span>
+                                  <Show when={cookRate() > 0} fallback={
+                                    <Show when={rate() > 0} fallback={
+                                      <span style={{ "min-width": "64px", "text-align": "right", color: "var(--text-muted)", "font-size": "0.72rem", "white-space": "nowrap" }}>
+                                        {isCooking(fi.id) ? `⏸ ${cookStallReason(fi.id) || "paused"}` : "(not cooking)"}
+                                      </span>
+                                    }>
+                                      <span class="rate-positive" style={{ "min-width": "64px", "text-align": "right", "white-space": "nowrap" }}>+{rate()}/h</span>
+                                    </Show>
+                                  }>
+                                    <span class="rate-positive" style={{ "text-align": "right", color: "var(--accent-gold)", "white-space": "nowrap" }}>
+                                      🔥 +{Math.round(totalRate())}/h{cookLeftLabel(cookingRates().hoursLeft[fi.id] ?? Infinity)}
+                                    </span>
+                                  </Show>
+                                </span>
+                              </div>
+                            );
+                          }}
+                        </For>
+                      </Show>
+                    );
+                  })()}
                   {/* Pantry: honey lives outside the typed foods map (its own
                       resource + storage) but is eaten like any other food. */}
                   <Show when={state.honey > 0 || honeyRate() > 0}>
