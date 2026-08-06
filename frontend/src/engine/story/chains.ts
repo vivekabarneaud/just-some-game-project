@@ -357,7 +357,15 @@ export const STORY_CHAINS: StoryChain[] = [
   {
     id: "lammast",
     run: (api) => {
-      api.awaitQuestClaimed("baptism_of_fire"); // wolves weathered, walls + tower up and proven
+      // Its OWN beat, one morning after "No One Followed" (quiet_the_woods).
+      // Previously this shared the Baptism of Fire claim with the quest-attached
+      // "The wall held" chronicle, and the two raced — Lammast stepped on the wall
+      // beat. Landing it a couple of beats later (wolves long past, the Hester
+      // scare settled) gives the wall its own raid AND lets Lammast breathe as the
+      // warmer "the neighbours have noticed us" moment. The wall/tower + hearth-
+      // smoke that make us visible are well up by now, so the flavour still holds.
+      api.awaitMissionDone("quiet_the_woods");
+      api.awaitNextMorning("lammastArrival");
       api.fireChronicleModal("ch1_lammast_arrival");
     },
   },

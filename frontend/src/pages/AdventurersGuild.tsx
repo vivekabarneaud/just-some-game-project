@@ -1,5 +1,6 @@
 import { createSignal, createMemo, createResource, createEffect, For, Show, onCleanup, onMount } from "solid-js";
 import { A, useSearchParams } from "@solidjs/router";
+import { Portal } from "solid-js/web";
 import { useGame } from "~/engine/gameState";
 import { IS_DEV } from "~/data/seasons";
 import {
@@ -353,6 +354,12 @@ export default function AdventurersGuild() {
           Click the backdrop or Cancel to close. */}
       <Show when={selectedMission()} keyed>
         {(mission) => (
+          // Portal to <body>: a plain position:fixed here is trapped inside the
+          // transformed content pane, so the overlay couldn't cover the viewport
+          // and made the PAGE scroll. Portaling escapes that ancestor → a true
+          // viewport overlay that scrolls internally. (A fuller redesign of this
+          // assembly panel is parked pending the user's sketch.)
+          <Portal>
           <div
             onClick={() => { setSelectedMission(null); setSelectedTeam([]); setSelectedSupplies([]); setSelectedCoopId(null); }}
             style={{
@@ -393,6 +400,7 @@ export default function AdventurersGuild() {
               />
             </div>
           </div>
+          </Portal>
         )}
       </Show>
 
