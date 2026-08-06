@@ -29,7 +29,7 @@ import { totalPopulation } from "~/data/citizens";
 import { getTotalFood } from "~/data/foods";
 import { getCurrentDeity } from "~/data/deities";
 import { RESOURCES } from "~/data/resources";
-import { useGame, CRAFTING_RECIPES, getBuildingToolsForBuilding } from "~/engine/gameState";
+import { useGame, CRAFTING_RECIPES, getBuildingToolsForBuilding, gatheredFoodRate } from "~/engine/gameState";
 
 const SEASONS: { key: Season; icon: string; label: string }[] = [
   { key: "spring", icon: "🌱", label: "Spring" },
@@ -199,7 +199,19 @@ export default function BuildingModal(props: Props) {
     const gatedRate = building()?.levels[Math.max(0, cleared - 1)]?.production?.rate ?? 0;
     return { cleared, gatedRate };
   };
+  // Food-gathering buildings (hunting/forager/fishing) share ONE rate helper with
+  // the card AND the engine tick, so all three agree. It floors stepwise (season,
+  // then staff, then dogs) — the modal's own single-floor math over-reported (e.g.
+  // 10/h instead of the real 8-9/h) and printed the raw "food" resource instead of
+  // the specific catch (meat/fish/berries). Fall back to the inline math for the
+  // non-food gatherers (quarry, mine).
+  const gathered = () => {
+    const pb = state.buildings.find((b) => b.buildingId === id());
+    return pb ? gatheredFoodRate(state, pb) : null;
+  };
   const currentProdRate = () => {
+    const g = gathered();
+    if (g) return g.rate;
     const gate = quarrySpiderGate();
     const baseRate = gate ? gate.gatedRate : (currentLevel()?.production?.rate ?? 0);
     return Math.floor(baseRate * gatherMult());
@@ -214,7 +226,14 @@ export default function BuildingModal(props: Props) {
   const prodStatus = (): string[] => {
     const parts: string[] = [];
     const st = prodStaff();
-    if (st && st.active < st.capacity) parts.push(`short-handed (${Math.round(st.multiplier * 100)}% output)`);
+    if (st && st.active < st.capacity) {
+      parts.push(`short-handed (${Math.round(st.multiplier * 100)}% output)`);
+    } else if (st && st.multiplier < 1) {
+      // Present but reduced — a wounded/ill worker still shows up, just slower.
+      // (The card explains this; the modal used to bury it in the number.)
+      const reason = st.named.find((n) => n.present && n.effectiveness < 1)?.reason ?? "worker hurt";
+      parts.push(`${reason} (${Math.round(st.multiplier * 100)}% output)`);
+    }
     if (prodSeasonMod() < 1) parts.push(`${state.season} lull (${Math.round(prodSeasonMod() * 100)}% yield)`);
     return parts;
   };
@@ -552,7 +571,7 @@ export default function BuildingModal(props: Props) {
                       <div style={{ "margin-bottom": "22px", padding: "10px 12px", background: "var(--bg-card)" }}>
                         <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>Current Production</div>
                         <div style={{ "font-size": "1.1rem", color: "var(--accent-green)" }}>
-                          +{currentProdRate()}/h {prod().resource}
+                          +{currentProdRate()}/h {gathered() ? gathered()!.label.toLowerCase() : prod().resource}
                           <Show when={currentProdRate() < prod().rate}>
                             <span style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-left": "6px" }}>(full {prod().rate}/h)</span>
                           </Show>
