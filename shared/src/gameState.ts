@@ -358,6 +358,8 @@ export interface GameEvent {
 // ─── Full Game State ────────────────────────────────────────────
 
 export interface GameState {
+  /** Save-schema version (see frontend SAVE_VERSION). Mismatched saves are discarded on load. */
+  saveVersion?: number;
   resources: ResourceState;
   buildings: PlayerBuilding[];
   fields: PlayerField[];

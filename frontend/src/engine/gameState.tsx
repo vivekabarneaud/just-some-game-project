@@ -583,6 +583,8 @@ export interface PlayerOrchard {
 }
 
 export interface GameState {
+  /** Save-schema version — see SAVE_VERSION. Mismatched saves are discarded on load. */
+  saveVersion?: number;
   resources: ResourceState;
   /** Net food change per hour from the last tick (production minus citizen +
    *  animal consumption). Derived/transient — surfaced so quest triggers and UI
@@ -1149,6 +1151,10 @@ export interface GameActions {
 // ─── Constants ───────────────────────────────────────────────────
 
 const STORAGE_KEY = "medieval-realm-save";
+/** Bump this on ANY save-schema change. A loaded save whose version doesn't match
+ *  is DISCARDED (fresh start) rather than migrated — "reset over migrations", so we
+ *  don't carry backward-compat backfill code. Solo/alpha: disposable saves. */
+export const SAVE_VERSION = 1;
 /** Dev-only manual snapshot slot — a copy of the save blob the player can stash
  *  and roll back to while testing. Separate from the live save key. */
 const SNAPSHOT_KEY = "medieval-realm-dev-snapshot";
@@ -1252,6 +1258,7 @@ export function createInitialState(): GameState {
   initialFoods.nuts = 10;
   initialFoods.blueberry = 8;
   return {
+    saveVersion: SAVE_VERSION,
     resources: { gold: 50, wood: 300, stone: 200, water: 0 },
     foods: initialFoods,
     buildings: BUILDINGS.map((b) => ({
@@ -2130,7 +2137,10 @@ function loadGame(): GameState | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
-    return migrateSaveState(JSON.parse(raw) as GameState);
+    const parsed = JSON.parse(raw) as GameState;
+    // Stale schema → discard and start fresh (reset over migrations).
+    if (parsed.saveVersion !== SAVE_VERSION) return null;
+    return migrateSaveState(parsed);
   } catch {
     return null;
   }
@@ -3989,9 +3999,11 @@ export function GameProvider(props: ParentProps) {
 
       _settlementId = settlement.id;
 
-      // If server has game state (not empty), use it as source of truth
+      // If server has game state (not empty) AND its schema matches, use it as the
+      // source of truth. A stale-version save is ignored → the fresh state stands
+      // (and overwrites the server on the next save). Reset over migrations.
       const serverState = settlement.gameState as GameState;
-      if (serverState && serverState.resources) {
+      if (serverState && serverState.resources && serverState.saveVersion === SAVE_VERSION) {
         // Canonical backfill — the single source of truth shared with the local
         // load path. Runs FIRST so every field added since this save was written
         // exists before the tick (or anything else) reads it. This is the P0 fix:
