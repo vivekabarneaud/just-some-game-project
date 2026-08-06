@@ -6,72 +6,32 @@
 import { describe, it, expect } from "vitest";
 import { createInitialState, migrateSaveState, calcFoodConsumption } from "./gameState";
 
-// Sentinel for the June 2026 P0: the server load path skipped most of the
-// backfill, so fields added over time loaded as `undefined` — and the tick
-// reads some (e.g. craftingQueue) unguarded, which froze the game loop.
-// We simulate an "old save" by taking a current state and stripping the
-// fields that postdate it, then assert migrateSaveState restores them.
-
-function oldSave(): any {
-  const s: any = createInitialState();
-  // Tick-critical fields the server path used to miss.
-  delete s.craftingQueue;
-  delete s.autoCook;
-  delete s.discoveredEnemies;
-  delete s.completedUniqueMissionIds;
-  delete s.buildingTools;
-  delete s.questsClaimableSeen;
-  delete s.buildingsSeen;
-  delete s.recipesSeen;
-  delete s.adventurersSeen;
-  // Seed system (latest addition).
-  delete s.seeds;
-  for (const g of s.gardens) delete g.seedsPlanted;
-  return s;
-}
+// Post SAVE_VERSION guard: only current-schema saves reach migrateSaveState, so
+// it no longer backfills fields — its sole job is to restore the id counter and
+// repair duplicate ids. (The whole "old save missing fields" class is now handled
+// by the guard discarding mismatched saves. See feedback_alpha_no_save_preservation.)
 
 describe("migrateSaveState", () => {
-  it("does not throw on a save missing newer fields", () => {
-    expect(() => migrateSaveState(oldSave())).not.toThrow();
+  it("does not throw on a current state and returns it", () => {
+    const s = createInitialState();
+    expect(migrateSaveState(s)).toBe(s);
   });
 
-  it("restores the tick-critical fields the P0 left undefined", () => {
-    const s: any = migrateSaveState(oldSave());
-    // craftingQueue is the one that actually froze the tick (read at .length).
-    expect(Array.isArray(s.craftingQueue)).toBe(true);
-    expect(Array.isArray(s.discoveredEnemies)).toBe(true);
-    expect(Array.isArray(s.completedUniqueMissionIds)).toBe(true);
-    expect(s.autoCook).toBeDefined();
-    expect(s.buildingTools).toBeDefined();
-    expect(s.questsClaimableSeen).toBeDefined();
-    expect(s.buildingsSeen).toBeDefined();
-    expect(s.recipesSeen).toBeDefined();
-    expect(s.adventurersSeen).toBeDefined();
-  });
-
-  it("restores the seed-system fields", () => {
-    const s: any = migrateSaveState(oldSave());
-    expect(s.seeds).toBeDefined();
-    expect(typeof s.seeds.turnips).toBe("number");
-    for (const g of s.gardens) expect(typeof g.seedsPlanted).toBe("number");
-  });
-
-  it("leaves an already-current state intact (idempotent backfill)", () => {
+  it("leaves an already-current state's fields intact", () => {
     const fresh: any = createInitialState();
     const migrated: any = migrateSaveState(createInitialState());
-    // Same shape — no field that exists fresh should go missing after migrating.
     for (const key of Object.keys(fresh)) {
       expect(migrated[key]).toBeDefined();
     }
   });
 
-  it("seeds foundingYear and defaults foundingWinterGrace off for old saves", () => {
-    const s: any = oldSave();
-    delete s.foundingYear;
-    delete s.foundingWinterGrace;
-    const m: any = migrateSaveState(s);
-    expect(typeof m.foundingYear).toBe("number");
-    expect(m.foundingWinterGrace).toBe(false);
+  it("repairs duplicate ids in an id-bearing collection", () => {
+    // A legacy collision: two entries share an id. migrate gives the later one a
+    // fresh id so lookups (e.g. assignAnimal) hit the right entry.
+    const s: any = createInitialState();
+    s.pens = [{ id: "pen_1" }, { id: "pen_1" }];
+    migrateSaveState(s);
+    expect(s.pens[0].id).not.toBe(s.pens[1].id);
   });
 });
 
