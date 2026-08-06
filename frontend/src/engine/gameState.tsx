@@ -164,6 +164,7 @@ import {
   MEAT_TYPES,
   FISH_TYPES,
   MUSHROOM_TYPES,
+  BERRY_TYPES,
   type DishKind,
 } from "~/data/foods";
 import {
@@ -1247,7 +1248,7 @@ export function createInitialState(): GameState {
   initialFoods.venison = 15;
   initialFoods.trout = 10;
   initialFoods.nuts = 10;
-  initialFoods.berries = 8;
+  initialFoods.blueberry = 8;
   return {
     resources: { gold: 50, wood: 300, stone: 200, water: 0 },
     foods: initialFoods,
@@ -1763,6 +1764,12 @@ export function migrateSaveState(saved: GameState): GameState {
       (saved.foods as any).field_mushroom = ((saved.foods as any).field_mushroom ?? 0) + (saved.foods as any).mushrooms;
     }
     if ((saved as any).foods) delete (saved.foods as any).mushrooms;
+    // And the single `berries` stockpile → blueberry (the default wild berry) after
+    // the berry split (blackberry/blueberry/raspberry).
+    if ((saved as any).foods && (saved.foods as any).berries > 0) {
+      (saved.foods as any).blueberry = ((saved.foods as any).blueberry ?? 0) + (saved.foods as any).berries;
+    }
+    if ((saved as any).foods) delete (saved.foods as any).berries;
     if (!saved.season) { saved.season = "spring"; saved.seasonElapsed = 0; saved.year = 1; }
     // Adventurer's Guild migration
     if (!saved.adventurers) saved.adventurers = [];
@@ -2843,11 +2850,13 @@ export function gatheredFoodRate(state: GameState, pb: PlayerBuilding): Gathered
     // big-kill event in the tick.
     type = "venison"; icon = "🦌"; label = "Venison";
   } else if (pb.buildingId === "forager_hut") {
-    // Seasonal primary: berries in spring/summer, chanterelle in autumn, nuts in
-    // winter. Secondary forage (morel/field mushroom/nuts) rides as `extras`.
-    if (season === "autumn") { type = "chanterelle"; icon = "🍄"; label = "Chanterelle"; }
-    else if (season === "winter") { type = "nuts"; icon = "🌰"; label = "Nuts"; }
-    else { type = "berries"; icon = "🫐"; label = "Berries"; }
+    // Seasonal primary: spring greens, summer berries, autumn mushrooms, winter
+    // nuts. A spread of other forage (greens/roots/berries/mushrooms) rides as
+    // `extras`, so the basket feels genuinely foraged.
+    if (season === "spring") { type = "dandelion"; icon = "🌼"; label = "Dandelion"; }
+    else if (season === "summer") { type = "blueberry"; icon = "🫐"; label = "Blueberry"; }
+    else if (season === "autumn") { type = "chanterelle"; icon = "🍄"; label = "Chanterelle"; }
+    else { type = "nuts"; icon = "🌰"; label = "Nuts"; }
     // Rain flushes chanterelles off the FULL (unstaffed) rate; in autumn a few rare
     // cèpe come up among them (the forager's treasure, like the wisent/eel).
     if (isForagerBlooming(state)) {
@@ -2897,21 +2906,32 @@ export function gatheredFoodRate(state: GameState, pb: PlayerBuilding): Gathered
       extras = [{ type: "trout" as FoodItemType, label: "Trout", icon: "🐟", rate: Math.floor(total * mix.trout) }].filter((e) => e.rate > 0);
     }
   } else if (pb.buildingId === "forager_hut") {
-    // Basket: the seasonal primary (berries/chanterelle/nuts) + a secondary forage.
+    // Basket: the seasonal primary + a spread of foraged greens/roots/berries/
+    // mushrooms/nuts (each column sums to ~1 — variety, not more food).
     const total = rate;
     if (season === "spring") {
-      rate = Math.floor(total * 0.8);
-      extras = [{ type: "morel" as FoodItemType, label: "Morel", icon: "🍄", rate: Math.floor(total * 0.2) }];
-    } else if (season === "summer") {
-      rate = Math.floor(total * 0.8);
-      extras = [{ type: "field_mushroom" as FoodItemType, label: "Field Mushroom", icon: "🍄", rate: Math.floor(total * 0.2) }];
-    } else if (season === "autumn") {
-      rate = Math.floor(total * 0.6);
+      rate = Math.floor(total * 0.4); // dandelion
       extras = [
-        { type: "field_mushroom" as FoodItemType, label: "Field Mushroom", icon: "🍄", rate: Math.floor(total * 0.25) },
+        { type: "ramsons" as FoodItemType, label: "Ramsons", icon: "🧄", rate: Math.floor(total * 0.25) },
+        { type: "sorrel" as FoodItemType, label: "Sorrel", icon: "🌿", rate: Math.floor(total * 0.2) },
+        { type: "morel" as FoodItemType, label: "Morel", icon: "🍄", rate: Math.floor(total * 0.15) },
+      ];
+    } else if (season === "summer") {
+      rate = Math.floor(total * 0.4); // blueberry
+      extras = [
+        { type: "raspberry" as FoodItemType, label: "Raspberry", icon: "🫐", rate: Math.floor(total * 0.3) },
+        { type: "dandelion" as FoodItemType, label: "Dandelion", icon: "🌼", rate: Math.floor(total * 0.15) },
+        { type: "wild_carrot" as FoodItemType, label: "Wild Carrot", icon: "🥕", rate: Math.floor(total * 0.15) },
+      ];
+    } else if (season === "autumn") {
+      rate = Math.floor(total * 0.45); // chanterelle
+      extras = [
+        { type: "blackberry" as FoodItemType, label: "Blackberry", icon: "🫐", rate: Math.floor(total * 0.25) },
+        { type: "field_mushroom" as FoodItemType, label: "Field Mushroom", icon: "🍄", rate: Math.floor(total * 0.15) },
         { type: "nuts" as FoodItemType, label: "Nuts", icon: "🌰", rate: Math.floor(total * 0.15) },
       ];
     }
+    // winter: nuts only, no extras.
     extras = extras.filter((e) => e.rate > 0);
   }
 
@@ -3439,7 +3459,7 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
       sources.push({ type: "chanterelle", label: "Chanterelle", icon: "🍄", rate: gathered.rainMushrooms, building: `${def.name} · rain`, wild: true });
     }
     if (gathered.rainCepe > 0) {
-      sources.push({ type: "cepe", label: "Cèpe", icon: "🍄", rate: gathered.rainCepe, building: `${def.name} · rain`, wild: true });
+      sources.push({ type: "cepe", label: "King Bolete", icon: "🍄", rate: gathered.rainCepe, building: `${def.name} · rain`, wild: true });
     }
   }
 
@@ -3594,6 +3614,9 @@ function grantReward(
   } else if (res === "mushrooms") {
     // Generic "mushrooms" reward deposits the common field mushroom.
     addFood(s.foods, "field_mushroom", reward.amount, caps.food);
+  } else if (res === "berries") {
+    // Generic "berries" reward deposits blueberries (the default wild berry).
+    addFood(s.foods, "blueberry", reward.amount, caps.food);
   } else if (isFoodItemType(res)) {
     addFood(s.foods, res, reward.amount, caps.food);
   } else if (res === "wool") {
@@ -3625,6 +3648,7 @@ function getResourceQty(s: GameState, res: string): number {
   if (res === "meat") return MEAT_TYPES.reduce((sum, t) => sum + (s.foods[t] ?? 0), 0);
   if (res === "fish") return FISH_TYPES.reduce((sum, t) => sum + (s.foods[t] ?? 0), 0);
   if (res === "mushrooms") return MUSHROOM_TYPES.reduce((sum, t) => sum + (s.foods[t] ?? 0), 0);
+  if (res === "berries") return BERRY_TYPES.reduce((sum, t) => sum + (s.foods[t] ?? 0), 0);
   if (isFoodItemType(res)) return s.foods[res] ?? 0;
   if (res === "wool") return s.wool;
   if (res === "fiber") return s.fiber;
@@ -3646,7 +3670,7 @@ function spendResource(s: GameState, res: string, amount: number): void {
   if (_EXOTIC_IDS.has(res)) { if (!s.exotics) s.exotics = {}; s.exotics[res] = Math.max(0, (s.exotics[res] ?? 0) - amount); return; }
   if (res === "gold" || res === "wood" || res === "stone") { const k = res as keyof typeof s.resources; s.resources[k] = Math.max(0, s.resources[k] - amount); return; }
   if (res === "food") { s.foods.wheat = Math.max(0, (s.foods.wheat ?? 0) - amount); return; }
-  if (res === "meat" || res === "fish" || res === "mushrooms") { consumeFoodCost(s.foods, res, amount); return; }
+  if (res === "meat" || res === "fish" || res === "mushrooms" || res === "berries") { consumeFoodCost(s.foods, res, amount); return; }
   if (isFoodItemType(res)) { s.foods[res] = Math.max(0, (s.foods[res] ?? 0) - amount); return; }
   if (res === "wool") { s.wool = Math.max(0, s.wool - amount); return; }
   if (res === "fiber") { s.fiber = Math.max(0, s.fiber - amount); return; }
@@ -3741,7 +3765,7 @@ const KITCHEN_DISH_BY_ID = new Map(KITCHEN_DISHES.map((r) => [r.id, r]));
 /** A recipe cost that comes out of the food larder (a food item, or the grain/
  *  wild aliases) — as opposed to a crafting material (bone, leather, …). */
 export function isFoodCost(res: string): boolean {
-  return res === "grain" || res === "wild" || res === "meat" || res === "fish" || res === "mushrooms" || isFoodItemType(res);
+  return res === "grain" || res === "wild" || res === "meat" || res === "fish" || res === "mushrooms" || res === "berries" || isFoodItemType(res);
 }
 /** How much of a recipe cost the player holds — larder food OR materials, so
  *  dishes with material ingredients (e.g. bone broth's bone) resolve correctly.

@@ -26,7 +26,7 @@ describe("getFoodCostAmount", () => {
   });
   it("sums the wild alias (berries + the mushrooms + nuts)", () => {
     const f = emptyFoods();
-    f.berries = 2; f.field_mushroom = 1; f.chanterelle = 2; f.nuts = 4;
+    f.blueberry = 2; f.field_mushroom = 1; f.chanterelle = 2; f.nuts = 4;
     expect(getFoodCostAmount(f, "wild")).toBe(9);
   });
   it("sums the mushrooms alias across every mushroom", () => {
@@ -110,7 +110,7 @@ describe("addFood respects the shared cap", () => {
 describe("getTotalFood", () => {
   it("sums every type and handles a missing record", () => {
     const f = emptyFoods();
-    f.wheat = 3; f.venison = 4; f.berries = 1;
+    f.wheat = 3; f.venison = 4; f.blueberry = 1;
     expect(getTotalFood(f)).toBe(8);
     expect(getTotalFood(undefined)).toBe(0);
   });
