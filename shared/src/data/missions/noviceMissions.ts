@@ -459,7 +459,11 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   },
   {
     id: "first_patrol",
-    name: "Something to Prove",
+    name: "The Northern Bounds",
+    // Parked: there's nothing authored to discover north yet. Kept in the pool
+    // (so a save mid-flight still resolves) but `staged` hides it from the board
+    // until the north has something to find. Renamed ready for that revival.
+    staged: true,
     description: "The northern perimeter hasn't been walked since we came. A pair of young wolves have been worrying the trap line, thin-ribbed and skittish. No need for blood: walk the bounds, see them off, and come back having proven you can hold a line without drawing one.",
     icon: "🚩",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/first_patrol.png",

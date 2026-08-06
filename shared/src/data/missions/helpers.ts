@@ -220,7 +220,9 @@ export function calcSuccessChance(
  */
 /** The settlement's spot on the mission map (normalized). Travel time is the
  *  round trip from here to a mission's pin. See docs/DESIGN_MISSION_MAP.md. */
-export const SETTLEMENT_MAP_POS = { x: 0.492, y: 0.535 };
+// The hub adventurers set out from and return to (also the origin for travel
+// distance). Measured to the heart of the settlement art (below the label).
+export const SETTLEMENT_MAP_POS = { x: 0.487, y: 0.553 };
 /** Seconds of travel per unit of normalized map distance (one way). Round trip
  *  doubles it: a near errand adds a minute or so, a far march several. */
 const TRAVEL_SECONDS_PER_UNIT = 700;

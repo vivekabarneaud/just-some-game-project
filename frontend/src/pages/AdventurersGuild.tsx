@@ -17,10 +17,10 @@ import { getUnspentTalentPoints } from "~/data/talents";
 import { getItem } from "@medieval-realm/shared/data/items";
 import {
   type MissionTemplate,
+  type ActiveMission,
   getMission,
   formatReward,
   getCurrentStoryMission,
-  getLockedStoryMission,
   isExpedition,
   getMissionPhase,
 } from "@medieval-realm/shared/data/missions";
@@ -91,6 +91,25 @@ export default function AdventurersGuild() {
   const [selectedMission, setSelectedMission] = createSignal<MissionTemplate | null>(null);
   const [selectedTeam, setSelectedTeam] = createSignal<string[]>([]);
   const [selectedSupplies, setSelectedSupplies] = createSignal<string[]>([]);
+  // A team clicked mid-fight (on the map or its status card) opens combat playback.
+  const [watchCombat, setWatchCombat] = createSignal<ActiveMission | null>(null);
+  // Resolve the combat log to play back for an active mission. Regular missions
+  // store it once on prerolledCombat; expeditions store one per combat event.
+  const resolveCombat = (am: ActiveMission) => {
+    if (am.expeditionLog) {
+      for (let i = am.expeditionLog.length - 1; i >= 0; i--) {
+        const ev = am.expeditionLog[i];
+        if (ev.kind === "combat" && ev.combatLog?.length) {
+          return { log: ev.combatLog, victory: !!ev.combatVictory, roster: ev.combatRoster, positions: ev.combatPositions };
+        }
+      }
+      return null;
+    }
+    if (am.prerolledCombat?.log?.length) {
+      return { log: am.prerolledCombat.log, victory: am.prerolledCombat.victory, roster: am.prerolledCombat.roster, positions: am.prerolledCombat.positions };
+    }
+    return null;
+  };
   // Helpers for the mission card toggle pattern (shared between story + regular
   // missions). `clearSelection` also drops the team + supplies, since they're
   // always tied to the currently-selected mission.
@@ -252,7 +271,6 @@ export default function AdventurersGuild() {
   };
   const guildLevel = () => actions.getGuildLevel();
   const storyMission = () => getCurrentStoryMission(guildLevel(), state.completedStoryMissions ?? [], state.questRewardsClaimed ?? []);
-  const lockedStoryMission = () => getLockedStoryMission(guildLevel(), state.completedStoryMissions ?? [], state.questRewardsClaimed ?? []);
   // The set of missions the map shows: the current story mission (if not already
   // out) + the daily board, minus any expedition that's live as a coop. Missions
   // with authored `map` coords pin on the terrain; the rest fall to the map's
@@ -270,7 +288,6 @@ export default function AdventurersGuild() {
   // Roster tab shows only living adventurers; the fallen live on the
   // Pantheon memorial inside the Shrine (frontend/src/components/Pantheon.tsx).
   const roster = () => state.adventurers.filter((a) => a.alive);
-  const rosterSize = () => actions.getRosterSize();
 
   const switchTab = (t: Tab) => {
     setTab(t);
@@ -332,12 +349,83 @@ export default function AdventurersGuild() {
         )}
       </Show>
 
-    <div>
-      <A href="/buildings" class="back-link">
-        ← Back to Buildings
-      </A>
-      <h1 class="page-title">Adventurer's Guild</h1>
+      {/* Team assembly — a modal over the map, so the page itself never scrolls.
+          Click the backdrop or Cancel to close. */}
+      <Show when={selectedMission()} keyed>
+        {(mission) => (
+          <div
+            onClick={() => { setSelectedMission(null); setSelectedTeam([]); setSelectedSupplies([]); setSelectedCoopId(null); }}
+            style={{
+              position: "fixed", inset: "0", "z-index": 200,
+              background: "rgba(0, 0, 0, 0.6)",
+              display: "flex", "align-items": "flex-start", "justify-content": "center",
+              padding: "3vh 16px", "overflow-y": "auto",
+            }}
+          >
+            <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", "max-width": "920px" }}>
+              <MissionAssemblyPanel
+                mission={mission}
+                coopId={selectedCoopId() ?? undefined}
+                coopLockedAdvIds={coopLockedAdvIds()}
+                onCancel={() => { setSelectedMission(null); setSelectedTeam([]); setSelectedSupplies([]); setSelectedCoopId(null); }}
+                onCoopInvited={(coopId) => { setSelectedCoopId(coopId); refetchCoops(); }}
+                onCoopEnded={() => {
+                  setSelectedCoopId(null);
+                  setSelectedMission(null);
+                  refetchCoops();
+                }}
+                onGoRecruit={() => {
+                  setSelectedMission(null);
+                  setSelectedTeam([]);
+                  setSelectedSupplies([]);
+                  setTab("roster");
+                }}
+                onDeploy={(missionId, teamIds, adventurerSupplies, successPct) => {
+                  if (actions.deployMission(missionId, teamIds, adventurerSupplies, successPct)) {
+                    playSound("metal");
+                    setSelectedMission(null);
+                    setSelectedTeam([]);
+                    setSelectedSupplies([]);
+                    return true;
+                  }
+                  return false;
+                }}
+              />
+            </div>
+          </div>
+        )}
+      </Show>
 
+      {/* Watch-the-fight modal — opened by clicking a team mid-combat on the map
+          or its status card. */}
+      <Show when={watchCombat()} keyed>
+        {(am) => {
+          const combat = resolveCombat(am);
+          const template = getMission(am.missionId);
+          return (
+            <Show when={combat}>
+              {(c) => (
+                <CombatPlayback
+                  log={c().log}
+                  roster={c().roster}
+                  positions={c().positions}
+                  title={template?.name}
+                  victory={c().victory}
+                  onFinished={() => actions.markCombatViewed(am.missionId)}
+                  onClose={() => {
+                    setWatchCombat(null);
+                    if (am.wiped) actions.acknowledgeWipeCompletion(am.missionId);
+                  }}
+                />
+              )}
+            </Show>
+          );
+        }}
+      </Show>
+
+    <div>
+      {/* No page title / back link here — the sidebar handles navigation, and
+          dropping them lets the full-screen map fit without the page scrolling. */}
       <Show when={guildLevel() === 0}>
         <div style={{
           padding: "24px",
@@ -355,27 +443,7 @@ export default function AdventurersGuild() {
       </Show>
 
       <Show when={guildLevel() > 0}>
-        <div style={{
-          display: "flex",
-          gap: "16px",
-          "margin-bottom": "16px",
-          "font-size": "0.85rem",
-          color: "var(--text-secondary)",
-          "flex-wrap": "wrap",
-        }}>
-          <span>Guild Lv.{guildLevel()}</span>
-          <span>Active missions: {state.activeMissions.length}</span>
-          <span>Roster: {rosterSize().current}</span>
-          <span>Refresh in: {(() => {
-            const now = new Date();
-            const next3am = new Date();
-            next3am.setUTCHours(3, 0, 0, 0);
-            if (next3am.getTime() <= now.getTime()) next3am.setUTCDate(next3am.getUTCDate() + 1);
-            return Math.ceil((next3am.getTime() - now.getTime()) / 3_600_000);
-          })()}h</span>
-        </div>
-
-        <div style={{ display: "flex", gap: "4px", "margin-bottom": "16px" }}>
+        <div style={{ display: "flex", gap: "4px", "margin-bottom": "8px" }}>
           {(["missions", "roster"] as Tab[]).map((t) => (
             <button
               class="speed-btn"
@@ -393,104 +461,210 @@ export default function AdventurersGuild() {
           ))}
         </div>
 
-        {/* Results banner */}
-        <Show when={state.completedMissions.length > 0}>
-          <div style={{ "margin-bottom": "16px" }}>
-            <For each={state.completedMissions}>
-              {(result, i) => {
-                const template = () => getMission(result.missionId) ?? { name: result.missionId, icon: "📜" };
-                return (
-                  <div style={{
-                    padding: "8px 12px",
-                    "margin-bottom": "4px",
-                    "border-radius": "6px",
-                    background: result.success ? "rgba(46, 204, 113, 0.1)" : "rgba(231, 76, 60, 0.1)",
-                    border: `1px solid ${result.success ? "var(--accent-green)" : "var(--accent-red)"}`,
-                    color: result.success ? "var(--accent-green)" : "var(--accent-red)",
-                    "font-size": "0.85rem",
-                  }}>
-                    <div style={{ display: "flex", "justify-content": "space-between", "align-items": "center" }}>
-                      <span>
-                        {result.success ? "Success" : "Failed"}: {template().name}
-                      </span>
-                      {(() => {
-                        // The rewards, XP, level-ups and casualties are deliberately
-                        // NOT spoiled here — claiming opens the loot modal, which is
-                        // the reveal (base pay shown, enemy loot in the chest).
-                        const hasClaim = result.rewards.length > 0 || (result.loot?.length ?? 0) > 0;
-                        return (
-                          <button
-                            classList={{ "btn-primary": hasClaim, "btn-tertiary": !hasClaim }}
-                            onClick={() => handleClaim(i())}
-                            style={{ "font-size": "0.8rem", "white-space": "nowrap" }}
-                          >
-                            {hasClaim
-                              ? (STORY_CINEMATICS[result.missionId] ? "Claim & Continue Story" : "Claim rewards")
-                              : "Dismiss"}
-                          </button>
-                        );
-                      })()}
-                    </div>
-                    {/* Combat log — collapsible + playback */}
-                    <Show when={result.combatLog?.length}>
-                      {(() => {
-                        const [expanded, setExpanded] = createSignal(false);
-                        const [playbackOpen, setPlaybackOpen] = createSignal(false);
-                        const missionTpl = getMission(result.missionId);
-                        return (
-                          <div style={{ "margin-top": "4px", display: "flex", gap: "10px", "align-items": "center", "flex-wrap": "wrap" }}>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); setPlaybackOpen(true); }}
-                              style={{
-                                background: "none", border: "none", cursor: "pointer",
-                                color: "var(--accent-gold)", "font-size": "0.75rem",
-                                padding: "2px 0", "text-decoration": "underline",
-                              }}
-                            >
-                              ▶ Watch combat
-                            </button>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); setExpanded(!expanded()); }}
-                              style={{
-                                background: "none", border: "none", cursor: "pointer",
-                                color: "var(--text-muted)", "font-size": "0.75rem",
-                                padding: "2px 0", "text-decoration": "underline",
-                              }}
-                            >
-                              {expanded() ? "Hide log" : "Show log"}
-                            </button>
-                            <Show when={expanded()}>
-                              <div style={{
-                                "margin-top": "4px", padding: "6px 8px",
-                                background: "rgba(0, 0, 0, 0.2)", "border-radius": "4px",
-                                "max-height": "200px", overflow: "auto",
-                                width: "100%",
-                              }}>
-                                <CombatLog log={result.combatLog!} compact />
-                              </div>
-                            </Show>
-                            <Show when={playbackOpen()}>
-                              <CombatPlayback
-                                log={result.combatLog!}
-                                roster={result.combatRoster}
-                                positions={result.combatPositions}
-                                title={missionTpl?.name}
-                                onClose={() => setPlaybackOpen(false)}
-                              />
-                            </Show>
-                          </div>
-                        );
-                      })()}
-                    </Show>
-                  </div>
-                );
-              }}
-            </For>
-          </div>
-        </Show>
-
         {/* ── Missions tab ── */}
         <Show when={tab() === "missions"}>
+          {/* The map IS the board. Mission statuses (ongoing + resolved) float on
+              top of it as one overlay column; the assembly panel is a modal. */}
+          <div style={{ position: "relative", "margin-bottom": "12px" }}>
+            <MissionMap
+              missions={boardMissions()}
+              selectedId={selectedMission()?.id}
+              onSelect={(m) => toggleMissionSelect(m)}
+              onWatchCombat={(am) => setWatchCombat(am)}
+            />
+            {/* Mission statuses — ongoing first, then resolved — overlaid full-width
+                on the top of the map. pointer-events:none on the column lets the map
+                drag through the gaps; each card re-enables its own clicks. */}
+            <Show when={state.activeMissions.length > 0 || state.completedMissions.length > 0}>
+              <div style={{
+                position: "absolute", top: "8px", left: "8px", right: "8px",
+                "z-index": 30, "max-height": "72%", "overflow-y": "auto",
+                display: "flex", "flex-direction": "column", gap: "6px",
+                "pointer-events": "none",
+              }}>
+                {/* Ongoing missions */}
+                <For each={state.activeMissions}>
+                  {(am) => {
+                    const template = () => getMission(am.missionId) ?? { name: am.missionId, icon: "📜" } as any;
+                    const teamAdvs = () => am.adventurerIds.map((id) => state.adventurers.find((a) => a.id === id)).filter(Boolean);
+                    const phase = () => getMissionPhase(am);
+                    const phaseLabel = () => {
+                      const p = phase();
+                      if (p === "combat") return { text: "Combat!", color: "var(--accent-red)", icon: "⚔️" };
+                      if (p === "homeward") return { text: "Returning home", color: "var(--accent-green)", icon: "🏡" };
+                      return { text: "On the way", color: "var(--accent-blue)", icon: "🚶" };
+                    };
+                    const canWatch = () => phase() === "combat" && !!resolveCombat(am);
+                    return (
+                      <div style={{
+                        "pointer-events": "auto",
+                        padding: "6px 12px", "border-radius": "6px",
+                        background: "rgba(20, 18, 14, 0.92)",
+                        border: `1px solid ${phaseLabel().color}`,
+                        "box-shadow": "0 2px 8px rgba(0,0,0,0.5)",
+                        display: "flex", "align-items": "center", gap: "10px", "flex-wrap": "wrap",
+                        "font-size": "0.85rem",
+                      }}>
+                        <span style={{ "font-size": "1.1rem" }}>{template().icon}</span>
+                        <span style={{ color: "var(--text-primary)", "font-weight": "600" }}>{template().name}</span>
+                        <span style={{
+                          "font-size": "0.72rem", color: phaseLabel().color,
+                          background: "rgba(0,0,0,0.3)", padding: "1px 8px", "border-radius": "10px",
+                          border: `1px solid ${phaseLabel().color}`,
+                        }}>{phaseLabel().icon} {phaseLabel().text}</span>
+                        <span style={{ color: "var(--accent-blue)" }}>
+                          <Countdown remainingSeconds={am.remaining} /> left
+                        </span>
+                        <span style={{ display: "flex", gap: "4px", "align-items": "center" }}>
+                          {teamAdvs().map((a) => {
+                            const cls = getClassMeta(a!.class);
+                            return <Tooltip text={`${a!.name} (${cls.name} Lv.${a!.level})`}><span>{cls.icon}</span></Tooltip>;
+                          })}
+                        </span>
+                        <Show when={canWatch()}>
+                          <button
+                            class="btn-secondary"
+                            onClick={() => setWatchCombat(am)}
+                            style={{ "font-size": "0.78rem", "margin-left": "auto" }}
+                          >
+                            ▶ Watch
+                          </button>
+                        </Show>
+                        <Show when={IS_DEV}>
+                          <button
+                            class="skip-season-btn"
+                            onClick={() => actions.skipMissionTimers()}
+                            style={{ "font-size": "0.68rem", padding: "2px 8px" }}
+                          >
+                            Skip ⏩
+                          </button>
+                        </Show>
+                      </div>
+                    );
+                  }}
+                </For>
+
+                {/* Resolved missions */}
+                <For each={state.completedMissions}>
+                  {(result, i) => {
+                    const template = () => getMission(result.missionId) ?? { name: result.missionId, icon: "📜" };
+                    return (
+                      <div style={{
+                        "pointer-events": "auto",
+                        padding: "8px 12px",
+                        "border-radius": "6px",
+                        background: "rgba(20, 18, 14, 0.92)",
+                        border: `1px solid ${result.success ? "var(--accent-green)" : "var(--accent-red)"}`,
+                        color: result.success ? "var(--accent-green)" : "var(--accent-red)",
+                        "font-size": "0.85rem",
+                        "box-shadow": "0 2px 8px rgba(0,0,0,0.5)",
+                      }}>
+                        <div style={{ display: "flex", "justify-content": "space-between", "align-items": "center" }}>
+                          <span>
+                            {result.success ? "Success" : "Failed"}: {template().name}
+                          </span>
+                          {(() => {
+                            // The rewards, XP, level-ups and casualties are deliberately
+                            // NOT spoiled here — claiming opens the loot modal, which is
+                            // the reveal (base pay shown, enemy loot in the chest).
+                            const hasClaim = result.rewards.length > 0 || (result.loot?.length ?? 0) > 0;
+                            return (
+                              <button
+                                classList={{ "btn-primary": hasClaim, "btn-tertiary": !hasClaim }}
+                                onClick={() => handleClaim(i())}
+                                style={{ "font-size": "0.8rem", "white-space": "nowrap" }}
+                              >
+                                {hasClaim
+                                  ? (STORY_CINEMATICS[result.missionId] ? "Claim & Continue Story" : "Claim rewards")
+                                  : "Dismiss"}
+                              </button>
+                            );
+                          })()}
+                        </div>
+                        {/* Combat log — collapsible + playback */}
+                        <Show when={result.combatLog?.length}>
+                          {(() => {
+                            const [expanded, setExpanded] = createSignal(false);
+                            const [playbackOpen, setPlaybackOpen] = createSignal(false);
+                            const missionTpl = getMission(result.missionId);
+                            return (
+                              <div style={{ "margin-top": "4px", display: "flex", gap: "10px", "align-items": "center", "flex-wrap": "wrap" }}>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); setPlaybackOpen(true); }}
+                                  style={{
+                                    background: "none", border: "none", cursor: "pointer",
+                                    color: "var(--accent-gold)", "font-size": "0.75rem",
+                                    padding: "2px 0", "text-decoration": "underline",
+                                  }}
+                                >
+                                  ▶ Watch combat
+                                </button>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); setExpanded(!expanded()); }}
+                                  style={{
+                                    background: "none", border: "none", cursor: "pointer",
+                                    color: "var(--text-muted)", "font-size": "0.75rem",
+                                    padding: "2px 0", "text-decoration": "underline",
+                                  }}
+                                >
+                                  {expanded() ? "Hide log" : "Show log"}
+                                </button>
+                                <Show when={expanded()}>
+                                  <div style={{
+                                    "margin-top": "4px", padding: "6px 8px",
+                                    background: "rgba(0, 0, 0, 0.35)", "border-radius": "4px",
+                                    "max-height": "200px", overflow: "auto",
+                                    width: "100%",
+                                  }}>
+                                    <CombatLog log={result.combatLog!} compact />
+                                  </div>
+                                </Show>
+                                <Show when={playbackOpen()}>
+                                  <CombatPlayback
+                                    log={result.combatLog!}
+                                    roster={result.combatRoster}
+                                    positions={result.combatPositions}
+                                    title={missionTpl?.name}
+                                    onClose={() => setPlaybackOpen(false)}
+                                  />
+                                </Show>
+                              </div>
+                            );
+                          })()}
+                        </Show>
+                      </div>
+                    );
+                  }}
+                </For>
+              </div>
+            </Show>
+            {/* Reroll + dev tools — bottom-left overlay so the statuses keep the
+                full width up top. */}
+            <div style={{ position: "absolute", left: "8px", bottom: "8px", "z-index": 30, display: "flex", gap: "6px", "flex-wrap": "wrap", "align-items": "center" }}>
+              {(() => {
+                const count = typeof state.missionRerollToday === "number" ? state.missionRerollToday : 0;
+                const cost = 10 * Math.pow(2, count);
+                const canAfford = state.astralShards >= cost;
+                return (
+                  <button
+                    class="btn-secondary"
+                    onClick={() => actions.rerollMissions()}
+                    disabled={!canAfford}
+                    title="Reroll today's mission board"
+                    style={{ "font-size": "0.75rem", background: "rgba(20, 18, 14, 0.9)", "box-shadow": "0 2px 8px rgba(0,0,0,0.5)" }}
+                  >
+                    Reroll ({cost} 💠)
+                  </button>
+                );
+              })()}
+              <Show when={IS_DEV}>
+                <button onClick={() => actions.devSpawnAllNoviceMissions()} class="skip-season-btn" style={{ "font-size": "0.68rem", padding: "3px 10px" }}>Spawn novice</button>
+                <button onClick={() => actions.devSpawnVeteranMissions()} class="skip-season-btn" style={{ "font-size": "0.68rem", padding: "3px 10px" }}>Spawn veteran</button>
+                <button onClick={() => actions.devTriggerRobin()} class="skip-season-btn" style={{ "font-size": "0.68rem", padding: "3px 10px" }}>🐦 Robin</button>
+              </Show>
+            </div>
+          </div>
+
           {/* ── Co-op Expeditions ── */}
           <Show when={(coopData()?.coops ?? []).length > 0}>
             <div style={{ "margin-bottom": "20px" }}>
@@ -602,310 +776,6 @@ export default function AdventurersGuild() {
                 }}
               </For>
             </div>
-          </Show>
-
-          <Show when={state.activeMissions.length > 0}>
-            <div style={{ display: "flex", "align-items": "center", gap: "10px", "margin-bottom": "8px" }}>
-              <h3 style={{ "font-family": "var(--font-heading)", margin: 0, color: "var(--text-primary)" }}>
-                Active Missions
-              </h3>
-              <Show when={IS_DEV}>
-                <button
-                  class="skip-season-btn"
-                  onClick={() => actions.skipMissionTimers()}
-                  style={{ "font-size": "0.7rem", padding: "2px 8px" }}
-                >
-                  Skip all ⏩
-                </button>
-              </Show>
-            </div>
-            <div style={{ "margin-bottom": "20px" }}>
-              <For each={state.activeMissions}>
-                {(am) => {
-                  const template = () => getMission(am.missionId) ??
-                    { name: am.missionId, icon: "📜", rewards: [] } as any;
-                  const teamAdvs = () => am.adventurerIds
-                    .map((id) => state.adventurers.find((a) => a.id === id))
-                    .filter(Boolean);
-                  const phase = () => getMissionPhase(am);
-                  const phaseLabel = () => {
-                    const p = phase();
-                    if (p === "outbound") return { text: "Traveling out", color: "var(--accent-blue)", icon: "🚶" };
-                    if (p === "combat") return { text: "Combat!", color: "var(--accent-red)", icon: "⚔️" };
-                    if (p === "homeward") return { text: "Returning home", color: "var(--accent-green)", icon: "🏡" };
-                    return null;
-                  };
-                  // Resolve the combat log to play back. Regular missions store
-                  // it once on prerolledCombat; expeditions store one per
-                  // combat event on expeditionLog. Show the *most recent*
-                  // combat event for an expedition.
-                  const currentCombat = () => {
-                    if (am.expeditionLog) {
-                      for (let i = am.expeditionLog.length - 1; i >= 0; i--) {
-                        const ev = am.expeditionLog[i];
-                        if (ev.kind === "combat" && ev.combatLog?.length) {
-                          return { log: ev.combatLog, victory: !!ev.combatVictory, roster: ev.combatRoster, positions: ev.combatPositions };
-                        }
-                      }
-                      return null;
-                    }
-                    if (am.prerolledCombat?.log?.length) {
-                      return { log: am.prerolledCombat.log, victory: am.prerolledCombat.victory, roster: am.prerolledCombat.roster, positions: am.prerolledCombat.positions };
-                    }
-                    return null;
-                  };
-                  const [playbackOpen, setPlaybackOpen] = createSignal(false);
-                  return (
-                    <div
-                      class="building-card"
-                      classList={{ "active-mission-combat": phase() === "combat" }}
-                      style={{ "margin-bottom": "8px" }}
-                    >
-                      <div class="building-card-header">
-                        <div class="building-card-icon">{template().icon}</div>
-                        <div>
-                          <div class="building-card-title">{template().name}</div>
-                          <div style={{ color: "var(--accent-blue)", "font-size": "0.85rem", display: "flex", "align-items": "center", gap: "8px", "flex-wrap": "wrap" }}>
-                            <Countdown remainingSeconds={am.remaining} /> remaining
-                            <Show when={phaseLabel()}>
-                              {(lbl) => (
-                                <span style={{
-                                  "font-size": "0.78rem",
-                                  color: lbl().color,
-                                  background: "rgba(0, 0, 0, 0.3)",
-                                  padding: "1px 8px",
-                                  "border-radius": "10px",
-                                  border: `1px solid ${lbl().color}`,
-                                }}>
-                                  {lbl().icon} {lbl().text}
-                                </span>
-                              )}
-                            </Show>
-                          </div>
-                        </div>
-                      </div>
-                      <div style={{ "font-size": "0.8rem", "margin-top": "4px", display: "flex", gap: "6px", "flex-wrap": "wrap", "align-items": "center" }}>
-                        <span style={{ color: "var(--text-muted)" }}>Team:</span>
-                        {teamAdvs().map((a) => {
-                          const cls = getClassMeta(a!.class);
-                          return <Tooltip text={`${a!.name} (${cls.name} Lv.${a!.level})`}><span>{cls.icon}</span></Tooltip>;
-                        })}
-                        <span style={{
-                          "margin-left": "auto",
-                          color: am.successChance >= 70 ? "var(--accent-green)" : am.successChance >= 40 ? "var(--accent-gold)" : "var(--accent-red)",
-                        }}>
-                          {am.successChance}% success
-                        </span>
-                      </div>
-                      <Show when={phase() === "combat" && currentCombat()}>
-                        <div style={{ "margin-top": "6px" }}>
-                          <button
-                            class="btn-secondary"
-                            onClick={(e) => { e.stopPropagation(); setPlaybackOpen(true); }}
-                            style={{ "font-size": "0.82rem" }}
-                          >
-                            ▶ Watch combat
-                          </button>
-                        </div>
-                      </Show>
-                      {/* Modal lives outside the combat-phase Show so it stays open
-                          after onFinished marks the phase as homeward. The player
-                          dismisses via the Close button at their leisure. */}
-                      <Show when={playbackOpen() && currentCombat()}>
-                        {(combat) => (
-                          <CombatPlayback
-                            log={combat().log}
-                            roster={combat().roster}
-                            positions={combat().positions}
-                            title={template().name}
-                            victory={combat().victory}
-                            onFinished={() => actions.markCombatViewed(am.missionId)}
-                            onClose={() => {
-                              setPlaybackOpen(false);
-                              // For a wiped mission, the engine's tick is waiting
-                              // on this close before zeroing remaining (so the
-                              // modal didn't unmount mid-watch). Zero it now.
-                              if (am.wiped) actions.acknowledgeWipeCompletion(am.missionId);
-                            }}
-                          />
-                        )}
-                      </Show>
-                      <Show when={template().rewards?.length > 0}>
-                        <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-top": "2px" }}>
-                          Rewards: {template().rewards.map((r: any) => formatReward(r)).join(", ")}
-                        </div>
-                      </Show>
-
-                      {/* Expedition timeline */}
-                      <Show when={isExpedition(template())}>
-                        {(() => {
-                          const totalEvents = () => am.expeditionResolvedEvents?.length ?? 0;
-                          const currentIdx = () => am.expeditionEventIndex ?? 0;
-                          const lastLog = () => {
-                            const log = am.expeditionLog;
-                            return log && log.length > 0 ? log[log.length - 1] : null;
-                          };
-                          return (
-                            <div style={{ "margin-top": "8px", padding: "8px", background: "rgba(167, 139, 250, 0.05)", "border-radius": "4px", border: "1px solid rgba(167, 139, 250, 0.2)" }}>
-                              <div style={{ display: "flex", "align-items": "center", gap: "6px", "margin-bottom": "6px" }}>
-                                <span style={{ color: "#a78bfa", "font-size": "0.75rem", "font-weight": "bold" }}>
-                                  ⚔️ Expedition · Event {Math.min(currentIdx() + 1, totalEvents())}/{totalEvents()}
-                                </span>
-                              </div>
-                              {/* Timeline dots */}
-                              <div style={{ display: "flex", gap: "4px", "align-items": "center", "margin-bottom": "6px" }}>
-                                <For each={am.expeditionResolvedEvents ?? []}>
-                                  {(_, i) => {
-                                    const idx = i();
-                                    const done = idx < currentIdx();
-                                    const isCurrent = idx === currentIdx();
-                                    const logEntry = am.expeditionLog?.[idx];
-                                    return (
-                                      <div style={{
-                                        width: "20px", height: "20px", "border-radius": "50%",
-                                        display: "flex", "align-items": "center", "justify-content": "center",
-                                        "font-size": "0.7rem",
-                                        background: done
-                                          ? (logEntry?.success ? "rgba(46, 204, 113, 0.3)" : "rgba(231, 76, 60, 0.3)")
-                                          : isCurrent ? "rgba(167, 139, 250, 0.4)" : "var(--bg-primary)",
-                                        border: isCurrent
-                                          ? "1px solid #a78bfa"
-                                          : done
-                                            ? `1px solid ${logEntry?.success ? "var(--accent-green)" : "var(--accent-red)"}`
-                                            : "1px solid var(--border-color)",
-                                        color: done ? "var(--text-primary)" : "var(--text-muted)",
-                                      }}>
-                                        {done ? (logEntry?.icon ?? "·") : isCurrent ? "·" : "?"}
-                                      </div>
-                                    );
-                                  }}
-                                </For>
-                              </div>
-                              <Show when={lastLog()}>
-                                <div style={{ "font-size": "0.7rem", color: "var(--text-secondary)", "font-style": "italic" }}>
-                                  Last: {lastLog()!.summary}
-                                </div>
-                              </Show>
-                            </div>
-                          );
-                        })()}
-                      </Show>
-                    </div>
-                  );
-                }}
-              </For>
-            </div>
-          </Show>
-
-          <div style={{ display: "flex", "align-items": "center", "flex-wrap": "wrap", gap: "8px 12px", "margin-bottom": "8px" }}>
-            <h3 style={{ "font-family": "var(--font-heading)", color: "var(--text-primary)", margin: 0, "white-space": "nowrap" }}>
-              Mission Board
-            </h3>
-            {(() => {
-              const count = typeof state.missionRerollToday === "number" ? state.missionRerollToday : 0;
-              const cost = 10 * Math.pow(2, count);
-              const canAfford = state.astralShards >= cost;
-              return (
-            <button
-              class="btn-secondary"
-              onClick={() => actions.rerollMissions()}
-              disabled={!canAfford}
-              style={{ "font-size": "0.75rem" }}
-            >
-              Reroll ({cost} 💠)
-            </button>
-              );
-            })()}
-            <Show when={IS_DEV}>
-              <button
-                onClick={() => actions.devSpawnAllNoviceMissions()}
-                class="skip-season-btn"
-                style={{ "font-size": "0.7rem", padding: "3px 10px" }}
-              >
-                Spawn all novice
-              </button>
-              <button
-                onClick={() => actions.devSpawnVeteranMissions()}
-                class="skip-season-btn"
-                style={{ "font-size": "0.7rem", padding: "3px 10px" }}
-              >
-                Spawn veteran
-              </button>
-              <Tooltip text="Queue a placeholder robin to test the banner/sidebar/Overview flow">
-              <button
-                onClick={() => actions.devTriggerRobin()}
-                class="skip-season-btn"
-                style={{ "font-size": "0.7rem", padding: "3px 10px" }}
-              >
-                🐦 Trigger robin
-              </button>
-              </Tooltip>
-            </Show>
-          </div>
-          <Show when={state.missionBoard.length === 0}>
-            <p style={{ color: "var(--text-muted)", "font-size": "0.85rem" }}>
-              No missions available. The board refreshes daily.
-            </p>
-          </Show>
-          {/* Locked story mission placeholder: shown when the next story
-              mission is gated by a parallel quest that hasn't completed yet.
-              A "???" card above the map, similar to the bestiary's "???" cards. */}
-          <Show when={lockedStoryMission()}>
-            {(locked) => (
-              <div class="building-card dimmed" style={{ cursor: "default", "margin-bottom": "12px", "max-width": "420px" }}>
-                <span class="building-card-category">{(locked().mission as any).chapter}</span>
-                <div class="building-card-header" style={{ "margin-top": "4px" }}>
-                  <div class="building-card-icon" style={{ "font-size": "2rem" }}>❓</div>
-                  <div>
-                    <div class="building-card-title">???</div>
-                    <div style={{ "font-size": "0.85rem", color: "var(--text-muted)" }}>
-                      Complete the active quest to unlock the next story mission.
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </Show>
-
-          {/* The mission board IS the map — pins on the terrain, click to assemble. */}
-          <MissionMap
-            missions={boardMissions()}
-            selectedId={selectedMission()?.id}
-            onSelect={(m) => toggleMissionSelect(m)}
-          />
-
-          {/* Mission assembly panel */}
-          <Show when={selectedMission()}>
-            {(mission) => (
-              <MissionAssemblyPanel
-                mission={mission()}
-                coopId={selectedCoopId() ?? undefined}
-                coopLockedAdvIds={coopLockedAdvIds()}
-                onCancel={() => { setSelectedMission(null); setSelectedTeam([]); setSelectedSupplies([]); setSelectedCoopId(null); }}
-                onCoopInvited={(coopId) => { setSelectedCoopId(coopId); refetchCoops(); }}
-                onCoopEnded={() => {
-                  setSelectedCoopId(null);
-                  setSelectedMission(null);
-                  refetchCoops();
-                }}
-                onGoRecruit={() => {
-                  setSelectedMission(null);
-                  setSelectedTeam([]);
-                  setSelectedSupplies([]);
-                  setTab("roster");
-                }}
-                onDeploy={(missionId, teamIds, adventurerSupplies, successPct) => {
-                  if (actions.deployMission(missionId, teamIds, adventurerSupplies, successPct)) {
-                    playSound("metal");
-                    setSelectedMission(null);
-                    setSelectedTeam([]);
-                    setSelectedSupplies([]);
-                    return true;
-                  }
-                  return false;
-                }}
-              />
-            )}
           </Show>
         </Show>
 

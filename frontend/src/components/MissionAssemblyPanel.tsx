@@ -573,10 +573,11 @@ export default function MissionAssemblyPanel(props: Props) {
       .map((m) => ({ name: m.adv!.name, risk: m.risk }));
 
   const doDeploy = () => {
-    if (props.onDeploy(mission().id, teamIds(), adventurerSupplies(), successPct())) {
-      setTeamIds([]);
-      setAdventurerSupplies({});
-    }
+    // onDeploy closes this panel (setSelectedMission(null)) on success, which
+    // UNMOUNTS us. So do NOT write local signals afterward — that fires memos
+    // (effectiveDuration, …) that read the now-stale mission() accessor and throw
+    // a "stale value from <Show>" error, which also breaks the clean unmount.
+    props.onDeploy(mission().id, teamIds(), adventurerSupplies(), successPct());
   };
   const handleDeploy = () => {
     if (atRiskMembers().length > 0) {

@@ -1,6 +1,7 @@
 import { createSignal, createMemo, createEffect, For, Show, onMount, onCleanup } from "solid-js";
-import type { MissionTemplate } from "@medieval-realm/shared/data/missions";
+import type { MissionTemplate, ActiveMission } from "@medieval-realm/shared/data/missions";
 import { MISSION_POOL, STORY_MISSIONS, EXPEDITION_POOL, getMission, getMissionPhase, SETTLEMENT_MAP_POS } from "@medieval-realm/shared/data/missions";
+import { getPortraitUrl } from "@medieval-realm/shared/data/adventurers";
 import MissionCard from "./MissionCard";
 import { IS_DEV } from "~/data/seasons";
 import { useGame } from "~/engine/gameState";
@@ -32,7 +33,7 @@ const PARCHMENT_SRC = "/images/map/parchment.jpg";
 const REVEAL_W = 1200, REVEAL_H = Math.round(REVEAL_W * ASPECT);
 /** Normalized reveal windows known from the start (Settlement + Hometown). */
 const INITIAL_REVEALED: { x: number; y: number; r: number }[] = [
-  { x: 0.492, y: 0.535, r: 0.085 }, // the settlement
+  { x: 0.487, y: 0.553, r: 0.052 }, // the settlement (tight — just the immediate ground)
   { x: 0.492, y: 0.21, r: 0.075 },  // hometown
 ];
 // Authored reveal-region masks (hand-drawn soft-edged shapes that hug the
@@ -78,6 +79,8 @@ export default function MissionMap(props: {
   missions: MissionTemplate[];
   selectedId?: string;
   onSelect: (m: MissionTemplate) => void;
+  /** Click a team token that's mid-fight (pulsing red) to watch the combat. */
+  onWatchCombat?: (am: ActiveMission) => void;
 }) {
   let containerRef!: HTMLDivElement;
   let worldRef!: HTMLDivElement;
@@ -167,6 +170,16 @@ export default function MissionMap(props: {
   const pinned = createMemo(() => source().filter((m) => effMap(m)));
   const unplaced = createMemo(() => source().filter((m) => !effMap(m)));
 
+  // A deployed mission leaves the board, but we keep its pin on the map, dimmed
+  // and marked ongoing, so you still see where a team is headed after they set
+  // out. (Skip any that are somehow still on the board to avoid a double pin.)
+  const ongoingPins = createMemo(() => {
+    const onBoard = new Set(source().map((m) => m.id));
+    return (game.state.activeMissions ?? [])
+      .map((am) => getMission(am.missionId))
+      .filter((m): m is MissionTemplate => !!m && !onBoard.has(m.id) && !!effMap(m));
+  });
+
   // Active-mission team tokens: interpolate settlement→mission→home by phase, so
   // you watch your teams march out, fight, and come home along the real map.
   const lerp = (a: XY, b: XY, t: number): XY => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
@@ -176,14 +189,23 @@ export default function MissionMap(props: {
       if (!m?.map) return null;
       const init = am.initialDuration || m.duration || 1;
       const f = Math.min(1, Math.max(0, (init - am.remaining) / init));
-      const phase = getMissionPhase(am);
+      // getMissionPhase returns null for missions with no combat (a gather, an
+      // errand) — without a fallback the token reaches the site at the halfway
+      // point and just sits there until the mission resolves, never walking
+      // home. So for those, derive a simple out-and-back from elapsed fraction.
+      const phase = getMissionPhase(am) ?? (f < 0.5 ? "outbound" : "homeward");
       let pos: XY, icon: string, color: string;
       if (phase === "combat") { pos = m.map; icon = "⚔️"; color = "var(--accent-red)"; }
       else if (phase === "homeward") { pos = lerp(m.map, SETTLEMENT_MAP_POS, Math.min(1, Math.max(0, (f - 0.5) / 0.5))); icon = "🏡"; color = "var(--accent-green)"; }
       else { pos = lerp(SETTLEMENT_MAP_POS, m.map, Math.min(1, f / 0.5)); icon = "🚶"; color = "var(--accent-blue)"; }
-      const team = am.adventurerIds.map((id) => game.state.adventurers.find((a) => a.id === id)?.name).filter(Boolean) as string[];
-      return { id: am.missionId, x: pos.x, y: pos.y, icon, color, name: m.name, phase, team };
-    }).filter(Boolean) as { id: string; x: number; y: number; icon: string; color: string; name: string; phase: string | null; team: string[] }[],
+      const advs = am.adventurerIds
+        .map((id) => game.state.adventurers.find((a) => a.id === id))
+        .filter((a): a is NonNullable<typeof a> => !!a);
+      const team = advs.map((a) => a.name);
+      const portraits = advs.map((a) => getPortraitUrl(a));
+      const canWatch = phase === "combat" && !!am.prerolledCombat?.log?.length;
+      return { id: am.missionId, x: pos.x, y: pos.y, icon, color, name: m.name, phase, team, portraits, am, canWatch };
+    }).filter(Boolean) as { id: string; x: number; y: number; icon: string; color: string; name: string; phase: string | null; team: string[]; portraits: string[]; am: ActiveMission; canWatch: boolean }[],
   );
 
   const [containerW, setContainerW] = createSignal(800);
@@ -326,7 +348,10 @@ export default function MissionMap(props: {
         style={{
           position: "relative",
           width: "100%",
-          height: "clamp(360px, 60vh, 640px)",
+          // Fill the content pane without scrolling it: 100vh minus the topbar
+          // row (66px), the .content 24px padding top+bottom, and the tabs row +
+          // margins above the map. Nudge this one number if a sliver still scrolls.
+          height: "clamp(420px, calc(100vh - 176px), 1200px)",
           overflow: "hidden",
           "border-radius": "10px",
           border: "1px solid var(--border-default)",
@@ -398,7 +423,20 @@ export default function MissionMap(props: {
                     transition: "transform 0.12s, box-shadow 0.12s",
                   }}
                 >
-                  {m.icon}
+                  {/* A cropped slice of the mission's art fills the pin when it
+                      has one; otherwise the emoji icon. */}
+                  <Show when={m.image} fallback={m.icon}>
+                    <img
+                      src={m.image}
+                      alt=""
+                      loading="lazy"
+                      style={{
+                        position: "absolute", inset: "0",
+                        width: "100%", height: "100%",
+                        "object-fit": "cover", "border-radius": "50%",
+                      }}
+                    />
+                  </Show>
                   <Show when={climate()}>
                     <span style={{
                       position: "absolute", top: "-6px", right: "-6px",
@@ -415,29 +453,114 @@ export default function MissionMap(props: {
             }}
           </For>
 
+          {/* Ongoing-mission pins — a deployed mission's spot stays marked (dashed,
+              dimmed, ⏳) so the destination is visible while the team is out. */}
+          <For each={ongoingPins()}>
+            {(m) => {
+              const kind = pinKind(m);
+              const em = () => effMap(m)!;
+              return (
+                <div
+                  title={`${m.name} — ongoing`}
+                  style={{
+                    position: "absolute",
+                    left: `${em().x * 100}%`,
+                    top: `${em().y * 100}%`,
+                    transform: "translate(-50%, -50%)",
+                    width: "42px", height: "42px", "border-radius": "50%",
+                    display: "flex", "align-items": "center", "justify-content": "center",
+                    "font-size": "1.15rem",
+                    background: "rgba(20, 18, 14, 0.55)",
+                    border: `2px dashed ${kind.color}`,
+                    opacity: 0.6,
+                    "pointer-events": "none",
+                    "z-index": 3,
+                  }}
+                >
+                  {m.icon}
+                  <span style={{
+                    position: "absolute", bottom: "-6px", right: "-6px",
+                    "font-size": "0.7rem", "line-height": 1,
+                    background: "rgba(20,18,14,0.9)", "border-radius": "50%",
+                    width: "16px", height: "16px", display: "flex",
+                    "align-items": "center", "justify-content": "center",
+                    border: `1px solid ${kind.color}`,
+                  }}>⏳</span>
+                </div>
+              );
+            }}
+          </For>
+
           {/* Active-mission team tokens — march out, fight, and return, gliding
               between tick updates. Shown even in unrevealed land (it's your team). */}
           <For each={activeTokens()}>
             {(tok) => (
               <div
-                title={`${tok.name} — ${tok.phase === "combat" ? "in combat" : tok.phase === "homeward" ? "returning home" : "on the road"}${tok.team.length ? ` · ${tok.team.join(", ")}` : ""}`}
+                title={tok.canWatch
+                  ? `${tok.name} — in combat · click to watch the fight`
+                  : `${tok.name} — ${tok.phase === "homeward" ? "returning home" : "on the road"}${tok.team.length ? ` · ${tok.team.join(", ")}` : ""}`}
+                onPointerDown={tok.canWatch ? (e) => e.stopPropagation() : undefined}
+                onClick={tok.canWatch ? (e) => { e.stopPropagation(); props.onWatchCombat?.(tok.am); } : undefined}
                 style={{
                   position: "absolute",
                   left: `${tok.x * 100}%`,
                   top: `${tok.y * 100}%`,
                   transform: "translate(-50%, -50%)",
-                  width: "30px", height: "30px", "border-radius": "50%",
-                  display: "flex", "align-items": "center", "justify-content": "center",
-                  "font-size": "0.85rem",
-                  background: "rgba(20, 18, 14, 0.9)",
-                  border: `2px solid ${tok.color}`,
-                  "box-shadow": tok.phase === "combat" ? `0 0 12px ${tok.color}` : "0 2px 6px rgba(0,0,0,0.55)",
-                  animation: tok.phase === "combat" ? "pulse 1.2s infinite" : undefined,
+                  width: "30px", height: "30px",
                   transition: "left 0.9s linear, top 0.9s linear", // glide between ticks
+                  cursor: tok.canWatch ? "pointer" : "default",
                   "z-index": 5,
                 }}
               >
-                {tok.icon}
+                <Show
+                  when={tok.portraits.length > 0}
+                  fallback={
+                    <div style={{
+                      width: "30px", height: "30px", "border-radius": "50%",
+                      display: "flex", "align-items": "center", "justify-content": "center",
+                      "font-size": "0.85rem",
+                      background: "rgba(20, 18, 14, 0.9)",
+                      border: `2px solid ${tok.color}`,
+                      "box-shadow": tok.phase === "combat" ? `0 0 12px ${tok.color}` : "0 2px 6px rgba(0,0,0,0.55)",
+                      animation: tok.phase === "combat" ? "pulse 1.2s infinite" : undefined,
+                    }}>{tok.icon}</div>
+                  }
+                >
+                  {/* Stacked portraits: the front one sits on the left on top; each
+                      teammate behind it is nudged right so just an edge shows. */}
+                  <For each={tok.portraits.slice(0, 3)}>
+                    {(p, idx) => (
+                      <img
+                        src={p.replace(".png", "_zoomed.png")}
+                        onError={(e) => { const el = e.currentTarget; if (el.src.includes("_zoomed")) el.src = p; }}
+                        alt=""
+                        loading="lazy"
+                        style={{
+                          position: "absolute",
+                          top: "0",
+                          left: `${idx() * 9}px`,
+                          width: "30px", height: "30px", "border-radius": "50%",
+                          "object-fit": "cover",
+                          background: "rgba(20, 18, 14, 0.9)",
+                          border: `2px solid ${tok.color}`,
+                          "z-index": 10 - idx(),
+                          "box-shadow": tok.phase === "combat" ? `0 0 12px ${tok.color}` : "0 2px 6px rgba(0,0,0,0.55)",
+                          animation: tok.phase === "combat" && idx() === 0 ? "pulse 1.2s infinite" : undefined,
+                        }}
+                      />
+                    )}
+                  </For>
+                  {/* Phase badge pinned to the front (left) portrait's corner */}
+                  <div style={{
+                    position: "absolute", left: "-4px", top: "-4px",
+                    width: "15px", height: "15px", "border-radius": "50%",
+                    display: "flex", "align-items": "center", "justify-content": "center",
+                    "font-size": "0.6rem", "line-height": "1",
+                    background: "rgba(20, 18, 14, 0.95)",
+                    border: `1px solid ${tok.color}`,
+                    "z-index": 20,
+                  }}>{tok.icon}</div>
+                </Show>
               </div>
             )}
           </For>
