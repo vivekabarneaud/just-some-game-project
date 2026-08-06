@@ -552,7 +552,9 @@ export const BUILDINGS: BuildingDefinition[] = [
     icon: "🏹",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/hunting_camp.png",
     maxLevel: 15,
-    levels: generateLevels({ wood: 40, stone: 10 }, 6, { resource: "food", baseRate: 14, foodType: "meat" }, 15),
+    // Meat is a valued protein SUPPLEMENT, not the food flood — grain/veg/forage
+    // carry the bulk (historically apt + makes the venison/rabbit/wisent a treat).
+    levels: generateLevels({ wood: 40, stone: 10 }, 6, { resource: "food", baseRate: 9, foodType: "meat" }, 15),
     requiredTier: "camp",
     unlockedAt: { storyline: "settlement", chapter: 2 },
   },
@@ -570,7 +572,9 @@ export const BUILDINGS: BuildingDefinition[] = [
     // a mouth (the founding household is six, not five). Partial offset by
     // design — the Lord adds ~5 food/h of demand; this returns ~2/h at Lv.1,
     // more as it levels.
-    levels: generateLevels({ wood: 30, stone: 5 }, 6, { resource: "food", baseRate: 10, foodType: "berries" }, 10),
+    // Bumped: wild plant food (berries/mushrooms/nuts) is a strong peasant staple,
+    // now the top gatherer over hunting/fishing.
+    levels: generateLevels({ wood: 30, stone: 5 }, 6, { resource: "food", baseRate: 12, foodType: "berries" }, 10),
     requiredTier: "camp",
   },
 
@@ -583,7 +587,8 @@ export const BUILDINGS: BuildingDefinition[] = [
     icon: "🐟",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/fishing_hut.png",
     maxLevel: 10,
-    levels: generateLevels({ wood: 35, stone: 10 }, 6, { resource: "food", baseRate: 12, foodType: "fish" }, 10),
+    // Fish is a protein supplement like the hunt (see hunting_camp note).
+    levels: generateLevels({ wood: 35, stone: 10 }, 6, { resource: "food", baseRate: 8, foodType: "fish" }, 10),
     requiredTier: "camp",
     // Surfaces off the first scouting run: the scouts find the river bend good
     // for fishing (the "good_fishing_water" quest), which is the causal reason

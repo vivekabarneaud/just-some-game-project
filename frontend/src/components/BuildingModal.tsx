@@ -576,6 +576,17 @@ export default function BuildingModal(props: Props) {
                             <span style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-left": "6px" }}>(full {prod().rate}/h)</span>
                           </Show>
                         </div>
+                        {/* Basket extras (hunting camp's rabbit + seasonal fowl). */}
+                        <Show when={gathered() && gathered()!.extras.length > 0}>
+                          <div style={{ "font-size": "0.9rem", color: "var(--accent-green)", "margin-top": "2px" }}>
+                            {gathered()!.extras.map((e) => `+${e.rate}/h ${e.label.toLowerCase()}`).join(" · ")}
+                          </div>
+                        </Show>
+                        <Show when={id() === "hunting_camp"}>
+                          <div style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-top": "2px" }}>
+                            🦬 a rare wisent now and then — a big haul
+                          </div>
+                        </Show>
                         <Show when={id() === "forager_hut"}>
                           <div style={{ "font-size": "0.9rem", color: "var(--accent-green)", "margin-top": "2px" }}>
                             +{foragerFiberRate().toFixed(1)}/h fiber (wild flax)

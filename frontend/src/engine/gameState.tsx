@@ -147,6 +147,7 @@ import {
   PREDATION_SEASON_MOD,
   PREDATION_MAX_LOSS,
   getCullYield,
+  CULL_MEAT,
   getWoolSeasonMod,
   PEN_MAX_LEVEL,
 } from "@medieval-realm/shared/data/livestock";
@@ -160,6 +161,7 @@ import {
   isFoodItemType,
   getFoodCostAmount,
   consumeFoodCost,
+  MEAT_TYPES,
   type DishKind,
 } from "~/data/foods";
 import {
@@ -586,6 +588,8 @@ export interface GameState {
   /** Net water change per hour from the last tick (waterBalance().net). Derived;
    *  surfaced so the cistern nudge can fire on a genuine water DEFICIT. */
   netWaterPerHour?: number;
+  /** Hunting-time accumulated toward the next rare wisent kill (game-hours). */
+  huntWisentProgress?: number;
   /** Storage caps from the last tick. Derived; surfaced so the pantry/warehouse
    *  nudges can fire when a resource is near its cap (overflow) without
    *  reimplementing calcStorageCaps in the quest layer. */
@@ -1236,7 +1240,7 @@ export function createInitialState(): GameState {
   // (porridge from grain, Hearth Stew from meat+forage, River Stew from fish).
   const initialFoods = emptyFoods();
   initialFoods.wheat = 30;
-  initialFoods.meat = 15;
+  initialFoods.venison = 15;
   initialFoods.fish = 10;
   initialFoods.nuts = 10;
   initialFoods.berries = 8;
@@ -1737,6 +1741,12 @@ export function migrateSaveState(saved: GameState): GameState {
       (saved.foods as any).cherries = ((saved.foods as any).cherries ?? 0) + each;
     }
     delete (saved as any).fruit;
+    // Migrate legacy single `meat` stockpile → venison (the default wild meat)
+    // after the meat split (venison/boar/pork/mutton/goat/chicken/wild_fowl/rabbit).
+    if ((saved as any).foods && (saved.foods as any).meat > 0) {
+      (saved.foods as any).venison = ((saved.foods as any).venison ?? 0) + (saved.foods as any).meat;
+    }
+    if ((saved as any).foods) delete (saved.foods as any).meat;
     if (!saved.season) { saved.season = "spring"; saved.seasonElapsed = 0; saved.year = 1; }
     // Adventurer's Guild migration
     if (!saved.adventurers) saved.adventurers = [];
@@ -2745,7 +2755,30 @@ export interface GatheredFood {
   rate: number;
   /** Forager-only: extra mushrooms after rain, off the full (unstaffed) rate. */
   rainMushrooms: number;
+  /** Secondary catches deposited alongside the primary — the Hunting Camp's basket
+   *  splits its output into venison (the primary `type`/`rate`) + rabbit + wild
+   *  fowl here. Empty for the forager/fishing. Reusable for future splits. */
+  extras: GatheredExtra[];
 }
+export interface GatheredExtra { type: FoodItemType; label: string; icon: string; rate: number; }
+
+/** How the Hunting Camp's steady catch splits across venison / rabbit / wild fowl,
+ *  per season (each column ~sums to 1, so total output is unchanged — variety, not
+ *  more food). Autumn shifts to the fowl migration; winter leans venison. */
+const HUNTING_CATCH_MIX: Record<Season, { venison: number; rabbit: number; wild_fowl: number }> = {
+  spring: { venison: 0.55, rabbit: 0.30, wild_fowl: 0.15 },
+  summer: { venison: 0.55, rabbit: 0.30, wild_fowl: 0.15 },
+  autumn: { venison: 0.40, rabbit: 0.20, wild_fowl: 0.40 },
+  winter: { venison: 0.60, rabbit: 0.20, wild_fowl: 0.20 },
+};
+/** The Hunting Camp's rare big kill: a wisent (forest bison). It falls once the
+ *  camp has hunted ~a week of game-time, dropping a big one-off haul. Tunable. */
+const WISENT_INTERVAL_HOURS = 24 * 7; // ~one game-week of hunting between kills
+// Flat, generous haul — a wisent is a wisent regardless of camp level, and a rare
+// festive kill: a big pile of meat plus a rack of bone and a huge hide (waste nothing).
+const WISENT_HAUL_MEAT = 30;
+const WISENT_HAUL_BONE = 10;
+const WISENT_HAUL_LEATHER = 6;
 
 /** Single source of truth for a food-gathering building's yield — the hunting
  *  camp, forager's hut, and fishing hut. The tick, the netFoodPerHour
@@ -2768,7 +2801,10 @@ export function gatheredFoodRate(state: GameState, pb: PlayerBuilding): Gathered
   let label: string;
   let rainMushrooms = 0;
   if (pb.buildingId === "hunting_camp") {
-    type = "meat"; icon = "🍖"; label = "Meat";
+    // Venison is the primary catch; rabbit + the seasonal fowl ride as `extras`
+    // (computed below once the total rate is known). Rare wisent is a separate
+    // big-kill event in the tick.
+    type = "venison"; icon = "🦌"; label = "Venison";
   } else if (pb.buildingId === "forager_hut") {
     if (season === "autumn") { type = "mushrooms"; icon = "🍄"; label = "Mushrooms"; }
     else if (season === "winter") { type = "nuts"; icon = "🌰"; label = "Nuts"; }
@@ -2793,7 +2829,19 @@ export function gatheredFoodRate(state: GameState, pb: PlayerBuilding): Gathered
   rate = Math.floor(rate * staffMult);
   if (huntBoost > 0) rate = Math.floor(rate * (1 + huntBoost));
 
-  return { type, label, icon, full, seasonMod, staffMult, huntBoost, rate, rainMushrooms };
+  // Hunting Camp basket: carve the total into venison (primary) + rabbit + fowl.
+  let extras: GatheredExtra[] = [];
+  if (pb.buildingId === "hunting_camp") {
+    const mix = HUNTING_CATCH_MIX[season];
+    const total = rate;
+    rate = Math.floor(total * mix.venison);
+    extras = [
+      { type: "rabbit" as FoodItemType, label: "Rabbit", icon: "🐰", rate: Math.floor(total * mix.rabbit) },
+      { type: "wild_fowl" as FoodItemType, label: "Wild Fowl", icon: "🦆", rate: Math.floor(total * mix.wild_fowl) },
+    ].filter((e) => e.rate > 0);
+  }
+
+  return { type, label, icon, full, seasonMod, staffMult, huntBoost, rate, rainMushrooms, extras };
 }
 
 function calcProductionRates(state: GameState): { gold: number; wood: number; stone: number; food: number } {
@@ -2827,7 +2875,7 @@ function calcProductionRates(state: GameState): { gold: number; wood: number; st
       // from the shared gatheredFoodRate() helper — the one source of truth.
       const gathered = gatheredFoodRate(state, pb);
       if (gathered) {
-        rates.food += gathered.rate;
+        rates.food += gathered.rate + gathered.extras.reduce((s, e) => s + e.rate, 0);
       } else {
         let rate = levelDef.production.rate;
         // Staff coverage — non-gathering staffable buildings still scale by staffing.
@@ -3252,6 +3300,8 @@ function calcFoodRates(state: GameState, fedRatios?: Map<string, number>): Recor
     const gathered = gatheredFoodRate(state, pb);
     if (!gathered) continue;
     rates[gathered.type] += gathered.rate;
+    // Secondary catches (the hunting basket's rabbit + fowl) land in their types.
+    for (const e of gathered.extras) rates[e.type] += e.rate;
     // Rain's mushroom bonus rides on top of the seasonal gather.
     if (gathered.rainMushrooms > 0) rates.mushrooms += gathered.rainMushrooms;
   }
@@ -3304,6 +3354,10 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
     const def = BUILDINGS.find((b) => b.id === pb.buildingId)!;
     if (gathered.rate > 0) {
       sources.push({ type: gathered.type, label: gathered.label, icon: gathered.icon, rate: gathered.rate, building: def.name, wild: true });
+    }
+    // Secondary catches (hunting basket's rabbit + fowl) each get their own line.
+    for (const e of gathered.extras) {
+      if (e.rate > 0) sources.push({ type: e.type, label: e.label, icon: e.icon, rate: e.rate, building: def.name, wild: true });
     }
     // Rain's mushroom bonus is a separate line (summed with the seasonal one).
     if (gathered.rainMushrooms > 0) {
@@ -3450,6 +3504,11 @@ function grantReward(
     s.resources.water = Math.min(cap, (s.resources.water ?? 0) + reward.amount);
   } else if (res === "food") {
     addFood(s.foods, "wheat", reward.amount, caps.food);
+  } else if (res === "meat") {
+    // Generic "meat" reward/loot deposits venison (the default wild meat) so the
+    // many existing "meat" rewards keep working after the split. Specific meats
+    // come from their own sources (cull → per animal, seasonal hunt, boar hunt).
+    addFood(s.foods, "venison", reward.amount, caps.food);
   } else if (isFoodItemType(res)) {
     addFood(s.foods, res, reward.amount, caps.food);
   } else if (res === "wool") {
@@ -3478,6 +3537,7 @@ function getResourceQty(s: GameState, res: string): number {
   if (_EXOTIC_IDS.has(res)) return s.exotics?.[res] ?? 0;
   if (res === "gold" || res === "wood" || res === "stone") return s.resources[res as keyof typeof s.resources];
   if (res === "food") return s.foods.wheat ?? 0;
+  if (res === "meat") return MEAT_TYPES.reduce((sum, t) => sum + (s.foods[t] ?? 0), 0);
   if (isFoodItemType(res)) return s.foods[res] ?? 0;
   if (res === "wool") return s.wool;
   if (res === "fiber") return s.fiber;
@@ -3499,6 +3559,7 @@ function spendResource(s: GameState, res: string, amount: number): void {
   if (_EXOTIC_IDS.has(res)) { if (!s.exotics) s.exotics = {}; s.exotics[res] = Math.max(0, (s.exotics[res] ?? 0) - amount); return; }
   if (res === "gold" || res === "wood" || res === "stone") { const k = res as keyof typeof s.resources; s.resources[k] = Math.max(0, s.resources[k] - amount); return; }
   if (res === "food") { s.foods.wheat = Math.max(0, (s.foods.wheat ?? 0) - amount); return; }
+  if (res === "meat") { consumeFoodCost(s.foods, "meat", amount); return; }
   if (isFoodItemType(res)) { s.foods[res] = Math.max(0, (s.foods[res] ?? 0) - amount); return; }
   if (res === "wool") { s.wool = Math.max(0, s.wool - amount); return; }
   if (res === "fiber") { s.fiber = Math.max(0, s.fiber - amount); return; }
@@ -3593,7 +3654,7 @@ const KITCHEN_DISH_BY_ID = new Map(KITCHEN_DISHES.map((r) => [r.id, r]));
 /** A recipe cost that comes out of the food larder (a food item, or the grain/
  *  wild aliases) — as opposed to a crafting material (bone, leather, …). */
 export function isFoodCost(res: string): boolean {
-  return res === "grain" || res === "wild" || isFoodItemType(res);
+  return res === "grain" || res === "wild" || res === "meat" || isFoodItemType(res);
 }
 /** How much of a recipe cost the player holds — larder food OR materials, so
  *  dishes with material ingredients (e.g. bone broth's bone) resolve correctly.
@@ -4714,6 +4775,25 @@ export function GameProvider(props: ParentProps) {
         if (!s.foods) s.foods = emptyFoods();
         for (const [type, rate] of Object.entries(foodRates) as [FoodItemType, number][]) {
           if (rate > 0) addFood(s.foods, type, rate * happinessMod * elapsedHours, caps.food);
+        }
+        // Rare big kill: the Hunting Camp occasionally brings down a wisent — a big
+        // one-off haul, not part of the steady catch. Accumulate hunting time; every
+        // ~game-week of it, a wisent falls. (No camp → the tracker resets.)
+        {
+          const camp = s.buildings.find((b) => b.buildingId === "hunting_camp" && b.level > 0 && !b.damaged);
+          if (camp) {
+            s.huntWisentProgress = (s.huntWisentProgress ?? 0) + elapsedHours;
+            while (s.huntWisentProgress >= WISENT_INTERVAL_HOURS) {
+              s.huntWisentProgress -= WISENT_INTERVAL_HOURS;
+              const matCap = craftingMaterialCap(s.buildings);
+              addFood(s.foods, "wisent", WISENT_HAUL_MEAT, caps.food);
+              s.bone = Math.min(matCap, s.bone + WISENT_HAUL_BONE);
+              s.leather = Math.min(matCap, s.leather + WISENT_HAUL_LEATHER);
+              pushEvent(s, "loot_drop", "🦬", `The hunters brought down a wisent — a great haul: ${WISENT_HAUL_MEAT} meat, a rack of bone, and a huge hide.`);
+            }
+          } else {
+            s.huntWisentProgress = 0;
+          }
         }
         const foodToConsume = citizenFood * elapsedHours;
         if (foodToConsume > 0) {
@@ -6938,7 +7018,9 @@ export function GameProvider(props: ParentProps) {
         p.count -= n;
         const caps = calcStorageCaps(s.buildings);
         if (!s.foods) s.foods = emptyFoods();
-        if (y.meat > 0) addFood(s.foods, "meat", y.meat * n, caps.food);
+        // Each animal butchers to its own meat (pigs → pork, sheep → mutton, …).
+        const cullMeat = CULL_MEAT[pen.animal] as FoodItemType;
+        if (y.meat > 0) addFood(s.foods, cullMeat, y.meat * n, caps.food);
         if (y.leather > 0) s.leather = Math.min(craftingMaterialCap(s.buildings), s.leather + y.leather * n);
         if (y.bone > 0) s.bone = Math.min(craftingMaterialCap(s.buildings), s.bone + y.bone * n);
       }));

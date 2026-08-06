@@ -2,8 +2,9 @@ import { For, Show } from "solid-js";
 import { useGame, type PlayerPen } from "~/engine/gameState";
 import {
   getAnimal, getPenCapacity, getAnimalBuyCost, getCullYield,
-  getPenProduction,
+  getPenProduction, CULL_MEAT,
 } from "@medieval-realm/shared/data/livestock";
+import { getFoodMeta, type FoodItemType } from "~/data/foods";
 import { ANIMAL_FEED, FEED_CATEGORY_ICON, FEED_CATEGORY_LABEL, isGrazer } from "~/data/animalFeed";
 import Tooltip from "~/components/Tooltip";
 import DogAssignSection from "~/components/DogAssignSection";
@@ -87,7 +88,7 @@ export default function PenManageModal(props: Props) {
               >
                 Buy {animal().icon} 💰{buyCost()}
               </button>
-              <Tooltip block style={{ flex: "1" }} text={`Slaughter one for +${cy().meat} meat${cy().leather ? `, +${cy().leather} leather` : ""}${cy().bone ? `, +${cy().bone} bone` : ""}`}>
+              <Tooltip block style={{ flex: "1" }} text={`Slaughter one for +${cy().meat} ${getFoodMeta(CULL_MEAT[props.pen.animal] as FoodItemType).label.toLowerCase()}${cy().leather ? `, +${cy().leather} leather` : ""}${cy().bone ? `, +${cy().bone} bone` : ""}`}>
                 <button
                   class="btn-secondary"
                   onClick={() => actions.cullLivestock(props.pen.id, 1)}

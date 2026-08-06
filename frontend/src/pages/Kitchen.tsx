@@ -1,5 +1,6 @@
 import { For, Show } from "solid-js";
 import { useGame } from "~/engine/gameState";
+import { getFoodCostAmount } from "~/data/foods";
 import KitchenDesk from "~/components/KitchenDesk";
 
 /** The Kitchen page — the free-form cooking desk IS the kitchen now (Phase C3).
@@ -12,7 +13,7 @@ export default function Kitchen() {
   const level = () => state.buildings.find((b) => b.buildingId === "kitchen")?.level ?? 0;
   const summary = () => [
     { icon: "🌾", label: "Grain", v: Math.floor((f().wheat ?? 0) + (f().barley ?? 0)) },
-    { icon: "🍖", label: "Meat", v: Math.floor(f().meat ?? 0) },
+    { icon: "🍖", label: "Meat", v: Math.floor(getFoodCostAmount(f(), "meat")) },
     { icon: "🐟", label: "Fish", v: Math.floor(f().fish ?? 0) },
     { icon: "🥚", label: "Eggs", v: Math.floor(f().eggs ?? 0) },
     { icon: "🥛", label: "Milk", v: Math.floor(f().milk ?? 0) },

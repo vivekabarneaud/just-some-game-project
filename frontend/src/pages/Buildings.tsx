@@ -610,11 +610,15 @@ export default function Buildings() {
                             const isReduced = seasonMod != null && seasonMod < 1;
                             const FORAGER_FOOD: Record<string, string> = { spring: "berries", summer: "berries", autumn: "mushrooms", winter: "nuts" };
                             // Food-gathering buildings produce a generic "food" resource but yield a
-                            // specific type — label it so (meat/fish/seasonal forage), not "food".
-                            const GATHERED_FOOD: Record<string, string> = { hunting_camp: "meat", fishing_hut: "fish" };
-                            const foodLabel = building.id === "forager_hut"
-                              ? (FORAGER_FOOD[state.season] ?? "food")
-                              : (GATHERED_FOOD[building.id] ?? def.resource);
+                            // specific type — prefer the live seasonal catch (gathered.label: venison/
+                            // rabbit/wild fowl for the hunt, forage for the forager), and fall back to a
+                            // static label for the not-yet-built preview.
+                            const GATHERED_FOOD: Record<string, string> = { hunting_camp: "game", fishing_hut: "fish" };
+                            const foodLabel = gathered
+                              ? gathered.label.toLowerCase()
+                              : building.id === "forager_hut"
+                                ? (FORAGER_FOOD[state.season] ?? "food")
+                                : (GATHERED_FOOD[building.id] ?? def.resource);
                             const reduced = isReduced || shortStaffed || hurtStaffed;
                             return (
                               <div style={{ display: "flex", "flex-direction": "column", "align-items": "center", gap: "2px" }}>
@@ -626,6 +630,11 @@ export default function Buildings() {
                                     </span>
                                   )}
                                 </div>
+                                {gathered && gathered.extras.length > 0 && (
+                                  <div class="building-card-production" style={{ "font-size": "0.72rem", color: "var(--text-secondary)" }}>
+                                    {gathered.extras.map((e) => `+${e.rate}/h ${e.label.toLowerCase()}`).join(" · ")}
+                                  </div>
+                                )}
                                 {building.id === "hunting_camp" && (
                                   <div class="building-card-production">
                                     +{(prodLevel() * 1.0 * (seasonMod ?? 1) * staffMult * (1 + huntDogBoost)).toFixed(1)}/h leather · +{(prodLevel() * 0.6 * (seasonMod ?? 1) * staffMult * (1 + huntDogBoost)).toFixed(1)}/h bone

@@ -2,9 +2,9 @@ import { For, Show, onMount, createSignal } from "solid-js";
 import { useGame, type GameState, type PlayerField, type PlayerGarden, type PlayerPen, type PlayerHive, type PlayerOrchard } from "~/engine/gameState";
 import { CROPS, type CropId, getCrop, getFieldCost, getFieldBuildTime, getSeasonYield, getSoilMultiplier, getSoilStatus, getHayFromHarvest, MAX_FIELDS, FIELD_MAX_LEVEL } from "~/data/crops";
 import { getVeggie, getGardenCost, getGardenBuildTime, getSeedCapacity, getEffectiveGardenRate, getLiveGardenRate, getSproutedPlants, getGerminationRate, canPlantVeggie, isVeggieProducing, isSeedUnlocked, MAX_GARDENS, GARDEN_MAX_LEVEL } from "~/data/gardens";
-import { getAnimal, getPenCost, getPenBuildTime, getPenProduction, getPenCapacity, getAnimalBuyCost, getCullYield, getWoolSeasonMod, PEN_MAX_LEVEL, type AnimalId } from "@medieval-realm/shared/data/livestock";
+import { getAnimal, getPenCost, getPenBuildTime, getPenProduction, getPenCapacity, getAnimalBuyCost, getCullYield, CULL_MEAT, getWoolSeasonMod, PEN_MAX_LEVEL, type AnimalId } from "@medieval-realm/shared/data/livestock";
 import { ANIMAL_FEED, FEED_CATEGORY_ICON, FEED_CATEGORY_LABEL, FOOD_CATEGORY, isGrazer, type FeedCategory } from "~/data/animalFeed";
-import type { FoodItemType } from "~/data/foods";
+import { getFoodMeta, type FoodItemType } from "~/data/foods";
 import { getHiveCost, getHiveBuildTime, getHoneyRate, HIVE_MAX_LEVEL, APIARY_IMAGE, APIARY } from "~/data/apiary";
 import SeedIcon from "~/components/SeedIcon";
 import SeasonIcon from "~/components/SeasonIcon";
@@ -111,7 +111,7 @@ function MeatYield(props: { animal: AnimalId }) {
     <>
       <div style={{ "font-size": "0.9rem", color: "var(--text-secondary)" }}>🥩 raised for meat</div>
       <div style={{ "font-weight": 400, "font-size": "0.72rem", "margin-top": "3px", "line-height": 1.4 }}>
-        cull → +{cy().meat} meat{extras() ? ` · ${extras()}` : ""}
+        cull → +{cy().meat} {getFoodMeta(CULL_MEAT[props.animal] as FoodItemType).label.toLowerCase()}{extras() ? ` · ${extras()}` : ""}
       </div>
     </>
   );

@@ -102,9 +102,9 @@ export default function ResourceBar() {
       .filter((d) => d.info.cap > 0);
   const caps = () => actions.getStorageCaps();
   const foodBreakdown = () => actions.getFoodBreakdown();
-  // Sum ALL production sources of a food type — there can be several (e.g. a
-  // sheep pen AND the hunting camp both make "meat"). A prior `.find` showed
-  // only the first source, hiding the rest (the hunting camp's meat vanished).
+  // Sum ALL production sources of a food type — there can be several feeding one
+  // type. A prior `.find` showed only the first source, hiding the rest (a
+  // secondary source's contribution vanished).
   const rateForType = (id: string) =>
     foodBreakdown().filter((s) => s.type === id).reduce((sum, s) => sum + s.rate, 0);
 

@@ -149,6 +149,15 @@ export function getCullYield(animal: AnimalId): CullYield {
   return CULL_YIELD[animal];
 }
 
+/** Which specific meat an animal butchers into (post meat-split). String, not the
+ *  frontend FoodItemType, since shared can't import it — callers cast/look it up. */
+export const CULL_MEAT: Record<AnimalId, string> = {
+  chickens: "chicken",
+  goats: "goat",
+  pigs: "pork",
+  sheep: "mutton",
+};
+
 export function getPenCost(level: number): { wood: number; stone: number; gold: number } {
   return {
     wood: growth(PEN_BASE_COST.wood, PEN_COST_MULTIPLIER, level),

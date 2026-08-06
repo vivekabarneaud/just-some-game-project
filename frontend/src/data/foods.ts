@@ -6,7 +6,8 @@ export type FoodItemType =
   | "wheat" | "barley"
   | "cabbages" | "turnips" | "peas" | "squash" | "fava"
   | "apples" | "pears" | "cherries" | "strawberries"
-  | "meat" | "eggs" | "milk" | "fish"
+  | "venison" | "boar" | "wisent" | "pork" | "mutton" | "goat" | "chicken" | "wild_fowl" | "rabbit"
+  | "eggs" | "milk" | "fish"
   | "berries" | "mushrooms" | "nuts"
   | "porridge" | "hearth_stew" | "river_stew" | "bone_broth";
 
@@ -61,11 +62,19 @@ export const FOOD_ITEMS: FoodItemMeta[] = [
   { id: "pears",     label: "Pears",     icon: "🍐", order: 2, category: "fruit" },
   { id: "cherries",  label: "Cherries",  icon: "🍒", order: 3, category: "fruit" },
   { id: "strawberries", label: "Strawberries", icon: "🍓", order: 4, category: "fruit" },
-  // Animal products
-  { id: "meat",      label: "Meat",      icon: "🍖", order: 1, category: "animal" },
-  { id: "eggs",      label: "Eggs",      icon: "🥚", order: 2, category: "animal" },
-  { id: "milk",      label: "Milk",      icon: "🥛", order: 3, category: "animal" },
-  { id: "fish",      label: "Fish",      icon: "🐟", order: 4, category: "animal" },
+  // Animal products — meats (all share the "meat" recipe/feed alias below)
+  { id: "venison",   label: "Venison",   icon: "🦌", order: 1, category: "animal" },
+  { id: "boar",      label: "Boar",      icon: "🐗", order: 2, category: "animal" },
+  { id: "wisent",    label: "Wisent",    icon: "🦬", order: 3, category: "animal" },
+  { id: "pork",      label: "Pork",      icon: "🥓", order: 4, category: "animal" },
+  { id: "mutton",    label: "Mutton",    icon: "🐑", order: 5, category: "animal" },
+  { id: "goat",      label: "Goat",      icon: "🐐", order: 6, category: "animal" },
+  { id: "chicken",   label: "Chicken",   icon: "🍗", order: 7, category: "animal" },
+  { id: "wild_fowl", label: "Wild Fowl", icon: "🦆", order: 8, category: "animal" },
+  { id: "rabbit",    label: "Rabbit",    icon: "🐰", order: 9, category: "animal" },
+  { id: "eggs",      label: "Eggs",      icon: "🥚", order: 10, category: "animal" },
+  { id: "milk",      label: "Milk",      icon: "🥛", order: 11, category: "animal" },
+  { id: "fish",      label: "Fish",      icon: "🐟", order: 12, category: "animal" },
   // Wild foods
   { id: "berries",   label: "Berries",   icon: "🫐", order: 1, category: "wild" },
   { id: "mushrooms", label: "Mushrooms", icon: "🍄", order: 2, category: "wild" },
@@ -79,6 +88,12 @@ export const FOOD_ITEMS: FoodItemMeta[] = [
 ];
 
 export const FOOD_ITEM_IDS: FoodItemType[] = FOOD_ITEMS.map((f) => f.id);
+
+/** The specific meats behind the "meat" cost/feed alias. A recipe or reward that
+ *  asks for "meat" resolves across all of these (like "grain" = wheat+barley), so
+ *  the meat split never breaks a recipe. Grant sites pick a SPECIFIC meat (cull →
+ *  per animal, hunting camp → seasonal catch, boar hunt → boar). */
+export const MEAT_TYPES: FoodItemType[] = ["venison", "boar", "wisent", "pork", "mutton", "goat", "chicken", "wild_fowl", "rabbit"];
 
 export function getFoodMeta(id: FoodItemType): FoodItemMeta {
   return FOOD_ITEMS.find((f) => f.id === id)!;
@@ -96,6 +111,7 @@ export function getFoodCostAmount(foods: Record<FoodItemType, number> | undefine
   if (!foods) return 0;
   if (resource === "grain") return (foods.wheat ?? 0) + (foods.barley ?? 0);
   if (resource === "wild") return (foods.berries ?? 0) + (foods.mushrooms ?? 0) + (foods.nuts ?? 0);
+  if (resource === "meat") return MEAT_TYPES.reduce((sum, t) => sum + (foods[t] ?? 0), 0);
   if (isFoodItemType(resource)) return foods[resource] ?? 0;
   return 0;
 }
@@ -124,6 +140,19 @@ export function consumeFoodCost(foods: Record<FoodItemType, number>, resource: s
     let remaining = amount;
     const order = ([ "berries", "mushrooms", "nuts" ] as FoodItemType[])
       .sort((a, b) => (foods[b] ?? 0) - (foods[a] ?? 0));
+    for (const t of order) {
+      const take = Math.min(foods[t] ?? 0, remaining);
+      foods[t] = (foods[t] ?? 0) - take;
+      remaining -= take;
+      if (remaining <= 0) break;
+    }
+    return;
+  }
+  if (resource === "meat") {
+    // Take meats most-abundant-first so a stew doesn't zero out the venison while
+    // the larder is full of pork.
+    let remaining = amount;
+    const order = [...MEAT_TYPES].sort((a, b) => (foods[b] ?? 0) - (foods[a] ?? 0));
     for (const t of order) {
       const take = Math.min(foods[t] ?? 0, remaining);
       foods[t] = (foods[t] ?? 0) - take;
