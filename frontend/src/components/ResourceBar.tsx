@@ -2,10 +2,10 @@ import { For, Show } from "solid-js";
 import { RESOURCES } from "~/data/resources";
 import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { EXOTICS } from "@medieval-realm/shared/data/exotics";
-import { useGame, CRAFTING_RECIPES, passiveCookTime, isForagerBlooming } from "~/engine/gameState";
+import { useGame, CRAFTING_RECIPES, passiveCookTime, isForagerBlooming, readDishCost, isFoodCost } from "~/engine/gameState";
 import { TAVERN_COMMODITY_DRINKS } from "~/data/tavern";
 import { totalPopulation } from "~/data/citizens";
-import { FOOD_ITEMS, FOOD_CATEGORIES, getTotalFood, getFoodCostAmount, type FoodItemType, type FoodCategoryId } from "~/data/foods";
+import { FOOD_ITEMS, FOOD_CATEGORIES, getTotalFood, type FoodItemType, type FoodCategoryId } from "~/data/foods";
 import { craftingMaterialCap } from "~/data/buildings";
 import { WEATHER_META } from "~/data/weather";
 import FoodIcon from "~/components/FoodIcon";
@@ -46,7 +46,7 @@ export default function ResourceBar() {
     for (const rid of Object.values(state.autoCook ?? {}).flat()) {
       const r = CRAFTING_RECIPES.find((cr) => cr.id === rid);
       if (!r) continue;
-      const inputsOk = r.costs.every((c) => getFoodCostAmount(state.foods, c.resource) >= c.amount);
+      const inputsOk = r.costs.every((c) => readDishCost(state, c.resource) >= c.amount);
       const woodOk = state.resources.wood > 0; // the fire needs fuel
       if (!inputsOk || !woodOk) continue; // stalled → no contribution
       // Passive pots run on the slow sustainable cadence, not the snappy active
@@ -57,9 +57,10 @@ export default function ResourceBar() {
       let netBatch = r.produces.amount;
       let minHours = Infinity;
       for (const c of r.costs) {
-        netBatch -= c.amount; // inputs are food → leave the larder
+        // Only larder food offsets the food gain; materials (bone) don't.
+        if (isFoodCost(c.resource)) netBatch -= c.amount;
         const burn = c.amount * perHour;
-        const stock = getFoodCostAmount(state.foods, c.resource);
+        const stock = readDishCost(state, c.resource);
         if (burn > 0) minHours = Math.min(minHours, stock / burn);
       }
       net += netBatch * perHour;
@@ -80,7 +81,7 @@ export default function ResourceBar() {
       .find((cr) => cr?.produces.resource === foodId);
     if (!r) return "";
     if (state.resources.wood <= 0) return "no fuel";
-    const missing = r.costs.find((c) => getFoodCostAmount(state.foods, c.resource) < c.amount);
+    const missing = r.costs.find((c) => readDishCost(state, c.resource) < c.amount);
     return missing ? `out of ${missing.resource}` : "";
   };
   /** "~4h left" style label, or "" when the supply is effectively open-ended. */

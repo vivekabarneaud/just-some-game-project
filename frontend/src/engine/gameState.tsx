@@ -3590,13 +3590,19 @@ function calcStorageCaps(buildings: PlayerBuilding[]): StorageCaps {
 const KITCHEN_DISHES: CraftingRecipe[] = CRAFTING_RECIPES.filter((r) => r.building === "kitchen");
 const KITCHEN_DISH_BY_ID = new Map(KITCHEN_DISHES.map((r) => [r.id, r]));
 
-function readDishCost(s: GameState, res: string): number {
-  return res === "grain" || res === "wild" || isFoodItemType(res)
-    ? getFoodCostAmount(s.foods, res)
-    : getResourceQty(s, res);
+/** A recipe cost that comes out of the food larder (a food item, or the grain/
+ *  wild aliases) — as opposed to a crafting material (bone, leather, …). */
+export function isFoodCost(res: string): boolean {
+  return res === "grain" || res === "wild" || isFoodItemType(res);
+}
+/** How much of a recipe cost the player holds — larder food OR materials, so
+ *  dishes with material ingredients (e.g. bone broth's bone) resolve correctly.
+ *  Shared by the tavern cook-to-order, the auto-cook tick, and the topbar. */
+export function readDishCost(s: GameState, res: string): number {
+  return isFoodCost(res) ? getFoodCostAmount(s.foods, res) : getResourceQty(s, res);
 }
 function spendDishCost(s: GameState, res: string, amount: number): void {
-  if (res === "grain" || res === "wild" || isFoodItemType(res)) consumeFoodCost(s.foods, res, amount);
+  if (isFoodCost(res)) consumeFoodCost(s.foods, res, amount);
   else spendResource(s, res, amount);
 }
 /** Kitchen level (0 = no kitchen). Dishes need a kitchen to be cooked. */
@@ -5028,8 +5034,9 @@ export function GameProvider(props: ParentProps) {
         // ── Passive cooking: "keep the fire lit" while ingredients + wood last ──
         // Each autoCook building re-starts its recipe whenever it's idle, paying a
         // small wood fuel cost per game-hour while a batch actually cooks. The
-        // completion loop above routes the cooked food into the larder. (Cooking
-        // recipe costs are food-type only, so getFoodCostAmount covers them.)
+        // completion loop above routes the cooked food into the larder. (Costs go
+        // through readDishCost/spendDishCost so material ingredients like bone —
+        // e.g. bone broth — are counted, not just larder food.)
         const FUEL_WOOD_PER_HOUR = 1;
         for (const [autoBuildingId, autoRecipeIds] of Object.entries(s.autoCook ?? {})) {
           const autoBldg = s.buildings.find((b) => b.buildingId === autoBuildingId);
@@ -5043,9 +5050,9 @@ export function GameProvider(props: ParentProps) {
             if (cooking) {
               s.resources.wood = Math.max(0, s.resources.wood - FUEL_WOOD_PER_HOUR * elapsedHours);
             } else {
-              const canAfford = autoRecipe.costs.every((c) => getFoodCostAmount(s.foods, c.resource) >= c.amount);
+              const canAfford = autoRecipe.costs.every((c) => readDishCost(s, c.resource) >= c.amount);
               if (s.resources.wood > 0 && canAfford) {
-                for (const c of autoRecipe.costs) consumeFoodCost(s.foods, c.resource, c.amount);
+                for (const c of autoRecipe.costs) spendDishCost(s, c.resource, c.amount);
                 // Passive pots run on a slow, sustainable cadence (much longer
                 // than the snappy active craft) so they trickle food instead of
                 // draining the larder's raw ingredients in minutes.
@@ -7263,12 +7270,14 @@ export function GameProvider(props: ParentProps) {
           const r = CRAFTING_RECIPES.find((cr) => cr.id === rid);
           if (!r) continue;
           // Only count a pot that can actually simmer now (ingredients + wood).
-          const inputsOk = r.costs.every((c) => getFoodCostAmount(state.foods, c.resource) >= c.amount);
+          const inputsOk = r.costs.every((c) => readDishCost(state, c.resource) >= c.amount);
           if (!inputsOk || state.resources.wood <= 0) continue;
           // Passive pots use the slow sustainable cadence, not craftTime.
           const perHour = 3600 / passiveCookTime(r);
           let netBatch = r.produces.amount;
-          for (const c of r.costs) netBatch -= c.amount;
+          // Only larder food leaves the larder — material inputs (e.g. bone for
+          // bone broth) aren't food, so they don't offset the food gain.
+          for (const c of r.costs) if (isFoodCost(c.resource)) netBatch -= c.amount;
           net += netBatch * perHour;
         }
       }
