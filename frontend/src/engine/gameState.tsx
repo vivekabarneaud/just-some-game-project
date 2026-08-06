@@ -595,6 +595,8 @@ export interface GameState {
   huntWisentProgress?: number;
   /** Autumn fishing-time accumulated toward the next rare eel (game-hours). */
   fishEelProgress?: number;
+  /** Foraging-time accumulated toward the next lucky wild-tree/hedge find (game-hours). */
+  forageTreeProgress?: number;
   /** Storage caps from the last tick. Derived; surfaced so the pantry/warehouse
    *  nudges can fire when a resource is near its cap (overflow) without
    *  reimplementing calcStorageCaps in the quest layer. */
@@ -2822,6 +2824,18 @@ const EEL_HAUL = 4;                // a delicacy, not a feast
 /** Fraction of the forager's autumn rain-flush that comes up as rare cèpe, mixed
  *  in among the chanterelles. Tunable. */
 const FORAGE_CEPE_FRACTION = 0.12;
+/** The Forager's other rare event: the foragers stumble on a laden wild tree or
+ *  hedge and bring back a one-off haul of whatever it bore. Tunable. */
+const FORAGE_TREE_INTERVAL_HOURS = 24 * 6; // ~a game-week between lucky finds
+const FORAGE_TREE_POOL: { res: string; amt: number; what: string }[] = [
+  { res: "apples", amt: 12, what: "a wild apple tree" },
+  { res: "pears", amt: 10, what: "a wild pear" },
+  { res: "cherries", amt: 8, what: "a wild cherry" },
+  { res: "blackberry", amt: 12, what: "a bramble thick with blackberries" },
+  { res: "blueberry", amt: 12, what: "a bilberry patch" },
+  { res: "raspberry", amt: 10, what: "a stand of wild raspberry" },
+  { res: "rosehip", amt: 6, what: "a hedge of wild roses" },
+];
 
 /** Single source of truth for a food-gathering building's yield — the hunting
  *  camp, forager's hut, and fishing hut. The tick, the netFoodPerHour
@@ -4919,6 +4933,22 @@ export function GameProvider(props: ParentProps) {
               addFood(s.foods, "eel", EEL_HAUL, caps.food);
               pushEvent(s, "loot_drop", "🐍", `An eel came up in the autumn traps — a prized ${EEL_HAUL} for the pot.`);
             }
+          }
+        }
+        // Wild-tree find: the foragers occasionally stumble on a laden tree or hedge
+        // and bring back a one-off haul of whatever it bore (fruit, berries, rosehips).
+        {
+          const hut = s.buildings.find((b) => b.buildingId === "forager_hut" && b.level > 0 && !b.damaged);
+          if (hut) {
+            s.forageTreeProgress = (s.forageTreeProgress ?? 0) + elapsedHours;
+            while (s.forageTreeProgress >= FORAGE_TREE_INTERVAL_HOURS) {
+              s.forageTreeProgress -= FORAGE_TREE_INTERVAL_HOURS;
+              const pick = FORAGE_TREE_POOL[Math.floor(Math.random() * FORAGE_TREE_POOL.length)];
+              grantReward(s, { resource: pick.res, amount: pick.amt }, caps);
+              pushEvent(s, "loot_drop", "🌳", `The foragers came on ${pick.what} — a haul of ${pick.amt}.`);
+            }
+          } else {
+            s.forageTreeProgress = 0;
           }
         }
         const foodToConsume = citizenFood * elapsedHours;

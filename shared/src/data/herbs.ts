@@ -18,6 +18,14 @@ export const HERBS: HerbDefinition[] = [
     dropRate: 0.05, // ~1 per 20 food foraged
   },
   {
+    id: "rosehip",
+    name: "Rosehip",
+    icon: "🌹",
+    rarity: "common",
+    description: "The scarlet hip of the wild rose — the \"gratte-cul\". Not for eating raw (mind the seeds), but cooked into jam or a tea it is a sweet, warming remedy against the winter chills.",
+    dropRate: 0.012, // mostly comes from the wild-tree find, so the loose forage rate is low
+  },
+  {
     id: "mugwort",
     name: "Mugwort",
     icon: "🌿",

@@ -913,6 +913,9 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
   { id: "strawberry_jam", name: "Strawberry Jam", icon: "🍓", building: "kitchen", minLevel: 1, kind: "dessert", requiresDiscovery: true,
     description: "Cultivated strawberries preserved with honey. Not a staple, a small sweetness: a treat for the table that lifts the settlement's spirits.",
     costs: [{ resource: "strawberries", amount: 3 }, { resource: "honey", amount: 1 }], produces: { resource: "food", amount: 2 }, craftTime: 30 },
+  { id: "rosehip_jam", name: "Rosehip Jam", icon: "🌹", building: "kitchen", minLevel: 1, kind: "dessert", requiresDiscovery: true,
+    description: "The gratte-cul, no good raw, is slow-simmered with honey into a tart-sweet scarlet jam. A little comfort against a lean, cold season, and a healthful one at that.",
+    costs: [{ resource: "rosehip", amount: 3 }, { resource: "honey", amount: 1 }], produces: { resource: "food", amount: 2 }, craftTime: 30 },
 
   // Town kitchen recipes (Lv 5-6) — complex multi-ingredient dishes
   { id: "hunters_stew", name: "Hunter's Stew", icon: "🍲", building: "kitchen", minLevel: 5,
