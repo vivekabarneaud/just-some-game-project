@@ -31,3 +31,11 @@ NEW:
       live tick was running, not offline). Candidate fixes: (a) self-healing winter
       guard — if winter && field.crop, run the missed harvest/clear (fixes ghost crops
       + water now); (b) harden dual-load to reconcile by recency, not blind server-wins.
+
+      - "A murderer they said" chronicle beat not firing
+      - Kitchens always have the golden spark
+      - The bee tree is shorter than gather timber even though it's farther (probably because of the combat / gathering timber takes time? Or is it a path duration calculation error?)
+      - Should sheep pen still be gated to village?
+      - Forest bear too slow
+      - Implementing enemy portraits (real pictures) into the CombatUnit frames
+      - Maybe give levels to enemies too (bosses with fixed levels, e.g. captain Hale lvl 10, regular enemies in a range, affecting stats a bit)
