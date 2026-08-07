@@ -21,6 +21,12 @@
 
   --border-color: #2a3a5c;
   --border-highlight: #4a5a8c;
+  /* Aliases: ~34 call sites were already written against these two names while
+     only the pair above existed, so their borders/backgrounds silently didn't
+     render (an undefined var invalidates the declaration). Defined as aliases
+     rather than mass-renaming the call sites. See docs/TECH_DEBT.md 1.9. */
+  --border-default: var(--border-color);
+  --bg-tertiary: var(--bg-panel);
 
   --text-primary: #e0d8c8;
   --text-secondary: #9a9480;

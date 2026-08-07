@@ -64,6 +64,7 @@
 
 | Doc | Currency | Note → action |
 | --- | --- | --- |
+| TECH_DEBT.md | **CURRENT** (living) | Ranked debt register from the 2026-08-07 4-agent sweep: Tier 1 live bugs → Tier 4 structural, + CSS appendix, + batch sequencing. → **Tick items as they land; check before starting any refactor.** |
 | STORY_PLAYER_SCRIPT.md | **CURRENT** | Most up-to-date story doc (through Story 13). → **Treat as the primary story source.** |
 | PROMPTS_DONE.md | **CURRENT** | Done-log half of the art-prompt pair; consistent with shipped assets. → **Keep.** |
 | PROMPTS.md | **PARTIAL-STALE** | Live art backlog, but story-slide titles drifted vs code. → **Reconcile slide titles; prune completed.** |

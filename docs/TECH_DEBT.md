@@ -1,0 +1,78 @@
+# Tech Debt Register
+
+- **Status:** living document. Created 2026-08-07 from a 4-agent sweep (engine/data, components/pages, CSS, shared-package boundary).
+- **How to use:** tick items as they land, add new debt as it's found, delete sections that go stale. Line numbers are as-of the sweep date and will drift — treat them as "where to start looking."
+- **Tiers:** 1 = live bugs (fix asap) · 2 = duplication that is already diverging (fix soon) · 3 = dead weight (delete when convenient) · 4 = structural (discuss before touching).
+
+---
+
+## Tier 1 — Live bugs
+
+- [x] **1.1 Raid double-apply on reload.** The offline raid resolver (`frontend/src/engine/gameState.tsx` ~3592, server-load path) lacks the `if (ir.combatLog) continue` guard the tick path has (~5622). A raid resolved live but not yet acknowledged (playback unwatched) survives in `incomingRaids`, round-trips to the server, and gets re-resolved on reload: loot or plunder/citizen deaths applied twice. *Fix: add the same guard. S / low risk.*
+- [x] **1.2 Offline raid defeats can kill founders.** Offline casualty math (~3645) uses `sim.archersLost + sim.soldiersLost` (drops `militiaLost`) and decrements `citizens.adults` directly instead of `reduceByPriority(..., s.namedResidents)` like the tick path (~5679). Named residents/founders lose their protection on away-raids. *S / medium risk (population invariants).*
+- [x] **1.3 Offline raid loot ignores storage caps.** Tick path clamps to `calcStorageCaps` (~5719); offline path does a bare `+=` (~3660). *S.*
+- [x] **1.4 Orchard fruit invisible in UI rates.** Of the three food-rate implementations, only `calcFoodRates` (tick, ~2702) includes orchards; `calcProductionRates` (~2301) and `calcFoodBreakdown` (~2767) destructure without `orchards`, so the topbar rate and the food dropdown omit orchard fruit. Also `calcFoodBreakdown` rounds field rate where the others don't, so the dropdown doesn't sum to the headline. *M / balance-visible.*
+- [x] **1.5 Backend trade can't see food.** `backend/src/lib/resources.ts:9-31`: `CORE_RESOURCES` includes `"food"` but reads `state.resources.food`, which doesn't exist (food lives in `state.foods`); `"fruit"` hits `(state as any)["fruit"]`, also nonexistent. Trade offers denominated in food/fruit always read 0 and are rejected; `addResource` writes phantom keys into saved blobs. Root cause is the stale shared `GameState` (see 4.1). *S / high value.*
+- [x] **1.6 Grant/spend bucket mismatch.** `grantReward` (~2940) has no branch for `bone`/`ale`/`mead`/`cider` → they fall through to `addInventoryItem`; `spendResource` (~3040) reads them from `s.bone`/`s.ale`/... Grant-then-spend uses two different pockets. Also `getResourceQty` has no `water` branch while `grantReward` does. *S-M. Real fix is 4.3; patch the branches now.*
+- [ ] **1.7 `long_pepper` is uncookable — PARKED (2026-08-07, by design call).** Kitchen ingredient id `long_pepper` (`shared/src/data/kitchen/ingredients.ts:48`) vs economy exotic id `chili` (`shared/src/data/exotics.ts:38`, display name "Long Pepper"). Stock lookup always returns 0 — but no recipe uses it yet and the current focus is Tier-1/Ch1 content, so this is harmless today. **Fix it (align the ids) the day the first spice recipe or the traveling-merchants slice lands.** Same note for exotics `pepper`/`tea` (no kitchen ingredient at all).
+- [x] **1.8 Raw reward labels for new foods.** `FOOD_ITEM_LABELS` (`shared/src/data/missions/helpers.ts:48-73`) is missing ~15 ids that `RewardType` permits (venison, boar, wisent, pork, mutton, goat, chicken, wild_fowl, rabbit, trout, pike, eel, salmon, fava, strawberries). `formatReward` falls back to raw text: the player sees "+2 boar". Two shipped missions (boar, salmon) already hit it. *S.*
+- [x] **1.9 Undefined CSS variables.** `--border-default` (32 uses / 12 files: KitchenDesk ×6, AlchemyDesk ×5, dev pages, Buildings ×3 …) and `--bg-tertiary` (QuestLog ×2) are referenced but never defined in `:root` → borders/backgrounds silently dropped. *Fix: define aliases of `--border-color`/an existing bg. S — but it CHANGES VISUALS (borders appear where they were missing): eyeball KitchenDesk, AlchemyDesk, Buildings, QuestLog after.*
+- [x] **1.10 Dev routes outside AuthGuard.** `frontend/src/index.tsx` ~160-179: `/dev-alchemy`, `/dev-kitchen` (and `/dev-battle`, "remove after Tier-1 enemy pass") are lazy-routed outside the auth guard and ship in the prod bundle. *Fix: env-guard (import.meta.env.DEV) or delete. S.*
+
+## Tier 2 — Duplication that is already diverging
+
+- [ ] **2.1 The two offline raid resolvers.** ~115 lines in the server-load path (~3592-3707) duplicating the tick resolver (~5617-5793); their drift IS bugs 1.1-1.3. After those are patched and pinned by tests, extract one `resolveRaid(state, ir, opts)` so it can't drift again. *L / medium.*
+- [ ] **2.2 `pages/CharacterEncyclopedia.tsx` is a byte-level duplicate of `pages/chronicle/ChronicleCharacters.tsx`** (diff = 3 lines: fn name + an `<h1>`). Make one render the other with a title prop, or drop the route. *S.*
+- [ ] **2.3 Three `UpgradeIndicator` implementations.** Shared `components/UpgradeIndicator.tsx` uses the portaled Tooltip (fixed clipping); `pages/Defenses.tsx:96` and `pages/Buildings.tsx:275,385` hand-roll forks that still carry the already-fixed clipping bug. *M.*
+- [ ] **2.4 Ten hand-rolled modals bypass `FramedModal`.** LootModal, QuestClaimModal, MemoryPreviewModal, EventModal, SettingsModal, ChronicleEntryModal, DogAssignSection, Tavern, ChronicleCast, AdventurersGuild (inline Portal). Consequences: only FramedModal closes on Escape; backdrop alphas drift (0.6/0.7/0.75/0.78); z-index ratchet (1000→1050→1100→1200; Tooltip 9999, Cinematic 10000). *Fix in stages: (a) `--z-*` scale + shared backdrop token, (b) Escape handling, (c) migrate the closest pairs (LootModal/QuestClaimModal share ~70 lines). M.*
+- [ ] **2.5 `CONDITION_META` ignored by 3 files** (`AdventurerPickerCard:75`, `CombatLog:68`, `LootModal:264` re-map conditions inline) — player-facing tooltip prose has already drifted between screens. *S.*
+- [ ] **2.6 `formatDuration` copied verbatim** in `MissionAssemblyPanel.tsx:64` + `MissionCard.tsx:14`; identical to `utils/format.ts:5 formatTimeShort`. Buildings/Marketplace inline their own min/sec math. *S / zero risk.*
+- [ ] **2.7 Three parallel food-rate impls** (`calcProductionRates` / `calcFoodRates` / `calcFoodBreakdown`) — after the 1.4 patch, unify on one typed `foodSources(state)` producer folded three ways. *M.*
+- [ ] **2.8 Raid strength year-scaling copy-pasted** (`gameState.tsx:1744` vs `data/raids.ts:388`, + the warning-time block). Extract `spawnScriptedRaid`. *S.*
+- [ ] **2.9 Cost-line renderers ×7.** `Defenses.tsx:68` has the good abstraction (CostLine/CostPart/shortageBlocker); BuildingModal (×2, comment admits "mirrors the upgrade cost row"), Buildings, Enchanting, Shrine, MenuDishCard, CraftingPage each re-invent affordability coloring. *M.*
+- [ ] **2.10 Desk twins.** `AlchemyDesk.tsx`/`KitchenDesk.tsx` (299/297 ln) share byte-identical `STEP_BTN`/`PAGE_BTN` style consts; `QUALITY_COLOR` defined 4×; `TIER_ICONS`, `STAT_LABELS` 2× each. Extract a shared `deskStyles.ts`. *M.*
+- [ ] **2.11 Portrait `_zoomed` + onError fallback: 3 competing strategies** across 8 call sites (one with NO fallback). One `<Portrait>` component. *S.*
+- [ ] **2.12 XP-bar markup ×3** (Guild `XpBar` vs hand-copies in AdventurerPickerCard/MissionRosterStrip that "mirror HpBar's track exactly" by hand). Generalize HpBar → `<StatBar>`. *S-M.*
+- [ ] **2.13 Flavor union ×4** (`FoodPreference` in adventurers.ts + dead copy in shared gameState.ts; `FoodFlavor` in kitchen/types.ts; inline union in items/types.ts) → 5 `as any` casts. One-line re-export fixes it. *S.*
+- [ ] **2.14 Season/resource icon tables re-rolled locally.** BuildingModal local `SEASONS` shadows `SEASON_META`; CraftingPage + Shrine private resource-emoji tables bypass `data/resources.ts`. *S.*
+- [ ] **2.15 Two enemy cards** (`MissionEnemyCard` 247 ln vs `EnemyCard` 191 ln) — deliberate visual split, but the reveal-tier logic + frame selection should be one hook. *M.*
+
+## Tier 3 — Dead weight (deletion)
+
+- [ ] **3.1 Unreachable migration code** in the server-load path (~3376-3585): chapter-pointer bumps, orchard shape migration, multi-hive collapse, legacy fruit split, 3→11-slot equipment migration, chapel→shrine rename — all behind the `saveVersion === SAVE_VERSION` guard whose own comment says no backfills are needed. Plus the adventurer-only dup-id re-fix (~3574) that `migrateSaveState` already does. *M (mostly deletion).*
+- [ ] **3.2 Leftover migration helpers, zero call sites:** `data/citizens.ts:141 migrateLegacyPopulation`, `data/foods.ts:254 migrateFoodsFromLegacy`, `data/defenses.ts:174 distributeLegacyGarrison`. *S.*
+- [ ] **3.3 `pages/chronicle/ChronicleLore.tsx`** — 99 lines, never imported/routed. *S.*
+- [ ] **3.4 Dead random-recruitment subsystem** in `shared/src/data/adventurers.ts:846-1003` (`generateCandidate`, `getCandidateCount`, `getRecruitCost`, `getMaxRecruitRank`, `RECRUIT_REFRESH_HOURS`, `MISSION_REFRESH_HOURS`) — superseded by the premade roster. *S.*
+- [ ] **3.5 Write-only/unused GameState fields** (persisted for nothing): `ironMinedTotal`, `missionRefreshIn`, `lastDroughtKillYear`, `startingSuppliesGiven`, `foragedTotal`, `lastTradeAt`. Remove with a SAVE_VERSION bump. *S.*
+- [ ] **3.6 ~20 dead exports in `frontend/src/data/`** (quests query helpers, constants, orchards/gardens cost fns, climate, raids, seasons, animalFeed, founding_characters, chronicle_entries, sounds — full list in the sweep). Verify `getSaplingCost`/`getSeedCost` were folded inline before deleting. *S.*
+- [ ] **3.7 ~171 dead CSS classes (~1,650 lines, ~24% of global.css)** — dead subsystems include the login deed/notice-board art (`.lg-*` ~5683-5935), `.trade-*`, `.gear-inv-card-*`, `.team-adv-*`, `.raid-report-*`, `.mission-slot-*`, `.supply-slot-*`, `.crop-option-*`, `.field-card-*`, `.building-detail-*`, `.cost-grid`, `.shrine-deity-card`, `.parchment-card`, `.quest-rewards`. Grep each name before cutting (no dynamic class construction found except `weather-${}`). *L but mechanical.*
+- [ ] **3.8 Dead shared exports** (`MAX_PENS`, pen cost consts, `WOOL_SEASON_MOD`, `CULL_YIELD`, `ANIMAL_BUY_COST`, `getExotic`, `isExoticId`, `getAbility`, NPC consts `NIAMH`/`CORIN`/`TRUFFLE`, etc. — full list in sweep). *S.*
+- [ ] **3.9 ~90 exports in `gameState.tsx` used only internally** — drop `export` to reveal the file's real seams and re-enable dead-code tooling. Compiler-verified. *S.*
+
+## Tier 4 — Structural (discuss before touching)
+
+- [ ] **4.1 `shared/src/gameState.ts` is a stale shadow.** Frontend `GameState` has 131 fields, shared has ~84 (missing walls/watchtowers/barracks/tavern/merchant/chronicle/namedResidents/…); `Adventurer` 11 vs 25 fields; `StorageCaps` missing `water`. Backend types saves against the stale copy → root cause of 1.5, and the backend is blind to half the save. `SAVE_VERSION` is frontend-only; backend mutates blobs with no version check. *Fix: make shared the single source, frontend imports it; the type-error wave is the point. L.*
+- [ ] **4.2 The two `RewardType` unions** (`shared/src/gameState.ts:237` + `shared/src/data/missions/types.ts:7`) — currently byte-identical, 65 members; the gameState.ts copy has ZERO importers so drift would be silent. Fix: re-export one from the other; requires moving `Season` out to its own module first (type-only cycle). Do together with 4.1. *S once 4.1 lands.*
+- [ ] **4.3 Five parallel resource dispatchers** (`grantReward` / `getResourceQty` / `spendResource` / `trade()` give+receive / backend `getResource`) — hand-synced if-chains over the same string ids, all typed `res: string` so `RewardType` never constrains them; source of 1.6. Fix: one `RESOURCE_ACCESSORS` registry (read/add/spend per id), shared so the backend can use it. *L — do last, with tests.*
+- [ ] **4.4 Nothing typechecks `shared`; no CI.** `shared/package.json` has no scripts; zero tests in the package (tests of shared logic live in frontend); frontend `build` is bare `vite build` (no type errors surface); only backend runs `tsc --noEmit`; no `.github/workflows`. **Cheapest high-leverage fix on this list** — none of Tier 1 would have survived a CI that typechecked all three packages. *S.*
+- [ ] **4.5 `FoodItemType` can't reach shared.** Defined in `frontend/src/data/foods.ts`, so shared degrades to `string` (`CULL_MEAT: Record<AnimalId, string>`) and consumers re-cast. Move the type + item meta into shared (careful: name collision with shared's existing mission-consumable `FOOD_ITEMS`). Fixes 1.7/1.8's category and half of 4.3. *M.*
+- [ ] **4.6 Backend tick is a 4th production-rate implementation** (`backend/src/services/tick.ts:118-140`, self-described "simplified approximation") that the client overwrites anyway. Either hoist real rate math into shared or delete the approximation. *M.*
+- [ ] **4.7 tsconfig drift.** shared lacks `skipLibCheck`/`esModuleInterop`/`isolatedModules` (frontend enforces the latter — relevant for 4.2's re-exports: use `export type`); vestigial `outDir`/`declaration`; one extensionless import (`livestock.ts:1`). No shared base config. *S.*
+- [ ] **4.8 Big-file watch list (pain-driven only, per project rule):** `applyTicks` ~1,950 ln — the mission-resolution cluster (~4949-5613) is the painful part; `MissionAssemblyPanel.tsx` 1,744 ln (slot card written 2×, coop/solo interleaved); `Farming.tsx` 1,952 ln (4 near-identical cards → `FarmCardShell` + `useBuildable`); `Overview.tsx` 961 ln (zero extracted components); `AdventurersGuild.tsx` / `BuildingModal.tsx` (~900 each, clean seams noted in sweep). Split only when next working in them.
+
+## CSS appendix (beyond 1.9 / 2.4 / 3.7)
+
+- [ ] **C.1 Utility classes for the top repeated inline styles** — ~15 classes would kill several hundred of the 2,039 inline `style={{}}` objects (top repeats: muted-text ×38, gold-text ×31, red ×22, green ×20, full-width-center button ×13, space-between/flex-end header ×12, `.section-label` re-implemented inline ~40×). *M.*
+- [ ] **C.2 Token the scales:** font sizes (48 distinct values; the 0.62-0.85rem band alone has ~14 steps), border-radius (10 values), black scrims (10 alphas), gold glow (9 alphas), z-index (`--z-modal/-toast/-tooltip/-cinematic`). *S-M.*
+- [ ] **C.3 Hex literals shadowing tokens:** `#f5c542`≡`--accent-gold` ×7, `#e74c3c`≡`--accent-red` ×6, `#3498db`≡`--accent-blue` ×4 (zero-visual-change swaps); `#a78bfa` ×30 is a SECOND purple distinct from `--accent-purple #9370db` — needs a naming decision. *S-M.*
+- [ ] **C.4 Cascade hygiene:** duplicate selector definitions split across the file (`.sidebar-account` ×2, `.resource-dropdown` ×2, several `::after` pairs); `@keyframes combat-lunge` declared 2× (reduced-motion override relies on declaration order); 60 `!important`s fighting inline styles (fall out of C.1); 12 scattered `prefers-reduced-motion` blocks → one section; breakpoints 480/520/600/768 → 2-3 named ones; `transition: all` ×19 → explicit properties. *S each.*
+
+---
+
+## Suggested sequencing
+
+1. **Batch A (now):** all of Tier 1. Small, test-verifiable; 1.9 last with an eyeball note.
+2. **Batch B:** Tier 3 deletions (3.1-3.6, 3.8, 3.9 in one pass; 3.7 CSS purge as its own commit).
+3. **Batch C:** 4.4 (typecheck scripts + CI) — before any structural work, so regressions get caught.
+4. **Batch D:** 2.1 (merge raid resolvers, now that behavior is pinned), then 2.2/2.5/2.6/2.8/2.13/2.14 quick dedups.
+5. **Batch E+:** the rest of Tier 2, then 4.1/4.2 → 4.5 → 4.3, each as its own conversation.

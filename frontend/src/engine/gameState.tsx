@@ -2365,6 +2365,16 @@ function calcProductionRates(state: GameState): { gold: number; wood: number; st
     }
   }
 
+  // Orchards — mature trees in their harvest season. (Was missing: orchard
+  // fruit reached the pantry via calcFoodRates but never showed in this
+  // aggregate, so the topbar food rate under-reported.)
+  for (const orchard of state.orchards ?? []) {
+    if (orchard.level === 0 || orchard.upgrading || (orchard.matureTrees ?? 0) <= 0) continue;
+    const fruitDef = getFruit(orchard.fruit);
+    if (!isOrchardActive(fruitDef, season)) continue;
+    rates.food += getOrchardRate(fruitDef, orchard.matureTrees) * cm;
+  }
+
   // Pens — produce year-round, but also consume food
   for (const pen of pens) {
     if (pen.level === 0) continue;
@@ -2776,7 +2786,9 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
       if (field.level === 0 || !field.crop) continue;
       const crop = getCrop(field.crop);
       if (!crop.isFood) continue;
-      const rate = Math.round((getSeasonYield(crop, field.level) / HARVEST_DURATION_HOURS) * cm);
+      // No rounding here — the other sources report fractional rates, and
+      // rounding just this one made the dropdown disagree with the headline.
+      const rate = (getSeasonYield(crop, field.level) / HARVEST_DURATION_HOURS) * cm;
       sources.push({ type: crop.id, label: crop.name, icon: crop.icon, rate, building: `${crop.name} Field Lv${field.level}` });
     }
   }
@@ -2789,6 +2801,16 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
     if (!isVeggieProducing(veggie, season)) continue;
     const rate = getLiveGardenRate(garden.level, garden.plantsAlive ?? 0) * cm;
     sources.push({ type: veggie.id, label: veggie.name, icon: veggie.icon, rate, building: `${veggie.name} Garden Lv${garden.level}` });
+  }
+
+  // Orchards — mature trees in season, per-fruit. (Was missing: orchard fruit
+  // landed in the pantry but never showed a line in this dropdown.)
+  for (const orchard of state.orchards ?? []) {
+    if (orchard.level === 0 || orchard.upgrading || (orchard.matureTrees ?? 0) <= 0) continue;
+    const fruitDef = getFruit(orchard.fruit);
+    if (!isOrchardActive(fruitDef, season)) continue;
+    const rate = getOrchardRate(fruitDef, orchard.matureTrees) * cm;
+    sources.push({ type: fruitDef.id, label: fruitDef.name, icon: fruitDef.icon, rate, building: `${fruitDef.name} Orchard Lv${orchard.level}` });
   }
 
   // Pens — meat/eggs/milk
@@ -2987,8 +3009,16 @@ function grantReward(
     s.leather = Math.min(craftingMaterialCap(s.buildings), s.leather + reward.amount);
   } else if (res === "iron") {
     s.iron = Math.min(craftingMaterialCap(s.buildings), s.iron + reward.amount);
+  } else if (res === "bone") {
+    // Same pocket the spend/read paths use (s.bone) — previously fell through
+    // to the inventory, so granted bone could never be spent as a material.
+    s.bone = Math.min(craftingMaterialCap(s.buildings), s.bone + reward.amount);
   } else if (res === "honey") {
     s.honey = s.honey + reward.amount;
+  } else if (res === "ale" || res === "mead" || res === "cider") {
+    // Barrel commodities live on s.ale/s.mead/s.cider (where the tavern pours
+    // from and spendResource drains) — not in the inventory.
+    s[res] = (s[res] ?? 0) + reward.amount;
   } else {
     // Unknown to the resource counters — treat as a material/item entry
     // (monster-drop materials, gear). Respects the item's maxStack.
@@ -3004,6 +3034,7 @@ function getResourceQty(s: GameState, res: string): number {
   if (_HERB_IDS.has(res)) return s.herbs?.[res] ?? 0;
   if (_EXOTIC_IDS.has(res)) return s.exotics?.[res] ?? 0;
   if (res === "gold" || res === "wood" || res === "stone") return s.resources[res as keyof typeof s.resources];
+  if (res === "water") return s.resources.water ?? 0;
   if (res === "food") return s.foods.wheat ?? 0;
   if (res === "meat") return MEAT_TYPES.reduce((sum, t) => sum + (s.foods[t] ?? 0), 0);
   if (res === "fish") return FISH_TYPES.reduce((sum, t) => sum + (s.foods[t] ?? 0), 0);
@@ -3029,6 +3060,7 @@ function spendResource(s: GameState, res: string, amount: number): void {
   if (_HERB_IDS.has(res)) { if (!s.herbs) s.herbs = {}; s.herbs[res] = Math.max(0, (s.herbs[res] ?? 0) - amount); return; }
   if (_EXOTIC_IDS.has(res)) { if (!s.exotics) s.exotics = {}; s.exotics[res] = Math.max(0, (s.exotics[res] ?? 0) - amount); return; }
   if (res === "gold" || res === "wood" || res === "stone") { const k = res as keyof typeof s.resources; s.resources[k] = Math.max(0, s.resources[k] - amount); return; }
+  if (res === "water") { s.resources.water = Math.max(0, (s.resources.water ?? 0) - amount); return; }
   if (res === "food") { s.foods.wheat = Math.max(0, (s.foods.wheat ?? 0) - amount); return; }
   if (res === "meat" || res === "fish" || res === "mushrooms" || res === "berries") { consumeFoodCost(s.foods, res, amount); return; }
   if (isFoodItemType(res)) { s.foods[res] = Math.max(0, (s.foods[res] ?? 0) - amount); return; }
@@ -3592,6 +3624,9 @@ export function GameProvider(props: ParentProps) {
         if (serverState.incomingRaids?.length) {
           for (let i = serverState.incomingRaids.length - 1; i >= 0; i--) {
             const ir = serverState.incomingRaids[i];
+            // Already resolved live (playback not yet acknowledged) — leave it
+            // for the panel; re-resolving here would double-apply loot/plunder.
+            if (ir.combatLog) continue;
             if (ir.remaining <= 0) {
               const template = getRaid(ir.raidId);
               if (template && template.encounters?.length) {
@@ -3636,28 +3671,31 @@ export function GameProvider(props: ParentProps) {
                   const adv = (serverState.adventurers ?? []).find((a: any) => a.id === oc.advId);
                   if (adv) adv.currentHp = Math.max(1, Math.round(oc.hp));
                 }
-                // Soldier/archer casualties = adult deaths. Reduce adults by the
-                // exact loss count, clamped so total never drops below BASE.
-                const totalAdultLoss = sim.archersLost + sim.soldiersLost;
-                if (totalAdultLoss > 0) {
-                  const popTotal = (serverState as any).citizens
-                    ? (serverState as any).citizens.toddlers + (serverState as any).citizens.children + (serverState as any).citizens.adults + (serverState as any).citizens.elderly
-                    : 0;
+                // Soldier + archer + militia casualties = adult deaths, same as
+                // the live tick path: clamped to the BASE_POPULATION floor and
+                // routed through reduceByPriority so founders/named residents
+                // keep their protection on away-raids too.
+                const totalAdultLoss = sim.archersLost + sim.soldiersLost + sim.militiaLost;
+                if (totalAdultLoss > 0 && (serverState as any).citizens) {
+                  const popTotal = totalPopulation((serverState as any).citizens);
                   const allowed = Math.max(0, popTotal - BASE_POPULATION);
                   const actual = Math.min(totalAdultLoss, allowed);
-                  if (actual > 0 && (serverState as any).citizens) {
-                    (serverState as any).citizens.adults = Math.max(0, (serverState as any).citizens.adults - actual);
+                  if (actual > 0) {
+                    (serverState as any).citizens = reduceByPriority((serverState as any).citizens, actual, ["adults"], serverState.namedResidents);
                   }
                 }
 
                 const raidName = template.name ?? ir.raidId;
                 if (sim.victory) {
+                  // Clamp to storage caps, same as the live path — offline
+                  // victories shouldn't overfill the warehouse.
+                  const resCaps = calcStorageCaps(serverState.buildings);
                   for (const loot of template.victoryLoot) {
                     if (loot.resource === "astralShards") {
                       serverState.astralShards += loot.amount;
                     } else {
                       const key = loot.resource as keyof typeof serverState.resources;
-                      serverState.resources[key] += loot.amount;
+                      serverState.resources[key] = Math.min(resCaps[key], serverState.resources[key] + loot.amount);
                     }
                   }
                 } else {
@@ -3666,21 +3704,16 @@ export function GameProvider(props: ParentProps) {
                   serverState.resources.wood = Math.max(0, serverState.resources.wood - Math.floor(serverState.resources.wood * stealPct));
                   serverState.resources.stone = Math.max(0, serverState.resources.stone - Math.floor(serverState.resources.stone * stealPct));
                   if (serverState.foods) consumeFood(serverState.foods, Math.floor(getTotalFood(serverState.foods) * stealPct));
-                  if (template.killsCitizens) {
-                    const c = (serverState as any).citizens;
-                    const popTotal = c ? c.toddlers + c.children + c.adults + c.elderly : 0;
+                  if (template.killsCitizens && (serverState as any).citizens) {
+                    const popTotal = totalPopulation((serverState as any).citizens);
                     const extra = Math.min(template.maxCitizenLoss, Math.max(1, Math.floor(popTotal * 0.1)));
                     const allowed = Math.max(0, popTotal - BASE_POPULATION);
                     const actual = Math.min(extra, allowed);
-                    if (actual > 0 && c) {
-                      // Adults first (defenders), then elderly, children, toddlers.
-                      let remaining = actual;
-                      for (const cat of ["adults", "elderly", "children", "toddlers"] as const) {
-                        if (remaining <= 0) break;
-                        const take = Math.min(c[cat], remaining);
-                        c[cat] -= take;
-                        remaining -= take;
-                      }
+                    if (actual > 0) {
+                      // Adults first (defenders), then elderly, children, toddlers —
+                      // through the same reducer as the live path so named
+                      // residents keep their floor.
+                      (serverState as any).citizens = reduceByPriority((serverState as any).citizens, actual, ["adults", "elderly", "children", "toddlers"], serverState.namedResidents);
                     }
                   }
                   // Damage 1-3 random buildings

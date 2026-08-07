@@ -174,9 +174,10 @@ render(
     <Router>
       <Route path="/login" component={Login} />
       {/* Standalone (outside App/GameProvider): a pure tuning tool with no game
-          state, so the settlement save-loop can't reload it mid-experiment. */}
-      <Route path="/dev-alchemy" component={AlchemyLabDev} />
-      <Route path="/dev-kitchen" component={KitchenDev} />
+          state, so the settlement save-loop can't reload it mid-experiment.
+          Dev builds only — these sandboxes have no business in prod. */}
+      {import.meta.env.DEV && <Route path="/dev-alchemy" component={AlchemyLabDev} />}
+      {import.meta.env.DEV && <Route path="/dev-kitchen" component={KitchenDev} />}
       <Route path="/" component={(p) => <AuthGuard><App {...p} /></AuthGuard>}>
         <Route path="/" component={Overview} />
         <Route path="/buildings" component={Buildings} />
@@ -202,7 +203,7 @@ render(
         <Route path="/shrine" component={Shrine} />
         <Route path="/defenses" component={Defenses} />
         <Route path="/quests" component={QuestLog} />
-        <Route path="/dev-battle" component={BattlePreview} />{/* TEMP dev-only, remove after Tier-1 enemy pass */}
+        {import.meta.env.DEV && <Route path="/dev-battle" component={BattlePreview} />}{/* TEMP dev-only, remove after Tier-1 enemy pass */}
         <Route path="*" component={ComingSoon} />
       </Route>
     </Router>
