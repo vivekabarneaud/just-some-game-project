@@ -42,6 +42,26 @@ The witch is **Aldith**; her dead granddaughter is **Ada**. She isn't extending 
 - **The "off" tell is doubled:** the offerings turning *and* the gatherers coming back having said too much (the tea). Plus the drowned dead rising (see the marsh section).
 - **The turn:** at tea they notice a **portrait** of Aldith and a young girl → *"…she looks like Nell"* (that is *why* Nell). She begins asking about Nell. The demand: Nell's **body as a vessel** (erased). The Lord's flat refusal is the mask slipping. **Nell never goes to the marsh — the asking is the horror, not the act.**
 
+#### How the offering is chosen (design 2026-08-07) — the narrowing menu
+
+The drift above is a *sequence*, not a shopping list; keep it. But **what the player may pay with narrows as it drifts**, and that narrowing is itself the story:
+
+| Stage | She accepts | What it says |
+| --- | --- | --- |
+| **Early (mundane)** | A **choice** from several common things — dry firewood, grain, a little honey or wool | A poor old woman takes gratefully whatever you can spare. |
+| **Middle** | Fewer options, more particular | She is starting to *want* rather than accept. |
+| **Late (strange)** | **One specific thing**, no choice (bone → grave-dust → a thing with a name on it) | Something else is asking now. |
+
+The UI carries the meaning: the dropdown that once offered five kindly options shrinks to a single line the player cannot argue with.
+
+**Why the early stage must be a choice (the failure it fixes):** the original gate was a flat `deployItems: [{ resource: "wheat", amount: 5 }]`. Wheat is **eaten by the citizens every hour**, so a player who earns the beat, logs off, and returns can find the payment gone — the game contradicting its own fiction right after the Lammast chronicle says the neighbours left grain at the gate. Hunting for an "un-eatable" resource does not work either (**wood burns for winter heating** via `FUEL_WOOD_PER_HOUR`; only *stone* is never auto-consumed, and a fen-witch has no use for stone). **Robustness comes from variety, not immunity** — accept several common things and the odds of having none are negligible.
+
+Thematic key for what belongs on the early shelf: **what can a fen not give her?** Dry firewood (everything there is wet), grain (you cannot farm a marsh — the original instinct was right), cloth/wool, salt, honey. That is also why the late offerings unsettle: they are things the fen *can* give, and shouldn't.
+
+It also makes her consistent with the rest of the game, whose apothecary and kitchen are both free-form ("bring what you have, the system responds"). A fixed 5-wheat toll was the odd one out.
+
+**Build note — mostly reuse:** the mission panel *already* renders a barter row (`deployItems`, ~`MissionAssemblyPanel.tsx:1394`, comment: "Barter/offering cost") with affordability checks, and `Marketplace.tsx` already has styled `<select>` dropdowns. Missing piece is only a **choice group** on `deployItems` ("any one of these") plus the dropdown. Aldith's **portrait beside the row** would sell it (needs the asset).
+
 ### The marsh — why killing her IS the containment
 The marsh is a **thinning-edge Aldith *deepened*.** Her rituals were the *engine*: they concentrated dead Aether and **woke the drowned dead** (the `swamp_revenant`s are *her footprint*, not the marsh's nature — full undead is Wastes-grade). So her death removes the engine: the concentration fades, the revenants settle, and the marsh **reverts to its thinning-edge baseline** (adders, voices, unease — no walking dead). You **can't cleanse** it (the edge stays; contain-not-cleanse), but you need **no separate "cap the marsh" mission** the way the spring did — *the spring was an impersonal wound; the marsh's worsening was a person.* End the person, end the worsening.
 - **Marsh arc: calm (adders) → corrupted (adders + revenants) → calm (adders).** Full circle to `marsh_clearing`'s framing: the adders' home.
