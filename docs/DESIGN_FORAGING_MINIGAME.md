@@ -12,7 +12,7 @@ The player has done the daily missions, every building is gated on resources, an
 
 Which fixes the constraints:
 
-- **Rate-limited.** Never farmable.
+- **Rate-limited.** Never farmable — but by world state, not by a counter (§3a).
 - **Low yield.** It must never become the optimal way to get resources, or it replaces the game instead of filling its gaps.
 - **High charm.** The reward is the two minutes in the woods, not the eight blueberries.
 - **Cozy, not twitchy.** No timers, no clicking speed. Tension comes from a limited basket and uncertain identification.
@@ -32,14 +32,40 @@ A forager's hut auto-producing 15 plant types is noise: a wall of small numbers 
 
 ## 3. Loop
 
-1. The hut accumulates **foraging trips** slowly, banking ~3 max. (Charges, not a daily lock: a returning player finds a couple waiting; nobody can grind it.)
-2. Spend a trip → a **hand-painted forest scene**, seasonal.
-3. Plants are **sprites scattered procedurally** over the static backdrop, so the search is fresh every visit and 4 backdrops (one per season) carry the whole system.
+1. Walk into the woods. **Always available** — no charges, no tickets, no daily reset (see §3a).
+2. A **hand-painted forest scene**, one backdrop per season.
+3. Plants are **sprites scattered procedurally** over that static backdrop, so the search is fresh every visit and 4 backdrops carry the whole system.
 4. Click to gather into a **limited basket** (~10 slots).
 5. **No labels in the scene. Ever.** (See §4.)
-6. Basket resolves at the end: Edda names what you actually got; the herbier fills in.
+6. **Ends when the player says so, or when the basket fills.** You can "go deeper" to another scene, but the basket does not reset, so depth trades against what you already carry.
+7. Basket resolves at the end: Edda names what you actually got; the herbier fills in.
 
 **Seasonality** rides on the existing season system: spring greens and ramsons, summer berries, an autumn mushroom flush, a near-bare winter wood (see medlar, §6, for why winter still has a reason to exist).
+
+## 3a. Rate limiting: the woods remember (no tickets)
+
+**Rejected: daily resets and charge/ticket counters.** Anything that expires creates guilt ("I forgot to forage today"), which is the exact opposite of a cozy downtime valve. Anything with a visible counter turns a walk in the woods into an errand.
+
+**Instead, the limit lives in the world.** The woods hold a **stock per plant**, and picking depletes it:
+
+```
+woodsStock: Record<plantId, number>   // { blackberry: 12, chanterelle: 3, ramsons: 0, ... }
+```
+
+- **Scene generation reads the stock.** Lots of blackberry → many blackberry sprites scattered about. Zero → none appear at all.
+- **Picking decrements it.** Strip the blackberries today, and tomorrow's wood is visibly thin on blackberries while everything else is still there.
+- **Regrowth is a rate per plant, ticked** toward a seasonal cap.
+
+**This replaces the ticket system entirely.** You may walk into the woods as often as you like; the limit is simply that you already picked everything and it has not grown back. No counter in the UI, no expiry, no guilt, and stripping a patch teaches the forager's ethic through the world instead of through a number.
+
+### Why store stock, not patches
+Persisting individual patches (position + species + picked-at + per-patch respawn timer) is the complicated design, and it is the same class of stateful bug already biting the farm (fields still holding live crops in winter, see `TODOs`). A plain stock record avoids all of it, and every worry answers itself for free:
+
+| Worry | Answer |
+| --- | --- |
+| Different plants regrow at different speeds | One regrow rate per plant. Berries return in days; a King Bolete takes far longer. One number each. |
+| The season changes overnight | The scene is generated fresh from the **current** season every visit. Nothing is remembered, so nothing can go stale. Winter simply drops most caps near zero and the wood is bare. **This design cannot get the fields-in-winter bug.** |
+| It rained, should mushrooms appear? | Bump the mushroom stock. **The mechanism already exists** — `rainMushrooms` / `rainCepe` in `gatheredFoodRate()`. Same idea, new home. |
 
 ## 4. Identification, not eyesight (the key mechanic)
 
@@ -149,5 +175,7 @@ Two kinds, at wildly different build costs:
 - **Basket stakes.** A cap alone is arithmetic. A soft request (*"Edda would be glad of anything for the winter fevers"*) gives the choice weight. Keep it a wish, never a chore.
 - Which single fruit ships first? (Medlar recommended, for the winter payoff.)
 - Does the minigame live at the forager's hut, or is it its own page?
-- Does a foraging trip cost anything beyond a charge (time? the Lord's presence)?
+- Tuning: regrow rates per plant, seasonal caps, basket size (~10?).
+- Does a trip cost anything at all (time? the Lord's presence?), or is walking into the woods free with depletion as the only limit?
+- Should the "go deeper" scenes be richer but further (tying to walking-the-bounds / escort), or just more of the same?
 - Herbier: standalone page, or a Chronicle tab?
