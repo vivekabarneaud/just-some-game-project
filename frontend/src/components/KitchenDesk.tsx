@@ -5,22 +5,44 @@ import { dishFlavors } from "@medieval-realm/shared/data/kitchen/cook";
 import { allowsTechnique, getFoodIngredient, foodByRole } from "@medieval-realm/shared/data/kitchen/ingredients";
 import type { CookTechnique, FoodRole, CookPlacement, DishChannel } from "@medieval-realm/shared/data/kitchen/types";
 import { playSound } from "~/engine/sounds";
+import { getSettlementTier, type SettlementTier } from "~/data/buildings";
 import FramedModal from "~/components/FramedModal";
 import FramedItemCard, { itemFrameUrl as frameUrl, gradeFilter } from "~/components/FramedItemCard";
 
-/** The free-form cooking desk. Left: the cookbook on parchment. Right: technique
- *  STATIONS (boil/chop/fry/roast) up top, ROLE SHELVES below (each opens a picker
- *  of what's in the larder), and the output. Pick an ingredient off a shelf → the
- *  stations highlight → click one to prepare it that way (roast the meat, boil the
- *  staple). Several ingredients per station, several per shelf. See docs/DESIGN_KITCHEN.md. */
+/** The free-form cooking desk. Left: the cookbook on parchment. Right: the
+ *  COOKING SURFACE — a painting of the kitchen with a slot button sitting on
+ *  each object (pot / fire / board) — then ROLE SHELVES below (each opens a
+ *  picker of what's in the larder), and the output. Pick an ingredient off a
+ *  shelf → the stations it allows light up gold, the ones it can't use dim with
+ *  a reason → click one to prepare it that way. Several ingredients per station,
+ *  several per shelf.
+ *
+ *  The buttons hang ABOVE their object rather than the objects being clickable:
+ *  simpler to read at a glance, and it leaves each station room to show what's
+ *  in it. Positions are percentages onto the art (see STATIONS), so the painting
+ *  can be swapped or re-cropped per settlement tier without touching layout.
+ *  See docs/DESIGN_KITCHEN.md. */
 
-const STATIONS: { technique: CookTechnique; place: string; icon: string; verb: string; past: string }[] = [
-  { technique: "boil", place: "Pot", icon: "🍲", verb: "Boil", past: "boiled" },
-  { technique: "chop", place: "Board", icon: "🔪", verb: "Chop", past: "eaten raw" },
-  { technique: "skewer", place: "Fire", icon: "🍢", verb: "Skewer", past: "skewered" },
-  { technique: "fry", place: "Pan", icon: "🍳", verb: "Fry", past: "fried" },
-  { technique: "roast", place: "Oven", icon: "🔥", verb: "Roast", past: "roasted" },
+/** The cooking surface, painted. `x`/`y` are percentages onto KITCHEN_ART and
+ *  point at the object itself; the label + contents tray hangs just above it.
+ *  `minTier` mirrors the design in kitchen/types.ts: boil + chop + skewer at
+ *  camp, fry at village, roast at town. The camp painting only depicts those
+ *  first three, so later tiers want their own art (a town kitchen is not a
+ *  campfire) — until then, ungated stations fall back to a plain row below. */
+const KITCHEN_ART = "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/kitchen/camp.png";
+
+type StationDef = {
+  technique: CookTechnique; place: string; icon: string; verb: string; past: string;
+  minTier: SettlementTier; x?: number; y?: number;
+};
+const STATIONS: StationDef[] = [
+  { technique: "boil",   place: "Pot",   icon: "🍲", verb: "Boil",   past: "boiled",    minTier: "camp",    x: 47, y: 36 },
+  { technique: "skewer", place: "Fire",  icon: "🍢", verb: "Skewer", past: "skewered",  minTier: "camp",    x: 26, y: 70 },
+  { technique: "chop",   place: "Board", icon: "🔪", verb: "Chop",   past: "eaten raw", minTier: "camp",    x: 72, y: 69 },
+  { technique: "fry",    place: "Pan",   icon: "🍳", verb: "Fry",    past: "fried",     minTier: "village" },
+  { technique: "roast",  place: "Oven",  icon: "🔥", verb: "Roast",  past: "roasted",   minTier: "town" },
 ];
+const TIER_RANK: Record<SettlementTier, number> = { camp: 0, village: 1, town: 2, city: 3 };
 const ROLE_SHELVES: { role: FoodRole; label: string; icon: string }[] = [
   { role: "staple", label: "Staple", icon: "🌾" }, { role: "protein", label: "Protein", icon: "🍖" },
   { role: "veg", label: "Veg", icon: "🥬" }, { role: "fruit", label: "Fruit", icon: "🍎" },
@@ -133,6 +155,14 @@ export default function KitchenDesk() {
     setStations(next); setHeld(null);
   };
 
+  // Which stations this kitchen has. The painting depicts the three camp ones;
+  // fry/roast unlock with the settlement and (for now) sit in a plain row until
+  // their own tier art exists.
+  const tier = () => getSettlementTier(actions.getTownHallLevel());
+  const hasStation = (st: StationDef) => TIER_RANK[tier()] >= TIER_RANK[st.minTier];
+  const paintedStations = () => STATIONS.filter((st) => hasStation(st) && st.x != null);
+  const extraStations = () => STATIONS.filter((st) => hasStation(st) && st.x == null);
+
   const PAGE_BTN = { background: "rgba(42,32,18,0.08)", border: "1px solid #2a2012", "border-radius": "4px", color: "#2a2012", padding: "2px 12px", cursor: "pointer", "font-size": "0.9rem" } as const;
   const STEP_BTN = { background: "rgba(255,255,255,0.1)", border: "1px solid var(--border-default)", "border-radius": "4px", color: "var(--text-primary)", width: "16px", height: "16px", "line-height": 1, padding: 0, cursor: "pointer", "font-size": "0.8rem", display: "inline-flex", "align-items": "center", "justify-content": "center" } as const;
 
@@ -183,36 +213,35 @@ export default function KitchenDesk() {
 
       {/* ── RIGHT: the working kitchen ── */}
       <div style={{ flex: "1 1 340px" }}>
-        {/* Technique stations (highlight when an ingredient is held) */}
+        {/* ── The cooking surface: a painting, with the stations sitting on it ──
+            Buttons hang ABOVE each object rather than making the objects
+            themselves clickable — simpler to read, and it leaves room for each
+            station's contents. Coordinates are percentages, so the art can be
+            re-cropped or swapped per tier without touching the layout. */}
         <div style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "margin-bottom": "8px" }}>
-          🍳 The kitchen {held() ? <span style={{ color: "var(--accent-gold)" }}>· holding {getFoodIngredient(held()!)?.icon} {getFoodIngredient(held()!)?.name} — click a station</span> : ""}
+          🍳 The kitchen {held()
+            ? <span style={{ color: "var(--accent-gold)" }}>· holding {getFoodIngredient(held()!)?.icon} {getFoodIngredient(held()!)?.name}, choose where it goes</span>
+            : ""}
         </div>
-        <div style={{ display: "flex", "flex-wrap": "wrap", gap: "8px", "margin-bottom": "16px" }}>
-          <For each={STATIONS}>
+        <div style={{ position: "relative", width: "100%", "aspect-ratio": "1 / 1", "border-radius": "10px", overflow: "hidden", "margin-bottom": "16px", border: "1px solid var(--border-color)" }}>
+          <img src={KITCHEN_ART} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", "object-fit": "cover", "user-select": "none", "pointer-events": "none" }} />
+          <For each={paintedStations()}>
             {(st) => {
               const arr = () => stationOf(st.technique);
-              // While holding something, a station this ingredient can't use
-              // reads as refused (dimmed, not gold) and says why on hover.
               const refuses = () => !!held() && !allowsTechnique(held()!, st.technique);
               const offers = () => !!held() && !refuses();
               return (
-                <div style={{ flex: "1 1 45%", "min-height": "58px", padding: "6px", "border-radius": "8px", "text-align": "center", cursor: offers() ? "pointer" : "default",
-                  border: `2px solid ${offers() ? "var(--accent-gold)" : arr().length ? "var(--accent-green)" : "var(--border-default)"}`,
-                  background: offers() ? "rgba(212,131,26,0.08)" : "var(--bg-card)",
-                  opacity: refuses() ? 0.4 : 1,
-                  display: "flex", "flex-direction": "column", "align-items": "center", "justify-content": "center", gap: "3px" }}
-                  onClick={() => clickStation(st.technique)}
-                  title={refuses()
-                    ? `${getFoodIngredient(held()!)?.name} can't be ${st.past}`
-                    : held() ? `${st.verb} it in the ${st.place}` : st.place}>
-                  <div style={{ "font-size": "1.2rem" }}>{st.icon}</div>
-                  <div style={{ "font-size": "0.7rem", color: "var(--text-secondary)" }}>{st.verb}</div>
-                  <Show when={arr().length > 0} fallback={<div style={{ "font-size": "0.64rem", color: "var(--text-muted)" }}>empty</div>}>
-                    <div style={{ display: "flex", "flex-wrap": "wrap", gap: "4px", "justify-content": "center" }}>
+                <div style={{ position: "absolute", left: `${st.x}%`, top: `${st.y}%`, transform: "translate(-50%, -50%)",
+                  display: "flex", "flex-direction": "column", "align-items": "center", gap: "4px", "max-width": "46%" }}>
+                  {/* contents tray — sits above the label so the object stays visible */}
+                  <Show when={arr().length > 0}>
+                    <div style={{ display: "flex", "flex-wrap": "wrap", gap: "3px", "justify-content": "center" }}>
                       <For each={countsOf(st.technique)}>
                         {(c) => (
-                          <span style={{ display: "inline-flex", "align-items": "center", gap: "4px", "font-size": "0.66rem", padding: "1px 3px 1px 7px", "border-radius": "12px", background: "rgba(255,255,255,0.08)", border: "1px solid var(--border-default)" }}>
-                            <span>{getFoodIngredient(c.id)?.icon} {getFoodIngredient(c.id)?.name}</span>
+                          <span title={getFoodIngredient(c.id)?.name}
+                            style={{ display: "inline-flex", "align-items": "center", gap: "3px", "font-size": "0.66rem", padding: "1px 3px 1px 6px", "border-radius": "12px",
+                              background: "rgba(20,14,8,0.82)", border: "1px solid var(--accent-gold)", color: "var(--text-primary)", "backdrop-filter": "blur(2px)" }}>
+                            <span>{getFoodIngredient(c.id)?.icon}</span>
                             <button onClick={(e) => { e.stopPropagation(); removeOne(st.technique, c.id); }} title="One less" style={STEP_BTN}>−</button>
                             <span style={{ "min-width": "0.8em", "text-align": "center", "font-weight": 600 }}>{c.n}</span>
                             <button onClick={(e) => { e.stopPropagation(); addToStation(st.technique, c.id); }} disabled={!canStepUp(st.technique, c.id)}
@@ -224,11 +253,69 @@ export default function KitchenDesk() {
                       </For>
                     </div>
                   </Show>
+                  {/* the slot button itself — translucent so the painting reads through */}
+                  <button onClick={() => clickStation(st.technique)}
+                    title={refuses() ? `${getFoodIngredient(held()!)?.name} can't be ${st.past}`
+                      : held() ? `${st.verb} it in the ${st.place}` : st.place}
+                    style={{ display: "inline-flex", "align-items": "center", gap: "5px", padding: "4px 10px", "border-radius": "999px",
+                      "font-size": "0.74rem", "white-space": "nowrap", "font-family": "var(--font-heading)",
+                      cursor: offers() ? "pointer" : "default",
+                      background: offers() ? "rgba(212,131,26,0.32)" : "rgba(20,14,8,0.6)",
+                      border: `1px solid ${offers() ? "var(--accent-gold)" : arr().length ? "var(--accent-green)" : "rgba(255,255,255,0.28)"}`,
+                      color: "var(--text-primary)", opacity: refuses() ? 0.35 : 1,
+                      "backdrop-filter": "blur(2px)",
+                      "box-shadow": offers() ? "0 0 12px rgba(245,197,66,0.45)" : "none" }}>
+                    <span>{st.icon}</span><span>{st.place}</span>
+                  </button>
                 </div>
               );
             }}
           </For>
         </div>
+
+        {/* Stations the settlement has grown into but the camp painting doesn't
+            depict yet. Plain row until each tier gets its own art. */}
+        <Show when={extraStations().length > 0}>
+          <div style={{ display: "flex", "flex-wrap": "wrap", gap: "8px", "margin-bottom": "16px" }}>
+            <For each={extraStations()}>
+              {(st) => {
+                const arr = () => stationOf(st.technique);
+                const refuses = () => !!held() && !allowsTechnique(held()!, st.technique);
+                const offers = () => !!held() && !refuses();
+                return (
+                  <div style={{ flex: "1 1 45%", "min-height": "58px", padding: "6px", "border-radius": "8px", "text-align": "center", cursor: offers() ? "pointer" : "default",
+                    border: `2px solid ${offers() ? "var(--accent-gold)" : arr().length ? "var(--accent-green)" : "var(--border-default)"}`,
+                    background: offers() ? "rgba(212,131,26,0.08)" : "var(--bg-card)",
+                    opacity: refuses() ? 0.4 : 1,
+                    display: "flex", "flex-direction": "column", "align-items": "center", "justify-content": "center", gap: "3px" }}
+                    onClick={() => clickStation(st.technique)}
+                    title={refuses() ? `${getFoodIngredient(held()!)?.name} can't be ${st.past}`
+                      : held() ? `${st.verb} it in the ${st.place}` : st.place}>
+                    <div style={{ "font-size": "1.2rem" }}>{st.icon}</div>
+                    <div style={{ "font-size": "0.7rem", color: "var(--text-secondary)" }}>{st.verb}</div>
+                    <Show when={arr().length > 0} fallback={<div style={{ "font-size": "0.64rem", color: "var(--text-muted)" }}>empty</div>}>
+                      <div style={{ display: "flex", "flex-wrap": "wrap", gap: "4px", "justify-content": "center" }}>
+                        <For each={countsOf(st.technique)}>
+                          {(c) => (
+                            <span style={{ display: "inline-flex", "align-items": "center", gap: "4px", "font-size": "0.66rem", padding: "1px 3px 1px 7px", "border-radius": "12px", background: "rgba(255,255,255,0.08)", border: "1px solid var(--border-default)" }}>
+                              <span>{getFoodIngredient(c.id)?.icon} {getFoodIngredient(c.id)?.name}</span>
+                              <button onClick={(e) => { e.stopPropagation(); removeOne(st.technique, c.id); }} title="One less" style={STEP_BTN}>−</button>
+                              <span style={{ "min-width": "0.8em", "text-align": "center", "font-weight": 600 }}>{c.n}</span>
+                              <button onClick={(e) => { e.stopPropagation(); addToStation(st.technique, c.id); }} disabled={!canStepUp(st.technique, c.id)}
+                                title={c.n >= MAX_PER_INGREDIENT ? `Up to ${MAX_PER_INGREDIENT}` : canAddMore(c.id) ? "One more" : "None left"}
+                                style={{ ...STEP_BTN, opacity: canStepUp(st.technique, c.id) ? 1 : 0.35 }}>+</button>
+                              <button onClick={(e) => { e.stopPropagation(); removeAll(st.technique, c.id); }} title={`Remove ${getFoodIngredient(c.id)?.name}`} style={{ ...STEP_BTN, "margin-left": "1px" }}>✕</button>
+                            </span>
+                          )}
+                        </For>
+                      </div>
+                    </Show>
+                  </div>
+                );
+              }}
+            </For>
+          </div>
+        </Show>
 
         {/* Shelves — one button per role, opens a picker of what's in the larder */}
         <div style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "margin-bottom": "6px" }}>🧺 Shelves</div>
