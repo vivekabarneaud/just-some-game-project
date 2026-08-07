@@ -102,6 +102,11 @@ export interface QuestDefinition {
 
   rewards: QuestReward[];
   targetBuildingId?: string;
+  /** Highlight several buildings gold at once, for quests that ask the player to
+   *  raise more than one (e.g. the gathering-buildings opener). Every listed id
+   *  glows until the quest's condition is met. targetBuildingId still drives the
+   *  "Build..." link's #anchor, so set it to the one to scroll to. */
+  targetBuildingIds?: string[];
   targetPage?: string;
   image?: string;
   hint?: string;
@@ -316,7 +321,12 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
       { resource: "wood", amount: 60, label: "Wood" },
       { resource: "stone", amount: 40, label: "Stone" },
     ],
-    targetPage: "/buildings",
+    // Anchor + highlight the three gathering buildings. Without this the link is
+    // a bare "/buildings" that opens on the town hall (whose always-on "Road to
+    // Greatness" star glows gold), tempting the player to click the wrong thing.
+    // targetBuildingId gives the "Build..." link its #anchor; the array glows all three.
+    targetBuildingId: "lumber_mill",
+    targetBuildingIds: ["lumber_mill", "quarry", "forager_hut"],
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/stories/the_sawhorse.png",
   },
   // NOTE: "The Growing Pile" (Warehouse) used to gate Ch1 here as the 5th
@@ -342,7 +352,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     chapter: 2,
     title: "A Home for the Hunters",
     narrative:
-      "The family of hunters who walked in off the road are still living out of the tents, and the tents will not stretch to hold three more. A family like this needs two things to put down roots: a roof they can call their own, and a reason to be up before the light. Raise them houses and a hunting camp both, and they will bring in more meat than Edda can salt, and more than earn the room.",
+      "The family of hunters who walked in off the road are still living out of the tents, and the tents will not stretch to hold four more. A family like this needs two things to put down roots: a roof they can call their own, and a reason to be up before the light. Raise them houses and a hunting camp both, and they will bring in more meat than Edda can salt, and more than earn the room.",
     objective: "Build houses and a hunting camp",
     icon: "🏠",
     triggers: [{ type: "chapter_unlocked", storyline: "settlement", chapter: 2 }],
@@ -352,6 +362,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
       { resource: "stone", amount: 40, label: "Stone" },
     ],
     targetBuildingId: "houses",
+    targetBuildingIds: ["houses", "hunting_camp"],
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/buildings/houses_camp.png",
   },
   {

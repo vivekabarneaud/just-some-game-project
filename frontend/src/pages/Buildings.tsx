@@ -54,7 +54,7 @@ export default function Buildings() {
     // satisfied — no need to nudge toward what's already done.
     return QUEST_DEFINITIONS.some(
       (q) =>
-        q.targetBuildingId === buildingId &&
+        (q.targetBuildingId === buildingId || (q.targetBuildingIds?.includes(buildingId) ?? false)) &&
         isQuestActive(q, state) &&
         !q.condition(state),
     );

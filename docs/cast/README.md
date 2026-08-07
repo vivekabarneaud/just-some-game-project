@@ -14,7 +14,7 @@ One file per character. This is the **deep canon** for each member of the cast: 
 - [nessa-thornwood.md](nessa-thornwood.md) — char_000, archer, the lifelong mother
 - [gareth-thornwood.md](gareth-thornwood.md) — char_005, archer, the limits of conscience
 - [godric-thornwood.md](godric-thornwood.md) — char_021, warrior, the wall born of grief
-- [thornwood-boy.md](thornwood-boy.md) — the adopted child (settlement NPC, name TBD)
+- [thornwood-boy.md](thornwood-boy.md) — Jack, the adopted child (settlement NPC)
 
 ### Curated cast (deepened)
 - [hester-ironbark.md](hester-ironbark.md) — char_019, warrior, the wall she built

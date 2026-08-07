@@ -1,6 +1,6 @@
 # The Thornwoods — Family Canon
 - **Status:** locked 2026-06-28
-- **Members:** Nessa (char_000, archer, ~33), Gareth (char_005, archer, ~31), Godric (char_021, warrior, ~21), and **the boy** (adopted, ~7, settlement NPC, name TBD).
+- **Members:** Nessa (char_000, archer, ~33), Gareth (char_005, archer, ~31), Godric (char_021, warrior, ~21), and **Jack** (adopted, ~7, settlement NPC).
 - **Origin:** Ashwick / the Hearthlands. Always-poor tenant farmers.
 - **Role in the game:** They are the **"hunters family"** whose arrival unlocks the Adventurer's Guild. See the Overview flavor `hunters_arriving` (ch.2) and `hunters_settling` (built when hunting camp + houses exist): *"the new families brought us hunters"*, *"a new child runs the camp, smaller than Nell and louder"*, *"the ration count is heavier by four"* — **3 adults + 1 child = four**. They arrive already reunited, as a family.
 
@@ -17,7 +17,7 @@ Always-poor tenant **barley farm** in the Hearthlands. Everyone worked, children
 ## The catastrophe — "that winter" (~5 years ago)
 Tithe and rent alone don't break a family; a **disaster** does, and the system that won't forgive a dead season finishes it. An early, killing winter: stores ran out, they ate the seed-grain to survive, which meant no spring crop, which meant no rent — and **the rent did not soften for a dead season, so they lost the land.** The **father died** that winter. This is the hinge of everything.
 
-## The boy (~7 now — settlement NPC, name TBD)
+## Jack (~7 now — settlement NPC)
 Orphaned by **the same winter** (a neighbour's child, parents dead of cold and hunger), taken in by the grieving Thornwoods in that same black season: **they buried one soul and took in another.** Too young to be marked by it — he is **loud, bright, alive** (canon: *"smaller than Nell and louder"*), and knows no other family. **Nessa is his mother in all but blood.**
 - **Deliberately NOT** from any burned village or massacre — decoupled from Gareth's war on purpose, so he stays the loud, untraumatized camp-kid the Overview flavor describes (a massacre survivor would be withdrawn like Nell, not loud).
 - **He is the family's answer to death** — proof they refuse to only shrink. That is his meaning, and it's enough; he needs no dramatic origin.
