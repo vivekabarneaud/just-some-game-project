@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { cook, clampPlacements, MAX_PER_INGREDIENT, dishFlavors } from "@medieval-realm/shared/data/kitchen/cook";
 import { NAMED_DISHES, matchNamedDish, resolveDish } from "@medieval-realm/shared/data/kitchen/named_dishes";
-import { getFoodIngredient } from "@medieval-realm/shared/data/kitchen/ingredients";
+import { FOOD_INGREDIENTS, allowsTechnique, getFoodIngredient } from "@medieval-realm/shared/data/kitchen/ingredients";
 import { dishMissionBoons } from "@medieval-realm/shared/data/kitchen/mission";
 import type { DishChannel, CookPlacement, CookTechnique } from "@medieval-realm/shared/data/kitchen/types";
 
@@ -173,5 +173,53 @@ describe("named dishes — curated combos (real pantry)", () => {
     expect(resolved.quality).toBe("fine");
     // An unnamed no-staple experiment still reads thin (fair feedback).
     expect(resolveDish([p("venison", "roast")]).quality).toBe("rough");
+  });
+});
+
+describe("prep restrictions — the pantry can't produce nonsense", () => {
+  it("flesh and grain are never served raw", () => {
+    for (const id of ["venison", "boar", "pork", "mutton", "chicken", "rabbit", "trout", "eel", "salmon", "eggs"]) {
+      expect(allowsTechnique(id, "chop"), `${id} must not be choppable (raw)`).toBe(false);
+    }
+    expect(allowsTechnique("wheat", "chop")).toBe(false);
+    expect(allowsTechnique("barley", "chop")).toBe(false);
+  });
+
+  it("grain is not fried, and mushrooms are not eaten raw", () => {
+    expect(allowsTechnique("wheat", "fry")).toBe(false);
+    expect(allowsTechnique("morel", "chop")).toBe(false);
+  });
+
+  it("still allows what the cold board and the oven need", () => {
+    expect(allowsTechnique("nuts", "chop")).toBe(true);      // Forager's Board
+    expect(allowsTechnique("cabbages", "chop")).toBe(true);  // Forager's Board
+    expect(allowsTechnique("apples", "chop")).toBe(true);    // Forager's Board
+    expect(allowsTechnique("wheat", "roast")).toBe(true);    // Apple Pie crust
+    expect(allowsTechnique("venison", "skewer")).toBe(true);
+  });
+
+  it("an ingredient with no list allows anything", () => {
+    expect(allowsTechnique("no_such_ingredient", "chop")).toBe(true);
+  });
+
+  // The guard that matters: a dish authored against a prep its ingredient
+  // refuses would be permanently uncookable, and nothing else would catch it.
+  it("every named dish is actually cookable", () => {
+    for (const dish of NAMED_DISHES) {
+      for (const slot of dish.slots) {
+        for (const id of slot.anyOf) {
+          expect(
+            allowsTechnique(id, slot.technique),
+            `${dish.name}: ${id} cannot be prepared by "${slot.technique}"`,
+          ).toBe(true);
+        }
+      }
+    }
+  });
+
+  it("every ingredient allows at least one prep", () => {
+    for (const ing of FOOD_INGREDIENTS) {
+      expect(ing.techniques?.length ?? 1, `${ing.name} has no usable prep`).toBeGreaterThan(0);
+    }
   });
 });

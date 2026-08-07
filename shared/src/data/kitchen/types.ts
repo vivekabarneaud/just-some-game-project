@@ -43,6 +43,13 @@ export interface FoodIngredient {
   role: FoodRole;
   /** The natural way to prepare it (defaults the technique when picked). */
   signature?: CookTechnique;
+  /** Which preps make sense for this ingredient. Omitted = all of them.
+   *  Not a difficulty knob: it exists so the pantry can't produce nonsense
+   *  (raw meat, raw grain, fried wheat). `chop` means NO FIRE in this engine
+   *  (see the Forager's Board), so anything that must be cooked simply leaves
+   *  `chop` off its list. Be generous here — the kitchen is a sandbox, and the
+   *  point is to block category errors, not to prune odd-but-defensible ideas. */
+  techniques?: readonly CookTechnique[];
   /** Taste tags this ingredient carries (weighted by amount into the dish). */
   flavors?: FoodFlavor[];
   /** How filling. */

@@ -2,7 +2,7 @@ import { createSignal, createMemo, For, Show } from "solid-js";
 import { useGame } from "~/engine/gameState";
 import { resolveDish, NAMED_DISHES } from "@medieval-realm/shared/data/kitchen/named_dishes";
 import { dishFlavors } from "@medieval-realm/shared/data/kitchen/cook";
-import { getFoodIngredient, foodByRole } from "@medieval-realm/shared/data/kitchen/ingredients";
+import { allowsTechnique, getFoodIngredient, foodByRole } from "@medieval-realm/shared/data/kitchen/ingredients";
 import type { CookTechnique, FoodRole, CookPlacement, DishChannel } from "@medieval-realm/shared/data/kitchen/types";
 import { playSound } from "~/engine/sounds";
 import FramedModal from "~/components/FramedModal";
@@ -14,12 +14,12 @@ import FramedItemCard, { itemFrameUrl as frameUrl, gradeFilter } from "~/compone
  *  stations highlight → click one to prepare it that way (roast the meat, boil the
  *  staple). Several ingredients per station, several per shelf. See docs/DESIGN_KITCHEN.md. */
 
-const STATIONS: { technique: CookTechnique; place: string; icon: string; verb: string }[] = [
-  { technique: "boil", place: "Pot", icon: "🍲", verb: "Boil" },
-  { technique: "chop", place: "Board", icon: "🔪", verb: "Chop" },
-  { technique: "skewer", place: "Fire", icon: "🍢", verb: "Skewer" },
-  { technique: "fry", place: "Pan", icon: "🍳", verb: "Fry" },
-  { technique: "roast", place: "Oven", icon: "🔥", verb: "Roast" },
+const STATIONS: { technique: CookTechnique; place: string; icon: string; verb: string; past: string }[] = [
+  { technique: "boil", place: "Pot", icon: "🍲", verb: "Boil", past: "boiled" },
+  { technique: "chop", place: "Board", icon: "🔪", verb: "Chop", past: "eaten raw" },
+  { technique: "skewer", place: "Fire", icon: "🍢", verb: "Skewer", past: "skewered" },
+  { technique: "fry", place: "Pan", icon: "🍳", verb: "Fry", past: "fried" },
+  { technique: "roast", place: "Oven", icon: "🔥", verb: "Roast", past: "roasted" },
 ];
 const ROLE_SHELVES: { role: FoodRole; label: string; icon: string }[] = [
   { role: "staple", label: "Staple", icon: "🌾" }, { role: "protein", label: "Protein", icon: "🍖" },
@@ -81,7 +81,10 @@ export default function KitchenDesk() {
   const placedTotal = (id: string) => STATIONS.reduce((sum, s) => sum + stationOf(s.technique).filter((x) => x === id).length, 0);
   const canAddMore = (id: string) => placedTotal(id) < stock(id);
   const countInStation = (t: CookTechnique, id: string) => stationOf(t).filter((x) => x === id).length;
-  const canStepUp = (t: CookTechnique, id: string) => countInStation(t, id) < MAX_PER_INGREDIENT && canAddMore(id);
+  // An ingredient can only go to a station whose prep makes sense for it
+  // (no raw meat, no raw grain, no fried wheat). See kitchen/ingredients.ts.
+  const canStepUp = (t: CookTechnique, id: string) =>
+    allowsTechnique(id, t) && countInStation(t, id) < MAX_PER_INGREDIENT && canAddMore(id);
   const clickStation = (t: CookTechnique) => {
     const h = held();
     if (!h) return;
@@ -188,13 +191,20 @@ export default function KitchenDesk() {
           <For each={STATIONS}>
             {(st) => {
               const arr = () => stationOf(st.technique);
+              // While holding something, a station this ingredient can't use
+              // reads as refused (dimmed, not gold) and says why on hover.
+              const refuses = () => !!held() && !allowsTechnique(held()!, st.technique);
+              const offers = () => !!held() && !refuses();
               return (
-                <div style={{ flex: "1 1 45%", "min-height": "58px", padding: "6px", "border-radius": "8px", "text-align": "center", cursor: held() ? "pointer" : "default",
-                  border: `2px solid ${held() ? "var(--accent-gold)" : arr().length ? "var(--accent-green)" : "var(--border-default)"}`,
-                  background: held() ? "rgba(212,131,26,0.08)" : "var(--bg-card)",
+                <div style={{ flex: "1 1 45%", "min-height": "58px", padding: "6px", "border-radius": "8px", "text-align": "center", cursor: offers() ? "pointer" : "default",
+                  border: `2px solid ${offers() ? "var(--accent-gold)" : arr().length ? "var(--accent-green)" : "var(--border-default)"}`,
+                  background: offers() ? "rgba(212,131,26,0.08)" : "var(--bg-card)",
+                  opacity: refuses() ? 0.4 : 1,
                   display: "flex", "flex-direction": "column", "align-items": "center", "justify-content": "center", gap: "3px" }}
                   onClick={() => clickStation(st.technique)}
-                  title={held() ? `${st.verb} it in the ${st.place}` : st.place}>
+                  title={refuses()
+                    ? `${getFoodIngredient(held()!)?.name} can't be ${st.past}`
+                    : held() ? `${st.verb} it in the ${st.place}` : st.place}>
                   <div style={{ "font-size": "1.2rem" }}>{st.icon}</div>
                   <div style={{ "font-size": "0.7rem", color: "var(--text-secondary)" }}>{st.verb}</div>
                   <Show when={arr().length > 0} fallback={<div style={{ "font-size": "0.64rem", color: "var(--text-muted)" }}>empty</div>}>
