@@ -15,6 +15,7 @@ import {
   type AdventurerClass,
   getDeployCost,
 } from "@medieval-realm/shared/data/adventurers";
+import { TRAINER_ID } from "~/data/defenses";
 import { getItem, getAvailableSupplies, getAvailableFood, getSupplyEffect, getCombatPotionEffect, getFoodEffect, getRecoveryEffect, MATCHED_FOOD_HP_BONUS } from "@medieval-realm/shared/data/items";
 import { describeEffect } from "@medieval-realm/shared/data/alchemy/describe";
 
@@ -243,9 +244,17 @@ export default function MissionAssemblyPanel(props: Props) {
   const WOUNDED_FLOOR = 0.25;
   const tooWounded = (a: typeof state.adventurers[number]) =>
     (a.currentHp ?? calcAdventurerMaxHp(a)) < WOUNDED_FLOOR * calcAdventurerMaxHp(a);
+  // Gareth is the scripted watch-captain ("Hold the Treeline": he takes the
+  // watch himself). While the pack is at the treeline — scouting done, that
+  // first raid not yet weathered — the mechanics honour the story: he holds the
+  // wall and cannot be marched off on a mission. Frees the moment the raid resolves.
+  const onWolfWatch = (a: { premadeId?: string }) =>
+    a.premadeId === TRAINER_ID.watchtower &&
+    state.completedStoryMissions.includes("story_1_scouting") &&
+    (state.raidsResolvedCount ?? 0) === 0;
   const availableAdvs = createMemo(() =>
     state.adventurers
-      .filter((a) => a.alive && !a.onMission && !hasFroth(a) && !hasVenom(a) && !tooWounded(a) && !(props.coopLockedAdvIds?.has(a.id) ?? false))
+      .filter((a) => a.alive && !a.onMission && !hasFroth(a) && !hasVenom(a) && !tooWounded(a) && !onWolfWatch(a) && !(props.coopLockedAdvIds?.has(a.id) ?? false))
       .sort((a, b) => (CLASS_ORDER[a.class] ?? 9) - (CLASS_ORDER[b.class] ?? 9) || b.level - a.level)
   );
   // Why an adventurer can't be sent right now. Returns null when deployable.
@@ -256,6 +265,7 @@ export default function MissionAssemblyPanel(props: Props) {
     if (hasFroth(a)) return "In bed with the froth";
     if (hasVenom(a)) return "Laid up with adder-venom";
     if (tooWounded(a)) return "Recovering from injuries";
+    if (onWolfWatch(a)) return "On the watch (the pack is back)";
     if (props.coopLockedAdvIds?.has(a.id)) return "Pledged to a co-op expedition";
     const excluded = a.premadeId
       ? freshMission().excludeCharacters?.find((e) => e.premadeId === a.premadeId)
