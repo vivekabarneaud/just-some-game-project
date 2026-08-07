@@ -14,14 +14,26 @@ import { getFoodIngredient } from "./ingredients.js";
 import { cook } from "./cook.js";
 
 /** Ingredient groups, so a slot can say "any red meat" without repetition. */
-// Groups the meat-split is split-READY through: today they resolve to the single
-// real "meat"; when the food-subcategory pass lands, expand these to venison/
-// pork/… and every dish using them accepts the splits with no rewrite.
+// EXPANDED by the food-subcategory pass (2026-08-07): these used to resolve to
+// the single generic "meat"/"fish"/"berries"/"mushrooms". Now they list the real
+// cuts, and every dish written against a group accepted the split with no
+// rewrite — exactly as this file was designed for.
 export const FOOD_GROUPS = {
-  redMeat: ["meat"],
-  anyMeat: ["meat"],
+  /** The big, filling meats. A stew takes any of them. */
+  redMeat: ["venison", "boar", "wisent", "pork", "mutton", "goat"],
+  /** Birds. */
+  poultry: ["chicken", "wild_fowl"],
+  /** Wild-caught — what the hunters bring in, as opposed to what the pens give. */
+  game: ["venison", "boar", "wisent", "rabbit", "wild_fowl"],
+  /** Any flesh at all. */
+  anyMeat: ["venison", "boar", "wisent", "pork", "mutton", "goat", "chicken", "wild_fowl", "rabbit"],
+  fish: ["trout", "pike", "eel", "salmon"],
   grain: ["wheat", "barley"], // the real grains today (oats/rye come later)
-  berry: ["berries"],
+  /** WILD berries only. Cultivated strawberries are their own thing. */
+  berry: ["blackberry", "blueberry", "raspberry"],
+  mushroom: ["field_mushroom", "morel", "chanterelle", "cepe"],
+  /** Foraged leaves. Wild carrot is a root and sits with the veg instead. */
+  greens: ["dandelion", "sorrel", "ramsons"],
 } as const;
 
 /** A slot the pot must fill: one ingredient from `anyOf`, prepared `technique`. */
@@ -53,7 +65,7 @@ export const NAMED_DISHES: NamedDish[] = [
     slots: [any(FOOD_GROUPS.redMeat, "boil"), one("nuts", "boil")],
     note: "Meat and nuts simmered slow. Keeps the table full through a hard week." },
   { id: "dish_river_stew", name: "River Stew", icon: "🍲", preknown: true,
-    slots: [one("fish", "boil"), any(FOOD_GROUPS.berry, "boil")],
+    slots: [any(FOOD_GROUPS.fish, "boil"), any(FOOD_GROUPS.berry, "boil")],
     note: "Fish and foraged berries in a thin, honest broth." },
   { id: "dish_bone_broth", name: "Bone Broth", icon: "🍜", preknown: true,
     slots: [one("bone", "boil")],
@@ -72,13 +84,13 @@ export const NAMED_DISHES: NamedDish[] = [
 
   // ── Everyday & foraged ──
   { id: "dish_fishermans_fry", name: "Fisherman's Fry", icon: "🍳",
-    slots: [one("fish", "fry"), one("eggs", "fry")],
+    slots: [any(FOOD_GROUPS.fish, "fry"), one("eggs", "fry")],
     note: "Fish and eggs quick in the pan. Humble and filling." },
   { id: "dish_mushroom_omelet", name: "Mushroom Omelet", icon: "🍳",
-    slots: [one("eggs", "fry"), one("mushrooms", "fry")],
+    slots: [one("eggs", "fry"), any(FOOD_GROUPS.mushroom, "fry")],
     note: "Eggs and mushrooms quick in the pan, a good morning." },
   { id: "dish_foragers_pot", name: "Forager's Pot", icon: "🍄",
-    slots: [one("mushrooms", "boil"), one("nuts", "boil"), any(FOOD_GROUPS.grain, "boil")],
+    slots: [any(FOOD_GROUPS.mushroom, "boil"), one("nuts", "boil"), any(FOOD_GROUPS.grain, "boil")],
     note: "Mushroom, nuts and grain, a quiet-day meal from the woods." },
   { id: "dish_pease_porridge", name: "Pease Porridge", icon: "🥣",
     slots: [one("peas", "boil")],
@@ -89,10 +101,10 @@ export const NAMED_DISHES: NamedDish[] = [
 
   // ── Sweet things ──
   { id: "dish_berry_pottage", name: "Berry Pottage", icon: "🥣",
-    slots: [any(FOOD_GROUPS.grain, "boil"), one("berries", "boil"), one("honey", "boil")],
+    slots: [any(FOOD_GROUPS.grain, "boil"), any(FOOD_GROUPS.berry, "boil"), one("honey", "boil")],
     note: "Grain and foraged berries simmered sweet. A warming breakfast." },
   { id: "dish_wildberry_porridge", name: "Wildberry Porridge", icon: "🥣",
-    slots: [any(FOOD_GROUPS.grain, "boil"), one("berries", "boil"), one("nuts", "boil"), one("honey", "boil")],
+    slots: [any(FOOD_GROUPS.grain, "boil"), any(FOOD_GROUPS.berry, "boil"), one("nuts", "boil"), one("honey", "boil")],
     note: "Grain simmered with wild berries, nuts and honey. A treat of a breakfast." },
   { id: "dish_summer_fool", name: "Summer Fool", icon: "🍓",
     slots: [one("strawberries", "chop"), one("milk", "boil"), one("honey", "boil")],
@@ -112,13 +124,13 @@ export const NAMED_DISHES: NamedDish[] = [
     slots: [any(FOOD_GROUPS.redMeat, "skewer")],
     note: "Meat grilled on a stick over the fire. The hunter's supper." },
   { id: "dish_grilled_catch", name: "Grilled Catch", icon: "🐟",
-    slots: [one("fish", "skewer")],
+    slots: [any(FOOD_GROUPS.fish, "skewer")],
     note: "The day's catch charred over the coals, smoky and quick." },
   { id: "dish_charred_mushrooms", name: "Fire-Charred Mushrooms", icon: "🍄", preknown: true,
-    slots: [one("mushrooms", "skewer")],
+    slots: [any(FOOD_GROUPS.mushroom, "skewer")],
     note: "Mushrooms blistered on the fire. Humble, earthy, smoky." },
   { id: "dish_hunters_skewer", name: "Hunter's Skewer", icon: "🍢",
-    slots: [any(FOOD_GROUPS.redMeat, "skewer"), one("mushrooms", "skewer"), one("turnips", "skewer")],
+    slots: [any(FOOD_GROUPS.redMeat, "skewer"), any(FOOD_GROUPS.mushroom, "skewer"), one("turnips", "skewer")],
     note: "Meat, mushroom and root threaded on a stick and grilled. A real meal off the fire." },
   { id: "dish_honey_glazed_skewer", name: "Honey-Glazed Skewer", icon: "🍢",
     slots: [any(FOOD_GROUPS.redMeat, "skewer"), one("honey", "boil")],
