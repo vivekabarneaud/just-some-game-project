@@ -159,6 +159,7 @@ const ComingSoon = lazy(() => import("./pages/ComingSoon"));
 const BattlePreview = lazy(() => import("./pages/BattlePreview")); // TEMP dev-only, remove after Tier-1 enemy pass
 const AlchemyLabDev = lazy(() => import("./pages/AlchemyLabDev")); // TEMP dev-only — free-form alchemy sandbox
 const KitchenDev = lazy(() => import("./pages/KitchenDev")); // TEMP dev-only — free-form cooking sandbox
+const ForagingDev = lazy(() => import("./pages/ForagingDev")); // TEMP dev-only — foraging minigame sandbox
 const Login = lazy(() => import("./pages/Login"));
 
 function AuthGuard(props: ParentProps) {
@@ -178,6 +179,7 @@ render(
           Dev builds only — these sandboxes have no business in prod. */}
       {import.meta.env.DEV && <Route path="/dev-alchemy" component={AlchemyLabDev} />}
       {import.meta.env.DEV && <Route path="/dev-kitchen" component={KitchenDev} />}
+      {import.meta.env.DEV && <Route path="/dev-foraging" component={ForagingDev} />}
       <Route path="/" component={(p) => <AuthGuard><App {...p} /></AuthGuard>}>
         <Route path="/" component={Overview} />
         <Route path="/buildings" component={Buildings} />
