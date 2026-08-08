@@ -3,7 +3,7 @@ import { FORAGE_PLANTS, getForagePlant } from "@medieval-realm/shared/data/forag
 import { buildScene, fullStock, pick, rain, regrow, seasonCap } from "@medieval-realm/shared/data/foraging/scene";
 import type { WoodsStock } from "@medieval-realm/shared/data/foraging/types";
 import type { Season } from "@medieval-realm/shared";
-import { loadTerrainMask, TERRAIN_SWATCH } from "~/engine/foragingMask";
+import { loadTerrainMask, loadLuminanceField, lightTint, TERRAIN_SWATCH } from "~/engine/foragingMask";
 
 /** TEMP dev-only sandbox for the foraging minigame. Standalone (outside the
  *  GameProvider) like the alchemy and kitchen sandboxes: a pure tuning tool with
@@ -66,6 +66,13 @@ export default function ForagingDev() {
     () => ({ season: season(), n: sceneNo() }),
     (k) => loadTerrainMask(maskUrl(k.season, k.n)),
   );
+  // The painting's own brightness, sampled coarsely, so a plant standing in a
+  // dark hollow can be tinted to match it. No second hand-painted mask needed.
+  const [light] = createResource(
+    () => ({ season: season(), n: sceneNo() }),
+    (k) => loadLuminanceField(sceneUrl(k.season, k.n)),
+  );
+  const [matchLight, setMatchLight] = createSignal(true);
 
   // The scene is generated ONCE per walk, from a snapshot of the wood taken as
   // you step in. It must NOT read live stock: picking one plant would rebuild
@@ -142,6 +149,11 @@ export default function ForagingDev() {
             )}
           </For>
         </Show>
+        <button style={{ ...BTN, border: `1px solid ${matchLight() ? "var(--accent-gold)" : "var(--border-color)"}` }}
+          onClick={() => setMatchLight(!matchLight())}
+          title="Tint each plant to the brightness of the ground it stands on, sampled from the painting itself">
+          {light() ? "match light" : "no light data"}
+        </button>
         <button style={{ ...BTN, border: `1px solid ${showMask() ? "var(--accent-gold)" : "var(--border-color)"}` }}
           onClick={() => setShowMask(!showMask())}
           title="See the painted terrain mask over the scene, for authoring">
@@ -198,7 +210,19 @@ export default function ForagingDev() {
                       // Painted sprites size by height against the scene box;
                       // the emoji placeholders keep a font size instead.
                       ...(hasArt ? { height: `${SPRITE_H * p.scale}%`, width: "auto" } : { "font-size": `${0.95 * p.scale}rem`, "line-height": 1 }),
-                      filter: `brightness(${(p.brightness * (0.86 + 0.14 * p.depth)).toFixed(3)}) saturate(${(p.saturate * (0.8 + 0.2 * p.depth)).toFixed(3)}) contrast(${(0.9 + 0.1 * p.depth).toFixed(3)}) ${isHot() ? "drop-shadow(0 0 10px rgba(245,197,66,0.85))" : "drop-shadow(0 2px 3px rgba(0,0,0,0.4))"}`,
+                      filter: (() => {
+                        // Three layers, multiplied: the sprite's own jitter (so
+                        // two of a kind differ), distance haze, and the light
+                        // where it stands. Hovering lifts it back toward its
+                        // painted value, so a close look is always readable.
+                        const lit = matchLight() && light() ? lightTint(light()!(p.x, p.y)) : { brightness: 1, saturate: 1 };
+                        const ease = isHot() ? 0.45 : 1; // pull tinting back when magnified
+                        const mix = (v: number) => (1 - ease) + ease * v;
+                        const b = p.brightness * mix(lit.brightness) * mix(0.86 + 0.14 * p.depth);
+                        const sat = p.saturate * mix(lit.saturate) * mix(0.8 + 0.2 * p.depth);
+                        const glow = isHot() ? "drop-shadow(0 0 10px rgba(245,197,66,0.85))" : "drop-shadow(0 2px 3px rgba(0,0,0,0.4))";
+                        return `brightness(${b.toFixed(3)}) saturate(${sat.toFixed(3)}) contrast(${(0.9 + 0.1 * p.depth).toFixed(3)}) ${glow}`;
+                      })(),
                       "z-index": isHot() ? 3 : 1,
                     }}>
                     {/* Contact shadow. The single strongest cue that a thing is

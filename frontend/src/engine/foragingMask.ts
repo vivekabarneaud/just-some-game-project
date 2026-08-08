@@ -75,3 +75,56 @@ export const TERRAIN_SWATCH: Record<TerrainId, string> = {
   grass: "#27ae60",
   litter: "#2980b9",
 };
+
+/** Reads how brightly lit the SCENE ITSELF is at a point, so a sprite dropped
+ *  into a dark hollow can be darkened to match and one in a sunlit patch left
+ *  alone. The painting already knows where its shadows are, so no second
+ *  hand-painted light mask is needed.
+ *
+ *  Sampled from a deliberately tiny downsample: we want the local *mood* of the
+ *  ground, not the brightness of one leaf. At 40px the browser's own filtering
+ *  does the blurring for us, so a sprite standing on a bright fleck in a dark
+ *  crevice still reads as being in shadow. */
+export type LightSampler = (x: number, y: number) => number;
+
+export async function loadLuminanceField(url: string): Promise<LightSampler | null> {
+  try {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    const loaded = new Promise<boolean>((resolve) => {
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(false);
+    });
+    img.src = url;
+    if (!(await loaded)) return null;
+
+    const N = 40;
+    const canvas = document.createElement("canvas");
+    canvas.width = N; canvas.height = N;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return null;
+    ctx.drawImage(img, 0, 0, N, N);
+    const { data } = ctx.getImageData(0, 0, N, N);
+
+    return (x: number, y: number) => {
+      const px = Math.min(N - 1, Math.max(0, Math.round((x / 100) * (N - 1))));
+      const py = Math.min(N - 1, Math.max(0, Math.round((y / 100) * (N - 1))));
+      const i = (py * N + px) * 4;
+      // Rec. 601 luma — perceptual enough for this, and cheap.
+      return (0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]) / 255;
+    };
+  } catch {
+    return null;
+  }
+}
+
+/** Turn local scene brightness into a sprite tint. Shadowed ground pulls a
+ *  plant down and desaturates it; lit ground leaves it near its painted value.
+ *  Bounded at both ends so nothing ever vanishes or blows out. */
+export function lightTint(luma: number): { brightness: number; saturate: number } {
+  const l = Math.min(1, Math.max(0, luma));
+  return {
+    brightness: 0.62 + 0.55 * l,   // ~0.62 in deep shadow, ~1.05 in bright light
+    saturate: 0.72 + 0.36 * l,     // shadows drain colour, as they do in life
+  };
+}
