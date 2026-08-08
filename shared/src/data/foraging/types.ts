@@ -35,8 +35,12 @@ export interface ForagePlant {
   /** Shown in the basket and the herbier. NEVER rendered in the scene. */
   name: string;
   icon: string;
+  /** Sprite filename stem, when it differs from `id`. The King Bolete's id is
+   *  `cepe` for historical reasons in the economy, but its art is sensibly
+   *  named for what the player is told it is. Defaults to `id`. */
+  artId?: string;
   /** How many numbered sprite variants exist for this plant, at
-   *  `/images/foraging/plants/{id}{n}.png` with n starting at 1. Several per
+   *  `/images/foraging/plants/{artId ?? id}{n}.png` with n starting at 1. Several per
    *  plant makes a patch look grown rather than stamped, and makes the scene
    *  harder to skim by shape alone. 0 or absent falls back to the emoji. */
   artVariants?: number;

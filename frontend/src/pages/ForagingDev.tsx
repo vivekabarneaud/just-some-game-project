@@ -23,8 +23,10 @@ const BASKET_SIZE = 10;
 /** Drop paintings in frontend/public/images/foraging/ named per season. */
 /** Sprite art per plant, numbered from 1. Sized by HEIGHT so mushrooms of
  *  different proportions read as consistently "that tall" on the ground. */
-const spriteUrl = (plantId: string, variant: number) =>
-  `/images/foraging/plants/${plantId}${variant}.png`;
+const spriteUrl = (plantId: string, variant: number) => {
+  const stem = getForagePlant(plantId)?.artId ?? plantId;
+  return `/images/foraging/plants/${stem}${variant}.png`;
+};
 /** Height of a sprite at scale 1, as a percentage of the scene box. Sized by
  *  HEIGHT so plants of different proportions read as consistently "that tall"
  *  standing on the ground. */
