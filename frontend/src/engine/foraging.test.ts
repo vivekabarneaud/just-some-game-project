@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { FORAGE_PLANTS, getForagePlant, isDecoy } from "@medieval-realm/shared/data/foraging/plants";
-import { buildScene, fullStock, pick, regrow, seasonCap } from "@medieval-realm/shared/data/foraging/scene";
+import { buildScene, fullStock, pick, rain, regrow, seasonCap } from "@medieval-realm/shared/data/foraging/scene";
 
 describe("foraging — the woods' stock", () => {
   it("a fresh wood sits at its seasonal cap", () => {
@@ -67,16 +67,30 @@ describe("foraging — scene generation", () => {
     }
   });
 
-  it("keeps sprites inside the frame and off each other", () => {
+  it("keeps sprites inside the frame, and never stacks two on one spot", () => {
     const scene = buildScene(fullStock("summer"), "summer", 11);
     for (const p of scene) {
       expect(p.x).toBeGreaterThan(0); expect(p.x).toBeLessThan(100);
       expect(p.y).toBeGreaterThan(0); expect(p.y).toBeLessThan(100);
     }
+    // Clump-mates sit close on purpose, so the floor is the intra-clump gap,
+    // not the between-clump one. Each must still be its own clickable thing.
     for (let i = 0; i < scene.length; i++) {
       for (let j = i + 1; j < scene.length; j++) {
-        expect(Math.hypot(scene[i].x - scene[j].x, scene[i].y - scene[j].y)).toBeGreaterThan(8);
+        expect(Math.hypot(scene[i].x - scene[j].x, scene[i].y - scene[j].y)).toBeGreaterThanOrEqual(3);
       }
+    }
+  });
+
+  it("fruits in company: a plant that clumps places neighbours near its own kind", () => {
+    const scene = buildScene(fullStock("autumn"), "autumn", 21);
+    const chants = scene.filter((p) => p.plantId === "chanterelle");
+    expect(chants.length).toBeGreaterThan(1);
+    // Every chanterelle should have another within a clump's reach.
+    for (const c of chants) {
+      const nearest = Math.min(...chants.filter((o) => o !== c)
+        .map((o) => Math.hypot(o.x - c.x, o.y - c.y)));
+      expect(nearest).toBeLessThan(16);
     }
   });
 });
@@ -139,6 +153,24 @@ describe("foraging — sprite variants", () => {
         `${p.name} and ${real.name} must both be painted or both be placeholders`,
       ).toBe((real.artVariants ?? 0) > 0);
     }
+  });
+});
+
+describe("foraging — rain", () => {
+  it("brings the mushrooms up, and past their usual ceiling", () => {
+    const dry = fullStock("autumn");
+    const wet = rain(dry, "autumn");
+    expect(wet.chanterelle).toBeGreaterThan(seasonCap("chanterelle", "autumn"));
+  });
+
+  it("leaves plants that don't answer to weather alone", () => {
+    const dry = fullStock("autumn");
+    expect(rain(dry, "autumn").rosehip).toBe(dry.rosehip); // no rainFlush declared
+  });
+
+  it("does nothing out of season — no chanterelles in a winter downpour", () => {
+    const winter = fullStock("winter");
+    expect(rain(winter, "winter").chanterelle ?? 0).toBe(0);
   });
 });
 

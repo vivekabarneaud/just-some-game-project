@@ -48,6 +48,14 @@ export interface ForagePlant {
   mimics?: string;
   /** What Edda says when she finds it in the basket. Player-facing. */
   note: string;
+  /** Most fungi and many wild plants fruit in company rather than one at a
+   *  time: chanterelles come in troops, ramsons carpets a whole bank. The
+   *  largest group this plant appears in (default 1 = always solitary). */
+  clump?: number;
+  /** Extra units a good rain brings, over and above the usual cap. Rain is what
+   *  turns a quiet wood into a mushroom flush, and it's the one event that can
+   *  push stock past its ceiling. 0 or absent = indifferent to weather. */
+  rainFlush?: number;
   /** Ground this plant will grow on. Omitted = anywhere the mask allows.
    *  A decoy should share its mimic's terrain, or it would give itself away by
    *  standing somewhere the real thing never does. */

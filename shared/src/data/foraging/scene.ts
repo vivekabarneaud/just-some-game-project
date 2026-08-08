@@ -59,12 +59,32 @@ function rng(seed: number): () => number {
 
 /** Keep sprites off the very edges, where a feathered painting falls away. */
 const MARGIN = 8;
-/** Minimum gap between two sprites, in percent, so nothing overlaps illegibly. */
-const MIN_GAP = 9;
+/** Minimum gap between two CLUMPS, so separate finds stay separate. */
+const MIN_GAP = 11;
+/** How tightly the members of one clump sit together. */
+const CLUMP_RADIUS = 7;
+/** Minimum gap WITHIN a clump — close enough to read as a troop, far enough
+ *  that each one is still its own clickable thing. */
+const INTRA_GAP = 3.2;
 
-/** Lay out what's currently growing. One sprite per whole unit of stock, so a
- *  picked-over wood is visibly thin — that IS the feedback. Capped so a lush
- *  season doesn't produce an unreadable carpet. */
+/** A good rain is what turns a quiet wood into a flush. It is the one event
+ *  allowed to push stock past its usual ceiling, so a wet autumn is genuinely
+ *  richer than a dry one rather than merely refilling faster. */
+const RAIN_CEILING = 1.6;
+export function rain(stock: WoodsStock, season: Season): WoodsStock {
+  const next: WoodsStock = { ...stock };
+  for (const p of FORAGE_PLANTS) {
+    const cap = seasonCap(p.id, season);
+    if (cap <= 0 || !p.rainFlush) continue;
+    next[p.id] = Math.min(cap * RAIN_CEILING, (stock[p.id] ?? 0) + p.rainFlush);
+  }
+  return next;
+}
+
+/** Lay out what's currently growing. Most things fruit in company rather than
+ *  one at a time — chanterelles come in troops, ramsons carpets a bank — so
+ *  stock is spent in CLUMPS, not scattered evenly. A picked-over wood is
+ *  visibly thin, which is the feedback the whole rate limit rests on. */
 export interface SceneOptions {
   maxSprites?: number;
   /** Reads the scene's painted mask at a point (percentages). Returns null for
@@ -74,50 +94,75 @@ export interface SceneOptions {
 }
 
 export function buildScene(stock: WoodsStock, season: Season, seed: number, opts: SceneOptions = {}): PlacedPlant[] {
-  const { maxSprites = 14, terrainAt } = opts;
+  const { maxSprites = 22, terrainAt } = opts;
   const rand = rng(seed);
-  const pool: string[] = [];
+
+  /** Is this a spot the given plant would actually grow? */
+  const suits = (plantId: string, x: number, y: number) => {
+    if (!terrainAt) return true;
+    const ground = terrainAt(x, y);
+    if (ground == null) return false;                        // rock, water, blocked
+    const wants = getForagePlant(plantId)?.grows;
+    return !wants || wants.includes(ground);
+  };
+
+  // Spend each plant's stock as clumps rather than singles.
+  const clumps: { plantId: string; count: number }[] = [];
   for (const p of FORAGE_PLANTS) {
     if (seasonCap(p.id, season) <= 0) continue;
-    const n = Math.floor(stock[p.id] ?? 0);
-    for (let i = 0; i < n; i++) pool.push(p.id);
+    let left = Math.floor(stock[p.id] ?? 0);
+    const most = Math.max(1, p.clump ?? 1);
+    while (left > 0) {
+      const n = Math.min(left, 1 + Math.floor(rand() * most));
+      clumps.push({ plantId: p.id, count: n });
+      left -= n;
+    }
   }
-  // Shuffle so the cap doesn't systematically favour whatever is declared first.
-  for (let i = pool.length - 1; i > 0; i--) {
+  // Shuffle so a crowded wood doesn't systematically favour whatever is
+  // declared first once maxSprites bites.
+  for (let i = clumps.length - 1; i > 0; i--) {
     const j = Math.floor(rand() * (i + 1));
-    [pool[i], pool[j]] = [pool[j], pool[i]];
+    [clumps[i], clumps[j]] = [clumps[j], clumps[i]];
   }
 
   const placed: PlacedPlant[] = [];
-  for (const plantId of pool.slice(0, maxSprites)) {
-    // Rejection-sample a spot that isn't on top of something else. Give up
-    // after a few tries rather than looping forever in a crowded scene.
-    // Rejection-sample a spot that is far enough from its neighbours AND on
-    // ground this plant will actually grow on. More attempts than the spacing
-    // check alone needed, since a fussy plant may only accept a small patch.
-    const wants = getForagePlant(plantId)?.grows;
-    let x = 0, y = 0, ok = false;
-    for (let attempt = 0; attempt < 60 && !ok; attempt++) {
-      x = MARGIN + rand() * (100 - MARGIN * 2);
-      y = MARGIN + rand() * (100 - MARGIN * 2);
-      if (placed.some((q) => Math.hypot(q.x - x, q.y - y) < MIN_GAP)) continue;
-      if (terrainAt) {
-        const ground = terrainAt(x, y);
-        if (ground == null) continue;                    // rock, water, blocked
-        if (wants && !wants.includes(ground)) continue;  // wrong ground for it
-      }
-      ok = true;
+  for (const { plantId, count } of clumps) {
+    if (placed.length >= maxSprites) break;
+
+    // Anchor the clump somewhere clear, on ground the plant accepts.
+    let ax = 0, ay = 0, anchored = false;
+    for (let attempt = 0; attempt < 60 && !anchored; attempt++) {
+      ax = MARGIN + rand() * (100 - MARGIN * 2);
+      ay = MARGIN + rand() * (100 - MARGIN * 2);
+      if (placed.some((q) => Math.hypot(q.x - ax, q.y - ay) < MIN_GAP)) continue;
+      if (!suits(plantId, ax, ay)) continue;
+      anchored = true;
     }
-    if (!ok) continue;
+    if (!anchored) continue;
+
     const variants = getForagePlant(plantId)?.artVariants ?? 0;
-    placed.push({
-      key: `${plantId}-${placed.length}`,
-      plantId,
-      x, y,
-      variant: variants > 0 ? 1 + Math.floor(rand() * variants) : 1,
-      scale: 0.85 + rand() * 0.4,
-      rotate: (rand() - 0.5) * 24,
-    });
+    for (let k = 0; k < count && placed.length < maxSprites; k++) {
+      // The first sits on the anchor; the rest gather round it.
+      let x = ax, y = ay, ok = k === 0;
+      for (let attempt = 0; attempt < 24 && !ok; attempt++) {
+        const a = rand() * Math.PI * 2;
+        const r = INTRA_GAP + rand() * (CLUMP_RADIUS - INTRA_GAP);
+        x = Math.min(100 - MARGIN, Math.max(MARGIN, ax + Math.cos(a) * r));
+        y = Math.min(100 - MARGIN, Math.max(MARGIN, ay + Math.sin(a) * r));
+        if (placed.some((q) => Math.hypot(q.x - x, q.y - y) < INTRA_GAP)) continue;
+        if (!suits(plantId, x, y)) continue;
+        ok = true;
+      }
+      if (!ok) continue;
+      placed.push({
+        key: `${plantId}-${placed.length}`,
+        plantId,
+        x, y,
+        variant: variants > 0 ? 1 + Math.floor(rand() * variants) : 1,
+        scale: 0.85 + rand() * 0.4,
+        rotate: (rand() - 0.5) * 24,
+      });
+    }
   }
   return placed;
 }
