@@ -31,6 +31,11 @@ const spriteUrl = (plantId: string, variant: number) => {
  *  HEIGHT so plants of different proportions read as consistently "that tall"
  *  standing on the ground. */
 const SPRITE_H = 5;
+/** The bottom of a sprite fades out, so a plant looks like it comes UP through
+ *  the ground clutter rather than being stood on top of it. Cheap stand-in for
+ *  real occlusion, and it hides the hard cut-out edge at the base where a
+ *  painted clod of soil meets painted leaf litter. */
+const BASE_FADE = "linear-gradient(to bottom, #000 86%, rgba(0,0,0,0.35) 95%, transparent 100%)";
 /** How much a hovered plant grows. Large, because at 5% you genuinely cannot
  *  identify anything without leaning in — which is exactly the point. */
 const MAGNIFY = 4;
@@ -44,6 +49,12 @@ const MAGNIFY = 4;
 const SCENE_COUNT: Record<Season, number> = { spring: 1, summer: 1, autumn: 1, winter: 1 };
 const sceneUrl = (season: Season, n: number) => `/images/foraging/scenes/${season}${n}.png`;
 const maskUrl = (season: Season, n: number) => `/images/foraging/scenes/${season}${n}_mask.png`;
+/** Optional cut-out layer of whatever in the scene is NEARER than any plant —
+ *  a branch across the bottom, a frond, the near lip of a rock. Drawn above the
+ *  sprites so they pass behind it. Deliberately "nearest thing in the picture"
+ *  rather than general clutter: without per-pixel depth we can only occlude
+ *  everything or nothing, so the layer has to earn being in front of all of it. */
+const foregroundUrl = (season: Season, n: number) => `/images/foraging/scenes/${season}${n}_fg.png`;
 
 interface BasketEntry { plantId: string; }
 
@@ -183,7 +194,7 @@ export default function ForagingDev() {
             <Show when={showMask() && mask()}>
               <img src={maskUrl(season(), sceneNo())} alt=""
                 style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
-                  "object-fit": "cover", opacity: 0.45, "pointer-events": "none", "z-index": 2 }} />
+                  "object-fit": "cover", opacity: 0.45, "pointer-events": "none", "z-index": 1 }} />
             </Show>
 
             <For each={visible()}>
@@ -223,7 +234,7 @@ export default function ForagingDev() {
                         const glow = isHot() ? "drop-shadow(0 0 10px rgba(245,197,66,0.85))" : "drop-shadow(0 2px 3px rgba(0,0,0,0.4))";
                         return `brightness(${b.toFixed(3)}) saturate(${sat.toFixed(3)}) contrast(${(0.9 + 0.1 * p.depth).toFixed(3)}) ${glow}`;
                       })(),
-                      "z-index": isHot() ? 3 : 1,
+                      "z-index": isHot() ? 5 : 2,
                     }}>
                     {/* Contact shadow. The single strongest cue that a thing is
                         standing IN the picture rather than sitting on it: real
@@ -238,12 +249,18 @@ export default function ForagingDev() {
                     <Show when={hasArt} fallback={<span>{plant.icon}</span>}>
                       <img src={spriteUrl(p.plantId, p.variant)} alt=""
                         style={{ height: "100%", width: "auto", display: "block", position: "relative",
+                          "-webkit-mask-image": BASE_FADE, "mask-image": BASE_FADE,
                           "user-select": "none", "-webkit-user-drag": "none" }} />
                     </Show>
                   </button>
                 );
               }}
             </For>
+          {/* Foreground layer, if the scene has one. Silently absent otherwise. */}
+          <img src={foregroundUrl(season(), sceneNo())} alt=""
+            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", "object-fit": "cover",
+              "pointer-events": "none", "z-index": 4 }} />
           </div>
           <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-top": "6px" }}>
             {visible().length} growing here · basket {basket().length}/{BASKET_SIZE}
