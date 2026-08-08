@@ -30,8 +30,10 @@ const spriteUrl = (plantId: string, variant: number) =>
  *  standing on the ground. */
 const SPRITE_H = 15;
 
-/** Backgrounds live at /images/foraging/scenes/{season}{n}.png, numbered from 1,
- *  with an optional painted terrain mask beside each as {season}{n}_mask.png.
+/** Backgrounds live at /images/foraging/scenes/{season}{n}.png, numbered from
+ *  1, with an optional painted terrain mask beside each as {season}{n}_mask.png.
+ *  Sprites live one folder up in plants/, so the scenes folder stays browsable
+ *  as it fills with seasons and variants.
  *  Bump the count when you add one. (No globbing from the browser, so the
  *  sandbox has to be told how many exist.) */
 const SCENE_COUNT: Record<Season, number> = { spring: 1, summer: 1, autumn: 1, winter: 1 };
