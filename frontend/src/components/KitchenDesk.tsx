@@ -31,6 +31,10 @@ import FramedItemCard, { itemFrameUrl as frameUrl, gradeFilter } from "~/compone
  *  first three, so later tiers want their own art (a town kitchen is not a
  *  campfire) — until then, ungated stations fall back to a plain row below. */
 const KITCHEN_ART = "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/kitchen/camp.png";
+/** Soft vignette so the painting melts into the page rather than sitting in a
+ *  box. Opaque through the middle where the stations live, falling away at the
+ *  edges the art already darkens. */
+const FEATHER = "radial-gradient(ellipse 78% 78% at 50% 50%, #000 52%, transparent 100%)";
 
 type StationDef = {
   technique: CookTechnique; place: string; icon: string; verb: string; past: string;
@@ -163,7 +167,7 @@ export default function KitchenDesk() {
   const pulseShelves = () => {
     setNudgeShelves(false);
     requestAnimationFrame(() => setNudgeShelves(true));
-    setTimeout(() => setNudgeShelves(false), 1200);
+    setTimeout(() => setNudgeShelves(false), 1900); // 1.2s pulse + the last drawer's stagger
   };
 
   // Which stations this kitchen has. The painting depicts the three camp ones;
@@ -234,8 +238,13 @@ export default function KitchenDesk() {
             ? <span style={{ color: "var(--accent-gold)" }}>· holding {getFoodIngredient(held()!)?.icon} {getFoodIngredient(held()!)?.name}, choose where it goes</span>
             : ""}
         </div>
-        <div style={{ position: "relative", width: "100%", "aspect-ratio": "1 / 1", "border-radius": "4px", overflow: "hidden", "margin-bottom": "16px", border: "1px solid var(--border-color)" }}>
-          <img src={KITCHEN_ART} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", "object-fit": "cover", "user-select": "none", "pointer-events": "none" }} />
+        <div style={{ position: "relative", width: "100%", "aspect-ratio": "1 / 1", "margin-bottom": "16px" }}>
+          {/* Feathered, not framed. The painting already falls off to darkness
+              at every edge, so a hard border would fight it — and this surface
+              is the fire you're standing over, not a picture on a wall. A frame
+              would also be one more piece of furniture on a busy screen. */}
+          <img src={KITCHEN_ART} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", "object-fit": "cover", "user-select": "none", "pointer-events": "none",
+            "-webkit-mask-image": FEATHER, "mask-image": FEATHER }} />
           <For each={paintedStations()}>
             {(st) => {
               const arr = () => stationOf(st.technique);
@@ -340,14 +349,19 @@ export default function KitchenDesk() {
 
         {/* Shelves — one button per role, opens a picker of what's in the larder */}
         <div style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "margin-bottom": "6px" }}>🧺 Shelves</div>
-        <div class={nudgeShelves() ? "kitchen-shelf-nudge" : undefined}
-          style={{ display: "flex", "flex-wrap": "wrap", "justify-content": "center", gap: "6px", "margin-bottom": "16px", "border-radius": "3px" }}>
+        <div style={{ display: "flex", "flex-wrap": "wrap", "justify-content": "center", gap: "6px", "margin-bottom": "16px" }}>
           <For each={ROLE_SHELVES}>
-            {(sh) => {
+            {(sh, i) => {
               const count = () => shelfStock(sh.role).length;
+              // Only drawers with something in them pulse — pointing at an empty
+              // shelf would be a worse answer than saying nothing. Staggered so
+              // it reads as a ripple along the row rather than a flash.
+              const nudging = () => nudgeShelves() && count() > 0;
               return (
                 <button onClick={() => { setShelfModal(sh.role); playSound("shelf_open"); }}
+                  class={nudging() ? "kitchen-shelf-nudge" : undefined}
                   style={{ flex: "0 0 46%", padding: "5px 8px", "border-radius": "3px", cursor: "pointer",
+                    "animation-delay": nudging() ? `${i() * 90}ms` : undefined,
                     border: "1px solid var(--border-default)", background: "var(--bg-card)", color: "var(--text-primary)",
                     display: "flex", "align-items": "baseline", "justify-content": "center", gap: "6px", opacity: count() > 0 ? 1 : 0.5 }}>
                   <span style={{ "font-size": "0.8rem" }}>{sh.icon} {sh.label}</span>
