@@ -39,9 +39,11 @@ and always `--style raw`. Sprites want `--ar 1:1` or `3:2` for a pair; scenes wa
 Ordered by value. Each **pair** is one identification test, and a pair is worth more than several safe plants.
 
 ## ✅ Done
-- `chanterelle1` · `false_chanterelle1`
+- **Chanterelle / False Chanterelle** — 3 shapes each
+- **King Bolete / Bitter Bolete** — 3 shapes each *(art named `king_bolete*`; the plant's id is `cepe` for economy reasons, handled by `artId`)*
+- **Ramsons / Lily of the Valley** — 2 shapes each
 
-## 1. King Bolete + Bitter Bolete  *(autumn's second test)*
+## ~~1. King Bolete + Bitter Bolete~~ ✅ *(autumn's second test — done)*
 
 The tell is the **stalk net**, since pores can't be seen on a standing mushroom.
 
@@ -57,7 +59,7 @@ The one pair where the two are deliberately **very different sizes**, exactly as
 
 > a small squat dapperling mushroom in rough grass, painterly oil study, a low scaly brownish cap on a short thick stalk, a tight fixed ring, altogether small and stunted, soft even light, plain dark background, no text --ar 1:1 --style raw
 
-## 3. Ramsons + Lily of the Valley  *(spring's test, and the deadliest in reality)*
+## ~~3. Ramsons + Lily of the Valley~~ ✅ *(spring's test — done, 2 shapes each; a third would match the mushrooms)*
 
 Both are broad green leaves rising from the litter, which is exactly why people die of this one. The tell is **one leaf per stalk (ramsons) vs paired leaves (lily)**.
 
