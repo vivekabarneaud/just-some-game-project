@@ -143,6 +143,21 @@ describe("foraging — sprite variants", () => {
     expect(a).toEqual(b);
   });
 
+  // Sorting a pair by silhouette is not identifying it. Sizes must match unless
+  // size is genuinely the real-world tell, in which case the note must say so.
+  it("a decoy stands the same height as its twin, unless size is the tell", () => {
+    for (const p of FORAGE_PLANTS.filter((x) => x.mimics)) {
+      const real = getForagePlant(p.mimics!)!;
+      const sameSize = (p.size ?? 1) === (real.size ?? 1);
+      if (!sameSize) {
+        expect(
+          p.note.toLowerCase(),
+          `${p.name} differs in size from ${real.name}, so its note must tell the player to go by size`,
+        ).toContain("size");
+      }
+    }
+  });
+
   // A pair only works if both halves are drawn. One painted and one emoji would
   // give the answer away instantly, which is worse than no art at all.
   it("a decoy and the plant it mimics both have art, or neither does", () => {
