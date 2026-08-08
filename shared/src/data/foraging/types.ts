@@ -84,9 +84,20 @@ export interface PlacedPlant {
   y: number;
   /** Which sprite variant to draw (1-based). Stable within a scene. */
   variant: number;
+  /** Mirrored horizontally. Doubles the apparent set for free, and — more
+   *  usefully — destroys any accidental correlation between a plant's identity
+   *  and which way its painted variants happen to lean. If every chanterelle
+   *  leaned left and every impostor right, the player would learn THAT instead
+   *  of learning the ridges. At sprite size the flipped lighting is invisible. */
+  flip: boolean;
   /** Slight per-sprite variation so a patch doesn't look stamped. */
   scale: number;
   rotate: number;
+  /** Mild tonal jitter, so two of the same variant read as two individuals.
+   *  Brightness and saturation only — deliberately NOT hue, because colour can
+   *  be part of a tell and shifting it could turn one plant into another. */
+  brightness: number;
+  saturate: number;
 }
 
 /** How much of each plant the woods currently hold. Picking decrements it;

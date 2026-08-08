@@ -159,8 +159,11 @@ export function buildScene(stock: WoodsStock, season: Season, seed: number, opts
         plantId,
         x, y,
         variant: variants > 0 ? 1 + Math.floor(rand() * variants) : 1,
+        flip: rand() < 0.5,
         scale: 0.85 + rand() * 0.4,
-        rotate: (rand() - 0.5) * 24,
+        rotate: (rand() - 0.5) * 34,
+        brightness: 0.9 + rand() * 0.22,
+        saturate: 0.88 + rand() * 0.3,
       });
     }
   }

@@ -188,7 +188,7 @@ export default function ForagingDev() {
                       position: "absolute", left: `${p.x}%`, top: `${p.y}%`,
                       // Anchored near the base, so a plant stands ON the spot
                       // rather than hovering centred over it.
-                      transform: `translate(-50%,-88%) scale(${isHot() ? MAGNIFY : 1}) rotate(${p.rotate}deg)`,
+                      transform: `translate(-50%,-88%) scale(${isHot() ? MAGNIFY : 1}) rotate(${p.rotate}deg) scaleX(${p.flip ? -1 : 1})`,
                       "transform-origin": "50% 88%",
                       transition: "transform 130ms ease-out",
                       background: "transparent", border: "none", padding: 0,
@@ -196,7 +196,7 @@ export default function ForagingDev() {
                       // Painted sprites size by height against the scene box;
                       // the emoji placeholders keep a font size instead.
                       ...(hasArt ? { height: `${SPRITE_H * p.scale * (plant.size ?? 1)}%`, width: "auto" } : { "font-size": `${0.95 * p.scale * (plant.size ?? 1)}rem`, "line-height": 1 }),
-                      filter: isHot() ? "drop-shadow(0 0 10px rgba(245,197,66,0.85))" : "drop-shadow(0 3px 4px rgba(0,0,0,0.55))",
+                      filter: `brightness(${p.brightness}) saturate(${p.saturate}) ${isHot() ? "drop-shadow(0 0 10px rgba(245,197,66,0.85))" : "drop-shadow(0 3px 4px rgba(0,0,0,0.55))"}`,
                       "z-index": isHot() ? 3 : 1,
                     }}>
                     <Show when={hasArt} fallback={<span>{plant.icon}</span>}>

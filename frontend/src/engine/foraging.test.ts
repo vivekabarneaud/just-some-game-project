@@ -158,6 +158,32 @@ describe("foraging — sprite variants", () => {
     }
   });
 
+  // Memorising the smaller set is the exploit: if the impostor has three shapes
+  // and the real thing has six, you can learn the three and call everything else
+  // safe, without ever looking at a single ridge.
+  it("a decoy has as many painted shapes as its twin", () => {
+    for (const p of FORAGE_PLANTS.filter((x) => x.mimics)) {
+      const real = getForagePlant(p.mimics!)!;
+      expect(
+        p.artVariants ?? 0,
+        `${p.name} must offer as many shapes as ${real.name}, or its set is the easier one to memorise`,
+      ).toBe(real.artVariants ?? 0);
+    }
+  });
+
+  it("mirrors and tones sprites, so painted quirks can't become the tell", () => {
+    const scene = buildScene(fullStock("autumn"), "autumn", 31);
+    expect(scene.length).toBeGreaterThan(4);
+    // Both mirrorings occur, so "which way it leans" carries no information.
+    expect(new Set(scene.map((p) => p.flip)).size).toBe(2);
+    for (const p of scene) {
+      expect(p.brightness).toBeGreaterThan(0.85);
+      expect(p.brightness).toBeLessThan(1.15);
+      expect(p.saturate).toBeGreaterThan(0.85);
+      expect(p.saturate).toBeLessThan(1.2);
+    }
+  });
+
   // A pair only works if both halves are drawn. One painted and one emoji would
   // give the answer away instantly, which is worse than no art at all.
   it("a decoy and the plant it mimics both have art, or neither does", () => {

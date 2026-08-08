@@ -18,7 +18,7 @@ export const FORAGE_PLANTS: ForagePlant[] = [
     clump: 3,
     size: 0.9, grows: ["wood", "litter"],
     cap: { spring: 5 }, regrow: 0.2 },
-  { id: "chanterelle", name: "Chanterelle", icon: "🍄", yields: "chanterelle", artVariants: 1,
+  { id: "chanterelle", name: "Chanterelle", icon: "🍄", yields: "chanterelle", artVariants: 3,
     note: "Golden, and faintly of apricots. The forager's reward.",
     clump: 5, rainFlush: 8,
     size: 0.9, grows: ["wood", "litter"],
@@ -94,7 +94,7 @@ export const FORAGE_PLANTS: ForagePlant[] = [
 
   // ── Decoys: scene-only. They cost a basket slot and teach you the tell.
   //    Deliberately NOT items — no id in the larder, no RewardType, nothing. ──
-  { id: "false_chanterelle", name: "False Chanterelle", icon: "🍄", yields: null, mimics: "chanterelle", artVariants: 1,
+  { id: "false_chanterelle", name: "False Chanterelle", icon: "🍄", yields: null, mimics: "chanterelle", artVariants: 3,
     note: "Not a chanterelle. True ones have blunt forked ridges running down the stem; this has proper flat gills.",
     clump: 4, rainFlush: 6,
     size: 0.9, grows: ["wood", "litter"],
