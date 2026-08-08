@@ -109,3 +109,35 @@ describe("foraging — decoys", () => {
     for (const p of FORAGE_PLANTS) expect(p.note.length).toBeGreaterThan(10);
   });
 });
+
+describe("foraging — sprite variants", () => {
+  it("picks a variant within the declared range, and only for plants that have art", () => {
+    for (const placed of buildScene(fullStock("autumn"), "autumn", 5)) {
+      const plant = getForagePlant(placed.plantId)!;
+      const n = plant.artVariants ?? 0;
+      expect(placed.variant).toBeGreaterThanOrEqual(1);
+      // No art declared → variant is a harmless 1 and the emoji is drawn instead.
+      if (n > 0) expect(placed.variant).toBeLessThanOrEqual(n);
+      else expect(placed.variant).toBe(1);
+    }
+  });
+
+  it("variant choice is stable for a seed, so a sprite can't swap on re-render", () => {
+    const s = fullStock("autumn");
+    const a = buildScene(s, "autumn", 99).map((p) => p.variant);
+    const b = buildScene(s, "autumn", 99).map((p) => p.variant);
+    expect(a).toEqual(b);
+  });
+
+  // A pair only works if both halves are drawn. One painted and one emoji would
+  // give the answer away instantly, which is worse than no art at all.
+  it("a decoy and the plant it mimics both have art, or neither does", () => {
+    for (const p of FORAGE_PLANTS.filter((x) => x.mimics)) {
+      const real = getForagePlant(p.mimics!)!;
+      expect(
+        (p.artVariants ?? 0) > 0,
+        `${p.name} and ${real.name} must both be painted or both be placeholders`,
+      ).toBe((real.artVariants ?? 0) > 0);
+    }
+  });
+});

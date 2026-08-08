@@ -90,10 +90,12 @@ export function buildScene(stock: WoodsStock, season: Season, seed: number, maxS
       ok = placed.every((q) => Math.hypot(q.x - x, q.y - y) >= MIN_GAP);
     }
     if (!ok) continue;
+    const variants = getForagePlant(plantId)?.artVariants ?? 0;
     placed.push({
       key: `${plantId}-${placed.length}`,
       plantId,
       x, y,
+      variant: variants > 0 ? 1 + Math.floor(rand() * variants) : 1,
       scale: 0.85 + rand() * 0.4,
       rotate: (rand() - 0.5) * 24,
     });

@@ -21,8 +21,11 @@ export interface ForagePlant {
   /** Shown in the basket and the herbier. NEVER rendered in the scene. */
   name: string;
   icon: string;
-  /** Sprite art. Falls back to the icon while the paintings are being made. */
-  art?: string;
+  /** How many numbered sprite variants exist for this plant, at
+   *  `/images/foraging/plants/{id}{n}.png` with n starting at 1. Several per
+   *  plant makes a patch look grown rather than stamped, and makes the scene
+   *  harder to skim by shape alone. 0 or absent falls back to the emoji. */
+  artVariants?: number;
   /** What lands in the larder when picked. `null` = a decoy: it looked like
    *  something, it wasn't, and it goes in the bin with a line from Edda. */
   yields: string | null;
@@ -47,6 +50,8 @@ export interface PlacedPlant {
   plantId: string;
   x: number;
   y: number;
+  /** Which sprite variant to draw (1-based). Stable within a scene. */
+  variant: number;
   /** Slight per-sprite variation so a patch doesn't look stamped. */
   scale: number;
   rotate: number;

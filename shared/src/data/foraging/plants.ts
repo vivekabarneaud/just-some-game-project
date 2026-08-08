@@ -14,7 +14,7 @@ export const FORAGE_PLANTS: ForagePlant[] = [
   { id: "morel", name: "Morel", icon: "🍄", yields: "morel",
     note: "Spring's honeycomb prize. Never eaten raw.",
     cap: { spring: 5 }, regrow: 0.2 },
-  { id: "chanterelle", name: "Chanterelle", icon: "🍄", yields: "chanterelle",
+  { id: "chanterelle", name: "Chanterelle", icon: "🍄", yields: "chanterelle", artVariants: 1,
     note: "Golden, and faintly of apricots. The forager's reward.",
     cap: { summer: 4, autumn: 10 }, regrow: 0.3 },
   { id: "cepe", name: "King Bolete", icon: "🍄", yields: "cepe",
@@ -57,7 +57,7 @@ export const FORAGE_PLANTS: ForagePlant[] = [
 
   // ── Decoys: scene-only. They cost a basket slot and teach you the tell.
   //    Deliberately NOT items — no id in the larder, no RewardType, nothing. ──
-  { id: "false_chanterelle", name: "False Chanterelle", icon: "🍄", yields: null, mimics: "chanterelle",
+  { id: "false_chanterelle", name: "False Chanterelle", icon: "🍄", yields: null, mimics: "chanterelle", artVariants: 1,
     note: "Not a chanterelle. True ones have blunt forked ridges running down the stem; this has proper flat gills.",
     cap: { summer: 3, autumn: 6 }, regrow: 0.4 },
   { id: "false_morel", name: "False Morel", icon: "🍄", yields: null, mimics: "morel",

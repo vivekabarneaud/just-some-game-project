@@ -20,6 +20,15 @@ import type { Season } from "@medieval-realm/shared";
 const SEASONS: Season[] = ["spring", "summer", "autumn", "winter"];
 const BASKET_SIZE = 10;
 /** Drop paintings in frontend/public/images/foraging/ named per season. */
+/** Sprite art per plant, numbered from 1. Sized by HEIGHT so mushrooms of
+ *  different proportions read as consistently "that tall" on the ground. */
+const spriteUrl = (plantId: string, variant: number) =>
+  `/images/foraging/plants/${plantId}${variant}.png`;
+/** Height of a sprite at scale 1, as a percentage of the scene box. Sized by
+ *  HEIGHT so plants of different proportions read as consistently "that tall"
+ *  standing on the ground. */
+const SPRITE_H = 15;
+
 const SCENE_ART: Record<Season, string> = {
   spring: "/images/foraging/spring.png",
   summer: "/images/foraging/summer.png",
@@ -113,6 +122,7 @@ export default function ForagingDev() {
               {(p) => {
                 const plant = getForagePlant(p.plantId)!;
                 const isHot = () => hovered() === p.key;
+                const hasArt = (plant.artVariants ?? 0) > 0;
                 return (
                   <button
                     onMouseEnter={() => setHovered(p.key)}
@@ -122,16 +132,24 @@ export default function ForagingDev() {
                        is the entire mechanic. */
                     style={{
                       position: "absolute", left: `${p.x}%`, top: `${p.y}%`,
-                      transform: `translate(-50%,-50%) scale(${isHot() ? p.scale * 2.1 : p.scale}) rotate(${p.rotate}deg)`,
-                      "transform-origin": "center",
-                      transition: "transform 120ms ease-out",
+                      // Anchored near the base, so a plant stands ON the spot
+                      // rather than hovering centred over it.
+                      transform: `translate(-50%,-88%) scale(${isHot() ? 1.7 : 1}) rotate(${p.rotate}deg)`,
+                      "transform-origin": "50% 88%",
+                      transition: "transform 130ms ease-out",
                       background: "transparent", border: "none", padding: 0,
                       cursor: full() ? "not-allowed" : "pointer",
-                      "font-size": "1.9rem", "line-height": 1,
-                      filter: isHot() ? "drop-shadow(0 0 10px rgba(245,197,66,0.85))" : "drop-shadow(0 2px 3px rgba(0,0,0,0.6))",
+                      // Painted sprites size by height against the scene box;
+                      // the emoji placeholders keep a font size instead.
+                      ...(hasArt ? { height: `${SPRITE_H * p.scale}%`, width: "auto" } : { "font-size": `${1.9 * p.scale}rem`, "line-height": 1 }),
+                      filter: isHot() ? "drop-shadow(0 0 10px rgba(245,197,66,0.85))" : "drop-shadow(0 3px 4px rgba(0,0,0,0.55))",
                       "z-index": isHot() ? 3 : 1,
                     }}>
-                    {plant.icon}
+                    <Show when={hasArt} fallback={<span>{plant.icon}</span>}>
+                      <img src={spriteUrl(p.plantId, p.variant)} alt=""
+                        style={{ height: "100%", width: "auto", display: "block",
+                          "user-select": "none", "-webkit-user-drag": "none" }} />
+                    </Show>
                   </button>
                 );
               }}
