@@ -57,7 +57,7 @@ const CH_SHORT: Record<DishChannel, string> = { nourishment: "Nourishment", comf
 const QUALITY_COLOR: Record<string, string> = { seasoned: "var(--accent-green)", fine: "var(--accent-green)", rough: "var(--accent-gold)", plain: "var(--text-muted)" };
 const QUALITY_LABEL: Record<string, string> = { seasoned: "well-seasoned", fine: "fine", rough: "thin", plain: "plain" };
 const MAX_PER_INGREDIENT = 5;
-const PER_PAGE = 8;
+const PER_PAGE = 6; // 3 down each page — more than that overflows the painted book
 const EFFECT_COLOR = "var(--accent-green)";
 
 /** Staple dishes that double as the passive "keep a pot on" food multiplier
@@ -192,10 +192,11 @@ export default function KitchenDesk() {
           re-tuning them. `parchment-panel` is kept only for its dark-ink rules,
           since the pages are light and most of this text ships dark-theme pale. */}
       <div class="parchment-panel cookbook-book"
-        style={{ position: "relative", flex: "1.4 1 460px", "max-width": "680px", "aspect-ratio": "1095 / 740", "align-self": "flex-start" }}>
-        <img src={COOKBOOK_ART} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", "object-fit": "contain", "user-select": "none", "pointer-events": "none" }} />
+        style={{ position: "relative", flex: "1.4 1 460px", "max-width": "720px", "aspect-ratio": "1095 / 740", "align-self": "flex-start" }}>
+        <img src={COOKBOOK_ART} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", "object-fit": "contain", "user-select": "none", "pointer-events": "none",
+          /* drop-shadow, not box-shadow: it follows the cut-out's alpha rather than the container's rectangle */
+          filter: "drop-shadow(0 16px 22px rgba(0,0,0,0.55))" }} />
         <div style={{ position: "absolute", left: "11%", right: "11%", top: "6%", bottom: "7%", display: "flex", "flex-direction": "column", "min-height": 0 }}>
-        <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "8px", "font-size": "1rem", "text-align": "center" }}>Cookbook</h3>
         <Show when={book().length > 0} fallback={<div style={{ "font-size": "0.8rem", "font-style": "italic", opacity: 0.7, "text-align": "center" }}>No dishes yet.</div>}>
           <div style={{ display: "grid", "grid-template-columns": "1fr 1fr", "column-gap": "11%", "row-gap": "8px" }}>
             <For each={pageItems()}>
@@ -205,7 +206,7 @@ export default function KitchenDesk() {
                   tooltip={r.missing.length > 0 ? `Missing: ${r.missing.join(", ")}` : "Load into the stations"}
                   onClick={() => loadDish(r.placements)} minHeight="74px"
                   body={<For each={r.effects}>
-                    {(e) => <div style={{ "font-size": "0.66rem", color: EFFECT_COLOR, "line-height": 1.3 }}>{e.amount} {CH_SHORT[e.channel]}</div>}
+                    {(e) => <div style={{ "font-size": "0.62rem", color: EFFECT_COLOR, "line-height": 1.2 }}>{e.amount} {CH_SHORT[e.channel]}</div>}
                   </For>}>
                   <Show when={STAPLE_RECIPE[r.id]}>
                     {(rid) => (
@@ -244,16 +245,22 @@ export default function KitchenDesk() {
             themselves clickable — simpler to read, and it leaves room for each
             station's contents. Coordinates are percentages, so the art can be
             re-cropped or swapped per tier without touching the layout. */}
-        <div style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "margin-bottom": "8px" }}>
-          🍳 The kitchen {held()
-            ? <span style={{ color: "var(--accent-gold)" }}>· holding {getFoodIngredient(held()!)?.icon} {getFoodIngredient(held()!)?.name}, choose where it goes</span>
-            : ""}
-        </div>
         <div style={{ position: "relative", width: "100%", "aspect-ratio": "1 / 1", "margin-bottom": "16px" }}>
           {/* Feathered, not framed: this surface is the fire you're standing
               over, not a picture on a wall, and a frame would be one more piece
               of furniture on a busy screen. The falloff lives in the PNG. */}
           <img src={KITCHEN_ART} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", "object-fit": "cover", "user-select": "none", "pointer-events": "none" }} />
+          {/* The "holding" hint lives ON the painting rather than in a heading
+              above it, so the art starts at the top of its column and lines up
+              with the book beside it. */}
+          <Show when={held()}>
+            <div style={{ position: "absolute", left: "50%", top: "3%", transform: "translateX(-50%)", "z-index": 2,
+              padding: "3px 10px", "border-radius": "3px", "font-size": "0.72rem", "white-space": "nowrap",
+              background: "rgba(20,14,8,0.78)", border: "1px solid var(--accent-gold)", color: "var(--accent-gold)",
+              "backdrop-filter": "blur(2px)", "pointer-events": "none" }}>
+              holding {getFoodIngredient(held()!)?.icon} {getFoodIngredient(held()!)?.name}, choose where it goes
+            </div>
+          </Show>
           <For each={paintedStations()}>
             {(st) => {
               const arr = () => stationOf(st.technique);
