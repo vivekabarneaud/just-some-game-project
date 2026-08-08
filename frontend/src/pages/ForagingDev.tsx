@@ -30,7 +30,7 @@ const spriteUrl = (plantId: string, variant: number) => {
 /** Height of a sprite at scale 1, as a percentage of the scene box. Sized by
  *  HEIGHT so plants of different proportions read as consistently "that tall"
  *  standing on the ground. */
-const SPRITE_H = 7;
+const SPRITE_H = 5;
 /** How much a hovered plant grows. Large, because at 5% you genuinely cannot
  *  identify anything without leaning in — which is exactly the point. */
 const MAGNIFY = 4;
