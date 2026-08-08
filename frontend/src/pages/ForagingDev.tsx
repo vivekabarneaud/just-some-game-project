@@ -62,13 +62,17 @@ export default function ForagingDev() {
     (k) => loadTerrainMask(maskUrl(k.season, k.n)),
   );
 
+  // The scene is generated ONCE per walk, from a snapshot of the wood taken as
+  // you step in. It must NOT read live stock: picking one plant would rebuild
+  // the layout and send every other plant jumping to a new spot.
+  const [walkStock, setWalkStock] = createSignal<WoodsStock>(fullStock("autumn"));
   const scene = createMemo(() =>
-    buildScene(stock(), season(), seed(), { terrainAt: mask() ?? undefined }));
+    buildScene(walkStock(), season(), seed(), { terrainAt: mask() ?? undefined }));
   const visible = () => scene().filter((p) => !picked().has(p.key));
   const full = () => basket().length >= BASKET_SIZE;
 
   const setSeasonTo = (s: Season) => {
-    setSeason(s); setStock(fullStock(s)); setSeed(seed() + 1);
+    setSeason(s); setStock(fullStock(s)); setWalkStock(fullStock(s)); setSeed(seed() + 1);
     setBasket([]); setPicked(new Set<string>()); setResolved(false); setArtFailed(false);
   };
 
@@ -82,9 +86,15 @@ export default function ForagingDev() {
   /** Walking out and back: the scene relays from current stock, so a wood you
    *  stripped is visibly thin until it grows back. */
   const walkAgain = () => {
+    // Re-enter: the wood is laid out afresh from whatever is left standing, so a
+    // patch you stripped is visibly thin until it has grown back.
+    setWalkStock(stock());
     setSeed(seed() + 1); setPicked(new Set<string>()); setBasket([]); setResolved(false);
   };
-  const passTime = (hours: number) => setStock(regrow(stock(), season(), hours));
+  const passTime = (hours: number) => {
+    const grown = regrow(stock(), season(), hours);
+    setStock(grown); setWalkStock(grown); setSeed(seed() + 1); setPicked(new Set<string>());
+  };
 
   const kept = () => basket().filter((b) => getForagePlant(b.plantId)?.yields);
   const binned = () => basket().filter((b) => !getForagePlant(b.plantId)?.yields);
@@ -113,7 +123,7 @@ export default function ForagingDev() {
         <button style={BTN} onClick={walkAgain}>Walk in again</button>
         <button style={BTN} onClick={() => passTime(6)}>+6h regrowth</button>
         <button style={BTN} onClick={() => passTime(24)}>+24h</button>
-        <button style={BTN} onClick={() => setStock(fullStock(season()))}>Reset the woods</button>
+        <button style={BTN} onClick={() => { setStock(fullStock(season())); setWalkStock(fullStock(season())); setSeed(seed() + 1); setPicked(new Set<string>()); }}>Reset the woods</button>
         <span style={{ width: "12px" }} />
         <Show when={SCENE_COUNT[season()] > 1}>
           <For each={Array.from({ length: SCENE_COUNT[season()] }, (_, i) => i + 1)}>
