@@ -198,12 +198,22 @@ export default function ForagingDev() {
                       // Painted sprites size by height against the scene box;
                       // the emoji placeholders keep a font size instead.
                       ...(hasArt ? { height: `${SPRITE_H * p.scale}%`, width: "auto" } : { "font-size": `${0.95 * p.scale}rem`, "line-height": 1 }),
-                      filter: `brightness(${p.brightness}) saturate(${p.saturate}) ${isHot() ? "drop-shadow(0 0 10px rgba(245,197,66,0.85))" : "drop-shadow(0 3px 4px rgba(0,0,0,0.55))"}`,
+                      filter: `brightness(${(p.brightness * (0.86 + 0.14 * p.depth)).toFixed(3)}) saturate(${(p.saturate * (0.8 + 0.2 * p.depth)).toFixed(3)}) contrast(${(0.9 + 0.1 * p.depth).toFixed(3)}) ${isHot() ? "drop-shadow(0 0 10px rgba(245,197,66,0.85))" : "drop-shadow(0 2px 3px rgba(0,0,0,0.4))"}`,
                       "z-index": isHot() ? 3 : 1,
                     }}>
+                    {/* Contact shadow. The single strongest cue that a thing is
+                        standing IN the picture rather than sitting on it: real
+                        objects darken the ground where they meet it. Drawn first
+                        so it sits behind the sprite. */}
+                    <Show when={hasArt}>
+                      <span style={{ position: "absolute", left: "50%", bottom: "1%", transform: "translateX(-50%)",
+                        width: "78%", height: "16%", "border-radius": "50%", "pointer-events": "none",
+                        background: "radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.28) 45%, transparent 72%)",
+                        filter: "blur(2px)" }} />
+                    </Show>
                     <Show when={hasArt} fallback={<span>{plant.icon}</span>}>
                       <img src={spriteUrl(p.plantId, p.variant)} alt=""
-                        style={{ height: "100%", width: "auto", display: "block",
+                        style={{ height: "100%", width: "auto", display: "block", position: "relative",
                           "user-select": "none", "-webkit-user-drag": "none" }} />
                     </Show>
                   </button>

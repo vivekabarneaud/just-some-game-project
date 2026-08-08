@@ -54,7 +54,7 @@ export const FORAGE_PLANTS: ForagePlant[] = [
   { id: "ramsons", name: "Ramsons", icon: "🧄", yields: "ramsons", artVariants: 1,
     note: "Wild garlic from the spring woods. It lifts whatever it touches.",
     clump: 6,
-    size: [1.3, 2.0], grows: ["litter", "wood"],
+    size: [1.6, 2.4], grows: ["litter", "wood"],
     cap: { spring: 10 }, regrow: 0.5 },
   { id: "wild_carrot", name: "Wild Carrot", icon: "🥕", yields: "wild_carrot",
     note: "A thin, pale root. Sweeter than it looks.",
@@ -117,7 +117,7 @@ export const FORAGE_PLANTS: ForagePlant[] = [
   { id: "lily_of_the_valley", name: "Lily of the Valley", icon: "🌱", yields: null, mimics: "ramsons", artVariants: 1,
     note: "Lily of the valley, which would have stopped a heart. Ramsons smell of garlic and grow one leaf to a stem; these come in pairs and smell of nothing.",
     clump: 5,
-    size: [1.3, 2.0], grows: ["litter", "wood"],
+    size: [1.6, 2.4], grows: ["litter", "wood"],
     cap: { spring: 5 }, regrow: 0.4 },
 ];
 

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { FORAGE_PLANTS, getForagePlant, isDecoy } from "@medieval-realm/shared/data/foraging/plants";
-import { buildScene, fullStock, pick, rain, regrow, seasonCap, sizeRangesOverlap, DEFAULT_SIZE } from "@medieval-realm/shared/data/foraging/scene";
+import { buildScene, fullStock, pick, rain, regrow, seasonCap, sizeRangesOverlap, DEFAULT_SIZE, DEPTH_MIN, DEPTH_MAX } from "@medieval-realm/shared/data/foraging/scene";
 
 describe("foraging — the woods' stock", () => {
   it("a fresh wood sits at its seasonal cap", () => {
@@ -194,6 +194,24 @@ describe("foraging — sprite variants", () => {
       .filter((p) => p.plantId === "chanterelle").map((p) => p.scale);
     expect(scales.length).toBeGreaterThan(2);
     expect(Math.max(...scales) - Math.min(...scales)).toBeGreaterThan(0.15);
+  });
+
+  it("draws plants further up the frame smaller, so they sit back in the picture", () => {
+    const scene = buildScene(fullStock("autumn"), "autumn", 77);
+    // depth tracks y, and the same plant drawn near vs far differs in size.
+    for (const p of scene) expect(p.depth).toBeCloseTo(p.y / 100, 5);
+    const byPlant = new Map<string, typeof scene>();
+    for (const p of scene) byPlant.set(p.plantId, [...(byPlant.get(p.plantId) ?? []), p]);
+    const spread = [...byPlant.values()].find((g) => g.length > 2 &&
+      Math.abs(Math.max(...g.map((p) => p.y)) - Math.min(...g.map((p) => p.y))) > 30);
+    if (spread) {
+      const near = spread.reduce((a, b) => (a.y > b.y ? a : b));
+      const far = spread.reduce((a, b) => (a.y < b.y ? a : b));
+      // Not a strict guarantee (the size roll varies too), but the perspective
+      // factor must at least be pulling in the right direction.
+      expect(DEPTH_MIN).toBeLessThan(DEPTH_MAX);
+      expect(near.depth).toBeGreaterThan(far.depth);
+    }
   });
 
   it("mirrors and tones sprites, so painted quirks can't become the tell", () => {

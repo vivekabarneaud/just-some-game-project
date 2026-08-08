@@ -102,6 +102,11 @@ export interface PlacedPlant {
   /** Slight per-sprite variation so a patch doesn't look stamped. */
   scale: number;
   rotate: number;
+  /** How near the viewer this one is: 0 at the top of the frame, 1 at the
+   *  bottom. In a steep downward view, higher up IS further away, so this
+   *  shrinks and hazes distant plants. Without it a sprite at the treeline
+   *  fights the picture's own perspective and reads as pasted on. */
+  depth: number;
   /** Mild tonal jitter, so two of the same variant read as two individuals.
    *  Brightness and saturation only — deliberately NOT hue, because colour can
    *  be part of a tell and shifting it could turn one plant into another. */

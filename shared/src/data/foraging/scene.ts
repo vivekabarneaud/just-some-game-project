@@ -60,11 +60,23 @@ function rng(seed: number): () => number {
 /** Used when a plant declares no size of its own. */
 export const DEFAULT_SIZE: [number, number] = [0.8, 1.2];
 
+/** Perspective squeeze: how much smaller a plant at the very top of the frame
+ *  draws than one at the very bottom. Modest on purpose — the view is steep, so
+ *  the distance range is small, and overdoing it looks like a diorama. */
+export const DEPTH_MIN = 0.78;
+export const DEPTH_MAX = 1.12;
+const depthAt = (y: number) => DEPTH_MIN + (DEPTH_MAX - DEPTH_MIN) * (y / 100);
+
 /** Do two plants' drawn size ranges overlap at all? For a pair that relies on
  *  size as its tell, the answer must be no — otherwise a big impostor can pass
  *  for a small real one, which is precisely the mistake that poisons people. */
 export function sizeRangesOverlap(a: [number, number], b: [number, number]): boolean {
-  return a[0] <= b[1] && b[0] <= a[1];
+  // Compared at their DRAWN extremes: a plant at the bottom of the frame is
+  // drawn larger than the same plant at the top, so the perspective squeeze has
+  // to be folded in or a near dapperling could out-size a distant parasol.
+  const lo = (r: [number, number]) => r[0] * DEPTH_MIN;
+  const hi = (r: [number, number]) => r[1] * DEPTH_MAX;
+  return lo(a) <= hi(b) && lo(b) <= hi(a);
 }
 
 /** Keep sprites off the very edges, where a feathered painting falls away. */
@@ -170,9 +182,10 @@ export function buildScene(stock: WoodsStock, season: Season, seed: number, opts
         x, y,
         variant: variants > 0 ? 1 + Math.floor(rand() * variants) : 1,
         flip: rand() < 0.5,
+        depth: y / 100,
         scale: (() => {
           const [lo, hi] = getForagePlant(plantId)?.size ?? DEFAULT_SIZE;
-          return lo + rand() * (hi - lo);
+          return (lo + rand() * (hi - lo)) * depthAt(y);
         })(),
         rotate: (rand() - 0.5) * 34,
         brightness: 0.9 + rand() * 0.22,
