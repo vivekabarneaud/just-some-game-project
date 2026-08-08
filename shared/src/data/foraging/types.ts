@@ -48,12 +48,17 @@ export interface ForagePlant {
   mimics?: string;
   /** What Edda says when she finds it in the basket. Player-facing. */
   note: string;
-  /** How big this plant stands, as a multiplier on the scene's base sprite
-   *  height. A parasol towers; a dapperling squats. Mostly cosmetic — EXCEPT
-   *  for the parasol pair, where size is the real-world tell and so is
-   *  deliberately different. For every other lookalike pair the sizes MATCH, or
-   *  the player could sort them by silhouette without ever looking properly. */
-  size?: number;
+  /** How big this plant stands: [smallest, largest] multiplier on the scene's
+   *  base sprite height. A RANGE rather than one number, because every species
+   *  has its own spread — chanterelles vary within chanterelle bounds, and a
+   *  parasol out-tops the biggest bolete however small it grows.
+   *
+   *  For a lookalike pair the ranges must MATCH, or the player could sort them
+   *  by silhouette without ever looking properly. The one exception is the
+   *  parasol and its dapperling, where size genuinely IS the tell — there the
+   *  ranges are deliberately far apart and must never overlap, which is tested.
+   *  Omitted = a modest default. */
+  size?: [number, number];
   /** Most fungi and many wild plants fruit in company rather than one at a
    *  time: chanterelles come in troops, ramsons carpets a whole bank. The
    *  largest group this plant appears in (default 1 = always solitary). */

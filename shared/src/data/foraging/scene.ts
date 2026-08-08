@@ -57,19 +57,14 @@ function rng(seed: number): () => number {
   };
 }
 
-/** Per-sprite size jitter. Real fungi vary enormously, so this is generous —
- *  but NOT unbounded: where size is a genuine tell (the parasol and its deadly
- *  dapperling), the jittered ranges must stay clear of each other, or a big
- *  impostor could pass for a small real one. `sizeRangesOverlap` below is what
- *  keeps that honest, and there is a test on it. */
-export const SIZE_JITTER_MIN = 0.72;
-export const SIZE_JITTER_MAX = 1.42;
+/** Used when a plant declares no size of its own. */
+export const DEFAULT_SIZE: [number, number] = [0.8, 1.2];
 
-/** Do these two plants' drawn sizes overlap once jitter is applied? For a pair
- *  that relies on size, the answer must be no. */
-export function sizeRangesOverlap(aSize: number, bSize: number): boolean {
-  const [lo, hi] = aSize <= bSize ? [aSize, bSize] : [bSize, aSize];
-  return lo * SIZE_JITTER_MAX >= hi * SIZE_JITTER_MIN;
+/** Do two plants' drawn size ranges overlap at all? For a pair that relies on
+ *  size as its tell, the answer must be no — otherwise a big impostor can pass
+ *  for a small real one, which is precisely the mistake that poisons people. */
+export function sizeRangesOverlap(a: [number, number], b: [number, number]): boolean {
+  return a[0] <= b[1] && b[0] <= a[1];
 }
 
 /** Keep sprites off the very edges, where a feathered painting falls away. */
@@ -175,7 +170,10 @@ export function buildScene(stock: WoodsStock, season: Season, seed: number, opts
         x, y,
         variant: variants > 0 ? 1 + Math.floor(rand() * variants) : 1,
         flip: rand() < 0.5,
-        scale: SIZE_JITTER_MIN + rand() * (SIZE_JITTER_MAX - SIZE_JITTER_MIN),
+        scale: (() => {
+          const [lo, hi] = getForagePlant(plantId)?.size ?? DEFAULT_SIZE;
+          return lo + rand() * (hi - lo);
+        })(),
         rotate: (rand() - 0.5) * 34,
         brightness: 0.9 + rand() * 0.22,
         saturate: 0.88 + rand() * 0.3,

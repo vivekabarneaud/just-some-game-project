@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { FORAGE_PLANTS, getForagePlant, isDecoy } from "@medieval-realm/shared/data/foraging/plants";
-import { buildScene, fullStock, pick, rain, regrow, seasonCap, sizeRangesOverlap, SIZE_JITTER_MIN, SIZE_JITTER_MAX } from "@medieval-realm/shared/data/foraging/scene";
+import { buildScene, fullStock, pick, rain, regrow, seasonCap, sizeRangesOverlap, DEFAULT_SIZE } from "@medieval-realm/shared/data/foraging/scene";
 
 describe("foraging — the woods' stock", () => {
   it("a fresh wood sits at its seasonal cap", () => {
@@ -145,16 +145,21 @@ describe("foraging — sprite variants", () => {
 
   // Sorting a pair by silhouette is not identifying it. Sizes must match unless
   // size is genuinely the real-world tell, in which case the note must say so.
-  it("a decoy stands the same height as its twin, unless size is the tell", () => {
+  it("a decoy shares its twin's size range, unless size is the tell", () => {
     for (const p of FORAGE_PLANTS.filter((x) => x.mimics)) {
       const real = getForagePlant(p.mimics!)!;
-      const sameSize = (p.size ?? 1) === (real.size ?? 1);
-      if (!sameSize) {
-        expect(
-          p.note.toLowerCase(),
-          `${p.name} differs in size from ${real.name}, so its note must tell the player to go by size`,
-        ).toContain("size");
-      }
+      const a = p.size ?? DEFAULT_SIZE, b = real.size ?? DEFAULT_SIZE;
+      if (a[0] === b[0] && a[1] === b[1]) continue;
+      // Sizes differ, so size must BE the tell: the ranges must not overlap at
+      // all, and the note must tell the player to go by it.
+      expect(
+        sizeRangesOverlap(a, b),
+        `${p.name} and ${real.name} differ in size but their ranges overlap — a big impostor could pass for a small real one`,
+      ).toBe(false);
+      expect(
+        p.note.toLowerCase(),
+        `${p.name} differs in size from ${real.name}, so its note must tell the player to go by size`,
+      ).toContain("size");
     }
   });
 
@@ -171,17 +176,16 @@ describe("foraging — sprite variants", () => {
     }
   });
 
-  // Size jitter is generous, which is right for fungi — but where size IS the
-  // tell, a big impostor must never be able to pass for a small real one.
-  it("keeps a size-tell pair's drawn sizes clear of each other", () => {
-    for (const p of FORAGE_PLANTS.filter((x) => x.mimics)) {
-      const real = getForagePlant(p.mimics!)!;
-      const a = p.size ?? 1, b = real.size ?? 1;
-      if (a === b) continue; // size isn't the tell for this pair
-      expect(
-        sizeRangesOverlap(a, b),
-        `${p.name} and ${real.name} rely on size, but jitter (${SIZE_JITTER_MIN}-${SIZE_JITTER_MAX}x) lets them overlap`,
-      ).toBe(false);
+  // The point of per-species ranges. Note we do NOT claim a total ordering:
+  // a small bolete really can be smaller than a big chanterelle, and that is
+  // fine because they are not a pair. Only the parasol's separation matters.
+  it("a parasol out-tops every other mushroom, however small it grows", () => {
+    const of = (id: string) => getForagePlant(id)!.size ?? DEFAULT_SIZE;
+    const smallestParasol = of("parasol")[0];
+    for (const id of ["cepe", "bitter_bolete", "chanterelle", "false_chanterelle",
+                      "morel", "false_morel", "field_mushroom", "deadly_dapperling"]) {
+      expect(smallestParasol, `a small parasol must still out-top the biggest ${id}`)
+        .toBeGreaterThan(of(id)[1]);
     }
   });
 
