@@ -195,7 +195,7 @@ export default function KitchenDesk() {
         style={{ position: "relative", flex: "1.4 1 460px", "max-width": "720px", "aspect-ratio": "1095 / 740", "align-self": "flex-start" }}>
         <img src={COOKBOOK_ART} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", "object-fit": "contain", "user-select": "none", "pointer-events": "none",
           /* drop-shadow, not box-shadow: it follows the cut-out's alpha rather than the container's rectangle */
-          filter: "drop-shadow(0 16px 22px rgba(0,0,0,0.55))" }} />
+          filter: "drop-shadow(0 20px 26px rgba(0,0,0,0.78)) drop-shadow(0 4px 8px rgba(0,0,0,0.5))" }} />
         <div style={{ position: "absolute", left: "11%", right: "11%", top: "6%", bottom: "7%", display: "flex", "flex-direction": "column", "min-height": 0 }}>
         <Show when={book().length > 0} fallback={<div style={{ "font-size": "0.8rem", "font-style": "italic", opacity: 0.7, "text-align": "center" }}>No dishes yet.</div>}>
           <div style={{ display: "grid", "grid-template-columns": "1fr 1fr", "column-gap": "11%", "row-gap": "8px" }}>
@@ -229,9 +229,9 @@ export default function KitchenDesk() {
           </div>
           <Show when={pageCount() > 1}>
             <div style={{ display: "flex", "align-items": "center", "justify-content": "center", gap: "14px", "margin-top": "auto", "padding-top": "8px", color: "#2a2012" }}>
-              <button style={PAGE_BTN} disabled={page() === 0} onClick={() => setPage(page() - 1)}>‹ Prev</button>
+              <button style={PAGE_BTN} disabled={page() === 0} onClick={() => { setPage(page() - 1); playSound("page_turn"); }}>‹ Prev</button>
               <span style={{ "font-size": "0.82rem", "font-weight": 600 }}>{page() + 1} / {pageCount()}</span>
-              <button style={PAGE_BTN} disabled={page() >= pageCount() - 1} onClick={() => setPage(page() + 1)}>Next ›</button>
+              <button style={PAGE_BTN} disabled={page() >= pageCount() - 1} onClick={() => { setPage(page() + 1); playSound("page_turn"); }}>Next ›</button>
             </div>
           </Show>
         </Show>
