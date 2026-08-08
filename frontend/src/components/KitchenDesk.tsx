@@ -7,6 +7,7 @@ import type { CookTechnique, FoodRole, CookPlacement, DishChannel } from "@medie
 import { playSound } from "~/engine/sounds";
 import { getSettlementTier, type SettlementTier } from "~/data/buildings";
 import FramedModal from "~/components/FramedModal";
+import Tooltip from "~/components/Tooltip";
 import FramedItemCard, { itemFrameUrl as frameUrl, gradeFilter } from "~/components/FramedItemCard";
 
 /** The free-form cooking desk. Left: the cookbook on parchment. Right: the
@@ -109,7 +110,7 @@ export default function KitchenDesk() {
     allowsTechnique(id, t) && countInStation(t, id) < MAX_PER_INGREDIENT && canAddMore(id);
   const clickStation = (t: CookTechnique) => {
     const h = held();
-    if (!h) return;
+    if (!h) { pulseShelves(); return; }
     if (canStepUp(t, h)) { setStations({ ...stations(), [t]: [...stationOf(t), h] }); setHeld(null); playSound("nav"); }
   };
   const addToStation = (t: CookTechnique, id: string) => {
@@ -155,6 +156,16 @@ export default function KitchenDesk() {
     setStations(next); setHeld(null);
   };
 
+  // Clicking a station empty-handed is the classic first-time stumble: the
+  // player expects the station to open something. Pulse the shelves instead of
+  // doing nothing, so the nudge answers the question they just asked.
+  const [nudgeShelves, setNudgeShelves] = createSignal(false);
+  const pulseShelves = () => {
+    setNudgeShelves(false);
+    requestAnimationFrame(() => setNudgeShelves(true));
+    setTimeout(() => setNudgeShelves(false), 1200);
+  };
+
   // Which stations this kitchen has. The painting depicts the three camp ones;
   // fry/roast unlock with the settlement and (for now) sit in a plain row until
   // their own tier art exists.
@@ -163,13 +174,13 @@ export default function KitchenDesk() {
   const paintedStations = () => STATIONS.filter((st) => hasStation(st) && st.x != null);
   const extraStations = () => STATIONS.filter((st) => hasStation(st) && st.x == null);
 
-  const PAGE_BTN = { background: "rgba(42,32,18,0.08)", border: "1px solid #2a2012", "border-radius": "4px", color: "#2a2012", padding: "2px 12px", cursor: "pointer", "font-size": "0.9rem" } as const;
-  const STEP_BTN = { background: "rgba(255,255,255,0.1)", border: "1px solid var(--border-default)", "border-radius": "4px", color: "var(--text-primary)", width: "16px", height: "16px", "line-height": 1, padding: 0, cursor: "pointer", "font-size": "0.8rem", display: "inline-flex", "align-items": "center", "justify-content": "center" } as const;
+  const PAGE_BTN = { background: "rgba(42,32,18,0.08)", border: "1px solid #2a2012", "border-radius": "2px", color: "#2a2012", padding: "2px 12px", cursor: "pointer", "font-size": "0.9rem" } as const;
+  const STEP_BTN = { background: "rgba(255,255,255,0.1)", border: "1px solid var(--border-default)", "border-radius": "2px", color: "var(--text-primary)", width: "16px", height: "16px", "line-height": 1, padding: 0, cursor: "pointer", "font-size": "0.8rem", display: "inline-flex", "align-items": "center", "justify-content": "center" } as const;
 
   return (
     <div style={{ margin: "8px 0 24px", display: "flex", gap: "20px", "flex-wrap": "wrap", "align-items": "flex-start" }}>
       {/* ── LEFT: cookbook on parchment ── */}
-      <div class="parchment-panel" style={{ flex: "1.4 1 460px", "max-width": "610px", "min-height": "560px", padding: "18px 20px", "border-radius": "8px", "align-self": "stretch" }}>
+      <div class="parchment-panel" style={{ flex: "1.4 1 460px", "max-width": "610px", "min-height": "560px", padding: "18px 20px", "border-radius": "4px", "align-self": "stretch" }}>
         <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "12px" }}>📖 Cookbook</h3>
         <Show when={book().length > 0} fallback={<div style={{ "font-size": "0.8rem", "font-style": "italic", opacity: 0.7 }}>No dishes yet.</div>}>
           <div style={{ display: "grid", "grid-template-columns": "1fr 1fr", gap: "12px" }}>
@@ -188,7 +199,7 @@ export default function KitchenDesk() {
                         title={keepCookingOn(rid()) ? "Keeping a pot on to feed the settlement — tap to stop"
                           : cookSlotsFull(rid()) ? "All cook slots busy — upgrade the Kitchen for more pots"
                           : "Keep a pot on: stretches raw food into portions for the settlement"}
-                        style={{ display: "inline-block", "margin-top": "6px", "font-size": "0.62rem", padding: "2px 7px", "border-radius": "10px",
+                        style={{ display: "inline-block", "margin-top": "6px", "font-size": "0.62rem", padding: "2px 7px", "border-radius": "4px",
                           cursor: cookSlotsFull(rid()) ? "default" : "pointer", "font-weight": 600,
                           background: keepCookingOn(rid()) ? "rgba(212,131,26,0.28)" : "rgba(255,255,255,0.08)",
                           border: `1px solid ${keepCookingOn(rid()) ? "var(--accent-gold)" : "var(--border-default)"}`,
@@ -223,7 +234,7 @@ export default function KitchenDesk() {
             ? <span style={{ color: "var(--accent-gold)" }}>· holding {getFoodIngredient(held()!)?.icon} {getFoodIngredient(held()!)?.name}, choose where it goes</span>
             : ""}
         </div>
-        <div style={{ position: "relative", width: "100%", "aspect-ratio": "1 / 1", "border-radius": "10px", overflow: "hidden", "margin-bottom": "16px", border: "1px solid var(--border-color)" }}>
+        <div style={{ position: "relative", width: "100%", "aspect-ratio": "1 / 1", "border-radius": "4px", overflow: "hidden", "margin-bottom": "16px", border: "1px solid var(--border-color)" }}>
           <img src={KITCHEN_ART} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", "object-fit": "cover", "user-select": "none", "pointer-events": "none" }} />
           <For each={paintedStations()}>
             {(st) => {
@@ -239,7 +250,7 @@ export default function KitchenDesk() {
                       <For each={countsOf(st.technique)}>
                         {(c) => (
                           <span title={getFoodIngredient(c.id)?.name}
-                            style={{ display: "inline-flex", "align-items": "center", gap: "3px", "font-size": "0.66rem", padding: "1px 3px 1px 6px", "border-radius": "12px",
+                            style={{ display: "inline-flex", "align-items": "center", gap: "3px", "font-size": "0.66rem", padding: "1px 3px 1px 6px", "border-radius": "3px",
                               background: "rgba(20,14,8,0.82)", border: "1px solid var(--accent-gold)", color: "var(--text-primary)", "backdrop-filter": "blur(2px)" }}>
                             <span>{getFoodIngredient(c.id)?.icon}</span>
                             <button onClick={(e) => { e.stopPropagation(); removeOne(st.technique, c.id); }} title="One less" style={STEP_BTN}>−</button>
@@ -258,10 +269,14 @@ export default function KitchenDesk() {
                       empty, solid once something is in it. Labelled with the
                       VERB, since the action is what the player is choosing; the
                       place ("the Pot") stays as flavour in the tooltip. */}
+                  <Tooltip position="top" text={
+                    refuses() ? `${getFoodIngredient(held()!)?.name} can't be ${st.past}`
+                      : held() ? `Add ${getFoodIngredient(held()!)?.name?.toLowerCase()} to the ${st.place.toLowerCase()}`
+                      : arr().length ? `${st.verb}ing in the ${st.place.toLowerCase()}. Take something off a shelf to add more.`
+                      : `The ${st.place.toLowerCase()}. Take something off a shelf first.`
+                  }>
                   <button onClick={() => clickStation(st.technique)}
-                    title={refuses() ? `${getFoodIngredient(held()!)?.name} can't be ${st.past}`
-                      : held() ? `${st.verb} it in the ${st.place}` : `The ${st.place}`}
-                    style={{ width: "58px", height: "58px", "border-radius": "6px", padding: 0,
+                    style={{ width: "58px", height: "58px", "border-radius": "3px", padding: 0,
                       display: "flex", "flex-direction": "column", "align-items": "center", "justify-content": "center", gap: "1px",
                       cursor: offers() ? "pointer" : "default",
                       background: offers() ? "rgba(212,131,26,0.30)" : "rgba(20,14,8,0.62)",
@@ -272,6 +287,7 @@ export default function KitchenDesk() {
                     <span style={{ "font-size": "1.3rem", "line-height": 1 }}>{st.icon}</span>
                     <span style={{ "font-size": "0.6rem", "font-family": "var(--font-heading)" }}>{st.verb}</span>
                   </button>
+                  </Tooltip>
                 </div>
               );
             }}
@@ -288,7 +304,7 @@ export default function KitchenDesk() {
                 const refuses = () => !!held() && !allowsTechnique(held()!, st.technique);
                 const offers = () => !!held() && !refuses();
                 return (
-                  <div style={{ flex: "1 1 45%", "min-height": "58px", padding: "6px", "border-radius": "8px", "text-align": "center", cursor: offers() ? "pointer" : "default",
+                  <div style={{ flex: "1 1 45%", "min-height": "58px", padding: "6px", "border-radius": "4px", "text-align": "center", cursor: offers() ? "pointer" : "default",
                     border: `2px solid ${offers() ? "var(--accent-gold)" : arr().length ? "var(--accent-green)" : "var(--border-default)"}`,
                     background: offers() ? "rgba(212,131,26,0.08)" : "var(--bg-card)",
                     opacity: refuses() ? 0.4 : 1,
@@ -302,7 +318,7 @@ export default function KitchenDesk() {
                       <div style={{ display: "flex", "flex-wrap": "wrap", gap: "4px", "justify-content": "center" }}>
                         <For each={countsOf(st.technique)}>
                           {(c) => (
-                            <span style={{ display: "inline-flex", "align-items": "center", gap: "4px", "font-size": "0.66rem", padding: "1px 3px 1px 7px", "border-radius": "12px", background: "rgba(255,255,255,0.08)", border: "1px solid var(--border-default)" }}>
+                            <span style={{ display: "inline-flex", "align-items": "center", gap: "4px", "font-size": "0.66rem", padding: "1px 3px 1px 7px", "border-radius": "3px", background: "rgba(255,255,255,0.08)", border: "1px solid var(--border-default)" }}>
                               <span>{getFoodIngredient(c.id)?.icon} {getFoodIngredient(c.id)?.name}</span>
                               <button onClick={(e) => { e.stopPropagation(); removeOne(st.technique, c.id); }} title="One less" style={STEP_BTN}>−</button>
                               <span style={{ "min-width": "0.8em", "text-align": "center", "font-weight": 600 }}>{c.n}</span>
@@ -324,13 +340,14 @@ export default function KitchenDesk() {
 
         {/* Shelves — one button per role, opens a picker of what's in the larder */}
         <div style={{ "font-size": "0.85rem", color: "var(--text-secondary)", "margin-bottom": "6px" }}>🧺 Shelves</div>
-        <div style={{ display: "flex", "flex-wrap": "wrap", "justify-content": "center", gap: "6px", "margin-bottom": "16px" }}>
+        <div class={nudgeShelves() ? "kitchen-shelf-nudge" : undefined}
+          style={{ display: "flex", "flex-wrap": "wrap", "justify-content": "center", gap: "6px", "margin-bottom": "16px", "border-radius": "3px" }}>
           <For each={ROLE_SHELVES}>
             {(sh) => {
               const count = () => shelfStock(sh.role).length;
               return (
                 <button onClick={() => { setShelfModal(sh.role); playSound("shelf_open"); }}
-                  style={{ flex: "0 0 46%", padding: "5px 8px", "border-radius": "8px", cursor: "pointer",
+                  style={{ flex: "0 0 46%", padding: "5px 8px", "border-radius": "3px", cursor: "pointer",
                     border: "1px solid var(--border-default)", background: "var(--bg-card)", color: "var(--text-primary)",
                     display: "flex", "align-items": "baseline", "justify-content": "center", gap: "6px", opacity: count() > 0 ? 1 : 0.5 }}>
                   <span style={{ "font-size": "0.8rem" }}>{sh.icon} {sh.label}</span>
@@ -345,7 +362,7 @@ export default function KitchenDesk() {
         <div style={{ display: "flex", "align-items": "flex-start", gap: "12px" }}>
           <div style={{ "font-size": "1.5rem", color: "var(--text-muted)", "padding-top": "14px" }}>⤵</div>
           <div style={{ flex: 1, "max-width": "340px" }}>
-            <div style={{ padding: "12px", "border-radius": "8px", background: "rgba(255,255,255,0.06)", border: "14px solid transparent",
+            <div style={{ padding: "12px", "border-radius": "4px", background: "rgba(255,255,255,0.06)", border: "14px solid transparent",
               "border-image": `url(${frameUrl("common")}) 34 stretch`, filter: gradeFilter(dish().quality === "seasoned" ? "fine" : dish().quality) }}>
               <div style={{ "font-size": "1.1rem", "font-weight": 600, color: dish().named ? "var(--accent-green)" : QUALITY_COLOR[dish().quality] }}>{dish().name}</div>
               <div style={{ "font-size": "0.66rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "1px", "margin-bottom": "6px" }}>{dish().named ? "known dish · " : ""}{QUALITY_LABEL[dish().quality]}</div>
