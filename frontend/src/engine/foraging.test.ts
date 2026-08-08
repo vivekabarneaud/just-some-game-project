@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { FORAGE_PLANTS, getForagePlant, isDecoy } from "@medieval-realm/shared/data/foraging/plants";
-import { buildScene, fullStock, pick, rain, regrow, seasonCap } from "@medieval-realm/shared/data/foraging/scene";
+import { buildScene, fullStock, pick, rain, regrow, seasonCap, sizeRangesOverlap, SIZE_JITTER_MIN, SIZE_JITTER_MAX } from "@medieval-realm/shared/data/foraging/scene";
 
 describe("foraging — the woods' stock", () => {
   it("a fresh wood sits at its seasonal cap", () => {
@@ -169,6 +169,27 @@ describe("foraging — sprite variants", () => {
         `${p.name} must offer as many shapes as ${real.name}, or its set is the easier one to memorise`,
       ).toBe(real.artVariants ?? 0);
     }
+  });
+
+  // Size jitter is generous, which is right for fungi — but where size IS the
+  // tell, a big impostor must never be able to pass for a small real one.
+  it("keeps a size-tell pair's drawn sizes clear of each other", () => {
+    for (const p of FORAGE_PLANTS.filter((x) => x.mimics)) {
+      const real = getForagePlant(p.mimics!)!;
+      const a = p.size ?? 1, b = real.size ?? 1;
+      if (a === b) continue; // size isn't the tell for this pair
+      expect(
+        sizeRangesOverlap(a, b),
+        `${p.name} and ${real.name} rely on size, but jitter (${SIZE_JITTER_MIN}-${SIZE_JITTER_MAX}x) lets them overlap`,
+      ).toBe(false);
+    }
+  });
+
+  it("draws the same plant at visibly different sizes", () => {
+    const scales = buildScene(fullStock("autumn"), "autumn", 55)
+      .filter((p) => p.plantId === "chanterelle").map((p) => p.scale);
+    expect(scales.length).toBeGreaterThan(2);
+    expect(Math.max(...scales) - Math.min(...scales)).toBeGreaterThan(0.15);
   });
 
   it("mirrors and tones sprites, so painted quirks can't become the tell", () => {
