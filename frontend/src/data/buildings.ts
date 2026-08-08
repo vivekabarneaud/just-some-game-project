@@ -796,7 +796,14 @@ export const BUILDINGS: BuildingDefinition[] = [
     maxLevel: 15,
     levels: ALCHEMY_LAB_LEVELS,
     requiredTier: "camp",
-    unlockedAt: { storyline: "settlement", chapter: 4 },
+    // Unlocks with the marsh, NOT at settlement Ch4 (fixed 2026-08-08). The Ch1
+    // story beat "Slow Venom" fires the moment the marsh is cleared and can only
+    // be completed by brewing a Herbal Antidote — but settlement Ch4 needs Town
+    // Hall 3, which the Ch1 spine never asks for. A player could therefore reach
+    // a venomed, undeployable adventurer with no way to build the lab that makes
+    // the cure. Gating on the marsh is also the diegetic read: you cut fenbalm
+    // for Edda, so she needs somewhere to brew it.
+    unlockedAt: { requiresMissionDone: "marsh_clearing" },
   },
   {
     id: "enchanting_shop",

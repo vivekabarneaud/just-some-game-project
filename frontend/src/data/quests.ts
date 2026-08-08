@@ -942,6 +942,9 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     // auto-settle is what makes that arrival fire reliably.
     rewards: [],
     autoComplete: true,
+    // Point at the lab: the antidote can't be brewed without one, and the marsh
+    // is what unlocks it, so most players meet this quest needing to build it.
+    targetBuildingId: "alchemy_lab",
   },
   {
     // Settlement beat unlocked by the Stonebridge arrival: with a true priest
