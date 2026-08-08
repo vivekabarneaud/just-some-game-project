@@ -30,11 +30,11 @@ import FramedItemCard, { itemFrameUrl as frameUrl, gradeFilter } from "~/compone
  *  camp, fry at village, roast at town. The camp painting only depicts those
  *  first three, so later tiers want their own art (a town kitchen is not a
  *  campfire) — until then, ungated stations fall back to a plain row below. */
-const KITCHEN_ART = "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/kitchen/camp.png";
-/** Soft vignette so the painting melts into the page rather than sitting in a
- *  box. Opaque through the middle where the stations live, falling away at the
- *  edges the art already darkens. */
-const FEATHER = "radial-gradient(ellipse 78% 78% at 50% 50%, #000 52%, transparent 100%)";
+/** Feathered in the art itself (a torn, irregular painted edge), not by a CSS
+ *  mask — hand-made beats a clean radial gradient here, and stacking both would
+ *  soften the ragged edge away. */
+const KITCHEN_ART = "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/kitchen/camp_feathered.png";
+const COOKBOOK_ART = "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/kitchen/cookbook.png";
 
 type StationDef = {
   technique: CookTechnique; place: string; icon: string; verb: string; past: string;
@@ -183,17 +183,27 @@ export default function KitchenDesk() {
 
   return (
     <div style={{ margin: "8px 0 24px", display: "flex", gap: "20px", "flex-wrap": "wrap", "align-items": "flex-start" }}>
-      {/* ── LEFT: cookbook on parchment ── */}
-      <div class="parchment-panel" style={{ flex: "1.4 1 460px", "max-width": "610px", "min-height": "560px", padding: "18px 20px", "border-radius": "4px", "align-self": "stretch" }}>
-        <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "12px" }}>📖 Cookbook</h3>
-        <Show when={book().length > 0} fallback={<div style={{ "font-size": "0.8rem", "font-style": "italic", opacity: 0.7 }}>No dishes yet.</div>}>
-          <div style={{ display: "grid", "grid-template-columns": "1fr 1fr", gap: "12px" }}>
+      {/* ── LEFT: the cookbook, an actual painted open book ──
+          The art is a cut-out PNG, so the panel is transparent and the book sits
+          on the page rather than in a box (same reasoning as the kitchen art).
+          Content is inset into the two page areas: the existing two-column grid
+          maps one column per page, and the column gap clears the spine. The
+          percentages are tuned to the painting, so re-cropping it means
+          re-tuning them. `parchment-panel` is kept only for its dark-ink rules,
+          since the pages are light and most of this text ships dark-theme pale. */}
+      <div class="parchment-panel cookbook-book"
+        style={{ position: "relative", flex: "1.4 1 460px", "max-width": "680px", "aspect-ratio": "1095 / 740", "align-self": "flex-start" }}>
+        <img src={COOKBOOK_ART} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", "object-fit": "contain", "user-select": "none", "pointer-events": "none" }} />
+        <div style={{ position: "absolute", left: "11%", right: "11%", top: "6%", bottom: "7%", display: "flex", "flex-direction": "column", "min-height": 0 }}>
+        <h3 style={{ "font-family": "var(--font-heading)", "margin-bottom": "8px", "font-size": "1rem", "text-align": "center" }}>Cookbook</h3>
+        <Show when={book().length > 0} fallback={<div style={{ "font-size": "0.8rem", "font-style": "italic", opacity: 0.7, "text-align": "center" }}>No dishes yet.</div>}>
+          <div style={{ display: "grid", "grid-template-columns": "1fr 1fr", "column-gap": "11%", "row-gap": "8px" }}>
             <For each={pageItems()}>
               {(r) => (
                 <FramedItemCard rarity="common" icon={r.icon} dim={r.missing.length > 0}
                   title={r.name}
                   tooltip={r.missing.length > 0 ? `Missing: ${r.missing.join(", ")}` : "Load into the stations"}
-                  onClick={() => loadDish(r.placements)} minHeight="92px"
+                  onClick={() => loadDish(r.placements)} minHeight="74px"
                   body={<For each={r.effects}>
                     {(e) => <div style={{ "font-size": "0.66rem", color: EFFECT_COLOR, "line-height": 1.3 }}>{e.amount} {CH_SHORT[e.channel]}</div>}
                   </For>}>
@@ -217,13 +227,14 @@ export default function KitchenDesk() {
             </For>
           </div>
           <Show when={pageCount() > 1}>
-            <div style={{ display: "flex", "align-items": "center", "justify-content": "center", gap: "14px", "margin-top": "14px", color: "#2a2012" }}>
+            <div style={{ display: "flex", "align-items": "center", "justify-content": "center", gap: "14px", "margin-top": "auto", "padding-top": "8px", color: "#2a2012" }}>
               <button style={PAGE_BTN} disabled={page() === 0} onClick={() => setPage(page() - 1)}>‹ Prev</button>
               <span style={{ "font-size": "0.82rem", "font-weight": 600 }}>{page() + 1} / {pageCount()}</span>
               <button style={PAGE_BTN} disabled={page() >= pageCount() - 1} onClick={() => setPage(page() + 1)}>Next ›</button>
             </div>
           </Show>
         </Show>
+        </div>
       </div>
 
       {/* ── RIGHT: the working kitchen ── */}
@@ -239,12 +250,10 @@ export default function KitchenDesk() {
             : ""}
         </div>
         <div style={{ position: "relative", width: "100%", "aspect-ratio": "1 / 1", "margin-bottom": "16px" }}>
-          {/* Feathered, not framed. The painting already falls off to darkness
-              at every edge, so a hard border would fight it — and this surface
-              is the fire you're standing over, not a picture on a wall. A frame
-              would also be one more piece of furniture on a busy screen. */}
-          <img src={KITCHEN_ART} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", "object-fit": "cover", "user-select": "none", "pointer-events": "none",
-            "-webkit-mask-image": FEATHER, "mask-image": FEATHER }} />
+          {/* Feathered, not framed: this surface is the fire you're standing
+              over, not a picture on a wall, and a frame would be one more piece
+              of furniture on a busy screen. The falloff lives in the PNG. */}
+          <img src={KITCHEN_ART} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", "object-fit": "cover", "user-select": "none", "pointer-events": "none" }} />
           <For each={paintedStations()}>
             {(st) => {
               const arr = () => stationOf(st.technique);

@@ -413,6 +413,11 @@ input, textarea, select {
 .parchment-panel p, .parchment-panel .quest-narrative,
 .parchment-panel .quest-header h2 { color: #2a2012 !important; }
 
+/* The cookbook keeps the parchment's dark-ink rules but drops the tiled
+   parchment fill: its background is a painted open book (a cut-out PNG), so the
+   panel itself must be transparent. See KitchenDesk.tsx. */
+.cookbook-book { background: none !important; padding: 0 !important; }
+
 .topbar {
   grid-area: topbar;
   background: var(--bg-secondary);
