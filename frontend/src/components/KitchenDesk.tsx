@@ -253,19 +253,24 @@ export default function KitchenDesk() {
                       </For>
                     </div>
                   </Show>
-                  {/* the slot button itself — translucent so the painting reads through */}
+                  {/* The slot itself — a square tile in the same language as the
+                      adventurers' potion/food slots (SupplySlot): dashed while
+                      empty, solid once something is in it. Labelled with the
+                      VERB, since the action is what the player is choosing; the
+                      place ("the Pot") stays as flavour in the tooltip. */}
                   <button onClick={() => clickStation(st.technique)}
                     title={refuses() ? `${getFoodIngredient(held()!)?.name} can't be ${st.past}`
-                      : held() ? `${st.verb} it in the ${st.place}` : st.place}
-                    style={{ display: "inline-flex", "align-items": "center", gap: "5px", padding: "4px 10px", "border-radius": "999px",
-                      "font-size": "0.74rem", "white-space": "nowrap", "font-family": "var(--font-heading)",
+                      : held() ? `${st.verb} it in the ${st.place}` : `The ${st.place}`}
+                    style={{ width: "58px", height: "58px", "border-radius": "6px", padding: 0,
+                      display: "flex", "flex-direction": "column", "align-items": "center", "justify-content": "center", gap: "1px",
                       cursor: offers() ? "pointer" : "default",
-                      background: offers() ? "rgba(212,131,26,0.32)" : "rgba(20,14,8,0.6)",
-                      border: `1px solid ${offers() ? "var(--accent-gold)" : arr().length ? "var(--accent-green)" : "rgba(255,255,255,0.28)"}`,
+                      background: offers() ? "rgba(212,131,26,0.30)" : "rgba(20,14,8,0.62)",
+                      border: `1px ${arr().length ? "solid" : "dashed"} ${offers() ? "var(--accent-gold)" : arr().length ? "var(--accent-green)" : "rgba(255,255,255,0.35)"}`,
                       color: "var(--text-primary)", opacity: refuses() ? 0.35 : 1,
                       "backdrop-filter": "blur(2px)",
                       "box-shadow": offers() ? "0 0 12px rgba(245,197,66,0.45)" : "none" }}>
-                    <span>{st.icon}</span><span>{st.place}</span>
+                    <span style={{ "font-size": "1.3rem", "line-height": 1 }}>{st.icon}</span>
+                    <span style={{ "font-size": "0.6rem", "font-family": "var(--font-heading)" }}>{st.verb}</span>
                   </button>
                 </div>
               );
