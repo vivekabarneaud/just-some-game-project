@@ -141,3 +141,44 @@ describe("foraging — sprite variants", () => {
     }
   });
 });
+
+describe("foraging — terrain masks", () => {
+  // A synthetic mask: left half is wood, right half grass, and a blocked band
+  // down the middle. Lets us test the rule without a canvas.
+  const split = (x: number) => (x < 45 ? "wood" as const : x > 55 ? "grass" as const : null);
+
+  it("never places anything on blocked ground", () => {
+    for (const p of buildScene(fullStock("autumn"), "autumn", 4, { terrainAt: split })) {
+      expect(split(p.x)).not.toBeNull();
+    }
+  });
+
+  it("places each plant only on ground it will grow on", () => {
+    for (const p of buildScene(fullStock("autumn"), "autumn", 8, { terrainAt: split })) {
+      const wants = getForagePlant(p.plantId)!.grows;
+      if (wants) expect(wants).toContain(split(p.x));
+    }
+  });
+
+  it("a mask that blocks everything yields an empty scene rather than cheating", () => {
+    expect(buildScene(fullStock("autumn"), "autumn", 9, { terrainAt: () => null })).toHaveLength(0);
+  });
+
+  it("without a mask the whole frame is fair game (masks are optional)", () => {
+    expect(buildScene(fullStock("autumn"), "autumn", 4).length).toBeGreaterThan(0);
+  });
+
+  // If a decoy grew somewhere its twin never does, its position would give it
+  // away without the player ever having to look at it.
+  it("a decoy can grow everywhere the plant it mimics can", () => {
+    for (const p of FORAGE_PLANTS.filter((x) => x.mimics)) {
+      const real = getForagePlant(p.mimics!)!;
+      for (const ground of real.grows ?? []) {
+        expect(
+          p.grows ?? [],
+          `${p.name} cannot grow on ${ground}, but ${real.name} can — its position would betray it`,
+        ).toContain(ground);
+      }
+    }
+  });
+});

@@ -14,6 +14,20 @@
 
 import type { Season } from "../../gameState.js";
 
+/** Where a plant is willing to grow. A scene may carry a painted MASK saying
+ *  which patches of its ground are which, so mushrooms cluster by trunks and
+ *  fallen wood, greens take the open grass, and nothing sprouts out of a rock.
+ *
+ *  Painting convention (see the frontend's mask loader): three pure brush
+ *  colours over the background, classified by dominant channel so a soft brush
+ *  edge still reads correctly.
+ *    RED   → "wood"   (trunk bases, roots, fallen logs, rotting timber)
+ *    GREEN → "grass"  (weedy clearing, low ground cover)
+ *    BLUE  → "litter" (leaf litter, open bare earth)
+ *  Anything left black or transparent is BLOCKED: rock, water, deep shadow.
+ *  No mask at all means the whole frame is fair game. */
+export type TerrainId = "wood" | "grass" | "litter";
+
 /** A thing that can be found in the woods. Decoys are plants too — the whole
  *  point is that you can't tell from the id, only from looking. */
 export interface ForagePlant {
@@ -34,6 +48,10 @@ export interface ForagePlant {
   mimics?: string;
   /** What Edda says when she finds it in the basket. Player-facing. */
   note: string;
+  /** Ground this plant will grow on. Omitted = anywhere the mask allows.
+   *  A decoy should share its mimic's terrain, or it would give itself away by
+   *  standing somewhere the real thing never does. */
+  grows?: TerrainId[];
   /** Ceiling on how much of it the woods hold, per season. Absent or 0 means it
    *  doesn't grow then, so the scene generator won't place it at all. */
   cap: Partial<Record<Season, number>>;

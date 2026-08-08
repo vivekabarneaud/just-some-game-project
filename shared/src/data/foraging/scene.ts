@@ -6,7 +6,7 @@
 
 import type { Season } from "../../gameState.js";
 import { FORAGE_PLANTS, getForagePlant } from "./plants.js";
-import type { PlacedPlant, WoodsStock } from "./types.js";
+import type { PlacedPlant, TerrainId, WoodsStock } from "./types.js";
 
 /** What this plant's stock tops out at in this season (0 = doesn't grow now). */
 export function seasonCap(plantId: string, season: Season): number {
@@ -65,7 +65,16 @@ const MIN_GAP = 9;
 /** Lay out what's currently growing. One sprite per whole unit of stock, so a
  *  picked-over wood is visibly thin — that IS the feedback. Capped so a lush
  *  season doesn't produce an unreadable carpet. */
-export function buildScene(stock: WoodsStock, season: Season, seed: number, maxSprites = 14): PlacedPlant[] {
+export interface SceneOptions {
+  maxSprites?: number;
+  /** Reads the scene's painted mask at a point (percentages). Returns null for
+   *  blocked ground. Supplied by the frontend, which owns the pixels — this
+   *  module stays pure and deterministic so it can be tested without a canvas. */
+  terrainAt?: (x: number, y: number) => TerrainId | null;
+}
+
+export function buildScene(stock: WoodsStock, season: Season, seed: number, opts: SceneOptions = {}): PlacedPlant[] {
+  const { maxSprites = 14, terrainAt } = opts;
   const rand = rng(seed);
   const pool: string[] = [];
   for (const p of FORAGE_PLANTS) {
@@ -83,11 +92,21 @@ export function buildScene(stock: WoodsStock, season: Season, seed: number, maxS
   for (const plantId of pool.slice(0, maxSprites)) {
     // Rejection-sample a spot that isn't on top of something else. Give up
     // after a few tries rather than looping forever in a crowded scene.
+    // Rejection-sample a spot that is far enough from its neighbours AND on
+    // ground this plant will actually grow on. More attempts than the spacing
+    // check alone needed, since a fussy plant may only accept a small patch.
+    const wants = getForagePlant(plantId)?.grows;
     let x = 0, y = 0, ok = false;
-    for (let attempt = 0; attempt < 24 && !ok; attempt++) {
+    for (let attempt = 0; attempt < 60 && !ok; attempt++) {
       x = MARGIN + rand() * (100 - MARGIN * 2);
       y = MARGIN + rand() * (100 - MARGIN * 2);
-      ok = placed.every((q) => Math.hypot(q.x - x, q.y - y) >= MIN_GAP);
+      if (placed.some((q) => Math.hypot(q.x - x, q.y - y) < MIN_GAP)) continue;
+      if (terrainAt) {
+        const ground = terrainAt(x, y);
+        if (ground == null) continue;                    // rock, water, blocked
+        if (wants && !wants.includes(ground)) continue;  // wrong ground for it
+      }
+      ok = true;
     }
     if (!ok) continue;
     const variants = getForagePlant(plantId)?.artVariants ?? 0;

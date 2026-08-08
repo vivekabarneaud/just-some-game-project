@@ -1,8 +1,9 @@
-import { createSignal, createMemo, For, Show } from "solid-js";
+import { createSignal, createMemo, createResource, For, Show } from "solid-js";
 import { FORAGE_PLANTS, getForagePlant } from "@medieval-realm/shared/data/foraging/plants";
 import { buildScene, fullStock, pick, regrow, seasonCap } from "@medieval-realm/shared/data/foraging/scene";
 import type { WoodsStock } from "@medieval-realm/shared/data/foraging/types";
 import type { Season } from "@medieval-realm/shared";
+import { loadTerrainMask, TERRAIN_SWATCH } from "~/engine/foragingMask";
 
 /** TEMP dev-only sandbox for the foraging minigame. Standalone (outside the
  *  GameProvider) like the alchemy and kitchen sandboxes: a pure tuning tool with
@@ -29,12 +30,13 @@ const spriteUrl = (plantId: string, variant: number) =>
  *  standing on the ground. */
 const SPRITE_H = 15;
 
-const SCENE_ART: Record<Season, string> = {
-  spring: "/images/foraging/spring.png",
-  summer: "/images/foraging/summer.png",
-  autumn: "/images/foraging/autumn.png",
-  winter: "/images/foraging/winter.png",
-};
+/** Backgrounds live at /images/foraging/scenes/{season}{n}.png, numbered from 1,
+ *  with an optional painted terrain mask beside each as {season}{n}_mask.png.
+ *  Bump the count when you add one. (No globbing from the browser, so the
+ *  sandbox has to be told how many exist.) */
+const SCENE_COUNT: Record<Season, number> = { spring: 1, summer: 1, autumn: 1, winter: 1 };
+const sceneUrl = (season: Season, n: number) => `/images/foraging/scenes/${season}${n}.png`;
+const maskUrl = (season: Season, n: number) => `/images/foraging/scenes/${season}${n}_mask.png`;
 
 interface BasketEntry { plantId: string; }
 
@@ -48,7 +50,18 @@ export default function ForagingDev() {
   const [resolved, setResolved] = createSignal(false);
   const [artFailed, setArtFailed] = createSignal(false);
 
-  const scene = createMemo(() => buildScene(stock(), season(), seed()));
+  const [sceneNo, setSceneNo] = createSignal(1);
+  const [showMask, setShowMask] = createSignal(false);
+
+  // The mask is optional: no file means no sampler, and the whole frame stays
+  // fair game. That keeps masks an enhancement rather than a prerequisite.
+  const [mask] = createResource(
+    () => ({ season: season(), n: sceneNo() }),
+    (k) => loadTerrainMask(maskUrl(k.season, k.n)),
+  );
+
+  const scene = createMemo(() =>
+    buildScene(stock(), season(), seed(), { terrainAt: mask() ?? undefined }));
   const visible = () => scene().filter((p) => !picked().has(p.key));
   const full = () => basket().length >= BASKET_SIZE;
 
@@ -99,6 +112,20 @@ export default function ForagingDev() {
         <button style={BTN} onClick={() => passTime(6)}>+6h regrowth</button>
         <button style={BTN} onClick={() => passTime(24)}>+24h</button>
         <button style={BTN} onClick={() => setStock(fullStock(season()))}>Reset the woods</button>
+        <span style={{ width: "12px" }} />
+        <Show when={SCENE_COUNT[season()] > 1}>
+          <For each={Array.from({ length: SCENE_COUNT[season()] }, (_, i) => i + 1)}>
+            {(n) => (
+              <button style={{ ...BTN, border: `1px solid ${sceneNo() === n ? "var(--accent-gold)" : "var(--border-color)"}` }}
+                onClick={() => { setSceneNo(n); setArtFailed(false); walkAgain(); }}>#{n}</button>
+            )}
+          </For>
+        </Show>
+        <button style={{ ...BTN, border: `1px solid ${showMask() ? "var(--accent-gold)" : "var(--border-color)"}` }}
+          onClick={() => setShowMask(!showMask())}
+          title="See the painted terrain mask over the scene, for authoring">
+          {mask() ? "mask" : "no mask"}
+        </button>
       </div>
 
       <div style={{ display: "flex", gap: "20px", "flex-wrap": "wrap", "align-items": "flex-start" }}>
@@ -108,14 +135,22 @@ export default function ForagingDev() {
             "border-radius": "3px", overflow: "hidden", border: "1px solid var(--border-color)",
             background: artFailed() ? "linear-gradient(160deg,#2b2a20,#171814)" : "transparent" }}>
             <Show when={!artFailed()}>
-              <img src={SCENE_ART[season()]} alt="" onError={() => setArtFailed(true)}
+              <img src={sceneUrl(season(), sceneNo())} alt="" onError={() => setArtFailed(true)}
                 style={{ position: "absolute", inset: 0, width: "100%", height: "100%", "object-fit": "cover" }} />
             </Show>
             <Show when={artFailed()}>
               <div style={{ position: "absolute", inset: 0, display: "flex", "align-items": "center", "justify-content": "center",
                 color: "var(--text-muted)", "font-size": "0.8rem", "text-align": "center", padding: "20px" }}>
-                Drop a painting at <code>public{SCENE_ART[season()]}</code>
+                Drop a painting at <code>public{sceneUrl(season(), sceneNo())}</code>
               </div>
+            </Show>
+
+            {/* Authoring aid: the mask laid over the painting, so you can see
+                where things are allowed to grow. Never shown to a player. */}
+            <Show when={showMask() && mask()}>
+              <img src={maskUrl(season(), sceneNo())} alt=""
+                style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
+                  "object-fit": "cover", opacity: 0.45, "pointer-events": "none", "z-index": 2 }} />
             </Show>
 
             <For each={visible()}>
@@ -159,6 +194,19 @@ export default function ForagingDev() {
             {visible().length} growing here · basket {basket().length}/{BASKET_SIZE}
             {full() ? " · full, head home" : ""}
           </div>
+          <Show when={showMask()}>
+            <div style={{ display: "flex", gap: "12px", "font-size": "0.72rem", color: "var(--text-muted)", "margin-top": "4px" }}>
+              <span>paint the mask in three colours:</span>
+              <For each={Object.entries(TERRAIN_SWATCH)}>
+                {([id, colour]) => (
+                  <span style={{ display: "inline-flex", "align-items": "center", gap: "4px" }}>
+                    <span style={{ width: "10px", height: "10px", background: colour, "border-radius": "2px" }} />{id}
+                  </span>
+                )}
+              </For>
+              <span>· black or transparent blocks</span>
+            </div>
+          </Show>
         </div>
 
         {/* ── Basket + what the woods hold ── */}
