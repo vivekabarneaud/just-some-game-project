@@ -123,6 +123,11 @@ export interface PlacedPlant {
    *  shrinks and hazes distant plants. Without it a sprite at the treeline
    *  fights the picture's own perspective and reads as pasted on. */
   depth: number;
+  /** The depth this sprite sorts at. Normally its own `y` — lower in the frame
+   *  is nearer, so it draws in front. Fruit borrows its HOST's value instead, so
+   *  a berry high on a bush still belongs to that bush rather than sorting as
+   *  something far away and vanishing behind the leaves. */
+  sortY: number;
   /** Set when this plant hangs on a host: which host, and where on it. The
    *  scene-space position is resolved at render time, where the host's drawn
    *  size is known. */

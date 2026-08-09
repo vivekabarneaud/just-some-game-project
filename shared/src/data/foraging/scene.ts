@@ -239,6 +239,7 @@ export function buildScene(stock: WoodsStock, season: Season, seed: number, opts
         key: `${plantId}-${placed.length}`,
         plantId,
         x, y,
+        sortY: y,
         variant: variants > 0 ? 1 + Math.floor(rand() * variants) : 1,
         flip: rand() < 0.5,
         depth: y / 100,
@@ -307,6 +308,9 @@ export function buildScene(stock: WoodsStock, season: Season, seed: number, opts
           key: `${p.id}-${c.hostKey}-${c.spot}`,
           plantId: p.id,
           x: c.x, y: c.y,
+          // Sorts with its bush: a berry hanging high would otherwise read as
+          // far away and disappear behind the very leaves it grows on.
+          sortY: host.y,
           attach: { hostKey: c.hostKey, spot: c.spot },
           // Fruit shares its bush's distance, so it hazes and lights with it.
           depth: host.depth,

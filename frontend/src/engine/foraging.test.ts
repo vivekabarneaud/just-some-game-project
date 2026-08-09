@@ -74,6 +74,12 @@ describe("foraging — scene generation", () => {
     }
   });
 
+  it("sorts ground plants by where they stand", () => {
+    for (const p of buildScene(fullStock("autumn"), "autumn", 8)) {
+      expect(p.sortY).toBe(p.y);
+    }
+  });
+
   it("keeps sprites inside the frame, and never stacks two on one spot", () => {
     const scene = buildScene(fullStock("summer"), "summer", 11);
     for (const p of scene) {
@@ -377,6 +383,17 @@ describe("foraging — hosts and the fruit on them", () => {
         expect(Math.hypot(other.x - b.x, other.y - b.y),
           `a ${b.plantId} landed on a ${other.plantId}`).toBeGreaterThan(2);
       }
+    }
+  });
+
+  it("hangs fruit in FRONT of its bush, never behind it", () => {
+    // Sorting a berry by its own height would put one hanging high on the bush
+    // "further away" than the bush itself, and the leaves would swallow it. A
+    // berry you cannot see is a pixel hunt, not a challenge.
+    const scene = buildScene(fullStock("autumn"), "autumn", 5, { hostSpots: sixSpots });
+    for (const b of scene.filter((p) => p.attach)) {
+      const host = scene.find((q) => q.key === b.attach!.hostKey)!;
+      expect(b.sortY, "fruit must sort with its bush").toBe(host.sortY);
     }
   });
 

@@ -257,7 +257,9 @@ export default function ForagingDev() {
                         const glow = isHot() ? "drop-shadow(0 0 10px rgba(245,197,66,0.85))" : "drop-shadow(0 2px 3px rgba(0,0,0,0.4))";
                         return `brightness(${b.toFixed(3)}) saturate(${sat.toFixed(3)}) contrast(${(0.9 + 0.1 * p.depth).toFixed(3)}) ${glow}`;
                       })(),
-                      "z-index": isHot() ? 999 : Math.round(p.y * 5),
+                      // Painter's order, by sortY. Fruit shares its bush's depth and
+                      // sits one step in front, so it is never swallowed by it.
+                      "z-index": isHot() ? 9999 : Math.round(p.sortY * 5) + (p.attach ? 1 : 0),
                     }}>
                     {/* Contact shadow. The single strongest cue that a thing is
                         standing IN the picture rather than sitting on it: real
