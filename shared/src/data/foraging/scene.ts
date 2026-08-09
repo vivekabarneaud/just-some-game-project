@@ -81,8 +81,18 @@ export function sizeRangesOverlap(a: [number, number], b: [number, number]): boo
 
 /** Keep sprites off the very edges, where a feathered painting falls away. */
 const MARGIN = 8;
-/** Minimum gap between two CLUMPS, so separate finds stay separate. */
+/** Minimum gap between two CLUMPS, so separate finds stay separate. This is the
+ *  FLOOR — big plants claim proportionally more room (see `clearanceBetween`),
+ *  because 11% means nothing to a bramble that is forty percent of the frame. */
 const MIN_GAP = 11;
+/** Nominal sprite height, as a percentage of the scene, before a plant's own
+ *  size range multiplies it. Only used to reason about how much room a plant
+ *  takes up; the renderer's own value is passed in when it differs. */
+const NOMINAL_SPRITE_H = 5;
+/** How much two neighbours may overlap. Below 1 they interlace a little, which
+ *  is what a real thicket does — the point is to stop a mushroom being swallowed
+ *  whole by a bramble, not to keep everything in its own tidy circle. */
+const OVERLAP_ALLOWANCE = 0.7;
 /** How tightly the members of one clump sit together. */
 const CLUMP_RADIUS = 7;
 /** Minimum gap WITHIN a clump — close enough to read as a troop, far enough
@@ -117,11 +127,24 @@ export interface SceneOptions {
    *  frontend, which reads them off the host's mask. Without it, hosted plants
    *  simply don't appear. */
   hostSpotCount?: (plantId: string, variant: number) => number;
+  /** The renderer's base sprite height, if it isn't the nominal 5%. */
+  spriteHeightPct?: number;
 }
 
 export function buildScene(stock: WoodsStock, season: Season, seed: number, opts: SceneOptions = {}): PlacedPlant[] {
-  const { maxSprites = 22, terrainAt } = opts;
+  const { maxSprites = 22, terrainAt, spriteHeightPct = NOMINAL_SPRITE_H } = opts;
   const rand = rng(seed);
+
+  /** Roughly how wide a plant of this kind draws, in scene percent. */
+  const halfSpan = (plantId: string) => {
+    const [lo, hi] = getForagePlant(plantId)?.size ?? DEFAULT_SIZE;
+    return ((lo + hi) / 2) * spriteHeightPct * 0.5;
+  };
+  /** How far apart two things of these kinds must sit. Scales with what they
+   *  are, so brambles keep their distance from each other while mushrooms carry
+   *  on clustering as before. */
+  const clearanceBetween = (a: string, b: string) =>
+    Math.max(MIN_GAP, (halfSpan(a) + halfSpan(b)) * OVERLAP_ALLOWANCE);
 
   /** Is this a spot the given plant would actually grow? */
   const suits = (plantId: string, x: number, y: number) => {
@@ -152,6 +175,10 @@ export function buildScene(stock: WoodsStock, season: Season, seed: number, opts
     const j = Math.floor(rand() * (i + 1));
     [clumps[i], clumps[j]] = [clumps[j], clumps[i]];
   }
+  // ...then float scenery to the front. A bramble is the structure of a scene
+  // and carries the fruit; losing one to the sprite cap costs far more than
+  // losing a mushroom, and two of three were being dropped exactly that way.
+  clumps.sort((a, b) => Number(!!getForagePlant(b.plantId)?.scenery) - Number(!!getForagePlant(a.plantId)?.scenery));
 
   const placed: PlacedPlant[] = [];
   for (const { plantId, count } of clumps) {
@@ -162,7 +189,7 @@ export function buildScene(stock: WoodsStock, season: Season, seed: number, opts
     for (let attempt = 0; attempt < 60 && !anchored; attempt++) {
       ax = MARGIN + rand() * (100 - MARGIN * 2);
       ay = MARGIN + rand() * (100 - MARGIN * 2);
-      if (placed.some((q) => Math.hypot(q.x - ax, q.y - ay) < MIN_GAP)) continue;
+      if (placed.some((q) => Math.hypot(q.x - ax, q.y - ay) < clearanceBetween(plantId, q.plantId))) continue;
       if (!suits(plantId, ax, ay)) continue;
       anchored = true;
     }

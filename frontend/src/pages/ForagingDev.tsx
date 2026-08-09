@@ -110,6 +110,7 @@ export default function ForagingDev() {
     buildScene(walkStock(), season(), seed(), {
       terrainAt: mask() ?? undefined,
       hostSpotCount: (plantId, variant) => spotsFor(plantId, variant).length,
+      spriteHeightPct: SPRITE_H,
     }));
 
   /** Where an attached plant actually sits, worked out from its host's drawn

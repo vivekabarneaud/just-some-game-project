@@ -64,7 +64,7 @@ export const FORAGE_PLANTS: ForagePlant[] = [
 
   // ── The hedgerow. The bush is scenery; the fruit on it is the find. ──
   { id: "bramble", name: "Bramble", icon: "🌿", yields: null, scenery: true, artVariants: 1, aspect: 1,
-    size: [3.2, 4.6], clump: 1,
+    size: [6.4, 9.2], clump: 1,
     grows: ["litter", "grass"],
     note: "A bramble thicket. Thorns, mostly.",
     cap: { spring: 2, summer: 3, autumn: 3 }, regrow: 0.05 },

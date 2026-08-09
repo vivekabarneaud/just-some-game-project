@@ -337,6 +337,27 @@ describe("foraging — hosts and the fruit on them", () => {
     }
   });
 
+  it("places every bramble, even in a crowded wood — scenery outranks the cap", () => {
+    // Three brambles were being cut to one: shuffled in with everything else,
+    // two fell past maxSprites. The bush carries the fruit, so losing one costs
+    // far more than losing a mushroom.
+    const scene = buildScene(fullStock("autumn"), "autumn", 5, { hostSpotCount: sixSpots });
+    expect(scene.filter((p) => p.plantId === "bramble").length)
+      .toBe(Math.floor(fullStock("autumn").bramble));
+  });
+
+  it("keeps brambles off each other, while mushrooms still cluster", () => {
+    const scene = buildScene(fullStock("autumn"), "autumn", 9, { hostSpotCount: sixSpots });
+    const bushes = scene.filter((p) => p.plantId === "bramble");
+    for (let i = 0; i < bushes.length; i++) {
+      for (let j = i + 1; j < bushes.length; j++) {
+        // Room to interlace a little, as a real thicket does, but never stacked.
+        expect(Math.hypot(bushes[i].x - bushes[j].x, bushes[i].y - bushes[j].y))
+          .toBeGreaterThan(20);
+      }
+    }
+  });
+
   it("the bush is scenery — placed, but never picked", () => {
     const bramble = getForagePlant("bramble")!;
     expect(bramble.scenery).toBe(true);
