@@ -98,6 +98,11 @@ const OVERLAP_ALLOWANCE = 0.7;
  *  looking stamped — with only a handful of painted shapes per plant, perfectly
  *  aligned copies are obvious — but the bigger a thing is, the more a tilt reads
  *  as it falling over rather than as it having grown crooked. */
+/** How much of a sprite's height sits ABOVE its position, matching the
+ *  renderer's transform. A plant stands on its spot rather than hovering
+ *  centred over it, and host spots must be resolved against the same anchor. */
+export const ANCHOR_Y = 0.88;
+
 const TILT_BASE = 6;
 const TILT_MIN = 1.5;
 const TILT_MAX = 6;
@@ -131,10 +136,14 @@ export interface SceneOptions {
    *  blocked ground. Supplied by the frontend, which owns the pixels — this
    *  module stays pure and deterministic so it can be tested without a canvas. */
   terrainAt?: (x: number, y: number) => TerrainId | null;
-  /** How many painted berry spots a given host sprite offers. Supplied by the
-   *  frontend, which reads them off the host's mask. Without it, hosted plants
-   *  simply don't appear. */
-  hostSpotCount?: (plantId: string, variant: number) => number;
+  /** The berry spots painted on a host sprite, in its own 0..1 space. Supplied
+   *  by the frontend, which reads them off the host's mask. Without it, hosted
+   *  plants simply don't appear.
+   *
+   *  Coordinates rather than a count, deliberately: the generator has to know
+   *  where a berry actually lands to keep it off other plants, and working that
+   *  out at render time made the check impossible. */
+  hostSpots?: (plantId: string, variant: number) => { sx: number; sy: number }[];
   /** The renderer's base sprite height, if it isn't the nominal 5%. */
   spriteHeightPct?: number;
 }
@@ -245,42 +254,61 @@ export function buildScene(stock: WoodsStock, season: Season, seed: number, opts
   }
   // ── Hosted plants: fruit hung on whatever bushes went down ──────────────
   // Only where the artist painted a spot, so a berry never floats in the bush's
-  // empty air. Spots are consumed, so one cluster can't stack on another.
-  if (opts.hostSpotCount) {
-    const takenSpots = new Set<string>();
+  // empty air, and never on a spot already taken or already occupied by
+  // something else standing there.
+  if (opts.hostSpots) {
+    const taken = new Set<string>();
     for (const p of FORAGE_PLANTS) {
       if (!p.host || seasonCap(p.id, season) <= 0) continue;
       let left = Math.floor(stock[p.id] ?? 0);
       if (left <= 0) continue;
 
-      // Every free spot on every host of the right kind, shuffled.
-      const free: { hostKey: string; spot: number }[] = [];
+      // Every free spot on every host of the right kind, resolved to a real
+      // position in the scene, then shuffled.
+      const candidates: { hostKey: string; spot: number; x: number; y: number }[] = [];
       for (const host of placed) {
         if (host.plantId !== p.host) continue;
-        const n = opts.hostSpotCount(host.plantId, host.variant);
-        for (let i = 0; i < n; i++) {
+        const spots = opts.hostSpots(host.plantId, host.variant);
+        const h = spriteHeightPct * host.scale;                            // drawn height, scene %
+        const w = h * (getForagePlant(host.plantId)?.aspect ?? 1);
+        spots.forEach((spot, i) => {
           const id = `${host.key}#${i}`;
-          if (!takenSpots.has(id)) free.push({ hostKey: host.key, spot: i });
-        }
+          if (taken.has(id)) return;
+          candidates.push({
+            hostKey: host.key, spot: i,
+            // The host is centred on x and anchored ANCHOR_Y of its height above y.
+            x: host.x - w / 2 + spot.sx * w,
+            y: host.y - ANCHOR_Y * h + spot.sy * h,
+          });
+        });
       }
-      for (let i = free.length - 1; i > 0; i--) {
+      for (let i = candidates.length - 1; i > 0; i--) {
         const j = Math.floor(rand() * (i + 1));
-        [free[i], free[j]] = [free[j], free[i]];
+        [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
       }
 
       const variants = getForagePlant(p.id)?.artVariants ?? 0;
-      for (const { hostKey, spot } of free) {
+      for (const c of candidates) {
         if (left <= 0) break;
-        takenSpots.add(`${hostKey}#${spot}`);
+        // Off the edge of the picture, or sitting on something that isn't its
+        // own bush: a berry perched on a mushroom looks like fruit growing out
+        // of a toadstool.
+        if (c.x < 2 || c.x > 98 || c.y < 2 || c.y > 98) continue;
+        const clash = placed.some((q) =>
+          q.key !== c.hostKey &&
+          getForagePlant(q.plantId)?.host !== p.host &&   // its siblings may crowd
+          Math.hypot(q.x - c.x, q.y - c.y) < clearanceBetween(p.id, q.plantId) * 0.6);
+        if (clash) continue;
+
+        taken.add(`${c.hostKey}#${c.spot}`);
         left--;
-        const host = placed.find((q) => q.key === hostKey)!;
+        const host = placed.find((q) => q.key === c.hostKey)!;
         placed.push({
-          key: `${p.id}-${hostKey}-${spot}`,
+          key: `${p.id}-${c.hostKey}-${c.spot}`,
           plantId: p.id,
-          // Resolved at render time from the host's drawn box; these stand in so
-          // the shape stays uniform and depth/light still have something to read.
-          x: host.x, y: host.y,
-          attach: { hostKey, spot },
+          x: c.x, y: c.y,
+          attach: { hostKey: c.hostKey, spot: c.spot },
+          // Fruit shares its bush's distance, so it hazes and lights with it.
           depth: host.depth,
           variant: variants > 0 ? 1 + Math.floor(rand() * variants) : 1,
           flip: rand() < 0.5,

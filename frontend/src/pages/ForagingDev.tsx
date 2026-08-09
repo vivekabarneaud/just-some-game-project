@@ -109,24 +109,9 @@ export default function ForagingDev() {
   const scene = createMemo(() =>
     buildScene(walkStock(), season(), seed(), {
       terrainAt: mask() ?? undefined,
-      hostSpotCount: (plantId, variant) => spotsFor(plantId, variant).length,
+      hostSpots: (plantId, variant) => spotsFor(plantId, variant),
       spriteHeightPct: SPRITE_H,
     }));
-
-  /** Where an attached plant actually sits, worked out from its host's drawn
-   *  box. Done here rather than in the generator because only the renderer
-   *  knows how big a sprite ends up. */
-  const resolvePos = (p: ReturnType<typeof scene>[number]) => {
-    if (!p.attach) return { x: p.x, y: p.y };
-    const host = scene().find((q) => q.key === p.attach!.hostKey);
-    if (!host) return { x: p.x, y: p.y };
-    const spot = spotsFor(host.plantId, host.variant)[p.attach.spot];
-    if (!spot) return { x: p.x, y: p.y };
-    const h = SPRITE_H * host.scale;                               // % of the square scene
-    const w = h * (getForagePlant(host.plantId)?.aspect ?? 1);
-    // The host is centred on x and anchored 88% above y (see the transform).
-    return { x: host.x - w / 2 + spot.sx * w, y: host.y - 0.88 * h + spot.sy * h };
-  };
   const visible = () => scene().filter((p) => !picked().has(p.key));
   const full = () => basket().length >= BASKET_SIZE;
 
@@ -237,7 +222,6 @@ export default function ForagingDev() {
               {(p) => {
                 const plant = getForagePlant(p.plantId)!;
                 const isHot = () => hovered() === p.key;
-                const pos = resolvePos(p);
                 const pickable = !plant.scenery;
                 const hasArt = (plant.artVariants ?? 0) > 0;
                 return (
@@ -248,7 +232,7 @@ export default function ForagingDev() {
                     /* No title, no aria-label, no name anywhere: identifying it
                        is the entire mechanic. */
                     style={{
-                      position: "absolute", left: `${pos.x}%`, top: `${pos.y}%`,
+                      position: "absolute", left: `${p.x}%`, top: `${p.y}%`,
                       // Anchored near the base, so a plant stands ON the spot
                       // rather than hovering centred over it.
                       transform: `translate(-50%,-88%) scale(${isHot() ? MAGNIFY : 1}) rotate(${p.rotate}deg) scaleX(${p.flip ? -1 : 1})`,
@@ -265,7 +249,7 @@ export default function ForagingDev() {
                         // two of a kind differ), distance haze, and the light
                         // where it stands. Hovering lifts it back toward its
                         // painted value, so a close look is always readable.
-                        const lit = matchLight() && light() ? lightTint(light()!(pos.x, pos.y)) : { brightness: 1, saturate: 1 };
+                        const lit = matchLight() && light() ? lightTint(light()!(p.x, p.y)) : { brightness: 1, saturate: 1 };
                         const ease = isHot() ? 0.45 : 1; // pull tinting back when magnified
                         const mix = (v: number) => (1 - ease) + ease * v;
                         const b = p.brightness * mix(lit.brightness) * mix(0.86 + 0.14 * p.depth);
@@ -273,7 +257,7 @@ export default function ForagingDev() {
                         const glow = isHot() ? "drop-shadow(0 0 10px rgba(245,197,66,0.85))" : "drop-shadow(0 2px 3px rgba(0,0,0,0.4))";
                         return `brightness(${b.toFixed(3)}) saturate(${sat.toFixed(3)}) contrast(${(0.9 + 0.1 * p.depth).toFixed(3)}) ${glow}`;
                       })(),
-                      "z-index": isHot() ? 5 : plant.scenery ? 1 : 2,
+                      "z-index": isHot() ? 999 : Math.round(p.y * 5),
                     }}>
                     {/* Contact shadow. The single strongest cue that a thing is
                         standing IN the picture rather than sitting on it: real

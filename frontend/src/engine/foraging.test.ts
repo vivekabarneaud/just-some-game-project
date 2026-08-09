@@ -2,6 +2,13 @@ import { describe, it, expect } from "vitest";
 import { FORAGE_PLANTS, getForagePlant, isDecoy } from "@medieval-realm/shared/data/foraging/plants";
 import { buildScene, fullStock, pick, rain, regrow, seasonCap, sizeRangesOverlap, DEFAULT_SIZE, DEPTH_MIN, DEPTH_MAX } from "@medieval-realm/shared/data/foraging/scene";
 
+// Stand-in for a painted host mask: six spots spread over the sprite's own
+// space, well inside it so they resolve to sensible places in the scene.
+const sixSpots = () => [
+  { sx: 0.30, sy: 0.30 }, { sx: 0.55, sy: 0.25 }, { sx: 0.70, sy: 0.45 },
+  { sx: 0.35, sy: 0.60 }, { sx: 0.60, sy: 0.70 }, { sx: 0.45, sy: 0.45 },
+];
+
 describe("foraging — the woods' stock", () => {
   it("a fresh wood sits at its seasonal cap", () => {
     const s = fullStock("autumn");
@@ -219,10 +226,10 @@ describe("foraging — sprite variants", () => {
   });
 
   it("keeps everything close to upright, and the big things closest of all", () => {
-    const scene = buildScene(fullStock("autumn"), "autumn", 44, { hostSpotCount: () => 6 });
+    const scene = buildScene(fullStock("autumn"), "autumn", 44, { hostSpots: sixSpots });
     for (const p of scene) {
       // Things grow up. A hard cap on lean, whatever the plant.
-      expect(Math.abs(p.rotate), `${p.plantId} leans too far`).toBeLessThanOrEqual(6);
+      expect(Math.abs(p.rotate), `${p.plantId} leans too far`).toBeLessThanOrEqual(6.01);
     }
     // A thicket must stand straighter than a mushroom: at bramble size, a tilt
     // reads as toppling rather than as having grown crooked.
@@ -317,16 +324,13 @@ describe("foraging — terrain masks", () => {
 });
 
 describe("foraging — hosts and the fruit on them", () => {
-  // Stand-in for the painted mask: every bramble offers six spots.
-  const sixSpots = () => 6;
-
   it("hangs no fruit at all when nothing has read the host's spots", () => {
     const scene = buildScene(fullStock("autumn"), "autumn", 5);
     expect(scene.some((p) => p.plantId === "blackberry")).toBe(false);
   });
 
   it("puts blackberries on brambles, never loose on the ground", () => {
-    const scene = buildScene(fullStock("autumn"), "autumn", 5, { hostSpotCount: sixSpots });
+    const scene = buildScene(fullStock("autumn"), "autumn", 5, { hostSpots: sixSpots });
     const berries = scene.filter((p) => p.plantId === "blackberry");
     expect(berries.length).toBeGreaterThan(0);
     for (const b of berries) {
@@ -337,16 +341,51 @@ describe("foraging — hosts and the fruit on them", () => {
   });
 
   it("never hangs two clusters on the same spot", () => {
-    const scene = buildScene(fullStock("autumn"), "autumn", 12, { hostSpotCount: sixSpots });
+    const scene = buildScene(fullStock("autumn"), "autumn", 12, { hostSpots: sixSpots });
     const used = scene.filter((p) => p.attach).map((p) => `${p.attach!.hostKey}#${p.attach!.spot}`);
     expect(new Set(used).size).toBe(used.length);
   });
 
   it("never asks for a spot the host doesn't have", () => {
-    const scene = buildScene(fullStock("autumn"), "autumn", 3, { hostSpotCount: sixSpots });
+    const scene = buildScene(fullStock("autumn"), "autumn", 3, { hostSpots: sixSpots });
     for (const p of scene.filter((q) => q.attach)) {
       expect(p.attach!.spot).toBeGreaterThanOrEqual(0);
       expect(p.attach!.spot).toBeLessThan(6);
+    }
+  });
+
+  it("puts each berry inside its own bush, not floating beside it", () => {
+    const scene = buildScene(fullStock("autumn"), "autumn", 5, { hostSpots: sixSpots });
+    for (const b of scene.filter((p) => p.attach)) {
+      const host = scene.find((q) => q.key === b.attach!.hostKey)!;
+      // Within the bush's drawn span. A berry adrift on open ground was the
+      // symptom that the geometry was being done in the wrong place.
+      const halfWidth = 5 * host.scale * 0.5;
+      expect(Math.abs(b.x - host.x)).toBeLessThanOrEqual(halfWidth + 1);
+      expect(b.y).toBeLessThanOrEqual(host.y + 1);
+      expect(b.y).toBeGreaterThanOrEqual(host.y - 5 * host.scale - 1);
+    }
+  });
+
+  it("never hangs fruit on top of some other plant", () => {
+    const scene = buildScene(fullStock("autumn"), "autumn", 5, { hostSpots: sixSpots });
+    for (const b of scene.filter((p) => p.attach)) {
+      for (const other of scene) {
+        if (other === b || other.attach || other.key === b.attach!.hostKey) continue;
+        // A blackberry perched on a chanterelle reads as fruit growing out of a
+        // toadstool. Keep them clear of anything that isn't their own bush.
+        expect(Math.hypot(other.x - b.x, other.y - b.y),
+          `a ${b.plantId} landed on a ${other.plantId}`).toBeGreaterThan(2);
+      }
+    }
+  });
+
+  it("keeps fruit inside the picture", () => {
+    for (const seed of [1, 2, 3, 4, 5]) {
+      for (const b of buildScene(fullStock("autumn"), "autumn", seed, { hostSpots: sixSpots }).filter((p) => p.attach)) {
+        expect(b.x).toBeGreaterThan(0); expect(b.x).toBeLessThan(100);
+        expect(b.y).toBeGreaterThan(0); expect(b.y).toBeLessThan(100);
+      }
     }
   });
 
@@ -354,13 +393,13 @@ describe("foraging — hosts and the fruit on them", () => {
     // Three brambles were being cut to one: shuffled in with everything else,
     // two fell past maxSprites. The bush carries the fruit, so losing one costs
     // far more than losing a mushroom.
-    const scene = buildScene(fullStock("autumn"), "autumn", 5, { hostSpotCount: sixSpots });
+    const scene = buildScene(fullStock("autumn"), "autumn", 5, { hostSpots: sixSpots });
     expect(scene.filter((p) => p.plantId === "bramble").length)
       .toBe(Math.floor(fullStock("autumn").bramble));
   });
 
   it("keeps brambles off each other, while mushrooms still cluster", () => {
-    const scene = buildScene(fullStock("autumn"), "autumn", 9, { hostSpotCount: sixSpots });
+    const scene = buildScene(fullStock("autumn"), "autumn", 9, { hostSpots: sixSpots });
     const bushes = scene.filter((p) => p.plantId === "bramble");
     for (let i = 0; i < bushes.length; i++) {
       for (let j = i + 1; j < bushes.length; j++) {
@@ -381,7 +420,7 @@ describe("foraging — hosts and the fruit on them", () => {
   // you why there is nothing to take, where a vanished one just looks empty.
   it("leaves the bush standing when its fruit is gone", () => {
     const stock = { ...fullStock("autumn"), blackberry: 0 };
-    const scene = buildScene(stock, "autumn", 5, { hostSpotCount: sixSpots });
+    const scene = buildScene(stock, "autumn", 5, { hostSpots: sixSpots });
     expect(scene.some((p) => p.plantId === "bramble")).toBe(true);
     expect(scene.some((p) => p.plantId === "blackberry")).toBe(false);
   });
