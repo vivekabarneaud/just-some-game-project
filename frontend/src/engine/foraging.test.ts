@@ -97,7 +97,7 @@ describe("foraging — scene generation", () => {
 
 describe("foraging — decoys", () => {
   it("decoys yield nothing and name what they mimic", () => {
-    for (const p of FORAGE_PLANTS.filter((x) => x.yields === null)) {
+    for (const p of FORAGE_PLANTS.filter((x) => x.yields === null && !x.scenery)) {
       expect(isDecoy(p.id)).toBe(true);
       expect(p.mimics, `${p.name} must say what it is mistaken for`).toBeTruthy();
       expect(getForagePlant(p.mimics!), `${p.name} mimics an unknown plant`).toBeTruthy();
@@ -105,7 +105,7 @@ describe("foraging — decoys", () => {
   });
 
   it("every decoy shares a season with the plant it mimics, or it can never fool anyone", () => {
-    for (const p of FORAGE_PLANTS.filter((x) => x.yields === null)) {
+    for (const p of FORAGE_PLANTS.filter((x) => x.yields === null && !x.scenery)) {
       const real = getForagePlant(p.mimics!)!;
       const shared = (["spring", "summer", "autumn", "winter"] as const)
         .filter((s) => (p.cap[s] ?? 0) > 0 && (real.cap[s] ?? 0) > 0);
@@ -146,7 +146,7 @@ describe("foraging — sprite variants", () => {
   // Sorting a pair by silhouette is not identifying it. Sizes must match unless
   // size is genuinely the real-world tell, in which case the note must say so.
   it("a decoy shares its twin's size range, unless size is the tell", () => {
-    for (const p of FORAGE_PLANTS.filter((x) => x.mimics)) {
+    for (const p of FORAGE_PLANTS.filter((x) => x.mimics && !x.scenery)) {
       const real = getForagePlant(p.mimics!)!;
       const a = p.size ?? DEFAULT_SIZE, b = real.size ?? DEFAULT_SIZE;
       if (a[0] === b[0] && a[1] === b[1]) continue;
@@ -167,7 +167,7 @@ describe("foraging — sprite variants", () => {
   // and the real thing has six, you can learn the three and call everything else
   // safe, without ever looking at a single ridge.
   it("a decoy has as many painted shapes as its twin", () => {
-    for (const p of FORAGE_PLANTS.filter((x) => x.mimics)) {
+    for (const p of FORAGE_PLANTS.filter((x) => x.mimics && !x.scenery)) {
       const real = getForagePlant(p.mimics!)!;
       expect(
         p.artVariants ?? 0,
@@ -190,9 +190,13 @@ describe("foraging — sprite variants", () => {
   });
 
   it("draws the same plant at visibly different sizes", () => {
-    const scales = buildScene(fullStock("autumn"), "autumn", 55)
-      .filter((p) => p.plantId === "chanterelle").map((p) => p.scale);
-    expect(scales.length).toBeGreaterThan(2);
+    // Pooled across several woods: a single scene can legitimately draw a few
+    // chanterelles at much the same size, and pinning one RNG draw makes the
+    // test brittle to any change in the sequence.
+    const scales = [1, 2, 3, 4, 5].flatMap((seed) =>
+      buildScene(fullStock("autumn"), "autumn", seed)
+        .filter((p) => p.plantId === "chanterelle").map((p) => p.scale));
+    expect(scales.length).toBeGreaterThan(5);
     expect(Math.max(...scales) - Math.min(...scales)).toBeGreaterThan(0.15);
   });
 
@@ -230,7 +234,7 @@ describe("foraging — sprite variants", () => {
   // A pair only works if both halves are drawn. One painted and one emoji would
   // give the answer away instantly, which is worse than no art at all.
   it("a decoy and the plant it mimics both have art, or neither does", () => {
-    for (const p of FORAGE_PLANTS.filter((x) => x.mimics)) {
+    for (const p of FORAGE_PLANTS.filter((x) => x.mimics && !x.scenery)) {
       const real = getForagePlant(p.mimics!)!;
       expect(
         (p.artVariants ?? 0) > 0,
@@ -287,7 +291,7 @@ describe("foraging — terrain masks", () => {
   // If a decoy grew somewhere its twin never does, its position would give it
   // away without the player ever having to look at it.
   it("a decoy can grow everywhere the plant it mimics can", () => {
-    for (const p of FORAGE_PLANTS.filter((x) => x.mimics)) {
+    for (const p of FORAGE_PLANTS.filter((x) => x.mimics && !x.scenery)) {
       const real = getForagePlant(p.mimics!)!;
       for (const ground of real.grows ?? []) {
         expect(
@@ -296,5 +300,55 @@ describe("foraging — terrain masks", () => {
         ).toContain(ground);
       }
     }
+  });
+});
+
+describe("foraging — hosts and the fruit on them", () => {
+  // Stand-in for the painted mask: every bramble offers six spots.
+  const sixSpots = () => 6;
+
+  it("hangs no fruit at all when nothing has read the host's spots", () => {
+    const scene = buildScene(fullStock("autumn"), "autumn", 5);
+    expect(scene.some((p) => p.plantId === "blackberry")).toBe(false);
+  });
+
+  it("puts blackberries on brambles, never loose on the ground", () => {
+    const scene = buildScene(fullStock("autumn"), "autumn", 5, { hostSpotCount: sixSpots });
+    const berries = scene.filter((p) => p.plantId === "blackberry");
+    expect(berries.length).toBeGreaterThan(0);
+    for (const b of berries) {
+      expect(b.attach, "a hosted plant must be attached to something").toBeTruthy();
+      const host = scene.find((q) => q.key === b.attach!.hostKey);
+      expect(host?.plantId).toBe("bramble");
+    }
+  });
+
+  it("never hangs two clusters on the same spot", () => {
+    const scene = buildScene(fullStock("autumn"), "autumn", 12, { hostSpotCount: sixSpots });
+    const used = scene.filter((p) => p.attach).map((p) => `${p.attach!.hostKey}#${p.attach!.spot}`);
+    expect(new Set(used).size).toBe(used.length);
+  });
+
+  it("never asks for a spot the host doesn't have", () => {
+    const scene = buildScene(fullStock("autumn"), "autumn", 3, { hostSpotCount: sixSpots });
+    for (const p of scene.filter((q) => q.attach)) {
+      expect(p.attach!.spot).toBeGreaterThanOrEqual(0);
+      expect(p.attach!.spot).toBeLessThan(6);
+    }
+  });
+
+  it("the bush is scenery — placed, but never picked", () => {
+    const bramble = getForagePlant("bramble")!;
+    expect(bramble.scenery).toBe(true);
+    expect(bramble.yields).toBeNull();
+  });
+
+  // A stripped bramble should stay standing: a bush with no fruit left TELLS
+  // you why there is nothing to take, where a vanished one just looks empty.
+  it("leaves the bush standing when its fruit is gone", () => {
+    const stock = { ...fullStock("autumn"), blackberry: 0 };
+    const scene = buildScene(stock, "autumn", 5, { hostSpotCount: sixSpots });
+    expect(scene.some((p) => p.plantId === "bramble")).toBe(true);
+    expect(scene.some((p) => p.plantId === "blackberry")).toBe(false);
   });
 });

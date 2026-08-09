@@ -113,6 +113,10 @@ export interface SceneOptions {
    *  blocked ground. Supplied by the frontend, which owns the pixels — this
    *  module stays pure and deterministic so it can be tested without a canvas. */
   terrainAt?: (x: number, y: number) => TerrainId | null;
+  /** How many painted berry spots a given host sprite offers. Supplied by the
+   *  frontend, which reads them off the host's mask. Without it, hosted plants
+   *  simply don't appear. */
+  hostSpotCount?: (plantId: string, variant: number) => number;
 }
 
 export function buildScene(stock: WoodsStock, season: Season, seed: number, opts: SceneOptions = {}): PlacedPlant[] {
@@ -128,10 +132,12 @@ export function buildScene(stock: WoodsStock, season: Season, seed: number, opts
     return !wants || wants.includes(ground);
   };
 
-  // Spend each plant's stock as clumps rather than singles.
+  // Spend each plant's stock as clumps rather than singles. Hosted plants are
+  // held back — they can only be placed once their hosts are down.
   const clumps: { plantId: string; count: number }[] = [];
   for (const p of FORAGE_PLANTS) {
     if (seasonCap(p.id, season) <= 0) continue;
+    if (p.host) continue;
     let left = Math.floor(stock[p.id] ?? 0);
     const most = Math.max(1, p.clump ?? 1);
     while (left > 0) {
@@ -193,5 +199,58 @@ export function buildScene(stock: WoodsStock, season: Season, seed: number, opts
       });
     }
   }
+  // ── Hosted plants: fruit hung on whatever bushes went down ──────────────
+  // Only where the artist painted a spot, so a berry never floats in the bush's
+  // empty air. Spots are consumed, so one cluster can't stack on another.
+  if (opts.hostSpotCount) {
+    const takenSpots = new Set<string>();
+    for (const p of FORAGE_PLANTS) {
+      if (!p.host || seasonCap(p.id, season) <= 0) continue;
+      let left = Math.floor(stock[p.id] ?? 0);
+      if (left <= 0) continue;
+
+      // Every free spot on every host of the right kind, shuffled.
+      const free: { hostKey: string; spot: number }[] = [];
+      for (const host of placed) {
+        if (host.plantId !== p.host) continue;
+        const n = opts.hostSpotCount(host.plantId, host.variant);
+        for (let i = 0; i < n; i++) {
+          const id = `${host.key}#${i}`;
+          if (!takenSpots.has(id)) free.push({ hostKey: host.key, spot: i });
+        }
+      }
+      for (let i = free.length - 1; i > 0; i--) {
+        const j = Math.floor(rand() * (i + 1));
+        [free[i], free[j]] = [free[j], free[i]];
+      }
+
+      const variants = getForagePlant(p.id)?.artVariants ?? 0;
+      for (const { hostKey, spot } of free) {
+        if (left <= 0) break;
+        takenSpots.add(`${hostKey}#${spot}`);
+        left--;
+        const host = placed.find((q) => q.key === hostKey)!;
+        placed.push({
+          key: `${p.id}-${hostKey}-${spot}`,
+          plantId: p.id,
+          // Resolved at render time from the host's drawn box; these stand in so
+          // the shape stays uniform and depth/light still have something to read.
+          x: host.x, y: host.y,
+          attach: { hostKey, spot },
+          depth: host.depth,
+          variant: variants > 0 ? 1 + Math.floor(rand() * variants) : 1,
+          flip: rand() < 0.5,
+          scale: (() => {
+            const [lo, hi] = getForagePlant(p.id)?.size ?? DEFAULT_SIZE;
+            return (lo + rand() * (hi - lo)) * depthAt(host.y);
+          })(),
+          rotate: (rand() - 0.5) * 34,
+          brightness: 0.9 + rand() * 0.22,
+          saturate: 0.88 + rand() * 0.3,
+        });
+      }
+    }
+  }
+
   return placed;
 }

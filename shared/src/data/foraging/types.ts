@@ -71,6 +71,17 @@ export interface ForagePlant {
    *  turns a quiet wood into a mushroom flush, and it's the one event that can
    *  push stock past its ceiling. 0 or absent = indifferent to weather. */
   rainFlush?: number;
+  /** Scenery: placed in the wood, never picked. A bramble is the bush, not the
+   *  fruit — you take berries off it and the bush stays, visibly emptier. */
+  scenery?: boolean;
+  /** This plant grows ON another (a berry on its bramble) rather than out of
+   *  the ground. It only appears where a host has been placed, at the spots the
+   *  artist painted on that host's mask, so fruit hangs off stems that could
+   *  actually bear it instead of floating in the bush's empty air. */
+  host?: string;
+  /** Sprite proportions (width / height). Needed only for hosts, to work out
+   *  where a painted spot falls once the sprite is drawn. */
+  aspect?: number;
   /** Ground this plant will grow on. Omitted = anywhere the mask allows.
    *  A decoy should share its mimic's terrain, or it would give itself away by
    *  standing somewhere the real thing never does. */
@@ -107,6 +118,10 @@ export interface PlacedPlant {
    *  shrinks and hazes distant plants. Without it a sprite at the treeline
    *  fights the picture's own perspective and reads as pasted on. */
   depth: number;
+  /** Set when this plant hangs on a host: which host, and where on it. The
+   *  scene-space position is resolved at render time, where the host's drawn
+   *  size is known. */
+  attach?: { hostKey: string; spot: number };
   /** Mild tonal jitter, so two of the same variant read as two individuals.
    *  Brightness and saturation only — deliberately NOT hue, because colour can
    *  be part of a tell and shifting it could turn one plant into another. */
