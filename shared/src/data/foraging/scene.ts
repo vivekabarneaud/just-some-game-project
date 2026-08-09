@@ -272,14 +272,24 @@ export function buildScene(stock: WoodsStock, season: Season, seed: number, opts
         const spots = opts.hostSpots(host.plantId, host.variant);
         const h = spriteHeightPct * host.scale;                            // drawn height, scene %
         const w = h * (getForagePlant(host.plantId)?.aspect ?? 1);
+        const rad = (host.rotate * Math.PI) / 180;
+        const cos = Math.cos(rad), sin = Math.sin(rad);
         spots.forEach((spot, i) => {
           const id = `${host.key}#${i}`;
           if (taken.has(id)) return;
+          // A spot must follow its sprite through the SAME transforms the
+          // renderer applies, or it points at the mirror image of where the
+          // artist painted it — which is how berries ended up hanging in
+          // mid-air beside a flipped bush.
+          const sx = host.flip ? 1 - spot.sx : spot.sx;
+          // The host is centred on x and anchored ANCHOR_Y of its height above
+          // y, which is also the point it rotates about.
+          const dx = -w / 2 + sx * w;
+          const dy = -ANCHOR_Y * h + spot.sy * h;
           candidates.push({
             hostKey: host.key, spot: i,
-            // The host is centred on x and anchored ANCHOR_Y of its height above y.
-            x: host.x - w / 2 + spot.sx * w,
-            y: host.y - ANCHOR_Y * h + spot.sy * h,
+            x: host.x + dx * cos - dy * sin,
+            y: host.y + dx * sin + dy * cos,
           });
         });
       }

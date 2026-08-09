@@ -386,6 +386,25 @@ describe("foraging — hosts and the fruit on them", () => {
     }
   });
 
+  it("mirrors a spot when its bush is mirrored", () => {
+    // A sprite may be drawn flipped. If its painted spots aren't flipped with
+    // it, every berry lands at the mirror image of where the artist put it —
+    // which is how they came to hang in mid-air beside the bush.
+    // Asserted as a SIDE rather than an exact figure, so the host's slight tilt
+    // doesn't make this a re-implementation of the arithmetic.
+    const leftSpot = () => [{ sx: 0.15, sy: 0.5 }];   // firmly left of centre
+    let sawFlipped = false, sawUnflipped = false;
+    for (const seed of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
+      const scene = buildScene(fullStock("autumn"), "autumn", seed, { hostSpots: leftSpot });
+      for (const b of scene.filter((p) => p.attach)) {
+        const host = scene.find((q) => q.key === b.attach!.hostKey)!;
+        if (host.flip) { sawFlipped = true; expect(b.x, "a mirrored bush must bear its fruit on the other side").toBeGreaterThan(host.x); }
+        else { sawUnflipped = true; expect(b.x, "an unmirrored bush must bear its fruit where it was painted").toBeLessThan(host.x); }
+      }
+    }
+    expect(sawFlipped && sawUnflipped, "needed both orientations to prove anything").toBe(true);
+  });
+
   it("hangs fruit in FRONT of its bush, never behind it", () => {
     // Sorting a berry by its own height would put one hanging high on the bush
     // "further away" than the bush itself, and the leaves would swallow it. A
