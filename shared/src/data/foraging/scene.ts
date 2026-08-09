@@ -93,6 +93,14 @@ const NOMINAL_SPRITE_H = 5;
  *  is what a real thicket does — the point is to stop a mushroom being swallowed
  *  whole by a bramble, not to keep everything in its own tidy circle. */
 const OVERLAP_ALLOWANCE = 0.7;
+
+/** Things grow upward, so nothing should lean far. A little keeps a scene from
+ *  looking stamped — with only a handful of painted shapes per plant, perfectly
+ *  aligned copies are obvious — but the bigger a thing is, the more a tilt reads
+ *  as it falling over rather than as it having grown crooked. */
+const TILT_BASE = 6;
+const TILT_MIN = 1.5;
+const TILT_MAX = 6;
 /** How tightly the members of one clump sit together. */
 const CLUMP_RADIUS = 7;
 /** Minimum gap WITHIN a clump — close enough to read as a troop, far enough
@@ -134,6 +142,15 @@ export interface SceneOptions {
 export function buildScene(stock: WoodsStock, season: Season, seed: number, opts: SceneOptions = {}): PlacedPlant[] {
   const { maxSprites = 22, terrainAt, spriteHeightPct = NOMINAL_SPRITE_H } = opts;
   const rand = rng(seed);
+
+  /** How far this plant may lean, in degrees. */
+  const tiltFor = (plantId: string) => {
+    const p = getForagePlant(plantId);
+    if (p?.tilt != null) return p.tilt;
+    const [lo, hi] = p?.size ?? DEFAULT_SIZE;
+    const avg = (lo + hi) / 2;
+    return Math.min(TILT_MAX, Math.max(TILT_MIN, TILT_BASE / Math.sqrt(avg)));
+  };
 
   /** Roughly how wide a plant of this kind draws, in scene percent. */
   const halfSpan = (plantId: string) => {
@@ -220,7 +237,7 @@ export function buildScene(stock: WoodsStock, season: Season, seed: number, opts
           const [lo, hi] = getForagePlant(plantId)?.size ?? DEFAULT_SIZE;
           return (lo + rand() * (hi - lo)) * depthAt(y);
         })(),
-        rotate: (rand() - 0.5) * 34,
+        rotate: (rand() - 0.5) * 2 * tiltFor(plantId),
         brightness: 0.9 + rand() * 0.22,
         saturate: 0.88 + rand() * 0.3,
       });
@@ -271,7 +288,7 @@ export function buildScene(stock: WoodsStock, season: Season, seed: number, opts
             const [lo, hi] = getForagePlant(p.id)?.size ?? DEFAULT_SIZE;
             return (lo + rand() * (hi - lo)) * depthAt(host.y);
           })(),
-          rotate: (rand() - 0.5) * 34,
+          rotate: (rand() - 0.5) * 2 * tiltFor(p.id),
           brightness: 0.9 + rand() * 0.22,
           saturate: 0.88 + rand() * 0.3,
         });

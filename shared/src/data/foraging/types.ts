@@ -71,6 +71,11 @@ export interface ForagePlant {
    *  turns a quiet wood into a mushroom flush, and it's the one event that can
    *  push stock past its ceiling. 0 or absent = indifferent to weather. */
   rainFlush?: number;
+  /** Most it may lean from upright, in degrees. Defaults to a value derived
+   *  from how large the plant draws: a small mushroom on uneven litter really
+   *  does sit at an angle, while a whole bramble thicket stands up straight.
+   *  Set 0 for anything that must never tilt. */
+  tilt?: number;
   /** Scenery: placed in the wood, never picked. A bramble is the bush, not the
    *  fruit — you take berries off it and the bush stays, visibly emptier. */
   scenery?: boolean;

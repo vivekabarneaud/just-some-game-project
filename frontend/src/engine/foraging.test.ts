@@ -218,6 +218,19 @@ describe("foraging — sprite variants", () => {
     }
   });
 
+  it("keeps everything close to upright, and the big things closest of all", () => {
+    const scene = buildScene(fullStock("autumn"), "autumn", 44, { hostSpotCount: () => 6 });
+    for (const p of scene) {
+      // Things grow up. A hard cap on lean, whatever the plant.
+      expect(Math.abs(p.rotate), `${p.plantId} leans too far`).toBeLessThanOrEqual(6);
+    }
+    // A thicket must stand straighter than a mushroom: at bramble size, a tilt
+    // reads as toppling rather than as having grown crooked.
+    for (const b of scene.filter((p) => p.plantId === "bramble")) {
+      expect(Math.abs(b.rotate)).toBeLessThanOrEqual(2.2);
+    }
+  });
+
   it("mirrors and tones sprites, so painted quirks can't become the tell", () => {
     const scene = buildScene(fullStock("autumn"), "autumn", 31);
     expect(scene.length).toBeGreaterThan(4);
