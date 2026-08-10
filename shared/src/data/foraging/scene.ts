@@ -7,6 +7,7 @@
 import type { Season } from "../../gameState.js";
 import { FORAGE_PLANTS, getForagePlant } from "./plants.js";
 import type { PlacedPlant, TerrainId, WoodsStock } from "./types.js";
+import { applyToPoint, spriteBox, spriteOps } from "./transform.js";
 
 /** What this plant's stock tops out at in this season (0 = doesn't grow now). */
 export function seasonCap(plantId: string, season: Season): number {
@@ -98,11 +99,6 @@ const OVERLAP_ALLOWANCE = 0.7;
  *  looking stamped — with only a handful of painted shapes per plant, perfectly
  *  aligned copies are obvious — but the bigger a thing is, the more a tilt reads
  *  as it falling over rather than as it having grown crooked. */
-/** How much of a sprite's height sits ABOVE its position, matching the
- *  renderer's transform. A plant stands on its spot rather than hovering
- *  centred over it, and host spots must be resolved against the same anchor. */
-export const ANCHOR_Y = 0.88;
-
 const TILT_BASE = 6;
 const TILT_MIN = 1.5;
 const TILT_MAX = 6;
@@ -270,27 +266,16 @@ export function buildScene(stock: WoodsStock, season: Season, seed: number, opts
       for (const host of placed) {
         if (host.plantId !== p.host) continue;
         const spots = opts.hostSpots(host.plantId, host.variant);
-        const h = spriteHeightPct * host.scale;                            // drawn height, scene %
-        const w = h * (getForagePlant(host.plantId)?.aspect ?? 1);
-        const rad = (host.rotate * Math.PI) / 180;
-        const cos = Math.cos(rad), sin = Math.sin(rad);
+        // Resolved through the SAME transform description the renderer draws
+        // with, so a spot can never point at the mirror image of where it was
+        // painted. See transform.ts.
+        const box = spriteBox(host, spriteHeightPct, getForagePlant(host.plantId)?.aspect ?? 1);
+        const ops = spriteOps(host);
         spots.forEach((spot, i) => {
           const id = `${host.key}#${i}`;
           if (taken.has(id)) return;
-          // A spot must follow its sprite through the SAME transforms the
-          // renderer applies, or it points at the mirror image of where the
-          // artist painted it — which is how berries ended up hanging in
-          // mid-air beside a flipped bush.
-          const sx = host.flip ? 1 - spot.sx : spot.sx;
-          // The host is centred on x and anchored ANCHOR_Y of its height above
-          // y, which is also the point it rotates about.
-          const dx = -w / 2 + sx * w;
-          const dy = -ANCHOR_Y * h + spot.sy * h;
-          candidates.push({
-            hostKey: host.key, spot: i,
-            x: host.x + dx * cos - dy * sin,
-            y: host.y + dx * sin + dy * cos,
-          });
+          const at = applyToPoint(ops, box, { x: host.x, y: host.y }, spot.sx, spot.sy);
+          candidates.push({ hostKey: host.key, spot: i, x: at.x, y: at.y });
         });
       }
       for (let i = candidates.length - 1; i > 0; i--) {

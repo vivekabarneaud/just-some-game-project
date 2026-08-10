@@ -2,6 +2,7 @@ import { createSignal, createMemo, createResource, For, Show } from "solid-js";
 import { FORAGE_PLANTS, getForagePlant } from "@medieval-realm/shared/data/foraging/plants";
 import { buildScene, fullStock, pick, rain, regrow, seasonCap } from "@medieval-realm/shared/data/foraging/scene";
 import type { WoodsStock } from "@medieval-realm/shared/data/foraging/types";
+import { spriteOps, toCss } from "@medieval-realm/shared/data/foraging/transform";
 import type { Season } from "@medieval-realm/shared";
 import { loadTerrainMask, loadLuminanceField, lightTint, TERRAIN_SWATCH } from "~/engine/foragingMask";
 import { loadHostSpots, type HostSpot } from "~/engine/foragingSpots";
@@ -233,9 +234,10 @@ export default function ForagingDev() {
                        is the entire mechanic. */
                     style={{
                       position: "absolute", left: `${p.x}%`, top: `${p.y}%`,
-                      // Anchored near the base, so a plant stands ON the spot
-                      // rather than hovering centred over it.
-                      transform: `translate(-50%,-88%) scale(${isHot() ? MAGNIFY : 1}) rotate(${p.rotate}deg) scaleX(${p.flip ? -1 : 1})`,
+                      // Built from the shared transform description, which is
+                      // also what resolves painted spots — so a sprite and the
+                      // points on it can never disagree. See transform.ts.
+                      transform: toCss(spriteOps(p, isHot() ? MAGNIFY : 1)),
                       "transform-origin": "50% 88%",
                       transition: "transform 130ms ease-out",
                       background: "transparent", border: "none", padding: 0,
