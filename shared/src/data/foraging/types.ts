@@ -76,17 +76,16 @@ export interface ForagePlant {
    *  does sit at an angle, while a whole bramble thicket stands up straight.
    *  Set 0 for anything that must never tilt. */
   tilt?: number;
-  /** Scenery: placed in the wood, never picked. A bramble is the bush, not the
-   *  fruit — you take berries off it and the bush stays, visibly emptier. */
-  scenery?: boolean;
-  /** This plant grows ON another (a berry on its bramble) rather than out of
-   *  the ground. It only appears where a host has been placed, at the spots the
-   *  artist painted on that host's mask, so fruit hangs off stems that could
-   *  actually bear it instead of floating in the bush's empty air. */
-  host?: string;
-  /** Sprite proportions (width / height). Needed only for hosts, to work out
-   *  where a painted spot falls once the sprite is drawn. */
-  aspect?: number;
+  /** Only appears at points the artist painted for it on the scene mask, never
+   *  scattered on open ground: fruit on a bush, fungus on a standing trunk.
+   *
+   *  The bush itself is NOT a sprite. A bramble stands in the same corner for
+   *  twenty years, so it belongs to the painting rather than being generated
+   *  afresh each visit — which also spares the artist cutting one out, and
+   *  spares us faking the lighting, contact shadow and depth that a painted-in
+   *  bush simply has. What remains a sprite is the fruit, which really does
+   *  come and go, and which thins out visibly as the bush is picked over. */
+  anchored?: boolean;
   /** Ground this plant will grow on. Omitted = anywhere the mask allows.
    *  A decoy should share its mimic's terrain, or it would give itself away by
    *  standing somewhere the real thing never does. */
@@ -128,10 +127,8 @@ export interface PlacedPlant {
    *  a berry high on a bush still belongs to that bush rather than sorting as
    *  something far away and vanishing behind the leaves. */
   sortY: number;
-  /** Set when this plant hangs on a host: which host, and where on it. The
-   *  scene-space position is resolved at render time, where the host's drawn
-   *  size is known. */
-  attach?: { hostKey: string; spot: number };
+  /** Set when this plant sits at a painted anchor rather than on open ground. */
+  anchor?: boolean;
   /** Mild tonal jitter, so two of the same variant read as two individuals.
    *  Brightness and saturation only — deliberately NOT hue, because colour can
    *  be part of a tell and shifting it could turn one plant into another. */

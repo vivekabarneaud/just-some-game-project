@@ -2,11 +2,12 @@ import { describe, it, expect } from "vitest";
 import { FORAGE_PLANTS, getForagePlant, isDecoy } from "@medieval-realm/shared/data/foraging/plants";
 import { buildScene, fullStock, pick, rain, regrow, seasonCap, sizeRangesOverlap, DEFAULT_SIZE, DEPTH_MIN, DEPTH_MAX } from "@medieval-realm/shared/data/foraging/scene";
 
-// Stand-in for a painted host mask: six spots spread over the sprite's own
-// space, well inside it so they resolve to sensible places in the scene.
-const sixSpots = () => [
-  { sx: 0.30, sy: 0.30 }, { sx: 0.55, sy: 0.25 }, { sx: 0.70, sy: 0.45 },
-  { sx: 0.35, sy: 0.60 }, { sx: 0.60, sy: 0.70 }, { sx: 0.45, sy: 0.45 },
+// Stand-in for the anchors an artist paints on a scene mask: six places on the
+// bushes in the painting where blackberries hang.
+const sixAnchors = [
+  { plantId: "blackberry", x: 22, y: 40 }, { plantId: "blackberry", x: 26, y: 46 },
+  { plantId: "blackberry", x: 30, y: 38 }, { plantId: "blackberry", x: 70, y: 62 },
+  { plantId: "blackberry", x: 74, y: 68 }, { plantId: "blackberry", x: 78, y: 58 },
 ];
 
 describe("foraging — the woods' stock", () => {
@@ -110,7 +111,7 @@ describe("foraging — scene generation", () => {
 
 describe("foraging — decoys", () => {
   it("decoys yield nothing and name what they mimic", () => {
-    for (const p of FORAGE_PLANTS.filter((x) => x.yields === null && !x.scenery)) {
+    for (const p of FORAGE_PLANTS.filter((x) => x.yields === null)) {
       expect(isDecoy(p.id)).toBe(true);
       expect(p.mimics, `${p.name} must say what it is mistaken for`).toBeTruthy();
       expect(getForagePlant(p.mimics!), `${p.name} mimics an unknown plant`).toBeTruthy();
@@ -118,7 +119,7 @@ describe("foraging — decoys", () => {
   });
 
   it("every decoy shares a season with the plant it mimics, or it can never fool anyone", () => {
-    for (const p of FORAGE_PLANTS.filter((x) => x.yields === null && !x.scenery)) {
+    for (const p of FORAGE_PLANTS.filter((x) => x.yields === null)) {
       const real = getForagePlant(p.mimics!)!;
       const shared = (["spring", "summer", "autumn", "winter"] as const)
         .filter((s) => (p.cap[s] ?? 0) > 0 && (real.cap[s] ?? 0) > 0);
@@ -159,7 +160,7 @@ describe("foraging — sprite variants", () => {
   // Sorting a pair by silhouette is not identifying it. Sizes must match unless
   // size is genuinely the real-world tell, in which case the note must say so.
   it("a decoy shares its twin's size range, unless size is the tell", () => {
-    for (const p of FORAGE_PLANTS.filter((x) => x.mimics && !x.scenery)) {
+    for (const p of FORAGE_PLANTS.filter((x) => x.mimics)) {
       const real = getForagePlant(p.mimics!)!;
       const a = p.size ?? DEFAULT_SIZE, b = real.size ?? DEFAULT_SIZE;
       if (a[0] === b[0] && a[1] === b[1]) continue;
@@ -180,7 +181,7 @@ describe("foraging — sprite variants", () => {
   // and the real thing has six, you can learn the three and call everything else
   // safe, without ever looking at a single ridge.
   it("a decoy has as many painted shapes as its twin", () => {
-    for (const p of FORAGE_PLANTS.filter((x) => x.mimics && !x.scenery)) {
+    for (const p of FORAGE_PLANTS.filter((x) => x.mimics)) {
       const real = getForagePlant(p.mimics!)!;
       expect(
         p.artVariants ?? 0,
@@ -232,7 +233,7 @@ describe("foraging — sprite variants", () => {
   });
 
   it("keeps everything close to upright, and the big things closest of all", () => {
-    const scene = buildScene(fullStock("autumn"), "autumn", 44, { hostSpots: sixSpots });
+    const scene = buildScene(fullStock("autumn"), "autumn", 44, { anchors: sixAnchors });
     for (const p of scene) {
       // Things grow up. A hard cap on lean, whatever the plant.
       expect(Math.abs(p.rotate), `${p.plantId} leans too far`).toBeLessThanOrEqual(6.01);
@@ -260,7 +261,7 @@ describe("foraging — sprite variants", () => {
   // A pair only works if both halves are drawn. One painted and one emoji would
   // give the answer away instantly, which is worse than no art at all.
   it("a decoy and the plant it mimics both have art, or neither does", () => {
-    for (const p of FORAGE_PLANTS.filter((x) => x.mimics && !x.scenery)) {
+    for (const p of FORAGE_PLANTS.filter((x) => x.mimics)) {
       const real = getForagePlant(p.mimics!)!;
       expect(
         (p.artVariants ?? 0) > 0,
@@ -317,7 +318,7 @@ describe("foraging — terrain masks", () => {
   // If a decoy grew somewhere its twin never does, its position would give it
   // away without the player ever having to look at it.
   it("a decoy can grow everywhere the plant it mimics can", () => {
-    for (const p of FORAGE_PLANTS.filter((x) => x.mimics && !x.scenery)) {
+    for (const p of FORAGE_PLANTS.filter((x) => x.mimics)) {
       const real = getForagePlant(p.mimics!)!;
       for (const ground of real.grows ?? []) {
         expect(
@@ -329,135 +330,57 @@ describe("foraging — terrain masks", () => {
   });
 });
 
-describe("foraging — hosts and the fruit on them", () => {
-  it("hangs no fruit at all when nothing has read the host's spots", () => {
+describe("foraging — fruit on the painted bushes", () => {
+  it("bears no fruit where the artist marked none", () => {
     const scene = buildScene(fullStock("autumn"), "autumn", 5);
     expect(scene.some((p) => p.plantId === "blackberry")).toBe(false);
   });
 
-  it("puts blackberries on brambles, never loose on the ground", () => {
-    const scene = buildScene(fullStock("autumn"), "autumn", 5, { hostSpots: sixSpots });
+  it("puts blackberries only on the marked spots, never loose on the ground", () => {
+    const scene = buildScene(fullStock("autumn"), "autumn", 5, { anchors: sixAnchors });
     const berries = scene.filter((p) => p.plantId === "blackberry");
     expect(berries.length).toBeGreaterThan(0);
     for (const b of berries) {
-      expect(b.attach, "a hosted plant must be attached to something").toBeTruthy();
-      const host = scene.find((q) => q.key === b.attach!.hostKey);
-      expect(host?.plantId).toBe("bramble");
+      expect(b.anchor).toBe(true);
+      expect(sixAnchors.some((a) => a.x === b.x && a.y === b.y),
+        "a berry appeared somewhere unmarked").toBe(true);
     }
   });
 
-  it("never hangs two clusters on the same spot", () => {
-    const scene = buildScene(fullStock("autumn"), "autumn", 12, { hostSpots: sixSpots });
-    const used = scene.filter((p) => p.attach).map((p) => `${p.attach!.hostKey}#${p.attach!.spot}`);
+  it("never hangs two clusters on one spot", () => {
+    const scene = buildScene(fullStock("autumn"), "autumn", 12, { anchors: sixAnchors });
+    const used = scene.filter((p) => p.anchor).map((p) => `${p.x},${p.y}`);
     expect(new Set(used).size).toBe(used.length);
   });
 
-  it("never asks for a spot the host doesn't have", () => {
-    const scene = buildScene(fullStock("autumn"), "autumn", 3, { hostSpots: sixSpots });
-    for (const p of scene.filter((q) => q.attach)) {
-      expect(p.attach!.spot).toBeGreaterThanOrEqual(0);
-      expect(p.attach!.spot).toBeLessThan(6);
-    }
+  it("bears no more than the bushes are marked for, however lush the season", () => {
+    const heavy = { ...fullStock("autumn"), blackberry: 999 };
+    const scene = buildScene(heavy, "autumn", 3, { anchors: sixAnchors });
+    expect(scene.filter((p) => p.plantId === "blackberry").length).toBeLessThanOrEqual(sixAnchors.length);
   });
 
-  it("puts each berry inside its own bush, not floating beside it", () => {
-    const scene = buildScene(fullStock("autumn"), "autumn", 5, { hostSpots: sixSpots });
-    for (const b of scene.filter((p) => p.attach)) {
-      const host = scene.find((q) => q.key === b.attach!.hostKey)!;
-      // Within the bush's drawn span. A berry adrift on open ground was the
-      // symptom that the geometry was being done in the wrong place.
-      const halfWidth = 5 * host.scale * 0.5;
-      expect(Math.abs(b.x - host.x)).toBeLessThanOrEqual(halfWidth + 1);
-      expect(b.y).toBeLessThanOrEqual(host.y + 1);
-      expect(b.y).toBeGreaterThanOrEqual(host.y - 5 * host.scale - 1);
-    }
+  // The point of anchoring fruit rather than scattering it: a bush picked over
+  // is visibly picked over, in the same corner of the same wood as before.
+  it("thins out as it is picked, and empties when the stock is gone", () => {
+    const half = { ...fullStock("autumn"), blackberry: 3 };
+    expect(buildScene(half, "autumn", 4, { anchors: sixAnchors })
+      .filter((p) => p.plantId === "blackberry").length).toBe(3);
+    const bare = { ...fullStock("autumn"), blackberry: 0 };
+    expect(buildScene(bare, "autumn", 4, { anchors: sixAnchors })
+      .filter((p) => p.plantId === "blackberry").length).toBe(0);
   });
 
-  it("never hangs fruit on top of some other plant", () => {
-    const scene = buildScene(fullStock("autumn"), "autumn", 5, { hostSpots: sixSpots });
-    for (const b of scene.filter((p) => p.attach)) {
-      for (const other of scene) {
-        if (other === b || other.attach || other.key === b.attach!.hostKey) continue;
-        // A blackberry perched on a chanterelle reads as fruit growing out of a
-        // toadstool. Keep them clear of anything that isn't their own bush.
-        expect(Math.hypot(other.x - b.x, other.y - b.y),
-          `a ${b.plantId} landed on a ${other.plantId}`).toBeGreaterThan(2);
-      }
-    }
-  });
-
-  it("mirrors a spot when its bush is mirrored", () => {
-    // A sprite may be drawn flipped. If its painted spots aren't flipped with
-    // it, every berry lands at the mirror image of where the artist put it —
-    // which is how they came to hang in mid-air beside the bush.
-    // Asserted as a SIDE rather than an exact figure, so the host's slight tilt
-    // doesn't make this a re-implementation of the arithmetic.
-    const leftSpot = () => [{ sx: 0.15, sy: 0.5 }];   // firmly left of centre
-    let sawFlipped = false, sawUnflipped = false;
-    for (const seed of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
-      const scene = buildScene(fullStock("autumn"), "autumn", seed, { hostSpots: leftSpot });
-      for (const b of scene.filter((p) => p.attach)) {
-        const host = scene.find((q) => q.key === b.attach!.hostKey)!;
-        if (host.flip) { sawFlipped = true; expect(b.x, "a mirrored bush must bear its fruit on the other side").toBeGreaterThan(host.x); }
-        else { sawUnflipped = true; expect(b.x, "an unmirrored bush must bear its fruit where it was painted").toBeLessThan(host.x); }
-      }
-    }
-    expect(sawFlipped && sawUnflipped, "needed both orientations to prove anything").toBe(true);
-  });
-
-  it("hangs fruit in FRONT of its bush, never behind it", () => {
-    // Sorting a berry by its own height would put one hanging high on the bush
-    // "further away" than the bush itself, and the leaves would swallow it. A
-    // berry you cannot see is a pixel hunt, not a challenge.
-    const scene = buildScene(fullStock("autumn"), "autumn", 5, { hostSpots: sixSpots });
-    for (const b of scene.filter((p) => p.attach)) {
-      const host = scene.find((q) => q.key === b.attach!.hostKey)!;
-      expect(b.sortY, "fruit must sort with its bush").toBe(host.sortY);
-    }
-  });
-
-  it("keeps fruit inside the picture", () => {
-    for (const seed of [1, 2, 3, 4, 5]) {
-      for (const b of buildScene(fullStock("autumn"), "autumn", seed, { hostSpots: sixSpots }).filter((p) => p.attach)) {
-        expect(b.x).toBeGreaterThan(0); expect(b.x).toBeLessThan(100);
-        expect(b.y).toBeGreaterThan(0); expect(b.y).toBeLessThan(100);
-      }
-    }
-  });
-
-  it("places every bramble, even in a crowded wood — scenery outranks the cap", () => {
-    // Three brambles were being cut to one: shuffled in with everything else,
-    // two fell past maxSprites. The bush carries the fruit, so losing one costs
-    // far more than losing a mushroom.
-    const scene = buildScene(fullStock("autumn"), "autumn", 5, { hostSpots: sixSpots });
-    expect(scene.filter((p) => p.plantId === "bramble").length)
-      .toBe(Math.floor(fullStock("autumn").bramble));
-  });
-
-  it("keeps brambles off each other, while mushrooms still cluster", () => {
-    const scene = buildScene(fullStock("autumn"), "autumn", 9, { hostSpots: sixSpots });
-    const bushes = scene.filter((p) => p.plantId === "bramble");
-    for (let i = 0; i < bushes.length; i++) {
-      for (let j = i + 1; j < bushes.length; j++) {
-        // Room to interlace a little, as a real thicket does, but never stacked.
-        expect(Math.hypot(bushes[i].x - bushes[j].x, bushes[i].y - bushes[j].y))
-          .toBeGreaterThan(20);
-      }
-    }
-  });
-
-  it("the bush is scenery — placed, but never picked", () => {
-    const bramble = getForagePlant("bramble")!;
-    expect(bramble.scenery).toBe(true);
-    expect(bramble.yields).toBeNull();
-  });
-
-  // A stripped bramble should stay standing: a bush with no fruit left TELLS
-  // you why there is nothing to take, where a vanished one just looks empty.
-  it("leaves the bush standing when its fruit is gone", () => {
-    const stock = { ...fullStock("autumn"), blackberry: 0 };
-    const scene = buildScene(stock, "autumn", 5, { hostSpots: sixSpots });
-    expect(scene.some((p) => p.plantId === "bramble")).toBe(true);
+  it("ignores anchors meant for something else", () => {
+    const other = [{ plantId: "juniper", x: 40, y: 40 }];
+    const scene = buildScene(fullStock("autumn"), "autumn", 5, { anchors: other });
     expect(scene.some((p) => p.plantId === "blackberry")).toBe(false);
+  });
+
+  it("keeps anchored plants out of the loose scatter entirely", () => {
+    // Anchored things must never be spread over open ground as though they
+    // sprouted there: a blackberry without a bush is nonsense.
+    for (const p of buildScene(fullStock("autumn"), "autumn", 7, { anchors: sixAnchors })) {
+      if (getForagePlant(p.plantId)?.anchored) expect(p.anchor).toBe(true);
+    }
   });
 });

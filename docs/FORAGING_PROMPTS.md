@@ -146,6 +146,22 @@ Paint as a layer over the background, export as `{scene}_mask.png`. Three brush 
 | 🔵 **blue** | `litter` | leaf litter, open earth → most things |
 | ⚫ **black / transparent** | blocked | rock, water, deep shadow → nothing at all |
 
+### Anchor daubs — where a specific thing grows
+
+Bushes are **painted into the scene**, not cut out as sprites: a bramble stands in the same corner for twenty years, so it belongs to the picture. Only the fruit is a sprite, and it appears where you mark it. Same mask file, one small daub per spot:
+
+| Colour | Marks |
+| --- | --- |
+| 🟣 `#7B00D4` | a blackberry cluster |
+| 🔵 `#00C8FF` | juniper berries |
+| 🟠 `#FF7A00` | rosehips |
+| 🩷 `#FF00C8` | elderberries |
+| 🟡 `#FFE800` | fungus on standing wood (a trunk face, a stump) |
+
+Approximate is fine, nearest colour wins. A daub of any size gives **one** spot, so mark each cluster separately. These are read *before* the terrain colours, so a violet daub won't be mistaken for leaf litter.
+
+**Why this beats cutting bushes out:** no transparency work, and a painted-in bush needs no contact shadow, no light-matching and no depth sorting, because it *is* the painting. Variety comes from more scenes rather than from moving one bush around — which is also the honest model, since a thicket doesn't wander.
+
 The **mask toggle** in the sandbox overlays it at 45% with a legend, so you can see where things are allowed while you paint. Masks are entirely optional: no file simply means the whole frame is fair game.
 
 ---

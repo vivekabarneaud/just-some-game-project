@@ -62,15 +62,10 @@ export const FORAGE_PLANTS: ForagePlant[] = [
     size: [1.0, 1.5], grows: ["grass"],
     cap: { summer: 7, autumn: 5 }, regrow: 0.4 },
 
-  // ── The hedgerow. The bush is scenery; the fruit on it is the find. ──
-  { id: "bramble", name: "Bramble", icon: "🌿", yields: null, scenery: true, artVariants: 1, aspect: 1,
-    size: [6.4, 9.2], clump: 1,
-    grows: ["litter", "grass"],
-    note: "A bramble thicket. Thorns, mostly.",
-    cap: { spring: 2, summer: 3, autumn: 3 }, regrow: 0.05 },
-
-  // ── Wild berries + the hedgerow ──
-  { id: "blackberry", name: "Blackberry", icon: "🫐", yields: "blackberry", host: "bramble",
+  // ── Wild berries. The bushes they hang on are painted into the scenes; only
+  //    the fruit is a sprite, appearing at the anchors marked on a scene's mask.
+  //    See DESIGN_FORAGING_MINIGAME. ──
+  { id: "blackberry", name: "Blackberry", icon: "🫐", yields: "blackberry", anchored: true,
     note: "Hedgerow-dark and seedy, paid for in scratched arms.",
     clump: 4,
     size: [0.7, 1.05], grows: ["litter", "grass"],

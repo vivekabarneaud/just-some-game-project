@@ -7,7 +7,6 @@
 import type { Season } from "../../gameState.js";
 import { FORAGE_PLANTS, getForagePlant } from "./plants.js";
 import type { PlacedPlant, TerrainId, WoodsStock } from "./types.js";
-import { applyToPoint, spriteBox, spriteOps } from "./transform.js";
 
 /** What this plant's stock tops out at in this season (0 = doesn't grow now). */
 export function seasonCap(plantId: string, season: Season): number {
@@ -132,14 +131,10 @@ export interface SceneOptions {
    *  blocked ground. Supplied by the frontend, which owns the pixels — this
    *  module stays pure and deterministic so it can be tested without a canvas. */
   terrainAt?: (x: number, y: number) => TerrainId | null;
-  /** The berry spots painted on a host sprite, in its own 0..1 space. Supplied
-   *  by the frontend, which reads them off the host's mask. Without it, hosted
-   *  plants simply don't appear.
-   *
-   *  Coordinates rather than a count, deliberately: the generator has to know
-   *  where a berry actually lands to keep it off other plants, and working that
-   *  out at render time made the check impossible. */
-  hostSpots?: (plantId: string, variant: number) => { sx: number; sy: number }[];
+  /** Spots the artist painted on the SCENE mask, in scene percent, each naming
+   *  what grows there. Fruit hangs on bushes that are part of the painting, so
+   *  these are the only places an `anchored` plant can appear. */
+  anchors?: { plantId: string; x: number; y: number }[];
   /** The renderer's base sprite height, if it isn't the nominal 5%. */
   spriteHeightPct?: number;
 }
@@ -182,7 +177,7 @@ export function buildScene(stock: WoodsStock, season: Season, seed: number, opts
   const clumps: { plantId: string; count: number }[] = [];
   for (const p of FORAGE_PLANTS) {
     if (seasonCap(p.id, season) <= 0) continue;
-    if (p.host) continue;
+    if (p.anchored) continue;
     let left = Math.floor(stock[p.id] ?? 0);
     const most = Math.max(1, p.clump ?? 1);
     while (left > 0) {
@@ -197,10 +192,6 @@ export function buildScene(stock: WoodsStock, season: Season, seed: number, opts
     const j = Math.floor(rand() * (i + 1));
     [clumps[i], clumps[j]] = [clumps[j], clumps[i]];
   }
-  // ...then float scenery to the front. A bramble is the structure of a scene
-  // and carries the fruit; losing one to the sprite cap costs far more than
-  // losing a mushroom, and two of three were being dropped exactly that way.
-  clumps.sort((a, b) => Number(!!getForagePlant(b.plantId)?.scenery) - Number(!!getForagePlant(a.plantId)?.scenery));
 
   const placed: PlacedPlant[] = [];
   for (const { plantId, count } of clumps) {
@@ -249,71 +240,42 @@ export function buildScene(stock: WoodsStock, season: Season, seed: number, opts
       });
     }
   }
-  // ── Hosted plants: fruit hung on whatever bushes went down ──────────────
-  // Only where the artist painted a spot, so a berry never floats in the bush's
-  // empty air, and never on a spot already taken or already occupied by
-  // something else standing there.
-  if (opts.hostSpots) {
-    const taken = new Set<string>();
+  // ── Anchored plants: fruit on the bushes painted into the scene ─────────
+  // The bush is part of the picture, so these are simply the points the artist
+  // marked. Stock decides how many of them bear anything, which is what makes a
+  // picked-over bush read as picked over.
+  if (opts.anchors?.length) {
     for (const p of FORAGE_PLANTS) {
-      if (!p.host || seasonCap(p.id, season) <= 0) continue;
+      if (!p.anchored || seasonCap(p.id, season) <= 0) continue;
       let left = Math.floor(stock[p.id] ?? 0);
       if (left <= 0) continue;
 
-      // Every free spot on every host of the right kind, resolved to a real
-      // position in the scene, then shuffled.
-      const candidates: { hostKey: string; spot: number; x: number; y: number }[] = [];
-      for (const host of placed) {
-        if (host.plantId !== p.host) continue;
-        const spots = opts.hostSpots(host.plantId, host.variant);
-        // Resolved through the SAME transform description the renderer draws
-        // with, so a spot can never point at the mirror image of where it was
-        // painted. See transform.ts.
-        const box = spriteBox(host, spriteHeightPct, getForagePlant(host.plantId)?.aspect ?? 1);
-        const ops = spriteOps(host);
-        spots.forEach((spot, i) => {
-          const id = `${host.key}#${i}`;
-          if (taken.has(id)) return;
-          const at = applyToPoint(ops, box, { x: host.x, y: host.y }, spot.sx, spot.sy);
-          candidates.push({ hostKey: host.key, spot: i, x: at.x, y: at.y });
-        });
-      }
-      for (let i = candidates.length - 1; i > 0; i--) {
+      const mine = opts.anchors.filter((a) => a.plantId === p.id);
+      // Shuffled, so a half-picked bush thins out unevenly rather than always
+      // emptying from the same end.
+      const order = mine.map((_, i) => i);
+      for (let i = order.length - 1; i > 0; i--) {
         const j = Math.floor(rand() * (i + 1));
-        [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+        [order[i], order[j]] = [order[j], order[i]];
       }
 
       const variants = getForagePlant(p.id)?.artVariants ?? 0;
-      for (const c of candidates) {
+      for (const idx of order) {
         if (left <= 0) break;
-        // Off the edge of the picture, or sitting on something that isn't its
-        // own bush: a berry perched on a mushroom looks like fruit growing out
-        // of a toadstool.
-        if (c.x < 2 || c.x > 98 || c.y < 2 || c.y > 98) continue;
-        const clash = placed.some((q) =>
-          q.key !== c.hostKey &&
-          getForagePlant(q.plantId)?.host !== p.host &&   // its siblings may crowd
-          Math.hypot(q.x - c.x, q.y - c.y) < clearanceBetween(p.id, q.plantId) * 0.6);
-        if (clash) continue;
-
-        taken.add(`${c.hostKey}#${c.spot}`);
+        const a = mine[idx];
         left--;
-        const host = placed.find((q) => q.key === c.hostKey)!;
         placed.push({
-          key: `${p.id}-${c.hostKey}-${c.spot}`,
+          key: `${p.id}-anchor-${idx}`,
           plantId: p.id,
-          x: c.x, y: c.y,
-          // Sorts with its bush: a berry hanging high would otherwise read as
-          // far away and disappear behind the very leaves it grows on.
-          sortY: host.y,
-          attach: { hostKey: c.hostKey, spot: c.spot },
-          // Fruit shares its bush's distance, so it hazes and lights with it.
-          depth: host.depth,
+          x: a.x, y: a.y,
+          sortY: a.y,
+          anchor: true,
+          depth: a.y / 100,
           variant: variants > 0 ? 1 + Math.floor(rand() * variants) : 1,
           flip: rand() < 0.5,
           scale: (() => {
             const [lo, hi] = getForagePlant(p.id)?.size ?? DEFAULT_SIZE;
-            return (lo + rand() * (hi - lo)) * depthAt(host.y);
+            return (lo + rand() * (hi - lo)) * depthAt(a.y);
           })(),
           rotate: (rand() - 0.5) * 2 * tiltFor(p.id),
           brightness: 0.9 + rand() * 0.22,

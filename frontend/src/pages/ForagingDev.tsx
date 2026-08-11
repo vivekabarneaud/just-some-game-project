@@ -4,8 +4,7 @@ import { buildScene, fullStock, pick, rain, regrow, seasonCap } from "@medieval-
 import type { WoodsStock } from "@medieval-realm/shared/data/foraging/types";
 import { spriteOps, toCss } from "@medieval-realm/shared/data/foraging/transform";
 import type { Season } from "@medieval-realm/shared";
-import { loadTerrainMask, loadLuminanceField, lightTint, TERRAIN_SWATCH } from "~/engine/foragingMask";
-import { loadHostSpots, type HostSpot } from "~/engine/foragingSpots";
+import { loadTerrainMask, loadLuminanceField, loadSceneAnchors, lightTint, ANCHOR_COLOURS, TERRAIN_SWATCH } from "~/engine/foragingMask";
 
 /** TEMP dev-only sandbox for the foraging minigame. Standalone (outside the
  *  GameProvider) like the alchemy and kitchen sandboxes: a pure tuning tool with
@@ -87,21 +86,13 @@ export default function ForagingDev() {
   );
   const [matchLight, setMatchLight] = createSignal(true);
 
-  // Berry spots painted onto each host sprite. Loaded once — they belong to the
-  // sprite, not to any particular scene.
-  const [hostSpots] = createResource(async () => {
-    const out: Record<string, HostSpot[]> = {};
-    for (const p of FORAGE_PLANTS) {
-      if (!p.scenery || !(p.artVariants ?? 0)) continue;
-      for (let v = 1; v <= (p.artVariants ?? 0); v++) {
-        const stem = p.artId ?? p.id;
-        const spots = await loadHostSpots(`/images/foraging/plants/${stem}${v}_mask.png`);
-        if (spots?.length) out[`${p.id}${v}`] = spots;
-      }
-    }
-    return out;
-  });
-  const spotsFor = (plantId: string, variant: number) => hostSpots()?.[`${plantId}${variant}`] ?? [];
+  // Where the artist marked that something grows: fruit on the bushes painted
+  // into this scene, fungus on a standing trunk. Read off the scene's own mask,
+  // so a bush stays exactly where it was painted, walk after walk.
+  const [anchors] = createResource(
+    () => ({ season: season(), n: sceneNo() }),
+    (k) => loadSceneAnchors(maskUrl(k.season, k.n)),
+  );
 
   // The scene is generated ONCE per walk, from a snapshot of the wood taken as
   // you step in. It must NOT read live stock: picking one plant would rebuild
@@ -110,7 +101,7 @@ export default function ForagingDev() {
   const scene = createMemo(() =>
     buildScene(walkStock(), season(), seed(), {
       terrainAt: mask() ?? undefined,
-      hostSpots: (plantId, variant) => spotsFor(plantId, variant),
+      anchors: anchors() ?? undefined,
       spriteHeightPct: SPRITE_H,
     }));
   const visible = () => scene().filter((p) => !picked().has(p.key));
@@ -223,13 +214,12 @@ export default function ForagingDev() {
               {(p) => {
                 const plant = getForagePlant(p.plantId)!;
                 const isHot = () => hovered() === p.key;
-                const pickable = !plant.scenery;
                 const hasArt = (plant.artVariants ?? 0) > 0;
                 return (
                   <button
-                    onMouseEnter={() => pickable && setHovered(p.key)}
+                    onMouseEnter={() => setHovered(p.key)}
                     onMouseLeave={() => setHovered(null)}
-                    onClick={() => pickable && pickPlant(p.key, p.plantId)}
+                    onClick={() => pickPlant(p.key, p.plantId)}
                     /* No title, no aria-label, no name anywhere: identifying it
                        is the entire mechanic. */
                     style={{
@@ -241,8 +231,7 @@ export default function ForagingDev() {
                       "transform-origin": "50% 88%",
                       transition: "transform 130ms ease-out",
                       background: "transparent", border: "none", padding: 0,
-                      cursor: !pickable ? "default" : full() ? "not-allowed" : "pointer",
-                      "pointer-events": pickable ? "auto" : "none",
+                      cursor: full() ? "not-allowed" : "pointer",
                       // Painted sprites size by height against the scene box;
                       // the emoji placeholders keep a font size instead.
                       ...(hasArt ? { height: `${SPRITE_H * p.scale}%`, width: "auto" } : { "font-size": `${0.95 * p.scale}rem`, "line-height": 1 }),
@@ -261,7 +250,8 @@ export default function ForagingDev() {
                       })(),
                       // Painter's order, by sortY. Fruit shares its bush's depth and
                       // sits one step in front, so it is never swallowed by it.
-                      "z-index": isHot() ? 9999 : Math.round(p.sortY * 5) + (p.attach ? 1 : 0),
+                      // Painter's order: lower in the frame is nearer, so it draws in front.
+                      "z-index": isHot() ? 9999 : Math.round(p.sortY * 5),
                     }}>
                     {/* Contact shadow. The single strongest cue that a thing is
                         standing IN the picture rather than sitting on it: real
@@ -304,6 +294,17 @@ export default function ForagingDev() {
                 )}
               </For>
               <span>· black or transparent blocks</span>
+            </div>
+            <div style={{ display: "flex", "flex-wrap": "wrap", gap: "12px", "font-size": "0.72rem", color: "var(--text-muted)", "margin-top": "3px" }}>
+              <span>and a daub per thing that grows there:</span>
+              <For each={Object.entries(ANCHOR_COLOURS)}>
+                {([id, colour]) => (
+                  <span style={{ display: "inline-flex", "align-items": "center", gap: "4px" }}>
+                    <span style={{ width: "10px", height: "10px", background: colour, "border-radius": "2px" }} />{id}
+                  </span>
+                )}
+              </For>
+              <span>· {anchors()?.length ?? 0} marked</span>
             </div>
           </Show>
         </div>

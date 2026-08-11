@@ -26,6 +26,10 @@ export type TerrainSampler = (x: number, y: number) => TerrainId | null;
 
 function classify(r: number, g: number, b: number, a: number): TerrainId | null {
   if (a < 128) return null;
+  // An anchor daub is not ground. Checked first because the vocabularies
+  // overlap — violet's dominant channel is blue, which the rule below would
+  // otherwise read as leaf litter.
+  if (anchorOf(r, g, b, a)) return null;
   const max = Math.max(r, g, b);
   if (max < MIN_INTENSITY) return null;
   if (r === max && r >= g * DOMINANCE && r >= b * DOMINANCE) return "wood";
@@ -66,6 +70,96 @@ export async function loadTerrainMask(url: string): Promise<TerrainSampler | nul
     };
   } catch {
     return null; // e.g. a cross-origin taint on getImageData
+  }
+}
+
+// ─── Anchors: exact spots where a specific thing grows ──────────────────────
+// Terrain says what KIND of ground a region is. An anchor says "this precise
+// spot bears blackberries", and is how fruit hangs on a bush that is part of
+// the painting rather than a sprite — see DESIGN_FORAGING_MINIGAME.
+//
+// Anchors are matched by NEAREST COLOUR and tested BEFORE terrain, because the
+// two vocabularies overlap: a violet daub's dominant channel is blue, so the
+// terrain rule would happily read it as leaf litter.
+
+/** Paint these. Approximate is fine — nearest wins, within ANCHOR_TOLERANCE. */
+export const ANCHOR_COLOURS: Record<string, string> = {
+  blackberry: "#7B00D4",   // violet
+  juniper:    "#00C8FF",   // cyan
+  rosehip:    "#FF7A00",   // orange
+  elderberry: "#FF00C8",   // magenta
+  /** Fungi growing ON standing wood — a trunk face, a rotting stump. */
+  wood_fungus: "#FFE800",  // yellow
+};
+/** How far a painted colour may stray and still be recognised. Generous enough
+ *  for a soft brush edge, tight enough that the terrain trio never matches. */
+const ANCHOR_TOLERANCE = 95;
+
+const hexRgb = (hex: string): [number, number, number] =>
+  [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)) as [number, number, number];
+const ANCHOR_RGB = Object.entries(ANCHOR_COLOURS).map(([id, hex]) => [id, hexRgb(hex)] as const);
+
+/** Which anchor a pixel is, if any. */
+function anchorOf(r: number, g: number, b: number, a: number): string | null {
+  if (a < 128) return null;
+  let best: string | null = null, bestD = Infinity;
+  for (const [id, [ar, ag, ab]] of ANCHOR_RGB) {
+    const d = Math.hypot(r - ar, g - ag, b - ab);
+    if (d < bestD) { bestD = d; best = id; }
+  }
+  return bestD <= ANCHOR_TOLERANCE ? best : null;
+}
+
+/** A painted spot, in scene percent. */
+export interface SceneAnchor { plantId: string; x: number; y: number; }
+
+/** Read every anchor daub on a scene mask, flood-filled so one brushstroke
+ *  yields one point however raggedly it was made. */
+export async function loadSceneAnchors(url: string): Promise<SceneAnchor[]> {
+  try {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    const ok = await new Promise<boolean>((resolve) => {
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(false);
+      img.src = url;
+    });
+    if (!ok) return [];
+
+    const N = 256;
+    const canvas = document.createElement("canvas");
+    canvas.width = N; canvas.height = N;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return [];
+    ctx.drawImage(img, 0, 0, N, N);
+    const { data } = ctx.getImageData(0, 0, N, N);
+
+    const idAt = (x: number, y: number) => {
+      const i = (y * N + x) * 4;
+      return anchorOf(data[i], data[i + 1], data[i + 2], data[i + 3]);
+    };
+    const seen = new Uint8Array(N * N);
+    const out: SceneAnchor[] = [];
+    for (let y = 0; y < N; y++) {
+      for (let x = 0; x < N; x++) {
+        const id = idAt(x, y);
+        if (!id || seen[y * N + x]) continue;
+        let sx = 0, sy = 0, n = 0;
+        const stack = [[x, y]];
+        while (stack.length) {
+          const [cx, cy] = stack.pop()!;
+          if (cx < 0 || cy < 0 || cx >= N || cy >= N) continue;
+          if (seen[cy * N + cx] || idAt(cx, cy) !== id) continue;
+          seen[cy * N + cx] = 1;
+          sx += cx; sy += cy; n++;
+          stack.push([cx + 1, cy], [cx - 1, cy], [cx, cy + 1], [cx, cy - 1]);
+        }
+        if (n >= 3) out.push({ plantId: id, x: (sx / n / (N - 1)) * 100, y: (sy / n / (N - 1)) * 100 });
+      }
+    }
+    return out;
+  } catch {
+    return [];
   }
 }
 
