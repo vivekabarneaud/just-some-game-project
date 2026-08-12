@@ -93,8 +93,20 @@ Deliberately generic on both counts, because the kitchen needs **forgiving every
 
 **Poultry is emotionally expensive**, and the mechanics agree: a pig produces nothing while it lives ("pays off when it's culled, not while it lives"), whereas a hen is a *producer* — culling one costs eggs forever. So chicken meat should read as an occasion rather than a staple, and dishes built on it should be rare and worth it. Noted for when we reach the poultry.
 
-### ⏳ Field mushroom
-The humble one. Being common may be identity enough — no signature dish needed.
+### ✅ Field mushroom
+- **Is:** *Agaricus campestris*, the *rosé des prés* — clean white cap, gills pink turning brown. The common one, and genuinely good.
+- **Season / terrain:** spring through autumn · litter, grass
+- **Kitchen: NOTHING, deliberately** — and this is structural, not neglect. Specific dishes out-rank generic ones, so if *every* mushroom had a signature then `any(mushroom)` would never fire and *Mushroom Pottage*, *Forager's Pot* and *Fire-Charred Mushrooms* would become dead content. **The generic dishes need at least one mushroom with nothing of its own**, and the common one is exactly right to be it. The generic dish IS its dish. It also teaches the pattern from the other side: the ordinary mushroom gives the ordinary dish, and a chanterelle instead gives something with a name.
+- **Its real identity is its twin.** The most ordinary mushroom in the wood has the deadliest lookalike there is, which is a better use of it than any dish.
+
+### ⏳ Death cap — the decoy
+- **Is:** *Amanita phalloides*. Kills more people than every other mushroom combined, and does it by looking unremarkable.
+- **Tells that work on a standing sprite:** a faint **olive-green wash** on the cap where the field mushroom is clean white, and a **volva** — a pale cup at the foot, like an egg it climbed out of. (The textbook tell, permanently white gills against pink-to-brown, is underneath, so it'd only be available on a tipped variant.)
+- **Yields nothing. Ever.** The one plant in the game with no use whatsoever, which is more frightening than giving it a recipe.
+- **Edda should not be wry here:**
+  > A death cap. There is no worse thing in the wood, and it looks like nothing at all. Mark it: the good one is clean white with pink gills, this one has a green cast and sits in a little cup at the foot, like an egg it climbed out of.
+
+- **💭 If it ever needs a poison,** the thing it has that no other does is that amatoxins are **slow and deceptive** — nothing at the time, a brief illness later, a false recovery, then the real damage days on. That is a genuine mechanical niche: a **delayed** poison, where every other one acts now, and the assassin's tool by definition since you are long gone before it works. But it only earns its place if a poisoning *plot* ever exists — a target you cannot fight, a cup you get near once. Until then, no use at all is the stronger choice.
 
 ### ⏳ Ramsons
 The first real crossover: kitchen (it already lifts a dish) **and** alchemy, since garlic is a genuine antiseptic — a **hero** in a wound-wash or fever brew. Decoy: lily of the valley ✅ *(painted, 3 shapes each)*.
@@ -107,6 +119,33 @@ Kitchen, plus the most gameable alchemy on the list: bilberry is famously an **e
 
 ### ⏳ Hazelnut
 Kitchen only, fat and keeping. Infrastructure rather than a star — but it would finally give the generic `nuts` a real source.
+
+## Fungi on standing wood
+*Anchored plants, using the yellow `#FFE800` daub on painted trunks and stumps. Most fruit in **winter**, which is the season with almost nothing in it — so this whole group earns its place twice.*
+
+### ✅ Oyster mushroom
+- **Is:** *Pleurotus ostreatus*, the *pleurote en huître* — grey fan-shaped shelves on dead beech and poplar, gills running down. Fruits **through the cold**, which few do.
+- **Kitchen:**
+
+  **Winter Pottage** · `one(chestnut, boil)` + `one(oyster_mushroom, boil)` · *camp* · NEW
+  Both halves are the same idea: chestnuts gathered in autumn and kept, oyster mushrooms still growing in the frost. The winter-provision fantasy on a plate, and an answer to the standing question of what a settlement eats in January. Camp tier deliberately — winter is when you are poorest, and needing a town oven to eat your own stores would be backwards. Chestnut is the starch, so it wants no grain.
+  > Chestnuts and oyster mushrooms boiled down thick. The pot that gets a settlement through January.
+
+  *Depends on chestnut existing (location 4). Roasted chestnuts are the more iconic image and could be a Town dish later, but the pottage is what people actually lived on.*
+
+### ⏳ Judas ear
+*Auricularia auricula-judae*, the *oreille de Judas* — brown, gelatinous, genuinely ear-shaped, and it grows on **elder**, which is already on the list. So the elder planted for berries also gives something in January. Winter. Strange enough to be memorable.
+
+### ⏳ Chicken of the woods
+*Laetiporus*, the *polypore soufré* — great slabs of sulphur-orange bracket on oak. Summer, unmistakable, delicious young. Pure visual value; nothing else in the wood looks like it.
+
+### ⏳ Tinder fungus *(not food)*
+*Fomes fomentarius*, **amadou** — hoof-shaped brackets on birch and beech, and it is **how you carry fire**. Ötzi had some in his pouch. A genuinely different kind of forage: not supper, but the means to make supper anywhere. Worth having precisely because it isn't a meal.
+
+### ⏳ Sulphur tuft — a decoy
+*Hypholoma fasciculare*, the *hypholome en touffe* — dense clusters on stumps, much like honey fungus, bitter and mildly toxic. Same shelf, same wood, wrong mushroom.
+
+---
 
 ### ⏳ Yellowfoot *(new)*
 *Craterellus tubaeformis* — brown cap, hollow orange-yellow stem, delicate. **Late autumn into winter**, after the first frosts. A second prized mushroom with no decoy needed, and it fills the emptiest season in the game.
