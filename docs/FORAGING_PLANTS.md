@@ -388,6 +388,42 @@ The day-after version pairs better with the existing recovery and wound systems;
 
 ---
 
+## Staples and ingredients — why the citizens stop eating your boletes
+
+*Settled 2026-08-12. Game-wide rather than foraging-only, but it surfaced here because it silently breaks everything this catalogue is for. Parked in memory too.*
+
+**The bug.** `consumeFood` deducts **proportionally across every food type**:
+
+```ts
+const share = (stock / total) * toConsume;
+```
+
+So a king bolete saved for a recipe isn't merely at risk of being eaten. It drains every tick, forever, in fractions, until you are holding 0.87 of a bolete. **Nothing can be hoarded.** That kills cross-season cooking outright (a spring ingredient can never reach an autumn dish) and it would quietly eat everything the minigame ever hands the player.
+
+**The fix: citizens eat STAPLES, not ingredients.** `consumeFood` draws only from a staple set (grain, meat, fish, roots, common berries). The rare foraged things sit untouched. It's also just true: three chanterelles are not dinner for eleven people, they're something set aside for the kitchen.
+
+**And if the staples hit zero, they eat anything.** That's the *open the stores* beat as a single condition rather than a system. You lose what you were saving, and you lose it because people were starving, which is the right reason to lose it.
+
+**What this replaces, and why those failed:**
+
+| Considered | Why not |
+| --- | --- |
+| A larder / store split, with `preserve` as the verb that moves food between them | Genuinely elegant, and it gave `preserve` its long-missing job — but it's a second inventory with its own UI, save shape and caps. Kept for later, when preservation and trade actually matter. |
+| *Who gathered it decides where it goes* — hut yield to the larder, the Lord's basket to inventory | Broke the famine-relief missions. The boar hunt and the honey raid exist **because** there is a famine; routing their food into a personal bag defeats the mission's only purpose. |
+| Citizens eat the season's food first | Makes cross-season recipes nearly impossible, which is the kitchen's whole point. Costs more than the immersion it buys. |
+
+**Two things it needs:**
+- A data pass marking every food as staple or ingredient. Forty-odd judgement calls, cheap, and worth making anyway.
+- **The famine threshold must count staples only.** Otherwise a pile of rare mushrooms masks a starving settlement and the game sits calmly while people die beside a shelf of truffles.
+
+**Topbar: two numbers, not one total.** `🍞 142 · 🍄 18` — the first is what keeps people alive and what starvation and famine warnings read; the second is what the kitchen has to play with. A single total lies, and a staples-only total hides food you genuinely own.
+
+**Deliberate consumption stays allowed.** If the player puts velvet shank on the tavern menu, spending it is the point: that's a decision with a screen and a price attached. The bug was only ever the invisible automatic drain.
+
+**Bonus: the basket needs no special home.** With this in place, the minigame's yield can land in the larder like everything else and simply never be eaten — which deletes the second inventory, the provenance rule and the two-source kitchen question all at once.
+
+*(Found alongside a second issue, parked separately: **food-diversity happiness counts standing BUILDINGS**, not what anyone ate. You are rewarded for owning a fishing hut that has produced nothing, and get nothing for a varied larder or for cooking.)*
+
 ## Dreaming: drying
 
 **`preserve` is documented as "a later town method", and that is backwards.** Sun and air drying is the most primitive preservation there is — a string, a rack, good weather. Older than the pan, far older than the oven. What actually needs a settlement is *salting* (needs salt, a trade good) and *smoking* (needs a smokehouse). So drying belongs at **camp**, possibly as the first technique of all.
