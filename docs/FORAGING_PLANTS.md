@@ -449,7 +449,51 @@ Worthless plants want **one art variant, not three** — nobody memorises them f
 
 # 2 · The clearing and wood edge
 
-⏳ Dandelion · Sorrel · Wild carrot *(+ hemlock)* · Parasol *(+ deadly dapperling)* · Elder *(+ danewort, its poisonous twin)* · Wild rose (rosehip) · Raspberry · Hawthorn *(haws + a real heart remedy)* · Crabapple *(verjuice, jelly)* · Nettle *(already a herb — this would become its source)*
+⏳ Dandelion · Sorrel · Wild carrot *(+ hemlock)* · Parasol *(+ deadly dapperling)* · Elder *(+ danewort, its poisonous twin)* · Wild rose (rosehip) · Raspberry · Hawthorn *(haws + a real heart remedy)* · Crabapple *(verjuice, jelly)*
+
+### 💭 Nettle — the hungry gap *(idea, to discuss properly later)*
+
+*Written up 2026-08-12 as something to come back to, not as a settled plant.*
+
+- **Is:** *Urtica dioica*. Already exists in the game as a `toxin`-role alchemy herb (`boil`), used in four recipes.
+- **Where it grows:** disturbed, nitrogen-rich ground. Field edges, paths, middens. Not deep wood.
+
+**Its idea is the hungry gap.** That's the real name for March into May: winter stores exhausted, nothing harvested yet. Historically the hungriest weeks of the year, worse than winter itself, because winter at least has a larder. Nettles are the classic answer — the first abundant green, genuinely nutritious, growing everywhere without being planted.
+
+It answers the question the winter work left open. Autumn fills the store, winter eats what it kept, and then the store runs out. **Nettle arrives precisely when it's needed**, which is a good thing for a plant to mean.
+
+**Kitchen: a nettle pottage.** `boil`, camp, spring. The sting is the counterpart to the bramble's thorns, the other plant that fights back — but where thorns are simply a price, **the sting is defeated by cooking.** Boiling destroys it completely. That's true, and it's exactly the kitchen's grammar of technique-as-transformation. The same fact points both ways: weaponised in alchemy, undone in the pot.
+
+**Refused: fiber.** Nettle cloth is entirely real and was still being made into the twentieth century, but flax already owns `fiber` at the works, and a wild early version means two plants doing one job badly rather than one doing it well.
+
+#### The part worth keeping: nettles grow where people have been
+
+Nettles follow habitation. They mark old settlement for decades, and archaeologists genuinely use them as an indicator — **elder does the same job**, which is why the two together are a signal.
+
+Which raises a real lore objection: **nobody has lived in this valley for a very long time.** The Old Watch is a hundred and fifty years gone and lies south, in the bad country. So there should be almost no nettles here.
+
+That objection makes the idea better:
+
+- **Nettles start scarce, and spread as the settlement establishes.** The beds thicken because *you* have been here. The plant becomes a record of your own presence, growing at the edges of a place that had none before you came.
+- **So the first hungry gap has no nettles to save you.** By the second or third spring, there are. **The land starts feeding you back once you have lived on it**, which is a better story than a plant that was simply always there.
+- **A nettle bed deep in the wood is a ruin marker.** A stand of nettle and elder together in the middle of nowhere is a house that isn't there any more. Not a decoy pair. A pair that *means* something.
+- And a thread worth pulling much later: if nettle and elder mark where people were, that is exactly what would be growing over the Old Watch.
+
+#### ⚠ It needs the herb cleanup first
+
+**Nettle drops from five different enemies**, at 15 to 30%. So it currently rains from combat. Giving it a season, a place and a story means very little while killing wolves is a reliable nettle farm. Not a reason to skip it — it's the sharpest example of why the herb-sourcing cleanup in the open threads matters.
+
+---
+
+## 💭 Twelve days, twelve months — the calendar nobody is using
+
+*(Idea, 2026-08-12. Not to be built yet.)*
+
+A season is **three days**, so a year is **twelve days**, so **a day is a month**. The game already has that number and does nothing with it.
+
+Which means the forager's hut's table could go from four entries to twelve, and the year would gain texture: early spring nettles, mid spring ramsons, late spring the first greens. Early autumn chanterelles, mid autumn cepes, late autumn the nut fall. A player logging in on different days sees a different wood.
+
+**One rule to hold on to when it's built: phase the emphasis, not the availability.** If ramsons only *exists* on one day in twelve, the Spring Omelet becomes nearly impossible, since it wants morels and ramsons and eggs together. So let the season stay broad for what's obtainable, and let the twelve-part calendar decide only what the hut **leads with**. Same texture, no cliff.
 
 # 3 · The hills
 
