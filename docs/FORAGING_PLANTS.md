@@ -220,10 +220,47 @@ It costs nothing but a slot in the basket, per the rule already set for the fals
 
 She is not dismissing the fruit, she is leaving it deliberately — which is also the old rule that you never strip a hedge bare. Her Nordveld crumb passes as the settlement's curse. Deniable, which is the point, given what the Inquisition does with Nordveld practice.
 
-**The player finds out through Nell**, who reports what she sees without understanding it:
-> Edda would not let me pick the grey ones. She said to leave the last of them, they are the Shepherd's. Then she put one back on the cane, which I did not understand, because it was already spoiled.
+⚠ **Edda's line above is PRIVATE.** She says it to Nell, or when she believes she is alone. Never in the hall. *The Shepherd* is Netheron's epithet and the Lord is a former schoolmaster: he would place it the first time he heard it, and her cover would be gone in a sentence.
 
-Putting one *back* is the tell. Nell misses it. The player may too. A seed for the chapter-3 faith arc, planted in chapter 1, in a hedge.
+#### The cast memory — picking the first spoiled blackberry
+
+**Nell knows.** Edda is teaching her, deliberately (see the Edda/Nell/Corin thread). So Nell doesn't report this in confusion — she corrects the Lord, with the total confidence of a child who has the procedure exactly and the reason not at all. Which is how folk practice actually travels.
+
+It has to stay **fully deniable**: no name, no old tongue, nothing an educated man can decode. He can write down every word and learn nothing.
+
+> **"Oh. You've taken the grey ones."**
+>
+> She looked at the basket, then at me, and waited, so I asked what it was that I had done.
+>
+> **⬚ PLACEHOLDER — THE GESTURE.** *Nell shows him what you do with a spoiled berry instead of basketing it, and it should read as ritual rather than chore.*
+>
+> I asked her why. She said she didn't know, in the tone of a child who has never been given a reason and has never once needed one. Then she stood there until I had done it.
+>
+> So I [did it], and felt foolish, and it cost me nothing. It is a good thing for a child to have a grandmother in this world.
+
+**What the placeholder has to satisfy:**
+- **Deniable.** A schoolmaster watching sees ordinary country superstition and nothing else.
+- **Arbitrary.** A habit is *"she puts one back"*; a rite has conditions nobody can justify. Precision is what separates them.
+- **Small enough that a child does it exactly, every time**, which is the whole reason it survived Ashwick.
+- **It should rhyme with Edda's other practice** (the thumb pressed into the soil, *gronmoder*) without simply repeating it.
+- **It should mean *this is not ours*.** That is the content: you never take the last of anything.
+
+**Tried and rejected:**
+| Gesture | Why not |
+| --- | --- |
+| Put one back on the cane | Reads as a quirk. No weight, nothing ritual about it. |
+| Press it into the ground with the thumb | Theologically perfect (Netheron shepherds what dies back into the soil) but it **reads as planting**. Too innocent. The picture says gardening. |
+| Recite two arbitrary conditions ("not the one you picked first, and don't look at it after") | Arbitrary for its own sake. Sounds invented, because it was. |
+
+**Keep these when the gesture lands:**
+- **She makes him do it.** A child supervising an adult's compliance shows she takes it seriously with no theology spoken aloud, and it puts the Lord in the position of performing a rite to Netheron out of pure affection for a little girl.
+- Which is not only irony. The locked rule is that **intention shapes unwitting magic**, and his intention is kindness. So it might actually count. The joke told a fourth time, and this time the player is in on it and the Lord never will be.
+- *"and felt foolish, and it cost me nothing"* — the Lord being warm and missing everything.
+
+**💭 Optional extra turn**, once the gesture exists:
+> She said something under her breath while she did it. I did not catch it, and did not think to ask.
+
+Tells the player there *was* a word without telling them the word, and his failure to ask is entirely in character. Leaves that word free to surface later, when it can cost something.
 
 *Grace note:* blackberry in Norwegian is **bjørnebær**, bear-berry. Ramsons is bear's garlic in the same wood. Edda naming both after the bear in the old tongue costs nothing and makes her sound like she learned this wood from someone else.
 
