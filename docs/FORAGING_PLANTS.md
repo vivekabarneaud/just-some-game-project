@@ -108,8 +108,73 @@ Deliberately generic on both counts, because the kitchen needs **forgiving every
 
 - **💭 If it ever needs a poison,** the thing it has that no other does is that amatoxins are **slow and deceptive** — nothing at the time, a brief illness later, a false recovery, then the real damage days on. That is a genuine mechanical niche: a **delayed** poison, where every other one acts now, and the assassin's tool by definition since you are long gone before it works. But it only earns its place if a poisoning *plot* ever exists — a target you cannot fight, a cup you get near once. Until then, no use at all is the stronger choice.
 
-### ⏳ Ramsons
-The first real crossover: kitchen (it already lifts a dish) **and** alchemy, since garlic is a genuine antiseptic — a **hero** in a wound-wash or fever brew. Decoy: lily of the valley ✅ *(painted, 3 shapes each)*.
+### ✅ Ramsons
+- **Is:** *Allium ursinum*, wild garlic, *ail des ours* — broad leaves each on its own stalk, white star flowers, and it reeks of garlic. Carpets damp woodland floors.
+- **Season / terrain:** spring only · litter, wood
+- **Decoy:** lily of the valley ✅ *(painted, 3 shapes each)* — the deadliest pair in the game, and the reason is that they share this exact habitat.
+- **Also foraged passively by the hut**, not only in the minigame, so it's the most abundant thing on this list. Which is partly why it has so many dishes already.
+- **Kitchen — it is the AMPLIFIER, not a star.** Already in seven dishes (Bolete Fry, Green Omelet, Ramsons Broth, Goat and Garlic, Pike in Broth, Green Board, Spring Omelet) and the only non-spice in the game carrying `amplify`. Its identity is *lifting whatever it touches* — the same shape as the field mushroom's, where a plant is defined by what it does to everything else. **No new signature needed**; adding one would make it a star instead of a lifter.
+- **But one dish it genuinely wants:**
+
+  **Fish in Green Sauce** · `any(fish, boil)` + `one(ramsons, chop)` + `one(nuts, chop)` · *camp* · NEW
+  A pounded green sauce is genuinely period and specifically **coastal** — *moretum* is Roman (a poem attributed to Virgil describes pounding garlic, herbs, cheese and oil in a mortar), and *agliata*, garlic pounded with nuts, is documented medieval Genoese. Fish and green sauce is *the* recorded pairing. Taught by a **Meridian**, which is why it arrives from outside rather than being invented here.
+  Mechanically it's a **cold** dish — `chop` means no fire in this engine, exactly what a mortar sauce is — and it uses `chop`, which is badly underused (12 uses against boil's 83).
+  > Poached fish under a cold green sauce of wild garlic and pounded nuts. The Meridians eat it with everything.
+
+  **Pasta with Green Sauce** · `one(wheat, preserve)` + `one(ramsons, chop)` + `one(nuts, chop)` · LATER
+  Needs the Meridians to have taught pasta. See the intermediate rule below — no pasta *item* is required.
+
+- **Alchemy: NOT a wound remedy.** Garlic really is antiseptic, and "keeps a wound from festering" was the obvious brew — but **healing is already cheap** in this game (bandages, several HP potions), so nobody would ever brew a prevention when a cure is to hand. Rejected 2026-08-12.
+- **💭 Instead: the charm.** The folk hang ramsons over a door against ill luck. Feeds the **luck** stat, which already exists and raises loot chances for the whole party.
+
+  And the reason it *works* is already in the lore: **intention shapes unwitting magic.** It isn't the garlic — it's that they meant it. Nobody in the settlement understands this. Edda swears by it, is wrong about why, and right about the result — the same joke as the priests calling their own Aether the Radiant One's blessing, told very small.
+
+---
+
+## Two rules that came out of the ramsons
+
+**An intermediate item earns its place only if it does something a technique can't.** The kitchen already treats technique as transformation: *Apple Pie* uses `one(wheat, roast)` to mean **a crust**, with no dough item anywhere. So pasta needs no item either — `one(wheat, preserve)` says it, and finally gives `preserve` a job after sitting unused in the type union since the beginning. Jam *does* qualify, because it's a different food with its own effects rather than fruit-in-a-jar. Green sauce does not, and never kept anyway: it's made fresh in a mortar and eaten that day.
+
+**Merchants can teach RECIPES, not just sell goods.** A dish arriving with a culture is pure content and never power, which is exactly what the traveling-merchant system should be handing out. The Meridians bringing the green sauce and the pasta technique is the first instance.
+
+---
+
+## 💭 The Works — one building where raw things become useful
+
+Came out of asking where flour should come from. The problem: making the player click wheat→flour→bread is tedious after twice, but a pie made of **whole wheat berries** breaks immersion.
+
+**The answer is to put the transformation in a BUILDING, not in the player's hands** — toggled and passive, exactly like the brewery's tick (input per hour, output into a capped store, pausable). One switch, then flour simply accumulates, and dishes ask for flour because that is what a pie is made of.
+
+And it shouldn't be called a mill, because it does more than grind. Historically that's accurate: a watermill site wasn't one machine, it was **power** — the same wheel ground grain, pressed oil, fulled cloth and drove hammers.
+
+| At the works | From | To | Connects to |
+| --- | --- | --- | --- |
+| grind | any grain | **flour** | pies (see below), bread |
+| grind | chestnut | chestnut flour | *only if it gets its own dish — otherwise it's a second name for flour* |
+| grind | acorn | acorn flour | *only if famine food becomes a real mechanic* |
+| press | linseed, walnut | **oil** | the kitchen has NO fat at all today |
+| churn | milk | **butter** | the fat that costs no life |
+| scutch | flax | **fiber** | closes a loop: `fiber` currently has no farm source |
+| full | wool | cloth | the tailor |
+| grind | oak bark | tanbark | leatherworking |
+
+**Yield, not friction.** A measure of grain should give *more* as flour than as porridge — milling doesn't create matter, but flour feeds further than boiled whole grain. So the works is a **multiplier**, never a tax. If it ever reads as a mandatory extra step, it's wrong.
+
+**Consequence:** the six dishes using wheat-as-crust (Apple Pie, Cherry Cobbler, Game Pie, Fish Pie, Eel Pie, Pear Pie) would switch to flour, which gates pies behind the works. Arguably correct — a pie is settlement food, not camp food.
+
+**Flour should be a `food`**, not a material, so the kitchen needs no special case and a settlement with a full flour store isn't starving beside it. The citizens can cook with it themselves.
+
+**The three fats, with distinct identities:**
+
+| Fat | From | Feels like |
+| --- | --- | --- |
+| **Butter** | churned milk | everyday, gentle, costs nothing but time |
+| **Lard** | a culled pig | plentiful, and you paid for it |
+| **Olive oil** | Meridian ships | southern, fine, expensive |
+
+Regionally honest, too: in the Mediterranean south butter was scarce and oil was the fat, while butter belonged to the north. Butter being a little precious and olive oil arriving by ship is right for this country.
+
+*Not sunflower or rapeseed. Sunflower is New World (16th century, and not pressed for oil until 19th-century Russia); rapeseed was grown medievally but for **lamp** oil, being bitter until modern breeding.*
 
 ### ⏳ Blackberry
 Kitchen (jam, pottage). But the **leaf** is the medicine — bramble leaf is astringent, the old remedy for sore throats. Same bush, two harvests. Painted-in bush ✅ *(bramble painted)*.
